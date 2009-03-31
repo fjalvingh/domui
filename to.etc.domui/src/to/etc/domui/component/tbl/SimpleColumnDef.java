@@ -1,0 +1,139 @@
+package to.etc.domui.component.tbl;
+
+import to.etc.domui.component.meta.*;
+import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.converter.*;
+import to.etc.domui.util.*;
+
+/**
+ * Contains data for rendering a column in a data table.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jun 18, 2008
+ */
+public class SimpleColumnDef {
+	/** The label text, if needed, to use as the column heading */
+	private String				m_columnLabel;
+	private Class<?>			m_columnType;
+	private SortableType		m_sortable;
+	private String				m_width;
+	private String				m_propertyName;
+	private String				m_cssClass;
+	private int					m_displayLength;
+	private boolean				m_nowrap;
+
+	/** The thingy which obtains the column's value (as an object) */
+	private IValueTransformer<?>	m_valueTransformer;
+
+	private IConverter			m_valueConverter;
+
+	private INodeContentRenderer<?>		m_contentRenderer;
+
+	public SimpleColumnDef() {
+	}
+
+	/**
+	 * Create a column definition using metadata for the column.
+	 * @param m
+	 */
+	public SimpleColumnDef(PropertyMetaModel m) {
+		setColumnLabel(m.getDefaultLabel());
+		setColumnType(m.getActualType());
+		setValueTransformer(m.getAccessor());				// Thing which can obtain the value from the property
+		if(m.getConverterClass() != null)
+			setValueConverter(ConverterRegistry.getConverter(m.getConverterClass()));
+		setSortable(m.getSortable());
+		setPropertyName(m.getName());
+	}
+
+	public SimpleColumnDef(ExpandedDisplayProperty m) {
+		setColumnLabel(m.getDefaultLabel());
+		setColumnType(m.getActualType());
+		setValueTransformer(m.getAccessor());				// Thing which can obtain the value from the property
+		if(m.getConverterClass() != null)
+			setValueConverter(ConverterRegistry.getConverter(m.getConverterClass()));
+		setSortable(SortableType.UNSORTABLE);				// FIXME From meta pls
+		setSortable(m.getSortable());
+		setPropertyName(m.getName());
+		if(m.getName() == null)
+			throw new IllegalStateException("All columns MUST have some name");
+	}
+
+	public String getColumnLabel() {
+		return m_columnLabel;
+	}
+
+	public void setColumnLabel(String columnLabel) {
+		m_columnLabel = columnLabel;
+	}
+
+	public Class< ? > getColumnType() {
+		return m_columnType;
+	}
+
+	public void setColumnType(Class< ? > columnType) {
+		m_columnType = columnType;
+	}
+	public SortableType getSortable() {
+		return m_sortable;
+	}
+	public void setSortable(SortableType sortable) {
+		m_sortable = sortable;
+	}
+
+	public String getWidth() {
+		return m_width;
+	}
+
+	public void setWidth(String width) {
+		m_width = width;
+	}
+
+	public IValueTransformer<?> getValueTransformer() {
+		return m_valueTransformer;
+	}
+
+	public void setValueTransformer(IValueTransformer<?> valueTransformer) {
+		m_valueTransformer = valueTransformer;
+	}
+
+	public IConverter getValueConverter() {
+		return m_valueConverter;
+	}
+
+	public void setValueConverter(IConverter valueConverter) {
+		m_valueConverter = valueConverter;
+	}
+	public String getPropertyName() {
+		return m_propertyName;
+	}
+	public void setPropertyName(String propertyName) {
+		m_propertyName = propertyName;
+	}
+	public INodeContentRenderer< ? > getContentRenderer() {
+		return m_contentRenderer;
+	}
+	public void setContentRenderer(INodeContentRenderer< ? > contentRenderer) {
+		m_contentRenderer = contentRenderer;
+	}
+	public String getCssClass() {
+		return m_cssClass;
+	}
+	public void setCssClass(String cssClass) {
+		m_cssClass = cssClass;
+	}
+	public int getDisplayLength() {
+		return m_displayLength;
+	}
+	public void setDisplayLength(int displayLength) {
+		m_displayLength = displayLength;
+	}
+
+	public boolean isNowrap() {
+		return m_nowrap;
+	}
+
+	public void setNowrap(boolean nowrap) {
+		m_nowrap = nowrap;
+	}
+}

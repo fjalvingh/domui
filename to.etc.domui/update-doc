@@ -1,0 +1,1 @@
+rsync -av --delete javadoc iena:/home/xwiki/www/htdocs

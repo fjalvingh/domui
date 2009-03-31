@@ -1,0 +1,269 @@
+@IMPORT url("calendar-blue2.css");
+
+/*
+ * Base stylesheet to style the provided controls.
+ */
+#inputjes {
+	border: 1px solid #781351;
+}
+.ui-txx {
+	vertical-align: top;
+}
+         
+
+/*** LookupInput thingerydoo ***/
+.ui-lui {
+	background: #ffffff;
+	padding: 0px;
+	margin: 0px;
+}
+.ui-lui-v {
+	padding: 0px;
+	margin: 0px;
+	background-color: #ffffff;
+}
+
+/*** FloatingWindow ***/
+.ui-fw {
+	padding: 0;
+	margin: 0;
+/*	border: 1px solid black; */
+	background: url(bg-body.png) repeat-x;
+	border: 1px solid #cccccc;
+	border-top: none;
+/*	overflow: hidden;	*/
+}
+.ui-fw-ttl {
+	padding: 0;
+	padding: 2px;
+	background: url(bg-float-ttl2.png) repeat-x;
+	border-bottom: 1px solid #eeeeee;
+	font-size: 15px;
+	font-weight: bold;
+}
+.ui-fw-c {
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+}
+
+/*** Form basic styles ***/
+.ui-f-lbl {
+	text-align: right;
+	font-weight: bold;
+	font-size: 11px;			/* FIXME: Fuck-me-gently with a chainsaw: viewpoint uses PIXEL sizing!? */
+	vertical-align: top;
+}
+.ui-f-in {
+	font-size: 11px;			/* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	vertical-align: top;
+}
+input {
+	font-size: 11px;			/* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: verdana, tahoma, helvetica, sans-serif;
+}
+.ui-ro {
+	background: #eff7ff;
+}
+
+/*** NiceButton ***/
+a.ui-nbtn {
+	/* display: inline-table; jal 20080711 This works proper with FF3 et al but of course not with IE7.. IE8 does work though */
+	display: inline-block;
+	color: white;
+	background: url(threebuttons2.png) transparent no-repeat;
+	width: 122px;
+	height: 25px;
+	margin: 3px auto;
+	padding: 3px 0 0 0;	
+	text-align: center;
+	font-family: Helvetica, Calibri, Arial, Bitstream Vera Sans, sans-serif;
+	font-size: 100%;
+	font-weight: bold;
+	text-decoration: none;
+}
+a.ui-nbtn:hover, a.ui-nbtn:active {
+	background-position: 0 -34px;
+	color: yellow;
+}
+
+/*** Image Button ***/
+.ui-ib {
+	width: 114px;
+	height: 22px;
+	border: none;
+	background: none;
+}
+.ui-ib:hover {
+	background: #cccccc;
+}
+
+/*** Old Image button ***/
+.ui-ibtn {
+	cursor: pointer;
+}
+
+/*** MsgBox ***/
+.ui-mb {
+	background-color: #d4eeff;
+	border: 1px solid #777777;
+}
+.ui-mb-ttl {
+	background-color: #9cd9ff;
+}
+ 
+/*** DataTable default style ***/
+.ui-dt {
+	overflow: auto;
+}
+
+.ui-dt TH {
+	text-align: left;
+}
+.ui-dt-nores {
+	padding: 10px 0px 10px 0px;
+	font-style: italic;
+}
+.ui-odd {
+}
+.ui-even {
+	background-color: #eeeeee;
+}
+TR.ui-rowsel:hover {
+	background-color: #ffe1bf !important;
+}
+TH.ui-sortable {
+	cursor: pointer;
+}
+
+.ui-dt * TH {
+	font-size: 11px;
+	font-weight: bold;
+}
+.ui-dt {
+	font-size: 11px;
+}
+
+/*** Small Image button ***/
+.ui-sib {
+	padding: 0px 1px 0px 1px;
+	margin: 0px;
+	border: 0px;
+	background: transparent;
+}
+.ui-sib * img {
+	margin: 0px;
+	border: 0px;
+}
+.ui-sib:hover {
+	background-color: #bed6f8 !important;
+}
+
+/*** CaptionedPanel ***/
+.ui-pnl-outer {
+	background-color: white;
+	padding: 1px;
+	border: 1px solid #bed6f8;
+}
+.ui-pnl-caption {
+	border: 1px solid #bed6f8;
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(../../to.etc.domui.parts.PropBtnPart.part?src=$themes/recolor/basic.properties&img=bg-caption.png&color=f8b644) repeat-x;
+}
+.ui-pnl-cont {
+	position: relative;
+	padding: 5px;
+}
+
+/*** ErrorPanel - a CaptionedPanel used to display errors in the page ***/
+.ui-err-outer {
+/*	background-color: #ffe5e5; */
+	background-color: white;
+	padding: 1px;
+	border: 1px solid #f7c2c2;
+	margin-bottom: 5px;	
+}
+.ui-err-caption {
+	border: 1px solid #f7c2c2;
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-errors.png) repeat-x bottom;
+}
+.ui-input-err {
+	background-color: #ffe5e5;
+}
+
+/*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
+.ui-tab-hdr {
+	float: left;
+	width: 100%;
+	/* background: #f2f7ff url(tab-blue-header2-bg.png) repeat-x bottom;  jal 20080710 blauwe bar achter tabbuttons weg */
+	font-size: 93%;
+	line-height: normal;
+	border-bottom: 1px solid black;
+}
+
+.ui-tab-hdr ul {
+	margin: 0;
+	padding: 8px 10px 0;
+	list-style: none;
+}
+.ui-tab-hdr  li {
+	float: left;
+	margin: 0;
+	padding: 0 0 0 9px;
+	background: url(tab-blue-left.png) no-repeat left top;
+}
+.ui-tab-hdr a {
+	display: block;
+	background: url(tab-blue-right.png) no-repeat right top;
+	padding: 5px 15px 4px 6px;
+	text-decoration: none;
+	font-weight: bold;
+	color: #eee;
+}
+.ui-tab-hdr ul a:hover {
+	color: #333;
+}
+.ui-tab-hdr .ui-tab-sel {
+	background-image: url(../../to.etc.domui.parts.PropBtnPart.part?src=$themes/recolor/basic.properties&color=ffa000&img=tab-norm-left-sel.png);
+}
+.ui-tab-hdr .ui-tab-sel a {
+	background-image: url(../../to.etc.domui.parts.PropBtnPart.part?src=$themes/recolor/basic.properties&color=ffa000&img=tab-norm-right-sel.png);
+	padding-bottom: 5px;
+	color: #333;
+}
+
+.ui-tab {
+	position: relative;		/* jal new 20070625 */
+	clear: both;
+	background-color: #ffffff;
+	border: 1px solid #bed6f8;
+	padding: 4px;
+}
+.ui-tab-tabbar {
+	margin: 0px;
+	padding: 0px;
+}
+.ui-tab-pag {
+	border-top: 1px solid black;
+}
+
+/*** Body element ***/
+body, html {
+	background: url(bg-body.png) repeat-x;
+	background-color: #fdfefe;
+	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
+	font-size: 12pt;
+	height: 90%;
+}
+
+/*** Helper classes ***/
+.ui-szless {
+	padding: 0px;
+	margin: 0px;
+}
+
