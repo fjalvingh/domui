@@ -6,6 +6,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.nls.*;
+import to.etc.domui.utils.*;
 
 /**
  * A single item in the menu, as defined by the *code*.
