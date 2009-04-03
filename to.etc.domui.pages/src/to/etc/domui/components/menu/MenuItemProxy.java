@@ -20,6 +20,8 @@ public class MenuItemProxy implements IMenuItem {
 	private IMenuItem				m_parent;
 
 	public MenuItemProxy(final IMenuItem actual) {
+		if(null == actual)
+			throw new NullPointerException("?? Null MenuItem here?");
 		m_actual = actual;
 		if(m_actual.isSubMenu())
 			m_children = new ArrayList<IMenuItem>();
@@ -84,5 +86,4 @@ public class MenuItemProxy implements IMenuItem {
 	public void setParent(final IMenuItem parent) {
 		m_parent = parent;
 	}
-
 }

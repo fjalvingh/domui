@@ -162,11 +162,11 @@ final public class MenuManager {
 				//-- Locate the specified parent,
 				MenuItemImpl	p = locateParent(m);		// Can we find a parent?
 				if(p == null)
-					m_rootMenu.add(p);						// Not found: add to root,
+					m_rootMenu.add(m);						// Not found: add to root,
 				else {
 					if(p.getChildren().contains(m))
 						throw new IllegalStateException("Re-adding a node already present in the menu!?");
-					p.getChildren().add(p);					// Reorder is done in proxied menu.
+					p.getChildren().add(m);					// Reorder is done in proxied menu.
 					m.setParent(p);
 				}
 			}
