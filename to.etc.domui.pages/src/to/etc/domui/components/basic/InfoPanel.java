@@ -1,4 +1,4 @@
-package to.etc.domui.pages.components;
+package to.etc.domui.components.basic;
 
 import to.etc.domui.dom.html.*;
 

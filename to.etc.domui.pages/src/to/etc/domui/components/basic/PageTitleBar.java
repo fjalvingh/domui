@@ -1,17 +1,18 @@
-package to.etc.domui.pages.components;
+package to.etc.domui.components.basic;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 
 /**
- * A ViewPoint title bar. This consists of an image in the left corner, a string describing the
- * module's functionality and a set of standard buttons opening default ViewPoint pages.
+ * A page title bar. This consists of an image in the left corner, a string describing the
+ * module's functionality and a set of standard buttons opening quick-access pages. This uses
+ * the generic menu system code to retrieve a module name and image, if applicable.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Aug 4, 2008
+ * Created on Apr 3, 2009
  */
 public class PageTitleBar extends Div {
-	private final Img				m_img = new Img();
+	private final Img		m_img = new Img();
 	private String			m_title;
 	private TD				m_buttonpart;
 
