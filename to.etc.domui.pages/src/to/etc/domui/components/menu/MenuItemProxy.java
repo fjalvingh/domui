@@ -15,9 +15,14 @@ import to.etc.domui.utils.*;
 public class MenuItemProxy implements IMenuItem {
 	/** The actual item being proxied. */
 	private final IMenuItem			m_actual;
+	private List<IMenuItem>			m_children;
+	private int						m_order;
+	private IMenuItem				m_parent;
 
 	public MenuItemProxy(final IMenuItem actual) {
 		m_actual = actual;
+		if(m_actual.isSubMenu())
+			m_children = new ArrayList<IMenuItem>();
 	}
 
 	public String getDescription() {
@@ -63,13 +68,21 @@ public class MenuItemProxy implements IMenuItem {
 		return m_actual.isSubMenu();
 	}
 
-	private List<IMenuItem>			m_children;
-	private int						m_order;
-
 	public List<IMenuItem> getChildren() {
 		return m_children;
+	}
+	public void setChildren(final List<IMenuItem> children) {
+		m_children = children;
 	}
 	public int getOrder() {
 		return m_order;
 	}
+
+	public IMenuItem getParent() {
+		return m_parent;
+	}
+	public void setParent(final IMenuItem parent) {
+		m_parent = parent;
+	}
+
 }

@@ -130,7 +130,7 @@ final public class MenuManager {
 	/*	CODING:	Return the global menu. 							*/
 	/*--------------------------------------------------------------*/
 	private final Map<String, MenuItemImpl>		m_idMap = new HashMap<String, MenuItemImpl>();
-	private final List<MenuItemImpl>			m_rootMenu = new ArrayList<MenuItemImpl>();
+	private final List<IMenuItem>			m_rootMenu = new ArrayList<IMenuItem>();
 
 	/**
 	 * Return the global central menu. This is the menu in the structure as specified by the system, and without
@@ -139,7 +139,7 @@ final public class MenuManager {
 	 *
 	 * @return
 	 */
-	public synchronized List<MenuItemImpl>		getRootMenu() {
+	public synchronized List<IMenuItem>		getRootMenu() {
 		if(m_newItemList.size() > 0) {
 			//-- Register all new items! First add them by ID to the idMAP so we can locate them when looking for parents,
 			for(MenuItemImpl m: m_newItemList) {
@@ -186,5 +186,38 @@ final public class MenuManager {
 
 		//-- Parent not found: add to ROOT menu.
 		return null;
+	}
+
+	/**
+	 * Creates a filtered and possibly reordered user menu.
+	 * @param filter
+	 * @return
+	 * @throws Exception
+	 */
+	public List<IMenuItem>		createUserMenu(final IMenuItemFilter filter) throws Exception {
+		List<IMenuItem>		root = getRootMenu();
+		List<IMenuItem>		res	= createSubMenu(root, filter, null);
+		return res;
+	}
+
+	private List<IMenuItem>	createSubMenu(final List<IMenuItem> root, final IMenuItemFilter filter, final IMenuItem parent) throws Exception {
+		List<IMenuItem>	res = new ArrayList<IMenuItem>();
+		for(IMenuItem mi: root) {
+			MenuItemImpl	m = (MenuItemImpl)mi;
+			if(filter != null) {
+				filter.setNode(m);
+				if(! filter.isAllowed())
+					continue;
+			}
+
+			MenuItemProxy	p	= new MenuItemProxy(m);
+			if(m.isSubMenu()) {
+				p.setChildren( createSubMenu(m.getChildren(), filter, p));
+			}
+			p.setParent(parent);
+			if(! m.isSubMenu() || p.getChildren().size() > 0)
+				res.add(p);
+		}
+		return res;
 	}
 }
