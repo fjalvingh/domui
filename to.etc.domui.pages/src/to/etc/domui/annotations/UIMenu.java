@@ -19,6 +19,8 @@ public @interface UIMenu {
 	/** The name of the message bundle defining the texts for this entry. If not present it uses the global message bundles. */
 	String		bundleName() default "";
 
+	String		baseKey() default "";
+
 	/** The unique ID for this page in the menu. If not present the page name will be used as a menu ID. */
 	String		menuID() default "";
 
