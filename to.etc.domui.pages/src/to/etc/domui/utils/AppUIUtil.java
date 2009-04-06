@@ -15,7 +15,7 @@ final public class AppUIUtil {
 	 * @return
 	 */
 	static public BundleRef		findBundle(final UIMenu ma, final Class<?> clz) {
-		if(ma.bundleBase() != Object.class)	{			// Bundle base class specified?
+		if(ma != null && ma.bundleBase() != Object.class)	{			// Bundle base class specified?
 			String s = ma.bundleName();
 			if(s.length() == 0)							// Do we have a name?
 				s = "messages";							// If not use messages in this package
@@ -110,4 +110,62 @@ final public class AppUIUtil {
 		return null;
 	}
 
+	/**
+	 * Lookup a page Title bar text..
+	 * @param clz
+	 * @return
+	 */
+	static public String		calcPageLabel(final Class<? extends UrlPage> clz) {
+		UIMenu	ma = clz.getAnnotation(UIMenu.class);		// Is annotated with UIMenu?
+		Locale	loc	= NlsContext.getLocale();
+		BundleRef	br	= findBundle(ma, clz);
+
+		//-- Explicit specification of the names?
+		if(ma != null && br != null) {
+			//-- Has menu annotation. Is there a title key?
+			if(ma.titleKey().length() != 0)
+				return br.getString(loc, ma.titleKey());	// When present it MUST exist.
+
+			//-- Is there a keyBase?
+			if(ma.baseKey().length() != 0) {
+				String s = br.findMessage(loc, ma.baseKey()+".label");		// Is this base thing present?
+				if(s != null)								// This can be not-present...
+					return s;
+			}
+
+			//-- No title. Can we use the menu label?
+			if(ma.labelKey().length() > 0)
+				return br.getString(loc, ma.labelKey());	// When present this must exist
+
+			//-- Try the label from keyBase..
+			if(ma.baseKey().length() != 0) {
+				String s = br.findMessage(loc, ma.baseKey()+".title");
+				if(s != null)								// This can be not-present...
+					return s;
+			}
+		}
+
+		//-- Try default page bundle and package bundle names.
+		br	= getClassBundle(clz);					// Find bundle for the class
+		String	s = br.findMessage(loc, "label");	// Find title key
+		if(s != null)
+			return s;
+		s	= br.findMessage(loc, "title");
+		if(s != null)
+			return s;
+
+		//-- Try package bundle.
+		br	= getPackageBundle(clz);
+		String	root	= clz.getName();
+		root	= root.substring(root.lastIndexOf('.')+1);	// Class name without package
+		s = br.findMessage(loc, root+".label");				// Find title key
+		if(s != null)
+			return s;
+		s	= br.findMessage(loc, root+".title");
+		if(s != null)
+			return s;
+
+		//-- No annotation, or the annotation did not deliver data. Try the menu.
+		return null;
+	}
 }

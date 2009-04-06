@@ -2,9 +2,11 @@ package to.etc.domui.components.menu;
 
 import java.util.*;
 
+import to.etc.domui.annotations.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.nls.*;
+import to.etc.domui.utils.*;
 
 /**
  * The singleton which maintains the full system menu and all personal copies.
@@ -98,6 +100,80 @@ final public class MenuManager {
 		m.setPageClass(pageClass);
 		m.setPageParameters(new PageParameters(parameters));
 		add(m);
+
+		/*
+		 * We try to prime the source for title, label, search and description from the properties defined
+		 * in the Page class. This can be overridden by separate calls into the returned item. The logic
+		 * used here should duplicate the logic exposed in AppUIUtil for the items mostly. The exception
+		 * is that the code here tries to find a single source for the strings using the same chain of
+		 * locations specified in AppUIUtil; it will then use this single source for /all/ strings.
+		 * These things all set a bundle and key for all items.
+		 */
+		UIMenu	ma = pageClass.getAnnotation(UIMenu.class);		// Is annotated with UIMenu?
+		if(ma != null) {
+			BundleRef	ref	= AppUIUtil.findBundle(ma, pageClass);
+			if(ref != null) {
+				boolean ok = false;
+				if(ma.baseKey().length() != 0) {
+					m.setLabelKey(ma.baseKey()+".label");
+					m.setTitleKey(ma.baseKey()+".title");
+					m.setSearchKey(ma.baseKey()+".search");
+					m.setDescKey(ma.baseKey()+".desc");
+					ok	= true;
+				}
+				if(ma.labelKey().length() != 0) {
+					m.setLabelKey(ma.labelKey());
+					ok = true;
+				}
+				if(ma.titleKey().length() != 0) {
+					m.setTitleKey(ma.titleKey());
+					ok = true;
+				}
+				if(ma.descKey().length() != 0) {
+					m.setDescKey(ma.descKey());
+					ok = true;
+				}
+				if(ma.searchKey().length() != 0) {
+					m.setSearchKey(ma.searchKey());
+					ok = true;
+				}
+				m.setMsgBundle(ref);
+				if(ok)
+					return m;
+			}
+		}
+
+		//-- Not using UIMenu; use page/package based structures. This depends on whether a Page resource exists.
+		BundleRef	br	= AppUIUtil.getClassBundle(pageClass);		// PageClass bundle
+		if(br.exists()) {
+			//-- Use page-based resources.
+			m.setMsgBundle(br);
+			m.setLabelKey("label");
+			m.setTitleKey("title");
+			m.setSearchKey("search");
+			m.setDescKey("desc");
+			return m;
+		}
+
+		//-- Try package-based keys
+		br	= AppUIUtil.getPackageBundle(pageClass);	// Package bundle.
+		if(br.exists()) {
+			//-- Use the package-based bundle for $ provided some exist...
+			String	bn = pageClass.getName();
+			bn = bn.substring(bn.lastIndexOf('.')+1);	// Class name only,
+			String	kl = bn+".label";
+			String	kt = bn+".title";
+			if(br.findMessage(Locale.US, kl) != null || br.findMessage(Locale.US, kt) != null) {
+				m.setMsgBundle(br);
+				m.setLabelKey(kl);
+				m.setTitleKey(kt);
+				m.setSearchKey(bn+".search");
+				m.setDescKey(bn+".desc");
+				return m;
+			}
+		}
+
+		//--Nothing found..
 		return m;
 	}
 
