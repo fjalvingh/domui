@@ -2,6 +2,7 @@ package to.etc.domui.components.basic;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.utils.*;
 
 /**
  * A page title bar. This consists of an image in the left corner, a string describing the
@@ -11,17 +12,18 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 3, 2009
  */
-public class PageTitleBar extends Div {
+public class AppPageTitle extends Div {
 	private final Img		m_img = new Img();
 	private String			m_title;
 	private TD				m_buttonpart;
+	private TD				m_titlePart;
 
-	public PageTitleBar() {
+	public AppPageTitle() {
 	}
-	public PageTitleBar(final String title) {
+	protected AppPageTitle(final String title) {
 		m_title	= title;
 	}
-	public PageTitleBar(final String icon, final String title) {
+	protected AppPageTitle(final String icon, final String title) {
 		m_title	= title;
 		setIcon(icon);
 	}
@@ -51,9 +53,13 @@ public class PageTitleBar extends Div {
 		td.add(m_img);
 		td.setCssClass("vp-ttl-i");
 
+		//-- Title.
 		td	= b.addCell();
+		m_titlePart = td;
 		td.setCssClass("vp-ttl-t");
-		td.add(m_title);
+		String ttl = getPageTitle();
+		if(ttl != null)
+			td.add(ttl);
 
 		//-- Buttons
 		td	= b.addCell();
@@ -66,7 +72,25 @@ public class PageTitleBar extends Div {
 		return m_buttonpart;
 	}
 
-	private void	addDefaultButtons(final NodeContainer nc) {
+	/**
+	 * Calculate the image URL to use for the icon.
+	 * @return
+	 */
+	private String	getIconURL() {
+		return null;
+	}
+
+	/**
+	 * Calculate the title URL to use for this thing.
+	 * @return
+	 */
+	private String	getPageTitle() {
+		if(m_title != null)						// Manually set?
+			return m_title;
+		return AppUIUtil.calcPageTitle(getPage().getBody().getClass());
+	}
+
+	protected void	addDefaultButtons(final NodeContainer nc) {
 		SmallImgButton ib	= new SmallImgButton("img/btnSpecialChar.png");
 		nc.add(ib);
 		ib.setTitle("Toon lijst van bijzondere tekens");

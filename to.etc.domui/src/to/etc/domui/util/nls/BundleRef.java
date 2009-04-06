@@ -94,6 +94,10 @@ final public class BundleRef implements NlsMessageProvider {
 		return r;
 	}
 
+	public boolean		exists() {
+		return getBundleList(Locale.US).length != 0;
+	}
+
 	/**
 	 * Returns a translation of key in the specified locale (or the one
 	 * closest to it). If no translation exists for the message in the
@@ -149,6 +153,7 @@ final public class BundleRef implements NlsMessageProvider {
 
 		//-- Unknown bundle. Try to locate;
 		String rp = (m_bundleKey + key).replace('.', '/') + ".properties"; // Full resource name,
+//		ClassLoader ldr = getClass().getClassLoader();
 		ClassLoader ldr = m_loader == null ? getClass().getClassLoader() : m_loader;
 		InputStream is = ldr.getResourceAsStream(rp);
 		if(is == null) // Cannot locate.
