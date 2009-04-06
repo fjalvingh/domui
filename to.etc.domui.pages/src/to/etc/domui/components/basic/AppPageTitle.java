@@ -1,5 +1,6 @@
 package to.etc.domui.components.basic;
 
+import to.etc.domui.annotations.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.utils.*;
@@ -76,8 +77,27 @@ public class AppPageTitle extends Div {
 	 * Calculate the image URL to use for the icon.
 	 * @return
 	 */
-	private String	getIconURL() {
-		return null;
+	private void setIconURL() {
+		//-- 1. Is an icon or icon resource specified in any attached UIMenu annotation? If so use that;
+		Class<? extends UrlPage>	clz = getPage().getBody().getClass();
+		UIMenu	ma	= clz.getAnnotation(UIMenu.class);
+		if(ma != null) {
+			if(ma.iconName() != null) {
+				if(ma.iconBase() != Object.class)
+					m_img.setSrc(ma.iconBase(), ma.iconName());			// Set class-based URL
+				else
+					m_img.setSrc(ma.iconName());						// Set specific thingy,
+			}
+		}
+
+		//-- Not set using a UIMenu annotation. Is a .png with the same classname available?
+		String	cn	= AppUIUtil.getClassNameOnly(clz)+".png";
+		if(AppUIUtil.hasResource(clz, cn)) {
+			m_img.setSrc(clz, cn);
+			return;
+		}
+
+		//-- Try to get an URL from the class-based resources. FIXME Todo
 	}
 
 	/**

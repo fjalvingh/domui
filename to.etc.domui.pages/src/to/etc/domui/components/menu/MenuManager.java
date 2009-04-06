@@ -5,6 +5,7 @@ import java.util.*;
 import to.etc.domui.annotations.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
 import to.etc.domui.util.nls.*;
 import to.etc.domui.utils.*;
 
@@ -90,6 +91,31 @@ final public class MenuManager {
 	}
 
 	/**
+	 * Try to find an icon to use. This must use the same logic as AppPageTitle to locate an image.
+	 * @param m
+	 * @param pageClass
+	 */
+	private void	calculateIcon(final MenuItemImpl m, final Class<? extends UrlPage> clz) {
+		//-- 1. Is an icon or icon resource specified in any attached UIMenu annotation? If so use that;
+		UIMenu	ma	= clz.getAnnotation(UIMenu.class);
+		if(ma != null) {
+			if(ma.iconName() != null) {
+				if(ma.iconBase() != Object.class)
+					m.setIconPath(DomUtil.getJavaResourceRURL(ma.iconBase(), ma.iconName()));			// Set class-based URL
+				else
+					m.setIconPath(ma.iconName());
+			}
+		}
+
+		//-- Not set using a UIMenu annotation. Is a .png with the same classname available?
+		String	cn	= AppUIUtil.getClassNameOnly(clz)+".png";
+		if(AppUIUtil.hasResource(clz, cn)) {
+			m.setIconPath(DomUtil.getJavaResourceRURL(clz, cn));	// Set class-based URL
+			return;
+		}
+	}
+
+	/**
 	 * Registers a new menu item. All menu data is obtained from the UrlPage's metadata.
 	 * @param pageClass
 	 * @param parameters
@@ -100,6 +126,11 @@ final public class MenuManager {
 		m.setPageClass(pageClass);
 		m.setPageParameters(new PageParameters(parameters));
 		add(m);
+
+		/*
+		 * Try to calculate a default icon for this item.
+		 */
+		calculateIcon(m, pageClass);
 
 		/*
 		 * We try to prime the source for title, label, search and description from the properties defined

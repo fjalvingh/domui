@@ -1,5 +1,6 @@
 package to.etc.domui.utils;
 
+import java.io.*;
 import java.util.*;
 
 import to.etc.domui.annotations.*;
@@ -7,6 +8,10 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.nls.*;
 
 final public class AppUIUtil {
+	static public String	getClassNameOnly(final Class<?> clz) {
+		String	cn	= clz.getName();
+		return cn.substring(cn.lastIndexOf('.')+1);
+	}
 
 	/**
 	 *
@@ -167,5 +172,21 @@ final public class AppUIUtil {
 
 		//-- No annotation, or the annotation did not deliver data. Try the menu.
 		return null;
+	}
+
+	/**
+	 * Returns T if the specified resource exists.
+	 * @param clz
+	 * @param cn
+	 * @return
+	 */
+	public static boolean hasResource(final Class< ? extends UrlPage> clz, final String cn) {
+		InputStream	is	= null;
+		try {
+			is	= clz.getResourceAsStream(cn);
+			return is != null;
+		} finally {
+			try {  if(is != null) is.close(); } catch(Exception x) {}
+		}
 	}
 }
