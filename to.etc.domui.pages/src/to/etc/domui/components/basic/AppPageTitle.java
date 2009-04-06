@@ -47,8 +47,9 @@ public class AppPageTitle extends Div {
 		b.add(tr);
 
 		//-- Image...
-		if(m_img.getSrc() == null)
-			m_img.setSrc("img/btnModule.png");
+		setIconURL();
+//		if(m_img.getSrc() == null)
+//			m_img.setSrc("img/btnModule.png");
 		m_img.setAlign(ImgAlign.LEFT);
 		TD	td	= b.addCell();
 		td.add(m_img);
