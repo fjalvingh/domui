@@ -5,9 +5,10 @@ import java.util.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.webapp.query.*;
 
 /**
- * This is the main owner of all nodes; this represents all that is needed for a 
+ * This is the main owner of all nodes; this represents all that is needed for a
  * page to render. All nodes that are (indirectly) attached to the page directly
  * connect here. The page maintains a full ident map to all components currently
  * reachable on the page. In addition the page assigns IDs to nodes that have no
@@ -16,12 +17,12 @@ import to.etc.domui.state.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
-final public class Page {
+final public class Page implements IQContextContainer {
 	/** Next ID# for unidded nodes. */
 	private int						m_nextID = 1;
 
 	/** The unique, random page ID generated to check for session expired problems */
-	private int						m_pageTag;
+	private final int						m_pageTag;
 
 	/** Temp work buffer to prevent lots of allocations. */
 	private StringBuilder			m_sb;
@@ -37,7 +38,7 @@ final public class Page {
 
 //	private boolean					m_built;
 
-	private Map<String, NodeBase>	m_nodeMap = new HashMap<String, NodeBase>(127);
+	private final Map<String, NodeBase>	m_nodeMap = new HashMap<String, NodeBase>(127);
 
 	private Map<String, NodeBase>	m_beforeMap;
 
@@ -59,7 +60,7 @@ final public class Page {
 	/** Set to T if an initial full render of the page completed OK. */
 	private boolean						m_fullRenderCompleted;
 
-	private UrlPage						m_rootContent;
+	private final UrlPage						m_rootContent;
 
 	/** The component that needs to be focused. This is null if no explicit focus request was done. */
 	private NodeBase					m_focusComponent;
@@ -71,7 +72,7 @@ final public class Page {
 
 	private Map<String, Object>			m_pageData = Collections.EMPTY_MAP;
 
-	public Page(UrlPage pageContent) {
+	public Page(final UrlPage pageContent) {
 		m_pageTag		= DomApplication.internalNextPageTag();				// Unique page ID.
 		m_rootContent = pageContent;
 		registerNode(pageContent);				// First node.
@@ -110,7 +111,7 @@ final public class Page {
 	 * @param pp
 	 * @param cc
 	 */
-	final public void	internalInitialize(PageParameters pp, ConversationContext cc) {
+	final public void	internalInitialize(final PageParameters pp, final ConversationContext cc) {
 		if(pp == null)
 			throw new IllegalStateException("Internal: Page parameters cannot be null here");
 		if(cc == null)
@@ -166,7 +167,7 @@ final public class Page {
 	 * a new ID is assigned.
 	 * @param n
 	 */
-	final void		registerNode(NodeBase n) {
+	final void		registerNode(final NodeBase n) {
 		if(n.getPage() != null)
 			throw new IllegalStateException("Node still attached to other page");
 		/*
@@ -201,7 +202,7 @@ final public class Page {
 	 * Removes this node from the IDmap.
 	 * @param n
 	 */
-	final void	unregisterNode(NodeBase n) {
+	final void	unregisterNode(final NodeBase n) {
 		if(n.getPage() != this)
 			throw new IllegalStateException("This node does not belong to this page!?");
 		if(n.getActualID() == null)
@@ -211,8 +212,8 @@ final public class Page {
 		if(m_nodeMap.remove(n.getActualID()) == null)
 			throw new IllegalStateException("The node with ID="+n.getActualID()+" was not found!?");
 	}
-	
-	public NodeBase findNodeByID(String id) {
+
+	public NodeBase findNodeByID(final String id) {
 		return m_nodeMap.get(id);
 	}
 
@@ -223,11 +224,11 @@ final public class Page {
 	 * 		for the component which keeps the "previous" values of the properties. At
 	 * 		tree render time only the changed attributes are sent as a change list.
 	 * 2.	The tree structure changes because components are moved, added or deleted.
-	 * 
+	 *
 	 * This code handles case 2. To prevent us from always having to create a before
 	 * image all calls that change the tree (removeComponent, addComponent) call
 	 * a signal function here. Only when that function gets called (the 1st time) will
-	 * a copy of the before-tree be made. This copy only encapsulates the structure; 
+	 * a copy of the before-tree be made. This copy only encapsulates the structure;
 	 * the components themselves are not copied.
 	 * The existence of the before-structure will indicate that a full tree delta is
 	 * to be done at response time.
@@ -258,7 +259,7 @@ final public class Page {
 	 * contributors needed by a node.
 	 * @param hc
 	 */
-	final public void	addHeaderContributor(HeaderContributor hc) {
+	final public void	addHeaderContributor(final HeaderContributor hc) {
 		if(m_headerContributorSet == null) {
 			m_headerContributorSet = new HashSet<HeaderContributor>(30);
 			m_orderedContributorList = new ArrayList<HeaderContributor>(30);
@@ -286,7 +287,7 @@ final public class Page {
 		return m_title;
 	}
 
-	public void setTitle(String title) {
+	public void setTitle(final String title) {
 		m_title = title;
 	}
 
@@ -294,7 +295,7 @@ final public class Page {
 //		getBody().add(node);
 //	}
 
-	public void	appendJS(CharSequence sq) {
+	public void	appendJS(final CharSequence sq) {
 		if(m_appendJS == null)
 			m_appendJS = new StringBuilder(sq.length()+100);
 		m_appendJS.append(sq);
@@ -305,13 +306,13 @@ final public class Page {
 		return sb;
 	}
 
-	public <T> void		setData(T inst) {
+	public <T> void		setData(final T inst) {
 		if(m_pageData == Collections.EMPTY_MAP)
 			m_pageData = new HashMap<String, Object>();
 		m_pageData.put(inst.getClass().getName(), inst);
 	}
 
-	public <T> T		getData(Class<T> clz) {
+	public <T> T		getData(final Class<T> clz) {
 		return (T)m_pageData.get(clz.getName());
 	}
 
@@ -326,7 +327,7 @@ final public class Page {
 		return m_focusComponent;
 	}
 
-	public void setFocusComponent(NodeBase focusComponent) {
+	public void setFocusComponent(final NodeBase focusComponent) {
 		m_focusComponent = focusComponent;
 	}
 
@@ -370,7 +371,7 @@ final public class Page {
 		return m_pageExceptionCount;
 	}
 
-	public void setPageExceptionCount(int pageExceptionCount) {
+	public void setPageExceptionCount(final int pageExceptionCount) {
 		m_pageExceptionCount = pageExceptionCount;
 	}
 
@@ -378,7 +379,7 @@ final public class Page {
 		return m_fullRenderCompleted;
 	}
 
-	public void setFullRenderCompleted(boolean fullRenderCompleted) {
+	public void setFullRenderCompleted(final boolean fullRenderCompleted) {
 		m_fullRenderCompleted = fullRenderCompleted;
 	}
 
@@ -414,10 +415,10 @@ final public class Page {
 	/**
 	 * This sets a new pop-in. This does NOT add the popin to the tree, that
 	 * must be done manually.
-	 * 
+	 *
 	 * @param pin
 	 */
-	public void		setPopIn(NodeContainer pin) {
+	public void		setPopIn(final NodeContainer pin) {
 		if(m_currentPopIn != null && m_currentPopIn != pin) {
 			m_currentPopIn.remove();
 			m_currentPopIn = null;
@@ -438,5 +439,29 @@ final public class Page {
 	@Override
 	public String toString() {
 		return "Page["+getBody().getClass().getName()+"]";
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IQContextContainer implementation.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 */
+	public QDataContext internalGetSharedContext() {
+		return getConversation().internalGetSharedContext();
+	}
+
+	/**
+	 *
+	 * @see to.etc.webapp.query.IQContextContainer#internalSetSharedContext(to.etc.webapp.query.QDataContext)
+	 */
+	public void internalSetSharedContext(final QDataContext c) {
+		getConversation().internalSetSharedContext(c);
+	}
+	public QDataContextSource internalGetContextSource() {
+		return getConversation().internalGetContextSource();
+	}
+	public void internalSetContextSource(final QDataContextSource s) {
+		getConversation().internalSetContextSource(s);
 	}
 }

@@ -1,4 +1,4 @@
-package to.etc.domui.util.query;
+package to.etc.webapp.query;
 
 public interface QNodeVisitor {
 	public void		visitCriteria(QCriteria<?> qc) throws Exception;

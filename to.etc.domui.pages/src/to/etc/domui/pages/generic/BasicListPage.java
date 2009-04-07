@@ -5,7 +5,7 @@ import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.query.*;
+import to.etc.webapp.query.*;
 
 /**
  * Generic page handling some cruddy stuff.

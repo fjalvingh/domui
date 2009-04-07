@@ -1,4 +1,4 @@
-package to.etc.domui.util.query;
+package to.etc.webapp.query;
 
 /**
  * Factory for creating syntax tree nodes.

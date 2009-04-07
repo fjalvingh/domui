@@ -3,8 +3,8 @@ package to.etc.domui.component.tbl;
 import java.util.*;
 
 import to.etc.domui.util.*;
-import to.etc.domui.util.query.*;
 import to.etc.util.*;
+import to.etc.webapp.query.*;
 
 /**
  * 

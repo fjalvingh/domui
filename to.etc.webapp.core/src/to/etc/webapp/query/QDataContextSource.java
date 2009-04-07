@@ -1,4 +1,4 @@
-package to.etc.domui.util.query;
+package to.etc.webapp.query;
 
 /**
  * A thingy which knows how to get a QDataContext to access the database. This

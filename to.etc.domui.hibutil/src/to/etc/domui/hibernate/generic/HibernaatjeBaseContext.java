@@ -9,6 +9,7 @@ import org.hibernate.*;
 import to.etc.domui.hibernate.model.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.query.*;
+import to.etc.webapp.query.*;
 
 public class HibernaatjeBaseContext implements QDataContext, ConversationStateListener {
 	protected HibernateSessionMaker		m_sessionMaker;

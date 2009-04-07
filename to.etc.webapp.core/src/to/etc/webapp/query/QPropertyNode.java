@@ -1,4 +1,4 @@
-package to.etc.domui.util.query;
+package to.etc.webapp.query;
 
 public class QPropertyNode extends QOperatorNode {
 	private String			m_name;

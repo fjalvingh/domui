@@ -1,7 +1,7 @@
 package to.etc.domui.component.lookup;
 
 import to.etc.domui.dom.html.*;
-import to.etc.domui.util.query.*;
+import to.etc.webapp.query.*;
 
 abstract public class DefaultLookupThingy implements LookupFieldQueryBuilderThingy {
 	private NodeBase[]		m_nodes;

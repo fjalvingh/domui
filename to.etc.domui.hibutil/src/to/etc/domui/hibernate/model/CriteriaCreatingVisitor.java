@@ -4,6 +4,7 @@ import org.hibernate.*;
 import org.hibernate.criterion.*;
 
 import to.etc.domui.util.query.*;
+import to.etc.webapp.query.*;
 
 /**
  * Thingy which creates a Hibernate Criteria thingy from a generic query.
@@ -107,7 +108,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	/**
 	 * Compound. Ands and ors.
 	 *
-	 * @see to.etc.domui.util.query.QNodeVisitorBase#visitMulti(to.etc.domui.util.query.QMultiNode)
+	 * @see to.etc.webapp.query.QNodeVisitorBase#visitMulti(to.etc.webapp.query.QMultiNode)
 	 */
 	@Override
 	public void visitMulti(QMultiNode inn) throws Exception {

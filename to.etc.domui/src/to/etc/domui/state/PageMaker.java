@@ -9,8 +9,8 @@ import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.query.*;
 import to.etc.util.*;
+import to.etc.webapp.query.*;
 
 /**
  * This static class helps with constructing pages from NodeContainer classes

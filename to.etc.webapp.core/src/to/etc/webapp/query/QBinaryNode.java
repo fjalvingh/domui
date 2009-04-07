@@ -1,4 +1,4 @@
-package to.etc.domui.util.query;
+package to.etc.webapp.query;
 
 public class QBinaryNode extends QOperatorNode {
 	private QOperatorNode		m_lhs;

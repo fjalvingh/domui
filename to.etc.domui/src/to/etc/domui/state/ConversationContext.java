@@ -6,10 +6,11 @@ import java.util.logging.*;
 
 import to.etc.domui.component.delayed.*;
 import to.etc.domui.dom.html.*;
+import to.etc.webapp.query.*;
 
 /**
- * A page's conversational context: a base class. Every page is part of a 
- * conversation. For simple pages the conversation mostly "is" the page, 
+ * A page's conversational context: a base class. Every page is part of a
+ * conversation. For simple pages the conversation mostly "is" the page,
  * meaning that when the page ends the conversation ends also.
  *
  * Conversations are mostly useful for pages that must share data. In that
@@ -20,8 +21,8 @@ import to.etc.domui.dom.html.*;
  * to exist.
  *
  * <h2>Overview</h2>
- * A set of pages can share a given "Conversation Context". The context 
- * represents the set of data that the pages handle within a single user 
+ * A set of pages can share a given "Conversation Context". The context
+ * represents the set of data that the pages handle within a single user
  * interaction. The conversation context is maintained mostly by the server,
  * and it's construction, destruction and initialization-before-request
  * gets handled by the server itself, on request.
@@ -34,17 +35,17 @@ import to.etc.domui.dom.html.*;
  *
  * A page joins a conversation if the page gets "linked" to with the conversation
  * context specified. A page which specifies a specific Conversation
- * context and which is created anew without an existing context will cause 
+ * context and which is created anew without an existing context will cause
  * the Conversation context to be created automatically.
- * 
+ *
  * Conversations can be nested, and child conversations can access their
  * parents. What state is shared between children and parents (Hibernate session?)
  * is defined by the user.
  *
- * A conversation context is strongly typed, derives from ConversationContext, 
+ * A conversation context is strongly typed, derives from ConversationContext,
  * and is defined on each class which participates in the same conversation.
  *
- * A page identifies that it requires a specific conversation type by 
+ * A page identifies that it requires a specific conversation type by
  * specifying it in it's constructor. This can also be used to accept multiple
  * types as a conversation context: simply specify multiple constructors.
  *
@@ -65,7 +66,7 @@ import to.etc.domui.dom.html.*;
  *
  * If we have context constructors only we abort if there's &gt; 1 constructor with
  * a context - we cannot decide which context to create.
- * 
+ *
  * If a single constructor is found specifying a context we'll try to instantiate the
  * class using that conversation context. For that we request a Conversation Context
  * instance from the engine, then call the Page constructor adding any other stuff it
@@ -82,7 +83,7 @@ import to.etc.domui.dom.html.*;
  * <h3>Destruction of contexts</h3>
  * When a Conversation gets destroyed it's onClose() handler gets called, which again can
  * be used to discard any long-lived data maintained by the context.
- * 
+ *
  * Contexts are destroyed by the framework mostly automatically, as follows:
  * <ul>
  * 	<li>When a page calls it's destroyConversation() method. This will cause the conversation
@@ -95,11 +96,11 @@ import to.etc.domui.dom.html.*;
  *		"nested" context.</li>
  * </ul>
  *
- * 
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 23, 2008
  */
-public class ConversationContext {
+public class ConversationContext implements IQContextContainer {
 	static public final Logger		LOG = Logger.getLogger(ConversationContext.class.getName());
 
 	static enum ConversationState {
@@ -114,7 +115,7 @@ public class ConversationContext {
 	private String					m_fullId;
 
 	/** The pages that are part of this conversation, indexed by [className] */
-	private Map<String, Page>		m_pageMap = new HashMap<String, Page>();
+	private final Map<String, Page>		m_pageMap = new HashMap<String, Page>();
 
 	private WindowSession		m_manager;
 
@@ -124,7 +125,7 @@ public class ConversationContext {
 
 	private List<File>					m_uploadList = Collections.EMPTY_LIST;
 
-	void setId(String id) {
+	void setId(final String id) {
 		m_id = id;
 	}
 	/**
@@ -134,7 +135,7 @@ public class ConversationContext {
 	final public String getId() {
 		return m_id;
 	}
-	final void	setManager(WindowSession m) {
+	final void	setManager(final WindowSession m) {
 		if(m == null)
 			throw new IllegalStateException("Internal: manager cannot be null, dude");
 		if(m_manager != null)
@@ -263,15 +264,15 @@ public class ConversationContext {
 	 * @param clz
 	 * @return
 	 */
-	Page		findPage(Class<? extends NodeBase> clz) {
+	Page		findPage(final Class<? extends NodeBase> clz) {
 		return m_pageMap.get(clz.getName());
 	}
 
-	public void	internalRegisterPage(Page p, PageParameters papa) {
+	public void	internalRegisterPage(final Page p, final PageParameters papa) {
 		m_pageMap.put(p.getBody().getClass().getName(), p);
 		p.internalInitialize(papa, this);
 	}
-	void	unregisterPage(Page pg) {
+	void	unregisterPage(final Page pg) {
 		m_pageMap.remove(pg.getBody().getClass().getName());
 	}
 
@@ -286,7 +287,7 @@ public class ConversationContext {
 	 * @param name
 	 * @param val
 	 */
-	public void		setAttribute(String name, Object val) {
+	public void		setAttribute(final String name, final Object val) {
 		if(m_map == Collections.EMPTY_MAP)
 			m_map = new HashMap<String, Object>();
 		Object old	= m_map.put(name, val);
@@ -308,7 +309,7 @@ public class ConversationContext {
 	 * @param name
 	 * @return
 	 */
-	public Object	getAttribute(String name) {
+	public Object	getAttribute(final String name) {
 		return m_map.get(name);
 	}
 
@@ -316,7 +317,7 @@ public class ConversationContext {
 	/*	CODING:	Delayed activities scheduling.						*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	synchronized DelayedActivitiesManager	getDelayedActivitiesManager() {
@@ -325,7 +326,7 @@ public class ConversationContext {
 		return m_delayManager;
 	}
 
-	public DelayedActivityInfo	scheduleDelayed(AsyncContainer container, IActivity a) {
+	public DelayedActivityInfo	scheduleDelayed(final AsyncContainer container, final IActivity a) {
 		return getDelayedActivitiesManager().schedule(a, container);
 	}
 
@@ -334,7 +335,7 @@ public class ConversationContext {
 			m_delayManager.start();
 	}
 
-	public void			processDelayedResults(Page pg) {
+	public void			processDelayedResults(final Page pg) {
 		if(m_delayManager == null)
 			return;
 		DelayedActivityState	das = m_delayManager.getState();
@@ -353,12 +354,12 @@ public class ConversationContext {
 	 * Register a file that was uploaded and that needs to be deleted at end of conversation time.
 	 * @param f
 	 */
-	public void	registerUploadTempFile(File f) {
+	public void	registerUploadTempFile(final File f) {
 		if(m_uploadList == Collections.EMPTY_LIST)
 			m_uploadList = new ArrayList<File>();
 		m_uploadList.add(f);
 	}
-	
+
 	protected void	discardUploadFiles() {
 		for(File f: m_uploadList) {
 			try {
@@ -401,5 +402,31 @@ public class ConversationContext {
 	}
 	ConversationState getState() {
 		return m_state;
+	}
+
+	static private final String	KEY = QContextManager.class.getName();
+	static private final String	SRCKEY = QDataContextSource.class.getName();
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IQContextContainer implementation.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 */
+	public QDataContext internalGetSharedContext() {
+		return (QDataContext) getAttribute(KEY);
+	}
+	/**
+	 *
+	 * @see to.etc.webapp.query.IQContextContainer#internalSetSharedContext(to.etc.webapp.query.QDataContext)
+	 */
+	public void internalSetSharedContext(final QDataContext c) {
+		setAttribute(KEY, c);
+	}
+	public QDataContextSource internalGetContextSource() {
+		return (QDataContextSource) getAttribute(SRCKEY);
+	}
+	public void internalSetContextSource(final QDataContextSource s) {
+		setAttribute(SRCKEY, s);
 	}
 }

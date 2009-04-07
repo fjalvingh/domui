@@ -186,7 +186,7 @@ public class VpEventManager implements Runnable {
 				if(m_instance.m_ds != null)
 					return m_instance;
 				if(tries++ > 3)
-					throw new IllegalStateException("Timeout waiting for VpEventManager to comvncplete initialization [FATAL]");
+					throw new IllegalStateException("Timeout waiting for VpEventManager to complete initialization [FATAL]");
 				try {
 					m_instance.wait(20000);
 				} catch(Exception x) {}

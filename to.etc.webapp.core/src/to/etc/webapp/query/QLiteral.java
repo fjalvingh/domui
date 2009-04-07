@@ -1,4 +1,4 @@
-package to.etc.domui.util.query;
+package to.etc.webapp.query;
 
 public class QLiteral extends QOperatorNode {
 	private Object		m_value;

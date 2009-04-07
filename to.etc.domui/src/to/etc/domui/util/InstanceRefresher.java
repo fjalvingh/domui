@@ -2,7 +2,7 @@ package to.etc.domui.util;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.state.*;
-import to.etc.domui.util.query.*;
+import to.etc.webapp.query.*;
 
 public class InstanceRefresher {
 	static public void		refresh(Object val) throws Exception{

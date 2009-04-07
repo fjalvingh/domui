@@ -7,7 +7,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.query.*;
+import to.etc.webapp.query.*;
 
 /**
  * Basic stuff to handle editing a simple entity.

@@ -7,8 +7,8 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.query.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.query.*;
 
 /**
  * Default Registry of Lookup control factories.

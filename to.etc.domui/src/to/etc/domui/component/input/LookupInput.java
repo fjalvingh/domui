@@ -12,8 +12,8 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.query.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.query.*;
 
 public class LookupInput<T> extends Table implements IInputNode<T> {
 	private SmallImgButton	m_selButton;

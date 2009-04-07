@@ -1,4 +1,4 @@
-package to.etc.domui.util.query;
+package to.etc.webapp.query;
 
 /**
  * Base class for visiting a node tree. The methods in this base class cause all

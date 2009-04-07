@@ -1,4 +1,4 @@
-package to.etc.domui.util.query;
+package to.etc.webapp.query;
 
 abstract public class QOperatorNode {
 	private QOperation	m_operation;

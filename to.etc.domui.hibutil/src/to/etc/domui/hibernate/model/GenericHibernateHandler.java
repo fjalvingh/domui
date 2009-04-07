@@ -3,6 +3,7 @@ package to.etc.domui.hibernate.model;
 import org.hibernate.*;
 
 import to.etc.domui.util.query.*;
+import to.etc.webapp.query.*;
 
 /**
  * Thingy which helps translating generic database stuff to Hibernate specific
