@@ -11,19 +11,21 @@ package to.etc.webapp.nls;
  * Created on Oct 12, 2006
  */
 public class NlsCodeTable {
-    private String      m_name;
+	private String m_name;
 
-    NlsCodeTable(String name) {
-        m_name = name;
-    }
-    public String getName() {
-        return m_name;
-    }
+	NlsCodeTable(String name) {
+		m_name = name;
+	}
 
-    public String   getLabel(String code, String def) {
-        return def;
-    }
-    public String   getDescription(String code, String def) {
-        return def;
-    }
+	public String getName() {
+		return m_name;
+	}
+
+	public String getLabel(String code, String def) {
+		return def;
+	}
+
+	public String getDescription(String code, String def) {
+		return def;
+	}
 }

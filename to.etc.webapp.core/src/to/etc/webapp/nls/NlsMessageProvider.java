@@ -9,5 +9,5 @@ import java.util.*;
  * Created on Oct 10, 2006
  */
 public interface NlsMessageProvider {
-    public String   findMessage(Locale loc, String code);
+	public String findMessage(Locale loc, String code);
 }

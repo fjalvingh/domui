@@ -22,7 +22,7 @@ final public class BundleRef implements NlsMessageProvider {
 
 	private final String m_bundleKey;
 
-	static private Map<Class< ? >, Map<String, BundleRef>> m_cachedMap = new HashMap<Class<?>, Map<String,BundleRef>>();
+	static private Map<Class< ? >, Map<String, BundleRef>> m_cachedMap = new HashMap<Class< ? >, Map<String, BundleRef>>();
 
 	private final Map<Object, Object> m_map = new HashMap<Object, Object>();
 
@@ -50,7 +50,7 @@ final public class BundleRef implements NlsMessageProvider {
 	 * @return
 	 */
 	static public synchronized BundleRef create(final Class< ? > clz, final String name) {
-		Map<String, BundleRef>	refMap	= m_cachedMap.get(clz);
+		Map<String, BundleRef> refMap = m_cachedMap.get(clz);
 		if(refMap == null) {
 			refMap = new HashMap<String, BundleRef>(3);
 			m_cachedMap.put(clz, refMap);
@@ -61,7 +61,7 @@ final public class BundleRef implements NlsMessageProvider {
 		}
 
 		//-- Add new ref
-		BundleRef	ref = new BundleRef(clz, name);
+		BundleRef ref = new BundleRef(clz, name);
 		refMap.put(name, ref);
 		return ref;
 	}
@@ -94,7 +94,7 @@ final public class BundleRef implements NlsMessageProvider {
 		return r;
 	}
 
-	public boolean		exists() {
+	public boolean exists() {
 		return getBundleList(Locale.US).length != 0;
 	}
 
@@ -153,7 +153,7 @@ final public class BundleRef implements NlsMessageProvider {
 
 		//-- Unknown bundle. Try to locate;
 		String rp = (m_bundleKey + key).replace('.', '/') + ".properties"; // Full resource name,
-//		ClassLoader ldr = getClass().getClassLoader();
+		//		ClassLoader ldr = getClass().getClassLoader();
 		ClassLoader ldr = m_loader == null ? getClass().getClassLoader() : m_loader;
 		InputStream is = ldr.getResourceAsStream(rp);
 		if(is == null) // Cannot locate.
