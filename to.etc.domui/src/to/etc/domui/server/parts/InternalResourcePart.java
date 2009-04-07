@@ -6,9 +6,9 @@ import java.util.*;
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.nls.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 
 public class InternalResourcePart implements BufferedPartFactory {
 	private static class ResKey {

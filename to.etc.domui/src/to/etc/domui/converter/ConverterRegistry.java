@@ -3,8 +3,8 @@ package to.etc.domui.converter;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.util.nls.*;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * A repository of Converter instances.

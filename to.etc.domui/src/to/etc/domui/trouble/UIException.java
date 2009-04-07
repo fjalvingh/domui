@@ -1,6 +1,6 @@
 package to.etc.domui.trouble;
 
-import to.etc.domui.util.nls.*;
+import to.etc.webapp.nls.*;
 
 /**
  * Base of the exception class for user interface trouble.

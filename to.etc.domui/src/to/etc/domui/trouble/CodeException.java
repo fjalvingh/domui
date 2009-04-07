@@ -3,7 +3,7 @@ package to.etc.domui.trouble;
 import java.text.*;
 import java.util.*;
 
-import to.etc.domui.util.nls.*;
+import to.etc.webapp.nls.*;
 
 /**
  * FIXME Must move to a separate NLS package.

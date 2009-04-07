@@ -1,7 +1,7 @@
 package to.etc.domui.dom.errors;
 
 import to.etc.domui.dom.html.*;
-import to.etc.domui.util.nls.NlsContext;
+import to.etc.webapp.nls.*;
 
 /**
  * A single error message for a component. The message consists of a message code and optional

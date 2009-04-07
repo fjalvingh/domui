@@ -5,7 +5,7 @@ import java.util.*;
 
 import to.etc.domui.annotations.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.util.nls.*;
+import to.etc.webapp.nls.*;
 
 final public class AppUIUtil {
 	static public String	getClassNameOnly(final Class<?> clz) {

@@ -4,8 +4,8 @@ import java.text.*;
 import java.util.*;
 
 import to.etc.domui.dom.html.*;
-import to.etc.domui.util.nls.*;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * This is a small panel which contains all days in a given month as a calendar. It can be

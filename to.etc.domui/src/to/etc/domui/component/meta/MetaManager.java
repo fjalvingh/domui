@@ -8,7 +8,7 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.nls.*;
+import to.etc.webapp.nls.*;
 
 /**
  * Accessor class to the generalized metadata thingies.

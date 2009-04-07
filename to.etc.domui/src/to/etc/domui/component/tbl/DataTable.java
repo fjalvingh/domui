@@ -4,7 +4,7 @@ import java.util.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.nls.*;
+import to.etc.webapp.nls.*;
 
 /**
  * POC for a datatable based on the live dom code.

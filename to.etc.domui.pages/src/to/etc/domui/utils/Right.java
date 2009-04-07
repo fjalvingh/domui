@@ -2,7 +2,7 @@ package to.etc.domui.utils;
 
 import java.util.*;
 
-import to.etc.domui.util.nls.*;
+import to.etc.webapp.nls.*;
 
 /**
  * A Right class defines a fine-grained permission for accessing something in the system. It is

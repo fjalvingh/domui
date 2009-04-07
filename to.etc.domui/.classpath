@@ -9,5 +9,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/jCharts-0.7.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsr305"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/to.etc.webapp.core"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

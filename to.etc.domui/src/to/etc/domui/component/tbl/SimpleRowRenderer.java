@@ -6,7 +6,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.nls.*;
+import to.etc.webapp.nls.*;
 
 /**
  * Renders rows from a datamodel; this tries to use the metadata for all

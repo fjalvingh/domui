@@ -8,7 +8,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.nls.*;
+import to.etc.webapp.nls.*;
 
 public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements PropertyMetaModel {
 	private DefaultClassMetaModel		m_classModel;

@@ -1,4 +1,4 @@
-package to.etc.domui.util.nls;
+package to.etc.webapp.nls;
 
 import java.io.*;
 import java.util.*;

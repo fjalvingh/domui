@@ -7,8 +7,8 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.nls.*;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 
 public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements ScheduleModelChangedListener<T> {
 	/** The model to use, */

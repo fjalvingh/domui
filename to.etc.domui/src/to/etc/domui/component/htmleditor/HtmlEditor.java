@@ -3,8 +3,8 @@ package to.etc.domui.component.htmleditor;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.nls.*;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * This represents a FCKEditor instance.

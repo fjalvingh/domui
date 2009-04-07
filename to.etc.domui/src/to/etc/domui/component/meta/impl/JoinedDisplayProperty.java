@@ -5,7 +5,7 @@ import java.util.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.nls.*;
+import to.etc.webapp.nls.*;
 
 /**
  * A special property consisting of a list of joined properties.

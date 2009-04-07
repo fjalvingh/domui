@@ -1,4 +1,4 @@
-package to.etc.domui.util.nls;
+package to.etc.webapp.nls;
 
 /**
  * Represents a code table with localized translations for several

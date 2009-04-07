@@ -8,8 +8,8 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.nls.*;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * Mostly silly handler to handle direct DOM requests. Phaseless handler for testing

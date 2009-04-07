@@ -9,8 +9,8 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
-import to.etc.domui.util.nls.*;
 import to.etc.domui.util.query.*;
+import to.etc.webapp.nls.*;
 
 /**
  * Contains a search box to enter search criteria; the result of

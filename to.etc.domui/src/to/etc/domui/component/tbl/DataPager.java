@@ -4,7 +4,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.nls.*;
+import to.etc.webapp.nls.*;
 
 /**
  * A pager component for a DataTable-based table. This gets attached

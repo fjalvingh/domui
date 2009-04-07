@@ -5,7 +5,7 @@ import java.util.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.nls.*;
+import to.etc.webapp.nls.*;
 
 /**
  * A table-related component which shows all "rows" in a single cell instead of

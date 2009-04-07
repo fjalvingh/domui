@@ -16,8 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.nls.NlsContext;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * Base filter which accepts requests to the dom windows. This accepts all URLs that end with a special
