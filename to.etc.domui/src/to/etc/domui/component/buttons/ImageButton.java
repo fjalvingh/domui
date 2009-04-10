@@ -12,7 +12,7 @@ import to.etc.util.*;
  * Created on Jul 21, 2008
  */
 public class ImageButton extends Button {
-	private Img			m_img;
+	private final Img			m_img;
 	private String		m_baseSrc;
 
 	private String		m_text;
@@ -32,9 +32,9 @@ public class ImageButton extends Button {
 		setColor("black");
 	}
 
-	public ImageButton(String txt) {
+	public ImageButton(final String txt) {
 		this();
-		setText(txt);
+		setLiteralText(txt);
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class ImageButton extends Button {
 	 * @param resourceBase
 	 * @param name
 	 */
-	public void	setImage(Class<?> resourceBase, String name) {
+	public void	setImage(final Class<?> resourceBase, final String name) {
 		String rb = resourceBase.getName();
 		int pos = rb.lastIndexOf('.');
 		if(pos == -1)
@@ -56,7 +56,7 @@ public class ImageButton extends Button {
 	 * @param resourceBase
 	 * @param name
 	 */
-	public void	setIconImage(Class<?> resourceBase, String name) {
+	public void	setIconImage(final Class<?> resourceBase, final String name) {
 		String rb = resourceBase.getName();
 		int pos = rb.lastIndexOf('.');
 		if(pos == -1)
@@ -64,11 +64,11 @@ public class ImageButton extends Button {
 		m_icon = "RES/"+rb.substring(0, pos+1).replace('.', '/')+name;
 		genURL();
 	}
-	public void	setIcon(String name) {
+	public void	setIcon(final String name) {
 		m_icon = name;
 		genURL();
 	}
-	public void	setThemeIcon(String name) {
+	public void	setThemeIcon(final String name) {
 		m_icon = PageContext.getRequestContext().getRelativeThemePath(name);
 		genURL();
 	}
@@ -78,11 +78,11 @@ public class ImageButton extends Button {
 	 * @param resourceBase
 	 * @param name
 	 */
-	public void	setImage(String name) {
+	public void	setImage(final String name) {
 		m_baseSrc = name;
 		genURL();
 	}
-	public void setThemeImage(String src) {
+	public void setThemeImage(final String src) {
 		m_baseSrc = PageContext.getRequestContext().getRelativeThemePath(src);
 		genURL();
 	}
@@ -124,11 +124,12 @@ public class ImageButton extends Button {
 	}
 
 	@Override
-	public void setText(String text) {
+	public void setLiteralText(final String text) {
 		m_text = text;
 		decodeAccelerator(text);
 		genURL();
 	}
+
 //
 //	public String getColor() {
 //		return m_color;
@@ -143,7 +144,7 @@ public class ImageButton extends Button {
 		return m_size;
 	}
 
-	public void setSize(int size) {
+	public void setSize(final int size) {
 		m_size = size;
 		genURL();
 	}
@@ -152,7 +153,7 @@ public class ImageButton extends Button {
 		return m_style;
 	}
 
-	public void setStyle(String style) {
+	public void setStyle(final String style) {
 		m_style = style;
 		genURL();
 	}
@@ -161,7 +162,7 @@ public class ImageButton extends Button {
 		return m_font;
 	}
 
-	public void setFont(String font) {
+	public void setFont(final String font) {
 		m_font = font;
 		genURL();
 	}
@@ -169,11 +170,11 @@ public class ImageButton extends Button {
 		return m_color;
 	}
 
-	public void setFontColor(String color) {
+	public void setFontColor(final String color) {
 		m_color = color;
 	}
 
-	private void	decodeAccelerator(String txt) {
+	private void	decodeAccelerator(final String txt) {
 		int	ix	= 0;
 		int	len	= txt.length();
 		while(ix < len) {

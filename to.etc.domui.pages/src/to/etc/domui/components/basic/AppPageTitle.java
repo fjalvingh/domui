@@ -61,7 +61,7 @@ public class AppPageTitle extends Div {
 		td.setCssClass("vp-ttl-t");
 		String ttl = getPageTitle();
 		if(ttl != null)
-			td.add(ttl);
+			td.addLiteral(ttl);
 
 		//-- Buttons
 		td	= b.addCell();

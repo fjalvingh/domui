@@ -65,7 +65,7 @@ public class BreadCrumb extends Div {
 				ttl = p.getBody().getClass().getName();
 				ttl = ttl.substring(ttl.lastIndexOf('.')+1);
 			}
-			s.setText(ttl);
+			s.setLiteralText(ttl);
 		}
 	}
 

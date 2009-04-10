@@ -30,7 +30,7 @@ public class MsgBox extends Div {
 		img.setSrc("THEME/close.png");
 		img.setFloat(FloatType.RIGHT);
 		ttlbar.add(img);
-		ttlbar.add(m_title);
+		ttlbar.addLiteral(m_title);
 		ttlbar.setCssClass("ui-mb-ttl");
 
 		add(m_contents);

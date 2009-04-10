@@ -16,7 +16,7 @@ public class TestDelta {
 		Page	p = TestUtil.createPage(UrlPage.class);
 		for(int i = 0; i < 10; i++) {
 			Div d2 = new Div();
-			d2.setText("This is line "+i);
+			d2.setLiteralText("This is line "+i);
 			p.getBody().add(d2);
 		}
 		return p;
@@ -33,7 +33,7 @@ public class TestDelta {
 		Page	p = TestUtil.createPage(UrlPage.class);
 		for(int i = 0; i < 10; i++) {
 			Div d2 = new Div();
-			d2.setText("This is line "+i);
+			d2.setLiteralText("This is line "+i);
 			p.getBody().add(d2);
 		}
 
@@ -101,7 +101,7 @@ public class TestDelta {
 		Page	p = createRenderedPage();
 
 		Div	d = new Div();
-		d.setText("new@5");
+		d.setLiteralText("new@5");
 		getIntDiv(p).add(5, d);
 
 		String render = getDeltaRenderText(p);

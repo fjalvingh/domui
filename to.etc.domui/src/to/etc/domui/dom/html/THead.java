@@ -22,7 +22,7 @@ public class THead extends NodeContainer {
 		for(String s: labels) {
 			TH	th = new TH();
 			row.add(th);
-			th.setText(s);
+			th.setLiteralText(s);
 		}
 	}
 	private TR	getRow() {
@@ -40,7 +40,7 @@ public class THead extends NodeContainer {
 		TR	tr = getRow();
 		TH	th	= new TH();
 		tr.add(th);
-		th.setText(text);
+		th.setLiteralText(text);
 		return th;
 	}
 }

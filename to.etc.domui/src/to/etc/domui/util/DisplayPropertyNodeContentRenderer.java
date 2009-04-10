@@ -26,6 +26,6 @@ public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<
 				sb.append(' ');
 			sb.append(dm.getAsString(object));
 		}
-		node.setText(sb.toString());
+		node.setLiteralText(sb.toString());
 	}
 }

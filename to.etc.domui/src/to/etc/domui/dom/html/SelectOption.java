@@ -11,7 +11,7 @@ public class SelectOption extends NodeContainer {
 
 	public SelectOption(String txt) {
 		this();
-		add(txt);
+		addLiteral(txt);
 	}
 	@Override
 	public void visit(NodeVisitor v) throws Exception {

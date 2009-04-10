@@ -5,6 +5,7 @@ import to.etc.domui.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * An HTML button containing a rendered image as the button content. This button creates a button by creating the
@@ -23,7 +24,7 @@ import to.etc.util.*;
  * Created on Jul 21, 2008
  */
 public class DefaultButton extends Button {
-	private Img			m_img;
+	private final Img			m_img;
 	private String		m_propSrc;
 	private String		m_text;
 	private String		m_icon;
@@ -43,29 +44,29 @@ public class DefaultButton extends Button {
 	 * Create a button with a text.
 	 * @param txt
 	 */
-	public DefaultButton(String txt) {
+	public DefaultButton(final String txt) {
 		this();
-		setText(txt);
+		setLiteralText(txt);
 	}
 	/**
 	 * Create a button with a text and an icon.
 	 * @param txt
 	 * @param icon
 	 */
-	public DefaultButton(String txt, String icon) {
+	public DefaultButton(final String txt, final String icon) {
 		this();
-		setText(txt);
+		setLiteralText(txt);
 		setIcon(icon);
 	}
-	
-	public DefaultButton(String txt, IClicked<DefaultButton> clicked) {
+
+	public DefaultButton(final String txt, final IClicked<DefaultButton> clicked) {
 		this();
-		setText(txt);
+		setLiteralText(txt);
 		setClicked(clicked);
 	}
-	public DefaultButton(String txt, String icon, IClicked<DefaultButton> clicked) {
+	public DefaultButton(final String txt, final String icon, final IClicked<DefaultButton> clicked) {
 		this();
-		setText(txt);
+		setLiteralText(txt);
 		setIcon(icon);
 		setClicked(clicked);
 	}
@@ -76,19 +77,19 @@ public class DefaultButton extends Button {
 	 * current theme.
 	 * @param src
 	 */
-	public void		setConfig(String src) {
+	public void		setConfig(final String src) {
 		m_propSrc = src;
 		genURL();
 	}
 
 	/**
-	 * Set the rendering properties file to be used to render the button image, as a class 
+	 * Set the rendering properties file to be used to render the button image, as a class
 	 * resource. This overrides the default properties file which is 'defaultbutton.properties' in the
 	 * current theme.
 	 * @param resourceBase
 	 * @param name
 	 */
-	public void		setConfig(Class<?> resourceBase, String name) {
+	public void		setConfig(final Class<?> resourceBase, final String name) {
 		String rb = resourceBase.getName();
 		int pos = rb.lastIndexOf('.');
 		if(pos == -1)
@@ -99,11 +100,11 @@ public class DefaultButton extends Button {
 
 	/**
 	 * Set the rendering properties file to be used to render the button image. The name must
-	 * refer to a file in the current theme. This overrides the default properties file which 
+	 * refer to a file in the current theme. This overrides the default properties file which
 	 * is 'defaultbutton.properties' in the current theme.
 	 * @param name
 	 */
-	public void	setThemeConfig(String name) {
+	public void	setThemeConfig(final String name) {
 		m_propSrc = PageContext.getRequestContext().getRelativeThemePath(name);
 		genURL();
 	}
@@ -113,7 +114,7 @@ public class DefaultButton extends Button {
 	 * @param resourceBase		The base location for the specified name. Name is resolved with this class as the base.
 	 * @param name				The resource's name relative to the class.
 	 */
-	public void	setIconImage(Class<?> resourceBase, String name) {
+	public void	setIconImage(final Class<?> resourceBase, final String name) {
 		m_icon = DomUtil.getJavaResourceRURL(resourceBase, name);
 		genURL();
 	}
@@ -122,7 +123,7 @@ public class DefaultButton extends Button {
 	 * Sets a (new) icon on this button. This requires an absolute image path.
 	 * @param name
 	 */
-	public void	setIcon(String name) {
+	public void	setIcon(final String name) {
 		m_icon = PageContext.getRequestContext().translateResourceName(name);
 		genURL();
 	}
@@ -156,7 +157,7 @@ public class DefaultButton extends Button {
 	 * Returns the text currently set on the button.
 	 * @return
 	 */
-	public String getText() {
+	public String getLiteralText() {
 		return m_text;
 	}
 
@@ -164,16 +165,20 @@ public class DefaultButton extends Button {
 	 * Set a (new) text on the button's surface. The text may contain a '!' to specify an accelerator. To
 	 * actually render the exclamation point precede it with a backslash.
 	 *
-	 * @see to.etc.domui.dom.html.NodeContainer#setText(java.lang.String)
+	 * @see to.etc.domui.dom.html.NodeContainer#setLiteralText(java.lang.String)
 	 */
 	@Override
-	public void setText(String text) {
+	public void setLiteralText(final String text) {
 		m_text = text;
 		decodeAccelerator(text);
 		genURL();
 	}
+	@Override
+	public void	setText(final BundleRef ref, final String key) {
+		setLiteralText( ref.getString(key) );
+	}
 
-	private void	decodeAccelerator(String txt) {
+	private void	decodeAccelerator(final String txt) {
 		int	ix	= 0;
 		int	len	= txt.length();
 		while(ix < len) {

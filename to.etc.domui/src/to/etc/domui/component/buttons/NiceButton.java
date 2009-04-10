@@ -3,11 +3,11 @@ package to.etc.domui.component.buttons;
 import to.etc.domui.dom.html.*;
 
 public class NiceButton extends ATag {
-	private TextNode		m_text = new TextNode("Okay");
+	private final TextNode		m_text = new TextNode("Okay");
 
 	public NiceButton() {
 	}
-	public NiceButton(String text) {
+	public NiceButton(final String text) {
 		m_text.setText(text);
 	}
 
@@ -20,11 +20,11 @@ public class NiceButton extends ATag {
 		sp.add(m_text);
 	}
 
-	public String	getText() {
+	public String	getLiteralText() {
 		return m_text.getText();
 	}
 	@Override
-	public void		setText(String s) {
+	public void		setLiteralText(final String s) {
 		m_text.setText(s);
 	}
 }

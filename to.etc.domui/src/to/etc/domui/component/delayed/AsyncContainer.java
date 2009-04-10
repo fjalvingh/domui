@@ -56,7 +56,7 @@ public class AsyncContainer extends Div {
 		} else {
 			sb.append(" compleet");
 		}
-		m_progress.setText(sb.toString());
+		m_progress.setLiteralText(sb.toString());
 	}
 
 	public void	updateCompleted(DelayedActivityInfo dai) {
@@ -64,16 +64,16 @@ public class AsyncContainer extends Div {
 		if(dai.getException() != null) {
 			StringBuilder	sb	= new StringBuilder(8192);
 			StringTool.strStacktrace(sb, dai.getException());
-			this.setText(sb.toString());						// Discard everything && replace
+			this.setLiteralText(sb.toString());						// Discard everything && replace
 			return;
 		}
 
 		//-- Replace THIS node with the new thingy.
 		if(dai.getExecutionResult() == null) {
 			if(dai.getMonitor().isCancelled()) {
-				setText("De opdracht is onderbroken door de gebruiker");
+				setLiteralText("De opdracht is onderbroken door de gebruiker");
 			} else {
-				setText("De actie levert geen resultaat!?!?");
+				setLiteralText("De actie levert geen resultaat!?!?");
 			}
 			return;
 		}
@@ -84,6 +84,6 @@ public class AsyncContainer extends Div {
 	}
 
 	public void	confirmCancelled() {
-		setText("Cancelled");
+		setLiteralText("Cancelled");
 	}
 }

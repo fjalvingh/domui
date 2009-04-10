@@ -40,7 +40,7 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 			//-- Add 1st "empty" thingy representing the unchosen.
 			SelectOption	o = new SelectOption();
 			if(getEmptyText() != null)
-				o.setText(getEmptyText());
+				o.setLiteralText(getEmptyText());
 			add(o);
 			o.setSelected(m_currentValue == null);
 		}
@@ -49,7 +49,7 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 		for(Pair<T> val : m_choiceList) {
 			SelectOption	o = new SelectOption();
 			add(o);
-			o.add(val.getLabel());
+			o.addLiteral(val.getLabel());
 			if(cmm == null)
 				cmm = MetaManager.findClassMeta(val.getValue().getClass());
 			boolean eq = MetaManager.areObjectsEqual(val.getValue(), m_currentValue, cmm);

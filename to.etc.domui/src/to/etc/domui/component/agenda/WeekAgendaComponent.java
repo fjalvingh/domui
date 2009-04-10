@@ -258,15 +258,15 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 				i.setCssClass("ui-wa-img");
 				i.setSrc(h.getImageURL());
 			}
-			td.add(df.format(d));					// Add cell text
+			td.addLiteral(df.format(d));					// Add cell text
 			if(h != null) {
 				//-- This is a holiday.
 				td.add(new BR());
-				td.add(h.getHolidayName(NlsContext.getLocale()));
+				td.addLiteral(h.getHolidayName(NlsContext.getLocale()));
 			} else {
 				String[]	shd = new DateFormatSymbols(NlsContext.getLocale()).getShortWeekdays();
 				td.add(new BR());
-				td.add(shd[cal.get(Calendar.DAY_OF_WEEK)]);
+				td.addLiteral(shd[cal.get(Calendar.DAY_OF_WEEK)]);
 			}
 			cal.add(Calendar.DAY_OF_MONTH, 1);
 		}
@@ -285,19 +285,19 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 			Span sp= new Span();
 			td.add(sp);
 			sp.setCssClass("ui-wa-hour");
-			sp.add(Integer.toString(hr));
+			sp.addLiteral(Integer.toString(hr));
 
 			sp = new Span();
 			td.add(sp);
 			sp.setCssClass("ui-wa-min");
-			sp.setText("00");
+			sp.setLiteralText("00");
 
 			//-- Render day empy cells
 			for(int i = 0; i < days; i++) {
 				td	= new TD();
 				tr.add(td);
 				td.setCssClass("ui-wa-cell");
-				td.setText("\u00a0");
+				td.setLiteralText("\u00a0");
 			}
 
 			//-- Write 2nd half hours, skip 1st col
@@ -308,7 +308,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 				td	= new TD();
 				tr.add(td);
 				td.setCssClass("ui-wa-cell");
-				td.setText("\u00a0");
+				td.setLiteralText("\u00a0");
 			}
 		}
 	}

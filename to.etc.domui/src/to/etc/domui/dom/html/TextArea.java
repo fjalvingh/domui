@@ -77,7 +77,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String> {
 		if(DomUtil.isEqual(v, m_value))
 			return;
 		m_value = v;
-		setText(v);
+		setLiteralText(v);
 	}
 
 	@Override

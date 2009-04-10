@@ -7,7 +7,7 @@ public class Span extends NodeContainer {
 
 	public Span(String txt) {
 		this();
-		setText(txt);
+		setLiteralText(txt);
 	}
 	@Override
 	public void visit(NodeVisitor v) throws Exception {

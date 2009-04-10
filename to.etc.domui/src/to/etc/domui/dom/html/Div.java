@@ -14,7 +14,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	}
 	public Div(String txt) {
 		this();
-		setText(txt);
+		setLiteralText(txt);
 	}
 	public Div(NodeBase... children) {
 		this();

@@ -1,13 +1,14 @@
 package to.etc.domui.component.misc;
 
 import to.etc.domui.dom.html.*;
+import to.etc.webapp.nls.*;
 
 public class Explanation extends Div {
-	private LiteralXhtml	m_text = new LiteralXhtml();
+	private final LiteralXhtml	m_text = new LiteralXhtml();
 
-	public Explanation(String txt) {
+	public Explanation(final String txt) {
 		setCssClass("ui-expl");
-		setText(txt);
+		setLiteralText(txt);
 	}
 	@Override
 	public void createContent() throws Exception {
@@ -18,7 +19,12 @@ public class Explanation extends Div {
 	}
 
 	@Override
-	public void setText(String txt) {
+	public void setLiteralText(final String txt) {
 		m_text.setXml(txt);
+	}
+
+	@Override
+	public void	setText(final BundleRef b, final String key) {
+		m_text.setXml(b.getString(key));
 	}
 }

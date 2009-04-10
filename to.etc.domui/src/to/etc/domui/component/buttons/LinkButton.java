@@ -17,7 +17,7 @@ public class LinkButton extends ATag {
 	public LinkButton() {
 	}
 
-	public LinkButton(String txt, String image, IClicked<LinkButton> clk) {
+	public LinkButton(final String txt, final String image, final IClicked<LinkButton> clk) {
 		setCssClass("ui-lbtn");
 		setClicked(clk);
 		m_text = txt;
@@ -25,10 +25,10 @@ public class LinkButton extends ATag {
 	}
 	@Override
 	public void createContent() throws Exception {
-		setText(m_text);
+		setLiteralText(m_text);
 	}
 
-	public void	setImage(String url) {
+	public void	setImage(final String url) {
 		if(DomUtil.isEqual(url, m_imageUrl))
 			return;
 		m_imageUrl	= url;
@@ -43,8 +43,8 @@ public class LinkButton extends ATag {
 	}
 
 	@Override
-	public void setText(String txt) {
+	public void setLiteralText(final String txt) {
 		m_text = txt;
-		super.setText(txt);
+		super.setLiteralText(txt);
 	}
 }

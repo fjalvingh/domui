@@ -108,12 +108,12 @@ public class MiniTableBuilder {
 		return add(new Text<T>(clz));
 	}
 	private void	doLabelCtl(String label) {
-		addCell().add(DomUtil.nlsLabel(label));
+		addCell().addLiteral(DomUtil.nlsLabel(label));
 		cell().setCssClass("ui-f-lbl");
 		addCell().setCssClass("ui-f-in");
 	}
 	public void		addLabel(String lbl) {
-		addCell().add(DomUtil.nlsLabel(lbl));
+		addCell().addLiteral(DomUtil.nlsLabel(lbl));
 		cell().setCssClass("ui-f-lbl");
 	}
 

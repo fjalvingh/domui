@@ -87,7 +87,7 @@ public class CaptionedPanel extends Div {
 	 */
 	@Override
 	public void	setTitle(String txt) {
-		getTitleContainer().setText(txt);
+		getTitleContainer().setLiteralText(txt);
 	}
 
 	/**

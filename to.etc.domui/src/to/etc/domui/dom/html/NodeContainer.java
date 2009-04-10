@@ -6,10 +6,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import to.etc.domui.dom.errors.*;
+import to.etc.webapp.nls.*;
 
 /**
  * Base node for tags that can contain other nodes.
- * 
+ *
  * A description on the deltaing mechanism used can be found in the header for {@link NodeBase}
  * @see NodeBase
  *
@@ -40,13 +41,13 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	private IErrorFence		m_errorFence;
 
-	public NodeContainer(String tag) {
+	public NodeContainer(final String tag) {
 		super(tag);
 	}
 	boolean mustRenderChildrenFully() {
 		return m_mustRenderChildrenFully;
 	}
-	void setMustRenderChildrenFully(boolean mustRenderChildrenFully) {
+	void setMustRenderChildrenFully(final boolean mustRenderChildrenFully) {
 //		if(mustRenderChildrenFully) {
 //			StringTool.dumpLocation("mustRenderFully");
 //		}
@@ -58,10 +59,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 
-	protected boolean	canContain(NodeBase node) {
+	protected boolean	canContain(final NodeBase node) {
 		return true;
 	}
-	
+
 	void childChanged() {
 		NodeContainer	c = this;
 		do {
@@ -74,7 +75,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	boolean childHasUpdates() {
 		return m_childHasUpdates;
 	}
-	void setChildHasUpdates(boolean childHasUpdates) {
+	void setChildHasUpdates(final boolean childHasUpdates) {
 		m_childHasUpdates = childHasUpdates;
 	}
 
@@ -89,14 +90,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	List<NodeBase>		internalGetChildren() {
 		return m_children;
 	}
-	
+
 	public Iterator<NodeBase> iterator() {
 		return m_children.iterator();
 	}
 	public int	getChildCount() {
 		return m_children.size();
 	}
-	public NodeBase	getChild(int i) {
+	public NodeBase	getChild(final int i) {
 		return m_children.get(i);
 	}
 
@@ -157,7 +158,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Add the child at the end of the list.
 	 * @param nd
 	 */
-	public void	add(NodeBase nd) {
+	public void	add(final NodeBase nd) {
 		if(! canContain(nd))
 			throw new IllegalStateException("This node "+this+" cannot contain a "+nd);
 		if(m_children == Collections.EMPTY_LIST)
@@ -173,7 +174,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		childChanged();
 	}
 
-	public void	add(int index, NodeBase nd) {
+	public void	add(final int index, final NodeBase nd) {
 		if(! canContain(nd))
 			throw new IllegalStateException("This node "+this+" cannot contain a "+nd);
 		if(m_children == Collections.EMPTY_LIST)
@@ -190,9 +191,12 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		childChanged();
 	}
 
-	public void add(String txt) {
+	public void addLiteral(final String txt) {
 		if(txt != null)
 			add(new TextNode(txt));
+	}
+	public void	add(final BundleRef ref, final String k) {
+		addLiteral(ref.getString(k));
 	}
 
 	void registerChildren() {
@@ -201,23 +205,23 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		}
 	}
 
-	private void registerWithPage(NodeBase child) {
+	private void registerWithPage(final NodeBase child) {
 		if(getPage() == null)				// No page-> cannot register
 			return;
 		child.registerWithPage(getPage());
 	}
 
 	@Override
-	void registerWithPage(Page p) {
+	void registerWithPage(final Page p) {
 		super.registerWithPage(p);				// Base registration of *this*
 		registerChildren();
 	}
 
 	/**
-	 * Remove a child node from me. This also removes ALL descendants from the current page's view. 
+	 * Remove a child node from me. This also removes ALL descendants from the current page's view.
 	 * @param child
 	 */
-	public void	removeChild(NodeBase child) {
+	public void	removeChild(final NodeBase child) {
 		if(child.getParent() != this)
 			throw new IllegalStateException("Child "+child+" is not a child of container "+this);
 		int ix = m_children.indexOf(child);
@@ -229,7 +233,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		child.unregisterFromPage();
 		childChanged();
 	}
-	public NodeBase	removeChild(int index) {
+	public NodeBase	removeChild(final int index) {
 		if(index < 0 || index >= m_children.size())
 			throw new IllegalStateException("Bad delete index "+index+" on node "+this+" with "+m_children.size()+" children");
 		treeChanging();
@@ -239,7 +243,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		childChanged();
 		return child;
 	}
-	public void	replaceChild(NodeBase child, NodeBase nw) {
+	public void	replaceChild(final NodeBase child, final NodeBase nw) {
 		//-- Find old child's index.
 		if(child.getParent() != this)
 			throw new IllegalStateException("Child "+child+" is not a child of container "+this);
@@ -271,7 +275,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		m_children.clear();
 	}
 
-	public int		findChildIndex(NodeBase b) {
+	public int		findChildIndex(final NodeBase b) {
 		if(b.getParent() != this)
 			return -1;
 		return m_children.indexOf(b);
@@ -295,12 +299,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	/**
+	 * ONLY USE FOR CALCULATED DATA - Use setText(BundleRef, String) to make the application
+	 * language-independent!
 	 * Convenience method to change the text content of this node. This ensures
 	 * that only one textnode remains as the child, and that node contains the
 	 * specified text.
 	 * @param txt
 	 */
-	public void	setText(String txt) {
+	public void	setLiteralText(final String txt) {
 		setMustRenderChildrenFully();
 		if(getChildCount() == 1) {
 			if(getChild(0) instanceof TextNode) {
@@ -319,6 +325,18 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		add(t);
 	}
 
+	/**
+	 * Convenience method to change the text content of this node. This ensures
+	 * that only one textnode remains as the child, and that node contains the
+	 * specified text.
+	 *
+	 * @param ref		The bundle containing the message.
+	 * @param key		The key to use.
+	 */
+	public void	setText(final BundleRef ref, final String key) {
+		setLiteralText(ref.getString(key));
+	}
+
 	@Override
 	public boolean	validate() {
 		boolean ok = true;
@@ -331,7 +349,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	public IErrorFence getErrorFence() {
 		return m_errorFence;
 	}
-	public void setErrorFence(IErrorFence errorFence) {
+	public void setErrorFence(final IErrorFence errorFence) {
 		m_errorFence = errorFence;
 	}
 	public void setErrorFence() {
@@ -352,6 +370,4 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		for(int i = m_children.size(); --i >= 0;)
 			m_children.get(i).internalUnshelve();
 	}
-	
-	
 }
