@@ -40,7 +40,7 @@ public class AppFilter implements Filter {
 	 */
 
 	private ContextMaker		m_contextMaker;
-	
+
 	public void destroy() {
 	}
 
@@ -49,7 +49,7 @@ public class AppFilter implements Filter {
 		return cal.get(Calendar.HOUR_OF_DAY)+StringTool.intToStr(cal.get(Calendar.MINUTE), 10, 2)+StringTool.intToStr(cal.get(Calendar.SECOND), 10, 2)+"."+cal.get(Calendar.MILLISECOND);
 	}
 
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		try {
 			HttpServletRequest rq = (HttpServletRequest)req;
 			rq.setCharacterEncoding("UTF-8");						// jal 20080804 Encoding of input was incorrect?
@@ -58,8 +58,8 @@ public class AppFilter implements Filter {
 				rs = rs == null ? "" : "?"+rs;
 				System.out.println(minitime()+" rq="+rq.getRequestURI()+rs);
 			}
-//			NlsContext.setLocale(rq.getLocale());
-			NlsContext.setLocale(new Locale("nl", "NL"));
+			NlsContext.setLocale(rq.getLocale());
+//			NlsContext.setLocale(new Locale("nl", "NL"));
 
 			if(m_contextMaker.handleRequest(rq, (HttpServletResponse)res))
 				return;
@@ -81,7 +81,7 @@ public class AppFilter implements Filter {
 	 * Initialize by reading config from the web.xml.
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
-	public void init(FilterConfig config) throws ServletException {
+	public void init(final FilterConfig config) throws ServletException {
 		try {
 			java.util.logging.LogManager.getLogManager().reset();
 			java.util.logging.LogManager.getLogManager().readConfiguration(AppFilter.class.getResourceAsStream("logging.properties"));
@@ -98,7 +98,7 @@ public class AppFilter implements Filter {
 		System.out.println("WebApp root="+approot);
 		if(! approot.exists() || ! approot.isDirectory())
 			throw new IllegalStateException("Internal: cannot get webapp root directory");
-		
+
 		m_config	= new ConfigParameters(config, approot);
 
 		//-- Handle application construction
@@ -122,7 +122,7 @@ public class AppFilter implements Filter {
 		}
 	}
 
-	public String		getApplicationClassName(ConfigParameters p) {
+	public String		getApplicationClassName(final ConfigParameters p) {
 		return p.getString("application");
 	}
 }
