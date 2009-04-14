@@ -60,7 +60,7 @@ public class BreadCrumb extends Div {
 				s.setCssClass("ui-brc-l");
 			}
 			center.add(s);
-			String ttl = p.getBody().getTitle();
+			String ttl = p.getBody().getLiteralTitle();
 			if(ttl == null || ttl.length() == 0) {
 				ttl = p.getBody().getClass().getName();
 				ttl = ttl.substring(ttl.lastIndexOf('.')+1);

@@ -47,7 +47,7 @@ public interface ControlFactory {
 						ta.setMandatory(true);
 					String s = pmm.getDefaultHint();
 					if(s != null)
-						ta.setTitle(s);
+						ta.setLiteralTitle(s);
 					return ta;
 				}
 			}
@@ -89,7 +89,7 @@ public interface ControlFactory {
 				txt.setMandatory(true);
 			String s = pmm.getDefaultHint();
 			if(s != null)
-				txt.setTitle(s);
+				txt.setLiteralTitle(s);
 			for(PropertyMetaValidator mpv: pmm.getValidators())
 				txt.addValidator(mpv);
 			return txt;
@@ -129,7 +129,7 @@ public interface ControlFactory {
 				c.setDisabled(true);
 			String s = pmm.getDefaultHint();
 			if(s != null)
-				c.setTitle(s);
+				c.setLiteralTitle(s);
 			return c;
 		}
 
@@ -159,7 +159,7 @@ public interface ControlFactory {
 				di.setWithTime(true);
 			String s = pmm.getDefaultHint();
 			if(s != null)
-				di.setTitle(s);
+				di.setLiteralTitle(s);
 			return di;
 		}
 
@@ -195,7 +195,7 @@ public interface ControlFactory {
 				co.setMandatory(true);
 			String s = pmm.getDefaultHint();
 			if(s != null)
-				co.setTitle(s);
+				co.setLiteralTitle(s);
 			return co;
 		}
 
@@ -230,7 +230,7 @@ public interface ControlFactory {
 				li.setMandatory(true);
 			String s = pmm.getDefaultHint();
 			if(s != null)
-				li.setTitle(s);
+				li.setLiteralTitle(s);
 			return li;
 		}
 	};

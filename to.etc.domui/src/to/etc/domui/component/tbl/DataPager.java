@@ -128,7 +128,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			if(m_truncated == null) {
 				m_truncated = new Img();
 				m_truncated.setSrc("THEME/nav-overflow.png");
-				m_truncated.setTitle(NlsContext.getGlobalMessage(Msgs.UI_PAGER_OVER, Integer.valueOf(tc)));
+				m_truncated.setLiteralTitle(NlsContext.getGlobalMessage(Msgs.UI_PAGER_OVER, Integer.valueOf(tc)));
 				m_btndiv.add(m_truncated);
 			}
 		} else {

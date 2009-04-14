@@ -348,8 +348,8 @@ public class HtmlRenderer implements NodeVisitor {
 			o.attr("style", s);				// Append style
 		if(b.getCssClass() != null)
 			o.attr("class", b.getCssClass());
-		if(b.getTitle() != null)
-			o().attr("title", b.getTitle());
+		if(b.getLiteralTitle() != null)
+			o().attr("title", b.getLiteralTitle());
 
 		if(b.getSpecialAttributeList() != null) {
 			for(int i = 0; i < b.getSpecialAttributeList().size(); i+=2) {

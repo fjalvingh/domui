@@ -83,10 +83,10 @@ public class CaptionedPanel extends Div {
 	/**
 	 * Set the title for this panel as a String. This replaces the current node
 	 * with a Div(TextNode) node.
-	 * @see to.etc.domui.dom.html.NodeBase#setTitle(java.lang.String)
+	 * @see to.etc.domui.dom.html.NodeBase#setLiteralTitle(java.lang.String)
 	 */
 	@Override
-	public void	setTitle(String txt) {
+	public void	setLiteralTitle(String txt) {
 		getTitleContainer().setLiteralText(txt);
 	}
 

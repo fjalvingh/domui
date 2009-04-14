@@ -138,7 +138,7 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 			});
 		}
 		if(title != null)
-			si.setTitle(title);
+			si.setLiteralTitle(title);
 		si.addCssClass("ui-cl2-btn");
 		m_buttonList.add(si);
 

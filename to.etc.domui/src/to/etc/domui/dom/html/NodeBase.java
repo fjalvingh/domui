@@ -6,21 +6,22 @@ import to.etc.domui.dom.css.CssBase;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * Base node for all non-container html dom nodes.
- * 
+ *
  * <h2>Delta tree calculation</h2>
- * <p>We need to be able to calculate a delta tree <b>very</b> fast. The speed of the delta calculation is a large factor in response time 
+ * <p>We need to be able to calculate a delta tree <b>very</b> fast. The speed of the delta calculation is a large factor in response time
  * and server CPU utilization. Delta calculation works by defining a strict way in which the DOM is manipulated (conceptual):
  * <ol>
  *	<li>We define the BEFORE state of the tree. This is the state of the tree when a new request ENTERS the server. The before state is conceptually
  *		maintained by copying all "parent" pointers and all "child" lists of all nodes (in a special way). This means that a single node has both a
  *		"current" state (the normal parent and childList properties) and an "old" state (the state of it's parent and children properties before
  *		code that possibly changes the tree starts).</li>
- *	<li>In the 'application-phase' we start executing code that can change the tree. We run all input handlers, then we handle all events. When all code 
- *		ran we have the AFTER state of the tree, contained in the actual tree properties (parent and childList). In addition, every change in the 
- *		structure has left a mark on every container node. This mark "percolates" upwards, so we can quickly see which container(s) have changes. If the 
+ *	<li>In the 'application-phase' we start executing code that can change the tree. We run all input handlers, then we handle all events. When all code
+ *		ran we have the AFTER state of the tree, contained in the actual tree properties (parent and childList). In addition, every change in the
+ *		structure has left a mark on every container node. This mark "percolates" upwards, so we can quickly see which container(s) have changes. If the
  *		tree is unchanged we see it immediately because the root node has no "childHasUpdates" indication.</li>
  *	<li>We now have a valid BEFORE and a valid AFTER image. By comparing the nodes in OLD and ACTUAL we can easily determine tree ownership everywhere.</li>
  * </ol>
@@ -55,9 +56,9 @@ import to.etc.domui.util.*;
  * </ul>
  * We will use this mechanism to identify nodes that have changed <i>this run</i> and to discover nodes that have old state and are added again.
  * </p>
- * 
+ *
  * <h3>Implementation details and logic decomposition</h3>
- * <p>The oldParent field is the field protected by the updateNumber. Normal nodes all have "outdated" updatenumbers meaning their fields are UNSET. Since only 
+ * <p>The oldParent field is the field protected by the updateNumber. Normal nodes all have "outdated" updatenumbers meaning their fields are UNSET. Since only
  * changed nodes have fields set an outdated updateNumber also implies that the node is unchanged.
  * </p>
  * <p>If a node is PRESENT in a page, and it is REMOVED then we SET it's update# and it's oldParent. This means the removed node has valid ptrs for THIS run indicating
@@ -69,8 +70,8 @@ import to.etc.domui.util.*;
  * <p>If this node that was just attached is then removed again the oldparent is not changed (because it is already SET in this run). If it gets added yet again
  * (the programmer is probably drunk, but with all the monthly drinks at Itris we'll need to take that into consideration too) the add notices that its' OLD is
  * VALID so it will not be set.
- * 
- * 
+ *
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
@@ -127,17 +128,17 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	abstract public void		visit(NodeVisitor v) throws Exception;
 
-	protected NodeBase(String tag) {
+	protected NodeBase(final String tag) {
 		m_tag	= tag;
 	}
-	public void internalSetTagName(String s) {
+	public void internalSetTagName(final String s) {
 		m_tag = s;
 	}
 	public IClicked< ? > getClicked() {
 		return m_clicked;
 	}
 
-	public void setClicked(IClicked< ? > clicked) {
+	public void setClicked(final IClicked< ? > clicked) {
 		m_clicked = clicked;
 	}
 	public boolean internalNeedClickHandler() {
@@ -147,7 +148,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public boolean hasChangedAttributes() {
 		return m_attributesChanged;
 	}
-	public void	setHasChangedAttributes(boolean d) {
+	public void	setHasChangedAttributes(final boolean d) {
 		m_attributesChanged= d;
 	}
 	public void	setHasChangedAttributes() {
@@ -158,7 +159,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		if(hasChangedAttributes())
 			throw new IllegalStateException("The node "+this+" has DIRTY ATTRIBUTES set");
 	}
-	
+
 	public void	internalOnClicked() throws Exception {
 		IClicked<NodeBase>	c = (IClicked<NodeBase>)getClicked();
 		if(c == null)
@@ -183,7 +184,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public String getCachedStyle() {
 		return m_cachedStyle;
 	}
-	public void setCachedStyle(String cachedStyle) {
+	public void setCachedStyle(final String cachedStyle) {
 		m_cachedStyle = cachedStyle;
 	}
 
@@ -191,7 +192,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		return m_cssClass;
 	}
 
-	public void setCssClass(String cssClass) {
+	public void setCssClass(final String cssClass) {
 //		System.out.println("--- id="+m_actualID+", css="+cssClass);
 		if(! DomUtil.isEqual(cssClass, m_cssClass))
 			changed();
@@ -203,7 +204,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param name
 	 * @return
 	 */
-	public boolean		removeCssClass(String name) {
+	public boolean		removeCssClass(final String name) {
 		if(getCssClass() == null)
 			return false;
 		StringTokenizer	st = new StringTokenizer(getCssClass(), " \t");
@@ -225,7 +226,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		return true;
 	}
 
-	public void addCssClass(String name) {
+	public void addCssClass(final String name) {
 		if(getCssClass() == null) {
 			setCssClass(name);
 			return;
@@ -238,7 +239,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		}
 		setCssClass(getCssClass()+" "+name);
 	}
-	public boolean	hasCssClass(String cls) {
+	public boolean	hasCssClass(final String cls) {
 		if(getCssClass() == null)
 			return false;
 		int	pos = getCssClass().indexOf(cls);
@@ -257,7 +258,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	final String	internalGetID() {
 		return m_actualID;
 	}
-	final void setActualID(String actualID) {
+	final void setActualID(final String actualID) {
 		m_actualID = actualID;
 	}
 	/**
@@ -267,11 +268,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	final public String getTag() {
 		return m_tag;
 	}
-	final protected void	setTag(String tag) {
+	final protected void	setTag(final String tag) {
 		m_tag = tag;
 	}
 
-	
+
 	/**
 	 * Return the current actual parent of this node.
 	 * @return
@@ -306,7 +307,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param clz
 	 * @return
 	 */
-	public <T> T	getParent(Class<T> clz) {
+	public <T> T	getParent(final Class<T> clz) {
 		NodeContainer c = getParent();
 		for(;;) {
 			if(c == null)
@@ -322,7 +323,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * by setting the updateNumber equal to the page's update#.
 	 * @param c
 	 */
-	void setOldParent(NodeContainer c) {
+	void setOldParent(final NodeContainer c) {
 		m_oldParent = c;
 	}
 	public NodeContainer getOldParent() {
@@ -341,7 +342,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * FIXME NEED TO BE CHANGED - LOGIC MUST MOVE TO CONTAINER.
 	 * @param parent
 	 */
-	void setParent(NodeContainer parent) {
+	void setParent(final NodeContainer parent) {
 		if(m_oldParent == null)					// jal 20090115 Was !=, seems very wrong and the cause of the "Hell Freezeth over" exception..
 			m_oldParent = m_parent;
 		m_parent = parent;
@@ -356,7 +357,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			getParent().removeChild(this);
 		}
 	}
-	public void	replaceWith(NodeBase nw) {
+	public void	replaceWith(final NodeBase nw) {
 		getParent().replaceChild(this, nw);
 	}
 	void unregisterFromPage() {
@@ -366,7 +367,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		getPage().unregisterNode(this);
 	}
 
-	public void	appendAfterMe(NodeBase item) {
+	public void	appendAfterMe(final NodeBase item) {
 		if(getParent() == null)
 			throw new IllegalStateException("No parent node is known");
 		int ix = getParent().findChildIndex(this);
@@ -374,7 +375,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			throw new IllegalStateException("!@?! Cannot find myself!?");
 		getParent().add(ix+1, item);
 	}
-	public void	appendBeforeMe(NodeBase item) {
+	public void	appendBeforeMe(final NodeBase item) {
 		if(getParent() == null)
 			throw new IllegalStateException("No parent node is known");
 		int ix = getParent().findChildIndex(this);
@@ -383,14 +384,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		getParent().add(ix, item);
 	}
 
-	void	registerWithPage(Page p) {
+	void	registerWithPage(final Page p) {
 		p.registerNode(this);
 	}
 
 	final public Page getPage() {
 		return m_page;
 	}
-	final void setPage(Page page) {
+	final void setPage(final Page page) {
 		m_page = page;
 	}
 
@@ -414,14 +415,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		createContent();
 		afterCreateContent();
 	}
-	
-	public String getTitle() {
+
+	public String getLiteralTitle() {
 		return m_title;
 	}
-	public void setTitle(String title) {
+	public void setLiteralTitle(final String title) {
 		if(! DomUtil.isEqual(title, m_title))
 			changed();
 		m_title = title;
+	}
+
+	public void	setTitle(final BundleRef ref, final String k) {
+		setLiteralTitle(ref.getString(k));
 	}
 
 	@Override
@@ -431,18 +436,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		return n.substring(pos+1)+":"+m_actualID+(m_title == null ? "" : "/"+m_title);
 	}
 
-	public void	acceptRequestParameter(String[] values) throws Exception {
+	public void	acceptRequestParameter(final String[] values) throws Exception {
 		throw new IllegalStateException("?? The '"+getTag()+"' component ("+this.getClass()+") with id="+m_actualID+" does NOT accept input!");
 	}
-	
-	void internalOnAddedToPage(Page p) {
+
+	void internalOnAddedToPage(final Page p) {
 		onAddedToPage(p);
 		if(m_appendJS != null) {
 			getPage().appendJS(m_appendJS);
 			m_appendJS = null;
 		}
 	}
-	void internalOnRemoveFromPage(Page p) {
+	void internalOnRemoveFromPage(final Page p) {
 		onRemoveFromPage(p);
 	}
 
@@ -450,11 +455,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 	protected void	afterCreateContent() throws Exception {
 	}
-	public void		onAddedToPage(Page p) {
+	public void		onAddedToPage(final Page p) {
 	}
-	public void		onRemoveFromPage(Page p) {
+	public void		onRemoveFromPage(final Page p) {
 	}
-	public void	onHeaderContributors(Page page) {
+	public void	onHeaderContributors(final Page page) {
 	}
 	public boolean	validate() {
 		return true;
@@ -463,7 +468,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public Object getUserObject() {
 		return m_userObject;
 	}
-	public void setUserObject(Object userObject) {
+	public void setUserObject(final Object userObject) {
 		m_userObject = userObject;
 	}
 
@@ -471,7 +476,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		return m_onClickJS;
 	}
 
-	public void setOnClickJS(String onClickJS) {
+	public void setOnClickJS(final String onClickJS) {
 		if(DomUtil.isEqual(onClickJS, m_onClickJS))
 			changed();
 		m_onClickJS = onClickJS;
@@ -481,7 +486,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		return m_onMouseDownJS;
 	}
 
-	public void setOnMouseDownJS(String onMouseDownJS) {
+	public void setOnMouseDownJS(final String onMouseDownJS) {
 		m_onMouseDownJS = onMouseDownJS;
 	}
 	/**
@@ -489,7 +494,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * current request returns. The code is rendered only once.
 	 * @param js
 	 */
-	public void		appendJavascript(CharSequence js) {
+	public void		appendJavascript(final CharSequence js) {
 		if(getPage() != null)
 			getPage().appendJS(js);
 		else {
@@ -505,7 +510,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * gets added to the page's onload() code every time this object is constructed.
 	 * @param js
 	 */
-	public void		appendCreateJS(CharSequence js) {
+	public void		appendCreateJS(final CharSequence js) {
 		if(m_createJS == null)
 			m_createJS = new StringBuilder();
 		m_createJS.append(js);
@@ -515,7 +520,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		return m_createJS;
 	}
 
-	public void	setSpecialAttribute(String name, String value) {
+	public void	setSpecialAttribute(final String name, final String value) {
 		if(m_specialAttributes == null) {
 			m_specialAttributes = new ArrayList<String>(5);
 		} else {
@@ -540,12 +545,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		return m_specialAttributes;
 	}
 
-	public String	getSpecialAttribute(String name) {
+	public String	getSpecialAttribute(final String name) {
 		if(m_specialAttributes != null) {
 			for(int i = 0; i < m_specialAttributes.size(); i += 2) {
 				if(m_specialAttributes.get(i).equals(name))
 					return m_specialAttributes.get(i+1);
-			}			
+			}
 		}
 		return null;
 	}
@@ -556,7 +561,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param action
 	 * @throws Exception
 	 */
-	public void	componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
+	public void	componentHandleWebAction(final RequestContextImpl ctx, final String action) throws Exception {
 		if("WEBUIDROP".equals(action)) {
 			handleDrop(ctx);
 			return;
@@ -565,7 +570,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	/**
-	 * Claim the focus for this component. Only reasonable for input type and action 
+	 * Claim the focus for this component. Only reasonable for input type and action
 	 * components (links, buttons). For now this can only be called for components that
 	 * are already attached to a page. If this is a proble I'll fix it. Only one component
 	 * in a page can claim focus for itself.
@@ -608,7 +613,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param code
 	 * @param param
 	 */
-	public UIMessage	setMessage(MsgType mt, String code, Object... param) {
+	public UIMessage	setMessage(final MsgType mt, final String code, final Object... param) {
 		if(m_errorDelegate != null)
 			return m_errorDelegate.setMessage(mt, code, param);
 
@@ -657,7 +662,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			return m_errorDelegate.getMessage();
 		return m_message;
 	}
-	public void setErrorDelegate(INodeErrorDelegate errorDelegate) {
+	public void setErrorDelegate(final INodeErrorDelegate errorDelegate) {
 		m_errorDelegate = errorDelegate;
 	}
 	public INodeErrorDelegate getErrorDelegate() {
@@ -672,7 +677,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param code
 	 * @param param
 	 */
-	public UIMessage		addGlobalMessage(MsgType mt, String code, Object... param) {
+	public UIMessage		addGlobalMessage(final MsgType mt, final String code, final Object... param) {
 		UIMessage m = new UIMessage(null, mt, code, param);		// Create the container for the message
 		IErrorFence	fence	= DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.addMessage(this, m);
@@ -683,7 +688,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		IErrorFence	fence	= DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.clearGlobalMessages(this, null);
 	}
-	public void				clearGlobalMessage(String code) {
+	public void				clearGlobalMessage(final String code) {
 		IErrorFence	fence	= DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.clearGlobalMessages(this, code);
 	}
@@ -698,7 +703,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	protected void		onUnshelve() throws Exception {
 	}
 
-	
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle dropping of dnd nodes.						*/
 	/*--------------------------------------------------------------*/
@@ -707,7 +712,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * drop node AND the draggable that was dropped.
 	 * @param ctx
 	 */
-	protected void	handleDrop(RequestContextImpl ctx) throws Exception {
+	protected void	handleDrop(final RequestContextImpl ctx) throws Exception {
 		//-- Get the drop handler,
 		if(! (this instanceof IDropTargetable))
 			throw new IllegalStateException("?? Got a DROP action but I am not able to receive droppings?? "+this);

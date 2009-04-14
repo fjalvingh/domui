@@ -38,7 +38,7 @@ public class ShelveBreadCrumb extends Div {
 			//-- Create a LINK or a SPAN
 			Span	s	= new Span();
 			add(s);
-			String ttl = p.getBody().getTitle();
+			String ttl = p.getBody().getLiteralTitle();
 			if(ttl == null || ttl.length() == 0) {
 				ttl = p.getBody().getClass().getName();
 				ttl = ttl.substring(ttl.lastIndexOf('.')+1);
