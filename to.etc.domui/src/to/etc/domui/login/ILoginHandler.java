@@ -9,5 +9,5 @@ package to.etc.domui.login;
  * Created on Apr 14, 2009
  */
 public interface ILoginHandler {
-	IUser			loginUser(final String userid, final String credentials);
+	IUser			authenticateUser(final String userid, final String credentials);
 }

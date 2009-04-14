@@ -27,4 +27,9 @@ public interface IUser {
 	 * @return
 	 */
 	Set<String>		getRightNames();
+
+//	/**
+//	 * Since the stupid SUN spec does not expose roles we must query per single role. 
+//	 */
+//	boolean			hasRight(String r);
 }
