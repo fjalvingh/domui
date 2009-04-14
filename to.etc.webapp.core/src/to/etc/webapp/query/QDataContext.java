@@ -56,5 +56,7 @@ public interface QDataContext {
 //	@Deprecated
 	public void			rollback() throws Exception;
 
+	public boolean		inTransaction() throws Exception;
+
 	public Connection	getConnection() throws Exception;
 }

@@ -17,4 +17,7 @@ public @interface MetaObject {
 	MetaDisplayProperty[]	defaultColumns() default {};
 	String					defaultSortColumn() default Constants.NONE;
 	SortableType			defaultSortOrder() default SortableType.SORTABLE_ASC;
+
+	String					tableName() default "";
+	String					tablePrefix() default "";
 }

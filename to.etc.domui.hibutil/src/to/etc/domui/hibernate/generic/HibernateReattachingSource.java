@@ -1,6 +1,5 @@
 package to.etc.domui.hibernate.generic;
 
-import to.etc.domui.util.query.*;
 import to.etc.webapp.query.*;
 
 public class HibernateReattachingSource implements QDataContextSource {

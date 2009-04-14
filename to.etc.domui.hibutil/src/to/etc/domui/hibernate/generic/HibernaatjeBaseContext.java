@@ -8,14 +8,13 @@ import org.hibernate.*;
 
 import to.etc.domui.hibernate.model.*;
 import to.etc.domui.state.*;
-import to.etc.domui.util.query.*;
 import to.etc.webapp.query.*;
 
 public class HibernaatjeBaseContext implements QDataContext, ConversationStateListener {
 	protected HibernateSessionMaker		m_sessionMaker;
 	protected Session					m_session;
 
-	HibernaatjeBaseContext(HibernateSessionMaker sessionMaker) {
+	HibernaatjeBaseContext(final HibernateSessionMaker sessionMaker) {
 		m_sessionMaker = sessionMaker;
 	}
 
@@ -26,15 +25,15 @@ public class HibernaatjeBaseContext implements QDataContext, ConversationStateLi
 		return m_session;
 	}
 
-	public <T> T find(Class<T> clz, Object pk) throws Exception {
+	public <T> T find(final Class<T> clz, final Object pk) throws Exception {
 		return (T) getSession().load(clz, (Serializable)pk);
 	}
 
-	public <T> List<T> query(QCriteria<T> q) throws Exception {
+	public <T> List<T> query(final QCriteria<T> q) throws Exception {
 		Criteria	crit = GenericHibernateHandler.createCriteria(getSession(), q);	// Convert to Hibernate criteria
 		return crit.list();
 	}
-	public <T> T queryOne(QCriteria<T> q) throws Exception {
+	public <T> T queryOne(final QCriteria<T> q) throws Exception {
 		List<T>		res = query(q);
 		if(res.size() == 0)
 			return null;
@@ -62,42 +61,48 @@ public class HibernaatjeBaseContext implements QDataContext, ConversationStateLi
 		m_session = null;
 	}
 
-	public void attach(Object o) throws Exception {
+	public void attach(final Object o) throws Exception {
 		getSession().update(o);
 	}
-	public void delete(Object o) throws Exception {
+	public void delete(final Object o) throws Exception {
 		getSession().delete(o);
 	}
-	public void save(Object o) throws Exception {
+	public void save(final Object o) throws Exception {
 		getSession().save(o);
 	}
-	public void refresh(Object o) throws Exception {
+	public void refresh(final Object o) throws Exception {
 		getSession().refresh(o);
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ConversationStateListener impl.						*/
 	/*--------------------------------------------------------------*/
-	
-	public void conversationAttached(ConversationContext cc) throws Exception {
+
+	public void conversationAttached(final ConversationContext cc) throws Exception {
 	}
 
-	public void conversationDestroyed(ConversationContext cc) throws Exception {
+	public void conversationDestroyed(final ConversationContext cc) throws Exception {
 		close();
 	}
 
-	public void conversationDetached(ConversationContext cc) throws Exception {
+	public void conversationDetached(final ConversationContext cc) throws Exception {
 		close();
 	}
 
-	public void conversationNew(ConversationContext cc) throws Exception {
+	public void conversationNew(final ConversationContext cc) throws Exception {
 	}
 
 	public void startTransaction() throws Exception {
-		getSession().beginTransaction();
+		if(! inTransaction())
+			getSession().beginTransaction();
 	}
 	public void commit() throws Exception {
-		getSession().getTransaction().commit();
+		if(inTransaction())
+			getSession().getTransaction().commit();
+	}
+
+	public boolean inTransaction() throws Exception {
+		return getSession().getTransaction().isActive();
 	}
 	public void rollback() throws Exception {
 		if(getSession().getTransaction().isActive())

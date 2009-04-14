@@ -2,7 +2,6 @@ package to.etc.domui.hibernate.model;
 
 import org.hibernate.*;
 
-import to.etc.domui.util.query.*;
 import to.etc.webapp.query.*;
 
 /**
