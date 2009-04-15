@@ -57,7 +57,7 @@ public abstract class DomApplication {
 
 	private final boolean						m_logOutput = DeveloperOptions.getBool("domui.log", false);
 
-	private List<RequestInterceptor>	m_interceptorList = new ArrayList<RequestInterceptor>();
+	private List<IRequestInterceptor>	m_interceptorList = new ArrayList<IRequestInterceptor>();
 
 	/**
 	 * Contains the header contributors in the order that they were added.
@@ -75,6 +75,8 @@ public abstract class DomApplication {
 	private int							m_defaultExpiryTime = 7*24*60*60;
 
 	private ILoginAuthenticator				m_loginAuthenticator;
+
+	private ILoginDialogFactory			m_loginDialogFactory;
 
 	public DomApplication() {
 		m_controlFactoryList.add(ControlFactory.STRING_CF);
@@ -479,12 +481,12 @@ public abstract class DomApplication {
 	public boolean logOutput() {
 		return m_logOutput;
 	}
-	public synchronized void		addInterceptor(final RequestInterceptor r) {
-		List<RequestInterceptor>	l = new ArrayList<RequestInterceptor>(m_interceptorList);
+	public synchronized void		addInterceptor(final IRequestInterceptor r) {
+		List<IRequestInterceptor>	l = new ArrayList<IRequestInterceptor>(m_interceptorList);
 		l.add(r);
 		m_interceptorList = l;
 	}
-	public synchronized List<RequestInterceptor>	getInterceptorList() {
+	public synchronized List<IRequestInterceptor>	getInterceptorList() {
 		return m_interceptorList;
 	}
 
@@ -582,5 +584,13 @@ public abstract class DomApplication {
 	}
 	public synchronized void setLoginAuthenticator(final ILoginAuthenticator loginAuthenticator) {
 		m_loginAuthenticator = loginAuthenticator;
+	}
+
+	public synchronized ILoginDialogFactory getLoginDialogFactory() {
+		return m_loginDialogFactory;
+	}
+
+	public synchronized void setLoginDialogFactory(ILoginDialogFactory loginDialogFactory) {
+		m_loginDialogFactory = loginDialogFactory;
 	}
 }
