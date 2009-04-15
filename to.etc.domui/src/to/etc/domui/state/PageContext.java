@@ -89,7 +89,7 @@ public class PageContext {
 		String	ruser = rci.getRequest().getRemoteUser();
 		if(ruser != null) {
 			//-- Ask login provider for an IUser instance.
-			ILoginHandler	la	= rci.getApplication().getLoginAuthenticator();
+			ILoginAuthenticator	la	= rci.getApplication().getLoginAuthenticator();
 			if(null == la)
 				return null;
 

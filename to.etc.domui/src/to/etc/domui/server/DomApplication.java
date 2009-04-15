@@ -74,7 +74,7 @@ public abstract class DomApplication {
 	/** The default expiry time for resources, in seconds. */
 	private int							m_defaultExpiryTime = 7*24*60*60;
 
-	private ILoginHandler				m_loginAuthenticator;
+	private ILoginAuthenticator				m_loginAuthenticator;
 
 	public DomApplication() {
 		m_controlFactoryList.add(ControlFactory.STRING_CF);
@@ -577,10 +577,10 @@ public abstract class DomApplication {
 	public synchronized void setControlLabelFactory(final IControlLabelFactory controlLabelFactory) {
 		m_controlLabelFactory = controlLabelFactory;
 	}
-	public synchronized ILoginHandler getLoginAuthenticator() {
+	public synchronized ILoginAuthenticator getLoginAuthenticator() {
 		return m_loginAuthenticator;
 	}
-	public synchronized void setLoginAuthenticator(final ILoginHandler loginAuthenticator) {
+	public synchronized void setLoginAuthenticator(final ILoginAuthenticator loginAuthenticator) {
 		m_loginAuthenticator = loginAuthenticator;
 	}
 }

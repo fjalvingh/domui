@@ -8,6 +8,6 @@ package to.etc.domui.login;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 14, 2009
  */
-public interface ILoginHandler {
+public interface ILoginAuthenticator {
 	IUser			authenticateUser(final String userid, final String credentials);
 }
