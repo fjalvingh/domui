@@ -2,9 +2,11 @@ package to.etc.domui.server;
 
 import java.io.*;
 
+import to.etc.domui.annotations.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.login.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -144,6 +146,42 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		}
 		ctx.internalSetWindowSession(cm);
 		cm.clearGoto();
+
+		/*
+		 * 20090415 jal Authentication checks: if the page has a "UIRights" annotation we need a logged-in
+		 * user to check it's rights against the page's required rights.
+		 */
+		UIRights	rann	= clz.getAnnotation(UIRights.class);
+		if(rann != null) {
+			//-- Get user's IUser; if not present we need to log in.
+			IUser	user= PageContext.getCurrentUser();		// Currently logged in?
+			if(user == null) {
+				//-- Create the after-login target URL.
+				StringBuilder	sb	= new StringBuilder(256);
+//				sb.append('/');
+				sb.append(ctx.getRelativePath(ctx.getInputPath()));
+				sb.append('?');
+				StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+				sb.append('=');
+				sb.append(cm.getWindowID());
+				sb.append(".x");								// Dummy conversation ID
+				DomUtil.addUrlParameters(sb, ctx, false);
+				throw new NotLoggedInException(sb.toString());			// Force login exception.
+			}
+
+			//-- Issue rights check,
+			boolean allowed = true;
+			for(String right: rann.value()) {
+				if(! user.getRightNames().contains(right)) {
+					allowed = false;
+					break;
+				}
+			}
+			if(! allowed) {
+				//-- Sh*t. Redirect to the "not allowed" URL.
+				throw new RuntimeException("fixme: access not allowed, but way to display that is not coded yet.");
+			}
+		}
 
 		/*
 		 * Determine if this is an AJAX request or a normal "URL" request. If it is a non-AJAX

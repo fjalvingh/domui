@@ -15,6 +15,7 @@ import to.etc.domui.dom.BrowserOutput;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.login.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
@@ -72,6 +73,8 @@ public abstract class DomApplication {
 
 	/** The default expiry time for resources, in seconds. */
 	private int							m_defaultExpiryTime = 7*24*60*60;
+
+	private ILoginHandler				m_loginAuthenticator;
 
 	public DomApplication() {
 		m_controlFactoryList.add(ControlFactory.STRING_CF);
@@ -573,5 +576,11 @@ public abstract class DomApplication {
 	}
 	public synchronized void setControlLabelFactory(final IControlLabelFactory controlLabelFactory) {
 		m_controlLabelFactory = controlLabelFactory;
+	}
+	public synchronized ILoginHandler getLoginAuthenticator() {
+		return m_loginAuthenticator;
+	}
+	public synchronized void setLoginAuthenticator(final ILoginHandler loginAuthenticator) {
+		m_loginAuthenticator = loginAuthenticator;
 	}
 }
