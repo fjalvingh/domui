@@ -7,8 +7,7 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 
 abstract public class AbstractContextMaker implements ContextMaker {
-
-	public boolean	execute(RequestContextImpl ctx) throws Exception {
+	public boolean	execute(final RequestContextImpl ctx) throws Exception {
 		List<IRequestInterceptor>	il = ctx.getApplication().getInterceptorList();
 		Exception	xx = null;
 		try {
@@ -35,7 +34,7 @@ abstract public class AbstractContextMaker implements ContextMaker {
 		}
 	}
 
-	private void	callInterceptorsBegin(List<IRequestInterceptor> il, RequestContextImpl ctx) throws Exception {
+	private void	callInterceptorsBegin(final List<IRequestInterceptor> il, final RequestContextImpl ctx) throws Exception {
 		int	i;
 		for(i = 0; i < il.size(); i++) {
 			IRequestInterceptor	ri = il.get(i);
@@ -58,7 +57,7 @@ abstract public class AbstractContextMaker implements ContextMaker {
 		}
 	}
 
-	private void	callInterceptorsAfter(List<IRequestInterceptor> il, RequestContextImpl ctx, Exception x) throws Exception {
+	private void	callInterceptorsAfter(final List<IRequestInterceptor> il, final RequestContextImpl ctx, final Exception x) throws Exception {
 		Exception endx= null;
 
 		for(int i = il.size(); --i >= 0;) {

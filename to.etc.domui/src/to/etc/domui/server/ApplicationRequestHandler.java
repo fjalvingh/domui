@@ -141,7 +141,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 			sb.append(cm.getWindowID());
 			sb.append(".x");								// Dummy conversation ID
 			DomUtil.addUrlParameters(sb, ctx, false);
-			generateRedirect(ctx, sb.toString());
+			generateRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
 			return;
 		}
 		ctx.internalSetWindowSession(cm);
@@ -150,6 +150,8 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		/*
 		 * 20090415 jal Authentication checks: if the page has a "UIRights" annotation we need a logged-in
 		 * user to check it's rights against the page's required rights.
+		 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
+		 *
 		 */
 		UIRights	rann	= clz.getAnnotation(UIRights.class);
 		if(rann != null) {
@@ -166,7 +168,19 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 				sb.append(cm.getWindowID());
 				sb.append(".x");								// Dummy conversation ID
 				DomUtil.addUrlParameters(sb, ctx, false);
-				throw new NotLoggedInException(sb.toString());			// Force login exception.
+
+				//-- Obtain the URL to redirect to from a thingy factory (should this happen here?)
+				ILoginDialogFactory	ldf = m_application.getLoginDialogFactory();
+				if(ldf == null)
+					throw new NotLoggedInException(sb.toString());			// Force login exception.
+				String target = ldf.getLoginRURL(sb.toString());		// Create a RURL to move to.
+				if(target == null)
+					throw new IllegalStateException("The Login Dialog Handler="+ldf+" returned an invalid URL for the login dialog.");
+
+				//-- Make this an absolute URL by appending the webapp path
+				target = ctx.getRelativePath(target);
+				generateRedirect(ctx, target, "You need to login before accessing this function");
+				return;
 			}
 
 			//-- Issue rights check,
@@ -273,7 +287,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		page.getConversation().startDelayedExecution();
 	}
 
-	private void	generateRedirect(final RequestContextImpl ctx, final String to) throws Exception {
+	private void	generateRedirect(final RequestContextImpl ctx, final String to, final String rsn) throws Exception {
 //		ctx.getResponse().sendRedirect(sb.toString());	// Force redirect.
 
 		ctx.getResponse().setContentType("text/html; charset=UTF-8");
@@ -284,7 +298,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		+	"<html><head><script language=\"javascript\"><!--\n"
 		+	"location.replace("+StringTool.strToJavascriptString(to, true)+");\n"
 		+	"--></script>\n"
-		+	"</head><body>Your session has expired - creating a new session</body></html>\n"
+		+	"</head><body>"+rsn+"</body></html>\n"
 		);
 	}
 

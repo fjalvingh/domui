@@ -33,12 +33,19 @@ public class PageContext {
 	 * ended.
 	 * @param rc
 	 */
-	static public void	internalSet(final RequestContextImpl rc) {
+	static public void	internalSet(final RequestContextImpl rc) throws Exception {
 		m_current.set(rc);
-		if(rc == null)
-			m_currentUser.set(null);
-		else
-			m_currentUser.set(internalGetLoggedInUser(rc));
+		boolean ok = false;
+		try {
+			if(rc == null)
+				m_currentUser.set(null);
+			else
+				m_currentUser.set(internalGetLoggedInUser(rc));
+			ok = true;
+		} finally {
+			if(! ok)
+				m_current.set(null);
+		}
 	}
 
 	static public void	internalSet(final Page pg) {
@@ -71,7 +78,7 @@ public class PageContext {
 	 * @param rci
 	 * @return
 	 */
-	static public IUser		internalGetLoggedInUser(final RequestContextImpl rci) {
+	static public IUser		internalGetLoggedInUser(final RequestContextImpl rci) throws Exception {
 		HttpSession	hs	= rci.getRequest().getSession(false);
 		if(hs == null)
 			return null;
