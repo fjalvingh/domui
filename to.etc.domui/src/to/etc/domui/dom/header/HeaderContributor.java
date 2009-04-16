@@ -24,7 +24,13 @@ abstract public class HeaderContributor {
 
 	abstract public void	contribute(FullHtmlRenderer r) throws Exception;
 
-	static synchronized public HeaderContributor	loadJavascript(String name) {
+	@Override
+	abstract public int hashCode();
+
+	@Override
+	abstract public boolean equals(final Object obj);
+
+	static synchronized public HeaderContributor	loadJavascript(final String name) {
 		HeaderContributor c = m_jsMap.get(name);
 		if(c == null) {
 			c = new JavascriptContributor(name);
