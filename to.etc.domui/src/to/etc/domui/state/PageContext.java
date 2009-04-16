@@ -82,32 +82,66 @@ public class PageContext {
 		HttpSession	hs	= rci.getRequest().getSession(false);
 		if(hs == null)
 			return null;
-		Object	sval = hs.getAttribute(LOGIN_KEY);					// Try to find the key,
-		if(sval != null) {
-			if(sval instanceof IUser) {
-				//-- Proper IUser structure- return it.
-				return (IUser) sval;
+		synchronized(hs) {
+			Object	sval = hs.getAttribute(LOGIN_KEY);					// Try to find the key,
+			if(sval != null) {
+				if(sval instanceof IUser) {
+					//-- Proper IUser structure- return it.
+					return (IUser) sval;
+				}
 			}
+
+			/*
+			 * If a remoteUser is set the user IS authenticated using Tomcat; get it's credentials.
+			 */
+			String	ruser = rci.getRequest().getRemoteUser();
+			if(ruser != null) {
+				//-- Ask login provider for an IUser instance.
+				ILoginAuthenticator	la	= rci.getApplication().getLoginAuthenticator();
+				if(null == la)
+					return null;
+
+				IUser	user = la.authenticateUser(ruser, null);		// Tomcat authenticator has no password.
+				if(user == null)
+					throw new IllegalStateException("Internal: container has logged-in user '"+ruser+"', but authenticator class="+la+" does not return an IUser for it!!");
+
+				//-- Store the user in the HttpSession.
+				hs.setAttribute(LOGIN_KEY, user);
+				return user;
+			}
+			return null;
 		}
+	}
 
-		/*
-		 * If a remoteUser is set the user IS authenticated using Tomcat; get it's credentials.
-		 */
-		String	ruser = rci.getRequest().getRemoteUser();
-		if(ruser != null) {
-			//-- Ask login provider for an IUser instance.
-			ILoginAuthenticator	la	= rci.getApplication().getLoginAuthenticator();
-			if(null == la)
-				return null;
+	/**
+	 * Logs in a user. If he was logged in before he is logged out.
+	 * @param userid
+	 * @param password
+	 * @return
+	 */
+	static public boolean	login(final String userid, final String password) throws Exception {
+		RequestContextImpl	ci = m_current.get();
+		if(ci == null)
+			throw new IllegalStateException("You can login from a server request only");
 
-			IUser	user = la.authenticateUser(ruser, null);		// Tomcat authenticator has no password.
+		HttpSession	hs	= ci.getRequest().getSession(false);
+		if(hs == null)
+			return false;
+		synchronized(hs) {
+			//-- Force logout
+			hs.removeAttribute(LOGIN_KEY);
+
+			//-- Check credentials,
+			ILoginAuthenticator	la	= ci.getApplication().getLoginAuthenticator();
+			if(la == null)
+				throw new IllegalStateException("There is no login authenticator set in the Application!");
+			IUser	user = la.authenticateUser(userid, password);
 			if(user == null)
-				throw new IllegalStateException("Internal: container has logged-in user '"+ruser+"', but authenticator class="+la+" does not return an IUser for it!!");
+				return false;
 
-			//-- Store the user in the HttpSession.
-			hs.setAttribute(LOGIN_KEY, user);
-			return user;
+			//-- Login succeeded: save the user in the session context
+			hs.setAttribute(LOGIN_KEY, user);						// This causes the user to be logged on.
+			return true;
 		}
-		return null;
 	}
 }
