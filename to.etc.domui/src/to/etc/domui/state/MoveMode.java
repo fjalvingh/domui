@@ -11,5 +11,7 @@ public enum MoveMode {
 	BACK,
 
 	/** Replace the "current" page with this page, but leave the shelve stack in order. */
-	REPLACE
+	REPLACE,
+
+	REDIRECT
 }

@@ -20,7 +20,7 @@ final public class UIGoto {
 	 * Push (shelve) the current page, then move to a new page. The page is parameterless, and is started in a NEW ConversationContext.
 	 * @param clz
 	 */
-	static public void 	moveSub(Class<? extends UrlPage> clz) {
+	static public void 	moveSub(final Class<? extends UrlPage> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.SUB, clz, null, null, null);
@@ -32,7 +32,7 @@ final public class UIGoto {
 	 * @param clz
 	 * @param pp
 	 */
-	static public void	moveSub(Class<? extends UrlPage> clz, PageParameters pp) {
+	static public void	moveSub(final Class<? extends UrlPage> clz, final PageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.SUB, clz, null, null, pp);
@@ -46,7 +46,7 @@ final public class UIGoto {
 	 * @param cc
 	 * @param pp
 	 */
-	static public void	moveSub(Class<? extends UrlPage> clz, ConversationContext cc, PageParameters pp) {
+	static public void	moveSub(final Class<? extends UrlPage> clz, final ConversationContext cc, final PageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		if(cc == null)
@@ -60,7 +60,7 @@ final public class UIGoto {
 	 * @param clz
 	 * @param pp
 	 */
-	static public void	moveNew(Class<? extends UrlPage> clz, PageParameters pp) {
+	static public void	moveNew(final Class<? extends UrlPage> clz, final PageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.NEW, clz, null, null, pp);
@@ -70,7 +70,7 @@ final public class UIGoto {
 	 * Clear the entire shelve, then goto a new page. The page uses a NEW ConversationContext.
 	 * @param clz
 	 */
-	static public void 	moveNew(Class<? extends UrlPage> clz) {
+	static public void 	moveNew(final Class<? extends UrlPage> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.NEW, clz, null, null, null);
@@ -80,7 +80,7 @@ final public class UIGoto {
 	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
 	 * @param clz
 	 */
-	static public void	replace(Class<? extends UrlPage> clz) {
+	static public void	replace(final Class<? extends UrlPage> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, null);
@@ -90,10 +90,14 @@ final public class UIGoto {
 	 * @param clz
 	 * @param pp
 	 */
-	static public void	replace(Class<? extends UrlPage> clz, PageParameters pp) {
+	static public void	replace(final Class<? extends UrlPage> clz, final PageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
+	}
+
+	static public void	redirect(final String targeturl) {
+		context().internalSetRedirect(targeturl);
 	}
 
 	/**
