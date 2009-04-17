@@ -206,8 +206,10 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 				StringTool.encodeURLEncoded(sb, clz.getName());
 
 				//-- All required rights
+				int ix = 0;
 				for(String r: rann.value()) {
-					sb.append("&r=");
+					sb.append("&r"+ix+"=");
+					ix++;
 					StringTool.encodeURLEncoded(sb, r);
 				}
 				generateRedirect(ctx, sb.toString(), "Access denied");
