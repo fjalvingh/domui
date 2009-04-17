@@ -186,7 +186,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 			//-- Issue rights check,
 			boolean allowed = true;
 			for(String right: rann.value()) {
-				if(! user.getRightNames().contains(right)) {
+				if(! user.hasRight(right)) {
 					allowed = false;
 					break;
 				}

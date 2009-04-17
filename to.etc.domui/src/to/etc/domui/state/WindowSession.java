@@ -246,7 +246,6 @@ final public class WindowSession {
 			return true;
 		}
 		if(getTargetMode() == MoveMode.REDIRECT) {
-			StringBuilder	sb	= new StringBuilder();
 			String	tu = m_targetURL;
 			if(tu.startsWith("/"))
 				tu = tu.substring(1);

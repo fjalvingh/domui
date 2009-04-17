@@ -1,6 +1,7 @@
 package to.etc.domui.server;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,6 +23,7 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  *
@@ -590,7 +592,91 @@ public abstract class DomApplication {
 		return m_loginDialogFactory;
 	}
 
-	public synchronized void setLoginDialogFactory(ILoginDialogFactory loginDialogFactory) {
+	public synchronized void setLoginDialogFactory(final ILoginDialogFactory loginDialogFactory) {
 		m_loginDialogFactory = loginDialogFactory;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Rights registry.									*/
+	/*--------------------------------------------------------------*/
+	private final Map<String, BundleRef>		m_rightsBundleMap = new HashMap<String, BundleRef>();
+
+	/**
+	 * Registers a set of possible rights and their names/translation bundle.
+	 * @param bundle
+	 * @param rights
+	 */
+	public void		registerRight(final BundleRef bundle, final String... rights) {
+		synchronized(m_rightsBundleMap) {
+			for(String r: rights) {
+				if(! m_rightsBundleMap.containsKey(r))
+					m_rightsBundleMap.put(r, bundle);
+			}
+		}
+	}
+
+	/**
+	 * Takes a class (or interface) and scans all static public final String fields therein. For
+	 * each field it's literal string value is used as a rights name and associated with the bundle.
+	 * If a right already exists it is skipped, meaning the first ever definition of a right wins.
+	 *
+	 * @param bundle
+	 * @param constantsclass
+	 */
+	public void		registerRights(final BundleRef bundle, final Class<?> constantsclass) {
+		//-- Find all class fields.
+		Field[]	far	= constantsclass.getDeclaredFields();
+		synchronized(m_rightsBundleMap) {
+			for(Field f: far) {
+				int mod = f.getModifiers();
+				if(Modifier.isFinal(mod) && Modifier.isPublic(mod) && Modifier.isStatic(mod)) {
+					if(f.getType() == String.class) {
+						try {
+							String s = (String)f.get(null);
+							if(s != null) {
+								if(! m_rightsBundleMap.containsKey(s)) {
+									m_rightsBundleMap.put(s, bundle);
+//									System.out.println("app: registering right="+s);
+								}
+							}
+						} catch(Exception x) {
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Return a list of all currently registered right names.
+	 * @return
+	 */
+	public List<String>	getRegisteredRights() {
+		synchronized(m_rightsBundleMap) {
+			return new ArrayList<String>(m_rightsBundleMap.keySet());
+		}
+	}
+	/**
+	 * Translates a right name to a description from the registered bundle, if registered.
+	 * @param right
+	 * @return
+	 */
+	public String	findRightsDescription(final String right) {
+		BundleRef	br;
+		synchronized(m_rightsBundleMap) {
+			br = m_rightsBundleMap.get(right);
+		}
+		return br == null ? null : br.findMessage(NlsContext.getLocale(), "right."+right);
+	}
+
+	/**
+	 * Translates a right name to a description from the registered bundle, if registered. Returns the right name if no bundle or description is
+	 * found.
+	 * @param right
+	 * @return
+	 */
+	public String	getRightsDescription(final String right) {
+		String v = findRightsDescription(right);
+		return v == null ? right : v;
 	}
 }

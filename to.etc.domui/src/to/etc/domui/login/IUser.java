@@ -1,7 +1,5 @@
 package to.etc.domui.login;
 
-import java.util.*;
-
 /**
  * Represents a logged-in user. This base interface only knows data that must be known about
  * any logged-in user. Extras can be obtained if you know the implementation.
@@ -22,14 +20,11 @@ public interface IUser {
 	 */
 	String			getDisplayName();
 
-	/**
-	 * The set of names representing the rights the user has.
-	 * @return
-	 */
-	Set<String>		getRightNames();
-
 //	/**
-//	 * Since the stupid SUN spec does not expose roles we must query per single role. 
+//	 * The set of names representing the rights the user has.
+//	 * @return
 //	 */
-//	boolean			hasRight(String r);
+//	Set<String>		getRightNames();
+
+	boolean			hasRight(String r);
 }

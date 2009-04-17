@@ -4,7 +4,6 @@ import java.util.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
-import to.etc.domui.utils.*;
 
 
 public interface IMenuItem {
@@ -24,7 +23,7 @@ public interface IMenuItem {
 
 	String getSearchString();
 
-	Right[] getRequiredRights();
+	String[] getRequiredRights();
 
 	String getLabel();
 

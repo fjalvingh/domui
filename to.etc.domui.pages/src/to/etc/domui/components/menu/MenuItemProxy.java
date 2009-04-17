@@ -4,7 +4,6 @@ import java.util.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
-import to.etc.domui.utils.*;
 
 /**
  * Proxy to an actual MenuItem which can be used to override a menu with a different order, tree structure.
@@ -55,7 +54,7 @@ public class MenuItemProxy implements IMenuItem {
 		return m_actual.getParentID();
 	}
 
-	public Right[] getRequiredRights() {
+	public String[] getRequiredRights() {
 		return m_actual.getRequiredRights();
 	}
 

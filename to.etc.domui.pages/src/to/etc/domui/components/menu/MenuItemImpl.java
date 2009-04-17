@@ -5,7 +5,6 @@ import java.util.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
-import to.etc.domui.utils.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -49,7 +48,7 @@ public class MenuItemImpl implements IMenuItem {
 	private boolean	m_subMenu;
 
 	/** The list of rights the user MUST have to access this menu item. This can get delegated to the UrlPage's annotation. */
-	private Right[]		m_requiredRights;
+	private String[]		m_requiredRights;
 
 	private List<IMenuItem> m_children = new ArrayList<IMenuItem>();
 
@@ -68,7 +67,7 @@ public class MenuItemImpl implements IMenuItem {
 	 * @param name
 	 * @return
 	 */
-	public MenuItemImpl		setRequiredRights(final Right... rights) {
+	public MenuItemImpl		setRequiredRights(final String... rights) {
 		m_requiredRights = rights;
 		return this;
 	}
@@ -198,7 +197,7 @@ public class MenuItemImpl implements IMenuItem {
     /**
 	 * @see to.etc.domui.components.menu.IMenuItem#getRequiredRights()
 	 */
-    public Right[] getRequiredRights() {
+    public String[] getRequiredRights() {
 		return m_requiredRights;
 	}
 
