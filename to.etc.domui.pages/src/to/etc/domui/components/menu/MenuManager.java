@@ -6,7 +6,6 @@ import to.etc.domui.annotations.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
-import to.etc.domui.utils.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -108,8 +107,8 @@ final public class MenuManager {
 		}
 
 		//-- Not set using a UIMenu annotation. Is a .png with the same classname available?
-		String	cn	= AppUIUtil.getClassNameOnly(clz)+".png";
-		if(AppUIUtil.hasResource(clz, cn)) {
+		String	cn	= DomUtil.getClassNameOnly(clz)+".png";
+		if(DomUtil.hasResource(clz, cn)) {
 			m.setIconPath(DomUtil.getJavaResourceRURL(clz, cn));	// Set class-based URL
 			return;
 		}
@@ -142,7 +141,7 @@ final public class MenuManager {
 		 */
 		UIMenu	ma = pageClass.getAnnotation(UIMenu.class);		// Is annotated with UIMenu?
 		if(ma != null) {
-			BundleRef	ref	= AppUIUtil.findBundle(ma, pageClass);
+			BundleRef	ref	= DomUtil.findBundle(ma, pageClass);
 			if(ref != null) {
 				boolean ok = false;
 				if(ma.baseKey().length() != 0) {
@@ -175,7 +174,7 @@ final public class MenuManager {
 		}
 
 		//-- Not using UIMenu; use page/package based structures. This depends on whether a Page resource exists.
-		BundleRef	br	= AppUIUtil.getClassBundle(pageClass);		// PageClass bundle
+		BundleRef	br	= DomUtil.getClassBundle(pageClass);		// PageClass bundle
 		if(br.exists()) {
 			//-- Use page-based resources.
 			m.setMsgBundle(br);
@@ -187,7 +186,7 @@ final public class MenuManager {
 		}
 
 		//-- Try package-based keys
-		br	= AppUIUtil.getPackageBundle(pageClass);	// Package bundle.
+		br	= DomUtil.getPackageBundle(pageClass);	// Package bundle.
 		if(br.exists()) {
 			//-- Use the package-based bundle for $ provided some exist...
 			String	bn = pageClass.getName();

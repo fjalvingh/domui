@@ -3,7 +3,7 @@ package to.etc.domui.components.basic;
 import to.etc.domui.annotations.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.utils.*;
+import to.etc.domui.util.*;
 
 /**
  * A page title bar. This consists of an image in the left corner, a string describing the
@@ -92,8 +92,8 @@ public class AppPageTitle extends Div {
 		}
 
 		//-- Not set using a UIMenu annotation. Is a .png with the same classname available?
-		String	cn	= AppUIUtil.getClassNameOnly(clz)+".png";
-		if(AppUIUtil.hasResource(clz, cn)) {
+		String	cn	= DomUtil.getClassNameOnly(clz)+".png";
+		if(DomUtil.hasResource(clz, cn)) {
 			m_img.setSrc(clz, cn);
 			return;
 		}
@@ -108,7 +108,7 @@ public class AppPageTitle extends Div {
 	private String	getPageTitle() {
 		if(m_title != null)						// Manually set?
 			return m_title;
-		return AppUIUtil.calcPageTitle(getPage().getBody().getClass());
+		return DomUtil.calcPageTitle(getPage().getBody().getClass());
 	}
 
 	protected void	addDefaultButtons(final NodeContainer nc) {
