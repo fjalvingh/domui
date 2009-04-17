@@ -45,7 +45,9 @@ public class AccessDeniedPage extends UrlPage {
 
 		TD	co	= b.addCell();
 		String	txt	= DomUtil.BUNDLE.formatMessage("login.access.denied", pageName);
-		co.add(new Div(txt));
+		Div	d = new Div(txt);
+		co.add(d);
+		d.setCssClass("ui-acd-ttl");
 
 //		//-- Get all rights needed.
 //		StringBuilder sb	= new StringBuilder(256);
@@ -61,7 +63,7 @@ public class AccessDeniedPage extends UrlPage {
 //		ep.getContent().addLiteral(DomUtil.BUNDLE.formatMessage("login.required.rights", sb.toString()));
 
 		co.add(new Div(DomUtil.BUNDLE.formatMessage("login.required.rights")));
-		Div d	= new Div();
+		d	= new Div();
 		co.add(d);
 		Ul	ul = new Ul();
 		d.add(ul);

@@ -89,6 +89,12 @@
 	font-weight: bold;
 }
 
+/*** AccessDeniedPage ***/
+.ui-acd-ttl {
+	font-size: larger;
+	font-style: italic;
+}
+
 /*** LinkButton component. ***/
 .ui-lbtn {
 	background-repeat: no-repeat;
