@@ -2,6 +2,7 @@ package to.etc.domui.login;
 
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
@@ -29,14 +30,19 @@ public class AccessDeniedPage extends UrlPage {
 
 		CaptionedPanel	ep	= new CaptionedPanel(DomUtil.BUNDLE.getString("login.access.title"));
 		add(ep);
+		Table	t	= new Table();
+		ep.getContent().add(t);
+		t.setWidth("100%");
+		TBody b = t.addBody();
+		TD	td	= b.addRowAndCell();
 		Img	img	= new Img(AccessDeniedPage.class, "accessDenied.png");
-		img.setAlign(ImgAlign.LEFT);
-		ep.getContent().add(img);
+//		img.setAlign(ImgAlign.LEFT);
+		td.add(img);
+		td.setWidth("1%");
 
-		Div	d	= new Div();
+		TD	co	= b.addCell();
 		String	txt	= DomUtil.BUNDLE.formatMessage("login.access.denied", pageName);
-		d.setLiteralText(txt);
-		ep.getContent().add(d);
+		co.add(new Div(txt));
 
 //		//-- Get all rights needed.
 //		StringBuilder sb	= new StringBuilder(256);
@@ -51,9 +57,9 @@ public class AccessDeniedPage extends UrlPage {
 //		}
 //		ep.getContent().addLiteral(DomUtil.BUNDLE.formatMessage("login.required.rights", sb.toString()));
 
-		ep.getContent().add(new Div(DomUtil.BUNDLE.formatMessage("login.required.rights")));
-		d	= new Div();
-		ep.getContent().add(d);
+		co.add(new Div(DomUtil.BUNDLE.formatMessage("login.required.rights")));
+		Div d	= new Div();
+		co.add(d);
 		Ul	ul = new Ul();
 		d.add(ul);
 		for(int i = 0; i < 99; i++) {
@@ -69,7 +75,7 @@ public class AccessDeniedPage extends UrlPage {
 		//-- Add a link to return to the master/index page.
 		if(DomApplication.get().getRootPage() != null) {
 			d	= new Div();
-			ep.getContent().add(d);
+			co.add(d);
 			ALink	link	= new ALink(DomApplication.get().getRootPage(), MoveMode.NEW);		// Destroy shelve.
 			d.add(link);
 			link.setText(DomUtil.BUNDLE, "login.toindex");
