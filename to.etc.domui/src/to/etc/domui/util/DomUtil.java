@@ -486,7 +486,7 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	static public String		calcPageTitle(final Class<? extends UrlPage> clz) {
+	static public String		calcPageTitle(final Class<?> clz) {
 		UIMenu	ma = clz.getAnnotation(UIMenu.class);		// Is annotated with UIMenu?
 		Locale	loc	= NlsContext.getLocale();
 		BundleRef	br	= findBundle(ma, clz);
@@ -545,7 +545,7 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	static public String		calcPageLabel(final Class<? extends UrlPage> clz) {
+	static public String		calcPageLabel(final Class<?> clz) {
 		UIMenu	ma = clz.getAnnotation(UIMenu.class);		// Is annotated with UIMenu?
 		Locale	loc	= NlsContext.getLocale();
 		BundleRef	br	= findBundle(ma, clz);

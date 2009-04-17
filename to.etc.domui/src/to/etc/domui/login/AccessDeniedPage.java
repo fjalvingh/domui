@@ -2,7 +2,6 @@ package to.etc.domui.login;
 
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
@@ -24,7 +23,11 @@ public class AccessDeniedPage extends UrlPage {
 			if(clz == null)
 				pageName = cname;
 			else {
-				pageName = "to be done";
+				String s = DomUtil.calcPageTitle(clz);
+				if(s == null)
+					s = DomUtil.calcPageLabel(clz);
+				if(s != null)
+					pageName = s;
 			}
 		}
 
