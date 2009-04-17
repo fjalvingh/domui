@@ -193,7 +193,25 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 			}
 			if(! allowed) {
 				//-- Sh*t. Redirect to the "not allowed" URL.
-				throw new RuntimeException("fixme: access not allowed, but way to display that is not coded yet.");
+				ILoginDialogFactory	ldf = m_application.getLoginDialogFactory();
+				String	rurl	= ldf == null ? null : ldf.getAccessDeniedURL();
+				if(rurl == null) {
+					rurl = AccessDeniedPage.class.getName()+"."+m_application.getUrlExtension();
+				}
+
+				//-- Add info about the failed thingy.
+				StringBuilder	sb	= new StringBuilder(128);
+				sb.append(rurl);
+				sb.append("?targetPage=");
+				StringTool.encodeURLEncoded(sb, clz.getName());
+
+				//-- All required rights
+				for(String r: rann.value()) {
+					sb.append("&r=");
+					StringTool.encodeURLEncoded(sb, r);
+				}
+				generateRedirect(ctx, sb.toString(), "Access denied");
+				return;
 			}
 		}
 

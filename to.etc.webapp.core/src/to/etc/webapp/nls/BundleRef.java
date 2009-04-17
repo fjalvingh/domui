@@ -1,6 +1,7 @@
 package to.etc.webapp.nls;
 
 import java.io.*;
+import java.text.*;
 import java.util.*;
 
 /**
@@ -214,5 +215,19 @@ final public class BundleRef implements NlsMessageProvider {
 			} catch(MissingResourceException x) {}
 		}
 		return null;
+	}
+
+	/**
+	 * Gets the string, and applies default message formatting using the parameters
+	 * passed in the current locale.
+	 * @param key
+	 * @param param
+	 * @return
+	 */
+	public String	formatMessage(final String key, final Object... param) {
+		String	s	= findMessage(NlsContext.getLocale(), key);
+		if(s == null)
+			return "???"+key+"???";
+		return MessageFormat.format(s, param);
 	}
 }

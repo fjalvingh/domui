@@ -11,8 +11,11 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 
 final public class DomUtil {
+	static public final BundleRef	BUNDLE	= BundleRef.create(DomUtil.class, "messages");
+
 	static private int		m_guidSeed;
 
 	private DomUtil() {}
@@ -22,15 +25,15 @@ final public class DomUtil {
 		m_guidSeed = (int)val;
 	}
 
-	static public final boolean	isEqual(Object a, Object b) {
+	static public final boolean	isEqual(final Object a, final Object b) {
 		if(a == b)
 			return true;
 		if(a == null || b == null)
 			return false;
 		return a.equals(b);
 	}
-	
-	static public final boolean isEqual(Object... ar) {
+
+	static public final boolean isEqual(final Object... ar) {
 		if(ar.length < 2)
 			throw new IllegalStateException("Silly.");
 		Object a = ar[0];
@@ -41,7 +44,7 @@ final public class DomUtil {
 		return true;
 	}
 
-	static public final Class<?>	findClass(@Nonnull ClassLoader cl, @Nonnull String name) {
+	static public final Class<?>	findClass(@Nonnull final ClassLoader cl, @Nonnull final String name) {
 		try {
 			return cl.loadClass(name);
 		} catch(Exception x) {
@@ -58,7 +61,7 @@ final public class DomUtil {
 	 * @param name
 	 * @return
 	 */
-	static public final Object		getClassValue(@Nonnull Object inst, @Nonnull String name) throws Exception {
+	static public final Object		getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
 		if(inst == null)
 			throw new IllegalStateException("The input object is null");
 		Class<?>	clz = inst.getClass();
@@ -89,7 +92,7 @@ final public class DomUtil {
 	 * @param path
 	 * @return
 	 */
-	static public Object	getPropertyValue(@Nonnull Object base, @Nonnull String path) {
+	static public Object	getPropertyValue(@Nonnull final Object base, @Nonnull final String path) {
 		int	pos	= 0;
 		int	len	= path.length();
 		Object	next = base;
@@ -120,7 +123,7 @@ final public class DomUtil {
 		return next;
 	}
 
-	static private Object	getSinglePropertyValue(Object base, String name) {
+	static private Object	getSinglePropertyValue(final Object base, final String name) {
 		try {
 			StringBuilder	sb	= new StringBuilder(name.length()+3);
 			sb.append("get");
@@ -175,7 +178,7 @@ final public class DomUtil {
 		long v = System.currentTimeMillis() / 1000 - (m_guidSeed*60);
 		ByteArrayUtil.setInt(bin, 6, (int)v);
 		ByteArrayUtil.setLong(bin, 10, System.nanoTime());
-		
+
 //		ByteArrayUtil.setLong(bin, 6, System.currentTimeMillis());
 //		System.out.print(StringTool.toHex(bin)+"   ");
 
@@ -200,7 +203,7 @@ final public class DomUtil {
 		return sb.toString();
 	}
 
-	static public void	addUrlParameters(StringBuilder sb, RequestContext ctx, boolean first) {
+	static public void	addUrlParameters(final StringBuilder sb, final RequestContext ctx, boolean first) {
 		for(String name: ctx.getParameterNames()) {
 			if(name.equals(Constants.PARAM_CONVERSATION_ID))
 				continue;
@@ -216,7 +219,7 @@ final public class DomUtil {
 			}
 		}
 	}
-	static public void	addUrlParameters(StringBuilder sb, PageParameters ctx, boolean first) {
+	static public void	addUrlParameters(final StringBuilder sb, final PageParameters ctx, boolean first) {
 		if(ctx == null)
 			return;
 		for(String name: ctx.getParameterNames()) {
@@ -234,7 +237,7 @@ final public class DomUtil {
 		}
 	}
 
-	static public String[]	decodeCID(String param) {
+	static public String[]	decodeCID(final String param) {
 		if(param == null)
 			return null;
 		int	pos = param.indexOf('.');
@@ -251,7 +254,7 @@ final public class DomUtil {
 	 * Ensures that all of a node tree has been built.
 	 * @param p
 	 */
-	static public void		buildTree(NodeBase p) throws Exception {
+	static public void		buildTree(final NodeBase p) throws Exception {
 		p.build();
 		if(p instanceof NodeContainer) {
 			NodeContainer nc = (NodeContainer)p;
@@ -269,7 +272,7 @@ final public class DomUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	static public <T extends NodeBase> T	findComponentInTree(NodeBase p, Class<T> clz) throws Exception {
+	static public <T extends NodeBase> T	findComponentInTree(final NodeBase p, final Class<T> clz) throws Exception {
 		if(clz.isAssignableFrom(p.getClass()))
 			return (T) p;
 		p.build();
@@ -284,7 +287,7 @@ final public class DomUtil {
 		return null;
 	}
 
-	static public String	nlsLabel(String label) {
+	static public String	nlsLabel(final String label) {
 		if(label == null)
 			return label;
 		if(label.charAt(0) != '~')
@@ -300,7 +303,7 @@ final public class DomUtil {
 	 * Walks the entire table and adjusts it's colspans.
 	 * @param t
 	 */
-	static public void		adjustTableColspans(Table table) {
+	static public void		adjustTableColspans(final Table table) {
 		//-- Count the max. row length (max #cells in a row)
 		int maxcol = 0;
 		for(NodeBase b: table) {		// For all TBody's
@@ -357,7 +360,7 @@ final public class DomUtil {
 	 * @param sb
 	 * @param in
 	 */
-	static public void	stripHtml(StringBuilder sb, String in) {
+	static public void	stripHtml(final StringBuilder sb, final String in) {
 		HtmlScanner	hs	= new HtmlScanner();
 		int	lpos	= 0;
 		hs.setDocument(in);
@@ -379,7 +382,7 @@ final public class DomUtil {
 			sb.append(in, hs.getPos(), in.length());
 	}
 
-	static public void		dumpException(Exception x) {
+	static public void		dumpException(final Exception x) {
         x.printStackTrace();
 
         Throwable next = null;
@@ -398,7 +401,7 @@ final public class DomUtil {
         }
 	}
 
-	static public String	getJavaResourceRURL(Class<?> resourceBase, String name) {
+	static public String	getJavaResourceRURL(final Class<?> resourceBase, final String name) {
 		String rb = resourceBase.getName();
 		int pos = rb.lastIndexOf('.');
 		if(pos == -1)
@@ -406,7 +409,7 @@ final public class DomUtil {
 		return Constants.RESOURCE_PREFIX+rb.substring(0, pos+1).replace('.', '/')+name;
 	}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		for(int i = 0; i < 10; i++)
 			System.out.println(generateGUID());
 	}
