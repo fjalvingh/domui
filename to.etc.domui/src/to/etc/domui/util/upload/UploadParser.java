@@ -260,6 +260,8 @@ public class UploadParser {
 				}
 			}
 		}
+		if(charset == null)
+			charset = "utf-8";					// URGENT FIXME Where is the encoding hidden if not here??
 
 		/*
 		 * 

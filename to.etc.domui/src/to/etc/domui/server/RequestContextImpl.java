@@ -30,8 +30,6 @@ public class RequestContextImpl implements RequestContext {
 		m_session	= ses;
 
 		//-- If this is a multipart (file transfer) request we need to parse the request,
-		m_request	= UploadParser.wrapIfNeeded(request);			// Make multipart wrapper if multipart/form-data
-
 		m_urlin = getRequest().getRequestURI();
 		int	pos	= m_urlin.lastIndexOf('.');
 		m_extension = "";
@@ -39,6 +37,9 @@ public class RequestContextImpl implements RequestContext {
 			m_extension = m_urlin.substring(pos+1).toLowerCase();
 		if(m_urlin.startsWith("/"))
 			m_urlin = m_urlin.substring(1);
+		if(m_application.getUrlExtension().equals(m_extension))
+			m_request	= UploadParser.wrapIfNeeded(request);			// Make multipart wrapper if multipart/form-data
+
 		m_webapp = request.getContextPath();
 		if(m_webapp == null)
 			m_webapp = "";

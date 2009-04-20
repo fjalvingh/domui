@@ -109,6 +109,11 @@ public abstract class DomApplication {
 	private synchronized Set<AppSessionListener>	getAppSessionListeners() {
 		return m_appSessionListeners;
 	}
+	/**
+	 * Returns the defined extension for DomUI pages. This returns the extension without
+	 * the dot, i.e. "ui" for [classname].ui pages.
+	 * @return
+	 */
 	public String getUrlExtension() {
 		return m_urlExtension;
 	}
