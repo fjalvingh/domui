@@ -172,7 +172,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 				//-- Obtain the URL to redirect to from a thingy factory (should this happen here?)
 				ILoginDialogFactory	ldf = m_application.getLoginDialogFactory();
 				if(ldf == null)
-					throw new NotLoggedInException(sb.toString());			// Force login exception.
+					throw new NotLoggedInException(sb.toString());		// Force login exception.
 				String target = ldf.getLoginRURL(sb.toString());		// Create a RURL to move to.
 				if(target == null)
 					throw new IllegalStateException("The Login Dialog Handler="+ldf+" returned an invalid URL for the login dialog.");

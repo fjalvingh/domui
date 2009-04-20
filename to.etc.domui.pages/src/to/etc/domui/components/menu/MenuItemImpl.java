@@ -57,6 +57,10 @@ public class MenuItemImpl implements IMenuItem {
 	 */
 	private boolean		m_complete;
 
+	private String		m_target;
+
+	private String		m_rurl;
+
 	public MenuItemImpl(final MenuManager m) {
 		m_manager = m;
 	}
@@ -238,5 +242,20 @@ public class MenuItemImpl implements IMenuItem {
 	}
 	void setParent(final MenuItemImpl parent) {
 		m_parent = parent;
+	}
+
+	public String getTarget() {
+		return m_target;
+	}
+	public MenuItemImpl setTarget(final String target) {
+		m_target = target;
+		return this;
+	}
+	public String getRURL() {
+		return m_rurl;
+	}
+	public MenuItemImpl setRURL(final String rurl) {
+		m_rurl = rurl;
+		return this;
 	}
 }

@@ -39,9 +39,10 @@ public class MenuGenerator2 {
 		p(pw, "kw", m.getSearchString());
 //		p(pw, "para", m.getPa());
 		p(pw, "path", m.getPageClass() == null ? "" : m.getPageClass().getName()+".ui");
+		p(pw, "rurl", m.getRURL());
 		p(pw, "knd", m.getPageClass() != null ? "domui" : "jsp");
-		p(pw, "tgt", "FRAME");
-		p(pw, "domui", m.getPageClass() != null);
+		p(pw, "target", m.getTarget());
+//		p(pw, "domui", m.getPageClass() != null);
 //		p(pw, "", m.get());
 //		p(pw, "", m.get());
 //		p(pw, "", m.get());

@@ -85,4 +85,10 @@ public class MenuItemProxy implements IMenuItem {
 	public void setParent(final IMenuItem parent) {
 		m_parent = parent;
 	}
+	public String getRURL() {
+		return m_actual.getRURL();
+	}
+	public String getTarget() {
+		return m_actual.getTarget();
+	}
 }

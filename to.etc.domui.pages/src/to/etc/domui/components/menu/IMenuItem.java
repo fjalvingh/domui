@@ -32,4 +32,8 @@ public interface IMenuItem {
 	int	getOrder();
 
 	boolean	isSubMenu();
+
+	String	getTarget();
+
+	String	getRURL();
 }
