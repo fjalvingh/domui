@@ -28,16 +28,17 @@ public class RequestContextImpl implements RequestContext {
 		m_response = response;
 		m_application = app;
 		m_session	= ses;
+		m_request	= request;
 
 		//-- If this is a multipart (file transfer) request we need to parse the request,
-		m_urlin = getRequest().getRequestURI();
+		m_urlin = request.getRequestURI();
 		int	pos	= m_urlin.lastIndexOf('.');
 		m_extension = "";
 		if(pos != -1)
 			m_extension = m_urlin.substring(pos+1).toLowerCase();
 		if(m_urlin.startsWith("/"))
 			m_urlin = m_urlin.substring(1);
-		if(m_application.getUrlExtension().equals(m_extension))
+		if(m_application.getUrlExtension().equals(m_extension) || m_urlin.contains(".part"))		// QD Fix for upload
 			m_request	= UploadParser.wrapIfNeeded(request);			// Make multipart wrapper if multipart/form-data
 
 		m_webapp = request.getContextPath();
