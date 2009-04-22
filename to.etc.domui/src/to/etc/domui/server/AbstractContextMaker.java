@@ -3,20 +3,27 @@ package to.etc.domui.server;
 import java.util.*;
 import java.util.logging.*;
 
+import javax.servlet.*;
+import javax.servlet.http.*;
+
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 
 abstract public class AbstractContextMaker implements ContextMaker {
-	public boolean	execute(final RequestContextImpl ctx) throws Exception {
+	abstract public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception;
+
+	public boolean	execute(final RequestContextImpl ctx, FilterChain chain) throws Exception {
 		List<IRequestInterceptor>	il = ctx.getApplication().getInterceptorList();
 		Exception	xx = null;
+		FilterRequestHandler	rh = null;
 		try {
-			callInterceptorsBegin(il, ctx);
 			PageContext.internalSet(ctx);
-
-			FilterRequestHandler	rh	= ctx.getApplication().findRequestHandler(ctx);
-			if(rh == null)
+			callInterceptorsBegin(il, ctx);
+			rh	= ctx.getApplication().findRequestHandler(ctx);
+			if(rh == null) {
+				chain.doFilter(ctx.getRequest(), ctx.getResponse());
 				return false;
+			}
 			rh.handleRequest(ctx);
 			ctx.flush();
 			return true;

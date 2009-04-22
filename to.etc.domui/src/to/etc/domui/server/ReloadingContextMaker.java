@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -32,7 +33,8 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		checkReload();						// Initial: force load and init of Application object.
 	}
 
-	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@Override
+	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception {
 		synchronized(this) {
 			if(m_nestCount == 0)
 				checkReload();
@@ -57,7 +59,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			DomApplication.internalSetCurrent(m_application);
 			AppSession	ass	= link.getAppSession(m_application);
 			RequestContextImpl ctx = new RequestContextImpl(m_application, ass, request, response);
-			return execute(ctx);
+			return execute(ctx, chain);
 		} finally {
 			synchronized(this) {
 				m_nestCount--;

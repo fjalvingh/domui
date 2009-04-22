@@ -1,5 +1,6 @@
 package to.etc.domui.server;
 
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -39,7 +40,8 @@ final public class NormalContextMaker extends AbstractContextMaker {
 	 * Create a normal context.
 	 * @see to.etc.domui.server.ContextMaker#createContext(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
-	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@Override
+	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception {
 		//-- Get session,
 		try {
 			HttpSession	sess	= request.getSession(true);
@@ -54,7 +56,7 @@ final public class NormalContextMaker extends AbstractContextMaker {
 			ass.internalInitialize(m_application);
 			DomApplication.internalSetCurrent(m_application);
 			RequestContextImpl ctx = new RequestContextImpl(m_application, ass, request, response);
-			return execute(ctx);
+			return execute(ctx, chain);
 		} finally {
 			DomApplication.internalSetCurrent(null);
 		}

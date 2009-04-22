@@ -14,7 +14,6 @@ import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
@@ -52,7 +51,7 @@ public class AppFilter implements Filter {
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		try {
 			HttpServletRequest rq = (HttpServletRequest)req;
-			rq.setCharacterEncoding("UTF-8");						// jal 20080804 Encoding of input was incorrect?
+			rq.setCharacterEncoding("UTF-8");						// FIXME jal 20080804 Encoding of input was incorrect?
 			if(m_logRequest) {
 				String rs = rq.getQueryString();
 				rs = rs == null ? "" : "?"+rs;
@@ -61,7 +60,7 @@ public class AppFilter implements Filter {
 			NlsContext.setLocale(rq.getLocale());
 //			NlsContext.setLocale(new Locale("nl", "NL"));
 
-			if(m_contextMaker.handleRequest(rq, (HttpServletResponse)res))
+			if(m_contextMaker.handleRequest(rq, (HttpServletResponse)res, chain))
 				return;
 		} catch(RuntimeException x) {
 			DomUtil.dumpException(x);
@@ -73,8 +72,8 @@ public class AppFilter implements Filter {
 			DomUtil.dumpException(x);
 			throw new WrappedException(x);		// James Gosling is an idiot
 		}
-
-		chain.doFilter(req, res);
+//
+//		chain.doFilter(req, res);
 	}
 
 	/**
