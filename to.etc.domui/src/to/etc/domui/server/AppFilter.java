@@ -71,7 +71,7 @@ public class AppFilter implements Filter {
 			throw x;
 		} catch(Exception x) {
 			DomUtil.dumpException(x);
-			throw new JamesGoslingIsAnIdiotException(x);		// James Gosling is an idiot
+			throw new WrappedException(x);		// James Gosling is an idiot
 		}
 
 		chain.doFilter(req, res);
@@ -86,7 +86,7 @@ public class AppFilter implements Filter {
 			java.util.logging.LogManager.getLogManager().reset();
 			java.util.logging.LogManager.getLogManager().readConfiguration(AppFilter.class.getResourceAsStream("logging.properties"));
 		} catch(IOException x) {
-			throw new JamesGoslingIsAnIdiotException(x);
+			throw new WrappedException(x);
 		}
 		System.out.println("Init logger");
 //		System.out.println("QDataContext="+QDataContext.class.getClassLoader());
@@ -118,7 +118,7 @@ public class AppFilter implements Filter {
 		} catch(ServletException x) {
 			throw x;
 		} catch(Exception x) {
-			throw new JamesGoslingIsAnIdiotException(x);		// James Gosling is an idiot
+			throw new WrappedException(x);		// James Gosling is an idiot
 		}
 	}
 

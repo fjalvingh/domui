@@ -111,7 +111,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 				createPropertyInfo(pd);
 			}
 		} catch(IntrospectionException x) {
-			throw new JamesGoslingIsAnIdiotException(x);
+			throw new WrappedException(x);
 		}
 	}
 

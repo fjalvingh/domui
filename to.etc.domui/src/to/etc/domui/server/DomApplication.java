@@ -353,9 +353,9 @@ public abstract class DomApplication {
 		try {
 			return clz.newInstance();
 		} catch(IllegalAccessException x) {
-			throw new JamesGoslingIsAnIdiotException(x);
+			throw new WrappedException(x);
 		} catch (InstantiationException x) {
-			throw new JamesGoslingIsAnIdiotException(x);
+			throw new WrappedException(x);
 		}
 	}
 

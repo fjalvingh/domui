@@ -8,6 +8,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
 public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements PropertyMetaModel {
@@ -198,7 +199,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		} catch(RuntimeException x) {
 			throw x;
 		} catch(Exception x) {
-			throw new JamesGoslingIsAnIdiotException(x);
+			throw new WrappedException(x);
 		}
 	}
 

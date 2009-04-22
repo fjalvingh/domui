@@ -34,7 +34,7 @@ public class LiteralXhtml extends NodeBase {
 		try {
 			StringTool.entitiesToUnicode(sb, xml, true);
 		} catch(Exception x) {
-			throw new JamesGoslingIsAnIdiotException(x);
+			throw new WrappedException(x);
 		}
 		m_xml = sb.toString();
 		changed();
