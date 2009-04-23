@@ -68,6 +68,9 @@ public class AppFilter implements Filter {
 		} catch(ServletException x) {
 			DomUtil.dumpException(x);
 			throw x;
+		} catch(IOException x) {
+			DomUtil.dumpException(x);
+			throw x;
 		} catch(Exception x) {
 			DomUtil.dumpException(x);
 			throw new WrappedException(x);		// James Gosling is an idiot

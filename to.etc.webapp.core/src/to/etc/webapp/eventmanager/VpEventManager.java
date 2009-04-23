@@ -135,6 +135,8 @@ public class VpEventManager implements Runnable {
 
 	private DataSource m_ds;
 
+	private String		m_tableName;
+
 	/** The last update ID that was encountered while scanning the set. */
 	private long m_upid = -1;
 
@@ -159,6 +161,12 @@ public class VpEventManager implements Runnable {
 	 * The listeners to events, indexed by their event name.
 	 */
 	private final Map<String, List<Item>> m_listenerList = new HashMap<String, List<Item>>();
+
+	enum DbType {
+		ORACLE,
+		POSTGRES
+	};
+	private DbType		m_dbtype;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Singleton init.                                  	*/
@@ -195,11 +203,11 @@ public class VpEventManager implements Runnable {
 		}
 	}
 
-	static public void initialize(final DataSource ds) throws Exception {
+	static public void initialize(final DataSource ds, final String tableName) throws Exception {
 		synchronized(m_instance) {
 			if(m_instance.m_ds != null)
 				return; // Already initialized
-			m_instance.init(ds); // Do formal init
+			m_instance.init(ds, tableName); // Do formal init
 			m_instance.notify();
 		}
 	}
@@ -232,15 +240,45 @@ public class VpEventManager implements Runnable {
 	private void createTable(final Connection dbc) {
 		PreparedStatement ps = null;
 		try {
-			ps = dbc.prepareStatement("create table RED_VP_EVENTS(" + " upid numeric(20,0) not null primary key," + " utime date not null," + " evname varchar(80) not null,"
-				+ " server varchar(80) not null," + " obj blob" + ")");
+			//-- Determine the database type
+			String name = dbc.getMetaData().getDatabaseProductName().toLowerCase();
+			if(name.contains("oracle"))
+				m_dbtype = DbType.ORACLE;
+			else if(name.contains("postgres"))
+				m_dbtype = DbType.POSTGRES;
+			else
+				throw new IllegalStateException("Unsupported database type: "+name);
+
+			String	tbl, seq;
+			switch(m_dbtype) {
+				default:
+					throw new IllegalStateException("Unhandled DBTYPE: "+m_dbtype);
+				case ORACLE:
+					tbl = "create table "
+					+	m_tableName
+					+	"( upid numeric(20,0) not null primary key, utime date not null, evname varchar(80) not null, server varchar(32) not null, obj blob)"
+					;
+					seq = "create sequence "+m_tableName+"_SQ start with 1 increment by 1";
+					break;
+
+				case POSTGRES:
+					tbl = "create table "
+					+	m_tableName
+					+	"( upid numeric(20,0) not null primary key, utime date not null, evname varchar(80) not null, server varchar(32) not null, obj bytea)"
+					;
+					seq = "create sequence "+m_tableName+"_SQ start with 1 increment by 1";
+					break;
+			}
+			ps = dbc.prepareStatement(tbl);
 			ps.executeUpdate();
 			ps.close();
 
 			//-- Create the sequence,
-			ps = dbc.prepareStatement("create sequence red_vp_events_SQ start with 1 increment by 1");
+			ps = dbc.prepareStatement(seq);
 			ps.executeUpdate();
-		} catch(Exception x) {} finally {
+		} catch(Exception x) {
+			System.out.println("SystemEventManager: table creation exception "+x);
+		} finally {
 			try {
 				if(ps != null)
 					ps.close();
@@ -248,7 +286,8 @@ public class VpEventManager implements Runnable {
 		}
 	}
 
-	private synchronized void init(final DataSource ds) throws Exception {
+	private synchronized void init(final DataSource ds, final String tableName) throws Exception {
+		m_tableName = tableName;
 		Connection dbc = null;
 		ResultSet rs = null;
 		PreparedStatement ps = null;
@@ -257,7 +296,7 @@ public class VpEventManager implements Runnable {
 			createTable(dbc); // Make sure a database table exists
 
 			//-- Get the last update #
-			ps = dbc.prepareStatement("select max(upid) from RED_VP_EVENTS");
+			ps = dbc.prepareStatement("select max(upid) from "+m_tableName);
 			rs = ps.executeQuery();
 			if(!rs.next())
 				throw new IllegalStateException("?? Cannot get max update number");
@@ -280,7 +319,7 @@ public class VpEventManager implements Runnable {
 		}
 		m_ds = ds;
 		m_handlerThread = new Thread(this);
-		m_handlerThread.setName("VpEventManager");
+		m_handlerThread.setName("SystemEventManager");
 		m_handlerThread.setDaemon(true);
 		m_handlerThread.start();
 	}
@@ -304,7 +343,7 @@ public class VpEventManager implements Runnable {
 		//-- We must delete...
 		PreparedStatement ps = null;
 		try {
-			ps = dbc.prepareStatement("delete from red_vp_events where upid < ?");
+			ps = dbc.prepareStatement("delete from "+m_tableName+" where upid < ?");
 			ps.setLong(1, deleteupid);
 			ps.executeUpdate();
 		} finally {
@@ -324,7 +363,7 @@ public class VpEventManager implements Runnable {
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		try {
-			ps = dbc.prepareStatement("select upid,evname,utime,server,obj from red_VP_EVENTS where upid > ? order by upid");
+			ps = dbc.prepareStatement("select upid,evname,utime,server,obj from "+m_tableName+" where upid > ? order by upid");
 			ps.setLong(1, m_upid);
 			rs = ps.executeQuery();
 			while(rs.next()) {
@@ -511,7 +550,7 @@ public class VpEventManager implements Runnable {
 				dbc.setAutoCommit(false);
 
 			//-- Get a new upid
-			ps = dbc.prepareStatement("select red_vp_events_SQ.nextval from dual");
+			ps = dbc.prepareStatement("select "+m_tableName+"_SQ.nextval from dual");
 			rs = ps.executeQuery();
 			if(!rs.next())
 				throw new SQLException("No result from select-from-sequence!?");
@@ -531,7 +570,7 @@ public class VpEventManager implements Runnable {
 			}
 
 			//-- Store the record,
-			ps = dbc.prepareStatement("insert into red_vp_events(upid,evname,utime,server,obj) values(?,?,?,?,empty_blob())");
+			ps = dbc.prepareStatement("insert into "+m_tableName+"(upid,evname,utime,server,obj) values(?,?,?,?,empty_blob())");
 			ps.setLong(1, id);
 			ps.setString(2, ae.getClass().getCanonicalName());
 			ps.setTimestamp(3, (Timestamp) ae.getTimestamp());
@@ -540,7 +579,7 @@ public class VpEventManager implements Runnable {
 			ps.close();
 
 			//-- Store the lob..
-			ps = dbc.prepareStatement("select obj from red_vp_events where upid=? for update of obj");
+			ps = dbc.prepareStatement("select obj from "+m_tableName+" where upid=? for update of obj");
 			ps.setLong(1, id);
 			rs = ps.executeQuery();
 			if(!rs.next())
