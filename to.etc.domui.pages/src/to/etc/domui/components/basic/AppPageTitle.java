@@ -21,7 +21,7 @@ public class AppPageTitle extends Div {
 
 	public AppPageTitle() {
 	}
-	protected AppPageTitle(final String title) {
+	public AppPageTitle(final String title) {
 		m_title	= title;
 	}
 	protected AppPageTitle(final String icon, final String title) {
