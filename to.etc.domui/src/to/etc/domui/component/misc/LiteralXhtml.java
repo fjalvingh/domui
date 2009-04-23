@@ -1,7 +1,6 @@
 package to.etc.domui.component.misc;
 
 import to.etc.domui.dom.html.*;
-import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -19,7 +18,7 @@ public class LiteralXhtml extends NodeBase {
 		setCssClass("ui-lxh");
 	}
 	@Override
-	public void visit(NodeVisitor v) throws Exception {
+	public void visit(final NodeVisitor v) throws Exception {
 		v.visitLiteralXhtml(this);
 	}
 
@@ -27,7 +26,7 @@ public class LiteralXhtml extends NodeBase {
 		return m_xml;
 	}
 
-	public void setXml(String xml) {
+	public void setXml(final String xml) {
 		if(DomUtil.isEqual(xml, m_xml))
 			return;
 		StringBuilder	sb = new StringBuilder(xml.length());

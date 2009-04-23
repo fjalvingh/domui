@@ -55,7 +55,7 @@ public class MenuItemImpl implements IMenuItem {
 	/**
 	 * Once this item has been integrated in the main menu it cannot be changed anymore (except it's children)
 	 */
-	private boolean		m_complete;
+//	private boolean		m_complete;
 
 	private String		m_target;
 

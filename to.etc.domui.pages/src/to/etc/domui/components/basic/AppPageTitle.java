@@ -122,4 +122,7 @@ public class AppPageTitle extends Div {
 			}
 		});
 	}
+	public TD getTitlePart() {
+		return m_titlePart;
+	}
 }

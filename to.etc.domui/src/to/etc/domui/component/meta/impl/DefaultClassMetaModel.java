@@ -6,7 +6,6 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
@@ -14,19 +13,19 @@ import to.etc.webapp.nls.*;
 public class DefaultClassMetaModel implements ClassMetaModel {
 	static private final ResourceBundle		NONE = new ResourceBundle() {
 		@Override
-		protected Object handleGetObject(String key) {
+		protected Object handleGetObject(final String key) {
 			return null;
 		}
-	
+
 		@Override
 		public Enumeration<String> getKeys() {
 			return null;
 		}
 	};
-	private Class<?>								m_metaClass;
+	private final Class<?>							m_metaClass;
 	private boolean									m_initialized;
-	private Map<String, PropertyMetaModel>	m_propertyMap = new HashMap<String, PropertyMetaModel>();
-	private Map<Locale, ResourceBundle>				m_textMap = new HashMap<Locale, ResourceBundle>();
+	private final Map<String, PropertyMetaModel>	m_propertyMap = new HashMap<String, PropertyMetaModel>();
+	private final Map<Locale, ResourceBundle>		m_textMap = new HashMap<Locale, ResourceBundle>();
 
 	/**
 	 * When this object type is defined in an UP relation somewhere, this is a hint on what
@@ -40,7 +39,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * for the values to show. This is a default for all relations in which
 	 * this class is the parent; it can be overridden in individual relations.
 	 */
-	private Class<? extends IComboDataSet<?>>			m_comboDataSet;
+	private Class<? extends IComboDataSet<?>>		m_comboDataSet;
 
 	private boolean		m_persistentClass;
 
@@ -53,13 +52,13 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private Class<? extends INodeContentRenderer<?>>	m_comboNodeRenderer;
 
-	private ComboOptionalType							m_comboOptional;
+	private ComboOptionalType						m_comboOptional;
 
-	private List<DisplayPropertyMetaModel>				m_comboDisplayProperties = Collections.EMPTY_LIST;
+	private List<DisplayPropertyMetaModel>			m_comboDisplayProperties = Collections.EMPTY_LIST;
 
-	private List<DisplayPropertyMetaModel>				m_tableDisplayProperties = Collections.EMPTY_LIST;
+	private List<DisplayPropertyMetaModel>			m_tableDisplayProperties = Collections.EMPTY_LIST;
 
-	private List<SearchPropertyMetaModel>				m_searchProperties = Collections.EMPTY_LIST;
+	private List<SearchPropertyMetaModel>			m_searchProperties = Collections.EMPTY_LIST;
 
 	/**
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
@@ -70,7 +69,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/**
 	 * The default properties to show in a lookup field's instance display.
 	 */
-	private List<DisplayPropertyMetaModel>				m_lookupFieldDisplayProperties = Collections.EMPTY_LIST;
+	private List<DisplayPropertyMetaModel>			m_lookupFieldDisplayProperties = Collections.EMPTY_LIST;
 
 	private String									m_defaultSortProperty;
 
@@ -83,7 +82,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private Object[]								m_domainValues;
 
-	public DefaultClassMetaModel(Class< ? > metaClass) {
+	public DefaultClassMetaModel(final Class< ? > metaClass) {
 		m_metaClass = metaClass;
 	}
 
@@ -106,7 +105,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 			}
 
 			//-- Create model data from this thingy.
-			
+
 			for(PropertyDescriptor pd : ar) {
 				createPropertyInfo(pd);
 			}
@@ -115,7 +114,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		}
 	}
 
-	private void	createPropertyInfo(PropertyDescriptor pd) {
+	private void	createPropertyInfo(final PropertyDescriptor pd) {
 //		System.out.println("Property: "+pd.getName()+", reader="+pd.getReadMethod());
 		Method	rm	= pd.getReadMethod();
 		if(rm == null) {
@@ -135,13 +134,13 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 				rm = getActualClass().getMethod(s, (Class[])null);
 			} catch(Exception x) {
 			}
-			if(rm == null)						// If there's no READ method here just ignore it? This is the case for getters like getChild(int ix) which are stupidly seen as array getters. 
+			if(rm == null)						// If there's no READ method here just ignore it? This is the case for getters like getChild(int ix) which are stupidly seen as array getters.
 				return;
 //				throw new IllegalStateException("The 'read' method for property "+pd.getName()+" of class "+this+" is not present!?");
 			try {
 				pd.setReadMethod(rm);
 			} catch(IntrospectionException x) {
-				throw new WrappedException("Moronic exception out of stupid Sun interface: "+x, x);
+				throw new WrappedException("Unexpected exception out of very dumb Sun interface: "+x, x);
 			}
 		}
 		if(pd.getReadMethod().getParameterTypes().length != 0)
@@ -169,15 +168,15 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @param an
 	 * @param name
 	 */
-	protected void	decodeAnnotationByName(Annotation an, String name) {
-		
+	protected void	decodeAnnotationByName(final Annotation an, final String name) {
+
 	}
 
 	/**
 	 * Decodes all DomUI annotations.
 	 * @param an
 	 */
-	protected void	decodeAnnotation(Annotation an) {
+	protected void	decodeAnnotation(final Annotation an) {
 		if(an instanceof MetaCombo) {
 			MetaCombo c = (MetaCombo) an;
 			if(c.dataSet() != UndefinedComboDataSet.class)
@@ -217,7 +216,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * Locates the bundle for the specified locale. Returns null if no bundle is present. The
 	 * bundles found are cached for the locale's name.
 	 */
-	private synchronized ResourceBundle	findBundle(Locale loc) {
+	private synchronized ResourceBundle	findBundle(final Locale loc) {
 		ResourceBundle	b = m_textMap.get(loc);
 		if(b == null) {
 			String	base = m_metaClass.getName();
@@ -241,7 +240,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @param loc
 	 * @return
 	 */
-	String	getPropertyLabel(DefaultPropertyMetaModel p, Locale loc) {
+	String	getPropertyLabel(final DefaultPropertyMetaModel p, final Locale loc) {
 		ResourceBundle	b = findBundle(loc);
 		if(b == null)
 			return p.getName();
@@ -251,7 +250,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		}
 		return p.getName();
 	}
-	String	getPropertyHint(DefaultPropertyMetaModel p, Locale loc) {
+	String	getPropertyHint(final DefaultPropertyMetaModel p, final Locale loc) {
 		ResourceBundle	b = findBundle(loc);
 		if(b == null)
 			return null;
@@ -261,7 +260,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		}
 		return null;
 	}
-	ResourceBundle	getBundle(Locale loc) {
+	ResourceBundle	getBundle(final Locale loc) {
 		return findBundle(loc);
 	}
 
@@ -270,7 +269,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * not exist this returns null.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#findProperty(java.lang.String)
 	 */
-	public synchronized PropertyMetaModel findProperty(String name) {
+	public synchronized PropertyMetaModel findProperty(final String name) {
 		PropertyMetaModel	pmm = m_propertyMap.get(name);
 		if(pmm != null)
 			return pmm;
@@ -280,7 +279,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return pmm;
 //		return m_propertyMap.get(name);
 	}
-	public synchronized PropertyMetaModel findSimpleProperty(String name) {
+	public synchronized PropertyMetaModel findSimpleProperty(final String name) {
 		return m_propertyMap.get(name);
 	}
 	public List<PropertyMetaModel> getProperties() {
@@ -291,20 +290,20 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return m_comboDataSet;
 	}
 
-	public void setComboDataSet(Class< ? extends IComboDataSet< ? >> comboDataSet) {
+	public void setComboDataSet(final Class< ? extends IComboDataSet< ? >> comboDataSet) {
 		m_comboDataSet = comboDataSet;
 	}
 
 	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer() {
 		return m_comboLabelRenderer;
 	}
-	public void setComboLabelRenderer(Class< ? extends ILabelStringRenderer< ? >> comboLabelRenderer) {
+	public void setComboLabelRenderer(final Class< ? extends ILabelStringRenderer< ? >> comboLabelRenderer) {
 		m_comboLabelRenderer = comboLabelRenderer;
 	}
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_comboDisplayProperties;
 	}
-	public void setComboDisplayProperties(List<DisplayPropertyMetaModel> displayProperties) {
+	public void setComboDisplayProperties(final List<DisplayPropertyMetaModel> displayProperties) {
 		m_comboDisplayProperties = displayProperties;
 	}
 
@@ -318,7 +317,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	public ComboOptionalType getComboOptional() {
 		return m_comboOptional;
 	}
-	public void setComboOptional(ComboOptionalType comboOptional) {
+	public void setComboOptional(final ComboOptionalType comboOptional) {
 		m_comboOptional = comboOptional;
 	}
 
@@ -326,11 +325,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return m_comboNodeRenderer;
 	}
 
-	public void setComboNodeRenderer(Class< ? extends INodeContentRenderer< ? >> comboNodeRenderer) {
+	public void setComboNodeRenderer(final Class< ? extends INodeContentRenderer< ? >> comboNodeRenderer) {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
-	public void	addSearchProperty(SearchPropertyMetaModel sp) {
+	public void	addSearchProperty(final SearchPropertyMetaModel sp) {
 		if(m_searchProperties == Collections.EMPTY_LIST)
 			m_searchProperties = new ArrayList<SearchPropertyMetaModel>();
 		m_searchProperties.add(sp);
@@ -338,7 +337,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	public List<SearchPropertyMetaModel> getSearchProperties() {
 		List<SearchPropertyMetaModel> list = new ArrayList<SearchPropertyMetaModel>(m_searchProperties);
 		Collections.sort(list, new Comparator<SearchPropertyMetaModel>() {
-			public int compare(SearchPropertyMetaModel o1, SearchPropertyMetaModel o2) {
+			public int compare(final SearchPropertyMetaModel o1, final SearchPropertyMetaModel o2) {
 				return o1.getOrder() - o2.getOrder();
 			}
 		});
@@ -351,25 +350,25 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		return m_tableDisplayProperties;
 	}
-	public void setTableDisplayProperties(List<DisplayPropertyMetaModel> tableDisplayProperties) {
+	public void setTableDisplayProperties(final List<DisplayPropertyMetaModel> tableDisplayProperties) {
 		m_tableDisplayProperties = tableDisplayProperties;
 	}
 	public boolean isPersistentClass() {
 		return m_persistentClass;
 	}
-	public void setPersistentClass(boolean persistentClass) {
+	public void setPersistentClass(final boolean persistentClass) {
 		m_persistentClass = persistentClass;
 	}
 	public String getDefaultSortProperty() {
 		return m_defaultSortProperty;
 	}
-	public void setDefaultSortProperty(String defaultSortProperty) {
+	public void setDefaultSortProperty(final String defaultSortProperty) {
 		m_defaultSortProperty = defaultSortProperty;
 	}
 	public SortableType getDefaultSortDirection() {
 		return m_defaultSortDirection;
 	}
-	public void setDefaultSortDirection(SortableType defaultSortDirection) {
+	public void setDefaultSortDirection(final SortableType defaultSortDirection) {
 		m_defaultSortDirection = defaultSortDirection;
 	}
 	/**
@@ -378,7 +377,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
 		return m_lookupFieldRenderer;
 	}
-	public void setLookupFieldRenderer(Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
+	public void setLookupFieldRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 	/**
@@ -387,22 +386,22 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
-	public void setLookupFieldDisplayProperties(List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
+	public void setLookupFieldDisplayProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
 		m_lookupFieldDisplayProperties = lookupFieldDisplayProperties;
 	}
 	/**
-	 * {@inheritDoc} 
+	 * {@inheritDoc}
 	 */
 	public String getComponentTypeHint() {
 		return m_componentTypeHint;
 	}
-	public void setComponentTypeHint(String componentTypeHint) {
+	public void setComponentTypeHint(final String componentTypeHint) {
 		m_componentTypeHint = componentTypeHint;
 	}
 	public PropertyMetaModel getPrimaryKey() {
 		return m_primaryKey;
 	}
-	public void setPrimaryKey(PropertyMetaModel primaryKey) {
+	public void setPrimaryKey(final PropertyMetaModel primaryKey) {
 		m_primaryKey = primaryKey;
 	}
 	@Override
@@ -432,17 +431,17 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return null;
 //		return getActualClass().getName().substring(getActualClass().getName().lastIndexOf('.')+1);
 	}
-	public void setUserEntityName(String s) {
+	public void setUserEntityName(final String s) {
 		m_userName = s;
 	}
 
-	public void	setUserEntityNamePlural(String s) {
+	public void	setUserEntityNamePlural(final String s) {
 		m_userNamePlural = s;
 	}
 	public Object[] getDomainValues() {
 		return m_domainValues;
 	}
-	public void setDomainValues(Object[] domainValues) {
+	public void setDomainValues(final Object[] domainValues) {
 		m_domainValues = domainValues;
 	}
 
@@ -451,7 +450,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * bundle for this class.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getDomainLabel(java.util.Locale, java.lang.Object)
 	 */
-	public String getDomainLabel(Locale loc, Object value) {
+	public String getDomainLabel(final Locale loc, final Object value) {
 		ResourceBundle	b = findBundle(loc);
 		if(b == null)
 			return null;

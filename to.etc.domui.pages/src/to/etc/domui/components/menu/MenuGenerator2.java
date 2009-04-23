@@ -62,12 +62,12 @@ public class MenuGenerator2 {
 		pw.append("}");
 	}
 
-	private void	p(final Writer w, final String key, final boolean value) throws Exception {
-		w.append(key);
-		w.append(":");
-		w.append(Boolean.toString(value));
-		w.append(",");
-	}
+//	private void	p(final Writer w, final String key, final boolean value) throws Exception {
+//		w.append(key);
+//		w.append(":");
+//		w.append(Boolean.toString(value));
+//		w.append(",");
+//	}
 
 	private void	p(final Writer w, final String key, final String value) throws Exception {
 		if(value == null)
@@ -77,12 +77,12 @@ public class MenuGenerator2 {
 		StringTool.strToJavascriptString(w, value, true);
 		w.append(",");
 	}
-	private void	p(final Writer w, final String key, final Long value) throws Exception {
-		if(value == null)
-			return;
-		w.append(key);
-		w.append(":");
-		w.append(value.toString());
-		w.append(",");
-	}
+//	private void	p(final Writer w, final String key, final Long value) throws Exception {
+//		if(value == null)
+//			return;
+//		w.append(key);
+//		w.append(":");
+//		w.append(value.toString());
+//		w.append(",");
+//	}
 }
