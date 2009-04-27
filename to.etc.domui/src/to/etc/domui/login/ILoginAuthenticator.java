@@ -10,4 +10,8 @@ package to.etc.domui.login;
  */
 public interface ILoginAuthenticator {
 	IUser			authenticateUser(final String userid, final String credentials) throws Exception;
+
+	IUser			authenticateByCookie(String uid, long ts, String string) throws Exception;
+
+	String			calcCookieHash(String userid, long ts) throws Exception;
 }

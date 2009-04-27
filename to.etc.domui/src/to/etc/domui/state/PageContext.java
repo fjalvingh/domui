@@ -92,6 +92,23 @@ public class PageContext {
 			}
 
 			/*
+			 * If a LOGINCOOKIE is found check it's usability..
+			 */
+			Cookie[]	car	= rci.getRequest().getCookies();
+			for(Cookie c: car) {
+				if(c.getName().equals("domuiLogin")) {
+					String domval = c.getValue();
+					IUser user = decodeCookie(rci, domval);
+					if(user != null) {
+						//-- Store the user in the HttpSession.
+						hs.setAttribute(LOGIN_KEY, user);
+						return user;
+					}
+					break;
+				}
+			}
+			
+			/*
 			 * If a remoteUser is set the user IS authenticated using Tomcat; get it's credentials.
 			 */
 			String	ruser = rci.getRequest().getRemoteUser();
@@ -110,6 +127,37 @@ public class PageContext {
 				return user;
 			}
 			return null;
+		}
+	}
+
+	/**
+	 * Decode and check the cookie. It has the format:
+	 * <pre>
+	 * userid:timestamp:authhash
+	 * </pre>
+	 * The userid, timestamp as an yyyymmdd string and the password are hashed as an MD5 string and
+	 * must be the same as the authhash for cookie auth to succeed.
+	 * @param rci
+	 * @param cookie
+	 */
+	static private IUser	decodeCookie(RequestContextImpl rci, String cookie) {
+		if(cookie == null)
+			return null;
+		String[]	car = cookie.split(":");
+		if(car.length != 3)
+			return null;
+		try {
+			String	uid	= car[0];
+			long	ts	= Long.parseLong(car[1]);		// Timestamp
+
+			//-- Lookup userid;
+			ILoginAuthenticator	la	= rci.getApplication().getLoginAuthenticator();
+			if(null == la)
+				return null;
+
+			return la.authenticateByCookie(uid, ts, car[2]);	// Authenticate by cookie
+		} catch(Exception x) {
+			return null;						// All cookie format exceptions mean no login
 		}
 	}
 
@@ -141,7 +189,26 @@ public class PageContext {
 
 			//-- Login succeeded: save the user in the session context
 			hs.setAttribute(LOGIN_KEY, user);						// This causes the user to be logged on.
+			m_currentUser.set(user);
 			return true;
 		}
+	}
+
+	public static Cookie createLoginCookie(long l) throws Exception {
+		IUser	user	= m_currentUser.get();
+		if(user == null)
+			return null;
+		RequestContextImpl	ci = m_current.get();
+		if(ci == null)
+			throw new IllegalStateException("You can login from a server request only");
+		String	auth	= ci.getApplication().getLoginAuthenticator().calcCookieHash(user.getLoginID(), l);
+		if(auth == null)
+			return null;
+		String	value	= user.getLoginID()+":"+l+":"+auth;
+		Cookie	k	= new Cookie("domuiLogin", value);
+		k.setMaxAge((int)((l - System.currentTimeMillis()) / 1000));		// #seconds before expiry
+		k.setPath(ci.getRequest().getContextPath());
+		ci.getResponse().addCookie(k);
+		return k;
 	}
 }

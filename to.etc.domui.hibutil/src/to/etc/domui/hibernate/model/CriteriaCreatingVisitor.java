@@ -24,7 +24,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		//-- 1. Handle all filters as a compound AND
 		for(QOperatorNode n : qc.getOperatorList()) {
 			n.visit(this);							// Convert to Criterion
-			m_crit.add(m_last);
+			if(m_last != null)
+				m_crit.add(m_last);
 		}
 
 		//-- 2. Handle order
@@ -80,6 +81,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 					c	= c.createCriteria(sub);
 				}
+				subcrit = c;
 			}
 		}
 
@@ -154,10 +156,12 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 					default:
 						throw new IllegalStateException("Unexpected operation: "+inn.getOperation());
 					case AND:
-						c1 = Restrictions.and(c1, m_last);
+						if(m_last != null)
+							c1 = Restrictions.and(c1, m_last);
 						break;
 					case OR:
-						c1	= Restrictions.or(c1, m_last);
+						if(m_last != null)
+							c1	= Restrictions.or(c1, m_last);
 						break;
 				}
 			}
