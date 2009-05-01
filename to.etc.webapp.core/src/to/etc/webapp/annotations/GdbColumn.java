@@ -19,7 +19,7 @@ public @interface GdbColumn {
 	String			type() default "";
 
 	/** The length of a column. For strings this is the max size <i>in characters</i>, for numerics this is the precision. */
-	int				length();
+	int				length() default -1;
 
 	/** For numerics, the scale field. */
 	int				scale() default -1;
