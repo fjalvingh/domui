@@ -31,4 +31,6 @@ public @interface GdbColumn {
 	GdbDate			temporal() default GdbDate.TIMESTAMP;
 
 	GdbEnum			enumerated() default GdbEnum.STRING;
+
+	GdbBool			bool() default GdbBool.NATIVE;
 }
