@@ -4,7 +4,6 @@ import java.lang.annotation.*;
 
 /**
  *
- *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 28, 2009
  */
@@ -27,4 +26,9 @@ public @interface GdbColumn {
 
 	/** Whether the field can be nullable. Defaults to false. */
 	boolean			nullable() default false;
+
+	/** Whether a Date column contains a timestamp, a single date or what. */
+	GdbDate			temporal() default GdbDate.TIMESTAMP;
+
+	GdbEnum			enumerated() default GdbEnum.STRING;
 }
