@@ -11,9 +11,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value=ElementType.METHOD)
 public @interface GdbId {
-	/** The generator type to use. */
+	/** The generator type to use. It defaults to native. */
 	String		generator() default "";
 
 	/** The parameter for the generator; usually a sequence name */
-	String		param();
+	String		param() default "";
 }
