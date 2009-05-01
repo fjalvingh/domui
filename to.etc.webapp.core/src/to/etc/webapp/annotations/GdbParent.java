@@ -14,6 +14,6 @@ import java.lang.annotation.*;
 public @interface GdbParent {
 	GdbFetch	fetch() default GdbFetch.LAZY;
 	String		joinColumns();
-	String		constraintName();
+	String		constraintName() default "";
 	boolean		optional() default false;
 }

@@ -16,6 +16,6 @@ public @interface GdbChildren {
 	/** If the child class has a property that refers to it's parent name that property here. */
 	String		mappedBy() default "";
 
-	/** If the child class has no parent property you can specify the join columns in it's table here. */
-	String[]	joinColumns() default {};
+//	/** If the child class has no parent property you can specify the join columns in it's table here. */
+//	String[]	joinColumns() default {};
 }
