@@ -27,6 +27,8 @@ public @interface GdbColumn {
 	/** Whether the field can be nullable. Defaults to false. */
 	boolean			nullable() default false;
 
+	boolean			unique() default false;
+
 	/** Whether a Date column contains a timestamp, a single date or what. */
 	GdbDate			temporal() default GdbDate.TIMESTAMP;
 
