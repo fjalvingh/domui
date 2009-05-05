@@ -95,19 +95,21 @@ public class PageContext {
 			 * If a LOGINCOOKIE is found check it's usability..
 			 */
 			Cookie[]	car	= rci.getRequest().getCookies();
-			for(Cookie c: car) {
-				if(c.getName().equals("domuiLogin")) {
-					String domval = c.getValue();
-					IUser user = decodeCookie(rci, domval);
-					if(user != null) {
-						//-- Store the user in the HttpSession.
-						hs.setAttribute(LOGIN_KEY, user);
-						return user;
+			if(car != null) {
+				for(Cookie c: car) {
+					if(c.getName().equals("domuiLogin")) {
+						String domval = c.getValue();
+						IUser user = decodeCookie(rci, domval);
+						if(user != null) {
+							//-- Store the user in the HttpSession.
+							hs.setAttribute(LOGIN_KEY, user);
+							return user;
+						}
+						break;
 					}
-					break;
 				}
 			}
-			
+
 			/*
 			 * If a remoteUser is set the user IS authenticated using Tomcat; get it's credentials.
 			 */
@@ -140,7 +142,7 @@ public class PageContext {
 	 * @param rci
 	 * @param cookie
 	 */
-	static private IUser	decodeCookie(RequestContextImpl rci, String cookie) {
+	static private IUser	decodeCookie(final RequestContextImpl rci, final String cookie) {
 		if(cookie == null)
 			return null;
 		String[]	car = cookie.split(":");
@@ -194,7 +196,7 @@ public class PageContext {
 		}
 	}
 
-	public static Cookie createLoginCookie(long l) throws Exception {
+	public static Cookie createLoginCookie(final long l) throws Exception {
 		IUser	user	= m_currentUser.get();
 		if(user == null)
 			return null;
