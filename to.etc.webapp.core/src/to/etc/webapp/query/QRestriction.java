@@ -52,7 +52,7 @@ public class QRestriction {
 		return new QUnaryNode(QOperation.ISNULL, new QPropertyNode(property));
 	}
 	static public final QUnaryNode	isnotnull(String property) {
-		return new QUnaryNode(QOperation.ISNULL, new QPropertyNode(property));
+		return new QUnaryNode(QOperation.ISNOTNULL, new QPropertyNode(property));
 	}
 	static public final QUnaryNode	sqlCondition(String sql) {
 		return new QUnaryNode(QOperation.SQL, new QLiteral(sql));
