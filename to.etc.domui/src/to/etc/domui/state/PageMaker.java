@@ -1,6 +1,7 @@
 package to.etc.domui.state;
 
 import java.lang.reflect.*;
+import java.math.*;
 import java.util.*;
 
 import to.etc.domui.annotations.*;
@@ -27,7 +28,7 @@ public class PageMaker {
 	 * null if the page cannot be located. It is a helper function to allow access to components
 	 * from Parts etc.
 	 */
-	static public Page	findPageInConversation(RequestContext rctx, Class<? extends UrlPage> clz, String cid) throws Exception {
+	static public Page	findPageInConversation(final RequestContext rctx, final Class<? extends UrlPage> clz, final String cid) throws Exception {
 		if(cid == null)
 			return null;
 		String[]	cida	= DomUtil.decodeCID(cid);
@@ -41,7 +42,7 @@ public class PageMaker {
 		//-- Page resides here?
 		return cc.findPage(clz);		// Is this page already current in this context?
 	}
-	
+
 	/**
 	 * FIXME Move to WindowSession?
 	 * @param pg
@@ -49,7 +50,7 @@ public class PageMaker {
 	 * @return
 	 * @throws Exception
 	 */
-	static public boolean pageAcceptsParameters(Page pg, PageParameters papa) throws Exception {
+	static public boolean pageAcceptsParameters(final Page pg, final PageParameters papa) throws Exception {
 		if(papa == null)
 			return true;
 		if(papa.equals(pg.getPageParameters()))
@@ -64,7 +65,7 @@ public class PageMaker {
 		return false;
 	}
 
-	static Page	createPageWithContent(RequestContext ctx, Constructor<? extends UrlPage> con, ConversationContext cc, PageParameters pp) throws Exception {
+	static Page	createPageWithContent(final RequestContext ctx, final Constructor<? extends UrlPage> con, final ConversationContext cc, final PageParameters pp) throws Exception {
 		UrlPage	nc	= createPageContent(ctx, con, cc, pp);
 		Page	pg	= new Page(nc);
 		cc.internalRegisterPage(pg, pp);
@@ -80,11 +81,11 @@ public class PageMaker {
 	 * @return
 	 * @throws Exception
 	 */
-	static private UrlPage		createPageContent(RequestContext ctx, Constructor<? extends UrlPage> con, ConversationContext cc, PageParameters pp) throws Exception {
+	static private UrlPage		createPageContent(final RequestContext ctx, final Constructor<? extends UrlPage> con, final ConversationContext cc, final PageParameters pp) throws Exception {
 		//-- Create the page.
 		Class<?>[]	par	= con.getParameterTypes();
 		Object[]	args = new Object[par.length];
-	
+
 		for(int i = 0; i < par.length; i++) {
 			Class<?> pc = par[i];
 			if(PageParameters.class.isAssignableFrom(pc))
@@ -94,7 +95,7 @@ public class PageMaker {
 			else
 				throw new IllegalStateException("?? Cannot assign a value to constructor parameter ["+i+"]: "+pc+" of "+con);
 		}
-	
+
 		UrlPage	p;
 		try {
 			p = con.newInstance(args);
@@ -110,7 +111,7 @@ public class PageMaker {
 		return p;
 	}
 
-	static public Constructor<? extends UrlPage>	getBestPageConstructor(Class<? extends UrlPage> clz, boolean hasparam) {
+	static public Constructor<? extends UrlPage>	getBestPageConstructor(final Class<? extends UrlPage> clz, final boolean hasparam) {
 		Constructor<? extends UrlPage>[]		car = clz.getConstructors();
 		Constructor<? extends UrlPage>			bestcc = null;			// Will be set if a conversationless constructor is found
 		int score = 0;
@@ -157,7 +158,7 @@ public class PageMaker {
 				score = sc;
 			}
 		}
-	
+
 		//-- At this point we *must* have a usable constructor....
 		if(bestcc == null)
 			throw new IllegalStateException("The Page class "+clz+" does not have a suitable constructor.");
@@ -172,7 +173,7 @@ public class PageMaker {
 	 * @param hasparam
 	 * @return
 	 */
-	static public Constructor<? extends UrlPage>	getPageConstructor(Class<? extends UrlPage> clz, Class<? extends ConversationContext> ccclz, boolean hasparam) {
+	static public Constructor<? extends UrlPage>	getPageConstructor(final Class<? extends UrlPage> clz, final Class<? extends ConversationContext> ccclz, final boolean hasparam) {
 		Constructor<? extends UrlPage>	bestcc = null;		// Will be set if a conversationless constructor is found
 		int score = 0;
 		for(Constructor<? extends UrlPage> cc : clz.getConstructors()) {
@@ -205,7 +206,7 @@ public class PageMaker {
 				bestcc = cc;
 			}
 		}
-	
+
 		//-- At this point we *must* have a usable constructor....
 		if(bestcc == null)
 			throw new IllegalStateException("The Page class "+clz+" does not have a suitable constructor.");
@@ -239,7 +240,7 @@ public class PageMaker {
 	 * @param clz
 	 * @return
 	 */
-	static public Class<? extends ConversationContext>	getConversationType(Constructor<? extends UrlPage> clz) {
+	static public Class<? extends ConversationContext>	getConversationType(final Constructor<? extends UrlPage> clz) {
 		Class<? extends ConversationContext>	ccclz = null;
 		for(Class<?> pc: clz.getParameterTypes()) {
 			if(ConversationContext.class.isAssignableFrom(pc)) {
@@ -265,12 +266,12 @@ public class PageMaker {
 	static private Map<String, PageInjector>	m_injectorMap = new HashMap<String, PageInjector>();
 
 	/**
-	 * 
+	 *
 	 */
 	static private abstract class PropertyInjector {
 		final private Method	m_propertySetter;
 
-		public PropertyInjector(Method propertySetter) {
+		public PropertyInjector(final Method propertySetter) {
 			m_propertySetter = propertySetter;
 		}
 		protected Method getPropertySetter() {
@@ -283,7 +284,7 @@ public class PageMaker {
 		final private List<PropertyInjector>	m_propInjectorList;
 		final private Class<? extends UrlPage>	m_pageClass;
 
-		public PageInjector(Class< ? extends UrlPage> pageClass, List<PropertyInjector> propInjectorList) {
+		public PageInjector(final Class< ? extends UrlPage> pageClass, final List<PropertyInjector> propInjectorList) {
 			m_pageClass = pageClass;
 			m_propInjectorList = propInjectorList;
 		}
@@ -293,7 +294,7 @@ public class PageMaker {
 		public Class<? extends UrlPage> getPageClass() {
 			return m_pageClass;
 		}
-		
+
 		/**
 		 * Inject into all page properties.
 		 * @param page
@@ -301,7 +302,7 @@ public class PageMaker {
 		 * @param pp
 		 * @throws Exception
 		 */
-		public void	inject(UrlPage page, RequestContextImpl ctx, PageParameters pp) throws Exception {
+		public void	inject(final UrlPage page, final RequestContextImpl ctx, final PageParameters pp) throws Exception {
 			for(PropertyInjector pi: m_propInjectorList)
 				pi.inject(page, ctx, pp);
 		}
@@ -314,9 +315,9 @@ public class PageMaker {
 	 * @param page
 	 * @return
 	 */
-	static private List<PropertyInjector>	calculateInjectorList(Class<? extends UrlPage> page) {
+	static private List<PropertyInjector>	calculateInjectorList(final Class<? extends UrlPage> page) {
 		List<PropertyInfo>		pilist = ClassUtil.getProperties(page);
-		List<PropertyInjector>	ilist = Collections.EMPTY_LIST;		
+		List<PropertyInjector>	ilist = Collections.EMPTY_LIST;
 		for(PropertyInfo pi: pilist) {
 			PropertyInjector pij = calculateInjector(pi);
 			if(pij != null) {
@@ -328,13 +329,43 @@ public class PageMaker {
 		return ilist;
 	}
 
+	static private Set<String>		UCS	= new HashSet<String>();
+	static {
+		UCS.add(String.class.toString());
+		UCS.add(Byte.class.toString());
+		UCS.add(Byte.TYPE.getName());
+		UCS.add(Character.class.toString());
+		UCS.add(Character.TYPE.getName());
+		UCS.add(Short.class.toString());
+		UCS.add(Short.TYPE.getName());
+		UCS.add(Integer.class.toString());
+		UCS.add(Integer.TYPE.getName());
+		UCS.add(Long.class.toString());
+		UCS.add(Long.TYPE.getName());
+		UCS.add(Float.class.toString());
+		UCS.add(Float.TYPE.getName());
+		UCS.add(Double.class.toString());
+		UCS.add(Double.TYPE.getName());
+		UCS.add(Date.class.toString());
+		UCS.add(BigDecimal.class.toString());
+		UCS.add(BigInteger.class.toString());
+//		UCS.add(Byte.class.toString());
+//		UCS.add(Byte.class.toString());
+//		UCS.add(Byte.class.toString());
+//		UCS.add(Byte.class.toString());
+//		UCS.add(Byte.class.toString());
+//		UCS.add(Byte.class.toString());
+//
+	}
+
+
 	/**
 	 * Tries to find an injector to inject a value for the specified property.
 	 *
 	 * @param pi
 	 * @return
 	 */
-	static private PropertyInjector	calculateInjector(PropertyInfo pi) {
+	static private PropertyInjector	calculateInjector(final PropertyInfo pi) {
 		if(pi.getSetter() == null)						// Read-only property?
 			return null;								// Be gone;
 		Method	m = pi.getGetter();
@@ -343,14 +374,27 @@ public class PageMaker {
 
 		//-- Check annotation.
 		UIUrlParameter	upp = m.getAnnotation(UIUrlParameter.class);
-		
+
 		if(upp != null) {
 			String name = upp.name() == Constants.NONE ? pi.getName() : upp.name();
-			if(upp.entity() == Object.class)
-				return new UrlParameterInjector(pi.getSetter(), name, upp.mandatory());
+			Class<?>	ent = upp.entity();
+			if(ent == Object.class) {
+				//-- Use getter's type.
+				ent = pi.getGetter().getReturnType();
+			}
+
+			/*
+			 * Entity auto-discovery: if entity is specified we're always certain we have an entity. If not,
+			 * we check the property type; if that is in a supported conversion class we assume a normal value.
+			 */
+			if(upp.entity() == Object.class) {
+				//-- Can be entity or literal.
+				if(upp.name() == Constants.NONE || UCS.contains(ent.getName()))		// If no name is set this is NEVER an entity,
+					return new UrlParameterInjector(pi.getSetter(), name, upp.mandatory());
+			}
 
 			//-- Entity lookup.
-			return new UrlEntityInjector(pi.getSetter(), name, upp.mandatory(), upp.entity());
+			return new UrlEntityInjector(pi.getSetter(), name, upp.mandatory(), ent);
 		}
 		return null;
 	}
@@ -361,7 +405,7 @@ public class PageMaker {
 	 * @param page
 	 * @return
 	 */
-	static private PageInjector	calculatePageInjector(Class<? extends UrlPage> page) {
+	static private PageInjector	calculatePageInjector(final Class<? extends UrlPage> page) {
 		List<PropertyInjector>	pil = calculateInjectorList(page);
 		return new PageInjector(page, pil);
 	}
@@ -371,7 +415,7 @@ public class PageMaker {
 	 * @param page
 	 * @return
 	 */
-	static private synchronized PageInjector	findPageInjector(Class<? extends UrlPage> page) {
+	static private synchronized PageInjector	findPageInjector(final Class<? extends UrlPage> page) {
 		String	cn = page.getClass().getCanonicalName();
 		PageInjector	pij	= m_injectorMap.get(cn);
 		if(pij != null) {
@@ -394,7 +438,7 @@ public class PageMaker {
 	 * @param papa
 	 * @throws Exception
 	 */
-	static public void		injectPageValues(UrlPage page, RequestContextImpl ctx, PageParameters papa) throws Exception {
+	static public void		injectPageValues(final UrlPage page, final RequestContextImpl ctx, final PageParameters papa) throws Exception {
 		PageInjector	pij	= findPageInjector(page.getClass());
 		pij.inject(page, ctx, papa);
 	}
@@ -412,7 +456,7 @@ public class PageMaker {
 		final private String		m_name;
 		final private boolean		m_mandatory;
 
-		public UrlParameterInjector(Method propertySetter, String name, boolean mandatory) {
+		public UrlParameterInjector(final Method propertySetter, final String name, final boolean mandatory) {
 			super(propertySetter);
 			m_name = name;
 			m_mandatory = mandatory;
@@ -423,7 +467,7 @@ public class PageMaker {
 		 * @see to.etc.domui.state.PageMaker.PropertyInjector#inject(to.etc.domui.server.RequestContextImpl, to.etc.domui.state.PageParameters)
 		 */
 		@Override
-		public void inject(UrlPage page, RequestContextImpl ctx, PageParameters papa) throws Exception {
+		public void inject(final UrlPage page, final RequestContextImpl ctx, final PageParameters papa) throws Exception {
 			//-- 1. Get the URL parameter's value.
 			String	pv = papa.getString(m_name);
 			if(pv == null) {
@@ -465,7 +509,7 @@ public class PageMaker {
 		final private boolean		m_mandatory;
 		final private Class<?>		m_entityClass;
 
-		public UrlEntityInjector(Method propertySetter, String name, boolean mandatory, Class< ? > enityClass) {
+		public UrlEntityInjector(final Method propertySetter, final String name, final boolean mandatory, final Class< ? > enityClass) {
 			super(propertySetter);
 			m_name = name;
 			m_mandatory = mandatory;
@@ -473,7 +517,7 @@ public class PageMaker {
 		}
 
 		@Override
-		public void inject(UrlPage page, RequestContextImpl ctx, PageParameters papa) throws Exception {
+		public void inject(final UrlPage page, final RequestContextImpl ctx, final PageParameters papa) throws Exception {
 			//-- 1. Get the URL parameter's value.
 			String	pv = papa.getString(m_name);
 			if(pv == null) {
