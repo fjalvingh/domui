@@ -23,7 +23,7 @@ public class HtmlEditor extends TextArea {
 		super.setCssClass("ui-fck");
 	}
 	@Override
-	public void setCssClass(String cssClass) {
+	public void setCssClass(final String cssClass) {
 		throw new IllegalStateException("Cannot set a class on FCKEditor");
 	}
 
@@ -31,7 +31,7 @@ public class HtmlEditor extends TextArea {
 	 * <p>To create the editor we need to replace the core code. We add a textarea having the ID and a
 	 * special class (ui-fck). This special class is an indicator to the submit logic that the textarea
 	 * is an FCKEditor instance. This causes it to use special logic to retrieve a value.</p>
-	 * 
+	 *
 	 * <p>Javascript stanza:
 	 * <pre>
 	 *	var oFCKeditor = new FCKeditor( 'FCKeditor1' ) ;
@@ -48,6 +48,8 @@ public class HtmlEditor extends TextArea {
 		sb.append("var ").append(m_vn).append(" = new FCKeditor('").append(getActualID()).append("');");
 		appendOption(sb, "BasePath", PageContext.getRequestContext().getRelativePath("$fckeditor/"));
 		appendOption(sb, "DefaultLanguage", NlsContext.getLocale().getLanguage());
+		if(getWidth() != null)
+			appendOption(sb, "Width", getWidth());
 		appendOption(sb, "ToolbarSet", m_toolbarSet);
 		appendConfig(sb, "ToolbarStartExpanded", "false");
 
@@ -57,11 +59,11 @@ public class HtmlEditor extends TextArea {
 		sb.append(m_vn).append(".ReplaceTextarea();");
 		appendCreateJS(sb);
 	}
-	private void	appendConfig(StringBuilder sb, String option, String value) {
+	private void	appendConfig(final StringBuilder sb, final String option, final String value) {
 		sb.append(m_vn).append(".Config['").append(option).append("'] = ").append(value).append(';');		// Disable this connector component
 	}
 
-	private void	appendConnectorConfig(StringBuilder sb, String option, String value) {
+	private void	appendConnectorConfig(final StringBuilder sb, final String option, final String value) {
 		if(getFileSystem() == null) {
 			//-- Disable connector in config.
 			sb.append(m_vn).append(".Config['").append(option).append("'] = false;");		// Disable this connector component
@@ -84,9 +86,9 @@ public class HtmlEditor extends TextArea {
 		sb.append(".part");
 
 		sb.append("';");
-	}	
+	}
 
-	private void	appendOption(StringBuilder sb, String option, String value) {
+	private void	appendOption(final StringBuilder sb, final String option, final String value) {
 		sb.append(m_vn).append(".").append(option).append(" = ");
 		try {
 			StringTool.strToJavascriptString(sb, value, true);
@@ -100,7 +102,7 @@ public class HtmlEditor extends TextArea {
 		return m_toolbarSet;
 	}
 
-	public void setToolbarSet(String toolbarSet) {
+	public void setToolbarSet(final String toolbarSet) {
 		if(DomUtil.isEqual(toolbarSet, m_toolbarSet))
 			return;
 		m_toolbarSet = toolbarSet;
@@ -113,10 +115,10 @@ public class HtmlEditor extends TextArea {
 	public IEditorFileSystem getFileSystem() {
 		return m_fileSystem;
 	}
-	public void setFileSystem(IEditorFileSystem fileSystem) {
+	public void setFileSystem(final IEditorFileSystem fileSystem) {
 		m_fileSystem = fileSystem;
 	}
-	public void	setToolbarSet(HtmlToolbarSet set) {
+	public void	setToolbarSet(final HtmlToolbarSet set) {
 		switch(set) {
 			default:
 				throw new IllegalStateException("Unknown toolbar set: "+set);
