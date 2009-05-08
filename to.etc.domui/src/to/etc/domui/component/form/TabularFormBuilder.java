@@ -9,7 +9,7 @@ import to.etc.domui.util.*;
 
 /**
  * This is a helper class to generate tabular forms. It is more capable than FormBuilder
- * in that it allows for multiple layouts within the table, by spanning cells where 
+ * in that it allows for multiple layouts within the table, by spanning cells where
  * needed. In addition it allows for multiple table sections using multiple TBody's in
  * the generated table. This can be used to create collapsable forms.
  *
@@ -36,10 +36,10 @@ public class TabularFormBuilder {
 	private TBody				m_tbody;
 
 	/** Thingy to help calculating access rights (delegate) */
-	private AccessCalculator	m_calc = new AccessCalculator();
+	private final AccessCalculator	m_calc = new AccessCalculator();
 
 	/** Helper thingy which helps with collecting input nodes from the factory */
-	private NodeContainer		m_collector = new Span();
+	private final NodeContainer		m_collector = new Span();
 
 	/** For columnar mode this is the "next row" where we add a column */
 	private int					m_colRow;
@@ -82,7 +82,7 @@ public class TabularFormBuilder {
 	public TabularFormBuilder() {
 	}
 
-	public <T> TabularFormBuilder(Class<T> clz, IReadOnlyModel<T> mdl) {
+	public <T> TabularFormBuilder(final Class<T> clz, final IReadOnlyModel<T> mdl) {
 		setClassModel(clz, mdl);
 	}
 
@@ -90,7 +90,7 @@ public class TabularFormBuilder {
 		return m_controlLabelFactory;
 	}
 
-	public void setControlLabelFactory(IControlLabelFactory controlLabelFactory) {
+	public void setControlLabelFactory(final IControlLabelFactory controlLabelFactory) {
 		m_controlLabelFactory = controlLabelFactory;
 	}
 
@@ -101,7 +101,7 @@ public class TabularFormBuilder {
 	 * @param clz
 	 * @param mdl
 	 */
-	public <T> void	setClassModel(Class<T> clz, IReadOnlyModel<T> mdl) {
+	public <T> void	setClassModel(final Class<T> clz, final IReadOnlyModel<T> mdl) {
 		m_classMeta = MetaManager.findClassMeta(clz);
 		m_currentInputClass	= clz;
 		m_model	= mdl;
@@ -113,7 +113,7 @@ public class TabularFormBuilder {
 	 * @param cmm
 	 * @param source
 	 */
-	public void	setMetaModel(ClassMetaModel cmm, IReadOnlyModel<?> source) {
+	public void	setMetaModel(final ClassMetaModel cmm, final IReadOnlyModel<?> source) {
 		m_classMeta = cmm;
 		m_model = source;
 		m_currentInputClass = null;
@@ -133,7 +133,7 @@ public class TabularFormBuilder {
 	 * Sets a new table. This resets the current body and stuff.
 	 * @param b
 	 */
-	public void		setTable(Table b) {
+	public void		setTable(final Table b) {
 		finish();							// Make sure old dude is finished
 		m_parentTable = b;
 		m_lastUsedRow = null;
@@ -145,7 +145,7 @@ public class TabularFormBuilder {
 	 * Sets the TBody to use. This resets all layout state.
 	 * @param b
 	 */
-	public void		setTBody(TBody b) {
+	public void		setTBody(final TBody b) {
 		finish();							// Make sure old dude is finished
 		m_tbody	= b;
 		m_parentTable = b.getParent(Table.class);
@@ -178,17 +178,17 @@ public class TabularFormBuilder {
 	 *
 	 * @param name
 	 */
-	public void		addProp(String name) {
+	public void		addProp(final String name) {
 		addProp(name, (String)null);
 	}
-	
+
 	/**
-	 * Add an input for the specified property just as <code>addProp(String)</code>, 
+	 * Add an input for the specified property just as <code>addProp(String)</code>,
 	 * only this input won't be editable.
-	 * 
+	 *
 	 * @param name
 	 */
-	public void addReadOnlyProp(String name) {
+	public void addReadOnlyProp(final String name) {
 		addReadOnlyProp(name, null);
 	}
 
@@ -201,7 +201,7 @@ public class TabularFormBuilder {
 	 * @param name
 	 * @param label		The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
 	 */
-	public void		addProp(String name, String label) {
+	public void		addProp(final String name, String label) {
 		PropertyMetaModel	pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
@@ -210,13 +210,13 @@ public class TabularFormBuilder {
 
 	/**
 	/**
-	 * Add an input for the specified property just as <code>addProp(String, String)</code>, 
+	 * Add an input for the specified property just as <code>addProp(String, String)</code>,
 	 * only this input won't be editable.
-	 * 
+	 *
 	 * @param name
 	 * @param label
 	 */
-	public void addReadOnlyProp(String name, String label) {
+	public void addReadOnlyProp(final String name, String label) {
 		PropertyMetaModel	pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
@@ -236,7 +236,7 @@ public class TabularFormBuilder {
 	 *
 	 * @param names
 	 */
-	public TabularFormBuilder addProps(String... names) {
+	public TabularFormBuilder addProps(final String... names) {
 		//-- Store the current mode override && restore after each property (keep mode-override active for each property)
 		Mode m = m_nextNodeMode;
 		Mode nextm = m_nextMode;
@@ -249,14 +249,14 @@ public class TabularFormBuilder {
 			m_nextNodeMode = nextm;					// Cancel mode override
 		return this;
 	}
-	
+
 	/**
 	 * Add the specified properties to the form, just as <code>addProps(String...)</code>,
-	 * only these properties won't be editable. 
+	 * only these properties won't be editable.
 	 * @param names
 	 * @return
 	 */
-	public TabularFormBuilder addReadOnlyProps(String... names) {
+	public TabularFormBuilder addReadOnlyProps(final String... names) {
 		//-- Store the current mode override && restore after each property (keep mode-override active for each property)
 		Mode m = m_nextNodeMode;
 		Mode nextm = m_nextMode;
@@ -269,7 +269,7 @@ public class TabularFormBuilder {
 			m_nextNodeMode = nextm;					// Cancel mode override
 		return this;
 	}
-	
+
 	/**
 	 * Add a user-specified control for a given property. This adds the control, using
 	 * the property-specified label and creates a binding for the property on the
@@ -280,7 +280,7 @@ public class TabularFormBuilder {
 	 * @param propertyname
 	 * @param ctl
 	 */
-	public <T extends NodeBase & IInputNode<?>> void		addProp(String propertyname, T ctl) {
+	public <T extends NodeBase & IInputNode<?>> void		addProp(final String propertyname, final T ctl) {
 		PropertyMetaModel	pmm = resolveProperty(propertyname);
 		String	label = pmm.getDefaultLabel();
 		m_collector.add(ctl);
@@ -289,13 +289,13 @@ public class TabularFormBuilder {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param name
 	 * @param label
 	 * @param pmm
 	 * @param editPossible, when false, the rendered control will never be editable.
 	 */
-	private void	addPropertyControl(String name, String label, PropertyMetaModel pmm, boolean editPossible) {
+	private void	addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editPossible) {
 		//-- Check control permissions: does it have view permissions?
 		if(! m_calc.calculate(pmm))
 			return;
@@ -315,7 +315,7 @@ public class TabularFormBuilder {
 	 * @param ctl
 	 * @param mandatory
 	 */
-	private void addControl(String label, NodeBase ctl, NodeContainer list, boolean mandatory) {
+	private void addControl(final String label, final NodeBase ctl, final NodeContainer list, final boolean mandatory) {
 		IControlLabelFactory	clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = DomApplication.get().getControlLabelFactory();
@@ -330,7 +330,7 @@ public class TabularFormBuilder {
 		modalAdd(l, list);
 	}
 
-	public void	addLabelAndControl(String label, NodeBase control, boolean mandatory) {
+	public void	addLabelAndControl(final String label, final NodeBase control, final boolean mandatory) {
 		m_collector.add(control);
 		addControl(label, control, m_collector, mandatory);
 	}
@@ -364,7 +364,7 @@ public class TabularFormBuilder {
 	}
 
 	/**
-	 * Add the next pair into the last cell of the last row added, then return to the 
+	 * Add the next pair into the last cell of the last row added, then return to the
 	 * current mode. This merges >1 control in a single cell, causing them to be close
 	 * together.
 	 *
@@ -377,13 +377,13 @@ public class TabularFormBuilder {
 	}
 
 	/**
-	 * Add the next pair into the last cell of the last row added using the specified 
+	 * Add the next pair into the last cell of the last row added using the specified
 	 * string to separate them, then return to the current mode. This merges >1 control
 	 * in a single cell, causing them to be close together.
 	 *
 	 * @return self (chained)
 	 */
-	public TabularFormBuilder	into(String separator) {
+	public TabularFormBuilder	into(final String separator) {
 		m_appendIntoSeparator = separator;
 		return into();
 	}
@@ -400,7 +400,7 @@ public class TabularFormBuilder {
 	 * @param x
 	 * @return
 	 */
-	public TabularFormBuilder	col(int x) {
+	public TabularFormBuilder	col(final int x) {
 		m_nextNodeMode	= Mode.COL;
 		m_nextMode 		= m_mode;
 		m_colCol		= x;
@@ -430,11 +430,11 @@ public class TabularFormBuilder {
 	public void		setModeAppendInto() {
 		m_mode = Mode.APPEND_INTO;
 	}
-	public void		setModeAppendInto(String sepa) {
+	public void		setModeAppendInto(final String sepa) {
 		m_mode = Mode.APPEND_INTO;
 		m_appendIntoDefaultSeparator = sepa;
 	}
-	public void		setModeColumnar(int col, int row) {
+	public void		setModeColumnar(final int col, final int row) {
 		m_mode = Mode.COL;
 		m_colRow	= row;
 		m_colCol	= col;
@@ -461,7 +461,7 @@ public class TabularFormBuilder {
 	 * @param pmm
 	 * @return
 	 */
-	private NodeBase		createControlFor(NodeContainer container, PropertyMetaModel pmm, boolean editable) {
+	private NodeBase		createControlFor(final NodeContainer container, final PropertyMetaModel pmm, final boolean editable) {
 		ControlFactory		cf	= DomApplication.get().getControlFactory(pmm);
 		NodeBase	ctl = cf.createControl(pmm, editable);
 		container.add(ctl);
@@ -474,7 +474,7 @@ public class TabularFormBuilder {
 	 * @param name
 	 * @return
 	 */
-	protected PropertyMetaModel	resolveProperty(String name) {
+	protected PropertyMetaModel	resolveProperty(final String name) {
 		PropertyMetaModel pmm = getClassMeta().findProperty(name);
 		if(pmm == null)
 			throw new IllegalStateException("Unknown property "+name);
@@ -484,7 +484,7 @@ public class TabularFormBuilder {
 	public ModelBindings getBindings() {
 		return m_bindings;
 	}
-	public void setBindings(ModelBindings bindings) {
+	public void setBindings(final ModelBindings bindings) {
 		if(m_bindings != null && m_bindings.size() > 0)
 			LOG.warning("Setting new bindings but current binding list has bindings!! Make sure you use the old list to bind too!!");
 		m_bindings = bindings;
@@ -520,7 +520,7 @@ public class TabularFormBuilder {
 	/**
 	 * Adds the node to the table, using the current mode. This decides the form placement.
 	 */
-	private void	modalAdd(Label l, NodeContainer ctlcontainer) {
+	private void	modalAdd(final Label l, final NodeContainer ctlcontainer) {
 		switch(m_nextNodeMode) {
 			default:
 				throw new IllegalStateException("Invalid table insert mode: "+m_mode);
@@ -546,7 +546,7 @@ public class TabularFormBuilder {
 		m_appendIntoSeparator = m_appendIntoDefaultSeparator;			// Make sure this thingy is reset,
 	}
 
-	private void	addCells(TR tr, NodeBase l, NodeContainer c) {
+	private void	addCells(final TR tr, final NodeBase l, final NodeContainer c) {
 		TD	lcell = new TD();
 		tr.add(lcell);
 		lcell.setCssClass("ui-f-lbl");
@@ -566,7 +566,7 @@ public class TabularFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void	modeAddNormal(Label l, NodeContainer c) {
+	protected void	modeAddNormal(final Label l, final NodeContainer c) {
 		m_lastUsedRow = new TR();
 		tbody().add(m_lastUsedRow);
 		addCells(m_lastUsedRow, l, c);
@@ -578,7 +578,7 @@ public class TabularFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void	modeAddAppend(Label l, NodeContainer c) {
+	protected void	modeAddAppend(final Label l, final NodeContainer c) {
 		//-- Find the last used TR in the body.
 		if(tbody().getChildCount() == 0 || m_lastUsedRow == null) {
 			m_lastUsedRow = new TR();
@@ -592,7 +592,7 @@ public class TabularFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void	modeAddColumnar(Label l, NodeContainer c) {
+	protected void	modeAddColumnar(final Label l, final NodeContainer c) {
 		//-- 1. Find the appropriate "row" or make sure it exists.
 		while(tbody().getChildCount() <= m_colRow)
 			tbody().add(new TR());
@@ -624,7 +624,7 @@ public class TabularFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void	modeAppendInto(Label l, NodeContainer c) {
+	protected void	modeAppendInto(final Label l, final NodeContainer c) {
 		if(m_lastUsedRow == null) {						// If there's no row-> add one,
 			m_lastUsedRow = new TR();
 			tbody().add(m_lastUsedRow);
@@ -650,13 +650,19 @@ public class TabularFormBuilder {
 	}
 
 	/**
-	 * This finishes off the current table by calculating colspans for all skewed rows.
+	 * This finishes off the current table by calculating colspans for all skewed rows. This discards the
+	 * current table!
+	 *
 	 * @return
 	 */
 	public Table	finish() {
 		if(m_parentTable == null)
 			return null;
-		DomUtil.adjustTableColspans(m_parentTable);
-		return m_parentTable;
+
+		//-- jal 20090508 MUST clear the table, because when the builder is used for the NEXT tab it must return a new table!
+		Table	tbl = m_parentTable;
+		DomUtil.adjustTableColspans(tbl);
+		reset();
+		return tbl;
 	}
 }
