@@ -419,7 +419,7 @@ table.ui-lui {
 	vertical-align: top;
 }
 
-/*** Form basic styles ***/
+/*** Form basic styles: these are for forms having the label BEFORE the field (horizontal). ***/
 .ui-f-lbl {
 	text-align: right;
 	font-weight: bold;
@@ -433,6 +433,33 @@ table.ui-lui {
 	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: top;
 }
+/* Display-only field */
+.ui-f-display {
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	vertical-align: top;
+	background: #eff7ff;
+}
+
+/*** Form basic styles: for forms where the label is above the edit control (vertical). ***/
+.ui-fv-lbl {
+	text-align: left;
+	font-weight: bold;
+	font-size: 11px;
+	/* FIXME: Fuck-me-gently with a chainsaw: viewpoint uses PIXEL sizing!? */
+	vertical-align: top;
+}
+.ui-fv-in {
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	vertical-align: top;
+}
+.ui-fv-display {
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	vertical-align: top;
+	background: #eff7ff;
+}
 
 input {
 	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
@@ -442,6 +469,10 @@ input {
 .ui-ro {
 	background: #eff7ff;
 }
+
+
+
+
 
 /*** NiceButton ***/
 a.ui-nbtn {

@@ -17,15 +17,15 @@ public class HtmlRenderer implements NodeVisitor {
 	/** Scratch stringbuffer. */
 	private StringBuilder		m_sb;
 
-	private BrowserOutput		m_o;
-	
+	private final BrowserOutput		m_o;
+
 	private boolean				m_tagless;
 
 	private boolean				m_updating;
 
 	private boolean				m_isNewNode;
 
-	public HtmlRenderer(BrowserOutput o) {
+	public HtmlRenderer(final BrowserOutput o) {
 		m_o = o;
 	}
 
@@ -39,20 +39,20 @@ public class HtmlRenderer implements NodeVisitor {
 	public boolean isNewNode() {
 		return m_isNewNode;
 	}
-	public void setNewNode(boolean newNode) {
+	public void setNewNode(final boolean newNode) {
 		m_isNewNode = newNode;
 	}
 
 	/**
 	 * When T this only renders attributes but no tags and tag-ends.
 	 */
-	public void setTagless(boolean tagless) {
+	public void setTagless(final boolean tagless) {
 		m_tagless = tagless;
 	}
 	public boolean isUpdating() {
 		return m_updating;
 	}
-	public void setUpdating(boolean updating) {
+	public void setUpdating(final boolean updating) {
 		m_updating = updating;
 	}
 
@@ -68,7 +68,7 @@ public class HtmlRenderer implements NodeVisitor {
 		return m_sb;
 	}
 
-	static public String	fixColor(String s) {
+	static public String	fixColor(final String s) {
 		if(s.startsWith("#"))
 			return s;
 		for(int i = s.length(); --i >= 0;) {
@@ -78,8 +78,8 @@ public class HtmlRenderer implements NodeVisitor {
 		}
 		return "#"+s;
 	}
-	
-	public void		appendStyle(CssBase c, Appendable a) throws IOException {		// Bloody idiot.
+
+	public void		appendStyle(final CssBase c, final Appendable a) throws IOException {		// Bloody idiot.
 		if(c.getBackgroundAttachment() != null) {
 			a.append("background-attachment: ");
 			switch(c.getBackgroundAttachment()) {
@@ -171,7 +171,7 @@ public class HtmlRenderer implements NodeVisitor {
 			a.append(right);
 			a.append(';');
 		}
-		
+
 		//-- Clear
 		if(c.getClear() != null) {
 			a.append("clear:");
@@ -271,9 +271,15 @@ public class HtmlRenderer implements NodeVisitor {
 			a.append(fixColor(c.getColor()));
 			a.append(";");
 		}
+
+		if(c.getTextAlign() != null) {
+			a.append("text-align:");
+			a.append(c.getTextAlign().name().toLowerCase());
+			a.append(';');
+		}
 	}
 
-	static private String border(StringBuilder a, int w, String s, String c) {
+	static private String border(final StringBuilder a, final int w, final String s, final String c) {
 		a.setLength(0);
 		if(w >= 0) {
 			a.append(w);
@@ -301,7 +307,7 @@ public class HtmlRenderer implements NodeVisitor {
 	 * @param b
 	 * @return
 	 */
-	protected String	getStyleFor(NodeBase b) throws IOException {
+	protected String	getStyleFor(final NodeBase b) throws IOException {
 		String s = b.getCachedStyle();
 		if(s != null)
 			return s;
@@ -312,11 +318,11 @@ public class HtmlRenderer implements NodeVisitor {
 		return s;
 	}
 
-	protected void	renderTag(NodeBase b, BrowserOutput o) throws Exception {
+	protected void	renderTag(final NodeBase b, final BrowserOutput o) throws Exception {
 		if(! m_tagless)
 			o.tag(b.getTag());					// Open the tag
 	}
-	protected void	renderTagend(NodeBase b, BrowserOutput o) throws Exception {
+	protected void	renderTagend(final NodeBase b, final BrowserOutput o) throws Exception {
 		if(! m_tagless)
 			o.endtag();
 	}
@@ -326,7 +332,7 @@ public class HtmlRenderer implements NodeVisitor {
 	 * @param o
 	 * @throws Exception
 	 */
-	public void basicNodeRender(NodeBase b, BrowserOutput o) throws Exception {
+	public void basicNodeRender(final NodeBase b, final BrowserOutput o) throws Exception {
 		renderTag(b, o);
 		if(m_tagless)
 			o.attr("select", "#"+b.getActualID());		// Always has an ID
@@ -379,7 +385,7 @@ public class HtmlRenderer implements NodeVisitor {
 	 * arguments...
 	 * @see to.etc.domui.dom.html.NodeVisitor#visitDiv(to.etc.domui.dom.html.Div)
 	 */
-	public void visitDiv(Div n) throws Exception {
+	public void visitDiv(final Div n) throws Exception {
 		basicNodeRender(n, m_o);
 		if(n.getTag().equals("body")) {
 			o().attr("onunload", "WebUI.unloaded()");
@@ -398,11 +404,11 @@ public class HtmlRenderer implements NodeVisitor {
 		}
 		renderTagend(n, m_o);
 	}
-	public void visitSpan(Span n) throws Exception {
+	public void visitSpan(final Span n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
-	public void visitTable(Table n) throws Exception {
+	public void visitTable(final Table n) throws Exception {
 		basicNodeRender(n, m_o);
 		if(n.getTableBorder() != -1)
 			o().attr("border", n.getTableBorder());
@@ -416,7 +422,7 @@ public class HtmlRenderer implements NodeVisitor {
 			o().attr("height", n.getTableHeight());
 		renderTagend(n, m_o);
 	}
-	public void visitTH(TH n) throws Exception {
+	public void visitTH(final TH n) throws Exception {
 		basicNodeRender(n, m_o);
 		if(n.getColspan() > 0)
 			o().attr("colspan", n.getColspan());
@@ -424,16 +430,16 @@ public class HtmlRenderer implements NodeVisitor {
 			o().attr("scope", n.getScope());
 		renderTagend(n, m_o);
 	}
-	public void visitTHead(THead n) throws Exception {
+	public void visitTHead(final THead n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
-	public void visitTBody(TBody n) throws Exception {
+	public void visitTBody(final TBody n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
-	
-	public void visitTD(TD n) throws Exception {
+
+	public void visitTD(final TD n) throws Exception {
 		basicNodeRender(n, m_o);
 		if(n.getValign() != null) {
 			switch(n.getValign()) {
@@ -456,21 +462,21 @@ public class HtmlRenderer implements NodeVisitor {
 			o().attr("width", n.getCellWidth());
 		renderTagend(n, m_o);
 	}
-	public void visitTR(TR n) throws Exception {
+	public void visitTR(final TR n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
-	public void visitTextNode(TextNode n) throws Exception {
+	public void visitTextNode(final TextNode n) throws Exception {
 		if(n.getText() != null && n.getText().length() > 0)
 			m_o.text(n.getText());
 	}
-	
-	public void	renderEndTag(NodeBase b)throws IOException {
+
+	public void	renderEndTag(final NodeBase b)throws IOException {
 		if(! m_tagless)
 			m_o.closetag(b.getTag());
 	}
 
-	public void visitA(ATag a) throws Exception {
+	public void visitA(final ATag a) throws Exception {
 		basicNodeRender(a, m_o);
 		if(a.getHref() == null || a.getHref().trim().length() == 0) {
 			o().attr("href", "javascript: void(0);");
@@ -480,16 +486,16 @@ public class HtmlRenderer implements NodeVisitor {
 			o().attr("target", a.getTarget());
 		renderTagend(a, m_o);
 	}
-	public void visitLi(Li n) throws Exception {
+	public void visitLi(final Li n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
-	public void visitUl(Ul n) throws Exception {
+	public void visitUl(final Ul n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
 
-	private void	renderType(String t) throws Exception {
+	private void	renderType(final String t) throws Exception {
 		if(! isNewNode())						// Cannot add type= for existing tags!
 			return;
 		if(! isUpdating())
@@ -503,7 +509,7 @@ public class HtmlRenderer implements NodeVisitor {
 	 * Render the basic input tag.
 	 * @see to.etc.domui.dom.html.NodeVisitor#visitInput(to.etc.domui.dom.html.Input)
 	 */
-	public void visitInput(Input n) throws Exception {
+	public void visitInput(final Input n) throws Exception {
 		basicNodeRender(n, m_o);
 		o().attr("name", n.getActualID());
 		renderType("text");
@@ -524,7 +530,7 @@ public class HtmlRenderer implements NodeVisitor {
 		renderTagend(n, m_o);
 	}
 
-	public void visitFileInput(FileInput n) throws Exception {
+	public void visitFileInput(final FileInput n) throws Exception {
 		basicNodeRender(n, m_o);
 //		if(! isUpdating())
 		o().attr("type", "file");
@@ -548,7 +554,7 @@ public class HtmlRenderer implements NodeVisitor {
 	 * Render the basic input tag.
 	 * @see to.etc.domui.dom.html.NodeVisitor#visitInput(to.etc.domui.dom.html.Input)
 	 */
-	public void visitCheckbox(Checkbox n) throws Exception {
+	public void visitCheckbox(final Checkbox n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderType("checkbox");
 //
@@ -565,13 +571,13 @@ public class HtmlRenderer implements NodeVisitor {
 			o().attr("checked", "checked");
 		renderTagend(n, m_o);
 	}
-	
+
 	/**
 	 * JoS : 20 Augustus 2008
 	 * Render the basic radio button
 	 * @see to.etc.domui.dom.html.NodeVisitor#visitInput(to.etc.domui.dom.html.Input)
 	 */
-	public void visitRadioButton(RadioButton n) throws Exception {
+	public void visitRadioButton(final RadioButton n) throws Exception {
 		basicNodeRender(n, m_o);
 //		if(! isUpdating())
 //			o().attr("type", "radio");					// FIXME Cannot change the "type" of an existing INPUT node.
@@ -589,8 +595,8 @@ public class HtmlRenderer implements NodeVisitor {
 			o().attr("checked", "checked");
 		renderTagend(n, m_o);
 	}
-	
-	public void visitImg(Img n) throws Exception {
+
+	public void visitImg(final Img n) throws Exception {
 		basicNodeRender(n, o());
 		if(n.getAlign() != null)
 			o().attr("align", n.getAlign().getCode());
@@ -607,7 +613,7 @@ public class HtmlRenderer implements NodeVisitor {
 		renderTagend(n, o());
 	}
 
-	public void	visitButton(Button n) throws Exception {
+	public void	visitButton(final Button n) throws Exception {
 		basicNodeRender(n, o());
 		if(isUpdating())
 			o().attr("domjs_disabled", n.isDisabled() ? "true" : "false");
@@ -622,13 +628,13 @@ public class HtmlRenderer implements NodeVisitor {
 		renderTagend(n, o());
 	}
 
-	public void visitLabel(Label n) throws Exception {
+	public void visitLabel(final Label n) throws Exception {
 		basicNodeRender(n, o());
 		if(n.getFor() != null)
 			o().attr("for", n.getFor());
 		renderTagend(n, o());
 	}
-	public void visitSelect(Select n) throws Exception {
+	public void visitSelect(final Select n) throws Exception {
 		basicNodeRender(n, o());
 		if(n.isMultiple())
 			o().attr("multiple", "multiple");
@@ -644,7 +650,7 @@ public class HtmlRenderer implements NodeVisitor {
 			o().attr("size", n.getSize());
 		renderTagend(n, o());
 	}
-	public void visitOption(SelectOption n) throws Exception {
+	public void visitOption(final SelectOption n) throws Exception {
 		basicNodeRender(n, o());
 		if(isUpdating())
 			o().attr("domjs_disabled", n.isDisabled() ? "true" : "false");
@@ -658,11 +664,11 @@ public class HtmlRenderer implements NodeVisitor {
 		renderTagend(n, o());
 	}
 
-	public void visitBR(BR n) throws Exception {
+	public void visitBR(final BR n) throws Exception {
 		basicNodeRender(n, o());
 		renderTagend(n, o());
 	}
-	public void visitTextArea(TextArea n) throws Exception {
+	public void visitTextArea(final TextArea n) throws Exception {
 		basicNodeRender(n, o());
 		if(n.getCols() > 0)
 			o().attr("cols", n.getCols());
@@ -682,21 +688,21 @@ public class HtmlRenderer implements NodeVisitor {
 //		o().closetag(n.getTag());
 	}
 
-	public void visitForm(Form n) throws Exception {
+	public void visitForm(final Form n) throws Exception {
 		basicNodeRender(n, o());
 		if(n.getAction() != null)
 			o().attr("action", n.getAction());
 		if(n.getMethod() != null)
 			o().attr("method", n.getMethod());
 		if(n.getEnctype() != null) {
-			o().attr("enctype", n.getEnctype());			
+			o().attr("enctype", n.getEnctype());
 			o().attr("encoding", n.getEnctype());			// Another IE fuckup: needed to set multipart/form-data, see http://www.bennadel.com/blog/1273-Setting-Form-EncType-Dynamically-To-Multipart-Form-Data-In-IE-Internet-Explorer-.htm
 		}
 		if(n.getTarget() != null)
 			o().attr("target", n.getTarget());
 		renderTagend(n, o());
 	}
-	public void visitLiteralXhtml(LiteralXhtml n) throws Exception {
+	public void visitLiteralXhtml(final LiteralXhtml n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 
@@ -717,7 +723,7 @@ public class HtmlRenderer implements NodeVisitor {
 		 */
 //		o().closetag(n.getTag());
 	}
-	public void visitH(HTag n) throws Exception {
+	public void visitH(final HTag n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
@@ -732,8 +738,8 @@ public class HtmlRenderer implements NodeVisitor {
 //			return;
 //		}
 //	}
-	
-	
-	
-	
+
+
+
+
 }

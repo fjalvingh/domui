@@ -37,7 +37,7 @@ public class CssBase {
 	private String			m_cursor;
 	private DisplayType		m_display;
 	private FloatType		m_float;
-	
+
 	private PositionType	m_position;
 
 	private VisibilityType	m_visibility;
@@ -69,6 +69,9 @@ public class CssBase {
 	private int				m_left	= Integer.MIN_VALUE;
 	private int				m_right = Integer.MIN_VALUE;
 
+	/*--- TEXT properties -----*/
+	private TextAlign		m_textAlign;
+
 
 	/**
 	 * Called as soon as a property of <i>this</i> object changes. This dirties this
@@ -81,7 +84,7 @@ public class CssBase {
 	public BackgroundAttachment getBackgroundAttachment() {
 		return m_backgroundAttachment;
 	}
-	public void setBackgroundAttachment(BackgroundAttachment backgroundAttachment) {
+	public void setBackgroundAttachment(final BackgroundAttachment backgroundAttachment) {
 		if(! DomUtil.isEqual(backgroundAttachment, m_backgroundAttachment))
 			changed();
 		m_backgroundAttachment = backgroundAttachment;
@@ -89,7 +92,7 @@ public class CssBase {
 	public String getBackgroundColor() {
 		return m_backgroundColor;
 	}
-	public void setBackgroundColor(String backgroundColor) {
+	public void setBackgroundColor(final String backgroundColor) {
 		if(! DomUtil.isEqual(backgroundColor, m_backgroundColor))
 			changed();
 		m_backgroundColor = backgroundColor;
@@ -97,7 +100,7 @@ public class CssBase {
 	public String getBackgroundImage() {
 		return m_backgroundImage;
 	}
-	public void setBackgroundImage(String backgroundImage) {
+	public void setBackgroundImage(final String backgroundImage) {
 		if(! DomUtil.isEqual(backgroundImage, m_backgroundImage))
 			changed();
 		m_backgroundImage = backgroundImage;
@@ -105,7 +108,7 @@ public class CssBase {
 	public String getBackgroundPosition() {
 		return m_backgroundPosition;
 	}
-	public void setBackgroundPosition(String backgroundPosition) {
+	public void setBackgroundPosition(final String backgroundPosition) {
 		if(! DomUtil.isEqual(backgroundPosition, m_backgroundPosition))
 			changed();
 		m_backgroundPosition = backgroundPosition;
@@ -113,7 +116,7 @@ public class CssBase {
 	public String getBackgroundRepeat() {
 		return m_backgroundRepeat;
 	}
-	public void setBackgroundRepeat(String backgroundRepeat) {
+	public void setBackgroundRepeat(final String backgroundRepeat) {
 		if(! DomUtil.isEqual(backgroundRepeat, m_backgroundRepeat))
 			changed();
 		m_backgroundRepeat = backgroundRepeat;
@@ -121,7 +124,7 @@ public class CssBase {
 	public int getBorderLeftWidth() {
 		return m_borderLeftWidth;
 	}
-	public void setBorderLeftWidth(int borderLeftWidth) {
+	public void setBorderLeftWidth(final int borderLeftWidth) {
 		if(borderLeftWidth!=m_borderLeftWidth)
 			changed();
 		m_borderLeftWidth = borderLeftWidth;
@@ -129,7 +132,7 @@ public class CssBase {
 	public int getBorderRightWidth() {
 		return m_borderRightWidth;
 	}
-	public void setBorderRightWidth(int borderRightWidth) {
+	public void setBorderRightWidth(final int borderRightWidth) {
 		if(m_borderRightWidth != borderRightWidth)
 			changed();
 		m_borderRightWidth = borderRightWidth;
@@ -137,7 +140,7 @@ public class CssBase {
 	public int getBorderTopWidth() {
 		return m_borderTopWidth;
 	}
-	public void setBorderTopWidth(int borderTopWidth) {
+	public void setBorderTopWidth(final int borderTopWidth) {
 		if(m_borderTopWidth != borderTopWidth)
 			changed();
 		m_borderTopWidth = borderTopWidth;
@@ -145,7 +148,7 @@ public class CssBase {
 	public int getBorderBottomWidth() {
 		return m_borderBottomWidth;
 	}
-	public void setBorderBottomWidth(int borderBottomWidth) {
+	public void setBorderBottomWidth(final int borderBottomWidth) {
 		if(m_borderBottomWidth != borderBottomWidth)
 			changed();
 		m_borderBottomWidth = borderBottomWidth;
@@ -153,7 +156,7 @@ public class CssBase {
 	public String getBorderTopColor() {
 		return m_borderTopColor;
 	}
-	public void setBorderTopColor(String borderTopColor) {
+	public void setBorderTopColor(final String borderTopColor) {
 		if(! DomUtil.isEqual(borderTopColor, m_borderTopColor))
 			changed();
 		m_borderTopColor = borderTopColor;
@@ -161,7 +164,7 @@ public class CssBase {
 	public String getBorderBottomColor() {
 		return m_borderBottomColor;
 	}
-	public void setBorderBottomColor(String borderBottomColor) {
+	public void setBorderBottomColor(final String borderBottomColor) {
 		if(! DomUtil.isEqual(borderBottomColor, m_borderBottomColor))
 			changed();
 		m_borderBottomColor = borderBottomColor;
@@ -169,7 +172,7 @@ public class CssBase {
 	public String getBorderLeftColor() {
 		return m_borderLeftColor;
 	}
-	public void setBorderLeftColor(String borderLeftColor) {
+	public void setBorderLeftColor(final String borderLeftColor) {
 		if(! DomUtil.isEqual(borderLeftColor, m_borderLeftColor))
 			changed();
 		m_borderLeftColor = borderLeftColor;
@@ -177,7 +180,7 @@ public class CssBase {
 	public String getBorderRightColor() {
 		return m_borderRightColor;
 	}
-	public void setBorderRightColor(String borderRightColor) {
+	public void setBorderRightColor(final String borderRightColor) {
 		if(! DomUtil.isEqual(borderRightColor, m_borderRightColor))
 			changed();
 		m_borderRightColor = borderRightColor;
@@ -185,7 +188,7 @@ public class CssBase {
 	public String getBorderTopStyle() {
 		return m_borderTopStyle;
 	}
-	public void setBorderTopStyle(String borderTopStyle) {
+	public void setBorderTopStyle(final String borderTopStyle) {
 		if(! DomUtil.isEqual(borderTopStyle, m_borderTopStyle))
 			changed();
 		m_borderTopStyle = borderTopStyle;
@@ -193,7 +196,7 @@ public class CssBase {
 	public String getBorderBottomStyle() {
 		return m_borderBottomStyle;
 	}
-	public void setBorderBottomStyle(String borderBottomStyle) {
+	public void setBorderBottomStyle(final String borderBottomStyle) {
 		if(! DomUtil.isEqual(borderBottomStyle, m_borderBottomStyle))
 			changed();
 		m_borderBottomStyle = borderBottomStyle;
@@ -201,7 +204,7 @@ public class CssBase {
 	public String getBorderLeftStyle() {
 		return m_borderLeftStyle;
 	}
-	public void setBorderLeftStyle(String borderLeftStyle) {
+	public void setBorderLeftStyle(final String borderLeftStyle) {
 		if(! DomUtil.isEqual(borderLeftStyle, m_borderLeftStyle))
 			changed();
 		m_borderLeftStyle = borderLeftStyle;
@@ -209,45 +212,45 @@ public class CssBase {
 	public String getBorderRightStyle() {
 		return m_borderRightStyle;
 	}
-	public void setBorderRightStyle(String borderRightStyle) {
+	public void setBorderRightStyle(final String borderRightStyle) {
 		if(! DomUtil.isEqual(borderRightStyle, m_borderRightStyle))
 			changed();
 		m_borderRightStyle = borderRightStyle;
 	}
-	
+
 	/*-- Border shortcut calls. --*/
-	
-	public void	setBorderWidth(int w) {
+
+	public void	setBorderWidth(final int w) {
 		setBorderLeftWidth(w);
 		setBorderRightWidth(w);
 		setBorderTopWidth(w);
 		setBorderBottomWidth(w);
 	}
-	public void	setBorderStyle(String bs) {
+	public void	setBorderStyle(final String bs) {
 		setBorderLeftStyle(bs);
 		setBorderRightStyle(bs);
 		setBorderTopStyle(bs);
 		setBorderBottomStyle(bs);
 	}
-	public void	setBorderColor(String bs) {
+	public void	setBorderColor(final String bs) {
 		setBorderLeftColor(bs);
 		setBorderRightColor(bs);
 		setBorderTopColor(bs);
 		setBorderBottomColor(bs);
 	}
-	public void	setBorder(int w) {
+	public void	setBorder(final int w) {
 		setBorderWidth(w);
 	}
-	public void	setBorder(int w, String color, String style) {
+	public void	setBorder(final int w, final String color, final String style) {
 		setBorderWidth(w);
 		setBorderColor(color);
 		setBorderStyle(style);
 	}
-	
+
 	public ClearType getClear() {
 		return m_clear;
 	}
-	public void setClear(ClearType clear) {
+	public void setClear(final ClearType clear) {
 		if(! DomUtil.isEqual(clear, m_clear))
 			changed();
 		m_clear = clear;
@@ -255,7 +258,7 @@ public class CssBase {
 	public String getCursor() {
 		return m_cursor;
 	}
-	public void setCursor(String cursor) {
+	public void setCursor(final String cursor) {
 		if(! DomUtil.isEqual(cursor, m_cursor))
 			changed();
 		m_cursor = cursor;
@@ -263,7 +266,7 @@ public class CssBase {
 	public DisplayType getDisplay() {
 		return m_display;
 	}
-	public void setDisplay(DisplayType display) {
+	public void setDisplay(final DisplayType display) {
 		if(! DomUtil.isEqual(display, m_display))
 			changed();
 		m_display = display;
@@ -271,7 +274,7 @@ public class CssBase {
 	public Overflow getOverflow() {
 		return m_overflow;
 	}
-	public void setOverflow(Overflow overflow) {
+	public void setOverflow(final Overflow overflow) {
 		if(m_overflow != overflow)
 			changed();
 		m_overflow = overflow;
@@ -280,103 +283,103 @@ public class CssBase {
 	public FloatType getFloat() {
 		return m_float;
 	}
-	public void setFloat(FloatType f) {
+	public void setFloat(final FloatType f) {
 		m_float = f;
 	}
 	public PositionType getPosition() {
 		return m_position;
 	}
-	public void setPosition(PositionType position) {
+	public void setPosition(final PositionType position) {
 		m_position = position;
 	}
 	public VisibilityType getVisibility() {
 		return m_visibility;
 	}
-	public void setVisibility(VisibilityType visibility) {
+	public void setVisibility(final VisibilityType visibility) {
 		m_visibility = visibility;
 	}
 	public String getHeight() {
 		return m_height;
 	}
-	public void setHeight(String height) {
+	public void setHeight(final String height) {
 		m_height = height;
 	}
 	public String getLineHeight() {
 		return m_lineHeight;
 	}
-	public void setLineHeight(String lineHeight) {
+	public void setLineHeight(final String lineHeight) {
 		m_lineHeight = lineHeight;
 	}
 	public String getMaxHeight() {
 		return m_maxHeight;
 	}
-	public void setMaxHeight(String maxHeight) {
+	public void setMaxHeight(final String maxHeight) {
 		m_maxHeight = maxHeight;
 	}
 	public String getMaxWidth() {
 		return m_maxWidth;
 	}
-	public void setMaxWidth(String maxWidth) {
+	public void setMaxWidth(final String maxWidth) {
 		m_maxWidth = maxWidth;
 	}
 	public String getMinHeight() {
 		return m_minHeight;
 	}
-	public void setMinHeight(String minHeight) {
+	public void setMinHeight(final String minHeight) {
 		m_minHeight = minHeight;
 	}
 	public String getMinWidth() {
 		return m_minWidth;
 	}
-	public void setMinWidth(String minWidth) {
+	public void setMinWidth(final String minWidth) {
 		m_minWidth = minWidth;
 	}
 	public String getWidth() {
 		return m_width;
 	}
-	public void setWidth(String width) {
+	public void setWidth(final String width) {
 		m_width = width;
 	}
 	public String getFontFamily() {
 		return m_fontFamily;
 	}
-	public void setFontFamily(String fontFamily) {
+	public void setFontFamily(final String fontFamily) {
 		m_fontFamily = fontFamily;
 	}
 	public String getFontSize() {
 		return m_fontSize;
 	}
-	public void setFontSize(String fontSize) {
+	public void setFontSize(final String fontSize) {
 		m_fontSize = fontSize;
 	}
 	public String getFontSizeAdjust() {
 		return m_fontSizeAdjust;
 	}
-	public void setFontSizeAdjust(String fontSizeAdjust) {
+	public void setFontSizeAdjust(final String fontSizeAdjust) {
 		m_fontSizeAdjust = fontSizeAdjust;
 	}
 	public FontStyle getFontStyle() {
 		return m_fontStyle;
 	}
-	public void setFontStyle(FontStyle fontStyle) {
+	public void setFontStyle(final FontStyle fontStyle) {
 		m_fontStyle = fontStyle;
 	}
 	public FontVariant getFontVariant() {
 		return m_fontVariant;
 	}
-	public void setFontVariant(FontVariant fontVariant) {
+	public void setFontVariant(final FontVariant fontVariant) {
 		m_fontVariant = fontVariant;
 	}
 	public String getFontWeight() {
 		return m_fontWeight;
 	}
-	public void setFontWeight(String fontWeight) {
+	public void setFontWeight(final String fontWeight) {
 		m_fontWeight = fontWeight;
 	}
 	public int getZIndex() {
 		return m_zIndex;
 	}
-	public void setZIndex(int index) {
+	public void setZIndex(final int index) {
 		if(m_zIndex != index)
 			changed();
 		m_zIndex = index;
@@ -384,7 +387,7 @@ public class CssBase {
 	public int getTop() {
 		return m_top;
 	}
-	public void setTop(int top) {
+	public void setTop(final int top) {
 		if(m_top != top)
 			changed();
 		m_top = top;
@@ -392,7 +395,7 @@ public class CssBase {
 	public int getBottom() {
 		return m_bottom;
 	}
-	public void setBottom(int bottom) {
+	public void setBottom(final int bottom) {
 		if(m_bottom != bottom)
 			changed();
 		m_bottom = bottom;
@@ -400,7 +403,7 @@ public class CssBase {
 	public int getLeft() {
 		return m_left;
 	}
-	public void setLeft(int left) {
+	public void setLeft(final int left) {
 		if(m_left != left)
 			changed();
 		m_left = left;
@@ -408,7 +411,7 @@ public class CssBase {
 	public int getRight() {
 		return m_right;
 	}
-	public void setRight(int right) {
+	public void setRight(final int right) {
 		if(m_right != right)
 			changed();
 		m_right = right;
@@ -418,12 +421,21 @@ public class CssBase {
 		return m_color;
 	}
 
-	public void setColor(String color) {
+	public void setColor(final String color) {
 		if(DomUtil.isEqual(color, m_color))
 			return;
 		changed();
 		m_color = color;
 	}
 
-	
+	public TextAlign getTextAlign() {
+		return m_textAlign;
+	}
+
+	public void setTextAlign(final TextAlign textAlign) {
+		if(m_textAlign == textAlign)
+			return;
+		changed();
+		m_textAlign = textAlign;
+	}
 }
