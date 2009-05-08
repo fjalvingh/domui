@@ -637,12 +637,12 @@ TH.ui-sortable {
 	float: left;
 	margin: 0;
 	padding: 0 0 0 9px;
-	background: url(tab-norm-left-sel.png) no-repeat left top;
+	background: url(tab-off-left.png) no-repeat left top;
 }
 
 .ui-tab-hdr a {
 	display: block;
-	background: url(tab-norm-right-sel.png) no-repeat right top;
+	background: url(tab-off-right.png) no-repeat right top;
 	padding: 5px 15px 4px 6px;
 	text-decoration: none;
 	font-weight: bold;
@@ -650,15 +650,15 @@ TH.ui-sortable {
 }
 
 .ui-tab-hdr ul a:hover {
-	color: #fff;
+	color: aqua;
 }
 
 .ui-tab-hdr .ui-tab-sel {
-	background-image: url(tab-blue-left.png);
+	background-image: url(tab-norm-left-sel.png);
 }
 
 .ui-tab-hdr .ui-tab-sel a {
-	background-image: url(tab-blue-right.png);
+	background-image: url(tab-norm-right-sel.png);
 	padding-bottom: 5px;
 	color: #123667;
 }
