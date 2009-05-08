@@ -10,7 +10,7 @@ import to.etc.webapp.nls.*;
  * A pager component for a DataTable-based table. This gets attached
  * to a table, and then controls the table's paging. This pager has
  * a fixed L&F.
- * 
+ *
  * The pager looks something like:
  * <pre>
  * [<<] [<] [>] [>>]     Record 50-75
@@ -25,13 +25,14 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	private SmallImgButton		m_nextBtn;
 	private SmallImgButton		m_lastBtn;
 	private Img					m_truncated;
-	TabularComponentBase					m_table;
+	TabularComponentBase		m_table;
 	private TextNode			m_txt;
-	private Div					m_btndiv;
+	private Div					m_textDiv;
+	private Div					m_buttonDiv;
 
 	public DataPager() {
 	}
-	public DataPager(TabularComponentBase tbl) {
+	public DataPager(final TabularComponentBase tbl) {
 		m_table = tbl;
 		tbl.addChangeListener(this);
 	}
@@ -44,12 +45,13 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		d.setFloat(FloatType.RIGHT);
 		m_txt	= new TextNode("..");
 		d.add(m_txt);
-		m_btndiv = d;
+		m_textDiv = d;
 //		if(m_table != null) {
 //			m_txt.setText("Pagina "+(m_table.getCurrentPage()+1)+" van "+m_table.getPageCount());
 //		}
 
 		Div	btn = new Div();
+		m_buttonDiv = btn;
 		add(btn);
 		btn.setCssClass("ui-szless");
 		m_firstBtn	= new SmallImgButton();
@@ -64,12 +66,12 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 		//-- Click handlers for paging.
 		m_firstBtn.setClicked(new IClicked<NodeBase>() {
-			public void clicked(NodeBase b) throws Exception {
+			public void clicked(final NodeBase b) throws Exception {
 				m_table.setCurrentPage(0);
 			}
 		});
 		m_lastBtn.setClicked(new IClicked<NodeBase>() {
-			public void clicked(NodeBase b) throws Exception {
+			public void clicked(final NodeBase b) throws Exception {
 				int pg = m_table.getPageCount();
 				if(pg == 0)
 					return;
@@ -77,7 +79,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			}
 		});
 		m_prevBtn.setClicked(new IClicked<NodeBase>() {
-			public void clicked(NodeBase b) throws Exception {
+			public void clicked(final NodeBase b) throws Exception {
 				int cp = m_table.getCurrentPage();
 				if(cp <= 0)
 					return;
@@ -85,7 +87,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			}
 		});
 		m_nextBtn.setClicked(new IClicked<NodeBase>() {
-			public void clicked(NodeBase b) throws Exception {
+			public void clicked(final NodeBase b) throws Exception {
 				int cp = m_table.getCurrentPage();
 				int mx = m_table.getPageCount();
 				cp++;
@@ -95,7 +97,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			}
 		});
 	}
-	
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle changes to the table.						*/
 	/*--------------------------------------------------------------*/
@@ -129,7 +131,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 				m_truncated = new Img();
 				m_truncated.setSrc("THEME/nav-overflow.png");
 				m_truncated.setLiteralTitle(NlsContext.getGlobalMessage(Msgs.UI_PAGER_OVER, Integer.valueOf(tc)));
-				m_btndiv.add(m_truncated);
+				m_textDiv.add(m_truncated);
 			}
 		} else {
 			if(m_truncated != null) {
@@ -139,13 +141,28 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		}
 	}
 
+	public Div getButtonDiv() {
+		return m_buttonDiv;
+	}
+
+	public void	addButton(final String image, final IClicked<DataPager> click, final BundleRef bundle, final String ttlkey) {
+		SmallImgButton i = new SmallImgButton(image, new IClicked<SmallImgButton>() {
+			public void clicked(final SmallImgButton b) throws Exception {
+				click.clicked(DataPager.this);
+			}
+		});
+		if(bundle != null)
+			i.setTitle(bundle, ttlkey);
+		getButtonDiv().add(i);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DataTableChangeListener implementation.				*/
 	/*--------------------------------------------------------------*/
-	public void modelChanged(TabularComponentBase tbl, ITableModel< ? > old, ITableModel< ? > nw) throws Exception {
+	public void modelChanged(final TabularComponentBase tbl, final ITableModel< ? > old, final ITableModel< ? > nw) throws Exception {
 		redraw();
 	}
-	public void pageChanged(TabularComponentBase tbl) throws Exception {
+	public void pageChanged(final TabularComponentBase tbl) throws Exception {
 		redraw();
 	}
 }
