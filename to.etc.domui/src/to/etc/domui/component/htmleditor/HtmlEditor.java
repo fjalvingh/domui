@@ -1,5 +1,6 @@
 package to.etc.domui.component.htmleditor;
 
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
@@ -21,6 +22,7 @@ public class HtmlEditor extends TextArea {
 
 	public HtmlEditor() {
 		super.setCssClass("ui-fck");
+		setVisibility(VisibilityType.HIDDEN);
 	}
 	@Override
 	public void setCssClass(final String cssClass) {

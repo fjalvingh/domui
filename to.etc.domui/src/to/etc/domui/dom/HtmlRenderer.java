@@ -190,6 +190,11 @@ public class HtmlRenderer implements NodeVisitor {
 			a.append(c.getFloat().getCode());
 			a.append(';');
 		}
+		if(c.getVisibility() != null) {
+			a.append("visibility:");
+			a.append(c.getVisibility().name().toLowerCase());
+			a.append(';');
+		}
 
 		/******* Dimension *********/
 		if(c.getHeight() != null) {
