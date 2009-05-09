@@ -17,7 +17,7 @@ public class HtmlRenderer implements NodeVisitor {
 	/** Scratch stringbuffer. */
 	private StringBuilder		m_sb;
 
-	private final BrowserOutput		m_o;
+	private final BrowserOutput	m_o;
 
 	private boolean				m_tagless;
 

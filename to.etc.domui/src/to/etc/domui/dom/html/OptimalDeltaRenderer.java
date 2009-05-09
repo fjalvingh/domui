@@ -220,6 +220,11 @@ public class OptimalDeltaRenderer {
 		o().nl();
 	}
 	private void	renderAttributeChange(NodeBase b) throws Exception {
+		if(b instanceof IHtmlDeltaAttributeRenderer) {
+			((IHtmlDeltaAttributeRenderer)b).renderAttributeChanges(m_html, this, o());
+			return;
+		}
+
 		o().tag("changeTagAttributes");
 		m_html.setTagless(true);
 		m_html.setNewNode(false);
