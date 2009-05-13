@@ -21,9 +21,11 @@ public class HtmlRenderer implements NodeVisitor {
 
 	private boolean				m_tagless;
 
-	private boolean				m_updating;
+//	private boolean				m_updating;
 
-	private boolean				m_isNewNode;
+	private HtmlRenderMode		m_mode;
+	
+//	private boolean				m_isNewNode;
 
 	public HtmlRenderer(final BrowserOutput o) {
 		m_o = o;
@@ -36,12 +38,12 @@ public class HtmlRenderer implements NodeVisitor {
 	public boolean isTagless() {
 		return m_tagless;
 	}
-	public boolean isNewNode() {
-		return m_isNewNode;
-	}
-	public void setNewNode(final boolean newNode) {
-		m_isNewNode = newNode;
-	}
+//	public boolean isNewNode() {
+//		return m_isNewNode;
+//	}
+//	public void setNewNode(final boolean newNode) {
+//		m_isNewNode = newNode;
+//	}
 
 	/**
 	 * When T this only renders attributes but no tags and tag-ends.
@@ -49,11 +51,32 @@ public class HtmlRenderer implements NodeVisitor {
 	public void setTagless(final boolean tagless) {
 		m_tagless = tagless;
 	}
-	public boolean isUpdating() {
-		return m_updating;
+//	public boolean isUpdating() {
+//		return m_updating;
+//	}
+	
+	public void	setRenderMode(HtmlRenderMode rm) {
+		m_mode = rm;
 	}
-	public void setUpdating(final boolean updating) {
-		m_updating = updating;
+	public HtmlRenderMode getMode() {
+		return m_mode;
+	}
+
+//	public void setUpdating(final boolean updating) {
+//		m_updating = updating;
+//	}
+
+	private boolean	isFullRender() {
+		return m_mode == HtmlRenderMode.FULL;
+	}
+	private boolean	isAttrRender() {
+		return m_mode == HtmlRenderMode.ATTR;
+	}
+	private boolean	isAddsRender() {
+		return m_mode == HtmlRenderMode.ADDS;
+	}
+	private boolean	isReplaceRender() {
+		return m_mode == HtmlRenderMode.REPL;
 	}
 
 	/**
@@ -501,13 +524,9 @@ public class HtmlRenderer implements NodeVisitor {
 	}
 
 	private void	renderType(final String t) throws Exception {
-		if(! isNewNode())						// Cannot add type= for existing tags!
+		if(isAttrRender())					// Cannot replace on existing node.
 			return;
-		if(! isUpdating())
-			o().attr("type", t);					// FIXME Cannot change the "type" of an existing INPUT node.
-		else {
-//			o().attr("type", t);				// When updating we cannot change the TYPE; this should not happen anyway.
-		}
+		o().attr("type", t);
 	}
 
 	/**
@@ -518,7 +537,7 @@ public class HtmlRenderer implements NodeVisitor {
 		basicNodeRender(n, m_o);
 		o().attr("name", n.getActualID());
 		renderType("text");
-		if(isUpdating())
+		if(! isFullRender())
 			o().attr("domjs_disabled", n.isDisabled() ? "true" : "false");
 		else if(n.isDisabled())
 			o().attr("disabled", "disabled");
@@ -570,7 +589,7 @@ public class HtmlRenderer implements NodeVisitor {
 			o().attr("disabled", "disabled");
 		if(n.isReadOnly())
 			o().attr("readonly", "readonly");
-		if(isUpdating())
+		if(! isFullRender())
 			o().attr("domjs_checked", n.isChecked() ? "true" : "false");
 		else if(n.isChecked())
 			o().attr("checked", "checked");
@@ -594,7 +613,7 @@ public class HtmlRenderer implements NodeVisitor {
 			o().attr("disabled", "disabled");
 		if(n.isReadOnly())
 			o().attr("readonly", "readonly");
-		if(isUpdating())
+		if(! isFullRender())
 			o().attr("domjs_checked", n.isChecked() ? "true" : "false");
 		else if(n.isChecked())
 			o().attr("checked", "checked");
@@ -620,11 +639,11 @@ public class HtmlRenderer implements NodeVisitor {
 
 	public void	visitButton(final Button n) throws Exception {
 		basicNodeRender(n, o());
-		if(isUpdating())
+		if(! isFullRender())
 			o().attr("domjs_disabled", n.isDisabled() ? "true" : "false");
 		else if(n.isDisabled())
 			o().attr("disabled", "disabled");
-		if(n.getType() != null && ! isUpdating())
+		if(n.getType() != null && ! isAttrRender() )
 			o().attr("type", n.getType().getCode());
 		if(n.getValue() != null)
 			o().attr("value", n.getValue());
@@ -643,11 +662,11 @@ public class HtmlRenderer implements NodeVisitor {
 		basicNodeRender(n, o());
 		if(n.isMultiple())
 			o().attr("multiple", "multiple");
-		if(isUpdating())
+		if(! isFullRender())
 			o().attr("domjs_disabled", n.isDisabled() ? "true" : "false");
 		else if(n.isDisabled())
 			o().attr("disabled", "disabled");
-		if(isUpdating())
+		if(! isFullRender())
 			o().attr("domjs_readonly", n.isReadOnly() ? "true" : "false");
 		else if(n.isReadOnly())
 			o().attr("readonly", "readonly");
@@ -657,11 +676,11 @@ public class HtmlRenderer implements NodeVisitor {
 	}
 	public void visitOption(final SelectOption n) throws Exception {
 		basicNodeRender(n, o());
-		if(isUpdating())
+		if(! isFullRender())
 			o().attr("domjs_disabled", n.isDisabled() ? "true" : "false");
 		else if(n.isDisabled())
 			o().attr("disabled", "disabled");
-		if(isUpdating())
+		if(! isFullRender())
 			o().attr("domjs_selected", n.isSelected() ? "true" : "false");
 		else if(n.isSelected())
 			o().attr("selected", "selected");
@@ -679,11 +698,11 @@ public class HtmlRenderer implements NodeVisitor {
 			o().attr("cols", n.getCols());
 		if(n.getRows() > 0)
 			o().attr("rows", n.getRows());
-		if(isUpdating())
+		if(! isFullRender())
 			o().attr("domjs_disabled", n.isDisabled() ? "true" : "false");
 		else if(n.isDisabled())
 			o().attr("disabled", "disabled");
-		if(isUpdating())
+		if(! isFullRender())
 			o().attr("domjs_readonly", n.isReadOnly() ? "true" : "false");
 		else if(n.isReadOnly())
 			o().attr("readonly", "readonly");

@@ -116,7 +116,8 @@ public class OptimalDeltaRenderer {
 		m_html = html;
 		m_fullRenderer = new FullHtmlRenderer(html, o);
 		m_fullRenderer.setXml(true);
-		m_html.setUpdating(true);
+		m_html.setRenderMode(HtmlRenderMode.ATTR);
+//		m_html.setUpdating(true);
 	}
 
 	public BrowserOutput o() {
@@ -227,13 +228,15 @@ public class OptimalDeltaRenderer {
 
 		o().tag("changeTagAttributes");
 		m_html.setTagless(true);
-		m_html.setNewNode(false);
+		m_html.setRenderMode(HtmlRenderMode.ATTR);
+//		m_html.setNewNode(false);
 		b.visit(m_html);
 		o().endAndCloseXmltag();				// Fully-close tag with />
 		o().nl();
 	}
 	private void	renderAdd(NodeContainer parent, NodeBase nd) throws Exception {
-		m_html.setNewNode(true);				// Indicate a new node is to be rendered
+		m_html.setRenderMode(HtmlRenderMode.ADDS);
+//		m_html.setNewNode(true);				// Indicate a new node is to be rendered
 		if(nd.m_origNewIndex == 0) {
 			o().tag("prepend");
 			o().attr("select", "#"+parent.getActualID());
@@ -255,11 +258,13 @@ public class OptimalDeltaRenderer {
 			o().tag("replaceContent");
 			o().attr("select", "#"+ni.node.getActualID());
 			m_html.setTagless(false);
-			m_html.setNewNode(true);
+			m_html.setRenderMode(HtmlRenderMode.REPL);
+//			m_html.setNewNode(true);
 
 //			ni.node.visit(m_fullRenderer);
 			m_fullRenderer.visitChildren(ni.node);			// 20080624 jal fix for table in table in table in table..... when paging
 			o().closetag("replaceContent");
+
 			renderAttributeChange(ni.node);					// 20080820 jal Fix voor ontbrekende attrs als tekstinhoud TextArea wijzigt?
 			return;
 		}

@@ -31,7 +31,8 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		m_o = o;
 	}
 	private HtmlRenderer getTagRenderer() {
-		m_tagRenderer.setNewNode(true);					// All nodes from the full renderer are NEW by definition.
+		m_tagRenderer.setRenderMode(HtmlRenderMode.ADDS);	// All nodes from the full renderer are NEW by definition.
+//		m_tagRenderer.setNewNode(true);					
 		return m_tagRenderer;
 	}
 	public boolean isXml() {
