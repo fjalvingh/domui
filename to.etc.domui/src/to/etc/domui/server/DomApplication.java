@@ -76,9 +76,11 @@ public abstract class DomApplication {
 	/** The default expiry time for resources, in seconds. */
 	private int							m_defaultExpiryTime = 7*24*60*60;
 
-	private ILoginAuthenticator				m_loginAuthenticator;
+	private ILoginAuthenticator			m_loginAuthenticator;
 
 	private ILoginDialogFactory			m_loginDialogFactory;
+
+	private List<ILoginListener>		m_loginListenerList = Collections.EMPTY_LIST;
 
 	public DomApplication() {
 		m_controlFactoryList.add(ControlFactory.STRING_CF);
@@ -600,7 +602,18 @@ public abstract class DomApplication {
 	public synchronized void setLoginDialogFactory(final ILoginDialogFactory loginDialogFactory) {
 		m_loginDialogFactory = loginDialogFactory;
 	}
+	public synchronized void	addLoginListener(ILoginListener l) {
+		if(m_loginListenerList.contains(l))
+			return;
+		m_loginListenerList = new ArrayList<ILoginListener>(m_loginListenerList);
+		m_loginListenerList.add(l);
+	}
 
+	public synchronized List<ILoginListener>		getLoginListenerList() {
+		return m_loginListenerList;
+	}
+	
+	
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Rights registry.									*/
 	/*--------------------------------------------------------------*/

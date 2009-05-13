@@ -1,5 +1,7 @@
 package to.etc.domui.state;
 
+import java.util.*;
+
 import javax.servlet.http.*;
 
 import to.etc.domui.dom.html.*;
@@ -192,6 +194,10 @@ public class PageContext {
 			//-- Login succeeded: save the user in the session context
 			hs.setAttribute(LOGIN_KEY, user);						// This causes the user to be logged on.
 			m_currentUser.set(user);
+
+			List<ILoginListener>	ll = ci.getApplication().getLoginListenerList();
+			for(ILoginListener l: ll)
+				l.userLogin(user);
 			return true;
 		}
 	}
