@@ -565,7 +565,7 @@ final public class WindowSession {
 
 		//-- Since this is a new page we clear ALL existing conversations
 		registerConversation(coco);				// ORDERED 2
-		internalAttachConversations();					// ORDERED 3
+		internalAttachConversations();			// ORDERED 3
 
 		//-- Create the page && add to shelve,
 		m_currentPage = PageMaker.createPageWithContent(rctx, bestpc, coco, PageParameters.createFrom(rctx));

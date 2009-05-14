@@ -20,16 +20,16 @@ import to.etc.iocular.util.ClassUtil;
  * Created on Mar 27, 2007
  */
 public class ComponentBuilder {
-	private BasicContainerBuilder	m_builder;
+	private final BasicContainerBuilder	m_builder;
 
-	private String					m_definitionLocation;
+	private final String			m_definitionLocation;
 
-	private List<String>			m_nameList = new ArrayList<String>();
+	private final List<String>		m_nameList = new ArrayList<String>();
 
 	/**
 	 * If this class is registered as a "defined" type only that type will be registered in the type table.
 	 */
-	private List<Class<?>>			m_definedTypeList = new ArrayList<Class<?>>();
+	private final List<Class<?>>	m_definedTypeList = new ArrayList<Class<?>>();
 
 	private Class<?>				m_baseClass;
 
@@ -56,11 +56,11 @@ public class ComponentBuilder {
 
 	private MethodCallBuilder		m_currentMethodBuilder;
 
-	private List<MethodCallBuilder>	m_factoryStartList = new ArrayList<MethodCallBuilder>();
+	private final List<MethodCallBuilder>	m_factoryStartList = new ArrayList<MethodCallBuilder>();
 
-	private List<MethodCallBuilder>	m_startList = new ArrayList<MethodCallBuilder>();
+	private final List<MethodCallBuilder>	m_startList = new ArrayList<MethodCallBuilder>();
 
-	ComponentBuilder(BasicContainerBuilder b, String loc) {
+	ComponentBuilder(final BasicContainerBuilder b, final String loc) {
 		m_builder = b;
 		m_definitionLocation = loc;
 	}
@@ -81,10 +81,10 @@ public class ComponentBuilder {
 
 	/**
 	 * When called this constructs a concrete type from the class passed, using either constructor
-	 * or setter injection as needed. This defines a base creation method and so it forbids the 
+	 * or setter injection as needed. This defines a base creation method and so it forbids the
 	 * other creation methods.
 	 */
-	public ComponentBuilder	type(Class<?> clz) {
+	public ComponentBuilder	type(final Class<?> clz) {
 		checkCreation();
 
 		//-- Check to see if the class is acceptable
@@ -117,8 +117,8 @@ public class ComponentBuilder {
 //	 */
 //	public ComponentBuilder	staticClass(Class<?> clz) {
 //		m_
-//		
-//		
+//
+//
 //		return this;
 //	}
 
@@ -127,7 +127,7 @@ public class ComponentBuilder {
 	 * @param clz
 	 * @return
 	 */
-	public ComponentBuilder	implement(Class<?> clz) {
+	public ComponentBuilder	implement(final Class<?> clz) {
 		m_definedTypeList.add(clz);
 		return this;
 	}
@@ -147,7 +147,7 @@ public class ComponentBuilder {
 	 * @param method
 	 * @return
 	 */
-	public ComponentBuilder	factory(Class<?> clz, String method) {
+	public ComponentBuilder	factory(final Class<?> clz, final String method) {
 		checkCreation();
 		m_factoryMethodList	= findMethodInFactory(clz, method, true);
 		m_factoryClass	= clz;
@@ -156,7 +156,7 @@ public class ComponentBuilder {
 		return this;
 	}
 
-	private List<Method>	findMethodInFactory(Class<?> clz, String method, boolean mbstatic) {
+	private List<Method>	findMethodInFactory(final Class<?> clz, final String method, final boolean mbstatic) {
 		Method[] mar = ClassUtil.findMethod(clz, method);
 		if(mar.length == 0)
 			throw new IocConfigurationException(this, "Method "+method+" is not defined in class '"+clz+"'");
@@ -194,7 +194,7 @@ public class ComponentBuilder {
 	 * @param method
 	 * @return
 	 */
-	public ComponentBuilder	factory(String id, String method) {
+	public ComponentBuilder	factory(final String id, final String method) {
 		checkCreation();
 		m_factoryInstance	= id;
 		m_factoryMethodText	= method;
@@ -207,7 +207,7 @@ public class ComponentBuilder {
 	 * one name, but the name must be unique within the container it gets stored in.
 	 * @param name
 	 */
-	public ComponentBuilder name(String name) {
+	public ComponentBuilder name(final String name) {
 		m_builder.addComponentName(this, name);			// Register another name with the configuration; throws up when duplicate
 		m_nameList.add(name);
 		return this;
@@ -218,15 +218,15 @@ public class ComponentBuilder {
 	 * @param scope
 	 * @return
 	 */
-	public ComponentBuilder scope(BindingScope scope) {
+	public ComponentBuilder scope(final BindingScope scope) {
 		m_scope = scope;
 		return this;
 	}
-	public ComponentBuilder	autowire(boolean yes) {
+	public ComponentBuilder	autowire(final boolean yes) {
 		m_autowire = yes;
 		return this;
 	}
-	public ComponentBuilder	destroy(Class<?> wh, String what) {
+	public ComponentBuilder	destroy(final Class<?> wh, final String what) {
 		return this;
 	}
 
@@ -239,7 +239,7 @@ public class ComponentBuilder {
 	 * @param arguments
 	 * @return
 	 */
-	public ComponentBuilder	factoryStart(String methodName, Class<?>... arguments) {
+	public ComponentBuilder	factoryStart(final String methodName, final Class<?>... arguments) {
 		//-- Make sure we're a static factory thingy.
 		if(m_factoryClass == null)
 			throw new IocConfigurationException(this, "factoryStart() can only be used for static factory classes.");
@@ -257,7 +257,7 @@ public class ComponentBuilder {
 	 * @param arguments
 	 * @return
 	 */
-	public ComponentBuilder	factoryStart(Class<?> clz, String methodName, Class<?>... arguments) {
+	public ComponentBuilder	factoryStart(final Class<?> clz, final String methodName, final Class<?>... arguments) {
 		//-- Make sure we're a static factory thingy.
 		if(m_factoryClass == null)
 			throw new IocConfigurationException(this, "factoryStart() can only be used for static factory classes.");
@@ -275,7 +275,7 @@ public class ComponentBuilder {
 	 * @param arguments
 	 * @return
 	 */
-	public ComponentBuilder	start(String methodName, Class<?>... arguments) {
+	public ComponentBuilder	start(final String methodName, final Class<?>... arguments) {
 		//-- Make sure we're a static factory thingy.
 		if(m_factoryClass == null)
 			throw new IocConfigurationException(this, "factoryStart() can only be used for static factory classes.");
@@ -309,7 +309,7 @@ public class ComponentBuilder {
 	private ParameterDef[]	getParameterDef() {
 		return null;			// TODO Make this do something.
 	}
-	
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Type registration.									*/
@@ -325,22 +325,22 @@ public class ComponentBuilder {
 	void registerTypes() {
 		if(m_definedTypeList.size() > 0) {
 			//-- Register as "
-			
-			
-			
-			
-		}
-		
 
-		
-		
-		
-		
-		
+
+
+
+		}
+
+
+
+
+
+
+
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Calculates the actual type for this definition. This can get
 	 * called recursively when ref factories use other ref factories, in which
@@ -349,7 +349,7 @@ public class ComponentBuilder {
 	 * @param stack
 	 * @return
 	 */
-	Class<?> calculateType(Stack<ComponentBuilder> stack) {
+	Class<?> calculateType(final Stack<ComponentBuilder> stack) {
 		if(m_actualType != null)
 			return m_actualType;
 
@@ -383,7 +383,7 @@ public class ComponentBuilder {
 	/*--------------------------------------------------------------*/
 	private ComponentRef		m_ref;
 
-	ComponentRef	calculateComponentRef(Stack<ComponentBuilder> stack) {
+	ComponentRef	calculateComponentRef(final Stack<ComponentBuilder> stack) {
 		if(m_ref != null)
 			return m_ref;
 
@@ -397,8 +397,8 @@ public class ComponentBuilder {
 
 		//-- Create the def for this object
 		ComponentDef	def = new ComponentDef(
-				getActualClass(), 
-				getNameList().toArray(new String[getNameList().size()]), 
+				getActualClass(),
+				getNameList().toArray(new String[getNameList().size()]),
 				getDefinedTypes().toArray(new Class<?>[getDefinedTypes().size()]),
 				getScope(),
 				getDefinitionLocation(),
@@ -409,22 +409,22 @@ public class ComponentBuilder {
 		return m_ref;
 	}
 
-	private BuildPlan	createBuildPlan(Stack<ComponentBuilder> stack) {
+	private BuildPlan	createBuildPlan(final Stack<ComponentBuilder> stack) {
 		BuildPlan	bp = createCreationBuildPlan(stack);		// Create the actual object,
 
 		//-- Append all other crud to the build plan: start with start- and destroy- code
-		
-		
-		
+
+
+
 		return bp;
 	}
 
 	/**
 	 * @return
 	 */
-	private BuildPlan	createCreationBuildPlan(Stack<ComponentBuilder> stack) {
+	private BuildPlan	createCreationBuildPlan(final Stack<ComponentBuilder> stack) {
 		//-- 1. Normal class instance plan?
-		if(m_baseClass != null) 
+		if(m_baseClass != null)
 			return createConstructorPlan(stack);
 
 		if(m_factoryMethodList != null)
@@ -433,14 +433,14 @@ public class ComponentBuilder {
 		throw new IocConfigurationException(this, "Cannot create a build plan!?");
 	}
 
-	
-	
+
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Constructor-based build plan						*/
 	/*--------------------------------------------------------------*/
 
-	private BuildPlan	createConstructorPlan(Stack<ComponentBuilder> stack) {
+	private BuildPlan	createConstructorPlan(final Stack<ComponentBuilder> stack) {
 		Constructor<?>[]	car = m_baseClass.getConstructors();
 		if(car == null || car.length == 0)	// Cannot construct
 			throw new IocConfigurationException(this, "The class "+m_baseClass+" has no public constructors");
@@ -477,7 +477,7 @@ public class ComponentBuilder {
 	 * @param aflist
 	 * @return
 	 */
-	private ConstructorBuildPlan	calcConstructorPlan(Stack<ComponentBuilder> stack, Constructor<?> c, List<FailedAlternative> aflist) {
+	private ConstructorBuildPlan	calcConstructorPlan(final Stack<ComponentBuilder> stack, final Constructor<?> c, final List<FailedAlternative> aflist) {
 		Class<?>[]	fpar = c.getParameterTypes();		// Formals.
 		Annotation[][]	fpanar = c.getParameterAnnotations();
 		if(fpar == null || fpar.length == 0) {
@@ -503,7 +503,7 @@ public class ComponentBuilder {
 	/*	CODING:	Factory-based build plan.							*/
 	/*--------------------------------------------------------------*/
 
-	private BuildPlan	createStaticFactoryBuildPlan(Stack<ComponentBuilder> stack) {
+	private BuildPlan	createStaticFactoryBuildPlan(final Stack<ComponentBuilder> stack) {
 		//-- Walk all factoryStart methods that are defined and create the methodlist from them
 		List<MethodInvoker>	startlist = createCallList(stack, m_factoryStartList);
 
@@ -528,7 +528,7 @@ public class ComponentBuilder {
 		return best;
 	}
 
-	private StaticFactoryBuildPlan	calcStaticFactoryPlan(Stack<ComponentBuilder> stack, Method c, List<FailedAlternative> aflist, List<MethodInvoker> startlist) {
+	private StaticFactoryBuildPlan	calcStaticFactoryPlan(final Stack<ComponentBuilder> stack, final Method c, final List<FailedAlternative> aflist, final List<MethodInvoker> startlist) {
 		Class<?>[]	fpar = c.getParameterTypes();		// Formals.
 		Annotation[][]	fpanar = c.getParameterAnnotations();
 		if(fpar == null || fpar.length == 0) {
@@ -550,26 +550,26 @@ public class ComponentBuilder {
 		}
 	}
 
-	
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Call invoker build plan calculator.					*/
 	/*--------------------------------------------------------------*/
 
-	private List<MethodInvoker>	createCallList(Stack<ComponentBuilder> stack, List<MethodCallBuilder> list) {
+	private List<MethodInvoker>	createCallList(final Stack<ComponentBuilder> stack, final List<MethodCallBuilder> list) {
 		List<MethodInvoker>	res = new ArrayList<MethodInvoker>(list.size());
 		for(MethodCallBuilder mcb : list)
 			res.add(mcb.createInvoker(stack));
 		return res;
 	}
 
-	
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Parameter calculators.								*/
 	/*--------------------------------------------------------------*/
 
-	private List<ComponentRef>	calculateParameters(Stack<ComponentBuilder> stack, Class<?>[] fpar, Annotation[][] fpann, ParameterDef[] defar) {
+	private List<ComponentRef>	calculateParameters(final Stack<ComponentBuilder> stack, final Class<?>[] fpar, final Annotation[][] fpann, final ParameterDef[] defar) {
 		List<ComponentRef>	actuals = new ArrayList<ComponentRef>();
-		for(int i = 0; i < fpar.length; i++) {	
+		for(int i = 0; i < fpar.length; i++) {
 			Class<?> fp = fpar[i];
 			ParameterDef	def = null;
 			if(defar != null && i < defar.length)

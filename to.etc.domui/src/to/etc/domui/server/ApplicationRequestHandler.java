@@ -80,8 +80,8 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 	 * @throws Exception
 	 */
 	private void	runClass(final RequestContextImpl ctx, final Class<? extends UrlPage> clz) throws Exception {
-		if(! UrlPage.class.isAssignableFrom(clz))
-			throw new IllegalStateException("Class "+clz+" is not a valid page class (does not extend "+UrlPage.class.getName()+")");
+//		if(! UrlPage.class.isAssignableFrom(clz))
+//			throw new IllegalStateException("Class "+clz+" is not a valid page class (does not extend "+UrlPage.class.getName()+")");
 //		System.out.println("runClass="+clz);
 
 		/*
@@ -153,69 +153,8 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
 		 *
 		 */
-		UIRights	rann	= clz.getAnnotation(UIRights.class);
-		if(rann != null) {
-			//-- Get user's IUser; if not present we need to log in.
-			IUser	user= PageContext.getCurrentUser();		// Currently logged in?
-			if(user == null) {
-				//-- Create the after-login target URL.
-				StringBuilder	sb	= new StringBuilder(256);
-//				sb.append('/');
-				sb.append(ctx.getRelativePath(ctx.getInputPath()));
-				sb.append('?');
-				StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-				sb.append('=');
-				sb.append(cm.getWindowID());
-				sb.append(".x");								// Dummy conversation ID
-				DomUtil.addUrlParameters(sb, ctx, false);
-
-				//-- Obtain the URL to redirect to from a thingy factory (should this happen here?)
-				ILoginDialogFactory	ldf = m_application.getLoginDialogFactory();
-				if(ldf == null)
-					throw new NotLoggedInException(sb.toString());		// Force login exception.
-				String target = ldf.getLoginRURL(sb.toString());		// Create a RURL to move to.
-				if(target == null)
-					throw new IllegalStateException("The Login Dialog Handler="+ldf+" returned an invalid URL for the login dialog.");
-
-				//-- Make this an absolute URL by appending the webapp path
-				target = ctx.getRelativePath(target);
-				generateRedirect(ctx, target, "You need to login before accessing this function");
-				return;
-			}
-
-			//-- Issue rights check,
-			boolean allowed = true;
-			for(String right: rann.value()) {
-				if(! user.hasRight(right)) {
-					allowed = false;
-					break;
-				}
-			}
-			if(! allowed) {
-				//-- Sh*t. Redirect to the "not allowed" URL.
-				ILoginDialogFactory	ldf = m_application.getLoginDialogFactory();
-				String	rurl	= ldf == null ? null : ldf.getAccessDeniedURL();
-				if(rurl == null) {
-					rurl = AccessDeniedPage.class.getName()+"."+m_application.getUrlExtension();
-				}
-
-				//-- Add info about the failed thingy.
-				StringBuilder	sb	= new StringBuilder(128);
-				sb.append(rurl);
-				sb.append("?targetPage=");
-				StringTool.encodeURLEncoded(sb, clz.getName());
-
-				//-- All required rights
-				int ix = 0;
-				for(String r: rann.value()) {
-					sb.append("&r"+ix+"=");
-					ix++;
-					StringTool.encodeURLEncoded(sb, r);
-				}
-				generateRedirect(ctx, sb.toString(), "Access denied");
-				return;
-			}
-		}
+		if(! checkAccess(cm, ctx, clz))
+			return;
 
 		/*
 		 * Determine if this is an AJAX request or a normal "URL" request. If it is a non-AJAX
@@ -305,6 +244,85 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
+	}
+
+	/**
+	 * Authentication checks: if the page has a "UIRights" annotation we need a logged-in
+	 * user to check it's rights against the page's required rights.
+	 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
+	 *
+	 * @param cm
+	 * @param ctx
+	 * @param clz
+	 * @throws Exception
+	 */
+	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Class< ? extends UrlPage> clz) throws Exception {
+		UIRights	rann	= clz.getAnnotation(UIRights.class);
+		if(rann == null)
+			return true;
+		//-- Get user's IUser; if not present we need to log in.
+		IUser	user= PageContext.getCurrentUser();		// Currently logged in?
+		if(user == null) {
+			//-- Create the after-login target URL.
+			StringBuilder	sb	= new StringBuilder(256);
+//				sb.append('/');
+			sb.append(ctx.getRelativePath(ctx.getInputPath()));
+			sb.append('?');
+			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+			sb.append('=');
+			sb.append(cm.getWindowID());
+			sb.append(".x");								// Dummy conversation ID
+			DomUtil.addUrlParameters(sb, ctx, false);
+
+			//-- Obtain the URL to redirect to from a thingy factory (should this happen here?)
+			ILoginDialogFactory	ldf = m_application.getLoginDialogFactory();
+			if(ldf == null)
+				throw new NotLoggedInException(sb.toString());		// Force login exception.
+			String target = ldf.getLoginRURL(sb.toString());		// Create a RURL to move to.
+			if(target == null)
+				throw new IllegalStateException("The Login Dialog Handler="+ldf+" returned an invalid URL for the login dialog.");
+
+			//-- Make this an absolute URL by appending the webapp path
+			target = ctx.getRelativePath(target);
+			generateRedirect(ctx, target, "You need to login before accessing this function");
+			return false;
+		}
+
+		//-- Issue rights check,
+		boolean allowed = true;
+		for(String right: rann.value()) {
+			if(! user.hasRight(right)) {
+				allowed = false;
+				break;
+			}
+		}
+		if(allowed)
+			return true;
+
+		/*
+		 * Access not allowed: redirect to error page.
+		 */
+		ILoginDialogFactory	ldf = m_application.getLoginDialogFactory();
+		String	rurl	= ldf == null ? null : ldf.getAccessDeniedURL();
+		if(rurl == null) {
+			rurl = AccessDeniedPage.class.getName()+"."+m_application.getUrlExtension();
+		}
+
+		//-- Add info about the failed thingy.
+		StringBuilder	sb	= new StringBuilder(128);
+		sb.append(rurl);
+		sb.append("?targetPage=");
+		StringTool.encodeURLEncoded(sb, clz.getName());
+
+		//-- All required rights
+		int ix = 0;
+		for(String r: rann.value()) {
+			sb.append("&r"+ix+"=");
+			ix++;
+			StringTool.encodeURLEncoded(sb, r);
+		}
+		generateRedirect(ctx, sb.toString(), "Access denied");
+		return false;
 	}
 
 	private void	generateRedirect(final RequestContextImpl ctx, final String to, final String rsn) throws Exception {
