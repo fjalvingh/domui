@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import to.etc.domui.ajax.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
@@ -35,9 +36,11 @@ public abstract class DomApplication {
 
 	private final ApplicationRequestHandler	m_requestHandler	= new ApplicationRequestHandler(this);
 
-	private final PartRequestHandler			m_partHandler 		= new PartRequestHandler(this);
+	private final PartRequestHandler		m_partHandler 		= new PartRequestHandler(this);
 
-	private final ResourceRequestHandler		m_resourceHandler	= new ResourceRequestHandler(this, m_partHandler);
+	private final ResourceRequestHandler	m_resourceHandler	= new ResourceRequestHandler(this, m_partHandler);
+
+	private final AjaxRequestHandler		m_ajaxHandler = new AjaxRequestHandler(this);
 
 	private Set<AppSessionListener>		m_appSessionListeners = new HashSet<AppSessionListener>();
 
@@ -45,19 +48,19 @@ public abstract class DomApplication {
 
 	private String						m_urlExtension;
 
-	private final List<ControlFactory>		m_controlFactoryList = new ArrayList<ControlFactory>();
+	private final List<ControlFactory>	m_controlFactoryList = new ArrayList<ControlFactory>();
 
 	private String						m_defaultTheme = "blue";
 
 	private boolean						m_developmentMode;
 
-	private final LookupControlRegistry		m_lookupControlRegistry = new LookupControlRegistry();
+	private final LookupControlRegistry	m_lookupControlRegistry = new LookupControlRegistry();
 
 	static private final ThreadLocal<DomApplication>		m_current = new ThreadLocal<DomApplication>();
 
 	static private int					m_nextPageTag = (int)(System.nanoTime() & 0x7fffffff);
 
-	private final boolean						m_logOutput = DeveloperOptions.getBool("domui.log", false);
+	private final boolean				m_logOutput = DeveloperOptions.getBool("domui.log", false);
 
 	private List<IRequestInterceptor>	m_interceptorList = new ArrayList<IRequestInterceptor>();
 
@@ -130,8 +133,8 @@ public abstract class DomApplication {
 			return m_partHandler;
 		} else if(ctx.getInputPath().startsWith("$")) {
 			return m_resourceHandler;
-		}
-
+		} else if(getUrlExtension().equals("xaja"))
+			return m_ajaxHandler;
 		return null;
 	}
 
@@ -602,7 +605,7 @@ public abstract class DomApplication {
 	public synchronized void setLoginDialogFactory(final ILoginDialogFactory loginDialogFactory) {
 		m_loginDialogFactory = loginDialogFactory;
 	}
-	public synchronized void	addLoginListener(ILoginListener l) {
+	public synchronized void	addLoginListener(final ILoginListener l) {
 		if(m_loginListenerList.contains(l))
 			return;
 		m_loginListenerList = new ArrayList<ILoginListener>(m_loginListenerList);
@@ -612,8 +615,8 @@ public abstract class DomApplication {
 	public synchronized List<ILoginListener>		getLoginListenerList() {
 		return m_loginListenerList;
 	}
-	
-	
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Rights registry.									*/
 	/*--------------------------------------------------------------*/
@@ -696,5 +699,9 @@ public abstract class DomApplication {
 	public String	getRightsDescription(final String right) {
 		String v = findRightsDescription(right);
 		return v == null ? right : v;
+	}
+
+	public AjaxRequestHandler getAjaxHandler() {
+		return m_ajaxHandler;
 	}
 }
