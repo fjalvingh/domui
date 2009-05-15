@@ -12,18 +12,18 @@ public class StaticFactoryBuildPlan implements BuildPlan {
 	/**
 	 * The static factory method to invoke.
 	 */
-	private Method		m_method;
+	private final Method		m_method;
 
 	/**
 	 * The build plans for the method's arguments.
 	 */
-	private ComponentRef[]	m_argumentList;
+	private final ComponentRef[]	m_argumentList;
 
 	private MethodInvoker[]	m_startList;
 
-	private int	m_score;
+	private final int	m_score;
 
-	StaticFactoryBuildPlan(Method m, int score, ComponentRef[] args, List<MethodInvoker> startlist) {
+	StaticFactoryBuildPlan(final Method m, final int score, final ComponentRef[] args, final List<MethodInvoker> startlist) {
 		m_method = m;
 		m_argumentList = args;
 		m_score = score;
@@ -37,10 +37,10 @@ public class StaticFactoryBuildPlan implements BuildPlan {
 	}
 
 	/**
-	 * Execute the plan to *get* the object from 
+	 * Execute the plan to *get* the object from
 	 * @see to.etc.iocular.container.BuildPlan#getObject()
 	 */
-	public Object getObject(BasicContainer bc) throws Exception {
+	public Object getObject(final BasicContainer bc) throws Exception {
 		Object[]	param = new Object[ m_argumentList.length ];
 		for(int i = m_argumentList.length; --i >= 0;) {
 			param[i] = bc.retrieve(m_argumentList[i]);
@@ -48,20 +48,20 @@ public class StaticFactoryBuildPlan implements BuildPlan {
 		return m_method.invoke(null, param);
 	}
 
-	public void dump(IndentWriter iw) throws IOException {
+	public void dump(final IndentWriter iw) throws IOException {
 		iw.print("Staticfactory method ");
 		iw.println(m_method.toGenericString());
 		if(m_argumentList.length != 0) {
-			iw.println("- Constructor parameter build plan(s):");
+			iw.println("- Method parameter build plan(s):");
 			iw.inc();
 			for(int i = 0; i < m_argumentList.length; i++) {
-				iw.println("argument# "+i);
+				iw.println("parameter# "+i);
 				iw.inc();
 				m_argumentList[i].dump(iw);
 				iw.dec();
 			}
 			iw.dec();
-		}		
+		}
 	}
 
 	public boolean needsStaticInitialization() {
@@ -73,7 +73,7 @@ public class StaticFactoryBuildPlan implements BuildPlan {
 	 *
 	 * @see to.etc.iocular.container.BuildPlan#staticStart(to.etc.iocular.container.BasicContainer)
 	 */
-	public void staticStart(BasicContainer c) throws Exception {
+	public void staticStart(final BasicContainer c) throws Exception {
 		for(MethodInvoker miv : m_startList) {
 			miv.invoke(null, c);
 		}

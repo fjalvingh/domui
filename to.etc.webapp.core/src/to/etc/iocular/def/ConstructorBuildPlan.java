@@ -13,19 +13,19 @@ import to.etc.util.IndentWriter;
  * Created on Mar 28, 2007
  */
 final public class ConstructorBuildPlan implements BuildPlan {
-	private int				m_score;
-	private Constructor<?>	m_constructor;
-	private ComponentRef[]	m_actuals;
+	private final int				m_score;
+	private final Constructor<?>	m_constructor;
+	private final ComponentRef[]	m_actuals;
 
-	public ConstructorBuildPlan(Constructor<?> constructor, int score, ComponentRef[] actuals) {
+	public ConstructorBuildPlan(final Constructor<?> constructor, final int score, final ComponentRef[] actuals) {
 		m_constructor = constructor;
 		m_score = score;
 		m_actuals	= actuals;
 	}
-	public ConstructorBuildPlan(Constructor< ? > constructor, int score) {
+	public ConstructorBuildPlan(final Constructor< ? > constructor, final int score) {
 		this(constructor, score, BuildPlan.EMPTY_PLANS);
 	}
-	public Object getObject(BasicContainer bc) throws Exception {
+	public Object getObject(final BasicContainer bc) throws Exception {
 		Object[]	param = new Object[ m_actuals.length ];
 		for(int i = m_actuals.length; --i >= 0;) {
 			param[i] = bc.retrieve(m_actuals[i]);
@@ -38,7 +38,7 @@ final public class ConstructorBuildPlan implements BuildPlan {
 		return m_score;
 	}
 
-	public void dump(IndentWriter iw) throws IOException {
+	public void dump(final IndentWriter iw) throws IOException {
 		iw.print("InstanceConstructor ");
 		iw.print(m_constructor.toGenericString());
 		iw.print(" (score ");
@@ -48,7 +48,7 @@ final public class ConstructorBuildPlan implements BuildPlan {
 			iw.println("- Constructor parameter build plan(s):");
 			iw.inc();
 			for(int i = 0; i < m_actuals.length; i++) {
-				iw.println("argument# "+i);
+				iw.println("constructor parameter# "+i);
 				iw.inc();
 				if(m_actuals[i] == null)
 					iw.println("!?!?!?! null BuildPlan!!??!");
@@ -57,12 +57,11 @@ final public class ConstructorBuildPlan implements BuildPlan {
 				iw.dec();
 			}
 			iw.dec();
-		}		
+		}
 	}
 	public boolean needsStaticInitialization() {
 		return false;
 	}
-
-	public void staticStart(BasicContainer c) throws Exception {
+	public void staticStart(final BasicContainer c) throws Exception {
 	}
 }

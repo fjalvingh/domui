@@ -49,6 +49,13 @@ public class BasicContainer implements Container {
 	/** Map of all instantiated objects of a given definition */
 	private final Map<ComponentDef, ContainerObjectRef>	m_singletonMap = new HashMap<ComponentDef, ContainerObjectRef>();
 
+	private static enum RefState {
+		NEW,
+		OKAY,
+		ALLOCATING,
+		ERROR
+	}
+
 	private static class ContainerObjectRef {
 		/** If an actual object has been created *and* it is valid this holds that object. */
 		Object		instance;
@@ -396,6 +403,13 @@ outer:	for(;;) {
 		} catch(IOException x) {
 			x.printStackTrace();
 		}
+	}
+
+	public void	dump(final Class<?> theClass) {
+		ComponentRef	ref = m_def.findComponentReference(theClass);
+		if(ref == null)
+			throw new IocContainerException(this, "Can't dump object of type="+theClass.getName()+": definition is not found");
+		dump(ref.getDefinition(), ref.getBuildPlan());
 	}
 	@Override
 	public String toString() {

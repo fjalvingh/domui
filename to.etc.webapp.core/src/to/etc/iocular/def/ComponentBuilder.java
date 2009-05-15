@@ -142,6 +142,20 @@ public class ComponentBuilder {
 	}
 
 	/**
+	 * Create a build plan for a parameter-based object. The object is passed as a parameter at
+	 * container runtime.
+	 *
+	 * @param stack
+	 * @return
+	 */
+	private BuildPlan createParameterBuildPlan(final Stack<ComponentBuilder> stack) {
+		return new ContainerParameterBuildPlan(m_actualType, m_nameList);
+	}
+
+
+
+
+	/**
 	 * <p>A basic object builder defining an object to be returned from a
 	 * static factory method on a class. The method passed must be
 	 * resolvable to a static method on the class passed, and it's
@@ -455,24 +469,6 @@ public class ComponentBuilder {
 				return createParameterBuildPlan(stack);
 		}
 	}
-
-
-	/**
-	 * Create a build plan for a parameter-based object. The object is passed as a parameter at
-	 * container runtime.
-	 *
-	 * @param stack
-	 * @return
-	 */
-	private BuildPlan createParameterBuildPlan(final Stack<ComponentBuilder> stack) {
-
-
-
-
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 
 	/*--------------------------------------------------------------*/
