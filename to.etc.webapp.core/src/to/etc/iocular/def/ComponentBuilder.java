@@ -20,16 +20,23 @@ import to.etc.iocular.util.ClassUtil;
  * Created on Mar 27, 2007
  */
 public class ComponentBuilder {
+	/** The container definition we're building. */
 	private final BasicContainerBuilder	m_builder;
 
+	/** The location, as a string, of this definition in the source for the definition. For java-defined code this is a line from the stacktrace. */
 	private final String			m_definitionLocation;
 
+	/** The basic creation method for this object. This defines the base for how we get the actual instance. A create method must ALWAYS be present. */
+	private CreateMethod			m_createMethod;
+
+	/** The assigned names for this component. Can be empty. */
 	private final List<String>		m_nameList = new ArrayList<String>();
 
 	/**
 	 * If this class is registered as a "defined" type only that type will be registered in the type table.
 	 */
 	private final List<Class<?>>	m_definedTypeList = new ArrayList<Class<?>>();
+
 
 	private Class<?>				m_baseClass;
 
@@ -74,18 +81,27 @@ public class ComponentBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Builder construction methods.						*/
 	/*--------------------------------------------------------------*/
-	private void checkCreation() {
-		if(m_creationString != null)
+//	private void checkCreation() {
+//		if(m_createMethod != null)
+//			throw new IocConfigurationException(this.m_builder, getDefinitionLocation(), "Component already created by "+m_creationString);
+//	}
+
+	private void	setCreateMethod(final CreateMethod m, final String detailed) {
+		if(m_createMethod != null)
 			throw new IocConfigurationException(this.m_builder, getDefinitionLocation(), "Component already created by "+m_creationString);
+		m_createMethod = m;
+		m_creationString = detailed;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Creator methods.									*/
+	/*--------------------------------------------------------------*/
 	/**
-	 * When called this constructs a concrete type from the class passed, using either constructor
-	 * or setter injection as needed. This defines a base creation method and so it forbids the
-	 * other creation methods.
+	 * Create the specified class using it's constructor, followed by setter injection where
+	 * needed. This defines a base creation method and so it forbids the other creation methods.
 	 */
 	public ComponentBuilder	type(final Class<?> clz) {
-		checkCreation();
+		setCreateMethod(CreateMethod.ASNEW, "Creating a new class instance using <<new>>");
 
 		//-- Check to see if the class is acceptable
 		int mod = clz.getModifiers();
@@ -103,32 +119,25 @@ public class ComponentBuilder {
 		//-- Define a type plan, and register it; This is a constructor-defined type...
 		m_actualType	= clz;
 		m_baseClass		= clz;
-		m_creationString = "creating a new class instance";
 		m_definedTypeList.add(clz);
 		return this;
 	}
 
-//	/**
-//	 * Defines a static factory class as a component. This merely registers the class as a
-//	 * lifetime-controlled thingy; instances of this class are never resolved.
-//	 *
-//	 * @param clz
-//	 * @return
-//	 */
-//	public ComponentBuilder	staticClass(Class<?> clz) {
-//		m_
-//
-//
-//		return this;
-//	}
-
 	/**
-	 * Define an explicit type for this class;
-	 * @param clz
+	 * Create the specified class by getting a parameter that is set, in runtime, when the
+	 * container is constructed. This defines the type of the parameter; it can be augmented
+	 * by a name. The parameter is assumed to be present at runtime. If it is not set the
+	 * runtime code will abort as soon as the parameter is needed to fulfil a build plan. If
+	 * a parameter is really unknown at runtime this can be prevented by explicitly assigning
+	 * null to the container's parameter.
+	 *
+	 * @param ptype
 	 * @return
 	 */
-	public ComponentBuilder	implement(final Class<?> clz) {
-		m_definedTypeList.add(clz);
+	public ComponentBuilder	parameter(final Class<?> ptype) {
+		setCreateMethod(CreateMethod.CONTAINER_PARAMETER, "Passed as a parameter by the container's builder");
+		m_actualType = ptype;
+		m_definedTypeList.add(ptype);
 		return this;
 	}
 
@@ -148,11 +157,10 @@ public class ComponentBuilder {
 	 * @return
 	 */
 	public ComponentBuilder	factory(final Class<?> clz, final String method) {
-		checkCreation();
+		setCreateMethod(CreateMethod.FACTORY_METHOD, "calling factory method "+method+" on class "+clz);
 		m_factoryMethodList	= findMethodInFactory(clz, method, true);
 		m_factoryClass	= clz;
 		m_actualType	= m_factoryMethodList.get(0).getReturnType();
-		m_creationString = "calling static factory method "+method+" on class "+clz;
 		return this;
 	}
 
@@ -195,13 +203,15 @@ public class ComponentBuilder {
 	 * @return
 	 */
 	public ComponentBuilder	factory(final String id, final String method) {
-		checkCreation();
+		setCreateMethod(CreateMethod.FACTORY_METHOD, "calling factory method "+method+" on object reference "+id);
 		m_factoryInstance	= id;
 		m_factoryMethodText	= method;
-		m_creationString = "Calling a factory method on object reference "+id;
 		return this;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Modifiers and specifiers.							*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * When called this adds a name for the component. A single component can have more than
 	 * one name, but the name must be unique within the container it gets stored in.
@@ -230,6 +240,20 @@ public class ComponentBuilder {
 		return this;
 	}
 
+	/**
+	 * Define an explicit type for this class. This overrides the "actual" type as found by the
+	 * creation method. Typical use is to define that a creation method should be seen as
+	 * returning the specified interface, not the actual object type. If the created object
+	 * implements multiple interfaces you can call this method multiple times, for each
+	 * interface supported.
+	 *
+	 * @param clz
+	 * @return
+	 */
+	public ComponentBuilder	implement(final Class<?> clz) {
+		m_definedTypeList.add(clz);
+		return this;
+	}
 
 	/**
 	 * Only used for static factories, this allows you to call a static method on the
@@ -285,6 +309,13 @@ public class ComponentBuilder {
 		return this;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Data getters.										*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the list of registered names for this object.
+	 * @return
+	 */
 	List<String>	getNameList() {
 		return m_nameList;
 	}
@@ -322,22 +353,12 @@ public class ComponentBuilder {
 	 * of container reference with a method this determines the type of
 	 * object returned by decoding the reference and the method.
 	 */
-	void registerTypes() {
-		if(m_definedTypeList.size() > 0) {
-			//-- Register as "
-
-
-
-
-		}
-
-
-
-
-
-
-
-	}
+//	void registerTypes() {
+//		if(m_definedTypeList.size() > 0) {
+//			//-- Register as "
+//
+//		}
+//	}
 
 
 
@@ -423,23 +444,43 @@ public class ComponentBuilder {
 	 * @return
 	 */
 	private BuildPlan	createCreationBuildPlan(final Stack<ComponentBuilder> stack) {
-		//-- 1. Normal class instance plan?
-		if(m_baseClass != null)
-			return createConstructorPlan(stack);
-
-		if(m_factoryMethodList != null)
-			return createStaticFactoryBuildPlan(stack);
-
-		throw new IocConfigurationException(this, "Cannot create a build plan!?");
+		switch(m_createMethod) {
+			default:
+				throw new IocConfigurationException(this, "Internal: unknown CreationMethod "+m_createMethod);
+			case ASNEW:
+				return createConstructorPlan(stack);
+			case FACTORY_METHOD:
+				return createStaticFactoryBuildPlan(stack);
+			case CONTAINER_PARAMETER:
+				return createParameterBuildPlan(stack);
+		}
 	}
 
+
+	/**
+	 * Create a build plan for a parameter-based object. The object is passed as a parameter at
+	 * container runtime.
+	 *
+	 * @param stack
+	 * @return
+	 */
+	private BuildPlan createParameterBuildPlan(final Stack<ComponentBuilder> stack) {
+
+
+
+
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Constructor-based build plan						*/
 	/*--------------------------------------------------------------*/
-
+	/**
+	 * Create a build plan for a normal constructed class.
+	 */
 	private BuildPlan	createConstructorPlan(final Stack<ComponentBuilder> stack) {
 		Constructor<?>[]	car = m_baseClass.getConstructors();
 		if(car == null || car.length == 0)	// Cannot construct

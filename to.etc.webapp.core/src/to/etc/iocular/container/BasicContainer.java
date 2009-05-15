@@ -15,13 +15,13 @@ import to.etc.util.IndentWriter;
 /**
  * <p>This is a default implementation of an IOC container. While it
  * exists it caches all instance objects. This object is threadsafe.</p>
- * 
+ *
  * <p>If an object really needs to be created we do this in two
  * phases. The first phase creates a "build plan" for the object. The build plan
  * considers all possible ways to create the given object, and will select the most
  * optimal plan. The second phase will then execute the plan to actually create the
  * object.</p>
- * 
+ *
  * <p>The separation into plan and create phase is needed because an object can be
  * created across many ways (for instance because it has multiple constructors). We cannot
  * try each method in turn because trying would force us to create objects that might not
@@ -36,20 +36,38 @@ public class BasicContainer implements Container {
 	private boolean				m_started;
 
 	/** If this is a child container this refers to it's parent. It is null for a root container. */
-	private BasicContainer		m_parent;
+	private final BasicContainer		m_parent;
 
 	/** The definition of this container. */
-	private ContainerDefinition	m_def;
+	private final ContainerDefinition	m_def;
 
 	/** The stack of containers that are parents of this one, indexed by ComponentRef.index. Used to quickly get a specific parent. */
-	private BasicContainer[]	m_stack;
+	private final BasicContainer[]	m_stack;
 
-	private Map<ComponentDef, StaticComponentRef>	m_staticMap = new HashMap<ComponentDef, StaticComponentRef>();
+	private final Map<ComponentDef, StaticComponentRef>	m_staticMap = new HashMap<ComponentDef, StaticComponentRef>();
 
 	/** Map of all instantiated objects of a given definition */
-	private Map<ComponentDef, ContainerObjectRef>	m_singletonMap = new HashMap<ComponentDef, ContainerObjectRef>();
+	private final Map<ComponentDef, ContainerObjectRef>	m_singletonMap = new HashMap<ComponentDef, ContainerObjectRef>();
 
-	public BasicContainer(ContainerDefinition def, Container parent) {
+	private static class ContainerObjectRef {
+		/** If an actual object has been created *and* it is valid this holds that object. */
+		Object		instance;
+
+		/** If creating the object has caused a problem this holds that problem (wrapped if not a RuntimeException). */
+		Exception	exception;
+
+		Container	allocatingContainer;
+
+		RefState	state;
+
+		ContainerObjectRef(final ComponentDef cd) {
+//			m_def = cd;
+			state	= RefState.NEW;
+		}
+	}
+
+
+	public BasicContainer(final ContainerDefinition def, final Container parent) {
 		if(def == null)
 			throw new IllegalStateException("The definition for a container cannot be null of course");
 		if(parent == null && def.getParentDefinition() != null)
@@ -74,12 +92,12 @@ public class BasicContainer implements Container {
 		if(m_started)
 			throw new IllegalStateException(this+": container has already been started!!");
 		m_started = true;
-		
+
 	}
 	public synchronized void destroy() {
 		if(m_started) {
 			// TODO Destroy all created objects
-			
+
 			m_started = false;
 		}
 	}
@@ -95,7 +113,7 @@ public class BasicContainer implements Container {
 	 * @param cd
 	 * @return
 	 */
-	private synchronized ContainerObjectRef	getRef(ComponentDef cd) {
+	private synchronized ContainerObjectRef	getRef(final ComponentDef cd) {
 		if(! m_started)
 			throw new IllegalStateException(this+": the container has been destroyed, or it has not yet been started.");
 		ContainerObjectRef	ref = m_singletonMap.get(cd);
@@ -106,30 +124,113 @@ public class BasicContainer implements Container {
 		return ref;
 	}
 
-	public <T> T findObject(Class<T> theClass) {
+	public <T> T findObject(final Class<T> theClass) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public <T> T findObject(String name, Class<T> theClass) {
+	public <T> T findObject(final String name, final Class<T> theClass) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public <T> T getObject(Class<T> theClass) throws Exception {
+	public <T> T getObject(final Class<T> theClass) throws Exception {
 		ComponentRef	ref = m_def.findComponentReference(theClass);
 		if(ref == null)
 			throw new IocContainerException(this, "Can't create object of type="+theClass.getName()+": definition is not found");
 		return (T) retrieve(ref);
 	}
 
-	public <T> T getObject(String name, Class<T> theClass) throws Exception {
+	public <T> T getObject(final String name, final Class<T> theClass) throws Exception {
 		ComponentRef	ref = m_def.findComponentReference(name);
 		if(ref == null)
 			throw new IocContainerException(this, "Object with name="+name+" not defined");
 		return (T) retrieve(ref);
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Container parameter assignment.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Set a container parameter object. The parameter to set is inferred from the object type.
+	 * @param instance
+	 */
+	public void	setParameter(final Object instance) {
+		if(instance == null)
+			throw new IocContainerException(this, "You cannot set a parameter to null using this function, you must specify the parameter type or name!");
+
+		//-- Find the type of the parameter being set; use base classes also.
+		ComponentRef	ref = null;
+		Class<?>		current	= instance.getClass();
+		while(ref == null){
+			ref	= m_def.findComponentReference(current);		// Can we find a ref for this thingy?
+			if(ref != null)
+				break;
+
+			//-- Move to super class
+			current	= current.getSuperclass();
+			if(current == Object.class || current == null)
+				throw new IocContainerException(this, "Undefined container parameter with type="+instance.getClass()+" (or base class)");
+		}
+
+		assignParameter(ref, instance);
+	}
+
+	/**
+	 * Set the parameter as identified by it's target class to the specified instance. This instance CAN
+	 * be null, in which case null will be set into contructors and/or setters dependent on this parameter.
+	 * @param clz
+	 * @param instance
+	 */
+	public void	setParameter(final Class<?> theClass, final Object instance) {
+		ComponentRef	ref = m_def.findComponentReference(theClass);
+		if(ref == null)
+			throw new IocContainerException(this, "Can't create object of type="+theClass.getName()+": definition is not found");
+		assignParameter(ref, instance);
+	}
+
+	/**
+	 * Sets the parameter with the specified name to the instance passed. This instance CAN
+	 * be null, in which case null will be set into contructors and/or setters dependent on
+	 * this parameter.
+	 * @param name
+	 * @param instance
+	 */
+	public void	setParameter(final String name, final Object instance) {
+		ComponentRef	ref = m_def.findComponentReference(name);
+		if(ref == null)
+			throw new IocContainerException(this, "Object with name="+name+" not defined");
+		assignParameter(ref, instance);
+	}
+
+	/**
+	 * Tries to assign a value to the specified ref. This works for parameter types only. The
+	 * instance is allowed to be null in which case the parameter IS set (but has the value null).
+	 * @param ref
+	 * @param instance
+	 */
+	private void assignParameter(final ComponentRef cref, final Object instance) {
+		//-- Singleton object in this scope. Get a ref, then proceed to create
+		ContainerObjectRef	ref = getRef(cref.getDefinition());
+		synchronized(ref) {
+			switch(ref.state) {
+				default:
+					throw new IllegalStateException("Unexpected state "+ref.state);
+				case NEW:
+					//-- Normal, new thingy. Assign, then be done;
+					ref.instance = instance;
+					ref.state = RefState.OKAY;
+					return;
+
+				case OKAY:
+					throw new IocContainerException(this, "Attempt to re-assign the container parameter="+cref.getDefinition());
+			}
+		}
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Retrieval and creation primitives.					*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Actually get the required thingy. If it is already present in this container (and a singleton)
 	 * it will be created atomically; if it is a prototype it will be created without lock.
@@ -139,19 +240,20 @@ public class BasicContainer implements Container {
 	 * @param ref
 	 * @return
 	 */
-	public Object	retrieve(ComponentRef ref) throws Exception {
+	public Object	retrieve(final ComponentRef ref) throws Exception {
 		return m_stack[ref.getContainerIndex()]._retrieve(ref);
 	}
 
 	/**
-	 * Retrieve or create an actual instance of an object in *this* container.
+	 * Retrieve or create an actual instance of an object in *this* container. This is a threadsafe
+	 * init/retrieve.
 	 *
 	 * @param <T>
 	 * @param theClass
 	 * @param ref
 	 * @return
 	 */
-	private Object	_retrieve(ComponentRef cr) throws Exception {
+	private Object	_retrieve(final ComponentRef cr) throws Exception {
 		if(cr.getContainerIndex() != m_def.getContainerIndex())
 			throw new IllegalStateException("Internal: Container index does not correspond with this container's index!?");
 		handleOneTimeInit(cr.getDefinition());	// Handle any static factory initializations.
@@ -161,19 +263,73 @@ public class BasicContainer implements Container {
 			return createObject(cr.getDefinition());
 		}
 
+		/*
+		 * Thread-safe init of singleton in ref. We obtain ownership of the ref, or wait until ownership has been
+		 * released. If we have ownership we proceed to initialization.
+		 */
 		//-- Singleton object in this scope. Get a ref, then proceed to create
 		ContainerObjectRef	ref = getRef(cr.getDefinition());
-		Object	obj = ref.retrieveOrOwn(this);
-		if(obj != null)
-			return obj;
+		long ets = 0;
+outer:	for(;;) {
+			synchronized(ref) {
+				switch(ref.state) {
+					default:
+						throw new IllegalStateException("Internal: unexpected state "+ref.state);
+					case OKAY:
+						return ref.instance;				// Value was set.
+					case ERROR:
+						if(ref.exception == null)
+							throw new IllegalStateException("Missing exception type for object ref in ERROR state");
+						throw ref.exception;				// Retrow the init exception.
 
-		//-- We have obtained the right to create this object. So create it;
+					case NEW:
+						ref.state = RefState.ALLOCATING;	// Mark as allocating for next thread
+						ref.allocatingContainer = this;		// I'm allocating now
+						break outer;						// Exit synchronisation.
+					case ALLOCATING:
+						/*
+						 * We need to block IF the max time has not been exceeded.
+						 */
+						long ts = System.currentTimeMillis();
+						if(ets == 0)						// First time entered?
+							ets = ts + 60*1000;				// Wait max. 1 minute
+						else if(ts >= ets)
+							throw new IocContainerException(this, "Another thread took too long to initialize an instance of component="+cr.getDefinition());
+
+						//-- We need to wait....
+						ref.wait(10*1000);
+						break;								// And loop again, till timeout or state change.
+				}
+			}
+		}
+
+		/*
+		 * We get here ONLY when a new object is to be allocated. We currently 'own' the object reference (it's state is ALLOCATING) and
+		 * any other thread using it *will* wait for me to complete. We are outside of the lock to prevent uncontrollable deadlock. This
+		 * code asks the definition to create an instance; if the definition defines a parameter it causes a "parameter not set" exception
+		 * since parameters cannot be created (only set).
+		 */
+		Exception	thex = null;
+		RefState	nstate = RefState.ERROR;
+		Object		theObject = null;
 		try {
-			Object theObject = createObject(cr.getDefinition());
-			ref.setObject(theObject);
+			theObject = createObject(cr.getDefinition());	// Create a new instance
+			nstate	= RefState.OKAY;						// Ref is assigned, now.
 			return theObject;
+		} catch(Exception x) {
+			thex	= x;
+			nstate	= RefState.ERROR;
+			throw x;
 		} finally {
-			ref.releaseOwnership();				// Make sure ownership is released even when erroring
+			/*
+			 * Always assign result in finally to prevent always-locked objects.
+			 */
+			synchronized(ref) {
+				ref.state = nstate;
+				ref.instance = theObject;
+				ref.exception = thex;
+				ref.notify();
+			}
 		}
 	}
 
@@ -182,7 +338,7 @@ public class BasicContainer implements Container {
 	 * @param cd
 	 * @return
 	 */
-	private Object	createObject(ComponentDef cd) throws Exception {
+	private Object	createObject(final ComponentDef cd) throws Exception {
 //		dump(cd, cd.getBuildPlan());
 		try {
 			return cd.getBuildPlan().getObject(this);
@@ -199,7 +355,7 @@ public class BasicContainer implements Container {
 	 * Called to check if a component needs static initialization.
 	 * @param cr
 	 */
-	private void handleOneTimeInit(ComponentDef def) throws Exception {
+	private void handleOneTimeInit(final ComponentDef def) throws Exception {
 		BuildPlan	pl	= def.getBuildPlan();
 		if(! pl.needsStaticInitialization())
 			return;
@@ -229,7 +385,7 @@ public class BasicContainer implements Container {
 		}
 	}
 
-	static private void dump(ComponentDef cd, BuildPlan pl) {
+	static private void dump(final ComponentDef cd, final BuildPlan pl) {
 		StringWriter	sw = new StringWriter(8192);
 		IndentWriter	iw	= new IndentWriter(sw);
 		try {
