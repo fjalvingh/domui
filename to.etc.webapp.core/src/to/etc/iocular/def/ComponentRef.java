@@ -36,4 +36,8 @@ final public class ComponentRef {
 	public BuildPlan	getBuildPlan() {
 		return m_def.getBuildPlan();
 	}
+	@Override
+	public String toString() {
+		return "ref:container["+m_containerIndex+"] component "+m_def.getIdent();
+	}
 }

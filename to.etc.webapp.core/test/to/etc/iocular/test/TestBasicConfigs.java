@@ -225,7 +225,7 @@ public class TestBasicConfigs {
 		PlannerMock	pm	= make(new PageMock(), b, PlannerMock.class);
 		System.out.println("PlannerMock: "+pm);
 	}
-	
+
 	/**
 	 * Missing property but thats okay, were in set only known props mode.
 	 * @throws Exception
@@ -255,7 +255,4 @@ public class TestBasicConfigs {
 		PlannerMock	pm	= make(new PageMock(), b, PlannerMock.class);
 		System.out.println("PlannerMock: "+pm);
 	}
-	
-
-
 }
