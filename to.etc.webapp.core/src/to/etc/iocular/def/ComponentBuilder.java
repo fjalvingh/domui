@@ -5,11 +5,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+
 import to.etc.iocular.BindingScope;
 import to.etc.iocular.container.BuildPlan;
 import to.etc.iocular.container.FailedAlternative;
 import to.etc.iocular.container.MethodInvoker;
 import to.etc.iocular.util.ClassUtil;
+import to.etc.util.*;
 
 /**
  * Thingy which helps with building a component definition. This contains all definition-time data
@@ -381,7 +383,7 @@ public class ComponentBuilder {
 	 */
 	public ComponentBuilder	setProperties(final String... names) {
 		for(String name: names) {
-			uniquePropertyDef(name);
+			uniquePropertyDef(name).setRequired(true);
 		}
 		return this;
 	}
@@ -397,6 +399,7 @@ public class ComponentBuilder {
 	public ComponentBuilder	setProperty(final String name, final String componentId) {
 		ComponentPropertyDef	pd = uniquePropertyDef(name);
 		pd.setSourceName(componentId);
+		pd.setRequired(true);
 		return this;
 	}
 
@@ -412,6 +415,7 @@ public class ComponentBuilder {
 	public ComponentBuilder	setProperty(final String name, final Class<?> componentClass) {
 		ComponentPropertyDef	pd = uniquePropertyDef(name);
 		pd.setSourceClass(componentClass);
+		pd.setRequired(true);
 		return this;
 	}
 
@@ -711,6 +715,80 @@ public class ComponentBuilder {
 			actuals.add(cr);
 		}
 		return actuals;
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Property injector calculation.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Once the build plan for the base object is known this will check what properties
+	 * are to be set using container data. This takes the property defs and creates injectors (setters)
+	 * for each property that is to be named.
+	 *
+	 * @return
+	 */
+	private List<PropertyInjector>	calculateSetterInjectors(final Stack<ComponentBuilder> stack) {
+		if(m_propertyMode == ComponentPropertyMode.NONE && m_propertyDefMap.size() == 0)	// No properties to set -> exit immediately.
+			return Collections.EMPTY_LIST;
+
+		/*
+		 * We define an ultimate set of all properties that can or must be injected, and we ensure
+		 * that all explicitly named properties actually exist and are settable in the instance.
+		 */
+		Map<String, ComponentPropertyDef>	fullmap = new HashMap<String, ComponentPropertyDef>(m_propertyDefMap);	// The full set of thingies to do
+		List<PropertyInfo>		proplist = to.etc.util.ClassUtil.getProperties(m_actualType);	// All class properties.
+		Set<String>			doneset = new HashSet<String>(m_propertyDefMap.keySet());			// Dup all explicitly set names
+		for(PropertyInfo pi: proplist) {
+			//-- Is this property named explicitly?
+			ComponentPropertyDef	pd	= m_propertyDefMap.get(pi.getName());
+			if(pd != null) {
+				//-- Explicitly named property.
+				doneset.remove(pi.getName());									// Has been found.
+				if(pi.getSetter() == null)
+					throw new IocConfigurationException(this, "The property '"+pi.getName()+"' is defined to be set but it is read-only (it has no applicable setter method)");
+			} else if(m_propertyMode != ComponentPropertyMode.NONE && pi.getSetter() != null) {
+				//-- Not set explicitly; we must set it because of the mode... So define a def for this property
+				pd	= new ComponentPropertyDef(this, pi.getName());
+				pd.setRequired(m_propertyMode == ComponentPropertyMode.ALL);	// Is required in ALL mode
+				fullmap.put(pi.getName(), pd);
+			}
+			if(pd != null)
+				pd.setInfo(pi);						// Save info on property
+		}
+
+		//-- All that's left in doneset are properties that are undefined on this class, so die.
+		if(doneset.size() > 0)
+			throw new IocConfigurationException(this, "Unknown property/properties '"+doneset+"' on class "+m_actualType.getName());
+		if(fullmap.size() == 0)
+			return Collections.EMPTY_LIST;
+
+		/*
+		 * We have a full set of properies to provide injectors for: go, girl.
+		 */
+		List<PropertyInjector>		res = new ArrayList<PropertyInjector>(fullmap.size());
+		for(ComponentPropertyDef pd: fullmap.values()) {
+			PropertyInjector	pij	= calculateInjector(stack, pd);
+			if(pij == null && pd.isRequired())
+				throw new IocConfigurationException(this, "The property '"+pd.getPropertyName()+"' cannot be injected");
+			res.add(pij);
+		}
+
+		return res;
+	}
+
+	/**
+	 * Tries to calculate an injector for the specified property. Returns null if no injector can be found.
+	 *
+	 * @param stack
+	 * @param pd
+	 * @return
+	 */
+	private PropertyInjector calculateInjector(final Stack<ComponentBuilder> stack, final ComponentPropertyDef pd) {
+
+
+
+		return null;
 	}
 
 	/*--------------------------------------------------------------*/
