@@ -455,4 +455,14 @@ public class BasicContainerBuilder implements Builder {
 		return cb.calculateComponentRef(stack);
 	}
 
+	/**
+	 * Return a reference for a property setter.
+	 * FIXME URGENT Needs proper implementation using the data in the property def, like component name, type etc.
+	 * @param stack
+	 * @param pd
+	 * @return
+	 */
+	public ComponentRef findReferenceFor(final Stack<ComponentBuilder> stack, final ComponentPropertyDef pd) {
+		return findReferenceFor(stack, pd.getInfo().getGetter().getReturnType(), null, null);
+	}
 }

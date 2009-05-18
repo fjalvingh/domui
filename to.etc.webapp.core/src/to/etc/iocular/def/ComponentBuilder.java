@@ -632,6 +632,24 @@ public class ComponentBuilder {
 		}
 	}
 
+	private List<ComponentRef>	calculateParameters(final Stack<ComponentBuilder> stack, final Class<?>[] fpar, final Annotation[][] fpann, final ParameterDef[] defar) {
+		List<ComponentRef>	actuals = new ArrayList<ComponentRef>();
+		for(int i = 0; i < fpar.length; i++) {
+			Class<?> fp = fpar[i];
+			ParameterDef	def = null;
+			if(defar != null && i < defar.length)
+				def = defar[i];
+			ComponentRef	cr	= m_builder.findReferenceFor(stack, fp, fpann[i], def);
+			if(cr == null) {
+				//-- Cannot use this- the parameter passed cannot be filled in.
+				throw new IocUnresolvedParameterException("Parameter "+i+" (a "+fp+") cannot be resolved");
+			}
+			actuals.add(cr);
+		}
+		return actuals;
+	}
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Factory-based build plan.							*/
 	/*--------------------------------------------------------------*/
@@ -693,28 +711,6 @@ public class ComponentBuilder {
 		for(MethodCallBuilder mcb : list)
 			res.add(mcb.createInvoker(stack));
 		return res;
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Parameter calculators.								*/
-	/*--------------------------------------------------------------*/
-
-	private List<ComponentRef>	calculateParameters(final Stack<ComponentBuilder> stack, final Class<?>[] fpar, final Annotation[][] fpann, final ParameterDef[] defar) {
-		List<ComponentRef>	actuals = new ArrayList<ComponentRef>();
-		for(int i = 0; i < fpar.length; i++) {
-			Class<?> fp = fpar[i];
-			ParameterDef	def = null;
-			if(defar != null && i < defar.length)
-				def = defar[i];
-			ComponentRef	cr	= m_builder.findReferenceFor(stack, fp, fpann[i], def);
-			if(cr == null) {
-				//-- Cannot use this- the parameter passed cannot be filled in.
-				throw new IocUnresolvedParameterException("Parameter "+i+" (a "+fp+") cannot be resolved");
-			}
-			actuals.add(cr);
-		}
-		return actuals;
 	}
 
 
@@ -785,8 +781,9 @@ public class ComponentBuilder {
 	 * @return
 	 */
 	private PropertyInjector calculateInjector(final Stack<ComponentBuilder> stack, final ComponentPropertyDef pd) {
-
-
+		ComponentRef	cr	= m_builder.findReferenceFor(stack, pd);
+		if(cr == null)
+			return null;
 
 		return null;
 	}
@@ -807,5 +804,4 @@ public class ComponentBuilder {
 	public BindingScope getScope() {
 		return m_scope;
 	}
-
 }
