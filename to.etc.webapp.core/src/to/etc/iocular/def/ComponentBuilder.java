@@ -4,9 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import to.etc.iocular.BindingScope;
 import to.etc.iocular.container.BuildPlan;
 import to.etc.iocular.container.FailedAlternative;
@@ -14,7 +12,8 @@ import to.etc.iocular.container.MethodInvoker;
 import to.etc.iocular.util.ClassUtil;
 
 /**
- * Thingy which helps with building a component definition.
+ * Thingy which helps with building a component definition. This contains all definition-time data
+ * related to a single component object.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Mar 27, 2007
@@ -37,7 +36,6 @@ public class ComponentBuilder {
 	 */
 	private final List<Class<?>>	m_definedTypeList = new ArrayList<Class<?>>();
 
-
 	private Class<?>				m_baseClass;
 
 	private Class<?>				m_factoryClass;
@@ -52,7 +50,7 @@ public class ComponentBuilder {
 
 	private BindingScope			m_scope;
 
-	private boolean					m_autowire;
+//	private boolean					m_autowire;
 
 	private String					m_creationString;
 
@@ -246,10 +244,10 @@ public class ComponentBuilder {
 		m_scope = scope;
 		return this;
 	}
-	public ComponentBuilder	autowire(final boolean yes) {
-		m_autowire = yes;
-		return this;
-	}
+//	public ComponentBuilder	autowire(final boolean yes) {
+//		m_autowire = yes;
+//		return this;
+//	}
 	public ComponentBuilder	destroy(final Class<?> wh, final String what) {
 		return this;
 	}
@@ -320,6 +318,100 @@ public class ComponentBuilder {
 		MethodCallBuilder	mcb = new MethodCallBuilder(this, m_factoryClass, methodName, arguments, false);
 		m_currentMethodBuilder = mcb;
 		m_startList.add(mcb);
+		return this;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Property wiring definition.							*/
+	/*--------------------------------------------------------------*/
+	/** The mode to use for all properties not explicitly mentioned. */
+	private ComponentPropertyMode		m_propertyMode = ComponentPropertyMode.NONE;
+
+	/** All properties that were explicitly named with a configuration. */
+	private final Map<String, ComponentPropertyDef>	m_propertyDefMap = new HashMap<String, ComponentPropertyDef>();
+
+	/**
+	 * This defines that <b>all</b> properties on the instance must be set; it aborts if it cannot
+	 * find a proper instance for a given property. This does skip all properties that refer to dumb
+	 * classes like all primitives and wrappers and String.
+	 *
+	 * @return
+	 */
+	public ComponentBuilder	setAllProperties() {
+		if(m_propertyMode != ComponentPropertyMode.NONE)
+			throw new IocConfigurationException(this, "Property configuration mode is already set to "+m_propertyMode);
+		m_propertyMode = ComponentPropertyMode.ALL;
+		return this;
+	}
+
+	/**
+	 * This sets all properties on this components for which a value can be determined. It skips properties
+	 * with silly types like all primitives and wrappers and String. Properties for which no bound can be
+	 * found in the container set are not set (they are explicitly not set to null).
+	 * @return
+	 */
+	public ComponentBuilder	setKnownProperties() {
+		if(m_propertyMode != ComponentPropertyMode.NONE)
+			throw new IocConfigurationException(this, "Property configuration mode is already set to "+m_propertyMode);
+		m_propertyMode = ComponentPropertyMode.KNOWN;
+		return this;
+	}
+
+	/**
+	 * Make a property setter definition. Abort if such a definition is already known.
+	 * @param name
+	 * @return
+	 */
+	private ComponentPropertyDef	uniquePropertyDef(final String name) {
+		ComponentPropertyDef	pd = m_propertyDefMap.get(name);
+		if(pd != null)
+			throw new IocConfigurationException(this, "An initialization for the property '"+name+"' has already been set.");
+		pd	= new ComponentPropertyDef(this, name);		// This leaves all other thingies empty, denoting a default init.
+		m_propertyDefMap.put(name, pd);
+		return pd;
+	}
+
+	/**
+	 * Define a set of properties on this component that must be set using default
+	 * wiring for the properties. Each property is set by retrieving it's instance
+	 * from the container set. This works for uniquely-typed properties only.
+	 *
+	 * @param names
+	 * @return
+	 */
+	public ComponentBuilder	setProperties(final String... names) {
+		for(String name: names) {
+			uniquePropertyDef(name);
+		}
+		return this;
+	}
+
+	/**
+	 * Inject the specified property with the component with the given name. This requires that another
+	 * component has a name and a type compatibe with the specified type.
+	 *
+	 * @param name
+	 * @param componentId
+	 * @return
+	 */
+	public ComponentBuilder	setProperty(final String name, final String componentId) {
+		ComponentPropertyDef	pd = uniquePropertyDef(name);
+		pd.setSourceName(componentId);
+		return this;
+	}
+
+	/**
+	 * Inject the specified property with the component registered with the specified class. This is usually the
+	 * same as using setProperties() using only the property name, since the property's type should be
+	 * compatible with the component's type.
+	 *
+	 * @param name
+	 * @param componentClass
+	 * @return
+	 */
+	public ComponentBuilder	setProperty(final String name, final Class<?> componentClass) {
+		ComponentPropertyDef	pd = uniquePropertyDef(name);
+		pd.setSourceClass(componentClass);
 		return this;
 	}
 

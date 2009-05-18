@@ -93,4 +93,14 @@ public class TestBasicConfigs {
 		PlannerMock	pm	= make(b, PlannerMock.class);
 		System.out.println("PlannerMock: "+pm);
 	}
+
+	@Test
+	public void		testPlannerMockWithoutInj() throws Exception {
+		BasicContainerBuilder	b	= BasicContainerBuilder.createBuilder("root");
+		b.register().type(PlannerMock.class);
+		PlannerMock	pm	= make(b, PlannerMock.class);
+		System.out.println("PlannerMock: "+pm);
+	}
+
+
 }
