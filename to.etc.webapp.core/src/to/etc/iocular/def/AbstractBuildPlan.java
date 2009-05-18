@@ -34,4 +34,14 @@ abstract public class AbstractBuildPlan implements BuildPlan {
 			pi.getSetter().invoke(instance, value);
 		}
 	}
+	protected void	dumpSetters(IndentWriter iw) throws IOException {
+		if(m_injectorList.size() == 0)
+			return;
+		iw.println("Property Injectors:");
+		iw.inc();
+		for(PropertyInjector pij: m_injectorList) {
+			iw.println("method: "+pij.getSetter().getName()+" refers "+pij.getRef());
+		}
+		
+	}
 }

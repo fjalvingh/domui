@@ -62,6 +62,7 @@ final public class BuildPlanForConstructor extends AbstractBuildPlan {
 			}
 			iw.dec();
 		}
+		dumpSetters(iw);
 	}
 	@Override
 	public boolean needsStaticInitialization() {

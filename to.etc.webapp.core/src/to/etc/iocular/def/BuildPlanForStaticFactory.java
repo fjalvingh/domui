@@ -65,6 +65,7 @@ public class BuildPlanForStaticFactory extends AbstractBuildPlan {
 			}
 			iw.dec();
 		}
+		dumpSetters(iw);
 	}
 
 	@Override

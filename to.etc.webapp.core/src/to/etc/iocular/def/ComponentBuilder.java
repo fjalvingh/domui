@@ -772,9 +772,11 @@ public class ComponentBuilder {
 		List<PropertyInjector>		res = new ArrayList<PropertyInjector>(fullmap.size());
 		for(ComponentPropertyDef pd: fullmap.values()) {
 			PropertyInjector	pij	= calculateInjector(stack, pd);
-			if(pij == null && pd.isRequired())
-				throw new IocConfigurationException(this, "The property '"+pd.getPropertyName()+"' cannot be injected");
-			res.add(pij);
+			if(pij == null) {
+				if(pd.isRequired())
+					throw new IocConfigurationException(this, "The property '"+pd.getPropertyName()+"' cannot be injected");
+			} else
+				res.add(pij);
 		}
 
 		return res;
