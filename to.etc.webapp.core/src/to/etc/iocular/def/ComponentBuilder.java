@@ -149,7 +149,7 @@ public class ComponentBuilder {
 	 * @return
 	 */
 	private BuildPlan createParameterBuildPlan(final Stack<ComponentBuilder> stack) {
-		return new ContainerParameterBuildPlan(m_actualType, m_nameList);
+		return new BuildPlanForContainerParameter(m_actualType, m_nameList);
 	}
 
 
@@ -543,7 +543,14 @@ public class ComponentBuilder {
 	private BuildPlan	createBuildPlan(final Stack<ComponentBuilder> stack) {
 		BuildPlan	bp = createCreationBuildPlan(stack);		// Create the actual object,
 
+		if(bp instanceof AbstractBuildPlan) {
+			//-- Handle setter logic
+			List<PropertyInjector>	ijlist = calculateSetterInjectors(stack);
+			((AbstractBuildPlan)bp).setInjectorList(ijlist);
+		}
+
 		//-- Append all other crud to the build plan: start with start- and destroy- code
+
 
 
 
@@ -577,14 +584,14 @@ public class ComponentBuilder {
 		Constructor<?>[]	car = m_baseClass.getConstructors();
 		if(car == null || car.length == 0)	// Cannot construct
 			throw new IocConfigurationException(this, "The class "+m_baseClass+" has no public constructors");
-		List<ConstructorBuildPlan>	list = new ArrayList<ConstructorBuildPlan>();
+		List<BuildPlanForConstructor>	list = new ArrayList<BuildPlanForConstructor>();
 		List<FailedAlternative>	aflist = new ArrayList<FailedAlternative>();
 		for(Constructor<?> c : car) {
 			if(! Modifier.isPublic(c.getModifiers())) {
 				aflist.add(new FailedAlternative("The constructor "+c+" is not public"));
 				continue;
 			}
-			ConstructorBuildPlan	cbp = calcConstructorPlan(stack, c, aflist);
+			BuildPlanForConstructor	cbp = calcConstructorPlan(stack, c, aflist);
 			if(cbp != null)
 				list.add(cbp);
 		}
@@ -592,9 +599,9 @@ public class ComponentBuilder {
 			throw new BuildPlanFailedException(this, "None of the constructors was usable", aflist);
 
 		//-- Find the plan with the highest score.
-		ConstructorBuildPlan best = list.get(0);
+		BuildPlanForConstructor best = list.get(0);
 		for(int i = 1; i < list.size(); i++) {
-			ConstructorBuildPlan bp = list.get(i);
+			BuildPlanForConstructor bp = list.get(i);
 			if(bp.getScore() > best.getScore())
 				best = bp;
 		}
@@ -610,11 +617,11 @@ public class ComponentBuilder {
 	 * @param aflist
 	 * @return
 	 */
-	private ConstructorBuildPlan	calcConstructorPlan(final Stack<ComponentBuilder> stack, final Constructor<?> c, final List<FailedAlternative> aflist) {
+	private BuildPlanForConstructor	calcConstructorPlan(final Stack<ComponentBuilder> stack, final Constructor<?> c, final List<FailedAlternative> aflist) {
 		Class<?>[]	fpar = c.getParameterTypes();		// Formals.
 		Annotation[][]	fpanar = c.getParameterAnnotations();
 		if(fpar == null || fpar.length == 0) {
-			return new ConstructorBuildPlan(c, 0);		// Always works but with score=0
+			return new BuildPlanForConstructor(c, 0);		// Always works but with score=0
 		}
 
 		//-- Walk all parameters and make build plans for them until failure..
@@ -623,7 +630,7 @@ public class ComponentBuilder {
 			List<ComponentRef>	actuals = calculateParameters(stack, fpar, fpanar, paref);
 
 			//-- All constructor arguments were provided- return a build plan,
-			return new ConstructorBuildPlan(c, fpar.length, actuals.toArray(new ComponentRef[actuals.size()]));
+			return new BuildPlanForConstructor(c, fpar.length, actuals.toArray(new ComponentRef[actuals.size()]));
 		} catch(IocUnresolvedParameterException x) {
 			//-- This constructor has failed.
 			FailedAlternative	fa = new FailedAlternative("The constructor "+c+" is unusable: "+x.getMessage());
@@ -659,10 +666,10 @@ public class ComponentBuilder {
 		List<MethodInvoker>	startlist = createCallList(stack, m_factoryStartList);
 
 		//-- Walk all possible factory methods, scoring them,
-		List<StaticFactoryBuildPlan>	list = new ArrayList<StaticFactoryBuildPlan>();
+		List<BuildPlanForStaticFactory>	list = new ArrayList<BuildPlanForStaticFactory>();
 		List<FailedAlternative>	aflist = new ArrayList<FailedAlternative>();
 		for(Method m : m_factoryMethodList) {
-			StaticFactoryBuildPlan	cbp = calcStaticFactoryPlan(stack, m, aflist, startlist);
+			BuildPlanForStaticFactory	cbp = calcStaticFactoryPlan(stack, m, aflist, startlist);
 			if(cbp != null)
 				list.add(cbp);
 		}
@@ -670,20 +677,20 @@ public class ComponentBuilder {
 			throw new BuildPlanFailedException(this, "None of the factory methods was usable", aflist);
 
 		//-- Find the plan with the highest score.
-		StaticFactoryBuildPlan best = list.get(0);
+		BuildPlanForStaticFactory best = list.get(0);
 		for(int i = 1; i < list.size(); i++) {
-			StaticFactoryBuildPlan bp = list.get(i);
+			BuildPlanForStaticFactory bp = list.get(i);
 			if(bp.getScore() > best.getScore())
 				best = bp;
 		}
 		return best;
 	}
 
-	private StaticFactoryBuildPlan	calcStaticFactoryPlan(final Stack<ComponentBuilder> stack, final Method c, final List<FailedAlternative> aflist, final List<MethodInvoker> startlist) {
+	private BuildPlanForStaticFactory	calcStaticFactoryPlan(final Stack<ComponentBuilder> stack, final Method c, final List<FailedAlternative> aflist, final List<MethodInvoker> startlist) {
 		Class<?>[]	fpar = c.getParameterTypes();		// Formals.
 		Annotation[][]	fpanar = c.getParameterAnnotations();
 		if(fpar == null || fpar.length == 0) {
-			return new StaticFactoryBuildPlan(c, 0, BuildPlan.EMPTY_PLANS, startlist);	// Always works but with score=0
+			return new BuildPlanForStaticFactory(c, 0, BuildPlan.EMPTY_PLANS, startlist);	// Always works but with score=0
 		}
 
 		//-- Walk all parameters and make build plans for them until failure..
@@ -692,7 +699,7 @@ public class ComponentBuilder {
 			List<ComponentRef>	actuals = calculateParameters(stack, fpar, fpanar, paref);
 
 			//-- All constructor arguments were provided- return a build plan,
-			return new StaticFactoryBuildPlan(c, fpar.length, actuals.toArray(new ComponentRef[actuals.size()]), startlist);
+			return new BuildPlanForStaticFactory(c, fpar.length, actuals.toArray(new ComponentRef[actuals.size()]), startlist);
 		} catch(IocUnresolvedParameterException x) {
 			//-- This constructor has failed.
 			FailedAlternative	fa = new FailedAlternative("The static factory method "+c+" is unusable: "+x.getMessage());
@@ -784,8 +791,7 @@ public class ComponentBuilder {
 		ComponentRef	cr	= m_builder.findReferenceFor(stack, pd);
 		if(cr == null)
 			return null;
-
-		return null;
+		return new PropertyInjector(cr, pd.getInfo().getSetter());
 	}
 
 	/*--------------------------------------------------------------*/
