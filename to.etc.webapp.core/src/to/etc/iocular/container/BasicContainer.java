@@ -33,10 +33,10 @@ import to.etc.util.IndentWriter;
  */
 public class BasicContainer implements Container {
 	/** True when this container is in 'started' state. */
-	private boolean				m_started;
+	private boolean					m_started;
 
 	/** If this is a child container this refers to it's parent. It is null for a root container. */
-	private final BasicContainer		m_parent;
+	private final BasicContainer	m_parent;
 
 	/** The definition of this container. */
 	private final ContainerDefinition	m_def;

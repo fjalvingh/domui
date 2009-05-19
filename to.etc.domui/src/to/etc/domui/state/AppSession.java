@@ -27,7 +27,7 @@ import to.etc.domui.util.janitor.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2008
  */
-public class AppSession implements HttpSessionBindingListener {
+public class AppSession implements HttpSessionBindingListener, IAttributeContainer {
 	static private final Logger				LOG	= Logger.getLogger(AppSession.class.getName());
 
 	private DomApplication					m_application;
@@ -43,6 +43,8 @@ public class AppSession implements HttpSessionBindingListener {
 	private Thread							m_lockingThread;
 
 	private Map<String, WindowSession>	m_windowMap = new HashMap<String, WindowSession>();
+
+	private Map<String, Object>				m_attributeMap = Collections.EMPTY_MAP;
 
 	final public void internalDestroy() {
 		LOG.fine("Destroying AppSession "+this);
@@ -331,4 +333,22 @@ public class AppSession implements HttpSessionBindingListener {
 		}
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IAttributeContainer implementation.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * 
+	 * @see to.etc.domui.server.IAttributeContainer#getAttribute(java.lang.String)
+	 */
+	public Object getAttribute(String name) {
+		return m_attributeMap.get(name);
+	}
+	public void setAttribute(String name, Object value) {
+		if(m_attributeMap == Collections.EMPTY_MAP)
+			m_attributeMap = new HashMap<String, Object>();
+		if(value == null)
+			m_attributeMap.remove(name);
+		else
+			m_attributeMap.put(name, value);
+	}
 }

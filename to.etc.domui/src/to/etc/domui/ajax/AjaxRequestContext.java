@@ -12,6 +12,9 @@ public class AjaxRequestContext {
 		m_rctx = ctx;
 	}
 
+	public RequestContextImpl getRctx() {
+		return m_rctx;
+	}
 	public void	execute() throws Exception {
 		try {
 			String rurl = m_rctx.getInputPath();
@@ -39,6 +42,8 @@ public class AjaxRequestContext {
 				rf = ResponseFormat.valueOf(s);
 //			List<Class< ? extends Object>> sourceList = new ArrayList<Class< ? extends Object>>(m_ajax.getRequestCaller().getSourceClassesList());
 //			sourceList.add(0, getClass());
+			m_rh.executeSingleCall(this, rurl, rf);
+			
 //			m_ajax.getRequestCaller().executeSingleCall(this, sourceList, rurl, rf);
 //		} catch(ServiceException sx) {
 //			sx.setContext(this);

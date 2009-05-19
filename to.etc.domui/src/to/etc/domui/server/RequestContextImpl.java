@@ -1,6 +1,7 @@
 package to.etc.domui.server;
 
 import java.io.*;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,7 +12,7 @@ import to.etc.domui.util.upload.*;
 import to.etc.net.NetTools;
 import to.etc.util.*;
 
-public class RequestContextImpl implements RequestContext {
+public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	private HttpServletRequest		m_request;
 	private HttpServletResponse		m_response;
 	private DomApplication			m_application;
@@ -23,6 +24,7 @@ public class RequestContextImpl implements RequestContext {
 //	private boolean					m_logging = true;
 	private StringWriter			m_sw;
 	private Writer					m_outWriter;
+	private Map<String, Object>		m_attributeMap = Collections.EMPTY_MAP;
 
 	RequestContextImpl(DomApplication app, AppSession ses, HttpServletRequest request, HttpServletResponse response) {
 		m_response = response;
@@ -303,5 +305,24 @@ public class RequestContextImpl implements RequestContext {
 
 	public String getRemoteUser() {
 		return getRequest().getRemoteUser();
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IAttributeContainer implementation.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * 
+	 * @see to.etc.domui.server.IAttributeContainer#getAttribute(java.lang.String)
+	 */
+	public Object getAttribute(String name) {
+		return m_attributeMap.get(name);
+	}
+	public void setAttribute(String name, Object value) {
+		if(m_attributeMap == Collections.EMPTY_MAP)
+			m_attributeMap = new HashMap<String, Object>();
+		if(value == null)
+			m_attributeMap.remove(name);
+		else
+			m_attributeMap.put(name, value);
 	}
 }
