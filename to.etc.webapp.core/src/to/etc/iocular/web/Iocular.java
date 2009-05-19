@@ -20,7 +20,7 @@ public class Iocular {
 	/** Refers to the single ServletContext instance for the application. Gets valid when the WebApplicationListener starts. */
 	static private ServletContext					m_appContext;
 
-	static private Container						m_appContainer;
+//	static private Container						m_appContainer;
 
 	/**
 	 * Refers to the current session for the application. This is valid only after the request listener
@@ -39,7 +39,7 @@ public class Iocular {
 	/**
 	 * This class cannot be constructed.
 	 */
-	private Iocular() {}			
+	private Iocular() {}
 
 	/**
 	 * Return the web application's context.
@@ -51,10 +51,10 @@ public class Iocular {
 		return m_appContext;
 	}
 
-	static synchronized final void	_setApplication(ServletContext ctx, Container c) {
+	static synchronized final void	_setApplication(final ServletContext ctx, final Container c) {
 		if(m_appContext != null)
 			throw new IllegalStateException("The application context is *already* set - internal error?");
-		m_appContainer = c;
+//		m_appContainer = c;
 		m_appContext = ctx;
 	}
 
@@ -70,26 +70,26 @@ public class Iocular {
 			throw new IllegalStateException("The 'current request' is unknown. Have you configured WebApplicationListener as a Servlet Listener in web.xml?");
 		return req;
 	}
-	static final void _setRequest(HttpServletRequest req, Container c) {
+	static final void _setRequest(final HttpServletRequest req, final Container c) {
 		m_currentRequest.set(req);
 		m_currentSession.set(req.getSession(true));
 		m_requestContainer.set(c);
 	}
 
-	static final public Container	findApplicationContainer(ServletContext ctx) {
+	static final public Container	findApplicationContainer(final ServletContext ctx) {
 		return (Container) ctx.getAttribute(Keys.APP_CONTAINER);
 	}
-	static final public WebConfiguration	getConfiguration(ServletContext ctx) {
+	static final public WebConfiguration	getConfiguration(final ServletContext ctx) {
 		WebConfiguration	wc = (WebConfiguration)ctx.getAttribute(Keys.APP_CONFIG);
 		if(wc == null)
 			throw new IllegalStateException("No web configuration: Have you configured WebApplicationListener as a Servlet Listener in web.xml?");
 		return wc;
 	}
-	static final public Container	findSessionContainer(HttpSession ses) {
-		return (Container) ses.getAttribute(Keys.SESSION_CONTAINER); 
+	static final public Container	findSessionContainer(final HttpSession ses) {
+		return (Container) ses.getAttribute(Keys.SESSION_CONTAINER);
 	}
-	static final public Container	findRequestContainer(HttpServletRequest ses) {
-		return (Container) ses.getAttribute(Keys.REQUEST_CONTAINER); 
+	static final public Container	findRequestContainer(final HttpServletRequest ses) {
+		return (Container) ses.getAttribute(Keys.REQUEST_CONTAINER);
 	}
 
 	static final public Container	getRequestContainer() {

@@ -28,16 +28,16 @@ import java.util.Map;
  */
 final public class ContainerDefinition {
 	/** A name of this container. It should be unique within a container tree. */
-	private String					m_name;
+	private final String					m_name;
 
 	/** If this definition is for a container that has a parent container this refers to the parent's definition. */
-	private ContainerDefinition		m_parentContainerDefinition;
+	private final ContainerDefinition		m_parentContainerDefinition;
 
 	/** The index of this container within the container stack; where the topmost parent has index 0, and each child has a one-highet index. */
-	private int						m_containerIndex;
+	private final int						m_containerIndex;
 
 	/** If this definition extends another definition this refers to the "base" definition. */
-	private ContainerDefinition		m_originalBaseDefinition;
+//	private ContainerDefinition		m_originalBaseDefinition;
 
 	private Map<String, ComponentRef>	m_namedMap = new HashMap<String, ComponentRef>();
 
@@ -45,10 +45,10 @@ final public class ContainerDefinition {
 
 	private Map<Class<?>, ComponentRef>	m_actualMap = new HashMap<Class<?>, ComponentRef>();
 
-	public ContainerDefinition(String name, ContainerDefinition base, ContainerDefinition parent, Map<String, ComponentRef> namedMap, Map<Class< ? >, ComponentRef> declaredMap, Map<Class< ? >, ComponentRef> actualMap, int index) {
+	public ContainerDefinition(final String name, final ContainerDefinition base, final ContainerDefinition parent, final Map<String, ComponentRef> namedMap, final Map<Class< ? >, ComponentRef> declaredMap, final Map<Class< ? >, ComponentRef> actualMap, final int index) {
 		m_name	= name;
 		m_parentContainerDefinition = parent;
-		m_originalBaseDefinition = base;
+//		m_originalBaseDefinition = base;
 		m_namedMap = namedMap;
 		m_declaredMap = declaredMap;
 		m_actualMap = actualMap;
@@ -64,10 +64,10 @@ final public class ContainerDefinition {
 		return m_containerIndex;
 	}
 
-	public ComponentRef		findComponentReference(String name) {
+	public ComponentRef		findComponentReference(final String name) {
 		return m_namedMap.get(name);
 	}
-	public ComponentRef		findComponentReference(Class<?> cls) {
+	public ComponentRef		findComponentReference(final Class<?> cls) {
 		ComponentRef r = m_declaredMap.get(cls);
 		if(r != null)
 			return r;
@@ -83,12 +83,12 @@ final public class ContainerDefinition {
 	 * @param def
 	 * @return
 	 */
-	ComponentRef	findDefinedReference(Class<?> ptype, Annotation[] annar, ParameterDef def) {
+	ComponentRef	findDefinedReference(final Class<?> ptype, final Annotation[] annar, final ParameterDef def) {
 		//-- Try to find a ComponentBuilder that is able to provide this thingy.
 		/*
 		 * TODO First try to find something using the provided parameters and annotations.
 		 */
-		
+
 		//-- No parameters provided- try to locate using the type of the type using the defined type table
 		ComponentRef	ref = m_declaredMap.get(ptype);
 		if(ref != null)
@@ -120,7 +120,7 @@ final public class ContainerDefinition {
 	 * @param def
 	 * @return
 	 */
-	ComponentRef	findInferredReference(Class<?> ptype, Annotation[] annar, ParameterDef def) {
+	ComponentRef	findInferredReference(final Class<?> ptype, final Annotation[] annar, final ParameterDef def) {
 		//-- Try to find a ComponentBuilder that is able to provide this thingy.
 		/*
 		 * TODO First try to find something using the provided parameters and annotations.

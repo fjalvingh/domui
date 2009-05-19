@@ -27,7 +27,7 @@ public class TestBasicConfigs {
 		bc.dump(clz);
 		return bc.getObject(clz);
 	}
-	private <T>	T	make(Object param, final BasicContainerBuilder b, final Class<T> clz, final Object... prams) throws Exception {
+	private <T>	T	make(final Object param, final BasicContainerBuilder b, final Class<T> clz, final Object... prams) throws Exception {
 		ContainerDefinition	cd	= b.createDefinition();
 		BasicContainer	bc	= new BasicContainer(cd, null);
 		bc.start();
@@ -56,7 +56,7 @@ public class TestBasicConfigs {
 		QDataContext	dc = make(b, QDataContext.class);
 		Assert.assertNull(dc);
 	}
-	
+
 	/**
 	 * Defines a container parameter but does not set it.
 	 * @throws Exception
@@ -74,9 +74,9 @@ public class TestBasicConfigs {
 
 		//-- Register the factory for creating a QDataContext.
 		b.register().factory(QContextManager.class, "getContext");
-		QDataContext	dc = make(null, b, QDataContext.class);
+		make(null, b, QDataContext.class);
 	}
-	
+
 	/**
 	 * Does not define a parameter but sets it anyway, must exception.
 	 * @throws Exception
@@ -168,7 +168,7 @@ public class TestBasicConfigs {
 		PlannerMock	pm	= make(b, PlannerMock.class);
 		System.out.println("PlannerMock: "+pm);
 	}
-	
+
 	@Test
 	public void		testProperty2() throws Exception {
 		BasicContainerBuilder	b	= BasicContainerBuilder.createBuilder("root");
@@ -182,7 +182,7 @@ public class TestBasicConfigs {
 			.type(PlannerMock.class)
 			.setAllProperties()
 		;
-		
+
 		b.register()
 			.type(VpUserContextMock.class)
 //			.literal(new VpUserContextMock())
@@ -213,7 +213,7 @@ public class TestBasicConfigs {
 			.type(PlannerMock.class)
 			.setAllProperties()
 		;
-		
+
 //		b.register()
 //			.type(VpUserContextMock.class)
 //		;
@@ -243,7 +243,7 @@ public class TestBasicConfigs {
 			.type(PlannerMock.class)
 			.setKnownProperties()
 		;
-		
+
 //		b.register()
 //			.type(VpUserContextMock.class)
 //		;
