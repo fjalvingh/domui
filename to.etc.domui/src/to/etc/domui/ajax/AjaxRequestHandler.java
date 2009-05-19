@@ -13,6 +13,7 @@ import to.etc.iocular.def.*;
  * Created on May 14, 2009
  */
 public class AjaxRequestHandler implements FilterRequestHandler {
+	static private final Logger		LOG = Logger.getLogger(ServiceCaller.class.getName());
 	private final DomApplication m_application;
 
 	private IInstanceBuilder	m_instanceBuilder;
@@ -43,11 +44,6 @@ public class AjaxRequestHandler implements FilterRequestHandler {
 		return m_interceptorList;
 	}
 
-	public void handleRequest(final RequestContextImpl ctx) throws Exception {
-		AjaxRequestContext	ax	= new AjaxRequestContext(this, ctx);
-		ax.execute();
-	}
-
 	public IInstanceBuilder getInstanceBuilder() {
 		return m_instanceBuilder;
 	}
@@ -75,4 +71,42 @@ public class AjaxRequestHandler implements FilterRequestHandler {
 	public void setRequestContainerDef(final ContainerDefinition requestContainerDef) {
 		m_requestContainerDef = requestContainerDef;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	FilterRequestHandler implementation.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Actual execution by delegating to the context.
+	 * @see to.etc.domui.server.FilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
+	 */
+	public void handleRequest(final RequestContextImpl ctx) throws Exception {
+		AjaxRequestContext	ax	= new AjaxRequestContext(this, ctx);
+		ax.execute();
+	}
+
+
+
+	static private boolean[]	PARAMONE = {true};
+
+	/** Maps keys to resolved handler info thingies, for speed. */
+	private final Map<String, ServiceClassDefinition> m_classDefMap = new HashMap<String, ServiceClassDefinition>();
+
+	private final List<String> m_defaultPackageList = new ArrayList<String>();
+
+	private final XmlRegistry m_xmlRegistry = new XmlRegistry();
+
+	private final JSONRegistry m_JSONRegistry = new JSONRegistry();
+
+	private final ResponseFormat m_defaultFormat = ResponseFormat.XML;
+
+	private Injector m_injector;
+
+	private ObjectInjectorCache m_objectInjectorCache;
+
+	private ParameterInjectorCache m_methodInjectorCache;
+
+
+
+
+
 }
