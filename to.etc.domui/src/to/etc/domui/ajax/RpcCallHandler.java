@@ -1,10 +1,12 @@
 package to.etc.domui.ajax;
 
 import java.io.*;
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.logging.*;
 
+//import to.etc.server.ajax.*;
 import to.etc.server.ajax.*;
 import to.etc.server.ajax.renderer.*;
 import to.etc.server.ajax.renderer.json.*;
@@ -70,7 +72,7 @@ public class RpcCallHandler {
 			//-- Make sure this is annotated as a handler (security)
 			AjaxHandler	am = cl.getAnnotation(AjaxHandler.class);
 			if(am == null)
-				throw new ServiceException("The class '"+cl.getCanonicalName()+"' is not annotated as an @AjaxHandler");
+				throw new RpcException("The class '"+cl.getCanonicalName()+"' is not annotated as an @AjaxHandler");
 
 			hi = new RpcClassDefinition(cl);
 			m_classDefMap.put(basename, hi);
@@ -78,6 +80,7 @@ public class RpcCallHandler {
 			return hi;
 		}
 	}
+
 	/**
 	 * Returns a service class definition for the class name specified. The classname
 	 * can be a complete classname. If it is not it is located by scanning the default
@@ -99,7 +102,7 @@ public class RpcCallHandler {
 	private RpcMethodDefinition findHandlerMethod(final IRpcCallContext cb, final String rurl) throws Exception {
 		int pos = rurl.lastIndexOf('.'); // Get separator between classname and method name
 		if(pos == -1)
-			throw new ServiceException("Invalid call: need [package].[class].[method] like to.etc.test.AClass.getThingy");
+			throw new RpcException("Invalid call: need [package].[class].[method] like to.etc.test.AClass.getThingy");
 		String cn = rurl.substring(0, pos); // Class part,
 		String mn = rurl.substring(pos + 1); // Method part.
 		//        String  callstring = "call "+cn+"."+mn+": "+getRequest().getQueryString();
@@ -158,9 +161,9 @@ public class RpcCallHandler {
 	 * This executes a single call. Both "return value" and "parameter 1 is output" calls
 	 * are supported.
 	 */
-	public void	executeSingleCall(final IRpcCallContext cb, final String callsign, ResponseFormat formatoverride) throws Exception {
+	public void	executeSingleCall(final IRpcCallContext cb, final IParameterProvider pv, final String callsign, ResponseFormat formatoverride) throws Exception {
 		RpcMethodDefinition mi	= findHandlerMethod(cb, callsign);	// Decode into some method
-		Object handler = allocateHandler(cb, mi);						// We always need a handler instance,
+		Object handler = allocateHandler(cb, mi);					// We always need a handler instance,
 
 		//-- Render the result in the specified format.
 		if(formatoverride == null || formatoverride == ResponseFormat.UNDEFINED) {
@@ -175,7 +178,7 @@ public class RpcCallHandler {
 		 * result using one of the renderers.
 		 */
 		if(mi.getOutputClass() == null) {
-			Object result = executeMethod(cb, mi, handler);		// Use RequestContext (this) as source for parameters
+			Object result = executeMethod(cb, mi, handler, pv, null);		// Use RequestContext (this) as source for parameters
 			Writer	ow	= cb.getResponseWriter(formatoverride, mi.getMethod().getName());
 			renderResponseObject(ow, formatoverride, result);
 			return;
@@ -193,7 +196,7 @@ public class RpcCallHandler {
 		/*
 		 * The output class is assigned - call the method by hand.
 		 */
-		executeMethod(cb, mi, handler, oo);
+		executeMethod(cb, mi, handler, pv, oo);
 		cb.outputCompleted(oo);
 	}
 
@@ -201,22 +204,29 @@ public class RpcCallHandler {
 	/*	CODING:	Call parameter provisioning and method call code.	*/
 	/*--------------------------------------------------------------*/
 
-	private class MethodCallHelper {
-		private final RpcMethodDefinition	m_methodDef;
-		private final Object[]					m_param;
-		private final Class<?>[]				m_formals;
+//	private class MethodCallHelper {
+//		private final RpcMethodDefinition	m_methodDef;
+//		private final Object[]				m_param;
+//		private final Class<?>[]			m_formals;
+//
+//		public MethodCallHelper(final RpcMethodDefinition mi) {
+//			m_methodDef = mi;
+//			m_formals	= mi.getMethod().getParameterTypes();
+//			m_param		= new Object[m_formals.length];
+//		}
+//
+//		public Object invoke(final Object handler) throws Exception {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
+//	}
 
-		public MethodCallHelper(final RpcMethodDefinition mi) {
-			m_methodDef = mi;
-			m_formals	= mi.getMethod().getParameterTypes();
-			m_param		= new Object[m_formals.length];
+	static public <T extends Annotation> T	findAnnotation(final Annotation[] annar, final Class<T> clz) {
+		for(Annotation ann: annar) {
+			if(ann.getClass() == clz)
+				return (T) ann;
 		}
-
-		public Object invoke(final Object handler) throws Exception {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
+		return null;
 	}
 
 	/**
@@ -225,20 +235,36 @@ public class RpcCallHandler {
 	 *
 	 * @param mi
 	 * @param handler
-	 * @param sourceobject
 	 * @return
 	 * @throws Exception
 	 */
-	private Object executeMethod(final IRpcCallContext cb, final RpcMethodDefinition mi, final Object handler) throws Exception {
+	private Object executeMethod(final IRpcCallContext cb, final RpcMethodDefinition mi, final Object handler, final IParameterProvider papro, final Object output) throws Exception {
 		Object result;
 		long ts = System.nanoTime();
 		StringBuilder sb = new StringBuilder();
 		sb.append("SVC: call ");
 		sb.append(mi.toString());
 		try {
-			MethodCallHelper ch	= new MethodCallHelper(mi);
-//			ch.assignParameters();
-			result = ch.invoke(handler);					// Quick invoke, does the parameter setting.
+			Class<?>[]	formals		= mi.getMethod().getParameterTypes();
+			Object[]	args		= new Object[formals.length];
+			Annotation[][]	argannar= mi.getMethod().getParameterAnnotations();
+			int	oix	= 0;							// Output parametert output
+			int	ix	= 0;							// Actual parameter
+			if(output != null) {
+				//-- The thingy is void and generates it's own output somehow
+				args[0] = output;
+				oix	= 1;							// Skip 1st parameter in assignment from input
+			}
+			while(oix < formals.length) {
+				AjaxParam	apm	= findAnnotation(argannar[oix], AjaxParam.class);
+				if(apm == null)
+					throw new RpcException("Parameter "+oix+" of method "+mi.getMethod()+" is missing an @AjaxParam annotation.");
+				args[oix] = papro.findParameterValue(formals[oix], argannar[oix], ix, apm);
+				if(args[oix] == IParameterProvider.NO_VALUE)
+					throw new RpcException("Parameter "+oix+" of method "+mi.getMethod()+" has no value.");
+
+			}
+			result = mi.getMethod().invoke(handler, args);
 			sb.append(": okay, result=");
 			if(result == null)
 				sb.append("null");
@@ -250,7 +276,7 @@ public class RpcCallHandler {
 			sb.append(x.toString());
 
 			//-- Create a service exception from this
-			throw new ServiceExecException(x, mi.getMethod(), x.getMessage());
+			throw new RpcException(x, x.getMessage());
 		} finally {
 			ts = System.nanoTime() - ts;
 			sb.append(" (");
@@ -261,42 +287,43 @@ public class RpcCallHandler {
 		return result;
 	}
 
-	/**
-	 * Calls the object when it has it's own object parameter.
-	 *
-	 * @param mi
-	 * @param handler
-	 * @param sourceobject
-	 * @return
-	 * @throws Exception
-	 */
-	private void executeMethod(final IRpcCallContext ctx, final RpcMethodDefinition mi, final Object handler, final Object output) throws Exception {
-		long ts = System.nanoTime();
-		StringBuilder sb = new StringBuilder();
-		sb.append("SVC: call ");
-		sb.append(mi.toString());
-		try {
-//			List<ParameterInjectorSet>	list = getMethodInjectorCache().getInjectorSet("B", sourceList, mi.getMethod(), PARAMONE);
-			MethodCallHelper ch	= new MethodCallHelper(mi);
-//			ch.calculateParameters(ctx);				// Calculate all parameters but p0
-//			ch.setParameter(0, output);					// Set parameter 0
-			ch.invoke(handler);							// Invoke and release
-			sb.append(": okay (result written to output param)");
-		} catch(InvocationTargetException ix) {
-			Throwable x = ix.getCause();
-			sb.append(": exception ");
-			sb.append(x.toString());
-
-			//-- Create a service exception from this
-			throw new ServiceExecException(x, mi.getMethod(), x.getMessage());
-		} finally {
-			ts = System.nanoTime() - ts;
-			sb.append(" (");
-			sb.append(StringTool.strNanoTime(ts));
-			sb.append(")");
-			LOG.info(sb.toString());
-		}
-	}
+//	/**
+//	 * Calls the object when it has it's own object parameter.
+//	 *
+//	 * @param mi
+//	 * @param handler
+//	 * @param sourceobject
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	private void executeMethod(final IRpcCallContext ctx, final RpcMethodDefinition mi, final Object handler, final Object output) throws Exception {
+//		long ts = System.nanoTime();
+//		StringBuilder sb = new StringBuilder();
+//		sb.append("SVC: call ");
+//		sb.append(mi.toString());
+//		try {
+////			List<ParameterInjectorSet>	list = getMethodInjectorCache().getInjectorSet("B", sourceList, mi.getMethod(), PARAMONE);
+//
+//
+////			ch.calculateParameters(ctx);				// Calculate all parameters but p0
+////			ch.setParameter(0, output);					// Set parameter 0
+//			ch.invoke(handler);							// Invoke and release
+//			sb.append(": okay (result written to output param)");
+//		} catch(InvocationTargetException ix) {
+//			Throwable x = ix.getCause();
+//			sb.append(": exception ");
+//			sb.append(x.toString());
+//
+//			//-- Create a service exception from this
+//			throw new ServiceExecException(x, mi.getMethod(), x.getMessage());
+//		} finally {
+//			ts = System.nanoTime() - ts;
+//			sb.append(" (");
+//			sb.append(StringTool.strNanoTime(ts));
+//			sb.append(")");
+//			LOG.info(sb.toString());
+//		}
+//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Response rendering.									*/
@@ -335,7 +362,7 @@ public class RpcCallHandler {
 			Writer	ow	= ctx.getResponseWriter(rf, "undefined");
 			switch(rf) {
 				default:
-					throw new ServiceException("Unknown response format "+rf);
+					throw new RpcException("Unknown response format "+rf);
 				case JSON:
 					JSONRenderer jr = new JSONRenderer(getJSONRegistry(), new IndentWriter(ow), true);
 					return (T)new JSONStructuredWriter(jr);
@@ -348,7 +375,7 @@ public class RpcCallHandler {
 		if(oc.isAssignableFrom(Writer.class)) {				// Generic writer?
 			return (T)ctx.getResponseWriter(rf, "undefined");	// Just return it
 		}
-		throw new ServiceException("The output class '"+oc.toString()+"' is not acceptable.");
+		throw new RpcException("The output class '"+oc.toString()+"' is not acceptable.");
 	}
 
 	/*--------------------------------------------------------------*/

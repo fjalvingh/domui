@@ -124,8 +124,9 @@ public class AjaxRequestHandler implements FilterRequestHandler {
 	 * @see to.etc.domui.server.FilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
 	 */
 	public void handleRequest(final RequestContextImpl ctx) throws Exception {
-		AjaxRequestContext	ax	= new AjaxRequestContext(this, ctx);
-		m_callHandler.executeSingleCall(ax, CONT_KEY, null);
+		AjaxRequestContext	ax	= new AjaxRequestContext(this, m_callHandler, ctx);
+		String				rurl= ctx.getInputPath();
+		ax.execute(rurl);
 	}
 
 

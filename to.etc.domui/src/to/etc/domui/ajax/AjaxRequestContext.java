@@ -11,10 +11,12 @@ import to.etc.server.ajax.*;
 public class AjaxRequestContext implements IRpcCallContext {
 	private final RequestContextImpl		m_rctx;
 	private final AjaxRequestHandler		m_rh;
+	private final RpcCallHandler			m_callHandler;
 
-	public AjaxRequestContext(final AjaxRequestHandler ajaxRequestHandler, final RequestContextImpl ctx) {
+	public AjaxRequestContext(final AjaxRequestHandler ajaxRequestHandler, final RpcCallHandler ch, final RequestContextImpl ctx) {
 		m_rh = ajaxRequestHandler;
 		m_rctx = ctx;
+		m_callHandler = ch;
 	}
 
 	public RequestContextImpl getRctx() {
@@ -37,33 +39,6 @@ public class AjaxRequestContext implements IRpcCallContext {
 			return false;
 		return user.hasRight(role);
 	}
-//	public IServiceAuthenticator getAuthenticator() {
-//		return m_ajax.getAuthenticator();
-//	}
-
-//	private Object	allocateSource(final Class<?> sourcecl) throws Exception {
-//		boolean	hasempty = false;
-//		Constructor[] car = sourcecl.getConstructors();
-//		for(Constructor c : car) {
-//			if(! Modifier.isPublic(c.getModifiers()))
-//				continue;
-//			Class[] par = c.getParameterTypes();
-//			if(par.length == 0) {
-//				hasempty = true;
-//			} else {
-//				if(par.length == 1) {
-//					if(par[0].isAssignableFrom(ServiceServerContext.class)) {
-//						return c.newInstance(new Object[] {this});
-//					}
-//				}
-//			}
-//		}
-//		if(! hasempty)
-//			throw new IllegalArgumentException("The injector source "+sourcecl+" does not have a proper constructor");
-//
-//		return sourcecl.newInstance();
-//	}
-
 
 	public <T> T allocateOutput(final Class<T> oc, final ResponseFormat rf) throws Exception {
 		return null;
@@ -88,4 +63,48 @@ public class AjaxRequestContext implements IRpcCallContext {
 				return getResponse().getWriter();
 		}
 	}
+
+	/**
+	 * Decode the call format (json, json-bulk, xml, xml-bulk), then execute.
+	 * @param rurl2
+	 * @throws Exception
+	 */
+	void execute(final String rurl) throws Exception {
+		try {
+			if(rurl == null)
+				throw new RpcException("Missing url segment");
+			int sx = 0;
+			int ex = rurl.length();
+			if(rurl.startsWith("/"))
+				sx = 1;
+			if(rurl.endsWith("/"))
+				ex = ex - 1;
+			int pos = rurl.lastIndexOf('.'); // Remove the suffix (.ajax usually)
+			if(pos != -1)
+				ex = pos;
+			String call = rurl.substring(sx, ex); // Base name contains class and method.
+			if(call.equals("bulk")) {
+//				executeBulkRequest();
+				return;
+			}
+
+			//-- This is a parameter-based call, i.e. the call parameters are URL parameters
+			String s = m_rctx.getParameter("_format"); 				// Format override present in request?
+			ResponseFormat rf = null;
+			if(s != null)
+				rf = ResponseFormat.valueOf(s);
+
+			IParameterProvider	pp	= new URLParameterProvider(m_rctx);
+			m_callHandler.executeSingleCall(this, pp, call, rf);
+		} catch(RpcException sx) {
+			sx.setUrl(getRctx().getRequest().getRequestURI());
+//			sx.setContext(this);
+			throw sx;
+		} catch(Exception x) {
+//			throw new ServiceException(this, x.toString(), x);
+		} finally {
+
+		}
+	}
+
 }
