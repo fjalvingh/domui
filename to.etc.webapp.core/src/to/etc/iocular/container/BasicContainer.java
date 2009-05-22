@@ -3,8 +3,7 @@ package to.etc.iocular.container;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import to.etc.iocular.BindingScope;
 import to.etc.iocular.Container;
 import to.etc.iocular.def.ComponentDef;
@@ -73,6 +72,34 @@ public class BasicContainer implements Container {
 		}
 	}
 
+	/**
+	 * Keeps a reference to an object that was allocated and needs to be destroyed when the container is destroyed.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on May 22, 2009
+	 */
+	final private static class Destructor {
+		private final Object	m_instance;
+		private final BuildPlan	m_plan;
+
+		public Destructor(final BuildPlan plan, final Object instance) {
+			m_plan = plan;
+			m_instance = instance;
+		}
+		public Object getInstance() {
+			return m_instance;
+		}
+		public BuildPlan getPlan() {
+			return m_plan;
+		}
+	}
+
+	/**
+	 * For each object that was created using a build plan which specified destructors, this contains
+	 * a reference to the created object and it's build plan so it's destructors can be called at
+	 * container close time.
+	 */
+	private final List<Destructor>	m_destructorList = Collections.EMPTY_LIST;
 
 	public BasicContainer(final ContainerDefinition def, final Container parent) {
 		if(def == null)
@@ -101,11 +128,24 @@ public class BasicContainer implements Container {
 		m_started = true;
 
 	}
-	public synchronized void destroy() {
-		if(m_started) {
-			// TODO Destroy all created objects
-
+	public void destroy() {
+		List<Destructor>	dlist;
+		synchronized(this) {
+			if(! m_started)
+				return;
 			m_started = false;
+			if(m_destructorList.size() == 0)
+				return;
+			dlist = new ArrayList<Destructor>(m_destructorList);	// Copy destructors,
+			m_destructorList.clear();
+			m_singletonMap.clear();
+			m_staticMap.clear();
+		}
+
+		for(int i = dlist.size(); --i >= 0;)	{		// Destroy in reverse order of allocation
+			Destructor	d = dlist.get(i);
+
+			// TODO Destroy all created objects
 		}
 	}
 
@@ -415,5 +455,4 @@ outer:	for(;;) {
 	public String toString() {
 		return "Container: "+getIdent();
 	}
-
 }

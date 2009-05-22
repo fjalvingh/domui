@@ -117,6 +117,18 @@ public class AjaxRequestHandler implements FilterRequestHandler {
 		return bc.getObject(clz);
 	}
 
+	/**
+	 * If a request container exists destroy it.
+	 * @param ctx
+	 */
+	private void	requestCompleted(final RequestContextImpl ctx) {
+		Container	co	= (Container) ctx.getAttribute(CONT_KEY);
+		if(co == null)
+			return;
+		ctx.setAttribute(CONT_KEY, null);
+		co.destroy();
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	FilterRequestHandler implementation.				*/
 	/*--------------------------------------------------------------*/
@@ -127,9 +139,18 @@ public class AjaxRequestHandler implements FilterRequestHandler {
 	public void handleRequest(final RequestContextImpl ctx) throws Exception {
 		AjaxRequestContext	ax	= new AjaxRequestContext(this, m_callHandler, ctx);
 		String				rurl= ctx.getInputPath();
-		ax.execute(rurl);
+		boolean	ok = false;
+		try {
+			ax.execute(rurl);
+			ok	= true;
+		} finally {
+			try {
+				requestCompleted(ctx);
+			} catch(Exception x) {
+				if(ok)
+					throw x;
+				x.printStackTrace();			// First exception present; just print the finalizer exception.
+			}
+		}
 	}
-
-
-
 }

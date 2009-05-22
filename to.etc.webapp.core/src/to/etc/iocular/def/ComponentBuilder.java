@@ -67,6 +67,8 @@ public class ComponentBuilder {
 
 	private final List<MethodCallBuilder>	m_startList = new ArrayList<MethodCallBuilder>();
 
+	private final List<MethodCallBuilder>	m_destroyList = new ArrayList<MethodCallBuilder>();
+
 	ComponentBuilder(final BasicContainerBuilder b, final String loc) {
 		m_builder = b;
 		m_definitionLocation = loc;
@@ -246,11 +248,25 @@ public class ComponentBuilder {
 		m_scope = scope;
 		return this;
 	}
-//	public ComponentBuilder	autowire(final boolean yes) {
-//		m_autowire = yes;
-//		return this;
-//	}
-	public ComponentBuilder	destroy(final Class<?> wh, final String what) {
+
+	/**
+	 * Define a "close" or "discard" method for a given object. When added, this adds a method on some
+	 * class which gets called when the object is being destroyed at container destroy time. Objects are
+	 * destroyed in the reverse order of creation. This pertains to the actual object (the result of
+	 * a getObject call). The method being called must have that object or one of it's base classes as
+	 * parameter.
+	 *
+	 * @param wh
+	 * @param what
+	 * @return
+	 */
+	public ComponentBuilder	destroy(final Class<?> wh, final String methodName) {
+		MethodCallBuilder	mcb = new MethodCallBuilder(this, wh, methodName);
+		m_currentMethodBuilder = mcb;
+
+		//-- At least one of the parameters *must* be the object we've just constructed.
+		mcb.setParameterSelf(0);						// Parameter 0 must be me.
+		m_destroyList.add(mcb);
 		return this;
 	}
 
@@ -260,6 +276,8 @@ public class ComponentBuilder {
 	 * returning the specified interface, not the actual object type. If the created object
 	 * implements multiple interfaces you can call this method multiple times, for each
 	 * interface supported.
+	 * When used the actual class returned by the creation method <i>must</i> implement this or
+	 * have this as a base class.
 	 *
 	 * @param clz
 	 * @return
@@ -327,7 +345,7 @@ public class ComponentBuilder {
 	/*	CODING:	Property wiring definition.							*/
 	/*--------------------------------------------------------------*/
 	/** The mode to use for all properties not explicitly mentioned. */
-	private ComponentPropertyMode		m_propertyMode = ComponentPropertyMode.NONE;
+	private ComponentPropertyMode					m_propertyMode = ComponentPropertyMode.NONE;
 
 	/** All properties that were explicitly named with a configuration. */
 	private final Map<String, ComponentPropertyDef>	m_propertyDefMap = new HashMap<String, ComponentPropertyDef>();

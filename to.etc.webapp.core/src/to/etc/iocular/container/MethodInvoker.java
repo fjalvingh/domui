@@ -6,11 +6,11 @@ import to.etc.iocular.def.ComponentRef;
 import to.etc.util.IndentWriter;
 
 final public class MethodInvoker {
-	private Method	m_method;
+	private final Method			m_method;
 
-	private ComponentRef[]	m_actuals;
-	
-	public MethodInvoker(Method method, ComponentRef[] actuals) {
+	private final ComponentRef[]	m_actuals;
+
+	public MethodInvoker(final Method method, final ComponentRef[] actuals) {
 		m_method = method;
 		m_actuals = actuals;
 	}
@@ -26,7 +26,7 @@ final public class MethodInvoker {
 	 * @return
 	 * @throws Exception
 	 */
-	public Object invoke(Object thisobject, BasicContainer bc) throws Exception {
+	public Object invoke(final Object thisobject, final BasicContainer bc) throws Exception {
 		Object[]	param = new Object[ m_actuals.length ];
 		for(int i = m_actuals.length; --i >= 0;) {
 			param[i] = bc.retrieve(m_actuals[i]);
@@ -35,7 +35,7 @@ final public class MethodInvoker {
 		return m_method.invoke(thisobject, param);
 	}
 
-	public void dump(IndentWriter iw) throws IOException {
+	public void dump(final IndentWriter iw) throws IOException {
 		iw.print("InstanceConstructor ");
 		iw.print(m_method.toGenericString());
 		iw.print(" (score ");
@@ -54,6 +54,6 @@ final public class MethodInvoker {
 				iw.dec();
 			}
 			iw.dec();
-		}		
+		}
 	}
 }

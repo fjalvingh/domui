@@ -17,11 +17,26 @@ import to.etc.iocular.util.ClassUtil;
  * Created on Apr 22, 2007
  */
 public class MethodCallBuilder {
-	private ComponentBuilder		m_component;
+	private final ComponentBuilder	m_component;
 
-	private Class<?>				m_baseClass;
+	private final Class<?>			m_baseClass;
 
-	private String					m_methodName;
+	private final String			m_methodName;
+
+	static private enum ParamMode {
+		UNKNOWN,
+		NUMBERED,
+		UNNUMBERED
+	}
+
+	private ParamMode				m_paramMode = ParamMode.UNKNOWN;
+
+	/**
+	 * The defined parameters for this method as set by the builder. The order is undefined. If parameters are set by number
+	 * isNumbered() is true; in that case each parameter's number has an assignment.
+	 *
+	 */
+	private final List<MethodParameterSpec>	m_actuals = new ArrayList<MethodParameterSpec>();
 
 	private List<Class<?>>			m_formals;
 
@@ -36,7 +51,7 @@ public class MethodCallBuilder {
 	 */
 	private boolean					m_explicit;
 
-	public MethodCallBuilder(ComponentBuilder component, Class< ? > baseClass, String methodName, Class< ? >[] formals, boolean staticOnly) {
+	public MethodCallBuilder(final ComponentBuilder component, final Class< ? > baseClass, final String methodName, final Class< ? >[] formals, final boolean staticOnly) {
 		m_component = component;
 		m_baseClass = baseClass;
 		m_methodName = methodName;
@@ -44,6 +59,126 @@ public class MethodCallBuilder {
 		m_formals	= new ArrayList<Class<?>>();
 		for(int i = 0; i < formals.length; i++)
 			m_formals.add(formals[i]);
+	}
+
+	public MethodCallBuilder(final ComponentBuilder component, final Class< ? > baseClass, final String methodName) {
+		m_component = component;
+		m_baseClass = baseClass;
+		m_methodName = methodName;
+	}
+
+	public void setStaticOnly(final boolean staticOnly) {
+		m_staticOnly = staticOnly;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Method parameter definition.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Return a def for a numbered parameter. This contains the check for numbered/unnumbered parameter matching.
+	 * @param ix
+	 * @return
+	 */
+	private MethodParameterSpec	makeNumberedParam(final int ix) {
+		switch(m_paramMode) {
+			default:
+				throw new IllegalStateException("Unexpected parameter mode "+m_paramMode);
+			case UNKNOWN:
+				m_paramMode = ParamMode.NUMBERED;
+				break;
+			case NUMBERED:
+				break;
+			case UNNUMBERED:
+				throw new IocConfigurationException(m_component, "You cannot mix NUMBERED and UNNUMBERED parameters.");
+		}
+		for(MethodParameterSpec msp: m_actuals) {
+			if(msp.getParameterNumber() == ix) {
+				throw new IocConfigurationException(m_component, "Numbered parameter "+ix+" is already defined.");
+			}
+		}
+		MethodParameterSpec	msp	= new MethodParameterSpec();
+		m_actuals.add(msp);
+		msp.setParameterNumber(ix);
+		return msp;
+	}
+
+	/**
+	 * Return a def for an unnumbered parameter. This contains the check for numbered/unnumbered parameter matching.
+	 *
+	 * @return
+	 */
+	private MethodParameterSpec	makeUnnumberedParam() {
+		switch(m_paramMode) {
+			default:
+				throw new IllegalStateException("Unexpected parameter mode "+m_paramMode);
+			case UNKNOWN:
+				m_paramMode = ParamMode.UNNUMBERED;
+				break;
+			case UNNUMBERED:
+				break;
+			case NUMBERED:
+				throw new IocConfigurationException(m_component, "You cannot mix NUMBERED and UNNUMBERED parameters.");
+		}
+		MethodParameterSpec	msp	= new MethodParameterSpec();
+		msp.setParameterNumber(m_actuals.size());
+		m_actuals.add(msp);
+		return msp;
+	}
+
+	/**
+	 * Set a numbered parameter from a container object identified by the specified type.
+	 *
+	 * @param index
+	 * @param type
+	 */
+	public void		setParameter(final int index, final Class<?> type) {
+		MethodParameterSpec	msp	= makeNumberedParam(index);
+		msp.setSourceType(type);
+	}
+
+	/**
+	 * Set a numbered parameter from a container object identified by the specified name.
+	 * @param index
+	 * @param name
+	 */
+	public void		setParameter(final int index, final String name) {
+		MethodParameterSpec	msp	= makeNumberedParam(index);
+		msp.setSourceName(name);
+	}
+
+	/**
+	 * Define a numbered parameter as the actual object being built by the current definition.
+	 * @param index
+	 */
+	public void		setParameterSelf(final int index) {
+		MethodParameterSpec	msp	= makeNumberedParam(index);
+		msp.setSelf(true);
+	}
+
+	/**
+	 * Set an unnumbered/unordered parameter from a container object identified by the specified type.
+	 * @param type
+	 */
+	public void		setParameter(final Class<?> type) {
+		MethodParameterSpec	msp	= makeUnnumberedParam();
+		msp.setSourceType(type);
+	}
+
+	/**
+	 * Set an unnumbered/unordered parameter from a container object identified by the specified name.
+	 * @param name
+	 */
+	public void		setParameter(final String name) {
+		MethodParameterSpec	msp	= makeUnnumberedParam();
+		msp.setSourceName(name);
+	}
+
+	/**
+	 * Set an unnumbered/unordered parameter from the actual object being built by the current definition.
+	 */
+	public void		setParameterSelf() {
+		MethodParameterSpec	msp	= makeUnnumberedParam();
+		msp.setSelf(true);
 	}
 
 	/**
@@ -54,7 +189,7 @@ public class MethodCallBuilder {
 	 * @param stack
 	 * @return
 	 */
-	public MethodInvoker	createInvoker(Stack<ComponentBuilder> stack) {
+	public MethodInvoker	createInvoker(final Stack<ComponentBuilder> stack) {
 		List<Method>	mlist = getAcceptableMethods();
 		if(mlist.size() == 0)
 			throw new IocConfigurationException(m_component, "Cannot find an acceptable method '"+m_methodName+" on "+m_baseClass);
@@ -90,12 +225,12 @@ public class MethodCallBuilder {
 	 * @param aflist
 	 * @return
 	 */
-	private MethodInvoker	tryToMakeAnInvokerIfYouWouldBeSoKind(Stack<ComponentBuilder> stack, Method m, List<FailedAlternative> aflist) {
+	private MethodInvoker	tryToMakeAnInvokerIfYouWouldBeSoKind(final Stack<ComponentBuilder> stack, final Method m, final List<FailedAlternative> aflist) {
 		Class<?>[] 		fpar = m.getParameterTypes();
 		Annotation[][]	pannar = m.getParameterAnnotations();
 		ComponentRef[]	refar	= new ComponentRef[fpar.length];
 
-		for(int i = 0; i < fpar.length; i++) {	
+		for(int i = 0; i < fpar.length; i++) {
 			Class<?> fp = fpar[i];
 			ParameterDef	def = null;
 			if(m_paramDefs != null && i < m_paramDefs.length)
@@ -138,7 +273,7 @@ public class MethodCallBuilder {
 	 * @param m
 	 * @return
 	 */
-	private boolean	matchFormals(Method m) {
+	private boolean	matchFormals(final Method m) {
 		if(m_formals == null)
 			return true;									// No formals -> accept all
 		Class<?>[]	par = m.getParameterTypes();
