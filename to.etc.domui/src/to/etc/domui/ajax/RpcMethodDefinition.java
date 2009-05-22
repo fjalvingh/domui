@@ -5,8 +5,8 @@ import java.util.*;
 
 import to.etc.server.ajax.*;
 
-public class ServiceMethodDefinition {
-	private final ServiceClassDefinition m_ServiceClassDefinition;
+public class RpcMethodDefinition {
+	private final RpcClassDefinition m_ServiceClassDefinition;
 
 	private Method m_method;
 
@@ -29,7 +29,7 @@ public class ServiceMethodDefinition {
 	 */
 	private Class<?>	m_outputClass;
 
-	ServiceMethodDefinition(final ServiceClassDefinition hi, final String name) {
+	RpcMethodDefinition(final RpcClassDefinition hi, final String name) {
 		m_name = name;
 		m_ServiceClassDefinition = hi;
 	}
@@ -118,7 +118,7 @@ public class ServiceMethodDefinition {
 		return m_static;
 	}
 
-	ServiceClassDefinition getServiceClassDefinition() {
+	RpcClassDefinition getServiceClassDefinition() {
 		return m_ServiceClassDefinition;
 	}
 

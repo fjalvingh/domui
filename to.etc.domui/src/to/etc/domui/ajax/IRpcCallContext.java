@@ -4,7 +4,7 @@ import java.io.*;
 
 import to.etc.server.ajax.*;
 
-public interface ServiceCallerCallback {
+public interface IRpcCallContext {
 	public <T> T	createHandlerClass(Class<T> clz) throws Exception;
 
 //	public IServiceAuthenticator	getAuthenticator();

@@ -19,13 +19,13 @@ import to.etc.xml.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 16, 2006
  */
-public class ServiceCaller {
-	static private final Logger		LOG = Logger.getLogger(ServiceCaller.class.getName());
+public class RpcCallHandler {
+	static private final Logger		LOG = Logger.getLogger(RpcCallHandler.class.getName());
 
 	static private boolean[]		PARAMONE = {true};
 
 	/** Maps keys to resolved handler info thingies, for speed. */
-	private final Map<String, ServiceClassDefinition> m_classDefMap = new HashMap<String, ServiceClassDefinition>();
+	private final Map<String, RpcClassDefinition> m_classDefMap = new HashMap<String, RpcClassDefinition>();
 
 	private final XmlRegistry 		m_xmlRegistry = new XmlRegistry();
 
@@ -33,7 +33,7 @@ public class ServiceCaller {
 
 	private ResponseFormat 			m_defaultFormat = ResponseFormat.XML;
 
-	public ServiceCaller() {
+	public RpcCallHandler() {
 	}
 
 
@@ -55,8 +55,8 @@ public class ServiceCaller {
 		return null;
 	}
 
-	private ServiceClassDefinition getServiceClassDefinition(final String basename) throws Exception {
-		ServiceClassDefinition hi = null;
+	private RpcClassDefinition getServiceClassDefinition(final String basename) throws Exception {
+		RpcClassDefinition hi = null;
 		synchronized(this) {
 			hi = m_classDefMap.get(basename);
 			if(hi != null)
@@ -72,7 +72,7 @@ public class ServiceCaller {
 			if(am == null)
 				throw new ServiceException("The class '"+cl.getCanonicalName()+"' is not annotated as an @AjaxHandler");
 
-			hi = new ServiceClassDefinition(cl);
+			hi = new RpcClassDefinition(cl);
 			m_classDefMap.put(basename, hi);
 			m_classDefMap.put(cl.getCanonicalName(), hi); // Register actual name too; if basename == actual this just replaces the earlier put
 			return hi;
@@ -84,9 +84,9 @@ public class ServiceCaller {
 	 * package list.
 	 * @param name	The dotted package.classname, or a single classname.
 	 */
-	ServiceClassDefinition resolveHandler(final String name) throws Exception {
+	RpcClassDefinition resolveHandler(final String name) throws Exception {
 		String basename = name.replace('/', '.');							// Unslash name
-		ServiceClassDefinition hi = getServiceClassDefinition(basename);
+		RpcClassDefinition hi = getServiceClassDefinition(basename);
 		hi.initialize();
 		return hi;
 	}
@@ -96,7 +96,7 @@ public class ServiceCaller {
 	 * @param byname
 	 * @return
 	 */
-	private ServiceMethodDefinition findHandlerMethod(final ServiceCallerCallback cb, final String rurl) throws Exception {
+	private RpcMethodDefinition findHandlerMethod(final IRpcCallContext cb, final String rurl) throws Exception {
 		int pos = rurl.lastIndexOf('.'); // Get separator between classname and method name
 		if(pos == -1)
 			throw new ServiceException("Invalid call: need [package].[class].[method] like to.etc.test.AClass.getThingy");
@@ -106,7 +106,7 @@ public class ServiceCaller {
 		//		System.out.println(callstring);
 
 		//-- Resolve the URL into a handler class to execute,
-		ServiceClassDefinition hi = resolveHandler(cn);
+		RpcClassDefinition hi = resolveHandler(cn);
 		if(hi == null)
 			throw new UnknownServiceClassException(cn);
 
@@ -118,7 +118,7 @@ public class ServiceCaller {
 		}
 
 		//-- 2. Resolve the method
-		ServiceMethodDefinition mi = hi.getMethod(mn);
+		RpcMethodDefinition mi = hi.getMethod(mn);
 		roles = mi.getRoles();
 		if(roles.length > 0) {
 			if(! hasAnyRole(cb, roles))
@@ -127,7 +127,7 @@ public class ServiceCaller {
 		return mi;
 	}
 
-	private boolean hasAnyRole(final ServiceCallerCallback cb, final String[] roles) throws Exception {
+	private boolean hasAnyRole(final IRpcCallContext cb, final String[] roles) throws Exception {
 		for(String s : roles) {
 			if(cb.hasRight(s))
 				return true;
@@ -145,7 +145,7 @@ public class ServiceCaller {
 	 * @param mi
 	 * @return
 	 */
-	private Object allocateHandler(final ServiceCallerCallback cb, final ServiceMethodDefinition mi) throws Exception {
+	private Object allocateHandler(final IRpcCallContext cb, final RpcMethodDefinition mi) throws Exception {
 		if(mi.isStatic())
 			return null;
 		return cb.createHandlerClass(mi.getServiceClassDefinition().getHandlerClass());
@@ -158,8 +158,8 @@ public class ServiceCaller {
 	 * This executes a single call. Both "return value" and "parameter 1 is output" calls
 	 * are supported.
 	 */
-	public void	executeSingleCall(final ServiceCallerCallback cb, final String callsign, ResponseFormat formatoverride) throws Exception {
-		ServiceMethodDefinition mi	= findHandlerMethod(cb, callsign);	// Decode into some method
+	public void	executeSingleCall(final IRpcCallContext cb, final String callsign, ResponseFormat formatoverride) throws Exception {
+		RpcMethodDefinition mi	= findHandlerMethod(cb, callsign);	// Decode into some method
 		Object handler = allocateHandler(cb, mi);						// We always need a handler instance,
 
 		//-- Render the result in the specified format.
@@ -202,11 +202,11 @@ public class ServiceCaller {
 	/*--------------------------------------------------------------*/
 
 	private class MethodCallHelper {
-		private final ServiceMethodDefinition	m_methodDef;
+		private final RpcMethodDefinition	m_methodDef;
 		private final Object[]					m_param;
 		private final Class<?>[]				m_formals;
 
-		public MethodCallHelper(final ServiceMethodDefinition mi) {
+		public MethodCallHelper(final RpcMethodDefinition mi) {
 			m_methodDef = mi;
 			m_formals	= mi.getMethod().getParameterTypes();
 			m_param		= new Object[m_formals.length];
@@ -229,7 +229,7 @@ public class ServiceCaller {
 	 * @return
 	 * @throws Exception
 	 */
-	private Object executeMethod(final ServiceCallerCallback cb, final ServiceMethodDefinition mi, final Object handler) throws Exception {
+	private Object executeMethod(final IRpcCallContext cb, final RpcMethodDefinition mi, final Object handler) throws Exception {
 		Object result;
 		long ts = System.nanoTime();
 		StringBuilder sb = new StringBuilder();
@@ -270,7 +270,7 @@ public class ServiceCaller {
 	 * @return
 	 * @throws Exception
 	 */
-	private void executeMethod(final ServiceCallerCallback ctx, final ServiceMethodDefinition mi, final Object handler, final Object output) throws Exception {
+	private void executeMethod(final IRpcCallContext ctx, final RpcMethodDefinition mi, final Object handler, final Object output) throws Exception {
 		long ts = System.nanoTime();
 		StringBuilder sb = new StringBuilder();
 		sb.append("SVC: call ");
@@ -327,7 +327,7 @@ public class ServiceCaller {
 	 * @return
 	 * @throws Exception
 	 */
-	private <T> T	allocateOutput(final ServiceCallerCallback ctx, final Class<T> oc, final ResponseFormat rf) throws Exception {
+	private <T> T	allocateOutput(final IRpcCallContext ctx, final Class<T> oc, final ResponseFormat rf) throws Exception {
 		if(oc.isAssignableFrom(StructuredWriter.class)) {		// Parameter is structured writer?
 			/*
 			 * Get the default writer from the context, then wrap either a JSON or XML writer around it.

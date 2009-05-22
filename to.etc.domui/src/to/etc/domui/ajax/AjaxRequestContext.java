@@ -8,7 +8,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.server.ajax.*;
 
-public class AjaxRequestContext implements ServiceCallerCallback {
+public class AjaxRequestContext implements IRpcCallContext {
 	private final RequestContextImpl		m_rctx;
 	private final AjaxRequestHandler		m_rh;
 

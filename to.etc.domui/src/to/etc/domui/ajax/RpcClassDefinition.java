@@ -4,7 +4,7 @@ import java.util.*;
 
 import to.etc.server.ajax.*;
 
-public class ServiceClassDefinition {
+public class RpcClassDefinition {
 	private final Class< ? > m_handlerClass;
 
 	private boolean m_initialized;
@@ -15,9 +15,9 @@ public class ServiceClassDefinition {
 
 	private ResponseFormat m_responseFormat;
 
-	private final Map<String, ServiceMethodDefinition> m_methodMap = new HashMap<String, ServiceMethodDefinition>();
+	private final Map<String, RpcMethodDefinition> m_methodMap = new HashMap<String, RpcMethodDefinition>();
 
-	public ServiceClassDefinition(final Class< ? > cl) {
+	public RpcClassDefinition(final Class< ? > cl) {
 		m_handlerClass = cl;
 	}
 
@@ -66,10 +66,10 @@ public class ServiceClassDefinition {
 	/**
 	 *
 	 */
-	public synchronized ServiceMethodDefinition getMethod(final String name) throws Exception {
-		ServiceMethodDefinition mi = m_methodMap.get(name);
+	public synchronized RpcMethodDefinition getMethod(final String name) throws Exception {
+		RpcMethodDefinition mi = m_methodMap.get(name);
 		if(mi == null) {
-			mi = new ServiceMethodDefinition(this, name);
+			mi = new RpcMethodDefinition(this, name);
 			m_methodMap.put(name, mi);
 		}
 		mi.initialize();

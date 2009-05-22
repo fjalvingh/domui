@@ -27,7 +27,7 @@ public class AjaxRequestHandler implements FilterRequestHandler {
 
 	private ContainerDefinition	m_requestContainerDef;
 
-	private ServiceCaller		m_callHandler;
+	private RpcCallHandler		m_callHandler;
 
 	public AjaxRequestHandler(final DomApplication domApplication) {
 		m_application = domApplication;
