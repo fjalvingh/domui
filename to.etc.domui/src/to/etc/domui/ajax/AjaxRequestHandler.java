@@ -27,10 +27,11 @@ public class AjaxRequestHandler implements FilterRequestHandler {
 
 	private ContainerDefinition	m_requestContainerDef;
 
-	private RpcCallHandler		m_callHandler;
+	private final RpcCallHandler	m_callHandler;
 
 	public AjaxRequestHandler(final DomApplication domApplication) {
 		m_application = domApplication;
+		m_callHandler	= new RpcCallHandler();
 	}
 
 	public DomApplication getApplication() {

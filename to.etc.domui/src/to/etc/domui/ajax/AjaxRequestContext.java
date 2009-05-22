@@ -100,8 +100,6 @@ public class AjaxRequestContext implements IRpcCallContext {
 			sx.setUrl(getRctx().getRequest().getRequestURI());
 //			sx.setContext(this);
 			throw sx;
-		} catch(Exception x) {
-//			throw new ServiceException(this, x.toString(), x);
 		} finally {
 
 		}
