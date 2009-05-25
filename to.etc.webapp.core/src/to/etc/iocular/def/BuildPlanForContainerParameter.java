@@ -26,6 +26,7 @@ public class BuildPlanForContainerParameter extends AbstractBuildPlan {
 	@Override
 	public void dump(final IndentWriter iw) throws IOException {
 		iw.println("PARAMETER "+m_ident+": not built but must be present in Container");
+		super.dump(iw);
 	}
 
 	/**

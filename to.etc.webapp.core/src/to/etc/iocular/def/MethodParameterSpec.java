@@ -6,7 +6,7 @@ package to.etc.iocular.def;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2009
  */
-public class MethodParameterSpec {
+final class MethodParameterSpec {
 	/** When set this is defined as "get the parameter by looking up this type in the container" */
 	private Class<?>			m_sourceType;
 
@@ -42,5 +42,23 @@ public class MethodParameterSpec {
 	}
 	public void setParameterNumber(final int parameterNumber) {
 		m_parameterNumber = parameterNumber;
+	}
+	@Override
+	public String toString() {
+		StringBuilder	sb	= new StringBuilder();
+		sb.append('[');
+		if(m_sourceName != null) {
+			sb.append("name=");
+			sb.append(m_sourceName);
+		}
+		if(m_sourceType != null) {
+			sb.append("type=");
+			sb.append(m_sourceType.getName());
+		}
+		if(m_self) {
+			sb.append("source=self");
+		}
+		sb.append(']');
+		return sb.toString();
 	}
 }

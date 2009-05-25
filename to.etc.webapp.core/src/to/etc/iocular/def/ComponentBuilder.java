@@ -465,10 +465,6 @@ public class ComponentBuilder {
 		return "component(Unnamed/untyped) defined at "+m_definitionLocation;
 	}
 
-	private ParameterDef[]	getParameterDef() {
-		return null;			// TODO Make this do something.
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Type registration.									*/
@@ -563,14 +559,14 @@ public class ComponentBuilder {
 
 		if(bp instanceof AbstractBuildPlan) {
 			//-- Handle setter logic
+			AbstractBuildPlan abp = (AbstractBuildPlan) bp;
+
 			List<PropertyInjector>	ijlist = calculateSetterInjectors(stack);
-			((AbstractBuildPlan)bp).setInjectorList(ijlist);
+			abp.setInjectorList(ijlist);
+
+			if(m_destroyList.size() > 0)
+				abp.setDestroyList(createCallArray(stack, m_destroyList));
 		}
-
-		//-- Append all other crud to the build plan: start with start- and destroy- code
-
-
-
 
 		return bp;
 	}
@@ -626,6 +622,10 @@ public class ComponentBuilder {
 		return best;
 	}
 
+	MethodParameterSpec[]	getParameters() {
+		return null;
+	}
+
 	/**
 	 * Try to create a build plan for creating the object using the constructor passed.
 	 *
@@ -644,7 +644,7 @@ public class ComponentBuilder {
 
 		//-- Walk all parameters and make build plans for them until failure..
 		try {
-			ParameterDef[]	paref	= getParameterDef();
+			MethodParameterSpec[]	paref	= getParameters();
 			List<ComponentRef>	actuals = calculateParameters(stack, fpar, fpanar, paref);
 
 			//-- All constructor arguments were provided- return a build plan,
@@ -657,11 +657,11 @@ public class ComponentBuilder {
 		}
 	}
 
-	private List<ComponentRef>	calculateParameters(final Stack<ComponentBuilder> stack, final Class<?>[] fpar, final Annotation[][] fpann, final ParameterDef[] defar) {
+	private List<ComponentRef>	calculateParameters(final Stack<ComponentBuilder> stack, final Class<?>[] fpar, final Annotation[][] fpann, final MethodParameterSpec[] defar) {
 		List<ComponentRef>	actuals = new ArrayList<ComponentRef>();
 		for(int i = 0; i < fpar.length; i++) {
 			Class<?> fp = fpar[i];
-			ParameterDef	def = null;
+			MethodParameterSpec	def = null;
 			if(defar != null && i < defar.length)
 				def = defar[i];
 			ComponentRef	cr	= m_builder.findReferenceFor(stack, fp, fpann[i], def);
@@ -713,7 +713,7 @@ public class ComponentBuilder {
 
 		//-- Walk all parameters and make build plans for them until failure..
 		try {
-			ParameterDef[]	paref	= getParameterDef();
+			MethodParameterSpec[]	paref	= getParameters();
 			List<ComponentRef>	actuals = calculateParameters(stack, fpar, fpanar, paref);
 
 			//-- All constructor arguments were provided- return a build plan,
@@ -738,6 +738,12 @@ public class ComponentBuilder {
 		return res;
 	}
 
+	private MethodInvoker[]	createCallArray(final Stack<ComponentBuilder> stack, final List<MethodCallBuilder> source) {
+		MethodInvoker[]	ar = new MethodInvoker[source.size()];
+		for(int i = 0; i < ar.length; i++)
+			ar[i] = source.get(i).createInvoker(stack);
+		return ar;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Property injector calculation.						*/

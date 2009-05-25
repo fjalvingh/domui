@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+
 import to.etc.iocular.BindingScope;
 import to.etc.iocular.Container;
 import to.etc.iocular.def.ComponentDef;
@@ -99,7 +100,7 @@ public class BasicContainer implements Container {
 	 * a reference to the created object and it's build plan so it's destructors can be called at
 	 * container close time.
 	 */
-	private final List<Destructor>	m_destructorList = Collections.EMPTY_LIST;
+	private List<Destructor>	m_destructorList = Collections.EMPTY_LIST;
 
 	public BasicContainer(final ContainerDefinition def, final Container parent) {
 		if(def == null)
@@ -144,8 +145,8 @@ public class BasicContainer implements Container {
 
 		for(int i = dlist.size(); --i >= 0;)	{		// Destroy in reverse order of allocation
 			Destructor	d = dlist.get(i);
-
-			// TODO Destroy all created objects
+			System.out.println("Destroying: "+d.getInstance());
+			d.getPlan().destroy(this, d.getInstance());
 		}
 	}
 
@@ -278,6 +279,12 @@ public class BasicContainer implements Container {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Retrieval and creation primitives.					*/
 	/*--------------------------------------------------------------*/
+	private synchronized void	addDestructor(final BuildPlan plan, final Object inst) {
+		if(m_destructorList == Collections.EMPTY_LIST)
+			m_destructorList = new ArrayList<Destructor>();
+		m_destructorList.add(new Destructor(plan, inst));
+	}
+
 	/**
 	 * Actually get the required thingy. If it is already present in this container (and a singleton)
 	 * it will be created atomically; if it is a prototype it will be created without lock.
@@ -307,7 +314,10 @@ public class BasicContainer implements Container {
 
 		//-- If this is a "prototype" (a class that is always created anew) then just create without lock
 		if(cr.getDefinition().getScope() == BindingScope.PROTOTYPE) {
-			return createObject(cr.getDefinition());
+			Object inst = createObject(cr.getDefinition());
+			if(cr.getBuildPlan().hasDestructors())
+				addDestructor(cr.getBuildPlan(), inst);
+			return inst;
 		}
 
 		/*
@@ -362,6 +372,11 @@ outer:	for(;;) {
 		try {
 			theObject = createObject(cr.getDefinition());	// Create a new instance
 			nstate	= RefState.OKAY;						// Ref is assigned, now.
+
+			//-- Link in destructor if needed.
+			if(cr.getBuildPlan().hasDestructors())
+				addDestructor(cr.getBuildPlan(), theObject);
+
 			return theObject;
 		} catch(Exception x) {
 			thex	= x;

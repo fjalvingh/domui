@@ -6,6 +6,8 @@ import java.util.*;
 import to.etc.webapp.query.*;
 
 public class DataContextMock implements QDataContext {
+	private int			m_alloc = 1;
+
 	public void attach(final Object o) throws Exception {
 	}
 
@@ -44,5 +46,17 @@ public class DataContextMock implements QDataContext {
 	}
 
 	public void startTransaction() throws Exception {
+	}
+
+	/**
+	 * Internal test pps.
+	 */
+	public void	decrement() {
+		if(m_alloc != 1)
+			throw new IllegalStateException("Use count is not 1 but "+m_alloc);
+		m_alloc--;
+	}
+	public int	testGetUseCount() {
+		return m_alloc;
 	}
 }

@@ -83,7 +83,7 @@ final public class ContainerDefinition {
 	 * @param def
 	 * @return
 	 */
-	ComponentRef	findDefinedReference(final Class<?> ptype, final Annotation[] annar, final ParameterDef def) {
+	ComponentRef	findDefinedReference(final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
 		//-- Try to find a ComponentBuilder that is able to provide this thingy.
 		/*
 		 * TODO First try to find something using the provided parameters and annotations.
@@ -120,7 +120,7 @@ final public class ContainerDefinition {
 	 * @param def
 	 * @return
 	 */
-	ComponentRef	findInferredReference(final Class<?> ptype, final Annotation[] annar, final ParameterDef def) {
+	ComponentRef	findInferredReference(final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
 		//-- Try to find a ComponentBuilder that is able to provide this thingy.
 		/*
 		 * TODO First try to find something using the provided parameters and annotations.

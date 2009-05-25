@@ -357,7 +357,10 @@ public class BasicContainerBuilder implements Builder {
 	 * @param def
 	 * @return
 	 */
-	ComponentRef	findReferenceFor(final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final ParameterDef def) {
+	ComponentRef	findReferenceFor(final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
+		if(def != null && def.isSelf())
+			return new ComponentRef(null, 0);					// SELF reference,
+
 		//-- 1. Try to find the thingy in here,
 		ComponentRef	ref = _findDefinedReference(stack, ptype, annar, def);
 		if(ref != null)
@@ -408,7 +411,7 @@ public class BasicContainerBuilder implements Builder {
 	 * @param def
 	 * @return
 	 */
-	private ComponentRef	_findDefinedReference(final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final ParameterDef def) {
+	private ComponentRef	_findDefinedReference(final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
 		//-- Try to find a ComponentBuilder that is able to provide this thingy.
 		/*
 		 * TODO First try to find something using the provided parameters and annotations.
@@ -433,7 +436,7 @@ public class BasicContainerBuilder implements Builder {
 	 * @param def
 	 * @return
 	 */
-	private ComponentRef	_findInferredReference(final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final ParameterDef def) {
+	private ComponentRef	_findInferredReference(final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
 		//-- Try to find a ComponentBuilder that is able to provide this thingy.
 		/*
 		 * TODO First try to find something using the provided parameters and annotations.

@@ -5,6 +5,14 @@ import java.lang.reflect.Method;
 import to.etc.iocular.def.ComponentRef;
 import to.etc.util.IndentWriter;
 
+/**
+ * Defines a method invocation.
+ *
+ * FIXME This should also contain a reference to the OBJECT this call is to be placed on!!!
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on May 25, 2009
+ */
 final public class MethodInvoker {
 	private final Method			m_method;
 
@@ -20,23 +28,27 @@ final public class MethodInvoker {
 	}
 
 	/**
-	 * Actually invoke the method on some thingy.
+	 * Actually invoke the method on some thingy. FIXME The "this" object should be part of the MethodInvoker definition.
 	 *
 	 * @param bc
 	 * @return
 	 * @throws Exception
 	 */
-	public Object invoke(final Object thisobject, final BasicContainer bc) throws Exception {
+	@Deprecated
+	public Object invoke(final Object thisobject, final BasicContainer bc, final Object selfobject) throws Exception {
 		Object[]	param = new Object[ m_actuals.length ];
 		for(int i = m_actuals.length; --i >= 0;) {
-			param[i] = bc.retrieve(m_actuals[i]);
+			if(m_actuals[i].isSelf())
+				param[i] = selfobject;
+			else
+				param[i] = bc.retrieve(m_actuals[i]);
 		}
 
 		return m_method.invoke(thisobject, param);
 	}
 
 	public void dump(final IndentWriter iw) throws IOException {
-		iw.print("InstanceConstructor ");
+		iw.print("Method ");
 		iw.print(m_method.toGenericString());
 		iw.print(" (score ");
 		iw.print(Integer.toString(getScore()));
@@ -48,7 +60,7 @@ final public class MethodInvoker {
 				iw.println("argument# "+i);
 				iw.inc();
 				if(m_actuals[i] == null)
-					iw.println("!?!?!?! null BuildPlan!!??!");
+					iw.println("!?!?!?! null REF!!??!");
 				else
 					m_actuals[i].dump(iw);
 				iw.dec();

@@ -23,11 +23,18 @@ final public class ComponentRef {
 	public ComponentDef getDefinition() {
 		return m_def;
 	}
+	public boolean	isSelf() {
+		return m_def == null;
+	}
 	public int getContainerIndex() {
 		return m_containerIndex;
 	}
 	public void	dump(final IndentWriter iw) throws IOException {
-		iw.println("container["+m_containerIndex+"] component "+m_def.getIdent()+" build plan:");
+		if(m_def == null) {
+			iw.println("REF:self");
+			return;
+		}
+		iw.println("REF:container["+m_containerIndex+"] component "+m_def.getIdent()+" build plan:");
 		iw.inc();
 		getDefinition().getBuildPlan().dump(iw);
 		iw.dec();
@@ -38,6 +45,8 @@ final public class ComponentRef {
 	}
 	@Override
 	public String toString() {
+		if(isSelf())
+			return "ref:self";
 		return "ref:container["+m_containerIndex+"] component "+m_def.getIdent();
 	}
 }

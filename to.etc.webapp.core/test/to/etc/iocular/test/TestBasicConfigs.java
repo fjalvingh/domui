@@ -121,6 +121,74 @@ public class TestBasicConfigs {
 	}
 
 	@Test
+	public void	testSingleton1() throws Exception {
+		System.out.println("---- singleton1 config test ----");
+		BasicContainerBuilder	b	= BasicContainerBuilder.createBuilder("root");
+		b.register()
+			.implement(QDataContext.class)
+			.factory(DbUtilMock.class, "createContext")
+		;
+		ContainerDefinition	cd	= b.createDefinition();
+		BasicContainer	bc	= new BasicContainer(cd, null);
+		bc.start();
+		bc.dump(QDataContext.class);
+		QDataContext	dc	= bc.getObject(QDataContext.class);				// CREATE an instance
+
+		Assert.assertEquals("Allocation count must be 1", 1, ((DataContextMock)dc).testGetUseCount());
+
+		//-- Multiple requests for the same resource MUST return the same resource
+		for(int i = 0; i < 10; i++) {
+			QDataContext	d2	= bc.getObject(QDataContext.class);
+			Assert.assertEquals("Singleton object must return same instance for every getObject", d2, dc);
+			Assert.assertEquals("Allocation count must be 1 for every getObject", 1, ((DataContextMock)d2).testGetUseCount());
+		}
+	}
+
+	/**
+	 * Check that a method to call on an object actually exists.
+	 * @throws Exception
+	 */
+	@Test(expected=IocConfigurationException.class)
+	public void	testDestroyMethod1() throws Exception {
+		System.out.println("---- destroyMethod1 config test ----");
+		BasicContainerBuilder	b	= BasicContainerBuilder.createBuilder("root");
+		b.register()
+			.implement(QDataContext.class)
+			.factory(DbUtilMock.class, "createContext")
+			.destroy(DbUtilMock.class, "discardaContext")
+		;
+		ContainerDefinition	cd	= b.createDefinition();
+	}
+
+	/**
+	 * Add an object which defines a DESTROY method on a factory class; make sure it gets called at destroy time.
+	 * @throws Exception
+	 */
+	@Test
+	public void	testDestroyMethod2() throws Exception {
+		System.out.println("---- destroyMethod2 config test ----");
+		BasicContainerBuilder	b	= BasicContainerBuilder.createBuilder("root");
+		b.register()
+			.implement(QDataContext.class)
+			.factory(DbUtilMock.class, "createContext")
+			.destroy(DbUtilMock.class, "discardContext")
+		;
+		ContainerDefinition	cd	= b.createDefinition();
+		BasicContainer	bc	= new BasicContainer(cd, null);
+		bc.start();
+		bc.dump(QDataContext.class);
+		QDataContext	dc	= bc.getObject(QDataContext.class);				// CREATE an instance
+
+		Assert.assertEquals("Allocation count must be 1", 1, ((DataContextMock)dc).testGetUseCount());
+
+		//-- Destroy the thing.
+		bc.destroy();
+
+		//-- Now the singleton must have been destroyed once...
+		Assert.assertEquals("Singleton must have been destroyed only once", 0, ((DataContextMock)dc).testGetUseCount());
+	}
+
+	@Test
 	public void		testInstantConfig() throws Exception {
 		BasicContainerBuilder	b	= BasicContainerBuilder.createBuilder("root");
 
