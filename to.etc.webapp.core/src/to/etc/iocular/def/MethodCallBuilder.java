@@ -188,10 +188,11 @@ public class MethodCallBuilder {
 	 * to call plus references to all parameters for the method as obtained from
 	 * a container.
 	 *
+	 * @param self
 	 * @param stack
 	 * @return
 	 */
-	public MethodInvoker	createInvoker(final Stack<ComponentBuilder> stack) {
+	public MethodInvoker	createInvoker(final ISelfDef self, final Stack<ComponentBuilder> stack) {
 		List<Method>	mlist = getAcceptableMethods();
 		if(mlist.size() == 0)
 			throw new IocConfigurationException(m_component, "Cannot find an acceptable method '"+m_methodName+" on "+m_baseClass);
@@ -204,7 +205,7 @@ public class MethodCallBuilder {
 		List<FailedAlternative>	aflist = new ArrayList<FailedAlternative>();
 		MethodInvoker	best= null;
 		for(Method m : mlist) {
-			MethodInvoker	miv = tryToMakeAnInvokerIfYouWouldBeSoKind(stack, m, aflist);
+			MethodInvoker	miv = tryToMakeAnInvokerIfYouWouldBeSoKind(self, stack, m, aflist);
 			if(miv != null) {
 				//-- We can invoke this one. Is it the best choice so far?
 				if(best == null || best.getScore() < miv.getScore())
@@ -221,13 +222,14 @@ public class MethodCallBuilder {
 	 * Tries to make an invoker for the method passed by creating refs for all arguments; if
 	 * succesful this returns the thingy with a score based on the #of parameters provided. The
 	 * thingy with the highest score wins.
+	 * @param self
 	 *
 	 * @param stack
 	 * @param m
 	 * @param aflist
 	 * @return
 	 */
-	private MethodInvoker	tryToMakeAnInvokerIfYouWouldBeSoKind(final Stack<ComponentBuilder> stack, final Method m, final List<FailedAlternative> aflist) {
+	private MethodInvoker	tryToMakeAnInvokerIfYouWouldBeSoKind(final ISelfDef self, final Stack<ComponentBuilder> stack, final Method m, final List<FailedAlternative> aflist) {
 		Class<?>[] 		fpar = m.getParameterTypes();
 		Annotation[][]	pannar = m.getParameterAnnotations();
 		ComponentRef[]	refar	= new ComponentRef[fpar.length];
@@ -246,7 +248,7 @@ public class MethodCallBuilder {
 				Class<?>	fp	= fpar[i];
 
 				//-- Find a component reference for the specified parameter def
-				ComponentRef	cr	= m_component.getBuilder().findReferenceFor(stack, fp, pannar[i], msp);
+				ComponentRef	cr	= m_component.getBuilder().findReferenceFor(self, stack, fp, pannar[i], msp);
 				if(cr == null) {
 					//-- Cannot use this- the parameter passed cannot be filled in.
 					aflist.add(new FailedAlternative(m+": Parameter["+i+"] (a "+fp+") cannot be provided using the definition "+msp));

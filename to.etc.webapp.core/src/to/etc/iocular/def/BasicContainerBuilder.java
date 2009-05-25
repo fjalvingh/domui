@@ -346,10 +346,25 @@ public class BasicContainerBuilder implements Builder {
 		return m_myDefinition;
 	}
 
+	ComponentRef	findReferenceFor(final ISelfDef self, final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
+		ComponentRef	ref	= internalFindReferenceFor(self, stack, ptype, annar, def);		// Basic lookup;
+		if(ref == null)
+			return null;
+
+		if(ptype != null) {
+			//-- Make sure the returned type can be assigned to the parameter type passed,
+			if(! ptype.isAssignableFrom( ref.getDefinition().getActualClass()) )		// Do not allow
+				return null;
+
+		}
+		return ref;
+	}
+
 	/**
 	 * Recursive entrypoint to get a reference. This first tries to get a reference using the
 	 * <i>defined</i> classes and components in the current set, the base and finally the parent. If
 	 * this fails it tries to retrieve a reference using an inferred definition in the same order.
+	 * @param self
 	 *
 	 * @param stack
 	 * @param ptype
@@ -357,9 +372,13 @@ public class BasicContainerBuilder implements Builder {
 	 * @param def
 	 * @return
 	 */
-	ComponentRef	findReferenceFor(final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
-		if(def != null && def.isSelf())
-			return new ComponentRef(null, 0);					// SELF reference,
+	ComponentRef	internalFindReferenceFor(final ISelfDef self, final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
+		if(def != null && def.isSelf()) {
+			//-- Self reference. Create a synthetic reference which does contain a proper type.
+			if(self == null)
+				throw new IllegalStateException("Internal: self reference requested but 'self' is not known...");
+			return new ComponentRef((ComponentDef) self);					// SELF reference,
+		}
 
 		//-- 1. Try to find the thingy in here,
 		ComponentRef	ref = _findDefinedReference(stack, ptype, annar, def);
@@ -400,6 +419,8 @@ public class BasicContainerBuilder implements Builder {
 		}
 		return null;			// Not found.
 	}
+
+
 
 	/**
 	 * Local workhorse to decode the parameters and get the appropriate object
@@ -466,6 +487,6 @@ public class BasicContainerBuilder implements Builder {
 	 * @return
 	 */
 	public ComponentRef findReferenceFor(final Stack<ComponentBuilder> stack, final ComponentPropertyDef pd) {
-		return findReferenceFor(stack, pd.getInfo().getGetter().getReturnType(), null, null);
+		return findReferenceFor(null, stack, pd.getInfo().getGetter().getReturnType(), null, null);
 	}
 }

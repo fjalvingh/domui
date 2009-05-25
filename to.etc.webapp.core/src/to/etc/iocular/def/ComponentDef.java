@@ -3,32 +3,34 @@ package to.etc.iocular.def;
 import to.etc.iocular.BindingScope;
 import to.etc.iocular.container.BuildPlan;
 
-final public class ComponentDef {
+final public class ComponentDef implements ISelfDef {
 	/** All names this component was registered with; the 1st one is the primary. For an unnamed item this is the empty array. */
-	private String[]		m_names;
+	private final String[]		m_names;
 
-	private Class<?>		m_actualClass;
+	private final Class<?>		m_actualClass;
 
 	/**
 	 * All of the classes that this component is <i>defined</i> to have in
 	 * the configuration.
 	 */
-	private Class<?>[]		m_definedTypes;
+	private final Class<?>[]	m_definedTypes;
 
-	private BindingScope	m_scope;
+	private final BindingScope	m_scope;
 
-	private String			m_definitionLocation;
+	private final String		m_definitionLocation;
 
 	/** The completed build plan for this type. */
 	private BuildPlan		m_buildPlan;
 
-	ComponentDef(Class<?> actualclz, String[] names, Class<?>[] deftypes, BindingScope scope, String definitionLocation, BuildPlan plan) {
+	ComponentDef(final Class<?> actualclz, final String[] names, final Class<?>[] deftypes, final BindingScope scope, final String definitionLocation) {
 		m_names = names;
 		m_definedTypes = deftypes;
 		m_scope = scope;
 		m_definitionLocation = definitionLocation;
-		m_buildPlan = plan;
 		m_actualClass	= actualclz;
+	}
+	void	setPlan(final BuildPlan plan) {
+		m_buildPlan = plan;
 	}
 
 	/**
@@ -38,7 +40,7 @@ final public class ComponentDef {
 	public Class<?>	getActualClass() {
 		return m_actualClass;
 	}
-	
+
 	final public String getDefinitionLocation() {
 		return m_definitionLocation;
 	}
@@ -69,6 +71,8 @@ final public class ComponentDef {
 	 * @return
 	 */
 	public BuildPlan	getBuildPlan() {
+		if(m_buildPlan == null)
+			throw new IllegalStateException("Internal: attempt to get build plan for an object currently being built!?");
 		return m_buildPlan;
 	}
 }

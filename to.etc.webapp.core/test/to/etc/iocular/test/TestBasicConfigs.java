@@ -161,12 +161,28 @@ public class TestBasicConfigs {
 	}
 
 	/**
+	 * Destructor method called must have a compatible parameter with $self.
+	 * @throws Exception
+	 */
+	@Test(expected=IocConfigurationException.class)
+	public void	testDestroyMethod2() throws Exception {
+		System.out.println("---- destroyMethod2 config test ----");
+		BasicContainerBuilder	b	= BasicContainerBuilder.createBuilder("root");
+		b.register()
+			.implement(QDataContext.class)
+			.factory(DbUtilMock.class, "createContext")
+			.destroy(DbUtilMock.class, "badDiscardContext")
+		;
+		ContainerDefinition	cd	= b.createDefinition();
+	}
+
+	/**
 	 * Add an object which defines a DESTROY method on a factory class; make sure it gets called at destroy time.
 	 * @throws Exception
 	 */
 	@Test
-	public void	testDestroyMethod2() throws Exception {
-		System.out.println("---- destroyMethod2 config test ----");
+	public void	testDestroyMethod3() throws Exception {
+		System.out.println("---- destroyMethod3 config test ----");
 		BasicContainerBuilder	b	= BasicContainerBuilder.createBuilder("root");
 		b.register()
 			.implement(QDataContext.class)

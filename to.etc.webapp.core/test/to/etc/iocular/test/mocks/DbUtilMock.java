@@ -7,8 +7,13 @@ public class DbUtilMock {
 		return new DataContextMock();
 	}
 
-	static public void discardContext(final DataContextMock dcm) {
-		dcm.decrement();
+	static public void discardContext(final QDataContext dcm) {
+		((DataContextMock)dcm).decrement();
 	}
-
+	/**
+	 * Used to check destroy method parameter checking. This is an invalid destroyer.
+	 * @param dcm
+	 */
+	static public void badDiscardContext(final DataContextMock dcm) {
+	}
 }

@@ -154,9 +154,6 @@ public class ComponentBuilder {
 		return new BuildPlanForContainerParameter(m_actualType, m_nameList);
 	}
 
-
-
-
 	/**
 	 * <p>A basic object builder defining an object to be returned from a
 	 * static factory method on a class. The method passed must be
@@ -536,26 +533,38 @@ public class ComponentBuilder {
 		if(stack.contains(this))
 			throw new IocCircularException(this, stack, "Circular reference");
 		stack.push(this);
-		BuildPlan	plan = createBuildPlan(stack);
+
+		//-- Create a partially-created DEF which can be used as a definition for 'this'.
+		ComponentDef	def = new ComponentDef(
+			getActualClass(),
+			getNameList().toArray(new String[getNameList().size()]),
+			getDefinedTypes().toArray(new Class<?>[getDefinedTypes().size()]),
+			getScope(),
+			getDefinitionLocation()
+		);
+
+		BuildPlan	plan = createBuildPlan(def, stack);
 		if(this != stack.pop())
 			throw new IllegalStateException("Stack mismatch!?");
+		def.setPlan(plan);
 
 		//-- Create the def for this object
-		ComponentDef	def = new ComponentDef(
-				getActualClass(),
-				getNameList().toArray(new String[getNameList().size()]),
-				getDefinedTypes().toArray(new Class<?>[getDefinedTypes().size()]),
-				getScope(),
-				getDefinitionLocation(),
-				plan
-				);
 		m_ref	= new ComponentRef(def, getBuilder().getContainerIndex());
-
 		return m_ref;
 	}
 
-	private BuildPlan	createBuildPlan(final Stack<ComponentBuilder> stack) {
-		BuildPlan	bp = createCreationBuildPlan(stack);		// Create the actual object,
+	/**
+	 * Create a build plan in two steps:
+	 * <ol>
+	 * 	<li>Create the object in some way using one of the supported creation methods</li>
+	 * 	<li>Add any extra methods to call at start and destroy time.</li>
+	 * </ol>
+	 * @param self
+	 * @param stack
+	 * @return
+	 */
+	private BuildPlan	createBuildPlan(final ISelfDef self, final Stack<ComponentBuilder> stack) {
+		BuildPlan	bp = createCreationBuildPlan(self, stack);		// Create the actual object,
 
 		if(bp instanceof AbstractBuildPlan) {
 			//-- Handle setter logic
@@ -565,23 +574,27 @@ public class ComponentBuilder {
 			abp.setInjectorList(ijlist);
 
 			if(m_destroyList.size() > 0)
-				abp.setDestroyList(createCallArray(stack, m_destroyList));
-		}
+				abp.setDestroyList(createCallArray(self, stack, m_destroyList));
+		} else
+			throw new IllegalStateException("Unexpected build plan");
 
 		return bp;
 	}
 
 	/**
+	 *
+	 * @param self
+	 * @param stack
 	 * @return
 	 */
-	private BuildPlan	createCreationBuildPlan(final Stack<ComponentBuilder> stack) {
+	private BuildPlan	createCreationBuildPlan(final ISelfDef self, final Stack<ComponentBuilder> stack) {
 		switch(m_createMethod) {
 			default:
 				throw new IocConfigurationException(this, "Internal: unknown CreationMethod "+m_createMethod);
 			case ASNEW:
 				return createConstructorPlan(stack);
 			case FACTORY_METHOD:
-				return createStaticFactoryBuildPlan(stack);
+				return createStaticFactoryBuildPlan(self, stack);
 			case CONTAINER_PARAMETER:
 				return createParameterBuildPlan(stack);
 		}
@@ -593,6 +606,7 @@ public class ComponentBuilder {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Create a build plan for a normal constructed class.
+	 * @param self
 	 */
 	private BuildPlan	createConstructorPlan(final Stack<ComponentBuilder> stack) {
 		Constructor<?>[]	car = m_baseClass.getConstructors();
@@ -664,7 +678,7 @@ public class ComponentBuilder {
 			MethodParameterSpec	def = null;
 			if(defar != null && i < defar.length)
 				def = defar[i];
-			ComponentRef	cr	= m_builder.findReferenceFor(stack, fp, fpann[i], def);
+			ComponentRef	cr	= m_builder.findReferenceFor(null, stack, fp, fpann[i], def);
 			if(cr == null) {
 				//-- Cannot use this- the parameter passed cannot be filled in.
 				throw new IocUnresolvedParameterException("Parameter "+i+" (a "+fp+") cannot be resolved");
@@ -679,9 +693,9 @@ public class ComponentBuilder {
 	/*	CODING:	Factory-based build plan.							*/
 	/*--------------------------------------------------------------*/
 
-	private BuildPlan	createStaticFactoryBuildPlan(final Stack<ComponentBuilder> stack) {
+	private BuildPlan	createStaticFactoryBuildPlan(final ISelfDef self, final Stack<ComponentBuilder> stack) {
 		//-- Walk all factoryStart methods that are defined and create the methodlist from them
-		List<MethodInvoker>	startlist = createCallList(stack, m_factoryStartList);
+		List<MethodInvoker>	startlist = createCallList(self, stack, m_factoryStartList);
 
 		//-- Walk all possible factory methods, scoring them,
 		List<BuildPlanForStaticFactory>	list = new ArrayList<BuildPlanForStaticFactory>();
@@ -731,17 +745,17 @@ public class ComponentBuilder {
 	/*	CODING:	Call invoker build plan calculator.					*/
 	/*--------------------------------------------------------------*/
 
-	private List<MethodInvoker>	createCallList(final Stack<ComponentBuilder> stack, final List<MethodCallBuilder> list) {
+	private List<MethodInvoker>	createCallList(final ISelfDef self, final Stack<ComponentBuilder> stack, final List<MethodCallBuilder> list) {
 		List<MethodInvoker>	res = new ArrayList<MethodInvoker>(list.size());
 		for(MethodCallBuilder mcb : list)
-			res.add(mcb.createInvoker(stack));
+			res.add(mcb.createInvoker(self, stack));
 		return res;
 	}
 
-	private MethodInvoker[]	createCallArray(final Stack<ComponentBuilder> stack, final List<MethodCallBuilder> source) {
+	private MethodInvoker[]	createCallArray(final ISelfDef self, final Stack<ComponentBuilder> stack, final List<MethodCallBuilder> source) {
 		MethodInvoker[]	ar = new MethodInvoker[source.size()];
 		for(int i = 0; i < ar.length; i++)
-			ar[i] = source.get(i).createInvoker(stack);
+			ar[i] = source.get(i).createInvoker(self, stack);
 		return ar;
 	}
 
