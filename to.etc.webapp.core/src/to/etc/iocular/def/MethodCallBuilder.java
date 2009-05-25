@@ -31,6 +31,8 @@ public class MethodCallBuilder {
 
 	private ParamMode				m_paramMode = ParamMode.UNKNOWN;
 
+	private boolean					m_thisIsSelf;
+
 	/**
 	 * The defined parameters for this method as set by the builder. The order is undefined. If parameters are set by number
 	 * isNumbered() is true; in that case each parameter's number has an assignment.
@@ -237,7 +239,7 @@ public class MethodCallBuilder {
 		/*
 		 * Must find an acceptable match for each formal parameter.
 		 */
-		if(m_paramMode == ParamMode.NUMBERED) {
+		if(m_paramMode == ParamMode.NUMBERED || m_paramMode == ParamMode.UNKNOWN) {
 			//-- Each method parameter *must* correspond with the exact defintion at that index.
 			if(m_actuals.size() != fpar.length)						// If parameter counts mismatch we do not use this
 				return null;
@@ -262,8 +264,10 @@ public class MethodCallBuilder {
 			}
 
 			//-- Must be called on some instance.
-
-
+			if(m_thisIsSelf) {
+				//-- Use "SELF" as the base.
+				return new MethodInvoker(m, new ComponentRef(self), refar);	// Invoker without "this" reference,
+			}
 		}
 
 		//-- Each parameter must be provided for, but parameter locations need not match and when not explicit values may be inferred for unspecified parameters
@@ -318,5 +322,10 @@ public class MethodCallBuilder {
 //
 		return true;
 	}
+
+	public void setThisIsSelf() {
+		m_thisIsSelf = true;
+	}
+
 
 }

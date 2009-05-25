@@ -377,7 +377,7 @@ public class BasicContainerBuilder implements Builder {
 			//-- Self reference. Create a synthetic reference which does contain a proper type.
 			if(self == null)
 				throw new IllegalStateException("Internal: self reference requested but 'self' is not known...");
-			return new ComponentRef((ComponentDef) self);					// SELF reference,
+			return new ComponentRef(self);					// SELF reference,
 		}
 
 		//-- 1. Try to find the thingy in here,

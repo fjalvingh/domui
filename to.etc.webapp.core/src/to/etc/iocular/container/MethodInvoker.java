@@ -22,7 +22,7 @@ final public class MethodInvoker {
 	private final ComponentRef[]	m_actuals;
 
 	/** The object to be used as 'this'; if this is a static method this contains null. */
-	private final ComponentRef			m_thisRef;
+	private final ComponentRef		m_thisRef;
 
 	public MethodInvoker(final Method method, final ComponentRef thisref, final ComponentRef[] actuals) {
 		m_method = method;

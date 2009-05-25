@@ -247,11 +247,12 @@ public class ComponentBuilder {
 	}
 
 	/**
-	 * Define a "close" or "discard" method for a given object. When added, this adds a method on some
+	 * Define a "close" or "discard" method <i>on another class</i> for a given object. When added, this adds a method on some
 	 * class which gets called when the object is being destroyed at container destroy time. Objects are
 	 * destroyed in the reverse order of creation. This pertains to the actual object (the result of
 	 * a getObject call). The method being called must have that object or one of it's base classes as
 	 * parameter.
+	 * The method passed <b>must</b> be a static method on the specified class currently.
 	 *
 	 * @param wh
 	 * @param what
@@ -263,6 +264,24 @@ public class ComponentBuilder {
 
 		//-- At least one of the parameters *must* be the object we've just constructed.
 		mcb.setParameterSelf(0);						// Parameter 0 must be me.
+		m_destroyList.add(mcb);
+		return this;
+	}
+
+	/**
+	 * Define a "close" or "discard" method on the <i>instance</i> that was created. The method must
+	 * be a non-static method without arguments.
+	 *
+	 * @param methodName
+	 * @return
+	 */
+	public ComponentBuilder	destroy(final String methodName) {
+		MethodCallBuilder	mcb = new MethodCallBuilder(this, m_actualType, methodName);
+		m_currentMethodBuilder = mcb;
+
+		//-- At least one of the parameters *must* be the object we've just constructed.
+		mcb.setThisIsSelf();
+//		mcb.setParameterSelf(0);						// Parameter 0 must be me.
 		m_destroyList.add(mcb);
 		return this;
 	}

@@ -20,8 +20,8 @@ final public class ComponentRef {
 		m_def = def;
 		m_containerIndex = containerIndex;
 	}
-	ComponentRef(final ComponentDef def) {
-		m_def = def;
+	ComponentRef(final ISelfDef def) {
+		m_def = (ComponentDef)def;
 		m_containerIndex = -1;
 	}
 	public ComponentDef getDefinition() {

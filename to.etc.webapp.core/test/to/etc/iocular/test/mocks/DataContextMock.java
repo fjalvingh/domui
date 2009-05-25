@@ -12,6 +12,7 @@ public class DataContextMock implements QDataContext {
 	}
 
 	public void commit() throws Exception {
+		decrement();							// Used in "instance destroy method" test because QDataContext does not expose 'close'
 	}
 
 	public void delete(final Object o) throws Exception {
@@ -58,5 +59,9 @@ public class DataContextMock implements QDataContext {
 	}
 	public int	testGetUseCount() {
 		return m_alloc;
+	}
+
+	public void	close() {
+		decrement();
 	}
 }

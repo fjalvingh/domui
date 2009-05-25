@@ -204,6 +204,35 @@ public class TestBasicConfigs {
 		Assert.assertEquals("Singleton must have been destroyed only once", 0, ((DataContextMock)dc).testGetUseCount());
 	}
 
+	/**
+	 * Define a destroy method on the created object itself, like session.close().
+	 * @throws Exception
+	 */
+	@Test
+	public void	testDestroyMethod4() throws Exception {
+		System.out.println("---- destroyMethod4 config test ----");
+		BasicContainerBuilder	b	= BasicContainerBuilder.createBuilder("root");
+		b.register()
+			.implement(QDataContext.class)
+			.factory(DbUtilMock.class, "createContext")
+			.destroy("commit")						// We use 'commit' instead of 'close' because QDataContext does not have a close method, so we fake stuff a bit here..
+		;
+		ContainerDefinition	cd	= b.createDefinition();
+		BasicContainer	bc	= new BasicContainer(cd, null);
+		bc.start();
+		bc.dump(QDataContext.class);
+		QDataContext	dc	= bc.getObject(QDataContext.class);				// CREATE an instance
+
+		Assert.assertEquals("Allocation count must be 1", 1, ((DataContextMock)dc).testGetUseCount());
+
+		//-- Destroy the thing.
+		bc.destroy();
+
+		//-- Now the singleton must have been destroyed once...
+		Assert.assertEquals("Singleton must have been destroyed only once", 0, ((DataContextMock)dc).testGetUseCount());
+	}
+
+
 	@Test
 	public void		testInstantConfig() throws Exception {
 		BasicContainerBuilder	b	= BasicContainerBuilder.createBuilder("root");
