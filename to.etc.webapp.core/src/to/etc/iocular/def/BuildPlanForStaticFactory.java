@@ -81,7 +81,7 @@ public class BuildPlanForStaticFactory extends AbstractBuildPlan {
 	@Override
 	public void staticStart(final BasicContainer c) throws Exception {
 		for(MethodInvoker miv : m_startList) {
-			miv.invoke(null, c, null);		// FIXME The 'this' object must be variable and part of the MethodInvoker call!!
+			miv.invoke(c, null);
 		}
 	}
 }

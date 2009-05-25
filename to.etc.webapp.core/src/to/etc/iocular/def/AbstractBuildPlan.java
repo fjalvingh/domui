@@ -90,7 +90,7 @@ abstract public class AbstractBuildPlan implements BuildPlan {
 			return;
 		for(MethodInvoker m: m_destroyList) {
 			try {
-				m.invoke(self, bc, self);				// FIXME The 'this' object must be variable and part of the MethodInvoker call!!
+				m.invoke(bc, self);
 			} catch(Exception x) {
 				System.err.println("Exception while trying to destroy instance="+self);
 				x.printStackTrace();
@@ -111,7 +111,7 @@ abstract public class AbstractBuildPlan implements BuildPlan {
 		if(m_startList == null)
 			return;
 		for(MethodInvoker m: m_startList) {
-			m.invoke(self, bc, self);	// FIXME The 'this' object must be variable and part of the MethodInvoker call!!
+			m.invoke(bc, self);
 		}
 	}
 }

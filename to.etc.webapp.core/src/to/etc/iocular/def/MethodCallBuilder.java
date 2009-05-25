@@ -256,7 +256,14 @@ public class MethodCallBuilder {
 				}
 				refar[i] = cr;
 			}
-			return new MethodInvoker(m, refar);
+
+			if(Modifier.isStatic(m.getModifiers())) {
+				return new MethodInvoker(m, null, refar);			// Invoker without "this" reference,
+			}
+
+			//-- Must be called on some instance.
+
+
 		}
 
 		//-- Each parameter must be provided for, but parameter locations need not match and when not explicit values may be inferred for unspecified parameters
