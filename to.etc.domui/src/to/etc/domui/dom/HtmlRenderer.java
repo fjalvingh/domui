@@ -24,7 +24,7 @@ public class HtmlRenderer implements NodeVisitor {
 //	private boolean				m_updating;
 
 	private HtmlRenderMode		m_mode;
-	
+
 //	private boolean				m_isNewNode;
 
 	public HtmlRenderer(final BrowserOutput o) {
@@ -54,8 +54,8 @@ public class HtmlRenderer implements NodeVisitor {
 //	public boolean isUpdating() {
 //		return m_updating;
 //	}
-	
-	public void	setRenderMode(HtmlRenderMode rm) {
+
+	public void	setRenderMode(final HtmlRenderMode rm) {
 		m_mode = rm;
 	}
 	public HtmlRenderMode getMode() {
@@ -72,12 +72,12 @@ public class HtmlRenderer implements NodeVisitor {
 	private boolean	isAttrRender() {
 		return m_mode == HtmlRenderMode.ATTR;
 	}
-	private boolean	isAddsRender() {
-		return m_mode == HtmlRenderMode.ADDS;
-	}
-	private boolean	isReplaceRender() {
-		return m_mode == HtmlRenderMode.REPL;
-	}
+//	private boolean	isAddsRender() {
+//		return m_mode == HtmlRenderMode.ADDS;
+//	}
+//	private boolean	isReplaceRender() {
+//		return m_mode == HtmlRenderMode.REPL;
+//	}
 
 	/**
 	 * Return the cleared scratchbuffer.
