@@ -232,7 +232,6 @@ public class TestBasicConfigs {
 		Assert.assertEquals("Singleton must have been destroyed only once", 0, ((DataContextMock)dc).testGetUseCount());
 	}
 
-
 	@Test
 	public void		testInstantConfig() throws Exception {
 		BasicContainerBuilder	b	= BasicContainerBuilder.createBuilder("root");
