@@ -11,6 +11,7 @@ import to.etc.server.ajax.*;
 import to.etc.server.ajax.renderer.*;
 import to.etc.server.ajax.renderer.json.*;
 import to.etc.server.ajax.renderer.xml.*;
+import to.etc.server.misc.*;
 import to.etc.util.*;
 import to.etc.xml.*;
 
@@ -24,8 +25,8 @@ import to.etc.xml.*;
 public class RpcCallHandler {
 	static private final Logger		LOG = Logger.getLogger(RpcCallHandler.class.getName());
 
-	static private boolean[]		PARAMONE = {true};
-
+//	static private boolean[]		PARAMONE = {true};
+//
 	/** Maps keys to resolved handler info thingies, for speed. */
 	private final Map<String, RpcClassDefinition> m_classDefMap = new HashMap<String, RpcClassDefinition>();
 
@@ -204,26 +205,10 @@ public class RpcCallHandler {
 	/*	CODING:	Call parameter provisioning and method call code.	*/
 	/*--------------------------------------------------------------*/
 
-//	private class MethodCallHelper {
-//		private final RpcMethodDefinition	m_methodDef;
-//		private final Object[]				m_param;
-//		private final Class<?>[]			m_formals;
-//
-//		public MethodCallHelper(final RpcMethodDefinition mi) {
-//			m_methodDef = mi;
-//			m_formals	= mi.getMethod().getParameterTypes();
-//			m_param		= new Object[m_formals.length];
-//		}
-//
-//		public Object invoke(final Object handler) throws Exception {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
-//	}
 
 	static public <T extends Annotation> T	findAnnotation(final Annotation[] annar, final Class<T> clz) {
 		for(Annotation ann: annar) {
-			if(ann.getClass() == clz)
+			if(ann.annotationType() == clz)
 				return (T) ann;
 		}
 		return null;
@@ -262,7 +247,7 @@ public class RpcCallHandler {
 				args[oix] = papro.findParameterValue(formals[oix], argannar[oix], ix, apm);
 				if(args[oix] == IParameterProvider.NO_VALUE)
 					throw new RpcException("Parameter "+oix+" of method "+mi.getMethod()+" has no value.");
-
+				oix++;
 			}
 			result = mi.getMethod().invoke(handler, args);
 			sb.append(": okay, result=");
@@ -382,101 +367,83 @@ public class RpcCallHandler {
 	/*	CODING:	Bulk call handling - JSON							*/
 	/*--------------------------------------------------------------*/
 
-//	static private class BulkSourceGetter implements InjectorSourceRetriever {
-//		private final InjectorSourceRetriever	m_parent;
-//
-//		private Map<Object, Object>		m_current;
-//
-//		BulkSourceGetter(final InjectorSourceRetriever r) {
-//			m_parent = r;
-//		}
-//		public Object getInjectorSource(final Class<?> sourcecl) throws Exception {
-//			if(sourcecl == Map.class)
-//				return m_current;
-//			return m_parent.getInjectorSource(sourcecl);
-//		}
-//		public void setCurrent(final Map<Object, Object> current) {
-//			m_current = current;
-//		}
-//	}
-//
-//	/**
-//	 * Reads and executes a JSON bulk request. The JSON structure is an array of
-//	 * objects. Each object has the following keys:
-//	 * <dl>
-//	 * 	<dt>method: string</dt>
-//	 * 	<dd>The full class and method name of the thing to call. The classname and method name are
-//	 * 		separated by a dot.</dd>
-//	 *	<dt>parameters: object</dt>
-//	 *	<dd>The call's parameters, as an object where each key will get evaluated as a parameter.</dd>
-//	 *	<dt>id: string or number</dt>
-//	 *	<dd>When present the response will echo this ID</dd>
-//	 *	<dt>cancelonerror: boolean<dt>
-//	 *	<dd>When present and true, the bulk handler will cancel the rest of the calls if one call fails.</dd>
-//	 * </dl>
-//	 * @param json
-//	 * @throws Exception
-//	 */
-//	public void executeBulkJSON(final ServiceCallerCallback cb, final String json) throws Exception {
-//		LOG.info("SVC: JSON bulk call: " + json);
-//		Object jsonds = JSONParser.parseJSON(json);
-//		if(! (jsonds instanceof List))
-//			throw new ServiceException("The bulk call JSON data must be an array");
-//		List<Object> reslist = new ArrayList<Object>();
-//		boolean cancelled = false;
-//		int ix = 0;
+	/**
+	 * Reads and executes a JSON bulk request. The JSON structure is an array of
+	 * objects. Each object has the following keys:
+	 * <dl>
+	 * 	<dt>method: string</dt>
+	 * 	<dd>The full class and method name of the thing to call. The classname and method name are
+	 * 		separated by a dot.</dd>
+	 *	<dt>parameters: object</dt>
+	 *	<dd>The call's parameters, as an object where each key will get evaluated as a parameter.</dd>
+	 *	<dt>id: string or number</dt>
+	 *	<dd>When present the response will echo this ID</dd>
+	 *	<dt>cancelonerror: boolean<dt>
+	 *	<dd>When present and true, the bulk handler will cancel the rest of the calls if one call fails.</dd>
+	 * </dl>
+	 * @param json
+	 * @throws Exception
+	 */
+	public void executeBulkJSON(final IRpcCallContext cb, final String json) throws Exception {
+		LOG.info("SVC: JSON bulk call: " + json);
+		Object jsonds = JSONParser.parseJSON(json);
+		if(! (jsonds instanceof List))
+			throw new ServiceException("The bulk call JSON data must be an array");
+		List<Object> reslist = new ArrayList<Object>();
+		boolean cancelled = false;
+		int ix = 0;
 //		BulkSourceGetter	bsg = new BulkSourceGetter(cb);		// Thingy to collect parameters for each call
 //		List<Class<? extends Object>>	sourceList = new ArrayList<Class<? extends Object>>(getSourceClassesList());
 //		sourceList.add(Map.class);								// Append map type containing JSON parameters
-//
-//		for(Object o : (List) jsonds) {
-//			//-- This should be a Map containing the command names. Execute each and append the result to the result list for later rendering
-//			if(!(o instanceof Map))
-//				throw new ServiceException("The bulk call's list member type of item# " + ix + " is not a JSON object");
-//			if(cancelled)
-//				reslist.add(new HashMap<Object, Object>());
-//			else {
-//				Object res = executeSingleJSON(cb, sourceList, (Map) o, ix, bsg);
-//				reslist.add(res);
-//			}
-//			ix++;
-//		}
-//
-////		//-- Render back the result.
-//		Writer	ow	= cb.getResponseWriter(ResponseFormat.JSON, "bulk");
-//		renderResponseObject(ow, ResponseFormat.JSON, reslist);
-//	}
-//
-//	/**
-//	 * Tries to execute a single JSON-specified call.
-//	 * @param callmap
-//	 * @return
-//	 * @throws Exception
-//	 */
-//	private Object executeSingleJSON(final ServiceCallerCallback cb, final List<Class<? extends Object>> sourceList, final Map<Object, Object> callmap, final int index, final BulkSourceGetter isr) throws Exception {
-//		String name = (String) callmap.get("method");
-//		if(name == null)
-//			throw new ServiceException("Missing 'method' property in list item #" + index); // Fatal.
-//		Object o = callmap.get("id");
-//		String id = o == null ? null : o.toString();
-//		o = callmap.get("cancelonerror");
+
+		for(Object o : (List<?>) jsonds) {
+			//-- This should be a Map containing the command names. Execute each and append the result to the result list for later rendering
+			if(!(o instanceof Map))
+				throw new ServiceException("The bulk call's list member type of item# " + ix + " is not a JSON object");
+			if(cancelled)
+				reslist.add(new HashMap<Object, Object>());
+			else {
+				Object res = executeSingleJSON(cb, (Map<Object, Object>) o, ix);
+				reslist.add(res);
+			}
+			ix++;
+		}
+
+//		//-- Render back the result.
+		Writer	ow	= cb.getResponseWriter(ResponseFormat.JSON, "bulk");
+		renderResponseObject(ow, ResponseFormat.JSON, reslist);
+	}
+
+	/**
+	 * Tries to execute a single JSON-specified call.
+	 * @param callmap
+	 * @return
+	 * @throws Exception
+	 */
+	private Object executeSingleJSON(final IRpcCallContext cb, final Map<Object, Object> callmap, final int index) throws Exception {
+		String name = (String) callmap.get("method");
+		if(name == null)
+			throw new ServiceException("Missing 'method' property in list item #" + index); // Fatal.
+		Object o = callmap.get("id");
+		String id = o == null ? null : o.toString();
+		o = callmap.get("cancelonerror");
 //		boolean cancel = false;
 //		if(o != null && StringTool.dbGetBool((String) o))
 //			cancel = true;
-//		o = callmap.get("parameters");
-//		if(o != null && !(o instanceof Map))
-//			throw new ServiceException("The 'parameters' item is not a Map in list item #" + index); // Fatal.
-//		Map<Object, Object> parameters = o == null ? new HashMap<Object, Object>() : (Map) o;
-//		isr.setCurrent(parameters);
-//		ServiceMethodDefinition mi = findHandlerMethod(cb, name); 		// Find the appropriate method to call, and check permissions.
-//		Object handler = allocateHandler(isr, sourceList, mi);			// We always need a handler instance,
-//		Object	result = executeMethod(isr, sourceList, mi, handler);
-//		Map<Object,Object> resmap = new HashMap<Object, Object>();
-//		if(id != null)
-//			resmap.put("id", id);
-//		resmap.put("result", result);
-//		return resmap;
-//	}
+		o = callmap.get("parameters");
+		if(o != null && !(o instanceof Map))
+			throw new ServiceException("The 'parameters' item is not a Map in list item #" + index); // Fatal.
+		Map<Object, Object> parameters = o == null ? new HashMap<Object, Object>() : (Map<Object, Object>) o;
+		RpcMethodDefinition mi = findHandlerMethod(cb, name); 		// Find the appropriate method to call, and check permissions.
+		Object handler = allocateHandler(cb, mi);					// We always need a handler instance,
+		JsonParameterProvider	pp = new JsonParameterProvider(parameters);
+		Object	result = executeMethod(cb, mi, handler, pp, null);
+		Map<Object,Object> resmap = new HashMap<Object, Object>();
+		if(id != null)
+			resmap.put("id", id);
+		resmap.put("result", result);
+		return resmap;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Dumb code.											*/

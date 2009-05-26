@@ -84,7 +84,7 @@ public class AjaxRequestContext implements IRpcCallContext {
 				ex = pos;
 			String call = rurl.substring(sx, ex); // Base name contains class and method.
 			if(call.equals("bulk")) {
-//				executeBulkRequest();
+				executeBulkRequest();
 				return;
 			}
 
@@ -104,5 +104,18 @@ public class AjaxRequestContext implements IRpcCallContext {
 
 		}
 	}
+
+	/**
+	 * Handles a bulk (multicall) request.
+	 */
+	private void executeBulkRequest() throws Exception {
+		String	json = m_rctx.getParameter("json");
+		if(json != null) {
+			m_callHandler.executeBulkJSON(this, json);
+			return;
+		}
+		throw new RuntimeException("Bulk calls implemented for JSON only (and no json= parameter found).");
+	}
+
 
 }
