@@ -79,6 +79,9 @@ public class ComponentBuilder {
 	public BasicContainerBuilder	getBuilder() {
 		return m_builder;
 	}
+	MethodCallBuilder getCurrentMethodBuilder() {
+		return m_currentMethodBuilder;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Builder construction methods.						*/

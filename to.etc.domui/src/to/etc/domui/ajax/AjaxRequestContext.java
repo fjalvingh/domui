@@ -3,10 +3,10 @@ package to.etc.domui.ajax;
 import java.io.*;
 import javax.servlet.http.*;
 
+import to.etc.domui.annotations.*;
 import to.etc.domui.login.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
-import to.etc.server.ajax.*;
 
 public class AjaxRequestContext implements IRpcCallContext {
 	private final RequestContextImpl		m_rctx;

@@ -2,11 +2,10 @@ package to.etc.domui.ajax;
 
 import java.lang.annotation.*;
 
+import to.etc.domui.annotations.*;
 import to.etc.domui.server.*;
-import to.etc.server.ajax.*;
-import to.etc.server.injector.*;
-import to.etc.server.misc.*;
 import to.etc.util.*;
+import to.etc.webapp.ajax.renderer.*;
 
 public class URLParameterProvider implements IParameterProvider {
 	private final RequestContextImpl		m_ctx;
@@ -20,7 +19,7 @@ public class URLParameterProvider implements IParameterProvider {
         if(pv == null || pv.length == 0)
             return NO_VALUE;
         if(pv.length > 1)
-            throw new ParameterException("The value for the injector parameter '"+ap.value()+"' must be a single request value").setParameterName(ap.value());
+            throw new RpcException("The value for the injector parameter '"+ap.value()+"' must be a single request value");
         if(ap.json()) {
 //        	System.out.println("ajax: json value for parameter '"+name+"' is "+pv[0]);
         	//-- Convert the input from JSON to whatever object is needed,

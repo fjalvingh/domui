@@ -3,7 +3,7 @@ package to.etc.domui.ajax;
 import java.lang.annotation.*;
 import java.util.*;
 
-import to.etc.server.ajax.*;
+import to.etc.domui.annotations.*;
 import to.etc.util.*;
 
 public class JsonParameterProvider implements IParameterProvider {

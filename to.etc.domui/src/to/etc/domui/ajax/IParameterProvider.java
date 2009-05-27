@@ -2,7 +2,7 @@ package to.etc.domui.ajax;
 
 import java.lang.annotation.*;
 
-import to.etc.server.ajax.*;
+import to.etc.domui.annotations.*;
 
 public interface IParameterProvider {
 	static public final String	NO_VALUE = "$*$novalue";

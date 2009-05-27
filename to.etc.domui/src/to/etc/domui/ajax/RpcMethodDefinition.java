@@ -3,7 +3,7 @@ package to.etc.domui.ajax;
 import java.lang.reflect.*;
 import java.util.*;
 
-import to.etc.server.ajax.*;
+import to.etc.domui.annotations.*;
 
 public class RpcMethodDefinition {
 	private final RpcClassDefinition m_ServiceClassDefinition;
@@ -42,7 +42,7 @@ public class RpcMethodDefinition {
 		try {
 			m_method = findMethod(m_name);
 			if(m_method == null)
-				throw new UnknownServiceMethodException(m_ServiceClassDefinition.getHandlerClass(), m_name);
+				throw new RpcException(m_ServiceClassDefinition.getHandlerClass()+" does not have a method called '"+m_name+"'");
 			checkReturnMethod();
 			checkAnnotations(m_method);
 		}
@@ -62,7 +62,7 @@ public class RpcMethodDefinition {
 		//-- Void method: the 1st parameter defines the method to render the output
 		Class<?>[]	par = m_method.getParameterTypes();
 		if(par.length == 0)
-			throw new ServiceException("The method '"+m_method+"' returns void and does not have an output parameter; it cannot be called.");
+			throw new RpcException("The method '"+m_method+"' returns void and does not have an output parameter; it cannot be called.");
 		m_outputClass = par[0];						// Output parameter type.
 	}
 
@@ -72,7 +72,7 @@ public class RpcMethodDefinition {
 		for(Method m : cl.getMethods()) {
 			if(m.getName().equals(name)) {
 				if(foundm != null)
-					throw new UnknownServiceMethodException(m_ServiceClassDefinition.getHandlerClass(), m_name, "The method '" + name + "' occurs 2ce ["
+					throw new RpcException("The method '" + name + "' occurs 2ce ["
 							+ foundm.toGenericString() + " and " + m.toGenericString() + "]");
 				foundm = m;
 			}
@@ -87,7 +87,7 @@ public class RpcMethodDefinition {
 		AjaxMethod am = m.getAnnotation(AjaxMethod.class);
 		List<String> l = new ArrayList<String>();
 		if(am == null)
-			throw new UnknownServiceMethodException(m.getDeclaringClass(), m.getName(), "The method is not annotated with @AjaxMethod");
+			throw new RpcException(m.getName()+": The method is not annotated with @AjaxMethod");
 
 		if(am.roles() != null) {
 			StringTokenizer st = new StringTokenizer(am.roles(), " \t,");

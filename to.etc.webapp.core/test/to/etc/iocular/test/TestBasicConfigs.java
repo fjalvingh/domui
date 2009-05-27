@@ -157,7 +157,7 @@ public class TestBasicConfigs {
 			.factory(DbUtilMock.class, "createContext")
 			.destroy(DbUtilMock.class, "discardaContext")
 		;
-		ContainerDefinition	cd	= b.createDefinition();
+		b.createDefinition();
 	}
 
 	/**
@@ -173,7 +173,7 @@ public class TestBasicConfigs {
 			.factory(DbUtilMock.class, "createContext")
 			.destroy(DbUtilMock.class, "badDiscardContext")
 		;
-		ContainerDefinition	cd	= b.createDefinition();
+		b.createDefinition();
 	}
 
 	/**

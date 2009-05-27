@@ -21,18 +21,18 @@ public @interface UIUrlParameter {
 	 * as the name of the URL parameter.
 	 * @return
 	 */
-	String		name() default Constants.NONE;
+	String name() default Constants.NONE;
 
 	/**
 	 * By default all parameters defined are mandatory. Set this to false to make the URL parameter an optional
 	 * value. When a value is optional it's setter is NOT called when the URL parameter is not present.
 	 * @return
 	 */
-	boolean		mandatory() default true;
+	boolean mandatory() default true;
 
 	/**
 	 * When set this defines that the given parameter is the primary key for this entity.
 	 * @return
 	 */
-	Class<?>	entity() default Object.class;
+	Class< ? > entity() default Object.class;
 }

@@ -2,7 +2,7 @@ package to.etc.domui.ajax;
 
 import java.util.*;
 
-import to.etc.server.ajax.*;
+import to.etc.domui.annotations.*;
 
 public class RpcClassDefinition {
 	private final Class< ? > m_handlerClass;
@@ -37,7 +37,7 @@ public class RpcClassDefinition {
 
 	private void checkAnnotations() throws Exception {
 		if(!m_handlerClass.isAnnotationPresent(AjaxHandler.class))
-			throw new AjaxHandlerException("The class " + m_handlerClass.getCanonicalName() + " is not annotated with @AjaxHandler");
+			throw new RpcException("The class " + m_handlerClass.getCanonicalName() + " is not annotated with @AjaxHandler");
 		AjaxHandler ah = m_handlerClass.getAnnotation(AjaxHandler.class);
 		StringTokenizer st = new StringTokenizer(ah.roles(), " \t,");
 		List<String> l = new ArrayList<String>();

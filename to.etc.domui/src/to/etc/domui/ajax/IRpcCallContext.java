@@ -2,7 +2,7 @@ package to.etc.domui.ajax;
 
 import java.io.*;
 
-import to.etc.server.ajax.*;
+import to.etc.domui.annotations.*;
 
 public interface IRpcCallContext {
 	public <T> T	createHandlerClass(Class<T> clz) throws Exception;

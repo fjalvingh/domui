@@ -11,7 +11,7 @@ import java.lang.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 15, 2009
  */
-@Target(value=ElementType.TYPE)
+@Target(value = ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UIRights {
 	/**
@@ -19,5 +19,5 @@ public @interface UIRights {
 	 * specified must be present to allow access.
 	 * @return
 	 */
-	String[]		value() default {};
+	String[] value() default {};
 }

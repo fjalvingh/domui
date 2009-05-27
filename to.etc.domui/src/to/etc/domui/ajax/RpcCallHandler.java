@@ -7,12 +7,11 @@ import java.util.*;
 import java.util.logging.*;
 
 //import to.etc.server.ajax.*;
-import to.etc.server.ajax.*;
-import to.etc.server.ajax.renderer.*;
-import to.etc.server.ajax.renderer.json.*;
-import to.etc.server.ajax.renderer.xml.*;
-import to.etc.server.misc.*;
+import to.etc.domui.annotations.*;
 import to.etc.util.*;
+import to.etc.webapp.ajax.renderer.*;
+import to.etc.webapp.ajax.renderer.json.*;
+import to.etc.webapp.ajax.renderer.xml.*;
 import to.etc.xml.*;
 
 /**
@@ -68,7 +67,7 @@ public class RpcCallHandler {
 			//-- Not cached yet. Get a ref
 			Class<?> cl = findClass(basename);
 			if(cl == null)
-				throw new UnknownServiceClassException(basename);
+				throw new RpcException("Unknown class '"+basename+"'");
 
 			//-- Make sure this is annotated as a handler (security)
 			AjaxHandler	am = cl.getAnnotation(AjaxHandler.class);
@@ -112,13 +111,13 @@ public class RpcCallHandler {
 		//-- Resolve the URL into a handler class to execute,
 		RpcClassDefinition hi = resolveHandler(cn);
 		if(hi == null)
-			throw new UnknownServiceClassException(cn);
+			throw new RpcException("Unknown AJAX service class '"+cn+"'");
 
 		//-- 1. Constraints on the handler itself: security
 		String[] roles = hi.getRoles();
 		if(roles.length > 0) {
 			if(! hasAnyRole(cb, roles))
-				throw new ServiceExecException(hi.getHandlerClass(), "handler class is not allowed for the user's roles");
+				throw new RpcException(hi.getHandlerClass()+": handler class is not allowed for the user's roles");
 		}
 
 		//-- 2. Resolve the method
@@ -126,7 +125,7 @@ public class RpcCallHandler {
 		roles = mi.getRoles();
 		if(roles.length > 0) {
 			if(! hasAnyRole(cb, roles))
-				throw new ServiceExecException(hi.getHandlerClass(), "handler method is not allowed for the user's roles");
+				throw new RpcException(mi.getMethod().toString()+": handler method is not allowed for the user's roles");
 		}
 		return mi;
 	}
@@ -388,7 +387,7 @@ public class RpcCallHandler {
 		LOG.info("SVC: JSON bulk call: " + json);
 		Object jsonds = JSONParser.parseJSON(json);
 		if(! (jsonds instanceof List))
-			throw new ServiceException("The bulk call JSON data must be an array");
+			throw new RpcException("The bulk call JSON data must be an array");
 		List<Object> reslist = new ArrayList<Object>();
 		boolean cancelled = false;
 		int ix = 0;
@@ -399,7 +398,7 @@ public class RpcCallHandler {
 		for(Object o : (List<?>) jsonds) {
 			//-- This should be a Map containing the command names. Execute each and append the result to the result list for later rendering
 			if(!(o instanceof Map))
-				throw new ServiceException("The bulk call's list member type of item# " + ix + " is not a JSON object");
+				throw new RpcException("The bulk call's list member type of item# " + ix + " is not a JSON object");
 			if(cancelled)
 				reslist.add(new HashMap<Object, Object>());
 			else {
@@ -423,7 +422,7 @@ public class RpcCallHandler {
 	private Object executeSingleJSON(final IRpcCallContext cb, final Map<Object, Object> callmap, final int index) throws Exception {
 		String name = (String) callmap.get("method");
 		if(name == null)
-			throw new ServiceException("Missing 'method' property in list item #" + index); // Fatal.
+			throw new RpcException("Missing 'method' property in list item #" + index); // Fatal.
 		Object o = callmap.get("id");
 		String id = o == null ? null : o.toString();
 		o = callmap.get("cancelonerror");
@@ -432,7 +431,7 @@ public class RpcCallHandler {
 //			cancel = true;
 		o = callmap.get("parameters");
 		if(o != null && !(o instanceof Map))
-			throw new ServiceException("The 'parameters' item is not a Map in list item #" + index); // Fatal.
+			throw new RpcException("The 'parameters' item is not a Map in list item #" + index); // Fatal.
 		Map<Object, Object> parameters = o == null ? new HashMap<Object, Object>() : (Map<Object, Object>) o;
 		RpcMethodDefinition mi = findHandlerMethod(cb, name); 		// Find the appropriate method to call, and check permissions.
 		Object handler = allocateHandler(cb, mi);					// We always need a handler instance,
