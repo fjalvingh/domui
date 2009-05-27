@@ -17,9 +17,9 @@ import to.etc.util.*;
  * Created on Oct 22, 2008
  */
 public class HibernateReattachingDataContext extends HibernaatjeBaseContext {
-	private List<Object>			m_hibernatePersistedObjects = new ArrayList<Object>();
+	private final List<Object>			m_hibernatePersistedObjects = new ArrayList<Object>();
 
-	public HibernateReattachingDataContext(HibernateSessionMaker sessionMaker) {
+	public HibernateReattachingDataContext(final HibernateSessionMaker sessionMaker) {
 		super(sessionMaker);
 	}
 
@@ -45,7 +45,11 @@ public class HibernateReattachingDataContext extends HibernaatjeBaseContext {
 	}
 
 	@Override
-	public void conversationDetached(ConversationContext cc) throws Exception {
+	public void conversationDestroyed(final ConversationContext cc) throws Exception {
+		conversationDetached(cc);
+	}
+	@Override
+	public void conversationDetached(final ConversationContext cc) throws Exception {
 		if(m_session == null)
 			return;
 

@@ -15,4 +15,11 @@ public class UrlPage extends Div {
 	 */
 	public void		onReload() throws Exception {
 	}
+
+	/**
+	 * Called when the page gets destroyed (navigation or such).
+	 * @throws Exception
+	 */
+	public void		onDestroy() throws Exception {
+	}
 }

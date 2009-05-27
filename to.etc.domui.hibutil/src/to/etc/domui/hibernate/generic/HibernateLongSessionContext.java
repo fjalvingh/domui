@@ -15,7 +15,7 @@ import to.etc.domui.state.*;
  * Created on Oct 23, 2008
  */
 public class HibernateLongSessionContext extends HibernaatjeBaseContext {
-	public HibernateLongSessionContext(HibernateSessionMaker sessionMaker) {
+	public HibernateLongSessionContext(final HibernateSessionMaker sessionMaker) {
 		super(sessionMaker);
 	}
 
@@ -29,9 +29,13 @@ public class HibernateLongSessionContext extends HibernaatjeBaseContext {
 			System.out.println("Hibernate: reconnecting session.");
 		return m_session;
 	}
+	@Override
+	public void conversationDestroyed(final ConversationContext cc) throws Exception {
+		conversationDetached(cc);
+	}
 
 	@Override
-	public void conversationDetached(ConversationContext cc) throws Exception {
+	public void conversationDetached(final ConversationContext cc) throws Exception {
 		if(m_session == null || ! m_session.isConnected())
 			return;
 		SessionImpl	sim = (SessionImpl) m_session;

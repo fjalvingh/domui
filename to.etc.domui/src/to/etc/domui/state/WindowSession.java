@@ -513,7 +513,7 @@ final public class WindowSession {
 			destroyConversation(pg.internalGetConversation());				// Forcefully destroy this conversation,
 		} else {
 			//-- Remove this page from the conversation.
-			pg.getConversation().unregisterPage(pg);
+			pg.getConversation().destroyPage(pg);
 		}
 	}
 

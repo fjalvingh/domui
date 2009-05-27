@@ -115,15 +115,18 @@ public class ConversationContext implements IQContextContainer {
 	private String					m_fullId;
 
 	/** The pages that are part of this conversation, indexed by [className] */
-	private final Map<String, Page>		m_pageMap = new HashMap<String, Page>();
+	private final Map<String, Page>	m_pageMap = new HashMap<String, Page>();
 
-	private WindowSession		m_manager;
+	/** The map of all attribute objects added to this conversation. */
+	private Map<String, Object>		m_map = Collections.EMPTY_MAP;
+
+	private WindowSession			m_manager;
 
 	private DelayedActivitiesManager	m_delayManager;
 
-	private ConversationState			m_state = ConversationState.DETACHED;
+	private ConversationState		m_state = ConversationState.DETACHED;
 
-	private List<File>					m_uploadList = Collections.EMPTY_LIST;
+	private List<File>				m_uploadList = Collections.EMPTY_LIST;
 
 	void setId(final String id) {
 		m_id = id;
@@ -221,10 +224,23 @@ public class ConversationContext implements IQContextContainer {
 		LOG.info("Destroying "+this);
 		if(m_state == ConversationState.DESTROYED)
 			throw new IllegalStateException("Wrong state for DESTROY: "+m_state);
+
+		//-- Call the DESTROY handler for all attached pages, then disconnect them
+		for(Page pg: m_pageMap.values()) {
+			try {
+				pg.getBody().onDestroy();
+			} catch(Exception x) {
+				System.err.println("Exception in page "+pg.getBody()+"'s onDestroy handler: "+x);
+				x.printStackTrace();
+			}
+		}
+		m_pageMap.clear();
+
 		if(m_delayManager != null) {
 			m_delayManager.terminate();
 			m_delayManager = null;
 		}
+
 		for(Object o : m_map.values()) {
 			if(o instanceof ConversationStateListener) {
 				try {
@@ -234,8 +250,7 @@ public class ConversationContext implements IQContextContainer {
 					LOG.log(Level.SEVERE, "In calling destroy listener", x);
 				}
 			}
-		}
-		try {
+		} try {
 			onDestroy();
 		} finally {
 			m_state = ConversationState.DESTROYED;
@@ -272,16 +287,20 @@ public class ConversationContext implements IQContextContainer {
 		m_pageMap.put(p.getBody().getClass().getName(), p);
 		p.internalInitialize(papa, this);
 	}
-	void	unregisterPage(final Page pg) {
+	void	destroyPage(final Page pg) {
+		//-- Call the page's DESTROY handler while still attached
+		try {
+			pg.getBody().onDestroy();
+		} catch(Exception x) {
+			System.err.println("Exception in page "+pg.getBody()+"'s onDestroy handler: "+x);
+			x.printStackTrace();
+		}
 		m_pageMap.remove(pg.getBody().getClass().getName());
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Contained objects map (EXPERIMENTAL)				*/
 	/*--------------------------------------------------------------*/
-	/** The map of all objects added to this conversation. */
-	private Map<String, Object>		m_map = Collections.EMPTY_MAP;
-
 	/**
 	 * EXPERIMENTAL DO NOT USE.
 	 * @param name
