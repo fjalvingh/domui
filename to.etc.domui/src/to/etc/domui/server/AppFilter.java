@@ -88,38 +88,41 @@ public class AppFilter implements Filter {
 			java.util.logging.LogManager.getLogManager().reset();
 			java.util.logging.LogManager.getLogManager().readConfiguration(AppFilter.class.getResourceAsStream("logging.properties"));
 		} catch(IOException x) {
+			x.printStackTrace();
 			throw new WrappedException(x);
 		}
-		System.out.println("Init logger");
-//		System.out.println("QDataContext="+QDataContext.class.getClassLoader());
-
-		m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
-
-		//-- Get the root for all files in the webapp
-		File	approot = new File(config.getServletContext().getRealPath("/"));
-		System.out.println("WebApp root="+approot);
-		if(! approot.exists() || ! approot.isDirectory())
-			throw new IllegalStateException("Internal: cannot get webapp root directory");
-
-		m_config	= new ConfigParameters(config, approot);
-
-		//-- Handle application construction
-		m_applicationClassName = getApplicationClassName(m_config);
-		if(m_applicationClassName == null)
-			throw new UnavailableException("The application class name is not set. Use 'application' in the Filter parameters to set a main class.");
-
-		//-- Are we running in debug mode?
 		try {
+			System.out.println("Init logger");
+	//		System.out.println("QDataContext="+QDataContext.class.getClassLoader());
+
+			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
+
+			//-- Get the root for all files in the webapp
+			File	approot = new File(config.getServletContext().getRealPath("/"));
+			System.out.println("WebApp root="+approot);
+			if(! approot.exists() || ! approot.isDirectory())
+				throw new IllegalStateException("Internal: cannot get webapp root directory");
+
+			m_config	= new ConfigParameters(config, approot);
+
+			//-- Handle application construction
+			m_applicationClassName = getApplicationClassName(m_config);
+			if(m_applicationClassName == null)
+				throw new UnavailableException("The application class name is not set. Use 'application' in the Filter parameters to set a main class.");
+
 			String	autoload = m_config.getString("auto-reload");
 			if(autoload != null && autoload.trim().length() > 0)
 				m_contextMaker = new ReloadingContextMaker(m_applicationClassName, m_config, autoload);
 			else
 				m_contextMaker = new NormalContextMaker(m_applicationClassName, m_config);
 		} catch(RuntimeException x) {
+			x.printStackTrace();
 			throw x;
 		} catch(ServletException x) {
+			x.printStackTrace();
 			throw x;
 		} catch(Exception x) {
+			x.printStackTrace();
 			throw new WrappedException(x);		// James Gosling is an idiot
 		}
 	}
