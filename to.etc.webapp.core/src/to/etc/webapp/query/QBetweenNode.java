@@ -3,9 +3,9 @@ package to.etc.webapp.query;
 public class QBetweenNode extends QOperatorNode {
 	private QOperatorNode		m_a;
 	private QOperatorNode		m_b;
-	private QOperatorNode		m_prop;
+	private String				m_prop;
 	
-	public QBetweenNode(QOperation operation, QOperatorNode prop, QOperatorNode a, QOperatorNode b) {
+	public QBetweenNode(QOperation operation, String prop, QOperatorNode a, QOperatorNode b) {
 		super(operation);
 		m_a = a;
 		m_b = b;
@@ -17,7 +17,7 @@ public class QBetweenNode extends QOperatorNode {
 	public QOperatorNode getB() {
 		return m_b;
 	}
-	public QOperatorNode getProp() {
+	public String getProp() {
 		return m_prop;
 	}
 	@Override

@@ -21,38 +21,38 @@ public class QRestriction {
 	 * @param value
 	 * @return
 	 */
-	static public final	QBinaryNode	eq(String property, Object value) {
-		return new QBinaryNode(QOperation.EQ, new QPropertyNode(property), createValueNode(value));
+	static public final	QPropertyComparison	eq(String property, Object value) {
+		return new QPropertyComparison(QOperation.EQ, property, createValueNode(value));
 	}
-	static public final	QBinaryNode	ne(String property, Object value) {
-		return new QBinaryNode(QOperation.NE, new QPropertyNode(property), createValueNode(value));
+	static public final	QPropertyComparison	ne(String property, Object value) {
+		return new QPropertyComparison(QOperation.NE, property, createValueNode(value));
 	}
-	static public final	QBinaryNode	gt(String property, Object value) {
-		return new QBinaryNode(QOperation.GT, new QPropertyNode(property), createValueNode(value));
+	static public final	QPropertyComparison	gt(String property, Object value) {
+		return new QPropertyComparison(QOperation.GT, property, createValueNode(value));
 	}
-	static public final	QBinaryNode	lt(String property, Object value) {
-		return new QBinaryNode(QOperation.LT, new QPropertyNode(property), createValueNode(value));
+	static public final	QPropertyComparison	lt(String property, Object value) {
+		return new QPropertyComparison(QOperation.LT, property, createValueNode(value));
 	}
-	static public final	QBinaryNode	ge(String property, Object value) {
-		return new QBinaryNode(QOperation.GE, new QPropertyNode(property), createValueNode(value));
+	static public final	QPropertyComparison	ge(String property, Object value) {
+		return new QPropertyComparison(QOperation.GE, property, createValueNode(value));
 	}
-	static public final	QBinaryNode	le(String property, Object value) {
-		return new QBinaryNode(QOperation.LE, new QPropertyNode(property), createValueNode(value));
+	static public final	QPropertyComparison	le(String property, Object value) {
+		return new QPropertyComparison(QOperation.LE, property, createValueNode(value));
 	}
-	static public final	QBinaryNode	like(String property, Object value) {
-		return new QBinaryNode(QOperation.LIKE, new QPropertyNode(property), createValueNode(value));
+	static public final	QPropertyComparison	like(String property, Object value) {
+		return new QPropertyComparison(QOperation.LIKE, property, createValueNode(value));
 	}
 	static public final	QBetweenNode	between(String property, Object a, Object b) {
-		return new QBetweenNode(QOperation.BETWEEN, new QPropertyNode(property), createValueNode(a), createValueNode(b));
+		return new QBetweenNode(QOperation.BETWEEN, property, createValueNode(a), createValueNode(b));
 	}
-	static public final	QBinaryNode	ilike(String property, Object value) {
-		return new QBinaryNode(QOperation.ILIKE, new QPropertyNode(property), createValueNode(value));
+	static public final	QPropertyComparison	ilike(String property, Object value) {
+		return new QPropertyComparison(QOperation.ILIKE, property, createValueNode(value));
 	}
-	static public final QUnaryNode	isnull(String property) {
-		return new QUnaryNode(QOperation.ISNULL, new QPropertyNode(property));
+	static public final QUnaryProperty	isnull(String property) {
+		return new QUnaryProperty(QOperation.ISNULL, property);
 	}
-	static public final QUnaryNode	isnotnull(String property) {
-		return new QUnaryNode(QOperation.ISNOTNULL, new QPropertyNode(property));
+	static public final QUnaryProperty	isnotnull(String property) {
+		return new QUnaryProperty(QOperation.ISNOTNULL, property);
 	}
 	static public final QUnaryNode	sqlCondition(String sql) {
 		return new QUnaryNode(QOperation.SQL, new QLiteral(sql));
