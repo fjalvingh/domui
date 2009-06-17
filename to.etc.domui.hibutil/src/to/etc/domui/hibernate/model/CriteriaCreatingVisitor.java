@@ -40,49 +40,36 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		}
 	}
 
+	
 	@Override
-	public void visitBinaryNode(final QBinaryNode n) throws Exception {
-		QOperatorNode	lhs = n.getLhs();
-		QOperatorNode	rhs	= n.getRhs();
-
+	public void visitPropertyComparison(QPropertyComparison n) throws Exception {
+		QOperatorNode	rhs	= n.getExpr();
+		String	name	= n.getProperty();
 		QLiteral		lit	= null;
-		QPropertyNode	prop= null;
-		QPropertyNode	prop2= null;
-		if(lhs.getOperation() == QOperation.LITERAL && rhs.getOperation() == QOperation.PROP) {
-			lit = (QLiteral) lhs;
-			prop= (QPropertyNode) rhs;
-		} else if(rhs.getOperation() == QOperation.LITERAL && lhs.getOperation() == QOperation.PROP) {
+		if(rhs.getOperation() == QOperation.LITERAL) {
 			lit = (QLiteral) rhs;
-			prop= (QPropertyNode) lhs;
-		} else if(rhs.getOperation() == QOperation.PROP && lhs.getOperation() == QOperation.PROP) {
-			prop= (QPropertyNode) lhs;
-			prop2= (QPropertyNode) rhs;
 		} else
-			throw new IllegalStateException("Unknown operands to "+n.getOperation()+": "+lhs.getOperation()+" and "+rhs.getOperation());
+			throw new IllegalStateException("Unknown operands to "+n.getOperation()+": "+name+" and "+rhs.getOperation());
 
 		//-- If prop refers to some relation (dotted pair):
 		Criteria	subcrit	= null;
-		String		name = null;
-		if(prop != null) {
-			name = prop.getName();
-			if(name.contains(".")) {
-				//-- Dotted pair: construe a SubCriteria for the subproperty.
-				int	ix	= 0;
-				int	len = name.length();
-				Criteria	c	= m_crit;
-				while(ix < len) {
-					int pos = name.indexOf('.', ix);
-					if(pos == -1) {
-						name = name.substring(ix);			// What's left of the name after prefixes have been removed.
-						break;
-					}
-					String sub = name.substring(ix, pos);
-					ix	= pos+1;
-
-					c	= c.createCriteria(sub);
+		if(name.contains(".")) {
+			//-- Dotted pair: construe a SubCriteria for the subproperty.
+			int	ix	= 0;
+			int	len = name.length();
+			Criteria	c	= m_crit;
+			while(ix < len) {
+				int pos = name.indexOf('.', ix);
+				if(pos == -1) {
+					name = name.substring(ix);			// What's left of the name after prefixes have been removed.
+					break;
 				}
-				subcrit = c;
+				String sub = name.substring(ix, pos);
+				ix	= pos+1;
+
+				c	= c.createCriteria(sub);
 			}
+			subcrit = c;
 		}
 
 		Criterion	last = null;
@@ -91,31 +78,27 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				throw new IllegalStateException("Unexpected operation: "+n.getOperation());
 
 			case EQ:
-				if(prop2 == null && lit.getValue() == null) {
+				if(lit.getValue() == null) {
 					last = Restrictions.isNull(name);
 					break;
 				}
-				last	= prop2 != null ? Restrictions.eqProperty(name, prop2.getName()) : Restrictions.eq(name, lit.getValue());
+				last	= Restrictions.eq(name, lit.getValue());
 				break;
 			case NE:
-				if(prop2 == null && lit.getValue() == null) {
+				if(lit.getValue() == null) {
 					last = Restrictions.isNotNull(name);
 					break;
 				}
-				last	= prop2 != null ? Restrictions.neProperty(name, prop2.getName()) : Restrictions.ne(name, lit.getValue());
+				last	= Restrictions.ne(name, lit.getValue());
 				break;
-			case GT: 	last	= prop2 != null ? Restrictions.gtProperty(name, prop2.getName()) : Restrictions.gt(name, lit.getValue());	break;
-			case GE: 	last	= prop2 != null ? Restrictions.geProperty(name, prop2.getName()) : Restrictions.ge(name, lit.getValue());	break;
-			case LT: 	last	= prop2 != null ? Restrictions.ltProperty(name, prop2.getName()) : Restrictions.lt(name, lit.getValue());	break;
-			case LE: 	last	= prop2 != null ? Restrictions.leProperty(name, prop2.getName()) : Restrictions.le(name, lit.getValue());	break;
+			case GT: 	last	= Restrictions.gt(name, lit.getValue());	break;
+			case GE: 	last	= Restrictions.ge(name, lit.getValue());	break;
+			case LT: 	last	= Restrictions.lt(name, lit.getValue());	break;
+			case LE: 	last	= Restrictions.le(name, lit.getValue());	break;
 			case LIKE:
-				if(prop2 != null)
-					throw new IllegalStateException("Cannot use 'like' using two properties.");
 				last	= Restrictions.like(name, lit.getValue());
 				break;
 			case ILIKE:
-				if(prop2 != null)
-					throw new IllegalStateException("Cannot use 'ilike' using two properties.");
 				last	= Restrictions.ilike(name, lit.getValue());
 				break;
 		}
@@ -128,14 +111,11 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	@Override
 	public void visitBetween(final QBetweenNode n) throws Exception {
-		if(! (n.getProp() instanceof QPropertyNode))
-			throw new IllegalStateException("Expecting a property as 1st node in between");
-		QPropertyNode p = (QPropertyNode)n.getProp();
 		if(n.getA().getOperation() != QOperation.LITERAL || n.getB().getOperation() != QOperation.LITERAL)
 			throw new IllegalStateException("Expecting literals as 2nd and 3rd between parameter");
 		QLiteral a = (QLiteral) n.getA();
 		QLiteral b = (QLiteral) n.getB();
-		m_last	= Restrictions.between(p.getName(), a.getValue(), b.getValue());
+		m_last	= Restrictions.between(n.getProp(), a.getValue(), b.getValue());
 	}
 
 	/**
@@ -176,27 +156,11 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		Order ho = o.getDirection() == QSortOrderDirection.ASC ? Order.asc(o.getProperty()) : Order.desc(o.getProperty());
 		m_crit.addOrder(ho);
 	}
-
 	@Override
 	public void visitUnaryNode(final QUnaryNode n) throws Exception {
 		switch(n.getOperation()) {
 			default:
 				throw new IllegalStateException("Unsupported UNARY operation: "+n.getOperation());
-
-			case ISNOTNULL:
-				if(n.getNode() instanceof QPropertyNode) {
-					QPropertyNode pn = (QPropertyNode) n.getNode();
-					m_last = Restrictions.isNotNull(pn.getName());
-					return;
-				}
-				break;
-			case ISNULL:
-				if(n.getNode() instanceof QPropertyNode) {
-					QPropertyNode pn = (QPropertyNode) n.getNode();
-					m_last = Restrictions.isNull(pn.getName());
-					return;
-				}
-				break;
 			case SQL:
 				if(n.getNode() instanceof QLiteral) {
 					QLiteral l = (QLiteral) n.getNode();
@@ -206,16 +170,26 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				}
 				break;
 		}
-		throw new IllegalStateException("Unsupported UNARY operation "+n.getOperation()+" on a(n) "+n.getNode());
+		throw new IllegalStateException("Unsupported UNARY operation: "+n.getOperation());
+	}
+	
+	@Override
+	public void visitUnaryProperty(final QUnaryProperty n) throws Exception {
+		switch(n.getOperation()) {
+			default:
+				throw new IllegalStateException("Unsupported UNARY operation: "+n.getOperation());
+
+			case ISNOTNULL:
+				m_last = Restrictions.isNotNull(n.getProperty());
+				return;
+			case ISNULL:
+				m_last = Restrictions.isNull(n.getProperty());
+				return;
+		}
 	}
 
 	@Override
 	public void visitLiteral(final QLiteral n) throws Exception {
 		throw new IllegalStateException("? Unexpected literal: "+n);
 	}
-	@Override
-	public void visitPropertyNode(final QPropertyNode n) throws Exception {
-		throw new IllegalStateException("? Unexpected property: "+n);
-	}
-
 }
