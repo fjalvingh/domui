@@ -12,6 +12,7 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.query.*;
 
 /**
  * Mostly silly handler to handle direct DOM requests. Phaseless handler for testing
@@ -201,6 +202,11 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 			return;
 		} else {
 			PageMaker.injectPageValues(page.getBody(), ctx, papa);
+
+			if(page.getBody() instanceof IRebuildOnRefresh) {	// Must fully refresh?
+				page.getBody().forceRebuild();					// Cleanout state
+				QContextManager.closeSharedContext(page.getConversation());
+			}
 			page.getBody().onReload();
 		}
 		page.getConversation().processDelayedResults(page);
