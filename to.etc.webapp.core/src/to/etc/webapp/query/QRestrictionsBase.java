@@ -8,7 +8,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 21, 2009
  */
-class QRestrictionsBase {
+public class QRestrictionsBase {
 	private int					m_limit = -1;
 	private int					m_start = 0;
 

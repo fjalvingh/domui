@@ -20,17 +20,25 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitCriteria(final QCriteria<?> qc) throws Exception {
-		//-- 1. Handle all filters as a compound AND
-		for(QOperatorNode n : qc.getOperatorList()) {
-			n.visit(this);							// Convert to Criterion
-			if(m_last != null)
-				m_crit.add(m_last);
+	public void visitRestrictionsBase(QRestrictionsBase n) throws Exception {
+		QOperatorNode	r = n.getRestrictions();
+		if(r == null)
+			return;
+		if(r.getOperation() == QOperation.AND) {
+			QMultiNode	mn = (QMultiNode) r;
+			for(QOperatorNode qtn: mn.getChildren()) {
+				qtn.visit(this);
+				if(m_last != null)
+					m_crit.add(m_last);
+			}
+		} else {
+			r.visit(this);
 		}
+	}
 
-		//-- 2. Handle order
-		for(QOrder o : qc.getOrder())
-			o.visit(this);
+	@Override
+	public void visitCriteria(final QCriteria<?> qc) throws Exception {
+		super.visitCriteria(qc);
 
 		//-- 2. Handle limits and start
 		if(qc.getLimit() > 0)
