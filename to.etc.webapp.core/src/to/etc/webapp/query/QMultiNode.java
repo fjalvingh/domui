@@ -1,5 +1,7 @@
 package to.etc.webapp.query;
 
+import java.util.*;
+
 /**
  * A node representing the same operation spanning several
  * nodes (like x AND y AND z)
@@ -13,6 +15,9 @@ public class QMultiNode extends QOperatorNode {
 	public QMultiNode(QOperation operation, QOperatorNode[] ch) {
 		super(operation);
 		m_children = ch;
+	}
+	QMultiNode(QOperation operation, List<QOperatorNode> ch) {
+		this(operation, ch.toArray(new QOperatorNode[ch.size()]));
 	}
 	public QOperatorNode[] getChildren() {
 		return m_children;

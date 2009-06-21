@@ -1,5 +1,7 @@
 package to.etc.webapp.query;
 
+import java.util.*;
+
 /**
  * Base class for visiting a node tree. The methods in this base class cause all
  * children of a the tree to be visited in order.
@@ -25,14 +27,20 @@ public class QNodeVisitorBase implements QNodeVisitor {
 		n.getB().visit(this);
 	}
 
-	public void visitCriteria(QCriteria<?> qc) throws Exception {
-		//-- Visit all base criteria
-		for(QOperatorNode n : qc.getOperatorList())
-			n.visit(this);
-		for(QOrder o : qc.getOrder())
-			o.visit(this);
+	public void	visitRestrictionsBase(QRestrictionsBase n) throws Exception {
+		QOperatorNode	r = n.getRestrictions();
+		if(r != null)
+			r.visit(this);
 	}
 
+	public void visitCriteria(QCriteria<?> qc) throws Exception {
+		visitRestrictionsBase(qc);
+		visitOrderList(qc.getOrder());
+	}
+	public void	visitOrderList(List<QOrder> orderlist) throws Exception {
+		for(QOrder o : orderlist)
+			o.visit(this);
+	}
 	public void visitLiteral(QLiteral n) throws Exception {
 	}
 

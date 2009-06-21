@@ -58,7 +58,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		if(c == null)									// Some error has occured?
 			return;										// Don't do anything (errors will have been registered)
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(c.getOperatorCount() == 0 && ! isAllowEmptySearch()) {
+		if(! c.hasRestrictions() && ! isAllowEmptySearch()) {
 			addGlobalMessage(MsgType.ERROR, Msgs.V_MISSING_SEARCH);		// Missing inputs
 			return;
 		} else

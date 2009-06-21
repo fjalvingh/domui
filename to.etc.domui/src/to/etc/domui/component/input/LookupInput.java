@@ -92,7 +92,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		if(c == null)									// Some error has occured?
 			return;										// Don't do anything (errors will have been registered)
 		m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(c.getOperatorCount() == 0) {
+		if(! c.hasRestrictions()) {
 			m_floater.addGlobalMessage(MsgType.ERROR, Msgs.V_MISSING_SEARCH);		// Missing inputs
 			return;
 		} else
