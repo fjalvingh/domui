@@ -1,4 +1,4 @@
-package to.etc.domui.trouble;
+package to.etc.webapp.nls;
 
 import java.text.*;
 import java.util.*;
