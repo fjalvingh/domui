@@ -33,6 +33,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			}
 		} else {
 			r.visit(this);
+			m_crit.add(m_last);
 		}
 	}
 
