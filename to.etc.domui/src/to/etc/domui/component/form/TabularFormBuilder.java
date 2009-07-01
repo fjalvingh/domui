@@ -38,9 +38,6 @@ public class TabularFormBuilder {
 	/** Thingy to help calculating access rights (delegate) */
 	private final AccessCalculator	m_calc = new AccessCalculator();
 
-	/** Helper thingy which helps with collecting input nodes from the factory */
-	private final NodeContainer		m_collector = new Span();
-
 	/** For columnar mode this is the "next row" where we add a column */
 	private int					m_colRow;
 
@@ -283,8 +280,7 @@ public class TabularFormBuilder {
 	public <T extends NodeBase & IInputNode<?>> void		addProp(final String propertyname, final T ctl) {
 		PropertyMetaModel	pmm = resolveProperty(propertyname);
 		String	label = pmm.getDefaultLabel();
-		m_collector.add(ctl);
-		addControl(label, ctl, m_collector, ctl.isMandatory());
+		addControl(label, ctl, new NodeBase[] {ctl}, ctl.isMandatory());
 		getBindings().add(new SimpleComponentPropertyBinding(getModel(), pmm, ctl));
 	}
 
@@ -293,36 +289,34 @@ public class TabularFormBuilder {
 	 * @param name
 	 * @param label
 	 * @param pmm
-	 * @param editPossible, when false, the rendered control will never be editable.
+	 * @param editPossible, when false, the rendered control will be display-only and cannot be changed back to EDITABLE.
 	 */
 	private void	addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editPossible) {
 		//-- Check control permissions: does it have view permissions?
 		if(! m_calc.calculate(pmm))
 			return;
-		final NodeBase c = createControlFor(m_collector, pmm, editPossible && m_calc.isEditable());		// Add the proper input control for that type
-		addControl(label, c, m_collector, pmm.isRequired());
-
-		if(c instanceof IInputNode<?>) {
-			final IInputNode<?>	n = (IInputNode<?>) c;
-			m_bindings.add(new SimpleComponentPropertyBinding(m_model, pmm, n));
-		} else
-			throw new IllegalStateException("Dunno how to make a binding for a "+c);
+		final ControlFactory.Result	r = createControlFor(m_model, pmm, editPossible && m_calc.isEditable());		// Add the proper input control for that type
+		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired());
+		if(r.getBinding() != null)
+			m_bindings.add(r.getBinding());
+		else
+			throw new IllegalStateException("No binding for a "+r);
 	}
 
 	/**
 	 * Adds a control plus a label at the current location.
 	 * @param label
-	 * @param ctl
+	 * @param labelnode			The node to connect the Label to (for=)
 	 * @param mandatory
 	 */
-	private void addControl(final String label, final NodeBase ctl, final NodeContainer list, final boolean mandatory) {
+	private void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory) {
 		IControlLabelFactory	clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = DomApplication.get().getControlLabelFactory();
 			if(clf == null)
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
-		Label	l = clf.createControlLabel(ctl, label, true, mandatory);
+		Label	l = clf.createControlLabel(labelnode, label, true, mandatory);
 //
 //		if(mandatory)
 //			label = "*"+label;
@@ -331,8 +325,7 @@ public class TabularFormBuilder {
 	}
 
 	public void	addLabelAndControl(final String label, final NodeBase control, final boolean mandatory) {
-		m_collector.add(control);
-		addControl(label, control, m_collector, mandatory);
+		addControl(label, control, new NodeBase[] {control}, mandatory);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -454,18 +447,17 @@ public class TabularFormBuilder {
 	}
 
 	/**
-	 * Create the optimal control for the specified thingy.
+	 * Create the optimal control for the specified thingy, and return the binding for it.
 	 *
-	 * @param container
-	 * @param name
-	 * @param pmm
-	 * @return
+	 * @param container		This will receive all nodes forming the control.
+	 * @param model 		The content model used to obtain the Object instance whose property is being edited, for binding purposes.
+	 * @param pmm			The property meta for the property to find an editor for.
+	 * @param editable		When false this must make a displayonly control.
+	 * @return				The binding to bind the control to it's valueset
 	 */
-	private NodeBase		createControlFor(final NodeContainer container, final PropertyMetaModel pmm, final boolean editable) {
-		ControlFactory		cf	= DomApplication.get().getControlFactory(pmm);
-		NodeBase	ctl = cf.createControl(pmm, editable);
-		container.add(ctl);
-		return ctl;
+	private ControlFactory.Result	createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
+		ControlFactory		cf	= DomApplication.get().getControlFactory(pmm, editable);
+		return cf.createControl(model, pmm, editable);
 	}
 
 	/**
@@ -520,7 +512,7 @@ public class TabularFormBuilder {
 	/**
 	 * Adds the node to the table, using the current mode. This decides the form placement.
 	 */
-	private void	modalAdd(final Label l, final NodeContainer ctlcontainer) {
+	private void	modalAdd(final Label l, final NodeBase[] ctlcontainer) {
 		switch(m_nextNodeMode) {
 			default:
 				throw new IllegalStateException("Invalid table insert mode: "+m_mode);
@@ -546,7 +538,7 @@ public class TabularFormBuilder {
 		m_appendIntoSeparator = m_appendIntoDefaultSeparator;			// Make sure this thingy is reset,
 	}
 
-	private void	addCells(final TR tr, final NodeBase l, final NodeContainer c) {
+	private void	addCells(final TR tr, final NodeBase l, final NodeBase[] c) {
 		TD	lcell = new TD();
 		tr.add(lcell);
 		lcell.setCssClass("ui-f-lbl");
@@ -556,8 +548,8 @@ public class TabularFormBuilder {
 		TD	ccell = new TD();
 		tr.add(ccell);
 		ccell.setCssClass("ui-f-in");
-		while(c.getChildCount() > 0)
-			ccell.add(c.getChild(0));
+		for(NodeBase ch: c)
+			ccell.add(ch);
 	}
 
 	/**
@@ -566,7 +558,7 @@ public class TabularFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void	modeAddNormal(final Label l, final NodeContainer c) {
+	protected void	modeAddNormal(final Label l, final NodeBase[] c) {
 		m_lastUsedRow = new TR();
 		tbody().add(m_lastUsedRow);
 		addCells(m_lastUsedRow, l, c);
@@ -578,7 +570,7 @@ public class TabularFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void	modeAddAppend(final Label l, final NodeContainer c) {
+	protected void	modeAddAppend(final Label l, final NodeBase[] c) {
 		//-- Find the last used TR in the body.
 		if(tbody().getChildCount() == 0 || m_lastUsedRow == null) {
 			m_lastUsedRow = new TR();
@@ -592,7 +584,7 @@ public class TabularFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void	modeAddColumnar(final Label l, final NodeContainer c) {
+	protected void	modeAddColumnar(final Label l, final NodeBase[] c) {
 		//-- 1. Find the appropriate "row" or make sure it exists.
 		while(tbody().getChildCount() <= m_colRow)
 			tbody().add(new TR());
@@ -614,8 +606,8 @@ public class TabularFormBuilder {
 		ccell.removeAllChildren();
 		if(l != null)
 			lcell.add(l);
-		while(c.getChildCount() > 0)
-			ccell.add(c.getChild(0));
+		for(NodeBase nb: c)
+			ccell.add(nb);
 		m_colRow++;
 	}
 
@@ -624,7 +616,7 @@ public class TabularFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void	modeAppendInto(final Label l, final NodeContainer c) {
+	protected void	modeAppendInto(final Label l, final NodeBase[] c) {
 		if(m_lastUsedRow == null) {						// If there's no row-> add one,
 			m_lastUsedRow = new TR();
 			tbody().add(m_lastUsedRow);
@@ -645,8 +637,8 @@ public class TabularFormBuilder {
 			if(m_appendIntoSeparator != null && m_appendIntoSeparator.length() > 0)
 				td.addLiteral(m_appendIntoSeparator);			// Append any string separator
 		}
-		while(c.getChildCount() > 0)
-			td.add(c.getChild(0));
+		for(NodeBase nb: c)
+			td.add(nb);
 	}
 
 	/**

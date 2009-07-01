@@ -87,6 +87,7 @@ public abstract class DomApplication {
 
 	public DomApplication() {
 		m_controlFactoryList.add(ControlFactory.STRING_CF);
+		m_controlFactoryList.add(ControlFactory.TEXTAREA_CF);
 		m_controlFactoryList.add(ControlFactory.BOOLEAN_AND_ENUM_CF);
 		m_controlFactoryList.add(ControlFactory.DATE_CF);
 		m_controlFactoryList.add(ControlFactory.RELATION_COMBOBOX_CF);
@@ -318,11 +319,11 @@ public abstract class DomApplication {
 		return m_controlFactoryList;
 	}
 
-	public ControlFactory	findControlFactory(final PropertyMetaModel pmm) {
+	public ControlFactory	findControlFactory(final PropertyMetaModel pmm, boolean editable) {
 		ControlFactory	best = null;
 		int score = 0;
 		for(ControlFactory cf : getControlFactoryList()) {
-			int v = cf.accepts(pmm);
+			int v = cf.accepts(pmm, editable);
 			if(v > score) {
 				score = v;
 				best = cf;
@@ -331,8 +332,8 @@ public abstract class DomApplication {
 		return best;
 	}
 
-	public ControlFactory	getControlFactory(final PropertyMetaModel pmm) {
-		ControlFactory cf = findControlFactory(pmm);
+	public ControlFactory	getControlFactory(final PropertyMetaModel pmm, boolean editable) {
+		ControlFactory cf = findControlFactory(pmm, editable);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a control factory for "+pmm);
 		return cf;
@@ -459,7 +460,7 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	public <T> List<T>	getCachedList(final IListMaker<T> maker) throws Exception {
-		if(! (maker instanceof ICachedListMaker)) {
+		if(! (maker instanceof ICachedListMaker<?>)) {
 			//-- Just make on the fly.
 			return maker.createList(this);
 		}

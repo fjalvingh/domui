@@ -22,87 +22,77 @@ import to.etc.webapp.nls.*;
  */
 @SuppressWarnings("unchecked")
 public interface ControlFactory {
-	public int		accepts(PropertyMetaModel pmm);
+	/**
+	 * Represents the result of a call to createControl.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Jul 2, 2009
+	 */
+	static final public class Result {
+		/** The list of nodes forming the control */
+		private NodeBase[]			m_nodeList;
 
-	public NodeBase createControl(PropertyMetaModel pmm, boolean editable);
+		/** The binding of the control to it's model and property */
+		private ModelBinding		m_binding;
+
+		/** The node to be used as the target for a "label" */
+		private NodeBase			m_labelNode;
+
+		public Result(ModelBinding binding, NodeBase labelNode, NodeBase[] nodeList) {
+			m_binding = binding;
+			m_labelNode = labelNode;
+			m_nodeList = nodeList;
+		}
+		public Result(ModelBinding binding, NodeBase control) {
+			m_binding = binding;
+			m_labelNode = control;
+			m_nodeList = new NodeBase[] { control };
+		}
+		public <T extends NodeBase & IInputNode<?>> Result(T control, IReadOnlyModel<?> model, PropertyMetaModel pmm) {
+			m_labelNode = control;
+			m_nodeList = new NodeBase[] { control };
+			m_binding = new SimpleComponentPropertyBinding(model, pmm, control);
+		}
+		public NodeBase[] getNodeList() {
+			return m_nodeList;
+		}
+		public ModelBinding getBinding() {
+			return m_binding;
+		}
+		public NodeBase getLabelNode() {
+			return m_labelNode;
+		}
+	}
+
+	/**
+	 * This must return a +ve value when this factory accepts the specified property; the returned value
+	 * is an eagerness score. The factory returning the highest eagerness wins.
+	 * @param pmm
+	 * @param editable
+	 * @return
+	 */
+	int		accepts(PropertyMetaModel pmm, boolean editable);
+
+	/**
+	 * This MUST create all nodes necessary for a control to edit the specified item. The nodes must be added
+	 * to the container; this <i>must</i> return a ModelBinding to bind and unbind a value to the control
+	 * created.
+	 *
+	 * @param container
+	 * @param pmm
+	 * @param editable
+	 * @return
+	 */
+	Result createControl(IReadOnlyModel<?> model, PropertyMetaModel pmm, boolean editable);
+
+	static public final ControlFactory	TEXTAREA_CF = new ControlFactoryTextArea();
 
 	/**
 	 * This is a fallback factory; it accepts anything and shows a String edit component for it. It
 	 * hopes that the Text<?> control can convert the string input value to the actual type using the
 	 * registered Converters. This is also the factory for regular Strings.
 	 */
-	static public final ControlFactory	STRING_CF	= new ControlFactory() {
-		public NodeBase createControl(PropertyMetaModel pmm, boolean editable) {
-			Class<?>	iclz	= pmm.getActualType();
-
-			//-- If this has a textArea hint create a textArea
-			if(pmm.getComponentTypeHint() != null) {
-				if(pmm.getComponentTypeHint().toLowerCase().contains("textarea")) {
-					TextArea	ta = new TextArea();
-					if(! editable)
-						ta.setReadOnly(true);
-					ta.setCols(80);
-					ta.setRows(4);
-					if(pmm.isRequired())
-						ta.setMandatory(true);
-					String s = pmm.getDefaultHint();
-					if(s != null)
-						ta.setLiteralTitle(s);
-					return ta;
-				}
-			}
-
-			//-- Treat everything else as a String using a converter.
-			Text<?>	txt	= new Text(iclz);
-			if(! editable)
-				txt.setReadOnly(true);
-
-			/*
-			 * Length calculation using the metadata. This uses the "length" field as LAST, because it is often 255 because the
-			 * JPA's column annotation defaults length to 255 to make sure it's usability is bloody reduced. Idiots.
-			 */
-			if(pmm.getDisplayLength() > 0)
-				txt.setSize(pmm.getDisplayLength());
-			else if(pmm.getPrecision() > 0) {
-				// FIXME This should be localized somehow...
-				//-- Calculate a size using scale and precision.
-				int size = pmm.getPrecision();
-				int d = size;
-				if(pmm.getScale() > 0) {
-					size++;						// Inc size to allow for decimal point or comma
-					d -= pmm.getScale();		// Reduce integer part,
-					if(d >= 4) {				// Can we get > 999? Then we can have thousand-separators
-						int nd = (d-1) / 3;		// How many thousand separators could there be?
-						size += nd;				// Increment input size with that
-					}
-				}
-				txt.setSize(size);
-			} else if(pmm.getLength() > 0) {
-				txt.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
-			}
-
-			if(pmm.getConverterClass() != null)
-				txt.setConverterClass(pmm.getConverterClass());
-			if(pmm.getLength() > 0)
-				txt.setMaxLength(pmm.getLength());
-			if(pmm.isRequired())
-				txt.setMandatory(true);
-			String s = pmm.getDefaultHint();
-			if(s != null)
-				txt.setLiteralTitle(s);
-			for(PropertyMetaValidator mpv: pmm.getValidators())
-				txt.addValidator(mpv);
-			return txt;
-		}
-
-		/**
-		 * Accept any type using a string.
-		 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
-		 */
-		public int accepts(PropertyMetaModel pmm) {
-			return 1;
-		}
-	};
+	static public final ControlFactory	STRING_CF	= new ControlFactoryString();
 
 	static public final ControlFactory	BOOLEAN_AND_ENUM_CF	= new ControlFactory() {
 		public NodeBase createControl(PropertyMetaModel pmm, boolean editable) {
