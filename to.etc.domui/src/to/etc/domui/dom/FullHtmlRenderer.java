@@ -31,7 +31,8 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		m_o = o;
 	}
 	private HtmlRenderer getTagRenderer() {
-		m_tagRenderer.setRenderMode(HtmlRenderMode.ADDS);	// All nodes from the full renderer are NEW by definition.
+		// 20090701 jal was ADDS which is WRONG - by definition a FULL render IS a full renderer... This caused SELECT tags to be rendered with domui_selected attributes instead of selected attributes. 
+		m_tagRenderer.setRenderMode(HtmlRenderMode.FULL);	// All nodes from the full renderer are NEW by definition.
 //		m_tagRenderer.setNewNode(true);					
 		return m_tagRenderer;
 	}
