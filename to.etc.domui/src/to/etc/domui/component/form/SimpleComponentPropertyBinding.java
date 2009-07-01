@@ -26,6 +26,9 @@ public class SimpleComponentPropertyBinding implements ModelBinding {
 
 	public void moveModelToControl() throws Exception {
 		Object	base = m_model.getValue();
+		IValueAccessor<?>	vac = m_propertyMeta.getAccessor();
+		if(vac == null)
+			throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta "+m_propertyMeta);
 		Object	pval = m_propertyMeta.getAccessor().getValue(base);
 		m_control.setValue(pval);
 	}
