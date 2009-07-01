@@ -48,7 +48,7 @@ public abstract class DomApplication {
 
 	private String						m_urlExtension;
 
-	private final List<ControlFactory>	m_controlFactoryList = new ArrayList<ControlFactory>();
+	private List<ControlFactory>		m_controlFactoryList = new ArrayList<ControlFactory>();
 
 	private String						m_defaultTheme = "blue";
 
@@ -310,14 +310,18 @@ public abstract class DomApplication {
 	/*	CODING:	Control factories.									*/
 	/*--------------------------------------------------------------*/
 
-	public void		registerControlFactory(final ControlFactory cf) {
+	public synchronized void		registerControlFactory(final ControlFactory cf) {
+		m_controlFactoryList = new ArrayList<ControlFactory>(m_controlFactoryList);		// Dup original
 		m_controlFactoryList.add(cf);
+	}
+	private synchronized List<ControlFactory>	getControlFactoryList() {
+		return m_controlFactoryList;
 	}
 
 	public ControlFactory	findControlFactory(final PropertyMetaModel pmm) {
 		ControlFactory	best = null;
 		int score = 0;
-		for(ControlFactory cf : m_controlFactoryList) {
+		for(ControlFactory cf : getControlFactoryList()) {
 			int v = cf.accepts(pmm);
 			if(v > score) {
 				score = v;
