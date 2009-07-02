@@ -15,13 +15,13 @@ public class Table extends NodeContainer {
 		super("table");
 	}
 	@Override
-	public void visit(NodeVisitor v) throws Exception {
+	public void visit(final NodeVisitor v) throws Exception {
 		v.visitTable(this);
 	}
 	public String getCellPadding() {
 		return m_cellPadding;
 	}
-	public void setCellPadding(String cellPadding) {
+	public void setCellPadding(final String cellPadding) {
 		if(DomUtil.isEqual(cellPadding, m_cellPadding))
 			return;
 		changed();
@@ -30,7 +30,7 @@ public class Table extends NodeContainer {
 	public String getCellSpacing() {
 		return m_cellSpacing;
 	}
-	public void setCellSpacing(String cellSpacing) {
+	public void setCellSpacing(final String cellSpacing) {
 		if(DomUtil.isEqual(cellSpacing, m_cellSpacing))
 			return;
 		changed();
@@ -39,7 +39,7 @@ public class Table extends NodeContainer {
 	public String getTableWidth() {
 		return m_tableWidth;
 	}
-	public void setTableWidth(String tableWidth) {
+	public void setTableWidth(final String tableWidth) {
 		if(! DomUtil.isEqual(tableWidth, m_tableWidth))
 			changed();
 		m_tableWidth = tableWidth;
@@ -47,7 +47,7 @@ public class Table extends NodeContainer {
 	public int getTableBorder() {
 		return m_tableBorder;
 	}
-	public void setTableBorder(int tableBorder) {
+	public void setTableBorder(final int tableBorder) {
 		if(tableBorder != m_tableBorder)
 			changed();
 		m_tableBorder = tableBorder;
@@ -57,7 +57,7 @@ public class Table extends NodeContainer {
 	 * Quicky thingy to set a table header.
 	 * @param labels
 	 */
-	public void	setTableHead(String... labels) {
+	public void	setTableHead(final String... labels) {
 		THead	h	= getHead();
 		h.forceRebuild();
 		TR	row	= new TR();
@@ -70,27 +70,27 @@ public class Table extends NodeContainer {
 	}
 
 	@Override
-	public void add(int index, NodeBase nd) {
+	public void add(final int index, final NodeBase nd) {
 		if(nd instanceof TR) {
-			if(true)
+//			if(true)
 				throw new IllegalStateException("Add TR's to the TBody, not the Table");
-			System.out.println("info: Please use a TBody in a table to add rows to; I now have to add it by myself, slowly.");
-			getBody().add(index, nd);
+//			System.out.println("info: Please use a TBody in a table to add rows to; I now have to add it by myself, slowly.");
+//			getBody().add(index, nd);
 		} else
 			super.add(index, nd);
 	}
 	@Override
-	public void add(NodeBase nd) {
+	public void add(final NodeBase nd) {
 		if(nd instanceof TR) {
-			if(true)
+//			if(true)
 				throw new IllegalStateException("Add TR's to the TBody, not the Table");
-			System.out.println("info: Please use a TBody in a table to add rows to; I now have to add it by myself, slowly.");
-			getBody().add(nd);
+//			System.out.println("info: Please use a TBody in a table to add rows to; I now have to add it by myself, slowly.");
+//			getBody().add(nd);
 		} else
 			super.add(nd);
 	}
 	@Override
-	public void addLiteral(String txt) {
+	public void addLiteral(final String txt) {
 		throw new IllegalStateException("Dont be silly- cannot add text to a table");
 	}
 
@@ -123,7 +123,7 @@ public class Table extends NodeContainer {
 	public String getTableHeight() {
 		return m_tableHeight;
 	}
-	public void setTableHeight(String tableHeight) {
+	public void setTableHeight(final String tableHeight) {
 		m_tableHeight = tableHeight;
 	}
 }

@@ -63,7 +63,7 @@ public class BasicContainer implements Container {
 		/** If creating the object has caused a problem this holds that problem (wrapped if not a RuntimeException). */
 		Exception	exception;
 
-		Container	allocatingContainer;
+//		Container	allocatingContainer;
 
 		RefState	state;
 
@@ -341,7 +341,7 @@ outer:	for(;;) {
 
 					case NEW:
 						ref.state = RefState.ALLOCATING;	// Mark as allocating for next thread
-						ref.allocatingContainer = this;		// I'm allocating now
+//						ref.allocatingContainer = this;		// I'm allocating now
 						break outer;						// Exit synchronisation.
 					case ALLOCATING:
 						/*

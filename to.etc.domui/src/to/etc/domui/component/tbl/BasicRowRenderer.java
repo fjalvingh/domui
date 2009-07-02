@@ -34,12 +34,12 @@ public class BasicRowRenderer implements IRowRenderer {
 	static public final String	NOWRAP = "-NOWRAP";
 
 	/** The class whose instances we'll render in this table. */
-	private Class<?>				m_dataClass;
+	private final Class<?>				m_dataClass;
 
 	/** When the definition has completed (the object is used) this is TRUE; it disables all calls that change the definition */
 	private boolean					m_completed;
 
-	private List<SimpleColumnDef>	m_columnList = new ArrayList<SimpleColumnDef>();
+	private final List<SimpleColumnDef>	m_columnList = new ArrayList<SimpleColumnDef>();
 
 	private SimpleColumnDef			m_sortColumn;
 
@@ -51,7 +51,7 @@ public class BasicRowRenderer implements IRowRenderer {
 
 	private ICellClicked<?>			m_cellClicked;
 
-	private String					m_sortColumnName;
+	private final String					m_sortColumnName;
 
 //	private boolean					m_sortableModel;
 
@@ -63,7 +63,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param dataClass
 	 * @param cols
 	 */
-	public BasicRowRenderer(Class< ? > dataClass, Object... cols) throws Exception {
+	public BasicRowRenderer(final Class< ? > dataClass, final Object... cols) throws Exception {
 		m_dataClass = dataClass;
 		if(cols.length != 0)
 			addColumns(cols);
@@ -100,7 +100,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param cols
 	 */
 	@SuppressWarnings("fallthrough")
-	public BasicRowRenderer		addColumns(Object... cols) throws Exception {
+	public BasicRowRenderer		addColumns(final Object... cols) throws Exception {
 		check();
 		if(cols == null || cols.length == 0)
 			throw new IllegalStateException("The list-of-columns is empty or null; I need at least one column to continue.");
@@ -155,9 +155,9 @@ public class BasicRowRenderer implements IRowRenderer {
 				}
 			} else if(val instanceof IConverter)
 				conv = (IConverter) val;
-			else if(val instanceof INodeContentRenderer)
+			else if(val instanceof INodeContentRenderer<?>)
 				nodeRenderer = (INodeContentRenderer<?>)val;
-			else if(val instanceof Class) {
+			else if(val instanceof Class<?>) {
 				Class<?>	c = (Class<?>) val;
 				if(INodeContentRenderer.class.isAssignableFrom(c))
 					nrclass = (Class<? extends INodeContentRenderer<?>>)c;
@@ -172,7 +172,7 @@ public class BasicRowRenderer implements IRowRenderer {
 		return this;
 	}
 
-	private INodeContentRenderer<?> tryRenderer(INodeContentRenderer< ? > nodeRenderer, Class< ? extends INodeContentRenderer< ? >> nrclass) throws Exception {
+	private INodeContentRenderer<?> tryRenderer(final INodeContentRenderer< ? > nodeRenderer, final Class< ? extends INodeContentRenderer< ? >> nrclass) throws Exception {
 		if(nodeRenderer != null) {
 			if(nrclass != null)
 				throw new IllegalArgumentException("Both a NodeContentRenderer instance AND a class specified: "+nodeRenderer+" + "+nrclass);
@@ -183,7 +183,7 @@ public class BasicRowRenderer implements IRowRenderer {
 		return DomApplication.get().createInstance(nrclass);
 	}
 
-	private IConverter	tryConverter(Class<? extends IConverter> cclz, IConverter ins) {
+	private IConverter	tryConverter(final Class<? extends IConverter> cclz, final IConverter ins) {
 		if(cclz != null) {
 			if(ins != null)
 				throw new IllegalArgumentException("Both a IConverter class AND an instance specified: "+cclz+" and "+ins);
@@ -203,7 +203,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param nodeRenderer
 	 * @param nrclass
 	 */
-	private void internalAddProperty(String property, String width, IConverter conv, Class< ? extends IConverter> convclz, String caption, String cssclass, INodeContentRenderer< ? > nodeRenderer, Class< ? extends INodeContentRenderer< ? >> nrclass, boolean nowrap) throws Exception {
+	private void internalAddProperty(final String property, final String width, final IConverter conv, final Class< ? extends IConverter> convclz, final String caption, final String cssclass, final INodeContentRenderer< ? > nodeRenderer, final Class< ? extends INodeContentRenderer< ? >> nrclass, final boolean nowrap) throws Exception {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
 
@@ -294,25 +294,25 @@ public class BasicRowRenderer implements IRowRenderer {
 			scd.setSortable(xdp.getSortable());
 			scd.setPropertyName(xdp.getName());
 			scd.setNowrap(nowrap);
-		}		
+		}
 	}
 
-	public void	setColumnWidths(String... widths) {
+	public void	setColumnWidths(final String... widths) {
 		check();
 		int ix = 0;
 		for(String s: widths) {
 			m_columnList.get(ix++).setWidth(s);
 		}
 	}
-	public void	setColumnWidth(int index, String width) {
+	public void	setColumnWidth(final int index, final String width) {
 		check();
 		m_columnList.get(index).setWidth(width);
 	}
-	public void	setNodeRenderer(int index, INodeContentRenderer<?> renderer) {
+	public void	setNodeRenderer(final int index, final INodeContentRenderer<?> renderer) {
 		check();
 		m_columnList.get(index).setContentRenderer(renderer);
 	}
-	public INodeContentRenderer<?>	getNodeRenderer(int index) {
+	public INodeContentRenderer<?>	getNodeRenderer(final int index) {
 		return m_columnList.get(index).getContentRenderer();
 	}
 
@@ -324,7 +324,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * Sets a Click handler to use when the row is clicked.
 	 * @param rowClicked
 	 */
-	public void setRowClicked(ICellClicked< ? > rowClicked) {
+	public void setRowClicked(final ICellClicked< ? > rowClicked) {
 		m_rowClicked = rowClicked;
 	}
 
@@ -332,14 +332,14 @@ public class BasicRowRenderer implements IRowRenderer {
 		return m_cellClicked;
 	}
 
-	public void setCellClicked(ICellClicked< ? > cellClicked) {
+	public void setCellClicked(final ICellClicked< ? > cellClicked) {
 		m_cellClicked = cellClicked;
 	}
 
 	/**
 	 * Complete this object if it is not already complete.
 	 */
-	private void	complete(DataTable tbl) {
+	private void	complete(final DataTable tbl) {
 		if(m_completed)
 			return;
 
@@ -428,7 +428,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 *
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderHeader(to.etc.domui.component.tbl.HeaderContainer)
 	 */
-	public void renderHeader(DataTable tbl, HeaderContainer cc) throws Exception {
+	public void renderHeader(final DataTable tbl, final HeaderContainer cc) throws Exception {
 		m_sortImages = new Img[m_columnList.size()];
 		int		ix = 0;
 		boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
@@ -445,7 +445,7 @@ public class BasicRowRenderer implements IRowRenderer {
 				th.setCssClass("ui-sortable");
 				final SimpleColumnDef scd = cd;
 				th.setClicked(new IClicked<TH>() {
-					public void clicked(TH b) throws Exception {
+					public void clicked(final TH b) throws Exception {
 						handleSortClick(b, scd);
 					}
 				});
@@ -468,12 +468,12 @@ public class BasicRowRenderer implements IRowRenderer {
 		}
 	}
 
-	void handleSortClick(NodeBase nb, SimpleColumnDef scd) throws Exception {
+	void handleSortClick(final NodeBase nb, final SimpleColumnDef scd) throws Exception {
 		//-- 1. Is this the same as the "current" sort column? If so toggle the sort order only.
 		if(scd == m_sortColumn) {
 			m_sortDescending = ! m_sortDescending;
 		} else {
-			if(m_sortColumn != null)			
+			if(m_sortColumn != null)
 				updateSortImage(m_sortColumn, "THEME/sort-none.png");
 
 			m_sortColumn = scd;								// Set the new sort column
@@ -486,7 +486,7 @@ public class BasicRowRenderer implements IRowRenderer {
 		stm.sortOn(scd.getPropertyName(), m_sortDescending);
 	}
 
-	private void	updateSortImage(SimpleColumnDef scd, String img) {
+	private void	updateSortImage(final SimpleColumnDef scd, final String img) {
 		int index = m_columnList.indexOf(scd);
 		if(index == -1)
 			throw new IllegalStateException("?? Cannot find sort column!?");
@@ -501,7 +501,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 *
 	 * @see to.etc.domui.component.tbl.IRowRenderer#beforeQuery(to.etc.domui.component.tbl.DataTable)
 	 */
-	public void beforeQuery(DataTable tbl) throws Exception {
+	public void beforeQuery(final DataTable tbl) throws Exception {
 		complete(tbl);
 		if(! (tbl.getModel() instanceof ISortableTableModel)) {
 //			m_sortableModel = false;
@@ -519,18 +519,18 @@ public class BasicRowRenderer implements IRowRenderer {
 	/*	CODING:	Actual rendering: a row.							*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	@SuppressWarnings("unchecked")
-	public void renderRow(final DataTable tbl, ColumnContainer cc, int index, final Object instance) throws Exception {
+	public void renderRow(final DataTable tbl, final ColumnContainer cc, final int index, final Object instance) throws Exception {
 		if(m_rowClicked != null) {
 			/*
 			 * FIXME For now I add a separate instance of the handler to every row. A single instance is OK too,
 			 * provided it can calculate the row data from the TR it is attached to.
 			 */
 			cc.getTR().setClicked(new IClicked<TR>() {
-				public void clicked(TR b) throws Exception {
+				public void clicked(final TR b) throws Exception {
 					((ICellClicked)getRowClicked()).cellClicked(tbl.getPage(), b, instance);
 				}
 			});
@@ -560,7 +560,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param cd
 	 * @throws Exception
 	 */
-	protected void	renderColumn(final DataTable tbl, ColumnContainer cc, int index, final Object instance, final SimpleColumnDef cd) throws Exception {
+	protected void	renderColumn(final DataTable tbl, final ColumnContainer cc, final int index, final Object instance, final SimpleColumnDef cd) throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
 		Object	colval;
 		if(cd.getValueTransformer() == null)

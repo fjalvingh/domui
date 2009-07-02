@@ -12,9 +12,9 @@ import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
 public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements PropertyMetaModel {
-	private DefaultClassMetaModel		m_classModel;
-	private PropertyDescriptor			m_descriptor;
-	private PropertyAccessor<?>			m_accessor;
+	private final DefaultClassMetaModel		m_classModel;
+	private final PropertyDescriptor			m_descriptor;
+	private final PropertyAccessor<?>			m_accessor;
 	private int							m_length = -1;
 	private boolean						m_primaryKey;
 	private PropertyRelationType		m_relationType = PropertyRelationType.NONE;
@@ -40,7 +40,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	private List<DisplayPropertyMetaModel>				m_comboDisplayProperties = Collections.EMPTY_LIST;
 
 	/*---- Lookup stuff. ----*/
-	
+
 	/**
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
 	 * data pertaining to the looked-up item as a single element on the "edit" screen.
@@ -57,8 +57,8 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	 */
 	private List<DisplayPropertyMetaModel>				m_tableDisplayProperties = Collections.EMPTY_LIST;
 
-	
-	public DefaultPropertyMetaModel(DefaultClassMetaModel classModel, PropertyDescriptor descriptor) {
+
+	public DefaultPropertyMetaModel(final DefaultClassMetaModel classModel, final PropertyDescriptor descriptor) {
 		m_classModel = classModel;
 		if(classModel == null)
 			throw new IllegalStateException("Cannot be null dude");
@@ -72,7 +72,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		}
 	}
 
-	protected void	decodeAnnotation(Annotation an) {
+	protected void	decodeAnnotation(final Annotation an) {
 		if(an instanceof MetaProperty) {
 			//-- Handle meta-assignments.
 			MetaProperty	mp = (MetaProperty) an;
@@ -151,7 +151,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		}
 	}
 
-	protected void	decodeAnnotationByName(Annotation an, String name) {
+	protected void	decodeAnnotationByName(final Annotation an, final String name) {
 		if("javax.persistence.Column".equals(name)) {
 			decodeJpaColumn(an);
 		} else if("javax.persistence.Id".equals(name)) {
@@ -174,7 +174,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	 * Generically decode a JPA javax.persistence.Column annotation.
 	 * @param an
 	 */
-	private void	decodeJpaColumn(Annotation an) {
+	private void	decodeJpaColumn(final Annotation an) {
 		try {
 			/*
 			 * Handle the "length" annotation. As usual, someone with a brain the size of a pea fucked up the standard. The
@@ -209,7 +209,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	public Class< ? > getActualType() {
 		return m_descriptor.getPropertyType();
 	}
-	public String getDefaultLabel(Locale loc) {
+	public String getDefaultLabel(final Locale loc) {
 		return m_classModel.getPropertyLabel(this, loc);
 	}
 	public String getDefaultLabel() {
@@ -237,7 +237,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		throw new IllegalStateException("Property "+this+" is not an enumerable or boolean domain");
 	}
 
-	public String	getDomainValueLabel(Locale loc, Object val) {
+	public String	getDomainValueLabel(final Locale loc, final Object val) {
 		ResourceBundle	b = m_classModel.getBundle(loc);
 		StringBuilder	sb = new StringBuilder();
 		sb.append(getName());
@@ -246,12 +246,12 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			sb.append("true");
 		else if(val == Boolean.FALSE)
 			sb.append("false");
-		else if(val instanceof Enum)
+		else if(val instanceof Enum<?>)
 			sb.append(((Enum<?>)val).name());
 		else
 			throw new IllegalStateException("Property value "+val+" for property "+this+" is not an enumerable or boolean domain");
 		sb.append(".label");
-		
+
 		try {
 			return b.getString(sb.toString());
 		} catch(Exception x) {
@@ -273,28 +273,28 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	public boolean isPrimaryKey() {
 		return m_primaryKey;
 	}
-	public void setPrimaryKey(boolean primaryKey) {
+	public void setPrimaryKey(final boolean primaryKey) {
 		m_primaryKey = primaryKey;
 	}
-	
+
 	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
 		return m_comboDataSet;
 	}
 
-	public void setComboDataSet(Class< ? extends IComboDataSet< ? >> comboDataSet) {
+	public void setComboDataSet(final Class< ? extends IComboDataSet< ? >> comboDataSet) {
 		m_comboDataSet = comboDataSet;
 	}
 
 	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer() {
 		return m_comboLabelRenderer;
 	}
-	public void setComboLabelRenderer(Class< ? extends ILabelStringRenderer< ? >> comboLabelRenderer) {
+	public void setComboLabelRenderer(final Class< ? extends ILabelStringRenderer< ? >> comboLabelRenderer) {
 		m_comboLabelRenderer = comboLabelRenderer;
 	}
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_comboDisplayProperties;
 	}
-	public void setComboDisplayProperties(List<DisplayPropertyMetaModel> displayProperties) {
+	public void setComboDisplayProperties(final List<DisplayPropertyMetaModel> displayProperties) {
 		m_comboDisplayProperties = displayProperties;
 	}
 
@@ -302,7 +302,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		return m_relationType;
 	}
 
-	public void setRelationType(PropertyRelationType relationType) {
+	public void setRelationType(final PropertyRelationType relationType) {
 		m_relationType = relationType;
 	}
 	public ClassMetaModel getClassModel() {
@@ -311,13 +311,13 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
 		return m_comboNodeRenderer;
 	}
-	public void setComboNodeRenderer(Class< ? extends INodeContentRenderer< ? >> comboNodeRenderer) {
+	public void setComboNodeRenderer(final Class< ? extends INodeContentRenderer< ? >> comboNodeRenderer) {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		return m_tableDisplayProperties;
 	}
-	public void setTableDisplayProperties(List<DisplayPropertyMetaModel> tableDisplayProperties) {
+	public void setTableDisplayProperties(final List<DisplayPropertyMetaModel> tableDisplayProperties) {
 		m_tableDisplayProperties = tableDisplayProperties;
 	}
 
@@ -330,7 +330,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	 * @param s
 	 * @return
 	 */
-	static private String[][]	makeRoleSet(String[] sar) {
+	static private String[][]	makeRoleSet(final String[] sar) {
 		if(sar.length == 0)
 			return null;
 		String[][]	mapset = new String[sar.length][];
@@ -352,25 +352,25 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
 		return m_lookupFieldRenderer;
 	}
-	public void setLookupFieldRenderer(Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
+	public void setLookupFieldRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 	/**
-	 * {@inheritDoc} 
+	 * {@inheritDoc}
 	 */
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
-	public void setLookupFieldDisplayProperties(List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
+	public void setLookupFieldDisplayProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
 		m_lookupFieldDisplayProperties = lookupFieldDisplayProperties;
 	}
 	/**
-	 * {@inheritDoc} 
+	 * {@inheritDoc}
 	 */
 	public String getComponentTypeHint() {
 		return m_componentTypeHint;
 	}
-	public void setComponentTypeHint(String componentTypeHint) {
+	public void setComponentTypeHint(final String componentTypeHint) {
 		m_componentTypeHint = componentTypeHint;
 	}
 }

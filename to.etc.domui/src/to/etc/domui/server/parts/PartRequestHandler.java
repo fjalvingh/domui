@@ -11,9 +11,9 @@ import to.etc.util.DeveloperOptions;
 import to.etc.util.ByteBufferOutputStream;
 
 public class PartRequestHandler implements FilterRequestHandler {
-	private DomApplication		m_application;
+	private final DomApplication		m_application;
 
-	private boolean				m_allowExpires;
+	private final boolean				m_allowExpires;
 
 	/**
 	 * Contains a cached instance of some part rendering.
@@ -23,14 +23,14 @@ public class PartRequestHandler implements FilterRequestHandler {
 	 */
 	static private class CachedPart {
 		public byte[][]		m_data;
-	
+
 		public int			m_size;
 
 		public ResourceDependencyList	m_dependencies;
 
 		public String		m_contentType;
 
-		public String		m_key;
+//		public String		m_key;
 
 		/** The time a response may be cached locally, in seconds */
 		public int			m_cacheTime;
@@ -39,11 +39,11 @@ public class PartRequestHandler implements FilterRequestHandler {
 	}
 
 
-	public PartRequestHandler(DomApplication application) {
+	public PartRequestHandler(final DomApplication application) {
 		m_application = application;
 
 		LRUHashMap.SizeCalculator<CachedPart>	sc = new LRUHashMap.SizeCalculator<CachedPart>() {
-			public int getObjectSize(CachedPart item) {
+			public int getObjectSize(final CachedPart item) {
 				return item == null ? 4 : item.m_size+32;
 			}
 		};
@@ -57,7 +57,7 @@ public class PartRequestHandler implements FilterRequestHandler {
 		return m_application;
 	}
 
-	public boolean	acceptURL(String in) {
+	public boolean	acceptURL(final String in) {
 		if(in.endsWith(".part"))
 			return true;
 		int	pos = in.indexOf('/');				// First component
@@ -69,7 +69,7 @@ public class PartRequestHandler implements FilterRequestHandler {
 		return false;
 	}
 
-	public void handleRequest(RequestContextImpl ctx) throws Exception {
+	public void handleRequest(final RequestContextImpl ctx) throws Exception {
 		String input = ctx.getInputPath();
 		if(input.endsWith(".part"))
 			input = input.substring(0, input.length()-5);	// Strip ".part" off the name
@@ -96,9 +96,9 @@ public class PartRequestHandler implements FilterRequestHandler {
 	/*	CODING:	Part renderer factories.							*/
 	/*--------------------------------------------------------------*/
 	/** All part renderer thingies currently known to the system. */
-	private Map<String, PartRenderer>		m_partMap = new HashMap<String, PartRenderer>();
+	private final Map<String, PartRenderer>		m_partMap = new HashMap<String, PartRenderer>();
 
-	static private final PartFactory	makePartInst(Class<?> fc) {
+	static private final PartFactory	makePartInst(final Class<?> fc) {
 		try {
 			return (PartFactory) fc.newInstance();
 		} catch(Exception x) {
@@ -109,7 +109,7 @@ public class PartRequestHandler implements FilterRequestHandler {
 	/**
 	 * Returns a thingy which knows how to render the part.
 	 */
-	public synchronized PartRenderer	findPartRenderer(String name) {
+	public synchronized PartRenderer	findPartRenderer(final String name) {
 		PartRenderer pr = m_partMap.get(name);
 		if(pr != null)
 			return pr;
@@ -125,14 +125,14 @@ public class PartRequestHandler implements FilterRequestHandler {
 		final PartFactory	pf = makePartInst(fc);			// Instantiate
 		if(pf instanceof UnbufferedPartFactory) {
 			pr = new PartRenderer() {
-				public void render(RequestContextImpl ctx, String rest) throws Exception {
+				public void render(final RequestContextImpl ctx, final String rest) throws Exception {
 					UnbufferedPartFactory upf = (UnbufferedPartFactory) pf;
 					upf.generate(getApplication(), rest, ctx);
 				}
 			};
 		} else if(pf instanceof BufferedPartFactory) {
 			pr = new PartRenderer() {
-				public void render(RequestContextImpl ctx, String rest) throws Exception {
+				public void render(final RequestContextImpl ctx, final String rest) throws Exception {
 					generate((BufferedPartFactory) pf, ctx, rest);		// Delegate internally
 				}
 			};
@@ -146,7 +146,7 @@ public class PartRequestHandler implements FilterRequestHandler {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Buffered parts cache and code.						*/
 	/*--------------------------------------------------------------*/
-	private LRUHashMap<Object, CachedPart>		m_cache;
+	private final LRUHashMap<Object, CachedPart>		m_cache;
 
 	/**
 	 * Helper which handles possible cached buffered parts.
@@ -155,7 +155,7 @@ public class PartRequestHandler implements FilterRequestHandler {
 	 * @param url
 	 * @throws Exception
 	 */
-	public void generate(BufferedPartFactory pf, RequestContextImpl ctx, String url) throws Exception {
+	public void generate(final BufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
 		//-- Convert the data to a key object, then lookup;
 		Object	key = pf.decodeKey(url, ctx);
 		if(key == null)

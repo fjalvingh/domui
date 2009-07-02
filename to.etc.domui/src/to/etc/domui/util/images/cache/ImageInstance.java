@@ -17,7 +17,7 @@ public class ImageInstance {
 	static private final int	FRAGSZ = 32768;
 
 	/** The root descriptor of the image's base */
-	private ImageRoot			m_imageRoot;
+	private final ImageRoot			m_imageRoot;
 
 	/**
 	 * The LRU pointers for the cache's LRU list. These are locked and maintained by the ImageCache itself; access to these is "verboten" from self.
@@ -31,7 +31,7 @@ public class ImageInstance {
 //	boolean						m_discard;
 
 	/** An unique string describing the permutation of the original that this contains. When "" this is the ORIGINAL image. */
-	private String				m_permutation;
+	private final String				m_permutation;
 
 	/** The cached data of this image as a byte stream */
 	private byte[][]			m_buffers;
@@ -44,7 +44,7 @@ public class ImageInstance {
 
 	private ImageData			m_imageData;
 
-	ImageInstance(ImageRoot root, String perm) {
+	ImageInstance(final ImageRoot root, final String perm) {
 		m_imageRoot = root;
 		m_permutation = perm;
 	}
@@ -63,7 +63,7 @@ public class ImageInstance {
 	 * @return
 	 * @throws Exception
 	 */
-	void	loadAsBuffers(InputStream is) throws Exception {
+	void	loadAsBuffers(final InputStream is) throws Exception {
 		int		szread;
 		byte[]	curbuf = new byte[FRAGSZ];
 
@@ -91,13 +91,13 @@ public class ImageInstance {
 	}
 
 	/**
-	 * Part of the double-lock mechanism, this checks if the 
+	 * Part of the double-lock mechanism, this checks if the
 	 * @param irt
 	 * @param ii
 	 * @param cacheKey
 	 * @throws Exception
 	 */
-	synchronized void	initializeInstance(IImageRetriever irt, Object cacheKey) throws Exception {
+	synchronized void	initializeInstance(final IImageRetriever irt, final Object cacheKey) throws Exception {
 		if(m_initialized) {
 			ImageCache.d("Re-using CACHED original instance with key="+cacheKey);
 			return;
@@ -157,14 +157,14 @@ public class ImageInstance {
 	}
 
 	/**
-	 * Main workhorse for converting images. 
+	 * Main workhorse for converting images.
 	 *
 	 * @param irt
 	 * @param cacheKey
 	 * @param conversions
 	 * @throws Exception
 	 */
-	synchronized void	initializeConvertedInstance(IImageRetriever irt, Object cacheKey, List<IImageConversionSpecifier> conversions) throws Exception {
+	synchronized void	initializeConvertedInstance(final IImageRetriever irt, final Object cacheKey, final List<IImageConversionSpecifier> conversions) throws Exception {
 		if(m_initialized)
 			return;
 
@@ -212,23 +212,22 @@ public class ImageInstance {
 	 * @param f
 	 * @throws Exception
 	 */
-	private boolean loadCachedFile(String key) throws Exception {
+	private boolean loadCachedFile(final String key) throws Exception {
 		File	cacheFile	= new File(m_imageRoot.getCache().getCacheDir(), key+".cf");
 		if(! cacheFile.exists())
 			return false;
 
 		//-- bla bla bla
-		
-		if(true)
-			throw new IllegalStateException("Not implemented yet");		// FIXME Implement.
-		
-		cacheFile.setLastModified(System.currentTimeMillis());	// Touch the file to indicate it's been used
-		return true;
+
+		throw new IllegalStateException("Not implemented yet");		// FIXME Implement.
+//
+//		cacheFile.setLastModified(System.currentTimeMillis());	// Touch the file to indicate it's been used
+//		return true;
 	}
-	
+
 	public byte[][] getBuffers() {
 		return m_buffers;
 	}
-	
-	
+
+
 }

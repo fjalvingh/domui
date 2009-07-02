@@ -386,7 +386,7 @@ public class RpcCallHandler {
 	public void executeBulkJSON(final IRpcCallContext cb, final String json) throws Exception {
 		LOG.info("SVC: JSON bulk call: " + json);
 		Object jsonds = JSONParser.parseJSON(json);
-		if(! (jsonds instanceof List))
+		if(! (jsonds instanceof List<?>))
 			throw new RpcException("The bulk call JSON data must be an array");
 		List<Object> reslist = new ArrayList<Object>();
 		boolean cancelled = false;
@@ -397,7 +397,7 @@ public class RpcCallHandler {
 
 		for(Object o : (List<?>) jsonds) {
 			//-- This should be a Map containing the command names. Execute each and append the result to the result list for later rendering
-			if(!(o instanceof Map))
+			if(!(o instanceof Map<?,?>))
 				throw new RpcException("The bulk call's list member type of item# " + ix + " is not a JSON object");
 			if(cancelled)
 				reslist.add(new HashMap<Object, Object>());
@@ -430,7 +430,7 @@ public class RpcCallHandler {
 //		if(o != null && StringTool.dbGetBool((String) o))
 //			cancel = true;
 		o = callmap.get("parameters");
-		if(o != null && !(o instanceof Map))
+		if(o != null && !(o instanceof Map<?,?>))
 			throw new RpcException("The 'parameters' item is not a Map in list item #" + index); // Fatal.
 		Map<Object, Object> parameters = o == null ? new HashMap<Object, Object>() : (Map<Object, Object>) o;
 		RpcMethodDefinition mi = findHandlerMethod(cb, name); 		// Find the appropriate method to call, and check permissions.

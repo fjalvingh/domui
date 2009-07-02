@@ -288,9 +288,9 @@ public class PageMaker {
 			m_pageClass = pageClass;
 			m_propInjectorList = propInjectorList;
 		}
-		public List<PropertyInjector> getPropInjectorList() {
-			return m_propInjectorList;
-		}
+//		public List<PropertyInjector> getPropInjectorList() {
+//			return m_propInjectorList;
+//		}
 		public Class<? extends UrlPage> getPageClass() {
 			return m_pageClass;
 		}

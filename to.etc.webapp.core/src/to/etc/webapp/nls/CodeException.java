@@ -3,8 +3,6 @@ package to.etc.webapp.nls;
 import java.text.*;
 import java.util.*;
 
-import to.etc.webapp.nls.*;
-
 /**
  * FIXME Must move to a separate NLS package.
  * Base class for all code-based exceptions.

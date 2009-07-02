@@ -454,7 +454,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		ResourceBundle	b = findBundle(loc);
 		if(b == null)
 			return null;
-		if(value instanceof Enum) {
+		if(value instanceof Enum<?>) {
 			try {
 				return b.getString(((Enum<?>)value).name()+".label");
 			} catch(Exception x) {

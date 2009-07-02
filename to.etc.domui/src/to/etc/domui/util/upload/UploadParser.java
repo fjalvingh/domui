@@ -42,7 +42,7 @@ public class UploadParser {
 		return m_sizeMax;
 	}
 
-	public final void setSizeMax(int sizeMax) {
+	public final void setSizeMax(final int sizeMax) {
 		m_sizeMax = sizeMax;
 	}
 
@@ -55,8 +55,8 @@ public class UploadParser {
 	 * @param req
 	 * @return
 	 */
-	public static final boolean isMultipartContent(HttpServletRequest req) {
-		if(!"POST".equalsIgnoreCase(req.getMethod())) // Must be post method 
+	public static final boolean isMultipartContent(final HttpServletRequest req) {
+		if(!"POST".equalsIgnoreCase(req.getMethod())) // Must be post method
 			return false;
 		String contentType = req.getContentType(); // Must be multipart encoding.
 		if(contentType == null)
@@ -64,7 +64,7 @@ public class UploadParser {
 		return contentType.toLowerCase().startsWith(MULTIPART);
 	}
 
-	public static final HttpServletRequest wrapIfNeeded(HttpServletRequest req) {
+	public static final HttpServletRequest wrapIfNeeded(final HttpServletRequest req) {
 		if(!isMultipartContent(req))
 			return req;
 		if(UploadHttpRequestWrapper.findWrapper(req) != null)
@@ -88,7 +88,7 @@ public class UploadParser {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Main parser entrypoint.								*/
 	/*--------------------------------------------------------------*/
-	public List<UploadItem> parseRequest(HttpServletRequest ctx, String hdrencoding) throws FileUploadException, IOException {
+	public List<UploadItem> parseRequest(final HttpServletRequest ctx, final String hdrencoding) throws FileUploadException, IOException {
 		//-- Get all data from the request and pass to the main parser.
 		String ct = ctx.getContentType();
 		int requestSize = ctx.getContentLength();
@@ -96,14 +96,14 @@ public class UploadParser {
 		return parseRequest(ctx.getInputStream(), hdrencoding, ct, requestSize);
 	}
 
-	static private String getStringHeader(Map<String, Object> hdr, String name) {
+	static private String getStringHeader(final Map<String, Object> hdr, final String name) {
 		Object o = hdr.get(name.toLowerCase());
-		if(o == null || o instanceof List)
+		if(o == null || o instanceof List<?>)
 			return null;
 		return (String) o;
 	}
 
-	static private void discardItems(List<UploadItem> l) {
+	static private void discardItems(final List<UploadItem> l) {
 		for(int i = l.size(); --i >= 0;) {
 			UploadItem ui = l.get(i);
 			try {
@@ -115,7 +115,7 @@ public class UploadParser {
 		}
 	}
 
-	public List<UploadItem> parseRequest(InputStream is, String hdrencoding, String contentType, int requestSize) throws FileUploadException, IOException {
+	public List<UploadItem> parseRequest(final InputStream is, final String hdrencoding, final String contentType, final int requestSize) throws FileUploadException, IOException {
 		//-- Check parameters
 		if((contentType == null) || (!contentType.toLowerCase().startsWith(MULTIPART)))
 			throw new FileUploadException("Content type is not an accepted multipart type but " + contentType);
@@ -191,7 +191,7 @@ public class UploadParser {
 	/**
 	 * Decodes the chunk boundary from the content type header.
 	 */
-	private byte[] decodeBoundary(MiniParser p, String contentType) {
+	private byte[] decodeBoundary(final MiniParser p, final String contentType) {
 		p.init(contentType);
 		while(p.parseNext()) {
 			if("boundary".equalsIgnoreCase(p.getProperty())) {
@@ -213,7 +213,7 @@ public class UploadParser {
 		return null;
 	}
 
-	private String decodeHeaderItem(Map<String, Object> headers, String headername, String keyname, String h1, String h2, MiniParser mp) {
+	private String decodeHeaderItem(final Map<String, Object> headers, final String headername, final String keyname, final String h1, final String h2, final MiniParser mp) {
 		Object o = headers.get(headername.toLowerCase());
 		if(o == null || !(o instanceof String))
 			return null;
@@ -248,7 +248,7 @@ public class UploadParser {
 	 * @throws IOException
 	 */
 //	@SuppressWarnings("null")
-	private void readItem(MiniParser p, List<UploadItem> l, Map<String, Object> headermap, MultipartStream multi, String fieldname, String fn) throws IOException {
+	private void readItem(final MiniParser p, final List<UploadItem> l, final Map<String, Object> headermap, final MultipartStream multi, final String fieldname, String fn) throws IOException {
 		String contenttype = getStringHeader(headermap, CONTENT_TYPE);
 		String charset = null;
 		if(contenttype != null) {
@@ -264,7 +264,7 @@ public class UploadParser {
 			charset = "utf-8";					// URGENT FIXME Where is the encoding hidden if not here??
 
 		/*
-		 * 
+		 *
 		 * If "filename" is null it was not passed and this is a form item.
 		 * If it's not null but the empty string then the upload file box
 		 * was left empty.

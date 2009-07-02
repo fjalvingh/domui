@@ -36,15 +36,15 @@ public class LookupForm<T> extends Div {
 
 	IClicked<LookupForm<T>>		m_clicker;
 
-	IClicked<LookupForm<T>>		m_onNew;	
-	
+	IClicked<LookupForm<T>>		m_onNew;
+
 	private Table				m_table;
 
 	private List<LookupFieldQueryBuilderThingy>	m_queryBuilder = Collections.EMPTY_LIST;
 
 	private TBody m_tbody;
 
-	public LookupForm(Class<T> lookupClass) {
+	public LookupForm(final Class<T> lookupClass) {
 		m_lookupClass = lookupClass;
 	}
 
@@ -52,7 +52,7 @@ public class LookupForm<T> extends Div {
 		return m_lookupClass;
 	}
 
-	public void setLookupClass(Class<T> lookupClass) {
+	public void setLookupClass(final Class<T> lookupClass) {
 		m_lookupClass = lookupClass;
 	}
 
@@ -60,7 +60,7 @@ public class LookupForm<T> extends Div {
 		return m_basicCriteria;
 	}
 
-	public void setBasicCriteria(QCriteria<T> basicCriteria) {
+	public void setBasicCriteria(final QCriteria<T> basicCriteria) {
 		m_basicCriteria = basicCriteria;
 	}
 
@@ -68,7 +68,7 @@ public class LookupForm<T> extends Div {
 		return m_searchProperties;
 	}
 
-	public void setSearchProperties(List<SearchPropertyMetaModel> searchProperties) {
+	public void setSearchProperties(final List<SearchPropertyMetaModel> searchProperties) {
 		m_searchProperties = searchProperties;
 	}
 
@@ -76,7 +76,7 @@ public class LookupForm<T> extends Div {
 		return m_displayProperties;
 	}
 
-	public void setDisplayProperties(List<DisplayPropertyMetaModel> displayProperties) {
+	public void setDisplayProperties(final List<DisplayPropertyMetaModel> displayProperties) {
 		m_displayProperties = displayProperties;
 	}
 
@@ -84,7 +84,7 @@ public class LookupForm<T> extends Div {
 		return m_title;
 	}
 
-	public void setPageTitle(String title) {
+	public void setPageTitle(final String title) {
 		m_title = title;
 	}
 
@@ -129,7 +129,7 @@ public class LookupForm<T> extends Div {
 		d.add(b);
 		b.setIcon("THEME/btnFind.png");
 		b.setClicked(new IClicked<NodeBase>() {
-			public void clicked(NodeBase bx) throws Exception {
+			public void clicked(final NodeBase bx) throws Exception {
 				if(m_clicker != null)
 					m_clicker.clicked(LookupForm.this);
 			}
@@ -139,7 +139,7 @@ public class LookupForm<T> extends Div {
 		d.add(b);
 		b.setIcon("THEME/btnClear.png");
 		b.setClicked(new IClicked<NodeBase>() {
-			public void clicked(NodeBase xb) throws Exception {
+			public void clicked(final NodeBase xb) throws Exception {
 				clearInput();
 			}
 		});
@@ -149,15 +149,15 @@ public class LookupForm<T> extends Div {
 			d.add(b);
 			b.setIcon("THEME/btnNew.png");
 			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(NodeBase xb) throws Exception {
+				public void clicked(final NodeBase xb) throws Exception {
 					getOnNew().clicked(LookupForm.this);
 				}
 			});
-		}		
-		
+		}
+
 		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
 		setReturnPressed(new IReturnPressed() {
-			public void returnPressed(Div node) throws Exception {
+			public void returnPressed(final Div node) throws Exception {
 				if(m_clicker != null)
 					m_clicker.clicked(LookupForm.this);
 			}
@@ -167,22 +167,22 @@ public class LookupForm<T> extends Div {
 //		d.add(sb);
 	}
 	@Override
-	public void setClicked(IClicked< ? > clicked) {
+	public void setClicked(final IClicked< ? > clicked) {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
 	}
 
 	public void clearInput() {
 		for(LookupFieldQueryBuilderThingy th: m_queryBuilder) {
 			for(NodeBase nb: th.getInputControls()) {
-				if(nb instanceof IInputNode) {
+				if(nb instanceof IInputNode<?>) {
 					IInputNode<?>	v = (IInputNode<?>)nb;
 					v.setValue(null);
 				}
 			}
 		}
 	}
-	
-	public void	addPropertyControl(String name, String label, PropertyMetaModel pmm, SearchPropertyMetaModel spm) {
+
+	public void	addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final SearchPropertyMetaModel spm) {
 		LookupFieldQueryBuilderThingy qt = createControlFor(name, pmm, spm);		// Add the proper input control for that type && add to the cell
 		if(qt == null)
 			return;
@@ -210,12 +210,12 @@ public class LookupForm<T> extends Div {
 	 * @param pmm
 	 * @return
 	 */
-	public LookupFieldQueryBuilderThingy		createControlFor(String name, PropertyMetaModel pmm, SearchPropertyMetaModel spm) {
+	public LookupFieldQueryBuilderThingy		createControlFor(final String name, final PropertyMetaModel pmm, final SearchPropertyMetaModel spm) {
 		RequestContext rq	= PageContext.getRequestContext();
 		boolean	viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
 		boolean	editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);
 		if(! viewable) {
-			//-- Check edit stuff: 
+			//-- Check edit stuff:
 			if(pmm.getEditRoles() == null)					// No edit roles at all -> exit
 				return null;
 			if(! editable)
@@ -229,7 +229,7 @@ public class LookupForm<T> extends Div {
 		return qt;
 	}
 
-	protected void	add(LookupFieldQueryBuilderThingy t) {
+	protected void	add(final LookupFieldQueryBuilderThingy t) {
 		if(m_queryBuilder == Collections.EMPTY_LIST)
 			m_queryBuilder = new ArrayList<LookupFieldQueryBuilderThingy>();
 		m_queryBuilder.add(t);
@@ -270,7 +270,7 @@ public class LookupForm<T> extends Div {
 		return m_onNew;
 	}
 
-	public void setOnNew(IClicked<LookupForm<T>> onNew) {
+	public void setOnNew(final IClicked<LookupForm<T>> onNew) {
 		m_onNew = onNew;
 		forceRebuild();
 	}

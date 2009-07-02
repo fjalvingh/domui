@@ -16,7 +16,7 @@ import to.etc.util.*;
 /**
  * This creates a button part from an input URL. The input url has
  * as parameter the image name, the button text and the like.
- * 
+ *
  * <p>Created on January 23, 2006
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
@@ -55,7 +55,7 @@ public class ButtonPart implements BufferedPartFactory {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(final Object obj) {
 			if(this == obj)
 				return true;
 			if(obj == null)
@@ -101,7 +101,7 @@ public class ButtonPart implements BufferedPartFactory {
 			}
 			else if(!m_text.equals(other.m_text))
 				return false;
-			
+
 			if(m_icon == null) {
 				if(other.m_icon != null)
 					return false;
@@ -112,7 +112,7 @@ public class ButtonPart implements BufferedPartFactory {
 		}
 	}
 
-	public Object decodeKey(String rurl, IParameterInfo info) throws Exception {
+	public Object decodeKey(final String rurl, final IParameterInfo info) throws Exception {
 		ButtonPartKey	k = new ButtonPartKey();
 		k.m_image	= info.getParameter("img");
 		k.m_text	= info.getParameter("txt");
@@ -128,7 +128,7 @@ public class ButtonPart implements BufferedPartFactory {
 		return k;
 	}
 
-	public void generate(PartResponse pr, DomApplication da, Object key, ResourceDependencyList rdl) throws Exception {
+	public void generate(final PartResponse pr, final DomApplication da, final Object key, final ResourceDependencyList rdl) throws Exception {
 		if(true)
 			throw new IllegalStateException("DO NOT USE ANYMORE - REPLACED WITH PropBtnPart.part");
 		ButtonPartKey k = (ButtonPartKey) key;
@@ -152,7 +152,7 @@ public class ButtonPart implements BufferedPartFactory {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Image generator.									*/
 	/*--------------------------------------------------------------*/
-	private void	renderIcon(BufferedImage bi, Graphics2D g, ButtonPartKey k, BufferedImage iconbi) throws Exception {
+	private void	renderIcon(final BufferedImage bi, final Graphics2D g, final ButtonPartKey k, final BufferedImage iconbi) throws Exception {
 		//-- Determine a position. Height is centered;
 		int h = 0;
 		if(iconbi.getHeight() < bi.getHeight()) {
@@ -173,7 +173,7 @@ public class ButtonPart implements BufferedPartFactory {
 	 * @param g
 	 * @param i
 	 */
-	private void	renderText(BufferedImage bi, Graphics2D g, ButtonPartKey k) throws Exception {
+	private void	renderText(final BufferedImage bi, final Graphics2D g, final ButtonPartKey k) throws Exception {
 		String	font	= k.m_font == null ? "sans" : k.m_font;
 		int		size	= StringTool.strToInt(k.m_size, 12);
 		Color	fg		= PartUtil.makeColor(k.m_color == null ? "#ffffff" : k.m_color );

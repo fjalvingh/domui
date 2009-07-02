@@ -1,7 +1,5 @@
 package to.etc.webapp.query;
 
-import java.util.*;
-
 /**
  * Represents the selection of a list of persistent entity classes from the database. A QCriteria
  * has a fixed type (the type of the class being selected) and maintains the list of conditions (criteria's)
@@ -14,9 +12,9 @@ import java.util.*;
  * Created on Jun 24, 2008
  */
 public class QCriteria<T> extends QRestrictionsBase {
-	private Class<T>			m_baseClass;
+	private final Class<T>			m_baseClass;
 
-	private QCriteria(Class<T> b) {
+	private QCriteria(final Class<T> b) {
 		m_baseClass = b;
 	}
 
@@ -24,7 +22,7 @@ public class QCriteria<T> extends QRestrictionsBase {
 	 * Copy constructor.
 	 * @param q
 	 */
-	protected QCriteria(QCriteria<T> q) {
+	protected QCriteria(final QCriteria<T> q) {
 		super(q);
 		m_baseClass = q.m_baseClass;
 	}
@@ -36,7 +34,7 @@ public class QCriteria<T> extends QRestrictionsBase {
 	 * @param clz
 	 * @return
 	 */
-	static public <U> QCriteria<U>	create(Class<U> clz) {
+	static public <U> QCriteria<U>	create(final Class<U> clz) {
 		return new QCriteria<U>(clz);
 	}
 
@@ -61,152 +59,152 @@ public class QCriteria<T> extends QRestrictionsBase {
 	 * @param v
 	 * @throws Exception
 	 */
-	public void		visit(QNodeVisitor v) throws Exception {
+	public void		visit(final QNodeVisitor v) throws Exception {
 		v.visitCriteria(this);
 	}
 
 	@Override
-	public QCriteria<T> add(QOperatorNode r) {
+	public QCriteria<T> add(final QOperatorNode r) {
 		return (QCriteria<T>)super.add(r);
 	}
 
 	@Override
-	public QCriteria<T> add(QOrder r) {
+	public QCriteria<T> add(final QOrder r) {
 		return (QCriteria<T>)super.add(r);
 	}
 
 	@Override
-	public QCriteria<T> ascending(String property) {
+	public QCriteria<T> ascending(final String property) {
 		return (QCriteria<T>)super.ascending(property);
 	}
 
 	@Override
-	public QCriteria<T> between(String property, Object a, Object b) {
+	public QCriteria<T> between(final String property, final Object a, final Object b) {
 		return (QCriteria<T>)super.between(property, a, b);
 	}
 
 	@Override
-	public QCriteria<T> descending(String property) {
+	public QCriteria<T> descending(final String property) {
 		return (QCriteria<T>)super.descending(property);
 	}
 
 	@Override
-	public QCriteria<T> eq(String property, double value) {
+	public QCriteria<T> eq(final String property, final double value) {
 		return (QCriteria<T>)super.eq(property, value);
 	}
 
 	@Override
-	public QCriteria<T> eq(String property, long value) {
+	public QCriteria<T> eq(final String property, final long value) {
 		return (QCriteria<T>)super.eq(property, value);
 	}
 
 	@Override
-	public QCriteria<T> eq(String property, Object value) {
+	public QCriteria<T> eq(final String property, final Object value) {
 		return (QCriteria<T>)super.eq(property, value);
 	}
 
 	@Override
-	public QCriteria<T> ge(String property, double value) {
+	public QCriteria<T> ge(final String property, final double value) {
 		return (QCriteria<T>)super.ge(property, value);
 	}
 
 	@Override
-	public QCriteria<T> ge(String property, long value) {
+	public QCriteria<T> ge(final String property, final long value) {
 		return (QCriteria<T>)super.ge(property, value);
 	}
 
 	@Override
-	public QCriteria<T> ge(String property, Object value) {
+	public QCriteria<T> ge(final String property, final Object value) {
 		return (QCriteria<T>)super.ge(property, value);
 	}
 
 	@Override
-	public QCriteria<T> gt(String property, double value) {
+	public QCriteria<T> gt(final String property, final double value) {
 		return (QCriteria<T>)super.gt(property, value);
 	}
 
 	@Override
-	public QCriteria<T> gt(String property, long value) {
+	public QCriteria<T> gt(final String property, final long value) {
 		return (QCriteria<T>)super.gt(property, value);
 	}
 
 	@Override
-	public QCriteria<T> gt(String property, Object value) {
+	public QCriteria<T> gt(final String property, final Object value) {
 		return (QCriteria<T>)super.gt(property, value);
 	}
 
 	@Override
-	public QCriteria<T> ilike(String property, Object value) {
+	public QCriteria<T> ilike(final String property, final Object value) {
 		return (QCriteria<T>)super.ilike(property, value);
 	}
 
 	@Override
-	public QCriteria<T> isnotnull(String property) {
+	public QCriteria<T> isnotnull(final String property) {
 		return (QCriteria<T>)super.isnotnull(property);
 	}
 
 	@Override
-	public QCriteria<T> isnull(String property) {
+	public QCriteria<T> isnull(final String property) {
 		return (QCriteria<T>)super.isnull(property);
 	}
 
 	@Override
-	public QCriteria<T> le(String property, double value) {
+	public QCriteria<T> le(final String property, final double value) {
 		return (QCriteria<T>)super.le(property, value);
 	}
 
 	@Override
-	public QCriteria<T> le(String property, long value) {
+	public QCriteria<T> le(final String property, final long value) {
 		return (QCriteria<T>)super.le(property, value);
 	}
 
 	@Override
-	public QCriteria<T> le(String property, Object value) {
+	public QCriteria<T> le(final String property, final Object value) {
 		return (QCriteria<T>)super.le(property, value);
 	}
 
 	@Override
-	public QCriteria<T> like(String property, Object value) {
+	public QCriteria<T> like(final String property, final Object value) {
 		return (QCriteria<T>)super.like(property, value);
 	}
 
 	@Override
-	public QCriteria<T> lt(String property, double value) {
+	public QCriteria<T> lt(final String property, final double value) {
 		return (QCriteria<T>)super.lt(property, value);
 	}
 
 	@Override
-	public QCriteria<T> lt(String property, long value) {
+	public QCriteria<T> lt(final String property, final long value) {
 		return (QCriteria<T>)super.lt(property, value);
 	}
 
 	@Override
-	public QCriteria<T> lt(String property, Object value) {
+	public QCriteria<T> lt(final String property, final Object value) {
 		return (QCriteria<T>)super.lt(property, value);
 	}
 
 	@Override
-	public QCriteria<T> ne(String property, double value) {
+	public QCriteria<T> ne(final String property, final double value) {
 		return (QCriteria<T>)super.ne(property, value);
 	}
 
 	@Override
-	public QCriteria<T> ne(String property, long value) {
+	public QCriteria<T> ne(final String property, final long value) {
 		return (QCriteria<T>)super.ne(property, value);
 	}
 
 	@Override
-	public QCriteria<T> ne(String property, Object value) {
+	public QCriteria<T> ne(final String property, final Object value) {
 		return (QCriteria<T>)super.ne(property, value);
 	}
 
 	@Override
-	public QCriteria<T> or(QOperatorNode... a) {
+	public QCriteria<T> or(final QOperatorNode... a) {
 		return (QCriteria<T>)super.or(a);
 	}
 
 	@Override
-	public QCriteria<T> sqlCondition(String sql) {
+	public QCriteria<T> sqlCondition(final String sql) {
 		return (QCriteria<T>)super.sqlCondition(sql);
 	}
 }

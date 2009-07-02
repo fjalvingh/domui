@@ -26,7 +26,7 @@ public class HeaderParser {
 		return m_property;
 	}
 
-	public final void setProperty(String property) {
+	public final void setProperty(final String property) {
 		m_property = property;
 	}
 
@@ -34,11 +34,11 @@ public class HeaderParser {
 		return m_value;
 	}
 
-	public final void setValue(String value) {
+	public final void setValue(final String value) {
 		m_value = value;
 	}
 
-	public void init(String in) {
+	public void init(final String in) {
 		m_str = in;
 		m_ix = 0;
 		m_len = in.length();
@@ -84,7 +84,7 @@ public class HeaderParser {
 			return false;
 		m_property = m_str.substring(sp, ep);
 		if(lc == 13 && c == 10)
-			return true; // Have a name but no value -> keep 
+			return true; // Have a name but no value -> keep
 
 		//-- We have a ':': parse the value.
 		sp = m_ix;
@@ -107,7 +107,7 @@ public class HeaderParser {
 		return true;
 	}
 
-	public void parse(Map<String, Object> m, String hdr, boolean lcnames) {
+	public void parse(final Map<String, Object> m, final String hdr, final boolean lcnames) {
 		m.clear();
 		init(hdr);
 		while(parseNext()) {
@@ -120,7 +120,7 @@ public class HeaderParser {
 			Object o = m.get(n);
 			if(o == null)
 				m.put(n, v);
-			else if(o instanceof List) {
+			else if(o instanceof List<?>) {
 				((List<Object>) o).add(v);
 			}
 			else {
