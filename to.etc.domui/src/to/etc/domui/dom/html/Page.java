@@ -5,6 +5,7 @@ import java.util.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -94,8 +95,12 @@ final public class Page implements IQContextContainer {
          */
         addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar.js"));
         addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar-setup.js"));
-//      Locale  loc = NlsContext.getLocale();                           // FIXME Use the locale to decide on which calendar to use.
-        addHeaderContributor(HeaderContributor.loadJavascript("$js/calendarnls.js"));
+
+        //-- Localize calendar resources
+        String	res	= DomApplication.get().findLocalizedResourceName("$js/calendarnls", ".js", NlsContext.getLocale());
+        if(res == null)
+        	throw new IllegalStateException("internal: missing calendar NLS resource $js/calendarnls{nls}.js");
+        addHeaderContributor(HeaderContributor.loadJavascript(res));
 
         /*
          * FIXME Same as above, this is for loading the FCKEditor.

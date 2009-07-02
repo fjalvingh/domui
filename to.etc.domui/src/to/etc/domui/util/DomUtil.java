@@ -46,6 +46,23 @@ final public class DomUtil {
 		}
 		return true;
 	}
+	/**
+	 * Returns T if the given Java Resource exists.
+	 * @param clz
+	 * @param name
+	 * @return
+	 */
+	static public boolean classResourceExists(final Class< ? extends DomApplication> clz, final String name) {
+		InputStream	is	= clz.getResourceAsStream(name);
+		if(is == null)
+			return false;
+		try {
+			is.close();
+		} catch(Exception x) {
+			// IGNORE
+		}
+		return false;
+	}
 
 	static public final Class<?>	findClass(@Nonnull final ClassLoader cl, @Nonnull final String name) {
 		try {
@@ -451,7 +468,7 @@ final public class DomUtil {
 				s = "messages";							// If not use messages in this package
 			return BundleRef.create(ma.bundleBase(), s);
 		}
-	
+
 		//-- No BundleBase- use class as resource base and look for 'classname' as the properties base.
 		if(clz != null) {
 			String	s = clz.getName();
@@ -459,7 +476,7 @@ final public class DomUtil {
 			BundleRef	br	= BundleRef.create(clz, s);	// Get ref to this bundle;
 			if(br.exists())
 				return br;								// Return if it has data
-	
+
 			//-- Use messages bundle off this thing
 			return BundleRef.create(clz, "messages");
 		}
@@ -490,24 +507,24 @@ final public class DomUtil {
 		UIMenu	ma = clz.getAnnotation(UIMenu.class);		// Is annotated with UIMenu?
 		Locale	loc	= NlsContext.getLocale();
 		BundleRef	br	= findBundle(ma, clz);
-	
+
 		//-- Explicit specification of the names?
 		if(ma != null && br != null) {
 			//-- Has menu annotation. Is there a title key?
 			if(ma.titleKey().length() != 0)
 				return br.getString(loc, ma.titleKey());	// When present it MUST exist.
-	
+
 			//-- Is there a keyBase?
 			if(ma.baseKey().length() != 0) {
 				String s = br.findMessage(loc, ma.baseKey()+".title");		// Is this base thing present?
 				if(s != null)								// This can be not-present...
 					return s;
 			}
-	
+
 			//-- No title. Can we use the menu label?
 			if(ma.labelKey().length() > 0)
 				return br.getString(loc, ma.labelKey());	// When present this must exist
-	
+
 			//-- Try the label from keyBase..
 			if(ma.baseKey().length() != 0) {
 				String s = br.findMessage(loc, ma.baseKey()+".label");
@@ -515,7 +532,7 @@ final public class DomUtil {
 					return s;
 			}
 		}
-	
+
 		//-- Try default page bundle and package bundle names.
 		br	= getClassBundle(clz);					// Find bundle for the class
 		String	s = br.findMessage(loc, "title");	// Find title key
@@ -524,7 +541,7 @@ final public class DomUtil {
 		s	= br.findMessage(loc, "label");
 		if(s != null)
 			return s;
-	
+
 		//-- Try package bundle.
 		br	= getPackageBundle(clz);
 		String	root	= clz.getName();
@@ -535,7 +552,7 @@ final public class DomUtil {
 		s	= br.findMessage(loc, root+".label");
 		if(s != null)
 			return s;
-	
+
 		//-- No annotation, or the annotation did not deliver data. Try the menu.
 		return null;
 	}
@@ -549,24 +566,24 @@ final public class DomUtil {
 		UIMenu	ma = clz.getAnnotation(UIMenu.class);		// Is annotated with UIMenu?
 		Locale	loc	= NlsContext.getLocale();
 		BundleRef	br	= findBundle(ma, clz);
-	
+
 		//-- Explicit specification of the names?
 		if(ma != null && br != null) {
 			//-- Has menu annotation. Is there a title key?
 			if(ma.titleKey().length() != 0)
 				return br.getString(loc, ma.titleKey());	// When present it MUST exist.
-	
+
 			//-- Is there a keyBase?
 			if(ma.baseKey().length() != 0) {
 				String s = br.findMessage(loc, ma.baseKey()+".label");		// Is this base thing present?
 				if(s != null)								// This can be not-present...
 					return s;
 			}
-	
+
 			//-- No title. Can we use the menu label?
 			if(ma.labelKey().length() > 0)
 				return br.getString(loc, ma.labelKey());	// When present this must exist
-	
+
 			//-- Try the label from keyBase..
 			if(ma.baseKey().length() != 0) {
 				String s = br.findMessage(loc, ma.baseKey()+".title");
@@ -574,7 +591,7 @@ final public class DomUtil {
 					return s;
 			}
 		}
-	
+
 		//-- Try default page bundle and package bundle names.
 		br	= getClassBundle(clz);					// Find bundle for the class
 		String	s = br.findMessage(loc, "label");	// Find title key
@@ -583,7 +600,7 @@ final public class DomUtil {
 		s	= br.findMessage(loc, "title");
 		if(s != null)
 			return s;
-	
+
 		//-- Try package bundle.
 		br	= getPackageBundle(clz);
 		String	root	= clz.getName();
@@ -594,7 +611,7 @@ final public class DomUtil {
 		s	= br.findMessage(loc, root+".title");
 		if(s != null)
 			return s;
-	
+
 		//-- No annotation, or the annotation did not deliver data. Try the menu.
 		return null;
 	}

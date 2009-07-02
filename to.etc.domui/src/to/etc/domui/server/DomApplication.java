@@ -85,6 +85,19 @@ public abstract class DomApplication {
 
 	private List<ILoginListener>		m_loginListenerList = Collections.EMPTY_LIST;
 
+	/**
+	 * Must return the "root" class of the application; the class rendered when the application's
+	 * root URL is entered without a class name.
+	 * @return
+	 */
+	abstract public Class<? extends UrlPage>	getRootPage();
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Initialization and session management.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * The only constructor.
+	 */
 	public DomApplication() {
 		m_controlFactoryList.add(ControlFactory.STRING_CF);
 		m_controlFactoryList.add(ControlFactory.TEXTAREA_CF);
@@ -97,6 +110,10 @@ public abstract class DomApplication {
 	static public void		internalSetCurrent(final DomApplication da) {
 		m_current.set(da);
 	}
+	/**
+	 * Returns the single DomApplication instance in use for the webapp.
+	 * @return
+	 */
 	static public DomApplication	get() {
 		DomApplication da = m_current.get();
 		if(da == null)
@@ -123,8 +140,6 @@ public abstract class DomApplication {
 	public String getUrlExtension() {
 		return m_urlExtension;
 	}
-
-	abstract public Class<? extends UrlPage>	getRootPage();
 
 	public FilterRequestHandler	findRequestHandler(final RequestContext ctx) {
 //		System.out.println("Input: "+ctx.getInputPath());
@@ -167,7 +182,6 @@ public abstract class DomApplication {
 
 	}
 
-
 	final void internalDestroy() {
 		LOG.fine("Destroying application "+this);
 		try {
@@ -177,8 +191,18 @@ public abstract class DomApplication {
 		}
 	}
 
+	/**
+	 * Override to destroy resources when the application terminates.
+	 */
 	protected void	destroy() {}
 
+	/**
+	 * Override to initialize the application, called as soon as the webabb starts by the
+	 * filter's initialization code.
+	 *
+	 * @param pp
+	 * @throws Exception
+	 */
 	protected void	initialize(final ConfigParameters pp) throws Exception {}
 
 
@@ -243,51 +267,75 @@ public abstract class DomApplication {
 		return new FullHtmlRenderer(base, o);
 	}
 
-//	public synchronized List<ErrorMessageListener>	getDefaultErrorListeners() {
-//		if(m_defaultErrorListeners == null) {
-//			m_defaultErrorListeners = new ArrayList<ErrorMessageListener>();
-//			m_defaultErrorListeners.add(new DefaultErrorMessageListener());
-//		}
-//		return m_defaultErrorListeners;
-//	}
-//
-//	public synchronized void		setDefaultErrorListeners(List<ErrorMessageListener> nw) {
-//		m_defaultErrorListeners = new ArrayList<ErrorMessageListener>(nw);		// Dup the list,
-//	}
-
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Webapp configuration								*/
+	/*--------------------------------------------------------------*/
 	/**
-	 * Return a file from the webapp's web context.
-	 *
-	 * @param path
-	 * @return
+	 * Returns the name of the current theme, like "blue". This returns the
+	 * name only, not the URL to the theme or something.
 	 */
-	public File	getAppFile(final String path) {
-		return new File(m_webFilePath, path);
-	}
-
 	public synchronized String getDefaultTheme() {
 		return m_defaultTheme;
 	}
+
+	/**
+	 * Sets a new default theme. The theme name is the name of a directory, like "blue", below the
+	 * "themes" map in the webapp or the root resources.
+	 * @param defaultTheme
+	 */
 	public synchronized void setDefaultTheme(final String defaultTheme) {
 		m_defaultTheme = defaultTheme;
 	}
+
+	/**
+	 * Returns T when running in development mode; this is defined as a mode where web.xml contains
+	 * reloadable classes.
+	 * @return
+	 */
 	public boolean inDevelopmentMode() {
 		return m_developmentMode;
 	}
+
+	/**
+	 * DO NOT USE Force the webapp in development mode.
+	 * @param developmentMode
+	 */
 	public void setDevelopmentMode(final boolean developmentMode) {
 		m_developmentMode = developmentMode;
 	}
 
+	/**
+	 * The #of minutes that a WindowSession remains valid; defaults to 15 minutes.
+	 *
+	 * @return
+	 */
 	public int getWindowSessionTimeout() {
 		return m_windowSessionTimeout;
 	}
+
+	/**
+	 * Sets the windowSession timeout, in minutes.
+	 * @param windowSessionTimeout
+	 */
 	public void setWindowSessionTimeout(final int windowSessionTimeout) {
 		m_windowSessionTimeout = windowSessionTimeout;
 	}
+
+	/**
+	 * Returns the default browser cache resource expiry time in seconds. When
+	 * running in production mode all "static" resources are sent to the browser
+	 * with an "Expiry" header. This causes the browser to cache the resources
+	 * until the expiry time has been reached. This is important for performance.
+	 * @return
+	 */
 	public synchronized int getDefaultExpiryTime() {
 		return m_defaultExpiryTime;
 	}
 
+	/**
+	 * Set the static resource browser cache expiry time, in seconds.
+	 * @param defaultExpiryTime
+	 */
 	public synchronized void setDefaultExpiryTime(final int defaultExpiryTime) {
 		m_defaultExpiryTime = defaultExpiryTime;
 	}
@@ -307,19 +355,48 @@ public abstract class DomApplication {
 	public synchronized List<HeaderContributor> getHeaderContributorList() {
 		return m_orderedContributorList;
 	}
+
+	/**
+	 * When a page has no error handling components (no component has registered an error listener) then
+	 * errors will not be visible. If such a page encounters an error it will call this method; the default
+	 * implementation will add an ErrorPanel as the first component in the Body; this panel will then
+	 * accept and render the errors.
+	 *
+	 * @param page
+	 */
+	public void		addDefaultErrorComponent(final NodeContainer page) {
+		ErrorPanel	panel = new ErrorPanel();
+		page.add(0, panel);
+	}
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Control factories.									*/
 	/*--------------------------------------------------------------*/
-
+	/**
+	 * Add a new control factory to the registry.
+	 * @param cf		The new factory
+	 */
 	public synchronized void		registerControlFactory(final ControlFactory cf) {
 		m_controlFactoryList = new ArrayList<ControlFactory>(m_controlFactoryList);		// Dup original
 		m_controlFactoryList.add(cf);
 	}
+
+	/**
+	 * Get the immutable list of current control factories.
+	 * @return
+	 */
 	private synchronized List<ControlFactory>	getControlFactoryList() {
 		return m_controlFactoryList;
 	}
 
-	public ControlFactory	findControlFactory(final PropertyMetaModel pmm, boolean editable) {
+	/**
+	 * Find the best control factory to use to create a control for the given property and mode.
+	 * @param pmm		The property to find a control for
+	 * @param editable	When false this is a displayonly control request.
+	 * @return			null if no factory is found.
+	 */
+	public ControlFactory	findControlFactory(final PropertyMetaModel pmm, final boolean editable) {
 		ControlFactory	best = null;
 		int score = 0;
 		for(ControlFactory cf : getControlFactoryList()) {
@@ -332,7 +409,15 @@ public abstract class DomApplication {
 		return best;
 	}
 
-	public ControlFactory	getControlFactory(final PropertyMetaModel pmm, boolean editable) {
+	/**
+	 * Find the best control factory to use to create a control for the given property and mode, throws
+	 * an Exception if the factory cannot be found.
+	 *
+	 * @param pmm
+	 * @param editable
+	 * @return	The factory to use
+	 */
+	public ControlFactory	getControlFactory(final PropertyMetaModel pmm, final boolean editable) {
 		ControlFactory cf = findControlFactory(pmm, editable);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a control factory for "+pmm);
@@ -340,7 +425,10 @@ public abstract class DomApplication {
 	}
 
 
-
+	/**
+	 * Add another LookupControlFactory to the registry.
+	 * @param f
+	 */
 	public void register(final LookupControlFactory f) {
 		m_lookupControlRegistry.register(f);
 	}
@@ -367,6 +455,146 @@ public abstract class DomApplication {
 		} catch (InstantiationException x) {
 			throw new WrappedException(x);
 		}
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	WebApp resource management.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Return a file from the webapp's root directory. Example: passing WEB-INF/web.xml
+	 * would return the file for the web.xml.
+	 *
+	 * @param path
+	 * @return
+	 */
+	public File	getAppFile(final String path) {
+		return new File(m_webFilePath, path);
+	}
+
+	/** Cache for 'hasApplicationResource' containing all resources we have checked existence for */
+	private final Map<String, Boolean>			m_knownResourceSet = new HashMap<String, Boolean>();
+
+	/**
+	 * Quickly determines if a given resource exists. Enter with the full resource path, like $js/xxx, THEME/xxx and the like; it
+	 * mirrors the logic of {@link #getApplicationResourceByName(String)}.
+	 * @param name
+	 * @return
+	 */
+	public boolean		hasApplicationResource(final String name) {
+		synchronized(this) {
+			Boolean k = m_knownResourceSet.get(name);
+			if(k != null)
+				return k.booleanValue();
+		}
+
+		//-- Determine existence out-of-lock (single init is unimportant)
+		Boolean	k = Boolean.valueOf(internalHasResource(name));
+		synchronized(this) {
+			m_knownResourceSet.put(name, k);
+		}
+		return k.booleanValue();
+	}
+
+	/**
+	 * Determines the existence of a resource. This <b>must</b> mirror the logic of {@link #getApplicationResourceByName(String)}.
+	 *
+	 * @param name
+	 * @return
+	 */
+	private boolean internalHasResource(String name) {
+		if(name == null || name.length() == 0)
+			return false;
+		if(name.startsWith(Constants.RESOURCE_PREFIX))
+			return DomUtil.classResourceExists(getClass(), name.substring(Constants.RESOURCE_PREFIX.length()-1));
+		if(name.startsWith("$")) {
+			name	= name.substring(1);
+
+			//-- 1. Is a file-based resource available?
+			File	f 	= getAppFile(name);
+			if(f.exists() && f.isFile())
+				return true;
+
+			//-- 2. Must be /resources/ class resource. In the url, replace all '.' but the last one with /
+			int	pos	= name.lastIndexOf('.');
+			if(pos != -1) {
+				name = name.substring(0, pos).replace('.', '/')+name.substring(pos);
+			}
+			return DomUtil.classResourceExists(getClass(), "/resources/"+name);
+		}
+
+		//-- Normal unprefixed rurl. Use webapp-direct path.
+		File	src	= new File(m_webFilePath, name);
+		if(src.exists() && src.isFile())
+			return true;
+		return false;
+	}
+
+	/**
+	 * This returns the name of an <i>existing</i> resource for the given name/suffix and locale. It uses the
+	 * default DomUI/webapp.core resource resolution pattern.
+	 *
+	 * @see BundleRef#loadBundleList(Locale)
+	 *
+	 * @param basename		The base name: the part before the locale info
+	 * @param suffix		The suffix: the part after the locale info. This usually includes a ., like .js
+	 * @param loc			The locale to get the resource for.
+	 * @return
+	 */
+	public String		findLocalizedResourceName(final String basename, final String suffix, final Locale loc) {
+		StringBuilder sb = new StringBuilder(128);
+		String	s;
+		s = tryKey(sb, basename, suffix, loc.getLanguage(), loc.getCountry(), loc.getVariant(), NlsContext.getDialect());
+		if(s != null)
+			return s;
+		s = tryKey(sb, basename, suffix, loc.getLanguage(), loc.getCountry(), loc.getVariant(), null);
+		if(s != null)
+			return s;
+		s = tryKey(sb, basename, suffix, loc.getLanguage(), loc.getCountry(), null, NlsContext.getDialect());
+		if(s != null)
+			return s;
+		s = tryKey(sb, basename, suffix, loc.getLanguage(), loc.getCountry(), null, null);
+		if(s != null)
+			return s;
+		s = tryKey(sb, basename, suffix, loc.getLanguage(), null, null, NlsContext.getDialect());
+		if(s != null)
+			return s;
+		s = tryKey(sb, basename, suffix, loc.getLanguage(), null, null, null);
+		if(s != null)
+			return s;
+		s = tryKey(sb, basename, suffix, null, null, null, NlsContext.getDialect());
+		if(s != null)
+			return s;
+		s = tryKey(sb, basename, suffix, null, null, null, null);
+		if(s != null)
+			return s;
+		return null;
+	}
+
+	private String tryKey(final StringBuilder sb, final String basename, final String suffix, final String lang, final String country, final String variant, final String dialect) {
+		sb.setLength(0);
+		sb.append(basename);
+		if(dialect != null) {
+			sb.append('_');
+			sb.append(dialect);
+		}
+		if(lang != null) {
+			sb.append('_');
+			sb.append(lang);
+		}
+		if(country != null) {
+			sb.append('_');
+			sb.append(country);
+		}
+		if(variant != null) {
+			sb.append('_');
+			sb.append(variant);
+		}
+		if(suffix != null)
+			sb.append(suffix);
+		String	res = sb.toString();
+		if(hasApplicationResource(res))
+			return res;
+		return null;
 	}
 
 	/**
@@ -416,21 +644,6 @@ public abstract class DomApplication {
 			return new WebappResourceRef(src);
 		throw new ThingyNotFoundException(name);
 	}
-
-	/**
-	 * When a page has no error handling components (no component has registered an error listener) then
-	 * errors will not be visible. If such a page encounters an error it will call this method; the default
-	 * implementation will add an ErrorPanel as the first component in the Body; this panel will then
-	 * accept and render the errors.
-	 *
-	 * @param page
-	 */
-	public void		addDefaultErrorComponent(final NodeContainer page) {
-		ErrorPanel	panel = new ErrorPanel();
-		page.add(0, panel);
-	}
-
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Code table cache.									*/
@@ -709,4 +922,9 @@ public abstract class DomApplication {
 	public AjaxRequestHandler getAjaxHandler() {
 		return m_ajaxHandler;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Silly helpers.										*/
+	/*--------------------------------------------------------------*/
+
 }
