@@ -4,16 +4,25 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 
+/**
+ * This is a fallback factory; it accepts anything and shows a String edit component for it. It
+ * hopes that the Text<?> control can convert the string input value to the actual type using the
+ * registered Converters. This is also the factory for regular Strings.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jul 2, 2009
+ */
+@SuppressWarnings("unchecked")		// Hating Generics
 public class ControlFactoryString implements ControlFactory {
 	/**
 	 * Accept any type using a string.
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
-	public int accepts(PropertyMetaModel pmm, boolean editable) {
+	public int accepts(final PropertyMetaModel pmm, final boolean editable) {
 		return 1;
 	}
 
-	public Result createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable) {
+	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
 		Class<?>	iclz	= pmm.getActualType();
 
 		//-- Treat everything else as a String using a converter.
