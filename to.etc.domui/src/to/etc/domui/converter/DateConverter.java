@@ -19,7 +19,7 @@ public class DateConverter implements IConverter {
 		return df;
 	}
 
-	public String convertObjectToString(Locale loc, Object in) throws UIException {
+	public String convertObjectToString(final Locale loc, final Object in) throws UIException {
 		if(in == null)
 			return "";
 		if(! (in instanceof Date))
@@ -27,22 +27,26 @@ public class DateConverter implements IConverter {
 		Date	dt	= (Date)in;
 		if(loc.getLanguage().equalsIgnoreCase("nl")) {
 			return getFormatter().format(dt);
-		}
+		} else if(loc.getLanguage().equalsIgnoreCase("en"))
+			return new SimpleDateFormat("yyyy-MM-dd").format(dt);
+
 		DateFormat	df	= DateFormat.getDateInstance(DateFormat.SHORT, loc);
 		return df.format(dt);
 	}
 
-	public Object convertStringToObject(Locale loc, String input) throws UIException {
+	public Object convertStringToObject(final Locale loc, String input) throws UIException {
 		if(input == null)
 			return null;
 		input = input.trim();
 		if(input.length() == 0)
 			return null;
-		DateFormat	df	= DateFormat.getDateInstance(DateFormat.SHORT, loc);
 		try {
-			if(loc.getLanguage().equalsIgnoreCase("nl"))
+			if(loc.getLanguage().equalsIgnoreCase("nl"))			// Default java date NLS code sucks utterly, it's worse than a black hole.
 				return CalculationUtil.dutchDate(input);
-			return df.parse(input);
+			else if(loc.getLanguage().equalsIgnoreCase("en"))
+				return new SimpleDateFormat("yyyy-MM-dd").parse(input);
+			else
+				return DateFormat.getDateInstance(DateFormat.SHORT, loc).parse(input);
 		} catch(Exception x) {
 			throw new ValidationException(Msgs.V_INVALID_DATE);
 		}
