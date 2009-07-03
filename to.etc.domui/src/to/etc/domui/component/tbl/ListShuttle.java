@@ -203,7 +203,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	}
 
 	private boolean	needOrderButtons() {
-		return isOrderable() && getModel() instanceof IMovableShuttleModel;
+		return isOrderable() && getModel() instanceof IMovableShuttleModel<?,?>;
 	}
 
 	private INodeContentRenderer<Object> calculateSourceRenderer(final Object val) {
