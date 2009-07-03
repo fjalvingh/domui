@@ -61,7 +61,7 @@ final public class DomUtil {
 		} catch(Exception x) {
 			// IGNORE
 		}
-		return false;
+		return true;
 	}
 
 	static public final Class<?>	findClass(@Nonnull final ClassLoader cl, @Nonnull final String name) {
