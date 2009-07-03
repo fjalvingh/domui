@@ -8,7 +8,7 @@ public class TextNode extends NodeBase {
 	public TextNode() {
 		super("#text");
 	}
-	
+
 	public TextNode(String text) {
 		super("#text");
 		m_text = text;
@@ -18,6 +18,11 @@ public class TextNode extends NodeBase {
 	public void visit(NodeVisitor v) throws Exception {
 		v.visitTextNode(this);
 	}
+
+	/**
+	 * Returns the text as set by setText(), it does not do tilde replacement.
+	 * @return
+	 */
 	public String getText() {
 		return m_text;
 	}
@@ -30,5 +35,13 @@ public class TextNode extends NodeBase {
 			getParent().treeChanging();
 			getParent().setMustRenderChildrenFully();
 		}
+	}
+
+	/**
+	 * Return the tilde-replaced text for this.
+	 * @return
+	 */
+	public String	getLiteralText() {
+		return DomUtil.replaceTilded(this, m_text);		// FIXME Performance?
 	}
 }

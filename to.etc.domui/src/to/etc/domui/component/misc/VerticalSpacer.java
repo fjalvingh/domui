@@ -6,7 +6,7 @@ import to.etc.domui.dom.html.*;
 public class VerticalSpacer extends Div {
 	public VerticalSpacer(int height) {
 		setHeight(height+"px");
-		setLiteralText("\u00a0");
+		setButtonText("\u00a0");
 		setOverflow(Overflow.HIDDEN);
 	}
 }

@@ -20,11 +20,11 @@ public class NiceButton extends ATag {
 		sp.add(m_text);
 	}
 
-	public String	getLiteralText() {
+	public String	getButtonText() {
 		return m_text.getText();
 	}
 	@Override
-	public void		setLiteralText(final String s) {
+	public void		setButtonText(final String s) {
 		m_text.setText(s);
 	}
 }

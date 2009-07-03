@@ -46,7 +46,7 @@ public class DefaultButton extends Button {
 	 */
 	public DefaultButton(final String txt) {
 		this();
-		setLiteralText(txt);
+		setButtonText(txt);
 	}
 	/**
 	 * Create a button with a text and an icon.
@@ -55,18 +55,18 @@ public class DefaultButton extends Button {
 	 */
 	public DefaultButton(final String txt, final String icon) {
 		this();
-		setLiteralText(txt);
+		setButtonText(txt);
 		setIcon(icon);
 	}
 
 	public DefaultButton(final String txt, final IClicked<DefaultButton> clicked) {
 		this();
-		setLiteralText(txt);
+		setButtonText(txt);
 		setClicked(clicked);
 	}
 	public DefaultButton(final String txt, final String icon, final IClicked<DefaultButton> clicked) {
 		this();
-		setLiteralText(txt);
+		setButtonText(txt);
 		setIcon(icon);
 		setClicked(clicked);
 	}
@@ -165,17 +165,17 @@ public class DefaultButton extends Button {
 	 * Set a (new) text on the button's surface. The text may contain a '!' to specify an accelerator. To
 	 * actually render the exclamation point precede it with a backslash.
 	 *
-	 * @see to.etc.domui.dom.html.NodeContainer#setLiteralText(java.lang.String)
+	 * @see to.etc.domui.dom.html.NodeContainer#setButtonText(java.lang.String)
 	 */
 	@Override
-	public void setLiteralText(final String text) {
+	public void setButtonText(final String text) {
 		m_text = text;
 		decodeAccelerator(text);
 		genURL();
 	}
 	@Override
 	public void	setText(final BundleRef ref, final String key) {
-		setLiteralText( ref.getString(key) );
+		setButtonText( ref.getString(key) );
 	}
 
 	private void	decodeAccelerator(final String txt) {

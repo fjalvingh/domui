@@ -74,7 +74,7 @@ public class ComboLookup<T> extends Select implements IInputNode<T> {
 			//-- Add 1st "empty" thingy representing the unchosen.
 			SelectOption	o = new SelectOption();
 			if(getEmptyText() != null)
-				o.setLiteralText(getEmptyText());
+				o.setButtonText(getEmptyText());
 			add(o);
 			o.setSelected(m_currentValue == null);
 		}

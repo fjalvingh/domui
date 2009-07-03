@@ -29,13 +29,13 @@ public class DefaultScheduleItemRenderer<T extends ScheduleItem> implements INod
 			Span sp = new Span();
 			root.add(sp);
 			sp.setCssClass("ui-wa-ity");
-			sp.setLiteralText(si.getType());
+			sp.setButtonText(si.getType());
 		}
 		if(si.getName() != null) {
 			Span sp = new Span();
 			root.add(sp);
 			sp.setCssClass("ui-wa-nm");
-			sp.setLiteralText(si.getName());
+			sp.setButtonText(si.getName());
 		}
 		if(true) {
 			Span sp = new Span();
@@ -45,7 +45,7 @@ public class DefaultScheduleItemRenderer<T extends ScheduleItem> implements INod
 			m_sb.append(age.getDateFormat().format(si.getStart()));
 			long duration = si.getEnd().getTime() - si.getStart().getTime();
 			age.appendDuration(m_sb, duration);
-			sp.setLiteralText(m_sb.toString());
+			sp.setButtonText(m_sb.toString());
 		}
 		if(si.getDetails() != null) {
 			if(si.getName() != null) {					// If we have a name too go to the next line
@@ -54,7 +54,7 @@ public class DefaultScheduleItemRenderer<T extends ScheduleItem> implements INod
 			Span sp = new Span();
 			root.add(sp);
 			sp.setCssClass("ui-wa-dt");
-			sp.setLiteralText(si.getDetails());
+			sp.setButtonText(si.getDetails());
 		}
 	}
 }

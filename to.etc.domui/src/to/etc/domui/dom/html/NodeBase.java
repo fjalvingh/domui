@@ -416,10 +416,39 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		afterCreateContent();
 	}
 
+	/**
+	 * Return the <i>literal</i> text. If the value set was a resource key this resolves the key
+	 * into a string and returns that. To obtain the key instead of the translated value use getTitle().
+	 *
+	 * @return
+	 */
 	public String getLiteralTitle() {
+		return DomUtil.replaceTilded(this, m_title);		// FIXME Performance?
+	}
+
+	/**
+	 * Deprecate? Use setTitle() again instead?
+	 * @param title
+	 */
+	public void setLiteralTitle(final String title) {
+		if(! DomUtil.isEqual(title, m_title))
+			changed();
+		m_title = title;
+	}
+
+	/**
+	 * Returns the title verbatim; if it was set using a key this returns the key without resource bundle replacement.
+	 * @return
+	 */
+	public String	getTitle() {
 		return m_title;
 	}
-	public void setLiteralTitle(final String title) {
+
+	/**
+	 * Sets a title, which can be a tilde-escaped key for the page resource bundle.
+	 * @param txt
+	 */
+	public void	setTitle(String title) {
 		if(! DomUtil.isEqual(title, m_title))
 			changed();
 		m_title = title;

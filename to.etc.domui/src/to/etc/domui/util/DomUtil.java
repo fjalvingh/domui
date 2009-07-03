@@ -657,4 +657,25 @@ final public class DomUtil {
 
 		return null;						// Failed to get bundle.
 	}
+
+	/**
+	 * If the string passed starts with ~ start page resource bundle translation.
+	 * @param nodeBase
+	 * @param title
+	 * @return
+	 */
+	public static String replaceTilded(NodeBase nodeBase, String txt) {
+		if(txt == null)						// Unset - exit
+			return null;
+		if(! txt.startsWith("~"))
+			return txt;
+		if(txt.startsWith("~~"))				// Dual tilde escapes and returns a single-tilded thingy.
+			return txt.substring(1);
+
+		//-- Must do replacement
+		Page	p = nodeBase.getPage();
+		if(p == null)
+			throw new ProgrammerErrorException("Attempt to retrieve a page-bundle's key ("+txt+"), but the node ("+nodeBase+")is not attached to a page");
+		return p.getBody().$(txt);
+	}
 }

@@ -49,7 +49,7 @@ public class OddCharacters extends FloatingWindow {
 		for(String t: fchars) {
 			StringTool.entitiesToUnicode(sb, t, true);
 			td = b.addCell();
-			td.setLiteralText(sb.toString());
+			td.setButtonText(sb.toString());
 			td.setCssClass("vp-oddchars-c");
 			td.setOnClickJS("WebUI.oddChar(this)");
 			sb.setLength(0);

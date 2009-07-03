@@ -53,6 +53,8 @@ public class UrlPage extends Div {
 	 */
 	public String		$(String key, Object... param) {
 		BundleRef	br = getPageBundle();
+		if(key.startsWith("~"))							// Prevent silly bugs.
+			key = key.substring(1);
 		return br.formatMessage(key, param);
 	}
 }

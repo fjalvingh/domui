@@ -63,7 +63,7 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 	public void errorMessageAdded(Page pg, UIMessage m) {
 		Div d = new Div();
 		d.setUserObject(m);
-		d.setLiteralText(m.getMessage());
+		d.setButtonText(m.getMessage());
 		getContent().add(d);
 		if(getContent().getChildCount() == 1)
 			setDisplay(DisplayType.BLOCK);

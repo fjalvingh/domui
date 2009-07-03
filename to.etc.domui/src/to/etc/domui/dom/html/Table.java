@@ -65,7 +65,7 @@ public class Table extends NodeContainer {
 		for(String s: labels) {
 			TH	th = new TH();
 			row.add(th);
-			th.setLiteralText(s);
+			th.setButtonText(s);
 		}
 	}
 

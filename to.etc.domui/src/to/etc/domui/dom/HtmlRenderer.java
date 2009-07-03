@@ -495,8 +495,9 @@ public class HtmlRenderer implements NodeVisitor {
 		renderTagend(n, m_o);
 	}
 	public void visitTextNode(final TextNode n) throws Exception {
-		if(n.getText() != null && n.getText().length() > 0)
-			m_o.text(n.getText());
+		String	lit = n.getLiteralText();				// Get tilde-replaced text
+		if(lit != null && lit.length() > 0)
+			m_o.text(lit);
 	}
 
 	public void	renderEndTag(final NodeBase b)throws IOException {

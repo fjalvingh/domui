@@ -43,7 +43,7 @@ public class DataTable extends TabularComponentBase {
 		if(list.size() == 0) {
 			Div	error	= new Div();
 			error.setCssClass("ui-dt-nores");
-			error.setLiteralText(NlsContext.getGlobalMessage(Msgs.UI_DATATABLE_EMPTY));
+			error.setButtonText(NlsContext.getGlobalMessage(Msgs.UI_DATATABLE_EMPTY));
 			add(error);
 			return;
 		}

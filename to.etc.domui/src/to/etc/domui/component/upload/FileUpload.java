@@ -89,7 +89,7 @@ public class FileUpload extends Div {
 		for(final UploadItem ufi: m_files) {
 			b.addRow();
 			TD td	= b.addCell();
-			td.setLiteralText(ufi.getRemoteFileName()+" ("+ufi.getContentType()+")");
+			td.setButtonText(ufi.getRemoteFileName()+" ("+ufi.getContentType()+")");
 			td	= b.addCell();
 			td.add(new DefaultButton("delete", new IClicked<DefaultButton>() {
 				public void clicked(DefaultButton bx) throws Exception {
