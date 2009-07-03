@@ -639,7 +639,7 @@ public class VpEventManager implements Runnable {
 		//-- Already registered?
 		for(int i = l.size(); --i >= 0;) {
 			Item it = l.get(i);
-			if(it.m_obj instanceof Reference) {
+			if(it.m_obj instanceof Reference<?>) {
 				Reference< ? > r = (Reference< ? >) it.m_obj;
 				if(r.get() == listener) // Already registered as WEAK listener
 					return;
@@ -668,7 +668,7 @@ public class VpEventManager implements Runnable {
 			return;
 		for(int i = l.size(); --i >= 0;) {
 			Item it = l.get(i);
-			if(it.m_obj instanceof Reference) {
+			if(it.m_obj instanceof Reference<?>) {
 				Reference< ? > r = (Reference< ? >) it.m_obj;
 				if(r.get() == listener) {
 					l.remove(i);
@@ -707,7 +707,7 @@ public class VpEventManager implements Runnable {
 					}
 
 					Object o = it.m_obj;
-					if(o instanceof Reference) {
+					if(o instanceof Reference<?>) {
 						Reference< ? > r = (Reference< ? >) o;
 						Object lsnr = r.get();
 						if(lsnr == null) {

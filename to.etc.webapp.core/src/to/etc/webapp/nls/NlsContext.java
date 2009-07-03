@@ -114,6 +114,11 @@ public class NlsContext {
 		return temp.format(param);
 	}
 
+	/**
+	 * DO NOT USE GLOBAL BUNDLES ANYMORE!!
+	 * @param bundlekey
+	 */
+	@Deprecated
 	static public void registerBundle(final String bundlekey) {
 		m_msgProvList.addProvider(getBundleRef(bundlekey));
 	}

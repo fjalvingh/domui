@@ -109,7 +109,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -121,7 +121,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -133,7 +133,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -145,7 +145,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -157,7 +157,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -169,7 +169,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -181,7 +181,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -193,7 +193,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -205,7 +205,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -217,7 +217,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -229,7 +229,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -241,7 +241,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -253,7 +253,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -265,7 +265,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -277,7 +277,7 @@ public class QRestrictionsBase {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * 
+	 *
 	 * @param property
 	 * @param value
 	 * @return
@@ -288,7 +288,7 @@ public class QRestrictionsBase {
 	}
 
 	/**
-	 * Do a 'like' comparison. The wildcard marks here are always %; a literal % is to 
+	 * Do a 'like' comparison. The wildcard marks here are always %; a literal % is to
 	 * be presented as \%. The comparison is case-dependent.
 	 * @param property
 	 * @param value
@@ -312,7 +312,7 @@ public class QRestrictionsBase {
 	}
 
 	/**
-	 * Do a case-independent 'like' comparison. The wildcard marks here are always %; a literal % is to 
+	 * Do a case-independent 'like' comparison. The wildcard marks here are always %; a literal % is to
 	 * be presented as \%. The comparison is case-independent.
 	 * @param property
 	 * @param value
@@ -343,7 +343,7 @@ public class QRestrictionsBase {
 	}
 	/**
 	 * Add the restriction that the property specified must be not-null.
-	 * 
+	 *
 	 * @param property
 	 * @return
 	 */
@@ -367,7 +367,7 @@ public class QRestrictionsBase {
 	 * @param limit
 	 * @return
 	 */
-	final public QRestrictionsBase limit(int limit) {
+	public QRestrictionsBase limit(int limit) {
 		m_limit = limit;
 		return this;
 	}
@@ -377,7 +377,7 @@ public class QRestrictionsBase {
 	 * @param start
 	 * @return
 	 */
-	final public QRestrictionsBase start(int start) {
+	public QRestrictionsBase start(int start) {
 		m_start = start;
 		return this;
 	}

@@ -17,6 +17,9 @@ public class HibernaatjeBaseContext implements QDataContext, ConversationStateLi
 	HibernaatjeBaseContext(final HibernateSessionMaker sessionMaker) {
 		m_sessionMaker = sessionMaker;
 	}
+	protected void	setSessionMaker(final HibernateSessionMaker sm) {
+		m_sessionMaker = sm;
+	}
 
 	public Session	getSession() throws Exception {
 		if(m_session == null) {

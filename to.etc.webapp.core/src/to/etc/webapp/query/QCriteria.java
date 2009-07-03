@@ -207,4 +207,12 @@ public class QCriteria<T> extends QRestrictionsBase {
 	public QCriteria<T> sqlCondition(final String sql) {
 		return (QCriteria<T>)super.sqlCondition(sql);
 	}
+	@Override
+	public QCriteria<T> limit(final int limit) {
+		return (QCriteria<T>) super.limit(limit);
+	}
+	@Override
+	public QCriteria<T> start(final int start) {
+		return (QCriteria<T>)super.start(start);
+	}
 }
