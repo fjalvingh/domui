@@ -14,6 +14,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.util.*;
+import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
 final public class DomUtil {
@@ -614,5 +615,46 @@ final public class DomUtil {
 
 		//-- No annotation, or the annotation did not deliver data. Try the menu.
 		return null;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Resource Bundle utilities.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Locates the default page bundle for a page. The lookup of the bundle
+	 * is as follows (first match returns):
+	 * <ul>
+	 *	<li>If the page has an @UIMenu annotation use it's bundleBase and bundleName to find the page bundle. It is an error to specify a nonexistent bundle here.</li>
+	 *	<li>Try a bundle with the same name as the page class</li>
+	 * </ul>
+	 * If this fails return null.
+	 *
+	 * @param urlPage
+	 * @return
+	 */
+	public static BundleRef findPageBundle(UrlPage urlPage) {
+		if(urlPage == null)
+			throw new NullPointerException("Page cannot be null here");
+
+		//-- Try to locate UIMenu-based resource
+		UIMenu	uim = urlPage.getClass().getAnnotation(UIMenu.class);
+		if(uim != null) {
+			if(uim.bundleBase() != Object.class || uim.bundleName().length() != 0) {
+				//-- We have a specification for the bundle- it must exist
+				BundleRef	br	= findBundle(uim, urlPage.getClass());
+				if(! br.exists())
+					throw new ProgrammerErrorException("@UIMenu bundle specified ("+uim.bundleBase()+","+uim.bundleName()+") but does not exist on page class "+urlPage.getClass());
+				return br;
+			}
+		}
+
+		//-- Try page class related bundle.
+		String	cn	= urlPage.getClass().getName();
+		cn	= cn.substring(cn.lastIndexOf('.')+1);						// Classname only,
+		BundleRef	br	= BundleRef.create(urlPage.getClass(), cn);		// Try to find
+		if(br.exists())
+			return br;
+
+		return null;						// Failed to get bundle.
 	}
 }
