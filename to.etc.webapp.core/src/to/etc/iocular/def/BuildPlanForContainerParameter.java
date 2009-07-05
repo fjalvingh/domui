@@ -14,7 +14,7 @@ import to.etc.util.*;
  * Created on May 15, 2009
  */
 public class BuildPlanForContainerParameter extends AbstractBuildPlan {
-	private String	m_ident;
+	private String m_ident;
 
 	public BuildPlanForContainerParameter(final Class< ? > actualType, final List<String> nameList) {
 		if(nameList.size() == 0)
@@ -25,7 +25,7 @@ public class BuildPlanForContainerParameter extends AbstractBuildPlan {
 
 	@Override
 	public void dump(final IndentWriter iw) throws IOException {
-		iw.println("PARAMETER "+m_ident+": not built but must be present in Container");
+		iw.println("PARAMETER " + m_ident + ": not built but must be present in Container");
 		super.dump(iw);
 	}
 
@@ -36,7 +36,7 @@ public class BuildPlanForContainerParameter extends AbstractBuildPlan {
 	 */
 	@Override
 	public Object getObject(final BasicContainer c) throws Exception {
-		throw new IocContainerException(c, "The container parameter '"+m_ident+"' is not set");
+		throw new IocContainerException(c, "The container parameter '" + m_ident + "' is not set");
 	}
 
 	@Override
@@ -45,6 +45,5 @@ public class BuildPlanForContainerParameter extends AbstractBuildPlan {
 	}
 
 	@Override
-	public void staticStart(final BasicContainer c) throws Exception {
-	}
+	public void staticStart(final BasicContainer c) throws Exception {}
 }

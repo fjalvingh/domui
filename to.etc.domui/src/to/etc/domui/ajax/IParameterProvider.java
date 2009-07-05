@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 import to.etc.domui.annotations.*;
 
 public interface IParameterProvider {
-	static public final String	NO_VALUE = "$*$novalue";
+	static public final String NO_VALUE = "$*$novalue";
 
 	/**
 	 * Retrieve the specified parameter's value from whatever input is provided.

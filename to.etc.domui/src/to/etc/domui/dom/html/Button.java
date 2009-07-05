@@ -10,15 +10,18 @@ import to.etc.domui.util.*;
  * Created on Jun 19, 2008
  */
 public class Button extends NodeContainer {
-	private boolean			m_disabled;
-	private ButtonType		m_type = ButtonType.BUTTON;
-	private String			m_value;
-	private char			m_accessKey;
+	private boolean m_disabled;
+
+	private ButtonType m_type = ButtonType.BUTTON;
+
+	private String m_value;
+
+	private char m_accessKey;
 
 	public Button() {
 		super("button");
 	}
-	
+
 	@Override
 	public void visit(NodeVisitor v) throws Exception {
 		v.visitButton(this);
@@ -49,13 +52,15 @@ public class Button extends NodeContainer {
 	}
 
 	public void setValue(String value) {
-		if(! DomUtil.isEqual(value, m_value))
+		if(!DomUtil.isEqual(value, m_value))
 			changed();
 		m_value = value;
 	}
+
 	public char getAccessKey() {
 		return m_accessKey;
 	}
+
 	public void setAccessKey(char accessKey) {
 		m_accessKey = accessKey;
 	}

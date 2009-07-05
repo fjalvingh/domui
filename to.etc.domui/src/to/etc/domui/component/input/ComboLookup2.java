@@ -5,8 +5,7 @@ import java.util.*;
 import to.etc.domui.util.*;
 
 public class ComboLookup2<T> extends ComboComponentBase<T, T> {
-	public ComboLookup2() {
-	}
+	public ComboLookup2() {}
 
 	public ComboLookup2(IListMaker<T> maker) {
 		super(maker);

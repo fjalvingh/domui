@@ -6,7 +6,6 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.logging.*;
 
-//import to.etc.server.ajax.*;
 import to.etc.domui.annotations.*;
 import to.etc.util.*;
 import to.etc.webapp.ajax.renderer.*;
@@ -22,21 +21,20 @@ import to.etc.xml.*;
  * Created on Nov 16, 2006
  */
 public class RpcCallHandler {
-	static private final Logger		LOG = Logger.getLogger(RpcCallHandler.class.getName());
+	static private final Logger LOG = Logger.getLogger(RpcCallHandler.class.getName());
 
-//	static private boolean[]		PARAMONE = {true};
-//
+	//	static private boolean[]		PARAMONE = {true};
+	//
 	/** Maps keys to resolved handler info thingies, for speed. */
 	private final Map<String, RpcClassDefinition> m_classDefMap = new HashMap<String, RpcClassDefinition>();
 
-	private final XmlRegistry 		m_xmlRegistry = new XmlRegistry();
+	private final XmlRegistry m_xmlRegistry = new XmlRegistry();
 
-	private final JSONRegistry 		m_JSONRegistry = new JSONRegistry();
+	private final JSONRegistry m_JSONRegistry = new JSONRegistry();
 
-	private ResponseFormat 			m_defaultFormat = ResponseFormat.XML;
+	private ResponseFormat m_defaultFormat = ResponseFormat.XML;
 
-	public RpcCallHandler() {
-	}
+	public RpcCallHandler() {}
 
 
 	/*--------------------------------------------------------------*/
@@ -48,12 +46,11 @@ public class RpcCallHandler {
 	 * @param basename
 	 * @return
 	 */
-	private Class<?> findClass(final String basename) {
-		ClassLoader	ldr	= getClass().getClassLoader();
+	private Class< ? > findClass(final String basename) {
+		ClassLoader ldr = getClass().getClassLoader();
 		try {
 			return ldr.loadClass(basename);
-		} catch(Exception x) {
-		}
+		} catch(Exception x) {}
 		return null;
 	}
 
@@ -65,14 +62,14 @@ public class RpcCallHandler {
 				return hi;
 
 			//-- Not cached yet. Get a ref
-			Class<?> cl = findClass(basename);
+			Class< ? > cl = findClass(basename);
 			if(cl == null)
-				throw new RpcException("Unknown class '"+basename+"'");
+				throw new RpcException("Unknown class '" + basename + "'");
 
 			//-- Make sure this is annotated as a handler (security)
-			AjaxHandler	am = cl.getAnnotation(AjaxHandler.class);
+			AjaxHandler am = cl.getAnnotation(AjaxHandler.class);
 			if(am == null)
-				throw new RpcException("The class '"+cl.getCanonicalName()+"' is not annotated as an @AjaxHandler");
+				throw new RpcException("The class '" + cl.getCanonicalName() + "' is not annotated as an @AjaxHandler");
 
 			hi = new RpcClassDefinition(cl);
 			m_classDefMap.put(basename, hi);
@@ -88,7 +85,7 @@ public class RpcCallHandler {
 	 * @param name	The dotted package.classname, or a single classname.
 	 */
 	RpcClassDefinition resolveHandler(final String name) throws Exception {
-		String basename = name.replace('/', '.');							// Unslash name
+		String basename = name.replace('/', '.'); // Unslash name
 		RpcClassDefinition hi = getServiceClassDefinition(basename);
 		hi.initialize();
 		return hi;
@@ -111,21 +108,21 @@ public class RpcCallHandler {
 		//-- Resolve the URL into a handler class to execute,
 		RpcClassDefinition hi = resolveHandler(cn);
 		if(hi == null)
-			throw new RpcException("Unknown AJAX service class '"+cn+"'");
+			throw new RpcException("Unknown AJAX service class '" + cn + "'");
 
 		//-- 1. Constraints on the handler itself: security
 		String[] roles = hi.getRoles();
 		if(roles.length > 0) {
-			if(! hasAnyRole(cb, roles))
-				throw new RpcException(hi.getHandlerClass()+": handler class is not allowed for the user's roles");
+			if(!hasAnyRole(cb, roles))
+				throw new RpcException(hi.getHandlerClass() + ": handler class is not allowed for the user's roles");
 		}
 
 		//-- 2. Resolve the method
 		RpcMethodDefinition mi = hi.getMethod(mn);
 		roles = mi.getRoles();
 		if(roles.length > 0) {
-			if(! hasAnyRole(cb, roles))
-				throw new RpcException(mi.getMethod().toString()+": handler method is not allowed for the user's roles");
+			if(!hasAnyRole(cb, roles))
+				throw new RpcException(mi.getMethod().toString() + ": handler method is not allowed for the user's roles");
 		}
 		return mi;
 	}
@@ -161,9 +158,9 @@ public class RpcCallHandler {
 	 * This executes a single call. Both "return value" and "parameter 1 is output" calls
 	 * are supported.
 	 */
-	public void	executeSingleCall(final IRpcCallContext cb, final IParameterProvider pv, final String callsign, ResponseFormat formatoverride) throws Exception {
-		RpcMethodDefinition mi	= findHandlerMethod(cb, callsign);	// Decode into some method
-		Object handler = allocateHandler(cb, mi);					// We always need a handler instance,
+	public void executeSingleCall(final IRpcCallContext cb, final IParameterProvider pv, final String callsign, ResponseFormat formatoverride) throws Exception {
+		RpcMethodDefinition mi = findHandlerMethod(cb, callsign); // Decode into some method
+		Object handler = allocateHandler(cb, mi); // We always need a handler instance,
 
 		//-- Render the result in the specified format.
 		if(formatoverride == null || formatoverride == ResponseFormat.UNDEFINED) {
@@ -178,8 +175,8 @@ public class RpcCallHandler {
 		 * result using one of the renderers.
 		 */
 		if(mi.getOutputClass() == null) {
-			Object result = executeMethod(cb, mi, handler, pv, null);		// Use RequestContext (this) as source for parameters
-			Writer	ow	= cb.getResponseWriter(formatoverride, mi.getMethod().getName());
+			Object result = executeMethod(cb, mi, handler, pv, null); // Use RequestContext (this) as source for parameters
+			Writer ow = cb.getResponseWriter(formatoverride, mi.getMethod().getName());
 			renderResponseObject(ow, formatoverride, result);
 			return;
 		}
@@ -189,9 +186,9 @@ public class RpcCallHandler {
 		 * output. First we ask the context if it knows how to provide for a result; if
 		 * not we make one ourselves using a JSON or XML output thingy.
 		 */
-		Object	oo	= cb.allocateOutput(mi.getOutputClass(), formatoverride);
+		Object oo = cb.allocateOutput(mi.getOutputClass(), formatoverride);
 		if(oo == null)
-			oo	= allocateOutput(cb, mi.getOutputClass(), formatoverride);	// Try to allocate something myself
+			oo = allocateOutput(cb, mi.getOutputClass(), formatoverride); // Try to allocate something myself
 
 		/*
 		 * The output class is assigned - call the method by hand.
@@ -205,8 +202,8 @@ public class RpcCallHandler {
 	/*--------------------------------------------------------------*/
 
 
-	static public <T extends Annotation> T	findAnnotation(final Annotation[] annar, final Class<T> clz) {
-		for(Annotation ann: annar) {
+	static public <T extends Annotation> T findAnnotation(final Annotation[] annar, final Class<T> clz) {
+		for(Annotation ann : annar) {
 			if(ann.annotationType() == clz)
 				return (T) ann;
 		}
@@ -229,23 +226,23 @@ public class RpcCallHandler {
 		sb.append("SVC: call ");
 		sb.append(mi.toString());
 		try {
-			Class<?>[]	formals		= mi.getMethod().getParameterTypes();
-			Object[]	args		= new Object[formals.length];
-			Annotation[][]	argannar= mi.getMethod().getParameterAnnotations();
-			int	oix	= 0;							// Output parametert output
-			int	ix	= 0;							// Actual parameter
+			Class< ? >[] formals = mi.getMethod().getParameterTypes();
+			Object[] args = new Object[formals.length];
+			Annotation[][] argannar = mi.getMethod().getParameterAnnotations();
+			int oix = 0; // Output parametert output
+			int ix = 0; // Actual parameter
 			if(output != null) {
 				//-- The thingy is void and generates it's own output somehow
 				args[0] = output;
-				oix	= 1;							// Skip 1st parameter in assignment from input
+				oix = 1; // Skip 1st parameter in assignment from input
 			}
 			while(oix < formals.length) {
-				AjaxParam	apm	= findAnnotation(argannar[oix], AjaxParam.class);
+				AjaxParam apm = findAnnotation(argannar[oix], AjaxParam.class);
 				if(apm == null)
-					throw new RpcException("Parameter "+oix+" of method "+mi.getMethod()+" is missing an @AjaxParam annotation.");
+					throw new RpcException("Parameter " + oix + " of method " + mi.getMethod() + " is missing an @AjaxParam annotation.");
 				args[oix] = papro.findParameterValue(formals[oix], argannar[oix], ix, apm);
 				if(args[oix] == IParameterProvider.NO_VALUE)
-					throw new RpcException("Parameter "+oix+" of method "+mi.getMethod()+" has no value.");
+					throw new RpcException("Parameter " + oix + " of method " + mi.getMethod() + " has no value.");
 				oix++;
 			}
 			result = mi.getMethod().invoke(handler, args);
@@ -271,43 +268,43 @@ public class RpcCallHandler {
 		return result;
 	}
 
-//	/**
-//	 * Calls the object when it has it's own object parameter.
-//	 *
-//	 * @param mi
-//	 * @param handler
-//	 * @param sourceobject
-//	 * @return
-//	 * @throws Exception
-//	 */
-//	private void executeMethod(final IRpcCallContext ctx, final RpcMethodDefinition mi, final Object handler, final Object output) throws Exception {
-//		long ts = System.nanoTime();
-//		StringBuilder sb = new StringBuilder();
-//		sb.append("SVC: call ");
-//		sb.append(mi.toString());
-//		try {
-////			List<ParameterInjectorSet>	list = getMethodInjectorCache().getInjectorSet("B", sourceList, mi.getMethod(), PARAMONE);
-//
-//
-////			ch.calculateParameters(ctx);				// Calculate all parameters but p0
-////			ch.setParameter(0, output);					// Set parameter 0
-//			ch.invoke(handler);							// Invoke and release
-//			sb.append(": okay (result written to output param)");
-//		} catch(InvocationTargetException ix) {
-//			Throwable x = ix.getCause();
-//			sb.append(": exception ");
-//			sb.append(x.toString());
-//
-//			//-- Create a service exception from this
-//			throw new ServiceExecException(x, mi.getMethod(), x.getMessage());
-//		} finally {
-//			ts = System.nanoTime() - ts;
-//			sb.append(" (");
-//			sb.append(StringTool.strNanoTime(ts));
-//			sb.append(")");
-//			LOG.info(sb.toString());
-//		}
-//	}
+	//	/**
+	//	 * Calls the object when it has it's own object parameter.
+	//	 *
+	//	 * @param mi
+	//	 * @param handler
+	//	 * @param sourceobject
+	//	 * @return
+	//	 * @throws Exception
+	//	 */
+	//	private void executeMethod(final IRpcCallContext ctx, final RpcMethodDefinition mi, final Object handler, final Object output) throws Exception {
+	//		long ts = System.nanoTime();
+	//		StringBuilder sb = new StringBuilder();
+	//		sb.append("SVC: call ");
+	//		sb.append(mi.toString());
+	//		try {
+	////			List<ParameterInjectorSet>	list = getMethodInjectorCache().getInjectorSet("B", sourceList, mi.getMethod(), PARAMONE);
+	//
+	//
+	////			ch.calculateParameters(ctx);				// Calculate all parameters but p0
+	////			ch.setParameter(0, output);					// Set parameter 0
+	//			ch.invoke(handler);							// Invoke and release
+	//			sb.append(": okay (result written to output param)");
+	//		} catch(InvocationTargetException ix) {
+	//			Throwable x = ix.getCause();
+	//			sb.append(": exception ");
+	//			sb.append(x.toString());
+	//
+	//			//-- Create a service exception from this
+	//			throw new ServiceExecException(x, mi.getMethod(), x.getMessage());
+	//		} finally {
+	//			ts = System.nanoTime() - ts;
+	//			sb.append(" (");
+	//			sb.append(StringTool.strNanoTime(ts));
+	//			sb.append(")");
+	//			LOG.info(sb.toString());
+	//		}
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Response rendering.									*/
@@ -338,28 +335,28 @@ public class RpcCallHandler {
 	 * @return
 	 * @throws Exception
 	 */
-	private <T> T	allocateOutput(final IRpcCallContext ctx, final Class<T> oc, final ResponseFormat rf) throws Exception {
-		if(oc.isAssignableFrom(StructuredWriter.class)) {		// Parameter is structured writer?
+	private <T> T allocateOutput(final IRpcCallContext ctx, final Class<T> oc, final ResponseFormat rf) throws Exception {
+		if(oc.isAssignableFrom(StructuredWriter.class)) { // Parameter is structured writer?
 			/*
 			 * Get the default writer from the context, then wrap either a JSON or XML writer around it.
 			 */
-			Writer	ow	= ctx.getResponseWriter(rf, "undefined");
-			switch(rf) {
+			Writer ow = ctx.getResponseWriter(rf, "undefined");
+			switch(rf){
 				default:
-					throw new RpcException("Unknown response format "+rf);
+					throw new RpcException("Unknown response format " + rf);
 				case JSON:
 					JSONRenderer jr = new JSONRenderer(getJSONRegistry(), new IndentWriter(ow), true);
-					return (T)new JSONStructuredWriter(jr);
+					return (T) new JSONStructuredWriter(jr);
 				case XML:
 					XmlRenderer xr = new XmlRenderer(getXmlRegistry(), new XmlWriter(ow));
-					return (T)new XMLStructuredWriter(xr);
+					return (T) new XMLStructuredWriter(xr);
 			}
 		}
 
-		if(oc.isAssignableFrom(Writer.class)) {				// Generic writer?
-			return (T)ctx.getResponseWriter(rf, "undefined");	// Just return it
+		if(oc.isAssignableFrom(Writer.class)) { // Generic writer?
+			return (T) ctx.getResponseWriter(rf, "undefined"); // Just return it
 		}
-		throw new RpcException("The output class '"+oc.toString()+"' is not acceptable.");
+		throw new RpcException("The output class '" + oc.toString() + "' is not acceptable.");
 	}
 
 	/*--------------------------------------------------------------*/
@@ -386,18 +383,18 @@ public class RpcCallHandler {
 	public void executeBulkJSON(final IRpcCallContext cb, final String json) throws Exception {
 		LOG.info("SVC: JSON bulk call: " + json);
 		Object jsonds = JSONParser.parseJSON(json);
-		if(! (jsonds instanceof List<?>))
+		if(!(jsonds instanceof List< ? >))
 			throw new RpcException("The bulk call JSON data must be an array");
 		List<Object> reslist = new ArrayList<Object>();
 		boolean cancelled = false;
 		int ix = 0;
-//		BulkSourceGetter	bsg = new BulkSourceGetter(cb);		// Thingy to collect parameters for each call
-//		List<Class<? extends Object>>	sourceList = new ArrayList<Class<? extends Object>>(getSourceClassesList());
-//		sourceList.add(Map.class);								// Append map type containing JSON parameters
+		//		BulkSourceGetter	bsg = new BulkSourceGetter(cb);		// Thingy to collect parameters for each call
+		//		List<Class<? extends Object>>	sourceList = new ArrayList<Class<? extends Object>>(getSourceClassesList());
+		//		sourceList.add(Map.class);								// Append map type containing JSON parameters
 
-		for(Object o : (List<?>) jsonds) {
+		for(Object o : (List< ? >) jsonds) {
 			//-- This should be a Map containing the command names. Execute each and append the result to the result list for later rendering
-			if(!(o instanceof Map<?,?>))
+			if(!(o instanceof Map< ? , ? >))
 				throw new RpcException("The bulk call's list member type of item# " + ix + " is not a JSON object");
 			if(cancelled)
 				reslist.add(new HashMap<Object, Object>());
@@ -408,8 +405,8 @@ public class RpcCallHandler {
 			ix++;
 		}
 
-//		//-- Render back the result.
-		Writer	ow	= cb.getResponseWriter(ResponseFormat.JSON, "bulk");
+		//		//-- Render back the result.
+		Writer ow = cb.getResponseWriter(ResponseFormat.JSON, "bulk");
 		renderResponseObject(ow, ResponseFormat.JSON, reslist);
 	}
 
@@ -426,18 +423,18 @@ public class RpcCallHandler {
 		Object o = callmap.get("id");
 		String id = o == null ? null : o.toString();
 		o = callmap.get("cancelonerror");
-//		boolean cancel = false;
-//		if(o != null && StringTool.dbGetBool((String) o))
-//			cancel = true;
+		//		boolean cancel = false;
+		//		if(o != null && StringTool.dbGetBool((String) o))
+		//			cancel = true;
 		o = callmap.get("parameters");
-		if(o != null && !(o instanceof Map<?,?>))
+		if(o != null && !(o instanceof Map< ? , ? >))
 			throw new RpcException("The 'parameters' item is not a Map in list item #" + index); // Fatal.
 		Map<Object, Object> parameters = o == null ? new HashMap<Object, Object>() : (Map<Object, Object>) o;
-		RpcMethodDefinition mi = findHandlerMethod(cb, name); 		// Find the appropriate method to call, and check permissions.
-		Object handler = allocateHandler(cb, mi);					// We always need a handler instance,
-		JsonParameterProvider	pp = new JsonParameterProvider(parameters);
-		Object	result = executeMethod(cb, mi, handler, pp, null);
-		Map<Object,Object> resmap = new HashMap<Object, Object>();
+		RpcMethodDefinition mi = findHandlerMethod(cb, name); // Find the appropriate method to call, and check permissions.
+		Object handler = allocateHandler(cb, mi); // We always need a handler instance,
+		JsonParameterProvider pp = new JsonParameterProvider(parameters);
+		Object result = executeMethod(cb, mi, handler, pp, null);
+		Map<Object, Object> resmap = new HashMap<Object, Object>();
 		if(id != null)
 			resmap.put("id", id);
 		resmap.put("result", result);
@@ -453,12 +450,15 @@ public class RpcCallHandler {
 	public XmlRegistry getXmlRegistry() {
 		return m_xmlRegistry;
 	}
+
 	public ResponseFormat getDefaultFormat() {
 		return m_defaultFormat;
 	}
+
 	public void setDefaultResponseFormat(final ResponseFormat rf) {
 		m_defaultFormat = rf;
 	}
+
 	public JSONRegistry getJSONRegistry() {
 		return m_JSONRegistry;
 	}

@@ -24,35 +24,40 @@ public interface ControlFactory {
 	 */
 	static final public class Result {
 		/** The list of nodes forming the control */
-		private final NodeBase[]			m_nodeList;
+		private final NodeBase[] m_nodeList;
 
 		/** The binding of the control to it's model and property */
-		private final ModelBinding		m_binding;
+		private final ModelBinding m_binding;
 
 		/** The node to be used as the target for a "label" */
-		private final NodeBase			m_labelNode;
+		private final NodeBase m_labelNode;
 
 		public Result(final ModelBinding binding, final NodeBase labelNode, final NodeBase[] nodeList) {
 			m_binding = binding;
 			m_labelNode = labelNode;
 			m_nodeList = nodeList;
 		}
+
 		public Result(final ModelBinding binding, final NodeBase control) {
 			m_binding = binding;
 			m_labelNode = control;
-			m_nodeList = new NodeBase[] { control };
+			m_nodeList = new NodeBase[]{control};
 		}
-		public <T extends NodeBase & IInputNode<?>> Result(final T control, final IReadOnlyModel<?> model, final PropertyMetaModel pmm) {
+
+		public <T extends NodeBase & IInputNode< ? >> Result(final T control, final IReadOnlyModel< ? > model, final PropertyMetaModel pmm) {
 			m_labelNode = control;
-			m_nodeList = new NodeBase[] { control };
+			m_nodeList = new NodeBase[]{control};
 			m_binding = new SimpleComponentPropertyBinding(model, pmm, control);
 		}
+
 		public NodeBase[] getNodeList() {
 			return m_nodeList;
 		}
+
 		public ModelBinding getBinding() {
 			return m_binding;
 		}
+
 		public NodeBase getLabelNode() {
 			return m_labelNode;
 		}
@@ -65,7 +70,7 @@ public interface ControlFactory {
 	 * @param editable
 	 * @return
 	 */
-	int		accepts(PropertyMetaModel pmm, boolean editable);
+	int accepts(PropertyMetaModel pmm, boolean editable);
 
 	/**
 	 * This MUST create all nodes necessary for a control to edit the specified item. The nodes must be added
@@ -77,25 +82,26 @@ public interface ControlFactory {
 	 * @param editable
 	 * @return
 	 */
-	Result createControl(IReadOnlyModel<?> model, PropertyMetaModel pmm, boolean editable);
+	Result createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable);
 
-	static public final ControlFactory	TEXTAREA_CF = new ControlFactoryTextArea();
+	static public final ControlFactory TEXTAREA_CF = new ControlFactoryTextArea();
 
 	/**
 	 * This is a fallback factory; it accepts anything and shows a String edit component for it. It
 	 * hopes that the Text<?> control can convert the string input value to the actual type using the
 	 * registered Converters. This is also the factory for regular Strings.
 	 */
-	static public final ControlFactory	STRING_CF	= new ControlFactoryString();
-	static public final ControlFactory	BOOLEAN_AND_ENUM_CF	= new ControlFactoryEnumAndBool();
+	static public final ControlFactory STRING_CF = new ControlFactoryString();
 
-	static public final ControlFactory	DATE_CF	= new ControlFactoryDate();
+	static public final ControlFactory BOOLEAN_AND_ENUM_CF = new ControlFactoryEnumAndBool();
+
+	static public final ControlFactory DATE_CF = new ControlFactoryDate();
 
 	/**
 	 * Factory for UP relations. This creates a combobox input if the property is an
 	 * UP relation and has combobox properties set.
 	 */
-	static public final ControlFactory	RELATION_COMBOBOX_CF	= new ControlFactoryRelationCombo();
+	static public final ControlFactory RELATION_COMBOBOX_CF = new ControlFactoryRelationCombo();
 
-	static public final ControlFactory	RELATION_LOOKUP_CF	= new ControlFactoryRelationLookup();
+	static public final ControlFactory RELATION_LOOKUP_CF = new ControlFactoryRelationLookup();
 }

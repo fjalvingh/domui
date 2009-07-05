@@ -2,17 +2,11 @@ package to.etc.domui.server;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
+import javax.servlet.*;
 import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.UnavailableException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -26,41 +20,40 @@ import to.etc.webapp.nls.*;
  * Created on May 22, 2008
  */
 public class AppFilter implements Filter {
-	static final Logger	LOG	= Logger.getLogger(AppFilter.class.getName());
+	static final Logger LOG = Logger.getLogger(AppFilter.class.getName());
 
-	private ConfigParameters	m_config;
+	private ConfigParameters m_config;
 
-	private String				m_applicationClassName;
+	private String m_applicationClassName;
 
-	private boolean				m_logRequest;
+	private boolean m_logRequest;
 
 	/**
 	 * If a reloader is needed for debug/development pps this will hold the reloader.
 	 */
 
-	private ContextMaker		m_contextMaker;
+	private ContextMaker m_contextMaker;
 
-	public void destroy() {
-	}
+	public void destroy() {}
 
-	static public String	minitime() {
-		Calendar	cal	= Calendar.getInstance();
-		return cal.get(Calendar.HOUR_OF_DAY)+StringTool.intToStr(cal.get(Calendar.MINUTE), 10, 2)+StringTool.intToStr(cal.get(Calendar.SECOND), 10, 2)+"."+cal.get(Calendar.MILLISECOND);
+	static public String minitime() {
+		Calendar cal = Calendar.getInstance();
+		return cal.get(Calendar.HOUR_OF_DAY) + StringTool.intToStr(cal.get(Calendar.MINUTE), 10, 2) + StringTool.intToStr(cal.get(Calendar.SECOND), 10, 2) + "." + cal.get(Calendar.MILLISECOND);
 	}
 
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		try {
-			HttpServletRequest rq = (HttpServletRequest)req;
-			rq.setCharacterEncoding("UTF-8");						// FIXME jal 20080804 Encoding of input was incorrect?
+			HttpServletRequest rq = (HttpServletRequest) req;
+			rq.setCharacterEncoding("UTF-8"); // FIXME jal 20080804 Encoding of input was incorrect?
 			if(m_logRequest) {
 				String rs = rq.getQueryString();
-				rs = rs == null ? "" : "?"+rs;
-				System.out.println(minitime()+" rq="+rq.getRequestURI()+rs);
+				rs = rs == null ? "" : "?" + rs;
+				System.out.println(minitime() + " rq=" + rq.getRequestURI() + rs);
 			}
 			NlsContext.setLocale(rq.getLocale());
-//			NlsContext.setLocale(new Locale("nl", "NL"));
+			//			NlsContext.setLocale(new Locale("nl", "NL"));
 
-			if(m_contextMaker.handleRequest(rq, (HttpServletResponse)res, chain))
+			if(m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain))
 				return;
 		} catch(RuntimeException x) {
 			DomUtil.dumpException(x);
@@ -73,10 +66,10 @@ public class AppFilter implements Filter {
 			throw x;
 		} catch(Exception x) {
 			DomUtil.dumpException(x);
-			throw new WrappedException(x);		// James Gosling is an idiot
+			throw new WrappedException(x); // James Gosling is an idiot
 		}
-//
-//		chain.doFilter(req, res);
+		//
+		//		chain.doFilter(req, res);
 	}
 
 	/**
@@ -93,24 +86,24 @@ public class AppFilter implements Filter {
 		}
 		try {
 			System.out.println("Init logger");
-	//		System.out.println("QDataContext="+QDataContext.class.getClassLoader());
+			//		System.out.println("QDataContext="+QDataContext.class.getClassLoader());
 
 			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
 
 			//-- Get the root for all files in the webapp
-			File	approot = new File(config.getServletContext().getRealPath("/"));
-			System.out.println("WebApp root="+approot);
-			if(! approot.exists() || ! approot.isDirectory())
+			File approot = new File(config.getServletContext().getRealPath("/"));
+			System.out.println("WebApp root=" + approot);
+			if(!approot.exists() || !approot.isDirectory())
 				throw new IllegalStateException("Internal: cannot get webapp root directory");
 
-			m_config	= new ConfigParameters(config, approot);
+			m_config = new ConfigParameters(config, approot);
 
 			//-- Handle application construction
 			m_applicationClassName = getApplicationClassName(m_config);
 			if(m_applicationClassName == null)
 				throw new UnavailableException("The application class name is not set. Use 'application' in the Filter parameters to set a main class.");
 
-			String	autoload = m_config.getString("auto-reload");
+			String autoload = m_config.getString("auto-reload");
 			if(autoload != null && autoload.trim().length() > 0)
 				m_contextMaker = new ReloadingContextMaker(m_applicationClassName, m_config, autoload);
 			else
@@ -123,11 +116,11 @@ public class AppFilter implements Filter {
 			throw x;
 		} catch(Exception x) {
 			x.printStackTrace();
-			throw new WrappedException(x);		// James Gosling is an idiot
+			throw new WrappedException(x); // James Gosling is an idiot
 		}
 	}
 
-	public String		getApplicationClassName(final ConfigParameters p) {
+	public String getApplicationClassName(final ConfigParameters p) {
 		return p.getString("application");
 	}
 }

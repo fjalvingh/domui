@@ -2,10 +2,6 @@ package to.etc.domui.hibernate.generic;
 
 import java.util.*;
 
-import org.hibernate.*;
-import org.hibernate.engine.*;
-import org.hibernate.impl.*;
-
 import to.etc.domui.state.*;
 
 /**
@@ -25,10 +21,11 @@ public class HibernateLongSessionContext extends HibernaatjeBaseContext {
 			super.getSession();
 			m_session.setFlushMode(FlushMode.MANUAL);
 		}
-		if(! m_session.isConnected())
+		if(!m_session.isConnected())
 			System.out.println("Hibernate: reconnecting session.");
 		return m_session;
 	}
+
 	@Override
 	public void conversationDestroyed(final ConversationContext cc) throws Exception {
 		conversationDetached(cc);
@@ -36,18 +33,19 @@ public class HibernateLongSessionContext extends HibernaatjeBaseContext {
 
 	@Override
 	public void conversationDetached(final ConversationContext cc) throws Exception {
-		if(m_session == null || ! m_session.isConnected())
+		if(m_session == null || !m_session.isConnected())
 			return;
-		SessionImpl	sim = (SessionImpl) m_session;
-		StatefulPersistenceContext	spc = (StatefulPersistenceContext) sim.getPersistenceContext();
-		Map<?,?> flups = spc.getEntitiesByKey();
-		System.out.println("Hibernate: disconnecting session containing "+flups.size()+" persisted instances");
+		SessionImpl sim = (SessionImpl) m_session;
+		StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
+		Map< ? , ? > flups = spc.getEntitiesByKey();
+		System.out.println("Hibernate: disconnecting session containing " + flups.size() + " persisted instances");
 		if(m_session.getTransaction().isActive())
 			m_session.getTransaction().rollback();
-		m_session.disconnect();				// Disconnect the dude.
-//		if(m_session.isConnected())
-//			System.out.println("Session connected after disconnect ;-)");
+		m_session.disconnect(); // Disconnect the dude.
+		//		if(m_session.isConnected())
+		//			System.out.println("Session connected after disconnect ;-)");
 	}
+
 	@Override
 	public void commit() throws Exception {
 		m_session.flush();

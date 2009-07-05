@@ -9,12 +9,17 @@ import to.etc.util.*;
  * Created on May 18, 2009
  */
 public class ComponentPropertyDef {
-	private final ComponentBuilder	m_builder;
-	private final String			m_propertyName;
-	private String					m_sourceName;
-	private Class<?>				m_sourceClass;
-	private boolean					m_required;
-	private PropertyInfo			m_info;
+	private final ComponentBuilder m_builder;
+
+	private final String m_propertyName;
+
+	private String m_sourceName;
+
+	private Class< ? > m_sourceClass;
+
+	private boolean m_required;
+
+	private PropertyInfo m_info;
 
 	ComponentPropertyDef(final ComponentBuilder builder, final String propertyName) {
 		m_builder = builder;
@@ -24,6 +29,7 @@ public class ComponentPropertyDef {
 	public String getSourceName() {
 		return m_sourceName;
 	}
+
 	public void setSourceName(final String sourceName) {
 		m_sourceName = sourceName;
 	}
@@ -31,6 +37,7 @@ public class ComponentPropertyDef {
 	public Class< ? > getSourceClass() {
 		return m_sourceClass;
 	}
+
 	public void setSourceClass(final Class< ? > sourceClass) {
 		m_sourceClass = sourceClass;
 	}
@@ -38,6 +45,7 @@ public class ComponentPropertyDef {
 	public ComponentBuilder getBuilder() {
 		return m_builder;
 	}
+
 	public String getPropertyName() {
 		return m_propertyName;
 	}
@@ -51,6 +59,7 @@ public class ComponentPropertyDef {
 	public boolean isRequired() {
 		return m_required;
 	}
+
 	public void setRequired(final boolean required) {
 		m_required = required;
 	}
@@ -58,6 +67,7 @@ public class ComponentPropertyDef {
 	PropertyInfo getInfo() {
 		return m_info;
 	}
+
 	void setInfo(final PropertyInfo info) {
 		m_info = info;
 	}

@@ -8,6 +8,7 @@ package to.etc.domui.util;
  * Created on Jul 24, 2008
  */
 public interface IKeyTranslator<T> {
-	public String		getRenderableKey(T source);
-	public T			getObjectByKey(String key) throws Exception;
+	public String getRenderableKey(T source);
+
+	public T getObjectByKey(String key) throws Exception;
 }

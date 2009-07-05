@@ -6,6 +6,6 @@ public class FastXmlOutputWriter extends XmlOutputWriterBase implements BrowserO
 	public FastXmlOutputWriter(Writer w) {
 		super(w);
 	}
-	public void setIndentEnabled(boolean ind) {
-	}
+
+	public void setIndentEnabled(boolean ind) {}
 }

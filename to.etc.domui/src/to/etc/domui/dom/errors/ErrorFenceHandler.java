@@ -32,18 +32,19 @@ import to.etc.domui.server.*;
  * shown.
  */
 public class ErrorFenceHandler implements IErrorFence {
-	private NodeContainer				m_container;
+	private NodeContainer m_container;
 
 	/**
 	 * The list of thingies that need to know about page errors.
 	 */
-	private List<IErrorMessageListener>	m_errorListeners = Collections.EMPTY_LIST;
+	private List<IErrorMessageListener> m_errorListeners = Collections.EMPTY_LIST;
 
-	private List<UIMessage>				m_messageList = Collections.EMPTY_LIST;
+	private List<UIMessage> m_messageList = Collections.EMPTY_LIST;
 
 	public ErrorFenceHandler(NodeContainer container) {
 		m_container = container;
 	}
+
 	public NodeContainer getContainer() {
 		return m_container;
 	}
@@ -54,7 +55,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	public void addErrorListener(IErrorMessageListener eml) {
 		if(m_errorListeners == Collections.EMPTY_LIST)
 			m_errorListeners = new ArrayList<IErrorMessageListener>(4);
-		if(! m_errorListeners.contains(eml))
+		if(!m_errorListeners.contains(eml))
 			m_errorListeners.add(eml);
 	}
 
@@ -62,7 +63,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	 * Discard an error message listener.
 	 * @param eml
 	 */
-	public void	removeErrorListener(IErrorMessageListener eml) {
+	public void removeErrorListener(IErrorMessageListener eml) {
 		m_errorListeners.remove(eml);
 	}
 
@@ -70,11 +71,11 @@ public class ErrorFenceHandler implements IErrorFence {
 		if(m_messageList == Collections.EMPTY_LIST)
 			m_messageList = new ArrayList<UIMessage>(15);
 		m_messageList.add(uim);
-		
+
 		// ; now call all pending listeners. If this page has NO listeners we use the application default.
 		if(m_errorListeners.size() == 0) {
 			//-- No default listeners: this means errors will not be visible. Ask the application to add an error handling component.
-			DomApplication.get().addDefaultErrorComponent(getContainer());	// Ask the application to add,
+			DomApplication.get().addDefaultErrorComponent(getContainer()); // Ask the application to add,
 		}
 		for(IErrorMessageListener eml : m_errorListeners) {
 			try {
@@ -86,11 +87,11 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	public void removeMessage(NodeBase source, UIMessage uim) {
-		if(! m_messageList.remove(uim))				// Must be known to the page or something's wrong..
+		if(!m_messageList.remove(uim)) // Must be known to the page or something's wrong..
 			return;
 
 		//-- Call the listeners.
-		List<IErrorMessageListener>	list = m_errorListeners;
+		List<IErrorMessageListener> list = m_errorListeners;
 		for(IErrorMessageListener eml : list) {
 			try {
 				eml.errorMessageRemoved(source.getPage(), uim);
@@ -100,26 +101,26 @@ public class ErrorFenceHandler implements IErrorFence {
 		}
 	}
 
-	public void	clearGlobalMessages(NodeBase source, String code) {
-		List<UIMessage>	todo = new ArrayList<UIMessage>();
-		for(UIMessage m: m_messageList) {
+	public void clearGlobalMessages(NodeBase source, String code) {
+		List<UIMessage> todo = new ArrayList<UIMessage>();
+		for(UIMessage m : m_messageList) {
 			if(m.getErrorNode() == null && (code == null || code.equals(m.getCode())))
 				todo.add(m);
 		}
 
 		//-- Remove all messages from the list,
-		for(UIMessage m: todo)
+		for(UIMessage m : todo)
 			removeMessage(source, m);
 	}
 
-//	public void	clearError(NodeBase component, String code) {
-//		List<UIMessage>	todo = new ArrayList<UIMessage>();
-//		for(UIMessage m: m_messageList) {
-//			if(m.getErrorNode() == component && (code != null && m.getCode().equals(code)))
-//				todo.add(m);
-//		}
-//		for(UIMessage m: todo) {
-//			internalRemoveMessage(m);
-//		}
-//	}
+	//	public void	clearError(NodeBase component, String code) {
+	//		List<UIMessage>	todo = new ArrayList<UIMessage>();
+	//		for(UIMessage m: m_messageList) {
+	//			if(m.getErrorNode() == component && (code != null && m.getCode().equals(code)))
+	//				todo.add(m);
+	//		}
+	//		for(UIMessage m: todo) {
+	//			internalRemoveMessage(m);
+	//		}
+	//	}
 }

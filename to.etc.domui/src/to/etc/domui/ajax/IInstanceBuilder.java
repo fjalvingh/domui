@@ -8,5 +8,5 @@ package to.etc.domui.ajax;
  * Created on May 14, 2009
  */
 public interface IInstanceBuilder {
-	<T> T	createInstance(Class<T> theclass, Object... parameters);
+	<T> T createInstance(Class<T> theclass, Object... parameters);
 }

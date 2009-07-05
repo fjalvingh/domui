@@ -13,15 +13,20 @@ import to.etc.domui.util.*;
  * Created on Jul 30, 2008
  */
 public class FloatingWindow extends Div {
-	private NodeContainer	m_titleBar;
-	private NodeContainer	m_content;
-	private String			m_windowTitle;
-	private boolean			m_closable = true;
-	private Img				m_closeButton;
-//	private boolean			m_constructed;
-	private Img				m_titleIcon;
+	private NodeContainer m_titleBar;
 
-	public IClicked<FloatingWindow>		m_onClose;
+	private NodeContainer m_content;
+
+	private String m_windowTitle;
+
+	private boolean m_closable = true;
+
+	private Img m_closeButton;
+
+	//	private boolean			m_constructed;
+	private Img m_titleIcon;
+
+	public IClicked<FloatingWindow> m_onClose;
 
 	/**
 	 * Create an empty, untitled floating window.
@@ -61,38 +66,36 @@ public class FloatingWindow extends Div {
 		super.add(1, m_content);
 
 		//-- Test jq drag
-//		appendCreateJS("$('#"+getActualID()+"').draggable({" +
-//			"ghosting: false, zIndex:100, opacity: 0.7, handle: '#"+m_titleBar.getActualID()+"'});"
-//		);
-		appendCreateJS("$('#"+getActualID()+"').draggable({" +
-				"ghosting: false, zIndex:100, handle: '#"+m_titleBar.getActualID()+"'});"
-			);
-//		m_constructed = true;
+		//		appendCreateJS("$('#"+getActualID()+"').draggable({" +
+		//			"ghosting: false, zIndex:100, opacity: 0.7, handle: '#"+m_titleBar.getActualID()+"'});"
+		//		);
+		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:100, handle: '#" + m_titleBar.getActualID() + "'});");
+		//		m_constructed = true;
 	}
 
-	private void	init() {
-		m_content	= new Div();
+	private void init() {
+		m_content = new Div();
 		m_content.setCssClass("ui-fw-c");
 		setErrorFence();
 	}
 
-//	/**
-//	 * Set an icon from the current theme for the title bar.
-//	 * @param ico
-//	 */
-//	public void	setThemeIcon(String ico) {
-//		createIcon().setThemeSrc(ico);
-//	}
+	//	/**
+	//	 * Set an icon from the current theme for the title bar.
+	//	 * @param ico
+	//	 */
+	//	public void	setThemeIcon(String ico) {
+	//		createIcon().setThemeSrc(ico);
+	//	}
 	/**
 	 * Set an icon for the title bar, using the absolute path to a web resource. If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 * @param ico
 	 */
-	public void	setIcon(String ico) {
+	public void setIcon(String ico) {
 		createIcon().setSrc(ico);
 	}
 
-	private Img	createIcon() {
+	private Img createIcon() {
 		if(m_titleIcon == null) {
 			m_titleIcon = new Img();
 			m_titleIcon.setBorder(0);
@@ -113,6 +116,7 @@ public class FloatingWindow extends Div {
 	public void add(int index, NodeBase nd) {
 		m_content.add(index, nd);
 	}
+
 	/**
 	 * This is an overridden method which causes content added to the FloatingWindow to be added
 	 * to it's content area instead.
@@ -131,7 +135,7 @@ public class FloatingWindow extends Div {
 	protected NodeContainer createTitleBar() {
 		if(m_titleBar != null)
 			m_titleBar.remove();
-		Div	ttl	= new Div();
+		Div ttl = new Div();
 		m_titleBar = ttl;
 		super.add(0, ttl);
 		ttl.setCssClass("ui-fw-ttl");
@@ -153,6 +157,7 @@ public class FloatingWindow extends Div {
 		ttl.addLiteral(getWindowTitle());
 		return ttl;
 	}
+
 	/**
 	 * Returns T if the window can be closed using a close button on the title bar.
 	 * @return
@@ -175,7 +180,7 @@ public class FloatingWindow extends Div {
 	/**
 	 * Close this floater and cause it to be destroyed from the UI.
 	 */
-	public void	close() {
+	public void close() {
 		remove();
 	}
 
@@ -196,6 +201,7 @@ public class FloatingWindow extends Div {
 	public void setOnClose(IClicked<FloatingWindow> onClose) {
 		m_onClose = onClose;
 	}
+
 	/**
 	 * Return the floater's title bar title string.
 	 * @return
@@ -203,6 +209,7 @@ public class FloatingWindow extends Div {
 	public String getWindowTitle() {
 		return m_windowTitle;
 	}
+
 	/**
 	 * Set the floater's title bar string.
 	 * @param windowTitle

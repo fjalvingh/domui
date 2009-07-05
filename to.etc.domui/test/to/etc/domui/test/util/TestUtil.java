@@ -5,11 +5,11 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 
 public class TestUtil {
-	static private AppSession			m_session;
+	static private AppSession m_session;
 
-	static private DomApplication		m_application;
+	static private DomApplication m_application;
 
-	static public synchronized DomApplication	getApplication() {
+	static public synchronized DomApplication getApplication() {
 		if(m_application == null) {
 			m_application = new DomApplication() {
 				@Override
@@ -22,7 +22,7 @@ public class TestUtil {
 		return m_application;
 	}
 
-	static public AppSession	getAppSession() {
+	static public AppSession getAppSession() {
 		getApplication();
 		if(m_session == null) {
 			m_session = new AppSession();
@@ -35,25 +35,26 @@ public class TestUtil {
 	 * @param pg
 	 * @return
 	 */
-	static private Page		initPage(UrlPage pg, PageParameters pp) throws Exception {
+	static private Page initPage(UrlPage pg, PageParameters pp) throws Exception {
 		getApplication();
-		Page	p = new Page(pg);
-		WindowSession	ws	= new WindowSession(getAppSession());
-		ConversationContext	cc	= new ConversationContext();
+		Page p = new Page(pg);
+		WindowSession ws = new WindowSession(getAppSession());
+		ConversationContext cc = new ConversationContext();
 		ws.acceptNewConversation(cc);
 		p.internalInitialize(pp, cc);
 		cc.internalRegisterPage(p, pp);
 		return p;
 	}
 
-	static public Page		createPage(Class<? extends UrlPage> clz, PageParameters pp) throws Exception {
+	static public Page createPage(Class< ? extends UrlPage> clz, PageParameters pp) throws Exception {
 		if(pp == null)
 			pp = new PageParameters();
-		UrlPage	pg	= clz.newInstance();					// Should have parameterless ctor
-		Page	p	= initPage(pg, pp);
+		UrlPage pg = clz.newInstance(); // Should have parameterless ctor
+		Page p = initPage(pg, pp);
 		return p;
 	}
-	static public Page		createPage(Class<? extends UrlPage> clz) throws Exception {
+
+	static public Page createPage(Class< ? extends UrlPage> clz) throws Exception {
 		return createPage(clz, null);
 	}
 }

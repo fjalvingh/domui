@@ -1,36 +1,37 @@
 package to.etc.domui.server;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.*;
+import java.util.logging.*;
 
 import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.*;
 
 import to.etc.domui.server.reloader.*;
 import to.etc.domui.state.*;
 
 public class ReloadingContextMaker extends AbstractContextMaker {
-	static private final Logger	LOG	= Logger.getLogger(ReloadingContextMaker.class.getName());
+	static private final Logger LOG = Logger.getLogger(ReloadingContextMaker.class.getName());
 
-	private String				m_applicationClassName;
-	private ConfigParameters	m_config;
-	private Reloader			m_reloader;
-	private DomApplication		m_application;
-	private int					m_nestCount;
-	private Set<ReloadedClassesListener>	m_listenerSet = new HashSet<ReloadedClassesListener>();
+	private String m_applicationClassName;
+
+	private ConfigParameters m_config;
+
+	private Reloader m_reloader;
+
+	private DomApplication m_application;
+
+	private int m_nestCount;
+
+	private Set<ReloadedClassesListener> m_listenerSet = new HashSet<ReloadedClassesListener>();
 
 
 	public ReloadingContextMaker(String applicationClassName, ConfigParameters pp, String patterns) throws Exception {
 		m_applicationClassName = applicationClassName;
 		m_config = pp;
-		m_reloader	= new Reloader(patterns);
+		m_reloader = new Reloader(patterns);
 		AppFilter.LOG.info("We are running in DEVELOPMENT mode. This will be VERY slow when used in a production environment.");
-		
-		checkReload();						// Initial: force load and init of Application object.
+
+		checkReload(); // Initial: force load and init of Application object.
 	}
 
 	@Override
@@ -44,10 +45,10 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		//-- If a reload has taken place all my session data is gone and a new appl object is instantiated.
 		try {
 			//-- Get sessionLink (locked on session)
-			HttpSession	sess	= request.getSession(true);
-			HttpSessionLink	link;
+			HttpSession sess = request.getSession(true);
+			HttpSessionLink link;
 			synchronized(sess) {
-				link	= (HttpSessionLink) sess.getAttribute(AppSession.class.getName());
+				link = (HttpSessionLink) sess.getAttribute(AppSession.class.getName());
 				if(link == null) {
 					link = new HttpSessionLink(this);
 					sess.setAttribute(AppSession.class.getName(), link);
@@ -57,7 +58,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 			//-- Ok: does the sessionlink have a session?
 			DomApplication.internalSetCurrent(m_application);
-			AppSession	ass	= link.getAppSession(m_application);
+			AppSession ass = link.getAppSession(m_application);
 			RequestContextImpl ctx = new RequestContextImpl(m_application, ass, request, response);
 			return execute(ctx, chain);
 		} finally {
@@ -80,7 +81,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			m_application = createApplication();
 			return;
 		}
-		if(! m_reloader.isChanged())
+		if(!m_reloader.isChanged())
 			return;
 
 		LOG.info("Reloading system");
@@ -89,22 +90,22 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			try {
 				l.classesReloaded();
 			} catch(Exception x) {
-				AppFilter.LOG.log(Level.INFO, "Error calling listener: "+x, x);
+				AppFilter.LOG.log(Level.INFO, "Error calling listener: " + x, x);
 			}
 		}
 		m_reloader.clear();
 
 		//-- Check to see if the application has changed
-		Class<?>	clz;
+		Class< ? > clz;
 		try {
-			clz	= m_reloader.loadApplication(m_applicationClassName);
+			clz = m_reloader.loadApplication(m_applicationClassName);
 		} catch(ClassNotFoundException x) {
-			throw new IllegalStateException("The main application class '"+m_applicationClassName+"' cannot be found: "+x, x);
+			throw new IllegalStateException("The main application class '" + m_applicationClassName + "' cannot be found: " + x, x);
 		}
 		if(m_application != null) {
-			Class<?>	oclz = m_application.getClass();
-			System.out.println("OLD app = "+oclz+", loaded by "+oclz.getClassLoader());
-			System.out.println("NEW app = "+clz+", loaded by "+clz.getClassLoader());
+			Class< ? > oclz = m_application.getClass();
+			System.out.println("OLD app = " + oclz + ", loaded by " + oclz.getClassLoader());
+			System.out.println("NEW app = " + clz + ", loaded by " + clz.getClassLoader());
 			if(clz.isAssignableFrom(oclz))
 				return;
 			DomApplication old = m_application;
@@ -116,11 +117,11 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	}
 
 	private DomApplication createApplication() throws Exception {
-		Class<?>	clz;
+		Class< ? > clz;
 		try {
-			clz	= m_reloader.loadApplication(m_applicationClassName);
+			clz = m_reloader.loadApplication(m_applicationClassName);
 		} catch(ClassNotFoundException x) {
-			throw new IllegalStateException("The main application class '"+m_applicationClassName+"' cannot be found: "+x, x);
+			throw new IllegalStateException("The main application class '" + m_applicationClassName + "' cannot be found: " + x, x);
 		}
 
 		/*
@@ -129,33 +130,33 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		Object o;
 		DomApplication a;
 		try {
-			o	= clz.newInstance();
-			a = (DomApplication)o;
+			o = clz.newInstance();
+			a = (DomApplication) o;
 		} catch(Exception x) {
-			System.out.println("DomApplication classloader: "+DomApplication.class.getClassLoader());
-			System.out.println("Instance classloader: "+clz.getClassLoader());
-			Class<?>	pc = clz.getSuperclass();
-			System.out.println("Instance superclass="+pc);
-			System.out.println("Instance superclass classloader: "+pc.getClassLoader());
+			System.out.println("DomApplication classloader: " + DomApplication.class.getClassLoader());
+			System.out.println("Instance classloader: " + clz.getClassLoader());
+			Class< ? > pc = clz.getSuperclass();
+			System.out.println("Instance superclass=" + pc);
+			System.out.println("Instance superclass classloader: " + pc.getClassLoader());
 
-			throw new IllegalStateException("The main application class '"+m_applicationClassName+"' cannot be INSTANTIATED: "+x, x);
+			throw new IllegalStateException("The main application class '" + m_applicationClassName + "' cannot be INSTANTIATED: " + x, x);
 		}
 		a.internalInitialize(m_config);
 		a.setDevelopmentMode(true);
 		return a;
 	}
 
-	public synchronized void		addListener(ReloadedClassesListener l) {
+	public synchronized void addListener(ReloadedClassesListener l) {
 		m_listenerSet = new HashSet<ReloadedClassesListener>(m_listenerSet);
 		m_listenerSet.add(l);
 	}
 
-	public synchronized void		removeListener(ReloadedClassesListener l) {
+	public synchronized void removeListener(ReloadedClassesListener l) {
 		m_listenerSet = new HashSet<ReloadedClassesListener>(m_listenerSet);
 		m_listenerSet.remove(l);
 	}
 
-	private Set<ReloadedClassesListener>	getListeners() {
+	private Set<ReloadedClassesListener> getListeners() {
 		return m_listenerSet;
 	}
 }

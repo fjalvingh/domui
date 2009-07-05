@@ -12,28 +12,32 @@ import to.etc.util.*;
  * Created on Aug 17, 2007
  */
 public class PrettyXmlOutputWriter extends XmlOutputWriterBase implements BrowserOutput {
-	private IndentWriter		m_w;
+	private IndentWriter m_w;
 
 	public PrettyXmlOutputWriter(Writer out) {
-		super( new IndentWriter(out) );
-		m_w	= (IndentWriter) getWriter();
+		super(new IndentWriter(out));
+		m_w = (IndentWriter) getWriter();
 	}
 
 	@Override
 	public void nl() throws IOException {
 		m_w.forceNewline();
 	}
+
 	@Override
 	public void inc() {
 		m_w.inc();
 	}
+
 	@Override
 	public void dec() {
 		m_w.dec();
 	}
+
 	public void setIndentEnabled(boolean ind) {
 		m_w.setIndentEnabled(ind);
 	}
+
 	@Override
 	protected void println() throws IOException {
 		m_w.println();

@@ -1,8 +1,8 @@
 package to.etc.webapp.query;
 
 public class QUnaryProperty extends QOperatorNode {
-	private String		m_property;
-	
+	private String m_property;
+
 	public QUnaryProperty(QOperation operation, String property) {
 		super(operation);
 		m_property = property;

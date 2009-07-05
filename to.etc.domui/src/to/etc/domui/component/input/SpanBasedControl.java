@@ -13,9 +13,9 @@ import to.etc.domui.util.*;
  * Created on Aug 13, 2008
  */
 abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> {
-	private boolean			m_mandatory;
+	private boolean m_mandatory;
 
-	private boolean			m_readOnly;
+	private boolean m_readOnly;
 
 	public boolean isMandatory() {
 		return m_mandatory;
@@ -24,9 +24,11 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	public void setMandatory(boolean mandatory) {
 		m_mandatory = mandatory;
 	}
+
 	public boolean isReadOnly() {
 		return m_readOnly;
 	}
+
 	public void setReadOnly(boolean readOnly) {
 		if(m_readOnly == readOnly)
 			return;
@@ -37,17 +39,18 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IInputNode implementation.							*/
 	/*--------------------------------------------------------------*/
-	private T						m_value;
+	private T m_value;
 
-	private IValueChanged<?, ?>		m_onValueChanged;
+	private IValueChanged< ? , ? > m_onValueChanged;
 
 	protected T getRawValue() {
 		return m_value;
 	}
+
 	protected void setRawValue(T v) {
 		m_value = v;
 	}
-	
+
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
 			setMessage(MsgType.ERROR, Msgs.MANDATORY);
@@ -74,6 +77,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	public IValueChanged< ? , ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
+
 	/**
 	 * @see to.etc.domui.dom.html.IInputBase#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */

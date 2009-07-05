@@ -6,26 +6,27 @@ import to.etc.domui.state.*;
 
 
 public interface RequestContext extends IParameterInfo {
-	public DomApplication		getApplication();
+	public DomApplication getApplication();
 
-	public AppSession			getSession();
+	public AppSession getSession();
 
-	public WindowSession	getWindowSession();
+	public WindowSession getWindowSession();
 
-	public String				getExtension();
+	public String getExtension();
 
-	public String				getInputPath();
+	public String getInputPath();
 
-	public String				getUserAgent();
+	public String getUserAgent();
 
-	public String				getRemoteUser();
+	public String getRemoteUser();
 
-	public String				getRelativePath(String rel);
+	public String getRelativePath(String rel);
 
-	public Writer				getOutputWriter() throws IOException;
+	public Writer getOutputWriter() throws IOException;
 
-	public String				getRelativeThemePath(String frag);
-	public String				translateResourceName(String in);
+	public String getRelativeThemePath(String frag);
+
+	public String translateResourceName(String in);
 
 	/**
 	 * This checks if the currently logged on user has the named permission. This permission is
@@ -35,5 +36,5 @@ public interface RequestContext extends IParameterInfo {
 	 * @param permissionName
 	 * @return
 	 */
-	public boolean	hasPermission(String permissionName);
+	public boolean hasPermission(String permissionName);
 }

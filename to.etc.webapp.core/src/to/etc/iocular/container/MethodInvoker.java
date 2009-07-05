@@ -1,10 +1,10 @@
 package to.etc.iocular.container;
 
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.*;
 
-import to.etc.iocular.def.ComponentRef;
-import to.etc.util.IndentWriter;
+import to.etc.iocular.def.*;
+import to.etc.util.*;
 
 /**
  * Defines a method invocation.
@@ -16,13 +16,13 @@ import to.etc.util.IndentWriter;
  */
 final public class MethodInvoker {
 	/** The method that is to be called */
-	private final Method			m_method;
+	private final Method m_method;
 
 	/** The parameter specification for the methods */
-	private final ComponentRef[]	m_actuals;
+	private final ComponentRef[] m_actuals;
 
 	/** The object to be used as 'this'; if this is a static method this contains null. */
-	private final ComponentRef		m_thisRef;
+	private final ComponentRef m_thisRef;
 
 	public MethodInvoker(final Method method, final ComponentRef thisref, final ComponentRef[] actuals) {
 		m_method = method;
@@ -50,7 +50,7 @@ final public class MethodInvoker {
 	 */
 	@Deprecated
 	public Object invoke(final Object thisobject, final BasicContainer bc, final Object selfobject) throws Exception {
-		Object[]	param = new Object[ m_actuals.length ];
+		Object[] param = new Object[m_actuals.length];
 		for(int i = m_actuals.length; --i >= 0;) {
 			if(m_actuals[i].isSelf())
 				param[i] = selfobject;
@@ -69,7 +69,7 @@ final public class MethodInvoker {
 	 * @throws Exception
 	 */
 	public Object invoke(final BasicContainer bc, final Object selfobject) throws Exception {
-		Object	thisobject = null;
+		Object thisobject = null;
 		if(m_thisRef != null) {
 			if(m_thisRef.isSelf())
 				thisobject = selfobject;
@@ -77,7 +77,7 @@ final public class MethodInvoker {
 				thisobject = bc.retrieve(m_thisRef);
 		}
 
-		Object[]	param = new Object[ m_actuals.length ];
+		Object[] param = new Object[m_actuals.length];
 		for(int i = m_actuals.length; --i >= 0;) {
 			if(m_actuals[i].isSelf())
 				param[i] = selfobject;
@@ -98,7 +98,7 @@ final public class MethodInvoker {
 			iw.println("- Method parameter build plan(s):");
 			iw.inc();
 			for(int i = 0; i < m_actuals.length; i++) {
-				iw.println("argument# "+i);
+				iw.println("argument# " + i);
 				iw.inc();
 				if(m_actuals[i] == null)
 					iw.println("!?!?!?! null REF!!??!");

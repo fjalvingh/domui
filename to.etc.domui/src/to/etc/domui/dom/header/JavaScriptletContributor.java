@@ -3,7 +3,7 @@ package to.etc.domui.dom.header;
 import to.etc.domui.dom.*;
 
 final public class JavaScriptletContributor extends HeaderContributor {
-	private final String		m_javascript;
+	private final String m_javascript;
 
 	public JavaScriptletContributor(final String javascript) {
 		m_javascript = javascript;
@@ -41,7 +41,7 @@ final public class JavaScriptletContributor extends HeaderContributor {
 		r.o().tag("script");
 		r.o().attr("language", "javascript");
 		r.o().endtag();
-		r.o().writeRaw("<!--");							// Embed JS in comment
+		r.o().writeRaw("<!--"); // Embed JS in comment
 		r.o().writeRaw(m_javascript);
 		r.o().writeRaw("\n-->");
 		r.o().closetag("script");

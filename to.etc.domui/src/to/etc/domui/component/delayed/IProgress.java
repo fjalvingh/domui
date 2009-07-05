@@ -11,18 +11,18 @@ public interface IProgress {
 	 * Define the total amount of work we expect to do.
 	 * @param work
 	 */
-	public void			setTotalWork(int work);
+	public void setTotalWork(int work);
 
 	/**
 	 * Define how much of the work has completed, currently.
 	 * @param work
 	 */
-	public void			setCompleted(int work);
+	public void setCompleted(int work);
 
 	/**
 	 * Indicate a cancel request.
 	 */
-	public void			cancel();
+	public void cancel();
 
-	public boolean		isCancelled();
+	public boolean isCancelled();
 }

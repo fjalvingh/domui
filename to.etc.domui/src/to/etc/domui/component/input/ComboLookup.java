@@ -37,42 +37,49 @@ import to.etc.domui.util.*;
  * Created on Jul 11, 2008
  */
 public class ComboLookup<T> extends Select implements IInputNode<T> {
-	private Class<? extends IComboDataSet<T>>	m_dataSetClass;
-	private IComboDataSet<T>		m_dataSet;
-	private INodeContentRenderer<T>	m_contentRenderer;
-	private List<T>					m_dataList;
-	private T						m_currentValue;
-	private String					m_emptyText;
-//	private Class<IKeyTranslator<T>>	m_keyTranslatorClass;
+	private Class< ? extends IComboDataSet<T>> m_dataSetClass;
 
-	public ComboLookup(Class<? extends IComboDataSet<T>> set, INodeContentRenderer<T> renderer) {
+	private IComboDataSet<T> m_dataSet;
+
+	private INodeContentRenderer<T> m_contentRenderer;
+
+	private List<T> m_dataList;
+
+	private T m_currentValue;
+
+	private String m_emptyText;
+
+	//	private Class<IKeyTranslator<T>>	m_keyTranslatorClass;
+
+	public ComboLookup(Class< ? extends IComboDataSet<T>> set, INodeContentRenderer<T> renderer) {
 		m_dataSetClass = set;
 		m_contentRenderer = renderer;
 	}
+
 	public ComboLookup(IComboDataSet<T> set, INodeContentRenderer<T> renderer) {
 		m_dataSet = set;
 		m_contentRenderer = renderer;
 	}
 
-	public ComboLookup(Class<? extends IComboDataSet<T>> set) {
+	public ComboLookup(Class< ? extends IComboDataSet<T>> set) {
 		m_dataSetClass = set;
 	}
 
-	private void	calculateContentRenderer(Object val) {
+	private void calculateContentRenderer(Object val) {
 		if(val == null)
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
-		ClassMetaModel	cmm = MetaManager.findClassMeta(val.getClass());
-		m_contentRenderer = (INodeContentRenderer<T>)MetaManager.createDefaultComboRenderer(null, cmm);
+		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
+		m_contentRenderer = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(null, cmm);
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		List<T>	res = getData();
+		List<T> res = getData();
 		if(res == null)
 			return;
-		if(! isMandatory()) {
+		if(!isMandatory()) {
 			//-- Add 1st "empty" thingy representing the unchosen.
-			SelectOption	o = new SelectOption();
+			SelectOption o = new SelectOption();
 			if(getEmptyText() != null)
 				o.setButtonText(getEmptyText());
 			add(o);
@@ -84,7 +91,7 @@ public class ComboLookup<T> extends Select implements IInputNode<T> {
 				calculateContentRenderer(val);
 			}
 
-			SelectOption	o = new SelectOption();
+			SelectOption o = new SelectOption();
 			add(o);
 			m_contentRenderer.renderNodeContent(this, o, val, null);
 			o.setSelected(val == m_currentValue);
@@ -97,9 +104,9 @@ public class ComboLookup<T> extends Select implements IInputNode<T> {
 		m_dataList = null;
 	}
 
-	public List<T>	getData() throws Exception {
+	public List<T> getData() throws Exception {
 		if(m_dataList == null) {
-			IComboDataSet<T>	builder = m_dataSet != null ? m_dataSet : DomApplication.get().createInstance(m_dataSetClass);
+			IComboDataSet<T> builder = m_dataSet != null ? m_dataSet : DomApplication.get().createInstance(m_dataSetClass);
 			m_dataList = builder.getComboDataSet(getPage().getConversation(), null);
 		}
 		return m_dataList;
@@ -112,56 +119,59 @@ public class ComboLookup<T> extends Select implements IInputNode<T> {
 		}
 		return m_currentValue;
 	}
+
 	public void setValue(T v) {
 		if(DomUtil.isEqual(v, m_currentValue))
 			return;
 		m_currentValue = v;
 		forceRebuild();
 	}
+
 	public String getEmptyText() {
 		return m_emptyText;
 	}
+
 	public void setEmptyText(String emptyText) {
 		m_emptyText = emptyText;
 	}
 
-//	@Override
-//	public void acceptRequestParameter(String[] values) {
-//		int	ix	= 0;
-//		String in	= values[0];
-//		int	len	= in.length();
-//		while(ix < len) {
-//			int pos = in.indexOf(',', ix);
-//			if(pos == -1)
-//				pos = len;
-//			String sub = in.substring(ix, pos);
-//		}
-//	}
+	//	@Override
+	//	public void acceptRequestParameter(String[] values) {
+	//		int	ix	= 0;
+	//		String in	= values[0];
+	//		int	len	= in.length();
+	//		while(ix < len) {
+	//			int pos = in.indexOf(',', ix);
+	//			if(pos == -1)
+	//				pos = len;
+	//			String sub = in.substring(ix, pos);
+	//		}
+	//	}
 
 	@Override
 	public void acceptRequestParameter(String[] values) throws Exception {
-		String in	= values[0];						// Must be the ID of the selected Option thingy.
-		SelectOption	selo	= (SelectOption)getPage().findNodeByID(in);
-//		T	oldvalue = m_currentValue;
+		String in = values[0]; // Must be the ID of the selected Option thingy.
+		SelectOption selo = (SelectOption) getPage().findNodeByID(in);
+		//		T	oldvalue = m_currentValue;
 		if(selo == null) {
-			m_currentValue = null;						// Nuttin' selected @ all.
+			m_currentValue = null; // Nuttin' selected @ all.
 		} else {
-			int index = findChildIndex(selo);			// Must be found
+			int index = findChildIndex(selo); // Must be found
 			if(index == -1)
-				throw new IllegalStateException("Where has my child "+in+" gone to??");
-			if(! isMandatory()) {
+				throw new IllegalStateException("Where has my child " + in + " gone to??");
+			if(!isMandatory()) {
 				//-- If the index is 0 we have the "unselected" thingy; if not we need to decrement by 1 to skip that entry.
 				if(index == 0)
-					m_currentValue = null;				// "Unselected"
-				index--;								// IMPORTANT Index becomes -ve if value lookup may not be done!
+					m_currentValue = null; // "Unselected"
+				index--; // IMPORTANT Index becomes -ve if value lookup may not be done!
 			}
 
 			if(index >= 0) {
-				List<T>	data = getData();
+				List<T> data = getData();
 				if(index >= data.size()) {
-					m_currentValue = null;				// Unexpected: value has gone.
+					m_currentValue = null; // Unexpected: value has gone.
 				} else
-					m_currentValue = data.get(index);	// Retrieve actual value.
+					m_currentValue = data.get(index); // Retrieve actual value.
 			}
 		}
 	}

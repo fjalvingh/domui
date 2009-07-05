@@ -11,12 +11,12 @@ public interface INodeErrorDelegate {
 	 * @param code
 	 * @param param
 	 */
-	public UIMessage	setMessage(MsgType mt, String code, Object... param);
+	public UIMessage setMessage(MsgType mt, String code, Object... param);
 
 	/**
 	 * Remove this-component's "current" error message, if present.
 	 */
-	public void	clearMessage();
+	public void clearMessage();
 
 	/**
 	 * @see to.etc.domui.dom.html.IInputBase#getMessage()

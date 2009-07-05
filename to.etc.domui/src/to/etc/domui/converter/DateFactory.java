@@ -6,7 +6,7 @@ import to.etc.domui.component.meta.*;
 
 public class DateFactory implements IConverterFactory {
 	public int accept(Class< ? > clz, PropertyMetaModel pmm) {
-		if(! Date.class.isAssignableFrom(clz))
+		if(!Date.class.isAssignableFrom(clz))
 			return -1;
 		return 10;
 	}
@@ -19,7 +19,7 @@ public class DateFactory implements IConverterFactory {
 		if(pmm == null)
 			return ConverterRegistry.getConverter(DateTimeConverter.class);
 
-		switch(pmm.getTemporal()) {
+		switch(pmm.getTemporal()){
 			default:
 				return ConverterRegistry.getConverter(DateTimeConverter.class);
 			case DATE:

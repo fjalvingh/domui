@@ -16,23 +16,23 @@ public interface IStreamingImageSource {
 	 * This MUST return the stream's mime type, which must be one of the supported formats (jpeg, gif, png)
 	 * @return
 	 */
-	public String				getMimeType();
+	public String getMimeType();
 
 	/**
 	 * Return the size in bytes of the stream. If the size is unknown return -1.
 	 * @return
 	 */
-	public int					getSize() throws Exception;
+	public int getSize() throws Exception;
 
 	/**
 	 * This must return the stream to use for this resource.
 	 * @return
 	 * @throws Exception
 	 */
-	public InputStream			getInputStream() throws Exception;
+	public InputStream getInputStream() throws Exception;
 
 	/**
 	 * This will be called when resources are to be released.
 	 */
-	public void					close();
+	public void close();
 }

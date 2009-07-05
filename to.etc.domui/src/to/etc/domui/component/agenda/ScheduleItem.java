@@ -1,6 +1,6 @@
 package to.etc.domui.component.agenda;
 
-import java.util.Date;
+import java.util.*;
 
 /**
  * A single "appointment" in the schedule interface.
@@ -10,21 +10,21 @@ import java.util.Date;
  */
 public interface ScheduleItem {
 	/** An unique identifier that can be used to locate this appointment. */
-	public String	getID();
+	public String getID();
 
 	/** The start of the appointment. */
-	public Date		getStart();
+	public Date getStart();
 
 	/** The end of the appointment. */
-	public Date		getEnd();
+	public Date getEnd();
 
 	/** The short text describing this appointment (mandatory) */
-	public String	getName();
+	public String getName();
 
 	/** A short string describing the appointment type */
-	public String	getType();
+	public String getType();
 
-	public String	getImageURL();
+	public String getImageURL();
 
-	public String	getDetails();
+	public String getDetails();
 }

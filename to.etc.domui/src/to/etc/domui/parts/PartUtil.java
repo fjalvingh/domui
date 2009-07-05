@@ -28,13 +28,13 @@ public class PartUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	static public Properties	loadProperties(DomApplication da, String src, ResourceDependencyList rdl) throws Exception {
-		IResourceRef	ref	= da.getApplicationResourceByName(src);
+	static public Properties loadProperties(DomApplication da, String src, ResourceDependencyList rdl) throws Exception {
+		IResourceRef ref = da.getApplicationResourceByName(src);
 		if(ref == null)
 			return null;
 		if(rdl != null)
 			rdl.add(ref);
-		InputStream	is	= ref.getInputStream();
+		InputStream is = ref.getInputStream();
 		if(is == null)
 			return null;
 		try {
@@ -44,7 +44,9 @@ public class PartUtil {
 				p.put("webui.webapp", "true");
 			return p;
 		} finally {
-			try { is.close(); } catch(Exception x) {}
+			try {
+				is.close();
+			} catch(Exception x) {}
 		}
 	}
 
@@ -57,7 +59,7 @@ public class PartUtil {
 	 * @throws Exception
 	 */
 	static public BufferedImage loadImage(DomApplication da, String image, ResourceDependencyList rdl) throws Exception {
-		IResourceRef	ref	= da.getApplicationResourceByName(image);
+		IResourceRef ref = da.getApplicationResourceByName(image);
 		if(ref == null)
 			throw new ThingyNotFoundException("The image '" + image + "' was not found.");
 		InputStream is = ref.getInputStream();
@@ -87,14 +89,17 @@ public class PartUtil {
 			g2d.drawImage(bi, 0, 0, null);
 			return newbi;
 		} finally {
-			try { if(is != null) is.close(); } catch(Exception x) {}
+			try {
+				if(is != null)
+					is.close();
+			} catch(Exception x) {}
 		}
 	}
 
-    static public Color makeColor(String col) {
+	static public Color makeColor(String col) {
 		if(col == null)
 			return Color.WHITE;
-//		System.out.println("Using color="+col);
+		//		System.out.println("Using color="+col);
 		if(col.startsWith("#"))
 			col = col.substring(1);
 		Color c = m_colors.get(col.toLowerCase());
@@ -103,8 +108,7 @@ public class PartUtil {
 		try {
 			int v = Integer.parseInt(col, 16);
 			return new Color(v);
-		}
-		catch(Exception x) {
+		} catch(Exception x) {
 			return Color.WHITE;
 		}
 	}
@@ -115,19 +119,21 @@ public class PartUtil {
 	 * @param styles
 	 * @return
 	 */
-	static public Font		getFont(String family, String styles, int size) {
-		int		style	= 0;
+	static public Font getFont(String family, String styles, int size) {
+		int style = 0;
 		if(styles != null) {
 			styles = styles.toLowerCase();
-			if(styles.indexOf("i") != -1) style |= Font.ITALIC;
-			if(styles.indexOf("b") != -1) style |= Font.BOLD;
+			if(styles.indexOf("i") != -1)
+				style |= Font.ITALIC;
+			if(styles.indexOf("b") != -1)
+				style |= Font.BOLD;
 		}
-		StringTokenizer	st	= new StringTokenizer(family, ";");
-		Font	f = null;
+		StringTokenizer st = new StringTokenizer(family, ";");
+		Font f = null;
 		while(st.hasMoreTokens()) {
 			String txt = st.nextToken().trim();
-			f	= Font.decode(txt);
-			if(! f.getFamily().equals("Dialog"))
+			f = Font.decode(txt);
+			if(!f.getFamily().equals("Dialog"))
 				break;
 		}
 
@@ -137,9 +143,9 @@ public class PartUtil {
 		return f.deriveFont(style, size);
 	}
 
-	private static final Map<String, Color>	m_colors = new HashMap<String, Color>();
+	private static final Map<String, Color> m_colors = new HashMap<String, Color>();
 
-    static {
+	static {
 		m_colors.put("white", Color.WHITE);
 		m_colors.put("black", Color.BLACK);
 		m_colors.put("blue", Color.BLUE);

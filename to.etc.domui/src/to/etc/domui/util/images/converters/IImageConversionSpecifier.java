@@ -7,5 +7,5 @@ package to.etc.domui.util.images.converters;
  * Created on Oct 6, 2008
  */
 public interface IImageConversionSpecifier {
-	public String		getConversionKey();
+	public String getConversionKey();
 }

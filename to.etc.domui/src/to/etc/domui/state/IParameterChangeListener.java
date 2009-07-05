@@ -12,5 +12,5 @@ package to.etc.domui.state;
  * Created on Aug 21, 2008
  */
 public interface IParameterChangeListener {
-	public void	pageParametersChanged(PageParameters papa) throws Exception;
+	public void pageParametersChanged(PageParameters papa) throws Exception;
 }

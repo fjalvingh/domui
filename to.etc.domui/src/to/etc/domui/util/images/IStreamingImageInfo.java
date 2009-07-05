@@ -11,14 +11,14 @@ import to.etc.domui.util.images.converters.*;
  * Created on Oct 2, 2008
  */
 public interface IStreamingImageInfo {
-	public String			getMimeType() throws Exception;
-	
+	public String getMimeType() throws Exception;
+
 	/**
 	 * This returns the image's data if that data is available. If not this returns null.
 	 * @return
 	 * @throws Exception
 	 */
-	public ImageData		getImageData() throws Exception;
+	public ImageData getImageData() throws Exception;
 
 	/**
 	 * Returns the datastream containing this image. This may be called only ONCE for an image and must
@@ -26,5 +26,5 @@ public interface IStreamingImageInfo {
 	 * @return
 	 * @throws Exception
 	 */
-	public InputStream		getInputStream() throws Exception;
+	public InputStream getInputStream() throws Exception;
 }

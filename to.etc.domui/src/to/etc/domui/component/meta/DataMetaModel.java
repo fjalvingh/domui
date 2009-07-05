@@ -19,5 +19,5 @@ public interface DataMetaModel {
 	 *
 	 * @param dmm
 	 */
-	public void			updateClassMeta(DefaultClassMetaModel dmm);
+	public void updateClassMeta(DefaultClassMetaModel dmm);
 }

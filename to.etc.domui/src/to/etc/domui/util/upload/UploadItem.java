@@ -9,23 +9,23 @@ import java.io.*;
  * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
  */
 public interface UploadItem {
-	public String	getValue();
-	
-	public String	getName();
+	public String getValue();
 
-	public String	getRemoteFileName();
+	public String getName();
 
-	public String	getContentType();
+	public String getRemoteFileName();
 
-	public int		getSize();
-	
-	public boolean	isEmpty();
-	
-	public File		getFile();
-	
-	public String	getCharSet();
-	
-	public void		discard();
+	public String getContentType();
 
-	public boolean	isFile();
+	public int getSize();
+
+	public boolean isEmpty();
+
+	public File getFile();
+
+	public String getCharSet();
+
+	public void discard();
+
+	public boolean isFile();
 }

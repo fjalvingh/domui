@@ -29,11 +29,11 @@ public interface IMenuItem {
 
 	String getDescription();
 
-	int	getOrder();
+	int getOrder();
 
-	boolean	isSubMenu();
+	boolean isSubMenu();
 
-	String	getTarget();
+	String getTarget();
 
-	String	getRURL();
+	String getRURL();
 }

@@ -1,10 +1,10 @@
 package to.etc.iocular;
 
-import to.etc.iocular.def.ContainerDefinition;
+import to.etc.iocular.def.*;
 
 /**
  * @author  <a href="mailto:jal@etc.to">Frits Jalvingh</a>  Created on May 4, 2007
  */
 public interface Configurator {
-	public ContainerDefinition		getContainerDefinition() throws Exception;
+	public ContainerDefinition getContainerDefinition() throws Exception;
 }

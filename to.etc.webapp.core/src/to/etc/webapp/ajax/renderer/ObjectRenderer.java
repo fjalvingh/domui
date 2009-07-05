@@ -83,7 +83,7 @@ abstract public class ObjectRenderer {
 
 	private void renderPrimitive(final Object o) throws Exception {
 		//-- Ask the renderRegistry for a renderer
-		Class<?> cl = o == null ? null : o.getClass();
+		Class< ? > cl = o == null ? null : o.getClass();
 		ItemRenderer ir = m_registry.makeRenderer(cl);
 		ir.render(this, o);
 	}
@@ -115,18 +115,18 @@ abstract public class ObjectRenderer {
 
 
 	@Deprecated
-	public void renderListStart(final Collection<?> l, final String name) throws Exception {}
+	public void renderListStart(final Collection< ? > l, final String name) throws Exception {}
 
 	@Deprecated
-	public void renderListEnd(final Collection<?> l, final String name) throws Exception {}
+	public void renderListEnd(final Collection< ? > l, final String name) throws Exception {}
 
 	public void renderArrayStart(final Object l) throws Exception {}
 
 	public void renderArrayEnd(final Object l) throws Exception {}
 
-	public void renderMapStart(final Map<?,?> l) throws Exception {}
+	public void renderMapStart(final Map< ? , ? > l) throws Exception {}
 
-	public void renderMapEnd(final Map<?,?> l) throws Exception {}
+	public void renderMapEnd(final Map< ? , ? > l) throws Exception {}
 
 	public void renderMapEntry(final Object key, final Object value, final int itemnr, final int maxitemnr) throws Exception {}
 
@@ -137,15 +137,15 @@ abstract public class ObjectRenderer {
 
 	abstract public void renderObjectEnd(Object o) throws Exception;
 
-	protected void renderArrayElement(final Object o, final Class<?> declaredType, final int ix) throws Exception {
+	protected void renderArrayElement(final Object o, final Class< ? > declaredType, final int ix) throws Exception {
 		renderSub(o);
 	}
 
-	protected void renderObjectMember(final Object o, final String name, final Class<?> declaredType) throws Exception {
+	protected void renderObjectMember(final Object o, final String name, final Class< ? > declaredType) throws Exception {
 		renderSub(o);
 	}
 
-	protected void renderObjectBeforeItem(final int count, final Object o, final String name, final Class<?> declaredType) throws Exception {}
+	protected void renderObjectBeforeItem(final int count, final Object o, final String name, final Class< ? > declaredType) throws Exception {}
 
-	protected void renderObjectAfterItem(final int count, final Object o, final String name, final Class<?> declaredType) throws Exception {}
+	protected void renderObjectAfterItem(final int count, final Object o, final String name, final Class< ? > declaredType) throws Exception {}
 }

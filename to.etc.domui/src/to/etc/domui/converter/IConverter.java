@@ -1,8 +1,8 @@
 package to.etc.domui.converter;
 
-import java.util.Locale;
+import java.util.*;
 
-import to.etc.domui.trouble.UIException;
+import to.etc.domui.trouble.*;
 
 /**
  * Basic marker interface for the allowed converters. All converters here convert Strings
@@ -12,6 +12,7 @@ import to.etc.domui.trouble.UIException;
  * Created on Jun 11, 2008
  */
 public interface IConverter {
-	public Object		convertStringToObject(Locale loc, String in) throws UIException;
-	public String		convertObjectToString(Locale loc, Object in) throws UIException;
+	public Object convertStringToObject(Locale loc, String in) throws UIException;
+
+	public String convertObjectToString(Locale loc, Object in) throws UIException;
 }

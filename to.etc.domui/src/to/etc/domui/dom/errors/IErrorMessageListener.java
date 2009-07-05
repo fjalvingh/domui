@@ -12,6 +12,7 @@ import to.etc.domui.dom.html.*;
  * Created on Jun 12, 2008
  */
 public interface IErrorMessageListener {
-	public void		errorMessageAdded(Page pg, UIMessage m);
-	public void		errorMessageRemoved(Page pg, UIMessage m);
+	public void errorMessageAdded(Page pg, UIMessage m);
+
+	public void errorMessageRemoved(Page pg, UIMessage m);
 }

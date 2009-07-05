@@ -18,18 +18,18 @@ import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
 final public class DomUtil {
-	static public final BundleRef	BUNDLE	= BundleRef.create(DomUtil.class, "messages");
+	static public final BundleRef BUNDLE = BundleRef.create(DomUtil.class, "messages");
 
-	static private int		m_guidSeed;
+	static private int m_guidSeed;
 
 	private DomUtil() {}
 
 	static {
-		long val = System.currentTimeMillis()/1000/60;
-		m_guidSeed = (int)val;
+		long val = System.currentTimeMillis() / 1000 / 60;
+		m_guidSeed = (int) val;
 	}
 
-	static public final boolean	isEqual(final Object a, final Object b) {
+	static public final boolean isEqual(final Object a, final Object b) {
 		if(a == b)
 			return true;
 		if(a == null || b == null)
@@ -42,11 +42,12 @@ final public class DomUtil {
 			throw new IllegalStateException("Silly.");
 		Object a = ar[0];
 		for(int i = ar.length; --i >= 1;) {
-			if(! isEqual(a, ar[i]))
+			if(!isEqual(a, ar[i]))
 				return false;
 		}
 		return true;
 	}
+
 	/**
 	 * Returns T if the given Java Resource exists.
 	 * @param clz
@@ -54,7 +55,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public boolean classResourceExists(final Class< ? extends DomApplication> clz, final String name) {
-		InputStream	is	= clz.getResourceAsStream(name);
+		InputStream is = clz.getResourceAsStream(name);
 		if(is == null)
 			return false;
 		try {
@@ -65,7 +66,7 @@ final public class DomUtil {
 		return true;
 	}
 
-	static public final Class<?>	findClass(@Nonnull final ClassLoader cl, @Nonnull final String name) {
+	static public final Class< ? > findClass(@Nonnull final ClassLoader cl, @Nonnull final String name) {
 		try {
 			return cl.loadClass(name);
 		} catch(Exception x) {
@@ -82,20 +83,20 @@ final public class DomUtil {
 	 * @param name
 	 * @return
 	 */
-	static public final Object		getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
+	static public final Object getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
 		if(inst == null)
 			throw new IllegalStateException("The input object is null");
-		Class<?>	clz = inst.getClass();
+		Class< ? > clz = inst.getClass();
 		Method m;
 		try {
 			m = clz.getMethod(name);
 		} catch(NoSuchMethodException x) {
-			throw new IllegalStateException("Unknown method '"+name+"()' on class="+clz);
+			throw new IllegalStateException("Unknown method '" + name + "()' on class=" + clz);
 		}
 		try {
 			return m.invoke(inst);
 		} catch(IllegalAccessException iax) {
-			throw new IllegalStateException("Cannot call method '"+name+"()' on class="+clz+": "+iax);
+			throw new IllegalStateException("Cannot call method '" + name + "()' on class=" + clz + ": " + iax);
 		} catch(InvocationTargetException itx) {
 			Throwable c = itx.getCause();
 			if(c instanceof Exception)
@@ -113,63 +114,63 @@ final public class DomUtil {
 	 * @param path
 	 * @return
 	 */
-	static public Object	getPropertyValue(@Nonnull final Object base, @Nonnull final String path) {
-		int	pos	= 0;
-		int	len	= path.length();
-		Object	next = base;
+	static public Object getPropertyValue(@Nonnull final Object base, @Nonnull final String path) {
+		int pos = 0;
+		int len = path.length();
+		Object next = base;
 		while(pos < len) {
 			if(next == null)
 				return null;
 			int npos = path.indexOf('.', pos);
-			String	name;
+			String name;
 			if(npos == -1) {
 				name = path.substring(pos);
-				pos	= len;
+				pos = len;
 			} else {
 				name = path.substring(pos, npos);
 				pos = npos;
 			}
 			if(name.length() == 0)
-				throw new IllegalStateException("Invalid property path: "+path);
+				throw new IllegalStateException("Invalid property path: " + path);
 
 			//-- Do a single-property resolve;
-			next	= getSinglePropertyValue(next, name);
+			next = getSinglePropertyValue(next, name);
 			if(pos < len) {
 				//-- Next thingy must be a '.'
 				if(path.charAt(pos) != '.')
-					throw new IllegalStateException("Invalid property path: "+path);
+					throw new IllegalStateException("Invalid property path: " + path);
 				pos++;
 			}
 		}
 		return next;
 	}
 
-	static private Object	getSinglePropertyValue(final Object base, final String name) {
+	static private Object getSinglePropertyValue(final Object base, final String name) {
 		try {
-			StringBuilder	sb	= new StringBuilder(name.length()+3);
+			StringBuilder sb = new StringBuilder(name.length() + 3);
 			sb.append("get");
 			if(Character.isUpperCase(name.charAt(0)))
 				sb.append(name);
 			else {
 				sb.append(Character.toUpperCase(name.charAt(0)));
-				sb.append(name,1 , name.length());
+				sb.append(name, 1, name.length());
 			}
-			Method	m = base.getClass().getMethod(sb.toString());
+			Method m = base.getClass().getMethod(sb.toString());
 			return m.invoke(base);
 		} catch(NoSuchMethodException x) {
-			throw new IllegalStateException("No property '"+name+"' on class="+base.getClass());
+			throw new IllegalStateException("No property '" + name + "' on class=" + base.getClass());
 		} catch(Exception x) {
 			Trouble.wrapException(x);
 		}
 		return null;
 	}
 
-	static public String	createRandomColor() {
-		int	value = (int)(0xffffff * Math.random());
-		return  "#"+StringTool.intToStr(value, 16, 6);
+	static public String createRandomColor() {
+		int value = (int) (0xffffff * Math.random());
+		return "#" + StringTool.intToStr(value, 16, 6);
 	}
 
-	static public IErrorFence	getMessageFence(NodeBase start) {
+	static public IErrorFence getMessageFence(NodeBase start) {
 		for(;;) {
 			if(start == null)
 				throw new IllegalStateException("Cannot locate error fence. Did you call an error routine on an unattached Node?");
@@ -178,57 +179,57 @@ final public class DomUtil {
 				if(nc.getErrorFence() != null)
 					return nc.getErrorFence();
 			}
-//			if(start.getParent() == null) {
-//				return start.getPage().getErrorFence();	// Use the generic page's fence.
-//			}
+			//			if(start.getParent() == null) {
+			//				return start.getPage().getErrorFence();	// Use the generic page's fence.
+			//			}
 			start = start.getParent();
 		}
 	}
 
-	static private final char[]	BASE64MAP = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_".toCharArray();
+	static private final char[] BASE64MAP = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_".toCharArray();
 
 	/**
 	 * Generate an unique identifier with reasonable expectations that it will be globally unique. This
 	 * does not use the known GUID format but shortens the string by encoding into base64-like encoding.
 	 * @return
 	 */
-	static public String	generateGUID() {
-		byte[]	bin	= new byte[18];
-		ByteArrayUtil.setInt(bin, 0, m_guidSeed);			// Start with the seed
-		ByteArrayUtil.setShort(bin, 4, (short)(Math.random()*65536));
-		long v = System.currentTimeMillis() / 1000 - (m_guidSeed*60);
-		ByteArrayUtil.setInt(bin, 6, (int)v);
+	static public String generateGUID() {
+		byte[] bin = new byte[18];
+		ByteArrayUtil.setInt(bin, 0, m_guidSeed); // Start with the seed
+		ByteArrayUtil.setShort(bin, 4, (short) (Math.random() * 65536));
+		long v = System.currentTimeMillis() / 1000 - (m_guidSeed * 60);
+		ByteArrayUtil.setInt(bin, 6, (int) v);
 		ByteArrayUtil.setLong(bin, 10, System.nanoTime());
 
-//		ByteArrayUtil.setLong(bin, 6, System.currentTimeMillis());
-//		System.out.print(StringTool.toHex(bin)+"   ");
+		//		ByteArrayUtil.setLong(bin, 6, System.currentTimeMillis());
+		//		System.out.print(StringTool.toHex(bin)+"   ");
 
-		StringBuilder	sb	= new StringBuilder((bin.length+2)/3*4);
+		StringBuilder sb = new StringBuilder((bin.length + 2) / 3 * 4);
 
 		//-- 3-byte to 4-byte conversion + 0-63 to ascii printable conversion
-		int	sidx;
-		for(sidx=0; sidx < bin.length-2; sidx += 3) {
-			sb.append( BASE64MAP[(bin[sidx] >>> 2) & 0x3f] );
-			sb.append( BASE64MAP[(bin[sidx+1] >>> 4) & 0xf | (bin[sidx] << 4) & 0x3f] );
-			sb.append( BASE64MAP[(bin[sidx+2] >>> 6) & 0x3 | (bin[sidx+1] << 2) & 0x3f] );
-			sb.append( BASE64MAP[bin[sidx+2] & 0x3f] );
+		int sidx;
+		for(sidx = 0; sidx < bin.length - 2; sidx += 3) {
+			sb.append(BASE64MAP[(bin[sidx] >>> 2) & 0x3f]);
+			sb.append(BASE64MAP[(bin[sidx + 1] >>> 4) & 0xf | (bin[sidx] << 4) & 0x3f]);
+			sb.append(BASE64MAP[(bin[sidx + 2] >>> 6) & 0x3 | (bin[sidx + 1] << 2) & 0x3f]);
+			sb.append(BASE64MAP[bin[sidx + 2] & 0x3f]);
 		}
 		if(sidx < bin.length) {
-			sb.append( BASE64MAP[(bin[sidx] >>> 2) & 077] );
-			if (sidx < bin.length-1) {
-				sb.append( BASE64MAP[(bin[sidx+1] >>> 4) & 017 | (bin[sidx] << 4) & 077] );
-				sb.append( BASE64MAP[(bin[sidx+1] << 2) & 077] );
+			sb.append(BASE64MAP[(bin[sidx] >>> 2) & 077]);
+			if(sidx < bin.length - 1) {
+				sb.append(BASE64MAP[(bin[sidx + 1] >>> 4) & 017 | (bin[sidx] << 4) & 077]);
+				sb.append(BASE64MAP[(bin[sidx + 1] << 2) & 077]);
 			} else
-				sb.append( BASE64MAP[(bin[sidx] << 4) & 077] );
+				sb.append(BASE64MAP[(bin[sidx] << 4) & 077]);
 		}
 		return sb.toString();
 	}
 
-	static public void	addUrlParameters(final StringBuilder sb, final RequestContext ctx, boolean first) {
-		for(String name: ctx.getParameterNames()) {
+	static public void addUrlParameters(final StringBuilder sb, final RequestContext ctx, boolean first) {
+		for(String name : ctx.getParameterNames()) {
 			if(name.equals(Constants.PARAM_CONVERSATION_ID))
 				continue;
-			for(String value: ctx.getParameters(name)) {
+			for(String value : ctx.getParameters(name)) {
 				if(first) {
 					sb.append('?');
 					first = false;
@@ -240,13 +241,14 @@ final public class DomUtil {
 			}
 		}
 	}
-	static public void	addUrlParameters(final StringBuilder sb, final PageParameters ctx, boolean first) {
+
+	static public void addUrlParameters(final StringBuilder sb, final PageParameters ctx, boolean first) {
 		if(ctx == null)
 			return;
-		for(String name: ctx.getParameterNames()) {
+		for(String name : ctx.getParameterNames()) {
 			if(name.equals(Constants.PARAM_CONVERSATION_ID))
 				continue;
-			String	value = ctx.getString(name);
+			String value = ctx.getString(name);
 			if(first) {
 				sb.append('?');
 				first = false;
@@ -258,16 +260,13 @@ final public class DomUtil {
 		}
 	}
 
-	static public String[]	decodeCID(final String param) {
+	static public String[] decodeCID(final String param) {
 		if(param == null)
 			return null;
-		int	pos = param.indexOf('.');
+		int pos = param.indexOf('.');
 		if(pos == -1)
 			throw new IllegalStateException("Missing '.' in $CID parameter");
-		String[]	res = new String[] {
-			param.substring(0, pos)
-		,	param.substring(pos+1)
-		};
+		String[] res = new String[]{param.substring(0, pos), param.substring(pos + 1)};
 		return res;
 	}
 
@@ -275,11 +274,11 @@ final public class DomUtil {
 	 * Ensures that all of a node tree has been built.
 	 * @param p
 	 */
-	static public void		buildTree(final NodeBase p) throws Exception {
+	static public void buildTree(final NodeBase p) throws Exception {
 		p.build();
 		if(p instanceof NodeContainer) {
-			NodeContainer nc = (NodeContainer)p;
-			for(NodeBase c: nc)
+			NodeContainer nc = (NodeContainer) p;
+			for(NodeBase c : nc)
 				buildTree(c);
 		}
 	}
@@ -293,13 +292,13 @@ final public class DomUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	static public <T extends NodeBase> T	findComponentInTree(final NodeBase p, final Class<T> clz) throws Exception {
+	static public <T extends NodeBase> T findComponentInTree(final NodeBase p, final Class<T> clz) throws Exception {
 		if(clz.isAssignableFrom(p.getClass()))
 			return (T) p;
 		p.build();
 		if(p instanceof NodeContainer) {
-			NodeContainer nc = (NodeContainer)p;
-			for(NodeBase c: nc) {
+			NodeContainer nc = (NodeContainer) p;
+			for(NodeBase c : nc) {
 				T res = findComponentInTree(c, clz);
 				if(res != null)
 					return res;
@@ -308,7 +307,7 @@ final public class DomUtil {
 		return null;
 	}
 
-	static public String	nlsLabel(final String label) {
+	static public String nlsLabel(final String label) {
 		if(label == null)
 			return label;
 		if(label.charAt(0) != '~')
@@ -317,24 +316,24 @@ final public class DomUtil {
 			return label.substring(1);
 
 		//-- Lookup as a resource.
-		return "???"+label.substring(1)+"???";
+		return "???" + label.substring(1) + "???";
 	}
 
 	/**
 	 * Walks the entire table and adjusts it's colspans.
 	 * @param t
 	 */
-	static public void		adjustTableColspans(final Table table) {
+	static public void adjustTableColspans(final Table table) {
 		//-- Count the max. row length (max #cells in a row)
 		int maxcol = 0;
-		for(NodeBase b: table) {		// For all TBody's
+		for(NodeBase b : table) { // For all TBody's
 			if(b instanceof TBody) {
-				TBody tb = (TBody)b;
-				for(NodeBase b2: tb) {			// For all TR's
+				TBody tb = (TBody) b;
+				for(NodeBase b2 : tb) { // For all TR's
 					if(b2 instanceof TR) {
 						TR tr = (TR) b2;
 						int count = 0;
-						for(NodeBase b3: tr) {
+						for(NodeBase b3 : tr) {
 							if(b3 instanceof TD) {
 								TD td = (TD) b3;
 								count += td.getColspan() > 0 ? td.getColspan() : 1;
@@ -350,14 +349,14 @@ final public class DomUtil {
 		/*
 		 * Adjust all rows that have less cells than the maximum by specifying a colspan on every last cell.
 		 */
-		for(NodeBase b: table) {		// For all TBody's
+		for(NodeBase b : table) { // For all TBody's
 			if(b instanceof TBody) {
-				TBody tb = (TBody)b;
-				for(NodeBase b2: tb) {			// For all TR's
+				TBody tb = (TBody) b;
+				for(NodeBase b2 : tb) { // For all TR's
 					if(b2 instanceof TR) {
 						TR tr = (TR) b2;
 						int count = 0;
-						for(NodeBase b3: tr) {
+						for(NodeBase b3 : tr) {
 							if(b3 instanceof TD) {
 								TD td = (TD) b3;
 								count += td.getColspan() > 0 ? td.getColspan() : 1;
@@ -366,8 +365,8 @@ final public class DomUtil {
 
 						if(count < maxcol) {
 							//-- Find last TD
-							TD	td	= (TD) tr.getChild(tr.getChildCount()-1);
-							td.setColspan(maxcol - count+1);			// Adjust colspan
+							TD td = (TD) tr.getChild(tr.getChildCount() - 1);
+							td.setColspan(maxcol - count + 1); // Adjust colspan
 						}
 					}
 				}
@@ -381,53 +380,53 @@ final public class DomUtil {
 	 * @param sb
 	 * @param in
 	 */
-	static public void	stripHtml(final StringBuilder sb, final String in) {
-		HtmlScanner	hs	= new HtmlScanner();
-		int	lpos	= 0;
+	static public void stripHtml(final StringBuilder sb, final String in) {
+		HtmlScanner hs = new HtmlScanner();
+		int lpos = 0;
 		hs.setDocument(in);
 		for(;;) {
-			String tag = hs.nextTag();						// Find the next tag.
+			String tag = hs.nextTag(); // Find the next tag.
 			if(tag == null)
 				break;
 
 			//-- Append any text segment between the last tag and the current one,
 			int len = hs.getPos() - lpos;
 			if(len > 0)
-				sb.append(in, lpos, hs.getPos());			// Append the normal text fragment
+				sb.append(in, lpos, hs.getPos()); // Append the normal text fragment
 
 			//-- Skip this tag;
 			hs.skipTag();
-			lpos	= hs.getPos();							// Position just after the >
+			lpos = hs.getPos(); // Position just after the >
 		}
 		if(hs.getPos() < in.length())
 			sb.append(in, hs.getPos(), in.length());
 	}
 
-	static public void		dumpException(final Exception x) {
-        x.printStackTrace();
+	static public void dumpException(final Exception x) {
+		x.printStackTrace();
 
-        Throwable next = null;
-        for(Throwable curr = x; curr != null; curr= next) {
-        	next = curr.getCause();
-        	if(next == curr)
-        		next = null;
+		Throwable next = null;
+		for(Throwable curr = x; curr != null; curr = next) {
+			next = curr.getCause();
+			if(next == curr)
+				next = null;
 
-        	if(curr instanceof SQLException) {
-        		SQLException sx = (SQLException) curr;
-        		while(sx.getNextException() != null) {
-        			sx	= sx.getNextException();
-        			System.err.println("SQL NextException: "+sx);
-        		}
-        	}
-        }
+			if(curr instanceof SQLException) {
+				SQLException sx = (SQLException) curr;
+				while(sx.getNextException() != null) {
+					sx = sx.getNextException();
+					System.err.println("SQL NextException: " + sx);
+				}
+			}
+		}
 	}
 
-	static public String	getJavaResourceRURL(final Class<?> resourceBase, final String name) {
+	static public String getJavaResourceRURL(final Class< ? > resourceBase, final String name) {
 		String rb = resourceBase.getName();
 		int pos = rb.lastIndexOf('.');
 		if(pos == -1)
 			throw new IllegalStateException("??");
-		return Constants.RESOURCE_PREFIX+rb.substring(0, pos+1).replace('.', '/')+name;
+		return Constants.RESOURCE_PREFIX + rb.substring(0, pos + 1).replace('.', '/') + name;
 	}
 
 	public static void main(final String[] args) {
@@ -442,18 +441,21 @@ final public class DomUtil {
 	 * @return
 	 */
 	public static boolean hasResource(final Class< ? extends UrlPage> clz, final String cn) {
-		InputStream	is	= null;
+		InputStream is = null;
 		try {
-			is	= clz.getResourceAsStream(cn);
+			is = clz.getResourceAsStream(cn);
 			return is != null;
 		} finally {
-			try {  if(is != null) is.close(); } catch(Exception x) {}
+			try {
+				if(is != null)
+					is.close();
+			} catch(Exception x) {}
 		}
 	}
 
-	static public String	getClassNameOnly(final Class<?> clz) {
-		String	cn	= clz.getName();
-		return cn.substring(cn.lastIndexOf('.')+1);
+	static public String getClassNameOnly(final Class< ? > clz) {
+		String cn = clz.getName();
+		return cn.substring(cn.lastIndexOf('.') + 1);
 	}
 
 	/**
@@ -462,21 +464,21 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	static public BundleRef		findBundle(final UIMenu ma, final Class<?> clz) {
-		if(ma != null && ma.bundleBase() != Object.class)	{			// Bundle base class specified?
+	static public BundleRef findBundle(final UIMenu ma, final Class< ? > clz) {
+		if(ma != null && ma.bundleBase() != Object.class) { // Bundle base class specified?
 			String s = ma.bundleName();
-			if(s.length() == 0)							// Do we have a name?
-				s = "messages";							// If not use messages in this package
+			if(s.length() == 0) // Do we have a name?
+				s = "messages"; // If not use messages in this package
 			return BundleRef.create(ma.bundleBase(), s);
 		}
 
 		//-- No BundleBase- use class as resource base and look for 'classname' as the properties base.
 		if(clz != null) {
-			String	s = clz.getName();
-			s	= s.substring(s.lastIndexOf('.')+1);	// Get to base class name (no path)
-			BundleRef	br	= BundleRef.create(clz, s);	// Get ref to this bundle;
+			String s = clz.getName();
+			s = s.substring(s.lastIndexOf('.') + 1); // Get to base class name (no path)
+			BundleRef br = BundleRef.create(clz, s); // Get ref to this bundle;
 			if(br.exists())
-				return br;								// Return if it has data
+				return br; // Return if it has data
 
 			//-- Use messages bundle off this thing
 			return BundleRef.create(clz, "messages");
@@ -489,14 +491,14 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	static public BundleRef	getClassBundle(final Class<?> clz) {
-		String	s = clz.getName();
-		s	= s.substring(s.lastIndexOf('.')+1);	// Get to base class name (no path)
-		return BundleRef.create(clz, s);			// Get ref to this bundle;
+	static public BundleRef getClassBundle(final Class< ? > clz) {
+		String s = clz.getName();
+		s = s.substring(s.lastIndexOf('.') + 1); // Get to base class name (no path)
+		return BundleRef.create(clz, s); // Get ref to this bundle;
 	}
 
-	static public BundleRef	getPackageBundle(final Class<?> base) {
-		return BundleRef.create(base, "messages");	// Default package bundle is messages[nls].properties
+	static public BundleRef getPackageBundle(final Class< ? > base) {
+		return BundleRef.create(base, "messages"); // Default package bundle is messages[nls].properties
 	}
 
 	/**
@@ -504,53 +506,53 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	static public String		calcPageTitle(final Class<?> clz) {
-		UIMenu	ma = clz.getAnnotation(UIMenu.class);		// Is annotated with UIMenu?
-		Locale	loc	= NlsContext.getLocale();
-		BundleRef	br	= findBundle(ma, clz);
+	static public String calcPageTitle(final Class< ? > clz) {
+		UIMenu ma = clz.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
+		Locale loc = NlsContext.getLocale();
+		BundleRef br = findBundle(ma, clz);
 
 		//-- Explicit specification of the names?
 		if(ma != null && br != null) {
 			//-- Has menu annotation. Is there a title key?
 			if(ma.titleKey().length() != 0)
-				return br.getString(loc, ma.titleKey());	// When present it MUST exist.
+				return br.getString(loc, ma.titleKey()); // When present it MUST exist.
 
 			//-- Is there a keyBase?
 			if(ma.baseKey().length() != 0) {
-				String s = br.findMessage(loc, ma.baseKey()+".title");		// Is this base thing present?
-				if(s != null)								// This can be not-present...
+				String s = br.findMessage(loc, ma.baseKey() + ".title"); // Is this base thing present?
+				if(s != null) // This can be not-present...
 					return s;
 			}
 
 			//-- No title. Can we use the menu label?
 			if(ma.labelKey().length() > 0)
-				return br.getString(loc, ma.labelKey());	// When present this must exist
+				return br.getString(loc, ma.labelKey()); // When present this must exist
 
 			//-- Try the label from keyBase..
 			if(ma.baseKey().length() != 0) {
-				String s = br.findMessage(loc, ma.baseKey()+".label");
-				if(s != null)								// This can be not-present...
+				String s = br.findMessage(loc, ma.baseKey() + ".label");
+				if(s != null) // This can be not-present...
 					return s;
 			}
 		}
 
 		//-- Try default page bundle and package bundle names.
-		br	= getClassBundle(clz);					// Find bundle for the class
-		String	s = br.findMessage(loc, "title");	// Find title key
+		br = getClassBundle(clz); // Find bundle for the class
+		String s = br.findMessage(loc, "title"); // Find title key
 		if(s != null)
 			return s;
-		s	= br.findMessage(loc, "label");
+		s = br.findMessage(loc, "label");
 		if(s != null)
 			return s;
 
 		//-- Try package bundle.
-		br	= getPackageBundle(clz);
-		String	root	= clz.getName();
-		root	= root.substring(root.lastIndexOf('.')+1);	// Class name without package
-		s = br.findMessage(loc, root+".title");				// Find title key
+		br = getPackageBundle(clz);
+		String root = clz.getName();
+		root = root.substring(root.lastIndexOf('.') + 1); // Class name without package
+		s = br.findMessage(loc, root + ".title"); // Find title key
 		if(s != null)
 			return s;
-		s	= br.findMessage(loc, root+".label");
+		s = br.findMessage(loc, root + ".label");
 		if(s != null)
 			return s;
 
@@ -563,53 +565,53 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	static public String		calcPageLabel(final Class<?> clz) {
-		UIMenu	ma = clz.getAnnotation(UIMenu.class);		// Is annotated with UIMenu?
-		Locale	loc	= NlsContext.getLocale();
-		BundleRef	br	= findBundle(ma, clz);
+	static public String calcPageLabel(final Class< ? > clz) {
+		UIMenu ma = clz.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
+		Locale loc = NlsContext.getLocale();
+		BundleRef br = findBundle(ma, clz);
 
 		//-- Explicit specification of the names?
 		if(ma != null && br != null) {
 			//-- Has menu annotation. Is there a title key?
 			if(ma.titleKey().length() != 0)
-				return br.getString(loc, ma.titleKey());	// When present it MUST exist.
+				return br.getString(loc, ma.titleKey()); // When present it MUST exist.
 
 			//-- Is there a keyBase?
 			if(ma.baseKey().length() != 0) {
-				String s = br.findMessage(loc, ma.baseKey()+".label");		// Is this base thing present?
-				if(s != null)								// This can be not-present...
+				String s = br.findMessage(loc, ma.baseKey() + ".label"); // Is this base thing present?
+				if(s != null) // This can be not-present...
 					return s;
 			}
 
 			//-- No title. Can we use the menu label?
 			if(ma.labelKey().length() > 0)
-				return br.getString(loc, ma.labelKey());	// When present this must exist
+				return br.getString(loc, ma.labelKey()); // When present this must exist
 
 			//-- Try the label from keyBase..
 			if(ma.baseKey().length() != 0) {
-				String s = br.findMessage(loc, ma.baseKey()+".title");
-				if(s != null)								// This can be not-present...
+				String s = br.findMessage(loc, ma.baseKey() + ".title");
+				if(s != null) // This can be not-present...
 					return s;
 			}
 		}
 
 		//-- Try default page bundle and package bundle names.
-		br	= getClassBundle(clz);					// Find bundle for the class
-		String	s = br.findMessage(loc, "label");	// Find title key
+		br = getClassBundle(clz); // Find bundle for the class
+		String s = br.findMessage(loc, "label"); // Find title key
 		if(s != null)
 			return s;
-		s	= br.findMessage(loc, "title");
+		s = br.findMessage(loc, "title");
 		if(s != null)
 			return s;
 
 		//-- Try package bundle.
-		br	= getPackageBundle(clz);
-		String	root	= clz.getName();
-		root	= root.substring(root.lastIndexOf('.')+1);	// Class name without package
-		s = br.findMessage(loc, root+".label");				// Find title key
+		br = getPackageBundle(clz);
+		String root = clz.getName();
+		root = root.substring(root.lastIndexOf('.') + 1); // Class name without package
+		s = br.findMessage(loc, root + ".label"); // Find title key
 		if(s != null)
 			return s;
-		s	= br.findMessage(loc, root+".title");
+		s = br.findMessage(loc, root + ".title");
 		if(s != null)
 			return s;
 
@@ -637,25 +639,25 @@ final public class DomUtil {
 			throw new NullPointerException("Page cannot be null here");
 
 		//-- Try to locate UIMenu-based resource
-		UIMenu	uim = urlPage.getClass().getAnnotation(UIMenu.class);
+		UIMenu uim = urlPage.getClass().getAnnotation(UIMenu.class);
 		if(uim != null) {
 			if(uim.bundleBase() != Object.class || uim.bundleName().length() != 0) {
 				//-- We have a specification for the bundle- it must exist
-				BundleRef	br	= findBundle(uim, urlPage.getClass());
-				if(! br.exists())
-					throw new ProgrammerErrorException("@UIMenu bundle specified ("+uim.bundleBase()+","+uim.bundleName()+") but does not exist on page class "+urlPage.getClass());
+				BundleRef br = findBundle(uim, urlPage.getClass());
+				if(!br.exists())
+					throw new ProgrammerErrorException("@UIMenu bundle specified (" + uim.bundleBase() + "," + uim.bundleName() + ") but does not exist on page class " + urlPage.getClass());
 				return br;
 			}
 		}
 
 		//-- Try page class related bundle.
-		String	cn	= urlPage.getClass().getName();
-		cn	= cn.substring(cn.lastIndexOf('.')+1);						// Classname only,
-		BundleRef	br	= BundleRef.create(urlPage.getClass(), cn);		// Try to find
+		String cn = urlPage.getClass().getName();
+		cn = cn.substring(cn.lastIndexOf('.') + 1); // Classname only,
+		BundleRef br = BundleRef.create(urlPage.getClass(), cn); // Try to find
 		if(br.exists())
 			return br;
 
-		return null;						// Failed to get bundle.
+		return null; // Failed to get bundle.
 	}
 
 	/**
@@ -665,17 +667,17 @@ final public class DomUtil {
 	 * @return
 	 */
 	public static String replaceTilded(NodeBase nodeBase, String txt) {
-		if(txt == null)						// Unset - exit
+		if(txt == null) // Unset - exit
 			return null;
-		if(! txt.startsWith("~"))
+		if(!txt.startsWith("~"))
 			return txt;
-		if(txt.startsWith("~~"))				// Dual tilde escapes and returns a single-tilded thingy.
+		if(txt.startsWith("~~")) // Dual tilde escapes and returns a single-tilded thingy.
 			return txt.substring(1);
 
 		//-- Must do replacement
-		Page	p = nodeBase.getPage();
+		Page p = nodeBase.getPage();
 		if(p == null)
-			throw new ProgrammerErrorException("Attempt to retrieve a page-bundle's key ("+txt+"), but the node ("+nodeBase+")is not attached to a page");
+			throw new ProgrammerErrorException("Attempt to retrieve a page-bundle's key (" + txt + "), but the node (" + nodeBase + ")is not attached to a page");
 		return p.getBody().$(txt);
 	}
 }

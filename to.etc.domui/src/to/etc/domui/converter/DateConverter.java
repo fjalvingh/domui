@@ -8,10 +8,10 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 
 public class DateConverter implements IConverter {
-	static private final ThreadLocal<DateFormat>	m_format = new ThreadLocal<DateFormat>();
+	static private final ThreadLocal<DateFormat> m_format = new ThreadLocal<DateFormat>();
 
-	static private DateFormat	getFormatter() {
-		DateFormat	df = m_format.get();
+	static private DateFormat getFormatter() {
+		DateFormat df = m_format.get();
 		if(df == null) {
 			df = new SimpleDateFormat("dd-MM-yyyy");
 			m_format.set(df);
@@ -22,15 +22,15 @@ public class DateConverter implements IConverter {
 	public String convertObjectToString(final Locale loc, final Object in) throws UIException {
 		if(in == null)
 			return "";
-		if(! (in instanceof Date))
+		if(!(in instanceof Date))
 			throw new IllegalStateException("Type must be java.util.Date for this converter");
-		Date	dt	= (Date)in;
+		Date dt = (Date) in;
 		if(loc.getLanguage().equalsIgnoreCase("nl")) {
 			return getFormatter().format(dt);
 		} else if(loc.getLanguage().equalsIgnoreCase("en"))
 			return new SimpleDateFormat("yyyy-MM-dd").format(dt);
 
-		DateFormat	df	= DateFormat.getDateInstance(DateFormat.SHORT, loc);
+		DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, loc);
 		return df.format(dt);
 	}
 
@@ -41,7 +41,7 @@ public class DateConverter implements IConverter {
 		if(input.length() == 0)
 			return null;
 		try {
-			if(loc.getLanguage().equalsIgnoreCase("nl"))			// Default java date NLS code sucks utterly, it's worse than a black hole.
+			if(loc.getLanguage().equalsIgnoreCase("nl")) // Default java date NLS code sucks utterly, it's worse than a black hole.
 				return CalculationUtil.dutchDate(input);
 			else if(loc.getLanguage().equalsIgnoreCase("en"))
 				return new SimpleDateFormat("yyyy-MM-dd").parse(input);

@@ -19,12 +19,17 @@ import to.etc.domui.util.*;
  * Created on Jun 4, 2008
  */
 public class Img extends NodeBase {
-	private String		m_alt;
-	private String		m_src;
-	private ImgAlign	m_align;
-	private int			m_imgBorder = -1;
-	private int			m_imgHeight = -1;
-	private int			m_imgWidth = -1;
+	private String m_alt;
+
+	private String m_src;
+
+	private ImgAlign m_align;
+
+	private int m_imgBorder = -1;
+
+	private int m_imgHeight = -1;
+
+	private int m_imgWidth = -1;
 
 	/**
 	 * Creates an uninitialized image.
@@ -43,31 +48,32 @@ public class Img extends NodeBase {
 		setSrc(src);
 		setImgBorder(0);
 	}
+
 	/**
 	 * Creates an image with the specified source. This should be an absolute web resource path.  If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 * @param src
 	 */
-	public Img(Class<?> base, String src) {
+	public Img(Class< ? > base, String src) {
 		this();
 		setSrc(base, src);
 		setImgBorder(0);
 	}
 
-//	/**
-//	 * Creates an image with the specified source. This can be theme-relative or it can be an
-//	 * absolute web resource path.
-//	 * @param themesrc
-//	 * @param src
-//	 */
-//	public Img(boolean themesrc, String src) {
-//		this();
-//		if(themesrc)
-//			setThemeSrc(src);
-//		else
-//			setSrc(src);
-//		setImgBorder(0);
-//	}
+	//	/**
+	//	 * Creates an image with the specified source. This can be theme-relative or it can be an
+	//	 * absolute web resource path.
+	//	 * @param themesrc
+	//	 * @param src
+	//	 */
+	//	public Img(boolean themesrc, String src) {
+	//		this();
+	//		if(themesrc)
+	//			setThemeSrc(src);
+	//		else
+	//			setSrc(src);
+	//		setImgBorder(0);
+	//	}
 
 	@Override
 	public void visit(NodeVisitor v) throws Exception {
@@ -87,7 +93,7 @@ public class Img extends NodeBase {
 	 * @param alt
 	 */
 	public void setAlt(String alt) {
-		if(! DomUtil.isEqual(alt, m_alt))
+		if(!DomUtil.isEqual(alt, m_alt))
 			changed();
 		m_alt = alt;
 	}
@@ -108,8 +114,8 @@ public class Img extends NodeBase {
 	public void setSrc(String src) {
 		if(src.startsWith("/"))
 			src = src.substring(1);
-//		src = PageContext.getRequestContext().translateResourceName(src);
-		if(! DomUtil.isEqual(src, m_src))
+		//		src = PageContext.getRequestContext().translateResourceName(src);
+		if(!DomUtil.isEqual(src, m_src))
 			changed();
 		m_src = src;
 	}
@@ -119,21 +125,21 @@ public class Img extends NodeBase {
 	 * @param base
 	 * @param resurl
 	 */
-	public void	setSrc(Class<?> base, String resurl) {
+	public void setSrc(Class< ? > base, String resurl) {
 		String s = DomUtil.getJavaResourceRURL(base, resurl);
 		setSrc(s);
 	}
 
-//	/**
-//	 * Set the image source to come from the current theme.
-//	 * @param src
-//	 */
-//	public void setThemeSrc(String src) {
-//		String nw = PageContext.getRequestContext().getRelativeThemePath(src);
-//		if(! DomUtil.isEqual(nw, m_src))
-//			changed();
-//		m_src = nw;
-//	}
+	//	/**
+	//	 * Set the image source to come from the current theme.
+	//	 * @param src
+	//	 */
+	//	public void setThemeSrc(String src) {
+	//		String nw = PageContext.getRequestContext().getRelativeThemePath(src);
+	//		if(! DomUtil.isEqual(nw, m_src))
+	//			changed();
+	//		m_src = nw;
+	//	}
 
 	public ImgAlign getAlign() {
 		return m_align;

@@ -1,7 +1,7 @@
 package to.etc.domui.util.images.converters;
 
 public class ImageConvert implements IImageConversionSpecifier {
-	private String			m_targetMime;
+	private String m_targetMime;
 
 	public ImageConvert(String targetMime) {
 		m_targetMime = targetMime;

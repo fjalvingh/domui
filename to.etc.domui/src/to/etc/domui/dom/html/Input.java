@@ -9,12 +9,17 @@ import to.etc.domui.util.*;
  * Created on Jun 1, 2008
  */
 public class Input extends InputNodeBase {
-	private boolean			m_disabled;
-	private int				m_maxLength;
-	private boolean			m_readOnly;
-	private int				m_size;
-	private String			m_rawValue;
-	private String			m_onKeyPressJS;
+	private boolean m_disabled;
+
+	private int m_maxLength;
+
+	private boolean m_readOnly;
+
+	private int m_size;
+
+	private String m_rawValue;
+
+	private String m_onKeyPressJS;
 
 	public Input() {
 		super("input");
@@ -28,22 +33,27 @@ public class Input extends InputNodeBase {
 	public boolean isDisabled() {
 		return m_disabled;
 	}
+
 	public void setDisabled(boolean disabled) {
 		if(m_disabled != disabled)
 			changed();
 		m_disabled = disabled;
 	}
+
 	public int getMaxLength() {
 		return m_maxLength;
 	}
+
 	public void setMaxLength(int maxLength) {
 		if(m_maxLength != maxLength)
 			changed();
 		m_maxLength = maxLength;
 	}
+
 	public boolean isReadOnly() {
 		return m_readOnly;
 	}
+
 	public void setReadOnly(boolean readOnly) {
 		if(m_readOnly != readOnly)
 			changed();
@@ -53,28 +63,33 @@ public class Input extends InputNodeBase {
 		else
 			removeCssClass("ui-ro");
 	}
+
 	public int getSize() {
 		return m_size;
 	}
+
 	public void setSize(int size) {
 		if(m_size != size)
 			changed();
 		m_size = size;
 	}
+
 	public String getRawValue() {
 		return m_rawValue;
 	}
+
 	public void setRawValue(String value) {
-		if(! DomUtil.isEqual(value, m_rawValue))
+		if(!DomUtil.isEqual(value, m_rawValue))
 			changed();
 		m_rawValue = value;
 	}
+
 	public String getOnKeyPressJS() {
 		return m_onKeyPressJS;
 	}
 
 	public void setOnKeyPressJS(String onKeyPressJS) {
-		if(! DomUtil.isEqual(onKeyPressJS, m_onKeyPressJS))
+		if(!DomUtil.isEqual(onKeyPressJS, m_onKeyPressJS))
 			changed();
 		m_onKeyPressJS = onKeyPressJS;
 	}

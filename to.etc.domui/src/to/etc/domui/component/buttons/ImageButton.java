@@ -12,18 +12,24 @@ import to.etc.util.*;
  * Created on Jul 21, 2008
  */
 public class ImageButton extends Button {
-	private final Img			m_img;
-	private String		m_baseSrc;
+	private final Img m_img;
 
-	private String		m_text;
-	private String		m_color;
-	private int			m_size = -1;
-	private String		m_style;
-	private String		m_font;
-	private String		m_icon;
+	private String m_baseSrc;
+
+	private String m_text;
+
+	private String m_color;
+
+	private int m_size = -1;
+
+	private String m_style;
+
+	private String m_font;
+
+	private String m_icon;
 
 	public ImageButton() {
-		m_img	= new Img();
+		m_img = new Img();
 		add(m_img);
 		m_img.setBorder(0);
 		setCssClass("ui-ib");
@@ -42,12 +48,12 @@ public class ImageButton extends Button {
 	 * @param resourceBase
 	 * @param name
 	 */
-	public void	setImage(final Class<?> resourceBase, final String name) {
+	public void setImage(final Class< ? > resourceBase, final String name) {
 		String rb = resourceBase.getName();
 		int pos = rb.lastIndexOf('.');
 		if(pos == -1)
 			throw new IllegalStateException("??");
-		m_baseSrc = "RES/"+rb.substring(0, pos+1).replace('.', '/')+name;
+		m_baseSrc = "RES/" + rb.substring(0, pos + 1).replace('.', '/') + name;
 		genURL();
 	}
 
@@ -56,19 +62,21 @@ public class ImageButton extends Button {
 	 * @param resourceBase
 	 * @param name
 	 */
-	public void	setIconImage(final Class<?> resourceBase, final String name) {
+	public void setIconImage(final Class< ? > resourceBase, final String name) {
 		String rb = resourceBase.getName();
 		int pos = rb.lastIndexOf('.');
 		if(pos == -1)
 			throw new IllegalStateException("??");
-		m_icon = "RES/"+rb.substring(0, pos+1).replace('.', '/')+name;
+		m_icon = "RES/" + rb.substring(0, pos + 1).replace('.', '/') + name;
 		genURL();
 	}
-	public void	setIcon(final String name) {
+
+	public void setIcon(final String name) {
 		m_icon = name;
 		genURL();
 	}
-	public void	setThemeIcon(final String name) {
+
+	public void setThemeIcon(final String name) {
 		m_icon = PageContext.getRequestContext().getRelativeThemePath(name);
 		genURL();
 	}
@@ -78,17 +86,18 @@ public class ImageButton extends Button {
 	 * @param resourceBase
 	 * @param name
 	 */
-	public void	setImage(final String name) {
+	public void setImage(final String name) {
 		m_baseSrc = name;
 		genURL();
 	}
+
 	public void setThemeImage(final String src) {
 		m_baseSrc = PageContext.getRequestContext().getRelativeThemePath(src);
 		genURL();
 	}
 
-	private void	genURL() {
-		StringBuilder	sb	= new StringBuilder(128);
+	private void genURL() {
+		StringBuilder sb = new StringBuilder(128);
 		sb.append(PropBtnPart.class.getName());
 		sb.append(".part?img=");
 		sb.append(m_baseSrc);
@@ -130,16 +139,16 @@ public class ImageButton extends Button {
 		genURL();
 	}
 
-//
-//	public String getColor() {
-//		return m_color;
-//	}
-//
-//	public void setColor(String color) {
-//		m_color = color;
-//		genURL();
-//	}
-//
+	//
+	//	public String getColor() {
+	//		return m_color;
+	//	}
+	//
+	//	public void setColor(String color) {
+	//		m_color = color;
+	//		genURL();
+	//	}
+	//
 	public int getSize() {
 		return m_size;
 	}
@@ -166,6 +175,7 @@ public class ImageButton extends Button {
 		m_font = font;
 		genURL();
 	}
+
 	public String getFontColor() {
 		return m_color;
 	}
@@ -174,22 +184,22 @@ public class ImageButton extends Button {
 		m_color = color;
 	}
 
-	private void	decodeAccelerator(final String txt) {
-		int	ix	= 0;
-		int	len	= txt.length();
+	private void decodeAccelerator(final String txt) {
+		int ix = 0;
+		int len = txt.length();
 		while(ix < len) {
-			int	pos	= txt.indexOf('!', ix);
+			int pos = txt.indexOf('!', ix);
 			if(pos == -1)
 				return;
-			if(pos > 0 && txt.charAt(pos-1) == '\\') {
+			if(pos > 0 && txt.charAt(pos - 1) == '\\') {
 				//-- Escaped. Try next one.
-				ix	= pos+1;
+				ix = pos + 1;
 			} else {
-				if(pos+1 >= len)
+				if(pos + 1 >= len)
 					return;
-				char c = txt.charAt(pos+1);
+				char c = txt.charAt(pos + 1);
 				if(Character.isLetter(c)) {
-					c	= Character.toLowerCase(c);
+					c = Character.toLowerCase(c);
 					setAccessKey(c);
 					return;
 				}

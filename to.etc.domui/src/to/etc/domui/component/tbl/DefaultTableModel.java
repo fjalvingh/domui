@@ -12,7 +12,7 @@ import java.util.*;
  * Created on Jun 1, 2008
  */
 public class DefaultTableModel<T> extends TableListModelBase<T> implements ITableModel<T> {
-	private List<T>							m_list;
+	private List<T> m_list;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model event handling code.							*/
@@ -30,7 +30,7 @@ public class DefaultTableModel<T> extends TableListModelBase<T> implements ITabl
 	/*--------------------------------------------------------------*/
 
 	@Override
-	protected List<T>	getList() throws Exception {
+	protected List<T> getList() throws Exception {
 		return m_list;
 	}
 }

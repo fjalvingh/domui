@@ -26,7 +26,7 @@ public class XmlRenderer extends ObjectRenderer {
 		xw().tagendnl();
 	}
 
-	public void xmlTag(final String name, final Class<?> type, final String val) throws IOException {
+	public void xmlTag(final String name, final Class< ? > type, final String val) throws IOException {
 		xmlTag(type, name);
 		xw().cdata(val);
 		xw().tagendnl();
@@ -39,13 +39,13 @@ public class XmlRenderer extends ObjectRenderer {
 		xw().tagendnl();
 	}
 
-	public String getTypeName(final Class<?> type) {
+	public String getTypeName(final Class< ? > type) {
 		if(type == null)
 			return null;
 		return ((XmlRegistry) getRegistry()).getType(type);
 	}
 
-	public void xmlTag(final Class<?> type, final String name) throws IOException {
+	public void xmlTag(final Class< ? > type, final String name) throws IOException {
 		XmlWriter w = xw();
 		if(type != null) {
 			String tyname = getTypeName(type);
@@ -75,20 +75,20 @@ public class XmlRenderer extends ObjectRenderer {
 	}
 
 	@Override
-	protected void renderObjectMember(final Object o, final String name, final Class<?> declaredType) throws Exception {
-		Class<?> type = o == null ? declaredType : o.getClass();
+	protected void renderObjectMember(final Object o, final String name, final Class< ? > declaredType) throws Exception {
+		Class< ? > type = o == null ? declaredType : o.getClass();
 		xmlTag(type, name);
 		renderSub(o);
 		xw().tagendnl();
 	}
 
 	@Override
-	public void renderListStart(final Collection<?> l, final String name) throws Exception {
+	public void renderListStart(final Collection< ? > l, final String name) throws Exception {
 		xw().tagnl(name, "type", "xsi:list");
 	}
 
 	@Override
-	public void renderListEnd(final Collection<?> l, final String name) throws Exception {
+	public void renderListEnd(final Collection< ? > l, final String name) throws Exception {
 		xw().tagendnl();
 	}
 
@@ -99,8 +99,8 @@ public class XmlRenderer extends ObjectRenderer {
 	public void renderArrayEnd(final Object ar) throws Exception {}
 
 	@Override
-	protected void renderArrayElement(final Object o, final Class<?> declaredType, final int ix) throws Exception {
-		Class<?> type = o == null ? declaredType : o.getClass();
+	protected void renderArrayElement(final Object o, final Class< ? > declaredType, final int ix) throws Exception {
+		Class< ? > type = o == null ? declaredType : o.getClass();
 		xw().forceNewline();
 		xmlTag(type, "item");
 		renderSub(o);
@@ -108,12 +108,12 @@ public class XmlRenderer extends ObjectRenderer {
 	}
 
 	@Override
-	public void renderMapStart(final Map<?,?> l) throws Exception {
+	public void renderMapStart(final Map< ? , ? > l) throws Exception {
 	//		xw().tagnl(name, "type", "xsi:map");
 	}
 
 	@Override
-	public void renderMapEnd(final Map<?,?> l) throws Exception {
+	public void renderMapEnd(final Map< ? , ? > l) throws Exception {
 	//		xw().tagendnl();
 	}
 

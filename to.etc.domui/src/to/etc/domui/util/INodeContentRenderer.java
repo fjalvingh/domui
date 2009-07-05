@@ -11,5 +11,5 @@ public interface INodeContentRenderer<T> {
 	 * @param parameters
 	 * @throws Exception
 	 */
-	public void		renderNodeContent(NodeBase component, NodeContainer node, T object, Object parameters) throws Exception;
+	public void renderNodeContent(NodeBase component, NodeContainer node, T object, Object parameters) throws Exception;
 }

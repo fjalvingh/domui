@@ -1,6 +1,7 @@
 package to.etc.domui.ajax;
 
 import java.io.*;
+
 import javax.servlet.http.*;
 
 import to.etc.domui.annotations.*;
@@ -9,9 +10,11 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 
 public class AjaxRequestContext implements IRpcCallContext {
-	private final RequestContextImpl		m_rctx;
-	private final AjaxRequestHandler		m_rh;
-	private final RpcCallHandler			m_callHandler;
+	private final RequestContextImpl m_rctx;
+
+	private final AjaxRequestHandler m_rh;
+
+	private final RpcCallHandler m_callHandler;
 
 	public AjaxRequestContext(final AjaxRequestHandler ajaxRequestHandler, final RpcCallHandler ch, final RequestContextImpl ctx) {
 		m_rh = ajaxRequestHandler;
@@ -22,7 +25,8 @@ public class AjaxRequestContext implements IRpcCallContext {
 	public RequestContextImpl getRctx() {
 		return m_rctx;
 	}
-	private HttpServletResponse	getResponse() {
+
+	private HttpServletResponse getResponse() {
 		return m_rctx.getResponse();
 	}
 
@@ -34,7 +38,7 @@ public class AjaxRequestContext implements IRpcCallContext {
 	}
 
 	public boolean hasRight(final String role) {
-		IUser	user = PageContext.getCurrentUser();
+		IUser user = PageContext.getCurrentUser();
 		if(user == null)
 			return false;
 		return user.hasRight(role);
@@ -43,12 +47,13 @@ public class AjaxRequestContext implements IRpcCallContext {
 	public <T> T allocateOutput(final Class<T> oc, final ResponseFormat rf) throws Exception {
 		return null;
 	}
-	public void outputCompleted(final Object output) throws Exception {
-	}
+
+	public void outputCompleted(final Object output) throws Exception {}
+
 	public Writer getResponseWriter(final ResponseFormat format, final String callname) throws Exception {
-		switch(format) {
+		switch(format){
 			default:
-				throw new IllegalStateException("Unknown response format: "+format);
+				throw new IllegalStateException("Unknown response format: " + format);
 
 			case JSON:
 				getResponse().setContentType("text/html"); // Jal 20060922 Do not change to text/javascript!! This makes Prototype eval() the response as a JS program which it is not.
@@ -89,16 +94,16 @@ public class AjaxRequestContext implements IRpcCallContext {
 			}
 
 			//-- This is a parameter-based call, i.e. the call parameters are URL parameters
-			String s = m_rctx.getParameter("_format"); 				// Format override present in request?
+			String s = m_rctx.getParameter("_format"); // Format override present in request?
 			ResponseFormat rf = null;
 			if(s != null)
 				rf = ResponseFormat.valueOf(s);
 
-			IParameterProvider	pp	= new URLParameterProvider(m_rctx);
+			IParameterProvider pp = new URLParameterProvider(m_rctx);
 			m_callHandler.executeSingleCall(this, pp, call, rf);
 		} catch(RpcException sx) {
 			sx.setUrl(getRctx().getRequest().getRequestURI());
-//			sx.setContext(this);
+			//			sx.setContext(this);
 			throw sx;
 		} finally {
 
@@ -109,7 +114,7 @@ public class AjaxRequestContext implements IRpcCallContext {
 	 * Handles a bulk (multicall) request.
 	 */
 	private void executeBulkRequest() throws Exception {
-		String	json = m_rctx.getParameter("json");
+		String json = m_rctx.getParameter("json");
 		if(json != null) {
 			m_callHandler.executeBulkJSON(this, json);
 			return;

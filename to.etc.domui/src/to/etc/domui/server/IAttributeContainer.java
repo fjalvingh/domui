@@ -7,6 +7,7 @@ package to.etc.domui.server;
  * Created on May 19, 2009
  */
 public interface IAttributeContainer {
-	void		setAttribute(String name, Object value);
-	Object		getAttribute(String name);
+	void setAttribute(String name, Object value);
+
+	Object getAttribute(String name);
 }

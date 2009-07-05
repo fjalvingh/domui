@@ -1,6 +1,5 @@
 package to.etc.domui.hibernate.generic;
 
-import org.hibernate.*;
 
 /**
  * Thingy which makes a new Hibernate session.
@@ -9,5 +8,5 @@ import org.hibernate.*;
  * Created on Jun 26, 2008
  */
 public interface HibernateSessionMaker {
-	public Session			makeSession() throws Exception;
+	public Session makeSession() throws Exception;
 }

@@ -1,10 +1,8 @@
 package to.etc.domui.component.layout;
 
-import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
@@ -21,7 +19,7 @@ import to.etc.webapp.nls.*;
  * Created on Oct 17, 2008
  */
 public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener {
-	private IErrorFence		m_errorFence;
+	private IErrorFence m_errorFence;
 
 	/**
 	 * Create a default error panel.

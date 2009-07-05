@@ -1,6 +1,6 @@
 package to.etc.domui.dom.header;
 
-import to.etc.domui.dom.FullHtmlRenderer;
+import to.etc.domui.dom.*;
 
 /**
  * Contributes a specific .js file from the webapp to the page.
@@ -9,7 +9,7 @@ import to.etc.domui.dom.FullHtmlRenderer;
  * Created on Aug 17, 2007
  */
 public class JavascriptContributor extends HeaderContributor {
-	private String		m_path;
+	private String m_path;
 
 	public JavascriptContributor(String path) {
 		m_path = path;
@@ -35,8 +35,7 @@ public class JavascriptContributor extends HeaderContributor {
 		if(m_path == null) {
 			if(other.m_path != null)
 				return false;
-		}
-		else if(!m_path.equals(other.m_path))
+		} else if(!m_path.equals(other.m_path))
 			return false;
 		return true;
 	}

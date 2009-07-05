@@ -18,6 +18,6 @@ final public class DefaultConverter implements IConverter {
 	}
 
 	public Object convertStringToObject(Locale loc, String in) throws UIException {
-		throw new IllegalStateException("Cannot convert this string '"+in+"' because no IConverterfactory is registered for the type to convert to");
+		throw new IllegalStateException("Cannot convert this string '" + in + "' because no IConverterfactory is registered for the type to convert to");
 	}
 }

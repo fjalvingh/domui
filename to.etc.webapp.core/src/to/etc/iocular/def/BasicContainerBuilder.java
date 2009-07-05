@@ -1,14 +1,11 @@
 package to.etc.iocular.def;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.logging.Logger;
-import to.etc.iocular.Builder;
+import java.lang.annotation.*;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.logging.*;
+
+import to.etc.iocular.*;
 
 /**
  * This allows creation of a container definition from within Java source code. When building
@@ -20,34 +17,34 @@ import to.etc.iocular.Builder;
  * Created on Apr 3, 2007
  */
 public class BasicContainerBuilder implements Builder {
-	static private final Logger		LOG = Logger.getLogger(BasicContainerBuilder.class.getName());
+	static private final Logger LOG = Logger.getLogger(BasicContainerBuilder.class.getName());
 
 	/** The created definition from this build. When set the builder has completed. */
-	private ContainerDefinition		m_myDefinition;
+	private ContainerDefinition m_myDefinition;
 
 	/** The name of the container that is being created. */
-	private final String					m_name;
+	private final String m_name;
 
-	private int						m_containerIndex;
+	private int m_containerIndex;
 
 	/** If this def is for a child of a parent container this contains the definition of the parent container. */
-	private final ContainerDefinition		m_parentDefinition;
+	private final ContainerDefinition m_parentDefinition;
 
 	/** If this definition extends another definition this refers to the "base" definition. */
-	private final ContainerDefinition		m_baseDefinition;
+	private final ContainerDefinition m_baseDefinition;
 
-	private final List<ComponentBuilder>					m_builderList = new ArrayList<ComponentBuilder>();
+	private final List<ComponentBuilder> m_builderList = new ArrayList<ComponentBuilder>();
 
-	private final Map<String, ComponentBuilder>			m_namedComponentMap = new HashMap<String, ComponentBuilder>();
+	private final Map<String, ComponentBuilder> m_namedComponentMap = new HashMap<String, ComponentBuilder>();
 
-	private final Map<Class<?>, ComponentBuilder>			m_definedTypeMap = new HashMap<Class<?>, ComponentBuilder>();
+	private final Map<Class< ? >, ComponentBuilder> m_definedTypeMap = new HashMap<Class< ? >, ComponentBuilder>();
 
-	private final Map<Class<?>, List<ComponentBuilder>>	m_availableTypeMap = new HashMap<Class<?>, List<ComponentBuilder>>();
+	private final Map<Class< ? >, List<ComponentBuilder>> m_availableTypeMap = new HashMap<Class< ? >, List<ComponentBuilder>>();
 
 	/**
 	 * Maps interfaces to implementation classes.
 	 */
-	private final Map<Class<?>, List<Class<?>>>	m_implementationMap = new HashMap<Class<?>, List<Class<?>>>();
+	private final Map<Class< ? >, List<Class< ? >>> m_implementationMap = new HashMap<Class< ? >, List<Class< ? >>>();
 
 	private BasicContainerBuilder(ContainerDefinition parent, final ContainerDefinition base, final String name) {
 		m_name = name;
@@ -66,7 +63,7 @@ public class BasicContainerBuilder implements Builder {
 	 * @param name
 	 * @return
 	 */
-	static public BasicContainerBuilder	createBuilder(final String name) {
+	static public BasicContainerBuilder createBuilder(final String name) {
 		return new BasicContainerBuilder(null, null, name);
 	}
 
@@ -78,7 +75,7 @@ public class BasicContainerBuilder implements Builder {
 	 * @param name
 	 * @return
 	 */
-	static public BasicContainerBuilder	createChildBuilder(final ContainerDefinition parent, final String name) {
+	static public BasicContainerBuilder createChildBuilder(final ContainerDefinition parent, final String name) {
 		if(parent == null)
 			throw new IllegalArgumentException("The 'parent' cannot be null for a child container");
 		return new BasicContainerBuilder(parent, null, name);
@@ -91,23 +88,22 @@ public class BasicContainerBuilder implements Builder {
 	 * @param name
 	 * @return
 	 */
-	static public BasicContainerBuilder	createInheritedBuilder(final ContainerDefinition base, final String name) {
+	static public BasicContainerBuilder createInheritedBuilder(final ContainerDefinition base, final String name) {
 		if(base == null)
 			throw new IllegalArgumentException("The 'parent' cannot be null for an inherited container");
 		return new BasicContainerBuilder(null, base, name);
 	}
 
-	private void	check() {
+	private void check() {
 		if(m_myDefinition != null)
 			throw new IllegalStateException("The containerDefinition has already been created from this builder. Create a new builder to create a new definition.");
 	}
 
-	void	addComponentName(final ComponentBuilder cb, final String name) {
+	void addComponentName(final ComponentBuilder cb, final String name) {
 		check();
-		ComponentBuilder	t = m_namedComponentMap.get(name);
-		if(t != null)
-		{
-			StringBuilder	sb = new StringBuilder();
+		ComponentBuilder t = m_namedComponentMap.get(name);
+		if(t != null) {
+			StringBuilder sb = new StringBuilder();
 			sb.append("Duplicate name '");
 			sb.append(name);
 			sb.append("' for the object *now* defined at\n");
@@ -125,24 +121,24 @@ public class BasicContainerBuilder implements Builder {
 	 * @see to.etc.iocular.Builder#bind(java.lang.Class, java.lang.Class)
 	 */
 	public <T> void bind(final Class<T> intf, final Class<T> impl) {
-		if(! intf.isInterface())
-			throw new IllegalStateException("The class "+intf+" is not an interface.");
+		if(!intf.isInterface())
+			throw new IllegalStateException("The class " + intf + " is not an interface.");
 		if(impl.isInterface())
-			throw new IllegalStateException("The implementation class "+impl+" cannot be an interface");
+			throw new IllegalStateException("The implementation class " + impl + " cannot be an interface");
 		int mod = impl.getModifiers();
 		if(Modifier.isAbstract(mod))
-			throw new IllegalStateException("The implementation class "+impl+" cannot be abstract");
-		if(! Modifier.isPublic(mod))
-			throw new IllegalStateException("The implementation class "+impl+" must be public");
-		List<Class<?>>	list = m_implementationMap.get(intf);
+			throw new IllegalStateException("The implementation class " + impl + " cannot be abstract");
+		if(!Modifier.isPublic(mod))
+			throw new IllegalStateException("The implementation class " + impl + " must be public");
+		List<Class< ? >> list = m_implementationMap.get(intf);
 		if(list == null) {
-			list = new ArrayList<Class<?>>();
+			list = new ArrayList<Class< ? >>();
 			m_implementationMap.put(intf, list);
 		}
 		list.add(impl);
 	}
 
-	private ComponentBuilder	makeBuilder() {
+	private ComponentBuilder makeBuilder() {
 		String loc = null;
 		try {
 			throw new Exception("duh");
@@ -156,7 +152,7 @@ public class BasicContainerBuilder implements Builder {
 		return new ComponentBuilder(this, loc);
 	}
 
-	static public String	getLocationString(final int stackoffset) {
+	static public String getLocationString(final int stackoffset) {
 		try {
 			throw new Exception("duh");
 		} catch(Exception x) {
@@ -167,7 +163,7 @@ public class BasicContainerBuilder implements Builder {
 		}
 	}
 
-	public ComponentBuilder	 register() {
+	public ComponentBuilder register() {
 		check();
 		ComponentBuilder c = makeBuilder();
 		m_builderList.add(c);
@@ -180,7 +176,7 @@ public class BasicContainerBuilder implements Builder {
 	 *
 	 * @see to.etc.iocular.Builder#registerInstance(java.lang.Object)
 	 */
-	public ComponentBuilder	 registerInstance(final Object inst) {
+	public ComponentBuilder registerInstance(final Object inst) {
 		check();
 		if(inst == null)
 			throw new IllegalStateException("Instance cannot be null");
@@ -189,7 +185,7 @@ public class BasicContainerBuilder implements Builder {
 		return c;
 	}
 
-	public ComponentBuilder	 registerInstance(final String name, final Object inst) {
+	public ComponentBuilder registerInstance(final String name, final Object inst) {
 		if(inst == null)
 			throw new IllegalStateException("Instance cannot be null");
 		ComponentBuilder c = makeBuilder();
@@ -203,29 +199,29 @@ public class BasicContainerBuilder implements Builder {
 	 * @param clz
 	 * @param cb
 	 */
-	private void	registerAvailableType(final Class<?> clz, final ComponentBuilder cb) {
+	private void registerAvailableType(final Class< ? > clz, final ComponentBuilder cb) {
 		check();
-		List<ComponentBuilder>	list = m_availableTypeMap.get(clz);
+		List<ComponentBuilder> list = m_availableTypeMap.get(clz);
 		if(list == null) {
 			list = new ArrayList<ComponentBuilder>();
 			m_availableTypeMap.put(clz, list);
 		}
 		if(!list.contains(cb))
 			list.add(cb);
-//		System.out.println("-- added InferredType="+clz+" using "+cb);
+		//		System.out.println("-- added InferredType="+clz+" using "+cb);
 	}
 
-	private void	registerDefinedType(final Class<?> type, final ComponentBuilder cb) {
+	private void registerDefinedType(final Class< ? > type, final ComponentBuilder cb) {
 		check();
 		if(type == Object.class)
 			return;
-		ComponentBuilder	t = m_definedTypeMap.put(type, cb);
+		ComponentBuilder t = m_definedTypeMap.put(type, cb);
 		if(t != null)
-			throw new IocConfigurationException(cb, "Duplicate definition of implemented type "+type+"; the other definition was in "+t);
-//		System.out.println("-- added DefinedType="+type+" using "+cb);
+			throw new IocConfigurationException(cb, "Duplicate definition of implemented type " + type + "; the other definition was in " + t);
+		//		System.out.println("-- added DefinedType="+type+" using "+cb);
 	}
 
-	private void	registerBaseClasses(Class<?> clz, final ComponentBuilder cb) {
+	private void registerBaseClasses(Class< ? > clz, final ComponentBuilder cb) {
 		for(;;) {
 			clz = clz.getSuperclass();
 			if(clz == null || clz == Object.class)
@@ -234,9 +230,9 @@ public class BasicContainerBuilder implements Builder {
 		}
 	}
 
-	private void	registerInterfaces(final Class<?> clz, final ComponentBuilder cb) {
-		Class<?>[]	ar = clz.getInterfaces();
-		for(Class<?> clif : ar) {
+	private void registerInterfaces(final Class< ? > clz, final ComponentBuilder cb) {
+		Class< ? >[] ar = clz.getInterfaces();
+		for(Class< ? > clif : ar) {
 			registerAvailableType(clif, cb);
 		}
 	}
@@ -248,27 +244,28 @@ public class BasicContainerBuilder implements Builder {
 	 * @param name
 	 * @return
 	 */
-	Class<?>	calcTypeByName(final Stack<ComponentBuilder> stack, final String name) {
+	Class< ? > calcTypeByName(final Stack<ComponentBuilder> stack, final String name) {
 		//-- 1. First try the 'current' container,
-		ComponentBuilder	cb = m_namedComponentMap.get(name);
+		ComponentBuilder cb = m_namedComponentMap.get(name);
 		if(cb != null) {
 			//-- Got the thingy from this container; get it's type;
 			return cb.calculateType(stack);
 		}
 
 		//-- 2. Try any parent.
-		ComponentRef	cd = m_baseDefinition.findComponentReference(name);
+		ComponentRef cd = m_baseDefinition.findComponentReference(name);
 		if(cd != null)
 			return cd.getDefinition().getActualClass();
-		cd	= m_parentDefinition.findComponentReference(name);
+		cd = m_parentDefinition.findComponentReference(name);
 		if(cd != null)
 			return cd.getDefinition().getActualClass();
 		return null;
 	}
 
-	int	getContainerIndex() {
+	int getContainerIndex() {
 		return m_containerIndex;
 	}
+
 	public String getName() {
 		return m_name;
 	}
@@ -285,7 +282,7 @@ public class BasicContainerBuilder implements Builder {
 			return m_myDefinition;
 
 		//-- Calculate all types for all components here,
-		Stack<ComponentBuilder>	stack = new Stack<ComponentBuilder>();
+		Stack<ComponentBuilder> stack = new Stack<ComponentBuilder>();
 		for(ComponentBuilder cb : m_builderList) {
 			stack.clear();
 			cb.calculateType(stack);
@@ -293,10 +290,10 @@ public class BasicContainerBuilder implements Builder {
 
 		//-- Register all types
 		for(ComponentBuilder cb : m_builderList) {
-			List<Class<?>>	defl = cb.getDefinedTypes();
+			List<Class< ? >> defl = cb.getDefinedTypes();
 			if(defl.size() > 0) {
 				//-- Register these types in the defined type table;
-				for(Class<?> cl : defl)
+				for(Class< ? > cl : defl)
 					registerDefinedType(cl, cb);
 			} else {
 				//-- If the defined type list is empty register the actual type as the defined type;
@@ -314,12 +311,12 @@ public class BasicContainerBuilder implements Builder {
 		 * *find* all components that are available, so we can start to construct build
 		 * plans.
 		 */
-		Map<Class<?>, ComponentRef>		defmap = new HashMap<Class<?>, ComponentRef>();		// Defined type map
-		Map<Class<?>, ComponentRef>		actmap = new HashMap<Class<?>, ComponentRef>();		// Inferred type map
-		Map<String, ComponentRef>		namedmap = new HashMap<String, ComponentRef>();		// Named thingy map.
+		Map<Class< ? >, ComponentRef> defmap = new HashMap<Class< ? >, ComponentRef>(); // Defined type map
+		Map<Class< ? >, ComponentRef> actmap = new HashMap<Class< ? >, ComponentRef>(); // Inferred type map
+		Map<String, ComponentRef> namedmap = new HashMap<String, ComponentRef>(); // Named thingy map.
 		for(ComponentBuilder cb : m_builderList) {
 			stack.clear();
-			ComponentRef	ref	= cb.calculateComponentRef(stack);
+			ComponentRef ref = cb.calculateComponentRef(stack);
 
 			//-- Add names and the refs;
 			for(String name : cb.getNameList()) {
@@ -327,14 +324,14 @@ public class BasicContainerBuilder implements Builder {
 			}
 
 			//-- Add all defined classes
-			for(Class<?> cl : cb.getDefinedTypes()) {
+			for(Class< ? > cl : cb.getDefinedTypes()) {
 				defmap.put(cl, ref);
 			}
 		}
 
 		//-- Add all inferred types provided they are unique
-		for(Class<?> cl : m_availableTypeMap.keySet()) {
-			List<ComponentBuilder> list = m_availableTypeMap.get(cl);	// Get the list of thingies in here,
+		for(Class< ? > cl : m_availableTypeMap.keySet()) {
+			List<ComponentBuilder> list = m_availableTypeMap.get(cl); // Get the list of thingies in here,
 			if(list.size() == 1) {
 				//-- Exactly one provider of this type: add as available (inferred) type
 				actmap.put(cl, list.get(0).calculateComponentRef(null));
@@ -346,14 +343,14 @@ public class BasicContainerBuilder implements Builder {
 		return m_myDefinition;
 	}
 
-	ComponentRef	findReferenceFor(final ISelfDef self, final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
-		ComponentRef	ref	= internalFindReferenceFor(self, stack, ptype, annar, def);		// Basic lookup;
+	ComponentRef findReferenceFor(final ISelfDef self, final Stack<ComponentBuilder> stack, final Class< ? > ptype, final Annotation[] annar, final MethodParameterSpec def) {
+		ComponentRef ref = internalFindReferenceFor(self, stack, ptype, annar, def); // Basic lookup;
 		if(ref == null)
 			return null;
 
 		if(ptype != null) {
 			//-- Make sure the returned type can be assigned to the parameter type passed,
-			if(! ptype.isAssignableFrom( ref.getDefinition().getActualClass()) )		// Do not allow
+			if(!ptype.isAssignableFrom(ref.getDefinition().getActualClass())) // Do not allow
 				return null;
 
 		}
@@ -372,16 +369,16 @@ public class BasicContainerBuilder implements Builder {
 	 * @param def
 	 * @return
 	 */
-	ComponentRef	internalFindReferenceFor(final ISelfDef self, final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
+	ComponentRef internalFindReferenceFor(final ISelfDef self, final Stack<ComponentBuilder> stack, final Class< ? > ptype, final Annotation[] annar, final MethodParameterSpec def) {
 		if(def != null && def.isSelf()) {
 			//-- Self reference. Create a synthetic reference which does contain a proper type.
 			if(self == null)
 				throw new IllegalStateException("Internal: self reference requested but 'self' is not known...");
-			return new ComponentRef(self);					// SELF reference,
+			return new ComponentRef(self); // SELF reference,
 		}
 
 		//-- 1. Try to find the thingy in here,
-		ComponentRef	ref = _findDefinedReference(stack, ptype, annar, def);
+		ComponentRef ref = _findDefinedReference(stack, ptype, annar, def);
 		if(ref != null)
 			return ref;
 
@@ -417,9 +414,8 @@ public class BasicContainerBuilder implements Builder {
 			if(ref != null)
 				return ref;
 		}
-		return null;			// Not found.
+		return null; // Not found.
 	}
-
 
 
 	/**
@@ -432,14 +428,14 @@ public class BasicContainerBuilder implements Builder {
 	 * @param def
 	 * @return
 	 */
-	private ComponentRef	_findDefinedReference(final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
+	private ComponentRef _findDefinedReference(final Stack<ComponentBuilder> stack, final Class< ? > ptype, final Annotation[] annar, final MethodParameterSpec def) {
 		//-- Try to find a ComponentBuilder that is able to provide this thingy.
 		/*
 		 * TODO First try to find something using the provided parameters and annotations.
 		 */
 
 		//-- No parameters provided- try to locate using the type of the type using the defined type table
-		ComponentBuilder	cb = m_definedTypeMap.get(ptype);			// Find anything that can provide this
+		ComponentBuilder cb = m_definedTypeMap.get(ptype); // Find anything that can provide this
 		if(cb != null) {
 			//-- Recurse into this-comnponent's ref thinger. This will cause a circular reference exception if things refer back
 			return cb.calculateComponentRef(stack);
@@ -457,24 +453,22 @@ public class BasicContainerBuilder implements Builder {
 	 * @param def
 	 * @return
 	 */
-	private ComponentRef	_findInferredReference(final Stack<ComponentBuilder> stack, final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
+	private ComponentRef _findInferredReference(final Stack<ComponentBuilder> stack, final Class< ? > ptype, final Annotation[] annar, final MethodParameterSpec def) {
 		//-- Try to find a ComponentBuilder that is able to provide this thingy.
 		/*
 		 * TODO First try to find something using the provided parameters and annotations.
 		 */
 
 
-
-
 		//-- No parameters provided- try to locate using the type of the type using the defined type table
-		List<ComponentBuilder>	list = m_availableTypeMap.get(ptype);
+		List<ComponentBuilder> list = m_availableTypeMap.get(ptype);
 		if(list == null)
 			return null;
 		else if(list.size() != 1) {
-			LOG.info("Multiple inferred factories for parameter type="+ptype);
+			LOG.info("Multiple inferred factories for parameter type=" + ptype);
 			return null;
 		}
-		ComponentBuilder	cb	= list.get(0);
+		ComponentBuilder cb = list.get(0);
 		//-- Recurse into this-comnponent's ref thinger. This will cause a circular reference exception if things refer back
 		return cb.calculateComponentRef(stack);
 	}

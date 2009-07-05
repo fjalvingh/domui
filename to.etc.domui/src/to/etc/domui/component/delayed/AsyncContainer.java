@@ -6,9 +6,11 @@ import to.etc.domui.state.*;
 import to.etc.util.*;
 
 public class AsyncContainer extends Div {
-	private IActivity				m_activity;
-	private DelayedActivityInfo		m_scheduledActivity;
-	private Div						m_progress;
+	private IActivity m_activity;
+
+	private DelayedActivityInfo m_scheduledActivity;
+
+	private Div m_progress;
 
 	public AsyncContainer(IActivity activity) {
 		m_activity = activity;
@@ -22,10 +24,10 @@ public class AsyncContainer extends Div {
 
 		//-- Render a thingy containing a spinner
 		setCssClass("ui-asc");
-		Img	img = new Img();
+		Img img = new Img();
 		img.setSrc(PageContext.getRequestContext().getRelativeThemePath("spinner.gif"));
 		add(img);
-		DefaultButton	db	= new DefaultButton("Cancel", new IClicked<DefaultButton>() {
+		DefaultButton db = new DefaultButton("Cancel", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
 				cancel();
 				b.setDisabled(true);
@@ -46,8 +48,8 @@ public class AsyncContainer extends Div {
 	 * @param pct
 	 * @param msg
 	 */
-	public void	updateProgress(int pct, String msg) {
-		StringBuilder	sb	= new StringBuilder();
+	public void updateProgress(int pct, String msg) {
+		StringBuilder sb = new StringBuilder();
 		sb.append(pct);
 		sb.append("%");
 		if(msg != null) {
@@ -59,12 +61,12 @@ public class AsyncContainer extends Div {
 		m_progress.setButtonText(sb.toString());
 	}
 
-	public void	updateCompleted(DelayedActivityInfo dai) {
+	public void updateCompleted(DelayedActivityInfo dai) {
 		//-- If we've got an exception replace the contents with the exception message.
 		if(dai.getException() != null) {
-			StringBuilder	sb	= new StringBuilder(8192);
+			StringBuilder sb = new StringBuilder(8192);
 			StringTool.strStacktrace(sb, dai.getException());
-			this.setButtonText(sb.toString());						// Discard everything && replace
+			this.setButtonText(sb.toString()); // Discard everything && replace
 			return;
 		}
 
@@ -77,13 +79,13 @@ public class AsyncContainer extends Div {
 			}
 			return;
 		}
-		replaceWith(dai.getExecutionResult());					// Replace this node with another one.
+		replaceWith(dai.getExecutionResult()); // Replace this node with another one.
 
-//		removeAllChildren();
-//		add(dai.getExecutionResult());
+		//		removeAllChildren();
+		//		add(dai.getExecutionResult());
 	}
 
-	public void	confirmCancelled() {
+	public void confirmCancelled() {
 		setButtonText("Cancelled");
 	}
 }

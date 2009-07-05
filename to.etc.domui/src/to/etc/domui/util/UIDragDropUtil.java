@@ -10,7 +10,7 @@ public final class UIDragDropUtil {
 	 * @param base
 	 * @param dh
 	 */
-	static public void		exposeDraggable(NodeBase base, IDragHandler dh) {
+	static public void exposeDraggable(NodeBase base, IDragHandler dh) {
 		if(dh == null) {
 			base.removeCssClass("ui-drgbl");
 			base.setOnMouseDownJS(null);
@@ -21,15 +21,15 @@ public final class UIDragDropUtil {
 		}
 	}
 
-	static public void		exposeDroppable(NodeBase base, IDropHandler dh) {
+	static public void exposeDroppable(NodeBase base, IDropHandler dh) {
 		if(dh == null) {
 			base.removeCssClass("ui-drpbl");
 		} else {
 			base.addCssClass("ui-drpbl");
-			StringBuilder	sb	 = new StringBuilder();
+			StringBuilder sb = new StringBuilder();
 			if(dh.getAcceptableTypes() == null)
-				throw new IllegalStateException("The IDropHandler for node "+base+" ("+dh+") returns a null list of acceptable types");
-			for(String s: dh.getAcceptableTypes()) {
+				throw new IllegalStateException("The IDropHandler for node " + base + " (" + dh + ") returns a null list of acceptable types");
+			for(String s : dh.getAcceptableTypes()) {
 				if(sb.length() != 0)
 					sb.append(',');
 				sb.append(s);

@@ -101,36 +101,35 @@ import to.etc.webapp.query.*;
  * Created on Jun 23, 2008
  */
 public class ConversationContext implements IQContextContainer {
-	static public final Logger		LOG = Logger.getLogger(ConversationContext.class.getName());
+	static public final Logger LOG = Logger.getLogger(ConversationContext.class.getName());
 
 	static enum ConversationState {
-		DETACHED,
-		ATTACHED,
-		DESTROYED
+		DETACHED, ATTACHED, DESTROYED
 	}
 
 	/** The conversation ID, unique within the user's session. */
-	private String					m_id;
+	private String m_id;
 
-	private String					m_fullId;
+	private String m_fullId;
 
 	/** The pages that are part of this conversation, indexed by [className] */
-	private final Map<String, Page>	m_pageMap = new HashMap<String, Page>();
+	private final Map<String, Page> m_pageMap = new HashMap<String, Page>();
 
 	/** The map of all attribute objects added to this conversation. */
-	private Map<String, Object>		m_map = Collections.EMPTY_MAP;
+	private Map<String, Object> m_map = Collections.EMPTY_MAP;
 
-	private WindowSession			m_manager;
+	private WindowSession m_manager;
 
-	private DelayedActivitiesManager	m_delayManager;
+	private DelayedActivitiesManager m_delayManager;
 
-	private ConversationState		m_state = ConversationState.DETACHED;
+	private ConversationState m_state = ConversationState.DETACHED;
 
-	private List<File>				m_uploadList = Collections.EMPTY_LIST;
+	private List<File> m_uploadList = Collections.EMPTY_LIST;
 
 	void setId(final String id) {
 		m_id = id;
 	}
+
 	/**
 	 * Return the ID for this conversation.
 	 * @return
@@ -138,21 +137,23 @@ public class ConversationContext implements IQContextContainer {
 	final public String getId() {
 		return m_id;
 	}
-	final void	setManager(final WindowSession m) {
+
+	final void setManager(final WindowSession m) {
 		if(m == null)
 			throw new IllegalStateException("Internal: manager cannot be null, dude");
 		if(m_manager != null)
 			throw new IllegalStateException("Internal: manager is ALREADY set, dude");
 		m_manager = m;
-		m_fullId = m.getWindowID()+"."+m_id;
+		m_fullId = m.getWindowID() + "." + m_id;
 	}
+
 	public String getFullId() {
 		return m_fullId;
 	}
 
 	@Override
 	public String toString() {
-		return "conversation["+getId()+"]";
+		return "conversation[" + getId() + "]";
 	}
 
 	/*--------------------------------------------------------------*/
@@ -163,8 +164,7 @@ public class ConversationContext implements IQContextContainer {
 	 * server. This should restore the context to a usable state.
 	 * @throws Exception
 	 */
-	public void		onAttach() throws Exception {
-	}
+	public void onAttach() throws Exception {}
 
 	/**
 	 * Called when the request has terminated, the response has been rendered and the
@@ -174,20 +174,18 @@ public class ConversationContext implements IQContextContainer {
 	 *
 	 * @throws Exception
 	 */
-	public void		onDetach() throws Exception {
-	}
+	public void onDetach() throws Exception {}
 
-	public void		onDestroy() throws Exception {
-	}
+	public void onDestroy() throws Exception {}
 
-	void	internalAttach() throws Exception {
-		LOG.fine("Attaching "+this);
+	void internalAttach() throws Exception {
+		LOG.fine("Attaching " + this);
 		if(m_state != ConversationState.DETACHED)
-			throw new IllegalStateException("Wrong state for ATTACH: "+m_state);
+			throw new IllegalStateException("Wrong state for ATTACH: " + m_state);
 		for(Object o : m_map.values()) {
 			if(o instanceof ConversationStateListener) {
 				try {
-					((ConversationStateListener)o).conversationAttached(this);
+					((ConversationStateListener) o).conversationAttached(this);
 				} catch(Exception x) {
 					x.printStackTrace();
 					LOG.log(Level.SEVERE, "In calling attach listener", x);
@@ -200,14 +198,15 @@ public class ConversationContext implements IQContextContainer {
 			m_state = ConversationState.ATTACHED;
 		}
 	}
+
 	void internalDetach() throws Exception {
-		LOG.fine("Detaching "+this);
+		LOG.fine("Detaching " + this);
 		if(m_state != ConversationState.ATTACHED)
-			throw new IllegalStateException("Wrong state for DETACH: "+m_state+" in "+this);
+			throw new IllegalStateException("Wrong state for DETACH: " + m_state + " in " + this);
 		for(Object o : m_map.values()) {
 			if(o instanceof ConversationStateListener) {
 				try {
-					((ConversationStateListener)o).conversationDetached(this);
+					((ConversationStateListener) o).conversationDetached(this);
 				} catch(Exception x) {
 					x.printStackTrace();
 					LOG.log(Level.SEVERE, "In calling detach listener", x);
@@ -220,17 +219,18 @@ public class ConversationContext implements IQContextContainer {
 			m_state = ConversationState.DETACHED;
 		}
 	}
+
 	void internalDestroy() throws Exception {
-		LOG.info("Destroying "+this);
+		LOG.info("Destroying " + this);
 		if(m_state == ConversationState.DESTROYED)
-			throw new IllegalStateException("Wrong state for DESTROY: "+m_state);
+			throw new IllegalStateException("Wrong state for DESTROY: " + m_state);
 
 		//-- Call the DESTROY handler for all attached pages, then disconnect them
-		for(Page pg: m_pageMap.values()) {
+		for(Page pg : m_pageMap.values()) {
 			try {
 				pg.getBody().onDestroy();
 			} catch(Exception x) {
-				System.err.println("Exception in page "+pg.getBody()+"'s onDestroy handler: "+x);
+				System.err.println("Exception in page " + pg.getBody() + "'s onDestroy handler: " + x);
 				x.printStackTrace();
 			}
 		}
@@ -244,13 +244,14 @@ public class ConversationContext implements IQContextContainer {
 		for(Object o : m_map.values()) {
 			if(o instanceof ConversationStateListener) {
 				try {
-					((ConversationStateListener)o).conversationDestroyed(this);
+					((ConversationStateListener) o).conversationDestroyed(this);
 				} catch(Exception x) {
 					x.printStackTrace();
 					LOG.log(Level.SEVERE, "In calling destroy listener", x);
 				}
 			}
-		} try {
+		}
+		try {
 			onDestroy();
 		} finally {
 			m_state = ConversationState.DESTROYED;
@@ -258,15 +259,15 @@ public class ConversationContext implements IQContextContainer {
 		}
 	}
 
-	public void	checkAttached() {
+	public void checkAttached() {
 		if(m_state != ConversationState.ATTACHED)
-			throw new IllegalStateException("Accessing conversation "+this+" in "+m_state+" invalid - only usable in ATTACHED state");
+			throw new IllegalStateException("Accessing conversation " + this + " in " + m_state + " invalid - only usable in ATTACHED state");
 	}
 
 	/**
 	 * Force this context to destroy itself.
 	 */
-	public void	destroy() {
+	public void destroy() {
 		m_manager.destroyConversation(this);
 		m_manager = null;
 	}
@@ -279,20 +280,21 @@ public class ConversationContext implements IQContextContainer {
 	 * @param clz
 	 * @return
 	 */
-	Page		findPage(final Class<? extends NodeBase> clz) {
+	Page findPage(final Class< ? extends NodeBase> clz) {
 		return m_pageMap.get(clz.getName());
 	}
 
-	public void	internalRegisterPage(final Page p, final PageParameters papa) {
+	public void internalRegisterPage(final Page p, final PageParameters papa) {
 		m_pageMap.put(p.getBody().getClass().getName(), p);
 		p.internalInitialize(papa, this);
 	}
-	void	destroyPage(final Page pg) {
+
+	void destroyPage(final Page pg) {
 		//-- Call the page's DESTROY handler while still attached
 		try {
 			pg.getBody().onDestroy();
 		} catch(Exception x) {
-			System.err.println("Exception in page "+pg.getBody()+"'s onDestroy handler: "+x);
+			System.err.println("Exception in page " + pg.getBody() + "'s onDestroy handler: " + x);
 			x.printStackTrace();
 		}
 		m_pageMap.remove(pg.getBody().getClass().getName());
@@ -306,15 +308,15 @@ public class ConversationContext implements IQContextContainer {
 	 * @param name
 	 * @param val
 	 */
-	public void		setAttribute(final String name, final Object val) {
+	public void setAttribute(final String name, final Object val) {
 		if(m_map == Collections.EMPTY_MAP)
 			m_map = new HashMap<String, Object>();
-		Object old	= m_map.put(name, val);
+		Object old = m_map.put(name, val);
 
 		if(old != null) {
 			if(old instanceof ConversationStateListener) {
 				try {
-					((ConversationStateListener)old).conversationDetached(this);
+					((ConversationStateListener) old).conversationDetached(this);
 				} catch(Exception x) {
 					x.printStackTrace();
 					LOG.log(Level.SEVERE, "In calling detach listener", x);
@@ -328,7 +330,7 @@ public class ConversationContext implements IQContextContainer {
 	 * @param name
 	 * @return
 	 */
-	public Object	getAttribute(final String name) {
+	public Object getAttribute(final String name) {
 		return m_map.get(name);
 	}
 
@@ -339,30 +341,31 @@ public class ConversationContext implements IQContextContainer {
 	 *
 	 * @return
 	 */
-	synchronized DelayedActivitiesManager	getDelayedActivitiesManager() {
+	synchronized DelayedActivitiesManager getDelayedActivitiesManager() {
 		if(m_delayManager == null)
 			m_delayManager = new DelayedActivitiesManager(this);
 		return m_delayManager;
 	}
 
-	public DelayedActivityInfo	scheduleDelayed(final AsyncContainer container, final IActivity a) {
+	public DelayedActivityInfo scheduleDelayed(final AsyncContainer container, final IActivity a) {
 		return getDelayedActivitiesManager().schedule(a, container);
 	}
 
-	public void			startDelayedExecution() {
+	public void startDelayedExecution() {
 		if(m_delayManager != null)
 			m_delayManager.start();
 	}
 
-	public void			processDelayedResults(final Page pg) {
+	public void processDelayedResults(final Page pg) {
 		if(m_delayManager == null)
 			return;
-		DelayedActivityState	das = m_delayManager.getState();
+		DelayedActivityState das = m_delayManager.getState();
 		if(das == null)
 			return;
 		m_delayManager.applyToTree(das);
 	}
-	public boolean		hasDelayedActions() {
+
+	public boolean hasDelayedActions() {
 		return m_delayManager == null ? false : m_delayManager.callbackRequired();
 	}
 
@@ -373,36 +376,35 @@ public class ConversationContext implements IQContextContainer {
 	 * Register a file that was uploaded and that needs to be deleted at end of conversation time.
 	 * @param f
 	 */
-	public void	registerUploadTempFile(final File f) {
+	public void registerUploadTempFile(final File f) {
 		if(m_uploadList == Collections.EMPTY_LIST)
 			m_uploadList = new ArrayList<File>();
 		m_uploadList.add(f);
 	}
 
-	protected void	discardUploadFiles() {
-		for(File f: m_uploadList) {
+	protected void discardUploadFiles() {
+		for(File f : m_uploadList) {
 			try {
 				f.delete();
-			} catch(Exception x) {
-			}
+			} catch(Exception x) {}
 		}
 		m_uploadList.clear();
 	}
 
 	public void dump() {
-		System.out.println("    Conversation: "+getId()+" in state "+m_state);
+		System.out.println("    Conversation: " + getId() + " in state " + m_state);
 		if(m_delayManager == null)
 			System.out.println("      No delayed actions pending");
 		else {
 			System.out.println("      Delayed action manager is present");
 		}
 
-		for(File df: m_uploadList) {
-			System.out.println("      Uploaded file: "+df);
+		for(File df : m_uploadList) {
+			System.out.println("      Uploaded file: " + df);
 		}
 
 		StringBuilder sb = new StringBuilder(128);
-		for(Page pg: m_pageMap.values()) {
+		for(Page pg : m_pageMap.values()) {
 			sb.setLength(0);
 			PageParameters pp = pg.getPageParameters();
 			sb.append("      Resident page: ");
@@ -419,12 +421,14 @@ public class ConversationContext implements IQContextContainer {
 			System.out.println(sb.toString());
 		}
 	}
+
 	ConversationState getState() {
 		return m_state;
 	}
 
-	static private final String	KEY = QContextManager.class.getName();
-	static private final String	SRCKEY = QDataContextSource.class.getName();
+	static private final String KEY = QContextManager.class.getName();
+
+	static private final String SRCKEY = QDataContextSource.class.getName();
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IQContextContainer implementation.					*/
@@ -435,6 +439,7 @@ public class ConversationContext implements IQContextContainer {
 	public QDataContext internalGetSharedContext() {
 		return (QDataContext) getAttribute(KEY);
 	}
+
 	/**
 	 *
 	 * @see to.etc.webapp.query.IQContextContainer#internalSetSharedContext(to.etc.webapp.query.QDataContext)
@@ -442,9 +447,11 @@ public class ConversationContext implements IQContextContainer {
 	public void internalSetSharedContext(final QDataContext c) {
 		setAttribute(KEY, c);
 	}
+
 	public QDataContextSource internalGetContextSource() {
 		return (QDataContextSource) getAttribute(SRCKEY);
 	}
+
 	public void internalSetContextSource(final QDataContextSource s) {
 		setAttribute(SRCKEY, s);
 	}

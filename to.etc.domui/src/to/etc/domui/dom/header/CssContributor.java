@@ -3,7 +3,7 @@ package to.etc.domui.dom.header;
 import to.etc.domui.dom.*;
 
 final public class CssContributor extends HeaderContributor {
-	private String		m_path;
+	private String m_path;
 
 	public CssContributor(String path) {
 		m_path = path;
@@ -29,8 +29,7 @@ final public class CssContributor extends HeaderContributor {
 		if(m_path == null) {
 			if(other.m_path != null)
 				return false;
-		}
-		else if(!m_path.equals(other.m_path))
+		} else if(!m_path.equals(other.m_path))
 			return false;
 		return true;
 	}

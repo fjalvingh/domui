@@ -1,9 +1,9 @@
 package to.etc.domui.dom.html;
 
-import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.*;
 
 public class TextNode extends NodeBase {
-	private String		m_text;
+	private String m_text;
 
 	public TextNode() {
 		super("#text");
@@ -26,6 +26,7 @@ public class TextNode extends NodeBase {
 	public String getText() {
 		return m_text;
 	}
+
 	public void setText(String text) {
 		if(DomUtil.isEqual(text, m_text))
 			changed();
@@ -41,7 +42,7 @@ public class TextNode extends NodeBase {
 	 * Return the tilde-replaced text for this.
 	 * @return
 	 */
-	public String	getLiteralText() {
-		return DomUtil.replaceTilded(this, m_text);		// FIXME Performance?
+	public String getLiteralText() {
+		return DomUtil.replaceTilded(this, m_text); // FIXME Performance?
 	}
 }

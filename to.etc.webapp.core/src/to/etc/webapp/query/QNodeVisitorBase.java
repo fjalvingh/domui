@@ -13,42 +13,44 @@ public class QNodeVisitorBase implements QNodeVisitor {
 	public void visitPropertyComparison(QPropertyComparison n) throws Exception {
 		n.getExpr().visit(this);
 	}
-//	public void visitBinaryNode(QBinaryNode n) throws Exception {
-//		n.getLhs().visit(this);
-//		n.getRhs().visit(this);
-//	}
+
+	//	public void visitBinaryNode(QBinaryNode n) throws Exception {
+	//		n.getLhs().visit(this);
+	//		n.getRhs().visit(this);
+	//	}
 	public void visitUnaryNode(QUnaryNode n) throws Exception {
 		n.getNode().visit(this);
 	}
-	public void visitUnaryProperty(QUnaryProperty n) throws Exception {
-	}
+
+	public void visitUnaryProperty(QUnaryProperty n) throws Exception {}
+
 	public void visitBetween(QBetweenNode n) throws Exception {
 		n.getA().visit(this);
 		n.getB().visit(this);
 	}
 
-	public void	visitRestrictionsBase(QRestrictionsBase n) throws Exception {
-		QOperatorNode	r = n.getRestrictions();
+	public void visitRestrictionsBase(QRestrictionsBase n) throws Exception {
+		QOperatorNode r = n.getRestrictions();
 		if(r != null)
 			r.visit(this);
 	}
 
-	public void visitCriteria(QCriteria<?> qc) throws Exception {
+	public void visitCriteria(QCriteria< ? > qc) throws Exception {
 		visitRestrictionsBase(qc);
 		visitOrderList(qc.getOrder());
 	}
-	public void	visitOrderList(List<QOrder> orderlist) throws Exception {
+
+	public void visitOrderList(List<QOrder> orderlist) throws Exception {
 		for(QOrder o : orderlist)
 			o.visit(this);
 	}
-	public void visitLiteral(QLiteral n) throws Exception {
-	}
+
+	public void visitLiteral(QLiteral n) throws Exception {}
 
 	public void visitMulti(QMultiNode n) throws Exception {
 		for(QOperatorNode o : n.getChildren())
 			o.visit(this);
 	}
 
-	public void visitOrder(QOrder o) throws Exception {
-	}
+	public void visitOrder(QOrder o) throws Exception {}
 }

@@ -1,10 +1,11 @@
 package to.etc.iocular.test.mocks;
 
 public class VpUserContextMock {
-	public String	getLoginID() {
+	public String getLoginID() {
 		return "jal";
 	}
-	public Long		getCstID() {
+
+	public Long getCstID() {
 		return Long.valueOf(123);
 	}
 }

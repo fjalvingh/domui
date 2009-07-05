@@ -12,5 +12,5 @@ import to.etc.domui.state.*;
  * Created on Jul 11, 2008
  */
 public interface IComboDataSet<T> {
-	public List<T>		getComboDataSet(ConversationContext cc, String[] parameters) throws Exception;
+	public List<T> getComboDataSet(ConversationContext cc, String[] parameters) throws Exception;
 }

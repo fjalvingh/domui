@@ -1,8 +1,6 @@
 package to.etc.domui.component.meta;
 
 public enum PropertyRelationType {
-	NONE,
-	UP,
-	DOWN,
-//	MULTI
+	NONE, UP, DOWN,
+	//	MULTI
 }

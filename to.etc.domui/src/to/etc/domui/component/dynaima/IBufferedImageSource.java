@@ -15,11 +15,11 @@ public interface IBufferedImageSource {
 	 * @return
 	 * @throws Exception
 	 */
-	public BufferedImage			getImage() throws Exception;
+	public BufferedImage getImage() throws Exception;
 
 	/**
 	 * The output format (mime for jpg, gif, png).
 	 * @return
 	 */
-	public String					getMimeType();
+	public String getMimeType();
 }

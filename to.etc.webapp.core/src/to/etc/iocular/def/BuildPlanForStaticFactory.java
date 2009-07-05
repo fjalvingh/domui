@@ -1,26 +1,26 @@
 package to.etc.iocular.def;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.List;
-import to.etc.iocular.container.BasicContainer;
-import to.etc.iocular.container.MethodInvoker;
-import to.etc.util.IndentWriter;
+import java.io.*;
+import java.lang.reflect.*;
+import java.util.*;
+
+import to.etc.iocular.container.*;
+import to.etc.util.*;
 
 public class BuildPlanForStaticFactory extends AbstractBuildPlan {
 	/**
 	 * The static factory method to invoke.
 	 */
-	private final Method			m_method;
+	private final Method m_method;
 
 	/**
 	 * The build plans for the method's arguments.
 	 */
-	private final ComponentRef[]	m_argumentList;
+	private final ComponentRef[] m_argumentList;
 
-	private MethodInvoker[]			m_startList;
+	private MethodInvoker[] m_startList;
 
-	private final int				m_score;
+	private final int m_score;
 
 	BuildPlanForStaticFactory(final Method m, final int score, final ComponentRef[] args, final List<MethodInvoker> startlist) {
 		m_method = m;
@@ -41,7 +41,7 @@ public class BuildPlanForStaticFactory extends AbstractBuildPlan {
 	 */
 	@Override
 	public Object getObject(final BasicContainer bc) throws Exception {
-		Object[]	param = new Object[ m_argumentList.length ];
+		Object[] param = new Object[m_argumentList.length];
 		for(int i = m_argumentList.length; --i >= 0;) {
 			param[i] = bc.retrieve(m_argumentList[i]);
 		}
@@ -58,7 +58,7 @@ public class BuildPlanForStaticFactory extends AbstractBuildPlan {
 			iw.println("- Method parameter build plan(s):");
 			iw.inc();
 			for(int i = 0; i < m_argumentList.length; i++) {
-				iw.println("parameter# "+i);
+				iw.println("parameter# " + i);
 				iw.inc();
 				m_argumentList[i].dump(iw);
 				iw.dec();

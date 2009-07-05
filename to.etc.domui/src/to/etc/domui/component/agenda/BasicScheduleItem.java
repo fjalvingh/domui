@@ -1,15 +1,21 @@
 package to.etc.domui.component.agenda;
 
-import java.util.Date;
+import java.util.*;
 
 public class BasicScheduleItem implements ScheduleItem {
-	private String		m_details;
-	private String		m_imageURL;
-	private String		m_name;
-	private Date		m_start;
-	private Date		m_end;
-	private String		m_id;
-	private String		m_type;
+	private String m_details;
+
+	private String m_imageURL;
+
+	private String m_name;
+
+	private Date m_start;
+
+	private Date m_end;
+
+	private String m_id;
+
+	private String m_type;
 
 	public BasicScheduleItem(String id, Date start, Date end, String name, String details, String type, String imageURL) {
 		m_id = id;

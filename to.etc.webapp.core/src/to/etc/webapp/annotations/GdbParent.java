@@ -10,10 +10,13 @@ import java.lang.annotation.*;
  * Created on Apr 28, 2009
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value=ElementType.METHOD)
+@Target(value = ElementType.METHOD)
 public @interface GdbParent {
-	GdbFetch	fetch() default GdbFetch.LAZY;
-	String		joinColumns();
-	String		constraintName() default "";
-	boolean		optional() default false;
+	GdbFetch fetch() default GdbFetch.LAZY;
+
+	String joinColumns();
+
+	String constraintName() default "";
+
+	boolean optional() default false;
 }

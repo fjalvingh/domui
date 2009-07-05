@@ -1,27 +1,27 @@
 package to.etc.iocular.def;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.List;
-import to.etc.iocular.container.FailedAlternative;
-import to.etc.util.IndentWriter;
+import java.io.*;
+import java.util.*;
+
+import to.etc.iocular.container.*;
+import to.etc.util.*;
 
 public class BuildPlanFailedException extends IocConfigurationException {
-	private List<FailedAlternative>		m_list;
+	private List<FailedAlternative> m_list;
 
-	private ComponentBuilder			m_b;
+	private ComponentBuilder m_b;
 
 	public BuildPlanFailedException(ComponentBuilder b, String why, List<FailedAlternative> list) {
 		super(b, why);
 		m_list = list;
-		m_b	= b;
+		m_b = b;
 	}
 
 	@Override
-	public String	getMessage() {
-		StringWriter	sw = new StringWriter();
-		IndentWriter	iw = new IndentWriter(sw);
-		sw.append(super.getMessage()+":\n");
+	public String getMessage() {
+		StringWriter sw = new StringWriter();
+		IndentWriter iw = new IndentWriter(sw);
+		sw.append(super.getMessage() + ":\n");
 		try {
 			iw.print("- The failed object was a ");
 			iw.println(m_b.toString());

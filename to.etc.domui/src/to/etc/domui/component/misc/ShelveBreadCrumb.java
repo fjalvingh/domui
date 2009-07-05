@@ -15,10 +15,10 @@ import to.etc.domui.state.*;
 public class ShelveBreadCrumb extends Div {
 	@Override
 	public void createContent() throws Exception {
-		WindowSession	cm	= PageContext.getRequestContext().getWindowSession();
+		WindowSession cm = PageContext.getRequestContext().getWindowSession();
 
 		//-- Get the application's main page as the base;
-		List<ShelvedEntry>	stack = cm.getShelvedPageStack();
+		List<ShelvedEntry> stack = cm.getShelvedPageStack();
 		if(stack.size() == 0) {
 			setDisplay(DisplayType.NONE);
 			return;
@@ -26,24 +26,24 @@ public class ShelveBreadCrumb extends Div {
 		setDisplay(null);
 
 		for(int i = 0; i < stack.size(); i++) {
-			Page	p = stack.get(i).getPage();
-			
+			Page p = stack.get(i).getPage();
+
 			if(i > 0) {
 				//-- Append the marker,
-				Span	s	= new Span();
+				Span s = new Span();
 				add(s);
 				s.add(new TextNode(" > "));
 			}
 
 			//-- Create a LINK or a SPAN
-			Span	s	= new Span();
+			Span s = new Span();
 			add(s);
 			String ttl = p.getBody().getLiteralTitle();
 			if(ttl == null || ttl.length() == 0) {
 				ttl = p.getBody().getClass().getName();
-				ttl = ttl.substring(ttl.lastIndexOf('.')+1);
+				ttl = ttl.substring(ttl.lastIndexOf('.') + 1);
 			}
-			
+
 			s.setButtonText(ttl);
 		}
 	}

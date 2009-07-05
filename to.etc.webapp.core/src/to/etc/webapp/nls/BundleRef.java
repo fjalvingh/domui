@@ -224,10 +224,10 @@ final public class BundleRef implements NlsMessageProvider {
 	 * @param param
 	 * @return
 	 */
-	public String	formatMessage(final String key, final Object... param) {
-		String	s	= findMessage(NlsContext.getLocale(), key);
+	public String formatMessage(final String key, final Object... param) {
+		String s = findMessage(NlsContext.getLocale(), key);
 		if(s == null)
-			return "???"+key+"???";
+			return "???" + key + "???";
 		return MessageFormat.format(s, param);
 	}
 }

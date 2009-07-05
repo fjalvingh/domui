@@ -3,8 +3,9 @@ package to.etc.iocular.test.mocks;
 import to.etc.webapp.query.*;
 
 public class PageMock implements IQContextContainer {
-	private QDataContext		m_dc;
-	private QDataContextSource	m_src;
+	private QDataContext m_dc;
+
+	private QDataContextSource m_src;
 
 	public QDataContextSource internalGetContextSource() {
 		return m_src;

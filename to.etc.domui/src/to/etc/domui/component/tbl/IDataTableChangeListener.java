@@ -10,7 +10,7 @@ public interface IDataTableChangeListener {
 	/**
 	 * Called when the datatable as accepted a different model.
 	 */
-	public void		modelChanged(TabularComponentBase tbl, ITableModel<?> old, ITableModel<?> nw) throws Exception;
+	public void modelChanged(TabularComponentBase tbl, ITableModel< ? > old, ITableModel< ? > nw) throws Exception;
 
-	public void		pageChanged(TabularComponentBase tbl) throws Exception;
+	public void pageChanged(TabularComponentBase tbl) throws Exception;
 }

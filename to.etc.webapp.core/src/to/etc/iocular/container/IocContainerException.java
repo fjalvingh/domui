@@ -1,9 +1,9 @@
 package to.etc.iocular.container;
 
-import to.etc.iocular.IocException;
+import to.etc.iocular.*;
 
 public class IocContainerException extends IocException {
-	private BasicContainer		m_c;
+	private BasicContainer m_c;
 
 	public IocContainerException(BasicContainer c, String why) {
 		super(why);
@@ -12,6 +12,6 @@ public class IocContainerException extends IocException {
 
 	@Override
 	public String getMessage() {
-		return super.getMessage()+" (container "+m_c.getIdent()+")";
+		return super.getMessage() + " (container " + m_c.getIdent() + ")";
 	}
 }

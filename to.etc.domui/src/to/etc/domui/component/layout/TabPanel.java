@@ -14,10 +14,13 @@ import to.etc.domui.dom.html.*;
  */
 public class TabPanel extends Div {
 	private static class TabInstance {
-		private NodeBase	m_label;
-		private NodeBase	m_content;
-		private Img			m_img;
-		private Li			m_tab;
+		private NodeBase m_label;
+
+		private NodeBase m_content;
+
+		private Img m_img;
+
+		private Li m_tab;
 
 		public TabInstance(NodeBase label, NodeBase content, Img img) {
 			m_label = label;
@@ -32,23 +35,26 @@ public class TabPanel extends Div {
 		public NodeBase getLabel() {
 			return m_label;
 		}
+
 		public Li getTab() {
 			return m_tab;
 		}
+
 		public void setTab(Li tab) {
 			m_tab = tab;
 		}
+
 		public Img getImg() {
 			return m_img;
 		}
 	}
 
-	private List<TabInstance> 	m_tablist = new ArrayList<TabInstance>();
+	private List<TabInstance> m_tablist = new ArrayList<TabInstance>();
 
 	/** The index for the currently visible tab. */
-	private int					m_currentTab;
+	private int m_currentTab;
 
-	private Ul					m_tabul;
+	private Ul m_tabul;
 
 	public TabPanel() {}
 
@@ -62,6 +68,7 @@ public class TabPanel extends Div {
 		TextNode tn = new TextNode(label);
 		add(content, tn);
 	}
+
 	public void add(NodeBase content, String label, String icon) {
 		TextNode tn = new TextNode(label);
 		add(content, tn, icon);
@@ -72,21 +79,21 @@ public class TabPanel extends Div {
 	 * @param content
 	 * @param tablabel
 	 */
-	public void		add(NodeBase content, NodeBase tablabel) {
+	public void add(NodeBase content, NodeBase tablabel) {
 		m_tablist.add(new TabInstance(tablabel, content, null));
-		if(! isBuilt())
+		if(!isBuilt())
 			return;
 
 		//-- Render the new thingies.
 	}
 
-	public void		add(NodeBase content, NodeBase tablabel, String icon) {
+	public void add(NodeBase content, NodeBase tablabel, String icon) {
 		Img i = new Img();
 		i.setSrc(icon);
 		i.setCssClass("ui-tab-icon");
 		i.setBorder(0);
 		m_tablist.add(new TabInstance(tablabel, content, i));
-		if(! isBuilt())
+		if(!isBuilt())
 			return;
 
 		//-- Render the new thingies.
@@ -114,13 +121,13 @@ public class TabPanel extends Div {
 			m_currentTab = 0;
 
 		//-- Create the TAB structure.. 
-		Div	hdr	= new Div();
-		add(hdr);								// The div containing the tab buttons
+		Div hdr = new Div();
+		add(hdr); // The div containing the tab buttons
 		hdr.setCssClass("ui-tab-hdr");
-		Ul	u = new Ul();
+		Ul u = new Ul();
 		m_tabul = u;
 		hdr.add(u);
-		int	index = 0;
+		int index = 0;
 		for(TabInstance ti : m_tablist) {
 			renderLabel(index, ti);
 
@@ -133,16 +140,16 @@ public class TabPanel extends Div {
 		}
 	}
 
-	private void	renderLabel(int index, TabInstance ti) {
+	private void renderLabel(int index, TabInstance ti) {
 		Li li = new Li();
 		m_tabul.add(index, li);
-		ti.setTab(li);								// Save for later use,
+		ti.setTab(li); // Save for later use,
 		li.setCssClass(index == m_currentTab ? "ui-tab-lbl ui-tab-sel" : "ui-tab-lbl");
 		ATag a = new ATag();
 		li.add(a);
 		if(ti.getImg() != null)
 			a.add(ti.getImg());
-		a.add(ti.getLabel());						// Append the label.
+		a.add(ti.getLabel()); // Append the label.
 		final int index_ = index;
 		a.setClicked(new IClicked<ATag>() {
 			public void clicked(ATag b) throws Exception {
@@ -156,18 +163,18 @@ public class TabPanel extends Div {
 	}
 
 	public void setCurrentTab(int index) {
-		System.out.println("Switching to tab "+index);
-		if(index == getCurrentTab() || index < 0 || index >= m_tablist.size())	// Silly index
+		System.out.println("Switching to tab " + index);
+		if(index == getCurrentTab() || index < 0 || index >= m_tablist.size()) // Silly index
 			return;
 		if(isBuilt()) {
 			//-- We must switch the styles on the current "active" panel and the current "old" panel
-			TabInstance	oldti = m_tablist.get(getCurrentTab());		// Get the currently active instance,
-			TabInstance	newti = m_tablist.get(index);
-			oldti.getContent().setDisplay(DisplayType.NONE);		// Switch displays on content
+			TabInstance oldti = m_tablist.get(getCurrentTab()); // Get the currently active instance,
+			TabInstance newti = m_tablist.get(index);
+			oldti.getContent().setDisplay(DisplayType.NONE); // Switch displays on content
 			newti.getContent().setDisplay(DisplayType.BLOCK);
-			oldti.getTab().removeCssClass("ui-tab-sel");			// Remove selected indicator
+			oldti.getTab().removeCssClass("ui-tab-sel"); // Remove selected indicator
 			newti.getTab().addCssClass("ui-tab-sel");
 		}
-		m_currentTab = index;			// ORDERED!!! Must be below the above!!!
+		m_currentTab = index; // ORDERED!!! Must be below the above!!!
 	}
 }

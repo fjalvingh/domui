@@ -12,7 +12,8 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
  */
-@SuppressWarnings("unchecked")		// Hating Generics
+@SuppressWarnings("unchecked")
+// Hating Generics
 public class ControlFactoryString implements ControlFactory {
 	/**
 	 * Accept any type using a string.
@@ -23,11 +24,11 @@ public class ControlFactoryString implements ControlFactory {
 	}
 
 	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
-		Class<?>	iclz	= pmm.getActualType();
+		Class< ? > iclz = pmm.getActualType();
 
 		//-- Treat everything else as a String using a converter.
-		Text<?>	txt	= new Text(iclz);
-		if(! editable)
+		Text< ? > txt = new Text(iclz);
+		if(!editable)
 			txt.setReadOnly(true);
 
 		/*
@@ -42,11 +43,11 @@ public class ControlFactoryString implements ControlFactory {
 			int size = pmm.getPrecision();
 			int d = size;
 			if(pmm.getScale() > 0) {
-				size++;						// Inc size to allow for decimal point or comma
-				d -= pmm.getScale();		// Reduce integer part,
-				if(d >= 4) {				// Can we get > 999? Then we can have thousand-separators
-					int nd = (d-1) / 3;		// How many thousand separators could there be?
-					size += nd;				// Increment input size with that
+				size++; // Inc size to allow for decimal point or comma
+				d -= pmm.getScale(); // Reduce integer part,
+				if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
+					int nd = (d - 1) / 3; // How many thousand separators could there be?
+					size += nd; // Increment input size with that
 				}
 			}
 			txt.setSize(size);
@@ -63,7 +64,7 @@ public class ControlFactoryString implements ControlFactory {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			txt.setLiteralTitle(s);
-		for(PropertyMetaValidator mpv: pmm.getValidators())
+		for(PropertyMetaValidator mpv : pmm.getValidators())
 			txt.addValidator(mpv);
 		return new Result(txt, model, pmm);
 	}

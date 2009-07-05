@@ -1,9 +1,8 @@
 package to.etc.domui.dom.header;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import to.etc.domui.dom.FullHtmlRenderer;
+import to.etc.domui.dom.*;
 
 /**
  * A header contributor can be registered by nodes to cause something to
@@ -20,9 +19,9 @@ import to.etc.domui.dom.FullHtmlRenderer;
  * Created on Aug 17, 2007
  */
 abstract public class HeaderContributor {
-	static private Map<String, HeaderContributor>	m_jsMap = new HashMap<String, HeaderContributor>();
+	static private Map<String, HeaderContributor> m_jsMap = new HashMap<String, HeaderContributor>();
 
-	abstract public void	contribute(FullHtmlRenderer r) throws Exception;
+	abstract public void contribute(FullHtmlRenderer r) throws Exception;
 
 	@Override
 	abstract public int hashCode();
@@ -30,7 +29,7 @@ abstract public class HeaderContributor {
 	@Override
 	abstract public boolean equals(final Object obj);
 
-	static synchronized public HeaderContributor	loadJavascript(final String name) {
+	static synchronized public HeaderContributor loadJavascript(final String name) {
 		HeaderContributor c = m_jsMap.get(name);
 		if(c == null) {
 			c = new JavascriptContributor(name);

@@ -7,7 +7,7 @@ package to.etc.domui.dom.html;
  * Created on Jun 12, 2008
  */
 abstract public class InputNodeBase extends NodeBase implements IInputBase {
-	private IValueChanged<?, ?>		m_onValueChanged;
+	private IValueChanged< ? , ? > m_onValueChanged;
 
 	@Override
 	abstract public void visit(NodeVisitor v) throws Exception;
@@ -22,10 +22,11 @@ abstract public class InputNodeBase extends NodeBase implements IInputBase {
 	public IValueChanged< ? , ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
+
 	/**
 	 * @see to.etc.domui.dom.html.IInputBase#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
-	public void setOnValueChanged(IValueChanged<?, ?> onValueChanged) {
+	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 }

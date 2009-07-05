@@ -14,9 +14,9 @@ package to.etc.iocular;
  * Created on Mar 25, 2007
  */
 public interface Container {
-	void		start();
+	void start();
 
-	void		destroy();
+	void destroy();
 
 	/**
 	 * Return the 'unnamed' object with the specified class from this container. If the
@@ -27,7 +27,7 @@ public interface Container {
 	 * @param theClass
 	 * @return
 	 */
-	<T> T	findObject(Class<T> theClass);
+	<T> T findObject(Class<T> theClass);
 
 	/**
 	 * Return the 'unnamed' object with the specified class from this container. If the
@@ -36,17 +36,17 @@ public interface Container {
 	 * @param theClass
 	 * @return
 	 */
-	<T> T	getObject(Class<T> theClass) throws Exception;
+	<T> T getObject(Class<T> theClass) throws Exception;
 
-	<T> T	findObject(String name, Class<T> theClass);
+	<T> T findObject(String name, Class<T> theClass);
 
-	<T> T	getObject(String name, Class<T> theClass) throws Exception;
-	
+	<T> T getObject(String name, Class<T> theClass) throws Exception;
+
 	/**
 	 * Set a container parameter object. The parameter to set is inferred from the object type.
 	 * @param instance
 	 */
-	void	setParameter(final Object instance);
+	void setParameter(final Object instance);
 
 	/**
 	 * Set the parameter as identified by it's target class to the specified instance. This instance CAN
@@ -54,7 +54,7 @@ public interface Container {
 	 * @param clz
 	 * @param instance
 	 */
-	void	setParameter(final Class<?> theClass, final Object instance);
+	void setParameter(final Class< ? > theClass, final Object instance);
 
 	/**
 	 * Sets the parameter with the specified name to the instance passed. This instance CAN
@@ -63,5 +63,5 @@ public interface Container {
 	 * @param name
 	 * @param instance
 	 */
-	void	setParameter(final String name, final Object instance);
+	void setParameter(final String name, final Object instance);
 }

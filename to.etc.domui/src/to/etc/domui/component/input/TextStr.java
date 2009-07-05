@@ -9,5 +9,5 @@ package to.etc.domui.component.input;
 public class TextStr extends Text<String> {
 	public TextStr() {
 		super(String.class);
-	}	
+	}
 }

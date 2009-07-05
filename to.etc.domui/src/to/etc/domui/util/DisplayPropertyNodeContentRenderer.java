@@ -14,14 +14,15 @@ import to.etc.domui.dom.html.*;
  * Created on Nov 21, 2008
  */
 public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<Object> {
-	private List<DisplayPropertyMetaModel>	m_list;
+	private List<DisplayPropertyMetaModel> m_list;
 
 	public DisplayPropertyNodeContentRenderer(List<DisplayPropertyMetaModel> list) {
 		m_list = list;
 	}
+
 	public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) throws Exception {
-		StringBuilder	sb = new StringBuilder();
-		for(DisplayPropertyMetaModel dm: m_list) {
+		StringBuilder sb = new StringBuilder();
+		for(DisplayPropertyMetaModel dm : m_list) {
 			if(sb.length() > 0)
 				sb.append(' ');
 			sb.append(dm.getAsString(object));

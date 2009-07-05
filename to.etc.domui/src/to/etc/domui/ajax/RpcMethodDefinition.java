@@ -27,7 +27,7 @@ public class RpcMethodDefinition {
 	 * then that class is saved herein. This indicates that the method renders
 	 * it's output by itself.
 	 */
-	private Class<?>	m_outputClass;
+	private Class< ? > m_outputClass;
 
 	RpcMethodDefinition(final RpcClassDefinition hi, final String name) {
 		m_name = name;
@@ -42,38 +42,36 @@ public class RpcMethodDefinition {
 		try {
 			m_method = findMethod(m_name);
 			if(m_method == null)
-				throw new RpcException(m_ServiceClassDefinition.getHandlerClass()+" does not have a method called '"+m_name+"'");
+				throw new RpcException(m_ServiceClassDefinition.getHandlerClass() + " does not have a method called '" + m_name + "'");
 			checkReturnMethod();
 			checkAnnotations(m_method);
-		}
-		catch(Exception x) {
+		} catch(Exception x) {
 			m_exc = x;
 			throw x;
 		}
 	}
 
-	private void	checkReturnMethod() throws Exception {
-		Class<?>	rv = m_method.getReturnType();
-		if(rv != Void.TYPE) {					// Any method with a return type uses the return type as result
+	private void checkReturnMethod() throws Exception {
+		Class< ? > rv = m_method.getReturnType();
+		if(rv != Void.TYPE) { // Any method with a return type uses the return type as result
 			m_outputClass = null;
 			return;
 		}
 
 		//-- Void method: the 1st parameter defines the method to render the output
-		Class<?>[]	par = m_method.getParameterTypes();
+		Class< ? >[] par = m_method.getParameterTypes();
 		if(par.length == 0)
-			throw new RpcException("The method '"+m_method+"' returns void and does not have an output parameter; it cannot be called.");
-		m_outputClass = par[0];						// Output parameter type.
+			throw new RpcException("The method '" + m_method + "' returns void and does not have an output parameter; it cannot be called.");
+		m_outputClass = par[0]; // Output parameter type.
 	}
 
 	private Method findMethod(final String name) throws Exception {
-		Class<?> cl = m_ServiceClassDefinition.getHandlerClass();
+		Class< ? > cl = m_ServiceClassDefinition.getHandlerClass();
 		Method foundm = null;
 		for(Method m : cl.getMethods()) {
 			if(m.getName().equals(name)) {
 				if(foundm != null)
-					throw new RpcException("The method '" + name + "' occurs 2ce ["
-							+ foundm.toGenericString() + " and " + m.toGenericString() + "]");
+					throw new RpcException("The method '" + name + "' occurs 2ce [" + foundm.toGenericString() + " and " + m.toGenericString() + "]");
 				foundm = m;
 			}
 		}
@@ -87,7 +85,7 @@ public class RpcMethodDefinition {
 		AjaxMethod am = m.getAnnotation(AjaxMethod.class);
 		List<String> l = new ArrayList<String>();
 		if(am == null)
-			throw new RpcException(m.getName()+": The method is not annotated with @AjaxMethod");
+			throw new RpcException(m.getName() + ": The method is not annotated with @AjaxMethod");
 
 		if(am.roles() != null) {
 			StringTokenizer st = new StringTokenizer(am.roles(), " \t,");
@@ -103,7 +101,7 @@ public class RpcMethodDefinition {
 		if(am.response() != ResponseFormat.UNDEFINED) // Is a response format defined?
 			m_responseFormat = am.response(); // Then use it,
 		else
-			m_responseFormat = m_ServiceClassDefinition.getResponseFormat(); 	// Else default to class's spec
+			m_responseFormat = m_ServiceClassDefinition.getResponseFormat(); // Else default to class's spec
 	}
 
 	final public ResponseFormat getResponseFormat() {
@@ -125,7 +123,8 @@ public class RpcMethodDefinition {
 	Method getMethod() {
 		return m_method;
 	}
-	Class<?>	getOutputClass() {
+
+	Class< ? > getOutputClass() {
 		return m_outputClass;
 	}
 

@@ -26,11 +26,16 @@ import to.etc.util.*;
  */
 public class UploadParser {
 	static private final String MULTIPART = "multipart/";
+
 	//    static private final String MULTIPART_FORM_DATA = "multipart/form-data";
 	static private final String MULTIPART_MIXED = "multipart/mixed";
+
 	static private final String CONTENT_DISPOSITION = "Content-disposition";
+
 	static private final String FORM_DATA = "form-data";
+
 	static private final String CONTENT_TYPE = "Content-type";
+
 	static private final String ATTACHMENT = "attachment";
 
 	/** The max size of a file uploaded thru this mechanism. Defaults to 100MB. */
@@ -46,9 +51,9 @@ public class UploadParser {
 		m_sizeMax = sizeMax;
 	}
 
-//	public final void setWorkDir(File workDir) {
-//		m_workDir = workDir;
-//	}
+	//	public final void setWorkDir(File workDir) {
+	//		m_workDir = workDir;
+	//	}
 
 	/**
 	 * Returns T if the request is encoded as multipart (i.e. file upload).
@@ -72,18 +77,18 @@ public class UploadParser {
 		return new UploadHttpRequestWrapper(req);
 	}
 
-//	private synchronized File getWorkDir() {
-//		if(m_workDir == null) {
-//			String iodir = System.getProperty("java.io.tmpdir");
-//			if(iodir == null)
-//				iodir = "/tmp";
-//			File f = new File(iodir, "uploads");
-//			f.mkdirs();
-//			m_workDir = f;
-//		}
-//		return m_workDir;
-//	}
-//
+	//	private synchronized File getWorkDir() {
+	//		if(m_workDir == null) {
+	//			String iodir = System.getProperty("java.io.tmpdir");
+	//			if(iodir == null)
+	//				iodir = "/tmp";
+	//			File f = new File(iodir, "uploads");
+	//			f.mkdirs();
+	//			m_workDir = f;
+	//		}
+	//		return m_workDir;
+	//	}
+	//
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Main parser entrypoint.								*/
@@ -98,7 +103,7 @@ public class UploadParser {
 
 	static private String getStringHeader(final Map<String, Object> hdr, final String name) {
 		Object o = hdr.get(name.toLowerCase());
-		if(o == null || o instanceof List<?>)
+		if(o == null || o instanceof List< ? >)
 			return null;
 		return (String) o;
 	}
@@ -108,8 +113,7 @@ public class UploadParser {
 			UploadItem ui = l.get(i);
 			try {
 				ui.discard();
-			}
-			catch(Exception x) {
+			} catch(Exception x) {
 				x.printStackTrace();
 			}
 		}
@@ -122,8 +126,8 @@ public class UploadParser {
 		if(requestSize == -1)
 			throw new FileUploadException("The content length is missing or invalid");
 		if(requestSize > m_sizeMax)
-			throw new FileUploadSizeExceededException("The uploaded data exceeds the max size that can be uploaded (the max size is "
-					+ StringTool.strSize(m_sizeMax) + ", the upload is " + StringTool.strSize(requestSize) + ")");
+			throw new FileUploadSizeExceededException("The uploaded data exceeds the max size that can be uploaded (the max size is " + StringTool.strSize(m_sizeMax) + ", the upload is "
+				+ StringTool.strSize(requestSize) + ")");
 		MiniParser p = new MiniParser();
 		byte[] boundary = decodeBoundary(p, contentType);
 		if(boundary == null)
@@ -165,8 +169,7 @@ public class UploadParser {
 							nextSubPart = multi.readBoundary();
 						}
 						multi.setBoundary(boundary); // Reset boundary for originating.
-					}
-					else {
+					} else {
 						//-- Not a multithingy: get single field or file
 						String filename = decodeHeaderItem(headermap, CONTENT_DISPOSITION, "filename", FORM_DATA, ATTACHMENT, p);
 						readItem(p, l, headermap, multi, fieldname, filename);
@@ -178,8 +181,7 @@ public class UploadParser {
 					return l;
 				}
 			}
-		}
-		finally {
+		} finally {
 			if(!ok)
 				discardItems(l);
 		}
@@ -202,8 +204,7 @@ public class UploadParser {
 				//-- Convert boundary to bytes
 				try {
 					return val.getBytes("ISO-8859-1");
-				}
-				catch(Exception x) {
+				} catch(Exception x) {
 					return val.getBytes();
 				}
 			}
@@ -247,7 +248,7 @@ public class UploadParser {
 	 * @param fn
 	 * @throws IOException
 	 */
-//	@SuppressWarnings("null")
+	//	@SuppressWarnings("null")
 	private void readItem(final MiniParser p, final List<UploadItem> l, final Map<String, Object> headermap, final MultipartStream multi, final String fieldname, String fn) throws IOException {
 		String contenttype = getStringHeader(headermap, CONTENT_TYPE);
 		String charset = null;
@@ -261,7 +262,7 @@ public class UploadParser {
 			}
 		}
 		if(charset == null)
-			charset = "utf-8";					// URGENT FIXME Where is the encoding hidden if not here??
+			charset = "utf-8"; // URGENT FIXME Where is the encoding hidden if not here??
 
 		/*
 		 *
@@ -276,9 +277,9 @@ public class UploadParser {
 		ImplUploadItem ui = new ImplUploadItem(fieldname, contenttype, charset, fn, isfile);
 
 		//-- Copy data to an output buffer or output file, depending on the size.
-		OutputStream			os	= null;
-		ByteArrayOutputStream	bos	= null;
-		File					resf= null;
+		OutputStream os = null;
+		ByteArrayOutputStream bos = null;
+		File resf = null;
 
 		//-- If this is a file write it to a tempfile, else write it to a byte array && convert to a string value
 		boolean ok = false;
@@ -287,26 +288,32 @@ public class UploadParser {
 				String ext = FileTool.getFileExtension(fn);
 				if(ext.length() == 0)
 					ext = "tmp";
-				resf	= File.createTempFile("upld", "."+ext);
-				os	= new FileOutputStream(resf);
+				resf = File.createTempFile("upld", "." + ext);
+				os = new FileOutputStream(resf);
 			} else {
-				bos	= new ByteArrayOutputStream(8192);
+				bos = new ByteArrayOutputStream(8192);
 				os = bos;
 			}
 			multi.readBodyData(os);
 			os.close();
-			os	= null;
+			os = null;
 			ok = true;
 		} finally {
-			try { if(os != null) os.close(); } catch(Exception x) {}
-			if(! ok) {
-				try { if(resf != null) resf.delete(); } catch(Exception x) {}
+			try {
+				if(os != null)
+					os.close();
+			} catch(Exception x) {}
+			if(!ok) {
+				try {
+					if(resf != null)
+						resf.delete();
+				} catch(Exception x) {}
 			}
 		}
 
 		//-- Decode worked, and data flushed either to bytearray or file...
 		if(bos != null) {
-			byte[]	data = bos.toByteArray();
+			byte[] data = bos.toByteArray();
 			String val = new String(data, charset);
 			ui.setValue(val);
 		} else {

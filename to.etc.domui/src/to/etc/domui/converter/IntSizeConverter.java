@@ -7,7 +7,7 @@ import to.etc.util.*;
 
 public class IntSizeConverter implements IConverter {
 	public String convertObjectToString(Locale loc, Object in) throws UIException {
-		Integer	val = (Integer) in;
+		Integer val = (Integer) in;
 		return StringTool.strSize(val.longValue());
 	}
 

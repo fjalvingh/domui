@@ -14,8 +14,9 @@ import to.etc.domui.dom.html.*;
  * Created on Jun 1, 2008
  */
 public class CaptionedPanel extends Div {
-	private NodeContainer		m_contentContainer;
-	private NodeContainer		m_titleContainer;
+	private NodeContainer m_contentContainer;
+
+	private NodeContainer m_titleContainer;
 
 	/**
 	 * Create a panel with the specified String title and a content node.
@@ -25,6 +26,7 @@ public class CaptionedPanel extends Div {
 	public CaptionedPanel(String title, NodeContainer content) {
 		this(new TextNode(title), content);
 	}
+
 	public CaptionedPanel(NodeContainer title, NodeContainer content) {
 		setCssClass("ui-pnl-outer");
 		m_titleContainer = title;
@@ -72,6 +74,7 @@ public class CaptionedPanel extends Div {
 	public NodeContainer getContent() {
 		return m_contentContainer;
 	}
+
 	/**
 	 * Get the current title container.
 	 * @return
@@ -86,7 +89,7 @@ public class CaptionedPanel extends Div {
 	 * @see to.etc.domui.dom.html.NodeBase#setLiteralTitle(java.lang.String)
 	 */
 	@Override
-	public void	setLiteralTitle(String txt) {
+	public void setLiteralTitle(String txt) {
 		getTitleContainer().setButtonText(txt);
 	}
 
@@ -94,7 +97,7 @@ public class CaptionedPanel extends Div {
 	 * Replaces the current title container with a different one.
 	 * @param c
 	 */
-	public void	setTitleContainer(NodeContainer c) {
+	public void setTitleContainer(NodeContainer c) {
 		m_titleContainer.remove();
 		m_titleContainer = c;
 		add(0, c);
@@ -105,7 +108,7 @@ public class CaptionedPanel extends Div {
 	 * Replaces the current content container with a different one.
 	 * @param c
 	 */
-	public void	setContentContainer(NodeContainer c) {
+	public void setContentContainer(NodeContainer c) {
 		m_contentContainer.remove();
 		m_contentContainer = c;
 		add(1, c);

@@ -3,45 +3,54 @@ package to.etc.domui.server;
 import java.io.*;
 import java.util.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
-import to.etc.net.NetTools;
+import to.etc.net.*;
 import to.etc.util.*;
 
 public class RequestContextImpl implements RequestContext, IAttributeContainer {
-	private HttpServletRequest		m_request;
-	private HttpServletResponse		m_response;
-	private DomApplication			m_application;
-	private AppSession				m_session;
-	private WindowSession			m_windowSession;
-	private String					m_urlin;
-	private String					m_extension;
-	private String					m_webapp;
-//	private boolean					m_logging = true;
-	private StringWriter			m_sw;
-	private Writer					m_outWriter;
-	private Map<String, Object>		m_attributeMap = Collections.EMPTY_MAP;
+	private HttpServletRequest m_request;
+
+	private HttpServletResponse m_response;
+
+	private DomApplication m_application;
+
+	private AppSession m_session;
+
+	private WindowSession m_windowSession;
+
+	private String m_urlin;
+
+	private String m_extension;
+
+	private String m_webapp;
+
+	//	private boolean					m_logging = true;
+	private StringWriter m_sw;
+
+	private Writer m_outWriter;
+
+	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
 	RequestContextImpl(DomApplication app, AppSession ses, HttpServletRequest request, HttpServletResponse response) {
 		m_response = response;
 		m_application = app;
-		m_session	= ses;
-		m_request	= request;
+		m_session = ses;
+		m_request = request;
 
 		//-- If this is a multipart (file transfer) request we need to parse the request,
 		m_urlin = request.getRequestURI();
-		int	pos	= m_urlin.lastIndexOf('.');
+		int pos = m_urlin.lastIndexOf('.');
 		m_extension = "";
 		if(pos != -1)
-			m_extension = m_urlin.substring(pos+1).toLowerCase();
+			m_extension = m_urlin.substring(pos + 1).toLowerCase();
 		if(m_urlin.startsWith("/"))
 			m_urlin = m_urlin.substring(1);
-		if(m_application.getUrlExtension().equals(m_extension) || m_urlin.contains(".part"))		// QD Fix for upload
-			m_request	= UploadParser.wrapIfNeeded(request);			// Make multipart wrapper if multipart/form-data
+		if(m_application.getUrlExtension().equals(m_extension) || m_urlin.contains(".part")) // QD Fix for upload
+			m_request = UploadParser.wrapIfNeeded(request); // Make multipart wrapper if multipart/form-data
 
 		m_webapp = request.getContextPath();
 		if(m_webapp == null)
@@ -49,23 +58,24 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 		else {
 			if(m_webapp.startsWith("/"))
 				m_webapp = m_webapp.substring(1);
-			if(! m_webapp.endsWith("/"))
+			if(!m_webapp.endsWith("/"))
 				m_webapp = m_webapp + "/";
-			if(! m_urlin.startsWith(m_webapp)) {
+			if(!m_urlin.startsWith(m_webapp)) {
 				throw new IllegalStateException("webapp url incorrect: lousy SUN spec");
 			}
 			m_urlin = m_urlin.substring(m_webapp.length());
 		}
 
-//		for(Enumeration<String> en = m_request.getHeaderNames(); en.hasMoreElements();) {
-//			String name = en.nextElement();
-//			System.out.println("Header: "+name);
-//			for(Enumeration<String> en2 = m_request.getHeaders(name); en2.hasMoreElements();) {
-//				String val = en2.nextElement();
-//				System.out.println("     ="+val);
-//			}
-//		}
+		//		for(Enumeration<String> en = m_request.getHeaderNames(); en.hasMoreElements();) {
+		//			String name = en.nextElement();
+		//			System.out.println("Header: "+name);
+		//			for(Enumeration<String> en2 = m_request.getHeaders(name); en2.hasMoreElements();) {
+		//				String val = en2.nextElement();
+		//				System.out.println("     ="+val);
+		//			}
+		//		}
 	}
+
 	/**
 	 * @see to.etc.domui.server.RequestContext#getApplication()
 	 */
@@ -73,15 +83,15 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 		return m_application;
 	}
 
-	private boolean			m_amLockingSession;
+	private boolean m_amLockingSession;
 
 	/**
 	 * Get the session for this context.
 	 * @see to.etc.domui.server.RequestContext#getSession()
 	 */
 	final public AppSession getSession() {
-		m_session.internalLockSession();						// Someone uses session -> lock it for use by CURRENT-THREAD.
-		if(! m_amLockingSession)
+		m_session.internalLockSession(); // Someone uses session -> lock it for use by CURRENT-THREAD.
+		if(!m_amLockingSession)
 			m_session.internalCheckExpiredWindowSessions();
 		m_amLockingSession = true;
 		return m_session;
@@ -102,18 +112,18 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	 *
 	 * @see to.etc.domui.server.RequestContext#getWindowSession()
 	 */
-	final public WindowSession	getWindowSession() {
+	final public WindowSession getWindowSession() {
 		if(m_windowSession != null)
 			return m_windowSession;
 
 		//-- Conversation manager needed.. Can we find one?
-		String	cid	= getParameter(Constants.PARAM_CONVERSATION_ID);
+		String cid = getParameter(Constants.PARAM_CONVERSATION_ID);
 		if(cid != null) {
 			String[] cida = DomUtil.decodeCID(cid);
 			m_windowSession = getSession().findWindowSession(cida[0]);
 			if(m_windowSession != null)
 				return m_windowSession;
-			
+
 		}
 		throw new IllegalStateException("WindowSession is not known!!");
 	}
@@ -124,10 +134,11 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 			m_amLockingSession = false;
 		}
 	}
+
 	/**
 	 * If this context has caused the conversations to become attached detach 'm.
 	 */
-	private void	internalDetachConversations() {
+	private void internalDetachConversations() {
 		if(m_windowSession != null)
 			getWindowSession().internalDetachConversations();
 	}
@@ -135,8 +146,8 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	/**
 	 * If this was an upload we discard all files that have not yet been claimed.
 	 */
-	private void	internalReleaseUploads() {
-		if(! (m_request instanceof UploadHttpRequestWrapper))
+	private void internalReleaseUploads() {
+		if(!(m_request instanceof UploadHttpRequestWrapper))
 			return;
 
 		UploadHttpRequestWrapper w = (UploadHttpRequestWrapper) m_request;
@@ -149,10 +160,10 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	void onRequestFinished() {
 		internalDetachConversations();
 		internalReleaseUploads();
-//		m_session.getWindowSession().dump();
-		internalUnlockSession();							// Unlock any session access.
+		//		m_session.getWindowSession().dump();
+		internalUnlockSession(); // Unlock any session access.
 	}
-	
+
 
 	/**
 	 * @see to.etc.domui.server.RequestContext#getExtension()
@@ -160,9 +171,11 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	public String getExtension() {
 		return m_extension;
 	}
+
 	public HttpServletRequest getRequest() {
 		return m_request;
 	}
+
 	public HttpServletResponse getResponse() {
 		return m_response;
 	}
@@ -170,21 +183,22 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	/**
 	 * @see to.etc.domui.server.RequestContext#getInputPath()
 	 */
-	public final String		getInputPath() {
+	public final String getInputPath() {
 		return m_urlin;
 	}
+
 	/**
 	 * @see to.etc.domui.server.RequestContext#getUserAgent()
 	 */
-	public String	getUserAgent() {
+	public String getUserAgent() {
 		return m_request.getHeader("user-agent");
 	}
 
-	protected void	flush() throws Exception {
+	protected void flush() throws Exception {
 		if(m_sw != null) {
 			if(getApplication().logOutput()) {
 				String res = m_sw.getBuffer().toString();
-				File	tgt = new File("/tmp/last-domui-output.xml");
+				File tgt = new File("/tmp/last-domui-output.xml");
 				try {
 					FileTool.writeFileFromString(tgt, res, "utf-8");
 				} catch(Exception x) {}
@@ -196,31 +210,31 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 			getResponse().getWriter().append(m_sw.getBuffer());
 			m_sw = null;
 		}
-		
+
 	}
 
-	protected void	discard() throws IOException {
-//		if(m_sw != null) {
-//			String res = m_sw.getBuffer().toString();
-//			System.out.println("---- rendered output:");
-//			System.out.println(res);
-//			System.out.println("---- end");
-//			getResponse().getWriter().append(res);
-//		}
+	protected void discard() throws IOException {
+	//		if(m_sw != null) {
+	//			String res = m_sw.getBuffer().toString();
+	//			System.out.println("---- rendered output:");
+	//			System.out.println(res);
+	//			System.out.println("---- end");
+	//			getResponse().getWriter().append(res);
+	//		}
 	}
 
 	/**
 	 * @see to.etc.domui.server.RequestContext#getRelativePath(java.lang.String)
 	 */
-	public String	getRelativePath(String rel) {
-		StringBuilder	sb = new StringBuilder();
+	public String getRelativePath(String rel) {
+		StringBuilder sb = new StringBuilder();
 		sb.append(NetTools.getApplicationURL(getRequest()));
 		sb.append(rel);
 		return sb.toString();
 	}
 
-	public String	getRelativeThemePath(String frag) {
-		return "$themes/"+getSession().getCurrentTheme()+"/"+frag;
+	public String getRelativeThemePath(String frag) {
+		return "$themes/" + getSession().getCurrentTheme() + "/" + frag;
 	}
 
 	/**
@@ -241,65 +255,67 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	/**
 	 * @see to.etc.domui.server.RequestContext#getOutputWriter()
 	 */
-	public Writer	getOutputWriter() throws IOException {
+	public Writer getOutputWriter() throws IOException {
 		if(m_outWriter == null) {
-			m_sw	= new StringWriter(8192);
+			m_sw = new StringWriter(8192);
 			m_outWriter = m_sw;
 		}
 		return m_outWriter;
-		
-//		if(m_outWriter == null) {
-//			if(m_logging) {
-//				m_sw = new StringWriter();
-//				m_outWriter = new TeeWriter(getResponse().getWriter(), m_sw);
-//			} else
-//				m_outWriter = getResponse().getWriter();
-//		}
-//		return m_outWriter;
+
+		//		if(m_outWriter == null) {
+		//			if(m_logging) {
+		//				m_sw = new StringWriter();
+		//				m_outWriter = new TeeWriter(getResponse().getWriter(), m_sw);
+		//			} else
+		//				m_outWriter = getResponse().getWriter();
+		//		}
+		//		return m_outWriter;
 	}
 
 	public boolean hasPermission(String permissionName) {
 		return m_request.isUserInRole(permissionName);
 	}
-	
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ParameterInfo implementation						*/
 	/*--------------------------------------------------------------*/
-	
+
 	/**
 	 * @see to.etc.domui.server.RequestContext#getParameter(java.lang.String)
 	 */
 	public String getParameter(String name) {
 		return getRequest().getParameter(name);
 	}
+
 	/**
 	 * @see to.etc.domui.server.RequestContext#getParameters(java.lang.String)
 	 */
 	public String[] getParameters(String name) {
 		return getRequest().getParameterValues(name);
 	}
+
 	/**
 	 * @see to.etc.domui.server.RequestContext#getParameterNames()
 	 */
 	public String[] getParameterNames() {
-		return (String[])getRequest().getParameterMap().keySet().toArray(new String[getRequest().getParameterMap().size()]);
+		return (String[]) getRequest().getParameterMap().keySet().toArray(new String[getRequest().getParameterMap().size()]);
 	}
 
 	/**
 	 * Returns the names of all file parameters.
 	 * @return
 	 */
-	public String[]	getFileParameters() {
-		if(! (m_request instanceof UploadHttpRequestWrapper))
+	public String[] getFileParameters() {
+		if(!(m_request instanceof UploadHttpRequestWrapper))
 			return new String[0];
-		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper)m_request;
+		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper) m_request;
 		return urw.getFileItemMap().keySet().toArray(new String[urw.getFileItemMap().size()]);
 	}
 
-	public UploadItem[]	getFileParameter(String name) {
-		if(! (m_request instanceof UploadHttpRequestWrapper))
+	public UploadItem[] getFileParameter(String name) {
+		if(!(m_request instanceof UploadHttpRequestWrapper))
 			return null;
-		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper)m_request;
+		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper) m_request;
 		return urw.getFileItems(name);
 	}
 
@@ -317,6 +333,7 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	public Object getAttribute(String name) {
 		return m_attributeMap.get(name);
 	}
+
 	public void setAttribute(String name, Object value) {
 		if(m_attributeMap == Collections.EMPTY_MAP)
 			m_attributeMap = new HashMap<String, Object>();

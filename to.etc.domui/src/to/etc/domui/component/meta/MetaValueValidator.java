@@ -9,6 +9,7 @@ import to.etc.domui.converter.*;
  * Created on Dec 24, 2008
  */
 public @interface MetaValueValidator {
-	public Class<? extends IValueValidator<?>>	validator();
-	public String[]	parameters() default {};
+	public Class< ? extends IValueValidator< ? >> validator();
+
+	public String[] parameters() default {};
 }

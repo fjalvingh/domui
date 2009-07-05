@@ -6,16 +6,17 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.util.*;
 
 public interface ClassMetaModel {
-	public Class<?>						getActualClass();
-	public List<PropertyMetaModel>		getProperties();
-	
+	public Class< ? > getActualClass();
+
+	public List<PropertyMetaModel> getProperties();
+
 	/**
 	 * Returns the named property on <i>this</i> class. This does not allow
 	 * a property path (dotted names).
 	 * @param name
 	 * @return
 	 */
-	public PropertyMetaModel			findSimpleProperty(String name);
+	public PropertyMetaModel findSimpleProperty(String name);
 
 	/**
 	 * Returns a property reference to the specified property by following the dotted path
@@ -26,17 +27,18 @@ public interface ClassMetaModel {
 	 * @param name
 	 * @return
 	 */
-	public PropertyMetaModel			findProperty(String name);
+	public PropertyMetaModel findProperty(String name);
 
-	public boolean						isPersistentClass();
-	public PropertyMetaModel			getPrimaryKey();
+	public boolean isPersistentClass();
+
+	public PropertyMetaModel getPrimaryKey();
 
 	/**
 	 * If this class is an enum or represents some enumerated value, this returns the possible value objects. If
 	 * this is not a domain type this MUST return null.
 	 * @return
 	 */
-	public Object[]						getDomainValues();
+	public Object[] getDomainValues();
 
 	/**
 	 * For a Domain type (Enum, Boolean) this returns a label for a given domain value. When called for
@@ -45,19 +47,19 @@ public interface ClassMetaModel {
 	 * @param value
 	 * @return
 	 */
-	public String						getDomainLabel(Locale loc, Object value);
+	public String getDomainLabel(Locale loc, Object value);
 
 	/**
 	 * Returns the name of this entity in user terms; the returned name is singular.
 	 * @return
 	 */
-	public String						getUserEntityName();
+	public String getUserEntityName();
 
 	/**
 	 * Returns the name of this entity in user terms; the returned name is plural.
 	 * @return
 	 */
-	public String						getUserEntityNamePlural();
+	public String getUserEntityNamePlural();
 
 	/**
 	 * If this class is the UP in a relation this specifies that it must
@@ -67,36 +69,36 @@ public interface ClassMetaModel {
 	 *
 	 * @return
 	 */
-	public Class<? extends IComboDataSet<?>>		getComboDataSet();
+	public Class< ? extends IComboDataSet< ? >> getComboDataSet();
 
 	/**
 	 * When this relation-property is presented as a single field this can contain a class to render
 	 * that field as a string.
 	 * @return
 	 */
-	public Class<? extends ILabelStringRenderer<?>>	getComboLabelRenderer();
+	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer();
 
-	public Class<? extends INodeContentRenderer<?>>	getComboNodeRenderer();
+	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
 
 	/**
 	 * If this object is shown in a combobox it needs to show the following
 	 * properties as the display value.
 	 * @return
 	 */
-	public List<DisplayPropertyMetaModel>		getComboDisplayProperties();
-	
+	public List<DisplayPropertyMetaModel> getComboDisplayProperties();
+
 	/**
 	 * If this object is shown in a Table it needs to show the following
 	 * properties there.
 	 * @return
 	 */
-	public List<DisplayPropertyMetaModel>		getTableDisplayProperties();
+	public List<DisplayPropertyMetaModel> getTableDisplayProperties();
 
-	public List<SearchPropertyMetaModel> 		getSearchProperties();
+	public List<SearchPropertyMetaModel> getSearchProperties();
 
-	public String			getDefaultSortProperty();
+	public String getDefaultSortProperty();
 
-	public SortableType		getDefaultSortDirection();
+	public SortableType getDefaultSortDirection();
 
 	/**
 	 * When present this gives a hint to the component factories to help with choosing a

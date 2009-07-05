@@ -15,12 +15,12 @@ import to.etc.domui.util.upload.*;
 public class UploadPart implements UnbufferedPartFactory {
 	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
 		try {
-			ComponentPartRenderer	r = new ComponentPartRenderer();
+			ComponentPartRenderer r = new ComponentPartRenderer();
 			r.initialize(app, param, rurl);
-			FileUpload	fu = (FileUpload) r.getComponent();
-			UploadItem[]	uiar = param.getFileParameter(fu.getInput().getActualID());
+			FileUpload fu = (FileUpload) r.getComponent();
+			UploadItem[] uiar = param.getFileParameter(fu.getInput().getActualID());
 			if(uiar != null) {
-				for(UploadItem ui: uiar) {
+				for(UploadItem ui : uiar) {
 					fu.getFiles().add(ui);
 					r.getConversation().registerUploadTempFile(ui.getFile());
 				}
@@ -28,7 +28,7 @@ public class UploadPart implements UnbufferedPartFactory {
 			fu.forceRebuild();
 
 			//-- Render an optimal delta as the response,
-			ServerTools.generateNoCache(param.getResponse());					// Do not allow the browser to cache
+			ServerTools.generateNoCache(param.getResponse()); // Do not allow the browser to cache
 			ApplicationRequestHandler.renderOptimalDelta(param, r.getPage());
 		} catch(Exception x) {
 			x.printStackTrace();

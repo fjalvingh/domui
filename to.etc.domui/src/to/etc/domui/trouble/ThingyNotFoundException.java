@@ -7,15 +7,17 @@ package to.etc.domui.trouble;
  * Created on Jun 4, 2008
  */
 public class ThingyNotFoundException extends RuntimeException {
-	private String	m_details;
+	private String m_details;
 
 	public ThingyNotFoundException(String message, String details) {
 		super(message);
 		m_details = details;
 	}
+
 	public ThingyNotFoundException(String message) {
 		super(message);
 	}
+
 	public String getDetails() {
 		return m_details;
 	}

@@ -10,13 +10,14 @@ import to.etc.domui.converter.*;
  * Created on Dec 24, 2008
  */
 public class MetaPropertyValidatorImpl implements PropertyMetaValidator {
-	private Class<? extends IValueValidator<?>>	m_vclass;
-	private String[]							m_parameters;
+	private Class< ? extends IValueValidator< ? >> m_vclass;
+
+	private String[] m_parameters;
 
 	public MetaPropertyValidatorImpl(Class< ? extends IValueValidator< ? >> vclass) {
 		m_vclass = vclass;
 	}
-	
+
 	public MetaPropertyValidatorImpl(Class< ? extends IValueValidator< ? >> vclass, String[] parameters) {
 		m_vclass = vclass;
 		m_parameters = parameters;
@@ -25,12 +26,15 @@ public class MetaPropertyValidatorImpl implements PropertyMetaValidator {
 	public Class< ? extends IValueValidator< ? >> getValidatorClass() {
 		return m_vclass;
 	}
+
 	public void setValidatorClass(Class< ? extends IValueValidator< ? >> vclass) {
 		m_vclass = vclass;
 	}
+
 	public String[] getParameters() {
 		return m_parameters;
 	}
+
 	public void setParameters(String[] parameters) {
 		m_parameters = parameters;
 	}

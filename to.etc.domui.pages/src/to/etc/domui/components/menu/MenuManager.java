@@ -32,14 +32,13 @@ final public class MenuManager {
 	/**
 	 * Forbidden constructor.
 	 */
-	private MenuManager() {
-	}
+	private MenuManager() {}
 
 	public static MenuManager getInstance() {
 		return m_instance;
 	}
 
-	private synchronized void	add(final MenuItemImpl m) {
+	private synchronized void add(final MenuItemImpl m) {
 		m_newItemList.add(m);
 	}
 
@@ -82,8 +81,8 @@ final public class MenuManager {
 	 * @param parameters
 	 * @return
 	 */
-	public MenuItemImpl registerMenuItem(final BundleRef bundle, final String keyBase, final Class<? extends UrlPage> pageClass, final Object... parameters) {
-		MenuItemImpl	m = registerMenuItem(bundle, keyBase);
+	public MenuItemImpl registerMenuItem(final BundleRef bundle, final String keyBase, final Class< ? extends UrlPage> pageClass, final Object... parameters) {
+		MenuItemImpl m = registerMenuItem(bundle, keyBase);
 		m.setPageClass(pageClass);
 		m.setPageParameters(new PageParameters(parameters));
 		return m;
@@ -94,22 +93,22 @@ final public class MenuManager {
 	 * @param m
 	 * @param pageClass
 	 */
-	private void	calculateIcon(final MenuItemImpl m, final Class<? extends UrlPage> clz) {
+	private void calculateIcon(final MenuItemImpl m, final Class< ? extends UrlPage> clz) {
 		//-- 1. Is an icon or icon resource specified in any attached UIMenu annotation? If so use that;
-		UIMenu	ma	= clz.getAnnotation(UIMenu.class);
+		UIMenu ma = clz.getAnnotation(UIMenu.class);
 		if(ma != null) {
 			if(ma.iconName() != null) {
 				if(ma.iconBase() != Object.class)
-					m.setIconPath(DomUtil.getJavaResourceRURL(ma.iconBase(), ma.iconName()));			// Set class-based URL
+					m.setIconPath(DomUtil.getJavaResourceRURL(ma.iconBase(), ma.iconName())); // Set class-based URL
 				else
 					m.setIconPath(ma.iconName());
 			}
 		}
 
 		//-- Not set using a UIMenu annotation. Is a .png with the same classname available?
-		String	cn	= DomUtil.getClassNameOnly(clz)+".png";
+		String cn = DomUtil.getClassNameOnly(clz) + ".png";
 		if(DomUtil.hasResource(clz, cn)) {
-			m.setIconPath(DomUtil.getJavaResourceRURL(clz, cn));	// Set class-based URL
+			m.setIconPath(DomUtil.getJavaResourceRURL(clz, cn)); // Set class-based URL
 			return;
 		}
 	}
@@ -120,8 +119,8 @@ final public class MenuManager {
 	 * @param parameters
 	 * @return
 	 */
-	public MenuItemImpl registerMenuItem(final Class<? extends UrlPage> pageClass, final Object... parameters) {
-		MenuItemImpl	m	= new MenuItemImpl(this);
+	public MenuItemImpl registerMenuItem(final Class< ? extends UrlPage> pageClass, final Object... parameters) {
+		MenuItemImpl m = new MenuItemImpl(this);
 		m.setPageClass(pageClass);
 		m.setPageParameters(new PageParameters(parameters));
 		add(m);
@@ -139,17 +138,17 @@ final public class MenuManager {
 		 * locations specified in AppUIUtil; it will then use this single source for /all/ strings.
 		 * These things all set a bundle and key for all items.
 		 */
-		UIMenu	ma = pageClass.getAnnotation(UIMenu.class);		// Is annotated with UIMenu?
+		UIMenu ma = pageClass.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
 		if(ma != null) {
-			BundleRef	ref	= DomUtil.findBundle(ma, pageClass);
+			BundleRef ref = DomUtil.findBundle(ma, pageClass);
 			if(ref != null) {
 				boolean ok = false;
 				if(ma.baseKey().length() != 0) {
-					m.setLabelKey(ma.baseKey()+".label");
-					m.setTitleKey(ma.baseKey()+".title");
-					m.setSearchKey(ma.baseKey()+".search");
-					m.setDescKey(ma.baseKey()+".desc");
-					ok	= true;
+					m.setLabelKey(ma.baseKey() + ".label");
+					m.setTitleKey(ma.baseKey() + ".title");
+					m.setSearchKey(ma.baseKey() + ".search");
+					m.setDescKey(ma.baseKey() + ".desc");
+					ok = true;
 				}
 				if(ma.labelKey().length() != 0) {
 					m.setLabelKey(ma.labelKey());
@@ -174,7 +173,7 @@ final public class MenuManager {
 		}
 
 		//-- Not using UIMenu; use page/package based structures. This depends on whether a Page resource exists.
-		BundleRef	br	= DomUtil.getClassBundle(pageClass);		// PageClass bundle
+		BundleRef br = DomUtil.getClassBundle(pageClass); // PageClass bundle
 		if(br.exists()) {
 			//-- Use page-based resources.
 			m.setMsgBundle(br);
@@ -186,19 +185,19 @@ final public class MenuManager {
 		}
 
 		//-- Try package-based keys
-		br	= DomUtil.getPackageBundle(pageClass);	// Package bundle.
+		br = DomUtil.getPackageBundle(pageClass); // Package bundle.
 		if(br.exists()) {
 			//-- Use the package-based bundle for $ provided some exist...
-			String	bn = pageClass.getName();
-			bn = bn.substring(bn.lastIndexOf('.')+1);	// Class name only,
-			String	kl = bn+".label";
-			String	kt = bn+".title";
+			String bn = pageClass.getName();
+			bn = bn.substring(bn.lastIndexOf('.') + 1); // Class name only,
+			String kl = bn + ".label";
+			String kt = bn + ".title";
 			if(br.findMessage(Locale.US, kl) != null || br.findMessage(Locale.US, kt) != null) {
 				m.setMsgBundle(br);
 				m.setLabelKey(kl);
 				m.setTitleKey(kt);
-				m.setSearchKey(bn+".search");
-				m.setDescKey(bn+".desc");
+				m.setSearchKey(bn + ".search");
+				m.setDescKey(bn + ".desc");
 				return m;
 			}
 		}
@@ -211,8 +210,8 @@ final public class MenuManager {
 	 * Registers a ROOT submenu (can be other level if one of the setLocation() calls gets called after this).
 	 * @return
 	 */
-	public MenuItemImpl	registerSubMenu(final BundleRef bundle, final String keyBase) {
-		MenuItemImpl	m	= registerMenuItem(bundle, keyBase);
+	public MenuItemImpl registerSubMenu(final BundleRef bundle, final String keyBase) {
+		MenuItemImpl m = registerMenuItem(bundle, keyBase);
 		m.setSubMenu(true);
 
 		return m;
@@ -226,8 +225,8 @@ final public class MenuManager {
 	 * @param order
 	 * @return
 	 */
-	public MenuItemImpl	registerSubMenu(final BundleRef bundle, final String keyBase, final MenuItemImpl parent, final int order) {
-		MenuItemImpl	m = registerSubMenu(bundle, keyBase);
+	public MenuItemImpl registerSubMenu(final BundleRef bundle, final String keyBase, final MenuItemImpl parent, final int order) {
+		MenuItemImpl m = registerSubMenu(bundle, keyBase);
 		m.setLocation(parent, order);
 		return m;
 	}
@@ -235,8 +234,9 @@ final public class MenuManager {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Return the global menu. 							*/
 	/*--------------------------------------------------------------*/
-	private final Map<String, MenuItemImpl>		m_idMap = new HashMap<String, MenuItemImpl>();
-	private final List<IMenuItem>			m_rootMenu = new ArrayList<IMenuItem>();
+	private final Map<String, MenuItemImpl> m_idMap = new HashMap<String, MenuItemImpl>();
+
+	private final List<IMenuItem> m_rootMenu = new ArrayList<IMenuItem>();
 
 	/**
 	 * Return the global central menu. This is the menu in the structure as specified by the system, and without
@@ -245,43 +245,43 @@ final public class MenuManager {
 	 *
 	 * @return
 	 */
-	public synchronized List<IMenuItem>		getRootMenu() {
+	public synchronized List<IMenuItem> getRootMenu() {
 		if(m_newItemList.size() > 0) {
 			//-- Register all new items! First add them by ID to the idMAP so we can locate them when looking for parents,
-			for(MenuItemImpl m: m_newItemList) {
+			for(MenuItemImpl m : m_newItemList) {
 				//-- Assign ID;
-				String	id	= m.getId();
+				String id = m.getId();
 				if(id == null) {
 					id = m.getPageClass().getName();
 					if(m.getPageParameters() != null)
-						id	+= "?"+m.getPageParameters().toString();
+						id += "?" + m.getPageParameters().toString();
 					m.setId(id);
 				}
 				if(id != null) {
 					if(null != m_idMap.put(id, m))
-						System.err.println("MENU: Duplicate menu ID="+id);
+						System.err.println("MENU: Duplicate menu ID=" + id);
 				}
 			}
 
 			//-- Now construct the tree inside all nodes.
-			for(MenuItemImpl m: m_newItemList) {
+			for(MenuItemImpl m : m_newItemList) {
 				//-- Locate the specified parent,
-				MenuItemImpl	p = locateParent(m);		// Can we find a parent?
+				MenuItemImpl p = locateParent(m); // Can we find a parent?
 				if(p == null)
-					m_rootMenu.add(m);						// Not found: add to root,
+					m_rootMenu.add(m); // Not found: add to root,
 				else {
 					if(p.getChildren().contains(m))
 						throw new IllegalStateException("Re-adding a node already present in the menu!?");
-					p.getChildren().add(m);					// Reorder is done in proxied menu.
+					p.getChildren().add(m); // Reorder is done in proxied menu.
 					m.setParent(p);
 				}
 			}
-			m_newItemList.clear();									// Discard: all items registered ok.
+			m_newItemList.clear(); // Discard: all items registered ok.
 		}
 		return m_rootMenu;
 	}
 
-	private MenuItemImpl	locateParent(final MenuItemImpl m) {
+	private MenuItemImpl locateParent(final MenuItemImpl m) {
 		if(m.getParent() != null)
 			return m.getParent();
 		if(m.getParentID() != null) {
@@ -300,28 +300,28 @@ final public class MenuManager {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<IMenuItem>		createUserMenu(final IMenuItemFilter filter) throws Exception {
-		List<IMenuItem>		root = getRootMenu();
-		List<IMenuItem>		res	= createSubMenu(root, filter, null);
+	public List<IMenuItem> createUserMenu(final IMenuItemFilter filter) throws Exception {
+		List<IMenuItem> root = getRootMenu();
+		List<IMenuItem> res = createSubMenu(root, filter, null);
 		return res;
 	}
 
-	private List<IMenuItem>	createSubMenu(final List<IMenuItem> root, final IMenuItemFilter filter, final IMenuItem parent) throws Exception {
-		List<IMenuItem>	res = new ArrayList<IMenuItem>();
-		for(IMenuItem mi: root) {
-			MenuItemImpl	m = (MenuItemImpl)mi;
+	private List<IMenuItem> createSubMenu(final List<IMenuItem> root, final IMenuItemFilter filter, final IMenuItem parent) throws Exception {
+		List<IMenuItem> res = new ArrayList<IMenuItem>();
+		for(IMenuItem mi : root) {
+			MenuItemImpl m = (MenuItemImpl) mi;
 			if(filter != null) {
 				filter.setNode(m);
-				if(! filter.isAllowed())
+				if(!filter.isAllowed())
 					continue;
 			}
 
-			MenuItemProxy	p	= new MenuItemProxy(m);
+			MenuItemProxy p = new MenuItemProxy(m);
 			if(m.isSubMenu()) {
-				p.setChildren( createSubMenu(m.getChildren(), filter, p));
+				p.setChildren(createSubMenu(m.getChildren(), filter, p));
 			}
 			p.setParent(parent);
-			if(! m.isSubMenu() || p.getChildren().size() > 0)
+			if(!m.isSubMenu() || p.getChildren().size() > 0)
 				res.add(p);
 		}
 		return res;

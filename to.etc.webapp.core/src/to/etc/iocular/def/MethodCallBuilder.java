@@ -1,14 +1,11 @@
 package to.etc.iocular.def;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-import to.etc.iocular.container.FailedAlternative;
-import to.etc.iocular.container.MethodInvoker;
-import to.etc.iocular.util.ClassUtil;
+import java.lang.annotation.*;
+import java.lang.reflect.*;
+import java.util.*;
+
+import to.etc.iocular.container.*;
+import to.etc.iocular.util.*;
 
 /**
  * Some kind of method or constructor call builder.
@@ -17,41 +14,39 @@ import to.etc.iocular.util.ClassUtil;
  * Created on Apr 22, 2007
  */
 public class MethodCallBuilder {
-	private final ComponentBuilder	m_component;
+	private final ComponentBuilder m_component;
 
-	private final Class<?>			m_baseClass;
+	private final Class< ? > m_baseClass;
 
-	private final String			m_methodName;
+	private final String m_methodName;
 
 	static private enum ParamMode {
-		UNKNOWN,
-		NUMBERED,
-		UNNUMBERED
+		UNKNOWN, NUMBERED, UNNUMBERED
 	}
 
-	private ParamMode				m_paramMode = ParamMode.UNKNOWN;
+	private ParamMode m_paramMode = ParamMode.UNKNOWN;
 
-	private boolean					m_thisIsSelf;
+	private boolean m_thisIsSelf;
 
 	/**
 	 * The defined parameters for this method as set by the builder. The order is undefined. If parameters are set by number
 	 * isNumbered() is true; in that case each parameter's number has an assignment.
 	 *
 	 */
-	private final List<MethodParameterSpec>	m_actuals = new ArrayList<MethodParameterSpec>();
+	private final List<MethodParameterSpec> m_actuals = new ArrayList<MethodParameterSpec>();
 
-//	private List<Class<?>>			m_formals;
+	//	private List<Class<?>>			m_formals;
 
-//	private ParameterDef[]			m_paramDefs;
+	//	private ParameterDef[]			m_paramDefs;
 
-	private boolean					m_staticOnly;
+	private boolean m_staticOnly;
 
-//	/**
-//	 * When set this locates the method that explicitly matches the formals
-//	 * specified; when true all formals must be specified and an exact match
-//	 * must be found.
-//	 */
-//	private boolean					m_explicit;
+	//	/**
+	//	 * When set this locates the method that explicitly matches the formals
+	//	 * specified; when true all formals must be specified and an exact match
+	//	 * must be found.
+	//	 */
+	//	private boolean					m_explicit;
 
 	public MethodCallBuilder(final ComponentBuilder component, final Class< ? > baseClass, final String methodName, final Class< ? >[] actuals, final boolean staticOnly) {
 		m_component = component;
@@ -59,7 +54,7 @@ public class MethodCallBuilder {
 		m_methodName = methodName;
 		m_staticOnly = staticOnly;
 		if(actuals != null) {
-			for(Class<?> ac: actuals) {
+			for(Class< ? > ac : actuals) {
 				setParameter(ac);
 			}
 		}
@@ -83,10 +78,10 @@ public class MethodCallBuilder {
 	 * @param ix
 	 * @return
 	 */
-	private MethodParameterSpec	makeNumberedParam(final int ix) {
-		switch(m_paramMode) {
+	private MethodParameterSpec makeNumberedParam(final int ix) {
+		switch(m_paramMode){
 			default:
-				throw new IllegalStateException("Unexpected parameter mode "+m_paramMode);
+				throw new IllegalStateException("Unexpected parameter mode " + m_paramMode);
 			case UNKNOWN:
 				m_paramMode = ParamMode.NUMBERED;
 				break;
@@ -95,12 +90,12 @@ public class MethodCallBuilder {
 			case UNNUMBERED:
 				throw new IocConfigurationException(m_component, "You cannot mix NUMBERED and UNNUMBERED parameters.");
 		}
-		for(MethodParameterSpec msp: m_actuals) {
+		for(MethodParameterSpec msp : m_actuals) {
 			if(msp.getParameterNumber() == ix) {
-				throw new IocConfigurationException(m_component, "Numbered parameter "+ix+" is already defined.");
+				throw new IocConfigurationException(m_component, "Numbered parameter " + ix + " is already defined.");
 			}
 		}
-		MethodParameterSpec	msp	= new MethodParameterSpec();
+		MethodParameterSpec msp = new MethodParameterSpec();
 		m_actuals.add(msp);
 		msp.setParameterNumber(ix);
 		return msp;
@@ -111,10 +106,10 @@ public class MethodCallBuilder {
 	 *
 	 * @return
 	 */
-	private MethodParameterSpec	makeUnnumberedParam() {
-		switch(m_paramMode) {
+	private MethodParameterSpec makeUnnumberedParam() {
+		switch(m_paramMode){
 			default:
-				throw new IllegalStateException("Unexpected parameter mode "+m_paramMode);
+				throw new IllegalStateException("Unexpected parameter mode " + m_paramMode);
 			case UNKNOWN:
 				m_paramMode = ParamMode.UNNUMBERED;
 				break;
@@ -123,7 +118,7 @@ public class MethodCallBuilder {
 			case NUMBERED:
 				throw new IocConfigurationException(m_component, "You cannot mix NUMBERED and UNNUMBERED parameters.");
 		}
-		MethodParameterSpec	msp	= new MethodParameterSpec();
+		MethodParameterSpec msp = new MethodParameterSpec();
 		msp.setParameterNumber(m_actuals.size());
 		m_actuals.add(msp);
 		return msp;
@@ -135,8 +130,8 @@ public class MethodCallBuilder {
 	 * @param index
 	 * @param type
 	 */
-	public void		setParameter(final int index, final Class<?> type) {
-		MethodParameterSpec	msp	= makeNumberedParam(index);
+	public void setParameter(final int index, final Class< ? > type) {
+		MethodParameterSpec msp = makeNumberedParam(index);
 		msp.setSourceType(type);
 	}
 
@@ -145,8 +140,8 @@ public class MethodCallBuilder {
 	 * @param index
 	 * @param name
 	 */
-	public void		setParameter(final int index, final String name) {
-		MethodParameterSpec	msp	= makeNumberedParam(index);
+	public void setParameter(final int index, final String name) {
+		MethodParameterSpec msp = makeNumberedParam(index);
 		msp.setSourceName(name);
 	}
 
@@ -154,8 +149,8 @@ public class MethodCallBuilder {
 	 * Define a numbered parameter as the actual object being built by the current definition.
 	 * @param index
 	 */
-	public void		setParameterSelf(final int index) {
-		MethodParameterSpec	msp	= makeNumberedParam(index);
+	public void setParameterSelf(final int index) {
+		MethodParameterSpec msp = makeNumberedParam(index);
 		msp.setSelf(true);
 	}
 
@@ -163,8 +158,8 @@ public class MethodCallBuilder {
 	 * Set an unnumbered/unordered parameter from a container object identified by the specified type.
 	 * @param type
 	 */
-	public void		setParameter(final Class<?> type) {
-		MethodParameterSpec	msp	= makeUnnumberedParam();
+	public void setParameter(final Class< ? > type) {
+		MethodParameterSpec msp = makeUnnumberedParam();
 		msp.setSourceType(type);
 	}
 
@@ -172,16 +167,16 @@ public class MethodCallBuilder {
 	 * Set an unnumbered/unordered parameter from a container object identified by the specified name.
 	 * @param name
 	 */
-	public void		setParameter(final String name) {
-		MethodParameterSpec	msp	= makeUnnumberedParam();
+	public void setParameter(final String name) {
+		MethodParameterSpec msp = makeUnnumberedParam();
 		msp.setSourceName(name);
 	}
 
 	/**
 	 * Set an unnumbered/unordered parameter from the actual object being built by the current definition.
 	 */
-	public void		setParameterSelf() {
-		MethodParameterSpec	msp	= makeUnnumberedParam();
+	public void setParameterSelf() {
+		MethodParameterSpec msp = makeUnnumberedParam();
 		msp.setSelf(true);
 	}
 
@@ -194,20 +189,20 @@ public class MethodCallBuilder {
 	 * @param stack
 	 * @return
 	 */
-	public MethodInvoker	createInvoker(final ISelfDef self, final Stack<ComponentBuilder> stack) {
-		List<Method>	mlist = getAcceptableMethods();
+	public MethodInvoker createInvoker(final ISelfDef self, final Stack<ComponentBuilder> stack) {
+		List<Method> mlist = getAcceptableMethods();
 		if(mlist.size() == 0)
-			throw new IocConfigurationException(m_component, "Cannot find an acceptable method '"+m_methodName+" on "+m_baseClass);
-//		if(mlist.size() > 1 && m_explicit)			// jal 20090525 Should be resolved in resolution pass below.
-//			throw new IllegalStateException("internal: no unique method for explicit method found.");
+			throw new IocConfigurationException(m_component, "Cannot find an acceptable method '" + m_methodName + " on " + m_baseClass);
+		//		if(mlist.size() > 1 && m_explicit)			// jal 20090525 Should be resolved in resolution pass below.
+		//			throw new IllegalStateException("internal: no unique method for explicit method found.");
 
 		/*
 		 * Try to create invokers for all applicable methods, then keep the best one.
 		 */
-		List<FailedAlternative>	aflist = new ArrayList<FailedAlternative>();
-		MethodInvoker	best= null;
+		List<FailedAlternative> aflist = new ArrayList<FailedAlternative>();
+		MethodInvoker best = null;
 		for(Method m : mlist) {
-			MethodInvoker	miv = tryToMakeAnInvokerIfYouWouldBeSoKind(self, stack, m, aflist);
+			MethodInvoker miv = tryToMakeAnInvokerIfYouWouldBeSoKind(self, stack, m, aflist);
 			if(miv != null) {
 				//-- We can invoke this one. Is it the best choice so far?
 				if(best == null || best.getScore() < miv.getScore())
@@ -231,42 +226,42 @@ public class MethodCallBuilder {
 	 * @param aflist
 	 * @return
 	 */
-	private MethodInvoker	tryToMakeAnInvokerIfYouWouldBeSoKind(final ISelfDef self, final Stack<ComponentBuilder> stack, final Method m, final List<FailedAlternative> aflist) {
-		Class<?>[] 		fpar = m.getParameterTypes();
-		Annotation[][]	pannar = m.getParameterAnnotations();
-		ComponentRef[]	refar	= new ComponentRef[fpar.length];
+	private MethodInvoker tryToMakeAnInvokerIfYouWouldBeSoKind(final ISelfDef self, final Stack<ComponentBuilder> stack, final Method m, final List<FailedAlternative> aflist) {
+		Class< ? >[] fpar = m.getParameterTypes();
+		Annotation[][] pannar = m.getParameterAnnotations();
+		ComponentRef[] refar = new ComponentRef[fpar.length];
 
 		/*
 		 * Must find an acceptable match for each formal parameter.
 		 */
 		if(m_paramMode == ParamMode.NUMBERED || m_paramMode == ParamMode.UNKNOWN) {
 			//-- Each method parameter *must* correspond with the exact defintion at that index.
-			if(m_actuals.size() != fpar.length)						// If parameter counts mismatch we do not use this
+			if(m_actuals.size() != fpar.length) // If parameter counts mismatch we do not use this
 				return null;
 			for(int i = 0; i < fpar.length; i++) {
-				MethodParameterSpec	msp	= m_actuals.get(i);			// Actual parameter spec: this MUST match the specified parameter;
+				MethodParameterSpec msp = m_actuals.get(i); // Actual parameter spec: this MUST match the specified parameter;
 				if(msp == null)
 					return null;
-				Class<?>	fp	= fpar[i];
+				Class< ? > fp = fpar[i];
 
 				//-- Find a component reference for the specified parameter def
-				ComponentRef	cr	= m_component.getBuilder().findReferenceFor(self, stack, fp, pannar[i], msp);
+				ComponentRef cr = m_component.getBuilder().findReferenceFor(self, stack, fp, pannar[i], msp);
 				if(cr == null) {
 					//-- Cannot use this- the parameter passed cannot be filled in.
-					aflist.add(new FailedAlternative(m+": Parameter["+i+"] (a "+fp+") cannot be provided using the definition "+msp));
+					aflist.add(new FailedAlternative(m + ": Parameter[" + i + "] (a " + fp + ") cannot be provided using the definition " + msp));
 					return null;
 				}
 				refar[i] = cr;
 			}
 
 			if(Modifier.isStatic(m.getModifiers())) {
-				return new MethodInvoker(m, null, refar);			// Invoker without "this" reference,
+				return new MethodInvoker(m, null, refar); // Invoker without "this" reference,
 			}
 
 			//-- Must be called on some instance.
 			if(m_thisIsSelf) {
 				//-- Use "SELF" as the base.
-				return new MethodInvoker(m, new ComponentRef(self), refar);	// Invoker without "this" reference,
+				return new MethodInvoker(m, new ComponentRef(self), refar); // Invoker without "this" reference,
 			}
 		}
 
@@ -278,16 +273,16 @@ public class MethodCallBuilder {
 	 * Find all methods that are acceptable by name, modifiers and by formals.
 	 * @return
 	 */
-	private List<Method>	getAcceptableMethods() {
-		List<Method>	res = new ArrayList<Method>();
-		Method[]	mar = ClassUtil.findMethod(m_baseClass, m_methodName);
+	private List<Method> getAcceptableMethods() {
+		List<Method> res = new ArrayList<Method>();
+		Method[] mar = ClassUtil.findMethod(m_baseClass, m_methodName);
 		for(Method m : mar) {
 			int mod = m.getModifiers();
-			if(m_staticOnly && ! Modifier.isStatic(mod))
+			if(m_staticOnly && !Modifier.isStatic(mod))
 				continue;
-			if(! Modifier.isPublic(mod))
+			if(!Modifier.isPublic(mod))
 				continue;
-			if(! matchFormals(m))
+			if(!matchFormals(m))
 				continue;
 			res.add(m);
 		}
@@ -302,24 +297,24 @@ public class MethodCallBuilder {
 	 * @param m
 	 * @return
 	 */
-	private boolean	matchFormals(final Method m) {
+	private boolean matchFormals(final Method m) {
 		if(m_actuals.size() == 0)
-			return true;									// No formals -> accept all
-		Class<?>[]	par = m.getParameterTypes();
-		if(m_paramMode == ParamMode.NUMBERED && par.length != m_actuals.size())		// Numbered parameters must all match
+			return true; // No formals -> accept all
+		Class< ? >[] par = m.getParameterTypes();
+		if(m_paramMode == ParamMode.NUMBERED && par.length != m_actuals.size()) // Numbered parameters must all match
 			return false;
-		if(m_actuals.size() > par.length)					// Has more defined arguments than the method currently under evaluation?
+		if(m_actuals.size() > par.length) // Has more defined arguments than the method currently under evaluation?
 			return false;
-//		for(int i = 0; i < par.length; i++) {
-//			if(i < m_actuals.size()) {
-//				MethodParameterSpec	msp = m_actuals.get(i);
-//				if(msp != null) {
-//					if(! par[i].isAssignableFrom(fp))
-//						return false;
-//				}
-//			}
-//		}
-//
+		//		for(int i = 0; i < par.length; i++) {
+		//			if(i < m_actuals.size()) {
+		//				MethodParameterSpec	msp = m_actuals.get(i);
+		//				if(msp != null) {
+		//					if(! par[i].isAssignableFrom(fp))
+		//						return false;
+		//				}
+		//			}
+		//		}
+		//
 		return true;
 	}
 

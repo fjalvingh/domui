@@ -23,10 +23,10 @@ import to.etc.domui.trouble.*;
  * Created on Oct 1, 2008
  */
 public class EditResPart implements UnbufferedPartFactory {
-	static private final ThreadLocal<DateFormat>	m_format = new ThreadLocal<DateFormat>();
+	static private final ThreadLocal<DateFormat> m_format = new ThreadLocal<DateFormat>();
 
-	static private DateFormat	getFormatter() {
-		DateFormat	df = m_format.get();
+	static private DateFormat getFormatter() {
+		DateFormat df = m_format.get();
 		if(df == null) {
 			df = new SimpleDateFormat("yyyyMMddHHmmss");
 			m_format.set(df);
@@ -35,31 +35,31 @@ public class EditResPart implements UnbufferedPartFactory {
 	}
 
 	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
-		System.out.println("QS="+param.getRequest().getQueryString());
-		System.out.println("RURL="+rurl);
-		
-		ComponentPartRenderer	cpr	= new ComponentPartRenderer();
-		cpr.initialize(app, param, rurl);							// Decode input to get to the component in question.
+		System.out.println("QS=" + param.getRequest().getQueryString());
+		System.out.println("RURL=" + rurl);
+
+		ComponentPartRenderer cpr = new ComponentPartRenderer();
+		cpr.initialize(app, param, rurl); // Decode input to get to the component in question.
 		if(cpr.getArgs().length != 4)
-			throw new IllegalStateException("Invalid input URL '"+rurl+"': must be in format cid/pageclass/componentID/resourceType.");
+			throw new IllegalStateException("Invalid input URL '" + rurl + "': must be in format cid/pageclass/componentID/resourceType.");
 		String resty = cpr.getArgs()[3];
 
-		if(! (cpr.getComponent() instanceof HtmlEditor))
-			throw new ThingyNotFoundException("The component "+cpr.getComponent().getActualID()+" on page "+cpr.getPage().getBody()+" is not an HtmlEditor instance");
-		HtmlEditor	e = (HtmlEditor) cpr.getComponent();
-		IEditorFileSystem	ifs	= e.getFileSystem();
+		if(!(cpr.getComponent() instanceof HtmlEditor))
+			throw new ThingyNotFoundException("The component " + cpr.getComponent().getActualID() + " on page " + cpr.getPage().getBody() + " is not an HtmlEditor instance");
+		HtmlEditor e = (HtmlEditor) cpr.getComponent();
+		IEditorFileSystem ifs = e.getFileSystem();
 		if(ifs == null)
-			throw new ThingyNotFoundException("The HtmlEditor component "+cpr.getComponent().getActualID()+" on page "+cpr.getPage().getBody()+" has no file system attached to it");
-		
+			throw new ThingyNotFoundException("The HtmlEditor component " + cpr.getComponent().getActualID() + " on page " + cpr.getPage().getBody() + " has no file system attached to it");
+
 		//-- Create a base URL refering to this part handler && component
-		StringBuilder	sb	= new StringBuilder(128);
+		StringBuilder sb = new StringBuilder(128);
 		sb.append(PageContext.getRequestContext().getRelativePath(EditResPart.class.getName()));
 		sb.append("/");
 		sb.append(rurl);
 		sb.append(".part");
 
 		//-- Finally: handle the command.
-		String	cmd	= param.getParameter("Command");
+		String cmd = param.getParameter("Command");
 		if("init".equalsIgnoreCase(cmd))
 			sendInit(app, ifs, param);
 		else if("getfoldersandfiles".equalsIgnoreCase(cmd))
@@ -67,13 +67,13 @@ public class EditResPart implements UnbufferedPartFactory {
 		else if("File".equalsIgnoreCase(cmd))
 			sendFile(app, ifs, param, resty);
 		else
-			throw new IllegalStateException("Unimplemented command: "+cmd);
+			throw new IllegalStateException("Unimplemented command: " + cmd);
 	}
 
-	private BrowserOutput	defaultHeader(RequestContextImpl ctx, String cmd, String rtype, String path) throws Exception {
+	private BrowserOutput defaultHeader(RequestContextImpl ctx, String cmd, String rtype, String path) throws Exception {
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput	w = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		BrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 		w.tag("Connector");
 		w.attr("command", cmd);
 		w.attr("resourceType", rtype);
@@ -88,20 +88,20 @@ public class EditResPart implements UnbufferedPartFactory {
 		return w;
 	}
 
-	private String	getPath(RequestContextImpl ctx, String name) throws Exception {
-		String	rpath	= ctx.getParameter(name);
+	private String getPath(RequestContextImpl ctx, String name) throws Exception {
+		String rpath = ctx.getParameter(name);
 		if(rpath == null)
 			rpath = "";
 		while(rpath.startsWith("/"))
 			rpath = rpath.substring(1);
-		if(rpath.contains("..") || rpath.contains(":") || rpath.contains("\\"))		// May not go UP nor can it contain a drive letter or backslash
+		if(rpath.contains("..") || rpath.contains(":") || rpath.contains("\\")) // May not go UP nor can it contain a drive letter or backslash
 			throw new IllegalStateException("Invalid input path");
 		return rpath;
 	}
 
-	private void	sendFolderAndFiles(DomApplication app, IEditorFileSystem ifs, RequestContextImpl ctx, String type, CharSequence baseURL) throws Exception {
-		String	rpath	= getPath(ctx, "CurrentFolder");
-		BrowserOutput	w = defaultHeader(ctx, "GetFolderAndFiles", type, rpath);
+	private void sendFolderAndFiles(DomApplication app, IEditorFileSystem ifs, RequestContextImpl ctx, String type, CharSequence baseURL) throws Exception {
+		String rpath = getPath(ctx, "CurrentFolder");
+		BrowserOutput w = defaultHeader(ctx, "GetFolderAndFiles", type, rpath);
 
 		w.tag("Error");
 		w.attr("number", 0);
@@ -110,7 +110,7 @@ public class EditResPart implements UnbufferedPartFactory {
 		//-- Folders.
 		w.tag("Folders");
 		w.endtag();
-		List<?>		resl = ifs.getFilesAndFolders(type, rpath);
+		List< ? > resl = ifs.getFilesAndFolders(type, rpath);
 
 		for(Object o : resl) {
 			if(o instanceof EditorFolder) {
@@ -126,7 +126,7 @@ public class EditResPart implements UnbufferedPartFactory {
 
 		w.tag("Files");
 		w.endtag();
-		StringBuilder	sb = new StringBuilder(128);
+		StringBuilder sb = new StringBuilder(128);
 		for(Object o : resl) {
 			if(o instanceof EditorFile) {
 				EditorFile ef = (EditorFile) o;
@@ -148,14 +148,14 @@ public class EditResPart implements UnbufferedPartFactory {
 			}
 		}
 		w.closetag("Files");
-		
-		w.closetag("Connector");
-	}	
 
-	private void	sendInit(DomApplication app, IEditorFileSystem ifs, RequestContextImpl ctx) throws Exception {
+		w.closetag("Connector");
+	}
+
+	private void sendInit(DomApplication app, IEditorFileSystem ifs, RequestContextImpl ctx) throws Exception {
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput	w = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		BrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 		w.tag("Connector");
 		w.endtag();
 		w.tag("Error");
@@ -171,7 +171,7 @@ public class EditResPart implements UnbufferedPartFactory {
 
 		w.tag("ResourceTypes");
 		w.endtag();
-		for(EditorResourceType t: ifs.getResourceTypes()) {
+		for(EditorResourceType t : ifs.getResourceTypes()) {
 			w.tag("ResourceType");
 			w.attr("name", t.getName());
 			w.attr("url", t.getRootURL());
@@ -198,26 +198,31 @@ public class EditResPart implements UnbufferedPartFactory {
 	 * @param type
 	 * @throws Exception
 	 */
-	private void	sendFile(DomApplication app, IEditorFileSystem ifs, RequestContextImpl ctx, String type) throws Exception {
-		String	rpath	= getPath(ctx, "path");
+	private void sendFile(DomApplication app, IEditorFileSystem ifs, RequestContextImpl ctx, String type) throws Exception {
+		String rpath = getPath(ctx, "path");
 		if(rpath.length() == 0)
-			throw new ThingyNotFoundException("IEditorFileSystem file with path="+rpath);
-		IEditorFileRef		efr	= ifs.getStreamRef(type, rpath);
+			throw new ThingyNotFoundException("IEditorFileSystem file with path=" + rpath);
+		IEditorFileRef efr = ifs.getStreamRef(type, rpath);
 		if(efr == null)
-			throw new ThingyNotFoundException("IEditorFileSystem file with path="+rpath+" does not return a reference");
+			throw new ThingyNotFoundException("IEditorFileSystem file with path=" + rpath + " does not return a reference");
 
 		//-- Stream the thingy.
-		OutputStream	os	= null;
+		OutputStream os = null;
 		try {
 			ctx.getResponse().setContentType(efr.getMimeType());
 			int len = efr.getSize();
 			if(len > 0)
 				ctx.getResponse().setContentLength(len);
-			os	= ctx.getResponse().getOutputStream();
+			os = ctx.getResponse().getOutputStream();
 			efr.copyTo(os);
 		} finally {
-			try { efr.close(); } catch(Exception x) {}
-			try { if(os != null) os.close(); } catch(Exception x) {}
+			try {
+				efr.close();
+			} catch(Exception x) {}
+			try {
+				if(os != null)
+					os.close();
+			} catch(Exception x) {}
 		}
-	}	
+	}
 }

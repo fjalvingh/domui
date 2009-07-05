@@ -11,13 +11,13 @@ import to.etc.domui.util.*;
  * Created on Aug 26, 2008
  */
 public class DefaultScheduleItemRenderer<T extends ScheduleItem> implements INodeContentRenderer<T> {
-	private StringBuilder		m_sb = new StringBuilder();
+	private StringBuilder m_sb = new StringBuilder();
 
 	public synchronized void renderNodeContent(NodeBase component, NodeContainer root, T si, Object parameters) throws Exception {
-		WeekAgendaComponent<T>	age = (WeekAgendaComponent<T>) component;
+		WeekAgendaComponent<T> age = (WeekAgendaComponent<T>) component;
 
 		if(si.getImageURL() != null) {
-			Img	i = new Img();
+			Img i = new Img();
 			i.setBorder(0);
 			i.setCssClass("ui-wa-img");
 			i.setAlt(si.getImageURL());
@@ -48,7 +48,7 @@ public class DefaultScheduleItemRenderer<T extends ScheduleItem> implements INod
 			sp.setButtonText(m_sb.toString());
 		}
 		if(si.getDetails() != null) {
-			if(si.getName() != null) {					// If we have a name too go to the next line
+			if(si.getName() != null) { // If we have a name too go to the next line
 				root.add(new BR());
 			}
 			Span sp = new Span();

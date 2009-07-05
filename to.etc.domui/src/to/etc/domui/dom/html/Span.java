@@ -9,6 +9,7 @@ public class Span extends NodeContainer {
 		this();
 		setButtonText(txt);
 	}
+
 	@Override
 	public void visit(NodeVisitor v) throws Exception {
 		v.visitSpan(this);

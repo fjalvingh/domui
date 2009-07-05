@@ -17,21 +17,21 @@ import to.etc.webapp.nls.*;
  */
 public class SimpleRowRenderer implements IRowRenderer {
 	/** The class whose instances we'll render in this table. */
-//	private Class<?>				m_dataClass;
+	//	private Class<?>				m_dataClass;
 
-	private List<SimpleColumnDef>	m_columnList = new ArrayList<SimpleColumnDef>();
+	private List<SimpleColumnDef> m_columnList = new ArrayList<SimpleColumnDef>();
 
-	private SimpleColumnDef			m_sortColumn;
+	private SimpleColumnDef m_sortColumn;
 
-	private boolean					m_sortDescending;
+	private boolean m_sortDescending;
 
-	private Img[]					m_sortImages;
+	private Img[] m_sortImages;
 
-	private ICellClicked<?>			m_rowClicked;
+	private ICellClicked< ? > m_rowClicked;
 
-	private ICellClicked<?>			m_cellClicked;
+	private ICellClicked< ? > m_cellClicked;
 
-//	private boolean					m_sortableModel;
+	//	private boolean					m_sortableModel;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple renderer initialization && parameterisation	*/
@@ -42,16 +42,16 @@ public class SimpleRowRenderer implements IRowRenderer {
 	 * @param cols
 	 */
 	public SimpleRowRenderer(Class< ? > dataClass, String... cols) {
-		ClassMetaModel	cmm	= MetaManager.findClassMeta(dataClass);
+		ClassMetaModel cmm = MetaManager.findClassMeta(dataClass);
 		if(cols.length != 0)
 			initializeExplicitColumns(cmm, cols);
 		else
 			initializeDefaultColumns(cmm);
 
 		//-- Is there a default sort thingy? Is that column present?
-		String	sort = cmm.getDefaultSortProperty();
+		String sort = cmm.getDefaultSortProperty();
 		if(sort != null) {
-			for(SimpleColumnDef scd: m_columnList) {
+			for(SimpleColumnDef scd : m_columnList) {
 				if(scd.getPropertyName().equals(sort)) {
 					m_sortColumn = scd;
 					m_sortDescending = cmm.getDefaultSortDirection() == SortableType.SORTABLE_DESC;
@@ -68,50 +68,55 @@ public class SimpleRowRenderer implements IRowRenderer {
 	 * @param clz
 	 * @param cols
 	 */
-	protected void		initializeExplicitColumns(ClassMetaModel cmm, String[] cols) {
+	protected void initializeExplicitColumns(ClassMetaModel cmm, String[] cols) {
 		if(cols == null || cols.length == 0)
 			throw new IllegalStateException("The list-of-columns is empty or null; I need at least one column to continue.");
 
-		List<ExpandedDisplayProperty>	xdpl = ExpandedDisplayProperty.expandProperties(cmm, cols);
+		List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandProperties(cmm, cols);
 		initialize(xdpl);
 	}
 
-	private int		m_totwidth;
+	private int m_totwidth;
 
 	/**
 	 * Initialize, using the genericized table column set.
 	 * @param clz
 	 * @param xdpl
 	 */
-	private void	initialize(List<ExpandedDisplayProperty> xdpl) {
+	private void initialize(List<ExpandedDisplayProperty> xdpl) {
 		//-- For all properties in the list, use metadata to define'm
-		int[]		widths = new int[80];
-		m_totwidth= 0;
-		int	ix 		= 0;
+		int[] widths = new int[80];
+		m_totwidth = 0;
+		int ix = 0;
 		addColumns(xdpl, widths);
-		ix	= 0;
-		for(SimpleColumnDef scd: m_columnList) {
-			int	pct = (100 * widths[ix++]) / m_totwidth;
-			scd.setWidth(pct+"%");
+		ix = 0;
+		for(SimpleColumnDef scd : m_columnList) {
+			int pct = (100 * widths[ix++]) / m_totwidth;
+			scd.setWidth(pct + "%");
 		}
 	}
-	public void	setColumnWidths(String... widths) {
+
+	public void setColumnWidths(String... widths) {
 		int ix = 0;
-		for(String s: widths) {
+		for(String s : widths) {
 			m_columnList.get(ix++).setWidth(s);
 		}
 	}
-	public void	setColumnWidth(int index, String width) {
+
+	public void setColumnWidth(int index, String width) {
 		m_columnList.get(index).setWidth(width);
 	}
-	public void	setNodeRenderer(int index, INodeContentRenderer<?> renderer) {
+
+	public void setNodeRenderer(int index, INodeContentRenderer< ? > renderer) {
 		m_columnList.get(index).setContentRenderer(renderer);
 	}
-	public INodeContentRenderer<?>	getNodeRenderer(int index) {
+
+	public INodeContentRenderer< ? > getNodeRenderer(int index) {
 		return m_columnList.get(index).getContentRenderer();
 	}
-	private void	addColumns(List<ExpandedDisplayProperty> xdpl, int[] widths) {
-		for(ExpandedDisplayProperty xdp: xdpl) {
+
+	private void addColumns(List<ExpandedDisplayProperty> xdpl, int[] widths) {
+		for(ExpandedDisplayProperty xdp : xdpl) {
 			if(xdp instanceof ExpandedDisplayPropertyList) {
 				//-- Flatten: call for subs recursively.
 				ExpandedDisplayPropertyList xdl = (ExpandedDisplayPropertyList) xdp;
@@ -120,14 +125,14 @@ public class SimpleRowRenderer implements IRowRenderer {
 			}
 
 			//-- Create a column def from the metadata
-			SimpleColumnDef	scd = new SimpleColumnDef(xdp);
-			int	dl	= xdp.getDisplayLength();
+			SimpleColumnDef scd = new SimpleColumnDef(xdp);
+			int dl = xdp.getDisplayLength();
 			if(dl <= 0)
 				dl = 10;
-			System.out.println("XDPL: property "+xdp.getName()+" size="+dl);
+			System.out.println("XDPL: property " + xdp.getName() + " size=" + dl);
 			widths[m_columnList.size()] = dl;
 			m_totwidth += dl;
-			m_columnList.add(scd);					// ORDER!
+			m_columnList.add(scd); // ORDER!
 		}
 	}
 
@@ -136,11 +141,12 @@ public class SimpleRowRenderer implements IRowRenderer {
 	 * the metadata does not contain stuff this aborts.
 	 * @param clz
 	 */
-	private void	initializeDefaultColumns(ClassMetaModel cmm) {
-		List<DisplayPropertyMetaModel>	dpl = cmm.getTableDisplayProperties();
+	private void initializeDefaultColumns(ClassMetaModel cmm) {
+		List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
 		if(dpl.size() == 0)
-			throw new IllegalStateException("The list-of-columns to show is empty, and the class has no metadata (@MetaObject) definition defining a set of columns as default table columns, so there.");
-		List<ExpandedDisplayProperty>	xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
+			throw new IllegalStateException(
+				"The list-of-columns to show is empty, and the class has no metadata (@MetaObject) definition defining a set of columns as default table columns, so there.");
+		List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
 		initialize(xdpl);
 	}
 
@@ -163,10 +169,11 @@ public class SimpleRowRenderer implements IRowRenderer {
 	public void setCellClicked(ICellClicked< ? > cellClicked) {
 		m_cellClicked = cellClicked;
 	}
-//	public boolean isSortableModel() {
-//		return m_sortableModel;
-//	}
-	
+
+	//	public boolean isSortableModel() {
+	//		return m_sortableModel;
+	//	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Actual rendering: the header.						*/
 	/*--------------------------------------------------------------*/
@@ -178,18 +185,18 @@ public class SimpleRowRenderer implements IRowRenderer {
 	 */
 	public void renderHeader(DataTable tbl, HeaderContainer cc) throws Exception {
 		m_sortImages = new Img[m_columnList.size()];
-		int		ix = 0;
+		int ix = 0;
 		boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
-		for(SimpleColumnDef cd: m_columnList) {
-			TH	th;
+		for(SimpleColumnDef cd : m_columnList) {
+			TH th;
 			String label = cd.getColumnLabel();
-			if(! cd.getSortable().isSortable() || ! sortablemodel) {
+			if(!cd.getSortable().isSortable() || !sortablemodel) {
 				//-- Just add the label, if present,
 				th = cc.add(label);
 			} else {
 				if(label == null || label.trim().length() == 0)
 					label = "(unknown)";
-				th = cc.add(label);				// Add the label;
+				th = cc.add(label); // Add the label;
 				th.setCssClass("ui-sortable");
 				final SimpleColumnDef scd = cd;
 				th.setClicked(new IClicked<TH>() {
@@ -199,11 +206,11 @@ public class SimpleRowRenderer implements IRowRenderer {
 				});
 
 				//-- Add the sort order indicator: a single image containing either ^, v or both.
-				Img		img = new Img();
+				Img img = new Img();
 				th.add(img);
 				img.setBorder(0);
-//				img.setImgWidth(16);
-//				img.setImgHeight(16);
+				//				img.setImgWidth(16);
+				//				img.setImgHeight(16);
 				if(cd == m_sortColumn) {
 					img.setSrc(m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 				} else {
@@ -219,13 +226,13 @@ public class SimpleRowRenderer implements IRowRenderer {
 	void handleSortClick(NodeBase nb, SimpleColumnDef scd) throws Exception {
 		//-- 1. Is this the same as the "current" sort column? If so toggle the sort order only.
 		if(scd == m_sortColumn) {
-			m_sortDescending = ! m_sortDescending;
+			m_sortDescending = !m_sortDescending;
 		} else {
-			if(m_sortColumn != null)			
+			if(m_sortColumn != null)
 				updateSortImage(m_sortColumn, "THEME/sort-none.png");
 
-			m_sortColumn = scd;								// Set the new sort column
-			m_sortDescending = (scd.getSortable() == SortableType.SORTABLE_DESC);		// Start sorting on default sort order
+			m_sortColumn = scd; // Set the new sort column
+			m_sortDescending = (scd.getSortable() == SortableType.SORTABLE_DESC); // Start sorting on default sort order
 		}
 		updateSortImage(scd, m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 
@@ -234,7 +241,7 @@ public class SimpleRowRenderer implements IRowRenderer {
 		stm.sortOn(scd.getPropertyName(), m_sortDescending);
 	}
 
-	private void	updateSortImage(SimpleColumnDef scd, String img) {
+	private void updateSortImage(SimpleColumnDef scd, String img) {
 		int index = m_columnList.indexOf(scd);
 		if(index == -1)
 			throw new IllegalStateException("?? Cannot find sort column!?");
@@ -250,15 +257,15 @@ public class SimpleRowRenderer implements IRowRenderer {
 	 * @see to.etc.domui.component.tbl.IRowRenderer#beforeQuery(to.etc.domui.component.tbl.DataTable)
 	 */
 	public void beforeQuery(DataTable tbl) throws Exception {
-		if(! (tbl.getModel() instanceof ISortableTableModel)) {
-//			m_sortableModel = false;
+		if(!(tbl.getModel() instanceof ISortableTableModel)) {
+			//			m_sortableModel = false;
 			return;
 		}
 
-//		m_sortableModel = true;
+		//		m_sortableModel = true;
 		if(m_sortColumn == null)
 			return;
-		ISortableTableModel	stm = (ISortableTableModel) tbl.getModel();
+		ISortableTableModel stm = (ISortableTableModel) tbl.getModel();
 		stm.sortOn(m_sortColumn.getPropertyName(), m_sortDescending);
 	}
 
@@ -278,13 +285,13 @@ public class SimpleRowRenderer implements IRowRenderer {
 			 */
 			cc.getTR().setClicked(new IClicked<TR>() {
 				public void clicked(TR b) throws Exception {
-					((ICellClicked)getRowClicked()).cellClicked(tbl.getPage(), b, instance);
+					((ICellClicked) getRowClicked()).cellClicked(tbl.getPage(), b, instance);
 				}
 			});
 			cc.getTR().addCssClass("ui-rowsel");
 		}
 
-		for(SimpleColumnDef cd: m_columnList) {
+		for(SimpleColumnDef cd : m_columnList) {
 			renderColumn(tbl, cc, index, instance, cd);
 		}
 
@@ -307,9 +314,9 @@ public class SimpleRowRenderer implements IRowRenderer {
 	 * @param cd
 	 * @throws Exception
 	 */
-	protected void	renderColumn(final DataTable tbl, ColumnContainer cc, int index, final Object instance, final SimpleColumnDef cd) throws Exception {
+	protected void renderColumn(final DataTable tbl, ColumnContainer cc, int index, final Object instance, final SimpleColumnDef cd) throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
-		Object	colval;
+		Object colval;
 		if(cd.getValueTransformer() == null)
 			colval = instance;
 		else
@@ -317,8 +324,8 @@ public class SimpleRowRenderer implements IRowRenderer {
 
 		//-- Is a node renderer used?
 		if(null != cd.getContentRenderer()) {
-			TD node = cc.add((NodeBase) null);				// Add the new row
-			((INodeContentRenderer<Object>)cd.getContentRenderer()).renderNodeContent(tbl, node, colval, instance);		// %&*(%&^%*&%&( generics require casting here
+			TD node = cc.add((NodeBase) null); // Add the new row
+			((INodeContentRenderer<Object>) cd.getContentRenderer()).renderNodeContent(tbl, node, colval, instance); // %&*(%&^%*&%&( generics require casting here
 			return;
 		}
 
@@ -329,7 +336,7 @@ public class SimpleRowRenderer implements IRowRenderer {
 			if(cd.getValueConverter() != null)
 				s = cd.getValueConverter().convertObjectToString(NlsContext.getLocale(), colval);
 			else
-				s	= colval.toString();
+				s = colval.toString();
 		}
 
 		if(s == null)

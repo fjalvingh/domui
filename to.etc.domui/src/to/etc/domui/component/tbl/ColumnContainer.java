@@ -9,9 +9,9 @@ import to.etc.domui.dom.html.*;
  * Created on Jun 1, 2008
  */
 public class ColumnContainer {
-	private DataTable		m_table;
+	private DataTable m_table;
 
-	private TR				m_tr;
+	private TR m_tr;
 
 	public ColumnContainer(DataTable table) {
 		m_table = table;
@@ -20,6 +20,7 @@ public class ColumnContainer {
 	void setParent(TR p) {
 		m_tr = p;
 	}
+
 	public DataTable getTable() {
 		return m_table;
 	}
@@ -28,17 +29,18 @@ public class ColumnContainer {
 	 * Adds a column to the table.
 	 * @param columnContent
 	 */
-	public TD	add(NodeBase columnContent) {
-		TD	td	= new TD();
+	public TD add(NodeBase columnContent) {
+		TD td = new TD();
 		m_tr.add(td);
 		if(columnContent != null)
 			td.add(columnContent);
 		return td;
 	}
 
-	public TD	add(String txt) {
+	public TD add(String txt) {
 		return add(new TextNode(txt));
 	}
+
 	public TR getTR() {
 		return m_tr;
 	}

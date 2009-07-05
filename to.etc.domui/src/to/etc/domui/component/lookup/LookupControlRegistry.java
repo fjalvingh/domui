@@ -17,23 +17,24 @@ import to.etc.webapp.query.*;
  * Created on Jul 23, 2008
  */
 public class LookupControlRegistry {
-	private List<LookupControlFactory>		m_factoryList = new ArrayList<LookupControlFactory>();
+	private List<LookupControlFactory> m_factoryList = new ArrayList<LookupControlFactory>();
 
 	public LookupControlRegistry() {
 		register(TEXT_CF);
 		register(DATE_CF);
 	}
-	public synchronized List<LookupControlFactory>	getFactoryList() {
+
+	public synchronized List<LookupControlFactory> getFactoryList() {
 		return m_factoryList;
 	}
 
-	public synchronized void	register(LookupControlFactory f) {
+	public synchronized void register(LookupControlFactory f) {
 		m_factoryList = new ArrayList<LookupControlFactory>(m_factoryList);
 		m_factoryList.add(f);
 	}
 
-	public LookupControlFactory	findFactory(PropertyMetaModel pmm) {
-		LookupControlFactory	best = null;
+	public LookupControlFactory findFactory(PropertyMetaModel pmm) {
+		LookupControlFactory best = null;
 		int score = 0;
 		for(LookupControlFactory cf : m_factoryList) {
 			int v = cf.accepts(pmm);
@@ -45,10 +46,10 @@ public class LookupControlRegistry {
 		return best;
 	}
 
-	public LookupControlFactory	getControlFactory(PropertyMetaModel pmm) {
+	public LookupControlFactory getControlFactory(PropertyMetaModel pmm) {
 		LookupControlFactory cf = findFactory(pmm);
 		if(cf == null)
-			throw new IllegalStateException("Cannot get a Lookup Control factory for "+pmm);
+			throw new IllegalStateException("Cannot get a Lookup Control factory for " + pmm);
 		return cf;
 	}
 
@@ -57,9 +58,9 @@ public class LookupControlRegistry {
 	 * text input thingy.
 	 */
 	@SuppressWarnings("unchecked")
-	static public final LookupControlFactory	TEXT_CF	= new LookupControlFactory() {
+	static public final LookupControlFactory TEXT_CF = new LookupControlFactory() {
 		public LookupFieldQueryBuilderThingy createControl(final SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
-			Class<?>	iclz	= pmm.getActualType();
+			Class< ? > iclz = pmm.getActualType();
 
 			//-- Boolean/boolean types? These need a tri-state checkbox 
 			if(iclz == Boolean.class || iclz == Boolean.TYPE) {
@@ -67,7 +68,7 @@ public class LookupControlRegistry {
 			}
 
 			//-- Treat everything else as a String using a converter.
-			final Text<?>	txt	= new Text(iclz);
+			final Text< ? > txt = new Text(iclz);
 			if(pmm.getDisplayLength() > 0)
 				txt.setSize(pmm.getDisplayLength());
 			else {
@@ -76,7 +77,7 @@ public class LookupControlRegistry {
 				if(pmm.getLength() > 0) {
 					sz = pmm.getLength();
 					if(sz > 40)
-						sz	= 40;
+						sz = 40;
 				}
 				if(sz != 0)
 					txt.setSize(sz);
@@ -90,47 +91,47 @@ public class LookupControlRegistry {
 			return new DefaultLookupThingy(txt) {
 				@Override
 				public boolean appendCriteria(QCriteria crit) throws Exception {
-					Object value	= null;
+					Object value = null;
 					try {
 						value = txt.getValue();
 					} catch(Exception x) {
-						return false;						// Has validation error -> exit.
+						return false; // Has validation error -> exit.
 					}
-					if(value == null || (value instanceof String && ((String)value).trim().length() == 0))
-						return true;						// Is okay but has no data
+					if(value == null || (value instanceof String && ((String) value).trim().length() == 0))
+						return true; // Is okay but has no data
 
 					// FIXME Handle minimal-size restrictions on input (search field metadata
 
-					
+
 					//-- Put the value into the criteria..
 					if(value instanceof String) {
-						String str = (String)value;
-						str	= str.trim()+"%";
+						String str = (String) value;
+						str = str.trim() + "%";
 						crit.ilike(pmm.getName(), str);
 					} else {
-						crit.eq(pmm.getName(), value);		// property == value
+						crit.eq(pmm.getName(), value); // property == value
 					}
 					return true;
 				}
 			};
 		}
-	
+
 		public int accepts(PropertyMetaModel pmm) {
-			return 1;							// Accept all properties (will fail on incompatible ones @ input time)
+			return 1; // Accept all properties (will fail on incompatible ones @ input time)
 		}
 	};
-	
 
-	static public final LookupControlFactory	DATE_CF	= new LookupControlFactory() {
-	
+
+	static public final LookupControlFactory DATE_CF = new LookupControlFactory() {
+
 		public LookupFieldQueryBuilderThingy createControl(SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
-			final DateInput	df	= new DateInput();
-			TextNode	tn	= new TextNode(NlsContext.getGlobalMessage(Msgs.UI_LOOKUP_DATE_TILL));
-			final DateInput	dt	= new DateInput();
+			final DateInput df = new DateInput();
+			TextNode tn = new TextNode(NlsContext.getGlobalMessage(Msgs.UI_LOOKUP_DATE_TILL));
+			final DateInput dt = new DateInput();
 			return new DefaultLookupThingy(df, tn, dt) {
 				@Override
-				public boolean appendCriteria(QCriteria<?> crit) throws Exception {
-					Date	from, till;
+				public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
+					Date from, till;
 					try {
 						from = df.getValue();
 					} catch(Exception x) {
@@ -163,13 +164,13 @@ public class LookupControlRegistry {
 				}
 			};
 		}
-	
+
 		public int accepts(PropertyMetaModel pmm) {
 			if(Date.class.isAssignableFrom(pmm.getActualType()))
 				return 2;
 			return 0;
 		}
 	};
-	
-	
+
+
 }

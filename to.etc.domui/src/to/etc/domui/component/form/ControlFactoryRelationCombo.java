@@ -11,7 +11,8 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
  */
-@SuppressWarnings("unchecked")		// Hating Generics
+@SuppressWarnings("unchecked")
+// Hating Generics
 public class ControlFactoryRelationCombo implements ControlFactory {
 	/**
 	 * Accept any UP relation; if the relation has a "comboLookup" type hint we score 10, else we score 2.
@@ -27,19 +28,19 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 	}
 
 	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
-		if(! editable)
+		if(!editable)
 			throw new IllegalStateException("Implementation: please implement ReadOnly combobox thingy.");
 
 		//-- We need to add a ComboBox. Do we have a combobox dataset provider?
-		Class<? extends IComboDataSet<?>>	set = pmm.getComboDataSet();
+		Class< ? extends IComboDataSet< ? >> set = pmm.getComboDataSet();
 		if(set == null) {
 			set = pmm.getClassModel().getComboDataSet();
 			if(set == null)
-				throw new IllegalStateException("Missing Combo dataset provider for property "+pmm);
+				throw new IllegalStateException("Missing Combo dataset provider for property " + pmm);
 		}
 
-		INodeContentRenderer<?>	r = MetaManager.createDefaultComboRenderer(pmm, null);
-		ComboLookup<?>	co = new ComboLookup(set, r);
+		INodeContentRenderer< ? > r = MetaManager.createDefaultComboRenderer(pmm, null);
+		ComboLookup< ? > co = new ComboLookup(set, r);
 		if(pmm.isRequired())
 			co.setMandatory(true);
 		String s = pmm.getDefaultHint();

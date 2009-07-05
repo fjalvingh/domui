@@ -1,6 +1,6 @@
 package to.etc.iocular.def;
 
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Circular reference exception.

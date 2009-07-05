@@ -11,17 +11,19 @@ import to.etc.util.*;
  * Created on Jul 3, 2008
  */
 public class DumpDirtyStateRenderer extends NodeVisitorBase {
-	private IndentWriter	m_iw;
-	private StringWriter	m_sw;
-	private int				m_depth;
+	private IndentWriter m_iw;
+
+	private StringWriter m_sw;
+
+	private int m_depth;
 
 	public DumpDirtyStateRenderer() {
-		m_sw	= new StringWriter(8192);
-		m_iw	= new IndentWriter(m_sw);
+		m_sw = new StringWriter(8192);
+		m_iw = new IndentWriter(m_sw);
 	}
 
-	static public void	dump(NodeBase n) throws Exception {
-		DumpDirtyStateRenderer	r	= new DumpDirtyStateRenderer();
+	static public void dump(NodeBase n) throws Exception {
+		DumpDirtyStateRenderer r = new DumpDirtyStateRenderer();
 		n.visit(r);
 		System.out.println("---- Dirty node dump ----");
 		r.m_iw.close();
@@ -31,28 +33,29 @@ public class DumpDirtyStateRenderer extends NodeVisitorBase {
 
 	@Override
 	public void visitNodeBase(NodeBase n) throws Exception {
-		m_iw.print("["+n.getTag()+":"+n.getActualID()+" "+m_depth+"]");
+		m_iw.print("[" + n.getTag() + ":" + n.getActualID() + " " + m_depth + "]");
 		if(n.hasChangedAttributes())
 			m_iw.print(" ChangedAttributes");
 		if(n.isBuilt())
 			m_iw.print(" built");
 		if(n instanceof TextNode) {
-			String txt = ((TextNode)n).getLiteralText();
+			String txt = ((TextNode) n).getLiteralText();
 			if(txt.length() > 20)
-				txt = txt.substring(0, 17)+"...";
-			m_iw.print(" \""+txt+"\"");
+				txt = txt.substring(0, 17) + "...";
+			m_iw.print(" \"" + txt + "\"");
 		}
 		m_iw.println();
 	}
+
 	@Override
 	public void visitNodeContainer(NodeContainer n) throws Exception {
-		m_iw.print("["+n.getTag()+":"+n.getActualID()+" "+m_depth+"]*");
+		m_iw.print("[" + n.getTag() + ":" + n.getActualID() + " " + m_depth + "]*");
 		if(n.hasChangedAttributes())
 			m_iw.print(" ChangedAttributes");
 		if(n.isBuilt())
 			m_iw.print(" built");
-//		if(n.internalIsTreeChanged())
-//			m_iw.print(" TreeChanged");
+		//		if(n.internalIsTreeChanged())
+		//			m_iw.print(" TreeChanged");
 		if(n.childHasUpdates())
 			m_iw.print(" childHasUpdates");
 		if(n.mustRenderChildrenFully())

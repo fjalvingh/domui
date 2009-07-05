@@ -2,7 +2,7 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
-import to.etc.domui.dom.css.CssBase;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -77,63 +77,66 @@ import to.etc.webapp.nls.*;
  */
 abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/** The owner page. If set then this node IS attached to the parent in some way; if null it is not attached. */
-	private Page			m_page;
+	private Page m_page;
 
-	private String			m_tag;
+	private String m_tag;
 
-	private String			m_cssClass;
+	private String m_cssClass;
 
 	/** This is the actual ID of the node IF the framework decided to override the specified ID (or if no ID was assigned). */
-	private String			m_actualID;
+	private String m_actualID;
 
-	private NodeContainer	m_parent;
+	private NodeContainer m_parent;
 
-	private String			m_cachedStyle;
+	private String m_cachedStyle;
 
-	private IClicked<?>		m_clicked;
+	private IClicked< ? > m_clicked;
 
-	private boolean			m_built;
+	private boolean m_built;
 
 	/** T when this node's html/style attributes changed. */
-	private boolean			m_attributesChanged;
+	private boolean m_attributesChanged;
 
-	private NodeContainer	m_oldParent;
+	private NodeContainer m_oldParent;
 
 	/** Helper variable containing this-node's index in the output tree while calculating the delta */
-	int						m_oldNodeIndex;
+	int m_oldNodeIndex;
 
-	int						m_newNodeIndex;
+	int m_newNodeIndex;
 
-	int						m_origNewIndex;
+	int m_origNewIndex;
 
-	private Object			m_userObject;
+	private Object m_userObject;
 
-	private String			m_title;
+	private String m_title;
 
-	private String			m_onClickJS;
-	private String			m_onMouseDownJS;
+	private String m_onClickJS;
 
-	private StringBuilder	m_appendJS;
+	private String m_onMouseDownJS;
 
-	private StringBuilder	m_createJS;
+	private StringBuilder m_appendJS;
 
-	private List<String>	m_specialAttributes;
+	private StringBuilder m_createJS;
 
-	private boolean			m_focusRequested;
+	private List<String> m_specialAttributes;
+
+	private boolean m_focusRequested;
 
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
 	 * @throws Exception
 	 */
-	abstract public void		visit(NodeVisitor v) throws Exception;
+	abstract public void visit(NodeVisitor v) throws Exception;
 
 	protected NodeBase(final String tag) {
-		m_tag	= tag;
+		m_tag = tag;
 	}
+
 	public void internalSetTagName(final String s) {
 		m_tag = s;
 	}
+
 	public IClicked< ? > getClicked() {
 		return m_clicked;
 	}
@@ -141,6 +144,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void setClicked(final IClicked< ? > clicked) {
 		m_clicked = clicked;
 	}
+
 	public boolean internalNeedClickHandler() {
 		return getClicked() != null;
 	}
@@ -148,22 +152,24 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public boolean hasChangedAttributes() {
 		return m_attributesChanged;
 	}
-	public void	setHasChangedAttributes(final boolean d) {
-		m_attributesChanged= d;
+
+	public void setHasChangedAttributes(final boolean d) {
+		m_attributesChanged = d;
 	}
-	public void	setHasChangedAttributes() {
+
+	public void setHasChangedAttributes() {
 		setHasChangedAttributes(true);
 	}
 
-	public void	internalCheckNotDirty() {
+	public void internalCheckNotDirty() {
 		if(hasChangedAttributes())
-			throw new IllegalStateException("The node "+this+" has DIRTY ATTRIBUTES set");
+			throw new IllegalStateException("The node " + this + " has DIRTY ATTRIBUTES set");
 	}
 
-	public void	internalOnClicked() throws Exception {
-		IClicked<NodeBase>	c = (IClicked<NodeBase>)getClicked();
+	public void internalOnClicked() throws Exception {
+		IClicked<NodeBase> c = (IClicked<NodeBase>) getClicked();
 		if(c == null)
-			throw new IllegalStateException("? Node "+this.getActualID()+" does not have a click handler??");
+			throw new IllegalStateException("? Node " + this.getActualID() + " does not have a click handler??");
 		c.clicked(this);
 	}
 
@@ -177,13 +183,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		m_cachedStyle = null;
 		setHasChangedAttributes();
 		if(getParent() != null)
-			getParent().childChanged();			// Indicate child has changed
+			getParent().childChanged(); // Indicate child has changed
 		super.changed();
 	}
 
 	public String getCachedStyle() {
 		return m_cachedStyle;
 	}
+
 	public void setCachedStyle(final String cachedStyle) {
 		m_cachedStyle = cachedStyle;
 	}
@@ -193,8 +200,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	public void setCssClass(final String cssClass) {
-//		System.out.println("--- id="+m_actualID+", css="+cssClass);
-		if(! DomUtil.isEqual(cssClass, m_cssClass))
+		//		System.out.println("--- id="+m_actualID+", css="+cssClass);
+		if(!DomUtil.isEqual(cssClass, m_cssClass))
 			changed();
 		m_cssClass = cssClass;
 	}
@@ -204,11 +211,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param name
 	 * @return
 	 */
-	public boolean		removeCssClass(final String name) {
+	public boolean removeCssClass(final String name) {
 		if(getCssClass() == null)
 			return false;
-		StringTokenizer	st = new StringTokenizer(getCssClass(), " \t");
-		StringBuilder	sb = new StringBuilder(getCssClass().length());
+		StringTokenizer st = new StringTokenizer(getCssClass(), " \t");
+		StringBuilder sb = new StringBuilder(getCssClass().length());
 		boolean fnd = false;
 		while(st.hasMoreTokens()) {
 			String s = st.nextToken();
@@ -220,7 +227,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 				sb.append(s);
 			}
 		}
-		if(! fnd)
+		if(!fnd)
 			return false;
 		setCssClass(sb.toString());
 		return true;
@@ -231,36 +238,40 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			setCssClass(name);
 			return;
 		}
-		StringTokenizer	st = new StringTokenizer(getCssClass(), " \t");
+		StringTokenizer st = new StringTokenizer(getCssClass(), " \t");
 		while(st.hasMoreTokens()) {
 			String s = st.nextToken();
-			if(name.equals(s))						// Already present?
+			if(name.equals(s)) // Already present?
 				return;
 		}
-		setCssClass(getCssClass()+" "+name);
+		setCssClass(getCssClass() + " " + name);
 	}
-	public boolean	hasCssClass(final String cls) {
+
+	public boolean hasCssClass(final String cls) {
 		if(getCssClass() == null)
 			return false;
-		int	pos = getCssClass().indexOf(cls);
+		int pos = getCssClass().indexOf(cls);
 		if(pos == -1)
 			return false;
-		if(pos != 0 && getCssClass().charAt(pos-1) != ' ')
+		if(pos != 0 && getCssClass().charAt(pos - 1) != ' ')
 			return false;
 		return true;
 	}
 
-	final public String	getActualID() {
+	final public String getActualID() {
 		if(null == m_actualID)
-			throw new IllegalStateException("Missing ID on "+this);
+			throw new IllegalStateException("Missing ID on " + this);
 		return m_actualID;
 	}
-	final String	internalGetID() {
+
+	final String internalGetID() {
 		return m_actualID;
 	}
+
 	final void setActualID(final String actualID) {
 		m_actualID = actualID;
 	}
+
 	/**
 	 * Return the node's tag name (the html tag this node represents).
 	 * @return
@@ -268,7 +279,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	final public String getTag() {
 		return m_tag;
 	}
-	final protected void	setTag(final String tag) {
+
+	final protected void setTag(final String tag) {
 		m_tag = tag;
 	}
 
@@ -290,8 +302,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param up
 	 * @return
 	 */
-	public NodeContainer	getParent(int up) {
-		NodeContainer	c = m_parent;
+	public NodeContainer getParent(int up) {
+		NodeContainer c = m_parent;
 		while(--up > 0) {
 			if(c == null)
 				return null;
@@ -307,7 +319,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param clz
 	 * @return
 	 */
-	public <T> T	getParent(final Class<T> clz) {
+	public <T> T getParent(final Class<T> clz) {
 		NodeContainer c = getParent();
 		for(;;) {
 			if(c == null)
@@ -326,15 +338,17 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	void setOldParent(final NodeContainer c) {
 		m_oldParent = c;
 	}
+
 	public NodeContainer getOldParent() {
 		return m_oldParent;
 	}
-	public void	clearDelta() {
+
+	public void clearDelta() {
 		m_oldParent = null;
 		setHasChangedAttributes(false);
 	}
 
-	public void	clearDeltaFully() {
+	public void clearDeltaFully() {
 		clearDelta();
 	}
 
@@ -343,7 +357,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param parent
 	 */
 	void setParent(final NodeContainer parent) {
-		if(m_oldParent == null)					// jal 20090115 Was !=, seems very wrong and the cause of the "Hell Freezeth over" exception..
+		if(m_oldParent == null) // jal 20090115 Was !=, seems very wrong and the cause of the "Hell Freezeth over" exception..
 			m_oldParent = m_parent;
 		m_parent = parent;
 	}
@@ -352,30 +366,33 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Disconnect this node from it's parent. The node can be reconnected to another parent
 	 * afterwards.
 	 */
-	public void	remove() {
+	public void remove() {
 		if(getParent() != null) {
 			getParent().removeChild(this);
 		}
 	}
-	public void	replaceWith(final NodeBase nw) {
+
+	public void replaceWith(final NodeBase nw) {
 		getParent().replaceChild(this, nw);
 	}
+
 	void unregisterFromPage() {
 		if(getPage() == null)
 			return;
-//			throw new IllegalStateException("?? Already disconnected from page");
+		//			throw new IllegalStateException("?? Already disconnected from page");
 		getPage().unregisterNode(this);
 	}
 
-	public void	appendAfterMe(final NodeBase item) {
+	public void appendAfterMe(final NodeBase item) {
 		if(getParent() == null)
 			throw new IllegalStateException("No parent node is known");
 		int ix = getParent().findChildIndex(this);
 		if(ix == -1)
 			throw new IllegalStateException("!@?! Cannot find myself!?");
-		getParent().add(ix+1, item);
+		getParent().add(ix + 1, item);
 	}
-	public void	appendBeforeMe(final NodeBase item) {
+
+	public void appendBeforeMe(final NodeBase item) {
 		if(getParent() == null)
 			throw new IllegalStateException("No parent node is known");
 		int ix = getParent().findChildIndex(this);
@@ -384,33 +401,37 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		getParent().add(ix, item);
 	}
 
-	void	registerWithPage(final Page p) {
+	void registerWithPage(final Page p) {
 		p.registerNode(this);
 	}
 
 	final public Page getPage() {
 		return m_page;
 	}
+
 	final void setPage(final Page page) {
 		m_page = page;
 	}
 
-	final public void	build() throws Exception {
-		if(! m_built) {
+	final public void build() throws Exception {
+		if(!m_built) {
 			internalCreateContent();
 			m_built = true;
 		}
 	}
-	protected void	clearBuilt() {
+
+	protected void clearBuilt() {
 		m_built = false;
 	}
+
 	/**
 	 * Returns T if the node's content has been built.
 	 * @return
 	 */
-	public boolean	isBuilt() {
+	public boolean isBuilt() {
 		return m_built;
 	}
+
 	private final void internalCreateContent() throws Exception {
 		createContent();
 		afterCreateContent();
@@ -423,7 +444,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @return
 	 */
 	public String getLiteralTitle() {
-		return DomUtil.replaceTilded(this, m_title);		// FIXME Performance?
+		return DomUtil.replaceTilded(this, m_title); // FIXME Performance?
 	}
 
 	/**
@@ -431,7 +452,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param title
 	 */
 	public void setLiteralTitle(final String title) {
-		if(! DomUtil.isEqual(title, m_title))
+		if(!DomUtil.isEqual(title, m_title))
 			changed();
 		m_title = title;
 	}
@@ -440,7 +461,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Returns the title verbatim; if it was set using a key this returns the key without resource bundle replacement.
 	 * @return
 	 */
-	public String	getTitle() {
+	public String getTitle() {
 		return m_title;
 	}
 
@@ -448,13 +469,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Sets a title, which can be a tilde-escaped key for the page resource bundle.
 	 * @param txt
 	 */
-	public void	setTitle(String title) {
-		if(! DomUtil.isEqual(title, m_title))
+	public void setTitle(String title) {
+		if(!DomUtil.isEqual(title, m_title))
 			changed();
 		m_title = title;
 	}
 
-	public void	setTitle(final BundleRef ref, final String k) {
+	public void setTitle(final BundleRef ref, final String k) {
 		setLiteralTitle(ref.getString(k));
 	}
 
@@ -462,11 +483,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public String toString() {
 		String n = getClass().getName();
 		int pos = n.lastIndexOf('.');
-		return n.substring(pos+1)+":"+m_actualID+(m_title == null ? "" : "/"+m_title);
+		return n.substring(pos + 1) + ":" + m_actualID + (m_title == null ? "" : "/" + m_title);
 	}
 
-	public void	acceptRequestParameter(final String[] values) throws Exception {
-		throw new IllegalStateException("?? The '"+getTag()+"' component ("+this.getClass()+") with id="+m_actualID+" does NOT accept input!");
+	public void acceptRequestParameter(final String[] values) throws Exception {
+		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
 	}
 
 	void internalOnAddedToPage(final Page p) {
@@ -476,27 +497,29 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			m_appendJS = null;
 		}
 	}
+
 	void internalOnRemoveFromPage(final Page p) {
 		onRemoveFromPage(p);
 	}
 
-	public void	createContent() throws Exception {
-	}
-	protected void	afterCreateContent() throws Exception {
-	}
-	public void		onAddedToPage(final Page p) {
-	}
-	public void		onRemoveFromPage(final Page p) {
-	}
-	public void	onHeaderContributors(final Page page) {
-	}
-	public boolean	validate() {
+	public void createContent() throws Exception {}
+
+	protected void afterCreateContent() throws Exception {}
+
+	public void onAddedToPage(final Page p) {}
+
+	public void onRemoveFromPage(final Page p) {}
+
+	public void onHeaderContributors(final Page page) {}
+
+	public boolean validate() {
 		return true;
 	}
 
 	public Object getUserObject() {
 		return m_userObject;
 	}
+
 	public void setUserObject(final Object userObject) {
 		m_userObject = userObject;
 	}
@@ -518,17 +541,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void setOnMouseDownJS(final String onMouseDownJS) {
 		m_onMouseDownJS = onMouseDownJS;
 	}
+
 	/**
 	 * EXPERIMENTAL This adds a Javascript segment to be executed as soon as the
 	 * current request returns. The code is rendered only once.
 	 * @param js
 	 */
-	public void		appendJavascript(final CharSequence js) {
+	public void appendJavascript(final CharSequence js) {
 		if(getPage() != null)
 			getPage().appendJS(js);
 		else {
 			if(m_appendJS == null)
-				m_appendJS = new StringBuilder(js.length()+100);
+				m_appendJS = new StringBuilder(js.length() + 100);
 			m_appendJS.append(';');
 			m_appendJS.append(js);
 		}
@@ -539,17 +563,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * gets added to the page's onload() code every time this object is constructed.
 	 * @param js
 	 */
-	public void		appendCreateJS(final CharSequence js) {
+	public void appendCreateJS(final CharSequence js) {
 		if(m_createJS == null)
 			m_createJS = new StringBuilder();
 		m_createJS.append(js);
 		m_createJS.append(';');
 	}
+
 	public StringBuilder getCreateJS() {
 		return m_createJS;
 	}
 
-	public void	setSpecialAttribute(final String name, final String value) {
+	public void setSpecialAttribute(final String name, final String value) {
 		if(m_specialAttributes == null) {
 			m_specialAttributes = new ArrayList<String>(5);
 		} else {
@@ -560,7 +585,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 						m_specialAttributes.remove(i);
 						return;
 					}
-					m_specialAttributes.set(i+1, value);
+					m_specialAttributes.set(i + 1, value);
 					changed();
 					return;
 				}
@@ -570,15 +595,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		m_specialAttributes.add(value);
 		changed();
 	}
-	public List<String>	getSpecialAttributeList() {
+
+	public List<String> getSpecialAttributeList() {
 		return m_specialAttributes;
 	}
 
-	public String	getSpecialAttribute(final String name) {
+	public String getSpecialAttribute(final String name) {
 		if(m_specialAttributes != null) {
 			for(int i = 0; i < m_specialAttributes.size(); i += 2) {
 				if(m_specialAttributes.get(i).equals(name))
-					return m_specialAttributes.get(i+1);
+					return m_specialAttributes.get(i + 1);
 			}
 		}
 		return null;
@@ -590,12 +616,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param action
 	 * @throws Exception
 	 */
-	public void	componentHandleWebAction(final RequestContextImpl ctx, final String action) throws Exception {
+	public void componentHandleWebAction(final RequestContextImpl ctx, final String action) throws Exception {
 		if("WEBUIDROP".equals(action)) {
 			handleDrop(ctx);
 			return;
 		}
-		throw new IllegalStateException("The component "+this+" does not accept the web action "+action);
+		throw new IllegalStateException("The component " + this + " does not accept the web action " + action);
 	}
 
 	/**
@@ -604,16 +630,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * are already attached to a page. If this is a proble I'll fix it. Only one component
 	 * in a page can claim focus for itself.
 	 */
-	public void		setFocus() {
+	public void setFocus() {
 		if(getPage() == null) {
 			//-- Mark this as a component wanting the focus.
 			m_focusRequested = true;
 		} else
 			getPage().setFocusComponent(this);
 	}
+
 	public boolean isFocusRequested() {
 		return m_focusRequested;
 	}
+
 	public void clearFocusRequested() {
 		m_focusRequested = false;
 	}
@@ -628,9 +656,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * When set this component has an error/warning/info message. A control can have only one
 	 * message associated with it; the most severe error of all message types gets used.
 	 */
-	private UIMessage			m_message;
+	private UIMessage m_message;
 
-	private INodeErrorDelegate	m_errorDelegate;
+	private INodeErrorDelegate m_errorDelegate;
 
 	/**
 	 * This sets a message (an error, warning or info message) on this control. If the
@@ -642,7 +670,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param code
 	 * @param param
 	 */
-	public UIMessage	setMessage(final MsgType mt, final String code, final Object... param) {
+	public UIMessage setMessage(final MsgType mt, final String code, final Object... param) {
 		if(m_errorDelegate != null)
 			return m_errorDelegate.setMessage(mt, code, param);
 
@@ -657,12 +685,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 				return m_message;
 
 			//-- The current message is to be replaced. For that we need to clear it first
-			clearMessage();										// Discard existing message
+			clearMessage(); // Discard existing message
 		}
 
 		//-- Now add the message
-		m_message = new UIMessage(this, mt, code, param);		// Create the container for the message
-		IErrorFence	fence	= DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
+		m_message = new UIMessage(this, mt, code, param); // Create the container for the message
+		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.addMessage(this, m_message);
 		return m_message;
 	}
@@ -670,15 +698,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Remove this-component's "current" error message, if present.
 	 */
-	public void	clearMessage() {
+	public void clearMessage() {
 		if(m_errorDelegate != null) {
 			m_errorDelegate.clearMessage();
 			return;
 		}
 		if(getMessage() == null)
 			return;
-		IErrorFence	fence	= DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
-		UIMessage	msg	= m_message;
+		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
+		UIMessage msg = m_message;
 		m_message = null;
 		fence.removeMessage(this, msg);
 	}
@@ -691,9 +719,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			return m_errorDelegate.getMessage();
 		return m_message;
 	}
+
 	public void setErrorDelegate(final INodeErrorDelegate errorDelegate) {
 		m_errorDelegate = errorDelegate;
 	}
+
 	public INodeErrorDelegate getErrorDelegate() {
 		return m_errorDelegate;
 	}
@@ -706,31 +736,34 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param code
 	 * @param param
 	 */
-	public UIMessage		addGlobalMessage(final MsgType mt, final String code, final Object... param) {
-		UIMessage m = new UIMessage(null, mt, code, param);		// Create the container for the message
-		IErrorFence	fence	= DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
+	public UIMessage addGlobalMessage(final MsgType mt, final String code, final Object... param) {
+		UIMessage m = new UIMessage(null, mt, code, param); // Create the container for the message
+		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.addMessage(this, m);
 		return m;
 	}
 
-	public void				clearGlobalMessage() {
-		IErrorFence	fence	= DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
+	public void clearGlobalMessage() {
+		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.clearGlobalMessages(this, null);
 	}
-	public void				clearGlobalMessage(final String code) {
-		IErrorFence	fence	= DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
+
+	public void clearGlobalMessage(final String code) {
+		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.clearGlobalMessages(this, code);
 	}
-	protected void	internalShelve() throws Exception {
+
+	protected void internalShelve() throws Exception {
 		onShelve();
 	}
-	protected void	internalUnshelve() throws Exception {
+
+	protected void internalUnshelve() throws Exception {
 		onUnshelve();
 	}
-	protected void		onShelve() throws Exception {
-	}
-	protected void		onUnshelve() throws Exception {
-	}
+
+	protected void onShelve() throws Exception {}
+
+	protected void onUnshelve() throws Exception {}
 
 
 	/*--------------------------------------------------------------*/
@@ -741,22 +774,22 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * drop node AND the draggable that was dropped.
 	 * @param ctx
 	 */
-	protected void	handleDrop(final RequestContextImpl ctx) throws Exception {
+	protected void handleDrop(final RequestContextImpl ctx) throws Exception {
 		//-- Get the drop handler,
-		if(! (this instanceof IDropTargetable))
-			throw new IllegalStateException("?? Got a DROP action but I am not able to receive droppings?? "+this);
-		IDropHandler	droph = ((IDropTargetable)this).getDropHandler();
+		if(!(this instanceof IDropTargetable))
+			throw new IllegalStateException("?? Got a DROP action but I am not able to receive droppings?? " + this);
+		IDropHandler droph = ((IDropTargetable) this).getDropHandler();
 
 		//-- Find the dragged node and it's DragHandler
 		String dragid = ctx.getParameter("_dragid");
 		if(dragid == null)
-			throw new IllegalStateException("No _dragid in drop request to node="+this);
-		NodeBase	dragnode = getPage().findNodeByID(dragid);
+			throw new IllegalStateException("No _dragid in drop request to node=" + this);
+		NodeBase dragnode = getPage().findNodeByID(dragid);
 		if(dragnode == null)
-			throw new IllegalStateException("Unknown dragged node "+dragid+" in drop request to node="+this);
-		if(! (dragnode instanceof IDraggable))
-			throw new IllegalStateException("The supposedly dragged node "+dragnode+" does not implement IDraggable!?");
-		IDragHandler	dragh = ((IDraggable)dragnode).getDragHandler();
+			throw new IllegalStateException("Unknown dragged node " + dragid + " in drop request to node=" + this);
+		if(!(dragnode instanceof IDraggable))
+			throw new IllegalStateException("The supposedly dragged node " + dragnode + " does not implement IDraggable!?");
+		IDragHandler dragh = ((IDraggable) dragnode).getDragHandler();
 
 		//-- First call the drag handler's DROPPED thingy
 		int index = 0;
@@ -765,10 +798,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			try {
 				index = Integer.parseInt(s.trim());
 			} catch(Exception x) {
-				throw new IllegalStateException("Bad _index parameter in DROP request: "+s);
+				throw new IllegalStateException("Bad _index parameter in DROP request: " + s);
 			}
 		}
-		DropEvent	dx = new DropEvent((NodeContainer)this, dragnode, index);
+		DropEvent dx = new DropEvent((NodeContainer) this, dragnode, index);
 		dragh.onDropped(dx);
 		droph.onDropped(dx);
 	}

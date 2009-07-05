@@ -56,7 +56,7 @@ public class RpcClassDefinition {
 		return m_roles;
 	}
 
-	public Class<?> getHandlerClass() {
+	public Class< ? > getHandlerClass() {
 		return m_handlerClass;
 	}
 

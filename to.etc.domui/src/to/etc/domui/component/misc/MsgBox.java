@@ -10,12 +10,11 @@ import to.etc.domui.dom.html.*;
  * Created on Jun 27, 2008
  */
 public class MsgBox extends Div {
-	private String			m_title;
+	private String m_title;
 
-	private NodeBase		m_contents;
+	private NodeBase m_contents;
 
-	public MsgBox() {
-	}
+	public MsgBox() {}
 
 	public MsgBox(String title, NodeBase contents) {
 		m_contents = contents;
@@ -24,9 +23,9 @@ public class MsgBox extends Div {
 
 	@Override
 	public void createContent() throws Exception {
-		Div		ttlbar = new Div();
+		Div ttlbar = new Div();
 		add(ttlbar);
-		Img	img = new Img();
+		Img img = new Img();
 		img.setSrc("THEME/close.png");
 		img.setFloat(FloatType.RIGHT);
 		ttlbar.add(img);
@@ -47,8 +46,8 @@ public class MsgBox extends Div {
 		});
 	}
 
-	static public <T extends NodeBase> void		message(T pg, String title, String message) {
-		MsgBox	box = new MsgBox(title, new TextNode(message));
+	static public <T extends NodeBase> void message(T pg, String title, String message) {
+		MsgBox box = new MsgBox(title, new TextNode(message));
 		pg.getPage().getBody().add(box);
 	}
 }

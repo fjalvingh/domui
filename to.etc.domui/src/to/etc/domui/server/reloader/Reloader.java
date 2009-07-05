@@ -1,21 +1,13 @@
 package to.etc.domui.server.reloader;
 
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.logging.*;
+import java.util.regex.*;
 
 import to.etc.domui.server.*;
-import to.etc.util.StringTool;
+import to.etc.util.*;
 
 /**
  * This class handles loading classes in such a way that when their source .class
@@ -48,54 +40,57 @@ import to.etc.util.StringTool;
  * Created on May 22, 2008
  */
 final public class Reloader {
-	static final Logger	LOG	= Logger.getLogger(Reloader.class.getName());
+	static final Logger LOG = Logger.getLogger(Reloader.class.getName());
 
-	static private final ResourceRef	NOT_FOUND	= new ResourceRef() {
+	static private final ResourceRef NOT_FOUND = new ResourceRef() {
 		public long lastModified() {
 			throw new IllegalStateException("Whazzup!?");
 		}
 	};
 
 	static private class LoadSpec {
-		private Pattern		m_pat;
-		private boolean		m_accept;
+		private Pattern m_pat;
+
+		private boolean m_accept;
 
 		public LoadSpec(Pattern pat, boolean accept) {
 			m_accept = accept;
 			m_pat = pat;
 		}
-		public boolean 	matches(String in) {
+
+		public boolean matches(String in) {
 			return m_pat.matcher(in).matches();
 		}
-		public boolean	isAccept() {
+
+		public boolean isAccept() {
 			return m_accept;
 		}
 	}
 
 	/** The spec for classes to load thru the reloader. */
-	private List<LoadSpec>				m_loadSpecList = new ArrayList<LoadSpec>();
+	private List<LoadSpec> m_loadSpecList = new ArrayList<LoadSpec>();
 
 	/** The current classloader, */
-	private ReloadingClassLoader		m_currentLoader;
+	private ReloadingClassLoader m_currentLoader;
 
 	/** The classloader used for other classes */
-	private CheckingClassLoader			m_checkLoader;
+	private CheckingClassLoader m_checkLoader;
 
 	/** The set of URLs that are accessed by all my classloaders. */
-	private Set<URL>					m_urlSet = new HashSet<URL>();
+	private Set<URL> m_urlSet = new HashSet<URL>();
 
-	private Map<String, ResourceRef>	m_lookupMap = new HashMap<String, ResourceRef>();
+	private Map<String, ResourceRef> m_lookupMap = new HashMap<String, ResourceRef>();
 
-	private boolean						m_changed;
+	private boolean m_changed;
 
 	/**
 	 * Create a reloader which handles the specified classes.
 	 * @param paths
 	 */
 	public Reloader(String paths) {
-		m_loadSpecList.add(new LoadSpec(Pattern.compile("to.etc.domui.*"), false));		// Never accept internal classes!!
+		m_loadSpecList.add(new LoadSpec(Pattern.compile("to.etc.domui.*"), false)); // Never accept internal classes!!
 
-		StringTokenizer	st	= new StringTokenizer(paths, " \t;,");
+		StringTokenizer st = new StringTokenizer(paths, " \t;,");
 		while(st.hasMoreTokens()) {
 			String path = st.nextToken().trim();
 			if(path.length() > 0) {
@@ -107,27 +102,27 @@ final public class Reloader {
 					on = false;
 					path = path.substring(1).trim();
 				}
-				Pattern	p = Pattern.compile(path);
+				Pattern p = Pattern.compile(path);
 				m_loadSpecList.add(new LoadSpec(p, on));
 			}
 		}
 		if(m_loadSpecList.size() == 0)
 			throw new IllegalStateException("No load specifiers added.");
-//		findUrlsFor(m_currentLoader);
+		//		findUrlsFor(m_currentLoader);
 		findUrlsFor(getClass().getClassLoader());
 
 		//-- ORDERED: must be below findUrlFor's
 		m_currentLoader = new ReloadingClassLoader(getClass().getClassLoader(), this);
 	}
 
-	URL[]	getUrls() {
+	URL[] getUrls() {
 		return m_urlSet.toArray(new URL[m_urlSet.size()]);
 	}
 
-//	ClassLoader	getCheckingLoader() {
-//		return m_checkLoader;
-//	}
-	public ClassLoader	getReloadingLoader() {
+	//	ClassLoader	getCheckingLoader() {
+	//		return m_checkLoader;
+	//	}
+	public ClassLoader getReloadingLoader() {
 		return m_currentLoader;
 	}
 
@@ -136,19 +131,19 @@ final public class Reloader {
 	 * @param classname
 	 * @return
 	 */
-	public Class<DomApplication>	loadApplication(String classname) throws Exception {
+	public Class<DomApplication> loadApplication(String classname) throws Exception {
 		if(m_checkLoader == null)
-			m_checkLoader	= new CheckingClassLoader(getClass().getClassLoader(), this, classname);
+			m_checkLoader = new CheckingClassLoader(getClass().getClassLoader(), this, classname);
 		return (Class<DomApplication>) m_checkLoader.loadClass(classname);
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Code which locates the source for a class.			*/
 	/*--------------------------------------------------------------*/
-	
-	private void	addURL(URL u) {
-//		LOG.info("adding URL="+u);
-//		System.out.println(".    url="+u);
+
+	private void addURL(URL u) {
+		//		LOG.info("adding URL="+u);
+		//		System.out.println(".    url="+u);
 		m_urlSet.add(u);
 	}
 
@@ -156,12 +151,12 @@ final public class Reloader {
 	 * Checks to see what kind of classloader this is, and add all paths to my list.
 	 * @param loader
 	 */
-	private void	findUrlsFor(ClassLoader loader) {
-//		System.out.println(".. loader="+loader);
+	private void findUrlsFor(ClassLoader loader) {
+		//		System.out.println(".. loader="+loader);
 		if(loader == null)
 			return;
 		if(loader instanceof URLClassLoader) {
-			URLClassLoader	ucl = (URLClassLoader) loader;
+			URLClassLoader ucl = (URLClassLoader) loader;
 			for(URL u : ucl.getURLs()) {
 				addURL(u);
 			}
@@ -176,16 +171,16 @@ final public class Reloader {
 	 * @param clz
 	 * @return
 	 */
-	synchronized ResourceTimestamp		findClassSource(Class<?> clz) {
-		ResourceRef	rr = m_lookupMap.get(clz.getName());			// Already looked up earlier?
+	synchronized ResourceTimestamp findClassSource(Class< ? > clz) {
+		ResourceRef rr = m_lookupMap.get(clz.getName()); // Already looked up earlier?
 		if(rr != null) {
 			if(rr == NOT_FOUND)
 				return null;
-			return new ResourceTimestamp(rr, rr.lastModified());	// Return timestamp
+			return new ResourceTimestamp(rr, rr.lastModified()); // Return timestamp
 		}
-		
-		String	path	= clz.getName().replace('.', '/')+".class";	// Make path-like structure
-		ResourceTimestamp	ts = null;
+
+		String path = clz.getName().replace('.', '/') + ".class"; // Make path-like structure
+		ResourceTimestamp ts = null;
 		for(URL u : m_urlSet) {
 			ts = checkForFile(u, path);
 			if(ts != null)
@@ -205,25 +200,25 @@ final public class Reloader {
 				return null;
 			}
 		}
-		m_lookupMap.put(clz.getName(), ts.getRef());		// Save found/not found ref
+		m_lookupMap.put(clz.getName(), ts.getRef()); // Save found/not found ref
 		return ts;
 	}
 
-	private ResourceTimestamp	checkForFile(URL u, String rel) {
-		if(! "file".equals( u.getProtocol()))
+	private ResourceTimestamp checkForFile(URL u, String rel) {
+		if(!"file".equals(u.getProtocol()))
 			return null;
 		if(u.getPath().endsWith(".jar"))
 			return null;
-		File	f = new File(u.getFile());
-		if(! f.exists() || ! f.isDirectory())					// Must be a dir here,
+		File f = new File(u.getFile());
+		if(!f.exists() || !f.isDirectory()) // Must be a dir here,
 			return null;
 
 		//-- Can we locate the class here, then?
-		File	nw	= new File(f, rel);
-		if(! nw.exists() || ! nw.isFile())
+		File nw = new File(f, rel);
+		if(!nw.exists() || !nw.isFile())
 			return null;
 
-		LOG.fine("Found class "+rel+" in "+u);
+		LOG.fine("Found class " + rel + " in " + u);
 		return new ResourceTimestamp(new FileRef(nw), nw.lastModified());
 	}
 
@@ -233,13 +228,13 @@ final public class Reloader {
 	 * @param rel
 	 * @return
 	 */
-	private ResourceTimestamp	checkForJar(URL u, String rel) {
-		if(! "file".equals( u.getProtocol()))
+	private ResourceTimestamp checkForJar(URL u, String rel) {
+		if(!"file".equals(u.getProtocol()))
 			return null;
-		if(! u.getPath().endsWith(".jar"))
+		if(!u.getPath().endsWith(".jar"))
 			return null;
-		File	f = new File(u.getFile());
-		if(! f.exists() || ! f.isFile())					// Must be a file,
+		File f = new File(u.getFile());
+		if(!f.exists() || !f.isFile()) // Must be a file,
 			return null;
 		long ts = JarRef.getTimestamp(f, rel);
 		if(ts == -1)
@@ -256,7 +251,7 @@ final public class Reloader {
 	 * @param name
 	 * @return
 	 */
-	boolean	watchClass(String name) {
+	boolean watchClass(String name) {
 		for(LoadSpec ls : m_loadSpecList) {
 			if(ls.matches(name))
 				return ls.isAccept();
@@ -272,7 +267,7 @@ final public class Reloader {
 	 * it does not sweep again when that thread completes the sweep.
 	 */
 	public boolean isChanged() {
-		List<ResourceTimestamp>	sweeplist;		// Whatever will be sweeped
+		List<ResourceTimestamp> sweeplist; // Whatever will be sweeped
 		synchronized(this) {
 			if(m_changed)
 				return true;
@@ -280,7 +275,7 @@ final public class Reloader {
 		}
 
 		//-- We are responsible for sweeping - we own the sweep baton
-		if(! sweep(sweeplist))				// Has any resource changed?
+		if(!sweep(sweeplist)) // Has any resource changed?
 			return false;
 		synchronized(this) {
 			m_changed = true;
@@ -288,8 +283,8 @@ final public class Reloader {
 		}
 	}
 
-	public void	clear() {
-		synchronized (this) {
+	public void clear() {
+		synchronized(this) {
 			m_changed = false;
 			m_currentLoader = new ReloadingClassLoader(getClass().getClassLoader(), this);
 		}
@@ -301,22 +296,22 @@ final public class Reloader {
 	 * @return
 	 */
 	private boolean sweep(List<ResourceTimestamp> list) {
-		int	fc = 0;
+		int fc = 0;
 		long ts = System.nanoTime();
 		try {
 			for(ResourceTimestamp fr : list) {
 				if(fr.changed()) {
-					LOG.info("Class Source "+fr+" has changed.");
+					LOG.info("Class Source " + fr + " has changed.");
 					return true;
 				}
 			}
 			return false;
 		} finally {
-			ts	= System.nanoTime() - ts;
+			ts = System.nanoTime() - ts;
 			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("Scanned "+fc+" .class files in "+StringTool.strNanoTime(ts));
+				LOG.fine("Scanned " + fc + " .class files in " + StringTool.strNanoTime(ts));
 		}
 	}
 
-	
+
 }

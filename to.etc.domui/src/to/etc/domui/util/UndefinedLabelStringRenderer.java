@@ -6,6 +6,7 @@ public class UndefinedLabelStringRenderer implements ILabelStringRenderer<Object
 	public String getLabelFor(Object object) {
 		return object == null ? "" : object.toString();
 	}
+
 	public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameter) {
 		throw new IllegalStateException();
 	}

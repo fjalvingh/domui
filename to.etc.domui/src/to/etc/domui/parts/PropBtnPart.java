@@ -19,16 +19,20 @@ import to.etc.domui.util.resources.*;
  */
 public class PropBtnPart implements BufferedPartFactory {
 	static public class ButtonPartKey {
-		String		m_propfile;
+		String m_propfile;
 
-		String		m_icon;
+		String m_icon;
 
-		String		m_text;
+		String m_text;
 
-		int			m_start;
-		int 		m_end;
-		String		m_color;
-		String		m_img;
+		int m_start;
+
+		int m_end;
+
+		String m_color;
+
+		String m_img;
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -42,6 +46,7 @@ public class PropBtnPart implements BufferedPartFactory {
 			result = prime * result + ((m_text == null) ? 0 : m_text.hashCode());
 			return result;
 		}
+
 		@Override
 		public boolean equals(Object obj) {
 			if(this == obj)
@@ -54,36 +59,31 @@ public class PropBtnPart implements BufferedPartFactory {
 			if(m_color == null) {
 				if(other.m_color != null)
 					return false;
-			}
-			else if(!m_color.equals(other.m_color))
+			} else if(!m_color.equals(other.m_color))
 				return false;
 			if(m_end != other.m_end)
 				return false;
 			if(m_icon == null) {
 				if(other.m_icon != null)
 					return false;
-			}
-			else if(!m_icon.equals(other.m_icon))
+			} else if(!m_icon.equals(other.m_icon))
 				return false;
 			if(m_img == null) {
 				if(other.m_img != null)
 					return false;
-			}
-			else if(!m_img.equals(other.m_img))
+			} else if(!m_img.equals(other.m_img))
 				return false;
 			if(m_propfile == null) {
 				if(other.m_propfile != null)
 					return false;
-			}
-			else if(!m_propfile.equals(other.m_propfile))
+			} else if(!m_propfile.equals(other.m_propfile))
 				return false;
 			if(m_start != other.m_start)
 				return false;
 			if(m_text == null) {
 				if(other.m_text != null)
 					return false;
-			}
-			else if(!m_text.equals(other.m_text))
+			} else if(!m_text.equals(other.m_text))
 				return false;
 			return true;
 		}
@@ -95,22 +95,22 @@ public class PropBtnPart implements BufferedPartFactory {
 	 * @see to.etc.domui.server.parts.BufferedPartFactory#decodeKey(java.lang.String, to.etc.domui.server.IParameterInfo)
 	 */
 	public Object decodeKey(String rurl, IParameterInfo info) throws Exception {
-		ButtonPartKey	k = new ButtonPartKey();
-		k.m_propfile= info.getParameter("src");
-		k.m_text	= info.getParameter("txt");
-		k.m_icon	= info.getParameter("icon");
-		k.m_color	= info.getParameter("color");
+		ButtonPartKey k = new ButtonPartKey();
+		k.m_propfile = info.getParameter("src");
+		k.m_text = info.getParameter("txt");
+		k.m_icon = info.getParameter("icon");
+		k.m_color = info.getParameter("color");
 		String s = info.getParameter("end");
 		if(s == null)
-			k.m_end		= -1;
+			k.m_end = -1;
 		else
-			k.m_end	= Integer.parseInt(s);
+			k.m_end = Integer.parseInt(s);
 		s = info.getParameter("start");
 		if(s == null)
-			k.m_start	= -1;
+			k.m_start = -1;
 		else
-			k.m_start	= Integer.parseInt(s);
-		k.m_img	= info.getParameter("img");
+			k.m_start = Integer.parseInt(s);
+		k.m_img = info.getParameter("img");
 		return k;
 	}
 
@@ -120,29 +120,29 @@ public class PropBtnPart implements BufferedPartFactory {
 	 */
 	public void generate(PartResponse pr, DomApplication da, Object key, ResourceDependencyList rdl) throws Exception {
 		ButtonPartKey k = (ButtonPartKey) key;
-		Properties	p	= PartUtil.loadProperties(da, k.m_propfile, rdl);
+		Properties p = PartUtil.loadProperties(da, k.m_propfile, rdl);
 		if(p == null)
-			throw new ThingyNotFoundException("The button property file '"+k.m_propfile+"' was not found.");
-//		System.out.println("Recreating image "+k.m_propfile+"/"+k.m_text);
+			throw new ThingyNotFoundException("The button property file '" + k.m_propfile + "' was not found.");
+		//		System.out.println("Recreating image "+k.m_propfile+"/"+k.m_text);
 
 		//-- Instantiate the renderer class
-		String	rc	= p.getProperty("renderer");
-		PropButtonRenderer	r	= null;
+		String rc = p.getProperty("renderer");
+		PropButtonRenderer r = null;
 		if(rc == null)
-			r	= new PropButtonRenderer();
+			r = new PropButtonRenderer();
 		else {
 			try {
-				Class<?>	cl = getClass().getClassLoader().loadClass(rc);
-				if(! PropButtonRenderer.class.isAssignableFrom(cl))
+				Class< ? > cl = getClass().getClassLoader().loadClass(rc);
+				if(!PropButtonRenderer.class.isAssignableFrom(cl))
 					throw new IllegalStateException("The class does not extend PropButtonRenderer");
-				r	= (PropButtonRenderer) cl.newInstance();
+				r = (PropButtonRenderer) cl.newInstance();
 			} catch(Exception x) {
-				throw new ThingyNotFoundException("Cannot locate/instantiate the button renderer class '"+rc+"' (specified in "+k.m_propfile+")");
+				throw new ThingyNotFoundException("Cannot locate/instantiate the button renderer class '" + rc + "' (specified in " + k.m_propfile + ")");
 			}
 		}
 
 		//-- Delegate.
-		if(p.getProperty("webui.webapp") == null || ! da.inDevelopmentMode()) {			// Not gotten from WebContent or not in DEBUG mode? Then we may cache!
+		if(p.getProperty("webui.webapp") == null || !da.inDevelopmentMode()) { // Not gotten from WebContent or not in DEBUG mode? Then we may cache!
 			pr.setCacheTime(da.getDefaultExpiryTime());
 		}
 		r.generate(pr, da, k, p, rdl);

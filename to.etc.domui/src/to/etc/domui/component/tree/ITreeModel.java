@@ -13,7 +13,7 @@ public interface ITreeModel<T> {
 	 * @param item
 	 * @return
 	 */
-	public int			getChildCount(T item) throws Exception;
+	public int getChildCount(T item) throws Exception;
 
 	/**
 	 * If possible this should quickly decide if a tree node has children or not. This is
@@ -26,13 +26,13 @@ public interface ITreeModel<T> {
 	 * @param item
 	 * @return
 	 */
-	public boolean		hasChildren(T item) throws Exception;
+	public boolean hasChildren(T item) throws Exception;
 
 	/**
 	 * Get the root object of the tree.
 	 * @return
 	 */
-	public T			getRoot() throws Exception;
+	public T getRoot() throws Exception;
 
 	/**
 	 * Returns the nth child in the parent's list.
@@ -41,11 +41,11 @@ public interface ITreeModel<T> {
 	 * @return
 	 * @throws Exception
 	 */
-	public T			getChild(T parent, int index) throws Exception;
+	public T getChild(T parent, int index) throws Exception;
 
-	public T			getParent(T child) throws Exception;
+	public T getParent(T child) throws Exception;
 
-	public void			addChangeListener(ITreeModelChangedListener l);
+	public void addChangeListener(ITreeModelChangedListener l);
 
-	public void			removeChangeListener(ITreeModelChangedListener l);
+	public void removeChangeListener(ITreeModelChangedListener l);
 }

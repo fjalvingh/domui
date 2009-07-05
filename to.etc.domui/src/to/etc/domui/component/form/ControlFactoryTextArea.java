@@ -17,9 +17,9 @@ public class ControlFactoryTextArea implements ControlFactory {
 		return 0;
 	}
 
-	public Result createControl(IReadOnlyModel<?> model, PropertyMetaModel pmm, boolean editable) {
-		TextArea	ta = new TextArea();
-		if(! editable)
+	public Result createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable) {
+		TextArea ta = new TextArea();
+		if(!editable)
 			ta.setReadOnly(true);
 		ta.setCols(80);
 		ta.setRows(4);

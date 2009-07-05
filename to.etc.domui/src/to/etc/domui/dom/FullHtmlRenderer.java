@@ -1,7 +1,7 @@
 package to.etc.domui.dom;
 
 import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.util.*;
@@ -14,40 +14,46 @@ import to.etc.util.*;
  */
 public class FullHtmlRenderer extends NodeVisitorBase {
 	/** The thingy responsible for rendering the tags, */
-	private HtmlRenderer		m_tagRenderer;
+	private HtmlRenderer m_tagRenderer;
 
-	private BrowserOutput		m_o;
+	private BrowserOutput m_o;
 
-	private RequestContext		m_ctx;
+	private RequestContext m_ctx;
 
-	private Page				m_page;
+	private Page m_page;
 
-	private boolean				m_xml;
+	private boolean m_xml;
 
-	private StringBuilder		m_createJS = new StringBuilder();
+	private StringBuilder m_createJS = new StringBuilder();
 
 	public FullHtmlRenderer(HtmlRenderer tagRenderer, BrowserOutput o) {
 		m_tagRenderer = tagRenderer;
 		m_o = o;
 	}
+
 	private HtmlRenderer getTagRenderer() {
 		// 20090701 jal was ADDS which is WRONG - by definition a FULL render IS a full renderer... This caused SELECT tags to be rendered with domui_selected attributes instead of selected attributes. 
-		m_tagRenderer.setRenderMode(HtmlRenderMode.FULL);	// All nodes from the full renderer are NEW by definition.
-//		m_tagRenderer.setNewNode(true);					
+		m_tagRenderer.setRenderMode(HtmlRenderMode.FULL); // All nodes from the full renderer are NEW by definition.
+		//		m_tagRenderer.setNewNode(true);					
 		return m_tagRenderer;
 	}
+
 	public boolean isXml() {
 		return m_xml;
 	}
+
 	public void setXml(boolean xml) {
 		m_xml = xml;
 	}
+
 	public BrowserOutput o() {
 		return m_o;
 	}
+
 	public RequestContext ctx() {
 		return m_ctx;
 	}
+
 	public Page page() {
 		return m_page;
 	}
@@ -58,11 +64,11 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		n.visit(getTagRenderer());
 		if(n.getCreateJS() != null)
 			m_createJS.append(n.getCreateJS());
-		if(! (n instanceof TextNode)) {
+		if(!(n instanceof TextNode)) {
 			if(m_xml)
 				getTagRenderer().renderEndTag(n);
-			else 
-				m_o.dec();					// 20080626 img et al does not dec()...
+			else
+				m_o.dec(); // 20080626 img et al does not dec()...
 		}
 		n.clearDelta();
 		checkForFocus(n);
@@ -74,18 +80,18 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 	 */
 	@Override
 	public void visitLiteralXhtml(LiteralXhtml n) throws Exception {
-		visitNodeBase(n);						// Handle most thingies we need to do,
-		if(! m_xml) {
+		visitNodeBase(n); // Handle most thingies we need to do,
+		if(!m_xml) {
 			//-- In HTML mode we MUST end this tag, and we need to inc() because the visitNodeBase() has decremented..
 			m_o.inc();
-			getTagRenderer().renderEndTag(n);		// Force close the tag in HTML mode.
+			getTagRenderer().renderEndTag(n); // Force close the tag in HTML mode.
 		}
 	}
 
 	@Override
 	public void visitNodeContainer(NodeContainer n) throws Exception {
 		n.build();
-		n.visit(getTagRenderer());			// Ask base renderer to render tag
+		n.visit(getTagRenderer()); // Ask base renderer to render tag
 		if(n.getCreateJS() != null)
 			m_createJS.append(n.getCreateJS());
 		visitChildren(n);
@@ -97,7 +103,7 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 	/*
 	 * Handle default input focus: if no focus is set AND this is an input control -> set focus.
 	 */
-	private void	checkForFocus(NodeBase n) {
+	private void checkForFocus(NodeBase n) {
 		if(n.getPage().getFocusComponent() != null)
 			return;
 		if(n instanceof IInputBase) {
@@ -105,22 +111,20 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		}
 	}
 
-	protected void	renderPageHeader() throws Exception {
-		o().writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n"
-		+	"<html>\n"
-		+	"<head>\n"
-		+	"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n"
-		);
+	protected void renderPageHeader() throws Exception {
+		o().writeRaw(
+			"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html>\n" + "<head>\n"
+				+ "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
 	}
 
-	public void	renderThemeCSS() throws Exception {
+	public void renderThemeCSS() throws Exception {
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
-		o().writeRaw(ctx().getRelativePath( ctx().getRelativeThemePath("style.css") ));
+		o().writeRaw(ctx().getRelativePath(ctx().getRelativeThemePath("style.css")));
 		o().writeRaw("\"></link>\n");
 	}
 
-	public void	renderHeadContributors() throws Exception {
-		for(HeaderContributor hc: page().getApplication().getHeaderContributorList())
+	public void renderHeadContributors() throws Exception {
+		for(HeaderContributor hc : page().getApplication().getHeaderContributorList())
 			hc.contribute(this);
 
 		for(HeaderContributor hc : page().getHeaderContributorList()) {
@@ -128,7 +132,7 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		}
 	}
 
-	public void	renderLoadCSS(String path) throws Exception {
+	public void renderLoadCSS(String path) throws Exception {
 		//-- render an app-relative url
 		o().tag("link");
 		o().attr("rel", "stylesheet");
@@ -138,7 +142,7 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		o().closetag("link");
 	}
 
-	public void	renderLoadJavascript(String path) throws Exception {
+	public void renderLoadJavascript(String path) throws Exception {
 		//-- render an app-relative url
 		o().tag("script");
 		o().attr("language", "javascript");
@@ -147,24 +151,24 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		o().closetag("script");
 	}
 
-	private void	genVar(String name, String val) throws Exception {
-		o().writeRaw("var "+name+"="+val+";\n");
+	private void genVar(String name, String val) throws Exception {
+		o().writeRaw("var " + name + "=" + val + ";\n");
 	}
 
-	public void	render(RequestContext ctx, Page page) throws Exception {
-		m_ctx	= ctx;
-		m_page	= page;
+	public void render(RequestContext ctx, Page page) throws Exception {
+		m_ctx = ctx;
+		m_page = page;
 		page.build();
 		renderPageHeader();
-//		o().writeRaw(
-//			"<script language=\"javascript\"><!--\n"
-//		+	"var DomUIpageTag="+page.getPageTag()+";\n"
-//		+	"var DomUIThemeURL="+StringTool.strToJavascriptString(ctx.getRelativePath( ctx.getRelativeThemePath("") ), true)+";\n"
-//		+	"--></script>\n"
-//		);
+		//		o().writeRaw(
+		//			"<script language=\"javascript\"><!--\n"
+		//		+	"var DomUIpageTag="+page.getPageTag()+";\n"
+		//		+	"var DomUIThemeURL="+StringTool.strToJavascriptString(ctx.getRelativePath( ctx.getRelativeThemePath("") ), true)+";\n"
+		//		+	"--></script>\n"
+		//		);
 		o().writeRaw("<script language=\"javascript\"><!--\n");
 		genVar("DomUIpageTag", Integer.toString(page.getPageTag()));
-		genVar("DomUIThemeURL", StringTool.strToJavascriptString(ctx.getRelativePath( ctx.getRelativeThemePath("") ), true));
+		genVar("DomUIThemeURL", StringTool.strToJavascriptString(ctx.getRelativePath(ctx.getRelativeThemePath("")), true));
 		genVar("DomUICID", StringTool.strToJavascriptString(page.getConversation().getFullId(), true));
 		o().writeRaw("--></script>\n");
 		renderThemeCSS();
@@ -184,7 +188,7 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		 * Render all attached Javascript in an onReady() function. This code will run
 		 * as soon as the body load has completed.
 		 */
-		StringBuilder sq	= page.getAppendedJS();
+		StringBuilder sq = page.getAppendedJS();
 		o().tag("script");
 		o().attr("language", "javascript");
 		o().endtag();
@@ -193,16 +197,16 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		//-- If any component has a focus request issue that,
 		NodeBase f = page.getFocusComponent();
 		if(f != null) {
-			o().text("WebUI.focus('"+f.getActualID()+"');");
+			o().text("WebUI.focus('" + f.getActualID() + "');");
 			page.setFocusComponent(null);
 		}
 		if(m_createJS.length() > 0) {
 			o().writeRaw(m_createJS.toString());
-//				o().text(m_createJS.toString());
+			//				o().text(m_createJS.toString());
 		}
 		if(sq != null) {
 			o().writeRaw(sq.toString());
-//				o().text(sq.toString());
+			//				o().text(sq.toString());
 		}
 
 		//-- If asynchronous actions are pending call WebUI.startPolling();

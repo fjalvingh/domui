@@ -3,9 +3,11 @@ package to.etc.domui.dom.html;
 import java.util.*;
 
 public class Checkbox extends NodeBase {
-	private boolean			m_checked;
-	private boolean			m_disabled;
-	private boolean			m_readOnly;
+	private boolean m_checked;
+
+	private boolean m_disabled;
+
+	private boolean m_readOnly;
 
 	public Checkbox() {
 		super("input");
@@ -19,6 +21,7 @@ public class Checkbox extends NodeBase {
 	public boolean isChecked() {
 		return m_checked;
 	}
+
 	public void setChecked(boolean checked) {
 		if(m_checked != checked)
 			changed();
@@ -53,9 +56,9 @@ public class Checkbox extends NodeBase {
 	@Override
 	public void acceptRequestParameter(String[] values) {
 		if(values == null || values.length != 1)
-			throw new IllegalStateException("Checkbox: expecting a single input value, not "+Arrays.toString(values));
+			throw new IllegalStateException("Checkbox: expecting a single input value, not " + Arrays.toString(values));
 		String s = values[0].trim();
 		m_checked = "y".equalsIgnoreCase(s);
 	}
-	
+
 }

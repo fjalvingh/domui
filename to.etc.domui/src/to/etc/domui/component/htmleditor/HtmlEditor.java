@@ -14,16 +14,17 @@ import to.etc.webapp.nls.*;
  * Created on Sep 30, 2008
  */
 public class HtmlEditor extends TextArea {
-	private String		m_vn;
+	private String m_vn;
 
-	private String		m_toolbarSet = "DomUI";
+	private String m_toolbarSet = "DomUI";
 
-	private IEditorFileSystem	m_fileSystem;
+	private IEditorFileSystem m_fileSystem;
 
 	public HtmlEditor() {
 		super.setCssClass("ui-fck");
 		setVisibility(VisibilityType.HIDDEN);
 	}
+
 	@Override
 	public void setCssClass(final String cssClass) {
 		throw new IllegalStateException("Cannot set a class on FCKEditor");
@@ -45,8 +46,8 @@ public class HtmlEditor extends TextArea {
 	 */
 	@Override
 	public void createContent() throws Exception {
-		StringBuilder	sb	= new StringBuilder(1024);
-		m_vn	= "_fck"+getActualID();
+		StringBuilder sb = new StringBuilder(1024);
+		m_vn = "_fck" + getActualID();
 		sb.append("var ").append(m_vn).append(" = new FCKeditor('").append(getActualID()).append("');");
 		appendOption(sb, "BasePath", PageContext.getRequestContext().getRelativePath("$fckeditor/"));
 		appendOption(sb, "DefaultLanguage", NlsContext.getLocale().getLanguage());
@@ -61,19 +62,20 @@ public class HtmlEditor extends TextArea {
 		sb.append(m_vn).append(".ReplaceTextarea();");
 		appendCreateJS(sb);
 	}
-	private void	appendConfig(final StringBuilder sb, final String option, final String value) {
-		sb.append(m_vn).append(".Config['").append(option).append("'] = ").append(value).append(';');		// Disable this connector component
+
+	private void appendConfig(final StringBuilder sb, final String option, final String value) {
+		sb.append(m_vn).append(".Config['").append(option).append("'] = ").append(value).append(';'); // Disable this connector component
 	}
 
-	private void	appendConnectorConfig(final StringBuilder sb, final String option, final String value) {
+	private void appendConnectorConfig(final StringBuilder sb, final String option, final String value) {
 		if(getFileSystem() == null) {
 			//-- Disable connector in config.
-			sb.append(m_vn).append(".Config['").append(option).append("'] = false;");		// Disable this connector component
+			sb.append(m_vn).append(".Config['").append(option).append("'] = false;"); // Disable this connector component
 			return;
 		}
 
 		//-- Set the connector's URL proper.
-		sb.append(m_vn).append(".Config['").append(option).append("URL'] = '");				// Start URL base path
+		sb.append(m_vn).append(".Config['").append(option).append("URL'] = '"); // Start URL base path
 		sb.append(PageContext.getRequestContext().getRelativePath("$fckeditor/editor/"));
 		sb.append("filemanager/browser/default/browser.html?Type=Image&Connector=");
 		sb.append(PageContext.getRequestContext().getRelativePath(EditResPart.class.getName()));
@@ -90,12 +92,12 @@ public class HtmlEditor extends TextArea {
 		sb.append("';");
 	}
 
-	private void	appendOption(final StringBuilder sb, final String option, final String value) {
+	private void appendOption(final StringBuilder sb, final String option, final String value) {
 		sb.append(m_vn).append(".").append(option).append(" = ");
 		try {
 			StringTool.strToJavascriptString(sb, value, true);
 		} catch(Exception x) {
-			x.printStackTrace();				// James Gosling is an idiot.
+			x.printStackTrace(); // James Gosling is an idiot.
 		}
 		sb.append(";");
 	}
@@ -108,26 +110,37 @@ public class HtmlEditor extends TextArea {
 		if(DomUtil.isEqual(toolbarSet, m_toolbarSet))
 			return;
 		m_toolbarSet = toolbarSet;
-		if(! isBuilt())
+		if(!isBuilt())
 			return;
-		StringBuilder  sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		appendOption(sb, "ToolbarSet", m_toolbarSet);
 		appendJavascript("");
 	}
+
 	public IEditorFileSystem getFileSystem() {
 		return m_fileSystem;
 	}
+
 	public void setFileSystem(final IEditorFileSystem fileSystem) {
 		m_fileSystem = fileSystem;
 	}
-	public void	setToolbarSet(final HtmlToolbarSet set) {
-		switch(set) {
+
+	public void setToolbarSet(final HtmlToolbarSet set) {
+		switch(set){
 			default:
-				throw new IllegalStateException("Unknown toolbar set: "+set);
-			case BASIC:		setToolbarSet("Default");	break;
-			case DEFAULT:	setToolbarSet("Basic");		break;
-			case DOMUI:		setToolbarSet("DomUI");		break;
-			case TXTONLY:	setToolbarSet("TxtOnly");	break;
+				throw new IllegalStateException("Unknown toolbar set: " + set);
+			case BASIC:
+				setToolbarSet("Default");
+				break;
+			case DEFAULT:
+				setToolbarSet("Basic");
+				break;
+			case DOMUI:
+				setToolbarSet("DomUI");
+				break;
+			case TXTONLY:
+				setToolbarSet("TxtOnly");
+				break;
 		}
 	}
 }

@@ -93,7 +93,7 @@ public class EventCometContext implements CometContext {
 			throw new ServletException("Missing servlet parameter 'json' containing the event subscription");
 		//		System.out.println("AjaxEventServlet: json="+json);
 		Object o = JSONParser.parseJSON(json); // Convert to Java map and lists
-		if(!(o instanceof Map<?,?>))
+		if(!(o instanceof Map< ? , ? >))
 			throw new ServletException("Expecting an 'object' as the top-level JSON element");
 		Map<Object, Object> map = (Map<Object, Object>) o;
 		o = map.get("key");
@@ -125,7 +125,7 @@ public class EventCometContext implements CometContext {
 
 		Set<String> channels = new HashSet<String>();
 		o = map.get("channels");
-		if(o == null || !(o instanceof List<?>))
+		if(o == null || !(o instanceof List< ? >))
 			throw new ServletException("The 'channels' field must be an array of strings");
 		for(Object co : (List<Object>) o) {
 			if(!(co instanceof String))

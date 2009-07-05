@@ -4,33 +4,42 @@ import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 public class Div extends NodeContainer implements IDropTargetable, IDraggable {
-	private IReturnPressed			m_returnPressed;
-	private MiniTableBuilder		m_miniTableBuilder;
-	private IDropHandler			m_dropHandler;
-	private IDragHandler			m_dragHandler;
+	private IReturnPressed m_returnPressed;
+
+	private MiniTableBuilder m_miniTableBuilder;
+
+	private IDropHandler m_dropHandler;
+
+	private IDragHandler m_dragHandler;
 
 	public Div() {
 		super("div");
 	}
+
 	public Div(String txt) {
 		this();
 		setButtonText(txt);
 	}
+
 	public Div(NodeBase... children) {
 		this();
-		for(NodeBase b: children)
+		for(NodeBase b : children)
 			add(b);
 	}
+
 	@Override
 	public void visit(NodeVisitor v) throws Exception {
 		v.visitDiv(this);
 	}
+
 	public IReturnPressed getReturnPressed() {
 		return m_returnPressed;
 	}
+
 	public void setReturnPressed(IReturnPressed returnPressed) {
 		m_returnPressed = returnPressed;
 	}
+
 	@Override
 	protected void afterCreateContent() throws Exception {
 		m_miniTableBuilder = null;
@@ -43,7 +52,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	 */
 	@Override
 	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
-		if(! "returnpressed".equals(action)) { 
+		if(!"returnpressed".equals(action)) {
 			super.componentHandleWebAction(ctx, action);
 			return;
 		}
@@ -53,7 +62,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 			m_returnPressed.returnPressed(this);
 	}
 
-	public MiniTableBuilder	tb() {
+	public MiniTableBuilder tb() {
 		if(m_miniTableBuilder == null)
 			m_miniTableBuilder = new MiniTableBuilder();
 		return m_miniTableBuilder;
@@ -62,13 +71,13 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Drag and drop support.								*/
 	/*--------------------------------------------------------------*/
-	
+
 	/** When in table-drop mode this defines whether cells or rows are added to the table. */
-	private DropMode			m_dropMode;
+	private DropMode m_dropMode;
 
 	/** When in table-drop mode this defines the TBody where the drop has to take place. */
-	private TBody				m_dropBody;
-	
+	private TBody m_dropBody;
+
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.domui.util.IDraggable#setDragHandler(to.etc.domui.util.IDragHandler)
@@ -76,6 +85,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	public void setDragHandler(IDragHandler dragHandler) {
 		m_dragHandler = dragHandler;
 	}
+
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.domui.util.IDraggable#getDragHandler()
@@ -83,6 +93,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	public IDragHandler getDragHandler() {
 		return m_dragHandler;
 	}
+
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.domui.util.IDropTargetable#getDropHandler()
@@ -90,6 +101,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	public IDropHandler getDropHandler() {
 		return m_dropHandler;
 	}
+
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.domui.util.IDropTargetable#setDropHandler(to.etc.domui.util.IDropHandler)
@@ -106,10 +118,10 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	 * @param body
 	 * @param dropMode
 	 */
-	public void	setDropBody(TBody body, DropMode dropMode) {
-		switch(dropMode) {
+	public void setDropBody(TBody body, DropMode dropMode) {
+		switch(dropMode){
 			default:
-				throw new IllegalStateException("Unsupported DROP mode for TABLE container: "+dropMode);
+				throw new IllegalStateException("Unsupported DROP mode for TABLE container: " + dropMode);
 			case ROW:
 				break;
 		}
@@ -124,9 +136,11 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 		m_dropMode = dropMode;
 		m_dropBody = body;
 	}
+
 	public TBody getDropBody() {
 		return m_dropBody;
 	}
+
 	public DropMode getDropMode() {
 		return m_dropMode;
 	}

@@ -11,13 +11,16 @@ import java.util.*;
  * Created on Oct 2, 2008
  */
 public class ImageRoot {
-	private ImageCache			m_lock;
-	private Object				m_imageKey;
-	private String				m_filenameBase;
-//	private String				m_mimeType;
-//	private Dimension			m_originalDimension;
+	private ImageCache m_lock;
 
-	private List<ImageInstance>	m_instanceList = new ArrayList<ImageInstance>();
+	private Object m_imageKey;
+
+	private String m_filenameBase;
+
+	//	private String				m_mimeType;
+	//	private Dimension			m_originalDimension;
+
+	private List<ImageInstance> m_instanceList = new ArrayList<ImageInstance>();
 
 	protected ImageRoot(ImageCache ic, Object imageKey, String filenameBase) {
 		m_lock = ic;
@@ -29,7 +32,7 @@ public class ImageRoot {
 	 * If the original image reference is present locate and return it.
 	 * @return
 	 */
-	ImageInstance		findOriginal() {
+	ImageInstance findOriginal() {
 		synchronized(m_lock) {
 			for(ImageInstance ii : m_instanceList) {
 				if(ii.getPermutation().length() == 0)
@@ -39,7 +42,7 @@ public class ImageRoot {
 		}
 	}
 
-	ImageInstance		findPermutation(String perm) {
+	ImageInstance findPermutation(String perm) {
 		synchronized(m_lock) {
 			for(ImageInstance ii : m_instanceList) {
 				if(perm.equals(ii.getPermutation()))
@@ -48,6 +51,7 @@ public class ImageRoot {
 			return null;
 		}
 	}
+
 	public ImageCache getCache() {
 		return m_lock;
 	}
@@ -58,33 +62,36 @@ public class ImageRoot {
 	 *
 	 * @param ii
 	 */
-	void	registerInstance(ImageInstance ii) {
+	void registerInstance(ImageInstance ii) {
 		synchronized(m_lock) {
 			m_instanceList.add(ii);
 		}
 	}
+
 	boolean unregisterInstance(ImageInstance ii) {
 		synchronized(m_lock) {
 			m_instanceList.remove(ii);
 			return m_instanceList.size() == 0;
 		}
 	}
-	int		getInstanceCount() {
+
+	int getInstanceCount() {
 		return m_instanceList.size();
 	}
+
 	public Object getImageKey() {
 		return m_imageKey;
 	}
 
-//	public Dimension getOriginalDimension() {
-//		return m_originalDimension;
-//	}
+	//	public Dimension getOriginalDimension() {
+	//		return m_originalDimension;
+	//	}
 
-//	void setOriginalDimension(Dimension originalDimension) {
-//		m_originalDimension = originalDimension;
-//	}
+	//	void setOriginalDimension(Dimension originalDimension) {
+	//		m_originalDimension = originalDimension;
+	//	}
 	String getFilenameBase() {
 		return m_filenameBase;
 	}
-	
+
 }

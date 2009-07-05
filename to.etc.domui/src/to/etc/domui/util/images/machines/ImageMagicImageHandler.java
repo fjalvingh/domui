@@ -7,12 +7,15 @@ import to.etc.domui.util.images.converters.*;
 import to.etc.util.*;
 
 final public class ImageMagicImageHandler implements ImageHandler {
-    static public final String  PNG = "image/png";
-    static public final String  JPEG = "image/jpeg";
-    static public final String  JPG = "image/jpg";
-    static public final String  GIF = "image/gif";
+	static public final String PNG = "image/png";
 
-    static private final String[] UNIXPATHS = {"/usr/bin", "/usr/local/bin", "/bin", "/opt/imagemagick"};
+	static public final String JPEG = "image/jpeg";
+
+	static public final String JPG = "image/jpg";
+
+	static public final String GIF = "image/gif";
+
+	static private final String[] UNIXPATHS = {"/usr/bin", "/usr/local/bin", "/bin", "/opt/imagemagick"};
 
 	static private final String[] WINDOWSPATHS = {"c:\\program files\\ImageMagick", "c:\\Windows"};
 
@@ -20,15 +23,15 @@ final public class ImageMagicImageHandler implements ImageHandler {
 
 	static private ImageMagicImageHandler m_instance;
 
-	private File 	m_convert;
+	private File m_convert;
 
-	private File 	m_identify;
+	private File m_identify;
 
 	/** Allow max. 2 concurrent ImageMagick tasks to prevent server trouble. */
-	private int 	m_maxTasks = 2;
+	private int m_maxTasks = 2;
 
 	/** The current #of running tasks. */
-	private int 	m_numTasks;
+	private int m_numTasks;
 
 	private ImageMagicImageHandler() {}
 
@@ -54,12 +57,11 @@ final public class ImageMagicImageHandler implements ImageHandler {
 		if(File.separatorChar == '\\') {
 			paths = WINDOWSPATHS;
 			ext = ".exe";
-		}
-		else {
+		} else {
 			paths = UNIXPATHS;
 			ext = "";
 		}
-		ImageMagicImageHandler	m = new ImageMagicImageHandler();
+		ImageMagicImageHandler m = new ImageMagicImageHandler();
 		for(String s : paths) {
 			File f = new File(s, "convert" + ext);
 			if(f.exists()) {
@@ -82,8 +84,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 		while(m_numTasks >= m_maxTasks) {
 			try {
 				wait();
-			}
-			catch(InterruptedException ix) {
+			} catch(InterruptedException ix) {
 				throw new RuntimeException(ix);
 			}
 		}
@@ -102,7 +103,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	 * @return
 	 */
 	public List<ImagePage> identify(File input) throws Exception {
-//		start();
+		//		start();
 		try {
 			//-- Start 'identify' and capture the resulting data
 			ProcessBuilder pb = new ProcessBuilder(m_identify.toString(), "-ping", input.toString());
@@ -133,9 +134,8 @@ final public class ImageMagicImageHandler implements ImageHandler {
 				}
 			}
 			return list;
-		}
-		finally {
-//			done();
+		} finally {
+			//			done();
 		}
 	}
 
@@ -163,35 +163,32 @@ final public class ImageMagicImageHandler implements ImageHandler {
 		return dap;
 	}
 
-    static private String   findExt(String mime) {
-        if(mime.equalsIgnoreCase(GIF))
-            return "gif";
-        else if(mime.equalsIgnoreCase(JPEG) || mime.equalsIgnoreCase(JPG))
-            return "jpg";
-        else if(mime.equalsIgnoreCase(PNG))
-            return "png";
-        return null;
-    }
+	static private String findExt(String mime) {
+		if(mime.equalsIgnoreCase(GIF))
+			return "gif";
+		else if(mime.equalsIgnoreCase(JPEG) || mime.equalsIgnoreCase(JPG))
+			return "jpg";
+		else if(mime.equalsIgnoreCase(PNG))
+			return "png";
+		return null;
+	}
 
-    /**
-     * Create a thumbnail from a source image spec.
-     * @param source
-     * @return
-     * @throws Exception
-     */
+	/**
+	 * Create a thumbnail from a source image spec.
+	 * @param source
+	 * @return
+	 * @throws Exception
+	 */
 	public ImageSpec thumbnail(ImageConverterHelper h, ImageSpec source, int page, int width, int height, String targetMime) throws Exception {
 		//-- Create a thumb.
 		start();
 		try {
 			//-- Create an extension for the target mime type,
-            String  ext = findExt(targetMime);
-            if(ext == null)
-                throw new IllegalArgumentException("The mime type '"+targetMime+"' is not supported");
-            File    tof = h.createWorkFile(ext);
-			ProcessBuilder pb = new ProcessBuilder(
-				m_convert.toString(),
-				source.getSource().toString() + "[" + page + "]", "-thumbnail", width + "x" + height, tof.toString()
-			);
+			String ext = findExt(targetMime);
+			if(ext == null)
+				throw new IllegalArgumentException("The mime type '" + targetMime + "' is not supported");
+			File tof = h.createWorkFile(ext);
+			ProcessBuilder pb = new ProcessBuilder(m_convert.toString(), source.getSource().toString() + "[" + page + "]", "-thumbnail", width + "x" + height, tof.toString());
 			System.out.println("Command: " + pb.toString());
 			StringBuilder sb = new StringBuilder(8192);
 			int xc = ProcessTools.runProcess(pb, sb);
@@ -208,16 +205,13 @@ final public class ImageMagicImageHandler implements ImageHandler {
 		//-- Create a scaled image
 		start();
 		try {
-            String  ext = findExt(targetMime);
-            if(ext == null)
-                throw new IllegalArgumentException("The mime type '"+targetMime+"' is not supported");
-            File    tof = h.createWorkFile(ext);
+			String ext = findExt(targetMime);
+			if(ext == null)
+				throw new IllegalArgumentException("The mime type '" + targetMime + "' is not supported");
+			File tof = h.createWorkFile(ext);
 
 			//-- Start 'identify' and capture the resulting data.
-			ProcessBuilder pb = new ProcessBuilder(
-				m_convert.toString(), "-resize", width + "x" + height, source.getSource().toString() + "[" + page + "]", "-strip", 
-				tof.toString()
-			);
+			ProcessBuilder pb = new ProcessBuilder(m_convert.toString(), "-resize", width + "x" + height, source.getSource().toString() + "[" + page + "]", "-strip", tof.toString());
 			System.out.println("Command: " + pb.toString());
 			StringBuilder sb = new StringBuilder(8192);
 			int xc = ProcessTools.runProcess(pb, sb);

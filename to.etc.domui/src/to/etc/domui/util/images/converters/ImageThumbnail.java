@@ -23,5 +23,5 @@ public class ImageThumbnail extends ImageResize {
 	public ImageThumbnail(int height, int width) {
 		super(height, width);
 	}
-	
+
 }

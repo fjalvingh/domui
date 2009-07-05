@@ -1,33 +1,29 @@
 package to.etc.iocular.web;
 
-import javax.servlet.ServletContext;
+import javax.servlet.*;
 
-import to.etc.iocular.def.BasicContainerBuilder;
-import to.etc.iocular.def.ContainerDefinition;
+import to.etc.iocular.def.*;
 
 public class BasicWebConfigurator implements WebConfigurator {
 	final public WebConfiguration createConfiguration(ServletContext ctx) throws Exception {
-		BasicContainerBuilder	b = BasicContainerBuilder.createBuilder("applicationContainer");
+		BasicContainerBuilder b = BasicContainerBuilder.createBuilder("applicationContainer");
 		defineApplication(b);
-		ContainerDefinition		app = b.createDefinition();
+		ContainerDefinition app = b.createDefinition();
 
 		b = BasicContainerBuilder.createChildBuilder(app, "sessionContainer");
 		defineSession(b);
-		ContainerDefinition	ses	= b.createDefinition();
+		ContainerDefinition ses = b.createDefinition();
 
 		b = BasicContainerBuilder.createChildBuilder(ses, "requestContainer");
 		defineRequest(b);
-		ContainerDefinition	req	= b.createDefinition();
+		ContainerDefinition req = b.createDefinition();
 
 		return new WebConfiguration(app, ses, req);
 	}
 
-	public void	defineApplication(BasicContainerBuilder b) {
-	}
+	public void defineApplication(BasicContainerBuilder b) {}
 
-	public void	defineSession(BasicContainerBuilder b) {
-	}
-	
-	public void	defineRequest(BasicContainerBuilder b) {
-	}
+	public void defineSession(BasicContainerBuilder b) {}
+
+	public void defineRequest(BasicContainerBuilder b) {}
 }

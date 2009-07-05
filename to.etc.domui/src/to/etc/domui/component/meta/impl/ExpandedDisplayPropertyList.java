@@ -17,7 +17,7 @@ import to.etc.domui.util.*;
  * Created on Jul 28, 2008
  */
 public class ExpandedDisplayPropertyList extends ExpandedDisplayProperty {
-	private List<ExpandedDisplayProperty>	m_children;
+	private List<ExpandedDisplayProperty> m_children;
 
 	protected ExpandedDisplayPropertyList(DisplayPropertyMetaModel displayMeta, PropertyMetaModel propertyMeta, IValueAccessor< ? > accessor, List<ExpandedDisplayProperty> children) {
 		super(displayMeta, propertyMeta, accessor);

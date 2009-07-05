@@ -120,12 +120,11 @@ public class HeaderParser {
 			Object o = m.get(n);
 			if(o == null)
 				m.put(n, v);
-			else if(o instanceof List<?>) {
+			else if(o instanceof List< ? >) {
 				((List<Object>) o).add(v);
-			}
-			else {
+			} else {
 				List<String> l = new ArrayList<String>(3);
-				l.add((String)o);
+				l.add((String) o);
 				l.add(v);
 				m.put(n, l);
 			}

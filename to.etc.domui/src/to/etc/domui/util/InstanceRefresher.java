@@ -5,13 +5,13 @@ import to.etc.domui.state.*;
 import to.etc.webapp.query.*;
 
 public class InstanceRefresher {
-	static public void		refresh(Object val) throws Exception{
+	static public void refresh(Object val) throws Exception {
 		if(val == null)
 			return;
-		ClassMetaModel	cmm = MetaManager.findClassMeta(val.getClass());
-		if(! cmm.isPersistentClass())
+		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
+		if(!cmm.isPersistentClass())
 			return;
-		QDataContext	dc	= QContextManager.getContext(PageContext.getCurrentConversation());
+		QDataContext dc = QContextManager.getContext(PageContext.getCurrentConversation());
 		dc.attach(val);
 	}
 }

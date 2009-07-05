@@ -7,12 +7,13 @@ package to.etc.domui.trouble;
  * Created on Apr 15, 2009
  */
 public class NotLoggedInException extends RuntimeException {
-	private final String		m_url;
+	private final String m_url;
 
 	public NotLoggedInException(final String url) {
 		super("You need to be logged in");
 		m_url = url;
 	}
+
 	public String getURL() {
 		return m_url;
 	}

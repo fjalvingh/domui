@@ -9,5 +9,5 @@ import java.util.*;
  * Created on Oct 6, 2008
  */
 public interface IDayClicked {
-	public void		dayClicked(MonthPanel p, Date d) throws Exception;
+	public void dayClicked(MonthPanel p, Date d) throws Exception;
 }

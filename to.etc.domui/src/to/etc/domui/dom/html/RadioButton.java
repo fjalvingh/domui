@@ -9,12 +9,15 @@ import java.util.*;
  */
 
 public class RadioButton extends NodeBase {
-//public class RadioButton extends NodeContainer {
+	//public class RadioButton extends NodeContainer {
 
-	private boolean			m_checked;
-	private boolean			m_disabled;
-	private boolean			m_readOnly;
-	private String 			m_name;
+	private boolean m_checked;
+
+	private boolean m_disabled;
+
+	private boolean m_readOnly;
+
+	private String m_name;
 
 	public RadioButton() {
 		super("input");
@@ -28,14 +31,15 @@ public class RadioButton extends NodeBase {
 	public String getName() {
 		return m_name;
 	}
-	
+
 	public void setName(String s) {
 		m_name = s;
 	}
-	
+
 	public boolean isChecked() {
 		return m_checked;
 	}
+
 	public void setChecked(boolean checked) {
 		if(m_checked != checked)
 			changed();
@@ -51,7 +55,7 @@ public class RadioButton extends NodeBase {
 			changed();
 		m_disabled = disabled;
 	}
-	
+
 	public boolean isReadOnly() {
 		return m_readOnly;
 	}
@@ -66,8 +70,8 @@ public class RadioButton extends NodeBase {
 	@Override
 	public void acceptRequestParameter(String[] values) {
 		if(values == null || values.length != 1)
-			throw new IllegalStateException("RadioButton: expecting a single input value, not "+Arrays.toString(values));
-		
+			throw new IllegalStateException("RadioButton: expecting a single input value, not " + Arrays.toString(values));
+
 		System.out.println("Value=" + values[0]);
 		String s = values[0].trim();
 		m_checked = "y".equalsIgnoreCase(s);

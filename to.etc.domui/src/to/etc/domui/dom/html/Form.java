@@ -1,10 +1,13 @@
 package to.etc.domui.dom.html;
 
 public class Form extends NodeContainer {
-	private String		m_method;
-	private String		m_enctype;
-	private String		m_action;
-	private String		m_target;
+	private String m_method;
+
+	private String m_enctype;
+
+	private String m_action;
+
+	private String m_target;
 
 	public Form() {
 		super("form");

@@ -10,35 +10,35 @@ import to.etc.domui.util.*;
 
 public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 	/** The name of the set of ReferenceCodes to show in this combo */
-	private Select					m_combo;
+	private Select m_combo;
 
-	private List<SmallImgButton>	m_buttonList = Collections.EMPTY_LIST;
+	private List<SmallImgButton> m_buttonList = Collections.EMPTY_LIST;
 
-	private List<T>					m_data;
+	private List<T> m_data;
 
 	/** The text value to show on the "unselected" option */
-	private String					m_emptyText;
+	private String m_emptyText;
 
 	/** The specified ComboRenderer used. */
-	private INodeContentRenderer<T>	m_contentRenderer;
+	private INodeContentRenderer<T> m_contentRenderer;
 
-	private INodeContentRenderer<T>	m_actualContentRenderer;
+	private INodeContentRenderer<T> m_actualContentRenderer;
 
-	private Class<? extends INodeContentRenderer<T>>	m_contentRendererClass;
+	private Class< ? extends INodeContentRenderer<T>> m_contentRendererClass;
 
-	private PropertyMetaModel		m_propertyMetaModel;
+	private PropertyMetaModel m_propertyMetaModel;
 
 	/** When set this maker will be used to provide a list of values for this combo. */
-	private IListMaker<T>			m_listMaker;
+	private IListMaker<T> m_listMaker;
 
-	private IValueTransformer<V>	m_valueTransformer;
+	private IValueTransformer<V> m_valueTransformer;
 
-	public ComboComponentBase() {
-	}
+	public ComboComponentBase() {}
 
 	public ComboComponentBase(IListMaker<T> maker) {
-		m_listMaker= maker;
+		m_listMaker = maker;
 	}
+
 	public ComboComponentBase(List<T> in) {
 		m_data = in;
 	}
@@ -46,27 +46,27 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
-		m_combo	= new Select() {
+		m_combo = new Select() {
 			@Override
 			public void acceptRequestParameter(String[] values) throws Exception {
-				String in	= values[0];						// Must be the ID of the selected Option thingy.
-				SelectOption	selo	= (SelectOption)getPage().findNodeByID(in);
+				String in = values[0]; // Must be the ID of the selected Option thingy.
+				SelectOption selo = (SelectOption) getPage().findNodeByID(in);
 				if(selo == null) {
 					setRawValue(null);
 				} else {
-					int index = findChildIndex(selo);			// Must be found
+					int index = findChildIndex(selo); // Must be found
 					if(index == -1)
-						throw new IllegalStateException("Where has my child "+in+" gone to??");
+						throw new IllegalStateException("Where has my child " + in + " gone to??");
 					this.setSelectedIndex(index);
-					if(! ComboComponentBase.this.isMandatory()) {
+					if(!ComboComponentBase.this.isMandatory()) {
 						//-- If the index is 0 we have the "unselected" thingy; if not we need to decrement by 1 to skip that entry.
 						if(index == 0)
 							setRawValue(null);
-						index--;								// IMPORTANT Index becomes -ve if value lookup may not be done!
+						index--; // IMPORTANT Index becomes -ve if value lookup may not be done!
 					}
 
 					if(index >= 0) {
-						List<T>		data = getData();
+						List<T> data = getData();
 						if(index >= data.size()) {
 							setRawValue(null);
 						} else
@@ -76,22 +76,22 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 			}
 		};
 		add(m_combo);
-		for(SmallImgButton b: m_buttonList)
+		for(SmallImgButton b : m_buttonList)
 			add(b);
 
 		//-- Append shtuff to the combo
-		if(! isMandatory()) {
+		if(!isMandatory()) {
 			//-- Add 1st "empty" thingy representing the unchosen.
-			SelectOption	o = new SelectOption();
+			SelectOption o = new SelectOption();
 			if(getEmptyText() != null)
 				o.setButtonText(getEmptyText());
 			m_combo.add(o);
 			o.setSelected(getRawValue() == null);
 		}
 
-		ClassMetaModel	cmm	= null;
+		ClassMetaModel cmm = null;
 		for(T val : getData()) {
-			SelectOption	o = new SelectOption();
+			SelectOption o = new SelectOption();
 			m_combo.add(o);
 			renderOptionLabel(o, val);
 			V res = listToValue(val);
@@ -102,7 +102,7 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 		}
 	}
 
-	protected V	listToValue(T in) throws Exception {
+	protected V listToValue(T in) throws Exception {
 		if(m_valueTransformer == null)
 			return (V) in;
 		return m_valueTransformer.getValue(in);
@@ -116,11 +116,11 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 
 		if(val == null)
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
-		ClassMetaModel	cmm = MetaManager.findClassMeta(val.getClass());
-		return (INodeContentRenderer<T>)MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
+		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
+		return (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
 	}
 
-	protected void	renderOptionLabel(SelectOption o, T object) throws Exception {
+	protected void renderOptionLabel(SelectOption o, T object) throws Exception {
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(object);
 		m_actualContentRenderer.renderNodeContent(this, o, object, this);
@@ -129,7 +129,7 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 	public void addExtraButton(String img, String title, final IClicked<ComboComponentBase<T, V>> clicked) {
 		if(m_buttonList == Collections.EMPTY_LIST)
 			m_buttonList = new ArrayList<SmallImgButton>();
-		SmallImgButton	si = new SmallImgButton(img);
+		SmallImgButton si = new SmallImgButton(img);
 		if(clicked != null) {
 			si.setClicked(new IClicked<SmallImgButton>() {
 				public void clicked(SmallImgButton b) throws Exception {
@@ -179,7 +179,7 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 	 * @return
 	 * @throws Exception
 	 */
-	protected List<T>	provideData() throws Exception {
+	protected List<T> provideData() throws Exception {
 		if(m_listMaker != null)
 			return DomApplication.get().getCachedList(m_listMaker);
 		throw new IllegalStateException("I have no way to get data to show in my combo..");
@@ -191,30 +191,39 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 	public String getEmptyText() {
 		return m_emptyText;
 	}
+
 	public void setEmptyText(String emptyText) {
 		m_emptyText = emptyText;
 	}
+
 	public INodeContentRenderer<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
+
 	public void setContentRenderer(INodeContentRenderer<T> contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
+
 	public Class< ? extends INodeContentRenderer<T>> getContentRendererClass() {
 		return m_contentRendererClass;
 	}
+
 	public void setContentRendererClass(Class< ? extends INodeContentRenderer<T>> contentRendererClass) {
 		m_contentRendererClass = contentRendererClass;
 	}
+
 	public PropertyMetaModel getPropertyMetaModel() {
 		return m_propertyMetaModel;
 	}
+
 	public void setPropertyMetaModel(PropertyMetaModel propertyMetaModel) {
 		m_propertyMetaModel = propertyMetaModel;
 	}
+
 	public IListMaker<T> getListMaker() {
 		return m_listMaker;
 	}
+
 	public void setListMaker(IListMaker<T> listMaker) {
 		m_listMaker = listMaker;
 	}

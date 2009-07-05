@@ -135,7 +135,7 @@ public class VpEventManager implements Runnable {
 
 	private DataSource m_ds;
 
-	private String		m_tableName;
+	private String m_tableName;
 
 	/** The last update ID that was encountered while scanning the set. */
 	private long m_upid = -1;
@@ -163,10 +163,10 @@ public class VpEventManager implements Runnable {
 	private final Map<String, List<Item>> m_listenerList = new HashMap<String, List<Item>>();
 
 	enum DbType {
-		ORACLE,
-		POSTGRES
+		ORACLE, POSTGRES
 	};
-	private DbType		m_dbtype;
+
+	private DbType m_dbtype;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Singleton init.                                  	*/
@@ -247,26 +247,20 @@ public class VpEventManager implements Runnable {
 			else if(name.contains("postgres"))
 				m_dbtype = DbType.POSTGRES;
 			else
-				throw new IllegalStateException("Unsupported database type: "+name);
+				throw new IllegalStateException("Unsupported database type: " + name);
 
-			String	tbl, seq;
-			switch(m_dbtype) {
+			String tbl, seq;
+			switch(m_dbtype){
 				default:
-					throw new IllegalStateException("Unhandled DBTYPE: "+m_dbtype);
+					throw new IllegalStateException("Unhandled DBTYPE: " + m_dbtype);
 				case ORACLE:
-					tbl = "create table "
-					+	m_tableName
-					+	"( upid numeric(20,0) not null primary key, utime date not null, evname varchar(80) not null, server varchar(32) not null, obj blob)"
-					;
-					seq = "create sequence "+m_tableName+"_SQ start with 1 increment by 1";
+					tbl = "create table " + m_tableName + "( upid numeric(20,0) not null primary key, utime date not null, evname varchar(80) not null, server varchar(32) not null, obj blob)";
+					seq = "create sequence " + m_tableName + "_SQ start with 1 increment by 1";
 					break;
 
 				case POSTGRES:
-					tbl = "create table "
-					+	m_tableName
-					+	"( upid numeric(20,0) not null primary key, utime date not null, evname varchar(80) not null, server varchar(32) not null, obj bytea)"
-					;
-					seq = "create sequence "+m_tableName+"_SQ start with 1 increment by 1";
+					tbl = "create table " + m_tableName + "( upid numeric(20,0) not null primary key, utime date not null, evname varchar(80) not null, server varchar(32) not null, obj bytea)";
+					seq = "create sequence " + m_tableName + "_SQ start with 1 increment by 1";
 					break;
 			}
 			ps = dbc.prepareStatement(tbl);
@@ -277,7 +271,7 @@ public class VpEventManager implements Runnable {
 			ps = dbc.prepareStatement(seq);
 			ps.executeUpdate();
 		} catch(Exception x) {
-			System.out.println("SystemEventManager: table creation exception "+x);
+			System.out.println("SystemEventManager: table creation exception " + x);
 		} finally {
 			try {
 				if(ps != null)
@@ -296,7 +290,7 @@ public class VpEventManager implements Runnable {
 			createTable(dbc); // Make sure a database table exists
 
 			//-- Get the last update #
-			ps = dbc.prepareStatement("select max(upid) from "+m_tableName);
+			ps = dbc.prepareStatement("select max(upid) from " + m_tableName);
 			rs = ps.executeQuery();
 			if(!rs.next())
 				throw new IllegalStateException("?? Cannot get max update number");
@@ -343,7 +337,7 @@ public class VpEventManager implements Runnable {
 		//-- We must delete...
 		PreparedStatement ps = null;
 		try {
-			ps = dbc.prepareStatement("delete from "+m_tableName+" where upid < ?");
+			ps = dbc.prepareStatement("delete from " + m_tableName + " where upid < ?");
 			ps.setLong(1, deleteupid);
 			ps.executeUpdate();
 		} finally {
@@ -363,7 +357,7 @@ public class VpEventManager implements Runnable {
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		try {
-			ps = dbc.prepareStatement("select upid,evname,utime,server,obj from "+m_tableName+" where upid > ? order by upid");
+			ps = dbc.prepareStatement("select upid,evname,utime,server,obj from " + m_tableName + " where upid > ? order by upid");
 			ps.setLong(1, m_upid);
 			rs = ps.executeQuery();
 			while(rs.next()) {
@@ -550,7 +544,7 @@ public class VpEventManager implements Runnable {
 				dbc.setAutoCommit(false);
 
 			//-- Get a new upid
-			ps = dbc.prepareStatement("select "+m_tableName+"_SQ.nextval from dual");
+			ps = dbc.prepareStatement("select " + m_tableName + "_SQ.nextval from dual");
 			rs = ps.executeQuery();
 			if(!rs.next())
 				throw new SQLException("No result from select-from-sequence!?");
@@ -570,7 +564,7 @@ public class VpEventManager implements Runnable {
 			}
 
 			//-- Store the record,
-			ps = dbc.prepareStatement("insert into "+m_tableName+"(upid,evname,utime,server,obj) values(?,?,?,?,empty_blob())");
+			ps = dbc.prepareStatement("insert into " + m_tableName + "(upid,evname,utime,server,obj) values(?,?,?,?,empty_blob())");
 			ps.setLong(1, id);
 			ps.setString(2, ae.getClass().getCanonicalName());
 			ps.setTimestamp(3, (Timestamp) ae.getTimestamp());
@@ -579,7 +573,7 @@ public class VpEventManager implements Runnable {
 			ps.close();
 
 			//-- Store the lob..
-			ps = dbc.prepareStatement("select obj from "+m_tableName+" where upid=? for update of obj");
+			ps = dbc.prepareStatement("select obj from " + m_tableName + " where upid=? for update of obj");
 			ps.setLong(1, id);
 			rs = ps.executeQuery();
 			if(!rs.next())
@@ -639,7 +633,7 @@ public class VpEventManager implements Runnable {
 		//-- Already registered?
 		for(int i = l.size(); --i >= 0;) {
 			Item it = l.get(i);
-			if(it.m_obj instanceof Reference<?>) {
+			if(it.m_obj instanceof Reference< ? >) {
 				Reference< ? > r = (Reference< ? >) it.m_obj;
 				if(r.get() == listener) // Already registered as WEAK listener
 					return;
@@ -668,7 +662,7 @@ public class VpEventManager implements Runnable {
 			return;
 		for(int i = l.size(); --i >= 0;) {
 			Item it = l.get(i);
-			if(it.m_obj instanceof Reference<?>) {
+			if(it.m_obj instanceof Reference< ? >) {
 				Reference< ? > r = (Reference< ? >) it.m_obj;
 				if(r.get() == listener) {
 					l.remove(i);
@@ -707,7 +701,7 @@ public class VpEventManager implements Runnable {
 					}
 
 					Object o = it.m_obj;
-					if(o instanceof Reference<?>) {
+					if(o instanceof Reference< ? >) {
 						Reference< ? > r = (Reference< ? >) o;
 						Object lsnr = r.get();
 						if(lsnr == null) {

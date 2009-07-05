@@ -3,14 +3,15 @@ package to.etc.domui.dom;
 import java.io.*;
 
 public class XmlOutputWriterBase {
-	private Writer		m_w;
-	protected boolean	m_intag;
+	private Writer m_w;
+
+	protected boolean m_intag;
 
 	public XmlOutputWriterBase(Writer w) {
 		m_w = w;
 	}
 
-	protected Writer	getWriter() {
+	protected Writer getWriter() {
 		return m_w;
 	}
 
@@ -22,7 +23,7 @@ public class XmlOutputWriterBase {
 	public void text(String s) throws IOException {
 		if(s == null)
 			throw new IllegalStateException("Attempt to write null cdata.");
-		closePrevious();						// If a tag was unclosed close it now before writing it's body
+		closePrevious(); // If a tag was unclosed close it now before writing it's body
 
 		//-- Start writing strings...
 		int ix = 0;
@@ -63,16 +64,16 @@ public class XmlOutputWriterBase {
 			ix++;
 		}
 	}
-	
-	protected void	println() throws IOException {
+
+	protected void println() throws IOException {
 		m_w.write("\n");
 	}
-	public void	nl() throws IOException {
-	}
-	public void	inc() {
-	}
-	public void	dec() {
-	}
+
+	public void nl() throws IOException {}
+
+	public void inc() {}
+
+	public void dec() {}
 
 	/**
 	 * Writes a tag start. It can be followed by attr() calls. If the namespace is in the current
@@ -81,8 +82,8 @@ public class XmlOutputWriterBase {
 	 * @param namespace
 	 * @param tagname
 	 */
-	public void	tag(final String tagname) throws IOException {
-		closePrevious();						// If an earlier tag is open close it,
+	public void tag(final String tagname) throws IOException {
+		closePrevious(); // If an earlier tag is open close it,
 		nl();
 		writeRaw("<");
 		writeRaw(tagname);
@@ -94,8 +95,8 @@ public class XmlOutputWriterBase {
 	 * If we're in an open tag this closes that tag. The tag gets closed using a >, so the next thing will
 	 * be contained in the tag.
 	 */
-	private void	closePrevious() throws IOException {
-		if(! m_intag)
+	private void closePrevious() throws IOException {
+		if(!m_intag)
 			return;
 		m_intag = false;
 		writeRaw(">");
@@ -104,8 +105,8 @@ public class XmlOutputWriterBase {
 	/**
 	 * Ends a tag by adding a > only.
 	 */
-	public void	endtag() throws IOException {
-		if(! m_intag)
+	public void endtag() throws IOException {
+		if(!m_intag)
 			throw new IllegalStateException("Ending tag but not in a tag?");
 		m_intag = false;
 		writeRaw(">");
@@ -115,15 +116,15 @@ public class XmlOutputWriterBase {
 	 * Ends a tag by adding />.
 	 * @throws IOException
 	 */
-	public void	endAndCloseXmltag() throws IOException {
-		if(! m_intag)
+	public void endAndCloseXmltag() throws IOException {
+		if(!m_intag)
 			throw new IllegalStateException("Ending tag but not in a tag?");
 		m_intag = false;
 		writeRaw("/>");
 		dec();
 	}
 
-	public void	closetag(String name) throws IOException {
+	public void closetag(String name) throws IOException {
 		closePrevious();
 		dec();
 		writeRaw("</");
@@ -144,8 +145,8 @@ public class XmlOutputWriterBase {
 	 * @param value
 	 * @throws IOException
 	 */
-	public void		attr(String name, String value) throws IOException {
-		if(! m_intag)
+	public void attr(String name, String value) throws IOException {
+		if(!m_intag)
 			throw new IllegalStateException("No tag is currently 'active'");
 		writeRaw(" ");
 		writeRaw(name);
@@ -154,8 +155,8 @@ public class XmlOutputWriterBase {
 		writeRaw("\"");
 	}
 
-	public void	rawAttr(String name, String value) throws IOException {
-		if(! m_intag)
+	public void rawAttr(String name, String value) throws IOException {
+		if(!m_intag)
 			throw new IllegalStateException("No tag is currently 'active'");
 		writeRaw(" ");
 		writeRaw(name);
@@ -164,28 +165,40 @@ public class XmlOutputWriterBase {
 		writeRaw("\"");
 	}
 
-	private void	writeAttrValue(String value) throws IOException {
+	private void writeAttrValue(String value) throws IOException {
 		//-- Write the quoted string, quickly, by using runs.
-		int	len	= value.length();
-		int	pos	= 0;
-		String	entity = null;
+		int len = value.length();
+		int pos = 0;
+		String entity = null;
 		while(pos < len) {
-			int	spos = pos;
+			int spos = pos;
 
 			//-- Find 1st character we have trouble with
 			while(pos < len) {
 				entity = null;
 				char c = value.charAt(pos);
-				switch(c) {
+				switch(c){
 					default:
 						pos++;
 						break;
-					case '&':	entity = "&amp;";	break;
-					case '<':	entity = "&lt;";	break;
-					case '>':	entity = "&gt;";	break;
-					case '\n':	entity = "&u0010;";	break;
-					case '\r':	entity = "&u0013;";	break;
-					case '\"':	entity = "&quot;";	break;
+					case '&':
+						entity = "&amp;";
+						break;
+					case '<':
+						entity = "&lt;";
+						break;
+					case '>':
+						entity = "&gt;";
+						break;
+					case '\n':
+						entity = "&u0010;";
+						break;
+					case '\r':
+						entity = "&u0013;";
+						break;
+					case '\"':
+						entity = "&quot;";
+						break;
 				}
 				if(entity != null)
 					break;
@@ -193,7 +206,7 @@ public class XmlOutputWriterBase {
 
 			//-- First handle the run upto the failed char
 			if(pos > spos) {
-				writeRaw(value, spos, pos-spos);			// Write the fragment upto the char,
+				writeRaw(value, spos, pos - spos); // Write the fragment upto the char,
 			}
 			if(entity != null) {
 				writeRaw(entity);
@@ -210,21 +223,24 @@ public class XmlOutputWriterBase {
 	 * @param value
 	 * @throws IOException
 	 */
-	public void		attr(String name, long value) throws IOException {
+	public void attr(String name, long value) throws IOException {
 		attr(name, Long.toString(value));
 	}
-	public void		attr(String name, int value) throws IOException {
+
+	public void attr(String name, int value) throws IOException {
 		attr(name, Integer.toString(value));
 	}
-	public void		attr(String name, boolean value) throws IOException {
+
+	public void attr(String name, boolean value) throws IOException {
 		attr(name, Boolean.toString(value));
 	}
 
 
-	public void	writeRaw(String s) throws IOException {
+	public void writeRaw(String s) throws IOException {
 		m_w.write(s);
 	}
-	protected void	writeRaw(String s, int off, int len) throws IOException {
+
+	protected void writeRaw(String s, int off, int len) throws IOException {
 		m_w.write(s, off, len);
 	}
 }

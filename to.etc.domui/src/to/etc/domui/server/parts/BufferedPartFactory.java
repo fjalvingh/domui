@@ -13,7 +13,7 @@ public interface BufferedPartFactory extends PartFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	public Object	decodeKey(String rurl, IParameterInfo param) throws Exception;
+	public Object decodeKey(String rurl, IParameterInfo param) throws Exception;
 
 	/**
 	 * This must generate the output for the resource. That output will be put into the cache and re-rendered
@@ -29,5 +29,5 @@ public interface BufferedPartFactory extends PartFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	public void	generate(PartResponse pr, DomApplication da, Object key, ResourceDependencyList rdl) throws Exception;
+	public void generate(PartResponse pr, DomApplication da, Object key, ResourceDependencyList rdl) throws Exception;
 }

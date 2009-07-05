@@ -8,31 +8,31 @@ import java.lang.annotation.*;
  * Created on Apr 28, 2009
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value=ElementType.METHOD)
+@Target(value = ElementType.METHOD)
 public @interface GdbColumn {
 	/** Sets the base name of this column. If a table prefix is defined it is used in addition to form the full name. */
-	String			name() default "";
+	String name() default "";
 
 	/** Sets the full name of this column. If this is set any table prefix is ignored. */
-	String			fullName() default "";
+	String fullName() default "";
 
-	String			type() default "";
+	String type() default "";
 
 	/** The length of a column. For strings this is the max size <i>in characters</i>, for numerics this is the precision. */
-	int				length() default -1;
+	int length() default -1;
 
 	/** For numerics, the scale field. */
-	int				scale() default -1;
+	int scale() default -1;
 
 	/** Whether the field can be nullable. Defaults to false. */
-	boolean			nullable() default false;
+	boolean nullable() default false;
 
-	boolean			unique() default false;
+	boolean unique() default false;
 
 	/** Whether a Date column contains a timestamp, a single date or what. */
-	GdbDate			temporal() default GdbDate.TIMESTAMP;
+	GdbDate temporal() default GdbDate.TIMESTAMP;
 
-	GdbEnum			enumerated() default GdbEnum.STRING;
+	GdbEnum enumerated() default GdbEnum.STRING;
 
-	GdbBool			bool() default GdbBool.NATIVE;
+	GdbBool bool() default GdbBool.NATIVE;
 }

@@ -1,7 +1,6 @@
 package to.etc.domui.component.agenda;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Model for the schedule component. Each schedule component must have a model
@@ -25,7 +24,7 @@ public interface ScheduleModel<T extends ScheduleItem> {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<T>					getScheduleItems(Date start, Date end) throws Exception;
+	public List<T> getScheduleItems(Date start, Date end) throws Exception;
 
 	/**
 	 * Returns a list of holidays in the given period. Each holiday can be a single day only; the
@@ -37,7 +36,7 @@ public interface ScheduleModel<T extends ScheduleItem> {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<ScheduleHoliday>	getScheduleHolidays(Date start, Date end) throws Exception;
+	public List<ScheduleHoliday> getScheduleHolidays(Date start, Date end) throws Exception;
 
 	/**
 	 * Returns the work hours for the user on each day in the given period. This call <b>must</b>
@@ -50,9 +49,9 @@ public interface ScheduleModel<T extends ScheduleItem> {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<ScheduleWorkHour>	getScheduleWorkHours(Date start, Date end) throws Exception;
+	public List<ScheduleWorkHour> getScheduleWorkHours(Date start, Date end) throws Exception;
 
-	public void	addScheduleListener(ScheduleModelChangedListener<T> chl);
-	
-	public void	removeScheduleListener(ScheduleModelChangedListener<T> chl);
+	public void addScheduleListener(ScheduleModelChangedListener<T> chl);
+
+	public void removeScheduleListener(ScheduleModelChangedListener<T> chl);
 }

@@ -9,11 +9,11 @@ import java.lang.annotation.*;
  * Created on Apr 28, 2009
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value=ElementType.METHOD)
+@Target(value = ElementType.METHOD)
 public @interface GdbId {
 	/** The generator type to use. It defaults to native. */
-	String		generator() default "";
+	String generator() default "";
 
 	/** The parameter for the generator; usually a sequence name */
-	String		param() default "";
+	String param() default "";
 }

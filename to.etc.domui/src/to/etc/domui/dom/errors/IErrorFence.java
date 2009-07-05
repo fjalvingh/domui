@@ -11,8 +11,12 @@ import to.etc.domui.dom.html.*;
  */
 public interface IErrorFence {
 	public void addErrorListener(IErrorMessageListener eml);
-	public void	removeErrorListener(IErrorMessageListener eml);
+
+	public void removeErrorListener(IErrorMessageListener eml);
+
 	public void addMessage(NodeBase source, UIMessage uim);
+
 	public void removeMessage(NodeBase source, UIMessage uim);
-	public void	clearGlobalMessages(NodeBase source, String code);
+
+	public void clearGlobalMessages(NodeBase source, String code);
 }

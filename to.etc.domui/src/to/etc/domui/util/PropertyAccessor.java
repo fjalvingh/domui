@@ -10,13 +10,15 @@ import java.lang.reflect.*;
  * Created on Jun 18, 2008
  */
 final public class PropertyAccessor<T> implements IValueAccessor<T> {
-	private Method		m_readm;
-	private Method		m_writem;
+	private Method m_readm;
+
+	private Method m_writem;
 
 	public PropertyAccessor(Method getmethod, Method setmethod) {
 		m_readm = getmethod;
 		m_writem = setmethod;
 	}
+
 	public PropertyAccessor(PropertyDescriptor pd) {
 		this(pd.getReadMethod(), pd.getWriteMethod());
 	}
@@ -43,9 +45,9 @@ final public class PropertyAccessor<T> implements IValueAccessor<T> {
 	 * 
 	 * @see to.etc.domui.util.IValueTransformer#getValue(java.lang.Object)
 	 */
-	public T	getValue(Object in) throws Exception {
+	public T getValue(Object in) throws Exception {
 		if(in == null)
-			throw new IllegalStateException("The 'input' object is null (getter method="+m_readm+")");
+			throw new IllegalStateException("The 'input' object is null (getter method=" + m_readm + ")");
 		try {
 			return (T) m_readm.invoke(in);
 		} catch(InvocationTargetException itx) {

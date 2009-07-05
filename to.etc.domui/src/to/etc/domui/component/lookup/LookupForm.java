@@ -24,23 +24,23 @@ import to.etc.webapp.query.*;
  * Created on Jul 14, 2008
  */
 public class LookupForm<T> extends Div {
-	private Class<T>			m_lookupClass;
+	private Class<T> m_lookupClass;
 
-	private QCriteria<T>		m_basicCriteria;
+	private QCriteria<T> m_basicCriteria;
 
-	private List<SearchPropertyMetaModel>	m_searchProperties;
+	private List<SearchPropertyMetaModel> m_searchProperties;
 
-	private List<DisplayPropertyMetaModel>	m_displayProperties;
+	private List<DisplayPropertyMetaModel> m_displayProperties;
 
-	private String							m_title;
+	private String m_title;
 
-	IClicked<LookupForm<T>>		m_clicker;
+	IClicked<LookupForm<T>> m_clicker;
 
-	IClicked<LookupForm<T>>		m_onNew;
+	IClicked<LookupForm<T>> m_onNew;
 
-	private Table				m_table;
+	private Table m_table;
 
-	private List<LookupFieldQueryBuilderThingy>	m_queryBuilder = Collections.EMPTY_LIST;
+	private List<LookupFieldQueryBuilderThingy> m_queryBuilder = Collections.EMPTY_LIST;
 
 	private TBody m_tbody;
 
@@ -95,37 +95,37 @@ public class LookupForm<T> extends Div {
 	@Override
 	public void createContent() throws Exception {
 		//-- If a page title is present render the search block in a CaptionedPanel, else present in it;s own div.
-		Div	sroot = new Div();
+		Div sroot = new Div();
 		if(getPageTitle() != null) {
-			CaptionedPanel	cp	= new CaptionedPanel(getPageTitle(), sroot);
+			CaptionedPanel cp = new CaptionedPanel(getPageTitle(), sroot);
 			add(cp);
 		} else {
 			add(sroot);
 		}
 
 		//-- Walk all search fields
-		m_table	= new Table();
+		m_table = new Table();
 		sroot.add(m_table);
-		m_tbody	= new TBody();
+		m_tbody = new TBody();
 		m_table.add(m_tbody);
 
-		List<SearchPropertyMetaModel>	list = getSearchProperties();
-		if(list == null|| list.size() == 0) {
-			ClassMetaModel	cm = MetaManager.findClassMeta(m_lookupClass);
+		List<SearchPropertyMetaModel> list = getSearchProperties();
+		if(list == null || list.size() == 0) {
+			ClassMetaModel cm = MetaManager.findClassMeta(m_lookupClass);
 			list = cm.getSearchProperties();
-			if(list == null|| list.size() == 0)
-				throw new IllegalStateException("The class "+m_lookupClass+" has no search properties");
+			if(list == null || list.size() == 0)
+				throw new IllegalStateException("The class " + m_lookupClass + " has no search properties");
 		}
 
-		for(SearchPropertyMetaModel sm: list) {
+		for(SearchPropertyMetaModel sm : list) {
 			addPropertyControl(sm.getProperty().getName(), sm.getProperty().getDefaultLabel(NlsContext.getLocale()), sm.getProperty(), sm);
 		}
 
 		//-- The button bar.
-		Div	d	= new Div();
+		Div d = new Div();
 		sroot.add(d);
 
-		DefaultButton	b = new DefaultButton("!Zoeken");
+		DefaultButton b = new DefaultButton("!Zoeken");
 		d.add(b);
 		b.setIcon("THEME/btnFind.png");
 		b.setClicked(new IClicked<NodeBase>() {
@@ -162,41 +162,42 @@ public class LookupForm<T> extends Div {
 					m_clicker.clicked(LookupForm.this);
 			}
 		});
-//
-//		SmallImgButton	sb	= new SmallImgButton(true, "btnClear.png");
-//		d.add(sb);
+		//
+		//		SmallImgButton	sb	= new SmallImgButton(true, "btnClear.png");
+		//		d.add(sb);
 	}
+
 	@Override
 	public void setClicked(final IClicked< ? > clicked) {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
 	}
 
 	public void clearInput() {
-		for(LookupFieldQueryBuilderThingy th: m_queryBuilder) {
-			for(NodeBase nb: th.getInputControls()) {
-				if(nb instanceof IInputNode<?>) {
-					IInputNode<?>	v = (IInputNode<?>)nb;
+		for(LookupFieldQueryBuilderThingy th : m_queryBuilder) {
+			for(NodeBase nb : th.getInputControls()) {
+				if(nb instanceof IInputNode< ? >) {
+					IInputNode< ? > v = (IInputNode< ? >) nb;
 					v.setValue(null);
 				}
 			}
 		}
 	}
 
-	public void	addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final SearchPropertyMetaModel spm) {
-		LookupFieldQueryBuilderThingy qt = createControlFor(name, pmm, spm);		// Add the proper input control for that type && add to the cell
+	public void addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final SearchPropertyMetaModel spm) {
+		LookupFieldQueryBuilderThingy qt = createControlFor(name, pmm, spm); // Add the proper input control for that type && add to the cell
 		if(qt == null)
 			return;
 
 		//-- Create control && label
-		TD	ccell = new TD();
+		TD ccell = new TD();
 		ccell.setCssClass("ui-f-in");
-		for(NodeBase b: qt.getInputControls())
+		for(NodeBase b : qt.getInputControls())
 			ccell.add(b);
-		TD	lcell = new TD();
+		TD lcell = new TD();
 
 		lcell.setCssClass("ui-f-lbl");
 		lcell.add(new Label(qt.getInputControls()[0], label));
-		TR	tr	= new TR();
+		TR tr = new TR();
 		tr.add(lcell);
 		tr.add(ccell);
 		m_tbody.add(tr);
@@ -210,26 +211,26 @@ public class LookupForm<T> extends Div {
 	 * @param pmm
 	 * @return
 	 */
-	public LookupFieldQueryBuilderThingy		createControlFor(final String name, final PropertyMetaModel pmm, final SearchPropertyMetaModel spm) {
-		RequestContext rq	= PageContext.getRequestContext();
-		boolean	viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
-		boolean	editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);
-		if(! viewable) {
+	public LookupFieldQueryBuilderThingy createControlFor(final String name, final PropertyMetaModel pmm, final SearchPropertyMetaModel spm) {
+		RequestContext rq = PageContext.getRequestContext();
+		boolean viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
+		boolean editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);
+		if(!viewable) {
 			//-- Check edit stuff:
-			if(pmm.getEditRoles() == null)					// No edit roles at all -> exit
+			if(pmm.getEditRoles() == null) // No edit roles at all -> exit
 				return null;
-			if(! editable)
+			if(!editable)
 				return null;
 		}
 
-		LookupControlFactory	lcf	= DomApplication.get().getLookupControlFactory(pmm);
-		LookupFieldQueryBuilderThingy	qt = lcf.createControl(spm, pmm);
+		LookupControlFactory lcf = DomApplication.get().getLookupControlFactory(pmm);
+		LookupFieldQueryBuilderThingy qt = lcf.createControl(spm, pmm);
 		if(qt == null)
-			throw new IllegalStateException("Lookup factory "+lcf+" did not create a lookup thingy for property "+pmm);
+			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + pmm);
 		return qt;
 	}
 
-	protected void	add(final LookupFieldQueryBuilderThingy t) {
+	protected void add(final LookupFieldQueryBuilderThingy t) {
 		if(m_queryBuilder == Collections.EMPTY_LIST)
 			m_queryBuilder = new ArrayList<LookupFieldQueryBuilderThingy>();
 		m_queryBuilder.add(t);
@@ -254,15 +255,15 @@ public class LookupForm<T> extends Div {
 	 *
 	 * @return
 	 */
-	public QCriteria<T>		getEnteredCriteria() throws Exception {
-		QCriteria<T>	root	= QCriteria.create(m_lookupClass);
+	public QCriteria<T> getEnteredCriteria() throws Exception {
+		QCriteria<T> root = QCriteria.create(m_lookupClass);
 		boolean success = true;
-		for(LookupFieldQueryBuilderThingy th: m_queryBuilder) {
+		for(LookupFieldQueryBuilderThingy th : m_queryBuilder) {
 			if(!th.appendCriteria(root))
-				success  = false;
+				success = false;
 		}
-		if(! success)							// Some input failed to validate their input criteria?
-			return null;						// Then exit null -> should only display errors.
+		if(!success) // Some input failed to validate their input criteria?
+			return null; // Then exit null -> should only display errors.
 		return root;
 	}
 

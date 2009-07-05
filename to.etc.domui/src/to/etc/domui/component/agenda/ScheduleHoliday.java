@@ -1,7 +1,6 @@
 package to.etc.domui.component.agenda;
 
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 
 /**
  * A single holiday
@@ -11,11 +10,11 @@ import java.util.Locale;
  */
 public interface ScheduleHoliday {
 	/** The day the holiday occurs on */
-	public Date		getDate();
+	public Date getDate();
 
 	/** A short name for the holyday */
-	public String	getHolidayName(Locale loc);
+	public String getHolidayName(Locale loc);
 
 	/** An URL to an image describing this holiday */
-	public String	getImageURL();
+	public String getImageURL();
 }

@@ -20,18 +20,26 @@ import to.etc.webapp.nls.*;
  * Created on Jun 19, 2008
  */
 public class DataPager extends Div implements IDataTableChangeListener {
-	private SmallImgButton		m_firstBtn;
-	private SmallImgButton		m_prevBtn;
-	private SmallImgButton		m_nextBtn;
-	private SmallImgButton		m_lastBtn;
-	private Img					m_truncated;
-	TabularComponentBase		m_table;
-	private TextNode			m_txt;
-	private Div					m_textDiv;
-	private Div					m_buttonDiv;
+	private SmallImgButton m_firstBtn;
 
-	public DataPager() {
-	}
+	private SmallImgButton m_prevBtn;
+
+	private SmallImgButton m_nextBtn;
+
+	private SmallImgButton m_lastBtn;
+
+	private Img m_truncated;
+
+	TabularComponentBase m_table;
+
+	private TextNode m_txt;
+
+	private Div m_textDiv;
+
+	private Div m_buttonDiv;
+
+	public DataPager() {}
+
 	public DataPager(final TabularComponentBase tbl) {
 		m_table = tbl;
 		tbl.addChangeListener(this);
@@ -40,27 +48,27 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	@Override
 	public void createContent() throws Exception {
 		//-- The text part: message
-		Div	d = new Div();
+		Div d = new Div();
 		add(d);
 		d.setFloat(FloatType.RIGHT);
-		m_txt	= new TextNode("..");
+		m_txt = new TextNode("..");
 		d.add(m_txt);
 		m_textDiv = d;
-//		if(m_table != null) {
-//			m_txt.setText("Pagina "+(m_table.getCurrentPage()+1)+" van "+m_table.getPageCount());
-//		}
+		//		if(m_table != null) {
+		//			m_txt.setText("Pagina "+(m_table.getCurrentPage()+1)+" van "+m_table.getPageCount());
+		//		}
 
-		Div	btn = new Div();
+		Div btn = new Div();
 		m_buttonDiv = btn;
 		add(btn);
 		btn.setCssClass("ui-szless");
-		m_firstBtn	= new SmallImgButton();
+		m_firstBtn = new SmallImgButton();
 		btn.add(m_firstBtn);
-		m_prevBtn	= new SmallImgButton();
+		m_prevBtn = new SmallImgButton();
 		btn.add(m_prevBtn);
-		m_nextBtn	= new SmallImgButton();
+		m_nextBtn = new SmallImgButton();
 		btn.add(m_nextBtn);
-		m_lastBtn	= new SmallImgButton();
+		m_lastBtn = new SmallImgButton();
 		btn.add(m_lastBtn);
 		redraw();
 
@@ -75,7 +83,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 				int pg = m_table.getPageCount();
 				if(pg == 0)
 					return;
-				m_table.setCurrentPage(pg-1);
+				m_table.setCurrentPage(pg - 1);
 			}
 		});
 		m_prevBtn.setClicked(new IClicked<NodeBase>() {
@@ -83,7 +91,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 				int cp = m_table.getCurrentPage();
 				if(cp <= 0)
 					return;
-				m_table.setCurrentPage(cp-1);
+				m_table.setCurrentPage(cp - 1);
 			}
 		});
 		m_nextBtn.setClicked(new IClicked<NodeBase>() {
@@ -102,13 +110,13 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	/*	CODING:	Handle changes to the table.						*/
 	/*--------------------------------------------------------------*/
 
-	private void	redraw() throws Exception {
+	private void redraw() throws Exception {
 		int cp = m_table.getCurrentPage();
 		int np = m_table.getPageCount();
 		if(np == 0)
 			m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_EMPTY));
 		else
-			m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp+1), Integer.valueOf(np)));
+			m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np)));
 
 		if(cp <= 0) {
 			m_firstBtn.setSrc("THEME/nav-first-dis.png");
@@ -118,7 +126,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			m_prevBtn.setSrc("THEME/nav-prev.png");
 		}
 
-		if(cp+1 >= np) {
+		if(cp + 1 >= np) {
 			m_lastBtn.setSrc("THEME/nav-last-dis.png");
 			m_nextBtn.setSrc("THEME/nav-next-dis.png");
 		} else {
@@ -145,7 +153,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		return m_buttonDiv;
 	}
 
-	public void	addButton(final String image, final IClicked<DataPager> click, final BundleRef bundle, final String ttlkey) {
+	public void addButton(final String image, final IClicked<DataPager> click, final BundleRef bundle, final String ttlkey) {
 		SmallImgButton i = new SmallImgButton(image, new IClicked<SmallImgButton>() {
 			public void clicked(final SmallImgButton b) throws Exception {
 				click.clicked(DataPager.this);
@@ -162,6 +170,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	public void modelChanged(final TabularComponentBase tbl, final ITableModel< ? > old, final ITableModel< ? > nw) throws Exception {
 		redraw();
 	}
+
 	public void pageChanged(final TabularComponentBase tbl) throws Exception {
 		redraw();
 	}

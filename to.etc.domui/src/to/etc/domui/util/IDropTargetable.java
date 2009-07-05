@@ -20,12 +20,12 @@ public interface IDropTargetable {
 	 *
 	 * @param handler
 	 */
-	public void			setDropHandler(IDropHandler handler);
+	public void setDropHandler(IDropHandler handler);
 
 	/**
 	 * Return the current drop handler for a node. If null the node does not accept dropped
 	 * thingerydoo's.
 	 * @return
 	 */
-	public IDropHandler	getDropHandler();
+	public IDropHandler getDropHandler();
 }

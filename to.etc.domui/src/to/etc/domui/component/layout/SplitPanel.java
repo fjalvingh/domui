@@ -11,20 +11,21 @@ import to.etc.domui.dom.html.*;
  * Created on Oct 21, 2008
  */
 public class SplitPanel extends Table {
-	private NodeBase		m_a, m_b;
-	private TD				m_acell, m_bcell;
+	private NodeBase m_a, m_b;
+
+	private TD m_acell, m_bcell;
 
 	public SplitPanel() {
 		setTableBorder(0);
 		setCellPadding("0");
 		setCellSpacing("0");
 		setCssClass("ui-sp");
-		m_acell	= new TD();
+		m_acell = new TD();
 		m_acell.setWidth("10%");
 		m_acell.setCssClass("ui-sp-a");
 		m_acell.setValign(TableVAlign.TOP);
 
-		m_bcell	= new TD();
+		m_bcell = new TD();
 		m_bcell.setWidth("90%");
 		m_bcell.setCssClass("ui-sp-b");
 		m_bcell.setValign(TableVAlign.TOP);
@@ -32,8 +33,8 @@ public class SplitPanel extends Table {
 
 	public SplitPanel(NodeBase a, String awidth, NodeBase b, String bwidth) {
 		this();
-		m_a	= a;
-		m_b	= b;
+		m_a = a;
+		m_b = b;
 		m_acell.add(a);
 		m_bcell.add(b);
 		m_acell.setWidth(awidth);
@@ -42,52 +43,60 @@ public class SplitPanel extends Table {
 
 	@Override
 	public void createContent() throws Exception {
-		TBody	b = new TBody();
+		TBody b = new TBody();
 		add(b);
-		TR	row = b.addRow();
+		TR row = b.addRow();
 		row.add(m_acell);
 		row.add(m_bcell);
 	}
 
-	public void	setA(String width, NodeBase a) {
+	public void setA(String width, NodeBase a) {
 		setA(a);
 		setAWidth(width);
 	}
-	public void	setB(String width, NodeBase b) {
+
+	public void setB(String width, NodeBase b) {
 		setB(b);
 		setBWidth(width);
 	}
-	public void	setA(NodeBase a) {
+
+	public void setA(NodeBase a) {
 		m_a = a;
 		if(m_acell != null) {
 			m_acell.forceRebuild();
 			m_acell.add(m_a);
 		}
 	}
-	public void	setB(NodeBase a) {
+
+	public void setB(NodeBase a) {
 		m_b = a;
 		if(m_bcell != null) {
 			m_bcell.forceRebuild();
 			m_bcell.add(m_b);
 		}
 	}
+
 	public NodeBase getA() {
 		return m_a;
 	}
-	public NodeBase	getB() {
+
+	public NodeBase getB() {
 		return m_b;
 	}
 
-	public TD		getACell() {
+	public TD getACell() {
 		return m_acell;
 	}
-	public TD		getBCell() {
+
+	public TD getBCell() {
 		return m_bcell;
 	}
-	public void		setAWidth(String s) {
+
+	public void setAWidth(String s) {
 		m_acell.setWidth(s);
 	}
-	public void		setBWidth(String s) {
+
+	public void setBWidth(String s) {
 		m_bcell.setWidth(s);
 	}
 }

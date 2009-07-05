@@ -13,24 +13,30 @@ import to.etc.domui.util.*;
  */
 public class SimpleColumnDef {
 	/** The label text, if needed, to use as the column heading */
-	private String				m_columnLabel;
-	private Class<?>			m_columnType;
-	private SortableType		m_sortable;
-	private String				m_width;
-	private String				m_propertyName;
-	private String				m_cssClass;
-	private int					m_displayLength;
-	private boolean				m_nowrap;
+	private String m_columnLabel;
+
+	private Class< ? > m_columnType;
+
+	private SortableType m_sortable;
+
+	private String m_width;
+
+	private String m_propertyName;
+
+	private String m_cssClass;
+
+	private int m_displayLength;
+
+	private boolean m_nowrap;
 
 	/** The thingy which obtains the column's value (as an object) */
-	private IValueTransformer<?>	m_valueTransformer;
+	private IValueTransformer< ? > m_valueTransformer;
 
-	private IConverter			m_valueConverter;
+	private IConverter m_valueConverter;
 
-	private INodeContentRenderer<?>		m_contentRenderer;
+	private INodeContentRenderer< ? > m_contentRenderer;
 
-	public SimpleColumnDef() {
-	}
+	public SimpleColumnDef() {}
 
 	/**
 	 * Create a column definition using metadata for the column.
@@ -39,7 +45,7 @@ public class SimpleColumnDef {
 	public SimpleColumnDef(PropertyMetaModel m) {
 		setColumnLabel(m.getDefaultLabel());
 		setColumnType(m.getActualType());
-		setValueTransformer(m.getAccessor());				// Thing which can obtain the value from the property
+		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
 		if(m.getConverterClass() != null)
 			setValueConverter(ConverterRegistry.getConverter(m.getConverterClass()));
 		setSortable(m.getSortable());
@@ -49,10 +55,10 @@ public class SimpleColumnDef {
 	public SimpleColumnDef(ExpandedDisplayProperty m) {
 		setColumnLabel(m.getDefaultLabel());
 		setColumnType(m.getActualType());
-		setValueTransformer(m.getAccessor());				// Thing which can obtain the value from the property
+		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
 		if(m.getConverterClass() != null)
 			setValueConverter(ConverterRegistry.getConverter(m.getConverterClass()));
-		setSortable(SortableType.UNSORTABLE);				// FIXME From meta pls
+		setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
 		setSortable(m.getSortable());
 		setPropertyName(m.getName());
 		if(m.getName() == null)
@@ -74,9 +80,11 @@ public class SimpleColumnDef {
 	public void setColumnType(Class< ? > columnType) {
 		m_columnType = columnType;
 	}
+
 	public SortableType getSortable() {
 		return m_sortable;
 	}
+
 	public void setSortable(SortableType sortable) {
 		m_sortable = sortable;
 	}
@@ -89,11 +97,11 @@ public class SimpleColumnDef {
 		m_width = width;
 	}
 
-	public IValueTransformer<?> getValueTransformer() {
+	public IValueTransformer< ? > getValueTransformer() {
 		return m_valueTransformer;
 	}
 
-	public void setValueTransformer(IValueTransformer<?> valueTransformer) {
+	public void setValueTransformer(IValueTransformer< ? > valueTransformer) {
 		m_valueTransformer = valueTransformer;
 	}
 
@@ -104,27 +112,35 @@ public class SimpleColumnDef {
 	public void setValueConverter(IConverter valueConverter) {
 		m_valueConverter = valueConverter;
 	}
+
 	public String getPropertyName() {
 		return m_propertyName;
 	}
+
 	public void setPropertyName(String propertyName) {
 		m_propertyName = propertyName;
 	}
+
 	public INodeContentRenderer< ? > getContentRenderer() {
 		return m_contentRenderer;
 	}
+
 	public void setContentRenderer(INodeContentRenderer< ? > contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
+
 	public String getCssClass() {
 		return m_cssClass;
 	}
+
 	public void setCssClass(String cssClass) {
 		m_cssClass = cssClass;
 	}
+
 	public int getDisplayLength() {
 		return m_displayLength;
 	}
+
 	public void setDisplayLength(int displayLength) {
 		m_displayLength = displayLength;
 	}

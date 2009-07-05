@@ -14,7 +14,7 @@ public interface IDropHandler {
 	 * least one string; if not an exception occurs as soon as this gets used.
 	 * @return	a non-null minimal length=1 String array containing the types that are acceptable for this drop zone.
 	 */
-	public String[]		getAcceptableTypes();
+	public String[] getAcceptableTypes();
 
 	/**
 	 * This is an event function which gets called as soon as a Draggable is dropped on the dropTarget
@@ -24,5 +24,5 @@ public interface IDropHandler {
 	 * @param context
 	 * @throws Exception
 	 */
-	public void			onDropped(DropEvent context) throws Exception;
+	public void onDropped(DropEvent context) throws Exception;
 }

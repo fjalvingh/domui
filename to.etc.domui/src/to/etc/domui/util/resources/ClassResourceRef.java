@@ -5,8 +5,9 @@ import java.io.*;
 import to.etc.domui.util.*;
 
 public class ClassResourceRef implements IResourceRef {
-	private Class<?>		m_base;
-	private String			m_name;
+	private Class< ? > m_base;
+
+	private String m_name;
 
 	public ClassResourceRef(Class< ? > base, String name) {
 		m_base = base;
@@ -16,6 +17,7 @@ public class ClassResourceRef implements IResourceRef {
 	public InputStream getInputStream() throws Exception {
 		return m_base.getResourceAsStream(m_name);
 	}
+
 	public boolean isModified() {
 		return false;
 	}

@@ -14,12 +14,13 @@ import to.etc.domui.util.*;
  * Created on Dec 29, 2008
  */
 public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccessor<T> {
-	private PropertyMetaModel	m_original;
-	private PropertyMetaModel[]	m_accessPath;
+	private PropertyMetaModel m_original;
+
+	private PropertyMetaModel[] m_accessPath;
 
 	public PathPropertyMetaModel(PropertyMetaModel[] accessPath) {
 		m_accessPath = accessPath;
-		m_original = accessPath[accessPath.length-1];
+		m_original = accessPath[accessPath.length - 1];
 	}
 
 	/**
@@ -29,26 +30,27 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	 * @see to.etc.domui.util.IValueTransformer#getValue(java.lang.Object)
 	 */
 	public T getValue(Object in) throws Exception {
-		Object	cv = in;
-		for(PropertyMetaModel pmm: m_accessPath) {
+		Object cv = in;
+		for(PropertyMetaModel pmm : m_accessPath) {
 			cv = pmm.getAccessor().getValue(cv);
 			if(cv == null)
 				return null;
 		}
-		return (T)cv;
+		return (T) cv;
 	}
+
 	public void setValue(Object target, T value) throws Exception {
-		Object	cv = target;
-		for(PropertyMetaModel pmm: m_accessPath) {
-			if(pmm == m_original) {				// Reached last segment?
+		Object cv = target;
+		for(PropertyMetaModel pmm : m_accessPath) {
+			if(pmm == m_original) { // Reached last segment?
 				//-- Actually set a value now
-				((IValueAccessor<T>)pmm.getAccessor()).setValue(cv, value);
+				((IValueAccessor<T>) pmm.getAccessor()).setValue(cv, value);
 				return;
 			}
 
 			cv = pmm.getAccessor().getValue(cv);
 			if(cv == null)
-				throw new IllegalStateException("The property '"+pmm.getName()+" in classModel="+pmm.getClassModel()+" is null - cannot set a value!!");
+				throw new IllegalStateException("The property '" + pmm.getName() + " in classModel=" + pmm.getClassModel() + " is null - cannot set a value!!");
 		}
 	}
 

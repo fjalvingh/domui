@@ -2,17 +2,17 @@ package to.etc.domui.util.images.converters;
 
 
 public class ImagePage {
-	private int 	m_pageNumber;
+	private int m_pageNumber;
 
 	/** The original width of this page, in pixels. */
-	private int		m_width;
+	private int m_width;
 
 	/** The original height of this page, in pixels. */
-	private int		m_height;
+	private int m_height;
 
 	private boolean m_bitmap;
 
-	private String	m_type;
+	private String m_type;
 
 	public ImagePage(int pageNumber, int width, int height, boolean bitmap) {
 		m_pageNumber = pageNumber;

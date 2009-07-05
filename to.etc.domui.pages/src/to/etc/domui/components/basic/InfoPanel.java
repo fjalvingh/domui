@@ -3,7 +3,7 @@ package to.etc.domui.components.basic;
 import to.etc.domui.dom.html.*;
 
 public class InfoPanel extends Div {
-	private String		m_text;
+	private String m_text;
 
 	public InfoPanel(String text) {
 		m_text = text;
@@ -12,7 +12,7 @@ public class InfoPanel extends Div {
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("bb-info");
-		Img	img	= new Img("img/info.png");
+		Img img = new Img("img/info.png");
 		add(img);
 		img.setAlign(ImgAlign.LEFT);
 		addLiteral(m_text);

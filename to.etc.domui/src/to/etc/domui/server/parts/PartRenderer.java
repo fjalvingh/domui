@@ -9,5 +9,5 @@ import to.etc.domui.server.*;
  * Created on Jun 4, 2008
  */
 public interface PartRenderer {
-	public void		render(RequestContextImpl ctx, String rest) throws Exception;
+	public void render(RequestContextImpl ctx, String rest) throws Exception;
 }

@@ -12,7 +12,7 @@ import to.etc.domui.component.meta.impl.*;
  * Created on Jul 23, 2008
  */
 public interface LookupControlFactory {
-	public int		accepts(PropertyMetaModel pmm);
+	public int accepts(PropertyMetaModel pmm);
 
-	public LookupFieldQueryBuilderThingy	createControl(SearchPropertyMetaModel spm, PropertyMetaModel pmm);
+	public LookupFieldQueryBuilderThingy createControl(SearchPropertyMetaModel spm, PropertyMetaModel pmm);
 }

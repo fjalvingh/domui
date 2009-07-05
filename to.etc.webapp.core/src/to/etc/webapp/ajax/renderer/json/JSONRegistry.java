@@ -82,7 +82,7 @@ public class JSONRegistry extends RenderRegistry {
 		registerBase(Enum.class, new JSONItemRenderer() {
 			@Override
 			public void render(final JSONRenderer rd, final Object val) throws Exception {
-				Enum<?> e = (Enum<?>) val;
+				Enum< ? > e = (Enum< ? >) val;
 				StringTool.strToJavascriptString(rd.getWriter(), e.toString(), false);
 			}
 		});

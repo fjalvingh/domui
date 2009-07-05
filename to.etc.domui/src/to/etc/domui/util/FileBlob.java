@@ -1,10 +1,7 @@
 package to.etc.domui.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.sql.SQLException;
+import java.io.*;
+import java.sql.*;
 
 /**
  * A BLOB class which can be used to set the value of a BLOB property from
@@ -14,8 +11,9 @@ import java.sql.SQLException;
  * Created on Apr 9, 2008
  */
 public class FileBlob extends AbstractBlob {
-	private File			m_src;
-//	private boolean			m_deleteOnStore;
+	private File m_src;
+
+	//	private boolean			m_deleteOnStore;
 
 	public FileBlob(File src) {
 		m_src = src;
@@ -29,6 +27,7 @@ public class FileBlob extends AbstractBlob {
 			throw new RuntimeException(x);
 		}
 	}
+
 	@Override
 	public long length() throws SQLException {
 		return m_src.length();

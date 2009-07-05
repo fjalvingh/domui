@@ -19,60 +19,67 @@ import to.etc.util.*;
  * Created on Oct 24, 2008
  */
 final public class WindowSession {
-	static final Logger		LOG	= Logger.getLogger(WindowSession.class.getName());
+	static final Logger LOG = Logger.getLogger(WindowSession.class.getName());
 
-	final AppSession				m_appSession;
+	final AppSession m_appSession;
 
-	final private String			m_windowID;
+	final private String m_windowID;
 
-	final private int				m_id;
+	final private int m_id;
 
-	static private int				m_nextId;
+	static private int m_nextId;
 
 	/**
 	 * Map of all active conversations, indexed by conversation ID.
 	 */
-	final private Map<String, ConversationContext>	m_conversationMap = new HashMap<String, ConversationContext>();
+	final private Map<String, ConversationContext> m_conversationMap = new HashMap<String, ConversationContext>();
 
 	/**
 	 * The stack of shelved pages; pages that can be returned to easily.
 	 */
-	private final List<ShelvedEntry>				m_shelvedPageStack = new ArrayList<ShelvedEntry>();
+	private final List<ShelvedEntry> m_shelvedPageStack = new ArrayList<ShelvedEntry>();
 
-	private int										m_nextCid;
+	private int m_nextCid;
 
-	private boolean									m_attached;
+	private boolean m_attached;
 
-	private Page									m_currentPage;
+	private Page m_currentPage;
 
-	private Class<? extends ConversationContext>	m_targetConversationClass;
-	private Class<? extends UrlPage>				m_targetPageClass;
-	private PageParameters							m_targetPageParameters;
-	private ConversationContext						m_targetConversation;
-	private MoveMode								m_targetMode;
-	private String									m_targetURL;
+	private Class< ? extends ConversationContext> m_targetConversationClass;
+
+	private Class< ? extends UrlPage> m_targetPageClass;
+
+	private PageParameters m_targetPageParameters;
+
+	private ConversationContext m_targetConversation;
+
+	private MoveMode m_targetMode;
+
+	private String m_targetURL;
 
 	/** Timestamp of the last time this WindowSession was used by a request. This is used to determine if a WindowSession has expired */
-	private long									m_lastUsed;
+	private long m_lastUsed;
 
 	/** When an obituary has been received, this contains the ID of the destruction timer for this session. It contains -1 if no destruction timer is active on this window */
-	private int										m_obituaryTimer = -1;
+	private int m_obituaryTimer = -1;
 
 	/** The page tag of the last page that had a request for this window session. Used to decide whether an Obituary is out-of-order. */
-	private int										m_lastRequestedPageTag;
+	private int m_lastRequestedPageTag;
 
 	public WindowSession(final AppSession session) {
 		m_appSession = session;
-		m_windowID	= DomUtil.generateGUID();
-		m_id	= nextID();
+		m_windowID = DomUtil.generateGUID();
+		m_id = nextID();
 	}
-	static private synchronized int	nextID() {
+
+	static private synchronized int nextID() {
 		return ++m_nextId;
 	}
 
 	final public DomApplication getApplication() {
 		return m_appSession.getApplication();
 	}
+
 	final public String getWindowID() {
 		return m_windowID;
 	}
@@ -84,7 +91,7 @@ final public class WindowSession {
 	 * Return a new, unique ID for a conversation in this user's session.
 	 * @return
 	 */
-	synchronized int		nextCID() {
+	synchronized int nextCID() {
 		return ++m_nextCid;
 	}
 
@@ -93,7 +100,7 @@ final public class WindowSession {
 	 * @param cid
 	 * @return
 	 */
-	ConversationContext	findConversation(final String cid) throws Exception {
+	ConversationContext findConversation(final String cid) throws Exception {
 		ConversationContext cc = m_conversationMap.get(cid);
 		if(null != cc)
 			internalAttachConversations();
@@ -105,9 +112,9 @@ final public class WindowSession {
 	 * @param clz
 	 * @return
 	 */
-	List<ConversationContext>	findConversationsFor(final Class<? extends NodeBase> clz) throws Exception {
+	List<ConversationContext> findConversationsFor(final Class< ? extends NodeBase> clz) throws Exception {
 		List<ConversationContext> res = new ArrayList<ConversationContext>();
-		for(ConversationContext cc: m_conversationMap.values()) {
+		for(ConversationContext cc : m_conversationMap.values()) {
 			if(cc.findPage(clz) != null)
 				res.add(cc);
 		}
@@ -122,7 +129,7 @@ final public class WindowSession {
 	 */
 	void registerConversation(final ConversationContext cc) {
 		if(cc.getId() == null)
-			cc.setId("c"+nextCID());
+			cc.setId("c" + nextCID());
 		m_conversationMap.put(cc.getId(), cc);
 		cc.setManager(this);
 	}
@@ -132,22 +139,23 @@ final public class WindowSession {
 	 * is going to be handled.
 	 * @throws Exception
 	 */
-	public void		internalAttachConversations() throws Exception {
+	public void internalAttachConversations() throws Exception {
 		if(m_attached)
 			return;
-		for(ConversationContext cc: m_conversationMap.values())
+		for(ConversationContext cc : m_conversationMap.values())
 			cc.internalAttach();
 		m_attached = true;
 	}
+
 	/**
 	 * Detach all conversations, called just before the request is done.
 	 */
-	public void		internalDetachConversations() {
-//		System.out.println("detachConversations called with state="+m_attached);
-		if(! m_attached)
+	public void internalDetachConversations() {
+		//		System.out.println("detachConversations called with state="+m_attached);
+		if(!m_attached)
 			return;
 		m_attached = false;
-		for(ConversationContext cc: m_conversationMap.values()) {
+		for(ConversationContext cc : m_conversationMap.values()) {
 			try {
 				cc.internalDetach();
 			} catch(Exception x) {
@@ -159,20 +167,20 @@ final public class WindowSession {
 	/**
 	 * Dump all conversations and their resident pages.
 	 */
-	public void	dump() {
-		System.out.println("  "+this+": Conversation list");
-		for(ConversationContext cc: m_conversationMap.values()) {
+	public void dump() {
+		System.out.println("  " + this + ": Conversation list");
+		for(ConversationContext cc : m_conversationMap.values()) {
 			cc.dump();
 		}
-//		System.out.println("  ---- Conversation dump end -----");
+		//		System.out.println("  ---- Conversation dump end -----");
 	}
 
 	/**
 	 * Closes all conversations. This discards all screen data and resources.
 	 */
-	void	destroyConversations() {
+	void destroyConversations() {
 		m_attached = false;
-		for(ConversationContext cc: m_conversationMap.values()) {
+		for(ConversationContext cc : m_conversationMap.values()) {
 			try {
 				cc.internalDestroy();
 			} catch(Exception x) {
@@ -182,7 +190,7 @@ final public class WindowSession {
 		m_conversationMap.clear();
 	}
 
-	protected void	destroyConversation(final ConversationContext cc) {
+	protected void destroyConversation(final ConversationContext cc) {
 		if(null == m_conversationMap.remove(cc.getId()))
 			return;
 		try {
@@ -198,18 +206,18 @@ final public class WindowSession {
 		}
 	}
 
-	public ConversationContext		createConversation(final RequestContext ctx, final Class<? extends ConversationContext> clz) throws Exception {
+	public ConversationContext createConversation(final RequestContext ctx, final Class< ? extends ConversationContext> clz) throws Exception {
 		if(clz == null)
 			return new SimpleConversationContext();
-		return clz.newInstance();						// FIXME Should do something with injection and stuff.
+		return clz.newInstance(); // FIXME Should do something with injection and stuff.
 	}
 
-	public void	acceptNewConversation(final ConversationContext cc) throws Exception {
+	public void acceptNewConversation(final ConversationContext cc) throws Exception {
 		//-- Drop all "old" conversations, then add the new one
-//		destroyConversations();					// ORDERED 1
-		registerConversation(cc);				// ORDERED 2
-		cc.internalAttach();					// ORDERED 3
-		m_attached = true;						// jal 20090108 "Pages were kept ATTACHED, causing exception on re-entry"
+		//		destroyConversations();					// ORDERED 1
+		registerConversation(cc); // ORDERED 2
+		cc.internalAttach(); // ORDERED 3
+		m_attached = true; // jal 20090108 "Pages were kept ATTACHED, causing exception on re-entry"
 	}
 
 	/*--------------------------------------------------------------*/
@@ -219,11 +227,12 @@ final public class WindowSession {
 	 * Shelve the current page, then move to the new one.
 	 * @param shelved
 	 */
-	private void			shelvePage(final Page shelved) {
+	private void shelvePage(final Page shelved) {
 		if(shelved == null)
 			throw new IllegalStateException("Missing current page??");
 		m_shelvedPageStack.add(new ShelvedEntry(shelved));
 	}
+
 	public List<ShelvedEntry> getShelvedPageStack() {
 		return m_shelvedPageStack;
 	}
@@ -246,46 +255,46 @@ final public class WindowSession {
 			return true;
 		}
 		if(getTargetMode() == MoveMode.REDIRECT) {
-			String	tu = m_targetURL;
+			String tu = m_targetURL;
 			if(tu.startsWith("/"))
 				tu = tu.substring(1);
 			if(tu.indexOf(':') == -1) {
-				tu = ctx.getRelativePath(tu);						// Make absolute.
+				tu = ctx.getRelativePath(tu); // Make absolute.
 			}
 			generateRedirect(ctx, tu);
 			return true;
 		}
 
 		//-- We move somewhere else. Really?
-		Class<? extends UrlPage>	clz = getTargetPageClass();	// New class set?
+		Class< ? extends UrlPage> clz = getTargetPageClass(); // New class set?
 		if(clz == null)
 			return false;
-// jal 30 augustus 2008 switched off to allow for full re-render of the current page (theme change).
-//		if(clz == pg.getClass())					// Already at that page?
-//			return false;							// Piss off then
+		// jal 30 augustus 2008 switched off to allow for full re-render of the current page (theme change).
+		//		if(clz == pg.getClass())					// Already at that page?
+		//			return false;							// Piss off then
 
-		ConversationContext	cc	= getTargetConversation();
-		PageParameters		pp	= getTargetPageParameters();
-		Constructor<? extends UrlPage>	bestpc = null;
+		ConversationContext cc = getTargetConversation();
+		PageParameters pp = getTargetPageParameters();
+		Constructor< ? extends UrlPage> bestpc = null;
 
 		/*
 		 * Look back in the page shelve and check if a compatible page is present there. If so
 		 * we move back by destroying the pages "above" the target.
 		 */
 		//-- Locate the specified page/conversation in the page stack,
-		int	psix	= findInPageStack(cc, clz, pp);
+		int psix = findInPageStack(cc, clz, pp);
 		if(psix != -1) {
 			/*
 			 * Page found. Is it the current page? If so we just ignore the request.
 			 */
-			if(psix == m_shelvedPageStack.size()-1) {
+			if(psix == m_shelvedPageStack.size() - 1) {
 				return false;
 			}
 
 			/*
 			 * Entry accepted. Discard all stacked entries *above* the selected thing.
 			 */
-			clearShelve(psix+1);
+			clearShelve(psix + 1);
 			internalAttachConversations();
 			m_currentPage = m_shelvedPageStack.get(psix).getPage();
 			m_currentPage.internalUnshelve();
@@ -301,7 +310,7 @@ final public class WindowSession {
 			 * The "current" page on top of the shelve stack is destroyed; the new page replaces it on top
 			 * of the stack.
 			 */
-			psix = m_shelvedPageStack.size()-1;			// We need to DESTROY the last page stack element,
+			psix = m_shelvedPageStack.size() - 1; // We need to DESTROY the last page stack element,
 			clearShelve(psix);
 			m_currentPage = null;
 		} else if(getTargetMode() == MoveMode.SUB) {
@@ -309,7 +318,7 @@ final public class WindowSession {
 			if(m_currentPage != null)
 				m_currentPage.internalShelve();
 		} else
-			throw new IllegalStateException("Internal: don't know how to handle shelve mode "+getTargetMode());
+			throw new IllegalStateException("Internal: don't know how to handle shelve mode " + getTargetMode());
 
 		/*
 		 * Shite. We need to really move. We need to do context handling here. We
@@ -327,17 +336,17 @@ final public class WindowSession {
 		 */
 		if(cc == null) {
 			//-- We need a new conversation of the given type...
-			Class<? extends ConversationContext> coclz	= getTargetConversationClass();
+			Class< ? extends ConversationContext> coclz = getTargetConversationClass();
 			if(coclz == null) {
-				bestpc = PageMaker.getBestPageConstructor(clz, pp != null);	// Get best constructor;
+				bestpc = PageMaker.getBestPageConstructor(clz, pp != null); // Get best constructor;
 				coclz = PageMaker.getConversationType(bestpc);
 			} else {
 				//-- Find a constructor for the specified conversation
-				bestpc	= PageMaker.getPageConstructor(clz, coclz, pp != null);
+				bestpc = PageMaker.getPageConstructor(clz, coclz, pp != null);
 			}
 
 			//-- Create the conversation to use,
-			cc	= createConversation(ctx, coclz);
+			cc = createConversation(ctx, coclz);
 			acceptNewConversation(cc);
 		} else {
 			//-- We JOIN..... Use the conversation specified. The new page class must accept it, of course,
@@ -368,9 +377,10 @@ final public class WindowSession {
 			return true;
 		return false;
 	}
-	private void	generateRedirect(final RequestContextImpl ctx, final Page to) throws Exception {
+
+	private void generateRedirect(final RequestContextImpl ctx, final Page to) throws Exception {
 		//-- Send a "redirect" to the new page;
-		StringBuilder	sb	= new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		sb.append(ctx.getRelativePath(to.getBody().getClass().getName()));
 		sb.append('.');
 		sb.append(ctx.getApplication().getUrlExtension());
@@ -380,10 +390,10 @@ final public class WindowSession {
 		sb.append(to.getConversation().getFullId());
 
 		//-- Add any parameters
-		PageParameters	pp = to.getPageParameters();
+		PageParameters pp = to.getPageParameters();
 		if(pp != null) {
 			String[] names = pp.getParameterNames();
-			for(String name: names) {
+			for(String name : names) {
 				if(Constants.PARAM_CONVERSATION_ID.equals(name))
 					continue;
 				sb.append('&');
@@ -395,12 +405,12 @@ final public class WindowSession {
 		generateRedirect(ctx, sb.toString());
 	}
 
-	private void	generateRedirect(final RequestContextImpl ctx, final String url) throws Exception {
-		System.out.println("redirecting to "+url);
+	private void generateRedirect(final RequestContextImpl ctx, final String url) throws Exception {
+		System.out.println("redirecting to " + url);
 
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput	out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		BrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 		out.tag("redirect");
 		out.attr("url", url);
 		out.endAndCloseXmltag();
@@ -410,18 +420,18 @@ final public class WindowSession {
 	 * Moves one shelve entry back. If there's no shelve entry current moves back
 	 * to the application's index.
 	 */
-	private void		handleMoveBack(final RequestContextImpl ctx) throws Exception {
-		int	ix	= m_shelvedPageStack.size()-2;
+	private void handleMoveBack(final RequestContextImpl ctx) throws Exception {
+		int ix = m_shelvedPageStack.size() - 2;
 		if(ix < 0) {
-			clearShelve(0);							// Discard EVERYTHING
+			clearShelve(0); // Discard EVERYTHING
 			internalSetNextPage(MoveMode.NEW, getApplication().getRootPage(), null, null, null);
 			handleGoto(ctx, m_currentPage);
 			return;
 		}
 
 		//-- Unshelve and destroy the topmost thingy, then move back to the then-topmost.
-		clearShelve(ix+1);							// Destroy everything above;
-		ShelvedEntry	se	= m_shelvedPageStack.get(ix);		// Get the thing to move to,
+		clearShelve(ix + 1); // Destroy everything above;
+		ShelvedEntry se = m_shelvedPageStack.get(ix); // Get the thing to move to,
 		m_currentPage = se.getPage();
 		m_currentPage.internalUnshelve();
 		generateRedirect(ctx, m_currentPage);
@@ -433,37 +443,43 @@ final public class WindowSession {
 	/**
 	 * Clear all goto stuff at request start time.
 	 */
-	public void	clearGoto() {
+	public void clearGoto() {
 		m_targetConversationClass = null;
 		m_targetPageClass = null;
 		m_targetPageParameters = null;
-		m_targetConversation	= null;
-		m_targetMode	= null;
+		m_targetConversation = null;
+		m_targetMode = null;
 	}
-	public void		internalSetNextPage(final MoveMode m, final Class<? extends UrlPage> clz, final ConversationContext cc, final Class<? extends ConversationContext> ccclz, final PageParameters pp) {
+
+	public void internalSetNextPage(final MoveMode m, final Class< ? extends UrlPage> clz, final ConversationContext cc, final Class< ? extends ConversationContext> ccclz, final PageParameters pp) {
 		m_targetMode = m;
-		m_targetPageClass	= clz;
+		m_targetPageClass = clz;
 		m_targetConversationClass = ccclz;
 		m_targetPageParameters = pp;
 		m_targetConversation = cc;
 	}
+
 	public void internalSetRedirect(final String targeturl) {
-		m_targetMode	= MoveMode.REDIRECT;
-		m_targetURL	= targeturl;
+		m_targetMode = MoveMode.REDIRECT;
+		m_targetURL = targeturl;
 	}
 
-	public Class<? extends UrlPage> getTargetPageClass() {
+	public Class< ? extends UrlPage> getTargetPageClass() {
 		return m_targetPageClass;
 	}
+
 	public PageParameters getTargetPageParameters() {
 		return m_targetPageParameters;
 	}
-	public Class<? extends ConversationContext> getTargetConversationClass() {
+
+	public Class< ? extends ConversationContext> getTargetConversationClass() {
 		return m_targetConversationClass;
 	}
+
 	public ConversationContext getTargetConversation() {
 		return m_targetConversation;
 	}
+
 	public MoveMode getTargetMode() {
 		return m_targetMode;
 	}
@@ -476,10 +492,10 @@ final public class WindowSession {
 	 * Discards all shelved stuff up to the specified level (inclusive). Calling this
 	 * with ix==0 means the entire page shelve and contexts are discarded.
 	 */
-	private void	clearShelve(final int ix) {
-//		System.out.println("CLEARING SHELVE to "+ix);
+	private void clearShelve(final int ix) {
+		//		System.out.println("CLEARING SHELVE to "+ix);
 		if(ix == 0) {
-			m_shelvedPageStack.clear();					// Quickly destroy everything.
+			m_shelvedPageStack.clear(); // Quickly destroy everything.
 			destroyConversations();
 			return;
 		}
@@ -488,8 +504,8 @@ final public class WindowSession {
 		 * Discard top-level entries until we reach the specified level.
 		 */
 		while(m_shelvedPageStack.size() > ix) {
-			ShelvedEntry	se	= m_shelvedPageStack.remove(m_shelvedPageStack.size()-1);
-			System.out.println("Trying to discard "+se.getPage());
+			ShelvedEntry se = m_shelvedPageStack.remove(m_shelvedPageStack.size() - 1);
+			System.out.println("Trying to discard " + se.getPage());
 			discardPage(se.getPage());
 		}
 	}
@@ -499,10 +515,10 @@ final public class WindowSession {
 	 * longer present on the shelf.
 	 * @param pg
 	 */
-	private void	discardPage(final Page pg) {
-		boolean	destroyc = true;
+	private void discardPage(final Page pg) {
+		boolean destroyc = true;
 		for(int i = m_shelvedPageStack.size(); --i >= 0;) {
-			ShelvedEntry	se = m_shelvedPageStack.get(i);
+			ShelvedEntry se = m_shelvedPageStack.get(i);
 			if(se.getPage().internalGetConversation() == pg.internalGetConversation()) {
 				destroyc = false;
 				break;
@@ -510,7 +526,7 @@ final public class WindowSession {
 		}
 
 		if(destroyc) {
-			destroyConversation(pg.internalGetConversation());				// Forcefully destroy this conversation,
+			destroyConversation(pg.internalGetConversation()); // Forcefully destroy this conversation,
 		} else {
 			//-- Remove this page from the conversation.
 			pg.getConversation().destroyPage(pg);
@@ -525,10 +541,10 @@ final public class WindowSession {
 	 * @return
 	 * @throws Exception
 	 */
-	public Page	makeOrGetPage(final RequestContext rctx, final Class<? extends UrlPage> clz, final PageParameters papa) throws Exception {
+	public Page makeOrGetPage(final RequestContext rctx, final Class< ? extends UrlPage> clz, final PageParameters papa) throws Exception {
 		//-- 1. If a conversation ID is present try to get the page from there,
-		ConversationContext		cc	= null;
-		String	cid = rctx.getParameter(Constants.PARAM_CONVERSATION_ID);
+		ConversationContext cc = null;
+		String cid = rctx.getParameter(Constants.PARAM_CONVERSATION_ID);
 		if(cid != null) {
 			String[] cida = DomUtil.decodeCID(cid);
 			cid = cida[1];
@@ -536,12 +552,12 @@ final public class WindowSession {
 		}
 
 		//-- Locate the specified page/conversation in the page stack,
-		int	psix	= findInPageStack(cc, clz, papa);
+		int psix = findInPageStack(cc, clz, papa);
 		if(psix != -1) {
 			/*
 			 * Entry accepted. Discard all stacked entries *above* the selected thing.
 			 */
-			clearShelve(psix+1);
+			clearShelve(psix + 1);
 			internalAttachConversations();
 			return m_shelvedPageStack.get(psix).getPage();
 		}
@@ -549,36 +565,36 @@ final public class WindowSession {
 		/*
 		 * None of the shelved thingies accept the current page -> discard shelve, then create a new history.
 		 */
-		clearShelve(0);									// ORDERED 1; Discard all shelved entries
+		clearShelve(0); // ORDERED 1; Discard all shelved entries
 
 		/*
 		 * We need to create a new page, always. Find the best constructor and it's conversation.
 		 */
-		Constructor<? extends UrlPage>			bestpc = PageMaker.getBestPageConstructor(clz, true);
-		Class<? extends ConversationContext>	ccclz = PageMaker.getConversationType(bestpc);	// Get the conversation class to use,
+		Constructor< ? extends UrlPage> bestpc = PageMaker.getBestPageConstructor(clz, true);
+		Class< ? extends ConversationContext> ccclz = PageMaker.getConversationType(bestpc); // Get the conversation class to use,
 
 		//-- Create the conversation context
 		ConversationContext coco = createConversation(rctx, ccclz);
 
-		coco.setId(cid == null ? ""+nextCID() : cid);
-		ConversationContext.LOG.fine("Created conversation="+coco+" for new page="+clz);
+		coco.setId(cid == null ? "" + nextCID() : cid);
+		ConversationContext.LOG.fine("Created conversation=" + coco + " for new page=" + clz);
 
 		//-- Since this is a new page we clear ALL existing conversations
-		registerConversation(coco);				// ORDERED 2
-		internalAttachConversations();			// ORDERED 3
+		registerConversation(coco); // ORDERED 2
+		internalAttachConversations(); // ORDERED 3
 
 		//-- Create the page && add to shelve,
 		m_currentPage = PageMaker.createPageWithContent(rctx, bestpc, coco, PageParameters.createFrom(rctx));
-		shelvePage(m_currentPage);				// Append the current page to the shelve,
+		shelvePage(m_currentPage); // Append the current page to the shelve,
 
 		//-- Call all of the page's listeners.
 		callNewPageListeners(m_currentPage);
 		return m_currentPage;
 	}
 
-	private void	callNewPageListeners(final Page pg) throws Exception {
-		PageContext.internalSet(pg);						// Jal 20081103 Set state before calling add listeners.
-		for(INewPageInstantiated npi: getApplication().getNewPageInstantiatedListeners())
+	private void callNewPageListeners(final Page pg) throws Exception {
+		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
+		for(INewPageInstantiated npi : getApplication().getNewPageInstantiatedListeners())
 			npi.newPageInstantiated(m_currentPage.getBody());
 	}
 
@@ -590,44 +606,49 @@ final public class WindowSession {
 	 * @param papa
 	 * @return
 	 */
-	private int		findInPageStack(final ConversationContext cc, final Class<? extends UrlPage> clz, final PageParameters papa) throws Exception {
+	private int findInPageStack(final ConversationContext cc, final Class< ? extends UrlPage> clz, final PageParameters papa) throws Exception {
 		for(int ix = m_shelvedPageStack.size(); --ix >= 0;) {
-			ShelvedEntry	se	= m_shelvedPageStack.get(ix);
-			if(se.getPage().getBody().getClass() != clz)			// Of the appropriate type?
-				continue;											// No -> not acceptable
-			if(cc != null && cc != se.getPage().getConversation())	// Is in the conversation supplied?
-				continue;											// No -> not acceptable
+			ShelvedEntry se = m_shelvedPageStack.get(ix);
+			if(se.getPage().getBody().getClass() != clz) // Of the appropriate type?
+				continue; // No -> not acceptable
+			if(cc != null && cc != se.getPage().getConversation()) // Is in the conversation supplied?
+				continue; // No -> not acceptable
 
 			//-- Page AND context are acceptable; check parameters;
 			if(PageMaker.pageAcceptsParameters(se.getPage(), papa)) // Got a page; must make sure the parameters, if present, are equal.
 				return ix;
 		}
-		return -1;			// Nothing acceptable
+		return -1; // Nothing acceptable
 	}
 
 	@Override
 	public String toString() {
-		return "Window["+m_id+":"+m_windowID+"]";
+		return "Window[" + m_id + ":" + m_windowID + "]";
 	}
+
 	public long getLastUsed() {
 		return m_lastUsed;
 	}
 
-	void	internalTouched() {
+	void internalTouched() {
 		m_lastUsed = System.currentTimeMillis();
 	}
+
 	int getObituaryTimer() {
 		return m_obituaryTimer;
 	}
+
 	void setObituaryTimer(final int obituaryTimer) {
 		m_obituaryTimer = obituaryTimer;
 	}
-	public void	internalSetLastPage(final Page page) {
+
+	public void internalSetLastPage(final Page page) {
 		synchronized(m_appSession) {
 			m_lastRequestedPageTag = page.getPageTag();
 		}
 	}
-	int	internalGetLastPageTag() {
+
+	int internalGetLastPageTag() {
 		synchronized(m_appSession) {
 			return m_lastRequestedPageTag;
 		}

@@ -1,6 +1,6 @@
 package to.etc.iocular.web;
 
-import to.etc.iocular.def.ContainerDefinition;
+import to.etc.iocular.def.*;
 
 /**
  * The configuration of the web containers in an Iocular webapp.
@@ -9,11 +9,11 @@ import to.etc.iocular.def.ContainerDefinition;
  * Created on Mar 25, 2007
  */
 final public class WebConfiguration {
-	private ContainerDefinition			m_applicationDefinition;
+	private ContainerDefinition m_applicationDefinition;
 
-	private ContainerDefinition			m_sessionDefinition;
+	private ContainerDefinition m_sessionDefinition;
 
-	private ContainerDefinition			m_requestDefinition;
+	private ContainerDefinition m_requestDefinition;
 
 	public WebConfiguration(ContainerDefinition applicationDefinition, ContainerDefinition sessionDefinition, ContainerDefinition requestDefinition) {
 		m_applicationDefinition = applicationDefinition;

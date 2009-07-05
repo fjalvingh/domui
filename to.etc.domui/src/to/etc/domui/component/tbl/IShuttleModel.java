@@ -23,7 +23,7 @@ public interface IShuttleModel<S, T> {
 	 * the model implementer!!
 	 * @return
 	 */
-	public ITableModel<S>		getSourceModel();
+	public ITableModel<S> getSourceModel();
 
 	/**
 	 * Get the model for the TARGET side of the shuttle. For a single IShuttleModel, this gets called only
@@ -33,7 +33,7 @@ public interface IShuttleModel<S, T> {
 	 * the model implementer!!
 	 * @return
 	 */
-	public ITableModel<T>		getTargetModel();
+	public ITableModel<T> getTargetModel();
 
 	/**
 	 * This gets called when items are moved by the user from SOURCE to TARGET. This method MUST update both the
@@ -46,7 +46,7 @@ public interface IShuttleModel<S, T> {
 	 * @param tix
 	 * @throws Exception
 	 */
-	public void					moveSourceToTarget(int six, int tix) throws Exception;
+	public void moveSourceToTarget(int six, int tix) throws Exception;
 
 	/**
 	 * This gets called when items are moved by the user from TARGET to SOURCE. This method MUST update both the
@@ -58,5 +58,5 @@ public interface IShuttleModel<S, T> {
 	 * @param tix
 	 * @throws Exception
 	 */
-	public void					moveTargetToSource(int tix) throws Exception;
+	public void moveTargetToSource(int tix) throws Exception;
 }

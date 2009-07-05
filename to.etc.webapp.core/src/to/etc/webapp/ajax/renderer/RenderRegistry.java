@@ -12,19 +12,19 @@ import java.util.*;
  * Created on Apr 6, 2006
  */
 abstract public class RenderRegistry {
-	private final Map<Class<?>, ItemRenderer> m_map = new HashMap<Class<?>, ItemRenderer>();
+	private final Map<Class< ? >, ItemRenderer> m_map = new HashMap<Class< ? >, ItemRenderer>();
 
 	static private class FixPair {
-		private final Class<?> m_baseclass;
+		private final Class< ? > m_baseclass;
 
 		private final ItemRenderer m_renderer;
 
-		FixPair(final Class<?> cl, final ItemRenderer r) {
+		FixPair(final Class< ? > cl, final ItemRenderer r) {
 			m_baseclass = cl;
 			m_renderer = r;
 		}
 
-		public Class<?> getBaseclass() {
+		public Class< ? > getBaseclass() {
 			return m_baseclass;
 		}
 
@@ -39,19 +39,19 @@ abstract public class RenderRegistry {
 	private final Set<String> m_ignoredMethodSet = new HashSet<String>();
 
 	/** The list of types that is not to be rendered. */
-	private final Set<Class<?>> m_ignoredTypeSet = new HashSet<Class<?>>();
+	private final Set<Class< ? >> m_ignoredTypeSet = new HashSet<Class< ? >>();
 
 	private final Set<String> m_ignoredPackageSet = new HashSet<String>();
 
 	/** Maps primitive types to their array renderer. */
-	private final Map<Class<?>, ItemRenderer> m_arrayRendererMap = new HashMap<Class<?>, ItemRenderer>();
+	private final Map<Class< ? >, ItemRenderer> m_arrayRendererMap = new HashMap<Class< ? >, ItemRenderer>();
 
 	/**
 	 * Default renderer for all non-primitive arrays
 	 */
 	static private final ItemRenderer ARRAYRENDERER = new ItemRenderer() {
 		public void render(final ObjectRenderer or, final Object val) throws Exception {
-			Class<?> dt = val.getClass().getComponentType();
+			Class< ? > dt = val.getClass().getComponentType();
 			Object[] l = (Object[]) val;
 			or.renderArrayStart(l);
 			int ix = 0;
@@ -70,7 +70,7 @@ abstract public class RenderRegistry {
 	 */
 	static private final ItemRenderer PRIMITIVE_ARRAYRENDERER = new ItemRenderer() {
 		public void render(final ObjectRenderer or, final Object val) throws Exception {
-			Class<?> dt = val.getClass().getComponentType();
+			Class< ? > dt = val.getClass().getComponentType();
 			or.renderArrayStart(val);
 			int len = Array.getLength(val);
 			for(int i = 0; i < len; i++) {
@@ -87,7 +87,7 @@ abstract public class RenderRegistry {
 	 * @param cl		The primitive component of the array
 	 * @return
 	 */
-	public ItemRenderer makePrimitiveArrayRenderer(final Class<?> cl) {
+	public ItemRenderer makePrimitiveArrayRenderer(final Class< ? > cl) {
 		ItemRenderer ir = m_arrayRendererMap.get(cl.getComponentType());
 		if(ir != null)
 			return ir;
@@ -106,7 +106,7 @@ abstract public class RenderRegistry {
 		//-- Register renderers for List, Map and other basal Java classes.
 		registerBase(Collection.class, new ItemRenderer() {
 			public void render(final ObjectRenderer or, final Object val) throws Exception {
-				Collection<?> l = (Collection<?>) val;
+				Collection< ? > l = (Collection< ? >) val;
 				or.renderArrayStart(l);
 				int ix = 0;
 				for(Object o : l)
@@ -117,12 +117,12 @@ abstract public class RenderRegistry {
 
 		registerBase(Map.class, new ItemRenderer() {
 			public void render(final ObjectRenderer or, final Object val) throws Exception {
-				Map<?,?> m = (Map<?, ?>) val;
+				Map< ? , ? > m = (Map< ? , ? >) val;
 				or.renderMapStart(m);
 				int size = m.size();
 				int count = 0;
-				for(Iterator<?> it = m.entrySet().iterator(); it.hasNext();) {
-					Map.Entry<?,?> me = (Map.Entry<?,?>) it.next();
+				for(Iterator< ? > it = m.entrySet().iterator(); it.hasNext();) {
+					Map.Entry< ? , ? > me = (Map.Entry< ? , ? >) it.next();
 					or.renderMapEntry(me.getKey(), me.getValue(), count, size);
 					count++;
 				}
@@ -131,15 +131,15 @@ abstract public class RenderRegistry {
 		});
 	}
 
-	public synchronized ItemRenderer findRenderer(final Class<?> cl) {
+	public synchronized ItemRenderer findRenderer(final Class< ? > cl) {
 		return m_map.get(cl);
 	}
 
-	public synchronized void register(final Class<?> cl, final ItemRenderer r) {
+	public synchronized void register(final Class< ? > cl, final ItemRenderer r) {
 		m_map.put(cl, r);
 	}
 
-	public synchronized void registerBase(final Class<?> bc, final ItemRenderer r) {
+	public synchronized void registerBase(final Class< ? > bc, final ItemRenderer r) {
 		m_fixedList.add(new FixPair(bc, r));
 	}
 
@@ -151,16 +151,16 @@ abstract public class RenderRegistry {
 		m_ignoredPackageSet.add(name);
 	}
 
-	public synchronized void addIgnoredType(final Class<?> cl) {
+	public synchronized void addIgnoredType(final Class< ? > cl) {
 		m_ignoredTypeSet.add(cl);
 	}
 
-	public synchronized void addArrayRenderer(final Class<?> primitive, final ItemRenderer r) {
+	public synchronized void addArrayRenderer(final Class< ? > primitive, final ItemRenderer r) {
 		m_arrayRendererMap.put(primitive, r);
 	}
 
 	@SuppressWarnings("unchecked")
-	public synchronized boolean isIgnoredType(final Class<?> c) {
+	public synchronized boolean isIgnoredType(final Class< ? > c) {
 		for(Class tcl : m_ignoredTypeSet) {
 			if(tcl.isAssignableFrom(c))
 				return true;
@@ -173,8 +173,8 @@ abstract public class RenderRegistry {
 		return false;
 	}
 
-//	@SuppressWarnings("unchecked")
-	private synchronized ItemRenderer findFixed(final Class<?> bc) {
+	//	@SuppressWarnings("unchecked")
+	private synchronized ItemRenderer findFixed(final Class< ? > bc) {
 		for(FixPair p : m_fixedList) {
 			if(p.getBaseclass().isAssignableFrom(bc))
 				return p.getRenderer();
@@ -182,7 +182,7 @@ abstract public class RenderRegistry {
 		return null;
 	}
 
-	public synchronized ItemRenderer makeRenderer(final Class<?> cl) {
+	public synchronized ItemRenderer makeRenderer(final Class< ? > cl) {
 		ItemRenderer ir = m_map.get(cl);
 		if(ir != null) {
 			//			if(cl != null)
@@ -212,7 +212,7 @@ abstract public class RenderRegistry {
 	 * @param cl
 	 * @return
 	 */
-	protected ItemRenderer makeClassRenderer(final Class<?> cl) {
+	protected ItemRenderer makeClassRenderer(final Class< ? > cl) {
 		List<ClassMemberRenderer> ml = new ArrayList<ClassMemberRenderer>();
 		Method[] ar = cl.getMethods();
 		for(Method m : ar) {
@@ -232,7 +232,7 @@ abstract public class RenderRegistry {
 						slen = 2;
 					else
 						continue;
-					Class<?> rt = m.getReturnType();
+					Class< ? > rt = m.getReturnType();
 					if(!isIgnoredType(rt)) {
 
 						//-- Something real. Form the actual name

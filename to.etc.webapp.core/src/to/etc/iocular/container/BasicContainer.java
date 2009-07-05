@@ -1,16 +1,12 @@
 package to.etc.iocular.container;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
+import java.io.*;
+import java.lang.reflect.*;
 import java.util.*;
 
-import to.etc.iocular.BindingScope;
-import to.etc.iocular.Container;
-import to.etc.iocular.def.ComponentDef;
-import to.etc.iocular.def.ComponentRef;
-import to.etc.iocular.def.ContainerDefinition;
-import to.etc.util.IndentWriter;
+import to.etc.iocular.*;
+import to.etc.iocular.def.*;
+import to.etc.util.*;
 
 /**
  * <p>This is a default implementation of an IOC container. While it
@@ -33,43 +29,40 @@ import to.etc.util.IndentWriter;
  */
 public class BasicContainer implements Container {
 	/** True when this container is in 'started' state. */
-	private boolean					m_started;
+	private boolean m_started;
 
 	/** If this is a child container this refers to it's parent. It is null for a root container. */
-	private final BasicContainer	m_parent;
+	private final BasicContainer m_parent;
 
 	/** The definition of this container. */
-	private final ContainerDefinition	m_def;
+	private final ContainerDefinition m_def;
 
 	/** The stack of containers that are parents of this one, indexed by ComponentRef.index. Used to quickly get a specific parent. */
-	private final BasicContainer[]	m_stack;
+	private final BasicContainer[] m_stack;
 
-	private final Map<ComponentDef, StaticComponentRef>	m_staticMap = new HashMap<ComponentDef, StaticComponentRef>();
+	private final Map<ComponentDef, StaticComponentRef> m_staticMap = new HashMap<ComponentDef, StaticComponentRef>();
 
 	/** Map of all instantiated objects of a given definition */
-	private final Map<ComponentDef, ContainerObjectRef>	m_singletonMap = new HashMap<ComponentDef, ContainerObjectRef>();
+	private final Map<ComponentDef, ContainerObjectRef> m_singletonMap = new HashMap<ComponentDef, ContainerObjectRef>();
 
 	private static enum RefState {
-		NEW,
-		OKAY,
-		ALLOCATING,
-		ERROR
+		NEW, OKAY, ALLOCATING, ERROR
 	}
 
 	private static class ContainerObjectRef {
 		/** If an actual object has been created *and* it is valid this holds that object. */
-		Object		instance;
+		Object instance;
 
 		/** If creating the object has caused a problem this holds that problem (wrapped if not a RuntimeException). */
-		Exception	exception;
+		Exception exception;
 
-//		Container	allocatingContainer;
+		//		Container	allocatingContainer;
 
-		RefState	state;
+		RefState state;
 
 		ContainerObjectRef(final ComponentDef cd) {
-//			m_def = cd;
-			state	= RefState.NEW;
+			//			m_def = cd;
+			state = RefState.NEW;
 		}
 	}
 
@@ -80,16 +73,19 @@ public class BasicContainer implements Container {
 	 * Created on May 22, 2009
 	 */
 	final private static class Destructor {
-		private final Object	m_instance;
-		private final BuildPlan	m_plan;
+		private final Object m_instance;
+
+		private final BuildPlan m_plan;
 
 		public Destructor(final BuildPlan plan, final Object instance) {
 			m_plan = plan;
 			m_instance = instance;
 		}
+
 		public Object getInstance() {
 			return m_instance;
 		}
+
 		public BuildPlan getPlan() {
 			return m_plan;
 		}
@@ -100,22 +96,22 @@ public class BasicContainer implements Container {
 	 * a reference to the created object and it's build plan so it's destructors can be called at
 	 * container close time.
 	 */
-	private List<Destructor>	m_destructorList = Collections.EMPTY_LIST;
+	private List<Destructor> m_destructorList = Collections.EMPTY_LIST;
 
 	public BasicContainer(final ContainerDefinition def, final Container parent) {
 		if(def == null)
 			throw new IllegalStateException("The definition for a container cannot be null of course");
 		if(parent == null && def.getParentDefinition() != null)
-			throw new IllegalStateException("This container's definition states that this container REQUIRES a parent container '"+def.getParentDefinition().getName()+"'");
+			throw new IllegalStateException("This container's definition states that this container REQUIRES a parent container '" + def.getParentDefinition().getName() + "'");
 		if(parent != null && def.getParentDefinition() == null)
 			throw new IllegalStateException("This container's definition states that it has NO parent container, but one was passed anyway?");
 		m_def = def;
-		m_parent = (BasicContainer)parent;
+		m_parent = (BasicContainer) parent;
 
 		//-- Create the container stack
-		m_stack = new BasicContainer[ def.getContainerIndex() +1 ];
+		m_stack = new BasicContainer[def.getContainerIndex() + 1];
 		m_stack[def.getContainerIndex()] = this;
-		BasicContainer	c = (BasicContainer) parent;
+		BasicContainer c = (BasicContainer) parent;
 
 		while(c != null) {
 			m_stack[c.m_def.getContainerIndex()] = c;
@@ -125,32 +121,33 @@ public class BasicContainer implements Container {
 
 	public synchronized void start() {
 		if(m_started)
-			throw new IllegalStateException(this+": container has already been started!!");
+			throw new IllegalStateException(this + ": container has already been started!!");
 		m_started = true;
 
 	}
+
 	public void destroy() {
-		List<Destructor>	dlist;
+		List<Destructor> dlist;
 		synchronized(this) {
-			if(! m_started)
+			if(!m_started)
 				return;
 			m_started = false;
 			if(m_destructorList.size() == 0)
 				return;
-			dlist = new ArrayList<Destructor>(m_destructorList);	// Copy destructors,
+			dlist = new ArrayList<Destructor>(m_destructorList); // Copy destructors,
 			m_destructorList.clear();
 			m_singletonMap.clear();
 			m_staticMap.clear();
 		}
 
-		for(int i = dlist.size(); --i >= 0;)	{		// Destroy in reverse order of allocation
-			Destructor	d = dlist.get(i);
-			System.out.println("Destroying: "+d.getInstance());
+		for(int i = dlist.size(); --i >= 0;) { // Destroy in reverse order of allocation
+			Destructor d = dlist.get(i);
+			System.out.println("Destroying: " + d.getInstance());
 			d.getPlan().destroy(this, d.getInstance());
 		}
 	}
 
-	public String	getIdent() {
+	public String getIdent() {
 		return m_def.getName();
 	}
 
@@ -161,10 +158,10 @@ public class BasicContainer implements Container {
 	 * @param cd
 	 * @return
 	 */
-	private synchronized ContainerObjectRef	getRef(final ComponentDef cd) {
-		if(! m_started)
-			throw new IllegalStateException(this+": the container has been destroyed, or it has not yet been started.");
-		ContainerObjectRef	ref = m_singletonMap.get(cd);
+	private synchronized ContainerObjectRef getRef(final ComponentDef cd) {
+		if(!m_started)
+			throw new IllegalStateException(this + ": the container has been destroyed, or it has not yet been started.");
+		ContainerObjectRef ref = m_singletonMap.get(cd);
 		if(ref == null) {
 			ref = new ContainerObjectRef(cd);
 			m_singletonMap.put(cd, ref);
@@ -183,16 +180,16 @@ public class BasicContainer implements Container {
 	}
 
 	public <T> T getObject(final Class<T> theClass) throws Exception {
-		ComponentRef	ref = m_def.findComponentReference(theClass);
+		ComponentRef ref = m_def.findComponentReference(theClass);
 		if(ref == null)
-			throw new IocContainerException(this, "Can't create object of type="+theClass.getName()+": definition is not found");
+			throw new IocContainerException(this, "Can't create object of type=" + theClass.getName() + ": definition is not found");
 		return (T) retrieve(ref);
 	}
 
 	public <T> T getObject(final String name, final Class<T> theClass) throws Exception {
-		ComponentRef	ref = m_def.findComponentReference(name);
+		ComponentRef ref = m_def.findComponentReference(name);
 		if(ref == null)
-			throw new IocContainerException(this, "Object with name="+name+" not defined");
+			throw new IocContainerException(this, "Object with name=" + name + " not defined");
 		return (T) retrieve(ref);
 	}
 
@@ -203,22 +200,22 @@ public class BasicContainer implements Container {
 	 * Set a container parameter object. The parameter to set is inferred from the object type.
 	 * @param instance
 	 */
-	public void	setParameter(final Object instance) {
+	public void setParameter(final Object instance) {
 		if(instance == null)
 			throw new IocContainerException(this, "You cannot set a parameter to null using this function, you must specify the parameter type or name!");
 
 		//-- Find the type of the parameter being set; use base classes also.
-		ComponentRef	ref = null;
-		Class<?>		current	= instance.getClass();
-		while(ref == null){
-			ref	= m_def.findComponentReference(current);		// Can we find a ref for this thingy?
+		ComponentRef ref = null;
+		Class< ? > current = instance.getClass();
+		while(ref == null) {
+			ref = m_def.findComponentReference(current); // Can we find a ref for this thingy?
 			if(ref != null)
 				break;
 
 			//-- Move to super class
-			current	= current.getSuperclass();
+			current = current.getSuperclass();
 			if(current == Object.class || current == null)
-				throw new IocContainerException(this, "Undefined container parameter with type="+instance.getClass()+" (or base class)");
+				throw new IocContainerException(this, "Undefined container parameter with type=" + instance.getClass() + " (or base class)");
 		}
 
 		assignParameter(ref, instance);
@@ -230,10 +227,10 @@ public class BasicContainer implements Container {
 	 * @param clz
 	 * @param instance
 	 */
-	public void	setParameter(final Class<?> theClass, final Object instance) {
-		ComponentRef	ref = m_def.findComponentReference(theClass);
+	public void setParameter(final Class< ? > theClass, final Object instance) {
+		ComponentRef ref = m_def.findComponentReference(theClass);
 		if(ref == null)
-			throw new IocContainerException(this, "Can't create object of type="+theClass.getName()+": definition is not found");
+			throw new IocContainerException(this, "Can't create object of type=" + theClass.getName() + ": definition is not found");
 		assignParameter(ref, instance);
 	}
 
@@ -244,10 +241,10 @@ public class BasicContainer implements Container {
 	 * @param name
 	 * @param instance
 	 */
-	public void	setParameter(final String name, final Object instance) {
-		ComponentRef	ref = m_def.findComponentReference(name);
+	public void setParameter(final String name, final Object instance) {
+		ComponentRef ref = m_def.findComponentReference(name);
 		if(ref == null)
-			throw new IocContainerException(this, "Object with name="+name+" not defined");
+			throw new IocContainerException(this, "Object with name=" + name + " not defined");
 		assignParameter(ref, instance);
 	}
 
@@ -259,11 +256,11 @@ public class BasicContainer implements Container {
 	 */
 	private void assignParameter(final ComponentRef cref, final Object instance) {
 		//-- Singleton object in this scope. Get a ref, then proceed to create
-		ContainerObjectRef	ref = getRef(cref.getDefinition());
+		ContainerObjectRef ref = getRef(cref.getDefinition());
 		synchronized(ref) {
-			switch(ref.state) {
+			switch(ref.state){
 				default:
-					throw new IllegalStateException("Unexpected state "+ref.state);
+					throw new IllegalStateException("Unexpected state " + ref.state);
 				case NEW:
 					//-- Normal, new thingy. Assign, then be done;
 					ref.instance = instance;
@@ -271,7 +268,7 @@ public class BasicContainer implements Container {
 					return;
 
 				case OKAY:
-					throw new IocContainerException(this, "Attempt to re-assign the container parameter="+cref.getDefinition());
+					throw new IocContainerException(this, "Attempt to re-assign the container parameter=" + cref.getDefinition());
 			}
 		}
 	}
@@ -279,7 +276,7 @@ public class BasicContainer implements Container {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Retrieval and creation primitives.					*/
 	/*--------------------------------------------------------------*/
-	private synchronized void	addDestructor(final BuildPlan plan, final Object inst) {
+	private synchronized void addDestructor(final BuildPlan plan, final Object inst) {
 		if(m_destructorList == Collections.EMPTY_LIST)
 			m_destructorList = new ArrayList<Destructor>();
 		m_destructorList.add(new Destructor(plan, inst));
@@ -294,7 +291,7 @@ public class BasicContainer implements Container {
 	 * @param ref
 	 * @return
 	 */
-	public Object	retrieve(final ComponentRef ref) throws Exception {
+	public Object retrieve(final ComponentRef ref) throws Exception {
 		return m_stack[ref.getContainerIndex()]._retrieve(ref);
 	}
 
@@ -307,10 +304,10 @@ public class BasicContainer implements Container {
 	 * @param ref
 	 * @return
 	 */
-	private Object	_retrieve(final ComponentRef cr) throws Exception {
+	private Object _retrieve(final ComponentRef cr) throws Exception {
 		if(cr.getContainerIndex() != m_def.getContainerIndex())
 			throw new IllegalStateException("Internal: Container index does not correspond with this container's index!?");
-		handleOneTimeInit(cr.getDefinition());	// Handle any static factory initializations.
+		handleOneTimeInit(cr.getDefinition()); // Handle any static factory initializations.
 
 		//-- If this is a "prototype" (a class that is always created anew) then just create without lock
 		if(cr.getDefinition().getScope() == BindingScope.PROTOTYPE) {
@@ -325,37 +322,37 @@ public class BasicContainer implements Container {
 		 * released. If we have ownership we proceed to initialization.
 		 */
 		//-- Singleton object in this scope. Get a ref, then proceed to create
-		ContainerObjectRef	ref = getRef(cr.getDefinition());
+		ContainerObjectRef ref = getRef(cr.getDefinition());
 		long ets = 0;
-outer:	for(;;) {
+		outer : for(;;) {
 			synchronized(ref) {
-				switch(ref.state) {
+				switch(ref.state){
 					default:
-						throw new IllegalStateException("Internal: unexpected state "+ref.state);
+						throw new IllegalStateException("Internal: unexpected state " + ref.state);
 					case OKAY:
-						return ref.instance;				// Value was set.
+						return ref.instance; // Value was set.
 					case ERROR:
 						if(ref.exception == null)
 							throw new IllegalStateException("Missing exception type for object ref in ERROR state");
-						throw ref.exception;				// Retrow the init exception.
+						throw ref.exception; // Retrow the init exception.
 
 					case NEW:
-						ref.state = RefState.ALLOCATING;	// Mark as allocating for next thread
-//						ref.allocatingContainer = this;		// I'm allocating now
-						break outer;						// Exit synchronisation.
+						ref.state = RefState.ALLOCATING; // Mark as allocating for next thread
+						//						ref.allocatingContainer = this;		// I'm allocating now
+						break outer; // Exit synchronisation.
 					case ALLOCATING:
 						/*
 						 * We need to block IF the max time has not been exceeded.
 						 */
 						long ts = System.currentTimeMillis();
-						if(ets == 0)						// First time entered?
-							ets = ts + 60*1000;				// Wait max. 1 minute
+						if(ets == 0) // First time entered?
+							ets = ts + 60 * 1000; // Wait max. 1 minute
 						else if(ts >= ets)
-							throw new IocContainerException(this, "Another thread took too long to initialize an instance of component="+cr.getDefinition());
+							throw new IocContainerException(this, "Another thread took too long to initialize an instance of component=" + cr.getDefinition());
 
 						//-- We need to wait....
-						ref.wait(10*1000);
-						break;								// And loop again, till timeout or state change.
+						ref.wait(10 * 1000);
+						break; // And loop again, till timeout or state change.
 				}
 			}
 		}
@@ -366,12 +363,12 @@ outer:	for(;;) {
 		 * code asks the definition to create an instance; if the definition defines a parameter it causes a "parameter not set" exception
 		 * since parameters cannot be created (only set).
 		 */
-		Exception	thex = null;
-		RefState	nstate = RefState.ERROR;
-		Object		theObject = null;
+		Exception thex = null;
+		RefState nstate = RefState.ERROR;
+		Object theObject = null;
 		try {
-			theObject = createObject(cr.getDefinition());	// Create a new instance
-			nstate	= RefState.OKAY;						// Ref is assigned, now.
+			theObject = createObject(cr.getDefinition()); // Create a new instance
+			nstate = RefState.OKAY; // Ref is assigned, now.
 
 			//-- Link in destructor if needed.
 			if(cr.getBuildPlan().hasDestructors())
@@ -379,8 +376,8 @@ outer:	for(;;) {
 
 			return theObject;
 		} catch(Exception x) {
-			thex	= x;
-			nstate	= RefState.ERROR;
+			thex = x;
+			nstate = RefState.ERROR;
 			throw x;
 		} finally {
 			/*
@@ -400,8 +397,8 @@ outer:	for(;;) {
 	 * @param cd
 	 * @return
 	 */
-	private Object	createObject(final ComponentDef cd) throws Exception {
-//		dump(cd, cd.getBuildPlan());
+	private Object createObject(final ComponentDef cd) throws Exception {
+		//		dump(cd, cd.getBuildPlan());
 		try {
 			return cd.getBuildPlan().getObject(this);
 		} catch(InvocationTargetException itx) {
@@ -418,12 +415,12 @@ outer:	for(;;) {
 	 * @param cr
 	 */
 	private void handleOneTimeInit(final ComponentDef def) throws Exception {
-		BuildPlan	pl	= def.getBuildPlan();
-		if(! pl.needsStaticInitialization())
+		BuildPlan pl = def.getBuildPlan();
+		if(!pl.needsStaticInitialization())
 			return;
 
 		//-- Check to see if init has been done, using 2-part locking. First get thingy ref atomically then own it,
-		StaticComponentRef	sr;
+		StaticComponentRef sr;
 		synchronized(m_staticMap) {
 			sr = m_staticMap.get(def);
 			if(sr == null) {
@@ -448,26 +445,27 @@ outer:	for(;;) {
 	}
 
 	static private void dump(final ComponentDef cd, final BuildPlan pl) {
-		StringWriter	sw = new StringWriter(8192);
-		IndentWriter	iw	= new IndentWriter(sw);
+		StringWriter sw = new StringWriter(8192);
+		IndentWriter iw = new IndentWriter(sw);
 		try {
 			pl.dump(iw);
 			sw.close();
-			System.out.println("DUMP: Build plan for component "+cd+", defined at "+cd.getDefinitionLocation());
+			System.out.println("DUMP: Build plan for component " + cd + ", defined at " + cd.getDefinitionLocation());
 			System.out.println(sw.getBuffer().toString());
 		} catch(IOException x) {
 			x.printStackTrace();
 		}
 	}
 
-	public void	dump(final Class<?> theClass) {
-		ComponentRef	ref = m_def.findComponentReference(theClass);
+	public void dump(final Class< ? > theClass) {
+		ComponentRef ref = m_def.findComponentReference(theClass);
 		if(ref == null)
-			throw new IocContainerException(this, "Can't dump object of type="+theClass.getName()+": definition is not found");
+			throw new IocContainerException(this, "Can't dump object of type=" + theClass.getName() + ": definition is not found");
 		dump(ref.getDefinition(), ref.getBuildPlan());
 	}
+
 	@Override
 	public String toString() {
-		return "Container: "+getIdent();
+		return "Container: " + getIdent();
 	}
 }

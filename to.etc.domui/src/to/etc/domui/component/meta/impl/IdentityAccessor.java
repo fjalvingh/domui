@@ -13,6 +13,7 @@ public class IdentityAccessor<T> implements IValueAccessor<T> {
 		InstanceRefresher.refresh(in);
 		return (T) in;
 	}
+
 	public void setValue(Object target, T value) throws Exception {
 		throw new IllegalStateException("Can't set the value for this object.");
 	}

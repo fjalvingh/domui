@@ -15,14 +15,14 @@ import to.etc.domui.trouble.*;
  */
 public class InternalLoginInterceptor implements IRequestInterceptor {
 	public void after(RequestContext rc, Exception x) throws Exception {
-		if(! (x instanceof NotLoggedInException))
+		if(!(x instanceof NotLoggedInException))
 			return;
-		RequestContextImpl	ci = (RequestContextImpl) rc;
-		ILoginDialogFactory	ldf = ci.getApplication().getLoginDialogFactory();
+		RequestContextImpl ci = (RequestContextImpl) rc;
+		ILoginDialogFactory ldf = ci.getApplication().getLoginDialogFactory();
 		if(ldf != null)
 			return;
-		
+
 	}
-	public void before(RequestContext rc) throws Exception {
-	}
+
+	public void before(RequestContext rc) throws Exception {}
 }

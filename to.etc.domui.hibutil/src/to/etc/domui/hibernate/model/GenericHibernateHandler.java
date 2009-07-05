@@ -1,7 +1,5 @@
 package to.etc.domui.hibernate.model;
 
-import org.hibernate.*;
-
 import to.etc.webapp.query.*;
 
 /**
@@ -19,15 +17,15 @@ public class GenericHibernateHandler {
 	 * @param qc
 	 * @return
 	 */
-	static public Criteria			createCriteria(Session ses, QCriteria<?> qc) {
+	static public Criteria createCriteria(Session ses, QCriteria< ? > qc) {
 		try {
-			Criteria	c	= ses.createCriteria(qc.getBaseClass(), "base");
+			Criteria c = ses.createCriteria(qc.getBaseClass(), "base");
 			qc.visit(new CriteriaCreatingVisitor(c));
 			return c;
 		} catch(RuntimeException x) {
 			throw x;
 		} catch(Exception x) {
-			throw new RuntimeException(x);		// Cannot happen.
+			throw new RuntimeException(x); // Cannot happen.
 		}
 	}
 }

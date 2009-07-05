@@ -12,14 +12,14 @@ import to.etc.domui.trouble.*;
 abstract public class AbstractContextMaker implements ContextMaker {
 	abstract public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception;
 
-	public boolean	execute(final RequestContextImpl ctx, FilterChain chain) throws Exception {
-		List<IRequestInterceptor>	il = ctx.getApplication().getInterceptorList();
-		Exception	xx = null;
-		FilterRequestHandler	rh = null;
+	public boolean execute(final RequestContextImpl ctx, FilterChain chain) throws Exception {
+		List<IRequestInterceptor> il = ctx.getApplication().getInterceptorList();
+		Exception xx = null;
+		FilterRequestHandler rh = null;
 		try {
 			PageContext.internalSet(ctx);
 			callInterceptorsBegin(il, ctx);
-			rh	= ctx.getApplication().findRequestHandler(ctx);
+			rh = ctx.getApplication().findRequestHandler(ctx);
 			if(rh == null) {
 				chain.doFilter(ctx.getRequest(), ctx.getResponse());
 				return false;
@@ -31,20 +31,24 @@ abstract public class AbstractContextMaker implements ContextMaker {
 			ctx.getResponse().sendError(404, x.getMessage());
 			return true;
 		} catch(Exception xxx) {
-			xx	= xxx;
+			xx = xxx;
 			throw xxx;
 		} finally {
 			callInterceptorsAfter(il, ctx, xx);
 			ctx.onRequestFinished();
-			try { ctx.discard(); } catch(Exception x) {x.printStackTrace(); }
-			PageContext.internalSet((RequestContextImpl)null);
+			try {
+				ctx.discard();
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+			PageContext.internalSet((RequestContextImpl) null);
 		}
 	}
 
-	private void	callInterceptorsBegin(final List<IRequestInterceptor> il, final RequestContextImpl ctx) throws Exception {
-		int	i;
+	private void callInterceptorsBegin(final List<IRequestInterceptor> il, final RequestContextImpl ctx) throws Exception {
+		int i;
 		for(i = 0; i < il.size(); i++) {
-			IRequestInterceptor	ri = il.get(i);
+			IRequestInterceptor ri = il.get(i);
 			try {
 				ri.before(ctx);
 			} catch(Exception x) {
@@ -64,11 +68,11 @@ abstract public class AbstractContextMaker implements ContextMaker {
 		}
 	}
 
-	private void	callInterceptorsAfter(final List<IRequestInterceptor> il, final RequestContextImpl ctx, final Exception x) throws Exception {
-		Exception endx= null;
+	private void callInterceptorsAfter(final List<IRequestInterceptor> il, final RequestContextImpl ctx, final Exception x) throws Exception {
+		Exception endx = null;
 
 		for(int i = il.size(); --i >= 0;) {
-			IRequestInterceptor	ri = il.get(i);
+			IRequestInterceptor ri = il.get(i);
 			try {
 				ri.after(ctx, x);
 			} catch(Exception xx) {

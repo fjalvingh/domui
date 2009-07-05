@@ -8,44 +8,52 @@ package to.etc.iocular.def;
  */
 final class MethodParameterSpec {
 	/** When set this is defined as "get the parameter by looking up this type in the container" */
-	private Class<?>			m_sourceType;
+	private Class< ? > m_sourceType;
 
 	/** When set this is defined as "lookup the defined component with this name in the container" */
-	private String				m_sourceName;
+	private String m_sourceName;
 
 	/** When defined this parameter refers to the component that is being defined. */
-	private boolean				m_self;
+	private boolean m_self;
 
 	/** For numbered parameters this defines the formal parameter that must be set by this parameter */
-	private int					m_parameterNumber;
+	private int m_parameterNumber;
 
 	public Class< ? > getSourceType() {
 		return m_sourceType;
 	}
+
 	public void setSourceType(final Class< ? > sourceType) {
 		m_sourceType = sourceType;
 	}
+
 	public String getSourceName() {
 		return m_sourceName;
 	}
+
 	public void setSourceName(final String sourceName) {
 		m_sourceName = sourceName;
 	}
+
 	public boolean isSelf() {
 		return m_self;
 	}
+
 	public void setSelf(final boolean self) {
 		m_self = self;
 	}
+
 	public int getParameterNumber() {
 		return m_parameterNumber;
 	}
+
 	public void setParameterNumber(final int parameterNumber) {
 		m_parameterNumber = parameterNumber;
 	}
+
 	@Override
 	public String toString() {
-		StringBuilder	sb	= new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		sb.append('[');
 		if(m_sourceName != null) {
 			sb.append("name=");

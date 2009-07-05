@@ -12,18 +12,23 @@ import to.etc.webapp.nls.*;
 
 public class InternalResourcePart implements BufferedPartFactory {
 	private static class ResKey {
-		private Locale	m_loc;
-		private String	m_rurl;
+		private Locale m_loc;
+
+		private String m_rurl;
+
 		public ResKey(Locale loc, String rurl) {
 			m_loc = loc;
 			m_rurl = rurl;
 		}
+
 		public Locale getLoc() {
 			return m_loc;
 		}
+
 		public String getRURL() {
 			return m_rurl;
 		}
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -32,6 +37,7 @@ public class InternalResourcePart implements BufferedPartFactory {
 			result = prime * result + ((m_rurl == null) ? 0 : m_rurl.hashCode());
 			return result;
 		}
+
 		@Override
 		public boolean equals(Object obj) {
 			if(this == obj)
@@ -44,14 +50,12 @@ public class InternalResourcePart implements BufferedPartFactory {
 			if(m_loc == null) {
 				if(other.m_loc != null)
 					return false;
-			}
-			else if(!m_loc.equals(other.m_loc))
+			} else if(!m_loc.equals(other.m_loc))
 				return false;
 			if(m_rurl == null) {
 				if(other.m_rurl != null)
 					return false;
-			}
-			else if(!m_rurl.equals(other.m_rurl))
+			} else if(!m_rurl.equals(other.m_rurl))
 				return false;
 			return true;
 		}
@@ -59,11 +63,11 @@ public class InternalResourcePart implements BufferedPartFactory {
 
 	public Object decodeKey(String rurl, IParameterInfo param) throws Exception {
 		//-- Is this an URL containing an nls'ed resource?
-		Locale	loc	= null;
-		int	pos	= rurl.lastIndexOf(".nls.");
+		Locale loc = null;
+		int pos = rurl.lastIndexOf(".nls.");
 		if(-1 != pos) {
 			loc = NlsContext.getLocale();
-			rurl = rurl.substring(0, pos)+rurl.substring(pos+5);
+			rurl = rurl.substring(0, pos) + rurl.substring(pos + 5);
 		}
 		if(rurl.endsWith(".class") /* || rurl.endsWith(".java") */)
 			throw new ThingyNotFoundException(rurl);
@@ -84,51 +88,53 @@ public class InternalResourcePart implements BufferedPartFactory {
 	 * @see to.etc.domui.server.parts.BufferedPartFactory#generate(to.etc.domui.server.parts.PartResponse, to.etc.domui.server.DomApplication, java.lang.Object, to.etc.domui.util.resources.ResourceDependencyList)
 	 */
 	public void generate(PartResponse pr, DomApplication da, Object inkey, ResourceDependencyList rdl) throws Exception {
-		ResKey	k = (ResKey) inkey;
+		ResKey k = (ResKey) inkey;
 
 		//-- 1. Locate the resource
-		IResourceRef	ires;
+		IResourceRef ires;
 		if(k.getLoc() == null) {
 			String rurl = k.getRURL();
 			if(rurl.startsWith("$RES/")) {
 				//-- Java resource
 				ires = new ClassResourceRef(getClass(), rurl.substring(4));
-			} else if(! rurl.startsWith("$"))
+			} else if(!rurl.startsWith("$"))
 				throw new IllegalStateException("Internal: bad rurl passed, missing $");
 			else {
 				rurl = rurl.substring(1);
 
 				//-- 1. Is a file-based resource available?
-				File	f 	= da.getAppFile(rurl);
+				File f = da.getAppFile(rurl);
 				if(f.exists()) {
 					ires = new WebappResourceRef(f);
-					if(! da.inDevelopmentMode())					// Webapp resources are cached ONLY when in production mode.
+					if(!da.inDevelopmentMode()) // Webapp resources are cached ONLY when in production mode.
 						pr.setCacheTime(da.getDefaultExpiryTime());
 				} else {
 					//-- In the url, replace all '.' but the last one with /
-	//				String	name = k.getRURL();
-	//				int	pos	= name.lastIndexOf('.');
-	//				if(pos != -1) {
-	//					name = name.substring(0, pos).replace('.', '/')+name.substring(pos);
-	//				}
-					ires = new ClassResourceRef(getClass(), "/resources/"+rurl);
-					pr.setCacheTime(da.getDefaultExpiryTime());		// Allow caching for a long time
+					//				String	name = k.getRURL();
+					//				int	pos	= name.lastIndexOf('.');
+					//				if(pos != -1) {
+					//					name = name.substring(0, pos).replace('.', '/')+name.substring(pos);
+					//				}
+					ires = new ClassResourceRef(getClass(), "/resources/" + rurl);
+					pr.setCacheTime(da.getDefaultExpiryTime()); // Allow caching for a long time
 				}
 				if(rdl != null)
 					rdl.add(ires);
 			}
 
-			pr.setMime( ServerTools.getExtMimeType(FileTool.getFileExtension(rurl)) );
-			InputStream	is	= ires.getInputStream();
+			pr.setMime(ServerTools.getExtMimeType(FileTool.getFileExtension(rurl)));
+			InputStream is = ires.getInputStream();
 			if(is == null)
 				throw new ThingyNotFoundException(k.getRURL());
 			try {
 				FileTool.copyFile(pr.getOutputStream(), is);
 			} finally {
-				try { is.close(); } catch(Exception x) {}
+				try {
+					is.close();
+				} catch(Exception x) {}
 			}
 			return;
 		}
-		throw new ThingyNotFoundException(k.getLoc()+"/"+k.getRURL());
+		throw new ThingyNotFoundException(k.getLoc() + "/" + k.getRURL());
 	}
 }

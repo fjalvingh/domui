@@ -9,7 +9,7 @@ import to.etc.domui.dom.html.*;
  * Created on Jun 22, 2008
  */
 public class ShelvedEntry {
-	private Page				m_page;
+	private Page m_page;
 
 	public ShelvedEntry(Page page) {
 		m_page = page;

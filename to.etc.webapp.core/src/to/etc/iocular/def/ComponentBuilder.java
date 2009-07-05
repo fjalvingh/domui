@@ -1,15 +1,11 @@
 package to.etc.iocular.def;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.annotation.*;
+import java.lang.reflect.*;
 import java.util.*;
 
-import to.etc.iocular.BindingScope;
-import to.etc.iocular.container.BuildPlan;
-import to.etc.iocular.container.FailedAlternative;
-import to.etc.iocular.container.MethodInvoker;
+import to.etc.iocular.*;
+import to.etc.iocular.container.*;
 import to.etc.iocular.util.ClassUtil;
 import to.etc.util.*;
 
@@ -22,63 +18,66 @@ import to.etc.util.*;
  */
 public class ComponentBuilder {
 	/** The container definition we're building. */
-	private final BasicContainerBuilder	m_builder;
+	private final BasicContainerBuilder m_builder;
 
 	/** The location, as a string, of this definition in the source for the definition. For java-defined code this is a line from the stacktrace. */
-	private final String			m_definitionLocation;
+	private final String m_definitionLocation;
 
 	/** The basic creation method for this object. This defines the base for how we get the actual instance. A create method must ALWAYS be present. */
-	private CreateMethod			m_createMethod;
+	private CreateMethod m_createMethod;
 
 	/** The assigned names for this component. Can be empty. */
-	private final List<String>		m_nameList = new ArrayList<String>();
+	private final List<String> m_nameList = new ArrayList<String>();
 
 	/**
 	 * If this class is registered as a "defined" type only that type will be registered in the type table.
 	 */
-	private final List<Class<?>>	m_definedTypeList = new ArrayList<Class<?>>();
+	private final List<Class< ? >> m_definedTypeList = new ArrayList<Class< ? >>();
 
-	private Class<?>				m_baseClass;
+	private Class< ? > m_baseClass;
 
-	private Class<?>				m_factoryClass;
+	private Class< ? > m_factoryClass;
 
 	/** The alternative instances of methods providing the object using the static factoryClass */
-	private List<Method>			m_factoryMethodList;
+	private List<Method> m_factoryMethodList;
 
 	/** When a factory instance has the method to call this contains the key for the factory instance. */
-	private String					m_factoryInstance;
+	private String m_factoryInstance;
 
-	private String					m_factoryMethodText;
+	private String m_factoryMethodText;
 
-	private BindingScope			m_scope;
+	private BindingScope m_scope;
 
-//	private boolean					m_autowire;
+	//	private boolean					m_autowire;
 
-	private String					m_creationString;
+	private String m_creationString;
 
 	/**
 	 * The actual type created by this definition.
 	 */
-	private Class<?>				m_actualType;
+	private Class< ? > m_actualType;
 
-	private MethodCallBuilder		m_currentMethodBuilder;
+	private MethodCallBuilder m_currentMethodBuilder;
 
-	private final List<MethodCallBuilder>	m_factoryStartList = new ArrayList<MethodCallBuilder>();
+	private final List<MethodCallBuilder> m_factoryStartList = new ArrayList<MethodCallBuilder>();
 
-	private final List<MethodCallBuilder>	m_startList = new ArrayList<MethodCallBuilder>();
+	private final List<MethodCallBuilder> m_startList = new ArrayList<MethodCallBuilder>();
 
-	private final List<MethodCallBuilder>	m_destroyList = new ArrayList<MethodCallBuilder>();
+	private final List<MethodCallBuilder> m_destroyList = new ArrayList<MethodCallBuilder>();
 
 	ComponentBuilder(final BasicContainerBuilder b, final String loc) {
 		m_builder = b;
 		m_definitionLocation = loc;
 	}
+
 	public String getDefinitionLocation() {
 		return m_definitionLocation;
 	}
-	public BasicContainerBuilder	getBuilder() {
+
+	public BasicContainerBuilder getBuilder() {
 		return m_builder;
 	}
+
 	MethodCallBuilder getCurrentMethodBuilder() {
 		return m_currentMethodBuilder;
 	}
@@ -86,14 +85,14 @@ public class ComponentBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Builder construction methods.						*/
 	/*--------------------------------------------------------------*/
-//	private void checkCreation() {
-//		if(m_createMethod != null)
-//			throw new IocConfigurationException(this.m_builder, getDefinitionLocation(), "Component already created by "+m_creationString);
-//	}
+	//	private void checkCreation() {
+	//		if(m_createMethod != null)
+	//			throw new IocConfigurationException(this.m_builder, getDefinitionLocation(), "Component already created by "+m_creationString);
+	//	}
 
-	private void	setCreateMethod(final CreateMethod m, final String detailed) {
+	private void setCreateMethod(final CreateMethod m, final String detailed) {
 		if(m_createMethod != null)
-			throw new IocConfigurationException(this.m_builder, getDefinitionLocation(), "Component already created by "+m_creationString);
+			throw new IocConfigurationException(this.m_builder, getDefinitionLocation(), "Component already created by " + m_creationString);
 		m_createMethod = m;
 		m_creationString = detailed;
 	}
@@ -105,25 +104,25 @@ public class ComponentBuilder {
 	 * Create the specified class using it's constructor, followed by setter injection where
 	 * needed. This defines a base creation method and so it forbids the other creation methods.
 	 */
-	public ComponentBuilder	type(final Class<?> clz) {
+	public ComponentBuilder type(final Class< ? > clz) {
 		setCreateMethod(CreateMethod.ASNEW, "Creating a new class instance using <<new>>");
 
 		//-- Check to see if the class is acceptable
 		int mod = clz.getModifiers();
 		if(Modifier.isAbstract(mod))
-			throw new IocConfigurationException(this, this+": the class "+clz+" is abstract");
-		if(! Modifier.isPublic(mod))
-			throw new IocConfigurationException(this, this+": the class "+clz+" is not public");
+			throw new IocConfigurationException(this, this + ": the class " + clz + " is abstract");
+		if(!Modifier.isPublic(mod))
+			throw new IocConfigurationException(this, this + ": the class " + clz + " is not public");
 		if(clz.isInterface())
-			throw new IocConfigurationException(this, this+": the class "+clz+" is an interface");
+			throw new IocConfigurationException(this, this + ": the class " + clz + " is an interface");
 
-		Constructor<?>[]	car = clz.getConstructors();
-		if(car == null || car.length == 0)	// Cannot construct
-			throw new IocConfigurationException(this, this+": the class "+clz+" has no public constructors");
+		Constructor< ? >[] car = clz.getConstructors();
+		if(car == null || car.length == 0) // Cannot construct
+			throw new IocConfigurationException(this, this + ": the class " + clz + " has no public constructors");
 
 		//-- Define a type plan, and register it; This is a constructor-defined type...
-		m_actualType	= clz;
-		m_baseClass		= clz;
+		m_actualType = clz;
+		m_baseClass = clz;
 		m_definedTypeList.add(clz);
 		return this;
 	}
@@ -139,7 +138,7 @@ public class ComponentBuilder {
 	 * @param ptype
 	 * @return
 	 */
-	public ComponentBuilder	parameter(final Class<?> ptype) {
+	public ComponentBuilder parameter(final Class< ? > ptype) {
 		setCreateMethod(CreateMethod.CONTAINER_PARAMETER, "Passed as a parameter by the container's builder");
 		m_actualType = ptype;
 		m_definedTypeList.add(ptype);
@@ -172,29 +171,29 @@ public class ComponentBuilder {
 	 * @param method
 	 * @return
 	 */
-	public ComponentBuilder	factory(final Class<?> clz, final String method) {
-		setCreateMethod(CreateMethod.FACTORY_METHOD, "calling factory method "+method+" on class "+clz);
-		m_factoryMethodList	= findMethodInFactory(clz, method, true);
-		m_factoryClass	= clz;
-		m_actualType	= m_factoryMethodList.get(0).getReturnType();
+	public ComponentBuilder factory(final Class< ? > clz, final String method) {
+		setCreateMethod(CreateMethod.FACTORY_METHOD, "calling factory method " + method + " on class " + clz);
+		m_factoryMethodList = findMethodInFactory(clz, method, true);
+		m_factoryClass = clz;
+		m_actualType = m_factoryMethodList.get(0).getReturnType();
 		return this;
 	}
 
-	private List<Method>	findMethodInFactory(final Class<?> clz, final String method, final boolean mbstatic) {
+	private List<Method> findMethodInFactory(final Class< ? > clz, final String method, final boolean mbstatic) {
 		Method[] mar = ClassUtil.findMethod(clz, method);
 		if(mar.length == 0)
-			throw new IocConfigurationException(this, "Method "+method+" is not defined in class '"+clz+"'");
-		List<Method>	thelist = new ArrayList<Method>();
-		Class<?>		rtype = null;
+			throw new IocConfigurationException(this, "Method " + method + " is not defined in class '" + clz + "'");
+		List<Method> thelist = new ArrayList<Method>();
+		Class< ? > rtype = null;
 		for(int i = mar.length; --i >= 0;) {
 			Method m = mar[i];
 
 			int mod = m.getModifiers();
-			if(mbstatic && ! Modifier.isStatic(mod))
+			if(mbstatic && !Modifier.isStatic(mod))
 				continue;
-			if(! Modifier.isPublic(mod))
+			if(!Modifier.isPublic(mod))
 				continue;
-			Class<?>	c = m.getReturnType();
+			Class< ? > c = m.getReturnType();
 			if(c == Void.TYPE)
 				continue;
 			if(c.isPrimitive())
@@ -202,11 +201,12 @@ public class ComponentBuilder {
 			if(rtype == null)
 				rtype = c;
 			else if(rtype != c)
-				throw new IocConfigurationException(this, "The "+mar.length+" different overloads of the method "+method+" return different types");
+				throw new IocConfigurationException(this, "The " + mar.length + " different overloads of the method " + method + " return different types");
 			thelist.add(m);
 		}
 		if(rtype == null)
-			throw new IocConfigurationException(this, "None of the "+mar.length+" versions of the method "+method+" is usable as a"+(mbstatic ? "static " : "")+" public factory method returning an object");
+			throw new IocConfigurationException(this, "None of the " + mar.length + " versions of the method " + method + " is usable as a" + (mbstatic ? "static " : "")
+				+ " public factory method returning an object");
 		return thelist;
 	}
 
@@ -218,10 +218,10 @@ public class ComponentBuilder {
 	 * @param method
 	 * @return
 	 */
-	public ComponentBuilder	factory(final String id, final String method) {
-		setCreateMethod(CreateMethod.FACTORY_METHOD, "calling factory method "+method+" on object reference "+id);
-		m_factoryInstance	= id;
-		m_factoryMethodText	= method;
+	public ComponentBuilder factory(final String id, final String method) {
+		setCreateMethod(CreateMethod.FACTORY_METHOD, "calling factory method " + method + " on object reference " + id);
+		m_factoryInstance = id;
+		m_factoryMethodText = method;
 		return this;
 	}
 
@@ -234,7 +234,7 @@ public class ComponentBuilder {
 	 * @param name
 	 */
 	public ComponentBuilder name(final String name) {
-		m_builder.addComponentName(this, name);			// Register another name with the configuration; throws up when duplicate
+		m_builder.addComponentName(this, name); // Register another name with the configuration; throws up when duplicate
 		m_nameList.add(name);
 		return this;
 	}
@@ -261,12 +261,12 @@ public class ComponentBuilder {
 	 * @param what
 	 * @return
 	 */
-	public ComponentBuilder	destroy(final Class<?> wh, final String methodName) {
-		MethodCallBuilder	mcb = new MethodCallBuilder(this, wh, methodName);
+	public ComponentBuilder destroy(final Class< ? > wh, final String methodName) {
+		MethodCallBuilder mcb = new MethodCallBuilder(this, wh, methodName);
 		m_currentMethodBuilder = mcb;
 
 		//-- At least one of the parameters *must* be the object we've just constructed.
-		mcb.setParameterSelf(0);						// Parameter 0 must be me.
+		mcb.setParameterSelf(0); // Parameter 0 must be me.
 		m_destroyList.add(mcb);
 		return this;
 	}
@@ -278,13 +278,13 @@ public class ComponentBuilder {
 	 * @param methodName
 	 * @return
 	 */
-	public ComponentBuilder	destroy(final String methodName) {
-		MethodCallBuilder	mcb = new MethodCallBuilder(this, m_actualType, methodName);
+	public ComponentBuilder destroy(final String methodName) {
+		MethodCallBuilder mcb = new MethodCallBuilder(this, m_actualType, methodName);
 		m_currentMethodBuilder = mcb;
 
 		//-- At least one of the parameters *must* be the object we've just constructed.
 		mcb.setThisIsSelf();
-//		mcb.setParameterSelf(0);						// Parameter 0 must be me.
+		//		mcb.setParameterSelf(0);						// Parameter 0 must be me.
 		m_destroyList.add(mcb);
 		return this;
 	}
@@ -301,7 +301,7 @@ public class ComponentBuilder {
 	 * @param clz
 	 * @return
 	 */
-	public ComponentBuilder	implement(final Class<?> clz) {
+	public ComponentBuilder implement(final Class< ? > clz) {
 		m_definedTypeList.add(clz);
 		return this;
 	}
@@ -314,11 +314,11 @@ public class ComponentBuilder {
 	 * @param arguments
 	 * @return
 	 */
-	public ComponentBuilder	factoryStart(final String methodName, final Class<?>... arguments) {
+	public ComponentBuilder factoryStart(final String methodName, final Class< ? >... arguments) {
 		//-- Make sure we're a static factory thingy.
 		if(m_factoryClass == null)
 			throw new IocConfigurationException(this, "factoryStart() can only be used for static factory classes.");
-		MethodCallBuilder	mcb = new MethodCallBuilder(this, m_factoryClass, methodName, arguments, true);
+		MethodCallBuilder mcb = new MethodCallBuilder(this, m_factoryClass, methodName, arguments, true);
 		m_currentMethodBuilder = mcb;
 		m_factoryStartList.add(mcb);
 		return this;
@@ -332,11 +332,11 @@ public class ComponentBuilder {
 	 * @param arguments
 	 * @return
 	 */
-	public ComponentBuilder	factoryStart(final Class<?> clz, final String methodName, final Class<?>... arguments) {
+	public ComponentBuilder factoryStart(final Class< ? > clz, final String methodName, final Class< ? >... arguments) {
 		//-- Make sure we're a static factory thingy.
 		if(m_factoryClass == null)
 			throw new IocConfigurationException(this, "factoryStart() can only be used for static factory classes.");
-		MethodCallBuilder	mcb = new MethodCallBuilder(this, clz, methodName, arguments, true);
+		MethodCallBuilder mcb = new MethodCallBuilder(this, clz, methodName, arguments, true);
 		m_currentMethodBuilder = mcb;
 		m_factoryStartList.add(mcb);
 		return this;
@@ -350,11 +350,11 @@ public class ComponentBuilder {
 	 * @param arguments
 	 * @return
 	 */
-	public ComponentBuilder	start(final String methodName, final Class<?>... arguments) {
+	public ComponentBuilder start(final String methodName, final Class< ? >... arguments) {
 		//-- Make sure we're a static factory thingy.
 		if(m_factoryClass == null)
 			throw new IocConfigurationException(this, "factoryStart() can only be used for static factory classes.");
-		MethodCallBuilder	mcb = new MethodCallBuilder(this, m_factoryClass, methodName, arguments, false);
+		MethodCallBuilder mcb = new MethodCallBuilder(this, m_factoryClass, methodName, arguments, false);
 		m_currentMethodBuilder = mcb;
 		m_startList.add(mcb);
 		return this;
@@ -364,10 +364,10 @@ public class ComponentBuilder {
 	/*	CODING:	Property wiring definition.							*/
 	/*--------------------------------------------------------------*/
 	/** The mode to use for all properties not explicitly mentioned. */
-	private ComponentPropertyMode					m_propertyMode = ComponentPropertyMode.NONE;
+	private ComponentPropertyMode m_propertyMode = ComponentPropertyMode.NONE;
 
 	/** All properties that were explicitly named with a configuration. */
-	private final Map<String, ComponentPropertyDef>	m_propertyDefMap = new HashMap<String, ComponentPropertyDef>();
+	private final Map<String, ComponentPropertyDef> m_propertyDefMap = new HashMap<String, ComponentPropertyDef>();
 
 	/**
 	 * This defines that <b>all</b> properties on the instance must be set; it aborts if it cannot
@@ -376,9 +376,9 @@ public class ComponentBuilder {
 	 *
 	 * @return
 	 */
-	public ComponentBuilder	setAllProperties() {
+	public ComponentBuilder setAllProperties() {
 		if(m_propertyMode != ComponentPropertyMode.NONE)
-			throw new IocConfigurationException(this, "Property configuration mode is already set to "+m_propertyMode);
+			throw new IocConfigurationException(this, "Property configuration mode is already set to " + m_propertyMode);
 		m_propertyMode = ComponentPropertyMode.ALL;
 		return this;
 	}
@@ -389,9 +389,9 @@ public class ComponentBuilder {
 	 * found in the container set are not set (they are explicitly not set to null).
 	 * @return
 	 */
-	public ComponentBuilder	setKnownProperties() {
+	public ComponentBuilder setKnownProperties() {
 		if(m_propertyMode != ComponentPropertyMode.NONE)
-			throw new IocConfigurationException(this, "Property configuration mode is already set to "+m_propertyMode);
+			throw new IocConfigurationException(this, "Property configuration mode is already set to " + m_propertyMode);
 		m_propertyMode = ComponentPropertyMode.KNOWN;
 		return this;
 	}
@@ -401,11 +401,11 @@ public class ComponentBuilder {
 	 * @param name
 	 * @return
 	 */
-	private ComponentPropertyDef	uniquePropertyDef(final String name) {
-		ComponentPropertyDef	pd = m_propertyDefMap.get(name);
+	private ComponentPropertyDef uniquePropertyDef(final String name) {
+		ComponentPropertyDef pd = m_propertyDefMap.get(name);
 		if(pd != null)
-			throw new IocConfigurationException(this, "An initialization for the property '"+name+"' has already been set.");
-		pd	= new ComponentPropertyDef(this, name);		// This leaves all other thingies empty, denoting a default init.
+			throw new IocConfigurationException(this, "An initialization for the property '" + name + "' has already been set.");
+		pd = new ComponentPropertyDef(this, name); // This leaves all other thingies empty, denoting a default init.
 		m_propertyDefMap.put(name, pd);
 		return pd;
 	}
@@ -418,8 +418,8 @@ public class ComponentBuilder {
 	 * @param names
 	 * @return
 	 */
-	public ComponentBuilder	setProperties(final String... names) {
-		for(String name: names) {
+	public ComponentBuilder setProperties(final String... names) {
+		for(String name : names) {
 			uniquePropertyDef(name).setRequired(true);
 		}
 		return this;
@@ -433,8 +433,8 @@ public class ComponentBuilder {
 	 * @param componentId
 	 * @return
 	 */
-	public ComponentBuilder	setProperty(final String name, final String componentId) {
-		ComponentPropertyDef	pd = uniquePropertyDef(name);
+	public ComponentBuilder setProperty(final String name, final String componentId) {
+		ComponentPropertyDef pd = uniquePropertyDef(name);
 		pd.setSourceName(componentId);
 		pd.setRequired(true);
 		return this;
@@ -449,8 +449,8 @@ public class ComponentBuilder {
 	 * @param componentClass
 	 * @return
 	 */
-	public ComponentBuilder	setProperty(final String name, final Class<?> componentClass) {
-		ComponentPropertyDef	pd = uniquePropertyDef(name);
+	public ComponentBuilder setProperty(final String name, final Class< ? > componentClass) {
+		ComponentPropertyDef pd = uniquePropertyDef(name);
 		pd.setSourceClass(componentClass);
 		pd.setRequired(true);
 		return this;
@@ -463,25 +463,25 @@ public class ComponentBuilder {
 	 * Returns the list of registered names for this object.
 	 * @return
 	 */
-	List<String>	getNameList() {
+	List<String> getNameList() {
 		return m_nameList;
 	}
 
-	public String	getIdent() {
+	public String getIdent() {
 		if(m_nameList.size() > 0)
-			return "component(name="+m_nameList.get(0)+")";
+			return "component(name=" + m_nameList.get(0) + ")";
 		if(m_definedTypeList.size() > 0)
-			return "component(type="+m_definedTypeList.get(0).toString()+")";
+			return "component(type=" + m_definedTypeList.get(0).toString() + ")";
 		return "component(Unnamed/untyped)";
 	}
 
 	@Override
 	public String toString() {
 		if(m_nameList.size() > 0)
-			return "component(name="+m_nameList.get(0)+") defined at "+m_definitionLocation;
+			return "component(name=" + m_nameList.get(0) + ") defined at " + m_definitionLocation;
 		if(m_definedTypeList.size() > 0)
-			return "component(type="+m_definedTypeList.get(0).toString()+") defined at "+m_definitionLocation;
-		return "component(Unnamed/untyped) defined at "+m_definitionLocation;
+			return "component(type=" + m_definedTypeList.get(0).toString() + ") defined at " + m_definitionLocation;
+		return "component(Unnamed/untyped) defined at " + m_definitionLocation;
 	}
 
 
@@ -496,13 +496,12 @@ public class ComponentBuilder {
 	 * of container reference with a method this determines the type of
 	 * object returned by decoding the reference and the method.
 	 */
-//	void registerTypes() {
-//		if(m_definedTypeList.size() > 0) {
-//			//-- Register as "
-//
-//		}
-//	}
-
+	//	void registerTypes() {
+	//		if(m_definedTypeList.size() > 0) {
+	//			//-- Register as "
+	//
+	//		}
+	//	}
 
 
 	/**
@@ -513,7 +512,7 @@ public class ComponentBuilder {
 	 * @param stack
 	 * @return
 	 */
-	Class<?> calculateType(final Stack<ComponentBuilder> stack) {
+	Class< ? > calculateType(final Stack<ComponentBuilder> stack) {
 		if(m_actualType != null)
 			return m_actualType;
 
@@ -525,18 +524,18 @@ public class ComponentBuilder {
 			//-- We must be able to at least get a 'type' for the ID, from whatever container.
 			if(stack.contains(this)) {
 				//-- Recursive definition....
-				throw new IocConfigurationException(this, "Circular reference to "+this);
+				throw new IocConfigurationException(this, "Circular reference to " + this);
 			}
 			stack.push(this);
-			Class<?>	clz = m_builder.calcTypeByName(stack, m_factoryInstance);
+			Class< ? > clz = m_builder.calcTypeByName(stack, m_factoryInstance);
 			if(this != stack.pop())
 				throw new IllegalStateException("Stack inbalance!?");
 			if(clz == null)
-				throw new IocConfigurationException(this, "The component with id='"+m_factoryInstance+"' is not known");
+				throw new IocConfigurationException(this, "The component with id='" + m_factoryInstance + "' is not known");
 
 			//-- The 'factory' type is known; now retrieve the method;
-			m_factoryMethodList	= findMethodInFactory(clz, m_factoryMethodText, false);
-			m_actualType	= m_factoryMethodList.get(0).getReturnType();
+			m_factoryMethodList = findMethodInFactory(clz, m_factoryMethodText, false);
+			m_actualType = m_factoryMethodList.get(0).getReturnType();
 			return m_actualType;
 		} else
 			throw new IocConfigurationException(this, "Can't determine the 'type' of this component: no factory defined.");
@@ -545,9 +544,9 @@ public class ComponentBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Builder get info methods.							*/
 	/*--------------------------------------------------------------*/
-	private ComponentRef		m_ref;
+	private ComponentRef m_ref;
 
-	ComponentRef	calculateComponentRef(final Stack<ComponentBuilder> stack) {
+	ComponentRef calculateComponentRef(final Stack<ComponentBuilder> stack) {
 		if(m_ref != null)
 			return m_ref;
 
@@ -557,21 +556,16 @@ public class ComponentBuilder {
 		stack.push(this);
 
 		//-- Create a partially-created DEF which can be used as a definition for 'this'.
-		ComponentDef	def = new ComponentDef(
-			getActualClass(),
-			getNameList().toArray(new String[getNameList().size()]),
-			getDefinedTypes().toArray(new Class<?>[getDefinedTypes().size()]),
-			getScope(),
-			getDefinitionLocation()
-		);
+		ComponentDef def = new ComponentDef(getActualClass(), getNameList().toArray(new String[getNameList().size()]), getDefinedTypes().toArray(new Class< ? >[getDefinedTypes().size()]), getScope(),
+			getDefinitionLocation());
 
-		BuildPlan	plan = createBuildPlan(def, stack);
+		BuildPlan plan = createBuildPlan(def, stack);
 		if(this != stack.pop())
 			throw new IllegalStateException("Stack mismatch!?");
 		def.setPlan(plan);
 
 		//-- Create the def for this object
-		m_ref	= new ComponentRef(def, getBuilder().getContainerIndex());
+		m_ref = new ComponentRef(def, getBuilder().getContainerIndex());
 		return m_ref;
 	}
 
@@ -585,14 +579,14 @@ public class ComponentBuilder {
 	 * @param stack
 	 * @return
 	 */
-	private BuildPlan	createBuildPlan(final ISelfDef self, final Stack<ComponentBuilder> stack) {
-		BuildPlan	bp = createCreationBuildPlan(self, stack);		// Create the actual object,
+	private BuildPlan createBuildPlan(final ISelfDef self, final Stack<ComponentBuilder> stack) {
+		BuildPlan bp = createCreationBuildPlan(self, stack); // Create the actual object,
 
 		if(bp instanceof AbstractBuildPlan) {
 			//-- Handle setter logic
 			AbstractBuildPlan abp = (AbstractBuildPlan) bp;
 
-			List<PropertyInjector>	ijlist = calculateSetterInjectors(stack);
+			List<PropertyInjector> ijlist = calculateSetterInjectors(stack);
 			abp.setInjectorList(ijlist);
 
 			if(m_destroyList.size() > 0)
@@ -609,10 +603,10 @@ public class ComponentBuilder {
 	 * @param stack
 	 * @return
 	 */
-	private BuildPlan	createCreationBuildPlan(final ISelfDef self, final Stack<ComponentBuilder> stack) {
-		switch(m_createMethod) {
+	private BuildPlan createCreationBuildPlan(final ISelfDef self, final Stack<ComponentBuilder> stack) {
+		switch(m_createMethod){
 			default:
-				throw new IocConfigurationException(this, "Internal: unknown CreationMethod "+m_createMethod);
+				throw new IocConfigurationException(this, "Internal: unknown CreationMethod " + m_createMethod);
 			case ASNEW:
 				return createConstructorPlan(stack);
 			case FACTORY_METHOD:
@@ -630,18 +624,18 @@ public class ComponentBuilder {
 	 * Create a build plan for a normal constructed class.
 	 * @param self
 	 */
-	private BuildPlan	createConstructorPlan(final Stack<ComponentBuilder> stack) {
-		Constructor<?>[]	car = m_baseClass.getConstructors();
-		if(car == null || car.length == 0)	// Cannot construct
-			throw new IocConfigurationException(this, "The class "+m_baseClass+" has no public constructors");
-		List<BuildPlanForConstructor>	list = new ArrayList<BuildPlanForConstructor>();
-		List<FailedAlternative>	aflist = new ArrayList<FailedAlternative>();
-		for(Constructor<?> c : car) {
-			if(! Modifier.isPublic(c.getModifiers())) {
-				aflist.add(new FailedAlternative("The constructor "+c+" is not public"));
+	private BuildPlan createConstructorPlan(final Stack<ComponentBuilder> stack) {
+		Constructor< ? >[] car = m_baseClass.getConstructors();
+		if(car == null || car.length == 0) // Cannot construct
+			throw new IocConfigurationException(this, "The class " + m_baseClass + " has no public constructors");
+		List<BuildPlanForConstructor> list = new ArrayList<BuildPlanForConstructor>();
+		List<FailedAlternative> aflist = new ArrayList<FailedAlternative>();
+		for(Constructor< ? > c : car) {
+			if(!Modifier.isPublic(c.getModifiers())) {
+				aflist.add(new FailedAlternative("The constructor " + c + " is not public"));
 				continue;
 			}
-			BuildPlanForConstructor	cbp = calcConstructorPlan(stack, c, aflist);
+			BuildPlanForConstructor cbp = calcConstructorPlan(stack, c, aflist);
 			if(cbp != null)
 				list.add(cbp);
 		}
@@ -658,7 +652,7 @@ public class ComponentBuilder {
 		return best;
 	}
 
-	MethodParameterSpec[]	getParameters() {
+	MethodParameterSpec[] getParameters() {
 		return null;
 	}
 
@@ -671,39 +665,39 @@ public class ComponentBuilder {
 	 * @param aflist
 	 * @return
 	 */
-	private BuildPlanForConstructor	calcConstructorPlan(final Stack<ComponentBuilder> stack, final Constructor<?> c, final List<FailedAlternative> aflist) {
-		Class<?>[]	fpar = c.getParameterTypes();		// Formals.
-		Annotation[][]	fpanar = c.getParameterAnnotations();
+	private BuildPlanForConstructor calcConstructorPlan(final Stack<ComponentBuilder> stack, final Constructor< ? > c, final List<FailedAlternative> aflist) {
+		Class< ? >[] fpar = c.getParameterTypes(); // Formals.
+		Annotation[][] fpanar = c.getParameterAnnotations();
 		if(fpar == null || fpar.length == 0) {
-			return new BuildPlanForConstructor(c, 0);		// Always works but with score=0
+			return new BuildPlanForConstructor(c, 0); // Always works but with score=0
 		}
 
 		//-- Walk all parameters and make build plans for them until failure..
 		try {
-			MethodParameterSpec[]	paref	= getParameters();
-			List<ComponentRef>	actuals = calculateParameters(stack, fpar, fpanar, paref);
+			MethodParameterSpec[] paref = getParameters();
+			List<ComponentRef> actuals = calculateParameters(stack, fpar, fpanar, paref);
 
 			//-- All constructor arguments were provided- return a build plan,
 			return new BuildPlanForConstructor(c, fpar.length, actuals.toArray(new ComponentRef[actuals.size()]));
 		} catch(IocUnresolvedParameterException x) {
 			//-- This constructor has failed.
-			FailedAlternative	fa = new FailedAlternative("The constructor "+c+" is unusable: "+x.getMessage());
+			FailedAlternative fa = new FailedAlternative("The constructor " + c + " is unusable: " + x.getMessage());
 			aflist.add(fa);
 			return null;
 		}
 	}
 
-	private List<ComponentRef>	calculateParameters(final Stack<ComponentBuilder> stack, final Class<?>[] fpar, final Annotation[][] fpann, final MethodParameterSpec[] defar) {
-		List<ComponentRef>	actuals = new ArrayList<ComponentRef>();
+	private List<ComponentRef> calculateParameters(final Stack<ComponentBuilder> stack, final Class< ? >[] fpar, final Annotation[][] fpann, final MethodParameterSpec[] defar) {
+		List<ComponentRef> actuals = new ArrayList<ComponentRef>();
 		for(int i = 0; i < fpar.length; i++) {
-			Class<?> fp = fpar[i];
-			MethodParameterSpec	def = null;
+			Class< ? > fp = fpar[i];
+			MethodParameterSpec def = null;
 			if(defar != null && i < defar.length)
 				def = defar[i];
-			ComponentRef	cr	= m_builder.findReferenceFor(null, stack, fp, fpann[i], def);
+			ComponentRef cr = m_builder.findReferenceFor(null, stack, fp, fpann[i], def);
 			if(cr == null) {
 				//-- Cannot use this- the parameter passed cannot be filled in.
-				throw new IocUnresolvedParameterException("Parameter "+i+" (a "+fp+") cannot be resolved");
+				throw new IocUnresolvedParameterException("Parameter " + i + " (a " + fp + ") cannot be resolved");
 			}
 			actuals.add(cr);
 		}
@@ -715,15 +709,15 @@ public class ComponentBuilder {
 	/*	CODING:	Factory-based build plan.							*/
 	/*--------------------------------------------------------------*/
 
-	private BuildPlan	createStaticFactoryBuildPlan(final ISelfDef self, final Stack<ComponentBuilder> stack) {
+	private BuildPlan createStaticFactoryBuildPlan(final ISelfDef self, final Stack<ComponentBuilder> stack) {
 		//-- Walk all factoryStart methods that are defined and create the methodlist from them
-		List<MethodInvoker>	startlist = createCallList(self, stack, m_factoryStartList);
+		List<MethodInvoker> startlist = createCallList(self, stack, m_factoryStartList);
 
 		//-- Walk all possible factory methods, scoring them,
-		List<BuildPlanForStaticFactory>	list = new ArrayList<BuildPlanForStaticFactory>();
-		List<FailedAlternative>	aflist = new ArrayList<FailedAlternative>();
+		List<BuildPlanForStaticFactory> list = new ArrayList<BuildPlanForStaticFactory>();
+		List<FailedAlternative> aflist = new ArrayList<FailedAlternative>();
 		for(Method m : m_factoryMethodList) {
-			BuildPlanForStaticFactory	cbp = calcStaticFactoryPlan(stack, m, aflist, startlist);
+			BuildPlanForStaticFactory cbp = calcStaticFactoryPlan(stack, m, aflist, startlist);
 			if(cbp != null)
 				list.add(cbp);
 		}
@@ -740,23 +734,23 @@ public class ComponentBuilder {
 		return best;
 	}
 
-	private BuildPlanForStaticFactory	calcStaticFactoryPlan(final Stack<ComponentBuilder> stack, final Method c, final List<FailedAlternative> aflist, final List<MethodInvoker> startlist) {
-		Class<?>[]	fpar = c.getParameterTypes();		// Formals.
-		Annotation[][]	fpanar = c.getParameterAnnotations();
+	private BuildPlanForStaticFactory calcStaticFactoryPlan(final Stack<ComponentBuilder> stack, final Method c, final List<FailedAlternative> aflist, final List<MethodInvoker> startlist) {
+		Class< ? >[] fpar = c.getParameterTypes(); // Formals.
+		Annotation[][] fpanar = c.getParameterAnnotations();
 		if(fpar == null || fpar.length == 0) {
-			return new BuildPlanForStaticFactory(c, 0, BuildPlan.EMPTY_PLANS, startlist);	// Always works but with score=0
+			return new BuildPlanForStaticFactory(c, 0, BuildPlan.EMPTY_PLANS, startlist); // Always works but with score=0
 		}
 
 		//-- Walk all parameters and make build plans for them until failure..
 		try {
-			MethodParameterSpec[]	paref	= getParameters();
-			List<ComponentRef>	actuals = calculateParameters(stack, fpar, fpanar, paref);
+			MethodParameterSpec[] paref = getParameters();
+			List<ComponentRef> actuals = calculateParameters(stack, fpar, fpanar, paref);
 
 			//-- All constructor arguments were provided- return a build plan,
 			return new BuildPlanForStaticFactory(c, fpar.length, actuals.toArray(new ComponentRef[actuals.size()]), startlist);
 		} catch(IocUnresolvedParameterException x) {
 			//-- This constructor has failed.
-			FailedAlternative	fa = new FailedAlternative("The static factory method "+c+" is unusable: "+x.getMessage());
+			FailedAlternative fa = new FailedAlternative("The static factory method " + c + " is unusable: " + x.getMessage());
 			aflist.add(fa);
 			return null;
 		}
@@ -767,15 +761,15 @@ public class ComponentBuilder {
 	/*	CODING:	Call invoker build plan calculator.					*/
 	/*--------------------------------------------------------------*/
 
-	private List<MethodInvoker>	createCallList(final ISelfDef self, final Stack<ComponentBuilder> stack, final List<MethodCallBuilder> list) {
-		List<MethodInvoker>	res = new ArrayList<MethodInvoker>(list.size());
+	private List<MethodInvoker> createCallList(final ISelfDef self, final Stack<ComponentBuilder> stack, final List<MethodCallBuilder> list) {
+		List<MethodInvoker> res = new ArrayList<MethodInvoker>(list.size());
 		for(MethodCallBuilder mcb : list)
 			res.add(mcb.createInvoker(self, stack));
 		return res;
 	}
 
-	private MethodInvoker[]	createCallArray(final ISelfDef self, final Stack<ComponentBuilder> stack, final List<MethodCallBuilder> source) {
-		MethodInvoker[]	ar = new MethodInvoker[source.size()];
+	private MethodInvoker[] createCallArray(final ISelfDef self, final Stack<ComponentBuilder> stack, final List<MethodCallBuilder> source) {
+		MethodInvoker[] ar = new MethodInvoker[source.size()];
 		for(int i = 0; i < ar.length; i++)
 			ar[i] = source.get(i).createInvoker(self, stack);
 		return ar;
@@ -791,50 +785,50 @@ public class ComponentBuilder {
 	 *
 	 * @return
 	 */
-	private List<PropertyInjector>	calculateSetterInjectors(final Stack<ComponentBuilder> stack) {
-		if(m_propertyMode == ComponentPropertyMode.NONE && m_propertyDefMap.size() == 0)	// No properties to set -> exit immediately.
+	private List<PropertyInjector> calculateSetterInjectors(final Stack<ComponentBuilder> stack) {
+		if(m_propertyMode == ComponentPropertyMode.NONE && m_propertyDefMap.size() == 0) // No properties to set -> exit immediately.
 			return Collections.EMPTY_LIST;
 
 		/*
 		 * We define an ultimate set of all properties that can or must be injected, and we ensure
 		 * that all explicitly named properties actually exist and are settable in the instance.
 		 */
-		Map<String, ComponentPropertyDef>	fullmap = new HashMap<String, ComponentPropertyDef>(m_propertyDefMap);	// The full set of thingies to do
-		List<PropertyInfo>		proplist = to.etc.util.ClassUtil.getProperties(m_actualType);	// All class properties.
-		Set<String>			doneset = new HashSet<String>(m_propertyDefMap.keySet());			// Dup all explicitly set names
-		for(PropertyInfo pi: proplist) {
+		Map<String, ComponentPropertyDef> fullmap = new HashMap<String, ComponentPropertyDef>(m_propertyDefMap); // The full set of thingies to do
+		List<PropertyInfo> proplist = to.etc.util.ClassUtil.getProperties(m_actualType); // All class properties.
+		Set<String> doneset = new HashSet<String>(m_propertyDefMap.keySet()); // Dup all explicitly set names
+		for(PropertyInfo pi : proplist) {
 			//-- Is this property named explicitly?
-			ComponentPropertyDef	pd	= m_propertyDefMap.get(pi.getName());
+			ComponentPropertyDef pd = m_propertyDefMap.get(pi.getName());
 			if(pd != null) {
 				//-- Explicitly named property.
-				doneset.remove(pi.getName());									// Has been found.
+				doneset.remove(pi.getName()); // Has been found.
 				if(pi.getSetter() == null)
-					throw new IocConfigurationException(this, "The property '"+pi.getName()+"' is defined to be set but it is read-only (it has no applicable setter method)");
+					throw new IocConfigurationException(this, "The property '" + pi.getName() + "' is defined to be set but it is read-only (it has no applicable setter method)");
 			} else if(m_propertyMode != ComponentPropertyMode.NONE && pi.getSetter() != null) {
 				//-- Not set explicitly; we must set it because of the mode... So define a def for this property
-				pd	= new ComponentPropertyDef(this, pi.getName());
-				pd.setRequired(m_propertyMode == ComponentPropertyMode.ALL);	// Is required in ALL mode
+				pd = new ComponentPropertyDef(this, pi.getName());
+				pd.setRequired(m_propertyMode == ComponentPropertyMode.ALL); // Is required in ALL mode
 				fullmap.put(pi.getName(), pd);
 			}
 			if(pd != null)
-				pd.setInfo(pi);						// Save info on property
+				pd.setInfo(pi); // Save info on property
 		}
 
 		//-- All that's left in doneset are properties that are undefined on this class, so die.
 		if(doneset.size() > 0)
-			throw new IocConfigurationException(this, "Unknown property/properties '"+doneset+"' on class "+m_actualType.getName());
+			throw new IocConfigurationException(this, "Unknown property/properties '" + doneset + "' on class " + m_actualType.getName());
 		if(fullmap.size() == 0)
 			return Collections.EMPTY_LIST;
 
 		/*
 		 * We have a full set of properies to provide injectors for: go, girl.
 		 */
-		List<PropertyInjector>		res = new ArrayList<PropertyInjector>(fullmap.size());
-		for(ComponentPropertyDef pd: fullmap.values()) {
-			PropertyInjector	pij	= calculateInjector(stack, pd);
+		List<PropertyInjector> res = new ArrayList<PropertyInjector>(fullmap.size());
+		for(ComponentPropertyDef pd : fullmap.values()) {
+			PropertyInjector pij = calculateInjector(stack, pd);
 			if(pij == null) {
 				if(pd.isRequired())
-					throw new IocConfigurationException(this, "The property '"+pd.getPropertyName()+"' cannot be injected");
+					throw new IocConfigurationException(this, "The property '" + pd.getPropertyName() + "' cannot be injected");
 			} else
 				res.add(pij);
 		}
@@ -850,7 +844,7 @@ public class ComponentBuilder {
 	 * @return
 	 */
 	private PropertyInjector calculateInjector(final Stack<ComponentBuilder> stack, final ComponentPropertyDef pd) {
-		ComponentRef	cr	= m_builder.findReferenceFor(stack, pd);
+		ComponentRef cr = m_builder.findReferenceFor(stack, pd);
 		if(cr == null)
 			return null;
 		return new PropertyInjector(cr, pd.getInfo().getSetter());
@@ -860,15 +854,16 @@ public class ComponentBuilder {
 	/*	CODING:	Accessors.											*/
 	/*--------------------------------------------------------------*/
 
-	Class<?>		getActualClass() {
+	Class< ? > getActualClass() {
 		if(m_actualType == null)
 			throw new IllegalStateException("calculateType has not yet been called");
 		return m_actualType;
 	}
 
-	List<Class<?>>	getDefinedTypes() {
+	List<Class< ? >> getDefinedTypes() {
 		return m_definedTypeList;
 	}
+
 	public BindingScope getScope() {
 		return m_scope;
 	}

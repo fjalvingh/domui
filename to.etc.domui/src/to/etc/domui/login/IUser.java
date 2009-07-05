@@ -12,19 +12,19 @@ public interface IUser {
 	 * The user's login ID.
 	 * @return
 	 */
-	String			getLoginID();
+	String getLoginID();
 
 	/**
 	 * Return a display name for the user; this usually is the full formal name.
 	 * @return
 	 */
-	String			getDisplayName();
+	String getDisplayName();
 
-//	/**
-//	 * The set of names representing the rights the user has.
-//	 * @return
-//	 */
-//	Set<String>		getRightNames();
+	//	/**
+	//	 * The set of names representing the rights the user has.
+	//	 * @return
+	//	 */
+	//	Set<String>		getRightNames();
 
-	boolean			hasRight(String r);
+	boolean hasRight(String r);
 }

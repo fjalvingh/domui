@@ -11,12 +11,13 @@ import to.etc.util.*;
  * Created on Nov 9, 2008
  */
 public class LiteralXhtml extends NodeBase {
-	private String			m_xml;
+	private String m_xml;
 
 	public LiteralXhtml() {
 		super("div");
 		setCssClass("ui-lxh");
 	}
+
 	@Override
 	public void visit(final NodeVisitor v) throws Exception {
 		v.visitLiteralXhtml(this);
@@ -29,7 +30,7 @@ public class LiteralXhtml extends NodeBase {
 	public void setXml(final String xml) {
 		if(DomUtil.isEqual(xml, m_xml))
 			return;
-		StringBuilder	sb = new StringBuilder(xml.length());
+		StringBuilder sb = new StringBuilder(xml.length());
 		try {
 			StringTool.entitiesToUnicode(sb, xml, true);
 		} catch(Exception x) {

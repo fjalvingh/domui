@@ -21,13 +21,18 @@ public @interface MetaDisplayProperty {
 	 * the JDK 7 team gets off it's ass and starts to bloody define something useful.
 	 * @return
 	 */
-	public String		name();
+	public String name();
 
-	public String				defaultLabel() default Constants.NO_DEFAULT_LABEL;
-	public SortableType			defaultSortable() default SortableType.UNKNOWN;
-	public int					displayLength() default -1;
-	public Class<IConverter>		converterClass() default IConverter.class;
-	public String				join() default Constants.NO_JOIN;
-	public YesNoType			readOnly() default YesNoType.UNKNOWN;
-//	public DateType				dateType() default DateType.UNKNOWN;
+	public String defaultLabel() default Constants.NO_DEFAULT_LABEL;
+
+	public SortableType defaultSortable() default SortableType.UNKNOWN;
+
+	public int displayLength() default -1;
+
+	public Class<IConverter> converterClass() default IConverter.class;
+
+	public String join() default Constants.NO_JOIN;
+
+	public YesNoType readOnly() default YesNoType.UNKNOWN;
+	//	public DateType				dateType() default DateType.UNKNOWN;
 }

@@ -9,13 +9,13 @@ import java.lang.annotation.*;
  * Created on Apr 28, 2009
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value=ElementType.METHOD)
+@Target(value = ElementType.METHOD)
 public @interface GdbChildren {
-	GdbFetch	fetch() default GdbFetch.DEFAULT;
+	GdbFetch fetch() default GdbFetch.DEFAULT;
 
 	/** If the child class has a property that refers to it's parent name that property here. */
-	String		mappedBy() default "";
+	String mappedBy() default "";
 
-//	/** If the child class has no parent property you can specify the join columns in it's table here. */
-//	String[]	joinColumns() default {};
+	//	/** If the child class has no parent property you can specify the join columns in it's table here. */
+	//	String[]	joinColumns() default {};
 }

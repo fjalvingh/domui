@@ -17,27 +17,28 @@ import to.etc.webapp.nls.*;
  * Created on Jun 16, 2008
  */
 final public class MetaManager {
-	static private List<DataMetaModel>	m_modelList = new ArrayList<DataMetaModel>();
-	static private Set<Class<?>>		SIMPLE	= new HashSet<Class<?>>();
+	static private List<DataMetaModel> m_modelList = new ArrayList<DataMetaModel>();
 
-	static private Map<Class<?>, DefaultClassMetaModel>		m_classMap = new HashMap<Class<?>, DefaultClassMetaModel>();
+	static private Set<Class< ? >> SIMPLE = new HashSet<Class< ? >>();
 
-	private MetaManager() {
-	}
+	static private Map<Class< ? >, DefaultClassMetaModel> m_classMap = new HashMap<Class< ? >, DefaultClassMetaModel>();
 
-	static synchronized public void		registerModel(DataMetaModel model) {
-		List<DataMetaModel>	mm = new ArrayList<DataMetaModel>(m_modelList);
+	private MetaManager() {}
+
+	static synchronized public void registerModel(DataMetaModel model) {
+		List<DataMetaModel> mm = new ArrayList<DataMetaModel>(m_modelList);
 		mm.add(model);
 		m_modelList = mm;
 	}
-	static private synchronized List<DataMetaModel>	getList() {
+
+	static private synchronized List<DataMetaModel> getList() {
 		if(m_modelList.size() == 0)
 			registerModel(new DefaultDataMetaModel());
 		return m_modelList;
 	}
 
-	static public ClassMetaModel		findClassMeta(Class<?> clz) {
-		DefaultClassMetaModel	dmm;
+	static public ClassMetaModel findClassMeta(Class< ? > clz) {
+		DefaultClassMetaModel dmm;
 		synchronized(MetaManager.class) {
 			dmm = m_classMap.get(clz);
 			if(dmm == null) {
@@ -47,16 +48,16 @@ final public class MetaManager {
 					dmm = m_classMap.get(clz);
 				}
 				if(dmm == null) {
-					dmm = new DefaultClassMetaModel(clz);				// Create base class info
-					m_classMap.put(clz, dmm);							// Save
+					dmm = new DefaultClassMetaModel(clz); // Create base class info
+					m_classMap.put(clz, dmm); // Save
 				}
 			}
 		}
 
 		//-- Double lock mechanism externalized to prevent long locks on central metadata table
 		synchronized(dmm) {
-			if(! dmm.isInitialized()) {
-				for(DataMetaModel mm : getList()) {					// Let all providers add their information.
+			if(!dmm.isInitialized()) {
+				for(DataMetaModel mm : getList()) { // Let all providers add their information.
 					mm.updateClassMeta(dmm);
 				}
 				dmm.initialized();
@@ -65,14 +66,14 @@ final public class MetaManager {
 		return dmm;
 	}
 
-	static public PropertyMetaModel		findPropertyMeta(Class<?> clz, String name) {
-		ClassMetaModel	cm = findClassMeta(clz);
+	static public PropertyMetaModel findPropertyMeta(Class< ? > clz, String name) {
+		ClassMetaModel cm = findClassMeta(clz);
 		if(cm == null)
 			return null;
 		return cm.findProperty(name);
 	}
 
-	static public boolean	isSimpleClass(Class<?> clz) {
+	static public boolean isSimpleClass(Class< ? > clz) {
 		return SIMPLE.contains(clz);
 	}
 
@@ -96,13 +97,13 @@ final public class MetaManager {
 	 * @param ctx
 	 * @return
 	 */
-	static public boolean	isAccessAllowed(String[][] roleset, RequestContext ctx) {
+	static public boolean isAccessAllowed(String[][] roleset, RequestContext ctx) {
 		if(roleset == null)
-			return true;				// No restrictions
-		for(String[] orset: roleset) {
+			return true; // No restrictions
+		for(String[] orset : roleset) {
 			boolean ok = true;
-			for(String perm: orset) {
-				if(! ctx.hasPermission(perm)) {
+			for(String perm : orset) {
+				if(!ctx.hasPermission(perm)) {
 					ok = false;
 					break;
 				}
@@ -114,8 +115,8 @@ final public class MetaManager {
 		return false;
 	}
 
-	static private INodeContentRenderer<?>	createComboLabelRenderer(Class<? extends ILabelStringRenderer<?>> lsr) {
-		final ILabelStringRenderer<Object>	lr = (ILabelStringRenderer<Object>)DomApplication.get().createInstance(lsr);
+	static private INodeContentRenderer< ? > createComboLabelRenderer(Class< ? extends ILabelStringRenderer< ? >> lsr) {
+		final ILabelStringRenderer<Object> lr = (ILabelStringRenderer<Object>) DomApplication.get().createInstance(lsr);
 		return new INodeContentRenderer<Object>() {
 			public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) {
 				String text = lr.getLabelFor(object);
@@ -125,7 +126,7 @@ final public class MetaManager {
 		};
 	}
 
-	static private INodeContentRenderer<?>	createComboColumnRenderer(List<DisplayPropertyMetaModel> list) {
+	static private INodeContentRenderer< ? > createComboColumnRenderer(List<DisplayPropertyMetaModel> list) {
 		if(list == null || list.size() == 0)
 			return null;
 		return new DisplayPropertyNodeContentRenderer(list);
@@ -137,7 +138,7 @@ final public class MetaManager {
 	 * @param cmm
 	 * @return
 	 */
-	static public INodeContentRenderer<?>	createDefaultComboRenderer(PropertyMetaModel pmm, ClassMetaModel cmm) {
+	static public INodeContentRenderer< ? > createDefaultComboRenderer(PropertyMetaModel pmm, ClassMetaModel cmm) {
 		//-- Property-level metadata is the 1st choice
 		if(pmm != null) {
 			if(cmm == null)
@@ -147,7 +148,7 @@ final public class MetaManager {
 				return DomApplication.get().createInstance(pmm.getComboNodeRenderer());
 			if(pmm.getComboLabelRenderer() != null)
 				return createComboLabelRenderer(pmm.getComboLabelRenderer());
-			INodeContentRenderer<?>	r = createComboColumnRenderer(pmm.getComboDisplayProperties());
+			INodeContentRenderer< ? > r = createComboColumnRenderer(pmm.getComboDisplayProperties());
 			if(r != null)
 				return r;
 
@@ -158,7 +159,7 @@ final public class MetaManager {
 				return DomApplication.get().createInstance(cmm.getComboNodeRenderer());
 			if(cmm.getComboLabelRenderer() != null)
 				return createComboLabelRenderer(cmm.getComboLabelRenderer());
-			INodeContentRenderer<?>	r = createComboColumnRenderer(cmm.getComboDisplayProperties());
+			INodeContentRenderer< ? > r = createComboColumnRenderer(cmm.getComboDisplayProperties());
 			if(r != null)
 				return r;
 		}
@@ -181,7 +182,7 @@ final public class MetaManager {
 	 * @param cmm
 	 * @return
 	 */
-	static public boolean		areObjectsEqual(Object a, Object b, ClassMetaModel cmm) {
+	static public boolean areObjectsEqual(Object a, Object b, ClassMetaModel cmm) {
 		if(a == b)
 			return true;
 		if(a == null || b == null)
@@ -211,44 +212,44 @@ final public class MetaManager {
 	 * @param clz
 	 * @return
 	 */
-	static public <T extends Enum<?>> List<Pair<T>>	createEnumList(Class<T> clz) {
-		List<Pair<T>>	res = new ArrayList<Pair<T>>();
-		ClassMetaModel	cmm	= MetaManager.findClassMeta(clz);
-		Object[]	values = cmm.getDomainValues();
+	static public <T extends Enum< ? >> List<Pair<T>> createEnumList(Class<T> clz) {
+		List<Pair<T>> res = new ArrayList<Pair<T>>();
+		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
+		Object[] values = cmm.getDomainValues();
 		if(values == null)
-			throw new IllegalStateException("The class "+clz+" does not have a discrete list of Domain Values");
-		for(Object value: values) {
+			throw new IllegalStateException("The class " + clz + " does not have a discrete list of Domain Values");
+		for(Object value : values) {
 			String label = cmm.getDomainLabel(NlsContext.getLocale(), value);
 			if(label == null)
 				label = value == null ? "" : value.toString();
-			res.add(new Pair<T>((T)value, label));
+			res.add(new Pair<T>((T) value, label));
 		}
 		return res;
 	}
 
-	static public PropertyMetaModel	internalCalculateDottedPath(ClassMetaModel cmm, String name) {
-		int pos = name.indexOf('.');				// Dotted name?
+	static public PropertyMetaModel internalCalculateDottedPath(ClassMetaModel cmm, String name) {
+		int pos = name.indexOf('.'); // Dotted name?
 		if(pos == -1)
-			return cmm.findSimpleProperty(name);	// Use normal resolution directly on the class.
+			return cmm.findSimpleProperty(name); // Use normal resolution directly on the class.
 
 		//-- We must create a synthetic property.
-		int	ix	= 0;
-		int	len	= name.length();
-		ClassMetaModel	ccmm = cmm;					// Current class meta-model for property reached
-		List<PropertyMetaModel>	acl = new ArrayList<PropertyMetaModel>(10);
+		int ix = 0;
+		int len = name.length();
+		ClassMetaModel ccmm = cmm; // Current class meta-model for property reached
+		List<PropertyMetaModel> acl = new ArrayList<PropertyMetaModel>(10);
 		for(;;) {
-			String sub = name.substring(ix, pos);	// Get path component,
-			ix	= pos+1;
+			String sub = name.substring(ix, pos); // Get path component,
+			ix = pos + 1;
 
-			PropertyMetaModel	pmm = ccmm.findSimpleProperty(sub);	// Find base property,
+			PropertyMetaModel pmm = ccmm.findSimpleProperty(sub); // Find base property,
 			if(pmm == null)
-				throw new IllegalStateException("Undefined property '"+sub+"' on classMetaModel="+ccmm);
-			acl.add(pmm);							// Next access path,
+				throw new IllegalStateException("Undefined property '" + sub + "' on classMetaModel=" + ccmm);
+			acl.add(pmm); // Next access path,
 			ccmm = MetaManager.findClassMeta(pmm.getActualType());
 
 			if(ix >= len)
 				break;
-			pos	= name.indexOf('.', ix);
+			pos = name.indexOf('.', ix);
 			if(pos == -1)
 				pos = len;
 		}
@@ -262,7 +263,7 @@ final public class MetaManager {
 	/*--------------------------------------------------------------*/
 
 	static {
-		SIMPLE	= new HashSet<Class<?>>();
+		SIMPLE = new HashSet<Class< ? >>();
 		SIMPLE.add(Integer.class);
 		SIMPLE.add(Integer.TYPE);
 		SIMPLE.add(Long.class);

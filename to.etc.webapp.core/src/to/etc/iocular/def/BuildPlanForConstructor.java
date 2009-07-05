@@ -1,10 +1,10 @@
 package to.etc.iocular.def;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import to.etc.iocular.container.BasicContainer;
-import to.etc.iocular.container.BuildPlan;
-import to.etc.util.IndentWriter;
+import java.io.*;
+import java.lang.reflect.*;
+
+import to.etc.iocular.container.*;
+import to.etc.util.*;
 
 /**
  * A build plan to call a constructor.
@@ -13,21 +13,25 @@ import to.etc.util.IndentWriter;
  * Created on Mar 28, 2007
  */
 final public class BuildPlanForConstructor extends AbstractBuildPlan {
-	private final int				m_score;
-	private final Constructor<?>	m_constructor;
-	private final ComponentRef[]	m_actuals;
+	private final int m_score;
 
-	public BuildPlanForConstructor(final Constructor<?> constructor, final int score, final ComponentRef[] actuals) {
+	private final Constructor< ? > m_constructor;
+
+	private final ComponentRef[] m_actuals;
+
+	public BuildPlanForConstructor(final Constructor< ? > constructor, final int score, final ComponentRef[] actuals) {
 		m_constructor = constructor;
 		m_score = score;
-		m_actuals	= actuals;
+		m_actuals = actuals;
 	}
+
 	public BuildPlanForConstructor(final Constructor< ? > constructor, final int score) {
 		this(constructor, score, BuildPlan.EMPTY_PLANS);
 	}
+
 	@Override
 	public Object getObject(final BasicContainer bc) throws Exception {
-		Object[]	param = new Object[ m_actuals.length ];
+		Object[] param = new Object[m_actuals.length];
 		for(int i = m_actuals.length; --i >= 0;) {
 			param[i] = bc.retrieve(m_actuals[i]);
 		}
@@ -37,6 +41,7 @@ final public class BuildPlanForConstructor extends AbstractBuildPlan {
 		injectProperties(inst, bc);
 		return inst;
 	}
+
 	public int getScore() {
 		return m_score;
 	}
@@ -52,7 +57,7 @@ final public class BuildPlanForConstructor extends AbstractBuildPlan {
 			iw.println("- Constructor parameter build plan(s):");
 			iw.inc();
 			for(int i = 0; i < m_actuals.length; i++) {
-				iw.println("constructor parameter# "+i);
+				iw.println("constructor parameter# " + i);
 				iw.inc();
 				if(m_actuals[i] == null)
 					iw.println("!?!?!?! null BuildPlan!!??!");
@@ -64,11 +69,12 @@ final public class BuildPlanForConstructor extends AbstractBuildPlan {
 		}
 		super.dump(iw);
 	}
+
 	@Override
 	public boolean needsStaticInitialization() {
 		return false;
 	}
+
 	@Override
-	public void staticStart(final BasicContainer c) throws Exception {
-	}
+	public void staticStart(final BasicContainer c) throws Exception {}
 }

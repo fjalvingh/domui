@@ -9,10 +9,9 @@ import to.etc.domui.dom.html.*;
  * Created on Jan 9, 2009
  */
 final public class UIGoto {
-	private UIGoto() {
-	}
+	private UIGoto() {}
 
-	static private WindowSession	context() {
+	static private WindowSession context() {
 		return PageContext.getRequestContext().getWindowSession();
 	}
 
@@ -20,7 +19,7 @@ final public class UIGoto {
 	 * Push (shelve) the current page, then move to a new page. The page is parameterless, and is started in a NEW ConversationContext.
 	 * @param clz
 	 */
-	static public void 	moveSub(final Class<? extends UrlPage> clz) {
+	static public void moveSub(final Class< ? extends UrlPage> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.SUB, clz, null, null, null);
@@ -32,7 +31,7 @@ final public class UIGoto {
 	 * @param clz
 	 * @param pp
 	 */
-	static public void	moveSub(final Class<? extends UrlPage> clz, final PageParameters pp) {
+	static public void moveSub(final Class< ? extends UrlPage> clz, final PageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.SUB, clz, null, null, pp);
@@ -46,7 +45,7 @@ final public class UIGoto {
 	 * @param cc
 	 * @param pp
 	 */
-	static public void	moveSub(final Class<? extends UrlPage> clz, final ConversationContext cc, final PageParameters pp) {
+	static public void moveSub(final Class< ? extends UrlPage> clz, final ConversationContext cc, final PageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		if(cc == null)
@@ -60,7 +59,7 @@ final public class UIGoto {
 	 * @param clz
 	 * @param pp
 	 */
-	static public void	moveNew(final Class<? extends UrlPage> clz, final PageParameters pp) {
+	static public void moveNew(final Class< ? extends UrlPage> clz, final PageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.NEW, clz, null, null, pp);
@@ -70,7 +69,7 @@ final public class UIGoto {
 	 * Clear the entire shelve, then goto a new page. The page uses a NEW ConversationContext.
 	 * @param clz
 	 */
-	static public void 	moveNew(final Class<? extends UrlPage> clz) {
+	static public void moveNew(final Class< ? extends UrlPage> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.NEW, clz, null, null, null);
@@ -80,23 +79,24 @@ final public class UIGoto {
 	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
 	 * @param clz
 	 */
-	static public void	replace(final Class<? extends UrlPage> clz) {
+	static public void replace(final Class< ? extends UrlPage> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, null);
 	}
+
 	/**
 	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
 	 * @param clz
 	 * @param pp
 	 */
-	static public void	replace(final Class<? extends UrlPage> clz, final PageParameters pp) {
+	static public void replace(final Class< ? extends UrlPage> clz, final PageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
 	}
 
-	static public void	redirect(final String targeturl) {
+	static public void redirect(final String targeturl) {
 		context().internalSetRedirect(targeturl);
 	}
 
@@ -104,7 +104,7 @@ final public class UIGoto {
 	 * Move to the previously-shelved page. That page is UNSHELVED and activated. If the shelve is
 	 * EMPTY when this call is made the application moves back to the HOME page.
 	 */
-	static public void	back() {
+	static public void back() {
 		context().internalSetNextPage(MoveMode.BACK, null, null, null, null);
 	}
 }

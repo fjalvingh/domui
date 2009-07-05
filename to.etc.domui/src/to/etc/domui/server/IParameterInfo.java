@@ -7,7 +7,9 @@ package to.etc.domui.server;
  * Created on Jun 4, 2008
  */
 public interface IParameterInfo {
-	public String	getParameter(String name);
-	public String[]	getParameters(String name);
-	public String[]	getParameterNames();
+	public String getParameter(String name);
+
+	public String[] getParameters(String name);
+
+	public String[] getParameterNames();
 }

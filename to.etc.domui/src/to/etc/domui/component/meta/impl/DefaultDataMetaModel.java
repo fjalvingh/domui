@@ -11,7 +11,7 @@ import to.etc.domui.component.meta.*;
  */
 public class DefaultDataMetaModel implements DataMetaModel {
 	public void updateClassMeta(DefaultClassMetaModel dmm) {
-		dmm.initialize();			// FIXME Delegate initialization here?
+		dmm.initialize(); // FIXME Delegate initialization here?
 	}
 
 	/**
@@ -19,7 +19,7 @@ public class DefaultDataMetaModel implements DataMetaModel {
 	 * @see to.etc.domui.component.meta.DataMetaModel#findFieldData(java.lang.Class, java.lang.String)
 	 */
 	public PropertyMetaModel findFieldData(Class< ? > clz, String fieldname) {
-		DefaultClassMetaModel	cm = (DefaultClassMetaModel)MetaManager.findClassMeta(clz);
+		DefaultClassMetaModel cm = (DefaultClassMetaModel) MetaManager.findClassMeta(clz);
 		if(cm == null)
 			return null;
 		return cm.findProperty(fieldname);

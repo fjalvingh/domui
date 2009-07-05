@@ -10,7 +10,7 @@ import to.etc.domui.dom.*;
  * Created on Jul 3, 2008
  */
 public class ThemedJavascriptContributor extends HeaderContributor {
-	private String		m_path;
+	private String m_path;
 
 	public ThemedJavascriptContributor(String path) {
 		m_path = path;
@@ -36,8 +36,7 @@ public class ThemedJavascriptContributor extends HeaderContributor {
 		if(m_path == null) {
 			if(other.m_path != null)
 				return false;
-		}
-		else if(!m_path.equals(other.m_path))
+		} else if(!m_path.equals(other.m_path))
 			return false;
 		return true;
 	}

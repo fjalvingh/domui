@@ -11,11 +11,12 @@ public interface IDragHandler {
 	 * drop target.
 	 * @return a non-null string.
 	 */
-	public @Nonnull String		getTypeName(@Nonnull NodeBase source);
+	public @Nonnull
+	String getTypeName(@Nonnull NodeBase source);
 
 	/**
 	 * Called when the dragged node has been dropped on a DropTarget which has accepted the
 	 * node. This should then remove the source to prevent it from being reused.
 	 */
-	public void			onDropped(DropEvent context)throws Exception;
+	public void onDropped(DropEvent context) throws Exception;
 }

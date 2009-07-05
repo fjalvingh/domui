@@ -1,7 +1,6 @@
 package to.etc.iocular;
 
-import to.etc.iocular.def.ComponentBuilder;
-import to.etc.iocular.def.ContainerDefinition;
+import to.etc.iocular.def.*;
 
 /**
  * Thingy used to "build" a configuration for a definition.
@@ -17,9 +16,9 @@ public interface Builder {
 	 * @param impl
 	 * @return
 	 */
-	public <T> void				bind(Class<T> intf, Class<T> impl);
+	public <T> void bind(Class<T> intf, Class<T> impl);
 
-	public ComponentBuilder		register();
+	public ComponentBuilder register();
 
-	public ContainerDefinition	createDefinition();
+	public ContainerDefinition createDefinition();
 }

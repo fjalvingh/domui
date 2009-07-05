@@ -4,13 +4,19 @@ import to.etc.domui.component.delayed.*;
 import to.etc.domui.dom.html.*;
 
 public class DelayedActivityInfo {
-	private DelayedActivitiesManager	m_manager;
-	private AsyncContainer				m_container;
-	private IActivity					m_activity;
-	private DelayedProgressMonitor		m_monitor;
-	private Exception					m_exception;
-	private Div							m_executionResult;
-	private int							m_pctComplete = -1;
+	private DelayedActivitiesManager m_manager;
+
+	private AsyncContainer m_container;
+
+	private IActivity m_activity;
+
+	private DelayedProgressMonitor m_monitor;
+
+	private Exception m_exception;
+
+	private Div m_executionResult;
+
+	private int m_pctComplete = -1;
 
 	protected DelayedActivityInfo(DelayedActivitiesManager manager, IActivity activity, AsyncContainer ac) {
 		m_activity = activity;
@@ -27,6 +33,7 @@ public class DelayedActivityInfo {
 			throw new IllegalStateException("? Unexpected access to monitor after task completed?");
 		return m_monitor;
 	}
+
 	void setMonitor(DelayedProgressMonitor monitor) {
 		m_monitor = monitor;
 	}
@@ -47,19 +54,21 @@ public class DelayedActivityInfo {
 		m_executionResult = executionResult;
 	}
 
-	public void	cancel() {
+	public void cancel() {
 		m_manager.cancelActivity(this);
 	}
 
-	int	getPercentageComplete() {
+	int getPercentageComplete() {
 		synchronized(m_manager) {
 			return m_pctComplete;
 		}
 	}
+
 	void setPercentageComplete(int pct) {
 		m_pctComplete = pct;
 	}
-	public AsyncContainer	getContainer() {
+
+	public AsyncContainer getContainer() {
 		return m_container;
 	}
 }

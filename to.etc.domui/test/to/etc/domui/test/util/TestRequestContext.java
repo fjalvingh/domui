@@ -14,27 +14,27 @@ import to.etc.domui.state.*;
  * Created on Jun 9, 2008
  */
 public class TestRequestContext implements RequestContext {
-	private DomApplication	m_app;
+	private DomApplication m_app;
 
-	private final String			m_input;
+	private final String m_input;
 
-	private AppSession		m_session;
+	private AppSession m_session;
 
-	private StringWriter	m_sw;
+	private StringWriter m_sw;
 
-	private final Map<String, String[]>		m_parameterMap = new HashMap<String, String[]>();
+	private final Map<String, String[]> m_parameterMap = new HashMap<String, String[]>();
 
-	private WindowSession			m_conversationManager;
+	private WindowSession m_conversationManager;
 
 	public TestRequestContext() {
-		m_input	= "test/page.html";
+		m_input = "test/page.html";
 	}
 
 	public DomApplication getApplication() {
 		if(m_app == null)
 			m_app = new DomApplication() {
 				@Override
-				public Class<? extends UrlPage> getRootPage() {
+				public Class< ? extends UrlPage> getRootPage() {
 					return null;
 				}
 			};
@@ -51,7 +51,7 @@ public class TestRequestContext implements RequestContext {
 		int pos = m_input.lastIndexOf('.');
 		if(pos == -1)
 			return "";
-		return m_input.substring(pos+1);
+		return m_input.substring(pos + 1);
 	}
 
 	public String getInputPath() {
@@ -65,7 +65,7 @@ public class TestRequestContext implements RequestContext {
 	}
 
 	public String getRelativePath(final String rel) {
-		return "webapp/"+rel;
+		return "webapp/" + rel;
 	}
 
 	public AppSession getSession() {
@@ -79,7 +79,7 @@ public class TestRequestContext implements RequestContext {
 	}
 
 	public String getParameter(final String name) {
-		String[]	v = getParameters(name);
+		String[] v = getParameters(name);
 		if(v == null || v.length != 1)
 			return null;
 		return v[0];
@@ -92,12 +92,15 @@ public class TestRequestContext implements RequestContext {
 	public String[] getParameters(final String name) {
 		return m_parameterMap.get(name);
 	}
+
 	public String getRemoteUser() {
 		return "VPC";
 	}
+
 	public String getRelativeThemePath(final String frag) {
-		return "themes/blue/"+frag;
+		return "themes/blue/" + frag;
 	}
+
 	/**
 	 * FIXME Does this need more?
 	 * @see to.etc.domui.server.RequestContext#hasPermission(java.lang.String)
@@ -105,6 +108,7 @@ public class TestRequestContext implements RequestContext {
 	public boolean hasPermission(final String permissionName) {
 		return true;
 	}
+
 	public String translateResourceName(final String in) {
 		return in;
 	}

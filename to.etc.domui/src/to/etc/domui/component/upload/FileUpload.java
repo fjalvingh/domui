@@ -34,25 +34,25 @@ import to.etc.domui.util.upload.*;
  * Created on Oct 13, 2008
  */
 public class FileUpload extends Div {
-	private String					m_allowedExtensions;
+	private String m_allowedExtensions;
 
-	private int						m_maxSize;
+	private int m_maxSize;
 
-	private boolean					m_required;
+	private boolean m_required;
 
-	private int						m_maxFiles = 1;
+	private int m_maxFiles = 1;
 
-	List<UploadItem>				m_files = new ArrayList<UploadItem>();
+	List<UploadItem> m_files = new ArrayList<UploadItem>();
 
-	private FileInput				m_input;
+	private FileInput m_input;
 
-	public FileUpload() {
-	}
+	public FileUpload() {}
+
 	public FileUpload(int maxfiles, String allowedExt) {
 		m_maxFiles = maxfiles;
 		m_allowedExtensions = allowedExt;
 	}
-	
+
 	@Override
 	public void createContent() throws Exception {
 		renderSelectedFiles();
@@ -63,34 +63,34 @@ public class FileUpload extends Div {
 		add(t);
 		TBody b = new TBody();
 		t.add(b);
-		
-		if(! isFull()) {
+
+		if(!isFull()) {
 			b.addRow();
-			TD	td = b.addCell();
+			TD td = b.addCell();
 			td.setColspan(2);
 
-			Form	f = new Form();
+			Form f = new Form();
 			td.add(f);
 			f.setCssClass("ui-szless");
 			f.setEnctype("multipart/form-data");
 			f.setMethod("POST");
-			StringBuilder	sb	= new StringBuilder();
+			StringBuilder sb = new StringBuilder();
 			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, PageContext.getRequestContext());
-			sb.append("?uniq="+System.currentTimeMillis());					// Uniq the URL to prevent IE's stupid caching.
+			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's stupid caching.
 			f.setAction(sb.toString());
 
-			FileInput	fi = new FileInput();
+			FileInput fi = new FileInput();
 			f.add(fi);
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
 			fi.setSpecialAttribute("fuallowed", m_allowedExtensions);
 			fi.setSpecialAttribute("fumaxsz", Integer.toString(m_maxSize));
 			m_input = fi;
 		}
-		for(final UploadItem ufi: m_files) {
+		for(final UploadItem ufi : m_files) {
 			b.addRow();
-			TD td	= b.addCell();
-			td.setButtonText(ufi.getRemoteFileName()+" ("+ufi.getContentType()+")");
-			td	= b.addCell();
+			TD td = b.addCell();
+			td.setButtonText(ufi.getRemoteFileName() + " (" + ufi.getContentType() + ")");
+			td = b.addCell();
 			td.add(new DefaultButton("delete", new IClicked<DefaultButton>() {
 				public void clicked(DefaultButton bx) throws Exception {
 					m_files.remove(ufi);
@@ -108,7 +108,7 @@ public class FileUpload extends Div {
 		return m_files;
 	}
 
-	public boolean	isFull() {
+	public boolean isFull() {
 		return m_files.size() >= m_maxFiles;
 	}
 

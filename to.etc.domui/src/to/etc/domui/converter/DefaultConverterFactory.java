@@ -9,7 +9,7 @@ import to.etc.domui.component.meta.*;
  * Created on Dec 30, 2008
  */
 public final class DefaultConverterFactory implements IConverterFactory {
-	static private IConverter	DEFAULT_CONVERTER = new DefaultConverter();
+	static private IConverter DEFAULT_CONVERTER = new DefaultConverter();
 
 	/**
 	 * Returns 1 all of the time: accepts everything.

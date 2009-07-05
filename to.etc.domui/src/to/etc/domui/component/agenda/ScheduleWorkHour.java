@@ -1,8 +1,9 @@
 package to.etc.domui.component.agenda;
 
-import java.util.Date;
+import java.util.*;
 
 public interface ScheduleWorkHour {
-	public Date		getStart();
-	public Date		getEnd();
+	public Date getStart();
+
+	public Date getEnd();
 }

@@ -1,9 +1,7 @@
 package to.etc.domui.util;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.Blob;
-import java.sql.SQLException;
+import java.io.*;
+import java.sql.*;
 
 /**
  * An abstracted version so that we can use it to set a new value into
@@ -18,6 +16,7 @@ abstract public class AbstractBlob implements Blob {
 	public byte[] getBytes(long pos, int length) throws SQLException {
 		throw new IllegalStateException("Do not call this - it is very inefficient");
 	}
+
 	public long length() throws SQLException {
 		return 0;
 	}

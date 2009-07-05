@@ -1,9 +1,9 @@
 package to.etc.iocular.container;
 
-import java.io.IOException;
+import java.io.*;
 
-import to.etc.iocular.def.ComponentRef;
-import to.etc.util.IndentWriter;
+import to.etc.iocular.def.*;
+import to.etc.util.*;
 
 /**
  * Encapsulates a method of building an instance of a given object
@@ -13,17 +13,17 @@ import to.etc.util.IndentWriter;
  * Created on Mar 28, 2007
  */
 public interface BuildPlan {
-	static public final ComponentRef[]	EMPTY_PLANS = new ComponentRef[0];
+	static public final ComponentRef[] EMPTY_PLANS = new ComponentRef[0];
 
-	public Object		getObject(BasicContainer c) throws Exception;
+	public Object getObject(BasicContainer c) throws Exception;
 
-	public void			dump(IndentWriter iw) throws IOException;
+	public void dump(IndentWriter iw) throws IOException;
 
 	/**
 	 * When T this component has a static (one-time only) initialization requirement.
 	 * @return
 	 */
-	public boolean		needsStaticInitialization();
+	public boolean needsStaticInitialization();
 
 	/**
 	 * When this has a static initializer this should execute it. This gets called before an actual object
@@ -31,7 +31,7 @@ public interface BuildPlan {
 	 * @param c
 	 * @throws Exception
 	 */
-	public void			staticStart(BasicContainer c) throws Exception;
+	public void staticStart(BasicContainer c) throws Exception;
 
 	/**
 	 * Call the after-construction methods specified for this object (start methods). When present these are
@@ -40,7 +40,7 @@ public interface BuildPlan {
 	 * @param self
 	 * @throws Exception
 	 */
-	public void			start(BasicContainer bc, Object self) throws Exception;
+	public void start(BasicContainer bc, Object self) throws Exception;
 
 	/**
 	 * Call the before-destruction methods specified for this object.
@@ -48,7 +48,7 @@ public interface BuildPlan {
 	 * @param self
 	 * @throws Exception
 	 */
-	public void			destroy(BasicContainer bc, Object self);
+	public void destroy(BasicContainer bc, Object self);
 
-	boolean	hasDestructors();
+	boolean hasDestructors();
 }

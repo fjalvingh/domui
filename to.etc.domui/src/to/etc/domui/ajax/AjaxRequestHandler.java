@@ -1,6 +1,7 @@
 package to.etc.domui.ajax;
 
 import java.util.*;
+
 import to.etc.domui.server.*;
 import to.etc.iocular.*;
 import to.etc.iocular.container.*;
@@ -13,25 +14,25 @@ import to.etc.iocular.def.*;
  * Created on May 14, 2009
  */
 public class AjaxRequestHandler implements FilterRequestHandler {
-	static private final String		CONT_KEY = "ajax.ioc";
+	static private final String CONT_KEY = "ajax.ioc";
 
 	private final DomApplication m_application;
 
-	private IInstanceBuilder	m_instanceBuilder;
+	private IInstanceBuilder m_instanceBuilder;
 
 	private List<IRequestInterceptor> m_interceptorList = new ArrayList<IRequestInterceptor>();
 
-	private Container			m_applicationContainer;
+	private Container m_applicationContainer;
 
-	private ContainerDefinition	m_sessionContainerDef;
+	private ContainerDefinition m_sessionContainerDef;
 
-	private ContainerDefinition	m_requestContainerDef;
+	private ContainerDefinition m_requestContainerDef;
 
-	private final RpcCallHandler	m_callHandler;
+	private final RpcCallHandler m_callHandler;
 
 	public AjaxRequestHandler(final DomApplication domApplication) {
 		m_application = domApplication;
-		m_callHandler	= new RpcCallHandler();
+		m_callHandler = new RpcCallHandler();
 	}
 
 	public DomApplication getApplication() {
@@ -83,21 +84,21 @@ public class AjaxRequestHandler implements FilterRequestHandler {
 	 * UNSTABLE INTERFACE - must move to separate class (interface).
 	 * @return
 	 */
-	private Container	getRequestContainer(final RequestContextImpl ci) {
+	private Container getRequestContainer(final RequestContextImpl ci) {
 		//-- If we have a request thing get it,
 		Object v = ci.getAttribute(CONT_KEY);
 		if(v != null)
 			return (Container) v;
 
-		Container	dad;
+		Container dad;
 		if(getSessionContainerDef() == null)
 			dad = getApplicationContainer();
 		else {
 			//-- Obtain/create the session container
-			dad	= (Container)ci.getSession().getAttribute(CONT_KEY);
+			dad = (Container) ci.getSession().getAttribute(CONT_KEY);
 			if(dad == null) {
 				//-- Create the session container
-				dad	= new BasicContainer(getSessionContainerDef(), getApplicationContainer());
+				dad = new BasicContainer(getSessionContainerDef(), getApplicationContainer());
 				ci.getSession().setAttribute(CONT_KEY, dad);
 				dad.start();
 				//-- FIXME Needs destruction listener.
@@ -105,14 +106,14 @@ public class AjaxRequestHandler implements FilterRequestHandler {
 		}
 
 		//-- Make a basic container, then store
-		BasicContainer	rq	= new BasicContainer(getRequestContainerDef(), dad);
+		BasicContainer rq = new BasicContainer(getRequestContainerDef(), dad);
 		ci.setAttribute("arq.bc", rq);
 		rq.start();
 		return rq;
 	}
 
-	<T>	T	makeCallClass(final Class<T> clz, final AjaxRequestContext ctx) throws Exception {
-		Container	bc	= getRequestContainer(ctx.getRctx());
+	<T> T makeCallClass(final Class<T> clz, final AjaxRequestContext ctx) throws Exception {
+		Container bc = getRequestContainer(ctx.getRctx());
 		bc.setParameter(ctx.getRctx());
 		return bc.getObject(clz);
 	}
@@ -121,8 +122,8 @@ public class AjaxRequestHandler implements FilterRequestHandler {
 	 * If a request container exists destroy it.
 	 * @param ctx
 	 */
-	private void	requestCompleted(final RequestContextImpl ctx) {
-		Container	co	= (Container) ctx.getAttribute(CONT_KEY);
+	private void requestCompleted(final RequestContextImpl ctx) {
+		Container co = (Container) ctx.getAttribute(CONT_KEY);
 		if(co == null)
 			return;
 		ctx.setAttribute(CONT_KEY, null);
@@ -137,19 +138,19 @@ public class AjaxRequestHandler implements FilterRequestHandler {
 	 * @see to.etc.domui.server.FilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
 	 */
 	public void handleRequest(final RequestContextImpl ctx) throws Exception {
-		AjaxRequestContext	ax	= new AjaxRequestContext(this, m_callHandler, ctx);
-		String				rurl= ctx.getInputPath();
-		boolean	ok = false;
+		AjaxRequestContext ax = new AjaxRequestContext(this, m_callHandler, ctx);
+		String rurl = ctx.getInputPath();
+		boolean ok = false;
 		try {
 			ax.execute(rurl);
-			ok	= true;
+			ok = true;
 		} finally {
 			try {
 				requestCompleted(ctx);
 			} catch(Exception x) {
 				if(ok)
 					throw x;
-				x.printStackTrace();			// First exception present; just print the finalizer exception.
+				x.printStackTrace(); // First exception present; just print the finalizer exception.
 			}
 		}
 	}

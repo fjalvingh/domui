@@ -23,7 +23,7 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 			return 0;
 		if(Constants.COMPONENT_LOOKUP.equals(pmm.getComponentTypeHint()))
 			return 10;
-		return 3;						// Prefer a lookup above a combo if unspecified
+		return 3; // Prefer a lookup above a combo if unspecified
 	}
 
 	/**
@@ -33,10 +33,10 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 	 */
 	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
 		//-- We'll do a lookup thingy for sure.
-		LookupInput<Object>	li = new LookupInput<Object>((Class<Object>)pmm.getActualType());
-		li.setReadOnly(! editable);
+		LookupInput<Object> li = new LookupInput<Object>((Class<Object>) pmm.getActualType());
+		li.setReadOnly(!editable);
 		if(pmm.getLookupFieldRenderer() != null)
-			li.setContentRenderer((INodeContentRenderer<Object>) DomApplication.get().createInstance(pmm.getLookupFieldRenderer()));	// Bloody stupid Java generic crap
+			li.setContentRenderer((INodeContentRenderer<Object>) DomApplication.get().createInstance(pmm.getLookupFieldRenderer())); // Bloody stupid Java generic crap
 		if(pmm.isRequired())
 			li.setMandatory(true);
 		String s = pmm.getDefaultHint();

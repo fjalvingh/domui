@@ -19,12 +19,14 @@ import to.etc.domui.server.*;
  * Created on Jun 22, 2008
  */
 public class PageContext {
-	static private ThreadLocal<RequestContextImpl>	m_current = new ThreadLocal<RequestContextImpl>();
-	static private ThreadLocal<Page>				m_page	= new ThreadLocal<Page>();
-	static private ThreadLocal<IUser>				m_currentUser = new ThreadLocal<IUser>();
+	static private ThreadLocal<RequestContextImpl> m_current = new ThreadLocal<RequestContextImpl>();
 
-	static public RequestContext	getRequestContext() {
-		RequestContext	rc = m_current.get();
+	static private ThreadLocal<Page> m_page = new ThreadLocal<Page>();
+
+	static private ThreadLocal<IUser> m_currentUser = new ThreadLocal<IUser>();
+
+	static public RequestContext getRequestContext() {
+		RequestContext rc = m_current.get();
 		if(rc == null)
 			throw new IllegalStateException("No current request!");
 		return rc;
@@ -35,7 +37,7 @@ public class PageContext {
 	 * ended.
 	 * @param rc
 	 */
-	static public void	internalSet(final RequestContextImpl rc) throws Exception {
+	static public void internalSet(final RequestContextImpl rc) throws Exception {
 		m_current.set(rc);
 		boolean ok = false;
 		try {
@@ -45,31 +47,34 @@ public class PageContext {
 				m_currentUser.set(internalGetLoggedInUser(rc));
 			ok = true;
 		} finally {
-			if(! ok)
+			if(!ok)
 				m_current.set(null);
 		}
 	}
 
-	static public void	internalSet(final Page pg) {
+	static public void internalSet(final Page pg) {
 		m_page.set(pg);
 	}
-	static public Page	getCurrentPage() {
-		Page	pg = m_page.get();
+
+	static public Page getCurrentPage() {
+		Page pg = m_page.get();
 		if(pg == null)
 			throw new IllegalStateException("No current page");
 		return pg;
 	}
-	static public ConversationContext	getCurrentConversation() {
+
+	static public ConversationContext getCurrentConversation() {
 		return getCurrentPage().getConversation();
 	}
-	static public IUser	getCurrentUser() {
+
+	static public IUser getCurrentUser() {
 		return m_currentUser.get();
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Login page logic. Temporary location.				*/
 	/*--------------------------------------------------------------*/
-	static private final String	LOGIN_KEY	= IUser.class.getName();
+	static private final String LOGIN_KEY = IUser.class.getName();
 
 	/**
 	 * UNSTABLE INTERFACE. This tries to retrieve an IUser context for the user. It tries to
@@ -80,12 +85,12 @@ public class PageContext {
 	 * @param rci
 	 * @return
 	 */
-	static public IUser		internalGetLoggedInUser(final RequestContextImpl rci) throws Exception {
-		HttpSession	hs	= rci.getRequest().getSession(false);
+	static public IUser internalGetLoggedInUser(final RequestContextImpl rci) throws Exception {
+		HttpSession hs = rci.getRequest().getSession(false);
 		if(hs == null)
 			return null;
 		synchronized(hs) {
-			Object	sval = hs.getAttribute(LOGIN_KEY);					// Try to find the key,
+			Object sval = hs.getAttribute(LOGIN_KEY); // Try to find the key,
 			if(sval != null) {
 				if(sval instanceof IUser) {
 					//-- Proper IUser structure- return it.
@@ -96,9 +101,9 @@ public class PageContext {
 			/*
 			 * If a LOGINCOOKIE is found check it's usability..
 			 */
-			Cookie[]	car	= rci.getRequest().getCookies();
+			Cookie[] car = rci.getRequest().getCookies();
 			if(car != null) {
-				for(Cookie c: car) {
+				for(Cookie c : car) {
 					if(c.getName().equals("domuiLogin")) {
 						String domval = c.getValue();
 						IUser user = decodeCookie(rci, domval);
@@ -115,16 +120,16 @@ public class PageContext {
 			/*
 			 * If a remoteUser is set the user IS authenticated using Tomcat; get it's credentials.
 			 */
-			String	ruser = rci.getRequest().getRemoteUser();
+			String ruser = rci.getRequest().getRemoteUser();
 			if(ruser != null) {
 				//-- Ask login provider for an IUser instance.
-				ILoginAuthenticator	la	= rci.getApplication().getLoginAuthenticator();
+				ILoginAuthenticator la = rci.getApplication().getLoginAuthenticator();
 				if(null == la)
 					return null;
 
-				IUser	user = la.authenticateUser(ruser, null);		// Tomcat authenticator has no password.
+				IUser user = la.authenticateUser(ruser, null); // Tomcat authenticator has no password.
 				if(user == null)
-					throw new IllegalStateException("Internal: container has logged-in user '"+ruser+"', but authenticator class="+la+" does not return an IUser for it!!");
+					throw new IllegalStateException("Internal: container has logged-in user '" + ruser + "', but authenticator class=" + la + " does not return an IUser for it!!");
 
 				//-- Store the user in the HttpSession.
 				hs.setAttribute(LOGIN_KEY, user);
@@ -144,24 +149,24 @@ public class PageContext {
 	 * @param rci
 	 * @param cookie
 	 */
-	static private IUser	decodeCookie(final RequestContextImpl rci, final String cookie) {
+	static private IUser decodeCookie(final RequestContextImpl rci, final String cookie) {
 		if(cookie == null)
 			return null;
-		String[]	car = cookie.split(":");
+		String[] car = cookie.split(":");
 		if(car.length != 3)
 			return null;
 		try {
-			String	uid	= car[0];
-			long	ts	= Long.parseLong(car[1]);		// Timestamp
+			String uid = car[0];
+			long ts = Long.parseLong(car[1]); // Timestamp
 
 			//-- Lookup userid;
-			ILoginAuthenticator	la	= rci.getApplication().getLoginAuthenticator();
+			ILoginAuthenticator la = rci.getApplication().getLoginAuthenticator();
 			if(null == la)
 				return null;
 
-			return la.authenticateByCookie(uid, ts, car[2]);	// Authenticate by cookie
+			return la.authenticateByCookie(uid, ts, car[2]); // Authenticate by cookie
 		} catch(Exception x) {
-			return null;						// All cookie format exceptions mean no login
+			return null; // All cookie format exceptions mean no login
 		}
 	}
 
@@ -171,12 +176,12 @@ public class PageContext {
 	 * @param password
 	 * @return
 	 */
-	static public boolean	login(final String userid, final String password) throws Exception {
-		RequestContextImpl	ci = m_current.get();
+	static public boolean login(final String userid, final String password) throws Exception {
+		RequestContextImpl ci = m_current.get();
 		if(ci == null)
 			throw new IllegalStateException("You can login from a server request only");
 
-		HttpSession	hs	= ci.getRequest().getSession(false);
+		HttpSession hs = ci.getRequest().getSession(false);
 		if(hs == null)
 			return false;
 		synchronized(hs) {
@@ -184,37 +189,37 @@ public class PageContext {
 			hs.removeAttribute(LOGIN_KEY);
 
 			//-- Check credentials,
-			ILoginAuthenticator	la	= ci.getApplication().getLoginAuthenticator();
+			ILoginAuthenticator la = ci.getApplication().getLoginAuthenticator();
 			if(la == null)
 				throw new IllegalStateException("There is no login authenticator set in the Application!");
-			IUser	user = la.authenticateUser(userid, password);
+			IUser user = la.authenticateUser(userid, password);
 			if(user == null)
 				return false;
 
 			//-- Login succeeded: save the user in the session context
-			hs.setAttribute(LOGIN_KEY, user);						// This causes the user to be logged on.
+			hs.setAttribute(LOGIN_KEY, user); // This causes the user to be logged on.
 			m_currentUser.set(user);
 
-			List<ILoginListener>	ll = ci.getApplication().getLoginListenerList();
-			for(ILoginListener l: ll)
+			List<ILoginListener> ll = ci.getApplication().getLoginListenerList();
+			for(ILoginListener l : ll)
 				l.userLogin(user);
 			return true;
 		}
 	}
 
 	public static Cookie createLoginCookie(final long l) throws Exception {
-		IUser	user	= m_currentUser.get();
+		IUser user = m_currentUser.get();
 		if(user == null)
 			return null;
-		RequestContextImpl	ci = m_current.get();
+		RequestContextImpl ci = m_current.get();
 		if(ci == null)
 			throw new IllegalStateException("You can login from a server request only");
-		String	auth	= ci.getApplication().getLoginAuthenticator().calcCookieHash(user.getLoginID(), l);
+		String auth = ci.getApplication().getLoginAuthenticator().calcCookieHash(user.getLoginID(), l);
 		if(auth == null)
 			return null;
-		String	value	= user.getLoginID()+":"+l+":"+auth;
-		Cookie	k	= new Cookie("domuiLogin", value);
-		k.setMaxAge((int)((l - System.currentTimeMillis()) / 1000));		// #seconds before expiry
+		String value = user.getLoginID() + ":" + l + ":" + auth;
+		Cookie k = new Cookie("domuiLogin", value);
+		k.setMaxAge((int) ((l - System.currentTimeMillis()) / 1000)); // #seconds before expiry
 		k.setPath(ci.getRequest().getContextPath());
 		ci.getResponse().addCookie(k);
 		return k;

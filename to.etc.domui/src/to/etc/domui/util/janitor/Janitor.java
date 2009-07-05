@@ -27,6 +27,7 @@ import to.etc.log.*;
  */
 public class Janitor implements Runnable {
 	static private final Category MSG = LogMaster.getCategory("janitor", "msg");
+
 	static private final Category TASK = LogMaster.getCategory("janitor", "task");
 
 	/// Start phase: not started, not running
@@ -92,8 +93,7 @@ public class Janitor implements Runnable {
 			while(!m_thread_isrunning && ct-- > 0) {
 				try {
 					wait(5000);
-				}
-				catch(Exception x) {}
+				} catch(Exception x) {}
 			}
 		}
 		if(ct <= 0)
@@ -139,7 +139,7 @@ public class Janitor implements Runnable {
 		jt.m_j = this; // Set janitor,
 		jt.m_taskname = name;
 		if(once) {
-			jt.m_t_next = System.currentTimeMillis()+interval*1000;
+			jt.m_t_next = System.currentTimeMillis() + interval * 1000;
 			jt.m_t_interval = -1;
 		} else {
 			jt.m_t_interval = interval; // Interval, in seconds.
@@ -228,10 +228,10 @@ public class Janitor implements Runnable {
 	 */
 	private void terminialize() {}
 
-	public synchronized boolean	mustTerminate() {
+	public synchronized boolean mustTerminate() {
 		return m_termination_requested;
 	}
-	
+
 	/**
 	 *	The main Janitor thread loop. It sleeps for a minute, then it runs
 	 *  the scheduler.
@@ -255,11 +255,9 @@ public class Janitor implements Runnable {
 				Thread.sleep(10000); // Sleep for a minute,
 			}
 			terminialize();
-		}
-		catch(Throwable t) {
+		} catch(Throwable t) {
 			MSG.msg(this, "FATAL exception in mainloop: " + t.getMessage());
-		}
-		finally {
+		} finally {
 			m_thread_isrunning = false;
 		}
 		MSG.msg("Janitor thread stopped!?");
@@ -280,11 +278,9 @@ public class Janitor implements Runnable {
 					System.out.println("Janitor: No jobs have completed in 10 minutes; cannot schedule!!");
 					MSG.msg("WARNING: NO JANITOR JOBS COMPLETED IN 10 MINUTES!!");
 				}
-			}
-			else
+			} else
 				m_t_freeslot = getSchedTime();
-		}
-		catch(Throwable x) {
+		} catch(Throwable x) {
 			MSG.msg("ERROR! Janitor exception catched: " + x.toString());
 		}
 	}
@@ -432,12 +428,12 @@ public class Janitor implements Runnable {
 		m_j = new Janitor(10);
 		m_j.start();
 
-//		try {
-//			//			m_j.addTask(30*60, false, "SysHealth", new SystemHealthChecker());
-//		}
-//		catch(Exception x) {
-//			Panicker.logUnexpected(x, "in creating janitor thing");
-//		}
+		//		try {
+		//			//			m_j.addTask(30*60, false, "SysHealth", new SystemHealthChecker());
+		//		}
+		//		catch(Exception x) {
+		//			Panicker.logUnexpected(x, "in creating janitor thing");
+		//		}
 		return m_j;
 	}
 

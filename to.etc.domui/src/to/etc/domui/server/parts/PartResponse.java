@@ -9,22 +9,28 @@ import java.io.*;
  * Created on Jan 13, 2009
  */
 public class PartResponse {
-	private OutputStream		m_os;
-	private String				m_mime;
-	private int					m_cacheTime;
+	private OutputStream m_os;
+
+	private String m_mime;
+
+	private int m_cacheTime;
 
 	public PartResponse(OutputStream os) {
 		m_os = os;
 	}
-	public OutputStream			getOutputStream() {
+
+	public OutputStream getOutputStream() {
 		return m_os;
 	}
+
 	public String getMime() {
 		return m_mime;
 	}
+
 	public void setMime(String mime) {
 		m_mime = mime;
 	}
+
 	/**
 	 * The time the response may be cached by the browser without inquiry, in seconds.
 	 * @return
@@ -32,6 +38,7 @@ public class PartResponse {
 	public int getCacheTime() {
 		return m_cacheTime;
 	}
+
 	/**
 	 * Set the time the response may be cached by the browser without inquiry, in seconds.
 	 * @param cacheTime

@@ -12,14 +12,13 @@ public class AccessDeniedPage extends UrlPage {
 	public void createContent() throws Exception {
 		//-- Can we get the classname?
 		String cname = getPage().getPageParameters().getString("targetPage");
-		String pageName	= "...";
+		String pageName = "...";
 		if(cname != null) {
 			//-- Try to load the class to access it's meta
-			Class<?> clz = null;
+			Class< ? > clz = null;
 			try {
-				clz	= DomApplication.get().loadPageClass(cname);
-			} catch(Exception x) {
-			}
+				clz = DomApplication.get().loadPageClass(cname);
+			} catch(Exception x) {}
 			if(clz == null)
 				pageName = cname;
 			else {
@@ -31,57 +30,57 @@ public class AccessDeniedPage extends UrlPage {
 			}
 		}
 
-		CaptionedPanel	ep	= new CaptionedPanel(DomUtil.BUNDLE.getString("login.access.title"));
+		CaptionedPanel ep = new CaptionedPanel(DomUtil.BUNDLE.getString("login.access.title"));
 		add(ep);
-		Table	t	= new Table();
+		Table t = new Table();
 		ep.getContent().add(t);
 		t.setWidth("100%");
 		TBody b = t.addBody();
-		TD	td	= b.addRowAndCell();
-		Img	img	= new Img(AccessDeniedPage.class, "accessDenied.png");
-//		img.setAlign(ImgAlign.LEFT);
+		TD td = b.addRowAndCell();
+		Img img = new Img(AccessDeniedPage.class, "accessDenied.png");
+		//		img.setAlign(ImgAlign.LEFT);
 		td.add(img);
 		td.setWidth("1%");
 
-		TD	co	= b.addCell();
-		String	txt	= DomUtil.BUNDLE.formatMessage("login.access.denied", pageName);
-		Div	d = new Div(txt);
+		TD co = b.addCell();
+		String txt = DomUtil.BUNDLE.formatMessage("login.access.denied", pageName);
+		Div d = new Div(txt);
 		co.add(d);
 		d.setCssClass("ui-acd-ttl");
 
-//		//-- Get all rights needed.
-//		StringBuilder sb	= new StringBuilder(256);
-//		for(int i = 0; i < 99; i++) {
-//			String r = getPage().getPageParameters().getString("r"+i, null);
-//			if(r == null)
-//				break;
-//			if(sb.length() > 0)
-//				sb.append(", ");
-//			String desc = DomApplication.get().getRightsDescription(r);
-//			sb.append(desc);
-//		}
-//		ep.getContent().addLiteral(DomUtil.BUNDLE.formatMessage("login.required.rights", sb.toString()));
+		//		//-- Get all rights needed.
+		//		StringBuilder sb	= new StringBuilder(256);
+		//		for(int i = 0; i < 99; i++) {
+		//			String r = getPage().getPageParameters().getString("r"+i, null);
+		//			if(r == null)
+		//				break;
+		//			if(sb.length() > 0)
+		//				sb.append(", ");
+		//			String desc = DomApplication.get().getRightsDescription(r);
+		//			sb.append(desc);
+		//		}
+		//		ep.getContent().addLiteral(DomUtil.BUNDLE.formatMessage("login.required.rights", sb.toString()));
 
 		co.add(new Div(DomUtil.BUNDLE.formatMessage("login.required.rights")));
-		d	= new Div();
+		d = new Div();
 		co.add(d);
-		Ul	ul = new Ul();
+		Ul ul = new Ul();
 		d.add(ul);
 		for(int i = 0; i < 99; i++) {
-			String r = getPage().getPageParameters().getString("r"+i, null);
+			String r = getPage().getPageParameters().getString("r" + i, null);
 			if(r == null)
 				break;
-			Li	li = new Li();
+			Li li = new Li();
 			ul.add(li);
 			String desc = DomApplication.get().getRightsDescription(r);
-			li.addLiteral(desc+" ("+r+")");
+			li.addLiteral(desc + " (" + r + ")");
 		}
 
 		//-- Add a link to return to the master/index page.
 		if(DomApplication.get().getRootPage() != null) {
-			d	= new Div();
+			d = new Div();
 			co.add(d);
-			ALink	link	= new ALink(DomApplication.get().getRootPage(), MoveMode.NEW);		// Destroy shelve.
+			ALink link = new ALink(DomApplication.get().getRootPage(), MoveMode.NEW); // Destroy shelve.
 			d.add(link);
 			link.setText(DomUtil.BUNDLE, "login.toindex");
 		}

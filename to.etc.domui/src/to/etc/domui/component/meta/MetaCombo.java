@@ -25,22 +25,22 @@ public @interface MetaCombo {
 	 *
 	 * @return
 	 */
-	Class<? extends IComboDataSet<?>>		dataSet() default UndefinedComboDataSet.class;
+	Class< ? extends IComboDataSet< ? >> dataSet() default UndefinedComboDataSet.class;
 
-	Class<? extends ILabelStringRenderer<?>>	labelRenderer() default UndefinedLabelStringRenderer.class;
+	Class< ? extends ILabelStringRenderer< ? >> labelRenderer() default UndefinedLabelStringRenderer.class;
 
-	Class<? extends INodeContentRenderer<?>>		nodeRenderer() default UndefinedLabelStringRenderer.class;
+	Class< ? extends INodeContentRenderer< ? >> nodeRenderer() default UndefinedLabelStringRenderer.class;
 
 	/**
 	 * The list of properties that should be shown. This is needed ONLY when the class metadata of the
 	 * parent record does not specify a default display column or columnset.
 	 * @return
 	 */
-	public MetaDisplayProperty[]	properties() default {};
+	public MetaDisplayProperty[] properties() default {};
 
 	/**
 	 * Allow no value to be selected here. Used when there's a need to override the default.
 	 * @return
 	 */
-	public ComboOptionalType		optional() default ComboOptionalType.INHERITED;
+	public ComboOptionalType optional() default ComboOptionalType.INHERITED;
 }

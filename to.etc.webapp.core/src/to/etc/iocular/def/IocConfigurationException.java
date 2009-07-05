@@ -1,13 +1,13 @@
 package to.etc.iocular.def;
 
-import to.etc.iocular.IocException;
+import to.etc.iocular.*;
 
 public class IocConfigurationException extends IocException {
-	private BasicContainerBuilder	m_builder;
+	private BasicContainerBuilder m_builder;
 
-	private ComponentBuilder		m_cb;
+	private ComponentBuilder m_cb;
 
-	private String	m_location;
+	private String m_location;
 
 	public IocConfigurationException(ComponentBuilder b, String message) {
 		super(message);
@@ -22,11 +22,13 @@ public class IocConfigurationException extends IocException {
 		m_builder = b;
 		m_location = location;
 	}
+
 	public IocConfigurationException(BasicContainerBuilder b, String location, Throwable cause) {
 		super(cause);
 		m_builder = b;
 		m_location = location;
 	}
+
 	public IocConfigurationException(BasicContainerBuilder b, String location, String message, Throwable cause) {
 		super(message, cause);
 		m_builder = b;
@@ -35,7 +37,7 @@ public class IocConfigurationException extends IocException {
 
 	@Override
 	public String getMessage() {
-		StringBuilder	sb	= new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		sb.append(super.getMessage());
 		if(m_cb != null) {
 			sb.append("\n- The object being built is: ");
@@ -55,7 +57,7 @@ public class IocConfigurationException extends IocException {
 		return sb.toString();
 	}
 
-	public String	getLocationText() {
+	public String getLocationText() {
 		return m_location;
 	}
 }

@@ -13,6 +13,7 @@ public interface QDataContextSource {
 	 * @return
 	 * @throws Exception
 	 */
-	public QDataContext			getDataContext() throws Exception;
-	public void					releaseDataContext(QDataContext dc);
+	public QDataContext getDataContext() throws Exception;
+
+	public void releaseDataContext(QDataContext dc);
 }

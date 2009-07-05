@@ -8,5 +8,5 @@ package to.etc.domui.util;
  * Created on Jun 18, 2008
  */
 public interface IValueTransformer<T> {
-	public T			getValue(Object in) throws Exception;
+	public T getValue(Object in) throws Exception;
 }

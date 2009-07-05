@@ -24,14 +24,16 @@ import java.util.logging.*;
  * Created on Jun 17, 2008
  */
 public class CheckingClassLoader extends URLClassLoader {
-	static private final Logger	LOG	= Reloader.LOG;
-	private Reloader		m_reloader;
-	private String			m_applicationClass;
+	static private final Logger LOG = Reloader.LOG;
+
+	private Reloader m_reloader;
+
+	private String m_applicationClass;
 
 	public CheckingClassLoader(ClassLoader parent, Reloader r, String appclass) {
 		super(r.getUrls(), parent);
 		m_reloader = r;
-		m_applicationClass	= appclass;
+		m_applicationClass = appclass;
 	}
 
 	/**
@@ -42,15 +44,15 @@ public class CheckingClassLoader extends URLClassLoader {
 	 */
 	@Override
 	public synchronized Class< ? > loadClass(String name, boolean resolve) throws ClassNotFoundException {
-//		System.out.println("checkingLoader: input="+name);
-		if(!  name.startsWith(m_applicationClass))						// Not the Application class?
-			return m_reloader.getReloadingLoader().loadClass(name);	// Then delegate to the reloading classloader
+		//		System.out.println("checkingLoader: input="+name);
+		if(!name.startsWith(m_applicationClass)) // Not the Application class?
+			return m_reloader.getReloadingLoader().loadClass(name); // Then delegate to the reloading classloader
 
 		//-- Load this class here, so other classes loaded *by* it will be checked too
-		Class<?> clz = findLoadedClass(name);
+		Class< ? > clz = findLoadedClass(name);
 		if(clz == null) {
 			//-- Must we handle this class?
-			LOG.finer("Load class "+name+" using checking loader");
+			LOG.finer("Load class " + name + " using checking loader");
 
 			//-- Try to find the path for the class resource
 			try {
@@ -59,7 +61,7 @@ public class CheckingClassLoader extends URLClassLoader {
 				//-- *this* loader cannot find it. 
 				if(getParent() == null)
 					throw x;
-				clz = getParent().loadClass(name);		// Try to load by parent,
+				clz = getParent().loadClass(name); // Try to load by parent,
 			}
 			if(clz == null)
 				throw new ClassNotFoundException(name);
@@ -67,7 +69,7 @@ public class CheckingClassLoader extends URLClassLoader {
 
 		if(resolve)
 			resolveClass(clz);
-//		System.out.println("ccl: class "+clz+" loader "+clz.getClassLoader());
+		//		System.out.println("ccl: class "+clz+" loader "+clz.getClassLoader());
 		return clz;
 	}
 }

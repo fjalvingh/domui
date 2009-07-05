@@ -19,7 +19,7 @@ public interface ILoginDialogFactory {
 	 * @param originalTarget
 	 * @return
 	 */
-	String		getLoginRURL(String originalTarget);
+	String getLoginRURL(String originalTarget);
 
 	/**
 	 * Must return the RURL of the page/JSP to use as an "access denied" page. The
@@ -29,5 +29,5 @@ public interface ILoginDialogFactory {
 	 *
 	 * @return
 	 */
-	String		getAccessDeniedURL();
+	String getAccessDeniedURL();
 }

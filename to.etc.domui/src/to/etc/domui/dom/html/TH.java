@@ -1,6 +1,6 @@
 package to.etc.domui.dom.html;
 
-import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.*;
 
 /**
  * The TH node.
@@ -9,8 +9,9 @@ import to.etc.domui.util.DomUtil;
  * Created on Jun 2, 2008
  */
 public class TH extends NodeContainer {
-	private String		m_scope = "col";
-	private int				m_colspan = -1;
+	private String m_scope = "col";
+
+	private int m_colspan = -1;
 
 	public TH() {
 		super("th");
@@ -30,9 +31,11 @@ public class TH extends NodeContainer {
 			changed();
 		m_scope = scope;
 	}
+
 	public int getColspan() {
 		return m_colspan;
 	}
+
 	public void setColspan(int colspan) {
 		m_colspan = colspan;
 	}

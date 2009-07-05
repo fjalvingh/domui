@@ -4,5 +4,5 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 
 public interface IExceptionListener {
-	public boolean	handleException(RequestContext ctx, Page pg, NodeBase source, Throwable t) throws Exception;
+	public boolean handleException(RequestContext ctx, Page pg, NodeBase source, Throwable t) throws Exception;
 }

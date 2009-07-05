@@ -9,10 +9,8 @@ import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
-import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.Msgs;
-import to.etc.util.RuntimeConversionException;
-import to.etc.util.RuntimeConversions;
+import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
  * A single-line input box. This extends the "input" tag with validation ability
@@ -23,62 +21,60 @@ import to.etc.util.RuntimeConversions;
  */
 public class Text<T> extends Input implements IInputNode<T> {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
-	private Class<T>		m_inputClass;
+	private Class<T> m_inputClass;
 
 	/**
 	 * If the value is to be converted use this converter for it.
 	 */
-	private Class<? extends IConverter>		m_converterClass;
+	private Class< ? extends IConverter> m_converterClass;
 
 	/** Defined value validators on this field. */
-	private List<PropertyMetaValidator>		m_validators = Collections.EMPTY_LIST;
+	private List<PropertyMetaValidator> m_validators = Collections.EMPTY_LIST;
 
-	private T				m_value;
+	private T m_value;
 
 	/**
 	 * This flag gets T if the validate method has been called on the current
 	 * input for a control. It gets reset when a control receives a new value
 	 * that differs from it's previous value (raw).
 	 */
-	private boolean			m_validated;
+	private boolean m_validated;
 
 	/**
 	 * T when this input value is a REQUIRED value.
 	 */
-	private boolean			m_mandatory;
+	private boolean m_mandatory;
 
 	/**
 	 * When T the raw value in the text input thing does not get space trimmed before
 	 * it's being returned.
 	 */
-	private boolean			m_untrimmed;
+	private boolean m_untrimmed;
 
 	public static enum NumberMode {
-		NONE,
-		DIGITS,
-		FLOAT,
+		NONE, DIGITS, FLOAT,
 	}
-	
-	private NumberMode			m_numberMode = NumberMode.NONE;
+
+	private NumberMode m_numberMode = NumberMode.NONE;
 
 	public Text(Class<T> inputClass) {
 		m_inputClass = inputClass;
 		if(Number.class.isAssignableFrom(inputClass)) {
-			if(BigDecimal.class.isAssignableFrom(inputClass) 
-			|| Float.class.isAssignableFrom(inputClass) 
-			|| Double.class.isAssignableFrom(inputClass)
-			|| Float.TYPE.isAssignableFrom(inputClass) 
-			|| Double.TYPE.isAssignableFrom(inputClass)
-			)
+			if(BigDecimal.class.isAssignableFrom(inputClass) || Float.class.isAssignableFrom(inputClass) || Double.class.isAssignableFrom(inputClass) || Float.TYPE.isAssignableFrom(inputClass)
+				|| Double.TYPE.isAssignableFrom(inputClass))
 				m_numberMode = NumberMode.FLOAT;
 			else
 				m_numberMode = NumberMode.DIGITS;
 		}
-		switch(m_numberMode) {
+		switch(m_numberMode){
 			default:
 				break;
-			case DIGITS:	setOnKeyPressJS("return WebUI.isNumberKey(event)");	break;
-			case FLOAT:		setOnKeyPressJS("return WebUI.isFloatKey(event)");	break;
+			case DIGITS:
+				setOnKeyPressJS("return WebUI.isNumberKey(event)");
+				break;
+			case FLOAT:
+				setOnKeyPressJS("return WebUI.isFloatKey(event)");
+				break;
 		}
 	}
 
@@ -107,13 +103,13 @@ public class Text<T> extends Input implements IInputNode<T> {
 	 * class to it's HTML class, and it may expose error labels on it.
 	 */
 	@Override
-	public boolean	validate() {
+	public boolean validate() {
 		if(m_validated)
 			return isValid();
 
 		//-- 1. Get the appropriate raw value && trim
-		String	raw = getRawValue();
-		if(raw != null && ! m_untrimmed)
+		String raw = getRawValue();
+		if(raw != null && !m_untrimmed)
 			raw = raw.trim();
 
 		//-- Do mandatory checking && exit if value is missing.
@@ -162,7 +158,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	 * Returns TRUE if the input for this control is currently valid. This does NOT call the validator if needed!!!!
 	 * @return
 	 */
-	private boolean	isValid() {
+	private boolean isValid() {
 		return m_validated && (getMessage() == null || getMessage().getType() != MsgType.ERROR);
 	}
 
@@ -194,13 +190,13 @@ public class Text<T> extends Input implements IInputNode<T> {
 	public void setConverterClass(Class< ? extends IConverter> converterClass) {
 		m_converterClass = converterClass;
 	}
-	
+
 	/**
 	 * Return the converted and validated value, or throw an exception. This always returns validated and valid values.
 	 * @return
 	 */
 	public T getValue() {
-		if(! validate())
+		if(!validate())
 			throw new ValidationException(Msgs.NOT_VALID, getRawValue());
 		return m_value;
 	}
@@ -222,7 +218,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 		String converted;
 		try {
 			if(m_converterClass == null) {
-				converted = (String)RuntimeConversions.convertTo(value, String.class);
+				converted = (String) RuntimeConversions.convertTo(value, String.class);
 			} else
 				converted = ConverterRegistry.convertValueToString(m_converterClass, value);
 		} catch(UIException x) {
@@ -249,6 +245,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	public boolean isMandatory() {
 		return m_mandatory;
 	}
+
 	/**
 	 * Set the control as mandatory. A mandatory control expects the value filled in to be non-whitespace.
 	 *
@@ -274,6 +271,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	public void setUntrimmed(boolean untrimmed) {
 		m_untrimmed = untrimmed;
 	}
+
 	private boolean isValidated() {
 		return m_validated;
 	}
@@ -285,6 +283,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	public NumberMode getNumberMode() {
 		return m_numberMode;
 	}
+
 	/**
 	 * Sets the current numeric mode in effect. This mode prevents letters from being input on the screen.
 	 * @param numberMode
@@ -293,18 +292,21 @@ public class Text<T> extends Input implements IInputNode<T> {
 		m_numberMode = numberMode;
 	}
 
-	public void	addValidator(PropertyMetaValidator v) {
+	public void addValidator(PropertyMetaValidator v) {
 		if(m_validators == Collections.EMPTY_LIST)
 			m_validators = new ArrayList<PropertyMetaValidator>(5);
 		m_validators.add(v);
 	}
+
 	public void setValidators(List<PropertyMetaValidator> validators) {
 		m_validators = validators;
 	}
-	public void	addValidator(Class<? extends IValueValidator<T>> clz) {
-		addValidator(new MetaPropertyValidatorImpl(clz) );
+
+	public void addValidator(Class< ? extends IValueValidator<T>> clz) {
+		addValidator(new MetaPropertyValidatorImpl(clz));
 	}
-	public void	addValidator(Class<? extends IValueValidator<T>> clz, String[] parameters) {
-		addValidator(new MetaPropertyValidatorImpl(clz, parameters) );
+
+	public void addValidator(Class< ? extends IValueValidator<T>> clz, String[] parameters) {
+		addValidator(new MetaPropertyValidatorImpl(clz, parameters));
 	}
 }

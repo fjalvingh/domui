@@ -3,7 +3,7 @@ package to.etc.domui.component.tbl;
 import java.util.*;
 
 abstract public class TableListModelBase<T> extends TableModelBase<T> {
-	abstract protected List<T>	getList() throws Exception;
+	abstract protected List<T> getList() throws Exception;
 
 	public List<T> getItems(int start, int end) throws Exception {
 		int size = getRows();
@@ -17,7 +17,7 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> {
 	}
 
 	@Override
-	public T	getItem(int index) throws Exception {
+	public T getItem(int index) throws Exception {
 		return getList().get(index);
 	}
 
@@ -33,15 +33,16 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> {
 	 * Add the item at the specified index. The item currently at that position
 	 * and all items above it move up a notch.
 	 */
-	public void		add(int index, T row) throws Exception {
+	public void add(int index, T row) throws Exception {
 		getList().add(index, row);
 		fireAdded(index);
 	}
+
 	/**
 	 * Add the item at the end of the list.
 	 */
-	public void		add(T row) throws Exception {
-		int index = getList().size(); 
+	public void add(T row) throws Exception {
+		int index = getList().size();
 		getList().add(row);
 		fireAdded(index);
 	}
@@ -50,19 +51,21 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> {
 	 * Delete the object at the specified index.
 	 * @param index
 	 */
-	public T		delete(int index) throws Exception {
+	public T delete(int index) throws Exception {
 		T old = getList().remove(index);
 		fireDeleted(index, old);
 		return old;
 	}
-	public boolean	delete(T val) throws Exception {
+
+	public boolean delete(T val) throws Exception {
 		int ix = getList().indexOf(val);
 		if(ix == -1)
 			return false;
 		delete(ix);
 		return true;
 	}
-	public void		modified(int index) throws Exception {
+
+	public void modified(int index) throws Exception {
 		fireModified(index);
 	}
 
@@ -73,17 +76,17 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> {
 	 * @param from
 	 * @throws Exception
 	 */
-	public void	move(int to, int from) throws Exception {
+	public void move(int to, int from) throws Exception {
 		//-- Sanity checks
 		if(to == from)
-			throw new IllegalStateException("'from' and 'to' are the same: "+to);
+			throw new IllegalStateException("'from' and 'to' are the same: " + to);
 		if(from < 0 || from >= getRows())
-			throw new IllegalStateException("Invalid 'from' index (out of bounds): "+from);
-		if(to < 0  || to >= getRows())
-			throw new IllegalStateException("Invalid 'to' index (out of bounds): "+to);
+			throw new IllegalStateException("Invalid 'from' index (out of bounds): " + from);
+		if(to < 0 || to >= getRows())
+			throw new IllegalStateException("Invalid 'to' index (out of bounds): " + to);
 		T obj = delete(from);
-//		if(to > from)
-//			to--;
+		//		if(to > from)
+		//			to--;
 		add(to, obj);
 	}
 }

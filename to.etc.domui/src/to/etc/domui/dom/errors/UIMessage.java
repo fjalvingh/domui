@@ -14,17 +14,17 @@ import to.etc.webapp.nls.*;
  */
 public class UIMessage {
 	/** The error message code for the error that has occured. This exists always and is a lookup into the error NLS messages. */
-	private String			m_code;
+	private String m_code;
 
-	private MsgType			m_type;
+	private MsgType m_type;
 
 	/** For errors that have parameters - these are the parameters. This is null if no parameters are present. */
-	private Object[]		m_parameters;
+	private Object[] m_parameters;
 
 	/**
 	 * The Node that this error pertains to. It is usually a Component-type node.
 	 */
-	private NodeBase		m_errorNode;
+	private NodeBase m_errorNode;
 
 	public UIMessage(NodeBase errorNode, MsgType type, String code, Object[] parameters) {
 		m_errorNode = errorNode;
@@ -32,24 +32,28 @@ public class UIMessage {
 		m_parameters = parameters;
 		m_type = type;
 	}
+
 	public String getCode() {
 		return m_code;
 	}
+
 	public Object[] getParameters() {
 		return m_parameters;
 	}
+
 	public NodeBase getErrorNode() {
 		return m_errorNode;
 	}
+
 	public MsgType getType() {
 		return m_type;
 	}
-	
+
 	/**
 	 * FIXME Must return localized and replaced message.
 	 * @return
 	 */
-	public String	getMessage() {
+	public String getMessage() {
 		return NlsContext.getGlobalMessage(m_code, m_parameters);
 	}
 }

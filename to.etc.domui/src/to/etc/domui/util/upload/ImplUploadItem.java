@@ -9,13 +9,13 @@ public class ImplUploadItem implements UploadItem {
 
 	private String m_charset;
 
-	private String	m_value;
+	private String m_value;
 
 	private String m_fileName;
 
 	private File m_backingFile;
 
-	private boolean	m_file;
+	private boolean m_file;
 
 	public ImplUploadItem(String fieldname, String contenttype, String charset, String filename, boolean isfile) {
 		m_fieldName = fieldname;
@@ -28,6 +28,7 @@ public class ImplUploadItem implements UploadItem {
 	public boolean isFile() {
 		return m_file;
 	}
+
 	/**
 	 * Called when the item is resident in a file. When called the code
 	 * takes ownership of the file, and deletes the file as soon as this
@@ -39,26 +40,26 @@ public class ImplUploadItem implements UploadItem {
 		m_backingFile = f;
 	}
 
-//	@Override
-//	protected void finalize() throws Throwable {
-//		try {
-//			if(m_backingFile != null) {
-//				m_backingFile.delete();
-//				m_backingFile = null;
-//			}
-//		}
-//		catch(Exception x) {}
-//		super.finalize();
-//	}
+	//	@Override
+	//	protected void finalize() throws Throwable {
+	//		try {
+	//			if(m_backingFile != null) {
+	//				m_backingFile.delete();
+	//				m_backingFile = null;
+	//			}
+	//		}
+	//		catch(Exception x) {}
+	//		super.finalize();
+	//	}
 
 	public String getCharSet() {
 		return m_charset;
 	}
 
-//	private String getInternalCharset() {
-//		return getCharSet() == null ? "ISO-8859-1" : getCharSet();
-//	}
-//
+	//	private String getInternalCharset() {
+	//		return getCharSet() == null ? "ISO-8859-1" : getCharSet();
+	//	}
+	//
 	public String getValue() {
 		return m_value;
 	}
@@ -66,6 +67,7 @@ public class ImplUploadItem implements UploadItem {
 	void setValue(String sa) {
 		m_value = sa;
 	}
+
 	void setValue(File f) {
 		m_backingFile = f;
 	}
@@ -106,10 +108,9 @@ public class ImplUploadItem implements UploadItem {
 		if(m_backingFile == null)
 			return;
 		try {
-			System.out.println("Releasing unclaimed FILE upload: "+getName()+", "+getSize()+" @"+getFile());
+			System.out.println("Releasing unclaimed FILE upload: " + getName() + ", " + getSize() + " @" + getFile());
 			m_backingFile.delete();
 			m_backingFile = null;
-		}
-		catch(Exception x) {}
+		} catch(Exception x) {}
 	}
 }

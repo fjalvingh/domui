@@ -11,15 +11,15 @@ import java.util.*;
  * Created on Jun 1, 2008
  */
 public interface ITableModel<T> {
-	public List<T>	getItems(int start, int end) throws Exception;
+	public List<T> getItems(int start, int end) throws Exception;
 
 	/**
 	 * This must return the total #of rows in this table.
 	 * @return
 	 */
-	public int		getRows() throws Exception;
+	public int getRows() throws Exception;
 
-	public void		addChangeListener(ITableModelListener<T> l);
-	
-	public void		removeChangeListener(ITableModelListener<T> l);
+	public void addChangeListener(ITableModelListener<T> l);
+
+	public void removeChangeListener(ITableModelListener<T> l);
 }

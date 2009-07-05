@@ -18,29 +18,41 @@ import to.etc.domui.util.*;
  * Created on Nov 5, 2008
  */
 public class ListShuttle extends Div implements ITableModelListener<Object> {
-	private TBody			m_body;
+	private TBody m_body;
 
-	private boolean			m_orderable;
-	private TD				m_sourceCell;
-	private TD				m_targetCell;
-	private TD				m_orderCell;
-	private TBody			m_sourceBody;
-	private TBody			m_targetBody;
-	private Div				m_sourceDiv, m_targetDiv;
+	private boolean m_orderable;
 
-	private IShuttleModel<Object,Object>	m_model;
+	private TD m_sourceCell;
 
-	private ITableModel<Object>				m_sourceModel;
-	private ITableModel<Object>				m_targetModel;
-//	private ITableModelListener<Object>		m_targetChangeListener;
+	private TD m_targetCell;
 
-	private Class<? extends INodeContentRenderer<?>>	m_sourceRendererClass;
-	private Class<? extends INodeContentRenderer<?>>	m_targetRendererClass;
-	private INodeContentRenderer<Object>	m_sourceRenderer;
-	private INodeContentRenderer<Object>	m_targetRenderer;
-	private final int								m_innerHeight = 400;
+	private TD m_orderCell;
 
-	static private IClicked<TD>		C_CLICK = new IClicked<TD>() {
+	private TBody m_sourceBody;
+
+	private TBody m_targetBody;
+
+	private Div m_sourceDiv, m_targetDiv;
+
+	private IShuttleModel<Object, Object> m_model;
+
+	private ITableModel<Object> m_sourceModel;
+
+	private ITableModel<Object> m_targetModel;
+
+	//	private ITableModelListener<Object>		m_targetChangeListener;
+
+	private Class< ? extends INodeContentRenderer< ? >> m_sourceRendererClass;
+
+	private Class< ? extends INodeContentRenderer< ? >> m_targetRendererClass;
+
+	private INodeContentRenderer<Object> m_sourceRenderer;
+
+	private INodeContentRenderer<Object> m_targetRenderer;
+
+	private final int m_innerHeight = 400;
+
+	static private IClicked<TD> C_CLICK = new IClicked<TD>() {
 		public void clicked(final TD b) throws Exception {
 			if(b.hasCssClass("selected"))
 				b.removeCssClass("selected");
@@ -52,14 +64,14 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("ui-sh");
-		Table	t	= new Table();						// Main 3 or 4 column layout.
+		Table t = new Table(); // Main 3 or 4 column layout.
 		add(t);
-		m_body= new TBody();
+		m_body = new TBody();
 		t.add(m_body);
-		m_body.addRow();								// Zhe one row
-		m_sourceCell	= m_body.addCell();
-		TD	midcell		= m_body.addCell();				// Cell for the buttons in zhe middle
-		m_targetCell	= m_body.addCell();
+		m_body.addRow(); // Zhe one row
+		m_sourceCell = m_body.addCell();
+		TD midcell = m_body.addCell(); // Cell for the buttons in zhe middle
+		m_targetCell = m_body.addCell();
 
 		m_sourceCell.setCssClass("ui-sh-sc");
 		m_targetCell.setCssClass("ui-sh-tc");
@@ -68,8 +80,8 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		m_targetCell.add(m_targetDiv = new Div());
 		m_sourceDiv.setCssClass("ui-sh-scd");
 		m_targetDiv.setCssClass("ui-sh-tcd");
-		m_sourceDiv.setHeight(m_innerHeight+"px");
-		m_targetDiv.setHeight(m_innerHeight+"px");
+		m_sourceDiv.setHeight(m_innerHeight + "px");
+		m_targetDiv.setHeight(m_innerHeight + "px");
 		m_sourceDiv.setOverflow(Overflow.AUTO);
 		m_targetDiv.setOverflow(Overflow.AUTO);
 		m_sourceCell.setValign(TableVAlign.TOP);
@@ -88,23 +100,23 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	/**
 	 * Create the last panel containing the UP and DOWN order buttons.
 	 */
-	private void	createOrderPane() {
-		m_orderCell = m_body.addCell();				// Order buttons cell
+	private void createOrderPane() {
+		m_orderCell = m_body.addCell(); // Order buttons cell
 
 		m_orderCell.setCssClass("ui-sh-oc");
-		Table	t	= new Table();
+		Table t = new Table();
 		m_orderCell.add(t);
-		TBody	b	= new TBody();
+		TBody b = new TBody();
 		t.add(b);
 
-		SmallImgButton	ib	= new SmallImgButton("THEME/sh-up.png", new IClicked<SmallImgButton>() {
+		SmallImgButton ib = new SmallImgButton("THEME/sh-up.png", new IClicked<SmallImgButton>() {
 			public void clicked(final SmallImgButton xb) throws Exception {
 				moveUp();
 			}
 		});
 		b.addRowAndCell().add(ib);
 
-		ib	= new SmallImgButton("THEME/sh-down.png", new IClicked<SmallImgButton>() {
+		ib = new SmallImgButton("THEME/sh-down.png", new IClicked<SmallImgButton>() {
 			public void clicked(final SmallImgButton xb) throws Exception {
 				moveDown();
 			}
@@ -116,38 +128,38 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	 * Create the middle pane containing the move buttons.
 	 * @param mid
 	 */
-	private void	createMiddle(final TD mid) {
+	private void createMiddle(final TD mid) {
 		mid.setCssClass("ui-sh-bc");
-		Table	t	= new Table();
+		Table t = new Table();
 		mid.add(t);
-		TBody	b	= new TBody();
+		TBody b = new TBody();
 		t.add(b);
 
-		SmallImgButton	ib	= new SmallImgButton("THEME/sh-1ar-right.png", new IClicked<SmallImgButton>() {
+		SmallImgButton ib = new SmallImgButton("THEME/sh-1ar-right.png", new IClicked<SmallImgButton>() {
 			public void clicked(final SmallImgButton xb) throws Exception {
 				moveRight();
 			}
 		});
 		b.addRowAndCell().add(ib);
 
-		ib	= new SmallImgButton("THEME/sh-1ar-left.png", new IClicked<SmallImgButton>() {
+		ib = new SmallImgButton("THEME/sh-1ar-left.png", new IClicked<SmallImgButton>() {
 			public void clicked(final SmallImgButton xb) throws Exception {
 				moveLeft();
 			}
 		});
 		b.addRowAndCell().add(ib);
 
-		ib	= new SmallImgButton("THEME/sh-2ar-right.png");
+		ib = new SmallImgButton("THEME/sh-2ar-right.png");
 		b.addRowAndCell().add(ib);
 
-		ib	= new SmallImgButton("THEME/sh-2ar-left.png");
+		ib = new SmallImgButton("THEME/sh-2ar-left.png");
 		b.addRowAndCell().add(ib);
 	}
 
 	/**
 	 * Render the contents of the source part of the shuttle.
 	 */
-	private void	renderSource() throws Exception {
+	private void renderSource() throws Exception {
 		if(m_sourceBody == null) {
 			Table t = new Table();
 			m_sourceDiv.add(t);
@@ -156,16 +168,16 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 			m_sourceBody.removeAllChildren();
 		if(m_sourceModel == null)
 			return;
-		int	count = m_sourceModel.getRows();
+		int count = m_sourceModel.getRows();
 		if(count == 0)
 			return;
 
-		List<Object>	list = m_sourceModel.getItems(0, count);
+		List<Object> list = m_sourceModel.getItems(0, count);
 
-		INodeContentRenderer<Object>	r = null;
+		INodeContentRenderer<Object> r = null;
 		for(int i = 0; i < count; i++) {
 			TD td = m_sourceBody.addRowAndCell();
-			Object	value = list.get(i);
+			Object value = list.get(i);
 			if(r == null)
 				r = calculateSourceRenderer(value);
 			r.renderNodeContent(this, td, value, null);
@@ -177,7 +189,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	/**
 	 * Render the contents of the target part of the shuttle.
 	 */
-	private void	renderTarget() throws Exception {
+	private void renderTarget() throws Exception {
 		if(m_targetBody == null) {
 			Table t = new Table();
 			m_targetDiv.add(t);
@@ -186,15 +198,15 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 			m_targetBody.removeAllChildren();
 		if(m_targetModel == null)
 			return;
-		int	count = m_targetModel.getRows();
+		int count = m_targetModel.getRows();
 		if(count == 0)
 			return;
 
-		List<Object>	list = m_targetModel.getItems(0, count);
-		INodeContentRenderer<Object>	r = null;
+		List<Object> list = m_targetModel.getItems(0, count);
+		INodeContentRenderer<Object> r = null;
 		for(int i = 0; i < count; i++) {
 			TD td = m_targetBody.addRowAndCell();
-			Object	value = list.get(i);
+			Object value = list.get(i);
 			if(r == null)
 				r = calculateTargetRenderer(value);
 			r.renderNodeContent(this, td, value, null);
@@ -202,32 +214,32 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		}
 	}
 
-	private boolean	needOrderButtons() {
-		return isOrderable() && getModel() instanceof IMovableShuttleModel<?,?>;
+	private boolean needOrderButtons() {
+		return isOrderable() && getModel() instanceof IMovableShuttleModel< ? , ? >;
 	}
 
 	private INodeContentRenderer<Object> calculateSourceRenderer(final Object val) {
 		if(m_sourceRenderer != null)
 			return m_sourceRenderer;
 		if(m_sourceRendererClass != null)
-			return (INodeContentRenderer<Object>)DomApplication.get().createInstance(m_sourceRendererClass);
+			return (INodeContentRenderer<Object>) DomApplication.get().createInstance(m_sourceRendererClass);
 
 		if(val == null)
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
-		ClassMetaModel	cmm = MetaManager.findClassMeta(val.getClass());
-		return (INodeContentRenderer<Object>)MetaManager.createDefaultComboRenderer(null /* m_propertyMetaModel */, cmm);
+		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
+		return (INodeContentRenderer<Object>) MetaManager.createDefaultComboRenderer(null /* m_propertyMetaModel */, cmm);
 	}
 
 	private INodeContentRenderer<Object> calculateTargetRenderer(final Object val) {
 		if(m_targetRenderer != null)
 			return m_targetRenderer;
 		if(m_targetRendererClass != null)
-			return (INodeContentRenderer<Object>)DomApplication.get().createInstance(m_targetRendererClass);
+			return (INodeContentRenderer<Object>) DomApplication.get().createInstance(m_targetRendererClass);
 
 		if(val == null)
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
-		ClassMetaModel	cmm = MetaManager.findClassMeta(val.getClass());
-		return (INodeContentRenderer<Object>)MetaManager.createDefaultComboRenderer(null /* m_propertyMetaModel */, cmm);
+		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
+		return (INodeContentRenderer<Object>) MetaManager.createDefaultComboRenderer(null /* m_propertyMetaModel */, cmm);
 	}
 
 	/**
@@ -235,15 +247,15 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	 * the items found to the TARGET model.
 	 * @throws Exception
 	 */
-	void	moveRight() throws Exception {
+	void moveRight() throws Exception {
 		for(int ix = m_sourceBody.getChildCount(); --ix >= 0;) {
 			NodeBase tb = m_sourceBody.getChild(ix);
-			if(! (tb instanceof TR))
-				throw new IllegalStateException("?? Unexpected node: "+tb);
-			TR	tr	= (TR) tb;
-			TD	td	= (TD) tr.getChild(0);				// The row containing the rendition for the value
+			if(!(tb instanceof TR))
+				throw new IllegalStateException("?? Unexpected node: " + tb);
+			TR tr = (TR) tb;
+			TD td = (TD) tr.getChild(0); // The row containing the rendition for the value
 			if(td.hasCssClass("selected")) {
-				m_model.moveSourceToTarget(ix, 9999);	// Since this changes both models
+				m_model.moveSourceToTarget(ix, 9999); // Since this changes both models
 			}
 		}
 	}
@@ -253,15 +265,15 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	 * the items found to the TARGET model.
 	 * @throws Exception
 	 */
-	void	moveLeft() throws Exception {
+	void moveLeft() throws Exception {
 		for(int ix = m_targetBody.getChildCount(); --ix >= 0;) {
 			NodeBase tb = m_targetBody.getChild(ix);
-			if(! (tb instanceof TR))
-				throw new IllegalStateException("?? Unexpected node: "+tb);
-			TR	tr	= (TR) tb;
-			TD	td	= (TD) tr.getChild(0);				// The row containing the rendition for the value
+			if(!(tb instanceof TR))
+				throw new IllegalStateException("?? Unexpected node: " + tb);
+			TR tr = (TR) tb;
+			TD td = (TD) tr.getChild(0); // The row containing the rendition for the value
 			if(td.hasCssClass("selected")) {
-				m_model.moveTargetToSource(ix);			// Since this changes both models
+				m_model.moveTargetToSource(ix); // Since this changes both models
 			}
 		}
 	}
@@ -273,16 +285,16 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	void moveUp() throws Exception {
 		for(int ix = 0; ix < m_targetBody.getChildCount(); ix++) {
 			NodeBase tb = m_targetBody.getChild(ix);
-			if(! (tb instanceof TR))
-				throw new IllegalStateException("?? Unexpected node: "+tb);
-			TR	tr	= (TR) tb;
-			TD	td	= (TD) tr.getChild(0);				// The row containing the rendition for the value
+			if(!(tb instanceof TR))
+				throw new IllegalStateException("?? Unexpected node: " + tb);
+			TR tr = (TR) tb;
+			TD td = (TD) tr.getChild(0); // The row containing the rendition for the value
 			if(td.hasCssClass("selected")) {
 				//-- This must move up.. If we're at index 0 we cannot move up!
 				if(ix == 0)
 					return;
-				((IMovableShuttleModel<Object, Object>)m_model).moveTargetItem(ix, ix-1);
-				reselect(ix-1);
+				((IMovableShuttleModel<Object, Object>) m_model).moveTargetItem(ix, ix - 1);
+				reselect(ix - 1);
 			}
 		}
 	}
@@ -294,26 +306,27 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	void moveDown() throws Exception {
 		for(int ix = m_targetBody.getChildCount(); --ix >= 0;) {
 			NodeBase tb = m_targetBody.getChild(ix);
-			if(! (tb instanceof TR))
-				throw new IllegalStateException("?? Unexpected node: "+tb);
-			TR	tr	= (TR) tb;
-			TD	td	= (TD) tr.getChild(0);					// The row containing the rendition for the value
+			if(!(tb instanceof TR))
+				throw new IllegalStateException("?? Unexpected node: " + tb);
+			TR tr = (TR) tb;
+			TD td = (TD) tr.getChild(0); // The row containing the rendition for the value
 			if(td.hasCssClass("selected")) {
-				if(ix >= m_targetBody.getChildCount()-1)	// At the end already?
-					return;									// Cannot move down!
-				((IMovableShuttleModel<Object, Object>)m_model).moveTargetItem(ix, ix+1);
-				reselect(ix+1);
+				if(ix >= m_targetBody.getChildCount() - 1) // At the end already?
+					return; // Cannot move down!
+				((IMovableShuttleModel<Object, Object>) m_model).moveTargetItem(ix, ix + 1);
+				reselect(ix + 1);
 			}
 		}
 	}
-	private void	reselect(final int ix) {
-//		if(ix < 0 || ix >= m_targetBody.getChildCount())
-//			return;
-		NodeBase	tb	= m_targetBody.getChild(ix);
-		if(! (tb instanceof TR))
-			throw new IllegalStateException("?? Unexpected node: "+tb);
-		TR	tr	= (TR) tb;
-		TD	td	= (TD) tr.getChild(0);				// The row containing the rendition for the value
+
+	private void reselect(final int ix) {
+		//		if(ix < 0 || ix >= m_targetBody.getChildCount())
+		//			return;
+		NodeBase tb = m_targetBody.getChild(ix);
+		if(!(tb instanceof TR))
+			throw new IllegalStateException("?? Unexpected node: " + tb);
+		TR tr = (TR) tb;
+		TD td = (TD) tr.getChild(0); // The row containing the rendition for the value
 		td.setCssClass("selected");
 	}
 
@@ -324,7 +337,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	 * Get the model for this thingy.
 	 * @return
 	 */
-	public IShuttleModel<?, ?> getModel() {
+	public IShuttleModel< ? , ? > getModel() {
 		return m_model;
 	}
 
@@ -334,24 +347,24 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	 *
 	 * @param model
 	 */
-	public void setModel(final IShuttleModel<?, ?> model) {
+	public void setModel(final IShuttleModel< ? , ? > model) {
 		if(m_model == model)
 			return;
-		m_model = (IShuttleModel<Object, Object>)model;
+		m_model = (IShuttleModel<Object, Object>) model;
 
 		//-- Replace source model.
-		ITableModel<Object>	tm = m_model.getSourceModel();
-		if(m_sourceModel != tm) {							// Source model has changed?
+		ITableModel<Object> tm = m_model.getSourceModel();
+		if(m_sourceModel != tm) { // Source model has changed?
 			if(m_sourceModel != null)
-				m_sourceModel.removeChangeListener(this);	// Remove myself from that model's listener chain
+				m_sourceModel.removeChangeListener(this); // Remove myself from that model's listener chain
 			m_sourceModel = tm;
 			if(m_sourceModel != null)
-				m_sourceModel.addChangeListener(this);		// Add myself to the new model
+				m_sourceModel.addChangeListener(this); // Add myself to the new model
 			forceRebuild();
 		}
 
 		//-- Replace target model
-		tm	= m_model.getTargetModel();
+		tm = m_model.getTargetModel();
 		if(m_targetModel != tm) {
 			if(m_targetModel != null)
 				m_targetModel.removeChangeListener(this);
@@ -379,33 +392,33 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	 */
 	public void rowAdded(final ITableModel<Object> model, final int index, final Object value) throws Exception {
 		boolean issrc = model == m_sourceModel;
-		TBody	b = issrc ? m_sourceBody : m_targetBody;
+		TBody b = issrc ? m_sourceBody : m_targetBody;
 
 		//-- Create a new node to insert here,
-		TR	tr	= new TR();
-		TD	td	= new TD();
+		TR tr = new TR();
+		TD td = new TD();
 		tr.add(td);
 		td.setClicked(C_CLICK);
-		INodeContentRenderer<Object>	r	= issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
+		INodeContentRenderer<Object> r = issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
 		r.renderNodeContent(this, td, value, null);
 		b.add(index, tr);
 	}
 
 	public void rowDeleted(final ITableModel<Object> model, final int index, final Object value) throws Exception {
 		boolean issrc = model == m_sourceModel;
-		TBody	b = issrc ? m_sourceBody : m_targetBody;
-		b.removeChild(index);							// Discard this one;
+		TBody b = issrc ? m_sourceBody : m_targetBody;
+		b.removeChild(index); // Discard this one;
 	}
 
 	public void rowModified(final ITableModel<Object> model, final int index, final Object value) throws Exception {
 		boolean issrc = model == m_sourceModel;
-		TBody	b = issrc ? m_sourceBody : m_targetBody;
+		TBody b = issrc ? m_sourceBody : m_targetBody;
 
 		//-- Locate the TD containing the changed thingy.
-		TR	tr	= (TR) b.getChild(index);
-		TD	td	= (TD)tr.getChild(0);
-		td.removeAllChildren();							// Clear it's contents,
-		INodeContentRenderer<Object>	r	= issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
+		TR tr = (TR) b.getChild(index);
+		TD td = (TD) tr.getChild(0);
+		td.removeAllChildren(); // Clear it's contents,
+		INodeContentRenderer<Object> r = issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
 		r.renderNodeContent(this, td, value, null);
 	}
 
@@ -428,6 +441,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	public void setTargetRenderer(final INodeContentRenderer<Object> targetRenderer) {
 		m_targetRenderer = targetRenderer;
 	}
+
 	/**
 	 * Is this set to be orderable?
 	 * @return

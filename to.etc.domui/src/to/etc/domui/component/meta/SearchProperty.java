@@ -11,8 +11,11 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface SearchProperty {
-	public int			order() default -1;
-	public String		name() default "$*$";
-	public int			minLength() default -1;
-	public boolean		ignoreCase() default true;
+	public int order() default -1;
+
+	public String name() default "$*$";
+
+	public int minLength() default -1;
+
+	public boolean ignoreCase() default true;
 }

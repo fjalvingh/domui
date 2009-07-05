@@ -51,7 +51,7 @@ public class JSONRenderer extends ObjectRenderer {
 	}
 
 	@Override
-	protected void renderObjectBeforeItem(final int count, final Object o, final String name, final Class<?> declaredType) throws Exception {
+	protected void renderObjectBeforeItem(final int count, final Object o, final String name, final Class< ? > declaredType) throws Exception {
 		if(count != 0) {
 			getWriter().println(",");
 		}
@@ -70,7 +70,7 @@ public class JSONRenderer extends ObjectRenderer {
 	}
 
 	@Override
-	protected void renderArrayElement(final Object o, final Class<?> declaredType, final int ix) throws Exception {
+	protected void renderArrayElement(final Object o, final Class< ? > declaredType, final int ix) throws Exception {
 		if(ix > 0) {
 			getWriter().print(",");
 		}
@@ -81,13 +81,13 @@ public class JSONRenderer extends ObjectRenderer {
 	}
 
 	@Override
-	public void renderMapStart(final Map<?,?> l) throws Exception {
+	public void renderMapStart(final Map< ? , ? > l) throws Exception {
 		getWriter().print("{\n");
 		getWriter().inc();
 	}
 
 	@Override
-	public void renderMapEnd(final Map<?,?> l) throws Exception {
+	public void renderMapEnd(final Map< ? , ? > l) throws Exception {
 		getWriter().dec();
 		getWriter().print("}");
 	}
@@ -120,7 +120,7 @@ public class JSONRenderer extends ObjectRenderer {
 	 * @see to.etc.webapp.ajax.renderer.ObjectRenderer#renderObjectMember(java.lang.Object, java.lang.String, java.lang.Class)
 	 */
 	@Override
-	protected void renderObjectMember(final Object o, String name, final Class<?> declaredType) throws Exception {
+	protected void renderObjectMember(final Object o, String name, final Class< ? > declaredType) throws Exception {
 		IndentWriter w = getWriter();
 		if(isReservedWord(name))
 			name = "_" + name;

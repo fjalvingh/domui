@@ -15,53 +15,53 @@ import to.etc.domui.trouble.*;
  * Created on Jun 22, 2008
  */
 public class PageParameters {
-	private Map<String, String>	m_parameterMap = new HashMap<String, String>();
+	private Map<String, String> m_parameterMap = new HashMap<String, String>();
 
-	public PageParameters() {
-	}
+	public PageParameters() {}
+
 	public PageParameters(Object... list) {
 		if((list.length & 0x1) != 0)
 			throw new IllegalStateException("Incorrect parameter count: must be an even number of objects, each [string], [object]");
 		for(int i = 0; i < list.length; i += 2) {
 			Object a = list[i];
-			if(! (a instanceof String))
-				throw new IllegalStateException("Expecting a 'String' as parameter "+i+", but got a '"+a+"'");
-			Object	b = list[i+1];
-			addParameter((String)a, b);
+			if(!(a instanceof String))
+				throw new IllegalStateException("Expecting a 'String' as parameter " + i + ", but got a '" + a + "'");
+			Object b = list[i + 1];
+			addParameter((String) a, b);
 		}
 	}
 
-	public void		addParameter(String name, Object value) {
+	public void addParameter(String name, Object value) {
 		//-- Convert the value to a string;
 		String s;
 		if(value == null)
 			s = "null";
 		else if(value instanceof String)
-			s = (String)value;
+			s = (String) value;
 		else if(value instanceof Number) {
 			s = value.toString();
 		} else if(value instanceof Boolean)
 			s = value.toString();
 		else
-			throw new IllegalStateException("Cannot convert a "+value.getClass()+" to an URL parameter yet - parameter converters not implemented yet");
+			throw new IllegalStateException("Cannot convert a " + value.getClass() + " to an URL parameter yet - parameter converters not implemented yet");
 		m_parameterMap.put(name, s);
 	}
 
-	public boolean		hasParameter(String name) {
+	public boolean hasParameter(String name) {
 		return m_parameterMap.containsKey(name);
 	}
 
-	public int		getInt(String name) {
+	public int getInt(String name) {
 		String v = m_parameterMap.get(name);
 		if(v != null) {
 			try {
 				return Integer.parseInt(v);
-			} catch(Exception x) {
-			}
+			} catch(Exception x) {}
 		}
 		throw new MissingParameterException(name);
 	}
-	public int		getInt(String name, int df) {
+
+	public int getInt(String name, int df) {
 		String v = m_parameterMap.get(name);
 		if(v != null) {
 			v = v.trim();
@@ -75,16 +75,17 @@ public class PageParameters {
 		}
 		return df;
 	}
-	public long		getLong(String name) {
+
+	public long getLong(String name) {
 		String v = m_parameterMap.get(name);
 		if(v != null) {
 			try {
 				return Long.parseLong(v);
-			} catch(Exception x) {
-			}
+			} catch(Exception x) {}
 		}
 		throw new MissingParameterException(name);
 	}
+
 	public long getLong(String name, long df) {
 		String v = m_parameterMap.get(name);
 		if(v != null) {
@@ -99,19 +100,21 @@ public class PageParameters {
 		}
 		return df;
 	}
-	public Long		getLongW(String name) {
+
+	public Long getLongW(String name) {
 		String v = m_parameterMap.get(name);
 		if(v != null) {
 			try {
 				return Long.decode(v);
-			} catch(Exception x) {
-			}
+			} catch(Exception x) {}
 		}
 		throw new MissingParameterException(name);
 	}
+
 	public Long getLongW(String name, long df) {
 		return getLongW(name, Long.valueOf(df));
 	}
+
 	public Long getLongW(String name, Long df) {
 		String v = m_parameterMap.get(name);
 		if(v != null) {
@@ -127,13 +130,14 @@ public class PageParameters {
 		return df;
 	}
 
-	public String	getString(String name) {
+	public String getString(String name) {
 		String v = m_parameterMap.get(name);
 		if(v != null)
 			return v;
 		throw new MissingParameterException(name);
 	}
-	public String	getString(String name, String df) {
+
+	public String getString(String name, String df) {
 		String v = m_parameterMap.get(name);
 		return v == null ? df : v;
 	}
@@ -144,11 +148,11 @@ public class PageParameters {
 	 * @return
 	 */
 	static public PageParameters createFrom(RequestContext ctx) {
-		PageParameters	pp = new PageParameters();
-		for(String name: ctx.getParameterNames()) {
+		PageParameters pp = new PageParameters();
+		for(String name : ctx.getParameterNames()) {
 			if(name.length() > 0) {
 				char c = name.charAt(0);
-				if(c != '_' && c != '$' && ! name.startsWith("webui"))
+				if(c != '_' && c != '$' && !name.startsWith("webui"))
 					pp.addParameter(name, ctx.getParameter(name));
 			}
 		}
@@ -157,10 +161,10 @@ public class PageParameters {
 
 	@Override
 	public String toString() {
-		return "Parameters: "+m_parameterMap.toString();
+		return "Parameters: " + m_parameterMap.toString();
 	}
 
-	public String[]		getParameterNames() {
+	public String[] getParameterNames() {
 		return m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
 	}
 
@@ -177,23 +181,23 @@ public class PageParameters {
 	@Override
 	public boolean equals(Object obj) {
 		if(obj instanceof PageParameters) {
-			PageParameters	a = (PageParameters) obj;
-			if(a.m_parameterMap.size() != m_parameterMap.size())		// Maps differ -> done
+			PageParameters a = (PageParameters) obj;
+			if(a.m_parameterMap.size() != m_parameterMap.size()) // Maps differ -> done
 				return false;
 
-			for(String key: m_parameterMap.keySet()) {
-				String	val = m_parameterMap.get(key);
-				String	aval= a.m_parameterMap.get(key);
-				if(aval == null)									// Key not found -> not equal.
+			for(String key : m_parameterMap.keySet()) {
+				String val = m_parameterMap.get(key);
+				String aval = a.m_parameterMap.get(key);
+				if(aval == null) // Key not found -> not equal.
 					return false;
-				if(! val.equals(aval))
+				if(!val.equals(aval))
 					return false;
 			}
 			return true;
 		}
 		return false;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		throw new IllegalStateException("missing");

@@ -10,10 +10,15 @@ import to.etc.iocular.*;
  * Created on May 25, 2009
  */
 public interface ISelfDef {
-	String			getIdent();
-	BindingScope	getScope();
-	Class< ? >[]	getDefinedTypes();
-	String[]		getNames();
-	String 			getDefinitionLocation();
-	Class<?>		getActualClass();
+	String getIdent();
+
+	BindingScope getScope();
+
+	Class< ? >[] getDefinedTypes();
+
+	String[] getNames();
+
+	String getDefinitionLocation();
+
+	Class< ? > getActualClass();
 }

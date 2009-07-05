@@ -1,7 +1,6 @@
 package to.etc.domui.server;
 
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
+import javax.servlet.http.*;
 
 import to.etc.domui.server.reloader.*;
 import to.etc.domui.state.*;
@@ -14,8 +13,9 @@ import to.etc.domui.state.*;
  * Created on May 22, 2008
  */
 final public class HttpSessionLink implements ReloadedClassesListener, HttpSessionBindingListener {
-	private AppSession				m_appSession;
-	private ReloadingContextMaker	m_reloader;
+	private AppSession m_appSession;
+
+	private ReloadingContextMaker m_reloader;
 
 	public HttpSessionLink(ReloadingContextMaker reloader) {
 		m_reloader = reloader;
@@ -27,7 +27,7 @@ final public class HttpSessionLink implements ReloadedClassesListener, HttpSessi
 	 * @see to.etc.domui.server.reloader.ReloadedClassesListener#classesReloaded()
 	 */
 	public void classesReloaded() {
-		AppSession	old;
+		AppSession old;
 		synchronized(this) {
 			old = m_appSession;
 			m_appSession = null;
@@ -37,8 +37,7 @@ final public class HttpSessionLink implements ReloadedClassesListener, HttpSessi
 		}
 	}
 
-	public void valueBound(HttpSessionBindingEvent arg0) {
-	}
+	public void valueBound(HttpSessionBindingEvent arg0) {}
 
 	/**
 	 * Session expired- discard session properly.
@@ -46,11 +45,11 @@ final public class HttpSessionLink implements ReloadedClassesListener, HttpSessi
 	 */
 	public void valueUnbound(HttpSessionBindingEvent arg0) {
 		classesReloaded();
-		m_reloader.removeListener(this);			// Drop me from the class reloader list
+		m_reloader.removeListener(this); // Drop me from the class reloader list
 	}
 
-	AppSession	getAppSession(DomApplication app) {
-		AppSession	s;
+	AppSession getAppSession(DomApplication app) {
+		AppSession s;
 		synchronized(this) {
 			if(m_appSession == null)
 				m_appSession = app.createSession();

@@ -16,150 +16,150 @@ import java.util.*;
  * Created on Jun 21, 2009
  */
 public class QSelection extends QRestrictionsBase {
-	private final List<QSelectedItem>	m_itemList = Collections.EMPTY_LIST;
+	private final List<QSelectedItem> m_itemList = Collections.EMPTY_LIST;
 
 	@Override
 	public QSelection add(final QOperatorNode r) {
-		return (QSelection)super.add(r);
+		return (QSelection) super.add(r);
 	}
 
 	@Override
 	public QSelection add(final QOrder r) {
-		return (QSelection)super.add(r);
+		return (QSelection) super.add(r);
 	}
 
 	@Override
 	public QSelection ascending(final String property) {
-		return (QSelection)super.ascending(property);
+		return (QSelection) super.ascending(property);
 	}
 
 	@Override
 	public QSelection between(final String property, final Object a, final Object b) {
-		return (QSelection)super.between(property, a, b);
+		return (QSelection) super.between(property, a, b);
 	}
 
 	@Override
 	public QSelection descending(final String property) {
-		return (QSelection)super.descending(property);
+		return (QSelection) super.descending(property);
 	}
 
 	@Override
 	public QSelection eq(final String property, final double value) {
-		return (QSelection)super.eq(property, value);
+		return (QSelection) super.eq(property, value);
 	}
 
 	@Override
 	public QSelection eq(final String property, final long value) {
-		return (QSelection)super.eq(property, value);
+		return (QSelection) super.eq(property, value);
 	}
 
 	@Override
 	public QSelection eq(final String property, final Object value) {
-		return (QSelection)super.eq(property, value);
+		return (QSelection) super.eq(property, value);
 	}
 
 	@Override
 	public QSelection ge(final String property, final double value) {
-		return (QSelection)super.ge(property, value);
+		return (QSelection) super.ge(property, value);
 	}
 
 	@Override
 	public QSelection ge(final String property, final long value) {
-		return (QSelection)super.ge(property, value);
+		return (QSelection) super.ge(property, value);
 	}
 
 	@Override
 	public QSelection ge(final String property, final Object value) {
-		return (QSelection)super.ge(property, value);
+		return (QSelection) super.ge(property, value);
 	}
 
 	@Override
 	public QSelection gt(final String property, final double value) {
-		return (QSelection)super.gt(property, value);
+		return (QSelection) super.gt(property, value);
 	}
 
 	@Override
 	public QSelection gt(final String property, final long value) {
-		return (QSelection)super.gt(property, value);
+		return (QSelection) super.gt(property, value);
 	}
 
 	@Override
 	public QSelection gt(final String property, final Object value) {
-		return (QSelection)super.gt(property, value);
+		return (QSelection) super.gt(property, value);
 	}
 
 	@Override
 	public QSelection ilike(final String property, final Object value) {
-		return (QSelection)super.ilike(property, value);
+		return (QSelection) super.ilike(property, value);
 	}
 
 	@Override
 	public QSelection isnotnull(final String property) {
-		return (QSelection)super.isnotnull(property);
+		return (QSelection) super.isnotnull(property);
 	}
 
 	@Override
 	public QSelection isnull(final String property) {
-		return (QSelection)super.isnull(property);
+		return (QSelection) super.isnull(property);
 	}
 
 	@Override
 	public QSelection le(final String property, final double value) {
-		return (QSelection)super.le(property, value);
+		return (QSelection) super.le(property, value);
 	}
 
 	@Override
 	public QSelection le(final String property, final long value) {
-		return (QSelection)super.le(property, value);
+		return (QSelection) super.le(property, value);
 	}
 
 	@Override
 	public QSelection le(final String property, final Object value) {
-		return (QSelection)super.le(property, value);
+		return (QSelection) super.le(property, value);
 	}
 
 	@Override
 	public QSelection like(final String property, final Object value) {
-		return (QSelection)super.like(property, value);
+		return (QSelection) super.like(property, value);
 	}
 
 	@Override
 	public QSelection lt(final String property, final double value) {
-		return (QSelection)super.lt(property, value);
+		return (QSelection) super.lt(property, value);
 	}
 
 	@Override
 	public QSelection lt(final String property, final long value) {
-		return (QSelection)super.lt(property, value);
+		return (QSelection) super.lt(property, value);
 	}
 
 	@Override
 	public QSelection lt(final String property, final Object value) {
-		return (QSelection)super.lt(property, value);
+		return (QSelection) super.lt(property, value);
 	}
 
 	@Override
 	public QSelection ne(final String property, final double value) {
-		return (QSelection)super.ne(property, value);
+		return (QSelection) super.ne(property, value);
 	}
 
 	@Override
 	public QSelection ne(final String property, final long value) {
-		return (QSelection)super.ne(property, value);
+		return (QSelection) super.ne(property, value);
 	}
 
 	@Override
 	public QSelection ne(final String property, final Object value) {
-		return (QSelection)super.ne(property, value);
+		return (QSelection) super.ne(property, value);
 	}
 
 	@Override
 	public QSelection or(final QOperatorNode... a) {
-		return (QSelection)super.or(a);
+		return (QSelection) super.or(a);
 	}
 
 	@Override
 	public QSelection sqlCondition(final String sql) {
-		return (QSelection)super.sqlCondition(sql);
+		return (QSelection) super.sqlCondition(sql);
 	}
 }

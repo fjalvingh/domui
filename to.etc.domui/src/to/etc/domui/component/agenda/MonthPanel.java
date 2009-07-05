@@ -15,28 +15,34 @@ import to.etc.webapp.nls.*;
  * Created on Oct 5, 2008
  */
 public class MonthPanel extends Div {
-	private Date				m_date;
-	private int					m_firstDay = Calendar.MONDAY;
-	private int					m_month;
-	private IDayClicked			m_dayClicked;
-	private Date				m_firstDayDate;
-	private IClicked<TD>		m_clickHandler;
-	private TBody				m_body;
+	private Date m_date;
+
+	private int m_firstDay = Calendar.MONDAY;
+
+	private int m_month;
+
+	private IDayClicked m_dayClicked;
+
+	private Date m_firstDayDate;
+
+	private IClicked<TD> m_clickHandler;
+
+	private TBody m_body;
 
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("ui-mp");
-		getDate();											// Prime date
-		Calendar	cal	= Calendar.getInstance(NlsContext.getLocale());
+		getDate(); // Prime date
+		Calendar cal = Calendar.getInstance(NlsContext.getLocale());
 		cal.setTime(m_firstDayDate);
 
 		//-- We're now on the 1st "firstday" and can move from there.
-		Table	t	= new Table();
+		Table t = new Table();
 		add(t);
 		t.setCssClass("ui-mp");
 		t.setCellPadding("0");
 		t.setCellSpacing("0");
-		TBody	b	= t.getBody();
+		TBody b = t.getBody();
 		m_body = b;
 
 		//-- Create the top row (day labels)
@@ -52,10 +58,10 @@ public class MonthPanel extends Div {
 		}
 
 		//-- Create rows of weeks. End when the current week ends on a new month.
-		
+
 		for(;;) {
 			createWeekRow(b, cal);
-			
+
 			if(cal.get(Calendar.MONTH) != m_month)
 				break;
 		}
@@ -66,17 +72,17 @@ public class MonthPanel extends Div {
 			return;
 
 		//-- Calculate the day from the cell #
-		TR	row = cell.getParent(TR.class);				// Find the parent row
-		int cellix = row.findChildIndex(cell);			// Find the index in the row. Index 0 = weeknr, rest is a day;
+		TR row = cell.getParent(TR.class); // Find the parent row
+		int cellix = row.findChildIndex(cell); // Find the index in the row. Index 0 = weeknr, rest is a day;
 		if(cellix <= 0)
 			return;
 		cellix--;
 
-		Date	start = (Date) row.getRowData();
-		Calendar	cal	= Calendar.getInstance();
+		Date start = (Date) row.getRowData();
+		Calendar cal = Calendar.getInstance();
 		cal.setTime(start);
 		cal.add(Calendar.DATE, cellix);
-		start	= cal.getTime();
+		start = cal.getTime();
 
 		//-- Call user code.
 		getDayClicked().dayClicked(this, start);
@@ -88,25 +94,25 @@ public class MonthPanel extends Div {
 	 * @param b
 	 * @param cal
 	 */
-	private void	createWeekRow(TBody b, Calendar cal) {
+	private void createWeekRow(TBody b, Calendar cal) {
 		int wd = cal.get(Calendar.DAY_OF_WEEK);
-		if(wd != m_firstDay)											// MUST always start on specified day.
+		if(wd != m_firstDay) // MUST always start on specified day.
 			throw new IllegalStateException("Internal logic error");
 		TR row = b.addRow();
 		row.setRowData(cal.getTime());
 
 		//-- Add the week number
-		TD	td	= b.addCell();
+		TD td = b.addCell();
 		td.setCssClass("ui-mp-w");
 		int wn = cal.get(Calendar.WEEK_OF_YEAR);
 		td.setButtonText(Integer.toString(wn));
 
 		//-- Now render the rest of the days, passing into the next month where needed.
-		String	cssinm = getDayClicked() == null ? "ui-mp-d" : "ui-mp-d ui-mp-ch";			// CSS style for inside month
-		String	cssexm = getDayClicked() == null ? "ui-mp-xd" : "ui-mp-xd ui-mp-ch";		// CSS styl for outside month
-		
+		String cssinm = getDayClicked() == null ? "ui-mp-d" : "ui-mp-d ui-mp-ch"; // CSS style for inside month
+		String cssexm = getDayClicked() == null ? "ui-mp-xd" : "ui-mp-xd ui-mp-ch"; // CSS styl for outside month
+
 		for(int i = 0; i < 7; i++) {
-			td	= b.addCell();
+			td = b.addCell();
 			int dn = cal.get(Calendar.DATE);
 			int mn = cal.get(Calendar.MONTH);
 			td.setButtonText(Integer.toString(dn));
@@ -118,21 +124,21 @@ public class MonthPanel extends Div {
 	}
 
 	private void createTopRow(TBody b) {
-		DateFormatSymbols	dfs = new DateFormatSymbols(NlsContext.getLocale());
+		DateFormatSymbols dfs = new DateFormatSymbols(NlsContext.getLocale());
 		TR tr = b.addRow();
 		tr.setCssClass("ui-mp-mn");
-		TD td = b.addCell();							// Empty cell above the week number.
+		TD td = b.addCell(); // Empty cell above the week number.
 		td.setColspan(8);
 		td.setButtonText(dfs.getMonths()[m_month]);
 
 		tr = b.addRow();
 		tr.setCssClass("ui-mp-top");
-		td = b.addCell();							// Empty cell above the week number.
+		td = b.addCell(); // Empty cell above the week number.
 		td.setCssClass("ui-mp-e");
 
-		int		cday = m_firstDay;				// Day# currently,
+		int cday = m_firstDay; // Day# currently,
 		for(int i = 0; i < 7; i++) {
-			String day  = dfs.getShortWeekdays()[cday];		// Short day name
+			String day = dfs.getShortWeekdays()[cday]; // Short day name
 			td = b.addCell();
 			td.setCssClass("ui-mp-d");
 			td.setButtonText(day);
@@ -155,41 +161,43 @@ public class MonthPanel extends Div {
 	 */
 	public void setDate(Date date) {
 		//-- Move to the 1st visible date in the month;
-		Calendar	cal	= Calendar.getInstance();
+		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		DateUtil.clearTime(cal);
-		cal.set(Calendar.DATE, 1);					// Move to the 1st of the month, 0:00.
-		Date	then = cal.getTime();
+		cal.set(Calendar.DATE, 1); // Move to the 1st of the month, 0:00.
+		Date then = cal.getTime();
 
-		if(m_date != null && then.getTime() == m_date.getTime())		// Already the same?
-			return;														// No redraw needed
+		if(m_date != null && then.getTime() == m_date.getTime()) // Already the same?
+			return; // No redraw needed
 		m_date = then;
 
 		//-- Calculate the 1st visible day
-		m_month	= cal.get(Calendar.MONTH);
+		m_month = cal.get(Calendar.MONTH);
 
 		//-- Locate the first "firstDay" AT or BEFORE the 1st of this month.
 		DateUtil.clearTime(cal);
-		cal.set(Calendar.DATE, 1);							// Move to 1st of the month, 0:00
+		cal.set(Calendar.DATE, 1); // Move to 1st of the month, 0:00
 		int cnt = 7;
 		for(;;) {
 			if(cnt-- < 0)
-				throw new IllegalStateException("?? Cannot reach weekday="+m_firstDay);
-			int	weekday = cal.get(Calendar.DAY_OF_WEEK);
+				throw new IllegalStateException("?? Cannot reach weekday=" + m_firstDay);
+			int weekday = cal.get(Calendar.DAY_OF_WEEK);
 			if(weekday == m_firstDay)
 				break;
 			cal.add(Calendar.DATE, -1);
 		}
-		m_firstDayDate = cal.getTime();						// Date for first visible cell in the month
+		m_firstDayDate = cal.getTime(); // Date for first visible cell in the month
 		forceRebuild();
 	}
+
 	public int getFirstDay() {
 		return m_firstDay;
 	}
+
 	public void setFirstDay(int firstDay) {
 		if(m_firstDay == firstDay)
 			return;
-		
+
 		forceRebuild();
 		m_firstDay = firstDay;
 		setDate(getDate());
@@ -209,26 +217,27 @@ public class MonthPanel extends Div {
 	 * If the given day is present on the calendar mark it.
 	 * @param dt
 	 */
-	public void	setMarked(Date dt, String css) throws Exception {
+	public void setMarked(Date dt, String css) throws Exception {
 		mark(dt, css, true);
 	}
-	public void	setUnmarked(Date dt, String css) throws Exception {
+
+	public void setUnmarked(Date dt, String css) throws Exception {
 		mark(dt, css, false);
 	}
 
-	public void	unmarkAll(String css) {
+	public void unmarkAll(String css) {
 		if(m_body == null)
 			return;
-		for(NodeBase row: m_body) {
-			TR	tr = (TR) row;
-			for(NodeBase b2: tr) {
+		for(NodeBase row : m_body) {
+			TR tr = (TR) row;
+			for(NodeBase b2 : tr) {
 				TD td = (TD) b2;
 				td.removeCssClass(css);
 			}
-		}		
+		}
 	}
 
-	private void	mark(Date dt, String css, boolean on) throws Exception {
+	private void mark(Date dt, String css, boolean on) throws Exception {
 		if(dt == null)
 			return;
 		if(dt.getTime() < m_firstDayDate.getTime())
@@ -239,17 +248,17 @@ public class MonthPanel extends Div {
 		build();
 
 		//-- Walk all month rows and check which one contains this date
-		for(NodeBase row: m_body) {
-			TR	tr = (TR) row;
+		for(NodeBase row : m_body) {
+			TR tr = (TR) row;
 			if(tr.getRowData() == null)
 				continue;
 
 			Date rd = (Date) tr.getRowData();
-			long ets = rd.getTime() + 1000*7*86400l;
+			long ets = rd.getTime() + 1000 * 7 * 86400l;
 			if(dt.getTime() >= rd.getTime() && dt.getTime() < ets) {
 				//-- Date is on this row; calculate the cell;
-				int cellix = (int) ((dt.getTime() - rd.getTime()) / 86400000l)+1;
-				TD	cell = (TD) tr.getChild(cellix);
+				int cellix = (int) ((dt.getTime() - rd.getTime()) / 86400000l) + 1;
+				TD cell = (TD) tr.getChild(cellix);
 				if(on)
 					cell.addCssClass(css);
 				else

@@ -25,13 +25,15 @@ import to.etc.util.*;
  * Created on Nov 3, 2008
  */
 public class ALink extends ATag {
-	private Class<? extends UrlPage>m_targetClass;
-	private PageParameters			m_targetParameters;
-	private WindowParameters		m_newWindowParameters;
-	private MoveMode				m_moveMode = MoveMode.SUB;
+	private Class< ? extends UrlPage> m_targetClass;
 
-	public ALink() {
-	}
+	private PageParameters m_targetParameters;
+
+	private WindowParameters m_newWindowParameters;
+
+	private MoveMode m_moveMode = MoveMode.SUB;
+
+	public ALink() {}
 
 	/**
 	 * Link to a new page; the new page is a SUB page (it is added to the shelve stack).
@@ -41,6 +43,7 @@ public class ALink extends ATag {
 		m_targetClass = targetClass;
 		updateLink();
 	}
+
 	public ALink(Class< ? extends UrlPage> targetClass, MoveMode mode) {
 		m_targetClass = targetClass;
 		m_moveMode = mode;
@@ -57,6 +60,7 @@ public class ALink extends ATag {
 		m_targetParameters = targetParameters;
 		updateLink();
 	}
+
 	public ALink(Class< ? extends UrlPage> targetClass, PageParameters targetParameters, MoveMode mode) {
 		m_targetClass = targetClass;
 		m_targetParameters = targetParameters;
@@ -69,36 +73,44 @@ public class ALink extends ATag {
 		m_targetParameters = targetParameters;
 		m_newWindowParameters = newWindowParameters;
 	}
+
 	public Class< ? extends UrlPage> getTargetClass() {
 		return m_targetClass;
 	}
+
 	public void setTargetClass(Class< ? extends UrlPage> targetClass) {
 		if(m_targetClass == targetClass)
 			return;
 		m_targetClass = targetClass;
 		updateLink();
 	}
+
 	public PageParameters getTargetParameters() {
 		return m_targetParameters;
 	}
+
 	public void setTargetParameters(PageParameters targetParameters) {
 		if(DomUtil.isEqual(m_targetParameters, targetParameters))
 			return;
 		m_targetParameters = targetParameters;
 		updateLink();
 	}
+
 	public WindowParameters getNewWindowParameters() {
 		return m_newWindowParameters;
 	}
+
 	public void setNewWindowParameters(WindowParameters newWindowParameters) {
 		if(DomUtil.isEqual(m_newWindowParameters, newWindowParameters))
 			return;
 		m_newWindowParameters = newWindowParameters;
 		updateLink();
 	}
+
 	public MoveMode getMoveMode() {
 		return m_moveMode;
 	}
+
 	public void setMoveMode(MoveMode moveMode) {
 		m_moveMode = moveMode;
 	}
@@ -106,26 +118,26 @@ public class ALink extends ATag {
 	/**
 	 * Generate the actual link to the thing.
 	 */
-	private void	updateLink() {
+	private void updateLink() {
 		if(m_targetClass == null) {
 			setHref(null);
 			return;
 		}
-		StringBuilder	sb	= new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		sb.append(PageContext.getRequestContext().getRelativePath(m_targetClass.getName()));
 		sb.append(".ui");
-//		DomUtil.addUrlParameters(sb, PageContext.getRequestContext(), true);
+		//		DomUtil.addUrlParameters(sb, PageContext.getRequestContext(), true);
 		DomUtil.addUrlParameters(sb, m_targetParameters, true);
-		setHref(sb.toString());						// Append URL only, without WID
+		setHref(sb.toString()); // Append URL only, without WID
 
 		if(getClicked() == null && getNewWindowParameters() != null) {
 			//-- Generate an onclick javascript thingy to open the window to prevent popup blockers.
 			//-- We need a NEW window session. Create it,
-			RequestContextImpl	ctx = (RequestContextImpl)PageContext.getRequestContext();
+			RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
 
 			//-- Send a special JAVASCRIPT open command, containing the shtuff.
 			sb.setLength(0);
-			String	wid	= DomUtil.generateGUID();
+			String wid = DomUtil.generateGUID();
 			sb.append("return DomUI.openWindow('");
 			sb.append(ctx.getRelativePath(m_targetClass.getName()));
 			sb.append(".ui?");
@@ -194,11 +206,11 @@ public class ALink extends ATag {
 		//-- Is this a WINDOWED link?
 		if(m_newWindowParameters != null) {
 			//-- We need a NEW window session. Create it,
-			RequestContextImpl	ctx = (RequestContextImpl)PageContext.getRequestContext();
-			WindowSession cm	= ctx.getSession().createWindowSession();
+			RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
+			WindowSession cm = ctx.getSession().createWindowSession();
 
 			//-- Send a special JAVASCRIPT open command, containing the shtuff.
-			StringBuilder	sb	= new StringBuilder();
+			StringBuilder sb = new StringBuilder();
 			sb.append("DomUI.openWindow('");
 			sb.append(ctx.getRelativePath(m_targetClass.getName()));
 			sb.append(".ui?");

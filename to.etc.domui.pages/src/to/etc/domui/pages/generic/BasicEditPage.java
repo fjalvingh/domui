@@ -16,14 +16,19 @@ import to.etc.webapp.query.*;
  * Created on Oct 22, 2008
  */
 public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnlyModel<T> {
-	private ButtonBar		m_buttonBar;
-	private boolean			m_deleteable;
-	private T				m_value;
-	private boolean			m_displayonly;
-	private TabularFormBuilder	m_formBuilder;
-	private ModelBindings		m_bindings;
+	private ButtonBar m_buttonBar;
 
-	abstract public T		initializeValue() throws Exception;
+	private boolean m_deleteable;
+
+	private T m_value;
+
+	private boolean m_displayonly;
+
+	private TabularFormBuilder m_formBuilder;
+
+	private ModelBindings m_bindings;
+
+	abstract public T initializeValue() throws Exception;
 
 	public BasicEditPage(Class<T> valueClass) {
 		this(valueClass, false);
@@ -34,7 +39,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 		m_deleteable = deleteable;
 	}
 
-	public TabularFormBuilder	getBuilder() {
+	public TabularFormBuilder getBuilder() {
 		if(m_formBuilder == null)
 			m_formBuilder = new TabularFormBuilder(getBaseClass(), this);
 		return m_formBuilder;
@@ -44,13 +49,14 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 	protected void afterCreateContent() throws Exception {
 		super.afterCreateContent();
 	}
+
 	@Override
 	final public void createContent() throws Exception {
 		if(m_formBuilder != null)
 			m_formBuilder.reset();
 		m_buttonBar = null;
 
-		super.createContent();						// Page title and crud
+		super.createContent(); // Page title and crud
 		createButtonBar();
 		createButtons();
 		m_bindings = createEditable();
@@ -63,14 +69,14 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 		if(m_bindings == null)
 			throw new IllegalStateException("The form's content is undefined: please override createEditable.");
 		m_bindings.moveModelToControl();
-		m_bindings.setEnabled(! m_displayonly);
+		m_bindings.setEnabled(!m_displayonly);
 	}
 
-	protected ModelBindings	createEditable() throws Exception {
+	protected ModelBindings createEditable() throws Exception {
 		return null;
 	}
 
-	protected void		createButtonBar() {
+	protected void createButtonBar() {
 		add(getButtonBar());
 	}
 
@@ -79,11 +85,13 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 			m_buttonBar = new ButtonBar();
 		return m_buttonBar;
 	}
+
 	public boolean isDeleteable() {
 		return m_deleteable;
 	}
-	protected void		createButtons() {
-		if(! isDisplayonly()) {
+
+	protected void createButtons() {
+		if(!isDisplayonly()) {
 			createCommitButton();
 			createCancelButton();
 			if(isDeleteable())
@@ -91,7 +99,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 		}
 	}
 
-	protected void		createCommitButton() {
+	protected void createCommitButton() {
 		getButtonBar().addButton("C!ommit", "/img/btnSave.png", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
 				save();
@@ -99,7 +107,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 		});
 	}
 
-	protected void		createCancelButton() {
+	protected void createCancelButton() {
 		getButtonBar().addButton("!Cancel", "/img/btnCancel.png", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
 				cancel();
@@ -107,7 +115,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 		});
 	}
 
-	protected void		createDeleteButton() {
+	protected void createDeleteButton() {
 		getButtonBar().addButton("!Delete", "/img/btnDelete.png", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
 				delete();
@@ -121,22 +129,25 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 	 */
 	@Override
 	public String getPageTitle() {
-		ClassMetaModel		cmm = MetaManager.findClassMeta(getBaseClass());
-		String	name = cmm.getUserEntityName();
+		ClassMetaModel cmm = MetaManager.findClassMeta(getBaseClass());
+		String name = cmm.getUserEntityName();
 		if(name != null)
 			return name;
-		return getBaseClass().getName().substring(getBaseClass().getName().lastIndexOf('.')+1);
+		return getBaseClass().getName().substring(getBaseClass().getName().lastIndexOf('.') + 1);
 	}
-	protected void	save() throws Exception {
+
+	protected void save() throws Exception {
 		if(getBindings() != null)
 			getBindings().moveControlToModel();
 		onSave(getValue());
 		UIGoto.back();
 	}
-	protected void	cancel() throws Exception {
+
+	protected void cancel() throws Exception {
 		UIGoto.back();
 	}
-	protected void	delete() throws Exception {
+
+	protected void delete() throws Exception {
 		onDelete(getValue());
 		UIGoto.back();
 	}
@@ -151,29 +162,31 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 		m_displayonly = displayonly;
 		forceRebuild();
 	}
+
 	public ModelBindings getBindings() {
 		return m_bindings;
 	}
 
-	final public T		getValue() throws Exception {
+	final public T getValue() throws Exception {
 		if(m_value == null)
 			m_value = initializeValue();
-		return m_value; 
+		return m_value;
 	}
 
-	final public void	setValue(T val) {
+	final public void setValue(T val) {
 		m_value = val;
 	}
-	protected void	onSave(T object) throws Exception {
+
+	protected void onSave(T object) throws Exception {
 		//-- Do a commit, then exit;
-		QDataContext	dc	= QContextManager.getContext(getPage());
+		QDataContext dc = QContextManager.getContext(getPage());
 		dc.startTransaction();
 		dc.save(object);
 		dc.commit();
 	}
 
-	protected void	onDelete(T object) throws Exception {
-		QDataContext	dc	= QContextManager.getContext(getPage());
+	protected void onDelete(T object) throws Exception {
+		QDataContext dc = QContextManager.getContext(getPage());
 		dc.startTransaction();
 		dc.save(object);
 		dc.commit();

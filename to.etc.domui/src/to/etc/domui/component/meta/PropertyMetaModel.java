@@ -16,14 +16,17 @@ import to.etc.domui.util.*;
  * Created on Jun 16, 2008
  */
 public interface PropertyMetaModel {
-	public ClassMetaModel	getClassModel();
+	public ClassMetaModel getClassModel();
+
 	/**
 	 * Returns the actual type of the property's value. This is the return type of the getter function.
 	 * @return
 	 */
-	public Class<?>			getActualType();
+	public Class< ? > getActualType();
+
 	@Deprecated
-	public String			getDefaultLabel(Locale loc);
+	public String getDefaultLabel(Locale loc);
+
 	/**
 	 * Return any default label (the text to use before the control that inputs this property) for this
 	 * property. The default label is obtained from the resource file with the same location and name as
@@ -32,7 +35,7 @@ public interface PropertyMetaModel {
 	 * to lookup the proper resource file.
 	 * @return	the label text, or null if unknown.
 	 */
-	public String			getDefaultLabel();
+	public String getDefaultLabel();
 
 	/**
 	 * Returns the default hint text (which pops up when the mouse is held over the control that inputs this
@@ -40,7 +43,7 @@ public interface PropertyMetaModel {
 	 * the resource file for the class this is a property of. The property that is looked up is 'propertyname.hint'.
 	 * @return	The hint text, or null if not known.
 	 */
-	public String			getDefaultHint();
+	public String getDefaultHint();
 
 	/**
 	 * Return the defined length for the item PROVIDED IT WAS SET - THIS SUFFERS FROM AN UTTER FUCKUP IN THE JPA "STANDARD". 
@@ -52,46 +55,57 @@ public interface PropertyMetaModel {
 	 *
 	 * @return	The size in characters of this item, or -1 if unknown.
 	 */
-	public int				getLength();
+	public int getLength();
 
 	/**
 	 * Return the specified precision of the numeric field. Returns -1 if not known or not numeric.
 	 * @return	the precision, or -1 if unknown. The precision is the total #of digits present in the number, including scale digits.
 	 */
-	public int				getPrecision();
-	public int				getScale();
-	
+	public int getPrecision();
+
+	public int getScale();
+
 	/**
 	 * Returns the #chars to be displayed by default for this item. When present this overrides the length or
 	 * precision as a size indicator.
 	 * @return
 	 */
-	public int				getDisplayLength();
-	public String			getName();
-	public SortableType 	getSortable();
-	public IValueAccessor<?>	getAccessor();
-	public Class<? extends IConverter>	getConverterClass();
-	public boolean			isRequired();
-	public boolean 			isPrimaryKey();
-	public PropertyRelationType	getRelationType();
-	public String			getDomainValueLabel(Locale loc, Object val);
-	public Object[]			getDomainValues();
-	public TemporalPresentationType		getTemporal();
+	public int getDisplayLength();
+
+	public String getName();
+
+	public SortableType getSortable();
+
+	public IValueAccessor< ? > getAccessor();
+
+	public Class< ? extends IConverter> getConverterClass();
+
+	public boolean isRequired();
+
+	public boolean isPrimaryKey();
+
+	public PropertyRelationType getRelationType();
+
+	public String getDomainValueLabel(Locale loc, Object val);
+
+	public Object[] getDomainValues();
+
+	public TemporalPresentationType getTemporal();
 
 	/**
 	 * If this should be represented by a combo this can be set to represent the default combo dataset.
 	 * @return
 	 */
-	public Class<? extends IComboDataSet<?>>	getComboDataSet();
+	public Class< ? extends IComboDataSet< ? >> getComboDataSet();
 
 	/**
 	 * When this relation-property is presented as a single field this can contain a class to render
 	 * that field as a string.
 	 * @return
 	 */
-	public Class<? extends ILabelStringRenderer<?>>	getComboLabelRenderer();
+	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer();
 
-	public Class<? extends INodeContentRenderer<?>>	getComboNodeRenderer();
+	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
 
 	/**
 	 * For a relation, this is the list of properties that should be shown. This 
@@ -99,9 +113,9 @@ public interface PropertyMetaModel {
 	 * a default display column or columnset.
 	 * @return
 	 */
-	public List<DisplayPropertyMetaModel>		getComboDisplayProperties();
+	public List<DisplayPropertyMetaModel> getComboDisplayProperties();
 
-	public List<DisplayPropertyMetaModel>		getTableDisplayProperties();
+	public List<DisplayPropertyMetaModel> getTableDisplayProperties();
 
 	/**
 	 * If this contains null the field can be seen by all users. If it has a value
@@ -119,15 +133,16 @@ public interface PropertyMetaModel {
 	 * </pre>
 	 * @return
 	 */
-	public String[][]							getViewRoles();
+	public String[][] getViewRoles();
 
 	/**
 	 * Defines the roles that a user must have to edit this field. See the description
 	 * at {@link PropertyMetaModel#getViewRoles()} for details. 
 	 * @return
 	 */
-	public String[][]							getEditRoles();
-	public YesNoType 							getReadOnly();
+	public String[][] getEditRoles();
+
+	public YesNoType getReadOnly();
 
 	/**
 	 * When present this gives a hint to the component factories to help with choosing a

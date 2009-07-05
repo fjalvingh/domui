@@ -39,49 +39,49 @@ import to.etc.util.*;
  * Created on Oct 2, 2008
  */
 public class ImageCache {
-	static private ImageCache	m_instance;
+	static private ImageCache m_instance;
 
-	private File				m_cacheDir;
+	private File m_cacheDir;
 
-//	/** Max. #bytes we may allocate on the file system for cached data; defaults to 1GB */
-//	private long				m_maxFileCacheSize = 1024l * 1024l * 1024l;
-//
-//	private long				m_currentFileCacheSize;
+	//	/** Max. #bytes we may allocate on the file system for cached data; defaults to 1GB */
+	//	private long				m_maxFileCacheSize = 1024l * 1024l * 1024l;
+	//
+	//	private long				m_currentFileCacheSize;
 
 	/** The max. #bytes that this cache may use in memory; defaults to 32M */
-	private long				m_maxMemorySize = 32*1024*1024;
+	private long m_maxMemorySize = 32 * 1024 * 1024;
 
-	private long				m_currentMemorySize;
+	private long m_currentMemorySize;
 
 	/** The map of keys to their image root */
-	private Map<Object, ImageRoot>	m_cacheMap = new HashMap<Object, ImageRoot>();
+	private Map<Object, ImageRoot> m_cacheMap = new HashMap<Object, ImageRoot>();
 
-	private ImageInstance		m_lruFirst, m_lruLast;
+	private ImageInstance m_lruFirst, m_lruLast;
 
 	public ImageCache(long maxsize, File cachedir) {
-//		m_maxFileCacheSize = maxsize;
+		//		m_maxFileCacheSize = maxsize;
 		m_cacheDir = cachedir;
 	}
-	public ImageCache() {
-	}
 
-	static synchronized public ImageCache		getInstance() {
+	public ImageCache() {}
+
+	static synchronized public ImageCache getInstance() {
 		if(m_instance == null)
 			throw new IllegalStateException("The image cache has not been initialized. Call ImageCache.initialize() before using the thing.");
 		return m_instance;
 	}
 
-	static public synchronized void	initialize(long maxsize, File cacheDir) {
-		if(! cacheDir.mkdirs() && ! cacheDir.exists() && ! cacheDir.isDirectory())
-			throw new IllegalStateException("Cannot create "+cacheDir);
+	static public synchronized void initialize(long maxsize, File cacheDir) {
+		if(!cacheDir.mkdirs() && !cacheDir.exists() && !cacheDir.isDirectory())
+			throw new IllegalStateException("Cannot create " + cacheDir);
 		m_instance = new ImageCache(maxsize, cacheDir);
 	}
 
 	public File getCacheDir() {
 		return m_cacheDir;
 	}
-	
-	static void	d(String s) {
+
+	static void d(String s) {
 		System.out.println(s);
 	}
 
@@ -93,12 +93,12 @@ public class ImageCache {
 	 * @param cacheKey
 	 * @return
 	 */
-	private ImageRoot		getImageRoot(IImageRetriever irt, Object cacheKey) {
+	private ImageRoot getImageRoot(IImageRetriever irt, Object cacheKey) {
 		synchronized(this) {
-			ImageRoot	r = m_cacheMap.get(cacheKey);
+			ImageRoot r = m_cacheMap.get(cacheKey);
 			if(r == null) {
-				String	file = irt.keyAsFilenameString(cacheKey);		// Obtain cache base name
-				r	= new ImageRoot(this, cacheKey, file);
+				String file = irt.keyAsFilenameString(cacheKey); // Obtain cache base name
+				r = new ImageRoot(this, cacheKey, file);
 				m_cacheMap.put(cacheKey, r);
 			}
 			return r;
@@ -120,25 +120,25 @@ public class ImageCache {
 	 * @param cacheKey
 	 * @return
 	 */
-	public ImageInstance		getOriginal(IImageRetriever irt, Object cacheKey) throws Exception {
-		ImageInstance	ii;
-		ImageRoot		root;
-		synchronized(this) {									// First lock: find/create the appropriate ImageInstance
-			root	= getImageRoot(irt, cacheKey);				// Locate the image root,
-			ii = root.findOriginal();							// Find unpermutated original
+	public ImageInstance getOriginal(IImageRetriever irt, Object cacheKey) throws Exception {
+		ImageInstance ii;
+		ImageRoot root;
+		synchronized(this) { // First lock: find/create the appropriate ImageInstance
+			root = getImageRoot(irt, cacheKey); // Locate the image root,
+			ii = root.findOriginal(); // Find unpermutated original
 			if(ii == null) {
 				//-- We'll get a new ImageInstance containing the original..
 				ii = new ImageInstance(root, "");
-				root.registerInstance(ii);						// Append the thingy to the root,
+				root.registerInstance(ii); // Append the thingy to the root,
 			}
 		}
 
 		//-- 2nd phase lock: lock the object, then initialize directly from the provider.
-		boolean	okay = false;
+		boolean okay = false;
 		try {
-			ii.initializeInstance(irt, cacheKey);		// Force initialization of the thingy.
-			okay	= true;
-//			root.setOriginalDimension(ii.getDimension());
+			ii.initializeInstance(irt, cacheKey); // Force initialization of the thingy.
+			okay = true;
+			//			root.setOriginalDimension(ii.getDimension());
 			return ii;
 		} finally {
 			if(okay) {
@@ -146,7 +146,7 @@ public class ImageCache {
 				 * If image initialization is succesful we register the resulting image into the LRU chain and add it's load
 				 * to the cache. After this the image is usable.
 				 */
-				registerAndLink(ii);					// Register as MRU and add size to cache load, in lock,
+				registerAndLink(ii); // Register as MRU and add size to cache load, in lock,
 			} else {
 				/*
 				 * Image creation has failed. We must discard this instance. It is possible that this same
@@ -167,34 +167,34 @@ public class ImageCache {
 	 * This must take care of the race conditions caused by the double-lock initialization.
 	 * @param ii
 	 */
-	private void	registerAndLink(ImageInstance ii) {
+	private void registerAndLink(ImageInstance ii) {
 		//-- Atomically add in new cache load, and if it exceeds the maximum reap the thingies to remove.
 		synchronized(this) {
-			if(ii.m_cacheState != InstanceCacheState.NONE)	// Already linked (cannot happen) or discarded (can happen if 2nd init works && race)
+			if(ii.m_cacheState != InstanceCacheState.NONE) // Already linked (cannot happen) or discarded (can happen if 2nd init works && race)
 				return;
-			link(ii);										// Link as 1st
-			m_currentMemorySize	+= ii.getSize();			// Add cache load, in bytes.
-			ii.m_cacheState = InstanceCacheState.LINKED;	// Properly linked and accounted.
+			link(ii); // Link as 1st
+			m_currentMemorySize += ii.getSize(); // Add cache load, in bytes.
+			ii.m_cacheState = InstanceCacheState.LINKED; // Properly linked and accounted.
 
-			if(m_currentMemorySize <= m_maxMemorySize)		// If we're not overdrawn...
+			if(m_currentMemorySize <= m_maxMemorySize) // If we're not overdrawn...
 				return;
 
 			//-- Determine the oldest pages && discard 'm
-			int		count = 0;
+			int count = 0;
 			long size = 0;
 			while(m_lruLast != m_lruFirst && m_currentMemorySize > m_maxMemorySize) {
 				//-- Discard from all metadata
-				ImageInstance	itd = m_lruLast;
-				unlink(itd);								// Discard thingy from LRU chain;
-				m_currentMemorySize -= itd.getSize();		// Reduce cache load with this-item's size;
+				ImageInstance itd = m_lruLast;
+				unlink(itd); // Discard thingy from LRU chain;
+				m_currentMemorySize -= itd.getSize(); // Reduce cache load with this-item's size;
 				size += itd.getSize();
 				count++;
-				if(itd.remove()) {							// Ask it's root object to discard this,
+				if(itd.remove()) { // Ask it's root object to discard this,
 					//-- Root has zero entries-> delete
-					m_cacheMap.remove(itd.getRoot().getImageKey());	// Drop ImageRoot
+					m_cacheMap.remove(itd.getRoot().getImageKey()); // Drop ImageRoot
 				}
 			}
-			System.out.println("ImageCache: reaped "+count+" image instances totalling "+size+" bytes");
+			System.out.println("ImageCache: reaped " + count + " image instances totalling " + size + " bytes");
 		}
 	}
 
@@ -206,18 +206,18 @@ public class ImageCache {
 	 *
 	 * @param ii
 	 */
-	private void	discardFailed(ImageInstance ii) {
+	private void discardFailed(ImageInstance ii) {
 		synchronized(this) {
 			if(ii.m_cacheState == InstanceCacheState.LINKED)// Linked, though- another init has worked & completed it's sequence
 				return;
 
 			//-- Discard all referrals to this instance. It is only linked thru the hash access path.
-			ImageRoot	root = ii.getRoot();
-			root.unregisterInstance(ii);					// Unlink from root -> no longer accessible from outside
-			ii.m_cacheState = InstanceCacheState.DISCARD;	// Is DISCARDED now - prevents LRU linking while access path has been dropped.
+			ImageRoot root = ii.getRoot();
+			root.unregisterInstance(ii); // Unlink from root -> no longer accessible from outside
+			ii.m_cacheState = InstanceCacheState.DISCARD; // Is DISCARDED now - prevents LRU linking while access path has been dropped.
 
-			if(root.getInstanceCount() == 0) {				// No instances left in this root thingy?
-				m_cacheMap.remove(root.getImageKey());		// Discard root referral
+			if(root.getInstanceCount() == 0) { // No instances left in this root thingy?
+				m_cacheMap.remove(root.getImageKey()); // Discard root referral
 			}
 		}
 	}
@@ -226,30 +226,30 @@ public class ImageCache {
 	 * Links the entry at the most recently used position of the LRU chain.
 	 * @param e
 	 */
-	private void	link(ImageInstance e) {
-		unlink(e);							// Make sure we're unlinked
-		if(m_lruFirst == null) {			// Empty initial list?
+	private void link(ImageInstance e) {
+		unlink(e); // Make sure we're unlinked
+		if(m_lruFirst == null) { // Empty initial list?
 			m_lruFirst = e;
 			m_lruLast = e;
-			e.m_lruNext	= e;
-			e.m_lruPrev	= e;
+			e.m_lruNext = e;
+			e.m_lruPrev = e;
 			return;
 		}
-		e.m_lruPrev = m_lruFirst;			// Previous first is my previous
-		e.m_lruNext	= m_lruLast;			// After me I wrap back to the end
-		m_lruLast.m_lruPrev	= e;
-		m_lruFirst.m_lruNext = e;			// I'm his next
-		m_lruFirst	= e;					// I'm the 1st one now;
+		e.m_lruPrev = m_lruFirst; // Previous first is my previous
+		e.m_lruNext = m_lruLast; // After me I wrap back to the end
+		m_lruLast.m_lruPrev = e;
+		m_lruFirst.m_lruNext = e; // I'm his next
+		m_lruFirst = e; // I'm the 1st one now;
 	}
 
-	private void	unlink(ImageInstance e) {
-		if(e.m_lruNext == null)				// Already unlinked?
+	private void unlink(ImageInstance e) {
+		if(e.m_lruNext == null) // Already unlinked?
 			return;
-		if(e.m_lruNext == e.m_lruPrev) {	// I'm the only one?
+		if(e.m_lruNext == e.m_lruPrev) { // I'm the only one?
 			m_lruFirst = null;
-			m_lruLast	= null;
+			m_lruLast = null;
 			e.m_lruNext = null;
-			e.m_lruPrev	= null;
+			e.m_lruPrev = null;
 			return;
 		}
 
@@ -263,13 +263,13 @@ public class ImageCache {
 		e.m_lruNext = e.m_lruPrev = null;
 	}
 
-	
-	public ImageInstance	getImage(IImageRetriever irt, Object cacheKey, IImageConversionSpecifier[] conversions) throws Exception {
-		List<IImageConversionSpecifier> l  = new ArrayList<IImageConversionSpecifier>();
-		for(IImageConversionSpecifier s: conversions)
+
+	public ImageInstance getImage(IImageRetriever irt, Object cacheKey, IImageConversionSpecifier[] conversions) throws Exception {
+		List<IImageConversionSpecifier> l = new ArrayList<IImageConversionSpecifier>();
+		for(IImageConversionSpecifier s : conversions)
 			l.add(s);
 		return getImage(irt, cacheKey, l);
-	}	
+	}
 
 	/**
 	 * This is the main workhorse for the image cache. This retrieves a possible converted image off some source,
@@ -281,33 +281,33 @@ public class ImageCache {
 	 * @return
 	 * @throws Exception
 	 */
-	public ImageInstance	getImage(IImageRetriever irt, Object cacheKey, List<IImageConversionSpecifier> conversions) throws Exception {
+	public ImageInstance getImage(IImageRetriever irt, Object cacheKey, List<IImageConversionSpecifier> conversions) throws Exception {
 		//-- Shortcut: if referring to the ORIGINAL...
 		if(conversions == null || conversions.size() == 0)
 			return getOriginal(irt, cacheKey);
 
 		//-- Create the cache strings,
-		StringBuilder	sb	= new StringBuilder(128);
-		for(IImageConversionSpecifier ic: conversions)
-			sb.append(ic.getConversionKey());					// Get a string rep of the conversion applied
-		String	perm	= sb.toString();						// Permutation string;
+		StringBuilder sb = new StringBuilder(128);
+		for(IImageConversionSpecifier ic : conversions)
+			sb.append(ic.getConversionKey()); // Get a string rep of the conversion applied
+		String perm = sb.toString(); // Permutation string;
 
 		//-- 2. Is this permutation in the memory cache?
-		ImageInstance	ii;
-		synchronized(this) {									// First lock: find/create the appropriate ImageInstance
-			ImageRoot	root	= getImageRoot(irt, cacheKey);	// Locate the image root,
-			ii = root.findPermutation(perm);					// Find mutation
+		ImageInstance ii;
+		synchronized(this) { // First lock: find/create the appropriate ImageInstance
+			ImageRoot root = getImageRoot(irt, cacheKey); // Locate the image root,
+			ii = root.findPermutation(perm); // Find mutation
 			if(ii == null) {
 				//-- We'll get a new ImageInstance containing the original..
 				ii = new ImageInstance(root, perm);
-				root.registerInstance(ii);						// Append the thingy to the root,
+				root.registerInstance(ii); // Append the thingy to the root,
 			}
 		}
 		//-- 2nd phase lock: lock the object, then initialize in a few steps
-		boolean	okay = false;
+		boolean okay = false;
 		try {
-			ii.initializeConvertedInstance(irt, cacheKey, conversions);		// Force initialization of the thingy, using conversions.
-			okay	= true;
+			ii.initializeConvertedInstance(irt, cacheKey, conversions); // Force initialization of the thingy, using conversions.
+			okay = true;
 			return ii;
 		} finally {
 			if(okay) {
@@ -315,7 +315,7 @@ public class ImageCache {
 				 * If image initialization is succesful we register the resulting image into the LRU chain and add it's load
 				 * to the cache. After this the image is usable.
 				 */
-				registerAndLink(ii);					// Register as MRU and add size to cache load, in lock,
+				registerAndLink(ii); // Register as MRU and add size to cache load, in lock,
 			} else {
 				/*
 				 * Image creation has failed. We must discard this instance. It is possible that this same
@@ -336,20 +336,20 @@ public class ImageCache {
 
 	public static void main(String[] args) {
 		try {
-			IImageRetriever	golden_retriever = new IImageRetriever() {
+			IImageRetriever golden_retriever = new IImageRetriever() {
 				public IStreamingImageInfo loadImage(Object key) throws Exception {
-					final File src = new File(new File("/home/jal"), (String)key);
-					final String mime = ServerTools.getExtMimeType(FileTool.getFileExtension((String)key));
+					final File src = new File(new File("/home/jal"), (String) key);
+					final String mime = ServerTools.getExtMimeType(FileTool.getFileExtension((String) key));
 
 					return new IStreamingImageInfo() {
 						public String getMimeType() throws Exception {
 							return mime;
 						}
-					
+
 						public InputStream getInputStream() throws Exception {
 							return new FileInputStream(src);
 						}
-					
+
 						public ImageData getImageData() throws Exception {
 							return null;
 						}
@@ -361,24 +361,21 @@ public class ImageCache {
 				}
 			};
 
-			ImageCache		ic = new ImageCache();
+			ImageCache ic = new ImageCache();
 
-			String	key = "img_5589.jpg";
+			String key = "img_5589.jpg";
 			for(int i = 0; i < 5; i++) {
-				ImageInstance	ii	= ic.getOriginal(golden_retriever, key);
-				System.out.println("Instance: "+ii);
+				ImageInstance ii = ic.getOriginal(golden_retriever, key);
+				System.out.println("Instance: " + ii);
 			}
 
 			//-- Get a cached, converted result.
 			System.out.println("Getting a thumbnailed thingy 5x.");
 			for(int i = 0; i < 5; i++) {
-				ImageInstance	ii	= ic.getImage(golden_retriever, key, new IImageConversionSpecifier[] {
-					new ImagePageSelect(0),
-					new ImageThumbnail(400, 300, "image/png")
-				});
-				System.out.println("Instance: "+ii);
-			}			
-		} catch(Exception x)  {
+				ImageInstance ii = ic.getImage(golden_retriever, key, new IImageConversionSpecifier[]{new ImagePageSelect(0), new ImageThumbnail(400, 300, "image/png")});
+				System.out.println("Instance: " + ii);
+			}
+		} catch(Exception x) {
 			x.printStackTrace();
 		}
 	}

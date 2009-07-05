@@ -22,20 +22,20 @@ import to.etc.webapp.query.*;
  * Created on May 22, 2008
  */
 public class ApplicationRequestHandler implements FilterRequestHandler {
-	private final DomApplication		m_application;
+	private final DomApplication m_application;
 
 	public ApplicationRequestHandler(final DomApplication application) {
 		m_application = application;
 	}
 
 	public void handleRequest(final RequestContextImpl ctx) throws Exception {
-		ServerTools.generateNoCache(ctx.getResponse());					// All replies may not be cached at all!!
+		ServerTools.generateNoCache(ctx.getResponse()); // All replies may not be cached at all!!
 		handleMain(ctx);
 		ctx.getSession().dump();
 	}
 
 	private void handleMain(final RequestContextImpl ctx) throws Exception {
-		Class<? extends UrlPage>	runclass = decodeRunClass(ctx);
+		Class< ? extends UrlPage> runclass = decodeRunClass(ctx);
 		runClass(ctx, runclass);
 	}
 
@@ -44,7 +44,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 	 * @param ctx
 	 * @return
 	 */
-	private Class<? extends UrlPage>	decodeRunClass(final RequestContext ctx) {
+	private Class< ? extends UrlPage> decodeRunClass(final RequestContext ctx) {
 		if(ctx.getInputPath().length() == 0) {
 			/*
 			 * We need to EXECUTE the application's main class. We cannot use the .class directly
@@ -53,23 +53,23 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 			 */
 			String txt = m_application.getRootPage().getCanonicalName();
 			return m_application.loadPageClass(txt);
-//			return m_application.getRootPage();
+			//			return m_application.getRootPage();
 		}
 
 		//-- Try to resolve as a class name,
 		String s = ctx.getInputPath();
-		int	pos = s.lastIndexOf('.');						// Always strip whatever extension
+		int pos = s.lastIndexOf('.'); // Always strip whatever extension
 		if(pos != -1) {
-			int spos = s.lastIndexOf('/')+1;				// Try to locate path component
+			int spos = s.lastIndexOf('/') + 1; // Try to locate path component
 			if(pos > spos) {
- 				s = s.substring(spos, pos);					// Last component, ex / and last extension.
+				s = s.substring(spos, pos); // Last component, ex / and last extension.
 
- 				//-- This should be a classname now
- 				return m_application.loadPageClass(s);
+				//-- This should be a classname now
+				return m_application.loadPageClass(s);
 			}
 		}
 		//-- All others- cannot resolve
-		throw new IllegalStateException("Cannot decode URL "+ctx.getInputPath());
+		throw new IllegalStateException("Cannot decode URL " + ctx.getInputPath());
 	}
 
 	/**
@@ -80,17 +80,17 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 	 * @param clz
 	 * @throws Exception
 	 */
-	private void	runClass(final RequestContextImpl ctx, final Class<? extends UrlPage> clz) throws Exception {
-//		if(! UrlPage.class.isAssignableFrom(clz))
-//			throw new IllegalStateException("Class "+clz+" is not a valid page class (does not extend "+UrlPage.class.getName()+")");
-//		System.out.println("runClass="+clz);
+	private void runClass(final RequestContextImpl ctx, final Class< ? extends UrlPage> clz) throws Exception {
+		//		if(! UrlPage.class.isAssignableFrom(clz))
+		//			throw new IllegalStateException("Class "+clz+" is not a valid page class (does not extend "+UrlPage.class.getName()+")");
+		//		System.out.println("runClass="+clz);
 
 		/*
 		 * If this is a full render request the URL must contain a $CID... If not send a redirect after allocating a window.
 		 */
-		String action = ctx.getRequest().getParameter("webuia");		// AJAX action request?
-		String		cid	= ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
-		String[]	cida = DomUtil.decodeCID(cid);
+		String action = ctx.getRequest().getParameter("webuia"); // AJAX action request?
+		String cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
+		String[] cida = DomUtil.decodeCID(cid);
 
 		//-- If this is an OBITUARY just mark the window as possibly gone, then exit;
 		if(Constants.OBITUARY.equals(action)) {
@@ -98,49 +98,49 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 			 * Warning: do NOT access the WindowSession by findWindowSession: that updates the window touched
 			 * timestamp and causes obituary timeout handling to fail.
 			 */
-			int	pageTag;
+			int pageTag;
 			try {
-				pageTag = Integer.parseInt( ctx.getParameter(Constants.PARAM_PAGE_TAG) );
+				pageTag = Integer.parseInt(ctx.getParameter(Constants.PARAM_PAGE_TAG));
 			} catch(Exception x) {
 				throw new IllegalStateException("Missing or invalid $pt PageTAG in OBITUARY request");
 			}
 			if(cida == null)
 				throw new IllegalStateException("Missing $cid in OBITUARY request");
 
-			System.out.println("OBITUARY received for "+cid+": pageTag="+pageTag);
+			System.out.println("OBITUARY received for " + cid + ": pageTag=" + pageTag);
 			ctx.getSession().internalObituaryReceived(cida[0], pageTag);
 
 			//-- Send a silly response.
 			ctx.getResponse().setContentType("text/text");
 			Writer w = ctx.getResponse().getWriter();
 			w.append("RIP");
-			return;														// Obituaries get a zero response.
+			return; // Obituaries get a zero response.
 		}
 
 		// ORDERED!!! Must be kept BELOW the OBITUARY check
-		WindowSession	cm	= null;
+		WindowSession cm = null;
 		if(cida != null) {
-			cm	= ctx.getSession().findWindowSession(cida[0]);
+			cm = ctx.getSession().findWindowSession(cida[0]);
 		}
 
 		if(cm == null) {
 			if(action != null) {
 				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_EXPIRED));
 				return;
-//				throw new IllegalStateException("AJAX request '"+action+"' has no WindowID/CID");
+				//				throw new IllegalStateException("AJAX request '"+action+"' has no WindowID/CID");
 			}
 
 			//-- We explicitly need to create a new Window and need to send a redirect back
-			cm	= ctx.getSession().createWindowSession();
-			System.out.println("$cid: input windowid="+cid+" not found - created wid="+cm.getWindowID());
-			StringBuilder	sb	= new StringBuilder(256);
-//			sb.append('/');
+			cm = ctx.getSession().createWindowSession();
+			System.out.println("$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID());
+			StringBuilder sb = new StringBuilder(256);
+			//			sb.append('/');
 			sb.append(ctx.getRelativePath(ctx.getInputPath()));
 			sb.append('?');
 			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 			sb.append('=');
 			sb.append(cm.getWindowID());
-			sb.append(".x");								// Dummy conversation ID
+			sb.append(".x"); // Dummy conversation ID
 			DomUtil.addUrlParameters(sb, ctx, false);
 			generateRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
 			return;
@@ -154,7 +154,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
 		 *
 		 */
-		if(! checkAccess(cm, ctx, clz))
+		if(!checkAccess(cm, ctx, clz))
 			return;
 
 		/*
@@ -162,14 +162,14 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		 * request we'll always respond with a full page re-render, but we must check to see if
 		 * the page has been requested with different parameters this time.
 		 */
-		PageParameters	papa= null;
+		PageParameters papa = null;
 		if(action == null) {
-			papa= PageParameters.createFrom(ctx);						// Create page parameters from the request,
+			papa = PageParameters.createFrom(ctx); // Create page parameters from the request,
 		}
 
-		Page	page	= cm.makeOrGetPage(ctx, clz, papa);
+		Page page = cm.makeOrGetPage(ctx, clz, papa);
 		cm.internalSetLastPage(page);
-//		Page page = PageMaker.makeOrGetPage(ctx, clz, papa);
+		//		Page page = PageMaker.makeOrGetPage(ctx, clz, papa);
 
 		/*
 		 * If this is an AJAX request make sure the page is still the same instance (session lost trouble)
@@ -190,11 +190,11 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		PageContext.internalSet(page);
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
-		if(! Constants.ASYPOLL.equals(action)) {
+		if(!Constants.ASYPOLL.equals(action)) {
 			long ts = System.nanoTime();
-			handleComponentInput(ctx, page);					// Move all request parameters to their input field(s)
+			handleComponentInput(ctx, page); // Move all request parameters to their input field(s)
 			ts = System.nanoTime() - ts;
-			System.out.println("rq: input handling took "+StringTool.strNanoTime(ts));
+			System.out.println("rq: input handling took " + StringTool.strNanoTime(ts));
 		}
 
 		if(action != null) {
@@ -203,8 +203,8 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		} else {
 			PageMaker.injectPageValues(page.getBody(), ctx, papa);
 
-			if(page.getBody() instanceof IRebuildOnRefresh) {	// Must fully refresh?
-				page.getBody().forceRebuild();					// Cleanout state
+			if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
+				page.getBody().forceRebuild(); // Cleanout state
 				QContextManager.closeSharedContext(page.getConversation());
 			}
 			page.getBody().onReload();
@@ -215,22 +215,22 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		long ts = System.nanoTime();
 		ctx.getResponse().setContentType("text/html; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput	out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		BrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 
-//		String	usag = ctx.getUserAgent();
-		FullHtmlRenderer	hr	= m_application.findRendererFor(ctx.getUserAgent(), out);
+		//		String	usag = ctx.getUserAgent();
+		FullHtmlRenderer hr = m_application.findRendererFor(ctx.getUserAgent(), out);
 
 		try {
 			hr.render(ctx, page);
 		} catch(Exception x) {
 			//-- Full renderer aborted. Handle exception counting.
-			if(! page.isFullRenderCompleted()) {				// Has the page at least once rendered OK?
+			if(!page.isFullRenderCompleted()) { // Has the page at least once rendered OK?
 				//-- This page is initially unrenderable; the error is not due to state changes. Just rethrow and give up.
 				throw x;
 			}
 
 			//-- The page was initially renderable; the current problem is due to state changes. Increment the exception count and if too big clear the page before throwing up.
-			page.setPageExceptionCount(page.getPageExceptionCount()+1);
+			page.setPageExceptionCount(page.getPageExceptionCount() + 1);
 			if(page.getPageExceptionCount() >= 2) {
 				//-- Just destroy the stuff - it keeps dying on you.
 				page.getConversation().destroy();
@@ -246,7 +246,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		page.setPageExceptionCount(0);
 
 		ts = System.nanoTime() - ts;
-		System.out.println("rq: full render took "+StringTool.strNanoTime(ts));
+		System.out.println("rq: full render took " + StringTool.strNanoTime(ts));
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
@@ -263,30 +263,30 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 	 * @throws Exception
 	 */
 	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Class< ? extends UrlPage> clz) throws Exception {
-		UIRights	rann	= clz.getAnnotation(UIRights.class);
+		UIRights rann = clz.getAnnotation(UIRights.class);
 		if(rann == null)
 			return true;
 		//-- Get user's IUser; if not present we need to log in.
-		IUser	user= PageContext.getCurrentUser();		// Currently logged in?
+		IUser user = PageContext.getCurrentUser(); // Currently logged in?
 		if(user == null) {
 			//-- Create the after-login target URL.
-			StringBuilder	sb	= new StringBuilder(256);
-//				sb.append('/');
+			StringBuilder sb = new StringBuilder(256);
+			//				sb.append('/');
 			sb.append(ctx.getRelativePath(ctx.getInputPath()));
 			sb.append('?');
 			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 			sb.append('=');
 			sb.append(cm.getWindowID());
-			sb.append(".x");								// Dummy conversation ID
+			sb.append(".x"); // Dummy conversation ID
 			DomUtil.addUrlParameters(sb, ctx, false);
 
 			//-- Obtain the URL to redirect to from a thingy factory (should this happen here?)
-			ILoginDialogFactory	ldf = m_application.getLoginDialogFactory();
+			ILoginDialogFactory ldf = m_application.getLoginDialogFactory();
 			if(ldf == null)
-				throw new NotLoggedInException(sb.toString());		// Force login exception.
-			String target = ldf.getLoginRURL(sb.toString());		// Create a RURL to move to.
+				throw new NotLoggedInException(sb.toString()); // Force login exception.
+			String target = ldf.getLoginRURL(sb.toString()); // Create a RURL to move to.
 			if(target == null)
-				throw new IllegalStateException("The Login Dialog Handler="+ldf+" returned an invalid URL for the login dialog.");
+				throw new IllegalStateException("The Login Dialog Handler=" + ldf + " returned an invalid URL for the login dialog.");
 
 			//-- Make this an absolute URL by appending the webapp path
 			target = ctx.getRelativePath(target);
@@ -296,8 +296,8 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 
 		//-- Issue rights check,
 		boolean allowed = true;
-		for(String right: rann.value()) {
-			if(! user.hasRight(right)) {
+		for(String right : rann.value()) {
+			if(!user.hasRight(right)) {
 				allowed = false;
 				break;
 			}
@@ -308,22 +308,22 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		/*
 		 * Access not allowed: redirect to error page.
 		 */
-		ILoginDialogFactory	ldf = m_application.getLoginDialogFactory();
-		String	rurl	= ldf == null ? null : ldf.getAccessDeniedURL();
+		ILoginDialogFactory ldf = m_application.getLoginDialogFactory();
+		String rurl = ldf == null ? null : ldf.getAccessDeniedURL();
 		if(rurl == null) {
-			rurl = AccessDeniedPage.class.getName()+"."+m_application.getUrlExtension();
+			rurl = AccessDeniedPage.class.getName() + "." + m_application.getUrlExtension();
 		}
 
 		//-- Add info about the failed thingy.
-		StringBuilder	sb	= new StringBuilder(128);
+		StringBuilder sb = new StringBuilder(128);
 		sb.append(rurl);
 		sb.append("?targetPage=");
 		StringTool.encodeURLEncoded(sb, clz.getName());
 
 		//-- All required rights
 		int ix = 0;
-		for(String r: rann.value()) {
-			sb.append("&r"+ix+"=");
+		for(String r : rann.value()) {
+			sb.append("&r" + ix + "=");
 			ix++;
 			StringTool.encodeURLEncoded(sb, r);
 		}
@@ -331,19 +331,14 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		return false;
 	}
 
-	private void	generateRedirect(final RequestContextImpl ctx, final String to, final String rsn) throws Exception {
-//		ctx.getResponse().sendRedirect(sb.toString());	// Force redirect.
+	private void generateRedirect(final RequestContextImpl ctx, final String to, final String rsn) throws Exception {
+		//		ctx.getResponse().sendRedirect(sb.toString());	// Force redirect.
 
 		ctx.getResponse().setContentType("text/html; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput	out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
-		out.writeRaw(
-			"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n"
-		+	"<html><head><script language=\"javascript\"><!--\n"
-		+	"location.replace("+StringTool.strToJavascriptString(to, true)+");\n"
-		+	"--></script>\n"
-		+	"</head><body>"+rsn+"</body></html>\n"
-		);
+		BrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
+			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + ");\n" + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
 	}
 
 	/**
@@ -352,11 +347,11 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 	 * @param ctx
 	 * @throws Exception
 	 */
-	private void	generateExpired(final RequestContextImpl ctx, final String message) throws Exception {
+	private void generateExpired(final RequestContextImpl ctx, final String message) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput	out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		BrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 		out.tag("expired");
 		out.endtag();
 
@@ -376,35 +371,35 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 	 * @param page
 	 * @throws Exception
 	 */
-	private void	handleComponentInput(final RequestContext ctx, final Page page) throws Exception {
+	private void handleComponentInput(final RequestContext ctx, final Page page) throws Exception {
 		//-- Just walk all parameters in the input request.
 		for(String name : ctx.getParameterNames()) {
-			String[] values = ctx.getParameters(name);			// Get the value;
-//			System.out.println("input: "+name+", value="+values[0]);
+			String[] values = ctx.getParameters(name); // Get the value;
+			//			System.out.println("input: "+name+", value="+values[0]);
 
 			//-- Locate the component that the parameter is for;
 			if(name.startsWith("_")) {
-				NodeBase nb = page.findNodeByID(name);			// Can we find this literally?
+				NodeBase nb = page.findNodeByID(name); // Can we find this literally?
 				if(nb != null) {
 					//-- Try to bind this value to the component.
-					nb.acceptRequestParameter(values);			// Make the thingy accept the parameter(s)
+					nb.acceptRequestParameter(values); // Make the thingy accept the parameter(s)
 				}
 			}
 		}
 	}
 
 
-	private void	runAction(final RequestContextImpl ctx, final Page page, final String action) throws Exception {
-//		System.out.println("# action="+action);
+	private void runAction(final RequestContextImpl ctx, final Page page, final String action) throws Exception {
+		//		System.out.println("# action="+action);
 		long ts = System.nanoTime();
 
-		NodeBase	wcomp = null;
+		NodeBase wcomp = null;
 		String wid = ctx.getRequest().getParameter("webuic");
 		if(wid != null) {
-			wcomp	= page.findNodeByID(wid);
+			wcomp = page.findNodeByID(wid);
 			if(wcomp == null) {
 				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_BADNODE, wid));
-//				throw new IllegalStateException("Unknown node '"+wid+"'");
+				//				throw new IllegalStateException("Unknown node '"+wid+"'");
 			}
 		}
 
@@ -415,11 +410,11 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 				handleValueChanged(ctx, page, wcomp);
 			} else if(Constants.ASYPOLL.equals(action)) {
 				//-- Async poll request..
-//			} else if("WEBUIDROP".equals(action)) {
-//				handleDrop(ctx, page, wcomp);
+				//			} else if("WEBUIDROP".equals(action)) {
+				//				handleDrop(ctx, page, wcomp);
 			} else {
 				if(wcomp == null)
-					throw new IllegalStateException("Unknown node '"+wid+"' for action='"+action+"'");
+					throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
 				wcomp.componentHandleWebAction(ctx, action);
 			}
 		} catch(ValidationException x) {
@@ -427,21 +422,21 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 			 * When an action handler failed because it accessed a component which has a validation error
 			 * we just continue - the failed validation will have posted an error message.
 			 */
-			System.out.println("rq: ignoring validation exception "+x);
+			System.out.println("rq: ignoring validation exception " + x);
 		} catch(Exception x) {
-			IExceptionListener	xl = ctx.getApplication().findExceptionListenerFor(x);
-			if(xl == null)					// No handler?
-				throw x;					// Move on, nothing to see here,
-			if(! xl.handleException(ctx, page, wcomp, x))
+			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
+			if(xl == null) // No handler?
+				throw x; // Move on, nothing to see here,
+			if(!xl.handleException(ctx, page, wcomp, x))
 				throw x;
 		}
 		ts = System.nanoTime() - ts;
-		System.out.println("rq: Action handling took "+StringTool.strNanoTime(ts));
+		System.out.println("rq: Action handling took " + StringTool.strNanoTime(ts));
 
 		page.getConversation().processDelayedResults(page);
 
 		//-- Determine the response class to render; exit if we have a redirect,
-		WindowSession	cm = ctx.getWindowSession();
+		WindowSession cm = ctx.getWindowSession();
 		if(cm.handleGoto(ctx, page))
 			return;
 
@@ -449,19 +444,19 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		renderOptimalDelta(ctx, page);
 	}
 
-	static public void	renderOptimalDelta(final RequestContextImpl ctx, final Page page) throws Exception {
+	static public void renderOptimalDelta(final RequestContextImpl ctx, final Page page) throws Exception {
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput	out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		BrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 
 		long ts = System.nanoTime();
-//		String	usag = ctx.getUserAgent();
-		HtmlRenderer	base = new HtmlRenderer(out);
-//		DeltaRenderer	dr	= new DeltaRenderer(base, out);
-		OptimalDeltaRenderer	dr	= new OptimalDeltaRenderer(base, out);
+		//		String	usag = ctx.getUserAgent();
+		HtmlRenderer base = new HtmlRenderer(out);
+		//		DeltaRenderer	dr	= new DeltaRenderer(base, out);
+		OptimalDeltaRenderer dr = new OptimalDeltaRenderer(base, out);
 		dr.render(ctx, page);
 		ts = System.nanoTime() - ts;
-		System.out.println("rq: Optimal Delta rendering took "+StringTool.strNanoTime(ts));
+		System.out.println("rq: Optimal Delta rendering took " + StringTool.strNanoTime(ts));
 		page.getConversation().startDelayedExecution();
 	}
 
@@ -474,27 +469,26 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 	 * @param cid
 	 * @throws Exception
 	 */
-	private void	handleClicked(final RequestContext ctx, final Page page, final NodeBase b) throws Exception {
+	private void handleClicked(final RequestContext ctx, final Page page, final NodeBase b) throws Exception {
 		if(b == null)
 			throw new IllegalStateException("Clicked must have a node!!");
 		b.internalOnClicked();
 	}
 
-	private void	handleValueChanged(final RequestContext ctx, final Page page, final NodeBase b) throws Exception {
+	private void handleValueChanged(final RequestContext ctx, final Page page, final NodeBase b) throws Exception {
 		if(b == null)
 			throw new IllegalStateException("onValueChanged must have a node!!");
-		if(! (b instanceof IInputNode<?>))
-			throw new IllegalStateException("Internal: node "+b+" must be an IInputValue node");
-		IInputNode<?>	in = (IInputNode<?>)b;
+		if(!(b instanceof IInputNode< ? >))
+			throw new IllegalStateException("Internal: node " + b + " must be an IInputValue node");
+		IInputNode< ? > in = (IInputNode< ? >) b;
 
-		IValueChanged<NodeBase, Object>	c = (IValueChanged<NodeBase, Object>)in.getOnValueChanged();
+		IValueChanged<NodeBase, Object> c = (IValueChanged<NodeBase, Object>) in.getOnValueChanged();
 		if(c == null)
-			throw new IllegalStateException("? Node "+b.getActualID()+" does not have a ValueChanged handler??");
+			throw new IllegalStateException("? Node " + b.getActualID() + " does not have a ValueChanged handler??");
 		Object value = null;
 		try {
 			value = in.getValue();
-		} catch(Exception x) {
-		}
+		} catch(Exception x) {}
 		c.onValueChanged(b, value);
 	}
 }

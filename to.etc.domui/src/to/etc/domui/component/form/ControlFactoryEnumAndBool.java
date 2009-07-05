@@ -20,7 +20,7 @@ public class ControlFactoryEnumAndBool implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	public int accepts(final PropertyMetaModel pmm, final boolean editable) {
-		Class<?>	iclz	= pmm.getActualType();
+		Class< ? > iclz = pmm.getActualType();
 		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 2 : 0;
 	}
 
@@ -31,14 +31,14 @@ public class ControlFactoryEnumAndBool implements ControlFactory {
 	 */
 	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
 		// Create a domainvalued combobox by default.
-		Object[]	vals	= pmm.getDomainValues();
-		ClassMetaModel	ecmm = null;
-		List<ComboFixed.Pair<Object>>	vl = new ArrayList<ComboFixed.Pair<Object>>();
-		for(Object o: vals) {
-			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), o);	// Label known to property?
+		Object[] vals = pmm.getDomainValues();
+		ClassMetaModel ecmm = null;
+		List<ComboFixed.Pair<Object>> vl = new ArrayList<ComboFixed.Pair<Object>>();
+		for(Object o : vals) {
+			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), o); // Label known to property?
 			if(label == null) {
 				if(ecmm == null)
-					ecmm = MetaManager.findClassMeta(pmm.getActualType());		// Try to get the property's type.
+					ecmm = MetaManager.findClassMeta(pmm.getActualType()); // Try to get the property's type.
 				label = ecmm.getDomainLabel(NlsContext.getLocale(), o);
 				if(label == null)
 					label = o == null ? "" : o.toString();
@@ -46,10 +46,10 @@ public class ControlFactoryEnumAndBool implements ControlFactory {
 			vl.add(new ComboFixed.Pair<Object>(o, label));
 		}
 
-		ComboFixed<?>	c = new ComboFixed<Object>(vl);
+		ComboFixed< ? > c = new ComboFixed<Object>(vl);
 		if(pmm.isRequired())
 			c.setMandatory(true);
-		if(! editable || pmm.getReadOnly() == YesNoType.YES)
+		if(!editable || pmm.getReadOnly() == YesNoType.YES)
 			c.setDisabled(true);
 		String s = pmm.getDefaultHint();
 		if(s != null)

@@ -16,7 +16,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	static private final float LOAD = 0.75f;
 
 	static public interface SizeCalculator<V> {
-		public int		getObjectSize(V item);
+		public int getObjectSize(V item);
 	}
 
 	static private class Entry<K, V> implements Map.Entry<K, V> {
@@ -35,7 +35,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		}
 
 		public K getKey() {
-			return (K) decodeKey( m_key);
+			return (K) decodeKey(m_key);
 		}
 
 		public V getValue() {
@@ -78,19 +78,19 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	/** The bucket table. */
 	transient Entry[] m_buckets;
 
-	private SizeCalculator<V>		m_sizeCalculator;
+	private SizeCalculator<V> m_sizeCalculator;
 
 	/** Head of the LRU chain for this map. */
-	private Entry<K, V> 	m_lruFirst, m_lruLast;
+	private Entry<K, V> m_lruFirst, m_lruLast;
 
 	/** The current #elements in the cache */
-	transient int 			m_currentSize;
+	transient int m_currentSize;
 
 	/** The current "size" of the entries in the cache. */
-	private transient int	m_objectSize;
-	
+	private transient int m_objectSize;
+
 	/** The max. "size" in the cache. */
-	private transient int	m_maxSize;
+	private transient int m_maxSize;
 
 	/**
 	 * The next size value at which to resize (capacity * load factor).
@@ -159,6 +159,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	public int getMaxSize() {
 		return m_maxSize;
 	}
+
 	/**
 	 * Return the size of all stored objects.
 	 * @return
@@ -280,7 +281,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		for(Entry<K, V> e = m_buckets[index]; e != null; e = e.m_bucketNext) {
 			if(e.m_hashCode == hash && (k == e.m_key || k.equals(e.m_key))) {
 				V old = e.m_value;
-				m_objectSize += - m_sizeCalculator.getObjectSize(old) + m_sizeCalculator.getObjectSize(value);
+				m_objectSize += -m_sizeCalculator.getObjectSize(old) + m_sizeCalculator.getObjectSize(value);
 				e.m_value = value;
 				link(e);
 				return old;

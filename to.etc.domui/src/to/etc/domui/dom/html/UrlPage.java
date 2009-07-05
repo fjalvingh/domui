@@ -15,20 +15,18 @@ import to.etc.webapp.nls.*;
  */
 public class UrlPage extends Div {
 	/** Cached bundle for the page. If the bundle is not found this contains null.. */
-	private BundleRef		m_pageBundle;
+	private BundleRef m_pageBundle;
 
 	/**
 	 * Gets called when a page is reloaded (for ROOT pages only).
 	 */
-	public void		onReload() throws Exception {
-	}
+	public void onReload() throws Exception {}
 
 	/**
 	 * Called when the page gets destroyed (navigation or such).
 	 * @throws Exception
 	 */
-	public void		onDestroy() throws Exception {
-	}
+	public void onDestroy() throws Exception {}
 
 	/**
 	 * Returns the bundle defined for the page. This defaults to a bundle with the
@@ -36,11 +34,11 @@ public class UrlPage extends Div {
 	 * annotation on the root class.
 	 * @return
 	 */
-	public BundleRef	getPageBundle() {
+	public BundleRef getPageBundle() {
 		if(m_pageBundle == null) {
 			m_pageBundle = DomUtil.findPageBundle(this);
 			if(m_pageBundle == null)
-				throw new ProgrammerErrorException("The page "+this.getClass()+" does not have a page resource bundle");
+				throw new ProgrammerErrorException("The page " + this.getClass() + " does not have a page resource bundle");
 		}
 		return m_pageBundle;
 	}
@@ -51,9 +49,9 @@ public class UrlPage extends Div {
 	 * @param param
 	 * @return
 	 */
-	public String		$(String key, Object... param) {
-		BundleRef	br = getPageBundle();
-		if(key.startsWith("~"))							// Prevent silly bugs.
+	public String $(String key, Object... param) {
+		BundleRef br = getPageBundle();
+		if(key.startsWith("~")) // Prevent silly bugs.
 			key = key.substring(1);
 		return br.formatMessage(key, param);
 	}

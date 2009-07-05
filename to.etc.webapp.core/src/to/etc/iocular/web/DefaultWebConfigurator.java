@@ -3,7 +3,7 @@ package to.etc.iocular.web;
 import javax.servlet.*;
 
 import to.etc.iocular.*;
-import to.etc.iocular.def.ContainerDefinition;
+import to.etc.iocular.def.*;
 import to.etc.iocular.util.*;
 
 /**
@@ -18,27 +18,27 @@ import to.etc.iocular.util.*;
 public class DefaultWebConfigurator implements WebConfigurator {
 	public WebConfiguration createConfiguration(ServletContext ctx) throws Exception {
 		//-- 1. Try bulk
-		ContainerDefinition	reqd, sesd, appd;
+		ContainerDefinition reqd, sesd, appd;
 		String cn = ctx.getInitParameter("request-configurator-class");
 		if(cn != null) {
-			Configurator	c = ClassUtil.instanceByName(Configurator.class, cn);
-			reqd	= c.getContainerDefinition();
+			Configurator c = ClassUtil.instanceByName(Configurator.class, cn);
+			reqd = c.getContainerDefinition();
 		} else {
 			throw new UnavailableException("Missing 'request-configurator-class' context-parameter");
 		}
 
 		cn = ctx.getInitParameter("session-configurator-class");
 		if(cn != null) {
-			Configurator	c = ClassUtil.instanceByName(Configurator.class, cn);
-			sesd	= c.getContainerDefinition();
+			Configurator c = ClassUtil.instanceByName(Configurator.class, cn);
+			sesd = c.getContainerDefinition();
 		} else {
 			throw new UnavailableException("Missing 'session-configurator-class' context-parameter");
 		}
 
 		cn = ctx.getInitParameter("application-configurator-class");
 		if(cn != null) {
-			Configurator	c = ClassUtil.instanceByName(Configurator.class, cn);
-			appd	= c.getContainerDefinition();
+			Configurator c = ClassUtil.instanceByName(Configurator.class, cn);
+			appd = c.getContainerDefinition();
 		} else {
 			throw new UnavailableException("Missing 'application-configurator-class' context-parameter");
 		}

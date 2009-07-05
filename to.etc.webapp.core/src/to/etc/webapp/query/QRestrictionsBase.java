@@ -9,15 +9,15 @@ import java.util.*;
  * Created on Jun 21, 2009
  */
 public class QRestrictionsBase {
-	private int					m_limit = -1;
-	private int					m_start = 0;
+	private int m_limit = -1;
 
-	private List<QOperatorNode>		m_restrictionList = Collections.EMPTY_LIST;
+	private int m_start = 0;
 
-	private List<QOrder>		m_order = Collections.EMPTY_LIST;
+	private List<QOperatorNode> m_restrictionList = Collections.EMPTY_LIST;
 
-	QRestrictionsBase() {
-	}
+	private List<QOrder> m_order = Collections.EMPTY_LIST;
+
+	QRestrictionsBase() {}
 
 	/**
 	 * Copy constructor.
@@ -25,9 +25,9 @@ public class QRestrictionsBase {
 	 */
 	public QRestrictionsBase(QRestrictionsBase q) {
 		m_restrictionList = new ArrayList<QOperatorNode>(q.m_restrictionList);
-		m_order	= new ArrayList<QOrder>(q.m_order);
-		m_limit		= q.m_limit;
-		m_start		= q.m_start;
+		m_order = new ArrayList<QOrder>(q.m_order);
+		m_limit = q.m_limit;
+		m_start = q.m_start;
 	}
 
 	/**
@@ -35,7 +35,7 @@ public class QRestrictionsBase {
 	 * @param r
 	 * @return
 	 */
-	public QRestrictionsBase	add(QOperatorNode r) {
+	public QRestrictionsBase add(QOperatorNode r) {
 		if(m_restrictionList == Collections.EMPTY_LIST)
 			m_restrictionList = new ArrayList<QOperatorNode>();
 		m_restrictionList.add(r);
@@ -47,7 +47,7 @@ public class QRestrictionsBase {
 	 * @param r
 	 * @return
 	 */
-	public QRestrictionsBase	add(QOrder r) {
+	public QRestrictionsBase add(QOrder r) {
 		if(m_order == Collections.EMPTY_LIST)
 			m_order = new ArrayList<QOrder>();
 		m_order.add(r);
@@ -59,7 +59,7 @@ public class QRestrictionsBase {
 	 * @param property
 	 * @return
 	 */
-	public QRestrictionsBase	ascending(String property) {
+	public QRestrictionsBase ascending(String property) {
 		add(QOrder.ascending(property));
 		return this;
 	}
@@ -69,7 +69,7 @@ public class QRestrictionsBase {
 	 * @param property
 	 * @return
 	 */
-	public QRestrictionsBase	descending(String property) {
+	public QRestrictionsBase descending(String property) {
 		add(QOrder.descending(property));
 		return this;
 	}
@@ -80,7 +80,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	eq(String property, Object value) {
+	public QRestrictionsBase eq(String property, Object value) {
 		add(QRestriction.eq(property, value));
 		return this;
 	}
@@ -91,7 +91,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	eq(String property, long value) {
+	public QRestrictionsBase eq(String property, long value) {
 		add(QRestriction.eq(property, value));
 		return this;
 	}
@@ -102,7 +102,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	eq(String property, double value) {
+	public QRestrictionsBase eq(String property, double value) {
 		add(QRestriction.eq(property, value));
 		return this;
 	}
@@ -114,7 +114,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	ne(String property, Object value) {
+	public QRestrictionsBase ne(String property, Object value) {
 		add(QRestriction.ne(property, value));
 		return this;
 	}
@@ -126,7 +126,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	ne(String property, long value) {
+	public QRestrictionsBase ne(String property, long value) {
 		add(QRestriction.ne(property, value));
 		return this;
 	}
@@ -138,7 +138,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	ne(String property, double value) {
+	public QRestrictionsBase ne(String property, double value) {
 		add(QRestriction.ne(property, value));
 		return this;
 	}
@@ -150,7 +150,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	gt(String property, Object value) {
+	public QRestrictionsBase gt(String property, Object value) {
 		add(QRestriction.gt(property, value));
 		return this;
 	}
@@ -162,7 +162,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	gt(String property, long value) {
+	public QRestrictionsBase gt(String property, long value) {
 		add(QRestriction.gt(property, value));
 		return this;
 	}
@@ -174,7 +174,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	gt(String property, double value) {
+	public QRestrictionsBase gt(String property, double value) {
 		add(QRestriction.gt(property, value));
 		return this;
 	}
@@ -186,7 +186,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	lt(String property, Object value) {
+	public QRestrictionsBase lt(String property, Object value) {
 		add(QRestriction.lt(property, value));
 		return this;
 	}
@@ -198,7 +198,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	lt(String property, long value) {
+	public QRestrictionsBase lt(String property, long value) {
 		add(QRestriction.lt(property, value));
 		return this;
 	}
@@ -210,7 +210,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	lt(String property, double value) {
+	public QRestrictionsBase lt(String property, double value) {
 		add(QRestriction.lt(property, value));
 		return this;
 	}
@@ -222,7 +222,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	ge(String property, Object value) {
+	public QRestrictionsBase ge(String property, Object value) {
 		add(QRestriction.ge(property, value));
 		return this;
 	}
@@ -234,7 +234,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	ge(String property, long value) {
+	public QRestrictionsBase ge(String property, long value) {
 		add(QRestriction.ge(property, value));
 		return this;
 	}
@@ -246,7 +246,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	ge(String property, double value) {
+	public QRestrictionsBase ge(String property, double value) {
 		add(QRestriction.ge(property, value));
 		return this;
 	}
@@ -258,7 +258,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	le(String property, Object value) {
+	public QRestrictionsBase le(String property, Object value) {
 		add(QRestriction.le(property, value));
 		return this;
 	}
@@ -270,7 +270,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	le(String property, long value) {
+	public QRestrictionsBase le(String property, long value) {
 		add(QRestriction.le(property, value));
 		return this;
 	}
@@ -282,7 +282,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	le(String property, double value) {
+	public QRestrictionsBase le(String property, double value) {
 		add(QRestriction.le(property, value));
 		return this;
 	}
@@ -294,7 +294,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	like(String property, Object value) {
+	public QRestrictionsBase like(String property, Object value) {
 		add(QRestriction.like(property, value));
 		return this;
 	}
@@ -306,7 +306,7 @@ public class QRestrictionsBase {
 	 * @param b
 	 * @return
 	 */
-	public QRestrictionsBase	between(String property, Object a, Object b) {
+	public QRestrictionsBase between(String property, Object a, Object b) {
 		add(QRestriction.between(property, a, b));
 		return this;
 	}
@@ -318,7 +318,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase	ilike(String property, Object value) {
+	public QRestrictionsBase ilike(String property, Object value) {
 		add(QRestriction.ilike(property, value));
 		return this;
 	}
@@ -328,26 +328,28 @@ public class QRestrictionsBase {
 	 * @param a
 	 * @return
 	 */
-	public QRestrictionsBase	or(QOperatorNode... a) {
+	public QRestrictionsBase or(QOperatorNode... a) {
 		add(QRestriction.or(a));
 		return this;
 	}
+
 	/**
 	 * Add the restriction that the property specified must be null.
 	 * @param property
 	 * @return
 	 */
-	public QRestrictionsBase	isnull(String property) {
+	public QRestrictionsBase isnull(String property) {
 		add(QRestriction.isnull(property));
 		return this;
 	}
+
 	/**
 	 * Add the restriction that the property specified must be not-null.
 	 *
 	 * @param property
 	 * @return
 	 */
-	public QRestrictionsBase	isnotnull(String property) {
+	public QRestrictionsBase isnotnull(String property) {
 		add(QRestriction.isnotnull(property));
 		return this;
 	}
@@ -357,7 +359,7 @@ public class QRestrictionsBase {
 	 * @param sql
 	 * @return
 	 */
-	public QRestrictionsBase	sqlCondition(String sql) {
+	public QRestrictionsBase sqlCondition(String sql) {
 		add(QRestriction.sqlCondition(sql));
 		return this;
 	}
@@ -389,6 +391,7 @@ public class QRestrictionsBase {
 	final public int getLimit() {
 		return m_limit;
 	}
+
 	/**
 	 * Returns the start index set.
 	 * @return
@@ -405,15 +408,15 @@ public class QRestrictionsBase {
 		if(m_restrictionList.size() == 0)
 			return null;
 		if(m_restrictionList.size() == 1)
-			return m_restrictionList.get(0);						// Return the single restriction.
-		return new QMultiNode(QOperation.AND, m_restrictionList);	// Return an AND of all restrictions
+			return m_restrictionList.get(0); // Return the single restriction.
+		return new QMultiNode(QOperation.AND, m_restrictionList); // Return an AND of all restrictions
 	}
 
 	/**
 	 * Returns the #of restrictions added to this set!? Useless??
 	 * @return
 	 */
-	final public boolean	hasRestrictions() {
+	final public boolean hasRestrictions() {
 		return m_restrictionList.size() > 0;
 	}
 

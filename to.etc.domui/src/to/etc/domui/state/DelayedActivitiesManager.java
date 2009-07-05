@@ -14,15 +14,19 @@ import to.etc.domui.dom.html.*;
  * Created on Oct 7, 2008
  */
 public class DelayedActivitiesManager implements Runnable {
-//	private ConversationContext			m_conversation;
-	private Thread						m_executorThread;
-	private List<DelayedActivityInfo>	m_pendingQueue = new ArrayList<DelayedActivityInfo>();
-	private List<DelayedActivityInfo>	m_completionQueue = new ArrayList<DelayedActivityInfo>();
-	private DelayedActivityInfo			m_runningActivity;
-	private boolean						m_terminated;
+	//	private ConversationContext			m_conversation;
+	private Thread m_executorThread;
+
+	private List<DelayedActivityInfo> m_pendingQueue = new ArrayList<DelayedActivityInfo>();
+
+	private List<DelayedActivityInfo> m_completionQueue = new ArrayList<DelayedActivityInfo>();
+
+	private DelayedActivityInfo m_runningActivity;
+
+	private boolean m_terminated;
 
 	protected DelayedActivitiesManager(ConversationContext conversation) {
-//		m_conversation = conversation;
+	//		m_conversation = conversation;
 	}
 
 	/**
@@ -32,25 +36,25 @@ public class DelayedActivitiesManager implements Runnable {
 	 * @param a
 	 * @return
 	 */
-	public DelayedActivityInfo		schedule(IActivity a, AsyncContainer ac) {
+	public DelayedActivityInfo schedule(IActivity a, AsyncContainer ac) {
 		synchronized(this) {
-			for(DelayedActivityInfo dai: m_pendingQueue) {
+			for(DelayedActivityInfo dai : m_pendingQueue) {
 				if(dai.getActivity() == a)
 					throw new IllegalStateException("The same activity instance is ALREADY scheduled!!");
 			}
 
-			DelayedActivityInfo	dai = new DelayedActivityInfo(this, a, ac);
+			DelayedActivityInfo dai = new DelayedActivityInfo(this, a, ac);
 			m_pendingQueue.add(dai);
 			return dai;
 		}
 	}
 
-	public void		cancelActivity(IActivity a) {
-		DelayedActivityInfo	d = null;
+	public void cancelActivity(IActivity a) {
+		DelayedActivityInfo d = null;
 		synchronized(this) {
-			for(DelayedActivityInfo dai: m_pendingQueue) {
+			for(DelayedActivityInfo dai : m_pendingQueue) {
 				if(dai.getActivity() == a) {
-					d	= dai;
+					d = dai;
 					break;
 				}
 			}
@@ -66,8 +70,8 @@ public class DelayedActivitiesManager implements Runnable {
 	 * @param dai
 	 */
 	public boolean cancelActivity(DelayedActivityInfo dai) {
-		Thread	tr;
-		
+		Thread tr;
+
 		synchronized(this) {
 			if(m_pendingQueue.remove(dai)) {
 				dai.getContainer().confirmCancelled();
@@ -79,23 +83,22 @@ public class DelayedActivitiesManager implements Runnable {
 				return false;
 
 			//-- The activity is currently running. Try to abort the task && thread.
-			tr	= m_executorThread;
-			m_runningActivity.getMonitor().cancel();			// Force cancel indication.
+			tr = m_executorThread;
+			m_runningActivity.getMonitor().cancel(); // Force cancel indication.
 		}
 		tr.interrupt();
 		return true;
 	}
 
-	private void	wakeupListeners(int lingertime) {
-	}
+	private void wakeupListeners(int lingertime) {}
 
-	void 	completionStateChanged(DelayedActivityInfo dai, int pct) {
+	void completionStateChanged(DelayedActivityInfo dai, int pct) {
 		synchronized(this) {
 			dai.setPercentageComplete(pct);
 		}
 	}
 
-	
+
 	/**
 	 * Retrieves the current activity state. This creates Progress records for
 	 * all activities currently active, and returns (and removes) all activities
@@ -103,23 +106,23 @@ public class DelayedActivitiesManager implements Runnable {
 	 *
 	 * @return
 	 */
-	public DelayedActivityState		getState() {
-//		System.out.println("$$$$$ getState called.");
+	public DelayedActivityState getState() {
+		//		System.out.println("$$$$$ getState called.");
 		synchronized(this) {
-			List<DelayedActivityState.Progress>	pl = Collections.EMPTY_LIST;
+			List<DelayedActivityState.Progress> pl = Collections.EMPTY_LIST;
 
 			//-- Do we need progress report(s)?
 			if(m_runningActivity != null) {
 				int pct = m_runningActivity.getPercentageComplete();
 				if(pct > 0) {
-//					System.out.println("$$$$$ getState, pct="+pct);
+					//					System.out.println("$$$$$ getState, pct="+pct);
 					pl = new ArrayList<DelayedActivityState.Progress>();
 					pl.add(new DelayedActivityState.Progress(m_runningActivity.getContainer(), pct, null));
 				}
 			}
 
 			//-- Handle all completed thingies.
-			List<DelayedActivityInfo>	comp = m_completionQueue.size() == 0 ? Collections.EMPTY_LIST : new ArrayList<DelayedActivityInfo>(m_completionQueue);
+			List<DelayedActivityInfo> comp = m_completionQueue.size() == 0 ? Collections.EMPTY_LIST : new ArrayList<DelayedActivityInfo>(m_completionQueue);
 			m_completionQueue.clear();
 			if(comp.size() == 0 && pl.size() == 0)
 				return null;
@@ -134,17 +137,17 @@ public class DelayedActivitiesManager implements Runnable {
 	 * Initiate background processing, if needed. Returns T if background processing is active, or
 	 * when data is present in the completion queue.
 	 */
-	public boolean	start() {
+	public boolean start() {
 		synchronized(this) {
-			if(m_executorThread != null)			// Active thread?
-				return true;						// Begone.
+			if(m_executorThread != null) // Active thread?
+				return true; // Begone.
 
 			//-- Must a thread be started?
-			if(m_pendingQueue.size() == 0)			// Pending requests?
-				return false;						// Nope -> begone
+			if(m_pendingQueue.size() == 0) // Pending requests?
+				return false; // Nope -> begone
 
 			//-- Prepare to start the executor.
-			m_executorThread	= new Thread(this);
+			m_executorThread = new Thread(this);
 			m_executorThread.setName("xc");
 			m_executorThread.setDaemon(true);
 			m_executorThread.setPriority(Thread.MIN_PRIORITY);
@@ -153,13 +156,14 @@ public class DelayedActivitiesManager implements Runnable {
 		return true;
 	}
 
-	public boolean	callbackRequired() {
-		synchronized (this) {
+	public boolean callbackRequired() {
+		synchronized(this) {
 			return m_pendingQueue.size() > 0 || m_completionQueue.size() > 0 || m_runningActivity != null;
 		}
 	}
-	public boolean	isTerminated() {
-		synchronized (this) {
+
+	public boolean isTerminated() {
+		synchronized(this) {
 			return m_terminated;
 		}
 	}
@@ -173,11 +177,11 @@ public class DelayedActivitiesManager implements Runnable {
 	 * it's task has completed it's "result completed" handler will catch the fact that it's actually
 	 * trying to fondle a dead body and throw (up).
 	 */
-	public void	terminate() {
-		Thread				killme = null;
-		DelayedActivityInfo	pendingcorpse = null;
+	public void terminate() {
+		Thread killme = null;
+		DelayedActivityInfo pendingcorpse = null;
 
-		synchronized (this) {
+		synchronized(this) {
 			if(m_terminated)
 				return;
 			m_terminated = true;
@@ -190,13 +194,13 @@ public class DelayedActivitiesManager implements Runnable {
 
 			m_completionQueue.clear();
 			m_pendingQueue.clear();
-			wakeupListeners(100);						// Wakeup anything that's listening quickly
+			wakeupListeners(100); // Wakeup anything that's listening quickly
 		}
 
 		//-- Do our utmost to kill the task, not gently.
 		try {
 			if(pendingcorpse != null)
-				pendingcorpse.getMonitor().cancel();	// Forcefully cancel;
+				pendingcorpse.getMonitor().cancel(); // Forcefully cancel;
 		} catch(Exception x) {
 			x.printStackTrace();
 		}
@@ -226,26 +230,26 @@ public class DelayedActivitiesManager implements Runnable {
 		try {
 			for(;;) {
 				//-- Are we attempting to die?
-				DelayedActivityInfo	dai;
+				DelayedActivityInfo dai;
 				synchronized(this) {
-					if(m_terminated)					// Manager is deadish?
-						return;							// Just quit immediately (nothing is currently running)
+					if(m_terminated) // Manager is deadish?
+						return; // Just quit immediately (nothing is currently running)
 
 					//-- Anything to do?
-					if(m_pendingQueue.size() == 0) {	// Something queued still?
+					if(m_pendingQueue.size() == 0) { // Something queued still?
 						//-- Nope. We can stop properly.
 						return;
 					}
 
 					//-- Schedule for a new execute.
-					dai = m_pendingQueue.remove(0);		// Get and remove from pending queue
-					m_runningActivity	= dai;			// Make this the running dude
+					dai = m_pendingQueue.remove(0); // Get and remove from pending queue
+					m_runningActivity = dai; // Make this the running dude
 				}
 				execute(dai);
 			}
 		} catch(Exception x) {
 			//-- Do not report trouble if the manager is in the process of dying
-			if(! isTerminated()) {
+			if(!isTerminated()) {
 				System.err.println("FATAL Exception in DelayedActivitiesManager.run()!??!?!?!?\nAsy tasks WILL NOT COMPLETE anymore.");
 				x.printStackTrace();
 			}
@@ -254,7 +258,7 @@ public class DelayedActivitiesManager implements Runnable {
 			 * Be very, very certain that we handle state @ thread termination properly.
 			 */
 			synchronized(this) {
-				m_executorThread = null;						// I'm gone...
+				m_executorThread = null; // I'm gone...
 			}
 		}
 	}
@@ -264,15 +268,15 @@ public class DelayedActivitiesManager implements Runnable {
 	 * @param dai
 	 */
 	private void execute(DelayedActivityInfo dai) {
-		DelayedProgressMonitor	mon = new DelayedProgressMonitor(this, dai);
+		DelayedProgressMonitor mon = new DelayedProgressMonitor(this, dai);
 		dai.setMonitor(mon);
 
-		Exception	errorx = null;
-		Div			result	= null;
+		Exception errorx = null;
+		Div result = null;
 		try {
 			result = m_runningActivity.getActivity().run(m_runningActivity.getMonitor());
 		} catch(Exception x) {
-			if(! (x instanceof InterruptedException))
+			if(!(x instanceof InterruptedException))
 				errorx = x;
 		}
 
@@ -280,16 +284,16 @@ public class DelayedActivitiesManager implements Runnable {
 		 * Register the result.
 		 */
 		synchronized(this) {
-			m_runningActivity = null;					// Nothing is running anymore.
-			if(m_terminated)							// Fondling a corpse? Ignore the result.
+			m_runningActivity = null; // Nothing is running anymore.
+			if(m_terminated) // Fondling a corpse? Ignore the result.
 				return;
 
 			//-- We're still alive; post the result in the done queue and awake listeners quickly.
 			if(errorx != null)
-				dai.setException(errorx);				// Mark as fatally wounded.
+				dai.setException(errorx); // Mark as fatally wounded.
 			else
-				dai.setExecutionResult(result);			// Mark as properly thingesed
-			m_completionQueue.add(dai);					// Append to completion queue for access by whatever.
+				dai.setExecutionResult(result); // Mark as properly thingesed
+			m_completionQueue.add(dai); // Append to completion queue for access by whatever.
 			wakeupListeners(1000);
 		}
 	}
@@ -299,16 +303,16 @@ public class DelayedActivitiesManager implements Runnable {
 	 *
 	 * @param das
 	 */
-	public void			applyToTree(DelayedActivityState das) {
+	public void applyToTree(DelayedActivityState das) {
 		//-- Handle progress reporting
-		for(DelayedActivityState.Progress p: das.getProgressList()) {
-			AsyncContainer	c = p.getContainer();
+		for(DelayedActivityState.Progress p : das.getProgressList()) {
+			AsyncContainer c = p.getContainer();
 			c.updateProgress(p.getPctComplete(), p.getMessage());
 		}
 
 		//-- Handle completion reporting
-		for(DelayedActivityInfo dai: das.getCompletionList()) {
-			AsyncContainer	c = dai.getContainer();
+		for(DelayedActivityInfo dai : das.getCompletionList()) {
+			AsyncContainer c = dai.getContainer();
 			c.updateCompleted(dai);
 		}
 	}

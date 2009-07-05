@@ -7,12 +7,14 @@ import org.jCharts.*;
 import to.etc.domui.component.dynaima.*;
 
 public class JGraphChartSource implements IBufferedImageSource {
-	private Chart				m_chart;
-	private ICharterHelper		m_helper;
+	private Chart m_chart;
+
+	private ICharterHelper m_helper;
 
 	public String getMimeType() {
 		return "image/png";
 	}
+
 	void setChart(Chart c) {
 		m_chart = c;
 	}
@@ -35,8 +37,7 @@ public class JGraphChartSource implements IBufferedImageSource {
 		//---   simply return the rendered image.
 		if(m_chart.getGenerateImageMapFlag()) {
 			bufferedImage = m_chart.getBufferedImage();
-		}
-		else {
+		} else {
 			//---else, create a new BufferedImage and set the Graphics2D onto the chart.
 			bufferedImage = new BufferedImage(m_chart.getImageWidth(), m_chart.getImageHeight(), BufferedImage.TYPE_INT_RGB);
 			m_chart.setGraphics2D(bufferedImage.createGraphics());
@@ -45,19 +46,18 @@ public class JGraphChartSource implements IBufferedImageSource {
 		return bufferedImage;
 	}
 
-	public void	createGraph() throws Exception {
-	}
-	public void	close() {
-	}
+	public void createGraph() throws Exception {}
 
-	public PieCharter		createPieChart(int w, int h, String label) {
-		PieCharter	c = new PieCharter(this, label, w, h);
+	public void close() {}
+
+	public PieCharter createPieChart(int w, int h, String label) {
+		PieCharter c = new PieCharter(this, label, w, h);
 		m_helper = c;
 		return c;
 	}
 
-	public AreaCharter		createAreaChart(int w, int h, String title, String buckettitle, String valuetitle) {
-		AreaCharter	c = new AreaCharter(this, title, w, h, buckettitle, valuetitle);
+	public AreaCharter createAreaChart(int w, int h, String title, String buckettitle, String valuetitle) {
+		AreaCharter c = new AreaCharter(this, title, w, h, buckettitle, valuetitle);
 		m_helper = c;
 		return c;
 	}

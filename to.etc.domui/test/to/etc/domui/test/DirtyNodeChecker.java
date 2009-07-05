@@ -6,7 +6,7 @@ public class DirtyNodeChecker extends NodeVisitorBase {
 	@Override
 	public void visitNodeBase(NodeBase n) throws Exception {
 		if(n.hasChangedAttributes())
-			throw new IllegalStateException("The node "+n+" has DIRTY ATTRIBUTES set");
+			throw new IllegalStateException("The node " + n + " has DIRTY ATTRIBUTES set");
 	}
 
 	@Override

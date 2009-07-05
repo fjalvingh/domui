@@ -13,10 +13,13 @@ import to.etc.domui.state.*;
  */
 public class MenuItemProxy implements IMenuItem {
 	/** The actual item being proxied. */
-	private final IMenuItem			m_actual;
-	private List<IMenuItem>			m_children;
-	private int						m_order;
-	private IMenuItem				m_parent;
+	private final IMenuItem m_actual;
+
+	private List<IMenuItem> m_children;
+
+	private int m_order;
+
+	private IMenuItem m_parent;
 
 	public MenuItemProxy(final IMenuItem actual) {
 		if(null == actual)
@@ -65,6 +68,7 @@ public class MenuItemProxy implements IMenuItem {
 	public boolean isDisabled() {
 		return m_actual.isDisabled();
 	}
+
 	public boolean isSubMenu() {
 		return m_actual.isSubMenu();
 	}
@@ -72,9 +76,11 @@ public class MenuItemProxy implements IMenuItem {
 	public List<IMenuItem> getChildren() {
 		return m_children;
 	}
+
 	public void setChildren(final List<IMenuItem> children) {
 		m_children = children;
 	}
+
 	public int getOrder() {
 		return m_order;
 	}
@@ -82,12 +88,15 @@ public class MenuItemProxy implements IMenuItem {
 	public IMenuItem getParent() {
 		return m_parent;
 	}
+
 	public void setParent(final IMenuItem parent) {
 		m_parent = parent;
 	}
+
 	public String getRURL() {
 		return m_actual.getRURL();
 	}
+
 	public String getTarget() {
 		return m_actual.getTarget();
 	}

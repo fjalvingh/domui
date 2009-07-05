@@ -3,7 +3,7 @@ package to.etc.domui.hibernate.generic;
 import to.etc.webapp.query.*;
 
 public class HibernateReattachingSource implements QDataContextSource {
-	private HibernateSessionMaker				m_sessionMaker;
+	private HibernateSessionMaker m_sessionMaker;
 
 	public HibernateReattachingSource(HibernateSessionMaker sessionMaker) {
 		m_sessionMaker = sessionMaker;
@@ -14,7 +14,7 @@ public class HibernateReattachingSource implements QDataContextSource {
 	}
 
 	public void releaseDataContext(QDataContext dc) {
-		HibernaatjeBaseContext	q = (HibernaatjeBaseContext) dc;
+		HibernaatjeBaseContext q = (HibernaatjeBaseContext) dc;
 		q.close();
 	}
 }

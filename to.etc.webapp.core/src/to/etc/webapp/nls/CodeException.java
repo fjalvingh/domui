@@ -11,9 +11,11 @@ import java.util.*;
  * Created on Mar 31, 2009
  */
 public class CodeException extends RuntimeException {
-	private final BundleRef	m_bundle;
-	private final String	m_code;
-	private final Object[]	m_parameters;
+	private final BundleRef m_bundle;
+
+	private final String m_code;
+
+	private final Object[] m_parameters;
 
 	public CodeException(final BundleRef bundle, final String code, final Object... parameters) {
 		m_bundle = bundle;
@@ -44,19 +46,22 @@ public class CodeException extends RuntimeException {
 	public BundleRef getBundle() {
 		return m_bundle;
 	}
+
 	public String getCode() {
 		return m_code;
 	}
+
 	public Object[] getParameters() {
 		return m_parameters;
 	}
+
 	@Override
 	public String getMessage() {
 		if(m_bundle == null)
 			return NlsContext.getGlobalMessage(m_code, m_parameters);
-		Locale	loc = NlsContext.getLocale();
-        String  msg = m_bundle.getString(m_code);
-        MessageFormat temp = new MessageFormat(msg, loc);			// SUN people are dumb. It's idiotic to have to create an object for this.
-        return temp.format(m_parameters);
+		Locale loc = NlsContext.getLocale();
+		String msg = m_bundle.getString(m_code);
+		MessageFormat temp = new MessageFormat(msg, loc); // SUN people are dumb. It's idiotic to have to create an object for this.
+		return temp.format(m_parameters);
 	}
 }

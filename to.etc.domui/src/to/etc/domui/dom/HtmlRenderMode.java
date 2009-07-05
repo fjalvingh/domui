@@ -12,5 +12,5 @@ public enum HtmlRenderMode {
 
 	/** Rendering a full replacement for nodes */
 	REPL,
-	
+
 }

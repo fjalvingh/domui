@@ -14,28 +14,34 @@ import to.etc.webapp.query.*;
  * Created on Oct 16, 2008
  */
 abstract public class BasicListPage<T> extends BasicPage<T> {
-	private DataTable			m_result;
-	private DataPager			m_pager;
-	private boolean				m_allowEmptySearch;
+	private DataTable m_result;
 
-	abstract public void		onSelect(T rcord) throws Exception;
-	abstract protected void		doNew() throws Exception;
+	private DataPager m_pager;
+
+	private boolean m_allowEmptySearch;
+
+	abstract public void onSelect(T rcord) throws Exception;
+
+	abstract protected void doNew() throws Exception;
 
 	public BasicListPage(Class<T> clz, String titlekey) {
 		super(clz, titlekey);
 	}
+
 	public boolean isAllowEmptySearch() {
 		return m_allowEmptySearch;
 	}
+
 	public void setAllowEmptySearch(boolean allowEmptySearch) {
 		m_allowEmptySearch = allowEmptySearch;
 	}
+
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
 
 		//-- Lookup thingy.
-		final LookupForm<T>	lf	= new LookupForm<T>(getBaseClass());
+		final LookupForm<T> lf = new LookupForm<T>(getBaseClass());
 		add(lf);
 		lf.setClicked(new IClicked<LookupForm<T>>() {
 			public void clicked(LookupForm<T> b) throws Exception {
@@ -54,25 +60,25 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	}
 
 	void search(LookupForm<T> lf) throws Exception {
-		QCriteria<T>	c	= lf.getEnteredCriteria();
-		if(c == null)									// Some error has occured?
-			return;										// Don't do anything (errors will have been registered)
+		QCriteria<T> c = lf.getEnteredCriteria();
+		if(c == null) // Some error has occured?
+			return; // Don't do anything (errors will have been registered)
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(! c.hasRestrictions() && ! isAllowEmptySearch()) {
-			addGlobalMessage(MsgType.ERROR, Msgs.V_MISSING_SEARCH);		// Missing inputs
+		if(!c.hasRestrictions() && !isAllowEmptySearch()) {
+			addGlobalMessage(MsgType.ERROR, Msgs.V_MISSING_SEARCH); // Missing inputs
 			return;
 		} else
 			clearGlobalMessage();
 		setTableQuery(c);
 	}
 
-	private void	setTableQuery(QCriteria<T> qc) {
-		QDataContextSource	src	= QContextManager.getSource(getPage());
-		ITableModel<T>		model = new SimpleSearchModel<T>(src, qc);
+	private void setTableQuery(QCriteria<T> qc) {
+		QDataContextSource src = QContextManager.getSource(getPage());
+		ITableModel<T> model = new SimpleSearchModel<T>(src, qc);
 
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
-			SimpleRowRenderer	rr = new SimpleRowRenderer(getBaseClass());
+			SimpleRowRenderer rr = new SimpleRowRenderer(getBaseClass());
 			m_result = new DataTable(model, rr);
 			add(m_result);
 			m_result.setPageSize(20);
@@ -88,17 +94,18 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 			m_pager = new DataPager(m_result);
 			add(m_pager);
 		} else {
-			m_result.setModel(model);				// Change the model
+			m_result.setModel(model); // Change the model
 		}
 	}
+
 	@Override
 	protected void onShelve() throws Exception {
 		QContextManager.closeSharedContext(getPage().getConversation());
 	}
-	
-//	protected void	doNew() throws Exception {
-//		
-//		
-//	}
-	
+
+	//	protected void	doNew() throws Exception {
+	//		
+	//		
+	//	}
+
 }

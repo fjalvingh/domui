@@ -1,8 +1,7 @@
 package to.etc.iocular.def;
 
-import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.annotation.*;
+import java.util.*;
 
 /**
  * <p>A container definition contains the <quote>compiled</quote> form of the
@@ -28,46 +27,51 @@ import java.util.Map;
  */
 final public class ContainerDefinition {
 	/** A name of this container. It should be unique within a container tree. */
-	private final String					m_name;
+	private final String m_name;
 
 	/** If this definition is for a container that has a parent container this refers to the parent's definition. */
-	private final ContainerDefinition		m_parentContainerDefinition;
+	private final ContainerDefinition m_parentContainerDefinition;
 
 	/** The index of this container within the container stack; where the topmost parent has index 0, and each child has a one-highet index. */
-	private final int						m_containerIndex;
+	private final int m_containerIndex;
 
 	/** If this definition extends another definition this refers to the "base" definition. */
-//	private ContainerDefinition		m_originalBaseDefinition;
+	//	private ContainerDefinition		m_originalBaseDefinition;
 
-	private Map<String, ComponentRef>	m_namedMap = new HashMap<String, ComponentRef>();
+	private Map<String, ComponentRef> m_namedMap = new HashMap<String, ComponentRef>();
 
-	private Map<Class<?>, ComponentRef>	m_declaredMap = new HashMap<Class<?>, ComponentRef>();
+	private Map<Class< ? >, ComponentRef> m_declaredMap = new HashMap<Class< ? >, ComponentRef>();
 
-	private Map<Class<?>, ComponentRef>	m_actualMap = new HashMap<Class<?>, ComponentRef>();
+	private Map<Class< ? >, ComponentRef> m_actualMap = new HashMap<Class< ? >, ComponentRef>();
 
-	public ContainerDefinition(final String name, final ContainerDefinition base, final ContainerDefinition parent, final Map<String, ComponentRef> namedMap, final Map<Class< ? >, ComponentRef> declaredMap, final Map<Class< ? >, ComponentRef> actualMap, final int index) {
-		m_name	= name;
+	public ContainerDefinition(final String name, final ContainerDefinition base, final ContainerDefinition parent, final Map<String, ComponentRef> namedMap,
+		final Map<Class< ? >, ComponentRef> declaredMap, final Map<Class< ? >, ComponentRef> actualMap, final int index) {
+		m_name = name;
 		m_parentContainerDefinition = parent;
-//		m_originalBaseDefinition = base;
+		//		m_originalBaseDefinition = base;
 		m_namedMap = namedMap;
 		m_declaredMap = declaredMap;
 		m_actualMap = actualMap;
 		m_containerIndex = index;
 	}
-	public ContainerDefinition	getParentDefinition() {
+
+	public ContainerDefinition getParentDefinition() {
 		return m_parentContainerDefinition;
 	}
+
 	public String getName() {
 		return m_name;
 	}
+
 	public int getContainerIndex() {
 		return m_containerIndex;
 	}
 
-	public ComponentRef		findComponentReference(final String name) {
+	public ComponentRef findComponentReference(final String name) {
 		return m_namedMap.get(name);
 	}
-	public ComponentRef		findComponentReference(final Class<?> cls) {
+
+	public ComponentRef findComponentReference(final Class< ? > cls) {
 		ComponentRef r = m_declaredMap.get(cls);
 		if(r != null)
 			return r;
@@ -83,23 +87,23 @@ final public class ContainerDefinition {
 	 * @param def
 	 * @return
 	 */
-	ComponentRef	findDefinedReference(final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
+	ComponentRef findDefinedReference(final Class< ? > ptype, final Annotation[] annar, final MethodParameterSpec def) {
 		//-- Try to find a ComponentBuilder that is able to provide this thingy.
 		/*
 		 * TODO First try to find something using the provided parameters and annotations.
 		 */
 
 		//-- No parameters provided- try to locate using the type of the type using the defined type table
-		ComponentRef	ref = m_declaredMap.get(ptype);
+		ComponentRef ref = m_declaredMap.get(ptype);
 		if(ref != null)
 			return ref;
 
-//		//-- Find in my base, if possible,
-//		if(m_baseDefinition != null) {
-//			ref = m_baseDefinition.findDefinedReference(ptype, annar, def);
-//			if(ref != null)
-//				return ref;
-//		}
+		//		//-- Find in my base, if possible,
+		//		if(m_baseDefinition != null) {
+		//			ref = m_baseDefinition.findDefinedReference(ptype, annar, def);
+		//			if(ref != null)
+		//				return ref;
+		//		}
 
 		//-- Try my parent.
 		if(m_parentContainerDefinition != null) {
@@ -107,7 +111,7 @@ final public class ContainerDefinition {
 			if(ref != null)
 				return ref;
 		}
-		return null;				// Not found!
+		return null; // Not found!
 	}
 
 	/**
@@ -120,21 +124,21 @@ final public class ContainerDefinition {
 	 * @param def
 	 * @return
 	 */
-	ComponentRef	findInferredReference(final Class<?> ptype, final Annotation[] annar, final MethodParameterSpec def) {
+	ComponentRef findInferredReference(final Class< ? > ptype, final Annotation[] annar, final MethodParameterSpec def) {
 		//-- Try to find a ComponentBuilder that is able to provide this thingy.
 		/*
 		 * TODO First try to find something using the provided parameters and annotations.
 		 */
-		ComponentRef	ref = m_actualMap.get(ptype);
+		ComponentRef ref = m_actualMap.get(ptype);
 		if(ref != null)
 			return ref;
 
-//		//-- Find in my base, if possible,
-//		if(m_baseDefinition != null) {
-//			ref = m_baseDefinition.findInferredReference(ptype, annar, def);
-//			if(ref != null)
-//				return ref;
-//		}
+		//		//-- Find in my base, if possible,
+		//		if(m_baseDefinition != null) {
+		//			ref = m_baseDefinition.findInferredReference(ptype, annar, def);
+		//			if(ref != null)
+		//				return ref;
+		//		}
 
 		//-- Try my parent.
 		if(m_parentContainerDefinition != null) {
@@ -142,6 +146,6 @@ final public class ContainerDefinition {
 			if(ref != null)
 				return ref;
 		}
-		return null;				// Not found!
+		return null; // Not found!
 	}
 }

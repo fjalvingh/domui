@@ -16,7 +16,7 @@ public class XmlRegistry extends RenderRegistry {
 	/**
 	 * Maps Java classes to a default type specification.
 	 */
-	private final Map<Class<?>, String> m_xmlTypeMap = new HashMap<Class<?>, String>();
+	private final Map<Class< ? >, String> m_xmlTypeMap = new HashMap<Class< ? >, String>();
 
 	public XmlRegistry() {
 		register(null, new XmlItemRenderer() {
@@ -67,7 +67,7 @@ public class XmlRegistry extends RenderRegistry {
 		registerType(String.class, "xsi:string");
 	}
 
-	public synchronized void registerType(final Class<?> cl, final String name) {
+	public synchronized void registerType(final Class< ? > cl, final String name) {
 		m_xmlTypeMap.put(cl, name);
 	}
 
@@ -77,11 +77,11 @@ public class XmlRegistry extends RenderRegistry {
 	 * @param cl
 	 * @return
 	 */
-	public synchronized String findType(Class<?> cl) {
+	public synchronized String findType(Class< ? > cl) {
 		String type;
-		Class<?>[] ifes = cl.getInterfaces();
+		Class< ? >[] ifes = cl.getInterfaces();
 		if(ifes.length > 0) {
-			for(Class<?> ifa : ifes) {
+			for(Class< ? > ifa : ifes) {
 				type = m_xmlTypeMap.get(ifa);
 				if(type != null)
 					return type;
@@ -97,7 +97,7 @@ public class XmlRegistry extends RenderRegistry {
 		return null;
 	}
 
-	public synchronized String getType(final Class<?> cl) {
+	public synchronized String getType(final Class< ? > cl) {
 		String type = m_xmlTypeMap.get(cl);
 		if(type != null)
 			return type;

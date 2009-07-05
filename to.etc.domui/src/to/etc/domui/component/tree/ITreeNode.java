@@ -6,7 +6,7 @@ package to.etc.domui.component.tree;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 17, 2008
  */
-public interface ITreeNode<T extends ITreeNode<?>> {
+public interface ITreeNode<T extends ITreeNode< ? >> {
 	/**
 	 * If possible this should quickly decide if this node has children or not. This is
 	 * used to render an expanded node's state icons. If determining whether a node has
@@ -18,14 +18,14 @@ public interface ITreeNode<T extends ITreeNode<?>> {
 	 * @param item
 	 * @return
 	 */
-	public boolean		hasChildren() throws Exception;
+	public boolean hasChildren() throws Exception;
 
 	/**
 	 * Returns the #of children for this object. This must return the actual number.
 	 * @param item
 	 * @return
 	 */
-	public int			getChildCount() throws Exception;
+	public int getChildCount() throws Exception;
 
 	/**
 	 * Returns the nth child in the parent's list.
@@ -34,7 +34,7 @@ public interface ITreeNode<T extends ITreeNode<?>> {
 	 * @return
 	 * @throws Exception
 	 */
-	public T		getChild(int index) throws Exception;
+	public T getChild(int index) throws Exception;
 
-	public T		getParent() throws Exception;
+	public T getParent() throws Exception;
 }

@@ -11,7 +11,7 @@ import to.etc.domui.dom.html.*;
  * Created on Oct 17, 2008
  */
 public class SmallImgButton extends Button {
-	private Img			m_image;
+	private Img m_image;
 
 	/**
 	 * Create the empty button.
@@ -44,20 +44,20 @@ public class SmallImgButton extends Button {
 		setSrc(rurl);
 	}
 
-//	/**
-//	 * Create a small image button from the specified resource. The resource can come from the current
-//	 * theme, or it can be an absolute image path to a web file.
-//	 * @param intheme
-//	 * @param rurl
-//	 */
-//	public SmallImgButton(boolean intheme, String rurl, IClicked<SmallImgButton> cl) {
-//		this();
-//		setClicked(cl);
-//		if(intheme)
-//			setThemeSrc(rurl);
-//		else
-//			setSrc(rurl);
-//	}
+	//	/**
+	//	 * Create a small image button from the specified resource. The resource can come from the current
+	//	 * theme, or it can be an absolute image path to a web file.
+	//	 * @param intheme
+	//	 * @param rurl
+	//	 */
+	//	public SmallImgButton(boolean intheme, String rurl, IClicked<SmallImgButton> cl) {
+	//		this();
+	//		setClicked(cl);
+	//		if(intheme)
+	//			setThemeSrc(rurl);
+	//		else
+	//			setSrc(rurl);
+	//	}
 
 	/**
 	 * Set a new image using a web resource's abolute path. If the name is prefixed
@@ -67,12 +67,12 @@ public class SmallImgButton extends Button {
 	public void setSrc(String src) {
 		m_image.setSrc(src);
 	}
-//
-//	/**
-//	 * Set a new image from the current theme.
-//	 * @param src
-//	 */
-//	public void setThemeSrc(String src) {
-//		m_image.setThemeSrc(src);
-//	}
+	//
+	//	/**
+	//	 * Set a new image from the current theme.
+	//	 * @param src
+	//	 */
+	//	public void setThemeSrc(String src) {
+	//		m_image.setThemeSrc(src);
+	//	}
 }

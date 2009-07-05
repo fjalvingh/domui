@@ -8,12 +8,13 @@ package to.etc.iocular.def;
  */
 public class InstanceDef {
 	/** The registered instance */
-	private Object	m_instance;
+	private Object m_instance;
 
 	public InstanceDef(Object inst) {
 		m_instance = inst;
 	}
-	public Object	getInstance() {
+
+	public Object getInstance() {
 		return m_instance;
 	}
 }
