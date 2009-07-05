@@ -25,7 +25,7 @@ public class NiceButton extends ATag {
 	}
 
 	@Override
-	public void setButtonText(final String s) {
+	public void setLiteralText(final String s) {
 		m_text.setText(s);
 	}
 }

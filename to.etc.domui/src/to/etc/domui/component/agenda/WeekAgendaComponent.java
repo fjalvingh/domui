@@ -289,14 +289,14 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 			sp = new Span();
 			td.add(sp);
 			sp.setCssClass("ui-wa-min");
-			sp.setButtonText("00");
+			sp.setLiteralText("00");
 
 			//-- Render day empy cells
 			for(int i = 0; i < days; i++) {
 				td = new TD();
 				tr.add(td);
 				td.setCssClass("ui-wa-cell");
-				td.setButtonText("\u00a0");
+				td.setLiteralText("\u00a0");
 			}
 
 			//-- Write 2nd half hours, skip 1st col
@@ -307,7 +307,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 				td = new TD();
 				tr.add(td);
 				td.setCssClass("ui-wa-cell");
-				td.setButtonText("\u00a0");
+				td.setLiteralText("\u00a0");
 			}
 		}
 	}

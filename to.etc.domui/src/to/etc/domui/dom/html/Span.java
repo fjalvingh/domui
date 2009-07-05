@@ -7,7 +7,7 @@ public class Span extends NodeContainer {
 
 	public Span(String txt) {
 		this();
-		setButtonText(txt);
+		setLiteralText(txt);
 	}
 
 	@Override

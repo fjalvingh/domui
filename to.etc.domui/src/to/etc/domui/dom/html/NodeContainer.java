@@ -315,7 +315,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * specified text.
 	 * @param txt
 	 */
-	public void setButtonText(final String txt) {
+	public void setLiteralText(final String txt) {
 		setMustRenderChildrenFully();
 		if(getChildCount() == 1) {
 			if(getChild(0) instanceof TextNode) {
@@ -343,7 +343,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param key		The key to use.
 	 */
 	public void setText(final BundleRef ref, final String key) {
-		setButtonText(ref.getString(key));
+		setLiteralText(ref.getString(key));
 	}
 
 	@Override

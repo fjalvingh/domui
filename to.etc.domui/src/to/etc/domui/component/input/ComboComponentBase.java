@@ -84,7 +84,7 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 			//-- Add 1st "empty" thingy representing the unchosen.
 			SelectOption o = new SelectOption();
 			if(getEmptyText() != null)
-				o.setButtonText(getEmptyText());
+				o.setLiteralText(getEmptyText());
 			m_combo.add(o);
 			o.setSelected(getRawValue() == null);
 		}

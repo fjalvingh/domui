@@ -9,7 +9,7 @@ public class HTag extends NodeContainer {
 
 	public HTag(int level, String txt) {
 		this(level);
-		setButtonText(txt);
+		setLiteralText(txt);
 	}
 
 	@Override

@@ -90,7 +90,7 @@ public class CaptionedPanel extends Div {
 	 */
 	@Override
 	public void setLiteralTitle(String txt) {
-		getTitleContainer().setButtonText(txt);
+		getTitleContainer().setLiteralText(txt);
 	}
 
 	/**

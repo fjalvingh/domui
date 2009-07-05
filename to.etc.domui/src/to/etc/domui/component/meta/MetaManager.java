@@ -121,7 +121,7 @@ final public class MetaManager {
 			public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) {
 				String text = lr.getLabelFor(object);
 				if(text != null)
-					node.setButtonText(text);
+					node.setLiteralText(text);
 			}
 		};
 	}
@@ -168,7 +168,7 @@ final public class MetaManager {
 		return new INodeContentRenderer<Object>() {
 			public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) {
 				if(object != null)
-					node.setButtonText(object.toString());
+					node.setLiteralText(object.toString());
 			}
 		};
 	}

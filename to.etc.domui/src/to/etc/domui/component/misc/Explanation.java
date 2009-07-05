@@ -8,7 +8,7 @@ public class Explanation extends Div {
 
 	public Explanation(final String txt) {
 		setCssClass("ui-expl");
-		setButtonText(txt);
+		setLiteralText(txt);
 	}
 
 	@Override
@@ -20,7 +20,7 @@ public class Explanation extends Div {
 	}
 
 	@Override
-	public void setButtonText(final String txt) {
+	public void setLiteralText(final String txt) {
 		m_text.setXml(txt);
 	}
 
