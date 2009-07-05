@@ -1,5 +1,8 @@
 package to.etc.domui.hibernate.model;
 
+import org.hibernate.*;
+import org.hibernate.criterion.*;
+
 import to.etc.webapp.query.*;
 
 /**

@@ -1,5 +1,7 @@
 package to.etc.domui.hibernate.generic;
 
+import org.hibernate.*;
+
 
 /**
  * Thingy which makes a new Hibernate session.

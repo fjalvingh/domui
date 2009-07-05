@@ -4,6 +4,8 @@ import java.io.*;
 import java.sql.*;
 import java.util.*;
 
+import org.hibernate.*;
+
 import to.etc.domui.hibernate.model.*;
 import to.etc.domui.state.*;
 import to.etc.webapp.query.*;

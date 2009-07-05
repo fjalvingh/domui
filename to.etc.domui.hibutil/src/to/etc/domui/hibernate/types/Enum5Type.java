@@ -1,9 +1,11 @@
 package to.etc.domui.hibernate.types;
 
 import java.io.*;
-import java.lang.reflect.*;
 import java.sql.*;
 import java.util.*;
+
+import org.hibernate.*;
+import org.hibernate.usertype.*;
 
 /**
  * Java 5 Hibernate enum type. Coded because the XML variant of Hibernate does not

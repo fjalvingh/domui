@@ -2,6 +2,10 @@ package to.etc.domui.hibernate.generic;
 
 import java.util.*;
 
+import org.hibernate.*;
+import org.hibernate.engine.*;
+import org.hibernate.impl.*;
+
 import to.etc.domui.state.*;
 import to.etc.util.*;
 
