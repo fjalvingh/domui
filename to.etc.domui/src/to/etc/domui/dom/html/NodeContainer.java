@@ -3,7 +3,6 @@ package to.etc.domui.dom.html;
 import java.util.*;
 
 import to.etc.domui.dom.errors.*;
-import to.etc.webapp.nls.*;
 
 /**
  * Base node for tags that can contain other nodes.
@@ -196,13 +195,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		childChanged();
 	}
 
-	public void addLiteral(final String txt) {
+	public void add(final String txt) {
 		if(txt != null)
 			add(new TextNode(txt));
-	}
-
-	public void add(final BundleRef ref, final String k) {
-		addLiteral(ref.getString(k));
 	}
 
 	void registerChildren() {
@@ -308,14 +303,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	/**
-	 * ONLY USE FOR CALCULATED DATA - Use setText(BundleRef, String) to make the application
-	 * language-independent!
-	 * Convenience method to change the text content of this node. This ensures
-	 * that only one textnode remains as the child, and that node contains the
-	 * specified text.
+	 * Set the text <i>contained in</i> this node, using tilde replacement. If the
+	 * string starts with a ~ it is assumed to be a key into the page's resource bundle. Before
+	 * the new text node is added to the container the container will first be <b>fully emptied</b>, i.e.
+	 * any contained node will be deleted.
+	 *
 	 * @param txt
 	 */
-	public void setLiteralText(final String txt) {
+	public void setText(final String txt) {
 		setMustRenderChildrenFully();
 		if(getChildCount() == 1) {
 			if(getChild(0) instanceof TextNode) {
@@ -334,17 +329,17 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		add(t);
 	}
 
-	/**
-	 * Convenience method to change the text content of this node. This ensures
-	 * that only one textnode remains as the child, and that node contains the
-	 * specified text.
-	 *
-	 * @param ref		The bundle containing the message.
-	 * @param key		The key to use.
-	 */
-	public void setText(final BundleRef ref, final String key) {
-		setLiteralText(ref.getString(key));
-	}
+	//	/**
+	//	 * Convenience method to change the text content of this node. This ensures
+	//	 * that only one textnode remains as the child, and that node contains the
+	//	 * specified text.
+	//	 *
+	//	 * @param ref		The bundle containing the message.
+	//	 * @param key		The key to use.
+	//	 */
+	//	public void setText(final BundleRef ref, final String key) {
+	//		setLiteralText(ref.getString(key));
+	//	}
 
 	@Override
 	public boolean validate() {

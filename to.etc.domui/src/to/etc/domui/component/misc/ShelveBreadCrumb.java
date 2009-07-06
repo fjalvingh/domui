@@ -44,7 +44,7 @@ public class ShelveBreadCrumb extends Div {
 				ttl = ttl.substring(ttl.lastIndexOf('.') + 1);
 			}
 
-			s.setLiteralText(ttl);
+			s.setText(ttl);
 		}
 	}
 }

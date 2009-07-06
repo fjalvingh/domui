@@ -79,7 +79,7 @@ public class Table extends NodeContainer {
 		for(String s : labels) {
 			TH th = new TH();
 			row.add(th);
-			th.setLiteralText(s);
+			th.setText(s);
 		}
 	}
 
@@ -106,7 +106,7 @@ public class Table extends NodeContainer {
 	}
 
 	@Override
-	public void addLiteral(final String txt) {
+	public void add(final String txt) {
 		throw new IllegalStateException("Dont be silly- cannot add text to a table");
 	}
 

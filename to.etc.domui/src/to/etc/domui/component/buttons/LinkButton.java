@@ -26,7 +26,7 @@ public class LinkButton extends ATag {
 
 	@Override
 	public void createContent() throws Exception {
-		setLiteralText(m_text);
+		setText(m_text);
 	}
 
 	public void setImage(final String url) {
@@ -46,8 +46,8 @@ public class LinkButton extends ATag {
 	}
 
 	@Override
-	public void setLiteralText(final String txt) {
+	public void setText(final String txt) {
 		m_text = txt;
-		super.setLiteralText(txt);
+		super.setText(txt);
 	}
 }

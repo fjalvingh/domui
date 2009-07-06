@@ -73,7 +73,7 @@ public class AccessDeniedPage extends UrlPage {
 			Li li = new Li();
 			ul.add(li);
 			String desc = DomApplication.get().getRightsDescription(r);
-			li.addLiteral(desc + " (" + r + ")");
+			li.add(desc + " (" + r + ")");
 		}
 
 		//-- Add a link to return to the master/index page.
@@ -82,7 +82,7 @@ public class AccessDeniedPage extends UrlPage {
 			co.add(d);
 			ALink link = new ALink(DomApplication.get().getRootPage(), MoveMode.NEW); // Destroy shelve.
 			d.add(link);
-			link.setText(DomUtil.BUNDLE, "login.toindex");
+			link.setText(DomUtil.BUNDLE.getString("login.toindex"));
 		}
 	}
 }

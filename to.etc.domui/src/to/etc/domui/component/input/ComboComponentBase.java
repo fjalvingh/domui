@@ -84,7 +84,7 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 			//-- Add 1st "empty" thingy representing the unchosen.
 			SelectOption o = new SelectOption();
 			if(getEmptyText() != null)
-				o.setLiteralText(getEmptyText());
+				o.setText(getEmptyText());
 			m_combo.add(o);
 			o.setSelected(getRawValue() == null);
 		}
@@ -138,7 +138,7 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 			});
 		}
 		if(title != null)
-			si.setLiteralTitle(title);
+			si.setTitle(title);
 		si.addCssClass("ui-cl2-btn");
 		m_buttonList.add(si);
 

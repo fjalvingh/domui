@@ -5,7 +5,6 @@ import to.etc.domui.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
-import to.etc.webapp.nls.*;
 
 /**
  * An HTML button containing a rendered image as the button content. This button creates a button by creating the
@@ -49,7 +48,7 @@ public class DefaultButton extends Button {
 	 */
 	public DefaultButton(final String txt) {
 		this();
-		setLiteralText(txt);
+		setText(txt);
 	}
 
 	/**
@@ -59,19 +58,19 @@ public class DefaultButton extends Button {
 	 */
 	public DefaultButton(final String txt, final String icon) {
 		this();
-		setLiteralText(txt);
+		setText(txt);
 		setIcon(icon);
 	}
 
 	public DefaultButton(final String txt, final IClicked<DefaultButton> clicked) {
 		this();
-		setLiteralText(txt);
+		setText(txt);
 		setClicked(clicked);
 	}
 
 	public DefaultButton(final String txt, final String icon, final IClicked<DefaultButton> clicked) {
 		this();
-		setLiteralText(txt);
+		setText(txt);
 		setIcon(icon);
 		setClicked(clicked);
 	}
@@ -170,19 +169,19 @@ public class DefaultButton extends Button {
 	 * Set a (new) text on the button's surface. The text may contain a '!' to specify an accelerator. To
 	 * actually render the exclamation point precede it with a backslash.
 	 *
-	 * @see to.etc.domui.dom.html.NodeContainer#setLiteralText(java.lang.String)
+	 * @see to.etc.domui.dom.html.NodeContainer#setText(java.lang.String)
 	 */
 	@Override
-	public void setLiteralText(final String text) {
+	public void setText(final String text) {
 		m_text = text;
 		decodeAccelerator(text);
 		genURL();
 	}
 
-	@Override
-	public void setText(final BundleRef ref, final String key) {
-		setLiteralText(ref.getString(key));
-	}
+	//	@Override
+	//	public void setText(final BundleRef ref, final String key) {
+	//		setLiteralText(ref.getString(key));
+	//	}
 
 	private void decodeAccelerator(final String txt) {
 		int ix = 0;

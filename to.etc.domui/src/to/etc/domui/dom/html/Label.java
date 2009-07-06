@@ -11,24 +11,24 @@ public class Label extends NodeContainer {
 
 	public Label(String text) {
 		super("label");
-		setLiteralText(text);
+		setText(text);
 	}
 
 	public Label(NodeBase fr, String text) {
 		super("label");
-		setLiteralText(text);
+		setText(text);
 		setForNode(fr);
 	}
 
 	public Label(String text, String cssClass) {
 		this();
-		setLiteralText(text);
+		setText(text);
 		setCssClass(cssClass);
 	}
 
 	public Label(NodeBase fr, String text, String cssClass) {
 		super("label");
-		setLiteralText(text);
+		setText(text);
 		setForNode(fr);
 		setCssClass(cssClass);
 	}

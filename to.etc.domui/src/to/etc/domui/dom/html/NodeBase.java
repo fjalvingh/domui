@@ -6,7 +6,6 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
 
 /**
  * Base node for all non-container html dom nodes.
@@ -438,8 +437,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	/**
-	 * Return the <i>literal</i> text. If the value set was a resource key this resolves the key
-	 * into a string and returns that. To obtain the key instead of the translated value use getTitle().
+	 * Return the <i>literal</i> text, with tilde replacement done. If the value set was
+	 * a resource key (a string starting with ~) this resolves the key into a string and
+	 * returns that. To obtain the key instead of the translated value use getTitle().
 	 *
 	 * @return
 	 */
@@ -448,35 +448,23 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	/**
-	 * Deprecate? Use setTitle() again instead?
+	 * Set the title attribute, using tilde replacement. If the string starts with a ~ it is
+	 * assumed to be a key into the page's resource bundle.
+	 *
 	 * @param title
 	 */
-	public void setLiteralTitle(final String title) {
+	public void setTitle(final String title) {
 		if(!DomUtil.isEqual(title, m_title))
 			changed();
 		m_title = title;
 	}
 
 	/**
-	 * Returns the title verbatim; if it was set using a key this returns the key without resource bundle replacement.
+	 * Returns the title <i>as set</i> verbatim; if it was set using a tilde key this returns the <i>key</i> without resource bundle replacement.
 	 * @return
 	 */
 	public String getTitle() {
 		return m_title;
-	}
-
-	/**
-	 * Sets a title, which can be a tilde-escaped key for the page resource bundle.
-	 * @param txt
-	 */
-	public void setTitle(String title) {
-		if(!DomUtil.isEqual(title, m_title))
-			changed();
-		m_title = title;
-	}
-
-	public void setTitle(final BundleRef ref, final String k) {
-		setLiteralTitle(ref.getString(k));
 	}
 
 	@Override

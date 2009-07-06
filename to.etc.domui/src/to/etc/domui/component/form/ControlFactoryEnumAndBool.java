@@ -53,7 +53,7 @@ public class ControlFactoryEnumAndBool implements ControlFactory {
 			c.setDisabled(true);
 		String s = pmm.getDefaultHint();
 		if(s != null)
-			c.setLiteralTitle(s);
+			c.setTitle(s);
 		return new Result(c, model, pmm);
 	}
 }

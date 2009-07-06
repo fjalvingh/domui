@@ -41,7 +41,7 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 			li.setMandatory(true);
 		String s = pmm.getDefaultHint();
 		if(s != null)
-			li.setLiteralTitle(s);
+			li.setTitle(s);
 		return new Result(li, model, pmm);
 	}
 }

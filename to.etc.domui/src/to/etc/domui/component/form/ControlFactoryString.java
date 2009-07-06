@@ -63,7 +63,7 @@ public class ControlFactoryString implements ControlFactory {
 			txt.setMandatory(true);
 		String s = pmm.getDefaultHint();
 		if(s != null)
-			txt.setLiteralTitle(s);
+			txt.setTitle(s);
 		for(PropertyMetaValidator mpv : pmm.getValidators())
 			txt.addValidator(mpv);
 		return new Result(txt, model, pmm);

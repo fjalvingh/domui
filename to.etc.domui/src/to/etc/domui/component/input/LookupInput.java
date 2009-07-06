@@ -226,7 +226,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 							TD td = new TD(); // Value thingy.
 							tr.add(td);
 							td.setValign(TableVAlign.TOP);
-							td.addLiteral(val);
+							td.add(val);
 							int len = val.length();
 							if(len > mw)
 								mw = len;
@@ -255,7 +255,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			r.add(td);
 			td.setValign(TableVAlign.TOP);
 			td.setCssClass("ui-lui-v");
-			td.addLiteral(txt);
+			td.add(txt);
 
 			td = new TD();
 			r.add(td);

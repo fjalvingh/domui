@@ -40,7 +40,7 @@ public class ImageButton extends Button {
 
 	public ImageButton(final String txt) {
 		this();
-		setLiteralText(txt);
+		setText(txt);
 	}
 
 	/**
@@ -133,7 +133,7 @@ public class ImageButton extends Button {
 	}
 
 	@Override
-	public void setLiteralText(final String text) {
+	public void setText(final String text) {
 		m_text = text;
 		decodeAccelerator(text);
 		genURL();

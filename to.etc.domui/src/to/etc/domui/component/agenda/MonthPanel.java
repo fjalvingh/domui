@@ -105,7 +105,7 @@ public class MonthPanel extends Div {
 		TD td = b.addCell();
 		td.setCssClass("ui-mp-w");
 		int wn = cal.get(Calendar.WEEK_OF_YEAR);
-		td.setLiteralText(Integer.toString(wn));
+		td.setText(Integer.toString(wn));
 
 		//-- Now render the rest of the days, passing into the next month where needed.
 		String cssinm = getDayClicked() == null ? "ui-mp-d" : "ui-mp-d ui-mp-ch"; // CSS style for inside month
@@ -115,7 +115,7 @@ public class MonthPanel extends Div {
 			td = b.addCell();
 			int dn = cal.get(Calendar.DATE);
 			int mn = cal.get(Calendar.MONTH);
-			td.setLiteralText(Integer.toString(dn));
+			td.setText(Integer.toString(dn));
 			td.setCssClass(mn == m_month ? cssinm : cssexm);
 			if(getDayClicked() != null)
 				td.setClicked(m_clickHandler);
@@ -129,7 +129,7 @@ public class MonthPanel extends Div {
 		tr.setCssClass("ui-mp-mn");
 		TD td = b.addCell(); // Empty cell above the week number.
 		td.setColspan(8);
-		td.setLiteralText(dfs.getMonths()[m_month]);
+		td.setText(dfs.getMonths()[m_month]);
 
 		tr = b.addRow();
 		tr.setCssClass("ui-mp-top");
@@ -141,7 +141,7 @@ public class MonthPanel extends Div {
 			String day = dfs.getShortWeekdays()[cday]; // Short day name
 			td = b.addCell();
 			td.setCssClass("ui-mp-d");
-			td.setLiteralText(day);
+			td.setText(day);
 
 			cday++;
 			if(cday > Calendar.SATURDAY)

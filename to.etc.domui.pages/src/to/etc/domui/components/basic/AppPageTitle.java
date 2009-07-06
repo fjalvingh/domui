@@ -66,7 +66,7 @@ public class AppPageTitle extends Div {
 		td.setCssClass("vp-ttl-t");
 		String ttl = getPageTitle();
 		if(ttl != null)
-			td.addLiteral(ttl);
+			td.add(ttl);
 
 		//-- Buttons
 		td = b.addCell();
@@ -120,7 +120,7 @@ public class AppPageTitle extends Div {
 	protected void addDefaultButtons(final NodeContainer nc) {
 		SmallImgButton ib = new SmallImgButton("img/btnSpecialChar.png");
 		nc.add(ib);
-		ib.setLiteralTitle("Toon lijst van bijzondere tekens");
+		ib.setTitle("Toon lijst van bijzondere tekens");
 		ib.setClicked(new IClicked<NodeBase>() {
 			public void clicked(final NodeBase b) throws Exception {
 				OddCharacters oc = new OddCharacters();

@@ -39,7 +39,7 @@ public class ControlFactoryDate implements ControlFactory {
 			di.setWithTime(true);
 		String s = pmm.getDefaultHint();
 		if(s != null)
-			di.setLiteralTitle(s);
+			di.setTitle(s);
 		return new Result(di, model, pmm);
 	}
 }

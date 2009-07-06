@@ -27,7 +27,7 @@ public class ControlFactoryTextArea implements ControlFactory {
 			ta.setMandatory(true);
 		String s = pmm.getDefaultHint();
 		if(s != null)
-			ta.setLiteralTitle(s);
+			ta.setTitle(s);
 		return new Result(ta, model, pmm);
 	}
 }

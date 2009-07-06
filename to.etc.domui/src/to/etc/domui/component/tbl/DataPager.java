@@ -138,7 +138,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			if(m_truncated == null) {
 				m_truncated = new Img();
 				m_truncated.setSrc("THEME/nav-overflow.png");
-				m_truncated.setLiteralTitle(NlsContext.getGlobalMessage(Msgs.UI_PAGER_OVER, Integer.valueOf(tc)));
+				m_truncated.setTitle(NlsContext.getGlobalMessage(Msgs.UI_PAGER_OVER, Integer.valueOf(tc)));
 				m_textDiv.add(m_truncated);
 			}
 		} else {
@@ -160,7 +160,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			}
 		});
 		if(bundle != null)
-			i.setTitle(bundle, ttlkey);
+			i.setTitle(bundle.getString(ttlkey));
+		else if(ttlkey != null)
+			i.setTitle(ttlkey);
 		getButtonDiv().add(i);
 	}
 

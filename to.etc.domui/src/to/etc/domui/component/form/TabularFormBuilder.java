@@ -634,13 +634,13 @@ public class TabularFormBuilder {
 
 		TD td = (TD) m_lastUsedRow.getChild(m_lastUsedRow.getChildCount() - 1); // Find last td
 		if(m_appendIntoSeparator != null && m_appendIntoSeparator.length() > 0)
-			td.addLiteral(m_appendIntoSeparator); // Append any string separator
+			td.add(m_appendIntoSeparator); // Append any string separator
 
 		if(l != null) {
 			l.setCssClass("ui-f-lbl");
 			td.add(l);
 			if(m_appendIntoSeparator != null && m_appendIntoSeparator.length() > 0)
-				td.addLiteral(m_appendIntoSeparator); // Append any string separator
+				td.add(m_appendIntoSeparator); // Append any string separator
 		}
 		for(NodeBase nb : c)
 			td.add(nb);

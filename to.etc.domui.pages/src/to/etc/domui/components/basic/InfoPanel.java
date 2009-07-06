@@ -15,6 +15,6 @@ public class InfoPanel extends Div {
 		Img img = new Img("img/info.png");
 		add(img);
 		img.setAlign(ImgAlign.LEFT);
-		addLiteral(m_text);
+		add(m_text);
 	}
 }

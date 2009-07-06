@@ -45,7 +45,7 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 			co.setMandatory(true);
 		String s = pmm.getDefaultHint();
 		if(s != null)
-			co.setLiteralTitle(s);
+			co.setTitle(s);
 		return new Result(co, model, pmm);
 	}
 }

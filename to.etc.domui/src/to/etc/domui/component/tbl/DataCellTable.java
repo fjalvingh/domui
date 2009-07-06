@@ -131,7 +131,7 @@ public class DataCellTable extends TabularComponentBase {
 		if(list.size() == 0) {
 			Div error = new Div();
 			error.setCssClass("ui-dct-nores");
-			error.setLiteralText(NlsContext.getGlobalMessage(Msgs.UI_DATATABLE_EMPTY));
+			error.setText(NlsContext.getGlobalMessage(Msgs.UI_DATATABLE_EMPTY));
 			add(error);
 			return;
 		}

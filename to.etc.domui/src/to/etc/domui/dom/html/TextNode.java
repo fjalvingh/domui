@@ -5,10 +5,18 @@ import to.etc.domui.util.*;
 public class TextNode extends NodeBase {
 	private String m_text;
 
+	/**
+	 * Empty textnode constructor.
+	 */
 	public TextNode() {
 		super("#text");
 	}
 
+	/**
+	 * Create a TextNode for the given text, using tilde replacement. If the text starts with a tilde it
+	 * is assumed to be a key in the page's resource bundle.
+	 * @param text
+	 */
 	public TextNode(String text) {
 		super("#text");
 		m_text = text;

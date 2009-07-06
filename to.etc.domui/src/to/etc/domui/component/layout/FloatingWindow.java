@@ -154,7 +154,7 @@ public class FloatingWindow extends Div {
 		}
 		if(m_titleIcon != null)
 			ttl.add(m_titleIcon);
-		ttl.addLiteral(getWindowTitle());
+		ttl.add(getWindowTitle());
 		return ttl;
 	}
 

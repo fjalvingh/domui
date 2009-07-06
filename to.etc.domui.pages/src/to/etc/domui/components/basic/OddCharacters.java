@@ -44,7 +44,7 @@ public class OddCharacters extends FloatingWindow {
 		b.addRow();
 		TD td = b.addCell();
 		td.setColspan(fchars.length);
-		td.addLiteral("Vaak gebruikte speciale tekens");
+		td.add("Vaak gebruikte speciale tekens");
 		td.setCssClass("vp-oddchars-ttl");
 		b.addRow();
 		int i = 0;
@@ -52,7 +52,7 @@ public class OddCharacters extends FloatingWindow {
 		for(String t : fchars) {
 			StringTool.entitiesToUnicode(sb, t, true);
 			td = b.addCell();
-			td.setLiteralText(sb.toString());
+			td.setText(sb.toString());
 			td.setCssClass("vp-oddchars-c");
 			td.setOnClickJS("WebUI.oddChar(this)");
 			sb.setLength(0);
@@ -68,7 +68,7 @@ public class OddCharacters extends FloatingWindow {
 		int width = 15;
 		td = b.addCell();
 		td.setColspan(width);
-		td.addLiteral("Alle speciale tekens");
+		td.add("Alle speciale tekens");
 
 		int ix = 0;
 		while(ix < chars.length) {
@@ -81,7 +81,7 @@ public class OddCharacters extends FloatingWindow {
 					td.setCssClass("vp-oddchars-c");
 					sb.setLength(0);
 					StringTool.entitiesToUnicode(sb, chars[ix++], true);
-					td.addLiteral(sb.toString());
+					td.add(sb.toString());
 					td.setOnClickJS("WebUI.oddChar(this)");
 				}
 			}
@@ -116,7 +116,7 @@ public class OddCharacters extends FloatingWindow {
 		c.add(s);
 		s.setCssClass("vp-oddchars-dt");
 		Date d = new Date();
-		s.addLiteral(df.format(d));
+		s.add(df.format(d));
 		s.setOnClickJS("WebUI.oddChar(this)");
 	}
 
