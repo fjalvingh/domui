@@ -11,7 +11,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 17, 2007
  */
-public class PrettyXmlOutputWriter extends XmlOutputWriterBase implements BrowserOutput {
+public class PrettyXmlOutputWriter extends XmlOutputWriterBase implements IBrowserOutput {
 	private IndentWriter m_w;
 
 	public PrettyXmlOutputWriter(Writer out) {

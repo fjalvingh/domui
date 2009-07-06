@@ -147,7 +147,7 @@ public class PageParameters {
 	 * @param c
 	 * @return
 	 */
-	static public PageParameters createFrom(RequestContext ctx) {
+	static public PageParameters createFrom(IRequestContext ctx) {
 		PageParameters pp = new PageParameters();
 		for(String name : ctx.getParameterNames()) {
 			if(name.length() > 0) {

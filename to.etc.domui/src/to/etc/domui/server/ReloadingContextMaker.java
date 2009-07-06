@@ -22,7 +22,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 	private int m_nestCount;
 
-	private Set<ReloadedClassesListener> m_listenerSet = new HashSet<ReloadedClassesListener>();
+	private Set<IReloadedClassesListener> m_listenerSet = new HashSet<IReloadedClassesListener>();
 
 
 	public ReloadingContextMaker(String applicationClassName, ConfigParameters pp, String patterns) throws Exception {
@@ -86,7 +86,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 		LOG.info("Reloading system");
 		//-- Call all listeners
-		for(ReloadedClassesListener l : getListeners()) {
+		for(IReloadedClassesListener l : getListeners()) {
 			try {
 				l.classesReloaded();
 			} catch(Exception x) {
@@ -146,17 +146,17 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		return a;
 	}
 
-	public synchronized void addListener(ReloadedClassesListener l) {
-		m_listenerSet = new HashSet<ReloadedClassesListener>(m_listenerSet);
+	public synchronized void addListener(IReloadedClassesListener l) {
+		m_listenerSet = new HashSet<IReloadedClassesListener>(m_listenerSet);
 		m_listenerSet.add(l);
 	}
 
-	public synchronized void removeListener(ReloadedClassesListener l) {
-		m_listenerSet = new HashSet<ReloadedClassesListener>(m_listenerSet);
+	public synchronized void removeListener(IReloadedClassesListener l) {
+		m_listenerSet = new HashSet<IReloadedClassesListener>(m_listenerSet);
 		m_listenerSet.remove(l);
 	}
 
-	private Set<ReloadedClassesListener> getListeners() {
+	private Set<IReloadedClassesListener> getListeners() {
 		return m_listenerSet;
 	}
 }

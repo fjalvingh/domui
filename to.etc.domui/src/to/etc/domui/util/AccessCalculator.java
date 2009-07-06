@@ -29,7 +29,7 @@ public class AccessCalculator {
 	}
 
 	public boolean calculate(PropertyMetaModel pmm) {
-		RequestContext rq = PageContext.getRequestContext();
+		IRequestContext rq = PageContext.getRequestContext();
 		m_viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
 		m_editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);
 		if(!m_viewable) {

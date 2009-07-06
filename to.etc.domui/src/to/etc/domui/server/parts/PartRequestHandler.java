@@ -10,7 +10,7 @@ import to.etc.domui.util.LRUHashMap;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 
-public class PartRequestHandler implements FilterRequestHandler {
+public class PartRequestHandler implements IFilterRequestHandler {
 	private final DomApplication m_application;
 
 	private final boolean m_allowExpires;
@@ -86,7 +86,7 @@ public class PartRequestHandler implements FilterRequestHandler {
 			fname = fname.substring(0, fname.length() - 5);
 
 		//-- Obtain the factory class, then ask it to execute.
-		PartRenderer pr = findPartRenderer(fname);
+		IPartRenderer pr = findPartRenderer(fname);
 		if(pr == null)
 			throw new ThingyNotFoundException("The part factory '" + fname + "' cannot be located.");
 		pr.render(ctx, rest);
@@ -96,11 +96,11 @@ public class PartRequestHandler implements FilterRequestHandler {
 	/*	CODING:	Part renderer factories.							*/
 	/*--------------------------------------------------------------*/
 	/** All part renderer thingies currently known to the system. */
-	private final Map<String, PartRenderer> m_partMap = new HashMap<String, PartRenderer>();
+	private final Map<String, IPartRenderer> m_partMap = new HashMap<String, IPartRenderer>();
 
-	static private final PartFactory makePartInst(final Class< ? > fc) {
+	static private final IPartFactory makePartInst(final Class< ? > fc) {
 		try {
-			return (PartFactory) fc.newInstance();
+			return (IPartFactory) fc.newInstance();
 		} catch(Exception x) {
 			throw new IllegalStateException("Cannot instantiate PartFactory '" + fc + "': " + x, x);
 		}
@@ -109,8 +109,8 @@ public class PartRequestHandler implements FilterRequestHandler {
 	/**
 	 * Returns a thingy which knows how to render the part.
 	 */
-	public synchronized PartRenderer findPartRenderer(final String name) {
-		PartRenderer pr = m_partMap.get(name);
+	public synchronized IPartRenderer findPartRenderer(final String name) {
+		IPartRenderer pr = m_partMap.get(name);
 		if(pr != null)
 			return pr;
 
@@ -118,23 +118,23 @@ public class PartRequestHandler implements FilterRequestHandler {
 		Class< ? > fc = DomUtil.findClass(getClass().getClassLoader(), name);
 		if(fc == null)
 			return null;
-		if(!PartFactory.class.isAssignableFrom(fc))
+		if(!IPartFactory.class.isAssignableFrom(fc))
 			throw new IllegalArgumentException("The class '" + name
 				+ "' does not implement the 'PartFactory' interface (it is not a part, I guess. WHAT ARE YOU DOING!? Access logged to administrator)");
 
 		//-- Create the appropriate renderers depending on the factory type.
-		final PartFactory pf = makePartInst(fc); // Instantiate
-		if(pf instanceof UnbufferedPartFactory) {
-			pr = new PartRenderer() {
+		final IPartFactory pf = makePartInst(fc); // Instantiate
+		if(pf instanceof IUnbufferedPartFactory) {
+			pr = new IPartRenderer() {
 				public void render(final RequestContextImpl ctx, final String rest) throws Exception {
-					UnbufferedPartFactory upf = (UnbufferedPartFactory) pf;
+					IUnbufferedPartFactory upf = (IUnbufferedPartFactory) pf;
 					upf.generate(getApplication(), rest, ctx);
 				}
 			};
-		} else if(pf instanceof BufferedPartFactory) {
-			pr = new PartRenderer() {
+		} else if(pf instanceof IBufferedPartFactory) {
+			pr = new IPartRenderer() {
 				public void render(final RequestContextImpl ctx, final String rest) throws Exception {
-					generate((BufferedPartFactory) pf, ctx, rest); // Delegate internally
+					generate((IBufferedPartFactory) pf, ctx, rest); // Delegate internally
 				}
 			};
 		} else
@@ -156,7 +156,7 @@ public class PartRequestHandler implements FilterRequestHandler {
 	 * @param url
 	 * @throws Exception
 	 */
-	public void generate(final BufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
+	public void generate(final IBufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
 		//-- Convert the data to a key object, then lookup;
 		Object key = pf.decodeKey(url, ctx);
 		if(key == null)

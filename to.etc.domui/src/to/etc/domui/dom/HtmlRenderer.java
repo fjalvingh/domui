@@ -13,11 +13,11 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 17, 2007
  */
-public class HtmlRenderer implements NodeVisitor {
+public class HtmlRenderer implements INodeVisitor {
 	/** Scratch stringbuffer. */
 	private StringBuilder m_sb;
 
-	private final BrowserOutput m_o;
+	private final IBrowserOutput m_o;
 
 	private boolean m_tagless;
 
@@ -27,7 +27,7 @@ public class HtmlRenderer implements NodeVisitor {
 
 	//	private boolean				m_isNewNode;
 
-	public HtmlRenderer(final BrowserOutput o) {
+	public HtmlRenderer(final IBrowserOutput o) {
 		m_o = o;
 	}
 
@@ -335,7 +335,7 @@ public class HtmlRenderer implements NodeVisitor {
 		return a.toString();
 	}
 
-	final protected BrowserOutput o() {
+	final protected IBrowserOutput o() {
 		return m_o;
 	}
 
@@ -355,12 +355,12 @@ public class HtmlRenderer implements NodeVisitor {
 		return s;
 	}
 
-	protected void renderTag(final NodeBase b, final BrowserOutput o) throws Exception {
+	protected void renderTag(final NodeBase b, final IBrowserOutput o) throws Exception {
 		if(!m_tagless)
 			o.tag(b.getTag()); // Open the tag
 	}
 
-	protected void renderTagend(final NodeBase b, final BrowserOutput o) throws Exception {
+	protected void renderTagend(final NodeBase b, final IBrowserOutput o) throws Exception {
 		if(!m_tagless)
 			o.endtag();
 	}
@@ -370,7 +370,7 @@ public class HtmlRenderer implements NodeVisitor {
 	 * @param o
 	 * @throws Exception
 	 */
-	public void basicNodeRender(final NodeBase b, final BrowserOutput o) throws Exception {
+	public void basicNodeRender(final NodeBase b, final IBrowserOutput o) throws Exception {
 		renderTag(b, o);
 		if(m_tagless)
 			o.attr("select", "#" + b.getActualID()); // Always has an ID
@@ -422,7 +422,7 @@ public class HtmlRenderer implements NodeVisitor {
 	/**
 	 * Special thingy; this can actually be a BODY instead of a DIV; in that case we render some extra
 	 * arguments...
-	 * @see to.etc.domui.dom.html.NodeVisitor#visitDiv(to.etc.domui.dom.html.Div)
+	 * @see to.etc.domui.dom.html.INodeVisitor#visitDiv(to.etc.domui.dom.html.Div)
 	 */
 	public void visitDiv(final Div n) throws Exception {
 		basicNodeRender(n, m_o);
@@ -558,7 +558,7 @@ public class HtmlRenderer implements NodeVisitor {
 
 	/**
 	 * Render the basic input tag.
-	 * @see to.etc.domui.dom.html.NodeVisitor#visitInput(to.etc.domui.dom.html.Input)
+	 * @see to.etc.domui.dom.html.INodeVisitor#visitInput(to.etc.domui.dom.html.Input)
 	 */
 	public void visitInput(final Input n) throws Exception {
 		basicNodeRender(n, m_o);
@@ -603,7 +603,7 @@ public class HtmlRenderer implements NodeVisitor {
 
 	/**
 	 * Render the basic input tag.
-	 * @see to.etc.domui.dom.html.NodeVisitor#visitInput(to.etc.domui.dom.html.Input)
+	 * @see to.etc.domui.dom.html.INodeVisitor#visitInput(to.etc.domui.dom.html.Input)
 	 */
 	public void visitCheckbox(final Checkbox n) throws Exception {
 		basicNodeRender(n, m_o);
@@ -626,7 +626,7 @@ public class HtmlRenderer implements NodeVisitor {
 	/**
 	 * JoS : 20 Augustus 2008
 	 * Render the basic radio button
-	 * @see to.etc.domui.dom.html.NodeVisitor#visitInput(to.etc.domui.dom.html.Input)
+	 * @see to.etc.domui.dom.html.INodeVisitor#visitInput(to.etc.domui.dom.html.Input)
 	 */
 	public void visitRadioButton(final RadioButton n) throws Exception {
 		basicNodeRender(n, m_o);

@@ -34,11 +34,11 @@ import to.etc.util.*;
 public class OptimalDeltaRenderer {
 	static private final boolean DEBUG = false;
 
-	private BrowserOutput m_o;
+	private IBrowserOutput m_o;
 
 	private HtmlRenderer m_html;
 
-	private RequestContext m_ctx;
+	private IRequestContext m_ctx;
 
 	private Page m_page;
 
@@ -123,7 +123,7 @@ public class OptimalDeltaRenderer {
 	 */
 	private Map<NodeContainer, NodeInfo> m_infoMap = new HashMap<NodeContainer, NodeInfo>(255);
 
-	public OptimalDeltaRenderer(HtmlRenderer html, BrowserOutput o) {
+	public OptimalDeltaRenderer(HtmlRenderer html, IBrowserOutput o) {
 		m_o = o;
 		m_html = html;
 		m_fullRenderer = new FullHtmlRenderer(html, o);
@@ -132,11 +132,11 @@ public class OptimalDeltaRenderer {
 		//		m_html.setUpdating(true);
 	}
 
-	public BrowserOutput o() {
+	public IBrowserOutput o() {
 		return m_o;
 	}
 
-	public RequestContext ctx() {
+	public IRequestContext ctx() {
 		return m_ctx;
 	}
 
@@ -144,7 +144,7 @@ public class OptimalDeltaRenderer {
 		return m_page;
 	}
 
-	public void render(RequestContext ctx, Page page) throws Exception {
+	public void render(IRequestContext ctx, Page page) throws Exception {
 		m_ctx = ctx;
 		m_page = page;
 		page.build();

@@ -13,7 +13,7 @@ import to.etc.iocular.def.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 14, 2009
  */
-public class AjaxRequestHandler implements FilterRequestHandler {
+public class AjaxRequestHandler implements IFilterRequestHandler {
 	static private final String CONT_KEY = "ajax.ioc";
 
 	private final DomApplication m_application;
@@ -135,7 +135,7 @@ public class AjaxRequestHandler implements FilterRequestHandler {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Actual execution by delegating to the context.
-	 * @see to.etc.domui.server.FilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
+	 * @see to.etc.domui.server.IFilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
 	 */
 	public void handleRequest(final RequestContextImpl ctx) throws Exception {
 		AjaxRequestContext ax = new AjaxRequestContext(this, m_callHandler, ctx);

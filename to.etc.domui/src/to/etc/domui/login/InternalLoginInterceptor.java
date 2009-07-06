@@ -14,7 +14,7 @@ import to.etc.domui.trouble.*;
  * Created on Apr 15, 2009
  */
 public class InternalLoginInterceptor implements IRequestInterceptor {
-	public void after(RequestContext rc, Exception x) throws Exception {
+	public void after(IRequestContext rc, Exception x) throws Exception {
 		if(!(x instanceof NotLoggedInException))
 			return;
 		RequestContextImpl ci = (RequestContextImpl) rc;
@@ -24,5 +24,5 @@ public class InternalLoginInterceptor implements IRequestInterceptor {
 
 	}
 
-	public void before(RequestContext rc) throws Exception {}
+	public void before(IRequestContext rc) throws Exception {}
 }

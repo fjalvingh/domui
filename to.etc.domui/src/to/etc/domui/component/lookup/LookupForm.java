@@ -212,7 +212,7 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	public LookupFieldQueryBuilderThingy createControlFor(final String name, final PropertyMetaModel pmm, final SearchPropertyMetaModel spm) {
-		RequestContext rq = PageContext.getRequestContext();
+		IRequestContext rq = PageContext.getRequestContext();
 		boolean viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
 		boolean editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);
 		if(!viewable) {

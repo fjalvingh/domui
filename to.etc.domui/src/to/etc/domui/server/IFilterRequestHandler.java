@@ -1,5 +1,5 @@
 package to.etc.domui.server;
 
-public interface FilterRequestHandler {
+public interface IFilterRequestHandler {
 	public void handleRequest(RequestContextImpl ctx) throws Exception;
 }

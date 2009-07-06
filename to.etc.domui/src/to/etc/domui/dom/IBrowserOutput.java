@@ -2,7 +2,7 @@ package to.etc.domui.dom;
 
 import java.io.*;
 
-public interface BrowserOutput {
+public interface IBrowserOutput {
 	public void writeRaw(String s) throws IOException;
 
 	/**

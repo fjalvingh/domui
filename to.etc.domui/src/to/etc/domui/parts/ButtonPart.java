@@ -12,7 +12,7 @@ import to.etc.domui.util.resources.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 @Deprecated
-public class ButtonPart implements BufferedPartFactory {
+public class ButtonPart implements IBufferedPartFactory {
 	static class ButtonPartKey {
 		String m_image;
 

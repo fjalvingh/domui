@@ -8,6 +8,6 @@ import to.etc.domui.server.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 4, 2008
  */
-public interface PartRenderer {
+public interface IPartRenderer {
 	public void render(RequestContextImpl ctx, String rest) throws Exception;
 }

@@ -75,7 +75,7 @@ public class ComponentPartRenderer {
 	 * @param sb
 	 * @param b
 	 */
-	static public void appendComponentURL(StringBuilder sb, Class< ? extends PartFactory> fclazz, NodeBase b, RequestContext ctx) {
+	static public void appendComponentURL(StringBuilder sb, Class< ? extends IPartFactory> fclazz, NodeBase b, IRequestContext ctx) {
 		sb.append(ctx.getRelativePath(fclazz.getName())); // Root containing the factory name,
 		sb.append(".part/");
 		sb.append(b.getPage().getConversation().getFullId());

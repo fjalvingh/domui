@@ -3,7 +3,7 @@ package to.etc.domui.server.reloader;
 import java.io.*;
 import java.util.zip.*;
 
-public class JarRef implements ResourceRef {
+public class JarRef implements IResourceRef {
 	private File m_jar;
 
 	private String m_rel;

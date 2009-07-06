@@ -12,7 +12,7 @@ import to.etc.domui.util.upload.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 14, 2008
  */
-public class UploadPart implements UnbufferedPartFactory {
+public class UploadPart implements IUnbufferedPartFactory {
 	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
 		try {
 			ComponentPartRenderer r = new ComponentPartRenderer();

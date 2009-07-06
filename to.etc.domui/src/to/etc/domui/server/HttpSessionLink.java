@@ -12,7 +12,7 @@ import to.etc.domui.state.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2008
  */
-final public class HttpSessionLink implements ReloadedClassesListener, HttpSessionBindingListener {
+final public class HttpSessionLink implements IReloadedClassesListener, HttpSessionBindingListener {
 	private AppSession m_appSession;
 
 	private ReloadingContextMaker m_reloader;
@@ -24,7 +24,7 @@ final public class HttpSessionLink implements ReloadedClassesListener, HttpSessi
 	/**
 	 * When classes are reloaded we MUST invalidate the current appSession.
 	 *
-	 * @see to.etc.domui.server.reloader.ReloadedClassesListener#classesReloaded()
+	 * @see to.etc.domui.server.reloader.IReloadedClassesListener#classesReloaded()
 	 */
 	public void classesReloaded() {
 		AppSession old;

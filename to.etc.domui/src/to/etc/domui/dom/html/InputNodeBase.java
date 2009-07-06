@@ -10,7 +10,7 @@ abstract public class InputNodeBase extends NodeBase implements IInputBase {
 	private IValueChanged< ? , ? > m_onValueChanged;
 
 	@Override
-	abstract public void visit(NodeVisitor v) throws Exception;
+	abstract public void visit(INodeVisitor v) throws Exception;
 
 	public InputNodeBase(String tag) {
 		super(tag);

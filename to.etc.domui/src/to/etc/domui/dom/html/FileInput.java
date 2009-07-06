@@ -6,7 +6,7 @@ public class FileInput extends InputNodeBase {
 	}
 
 	@Override
-	public void visit(NodeVisitor v) throws Exception {
+	public void visit(INodeVisitor v) throws Exception {
 		v.visitFileInput(this);
 	}
 }

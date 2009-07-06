@@ -10,7 +10,7 @@ import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
-public class InternalResourcePart implements BufferedPartFactory {
+public class InternalResourcePart implements IBufferedPartFactory {
 	private static class ResKey {
 		private Locale m_loc;
 
@@ -85,7 +85,7 @@ public class InternalResourcePart implements BufferedPartFactory {
 	 * flag in $HOME/.developer.properties: domui.expires=false. In addition, resources generated from the webapp do
 	 * not get an expires header when the server runs in DEBUG mode.
 	 *
-	 * @see to.etc.domui.server.parts.BufferedPartFactory#generate(to.etc.domui.server.parts.PartResponse, to.etc.domui.server.DomApplication, java.lang.Object, to.etc.domui.util.resources.ResourceDependencyList)
+	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(to.etc.domui.server.parts.PartResponse, to.etc.domui.server.DomApplication, java.lang.Object, to.etc.domui.util.resources.ResourceDependencyList)
 	 */
 	public void generate(PartResponse pr, DomApplication da, Object inkey, ResourceDependencyList rdl) throws Exception {
 		ResKey k = (ResKey) inkey;

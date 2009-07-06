@@ -39,7 +39,7 @@ public abstract class DomApplication {
 
 	private final AjaxRequestHandler m_ajaxHandler = new AjaxRequestHandler(this);
 
-	private Set<AppSessionListener> m_appSessionListeners = new HashSet<AppSessionListener>();
+	private Set<IAppSessionListener> m_appSessionListeners = new HashSet<IAppSessionListener>();
 
 	private File m_webFilePath;
 
@@ -119,17 +119,17 @@ public abstract class DomApplication {
 		return da;
 	}
 
-	public synchronized void addSessionListener(final AppSessionListener l) {
-		m_appSessionListeners = new HashSet<AppSessionListener>(m_appSessionListeners);
+	public synchronized void addSessionListener(final IAppSessionListener l) {
+		m_appSessionListeners = new HashSet<IAppSessionListener>(m_appSessionListeners);
 		m_appSessionListeners.add(l);
 	}
 
-	public synchronized void removeSessionListener(final AppSessionListener l) {
-		m_appSessionListeners = new HashSet<AppSessionListener>(m_appSessionListeners);
+	public synchronized void removeSessionListener(final IAppSessionListener l) {
+		m_appSessionListeners = new HashSet<IAppSessionListener>(m_appSessionListeners);
 		m_appSessionListeners.remove(l);
 	}
 
-	private synchronized Set<AppSessionListener> getAppSessionListeners() {
+	private synchronized Set<IAppSessionListener> getAppSessionListeners() {
 		return m_appSessionListeners;
 	}
 
@@ -142,7 +142,7 @@ public abstract class DomApplication {
 		return m_urlExtension;
 	}
 
-	public FilterRequestHandler findRequestHandler(final RequestContext ctx) {
+	public IFilterRequestHandler findRequestHandler(final IRequestContext ctx) {
 		//		System.out.println("Input: "+ctx.getInputPath());
 		if(getUrlExtension().equals(ctx.getExtension()) || (getRootPage() != null && ctx.getInputPath().length() == 0)) {
 			return m_requestHandler;
@@ -170,7 +170,7 @@ public abstract class DomApplication {
 	 * @param sess
 	 */
 	void registerSession(final AppSession aps) {
-		for(AppSessionListener l : getAppSessionListeners()) {
+		for(IAppSessionListener l : getAppSessionListeners()) {
 			try {
 				l.sessionCreated(this, aps);
 			} catch(Exception x) {
@@ -263,7 +263,7 @@ public abstract class DomApplication {
 	}
 
 
-	protected FullHtmlRenderer findRendererFor(final String useragent, final BrowserOutput o) {
+	protected FullHtmlRenderer findRendererFor(final String useragent, final IBrowserOutput o) {
 		HtmlRenderer base = new HtmlRenderer(o);
 		return new FullHtmlRenderer(base, o);
 	}

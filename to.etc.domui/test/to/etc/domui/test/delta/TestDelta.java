@@ -66,11 +66,11 @@ public class TestDelta {
 
 	public String getFullRenderText(Page pg) throws Exception {
 		StringWriter sw = new StringWriter();
-		BrowserOutput ro = new PrettyXmlOutputWriter(sw);
+		IBrowserOutput ro = new PrettyXmlOutputWriter(sw);
 		HtmlRenderer bhr = new HtmlRenderer(ro);
 		FullHtmlRenderer hr = new FullHtmlRenderer(bhr, ro);
 
-		RequestContext ctx = new TestRequestContext();
+		IRequestContext ctx = new TestRequestContext();
 		hr.render(ctx, pg);
 		pg.clearDeltaFully();
 		return sw.getBuffer().toString();
@@ -78,11 +78,11 @@ public class TestDelta {
 
 	public String getDeltaRenderText(Page pg) throws Exception {
 		StringWriter sw = new StringWriter();
-		BrowserOutput ro = new PrettyXmlOutputWriter(sw);
+		IBrowserOutput ro = new PrettyXmlOutputWriter(sw);
 		HtmlRenderer bhr = new HtmlRenderer(ro);
 		OptimalDeltaRenderer hr = new OptimalDeltaRenderer(bhr, ro);
 
-		RequestContext ctx = new TestRequestContext();
+		IRequestContext ctx = new TestRequestContext();
 		hr.render(ctx, pg);
 		return sw.getBuffer().toString();
 	}

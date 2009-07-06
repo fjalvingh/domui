@@ -7,7 +7,7 @@ import to.etc.domui.server.parts.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 
-public class FileTypePart implements BufferedPartFactory {
+public class FileTypePart implements IBufferedPartFactory {
 	static private final String PREFIX = "$filetype$";
 
 	/**

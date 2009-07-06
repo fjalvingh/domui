@@ -32,7 +32,7 @@ public class AppFilter implements Filter {
 	 * If a reloader is needed for debug/development pps this will hold the reloader.
 	 */
 
-	private ContextMaker m_contextMaker;
+	private IContextMaker m_contextMaker;
 
 	public void destroy() {}
 

@@ -7,11 +7,11 @@ package to.etc.domui.server.reloader;
  * Created on May 22, 2008
  */
 final public class ResourceTimestamp {
-	private ResourceRef m_ref;
+	private IResourceRef m_ref;
 
 	private long m_ts;
 
-	public ResourceTimestamp(ResourceRef ref, long ts) {
+	public ResourceTimestamp(IResourceRef ref, long ts) {
 		m_ref = ref;
 		m_ts = ts;
 	}
@@ -24,7 +24,7 @@ final public class ResourceTimestamp {
 		}
 	}
 
-	ResourceRef getRef() {
+	IResourceRef getRef() {
 		return m_ref;
 	}
 

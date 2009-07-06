@@ -14,7 +14,7 @@ public class Form extends NodeContainer {
 	}
 
 	@Override
-	public void visit(NodeVisitor v) throws Exception {
+	public void visit(INodeVisitor v) throws Exception {
 		v.visitForm(this);
 	}
 

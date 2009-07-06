@@ -29,7 +29,7 @@ public class Select extends InputNodeContainer {
 	}
 
 	@Override
-	public void visit(NodeVisitor v) throws Exception {
+	public void visit(INodeVisitor v) throws Exception {
 		v.visitSelect(this);
 	}
 

@@ -13,7 +13,7 @@ import to.etc.domui.state.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 9, 2008
  */
-public class TestRequestContext implements RequestContext {
+public class TestRequestContext implements IRequestContext {
 	private DomApplication m_app;
 
 	private final String m_input;
@@ -103,7 +103,7 @@ public class TestRequestContext implements RequestContext {
 
 	/**
 	 * FIXME Does this need more?
-	 * @see to.etc.domui.server.RequestContext#hasPermission(java.lang.String)
+	 * @see to.etc.domui.server.IRequestContext#hasPermission(java.lang.String)
 	 */
 	public boolean hasPermission(final String permissionName) {
 		return true;

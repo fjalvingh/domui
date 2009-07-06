@@ -42,7 +42,7 @@ import to.etc.util.*;
 final public class Reloader {
 	static final Logger LOG = Logger.getLogger(Reloader.class.getName());
 
-	static private final ResourceRef NOT_FOUND = new ResourceRef() {
+	static private final IResourceRef NOT_FOUND = new IResourceRef() {
 		public long lastModified() {
 			throw new IllegalStateException("Whazzup!?");
 		}
@@ -79,7 +79,7 @@ final public class Reloader {
 	/** The set of URLs that are accessed by all my classloaders. */
 	private Set<URL> m_urlSet = new HashSet<URL>();
 
-	private Map<String, ResourceRef> m_lookupMap = new HashMap<String, ResourceRef>();
+	private Map<String, IResourceRef> m_lookupMap = new HashMap<String, IResourceRef>();
 
 	private boolean m_changed;
 
@@ -172,7 +172,7 @@ final public class Reloader {
 	 * @return
 	 */
 	synchronized ResourceTimestamp findClassSource(Class< ? > clz) {
-		ResourceRef rr = m_lookupMap.get(clz.getName()); // Already looked up earlier?
+		IResourceRef rr = m_lookupMap.get(clz.getName()); // Already looked up earlier?
 		if(rr != null) {
 			if(rr == NOT_FOUND)
 				return null;

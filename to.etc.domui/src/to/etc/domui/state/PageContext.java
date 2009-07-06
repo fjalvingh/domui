@@ -25,8 +25,8 @@ public class PageContext {
 
 	static private ThreadLocal<IUser> m_currentUser = new ThreadLocal<IUser>();
 
-	static public RequestContext getRequestContext() {
-		RequestContext rc = m_current.get();
+	static public IRequestContext getRequestContext() {
+		IRequestContext rc = m_current.get();
 		if(rc == null)
 			throw new IllegalStateException("No current request!");
 		return rc;

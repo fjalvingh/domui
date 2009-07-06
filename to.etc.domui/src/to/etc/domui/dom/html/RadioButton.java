@@ -24,7 +24,7 @@ public class RadioButton extends NodeBase {
 	}
 
 	@Override
-	public void visit(NodeVisitor v) throws Exception {
+	public void visit(INodeVisitor v) throws Exception {
 		v.visitRadioButton(this);
 	}
 

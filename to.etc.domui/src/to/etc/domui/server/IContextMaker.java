@@ -9,6 +9,6 @@ import javax.servlet.http.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2008
  */
-public interface ContextMaker {
+public interface IContextMaker {
 	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception;
 }

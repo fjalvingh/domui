@@ -2,7 +2,7 @@ package to.etc.domui.dom;
 
 import java.io.*;
 
-public class FastXmlOutputWriter extends XmlOutputWriterBase implements BrowserOutput {
+public class FastXmlOutputWriter extends XmlOutputWriterBase implements IBrowserOutput {
 	public FastXmlOutputWriter(Writer w) {
 		super(w);
 	}

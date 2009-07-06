@@ -225,7 +225,7 @@ final public class DomUtil {
 		return sb.toString();
 	}
 
-	static public void addUrlParameters(final StringBuilder sb, final RequestContext ctx, boolean first) {
+	static public void addUrlParameters(final StringBuilder sb, final IRequestContext ctx, boolean first) {
 		for(String name : ctx.getParameterNames()) {
 			if(name.equals(Constants.PARAM_CONVERSATION_ID))
 				continue;

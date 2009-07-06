@@ -6,7 +6,7 @@ public class BR extends NodeBase {
 	}
 
 	@Override
-	public void visit(NodeVisitor v) throws Exception {
+	public void visit(INodeVisitor v) throws Exception {
 		v.visitBR(this);
 	}
 }

@@ -11,7 +11,7 @@ import to.etc.domui.util.upload.*;
 import to.etc.net.*;
 import to.etc.util.*;
 
-public class RequestContextImpl implements RequestContext, IAttributeContainer {
+public class RequestContextImpl implements IRequestContext, IAttributeContainer {
 	private HttpServletRequest m_request;
 
 	private HttpServletResponse m_response;
@@ -77,7 +77,7 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	}
 
 	/**
-	 * @see to.etc.domui.server.RequestContext#getApplication()
+	 * @see to.etc.domui.server.IRequestContext#getApplication()
 	 */
 	final public DomApplication getApplication() {
 		return m_application;
@@ -87,7 +87,7 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 
 	/**
 	 * Get the session for this context.
-	 * @see to.etc.domui.server.RequestContext#getSession()
+	 * @see to.etc.domui.server.IRequestContext#getSession()
 	 */
 	final public AppSession getSession() {
 		m_session.internalLockSession(); // Someone uses session -> lock it for use by CURRENT-THREAD.
@@ -110,7 +110,7 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	 * conversation parameter and locate the manager from there. If that fails it
 	 * throws an exception.
 	 *
-	 * @see to.etc.domui.server.RequestContext#getWindowSession()
+	 * @see to.etc.domui.server.IRequestContext#getWindowSession()
 	 */
 	final public WindowSession getWindowSession() {
 		if(m_windowSession != null)
@@ -166,7 +166,7 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 
 
 	/**
-	 * @see to.etc.domui.server.RequestContext#getExtension()
+	 * @see to.etc.domui.server.IRequestContext#getExtension()
 	 */
 	public String getExtension() {
 		return m_extension;
@@ -181,14 +181,14 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	}
 
 	/**
-	 * @see to.etc.domui.server.RequestContext#getInputPath()
+	 * @see to.etc.domui.server.IRequestContext#getInputPath()
 	 */
 	public final String getInputPath() {
 		return m_urlin;
 	}
 
 	/**
-	 * @see to.etc.domui.server.RequestContext#getUserAgent()
+	 * @see to.etc.domui.server.IRequestContext#getUserAgent()
 	 */
 	public String getUserAgent() {
 		return m_request.getHeader("user-agent");
@@ -224,7 +224,7 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	}
 
 	/**
-	 * @see to.etc.domui.server.RequestContext#getRelativePath(java.lang.String)
+	 * @see to.etc.domui.server.IRequestContext#getRelativePath(java.lang.String)
 	 */
 	public String getRelativePath(String rel) {
 		StringBuilder sb = new StringBuilder();
@@ -240,7 +240,7 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	/**
 	 * Translates the input resource specifier by checking for special location indicators like $THEME and
 	 * such at the start of the input. If input does not start with any of these it is returned unaltered.
-	 * @see to.etc.domui.server.RequestContext#translateResourceName(java.lang.String)
+	 * @see to.etc.domui.server.IRequestContext#translateResourceName(java.lang.String)
 	 */
 	public String translateResourceName(String in) {
 		if(in == null)
@@ -253,7 +253,7 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	}
 
 	/**
-	 * @see to.etc.domui.server.RequestContext#getOutputWriter()
+	 * @see to.etc.domui.server.IRequestContext#getOutputWriter()
 	 */
 	public Writer getOutputWriter() throws IOException {
 		if(m_outWriter == null) {
@@ -281,21 +281,21 @@ public class RequestContextImpl implements RequestContext, IAttributeContainer {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * @see to.etc.domui.server.RequestContext#getParameter(java.lang.String)
+	 * @see to.etc.domui.server.IRequestContext#getParameter(java.lang.String)
 	 */
 	public String getParameter(String name) {
 		return getRequest().getParameter(name);
 	}
 
 	/**
-	 * @see to.etc.domui.server.RequestContext#getParameters(java.lang.String)
+	 * @see to.etc.domui.server.IRequestContext#getParameters(java.lang.String)
 	 */
 	public String[] getParameters(String name) {
 		return getRequest().getParameterValues(name);
 	}
 
 	/**
-	 * @see to.etc.domui.server.RequestContext#getParameterNames()
+	 * @see to.etc.domui.server.IRequestContext#getParameterNames()
 	 */
 	public String[] getParameterNames() {
 		return (String[]) getRequest().getParameterMap().keySet().toArray(new String[getRequest().getParameterMap().size()]);

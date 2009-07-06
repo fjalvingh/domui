@@ -22,7 +22,7 @@ import to.etc.domui.trouble.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 1, 2008
  */
-public class EditResPart implements UnbufferedPartFactory {
+public class EditResPart implements IUnbufferedPartFactory {
 	static private final ThreadLocal<DateFormat> m_format = new ThreadLocal<DateFormat>();
 
 	static private DateFormat getFormatter() {
@@ -70,10 +70,10 @@ public class EditResPart implements UnbufferedPartFactory {
 			throw new IllegalStateException("Unimplemented command: " + cmd);
 	}
 
-	private BrowserOutput defaultHeader(RequestContextImpl ctx, String cmd, String rtype, String path) throws Exception {
+	private IBrowserOutput defaultHeader(RequestContextImpl ctx, String cmd, String rtype, String path) throws Exception {
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 		w.tag("Connector");
 		w.attr("command", cmd);
 		w.attr("resourceType", rtype);
@@ -101,7 +101,7 @@ public class EditResPart implements UnbufferedPartFactory {
 
 	private void sendFolderAndFiles(DomApplication app, IEditorFileSystem ifs, RequestContextImpl ctx, String type, CharSequence baseURL) throws Exception {
 		String rpath = getPath(ctx, "CurrentFolder");
-		BrowserOutput w = defaultHeader(ctx, "GetFolderAndFiles", type, rpath);
+		IBrowserOutput w = defaultHeader(ctx, "GetFolderAndFiles", type, rpath);
 
 		w.tag("Error");
 		w.attr("number", 0);
@@ -155,7 +155,7 @@ public class EditResPart implements UnbufferedPartFactory {
 	private void sendInit(DomApplication app, IEditorFileSystem ifs, RequestContextImpl ctx) throws Exception {
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 		w.tag("Connector");
 		w.endtag();
 		w.tag("Error");

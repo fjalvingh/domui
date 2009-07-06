@@ -2,7 +2,7 @@ package to.etc.domui.server.reloader;
 
 import java.io.*;
 
-final class FileRef implements ResourceRef {
+final class FileRef implements IResourceRef {
 	private File m_src;
 
 	public FileRef(File src) {

@@ -28,7 +28,7 @@ public class PageMaker {
 	 * null if the page cannot be located. It is a helper function to allow access to components
 	 * from Parts etc.
 	 */
-	static public Page findPageInConversation(final RequestContext rctx, final Class< ? extends UrlPage> clz, final String cid) throws Exception {
+	static public Page findPageInConversation(final IRequestContext rctx, final Class< ? extends UrlPage> clz, final String cid) throws Exception {
 		if(cid == null)
 			return null;
 		String[] cida = DomUtil.decodeCID(cid);
@@ -65,7 +65,7 @@ public class PageMaker {
 		return false;
 	}
 
-	static Page createPageWithContent(final RequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final PageParameters pp) throws Exception {
+	static Page createPageWithContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final PageParameters pp) throws Exception {
 		UrlPage nc = createPageContent(ctx, con, cc, pp);
 		Page pg = new Page(nc);
 		cc.internalRegisterPage(pg, pp);
@@ -81,7 +81,7 @@ public class PageMaker {
 	 * @return
 	 * @throws Exception
 	 */
-	static private UrlPage createPageContent(final RequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final PageParameters pp) throws Exception {
+	static private UrlPage createPageContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final PageParameters pp) throws Exception {
 		//-- Create the page.
 		Class< ? >[] par = con.getParameterTypes();
 		Object[] args = new Object[par.length];

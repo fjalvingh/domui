@@ -17,7 +17,7 @@ import to.etc.domui.util.resources.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 21, 2008
  */
-public class PropBtnPart implements BufferedPartFactory {
+public class PropBtnPart implements IBufferedPartFactory {
 	static public class ButtonPartKey {
 		String m_propfile;
 
@@ -92,7 +92,7 @@ public class PropBtnPart implements BufferedPartFactory {
 
 	/**
 	 * Decode the parameters for this button thingy.
-	 * @see to.etc.domui.server.parts.BufferedPartFactory#decodeKey(java.lang.String, to.etc.domui.server.IParameterInfo)
+	 * @see to.etc.domui.server.parts.IBufferedPartFactory#decodeKey(java.lang.String, to.etc.domui.server.IParameterInfo)
 	 */
 	public Object decodeKey(String rurl, IParameterInfo info) throws Exception {
 		ButtonPartKey k = new ButtonPartKey();
@@ -116,7 +116,7 @@ public class PropBtnPart implements BufferedPartFactory {
 
 	/**
 	 * Generate the button class.
-	 * @see to.etc.domui.server.parts.BufferedPartFactory#generate(java.io.OutputStream, to.etc.domui.server.DomApplication, java.lang.Object)
+	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(java.io.OutputStream, to.etc.domui.server.DomApplication, java.lang.Object)
 	 */
 	public void generate(PartResponse pr, DomApplication da, Object key, ResourceDependencyList rdl) throws Exception {
 		ButtonPartKey k = (ButtonPartKey) key;

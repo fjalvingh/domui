@@ -1,5 +1,5 @@
 package to.etc.domui.server.reloader;
 
-public interface ReloadedClassesListener {
+public interface IReloadedClassesListener {
 	public void classesReloaded();
 }

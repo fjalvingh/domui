@@ -5,7 +5,7 @@ import java.io.*;
 import to.etc.domui.state.*;
 
 
-public interface RequestContext extends IParameterInfo {
+public interface IRequestContext extends IParameterInfo {
 	public DomApplication getApplication();
 
 	public AppSession getSession();

@@ -19,7 +19,7 @@ public class LiteralXhtml extends NodeBase {
 	}
 
 	@Override
-	public void visit(final NodeVisitor v) throws Exception {
+	public void visit(final INodeVisitor v) throws Exception {
 		v.visitLiteralXhtml(this);
 	}
 

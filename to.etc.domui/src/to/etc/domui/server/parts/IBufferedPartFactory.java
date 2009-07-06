@@ -3,7 +3,7 @@ package to.etc.domui.server.parts;
 import to.etc.domui.server.*;
 import to.etc.domui.util.resources.*;
 
-public interface BufferedPartFactory extends PartFactory {
+public interface IBufferedPartFactory extends IPartFactory {
 	/**
 	 * Decode the input and create a KEY for the request. This key must be hashable, and forms
 	 * the key for the cache to retrieve an already generated copy.

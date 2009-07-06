@@ -2,7 +2,7 @@ package to.etc.domui.server;
 
 import to.etc.domui.server.parts.*;
 
-public class ResourceRequestHandler implements FilterRequestHandler {
+public class ResourceRequestHandler implements IFilterRequestHandler {
 	//	private DomApplication		m_app;
 
 	private PartRequestHandler m_prh;
@@ -17,7 +17,7 @@ public class ResourceRequestHandler implements FilterRequestHandler {
 	/**
 	 * Handles requests for $ resources. It just delegates to a special part.
 	 *
-	 * @see to.etc.domui.server.FilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
+	 * @see to.etc.domui.server.IFilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
 	 */
 	public void handleRequest(RequestContextImpl ctx) throws Exception {
 		//		String	url = ctx.getInputPath().substring(1);

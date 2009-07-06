@@ -206,7 +206,7 @@ final public class WindowSession {
 		}
 	}
 
-	public ConversationContext createConversation(final RequestContext ctx, final Class< ? extends ConversationContext> clz) throws Exception {
+	public ConversationContext createConversation(final IRequestContext ctx, final Class< ? extends ConversationContext> clz) throws Exception {
 		if(clz == null)
 			return new SimpleConversationContext();
 		return clz.newInstance(); // FIXME Should do something with injection and stuff.
@@ -410,7 +410,7 @@ final public class WindowSession {
 
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 		out.tag("redirect");
 		out.attr("url", url);
 		out.endAndCloseXmltag();
@@ -541,7 +541,7 @@ final public class WindowSession {
 	 * @return
 	 * @throws Exception
 	 */
-	public Page makeOrGetPage(final RequestContext rctx, final Class< ? extends UrlPage> clz, final PageParameters papa) throws Exception {
+	public Page makeOrGetPage(final IRequestContext rctx, final Class< ? extends UrlPage> clz, final PageParameters papa) throws Exception {
 		//-- 1. If a conversation ID is present try to get the page from there,
 		ConversationContext cc = null;
 		String cid = rctx.getParameter(Constants.PARAM_CONVERSATION_ID);

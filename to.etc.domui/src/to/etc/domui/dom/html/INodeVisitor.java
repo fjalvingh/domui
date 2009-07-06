@@ -8,7 +8,7 @@ import to.etc.domui.component.misc.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 17, 2007
  */
-public interface NodeVisitor {
+public interface INodeVisitor {
 	public void visitTextNode(TextNode n) throws Exception;
 
 	public void visitTR(TR n) throws Exception;

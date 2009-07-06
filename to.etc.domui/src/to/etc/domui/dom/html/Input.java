@@ -26,7 +26,7 @@ public class Input extends InputNodeBase {
 	}
 
 	@Override
-	public void visit(NodeVisitor v) throws Exception {
+	public void visit(INodeVisitor v) throws Exception {
 		v.visitInput(this);
 	}
 

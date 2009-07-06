@@ -97,7 +97,7 @@ final public class MetaManager {
 	 * @param ctx
 	 * @return
 	 */
-	static public boolean isAccessAllowed(String[][] roleset, RequestContext ctx) {
+	static public boolean isAccessAllowed(String[][] roleset, IRequestContext ctx) {
 		if(roleset == null)
 			return true; // No restrictions
 		for(String[] orset : roleset) {

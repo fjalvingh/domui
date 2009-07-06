@@ -38,7 +38,7 @@ final public class NormalContextMaker extends AbstractContextMaker {
 
 	/**
 	 * Create a normal context.
-	 * @see to.etc.domui.server.ContextMaker#createContext(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 * @see to.etc.domui.server.IContextMaker#createContext(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
 	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception {

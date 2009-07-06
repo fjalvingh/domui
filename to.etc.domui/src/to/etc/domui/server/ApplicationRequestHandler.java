@@ -21,7 +21,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2008
  */
-public class ApplicationRequestHandler implements FilterRequestHandler {
+public class ApplicationRequestHandler implements IFilterRequestHandler {
 	private final DomApplication m_application;
 
 	public ApplicationRequestHandler(final DomApplication application) {
@@ -44,7 +44,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 	 * @param ctx
 	 * @return
 	 */
-	private Class< ? extends UrlPage> decodeRunClass(final RequestContext ctx) {
+	private Class< ? extends UrlPage> decodeRunClass(final IRequestContext ctx) {
 		if(ctx.getInputPath().length() == 0) {
 			/*
 			 * We need to EXECUTE the application's main class. We cannot use the .class directly
@@ -215,7 +215,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		long ts = System.nanoTime();
 		ctx.getResponse().setContentType("text/html; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 
 		//		String	usag = ctx.getUserAgent();
 		FullHtmlRenderer hr = m_application.findRendererFor(ctx.getUserAgent(), out);
@@ -336,7 +336,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 
 		ctx.getResponse().setContentType("text/html; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
 			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + ");\n" + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
 	}
@@ -351,7 +351,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 		//-- We stay on the same page. Render tree delta as response
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 		out.tag("expired");
 		out.endtag();
 
@@ -371,7 +371,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 	 * @param page
 	 * @throws Exception
 	 */
-	private void handleComponentInput(final RequestContext ctx, final Page page) throws Exception {
+	private void handleComponentInput(final IRequestContext ctx, final Page page) throws Exception {
 		//-- Just walk all parameters in the input request.
 		for(String name : ctx.getParameterNames()) {
 			String[] values = ctx.getParameters(name); // Get the value;
@@ -447,7 +447,7 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 	static public void renderOptimalDelta(final RequestContextImpl ctx, final Page page) throws Exception {
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
-		BrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 
 		long ts = System.nanoTime();
 		//		String	usag = ctx.getUserAgent();
@@ -469,13 +469,13 @@ public class ApplicationRequestHandler implements FilterRequestHandler {
 	 * @param cid
 	 * @throws Exception
 	 */
-	private void handleClicked(final RequestContext ctx, final Page page, final NodeBase b) throws Exception {
+	private void handleClicked(final IRequestContext ctx, final Page page, final NodeBase b) throws Exception {
 		if(b == null)
 			throw new IllegalStateException("Clicked must have a node!!");
 		b.internalOnClicked();
 	}
 
-	private void handleValueChanged(final RequestContext ctx, final Page page, final NodeBase b) throws Exception {
+	private void handleValueChanged(final IRequestContext ctx, final Page page, final NodeBase b) throws Exception {
 		if(b == null)
 			throw new IllegalStateException("onValueChanged must have a node!!");
 		if(!(b instanceof IInputNode< ? >))

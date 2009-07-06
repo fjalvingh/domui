@@ -16,9 +16,9 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 	/** The thingy responsible for rendering the tags, */
 	private HtmlRenderer m_tagRenderer;
 
-	private BrowserOutput m_o;
+	private IBrowserOutput m_o;
 
-	private RequestContext m_ctx;
+	private IRequestContext m_ctx;
 
 	private Page m_page;
 
@@ -26,7 +26,7 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 
 	private StringBuilder m_createJS = new StringBuilder();
 
-	public FullHtmlRenderer(HtmlRenderer tagRenderer, BrowserOutput o) {
+	public FullHtmlRenderer(HtmlRenderer tagRenderer, IBrowserOutput o) {
 		m_tagRenderer = tagRenderer;
 		m_o = o;
 	}
@@ -46,11 +46,11 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		m_xml = xml;
 	}
 
-	public BrowserOutput o() {
+	public IBrowserOutput o() {
 		return m_o;
 	}
 
-	public RequestContext ctx() {
+	public IRequestContext ctx() {
 		return m_ctx;
 	}
 
@@ -155,7 +155,7 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		o().writeRaw("var " + name + "=" + val + ";\n");
 	}
 
-	public void render(RequestContext ctx, Page page) throws Exception {
+	public void render(IRequestContext ctx, Page page) throws Exception {
 		m_ctx = ctx;
 		m_page = page;
 		page.build();

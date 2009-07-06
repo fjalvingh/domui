@@ -10,11 +10,11 @@ import to.etc.domui.util.images.*;
 import to.etc.domui.util.images.cache.*;
 import to.etc.domui.util.images.converters.*;
 
-abstract public class ImagePartBase implements UnbufferedPartFactory {
+abstract public class ImagePartBase implements IUnbufferedPartFactory {
 	static public class ImageKeys {
 		private DomApplication m_application;
 
-		private RequestContext m_requestContext;
+		private IRequestContext m_requestContext;
 
 		private String m_rurl;
 
@@ -24,7 +24,7 @@ abstract public class ImagePartBase implements UnbufferedPartFactory {
 
 		private List<IImageConversionSpecifier> m_conversions = new ArrayList<IImageConversionSpecifier>(10);
 
-		public ImageKeys(DomApplication application, RequestContext requestContext, String rurl) {
+		public ImageKeys(DomApplication application, IRequestContext requestContext, String rurl) {
 			m_application = application;
 			m_requestContext = requestContext;
 			m_rurl = rurl;
@@ -58,7 +58,7 @@ abstract public class ImagePartBase implements UnbufferedPartFactory {
 			return m_application;
 		}
 
-		public RequestContext getRequestContext() {
+		public IRequestContext getRequestContext() {
 			return m_requestContext;
 		}
 

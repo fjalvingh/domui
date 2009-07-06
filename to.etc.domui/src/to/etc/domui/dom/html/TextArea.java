@@ -25,7 +25,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String> {
 
 
 	@Override
-	public void visit(NodeVisitor v) throws Exception {
+	public void visit(INodeVisitor v) throws Exception {
 		v.visitTextArea(this);
 	}
 

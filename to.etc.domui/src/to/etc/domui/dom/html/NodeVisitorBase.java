@@ -2,7 +2,7 @@ package to.etc.domui.dom.html;
 
 import to.etc.domui.component.misc.*;
 
-public class NodeVisitorBase implements NodeVisitor {
+public class NodeVisitorBase implements INodeVisitor {
 
 	public void visitDiv(Div n) throws Exception {
 		sub(n);

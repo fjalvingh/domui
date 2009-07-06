@@ -8,7 +8,7 @@ abstract public class InputNodeContainer extends NodeContainer implements IInput
 	private boolean m_mandatory;
 
 	@Override
-	abstract public void visit(NodeVisitor v) throws Exception;
+	abstract public void visit(INodeVisitor v) throws Exception;
 
 	public InputNodeContainer(String tag) {
 		super(tag);

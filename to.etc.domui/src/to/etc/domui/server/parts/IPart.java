@@ -6,5 +6,5 @@ package to.etc.domui.server.parts;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 4, 2008
  */
-public interface Part {
+public interface IPart {
 }

@@ -21,7 +21,7 @@ public class Table extends NodeContainer {
 	}
 
 	@Override
-	public void visit(final NodeVisitor v) throws Exception {
+	public void visit(final INodeVisitor v) throws Exception {
 		v.visitTable(this);
 	}
 

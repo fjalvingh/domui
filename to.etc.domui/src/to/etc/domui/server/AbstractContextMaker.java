@@ -9,13 +9,13 @@ import javax.servlet.http.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 
-abstract public class AbstractContextMaker implements ContextMaker {
+abstract public class AbstractContextMaker implements IContextMaker {
 	abstract public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception;
 
 	public boolean execute(final RequestContextImpl ctx, FilterChain chain) throws Exception {
 		List<IRequestInterceptor> il = ctx.getApplication().getInterceptorList();
 		Exception xx = null;
-		FilterRequestHandler rh = null;
+		IFilterRequestHandler rh = null;
 		try {
 			PageContext.internalSet(ctx);
 			callInterceptorsBegin(il, ctx);
