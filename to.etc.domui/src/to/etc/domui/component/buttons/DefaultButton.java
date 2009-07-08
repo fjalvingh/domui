@@ -141,20 +141,41 @@ public class DefaultButton extends Button {
 	//		genURL();
 	//	}
 
+	/**
+	 * Generate the URL to the button renderer. Since things like the button text can contain
+	 * tilded resource keys we cannot generate the URL when we're not attached to a page; in
+	 * that case we ignore the call and generate the URL at page attachment time.
+	 */
 	private void genURL() {
+		if(getPage() == null)							// Not attached yet?
+			return;
 		StringBuilder sb = new StringBuilder(128);
 		sb.append(PropBtnPart.class.getName());
 		sb.append(".part?src=");
 		sb.append(m_propSrc);
 		if(m_text != null) {
 			sb.append("&amp;txt=");
-			StringTool.encodeURLEncoded(sb, m_text);
+			String text = DomUtil.replaceTilded(this, m_text);
+			StringTool.encodeURLEncoded(sb, text);
 		}
 		if(m_icon != null) {
 			sb.append("&amp;icon=");
 			StringTool.encodeURLEncoded(sb, m_icon);
 		}
 		m_img.setSrc(sb.toString());
+	}
+
+	/**
+	 * When attached to a page, this causes the Button Image Renderer URL to be
+	 * set in the image. It can only be done when the button is attached because
+	 * the button can contain tilde-escaped keys.
+	 *
+	 * @see to.etc.domui.dom.html.NodeBase#onAddedToPage(to.etc.domui.dom.html.Page)
+	 */
+	@Override
+	public void onAddedToPage(Page p) {
+		super.onAddedToPage(p);
+		genURL();
 	}
 
 	/**
