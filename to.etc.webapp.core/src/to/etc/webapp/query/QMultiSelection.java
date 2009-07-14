@@ -25,4 +25,8 @@ public class QMultiSelection extends QSelectionItem {
 	public QSelectionItem[] getItemList() {
 		return m_itemList;
 	}
+	@Override
+	public void visit(QNodeVisitor v) throws Exception {
+		v.visitMultiSelection(this);
+	}
 }

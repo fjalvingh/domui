@@ -53,4 +53,16 @@ public class QNodeVisitorBase implements QNodeVisitor {
 	}
 
 	public void visitOrder(QOrder o) throws Exception {}
+
+	public void visitPropertySelection(QPropertySelection n) throws Exception {
+	}
+	public void visitSelectionColumn(QSelectionColumn n) throws Exception {
+		n.getItem().visit(this);
+	}
+	public void visitSelectionItem(QSelectionItem n) throws Exception {
+	}
+	public void visitMultiSelection(QMultiSelection n) throws Exception {
+		for(QSelectionItem it: n.getItemList())
+			it.visit(this);
+	}
 }

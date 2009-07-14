@@ -21,4 +21,8 @@ public class QSelectionItem extends QNodeBase {
 	public QSelectionFunction getFunction() {
 		return m_function;
 	}
+	@Override
+	public void visit(QNodeVisitor v) throws Exception {
+		v.visitSelectionItem(this);
+	}
 }

@@ -22,4 +22,8 @@ final public class QPropertySelection extends QSelectionItem {
 	public String getProperty() {
 		return m_property;
 	}
+	@Override
+	public void visit(QNodeVisitor v) throws Exception {
+		v.visitPropertySelection(this);
+	}
 }

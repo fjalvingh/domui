@@ -30,4 +30,8 @@ final public class QSelectionColumn extends QNodeBase {
 	public QSelectionItem getItem() {
 		return m_item;
 	}
+	@Override
+	public void visit(QNodeVisitor v) throws Exception {
+		v.visitSelectionColumn(this);
+	}
 }
