@@ -22,6 +22,9 @@ public enum QSelectionFunction {
 	/** count() the #of rows */
 	COUNT,
 
+	/** count a distinct thingerydoo */
+	COUNT_DISTINCT,
+
 	/** Hibernate has this, but probably has no idea where to get this from */
 	ROWCOUNT,
 

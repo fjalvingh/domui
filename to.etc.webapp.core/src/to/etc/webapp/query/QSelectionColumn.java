@@ -6,24 +6,18 @@ package to.etc.webapp.query;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 14, 2009
  */
-public class QSelectionColumn {
+final public class QSelectionColumn extends QNodeBase {
 	/** When used in a restriction or order an alias is needed for complex query parts. */
 	private String				m_alias;
 
-	/** The type of item, */
-	private QSelectionFunction	m_function;
+	private QSelectionItem		m_item;
 
-	protected QSelectionColumn(QSelectionFunction function, String alias) {
-		m_alias = alias;
-		m_function = function;
+	protected QSelectionColumn(QSelectionItem item) {
+		m_item = item;
 	}
-
-	/**
-	 * Get the function applied to this selection item.
-	 * @return
-	 */
-	public QSelectionFunction getFunction() {
-		return m_function;
+	protected QSelectionColumn(QSelectionItem item, String alias) {
+		m_item = item;
+		m_alias = alias;
 	}
 
 	/**
@@ -33,6 +27,7 @@ public class QSelectionColumn {
 	public String getAlias() {
 		return m_alias;
 	}
-
-
+	public QSelectionItem getItem() {
+		return m_item;
+	}
 }

@@ -1,9 +1,7 @@
 package to.etc.webapp.query;
 
-abstract public class QOperatorNode {
+abstract public class QOperatorNode extends QNodeBase {
 	private QOperation m_operation;
-
-	abstract public void visit(QNodeVisitor v) throws Exception;
 
 	public QOperatorNode(QOperation operation) {
 		m_operation = operation;
