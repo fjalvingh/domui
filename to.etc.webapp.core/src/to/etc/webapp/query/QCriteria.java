@@ -63,156 +63,279 @@ public class QCriteria<T> extends QRestrictionsBase {
 		v.visitCriteria(this);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#add(to.etc.webapp.query.QOperatorNode)
+	 */
 	@Override
 	public QCriteria<T> add(final QOperatorNode r) {
 		return (QCriteria<T>) super.add(r);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#add(to.etc.webapp.query.QOrder)
+	 */
 	@Override
 	public QCriteria<T> add(final QOrder r) {
 		return (QCriteria<T>) super.add(r);
 	}
-
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#ascending(java.lang.String)
+	 */
 	@Override
 	public QCriteria<T> ascending(final String property) {
 		return (QCriteria<T>) super.ascending(property);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#between(java.lang.String, java.lang.Object, java.lang.Object)
+	 */
 	@Override
 	public QCriteria<T> between(final String property, final Object a, final Object b) {
 		return (QCriteria<T>) super.between(property, a, b);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#descending(java.lang.String)
+	 */
 	@Override
 	public QCriteria<T> descending(final String property) {
 		return (QCriteria<T>) super.descending(property);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#eq(java.lang.String, double)
+	 */
 	@Override
 	public QCriteria<T> eq(final String property, final double value) {
 		return (QCriteria<T>) super.eq(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#eq(java.lang.String, long)
+	 */
 	@Override
 	public QCriteria<T> eq(final String property, final long value) {
 		return (QCriteria<T>) super.eq(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#eq(java.lang.String, java.lang.Object)
+	 */
 	@Override
 	public QCriteria<T> eq(final String property, final Object value) {
 		return (QCriteria<T>) super.eq(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#ge(java.lang.String, double)
+	 */
 	@Override
 	public QCriteria<T> ge(final String property, final double value) {
 		return (QCriteria<T>) super.ge(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#ge(java.lang.String, long)
+	 */
 	@Override
 	public QCriteria<T> ge(final String property, final long value) {
 		return (QCriteria<T>) super.ge(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#ge(java.lang.String, java.lang.Object)
+	 */
 	@Override
 	public QCriteria<T> ge(final String property, final Object value) {
 		return (QCriteria<T>) super.ge(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#gt(java.lang.String, double)
+	 */
 	@Override
 	public QCriteria<T> gt(final String property, final double value) {
 		return (QCriteria<T>) super.gt(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#gt(java.lang.String, long)
+	 */
 	@Override
 	public QCriteria<T> gt(final String property, final long value) {
 		return (QCriteria<T>) super.gt(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#gt(java.lang.String, java.lang.Object)
+	 */
 	@Override
 	public QCriteria<T> gt(final String property, final Object value) {
 		return (QCriteria<T>) super.gt(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#ilike(java.lang.String, java.lang.Object)
+	 */
 	@Override
 	public QCriteria<T> ilike(final String property, final Object value) {
 		return (QCriteria<T>) super.ilike(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#isnotnull(java.lang.String)
+	 */
 	@Override
 	public QCriteria<T> isnotnull(final String property) {
 		return (QCriteria<T>) super.isnotnull(property);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#isnull(java.lang.String)
+	 */
 	@Override
 	public QCriteria<T> isnull(final String property) {
 		return (QCriteria<T>) super.isnull(property);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#le(java.lang.String, double)
+	 */
 	@Override
 	public QCriteria<T> le(final String property, final double value) {
 		return (QCriteria<T>) super.le(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#le(java.lang.String, long)
+	 */
 	@Override
 	public QCriteria<T> le(final String property, final long value) {
 		return (QCriteria<T>) super.le(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#le(java.lang.String, java.lang.Object)
+	 */
 	@Override
 	public QCriteria<T> le(final String property, final Object value) {
 		return (QCriteria<T>) super.le(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#like(java.lang.String, java.lang.Object)
+	 */
 	@Override
 	public QCriteria<T> like(final String property, final Object value) {
 		return (QCriteria<T>) super.like(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#lt(java.lang.String, double)
+	 */
 	@Override
 	public QCriteria<T> lt(final String property, final double value) {
 		return (QCriteria<T>) super.lt(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#lt(java.lang.String, long)
+	 */
 	@Override
 	public QCriteria<T> lt(final String property, final long value) {
 		return (QCriteria<T>) super.lt(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#lt(java.lang.String, java.lang.Object)
+	 */
 	@Override
 	public QCriteria<T> lt(final String property, final Object value) {
 		return (QCriteria<T>) super.lt(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#ne(java.lang.String, double)
+	 */
 	@Override
 	public QCriteria<T> ne(final String property, final double value) {
 		return (QCriteria<T>) super.ne(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#ne(java.lang.String, long)
+	 */
 	@Override
 	public QCriteria<T> ne(final String property, final long value) {
 		return (QCriteria<T>) super.ne(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#ne(java.lang.String, java.lang.Object)
+	 */
 	@Override
 	public QCriteria<T> ne(final String property, final Object value) {
 		return (QCriteria<T>) super.ne(property, value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#or(to.etc.webapp.query.QOperatorNode[])
+	 */
 	@Override
 	public QCriteria<T> or(final QOperatorNode... a) {
 		return (QCriteria<T>) super.or(a);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#sqlCondition(java.lang.String)
+	 */
 	@Override
 	public QCriteria<T> sqlCondition(final String sql) {
 		return (QCriteria<T>) super.sqlCondition(sql);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#limit(int)
+	 */
 	@Override
 	public QCriteria<T> limit(final int limit) {
 		return (QCriteria<T>) super.limit(limit);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QRestrictionsBase#start(int)
+	 */
 	@Override
 	public QCriteria<T> start(final int start) {
 		return (QCriteria<T>) super.start(start);
