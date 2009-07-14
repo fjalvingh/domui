@@ -7,6 +7,8 @@ package to.etc.webapp.query;
  * Created on Jun 24, 2008
  */
 public class QRestriction {
+	private QRestriction() {}
+
 	static public final QMultiNode and(QOperatorNode... list) {
 		return new QMultiNode(QOperation.AND, list);
 	}

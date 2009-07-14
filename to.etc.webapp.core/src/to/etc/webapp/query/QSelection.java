@@ -7,25 +7,63 @@ import java.util.*;
  * a QCriteria in that it collects not one persistent class instance per row but multiple
  * items per row, and each item can either be a persistent class or some property or
  * calculated value (max, min, count et al).
+ * 
+ * <p>Even though this type has a generic type parameter representing the base object
+ * being queried, the list() method for this object will return a List<Object[]> always.</p>
  *
- * QSelection queries return an array of items for each row, and each element
+ * <p>QSelection queries return an array of items for each row, and each element
  * of the array is typed depending on it's source. In addition, QSelection queries
  * expose the ability to handle grouping. QSelection criteria behave as and should
- * be seen as SQL queries in an OO wrapping.
+ * be seen as SQL queries in an OO wrapping.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jun 21, 2009
+ * Created on Jul 14, 2009
  */
-public class QSelection extends QRestrictionsBase {
-	private final List<QSelectedItem> m_itemList = Collections.EMPTY_LIST;
+public class QSelection<T> extends QRestrictionsBase {
+	final private Class<T>	m_root;
+	private final List<QSelectionColumn> m_itemList = Collections.EMPTY_LIST;
 
+	private QSelection(Class<T> clz) {
+		m_root = clz;
+	}
+
+	/**
+	 * Create a selection query based on the specified persistent class.
+	 * @param <T>
+	 * @param root
+	 * @return
+	 */
+	static public <T> QSelection<T>	create(Class<T> root) {
+		return new QSelection(root);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Object selectors.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property
+	 * @return
+	 */
+	public QSelection<T>	selectProperty(String property) {
+
+
+		return this;
+	}
+
+
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Overrides to force return type needed for chaining	*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QRestrictionsBase#add(to.etc.webapp.query.QOperatorNode)
 	 */
 	@Override
-	public QSelection add(final QOperatorNode r) {
-		return (QSelection) super.add(r);
+	public QSelection<T> add(final QOperatorNode r) {
+		return (QSelection<T>) super.add(r);
 	}
 
 	/**
@@ -33,8 +71,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#add(to.etc.webapp.query.QOrder)
 	 */
 	@Override
-	public QSelection add(final QOrder r) {
-		return (QSelection) super.add(r);
+	public QSelection<T> add(final QOrder r) {
+		return (QSelection<T>) super.add(r);
 	}
 
 	/**
@@ -42,16 +80,16 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#ascending(java.lang.String)
 	 */
 	@Override
-	public QSelection ascending(final String property) {
-		return (QSelection) super.ascending(property);
+	public QSelection<T> ascending(final String property) {
+		return (QSelection<T>) super.ascending(property);
 	}
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QRestrictionsBase#between(java.lang.String, java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	public QSelection between(final String property, final Object a, final Object b) {
-		return (QSelection) super.between(property, a, b);
+	public QSelection<T> between(final String property, final Object a, final Object b) {
+		return (QSelection<T>) super.between(property, a, b);
 	}
 
 	/**
@@ -59,8 +97,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#descending(java.lang.String)
 	 */
 	@Override
-	public QSelection descending(final String property) {
-		return (QSelection) super.descending(property);
+	public QSelection<T> descending(final String property) {
+		return (QSelection<T>) super.descending(property);
 	}
 
 	/**
@@ -68,16 +106,16 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#eq(java.lang.String, double)
 	 */
 	@Override
-	public QSelection eq(final String property, final double value) {
-		return (QSelection) super.eq(property, value);
+	public QSelection<T> eq(final String property, final double value) {
+		return (QSelection<T>) super.eq(property, value);
 	}
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QRestrictionsBase#eq(java.lang.String, long)
 	 */
 	@Override
-	public QSelection eq(final String property, final long value) {
-		return (QSelection) super.eq(property, value);
+	public QSelection<T> eq(final String property, final long value) {
+		return (QSelection<T>) super.eq(property, value);
 	}
 
 	/**
@@ -85,8 +123,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#eq(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QSelection eq(final String property, final Object value) {
-		return (QSelection) super.eq(property, value);
+	public QSelection<T> eq(final String property, final Object value) {
+		return (QSelection<T>) super.eq(property, value);
 	}
 
 	/**
@@ -94,8 +132,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#ge(java.lang.String, double)
 	 */
 	@Override
-	public QSelection ge(final String property, final double value) {
-		return (QSelection) super.ge(property, value);
+	public QSelection<T> ge(final String property, final double value) {
+		return (QSelection<T>) super.ge(property, value);
 	}
 
 	/**
@@ -103,8 +141,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#ge(java.lang.String, long)
 	 */
 	@Override
-	public QSelection ge(final String property, final long value) {
-		return (QSelection) super.ge(property, value);
+	public QSelection<T> ge(final String property, final long value) {
+		return (QSelection<T>) super.ge(property, value);
 	}
 
 	/**
@@ -112,8 +150,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#ge(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QSelection ge(final String property, final Object value) {
-		return (QSelection) super.ge(property, value);
+	public QSelection<T> ge(final String property, final Object value) {
+		return (QSelection<T>) super.ge(property, value);
 	}
 
 	/**
@@ -121,8 +159,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#gt(java.lang.String, double)
 	 */
 	@Override
-	public QSelection gt(final String property, final double value) {
-		return (QSelection) super.gt(property, value);
+	public QSelection<T> gt(final String property, final double value) {
+		return (QSelection<T>) super.gt(property, value);
 	}
 
 	/**
@@ -130,8 +168,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#gt(java.lang.String, long)
 	 */
 	@Override
-	public QSelection gt(final String property, final long value) {
-		return (QSelection) super.gt(property, value);
+	public QSelection<T> gt(final String property, final long value) {
+		return (QSelection<T>) super.gt(property, value);
 	}
 
 	/**
@@ -139,8 +177,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#gt(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QSelection gt(final String property, final Object value) {
-		return (QSelection) super.gt(property, value);
+	public QSelection<T> gt(final String property, final Object value) {
+		return (QSelection<T>) super.gt(property, value);
 	}
 
 	/**
@@ -148,8 +186,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#ilike(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QSelection ilike(final String property, final Object value) {
-		return (QSelection) super.ilike(property, value);
+	public QSelection<T> ilike(final String property, final Object value) {
+		return (QSelection<T>) super.ilike(property, value);
 	}
 
 	/**
@@ -157,8 +195,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#isnotnull(java.lang.String)
 	 */
 	@Override
-	public QSelection isnotnull(final String property) {
-		return (QSelection) super.isnotnull(property);
+	public QSelection<T> isnotnull(final String property) {
+		return (QSelection<T>) super.isnotnull(property);
 	}
 
 	/**
@@ -166,8 +204,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#isnull(java.lang.String)
 	 */
 	@Override
-	public QSelection isnull(final String property) {
-		return (QSelection) super.isnull(property);
+	public QSelection<T> isnull(final String property) {
+		return (QSelection<T>) super.isnull(property);
 	}
 
 	/**
@@ -175,8 +213,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#le(java.lang.String, double)
 	 */
 	@Override
-	public QSelection le(final String property, final double value) {
-		return (QSelection) super.le(property, value);
+	public QSelection<T> le(final String property, final double value) {
+		return (QSelection<T>) super.le(property, value);
 	}
 
 	/**
@@ -184,8 +222,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#le(java.lang.String, long)
 	 */
 	@Override
-	public QSelection le(final String property, final long value) {
-		return (QSelection) super.le(property, value);
+	public QSelection<T> le(final String property, final long value) {
+		return (QSelection<T>) super.le(property, value);
 	}
 
 	/**
@@ -193,8 +231,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#le(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QSelection le(final String property, final Object value) {
-		return (QSelection) super.le(property, value);
+	public QSelection<T> le(final String property, final Object value) {
+		return (QSelection<T>) super.le(property, value);
 	}
 
 	/**
@@ -202,8 +240,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#like(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QSelection like(final String property, final Object value) {
-		return (QSelection) super.like(property, value);
+	public QSelection<T> like(final String property, final Object value) {
+		return (QSelection<T>) super.like(property, value);
 	}
 
 	/**
@@ -211,8 +249,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#lt(java.lang.String, double)
 	 */
 	@Override
-	public QSelection lt(final String property, final double value) {
-		return (QSelection) super.lt(property, value);
+	public QSelection<T> lt(final String property, final double value) {
+		return (QSelection<T>) super.lt(property, value);
 	}
 
 	/**
@@ -220,8 +258,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#lt(java.lang.String, long)
 	 */
 	@Override
-	public QSelection lt(final String property, final long value) {
-		return (QSelection) super.lt(property, value);
+	public QSelection<T> lt(final String property, final long value) {
+		return (QSelection<T>) super.lt(property, value);
 	}
 
 	/**
@@ -229,8 +267,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#lt(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QSelection lt(final String property, final Object value) {
-		return (QSelection) super.lt(property, value);
+	public QSelection<T> lt(final String property, final Object value) {
+		return (QSelection<T>) super.lt(property, value);
 	}
 
 	/**
@@ -238,8 +276,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#ne(java.lang.String, double)
 	 */
 	@Override
-	public QSelection ne(final String property, final double value) {
-		return (QSelection) super.ne(property, value);
+	public QSelection<T> ne(final String property, final double value) {
+		return (QSelection<T>) super.ne(property, value);
 	}
 
 	/**
@@ -247,8 +285,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#ne(java.lang.String, long)
 	 */
 	@Override
-	public QSelection ne(final String property, final long value) {
-		return (QSelection) super.ne(property, value);
+	public QSelection<T> ne(final String property, final long value) {
+		return (QSelection<T>) super.ne(property, value);
 	}
 
 	/**
@@ -256,8 +294,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#ne(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QSelection ne(final String property, final Object value) {
-		return (QSelection) super.ne(property, value);
+	public QSelection<T> ne(final String property, final Object value) {
+		return (QSelection<T>) super.ne(property, value);
 	}
 
 	/**
@@ -265,8 +303,8 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#or(to.etc.webapp.query.QOperatorNode[])
 	 */
 	@Override
-	public QSelection or(final QOperatorNode... a) {
-		return (QSelection) super.or(a);
+	public QSelection<T> or(final QOperatorNode... a) {
+		return (QSelection<T>) super.or(a);
 	}
 
 	/**
@@ -274,7 +312,7 @@ public class QSelection extends QRestrictionsBase {
 	 * @see to.etc.webapp.query.QRestrictionsBase#sqlCondition(java.lang.String)
 	 */
 	@Override
-	public QSelection sqlCondition(final String sql) {
-		return (QSelection) super.sqlCondition(sql);
+	public QSelection<T> sqlCondition(final String sql) {
+		return (QSelection<T>) super.sqlCondition(sql);
 	}
 }
