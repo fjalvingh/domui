@@ -69,14 +69,14 @@ final public class QContextManager {
 		return getDataContextFactory().getDataContext();
 	}
 
-	/**
-	 * Pending removal: will be done using QDataContext.close().
-	 * Release an unmanaged (manually closed) context factory.
-	 * @param dc
-	 */
-	static public void discardUnmanagedContext(final QDataContext dc) {
-		m_factory.releaseDataContext(dc);
-	}
+	//	/** jal 20090715 removed, replaced with QDataContext.close()
+	//	 * Pending removal: will be done using QDataContext.close().
+	//	 * Release an unmanaged (manually closed) context factory.
+	//	 * @param dc
+	//	 */
+	//	static public void discardUnmanagedContext(final QDataContext dc) {
+	//		m_factory.releaseDataContext(dc);
+	//	}
 
 	static public QDataContext getContext(final IQContextContainer cc) throws Exception {
 		QDataContext dc = cc.internalGetSharedContext();
@@ -88,7 +88,7 @@ final public class QContextManager {
 	}
 
 	/**
-	 * EXPERIMENTAL DO NOT USE.
+	 * If the specified container contains a shared context close it.
 	 * @param cc
 	 */
 	static public void closeSharedContext(final IQContextContainer cc) {
@@ -96,13 +96,11 @@ final public class QContextManager {
 		if(dc == null)
 			return;
 		cc.internalSetSharedContext(null);
-		QDataContextFactory f = dc.getSource();
+		QDataContextFactory f = dc.getFactory();
 		if(f instanceof UnclosableContextFactory) {
 			f = ((UnclosableContextFactory) f).getOriginal();
 		}
-		f.releaseDataContext(dc);
-
-		discardUnmanagedContext(dc);
+		f.closeDataContext(dc);
 	}
 
 	/**
@@ -123,7 +121,6 @@ final public class QContextManager {
 
 	/**
 	 * Proxies a QDataContextFactory to prevent it from closing it's connections.
-	 *
 	 *
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Jul 15, 2009
@@ -147,6 +144,8 @@ final public class QContextManager {
 			return m_orig.getListenerIterator();
 		}
 
-		public void releaseDataContext(QDataContext dc) {}
+		public void closeDataContext(QDataContext dc) {
+		//			throw new IllegalStateException("Attempt to close a shared QDataSource - this is not allowed");
+		}
 	}
 }

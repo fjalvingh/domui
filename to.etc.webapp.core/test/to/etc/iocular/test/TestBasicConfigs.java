@@ -13,7 +13,7 @@ public class TestBasicConfigs {
 	@BeforeClass
 	static public void init() {
 		QContextManager.initialize(new QDataContextFactory() {
-			public void releaseDataContext(final QDataContext dc) {}
+			public void closeDataContext(final QDataContext dc) {}
 
 			public QDataContext getDataContext() throws Exception {
 				return new DataContextMock();

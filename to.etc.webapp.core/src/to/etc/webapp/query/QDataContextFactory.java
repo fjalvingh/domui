@@ -17,7 +17,9 @@ public interface QDataContextFactory {
 	 */
 	QDataContext getDataContext() throws Exception;
 
-	void releaseDataContext(QDataContext dc);
+	void closeDataContext(QDataContext dc);
+
+	//	void releaseDataContext(QDataContext dc);
 
 	/**
 	 * Returns an iterator over all registered listeners.

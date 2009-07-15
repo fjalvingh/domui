@@ -17,7 +17,16 @@ public interface QDataContext {
 	 * query listeners to execute when a query is done.
 	 * @return
 	 */
-	QDataContextFactory	getSource();
+	QDataContextFactory	getFactory();
+
+	/**
+	 * This will close and fully discard all resources belonging to this context. A closed context cannot
+	 * be reused anymore and should be discarded. You are not allowed to call close for "managed" contexts,
+	 * i.e. allocated from a page or Conversation; this will result in an exception being thrown. To force
+	 * a shared context closed use QContextManager.closeSharedContext().
+	 * <p>The implementor is required to delegate this call to {@link QDataContextFactory#releaseDataContext(QDataContext)}.
+	 */
+	void close();
 
 	/**
 	 * Execute the query specified by q and return a list of results. Before and after the query execution all

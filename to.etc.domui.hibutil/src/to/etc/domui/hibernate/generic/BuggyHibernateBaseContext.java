@@ -60,7 +60,7 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	/**
 	 * {@inheritDoc}
 	 */
-	public QDataContextFactory getSource() {
+	public QDataContextFactory getFactory() {
 		return m_contextFactory;
 	}
 
@@ -114,7 +114,7 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	/**
 	 * Discard the context. All changed data gets discarded, and the transaction, if active, will be rolled back.
 	 */
-	public void close() {
+	public void internalClose() {
 		if(m_session == null)
 			return;
 		//		System.out.println("hib: closing && discarding Hibernate session");
@@ -131,6 +131,15 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 			x.printStackTrace();
 		}
 		m_session = null;
+	}
+
+	/**
+	 * This version just delegates to the Factory immediately.
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QDataContext#close()
+	 */
+	public void close() {
+		getFactory().closeDataContext(this);
 	}
 
 	/**
