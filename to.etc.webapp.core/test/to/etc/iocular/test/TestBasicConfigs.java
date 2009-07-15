@@ -10,9 +10,11 @@ import to.etc.webapp.query.*;
 public class TestBasicConfigs {
 	@BeforeClass
 	static public void init() {
-		QContextManager.initialize(new QDataContextSource() {
+		QContextManager.initialize(new QDataContextSourceBase() {
+			@Override
 			public void releaseDataContext(final QDataContext dc) {}
 
+			@Override
 			public QDataContext getDataContext() throws Exception {
 				return new DataContextMock();
 			}

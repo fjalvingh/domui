@@ -8,6 +8,7 @@ import org.hibernate.impl.*;
 
 import to.etc.domui.state.*;
 import to.etc.util.*;
+import to.etc.webapp.query.*;
 
 /**
  * This is an HibernateContext which uses automatic reattachment of all nodes to prevent
@@ -19,8 +20,8 @@ import to.etc.util.*;
 public class HibernateReattachingDataContext extends HibernaatjeBaseContext {
 	private final List<Object> m_hibernatePersistedObjects = new ArrayList<Object>();
 
-	public HibernateReattachingDataContext(final HibernateSessionMaker sessionMaker) {
-		super(sessionMaker);
+	public HibernateReattachingDataContext(final HibernateSessionMaker sessionMaker, QDataContextSource src) {
+		super(sessionMaker, src);
 	}
 
 	/**

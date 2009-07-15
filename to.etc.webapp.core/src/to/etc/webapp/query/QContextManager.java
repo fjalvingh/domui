@@ -61,13 +61,15 @@ final public class QContextManager {
 	static public QDataContextSource getSource(final IQContextContainer cc) {
 		QDataContextSource src = cc.internalGetContextSource();
 		if(src == null) {
-			src = new QDataContextSource() {
+			src = new QDataContextSourceBase() {
+				@Override
 				public QDataContext getDataContext() throws Exception {
 					return getContext(cc);
 				}
 
+				@Override
 				public void releaseDataContext(final QDataContext dc) {
-				//					throw new IllegalStateException("Not allowed to release this context");
+					//					throw new IllegalStateException("Not allowed to release this context");
 				}
 			};
 			cc.internalSetContextSource(src);

@@ -7,6 +7,7 @@ import org.hibernate.engine.*;
 import org.hibernate.impl.*;
 
 import to.etc.domui.state.*;
+import to.etc.webapp.query.*;
 
 /**
  * A context that keeps the session alive but in disconnected mode while running.
@@ -15,8 +16,8 @@ import to.etc.domui.state.*;
  * Created on Oct 23, 2008
  */
 public class HibernateLongSessionContext extends HibernaatjeBaseContext {
-	public HibernateLongSessionContext(final HibernateSessionMaker sessionMaker) {
-		super(sessionMaker);
+	public HibernateLongSessionContext(final HibernateSessionMaker sessionMaker, QDataContextSource src) {
+		super(sessionMaker, src);
 	}
 
 	@Override

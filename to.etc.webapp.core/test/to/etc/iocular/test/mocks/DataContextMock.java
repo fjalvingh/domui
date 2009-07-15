@@ -16,7 +16,13 @@ public class DataContextMock implements QDataContext {
 
 	public void delete(final Object o) throws Exception {}
 
+	public QDataContextSource getSource() {
+		return null;
+	}
 	public <T> T find(final Class<T> clz, final Object pk) throws Exception {
+		return null;
+	}
+	public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
 		return null;
 	}
 
