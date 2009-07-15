@@ -3,6 +3,7 @@ package to.etc.domui.hibernate.model;
 import org.hibernate.*;
 import org.hibernate.criterion.*;
 
+import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -210,5 +211,54 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	@Override
 	public void visitLiteral(final QLiteral n) throws Exception {
 		throw new IllegalStateException("? Unexpected literal: " + n);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Selection translation to Projection.				*/
+	/*--------------------------------------------------------------*/
+	private ProjectionList		m_proli;
+	private Projection			m_lastProj;
+
+	@Override
+	public void visitMultiSelection(QMultiSelection n) throws Exception {
+		throw new ProgrammerErrorException("multi-operation selections not supported by Hibernate");
+	}
+	@Override
+	public void visitSelection(QSelection< ? > s) throws Exception {
+		if(m_proli != null)
+			throw new IllegalStateException("? Projection list already initialized??");
+		m_proli = Projections.projectionList();
+		visitSelectionColumns(s);
+		m_crit.setProjection(m_proli);
+		visitRestrictionsBase(s);
+		visitOrderList(s.getOrder());
+	}
+
+	@Override
+	public void visitSelectionColumn(QSelectionColumn n) throws Exception {
+		super.visitSelectionColumn(n);
+		if(m_lastProj != null)
+			m_proli.add(m_lastProj);
+	}
+
+	@Override
+	public void visitSelectionItem(QSelectionItem n) throws Exception {
+		throw new ProgrammerErrorException("Unexpected selection item: "+n);
+	}
+	@Override
+	public void visitPropertySelection(QPropertySelection n) throws Exception {
+		switch(n.getFunction()) {
+			default:
+				throw new IllegalStateException("Unexpected selection item function: "+n.getFunction());
+			case AVG:	m_lastProj = Projections.avg(n.getProperty());	break;
+			case MAX:	m_lastProj = Projections.max(n.getProperty());	break;
+			case MIN:	m_lastProj = Projections.min(n.getProperty());	break;
+			case SUM:	m_lastProj = Projections.sum(n.getProperty());	break;
+			case COUNT:	m_lastProj = Projections.count(n.getProperty());	break;
+			case COUNT_DISTINCT:	m_lastProj = Projections.countDistinct(n.getProperty());	break;
+			case ID:	m_lastProj = Projections.id();	break;
+			case PROPERTY:	m_lastProj = Projections.property(n.getProperty());	break;
+			case ROWCOUNT:	m_lastProj = Projections.rowCount();			break;
+		}
 	}
 }

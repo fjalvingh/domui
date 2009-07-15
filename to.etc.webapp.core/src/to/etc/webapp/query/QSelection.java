@@ -54,7 +54,9 @@ public class QSelection<T> extends QRestrictionsBase {
 		return m_itemList;
 	}
 
-
+	public void	visit(QNodeVisitor v) throws Exception {
+		v.visitSelection(this);
+	}
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Object selectors.									*/
 	/*--------------------------------------------------------------*/

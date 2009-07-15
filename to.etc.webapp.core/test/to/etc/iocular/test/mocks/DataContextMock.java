@@ -35,6 +35,9 @@ public class DataContextMock implements QDataContext {
 	public <T> T queryOne(final QCriteria<T> q) throws Exception {
 		return null;
 	}
+	public List<Object[]> query(QSelection< ? > sel) throws Exception {
+		return null;
+	}
 
 	public void refresh(final Object o) throws Exception {}
 

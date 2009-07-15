@@ -38,6 +38,10 @@ public class HibernaatjeBaseContext implements QDataContext, ConversationStateLi
 		Criteria crit = GenericHibernateHandler.createCriteria(getSession(), q); // Convert to Hibernate criteria
 		return crit.list();
 	}
+	public List<Object[]> query(QSelection< ? > sel) throws Exception {
+		Criteria crit = GenericHibernateHandler.createCriteria(getSession(), sel);
+		return crit.list();
+	}
 
 	public <T> T queryOne(final QCriteria<T> q) throws Exception {
 		List<T> res = query(q);

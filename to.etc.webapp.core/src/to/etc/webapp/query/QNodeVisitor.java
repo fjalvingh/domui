@@ -5,6 +5,8 @@ import java.util.*;
 public interface QNodeVisitor {
 	public void visitCriteria(QCriteria< ? > qc) throws Exception;
 
+	public void	visitSelection(QSelection<?> s) throws Exception;
+
 	public void visitUnaryNode(QUnaryNode n) throws Exception;
 
 	public void visitLiteral(QLiteral n) throws Exception;

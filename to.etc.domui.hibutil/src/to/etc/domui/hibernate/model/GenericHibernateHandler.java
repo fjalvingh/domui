@@ -30,4 +30,15 @@ public class GenericHibernateHandler {
 			throw new RuntimeException(x); // Cannot happen.
 		}
 	}
+	static public Criteria createCriteria(Session ses, QSelection< ? > qc) {
+		try {
+			Criteria c = ses.createCriteria(qc.getBaseClass(), "base");
+			qc.visit(new CriteriaCreatingVisitor(c));
+			return c;
+		} catch(RuntimeException x) {
+			throw x;
+		} catch(Exception x) {
+			throw new RuntimeException(x); // Cannot happen.
+		}
+	}
 }

@@ -16,6 +16,8 @@ public interface QDataContext {
 
 	public <T> T queryOne(QCriteria<T> q) throws Exception;
 
+	public List<Object[]>	query(QSelection<?> sel) throws Exception;
+
 	public <T> T find(Class<T> clz, Object pk) throws Exception;
 
 	/**

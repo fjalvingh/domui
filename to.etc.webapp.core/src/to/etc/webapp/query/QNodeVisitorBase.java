@@ -39,6 +39,16 @@ public class QNodeVisitorBase implements QNodeVisitor {
 		visitRestrictionsBase(qc);
 		visitOrderList(qc.getOrder());
 	}
+	public void visitSelection(QSelection< ? > s) throws Exception {
+		visitSelectionColumns(s);
+		visitRestrictionsBase(s);
+		visitOrderList(s.getOrder());
+	}
+
+	public void visitSelectionColumns(QSelection< ? > s) throws Exception {
+		for(QSelectionColumn col: s.getColumnList())
+			col.visit(this);
+	}
 
 	public void visitOrderList(List<QOrder> orderlist) throws Exception {
 		for(QOrder o : orderlist)
