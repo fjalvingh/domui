@@ -15,8 +15,8 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 23, 2008
  */
-public class HibernateLongSessionContext extends HibernaatjeBaseContext {
-	public HibernateLongSessionContext(final QDataContextSource src, final HibernateSessionMaker sessionMaker) {
+public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
+	public HibernateLongSessionContext(final QDataContextFactory src, final HibernateSessionMaker sessionMaker) {
 		super(sessionMaker, src);
 	}
 

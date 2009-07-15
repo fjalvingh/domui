@@ -108,7 +108,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	}
 
 	private void setTableQuery(QCriteria<T> qc) {
-		QDataContextSource src = QContextManager.getSource(getPage().getConversation());
+		QDataContextFactory src = QContextManager.getSource(getPage().getConversation());
 		ITableModel<T> model = new SimpleSearchModel<T>(src, qc);
 
 		if(m_result == null) {

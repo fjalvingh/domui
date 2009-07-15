@@ -17,16 +17,16 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 22, 2008
  */
-public class HibernateReattachingDataContext extends HibernaatjeBaseContext {
+public class HibernateReattachingDataContext extends BuggyHibernateBaseContext {
 	private final List<Object> m_hibernatePersistedObjects = new ArrayList<Object>();
 
-	public HibernateReattachingDataContext(final QDataContextSource src, final HibernateSessionMaker sessionMaker) {
+	public HibernateReattachingDataContext(final QDataContextFactory src, final HibernateSessionMaker sessionMaker) {
 		super(sessionMaker, src);
 	}
 
 	/**
 	 * Overridden to allow for automagic re-attachment of crap.
-	 * @see to.etc.domui.hibernate.generic.HibernaatjeBaseContext#getSession()
+	 * @see to.etc.domui.hibernate.generic.BuggyHibernateBaseContext#getSession()
 	 */
 	@Override
 	public Session getSession() throws Exception {

@@ -2,10 +2,10 @@ package to.etc.domui.hibernate.generic;
 
 import to.etc.webapp.query.*;
 
-public class HibernateLongSessionSource extends QDataContextSourceBase {
+public class HibernateLongSessionContextFactory extends QDataContextFactoryBase {
 	protected HibernateSessionMaker m_sessionMaker;
 
-	public HibernateLongSessionSource(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker) {
+	public HibernateLongSessionContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker) {
 		super(eventSet);
 		m_sessionMaker = sessionMaker;
 	}
@@ -17,7 +17,7 @@ public class HibernateLongSessionSource extends QDataContextSourceBase {
 
 	@Override
 	public void releaseDataContext(QDataContext dc) {
-		HibernaatjeBaseContext q = (HibernaatjeBaseContext) dc;
+		BuggyHibernateBaseContext q = (BuggyHibernateBaseContext) dc;
 		q.close();
 	}
 }

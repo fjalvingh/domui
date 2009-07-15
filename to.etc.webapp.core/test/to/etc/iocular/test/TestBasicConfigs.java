@@ -12,7 +12,7 @@ import to.etc.webapp.query.*;
 public class TestBasicConfigs {
 	@BeforeClass
 	static public void init() {
-		QContextManager.initialize(new QDataContextSource() {
+		QContextManager.initialize(new QDataContextFactory() {
 			public void releaseDataContext(final QDataContext dc) {}
 
 			public QDataContext getDataContext() throws Exception {

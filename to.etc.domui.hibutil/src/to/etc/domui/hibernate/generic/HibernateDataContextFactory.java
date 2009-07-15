@@ -8,10 +8,10 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 25, 2008
  */
-public class HibernateDataContextSource extends QDataContextSourceBase {
+public class HibernateDataContextFactory extends QDataContextFactoryBase {
 	private HibernateSessionMaker m_sessionMaker;
 
-	public HibernateDataContextSource(QEventListenerSet set, HibernateSessionMaker sessionMaker) {
+	public HibernateDataContextFactory(QEventListenerSet set, HibernateSessionMaker sessionMaker) {
 		super(set);
 		m_sessionMaker = sessionMaker;
 	}

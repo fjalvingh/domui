@@ -13,7 +13,7 @@ import to.etc.webapp.query.*;
  */
 public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeyedTableModel<T>, ITruncateableDataModel, ISortableTableModel, IShelvedListener {
 	/** Thingy to get a database session from, if needed, */
-	private QDataContextSource m_sessionSource;
+	private QDataContextFactory m_sessionSource;
 
 	/** Generalized search query. */
 	private QCriteria<T> m_query;
@@ -30,7 +30,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	private boolean m_refreshAfterShelve;
 
-	public SimpleSearchModel(QDataContextSource ss, QCriteria<T> qc) {
+	public SimpleSearchModel(QDataContextFactory ss, QCriteria<T> qc) {
 		m_query = qc;
 		m_sessionSource = ss;
 	}

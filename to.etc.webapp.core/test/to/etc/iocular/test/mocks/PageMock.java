@@ -5,9 +5,9 @@ import to.etc.webapp.query.*;
 public class PageMock implements IQContextContainer {
 	private QDataContext m_dc;
 
-	private QDataContextSource m_src;
+	private QDataContextFactory m_src;
 
-	public QDataContextSource internalGetContextSource() {
+	public QDataContextFactory internalGetDataContextFactory() {
 		return m_src;
 	}
 
@@ -15,7 +15,7 @@ public class PageMock implements IQContextContainer {
 		return m_dc;
 	}
 
-	public void internalSetContextSource(final QDataContextSource s) {
+	public void internalSetDataContextFactory(final QDataContextFactory s) {
 		m_src = s;
 	}
 

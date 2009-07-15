@@ -9,8 +9,8 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 25, 2008
  */
-public class HibernateQDataContext extends HibernaatjeBaseContext {
-	HibernateQDataContext(final QDataContextSource src, final HibernateSessionMaker sessionMaker) {
+public class HibernateQDataContext extends BuggyHibernateBaseContext {
+	HibernateQDataContext(final QDataContextFactory src, final HibernateSessionMaker sessionMaker) {
 		super(sessionMaker, src);
 	}
 }

@@ -2,10 +2,10 @@ package to.etc.domui.hibernate.generic;
 
 import to.etc.webapp.query.*;
 
-public class HibernateReattachingSource extends QDataContextSourceBase {
+public class HibernateReattachingContextFactory extends QDataContextFactoryBase {
 	private HibernateSessionMaker m_sessionMaker;
 
-	public HibernateReattachingSource(QEventListenerSet set, HibernateSessionMaker sessionMaker) {
+	public HibernateReattachingContextFactory(QEventListenerSet set, HibernateSessionMaker sessionMaker) {
 		super(set);
 		m_sessionMaker = sessionMaker;
 	}
@@ -17,7 +17,7 @@ public class HibernateReattachingSource extends QDataContextSourceBase {
 
 	@Override
 	public void releaseDataContext(QDataContext dc) {
-		HibernaatjeBaseContext q = (HibernaatjeBaseContext) dc;
+		BuggyHibernateBaseContext q = (BuggyHibernateBaseContext) dc;
 		q.close();
 	}
 }

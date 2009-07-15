@@ -18,8 +18,8 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 15, 2009
  */
-public class HibernaatjeBaseContext implements QDataContext, ConversationStateListener {
-	private QDataContextSource		m_contextSource;
+public class BuggyHibernateBaseContext implements QDataContext, ConversationStateListener {
+	private QDataContextFactory		m_contextFactory;
 	protected HibernateSessionMaker m_sessionMaker;
 
 	protected Session m_session;
@@ -28,9 +28,9 @@ public class HibernaatjeBaseContext implements QDataContext, ConversationStateLi
 	 * Create a context, using the specified factory to create Hibernate sessions.
 	 * @param sessionMaker
 	 */
-	HibernaatjeBaseContext(final HibernateSessionMaker sessionMaker, QDataContextSource src) {
+	BuggyHibernateBaseContext(final HibernateSessionMaker sessionMaker, QDataContextFactory src) {
 		m_sessionMaker = sessionMaker;
-		m_contextSource = src;
+		m_contextFactory = src;
 	}
 
 	/**
@@ -60,8 +60,8 @@ public class HibernaatjeBaseContext implements QDataContext, ConversationStateLi
 	/**
 	 * {@inheritDoc}
 	 */
-	public QDataContextSource getSource() {
-		return m_contextSource;
+	public QDataContextFactory getSource() {
+		return m_contextFactory;
 	}
 
 	/**

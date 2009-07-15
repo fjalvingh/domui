@@ -73,7 +73,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	}
 
 	private void setTableQuery(QCriteria<T> qc) {
-		QDataContextSource src = QContextManager.getSource(getPage());
+		QDataContextFactory src = QContextManager.getSource(getPage());
 		ITableModel<T> model = new SimpleSearchModel<T>(src, qc);
 
 		if(m_result == null) {

@@ -17,7 +17,7 @@ public interface QDataContext {
 	 * query listeners to execute when a query is done.
 	 * @return
 	 */
-	QDataContextSource	getSource();
+	QDataContextFactory	getSource();
 
 	/**
 	 * Execute the query specified by q and return a list of results. Before and after the query execution all

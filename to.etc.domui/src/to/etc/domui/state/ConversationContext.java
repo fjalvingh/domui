@@ -428,7 +428,7 @@ public class ConversationContext implements IQContextContainer {
 
 	static private final String KEY = QContextManager.class.getName();
 
-	static private final String SRCKEY = QDataContextSource.class.getName();
+	static private final String SRCKEY = QDataContextFactory.class.getName();
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IQContextContainer implementation.					*/
@@ -448,11 +448,11 @@ public class ConversationContext implements IQContextContainer {
 		setAttribute(KEY, c);
 	}
 
-	public QDataContextSource internalGetContextSource() {
-		return (QDataContextSource) getAttribute(SRCKEY);
+	public QDataContextFactory internalGetDataContextFactory() {
+		return (QDataContextFactory) getAttribute(SRCKEY);
 	}
 
-	public void internalSetContextSource(final QDataContextSource s) {
+	public void internalSetDataContextFactory(final QDataContextFactory s) {
 		setAttribute(SRCKEY, s);
 	}
 }

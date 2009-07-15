@@ -5,7 +5,7 @@ public interface IQContextContainer {
 
 	void internalSetSharedContext(QDataContext c);
 
-	QDataContextSource internalGetContextSource();
+	QDataContextFactory internalGetDataContextFactory();
 
-	void internalSetContextSource(QDataContextSource s);
+	void internalSetDataContextFactory(QDataContextFactory s);
 }

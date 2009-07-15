@@ -3,17 +3,15 @@ package to.etc.webapp.query;
 import java.util.*;
 
 final public class QContextManager {
-	//	static private final String	KEY = QContextManager.class.getName();
-	//	static private final String	SRCKEY = QDataContextSource.class.getName();
-	static private QDataContextSource m_factory;
+	static private QDataContextFactory m_factory;
 
 	private QContextManager() {}
 
-	static public void initialize(final QDataContextSource f) {
+	static public void initialize(final QDataContextFactory f) {
 		m_factory = f;
 	}
 
-	static public QDataContextSource createNewSource() {
+	static public QDataContextFactory createNewSource() {
 		if(m_factory == null)
 			throw new IllegalStateException("DataContext factory not initialized");
 		return m_factory;
@@ -56,14 +54,10 @@ final public class QContextManager {
 		discardUnmanagedContext(dc);
 	}
 
-	//	static public QDataContextSource	getSource(final Page p) {
-	//		return getSource(p.getConversation());
-	//	}
-	//
-	static public QDataContextSource getSource(final IQContextContainer cc) {
-		QDataContextSource src = cc.internalGetContextSource();
+	static public QDataContextFactory getSource(final IQContextContainer cc) {
+		QDataContextFactory src = cc.internalGetDataContextFactory();
 		if(src == null) {
-			src = new QDataContextSource() {
+			src = new QDataContextFactory() {
 				public QDataContext getDataContext() throws Exception {
 					return getContext(cc);
 				}
@@ -74,7 +68,7 @@ final public class QContextManager {
 					return Collections.EMPTY_LIST.iterator();
 				}
 			};
-			cc.internalSetContextSource(src);
+			cc.internalSetDataContextFactory(src);
 		}
 		return src;
 	}

@@ -9,7 +9,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 25, 2008
  */
-public interface QDataContextSource {
+public interface QDataContextFactory {
 	/**
 	 * Get the current Session to use for querying.
 	 * @return

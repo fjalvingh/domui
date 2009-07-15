@@ -472,11 +472,11 @@ final public class Page implements IQContextContainer {
 		getConversation().internalSetSharedContext(c);
 	}
 
-	public QDataContextSource internalGetContextSource() {
-		return getConversation().internalGetContextSource();
+	public QDataContextFactory internalGetDataContextFactory() {
+		return getConversation().internalGetDataContextFactory();
 	}
 
-	public void internalSetContextSource(final QDataContextSource s) {
-		getConversation().internalSetContextSource(s);
+	public void internalSetDataContextFactory(final QDataContextFactory s) {
+		getConversation().internalSetDataContextFactory(s);
 	}
 }
