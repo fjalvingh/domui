@@ -150,7 +150,7 @@ public abstract class DomApplication {
 			return m_partHandler;
 		} else if(ctx.getInputPath().startsWith("$")) {
 			return m_resourceHandler;
-		} else if(ctx.getExtension().equals("ajax"))
+		} else if(ctx.getExtension().equals("xaja"))
 			return m_ajaxHandler;
 		return null;
 	}

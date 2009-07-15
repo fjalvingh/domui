@@ -10,7 +10,7 @@ import to.etc.webapp.query.*;
  * Created on Jun 25, 2008
  */
 public class HibernateQDataContext extends HibernaatjeBaseContext {
-	HibernateQDataContext(HibernateSessionMaker sessionMaker, QDataContextSource src) {
+	HibernateQDataContext(final QDataContextSource src, final HibernateSessionMaker sessionMaker) {
 		super(sessionMaker, src);
 	}
 }

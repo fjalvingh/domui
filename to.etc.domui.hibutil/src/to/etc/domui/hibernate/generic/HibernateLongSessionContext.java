@@ -16,7 +16,7 @@ import to.etc.webapp.query.*;
  * Created on Oct 23, 2008
  */
 public class HibernateLongSessionContext extends HibernaatjeBaseContext {
-	public HibernateLongSessionContext(final HibernateSessionMaker sessionMaker, QDataContextSource src) {
+	public HibernateLongSessionContext(final QDataContextSource src, final HibernateSessionMaker sessionMaker) {
 		super(sessionMaker, src);
 	}
 

@@ -1,5 +1,7 @@
 package to.etc.webapp.query;
 
+import java.util.*;
+
 final public class QContextManager {
 	//	static private final String	KEY = QContextManager.class.getName();
 	//	static private final String	SRCKEY = QDataContextSource.class.getName();
@@ -61,15 +63,15 @@ final public class QContextManager {
 	static public QDataContextSource getSource(final IQContextContainer cc) {
 		QDataContextSource src = cc.internalGetContextSource();
 		if(src == null) {
-			src = new QDataContextSourceBase() {
-				@Override
+			src = new QDataContextSource() {
 				public QDataContext getDataContext() throws Exception {
 					return getContext(cc);
 				}
 
-				@Override
 				public void releaseDataContext(final QDataContext dc) {
-					//					throw new IllegalStateException("Not allowed to release this context");
+				}
+				public Iterator<IQueryListener> getListenerIterator() {
+					return Collections.EMPTY_LIST.iterator();
 				}
 			};
 			cc.internalSetContextSource(src);

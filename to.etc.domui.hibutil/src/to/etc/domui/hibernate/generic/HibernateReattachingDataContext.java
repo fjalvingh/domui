@@ -20,7 +20,7 @@ import to.etc.webapp.query.*;
 public class HibernateReattachingDataContext extends HibernaatjeBaseContext {
 	private final List<Object> m_hibernatePersistedObjects = new ArrayList<Object>();
 
-	public HibernateReattachingDataContext(final HibernateSessionMaker sessionMaker, QDataContextSource src) {
+	public HibernateReattachingDataContext(final QDataContextSource src, final HibernateSessionMaker sessionMaker) {
 		super(sessionMaker, src);
 	}
 

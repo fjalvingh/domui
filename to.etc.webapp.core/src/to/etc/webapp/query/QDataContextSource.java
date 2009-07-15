@@ -15,22 +15,9 @@ public interface QDataContextSource {
 	 * @return
 	 * @throws Exception
 	 */
-	public QDataContext getDataContext() throws Exception;
+	QDataContext getDataContext() throws Exception;
 
-	public void releaseDataContext(QDataContext dc);
-
-	/**
-	 * Add a new listener for queries for this source. All data sources obtained
-	 * from this source will use these listeners.
-	 * @param l
-	 */
-	void	addQueryListener(IQueryListener l);
-
-	/**
-	 * Remove an earlier-registered query listener.
-	 * @param l
-	 */
-	void	removeQueryListener(IQueryListener l);
+	void releaseDataContext(QDataContext dc);
 
 	/**
 	 * Returns an iterator over all registered listeners.

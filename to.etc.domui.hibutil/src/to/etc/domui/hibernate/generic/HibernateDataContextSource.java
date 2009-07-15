@@ -11,13 +11,14 @@ import to.etc.webapp.query.*;
 public class HibernateDataContextSource extends QDataContextSourceBase {
 	private HibernateSessionMaker m_sessionMaker;
 
-	public HibernateDataContextSource(HibernateSessionMaker sessionMaker) {
+	public HibernateDataContextSource(QEventListenerSet set, HibernateSessionMaker sessionMaker) {
+		super(set);
 		m_sessionMaker = sessionMaker;
 	}
 
 	@Override
 	public QDataContext getDataContext() throws Exception {
-		return new HibernateQDataContext(m_sessionMaker);
+		return new HibernateQDataContext(this, m_sessionMaker);
 	}
 
 	@Override

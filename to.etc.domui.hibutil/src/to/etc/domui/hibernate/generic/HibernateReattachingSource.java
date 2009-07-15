@@ -5,13 +5,14 @@ import to.etc.webapp.query.*;
 public class HibernateReattachingSource extends QDataContextSourceBase {
 	private HibernateSessionMaker m_sessionMaker;
 
-	public HibernateReattachingSource(HibernateSessionMaker sessionMaker) {
+	public HibernateReattachingSource(QEventListenerSet set, HibernateSessionMaker sessionMaker) {
+		super(set);
 		m_sessionMaker = sessionMaker;
 	}
 
 	@Override
 	public QDataContext getDataContext() throws Exception {
-		return new HibernateReattachingDataContext(m_sessionMaker);
+		return new HibernateReattachingDataContext(this, m_sessionMaker);
 	}
 
 	@Override
