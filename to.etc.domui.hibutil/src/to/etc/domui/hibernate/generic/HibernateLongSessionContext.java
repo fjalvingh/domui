@@ -10,7 +10,11 @@ import to.etc.domui.state.*;
 import to.etc.webapp.query.*;
 
 /**
- * A context that keeps the session alive but in disconnected mode while running.
+ * A context that keeps the session alive but in disconnected mode while running. The session
+ * is put into MANUAL flush mode, and the database connection is closed every time the conversation
+ * is detached. Only the last phase of a conversation may commit and flush changes to the database;
+ * all intermediary flushes will be rolled back (and of course Hibernate will not see it because it
+ * is utterly stupid).
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 23, 2008
@@ -20,6 +24,10 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		super(sessionMaker, src);
 	}
 
+	/**
+	 * This override allocates a session in flushmode manual.
+	 * @see to.etc.domui.hibernate.generic.BuggyHibernateBaseContext#getSession()
+	 */
 	@Override
 	public Session getSession() throws Exception {
 		if(m_session == null) {
