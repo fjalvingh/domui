@@ -6,7 +6,6 @@ import java.util.*;
  * Used to separate event registration from the data source. An instance of
  * this can be shared by multiple QDataContext factories so that they all share
  * the same registered event handlers.
- * 
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 15, 2009
@@ -45,4 +44,11 @@ public class QEventListenerSet {
 	synchronized public Iterator<IQueryListener>	getListenerIterator() {
 		return m_listeners.iterator();
 	}
+
+	public void		callOnBeforeQuery(QCriteria<?> qc) {
+
+	}
+
+
+
 }

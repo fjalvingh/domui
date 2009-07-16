@@ -21,7 +21,7 @@ public interface QNodeVisitor {
 
 	public void visitUnaryProperty(QUnaryProperty n) throws Exception;
 
-	public void visitRestrictionsBase(QRestrictionsBase n) throws Exception;
+	public void visitRestrictionsBase(QRestrictionsBase<?> n) throws Exception;
 
 	public void visitOrderList(List<QOrder> orderlist) throws Exception;
 

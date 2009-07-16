@@ -1,8 +1,5 @@
 package to.etc.webapp.query;
 
-import java.util.*;
-
-import to.etc.webapp.*;
 
 /**
  * Represents a <i>selection</i> of data elements from a database. This differs from
@@ -21,217 +18,155 @@ import to.etc.webapp.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 14, 2009
  */
-public class QSelection<T> extends QRestrictionsBase {
-	final private Class<T>	m_root;
-	private final List<QSelectionColumn> m_itemList = Collections.EMPTY_LIST;
-
+public class QSelection<T> extends QRestrictionsBase<T> {
 	private QSelection(Class<T> clz) {
-		m_root = clz;
+		super(clz);
 	}
 
 	/**
-	 * Create a selection query based on the specified persistent class.
-	 * @param <T>
-	 * @param root
+	 * Create a selection query based on the specified persistent class (public API).
+	 * @param <T>	The base type being queried
+	 * @param root	The class representing the base type being queried, thanks to the brilliant Java Generics implementation.
 	 * @return
 	 */
 	static public <T> QSelection<T>	create(Class<T> root) {
 		return new QSelection<T>(root);
 	}
 
-	/**
-	 * Returns the persistent class being queried.
-	 * @return
-	 */
-	public Class<T> getBaseClass() {
-		return m_root;
-	}
-	/**
-	 * Returns all selected columns.
-	 * @return
-	 */
-	public List<QSelectionColumn> getColumnList() {
-		return m_itemList;
-	}
-
 	public void	visit(QNodeVisitor v) throws Exception {
 		v.visitSelection(this);
 	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Object selectors.									*/
 	/*--------------------------------------------------------------*/
-
 	/**
-	 * Add a column selector to the selection list.
+	 * {@inheritDoc}
 	 */
-	protected void	addColumn(QSelectionItem item, String alias) {
-		QSelectionColumn	col	= new QSelectionColumn(item, alias);
-		m_itemList.add(col);
+	@Override
+	public void addColumn(QSelectionItem item, String alias) {
+		super.addColumn(item, alias);
 	}
 
 	/**
-	 * Add a simple property selector to the list.
-	 * @param f
-	 * @param prop
-	 * @param alias
+	 * {@inheritDoc}
 	 */
-	protected void	addPropertySelection(QSelectionFunction f, String prop, String alias) {
-		if(prop == null || prop.length() == 0)
-			throw new ProgrammerErrorException("The property for a "+f+" selection cannot be null or empty");
-		QPropertySelection	ps	= new QPropertySelection(f, prop);
-		addColumn(ps, alias);
+	@Override
+	public void addPropertySelection(QSelectionFunction f, String prop, String alias) {
+		super.addPropertySelection(f, prop, alias);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	selectProperty(String property) {
-		addPropertySelection(QSelectionFunction.PROPERTY, property, null);
-		return this;
+	@Override
+	public QSelection<T> avg(String property, String alias) {
+		return (QSelection<T>) super.avg(property, alias);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @param alias			The alias for using the property in the restrictions clause.
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	selectProperty(String property, String alias) {
-		addPropertySelection(QSelectionFunction.PROPERTY, property, alias);
-		return this;
+	@Override
+	public QSelection<T> avg(String property) {
+		return (QSelection<T>) super.avg(property);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	max(String property) {
-		addPropertySelection(QSelectionFunction.MAX, property, null);
-		return this;
+	@Override
+	public QSelection<T> count(String property, String alias) {
+		return (QSelection<T>) super.count(property, alias);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @param alias			The alias for using the property in the restrictions clause.
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	max(String property, String alias) {
-		addPropertySelection(QSelectionFunction.MAX, property, alias);
-		return this;
+	@Override
+	public QSelection<T> count(String property) {
+		return (QSelection<T>) super.count(property);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	min(String property) {
-		addPropertySelection(QSelectionFunction.MIN, property, null);
-		return this;
+	@Override
+	public QSelection<T> countDistinct(String property, String alias) {
+		return (QSelection<T>) super.countDistinct(property, alias);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @param alias			The alias for using the property in the restrictions clause.
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	min(String property, String alias) {
-		addPropertySelection(QSelectionFunction.MIN, property, alias);
-		return this;
-	}
-	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @return
-	 */
-	public QSelection<T>	avg(String property) {
-		addPropertySelection(QSelectionFunction.AVG, property, null);
-		return this;
+	@Override
+	public QSelection<T> countDistinct(String property) {
+		return (QSelection<T>) super.countDistinct(property);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @param alias			The alias for using the property in the restrictions clause.
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	avg(String property, String alias) {
-		addPropertySelection(QSelectionFunction.AVG, property, alias);
-		return this;
+	@Override
+	public QSelection<T> max(String property, String alias) {
+		return (QSelection<T>) super.max(property, alias);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	sum(String property) {
-		addPropertySelection(QSelectionFunction.SUM, property, null);
-		return this;
+	@Override
+	public QSelection<T> max(String property) {
+		return (QSelection<T>) super.max(property);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @param alias			The alias for using the property in the restrictions clause.
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	sum(String property, String alias) {
-		addPropertySelection(QSelectionFunction.SUM, property, alias);
-		return this;
+	@Override
+	public QSelection<T> min(String property, String alias) {
+		return (QSelection<T>) super.min(property, alias);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	count(String property) {
-		addPropertySelection(QSelectionFunction.COUNT, property, null);
-		return this;
+	@Override
+	public QSelection<T> min(String property) {
+		return (QSelection<T>) super.min(property);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @param alias			The alias for using the property in the restrictions clause.
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	count(String property, String alias) {
-		addPropertySelection(QSelectionFunction.COUNT, property, alias);
-		return this;
+	@Override
+	public QSelection<T> selectProperty(String property, String alias) {
+		return (QSelection<T>) super.selectProperty(property, alias);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	countDistinct(String property) {
-		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, null);
-		return this;
+	@Override
+	public QSelection<T> selectProperty(String property) {
+		return (QSelection<T>) super.selectProperty(property);
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
-	 * @param property		The property whose literal value is to be selected
-	 * @param alias			The alias for using the property in the restrictions clause.
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public QSelection<T>	countDistinct(String property, String alias) {
-		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, alias);
-		return this;
+	@Override
+	public QSelection<T> sum(String property, String alias) {
+		return (QSelection<T>) super.sum(property, alias);
 	}
 
-
-
-
-
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public QSelection<T> sum(String property) {
+		return (QSelection<T>) super.sum(property);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Overrides to force return type needed for chaining	*/

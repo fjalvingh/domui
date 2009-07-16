@@ -11,11 +11,9 @@ package to.etc.webapp.query;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 24, 2008
  */
-public class QCriteria<T> extends QRestrictionsBase {
-	private final Class<T> m_baseClass;
-
+public class QCriteria<T> extends QRestrictionsBase<T> {
 	private QCriteria(final Class<T> b) {
-		m_baseClass = b;
+		super(b);
 	}
 
 	/**
@@ -24,7 +22,6 @@ public class QCriteria<T> extends QRestrictionsBase {
 	 */
 	protected QCriteria(final QCriteria<T> q) {
 		super(q);
-		m_baseClass = q.m_baseClass;
 	}
 
 	/**
@@ -36,14 +33,6 @@ public class QCriteria<T> extends QRestrictionsBase {
 	 */
 	static public <U> QCriteria<U> create(final Class<U> clz) {
 		return new QCriteria<U>(clz);
-	}
-
-	/**
-	 * Returns the persistent class being queried and returned.
-	 * @return
-	 */
-	public Class<T> getBaseClass() {
-		return m_baseClass;
 	}
 
 	/**

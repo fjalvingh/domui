@@ -2,13 +2,21 @@ package to.etc.webapp.query;
 
 import java.util.*;
 
+import to.etc.webapp.*;
+
 /**
- * Base class representing the "where" part generation common to most use classes.
+ * Base class representing most of the query structure, just not the public interface part.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 21, 2009
  */
-public class QRestrictionsBase {
+public class QRestrictionsBase<T> {
+	/** The base class being queried in this selector. */
+	private final Class<T> m_baseClass;
+
+	/** If this is a selection query instead of an object instance query, this will contain the selected items. */
+	private final List<QSelectionColumn> m_itemList = Collections.EMPTY_LIST;
+
 	private int m_limit = -1;
 
 	private int m_start = 0;
@@ -17,13 +25,16 @@ public class QRestrictionsBase {
 
 	private List<QOrder> m_order = Collections.EMPTY_LIST;
 
-	QRestrictionsBase() {}
+	protected QRestrictionsBase(Class<T> clz) {
+		m_baseClass = clz;
+	}
 
 	/**
 	 * Copy constructor.
 	 * @param q
 	 */
-	public QRestrictionsBase(QRestrictionsBase q) {
+	public QRestrictionsBase(QRestrictionsBase<T> q) {
+		m_baseClass = q.m_baseClass;
 		m_restrictionList = new ArrayList<QOperatorNode>(q.m_restrictionList);
 		m_order = new ArrayList<QOrder>(q.m_order);
 		m_limit = q.m_limit;
@@ -31,11 +42,201 @@ public class QRestrictionsBase {
 	}
 
 	/**
+	 * Returns the persistent class being queried and returned.
+	 * @return
+	 */
+	public Class<T> getBaseClass() {
+		return m_baseClass;
+	}
+
+	/**
+	 * Returns all selected columns.
+	 * @return
+	 */
+	public List<QSelectionColumn> getColumnList() {
+		return m_itemList;
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Object selectors.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Add a column selector to the selection list.
+	 */
+	protected void	addColumn(QSelectionItem item, String alias) {
+		QSelectionColumn	col	= new QSelectionColumn(item, alias);
+		m_itemList.add(col);
+	}
+
+	/**
+	 * Add a simple property selector to the list.
+	 * @param f
+	 * @param prop
+	 * @param alias
+	 */
+	protected void	addPropertySelection(QSelectionFunction f, String prop, String alias) {
+		if(prop == null || prop.length() == 0)
+			throw new ProgrammerErrorException("The property for a "+f+" selection cannot be null or empty");
+		QPropertySelection	ps	= new QPropertySelection(f, prop);
+		addColumn(ps, alias);
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	selectProperty(String property) {
+		addPropertySelection(QSelectionFunction.PROPERTY, property, null);
+		return this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	selectProperty(String property, String alias) {
+		addPropertySelection(QSelectionFunction.PROPERTY, property, alias);
+		return this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	max(String property) {
+		addPropertySelection(QSelectionFunction.MAX, property, null);
+		return this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	max(String property, String alias) {
+		addPropertySelection(QSelectionFunction.MAX, property, alias);
+		return this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	min(String property) {
+		addPropertySelection(QSelectionFunction.MIN, property, null);
+		return this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	min(String property, String alias) {
+		addPropertySelection(QSelectionFunction.MIN, property, alias);
+		return this;
+	}
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	avg(String property) {
+		addPropertySelection(QSelectionFunction.AVG, property, null);
+		return this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	avg(String property, String alias) {
+		addPropertySelection(QSelectionFunction.AVG, property, alias);
+		return this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	sum(String property) {
+		addPropertySelection(QSelectionFunction.SUM, property, null);
+		return this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	sum(String property, String alias) {
+		addPropertySelection(QSelectionFunction.SUM, property, alias);
+		return this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	count(String property) {
+		addPropertySelection(QSelectionFunction.COUNT, property, null);
+		return this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	count(String property, String alias) {
+		addPropertySelection(QSelectionFunction.COUNT, property, alias);
+		return this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	countDistinct(String property) {
+		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, null);
+		return this;
+	}
+
+	/**
+	 * Select a property value from the base property in the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @param alias			The alias for using the property in the restrictions clause.
+	 * @return
+	 */
+	protected QRestrictionsBase<T>	countDistinct(String property, String alias) {
+		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, alias);
+		return this;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Adding selection restrictions (where clause)		*/
+	/*--------------------------------------------------------------*/
+	/**
 	 * Add a new restriction to the list of restrictions on the data.
 	 * @param r
 	 * @return
 	 */
-	public QRestrictionsBase add(QOperatorNode r) {
+	public QRestrictionsBase<T> add(QOperatorNode r) {
 		if(m_restrictionList == Collections.EMPTY_LIST)
 			m_restrictionList = new ArrayList<QOperatorNode>();
 		m_restrictionList.add(r);
@@ -47,7 +248,7 @@ public class QRestrictionsBase {
 	 * @param r
 	 * @return
 	 */
-	public QRestrictionsBase add(QOrder r) {
+	public QRestrictionsBase<T> add(QOrder r) {
 		if(m_order == Collections.EMPTY_LIST)
 			m_order = new ArrayList<QOrder>();
 		m_order.add(r);
@@ -59,7 +260,7 @@ public class QRestrictionsBase {
 	 * @param property
 	 * @return
 	 */
-	public QRestrictionsBase ascending(String property) {
+	public QRestrictionsBase<T> ascending(String property) {
 		add(QOrder.ascending(property));
 		return this;
 	}
@@ -69,7 +270,7 @@ public class QRestrictionsBase {
 	 * @param property
 	 * @return
 	 */
-	public QRestrictionsBase descending(String property) {
+	public QRestrictionsBase<T> descending(String property) {
 		add(QOrder.descending(property));
 		return this;
 	}
@@ -80,7 +281,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase eq(String property, Object value) {
+	public QRestrictionsBase<T> eq(String property, Object value) {
 		add(QRestriction.eq(property, value));
 		return this;
 	}
@@ -91,7 +292,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase eq(String property, long value) {
+	public QRestrictionsBase<T> eq(String property, long value) {
 		add(QRestriction.eq(property, value));
 		return this;
 	}
@@ -102,7 +303,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase eq(String property, double value) {
+	public QRestrictionsBase<T> eq(String property, double value) {
 		add(QRestriction.eq(property, value));
 		return this;
 	}
@@ -114,7 +315,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase ne(String property, Object value) {
+	public QRestrictionsBase<T> ne(String property, Object value) {
 		add(QRestriction.ne(property, value));
 		return this;
 	}
@@ -126,7 +327,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase ne(String property, long value) {
+	public QRestrictionsBase<T> ne(String property, long value) {
 		add(QRestriction.ne(property, value));
 		return this;
 	}
@@ -138,7 +339,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase ne(String property, double value) {
+	public QRestrictionsBase<T> ne(String property, double value) {
 		add(QRestriction.ne(property, value));
 		return this;
 	}
@@ -150,7 +351,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase gt(String property, Object value) {
+	public QRestrictionsBase<T> gt(String property, Object value) {
 		add(QRestriction.gt(property, value));
 		return this;
 	}
@@ -162,7 +363,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase gt(String property, long value) {
+	public QRestrictionsBase<T> gt(String property, long value) {
 		add(QRestriction.gt(property, value));
 		return this;
 	}
@@ -174,7 +375,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase gt(String property, double value) {
+	public QRestrictionsBase<T> gt(String property, double value) {
 		add(QRestriction.gt(property, value));
 		return this;
 	}
@@ -186,7 +387,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase lt(String property, Object value) {
+	public QRestrictionsBase<T> lt(String property, Object value) {
 		add(QRestriction.lt(property, value));
 		return this;
 	}
@@ -198,7 +399,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase lt(String property, long value) {
+	public QRestrictionsBase<T> lt(String property, long value) {
 		add(QRestriction.lt(property, value));
 		return this;
 	}
@@ -210,7 +411,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase lt(String property, double value) {
+	public QRestrictionsBase<T> lt(String property, double value) {
 		add(QRestriction.lt(property, value));
 		return this;
 	}
@@ -222,7 +423,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase ge(String property, Object value) {
+	public QRestrictionsBase<T> ge(String property, Object value) {
 		add(QRestriction.ge(property, value));
 		return this;
 	}
@@ -234,7 +435,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase ge(String property, long value) {
+	public QRestrictionsBase<T> ge(String property, long value) {
 		add(QRestriction.ge(property, value));
 		return this;
 	}
@@ -246,7 +447,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase ge(String property, double value) {
+	public QRestrictionsBase<T> ge(String property, double value) {
 		add(QRestriction.ge(property, value));
 		return this;
 	}
@@ -258,7 +459,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase le(String property, Object value) {
+	public QRestrictionsBase<T> le(String property, Object value) {
 		add(QRestriction.le(property, value));
 		return this;
 	}
@@ -270,7 +471,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase le(String property, long value) {
+	public QRestrictionsBase<T> le(String property, long value) {
 		add(QRestriction.le(property, value));
 		return this;
 	}
@@ -282,7 +483,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase le(String property, double value) {
+	public QRestrictionsBase<T> le(String property, double value) {
 		add(QRestriction.le(property, value));
 		return this;
 	}
@@ -294,7 +495,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase like(String property, Object value) {
+	public QRestrictionsBase<T> like(String property, Object value) {
 		add(QRestriction.like(property, value));
 		return this;
 	}
@@ -306,7 +507,7 @@ public class QRestrictionsBase {
 	 * @param b
 	 * @return
 	 */
-	public QRestrictionsBase between(String property, Object a, Object b) {
+	public QRestrictionsBase<T> between(String property, Object a, Object b) {
 		add(QRestriction.between(property, a, b));
 		return this;
 	}
@@ -318,7 +519,7 @@ public class QRestrictionsBase {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictionsBase ilike(String property, Object value) {
+	public QRestrictionsBase<T> ilike(String property, Object value) {
 		add(QRestriction.ilike(property, value));
 		return this;
 	}
@@ -328,7 +529,7 @@ public class QRestrictionsBase {
 	 * @param a
 	 * @return
 	 */
-	public QRestrictionsBase or(QOperatorNode... a) {
+	public QRestrictionsBase<T> or(QOperatorNode... a) {
 		add(QRestriction.or(a));
 		return this;
 	}
@@ -338,7 +539,7 @@ public class QRestrictionsBase {
 	 * @param property
 	 * @return
 	 */
-	public QRestrictionsBase isnull(String property) {
+	public QRestrictionsBase<T> isnull(String property) {
 		add(QRestriction.isnull(property));
 		return this;
 	}
@@ -349,7 +550,7 @@ public class QRestrictionsBase {
 	 * @param property
 	 * @return
 	 */
-	public QRestrictionsBase isnotnull(String property) {
+	public QRestrictionsBase<T> isnotnull(String property) {
 		add(QRestriction.isnotnull(property));
 		return this;
 	}
@@ -359,7 +560,7 @@ public class QRestrictionsBase {
 	 * @param sql
 	 * @return
 	 */
-	public QRestrictionsBase sqlCondition(String sql) {
+	public QRestrictionsBase<T> sqlCondition(String sql) {
 		add(QRestriction.sqlCondition(sql));
 		return this;
 	}
@@ -369,7 +570,7 @@ public class QRestrictionsBase {
 	 * @param limit
 	 * @return
 	 */
-	public QRestrictionsBase limit(int limit) {
+	public QRestrictionsBase<T> limit(int limit) {
 		m_limit = limit;
 		return this;
 	}
@@ -379,7 +580,7 @@ public class QRestrictionsBase {
 	 * @param start
 	 * @return
 	 */
-	public QRestrictionsBase start(int start) {
+	public QRestrictionsBase<T> start(int start) {
 		m_start = start;
 		return this;
 	}
