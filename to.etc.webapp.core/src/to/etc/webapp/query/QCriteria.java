@@ -329,4 +329,16 @@ public class QCriteria<T> extends QRestrictionsBase<T> {
 	public QCriteria<T> start(final int start) {
 		return (QCriteria<T>) super.start(start);
 	}
+
+	@Override
+	public String toString() {
+		QQueryRenderer	r	= new QQueryRenderer();
+		try {
+			visit(r);
+		} catch(Exception x) {
+			x.printStackTrace();
+			return "Invalid query: "+x;
+		}
+		return r.toString();
+	}
 }

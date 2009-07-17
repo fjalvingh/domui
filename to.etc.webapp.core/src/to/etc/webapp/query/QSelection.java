@@ -429,4 +429,16 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 	public QSelection<T> sqlCondition(final String sql) {
 		return (QSelection<T>) super.sqlCondition(sql);
 	}
+
+	@Override
+	public String toString() {
+		QQueryRenderer	r	= new QQueryRenderer();
+		try {
+			visit(r);
+		} catch(Exception x) {
+			x.printStackTrace();
+			return "Invalid query: "+x;
+		}
+		return r.toString();
+	}
 }
