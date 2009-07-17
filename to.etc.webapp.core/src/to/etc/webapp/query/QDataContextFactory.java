@@ -17,12 +17,6 @@ public interface QDataContextFactory {
 	QDataContext getDataContext() throws Exception;
 
 	/**
-	 * Called when a context closes. This should effect the close.
-	 * @param dc
-	 */
-	void closeDataContext(QDataContext dc);
-
-	/**
 	 * Returns all event listeners that need to be called for queries executed by contexts generated from here.
 	 * @return
 	 */
