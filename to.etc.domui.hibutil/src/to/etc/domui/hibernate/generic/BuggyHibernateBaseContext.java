@@ -130,8 +130,7 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	public void close() {
 		if(m_session == null || m_ignoreClose)
 			return;
-		//		System.out.println("hib: closing && discarding Hibernate session");
-		System.out.println("..... closing hibernate session: "+System.identityHashCode(m_session));
+		//		System.out.println("..... closing hibernate session: "+System.identityHashCode(m_session));
 		try {
 			if(m_session.getTransaction().isActive()) {
 				m_session.getTransaction().rollback();
