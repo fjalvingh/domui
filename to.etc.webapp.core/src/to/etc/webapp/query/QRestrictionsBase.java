@@ -25,6 +25,9 @@ public class QRestrictionsBase<T> {
 
 	private List<QOrder> m_order = Collections.EMPTY_LIST;
 
+	/** Query options */
+	private Map<String, Object>	m_optionMap = null;
+
 	protected QRestrictionsBase(Class<T> clz) {
 		m_baseClass = clz;
 	}
@@ -57,6 +60,34 @@ public class QRestrictionsBase<T> {
 		return m_itemList;
 	}
 
+	/**
+	 * Set an option for the query or some of it's listeners.
+	 * @param name
+	 * @param val
+	 */
+	public void	setOption(String name, Object val) {
+		if(m_optionMap == null)
+			m_optionMap = new HashMap<String, Object>();
+		m_optionMap.put(name, val);
+	}
+
+	/**
+	 * Returns T if the specified option is present.
+	 * @param name
+	 * @return
+	 */
+	public boolean	hasOption(String name) {
+		return m_optionMap != null && m_optionMap.containsKey(name);
+	}
+
+	/**
+	 * Get the value stored for a given option.
+	 * @param name
+	 * @return
+	 */
+	public Object	getOption(String name) {
+		return m_optionMap == null ? null : m_optionMap.get(name);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Object selectors.									*/
@@ -104,7 +135,7 @@ public class QRestrictionsBase<T> {
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
+	 * Select the max of a property in the set. This will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
@@ -114,7 +145,7 @@ public class QRestrictionsBase<T> {
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
+	 * Select the max of a property in the set. This will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
@@ -125,7 +156,7 @@ public class QRestrictionsBase<T> {
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
+	 * Select the minimal value of a property in the set. This will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
@@ -135,7 +166,7 @@ public class QRestrictionsBase<T> {
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
+	 * Select the minimal value of a property in the set. This will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
@@ -145,7 +176,7 @@ public class QRestrictionsBase<T> {
 		return this;
 	}
 	/**
-	 * Select a property value from the base property in the result set.
+	 * Select the average value of a property in the set. This will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
@@ -155,7 +186,7 @@ public class QRestrictionsBase<T> {
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
+	 * Select the average value of a property in the set. This will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
@@ -166,7 +197,7 @@ public class QRestrictionsBase<T> {
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
+	 * Select the sum of a property in the set. This will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
@@ -176,7 +207,7 @@ public class QRestrictionsBase<T> {
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
+	 * Select the sum of a property in the set. This will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
@@ -187,7 +218,7 @@ public class QRestrictionsBase<T> {
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
+	 * Select a count over the result set.
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
@@ -197,7 +228,7 @@ public class QRestrictionsBase<T> {
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
+	 * Select a count over the result set.
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
@@ -208,7 +239,7 @@ public class QRestrictionsBase<T> {
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
+	 * Select a count of the distinct values over the result set.
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
@@ -218,7 +249,7 @@ public class QRestrictionsBase<T> {
 	}
 
 	/**
-	 * Select a property value from the base property in the result set.
+	 * Select a count of the distinct values over the result set.
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
@@ -244,7 +275,7 @@ public class QRestrictionsBase<T> {
 	}
 
 	/**
-	 * Add an order item to the list of sort items.
+	 * Add an order clause to the list of sort items.
 	 * @param r
 	 * @return
 	 */

@@ -9,16 +9,10 @@ package to.etc.webapp.query;
  */
 public interface IQueryListener {
 	/**
-	 * Called before a {@link QDataContext.query(QCriteria)} is executed.
+	 * Called before a {@link QDataContext#query(QCriteria)} or {@link QDataContext#query(QSelection)} is
+	 * executed; it can alter the query if needed.
 	 * @param criteria
 	 * @throws Exception
 	 */
-	void	onBeforeQuery(QCriteria<?> criteria) throws Exception;
-
-	/**
-	 * Called before a {@link QDataContext.query(QSelection)} is executed.
-	 * @param criteria
-	 * @throws Exception
-	 */
-	void	onBeforeQuery(QSelection<?> criteria) throws Exception;
+	void	onBeforeQuery(QRestrictionsBase<?> criteria) throws Exception;
 }

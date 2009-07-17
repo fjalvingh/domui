@@ -1,6 +1,5 @@
 package to.etc.webapp.query;
 
-import java.util.*;
 
 /**
  * Fugly helper class to globally access database stuff.
@@ -139,13 +138,11 @@ final public class QContextManager {
 		public QDataContext getDataContext() throws Exception {
 			return m_orig.getDataContext();
 		}
-
-		public Iterator<IQueryListener> getListenerIterator() {
-			return m_orig.getListenerIterator();
+		public QEventListenerSet getEventListeners() {
+			return m_orig.getEventListeners();
 		}
-
 		public void closeDataContext(QDataContext dc) {
-		//			throw new IllegalStateException("Attempt to close a shared QDataSource - this is not allowed");
+			//			throw new IllegalStateException("Attempt to close a shared QDataSource - this is not allowed");
 		}
 	}
 }

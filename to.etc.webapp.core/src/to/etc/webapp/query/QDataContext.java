@@ -72,11 +72,11 @@ public interface QDataContext {
 
 	/**
 	 * Load the persistent object with the specified type and primary key from the database. This will
-	 * return a proxy usually, meaning that nonexistent objects will return a more or less valid object
-	 * which will throw exceptions as soon as properties other than it's primary key are accessed. This
-	 * is useful for code where foreign keys are filled in; for these you do not usually need an actual
-	 * filled-in object instance. To get an object and be <i>sure</i> it is present in the database use
-	 * the load() method.
+	 * return an object <i>always</i> even if the object does not exist in the database! This should
+	 * only be used when you need an instance representing a given primary key that you know exists.
+	 * This usually returns a proxy, meaning that <i>nonexistent</i> objects will throw exceptions
+	 * as soon as properties other than it's primary key are accessed. To get an object and be
+	 * <i>sure</i> it is present in the database use {@link QDataContext#find(Class, Object)}.
 	 *
 	 * @param <T>	The object type
 	 * @param clz	The persistent class for which an instance is being sought.

@@ -1,7 +1,5 @@
 package to.etc.iocular.test;
 
-import java.util.*;
-
 import org.junit.*;
 
 import to.etc.iocular.container.*;
@@ -18,8 +16,8 @@ public class TestBasicConfigs {
 			public QDataContext getDataContext() throws Exception {
 				return new DataContextMock();
 			}
-			public Iterator<IQueryListener> getListenerIterator() {
-				return Collections.EMPTY_LIST.iterator();
+			public QEventListenerSet getEventListeners() {
+				return QEventListenerSet.EMPTY_SET;
 			}
 		});
 	}

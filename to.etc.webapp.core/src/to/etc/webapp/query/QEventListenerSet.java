@@ -11,7 +11,16 @@ import java.util.*;
  * Created on Jul 15, 2009
  */
 public class QEventListenerSet {
+	static public final QEventListenerSet	EMPTY_SET = new QEventListenerSet(Collections.unmodifiableList(new ArrayList<IQueryListener>()));
+
 	private List<IQueryListener>		m_listeners = Collections.EMPTY_LIST;
+
+	public QEventListenerSet() {
+	}
+
+	private QEventListenerSet(List<IQueryListener> l) {
+		m_listeners = l;
+	}
 
 	/**
 	 * Add a new listener for queries for this source. All data sources obtained
@@ -41,14 +50,16 @@ public class QEventListenerSet {
 	 * Return an iterator over all registered event listeners.
 	 * @return
 	 */
-	synchronized public Iterator<IQueryListener>	getListenerIterator() {
-		return m_listeners.iterator();
+	synchronized public Iterable<IQueryListener>	getListenerIterator() {
+		return m_listeners;
 	}
 
-	public void		callOnBeforeQuery(QCriteria<?> qc) {
-
+	/**
+	 * Calls all listeners in order.
+	 * @param qc
+	 */
+	public void		callOnBeforeQuery(QCriteria<?> qc) throws Exception {
+		for(IQueryListener l: getListenerIterator())
+			l.onBeforeQuery(qc);
 	}
-
-
-
 }

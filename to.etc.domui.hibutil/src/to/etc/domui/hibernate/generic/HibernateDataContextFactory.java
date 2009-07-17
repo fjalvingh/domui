@@ -1,7 +1,5 @@
 package to.etc.domui.hibernate.generic;
 
-import java.util.*;
-
 import to.etc.webapp.query.*;
 
 /**
@@ -38,9 +36,9 @@ public class HibernateDataContextFactory implements QDataContextFactory {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContextFactory#getListenerIterator()
+	 * @see to.etc.webapp.query.QDataContextFactory#getEventListeners()
 	 */
-	public Iterator<IQueryListener> getListenerIterator() {
-		return m_eventSet.getListenerIterator();
+	public QEventListenerSet getEventListeners() {
+		return m_eventSet;
 	}
 }

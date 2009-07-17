@@ -1,6 +1,5 @@
 package to.etc.webapp.query;
 
-import java.util.*;
 
 /**
  * A thingy which knows how to get a QDataContext to access the database. This
@@ -17,13 +16,15 @@ public interface QDataContextFactory {
 	 */
 	QDataContext getDataContext() throws Exception;
 
+	/**
+	 * Called when a context closes. This should effect the close.
+	 * @param dc
+	 */
 	void closeDataContext(QDataContext dc);
 
-	//	void releaseDataContext(QDataContext dc);
-
 	/**
-	 * Returns an iterator over all registered listeners.
+	 * Returns all event listeners that need to be called for queries executed by contexts generated from here.
 	 * @return
 	 */
-	Iterator<IQueryListener>	getListenerIterator();
+	QEventListenerSet		getEventListeners();
 }
