@@ -20,11 +20,18 @@ public interface QDataContext {
 	QDataContextFactory	getFactory();
 
 	/**
-	 * This will close and fully discard all resources belonging to this context. A closed context cannot
-	 * be reused anymore and should be discarded. You are not allowed to call close for "managed" contexts,
-	 * i.e. allocated from a page or Conversation; this will result in an exception being thrown. To force
-	 * a shared context closed use QContextManager.closeSharedContext().
-	 * <p>The implementor is required to delegate this call to {@link QDataContextFactory#releaseDataContext(QDataContext)}.
+	 * When ignoreClose is set to T the close call must be silently ignored. Ugly, but for a lot of reasons (all having
+	 * to do with the very strained object model around the ViewPoint database code) this is the least invasive method
+	 * to allow for per-conversation shared contexts. Please do not replace this with any kind of wrapper/proxy based
+	 * solution; it will not work.
+	 *
+	 * @param on
+	 */
+	void setIgnoreClose(boolean on);
+
+	/**
+	 * This will close and fully discard all resources belonging to this context, provided ignoreClose is
+	 * not true. A closed context cannot be reused anymore and should be discarded.
 	 */
 	void close();
 

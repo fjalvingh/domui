@@ -22,15 +22,6 @@ public class HibernateLongSessionContextFactory implements QDataContextFactory {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContextFactory#releaseDataContext(to.etc.webapp.query.QDataContext)
-	 */
-	public void closeDataContext(QDataContext dc) {
-		BuggyHibernateBaseContext q = (BuggyHibernateBaseContext) dc;
-		q.internalClose();
-	}
-
-	/**
-	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QDataContextFactory#getEventListeners()
 	 */
 	public QEventListenerSet getEventListeners() {

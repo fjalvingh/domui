@@ -27,15 +27,6 @@ public class HibernateDataContextFactory implements QDataContextFactory {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContextFactory#closeDataContext(to.etc.webapp.query.QDataContext)
-	 */
-	public void closeDataContext(QDataContext dc) {
-		HibernateQDataContext q = (HibernateQDataContext) dc;
-		q.internalClose();
-	}
-
-	/**
-	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QDataContextFactory#getEventListeners()
 	 */
 	public QEventListenerSet getEventListeners() {

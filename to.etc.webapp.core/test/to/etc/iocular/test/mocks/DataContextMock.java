@@ -10,6 +10,8 @@ public class DataContextMock implements QDataContext {
 
 	public void attach(final Object o) throws Exception {}
 
+	public void setIgnoreClose(boolean on) {}
+
 	public void commit() throws Exception {
 		decrement(); // Used in "instance destroy method" test because QDataContext does not expose 'close'
 	}

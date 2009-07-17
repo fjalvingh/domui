@@ -29,15 +29,6 @@ public class HibernateReattachingContextFactory implements QDataContextFactory {
 
 	/**
 	 * {@inheritDoc}
-	 * @param dc
-	 */
-	public void closeDataContext(QDataContext dc) {
-		BuggyHibernateBaseContext q = (BuggyHibernateBaseContext) dc;
-		q.internalClose();
-	}
-
-	/**
-	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QDataContextFactory#getEventListeners()
 	 */
 	public QEventListenerSet getEventListeners() {
