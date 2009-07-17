@@ -85,7 +85,7 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.webapp.query.QDataContext#query(to.etc.webapp.query.QCriteria)
 	 */
 	public <T> List<T> query(final QCriteria<T> q) throws Exception {
-		getFactory().getEventListeners().callOnBeforeQuery(q);
+		getFactory().getEventListeners().callOnBeforeQuery(this, q);
 		Criteria crit = GenericHibernateHandler.createCriteria(getSession(), q); // Convert to Hibernate criteria
 		return crit.list();
 	}
@@ -95,7 +95,7 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.webapp.query.QDataContext#query(to.etc.webapp.query.QSelection)
 	 */
 	public List<Object[]> query(QSelection< ? > sel) throws Exception {
-		getFactory().getEventListeners().callOnBeforeQuery(sel);
+		getFactory().getEventListeners().callOnBeforeQuery(this, sel);
 		Criteria crit = GenericHibernateHandler.createCriteria(getSession(), sel);
 		return crit.list();
 	}
@@ -222,7 +222,6 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ConversationStateListener impl.						*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * {@inheritDoc}
 	 */
