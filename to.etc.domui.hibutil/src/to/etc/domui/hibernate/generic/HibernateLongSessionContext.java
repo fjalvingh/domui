@@ -41,7 +41,16 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 
 	@Override
 	public void conversationDestroyed(final ConversationContext cc) throws Exception {
-		conversationDetached(cc);
+		if(m_session == null || !m_session.isConnected())
+			return;
+		setIgnoreClose(false);
+		SessionImpl sim = (SessionImpl) m_session;
+		StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
+		Map< ? , ? > flups = spc.getEntitiesByKey();
+		System.out.println("Hibernate: closing (destroying) session "+System.identityHashCode(m_session)+" containing " + flups.size() + " persisted instances");
+		if(m_session.getTransaction().isActive())
+			m_session.getTransaction().rollback();
+		close();
 	}
 
 	@Override
@@ -51,7 +60,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		SessionImpl sim = (SessionImpl) m_session;
 		StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
 		Map< ? , ? > flups = spc.getEntitiesByKey();
-		System.out.println("Hibernate: disconnecting session containing " + flups.size() + " persisted instances");
+		System.out.println("Hibernate: disconnecting session "+System.identityHashCode(m_session)+" containing " + flups.size() + " persisted instances");
 		if(m_session.getTransaction().isActive())
 			m_session.getTransaction().rollback();
 		m_session.disconnect(); // Disconnect the dude.

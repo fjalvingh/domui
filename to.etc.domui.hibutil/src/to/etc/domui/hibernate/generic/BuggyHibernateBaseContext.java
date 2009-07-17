@@ -235,6 +235,7 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.domui.state.ConversationStateListener#conversationDestroyed(to.etc.domui.state.ConversationContext)
 	 */
 	public void conversationDestroyed(final ConversationContext cc) throws Exception {
+		setIgnoreClose(false);				// Disable ignore close - this close should work.
 		close();
 	}
 
@@ -243,6 +244,7 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.domui.state.ConversationStateListener#conversationDetached(to.etc.domui.state.ConversationContext)
 	 */
 	public void conversationDetached(final ConversationContext cc) throws Exception {
+		setIgnoreClose(false);				// Disable ignore close - this close should work.
 		close();
 	}
 

@@ -47,6 +47,7 @@ public class HibernateReattachingDataContext extends BuggyHibernateBaseContext {
 
 	@Override
 	public void conversationDestroyed(final ConversationContext cc) throws Exception {
+		setIgnoreClose(false);
 		conversationDetached(cc);
 	}
 
@@ -70,7 +71,6 @@ public class HibernateReattachingDataContext extends BuggyHibernateBaseContext {
 		}
 		ts = System.nanoTime() - ts;
 		System.out.println("hib: saved " + flups.size() + " persisted objects in the conversation for reattachment in " + StringTool.strNanoTime(ts));
-
 		close();
 	}
 }
