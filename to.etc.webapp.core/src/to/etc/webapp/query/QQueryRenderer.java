@@ -110,6 +110,24 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	}
 
 	@Override
+	public void visitBetween(QBetweenNode n) throws Exception {
+		int oldprec = m_curPrec;
+		m_curPrec = getOperationPrecedence(n.getOperation());
+		if(oldprec > m_curPrec)
+			append("(");
+
+		append(n.getProp());
+		append(" between ");
+		n.getA().visit(this);
+		append(" and ");
+		n.getB().visit(this);
+
+		if(oldprec > m_curPrec)
+			append(")");
+		m_curPrec = oldprec;
+	}
+
+	@Override
 	public void visitLiteral(QLiteral n) throws Exception {
 		int oldprec = m_curPrec;
 		m_curPrec = getOperationPrecedence(n.getOperation());
