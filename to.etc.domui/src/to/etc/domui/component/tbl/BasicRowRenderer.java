@@ -18,7 +18,7 @@ import to.etc.webapp.nls.*;
  * The possible specifications used in property modifiers are:
  * <ul>
  *	<li>"%28": a String starting with % denotes a width in percents. %28 gets translated to setWidth("28%");</li>
- *	<li>"^Title": a String starting with ^ denotes the header caption to use. Use ^~key~ to internationalize.</li>
+ *	<li>"^Title": a String starting with ^ denotes the header caption to use. Use ^~key to internationalize.</li>
  *	<li>"$cssclass": a String denoting a CSS class.</li>
  *	<li>Class&lt;? extends IConverter&gt;: the converter to use to convert the value to a string</li>
  *	<li>IConverter: an instance of a converter</li>

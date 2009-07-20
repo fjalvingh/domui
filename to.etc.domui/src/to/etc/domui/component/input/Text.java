@@ -11,6 +11,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * A single-line input box. This extends the "input" tag with validation ability
@@ -129,9 +130,13 @@ public class Text<T> extends Input implements IInputNode<T> {
 		//-- Handle conversion and validation.
 		Object converted;
 		try {
-			if(m_converterClass == null)
-				converted = RuntimeConversions.convertTo(raw, m_inputClass);
-			else
+			if(m_converterClass == null) {
+				IConverter c = ConverterRegistry.findConverter(getInputClass());
+				if(c != null)
+					converted = c.convertStringToObject(NlsContext.getLocale(), raw);
+				else
+					converted = RuntimeConversions.convertTo(raw, m_inputClass);
+			} else
 				converted = ConverterRegistry.convertStringToValue(m_converterClass, raw);
 
 			if(m_validators.size() != 0)
