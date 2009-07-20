@@ -11,8 +11,8 @@ import to.etc.domui.trouble.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
-public interface IConverter {
-	public Object convertStringToObject(Locale loc, String in) throws UIException;
+public interface IConverter<T> {
+	public T convertStringToObject(Locale loc, String in) throws UIException;
 
-	public String convertObjectToString(Locale loc, Object in) throws UIException;
+	public String convertObjectToString(Locale loc, T in) throws UIException;
 }
