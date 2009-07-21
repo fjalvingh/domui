@@ -145,7 +145,7 @@ public class SimpleRowRenderer implements IRowRenderer {
 		List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
 		if(dpl.size() == 0)
 			throw new IllegalStateException(
-				"The list-of-columns to show is empty, and the class has no metadata (@MetaObject) definition defining a set of columns as default table columns, so there.");
+			"The list-of-columns to show is empty, and the class has no metadata (@MetaObject) definition defining a set of columns as default table columns, so there.");
 		List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
 		initialize(xdpl);
 	}
@@ -323,25 +323,41 @@ public class SimpleRowRenderer implements IRowRenderer {
 			colval = cd.getValueTransformer().getValue(instance);
 
 		//-- Is a node renderer used?
+		TD	cell;
 		if(null != cd.getContentRenderer()) {
-			TD node = cc.add((NodeBase) null); // Add the new row
-			((INodeContentRenderer<Object>) cd.getContentRenderer()).renderNodeContent(tbl, node, colval, instance); // %&*(%&^%*&%&( generics require casting here
-			return;
-		}
+			cell = cc.add((NodeBase) null); // Add the new row
+			((INodeContentRenderer<Object>) cd.getContentRenderer()).renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
+		} else {
+			String s;
+			if(colval == null)
+				s = null;
+			else {
+				if(cd.getValueConverter() != null)
+					s = cd.getValueConverter().convertObjectToString(NlsContext.getLocale(), colval);
+				else
+					s = colval.toString();
+			}
 
-		String s;
-		if(colval == null)
-			s = null;
-		else {
-			if(cd.getValueConverter() != null)
-				s = cd.getValueConverter().convertObjectToString(NlsContext.getLocale(), colval);
+			if(s == null)
+				cell = cc.add((NodeBase) null);
 			else
-				s = colval.toString();
+				cell = cc.add(s);
 		}
 
-		if(s == null)
-			cc.add((NodeBase) null);
-		else
-			cc.add(s);
+		//-- If a cellclicked thing is present attach it to the td
+		if(m_cellClicked != null) {
+			/*
+			 * FIXME For now I add a separate instance of the handler to every cell. A single instance is OK too,
+			 * provided it can calculate the row and cell data from the TR it is attached to.
+			 */
+			cc.getTR().setClicked(new IClicked<TR>() {
+				public void clicked(TR b) throws Exception {
+					((ICellClicked) getCellClicked()).cellClicked(tbl.getPage(), b, instance);
+				}
+			});
+			cc.getTR().addCssClass("ui-cellsel");
+		}
+
 	}
+
 }

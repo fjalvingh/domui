@@ -574,35 +574,49 @@ public class BasicRowRenderer implements IRowRenderer {
 			colval = cd.getValueTransformer().getValue(instance);
 
 		//-- Is a node renderer used?
+		TD	cell;
 		if(null != cd.getContentRenderer()) {
-			TD node = cc.add((NodeBase) null); // Add the new row
+			cell = cc.add((NodeBase) null); // Add the new row
 			if(cd.getCssClass() != null)
-				node.addCssClass(cd.getCssClass());
-			((INodeContentRenderer<Object>) cd.getContentRenderer()).renderNodeContent(tbl, node, colval, instance); // %&*(%&^%*&%&( generics require casting here
+				cell.addCssClass(cd.getCssClass());
+			((INodeContentRenderer<Object>) cd.getContentRenderer()).renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
 			return;
-		}
-
-		String s;
-		if(colval == null)
-			s = null;
-		else {
-			if(cd.getValueConverter() != null)
-				s = cd.getValueConverter().convertObjectToString(NlsContext.getLocale(), colval);
-			else if(colval instanceof String)
-				s = (String) colval;
+		} else {
+			String s;
+			if(colval == null)
+				s = null;
 			else {
-				s = colval.toString();
+				if(cd.getValueConverter() != null)
+					s = cd.getValueConverter().convertObjectToString(NlsContext.getLocale(), colval);
+				else if(colval instanceof String)
+					s = (String) colval;
+				else {
+					s = colval.toString();
+				}
 			}
+
+			if(s == null)
+				cell = cc.add((NodeBase) null);
+			else
+				cell = cc.add(s);
+			if(cd.getCssClass() != null)
+				cell.addCssClass(cd.getCssClass());
+			if(cd.isNowrap())
+				cell.setNowrap(true);
 		}
 
-		TD td;
-		if(s == null)
-			td = cc.add((NodeBase) null);
-		else
-			td = cc.add(s);
-		if(cd.getCssClass() != null)
-			td.addCssClass(cd.getCssClass());
-		if(cd.isNowrap())
-			td.setNowrap(true);
+		//-- If a cellclicked thing is present attach it to the td
+		if(m_cellClicked != null) {
+			/*
+			 * FIXME For now I add a separate instance of the handler to every cell. A single instance is OK too,
+			 * provided it can calculate the row and cell data from the TR it is attached to.
+			 */
+			cc.getTR().setClicked(new IClicked<TR>() {
+				public void clicked(TR b) throws Exception {
+					((ICellClicked) getCellClicked()).cellClicked(tbl.getPage(), b, instance);
+				}
+			});
+			cc.getTR().addCssClass("ui-cellsel");
+		}
 	}
 }
