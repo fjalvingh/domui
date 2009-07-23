@@ -22,6 +22,7 @@ public class LookupControlRegistry {
 	public LookupControlRegistry() {
 		register(TEXT_CF);
 		register(DATE_CF);
+		register(new RelationLookupFactory());
 	}
 
 	public synchronized List<LookupControlFactory> getFactoryList() {
@@ -62,7 +63,7 @@ public class LookupControlRegistry {
 		public LookupFieldQueryBuilderThingy createControl(final SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
 			Class< ? > iclz = pmm.getActualType();
 
-			//-- Boolean/boolean types? These need a tri-state checkbox 
+			//-- Boolean/boolean types? These need a tri-state checkbox
 			if(iclz == Boolean.class || iclz == Boolean.TYPE) {
 				throw new IllegalStateException("I need a tri-state checkbox component to handle boolean lookup thingies.");
 			}
@@ -87,7 +88,7 @@ public class LookupControlRegistry {
 			if(pmm.getLength() > 0)
 				txt.setMaxLength(pmm.getLength());
 
-			//-- Converter thingy is known. Now add a 
+			//-- Converter thingy is known. Now add a
 			return new DefaultLookupThingy(txt) {
 				@Override
 				public boolean appendCriteria(QCriteria crit) throws Exception {

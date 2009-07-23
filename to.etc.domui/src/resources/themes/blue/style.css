@@ -549,6 +549,10 @@ TR.ui-rowsel:hover {
 	background-color: #ffe1bf !important;
 }
 
+TD.ui-cellsel:hover {
+	background-color: e1ffbf !important;
+}
+
 TH.ui-sortable {
 	cursor: pointer;
 }
