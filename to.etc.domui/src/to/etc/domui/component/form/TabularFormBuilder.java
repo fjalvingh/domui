@@ -201,7 +201,10 @@ public class TabularFormBuilder {
 		PropertyMetaModel pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
-		addPropertyControl(name, label, pmm, true);
+		boolean edit = true;
+		if(pmm.getReadOnly() == YesNoType.YES)
+			edit = false;
+		addPropertyControl(name, label, pmm, edit);
 	}
 
 	/**

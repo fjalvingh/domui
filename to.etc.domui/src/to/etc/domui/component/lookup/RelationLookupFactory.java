@@ -23,7 +23,7 @@ public class RelationLookupFactory implements LookupControlFactory {
 					crit.eq(pmm.getName(), value);
 					return true;
 				}
-				return false;
+				return true;			// Okay but no data
 			}
 		};
 	}

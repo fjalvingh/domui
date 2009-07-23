@@ -100,7 +100,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 	}
 
 	protected void createCommitButton() {
-		getButtonBar().addButton("C!ommit", "/img/btnSave.png", new IClicked<DefaultButton>() {
+		getButtonBar().addButton("C!ommit", "THEME/btnSave.png", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
 				save();
 			}
@@ -108,7 +108,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 	}
 
 	protected void createCancelButton() {
-		getButtonBar().addButton("!Cancel", "/img/btnCancel.png", new IClicked<DefaultButton>() {
+		getButtonBar().addButton("!Cancel", "THEME/btnCancel.png", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
 				cancel();
 			}
@@ -116,7 +116,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 	}
 
 	protected void createDeleteButton() {
-		getButtonBar().addButton("!Delete", "/img/btnDelete.png", new IClicked<DefaultButton>() {
+		getButtonBar().addButton("!Delete", "THEME/btnDelete.png", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
 				delete();
 			}
