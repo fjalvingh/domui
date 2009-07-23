@@ -367,12 +367,16 @@ final public class WindowSession {
 	}
 
 	/**
-	 * Returns FALSE if the target page is a page which can only be on top of the shelve. For now
+	 * Returns TRUE if the target page is a page which can only be on top of the shelve. For now
 	 * it checks if the page == the index page.
 	 * @param clz
 	 * @return
 	 */
 	private boolean mustResetShelve(final Class< ? extends UrlPage> clz) {
+		Class<?> ac = m_appSession.getApplication().getRootPage();
+		if(ac == null)
+			return false;
+
 		if(clz.getName().equals(m_appSession.getApplication().getRootPage().getName()))
 			return true;
 		return false;
