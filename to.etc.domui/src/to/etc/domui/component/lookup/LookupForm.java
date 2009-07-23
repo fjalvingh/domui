@@ -225,7 +225,7 @@ public class LookupForm<T> extends Div {
 
 		LookupControlFactory lcf = DomApplication.get().getLookupControlFactory(pmm);
 		LookupFieldQueryBuilderThingy qt = lcf.createControl(spm, pmm);
-		if(qt == null)
+		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
 			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + pmm);
 		return qt;
 	}
