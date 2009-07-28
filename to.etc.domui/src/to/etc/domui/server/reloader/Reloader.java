@@ -204,6 +204,16 @@ final public class Reloader {
 		return ts;
 	}
 
+	/**
+	 * Try to find the specified class file name as a file relative to the
+	 * specified URL base (provided it is a directory). If found this returns
+	 * the current timestamp and reference that can be checked later on for
+	 * changes on this class' source.
+	 *
+	 * @param u
+	 * @param rel
+	 * @return
+	 */
 	private ResourceTimestamp checkForFile(URL u, String rel) {
 		if(!"file".equals(u.getProtocol()))
 			return null;
