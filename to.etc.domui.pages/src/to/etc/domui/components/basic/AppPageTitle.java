@@ -22,6 +22,8 @@ public class AppPageTitle extends Div {
 
 	private TD m_titlePart;
 
+	private String m_imageUrl;
+
 	public AppPageTitle() {}
 
 	public AppPageTitle(final String title) {
@@ -34,7 +36,7 @@ public class AppPageTitle extends Div {
 	}
 
 	public void setIcon(final String s) {
-		m_img.setSrc(s);
+		m_imageUrl = s;
 	}
 
 	@Override
@@ -85,6 +87,11 @@ public class AppPageTitle extends Div {
 	 * @return
 	 */
 	private void setIconURL() {
+		if(m_imageUrl != null) { // Set by user?
+			m_img.setSrc(m_imageUrl);
+			return;
+		}
+
 		//-- 1. Is an icon or icon resource specified in any attached UIMenu annotation? If so use that;
 		Class< ? extends UrlPage> clz = getPage().getBody().getClass();
 		UIMenu ma = clz.getAnnotation(UIMenu.class);
@@ -105,6 +112,15 @@ public class AppPageTitle extends Div {
 		}
 
 		//-- Try to get an URL from the class-based resources. FIXME Todo
+		String def = getDefaultIcon();
+		if(def == null) {
+			return;
+		}
+		m_img.setSrc(def);
+	}
+
+	public String getDefaultIcon() {
+		return null;
 	}
 
 	/**

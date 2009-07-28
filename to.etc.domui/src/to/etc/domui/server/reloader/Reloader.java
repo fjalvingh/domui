@@ -247,7 +247,7 @@ final public class Reloader {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Returns T if this class is to be watched, false otherwise.
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -303,7 +303,9 @@ final public class Reloader {
 				if(fr.changed()) {
 					LOG.info("Class Source " + fr + " has changed.");
 					return true;
-				}
+				} else
+					LOG.fine("Unchanged source for " + fr);
+				fc++;
 			}
 			return false;
 		} finally {
