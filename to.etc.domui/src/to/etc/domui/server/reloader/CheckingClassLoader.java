@@ -52,13 +52,13 @@ public class CheckingClassLoader extends URLClassLoader {
 		Class< ? > clz = findLoadedClass(name);
 		if(clz == null) {
 			//-- Must we handle this class?
-			LOG.finer("Load class " + name + " using checking loader");
+			LOG.fine("Load class " + name + " using checking loader");
 
 			//-- Try to find the path for the class resource
 			try {
 				clz = findClass(name);
 			} catch(ClassNotFoundException x) {
-				//-- *this* loader cannot find it. 
+				//-- *this* loader cannot find it.
 				if(getParent() == null)
 					throw x;
 				clz = getParent().loadClass(name); // Try to load by parent,

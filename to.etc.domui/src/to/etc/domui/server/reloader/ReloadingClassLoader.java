@@ -4,7 +4,6 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
-
 /**
  * The classloader used by the reloader. Classes matching the include
  * pattern are loaded using this classloader, and all of the files
@@ -41,7 +40,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 		m_reloader = r;
 		m_id = nextID();
 		m_rootLoader = getClass().getClassLoader();
-		//		System.out.println("ReloadingClassLoader: new instance "+this+" created");
+		LOG.fine("ReloadingClassLoader: new instance "+this+" created");
 	}
 
 	@Override
@@ -49,14 +48,13 @@ public class ReloadingClassLoader extends URLClassLoader {
 		return "reloader[" + m_id + "]";
 	}
 
-
 	private void addWatchFor(Class< ? > clz) {
 		ResourceTimestamp rt = m_reloader.findClassSource(clz); // Try to locate,
 		if(rt == null) {
 			LOG.info("Cannot find source file for class=" + clz + "; changes to this class are not tracked");
 			return;
 		}
-		LOG.finer("Watching " + rt.getRef());
+		LOG.fine("Watching " + clz); //rt.getRef());
 		synchronized(m_reloader) {
 			m_dependList.add(rt);
 		}
@@ -84,14 +82,14 @@ public class ReloadingClassLoader extends URLClassLoader {
 		Class< ? > clz = findLoadedClass(name);
 		if(clz == null) {
 			//-- Must we handle this class?
-			LOG.finer("Need to load class=" + name);
+			LOG.fine("loading class-to-watch=" + name);
 
 			//-- Try to find the path for the class resource
 			try {
 				clz = findClass(name);
 				addWatchFor(clz); // Only called if loading worked
 			} catch(ClassNotFoundException x) {
-				//-- *this* loader cannot find it. 
+				//-- *this* loader cannot find it.
 				if(getParent() == null)
 					throw x;
 				clz = getParent().loadClass(name); // Try to load by parent,

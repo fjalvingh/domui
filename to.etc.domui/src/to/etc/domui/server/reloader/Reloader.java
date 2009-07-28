@@ -272,6 +272,10 @@ final public class Reloader {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Code to check for changes in classes loaded by me	*/
 	/*--------------------------------------------------------------*/
+	private boolean	m_sweeping;
+
+
+
 	/**
 	 * Checks for changes on this classloader. This blocks if another thread is checking and if so
 	 * it does not sweep again when that thread completes the sweep.
@@ -281,15 +285,34 @@ final public class Reloader {
 		synchronized(this) {
 			if(m_changed)
 				return true;
+			if(m_sweeping) {
+				//-- Some other thread is sweeping; block until the baton is released
+				while(m_sweeping) {
+					try {
+						wait(5000);
+					} catch(InterruptedException x) {
+					}
+				}
+				return m_changed;
+			}
+
+			//-- We were not sweeping but this thread will do so now; take control of the sweep baton
+			m_sweeping= true;
 			sweeplist = m_currentLoader.getDependencyList();
 		}
 
 		//-- We are responsible for sweeping - we own the sweep baton
-		if(!sweep(sweeplist)) // Has any resource changed?
-			return false;
-		synchronized(this) {
-			m_changed = true;
-			return true;
+		boolean changed = false;
+		try {
+			changed = sweep(sweeplist); // Has any resource changed?
+			return changed;
+		} finally {
+			synchronized(this) {
+				if(changed)
+					m_changed = true;
+				m_sweeping = false;			// Release sweep baton
+				notifyAll();
+			}
 		}
 	}
 
