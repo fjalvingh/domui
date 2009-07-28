@@ -3,7 +3,13 @@ package to.etc.domui.server.reloader;
 import java.io.*;
 import java.util.zip.*;
 
-public class JarRef implements IResourceRef {
+/**
+ * Holds a reference to a file from a .jar, and allows access to the modified timestamp in the jar.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jul 28, 2009
+ */
+class JarRef implements IResourceRef {
 	private File m_jar;
 
 	private String m_rel;

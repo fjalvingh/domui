@@ -6,7 +6,7 @@ package to.etc.domui.server.reloader;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2008
  */
-final public class ResourceTimestamp {
+final class ResourceTimestamp {
 	private IResourceRef m_ref;
 
 	private long m_ts;

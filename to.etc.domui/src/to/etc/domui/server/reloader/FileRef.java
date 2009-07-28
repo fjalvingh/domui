@@ -2,6 +2,12 @@ package to.etc.domui.server.reloader;
 
 import java.io.*;
 
+/**
+ * Holds a reference to a file entry to access a timestamp.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jul 28, 2009
+ */
 final class FileRef implements IResourceRef {
 	private File m_src;
 
