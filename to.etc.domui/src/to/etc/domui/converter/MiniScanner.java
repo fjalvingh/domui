@@ -149,14 +149,14 @@ public class MiniScanner {
 	 * Scans the input as a lax euro string and leave the buffer to hold
 	 * a parseable numeric string for one of the to-java-type converters.
 	 */
-	public void scanLaxEuro(String in) throws ValidationException {
+	public boolean scanLaxEuro(String in) throws ValidationException {
 		init(in.trim()); // Remove leading and trailing spaces
 		boolean haseur = skip('\u20ac');		// Skip euro sign
 		skipWs();			// And any ws after
 		if(eof()) {
 			if(haseur) // Euro sign without anything around it is error
 				badamount();
-			return; // But accept whitespace only (empty input, null value)
+			return false; // But accept whitespace only (empty input, null value)
 		}
 
 		/*
@@ -224,7 +224,7 @@ public class MiniScanner {
 		 */
 		//-- Have we had either comma's or dots? If not we're done and the number is valid in the buffert.
 		if(dotct == 0 && commact == 0) {
-			return;
+			return true;
 		}
 		if(dotct > 1 && commact > 1) // Cannot happen
 			throw new IllegalStateException("Programmer's blunder: dotct=" + dotct + ", commact=" + commact);
@@ -297,6 +297,8 @@ public class MiniScanner {
 				m_buffer.insert(m_buffer.length() - ddelta + 1, '.');
 			}
 		}
+
+		return true;
 	}
 
 	private void badamount() throws ValidationException {

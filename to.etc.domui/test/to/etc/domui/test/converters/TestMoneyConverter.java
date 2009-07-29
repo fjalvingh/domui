@@ -1,10 +1,13 @@
 package to.etc.domui.test.converters;
 
+import java.util.*;
+
 import org.junit.*;
 
 import to.etc.domui.converter.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 public class TestMoneyConverter {
 	/**
@@ -105,6 +108,32 @@ public class TestMoneyConverter {
 		//-- Unclear distinction (1 comma, one dot)
 		check("1.000,00", "1000.00");
 		check("1,000.00", "1000.00");
+	}
+
+	private void testSimple(double v, String exp) {
+		String res = MoneyUtil.renderAsSimpleDotted(v);
+		System.out.println("  ... " + v + " -> " + res);
+		Assert.assertEquals(exp, res);
+	}
+
+	private void testFullSign(double v, String exp) {
+		String res = MoneyUtil.renderFullWithSign(v);
+		System.out.println("  ... " + v + " -> " + res);
+		Assert.assertEquals(exp, res);
+	}
+
+	@Test
+	public void testToString() {
+		testSimple(1.00, "1.00");
+		testSimple(1, "1.00");
+		testSimple(1.0001, "1.00");
+		testSimple(1.0049999, "1.00");
+		testSimple(1.00, "1.00");
+		testSimple(99999999999999.875, "99999999999999.88"); // Largest precision;
+
+		NlsContext.setCurrencyLocale(new Locale("nl", "NL"));
+		testFullSign(1234567.89, "\u20ac 1.234.567,89");
+		testFullSign(1234567, "\u20ac 1.234.567,00");
 	}
 
 }
