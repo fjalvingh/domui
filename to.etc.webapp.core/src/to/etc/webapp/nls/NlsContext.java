@@ -4,13 +4,21 @@ import java.text.*;
 import java.util.*;
 
 /**
- *
- *
+ * <p>Static accessor class to the current locale, "jargon" and currency information. This
+ * class behaves as a static class but has <b>threadlocal based storage</b> behind it; this allows
+ * the locale information to be different for every request. The actual locale to use for
+ * a request can be set by a server on a per-request basis. If no per-request locale is set
+ * this uses the default locale.</p>
+ * <p>In addition, this also contains the current "currency locale" which is set once per
+ * application, when used. By default most applications will contain monetary amounts in a
+ * single currency only, regardless of the language they are being used in. For instance a
+ * dutch system can present information in English for a british user, but will still present
+ * amounts in euro's, not pounds.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 28, 2007
  */
-public class NlsContext {
+final public class NlsContext {
 	/**
 	 * All of the bundleRefs currently used, indexed by bundle key.
 	 */
@@ -22,9 +30,21 @@ public class NlsContext {
 
 	/**
 	 * The thingy holding the current locale per thread. If the thingy is null
-	 * the current locale is unknown.
+	 * the current locale is unknown and the default locale will be returned, mirroring
+	 * the behaviour of the badly defined standard java sdk libs.
 	 */
 	static private final ThreadLocal<Locale> m_currentLocale = new ThreadLocal<Locale>();
+
+	/**
+	 * The locale for the currency being handled in the entire application. This is a set-once
+	 * global setting and defaults to the "default locale".
+	 */
+	static private Locale m_currencyLocale;
+
+	/**
+	 * The Currency instance for the default application-wide currency.
+	 */
+	static private Currency m_currency;
 
 	/**
 	 * Returns the default ViewPoint locale. <b>DO NOT USE!!!!</b>, except when absolutely necessary! To get
@@ -35,13 +55,44 @@ public class NlsContext {
 		return Locale.getDefault();
 	}
 
+	/**
+	 * <p>The locale for the currency being handled in the entire application. This is a set-once
+	 * global setting and defaults to the "default locale" (NOT the per request locale!). This
+	 * is used for applications that use only a single currency throughout the application; if
+	 * an application uses multiple currencies the application itself must provide services to
+	 * handle the "current" currency and monetary conversions of currencies.</p>
+	 * <p>This will return the <i>default locale</i> if not explicitly set.</p>
+	 * @return
+	 */
+	static synchronized public Locale getCurrencyLocale() {
+		if(m_currencyLocale == null)
+			return getDefault();
+		return m_currencyLocale;
+	}
+
+	/**
+	 * Sets the application-wide currency locale to use. Do not change while running!!
+	 * @param loc
+	 */
+	static synchronized public void setCurrencyLocale(Locale loc) {
+		m_currencyLocale = loc;
+		m_currency = null;
+	}
+
+	static synchronized public Currency getCurrency() {
+		if(m_currency == null) {
+			m_currency = Currency.getInstance(getCurrencyLocale());
+		}
+		return m_currency;
+	}
+
 	static public String getDialect() {
 		return m_dialect;
 	}
 
 	/**
-	 * Gets the current locale in use by the request we're executing at this time. This is
-	 * the ONLY call that may be executed from normal user code.
+	 * Gets the current locale in use by the request we're executing at this time - this is
+	 * the PROPER call to use from normal user code.
 	 * @return
 	 */
 	static public Locale getLocale() {
@@ -53,7 +104,7 @@ public class NlsContext {
 
 	/**
 	 * Sets the current locale. <b>DO NOT USE!!!!!</b> This method should ONLY be
-	 * called from system code!
+	 * called from system (server) code! It sets the per-request locale.
 	 * @param loc
 	 */
 	static public void setLocale(final Locale loc) {

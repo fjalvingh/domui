@@ -4,7 +4,15 @@ import java.util.*;
 
 import to.etc.domui.component.meta.*;
 
-public class DateFactory implements IConverterFactory {
+/**
+ * This converter factory accepts java.util.Date types and returns an appropriate
+ * Date converter. By default (if insufficient metadata is available) it will return
+ * a DateTime converter.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jul 29, 2009
+ */
+public class DateConverterFactory implements IConverterFactory {
 	public int accept(Class< ? > clz, PropertyMetaModel pmm) {
 		if(!Date.class.isAssignableFrom(clz))
 			return -1;
@@ -12,7 +20,7 @@ public class DateFactory implements IConverterFactory {
 	}
 
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.converter.IConverterFactory#createConverter(java.lang.Class, to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	public IConverter createConverter(Class< ? > clz, PropertyMetaModel pmm) {

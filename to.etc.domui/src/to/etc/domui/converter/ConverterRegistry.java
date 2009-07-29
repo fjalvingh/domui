@@ -25,7 +25,7 @@ public class ConverterRegistry {
 
 	static {
 		setDefaultFactory(new DefaultConverterFactory());
-		register(new DateFactory());
+		register(new DateConverterFactory());
 	}
 
 	/**

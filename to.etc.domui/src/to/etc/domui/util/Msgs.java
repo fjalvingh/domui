@@ -1,5 +1,7 @@
 package to.etc.domui.util;
 
+import to.etc.webapp.nls.*;
+
 /**
  * Constants for errors within the framework.
  *
@@ -7,6 +9,11 @@ package to.etc.domui.util;
  * Created on Jun 11, 2008
  */
 public interface Msgs {
+	/**
+	 * A reference to the global shared message bundle for DomUI messages.
+	 */
+	static public final BundleRef BUNDLE = BundleRef.create(Msgs.class, "messages");
+
 	public static final String UNEXPECTED_EXCEPTION = "ui.unexpected_exception";
 
 	public static final String MANDATORY = "ui.mandatory";
@@ -45,6 +52,9 @@ public interface Msgs {
 
 	/** Invalid date */
 	public static final String V_INVALID_DATE = "v.invalid.date";
+
+	/** Invalid monetary amount */
+	public static final String V_BAD_AMOUNT = "v.bad.amount";
 
 	/** (empty field) - the text shown when a lookup-popup-thingy is empty. */
 	public static final String UI_LOOKUP_EMPTY = "ui.lookup.empty";

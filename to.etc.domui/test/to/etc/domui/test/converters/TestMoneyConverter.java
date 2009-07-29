@@ -1,0 +1,110 @@
+package to.etc.domui.test.converters;
+
+import org.junit.*;
+
+import to.etc.domui.converter.*;
+import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
+
+public class TestMoneyConverter {
+	/**
+	 * Checks a valid conversion and compares the output with the expected output.
+	 * @param in
+	 * @param out
+	 */
+	public void check(String in, String out) {
+		MiniScanner ms = MiniScanner.getInstance();
+		ms.scanLaxEuro(in);
+		String res = ms.getStringResult();
+		System.out.println("  ... " + in + " -> " + res);
+		Assert.assertEquals(out, res);
+	}
+
+	/**
+	 * Checks a conversion whioch must result in ValidationException and the proper code.
+	 * @param in
+	 */
+	public void bad(String in) {
+		try {
+			MiniScanner ms = MiniScanner.getInstance();
+			System.out.println(" ... " + in + " (bad)");
+			ms.scanLaxEuro(in);
+		} catch(ValidationException vx) {
+			if(vx.getCode().equals(Msgs.V_BAD_AMOUNT))
+				return;
+		}
+		Assert.fail("Validated an invalid amount: '" + in + "'");
+	}
+
+	/**
+	 * Test INVALID conversions.
+	 */
+	@Test
+	public void testBadConversions() {
+		bad("\u20ac"); // Only euro sign is bad
+		bad("abc"); // Letters are bad
+		bad("1,00,000"); // Bad interpunction
+		bad("1.00.000");
+		bad("1.000.000.00");
+		bad("1,000,000,00");
+		bad("1,00.00");
+		bad("1.00,00");
+		bad("1..000");
+		bad("1,,000");
+		bad("1.,000");
+		bad("1,.000");
+		bad("1,000000,000.00");
+	}
+
+	/**
+	 * Tests all VALID conversions.
+	 */
+	@Test
+	public void testMoneyConversions() throws Exception {
+		check("", ""); // Empty string is allowed,
+		check("\u20ac 1000", "1000"); // Leading euro with ws is allowed;
+		check("  \u20ac 1000.89", "1000.89"); // Leading euro with ws is allowed;
+
+		//-- Simple, dot is decimal point, valid
+		check("1000", "1000");
+		check("1000.", "1000");
+		check("1000.0", "1000.0");
+		check("1000.00", "1000.00");
+		check("1000.99", "1000.99");
+		check("1000.89", "1000.89");
+		check("1000.8", "1000.8");
+
+		//-- Simple, comma is decimal point, valid
+		check("1000,", "1000");
+		check("1000,0", "1000.0");
+		check("1000,00", "1000.00");
+		check("1000,99", "1000.99");
+		check("1000,89", "1000.89");
+		check("1000,8", "1000.8");
+
+		//-- Simple, dot is thousands separator, valid
+		check("1.000", "1000");
+		check("1.000.000", "1000000");
+		check("1.000.000.000", "1000000000");
+
+		//-- Simple, comma is thousands separator, valid
+		check("1,000", "1000");
+		check("1,000,000", "1000000");
+		check("1,000,000,000", "1000000000");
+
+		//-- Clear distinction between thousands and decimal point using . as decimal point (>1 thousand separators)
+		check("1,000,000.", "1000000");
+		check("1,000,000.9", "1000000.9");
+		check("1,000,786.76", "1000786.76");
+
+		//-- Clear distinction between thousands and decimal point using , as decimal point (>1 thousand separators)
+		check("1.000.000,", "1000000");
+		check("1.000.000,9", "1000000.9");
+		check("1.000.786,76", "1000786.76");
+
+		//-- Unclear distinction (1 comma, one dot)
+		check("1.000,00", "1000.00");
+		check("1,000.00", "1000.00");
+	}
+
+}
