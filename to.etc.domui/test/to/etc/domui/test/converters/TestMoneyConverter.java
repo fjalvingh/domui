@@ -44,6 +44,7 @@ public class TestMoneyConverter {
 	 */
 	@Test
 	public void testBadConversions() {
+		System.out.println("Testen van ONgeldige bedrag invoer-formaten");
 		bad("\u20ac"); // Only euro sign is bad
 		bad("abc"); // Letters are bad
 		bad("1,00,000"); // Bad interpunction
@@ -64,6 +65,7 @@ public class TestMoneyConverter {
 	 */
 	@Test
 	public void testMoneyConversions() throws Exception {
+		System.out.println("Testen van geldige bedrag invoer-formaten");
 		check("", ""); // Empty string is allowed,
 		check("\u20ac 1000", "1000"); // Leading euro with ws is allowed;
 		check("  \u20ac 1000.89", "1000.89"); // Leading euro with ws is allowed;
@@ -124,6 +126,7 @@ public class TestMoneyConverter {
 
 	@Test
 	public void testToString() {
+		System.out.println("double naar string representatie: simpel");
 		testSimple(1.00, "1.00");
 		testSimple(1, "1.00");
 		testSimple(1.0001, "1.00");
@@ -131,6 +134,7 @@ public class TestMoneyConverter {
 		testSimple(1.00, "1.00");
 		testSimple(99999999999999.875, "99999999999999.88"); // Largest precision;
 
+		System.out.println("double naar string representatie: full format");
 		NlsContext.setCurrencyLocale(new Locale("nl", "NL"));
 		testFullSign(1234567.89, "\u20ac 1.234.567,89");
 		testFullSign(1234567, "\u20ac 1.234.567,00");
