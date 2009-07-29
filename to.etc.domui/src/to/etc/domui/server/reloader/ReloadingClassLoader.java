@@ -54,7 +54,8 @@ public class ReloadingClassLoader extends URLClassLoader {
 			LOG.info("Cannot find source file for class=" + clz + "; changes to this class are not tracked");
 			return;
 		}
-		LOG.fine("Watching " + clz); //rt.getRef());
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("Watching " + clz); //rt.getRef());
 		synchronized(m_reloader) {
 			m_dependList.add(rt);
 		}
@@ -74,15 +75,22 @@ public class ReloadingClassLoader extends URLClassLoader {
 	@Override
 	synchronized public Class< ? > loadClass(String name, boolean resolve) throws ClassNotFoundException {
 		//		System.out.println("reloadingLoader: input="+name);
-		if(name.startsWith("java.") || name.startsWith("javax.") || !m_reloader.watchClass(name)) {
+		if(name.startsWith("java.") || name.startsWith("javax.")) {
 			return m_rootLoader.loadClass(name); // Delegate to the rootLoader.
 		}
+		if(!m_reloader.watchClass(name)) {
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Class " + name + " not matching watch pattern delegated to root loader");
+			return m_rootLoader.loadClass(name); // Delegate to the rootLoader.
+		}
+
 
 		//-- We need to watch this class..
 		Class< ? > clz = findLoadedClass(name);
 		if(clz == null) {
 			//-- Must we handle this class?
-			LOG.fine("loading class-to-watch=" + name);
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("loading class-to-watch=" + name);
 
 			//-- Try to find the path for the class resource
 			try {

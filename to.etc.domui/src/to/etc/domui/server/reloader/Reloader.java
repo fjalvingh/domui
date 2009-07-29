@@ -334,10 +334,13 @@ final public class Reloader {
 		try {
 			for(ResourceTimestamp fr : list) {
 				if(fr.changed()) {
-					LOG.info("Class Source " + fr + " has changed.");
+					if(LOG.isLoggable(Level.INFO))
+						LOG.info("Class Source " + fr + " has changed.");
 					return true;
-				} else
-					LOG.fine("Unchanged source for " + fr);
+				} else {
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Unchanged source for " + fr);
+				}
 				fc++;
 			}
 			return false;
@@ -347,6 +350,4 @@ final public class Reloader {
 				LOG.fine("Scanned " + fc + " .class files in " + StringTool.strNanoTime(ts));
 		}
 	}
-
-
 }
