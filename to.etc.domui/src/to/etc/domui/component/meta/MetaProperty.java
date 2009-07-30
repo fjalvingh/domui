@@ -24,6 +24,7 @@ public @interface MetaProperty {
 
 	public YesNoType required() default YesNoType.UNKNOWN;
 
+	@SuppressWarnings("unchecked")
 	public Class< ? extends IConverter> converterClass() default IConverter.class;
 
 	public YesNoType readOnly() default YesNoType.UNKNOWN;
@@ -33,8 +34,8 @@ public @interface MetaProperty {
 	//	public DateType				dateType() default DateType.UNKNOWN;
 
 	/**
-	 * A set of strings that indicate the roles a user must 
-	 * have to view this field. The permissions 
+	 * A set of strings that indicate the roles a user must
+	 * have to view this field. The permissions
 	 * @return
 	 */
 	public String[] viewpermissions() default {};

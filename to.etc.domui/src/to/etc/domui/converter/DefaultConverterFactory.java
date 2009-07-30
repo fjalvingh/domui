@@ -5,11 +5,13 @@ import to.etc.domui.component.meta.*;
 /**
  * This is the default converter factory, which returns the default converter instance all of the time.
  *
+ * FIXME Needed still?
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 30, 2008
  */
 public final class DefaultConverterFactory implements IConverterFactory {
-	static private IConverter DEFAULT_CONVERTER = new DefaultConverter();
+	static private IConverter<Object> DEFAULT_CONVERTER = new DefaultConverter();
 
 	/**
 	 * Returns 1 all of the time: accepts everything.
@@ -20,7 +22,7 @@ public final class DefaultConverterFactory implements IConverterFactory {
 		return 1;
 	}
 
-	public IConverter createConverter(Class< ? > clz, PropertyMetaModel pmm) {
-		return DEFAULT_CONVERTER;
+	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel pmm) {
+		return (T) DEFAULT_CONVERTER;
 	}
 }

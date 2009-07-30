@@ -56,7 +56,7 @@ public class ControlFactoryString implements ControlFactory {
 		}
 
 		if(pmm.getConverterClass() != null)
-			txt.setConverterClass(pmm.getConverterClass());
+			txt.setConverterClass((Class) pmm.getConverterClass());
 		if(pmm.getLength() > 0)
 			txt.setMaxLength(pmm.getLength());
 		if(pmm.isRequired())

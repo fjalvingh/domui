@@ -6,16 +6,16 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
-public class SecondDurationConverter implements IConverter {
+public class SecondDurationConverter implements IConverter<Long> {
 	static private final long DAYS = 24 * 60 * 60;
 
 	static private final long HOURS = 60 * 60;
 
-	public String convertObjectToString(Locale loc, Object in) throws UIException {
+	public String convertObjectToString(Locale loc, Long in) throws UIException {
 		if(in == null)
 			return "";
-		if(!(in instanceof Number))
-			throw new IllegalStateException("Type must extend Number for this converter");
+		//		if(!(in instanceof Number))
+		//			throw new IllegalStateException("Type must extend Number for this converter");
 		long dlt = ((Number) in).longValue();
 		//		boolean	sp = false;
 		StringBuilder sb = new StringBuilder(20);
@@ -41,7 +41,7 @@ public class SecondDurationConverter implements IConverter {
 	 * Convert a duration in the format: [xD] hh:mm[:ss] into a duration in seconds.
 	 * @see to.etc.domui.converter.IConverter#convertStringToObject(java.util.Locale, java.lang.String)
 	 */
-	public Object convertStringToObject(Locale loc, String input) throws UIException {
+	public Long convertStringToObject(Locale loc, String input) throws UIException {
 		if(input == null)
 			return null;
 		input = input.trim();

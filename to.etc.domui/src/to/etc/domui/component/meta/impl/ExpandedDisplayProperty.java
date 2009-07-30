@@ -27,7 +27,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 
 	private int m_displayLength;
 
-	private Class< ? extends IConverter> m_converterClass;
+	private Class<? extends IConverter<?>> m_converterClass;
 
 	private SortableType m_sortableType = SortableType.UNKNOWN;
 
@@ -108,7 +108,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	}
 
 	/**
-	 * Expands a compound property. If the originating property has a list-of-display-properties 
+	 * Expands a compound property. If the originating property has a list-of-display-properties
 	 * we expand these. The formal expansion strategy is:
 	 * <ul>
 	 * 	<li>If the core property has a </li>
@@ -208,7 +208,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	/**
 	 * This creates a joined property: a list of properties joined together in a string, separated by the join
 	 * string.
-	 * 
+	 *
 	 * @param dpl
 	 * @param accessor
 	 * @return
@@ -241,7 +241,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		return m_propertyMeta == null ? null : m_propertyMeta.getDefaultLabel();
 	}
 
-	public Class< ? extends IConverter> getConverterClass() {
+	public Class<? extends IConverter<?>> getConverterClass() {
 		return m_converterClass;
 	}
 
@@ -284,7 +284,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 			s = "";
 		else {
 			if(getConverterClass() != null)
-				s = ConverterRegistry.convertValueToString(getConverterClass(), colval);
+				s = ConverterRegistry.convertValueToString((Class<IConverter<Object>>) getConverterClass(), colval);
 			else
 				s = colval.toString();
 		}

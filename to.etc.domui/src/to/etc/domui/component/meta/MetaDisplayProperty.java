@@ -17,7 +17,7 @@ import to.etc.domui.util.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MetaDisplayProperty {
 	/**
-	 * The name of the property to show. This will be replaced with a Property references once 
+	 * The name of the property to show. This will be replaced with a Property references once
 	 * the JDK 7 team gets off it's ass and starts to bloody define something useful.
 	 * @return
 	 */
@@ -29,6 +29,8 @@ public @interface MetaDisplayProperty {
 
 	public int displayLength() default -1;
 
+	@SuppressWarnings("unchecked")
+	// Sigh
 	public Class<IConverter> converterClass() default IConverter.class;
 
 	public String join() default Constants.NO_JOIN;

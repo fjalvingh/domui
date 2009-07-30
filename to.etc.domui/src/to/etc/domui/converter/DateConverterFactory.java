@@ -23,17 +23,17 @@ public class DateConverterFactory implements IConverterFactory {
 	 *
 	 * @see to.etc.domui.converter.IConverterFactory#createConverter(java.lang.Class, to.etc.domui.component.meta.PropertyMetaModel)
 	 */
-	public IConverter createConverter(Class< ? > clz, PropertyMetaModel pmm) {
+	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel pmm) {
 		if(pmm == null)
-			return ConverterRegistry.getConverter(DateTimeConverter.class);
+			return (T) ConverterRegistry.getConverter(DateTimeConverter.class);
 
 		switch(pmm.getTemporal()){
 			default:
-				return ConverterRegistry.getConverter(DateTimeConverter.class);
+				return (T) ConverterRegistry.getConverter(DateTimeConverter.class);
 			case DATE:
-				return ConverterRegistry.getConverter(DateConverter.class);
+				return (T) ConverterRegistry.getConverter(DateConverter.class);
 			case TIME:
-				return ConverterRegistry.getConverter(TimeOnlyConverter.class);
+				return (T) ConverterRegistry.getConverter(TimeOnlyConverter.class);
 		}
 	}
 }

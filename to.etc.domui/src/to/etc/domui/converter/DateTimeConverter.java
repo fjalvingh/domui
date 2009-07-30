@@ -6,7 +6,7 @@ import java.util.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
-public class DateTimeConverter implements IConverter {
+public class DateTimeConverter implements IConverter<Date> {
 	static private final ThreadLocal<DateFormat> m_format = new ThreadLocal<DateFormat>();
 
 	static private DateFormat getFormatter() {
@@ -19,12 +19,12 @@ public class DateTimeConverter implements IConverter {
 	}
 
 
-	public String convertObjectToString(Locale loc, Object in) throws UIException {
+	public String convertObjectToString(Locale loc, Date in) throws UIException {
 		if(in == null)
 			return "";
-		if(!(in instanceof Date))
-			throw new IllegalStateException("Type must be java.util.Date for this converter");
-		Date dt = (Date) in;
+		//		if(!(in instanceof Date))
+		//			throw new IllegalStateException("Type must be java.util.Date for this converter");
+		Date dt = in;
 		if(loc.getLanguage().equalsIgnoreCase("nl")) {
 			return getFormatter().format(dt);
 		}
@@ -32,7 +32,7 @@ public class DateTimeConverter implements IConverter {
 		return df.format(dt);
 	}
 
-	public Object convertStringToObject(Locale loc, String input) throws UIException {
+	public Date convertStringToObject(Locale loc, String input) throws UIException {
 		if(input == null)
 			return null;
 		input = input.trim();

@@ -30,7 +30,7 @@ public interface PropertyMetaModel {
 	/**
 	 * Return any default label (the text to use before the control that inputs this property) for this
 	 * property. The default label is obtained from the resource file with the same location and name as
-	 * the class file containing the property after doing NLS language replacement; the label text is 
+	 * the class file containing the property after doing NLS language replacement; the label text is
 	 * looked up in that file as 'propertyname.label='. The code uses the "current" locale as set in NlsContext
 	 * to lookup the proper resource file.
 	 * @return	the label text, or null if unknown.
@@ -46,7 +46,7 @@ public interface PropertyMetaModel {
 	public String getDefaultHint();
 
 	/**
-	 * Return the defined length for the item PROVIDED IT WAS SET - THIS SUFFERS FROM AN UTTER FUCKUP IN THE JPA "STANDARD". 
+	 * Return the defined length for the item PROVIDED IT WAS SET - THIS SUFFERS FROM AN UTTER FUCKUP IN THE JPA "STANDARD".
 	 * This is valid for string-type fields mostly, and should hold the size defined in the database. This field is usually
 	 * set from the @Column annotation specified. But since that annotation was written by an idiot with a brain the size of
 	 * a pea the "default" value for the length field in that annotation is set to 255. Since 255 is a valid length value this
@@ -78,7 +78,7 @@ public interface PropertyMetaModel {
 
 	public IValueAccessor< ? > getAccessor();
 
-	public Class< ? extends IConverter> getConverterClass();
+	public Class<? extends IConverter<?>> getConverterClass();
 
 	public boolean isRequired();
 
@@ -108,7 +108,7 @@ public interface PropertyMetaModel {
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
 
 	/**
-	 * For a relation, this is the list of properties that should be shown. This 
+	 * For a relation, this is the list of properties that should be shown. This
 	 * is needed ONLY when the class metadata of the parent record does not specify
 	 * a default display column or columnset.
 	 * @return
@@ -137,7 +137,7 @@ public interface PropertyMetaModel {
 
 	/**
 	 * Defines the roles that a user must have to edit this field. See the description
-	 * at {@link PropertyMetaModel#getViewRoles()} for details. 
+	 * at {@link PropertyMetaModel#getViewRoles()} for details.
 	 * @return
 	 */
 	public String[][] getEditRoles();
@@ -147,7 +147,7 @@ public interface PropertyMetaModel {
 	/**
 	 * When present this gives a hint to the component factories to help with choosing a
 	 * proper component to <i>select</i> a single record of the type specified by this
-	 * property. This is only used when this property points to a parent in an UP relation, 
+	 * property. This is only used when this property points to a parent in an UP relation,
 	 * and the child needs to add a control to help it select one parent.
 	 * @return
 	 */
@@ -164,7 +164,7 @@ public interface PropertyMetaModel {
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
 	 * control this describes the properties to use to display the <i>currently selected</i>
-	 * record in the edit page.  
+	 * record in the edit page.
 	 * @return
 	 */
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();

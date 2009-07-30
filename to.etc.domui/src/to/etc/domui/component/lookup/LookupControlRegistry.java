@@ -61,7 +61,7 @@ public class LookupControlRegistry {
 	@SuppressWarnings("unchecked")
 	static public final LookupControlFactory TEXT_CF = new LookupControlFactory() {
 		public LookupFieldQueryBuilderThingy createControl(final SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
-			Class< ? > iclz = pmm.getActualType();
+			Class<?> iclz = pmm.getActualType();
 
 			//-- Boolean/boolean types? These need a tri-state checkbox
 			if(iclz == Boolean.class || iclz == Boolean.TYPE) {
@@ -84,7 +84,7 @@ public class LookupControlRegistry {
 					txt.setSize(sz);
 			}
 			if(pmm.getConverterClass() != null)
-				txt.setConverterClass(pmm.getConverterClass());
+				txt.setConverterClass((Class) pmm.getConverterClass());
 			if(pmm.getLength() > 0)
 				txt.setMaxLength(pmm.getLength());
 

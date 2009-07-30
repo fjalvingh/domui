@@ -33,7 +33,7 @@ public class ConverterRegistry {
 	 * @param clz
 	 * @return
 	 */
-	static public synchronized <T extends IConverter<?>> T getConverter(Class<T> clz) {
+	static public synchronized <X, T extends IConverter<X>> T getConverter(Class<T> clz) {
 		T c = (T) m_converterMap.get(clz);
 		if(c == null) {
 			try {

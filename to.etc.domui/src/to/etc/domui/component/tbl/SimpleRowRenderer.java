@@ -4,6 +4,7 @@ import java.util.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
@@ -314,13 +315,13 @@ public class SimpleRowRenderer implements IRowRenderer {
 	 * @param cd
 	 * @throws Exception
 	 */
-	protected void renderColumn(final DataTable tbl, ColumnContainer cc, int index, final Object instance, final SimpleColumnDef cd) throws Exception {
+	protected <X> void renderColumn(final DataTable tbl, ColumnContainer cc, int index, final Object instance, final SimpleColumnDef cd) throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
-		Object colval;
+		X colval;
 		if(cd.getValueTransformer() == null)
-			colval = instance;
+			colval = (X) instance;
 		else
-			colval = cd.getValueTransformer().getValue(instance);
+			colval = (X) cd.getValueTransformer().getValue(instance);
 
 		//-- Is a node renderer used?
 		TD	cell;
@@ -333,7 +334,7 @@ public class SimpleRowRenderer implements IRowRenderer {
 				s = null;
 			else {
 				if(cd.getValueConverter() != null)
-					s = cd.getValueConverter().convertObjectToString(NlsContext.getLocale(), colval);
+					s = ((IConverter<X>) cd.getValueConverter()).convertObjectToString(NlsContext.getLocale(), colval);
 				else
 					s = colval.toString();
 			}

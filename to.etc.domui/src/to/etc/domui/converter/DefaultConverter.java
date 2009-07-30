@@ -5,12 +5,12 @@ import java.util.*;
 import to.etc.domui.trouble.*;
 
 /**
- * The converter of last resort.
+ * The converter of last resort, accepting anything.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 30, 2008
  */
-final public class DefaultConverter implements IConverter {
+final public class DefaultConverter implements IConverter<Object> {
 	public String convertObjectToString(Locale loc, Object in) throws UIException {
 		if(in == null)
 			return "";

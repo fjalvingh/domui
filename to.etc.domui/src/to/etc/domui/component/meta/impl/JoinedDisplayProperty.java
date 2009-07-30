@@ -60,7 +60,7 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty implements IV
 			Object value = pm.getAccessor().getValue(root);
 			if(value == null)
 				continue;
-			String s = ConverterRegistry.convertValueToString(getConverterClass(), value);
+			String s = ConverterRegistry.convertValueToString((Class<? extends IConverter<Object>>) getConverterClass(), value);
 			if(s == null || s.length() == 0)
 				continue;
 			if(join != null)

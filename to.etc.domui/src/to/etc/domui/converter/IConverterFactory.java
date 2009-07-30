@@ -20,7 +20,7 @@ public interface IConverterFactory {
 	 * @param pmm
 	 * @return
 	 */
-	public int accept(Class< ? > clz, PropertyMetaModel pmm);
+	public int accept(Class<?> clz, PropertyMetaModel pmm);
 
 	/**
 	 * Return the converter which properly converts the specified class and meta model.
@@ -28,5 +28,5 @@ public interface IConverterFactory {
 	 * @param pmm
 	 * @return
 	 */
-	public IConverter createConverter(Class< ? > clz, PropertyMetaModel pmm);
+	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel pmm);
 }

@@ -27,7 +27,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	/**
 	 * If the value is to be converted use this converter for it.
 	 */
-	private Class< ? extends IConverter> m_converterClass;
+	private Class<? extends IConverter<T>> m_converterClass;
 
 	/** Defined value validators on this field. */
 	private List<PropertyMetaValidator> m_validators = Collections.EMPTY_LIST;
@@ -131,7 +131,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 		Object converted;
 		try {
 			if(m_converterClass == null) {
-				IConverter c = ConverterRegistry.findConverter(getInputClass());
+				IConverter<T> c = ConverterRegistry.findConverter(getInputClass());
 				if(c != null)
 					converted = c.convertStringToObject(NlsContext.getLocale(), raw);
 				else
@@ -181,7 +181,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	 *
 	 * @return
 	 */
-	public Class< ? extends IConverter> getConverterClass() {
+	public Class<? extends IConverter<T>> getConverterClass() {
 		return m_converterClass;
 	}
 
@@ -192,7 +192,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	 *
 	 * @param converterClass
 	 */
-	public void setConverterClass(Class< ? extends IConverter> converterClass) {
+	public void setConverterClass(Class<? extends IConverter<T>> converterClass) {
 		m_converterClass = converterClass;
 	}
 
