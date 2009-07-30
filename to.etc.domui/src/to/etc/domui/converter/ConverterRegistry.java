@@ -27,6 +27,8 @@ public class ConverterRegistry {
 		setDefaultFactory(new DefaultConverterFactory());
 		register(new DateConverterFactory());
 		register(new MoneyConverterFactory());
+		register(new DoubleFactory());
+		register(new EnumFactory());
 	}
 
 	/**

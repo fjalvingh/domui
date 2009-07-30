@@ -41,6 +41,9 @@ public interface Msgs {
 	/** Error component panel header text: Fouten */
 	public static final String UI_ERROR_HEADER = "ui.error.header";
 
+	/** (empty field) - the text shown when a lookup-popup-thingy is empty. */
+	public static final String UI_LOOKUP_EMPTY = "ui.lookup.empty";
+
 	/* Exceptions. */
 
 	/** The required page parameter {0} is missing. */
@@ -56,11 +59,11 @@ public interface Msgs {
 	/** Invalid monetary amount */
 	public static final String V_BAD_AMOUNT = "v.bad.amount";
 
-	/** (empty field) - the text shown when a lookup-popup-thingy is empty. */
-	public static final String UI_LOOKUP_EMPTY = "ui.lookup.empty";
-
 	/** Alle zoekvelden zijn leeg; vul minimaal een veld in om een zoekopdracht te doen. */
 	public static final String V_MISSING_SEARCH = "v.missing.search";
+
+	/** Invalid double */
+	public static final String V_INVALID_DOUBLE = "v.invalid.double";
 
 	/** Your session with the server has expired. The page will be reloaded with original data from the server. */
 	public static final String S_EXPIRED = "s.session.expired";

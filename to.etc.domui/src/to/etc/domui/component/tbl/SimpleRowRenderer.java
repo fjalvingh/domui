@@ -330,6 +330,18 @@ public class SimpleRowRenderer implements IRowRenderer {
 	}
 
 	/**
+	 * Provides posibility of converion into rendering value. This method should be used as last resource rendering data conversion.
+	 * @param index
+	 * @param instance
+	 * @param cd
+	 * @param colVal
+	 * @return string representation of colVal to be rendered.
+	 */
+	protected String provideStringValue(int index, final Object instance, final SimpleColumnDef cd, final Object colVal) {
+		return colVal.toString();
+	}
+
+	/**
 	 * Render a single column fully.
 	 * @param tbl
 	 * @param cc
@@ -358,8 +370,10 @@ public class SimpleRowRenderer implements IRowRenderer {
 			else {
 				if(cd.getValueConverter() != null)
 					s = ((IConverter<X>) cd.getValueConverter()).convertObjectToString(NlsContext.getLocale(), colval);
+				else if(colval instanceof String)
+					s = (String) colval;
 				else
-					s = colval.toString();
+					s = provideStringValue(index, instance, cd, colval);
 			}
 
 			if(s == null)

@@ -47,7 +47,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		m_extension = "";
 		if(pos != -1)
 			m_extension = m_urlin.substring(pos + 1).toLowerCase();
-		if(m_urlin.startsWith("/"))
+		//FIXME dubbele slashes in viewpoint, wellicht anders oplossen
+		while(m_urlin.startsWith("/"))
 			m_urlin = m_urlin.substring(1);
 		if(m_application.getUrlExtension().equals(m_extension) || m_urlin.contains(".part")) // QD Fix for upload
 			m_request = UploadParser.wrapIfNeeded(request); // Make multipart wrapper if multipart/form-data
