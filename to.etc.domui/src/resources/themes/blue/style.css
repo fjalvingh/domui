@@ -433,6 +433,11 @@ table.ui-lui {
 	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: top;
 }
+
+.ui-numeric {
+	text-align: right;
+}
+
 /* Display-only field */
 .ui-f-display {
 	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */

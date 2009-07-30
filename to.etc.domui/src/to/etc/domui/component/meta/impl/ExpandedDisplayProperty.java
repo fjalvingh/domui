@@ -409,7 +409,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	}
 
 	public NumericPresentation getNumericPresentation() {
-		return m_propertyMeta == null ? NumericPresentation.NUMBER : m_propertyMeta.getNumericPresentation();
+		return m_propertyMeta == null ? NumericPresentation.UNKNOWN : m_propertyMeta.getNumericPresentation();
 	}
 
 	public PropertyMetaValidator[] getValidators() {

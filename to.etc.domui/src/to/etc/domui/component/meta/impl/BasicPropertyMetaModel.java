@@ -28,7 +28,7 @@ public class BasicPropertyMetaModel {
 
 	private TemporalPresentationType m_temporal = TemporalPresentationType.UNKNOWN;
 
-	private NumericPresentation m_numericPresentation = NumericPresentation.NUMBER;
+	private NumericPresentation m_numericPresentation = NumericPresentation.UNKNOWN;
 
 	private PropertyMetaValidator[] m_validators = NO_VALIDATORS;
 

@@ -143,6 +143,10 @@ public class SimpleRowRenderer implements IRowRenderer {
 			widths[m_columnList.size()] = dl;
 			m_totwidth += dl;
 			m_columnList.add(scd); // ORDER!
+
+			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
+				scd.setCssClass("ui-numeric");
+			}
 		}
 	}
 
@@ -154,8 +158,7 @@ public class SimpleRowRenderer implements IRowRenderer {
 	private void initializeDefaultColumns(ClassMetaModel cmm) {
 		List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
 		if(dpl.size() == 0)
-			throw new IllegalStateException(
-			"The list-of-columns to show is empty, and the class has no metadata (@MetaObject) definition defining a set of columns as default table columns, so there.");
+			throw new IllegalStateException("The list-of-columns to show is empty, and the class has no metadata (@MetaObject) defining a set of columns as default table columns, so there.");
 		List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
 		initialize(xdpl);
 	}
@@ -379,6 +382,11 @@ public class SimpleRowRenderer implements IRowRenderer {
 			cc.getTR().addCssClass("ui-cellsel");
 		}
 
+		if(cd.getAlign() != null)
+			cell.setTextAlign(cd.getAlign());
+		else if(cd.getCssClass() != null) {
+			cell.addCssClass(cd.getCssClass());
+		}
 	}
 
 }

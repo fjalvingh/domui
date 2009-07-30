@@ -243,6 +243,9 @@ public class BasicRowRenderer implements IRowRenderer {
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
 			cd.setNowrap(nowrap);
+			if(pmm.getNumericPresentation() != null && pmm.getNumericPresentation() != NumericPresentation.UNKNOWN) {
+				cd.setCssClass("ui-numeric");
+			}
 			return;
 		}
 
@@ -293,6 +296,9 @@ public class BasicRowRenderer implements IRowRenderer {
 			scd.setSortable(xdp.getSortable());
 			scd.setPropertyName(xdp.getName());
 			scd.setNowrap(nowrap);
+			if(xdp.getNumericPresentation() != null) {
+				scd.setCssClass("ui-numeric");
+			}
 		}
 	}
 
@@ -636,6 +642,12 @@ public class BasicRowRenderer implements IRowRenderer {
 				}
 			});
 			cc.getTR().addCssClass("ui-cellsel");
+		}
+
+		if(cd.getAlign() != null)
+			cell.setTextAlign(cd.getAlign());
+		else if(cd.getCssClass() != null) {
+			cell.addCssClass(cd.getCssClass());
 		}
 	}
 }

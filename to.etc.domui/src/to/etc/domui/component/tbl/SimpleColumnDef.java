@@ -3,6 +3,7 @@ package to.etc.domui.component.tbl;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
 
 /**
@@ -34,6 +35,10 @@ public class SimpleColumnDef {
 
 	private IConverter<?> m_valueConverter;
 
+	private NumericPresentation m_numericPresentation;
+
+	private TextAlign m_align;
+
 	private INodeContentRenderer< ? > m_contentRenderer;
 
 	private ICellClicked<?> m_cellClicked;
@@ -52,6 +57,7 @@ public class SimpleColumnDef {
 			setValueConverter(ConverterRegistry.getConverter(m.getConverterClass()));
 		setSortable(m.getSortable());
 		setPropertyName(m.getName());
+		setNumericPresentation(m.getNumericPresentation());
 	}
 
 	public SimpleColumnDef(ExpandedDisplayProperty m) {
@@ -65,6 +71,7 @@ public class SimpleColumnDef {
 		setPropertyName(m.getName());
 		if(m.getName() == null)
 			throw new IllegalStateException("All columns MUST have some name");
+		setNumericPresentation(m.getNumericPresentation());
 	}
 
 	public String getColumnLabel() {
@@ -161,5 +168,21 @@ public class SimpleColumnDef {
 
 	public void setCellClicked(ICellClicked<?> cellClicked) {
 		m_cellClicked = cellClicked;
+	}
+
+	public NumericPresentation getNumericPresentation() {
+		return m_numericPresentation;
+	}
+
+	public void setNumericPresentation(NumericPresentation numericPresentation) {
+		m_numericPresentation = numericPresentation;
+	}
+
+	public TextAlign getAlign() {
+		return m_align;
+	}
+
+	public void setAlign(TextAlign align) {
+		m_align = align;
 	}
 }
