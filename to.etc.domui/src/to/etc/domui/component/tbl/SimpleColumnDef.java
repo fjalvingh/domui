@@ -36,6 +36,8 @@ public class SimpleColumnDef {
 
 	private INodeContentRenderer< ? > m_contentRenderer;
 
+	private ICellClicked<?> m_cellClicked;
+
 	public SimpleColumnDef() {}
 
 	/**
@@ -151,5 +153,13 @@ public class SimpleColumnDef {
 
 	public void setNowrap(boolean nowrap) {
 		m_nowrap = nowrap;
+	}
+
+	public ICellClicked<?> getCellClicked() {
+		return m_cellClicked;
+	}
+
+	public void setCellClicked(ICellClicked<?> cellClicked) {
+		m_cellClicked = cellClicked;
 	}
 }

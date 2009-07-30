@@ -30,8 +30,6 @@ public class SimpleRowRenderer implements IRowRenderer {
 
 	private ICellClicked< ? > m_rowClicked;
 
-	private ICellClicked< ? > m_cellClicked;
-
 	//	private boolean					m_sortableModel;
 
 	/*--------------------------------------------------------------*/
@@ -97,23 +95,34 @@ public class SimpleRowRenderer implements IRowRenderer {
 		}
 	}
 
+	/**
+	 * Return the definition for the nth column.
+	 * @param ix
+	 * @return
+	 */
+	public SimpleColumnDef getColumn(int ix) {
+		if(ix < 0 || ix >= m_columnList.size())
+			throw new IndexOutOfBoundsException("Column " + ix + " does not exist (yet?)");
+		return m_columnList.get(ix);
+	}
+
 	public void setColumnWidths(String... widths) {
 		int ix = 0;
 		for(String s : widths) {
-			m_columnList.get(ix++).setWidth(s);
+			getColumn(ix++).setWidth(s);
 		}
 	}
 
 	public void setColumnWidth(int index, String width) {
-		m_columnList.get(index).setWidth(width);
+		getColumn(index).setWidth(width);
 	}
 
 	public void setNodeRenderer(int index, INodeContentRenderer< ? > renderer) {
-		m_columnList.get(index).setContentRenderer(renderer);
+		getColumn(index).setContentRenderer(renderer);
 	}
 
 	public INodeContentRenderer< ? > getNodeRenderer(int index) {
-		return m_columnList.get(index).getContentRenderer();
+		return getColumn(index).getContentRenderer();
 	}
 
 	private void addColumns(List<ExpandedDisplayProperty> xdpl, int[] widths) {
@@ -163,13 +172,24 @@ public class SimpleRowRenderer implements IRowRenderer {
 		m_rowClicked = rowClicked;
 	}
 
-	public ICellClicked< ? > getCellClicked() {
-		return m_cellClicked;
+	/**
+	 * Get the cell clicked handler for the specified column.
+	 * @param col
+	 * @return
+	 */
+	public ICellClicked<?> getCellClicked(int col) {
+		return getColumn(col).getCellClicked();
 	}
 
-	public void setCellClicked(ICellClicked< ? > cellClicked) {
-		m_cellClicked = cellClicked;
+	/**
+	 * Set the cell clicked handler for the specified column.
+	 * @param col
+	 * @param cellClicked
+	 */
+	public void setCellClicked(int col, final ICellClicked<?> cellClicked) {
+		getColumn(col).setCellClicked(cellClicked);
 	}
+
 
 	//	public boolean isSortableModel() {
 	//		return m_sortableModel;
@@ -346,14 +366,14 @@ public class SimpleRowRenderer implements IRowRenderer {
 		}
 
 		//-- If a cellclicked thing is present attach it to the td
-		if(m_cellClicked != null) {
+		if(cd.getCellClicked() != null) {
 			/*
 			 * FIXME For now I add a separate instance of the handler to every cell. A single instance is OK too,
 			 * provided it can calculate the row and cell data from the TR it is attached to.
 			 */
 			cc.getTR().setClicked(new IClicked<TR>() {
 				public void clicked(TR b) throws Exception {
-					((ICellClicked<Object>) getCellClicked()).cellClicked(tbl.getPage(), b, instance);
+					((ICellClicked<Object>) cd.getCellClicked()).cellClicked(tbl.getPage(), b, instance);
 				}
 			});
 			cc.getTR().addCssClass("ui-cellsel");
