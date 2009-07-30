@@ -51,9 +51,12 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 			}
 		}
 		if(displayMeta != null) { // ORDER 2 (overrides propertyMeta)
-			m_converterClass = displayMeta.getConverterClass();
-			setSortable(displayMeta.getSortable());
-			m_displayLength = displayMeta.getDisplayLength();
+			if(displayMeta.getConverterClass() != null)
+				m_converterClass = displayMeta.getConverterClass();
+			if(displayMeta.getSortable() != SortableType.UNKNOWN)
+				setSortable(displayMeta.getSortable());
+			if(displayMeta.getDisplayLength() > 0)
+				m_displayLength = displayMeta.getDisplayLength();
 		}
 	}
 
