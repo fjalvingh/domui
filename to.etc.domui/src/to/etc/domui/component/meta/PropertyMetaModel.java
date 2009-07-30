@@ -72,24 +72,80 @@ public interface PropertyMetaModel {
 	 */
 	public int getDisplayLength();
 
+	/**
+	 * Returns the name of the property.
+	 * @return
+	 */
 	public String getName();
 
+	/**
+	 * Returns whether the property should be <i>sortable</i> when used in a default table, and defines
+	 * the initial sort direction of the property. This defaults to unsortable.
+	 * @return
+	 */
 	public SortableType getSortable();
 
+	/**
+	 * Return an Accessor which is an object that can get or set the value of this property when the object
+	 * instance is passed into it. This is usually just a wrapper for a single reflection Method invocation
+	 * but can be more complex when this PropertyMetaModel actually refers to a compound property (a property
+	 * that was synthesized from a path expression like relation.firstName).
+	 *
+	 * @return
+	 */
 	public IValueAccessor< ? > getAccessor();
 
+	/**
+	 * Returns the converter to use when converting this property's value to and from string. Can be null.
+	 *
+	 * @return
+	 */
 	public Class<? extends IConverter<?>> getConverterClass();
 
+	/**
+	 * Whether the property is defined as requiring a value.
+	 * @return
+	 */
 	public boolean isRequired();
 
+	/**
+	 * Returns T if we know this property to be the PK.
+	 * @return
+	 */
 	public boolean isPrimaryKey();
 
+	/**
+	 * Tells if this property represents some kind of database relation (a "parent" property referring to the master of this child record, or a property
+	 * representing the list of children).
+	 * @return
+	 */
 	public PropertyRelationType getRelationType();
 
-	public String getDomainValueLabel(Locale loc, Object val);
-
+	/**
+	 * If the type for this property has a fixed set of domain values (like boolean or enum) this contains
+	 * all possible values for this property. So this will contain the actual enum labels or the constants
+	 * Boolean.TRUE and Boolean.FALSE. It returns null for other domains.
+	 * @return
+	 */
 	public Object[] getDomainValues();
 
+	/**
+	 * Retrieves the properly localized string representing a domain value in a type which has a fixed set
+	 * of domain values (like enum or boolean). So for instance passing in an english locale and the constant
+	 * Boolean.TRUE this could return "yes". The translated value is obtained by first looking up a translation
+	 * in the base class's properties file; if it is undefined there it will be looked up in the enum's property
+	 * file. If a proper representation cannot be found this will return a toString on the value.
+	 *
+	 * @param loc
+	 * @param val
+	 * @return
+	 */
+	public String getDomainValueLabel(Locale loc, Object val);
+
+	/**
+	 * If this is defined as some Date type this further defines the domain (date only, date time etc).
+	 * @return
+	 */
 	public TemporalPresentationType getTemporal();
 
 	/**

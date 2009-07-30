@@ -31,7 +31,7 @@ public class TestMoneyConverter {
 	}
 
 	/**
-	 * Checks a conversion whioch must result in ValidationException and the proper code.
+	 * Checks a conversion which must result in ValidationException and the proper code.
 	 * @param in
 	 */
 	public void bad(String in) {
