@@ -28,6 +28,8 @@ public class BasicPropertyMetaModel {
 
 	private TemporalPresentationType m_temporal = TemporalPresentationType.UNKNOWN;
 
+	private NumericPresentation m_numericPresentation = NumericPresentation.NUMBER;
+
 	private PropertyMetaValidator[] m_validators = NO_VALIDATORS;
 
 	public String getLabel() {
@@ -110,6 +112,14 @@ public class BasicPropertyMetaModel {
 
 	public void setTemporal(TemporalPresentationType temporal) {
 		m_temporal = temporal;
+	}
+
+	public NumericPresentation getNumericPresentation() {
+		return m_numericPresentation;
+	}
+
+	public void setNumericPresentation(NumericPresentation numericPresentation) {
+		m_numericPresentation = numericPresentation;
 	}
 
 	public int getPrecision() {

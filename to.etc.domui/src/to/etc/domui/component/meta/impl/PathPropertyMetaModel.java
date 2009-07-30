@@ -167,6 +167,10 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 		return m_original.getTemporal();
 	}
 
+	public NumericPresentation getNumericPresentation() {
+		return m_original.getNumericPresentation();
+	}
+
 	public PropertyMetaValidator[] getValidators() {
 		return m_original.getValidators();
 	}

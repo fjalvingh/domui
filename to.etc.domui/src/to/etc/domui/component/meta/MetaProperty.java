@@ -96,4 +96,10 @@ public @interface MetaProperty {
 	public Class< ? extends IValueValidator< ? >>[] validator() default {};
 
 	public MetaValueValidator[] parameterizedValidator() default {};
+
+	/**
+	 * Defines the number class AND it's presentation format for numeric values.
+	 * @return
+	 */
+	public NumericPresentation numericPresentation() default NumericPresentation.UNKNOWN;
 }

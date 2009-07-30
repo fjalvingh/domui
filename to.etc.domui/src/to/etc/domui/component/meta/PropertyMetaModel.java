@@ -149,6 +149,13 @@ public interface PropertyMetaModel {
 	public TemporalPresentationType getTemporal();
 
 	/**
+	 * Used for numeric types, this returns how to present the number and defines the number's class, like
+	 * a monetary amount. This gets overridden when a converter is set!
+	 * @return
+	 */
+	public NumericPresentation getNumericPresentation();
+
+	/**
 	 * If this should be represented by a combo this can be set to represent the default combo dataset.
 	 * @return
 	 */

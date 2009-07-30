@@ -98,6 +98,8 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 				setViewRoles(makeRoleSet(mp.viewpermissions()));
 			if(mp.temporal() != TemporalPresentationType.UNKNOWN && getTemporal() == TemporalPresentationType.UNKNOWN)
 				setTemporal(mp.temporal());
+			if(mp.numericPresentation() != NumericPresentation.UNKNOWN)
+				setNumericPresentation(mp.numericPresentation());
 			setReadOnly(mp.readOnly());
 			if(mp.componentTypeHint().length() != 0)
 				setComponentTypeHint(mp.componentTypeHint());
