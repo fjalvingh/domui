@@ -17,7 +17,6 @@ public class TestMoneyConverter {
 		NlsContext.setLocale(nl);
 	}
 
-
 	/**
 	 * Checks a valid conversion and compares the output with the expected output.
 	 * @param in
