@@ -32,7 +32,7 @@ public class SimpleColumnDef {
 	/** The thingy which obtains the column's value (as an object) */
 	private IValueTransformer< ? > m_valueTransformer;
 
-	private IConverter m_valueConverter;
+	private IConverter<?> m_valueConverter;
 
 	private INodeContentRenderer< ? > m_contentRenderer;
 
@@ -105,11 +105,11 @@ public class SimpleColumnDef {
 		m_valueTransformer = valueTransformer;
 	}
 
-	public IConverter getValueConverter() {
+	public IConverter<?> getValueConverter() {
 		return m_valueConverter;
 	}
 
-	public void setValueConverter(IConverter valueConverter) {
+	public void setValueConverter(IConverter<?> valueConverter) {
 		m_valueConverter = valueConverter;
 	}
 

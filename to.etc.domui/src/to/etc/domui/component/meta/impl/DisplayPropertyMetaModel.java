@@ -52,10 +52,10 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	 * @param root
 	 * @return
 	 */
-	public String getAsString(Object root) throws Exception {
+	public <X, T extends IConverter<X>> String getAsString(Object root) throws Exception {
 		Object value = DomUtil.getPropertyValue(root, getName());
 		if(getConverterClass() != null)
-			return ConverterRegistry.convertValueToString(getConverterClass(), value);
+			return ConverterRegistry.convertValueToString((Class<T>) getConverterClass(), (X) value);
 		return value == null ? "" : value.toString();
 	}
 }

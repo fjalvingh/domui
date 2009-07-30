@@ -100,19 +100,19 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param cols
 	 */
 	@SuppressWarnings("fallthrough")
-	public BasicRowRenderer addColumns(final Object... cols) throws Exception {
+	public <X, C extends IConverter<X>, R extends INodeContentRenderer<X>> BasicRowRenderer addColumns(final Object... cols) throws Exception {
 		check();
 		if(cols == null || cols.length == 0)
 			throw new IllegalStateException("The list-of-columns is empty or null; I need at least one column to continue.");
 		String property = null;
 		String width = null;
-		IConverter< ? > conv = null;
-		Class< ? extends IConverter< ? >> convclz = null;
+		C conv = null;
+		Class<C> convclz = null;
 		String caption = null;
 		String cssclass = null;
 		boolean nowrap = false;
-		INodeContentRenderer< ? > nodeRenderer = null;
-		Class< ? extends INodeContentRenderer< ? >> nrclass = null;
+		R nodeRenderer = null;
+		Class<R> nrclass = null;
 
 		for(Object val : cols) {
 			if(property == null) { // Always must start with a property.
@@ -154,15 +154,15 @@ public class BasicRowRenderer implements IRowRenderer {
 						break;
 				}
 			} else if(val instanceof IConverter< ? >)
-				conv = (IConverter< ? >) val;
+				conv = (C) val;
 			else if(val instanceof INodeContentRenderer< ? >)
-				nodeRenderer = (INodeContentRenderer< ? >) val;
+				nodeRenderer = (R) val;
 			else if(val instanceof Class< ? >) {
 				Class< ? > c = (Class< ? >) val;
 				if(INodeContentRenderer.class.isAssignableFrom(c))
-					nrclass = (Class< ? extends INodeContentRenderer< ? >>) c;
+					nrclass = (Class<R>) c;
 				else if(IConverter.class.isAssignableFrom(c))
-					convclz = (Class< ? extends IConverter< ? >>) c;
+					convclz = (Class<C>) c;
 				else
 					throw new IllegalArgumentException("Invalid 'class' argument: " + c);
 			} else
@@ -183,7 +183,7 @@ public class BasicRowRenderer implements IRowRenderer {
 		return DomApplication.get().createInstance(nrclass);
 	}
 
-	private <T extends IConverter<?>> T tryConverter(final Class<T> cclz, final T ins) {
+	private <X, T extends IConverter<X>> T tryConverter(final Class<T> cclz, final T ins) {
 		if(cclz != null) {
 			if(ins != null)
 				throw new IllegalArgumentException("Both a IConverter class AND an instance specified: " + cclz + " and " + ins);
@@ -203,8 +203,8 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param nodeRenderer
 	 * @param nrclass
 	 */
-	private void internalAddProperty(final String property, final String width, final IConverter conv, final Class< ? extends IConverter> convclz, final String caption, final String cssclass,
-		final INodeContentRenderer< ? > nodeRenderer, final Class< ? extends INodeContentRenderer< ? >> nrclass, final boolean nowrap) throws Exception {
+	private <X, C extends IConverter<X>, R extends INodeContentRenderer<X>> void internalAddProperty(final String property, final String width, final C conv, final Class<C> convclz,
+		final String caption, final String cssclass, final R nodeRenderer, final Class<R> nrclass, final boolean nowrap) throws Exception {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
 
@@ -287,7 +287,7 @@ public class BasicRowRenderer implements IRowRenderer {
 				 * Try to get a converter for this, if needed.
 				 */
 				if(xdp.getActualType() != String.class) {
-					IConverter c = ConverterRegistry.getConverter(xdp.getActualType(), xdp);
+					IConverter<?> c = ConverterRegistry.getConverter(xdp.getActualType(), xdp);
 					scd.setValueConverter(c);
 				}
 			}
@@ -565,13 +565,13 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param cd
 	 * @throws Exception
 	 */
-	protected void renderColumn(final DataTable tbl, final ColumnContainer cc, final int index, final Object instance, final SimpleColumnDef cd) throws Exception {
+	protected <X> void renderColumn(final DataTable tbl, final ColumnContainer cc, final int index, final Object instance, final SimpleColumnDef cd) throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
-		Object colval;
+		X colval;
 		if(cd.getValueTransformer() == null)
-			colval = instance;
+			colval = (X) instance;
 		else
-			colval = cd.getValueTransformer().getValue(instance);
+			colval = (X) cd.getValueTransformer().getValue(instance);
 
 		//-- Is a node renderer used?
 		TD	cell;
@@ -587,7 +587,7 @@ public class BasicRowRenderer implements IRowRenderer {
 				s = null;
 			else {
 				if(cd.getValueConverter() != null)
-					s = cd.getValueConverter().convertObjectToString(NlsContext.getLocale(), colval);
+					s = ((IConverter<X>) cd.getValueConverter()).convertObjectToString(NlsContext.getLocale(), colval);
 				else if(colval instanceof String)
 					s = (String) colval;
 				else {
