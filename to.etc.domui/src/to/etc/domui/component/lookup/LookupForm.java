@@ -212,6 +212,10 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	public LookupFieldQueryBuilderThingy createControlFor(final String name, final PropertyMetaModel pmm, final SearchPropertyMetaModel spm) {
+		if(pmm == null || spm == null) {
+			throw new IllegalStateException("Search properties are not defined, lookup control must be created externally,  missing implementation of createControlFor in extended class of "
+				+ getClass().getName());
+		}
 		IRequestContext rq = PageContext.getRequestContext();
 		boolean viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
 		boolean editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);

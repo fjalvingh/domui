@@ -58,4 +58,7 @@ public interface Msgs {
 	/** Your browser is out-of-sync with the server, most probably because your session with the server has expired. The page will be reloaded with original data from the server.  */
 	public static final String S_BADNODE = "s.session.badnode";
 
+	/** Invalid double */
+	public static final String V_INVALID_DOUBLE = "v.invalid.double";
+
 }
