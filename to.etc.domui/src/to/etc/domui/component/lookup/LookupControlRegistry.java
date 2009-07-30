@@ -291,7 +291,8 @@ public class LookupControlRegistry {
 		}
 
 		public int accepts(PropertyMetaModel pmm) {
-			if(Integer.class.isAssignableFrom(pmm.getActualType()) || Double.class.isAssignableFrom(pmm.getActualType()) || pmm.getActualType() == double.class) {
+			//-- Return a low value; special format input line monetary needs different factory?
+			if(Integer.class == pmm.getActualType() || Double.class == pmm.getActualType() || pmm.getActualType() == double.class) {
 				return 2;
 			}
 			return 0;
