@@ -106,8 +106,8 @@ public class BasicRowRenderer implements IRowRenderer {
 			throw new IllegalStateException("The list-of-columns is empty or null; I need at least one column to continue.");
 		String property = null;
 		String width = null;
-		IConverter conv = null;
-		Class< ? extends IConverter> convclz = null;
+		IConverter< ? > conv = null;
+		Class< ? extends IConverter< ? >> convclz = null;
 		String caption = null;
 		String cssclass = null;
 		boolean nowrap = false;
@@ -153,8 +153,8 @@ public class BasicRowRenderer implements IRowRenderer {
 						caption = DomUtil.nlsLabel(s.substring(1));
 						break;
 				}
-			} else if(val instanceof IConverter)
-				conv = (IConverter) val;
+			} else if(val instanceof IConverter< ? >)
+				conv = (IConverter< ? >) val;
 			else if(val instanceof INodeContentRenderer< ? >)
 				nodeRenderer = (INodeContentRenderer< ? >) val;
 			else if(val instanceof Class< ? >) {
@@ -162,7 +162,7 @@ public class BasicRowRenderer implements IRowRenderer {
 				if(INodeContentRenderer.class.isAssignableFrom(c))
 					nrclass = (Class< ? extends INodeContentRenderer< ? >>) c;
 				else if(IConverter.class.isAssignableFrom(c))
-					convclz = (Class< ? extends IConverter>) c;
+					convclz = (Class< ? extends IConverter< ? >>) c;
 				else
 					throw new IllegalArgumentException("Invalid 'class' argument: " + c);
 			} else
@@ -183,7 +183,7 @@ public class BasicRowRenderer implements IRowRenderer {
 		return DomApplication.get().createInstance(nrclass);
 	}
 
-	private IConverter tryConverter(final Class< ? extends IConverter> cclz, final IConverter ins) {
+	private <T extends IConverter<?>> T tryConverter(final Class<T> cclz, final T ins) {
 		if(cclz != null) {
 			if(ins != null)
 				throw new IllegalArgumentException("Both a IConverter class AND an instance specified: " + cclz + " and " + ins);
@@ -613,7 +613,7 @@ public class BasicRowRenderer implements IRowRenderer {
 			 */
 			cc.getTR().setClicked(new IClicked<TR>() {
 				public void clicked(TR b) throws Exception {
-					((ICellClicked) getCellClicked()).cellClicked(tbl.getPage(), b, instance);
+					((ICellClicked<Object>) getCellClicked()).cellClicked(tbl.getPage(), b, instance);
 				}
 			});
 			cc.getTR().addCssClass("ui-cellsel");

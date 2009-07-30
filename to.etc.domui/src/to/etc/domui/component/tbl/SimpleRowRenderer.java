@@ -273,7 +273,7 @@ public class SimpleRowRenderer implements IRowRenderer {
 	/*	CODING:	Actual rendering: a row.							*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	@SuppressWarnings("unchecked")
@@ -352,7 +352,7 @@ public class SimpleRowRenderer implements IRowRenderer {
 			 */
 			cc.getTR().setClicked(new IClicked<TR>() {
 				public void clicked(TR b) throws Exception {
-					((ICellClicked) getCellClicked()).cellClicked(tbl.getPage(), b, instance);
+					((ICellClicked<Object>) getCellClicked()).cellClicked(tbl.getPage(), b, instance);
 				}
 			});
 			cc.getTR().addCssClass("ui-cellsel");

@@ -14,7 +14,7 @@ import to.etc.webapp.nls.*;
  */
 public class ConverterRegistry {
 	/** All converter instances for staticly accessed IConverters */
-	static private Map<Class< ? extends IConverter>, IConverter> m_converterMap = new HashMap<Class< ? extends IConverter>, IConverter>();
+	static private Map<Class<? extends IConverter<?>>, IConverter<?>> m_converterMap = new HashMap<Class<? extends IConverter<?>>, IConverter<?>>();
 
 	/** The list of registered factories. */
 	static private List<IConverterFactory> m_factoryList = new ArrayList<IConverterFactory>();
@@ -33,8 +33,8 @@ public class ConverterRegistry {
 	 * @param clz
 	 * @return
 	 */
-	static public synchronized IConverter getConverter(Class< ? extends IConverter> clz) {
-		IConverter c = m_converterMap.get(clz);
+	static public synchronized <T extends IConverter<?>> T getConverter(Class<T> clz) {
+		T c = (T) m_converterMap.get(clz);
 		if(c == null) {
 			try {
 				c = clz.newInstance();
@@ -54,8 +54,8 @@ public class ConverterRegistry {
 	 * @return
 	 * @throws Exception
 	 */
-	static public Object convertStringToValue(Class< ? extends IConverter> clz, Locale loc, String in) throws Exception {
-		IConverter c = getConverter(clz);
+	static public <X, T extends IConverter<X>> X convertStringToValue(Class<T> clz, Locale loc, String in) throws Exception {
+		IConverter<X> c = getConverter(clz);
 		return c.convertStringToObject(loc, in);
 	}
 
@@ -67,37 +67,37 @@ public class ConverterRegistry {
 	 * @return
 	 * @throws Exception
 	 */
-	static public String convertValueToString(Class< ? extends IConverter> clz, Locale loc, Object in) throws Exception {
-		IConverter c = getConverter(clz);
+	static public <X, T extends IConverter<X>> String convertValueToString(Class<T> clz, Locale loc, X in) throws Exception {
+		IConverter<X> c = getConverter(clz);
 		return c.convertObjectToString(loc, in);
 	}
 
 	/**
 	 * Convert a String value to some object, using the specified converter. This uses the "current" locale.
-	 * 
+	 *
 	 * @param clz
 	 * @param in
 	 * @return
 	 * @throws Exception
 	 */
-	static public Object convertStringToValue(Class< ? extends IConverter> clz, String in) throws Exception {
-		IConverter c = getConverter(clz);
+	static public <X, T extends IConverter<X>> X convertStringToValue(Class<T> clz, String in) throws Exception {
+		T c = getConverter(clz);
 		Locale loc = NlsContext.getLocale();
 		return c.convertStringToObject(loc, in);
 	}
 
 	/**
 	 * Convert some object to a String value, using the specified converter. This uses the "current" locale.
-	 * 
+	 *
 	 * @param clz
 	 * @param in
 	 * @return
 	 * @throws Exception
 	 */
-	static public String convertValueToString(Class< ? extends IConverter> clz, Object in) throws Exception {
+	static public <X, T extends IConverter<X>> String convertValueToString(Class<T> clz, X in) throws Exception {
 		if(clz == null)
 			return in == null ? "" : in.toString();
-		IConverter c = getConverter(clz);
+		T c = getConverter(clz);
 		Locale loc = NlsContext.getLocale();
 		return c.convertObjectToString(loc, in);
 	}
@@ -136,7 +136,7 @@ public class ConverterRegistry {
 	}
 
 	/**
-	 * Replaces the default factory (converter of last resort) - USE WITH CARE, OR BETTER YET - DO NOT USE AT ALL!! 
+	 * Replaces the default factory (converter of last resort) - USE WITH CARE, OR BETTER YET - DO NOT USE AT ALL!!
 	 * @param f
 	 */
 	static synchronized void setDefaultFactory(IConverterFactory f) {
@@ -148,13 +148,13 @@ public class ConverterRegistry {
 
 	/**
 	 * Finds the best converter to convert a value of the specified type to a string. This walks
-	 * the converter factory list and finds the best converter to use. If no factory accepts the 
+	 * the converter factory list and finds the best converter to use. If no factory accepts the
 	 * type this returns null. To get a valid converter all of the time use getConverter(); this
 	 * returns the "default converter" if no specific converter could be found.
 	 *
 	 * @param clz	The class type of the value to convert
 	 */
-	static public IConverter findConverter(Class< ? > clz) {
+	static public <X> IConverter<X> findConverter(Class<X> clz) {
 		return findConverter(clz, null);
 	}
 
@@ -167,7 +167,7 @@ public class ConverterRegistry {
 	 * @param pmm	The metadata for the property, or null if unknown.
 	 * @return A converter instance, or null if no factory claimed the type.
 	 */
-	static public IConverter findConverter(Class< ? > clz, PropertyMetaModel pmm) {
+	static public <X> IConverter<X> findConverter(Class<X> clz, PropertyMetaModel pmm) {
 		IConverterFactory cf = getFactory(clz, pmm);
 		if(cf == getDefaultFactory())
 			return null;
@@ -176,13 +176,13 @@ public class ConverterRegistry {
 
 	/**
 	 * Gets the best converter to convert a value of the specified type (and the optionally specified metadata) to a string. This walks
-	 * the converter factory list and finds the best converter to use. If no factory accepts the type this returns the default converter. 
+	 * the converter factory list and finds the best converter to use. If no factory accepts the type this returns the default converter.
 	 *
 	 * @param clz	The class type of the value to convert
 	 * @param pmm	The metadata for the property, or null if unknown.
 	 * @return A converter instance.
 	 */
-	static public IConverter getConverter(Class< ? > clz, PropertyMetaModel pmm) {
+	static public <X> IConverter<X> getConverter(Class<X> clz, PropertyMetaModel pmm) {
 		IConverterFactory cf = getFactory(clz, pmm);
 		return cf.createConverter(clz, pmm);
 	}
@@ -249,7 +249,7 @@ public class ConverterRegistry {
 	/**
 	 * Maps a class to the converter for the class.
 	 */
-	static private Map<Class< ? >, IConverter> m_urlConverterMap = new HashMap<Class< ? >, IConverter>();
+	static private Map<Class<?>, IConverter<?>> m_urlConverterMap = new HashMap<Class<?>, IConverter<?>>();
 
 	/**
 	 * Register an URL converter for the specified class.
@@ -257,7 +257,7 @@ public class ConverterRegistry {
 	 * @param totype
 	 * @param c
 	 */
-	static public synchronized void registerURLConverter(Class< ? > totype, IConverter c) {
+	static public synchronized <X> void registerURLConverter(Class<X> totype, IConverter<X> c) {
 		if(null != m_urlConverterMap.put(totype, c))
 			throw new IllegalStateException("Duplicate URLConverter registered for target type=" + totype);
 	}
@@ -269,15 +269,15 @@ public class ConverterRegistry {
 	 * @param totype
 	 * @return
 	 */
-	static private synchronized IConverter calculateURLConverter(Class< ? > totype) {
+	static private synchronized <X> IConverter<X> calculateURLConverter(Class<X> totype) {
 		Class< ? > ctype = totype;
 		for(;;) { // Walk to the hierarchy's parent (Object.class)
-			IConverter c = m_urlConverterMap.get(ctype);
+			IConverter<X> c = (IConverter<X>) m_urlConverterMap.get(ctype);
 			if(c != null)
 				return c;
 
 			//-- Scan all interfaces and superinterfaces for this type
-			c = scanInterfaces(ctype);
+			c = (IConverter<X>) scanInterfaces(ctype);
 			if(c != null)
 				return c;
 			ctype = ctype.getSuperclass();
@@ -286,11 +286,11 @@ public class ConverterRegistry {
 		}
 	}
 
-	static private synchronized IConverter scanInterfaces(Class< ? > ctype) {
+	static private synchronized IConverter<?> scanInterfaces(Class<?> ctype) {
 		//-- Direct interfaces are preferred
 		Class< ? >[] intar = ctype.getInterfaces();
 		for(Class< ? > iclz : intar) {
-			IConverter c = m_urlConverterMap.get(iclz);
+			IConverter<?> c = m_urlConverterMap.get(iclz);
 			if(c != null)
 				return c;
 		}
@@ -300,7 +300,7 @@ public class ConverterRegistry {
 			Class< ? > pint = iclz.getSuperclass();
 
 			while(pint != null && pint != Object.class) {
-				IConverter c = m_urlConverterMap.get(pint);
+				IConverter<?> c = m_urlConverterMap.get(pint);
 				if(c != null)
 					return c;
 				pint = pint.getSuperclass();
@@ -314,8 +314,8 @@ public class ConverterRegistry {
 	 * @param totype
 	 * @return
 	 */
-	static public synchronized IConverter findURLConverter(Class< ? > totype) {
-		IConverter c = m_urlConverterMap.get(totype);
+	static public synchronized <X> IConverter<X> findURLConverter(Class<X> totype) {
+		IConverter<X> c = (IConverter<X>) m_urlConverterMap.get(totype);
 		if(c != null)
 			return c;
 		c = calculateURLConverter(totype);
@@ -330,11 +330,10 @@ public class ConverterRegistry {
 	 * @return
 	 * @throws Exception
 	 */
-	static public Object convertURLStringToValue(Class< ? > toType, String svalue) throws Exception {
-		IConverter c = findURLConverter(toType);
+	static public <X> X convertURLStringToValue(Class<X> toType, String svalue) throws Exception {
+		IConverter<X> c = findURLConverter(toType);
 		if(c == null)
-			return RuntimeConversions.convertTo(svalue, toType);
+			return (X) RuntimeConversions.convertTo(svalue, toType);
 		return c.convertStringToObject(NlsContext.getLocale(), svalue);
 	}
-
 }

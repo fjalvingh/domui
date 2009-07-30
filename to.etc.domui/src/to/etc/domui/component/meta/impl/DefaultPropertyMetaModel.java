@@ -91,7 +91,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			if(mp.required() != YesNoType.UNKNOWN)
 				setRequired(mp.required() == YesNoType.YES);
 			if(mp.converterClass() != IConverter.class)
-				setConverterClass(mp.converterClass());
+				setConverterClass((Class< ? extends IConverter< ? >>) mp.converterClass());
 			if(mp.editpermissions().length != 0)
 				setEditRoles(makeRoleSet(mp.editpermissions()));
 			if(mp.viewpermissions().length != 0)
