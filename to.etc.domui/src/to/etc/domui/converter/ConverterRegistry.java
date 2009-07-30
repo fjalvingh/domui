@@ -26,6 +26,7 @@ public class ConverterRegistry {
 	static {
 		setDefaultFactory(new DefaultConverterFactory());
 		register(new DateConverterFactory());
+		register(new MoneyConverterFactory());
 	}
 
 	/**

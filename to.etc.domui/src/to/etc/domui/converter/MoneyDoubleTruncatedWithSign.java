@@ -5,17 +5,17 @@ import java.util.*;
 import to.etc.domui.trouble.*;
 
 /**
- * This converts a Double containing a monetary amount to a full representation
- * including thousands separator and valuta indicator.
+ * Converter converting to a full money representation, including currency sign, thousands separators; this removes any zero fraction
+ * so 1000.00 is rendered like E 1,000
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jul 29, 2009
+ * Created on Jul 30, 2009
  */
-public class MoneyDoubleConverter implements IConverter<Double> {
+public class MoneyDoubleTruncatedWithSign implements IConverter<Double> {
 	public String convertObjectToString(Locale loc, Double in) throws UIException {
 		if(in == null)
 			return null;
-		return MoneyUtil.renderFullWithSign(in.doubleValue());
+		return MoneyUtil.renderTruncatedWithSign(in.doubleValue());
 	}
 
 	/**

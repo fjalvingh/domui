@@ -5,9 +5,11 @@ import java.util.*;
 
 import to.etc.domui.component.input.ComboFixed.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -60,10 +62,48 @@ final public class MetaManager {
 				for(DataMetaModel mm : getList()) { // Let all providers add their information.
 					mm.updateClassMeta(dmm);
 				}
+
+				//-- Finalize all properties.
+				for(PropertyMetaModel pmm : dmm.getProperties())
+					finalizeProperty(pmm);
+
 				dmm.initialized();
 			}
 		}
 		return dmm;
+	}
+
+	/**
+	 * Finalizes the metamodel for a property when all metadata providers have had their
+	 * go. EVALUATE: this can be seen as an abuse of the metamodel, but it sure does make
+	 * using it easier and quick...
+	 * @param pmm
+	 */
+	private static void finalizeProperty(PropertyMetaModel pmm) {
+		//-- If this is a numeric type, set a converter when needed.
+		if(pmm.getNumericPresentation() != NumericPresentation.UNKNOWN && pmm.getConverterClass() == null) {
+			DefaultPropertyMetaModel p = (DefaultPropertyMetaModel) pmm;
+			switch(pmm.getNumericPresentation()){
+				default:
+					throw new IllegalStateException("Unexpected numeric presentation: " + pmm.getNumericPresentation());
+				case NUMBER:
+					break;
+				case MONEY:
+				case MONEY_FULL:
+				case MONEY_FULL_TRUNC:
+				case MONEY_NO_SYMBOL:
+				case MONEY_NUMERIC:
+					//-- These are applicable for Double and BigDecimal only,
+					if(pmm.getActualType() == Double.class || pmm.getActualType() == Double.TYPE) {
+						p.setConverterClass(MoneyConverterFactory.createDoubleMoneyConverters(pmm.getNumericPresentation()));
+					} else if(pmm.getActualType() == BigDecimal.class) {
+						p.setConverterClass(MoneyConverterFactory.createBigDecimalMoneyConverters(pmm.getNumericPresentation()));
+					} else {
+						throw new ProgrammerErrorException("The monetary presentation " + pmm.getNumericPresentation() + " is not valid for type=" + pmm.getActualType());
+					}
+					break;
+			}
+		}
 	}
 
 	static public PropertyMetaModel findPropertyMeta(Class< ? > clz, String name) {

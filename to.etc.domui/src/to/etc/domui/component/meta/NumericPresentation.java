@@ -24,4 +24,7 @@ public enum NumericPresentation {
 
 	/** Display as a number having thousands separator and fraction but without currency symbol */
 	MONEY_NO_SYMBOL,
+
+	/** Just the amount, including faction, without any unnecessary adornments */
+	MONEY_NUMERIC,
 }

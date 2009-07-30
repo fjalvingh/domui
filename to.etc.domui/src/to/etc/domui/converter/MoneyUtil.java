@@ -74,8 +74,101 @@ public class MoneyUtil {
 	}
 
 	/**
-	 * Render as a full value, including currency sign, thousands separator and all, using the
-	 * specified currency locale. This handles anything using the EUR specially because the Java
+	 *
+	 * @param v
+	 * @param thousands
+	 * @param symbol
+	 * @param trunk
+	 * @return
+	 */
+	static public String render(double v, boolean thousands, boolean symbol, boolean trunk) {
+		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
+			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
+		}
+		String s;
+		if(symbol && thousands) {
+			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+			DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+			StringBuilder sb = new StringBuilder(20);
+			sb.append(NlsContext.getCurrency().getSymbol());
+			sb.append(' ');
+			sb.append(df.format(v));
+			s = sb.toString();
+		} else if(symbol) {
+			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+			DecimalFormat df = new DecimalFormat("###############.00", dfs);
+			StringBuilder sb = new StringBuilder(20);
+			sb.append(NlsContext.getCurrency().getSymbol());
+			sb.append(' ');
+			sb.append(df.format(v));
+			s = sb.toString();
+		} else if(thousands) {
+			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+			DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+			s = df.format(v);
+		} else {
+			//-- No symbol, no thousands separators; just a #
+			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+			DecimalFormat df = new DecimalFormat("###############.00", dfs);
+			s = df.format(v);
+		}
+		if(trunk) {
+			if(s.endsWith(".00") || s.endsWith(",00"))
+				return s.substring(0, s.length() - 3);
+		}
+		return s;
+	}
+
+	/**
+	 *
+	 * @param v
+	 * @param thousands
+	 * @param symbol
+	 * @param trunk
+	 * @return
+	 */
+	static public String render(BigDecimal v, boolean thousands, boolean symbol, boolean trunk) {
+		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
+			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
+		}
+		String s;
+		if(symbol && thousands) {
+			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+			DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+			StringBuilder sb = new StringBuilder(20);
+			sb.append(NlsContext.getCurrency().getSymbol());
+			sb.append(' ');
+			sb.append(df.format(v));
+			s = sb.toString();
+		} else if(symbol) {
+			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+			DecimalFormat df = new DecimalFormat("###############.00", dfs);
+			StringBuilder sb = new StringBuilder(20);
+			sb.append(NlsContext.getCurrency().getSymbol());
+			sb.append(' ');
+			sb.append(df.format(v));
+			s = sb.toString();
+		} else if(thousands) {
+			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+			DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+			s = df.format(v);
+		} else {
+			//-- No symbol, no thousands separators; just a #
+			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+			DecimalFormat df = new DecimalFormat("###############.00", dfs);
+			s = df.format(v);
+		}
+		if(trunk) {
+			if(s.endsWith(".00") || s.endsWith(",00"))
+				return s.substring(0, s.length() - 3);
+		}
+		return s;
+	}
+
+
+	/**
+	 * Render as a full value: [C -###,###,###.00], including currency sign, thousands separator and all, using the
+	 * specified currency locale. It always renders the fraction.
 	 * formatters suck.
 	 * @param v
 	 * @return
@@ -92,11 +185,16 @@ public class MoneyUtil {
 		sb.append(' ');
 		sb.append(df.format(v));
 		String s = sb.toString();
-		if(s.endsWith(".00") || s.endsWith(",00"))
-			return s.substring(0, s.length() - 3);
 		return s;
 	}
 
+	/**
+	 * Render as a full value: [C -###,###,###.00], including currency sign, thousands separator and all, using the
+	 * specified currency locale. It always renders the fraction.
+	 * formatters suck.
+	 * @param v
+	 * @return
+	 */
 	static public String renderFullWithSign(BigDecimal v) {
 		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
 			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
@@ -112,4 +210,49 @@ public class MoneyUtil {
 			return s.substring(0, s.length() - 3);
 		return s;
 	}
+
+	/**
+	 * Renders as a full value [C -###,###,###.##], but removes the fraction if it is all zeroes.
+	 * @param v
+	 * @return
+	 */
+	static public String renderTruncatedWithSign(double v) {
+		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
+			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
+		}
+
+		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+		DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+		StringBuilder sb = new StringBuilder(20);
+		sb.append(NlsContext.getCurrencySymbol());
+		sb.append(' ');
+		sb.append(df.format(v));
+		String s = sb.toString();
+		if(s.endsWith(".00") || s.endsWith(",00"))
+			return s.substring(0, s.length() - 3);
+		return s;
+	}
+
+	/**
+	 * Renders as a full value [C -###,###,###.##], but removes the fraction if it is all zeroes.
+	 * @param v
+	 * @return
+	 */
+	static public String renderTruncatedWithSign(BigDecimal v) {
+		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
+			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
+		}
+		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+		DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+		StringBuilder sb = new StringBuilder(20);
+		sb.append(NlsContext.getCurrency().getSymbol());
+		sb.append(' ');
+		sb.append(df.format(v));
+		String s = sb.toString();
+		if(s.endsWith(".00") || s.endsWith(",00"))
+			return s.substring(0, s.length() - 3);
+		return s;
+	}
+
+
 }

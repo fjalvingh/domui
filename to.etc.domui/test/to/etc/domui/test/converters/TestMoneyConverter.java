@@ -152,12 +152,12 @@ public class TestMoneyConverter {
 
 		System.out.println("double naar string representatie: full format");
 		testFullSign(1234567.89, "\u20ac 1.234.567,89");
-		testFullSign(1234567, "\u20ac 1.234.567");
+		testFullSign(1234567, "\u20ac 1.234.567,00");
 		testFullSign(1234567.01, "\u20ac 1.234.567,01");
 		testFullSign(1234567.1, "\u20ac 1.234.567,10");
 
 		testFullSign(-1234567.89, "\u20ac -1.234.567,89");
-		testFullSign(-1234567, "\u20ac -1.234.567");
+		testFullSign(-1234567, "\u20ac -1.234.567,00");
 		testFullSign(-1234567.01, "\u20ac -1.234.567,01");
 		testFullSign(-1234567.1, "\u20ac -1.234.567,10");
 	}
