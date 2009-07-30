@@ -47,6 +47,12 @@ final public class NlsContext {
 	static private Currency m_currency;
 
 	/**
+	 * Contains the symbol representing a currency because the currency class is as usual too bloody stupid
+	 * to return an euro sign as it should.
+	 */
+	static private String m_currencySymbol;
+
+	/**
 	 * Returns the default ViewPoint locale. <b>DO NOT USE!!!!</b>, except when absolutely necessary! To get
 	 * the actual locale that is being used by a request call getLocale()!
 	 * @return
@@ -76,14 +82,33 @@ final public class NlsContext {
 	 */
 	static synchronized public void setCurrencyLocale(Locale loc) {
 		m_currencyLocale = loc;
-		m_currency = null;
+		m_currency = Currency.getInstance(loc);
+		m_currencySymbol = m_currency.getSymbol(getLocale());
+
+		//-- Because as usual Sun fucked up we need to translate the "sign" - it returns EUR instead of the euro character, damnit.
+		if("EUR".equals(m_currencySymbol))
+			m_currencySymbol = "\u20ac";
 	}
 
+	/**
+	 * Returns a Currency object for the current currency locale.
+	 * @return
+	 */
 	static synchronized public Currency getCurrency() {
-		if(m_currency == null) {
-			m_currency = Currency.getInstance(getCurrencyLocale());
-		}
+		if(m_currency == null)
+			setCurrencyLocale(getDefault());
 		return m_currency;
+	}
+
+	/**
+	 * Returns the currency symbol (not the currency code, damnit) for the current currency locale. This will
+	 * return the euro sign € instead of EUR.
+	 * @return
+	 */
+	static synchronized public String getCurrencySymbol() {
+		if(m_currency == null)
+			setCurrencyLocale(getDefault());
+		return m_currencySymbol;
 	}
 
 	static public String getDialect() {

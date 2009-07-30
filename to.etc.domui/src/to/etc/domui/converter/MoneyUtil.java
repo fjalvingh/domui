@@ -75,17 +75,41 @@ public class MoneyUtil {
 
 	/**
 	 * Render as a full value, including currency sign, thousands separator and all, using the
-	 * specified currency locale.
+	 * specified currency locale. This handles anything using the EUR specially because the Java
+	 * formatters suck.
 	 * @param v
 	 * @return
 	 */
 	static public String renderFullWithSign(double v) {
-		NumberFormat nf = NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale());
-		return nf.format(v);
+		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
+			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
+		}
+
+		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+		DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+		StringBuilder sb = new StringBuilder(20);
+		sb.append(NlsContext.getCurrencySymbol());
+		sb.append(' ');
+		sb.append(df.format(v));
+		String s = sb.toString();
+		if(s.endsWith(".00") || s.endsWith(",00"))
+			return s.substring(0, s.length() - 3);
+		return s;
 	}
 
 	static public String renderFullWithSign(BigDecimal v) {
-		NumberFormat nf = NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale());
-		return nf.format(v);
+		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
+			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
+		}
+		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
+		DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+		StringBuilder sb = new StringBuilder(20);
+		sb.append(NlsContext.getCurrency().getSymbol());
+		sb.append(' ');
+		sb.append(df.format(v));
+		String s = sb.toString();
+		if(s.endsWith(".00") || s.endsWith(",00"))
+			return s.substring(0, s.length() - 3);
+		return s;
 	}
 }

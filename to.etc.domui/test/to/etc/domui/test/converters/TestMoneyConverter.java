@@ -10,6 +10,14 @@ import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
 public class TestMoneyConverter {
+	@BeforeClass
+	static public void setUp() {
+		Locale nl = new Locale("nl", "NL");
+		NlsContext.setCurrencyLocale(nl);
+		NlsContext.setLocale(nl);
+	}
+
+
 	/**
 	 * Checks a valid conversion and compares the output with the expected output.
 	 * @param in
@@ -58,6 +66,9 @@ public class TestMoneyConverter {
 		bad("1.,000");
 		bad("1,.000");
 		bad("1,000000,000.00");
+
+		bad("1-100");
+		bad("1000,-10,000.00");
 	}
 
 	/**
@@ -110,6 +121,12 @@ public class TestMoneyConverter {
 		//-- Unclear distinction (1 comma, one dot)
 		check("1.000,00", "1000.00");
 		check("1,000.00", "1000.00");
+
+		//-- Negative numbers.
+		check("-1000", "-1000");
+		check("-1000.99", "-1000.99");
+		check("1000-", "-1000");
+		check("1000.99-", "-1000.99");
 	}
 
 	private void testSimple(double v, String exp) {
@@ -135,9 +152,15 @@ public class TestMoneyConverter {
 		testSimple(99999999999999.875, "99999999999999.88"); // Largest precision;
 
 		System.out.println("double naar string representatie: full format");
-		NlsContext.setCurrencyLocale(new Locale("nl", "NL"));
 		testFullSign(1234567.89, "\u20ac 1.234.567,89");
-		testFullSign(1234567, "\u20ac 1.234.567,00");
+		testFullSign(1234567, "\u20ac 1.234.567");
+		testFullSign(1234567.01, "\u20ac 1.234.567,01");
+		testFullSign(1234567.1, "\u20ac 1.234.567,10");
+
+		testFullSign(-1234567.89, "\u20ac -1.234.567,89");
+		testFullSign(-1234567, "\u20ac -1.234.567");
+		testFullSign(-1234567.01, "\u20ac -1.234.567,01");
+		testFullSign(-1234567.1, "\u20ac -1.234.567,10");
 	}
 
 }

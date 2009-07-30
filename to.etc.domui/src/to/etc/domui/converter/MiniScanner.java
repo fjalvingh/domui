@@ -159,6 +159,14 @@ public class MiniScanner {
 			return false; // But accept whitespace only (empty input, null value)
 		}
 
+		if(skip('-')) { // Leading minus?
+			m_buffer.append('-');
+			skipWs();
+		} else if(m_in.endsWith("-")) { // trailing minus?
+			m_buffer.append('-');
+			m_len = m_len - 1;
+		}
+
 		/*
 		 * There's more: we should only have digits, dots and comma's here forming some valid numeric
 		 * representation. We will determine which one is decimal point and which one is thousands
