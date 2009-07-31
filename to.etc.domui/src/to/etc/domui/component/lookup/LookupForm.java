@@ -44,6 +44,12 @@ public class LookupForm<T> extends Div {
 
 	private TBody m_tbody;
 
+	private Map<Integer, CustomSearchField> insertCustomSearchControl;
+
+	private List<CustomSearchField> addCustomSearchControl;
+
+	private Map<String, CustomSearchField> overwriteDefaultSearchControl;
+
 	public LookupForm(final Class<T> lookupClass) {
 		m_lookupClass = lookupClass;
 	}
@@ -117,8 +123,32 @@ public class LookupForm<T> extends Div {
 				throw new IllegalStateException("The class " + m_lookupClass + " has no search properties");
 		}
 
+		int currentSearchIndex = 1;
+
 		for(SearchPropertyMetaModel sm : list) {
+			CustomSearchField insertCustomField = (insertCustomSearchControl != null) ? insertCustomSearchControl.get(new Integer(currentSearchIndex)) : null;
+			while(insertCustomField != null) {
+				addLookupFieldQueryBuilderForProperty(insertCustomField.getLabelCaption(), insertCustomField.getQueryBuilderThingy());
+				currentSearchIndex++;
+				insertCustomField = insertCustomSearchControl.get(new Integer(currentSearchIndex));
+			}
+
+			if(overwriteDefaultSearchControl != null && overwriteDefaultSearchControl.containsKey(sm.getProperty().getName())) {
+				CustomSearchField replaceCustomField = overwriteDefaultSearchControl.get(sm.getProperty().getName());
+				if(replaceCustomField != null) {
+					addLookupFieldQueryBuilderForProperty(replaceCustomField.getLabelCaption(), replaceCustomField.getQueryBuilderThingy());
+					currentSearchIndex++;
+				}
+			} else {
 			addPropertyControl(sm.getProperty().getName(), sm.getProperty().getDefaultLabel(NlsContext.getLocale()), sm.getProperty(), sm);
+				currentSearchIndex++;
+			}
+		}
+
+		if(addCustomSearchControl != null) {
+			for(CustomSearchField addCustomField : addCustomSearchControl) {
+				addLookupFieldQueryBuilderForProperty(addCustomField.getLabelCaption(), addCustomField.getQueryBuilderThingy());
+			}
 		}
 
 		//-- The button bar.
@@ -167,6 +197,30 @@ public class LookupForm<T> extends Div {
 		//		d.add(sb);
 	}
 
+	public void addSearchField(CustomSearchField field) {
+		if(addCustomSearchControl == null) {
+			addCustomSearchControl = new ArrayList<CustomSearchField>();
+		}
+
+		addCustomSearchControl.add(field);
+	}
+
+	public void insertSearchField(final Integer index, CustomSearchField field) {
+		if(insertCustomSearchControl == null) {
+			insertCustomSearchControl = new HashMap<Integer, CustomSearchField>();
+		}
+
+		insertCustomSearchControl.put(index, field);
+	}
+
+	public void replaceSearchFieldFromMeta(String propertyName, CustomSearchField field) {
+		if(overwriteDefaultSearchControl == null) {
+			overwriteDefaultSearchControl = new HashMap<String, CustomSearchField>();
+		}
+
+		overwriteDefaultSearchControl.put(propertyName, field);
+	}
+
 	@Override
 	public void setClicked(final IClicked< ? > clicked) {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
@@ -184,7 +238,10 @@ public class LookupForm<T> extends Div {
 	}
 
 	public void addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final SearchPropertyMetaModel spm) {
-		LookupFieldQueryBuilderThingy qt = createControlFor(name, pmm, spm); // Add the proper input control for that type && add to the cell
+		addLookupFieldQueryBuilderForProperty(label, createControlFor(name, pmm, spm)); // Add the proper input control for that type && add to the cell
+	}
+
+	protected void addLookupFieldQueryBuilderForProperty(final String label, final LookupFieldQueryBuilderThingy qt) {
 		if(qt == null)
 			return;
 
@@ -212,6 +269,10 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	public LookupFieldQueryBuilderThingy createControlFor(final String name, final PropertyMetaModel pmm, final SearchPropertyMetaModel spm) {
+		if(pmm == null || spm == null) {
+			throw new IllegalStateException("Search properties are not defined, lookup control must be created externally,  missing implementation of createControlFor in extended class of "
+				+ getClass().getName());
+		}
 		IRequestContext rq = PageContext.getRequestContext();
 		boolean viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
 		boolean editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);
@@ -230,7 +291,7 @@ public class LookupForm<T> extends Div {
 		return qt;
 	}
 
-	protected void add(final LookupFieldQueryBuilderThingy t) {
+	private void add(final LookupFieldQueryBuilderThingy t) {
 		if(m_queryBuilder == Collections.EMPTY_LIST)
 			m_queryBuilder = new ArrayList<LookupFieldQueryBuilderThingy>();
 		m_queryBuilder.add(t);
