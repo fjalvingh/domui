@@ -8,10 +8,10 @@ import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
 /**
- * Generic page handling some cruddy stuff.
+ * Generic page handling some cruddy stuff. FIXME Example only; VP specific one should exist.
  *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Oct 16, 2008
+ * @author vmijic
+ * Created on 29 Jul 2009
  */
 abstract public class BasicListPage<T> extends BasicPage<T> {
 	private DataTable m_result;
@@ -20,18 +20,55 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	private boolean m_allowEmptySearch;
 
+	/**
+	 * Implement to handle a selection of a record that was found.
+	 * @param rcord
+	 * @throws Exception
+	 */
 	abstract public void onSelect(T rcord) throws Exception;
 
+	/**
+	 * Implement to handle pressing the "new record" button.
+	 * @throws Exception
+	 */
 	abstract protected void doNew() throws Exception;
+
+	public BasicListPage(Class<T> clz) {
+		super(clz);
+	}
 
 	public BasicListPage(Class<T> clz, String titlekey) {
 		super(clz, titlekey);
 	}
 
+	/**
+	 * Override this to customize the lookup form. No need to call super. method.
+	 * @param lf
+	 */
+	protected void customizeLookupForm(LookupForm<T> lf) {
+	}
+
+	/**
+	 * Override to provide your own Row Renderer; this version returns a SimpleRowRenderer() using full
+	 * metadata for the class.
+	 * @return
+	 */
+	protected SimpleRowRenderer provideRowRenderer() {
+		return new SimpleRowRenderer(getBaseClass());
+	}
+
+	/**
+	 * When set to T this allows searching a set without any specified criteria.
+	 * @return
+	 */
 	public boolean isAllowEmptySearch() {
 		return m_allowEmptySearch;
 	}
 
+	/**
+	 * When set to T this allows searching a set without any specified criteria.
+	 * @param allowEmptySearch
+	 */
 	public void setAllowEmptySearch(boolean allowEmptySearch) {
 		m_allowEmptySearch = allowEmptySearch;
 	}
@@ -53,6 +90,9 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 				doNew();
 			}
 		});
+
+		customizeLookupForm(lf);
+
 		if(m_result != null) {
 			add(m_result);
 			add(m_pager);
@@ -78,7 +118,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
-			SimpleRowRenderer rr = new SimpleRowRenderer(getBaseClass());
+			SimpleRowRenderer rr = provideRowRenderer();
 			m_result = new DataTable(model, rr);
 			add(m_result);
 			m_result.setPageSize(20);
@@ -102,10 +142,4 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	protected void onShelve() throws Exception {
 		QContextManager.closeSharedContext(getPage().getConversation());
 	}
-
-	//	protected void	doNew() throws Exception {
-	//		
-	//		
-	//	}
-
 }
