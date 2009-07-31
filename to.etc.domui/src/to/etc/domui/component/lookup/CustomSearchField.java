@@ -3,9 +3,9 @@ package to.etc.domui.component.lookup;
 public class CustomSearchField {
 	private String labelCaption;
 
-	private LookupFieldQueryBuilderThingy queryBuilderThingy;
+	private ILookupControlInstance queryBuilderThingy;
 
-	public CustomSearchField(String labelCaption, LookupFieldQueryBuilderThingy queryBuilderThingy) {
+	public CustomSearchField(String labelCaption, ILookupControlInstance queryBuilderThingy) {
 		super();
 		this.labelCaption = labelCaption;
 		this.queryBuilderThingy = queryBuilderThingy;
@@ -15,7 +15,7 @@ public class CustomSearchField {
 		return labelCaption;
 	}
 
-	public LookupFieldQueryBuilderThingy getQueryBuilderThingy() {
+	public ILookupControlInstance getQueryBuilderThingy() {
 		return queryBuilderThingy;
 	}
 }

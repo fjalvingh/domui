@@ -13,9 +13,9 @@ public class RelationLookupFactory implements LookupControlFactory {
 		return -1;
 	}
 
-	public LookupFieldQueryBuilderThingy createControl(final SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
+	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
 		final LookupInput<Object> l = new LookupInput<Object>((Class<Object>) pmm.getActualType()); // Create a lookup thing for this one
-		return new DefaultLookupThingy(l) {
+		return new AbstractLookupControlImpl(l) {
 			@Override
 			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
 				Object	value = l.getValue();

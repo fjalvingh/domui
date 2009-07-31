@@ -14,5 +14,5 @@ import to.etc.domui.component.meta.impl.*;
 public interface LookupControlFactory {
 	public int accepts(PropertyMetaModel pmm);
 
-	public LookupFieldQueryBuilderThingy createControl(SearchPropertyMetaModel spm, PropertyMetaModel pmm);
+	public ILookupControlInstance createControl(SearchPropertyMetaModel spm, PropertyMetaModel pmm);
 }

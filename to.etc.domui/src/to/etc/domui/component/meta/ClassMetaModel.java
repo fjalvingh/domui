@@ -94,6 +94,10 @@ public interface ClassMetaModel {
 	 */
 	public List<DisplayPropertyMetaModel> getTableDisplayProperties();
 
+	/**
+	 * Returns the SORTED list of search properties defined on this class.
+	 * @return
+	 */
 	public List<SearchPropertyMetaModel> getSearchProperties();
 
 	public String getDefaultSortProperty();
@@ -120,7 +124,7 @@ public interface ClassMetaModel {
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
 	 * control this describes the properties to use to display the <i>currently selected</i>
-	 * record in the edit page.  
+	 * record in the edit page.
 	 * @return
 	 */
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();

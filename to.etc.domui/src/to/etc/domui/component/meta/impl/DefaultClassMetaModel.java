@@ -346,6 +346,10 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_searchProperties.add(sp);
 	}
 
+	/**
+	 * Returns the SORTED list of search properties defined on this class.
+	 * @see to.etc.domui.component.meta.ClassMetaModel#getSearchProperties()
+	 */
 	public List<SearchPropertyMetaModel> getSearchProperties() {
 		List<SearchPropertyMetaModel> list = new ArrayList<SearchPropertyMetaModel>(m_searchProperties);
 		Collections.sort(list, new Comparator<SearchPropertyMetaModel>() {

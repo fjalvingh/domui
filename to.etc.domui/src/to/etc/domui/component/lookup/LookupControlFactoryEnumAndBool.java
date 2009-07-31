@@ -15,7 +15,7 @@ public class LookupControlFactoryEnumAndBool implements LookupControlFactory {
 		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 2 : 0;
 	}
 
-	public LookupFieldQueryBuilderThingy createControl(SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
+	public ILookupControlInstance createControl(SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
 
 		// Create a domainvalued combobox by default.
 		Object[] vals = pmm.getDomainValues();
@@ -41,7 +41,7 @@ public class LookupControlFactoryEnumAndBool implements LookupControlFactory {
 		if(s != null) {
 			c.setTitle(s);
 		}
-		return new DefaultLookupThingy(c) {
+		return new AbstractLookupControlImpl(c) {
 			@Override
 			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
 				Object value = c.getValue();

@@ -63,7 +63,7 @@ public class LookupControlRegistry {
 	 */
 	@SuppressWarnings("unchecked")
 	static public final LookupControlFactory TEXT_CF = new LookupControlFactory() {
-		public LookupFieldQueryBuilderThingy createControl(final SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
+		public ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
 			Class<?> iclz = pmm.getActualType();
 
 			//-- Boolean/boolean types? These need a tri-state checkbox
@@ -92,7 +92,7 @@ public class LookupControlRegistry {
 				txt.setMaxLength(pmm.getLength());
 
 			//-- Converter thingy is known. Now add a
-			return new DefaultLookupThingy(txt) {
+			return new AbstractLookupControlImpl(txt) {
 				@Override
 				public boolean appendCriteria(QCriteria crit) throws Exception {
 					Object value = null;
@@ -128,11 +128,11 @@ public class LookupControlRegistry {
 
 	static public final LookupControlFactory DATE_CF = new LookupControlFactory() {
 
-		public LookupFieldQueryBuilderThingy createControl(SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
+		public ILookupControlInstance createControl(SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
 			final DateInput df = new DateInput();
 			TextNode tn = new TextNode(NlsContext.getGlobalMessage(Msgs.UI_LOOKUP_DATE_TILL));
 			final DateInput dt = new DateInput();
-			return new DefaultLookupThingy(df, tn, dt) {
+			return new AbstractLookupControlImpl(df, tn, dt) {
 				@Override
 				public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
 					Date from, till;
@@ -177,7 +177,7 @@ public class LookupControlRegistry {
 	};
 
 	static public final LookupControlFactory NUMERIC_CF = new LookupControlFactory() {
-		public LookupFieldQueryBuilderThingy createControl(SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
+		public ILookupControlInstance createControl(SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
 			final List<Pair<NumericRelationType>> values = new ArrayList<Pair<NumericRelationType>>();
 			for(NumericRelationType relationEnum : NumericRelationType.values()) {
 				values.add(new Pair<NumericRelationType>(relationEnum, MetaManager.findClassMeta(NumericRelationType.class).getDomainLabel(NlsContext.getLocale(), relationEnum)));
@@ -189,7 +189,7 @@ public class LookupControlRegistry {
 
 			final ComboFixed<NumericRelationType> relationCombo = new ComboFixed<NumericRelationType>(values);
 
-			final DefaultLookupThingy result = new DefaultLookupThingy(relationCombo, numA, numB) {
+			final AbstractLookupControlImpl result = new AbstractLookupControlImpl(relationCombo, numA, numB) {
 				@Override
 				public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
 					NumericRelationType relation;
