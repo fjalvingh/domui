@@ -62,7 +62,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private List<DisplayPropertyMetaModel> m_tableDisplayProperties = Collections.EMPTY_LIST;
 
-	private List<SearchPropertyMetaModel> m_searchProperties = Collections.EMPTY_LIST;
+	private List<SearchPropertyMetaModelImpl> m_searchProperties = Collections.EMPTY_LIST;
 
 	/**
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
@@ -340,9 +340,9 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
-	public void addSearchProperty(final SearchPropertyMetaModel sp) {
+	public void addSearchProperty(final SearchPropertyMetaModelImpl sp) {
 		if(m_searchProperties == Collections.EMPTY_LIST)
-			m_searchProperties = new ArrayList<SearchPropertyMetaModel>();
+			m_searchProperties = new ArrayList<SearchPropertyMetaModelImpl>();
 		m_searchProperties.add(sp);
 	}
 
@@ -350,10 +350,10 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * Returns the SORTED list of search properties defined on this class.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getSearchProperties()
 	 */
-	public List<SearchPropertyMetaModel> getSearchProperties() {
-		List<SearchPropertyMetaModel> list = new ArrayList<SearchPropertyMetaModel>(m_searchProperties);
-		Collections.sort(list, new Comparator<SearchPropertyMetaModel>() {
-			public int compare(final SearchPropertyMetaModel o1, final SearchPropertyMetaModel o2) {
+	public List<SearchPropertyMetaModelImpl> getSearchProperties() {
+		List<SearchPropertyMetaModelImpl> list = new ArrayList<SearchPropertyMetaModelImpl>(m_searchProperties);
+		Collections.sort(list, new Comparator<SearchPropertyMetaModelImpl>() {
+			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
 				return o1.getOrder() - o2.getOrder();
 			}
 		});

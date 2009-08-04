@@ -4,11 +4,10 @@ import java.util.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
-public class LookupControlFactoryEnumAndBool implements LookupControlFactory {
+public class LookupFactoryEnumAndBool implements LookupControlFactory {
 
 	public int accepts(PropertyMetaModel pmm) {
 		Class< ? > iclz = pmm.getActualType();

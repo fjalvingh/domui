@@ -9,6 +9,7 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
@@ -27,10 +28,6 @@ public class LookupForm<T> extends Div {
 	/** The data class we're looking for */
 	private Class<T> m_lookupClass;
 
-	private List<SearchPropertyMetaModel> m_searchProperties;
-
-	//	private List<DisplayPropertyMetaModel> m_displayProperties;
-
 	private String m_title;
 
 	IClicked<LookupForm<T>> m_clicker;
@@ -44,12 +41,6 @@ public class LookupForm<T> extends Div {
 
 	private TBody m_tbody;
 
-	private Map<Integer, CustomSearchField> insertCustomSearchControl;
-
-	private List<CustomSearchField> addCustomSearchControl;
-
-	private Map<String, CustomSearchField> overwriteDefaultSearchControl;
-
 	/**
 	 * This is the definition for an Item to look up. A list of these
 	 * will generate the actual lookup items on the screen, in the order
@@ -58,7 +49,7 @@ public class LookupForm<T> extends Div {
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Jul 31, 2009
 	 */
-	public static class Item {
+	public static class Item implements SearchPropertyMetaModel {
 		private PropertyMetaModel m_property;
 
 		private ILookupControlInstance m_instance;
@@ -70,6 +61,8 @@ public class LookupForm<T> extends Div {
 		private String m_labelText;
 
 		private Label m_label;
+
+		private int m_order;
 
 		public PropertyMetaModel getProperty() {
 			return m_property;
@@ -118,6 +111,18 @@ public class LookupForm<T> extends Div {
 		void setInstance(ILookupControlInstance instance) {
 			m_instance = instance;
 		}
+
+		/**
+		 * Unused; only present to satisfy the interface.
+		 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#getOrder()
+		 */
+		public int getOrder() {
+			return m_order;
+		}
+
+		void setOrder(int order) {
+			m_order = order;
+		}
 	}
 
 	/** The primary list of defined lookup items. */
@@ -162,39 +167,12 @@ public class LookupForm<T> extends Div {
 		for(Item it : m_itemList) {
 			internalAddLookupItem(it);
 		}
-		//		int currentSearchIndex = 1;
-		//
-		//		for(SearchPropertyMetaModel sm : list) {
-		//			CustomSearchField insertCustomField = (insertCustomSearchControl != null) ? insertCustomSearchControl.get(new Integer(currentSearchIndex)) : null;
-		//			while(insertCustomField != null) {
-		//				addLookupFieldQueryBuilderForProperty(insertCustomField.getLabelCaption(), insertCustomField.getQueryBuilderThingy());
-		//				currentSearchIndex++;
-		//				insertCustomField = insertCustomSearchControl.get(new Integer(currentSearchIndex));
-		//			}
-		//
-		//			if(overwriteDefaultSearchControl != null && overwriteDefaultSearchControl.containsKey(sm.getProperty().getName())) {
-		//				CustomSearchField replaceCustomField = overwriteDefaultSearchControl.get(sm.getProperty().getName());
-		//				if(replaceCustomField != null) {
-		//					addLookupFieldQueryBuilderForProperty(replaceCustomField.getLabelCaption(), replaceCustomField.getQueryBuilderThingy());
-		//					currentSearchIndex++;
-		//				}
-		//			} else {
-		//				addPropertyControl(sm.getProperty().getName(), sm.getProperty().getDefaultLabel(NlsContext.getLocale()), sm.getProperty(), sm);
-		//				currentSearchIndex++;
-		//			}
-		//		}
-
-		if(addCustomSearchControl != null) {
-			for(CustomSearchField addCustomField : addCustomSearchControl) {
-				addItemToTable(addCustomField.getLabelCaption(), addCustomField.getQueryBuilderThingy());
-			}
-		}
 
 		//-- The button bar.
 		Div d = new Div();
 		sroot.add(d);
 
-		DefaultButton b = new DefaultButton("!Zoeken");
+		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.search"));
 		d.add(b);
 		b.setIcon("THEME/btnFind.png");
 		b.setClicked(new IClicked<NodeBase>() {
@@ -204,7 +182,7 @@ public class LookupForm<T> extends Div {
 			}
 		});
 
-		b = new DefaultButton("!Wis");
+		b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.clear"));
 		d.add(b);
 		b.setIcon("THEME/btnClear.png");
 		b.setClicked(new IClicked<NodeBase>() {
@@ -214,7 +192,7 @@ public class LookupForm<T> extends Div {
 		});
 
 		if(getOnNew() != null) {
-			b = new DefaultButton("!Toevoegen");
+			b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.new"));
 			d.add(b);
 			b.setIcon("THEME/btnNew.png");
 			b.setClicked(new IClicked<NodeBase>() {
@@ -231,9 +209,6 @@ public class LookupForm<T> extends Div {
 					m_clicker.clicked(LookupForm.this);
 			}
 		});
-		//
-		//		SmallImgButton	sb	= new SmallImgButton(true, "btnClear.png");
-		//		d.add(sb);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -246,7 +221,7 @@ public class LookupForm<T> extends Div {
 	private void setItems() {
 		m_itemList.clear();
 		ClassMetaModel cm = MetaManager.findClassMeta(getLookupClass());
-		List<SearchPropertyMetaModel> list = cm.getSearchProperties();
+		List<SearchPropertyMetaModelImpl> list = cm.getSearchProperties();
 		if(list == null || list.size() == 0)
 			throw new IllegalStateException("The class " + m_lookupClass + " has no search properties defined in it's meta data.");
 
@@ -352,18 +327,15 @@ public class LookupForm<T> extends Div {
 			throw new IllegalStateException("No idea how to create a lookup control for " + it);
 
 		//-- Add the visual presentation.
-
-
-
-
+		addItemToTable(it);
 	}
 
-	//	public void addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final SearchPropertyMetaModel spm) {
-	//		addItemToTable(label, createControlFor(name, pmm, spm)); // Add the proper input control for that type && add to the cell
-	//	}
-
 	/**
-	 * Add the item: add a row with a cell containing a label and another cell containing the lookup controls.
+	 * Add the visual representation of the item: add a row with a cell containing a label
+	 * and another cell containing the lookup controls. This tries all the myriad ways of
+	 * getting the label for the control.
+	 *
+	 * @param it	The fully completed item definition to add.
 	 */
 	private void addItemToTable(Item it) {
 		ILookupControlInstance qt = it.getInstance();
@@ -413,39 +385,37 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
-	 * Create the optimal control for the specified thingy.
+	 * Create the optimal control using metadata for a property. This can only be called for an item
+	 * containing a property with metadata.
+	 *
 	 * @param container
 	 * @param name
 	 * @param pmm
 	 * @return
 	 */
-	private ILookupControlInstance createControlFor(final String name, final PropertyMetaModel pmm, final SearchPropertyMetaModel spm) {
-		if(pmm == null || spm == null) {
-			throw new IllegalStateException("Search properties are not defined, lookup control must be created externally,  missing implementation of createControlFor in extended class of "
-				+ getClass().getName());
-		}
+	private ILookupControlInstance createControlFor(Item it) {
+		if(it.getProperty() == null)
+			throw new IllegalStateException("property cannot be null when creating using factory.");
 		IRequestContext rq = PageContext.getRequestContext();
-		boolean viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
-		boolean editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);
-		if(!viewable) {
-			//-- Check edit stuff:
-			if(pmm.getEditRoles() == null) // No edit roles at all -> exit
-				return null;
-			if(!editable)
-				return null;
+		boolean viewable = true;
+		boolean editable = true;
+		if(it.getProperty() != null) {
+			viewable = MetaManager.isAccessAllowed(it.getProperty().getViewRoles(), rq);
+			editable = MetaManager.isAccessAllowed(it.getProperty().getEditRoles(), rq);
+			if(!viewable) {
+				//-- Check edit stuff:
+				if(it.getProperty().getEditRoles() == null) // No edit roles at all -> exit
+					return null;
+				if(!editable)
+					return null;
+			}
 		}
 
-		LookupControlFactory lcf = DomApplication.get().getLookupControlFactory(pmm);
-		ILookupControlInstance qt = lcf.createControl(spm, pmm);
+		LookupControlFactory lcf = DomApplication.get().getLookupControlFactory(it.getProperty());
+		ILookupControlInstance qt = lcf.createControl(it, it.getProperty());
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
-			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + pmm);
+			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + it.getProperty());
 		return qt;
-	}
-
-	private void add(final ILookupControlInstance t) {
-		if(m_queryBuilder == Collections.EMPTY_LIST)
-			m_queryBuilder = new ArrayList<ILookupControlInstance>();
-		m_queryBuilder.add(t);
 	}
 
 	/**
@@ -535,10 +505,6 @@ public class LookupForm<T> extends Div {
 			return;
 		m_lookupClass = lookupClass;
 		reset();
-	}
-
-	public List<SearchPropertyMetaModel> getSearchProperties() {
-		return m_searchProperties;
 	}
 
 	/**

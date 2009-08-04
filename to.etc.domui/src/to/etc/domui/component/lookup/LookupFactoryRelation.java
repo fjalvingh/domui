@@ -2,10 +2,9 @@ package to.etc.domui.component.lookup;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
 import to.etc.webapp.query.*;
 
-public class RelationLookupFactory implements LookupControlFactory {
+public class LookupFactoryRelation implements LookupControlFactory {
 	public int accepts(PropertyMetaModel pmm) {
 		if(pmm.getRelationType() ==  PropertyRelationType.UP) {		// Accept only relations.
 			return 4;

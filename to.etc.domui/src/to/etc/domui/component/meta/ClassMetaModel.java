@@ -98,7 +98,7 @@ public interface ClassMetaModel {
 	 * Returns the SORTED list of search properties defined on this class.
 	 * @return
 	 */
-	public List<SearchPropertyMetaModel> getSearchProperties();
+	public List<SearchPropertyMetaModelImpl> getSearchProperties();
 
 	public String getDefaultSortProperty();
 

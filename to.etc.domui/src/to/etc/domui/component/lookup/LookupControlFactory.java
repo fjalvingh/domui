@@ -1,7 +1,6 @@
 package to.etc.domui.component.lookup;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
 
 /**
  * Creates the stuff needed to generate a single property lookup control, plus

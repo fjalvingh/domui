@@ -138,7 +138,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			setComponentTypeHint(Constants.COMPONENT_COMBO);
 		} else if(an instanceof SearchProperty) {
 			SearchProperty sp = (SearchProperty) an;
-			SearchPropertyMetaModel mm = new SearchPropertyMetaModel();
+			SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl();
 			mm.setIgnoreCase(sp.ignoreCase());
 			mm.setOrder(sp.order());
 			mm.setMinLength(sp.minLength());
