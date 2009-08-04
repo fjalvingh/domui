@@ -180,7 +180,7 @@ public class SimpleRowRenderer implements IRowRenderer {
 	 * @param col
 	 * @return
 	 */
-	public ICellClicked<?> getCellClicked(int col) {
+	public ICellClicked< ? > getCellClicked(int col) {
 		return getColumn(col).getCellClicked();
 	}
 
@@ -189,7 +189,7 @@ public class SimpleRowRenderer implements IRowRenderer {
 	 * @param col
 	 * @param cellClicked
 	 */
-	public void setCellClicked(int col, final ICellClicked<?> cellClicked) {
+	public void setCellClicked(int col, final ICellClicked< ? > cellClicked) {
 		getColumn(col).setCellClicked(cellClicked);
 	}
 
@@ -359,7 +359,7 @@ public class SimpleRowRenderer implements IRowRenderer {
 			colval = (X) cd.getValueTransformer().getValue(instance);
 
 		//-- Is a node renderer used?
-		TD	cell;
+		TD cell;
 		if(null != cd.getContentRenderer()) {
 			cell = cc.add((NodeBase) null); // Add the new row
 			((INodeContentRenderer<Object>) cd.getContentRenderer()).renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
@@ -370,8 +370,6 @@ public class SimpleRowRenderer implements IRowRenderer {
 			else {
 				if(cd.getValueConverter() != null)
 					s = ((IConverter<X>) cd.getValueConverter()).convertObjectToString(NlsContext.getLocale(), colval);
-				else if(colval instanceof String)
-					s = (String) colval;
 				else
 					s = provideStringValue(index, instance, cd, colval);
 			}
