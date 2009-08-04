@@ -20,6 +20,24 @@ import to.etc.webapp.query.*;
  * <p>The component will return a QCriteria query representing the search query constructed
  * by the user. This QCriteria object can, after retrieval, be used to add extra search
  * restrictions easily.</p>
+ * <p>When used as-is, this form will use the class' metadata to discover any defined search
+ * properties, and then populate the form with lookup controls which allow searches on those
+ * properties. This is for "default" lookup screens. For more complex screens or lookup parts
+ * that have controls interact with eachother you can manually define the contents of the
+ * lookup form. By adding lookup items manually you <i>disable</i> the automatic discovery of
+ * search options. This is proper because no form should <b>ever</b> depend on the content,
+ * structure or order of metadata-defined lookup items!!! So if you want to manipulate the
+ * lookup form's contents you have to define it's layout by hand.</p>
+ * <p>Defining a form by hand is easy. To just add a property to search for to the form call
+ * addProperty(String propname). This will create the default lookup input thing and label
+ * for the property, as defined by metadata and factories. If you need more control you can
+ * also call one of the addManualXXXX methods which allow full control over the controls
+ * and search criteria used by the form.</p>
+ * <p>Each search item added will usually return a LookupForm.Item. This is a handle to the
+ * created lookup control and associated data and can be used to manipulate the control or
+ * it's presentation at runtime.</p>
+ * <p>The constructor for this control accepts an ellipsis list of property names to quickly
+ * create a lookup using user-specified properties.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 14, 2008
