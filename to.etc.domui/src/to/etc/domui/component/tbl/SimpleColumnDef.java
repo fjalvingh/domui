@@ -53,8 +53,8 @@ public class SimpleColumnDef {
 		setColumnLabel(m.getDefaultLabel());
 		setColumnType(m.getActualType());
 		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
-		if(m.getConverterClass() != null) {
-			setValueConverter(ConverterRegistry.getConverter(m.getConverterClass()));
+		if(m.getBestConverter() != null) {
+			setValueConverter(m.getBestConverter());
 		} else if(m.getActualType().isEnum()) {
 			setValueConverter(ConverterRegistry.findConverter(m.getActualType(), m));
 		}
@@ -67,8 +67,8 @@ public class SimpleColumnDef {
 		setColumnLabel(m.getDefaultLabel());
 		setColumnType(m.getActualType());
 		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
-		if(m.getConverterClass() != null) {
-			setValueConverter(ConverterRegistry.getConverter(m.getConverterClass()));
+		if(m.getBestConverter() != null) {
+			setValueConverter(m.getBestConverter());
 		} else if(m.getActualType().isEnum()) {
 			setValueConverter(ConverterRegistry.findConverter(m.getActualType(), m));
 		}

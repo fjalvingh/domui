@@ -29,6 +29,8 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 
 	private Class<? extends IConverter<?>> m_converterClass;
 
+	private IConverter<?> m_bestConverter;
+
 	private SortableType m_sortableType = SortableType.UNKNOWN;
 
 	private String m_propertyName;
@@ -42,6 +44,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 			m_actualType = m_propertyMeta.getActualType();
 			m_propertyName = m_propertyMeta.getName();
 			m_converterClass = propertyMeta.getConverterClass();
+			m_bestConverter = propertyMeta.getBestConverter();
 			if(m_sortableType == SortableType.UNKNOWN)
 				setSortable(propertyMeta.getSortable());
 			if(m_displayLength <= 0) {
@@ -53,6 +56,8 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		if(displayMeta != null) { // ORDER 2 (overrides propertyMeta)
 			if(displayMeta.getConverterClass() != null)
 				m_converterClass = displayMeta.getConverterClass();
+			if(displayMeta.getBestConverter() != null)
+				m_bestConverter = displayMeta.getBestConverter();
 			if(displayMeta.getSortable() != SortableType.UNKNOWN)
 				setSortable(displayMeta.getSortable());
 			if(displayMeta.getDisplayLength() > 0)
@@ -246,6 +251,14 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 
 	public Class<? extends IConverter<?>> getConverterClass() {
 		return m_converterClass;
+	}
+
+	public IConverter<?> getBestConverter() {
+		return m_bestConverter;
+	}
+
+	public void setBestConverter(IConverter<?> bestConverter) {
+		m_bestConverter = bestConverter;
 	}
 
 	public int getDisplayLength() {

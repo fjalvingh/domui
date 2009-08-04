@@ -88,7 +88,7 @@ public class MoneyUtil {
 		String s;
 		if(symbol && thousands) {
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+			DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 			StringBuilder sb = new StringBuilder(20);
 			sb.append(NlsContext.getCurrency().getSymbol());
 			sb.append(' ');
@@ -96,7 +96,7 @@ public class MoneyUtil {
 			s = sb.toString();
 		} else if(symbol) {
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("###############.00", dfs);
+			DecimalFormat df = new DecimalFormat("##############0.00", dfs);
 			StringBuilder sb = new StringBuilder(20);
 			sb.append(NlsContext.getCurrency().getSymbol());
 			sb.append(' ');
@@ -104,12 +104,12 @@ public class MoneyUtil {
 			s = sb.toString();
 		} else if(thousands) {
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+			DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 			s = df.format(v);
 		} else {
 			//-- No symbol, no thousands separators; just a #
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("###############.00", dfs);
+			DecimalFormat df = new DecimalFormat("##############0.00", dfs);
 			s = df.format(v);
 		}
 		if(trunk) {
@@ -134,7 +134,7 @@ public class MoneyUtil {
 		String s;
 		if(symbol && thousands) {
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+			DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 			StringBuilder sb = new StringBuilder(20);
 			sb.append(NlsContext.getCurrency().getSymbol());
 			sb.append(' ');
@@ -142,7 +142,7 @@ public class MoneyUtil {
 			s = sb.toString();
 		} else if(symbol) {
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("###############.00", dfs);
+			DecimalFormat df = new DecimalFormat("##############0.00", dfs);
 			StringBuilder sb = new StringBuilder(20);
 			sb.append(NlsContext.getCurrency().getSymbol());
 			sb.append(' ');
@@ -150,12 +150,12 @@ public class MoneyUtil {
 			s = sb.toString();
 		} else if(thousands) {
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+			DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 			s = df.format(v);
 		} else {
 			//-- No symbol, no thousands separators; just a #
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("###############.00", dfs);
+			DecimalFormat df = new DecimalFormat("##############0.00", dfs);
 			s = df.format(v);
 		}
 		if(trunk) {
@@ -179,7 +179,7 @@ public class MoneyUtil {
 		}
 
 		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-		DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 		StringBuilder sb = new StringBuilder(20);
 		sb.append(NlsContext.getCurrencySymbol());
 		sb.append(' ');
@@ -200,7 +200,7 @@ public class MoneyUtil {
 			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
 		}
 		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-		DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 		StringBuilder sb = new StringBuilder(20);
 		sb.append(NlsContext.getCurrency().getSymbol());
 		sb.append(' ');
@@ -222,7 +222,7 @@ public class MoneyUtil {
 		}
 
 		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-		DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 		StringBuilder sb = new StringBuilder(20);
 		sb.append(NlsContext.getCurrencySymbol());
 		sb.append(' ');
@@ -243,7 +243,7 @@ public class MoneyUtil {
 			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
 		}
 		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-		DecimalFormat df = new DecimalFormat("###,###,###,###,###.00", dfs);
+		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 		StringBuilder sb = new StringBuilder(20);
 		sb.append(NlsContext.getCurrency().getSymbol());
 		sb.append(' ');

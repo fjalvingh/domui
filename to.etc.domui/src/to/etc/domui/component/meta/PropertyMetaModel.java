@@ -103,6 +103,13 @@ public interface PropertyMetaModel {
 	public Class<? extends IConverter<?>> getConverterClass();
 
 	/**
+	 * If known returns the best converter to use to convert this to a string value and v.v. This will
+	 * return the proper (calculated or set) converter to use for numeric types.
+	 * @return
+	 */
+	public IConverter<?> getBestConverter();
+
+	/**
 	 * Whether the property is defined as requiring a value.
 	 * @return
 	 */

@@ -143,6 +143,7 @@ public class TestMoneyConverter {
 	@Test
 	public void testToString() {
 		System.out.println("double naar string representatie: simpel");
+		testSimple(0.00, "0.00");
 		testSimple(1.00, "1.00");
 		testSimple(1, "1.00");
 		testSimple(1.0001, "1.00");
@@ -155,6 +156,7 @@ public class TestMoneyConverter {
 		testFullSign(1234567, "\u20ac 1.234.567,00");
 		testFullSign(1234567.01, "\u20ac 1.234.567,01");
 		testFullSign(1234567.1, "\u20ac 1.234.567,10");
+		testFullSign(0.0, "\u20ac 0,00");
 
 		testFullSign(-1234567.89, "\u20ac -1.234.567,89");
 		testFullSign(-1234567, "\u20ac -1.234.567,00");

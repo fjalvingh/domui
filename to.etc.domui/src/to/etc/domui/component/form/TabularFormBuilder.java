@@ -282,7 +282,7 @@ public class TabularFormBuilder {
 	public <T extends NodeBase & IInputNode< ? >> void addProp(final String propertyname, final T ctl) {
 		PropertyMetaModel pmm = resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
-		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory());
+		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), pmm);
 		getBindings().add(new SimpleComponentPropertyBinding(getModel(), pmm, ctl));
 	}
 
@@ -298,7 +298,7 @@ public class TabularFormBuilder {
 		if(!m_calc.calculate(pmm))
 			return;
 		final ControlFactory.Result r = createControlFor(m_model, pmm, editPossible && m_calc.isEditable()); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired());
+		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), pmm);
 		if(r.getBinding() != null)
 			m_bindings.add(r.getBinding());
 		else
@@ -311,14 +311,14 @@ public class TabularFormBuilder {
 	 * @param labelnode			The node to connect the Label to (for=)
 	 * @param mandatory
 	 */
-	private void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory) {
+	private void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, PropertyMetaModel pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = DomApplication.get().getControlLabelFactory();
 			if(clf == null)
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
-		Label l = clf.createControlLabel(labelnode, label, true, mandatory);
+		Label l = clf.createControlLabel(labelnode, label, true, mandatory, pmm);
 		//
 		//		if(mandatory)
 		//			label = "*"+label;
@@ -327,7 +327,7 @@ public class TabularFormBuilder {
 	}
 
 	public void addLabelAndControl(final String label, final NodeBase control, final boolean mandatory) {
-		addControl(label, control, new NodeBase[]{control}, mandatory);
+		addControl(label, control, new NodeBase[]{control}, mandatory, null);
 	}
 
 	/*--------------------------------------------------------------*/

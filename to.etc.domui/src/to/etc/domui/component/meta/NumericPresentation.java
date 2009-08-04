@@ -26,5 +26,19 @@ public enum NumericPresentation {
 	MONEY_NO_SYMBOL,
 
 	/** Just the amount, including faction, without any unnecessary adornments */
-	MONEY_NUMERIC,
+	MONEY_NUMERIC;
+
+	static public boolean isMonetary(NumericPresentation np) {
+		switch(np){
+			default:
+				return false;
+			case MONEY:
+			case MONEY_FULL:
+			case MONEY_FULL_TRUNC:
+			case MONEY_NO_SYMBOL:
+			case MONEY_NUMERIC:
+				return true;
+		}
+	}
+
 }

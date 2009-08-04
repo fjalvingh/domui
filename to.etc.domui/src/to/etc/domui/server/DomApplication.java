@@ -102,6 +102,7 @@ public abstract class DomApplication {
 		m_controlFactoryList.add(ControlFactory.DATE_CF);
 		m_controlFactoryList.add(ControlFactory.RELATION_COMBOBOX_CF);
 		m_controlFactoryList.add(ControlFactory.RELATION_LOOKUP_CF);
+		m_controlFactoryList.add(new ControlFactoryMoney());
 	}
 
 	static public void internalSetCurrent(final DomApplication da) {

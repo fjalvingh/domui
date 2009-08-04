@@ -8,6 +8,8 @@ public class BasicPropertyMetaModel {
 
 	private Class< ? extends IConverter< ? >> m_converterClass;
 
+	private IConverter<?> m_bestConverter;
+
 	private SortableType m_sortable = SortableType.UNKNOWN;
 
 	private int m_displayLength = -1;
@@ -46,6 +48,14 @@ public class BasicPropertyMetaModel {
 
 	public void setConverterClass(Class< ? extends IConverter< ? >> converter) {
 		m_converterClass = converter;
+	}
+
+	public IConverter<?> getBestConverter() {
+		return m_bestConverter;
+	}
+
+	public void setBestConverter(IConverter<?> bestConverter) {
+		m_bestConverter = bestConverter;
 	}
 
 	public SortableType getSortable() {

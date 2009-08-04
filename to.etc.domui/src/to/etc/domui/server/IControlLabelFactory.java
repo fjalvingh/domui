@@ -1,5 +1,6 @@
 package to.etc.domui.server;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
 /**
@@ -10,5 +11,5 @@ import to.etc.domui.dom.html.*;
  * Created on Dec 8, 2008
  */
 public interface IControlLabelFactory {
-	public Label createControlLabel(NodeBase control, String text, boolean editable, boolean mandatory);
+	public Label createControlLabel(NodeBase control, String text, boolean editable, boolean mandatory, PropertyMetaModel pmm);
 }
