@@ -18,11 +18,18 @@ final class LookupFactoryNumber implements LookupControlFactory {
 
 		final Text< ? > numA = createNumericInput(pmm);
 		final Text< ? > numB = createNumericInput(pmm);
-		numB.setDisabled(true);
 
 		final ComboFixed<NumericRelationType> relationCombo = new ComboFixed<NumericRelationType>(values);
 
 		final AbstractLookupControlImpl result = new AbstractLookupControlImpl(relationCombo, numA, numB) {
+			@Override
+			public NodeBase[] getInputControls() {
+				if(relationCombo.getValue() == NumericRelationType.BETWEEN)
+					return new NodeBase[]{relationCombo, numA, numB};
+				else
+					return new NodeBase[]{relationCombo, numA};
+			}
+
 			@Override
 			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
 				NumericRelationType relation;
@@ -64,18 +71,14 @@ final class LookupFactoryNumber implements LookupControlFactory {
 		};
 
 		relationCombo.setClicked(new IClicked<ComboFixed<NumericRelationType>>() {
-
 			public void clicked(ComboFixed<NumericRelationType> b) throws Exception {
 				if(b.getValue() == NumericRelationType.BETWEEN) {
-					if(numB.isDisabled()) {
-						numB.setDisabled(false);
-					}
-				} else if(!numB.isDisabled()) {
-					numB.setDisabled(true);
-					numB.setValue(null);
+					if(numB.getPage() == null)
+						numA.appendAfterMe(numB);
+				} else if(numB.getPage() != null) {
+					numB.remove();
 				}
 			}
-
 		});
 		return result;
 	}
