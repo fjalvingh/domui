@@ -2,7 +2,7 @@ package to.etc.domui.dom.html;
 
 /**
  * INCOMPLETE A full-coded select box: this is unsuitable for large amount of options.
- * 
+ *
  * Handling the selected item is incomplete.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -43,7 +43,10 @@ public class Select extends InputNodeContainer {
 	}
 
 	public void setMultiple(boolean multiple) {
+		if(m_multiple == multiple)
+			return;
 		m_multiple = multiple;
+		changed();
 	}
 
 	public boolean isDisabled() {
@@ -51,7 +54,10 @@ public class Select extends InputNodeContainer {
 	}
 
 	public void setDisabled(boolean disabled) {
+		if(m_disabled == disabled)
+			return;
 		m_disabled = disabled;
+		changed();
 	}
 
 	public int getSize() {
@@ -59,7 +65,10 @@ public class Select extends InputNodeContainer {
 	}
 
 	public void setSize(int size) {
+		if(m_size == size)
+			return;
 		m_size = size;
+		changed();
 	}
 
 	@Override
