@@ -14,12 +14,12 @@ import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
 /**
- * Contains a search box to enter search criteria; the result of
- * the search is shown in a pageable list. The user can select
- * a single entry in the list; this selection becomes the value
- * of this form.
- * This form mostly gets it's data from metadata for a given
- * record type.
+ * Creates a search box to enter search criteria. This only presents the search part of the
+ * form, constructed by metadata where needed, and the "search", "clear fields" and optional
+ * "new" buttons. The actual searching must be done by the user of this component.
+ * <p>The component will return a QCriteria query representing the search query constructed
+ * by the user. This QCriteria object can, after retrieval, be used to add extra search
+ * restrictions easily.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 14, 2008
@@ -35,9 +35,6 @@ public class LookupForm<T> extends Div {
 	IClicked<LookupForm<T>> m_onNew;
 
 	private Table m_table;
-
-	/** The list of actual control instances on the form, when built. */
-	private List<ILookupControlInstance> m_queryBuilder = Collections.EMPTY_LIST;
 
 	private TBody m_tbody;
 
@@ -134,8 +131,8 @@ public class LookupForm<T> extends Div {
 	 */
 	public LookupForm(final Class<T> lookupClass, String... propertyList) {
 		m_lookupClass = lookupClass;
-		//		for(String prop : propertyList)
-		//			addLookupProperty(prop);
+		for(String prop : propertyList)
+			addProperty(prop);
 	}
 
 	/**
@@ -290,14 +287,38 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
-	 * Add a manually-created lookup control to the item list.
+	 * Add a manually-created lookup control instance to the item list.
 	 * @return
 	 */
-	public Item addManualControl(ILookupControlInstance lci) {
+	public Item addManual(ILookupControlInstance lci) {
 		Item it = new Item();
 		it.setInstance(lci);
 		m_itemList.add(it);
 		return it;
+	}
+
+	/**
+	 * Add a manually-created lookup control instance with user-specified label to the item list.
+	 * @return
+	 */
+	public Item addManualTextLabel(String labelText, ILookupControlInstance lci) {
+		Item it = addManual(lci);
+		it.setLabelText(labelText);
+		return it;
+	}
+
+	/**
+	 * Adds a manually-defined control, and use the specified property as the source for it's default label.
+	 * @param property
+	 * @param lci
+	 * @return
+	 */
+	public Item addManualPropertyLabel(String property, ILookupControlInstance lci) {
+		ClassMetaModel cm = MetaManager.findClassMeta(getLookupClass());
+		PropertyMetaModel pmm = cm.findProperty(property);
+		if(null == pmm)
+			throw new ProgrammerErrorException(property + ": undefined property for class=" + getLookupClass());
+		return addManualTextLabel(pmm.getDefaultLabel(), lci);
 	}
 
 	/**
@@ -440,9 +461,12 @@ public class LookupForm<T> extends Div {
 	public QCriteria<T> getEnteredCriteria() throws Exception {
 		QCriteria<T> root = QCriteria.create(m_lookupClass);
 		boolean success = true;
-		for(ILookupControlInstance th : m_queryBuilder) {
-			if(!th.appendCriteria(root))
-				success = false;
+		for(Item it : m_itemList) {
+			ILookupControlInstance li = it.getInstance();
+			if(li != null) { // FIXME Is it reasonable to allow null here?? Should we not abort?
+				if(!li.appendCriteria(root))
+					success = false;
+			}
 		}
 		if(!success) // Some input failed to validate their input criteria?
 			return null; // Then exit null -> should only display errors.
@@ -458,14 +482,9 @@ public class LookupForm<T> extends Div {
 	 * this call, the form should return an empty QCriteria without any restrictions.
 	 */
 	public void clearInput() {
-		for(ILookupControlInstance th : m_queryBuilder) {
-			th.clearInput();
-			//			for(NodeBase nb : th.getInputControls()) {
-			//				if(nb instanceof IInputNode<?>) {
-			//					IInputNode<?> v = (IInputNode<?>) nb;
-			//					v.setValue(null);
-			//				}
-			//			}
+		for(Item it : m_itemList) {
+			if(it.getInstance() != null)
+				it.getInstance().clearInput();
 		}
 	}
 
