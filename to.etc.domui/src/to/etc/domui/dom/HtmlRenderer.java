@@ -404,7 +404,7 @@ public class HtmlRenderer implements INodeVisitor {
 
 		//-- Javascriptish
 		if(b.internalNeedClickHandler()) {
-			o.attr("onclick", sb().append("return WebUI.clicked(this, '").append(b.getActualID()).append("')").toString());
+			o.attr("onclick", sb().append("return WebUI.clicked(this, '").append(b.getActualID()).append("', event)").toString());
 		} else if(b.getOnClickJS() != null) {
 			o.attr("onclick", b.getOnClickJS());
 		}
@@ -414,7 +414,7 @@ public class HtmlRenderer implements INodeVisitor {
 		if(b instanceof IInputBase) {
 			IInputBase inb = (IInputBase) b;
 			if(null != inb.getOnValueChanged()) {
-				o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("')").toString());
+				o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
 			}
 		}
 	}

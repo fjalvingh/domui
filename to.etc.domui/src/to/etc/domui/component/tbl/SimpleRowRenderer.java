@@ -386,12 +386,12 @@ public class SimpleRowRenderer implements IRowRenderer {
 			 * FIXME For now I add a separate instance of the handler to every cell. A single instance is OK too,
 			 * provided it can calculate the row and cell data from the TR it is attached to.
 			 */
-			cc.getTR().setClicked(new IClicked<TR>() {
-				public void clicked(TR b) throws Exception {
+			cell.setClicked(new IClicked<TD>() {
+				public void clicked(TD b) throws Exception {
 					((ICellClicked<Object>) cd.getCellClicked()).cellClicked(tbl.getPage(), b, instance);
 				}
 			});
-			cc.getTR().addCssClass("ui-cellsel");
+			cell.addCssClass("ui-cellsel");
 		}
 
 		if(cd.getAlign() != null)

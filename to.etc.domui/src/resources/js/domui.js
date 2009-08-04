@@ -418,7 +418,7 @@ var WebUI = {
 		return p;
 	},
 
-	clicked : function(h, id) {
+	clicked : function(h, id, evt) {
 		// Collect all input, then create input.
 		var fields = new Object();
 		this.getInputFields(fields);
@@ -427,6 +427,14 @@ var WebUI = {
 		fields["$pt"] = DomUIpageTag;
 		fields["$cid"] = DomUICID;
 		WebUI.cancelPolling();
+		//-- Do not call upward handlers too.
+		if(! evt)
+			evt = window.event;
+		if(evt) {
+			evt.cancelBubble = true;
+			if(evt.stopPropagation)
+				evt.stopPropagation();
+		}
 
 		$.ajax( {
 			url :DomUI.getPostURL(),
