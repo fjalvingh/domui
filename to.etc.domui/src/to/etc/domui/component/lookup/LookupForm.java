@@ -187,7 +187,7 @@ public class LookupForm<T> extends Div {
 		Div d = new Div();
 		sroot.add(d);
 
-		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.search"));
+		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
 		d.add(b);
 		b.setIcon("THEME/btnFind.png");
 		b.setClicked(new IClicked<NodeBase>() {
@@ -197,7 +197,7 @@ public class LookupForm<T> extends Div {
 			}
 		});
 
-		b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.clear"));
+		b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
 		d.add(b);
 		b.setIcon("THEME/btnClear.png");
 		b.setClicked(new IClicked<NodeBase>() {
@@ -207,7 +207,7 @@ public class LookupForm<T> extends Div {
 		});
 
 		if(getOnNew() != null) {
-			b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.new"));
+			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
 			d.add(b);
 			b.setIcon("THEME/btnNew.png");
 			b.setClicked(new IClicked<NodeBase>() {
@@ -295,7 +295,7 @@ public class LookupForm<T> extends Div {
 			throw new ProgrammerErrorException("Unknown property " + path + " on class=" + getLookupClass());
 
 		//-- Define the item.
-		Item	it	= new Item();
+		Item it = new Item();
 		it.setProperty(pmm);
 		if(ignorecase != null)
 			it.setIgnoreCase(ignorecase.booleanValue());
@@ -394,7 +394,7 @@ public class LookupForm<T> extends Div {
 		NodeBase labelcontrol = qt.getLabelControl();
 		for(NodeBase b : qt.getInputControls()) { // Add all nodes && try to find label control if unknown.
 			ccell.add(b);
-			if(labelcontrol == null && b instanceof IInputNode<?>)
+			if(labelcontrol == null && b instanceof IInputNode< ? >)
 				labelcontrol = b;
 		}
 		if(labelcontrol == null)
@@ -565,7 +565,7 @@ public class LookupForm<T> extends Div {
 	 * @see to.etc.domui.dom.html.NodeBase#setClicked(to.etc.domui.dom.html.IClicked)
 	 */
 	@Override
-	public void setClicked(final IClicked<?> clicked) {
+	public void setClicked(final IClicked< ? > clicked) {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
 	}
 }
