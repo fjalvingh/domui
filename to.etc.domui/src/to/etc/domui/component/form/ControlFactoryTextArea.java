@@ -21,8 +21,9 @@ public class ControlFactoryTextArea implements ControlFactory {
 		TextArea ta = new TextArea();
 		if(!editable)
 			ta.setReadOnly(true);
-		ta.setCols(80);
-		ta.setRows(4);
+		String hint = pmm.getComponentTypeHint().toLowerCase();
+		ta.setCols(Utils.parseIntParam(hint, "col", 80));
+		ta.setRows(Utils.parseIntParam(hint, "row", 4));
 		if(pmm.isRequired())
 			ta.setMandatory(true);
 		String s = pmm.getDefaultHint();
