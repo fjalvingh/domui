@@ -269,6 +269,27 @@ public class TabularFormBuilder {
 		return this;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Core public interface.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Add an input for the specified property. The property is based at the current input
+	 * class. The input model is default (using metadata) and the property is labeled using
+	 * the metadata-provided label. 
+	 *
+	 * FORMAL-INTERFACE.
+	 *
+	 * @param name
+	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
+	 */
+	public void addProp(final String name, final boolean readOnly) {
+		if(readOnly) {
+			addReadOnlyProp(name);
+		} else {
+			addProp(name);
+		}
+	}
+
 	/**
 	 * Add a user-specified control for a given property. This adds the control, using
 	 * the property-specified label and creates a binding for the property on the
