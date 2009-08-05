@@ -57,7 +57,7 @@ public class LookupForm<T> extends Div {
 
 	private TBody m_tbody;
 
-	private NodeContainer m_content;
+	private Div m_content;
 
 	private NodeContainer m_collapsed;
 
@@ -225,7 +225,7 @@ public class LookupForm<T> extends Div {
 		}
 
 		//-- Collapse button thingy
-		b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.collapse"), new IClicked<DefaultButton>() {
+		b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.collapse"), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
 				collapse();
 			}
@@ -247,7 +247,10 @@ public class LookupForm<T> extends Div {
 	void collapse() {
 		if(m_content.getDisplay() == DisplayType.NONE)
 			return;
-		m_content.setDisplay(DisplayType.NONE);
+		//		appendJavascript("$('#" + m_content.getActualID() + "').slideUp();");
+		m_content.slideUp();
+
+		//		m_content.setDisplay(DisplayType.NONE);
 		m_collapsed = new Div();
 		m_collapsed.setCssClass("ui-lf-coll");
 
@@ -265,12 +268,12 @@ public class LookupForm<T> extends Div {
 		}
 
 		//-- Collapse button thingy
-		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.restore"), new IClicked<DefaultButton>() {
+		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.restore"), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
 				restore();
 			}
 		});
-		m_content.add(b);
+		m_collapsed.add(b);
 	}
 
 	void restore() {

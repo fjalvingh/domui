@@ -1,5 +1,6 @@
 package to.etc.domui.dom.html;
 
+import to.etc.domui.dom.css.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
@@ -144,4 +145,38 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	public DropMode getDropMode() {
 		return m_dropMode;
 	}
+
+	/**
+	 * Effect: hide this div by adjusting it's height, ending as a display: none.
+	 */
+	public void slideUp() {
+		if(internalSetDisplay(DisplayType.NONE))
+			appendJavascript("$('#" + getActualID() + "').slideUp();");
+	}
+
+	/**
+	 * Redisplay a display: none thing slowly.
+	 */
+	public void slideDown() {
+		if(internalSetDisplay(DisplayType.BLOCK))
+			appendJavascript("$('#" + getActualID() + "').slideDown();");
+	}
+
+	/**
+	 * Effect: hide this div by fading out.
+	 */
+	public void fadeOut() {
+		if(internalSetDisplay(DisplayType.NONE))
+			appendJavascript("$('#" + getActualID() + "').fadeOut();");
+	}
+
+	/**
+	 * Redisplay a display: none thing slowly.
+	 */
+	public void fadeIn() {
+		if(internalSetDisplay(DisplayType.BLOCK))
+			appendJavascript("$('#" + getActualID() + "').fadeIn();");
+	}
+
+
 }
