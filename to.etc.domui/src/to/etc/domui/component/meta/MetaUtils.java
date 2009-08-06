@@ -5,7 +5,7 @@ package to.etc.domui.component.meta;
  * @author vmijic
  * Created on 4 Aug 2009
  */
-public class Utils {
+public class MetaUtils {
 	/**
 	 * Parses value of param defined in metadataLine string as Integer value.
 	 * @return Integer value represented as string, in case that param is not defined or NumberFormatException exception returns default value.
