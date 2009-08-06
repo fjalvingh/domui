@@ -6,16 +6,29 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
 
+/**
+ * Implementation for a Display Property metamodel. The Display Property data overrides the default
+ * metadata for a property in a given display context.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Aug 6, 2009
+ */
 public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	private String m_name;
 
 	private String m_join;
 
+	private ClassMetaModel m_containedInClass;
+
+	private String m_labelKey;
+
 	public DisplayPropertyMetaModel() {}
 
-	public DisplayPropertyMetaModel(MetaDisplayProperty p) {
+	public DisplayPropertyMetaModel(ClassMetaModel cmm, MetaDisplayProperty p) {
+		m_containedInClass = cmm;
 		m_name = p.name();
-		setLabel(Constants.NO_DEFAULT_LABEL.equals(p.defaultLabel()) ? null : p.defaultLabel());
+		if(!Constants.NO_DEFAULT_LABEL.equals(p.defaultLabel()))
+			m_labelKey = p.defaultLabel();
 		setConverterClass((Class< ? extends IConverter< ? >>) (p.converterClass() == IConverter.class ? null : p.converterClass()));
 		setSortable(p.defaultSortable());
 		setDisplayLength(p.displayLength());
@@ -23,6 +36,24 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();
 	}
 
+	/**
+	 * Converts a list of MetaDisplayProperty annotations into their metamodel equivalents.
+	 * @param cmm
+	 * @param mar
+	 * @return
+	 */
+	static public List<DisplayPropertyMetaModel> decode(ClassMetaModel cmm, MetaDisplayProperty[] mar) {
+		List<DisplayPropertyMetaModel> list = new ArrayList<DisplayPropertyMetaModel>(mar.length);
+		for(MetaDisplayProperty p : mar) {
+			list.add(new DisplayPropertyMetaModel(cmm, p));
+		}
+		return list;
+	}
+
+	/**
+	 * Returns the property name this pertains to. This can be a property path expression.
+	 * @return
+	 */
 	public String getName() {
 		return m_name;
 	}
@@ -31,6 +62,11 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 		m_name = name;
 	}
 
+	/**
+	 * If this is joined display property, this returns the string to put between the joined values. Returns
+	 * null for unjoined properties.
+	 * @return
+	 */
 	public String getJoin() {
 		return m_join;
 	}
@@ -39,12 +75,17 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 		m_join = join;
 	}
 
-	static public List<DisplayPropertyMetaModel> decode(MetaDisplayProperty[] mar) {
-		List<DisplayPropertyMetaModel> list = new ArrayList<DisplayPropertyMetaModel>(mar.length);
-		for(MetaDisplayProperty p : mar) {
-			list.add(new DisplayPropertyMetaModel(p));
-		}
-		return list;
+	/**
+	 * If the label for this display property is overridden this returns the value (not the key) for
+	 * the overridden label. If this display property does not override the label it returns null. When
+	 * the key does not exist in the bundle this returns the key error string (???+key+???).
+	 * @return
+	 */
+	public String getLabel() {
+		if(m_labelKey == null)
+			return null;
+
+		return m_containedInClass.getClassBundle().getString(m_labelKey);
 	}
 
 	/**

@@ -24,9 +24,6 @@ public interface PropertyMetaModel {
 	 */
 	public Class< ? > getActualType();
 
-	@Deprecated
-	public String getDefaultLabel(Locale loc);
-
 	/**
 	 * Return any default label (the text to use before the control that inputs this property) for this
 	 * property. The default label is obtained from the resource file with the same location and name as

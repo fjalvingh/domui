@@ -11,25 +11,17 @@ import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
 public class DefaultClassMetaModel implements ClassMetaModel {
-	static private final ResourceBundle NONE = new ResourceBundle() {
-		@Override
-		protected Object handleGetObject(final String key) {
-			return null;
-		}
-
-		@Override
-		public Enumeration<String> getKeys() {
-			return null;
-		}
-	};
-
+	/** The class this is a class metamodel <i>for</i> */
 	private final Class< ? > m_metaClass;
+
+	private String m_classNameOnly;
+
+	/** Theclass' resource bundle. */
+	private BundleRef m_classBundle;
 
 	private boolean m_initialized;
 
 	private final Map<String, PropertyMetaModel> m_propertyMap = new HashMap<String, PropertyMetaModel>();
-
-	private final Map<Locale, ResourceBundle> m_textMap = new HashMap<Locale, ResourceBundle>();
 
 	/**
 	 * When this object type is defined in an UP relation somewhere, this is a hint on what
@@ -81,14 +73,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private PropertyMetaModel m_primaryKey;
 
-	private String m_userName;
-
-	private String m_userNamePlural;
-
 	private Object[] m_domainValues;
 
 	public DefaultClassMetaModel(final Class< ? > metaClass) {
 		m_metaClass = metaClass;
+		m_classNameOnly = metaClass.getName().substring(metaClass.getName().lastIndexOf('.') + 1);
+		m_classBundle = BundleRef.create(metaClass, m_classNameOnly);
 	}
 
 	/**
@@ -192,7 +182,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 			if(c.optional() != ComboOptionalType.INHERITED)
 				m_comboOptional = c.optional();
 			if(c.properties() != null && c.properties().length > 0) {
-				m_comboDisplayProperties = DisplayPropertyMetaModel.decode(c.properties());
+				m_comboDisplayProperties = DisplayPropertyMetaModel.decode(this, c.properties());
 			}
 			setComponentTypeHint(Constants.COMPONENT_COMBO);
 		} else if(an instanceof MetaLookup) {
@@ -200,12 +190,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
 				m_lookupFieldRenderer = c.nodeRenderer();
 			if(c.properties().length != 0)
-				m_lookupFieldDisplayProperties = DisplayPropertyMetaModel.decode(c.properties());
+				m_lookupFieldDisplayProperties = DisplayPropertyMetaModel.decode(this, c.properties());
 			setComponentTypeHint(Constants.COMPONENT_LOOKUP);
 		} else if(an instanceof MetaObject) {
 			MetaObject mo = (MetaObject) an;
 			if(mo.defaultColumns().length > 0) {
-				m_tableDisplayProperties = DisplayPropertyMetaModel.decode(mo.defaultColumns());
+				m_tableDisplayProperties = DisplayPropertyMetaModel.decode(this, mo.defaultColumns());
 			}
 			if(!mo.defaultSortColumn().equals(Constants.NONE))
 				setDefaultSortProperty(mo.defaultSortColumn());
@@ -217,21 +207,10 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/*	CODING:	Resource bundle data.								*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Locates the bundle for the specified locale. Returns null if no bundle is present. The
-	 * bundles found are cached for the locale's name.
+	 * Return the class' resource bundle.
 	 */
-	private synchronized ResourceBundle findBundle(final Locale loc) {
-		ResourceBundle b = m_textMap.get(loc);
-		if(b == null) {
-			String base = m_metaClass.getName();
-			try {
-				b = ResourceBundle.getBundle(base, loc);
-			} catch(Exception x) {
-				b = NONE;
-			}
-			m_textMap.put(loc, b);
-		}
-		return b == NONE ? null : b;
+	public BundleRef getClassBundle() {
+		return m_classBundle;
 	}
 
 	/**
@@ -245,27 +224,36 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @return
 	 */
 	String getPropertyLabel(final DefaultPropertyMetaModel p, final Locale loc) {
-		ResourceBundle b = findBundle(loc);
-		if(b == null)
-			return p.getName();
-		try {
-			return b.getString(p.getName() + ".label");
-		} catch(Exception x) {}
-		return p.getName();
+		String s = getClassBundle().findMessage(loc, p.getName() + ".label");
+		return s == null ? p.getName() : s;
 	}
 
+	/**
+	 * Return the "hint" for a property.
+	 * @param p
+	 * @param loc
+	 * @return
+	 */
 	String getPropertyHint(final DefaultPropertyMetaModel p, final Locale loc) {
-		ResourceBundle b = findBundle(loc);
-		if(b == null)
-			return null;
-		try {
-			return b.getString(p.getName() + ".hint");
-		} catch(Exception x) {}
-		return null;
+		return getClassBundle().findMessage(loc, p.getName() + ".hint");
 	}
 
-	ResourceBundle getBundle(final Locale loc) {
-		return findBundle(loc);
+	/**
+	 * Return a user-presentable entity name for this class. This defaults to the classname itself if unset.
+	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityName()
+	 */
+	public String getUserEntityName() {
+		String s = getClassBundle().findMessage(NlsContext.getLocale(), "entity.name");
+		return s == null ? getClassNameOnly() : s;
+	}
+
+	/**
+	 * Returns a user-presentable entity name as a plural name.
+	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityNamePlural()
+	 */
+	public String getUserEntityNamePlural() {
+		String s = getClassBundle().findMessage(NlsContext.getLocale(), "entity.pluralname");
+		return s == null ? getClassNameOnly() : s;
 	}
 
 	/**
@@ -442,35 +430,6 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return "ClassMetaModel[" + m_metaClass.getName() + "]";
 	}
 
-	public String getUserEntityName() {
-		if(m_userName != null)
-			return m_userName;
-		try {
-			return getBundle(NlsContext.getLocale()).getString("entity.name");
-		} catch(Exception x) {}
-
-		return null;
-		//		return getActualClass().getName().substring(getActualClass().getName().lastIndexOf('.')+1);
-	}
-
-	public String getUserEntityNamePlural() {
-		if(m_userNamePlural != null)
-			return m_userNamePlural;
-		try {
-			return getBundle(NlsContext.getLocale()).getString("entity.pluralname");
-		} catch(Exception x) {}
-		return null;
-		//		return getActualClass().getName().substring(getActualClass().getName().lastIndexOf('.')+1);
-	}
-
-	public void setUserEntityName(final String s) {
-		m_userName = s;
-	}
-
-	public void setUserEntityNamePlural(final String s) {
-		m_userNamePlural = s;
-	}
-
 	public Object[] getDomainValues() {
 		return m_domainValues;
 	}
@@ -479,23 +438,27 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_domainValues = domainValues;
 	}
 
+	public String getClassNameOnly() {
+		return m_classNameOnly;
+	}
+
 	/**
 	 * Retrieves a label value for the specified domain value. This is obtained from the appropriate
-	 * bundle for this class.
+	 * bundle for *this* class. Usually you would use the same call on a property, not on the class,
+	 * since the property based version allows you to have property-specific translations for values.
+	 * The property based version delegates here when no property based version is found.
+	 *
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getDomainLabel(java.util.Locale, java.lang.Object)
 	 */
 	public String getDomainLabel(final Locale loc, final Object value) {
-		ResourceBundle b = findBundle(loc);
-		if(b == null)
-			return null;
 		if(value instanceof Enum< ? >) {
 			try {
-				return b.getString(((Enum< ? >) value).name() + ".label");
+				String s = getClassBundle().findMessage(loc, ((Enum<?>) value).name() + ".label");
+				return s; // jal 20090806 Must return null; let caller decide what the default should be.
 			} catch(Exception x) {}
 		}
-		if(value instanceof Boolean) {
-			return NlsContext.getGlobalMessage(((Boolean) value).booleanValue() ? Msgs.UI_BOOL_TRUE : Msgs.UI_BOOL_FALSE);
-		}
+		if(value instanceof Boolean)
+			return Msgs.BUNDLE.getString(((Boolean) value).booleanValue() ? Msgs.UI_BOOL_TRUE : Msgs.UI_BOOL_FALSE);
 		return null;
 	}
 }

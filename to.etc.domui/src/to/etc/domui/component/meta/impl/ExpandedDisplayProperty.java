@@ -35,11 +35,14 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 
 	private String m_propertyName;
 
+	private String m_defaultLabel;
+
 	protected ExpandedDisplayProperty(DisplayPropertyMetaModel displayMeta, PropertyMetaModel propertyMeta, IValueAccessor< ? > accessor) {
 		//		m_displayMeta = displayMeta;
 		m_propertyMeta = propertyMeta;
 		m_accessor = accessor;
 		if(propertyMeta != null) { // ORDER 1
+			m_defaultLabel = m_propertyMeta.getDefaultLabel();
 			m_classModel = m_propertyMeta.getClassModel();
 			m_actualType = m_propertyMeta.getActualType();
 			m_propertyName = m_propertyMeta.getName();
@@ -62,6 +65,9 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 				setSortable(displayMeta.getSortable());
 			if(displayMeta.getDisplayLength() > 0)
 				m_displayLength = displayMeta.getDisplayLength();
+			String s = displayMeta.getLabel();
+			if(s != null)
+				m_defaultLabel = s;
 		}
 	}
 
@@ -246,7 +252,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	}
 
 	public String getDefaultLabel() {
-		return m_propertyMeta == null ? null : m_propertyMeta.getDefaultLabel();
+		return m_defaultLabel;
 	}
 
 	public Class<? extends IConverter<?>> getConverterClass() {
@@ -362,11 +368,6 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 
 	public String getDefaultHint() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getDefaultHint();
-	}
-
-	@Deprecated
-	public String getDefaultLabel(Locale loc) {
-		return m_propertyMeta == null ? null : m_propertyMeta.getDefaultLabel(loc);
 	}
 
 	public String getDomainValueLabel(Locale loc, Object val) {

@@ -4,9 +4,16 @@ import java.util.*;
 
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 public interface ClassMetaModel {
 	public Class< ? > getActualClass();
+
+	/**
+	 * Returns the message bundle for translations related to this class. This will never return null.
+	 * @return
+	 */
+	public BundleRef getClassBundle();
 
 	public List<PropertyMetaModel> getProperties();
 
@@ -50,8 +57,7 @@ public interface ClassMetaModel {
 	public String getDomainLabel(Locale loc, Object value);
 
 	/**
-	 * Returns the name of this entity in user terms; the returned name is singular.
-	 * @return
+	 * Return a user-presentable entity name (singular) for this class. This defaults to the classname itself if unset.
 	 */
 	public String getUserEntityName();
 

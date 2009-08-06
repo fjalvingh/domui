@@ -23,6 +23,12 @@ public @interface MetaDisplayProperty {
 	 */
 	public String name();
 
+	/**
+	 * When set this overrides the default label as set by the property metadata. It must be set to a <b>key</b> in
+	 * the <b>current class</b>'s resource file. This is usually set when displaying a property from a parent relation
+	 * property (using a dotted path) to override the label as defined on the parent relation's property.
+	 * @return
+	 */
 	public String defaultLabel() default Constants.NO_DEFAULT_LABEL;
 
 	public SortableType defaultSortable() default SortableType.UNKNOWN;

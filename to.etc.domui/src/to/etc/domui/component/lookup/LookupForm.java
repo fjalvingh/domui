@@ -226,7 +226,7 @@ public class LookupForm<T> extends Div {
 
 		//-- Collapse button thingy
 		b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.collapse"), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(DefaultButton bx) throws Exception {
 				collapse();
 			}
 		});
@@ -269,7 +269,7 @@ public class LookupForm<T> extends Div {
 
 		//-- Collapse button thingy
 		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.restore"), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(DefaultButton bx) throws Exception {
 				restore();
 			}
 		});

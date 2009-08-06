@@ -5,7 +5,6 @@ import java.util.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
 
 /**
  * A special property consisting of a list of joined properties.
@@ -74,8 +73,9 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty implements IV
 	@Override
 	public String getDefaultLabel() {
 		DisplayPropertyMetaModel dm = m_displayList.get(0);
-		if(dm.getLabel() != null)
-			return NlsContext.getGlobalMessage(dm.getLabel());
+		String lbl = dm.getLabel(); // Is the label overridden in the DisplayProperty?
+		if(lbl != null)
+			return lbl;
 		return m_propertyList.get(0).getDefaultLabel();
 	}
 }

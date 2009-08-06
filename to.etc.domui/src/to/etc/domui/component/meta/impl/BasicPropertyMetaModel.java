@@ -26,21 +26,11 @@ public class BasicPropertyMetaModel {
 
 	private YesNoType m_readOnly;
 
-	private String m_label;
-
 	private TemporalPresentationType m_temporal = TemporalPresentationType.UNKNOWN;
 
 	private NumericPresentation m_numericPresentation = NumericPresentation.UNKNOWN;
 
 	private PropertyMetaValidator[] m_validators = NO_VALIDATORS;
-
-	public String getLabel() {
-		return m_label;
-	}
-
-	public void setLabel(String label) {
-		m_label = label;
-	}
 
 	public Class< ? extends IConverter< ? >> getConverterClass() {
 		return m_converterClass;

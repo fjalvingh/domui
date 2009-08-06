@@ -106,11 +106,6 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 		return m_original.getDefaultLabel();
 	}
 
-	@Deprecated
-	public String getDefaultLabel(Locale loc) {
-		return m_original.getDefaultLabel(loc);
-	}
-
 	public int getDisplayLength() {
 		return m_original.getDisplayLength();
 	}

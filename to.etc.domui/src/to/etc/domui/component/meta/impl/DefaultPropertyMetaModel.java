@@ -133,7 +133,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 				setRequired(c.optional() == ComboOptionalType.REQUIRED);
 			if(c.properties() != null && c.properties().length > 0) {
 				setRelationType(PropertyRelationType.UP);
-				m_comboDisplayProperties = DisplayPropertyMetaModel.decode(c.properties());
+				m_comboDisplayProperties = DisplayPropertyMetaModel.decode(m_classModel, c.properties());
 			}
 			setComponentTypeHint(Constants.COMPONENT_COMBO);
 		} else if(an instanceof SearchProperty) {
@@ -147,14 +147,14 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		} else if(an instanceof MetaObject) {
 			MetaObject o = (MetaObject) an;
 			if(o.defaultColumns().length > 0) {
-				m_tableDisplayProperties = DisplayPropertyMetaModel.decode(o.defaultColumns());
+				m_tableDisplayProperties = DisplayPropertyMetaModel.decode(m_classModel, o.defaultColumns());
 			}
 		} else if(an instanceof MetaLookup) {
 			MetaLookup c = (MetaLookup) an;
 			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
 				m_lookupFieldRenderer = c.nodeRenderer();
 			if(c.properties().length != 0)
-				m_lookupFieldDisplayProperties = DisplayPropertyMetaModel.decode(c.properties());
+				m_lookupFieldDisplayProperties = DisplayPropertyMetaModel.decode(m_classModel, c.properties());
 			setComponentTypeHint(Constants.COMPONENT_LOOKUP);
 		}
 	}
@@ -219,10 +219,6 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		return m_descriptor.getPropertyType();
 	}
 
-	public String getDefaultLabel(final Locale loc) {
-		return m_classModel.getPropertyLabel(this, loc);
-	}
-
 	public String getDefaultLabel() {
 		return m_classModel.getPropertyLabel(this, NlsContext.getLocale());
 	}
@@ -249,8 +245,13 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		throw new IllegalStateException("Property " + this + " is not an enumerable or boolean domain");
 	}
 
+	/**
+	 * Get a property-related translation for a domain value for this property.
+	 *
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDomainValueLabel(java.util.Locale, java.lang.Object)
+	 */
 	public String getDomainValueLabel(final Locale loc, final Object val) {
-		ResourceBundle b = m_classModel.getBundle(loc);
+		BundleRef b = m_classModel.getClassBundle();
 		StringBuilder sb = new StringBuilder();
 		sb.append(getName());
 		sb.append(".");
@@ -264,10 +265,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			throw new IllegalStateException("Property value " + val + " for property " + this + " is not an enumerable or boolean domain");
 		sb.append(".label");
 
-		try {
-			return b.getString(sb.toString());
-		} catch(Exception x) {}
-		return null; // jal 20081201 Do not lie about a resource based name!!
+		return b.findMessage(loc, sb.toString()); // jal 20081201 Do not lie about a resource based name!!
 	}
 
 	public int getLength() {

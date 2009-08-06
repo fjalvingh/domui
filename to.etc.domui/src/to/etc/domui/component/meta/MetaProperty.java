@@ -3,7 +3,6 @@ package to.etc.domui.component.meta;
 import java.lang.annotation.*;
 
 import to.etc.domui.converter.*;
-import to.etc.domui.util.*;
 
 /**
  * Annotation to add metadata to a property.
@@ -14,12 +13,6 @@ import to.etc.domui.util.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface MetaProperty {
-	/**
-	 * FIXME Meaning unclear and not NLS-safe.
-	 * @return
-	 */
-	public String defaultLabel() default Constants.NO_DEFAULT_LABEL;
-
 	/**
 	 * Defines whether the property should be <i>sortable</i> when used in a default table, and defines
 	 * the initial sort direction of the property. This defaults to unsortable.
