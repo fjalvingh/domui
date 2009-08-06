@@ -71,4 +71,13 @@ public interface Msgs {
 	/** Your browser is out-of-sync with the server, most probably because your session with the server has expired. The page will be reloaded with original data from the server.  */
 	public static final String S_BADNODE = "s.session.badnode";
 
+	/* LookupForm */
+	/** lookupform.search key */
+	public static final String LOOKUP_FORM_SEARCH = "lookupform.search";
+
+	/** lookupform.clear key */
+	public static final String LOOKUP_FORM_CLEAR = "lookupform.clear";
+
+	/** lookupform.new key */
+	public static final String LOOKUP_FORM_NEW = "lookupform.new";
 }
