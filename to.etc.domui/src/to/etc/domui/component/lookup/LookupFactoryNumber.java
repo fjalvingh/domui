@@ -1,10 +1,12 @@
 package to.etc.domui.component.lookup;
 
+import java.math.*;
 import java.util.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.input.ComboFixed.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
@@ -115,6 +117,11 @@ final class LookupFactoryNumber implements LookupControlFactory {
 
 		if(pmm.getConverterClass() != null)
 			numText.setConverterClass((Class) pmm.getConverterClass());
+		else if(NumericPresentation.isMonetary(pmm.getNumericPresentation()) && (pmm.getActualType() == double.class || pmm.getActualType() == Double.class))
+			((Text<Double>) numText).setConverterClass(MoneyDoubleNumeric.class);
+		else if(NumericPresentation.isMonetary(pmm.getNumericPresentation()) && (pmm.getActualType() == double.class || pmm.getActualType() == Double.class))
+			((Text<BigDecimal>) numText).setConverterClass(MoneyBigDecimalNumeric.class);
+
 		if(pmm.getLength() > 0)
 			numText.setMaxLength(pmm.getLength());
 		String s = pmm.getDefaultHint();

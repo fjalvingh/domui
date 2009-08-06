@@ -6,6 +6,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
@@ -55,6 +56,10 @@ public class LookupForm<T> extends Div {
 	private Table m_table;
 
 	private TBody m_tbody;
+
+	private Div m_content;
+
+	private NodeContainer m_collapsed;
 
 	/**
 	 * This is the definition for an Item to look up. A list of these
@@ -164,8 +169,10 @@ public class LookupForm<T> extends Div {
 		if(getPageTitle() != null) {
 			CaptionedPanel cp = new CaptionedPanel(getPageTitle(), sroot);
 			add(cp);
+			m_content = cp;
 		} else {
 			add(sroot);
+			m_content = sroot;
 		}
 
 		//-- Walk all search fields
@@ -217,6 +224,14 @@ public class LookupForm<T> extends Div {
 			});
 		}
 
+		//-- Collapse button thingy
+		b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.collapse"), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
+			public void clicked(DefaultButton b) throws Exception {
+				collapse();
+			}
+		});
+		d.add(b);
+
 		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
 		setReturnPressed(new IReturnPressed() {
 			public void returnPressed(final Div node) throws Exception {
@@ -224,6 +239,49 @@ public class LookupForm<T> extends Div {
 					m_clicker.clicked(LookupForm.this);
 			}
 		});
+	}
+
+	/**
+	 * This hides the search panel and adds a small div containing only the (optional) new and restore buttons.
+	 */
+	void collapse() {
+		if(m_content.getDisplay() == DisplayType.NONE)
+			return;
+		//		appendJavascript("$('#" + m_content.getActualID() + "').slideUp();");
+		m_content.slideUp();
+
+		//		m_content.setDisplay(DisplayType.NONE);
+		m_collapsed = new Div();
+		m_collapsed.setCssClass("ui-lf-coll");
+
+		add(m_collapsed);
+
+		if(getOnNew() != null) {
+			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.new"));
+			m_collapsed.add(b);
+			b.setIcon("THEME/btnNew.png");
+			b.setClicked(new IClicked<NodeBase>() {
+				public void clicked(final NodeBase xb) throws Exception {
+					getOnNew().clicked(LookupForm.this);
+				}
+			});
+		}
+
+		//-- Collapse button thingy
+		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.restore"), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
+			public void clicked(DefaultButton b) throws Exception {
+				restore();
+			}
+		});
+		m_collapsed.add(b);
+	}
+
+	void restore() {
+		if(m_collapsed == null)
+			return;
+		m_collapsed.remove();
+		m_collapsed = null;
+		m_content.setDisplay(DisplayType.BLOCK);
 	}
 
 	/*--------------------------------------------------------------*/

@@ -373,6 +373,11 @@ table.ui-lui {
 	background-color: #ffffff;
 }
 
+/*** LookupForm ***/
+.ui-lf-coll {
+	border-bottom: 1px dotted #666666;
+}
+
 /*** FloatingWindow ***/
 .ui-fw {
 	padding: 0;

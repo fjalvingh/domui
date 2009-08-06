@@ -87,8 +87,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	private NodeContainer m_parent;
 
-	private String m_cachedStyle;
-
 	private IClicked< ? > m_clicked;
 
 	private boolean m_built;
@@ -179,19 +177,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	@Override
 	protected void changed() {
-		m_cachedStyle = null;
+		setCachedStyle(null);
 		setHasChangedAttributes();
 		if(getParent() != null)
 			getParent().childChanged(); // Indicate child has changed
 		super.changed();
-	}
-
-	public String getCachedStyle() {
-		return m_cachedStyle;
-	}
-
-	public void setCachedStyle(final String cachedStyle) {
-		m_cachedStyle = cachedStyle;
 	}
 
 	public String getCssClass() {

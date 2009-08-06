@@ -9,6 +9,8 @@ import to.etc.domui.util.*;
  * Created on Aug 17, 2007
  */
 public class CssBase {
+	private String m_cachedStyle;
+
 	/*-- CSS Background properties --*/
 	private BackgroundAttachment m_backgroundAttachment;
 
@@ -104,6 +106,13 @@ public class CssBase {
 	/*--- TEXT properties -----*/
 	private TextAlign m_textAlign;
 
+	public String getCachedStyle() {
+		return m_cachedStyle;
+	}
+
+	public void setCachedStyle(final String cachedStyle) {
+		m_cachedStyle = cachedStyle;
+	}
 
 	/**
 	 * Called as soon as a property of <i>this</i> object changes. This dirties this
@@ -344,6 +353,19 @@ public class CssBase {
 		if(!DomUtil.isEqual(display, m_display))
 			changed();
 		m_display = display;
+	}
+
+	/**
+	 * Used to switch the display attribute when it is switched by an effect.
+	 * @param dt
+	 * @return
+	 */
+	protected boolean internalSetDisplay(final DisplayType dt) {
+		if(m_display == dt)
+			return false;
+		m_display = dt;
+		setCachedStyle(null);
+		return true;
 	}
 
 	public Overflow getOverflow() {
