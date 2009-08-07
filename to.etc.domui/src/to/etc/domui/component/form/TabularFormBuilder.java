@@ -275,7 +275,7 @@ public class TabularFormBuilder {
 	/**
 	 * Add an input for the specified property. The property is based at the current input
 	 * class. The input model is default (using metadata) and the property is labeled using
-	 * the metadata-provided label. 
+	 * the metadata-provided label.
 	 *
 	 * FORMAL-INTERFACE.
 	 *
@@ -293,7 +293,8 @@ public class TabularFormBuilder {
 	/**
 	 * Add a user-specified control for a given property. This adds the control, using
 	 * the property-specified label and creates a binding for the property on the
-	 * control.
+	 * control. <i>If you only want to add the proper structure and find the label for
+	 * a property use {@link TabularFormBuilder#addControlForProp(String, NodeBase, boolean)}.
 	 *
 	 * FORMAL-INTERFACE.
 	 *
@@ -305,6 +306,21 @@ public class TabularFormBuilder {
 		String label = pmm.getDefaultLabel();
 		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), pmm);
 		getBindings().add(new SimpleComponentPropertyBinding(getModel(), pmm, ctl));
+	}
+
+	/**
+	 * This adds a fully user-specified control for a given property with it's default label,
+	 * without creating <i>any<i> binding. The only reason the property is passed is to use
+	 * it's metadata to define it's access rights and default label.
+	 *
+	 * @param propertyName
+	 * @param nb
+	 * @param ismandatory
+	 */
+	public void addControlForProp(String propertyName, NodeBase nb, boolean ismandatory) {
+		PropertyMetaModel pmm = resolveProperty(propertyName);
+		String label = pmm.getDefaultLabel();
+		addControl(label, nb, new NodeBase[]{nb}, ismandatory, pmm);
 	}
 
 	/**
