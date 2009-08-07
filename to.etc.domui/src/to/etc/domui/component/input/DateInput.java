@@ -21,11 +21,15 @@ public class DateInput extends Span implements IInputNode<Date> {
 
 	private SmallImgButton m_selCalButton;
 
+	private SmallImgButton m_todayButton;
+
 	private boolean m_withTime;
 
 	private boolean m_withSeconds;
 
 	IValueChanged< ? , ? > m_onValueChanged;
+
+	private boolean m_hideTodayButton;
 
 	public DateInput() {
 		m_input = new Text<Date>(Date.class);
@@ -33,15 +37,23 @@ public class DateInput extends Span implements IInputNode<Date> {
 		m_input.setSize(10);
 		m_input.setConverterClass(DateConverter.class);
 		m_selCalButton = new SmallImgButton("THEME/btn-datein.png");
-		add(m_input);
-		add(m_selCalButton);
 		setErrorDelegate(m_input); // Delegate this-node's error handling to it's input field
 	}
 
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("ui-di");
+		add(m_input);
+		add(m_selCalButton);
 		m_selCalButton.setOnClickJS("WebUI.showCalendar('" + m_input.getActualID() + "'," + isWithTime() + ")");
+		if(!m_hideTodayButton) {
+			m_todayButton = new SmallImgButton("THEME/btnToday.png", new IClicked<SmallImgButton>() {
+				public void clicked(SmallImgButton b) throws Exception {
+					DateInput.this.setValue(new Date());
+				}
+			});
+			add(m_todayButton);
+		}
 	}
 
 	/**
@@ -134,5 +146,13 @@ public class DateInput extends Span implements IInputNode<Date> {
 
 	public void setWithSeconds(boolean withSeconds) {
 		m_withSeconds = withSeconds;
+	}
+
+	public boolean isHideTodayButton() {
+		return m_hideTodayButton;
+	}
+
+	public void setHideTodayButton(boolean hideTodayButton) {
+		m_hideTodayButton = hideTodayButton;
 	}
 }

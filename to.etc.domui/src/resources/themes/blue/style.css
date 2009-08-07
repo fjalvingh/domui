@@ -584,7 +584,8 @@ TH.ui-sortable {
 	background: transparent;
 }
 
-.ui-sib * img {
+.ui-sib img {
+	padding: 0px;
 	margin: 0px;
 	border: 0px;
 }
