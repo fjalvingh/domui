@@ -351,6 +351,12 @@ public class TabularFormBuilder {
 		addControl(label, control, new NodeBase[]{control}, mandatory, null);
 	}
 
+	public void addPropertyAndControl(final String propertyname, final NodeBase control, final boolean mandatory) {
+		PropertyMetaModel pmm = resolveProperty(propertyname);
+		String label = pmm.getDefaultLabel();
+		addLabelAndControl(label, control, mandatory);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Placement manipulators (public interface)			*/
 	/*--------------------------------------------------------------*/
