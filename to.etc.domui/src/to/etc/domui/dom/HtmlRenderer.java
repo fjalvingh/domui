@@ -393,7 +393,7 @@ public class HtmlRenderer implements INodeVisitor {
 		if(b.getCssClass() != null)
 			o.attr("class", b.getCssClass());
 		String ttl = b.getLiteralTitle();
-		if(ttl != null)
+		if(ttl != null && !(b instanceof UrlPage)) // Do NOT render title on the thing representing the BODY.
 			o().attr("title", ttl);
 
 		if(b.getSpecialAttributeList() != null) {
