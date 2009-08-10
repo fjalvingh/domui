@@ -42,5 +42,8 @@ public @interface MetaDisplayProperty {
 	public String join() default Constants.NO_JOIN;
 
 	public YesNoType readOnly() default YesNoType.UNKNOWN;
+
 	//	public DateType				dateType() default DateType.UNKNOWN;
+
+	public String renderHint() default Constants.NONE;
 }

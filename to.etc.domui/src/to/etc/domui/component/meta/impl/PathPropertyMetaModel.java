@@ -90,11 +90,11 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 		return m_original.getComponentTypeHint();
 	}
 
-	public Class<? extends IConverter<?>> getConverterClass() {
+	public Class< ? extends IConverter< ? >> getConverterClass() {
 		return m_original.getConverterClass();
 	}
 
-	public IConverter<?> getBestConverter() {
+	public IConverter< ? > getBestConverter() {
 		return m_original.getBestConverter();
 	}
 
@@ -185,4 +185,5 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	public boolean isRequired() {
 		return m_original.isRequired();
 	}
+
 }

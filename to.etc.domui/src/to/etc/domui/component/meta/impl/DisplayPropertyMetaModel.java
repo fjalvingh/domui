@@ -18,6 +18,8 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 
 	private String m_join;
 
+	private String m_renderHint;
+
 	private ClassMetaModel m_containedInClass;
 
 	private String m_labelKey;
@@ -34,6 +36,7 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 		setDisplayLength(p.displayLength());
 		setReadOnly(p.readOnly());
 		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();
+		setRenderHint(p.renderHint());
 	}
 
 	/**
@@ -98,5 +101,13 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 		if(getConverterClass() != null)
 			return ConverterRegistry.convertValueToString((Class<T>) getConverterClass(), (X) value);
 		return value == null ? "" : value.toString();
+	}
+
+	public String getRenderHint() {
+		return m_renderHint;
+	}
+
+	public void setRenderHint(String renderHint) {
+		m_renderHint = renderHint;
 	}
 }

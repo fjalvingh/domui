@@ -288,7 +288,7 @@ public class BasicRowRenderer implements IRowRenderer {
 				 * Try to get a converter for this, if needed.
 				 */
 				if(xdp.getActualType() != String.class) {
-					IConverter<?> c = ConverterRegistry.getConverter(xdp.getActualType(), xdp);
+					IConverter< ? > c = ConverterRegistry.getConverter(xdp.getActualType(), xdp);
 					scd.setValueConverter(c);
 				}
 			}
@@ -300,6 +300,7 @@ public class BasicRowRenderer implements IRowRenderer {
 			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				scd.setCssClass("ui-numeric");
 			}
+			scd.setRenderHint(xdp.getRenderHint());
 		}
 	}
 
@@ -353,7 +354,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param col
 	 * @return
 	 */
-	public ICellClicked<?> getCellClicked(int col) {
+	public ICellClicked< ? > getCellClicked(int col) {
 		return getColumn(col).getCellClicked();
 	}
 
@@ -362,7 +363,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param col
 	 * @param cellClicked
 	 */
-	public void setCellClicked(int col, final ICellClicked<?> cellClicked) {
+	public void setCellClicked(int col, final ICellClicked< ? > cellClicked) {
 		getColumn(col).setCellClicked(cellClicked);
 	}
 
@@ -612,7 +613,7 @@ public class BasicRowRenderer implements IRowRenderer {
 			colval = (X) cd.getValueTransformer().getValue(instance);
 
 		//-- Is a node renderer used?
-		TD	cell;
+		TD cell;
 		if(null != cd.getContentRenderer()) {
 			cell = cc.add((NodeBase) null); // Add the new row
 			if(cd.getCssClass() != null)

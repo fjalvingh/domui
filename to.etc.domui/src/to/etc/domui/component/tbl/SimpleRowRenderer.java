@@ -320,13 +320,13 @@ public class SimpleRowRenderer implements IRowRenderer {
 		}
 
 		//-- Toggle odd/even indicator
-		if((index & 1) == 0) {
-			cc.getTR().removeCssClass("ui-odd");
-			cc.getTR().addCssClass("ui-even");
-		} else {
-			cc.getTR().removeCssClass("ui-even");
-			cc.getTR().addCssClass("ui-odd");
-		}
+		//		if((index & 1) == 0) {
+		//			cc.getTR().removeCssClass("ui-odd");
+		//			cc.getTR().addCssClass("ui-even");
+		//		} else {
+		//			cc.getTR().removeCssClass("ui-even");
+		//			cc.getTR().addCssClass("ui-odd");
+		//		}
 	}
 
 	/**
@@ -381,17 +381,16 @@ public class SimpleRowRenderer implements IRowRenderer {
 		}
 
 		//-- If a cellclicked thing is present attach it to the td
-		if(cd.getCellClicked() != null) {
-			/*
-			 * FIXME For now I add a separate instance of the handler to every cell. A single instance is OK too,
-			 * provided it can calculate the row and cell data from the TR it is attached to.
-			 */
+		if(cd.getRenderHint().contains(MetaConstants.RENDER_HINT_DISPLAY_AS_LINK)) {
+			final TD c = cell;
 			cell.setClicked(new IClicked<TD>() {
 				public void clicked(TD b) throws Exception {
-					((ICellClicked<Object>) cd.getCellClicked()).cellClicked(tbl.getPage(), b, instance);
+					onColumnCellClicked(tbl.getPage(), c, cd, instance);
 				}
 			});
-			cell.addCssClass("ui-cellsel");
+		}
+		if(cd.getRenderHint().contains(MetaConstants.RENDER_HINT_CSS)) {
+			cell.addCssClass(MetaUtils.parseStringParam(cd.getRenderHint(), MetaConstants.RENDER_HINT_CSS));
 		}
 
 		if(cd.getAlign() != null)
@@ -401,4 +400,29 @@ public class SimpleRowRenderer implements IRowRenderer {
 		}
 	}
 
+	protected void onColumnCellClicked(Page pg, NodeBase cell, SimpleColumnDef col, Object rowval) {}
+
+	/**
+	 * Setup render hint to column definition
+	 * 
+	 * @param propertyName
+	 * @param renderHint
+	 */
+	public void setColumnRenderHint(String propertyName, String renderHint) {
+		SimpleColumnDef cd = findByPropertyName(propertyName);
+		if(cd != null) {
+			cd.setRenderHint(renderHint);
+		} else {
+			throw new IllegalStateException("?? Cannot find column!?");
+		}
+	}
+
+	private SimpleColumnDef findByPropertyName(String propertyName) {
+		for(SimpleColumnDef cd : m_columnList) {
+			if(propertyName.equals(cd.getPropertyName())) {
+				return cd;
+			}
+		}
+		return null;
+	}
 }

@@ -26,6 +26,8 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 
 	private String m_componentTypeHint;
 
+	private String m_renderHint;
+
 	/**
 	 * If this class is the UP in a relation this specifies that it must
 	 * be shown as a COMBOBOX containing choices. It contains a generator
@@ -398,5 +400,13 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 
 	public void setComponentTypeHint(final String componentTypeHint) {
 		m_componentTypeHint = componentTypeHint;
+	}
+
+	public String getRenderHint() {
+		return m_renderHint;
+	}
+
+	public void setRenderHint(final String renderHint) {
+		m_renderHint = renderHint;
 	}
 }
