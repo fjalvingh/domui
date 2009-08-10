@@ -381,7 +381,7 @@ public class SimpleRowRenderer implements IRowRenderer {
 		}
 
 		//-- If a cellclicked thing is present attach it to the td
-		if(cd.getRenderHint().contains(MetaConstants.RENDER_HINT_DISPLAY_AS_LINK)) {
+		if(cd.getRenderHint().contains(MetaConstants.RENDER_HINT_DISPLAY_AS_LINK) || isColumnClickable(cd)) {
 			final TD c = cell;
 			cell.setClicked(new IClicked<TD>() {
 				public void clicked(TD b) throws Exception {
@@ -398,6 +398,10 @@ public class SimpleRowRenderer implements IRowRenderer {
 		else if(cd.getCssClass() != null) {
 			cell.addCssClass(cd.getCssClass());
 		}
+	}
+
+	protected boolean isColumnClickable(SimpleColumnDef cd) {
+		return false;
 	}
 
 	protected void onColumnCellClicked(Page pg, NodeBase cell, SimpleColumnDef col, Object rowval) {}
