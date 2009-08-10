@@ -13,6 +13,8 @@ import to.etc.domui.util.*;
  * needed. In addition it allows for multiple table sections using multiple TBody's in
  * the generated table. This can be used to create collapsable forms.
  *
+ * FIXME Names for adding either property-based or control-based new additions are very unclear.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 19, 2008
  */
@@ -294,7 +296,7 @@ public class TabularFormBuilder {
 	 * Add a user-specified control for a given property. This adds the control, using
 	 * the property-specified label and creates a binding for the property on the
 	 * control. <i>If you only want to add the proper structure and find the label for
-	 * a property use {@link TabularFormBuilder#addControlForProp(String, NodeBase, boolean)}.
+	 * a property use {@link TabularFormBuilder#addPropertyAndControl(String, NodeBase, boolean)}.
 	 *
 	 * FORMAL-INTERFACE.
 	 *
@@ -315,12 +317,12 @@ public class TabularFormBuilder {
 	 *
 	 * @param propertyName
 	 * @param nb
-	 * @param ismandatory
+	 * @param mandatory
 	 */
-	public void addControlForProp(String propertyName, NodeBase nb, boolean ismandatory) {
+	public void addPropertyAndControl(final String propertyName, final NodeBase nb, final boolean mandatory) {
 		PropertyMetaModel pmm = resolveProperty(propertyName);
 		String label = pmm.getDefaultLabel();
-		addControl(label, nb, new NodeBase[]{nb}, ismandatory, pmm);
+		addControl(label, nb, new NodeBase[]{nb}, mandatory, pmm);
 	}
 
 	/**
