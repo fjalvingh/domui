@@ -1,5 +1,6 @@
 package to.etc.domui.component.meta;
 
+
 /**
  * Utility class used as utility method library for working with meta data.
  * @author vmijic
@@ -11,6 +12,16 @@ public class MetaUtils {
 	 * @return Integer value represented as string, in case that param is not defined or NumberFormatException exception returns default value.
 	 */
 	public static int parseIntParam(final String metadataLine, final String paramName, final int defaultValue) {
+		String paramValue = parseStringParam(metadataLine, paramName);
+		try {
+			return Integer.parseInt(paramValue);
+		} catch(NumberFormatException e) {
+			//FIXME: introduce log4j logging
+			return defaultValue;
+		}
+	}
+
+	public static String parseStringParam(final String metadataLine, final String paramName) {
 		String paramValue = null;
 		final String paramItem = paramName + '=';
 		if(metadataLine.contains(paramItem)) {
@@ -20,12 +31,7 @@ public class MetaUtils {
 				paramValue = metadataLine.substring(metadataLine.indexOf(paramItem) + paramItem.length());
 			}
 		}
-		try {
-			return Integer.parseInt(paramValue);
-		} catch(NumberFormatException e) {
-			//FIXME: introduce log4j logging
-			return defaultValue;
-		}
-	}
 
+		return paramValue;
+	}
 }

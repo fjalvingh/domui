@@ -555,15 +555,21 @@ a.ui-nbtn:hover,a.ui-nbtn:active {
 	background-color: #eeeeee;
 }
 
-TR.ui-rowsel:hover {
+tr.ui-rowsel:hover {
 	background-color: #ffe1bf !important;
 }
 
-TD.ui-cellsel:hover {
-	background-color: e1ffbf !important;
+td.ui-cellsel {
+	/**background-color: #e1ffbf !important;**/
+	color: #2200cc;
+	text-decoration: underline;
 }
 
-TH.ui-sortable {
+td.ui-cellsel:hover {
+	cursor: pointer;
+}
+
+th.ui-sortable {
 	cursor: pointer;
 }
 

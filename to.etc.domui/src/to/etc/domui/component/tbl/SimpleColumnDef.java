@@ -33,7 +33,7 @@ public class SimpleColumnDef {
 	/** The thingy which obtains the column's value (as an object) */
 	private IValueTransformer< ? > m_valueTransformer;
 
-	private IConverter<?> m_valueConverter;
+	private IConverter< ? > m_valueConverter;
 
 	private NumericPresentation m_numericPresentation;
 
@@ -41,7 +41,9 @@ public class SimpleColumnDef {
 
 	private INodeContentRenderer< ? > m_contentRenderer;
 
-	private ICellClicked<?> m_cellClicked;
+	private ICellClicked< ? > m_cellClicked;
+
+	private String m_renderHint;
 
 	public SimpleColumnDef() {}
 
@@ -78,6 +80,7 @@ public class SimpleColumnDef {
 		if(m.getName() == null)
 			throw new IllegalStateException("All columns MUST have some name");
 		setNumericPresentation(m.getNumericPresentation());
+		setRenderHint(m.getRenderHint());
 	}
 
 	public String getColumnLabel() {
@@ -120,11 +123,11 @@ public class SimpleColumnDef {
 		m_valueTransformer = valueTransformer;
 	}
 
-	public IConverter<?> getValueConverter() {
+	public IConverter< ? > getValueConverter() {
 		return m_valueConverter;
 	}
 
-	public void setValueConverter(IConverter<?> valueConverter) {
+	public void setValueConverter(IConverter< ? > valueConverter) {
 		m_valueConverter = valueConverter;
 	}
 
@@ -168,11 +171,11 @@ public class SimpleColumnDef {
 		m_nowrap = nowrap;
 	}
 
-	public ICellClicked<?> getCellClicked() {
+	public ICellClicked< ? > getCellClicked() {
 		return m_cellClicked;
 	}
 
-	public void setCellClicked(ICellClicked<?> cellClicked) {
+	public void setCellClicked(ICellClicked< ? > cellClicked) {
 		m_cellClicked = cellClicked;
 	}
 
@@ -190,5 +193,13 @@ public class SimpleColumnDef {
 
 	public void setAlign(TextAlign align) {
 		m_align = align;
+	}
+
+	public String getRenderHint() {
+		return m_renderHint;
+	}
+
+	public void setRenderHint(String renderHint) {
+		m_renderHint = renderHint;
 	}
 }
