@@ -65,7 +65,7 @@ public class BasicRowRenderer implements IRowRenderer {
 		m_dataClass = dataClass;
 		if(cols.length != 0)
 			addColumns(cols);
-		ClassMetaModel cmm = MetaManager.findClassMeta(m_dataClass);
+		final ClassMetaModel cmm = MetaManager.findClassMeta(m_dataClass);
 		m_sortColumnName = cmm.getDefaultSortProperty();
 		m_sortDescending = cmm.getDefaultSortDirection() == SortableType.SORTABLE_DESC;
 	}
@@ -112,7 +112,7 @@ public class BasicRowRenderer implements IRowRenderer {
 		R nodeRenderer = null;
 		Class<R> nrclass = null;
 
-		for(Object val : cols) {
+		for(final Object val : cols) {
 			if(property == null) { // Always must start with a property.
 				if(!(val instanceof String))
 					throw new IllegalArgumentException("Expecting a 'property' path expression, not a " + val);
@@ -120,8 +120,8 @@ public class BasicRowRenderer implements IRowRenderer {
 			} else if(NOWRAP == val) {
 				nowrap = true;
 			} else if(val instanceof String) {
-				String s = (String) val;
-				char c = s.length() == 0 ? 0 : s.charAt(0); // The empty string is used to denote a node renderer that takes the entire record as a parameter
+				final String s = (String) val;
+				final char c = s.length() == 0 ? 0 : s.charAt(0); // The empty string is used to denote a node renderer that takes the entire record as a parameter
 				switch(c){
 					default:
 						if(!Character.isLetter(c))
@@ -156,7 +156,7 @@ public class BasicRowRenderer implements IRowRenderer {
 			else if(val instanceof INodeContentRenderer< ? >)
 				nodeRenderer = (R) val;
 			else if(val instanceof Class< ? >) {
-				Class< ? > c = (Class< ? >) val;
+				final Class< ? > c = (Class< ? >) val;
 				if(INodeContentRenderer.class.isAssignableFrom(c))
 					nrclass = (Class<R>) c;
 				else if(IConverter.class.isAssignableFrom(c))
@@ -210,7 +210,7 @@ public class BasicRowRenderer implements IRowRenderer {
 		 * If this is propertyless we need to add a column directly, and use it to assign to.
 		 */
 		if(property.length() == 0) {
-			SimpleColumnDef cd = new SimpleColumnDef();
+			final SimpleColumnDef cd = new SimpleColumnDef();
 			m_columnList.add(cd);
 			cd.setColumnLabel(caption);
 			cd.setColumnType(m_dataClass); // By definition, the data value is the record instance,
@@ -224,15 +224,15 @@ public class BasicRowRenderer implements IRowRenderer {
 		}
 
 		//-- Property must refer a property, so get it;
-		ClassMetaModel cmm = MetaManager.findClassMeta(m_dataClass);
-		PropertyMetaModel pmm = cmm.findProperty(property);
+		final ClassMetaModel cmm = MetaManager.findClassMeta(m_dataClass);
+		final PropertyMetaModel pmm = cmm.findProperty(property);
 		if(pmm == null)
 			throw new IllegalArgumentException("Undefined property path: '" + property + "' in classModel=" + cmm);
 
 		//-- If a NodeRenderer is present we always use that, so property expansion is unwanted.
-		INodeContentRenderer< ? > ncr = tryRenderer(nodeRenderer, nrclass);
+		final INodeContentRenderer< ? > ncr = tryRenderer(nodeRenderer, nrclass);
 		if(ncr != null) {
-			SimpleColumnDef cd = new SimpleColumnDef();
+			final SimpleColumnDef cd = new SimpleColumnDef();
 			m_columnList.add(cd);
 			cd.setValueTransformer(pmm.getAccessor());
 			cd.setColumnLabel(caption);
@@ -250,8 +250,8 @@ public class BasicRowRenderer implements IRowRenderer {
 		}
 
 		//-- This is a property to display. Expand it into DisplayProperties to get the #of columns to append.
-		ExpandedDisplayProperty xdpt = ExpandedDisplayProperty.expandProperty(pmm);
-		List<ExpandedDisplayProperty> flat = new ArrayList<ExpandedDisplayProperty>();
+		final ExpandedDisplayProperty xdpt = ExpandedDisplayProperty.expandProperty(pmm);
+		final List<ExpandedDisplayProperty> flat = new ArrayList<ExpandedDisplayProperty>();
 		ExpandedDisplayProperty.flatten(flat, xdpt); // Expand any compounds;
 
 		//-- If we have >1 columns here we cannot apply many of the parameters, so error on them
@@ -265,12 +265,12 @@ public class BasicRowRenderer implements IRowRenderer {
 		}
 
 		//-- And finally: add all columns ;-)
-		for(ExpandedDisplayProperty xdp : flat) {
+		for(final ExpandedDisplayProperty xdp : flat) {
 			if(xdp.getName() == null)
 				throw new IllegalStateException("All columns MUST have some name");
 
 			//-- Create a column def from the metadata
-			SimpleColumnDef scd = new SimpleColumnDef(xdp);
+			final SimpleColumnDef scd = new SimpleColumnDef(xdp);
 			m_columnList.add(scd);
 			scd.setDisplayLength(xdp.getDisplayLength());
 			if(width != null)
@@ -288,7 +288,7 @@ public class BasicRowRenderer implements IRowRenderer {
 				 * Try to get a converter for this, if needed.
 				 */
 				if(xdp.getActualType() != String.class) {
-					IConverter<?> c = ConverterRegistry.getConverter(xdp.getActualType(), xdp);
+					final IConverter<?> c = ConverterRegistry.getConverter(xdp.getActualType(), xdp);
 					scd.setValueConverter(c);
 				}
 			}
@@ -308,7 +308,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param ix
 	 * @return
 	 */
-	public SimpleColumnDef getColumn(int ix) {
+	public SimpleColumnDef getColumn(final int ix) {
 		if(ix < 0 || ix >= m_columnList.size())
 			throw new IndexOutOfBoundsException("Column " + ix + " does not exist (yet?)");
 		return m_columnList.get(ix);
@@ -317,7 +317,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	public void setColumnWidths(final String... widths) {
 		check();
 		int ix = 0;
-		for(String s : widths) {
+		for(final String s : widths) {
 			getColumn(ix++).setWidth(s);
 		}
 	}
@@ -353,7 +353,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param col
 	 * @return
 	 */
-	public ICellClicked<?> getCellClicked(int col) {
+	public ICellClicked<?> getCellClicked(final int col) {
 		return getColumn(col).getCellClicked();
 	}
 
@@ -362,7 +362,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param col
 	 * @param cellClicked
 	 */
-	public void setCellClicked(int col, final ICellClicked<?> cellClicked) {
+	public void setCellClicked(final int col, final ICellClicked<?> cellClicked) {
 		getColumn(col).setCellClicked(cellClicked);
 	}
 
@@ -375,20 +375,20 @@ public class BasicRowRenderer implements IRowRenderer {
 
 		//-- If we have no columns at all we use a default column list.
 		if(m_columnList.size() == 0) {
-			ClassMetaModel cmm = MetaManager.findClassMeta(m_dataClass);
-			List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
+			final ClassMetaModel cmm = MetaManager.findClassMeta(m_dataClass);
+			final List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
 			if(dpl.size() == 0)
 				throw new IllegalStateException("The list-of-columns to show is empty, and the class " + m_dataClass
 					+ " has no metadata (@MetaObject) definition defining a set of columns as default table columns, so there.");
 			List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
 			xdpl = ExpandedDisplayProperty.flatten(xdpl); // Flatten the list: expand any compounds.
-			for(ExpandedDisplayProperty xdp : xdpl)
+			for(final ExpandedDisplayProperty xdp : xdpl)
 				m_columnList.add(new SimpleColumnDef(xdp));
 		}
 
 		//-- Is there a default sort thingy? Is that column present?
 		if(m_sortColumnName != null) {
-			for(SimpleColumnDef scd : m_columnList) {
+			for(final SimpleColumnDef scd : m_columnList) {
 				if(scd.getPropertyName().equals(m_sortColumnName)) {
 					m_sortColumn = scd;
 					break;
@@ -406,20 +406,20 @@ public class BasicRowRenderer implements IRowRenderer {
 		int totpix = 0;
 		int ntoass = 0; // #columns that need a width
 		int totdw = 0; // Total display width of all unassigned columns.
-		for(SimpleColumnDef scd : m_columnList) {
+		for(final SimpleColumnDef scd : m_columnList) {
 			if(scd.getWidth() == null || scd.getWidth().length() == 0) {
 				ntoass++;
 				totdw += scd.getDisplayLength();
 			} else {
-				String s = scd.getWidth().trim();
+				final String s = scd.getWidth().trim();
 				if(s.endsWith("%")) {
-					int w = StringTool.strToInt(s.substring(0, s.length() - 1), -1);
+					final int w = StringTool.strToInt(s.substring(0, s.length() - 1), -1);
 					if(w == -1)
 						throw new IllegalArgumentException("Invalid width percentage: " + s + " for presentation column " + scd.getPropertyName());
 					totpct += w;
 				} else {
 					//-- Should be numeric width, in pixels,
-					int w = StringTool.strToInt(s, -1);
+					final int w = StringTool.strToInt(s, -1);
 					if(w == -1)
 						throw new IllegalArgumentException("Invalid width #pixels: " + s + " for presentation column " + scd.getPropertyName());
 					totpix += w;
@@ -428,7 +428,7 @@ public class BasicRowRenderer implements IRowRenderer {
 		}
 
 		//-- Is there something to assign, and are the numbers reasonable? If so calculate...
-		int pixwidth = 1280;
+		final int pixwidth = 1280;
 		if(ntoass > 0 && totpct < 100 && totpix < pixwidth) {
 			int pctleft = 100 - totpct; // How many percents left?
 			if(pctleft == 100 && totpix > 0) {
@@ -437,11 +437,11 @@ public class BasicRowRenderer implements IRowRenderer {
 			}
 
 			//-- Reassign the percentage left over all unassigned columns.
-			for(SimpleColumnDef scd : m_columnList) {
+			for(final SimpleColumnDef scd : m_columnList) {
 				if(scd.getWidth() == null || scd.getWidth().length() == 0) {
 					//-- Calculate a size factor, then use it to assign
-					double fact = (double) scd.getDisplayLength() / (double) totdw;
-					int pct = (int) (fact * pctleft + 0.5);
+					final double fact = (double) scd.getDisplayLength() / (double) totdw;
+					final int pct = (int) (fact * pctleft + 0.5);
 					scd.setWidth(pct + "%");
 				}
 			}
@@ -462,8 +462,8 @@ public class BasicRowRenderer implements IRowRenderer {
 	public void renderHeader(final DataTable tbl, final HeaderContainer cc) throws Exception {
 		m_sortImages = new Img[m_columnList.size()];
 		int ix = 0;
-		boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
-		for(SimpleColumnDef cd : m_columnList) {
+		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
+		for(final SimpleColumnDef cd : m_columnList) {
 			TH th;
 			String label = cd.getColumnLabel();
 			if(!cd.getSortable().isSortable() || !sortablemodel) {
@@ -482,7 +482,7 @@ public class BasicRowRenderer implements IRowRenderer {
 				});
 
 				//-- Add the sort order indicator: a single image containing either ^, v or both.
-				Img img = new Img();
+				final Img img = new Img();
 				th.add(img);
 				img.setBorder(0);
 				//				img.setImgWidth(16);
@@ -513,12 +513,12 @@ public class BasicRowRenderer implements IRowRenderer {
 		updateSortImage(scd, m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 
 		//-- Tell the model to sort
-		ISortableTableModel stm = (ISortableTableModel) nb.getParent(DataTable.class).getModel();
+		final ISortableTableModel stm = (ISortableTableModel) nb.getParent(DataTable.class).getModel();
 		stm.sortOn(scd.getPropertyName(), m_sortDescending);
 	}
 
 	private void updateSortImage(final SimpleColumnDef scd, final String img) {
-		int index = m_columnList.indexOf(scd);
+		final int index = m_columnList.indexOf(scd);
 		if(index == -1)
 			throw new IllegalStateException("?? Cannot find sort column!?");
 		m_sortImages[index].setSrc(img);
@@ -542,7 +542,7 @@ public class BasicRowRenderer implements IRowRenderer {
 		//		m_sortableModel = true;
 		if(m_sortColumn == null)
 			return;
-		ISortableTableModel stm = (ISortableTableModel) tbl.getModel();
+		final ISortableTableModel stm = (ISortableTableModel) tbl.getModel();
 		stm.sortOn(m_sortColumn.getPropertyName(), m_sortDescending);
 	}
 
@@ -568,7 +568,7 @@ public class BasicRowRenderer implements IRowRenderer {
 			cc.getTR().addCssClass("ui-rowsel");
 		}
 
-		for(SimpleColumnDef cd : m_columnList) {
+		for(final SimpleColumnDef cd : m_columnList) {
 			renderColumn(tbl, cc, index, instance, cd);
 		}
 
@@ -590,7 +590,7 @@ public class BasicRowRenderer implements IRowRenderer {
 	 * @param colVal
 	 * @return string representation of colVal to be rendered.
 	 */
-	protected String provideStringValue(int index, final Object instance, final SimpleColumnDef cd, final Object colVal) {
+	protected String provideStringValue(final int index, final Object instance, final SimpleColumnDef cd, final Object colVal) {
 		return colVal.toString();
 	}
 
@@ -650,7 +650,7 @@ public class BasicRowRenderer implements IRowRenderer {
 			 * provided it can calculate the row and cell data from the TR it is attached to.
 			 */
 			cell.setClicked(new IClicked<TD>() {
-				public void clicked(TD b) throws Exception {
+				public void clicked(final TD b) throws Exception {
 					((ICellClicked<Object>) cd.getCellClicked()).cellClicked(tbl.getPage(), b, instance);
 				}
 			});
