@@ -560,13 +560,13 @@ tr.ui-rowsel:hover {
 }
 
 td.ui-cellsel {
-	/**background-color: #e1ffbf !important;**/
 	color: #2200cc;
-	text-decoration: underline;
 }
 
 td.ui-cellsel:hover {
 	cursor: pointer;
+	text-decoration: underline;
+	background-color: #ffe1bf !important;
 }
 
 th.ui-sortable {

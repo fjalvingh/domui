@@ -45,8 +45,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	 * Override this to customize the lookup form. No need to call super. method.
 	 * @param lf
 	 */
-	protected void customizeLookupForm(LookupForm<T> lf) {
-	}
+	protected void customizeLookupForm(LookupForm<T> lf) {}
 
 	/**
 	 * Override to provide your own Row Renderer; this version returns a SimpleRowRenderer() using full
@@ -124,11 +123,12 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 			m_result.setPageSize(20);
 			m_result.setTableWidth("100%");
 
-			rr.setRowClicked(new ICellClicked<T>() {
+			//** FIXME : make some protected overidable method that specifies if row should get row click functionality.
+			/*			rr.setRowClicked(new ICellClicked<T>() {
 				public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
 					onSelect(val);
 				}
-			});
+			});*/
 
 			//-- Add the pager,
 			m_pager = new DataPager(m_result);
