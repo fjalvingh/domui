@@ -6,6 +6,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
 public class AbstractRowRenderer {
@@ -81,7 +82,7 @@ public class AbstractRowRenderer {
 	}
 
 	/**
-	 * Return the definition for the nth column.
+	 * Return the definition for the nth column. You can change the column's definition there.
 	 * @param ix
 	 * @return
 	 */
@@ -91,6 +92,33 @@ public class AbstractRowRenderer {
 		return m_columnList.get(ix);
 	}
 
+	/**
+	 * Return the #of columns in this renderer.
+	 * @return
+	 */
+	public int getColumnCount() {
+		return m_columnList.size();
+	}
+
+	/**
+	 * Find a column by the property it is displaying. This only works for that kind of columns, and will
+	 * not work for any joined columns defined from metadata. If no column exists for the specified property
+	 * this will throw an exception.
+	 * @param propertyName
+	 * @return
+	 */
+	public SimpleColumnDef getColumnByName(String propertyName) {
+		for(SimpleColumnDef scd : m_columnList) {
+			if(propertyName.equals(scd.getPropertyName()))
+				return scd;
+		}
+		throw new ProgrammerErrorException("The property with the name '" + propertyName + "' is undefined in this RowRenderer - perhaps metadata has changed?");
+	}
+
+	/**
+	 * Quickly set the widths of all columns in the same order as defined.
+	 * @param widths
+	 */
 	public void setColumnWidths(final String... widths) {
 		check();
 		int ix = 0;
@@ -99,26 +127,46 @@ public class AbstractRowRenderer {
 		}
 	}
 
+	/**
+	 * Convenience method to set the column width; replacement for getColumn(index).setWidth().
+	 * @param index
+	 * @param width
+	 */
 	public void setColumnWidth(final int index, final String width) {
 		check();
 		getColumn(index).setWidth(width);
 	}
 
+	/**
+	 * Convenience method to set the column's cell renderer; replacement for getColumn(index).setRenderer().
+	 * @param index
+	 * @param renderer
+	 */
 	public void setNodeRenderer(final int index, final INodeContentRenderer<?> renderer) {
 		check();
 		getColumn(index).setContentRenderer(renderer);
 	}
 
+	/**
+	 * Convenience method to get the column's cell renderer; replacement for getColumn(index).getRenderer().
+	 * @param index
+	 * @return
+	 */
 	public INodeContentRenderer<?> getNodeRenderer(final int index) {
 		return getColumn(index).getContentRenderer();
 	}
 
+
+	/**
+	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
+	 * @return
+	 */
 	public ICellClicked<?> getRowClicked() {
 		return m_rowClicked;
 	}
 
 	/**
-	 * Sets a Click handler to use when the row is clicked.
+	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
 	 * @param rowClicked
 	 */
 	public void setRowClicked(final ICellClicked<?> rowClicked) {
@@ -126,7 +174,7 @@ public class AbstractRowRenderer {
 	}
 
 	/**
-	 * Get the cell clicked handler for the specified column.
+	 * Get the cell clicked handler for the specified column. Convenience method for getColumn(col).getCellClicked().
 	 * @param col
 	 * @return
 	 */
@@ -135,7 +183,7 @@ public class AbstractRowRenderer {
 	}
 
 	/**
-	 * Set the cell clicked handler for the specified column.
+	 * Set the cell clicked handler for the specified column. Convenience method for getColumn(col).setCellClicked().
 	 * @param col
 	 * @param cellClicked
 	 */
@@ -277,6 +325,8 @@ public class AbstractRowRenderer {
 	}
 
 	/**
+	 * (Do not use: use setNodeRenderer() or setConverter instead!)
+	 *
 	 * Provides posibility of converion into rendering value. This method should be used as last resource rendering data conversion.
 	 * @param index
 	 * @param instance
