@@ -20,6 +20,15 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 
 	protected TD m_lastUsedCell;
 
+	public GenericTableFormBuilder() {}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> GenericTableFormBuilder(Class<T> clz, IReadOnlyModel<T> mdl) {
+		super(clz, mdl);
+	}
+
 	/**
 	 * Called when a new table, body or whatever is made current; it should reset all known positioning information.
 	 */
