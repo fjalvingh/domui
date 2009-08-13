@@ -11,6 +11,12 @@ import to.etc.domui.dom.html.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
+/**
+ * Represents factory for numeric values lookup. For lookup condition uses combo with numeric relation trailed by one or two fields (when between relation is selected) for definition of numeric parameters. 
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on 13 Aug 2009
+ */
 final class LookupFactoryNumber implements LookupControlFactory {
 	public ILookupControlInstance createControl(SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
 		final List<Pair<NumericRelationType>> values = new ArrayList<Pair<NumericRelationType>>();
@@ -98,7 +104,6 @@ final class LookupFactoryNumber implements LookupControlFactory {
 		if(pmm.getDisplayLength() > 0)
 			numText.setSize(pmm.getDisplayLength());
 		else if(pmm.getPrecision() > 0) {
-			// FIXME This should be localized somehow...
 			//-- Calculate a size using scale and precision.
 			int size = pmm.getPrecision();
 			int d = size;
