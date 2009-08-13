@@ -16,7 +16,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 19, 2008
  */
-public class TabularFormBuilder extends FormBuilderBase {
+public class TabularFormBuilder extends GenericFormBuilder {
 	private Table m_parentTable;
 
 	/** The current body we're filling in */
@@ -111,183 +111,54 @@ public class TabularFormBuilder extends FormBuilderBase {
 		return b;
 	}
 
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Core public interface.								*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Add an input for the specified property. The property is based at the current input
-	 * class. The input model is default (using metadata) and the property is labeled using
-	 * the metadata-provided label.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param name
+	 * {@inheritDoc}
+	 * Overridden to allow chaining.
 	 */
-	public void addProp(final String name) {
-		addProp(name, (String) null);
-	}
-
-	/**
-	 * Add an input for the specified property just as <code>addProp(String)</code>,
-	 * only this input won't be editable.
-	 *
-	 * @param name
-	 */
-	public void addReadOnlyProp(final String name) {
-		addReadOnlyProp(name, null);
-	}
-
-	/**
-	 * Add an input for the specified property. The property is based at the current input
-	 * class. The input model is default (using metadata) and the property is labeled.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param name
-	 * @param label		The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
-	 */
-	public void addProp(final String name, String label) {
-		PropertyMetaModel pmm = resolveProperty(name);
-		if(label == null)
-			label = pmm.getDefaultLabel();
-		boolean edit = true;
-		if(pmm.getReadOnly() == YesNoType.YES)
-			edit = false;
-		addPropertyControl(name, label, pmm, edit);
-	}
-
-	/**
-	 * Add an input for the specified property just as <code>addProp(String, String)</code>,
-	 * only this input won't be editable.
-	 *
-	 * @param name
-	 * @param label
-	 */
-	public void addReadOnlyProp(final String name, String label) {
-		PropertyMetaModel pmm = resolveProperty(name);
-		if(label == null)
-			label = pmm.getDefaultLabel();
-		addPropertyControl(name, label, pmm, false);
-	}
-
-	/**
-	 * Add the specified properties to the form, in the current mode. Watch out: if a
-	 * MODIFIER is in place the modifier is obeyed for <b>all properties</b>, not for
-	 * the first one only!! This means that when this gets called like:
-	 * <pre>
-	 * 	f.append().addProps("a", "b","c");
-	 * </pre>
-	 * all three fields are appended to the current row.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param names
-	 */
+	@Override
 	public TabularFormBuilder addProps(final String... names) {
-		//-- Store the current mode override && restore after each property (keep mode-override active for each property)
-		Mode m = m_nextNodeMode;
-		Mode nextm = m_nextMode;
-
-		for(String name : names) {
-			m_nextNodeMode = m;
-			addProp(name);
-		}
-		if(nextm != null)
-			m_nextNodeMode = nextm; // Cancel mode override
-		return this;
+		return (TabularFormBuilder) super.addProps(names);
 	}
 
 	/**
-	 * Add the specified properties to the form, just as <code>addProps(String...)</code>,
-	 * only these properties won't be editable.
+	 * {@inheritDoc}
+	 * Overridden to allow chaining.
 	 * @param names
 	 * @return
 	 */
+	@Override
 	public TabularFormBuilder addReadOnlyProps(final String... names) {
+		return (TabularFormBuilder) super.addReadOnlyProps(names);
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	GenericFormBuilder implementation.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * {@inheritDoc}
+	 * This one handles mode maintenance while placing the individual controls so the entire list added here
+	 * obeys the "current" mode setting, not just the 1st control added.
+	 */
+	@Override
+	protected void addListOfProperties(boolean editable, final String... names) {
 		//-- Store the current mode override && restore after each property (keep mode-override active for each property)
 		Mode m = m_nextNodeMode;
 		Mode nextm = m_nextMode;
 
 		for(String name : names) {
 			m_nextNodeMode = m;
-			addReadOnlyProp(name);
+			if(editable)
+				addProp(name);
+			else
+				addReadOnlyProp(name);
 		}
 		if(nextm != null)
 			m_nextNodeMode = nextm; // Cancel mode override
-		return this;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Core public interface.								*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Add an input for the specified property. The property is based at the current input
-	 * class. The input model is default (using metadata) and the property is labeled using
-	 * the metadata-provided label.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param name
-	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
-	 */
-	public void addProp(final String name, final boolean readOnly) {
-		if(readOnly) {
-			addReadOnlyProp(name);
-		} else {
-			addProp(name);
-		}
-	}
-
-	/**
-	 * Add a user-specified control for a given property. This adds the control, using
-	 * the property-specified label and creates a binding for the property on the
-	 * control. <i>If you only want to add the proper structure and find the label for
-	 * a property use {@link TabularFormBuilder#addPropertyAndControl(String, NodeBase, boolean)}.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param propertyname
-	 * @param ctl
-	 */
-	public <T extends NodeBase & IInputNode< ? >> void addProp(final String propertyname, final T ctl) {
-		PropertyMetaModel pmm = resolveProperty(propertyname);
-		String label = pmm.getDefaultLabel();
-		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), pmm);
-		getBindings().add(new SimpleComponentPropertyBinding(getModel(), pmm, ctl));
-	}
-
-	/**
-	 * This adds a fully user-specified control for a given property with it's default label,
-	 * without creating <i>any<i> binding. The only reason the property is passed is to use
-	 * it's metadata to define it's access rights and default label.
-	 *
-	 * @param propertyName
-	 * @param nb
-	 * @param mandatory
-	 */
-	public void addPropertyAndControl(final String propertyName, final NodeBase nb, final boolean mandatory) {
-		PropertyMetaModel pmm = resolveProperty(propertyName);
-		String label = pmm.getDefaultLabel();
-		addControl(label, nb, new NodeBase[]{nb}, mandatory, pmm);
-	}
-
-	/**
-	 *
-	 * @param name
-	 * @param label
-	 * @param pmm
-	 * @param editPossible, when false, the rendered control will be display-only and cannot be changed back to EDITABLE.
-	 */
-	private void addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editPossible) {
-		//-- Check control permissions: does it have view permissions?
-		if(!rights().calculate(pmm))
-			return;
-		final ControlFactory.Result r = createControlFor(getModel(), pmm, editPossible && rights().isEditable()); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), pmm);
-		if(r.getBinding() != null)
-			getBindings().add(r.getBinding());
-		else
-			throw new IllegalStateException("No binding for a " + r);
 	}
 
 	/**
@@ -296,7 +167,8 @@ public class TabularFormBuilder extends FormBuilderBase {
 	 * @param labelnode			The node to connect the Label to (for=)
 	 * @param mandatory
 	 */
-	private void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, PropertyMetaModel pmm) {
+	@Override
+	public void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, PropertyMetaModel pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = DomApplication.get().getControlLabelFactory();
@@ -311,14 +183,9 @@ public class TabularFormBuilder extends FormBuilderBase {
 		modalAdd(l, list);
 	}
 
-	public void addLabelAndControl(final String label, final NodeBase control, final boolean mandatory) {
-		addControl(label, control, new NodeBase[]{control}, mandatory, null);
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Placement manipulators (public interface)			*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * Add the next field in "normal" mode, then return to the current
 	 * mode. All fields added after this will be added on their own
@@ -423,21 +290,6 @@ public class TabularFormBuilder extends FormBuilderBase {
 		m_colRow = row;
 		m_colCol = col;
 	}
-
-	/**
-	 * Create the optimal control for the specified thingy, and return the binding for it.
-	 *
-	 * @param container		This will receive all nodes forming the control.
-	 * @param model 		The content model used to obtain the Object instance whose property is being edited, for binding purposes.
-	 * @param pmm			The property meta for the property to find an editor for.
-	 * @param editable		When false this must make a displayonly control.
-	 * @return				The binding to bind the control to it's valueset
-	 */
-	private ControlFactory.Result createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
-		ControlFactory cf = DomApplication.get().getControlFactory(pmm, editable);
-		return cf.createControl(model, pmm, editable);
-	}
-
 
 	public Table getTable() {
 		return m_parentTable;

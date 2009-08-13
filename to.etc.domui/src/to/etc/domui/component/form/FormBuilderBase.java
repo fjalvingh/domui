@@ -43,6 +43,21 @@ public class FormBuilderBase {
 		setClassModel(clz, mdl);
 	}
 
+	/**
+	 * Create the optimal control for the specified thingy, and return the binding for it.
+	 *
+	 * @param container		This will receive all nodes forming the control.
+	 * @param model 		The content model used to obtain the Object instance whose property is being edited, for binding purposes.
+	 * @param pmm			The property meta for the property to find an editor for.
+	 * @param editable		When false this must make a displayonly control.
+	 * @return				The binding to bind the control to it's valueset
+	 */
+	protected ControlFactory.Result createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
+		ControlFactory cf = DomApplication.get().getControlFactory(pmm, editable);
+		return cf.createControl(model, pmm, editable);
+	}
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple getters and internal stuff.					*/
 	/*--------------------------------------------------------------*/
