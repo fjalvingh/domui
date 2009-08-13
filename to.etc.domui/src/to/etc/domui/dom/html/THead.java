@@ -1,5 +1,7 @@
 package to.etc.domui.dom.html;
 
+import to.etc.webapp.nls.*;
+
 /**
  * A THEAD node.
  *
@@ -24,6 +26,17 @@ public class THead extends NodeContainer {
 			TH th = new TH();
 			row.add(th);
 			th.setText(s);
+		}
+	}
+
+	public void setHeaders(BundleRef b, String... keys) {
+		forceRebuild();
+		TR row = new TR();
+		add(row);
+		for(String s : keys) {
+			TH th = new TH();
+			row.add(th);
+			th.setText(b.getString(s));
 		}
 	}
 
