@@ -429,7 +429,7 @@ table.ui-lui {
 	text-align: right;
 	font-weight: bold;
 	font-size: 11px;
-	/* FIXME: Fuck-me-gently with a chainsaw: viewpoint uses PIXEL sizing!? */
+	/* FIXME: Abuse, chainsaws: viewpoint uses PIXEL sizing!? */
 	vertical-align: top;
 }
 
@@ -439,6 +439,19 @@ table.ui-lui {
 	vertical-align: top;
 }
 
+/*** Form basic styles: for forms having the label ABOVE the field (vertical stacked) ***/
+.ui-fvs-lbl {
+	font-weight: bold;
+	font-size: 11px;
+}
+
+.ui-fvs-in {
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	vertical-align: top;
+}
+
+/*** Typed presentation for fields containing numerics ***/
 .ui-numeric {
 	text-align: right;
 }
