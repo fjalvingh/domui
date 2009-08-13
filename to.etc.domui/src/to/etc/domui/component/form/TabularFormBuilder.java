@@ -16,12 +16,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 19, 2008
  */
-public class TabularFormBuilder extends GenericFormBuilder {
-	private Table m_parentTable;
-
-	/** The current body we're filling in */
-	private TBody m_tbody;
-
+public class TabularFormBuilder extends GenericTableFormBuilder {
 	/** For columnar mode this is the "next row" where we add a column */
 	private int m_colRow;
 
@@ -53,8 +48,6 @@ public class TabularFormBuilder extends GenericFormBuilder {
 
 	private Mode m_nextMode;
 
-	private TR m_lastUsedRow;
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Construction, initialization.						*/
 	/*--------------------------------------------------------------*/
@@ -64,51 +57,13 @@ public class TabularFormBuilder extends GenericFormBuilder {
 		setClassModel(clz, mdl);
 	}
 
-	/**
-	 * Clears the current generated layout and starts a new table.
-	 */
-	public void reset() {
-		m_tbody = null;
-		m_parentTable = null;
+	/*--------------------------------------------------------------*/
+	/*	CODING:	GenericTableFormBuilder extensions.					*/
+	/*--------------------------------------------------------------*/
+	@Override
+	protected void internalClearLocation() {
 		m_colRow = 0;
 		m_colCol = 0;
-	}
-
-	/**
-	 * Sets a new table. This resets the current body and stuff.
-	 * @param b
-	 */
-	public void setTable(final Table b) {
-		finish(); // Make sure old dude is finished
-		m_parentTable = b;
-		m_lastUsedRow = null;
-		m_tbody = null;
-		m_colCol = m_colRow = 0;
-	}
-
-	/**
-	 * Sets the TBody to use. This resets all layout state.
-	 * @param b
-	 */
-	public void setTBody(final TBody b) {
-		finish(); // Make sure old dude is finished
-		m_tbody = b;
-		m_parentTable = b.getParent(Table.class);
-	}
-
-	/**
-	 * Creates a new TBody and adds it to the table. This can be used to create multiple re-generatable
-	 * layouts within a single layout table. The body inherits the table's core layout.
-	 *
-	 * @return
-	 */
-	public TBody newBody() {
-		TBody b = new TBody();
-		m_parentTable.add(b);
-		m_tbody = b;
-		m_lastUsedRow = null;
-		m_colCol = m_colRow = 0;
-		return b;
 	}
 
 
@@ -291,19 +246,6 @@ public class TabularFormBuilder extends GenericFormBuilder {
 		m_colCol = col;
 	}
 
-	public Table getTable() {
-		return m_parentTable;
-	}
-
-	protected TBody tbody() {
-		if(m_tbody == null) {
-			if(m_parentTable == null)
-				m_parentTable = new Table();
-			m_tbody = m_parentTable.getBody(); // Force a new body.
-		}
-		return m_tbody;
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Table add modes.									*/
 	/*--------------------------------------------------------------*/
@@ -439,20 +381,4 @@ public class TabularFormBuilder extends GenericFormBuilder {
 			td.add(nb);
 	}
 
-	/**
-	 * This finishes off the current table by calculating colspans for all skewed rows. This discards the
-	 * current table!
-	 *
-	 * @return
-	 */
-	public Table finish() {
-		if(m_parentTable == null)
-			return null;
-
-		//-- jal 20090508 MUST clear the table, because when the builder is used for the NEXT tab it must return a new table!
-		Table tbl = m_parentTable;
-		DomUtil.adjustTableColspans(tbl);
-		reset();
-		return tbl;
-	}
 }

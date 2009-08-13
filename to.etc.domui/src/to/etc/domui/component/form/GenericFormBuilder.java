@@ -32,6 +32,13 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	abstract protected void addListOfProperties(boolean editable, final String... names);
 
 	/**
+	 * Complete the visual representation of this form, and return the node representing it.
+	 *
+	 * @return
+	 */
+	abstract NodeContainer finish();
+
+	/**
 	 * Default ctor.
 	 */
 	public GenericFormBuilder() {}
