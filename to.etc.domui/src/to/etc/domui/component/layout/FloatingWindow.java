@@ -28,6 +28,10 @@ public class FloatingWindow extends Div {
 
 	public IClicked<FloatingWindow> m_onClose;
 
+	private static final int WIDTH = 640;
+
+	private static final int HEIGHT = 400;
+
 	/**
 	 * Create an empty, untitled floating window.
 	 */
@@ -51,15 +55,17 @@ public class FloatingWindow extends Div {
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("ui-fw");
+
 		if(getWidth() == null)
-			setWidth("640px");
+			setWidth(WIDTH + "px");
 		if(getHeight() == null)
-			setHeight("400px");
+			setHeight(HEIGHT + "px");
 		if(getZIndex() <= 0)
 			setZIndex(100);
 		setPosition(PositionType.ABSOLUTE);
-		setTop(100);
-		setLeft(100);
+
+		// center floating window horizontally on screen
+		setMarginLeft("-" + WIDTH / 2 + "px");
 
 		//-- Construct the title bar
 		createTitleBar();

@@ -106,6 +106,16 @@ public class CssBase {
 	/*--- TEXT properties -----*/
 	private TextAlign m_textAlign;
 
+	/*-- CSS Margin properties --*/
+	private String m_marginLeft;
+
+	private String m_marginRight;
+
+	private String m_marginTop;
+
+	private String m_marginBottom;
+
+
 	public String getCachedStyle() {
 		return m_cachedStyle;
 	}
@@ -119,7 +129,7 @@ public class CssBase {
 	 * object.
 	 */
 	protected void changed() {
-	// FIXME Needs impl.
+		// FIXME Needs impl.
 	}
 
 	public BackgroundAttachment getBackgroundAttachment() {
@@ -577,4 +587,37 @@ public class CssBase {
 		changed();
 		m_textAlign = textAlign;
 	}
+
+	public String getMarginLeft() {
+		return m_marginLeft;
+	}
+
+	public void setMarginLeft(String marginLeft) {
+		m_marginLeft = marginLeft;
+	}
+
+	public String getMarginRight() {
+		return m_marginRight;
+	}
+
+	public void setMarginRight(String marginRight) {
+		m_marginRight = marginRight;
+	}
+
+	public String getMarginTop() {
+		return m_marginTop;
+	}
+
+	public void setMarginTop(String marginTop) {
+		m_marginTop = marginTop;
+	}
+
+	public String getMarginBottom() {
+		return m_marginBottom;
+	}
+
+	public void setMarginBottom(String marginBottom) {
+		m_marginBottom = marginBottom;
+	}
+
 }

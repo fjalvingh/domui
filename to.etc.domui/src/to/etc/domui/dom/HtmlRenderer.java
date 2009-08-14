@@ -314,6 +314,32 @@ public class HtmlRenderer implements INodeVisitor {
 			a.append(c.getTextAlign().name().toLowerCase());
 			a.append(';');
 		}
+
+		//Margins
+		if(c.getMarginLeft() != null) {
+			a.append("margin-left:");
+			a.append(c.getMarginLeft());
+			a.append(';');
+		}
+
+		if(c.getMarginRight() != null) {
+			a.append("margin-right:");
+			a.append(c.getMarginRight());
+			a.append(';');
+		}
+
+		if(c.getMarginBottom() != null) {
+			a.append("margin-bottom:");
+			a.append(c.getMarginBottom());
+			a.append(';');
+		}
+
+		if(c.getMarginTop() != null) {
+			a.append("margin-top:");
+			a.append(c.getMarginTop());
+			a.append(';');
+		}
+
 	}
 
 	static private String border(final StringBuilder a, final int w, final String s, final String c) {
