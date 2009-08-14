@@ -37,6 +37,11 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 		li.setReadOnly(!editable);
 		if(pmm.getLookupFieldRenderer() != null)
 			li.setContentRenderer((INodeContentRenderer<Object>) DomApplication.get().createInstance(pmm.getLookupFieldRenderer())); // Bloody stupid Java generic crap
+		else {
+			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType()); // Get meta for type reached,
+			if(cmm.getLookupFieldRenderer() != null)
+				li.setContentRenderer((INodeContentRenderer<Object>) DomApplication.get().createInstance(cmm.getLookupFieldRenderer())); // Bloody stupid Java generic crap
+		}
 		if(pmm.isRequired())
 			li.setMandatory(true);
 		String s = pmm.getDefaultHint();
