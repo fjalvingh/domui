@@ -2,6 +2,7 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
+import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
 
 /**
@@ -327,6 +328,18 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			removeChild(getChild(getChildCount() - 1));
 		TextNode t = new TextNode(txt);
 		add(t);
+	}
+
+	/**
+	 * Put a converted value in this cell's text.
+	 * @param <T>
+	 * @param <C>
+	 * @param conv
+	 * @param value
+	 * @throws Exception
+	 */
+	public <T, C extends IConverter<T>> void setValue(Class<C> conv, T value) throws Exception {
+		setText(ConverterRegistry.convertValueToString(conv, value));
 	}
 
 	//	/**

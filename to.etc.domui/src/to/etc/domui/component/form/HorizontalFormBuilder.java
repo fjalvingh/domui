@@ -100,5 +100,12 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 		m_editRow = addRow();
 	}
 
+	/**
+	 * Start a new row of input fields.
+	 */
+	public void nl() {
+		m_labelRow = null;
+		m_editRow = null;
+	}
 
 }
