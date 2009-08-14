@@ -7,6 +7,12 @@ import to.etc.domui.component.meta.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
+/**
+ * Represents factory for enum values or boolean values lookup. For lookup condition uses combo box automaticaly populated with localized values of enum constants or boolean values. 
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on 1 Aug 2009
+ */
 public class LookupFactoryEnumAndBool implements LookupControlFactory {
 
 	public int accepts(PropertyMetaModel pmm) {

@@ -74,7 +74,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 		m_floater = new FloatingWindow("Opzoeken");
 		getPage().getBody().add(m_floater);
-		m_floater.setHeight("700px");
+		m_floater.setHeight("90%");
 		m_floater.setIcon("THEME/btnFind.png");
 		LookupForm<T> lf = new LookupForm<T>(m_lookupClass);
 		//		lf.setPageTitle("Zoek-criteria");

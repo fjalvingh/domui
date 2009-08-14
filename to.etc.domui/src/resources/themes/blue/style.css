@@ -387,6 +387,8 @@ table.ui-lui {
 	border: 1px solid #cccccc;
 	border-top: none;
 	/*	overflow: hidden;	*/
+	top: 5%;
+	left: 50%;
 }
 
 .ui-fw-ttl {
