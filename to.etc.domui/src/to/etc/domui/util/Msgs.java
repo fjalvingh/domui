@@ -71,6 +71,9 @@ public interface Msgs {
 	/** Your browser is out-of-sync with the server, most probably because your session with the server has expired. The page will be reloaded with original data from the server.  */
 	public static final String S_BADNODE = "s.session.badnode";
 
+	/** Invalid percentage value */
+	public static final String V_BAD_PERCENTAGE = "v.bad.percentage";
+
 	/* LookupForm */
 	/** lookupform.search key */
 	public static final String LOOKUP_FORM_SEARCH = "lookupform.search";

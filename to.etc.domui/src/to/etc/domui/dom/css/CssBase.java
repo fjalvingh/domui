@@ -393,6 +393,9 @@ public class CssBase {
 	}
 
 	public void setFloat(final FloatType f) {
+		if(m_float == f)
+			return;
+		changed();
 		m_float = f;
 	}
 
@@ -401,6 +404,9 @@ public class CssBase {
 	}
 
 	public void setPosition(final PositionType position) {
+		if(m_position == position)
+			return;
+		changed();
 		m_position = position;
 	}
 
@@ -409,6 +415,9 @@ public class CssBase {
 	}
 
 	public void setVisibility(final VisibilityType visibility) {
+		if(m_visibility == visibility)
+			return;
+		changed();
 		m_visibility = visibility;
 	}
 
@@ -417,6 +426,9 @@ public class CssBase {
 	}
 
 	public void setHeight(final String height) {
+		if(DomUtil.isEqual(height, m_height))
+			return;
+		changed();
 		m_height = height;
 	}
 
@@ -425,6 +437,9 @@ public class CssBase {
 	}
 
 	public void setLineHeight(final String lineHeight) {
+		if(DomUtil.isEqual(m_lineHeight, lineHeight))
+			return;
+		changed();
 		m_lineHeight = lineHeight;
 	}
 
@@ -433,6 +448,9 @@ public class CssBase {
 	}
 
 	public void setMaxHeight(final String maxHeight) {
+		if(DomUtil.isEqual(m_maxHeight, maxHeight))
+			return;
+		changed();
 		m_maxHeight = maxHeight;
 	}
 
@@ -441,6 +459,9 @@ public class CssBase {
 	}
 
 	public void setMaxWidth(final String maxWidth) {
+		if(DomUtil.isEqual(m_maxWidth, maxWidth))
+			return;
+		changed();
 		m_maxWidth = maxWidth;
 	}
 
@@ -449,6 +470,9 @@ public class CssBase {
 	}
 
 	public void setMinHeight(final String minHeight) {
+		if(DomUtil.isEqual(m_minHeight, minHeight))
+			return;
+		changed();
 		m_minHeight = minHeight;
 	}
 
@@ -457,6 +481,9 @@ public class CssBase {
 	}
 
 	public void setMinWidth(final String minWidth) {
+		if(DomUtil.isEqual(m_minWidth, minWidth))
+			return;
+		changed();
 		m_minWidth = minWidth;
 	}
 
@@ -465,6 +492,9 @@ public class CssBase {
 	}
 
 	public void setWidth(final String width) {
+		if(DomUtil.isEqual(m_width, width))
+			return;
+		changed();
 		m_width = width;
 	}
 
@@ -473,6 +503,9 @@ public class CssBase {
 	}
 
 	public void setFontFamily(final String fontFamily) {
+		if(DomUtil.isEqual(m_fontFamily, fontFamily))
+			return;
+		changed();
 		m_fontFamily = fontFamily;
 	}
 
@@ -481,6 +514,9 @@ public class CssBase {
 	}
 
 	public void setFontSize(final String fontSize) {
+		if(DomUtil.isEqual(m_fontSize, fontSize))
+			return;
+		changed();
 		m_fontSize = fontSize;
 	}
 
@@ -489,6 +525,9 @@ public class CssBase {
 	}
 
 	public void setFontSizeAdjust(final String fontSizeAdjust) {
+		if(DomUtil.isEqual(m_fontSizeAdjust, fontSizeAdjust))
+			return;
+		changed();
 		m_fontSizeAdjust = fontSizeAdjust;
 	}
 
@@ -497,6 +536,9 @@ public class CssBase {
 	}
 
 	public void setFontStyle(final FontStyle fontStyle) {
+		if(DomUtil.isEqual(m_fontStyle, fontStyle))
+			return;
+		changed();
 		m_fontStyle = fontStyle;
 	}
 
@@ -505,6 +547,9 @@ public class CssBase {
 	}
 
 	public void setFontVariant(final FontVariant fontVariant) {
+		if(DomUtil.isEqual(m_fontVariant, fontVariant))
+			return;
+		changed();
 		m_fontVariant = fontVariant;
 	}
 
@@ -513,6 +558,9 @@ public class CssBase {
 	}
 
 	public void setFontWeight(final String fontWeight) {
+		if(DomUtil.isEqual(m_fontWeight, fontWeight))
+			return;
+		changed();
 		m_fontWeight = fontWeight;
 	}
 

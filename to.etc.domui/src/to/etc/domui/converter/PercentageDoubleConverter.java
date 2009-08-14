@@ -4,6 +4,7 @@ import java.text.*;
 import java.util.*;
 
 import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -37,7 +38,7 @@ public class PercentageDoubleConverter implements IConverter<Double> {
 		}
 		in = in.trim();
 		if(in.endsWith("%")) {
-			in = in.substring(1, in.length() - 1);
+			in = in.substring(0, in.length() - 1);
 		}
 		in = in.trim();
 		Double value = null;
@@ -56,6 +57,6 @@ public class PercentageDoubleConverter implements IConverter<Double> {
 	}
 
 	private void badpercentage(String value) throws ValidationException {
-		throw new ValidationException("bad percentage", value);
+		throw new ValidationException(Msgs.V_BAD_PERCENTAGE, value);
 	}
 }
