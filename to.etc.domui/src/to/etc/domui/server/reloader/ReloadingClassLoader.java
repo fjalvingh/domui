@@ -75,7 +75,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 	@Override
 	synchronized public Class< ? > loadClass(String name, boolean resolve) throws ClassNotFoundException {
 		//		System.out.println("reloadingLoader: input="+name);
-		if(name.startsWith("java.") || name.startsWith("javax.")) {
+		if(name.startsWith("java.") || name.startsWith("javax.") || (name.startsWith("to.etc.domui") /* && !name.startsWith("to.etc.domui.component.") */)) {
 			return m_rootLoader.loadClass(name); // Delegate to the rootLoader.
 		}
 		if(!m_reloader.watchClass(name)) {

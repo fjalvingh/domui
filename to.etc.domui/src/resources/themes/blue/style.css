@@ -417,6 +417,17 @@ table.ui-lui {
 	overflow: auto;
 }
 
+.ui-fw-hider {
+	height: 100%;
+	width: 100%;
+	opacity: 0.5;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+}
+
+/** Tree control ***/
+
 .ui-tree {
 	height: 100%;
 }
@@ -581,7 +592,7 @@ td.ui-cellsel {
 td.ui-cellsel:hover {
 	cursor: pointer;
 	text-decoration: underline;
-	background-color: #ffe1bf !important;
+	background-color: #b8f1c7 !important;
 }
 
 th.ui-sortable {

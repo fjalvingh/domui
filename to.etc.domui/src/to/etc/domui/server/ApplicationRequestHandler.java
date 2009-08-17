@@ -111,9 +111,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			ctx.getSession().internalObituaryReceived(cida[0], pageTag);
 
 			//-- Send a silly response.
-			ctx.getResponse().setContentType("text/text");
+			ctx.getResponse().setContentType("text/html");
 			Writer w = ctx.getResponse().getWriter();
-			w.append("RIP");
+			w.append("<html><body><p>Obituary?</body></html>\n");
 			return; // Obituaries get a zero response.
 		}
 

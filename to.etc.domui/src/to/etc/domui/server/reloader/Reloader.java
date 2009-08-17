@@ -88,7 +88,7 @@ final public class Reloader {
 	 * @param paths
 	 */
 	public Reloader(String paths) {
-		m_loadSpecList.add(new LoadSpec(Pattern.compile("to.etc.domui.*"), false)); // Never accept internal classes!!
+		//		m_loadSpecList.add(new LoadSpec(Pattern.compile("to.etc.domui.*"), false)); // Never accept internal classes!! jal 20090817 Removed, handled in ReloadingClassloader instead.
 
 		StringTokenizer st = new StringTokenizer(paths, " \t;,");
 		while(st.hasMoreTokens()) {

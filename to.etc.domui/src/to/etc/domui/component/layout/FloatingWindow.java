@@ -13,6 +13,7 @@ import to.etc.domui.util.*;
  * Created on Jul 30, 2008
  */
 public class FloatingWindow extends Div {
+	private boolean m_modal;
 	private NodeContainer m_titleBar;
 
 	private NodeContainer m_content;
@@ -26,16 +27,15 @@ public class FloatingWindow extends Div {
 	//	private boolean			m_constructed;
 	private Img m_titleIcon;
 
-	public IClicked<FloatingWindow> m_onClose;
+	IClicked<FloatingWindow> m_onClose;
+
+	private Div m_hider;
 
 	private static final int WIDTH = 640;
 
 	private static final int HEIGHT = 400;
 
-	/**
-	 * Create an empty, untitled floating window.
-	 */
-	public FloatingWindow() {
+	protected FloatingWindow() {
 		init();
 	}
 
@@ -43,9 +43,51 @@ public class FloatingWindow extends Div {
 	 * Create a floating window with the specified title in the title bar.
 	 * @param txt
 	 */
-	public FloatingWindow(String txt) {
-		setWindowTitle(txt);
+	protected FloatingWindow(boolean modal, String txt) {
+		m_modal = modal;
+		if(txt != null)
+			setWindowTitle(txt);
 		init();
+	}
+
+	/**
+	 * Create and link a modal floating window.
+	 * @return
+	 */
+	static public FloatingWindow create(NodeBase parent) {
+		return create(parent, null, true);
+	}
+
+	static public FloatingWindow create(NodeBase parent, String ttl) {
+		return create(parent, ttl, true);
+	}
+
+	static public FloatingWindow create(NodeBase parent, String ttl, boolean modal) {
+		UrlPage body = parent.getPage().getBody();
+		FloatingWindow w = new FloatingWindow(modal, ttl); // Create instance
+		body.add(w);
+		return w;
+	}
+
+	@Override
+	public void onAddedToPage(Page p) {
+		super.onAddedToPage(p);
+		if(!m_modal)
+			return;
+
+		//-- 1. Add a DIV obscuring all other input.
+		m_hider = new Div();
+		m_hider.setCssClass("ui-fw-hider");
+		p.getBody().add(m_hider);
+	}
+
+	@Override
+	public void onRemoveFromPage(Page p) {
+		super.onRemoveFromPage(p);
+		if(m_hider != null) {
+			m_hider.remove();
+			m_hider = null;
+		}
 	}
 
 	/**
@@ -126,7 +168,7 @@ public class FloatingWindow extends Div {
 	/**
 	 * This is an overridden method which causes content added to the FloatingWindow to be added
 	 * to it's content area instead.
-	 * 
+	 *
 	 * @see to.etc.domui.dom.html.NodeContainer#add(to.etc.domui.dom.html.NodeBase)
 	 */
 	@Override
@@ -227,4 +269,21 @@ public class FloatingWindow extends Div {
 		if(m_titleBar != null)
 			createTitleBar();
 	}
+
+	/**
+	 * This links this floater as a "modal" window to the page specified by the base node.
+	 * @param parent
+	 */
+	public void linkToPageModally(NodeBase parent) {
+		//-- 1. Add a DIV obscuring all other input.
+		Div hider = new Div();
+		hider.setCssClass("ui-fw-hider");
+		UrlPage body = parent.getPage().getBody();
+		body.add(hider);
+
+		//-- 2. Add the floater @zIndex=100
+		body.add(this);
+	}
+
+
 }
