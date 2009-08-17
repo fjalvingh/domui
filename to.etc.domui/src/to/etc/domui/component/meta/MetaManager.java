@@ -301,7 +301,7 @@ final public class MetaManager {
 		}
 
 		//-- Resolved to target. Return a complex proxy.
-		return new PathPropertyMetaModel<Object>(acl.toArray(new PropertyMetaModel[acl.size()]));
+		return new PathPropertyMetaModel<Object>(name, acl.toArray(new PropertyMetaModel[acl.size()]));
 	}
 
 	/*--------------------------------------------------------------*/
