@@ -138,11 +138,11 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 		StringBuilder name = new StringBuilder();
 		for (PropertyMetaModel pmm: m_accessPath) {
 			name.append(pmm.getName());
-			name.append(".");
+			if (!pmm.equals(m_original)) {
+				name.append(".");
+			}
 		}
-		if (name.length() > 0) {
-			name.deleteCharAt(name.length()-1);
-		}
+
 		return name.toString();
 		//return m_original.getName();
 	}
