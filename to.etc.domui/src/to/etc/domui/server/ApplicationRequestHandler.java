@@ -113,7 +113,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			//-- Send a silly response.
 			ctx.getResponse().setContentType("text/html");
 			Writer w = ctx.getResponse().getWriter();
-			w.append("<html><body><p>Obituary?</body></html>\n");
+			//			w.append("<html><body><p>Obituary?</body></html>\n");
 			return; // Obituaries get a zero response.
 		}
 
