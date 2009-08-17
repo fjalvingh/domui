@@ -27,6 +27,8 @@ public class BasicPage<T> extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
 		addPageHeaders();
+		add(new Div()); // add little space between title bar and other components
+		addPageTitleBar();
 	}
 
 	public String getPageTitle() {
@@ -42,6 +44,11 @@ public class BasicPage<T> extends UrlPage {
 			m.addPageHeader(c, this);
 		}
 	}
+
+	/**
+	 * Override to add custom page title bar.
+	 */
+	protected void addPageTitleBar() {}
 
 	public static synchronized void addModifier(IGenericPageModifier m) {
 		m_pageModifierList = new ArrayList<IGenericPageModifier>(m_pageModifierList);

@@ -1,7 +1,5 @@
 package to.etc.domui.component.form;
 
-import java.util.logging.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -18,28 +16,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 19, 2008
  */
-public class TabularFormBuilder {
-	static private final Logger LOG = Logger.getLogger(TabularFormBuilder.class.getName());
-
-	/** If a concrete input class is known this contains it's type. */
-	private Class< ? > m_currentInputClass;
-
-	/** The current source model for the object containing the properties. */
-	private IReadOnlyModel< ? > m_model;
-
-	/** The concrete MetaModel to use for properties within this object. */
-	private ClassMetaModel m_classMeta;
-
-	private ModelBindings m_bindings = new ModelBindings();
-
-	private Table m_parentTable;
-
-	/** The current body we're filling in */
-	private TBody m_tbody;
-
-	/** Thingy to help calculating access rights (delegate) */
-	private final AccessCalculator m_calc = new AccessCalculator();
-
+public class TabularFormBuilder extends GenericTableFormBuilder {
 	/** For columnar mode this is the "next row" where we add a column */
 	private int m_colRow;
 
@@ -71,10 +48,6 @@ public class TabularFormBuilder {
 
 	private Mode m_nextMode;
 
-	private TR m_lastUsedRow;
-
-	private IControlLabelFactory m_controlLabelFactory;
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Construction, initialization.						*/
 	/*--------------------------------------------------------------*/
@@ -84,264 +57,63 @@ public class TabularFormBuilder {
 		setClassModel(clz, mdl);
 	}
 
-	public IControlLabelFactory getControlLabelFactory() {
-		return m_controlLabelFactory;
-	}
-
-	public void setControlLabelFactory(final IControlLabelFactory controlLabelFactory) {
-		m_controlLabelFactory = controlLabelFactory;
-	}
-
-	/**
-	 * Set or change the current base class and base model. This can be changed whenever needed.
-	 *
-	 * @param <T>
-	 * @param clz
-	 * @param mdl
-	 */
-	public <T> void setClassModel(final Class<T> clz, final IReadOnlyModel<T> mdl) {
-		m_classMeta = MetaManager.findClassMeta(clz);
-		m_currentInputClass = clz;
-		m_model = mdl;
-	}
-
-	/**
-	 * Sets the base metamodel and value source to use for obtaining properties.
-	 *
-	 * @param cmm
-	 * @param source
-	 */
-	public void setMetaModel(final ClassMetaModel cmm, final IReadOnlyModel< ? > source) {
-		m_classMeta = cmm;
-		m_model = source;
-		m_currentInputClass = null;
-	}
-
-	/**
-	 * Clears the current generated layout and starts a new table.
-	 */
-	public void reset() {
-		m_tbody = null;
-		m_parentTable = null;
+	/*--------------------------------------------------------------*/
+	/*	CODING:	GenericTableFormBuilder extensions.					*/
+	/*--------------------------------------------------------------*/
+	@Override
+	protected void internalClearLocation() {
 		m_colRow = 0;
 		m_colCol = 0;
 	}
 
-	/**
-	 * Sets a new table. This resets the current body and stuff.
-	 * @param b
-	 */
-	public void setTable(final Table b) {
-		finish(); // Make sure old dude is finished
-		m_parentTable = b;
-		m_lastUsedRow = null;
-		m_tbody = null;
-		m_colCol = m_colRow = 0;
-	}
-
-	/**
-	 * Sets the TBody to use. This resets all layout state.
-	 * @param b
-	 */
-	public void setTBody(final TBody b) {
-		finish(); // Make sure old dude is finished
-		m_tbody = b;
-		m_parentTable = b.getParent(Table.class);
-	}
-
-	/**
-	 * Creates a new TBody and adds it to the table. This can be used to create multiple re-generatable
-	 * layouts within a single layout table. The body inherits the table's core layout.
-	 *
-	 * @return
-	 */
-	public TBody newBody() {
-		TBody b = new TBody();
-		m_parentTable.add(b);
-		m_tbody = b;
-		m_lastUsedRow = null;
-		m_colCol = m_colRow = 0;
-		return b;
-	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Core public interface.								*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Add an input for the specified property. The property is based at the current input
-	 * class. The input model is default (using metadata) and the property is labeled using
-	 * the metadata-provided label.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param name
+	 * {@inheritDoc}
+	 * Overridden to allow chaining.
 	 */
-	public void addProp(final String name) {
-		addProp(name, (String) null);
-	}
-
-	/**
-	 * Add an input for the specified property just as <code>addProp(String)</code>,
-	 * only this input won't be editable.
-	 *
-	 * @param name
-	 */
-	public void addReadOnlyProp(final String name) {
-		addReadOnlyProp(name, null);
-	}
-
-	/**
-	 * Add an input for the specified property. The property is based at the current input
-	 * class. The input model is default (using metadata) and the property is labeled.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param name
-	 * @param label		The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
-	 */
-	public void addProp(final String name, String label) {
-		PropertyMetaModel pmm = resolveProperty(name);
-		if(label == null)
-			label = pmm.getDefaultLabel();
-		boolean edit = true;
-		if(pmm.getReadOnly() == YesNoType.YES)
-			edit = false;
-		addPropertyControl(name, label, pmm, edit);
-	}
-
-	/**
-	/**
-	 * Add an input for the specified property just as <code>addProp(String, String)</code>,
-	 * only this input won't be editable.
-	 *
-	 * @param name
-	 * @param label
-	 */
-	public void addReadOnlyProp(final String name, String label) {
-		PropertyMetaModel pmm = resolveProperty(name);
-		if(label == null)
-			label = pmm.getDefaultLabel();
-		addPropertyControl(name, label, pmm, false);
-	}
-
-	/**
-	 * Add the specified properties to the form, in the current mode. Watch out: if a
-	 * MODIFIER is in place the modifier is obeyed for <b>all properties</b>, not for
-	 * the first one only!! This means that when this gets called like:
-	 * <pre>
-	 * 	f.append().addProps("a", "b","c");
-	 * </pre>
-	 * all three fields are appended to the current row.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param names
-	 */
+	@Override
 	public TabularFormBuilder addProps(final String... names) {
-		//-- Store the current mode override && restore after each property (keep mode-override active for each property)
-		Mode m = m_nextNodeMode;
-		Mode nextm = m_nextMode;
-
-		for(String name : names) {
-			m_nextNodeMode = m;
-			addProp(name);
-		}
-		if(nextm != null)
-			m_nextNodeMode = nextm; // Cancel mode override
-		return this;
+		return (TabularFormBuilder) super.addProps(names);
 	}
 
 	/**
-	 * Add the specified properties to the form, just as <code>addProps(String...)</code>,
-	 * only these properties won't be editable.
+	 * {@inheritDoc}
+	 * Overridden to allow chaining.
 	 * @param names
 	 * @return
 	 */
+	@Override
 	public TabularFormBuilder addReadOnlyProps(final String... names) {
+		return (TabularFormBuilder) super.addReadOnlyProps(names);
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	GenericFormBuilder implementation.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * {@inheritDoc}
+	 * This one handles mode maintenance while placing the individual controls so the entire list added here
+	 * obeys the "current" mode setting, not just the 1st control added.
+	 */
+	@Override
+	protected void addListOfProperties(boolean editable, final String... names) {
 		//-- Store the current mode override && restore after each property (keep mode-override active for each property)
 		Mode m = m_nextNodeMode;
 		Mode nextm = m_nextMode;
 
 		for(String name : names) {
 			m_nextNodeMode = m;
-			addReadOnlyProp(name);
+			if(editable)
+				addProp(name);
+			else
+				addReadOnlyProp(name);
 		}
 		if(nextm != null)
 			m_nextNodeMode = nextm; // Cancel mode override
-		return this;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Core public interface.								*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Add an input for the specified property. The property is based at the current input
-	 * class. The input model is default (using metadata) and the property is labeled using
-	 * the metadata-provided label.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param name
-	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
-	 */
-	public void addProp(final String name, final boolean readOnly) {
-		if(readOnly) {
-			addReadOnlyProp(name);
-		} else {
-			addProp(name);
-		}
-	}
-
-	/**
-	 * Add a user-specified control for a given property. This adds the control, using
-	 * the property-specified label and creates a binding for the property on the
-	 * control. <i>If you only want to add the proper structure and find the label for
-	 * a property use {@link TabularFormBuilder#addPropertyAndControl(String, NodeBase, boolean)}.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param propertyname
-	 * @param ctl
-	 */
-	public <T extends NodeBase & IInputNode< ? >> void addProp(final String propertyname, final T ctl) {
-		PropertyMetaModel pmm = resolveProperty(propertyname);
-		String label = pmm.getDefaultLabel();
-		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), pmm);
-		getBindings().add(new SimpleComponentPropertyBinding(getModel(), pmm, ctl));
-	}
-
-	/**
-	 * This adds a fully user-specified control for a given property with it's default label,
-	 * without creating <i>any<i> binding. The only reason the property is passed is to use
-	 * it's metadata to define it's access rights and default label.
-	 *
-	 * @param propertyName
-	 * @param nb
-	 * @param mandatory
-	 */
-	public void addPropertyAndControl(final String propertyName, final NodeBase nb, final boolean mandatory) {
-		PropertyMetaModel pmm = resolveProperty(propertyName);
-		String label = pmm.getDefaultLabel();
-		addControl(label, nb, new NodeBase[]{nb}, mandatory, pmm);
-	}
-
-	/**
-	 *
-	 * @param name
-	 * @param label
-	 * @param pmm
-	 * @param editPossible, when false, the rendered control will be display-only and cannot be changed back to EDITABLE.
-	 */
-	private void addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editPossible) {
-		//-- Check control permissions: does it have view permissions?
-		if(!m_calc.calculate(pmm))
-			return;
-		final ControlFactory.Result r = createControlFor(m_model, pmm, editPossible && m_calc.isEditable()); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), pmm);
-		if(r.getBinding() != null)
-			m_bindings.add(r.getBinding());
-		else
-			throw new IllegalStateException("No binding for a " + r);
 	}
 
 	/**
@@ -350,7 +122,8 @@ public class TabularFormBuilder {
 	 * @param labelnode			The node to connect the Label to (for=)
 	 * @param mandatory
 	 */
-	private void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, PropertyMetaModel pmm) {
+	@Override
+	public void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, PropertyMetaModel pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = DomApplication.get().getControlLabelFactory();
@@ -365,14 +138,9 @@ public class TabularFormBuilder {
 		modalAdd(l, list);
 	}
 
-	public void addLabelAndControl(final String label, final NodeBase control, final boolean mandatory) {
-		addControl(label, control, new NodeBase[]{control}, mandatory, null);
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Placement manipulators (public interface)			*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * Add the next field in "normal" mode, then return to the current
 	 * mode. All fields added after this will be added on their own
@@ -476,81 +244,6 @@ public class TabularFormBuilder {
 		m_mode = Mode.COL;
 		m_colRow = row;
 		m_colCol = col;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Simple getters and internal stuff.					*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Get the current ClassMetaModel in effect.
-	 * @return
-	 */
-	protected ClassMetaModel getClassMeta() {
-		if(m_classMeta == null)
-			throw new IllegalStateException("No ClassMetaModel is known!");
-		return m_classMeta;
-	}
-
-	/**
-	 * Create the optimal control for the specified thingy, and return the binding for it.
-	 *
-	 * @param container		This will receive all nodes forming the control.
-	 * @param model 		The content model used to obtain the Object instance whose property is being edited, for binding purposes.
-	 * @param pmm			The property meta for the property to find an editor for.
-	 * @param editable		When false this must make a displayonly control.
-	 * @return				The binding to bind the control to it's valueset
-	 */
-	private ControlFactory.Result createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
-		ControlFactory cf = DomApplication.get().getControlFactory(pmm, editable);
-		return cf.createControl(model, pmm, editable);
-	}
-
-	/**
-	 * Find a property relative to the current input class.
-	 *
-	 * @param name
-	 * @return
-	 */
-	protected PropertyMetaModel resolveProperty(final String name) {
-		PropertyMetaModel pmm = getClassMeta().findProperty(name);
-		if(pmm == null)
-			throw new IllegalStateException("Unknown property " + name);
-		return pmm;
-	}
-
-	public ModelBindings getBindings() {
-		return m_bindings;
-	}
-
-	public void setBindings(final ModelBindings bindings) {
-		if(m_bindings != null && m_bindings.size() > 0)
-			LOG.warning("Setting new bindings but current binding list has bindings!! Make sure you use the old list to bind too!!");
-		m_bindings = bindings;
-	}
-
-	public Class< ? > getCurrentInputClass() {
-		if(m_currentInputClass == null)
-			throw new IllegalStateException("Usage error: you need to provide a 'current input class' type!!");
-		return m_currentInputClass;
-	}
-
-	public IReadOnlyModel< ? > getModel() {
-		if(m_model == null)
-			throw new IllegalStateException("Usage error: you need to provide a 'model accessor'");
-		return m_model;
-	}
-
-	public Table getTable() {
-		return m_parentTable;
-	}
-
-	protected TBody tbody() {
-		if(m_tbody == null) {
-			if(m_parentTable == null)
-				m_parentTable = new Table();
-			m_tbody = m_parentTable.getBody(); // Force a new body.
-		}
-		return m_tbody;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -688,20 +381,4 @@ public class TabularFormBuilder {
 			td.add(nb);
 	}
 
-	/**
-	 * This finishes off the current table by calculating colspans for all skewed rows. This discards the
-	 * current table!
-	 *
-	 * @return
-	 */
-	public Table finish() {
-		if(m_parentTable == null)
-			return null;
-
-		//-- jal 20090508 MUST clear the table, because when the builder is used for the NEXT tab it must return a new table!
-		Table tbl = m_parentTable;
-		DomUtil.adjustTableColspans(tbl);
-		reset();
-		return tbl;
-	}
 }

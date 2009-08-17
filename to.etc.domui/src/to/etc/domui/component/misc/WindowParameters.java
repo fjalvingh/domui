@@ -40,102 +40,115 @@ public class WindowParameters {
 		m_showToolbar = true;
 	}
 
-	public void setMaximized() {
+	public WindowParameters setMaximized() {
 		setWidth(-2);
 		setHeight(-2);
+		return this;
 	}
 
-	public void setSize(int w, int h) {
+	public WindowParameters setSize(int w, int h) {
 		setWidth(w);
 		setHeight(h);
+		return this;
 	}
 
 	public int getWidth() {
 		return m_width;
 	}
 
-	public void setWidth(int width) {
+	public WindowParameters setWidth(int width) {
 		m_width = width;
+		return this;
 	}
 
 	public int getHeight() {
 		return m_height;
 	}
 
-	public void setHeight(int height) {
+	public WindowParameters setHeight(int height) {
 		m_height = height;
+		return this;
 	}
 
 	public String getName() {
 		return m_name;
 	}
 
-	public void setName(String name) {
+	public WindowParameters setName(String name) {
 		m_name = name;
+		return this;
 	}
 
 	public boolean isResizable() {
 		return m_resizable;
 	}
 
-	public void setResizable(boolean resizable) {
+	public WindowParameters setResizable(boolean resizable) {
 		m_resizable = resizable;
+		return this;
 	}
 
 	public boolean isShowScrollbars() {
 		return m_showScrollbars;
 	}
 
-	public void setShowScrollbars(boolean showScrollbars) {
+	public WindowParameters setShowScrollbars(boolean showScrollbars) {
 		m_showScrollbars = showScrollbars;
+		return this;
 	}
 
 	public boolean isShowToolbar() {
 		return m_showToolbar;
 	}
 
-	public void setShowToolbar(boolean showToolbar) {
+	public WindowParameters setShowToolbar(boolean showToolbar) {
 		m_showToolbar = showToolbar;
+		return this;
 	}
 
 	public boolean isShowLocation() {
 		return m_showLocation;
 	}
 
-	public void setShowLocation(boolean showLocation) {
+	public WindowParameters setShowLocation(boolean showLocation) {
 		m_showLocation = showLocation;
+		return this;
 	}
 
 	public boolean isShowDirectories() {
 		return m_showDirectories;
 	}
 
-	public void setShowDirectories(boolean showDirectories) {
+	public WindowParameters setShowDirectories(boolean showDirectories) {
 		m_showDirectories = showDirectories;
+		return this;
 	}
 
 	public boolean isShowStatus() {
 		return m_showStatus;
 	}
 
-	public void setShowStatus(boolean showStatus) {
+	public WindowParameters setShowStatus(boolean showStatus) {
 		m_showStatus = showStatus;
+		return this;
 	}
 
 	public boolean isShowMenubar() {
 		return m_showMenubar;
 	}
 
-	public void setShowMenubar(boolean showMenubar) {
+	public WindowParameters setShowMenubar(boolean showMenubar) {
 		m_showMenubar = showMenubar;
+		return this;
 	}
 
 	public boolean isCopyhistory() {
 		return m_copyhistory;
 	}
 
-	public void setCopyhistory(boolean copyhistory) {
+	public WindowParameters setCopyhistory(boolean copyhistory) {
 		m_copyhistory = copyhistory;
+		return this;
 	}
 
 

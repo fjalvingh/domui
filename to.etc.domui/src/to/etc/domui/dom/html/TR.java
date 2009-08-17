@@ -26,4 +26,10 @@ public class TR extends NodeContainer {
 		return td;
 	}
 
+	public TD addCell(String cssclass) {
+		TD td = new TD();
+		add(td);
+		td.setCssClass(cssclass);
+		return td;
+	}
 }

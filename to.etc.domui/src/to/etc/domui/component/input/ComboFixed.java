@@ -113,6 +113,16 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 		}
 	}
 
+	public int findListIndexFor(T value) {
+		int ix = 0;
+		for(Pair<T> p : getData()) {
+			if(p.getValue().equals(value))
+				return ix;
+			ix++;
+		}
+		return -1;
+	}
+
 	public String getEmptyText() {
 		return m_emptyText;
 	}
