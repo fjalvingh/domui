@@ -310,9 +310,16 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	@Override
 	void unregisterFromPage() {
-		for(NodeBase b : m_children)
-			b.unregisterFromPage();
-		super.unregisterFromPage();
+		for(int i = 0; i < 50; i++) {
+			try {
+				for(NodeBase b : m_children) {
+					b.unregisterFromPage(); // This one already checks if the thing is registered so it can be retried.
+				}
+				super.unregisterFromPage();
+				return;
+			} catch(ConcurrentModificationException x) {}
+		}
+		throw new IllegalStateException("unregisterFromPage: keeps throwing ConcurrentModificationExceptions!??");
 	}
 
 	/**
