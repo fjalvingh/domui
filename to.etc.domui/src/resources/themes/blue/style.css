@@ -503,6 +503,13 @@ input {
 	font-family: verdana, tahoma, helvetica, sans-serif;
 }
 
+button img {
+	vertical-align: bottom;
+}
+button {
+	vertical-align: bottom;
+}
+
 .ui-ro {
 	background: #eff7ff;
 }
@@ -615,6 +622,7 @@ th.ui-sortable {
 	margin: 0px;
 	border: 0px;
 	background: transparent;
+	vertical-align: bottom;
 }
 
 .ui-sib img {
