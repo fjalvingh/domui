@@ -201,12 +201,35 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			add(new TextNode(txt));
 	}
 
+	/**
+	 * Registers all children of a registered parent node. Since this calls onAddedToPage() while
+	 * traversing, and since onAddedToPage can <i>add</i> nodes the loop may encounter a {@link ConcurrentModificationException};
+	 * in that case we simply try again.
+	 */
 	void registerChildren() {
-		for(NodeBase ch : m_children) {
-			ch.registerWithPage(getPage());
+		for(int i = 0; i < 50; i++) {
+			try {
+				for(NodeBase ch : m_children) {
+					if(ch.getPage() == null)
+						ch.registerWithPage(getPage());
+				}
+				return;
+			} catch(ConcurrentModificationException cmx) {}
 		}
+		throw new IllegalStateException("registerChildren() keeps dying with ConcurrentModificationException!?");
 	}
 
+	/**
+	 * Main function to register new nodes with the page they now belong to. This causes
+	 * a recursive descend of all children of the added node, so that not only this child
+	 * but also all of it's children are registered to the page.
+	 * [--NO LONGER TRUE--
+	 * While registering this will generate a list of registered nodes. This list is then
+	 * used to call the onAddedToPage() handler <i>after</i> all nodes have been added, to
+	 * prevent concurrent modification exceptions.
+	 * --]
+	 * @param child
+	 */
 	private void registerWithPage(final NodeBase child) {
 		if(getPage() == null) // No page-> cannot register
 			return;
