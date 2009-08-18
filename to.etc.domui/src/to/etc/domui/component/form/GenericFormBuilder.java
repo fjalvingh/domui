@@ -182,6 +182,32 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	}
 
 	/**
+	 * Add an input for the specified property. The property is based at the current input
+	 * class. The input model is default (using metadata) and the property is labeled using
+	 * the metadata-provided label.
+	 *
+	 * FORMAL-INTERFACE.
+	 *
+	 * @param name
+	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
+	 * @param mandatory Specify if field is mandatory.
+	 */
+	public void addProp(final String name, final boolean readOnly, final boolean mandatory) {
+		PropertyMetaModel pmm = resolveProperty(name);
+		String label = pmm.getDefaultLabel();
+
+		//-- Check control permissions: does it have view permissions?
+		if(!rights().calculate(pmm))
+			return;
+		final ControlFactory.Result r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
+		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory || pmm.isRequired(), pmm);
+		if(r.getBinding() != null)
+			getBindings().add(r.getBinding());
+		else
+			throw new IllegalStateException("No binding for a " + r);
+	}
+
+	/**
 	 * This adds a fully user-specified control for a given property with it's default label,
 	 * without creating <i>any<i> binding. The only reason the property is passed is to use
 	 * it's metadata to define it's access rights and default label.
