@@ -19,7 +19,9 @@ public class ControlFactoryEnumAndBool implements ControlFactory {
 	 *
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
-	public int accepts(final PropertyMetaModel pmm, final boolean editable) {
+	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+		if(controlClass != null && !controlClass.isAssignableFrom(ComboFixed.class)) // This one only creates ComboFixed thingies
+			return -1;
 		Class< ? > iclz = pmm.getActualType();
 		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 2 : 0;
 	}
@@ -29,7 +31,7 @@ public class ControlFactoryEnumAndBool implements ControlFactory {
 	 *
 	 * @see to.etc.domui.component.form.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
-	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
+	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		// Create a domainvalued combobox by default.
 		Object[] vals = pmm.getDomainValues();
 		ClassMetaModel ecmm = null;

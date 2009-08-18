@@ -17,7 +17,10 @@ public class ControlFactoryDate implements ControlFactory {
 	 * Accept java.util.Date class <i>only</i>.
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
-	public int accepts(final PropertyMetaModel pmm, final boolean editable) {
+	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+		if(controlClass != null && !controlClass.isAssignableFrom(DateInput.class))
+			return -1;
+
 		Class< ? > iclz = pmm.getActualType();
 		if(Date.class.isAssignableFrom(iclz)) {
 			return 2;
@@ -25,8 +28,8 @@ public class ControlFactoryDate implements ControlFactory {
 		return 0;
 	}
 
-	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
-		if(!editable) {
+	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+		if(!editable && (controlClass == null || controlClass.isAssignableFrom(Text.class))) {
 			Text<Date> txt = new Text<Date>(Date.class);
 			txt.setReadOnly(true);
 			return new Result(txt, model, pmm);
@@ -35,6 +38,8 @@ public class ControlFactoryDate implements ControlFactory {
 		DateInput di = new DateInput();
 		if(pmm.isRequired())
 			di.setMandatory(true);
+		if(!editable)
+			di.setDisabled(true);
 		if(pmm.getTemporal() == TemporalPresentationType.DATETIME)
 			di.setWithTime(true);
 		String s = pmm.getDefaultHint();

@@ -399,11 +399,11 @@ public abstract class DomApplication {
 	 * @param editable	When false this is a displayonly control request.
 	 * @return			null if no factory is found.
 	 */
-	public ControlFactory findControlFactory(final PropertyMetaModel pmm, final boolean editable) {
+	public ControlFactory findControlFactory(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		ControlFactory best = null;
 		int score = 0;
 		for(ControlFactory cf : getControlFactoryList()) {
-			int v = cf.accepts(pmm, editable);
+			int v = cf.accepts(pmm, editable, controlClass);
 			if(v > score) {
 				score = v;
 				best = cf;
@@ -420,8 +420,8 @@ public abstract class DomApplication {
 	 * @param editable
 	 * @return	The factory to use
 	 */
-	public ControlFactory getControlFactory(final PropertyMetaModel pmm, final boolean editable) {
-		ControlFactory cf = findControlFactory(pmm, editable);
+	public ControlFactory getControlFactory(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+		ControlFactory cf = findControlFactory(pmm, editable, controlClass);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a control factory for " + pmm);
 		return cf;

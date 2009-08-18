@@ -86,9 +86,10 @@ public interface ControlFactory {
 	 * is an eagerness score. The factory returning the highest eagerness wins.
 	 * @param pmm
 	 * @param editable
+	 * @param controlClass When set the control factory *must* be able to return a component which is assignment-compatible with this class type. If it cannot it MUST refuse to create the control.
 	 * @return
 	 */
-	int accepts(PropertyMetaModel pmm, boolean editable);
+	int accepts(PropertyMetaModel pmm, boolean editable, Class< ? > controlClass);
 
 	/**
 	 * This MUST create all nodes necessary for a control to edit the specified item. The nodes must be added
@@ -98,9 +99,12 @@ public interface ControlFactory {
 	 * @param container
 	 * @param pmm
 	 * @param editable
+	 * @param controlClass	When set the control factory *must* return a component which is assignment-compatible with this
+	 * 						class type. When this method is called it has already (by it's accept method) told us it can, so
+	 * 						not creating the proper type is not an option.
 	 * @return
 	 */
-	Result createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable);
+	Result createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable, Class< ? > controlClass);
 
 	static public final ControlFactory TEXTAREA_CF = new ControlFactoryTextArea();
 
