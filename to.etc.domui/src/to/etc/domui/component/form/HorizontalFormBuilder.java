@@ -42,13 +42,17 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	@Override
-	protected void addListOfProperties(boolean editable, String... names) {
+	protected IFormControl[] addListOfProperties(boolean editable, String... names) {
+		IFormControl[] res = new IFormControl[names.length];
+		int ix = 0;
 		for(String name : names) {
 			if(editable)
-				addProp(name);
+				res[ix] = addProp(name);
 			else
-				addReadOnlyProp(name);
+				res[ix] = addReadOnlyProp(name);
+			ix++;
 		}
+		return res;
 	}
 
 	/**

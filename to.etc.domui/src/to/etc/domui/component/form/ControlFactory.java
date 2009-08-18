@@ -47,10 +47,19 @@ public interface ControlFactory {
 			m_nodeList = new NodeBase[]{control};
 		}
 
+		public Result(final ModelBinding binding, IFormControl fc, final NodeBase control) {
+			m_binding = binding;
+			m_labelNode = control;
+			m_handle = fc;
+			m_nodeList = new NodeBase[]{control};
+		}
+
 		public <T extends NodeBase & IInputNode< ? >> Result(final T control, final IReadOnlyModel< ? > model, final PropertyMetaModel pmm) {
 			m_labelNode = control;
 			m_nodeList = new NodeBase[]{control};
-			m_binding = new SimpleComponentPropertyBinding(model, pmm, control);
+			SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(model, pmm, control);
+			m_binding = b;
+			m_handle = b;
 		}
 
 		public NodeBase[] getNodeList() {
@@ -68,8 +77,6 @@ public interface ControlFactory {
 		public IFormControl getFormControl() {
 			if(m_handle != null)
 				return m_handle;
-			if(m_binding instanceof IFormControl)
-				return (IFormControl) m_binding;
 			return null;
 		}
 	}

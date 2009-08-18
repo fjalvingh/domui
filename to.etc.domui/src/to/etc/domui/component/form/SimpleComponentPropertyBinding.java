@@ -4,7 +4,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-public class SimpleComponentPropertyBinding implements ModelBinding {
+public class SimpleComponentPropertyBinding implements ModelBinding, IFormControl {
 	final IInputNode<Object> m_control;
 
 	private PropertyMetaModel m_propertyMeta;
@@ -35,5 +35,24 @@ public class SimpleComponentPropertyBinding implements ModelBinding {
 
 	public void setEnabled(boolean on) {
 		m_control.setReadOnly(!on);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IFormControl interface								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @see to.etc.domui.component.form.IFormControl#getValue()
+	 */
+	public Object getValue() {
+		return m_control.getValue();
+	}
+
+	public void setOnValueChanged(IValueChanged<NodeBase, Object> listener) {
+		m_control.setOnValueChanged(listener);
+	}
+
+	public void setValue(Object value) {
+		m_control.setValue(value);
 	}
 }

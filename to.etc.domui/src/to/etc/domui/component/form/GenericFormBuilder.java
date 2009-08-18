@@ -29,7 +29,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param editable
 	 * @param names
 	 */
-	abstract protected void addListOfProperties(boolean editable, final String... names);
+	abstract protected IFormControl[] addListOfProperties(boolean editable, final String... names);
 
 	/**
 	 * Complete the visual representation of this form, and return the node representing it.
@@ -149,11 +149,13 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param propertyname
 	 * @param ctl
 	 */
-	public <T extends NodeBase & IInputNode< ? >> void addProp(final String propertyname, final T ctl) {
+	public <T extends NodeBase & IInputNode< ? >> IFormControl addProp(final String propertyname, final T ctl) {
 		PropertyMetaModel pmm = resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
 		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), pmm);
-		getBindings().add(new SimpleComponentPropertyBinding(getModel(), pmm, ctl));
+		SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(getModel(), pmm, ctl);
+		getBindings().add(b);
+		return b;
 	}
 
 	/**
@@ -212,9 +214,9 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param names
 	 */
-	public GenericFormBuilder addProps(final String... names) {
-		addListOfProperties(true, names);
-		return this;
+	public IFormControl[] addProps(final String... names) {
+		return addListOfProperties(true, names);
+		//		return this;
 	}
 
 	/**
@@ -231,8 +233,8 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param names
 	 */
-	public GenericFormBuilder addReadOnlyProps(final String... names) {
-		addListOfProperties(false, names);
-		return this;
+	public IFormControl[] addReadOnlyProps(final String... names) {
+		return addListOfProperties(false, names);
+		//		return this;
 	}
 }
