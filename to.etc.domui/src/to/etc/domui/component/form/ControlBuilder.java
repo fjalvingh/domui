@@ -2,10 +2,13 @@ package to.etc.domui.component.form;
 
 import java.util.*;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * This singleton, reachable from DomApplication, maintains all metadata control builder lists and contains code to create controls from factories et al.
@@ -116,6 +119,9 @@ public class ControlBuilder {
 	/*	CODING:	Utilities to help you to create controls..			*/
 	/*--------------------------------------------------------------*/
 
+	/**
+	 * Main workhorse which creates input controls for forms, from metadata.
+	 */
 	public ControlFactory.Result createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
 		ControlFactory cf = getControlFactory(pmm, editable, null);
 		return cf.createControl(model, pmm, editable, null);
@@ -145,9 +151,105 @@ public class ControlBuilder {
 	 * @return
 	 */
 	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, PropertyMetaModel pmm, boolean editable) {
-		return null;
+		if(controlClass == null)
+			throw new IllegalArgumentException("controlClass cannot be null");
+		ControlFactory cf = getControlFactory(pmm, editable, null);
+		ControlFactory.Result r = cf.createControl(null, pmm, editable, controlClass);
 
-
+		//-- This must have generated a single control of the specified type, so check...
+		if(r.getNodeList().length != 1)
+			throw new IllegalStateException("The control factory "+cf+" created != 1 components for a find-control-for-class query");
+		NodeBase c = r.getNodeList()[0];
+		if(!controlClass.isAssignableFrom(controlClass))
+			throw new IllegalStateException("The control factory " + cf + " created a " + c + " which is NOT assignment-compatible with the requested class " + controlClass);
+		return (T) c;
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Creating all kinds of combo boxes.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * This creates a ComboFixed for some fixed-size domain class specified by type. This will allow any
+	 * domain-valued type (as specified by metadata returning something for getDomainValues()). The domain
+	 * value translations are done by class metadata <b>only</b> because the originating property is not
+	 * known. This may cause values to be misrepresented.
+	 *
+	 * @param <T>
+	 * @return
+	 */
+	public <T> ComboFixed<T> createComboFor(Class<T> type) {
+		if(type == null)
+			throw new IllegalArgumentException("type cannot be null");
+		ClassMetaModel cmm = MetaManager.findClassMeta(type);
+		T[] vals = (T[]) cmm.getDomainValues();
+		if(vals == null || vals.length == 0)
+			throw new IllegalArgumentException("The type " + type + " is not known as a fixed-size domain type");
+
+		List<ComboFixed.Pair<T>> vl = new ArrayList<ComboFixed.Pair<T>>();
+		for(T o : vals) {
+			String label = cmm.getDomainLabel(NlsContext.getLocale(), o); // Label known to property?
+			if(label == null)
+				label = o == null ? "" : o.toString();
+			vl.add(new ComboFixed.Pair<T>(o, label));
+		}
+		ComboFixed<T> c = new ComboFixed<T>(vl);
+		return c;
+	}
+
+	/**
+	 * This creates a ComboFixed for some fixed-size domain property specified by the metamodel. This will allow any
+	 * domain-valued type (as specified by metadata returning something for getDomainValues()). This version will
+	 * properly use per-property value labels if defined.
+	 *
+	 * @param pmm
+	 * @return
+	 */
+	public ComboFixed< ? > createComboFor(PropertyMetaModel pmm, boolean editable) {
+		if(pmm == null)
+			throw new IllegalArgumentException("propertyMeta cannot be null");
+		Object[] vals = pmm.getDomainValues();
+		if(vals == null || vals.length == 0)
+			throw new IllegalArgumentException("The type of property " + pmm + " (" + pmm.getActualType() + ") is not known as a fixed-size domain type");
+
+		ClassMetaModel ecmm = null;
+		List<ComboFixed.Pair<Object>> vl = new ArrayList<ComboFixed.Pair<Object>>();
+		for(Object o : vals) {
+			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), o); // Label known to property?
+			if(label == null) {
+				if(ecmm == null)
+					ecmm = MetaManager.findClassMeta(pmm.getActualType()); // Try to get the property's type.
+				label = ecmm.getDomainLabel(NlsContext.getLocale(), o);
+				if(label == null)
+					label = o == null ? "" : o.toString();
+			}
+			vl.add(new ComboFixed.Pair<Object>(o, label));
+		}
+
+		ComboFixed< ? > c = new ComboFixed<Object>(vl);
+		if(pmm.isRequired())
+			c.setMandatory(true);
+		if(!editable || pmm.getReadOnly() == YesNoType.YES)
+			c.setDisabled(true);
+		String s = pmm.getDefaultHint();
+		if(s != null)
+			c.setTitle(s);
+		return c;
+	}
+
+	/**
+	 * This creates a ComboFixed for some fixed-size domain property specified by the metamodel. This will allow any
+	 * domain-valued type (as specified by metadata returning something for getDomainValues()). This version will
+	 * properly use per-property value labels if defined.
+	 *
+	 * @param dataClass		The class whose property is to be looked up
+	 * @param property		The property path
+	 * @return
+	 */
+	public ComboFixed< ? > createComboFor(Class< ? > dataClass, String property, boolean editable) {
+		PropertyMetaModel pmm = MetaManager.getPropertyMeta(dataClass, property);
+		return createComboFor(pmm, editable);
+	}
+
 
 }

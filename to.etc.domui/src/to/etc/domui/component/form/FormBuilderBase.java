@@ -45,7 +45,7 @@ public class FormBuilderBase {
 		setClassModel(clz, mdl);
 	}
 
-	protected ControlBuilder getBuilder() {
+	final public ControlBuilder getBuilder() {
 		if(m_builder == null)
 			m_builder = DomApplication.get().getControlBuilder();
 		return m_builder;
@@ -61,8 +61,7 @@ public class FormBuilderBase {
 	 * @return				The binding to bind the control to it's valueset
 	 */
 	protected ControlFactory.Result createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
-		ControlFactory cf = getBuilder().getControlFactory(pmm, editable, null);
-		return cf.createControl(model, pmm, editable, null);
+		return getBuilder().createControlFor(model, pmm, editable); // Delegate
 	}
 
 	/*--------------------------------------------------------------*/
