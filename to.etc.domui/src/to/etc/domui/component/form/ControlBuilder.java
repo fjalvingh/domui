@@ -112,4 +112,42 @@ public class ControlBuilder {
 	}
 
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Utilities to help you to create controls..			*/
+	/*--------------------------------------------------------------*/
+
+	public ControlFactory.Result createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
+		ControlFactory cf = getControlFactory(pmm, editable, null);
+		return cf.createControl(model, pmm, editable, null);
+	}
+
+	/**
+	 *
+	 * @param <T>
+	 * @param controlClass
+	 * @param dataClass
+	 * @param propertyName
+	 * @param editableWhen
+	 * @return
+	 */
+	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, String propertyName, boolean editable) {
+		PropertyMetaModel pmm = MetaManager.getPropertyMeta(dataClass, propertyName); // Must exist or throws exception.
+		return createControl(controlClass, dataClass, pmm, editable);
+	}
+
+	/**
+	 *
+	 * @param <T>
+	 * @param controlClass
+	 * @param dataClass
+	 * @param pmm
+	 * @param editable
+	 * @return
+	 */
+	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, PropertyMetaModel pmm, boolean editable) {
+		return null;
+
+
+	}
+
 }

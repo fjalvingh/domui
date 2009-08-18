@@ -119,6 +119,13 @@ final public class MetaManager {
 		return cm.findProperty(name);
 	}
 
+	static public PropertyMetaModel getPropertyMeta(Class< ? > clz, String name) {
+		PropertyMetaModel pmm = findPropertyMeta(clz, name);
+		if(pmm == null)
+			throw new ProgrammerErrorException("The property '" + clz.getName() + "." + name + "' is not known.");
+		return pmm;
+	}
+
 	static public boolean isSimpleClass(Class< ? > clz) {
 		return SIMPLE.contains(clz);
 	}
