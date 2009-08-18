@@ -253,6 +253,20 @@ final public class MetaManager {
 	}
 
 	/**
+	 * Locate the enum's default label.
+	 * @param <T>
+	 * @param val
+	 * @return
+	 */
+	static public <T extends Enum< ? >> String findEnumLabel(T val) {
+		if(val == null)
+			return null;
+		ClassMetaModel cmm = findClassMeta(val.getClass());
+		return cmm.getDomainLabel(NlsContext.getLocale(), val);
+	}
+
+
+	/**
 	 * Creates a List of Pair's for each domain value in a class which represents a domain (like an enum or Boolean). The
 	 * list is ready to be used by ComboFixed.
 	 * @param clz

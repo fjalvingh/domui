@@ -51,7 +51,7 @@ public class DateInput extends Text<Date> {
 					}
 				});
 			}
-			appendAfterMe(m_todayButton);
+			m_selCalButton.appendAfterMe(m_todayButton);
 		}
 	}
 

@@ -9,14 +9,14 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 27, 2008
  */
-public class MsgBox extends Div {
+public class OldCruddyMsgBox extends Div {
 	private String m_title;
 
 	private NodeBase m_contents;
 
-	public MsgBox() {}
+	public OldCruddyMsgBox() {}
 
-	public MsgBox(String title, NodeBase contents) {
+	public OldCruddyMsgBox(String title, NodeBase contents) {
 		m_contents = contents;
 		m_title = title;
 	}
@@ -41,13 +41,13 @@ public class MsgBox extends Div {
 
 		img.setClicked(new IClicked<Img>() {
 			public void clicked(Img b) throws Exception {
-				MsgBox.this.remove();
+				OldCruddyMsgBox.this.remove();
 			}
 		});
 	}
 
 	static public <T extends NodeBase> void message(T pg, String title, String message) {
-		MsgBox box = new MsgBox(title, new TextNode(message));
+		OldCruddyMsgBox box = new OldCruddyMsgBox(title, new TextNode(message));
 		pg.getPage().getBody().add(box);
 	}
 }

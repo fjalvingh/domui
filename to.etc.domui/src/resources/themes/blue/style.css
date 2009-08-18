@@ -95,6 +95,19 @@
 	font-style: italic;
 }
 
+/*** MsgBox ***/
+.ui-mbx-top {
+	height: 130px;
+}
+.ui-mbx-bb {
+	text-align: right;
+	height: 35px;
+}
+.ui-mbx-mc {
+	font-size: 13px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: verdana, tahoma, helvetica, sans-serif;
+}
+
 /*** LinkButton component. ***/
 .ui-lbtn {
 	background-repeat: no-repeat;
