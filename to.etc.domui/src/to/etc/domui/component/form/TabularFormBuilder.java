@@ -130,7 +130,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	public void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, PropertyMetaModel pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
-			clf = DomApplication.get().getControlLabelFactory();
+			clf = getBuilder().getControlLabelFactory();
 			if(clf == null)
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
