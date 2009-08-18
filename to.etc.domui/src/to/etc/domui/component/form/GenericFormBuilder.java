@@ -62,17 +62,20 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param label
 	 * @param pmm
 	 * @param editPossible, when false, the rendered control will be display-only and cannot be changed back to EDITABLE.
+	 * @return	If the property was created and is controllable this will return an IFormControl instance. This will explicitly <i>not</i> be
+	 * 			created if the control is readonly, not allowed by permissions or simply uncontrollable (the last one is uncommon).
 	 */
-	protected void addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editPossible) {
+	protected IFormControl addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editPossible) {
 		//-- Check control permissions: does it have view permissions?
 		if(!rights().calculate(pmm))
-			return;
+			return null;
 		final ControlFactory.Result r = createControlFor(getModel(), pmm, editPossible && rights().isEditable()); // Add the proper input control for that type
 		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), pmm);
 		if(r.getBinding() != null)
 			getBindings().add(r.getBinding());
 		else
 			throw new IllegalStateException("No binding for a " + r);
+		return r.getFormControl();
 	}
 
 
@@ -88,8 +91,8 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param name
 	 */
-	public void addProp(final String name) {
-		addProp(name, (String) null);
+	public IFormControl addProp(final String name) {
+		return addProp(name, (String) null);
 	}
 
 	/**
@@ -98,8 +101,8 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param name
 	 */
-	public void addReadOnlyProp(final String name) {
-		addReadOnlyProp(name, null);
+	public IFormControl addReadOnlyProp(final String name) {
+		return addReadOnlyProp(name, null);
 	}
 
 	/**
@@ -111,14 +114,14 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param name
 	 * @param label		The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
 	 */
-	public void addProp(final String name, String label) {
+	public IFormControl addProp(final String name, String label) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
 		boolean edit = true;
 		if(pmm.getReadOnly() == YesNoType.YES)
 			edit = false;
-		addPropertyControl(name, label, pmm, edit);
+		return addPropertyControl(name, label, pmm, edit);
 	}
 
 	/**
@@ -128,11 +131,11 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param name
 	 * @param label
 	 */
-	public void addReadOnlyProp(final String name, String label) {
+	public IFormControl addReadOnlyProp(final String name, String label) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
-		addPropertyControl(name, label, pmm, false);
+		return addPropertyControl(name, label, pmm, false);
 	}
 
 	/**
@@ -173,11 +176,11 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param name
 	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
 	 */
-	public void addProp(final String name, final boolean readOnly) {
+	public IFormControl addProp(final String name, final boolean readOnly) {
 		if(readOnly) {
-			addReadOnlyProp(name);
+			return addReadOnlyProp(name);
 		} else {
-			addProp(name);
+			return addProp(name);
 		}
 	}
 

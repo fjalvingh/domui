@@ -32,6 +32,9 @@ public interface ControlFactory {
 		/** The node to be used as the target for a "label" */
 		private final NodeBase m_labelNode;
 
+		/** The FormControl handle for the created control */
+		private IFormControl m_handle;
+
 		public Result(final ModelBinding binding, final NodeBase labelNode, final NodeBase[] nodeList) {
 			m_binding = binding;
 			m_labelNode = labelNode;
@@ -60,6 +63,14 @@ public interface ControlFactory {
 
 		public NodeBase getLabelNode() {
 			return m_labelNode;
+		}
+
+		public IFormControl getFormControl() {
+			if(m_handle != null)
+				return m_handle;
+			if(m_binding instanceof IFormControl)
+				return (IFormControl) m_binding;
+			return null;
 		}
 	}
 
