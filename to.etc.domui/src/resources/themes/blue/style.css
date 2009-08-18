@@ -450,7 +450,7 @@ table.ui-lui {
 .ui-f-in {
 	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
 	font-family: verdana, tahoma, helvetica, sans-serif;
-	vertical-align: top;
+	vertical-align: middle; /* jal 20090818 changed from top to middle to align DateInput buttons better */
 }
 
 /*** Form basic styles: for forms having the label ABOVE the field (vertical stacked) ***/
