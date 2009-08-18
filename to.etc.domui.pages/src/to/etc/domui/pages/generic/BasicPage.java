@@ -2,6 +2,7 @@ package to.etc.domui.pages.generic;
 
 import java.util.*;
 
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 
 public class BasicPage<T> extends UrlPage {
@@ -27,7 +28,7 @@ public class BasicPage<T> extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
 		addPageHeaders();
-		add(new Div()); // add little space between title bar and other components
+		add(new VerticalSpacer(5)); // add little space between title bar and other components
 		addPageTitleBar();
 	}
 

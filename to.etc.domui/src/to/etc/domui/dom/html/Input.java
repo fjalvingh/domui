@@ -55,8 +55,8 @@ public class Input extends InputNodeBase {
 	}
 
 	public void setReadOnly(boolean readOnly) {
-		if(m_readOnly != readOnly)
-			changed();
+		if(m_readOnly == readOnly)
+			return;
 		m_readOnly = readOnly;
 		if(readOnly)
 			addCssClass("ui-ro");

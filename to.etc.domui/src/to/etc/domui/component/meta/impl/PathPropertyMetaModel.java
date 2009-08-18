@@ -16,11 +16,15 @@ import to.etc.domui.util.*;
 public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccessor<T> {
 	private PropertyMetaModel m_original;
 
+	/** The full dotted name from the original source to this synthetic property. */
+	private String m_dottedName;
+
 	private PropertyMetaModel[] m_accessPath;
 
-	public PathPropertyMetaModel(PropertyMetaModel[] accessPath) {
+	public PathPropertyMetaModel(String dottedName, PropertyMetaModel[] accessPath) {
 		m_accessPath = accessPath;
 		m_original = accessPath[accessPath.length - 1];
+		m_dottedName = dottedName;
 	}
 
 	/**
@@ -135,6 +139,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	}
 
 	public String getName() {
+		/*
 		StringBuilder name = new StringBuilder();
 		for (PropertyMetaModel pmm: m_accessPath) {
 			name.append(pmm.getName());
@@ -145,6 +150,8 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 
 		return name.toString();
 		//return m_original.getName();
+		 */
+		return m_dottedName;
 	}
 
 	public int getPrecision() {
