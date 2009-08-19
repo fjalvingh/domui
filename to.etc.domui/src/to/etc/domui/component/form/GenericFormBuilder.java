@@ -205,7 +205,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		if(!rights().calculate(pmm))
 			return null;
 		final ControlFactory.Result r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory || pmm.isRequired(), pmm);
+		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
 		if(r.getBinding() != null)
 			getBindings().add(r.getBinding());
 		else
