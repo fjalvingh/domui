@@ -29,6 +29,8 @@ public class FormBuilderBase {
 	/** Thingy to help calculating access rights (delegate) */
 	private final AccessCalculator m_calc = new AccessCalculator();
 
+	private ControlBuilder m_builder;
+
 	private IControlLabelFactory m_controlLabelFactory;
 
 	public FormBuilderBase() {}
@@ -43,6 +45,12 @@ public class FormBuilderBase {
 		setClassModel(clz, mdl);
 	}
 
+	final public ControlBuilder getBuilder() {
+		if(m_builder == null)
+			m_builder = DomApplication.get().getControlBuilder();
+		return m_builder;
+	}
+
 	/**
 	 * Create the optimal control for the specified thingy, and return the binding for it.
 	 *
@@ -53,10 +61,8 @@ public class FormBuilderBase {
 	 * @return				The binding to bind the control to it's valueset
 	 */
 	protected ControlFactory.Result createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
-		ControlFactory cf = DomApplication.get().getControlFactory(pmm, editable);
-		return cf.createControl(model, pmm, editable);
+		return getBuilder().createControlFor(model, pmm, editable); // Delegate
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple getters and internal stuff.					*/

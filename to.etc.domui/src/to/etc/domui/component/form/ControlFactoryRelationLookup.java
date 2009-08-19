@@ -18,7 +18,10 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 	 *
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
-	public int accepts(final PropertyMetaModel pmm, final boolean editable) {
+	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+		if(controlClass != null && !controlClass.isAssignableFrom(LookupInput.class))
+			return -1;
+
 		if(pmm.getRelationType() != PropertyRelationType.UP)
 			return 0;
 		if(Constants.COMPONENT_LOOKUP.equals(pmm.getComponentTypeHint()))
@@ -31,7 +34,7 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 	 *
 	 * @see to.etc.domui.component.form.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
-	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
+	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		//-- We'll do a lookup thingy for sure.
 		LookupInput<Object> li = new LookupInput<Object>((Class<Object>) pmm.getActualType());
 		li.setReadOnly(!editable);
@@ -50,3 +53,4 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 		return new Result(li, model, pmm);
 	}
 }
+

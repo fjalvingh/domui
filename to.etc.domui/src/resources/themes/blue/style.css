@@ -95,6 +95,19 @@
 	font-style: italic;
 }
 
+/*** MsgBox ***/
+.ui-mbx-top {
+	height: 130px;
+}
+.ui-mbx-bb {
+	text-align: right;
+	height: 35px;
+}
+.ui-mbx-mc {
+	font-size: 13px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: verdana, tahoma, helvetica, sans-serif;
+}
+
 /*** LinkButton component. ***/
 .ui-lbtn {
 	background-repeat: no-repeat;
@@ -450,7 +463,7 @@ table.ui-lui {
 .ui-f-in {
 	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
 	font-family: verdana, tahoma, helvetica, sans-serif;
-	vertical-align: top;
+	vertical-align: middle; /* jal 20090818 changed from top to middle to align DateInput buttons better */
 }
 
 /*** Form basic styles: for forms having the label ABOVE the field (vertical stacked) ***/
@@ -501,6 +514,13 @@ table.ui-lui {
 input {
 	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
 	font-family: verdana, tahoma, helvetica, sans-serif;
+}
+
+button img {
+	vertical-align: bottom;
+}
+button {
+	vertical-align: bottom;
 }
 
 .ui-ro {
@@ -615,6 +635,7 @@ th.ui-sortable {
 	margin: 0px;
 	border: 0px;
 	background: transparent;
+	vertical-align: bottom;
 }
 
 .ui-sib img {

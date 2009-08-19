@@ -32,6 +32,9 @@ public interface ControlFactory {
 		/** The node to be used as the target for a "label" */
 		private final NodeBase m_labelNode;
 
+		/** The FormControl handle for the created control */
+		private IFormControl m_handle;
+
 		public Result(final ModelBinding binding, final NodeBase labelNode, final NodeBase[] nodeList) {
 			m_binding = binding;
 			m_labelNode = labelNode;
@@ -44,10 +47,19 @@ public interface ControlFactory {
 			m_nodeList = new NodeBase[]{control};
 		}
 
+		public Result(final ModelBinding binding, IFormControl fc, final NodeBase control) {
+			m_binding = binding;
+			m_labelNode = control;
+			m_handle = fc;
+			m_nodeList = new NodeBase[]{control};
+		}
+
 		public <T extends NodeBase & IInputNode< ? >> Result(final T control, final IReadOnlyModel< ? > model, final PropertyMetaModel pmm) {
 			m_labelNode = control;
 			m_nodeList = new NodeBase[]{control};
-			m_binding = new SimpleComponentPropertyBinding(model, pmm, control);
+			SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(model, pmm, control);
+			m_binding = b;
+			m_handle = b;
 		}
 
 		public NodeBase[] getNodeList() {
@@ -61,6 +73,12 @@ public interface ControlFactory {
 		public NodeBase getLabelNode() {
 			return m_labelNode;
 		}
+
+		public IFormControl getFormControl() {
+			if(m_handle != null)
+				return m_handle;
+			return null;
+		}
 	}
 
 	/**
@@ -68,9 +86,10 @@ public interface ControlFactory {
 	 * is an eagerness score. The factory returning the highest eagerness wins.
 	 * @param pmm
 	 * @param editable
+	 * @param controlClass When set the control factory *must* be able to return a component which is assignment-compatible with this class type. If it cannot it MUST refuse to create the control.
 	 * @return
 	 */
-	int accepts(PropertyMetaModel pmm, boolean editable);
+	int accepts(PropertyMetaModel pmm, boolean editable, Class< ? > controlClass);
 
 	/**
 	 * This MUST create all nodes necessary for a control to edit the specified item. The nodes must be added
@@ -80,9 +99,12 @@ public interface ControlFactory {
 	 * @param container
 	 * @param pmm
 	 * @param editable
+	 * @param controlClass	When set the control factory *must* return a component which is assignment-compatible with this
+	 * 						class type. When this method is called it has already (by it's accept method) told us it can, so
+	 * 						not creating the proper type is not an option.
 	 * @return
 	 */
-	Result createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable);
+	Result createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable, Class< ? > controlClass);
 
 	static public final ControlFactory TEXTAREA_CF = new ControlFactoryTextArea();
 

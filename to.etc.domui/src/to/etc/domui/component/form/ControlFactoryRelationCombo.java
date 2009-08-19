@@ -19,7 +19,10 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 	 *
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
-	public int accepts(final PropertyMetaModel pmm, final boolean editable) {
+	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+		if(controlClass != null && !controlClass.isAssignableFrom(ComboLookup.class))
+			return -1;
+
 		if(pmm.getRelationType() != PropertyRelationType.UP)
 			return 0;
 		if(Constants.COMPONENT_COMBO.equals(pmm.getComponentTypeHint()))
@@ -27,7 +30,7 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 		return 2;
 	}
 
-	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
+	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		if(!editable)
 			throw new IllegalStateException("Implementation: please implement ReadOnly combobox thingy.");
 

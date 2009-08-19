@@ -15,7 +15,10 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 3, 2008
  */
-public class DateInput extends Text<Date> {
+public class OldDateInput extends Span implements IInputNode<Date> {
+	/** The input field for the thingy */
+	private Text<Date> m_input;
+
 	private SmallImgButton m_selCalButton;
 
 	private SmallImgButton m_todayButton;
@@ -24,42 +27,33 @@ public class DateInput extends Text<Date> {
 
 	private boolean m_withSeconds;
 
+	IValueChanged< ? , ? > m_onValueChanged;
+
 	private boolean m_hideTodayButton;
 
-	public DateInput() {
-		super(Date.class);
-		setMaxLength(10);
-		setSize(10);
-		setConverterClass(DateConverter.class);
+	public OldDateInput() {
+		m_input = new Text<Date>(Date.class);
+		m_input.setMaxLength(10);
+		m_input.setSize(10);
+		m_input.setConverterClass(DateConverter.class);
 		m_selCalButton = new SmallImgButton("THEME/btn-datein.png");
+		setErrorDelegate(m_input); // Delegate this-node's error handling to it's input field
 	}
 
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("ui-di");
-		m_selCalButton.setOnClickJS("WebUI.showCalendar('" + getActualID() + "'," + isWithTime() + ")");
-	}
-
-	@Override
-	public void onAddedToPage(Page p) {
-		appendAfterMe(m_selCalButton);
+		add(m_input);
+		add(m_selCalButton);
+		m_selCalButton.setOnClickJS("WebUI.showCalendar('" + m_input.getActualID() + "'," + isWithTime() + ")");
 		if(!m_hideTodayButton) {
-			if(m_todayButton == null) {
-				m_todayButton = new SmallImgButton("THEME/btnToday.png", new IClicked<SmallImgButton>() {
-					public void clicked(SmallImgButton b) throws Exception {
-						DateInput.this.setValue(new Date());
-					}
-				});
-			}
-			m_selCalButton.appendAfterMe(m_todayButton);
+			m_todayButton = new SmallImgButton("THEME/btnToday.png", new IClicked<SmallImgButton>() {
+				public void clicked(SmallImgButton b) throws Exception {
+					OldDateInput.this.setValue(new Date());
+				}
+			});
+			add(m_todayButton);
 		}
-	}
-
-	@Override
-	public void onRemoveFromPage(Page p) {
-		m_selCalButton.remove(); // Remove selection button
-		if(m_todayButton != null)
-			m_todayButton.remove();
 	}
 
 	/**
@@ -78,10 +72,53 @@ public class DateInput extends Text<Date> {
 	//		page.addHeaderContributor(HeaderContributor.loadJavascript("js/calendarnls.js"));
 	}
 
-	@Override
+	/**
+	 * Returns the current value in this control. If this is a date-only
+	 * control the resulting date value is guaranteed to have it's time
+	 * part be all zeroes.
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 */
+	public Date getValue() {
+		return m_input.getValue();
+	}
+
+	public void setValue(Date dt) {
+		m_input.setValue(dt);
+	}
+
+	public boolean isMandatory() {
+		return m_input.isMandatory();
+	}
+
+	public void setMandatory(boolean mandatory) {
+		m_input.setMandatory(mandatory);
+	}
+
+	public boolean isReadOnly() {
+		return m_input.isReadOnly();
+	}
+
 	public void setReadOnly(boolean readOnly) {
-		super.setReadOnly(readOnly);
+		m_input.setReadOnly(readOnly);
 		m_selCalButton.setDisplay(readOnly ? DisplayType.NONE : null);
+	}
+
+	public IValueChanged< ? , ? > getOnValueChanged() {
+		return m_onValueChanged;
+		//		return m_input.getOnValueChanged();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
+		m_onValueChanged = onValueChanged;
+		if(onValueChanged == null)
+			m_input.setOnValueChanged(null);
+		else
+			m_input.setOnValueChanged(new IValueChanged<Text< ? >, Object>() {
+				public void onValueChanged(Text< ? > component, Object value) throws Exception {
+					((IValueChanged) m_onValueChanged).onValueChanged(OldDateInput.this, OldDateInput.this.getValue());
+				}
+			});
 	}
 
 	public boolean isWithTime() {
@@ -98,9 +135,9 @@ public class DateInput extends Text<Date> {
 			if(isWithSeconds())
 				len += 3;
 		}
-		setMaxLength(len);
-		setSize(len);
-		setConverterClass(isWithTime() ? DateTimeConverter.class : DateConverter.class);
+		m_input.setMaxLength(len);
+		m_input.setSize(len);
+		m_input.setConverterClass(isWithTime() ? DateTimeConverter.class : DateConverter.class);
 	}
 
 	public boolean isWithSeconds() {

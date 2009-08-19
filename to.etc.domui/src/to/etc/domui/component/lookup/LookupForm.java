@@ -3,6 +3,7 @@ package to.etc.domui.component.lookup;
 import java.util.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
@@ -60,6 +61,8 @@ public class LookupForm<T> extends Div {
 	private Div m_content;
 
 	private NodeContainer m_collapsed;
+
+	private ControlBuilder m_builder;
 
 	/**
 	 * This is the definition for an Item to look up. A list of these
@@ -153,6 +156,7 @@ public class LookupForm<T> extends Div {
 	 * @param lookupClass
 	 */
 	public LookupForm(final Class<T> lookupClass, String... propertyList) {
+		m_builder = DomApplication.get().getControlBuilder();
 		m_lookupClass = lookupClass;
 		for(String prop : propertyList)
 			addProperty(prop);
@@ -508,7 +512,7 @@ public class LookupForm<T> extends Div {
 			}
 		}
 
-		LookupControlFactory lcf = DomApplication.get().getLookupControlFactory(it.getProperty());
+		LookupControlFactory lcf = m_builder.getLookupControlFactory(it.getProperty());
 		ILookupControlInstance qt = lcf.createControl(it, it.getProperty());
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
 			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + it.getProperty());

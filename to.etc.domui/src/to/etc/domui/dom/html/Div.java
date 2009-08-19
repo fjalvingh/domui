@@ -178,5 +178,13 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 			appendJavascript("$('#" + getActualID() + "').fadeIn();");
 	}
 
+	/**
+	 * Redisplay a display: none thing slowly.
+	 */
+	public void fadeIn(int tm) {
+		if(internalSetDisplay(DisplayType.BLOCK))
+			appendJavascript("$('#" + getActualID() + "').fadeIn(" + tm + ");");
+	}
+
 
 }

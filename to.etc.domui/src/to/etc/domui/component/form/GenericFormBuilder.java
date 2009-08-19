@@ -29,7 +29,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param editable
 	 * @param names
 	 */
-	abstract protected void addListOfProperties(boolean editable, final String... names);
+	abstract protected IFormControl[] addListOfProperties(boolean editable, final String... names);
 
 	/**
 	 * Complete the visual representation of this form, and return the node representing it.
@@ -62,17 +62,20 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param label
 	 * @param pmm
 	 * @param editPossible, when false, the rendered control will be display-only and cannot be changed back to EDITABLE.
+	 * @return	If the property was created and is controllable this will return an IFormControl instance. This will explicitly <i>not</i> be
+	 * 			created if the control is readonly, not allowed by permissions or simply uncontrollable (the last one is uncommon).
 	 */
-	protected void addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editPossible) {
+	protected IFormControl addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editPossible) {
 		//-- Check control permissions: does it have view permissions?
 		if(!rights().calculate(pmm))
-			return;
+			return null;
 		final ControlFactory.Result r = createControlFor(getModel(), pmm, editPossible && rights().isEditable()); // Add the proper input control for that type
 		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), pmm);
 		if(r.getBinding() != null)
 			getBindings().add(r.getBinding());
 		else
 			throw new IllegalStateException("No binding for a " + r);
+		return r.getFormControl();
 	}
 
 
@@ -88,8 +91,8 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param name
 	 */
-	public void addProp(final String name) {
-		addProp(name, (String) null);
+	public IFormControl addProp(final String name) {
+		return addProp(name, (String) null);
 	}
 
 	/**
@@ -98,8 +101,8 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param name
 	 */
-	public void addReadOnlyProp(final String name) {
-		addReadOnlyProp(name, null);
+	public IFormControl addReadOnlyProp(final String name) {
+		return addReadOnlyProp(name, null);
 	}
 
 	/**
@@ -111,14 +114,14 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param name
 	 * @param label		The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
 	 */
-	public void addProp(final String name, String label) {
+	public IFormControl addProp(final String name, String label) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
 		boolean edit = true;
 		if(pmm.getReadOnly() == YesNoType.YES)
 			edit = false;
-		addPropertyControl(name, label, pmm, edit);
+		return addPropertyControl(name, label, pmm, edit);
 	}
 
 	/**
@@ -128,11 +131,11 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param name
 	 * @param label
 	 */
-	public void addReadOnlyProp(final String name, String label) {
+	public IFormControl addReadOnlyProp(final String name, String label) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
-		addPropertyControl(name, label, pmm, false);
+		return addPropertyControl(name, label, pmm, false);
 	}
 
 	/**
@@ -146,11 +149,13 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param propertyname
 	 * @param ctl
 	 */
-	public <T extends NodeBase & IInputNode< ? >> void addProp(final String propertyname, final T ctl) {
+	public <T extends NodeBase & IInputNode< ? >> IFormControl addProp(final String propertyname, final T ctl) {
 		PropertyMetaModel pmm = resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
 		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), pmm);
-		getBindings().add(new SimpleComponentPropertyBinding(getModel(), pmm, ctl));
+		SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(getModel(), pmm, ctl);
+		getBindings().add(b);
+		return b;
 	}
 
 	/**
@@ -173,12 +178,39 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param name
 	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
 	 */
-	public void addProp(final String name, final boolean readOnly) {
+	public IFormControl addProp(final String name, final boolean readOnly) {
 		if(readOnly) {
-			addReadOnlyProp(name);
+			return addReadOnlyProp(name);
 		} else {
-			addProp(name);
+			return addProp(name);
 		}
+	}
+
+	/**
+	 * Add an input for the specified property. The property is based at the current input
+	 * class. The input model is default (using metadata) and the property is labeled using
+	 * the metadata-provided label.
+	 *
+	 * FORMAL-INTERFACE.
+	 *
+	 * @param name
+	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
+	 * @param mandatory Specify if field is mandatory.
+	 */
+	public IFormControl addProp(final String name, final boolean readOnly, final boolean mandatory) {
+		PropertyMetaModel pmm = resolveProperty(name);
+		String label = pmm.getDefaultLabel();
+
+		//-- Check control permissions: does it have view permissions?
+		if(!rights().calculate(pmm))
+			return null;
+		final ControlFactory.Result r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
+		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
+		if(r.getBinding() != null)
+			getBindings().add(r.getBinding());
+		else
+			throw new IllegalStateException("No binding for a " + r);
+		return r.getFormControl();
 	}
 
 	/**
@@ -209,9 +241,9 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param names
 	 */
-	public GenericFormBuilder addProps(final String... names) {
-		addListOfProperties(true, names);
-		return this;
+	public IFormControl[] addProps(final String... names) {
+		return addListOfProperties(true, names);
+		//		return this;
 	}
 
 	/**
@@ -228,8 +260,8 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param names
 	 */
-	public GenericFormBuilder addReadOnlyProps(final String... names) {
-		addListOfProperties(false, names);
-		return this;
+	public IFormControl[] addReadOnlyProps(final String... names) {
+		return addListOfProperties(false, names);
+		//		return this;
 	}
 }

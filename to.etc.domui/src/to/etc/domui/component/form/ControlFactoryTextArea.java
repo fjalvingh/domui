@@ -9,7 +9,9 @@ public class ControlFactoryTextArea implements ControlFactory {
 	 * Accept if the componentHint says textarea.
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
-	public int accepts(PropertyMetaModel pmm, boolean editable) {
+	public int accepts(PropertyMetaModel pmm, boolean editable, Class< ? > controlClass) {
+		if(controlClass != null && !controlClass.isAssignableFrom(TextArea.class))
+			return -1;
 		if(pmm.getComponentTypeHint() != null) {
 			if(pmm.getComponentTypeHint().toLowerCase().contains("textarea"))
 				return 10;
@@ -17,7 +19,7 @@ public class ControlFactoryTextArea implements ControlFactory {
 		return 0;
 	}
 
-	public Result createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable) {
+	public Result createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable, Class< ? > controlClass) {
 		TextArea ta = new TextArea();
 		if(!editable)
 			ta.setReadOnly(true);

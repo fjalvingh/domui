@@ -119,6 +119,13 @@ final public class MetaManager {
 		return cm.findProperty(name);
 	}
 
+	static public PropertyMetaModel getPropertyMeta(Class< ? > clz, String name) {
+		PropertyMetaModel pmm = findPropertyMeta(clz, name);
+		if(pmm == null)
+			throw new ProgrammerErrorException("The property '" + clz.getName() + "." + name + "' is not known.");
+		return pmm;
+	}
+
 	static public boolean isSimpleClass(Class< ? > clz) {
 		return SIMPLE.contains(clz);
 	}
@@ -251,6 +258,20 @@ final public class MetaManager {
 		}
 		return false;
 	}
+
+	/**
+	 * Locate the enum's default label.
+	 * @param <T>
+	 * @param val
+	 * @return
+	 */
+	static public <T extends Enum< ? >> String findEnumLabel(T val) {
+		if(val == null)
+			return null;
+		ClassMetaModel cmm = findClassMeta(val.getClass());
+		return cmm.getDomainLabel(NlsContext.getLocale(), val);
+	}
+
 
 	/**
 	 * Creates a List of Pair's for each domain value in a class which represents a domain (like an enum or Boolean). The

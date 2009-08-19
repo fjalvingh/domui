@@ -19,11 +19,14 @@ public class ControlFactoryString implements ControlFactory {
 	 * Accept any type using a string.
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
-	public int accepts(final PropertyMetaModel pmm, final boolean editable) {
+	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+		if(controlClass != null && !controlClass.isAssignableFrom(Text.class))
+			return -1;
+
 		return 1;
 	}
 
-	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
+	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		Class< ? > iclz = pmm.getActualType();
 
 		//-- Treat everything else as a String using a converter.

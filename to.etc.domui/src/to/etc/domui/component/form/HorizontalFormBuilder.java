@@ -33,7 +33,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, PropertyMetaModel pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
-			clf = DomApplication.get().getControlLabelFactory();
+			clf = getBuilder().getControlLabelFactory();
 			if(clf == null)
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
@@ -42,13 +42,17 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	@Override
-	protected void addListOfProperties(boolean editable, String... names) {
+	protected IFormControl[] addListOfProperties(boolean editable, String... names) {
+		IFormControl[] res = new IFormControl[names.length];
+		int ix = 0;
 		for(String name : names) {
 			if(editable)
-				addProp(name);
+				res[ix] = addProp(name);
 			else
-				addReadOnlyProp(name);
+				res[ix] = addReadOnlyProp(name);
+			ix++;
 		}
+		return res;
 	}
 
 	/**

@@ -258,11 +258,14 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			td.setCssClass("ui-lui-v");
 			td.add(txt);
 
-			td = new TD();
-			r.add(td);
-			td.setValign(TableVAlign.TOP);
-			td.setWidth("1%");
-			td.add((NodeBase) parameters); // Add the button,
+			//-- parameters is either the button, or null if this is a readonly version.
+			if(parameters != null) {
+				td = new TD();
+				r.add(td);
+				td.setValign(TableVAlign.TOP);
+				td.setWidth("1%");
+				td.add((NodeBase) parameters); // Add the button,
+			}
 		}
 	};
 }

@@ -70,25 +70,25 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Core public interface.								*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * {@inheritDoc}
-	 * Overridden to allow chaining.
-	 */
-	@Override
-	public TabularFormBuilder addProps(final String... names) {
-		return (TabularFormBuilder) super.addProps(names);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * Overridden to allow chaining.
-	 * @param names
-	 * @return
-	 */
-	@Override
-	public TabularFormBuilder addReadOnlyProps(final String... names) {
-		return (TabularFormBuilder) super.addReadOnlyProps(names);
-	}
+	//	/**
+	//	 * {@inheritDoc}
+	//	 * Overridden to allow chaining.
+	//	 */
+	//	@Override
+	//	public IFormControl[] addProps(final String... names) {
+	//		return (TabularFormBuilder) super.addProps(names);
+	//	}
+	//
+	//	/**
+	//	 * {@inheritDoc}
+	//	 * Overridden to allow chaining.
+	//	 * @param names
+	//	 * @return
+	//	 */
+	//	@Override
+	//	public TabularFormBuilder addReadOnlyProps(final String... names) {
+	//		return (TabularFormBuilder) super.addReadOnlyProps(names);
+	//	}
 
 
 	/*--------------------------------------------------------------*/
@@ -100,20 +100,24 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * obeys the "current" mode setting, not just the 1st control added.
 	 */
 	@Override
-	protected void addListOfProperties(boolean editable, final String... names) {
+	protected IFormControl[] addListOfProperties(boolean editable, final String... names) {
 		//-- Store the current mode override && restore after each property (keep mode-override active for each property)
 		Mode m = m_nextNodeMode;
 		Mode nextm = m_nextMode;
 
+		IFormControl[] res = new IFormControl[names.length];
+		int ix = 0;
 		for(String name : names) {
 			m_nextNodeMode = m;
 			if(editable)
-				addProp(name);
+				res[ix] = addProp(name);
 			else
-				addReadOnlyProp(name);
+				res[ix] = addReadOnlyProp(name);
+			ix++;
 		}
 		if(nextm != null)
 			m_nextNodeMode = nextm; // Cancel mode override
+		return res;
 	}
 
 	/**
@@ -126,7 +130,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	public void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, PropertyMetaModel pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
-			clf = DomApplication.get().getControlLabelFactory();
+			clf = getBuilder().getControlLabelFactory();
 			if(clf == null)
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}

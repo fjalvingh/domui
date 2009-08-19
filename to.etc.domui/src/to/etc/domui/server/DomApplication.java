@@ -9,7 +9,6 @@ import to.etc.domui.ajax.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
-import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
@@ -45,13 +44,11 @@ public abstract class DomApplication {
 
 	private String m_urlExtension;
 
-	private List<ControlFactory> m_controlFactoryList = new ArrayList<ControlFactory>();
+	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
 
 	private String m_defaultTheme = "blue";
 
 	private boolean m_developmentMode;
-
-	private final LookupControlRegistry m_lookupControlRegistry = new LookupControlRegistry();
 
 	static private final ThreadLocal<DomApplication> m_current = new ThreadLocal<DomApplication>();
 
@@ -67,8 +64,6 @@ public abstract class DomApplication {
 	private List<HeaderContributor> m_orderedContributorList = Collections.EMPTY_LIST;
 
 	private List<INewPageInstantiated> m_newPageInstListeners = Collections.EMPTY_LIST;
-
-	private IControlLabelFactory m_controlLabelFactory = new DefaultControlLabelFactory();
 
 	/** Timeout for a window session, in minutes. */
 	private int m_windowSessionTimeout = 15;
@@ -96,13 +91,17 @@ public abstract class DomApplication {
 	 * The only constructor.
 	 */
 	public DomApplication() {
-		m_controlFactoryList.add(ControlFactory.STRING_CF);
-		m_controlFactoryList.add(ControlFactory.TEXTAREA_CF);
-		m_controlFactoryList.add(ControlFactory.BOOLEAN_AND_ENUM_CF);
-		m_controlFactoryList.add(ControlFactory.DATE_CF);
-		m_controlFactoryList.add(ControlFactory.RELATION_COMBOBOX_CF);
-		m_controlFactoryList.add(ControlFactory.RELATION_LOOKUP_CF);
-		m_controlFactoryList.add(new ControlFactoryMoney());
+		registerControlFactories();
+	}
+
+	protected void registerControlFactories() {
+		registerControlFactory(ControlFactory.STRING_CF);
+		registerControlFactory(ControlFactory.TEXTAREA_CF);
+		registerControlFactory(ControlFactory.BOOLEAN_AND_ENUM_CF);
+		registerControlFactory(ControlFactory.DATE_CF);
+		registerControlFactory(ControlFactory.RELATION_COMBOBOX_CF);
+		registerControlFactory(ControlFactory.RELATION_LOOKUP_CF);
+		registerControlFactory(new ControlFactoryMoney());
 	}
 
 	static public void internalSetCurrent(final DomApplication da) {
@@ -376,73 +375,38 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Control factories.									*/
 	/*--------------------------------------------------------------*/
+
+	/**
+	 * Return the component that knows everything you ever wanted to know about controls - but were afraid to ask...
+	 */
+	final public ControlBuilder getControlBuilder() {
+		return m_controlBuilder;
+	}
+
 	/**
 	 * Add a new control factory to the registry.
 	 * @param cf		The new factory
 	 */
-	public synchronized void registerControlFactory(final ControlFactory cf) {
-		m_controlFactoryList = new ArrayList<ControlFactory>(m_controlFactoryList); // Dup original
-		m_controlFactoryList.add(cf);
+	final public void registerControlFactory(final ControlFactory cf) {
+		getControlBuilder().registerControlFactory(cf);
 	}
 
 	/**
-	 * Get the immutable list of current control factories.
-	 * @return
-	 */
-	private synchronized List<ControlFactory> getControlFactoryList() {
-		return m_controlFactoryList;
-	}
-
-	/**
-	 * Find the best control factory to use to create a control for the given property and mode.
-	 * @param pmm		The property to find a control for
-	 * @param editable	When false this is a displayonly control request.
-	 * @return			null if no factory is found.
-	 */
-	public ControlFactory findControlFactory(final PropertyMetaModel pmm, final boolean editable) {
-		ControlFactory best = null;
-		int score = 0;
-		for(ControlFactory cf : getControlFactoryList()) {
-			int v = cf.accepts(pmm, editable);
-			if(v > score) {
-				score = v;
-				best = cf;
-			}
-		}
-		return best;
-	}
-
-	/**
-	 * Find the best control factory to use to create a control for the given property and mode, throws
-	 * an Exception if the factory cannot be found.
-	 *
-	 * @param pmm
-	 * @param editable
-	 * @return	The factory to use
-	 */
-	public ControlFactory getControlFactory(final PropertyMetaModel pmm, final boolean editable) {
-		ControlFactory cf = findControlFactory(pmm, editable);
-		if(cf == null)
-			throw new IllegalStateException("Cannot get a control factory for " + pmm);
-		return cf;
-	}
-
-
-	/**
-	 * Add another LookupControlFactory to the registry.
+	 * Register a new LookupControl factory.
 	 * @param f
 	 */
 	public void register(final LookupControlFactory f) {
-		m_lookupControlRegistry.register(f);
+		getControlBuilder().register(f);
 	}
 
-	public LookupControlFactory findLookupControlFactory(final PropertyMetaModel pmm) {
-		return m_lookupControlRegistry.findFactory(pmm);
-	}
+	//	/**
+	//	 * Get the immutable list of current control factories.
+	//	 * @return
+	//	 */
+	//	private synchronized List<ControlFactory> getControlFactoryList() {
+	//		return m_controlFactoryList;
+	//	}
 
-	public LookupControlFactory getLookupControlFactory(final PropertyMetaModel pmm) {
-		return m_lookupControlRegistry.getControlFactory(pmm);
-	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Generic data factories.								*/
@@ -815,14 +779,6 @@ public abstract class DomApplication {
 
 	public synchronized List<INewPageInstantiated> getNewPageInstantiatedListeners() {
 		return m_newPageInstListeners;
-	}
-
-	public synchronized IControlLabelFactory getControlLabelFactory() {
-		return m_controlLabelFactory;
-	}
-
-	public synchronized void setControlLabelFactory(final IControlLabelFactory controlLabelFactory) {
-		m_controlLabelFactory = controlLabelFactory;
 	}
 
 	public synchronized ILoginAuthenticator getLoginAuthenticator() {
