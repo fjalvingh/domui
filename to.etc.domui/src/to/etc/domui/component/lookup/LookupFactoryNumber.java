@@ -7,12 +7,13 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.input.ComboFixed.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
 /**
- * Represents factory for numeric values lookup. For lookup condition uses combo with numeric relation trailed by one or two fields (when between relation is selected) for definition of numeric parameters. 
+ * Represents factory for numeric values lookup. For lookup condition uses combo with numeric relation trailed by one or two fields (when between relation is selected) for definition of numeric parameters.
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 13 Aug 2009
@@ -26,17 +27,32 @@ final class LookupFactoryNumber implements LookupControlFactory {
 
 		final Text< ? > numA = createNumericInput(pmm);
 		final Text< ? > numB = createNumericInput(pmm);
+		numB.setVisibility(VisibilityType.HIDDEN);
 
 		final ComboFixed<NumericRelationType> relationCombo = new ComboFixed<NumericRelationType>(values);
 
-		final AbstractLookupControlImpl result = new AbstractLookupControlImpl(relationCombo, numA, numB) {
-			@Override
+		relationCombo.setOnValueChanged(new IValueChanged<ComboFixed<NumericRelationType>, NumericRelationType>() {
+			public void onValueChanged(ComboFixed<NumericRelationType> component, NumericRelationType value) throws Exception {
+				if(value == NumericRelationType.BETWEEN) {
+					if(numB.getVisibility() != VisibilityType.VISIBLE) {
+						numB.setVisibility(VisibilityType.VISIBLE);
+					}
+				} else {
+					if(numB.getVisibility() == VisibilityType.VISIBLE) {
+						numB.setVisibility(VisibilityType.HIDDEN);
+					}
+				}
+			}
+		});
+
+		return new AbstractLookupControlImpl(relationCombo, numA, numB) {
+			/*			@Override
 			public NodeBase[] getInputControls() {
 				if(relationCombo.getValue() == NumericRelationType.BETWEEN)
 					return new NodeBase[]{relationCombo, numA, numB};
 				else
 					return new NodeBase[]{relationCombo, numA};
-			}
+			}*/
 
 			@Override
 			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
@@ -77,18 +93,6 @@ final class LookupFactoryNumber implements LookupControlFactory {
 				return true;
 			}
 		};
-
-		relationCombo.setClicked(new IClicked<ComboFixed<NumericRelationType>>() {
-			public void clicked(ComboFixed<NumericRelationType> b) throws Exception {
-				if(b.getValue() == NumericRelationType.BETWEEN) {
-					if(numB.getPage() == null)
-						numA.appendAfterMe(numB);
-				} else if(numB.getPage() != null) {
-					numB.remove();
-				}
-			}
-		});
-		return result;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -124,7 +128,7 @@ final class LookupFactoryNumber implements LookupControlFactory {
 			numText.setConverterClass((Class) pmm.getConverterClass());
 		else if(NumericPresentation.isMonetary(pmm.getNumericPresentation()) && (pmm.getActualType() == double.class || pmm.getActualType() == Double.class))
 			((Text<Double>) numText).setConverterClass(MoneyDoubleNumeric.class);
-		else if(NumericPresentation.isMonetary(pmm.getNumericPresentation()) && (pmm.getActualType() == double.class || pmm.getActualType() == Double.class))
+		else if(NumericPresentation.isMonetary(pmm.getNumericPresentation()) && pmm.getActualType() == BigDecimal.class)
 			((Text<BigDecimal>) numText).setConverterClass(MoneyBigDecimalNumeric.class);
 
 		if(pmm.getLength() > 0)

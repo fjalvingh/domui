@@ -2,12 +2,20 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
-public class Checkbox extends NodeBase {
+public class Checkbox extends NodeBase implements IInputNode<Boolean> {
+
 	private boolean m_checked;
 
 	private boolean m_disabled;
 
 	private boolean m_readOnly;
+
+	/**
+	 * T when this input value is a REQUIRED value.
+	 */
+	private boolean m_mandatory;
+
+	private IValueChanged< ? , ? > m_onValueChanged;
 
 	public Checkbox() {
 		super("input");
@@ -59,6 +67,37 @@ public class Checkbox extends NodeBase {
 			throw new IllegalStateException("Checkbox: expecting a single input value, not " + Arrays.toString(values));
 		String s = values[0].trim();
 		m_checked = "y".equalsIgnoreCase(s);
+	}
+
+	public Boolean getValue() {
+		return new Boolean(isChecked());
+	}
+
+	public boolean isMandatory() {
+		return m_mandatory;
+	}
+
+	public void setMandatory(boolean mandatory) {
+		m_mandatory = mandatory;
+
+	}
+
+	public void setValue(Boolean v) {
+		setChecked((v == null) ? false : v.booleanValue());
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputBase#getOnValueChanged()
+	 */
+	public IValueChanged< ? , ? > getOnValueChanged() {
+		return m_onValueChanged;
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputBase#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
+	 */
+	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
+		m_onValueChanged = onValueChanged;
 	}
 
 }

@@ -139,6 +139,18 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	}
 
 	public String getName() {
+		/*
+		StringBuilder name = new StringBuilder();
+		for (PropertyMetaModel pmm: m_accessPath) {
+			name.append(pmm.getName());
+			if (!pmm.equals(m_original)) {
+				name.append(".");
+			}
+		}
+
+		return name.toString();
+		//return m_original.getName();
+		 */
 		return m_dottedName;
 	}
 
