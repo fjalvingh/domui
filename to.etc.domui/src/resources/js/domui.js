@@ -1,19 +1,11 @@
 function _block() {
-	// $("body").attr("style.cursor", "wait");
-	// var el = document.childNodes[1].childNodes[1];
-	var el = document.body;
-	if (el)
-		el.style.cursor = "wait";
+	WebUI.blockUI();
 }
 function _unblock() {
-	// $("body").attr("style.cursor", "default");
-	// var el = document.childNodes[1].childNodes[1];
-	var el = document.body;
-	if (el)
-		el.style.cursor = "default";
+	WebUI.unblockUI();
 }
 
-// $().ajaxStart(_block).ajaxStop(_unblock);
+$().ajaxStart(_block).ajaxStop(_unblock);
 
 ( function($) {
 	$.webui = function(xml) {
@@ -1166,7 +1158,44 @@ var WebUI = {
 		node.unselectable = "on";
 		node.style.MozUserSelect = "none";
 		node.style.cursor = "default";
+	},
+
+	_busyCount: 0,
+
+	/*
+	 * Block the UI while an AJAX call is in progress.
+	 */
+	blockUI: function() {
+		console.debug('block, busy=', WebUI._busyCount);
+		if(WebUI._busyCount++ > 0)
+			return;
+		var el = document.body;
+		if(! el)
+			return;
+		el.style.cursor = "wait";
+
+		//-- Create a backdrop div sized 100% overlaying the body.
+		var d = document.createElement('div');
+		el.appendChild(d);
+		d.className = 'ui-io-blk';
+		WebUI._busyOvl = d;
+	},
+
+	unblockUI: function() {
+		console.debug('unblock, busy=', WebUI._busyCount);
+		if(WebUI._busyCount <= 0 || ! WebUI._busyOvl)
+			return;
+		if(--WebUI._busyCount != 0)
+			return;
+		var el = document.body;
+		if(!el)
+			return;
+
+		el.style.cursor = "default";
+		el.removeChild(WebUI._busyOvl);
+		WebUI._busyOvl= null;
 	}
+	
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
