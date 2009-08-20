@@ -195,7 +195,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param name
 	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
-	 * @param mandatory Specify if field is mandatory.
+	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
 	 */
 	public IFormControl addProp(final String name, final boolean readOnly, final boolean mandatory) {
 		PropertyMetaModel pmm = resolveProperty(name);
