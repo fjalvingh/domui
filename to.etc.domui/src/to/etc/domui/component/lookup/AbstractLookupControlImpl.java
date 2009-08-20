@@ -34,8 +34,17 @@ abstract public class AbstractLookupControlImpl implements ILookupControlInstanc
 	 * @see to.etc.domui.component.lookup.ILookupControlInstance#clearInput()
 	 */
 	public void clearInput() {
-		if(m_nodes == null || m_nodes.length == 0 || !(m_nodes[0] instanceof IInputNode<?>))
+		if(m_nodes == null || m_nodes.length == 0 || !(m_nodes[0] instanceof IInputNode<?>)) {
 			throw new IllegalStateException("The implementation for "+this+" needs an overridden clearInput() method");
-		((IInputNode<?>)m_nodes[0]).setValue(null);
+		}
+		boolean done = false;
+		for (NodeBase m_node : m_nodes) {
+			if (m_node instanceof IInputNode<?>) {
+				((IInputNode<?>)m_node).setValue(null);
+				done = true;
+			}
+		}
+		if(!done)
+			throw new IllegalStateException("The implementation for " + this + " needs an overridden clearInput() method");
 	}
 }

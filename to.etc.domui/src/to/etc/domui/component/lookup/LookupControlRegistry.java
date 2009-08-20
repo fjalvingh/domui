@@ -19,6 +19,7 @@ public class LookupControlRegistry {
 		register(new LookupFactoryNumber());
 		register(new LookupFactoryRelation());
 		register(new LookupFactoryEnumAndBool());
+		register(new LookupFactoryRelationCombo());
 	}
 
 	public synchronized List<LookupControlFactory> getFactoryList() {
