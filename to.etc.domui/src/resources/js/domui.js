@@ -1166,7 +1166,7 @@ var WebUI = {
 	 * Block the UI while an AJAX call is in progress.
 	 */
 	blockUI: function() {
-		console.debug('block, busy=', WebUI._busyCount);
+//		console.debug('block, busy=', WebUI._busyCount);
 		if(WebUI._busyCount++ > 0)
 			return;
 		var el = document.body;
@@ -1174,19 +1174,34 @@ var WebUI = {
 			return;
 		el.style.cursor = "wait";
 
-		//-- Create a backdrop div sized 100% overlaying the body.
+		//-- Create a backdrop div sized 100% overlaying the body, initially just fully transparant (just blocking mouseclicks).
 		var d = document.createElement('div');
 		el.appendChild(d);
 		d.className = 'ui-io-blk';
 		WebUI._busyOvl = d;
+		WebUI._busyTimer = setTimeout("WebUI.busyIndicate()", 250);
+	},
+
+	busyIndicate: function() {
+		if(WebUI._busyTimer) {
+			clearTimeout(WebUI._busyTimer);
+			WebUI._busyTimer = null;
+		}
+		if(WebUI._busyOvl) {
+			WebUI._busyOvl.className = "ui-io-blk2";
+		}
 	},
 
 	unblockUI: function() {
-		console.debug('unblock, busy=', WebUI._busyCount);
+//		console.debug('unblock, busy=', WebUI._busyCount);
 		if(WebUI._busyCount <= 0 || ! WebUI._busyOvl)
 			return;
 		if(--WebUI._busyCount != 0)
 			return;
+		if(WebUI._busyTimer) {
+			clearTimeout(WebUI._busyTimer);
+			WebUI._busyTimer = null;
+		}
 		var el = document.body;
 		if(!el)
 			return;

@@ -766,6 +766,14 @@ body,html {
 .ui-io-blk {
 	height: 100%;
 	width: 100%;
+	opacity: 0.0;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+}
+.ui-io-blk2 {
+	height: 100%;
+	width: 100%;
 	opacity: 0.5;
 	position: fixed;
 	top: 0px;
