@@ -82,6 +82,8 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
 	 */
 	public void setValue(T v) {
+		if(MetaManager.areObjectsEqual(v, m_currentValue, null)) // FIXME Needs metamodel for better impl
+			return;
 		m_currentValue = v;
 		if(!isBuilt())
 			return;

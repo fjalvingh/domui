@@ -9,6 +9,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -143,10 +144,6 @@ final class LookupFactoryNumber implements LookupControlFactory {
 	}
 
 	public int accepts(PropertyMetaModel pmm) {
-		//-- Return a low value; special format input line monetary needs different factory?
-		if(Integer.class == pmm.getActualType() || Double.class == pmm.getActualType() || pmm.getActualType() == double.class) {
-			return 2;
-		}
-		return 0;
+		return DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class ? 2 : -1;
 	}
 }

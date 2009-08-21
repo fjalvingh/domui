@@ -75,6 +75,24 @@ final public class DomUtil {
 	}
 
 	/**
+	 * Returns T if the class represents an integer numeric type.
+	 * @param clz
+	 * @return
+	 */
+	static public boolean isIntegerType(Class< ? > clz) {
+		return clz == int.class || clz == Integer.class || clz == long.class || clz == Long.class || clz == Short.class || clz == short.class;
+	}
+
+	/**
+	 * Return T if the class represents a real (double or float) type.
+	 * @param clz
+	 * @return
+	 */
+	static public boolean isRealType(Class< ? > clz) {
+		return clz == float.class || clz == Float.class || clz == Double.class || clz == double.class;
+	}
+
+	/**
 	 * Retrieves a value from an object using introspection. The name is the direct
 	 * name of a method that *must* exist; it does not add a "get". If the method
 	 * does not exist this throws an exception.

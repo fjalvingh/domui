@@ -180,6 +180,8 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
 	 */
 	public void setValue(T v) {
+		if(DomUtil.isEqual(m_value, v))
+			return;
 		m_value = v;
 		forceRebuild();
 	}

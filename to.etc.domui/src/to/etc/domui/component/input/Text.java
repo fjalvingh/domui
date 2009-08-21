@@ -60,13 +60,12 @@ public class Text<T> extends Input implements IInputNode<T> {
 
 	public Text(Class<T> inputClass) {
 		m_inputClass = inputClass;
-		if(Number.class.isAssignableFrom(inputClass)) {
-			if(BigDecimal.class.isAssignableFrom(inputClass) || Float.class.isAssignableFrom(inputClass) || Double.class.isAssignableFrom(inputClass) || Float.TYPE.isAssignableFrom(inputClass)
-				|| Double.TYPE.isAssignableFrom(inputClass))
-				m_numberMode = NumberMode.FLOAT;
-			else
-				m_numberMode = NumberMode.DIGITS;
-		}
+
+		if(BigDecimal.class.isAssignableFrom(inputClass) || DomUtil.isRealType(inputClass))
+			m_numberMode = NumberMode.FLOAT;
+		else if(DomUtil.isIntegerType(inputClass))
+			m_numberMode = NumberMode.DIGITS;
+
 		switch(m_numberMode){
 			default:
 				break;
@@ -234,7 +233,8 @@ public class Text<T> extends Input implements IInputNode<T> {
 			setMessage(MsgType.ERROR, Msgs.UNEXPECTED_EXCEPTION, x);
 			return;
 		}
-		setRawValue(converted);
+		setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string
+
 		// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
 		if((converted == null || converted.trim().length() == 0) && isMandatory())
 			m_validated = false;
