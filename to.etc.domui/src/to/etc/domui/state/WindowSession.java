@@ -193,6 +193,15 @@ final public class WindowSession {
 	protected void destroyConversation(final ConversationContext cc) {
 		if(null == m_conversationMap.remove(cc.getId()))
 			return;
+
+		//-- Discard all pages used by this from the shelve stack
+		for(int i = m_shelvedPageStack.size(); --i >= 0;) {
+			ShelvedEntry she = m_shelvedPageStack.get(i);
+			if(she.getPage().getConversation() == cc) {
+				m_shelvedPageStack.remove(i);
+			}
+		}
+
 		try {
 			if(cc.getState() == ConversationState.ATTACHED)
 				cc.internalDetach();
@@ -556,14 +565,16 @@ final public class WindowSession {
 		}
 
 		//-- Locate the specified page/conversation in the page stack,
-		int psix = findInPageStack(cc, clz, papa);
-		if(psix != -1) {
-			/*
-			 * Entry accepted. Discard all stacked entries *above* the selected thing.
-			 */
-			clearShelve(psix + 1);
-			internalAttachConversations();
-			return m_shelvedPageStack.get(psix).getPage();
+		if(cc != null) {
+			int psix = findInPageStack(cc, clz, papa);
+			if(psix != -1) {
+				/*
+				 * Entry accepted. Discard all stacked entries *above* the selected thing.
+				 */
+				clearShelve(psix + 1);
+				internalAttachConversations();
+				return m_shelvedPageStack.get(psix).getPage();
+			}
 		}
 
 		/*
@@ -611,6 +622,8 @@ final public class WindowSession {
 	 * @return
 	 */
 	private int findInPageStack(final ConversationContext cc, final Class< ? extends UrlPage> clz, final PageParameters papa) throws Exception {
+		if(cc == null)
+			throw new IllegalStateException("The conversation cannot be empty here.");
 		for(int ix = m_shelvedPageStack.size(); --ix >= 0;) {
 			ShelvedEntry se = m_shelvedPageStack.get(ix);
 			if(se.getPage().getBody().getClass() != clz) // Of the appropriate type?
