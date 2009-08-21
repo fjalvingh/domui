@@ -96,12 +96,14 @@
 }
 
 /*** MsgBox ***/
+
 .ui-mbx-top {
-	height: 130px;
+	height: 140px;
 }
 .ui-mbx-bb {
 	text-align: right;
 	height: 35px;
+	margin-right: 13px;
 }
 .ui-mbx-mc {
 	font-size: 13px; /* FIXME: viewpoint uses PIXEL sizing!? */

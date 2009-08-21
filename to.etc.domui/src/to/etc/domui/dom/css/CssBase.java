@@ -95,8 +95,9 @@ public class CssBase {
 
 	private int m_zIndex = Integer.MIN_VALUE;
 
-	private int m_top = Integer.MIN_VALUE;
+	private String m_top = null;
 
+	//FIXME left, right, bottom still have to be changed to receive string input to allow percentage values	
 	private int m_bottom = Integer.MIN_VALUE;
 
 	private int m_left = Integer.MIN_VALUE;
@@ -129,7 +130,7 @@ public class CssBase {
 	 * object.
 	 */
 	protected void changed() {
-		// FIXME Needs impl.
+	// FIXME Needs impl.
 	}
 
 	public BackgroundAttachment getBackgroundAttachment() {
@@ -574,11 +575,11 @@ public class CssBase {
 		m_zIndex = index;
 	}
 
-	public int getTop() {
+	public String getTop() {
 		return m_top;
 	}
 
-	public void setTop(final int top) {
+	public void setTop(final String top) {
 		if(m_top != top)
 			changed();
 		m_top = top;

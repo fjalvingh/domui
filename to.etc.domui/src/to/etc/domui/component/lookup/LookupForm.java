@@ -229,7 +229,7 @@ public class LookupForm<T> extends Div {
 		}
 
 		//-- Collapse button thingy
-		b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.collapse"), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
+		b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton bx) throws Exception {
 				collapse();
 			}
@@ -261,7 +261,7 @@ public class LookupForm<T> extends Div {
 		add(m_collapsed);
 
 		if(getOnNew() != null) {
-			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.new"));
+			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
 			m_collapsed.add(b);
 			b.setIcon("THEME/btnNew.png");
 			b.setClicked(new IClicked<NodeBase>() {
@@ -272,7 +272,7 @@ public class LookupForm<T> extends Div {
 		}
 
 		//-- Collapse button thingy
-		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString("lookupform.restore"), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
+		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton bx) throws Exception {
 				restore();
 			}

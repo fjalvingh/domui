@@ -164,7 +164,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 		m_itemBase = d;
 		add(d);
 		d.setPosition(PositionType.ABSOLUTE);
-		d.setTop(0);
+		d.setTop("0px");
 		d.setLeft(0);
 		d.setOverflow(Overflow.HIDDEN);
 		d.setWidth("100%");
@@ -176,7 +176,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 	public void createContent() throws Exception {
 		initModel();
 		setPosition(PositionType.RELATIVE);
-		setTop(0);
+		setTop("0px");
 		setLeft(0);
 		setOverflow(Overflow.HIDDEN);
 		if(getWidth() == null)

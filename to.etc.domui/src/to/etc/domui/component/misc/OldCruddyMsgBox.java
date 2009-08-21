@@ -35,7 +35,7 @@ public class OldCruddyMsgBox extends Div {
 		add(m_contents);
 		setPosition(PositionType.ABSOLUTE);
 		setZIndex(10);
-		setTop(100);
+		setTop("100px");
 		setLeft(100);
 		setCssClass("ui-mb");
 
