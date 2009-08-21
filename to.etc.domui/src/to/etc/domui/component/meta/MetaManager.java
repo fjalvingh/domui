@@ -179,51 +179,75 @@ final public class MetaManager {
 		};
 	}
 
-	static private INodeContentRenderer< ? > createComboColumnRenderer(List<DisplayPropertyMetaModel> list) {
-		if(list == null || list.size() == 0)
-			return null;
-		return new DisplayPropertyNodeContentRenderer(list);
+	static private boolean hasDisplayProperties(List<DisplayPropertyMetaModel> list) {
+		return list != null && list.size() > 0;
 	}
+
+	static private INodeContentRenderer< ? > TOSTRING_RENDERER = new INodeContentRenderer<Object>() {
+		public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) {
+			if(object != null)
+				node.setText(object.toString());
+		}
+	};
 
 	/**
 	 * This creates a default combo option value renderer using whatever metadata is available.
-	 * @param pmm
+	 * @param pmm	If not-null this takes precedence. This then <b>must</b> be the property that
+	 * 				is to be filled from the list-of-values in the combo. The property is used
+	 * 				to override the presentation only. Formally speaking, pmm.getActualType() must
+	 * 				be equal to the combo's list item type, and the renderer expects items of that
+	 * 				type.
+	 *
 	 * @param cmm
 	 * @return
 	 */
 	static public INodeContentRenderer< ? > createDefaultComboRenderer(PropertyMetaModel pmm, ClassMetaModel cmm) {
 		//-- Property-level metadata is the 1st choice
 		if(pmm != null) {
-			if(cmm == null)
-				cmm = MetaManager.findClassMeta(pmm.getActualType());
+			cmm = MetaManager.findClassMeta(pmm.getActualType()); // Always use property's class model.
 
 			if(pmm.getComboNodeRenderer() != null)
 				return DomApplication.get().createInstance(pmm.getComboNodeRenderer());
 			if(pmm.getComboLabelRenderer() != null)
 				return createComboLabelRenderer(pmm.getComboLabelRenderer());
-			INodeContentRenderer< ? > r = createComboColumnRenderer(pmm.getComboDisplayProperties());
-			if(r != null)
-				return r;
 
-			//-- No column-based property thingy found. Pass into target class based stuff
+			/*
+			 * Check for Display properties on both the property itself or on the target class, and use the 1st one
+			 * found. The names in these properties refer to the names in the /target/ class,
+			 * so they do not contain the name of "this" property; so we need the classmodel of the target type and
+			 * the idempotent accessor.
+			 */
+			List<DisplayPropertyMetaModel> dpl = pmm.getComboDisplayProperties(); // From property;
+			if(!hasDisplayProperties(dpl))
+				dpl = cmm.getComboDisplayProperties(); // Try the class then;
+			if(hasDisplayProperties(dpl)) {
+				/*
+				 * The property has DisplayProperties.
+				 */
+				List<ExpandedDisplayProperty> xpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
+				return new DisplayPropertyNodeContentRenderer(cmm, xpl);
+			}
+			return TOSTRING_RENDERER; // Just tostring it..
 		}
+
+		/*
+		 * If a ClassMetaModel is present this means the value object will have that ClassMetaModel.
+		 */
 		if(cmm != null) {
 			if(cmm.getComboNodeRenderer() != null)
 				return DomApplication.get().createInstance(cmm.getComboNodeRenderer());
 			if(cmm.getComboLabelRenderer() != null)
 				return createComboLabelRenderer(cmm.getComboLabelRenderer());
-			INodeContentRenderer< ? > r = createComboColumnRenderer(cmm.getComboDisplayProperties());
-			if(r != null)
-				return r;
-		}
 
-		//-- All metadata thingies failed... Render using tostring on the object
-		return new INodeContentRenderer<Object>() {
-			public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) {
-				if(object != null)
-					node.setText(object.toString());
+			if(hasDisplayProperties(cmm.getComboDisplayProperties())) {
+				/*
+				 * The value class has display properties; expand them. Since this is the value class we need no root accessor (== identity/same accessor).
+				 */
+				List<ExpandedDisplayProperty> xpl = ExpandedDisplayProperty.expandDisplayProperties(cmm.getComboDisplayProperties(), cmm, null);
+				return new DisplayPropertyNodeContentRenderer(cmm, xpl);
 			}
-		};
+		}
+		return TOSTRING_RENDERER; // Just tostring it..
 	}
 
 	/**

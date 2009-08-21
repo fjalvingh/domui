@@ -42,7 +42,7 @@ final public class PropertyAccessor<T> implements IValueAccessor<T> {
 	/**
 	 * Retrieve the value from this object. If the input object is null
 	 * this throws NPE.
-	 * 
+	 *
 	 * @see to.etc.domui.util.IValueTransformer#getValue(java.lang.Object)
 	 */
 	public T getValue(Object in) throws Exception {
@@ -51,6 +51,7 @@ final public class PropertyAccessor<T> implements IValueAccessor<T> {
 		try {
 			return (T) m_readm.invoke(in);
 		} catch(InvocationTargetException itx) {
+			System.err.println("(in calling " + m_readm + " with input object " + in + ")");
 			Throwable c = itx.getCause();
 			if(c instanceof Exception)
 				throw (Exception) c;
@@ -58,6 +59,9 @@ final public class PropertyAccessor<T> implements IValueAccessor<T> {
 				throw (Error) c;
 			else
 				throw itx;
+		} catch(Exception x) {
+			System.err.println("in calling " + m_readm + " with input object " + in);
+			throw x;
 		}
 	}
 

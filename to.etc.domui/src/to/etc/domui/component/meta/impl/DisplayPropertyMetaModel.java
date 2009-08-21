@@ -20,6 +20,9 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 
 	private String m_renderHint;
 
+	/**
+	 * This is the model of the class that these are <i>in</i>. That is <i>not</i> always the class those properties must be resolved on - that is the <i>target</i> class.
+	 */
 	private ClassMetaModel m_containedInClass;
 
 	private String m_labelKey;
