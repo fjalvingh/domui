@@ -1,10 +1,13 @@
 package to.etc.domui.pages.generic;
 
+import org.hibernate.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.hibernate.generic.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
@@ -183,8 +186,14 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 		QDataContext dc = QContextManager.getContext(getPage());
 		dc.startTransaction();
 		dc.save(object);
+		BuggyHibernateBaseContext bhc = (BuggyHibernateBaseContext) dc;
+		Session session = bhc.getSession();
+		session.flush();
+		beforeCommitData(bhc);
 		dc.commit();
 	}
+
+	protected void beforeCommitData(QDataContext dc) throws Exception {}
 
 	protected void onDelete(T object) throws Exception {
 		QDataContext dc = QContextManager.getContext(getPage());

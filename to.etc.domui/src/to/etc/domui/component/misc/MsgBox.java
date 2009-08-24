@@ -27,6 +27,8 @@ public class MsgBox extends FloatingWindow {
 
 	Object m_selectedChoice;
 
+	Object m_onCloseAction;
+
 	IAnswer m_onAnswer;
 
 	protected MsgBox() {
@@ -36,11 +38,12 @@ public class MsgBox extends FloatingWindow {
 		setOnClose(new IClicked<FloatingWindow>() {
 			public void clicked(FloatingWindow b) throws Exception {
 				if(null != m_onAnswer) {
-					m_selectedChoice = null;
-					m_onAnswer.onAnswer(null);
+					m_selectedChoice = m_onCloseAction;
+					m_onAnswer.onAnswer(m_selectedChoice);
 				}
 			}
 		});
+		setOnCloseAction(MsgBoxButton.CANCEL);
 	}
 
 	static public MsgBox create(NodeBase parent) {
@@ -99,9 +102,6 @@ public class MsgBox extends FloatingWindow {
 		box.addButton(MsgBoxButton.YES);
 		box.addButton(MsgBoxButton.NO);
 		box.addButton(MsgBoxButton.CANCEL);
-		//		box.addButton(MetaManager.findEnumLabel(MsgBoxButton.YES), MsgDlgResult.mrYES);
-		//		box.addButton(MetaManager.findEnumLabel(MsgBoxButton.NO), MsgDlgResult.mrNO);
-		//		box.addButton(MetaManager.findEnumLabel(MsgBoxButton.CANCEL), MsgDlgResult.mrCANCEL);
 		box.setOnAnswer(onAnswer);
 		box.construct();
 	}
@@ -112,6 +112,7 @@ public class MsgBox extends FloatingWindow {
 		box.setMessage(string);
 		box.addButton(MsgBoxButton.YES);
 		box.addButton(MsgBoxButton.NO);
+		box.setClosable(false);
 		box.setOnAnswer(onAnswer);
 		box.construct();
 	}
@@ -208,5 +209,13 @@ public class MsgBox extends FloatingWindow {
 
 	public void setOnAnswer(IAnswer onAnswer) {
 		m_onAnswer = onAnswer;
+	}
+
+	public Object getOnCloseAction() {
+		return m_onCloseAction;
+	}
+
+	public void setOnCloseAction(Object onCloseAction) {
+		m_onCloseAction = onCloseAction;
 	}
 }

@@ -286,20 +286,20 @@ public class HtmlRenderer implements INodeVisitor {
 			a.append(c.getTop()); //allows percentage values also (50%)
 			a.append(";");
 		}
-		if(c.getBottom() != Integer.MIN_VALUE) {
+		if(c.getBottom() != null) {
 			a.append("bottom:");
-			a.append(Integer.toString(c.getBottom()));
-			a.append("px;");
+			a.append(c.getBottom());
+			a.append(";");
 		}
-		if(c.getLeft() != Integer.MIN_VALUE) {
+		if(c.getLeft() != null) {
 			a.append("left:");
-			a.append(Integer.toString(c.getLeft()));
-			a.append("px;");
+			a.append(c.getLeft());
+			a.append(";");
 		}
-		if(c.getRight() != Integer.MIN_VALUE) {
+		if(c.getRight() != null) {
 			a.append("right:");
-			a.append(Integer.toString(c.getRight()));
-			a.append("px;");
+			a.append(c.getRight());
+			a.append(";");
 		}
 
 		/***** Font properties ******/
