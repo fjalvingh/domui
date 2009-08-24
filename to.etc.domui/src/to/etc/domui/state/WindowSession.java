@@ -622,8 +622,8 @@ final public class WindowSession {
 	 * @return
 	 */
 	private int findInPageStack(final ConversationContext cc, final Class< ? extends UrlPage> clz, final PageParameters papa) throws Exception {
-		if(cc == null)
-			throw new IllegalStateException("The conversation cannot be empty here.");
+		//		if(cc == null) FIXME jal 20090824 Revisit: this is questionable; why can it be null? Has code path from UIGoto-> handleGoto.
+		//			throw new IllegalStateException("The conversation cannot be empty here.");
 		for(int ix = m_shelvedPageStack.size(); --ix >= 0;) {
 			ShelvedEntry se = m_shelvedPageStack.get(ix);
 			if(se.getPage().getBody().getClass() != clz) // Of the appropriate type?
