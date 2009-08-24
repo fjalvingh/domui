@@ -14,7 +14,7 @@ import to.etc.webapp.query.*;
 abstract public class AbstractLookupControlImpl implements ILookupControlInstance {
 	private NodeBase[] m_nodes;
 
-	abstract public boolean appendCriteria(QCriteria<?> crit) throws Exception;
+	abstract public boolean appendCriteria(QCriteria< ? > crit) throws Exception;
 
 	public AbstractLookupControlImpl(NodeBase... nodes) {
 		m_nodes = nodes;
@@ -34,14 +34,13 @@ abstract public class AbstractLookupControlImpl implements ILookupControlInstanc
 	 * @see to.etc.domui.component.lookup.ILookupControlInstance#clearInput()
 	 */
 	public void clearInput() {
-		if(m_nodes == null || m_nodes.length == 0) {
-			throw new IllegalStateException("The implementation for "+this+" needs an overridden clearInput() method");
-		}
 		boolean done = false;
-		for (NodeBase m_node : m_nodes) {
-			if (m_node instanceof IInputNode<?>) {
-				((IInputNode<?>)m_node).setValue(null);
-				done = true;
+		if(m_nodes != null) {
+			for(NodeBase m_node : m_nodes) {
+				if(m_node instanceof IInputNode< ? >) {
+					((IInputNode< ? >) m_node).setValue(null);
+					done = true;
+				}
 			}
 		}
 		if(!done)

@@ -281,10 +281,10 @@ public class HtmlRenderer implements INodeVisitor {
 			a.append(c.getPosition().getTxt());
 			a.append(';');
 		}
-		if(c.getTop() != Integer.MIN_VALUE) {
+		if(c.getTop() != null) {
 			a.append("top:");
-			a.append(Integer.toString(c.getTop()));
-			a.append("px;");
+			a.append(c.getTop()); //allows percentage values also (50%)
+			a.append(";");
 		}
 		if(c.getBottom() != Integer.MIN_VALUE) {
 			a.append("bottom:");
