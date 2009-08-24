@@ -8,7 +8,7 @@ import to.etc.domui.util.*;
 
 public class MsgBox extends FloatingWindow {
 	public interface IAnswer {
-		void onAnswer(Object result) throws Exception;
+		void onAnswer(MsgBoxButton result) throws Exception;
 	}
 
 	public static enum Type {
@@ -29,6 +29,8 @@ public class MsgBox extends FloatingWindow {
 
 	IAnswer m_onAnswer;
 
+	MsgBoxButton m_closeButtonObject;
+
 	protected MsgBox() {
 		super(true, "");
 		m_theButtons.setCssClass("ui-mbx-bb");
@@ -36,8 +38,8 @@ public class MsgBox extends FloatingWindow {
 		setOnClose(new IClicked<FloatingWindow>() {
 			public void clicked(FloatingWindow b) throws Exception {
 				if(null != m_onAnswer) {
-					m_selectedChoice = null;
-					m_onAnswer.onAnswer(null);
+					m_selectedChoice = m_closeButtonObject;
+					m_onAnswer.onAnswer(m_closeButtonObject);
 				}
 			}
 		});
@@ -81,6 +83,14 @@ public class MsgBox extends FloatingWindow {
 		m_theText = txt;
 	}
 
+	private void setCloseButton(MsgBoxButton val) {
+		m_closeButtonObject = val;
+	}
+
+	MsgBoxButton getCloseObject() {
+		return m_closeButtonObject;
+	}
+
 	public static void message(NodeBase dad, Type mt, String string) {
 		if(mt == Type.DIALOG) {
 			throw new IllegalArgumentException("Please use one of the predefined button calls for MsgType.DIALOG type MsgBox!");
@@ -89,6 +99,7 @@ public class MsgBox extends FloatingWindow {
 		box.setType(mt);
 		box.setMessage(string);
 		box.addButton(MsgBoxButton.CONTINUE);
+		box.setCloseButton(MsgBoxButton.CONTINUE);
 		box.construct();
 	}
 
@@ -99,6 +110,7 @@ public class MsgBox extends FloatingWindow {
 		box.addButton(MsgBoxButton.YES);
 		box.addButton(MsgBoxButton.NO);
 		box.addButton(MsgBoxButton.CANCEL);
+		box.setCloseButton(MsgBoxButton.CANCEL);
 		//		box.addButton(MetaManager.findEnumLabel(MsgBoxButton.YES), MsgDlgResult.mrYES);
 		//		box.addButton(MetaManager.findEnumLabel(MsgBoxButton.NO), MsgDlgResult.mrNO);
 		//		box.addButton(MetaManager.findEnumLabel(MsgBoxButton.CANCEL), MsgDlgResult.mrCANCEL);
@@ -112,6 +124,7 @@ public class MsgBox extends FloatingWindow {
 		box.setMessage(string);
 		box.addButton(MsgBoxButton.YES);
 		box.addButton(MsgBoxButton.NO);
+		box.setCloseButton(MsgBoxButton.NO);
 		box.setOnAnswer(onAnswer);
 		box.construct();
 	}
@@ -122,6 +135,7 @@ public class MsgBox extends FloatingWindow {
 		box.setMessage(string);
 		box.addButton(MsgBoxButton.CONTINUE);
 		box.addButton(MsgBoxButton.CANCEL);
+		box.setCloseButton(MsgBoxButton.CANCEL);
 		box.setOnAnswer(onAnswer);
 		box.construct();
 	}
@@ -172,7 +186,7 @@ public class MsgBox extends FloatingWindow {
 		m_selectedChoice = sel;
 		close();
 		if(m_onAnswer != null) {
-			m_onAnswer.onAnswer(m_selectedChoice);
+			m_onAnswer.onAnswer((MsgBoxButton) m_selectedChoice);
 		}
 	}
 
