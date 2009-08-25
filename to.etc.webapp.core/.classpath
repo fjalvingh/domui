@@ -7,5 +7,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/bin-j2ee-1.4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.alg"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/bin-junit-4.4"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.db"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
