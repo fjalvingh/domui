@@ -32,6 +32,10 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	private INodeContentRenderer<T> m_contentRenderer;
 
+	private IQueryManipulator<T> m_queryManipulator;
+
+	private String m_lookupTitle;
+
 	public LookupInput(Class<T> lookupClass) {
 		m_lookupClass = lookupClass;
 		m_selButton = new SmallImgButton("THEME/btn-popuplookup.png");
@@ -72,7 +76,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			return;
 		}
 
-		m_floater = FloatingWindow.create(this, Msgs.BUNDLE.getString("ui.lui.ttl"));
+		m_floater = FloatingWindow.create(this, getLookupTitle() == null ? Msgs.BUNDLE.getString("ui.lui.ttl") : getLookupTitle());
 		//		getPage().getBody().add(m_floater);
 
 		m_floater.setHeight("90%");
@@ -99,6 +103,10 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		QCriteria<T> c = lf.getEnteredCriteria();
 		if(c == null) // Some error has occured?
 			return; // Don't do anything (errors will have been registered)
+
+		if(getQueryManipulator() != null) {
+			c = getQueryManipulator().adjustQuery(c); // Adjust the query where needed,
+		}
 		m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		if(!c.hasRestrictions()) {
 			m_floater.addGlobalMessage(MsgType.ERROR, Msgs.V_MISSING_SEARCH); // Missing inputs
@@ -198,6 +206,42 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	 */
 	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
+	}
+
+	/**
+	 * When set the specified manipulator will be called before a query is sent to the database. The query
+	 * can be altered to add extra restrictions for instance.
+	 * @return
+	 */
+	public IQueryManipulator<T> getQueryManipulator() {
+		return m_queryManipulator;
+	}
+
+	/**
+	 * When set this defines the title of the lookup window.
+	 * @return
+	 */
+	public String getLookupTitle() {
+		return m_lookupTitle;
+	}
+
+	/**
+	 * When set this defines the title of the lookup window.
+	 *
+	 * @param lookupTitle
+	 */
+	public void setLookupTitle(String lookupTitle) {
+		m_lookupTitle = lookupTitle;
+	}
+
+	/**
+	 * When set the specified manipulator will be called before a query is sent to the database. The query
+	 * can be altered to add extra restrictions for instance.
+	 *
+	 * @param queryManipulator
+	 */
+	public void setQueryManipulator(IQueryManipulator<T> queryManipulator) {
+		m_queryManipulator = queryManipulator;
 	}
 
 	static public final INodeContentRenderer< ? > DEFAULT_RENDERER = new INodeContentRenderer<Object>() {
