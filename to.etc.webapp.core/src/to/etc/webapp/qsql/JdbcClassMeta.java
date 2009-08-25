@@ -19,6 +19,9 @@ public class JdbcClassMeta {
 
 	private Map<String, JdbcPropertyMeta> m_columnMap;
 
+	/** Immutable list of properties. */
+	private List<JdbcPropertyMeta> m_propertyList;
+
 	public JdbcClassMeta() {}
 
 	public JdbcClassMeta(Class< ? > cm) {
@@ -58,6 +61,7 @@ public class JdbcClassMeta {
 		}
 		m_propertyMap = map;
 		m_columnMap = colmap;
+		m_propertyList = Collections.unmodifiableList(new ArrayList<JdbcPropertyMeta>(m_propertyMap.values()));
 	}
 
 	private JdbcPropertyMeta evaluateProperty(PropertyInfo pi) {
@@ -105,11 +109,7 @@ public class JdbcClassMeta {
 		m_tableName = tableName;
 	}
 
-	public Map<String, JdbcPropertyMeta> getColumnMap() {
-		return m_columnMap;
-	}
-
-	public void setColumnMap(Map<String, JdbcPropertyMeta> columnMap) {
-		m_columnMap = columnMap;
+	public List<JdbcPropertyMeta> getPropertyList() {
+		return m_propertyList;
 	}
 }
