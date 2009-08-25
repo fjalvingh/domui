@@ -38,7 +38,19 @@ public class TestBasic {
 		gc.visitCriteria(qc);
 
 		System.out.println(gc.getSQL());
+		Assert.assertEquals("select this_.grbr_code,this_.grbr_type_omschrijving,this_.omschrijving,this_.ID from v_dec_grootboekrekeningen this_", gc.getSQL());
 	}
+
+	@Test
+	public void testSQLGen2() throws Exception {
+		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class).eq("id", Long.valueOf(12)).eq("code", "BR12");
+
+		JdbcSQLGenerator gc = new JdbcSQLGenerator();
+		gc.visitCriteria(qc);
+
+		System.out.println(gc.getSQL());
+	}
+
 
 	@Test
 	public void testExec1() throws Exception {
@@ -56,5 +68,8 @@ public class TestBasic {
 				break;
 			System.out.println("la: " + la.getCode() + ", " + la.getDescription() + ", " + la.getTypeDescription() + ", " + la.getId());
 		}
+		Assert.assertTrue(res.size() != 0);
 	}
+
+
 }

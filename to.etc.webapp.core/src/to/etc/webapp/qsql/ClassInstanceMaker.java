@@ -35,7 +35,9 @@ class ClassInstanceMaker implements IInstanceMaker {
 	}
 
 	private boolean moveRsToProperty(Object inst, ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
-		ITypeConverter tc = JdbcMetaManager.getConverter(pm);
+		ITypeConverter tc = pm.getTypeConverter();
+		if(tc == null)
+			tc = JdbcMetaManager.getConverter(pm);
 		try {
 			Object value = tc.convertToInstance(rs, index, pm);
 			if(rs.wasNull())

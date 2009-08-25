@@ -13,7 +13,7 @@ public class JdbcMetaManager {
 
 	static private Map<Class< ? >, List<ITypeConverter>> m_converterMap = new HashMap<Class< ? >, List<ITypeConverter>>();
 
-	static public JdbcClassMeta getMeta(Class< ? > jdbcClass) {
+	static public JdbcClassMeta getMeta(Class< ? > jdbcClass) throws Exception {
 		JdbcClassMeta	cm;
 		synchronized(m_classMap) { // Atomically add or get in 1st lock
 			cm = m_classMap.get(jdbcClass);

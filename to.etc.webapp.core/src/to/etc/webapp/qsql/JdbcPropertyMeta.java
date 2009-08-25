@@ -19,6 +19,8 @@ public class JdbcPropertyMeta {
 
 	private String m_nullValue;
 
+	private ITypeConverter m_typeConverter;
+
 	public JdbcPropertyMeta() {}
 
 	public JdbcPropertyMeta(JdbcClassMeta jdbcClassMeta, PropertyInfo pi) {
@@ -92,6 +94,14 @@ public class JdbcPropertyMeta {
 
 	public void setNullValue(String nullValue) {
 		m_nullValue = nullValue;
+	}
+
+	public ITypeConverter getTypeConverter() {
+		return m_typeConverter;
+	}
+
+	public void setTypeConverter(ITypeConverter typeConverter) {
+		m_typeConverter = typeConverter;
 	}
 
 	@Override

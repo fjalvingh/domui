@@ -34,7 +34,7 @@ public class JdbcClassMeta {
 	/**
 	 * Locked initialization of this jdbc accessible POJO
 	 */
-	protected synchronized void initialize() {
+	protected synchronized void initialize() throws Exception {
 		if(m_columnMap != null)
 			return;
 		if(m_dataClass == null)
@@ -64,7 +64,7 @@ public class JdbcClassMeta {
 		m_propertyList = Collections.unmodifiableList(new ArrayList<JdbcPropertyMeta>(m_propertyMap.values()));
 	}
 
-	private JdbcPropertyMeta evaluateProperty(PropertyInfo pi) {
+	private JdbcPropertyMeta evaluateProperty(PropertyInfo pi) throws Exception {
 		if(pi.getGetter() == null)			// Writeonly not accepted
 			return null;
 		if(pi.getSetter() == null)	// Readonly not accepted
@@ -78,6 +78,8 @@ public class JdbcClassMeta {
 			pm.setLength(col.length());
 			pm.setActualClass(pi.getGetter().getReturnType());
 			pm.setScale(col.scale());
+			if(col.columnConverter() != ITypeConverter.class)
+				pm.setTypeConverter(col.columnConverter().newInstance());
 		}
 
 		if(pm.getColumnName() == null)
@@ -111,5 +113,9 @@ public class JdbcClassMeta {
 
 	public List<JdbcPropertyMeta> getPropertyList() {
 		return m_propertyList;
+	}
+
+	public JdbcPropertyMeta findProperty(String pname) {
+		return m_propertyMap.get(pname);
 	}
 }

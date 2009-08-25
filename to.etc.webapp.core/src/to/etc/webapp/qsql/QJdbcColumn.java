@@ -12,4 +12,6 @@ public @interface QJdbcColumn {
 	int scale() default -1;
 
 	boolean nullable() default false;
+
+	Class< ? extends ITypeConverter> columnConverter() default ITypeConverter.class;
 }
