@@ -42,7 +42,7 @@ public class JdbcMetaManager {
 	}
 
 	static ITypeConverter findConverter(JdbcPropertyMeta pm) {
-		List<ITypeConverter> cl = m_converterMap.get(pm.getActualClass());
+		List<ITypeConverter> cl = getConverterList(pm.getActualClass());
 		if(cl == null)
 			return null;
 		ITypeConverter best = null;
@@ -63,5 +63,4 @@ public class JdbcMetaManager {
 			throw new IllegalStateException("No converter for " + pm);
 		return tc;
 	}
-
 }

@@ -43,7 +43,6 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		m_retrieverList.add(new ClassInstanceMaker(root, startIndex, cm));
 	}
 
-
 	public String getSQL() {
 		StringBuilder sb = new StringBuilder(256);
 		sb.append("select ");
@@ -57,6 +56,4 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 		return sb.toString();
 	}
-
-
 }
