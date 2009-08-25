@@ -95,14 +95,13 @@ public class CssBase {
 
 	private int m_zIndex = Integer.MIN_VALUE;
 
-	private String m_top = null;
+	private String m_top;
 
-	//FIXME left, right, bottom still have to be changed to receive string input to allow percentage values
-	private int m_bottom = Integer.MIN_VALUE;
+	private String m_bottom;
 
-	private int m_left = Integer.MIN_VALUE;
+	private String m_left;
 
-	private int m_right = Integer.MIN_VALUE;
+	private String m_right;
 
 	/*--- TEXT properties -----*/
 	private TextAlign m_textAlign;
@@ -591,34 +590,52 @@ public class CssBase {
 		setTop(s);
 	}
 
-	public int getBottom() {
+	public String getBottom() {
 		return m_bottom;
 	}
 
-	public void setBottom(final int bottom) {
-		if(m_bottom != bottom)
-			changed();
+	public void setBottom(final String bottom) {
+		if(DomUtil.isEqual(bottom, m_bottom))
+			return;
+		changed();
 		m_bottom = bottom;
 	}
 
-	public int getLeft() {
+	public void setBottom(int px) {
+		String s = Integer.toString(px) + "px";
+		setBottom(s);
+	}
+
+	public String getLeft() {
 		return m_left;
 	}
 
-	public void setLeft(final int left) {
-		if(m_left != left)
-			changed();
+	public void setLeft(final String left) {
+		if(DomUtil.isEqual(left, m_left))
+			return;
+		changed();
 		m_left = left;
 	}
 
-	public int getRight() {
+	public void setLeft(final int px) {
+		String s = Integer.toString(px) + "px";
+		setLeft(s);
+	}
+
+	public String getRight() {
 		return m_right;
 	}
 
-	public void setRight(final int right) {
-		if(m_right != right)
-			changed();
+	public void setRight(final String right) {
+		if(DomUtil.isEqual(right, m_right))
+			return;
+		changed();
 		m_right = right;
+	}
+
+	public void setRight(final int px) {
+		String s = Integer.toString(px) + "px";
+		setRight(s);
 	}
 
 	public String getColor() {

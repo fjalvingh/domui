@@ -111,13 +111,16 @@ public class MsgBox extends FloatingWindow {
 		box.addButton(MsgBoxButton.NO);
 		box.addButton(MsgBoxButton.CANCEL);
 		box.setCloseButton(MsgBoxButton.CANCEL);
-		//		box.addButton(MetaManager.findEnumLabel(MsgBoxButton.YES), MsgDlgResult.mrYES);
-		//		box.addButton(MetaManager.findEnumLabel(MsgBoxButton.NO), MsgDlgResult.mrNO);
-		//		box.addButton(MetaManager.findEnumLabel(MsgBoxButton.CANCEL), MsgDlgResult.mrCANCEL);
 		box.setOnAnswer(onAnswer);
 		box.construct();
 	}
 
+	/**
+	 * Ask a yes/no confirmation, and pass either YES or NO to the onAnswer delegate. Use this if you need the NO action too, else use the IClicked variant.
+	 * @param dad
+	 * @param string
+	 * @param onAnswer
+	 */
 	public static void yesNo(NodeBase dad, String string, IAnswer onAnswer) {
 		MsgBox box = create(dad);
 		box.setType(Type.DIALOG);
@@ -129,6 +132,34 @@ public class MsgBox extends FloatingWindow {
 		box.construct();
 	}
 
+	/**
+	 * Ask a yes/no confirmation; call the onAnswer handler if YES is selected and do nothing otherwise.
+	 * @param dad
+	 * @param string
+	 * @param onAnswer
+	 */
+	public static void yesNo(NodeBase dad, String string, final IClicked<MsgBox> onAnswer) {
+		final MsgBox box = create(dad);
+		box.setType(Type.DIALOG);
+		box.setMessage(string);
+		box.addButton(MsgBoxButton.YES);
+		box.addButton(MsgBoxButton.NO);
+		box.setCloseButton(MsgBoxButton.NO);
+		box.setOnAnswer(new IAnswer() {
+			public void onAnswer(MsgBoxButton result) throws Exception {
+				if(result == MsgBoxButton.YES)
+					onAnswer.clicked(box);
+			}
+		});
+		box.construct();
+	}
+
+	/**
+	 * Ask a continue/cancel confirmation. This passes either choice to the handler.
+	 * @param dad
+	 * @param string
+	 * @param onAnswer
+	 */
 	public static void continueCancel(NodeBase dad, String string, IAnswer onAnswer) {
 		MsgBox box = create(dad);
 		box.setType(Type.DIALOG);
@@ -138,6 +169,43 @@ public class MsgBox extends FloatingWindow {
 		box.setCloseButton(MsgBoxButton.CANCEL);
 		box.setOnAnswer(onAnswer);
 		box.construct();
+	}
+
+	/**
+	 * Ask a continue/cancel confirmation, and call the IClicked handler for CONTINUE only.
+	 * @param dad
+	 * @param string
+	 * @param onAnswer
+	 */
+	public static void continueCancel(NodeBase dad, String string, final IClicked<MsgBox> onAnswer) {
+		final MsgBox box = create(dad);
+		box.setType(Type.DIALOG);
+		box.setMessage(string);
+		box.addButton(MsgBoxButton.CONTINUE);
+		box.addButton(MsgBoxButton.CANCEL);
+		box.setCloseButton(MsgBoxButton.CANCEL);
+		box.setOnAnswer(new IAnswer() {
+			public void onAnswer(MsgBoxButton result) throws Exception {
+				if(result == MsgBoxButton.CONTINUE)
+					onAnswer.clicked(box);
+			}
+		});
+		box.construct();
+	}
+
+	public static DefaultButton areYouSureButton(String text, String icon, final String message, final IClicked<DefaultButton> ch) {
+		final DefaultButton btn = new DefaultButton(text, icon);
+		IClicked<DefaultButton> bch =  new IClicked<DefaultButton>() {
+			public void clicked(DefaultButton b) throws Exception {
+				yesNo(b, message, new IClicked<MsgBox>() {
+					public void clicked(MsgBox bx) throws Exception {
+						ch.clicked(btn);
+					}
+				});
+			}
+		};
+		btn.setClicked(bch);
+		return btn;
 	}
 
 	/**
@@ -216,11 +284,11 @@ public class MsgBox extends FloatingWindow {
 		}));
 	}
 
-	public IAnswer getOnAnswer() {
+	protected IAnswer getOnAnswer() {
 		return m_onAnswer;
 	}
 
-	public void setOnAnswer(IAnswer onAnswer) {
+	protected void setOnAnswer(IAnswer onAnswer) {
 		m_onAnswer = onAnswer;
 	}
 }

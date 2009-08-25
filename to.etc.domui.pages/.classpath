@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.alg"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.domui"/>
+	<classpathentry kind="src" path="/to.etc.domui.hibutil"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
