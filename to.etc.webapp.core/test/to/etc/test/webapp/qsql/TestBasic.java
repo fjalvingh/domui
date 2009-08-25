@@ -20,15 +20,21 @@ public class TestBasic {
 		m_ds = pool.getUnpooledDataSource();
 	}
 
-	static List< ? > exec(JdbcQuery q) throws Exception {
+	static <T> List<T> exec(JdbcQuery<T> q) throws Exception {
 		Connection dbc = m_ds.getConnection();
 		try {
+			q.dump();
 			return q.query(dbc);
 		} finally {
 			try {
 				dbc.close();
 			} catch(Exception x) {}
 		}
+	}
+
+	static <T> List<T> exec(QCriteria<T> q) throws Exception {
+		JdbcQuery<T> jq = JdbcQuery.create(q);
+		return exec(jq);
 	}
 
 	@Test
@@ -39,6 +45,8 @@ public class TestBasic {
 
 		System.out.println(gc.getSQL());
 		Assert.assertEquals("select this_.grbr_code,this_.grbr_type_omschrijving,this_.omschrijving,this_.ID from v_dec_grootboekrekeningen this_", gc.getSQL());
+		Assert.assertEquals(1, gc.getRetrieverList().size());
+		Assert.assertEquals(0, gc.getValList().size());
 	}
 
 	@Test
@@ -49,17 +57,15 @@ public class TestBasic {
 		gc.visitCriteria(qc);
 
 		System.out.println(gc.getSQL());
+		Assert.assertEquals("select this_.grbr_code,this_.grbr_type_omschrijving,this_.omschrijving,this_.ID from v_dec_grootboekrekeningen this_ where ID=? and grbr_code=?", gc.getSQL());
+		Assert.assertEquals(1, gc.getRetrieverList().size());
+		Assert.assertEquals(2, gc.getValList().size());
 	}
-
 
 	@Test
 	public void testExec1() throws Exception {
 		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class);
-		JdbcSQLGenerator gc = new JdbcSQLGenerator();
-		gc.visitCriteria(qc);
-
-		JdbcQuery q = gc.getQuery();
-		List<LedgerAccount> res = (List<LedgerAccount>) exec(q);
+		List<LedgerAccount> res = exec(qc);
 
 		System.out.println("Got " + res.size() + " results");
 		int ix = 0;
@@ -71,5 +77,17 @@ public class TestBasic {
 		Assert.assertTrue(res.size() != 0);
 	}
 
+	@Test
+	public void testExec2() throws Exception {
+		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class).like("code", "E%");
+		List<LedgerAccount> res = exec(qc);
 
+		System.out.println("Got " + res.size() + " results");
+		int ix = 0;
+		for(LedgerAccount la : res) {
+			if(!la.getCode().startsWith("E"))
+				Assert.fail("Got code not starting with E: " + la.getCode());
+		}
+		Assert.assertTrue(res.size() != 0);
+	}
 }

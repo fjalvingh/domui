@@ -70,7 +70,6 @@ public class JdbcMetaManager {
 		register(new StringType(), String.class);
 		register(new IntegerType(), Integer.class, int.class);
 		register(new LongType(), Long.class, long.class);
+		register(new TimestampType(), Date.class);
 	}
-
-
 }

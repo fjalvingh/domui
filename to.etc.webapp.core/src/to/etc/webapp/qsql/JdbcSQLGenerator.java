@@ -1,9 +1,7 @@
 package to.etc.webapp.qsql;
 
-import java.math.*;
 import java.util.*;
 
-import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -13,22 +11,26 @@ import to.etc.webapp.query.*;
  * Created on Aug 25, 2009
  */
 public class JdbcSQLGenerator extends QNodeVisitorBase {
-	private StringBuilder m_fields = new StringBuilder();
-
-	private StringBuilder m_where = new StringBuilder();
-
-	private int m_curPrec = 0;
-
-	private int m_nextFieldIndex = 1;
-
-	private Map<String, PClassRef> m_tblMap = new HashMap<String, PClassRef>();
-
 	private PClassRef m_root;
 
 	private JdbcClassMeta m_rootMeta;
 
+	private Map<String, PClassRef> m_tblMap = new HashMap<String, PClassRef>();
+
+	private StringBuilder m_fields = new StringBuilder();
+
 	/** The list of all retrievers for a single row */
 	private List<IInstanceMaker> m_retrieverList = new ArrayList<IInstanceMaker>();
+
+	private int m_nextFieldIndex = 1;
+
+	private StringBuilder m_where = new StringBuilder();
+
+	private int m_nextWhereIndex = 1;
+
+	private int m_curPrec = 0;
+
+	private List<ValSetter> m_valList = new ArrayList<ValSetter>();
 
 	@Override
 	public void visitCriteria(QCriteria< ? > qc) throws Exception {
@@ -76,8 +78,16 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		return sb.toString();
 	}
 
-	public JdbcQuery getQuery() throws Exception {
-		return new JdbcQuery(getSQL(), m_retrieverList);
+	public List<ValSetter> getValList() {
+		return m_valList;
+	}
+
+	public List<IInstanceMaker> getRetrieverList() {
+		return m_retrieverList;
+	}
+
+	public JdbcQuery< ? > getQuery() throws Exception {
+		return new JdbcQuery<Object>(getSQL(), m_retrieverList, m_valList);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -127,11 +137,31 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		JdbcPropertyMeta pm = resolveProperty(n.getProperty());
 		appendWhere(pm.getColumnName());
 		appendOperation(n.getOperation());
-		n.getExpr().visit(this);
 
+		if(n.getExpr() instanceof QLiteral) {
+			appendValueSetter(pm, (QLiteral) n.getExpr());
+		} else
+			throw new IllegalStateException("Unexpected argument to " + n + ": " + n.getExpr());
 		if(oldprec > m_curPrec)
 			appendWhere(")");
 		m_curPrec = oldprec;
+	}
+
+	/**
+	 * Generate some comparison in where with a literal value. The literal must be conversion-compatible with
+	 * the type converter for the property or sadness ensues.
+	 * @param pm
+	 * @param expr
+	 */
+	private void appendValueSetter(JdbcPropertyMeta pm, QLiteral expr) {
+		appendWhere("?");
+		int index = m_nextWhereIndex++;
+
+		ITypeConverter tc = pm.getTypeConverter();
+		if(tc == null)
+			tc = JdbcMetaManager.getConverter(pm);
+		ValSetter vs = new ValSetter(index, expr.getValue(), tc, pm);
+		m_valList.add(vs);
 	}
 
 	private JdbcPropertyMeta resolveProperty(String pname) {
@@ -170,11 +200,21 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		if(oldprec > m_curPrec)
 			appendWhere("(");
 
-		appendWhere(n.getProp());
+		//-- Lookup the property name. For now it cannot be dotted
+		JdbcPropertyMeta pm = resolveProperty(n.getProp());
+		appendWhere(pm.getColumnName());
 		appendWhere(" between ");
-		n.getA().visit(this);
+
+		if(n.getA() instanceof QLiteral) {
+			appendValueSetter(pm, (QLiteral) n.getA());
+		} else
+			throw new IllegalStateException("Unexpected argument to " + n + ": " + n.getA());
+
 		appendWhere(" and ");
-		n.getB().visit(this);
+		if(n.getB() instanceof QLiteral) {
+			appendValueSetter(pm, (QLiteral) n.getB());
+		} else
+			throw new IllegalStateException("Unexpected argument to " + n + ": " + n.getB());
 
 		if(oldprec > m_curPrec)
 			appendWhere(")");
@@ -183,44 +223,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 	@Override
 	public void visitLiteral(QLiteral n) throws Exception {
-		int oldprec = m_curPrec;
-		m_curPrec = getOperationPrecedence(n.getOperation());
-		if(oldprec > m_curPrec)
-			appendWhere("(");
-
-		//-- Render the literal type
-		Object val = n.getValue();
-		if(val == null)
-			appendWhere("dbnull");
-		else if(val instanceof Integer) {
-			appendWhere(val.toString());
-		} else if(val instanceof Long) {
-			appendWhere(val.toString());
-			appendWhere("L");
-		} else if(val instanceof Double) {
-			appendWhere(val.toString());
-			appendWhere("D");
-		} else if(val instanceof Float) {
-			appendWhere(val.toString());
-			appendWhere("F");
-		} else if(val instanceof BigDecimal) {
-			appendWhere("BigDecimal(");
-			appendWhere(val.toString());
-			appendWhere(")");
-		} else if(val instanceof BigInteger) {
-			appendWhere("BigInteger(");
-			appendWhere(val.toString());
-			appendWhere(")");
-		} else if(val instanceof String) {
-			StringTool.strToJavascriptString(m_where, (String) val, false);
-		} else {
-			appendWhere("Object[");
-			appendWhere(val.toString());
-			appendWhere("]");
-		}
-		if(oldprec > m_curPrec)
-			appendWhere(")");
-		m_curPrec = oldprec;
+		throw new IllegalStateException("!!! Trying to generate a naked literal!");
 	}
 
 	private void appendOperation(QOperation op) {
@@ -315,6 +318,4 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 				return 100;
 		}
 	}
-
-
 }
