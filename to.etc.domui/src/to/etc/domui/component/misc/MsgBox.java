@@ -193,6 +193,15 @@ public class MsgBox extends FloatingWindow {
 		box.construct();
 	}
 
+	/**
+	 * Create a button which will show an "are you sure" yes/no dialog with a specified text. Only if the user
+	 * presses the "yes" button will the clicked handler be executed.
+	 * @param icon
+	 * @param text		The button's text.
+	 * @param message	The message to show in the are you sure popup
+	 * @param ch		The delegate to call when the user is sure.
+	 * @return
+	 */
 	public static DefaultButton areYouSureButton(String text, String icon, final String message, final IClicked<DefaultButton> ch) {
 		final DefaultButton btn = new DefaultButton(text, icon);
 		IClicked<DefaultButton> bch =  new IClicked<DefaultButton>() {
@@ -206,6 +215,19 @@ public class MsgBox extends FloatingWindow {
 		};
 		btn.setClicked(bch);
 		return btn;
+	}
+
+	/**
+	 * Create a button which will show an "are you sure" yes/no dialog with a specified text. Only if the user
+	 * presses the "yes" button will the clicked handler be executed.
+	 *
+	 * @param text		The button's text.
+	 * @param message	The message to show in the are you sure popup
+	 * @param ch		The delegate to call when the user is sure.
+	 * @return
+	 */
+	public static DefaultButton areYouSureButton(String text, final String message, final IClicked<DefaultButton> ch) {
+		return areYouSureButton(text, null, message, ch);
 	}
 
 	/**
@@ -274,7 +296,6 @@ public class MsgBox extends FloatingWindow {
 			}
 		}));
 	}
-
 
 	protected void addButton(final String lbl, final Object selval) {
 		m_theButtons.add(new DefaultButton(lbl, new IClicked<DefaultButton>() {
