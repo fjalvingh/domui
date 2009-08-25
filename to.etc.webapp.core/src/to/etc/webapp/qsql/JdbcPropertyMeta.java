@@ -17,6 +17,8 @@ public class JdbcPropertyMeta {
 
 	private boolean m_nullable;
 
+	private String m_nullValue;
+
 	public JdbcPropertyMeta() {}
 
 	public JdbcPropertyMeta(JdbcClassMeta jdbcClassMeta, PropertyInfo pi) {
@@ -82,5 +84,20 @@ public class JdbcPropertyMeta {
 
 	public void setNullable(boolean nullable) {
 		m_nullable = nullable;
+	}
+
+	public String getNullValue() {
+		return m_nullValue;
+	}
+
+	public void setNullValue(String nullValue) {
+		m_nullValue = nullValue;
+	}
+
+	@Override
+	public String toString() {
+		//		StringBuilder sb = new StringBuilder(32);
+		return m_classMeta.getDataClass().getName() + "." + getName() + " (row " + m_classMeta.getTableName() + "." + getColumnName() + "): " + getActualClass();
+		//		return sb.toString();
 	}
 }

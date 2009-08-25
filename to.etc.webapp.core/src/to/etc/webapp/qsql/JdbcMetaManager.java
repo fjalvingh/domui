@@ -26,14 +26,16 @@ public class JdbcMetaManager {
 		return cm;
 	}
 
-	static public synchronized void register(Class< ? > tc, ITypeConverter c) {
-		List<ITypeConverter> cl = m_converterMap.get(tc);
-		if(cl == null)
-			cl = new ArrayList<ITypeConverter>();
-		else
-			cl = new ArrayList<ITypeConverter>(cl);
-		cl.add(c);
-		m_converterMap.put(tc, cl);
+	static public synchronized void register(ITypeConverter c, Class< ? >... clses) {
+		for(Class< ? > tc : clses) {
+			List<ITypeConverter> cl = m_converterMap.get(tc);
+			if(cl == null)
+				cl = new ArrayList<ITypeConverter>();
+			else
+				cl = new ArrayList<ITypeConverter>(cl);
+			cl.add(c);
+			m_converterMap.put(tc, cl);
+		}
 	}
 
 	static private synchronized List<ITypeConverter> getConverterList(Class< ? > type) {
@@ -63,4 +65,12 @@ public class JdbcMetaManager {
 			throw new IllegalStateException("No converter for " + pm);
 		return tc;
 	}
+
+	static {
+		register(new StringType(), String.class);
+		register(new IntegerType(), Integer.class, int.class);
+		register(new LongType(), Long.class, long.class);
+	}
+
+
 }

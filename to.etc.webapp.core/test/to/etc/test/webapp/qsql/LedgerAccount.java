@@ -18,6 +18,8 @@ public class LedgerAccount {
 
 	private String m_typeDescription;
 
+	public LedgerAccount() {}
+
 	public LedgerAccount(String code, String description, String typeDescription) {
 		this.m_code = code;
 		this.m_description = description;

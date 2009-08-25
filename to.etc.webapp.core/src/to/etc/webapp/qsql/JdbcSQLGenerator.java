@@ -56,4 +56,11 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 		return sb.toString();
 	}
+
+
+	public JdbcQuery getQuery() {
+		return new JdbcQuery(getSQL(), m_retrieverList);
+
+
+	}
 }
