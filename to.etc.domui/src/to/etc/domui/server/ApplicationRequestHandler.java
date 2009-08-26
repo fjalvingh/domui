@@ -208,6 +208,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				QContextManager.closeSharedContext(page.getConversation());
 			}
 			page.getBody().onReload();
+
+			//-- EXPERIMENTAL Handle stored message in session
+			String message = (String) cm.getAttribute(UIGoto.SINGLESHOT_ERROR);
+			if(message != null) {
+				page.getBody().build();
+				page.getBody().addGlobalMessage(MsgType.ERROR, Msgs.S_PAGE_CLEARED, message);
+			}
 		}
 		page.getConversation().processDelayedResults(page);
 

@@ -66,6 +66,9 @@ final public class WindowSession {
 	/** The page tag of the last page that had a request for this window session. Used to decide whether an Obituary is out-of-order. */
 	private int m_lastRequestedPageTag;
 
+	/** The map of all attribute objects added to this window session. */
+	private Map<String, Object> m_map = Collections.EMPTY_MAP;
+
 	public WindowSession(final AppSession session) {
 		m_appSession = session;
 		m_windowID = DomUtil.generateGUID();
@@ -669,5 +672,44 @@ final public class WindowSession {
 		synchronized(m_appSession) {
 			return m_lastRequestedPageTag;
 		}
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Contained objects map (EXPERIMENTAL)				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * EXPERIMENTAL DO NOT USE.
+	 * @param name
+	 * @param val
+	 */
+	public void setAttribute(final String name, final Object val) {
+		if(m_map == Collections.EMPTY_MAP)
+			m_map = new HashMap<String, Object>();
+		Object old;
+		if(val == null)
+			old = m_map.remove(name);
+		else {
+			old = m_map.put(name, val);
+		}
+		if(old != null) {
+			// FIXME Some kind of session listener.
+			//			if(old instanceof ConversationStateListener) {
+			//				try {
+			//					((ConversationStateListener) old).conversationDetached(this);
+			//				} catch(Exception x) {
+			//					x.printStackTrace();
+			//					LOG.log(Level.SEVERE, "In calling detach listener", x);
+			//				}
+			//			}
+		}
+	}
+
+	/**
+	 * EXPERIMENTAL DO NOT USE.
+	 * @param name
+	 * @return
+	 */
+	public Object getAttribute(final String name) {
+		return m_map.get(name);
 	}
 }

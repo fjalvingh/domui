@@ -9,6 +9,8 @@ import to.etc.domui.dom.html.*;
  * Created on Jan 9, 2009
  */
 final public class UIGoto {
+	static public final String SINGLESHOT_ERROR = "uigoto.error";
+
 	private UIGoto() {}
 
 	static private WindowSession context() {
@@ -106,5 +108,16 @@ final public class UIGoto {
 	 */
 	static public void back() {
 		context().internalSetNextPage(MoveMode.BACK, null, null, null, null);
+	}
+
+	static public final void clearPageAndReload(Page pg, String msg) {
+		clearPageAndReload(pg, pg.getBody().getClass(), pg.getPageParameters(), msg);
+	}
+
+	static public final void clearPageAndReload(Page pg, Class< ? extends UrlPage> target, PageParameters pp, String msg) {
+		WindowSession	ws	= pg.getConversation().getWindowSession();
+		ws.setAttribute(UIGoto.SINGLESHOT_ERROR, msg);
+		pg.getConversation().destroy();
+		replace(target, pp);
 	}
 }

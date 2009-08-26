@@ -300,6 +300,14 @@ public class ConversationContext implements IQContextContainer {
 		m_pageMap.remove(pg.getBody().getClass().getName());
 	}
 
+	/**
+	 * Experimental interface: get the WindowSession for this page(set).
+	 * @return
+	 */
+	public WindowSession getWindowSession() {
+		return m_manager;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Contained objects map (EXPERIMENTAL)				*/
 	/*--------------------------------------------------------------*/
