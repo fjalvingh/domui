@@ -18,6 +18,8 @@ import to.etc.webapp.query.*;
 public class LookupInput<T> extends Table implements IInputNode<T> {
 	private SmallImgButton m_selButton;
 
+	private SmallImgButton m_clearButton;
+
 	private Class<T> m_lookupClass;
 
 	FloatingWindow m_floater;
@@ -44,6 +46,13 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 				toggleFloater();
 			}
 		});
+
+		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
+			public void clicked(SmallImgButton b) throws Exception {
+				setValue(null);
+			}
+		});
+
 		setCssClass("ui-lui");
 		setCellPadding("0");
 		setCellSpacing("0");
@@ -66,6 +75,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 		if(m_selButton.getPage() == null && !isReadOnly()) // If the above did not add the button do it now.
 			add(m_selButton);
+		m_selButton.appendAfterMe(m_clearButton);
 	}
 
 	void toggleFloater() {
