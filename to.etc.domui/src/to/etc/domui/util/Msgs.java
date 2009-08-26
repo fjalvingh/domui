@@ -57,7 +57,7 @@ public interface Msgs {
 
 	public static final String UI_MBX_DIALOG = "ui.mbx.dialog";
 
-	//# Exceptions. 
+	//# Exceptions.
 
 	/** The required page parameter {0} is missing. */
 	public static final String X_MISSING_PARAMETER = "x.missing.parameter";
@@ -89,6 +89,9 @@ public interface Msgs {
 	/** Your browser is out-of-sync with the server, most probably because your session with the server has expired. The page will be reloaded with original data from the server.  */
 	public static final String S_BADNODE = "s.session.badnode";
 
+	/** The page has been reset and loaded again; the error message is passed on. */
+	public static final String S_PAGE_CLEARED = "s.page.cleared";
+
 
 	//# Login and access denied code
 	public static final String LOGIN_ACCESS_TITLE = "login.access.title";
@@ -99,7 +102,7 @@ public interface Msgs {
 
 	public static final String LOGIN_TO_INDEX = " login.toindex";
 
-	//# LookupForm 
+	//# LookupForm
 	/** lookupform.search key */
 	public static final String LOOKUP_FORM_SEARCH = "lookupform.search";
 
