@@ -214,6 +214,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(message != null) {
 				page.getBody().build();
 				page.getBody().addGlobalMessage(MsgType.ERROR, Msgs.S_PAGE_CLEARED, message);
+				cm.setAttribute(UIGoto.SINGLESHOT_ERROR, null);
 			}
 		}
 		page.getConversation().processDelayedResults(page);
@@ -440,7 +441,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		ts = System.nanoTime() - ts;
 		System.out.println("rq: Action handling took " + StringTool.strNanoTime(ts));
 
-		page.getConversation().processDelayedResults(page);
+		if(!page.isDestroyed()) // jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
+			page.getConversation().processDelayedResults(page);
 
 		//-- Determine the response class to render; exit if we have a redirect,
 		WindowSession cm = ctx.getWindowSession();
