@@ -8,6 +8,7 @@ import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
@@ -50,8 +51,15 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
 			public void clicked(SmallImgButton b) throws Exception {
 				setValue(null);
+				//-- Handle onValueChanged
+				if(getOnValueChanged() != null) {
+					((IValueChanged<NodeBase, Object>) getOnValueChanged()).onValueChanged(LookupInput.this, null);
+				}
+
 			}
 		});
+
+		m_clearButton.setVisibility(VisibilityType.HIDDEN);
 
 		setCssClass("ui-lui");
 		setCellPadding("0");
@@ -201,6 +209,11 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		if(DomUtil.isEqual(m_value, v))
 			return;
 		m_value = v;
+		if(m_value != null) {
+			m_clearButton.setVisibility(VisibilityType.VISIBLE);
+		} else {
+			m_clearButton.setVisibility(VisibilityType.HIDDEN);
+		}
 		forceRebuild();
 	}
 
