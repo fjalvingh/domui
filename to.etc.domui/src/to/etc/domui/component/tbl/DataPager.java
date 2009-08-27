@@ -51,7 +51,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		Div d = new Div();
 		add(d);
 		d.setFloat(FloatType.RIGHT);
-		m_txt = new TextNode("..");
+		m_txt = new TextNode();
 		d.add(m_txt);
 		m_textDiv = d;
 		//		if(m_table != null) {
@@ -114,7 +114,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		int cp = m_table.getCurrentPage();
 		int np = m_table.getPageCount();
 		if(np == 0)
-			m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_EMPTY));
+			//			mtesic:there is already 'There are no results' message insade of DataCellTable
+			//			m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_EMPTY));
+			m_txt.setText("");
 		else
 			m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np)));
 
