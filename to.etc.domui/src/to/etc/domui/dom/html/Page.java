@@ -454,6 +454,10 @@ final public class Page implements IQContextContainer {
 		return "Page[" + getBody().getClass().getName() + "]";
 	}
 
+	public boolean isDestroyed() {
+		return m_cc != null && !m_cc.isValid();
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IQContextContainer implementation.					*/
 	/*--------------------------------------------------------------*/

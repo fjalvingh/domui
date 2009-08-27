@@ -81,9 +81,11 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			r = (INodeContentRenderer<T>) DEFAULT_RENDERER; // Prevent idiotic generics error
 		r.renderNodeContent(this, this, m_value, isReadOnly() ? null : m_selButton);
 
-		if(m_selButton.getPage() == null && !isReadOnly()) // If the above did not add the button do it now.
-			add(m_selButton);
-		m_selButton.appendAfterMe(m_clearButton);
+		if(!isReadOnly()) {
+			if(m_selButton.getPage() == null) // If the above did not add the button do it now.
+				add(m_selButton);
+			m_selButton.appendAfterMe(m_clearButton);
+		}
 	}
 
 	void toggleFloater() {

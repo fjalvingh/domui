@@ -434,6 +434,10 @@ public class ConversationContext implements IQContextContainer {
 		return m_state;
 	}
 
+	public boolean isValid() {
+		return m_state == ConversationState.ATTACHED;
+	}
+
 	static private final String KEY = QContextManager.class.getName();
 
 	static private final String SRCKEY = QDataContextFactory.class.getName();

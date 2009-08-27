@@ -323,6 +323,8 @@ final public class WindowSession {
 			 * of the stack.
 			 */
 			psix = m_shelvedPageStack.size() - 1; // We need to DESTROY the last page stack element,
+			if(psix < 0) // If there is no topmost page
+				psix = 0; // Just clear.
 			clearShelve(psix);
 			m_currentPage = null;
 		} else if(getTargetMode() == MoveMode.SUB) {
@@ -514,7 +516,8 @@ final public class WindowSession {
 			m_shelvedPageStack.clear(); // Quickly destroy everything.
 			destroyConversations();
 			return;
-		}
+		} else if(ix < 0)
+			throw new IllegalStateException("?? index is invalid: " + ix);
 
 		/*
 		 * Discard top-level entries until we reach the specified level.
