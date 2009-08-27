@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="to.etc.db" default="deploy" basedir=".">
+
+  <!--Initialization-->
+  <target name="init">
+    <!--Classpath-->
+    <path id="project.class.path">
+        <pathelement path="../bin-j2ee-1.4/j2ee.jar" />
+    </path>
+   
+  </target>
+  <!--Cleanup previous builds-->
+  <target name="clean" depends="init">
+    <delete dir="bin" />
+  </target>
+  <!--Prepare for compilation-->
+  <target name="prepare" depends="clean">
+    <mkdir dir="bin" />
+  </target>
+  <!--Compile project-->
+  <target name="compile" depends="prepare">
+    <javac srcdir="src" destDir="bin" classpathref="project.class.path" debug="on" target="1.4" source="1.4"/>
+  </target>
+  <!--Deploy project-->
+  <target name="deploy" depends="compile">
+    <jar jarfile="${ant.project.name}.jar" basedir="bin" compress="false" />
+  </target>
+</project>

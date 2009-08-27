@@ -1,0 +1,13 @@
+bak
+build.xml
+classes
+doc
+mumblealg.jar
+mumblealg.jpx.local
+mumblealg.jpx.local~
+old
+make.xml
+mbp-*
+bin
+*.local
+mumblealg-doc.jar

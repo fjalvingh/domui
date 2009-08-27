@@ -1,0 +1,10 @@
+*/bin/*
+*/classes/*
+*/bin
+*/bin/*
+*.~*
+.svn
+.metadata
+Servers
+build
+work
