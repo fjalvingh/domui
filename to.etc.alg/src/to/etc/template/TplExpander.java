@@ -66,7 +66,6 @@ public class TplExpander {
 	/// The writer thing to write the expanded output to
 	private PrintWriter		m_ps;
 
-
 	/**
 	 * Constructor
 	 */
@@ -267,6 +266,10 @@ public class TplExpander {
 	 *	Evaluates a dotted name and returns the object referred to.
 	 */
 	private Object evalExpr(String ins) throws TplException {
+		Object v = m_cb.getValue(ins);
+		if(v != null)
+			return v;
+
 		try {
 			StringTokenizer st = new StringTokenizer(ins, ".", true);
 
