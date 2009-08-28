@@ -69,8 +69,6 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 		if(m_bindings == null)
 			throw new IllegalStateException("The form's content is undefined: please override createEditable.");
 		m_bindings.moveModelToControl();
-		//mtesic: readOnly fields problem
-		//		m_bindings.setEnabled(!m_displayonly);
 	}
 
 	protected ModelBindings createEditable() throws Exception {
