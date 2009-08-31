@@ -16,7 +16,7 @@ import to.etc.domui.util.resources.*;
  */
 public class SvgPartFactory implements IBufferedPartFactory, IUrlPart {
 	public boolean accepts(String rurl) {
-		return rurl.endsWith(".svg.png");
+		return rurl.endsWith(".png.svg");
 	}
 	public Object decodeKey(String rurl, IParameterInfo param) throws Exception {
 		return rurl;
