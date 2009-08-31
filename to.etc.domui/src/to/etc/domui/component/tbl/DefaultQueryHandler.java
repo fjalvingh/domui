@@ -2,7 +2,6 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
-import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.query.*;
 

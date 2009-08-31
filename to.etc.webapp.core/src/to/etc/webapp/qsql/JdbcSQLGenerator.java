@@ -32,6 +32,9 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 	private List<ValSetter> m_valList = new ArrayList<ValSetter>();
 
+	/** FIXME Need some better way to set this */
+	private boolean m_oracle = true;
+
 	@Override
 	public void visitCriteria(QCriteria< ? > qc) throws Exception {
 		m_root = new PClassRef(qc.getBaseClass(), "this_");
@@ -134,14 +137,27 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 			appendWhere("(");
 
 		//-- Lookup the property name. For now it cannot be dotted
-		JdbcPropertyMeta pm = resolveProperty(n.getProperty());
-		appendWhere(pm.getColumnName());
-		appendOperation(n.getOperation());
+		if(n.getOperation() == QOperation.ILIKE && m_oracle) {
+			JdbcPropertyMeta pm = resolveProperty(n.getProperty());
+			appendWhere("upper(");
+			appendWhere(pm.getColumnName());
+			appendWhere(") like upper(");
 
-		if(n.getExpr() instanceof QLiteral) {
-			appendValueSetter(pm, (QLiteral) n.getExpr());
-		} else
-			throw new IllegalStateException("Unexpected argument to " + n + ": " + n.getExpr());
+			if(n.getExpr() instanceof QLiteral) {
+				appendValueSetter(pm, (QLiteral) n.getExpr());
+			} else
+				throw new IllegalStateException("Unexpected argument to " + n + ": " + n.getExpr());
+			appendWhere(")");
+		} else {
+			JdbcPropertyMeta pm = resolveProperty(n.getProperty());
+			appendWhere(pm.getColumnName());
+			appendOperation(n.getOperation());
+
+			if(n.getExpr() instanceof QLiteral) {
+				appendValueSetter(pm, (QLiteral) n.getExpr());
+			} else
+				throw new IllegalStateException("Unexpected argument to " + n + ": " + n.getExpr());
+		}
 		if(oldprec > m_curPrec)
 			appendWhere(")");
 		m_curPrec = oldprec;

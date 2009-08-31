@@ -25,6 +25,8 @@ public class JdbcQuery<T> {
 	}
 
 	public List<T> query(Connection dbc) throws Exception {
+		System.out.println("jdbc: " + m_sql);
+
 		//-- 1. Create the prepared statement,
 		PreparedStatement ps = null;
 		ResultSet rs = null;
