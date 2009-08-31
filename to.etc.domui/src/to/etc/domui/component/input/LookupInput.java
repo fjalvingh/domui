@@ -37,6 +37,8 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	private IQueryManipulator<T> m_queryManipulator;
 
+	private IQueryHandler<T> m_queryHandler;
+
 	private String m_lookupTitle;
 
 	public LookupInput(Class<T> lookupClass) {
@@ -137,8 +139,13 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	}
 
 	private void setTableQuery(QCriteria<T> qc) {
-		QDataContextFactory src = QContextManager.getDataContextFactory(getPage().getConversation());
-		ITableModel<T> model = new SimpleSearchModel<T>(src, qc);
+		ITableModel<T> model;
+		if(m_queryHandler == null) {
+			QDataContextFactory src = QContextManager.getDataContextFactory(getPage().getConversation());
+			model = new SimpleSearchModel<T>(src, qc);
+		} else {
+			model = new SimpleSearchModel<T>(m_queryHandler, qc);
+		}
 
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
@@ -240,6 +247,19 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	 */
 	public IQueryManipulator<T> getQueryManipulator() {
 		return m_queryManipulator;
+	}
+
+	/**
+	 * The query handler to use, if a special one is needed. The default query handler will use the
+	 * normal conversation-associated DataContext to issue the query.
+	 * @return
+	 */
+	public IQueryHandler<T> getQueryHandler() {
+		return m_queryHandler;
+	}
+
+	public void setQueryHandler(IQueryHandler<T> queryHandler) {
+		m_queryHandler = queryHandler;
 	}
 
 	/**

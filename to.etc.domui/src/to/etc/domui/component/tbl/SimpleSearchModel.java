@@ -7,7 +7,7 @@ import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 /**
- * 
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2008
  */
@@ -30,9 +30,22 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	private boolean m_refreshAfterShelve;
 
+	private IQueryHandler<T> m_queryHandler;
+
+	/**
+	 * Use {@link SimpleSearchModel#SimpleSearchModel(IQueryHandler, QCriteria) instead!
+	 * @param ss
+	 * @param qc
+	 */
+	@Deprecated
 	public SimpleSearchModel(QDataContextFactory ss, QCriteria<T> qc) {
 		m_query = qc;
 		m_sessionSource = ss;
+	}
+
+	public SimpleSearchModel(IQueryHandler<T> ss, QCriteria<T> qc) {
+		m_query = qc;
+		m_queryHandler = ss;
 	}
 
 	public void setRefreshAfterShelve(boolean refreshAfterShelve) {
@@ -55,8 +68,13 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			else
 				qc.ascending(m_sort);
 		}
-		QDataContext qs = m_sessionSource.getDataContext(); // Create/get session
-		m_workResult = qs.query(qc); // Execute the query.
+		if(m_sessionSource != null) {
+			QDataContext qs = m_sessionSource.getDataContext(); // Create/get session
+			m_workResult = qs.query(qc); // Execute the query.
+		} else if(m_queryHandler != null) {
+			m_workResult = m_queryHandler.query(qc);
+		} else
+			throw new IllegalStateException("No QueryHandler nor SessionSource set- don't know how to do the query");
 		if(m_workResult.size() > 1000) {
 			m_workResult.remove(m_workResult.size() - 1);
 			m_truncated = true;
