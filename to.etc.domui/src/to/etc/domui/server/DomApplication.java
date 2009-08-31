@@ -77,6 +77,8 @@ public abstract class DomApplication {
 
 	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
 
+	private List<IResourceModifier> m_resourceModifierList = new ArrayList<IResourceModifier>();
+
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
 	 * root URL is entered without a class name.
@@ -896,6 +898,72 @@ public abstract class DomApplication {
 	public AjaxRequestHandler getAjaxHandler() {
 		return m_ajaxHandler;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	QD Resource modifiers for VP stylesheet....			*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param m
+	 */
+	public void register(IResourceModifier m) {
+		synchronized(m_resourceModifierList) {
+			if(!m_resourceModifierList.contains(m))
+				m_resourceModifierList.add(m);
+		}
+	}
+
+	public IResourceModifier findResourceModifier(String rurl) {
+		synchronized(m_resourceModifierList) {
+			for(IResourceModifier m : m_resourceModifierList) {
+				if(m.accepts(rurl))
+					return m;
+			}
+			return null;
+		}
+	}
+
+	/**
+	 * This loads a resource which is assumed to be an UTF-8 encoded text file from
+	 * either the webapp or the class resources, then does theme based replacement
+	 * in that file. The result is returned as a string. The result is *not* cached.
+	 *
+	 * @param rdl
+	 * @param key
+	 * @return
+	 */
+	public String getThemeReplacedString(ResourceDependencyList rdl, String rurl) throws Exception {
+		if(!rurl.startsWith("$"))
+			throw new IllegalStateException("URL must be resource url and start with $");
+
+		//-- 1. Get resource descriptor for this resource
+		rurl = rurl.substring(1);
+
+		//-- 1. Is a file-based resource available?
+		IResourceRef ires;
+		File f = getAppFile(rurl);
+		if(f.exists()) {
+			ires = new WebappResourceRef(f);
+		} else {
+			ires = new ClassResourceRef(getClass(), "/resources/" + rurl);
+		}
+		if(rdl != null)
+			rdl.add(ires);
+
+		//-- 2. Load the thing as UTF-8 string
+		InputStream is = ires.getInputStream();
+		String cont;
+		try {
+			cont = FileTool.readStreamAsString(is, "utf-8");
+
+
+		} finally {
+			try {
+				is.close();
+			} catch(Exception x) {}
+		}
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Silly helpers.										*/

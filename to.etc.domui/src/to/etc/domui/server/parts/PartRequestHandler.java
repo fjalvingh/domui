@@ -15,6 +15,8 @@ public class PartRequestHandler implements IFilterRequestHandler {
 
 	private final boolean m_allowExpires;
 
+	private List<IUrlPart> m_urlFactories = new ArrayList<IUrlPart>();
+
 	/**
 	 * Contains a cached instance of some part rendering.
 	 *
@@ -57,6 +59,12 @@ public class PartRequestHandler implements IFilterRequestHandler {
 		return m_application;
 	}
 
+	public void registerUrlPart(IUrlPart p) {
+		synchronized(m_urlFactories) {
+			m_urlFactories.add(p);
+		}
+	}
+
 	public boolean acceptURL(final String in) {
 		if(in.endsWith(".part"))
 			return true;
@@ -66,13 +74,30 @@ public class PartRequestHandler implements IFilterRequestHandler {
 		String seg = in.substring(0, pos);
 		if(seg.endsWith(".part"))
 			return true;
+
+		// FIXME Needs to be faster, needs to be done only once.
+		if(null != findFactory(in))
+			return true;
 		return false;
+	}
+
+	private IUrlPart findFactory(String rurl) {
+		synchronized(m_urlFactories) {
+			for(IUrlPart p : m_urlFactories) {
+				if(p.accepts(rurl))
+					return p;
+			}
+		}
+		return null;
 	}
 
 	public void handleRequest(final RequestContextImpl ctx) throws Exception {
 		String input = ctx.getInputPath();
-		if(input.endsWith(".part"))
+		boolean part = false;
+		if(input.endsWith(".part")) {
 			input = input.substring(0, input.length() - 5); // Strip ".part" off the name
+			part = true;
+		}
 		int pos = input.indexOf('/'); // First path component is the factory name,
 		String fname, rest;
 		if(pos == -1) {
@@ -82,11 +107,23 @@ public class PartRequestHandler implements IFilterRequestHandler {
 			fname = input.substring(0, pos);
 			rest = input.substring(pos + 1);
 		}
-		if(fname.endsWith(".part"))
+		if(fname.endsWith(".part")) {
 			fname = fname.substring(0, fname.length() - 5);
+			part = true;
+		}
 
-		//-- Obtain the factory class, then ask it to execute.
-		IPartRenderer pr = findPartRenderer(fname);
+		IPartRenderer pr;
+		if(part) {
+			//-- Obtain the factory class, then ask it to execute.
+			pr = findPartRenderer(fname);
+		} else {
+
+			//-- FIXME Do this faster.
+			IUrlPart p = findFactory(input);
+			if(p == null)
+				throw new IllegalStateException("No factory for " + ctx + " but we have accepted!?");
+			pr = createPartRenderer(p);
+		}
 		if(pr == null)
 			throw new ThingyNotFoundException("The part factory '" + fname + "' cannot be located.");
 		pr.render(ctx, rest);
@@ -142,6 +179,24 @@ public class PartRequestHandler implements IFilterRequestHandler {
 
 		m_partMap.put(name, pr);
 		return pr;
+	}
+
+	private IPartRenderer createPartRenderer(final IPartFactory pf) {
+		if(pf instanceof IUnbufferedPartFactory) {
+			return new IPartRenderer() {
+				public void render(final RequestContextImpl ctx, final String rest) throws Exception {
+					IUnbufferedPartFactory upf = (IUnbufferedPartFactory) pf;
+					upf.generate(getApplication(), rest, ctx);
+				}
+			};
+		} else if(pf instanceof IBufferedPartFactory) {
+			return new IPartRenderer() {
+				public void render(final RequestContextImpl ctx, final String rest) throws Exception {
+					generate((IBufferedPartFactory) pf, ctx, rest); // Delegate internally
+				}
+			};
+		} else
+			throw new IllegalStateException("??Internal: don't know how to handle part factory " + pf);
 	}
 
 	/*--------------------------------------------------------------*/
