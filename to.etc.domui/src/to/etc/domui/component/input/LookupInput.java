@@ -41,6 +41,8 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	private String m_lookupTitle;
 
+	private boolean m_allowEmptyQuery;
+
 	public LookupInput(Class<T> lookupClass) {
 		m_lookupClass = lookupClass;
 		m_selButton = new SmallImgButton("THEME/btn-popuplookup.png");
@@ -130,7 +132,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			c = getQueryManipulator().adjustQuery(c); // Adjust the query where needed,
 		}
 		m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions()) {
+		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
 			m_floater.addGlobalMessage(MsgType.ERROR, Msgs.V_MISSING_SEARCH); // Missing inputs
 			return;
 		} else
@@ -277,6 +279,18 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	 */
 	public void setLookupTitle(String lookupTitle) {
 		m_lookupTitle = lookupTitle;
+	}
+
+	/**
+	 * When T the user can press search even when no criteria are entered.
+	 * @return
+	 */
+	public boolean isAllowEmptyQuery() {
+		return m_allowEmptyQuery;
+	}
+
+	public void setAllowEmptyQuery(boolean allowEmptyQuery) {
+		m_allowEmptyQuery = allowEmptyQuery;
 	}
 
 	/**
