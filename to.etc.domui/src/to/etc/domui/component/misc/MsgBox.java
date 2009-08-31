@@ -103,6 +103,19 @@ public class MsgBox extends FloatingWindow {
 		box.construct();
 	}
 
+	public static void message(NodeBase dad, Type mt, String string, IAnswer onAnswer) {
+		if(mt == Type.DIALOG) {
+			throw new IllegalArgumentException("Please use one of the predefined button calls for MsgType.DIALOG type MsgBox!");
+		}
+		MsgBox box = create(dad);
+		box.setType(mt);
+		box.setMessage(string);
+		box.addButton(MsgBoxButton.CONTINUE);
+		box.setCloseButton(MsgBoxButton.CONTINUE);
+		box.setOnAnswer(onAnswer);
+		box.construct();
+	}
+
 	public static void yesNoCancel(NodeBase dad, String string, IAnswer onAnswer) {
 		MsgBox box = create(dad);
 		box.setType(Type.DIALOG);
@@ -204,7 +217,7 @@ public class MsgBox extends FloatingWindow {
 	 */
 	public static DefaultButton areYouSureButton(String text, String icon, final String message, final IClicked<DefaultButton> ch) {
 		final DefaultButton btn = new DefaultButton(text, icon);
-		IClicked<DefaultButton> bch =  new IClicked<DefaultButton>() {
+		IClicked<DefaultButton> bch = new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
 				yesNo(b, message, new IClicked<MsgBox>() {
 					public void clicked(MsgBox bx) throws Exception {
