@@ -117,8 +117,8 @@ public class PartRequestHandler implements IFilterRequestHandler {
 			//-- Obtain the factory class, then ask it to execute.
 			pr = findPartRenderer(fname);
 		} else {
-
 			//-- FIXME Do this faster.
+			rest = input;
 			IUrlPart p = findFactory(input);
 			if(p == null)
 				throw new IllegalStateException("No factory for " + ctx + " but we have accepted!?");

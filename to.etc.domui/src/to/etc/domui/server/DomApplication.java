@@ -19,6 +19,7 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
+import to.etc.template.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
@@ -77,6 +78,9 @@ public abstract class DomApplication {
 
 	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
 
+	private IThemeMapFactory m_themeMapFactory;
+
+	@Deprecated
 	private List<IResourceModifier> m_resourceModifierList = new ArrayList<IResourceModifier>();
 
 	/**
@@ -923,10 +927,20 @@ public abstract class DomApplication {
 		}
 	}
 
+	public synchronized void register(IThemeMapFactory mf) {
+		m_themeMapFactory = mf;
+	}
+
+	public void registerUrlPart(IUrlPart factory) {
+		m_partHandler.registerUrlPart(factory);
+	}
+
 	/**
 	 * This loads a resource which is assumed to be an UTF-8 encoded text file from
 	 * either the webapp or the class resources, then does theme based replacement
 	 * in that file. The result is returned as a string. The result is *not* cached.
+	 * FIXME This will be heavily refactored later to handle changes to the on-database map
+	 * properly.....
 	 *
 	 * @param rdl
 	 * @param key
@@ -955,8 +969,13 @@ public abstract class DomApplication {
 		String cont;
 		try {
 			cont = FileTool.readStreamAsString(is, "utf-8");
-
-
+			if(m_themeMapFactory == null)
+				return cont;
+			IThemeMap map = m_themeMapFactory.createThemeMap(this);
+			if(map instanceof IResourceRef)
+				rdl.add((IResourceRef) map);
+			cont = rvs(cont, map);
+			return cont;
 		} finally {
 			try {
 				is.close();
@@ -964,6 +983,29 @@ public abstract class DomApplication {
 		}
 	}
 
+	/**
+	 * QD template translator (replace/value/string).
+	 * @param cont
+	 * @param map
+	 * @return
+	 */
+	private String rvs(String cont, final IThemeMap map) throws Exception {
+		//-- 3. Do calculated replacement using templater engine
+		TplExpander tx = new TplExpander(new TplCallback() {
+			public Object getValue(String name) {
+				try {
+					return map.getValue(name);
+				} catch(Exception x) {
+					throw WrappedException.wrap(x);
+				}
+			}
+		});
+		StringWriter sw = new StringWriter(8192);
+		PrintWriter pw = new PrintWriter(sw);
+		tx.expand(cont, pw);
+		pw.close();
+		return sw.getBuffer().toString();
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Silly helpers.										*/
