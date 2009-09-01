@@ -17,6 +17,8 @@ import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
 public class LookupInput<T> extends Table implements IInputNode<T> {
+	private LookupForm<T> m_externalLookupForm;
+	
 	private SmallImgButton m_selButton;
 
 	private SmallImgButton m_clearButton;
@@ -103,7 +105,14 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 		m_floater.setHeight("90%");
 		m_floater.setIcon("THEME/btnFind.png");
-		LookupForm<T> lf = new LookupForm<T>(m_lookupClass);
+		LookupForm<T> lf = null;
+		if (m_externalLookupForm != null){
+			lf = m_externalLookupForm;
+		}
+		else{
+			lf = new LookupForm<T>(m_lookupClass);
+		}
+		
 		//		lf.setPageTitle("Zoek-criteria");
 		m_floater.add(lf);
 		m_floater.setOnClose(new IClicked<FloatingWindow>() {
@@ -359,4 +368,12 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			}
 		}
 	};
+
+	public LookupForm<T> getExternalLookupForm() {
+		return m_externalLookupForm;
+	}
+
+	public void setExternalLookupForm(LookupForm<T> externalLookupForm) {
+		m_externalLookupForm = externalLookupForm;
+	}
 }
