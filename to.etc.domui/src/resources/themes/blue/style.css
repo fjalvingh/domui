@@ -89,6 +89,24 @@
 	font-weight: bold;
 }
 
+.vp-ttl-err {
+	background-color: #f7c2c2;
+}
+.vp-ttl-msg {
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+}
+.vp-ttl-info {
+	background-image: url(mini-info.png);
+}
+.vp-ttl-error {
+	background-image: url(mini-error.png);
+}
+.vp-ttl-warning {
+	background-image: url(mini-warning.png);
+}
+
 /*** AccessDeniedPage ***/
 .ui-acd-ttl {
 	font-size: larger;
