@@ -14,6 +14,21 @@ import to.etc.sjit.*;
 public class PartUtil {
 	private PartUtil() {}
 
+	static public int getInt(IParameterInfo param, String name, int def) {
+		String v = param.getParameter(name);
+		if(v == null)
+			return def;
+		v = v.trim();
+		if(v.length() == 0)
+			return def;
+		try {
+			return Integer.parseInt(v);
+		} catch(Exception x) {
+			return def;
+		}
+	}
+
+
 	static private boolean isa(String name, String ext) {
 		int pos = name.lastIndexOf('.');
 		if(pos == -1)
