@@ -80,9 +80,6 @@ public abstract class DomApplication {
 
 	private IThemeMapFactory m_themeMapFactory;
 
-	@Deprecated
-	private List<IResourceModifier> m_resourceModifierList = new ArrayList<IResourceModifier>();
-
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
 	 * root URL is entered without a class name.
@@ -907,30 +904,17 @@ public abstract class DomApplication {
 	/*	CODING:	QD Resource modifiers for VP stylesheet....			*/
 	/*--------------------------------------------------------------*/
 	/**
-	 *
-	 * @param m
+	 * Register a factory for the theme's property map.
+	 * @param mf
 	 */
-	public void register(IResourceModifier m) {
-		synchronized(m_resourceModifierList) {
-			if(!m_resourceModifierList.contains(m))
-				m_resourceModifierList.add(m);
-		}
-	}
-
-	public IResourceModifier findResourceModifier(String rurl) {
-		synchronized(m_resourceModifierList) {
-			for(IResourceModifier m : m_resourceModifierList) {
-				if(m.accepts(rurl))
-					return m;
-			}
-			return null;
-		}
-	}
-
 	public synchronized void register(IThemeMapFactory mf) {
 		m_themeMapFactory = mf;
 	}
 
+	/**
+	 *
+	 * @param factory
+	 */
 	public void registerUrlPart(IUrlPart factory) {
 		m_partHandler.registerUrlPart(factory);
 	}
@@ -972,8 +956,8 @@ public abstract class DomApplication {
 			if(m_themeMapFactory == null)
 				return cont;
 			IThemeMap map = m_themeMapFactory.createThemeMap(this);
-			if(map instanceof IResourceRef)
-				rdl.add((IResourceRef) map);
+			//			if(map instanceof IResourceRef)
+			rdl.add(map);
 			cont = rvs(cont, map);
 			return cont;
 		} finally {

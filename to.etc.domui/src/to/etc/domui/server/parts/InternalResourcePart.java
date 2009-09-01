@@ -122,18 +122,6 @@ public class InternalResourcePart implements IBufferedPartFactory {
 					rdl.add(ires);
 			}
 
-			//-- FIXME Delete If a resource modifier is registered delegate to there
-			IResourceModifier rm = da.findResourceModifier(rurl);
-			if(rm != null) {
-				try {
-					rm.generate(pr, rurl, ires, rdl);
-				} catch(Exception x) {
-					x.printStackTrace();
-					throw x;
-				}
-				return;
-			}
-
 			pr.setMime(ServerTools.getExtMimeType(FileTool.getFileExtension(rurl)));
 			InputStream is = ires.getInputStream();
 			if(is == null)

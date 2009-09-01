@@ -100,6 +100,9 @@ public class SvgPartFactory implements IBufferedPartFactory, IUrlPart {
 
 		coder.transcode(in, out);
 
+		if(!da.inDevelopmentMode()) { // Not gotten from WebContent or not in DEBUG mode? Then we may cache!
+			pr.setCacheTime(da.getDefaultExpiryTime());
+		}
 		pr.setMime("image/png");
 	}
 }

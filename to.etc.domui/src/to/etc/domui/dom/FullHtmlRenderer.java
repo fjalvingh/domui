@@ -32,9 +32,9 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 	}
 
 	private HtmlRenderer getTagRenderer() {
-		// 20090701 jal was ADDS which is WRONG - by definition a FULL render IS a full renderer... This caused SELECT tags to be rendered with domui_selected attributes instead of selected attributes. 
+		// 20090701 jal was ADDS which is WRONG - by definition a FULL render IS a full renderer... This caused SELECT tags to be rendered with domui_selected attributes instead of selected attributes.
 		m_tagRenderer.setRenderMode(HtmlRenderMode.FULL); // All nodes from the full renderer are NEW by definition.
-		//		m_tagRenderer.setNewNode(true);					
+		//		m_tagRenderer.setNewNode(true);
 		return m_tagRenderer;
 	}
 
@@ -119,7 +119,7 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 
 	public void renderThemeCSS() throws Exception {
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
-		o().writeRaw(ctx().getRelativePath(ctx().getRelativeThemePath("style.css")));
+		o().writeRaw(ctx().getRelativePath(ctx().getRelativeThemePath("style.theme.css")));
 		o().writeRaw("\"></link>\n");
 	}
 
