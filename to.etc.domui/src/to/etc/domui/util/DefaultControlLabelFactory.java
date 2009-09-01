@@ -10,7 +10,7 @@ public class DefaultControlLabelFactory implements IControlLabelFactory {
 			return null;
 		if(mandatory)
 			text = "* " + text;
-		if(pmm != null && NumericPresentation.isMonetary(pmm.getNumericPresentation()))
+		if(pmm != null && editable && NumericPresentation.isMonetary(pmm.getNumericPresentation()))
 			text = text + " \u20ac";
 
 		Label l = new Label(control, text);
