@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 import java.util.regex.*;
+import java.util.zip.*;
 
 import to.etc.domui.server.*;
 import to.etc.util.*;
@@ -172,6 +173,7 @@ final public class Reloader {
 	 * @return
 	 */
 	synchronized ResourceTimestamp findClassSource(Class< ? > clz) {
+		long t = System.nanoTime();
 		IResourceRef rr = m_lookupMap.get(clz.getName()); // Already looked up earlier?
 		if(rr != null) {
 			if(rr == NOT_FOUND)
@@ -180,29 +182,67 @@ final public class Reloader {
 		}
 
 		String path = clz.getName().replace('.', '/') + ".class"; // Make path-like structure
+		ResourceTimestamp ts = scanActually(path);
+
+		//-- Still not found -> make BADREF && store, then return nuttin'
+		if(ts == null) {
+			m_lookupMap.put(clz.getName(), NOT_FOUND);
+			if(LOG.isLoggable(Level.INFO)) {
+				t = System.nanoTime() - t;
+				LOG.info("reloader: unsuccesful findClassSource " + clz + " took " + StringTool.strNanoTime(t));
+			}
+			return null;
+		}
+
+		m_lookupMap.put(clz.getName(), ts.getRef()); // Save found/not found ref
+		if(LOG.isLoggable(Level.INFO)) {
+			t = System.nanoTime() - t;
+			LOG.info("reloader: succesful findClassSource " + clz + " took " + StringTool.strNanoTime(t));
+		}
+		return ts;
+	}
+
+	/**
+	 * Do a scan for a source, uncached.
+	 * @param path
+	 * @return
+	 */
+	private synchronized ResourceTimestamp scanActually(String path) {
 		ResourceTimestamp ts = null;
+
+		/*
+		 * Initially scan all directories. This is fast; we just see if the file exists in the specified directories.
+		 */
 		for(URL u : m_urlSet) {
 			ts = checkForFile(u, path);
 			if(ts != null)
-				break;
+				return ts;
 		}
-		if(ts == null) {
-			//-- Check all jars.
-			for(URL u : m_urlSet) {
-				ts = checkForJar(u, path);
-				if(ts != null)
-					break;
-			}
 
-			//-- Still not found -> make BADREF && store, then return nuttin'
-			if(ts == null) {
-				m_lookupMap.put(clz.getName(), NOT_FOUND);
-				return null;
+		/*
+		 * Not a file. Does the jar map contain an entry?
+		 */
+		if(m_jarMap.size() != 0) {
+			File jar = m_jarMap.get(path);
+			if(jar != null) {
+				//-- Matched a JAR entry...
+				return new ResourceTimestamp(new FileRef(jar), jar.lastModified());
 			}
+			LOG.info("? Odd: the class " + path + " cannot be found in the jars... I will do a full rescan.");
 		}
-		m_lookupMap.put(clz.getName(), ts.getRef()); // Save found/not found ref
-		return ts;
+
+		/*
+		 * Not in the jars, or the jar cache was empty. Do a full rescan then try again
+		 */
+		scanJars();
+		File jar = m_jarMap.get(path);
+		if(jar != null) {
+			//-- Matched a JAR entry...
+			return new ResourceTimestamp(new FileRef(jar), jar.lastModified());
+		}
+		return null;
 	}
+
 
 	/**
 	 * Try to find the specified class file name as a file relative to the
@@ -232,24 +272,57 @@ final public class Reloader {
 		return new ResourceTimestamp(new FileRef(nw), nw.lastModified());
 	}
 
+	private Map<String, File> m_jarMap = new HashMap<String, File>();
+
 	/**
-	 * Check if the thingy is a jar, and if the path is contained therein,
-	 * @param u
-	 * @param rel
-	 * @return
+	 * Scan all JAR files and create a map of their content linked to the jar file itself.
 	 */
-	private ResourceTimestamp checkForJar(URL u, String rel) {
-		if(!"file".equals(u.getProtocol()))
-			return null;
-		if(!u.getPath().endsWith(".jar"))
-			return null;
-		File f = new File(u.getFile());
-		if(!f.exists() || !f.isFile()) // Must be a file,
-			return null;
-		long ts = JarRef.getTimestamp(f, rel);
-		if(ts == -1)
-			return null;
-		return new ResourceTimestamp(new JarRef(f, rel), ts);
+	private synchronized void scanJars() {
+		long ts = System.nanoTime();
+		m_jarMap.clear();
+		for(URL u : m_urlSet) {
+			if(!"file".equals(u.getProtocol()))
+				continue;
+			if(!u.getPath().endsWith(".jar"))
+				continue;
+			File f = new File(u.getFile());
+			if(!f.exists() || !f.isFile()) // Must be a file,
+				continue;
+
+			//-- This is a jar... Get all of it's files.
+			loadJarFiles(f);
+		}
+		ts = System.nanoTime() - ts;
+		LOG.info("Loading full JAR inventory of " + m_jarMap.size() + " entries took " + StringTool.strNanoTime(ts));
+	}
+
+	/**
+	 * If the specified url is a JAR load it's fileset and store in the jarmap.
+	 * @param u
+	 */
+	private void loadJarFiles(File f) {
+		InputStream is = null;
+		ZipInputStream zis = null;
+		try {
+			is = new FileInputStream(f);
+			zis = new ZipInputStream(is);
+			ZipEntry ze;
+			while(null != (ze = zis.getNextEntry())) { // Walk entry
+				String name = ze.getName();
+				if(!m_jarMap.containsKey(name))
+					m_jarMap.put(ze.getName(), f); // Only store the 1st entry
+			}
+		} catch(Exception xz) {
+		} finally {
+			try {
+				if(is != null)
+					is.close();
+			} catch(Exception x) {}
+			try {
+				if(zis != null)
+					zis.close();
+			} catch(Exception x) {}
+		}
 	}
 
 	/*--------------------------------------------------------------*/

@@ -1,6 +1,6 @@
 package to.etc.domui.server.parts;
 
-import to.etc.domui.util.*;
+import to.etc.domui.util.resources.*;
 
 /**
  * If a theme is calculated (as in the case for ViewPoint) this is an interface to
@@ -9,6 +9,6 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 31, 2009
  */
-public interface IThemeMap extends IResourceRef {
+public interface IThemeMap extends IModifyableResource {
 	String getValue(String key) throws Exception;
 }

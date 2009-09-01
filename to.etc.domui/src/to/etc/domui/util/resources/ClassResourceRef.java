@@ -18,7 +18,11 @@ public class ClassResourceRef implements IResourceRef {
 		return m_base.getResourceAsStream(m_name);
 	}
 
-	public boolean isModified() {
-		return false;
+	/**
+	 * We will not allow replacement of class files because we cannot know their date.
+	 * @see to.etc.domui.util.resources.IModifyableResource#getLastModified()
+	 */
+	public long getLastModified() {
+		return 0;
 	}
 }

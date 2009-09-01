@@ -95,6 +95,7 @@ public abstract class DomApplication {
 	 */
 	public DomApplication() {
 		registerControlFactories();
+		registerPartFactories();
 	}
 
 	protected void registerControlFactories() {
@@ -105,6 +106,10 @@ public abstract class DomApplication {
 		registerControlFactory(ControlFactory.RELATION_COMBOBOX_CF);
 		registerControlFactory(ControlFactory.RELATION_LOOKUP_CF);
 		registerControlFactory(new ControlFactoryMoney());
+	}
+
+	protected void registerPartFactories() {
+		registerUrlPart(new ThemePartFactory());
 	}
 
 	static public void internalSetCurrent(final DomApplication da) {
@@ -931,20 +936,22 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	public String getThemeReplacedString(ResourceDependencyList rdl, String rurl) throws Exception {
-		if(!rurl.startsWith("$"))
-			throw new IllegalStateException("URL must be resource url and start with $");
-
-		//-- 1. Get resource descriptor for this resource
-		rurl = rurl.substring(1);
+		boolean isresource;
+		if(rurl.startsWith("$")) {
+			isresource = true;
+			rurl = rurl.substring(1);
+		} else
+			isresource = false;
 
 		//-- 1. Is a file-based resource available?
 		IResourceRef ires;
 		File f = getAppFile(rurl);
 		if(f.exists()) {
 			ires = new WebappResourceRef(f);
-		} else {
+		} else if(isresource) {
 			ires = new ClassResourceRef(getClass(), "/resources/" + rurl);
-		}
+		} else
+			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
 		if(rdl != null)
 			rdl.add(ires);
 
