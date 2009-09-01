@@ -5,11 +5,15 @@ import java.awt.image.*;
 import java.io.*;
 import java.util.*;
 
+import org.apache.batik.transcoder.*;
+import org.apache.batik.transcoder.image.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
 import to.etc.sjit.*;
+import to.etc.util.*;
 
 public class PartUtil {
 	private PartUtil() {}
@@ -44,25 +48,40 @@ public class PartUtil {
 	 * @throws Exception
 	 */
 	static public Properties loadProperties(DomApplication da, String src, ResourceDependencyList rdl) throws Exception {
-		IResourceRef ref = da.getApplicationResourceByName(src);
-		if(ref == null)
-			return null;
-		if(rdl != null)
-			rdl.add(ref);
-		InputStream is = ref.getInputStream();
+		String svg = da.getThemeReplacedString(rdl, src);
+
+		InputStream is = new StringInputStream(svg, "utf-8");
 		if(is == null)
 			return null;
 		try {
 			Properties p = new Properties();
 			p.load(is);
-			if(ref instanceof WebappResourceRef)
-				p.put("webui.webapp", "true");
+			//			if(ref instanceof WebappResourceRef)
+			//				p.put("webui.webapp", "true");
 			return p;
 		} finally {
 			try {
 				is.close();
 			} catch(Exception x) {}
 		}
+	}
+
+	static public String getURI(String in) {
+		if(in == null)
+			return null;
+		int pos = in.indexOf('?');
+		if(pos == -1)
+			return in;
+		return in.substring(0, pos);
+	}
+
+	static public IParameterInfo getParameters(String in) {
+		if(in == null)
+			return null;
+		int pos = in.indexOf('?');
+		if(pos == -1)
+			return null;
+		return new ParameterInfoImpl(in.substring(pos + 1));
 	}
 
 	/**
@@ -73,7 +92,11 @@ public class PartUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	static public BufferedImage loadImage(DomApplication da, String image, ResourceDependencyList rdl) throws Exception {
+	static public BufferedImage loadImage(DomApplication da, String in, ResourceDependencyList rdl) throws Exception {
+		//-- Split input in URL and parameters (QD for generic retrieval of resources)
+		String image = getURI(in);
+		IParameterInfo param = getParameters(in);
+
 		IResourceRef ref = da.getApplicationResourceByName(image);
 		if(ref == null)
 			throw new ThingyNotFoundException("The image '" + image + "' was not found.");
@@ -91,7 +114,9 @@ public class PartUtil {
 				bi = ImaTool.loadJPEG(is);
 			else if(isa(image, "png"))
 				bi = ImaTool.loadPNG(is);
-			else
+			else if(image.endsWith("svg")) {
+				bi = loadSvg(da, rdl, image, param);
+			} else
 				throw new IllegalArgumentException("The image '" + image + "' must be .gif, .jpg or .jpeg");
 
 			//			System.out.println("size of image is "+xy(m_src_bi.getWidth(), m_src_bi.getHeight()));
@@ -110,6 +135,61 @@ public class PartUtil {
 			} catch(Exception x) {}
 		}
 	}
+
+	private static BufferedImage loadSvg(DomApplication da, ResourceDependencyList rdl, String image, IParameterInfo param) throws Exception {
+		//-- 1. Get the input as a theme-replaced resource
+		String svg = da.getThemeReplacedString(rdl, image);
+
+		//-- 2. Now generate the thingy using the Batik transcoder:
+		BufferedImageTranscoder bit = new BufferedImageTranscoder();
+		TranscoderInput in = new TranscoderInput(new StringReader(svg));
+
+		int w = PartUtil.getInt(param, "w", -1);
+		int h = PartUtil.getInt(param, "h", -1);
+
+		if(w != -1 && h != -1) {
+			bit.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, Float.valueOf(w));
+			bit.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, Float.valueOf(h));
+		}
+		bit.transcode(in, new TranscoderOutput());
+		return bit.getRendered();
+	}
+
+	static private class BufferedImageTranscoder extends ImageTranscoder {
+		private BufferedImage m_bi;
+
+		public BufferedImageTranscoder() {
+		//			hints.put(ImageTranscoder.KEY_BACKGROUND_COLOR, Color.white);
+		}
+
+		/**
+		 * Creates a new ARGB image with the specified dimension.
+		 * @param width the image width in pixels
+		 * @param height the image height in pixels
+		 */
+		@Override
+		public BufferedImage createImage(int width, int height) {
+			return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		}
+
+		// Note this method does not need the Transcoder Output. It allows you to loosly assume that TranscoderOutput is of type BufferedImageTranscoderOutput, purely because it doesn't really care.
+
+		/**
+		 * Writes the specified image to the specified output.
+		 * @param img the image to write
+		 * @param output the output where to store the image
+		 * @param TranscoderException if an error occured while storing the image
+		 */
+		@Override
+		public void writeImage(BufferedImage img, TranscoderOutput output) throws TranscoderException {
+			m_bi = img;
+		}
+
+		public BufferedImage getRendered() {
+			return m_bi;
+		}
+	}
+
 
 	static public Color makeColor(String col) {
 		if(col == null)

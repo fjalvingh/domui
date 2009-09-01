@@ -572,16 +572,6 @@ a.ui-nbtn:hover,a.ui-nbtn:active {
 	cursor: pointer;
 }
 
-/*** MsgBox ***/
-.ui-mb {
-	background-color: #d4eeff;
-	border: 1px solid #777777;
-}
-
-.ui-mb-ttl {
-	background-color: #9cd9ff;
-}
-
 /*** DataTable default style ***/
 .ui-dt {
 	overflow: auto;
