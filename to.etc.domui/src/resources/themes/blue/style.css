@@ -90,7 +90,9 @@
 }
 
 .vp-ttl-err {
-	background-color: #f7c2c2;
+/*	background-color: #f7c2c2; */
+	border-color: 1px solid red;
+	
 }
 .vp-ttl-msg {
 	background-repeat: no-repeat;
