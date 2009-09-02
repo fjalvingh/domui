@@ -42,6 +42,13 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	private IQueryHandler<T> m_queryHandler;
 
 	private String m_lookupTitle;
+	
+	private String[] m_resultColumns;
+	
+	public LookupInput(Class<T> lookupClass, String[] resultColumns){
+		this(lookupClass);
+		this.m_resultColumns = resultColumns;
+	}
 
 	private boolean m_allowEmptyQuery;
 
@@ -152,7 +159,13 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
-			SimpleRowRenderer rr = new SimpleRowRenderer(m_lookupClass);
+			SimpleRowRenderer rr = null;
+			if (m_resultColumns != null){
+				rr = new SimpleRowRenderer(m_lookupClass, m_resultColumns);
+			}else{
+				rr = new SimpleRowRenderer(m_lookupClass);
+			}
+			
 			m_result = new DataTable(model, rr);
 			m_floater.add(m_result);
 			m_result.setPageSize(20);
@@ -381,5 +394,13 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	public void setExternalLookupForm(LookupForm<T> externalLookupForm) {
 		m_externalLookupForm = externalLookupForm;
+	}
+
+	public String[] getResultColumns() {
+		return m_resultColumns;
+	}
+
+	public void setResultColumns(String[] resultColumns) {
+		m_resultColumns = resultColumns;
 	}
 }
