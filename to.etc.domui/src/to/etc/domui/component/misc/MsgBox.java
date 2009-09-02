@@ -33,6 +33,7 @@ public class MsgBox extends FloatingWindow {
 
 	protected MsgBox() {
 		super(true, "");
+		setErrorFence(null); // Do not accept handling errors!!
 		m_theButtons.setCssClass("ui-mbx-bb");
 		m_theImage.setCssClass("ui-mbx-img");
 		setOnClose(new IClicked<FloatingWindow>() {
@@ -287,10 +288,10 @@ public class MsgBox extends FloatingWindow {
 
 	protected void close(Object sel) throws Exception {
 		m_selectedChoice = sel;
-		close();
 		if(m_onAnswer != null) {
 			m_onAnswer.onAnswer((MsgBoxButton) m_selectedChoice);
 		}
+		close();
 	}
 
 	/**

@@ -187,17 +187,17 @@ final public class Reloader {
 		//-- Still not found -> make BADREF && store, then return nuttin'
 		if(ts == null) {
 			m_lookupMap.put(clz.getName(), NOT_FOUND);
-			if(LOG.isLoggable(Level.INFO)) {
+			if(LOG.isLoggable(Level.FINE)) {
 				t = System.nanoTime() - t;
-				LOG.info("reloader: unsuccesful findClassSource " + clz + " took " + StringTool.strNanoTime(t));
+				LOG.fine("reloader: unsuccesful findClassSource " + clz + " took " + StringTool.strNanoTime(t));
 			}
 			return null;
 		}
 
 		m_lookupMap.put(clz.getName(), ts.getRef()); // Save found/not found ref
-		if(LOG.isLoggable(Level.INFO)) {
+		if(LOG.isLoggable(Level.FINE)) {
 			t = System.nanoTime() - t;
-			LOG.info("reloader: succesful findClassSource " + clz + " took " + StringTool.strNanoTime(t));
+			LOG.fine("reloader: succesful findClassSource " + clz + " took " + StringTool.strNanoTime(t));
 		}
 		return ts;
 	}
