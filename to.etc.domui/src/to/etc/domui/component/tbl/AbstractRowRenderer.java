@@ -212,9 +212,20 @@ public class AbstractRowRenderer {
 				//-- Just add the label, if present,
 				th = cc.add(label);
 			} else {
+				//-- Add the sort order indicator: a single image containing either ^, v or both.
+				final Img img = new Img();
+				th = cc.add(img); // Add the label;
+				img.setBorder(0);
+				if(cd == m_sortColumn) {
+					img.setSrc(m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
+				} else {
+					img.setSrc("THEME/sort-none.png");
+				}
+				m_sortImages[ix] = img;
+
 				if(label == null || label.trim().length() == 0)
 					label = "(unknown)";
-				th = cc.add(label); // Add the label;
+				th.add(label);
 				th.setCssClass("ui-sortable");
 				final SimpleColumnDef scd = cd;
 				th.setClicked(new IClicked<TH>() {
@@ -223,18 +234,6 @@ public class AbstractRowRenderer {
 					}
 				});
 
-				//-- Add the sort order indicator: a single image containing either ^, v or both.
-				final Img img = new Img();
-				th.add(img);
-				img.setBorder(0);
-				//				img.setImgWidth(16);
-				//				img.setImgHeight(16);
-				if(cd == m_sortColumn) {
-					img.setSrc(m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
-				} else {
-					img.setSrc("THEME/sort-none.png");
-				}
-				m_sortImages[ix] = img;
 			}
 			th.setWidth(cd.getWidth());
 			ix++;

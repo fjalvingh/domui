@@ -581,6 +581,7 @@ a.ui-nbtn:hover,a.ui-nbtn:active {
 	height: 22px;
 	border: none;
 	background: none;
+	cursor: pointer;
 }
 
 .ui-ib:hover {
@@ -614,16 +615,20 @@ a.ui-nbtn:hover,a.ui-nbtn:active {
 	background-color: #eeeeee;
 }
 
+tr.ui-rowsel {
+	cursor: pointer;
+}
+
 tr.ui-rowsel:hover {
 	background-color: #ffe1bf !important;
 }
 
 td.ui-cellsel {
+	cursor: pointer;
 	color: #2200cc;
 }
 
 td.ui-cellsel:hover {
-	cursor: pointer;
 	text-decoration: underline;
 	background-color: #b8f1c7 !important;
 }
@@ -648,6 +653,7 @@ th.ui-sortable {
 	border: 0px;
 	background: transparent;
 	vertical-align: bottom;
+	cursor: pointer;
 }
 
 .ui-sib img {
