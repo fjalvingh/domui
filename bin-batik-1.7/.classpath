@@ -141,11 +141,6 @@
 			<attribute name="owner.project.facets" value="jst.utility"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
-		<attributes>
-			<attribute name="owner.project.facets" value="jst.java"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/xml-apis-ext.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
