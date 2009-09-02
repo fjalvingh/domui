@@ -398,7 +398,7 @@ table.ui-wa-bgtbl {
 }
 
 table.ui-lui {
-	width: 5%;
+	width: 90%;
 	white-space: nowrap;
 }
 
@@ -406,6 +406,10 @@ table.ui-lui {
 	padding: 0px;
 	margin: 0px;
 	background-color: #ffffff;
+	width: 100%;
+}
+.ui-lui-vcell {
+	width: 90%;
 }
 
 /*** LookupForm ***/

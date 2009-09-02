@@ -42,9 +42,9 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	private IQueryHandler<T> m_queryHandler;
 
 	private String m_lookupTitle;
-	
+
 	private String[] m_resultColumns;
-	
+
 	public LookupInput(Class<T> lookupClass, String[] resultColumns){
 		this(lookupClass);
 		this.m_resultColumns = resultColumns;
@@ -165,7 +165,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			}else{
 				rr = new SimpleRowRenderer(m_lookupClass);
 			}
-			
+
 			m_result = new DataTable(model, rr);
 			m_floater.add(m_result);
 			m_result.setPageSize(20);
@@ -345,6 +345,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 							tbl.add(tr);
 							TD td = new TD(); // Value thingy.
 							tr.add(td);
+							td.setCssClass("ui-lui-vcell");
 							td.setValign(TableVAlign.TOP);
 							td.add(val);
 							int len = val.length();
@@ -354,6 +355,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 							td = new TD();
 							tr.add(td);
 							td.setValign(TableVAlign.TOP);
+							td.setCssClass("ui-lui-btncell");
 							td.setWidth("1%");
 							if(c++ == 0 && parameters != null) {
 								td.add((NodeBase) parameters); // Add the button,
