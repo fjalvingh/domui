@@ -327,7 +327,16 @@ public class LookupForm<T> extends Div {
 	 * @param minlen
 	 */
 	public Item addProperty(String path, int minlen) {
-		return addProperty(path, minlen, null);
+		return addProperty(path, null, minlen, null);
+	}
+
+	/**
+	 * Add a property to look up to the list with user-specified label. The controls et al will be added using the factories.
+	 * @param path	The property name (or path to some PARENT property) to search on, relative to the lookup class.
+	 * @param label	The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
+	 */
+	public Item addProperty(String path, String label) {
+		return addProperty(path, label, 0, null);
 	}
 
 	/**
@@ -335,7 +344,7 @@ public class LookupForm<T> extends Div {
 	 * @param path	The property name (or path to some PARENT property) to search on, relative to the lookup class.
 	 */
 	public Item addProperty(String path) {
-		return addProperty(path, 0, null);
+		return addProperty(path, null, 0, null);
 	}
 
 	/**
@@ -344,7 +353,7 @@ public class LookupForm<T> extends Div {
 	 * @param minlen
 	 * @param ignorecase
 	 */
-	private Item addProperty(String path, int minlen, Boolean ignorecase) {
+	private Item addProperty(String path, String label, int minlen, Boolean ignorecase) {
 		for(Item it : m_itemList) { // FIXME Useful?
 			if(it.getProperty() != null && path.equals(it.getProperty().getName())) // Already present there?
 				throw new ProgrammerErrorException("The property " + path + " is already part of the search field list.");
@@ -359,6 +368,9 @@ public class LookupForm<T> extends Div {
 		//-- Define the item.
 		Item it = new Item();
 		it.setProperty(pmm);
+		if(label != null) {
+			it.setLabelText(label);
+		}
 		if(ignorecase != null)
 			it.setIgnoreCase(ignorecase.booleanValue());
 		it.setMinLength(minlen);
