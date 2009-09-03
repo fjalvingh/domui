@@ -45,7 +45,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	private String[] m_resultColumns;
 
-	public LookupInput(Class<T> lookupClass, String[] resultColumns){
+	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass);
 		this.m_resultColumns = resultColumns;
 	}
@@ -160,9 +160,9 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
 			SimpleRowRenderer rr = null;
-			if (m_resultColumns != null){
+			if(m_resultColumns != null) {
 				rr = new SimpleRowRenderer(m_lookupClass, m_resultColumns);
-			}else{
+			} else {
 				rr = new SimpleRowRenderer(m_lookupClass);
 			}
 
@@ -236,6 +236,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		m_value = v;
 		if(m_value != null) {
 			m_clearButton.setVisibility(VisibilityType.VISIBLE);
+			clearMessage();
 		} else {
 			m_clearButton.setVisibility(VisibilityType.HIDDEN);
 		}
