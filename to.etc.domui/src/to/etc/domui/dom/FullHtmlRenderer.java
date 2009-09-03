@@ -91,11 +91,13 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 	@Override
 	public void visitNodeContainer(NodeContainer n) throws Exception {
 		n.build();
+		boolean indena = o().isIndentEnabled(); // jal 20090903 Save indenting request....
 		n.visit(getTagRenderer()); // Ask base renderer to render tag
 		if(n.getCreateJS() != null)
 			m_createJS.append(n.getCreateJS());
 		visitChildren(n);
 		getTagRenderer().renderEndTag(n);
+		o().setIndentEnabled(indena); // And restore indenting if tag handler caused it to be cleared.
 		n.clearDelta();
 		checkForFocus(n);
 	}

@@ -20,6 +20,8 @@ public interface IBrowserOutput {
 
 	public void setIndentEnabled(boolean ind);
 
+	public boolean isIndentEnabled();
+
 	/**
 	 * Writes a tag start. It can be followed by attr() calls.
 	 * @param tagname

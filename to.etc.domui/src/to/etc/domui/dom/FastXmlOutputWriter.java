@@ -8,4 +8,8 @@ public class FastXmlOutputWriter extends XmlOutputWriterBase implements IBrowser
 	}
 
 	public void setIndentEnabled(boolean ind) {}
+
+	public boolean isIndentEnabled() {
+		return false;
+	}
 }
