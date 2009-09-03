@@ -109,7 +109,12 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		if(n.getPage().getFocusComponent() != null)
 			return;
 		if(n instanceof IInputBase) {
-			n.getPage().setFocusComponent(n);
+			if(n instanceof IInputNode< ? >) {
+				IInputNode< ? > in = (IInputNode< ? >) n;
+				if(!in.isDisabled() && !in.isReadOnly())
+					n.getPage().setFocusComponent(n);
+			} else
+				n.getPage().setFocusComponent(n);
 		}
 	}
 

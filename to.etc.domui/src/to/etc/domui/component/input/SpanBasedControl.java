@@ -17,6 +17,8 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 
 	private boolean m_readOnly;
 
+	private boolean m_disabled;
+
 	public boolean isMandatory() {
 		return m_mandatory;
 	}
@@ -35,6 +37,18 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 		m_readOnly = readOnly;
 		forceRebuild();
 	}
+
+	final public boolean isDisabled() {
+		return m_disabled;
+	}
+
+	final public void setDisabled(boolean disabled) {
+		if(m_disabled == disabled)
+			return;
+		m_disabled = disabled;
+		forceRebuild();
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IInputNode implementation.							*/

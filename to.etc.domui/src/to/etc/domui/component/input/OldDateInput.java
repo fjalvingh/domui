@@ -103,6 +103,15 @@ public class OldDateInput extends Span implements IInputNode<Date> {
 		m_selCalButton.setDisplay(readOnly ? DisplayType.NONE : null);
 	}
 
+	public boolean isDisabled() {
+		return m_input.isDisabled();
+	}
+
+	public void setDisabled(boolean d) {
+		m_input.setDisabled(d);
+		m_selCalButton.setDisabled(d);
+	}
+
 	public IValueChanged< ? , ? > getOnValueChanged() {
 		return m_onValueChanged;
 		//		return m_input.getOnValueChanged();

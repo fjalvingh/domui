@@ -35,6 +35,8 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	private boolean m_readOnly;
 
+	private boolean m_disabled;
+
 	private INodeContentRenderer<T> m_contentRenderer;
 
 	private IQueryManipulator<T> m_queryManipulator;
@@ -92,9 +94,9 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		INodeContentRenderer<T> r = getContentRenderer();
 		if(r == null)
 			r = (INodeContentRenderer<T>) DEFAULT_RENDERER; // Prevent idiotic generics error
-		r.renderNodeContent(this, this, m_value, isReadOnly() ? null : m_selButton);
+		r.renderNodeContent(this, this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
 
-		if(!isReadOnly()) {
+		if(!isReadOnly() && !isDisabled()) {
 			if(m_selButton.getPage() == null) // If the above did not add the button do it now.
 				add(m_selButton);
 			m_selButton.appendAfterMe(m_clearButton);
@@ -209,6 +211,17 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		if(m_readOnly == readOnly)
 			return;
 		m_readOnly = readOnly;
+		forceRebuild();
+	}
+
+	public boolean isDisabled() {
+		return m_disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		if(m_disabled == disabled)
+			return;
+		m_disabled = disabled;
 		forceRebuild();
 	}
 

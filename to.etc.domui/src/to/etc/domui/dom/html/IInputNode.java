@@ -9,6 +9,10 @@ public interface IInputNode<T> extends IInputBase {
 
 	public void setReadOnly(boolean ro);
 
+	public boolean isDisabled();
+
+	public void setDisabled(boolean d);
+
 	public boolean isMandatory();
 
 	public void setMandatory(boolean ro);
