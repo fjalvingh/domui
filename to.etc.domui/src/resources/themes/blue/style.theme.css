@@ -464,6 +464,7 @@ table.ui-lui {
 	top: 0px;
 	left: 0px;
 	background-color: black;
+	filter:alpha(opacity=50);
 }
 
 /** Tree control ***/
@@ -792,6 +793,7 @@ body,html {
 	position: fixed;
 	top: 0px;
 	left: 0px;
+	filter:alpha(opacity=0);
 }
 .ui-io-blk2 {
 	height: 100%;
@@ -801,6 +803,7 @@ body,html {
 	top: 0px;
 	left: 0px;
 	background-color: black;
+	filter:alpha(opacity=50);
 }
 
 /*** Helper classes ***/
