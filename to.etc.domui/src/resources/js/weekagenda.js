@@ -24,20 +24,42 @@ WebUI.Agenda = function(div) {
 }
 
 /**
+ * Decode a year,month,day,hour,minute date string.
+ */
+WebUI.Agenda.prototype.decodeDate = function(s) {
+	var ar = s.split(",");
+	if(ar.length != 5)
+		alert('Invalid date input: '+s);
+	var d = new Date(parseInt(ar[0]), parseInt(ar[1])-1, parseInt(ar[2]), parseInt(ar[3]), parseInt(ar[4]), 0);
+	return d;
+}
+
+/**
  * Get all data for this control from the div.
  * @return
  */
 WebUI.Agenda.prototype.loadLayout = function() {
 	var caldiv = this._rootdiv;
-	var s = parseInt(caldiv.getAttribute('startDate'));
-	this._date		= new Date(s);
+//	var s = parseInt(caldiv.getAttribute('startDate'));
+//	this._date		= new Date(s);
+	this._date		= this.decodeDate(caldiv.getAttribute('startDate'));
 	this._days		= parseInt(caldiv.getAttribute('days'));
 	this._startHour	= parseInt(caldiv.getAttribute('hourstart'));
 	this._endHour	= parseInt(caldiv.getAttribute('hourend'));
 	this._maxMinutes= (this._endHour-this._startHour) * 60;
 
-	//-- Find the background table and use it to calculate sizes and positions.
-	var tbl = $(".ui-wa-bgtbl tbody", this._rootdiv).get()[0];
+	//-- First find the background table height. This is on the table in IE (tbody has size 0, sigh) and on tbody in firefox
+	var tblheight;
+	var tbl;
+	if($.browser.msie) {
+		tbl = $("table.ui-wa-bgtbl", this._rootdiv).get()[0];
+		tblheight = tbl.clientHeight;
+		tbl = $(".ui-wa-bgtbl tbody", this._rootdiv).get()[0];
+		
+	} else {
+		tbl = $(".ui-wa-bgtbl tbody", this._rootdiv).get()[0];
+		tblheight = tbl.clientHeight;
+	}
 	var tr = undefined;
 	for(var i = 0; i < tbl.childNodes.length; i++) {
 		tr = tbl.childNodes[i];
@@ -60,15 +82,25 @@ WebUI.Agenda.prototype.loadLayout = function() {
 		}
 	}
 
-	this._pxPerHour = (tbl.clientHeight - this._headerHeight+1) / (this._endHour-this._startHour);
+	this._pxPerHour = (tblheight - this._headerHeight+1) / (this._endHour-this._startHour);
 	this._endDate = new Date(this._date.getTime());
 	this._endDate.setDate(this._endDate.getDate()+this._days);
 	this._dayMap = new Array();
+//	alert('layout: tbl.height='+tblheight+", hdrheight="+this._headerHeight+", endhour="+this._endHour+", starthour="+this._startHour+", pxperhr="+this._pxPerHour);
 
 	/*
 	 * Loop 1: locale all items, and assign them to their appropriate "day" and "way".
 	 */
 	this._itemdivs	= $("div.ui-wa-it", this._rootdiv).get();
+
+//	var b = document.createElement('div');
+//	b.appendChild(document.createTextNode('CLICKER'));
+//	document.body.appendChild(b);
+//	b.onclick = function() {
+//		var d = $("table.ui-wa-bgtbl").get()[0];
+//
+//		alert('click: tbl.height='+d.clientHeight);
+//	}
 }
 
 /**
@@ -79,8 +111,10 @@ WebUI.Agenda.prototype.reposition = function() {
 	for(var i = this._itemdivs.length; --i >= 0;) {
 		//-- Get the item's start and end date,
 		var idiv = this._itemdivs[i];
-		var sd	= new Date(parseInt(idiv.getAttribute('startdate')));
-		var ed	= new Date(parseInt(idiv.getAttribute('enddate')));
+		var sd = this.decodeDate(idiv.getAttribute('startdate'));
+		var ed = this.decodeDate(idiv.getAttribute('enddate'));
+//		var sd	= new Date(parseInt(idiv.getAttribute('startdate')));
+//		var ed	= new Date(parseInt(idiv.getAttribute('enddate')));
 		this.assignDayAndLane(idiv, sd, ed);
 	}
 
@@ -134,6 +168,8 @@ WebUI.Agenda.prototype.assignDayAndLane = function(idiv, sd, ed) {
 
 	var ys = Math.round(so.min * this._pxPerHour / 60);
 	var ye = Math.round(eo.min * this._pxPerHour / 60);
+	alert('so: min='+so.min+", day="+so.day);
+	
 	var item = new Object();
 	item.day = so.day;
 	item.ys	= ys;
@@ -205,7 +241,8 @@ WebUI.Agenda.prototype.calcMinuteOffset = function(d, grav) {
 		return {day: (this._days-1), min: this._maxMinutes};
 
 	//-- Is in range. Get a day offset,
-	var dayoff = Math.floor( (ts - this._date.getTime()) / (86400000) ); 
+	var dayoff = Math.floor( (ts - this._date.getTime()) / (86400000) );
+//	alert('dayoff = '+dayoff+", hour="+d.getHours()+", d="+d);
 
 	//-- Get a minute offset, skipping the invisible hours
 	var mins = 0;

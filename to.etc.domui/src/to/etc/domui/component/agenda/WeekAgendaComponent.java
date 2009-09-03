@@ -203,6 +203,22 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 		renderItems();
 	}
 
+	static public String renderDate(Date in) {
+		GregorianCalendar cal = new GregorianCalendar();
+		cal.setTime(in);
+		StringBuilder sb = new StringBuilder(32);
+		sb.append(cal.get(Calendar.YEAR));
+		sb.append(',');
+		sb.append(cal.get(Calendar.MONTH) + 1); // fucking SUN idiots
+		sb.append(',');
+		sb.append(cal.get(Calendar.DAY_OF_MONTH));
+		sb.append(',');
+		sb.append(cal.get(Calendar.HOUR_OF_DAY));
+		sb.append(',');
+		sb.append(cal.get(Calendar.MINUTE));
+		return sb.toString();
+	}
+
 	/**
 	 * Renders the week backdrop: the actual thing that items are rendered on.
 	 * @param days
@@ -212,8 +228,10 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 		Div div = new Div(); // Backdrop div
 		add(div);
 
-		setSpecialAttribute("startDate", Long.toString(m_date.getTime()));
-		setSpecialAttribute("endDate", Long.toString(m_end.getTime()));
+		setSpecialAttribute("startDate", renderDate(m_date));
+		setSpecialAttribute("endDate", renderDate(m_end));
+		//		setSpecialAttribute("startDate", Long.toString(m_date.getTime()));
+		//		setSpecialAttribute("endDate", Long.toString(m_end.getTime()));
 		setSpecialAttribute("days", Integer.toString(m_days));
 		setSpecialAttribute("hourstart", Integer.toString(m_startHour));
 		setSpecialAttribute("hourend", Integer.toString(m_endHour));
@@ -351,8 +369,10 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 		}
 
 		m_actualItemRenderer.renderNodeContent(this, sidiv, si, null);
-		sidiv.setSpecialAttribute("startDate", Long.toString(si.getStart().getTime()));
-		sidiv.setSpecialAttribute("endDate", Long.toString(si.getEnd().getTime()));
+		sidiv.setSpecialAttribute("startDate", renderDate(si.getStart()));
+		sidiv.setSpecialAttribute("endDate", renderDate(si.getEnd()));
+		//		sidiv.setSpecialAttribute("startDate", Long.toString(si.getStart().getTime()));
+		//		sidiv.setSpecialAttribute("endDate", Long.toString(si.getEnd().getTime()));
 		//		adjustPosition(sidiv, si);
 		sidiv.setDisplay(DisplayType.NONE); // Hide; let Javascript behaviour enable it,
 
@@ -389,13 +409,13 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 	//
 	//	private boolean	calculateMinuteOffset(int[] res, Date d, int grav) {
 	//		long 	ts = d.getTime();		// Get ts in millis
-	//		if(ts <= m_date.getTime())	
+	//		if(ts <= m_date.getTime())
 	//			return false;
 	//		if(ts >= m_end.getTime())
 	//			return false;
 	//
 	//		//-- Is in range. Get a day offset,
-	//		long dayoff = (long) Math.floor( (ts - m_date.getTime()) / (86400000) ); 
+	//		long dayoff = (long) Math.floor( (ts - m_date.getTime()) / (86400000) );
 	//
 	//		//-- Get a minute offset, skipping the invisible hours
 	//		int mins = 0;
