@@ -168,7 +168,6 @@ WebUI.Agenda.prototype.assignDayAndLane = function(idiv, sd, ed) {
 
 	var ys = Math.round(so.min * this._pxPerHour / 60);
 	var ye = Math.round(eo.min * this._pxPerHour / 60);
-	alert('so: min='+so.min+", day="+so.day);
 	
 	var item = new Object();
 	item.day = so.day;
