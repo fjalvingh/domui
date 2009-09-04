@@ -48,6 +48,9 @@ public class DateInput extends Text<Date> {
 				m_todayButton = new SmallImgButton("THEME/btnToday.png", new IClicked<SmallImgButton>() {
 					public void clicked(SmallImgButton b) throws Exception {
 						DateInput.this.setValue(new Date());
+						if(getOnValueChanged() != null) {
+							((IValueChanged<NodeBase, Object>) getOnValueChanged()).onValueChanged(DateInput.this, null);
+						}
 					}
 				});
 			}
