@@ -107,6 +107,7 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 		// -- If this is a REDIRECT document -> redirect main page
 		var rname = xml.documentElement.tagName;
 		if (rname == 'redirect') {
+			WebUI.blockUI();
 			log("Redirecting- ");
 			var to = xml.documentElement.getAttribute('url');
 			window.location.href = to;
