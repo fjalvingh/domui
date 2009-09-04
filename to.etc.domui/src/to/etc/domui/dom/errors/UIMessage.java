@@ -13,6 +13,9 @@ import to.etc.webapp.nls.*;
  * Created on Jun 11, 2008
  */
 public class UIMessage {
+	/** Use this value when set already localized messages. See constructor. */
+	public static String LOCALIZED = "localized";
+
 	/** The error message code for the error that has occured. This exists always and is a lookup into the error NLS messages. */
 	private String m_code;
 
@@ -26,6 +29,14 @@ public class UIMessage {
 	 */
 	private NodeBase m_errorNode;
 
+	/**
+	 * Constructor.
+	 * 	 
+	 * @param errorNode
+	 * @param type
+	 * @param code
+	 * @param parameters use static LOCALIZED as value for already localized messeges (code is message body then). 
+	 */
 	public UIMessage(NodeBase errorNode, MsgType type, String code, Object[] parameters) {
 		m_errorNode = errorNode;
 		m_code = code;
@@ -49,11 +60,19 @@ public class UIMessage {
 		return m_type;
 	}
 
+	private boolean isMessageLocalized() {
+		return (m_parameters != null && m_parameters.length > 0 && m_parameters[0].equals(LOCALIZED));
+	}
+
 	/**
 	 * FIXME Must return localized and replaced message.
+	 * FIXME Quick fix for already implemented messeges is implemented, reconsider refactoring later.
 	 * @return
 	 */
 	public String getMessage() {
+		if(isMessageLocalized()) {
+			return m_code;
+		}
 		return NlsContext.getGlobalMessage(m_code, m_parameters);
 	}
 }

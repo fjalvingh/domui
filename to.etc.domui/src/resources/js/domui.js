@@ -512,15 +512,14 @@ var WebUI = {
 
 	isNumberKey : function(evt) {
 		var keyCode = WebUI.normalizeKey(evt);
-		// alert('keycode='+evt.keyCode+", charCode="+evt.charCode+",
-		// which="+evt.which);
-		// alert('keyCode = '+keyCode);
-		return (keyCode >= 1000 || (keyCode >= 48 && keyCode <= 57));
+		//alert('keycode='+evt.keyCode+", charCode="+evt.charCode+", which="+evt.which+", norm="+keyCode);
+		return (keyCode >= 1000 || (keyCode >= 48 && keyCode <= 57) || keyCode == 45);
 	},
 
 	isFloatKey : function(evt) {
 		var keyCode = WebUI.normalizeKey(evt);
-		return (keyCode >= 1000 || keyCode == 0x2c || keyCode == 0x2e || (keyCode >= 48 && keyCode <= 57));
+		//alert('keycode='+evt.keyCode+", charCode="+evt.charCode+", which="+evt.which+", norm="+keyCode);
+		return (keyCode >= 1000 || keyCode == 0x2c || keyCode == 0x2e || (keyCode >= 48 && keyCode <= 57) || keyCode == 45);
 	},
 
 	returnKeyPress : function(evt) {
