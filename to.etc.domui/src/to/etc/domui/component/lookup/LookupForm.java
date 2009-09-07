@@ -54,6 +54,8 @@ public class LookupForm<T> extends Div {
 
 	IClicked<LookupForm<T>> m_onNew;
 
+	IClicked<LookupForm<T>> m_onClear;
+
 	private Table m_table;
 
 	private TBody m_tbody;
@@ -213,7 +215,9 @@ public class LookupForm<T> extends Div {
 		b.setIcon("THEME/btnClear.png");
 		b.setClicked(new IClicked<NodeBase>() {
 			public void clicked(final NodeBase xb) throws Exception {
-				clearInput();
+				if(getOnClear() != null) {
+					getOnClear().clicked(LookupForm.this);
+				}
 			}
 		});
 
@@ -641,5 +645,13 @@ public class LookupForm<T> extends Div {
 	@Override
 	public void setClicked(final IClicked< ? > clicked) {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
+	}
+
+	public IClicked<LookupForm<T>> getOnClear() {
+		return m_onClear;
+	}
+
+	public void setOnClear(IClicked<LookupForm<T>> onClear) {
+		m_onClear = onClear;
 	}
 }
