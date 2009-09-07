@@ -52,6 +52,8 @@ public class ControlFactoryString implements ControlFactory {
 					int nd = (d - 1) / 3; // How many thousand separators could there be?
 					size += nd; // Increment input size with that
 				}
+			} else {
+				txt.setMaxLength(size);
 			}
 			txt.setSize(size);
 		} else if(pmm.getLength() > 0) {

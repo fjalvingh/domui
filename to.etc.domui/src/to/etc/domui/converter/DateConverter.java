@@ -10,45 +10,63 @@ import to.etc.util.*;
 public class DateConverter implements IConverter<Date> {
 	static private final ThreadLocal<DateFormat> m_format = new ThreadLocal<DateFormat>();
 
+	static private final String DATE_PATTERN_NL = "dd-MM-yyyy";
+
+	static private final String DATE_PATTERN_EN = "yyyy-MM-dd";
+
 	static private DateFormat getFormatter() {
 		DateFormat df = m_format.get();
 		if(df == null) {
-			df = new SimpleDateFormat("dd-MM-yyyy");
+			df = new SimpleDateFormat(DATE_PATTERN_NL);
 			m_format.set(df);
 		}
 		return df;
 	}
 
 	public String convertObjectToString(final Locale loc, final Date in) throws UIException {
-		if(in == null)
+		if(in == null) {
 			return "";
+		}
 		//		if(!(in instanceof Date))
 		//			throw new IllegalStateException("Type must be java.util.Date for this converter");
 		Date dt = in;
 		if(loc.getLanguage().equalsIgnoreCase("nl")) {
 			return getFormatter().format(dt);
-		} else if(loc.getLanguage().equalsIgnoreCase("en"))
-			return new SimpleDateFormat("yyyy-MM-dd").format(dt);
+		} else if(loc.getLanguage().equalsIgnoreCase("en")) {
+			return new SimpleDateFormat(DATE_PATTERN_EN).format(dt);
+		}
 
 		DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, loc);
 		return df.format(dt);
 	}
 
 	public Date convertStringToObject(final Locale loc, String input) throws UIException {
-		if(input == null)
+		String datePattern = null;
+
+		if(input == null) {
 			return null;
+		}
 		input = input.trim();
-		if(input.length() == 0)
+		if(input.length() == 0) {
 			return null;
+		}
+
 		try {
-			if(loc.getLanguage().equalsIgnoreCase("nl")) // Default java date NLS code sucks utterly, it's worse than a black hole.
+			if(loc.getLanguage().equalsIgnoreCase("nl")) { // Default java date NLS code sucks utterly, it's worse than a black hole.
+				datePattern = DATE_PATTERN_NL;
 				return CalculationUtil.dutchDate(input);
-			else if(loc.getLanguage().equalsIgnoreCase("en"))
-				return new SimpleDateFormat("yyyy-MM-dd").parse(input);
-			else
-				return DateFormat.getDateInstance(DateFormat.SHORT, loc).parse(input);
+			} else if(loc.getLanguage().equalsIgnoreCase("en")) {
+				datePattern = DATE_PATTERN_EN;
+				return new SimpleDateFormat(DATE_PATTERN_EN).parse(input);
+			} else {
+				DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, loc);
+				if(dateFormat instanceof SimpleDateFormat) {
+					datePattern = ((SimpleDateFormat) dateFormat).toLocalizedPattern();
+				}
+				return dateFormat.parse(input);
+			}
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID_DATE);
+			throw new ValidationException(Msgs.V_INVALID_DATE, datePattern);
 		}
 	}
 }
