@@ -217,7 +217,10 @@ public class LookupForm<T> extends Div {
 			public void clicked(final NodeBase xb) throws Exception {
 				if(getOnClear() != null) {
 					getOnClear().clicked(LookupForm.this);
+				} else {
+					clearInput();
 				}
+
 			}
 		});
 
