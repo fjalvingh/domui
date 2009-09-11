@@ -27,7 +27,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	/**
 	 * If the value is to be converted use this converter for it.
 	 */
-	private Class<? extends IConverter<T>> m_converterClass;
+	private Class< ? extends IConverter<T>> m_converterClass;
 
 	/** Defined value validators on this field. */
 	private List<PropertyMetaValidator> m_validators = Collections.EMPTY_LIST;
@@ -180,7 +180,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	 *
 	 * @return
 	 */
-	public Class<? extends IConverter<T>> getConverterClass() {
+	public Class< ? extends IConverter<T>> getConverterClass() {
 		return m_converterClass;
 	}
 
@@ -191,7 +191,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	 *
 	 * @param converterClass
 	 */
-	public void setConverterClass(Class<? extends IConverter<T>> converterClass) {
+	public void setConverterClass(Class< ? extends IConverter<T>> converterClass) {
 		m_converterClass = converterClass;
 	}
 
@@ -216,7 +216,8 @@ public class Text<T> extends Input implements IInputNode<T> {
 		// jal 20080930 Onderstaande code aangepast. Dit levert als bug op dat "wissen" van een niet-gevalideerde waarde niet werkt. Dat
 		// wordt veroorzaakt als volgt: als de control een niet-gevalideerde tekst bevat dan is m_rawValue de string maar m_value staat nog
 		// op null. Onderstaande code returnt dan onmiddelijk waardoor de rawvalue blijft bestaan.
-		if(isValidated() && DomUtil.isEqual(m_value, value))
+		// vmijic 20090911 
+		if(isValidated() && DomUtil.isEqual(m_value, value) && DomUtil.isEqual(getRawValue(), value))
 			return;
 		m_value = value;
 		String converted;

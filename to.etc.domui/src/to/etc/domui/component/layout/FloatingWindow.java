@@ -14,6 +14,7 @@ import to.etc.domui.util.*;
  */
 public class FloatingWindow extends Div {
 	private boolean m_modal;
+
 	private NodeContainer m_titleBar;
 
 	private NodeContainer m_content;
@@ -104,7 +105,7 @@ public class FloatingWindow extends Div {
 			setHeight(HEIGHT + "px");
 		if(getZIndex() <= 0)
 			setZIndex(100);
-		setPosition(PositionType.ABSOLUTE);
+		setPosition(PositionType.FIXED);
 
 		// center floating window horizontally on screen
 		setMarginLeft("-" + WIDTH / 2 + "px");

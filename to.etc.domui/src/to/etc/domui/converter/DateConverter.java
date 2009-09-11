@@ -57,12 +57,17 @@ public class DateConverter implements IConverter<Date> {
 				return CalculationUtil.dutchDate(input);
 			} else if(loc.getLanguage().equalsIgnoreCase("en")) {
 				datePattern = DATE_PATTERN_EN;
-				return new SimpleDateFormat(DATE_PATTERN_EN).parse(input);
+				SimpleDateFormat enDateFormat = new SimpleDateFormat(DATE_PATTERN_EN);
+				//vmijic 20090911 Set lenient to false to prevent wierd date recaclulations by java built in code.  
+				enDateFormat.setLenient(false);
+				return enDateFormat.parse(input);
 			} else {
 				DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, loc);
 				if(dateFormat instanceof SimpleDateFormat) {
 					datePattern = ((SimpleDateFormat) dateFormat).toLocalizedPattern();
 				}
+				//vmijic 20090911 Set lenient to false to prevent wierd date recaclulations by java built in code.  
+				dateFormat.setLenient(false);
 				return dateFormat.parse(input);
 			}
 		} catch(Exception x) {
