@@ -139,6 +139,13 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 				search(b);
 			}
 		});
+
+		lf.setOnCancel(new IClicked<LookupForm<T>>() {
+			public void clicked(LookupForm<T> b) throws Exception {
+				m_floater.cancel();
+			}
+		});
+
 	}
 
 	void search(LookupForm<T> lf) throws Exception {

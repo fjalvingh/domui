@@ -56,6 +56,8 @@ public class LookupForm<T> extends Div {
 
 	IClicked<LookupForm<T>> m_onClear;
 
+	IClicked<LookupForm<T>> m_cancel;
+
 	private Table m_table;
 
 	private TBody m_tbody;
@@ -231,6 +233,18 @@ public class LookupForm<T> extends Div {
 			b.setClicked(new IClicked<NodeBase>() {
 				public void clicked(final NodeBase xb) throws Exception {
 					getOnNew().clicked(LookupForm.this);
+				}
+			});
+		} else {
+			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
+			d.add(b);
+			b.setIcon("THEME/btnCancel.png");
+			b.setClicked(new IClicked<NodeBase>() {
+				public void clicked(final NodeBase xb) throws Exception {
+
+					if(m_cancel != null) {
+						m_cancel.clicked(LookupForm.this);
+					}
 				}
 			});
 		}
@@ -656,5 +670,9 @@ public class LookupForm<T> extends Div {
 
 	public void setOnClear(IClicked<LookupForm<T>> onClear) {
 		m_onClear = onClear;
+	}
+
+	public void setOnCancel(IClicked<LookupForm<T>> onCancel) {
+		m_cancel = onCancel;
 	}
 }
