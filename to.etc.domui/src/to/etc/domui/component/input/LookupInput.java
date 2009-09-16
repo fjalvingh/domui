@@ -76,7 +76,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			}
 		});
 
-		m_clearButton.setVisibility(VisibilityType.HIDDEN);
+		m_clearButton.setDisplay(DisplayType.NONE);
 
 		setCssClass("ui-lui");
 		setCellPadding("0");
@@ -256,10 +256,12 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			return;
 		m_value = v;
 		if(m_value != null) {
-			m_clearButton.setVisibility(VisibilityType.VISIBLE);
+			m_clearButton.setDisplay(DisplayType.INLINE);
 			clearMessage();
+			setCssClass("ui-lui-selected");
 		} else {
-			m_clearButton.setVisibility(VisibilityType.HIDDEN);
+			m_clearButton.setDisplay(DisplayType.NONE);
+			setCssClass("ui-lui");
 		}
 		forceRebuild();
 	}

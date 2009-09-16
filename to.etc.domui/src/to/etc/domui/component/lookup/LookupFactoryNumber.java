@@ -28,19 +28,20 @@ final class LookupFactoryNumber implements LookupControlFactory {
 
 		final Text< ? > numA = createNumericInput(pmm);
 		final Text< ? > numB = createNumericInput(pmm);
-		numB.setVisibility(VisibilityType.HIDDEN);
+		numB.setDisplay(DisplayType.NONE);
+
 
 		final ComboFixed<NumericRelationType> relationCombo = new ComboFixed<NumericRelationType>(values);
 
 		relationCombo.setOnValueChanged(new IValueChanged<ComboFixed<NumericRelationType>, NumericRelationType>() {
 			public void onValueChanged(ComboFixed<NumericRelationType> component, NumericRelationType value) throws Exception {
 				if(value == NumericRelationType.BETWEEN) {
-					if(numB.getVisibility() != VisibilityType.VISIBLE) {
-						numB.setVisibility(VisibilityType.VISIBLE);
+					if(numB.getDisplay() == DisplayType.NONE) {
+						numB.setDisplay(DisplayType.INLINE);
 					}
 				} else {
-					if(numB.getVisibility() == VisibilityType.VISIBLE) {
-						numB.setVisibility(VisibilityType.HIDDEN);
+					if(numB.getDisplay() != DisplayType.NONE) {
+						numB.setDisplay(DisplayType.NONE);
 					}
 				}
 			}
