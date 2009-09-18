@@ -270,7 +270,7 @@ public class MsgBox extends FloatingWindow {
 		td = b.addCell("ui-mbx-mc");
 		td.add(m_theText);
 		add(m_theButtons);
-		//FIXME: vmijic 20090911 Set initial focus to fisrt button. However preventing of keyboard input focus on window in background has to be resolved properly. 
+		//FIXME: vmijic 20090911 Set initial focus to first button. However preventing of keyboard input focus on window in background has to be resolved properly. 
 		setFocusOnButton();
 	}
 
