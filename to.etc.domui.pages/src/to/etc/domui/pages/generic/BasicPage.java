@@ -3,7 +3,9 @@ package to.etc.domui.pages.generic;
 import java.util.*;
 
 import to.etc.domui.component.misc.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 public class BasicPage<T> extends UrlPage {
 	private Class<T> m_baseClass;
@@ -58,5 +60,10 @@ public class BasicPage<T> extends UrlPage {
 
 	public static synchronized List<IGenericPageModifier> getModifierList() {
 		return m_pageModifierList;
+	}
+
+	public void clearGlobalMessages() {
+		IErrorFence fence = DomUtil.getMessageFence(this);
+		fence.clearGlobalMessages(this, null);
 	}
 }
