@@ -47,9 +47,11 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	private String[] m_resultColumns;
 
+	private IErrorMessageListener m_customErrorMessageListener;
+
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass);
-		this.m_resultColumns = resultColumns;
+		m_resultColumns = resultColumns;
 	}
 
 	private boolean m_allowEmptyQuery;
@@ -74,7 +76,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			}
 		});
 
-		m_clearButton.setVisibility(VisibilityType.HIDDEN);
+		m_clearButton.setDisplay(DisplayType.NONE);
 
 		setCssClass("ui-lui");
 		setCellPadding("0");
@@ -116,6 +118,12 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 		m_floater.setHeight("90%");
 		m_floater.setIcon("THEME/btnFind.png");
+		//in case when external error message listener is set
+		if(m_customErrorMessageListener != null && m_customErrorMessageListener instanceof NodeBase) {
+			m_floater.setErrorFence();
+			m_floater.add((NodeBase) m_customErrorMessageListener);
+			DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
+		}
 		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(m_lookupClass);
 		m_floater.add(lf);
 		m_floater.setOnClose(new IClicked<FloatingWindow>() {
@@ -131,6 +139,13 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 				search(b);
 			}
 		});
+
+		lf.setOnCancel(new IClicked<LookupForm<T>>() {
+			public void clicked(LookupForm<T> b) throws Exception {
+				m_floater.closePressed();
+			}
+		});
+
 	}
 
 	void search(LookupForm<T> lf) throws Exception {
@@ -143,7 +158,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		}
 		m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
-			m_floater.addGlobalMessage(MsgType.ERROR, Msgs.V_MISSING_SEARCH); // Missing inputs
+			m_floater.addGlobalMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.V_MISSING_SEARCH); // Missing inputs
 			return;
 		} else
 			m_floater.clearGlobalMessage();
@@ -232,7 +247,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
-			setMessage(MsgType.ERROR, Msgs.MANDATORY);
+			setMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.MANDATORY);
 			throw new ValidationException(Msgs.MANDATORY);
 		}
 		return m_value;
@@ -248,10 +263,12 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			return;
 		m_value = v;
 		if(m_value != null) {
-			m_clearButton.setVisibility(VisibilityType.VISIBLE);
+			m_clearButton.setDisplay(DisplayType.INLINE);
 			clearMessage();
+			setCssClass("ui-lui-selected");
 		} else {
-			m_clearButton.setVisibility(VisibilityType.HIDDEN);
+			m_clearButton.setDisplay(DisplayType.NONE);
+			setCssClass("ui-lui");
 		}
 		forceRebuild();
 	}
@@ -418,5 +435,13 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	public void setResultColumns(String[] resultColumns) {
 		m_resultColumns = resultColumns;
+	}
+
+	public IErrorMessageListener getCustomErrorMessageListener() {
+		return m_customErrorMessageListener;
+	}
+
+	public void setCustomErrorMessageListener(IErrorMessageListener customErrorMessageListener) {
+		m_customErrorMessageListener = customErrorMessageListener;
 	}
 }

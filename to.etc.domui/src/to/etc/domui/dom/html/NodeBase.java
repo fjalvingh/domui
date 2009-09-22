@@ -6,6 +6,7 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * Base node for all non-container html dom nodes.
@@ -648,9 +649,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param code
 	 * @param param
 	 */
-	public UIMessage setMessage(final MsgType mt, final String code, final Object... param) {
+	public UIMessage setMessage(final MsgType mt, BundleRef ref, final String code, final Object... param) {
 		if(m_errorDelegate != null)
-			return m_errorDelegate.setMessage(mt, code, param);
+			return m_errorDelegate.setMessage(mt, ref, code, param);
 
 		//-- If this (new) message has a LOWER severity than the EXISTING message ignore this call
 		if(m_message != null) {
@@ -667,7 +668,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		}
 
 		//-- Now add the message
-		m_message = new UIMessage(this, mt, code, param); // Create the container for the message
+		m_message = new UIMessage(this, mt, ref, code, param); // Create the container for the message
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.addMessage(this, m_message);
 		return m_message;
@@ -714,8 +715,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param code
 	 * @param param
 	 */
-	public UIMessage addGlobalMessage(final MsgType mt, final String code, final Object... param) {
-		UIMessage m = new UIMessage(null, mt, code, param); // Create the container for the message
+	public UIMessage addGlobalMessage(final MsgType mt, BundleRef ref, final String code, final Object... param) {
+		UIMessage m = new UIMessage(null, mt, ref, code, param); // Create the container for the message
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.addMessage(this, m);
 		return m;

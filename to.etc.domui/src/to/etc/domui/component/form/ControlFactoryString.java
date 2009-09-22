@@ -45,6 +45,7 @@ public class ControlFactoryString implements ControlFactory {
 			//-- Calculate a size using scale and precision.
 			int size = pmm.getPrecision();
 			int d = size;
+			size++; // Allow minus
 			if(pmm.getScale() > 0) {
 				size++; // Inc size to allow for decimal point or comma
 				d -= pmm.getScale(); // Reduce integer part,
@@ -52,8 +53,14 @@ public class ControlFactoryString implements ControlFactory {
 					int nd = (d - 1) / 3; // How many thousand separators could there be?
 					size += nd; // Increment input size with that
 				}
+			} else {
+				if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
+					int nd = (d - 1) / 3; // How many thousand separators could there be?
+					size += nd; // Increment input size with that
+				}
 			}
 			txt.setSize(size);
+			txt.setMaxLength(size); // FIXME QUESTIONABLE: Euro sign input??
 		} else if(pmm.getLength() > 0) {
 			txt.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
 		}

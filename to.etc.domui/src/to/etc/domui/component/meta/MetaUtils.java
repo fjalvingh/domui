@@ -1,5 +1,7 @@
 package to.etc.domui.component.meta;
 
+import to.etc.webapp.*;
+
 
 /**
  * Utility class used as utility method library for working with meta data.
@@ -13,17 +15,18 @@ public class MetaUtils {
 	 */
 	public static int parseIntParam(final String metadataLine, final String paramName, final int defaultValue) {
 		String paramValue = parseStringParam(metadataLine, paramName);
+		if(paramValue == null || paramValue.trim().length() == 0)
+			return defaultValue;
 		try {
 			return Integer.parseInt(paramValue);
 		} catch(NumberFormatException e) {
-			//FIXME: introduce log4j logging
-			return defaultValue;
+			throw new ProgrammerErrorException("Invalid number in metadata string: " + metadataLine + ", parameter=" + paramName + ", value=" + paramValue);
 		}
 	}
 
 	public static String parseStringParam(final String metadataLine, final String paramName) {
 		String paramValue = null;
-		final String paramItem = paramName + '=';
+		final String paramItem = paramName.toLowerCase() + '=';
 		if(metadataLine.contains(paramItem)) {
 			if(metadataLine.indexOf(";", metadataLine.indexOf(paramItem)) > 0) {
 				paramValue = metadataLine.substring(metadataLine.indexOf(paramItem) + paramItem.length(), metadataLine.indexOf(";", metadataLine.indexOf(paramItem)));

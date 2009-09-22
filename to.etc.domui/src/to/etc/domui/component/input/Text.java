@@ -27,7 +27,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	/**
 	 * If the value is to be converted use this converter for it.
 	 */
-	private Class<? extends IConverter<T>> m_converterClass;
+	private Class< ? extends IConverter<T>> m_converterClass;
 
 	/** Defined value validators on this field. */
 	private List<PropertyMetaValidator> m_validators = Collections.EMPTY_LIST;
@@ -116,7 +116,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 		m_validated = true;
 		if(raw == null || raw.length() == 0) {
 			if(isMandatory()) {
-				setMessage(MsgType.ERROR, Msgs.MANDATORY);
+				setMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.MANDATORY);
 				return false;
 			}
 
@@ -141,14 +141,14 @@ public class Text<T> extends Input implements IInputNode<T> {
 			if(m_validators.size() != 0)
 				ValidatorRegistry.validate(converted, m_validators);
 		} catch(UIException x) {
-			setMessage(MsgType.ERROR, x.getCode(), x.getParameters());
+			setMessage(MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
 			return false;
 		} catch(RuntimeConversionException x) {
-			setMessage(MsgType.ERROR, Msgs.NOT_VALID, raw);
+			setMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.NOT_VALID, raw);
 			return false;
 		} catch(Exception x) {
 			x.printStackTrace();
-			setMessage(MsgType.ERROR, Msgs.UNEXPECTED_EXCEPTION, x);
+			setMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x);
 			return false;
 		}
 
@@ -180,7 +180,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	 *
 	 * @return
 	 */
-	public Class<? extends IConverter<T>> getConverterClass() {
+	public Class< ? extends IConverter<T>> getConverterClass() {
 		return m_converterClass;
 	}
 
@@ -191,7 +191,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 	 *
 	 * @param converterClass
 	 */
-	public void setConverterClass(Class<? extends IConverter<T>> converterClass) {
+	public void setConverterClass(Class< ? extends IConverter<T>> converterClass) {
 		m_converterClass = converterClass;
 	}
 
@@ -216,7 +216,8 @@ public class Text<T> extends Input implements IInputNode<T> {
 		// jal 20080930 Onderstaande code aangepast. Dit levert als bug op dat "wissen" van een niet-gevalideerde waarde niet werkt. Dat
 		// wordt veroorzaakt als volgt: als de control een niet-gevalideerde tekst bevat dan is m_rawValue de string maar m_value staat nog
 		// op null. Onderstaande code returnt dan onmiddelijk waardoor de rawvalue blijft bestaan.
-		if(isValidated() && DomUtil.isEqual(m_value, value))
+		// vmijic 20090911
+		if(isValidated() && DomUtil.isEqual(m_value, value)) // FIXME Removed pending explanation:  && DomUtil.isEqual(getRawValue(), value)
 			return;
 		m_value = value;
 		String converted;
@@ -226,11 +227,11 @@ public class Text<T> extends Input implements IInputNode<T> {
 			} else
 				converted = ConverterRegistry.convertValueToString(m_converterClass, value);
 		} catch(UIException x) {
-			setMessage(MsgType.ERROR, x.getCode(), x.getParameters());
+			setMessage(MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
 			return;
 		} catch(Exception x) {
 			x.printStackTrace();
-			setMessage(MsgType.ERROR, Msgs.UNEXPECTED_EXCEPTION, x);
+			setMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x);
 			return;
 		}
 		setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string

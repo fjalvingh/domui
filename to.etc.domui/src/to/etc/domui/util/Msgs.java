@@ -109,6 +109,9 @@ public interface Msgs {
 	/** lookupform.clear key */
 	public static final String LOOKUP_FORM_CLEAR = "lookupform.clear";
 
+	/** lookupform.cancel key */
+	public static final String LOOKUP_FORM_CANCEL = "lookupform.cancel";
+
 	/** lookupform.new key */
 	public static final String LOOKUP_FORM_NEW = "lookupform.new";
 
