@@ -339,7 +339,6 @@ public class HtmlRenderer implements INodeVisitor {
 			a.append(c.getMarginTop());
 			a.append(';');
 		}
-
 	}
 
 	static private String border(final StringBuilder a, final int w, final String s, final String c) {
@@ -416,6 +415,8 @@ public class HtmlRenderer implements INodeVisitor {
 		String s = getStyleFor(b); // Get/recalculate style
 		if(s.length() > 0)
 			o.attr("style", s); // Append style
+		if(b.getTestID() != null)
+			o.attr("domui:testid", b.getTestID());
 		if(b.getCssClass() != null)
 			o.attr("class", b.getCssClass());
 		String ttl = b.getLiteralTitle();
