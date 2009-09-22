@@ -11,7 +11,7 @@ import to.etc.domui.util.*;
 
 /**
  * INCOMPLETE! A select button which does automagic lookup of it's data.
- * 
+ *
  * <h2>Selected value binding</h2>
  * <p>The current version of this control retrieves it's list-of-values once, and
  * 	keeps it in memory. It can then easily retrieve the selected item by just
@@ -23,7 +23,7 @@ import to.etc.domui.util.*;
  * <h2>Future value binding</h2>
  * <p>This combo returns as it's value one of the items added to it's list of
  * items. For normal items we will use the index of the item in the source
- * item list (as returned by IComboDataSet) as the "key" to indicate which item is 
+ * item list (as returned by IComboDataSet) as the "key" to indicate which item is
  * selected. This means that <b>every</b> retrieval of the list <b>must</b> return
  * the same list, and in the same order as it was added. This method of operation
  * works flawless for things like static lists and lists of enum classes.</p>
@@ -114,7 +114,7 @@ public class ComboLookup<T> extends Select implements IInputNode<T> {
 
 	public T getValue() {
 		if(isMandatory() && m_currentValue == null) {
-			setMessage(MsgType.ERROR, Msgs.MANDATORY);
+			setMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.MANDATORY);
 			throw new ValidationException(Msgs.NOT_VALID, "null");
 		}
 		return m_currentValue;

@@ -49,19 +49,7 @@ public class TabPanel extends Div {
 		}
 	}
 
-	/**
-	 * Listener for tab selected possible on TabPanel. Represents the isSelectTabPossible handler.
-	 *
-	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
-	 * Created on 8 Sep 2009
-	 */
-	public interface ITabClicked {
-		public boolean isSelectTabPossible(TabPanel tabPanel, int tabIndex) throws Exception;
-	}
-
 	private List<TabInstance> m_tablist = new ArrayList<TabInstance>();
-
-	private ITabClicked m_tabClicked;
 
 	/** The index for the currently visible tab. */
 	private int m_currentTab;
@@ -165,13 +153,7 @@ public class TabPanel extends Div {
 		final int index_ = index;
 		a.setClicked(new IClicked<ATag>() {
 			public void clicked(ATag b) throws Exception {
-				boolean doChange = true;
-				if(getTabClicked() != null) {
-					doChange = getTabClicked().isSelectTabPossible(TabPanel.this, index_);
-				}
-				if(doChange) {
-					setCurrentTab(index_);
-				}
+				setCurrentTab(index_);
 			}
 		});
 	}
@@ -194,13 +176,5 @@ public class TabPanel extends Div {
 			newti.getTab().addCssClass("ui-tab-sel");
 		}
 		m_currentTab = index; // ORDERED!!! Must be below the above!!!
-	}
-
-	public ITabClicked getTabClicked() {
-		return m_tabClicked;
-	}
-
-	public void setTabClicked(ITabClicked tabClicked) {
-		m_tabClicked = tabClicked;
 	}
 }

@@ -213,7 +213,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			String message = (String) cm.getAttribute(UIGoto.SINGLESHOT_ERROR);
 			if(message != null) {
 				page.getBody().build();
-				page.getBody().addGlobalMessage(MsgType.ERROR, Msgs.S_PAGE_CLEARED, message);
+				page.getBody().addGlobalMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, message);
 				cm.setAttribute(UIGoto.SINGLESHOT_ERROR, null);
 			}
 		}

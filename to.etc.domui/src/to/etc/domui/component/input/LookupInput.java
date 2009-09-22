@@ -51,7 +51,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass);
-		this.m_resultColumns = resultColumns;
+		m_resultColumns = resultColumns;
 	}
 
 	private boolean m_allowEmptyQuery;
@@ -142,7 +142,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 		lf.setOnCancel(new IClicked<LookupForm<T>>() {
 			public void clicked(LookupForm<T> b) throws Exception {
-				m_floater.cancel();
+				m_floater.closePressed();
 			}
 		});
 
@@ -158,7 +158,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		}
 		m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
-			m_floater.addGlobalMessage(MsgType.ERROR, Msgs.V_MISSING_SEARCH); // Missing inputs
+			m_floater.addGlobalMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.V_MISSING_SEARCH); // Missing inputs
 			return;
 		} else
 			m_floater.clearGlobalMessage();
@@ -247,7 +247,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
-			setMessage(MsgType.ERROR, Msgs.MANDATORY);
+			setMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.MANDATORY);
 			throw new ValidationException(Msgs.MANDATORY);
 		}
 		return m_value;

@@ -41,16 +41,13 @@ public class DateConverter implements IConverter<Date> {
 	}
 
 	public Date convertStringToObject(final Locale loc, String input) throws UIException {
-		String datePattern = null;
-
-		if(input == null) {
+		if(input == null)
 			return null;
-		}
 		input = input.trim();
-		if(input.length() == 0) {
+		if(input.length() == 0)
 			return null;
-		}
 
+		String datePattern = null;
 		try {
 			if(loc.getLanguage().equalsIgnoreCase("nl")) { // Default java date NLS code sucks utterly, it's worse than a black hole.
 				datePattern = DATE_PATTERN_NL;
@@ -58,15 +55,17 @@ public class DateConverter implements IConverter<Date> {
 			} else if(loc.getLanguage().equalsIgnoreCase("en")) {
 				datePattern = DATE_PATTERN_EN;
 				SimpleDateFormat enDateFormat = new SimpleDateFormat(DATE_PATTERN_EN);
-				//vmijic 20090911 Set lenient to false to prevent wierd date recaclulations by java built in code.  
+				//vmijic 20090911 Set lenient to false to prevent wierd date recaclulations by java built in code.
 				enDateFormat.setLenient(false);
 				return enDateFormat.parse(input);
 			} else {
 				DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, loc);
-				if(dateFormat instanceof SimpleDateFormat) {
+				if(dateFormat instanceof SimpleDateFormat)
 					datePattern = ((SimpleDateFormat) dateFormat).toLocalizedPattern();
-				}
-				//vmijic 20090911 Set lenient to false to prevent wierd date recaclulations by java built in code.  
+				else
+					datePattern = "Internal: unknown date format!";
+
+				//vmijic 20090911 Set lenient to false to prevent wierd date recaclulations by java built in code.
 				dateFormat.setLenient(false);
 				return dateFormat.parse(input);
 			}

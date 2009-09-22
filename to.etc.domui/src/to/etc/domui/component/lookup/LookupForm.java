@@ -56,7 +56,7 @@ public class LookupForm<T> extends Div {
 
 	IClicked<LookupForm<T>> m_onClear;
 
-	IClicked<LookupForm<T>> m_cancel;
+	IClicked<LookupForm<T>> m_onCancel;
 
 	private Table m_table;
 
@@ -217,12 +217,9 @@ public class LookupForm<T> extends Div {
 		b.setIcon("THEME/btnClear.png");
 		b.setClicked(new IClicked<NodeBase>() {
 			public void clicked(final NodeBase xb) throws Exception {
-				if(getOnClear() != null) {
+				clearInput();
+				if(getOnClear() != null)
 					getOnClear().clicked(LookupForm.this);
-				} else {
-					clearInput();
-				}
-
 			}
 		});
 
@@ -235,15 +232,16 @@ public class LookupForm<T> extends Div {
 					getOnNew().clicked(LookupForm.this);
 				}
 			});
-		} else {
+		}
+		if(null != getOnCancel()) {
 			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
 			d.add(b);
 			b.setIcon("THEME/btnCancel.png");
 			b.setClicked(new IClicked<NodeBase>() {
 				public void clicked(final NodeBase xb) throws Exception {
 
-					if(m_cancel != null) {
-						m_cancel.clicked(LookupForm.this);
+					if(getOnCancel() != null) {
+						getOnCancel().clicked(LookupForm.this);
 					}
 				}
 			});
@@ -288,6 +286,19 @@ public class LookupForm<T> extends Div {
 			b.setClicked(new IClicked<NodeBase>() {
 				public void clicked(final NodeBase xb) throws Exception {
 					getOnNew().clicked(LookupForm.this);
+				}
+			});
+		}
+		if(null != getOnCancel()) {
+			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
+			m_collapsed.add(b);
+			b.setIcon("THEME/btnCancel.png");
+			b.setClicked(new IClicked<NodeBase>() {
+				public void clicked(final NodeBase xb) throws Exception {
+
+					if(getOnCancel() != null) {
+						getOnCancel().clicked(LookupForm.this);
+					}
 				}
 			});
 		}
@@ -668,11 +679,23 @@ public class LookupForm<T> extends Div {
 		return m_onClear;
 	}
 
+	/**
+	 * Listener to call when the "clear" button is pressed.
+	 * @param onClear
+	 */
 	public void setOnClear(IClicked<LookupForm<T>> onClear) {
 		m_onClear = onClear;
 	}
 
+	/**
+	 * When set, this causes a "cancel" button to be added to the form. When that button is pressed this handler gets called.
+	 * @param onCancel
+	 */
 	public void setOnCancel(IClicked<LookupForm<T>> onCancel) {
-		m_cancel = onCancel;
+		m_onCancel = onCancel;
+	}
+
+	public IClicked<LookupForm<T>> getOnCancel() {
+		return m_onCancel;
 	}
 }

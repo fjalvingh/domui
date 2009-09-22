@@ -195,7 +195,7 @@ public class FloatingWindow extends Div {
 			ttl.add(m_closeButton);
 			m_closeButton.setClicked(new IClicked<NodeBase>() {
 				public void clicked(NodeBase b) throws Exception {
-					cancel();
+					closePressed();
 				}
 			});
 		}
@@ -206,11 +206,11 @@ public class FloatingWindow extends Div {
 	}
 
 	/**
-	 * Execute code that happens when system menu cancel [X] button is clicked.
-	 * 
+	 * Close the window !AND CALL THE CLOSE HANDLER!.
+	 *
 	 * @throws Exception
 	 */
-	public void cancel() throws Exception {
+	public void closePressed() throws Exception {
 		close();
 		if(m_onClose != null)
 			m_onClose.clicked(FloatingWindow.this);

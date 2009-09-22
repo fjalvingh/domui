@@ -4,6 +4,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 public class SimpleComponentPropertyBinding implements ModelBinding, IFormControl {
 	final IInputNode<Object> m_control;
@@ -65,8 +66,8 @@ public class SimpleComponentPropertyBinding implements ModelBinding, IFormContro
 		return m_control.getMessage();
 	}
 
-	public UIMessage setMessage(MsgType mt, String code, Object... param) {
-		return m_control.setMessage(mt, code, param);
+	public UIMessage setMessage(MsgType mt, BundleRef br, String code, Object... param) {
+		return m_control.setMessage(mt, br, code, param);
 	}
 
 }
