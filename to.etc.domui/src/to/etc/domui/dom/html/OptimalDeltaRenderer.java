@@ -249,6 +249,18 @@ public class OptimalDeltaRenderer {
 		m_html.setRenderMode(HtmlRenderMode.ATTR);
 		//		m_html.setNewNode(false);
 		b.visit(m_html);
+
+		/*
+		 * 20090923 jal Fix for bug 627: textarea in IE is a complete fuckup and removes whitespace and newlines. This is unfixable in
+		 * any normal way, so for now we render it's value as a domjs_value attribute.
+		 */
+		if(b.getTag().equalsIgnoreCase("textarea")) {
+			String txt = ((TextArea) b).getValue();
+			txt = StringTool.strToJavascriptString(txt, false);
+			o().attr("domjs_value", txt);
+		}
+		//-- End fix
+
 		o().endAndCloseXmltag(); // Fully-close tag with />
 		o().nl();
 	}
@@ -272,24 +284,58 @@ public class OptimalDeltaRenderer {
 		o().nl();
 	}
 
+	//	static private String tmpConv(String in) {
+	//		StringBuilder sb = new StringBuilder(in.length() + 20);
+	//		for(int i = 0; i < in.length(); i++) {
+	//			char c = in.charAt(i);
+	//			switch(c){
+	//				default:
+	//					sb.append(c);
+	//					break;
+	//				case '<':
+	//					sb.append("&lt;");
+	//					break;
+	//				case '>':
+	//					sb.append("&gt;");
+	//					break;
+	//				case '&':
+	//					sb.append("&amp;");
+	//					break;
+	//				case '\n':
+	//					sb.append("\n");
+	//					break;
+	//			}
+	//		}
+	//
+	//		return sb.toString();
+	//	}
+
 	private void renderRest(NodeInfo ni) throws Exception {
 		if(ni.isFullRender) {
-			o().tag("replaceContent");
-			o().attr("select", "#" + ni.node.getActualID());
-			boolean ind = o().isIndentEnabled();
-			if("textarea".equals(ni.node.getTag())) { // QDFIX Do not indent textarea content
-				o().setIndentEnabled(false);
-			}
-			m_html.setTagless(false);
-			m_html.setRenderMode(HtmlRenderMode.REPL);
-			//			m_html.setNewNode(true);
+			if("textarea".equalsIgnoreCase(ni.node.getTag())) {
+				/*
+				 * 20090923 jal Fix for bug 627: textarea in IE is a complete fuckup and removes whitespace and newlines. This is unfixable in
+				 * any normal way, so for now we render it's value as a domjs_value attribute.
+				 */
+				renderAttributeChange(ni.node);
+				return;
+			} else {
+				o().tag("replaceContent");
+				o().attr("select", "#" + ni.node.getActualID());
+				m_html.setTagless(false);
+				m_html.setRenderMode(HtmlRenderMode.REPL);
 
-			//			ni.node.visit(m_fullRenderer);
-			m_fullRenderer.visitChildren(ni.node); // 20080624 jal fix for table in table in table in table..... when paging
-			o().closetag("replaceContent");
-			o().setIndentEnabled(ind);
-			renderAttributeChange(ni.node); // 20080820 jal Fix voor ontbrekende attrs als tekstinhoud TextArea wijzigt?
-			return;
+				//				boolean ind = o().isIndentEnabled();
+				//				if("textarea".equals(ni.node.getTag())) { // QDFIX Do not indent textarea content
+				//					o().setIndentEnabled(false);
+				//				}
+
+				m_fullRenderer.visitChildren(ni.node); // 20080624 jal fix for table in table in table in table..... when paging
+				o().closetag("replaceContent");
+				//				o().setIndentEnabled(ind);
+				renderAttributeChange(ni.node); // 20080820 jal Fix voor ontbrekende attrs als tekstinhoud TextArea wijzigt?
+				return;
+			}
 		}
 
 		for(NodeBase b : ni.attrChangeList)
@@ -299,6 +345,53 @@ public class OptimalDeltaRenderer {
 		for(NodeInfo tni : ni.lowerChanges)
 			renderRest(tni);
 	}
+
+	//	private void renderRest(NodeInfo ni) throws Exception {
+	//		if(ni.isFullRender) {
+	//			o().tag("replaceContent");
+	//			o().attr("select", "#" + ni.node.getActualID());
+	//			m_html.setTagless(false);
+	//			m_html.setRenderMode(HtmlRenderMode.REPL);
+	//
+	//			boolean ind = o().isIndentEnabled();
+	//			if("textarea".equals(ni.node.getTag())) { // QDFIX Do not indent textarea content
+	//				o().setIndentEnabled(false);
+	//
+	//				//-- Render content using br as eoln
+	//				NodeContainer nc = ni.node;
+	//				if(nc.getChildCount() == 1) {
+	//					NodeBase nb = nc.getChild(0);
+	//					if(nb instanceof TextNode) {
+	//						String val = ((TextNode) nb).getText();
+	//						val = tmpConv(val);
+	//
+	//
+	//						o().endtag();
+	//						o().writeRaw(val);
+	//						o().closetag("replaceContent");
+	//						o().setIndentEnabled(ind);
+	//						renderAttributeChange(ni.node); // 20080820 jal Fix voor ontbrekende attrs als tekstinhoud TextArea wijzigt?
+	//						return;
+	//					}
+	//				}
+	//			}
+	//			//			m_html.setNewNode(true);
+	//
+	//			//			ni.node.visit(m_fullRenderer);
+	//			m_fullRenderer.visitChildren(ni.node); // 20080624 jal fix for table in table in table in table..... when paging
+	//			o().closetag("replaceContent");
+	//			o().setIndentEnabled(ind);
+	//			renderAttributeChange(ni.node); // 20080820 jal Fix voor ontbrekende attrs als tekstinhoud TextArea wijzigt?
+	//			return;
+	//		}
+	//
+	//		for(NodeBase b : ni.attrChangeList)
+	//			renderAttributeChange(b);
+	//		for(NodeBase b : ni.addList)
+	//			renderAdd(ni.node, b);
+	//		for(NodeInfo tni : ni.lowerChanges)
+	//			renderRest(tni);
+	//	}
 
 	/**
 	 * Retrieves an existing nodeInfo, or adds a new one for this container.

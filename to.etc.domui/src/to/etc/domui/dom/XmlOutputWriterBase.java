@@ -191,10 +191,10 @@ public class XmlOutputWriterBase {
 						entity = "&gt;";
 						break;
 					case '\n':
-						entity = "&u0010;";
+						entity = "&#0010;";
 						break;
 					case '\r':
-						entity = "&u0013;";
+						entity = "&#0013;";
 						break;
 					case '\"':
 						entity = "&quot;";
