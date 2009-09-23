@@ -86,6 +86,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/** This is the actual ID of the node IF the framework decided to override the specified ID (or if no ID was assigned). */
 	private String m_actualID;
 
+	private String m_testID;
+
 	private NodeContainer m_parent;
 
 	private IClicked< ? > m_clicked;
@@ -501,6 +503,21 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	public void setUserObject(final Object userObject) {
 		m_userObject = userObject;
+	}
+
+	/**
+	 * When set this causes a "testid" attribute to be rendered on the node. This ID can then be used for selenium tests et al.
+	 * @return
+	 */
+	public String getTestID() {
+		return m_testID;
+	}
+
+	public void setTestID(String testID) {
+		if(DomUtil.isEqual(testID, m_testID))
+			return;
+		m_testID = testID;
+		changed();
 	}
 
 	public String getOnClickJS() {
