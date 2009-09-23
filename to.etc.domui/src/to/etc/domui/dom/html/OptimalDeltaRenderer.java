@@ -17,9 +17,9 @@ import to.etc.util.*;
  * the tree, when it's new version is rendered before the later "delete" is visited). If this occurs,
  * later rendering commands cannot uniquely identify the node because it's ID refers to two nodes in
  * the browser's DOM.</p>
- * 
+ *
  * <p>This code visits all nodes in the page, and creates a to-do list of rendering changes in multiple
- * steps. For nodes whose attributes have changed simply it adds the node to the attribute change list; 
+ * steps. For nodes whose attributes have changed simply it adds the node to the attribute change list;
  * this is all that's needed for the node.</p>
  *
  * <p>Nodes that are unchanged are skipped fully.</p>
@@ -276,6 +276,10 @@ public class OptimalDeltaRenderer {
 		if(ni.isFullRender) {
 			o().tag("replaceContent");
 			o().attr("select", "#" + ni.node.getActualID());
+			boolean ind = o().isIndentEnabled();
+			if("textarea".equals(ni.node.getTag())) { // QDFIX Do not indent textarea content
+				o().setIndentEnabled(false);
+			}
 			m_html.setTagless(false);
 			m_html.setRenderMode(HtmlRenderMode.REPL);
 			//			m_html.setNewNode(true);
@@ -283,7 +287,7 @@ public class OptimalDeltaRenderer {
 			//			ni.node.visit(m_fullRenderer);
 			m_fullRenderer.visitChildren(ni.node); // 20080624 jal fix for table in table in table in table..... when paging
 			o().closetag("replaceContent");
-
+			o().setIndentEnabled(ind);
 			renderAttributeChange(ni.node); // 20080820 jal Fix voor ontbrekende attrs als tekstinhoud TextArea wijzigt?
 			return;
 		}
@@ -314,7 +318,7 @@ public class OptimalDeltaRenderer {
 	 * Handle whatever's needed for updating a base node. If this gets called we're
 	 * already certain that the base node exists still; the only thing it can have is
 	 * attribute changes.
-	 * 
+	 *
 	 * @param n
 	 */
 	private void doBase(NodeInfo parentInfo, NodeBase n) throws Exception {
@@ -377,7 +381,7 @@ public class OptimalDeltaRenderer {
 	}
 
 	/**
-	 * Called with a node which HAS a changed tree. This creates the annotation (todo list) 
+	 * Called with a node which HAS a changed tree. This creates the annotation (todo list)
 	 * for this node as a NodeInfo structure. It may happen that the node has no changes in
 	 * it' list after all after parsing; in this case no deltanode is created.
 	 *
@@ -415,7 +419,7 @@ public class OptimalDeltaRenderer {
 			NodeBase n = oldar[i];
 
 			/*
-			 * A node is DELETED from here if it's CURRENT parent is not the current 
+			 * A node is DELETED from here if it's CURRENT parent is not the current
 			 * container (including null). If the current parent is the current container
 			 * this node is not deleted at all and can at most have moved within the
 			 * container.
@@ -441,13 +445,13 @@ public class OptimalDeltaRenderer {
 		 * there that are not in the old tree must be rendered anew anyhow, so the only
 		 * thing we can win on is to spare us deletes.
 		 * This handles the case where a complete subtree is replaced with another subtree: this
-		 * is always done best by a re-render (in this case the #of deletes is old.size, the 
+		 * is always done best by a re-render (in this case the #of deletes is old.size, the
 		 * remaining old is 0).
 		 */
 
 		/*
 		 * Primary deletes are known: all nodes that moved to another tree OR that were removed
-		 * are gone. What's left are moves and adds. Handle all ADDS now. 
+		 * are gone. What's left are moves and adds. Handle all ADDS now.
 		 */
 		List<NodeBase> nl = new ArrayList<NodeBase>(newl.size());
 		for(int i = 0; i < newl.size(); i++) {
@@ -518,7 +522,7 @@ public class OptimalDeltaRenderer {
 
 			if(on == nn) {
 				/*
-				 * Simplest case: same node @ this position - only handle it's children's changes. 
+				 * Simplest case: same node @ this position - only handle it's children's changes.
 				 */
 				if(DEBUG)
 					System.out.println("o: @" + oix + "," + nix + ": equal node=" + nn.getActualID());
@@ -600,7 +604,7 @@ public class OptimalDeltaRenderer {
 		}
 
 		//-- Add this delta node to it's parent, if needed.
-		if(parentInfo.node != nc) { // FIXME THIS TRIES TO ADD BODY TO BODY!?!?!?! 
+		if(parentInfo.node != nc) { // FIXME THIS TRIES TO ADD BODY TO BODY!?!?!?!
 			if(DEBUG)
 				System.out.println("o: nodeInfo add ni=" + ndid(ni) + " to parent=" + ndid(parentInfo));
 			parentInfo.addChildChange(ni);
