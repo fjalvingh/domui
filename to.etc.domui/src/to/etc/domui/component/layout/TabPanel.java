@@ -3,7 +3,9 @@ package to.etc.domui.component.layout;
 import java.util.*;
 
 import to.etc.domui.dom.css.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * A panel containing multiple tabs. Each tab consists of two components: the
@@ -13,7 +15,8 @@ import to.etc.domui.dom.html.*;
  * Created on Jun 1, 2008
  */
 public class TabPanel extends Div {
-	private static class TabInstance {
+	//vmijic 20090923 TabInstance can be registered as ErrorMessageListener in case when TabPanel has m_markErrorTabs set.
+	private static class TabInstance implements IErrorMessageListener {
 		private NodeBase m_label;
 
 		private NodeBase m_content;
@@ -21,6 +24,8 @@ public class TabPanel extends Div {
 		private Img m_img;
 
 		private Li m_tab;
+
+		private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
 
 		public TabInstance(NodeBase label, NodeBase content, Img img) {
 			m_label = label;
@@ -47,6 +52,45 @@ public class TabPanel extends Div {
 		public Img getImg() {
 			return m_img;
 		}
+
+		public void errorMessageAdded(Page pg, UIMessage m) {
+			if(isPartOfContent(m.getErrorNode())) {
+				if(m_msgList.contains(m))
+					return;
+				m_msgList.add(m);
+				adjustUI();
+			}
+		}
+
+		public void errorMessageRemoved(Page pg, UIMessage m) {
+			if(isPartOfContent(m.getErrorNode())) {
+				if(!m_msgList.remove(m))
+					return;
+				adjustUI();
+			}
+		}
+
+		private boolean isPartOfContent(NodeBase errorNode) {
+			if(errorNode == null) {
+				return false;
+			}
+			if(errorNode == m_content) {
+				return true;
+			}
+			return isPartOfContent(errorNode.getParent());
+		}
+
+		private void adjustUI() {
+			if(hasErrors()) {
+				m_tab.addCssClass("ui-tab-err");
+			} else {
+				m_tab.removeCssClass("ui-tab-err");
+			}
+		}
+
+		public boolean hasErrors() {
+			return m_msgList.size() > 0;
+		}
 	}
 
 	private List<TabInstance> m_tablist = new ArrayList<TabInstance>();
@@ -56,7 +100,17 @@ public class TabPanel extends Div {
 
 	private Ul m_tabul;
 
+	/** In case that it is set through constructor TabPanel would mark tabs that contain errors in content */
+	private boolean m_markErrorTabs = false;
+
 	public TabPanel() {}
+
+	public TabPanel(final boolean markErrorTabs) {
+		m_markErrorTabs = markErrorTabs;
+		if(m_markErrorTabs) {
+			setErrorFence();
+		}
+	}
 
 	/**
 	 * Simple form for adding a tab which contains a text tabel.
@@ -80,7 +134,11 @@ public class TabPanel extends Div {
 	 * @param tablabel
 	 */
 	public void add(NodeBase content, NodeBase tablabel) {
-		m_tablist.add(new TabInstance(tablabel, content, null));
+		TabInstance tabInstance = new TabInstance(tablabel, content, null);
+		if(m_markErrorTabs) {
+			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
+		}
+		m_tablist.add(tabInstance);
 		if(!isBuilt())
 			return;
 
@@ -92,7 +150,12 @@ public class TabPanel extends Div {
 		i.setSrc(icon);
 		i.setCssClass("ui-tab-icon");
 		i.setBorder(0);
-		m_tablist.add(new TabInstance(tablabel, content, i));
+		TabInstance tabInstance = new TabInstance(tablabel, content, i);
+		if(m_markErrorTabs) {
+			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
+		}
+
+		m_tablist.add(tabInstance);
 		if(!isBuilt())
 			return;
 
@@ -144,7 +207,12 @@ public class TabPanel extends Div {
 		Li li = new Li();
 		m_tabul.add(index, li);
 		ti.setTab(li); // Save for later use,
-		li.setCssClass(index == m_currentTab ? "ui-tab-lbl ui-tab-sel" : "ui-tab-lbl");
+		if(index == m_currentTab) {
+			li.addCssClass("ui-tab-sel");
+		} else {
+			li.removeCssClass("ui-tab-sel");
+		}
+		//li.setCssClass(index == m_currentTab ? "ui-tab-lbl ui-tab-sel" : "ui-tab-lbl");
 		ATag a = new ATag();
 		li.add(a);
 		if(ti.getImg() != null)
