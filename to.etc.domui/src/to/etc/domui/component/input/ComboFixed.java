@@ -56,9 +56,13 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 			SelectOption o = new SelectOption();
 			add(o);
 			o.add(val.getLabel());
-			if(cmm == null)
-				cmm = MetaManager.findClassMeta(val.getValue().getClass());
-			boolean eq = MetaManager.areObjectsEqual(val.getValue(), m_currentValue, cmm);
+			boolean eq = false;
+			if(m_currentValue != null && val.getValue() != null && m_currentValue.getClass().equals(val.getValue().getClass())) {
+				if(cmm == null) {
+					cmm = MetaManager.findClassMeta(val.getValue().getClass());
+				}
+				eq = MetaManager.areObjectsEqual(val.getValue(), m_currentValue, cmm);
+			}
 			o.setSelected(eq);
 		}
 	}
