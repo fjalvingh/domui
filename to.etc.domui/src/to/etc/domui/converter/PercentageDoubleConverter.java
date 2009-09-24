@@ -33,30 +33,22 @@ public class PercentageDoubleConverter implements IConverter<Double> {
 	 * @see to.etc.domui.converter.IConverter#convertStringToObject(java.util.Locale, java.lang.String)
 	 */
 	public Double convertStringToObject(Locale loc, String in) throws UIException {
-		if(in == null) {
+		if(in == null)
 			return null;
-		}
-		in = in.trim();
-		if(in.endsWith("%")) {
-			in = in.substring(0, in.length() - 1);
-		}
-		in = in.trim();
-		Double value = null;
-		try {
-			value = new Double(Double.parseDouble(in));
-			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("##0.00", dfs);
-			value = Double.valueOf(df.format(value));
-			if((value > 100) || (value < 0)) {
-				badpercentage(in);
-			}
-		} catch(NumberFormatException ex) {
-			badpercentage(in);
-		}
-		return value;
-	}
 
-	private void badpercentage(String value) throws ValidationException {
-		throw new ValidationException(Msgs.V_BAD_PERCENTAGE, value);
+		in = in.trim();
+		if(in.endsWith("%"))
+			in = in.substring(0, in.length() - 1).trim();
+
+		in = in.replace(',', '.'); // If percentage is entered with comma replace with dot
+
+		try {
+			double value = Double.parseDouble(in);
+			value = Math.round(value * 100.0d) / 100.0d; // Truncate to 2 positions after the comma
+			if(value <= 100.0d && value >= 0.0d)
+				return Double.valueOf(value);
+		} catch(NumberFormatException ex) {
+		}
+		throw new ValidationException(Msgs.V_BAD_PERCENTAGE, in);
 	}
 }

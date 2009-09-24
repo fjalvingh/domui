@@ -20,7 +20,7 @@ public interface INodeErrorDelegate {
 	 * @param code
 	 * @param param
 	 */
-	public UIMessage setMessage(MsgType mt, BundleRef ref, String code, Object... param);
+	public UIMessage setMessage(MsgType mt, String errorLocation, BundleRef ref, String code, Object... param);
 
 	/**
 	 * Remove this-component's "current" error message, if present.

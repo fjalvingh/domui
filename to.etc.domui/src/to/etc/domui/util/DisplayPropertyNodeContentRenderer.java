@@ -16,14 +16,14 @@ import to.etc.domui.dom.html.*;
  * Created on Nov 21, 2008
  */
 public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<Object> {
-	private ClassMetaModel m_targetClassModel;
+	//	private ClassMetaModel m_targetClassModel;
 
 	private List<ExpandedDisplayProperty> m_list;
 
 	private List<ExpandedDisplayProperty> m_flat;
 
 	public DisplayPropertyNodeContentRenderer(ClassMetaModel cmm, List<ExpandedDisplayProperty> list) {
-		m_targetClassModel = cmm;
+		//		m_targetClassModel = cmm;
 		m_list = list;
 	}
 
@@ -33,6 +33,7 @@ public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<
 		m_flat = ExpandedDisplayProperty.flatten(m_list);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) throws Exception {
 		prepare();
 		StringBuilder sb = new StringBuilder();

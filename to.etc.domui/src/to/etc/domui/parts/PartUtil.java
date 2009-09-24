@@ -164,12 +164,12 @@ public class PartUtil {
 
 		/**
 		 * Creates a new ARGB image with the specified dimension.
-		 * @param width the image width in pixels
-		 * @param height the image height in pixels
+		 * @param w the image width in pixels
+		 * @param h the image height in pixels
 		 */
 		@Override
-		public BufferedImage createImage(int width, int height) {
-			return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		public BufferedImage createImage(int w, int h) {
+			return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		}
 
 		// Note this method does not need the Transcoder Output. It allows you to loosly assume that TranscoderOutput is of type BufferedImageTranscoderOutput, purely because it doesn't really care.

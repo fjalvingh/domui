@@ -19,7 +19,11 @@ public class UIMessage {
 	/** The error message code for the error that has occured. This exists always and is a lookup into the error NLS messages. */
 	private String m_code;
 
+	/** The type of the message (error, warning, informational); this mainly defines whether actions continue, and it defines an icon to show. */
 	private MsgType m_type;
+
+	/** When set this is used in error messages as an indication of which input field contains the error. It usually contains the value for the "label" of the control. */
+	private String m_errorLocation;
 
 	/** For errors that have parameters - these are the parameters. This is null if no parameters are present. */
 	private Object[] m_parameters;
@@ -35,17 +39,34 @@ public class UIMessage {
 	 * @param errorNode
 	 * @param type
 	 * @param code
-	 * @param parameters use static LOCALIZED as value for already localized messeges (code is message body then).
+	 * @param parameters
 	 */
 	@Deprecated
-	public UIMessage(NodeBase errorNode, MsgType type, String code, Object[] parameters) {
+	public UIMessage(NodeBase errorNode, String errorLocation, MsgType type, String code, Object[] parameters) {
+		if(code == null)
+			throw new NullPointerException("Message code cannot be null");
+		if(type == null)
+			throw new NullPointerException("Message type cannot be null");
 		m_errorNode = errorNode;
 		m_code = code;
 		m_parameters = parameters;
 		m_type = type;
 	}
 
-	public UIMessage(NodeBase errorNode, MsgType type, BundleRef br, String code, Object[] parameters) {
+	/**
+	 * Create an error message container.
+	 * @param errorNode			If not-null this is the node that "owns" the error. This node will show a visual indication of the fact that it contains an error.
+	 * @param errorLocation		If not-null this is a user-understandable name of the input item that contains the error. It usually is the "label" associated with the problem.
+	 * @param type				The type of message: error, warning or info.
+	 * @param br				The bundle containing the message for the code. If this is null (deprecated) the "global bundle set" is used *WHICH IS DEPRECATED*.
+	 * @param code				The code for the message.
+	 * @param parameters		If needed a set of parameters to render into the message.
+	 */
+	public UIMessage(NodeBase errorNode, String errorLocation, MsgType type, BundleRef br, String code, Object[] parameters) {
+		if(code == null)
+			throw new NullPointerException("Message code cannot be null");
+		if(type == null)
+			throw new NullPointerException("Message type cannot be null");
 		m_bundle = br;
 		m_errorNode = errorNode;
 		m_code = code;
@@ -77,7 +98,16 @@ public class UIMessage {
 	}
 
 	/**
-	 * FIXME Must return localized and replaced message.
+	 * When set this is used in error messages as an indication of which input field contains the
+	 * error. It usually contains the value for the "label" of the control.
+	 * @return
+	 */
+	public String getErrorLocation() {
+		return m_errorLocation;
+	}
+
+	/**
+	 * Returns the message part of the error message, properly localized for the request's locale.
 	 * @return
 	 */
 	public String getMessage() {

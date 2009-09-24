@@ -350,7 +350,7 @@ public class LookupForm<T> extends Div {
 	 * @param ignorecase
 	 */
 	public Item addProperty(String path, int minlen, boolean ignorecase) {
-		return addProperty(path, minlen, Boolean.valueOf(ignorecase));
+		return addProperty(path, null, minlen, Boolean.valueOf(ignorecase));
 	}
 
 	/**

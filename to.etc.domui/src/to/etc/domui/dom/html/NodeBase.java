@@ -654,7 +654,31 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	private UIMessage m_message;
 
+	/**
+	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
+	 * the "label" associated with the control, and is set automatically by form builders if possible.
+	 */
+	private String m_errorLocation;
+
 	private INodeErrorDelegate m_errorDelegate;
+
+	/**
+	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
+	 * the "label" associated with the control, and is set automatically by form builders if possible.
+	 * @param errorLocation
+	 */
+	public void setErrorLocation(String errorLocation) {
+		m_errorLocation = errorLocation;
+	}
+
+	/**
+	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
+	 * the "label" associated with the control, and is set automatically by form builders if possible.
+	 * @return
+	 */
+	public String getErrorLocation() {
+		return m_errorLocation;
+	}
 
 	/**
 	 * This sets a message (an error, warning or info message) on this control. If the
@@ -666,9 +690,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param code
 	 * @param param
 	 */
-	public UIMessage setMessage(final MsgType mt, BundleRef ref, final String code, final Object... param) {
+	public UIMessage setMessage(final MsgType mt, String errorLocation, BundleRef ref, final String code, final Object... param) {
 		if(m_errorDelegate != null)
-			return m_errorDelegate.setMessage(mt, ref, code, param);
+			return m_errorDelegate.setMessage(mt, errorLocation, ref, code, param);
 
 		//-- If this (new) message has a LOWER severity than the EXISTING message ignore this call
 		if(m_message != null) {
@@ -685,7 +709,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		}
 
 		//-- Now add the message
-		m_message = new UIMessage(this, mt, ref, code, param); // Create the container for the message
+		if(errorLocation == null)
+			errorLocation = m_errorLocation;
+
+		m_message = new UIMessage(this, errorLocation, mt, ref, code, param); // Create the container for the message
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.addMessage(this, m_message);
 		return m_message;
@@ -732,8 +759,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param code
 	 * @param param
 	 */
-	public UIMessage addGlobalMessage(final MsgType mt, BundleRef ref, final String code, final Object... param) {
-		UIMessage m = new UIMessage(null, mt, ref, code, param); // Create the container for the message
+	public UIMessage addGlobalMessage(final MsgType mt, String errorLocation, BundleRef ref, final String code, final Object... param) {
+		UIMessage m = new UIMessage(null, errorLocation, mt, ref, code, param); // Create the container for the message
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.addMessage(this, m);
 		return m;

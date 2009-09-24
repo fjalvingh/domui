@@ -158,7 +158,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		}
 		m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
-			m_floater.addGlobalMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.V_MISSING_SEARCH); // Missing inputs
+			m_floater.addGlobalMessage(MsgType.ERROR, null, Msgs.BUNDLE, Msgs.V_MISSING_SEARCH); // Missing inputs
 			return;
 		} else
 			m_floater.clearGlobalMessage();
@@ -247,7 +247,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
-			setMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.MANDATORY);
+			setMessage(MsgType.ERROR, null, Msgs.BUNDLE, Msgs.MANDATORY);
 			throw new ValidationException(Msgs.MANDATORY);
 		}
 		return m_value;

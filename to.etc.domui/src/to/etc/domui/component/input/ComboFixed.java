@@ -76,7 +76,7 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 
 	public T getValue() {
 		if(isMandatory() && m_currentValue == null) {
-			setMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.MANDATORY);
+			setMessage(MsgType.ERROR, null, Msgs.BUNDLE, Msgs.MANDATORY);
 			throw new ValidationException(Msgs.NOT_VALID, "null");
 		}
 		return m_currentValue;

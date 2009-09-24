@@ -58,6 +58,14 @@ public class SimpleComponentPropertyBinding implements ModelBinding, IFormContro
 		m_control.setValue(value);
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	INodeErrorDelegate interface.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @see to.etc.domui.dom.errors.INodeErrorDelegate#clearMessage()
+	 */
 	public void clearMessage() {
 		m_control.clearMessage();
 	}
@@ -66,8 +74,7 @@ public class SimpleComponentPropertyBinding implements ModelBinding, IFormContro
 		return m_control.getMessage();
 	}
 
-	public UIMessage setMessage(MsgType mt, BundleRef br, String code, Object... param) {
-		return m_control.setMessage(mt, br, code, param);
+	public UIMessage setMessage(MsgType mt, String errorLocation, BundleRef br, String code, Object... param) {
+		return m_control.setMessage(mt, errorLocation, br, code, param);
 	}
-
 }

@@ -1,7 +1,5 @@
 package to.etc.domui.server;
 
-import java.io.*;
-
 import to.etc.domui.annotations.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
@@ -112,7 +110,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			//-- Send a silly response.
 			ctx.getResponse().setContentType("text/html");
-			Writer w = ctx.getResponse().getWriter();
+			/*Writer w = */ctx.getResponse().getWriter();
 			//			w.append("<html><body><p>Obituary?</body></html>\n");
 			return; // Obituaries get a zero response.
 		}
@@ -213,7 +211,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			String message = (String) cm.getAttribute(UIGoto.SINGLESHOT_ERROR);
 			if(message != null) {
 				page.getBody().build();
-				page.getBody().addGlobalMessage(MsgType.ERROR, Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, message);
+				page.getBody().addGlobalMessage(MsgType.ERROR, null, Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, message);
 				cm.setAttribute(UIGoto.SINGLESHOT_ERROR, null);
 			}
 		}
