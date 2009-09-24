@@ -118,9 +118,16 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 			for ( var i = xml.documentElement.childNodes.length; --i >= 0;) {
 				var cn = xml.documentElement.childNodes[i];
 				if (cn.tagName == 'msg') {
+					if(cn.textContent)
 					msg = cn.textContent;
-				} else if (cn.tagName == 'href')
+					else if(cn.text)
+						msg = cn.text;
+				} else if (cn.tagName == 'href') {
+					if(cn.textContent)
 					hr = cn.textContent;
+					else if(cn.text)
+						hr = cn.text;
+				}
 			}
 			alert(msg);
 			window.location.href = hr; // Force reload
