@@ -71,6 +71,13 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			return null;
 		final ControlFactory.Result r = createControlFor(getModel(), pmm, editPossible && rights().isEditable()); // Add the proper input control for that type
 		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), pmm);
+
+		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
+		if(label != null) {
+			for(NodeBase b : r.getNodeList())
+				b.setErrorLocation(label);
+		}
+
 		if(r.getBinding() != null)
 			getBindings().add(r.getBinding());
 		else
@@ -165,6 +172,9 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param mandatory
 	 */
 	public void addLabelAndControl(final String label, final NodeBase control, final boolean mandatory) {
+		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
+		if(label != null)
+			control.setErrorLocation(label);
 		addControl(label, control, new NodeBase[]{control}, mandatory, null);
 	}
 

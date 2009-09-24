@@ -7,7 +7,7 @@ import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
 /**
- * This is a CaptionedPanel which captures and displays errors for the tree 
+ * This is a CaptionedPanel which captures and displays errors for the tree
  * it is in. This is the default component used by the framework when no
  * other components captures a generated error; in that case the toplevel
  * code catches the error, creates an ErrorPanel component and inserts that
@@ -61,7 +61,8 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 	public void errorMessageAdded(Page pg, UIMessage m) {
 		Div d = new Div();
 		d.setUserObject(m);
-		d.setText(m.getMessage());
+		String text = m.getErrorLocation() != null ? m.getErrorLocation() + ": " + m.getMessage() : m.getMessage();
+		d.setText(text);
 		getContent().add(d);
 		if(getContent().getChildCount() == 1)
 			setDisplay(DisplayType.BLOCK);
