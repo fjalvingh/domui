@@ -93,6 +93,16 @@ public class TabPanel extends Div {
 		}
 	}
 
+	/**
+	 * Represents on tab selected event listener.
+	 *
+	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+	 * Created on 24 Sep 2009
+	 */
+	public interface ITabSelected {
+		public void onTabSelected(TabPanel tabPanel, int oldTabIndex, int newTabIndex) throws Exception;
+	}
+
 	private List<TabInstance> m_tablist = new ArrayList<TabInstance>();
 
 	/** The index for the currently visible tab. */
@@ -102,6 +112,8 @@ public class TabPanel extends Div {
 
 	/** In case that it is set through constructor TabPanel would mark tabs that contain errors in content */
 	private boolean m_markErrorTabs = false;
+
+	private ITabSelected m_onTabSelected;
 
 	public TabPanel() {}
 
@@ -230,19 +242,31 @@ public class TabPanel extends Div {
 		return m_currentTab;
 	}
 
-	public void setCurrentTab(int index) {
+	public void setCurrentTab(int index) throws Exception {
 		System.out.println("Switching to tab " + index);
 		if(index == getCurrentTab() || index < 0 || index >= m_tablist.size()) // Silly index
 			return;
 		if(isBuilt()) {
 			//-- We must switch the styles on the current "active" panel and the current "old" panel
+			int oldIndex = getCurrentTab();
 			TabInstance oldti = m_tablist.get(getCurrentTab()); // Get the currently active instance,
 			TabInstance newti = m_tablist.get(index);
 			oldti.getContent().setDisplay(DisplayType.NONE); // Switch displays on content
 			newti.getContent().setDisplay(DisplayType.BLOCK);
 			oldti.getTab().removeCssClass("ui-tab-sel"); // Remove selected indicator
 			newti.getTab().addCssClass("ui-tab-sel");
+			if(m_onTabSelected != null) {
+				m_onTabSelected.onTabSelected(this, oldIndex, index);
+			}
 		}
 		m_currentTab = index; // ORDERED!!! Must be below the above!!!
+	}
+
+	public void setOnTabSelected(ITabSelected onTabSelected) {
+		m_onTabSelected = onTabSelected;
+	}
+
+	public ITabSelected getOnTabSelected() {
+		return m_onTabSelected;
 	}
 }
