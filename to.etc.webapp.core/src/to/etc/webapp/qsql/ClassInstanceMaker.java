@@ -4,13 +4,14 @@ import java.sql.*;
 
 class ClassInstanceMaker implements IInstanceMaker {
 	private JdbcClassMeta m_meta;
-	private PClassRef m_root;
+
+	//	private PClassRef m_root;
 
 	private int m_startIndex;
 
 	public ClassInstanceMaker(PClassRef root, int startIndex, JdbcClassMeta cm) {
 		m_meta = cm;
-		m_root = root;
+		//		m_root = root;
 		m_startIndex = startIndex;
 	}
 

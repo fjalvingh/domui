@@ -33,7 +33,7 @@ public class TimestampType implements ITypeConverter {
 			ts = null;
 		else {
 			java.util.Date dt = (java.util.Date) RuntimeConversions.convertTo(value, java.util.Date.class);
-			ts = new Timestamp(((java.util.Date) value).getTime());
+			ts = new Timestamp(dt.getTime());
 		}
 		ps.setTimestamp(index, ts);
 	}

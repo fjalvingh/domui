@@ -83,7 +83,7 @@ public class TestBasic {
 		List<LedgerAccount> res = exec(qc);
 
 		System.out.println("Got " + res.size() + " results");
-		int ix = 0;
+		//		int ix = 0;
 		for(LedgerAccount la : res) {
 			if(!la.getCode().startsWith("E"))
 				Assert.fail("Got code not starting with E: " + la.getCode());
