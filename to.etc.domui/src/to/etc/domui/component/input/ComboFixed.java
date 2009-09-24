@@ -56,9 +56,15 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 			SelectOption o = new SelectOption();
 			add(o);
 			o.add(val.getLabel());
-			if(cmm == null)
-				cmm = MetaManager.findClassMeta(val.getValue().getClass());
-			boolean eq = MetaManager.areObjectsEqual(val.getValue(), m_currentValue, cmm);
+			boolean eq = false;
+			if(m_currentValue == null && val.getValue() == null && isMandatory()) // null is part of value domain, and in pair list?
+				eq = true;
+			else if(m_currentValue != null && val.getValue() != null) {
+				if(cmm == null) {
+					cmm = MetaManager.findClassMeta(val.getValue().getClass());
+				}
+				eq = MetaManager.areObjectsEqual(val.getValue(), m_currentValue, cmm);
+			}
 			o.setSelected(eq);
 		}
 	}
@@ -82,7 +88,8 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
 	 */
 	public void setValue(T v) {
-		if(MetaManager.areObjectsEqual(v, m_currentValue, null)) // FIXME Needs metamodel for better impl
+		ClassMetaModel cmm = v != null ? MetaManager.findClassMeta(v.getClass()) : null;
+		if(MetaManager.areObjectsEqual(v, m_currentValue, cmm))
 			return;
 		m_currentValue = v;
 		if(!isBuilt())
@@ -102,24 +109,26 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 		}
 
 		//-- Locate the selected thingerydoo's index.
-		int ix = 0;
-		for(Pair<T> p : getData()) {
-			if(p.getValue().equals(v)) {
-				//-- Gotcha.
-				if(!isMandatory())
-					ix++;
-				((SelectOption) getChild(ix)).setSelected(true);
-				return;
-			}
+		int ix = findListIndexFor(v);
+		if(ix < 0)
+			return;
+		if(!isMandatory())
 			ix++;
-		}
+		((SelectOption) getChild(ix)).setSelected(true);
 	}
 
 	public int findListIndexFor(T value) {
 		int ix = 0;
+		ClassMetaModel cmm = null;
 		for(Pair<T> p : getData()) {
-			if(p.getValue().equals(value))
+			if(value == null && p.getValue() == null && isMandatory()) // null is part of value domain, and in pair list?
 				return ix;
+			else if(value != null && p.getValue() != null) {
+				if(cmm == null)
+					cmm = MetaManager.findClassMeta(p.getValue().getClass());
+				if(MetaManager.areObjectsEqual(p.getValue(), value, cmm))
+					return ix;
+			}
 			ix++;
 		}
 		return -1;
