@@ -51,6 +51,7 @@ public class UIMessage {
 		m_code = code;
 		m_parameters = parameters;
 		m_type = type;
+		m_errorLocation = errorLocation;
 	}
 
 	/**
@@ -72,6 +73,7 @@ public class UIMessage {
 		m_code = code;
 		m_parameters = parameters;
 		m_type = type;
+		m_errorLocation = errorLocation;
 	}
 	public String getCode() {
 		return m_code;

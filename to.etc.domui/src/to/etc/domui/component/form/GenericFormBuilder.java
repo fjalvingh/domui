@@ -54,39 +54,6 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Worker implementation for common tasks.				*/
-	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @param name
-	 * @param label
-	 * @param pmm
-	 * @param editPossible, when false, the rendered control will be display-only and cannot be changed back to EDITABLE.
-	 * @return	If the property was created and is controllable this will return an IFormControl instance. This will explicitly <i>not</i> be
-	 * 			created if the control is readonly, not allowed by permissions or simply uncontrollable (the last one is uncommon).
-	 */
-	protected IFormControl addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editPossible) {
-		//-- Check control permissions: does it have view permissions?
-		if(!rights().calculate(pmm))
-			return null;
-		final ControlFactory.Result r = createControlFor(getModel(), pmm, editPossible && rights().isEditable()); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), pmm);
-
-		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
-		if(label != null) {
-			for(NodeBase b : r.getNodeList())
-				b.setErrorLocation(label);
-		}
-
-		if(r.getBinding() != null)
-			getBindings().add(r.getBinding());
-		else
-			throw new IllegalStateException("No binding for a " + r);
-		return r.getFormControl();
-	}
-
-
-	/*--------------------------------------------------------------*/
 	/*	CODING:	Core shared public interface - all builders.		*/
 	/*--------------------------------------------------------------*/
 	/**
@@ -160,6 +127,8 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		PropertyMetaModel pmm = resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
 		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), pmm);
+		if(label != null)
+			ctl.setErrorLocation(label);
 		SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(getModel(), pmm, ctl);
 		getBindings().add(b);
 		return b;
@@ -216,12 +185,49 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			return null;
 		final ControlFactory.Result r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
 		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
+
+		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
+		if(label != null) {
+			for(NodeBase b : r.getNodeList())
+				b.setErrorLocation(label);
+		}
+
 		if(r.getBinding() != null)
 			getBindings().add(r.getBinding());
 		else
 			throw new IllegalStateException("No binding for a " + r);
 		return r.getFormControl();
 	}
+
+	/**
+	 *
+	 * @param name
+	 * @param label
+	 * @param pmm
+	 * @param editPossible, when false, the rendered control will be display-only and cannot be changed back to EDITABLE.
+	 * @return	If the property was created and is controllable this will return an IFormControl instance. This will explicitly <i>not</i> be
+	 * 			created if the control is readonly, not allowed by permissions or simply uncontrollable (the last one is uncommon).
+	 */
+	protected IFormControl addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editPossible) {
+		//-- Check control permissions: does it have view permissions?
+		if(!rights().calculate(pmm))
+			return null;
+		final ControlFactory.Result r = createControlFor(getModel(), pmm, editPossible && rights().isEditable()); // Add the proper input control for that type
+		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), pmm);
+
+		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
+		if(label != null) {
+			for(NodeBase b : r.getNodeList())
+				b.setErrorLocation(label);
+		}
+
+		if(r.getBinding() != null)
+			getBindings().add(r.getBinding());
+		else
+			throw new IllegalStateException("No binding for a " + r);
+		return r.getFormControl();
+	}
+
 
 	/**
 	 * This adds a fully user-specified control for a given property with it's default label,
