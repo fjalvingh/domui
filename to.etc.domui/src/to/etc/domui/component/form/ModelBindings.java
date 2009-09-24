@@ -10,8 +10,17 @@ public class ModelBindings implements ModelBinding {
 	}
 
 	public void moveControlToModel() throws Exception {
-		for(ModelBinding b : m_bindings)
-			b.moveControlToModel();
+		Exception cx = null;
+		for(ModelBinding b : m_bindings) {
+			try {
+				b.moveControlToModel();
+			} catch(Exception x) {
+				if(cx == null)
+					cx = x;
+			}
+		}
+		if(cx != null)
+			throw cx;
 	}
 
 	public void moveModelToControl() throws Exception {

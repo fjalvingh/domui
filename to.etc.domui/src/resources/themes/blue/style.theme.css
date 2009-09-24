@@ -408,6 +408,9 @@ table.ui-lui {
 	background-color: #ffffff;
 	width: 100%;
 }
+.ui-input-err * .ui-lui-v {
+	background-color: #ffe5e5 !important;
+}
 .ui-lui-vcell {
 	width: 90%;
 }
