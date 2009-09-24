@@ -395,8 +395,13 @@ var WebUI = {
 				if (fck) {
 					val = fck.GetXHTML();
 				}
-			} else
+			} else {
+//				if($.browser.msie) { // The MS idiots remove newlines from value.... Idiots.
+//					val = sel.innerText;
+//					//alert("inner value="+sel.innerText);
+//				} else
 				val = sel.value;
+			}
 			fields[sel.id] = val;
 		}
 
@@ -434,6 +439,7 @@ var WebUI = {
 			dataType :"text/xml",
 			data :fields,
 			cache :false,
+			type: "POST",
 			success :WebUI.handleResponse,
 			error :WebUI.handleError
 		});
@@ -456,6 +462,7 @@ var WebUI = {
 			dataType :"text/xml",
 			data :fields,
 			cache :false,
+			type: "POST",
 			success :WebUI.handleResponse,
 			error :WebUI.handleError
 		});
@@ -476,6 +483,7 @@ var WebUI = {
 			dataType :"text/xml",
 			data :fields,
 			cache :false,
+			type: "POST",
 			success :WebUI.handleResponse,
 			error :WebUI.handleError
 		});

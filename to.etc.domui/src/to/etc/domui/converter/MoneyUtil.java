@@ -91,7 +91,7 @@ public class MoneyUtil {
 			DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 			StringBuilder sb = new StringBuilder(20);
 			sb.append(NlsContext.getCurrency().getSymbol());
-			sb.append(' ');
+			sb.append('\u00a0');
 			sb.append(df.format(v));
 			s = sb.toString();
 		} else if(symbol) {
@@ -99,7 +99,7 @@ public class MoneyUtil {
 			DecimalFormat df = new DecimalFormat("##############0.00", dfs);
 			StringBuilder sb = new StringBuilder(20);
 			sb.append(NlsContext.getCurrency().getSymbol());
-			sb.append(' ');
+			sb.append('\u00a0');
 			sb.append(df.format(v));
 			s = sb.toString();
 		} else if(thousands) {
@@ -137,7 +137,7 @@ public class MoneyUtil {
 			DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 			StringBuilder sb = new StringBuilder(20);
 			sb.append(NlsContext.getCurrency().getSymbol());
-			sb.append(' ');
+			sb.append('\u00a0');
 			sb.append(df.format(v));
 			s = sb.toString();
 		} else if(symbol) {
@@ -145,7 +145,7 @@ public class MoneyUtil {
 			DecimalFormat df = new DecimalFormat("##############0.00", dfs);
 			StringBuilder sb = new StringBuilder(20);
 			sb.append(NlsContext.getCurrency().getSymbol());
-			sb.append(' ');
+			sb.append('\u00a0');
 			sb.append(df.format(v));
 			s = sb.toString();
 		} else if(thousands) {
@@ -182,7 +182,7 @@ public class MoneyUtil {
 		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 		StringBuilder sb = new StringBuilder(20);
 		sb.append(NlsContext.getCurrencySymbol());
-		sb.append(' ');
+		sb.append('\u00a0');
 		sb.append(df.format(v));
 		String s = sb.toString();
 		return s;
@@ -203,7 +203,7 @@ public class MoneyUtil {
 		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 		StringBuilder sb = new StringBuilder(20);
 		sb.append(NlsContext.getCurrency().getSymbol());
-		sb.append(' ');
+		sb.append('\u00a0');
 		sb.append(df.format(v));
 		String s = sb.toString();
 		if(s.endsWith(".00") || s.endsWith(",00"))
@@ -225,7 +225,7 @@ public class MoneyUtil {
 		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 		StringBuilder sb = new StringBuilder(20);
 		sb.append(NlsContext.getCurrencySymbol());
-		sb.append(' ');
+		sb.append('\u00a0');
 		sb.append(df.format(v));
 		String s = sb.toString();
 		if(s.endsWith(".00") || s.endsWith(",00"))
@@ -246,7 +246,7 @@ public class MoneyUtil {
 		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 		StringBuilder sb = new StringBuilder(20);
 		sb.append(NlsContext.getCurrency().getSymbol());
-		sb.append(' ');
+		sb.append('\u00a0');
 		sb.append(df.format(v));
 		String s = sb.toString();
 		if(s.endsWith(".00") || s.endsWith(",00"))

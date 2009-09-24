@@ -764,6 +764,7 @@ public class HtmlRenderer implements INodeVisitor {
 		else if(n.isReadOnly())
 			o().attr("readonly", "readonly");
 		renderTagend(n, o());
+		o().setIndentEnabled(false); // jal 20090923 again: do not indent content (bug 627)
 		//		if(n.getRawValue() != null)
 		//			o().text(n.getRawValue());
 		//		o().closetag(n.getTag());
