@@ -134,7 +134,33 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			throw new IllegalStateException("Expecting literals as 2nd and 3rd between parameter");
 		QLiteral a = (QLiteral) n.getA();
 		QLiteral b = (QLiteral) n.getB();
-		m_last = Restrictions.between(n.getProp(), a.getValue(), b.getValue());
+
+		//-- If prop refers to some relation (dotted pair):
+		String name = n.getProp();
+		Criteria subcrit = null;
+		if(name.contains(".")) {
+			//-- Dotted pair: construe a SubCriteria for the subproperty.
+			int ix = 0;
+			int len = name.length();
+			Criteria c = m_crit;
+			while(ix < len) {
+				int pos = name.indexOf('.', ix);
+				if(pos == -1) {
+					name = name.substring(ix); // What's left of the name after prefixes have been removed.
+					break;
+				}
+				String sub = name.substring(ix, pos);
+				ix = pos + 1;
+
+				c = c.createCriteria(sub);
+			}
+			subcrit = c;
+		}
+
+		if(subcrit != null)
+			subcrit.add(Restrictions.between(name, a.getValue(), b.getValue()));
+		else
+			m_last = Restrictions.between(n.getProp(), a.getValue(), b.getValue());
 	}
 
 	/**
