@@ -56,7 +56,7 @@ public class DataTable extends TabularComponentBase {
 		m_table.add(hd);
 		HeaderContainer hc = new HeaderContainer(this);
 		TR tr = new TR();
-		tr.setCssClass("ui-tbl-hdr");
+		tr.setCssClass("ui-dt-hdr");
 		hd.add(tr);
 		hc.setParent(tr);
 		m_rowRenderer.renderHeader(this, hc);

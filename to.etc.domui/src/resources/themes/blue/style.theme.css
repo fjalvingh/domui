@@ -18,8 +18,7 @@
 }
 
 .vp-wosel .ui-sp-a { /*	background-color: #dddddd; */
-	background: url(../../img/bg-vert-selector2.png) repeat-y #dcf7f2 center
-		;
+	background: url(../../img/bg-vert-selector2.png) repeat-y #dcf7f2 center;
 	height: 100%;
 	vertical-align: top;
 }
@@ -89,11 +88,6 @@
 	font-weight: bold;
 }
 
-.vp-ttl-err {
-/*	background-color: #f7c2c2; */
-	border-color: 1px solid red;
-	
-}
 .vp-ttl-msg {
 	background-repeat: no-repeat;
 	background-position: left;
@@ -107,6 +101,11 @@
 }
 .vp-ttl-warning {
 	background-image: url(mini-warning.png);
+}
+.vp-ttl-err {
+	background-color: #ffaaaa;
+	color: red;
+	border-color: 1px solid red;
 }
 
 /*** AccessDeniedPage ***/
@@ -132,6 +131,7 @@
 
 /*** LinkButton component. ***/
 .ui-lbtn {
+	cursor: pointer;
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
@@ -224,19 +224,19 @@ A.ui-brc-l, A.ui-brc-l:hover A.ui-brc-l :VISITED, A.ui-brc-l:ACTIVE {
 }
 .ui-bb-left {
 	padding: 0; margin: 0;
-	background-image: url(bg-rounded-left.png);
+	/* background-image: url(bg-rounded-left.png); vmijic looks better without background image */
 	width: 19px;
 	height: 36px;
 }
 .ui-bb-right {
 	padding: 0; margin: 0;
-	background-image: url(bg-rounded-right.png);
+	/* background-image: url(bg-rounded-right.png); vmijic looks better without background image */
 	width: 29px;
 	height: 36px;
 }
 .ui-bb-middle {
 	padding: 0; margin: 0;
-	background: url(bg-rounded-middle.png) repeat-x;
+	/* background: url(bg-rounded-middle.png) repeat-x; vmijic looks better without background image */
 	height: 36px;
 }
 
@@ -399,6 +399,11 @@ table.ui-wa-bgtbl {
 
 table.ui-lui {
 	width: 90%;
+	white-space: nowrap;
+}
+
+table.ui-lui-selected {
+	width: 100%;
 	white-space: nowrap;
 }
 
@@ -610,6 +615,10 @@ a.ui-nbtn:hover,a.ui-nbtn:active {
 	text-align: left;
 }
 
+.ui-dt-hdr {
+	/* default domui table header style is still to be defined */
+}
+
 .ui-dt-nores {
 	padding: 10px 0px 10px 0px;
 	font-style: italic;
@@ -709,7 +718,7 @@ th.ui-sortable {
 }
 
 .ui-input-err {
-	background-color: #ffe5e5;
+	background-color: #ffe5e5 !important;
 }
 
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
@@ -717,7 +726,7 @@ th.ui-sortable {
 	float: left;
 	width: 100%;
 	/* background: #f2f7ff url(tab-blue-header2-bg.png) repeat-x bottom;  jal 20080710 blauwe bar achter tabbuttons weg */
-	font-size: 93%;
+	font-size: 12px;
 	line-height: normal;
 	border-bottom: 1px solid black;
 }
@@ -731,31 +740,44 @@ th.ui-sortable {
 .ui-tab-hdr  li {
 	float: left;
 	margin: 0;
-	padding: 0 0 0 9px;
+	padding: 0 0 0 8px;
 	background: url(tab-off-left.png) no-repeat left top;
+}
+
+li.ui-tab-err {
+	float: left;
+	margin: 0;
+	padding: 0 0 0 8px;
+	background: url(tab-off-err-left.png) no-repeat left top;
 }
 
 .ui-tab-hdr a {
 	display: block;
 	background: url(tab-off-right.png) no-repeat right top;
-	padding: 5px 15px 4px 6px;
+	padding: 5px 14px 4px 6px;
 	text-decoration: none;
 	font-weight: bold;
 	color: #123667;
 }
 
 .ui-tab-hdr ul a:hover {
-	color: aqua;
+	color: #6ba1eb;
 }
 
 .ui-tab-hdr .ui-tab-sel {
 	background-image: url(tab-norm-left-sel.png);
 }
 
+.ui-tab-hdr .ui-tab-err a {
+	background-image: url(tab-off-err-right.png);
+}
+
 .ui-tab-hdr .ui-tab-sel a {
 	background-image: url(tab-norm-right-sel.png);
-	padding-bottom: 5px;
-	color: #123667;
+}
+
+.ui-tab-err a {
+	color: #ff0000;
 }
 
 .ui-tab-icon {
@@ -767,7 +789,7 @@ th.ui-sortable {
 	clear: both;
 	background-color: #ffffff;
 	border: 1px solid #bed6f8;
-	padding: 4px;
+	padding: 0px;
 }
 
 .ui-tab-tabbar {
