@@ -1,5 +1,7 @@
 package to.etc.domui.dom.errors;
 
+import java.util.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.nls.*;
 
@@ -42,7 +44,7 @@ public class UIMessage {
 	 * @param parameters
 	 */
 	@Deprecated
-	public UIMessage(NodeBase errorNode, String errorLocation, MsgType type, String code, Object[] parameters) {
+	private UIMessage(NodeBase errorNode, String errorLocation, MsgType type, String code, Object[] parameters) {
 		if(code == null)
 			throw new NullPointerException("Message code cannot be null");
 		if(type == null)
@@ -63,7 +65,7 @@ public class UIMessage {
 	 * @param code				The code for the message.
 	 * @param parameters		If needed a set of parameters to render into the message.
 	 */
-	public UIMessage(NodeBase errorNode, String errorLocation, MsgType type, BundleRef br, String code, Object[] parameters) {
+	private UIMessage(NodeBase errorNode, String errorLocation, MsgType type, BundleRef br, String code, Object[] parameters) {
 		if(code == null)
 			throw new NullPointerException("Message code cannot be null");
 		if(type == null)
@@ -95,6 +97,10 @@ public class UIMessage {
 		return m_errorNode;
 	}
 
+	public void setErrorNode(NodeBase errorNode) {
+		m_errorNode = errorNode;
+	}
+
 	public MsgType getType() {
 		return m_type;
 	}
@@ -108,6 +114,10 @@ public class UIMessage {
 		return m_errorLocation;
 	}
 
+	public void setErrorLocation(String errorLocation) {
+		m_errorLocation = errorLocation;
+	}
+
 	/**
 	 * Returns the message part of the error message, properly localized for the request's locale.
 	 * @return
@@ -117,5 +127,79 @@ public class UIMessage {
 			return m_bundle.formatMessage(m_code, m_parameters);
 
 		return NlsContext.getGlobalMessage(m_code, m_parameters);
+	}
+
+	static public UIMessage error(NodeBase node, String errorLocation, BundleRef ref, String code, Object... param) {
+		return new UIMessage(node, errorLocation, MsgType.ERROR, ref, code, param);
+	}
+
+	static public UIMessage error(String errorLocation, BundleRef ref, String code, Object... param) {
+		return new UIMessage(null, errorLocation, MsgType.ERROR, ref, code, param);
+	}
+
+	static public UIMessage error(NodeBase node, BundleRef ref, String code, Object... param) {
+		return new UIMessage(node, node.getErrorLocation(), MsgType.ERROR, ref, code, param);
+	}
+
+	static public UIMessage error(BundleRef ref, String code, Object... param) {
+		return new UIMessage(null, null, MsgType.ERROR, ref, code, param);
+	}
+
+	static public UIMessage warning(NodeBase node, String errorLocation, BundleRef ref, String code, Object... param) {
+		return new UIMessage(node, errorLocation, MsgType.WARNING, ref, code, param);
+	}
+
+	static public UIMessage warning(NodeBase node, BundleRef ref, String code, Object... param) {
+		return new UIMessage(node, null, MsgType.WARNING, ref, code, param);
+	}
+
+	static public UIMessage warning(BundleRef ref, String code, Object... param) {
+		return new UIMessage(null, null, MsgType.WARNING, ref, code, param);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((m_bundle == null) ? 0 : m_bundle.hashCode());
+		result = prime * result + ((m_code == null) ? 0 : m_code.hashCode());
+		result = prime * result + ((m_errorNode == null) ? 0 : m_errorNode.hashCode());
+		result = prime * result + Arrays.hashCode(m_parameters);
+		result = prime * result + ((m_type == null) ? 0 : m_type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj)
+			return true;
+		if(obj == null)
+			return false;
+		if(getClass() != obj.getClass())
+			return false;
+		UIMessage other = (UIMessage) obj;
+		if(m_bundle == null) {
+			if(other.m_bundle != null)
+				return false;
+		} else if(!m_bundle.equals(other.m_bundle))
+			return false;
+		if(m_code == null) {
+			if(other.m_code != null)
+				return false;
+		} else if(!m_code.equals(other.m_code))
+			return false;
+		if(m_errorNode == null) {
+			if(other.m_errorNode != null)
+				return false;
+		} else if(!m_errorNode.equals(other.m_errorNode))
+			return false;
+		if(!Arrays.equals(m_parameters, other.m_parameters))
+			return false;
+		if(m_type == null) {
+			if(other.m_type != null)
+				return false;
+		} else if(!m_type.equals(other.m_type))
+			return false;
+		return true;
 	}
 }

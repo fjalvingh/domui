@@ -55,7 +55,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String> {
 	public boolean validate() {
 		if(m_value == null || m_value.length() == 0) {
 			if(isMandatory()) {
-				setMessage(MsgType.ERROR, null, Msgs.BUNDLE, Msgs.MANDATORY);
+				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
 				return false;
 			}
 		}

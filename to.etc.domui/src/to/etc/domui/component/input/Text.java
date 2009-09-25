@@ -116,7 +116,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 		m_validated = true;
 		if(raw == null || raw.length() == 0) {
 			if(isMandatory()) {
-				setMessage(MsgType.ERROR, null, Msgs.BUNDLE, Msgs.MANDATORY);
+				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
 				return false;
 			}
 
@@ -141,14 +141,14 @@ public class Text<T> extends Input implements IInputNode<T> {
 			if(m_validators.size() != 0)
 				ValidatorRegistry.validate(converted, m_validators);
 		} catch(UIException x) {
-			setMessage(MsgType.ERROR, null, x.getBundle(), x.getCode(), x.getParameters());
+			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
 			return false;
 		} catch(RuntimeConversionException x) {
-			setMessage(MsgType.ERROR, null, Msgs.BUNDLE, Msgs.NOT_VALID, raw);
+			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.NOT_VALID, raw));
 			return false;
 		} catch(Exception x) {
 			x.printStackTrace();
-			setMessage(MsgType.ERROR, null, Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x);
+			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x));
 			return false;
 		}
 
@@ -227,11 +227,11 @@ public class Text<T> extends Input implements IInputNode<T> {
 			} else
 				converted = ConverterRegistry.convertValueToString(m_converterClass, value);
 		} catch(UIException x) {
-			setMessage(MsgType.ERROR, null, x.getBundle(), x.getCode(), x.getParameters());
+			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
 			return;
 		} catch(Exception x) {
 			x.printStackTrace();
-			setMessage(MsgType.ERROR, null, Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x);
+			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x));
 			return;
 		}
 		setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string

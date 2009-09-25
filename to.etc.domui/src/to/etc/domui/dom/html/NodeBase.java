@@ -6,7 +6,6 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
 
 /**
  * Base node for all non-container html dom nodes.
@@ -690,18 +689,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param code
 	 * @param param
 	 */
-	public UIMessage setMessage(final MsgType mt, String errorLocation, BundleRef ref, final String code, final Object... param) {
+	public UIMessage setMessage(final UIMessage msg) {
 		if(m_errorDelegate != null)
-			return m_errorDelegate.setMessage(mt, errorLocation, ref, code, param);
+			return m_errorDelegate.setMessage(msg);
 
-		//-- If this (new) message has a LOWER severity than the EXISTING message ignore this call
+		//-- If this (new) message has a LOWER severity than the EXISTING message ignore this call and return the EXISTING message
 		if(m_message != null) {
-			if(m_message.getType().getOrder() > mt.getOrder()) {
+			if(m_message.getType().getOrder() > msg.getType().getOrder()) {
 				return m_message;
 			}
 
 			//-- If code, type and parameters are all equal just leave the existing message in-place
-			if(m_message.getCode().equals(code) && m_message.getType() == mt && param.length == m_message.getParameters().length)
+			if(m_message == msg || m_message.equals(msg))
 				return m_message;
 
 			//-- The current message is to be replaced. For that we need to clear it first
@@ -709,10 +708,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		}
 
 		//-- Now add the message
-		if(errorLocation == null)
-			errorLocation = m_errorLocation;
+		m_message = msg;
+		if(msg.getErrorLocation() == null)
+			msg.setErrorLocation(m_errorLocation);
+		msg.setErrorNode(this);
 
-		m_message = new UIMessage(this, errorLocation, mt, ref, code, param); // Create the container for the message
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.addMessage(this, m_message);
 		return m_message;
@@ -759,8 +759,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param code
 	 * @param param
 	 */
-	public UIMessage addGlobalMessage(final MsgType mt, String errorLocation, BundleRef ref, final String code, final Object... param) {
-		UIMessage m = new UIMessage(null, errorLocation, mt, ref, code, param); // Create the container for the message
+	public UIMessage addGlobalMessage(UIMessage m) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.addMessage(this, m);
 		return m;
@@ -769,6 +768,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void clearGlobalMessage() {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.clearGlobalMessages(this, null);
+	}
+
+	public void clearGlobalMessage(UIMessage m) {
+		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
+		fence.removeMessage(null, m);
 	}
 
 	public void clearGlobalMessage(final String code) {

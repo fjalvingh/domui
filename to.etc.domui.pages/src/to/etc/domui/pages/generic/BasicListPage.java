@@ -104,7 +104,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 			return; // Don't do anything (errors will have been registered)
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		if(!c.hasRestrictions() && !isAllowEmptySearch()) {
-			addGlobalMessage(MsgType.ERROR, null, Msgs.BUNDLE, Msgs.V_MISSING_SEARCH); // Missing inputs
+			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
 			return;
 		} else
 			clearGlobalMessage();

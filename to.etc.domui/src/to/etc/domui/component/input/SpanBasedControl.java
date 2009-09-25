@@ -67,7 +67,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
-			setMessage(MsgType.ERROR, null, Msgs.BUNDLE, Msgs.MANDATORY);
+			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
 			throw new ValidationException(Msgs.MANDATORY);
 		}
 		return m_value;

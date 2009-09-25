@@ -1,6 +1,5 @@
 package to.etc.domui.dom.errors;
 
-import to.etc.webapp.nls.*;
 
 /**
  * FIXME Bad name
@@ -16,11 +15,9 @@ public interface INodeErrorDelegate {
 	 * higher than the severity of the existing one; only in that case will the error
 	 * be removed. To clear the error message call clearMessage().
 	 *
-	 * @param mt
-	 * @param code
-	 * @param param
+	 * @param message
 	 */
-	public UIMessage setMessage(MsgType mt, String errorLocation, BundleRef ref, String code, Object... param);
+	public UIMessage setMessage(UIMessage msg);
 
 	/**
 	 * Remove this-component's "current" error message, if present.
