@@ -99,8 +99,22 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		r.renderNodeContent(this, this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
 
 		if(!isReadOnly() && !isDisabled()) {
-			if(m_selButton.getPage() == null) // If the above did not add the button do it now.
-				add(m_selButton);
+			if(m_selButton.getPage() == null) { // If the above did not add the button do it now.
+				/*
+				 * jal 20090925 Bugfix: when a renderer does not add the button (as it should) we need to add it manually, but
+				 * it must be in a valid table structure! So we need to ensure that a tbody, tr and td are present to add the
+				 * node to. This fixes the problem where IE did not show the buttons because the rendered xhtml was invalid.
+				 */
+				TBody tb = getBody();
+				TR tr;
+				if(tb.getChildCount() == 0)
+					tr = tb.addRow();
+				else
+					tr = (TR) tb.getChild(0);
+
+				TD cell = tr.addCell();
+				cell.add(m_selButton);
+			}
 			m_selButton.appendAfterMe(m_clearButton);
 		}
 	}
