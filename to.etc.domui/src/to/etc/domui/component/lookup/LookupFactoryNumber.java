@@ -145,6 +145,11 @@ final class LookupFactoryNumber implements LookupControlFactory {
 	}
 
 	public int accepts(PropertyMetaModel pmm) {
-		return DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class ? 2 : -1;
+		if(DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class) {
+			if(pmm.getComponentTypeHint() != null && pmm.getComponentTypeHint().toLowerCase().contains("numberlookupcombo"))
+				return 8;
+			return 2;
+		}
+		return -1;
 	}
 }

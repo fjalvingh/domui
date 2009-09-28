@@ -46,6 +46,11 @@ public interface Msgs {
 	/** (empty field) - the text shown when a lookup-popup-thingy is empty. */
 	public static final String UI_LOOKUP_EMPTY = "ui.lookup.empty";
 
+	/** Lookup value invalid */
+	public static final String UI_LOOKUP_INVALID = "ui.lookup.invalid";
+
+	public static final String UI_LOOKUP_BAD_OPERATOR_COMBI = "ui.lookup.op.combi";
+
 	public static final String UI_LUI_TTL = "ui.lui.ttl";
 
 	//# Control: message box
@@ -81,6 +86,9 @@ public interface Msgs {
 
 	/** Invalid double */
 	public static final String V_INVALID_DOUBLE = "v.invalid.double";
+
+	/** Invalid operator */
+	public static final String V_INVALID_OPERATOR = "v.invalid.operator";
 
 	//# Server errors.
 	/** Your session with the server has expired. The page will be reloaded with original data from the server. */

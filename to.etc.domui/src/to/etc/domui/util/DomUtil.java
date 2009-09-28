@@ -83,6 +83,26 @@ final public class DomUtil {
 		return clz == int.class || clz == Integer.class || clz == long.class || clz == Long.class || clz == Short.class || clz == short.class;
 	}
 
+	static public boolean isDoubleOrWrapper(Class< ? > clz) {
+		return clz == Double.class || clz == double.class;
+	}
+
+	static public boolean isFloatOrWrapper(Class< ? > clz) {
+		return clz == Float.class || clz == float.class;
+	}
+
+	static public boolean isIntegerOrWrapper(Class< ? > clz) {
+		return clz == Integer.class || clz == int.class;
+	}
+
+	static public boolean isShortOrWrapper(Class< ? > clz) {
+		return clz == Short.class || clz == short.class;
+	}
+
+	static public boolean isLongOrWrapper(Class< ? > clz) {
+		return clz == Long.class || clz == Long.class;
+	}
+
 	/**
 	 * Return T if the class represents a real (double or float) type.
 	 * @param clz

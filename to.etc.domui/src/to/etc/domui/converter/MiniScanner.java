@@ -92,6 +92,11 @@ public class MiniScanner {
 		return m_ix < m_len;
 	}
 
+	public void copy(int i) {
+		while(i-- > 0)
+			copy();
+	}
+
 	/**
 	 * If the current character equals the specified one skip it by accept() and return true, else
 	 * do nothing and return false.
@@ -402,6 +407,17 @@ public class MiniScanner {
 				return;
 			m_ix++;
 		}
+	}
+
+	public boolean match(String s) {
+		if(s.length() > m_len - m_ix)
+			return false;
+		for(int i = 0; i < s.length(); i++) {
+			if((s.charAt(i) & 0xffff) != LA(i))
+				return false;
+		}
+		copy(s.length());
+		return true;
 	}
 
 

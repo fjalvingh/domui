@@ -17,6 +17,7 @@ public class LookupControlRegistry {
 		register(new LookupFactoryString());
 		register(new LookupFactoryDate());
 		register(new LookupFactoryNumber());
+		register(new LookupFactoryNumber2());
 		register(new LookupFactoryRelation());
 		register(new LookupFactoryEnumAndBool());
 		register(new LookupFactoryRelationCombo());
