@@ -33,4 +33,10 @@ public interface IFormControl extends INodeErrorDelegate {
 	 * @param listener
 	 */
 	void setOnValueChanged(IValueChanged<NodeBase, Object> listener);
+
+	/**
+	 * Enable setting of testID into binded control.
+	 * @param listener
+	 */
+	void setTestID(String testID);
 }

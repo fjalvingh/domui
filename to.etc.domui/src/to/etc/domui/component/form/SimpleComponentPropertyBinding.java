@@ -76,4 +76,8 @@ public class SimpleComponentPropertyBinding implements ModelBinding, IFormContro
 	public UIMessage setMessage(UIMessage m) {
 		return m_control.setMessage(m);
 	}
+
+	public void setTestID(String testID) {
+		m_control.setTestID(testID);
+	}
 }

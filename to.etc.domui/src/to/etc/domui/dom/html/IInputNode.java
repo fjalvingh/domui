@@ -16,4 +16,6 @@ public interface IInputNode<T> extends IInputBase {
 	public boolean isMandatory();
 
 	public void setMandatory(boolean ro);
+
+	void setTestID(String testID);
 }
