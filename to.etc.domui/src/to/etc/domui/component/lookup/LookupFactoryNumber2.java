@@ -96,6 +96,9 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 
 			//-- Handle single operators: currently only the '!' to indicate 'not-null'
 			if("!".equals(in)) {
+				crit.isnull(m_pmm.getName());
+				return true;
+			} else if("*".equals(in)) {
 				crit.isnotnull(m_pmm.getName());
 				return true;
 			}
@@ -182,7 +185,7 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 				return QOperation.GE;
 			else if(m_s.match("<="))
 				return QOperation.LE;
-			else if(m_s.match("<>") || m_s.match("!="))
+			else if(m_s.match("<>") || m_s.match("!=") || m_s.match("!"))
 				return QOperation.NE;
 			else if(m_s.match("<"))
 				return QOperation.LT;
