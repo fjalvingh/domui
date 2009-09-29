@@ -1,5 +1,7 @@
 package to.etc.domui.hibernate.model;
 
+import java.util.*;
+
 import org.hibernate.*;
 import org.hibernate.criterion.*;
 
@@ -16,6 +18,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	private final Criteria m_crit;
 
 	private Criterion m_last;
+
+	private Map<String, Criteria> m_subCriteriaMap = Collections.EMPTY_MAP;
 
 	public CriteriaCreatingVisitor(final Criteria crit) {
 		m_crit = crit;
@@ -51,6 +55,47 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		}
 	}
 
+	private Criteria m_subCriteria;
+
+	private String parseSubcriteria(String name) {
+		m_subCriteria = null;
+		int pos = name.indexOf('.'); // Is the name containing a dot?
+		if(pos == -1) // If not: no subcriteria query.
+			return name;
+
+		//-- 2. Parse the name.
+		String path = null;
+		int len = name.length();
+		int ix = 0;
+		for(;;) {
+			String sub = name.substring(ix, pos); // Current substring;
+			ix = pos + 1;
+			if(path == null)
+				path = sub;
+			else
+				path = path + "." + sub;
+
+			//-- Create/lookup the appropriate subcriteria association
+			Criteria sc = m_subCriteriaMap.get(path);
+			if(sc == null) { //-- This path is not yet known? Then we need to create it.
+				if(m_subCriteria == null)
+					m_subCriteria = m_crit.createCriteria(sub);
+				else
+					m_subCriteria = m_subCriteria.createCriteria(sub);
+				if(m_subCriteriaMap == Collections.EMPTY_MAP)
+					m_subCriteriaMap = new HashMap<String, Criteria>();
+				m_subCriteriaMap.put(path, m_subCriteria);
+			} else
+				m_subCriteria = sc;
+
+			//-- Move to the next segment, if present,
+			pos = name.indexOf('.', ix);
+			if(pos == -1) {
+				return name.substring(ix); // Return the last segment of the name which must be a field in this subcriteria
+			}
+		}
+	}
+
 
 	@Override
 	public void visitPropertyComparison(QPropertyComparison n) throws Exception {
@@ -63,25 +108,27 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
 
 		//-- If prop refers to some relation (dotted pair):
-		Criteria subcrit = null;
-		if(name.contains(".")) {
-			//-- Dotted pair: construe a SubCriteria for the subproperty.
-			int ix = 0;
-			int len = name.length();
-			Criteria c = m_crit;
-			while(ix < len) {
-				int pos = name.indexOf('.', ix);
-				if(pos == -1) {
-					name = name.substring(ix); // What's left of the name after prefixes have been removed.
-					break;
-				}
-				String sub = name.substring(ix, pos);
-				ix = pos + 1;
-
-				c = c.createCriteria(sub);
-			}
-			subcrit = c;
-		}
+		name = parseSubcriteria(name);
+		//
+		//		Criteria subcrit = null;
+		//		if(name.contains(".")) {
+		//			//-- Dotted pair: construe a SubCriteria for the subproperty.
+		//			int ix = 0;
+		//			int len = name.length();
+		//			Criteria c = m_crit;
+		//			while(ix < len) {
+		//				int pos = name.indexOf('.', ix);
+		//				if(pos == -1) {
+		//					name = name.substring(ix); // What's left of the name after prefixes have been removed.
+		//					break;
+		//				}
+		//				String sub = name.substring(ix, pos);
+		//				ix = pos + 1;
+		//
+		//				c = c.createCriteria(sub);
+		//			}
+		//			subcrit = c;
+		//		}
 
 		Criterion last = null;
 		switch(n.getOperation()){
@@ -122,10 +169,11 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				break;
 		}
 
-		if(subcrit != null)
-			subcrit.add(last);
+		if(m_subCriteria != null)
+			m_subCriteria.add(last);
 		else
 			m_last = last;
+		m_subCriteria = null;
 	}
 
 	@Override
@@ -137,30 +185,13 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 		//-- If prop refers to some relation (dotted pair):
 		String name = n.getProp();
-		Criteria subcrit = null;
-		if(name.contains(".")) {
-			//-- Dotted pair: construe a SubCriteria for the subproperty.
-			int ix = 0;
-			int len = name.length();
-			Criteria c = m_crit;
-			while(ix < len) {
-				int pos = name.indexOf('.', ix);
-				if(pos == -1) {
-					name = name.substring(ix); // What's left of the name after prefixes have been removed.
-					break;
-				}
-				String sub = name.substring(ix, pos);
-				ix = pos + 1;
+		name = parseSubcriteria(name);
 
-				c = c.createCriteria(sub);
-			}
-			subcrit = c;
-		}
-
-		if(subcrit != null)
-			subcrit.add(Restrictions.between(name, a.getValue(), b.getValue()));
+		if(m_subCriteria != null)
+			m_subCriteria.add(Restrictions.between(name, a.getValue(), b.getValue()));
 		else
 			m_last = Restrictions.between(n.getProp(), a.getValue(), b.getValue());
+		m_subCriteria = null;
 	}
 
 	/**
