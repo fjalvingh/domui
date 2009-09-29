@@ -12,7 +12,7 @@ import to.etc.domui.dom.html.*;
 
 public interface IFormControl extends INodeErrorDelegate {
 	/*
-	 * change info: extends INodeErrorDelegate to enable external validations.    
+	 * change info: extends INodeErrorDelegate to enable external validations.
 	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
 	 * Changed on 4 Sep 2009
 	 */
@@ -33,4 +33,10 @@ public interface IFormControl extends INodeErrorDelegate {
 	 * @param listener
 	 */
 	void setOnValueChanged(IValueChanged<NodeBase, Object> listener);
+
+	/**
+	 * Set testID of the bound control.
+	 * @param listener
+	 */
+	void setTestID(String testID);
 }

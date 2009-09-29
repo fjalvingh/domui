@@ -416,7 +416,7 @@ public class HtmlRenderer implements INodeVisitor {
 		if(s.length() > 0)
 			o.attr("style", s); // Append style
 		if(b.getTestID() != null)
-			o.attr("domui:testid", b.getTestID());
+			o.attr("testid", b.getTestID());
 		if(b.getCssClass() != null)
 			o.attr("class", b.getCssClass());
 		String ttl = b.getLiteralTitle();
