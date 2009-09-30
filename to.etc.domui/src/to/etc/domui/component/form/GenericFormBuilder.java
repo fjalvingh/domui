@@ -242,6 +242,8 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		PropertyMetaModel pmm = resolveProperty(propertyName);
 		String label = pmm.getDefaultLabel();
 		addControl(label, nb, new NodeBase[]{nb}, mandatory, pmm);
+		if(label != null)
+			nb.setErrorLocation(label);
 	}
 
 	/**
