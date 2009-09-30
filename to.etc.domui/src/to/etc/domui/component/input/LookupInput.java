@@ -59,6 +59,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	public LookupInput(Class<T> lookupClass) {
 		m_lookupClass = lookupClass;
 		m_selButton = new SmallImgButton("THEME/btn-popuplookup.png");
+		m_selButton.setTestID("selButtonInputLookup");
 		m_selButton.setClicked(new IClicked<NodeBase>() {
 			public void clicked(NodeBase b) throws Exception {
 				toggleFloater();
@@ -75,7 +76,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 			}
 		});
-
+		m_clearButton.setTestID("clearButtonInputLookup");
 		m_clearButton.setDisplay(DisplayType.NONE);
 
 		setCssClass("ui-lui");
@@ -132,6 +133,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 		m_floater.setHeight("90%");
 		m_floater.setIcon("THEME/btnFind.png");
+		m_floater.setTestID("floaterWindowLookupInput");
 		//in case when external error message listener is set
 		if(m_customErrorMessageListener != null && m_customErrorMessageListener instanceof NodeBase) {
 			m_floater.setErrorFence();
@@ -222,6 +224,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		} else {
 			m_result.setModel(model); // Change the model
 		}
+		m_result.setTestID("resultTableLookupInput");
 	}
 
 	public boolean isMandatory() {

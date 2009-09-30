@@ -187,6 +187,7 @@ public class LookupForm<T> extends Div {
 		m_table = new Table();
 		sroot.add(m_table);
 		m_tbody = new TBody();
+		m_tbody.setTestID("tableBodyLookupForm");
 		m_table.add(m_tbody);
 
 		//-- Ok, we need the items we're going to show now.
@@ -200,11 +201,13 @@ public class LookupForm<T> extends Div {
 
 		//-- The button bar.
 		Div d = new Div();
+		d.setTestID("buttonBar");
 		sroot.add(d);
 
 		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
 		d.add(b);
 		b.setIcon("THEME/btnFind.png");
+		b.setTestID("searchButton");
 		b.setClicked(new IClicked<NodeBase>() {
 			public void clicked(final NodeBase bx) throws Exception {
 				if(m_clicker != null)
@@ -215,6 +218,7 @@ public class LookupForm<T> extends Div {
 		b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
 		d.add(b);
 		b.setIcon("THEME/btnClear.png");
+		b.setTestID("clearButton");
 		b.setClicked(new IClicked<NodeBase>() {
 			public void clicked(final NodeBase xb) throws Exception {
 				clearInput();
@@ -227,6 +231,7 @@ public class LookupForm<T> extends Div {
 			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
 			d.add(b);
 			b.setIcon("THEME/btnNew.png");
+			b.setTestID("newButton");
 			b.setClicked(new IClicked<NodeBase>() {
 				public void clicked(final NodeBase xb) throws Exception {
 					getOnNew().clicked(LookupForm.this);
@@ -237,6 +242,7 @@ public class LookupForm<T> extends Div {
 			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
 			d.add(b);
 			b.setIcon("THEME/btnCancel.png");
+			b.setTestID("cancelButton");
 			b.setClicked(new IClicked<NodeBase>() {
 				public void clicked(final NodeBase xb) throws Exception {
 
@@ -253,6 +259,7 @@ public class LookupForm<T> extends Div {
 				collapse();
 			}
 		});
+		b.setTestID("hideButton");
 		d.add(b);
 
 		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
@@ -281,6 +288,7 @@ public class LookupForm<T> extends Div {
 
 		if(getOnNew() != null) {
 			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
+			b.setTestID("newButtonCollapsed");
 			m_collapsed.add(b);
 			b.setIcon("THEME/btnNew.png");
 			b.setClicked(new IClicked<NodeBase>() {
@@ -291,6 +299,7 @@ public class LookupForm<T> extends Div {
 		}
 		if(null != getOnCancel()) {
 			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
+			b.setTestID("cancelButtonCollapsed");
 			m_collapsed.add(b);
 			b.setIcon("THEME/btnCancel.png");
 			b.setClicked(new IClicked<NodeBase>() {
@@ -309,6 +318,7 @@ public class LookupForm<T> extends Div {
 				restore();
 			}
 		});
+		b.setTestID("restoreButtonCollapsed");
 		m_collapsed.add(b);
 	}
 
