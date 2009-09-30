@@ -37,7 +37,7 @@ public @interface MetaDisplayProperty {
 
 	@SuppressWarnings("unchecked")
 	// Sigh
-	public Class<IConverter> converterClass() default IConverter.class;
+	public Class< ? extends IConverter< ? >> converterClass() default DummyConverter.class;
 
 	public String join() default Constants.NO_JOIN;
 

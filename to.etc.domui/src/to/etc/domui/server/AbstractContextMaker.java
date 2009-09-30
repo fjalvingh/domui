@@ -1,5 +1,6 @@
 package to.etc.domui.server;
 
+import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -12,6 +13,13 @@ import to.etc.domui.trouble.*;
 abstract public class AbstractContextMaker implements IContextMaker {
 	abstract public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception;
 
+	private boolean m_ie8header;
+
+	public AbstractContextMaker(ConfigParameters pp) {
+		if("true".equals(pp.getString("ie8header")))
+			m_ie8header = true;
+	}
+
 	public boolean execute(final RequestContextImpl ctx, FilterChain chain) throws Exception {
 		List<IRequestInterceptor> il = ctx.getApplication().getInterceptorList();
 		Exception xx = null;
@@ -21,7 +29,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			callInterceptorsBegin(il, ctx);
 			rh = ctx.getApplication().findRequestHandler(ctx);
 			if(rh == null) {
-				chain.doFilter(ctx.getRequest(), ctx.getResponse());
+				handleDoFilter(chain, ctx.getRequest(), ctx.getResponse());
 				return false;
 			}
 			rh.handleRequest(ctx);
@@ -43,6 +51,33 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			}
 			PageContext.internalSet((RequestContextImpl) null);
 		}
+	}
+
+	private void handleDoFilter(FilterChain chain, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(!m_ie8header) {
+			chain.doFilter(request, response);
+			return;
+		}
+
+		String url = request.getRequestURI();
+		int pos = url.lastIndexOf('.');
+		String ext;
+		if(pos == -1)
+			ext = "";
+		else
+			ext = url.substring(pos + 1).toLowerCase();
+		if(!isIeHeaderable(ext)) {
+			chain.doFilter(request, response);
+			return;
+		}
+
+		WrappedHttpServetResponse wsr = new WrappedHttpServetResponse(url, response);
+		chain.doFilter(request, wsr);
+		wsr.flushBuffer();
+	}
+
+	private boolean isIeHeaderable(String suf) {
+		return "jsp".equals(suf) || "html".equals(suf) || "htm".equals(suf) || "js".equals(suf);
 	}
 
 	private void callInterceptorsBegin(final List<IRequestInterceptor> il, final RequestContextImpl ctx) throws Exception {

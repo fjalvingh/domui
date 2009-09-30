@@ -34,7 +34,7 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 		m_name = p.name();
 		if(!Constants.NO_DEFAULT_LABEL.equals(p.defaultLabel()))
 			m_labelKey = p.defaultLabel();
-		setConverterClass((Class< ? extends IConverter< ? >>) (p.converterClass() == IConverter.class ? null : p.converterClass()));
+		setConverterClass((p.converterClass() == DummyConverter.class ? null : p.converterClass()));
 		setSortable(p.defaultSortable());
 		setDisplayLength(p.displayLength());
 		setReadOnly(p.readOnly());

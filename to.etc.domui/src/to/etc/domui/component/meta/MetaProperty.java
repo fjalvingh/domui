@@ -46,8 +46,7 @@ public @interface MetaProperty {
 	 * property you can specify your own converter class doing those conversions here.
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	public Class< ? extends IConverter> converterClass() default IConverter.class;
+	public Class< ? extends IConverter< ? >> converterClass() default DummyConverter.class;
 
 	/**
 	 * Defines this as a readonly (displayonly) property (by default). It defaults to

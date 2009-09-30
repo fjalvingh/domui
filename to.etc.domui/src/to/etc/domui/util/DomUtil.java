@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.servlet.http.*;
 
 import to.etc.domui.annotations.*;
 import to.etc.domui.dom.errors.*;
@@ -27,6 +28,13 @@ final public class DomUtil {
 	static {
 		long val = System.currentTimeMillis() / 1000 / 60;
 		m_guidSeed = (int) val;
+	}
+
+	static public final void ie8Capable(HttpServletResponse req) throws IOException {
+		if(!(req instanceof WrappedHttpServetResponse))
+			return;
+		WrappedHttpServetResponse wsr = (WrappedHttpServetResponse) req;
+		wsr.setIE8Capable();
 	}
 
 	static public final boolean isEqual(final Object a, final Object b) {

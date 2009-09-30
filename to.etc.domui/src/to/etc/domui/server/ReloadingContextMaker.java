@@ -26,6 +26,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 
 	public ReloadingContextMaker(String applicationClassName, ConfigParameters pp, String patterns) throws Exception {
+		super(pp);
 		m_applicationClassName = applicationClassName;
 		m_config = pp;
 		m_reloader = new Reloader(patterns);

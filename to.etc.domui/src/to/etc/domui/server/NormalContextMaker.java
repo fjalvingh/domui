@@ -13,6 +13,7 @@ final public class NormalContextMaker extends AbstractContextMaker {
 	private DomApplication m_application;
 
 	public NormalContextMaker(String applicationClassName, ConfigParameters pp) throws Exception {
+		super(pp);
 		m_applicationClassName = applicationClassName;
 		m_config = pp;
 
