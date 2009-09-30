@@ -17,6 +17,8 @@ public interface Msgs {
 
 	public static final String UNEXPECTED_EXCEPTION = "ui.unexpected_exception";
 
+	public static final String DECADE_EXCEPTION = "ui.decade_exception";
+
 	public static final String MANDATORY = "ui.mandatory";
 
 	public static final String NOT_VALID = "ui.invalid";
