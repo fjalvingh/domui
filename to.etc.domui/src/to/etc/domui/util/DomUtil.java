@@ -726,4 +726,142 @@ final public class DomUtil {
 			throw new ProgrammerErrorException("Attempt to retrieve a page-bundle's key (" + txt + "), but the node (" + nodeBase + ")is not attached to a page");
 		return p.getBody().$(txt);
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Error message visualisation utilities.				*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Render a text string that possibly contains some simple HTML constructs as a DomUI
+	 * node set into the container passed. The code currently accepts: B, BR, I, EM, STRONG
+	 * as tags.
+	 */
+	static public void renderHtmlString(NodeContainer d, String text) {
+		if(text == null || text.length() == 0)
+			return;
+		StringBuilder sb = new StringBuilder(text.length()); // rll string segment buffer
+		List<NodeContainer> nodestack = Collections.EMPTY_LIST; // generated html stack (embedding)
+
+		/*
+		 * Enter a scan loop. The scan loop has two sections; the first one scans the TEXT between tags and adds it
+		 * to the string buffer. The second loop scans a tag and handles it properly. After that we return to scanning
+		 * text etc until the string is done.
+		 */
+		int ix = 0;
+		int len = text.length();
+		NodeContainer top = d;
+		for(;;) {
+			//-- Text scan: scan content and add to the buffer until a possible tag start character is found.
+			while(ix < len) {
+				char c = text.charAt(ix);
+				if(c == '<')
+					break;
+				sb.append(c);
+				ix++;
+			}
+
+			//-- Ok; we possibly have some text in the buffer and have reached a tag or eoln.
+			if(ix >= len)
+				break;
+
+			//-- Tag scan. We find the end of the tag and check if we recognise it. We currently are on the open '<'.
+			int tix = ix + 1; // Get past >
+			String tag = null;
+			while(tix < len) {
+				char c = text.charAt(tix++);
+				if(c == '>') {
+					//-- Found an end tag- set the tag found.
+					tag = text.substring(ix, tix); // Get whole tag including <>.
+					break;
+				}
+			}
+
+			//-- If no tag was found (missing >) we have a literal < so copy it.
+			if(tag == null) {
+				//-- Literal <. Copy to text string and continue scanning text
+				sb.append('<');
+				ix++; // Skip over <.
+			} else {
+				//-- Some kind of text between <>. Scan for recognised constructs; open tags 1st
+				if(tag.equalsIgnoreCase("<br>") || tag.equalsIgnoreCase("<br/>") || tag.equalsIgnoreCase("<br />")) {
+					//-- Newline. Append a BR node.
+					appendOptionalText(top, sb);
+					top.add(new BR());
+					ix = tix;
+				} else if(tag.equalsIgnoreCase("<b>") || tag.equalsIgnoreCase("<strong>")) {
+					appendOptionalText(top, sb);
+					ix = tix;
+					nodestack = appendContainer(nodestack, top = new Span("ui-txt-b"));
+				} else if(tag.equalsIgnoreCase("<i>") || tag.equalsIgnoreCase("<em>")) {
+					appendOptionalText(top, sb);
+					ix = tix;
+					nodestack = appendContainer(nodestack, top = new Span("ui-txt-i"));
+				} else if(tag.startsWith("</")) {
+					//-- Some kind of end tag.
+					tag = tag.substring(2, tag.length()-1).trim();			// Remove </ >
+					if(tag.equalsIgnoreCase("b") || tag.equalsIgnoreCase("i") || tag.equalsIgnoreCase("strong") || tag.equalsIgnoreCase("em")) {
+						//-- Recognised end tag: pop node stack.
+						ix	= tix;
+						appendOptionalText(top, sb); // Append the text for this node because it ends.
+						if(nodestack.size() > 0) {
+							nodestack.remove(nodestack.size() - 1);
+							if(nodestack.size() == 0)
+								top = d;
+							else
+								top = nodestack.get(nodestack.size() - 1);
+						}
+					} else {
+						//-- Unrecognised end tag: just add
+						sb.append('<');
+						ix++;
+					}
+				} else {
+					//-- Unrecognised thingy: copy < verbatim and scan on.
+					sb.append('<');
+					ix++;
+				}
+			}
+		}
+
+		//-- We have reached eo$. If there is text left in the buffer render it in the last node added, then be done.
+		if(sb.length() > 0)
+			top.add(sb.toString());
+	}
+
+	static public List<NodeContainer> appendContainer(List<NodeContainer> stack, NodeContainer it) {
+		if(stack == Collections.EMPTY_LIST)
+			stack = new ArrayList<NodeContainer>();
+		stack.add(it);
+		return stack;
+	}
+
+	static private void appendOptionalText(NodeContainer nc, StringBuilder sb) {
+		if(sb.length() == 0)
+			return;
+		nc.add(sb.toString());
+		sb.setLength(0);
+	}
+
+	/**
+	 * This scans an error messages for simple HTML and renders that as DomUI nodes. The rendered content gets added to
+	 * the container passed.
+	 */
+	static public void renderErrorMessage(NodeContainer d, UIMessage m) {
+		if(d.getCssClass() == null)
+			d.setCssClass("ui-msg ui-msg-" + m.getType().name().toLowerCase());
+		d.setUserObject(m);
+		String text = m.getErrorLocation() != null ? m.getErrorLocation() + ": " + m.getMessage() : m.getMessage();
+
+		//-- Split the text @
+
+
+		d.setText(text);
+		if(m.getErrorNode() != null) {
+			m.getErrorNode().addCssClass("ui-input-err");
+		}
+
+
+	}
+
+
 }
