@@ -109,26 +109,6 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 		//-- If prop refers to some relation (dotted pair):
 		name = parseSubcriteria(name);
-		//
-		//		Criteria subcrit = null;
-		//		if(name.contains(".")) {
-		//			//-- Dotted pair: construe a SubCriteria for the subproperty.
-		//			int ix = 0;
-		//			int len = name.length();
-		//			Criteria c = m_crit;
-		//			while(ix < len) {
-		//				int pos = name.indexOf('.', ix);
-		//				if(pos == -1) {
-		//					name = name.substring(ix); // What's left of the name after prefixes have been removed.
-		//					break;
-		//				}
-		//				String sub = name.substring(ix, pos);
-		//				ix = pos + 1;
-		//
-		//				c = c.createCriteria(sub);
-		//			}
-		//			subcrit = c;
-		//		}
 
 		Criterion last = null;
 		switch(n.getOperation()){
@@ -252,17 +232,25 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	@Override
 	public void visitUnaryProperty(final QUnaryProperty n) throws Exception {
+		String name = n.getProperty();
+		name = parseSubcriteria(name); // If this is a dotted name prepare a subcriteria on it.
+
+		Criterion c;
 		switch(n.getOperation()){
 			default:
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 
 			case ISNOTNULL:
-				m_last = Restrictions.isNotNull(n.getProperty());
-				return;
+				c = Restrictions.isNotNull(name);
+				break;
 			case ISNULL:
-				m_last = Restrictions.isNull(n.getProperty());
-				return;
+				c = Restrictions.isNull(name);
+				break;
 		}
+		if(m_subCriteria != null)
+			m_subCriteria.add(c);
+		else
+			m_last = c;
 	}
 
 	@Override
