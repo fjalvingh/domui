@@ -791,11 +791,19 @@ final public class DomUtil {
 				} else if(tag.equalsIgnoreCase("<b>") || tag.equalsIgnoreCase("<strong>")) {
 					appendOptionalText(top, sb);
 					ix = tix;
-					nodestack = appendContainer(nodestack, top = new Span("ui-txt-b"));
+					NodeContainer n = new Span();
+					n.setCssClass("ui-txt-b");
+					nodestack = appendContainer(nodestack, n);
+					top.add(n);
+					top = n;
 				} else if(tag.equalsIgnoreCase("<i>") || tag.equalsIgnoreCase("<em>")) {
 					appendOptionalText(top, sb);
 					ix = tix;
-					nodestack = appendContainer(nodestack, top = new Span("ui-txt-i"));
+					NodeContainer n = new Span();
+					n.setCssClass("ui-txt-i");
+					nodestack = appendContainer(nodestack, n);
+					top.add(n);
+					top = n;
 				} else if(tag.startsWith("</")) {
 					//-- Some kind of end tag.
 					tag = tag.substring(2, tag.length()-1).trim();			// Remove </ >
@@ -850,17 +858,11 @@ final public class DomUtil {
 		if(d.getCssClass() == null)
 			d.setCssClass("ui-msg ui-msg-" + m.getType().name().toLowerCase());
 		d.setUserObject(m);
-		String text = m.getErrorLocation() != null ? m.getErrorLocation() + ": " + m.getMessage() : m.getMessage();
-
-		//-- Split the text @
-
-
-		d.setText(text);
+		String text = m.getErrorLocation() != null ? "<b>" + m.getErrorLocation() + "</b>" + ": " + m.getMessage() : m.getMessage();
+		renderHtmlString(d, text);
 		if(m.getErrorNode() != null) {
 			m.getErrorNode().addCssClass("ui-input-err");
 		}
-
-
 	}
 
 
