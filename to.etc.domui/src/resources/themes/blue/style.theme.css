@@ -770,6 +770,7 @@ li.ui-tab-err {
 
 .ui-tab-hdr .ui-tab-err a {
 	background-image: url(tab-off-err-right.png);
+	padding: 5px 28px 4px 6px;
 }
 
 .ui-tab-hdr .ui-tab-sel a {
