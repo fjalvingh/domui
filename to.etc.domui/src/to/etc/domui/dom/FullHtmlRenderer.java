@@ -29,13 +29,23 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 	public FullHtmlRenderer(HtmlRenderer tagRenderer, IBrowserOutput o) {
 		m_tagRenderer = tagRenderer;
 		m_o = o;
+		// 20090701 jal was ADDS which is WRONG - by definition a FULL render IS a full renderer... This caused SELECT tags to be rendered with domui_selected attributes instead of selected attributes.
+		setRenderMode(HtmlRenderMode.FULL);
 	}
 
 	private HtmlRenderer getTagRenderer() {
 		// 20090701 jal was ADDS which is WRONG - by definition a FULL render IS a full renderer... This caused SELECT tags to be rendered with domui_selected attributes instead of selected attributes.
-		m_tagRenderer.setRenderMode(HtmlRenderMode.FULL); // All nodes from the full renderer are NEW by definition.
-		//		m_tagRenderer.setNewNode(true);
+		// 20091002 jal removed, make callers specify render mode...
+		//		m_tagRenderer.setRenderMode(HtmlRenderMode.FULL); // All nodes from the full renderer are NEW by definition.
 		return m_tagRenderer;
+	}
+
+	public HtmlRenderMode getMode() {
+		return m_tagRenderer.getMode();
+	}
+
+	public void setRenderMode(HtmlRenderMode m) {
+		m_tagRenderer.setRenderMode(m);
 	}
 
 	public boolean isXml() {
@@ -86,6 +96,24 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 			m_o.inc();
 			getTagRenderer().renderEndTag(n); // Force close the tag in HTML mode.
 		}
+	}
+
+	/**
+	 * Overridden to fix bug 627; this prevents embedding content in textarea and renders the value as
+	 * an attribute.
+	 *
+	 * @see to.etc.domui.dom.html.NodeVisitorBase#visitTextArea(to.etc.domui.dom.html.TextArea)
+	 */
+	@Override
+	public void visitTextArea(TextArea n) throws Exception {
+		if(getMode() == HtmlRenderMode.FULL) { // In FULL mode render content inside textarea goddamnit
+			visitNodeContainer(n);
+			return;
+		}
+
+		visitNodeBase(n);
+		o().setIndentEnabled(true); // jal 20091002 indent when rendering js attribute
+		//		getTagRenderer().renderEndTag(n);
 	}
 
 	@Override

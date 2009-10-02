@@ -267,6 +267,7 @@ public class OptimalDeltaRenderer {
 
 	private void renderAdd(NodeContainer parent, NodeBase nd) throws Exception {
 		m_html.setRenderMode(HtmlRenderMode.ADDS);
+		m_fullRenderer.setRenderMode(HtmlRenderMode.ADDS); // jal 20091002 added to allow textarea to know what is happening
 		//		m_html.setNewNode(true);				// Indicate a new node is to be rendered
 		if(nd.m_origNewIndex == 0) {
 			o().tag("prepend");
@@ -330,6 +331,7 @@ public class OptimalDeltaRenderer {
 				//					o().setIndentEnabled(false);
 				//				}
 
+				m_fullRenderer.setRenderMode(HtmlRenderMode.REPL); // jal 20091002 added to let textarea know what mode we're rendering in.
 				m_fullRenderer.visitChildren(ni.node); // 20080624 jal fix for table in table in table in table..... when paging
 				o().closetag("replaceContent");
 				//				o().setIndentEnabled(ind);

@@ -6,6 +6,7 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
  * Base handler for rendering nodes.
@@ -763,6 +764,15 @@ public class HtmlRenderer implements INodeVisitor {
 			o().attr("domjs_readonly", n.isReadOnly() ? "true" : "false");
 		else if(n.isReadOnly())
 			o().attr("readonly", "readonly");
+
+		//-- Fix for bug 627: render textarea content in attribute to prevent zillion of IE fuckups.
+		if(getMode() != HtmlRenderMode.FULL) {
+			String txt = n.getValue();
+			if(txt != null) {
+				txt = StringTool.strToJavascriptString(txt, false);
+				o().attr("domjs_value", txt);
+			}
+		}
 		renderTagend(n, o());
 		o().setIndentEnabled(false); // jal 20090923 again: do not indent content (bug 627)
 		//		if(n.getRawValue() != null)
