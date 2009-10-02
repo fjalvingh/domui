@@ -79,8 +79,9 @@ public class Input extends InputNodeBase {
 	}
 
 	public void setRawValue(String value) {
-		if(!DomUtil.isEqual(value, m_rawValue))
-			changed();
+		if(DomUtil.isEqual(value, m_rawValue))
+			return;
+		changed();
 		m_rawValue = value;
 	}
 

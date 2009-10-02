@@ -84,79 +84,84 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 
 		@Override
 		public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
-			m_input.clearMessage(); // Remove any earlier validation failure.
+			try {
+				m_input.clearMessage(); // Remove any earlier validation failure.
 
-			//-- Get value and bail out if it's empty.
-			String in = m_input.getValue();
-			if(in == null)
-				return true;
-			in = in.trim();
-			if(in.length() == 0)
-				return true;
+				//-- Get value and bail out if it's empty.
+				String in = m_input.getValue();
+				if(in == null)
+					return true;
+				in = in.trim();
+				if(in.length() == 0)
+					return true;
 
-			//-- Handle single operators: currently only the '!' to indicate 'not-null'
-			if("!".equals(in)) {
-				crit.isnull(m_pmm.getName());
+				//-- Handle single operators: currently only the '!' to indicate 'not-null'
+				if("!".equals(in)) {
+					crit.isnull(m_pmm.getName());
+					return true;
+				} else if("*".equals(in)) {
+					crit.isnotnull(m_pmm.getName());
+					return true;
+				}
+
+				//-- We need to separate into [operator, value] pairs; there can be max. 2.
+				m_s = new MiniScanner();
+				m_s.init(m_input.getValue());
+				m_s.skipWs();
+
+				if(Character.isDigit(m_s.LA())) {
+					//-- This is just a number and cannot have operators. Parse and create equality test.
+					Object value = parseNumber(in);
+					if(value == null)
+						return false;
+					crit.eq(m_pmm.getName(), value);
+					return true;
+				}
+
+				//-- We need to parse the input which can be numeric input with operators. We must have an operator now.
+				QOperation op = scanOperation();
+
+				//-- 2nd part MUST be numeric, so scan a value
+				String v = scanNumeric();
+				if(v == null)
+					throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+				Object value = parseNumber(v); // Convert to appropriate type,
+
+				//-- Ok: is there a 2nd part?
+				m_s.skipWs();
+				if(m_s.eof()) {
+					//-- Just add the appropriate operation.
+					QPropertyComparison r = new QPropertyComparison(op, m_pmm.getName(), new QLiteral(value));
+					crit.add(r);
+					return true;
+				}
+
+				QOperation op2 = scanOperation();
+				m_s.skipWs();
+				if(m_s.eof())
+					throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+
+				//-- 2nd fragment of 2nd part MUST be numeric, so scan a value
+				v = scanNumeric();
+				if(v == null)
+					throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+				Object value2 = parseNumber(v); // Convert to appropriate type,
+
+				//-- Now: construct the between proper
+				if((op == QOperation.GE || op == QOperation.GT) && (op2 == QOperation.LT || op2 == QOperation.LE)) {
+					crit.add(new QPropertyComparison(op, m_pmm.getName(), new QLiteral(value)));
+					crit.add(new QPropertyComparison(op2, m_pmm.getName(), new QLiteral(value2)));
+				} else if((op2 == QOperation.GE || op2 == QOperation.GT) && (op == QOperation.LT || op == QOperation.LE)) {
+					crit.add(new QPropertyComparison(op, m_pmm.getName(), new QLiteral(value)));
+					crit.add(new QPropertyComparison(op2, m_pmm.getName(), new QLiteral(value2)));
+				} else
+					throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_BAD_OPERATOR_COMBI);
+
 				return true;
-			} else if("*".equals(in)) {
-				crit.isnotnull(m_pmm.getName());
-				return true;
+			} catch(UIException x) {
+				m_input.setMessage(UIMessage.error(x));
+				return false;
 			}
-
-			//-- We need to separate into [operator, value] pairs; there can be max. 2.
-			m_s = new MiniScanner();
-			m_s.init(m_input.getValue());
-			m_s.skipWs();
-
-			if(Character.isDigit(m_s.LA())) {
-				//-- This is just a number and cannot have operators. Parse and create equality test.
-				Object value = parseNumber(in);
-				if(value == null)
-					return false;
-				crit.eq(m_pmm.getName(), value);
-				return true;
-			}
-
-			//-- We need to parse the input which can be numeric input with operators. We must have an operator now.
-			QOperation op = scanOperation();
-
-			//-- 2nd part MUST be numeric, so scan a value
-			String v = scanNumeric();
-			if(v == null)
-				throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
-			Object value = parseNumber(v); // Convert to appropriate type,
-
-			//-- Ok: is there a 2nd part?
-			m_s.skipWs();
-			if(m_s.eof()) {
-				//-- Just add the appropriate operation.
-				QPropertyComparison r = new QPropertyComparison(op, m_pmm.getName(), new QLiteral(value));
-				crit.add(r);
-				return true;
-			}
-
-			QOperation op2 = scanOperation();
-			m_s.skipWs();
-			if(m_s.eof())
-				throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
-
-			//-- 2nd fragment of 2nd part MUST be numeric, so scan a value
-			v = scanNumeric();
-			if(v == null)
-				throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
-			Object value2 = parseNumber(v); // Convert to appropriate type,
-
-			//-- Now: construct the between proper
-			if((op == QOperation.GE || op == QOperation.GT) && (op2 == QOperation.LT || op2 == QOperation.LE)) {
-				crit.add(new QPropertyComparison(op, m_pmm.getName(), new QLiteral(value)));
-				crit.add(new QPropertyComparison(op2, m_pmm.getName(), new QLiteral(value2)));
-			} else if((op2 == QOperation.GE || op2 == QOperation.GT) && (op == QOperation.LT || op == QOperation.LE)) {
-				crit.add(new QPropertyComparison(op, m_pmm.getName(), new QLiteral(value)));
-				crit.add(new QPropertyComparison(op2, m_pmm.getName(), new QLiteral(value2)));
-			} else
-				throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_BAD_OPERATOR_COMBI);
-
-			return true;
 		}
 
 		private String scanNumeric() {
@@ -195,7 +200,7 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 				m_s.getStringResult(); // Clear content
 				for(;;) {
 					int c = m_s.LA();
-					if(Character.isWhitespace(c) || Character.isDigit(c) || c == '-' || c == '.' || c == ',')
+					if(Character.isWhitespace(c) || Character.isDigit(c) || c == '-' || c == '.' || c == ',' || c == -1)
 						break;
 					m_s.copy();
 				}
@@ -211,26 +216,20 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 		 * @return
 		 */
 		private Object parseNumber(String in) {
-			try {
-				BigDecimal bd = MoneyUtil.parseEuroToBigDecimal(in);
-				Class< ? > icl = m_pmm.getActualType();
-				if(icl == BigDecimal.class)
-					return bd;
-				if(DomUtil.isLongOrWrapper(icl))
-					return Long.valueOf(bd.longValue());
-				if(DomUtil.isIntegerOrWrapper(icl))
-					return Integer.valueOf(bd.intValue());
-				else if(DomUtil.isDoubleOrWrapper(icl))
-					return Double.valueOf(bd.doubleValue());
-				else if(DomUtil.isFloatOrWrapper(icl))
-					return Float.valueOf(bd.floatValue());
-				else
-					throw new IllegalStateException("Unknown value type for control: " + icl);
-			} catch(UIException x) {
-				m_input.setMessage(UIMessage.error(x));
-				return null;
-			}
+			BigDecimal bd = MoneyUtil.parseEuroToBigDecimal(in);
+			Class< ? > icl = m_pmm.getActualType();
+			if(icl == BigDecimal.class)
+				return bd;
+			if(DomUtil.isLongOrWrapper(icl))
+				return Long.valueOf(bd.longValue());
+			if(DomUtil.isIntegerOrWrapper(icl))
+				return Integer.valueOf(bd.intValue());
+			else if(DomUtil.isDoubleOrWrapper(icl))
+				return Double.valueOf(bd.doubleValue());
+			else if(DomUtil.isFloatOrWrapper(icl))
+				return Float.valueOf(bd.floatValue());
+			else
+				throw new IllegalStateException("Unknown value type for control: " + icl);
 		}
 	}
-
 }

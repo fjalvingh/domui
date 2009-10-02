@@ -481,8 +481,23 @@ public class LookupForm<T> extends Div {
 		if(it.getInstance() == null)
 			throw new IllegalStateException("No idea how to create a lookup control for " + it);
 
+		//-- Assign error locations to all input controls
+		String location = calculateLocation(it);
+		if(location != null && location.trim().length() > 0) {
+			for(NodeBase ic : it.getInstance().getInputControls())
+				ic.setErrorLocation(location);
+		}
+
 		//-- Add the visual presentation.
 		addItemToTable(it);
+	}
+
+	private String calculateLocation(Item it) {
+		if(it.getLabelText() != null)
+			return it.getLabelText();
+		if(it.getProperty() != null)
+			return it.getProperty().getDefaultLabel();
+		return null;
 	}
 
 	/**

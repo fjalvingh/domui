@@ -48,6 +48,11 @@ final class LookupFactoryDate implements LookupControlFactory {
 				}
 				return true;
 			}
+
+			@Override
+			public void clearInput() {
+				dt.setValue(null);
+			}
 		};
 	}
 

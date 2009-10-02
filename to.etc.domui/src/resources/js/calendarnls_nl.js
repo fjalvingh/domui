@@ -60,11 +60,6 @@ Calendar._TT = {};
 Calendar._TT["INFO"] = "Info";
 
 Calendar._TT["ABOUT"] =
-"DHTML Datum/Tijd Selector\n" +
-"(c) dynarch.com 2002-2005 / Author: Mihai Bazon\n" +
-"Ga voor de meest recente versie naar: http://www.dynarch.com/projects/calendar/\n" +
-"Verspreid onder de GNU LGPL. Zie http://gnu.org/licenses/lgpl.html voor details." +
-"\n\n" +
 "Datum selectie:\n" +
 "- Gebruik de \xab \xbb knoppen om een jaar te selecteren\n" +
 "- Gebruik de " + String.fromCharCode(0x2039) + ", " + String.fromCharCode(0x203a) + " knoppen om een maand te selecteren\n" +
@@ -75,7 +70,6 @@ Calendar._TT["ABOUT_TIME"] = "\n\n" +
 "- of Shift-klik om het te verlagen\n" +
 "- of klik en sleep voor een snellere selectie.";
 
-Calendar._TT["PREV_YEAR"] = "Prev. year (hold for menu)";
 Calendar._TT["PREV_YEAR"] = "Vorig jaar (ingedrukt voor menu)";
 Calendar._TT["PREV_MONTH"] = "Vorige maand (ingedrukt voor menu)";
 Calendar._TT["GO_TODAY"] = "Ga naar Vandaag";
@@ -87,7 +81,7 @@ Calendar._TT["PART_TODAY"] = " (vandaag)";
 
 // the following is to inform that "%s" is to be the first day of week
 // %s will be replaced with the day name.
-Calendar._TT["DAY_FIRST"] = "Display %s first";
+Calendar._TT["DAY_FIRST"] = "Toon %s eerst";
 
 // This may be locale-dependent.  It specifies the week-end days, as an array
 // of comma-separated numbers.  The numbers are from 0 to 6: 0 means Sunday, 1

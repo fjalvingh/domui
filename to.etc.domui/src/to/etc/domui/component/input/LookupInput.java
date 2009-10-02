@@ -141,6 +141,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
 		}
 		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(m_lookupClass);
+		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		m_floater.add(lf);
 		m_floater.setOnClose(new IClicked<FloatingWindow>() {
 			public void clicked(FloatingWindow b) throws Exception {
