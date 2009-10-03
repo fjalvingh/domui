@@ -23,6 +23,8 @@ public class TabPanel extends Div {
 
 		private Img m_img;
 
+		private Img m_errorInfo;
+
 		private Li m_tab;
 
 		private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
@@ -83,8 +85,30 @@ public class TabPanel extends Div {
 		private void adjustUI() {
 			if(hasErrors()) {
 				m_tab.addCssClass("ui-tab-err");
+				//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
+				//is this same 'HTML rendering already done for visited node' bug in framework?	
+				//for now error image is set through css	
+				/*
+				if(m_errorInfo == null) {
+					m_errorInfo = new Img("THEME/mini-error.png");
+					m_errorInfo.setTitle("Tab contain errors.");
+					if(m_tab.getChildCount() > 0 && m_tab.getChild(0) instanceof ATag) {
+						((ATag) m_tab.getChild(0)).add(m_errorInfo);
+					}
+				}
+				*/
 			} else {
 				m_tab.removeCssClass("ui-tab-err");
+				//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
+				//is this same 'HTML rendering already done for visited node' bug in framework?	
+				/*
+				if(m_errorInfo != null) {
+					if(m_tab.getChildCount() > 0 && m_tab.getChild(0) instanceof ATag) {
+						((ATag) m_tab.getChild(0)).removeChild(m_errorInfo);
+					}
+					m_errorInfo = null;
+				}
+				*/
 			}
 		}
 
