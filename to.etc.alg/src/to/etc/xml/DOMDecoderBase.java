@@ -95,6 +95,15 @@ public class DOMDecoderBase {
 			missing(name);
 		return textFrom(n);
 	}
+	public String	string(final String name, final int maxlen) {
+		Node	n	= nodeFind(getCurrentRoot(), currentNS(), name);
+		if(n == null)
+			missing(name);
+		String val = textFrom(n);
+		if(val.length() > maxlen)
+			val = val.substring(0, maxlen);
+		return val;
+	}
 
 	/**
 	 * Finds the 0..1 string in the specified root, returns the default value if the string is not found.
@@ -106,11 +115,19 @@ public class DOMDecoderBase {
 	 */
 	public String string(String name, String dflt) {
 		String res = findStringNode(name);
-		return res == null ? dflt : res;
+		return res==null ? dflt : res;
+	}
+	public String	string(final String name, final String dflt, final int maxlen) {
+		String res = findStringNode(name);
+		if(res == null)
+			res = dflt;
+		if(res != null && res.length() > maxlen)
+			res = res.substring(0, maxlen);
+		return res;
 	}
 
-	public String oneOf(String name, String... list) {
-		String value = string(name, (String) null); // Locate the string variant or null
+	public String	oneOf(final String name, final String... list) {
+		String	value = string(name, (String)null);					// Locate the string variant or null
 		for(String pv : list) {
 			if(pv == null) {
 				if(value == null)

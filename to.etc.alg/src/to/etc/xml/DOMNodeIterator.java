@@ -47,7 +47,7 @@ class DOMNodeIterator implements Iterator<DOMDecoder>, Iterable<DOMDecoder> {
 				continue;
 			if(m_filterTag == null)
 				return ix;
-			if(next.getNodeName().equals(m_filterTag)) {
+			if(next.getNodeName().equals(m_filterTag) || next.getLocalName().equals(m_filterTag)) {
 				if(m_filterTagNamespace == null)
 					return ix;
 				if(m_filterTagNamespace.equals(next.getNamespaceURI()))
