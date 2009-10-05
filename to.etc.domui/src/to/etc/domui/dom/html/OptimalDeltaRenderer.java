@@ -250,15 +250,15 @@ public class OptimalDeltaRenderer {
 		//		m_html.setNewNode(false);
 		b.visit(m_html);
 
-		/*
-		 * 20090923 jal Fix for bug 627: textarea in IE is a complete fuckup and removes whitespace and newlines. This is unfixable in
-		 * any normal way, so for now we render it's value as a domjs_value attribute.
-		 */
-		if(b.getTag().equalsIgnoreCase("textarea")) {
-			String txt = ((TextArea) b).getValue();
-			txt = StringTool.strToJavascriptString(txt, false);
-			o().attr("domjs_value", txt);
-		}
+		//		/*
+		//		 * 20090923 jal Fix for bug 627: textarea in IE is a complete fuckup and removes whitespace and newlines. This is unfixable in
+		//		 * any normal way, so for now we render it's value as a domjs_value attribute.
+		//		 */
+		//		if(b.getTag().equalsIgnoreCase("textarea")) {
+		//			String txt = ((TextArea) b).getValue();
+		//			txt = StringTool.strToJavascriptString(txt, false);
+		//			o().attr("domjs_value", txt);
+		//		}
 		//-- End fix
 
 		o().endAndCloseXmltag(); // Fully-close tag with />

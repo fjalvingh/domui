@@ -34,6 +34,10 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 
 	function processDoc(xml) {
 		var status = true, ex;
+		status = go(xml);
+	}
+	function processDocOLD(xml) {
+		var status = true, ex;
 		try {
 			status = go(xml);
 		} catch (e) {
@@ -44,7 +48,7 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 		if (ex)
 			throw ex;
 	}
-	;
+
 
 	function changeTagAttributes(a) {
 		log("aarg=", a);
@@ -69,11 +73,11 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 						'ERROR parsing XML string for conversion: ' + e, e);
 			throw e;
 		}
-		var ok = doc && doc.documentElement
-				&& doc.documentElement.tagName != 'parsererror';
+		var ok = doc && doc.documentElement && doc.documentElement.tagName != 'parsererror';
 		log('conversion ', ok ? 'successful!' : 'FAILED');
 		if (!ok) {
-			log(doc.documentElement.textContent);
+			if(doc && doc.documentElement)
+				log(doc.documentElement.textContent);
 			if (window.console && window.console.debug) {
 				alert('Internal error: the server response could not be parsed!? Look in the console for more info');
 			} else {
@@ -155,11 +159,15 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 					continue; // commands are elements
 				var cmdNode = commands[i], cmd = cmdNode.tagName;
 				if (cmd == 'eval') {
-					var js = (cmdNode.firstChild ? cmdNode.firstChild.nodeValue
-							: null);
-					log('invoking "eval" command: ', js);
-					if (js)
-						$.globalEval(js);
+					try {
+						var js = (cmdNode.firstChild ? cmdNode.firstChild.nodeValue : null);
+						log('invoking "eval" command: ', js);
+						if (js)
+							$.globalEval(js);
+					} catch(ex) {
+						alert('eval failed: '+ex+", js="+js);
+						throw ex;
+					}
 					continue;
 				}
 				var q = cmdNode.getAttribute('select');
@@ -170,30 +178,39 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 				}
 
 				if (cmd == 'changeTagAttributes') {
-					// -- Copy attributes on this tag to the target tags
-					var dest = jq[0]; // Should be 1 element
-					var src = commands[i];
-					for ( var ai = 0, attr = ''; ai < src.attributes.length; ai++) {
-						var a = src.attributes[ai], n = $.trim(a.name), v = $
-								.trim(a.value);
-						if (n == 'select' || n.substring(0, 2) == 'on')
-							continue;
-						if (n.substring(0, 6) == 'domjs_') {
-							var s = "dest." + n.substring(6) + " = " + v;
-							eval(s);
-							continue;
+					try {
+						// -- Copy attributes on this tag to the target tags
+						var dest = jq[0]; // Should be 1 element
+						var src = commands[i];
+						for ( var ai = 0, attr = ''; ai < src.attributes.length; ai++) {
+							var a = src.attributes[ai], n = $.trim(a.name), v = $.trim(a.value);
+							if (n == 'select' || n.substring(0, 2) == 'on')
+								continue;
+							if (n.substring(0, 6) == 'domjs_') {
+								try {
+									var s = "dest." + n.substring(6) + " = " + v;
+									eval(s);
+									continue;
+								} catch(ex) {
+									alert('domjs_ eval failed: '+ex+", value="+s);
+									throw ex;
+								}
+							}
+							if (v == '---') { // drop attribute request?
+								dest.removeAttribute(n);
+								continue;
+							}
+							if (n == 'style') { // IE workaround
+								dest.style.cssText = v;
+								dest.setAttribute(n, v);
+							} else
+								$.attr(dest, n, v);
 						}
-						if (v == '---') { // drop attribute request?
-							dest.removeAttribute(n);
-							continue;
-						}
-						if (n == 'style') { // IE workaround
-							dest.style.cssText = v;
-							dest.setAttribute(n, v);
-						} else
-							$.attr(dest, n, v);
+						continue;
+					} catch(ex) {
+						alert('changeTagAttr failed: '+ex);
+						throw ex;
 					}
-					continue;
 				}
 
 				var cdataWrap = cmdNode.getAttribute('cdataWrap') || 'div';
@@ -337,7 +354,12 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 						dest.setAttribute(n, v);
 					} else if (n.substring(0, 6) == 'domjs_') {
 						var s = "dest." + n.substring(6) + " = " + v;
-						eval(s);
+						try {
+							eval(s);
+						} catch(ex) {
+							alert('domjs_ eval failed: '+ex+", js="+s);
+							throw ex;
+						}
 						continue;
 					} else if ($.browser.msie && n.substring(0, 2) == 'on') {
 						// alert('event '+n+' value '+v);
@@ -538,11 +560,11 @@ var WebUI = {
 		return (keyCode >= 1000 || keyCode == 0x2c || keyCode == 0x2e || (keyCode >= 48 && keyCode <= 57) || keyCode == 45);
 	},
 
-	returnKeyPress : function(evt) {
+	returnKeyPress : function(evt, node) {
 		var keyCode = WebUI.normalizeKey(evt);
-		if (keyCode != 13000)
+		if (keyCode != 13000 && keyCode != 13)
 			return true;
-		WebUI.scall(evt.currentTarget.id, 'returnpressed');
+		WebUI.scall(evt.currentTarget ? evt.currentTarget.id : node.id, 'returnpressed');
 		return false;
 	},
 

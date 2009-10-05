@@ -459,7 +459,7 @@ public class HtmlRenderer implements INodeVisitor {
 		}
 
 		if(n.getReturnPressed() != null) {
-			o().attr("onkeypress", "return WebUI.returnKeyPress(event)");
+			o().attr("onkeypress", "return WebUI.returnKeyPress(event, this)");
 		}
 
 		//-- Drop crud
