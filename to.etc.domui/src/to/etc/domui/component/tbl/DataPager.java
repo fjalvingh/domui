@@ -118,7 +118,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			// m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_EMPTY));
 			m_txt.setText("");
 		else
-			m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np)));
+			m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(m_table.getModel().getRows())));
 
 		if(cp <= 0) {
 			m_firstBtn.setSrc("THEME/nav-first-dis.png");
