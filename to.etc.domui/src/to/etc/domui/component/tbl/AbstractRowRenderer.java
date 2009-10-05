@@ -205,6 +205,7 @@ public class AbstractRowRenderer {
 		m_sortImages = new Img[m_columnList.size()];
 		int ix = 0;
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
+		StringBuilder sb = new StringBuilder();
 		for(final SimpleColumnDef cd : m_columnList) {
 			TH th;
 			String label = cd.getColumnLabel();
@@ -235,6 +236,16 @@ public class AbstractRowRenderer {
 				});
 
 			}
+			if(cd.getHeaderCssClass() != null) {
+				sb.setLength(0);
+				if(th.getCssClass() != null) {
+					sb.append(th.getCssClass());
+					sb.append(' ');
+				}
+				sb.append(cd.getHeaderCssClass());
+				th.setCssClass(sb.toString());
+			}
+
 			th.setWidth(cd.getWidth());
 			ix++;
 		}

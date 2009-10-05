@@ -515,7 +515,7 @@ table.ui-lui-selected {
 
 /*** Typed presentation for fields containing numerics ***/
 .ui-numeric {
-	text-align: right;
+	text-align: right !important;
 }
 
 /* Display-only field */

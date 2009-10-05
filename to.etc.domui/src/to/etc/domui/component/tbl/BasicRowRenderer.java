@@ -218,6 +218,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 			cd.setNowrap(nowrap);
 			if(pmm.getNumericPresentation() != null && pmm.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				cd.setCssClass("ui-numeric");
+				cd.setHeaderCssClass("ui-numeric");
 			}
 			return;
 		}
@@ -272,6 +273,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 			scd.setNumericPresentation(xdp.getNumericPresentation());
 			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				scd.setCssClass("ui-numeric");
+				scd.setHeaderCssClass("ui-numeric");
 			}
 		}
 	}

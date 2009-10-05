@@ -26,6 +26,8 @@ public class SimpleColumnDef {
 
 	private String m_cssClass;
 
+	private String m_headerCssClass;
+
 	private int m_displayLength;
 
 	private boolean m_nowrap;
@@ -147,12 +149,39 @@ public class SimpleColumnDef {
 		m_contentRenderer = contentRenderer;
 	}
 
+	/**
+	 * When set this defines the css class to set on each value cell for this column. Setting this
+	 * does NOT set a css class for the header!!
+	 * @return
+	 */
 	public String getCssClass() {
 		return m_cssClass;
 	}
 
+	/**
+	 * When set this defines the css class to set on each value cell for this column. Setting this
+	 * does NOT set a css class for the header!!
+	 * @param cssClass
+	 */
 	public void setCssClass(String cssClass) {
 		m_cssClass = cssClass;
+	}
+
+	/**
+	 * When set this defines the css class to set on the header of this column.
+	 * @return
+	 */
+	public String getHeaderCssClass() {
+		return m_headerCssClass;
+	}
+
+	/**
+	 * When set this defines the css class to set on the header of this column.
+	 *
+	 * @param headerCssClass
+	 */
+	public void setHeaderCssClass(String headerCssClass) {
+		m_headerCssClass = headerCssClass;
 	}
 
 	public int getDisplayLength() {

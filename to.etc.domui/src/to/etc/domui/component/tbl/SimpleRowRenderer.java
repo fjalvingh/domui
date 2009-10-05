@@ -97,6 +97,7 @@ public class SimpleRowRenderer extends AbstractRowRenderer implements IRowRender
 
 			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				scd.setCssClass("ui-numeric");
+				scd.setHeaderCssClass("ui-numeric");
 			}
 		}
 	}
