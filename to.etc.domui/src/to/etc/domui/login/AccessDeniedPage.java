@@ -30,7 +30,7 @@ public class AccessDeniedPage extends UrlPage {
 			}
 		}
 
-		CaptionedPanel ep = new CaptionedPanel(DomUtil.BUNDLE.getString("login.access.title"));
+		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString("login.access.title"));
 		add(ep);
 		Table t = new Table();
 		ep.getContent().add(t);
@@ -43,7 +43,7 @@ public class AccessDeniedPage extends UrlPage {
 		td.setWidth("1%");
 
 		TD co = b.addCell();
-		String txt = DomUtil.BUNDLE.formatMessage("login.access.denied", pageName);
+		String txt = Msgs.BUNDLE.formatMessage("login.access.denied", pageName);
 		Div d = new Div(txt);
 		co.add(d);
 		d.setCssClass("ui-acd-ttl");
@@ -61,7 +61,7 @@ public class AccessDeniedPage extends UrlPage {
 		//		}
 		//		ep.getContent().addLiteral(DomUtil.BUNDLE.formatMessage("login.required.rights", sb.toString()));
 
-		co.add(new Div(DomUtil.BUNDLE.formatMessage("login.required.rights")));
+		co.add(new Div(Msgs.BUNDLE.formatMessage("login.required.rights")));
 		d = new Div();
 		co.add(d);
 		Ul ul = new Ul();
@@ -82,7 +82,7 @@ public class AccessDeniedPage extends UrlPage {
 			co.add(d);
 			ALink link = new ALink(DomApplication.get().getRootPage(), MoveMode.NEW); // Destroy shelve.
 			d.add(link);
-			link.setText(DomUtil.BUNDLE.getString("login.toindex"));
+			link.setText(Msgs.BUNDLE.getString("login.toindex"));
 		}
 	}
 }

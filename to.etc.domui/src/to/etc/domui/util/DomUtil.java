@@ -19,8 +19,6 @@ import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
 final public class DomUtil {
-	static public final BundleRef BUNDLE = BundleRef.create(DomUtil.class, "messages");
-
 	static private int m_guidSeed;
 
 	private DomUtil() {}
