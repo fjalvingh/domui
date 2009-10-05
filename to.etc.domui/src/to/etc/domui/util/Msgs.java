@@ -90,6 +90,9 @@ public interface Msgs {
 	/** Invalid operator */
 	public static final String V_INVALID_OPERATOR = "v.invalid.operator";
 
+	/** Value out of range */
+	public static final String V_OUT_OF_RANGE = "v.out.of.range";
+
 	//# Server errors.
 	/** Your session with the server has expired. The page will be reloaded with original data from the server. */
 	public static final String S_EXPIRED = "s.session.expired";

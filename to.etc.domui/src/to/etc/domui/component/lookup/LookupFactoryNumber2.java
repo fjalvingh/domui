@@ -82,6 +82,30 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 			m_pmm = pmm;
 		}
 
+		private double calcMaxValue(PropertyMetaModel pmm) {
+			int prec = pmm.getPrecision();
+			if(prec > 0) {
+				int scale = pmm.getScale();
+				if(scale > 0 && scale < prec)
+					prec -= scale;
+				double val = Math.pow(10, prec);
+				return val;
+			}
+			return Double.MAX_VALUE;
+		}
+
+		private void checkNumber(PropertyMetaModel pmm, Object value) {
+			double max = calcMaxValue(pmm);
+			if(value instanceof Double) {
+				if(((Double) value).doubleValue() > max || ((Double) value).doubleValue() < -max)
+					throw new ValidationException(Msgs.BUNDLE, Msgs.V_OUT_OF_RANGE, value);
+			} else if(value instanceof BigDecimal) {
+				if(((BigDecimal) value).doubleValue() > max || ((BigDecimal) value).doubleValue() < -max)
+					throw new ValidationException(Msgs.BUNDLE, Msgs.V_OUT_OF_RANGE, value);
+			} else
+				throw new IllegalStateException("Unsupported value type: " + value.getClass());
+		}
+
 		@Override
 		public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
 			try {
@@ -114,6 +138,7 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 					Object value = parseNumber(in);
 					if(value == null)
 						return false;
+					checkNumber(m_pmm, value);
 					crit.eq(m_pmm.getName(), value);
 					return true;
 				}
@@ -126,6 +151,7 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 				if(v == null)
 					throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
 				Object value = parseNumber(v); // Convert to appropriate type,
+				checkNumber(m_pmm, value);
 
 				//-- Ok: is there a 2nd part?
 				m_s.skipWs();
@@ -146,6 +172,7 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 				if(v == null)
 					throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
 				Object value2 = parseNumber(v); // Convert to appropriate type,
+				checkNumber(m_pmm, value2);
 
 				//-- Now: construct the between proper
 				if((op == QOperation.GE || op == QOperation.GT) && (op2 == QOperation.LT || op2 == QOperation.LE)) {
