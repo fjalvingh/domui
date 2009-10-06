@@ -31,8 +31,8 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 	}
 
 	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
-		if(!editable)
-			throw new IllegalStateException("Implementation: please implement ReadOnly combobox thingy.");
+		//		if(!editable)
+		//			throw new IllegalStateException("Implementation: please implement ReadOnly combobox thingy.");
 
 		//-- We need to add a ComboBox. Do we have a combobox dataset provider?
 		Class< ? extends IComboDataSet< ? >> set = pmm.getComboDataSet();
@@ -49,6 +49,7 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			co.setTitle(s);
+		co.setDisabled(!editable);
 		return new Result(co, model, pmm);
 	}
 }
