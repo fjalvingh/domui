@@ -102,6 +102,14 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 			} else if(value instanceof BigDecimal) {
 				if(((BigDecimal) value).doubleValue() > max || ((BigDecimal) value).doubleValue() < -max)
 					throw new ValidationException(Msgs.BUNDLE, Msgs.V_OUT_OF_RANGE, value);
+			} else if(value instanceof Long) {
+				Long v = (Long) value;
+				if(v.doubleValue() > max || v.doubleValue() < -max)
+					throw new ValidationException(Msgs.BUNDLE, Msgs.V_OUT_OF_RANGE, value);
+			} else if(value instanceof Integer) {
+				Integer v = (Integer) value;
+				if(v.doubleValue() > max || v.doubleValue() < -max)
+					throw new ValidationException(Msgs.BUNDLE, Msgs.V_OUT_OF_RANGE, value);
 			} else
 				throw new IllegalStateException("Unsupported value type: " + value.getClass());
 		}

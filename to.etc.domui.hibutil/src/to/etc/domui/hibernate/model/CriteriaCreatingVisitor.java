@@ -209,8 +209,14 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	@Override
 	public void visitOrder(final QOrder o) throws Exception {
-		Order ho = o.getDirection() == QSortOrderDirection.ASC ? Order.asc(o.getProperty()) : Order.desc(o.getProperty());
-		m_crit.addOrder(ho);
+		String name = o.getProperty();
+		name = parseSubcriteria(name);
+		Order ho = o.getDirection() == QSortOrderDirection.ASC ? Order.asc(name) : Order.desc(name);
+		if(m_subCriteria != null) {
+			m_subCriteria.addOrder(ho);
+			m_subCriteria = null;
+		} else
+			m_crit.addOrder(ho);
 	}
 
 	@Override

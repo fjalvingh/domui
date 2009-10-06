@@ -209,7 +209,7 @@ public class AbstractRowRenderer {
 		for(final SimpleColumnDef cd : m_columnList) {
 			TH th;
 			String label = cd.getColumnLabel();
-			if(!cd.getSortable().isSortable() || !sortablemodel || (cd.getPropertyName() != null && cd.getPropertyName().contains("."))) {
+			if(!cd.getSortable().isSortable() || !sortablemodel) {
 				//-- Just add the label, if present,
 				th = cc.add(label);
 			} else {
