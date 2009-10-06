@@ -152,7 +152,7 @@ public abstract class DomApplication {
 
 	public IFilterRequestHandler findRequestHandler(final IRequestContext ctx) {
 		//		System.out.println("Input: "+ctx.getInputPath());
-		if(getUrlExtension().equals(ctx.getExtension()) || (getRootPage() != null && ctx.getInputPath().length() == 0)) {
+		if(getUrlExtension().equals(ctx.getExtension()) || ctx.getExtension().equals("obit") || (getRootPage() != null && ctx.getInputPath().length() == 0)) {
 			return m_requestHandler;
 		} else if(m_partHandler.acceptURL(ctx.getInputPath())) {
 			return m_partHandler;

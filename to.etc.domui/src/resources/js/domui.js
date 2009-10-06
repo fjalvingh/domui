@@ -444,6 +444,13 @@ var WebUI = {
 			p = p.substring(0, ix); // Discard query string.
 		return p;
 	},
+	getObituaryURL: function() {
+		var u = WebUI.getPostURL();
+		var ix = u.lastIndexOf('.');
+		if(ix < 0)
+			throw "INVALID PAGE URL";
+		return u.substring(0, ix)+".obit";
+	},
 
 	clicked : function(h, id, evt) {
 		// Collect all input, then create input.
@@ -931,6 +938,7 @@ var WebUI = {
 	 * send the obituary only when the browser window closes.
 	 */
 	sendobituary : function() {
+		try {
 		var rq;
 		if (window.XMLHttpRequest) {
 			rq = new XMLHttpRequest();
@@ -940,9 +948,11 @@ var WebUI = {
 			alert("Cannot send obituary (no transport)");
 			return;
 		}
-		rq.open("GET", DomUI.getPostURL() + "?$cid=" + DomUICID
-				+ "&webuia=OBITUARY&$pt=" + DomUIpageTag, false);
+		rq.open("GET", DomUI.getObituaryURL() + "?$cid=" + DomUICID + "&webuia=OBITUARY&$pt=" + DomUIpageTag, false);
 		rq.send(null);
+		} catch(ex) {
+			alert("Sending obit failed:"+ex);
+		}
 	},
 
 	/**
