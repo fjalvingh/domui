@@ -1,5 +1,6 @@
 package to.etc.domui.component.meta.impl;
 
+import java.lang.reflect.*;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
@@ -68,6 +69,10 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 
 	public Class< ? > getActualType() {
 		return m_original.getActualType();
+	}
+
+	public Type getGenericActualType() {
+		return m_original.getGenericActualType();
 	}
 
 	public ClassMetaModel getClassModel() {

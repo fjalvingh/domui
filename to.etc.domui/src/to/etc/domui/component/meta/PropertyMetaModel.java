@@ -1,5 +1,6 @@
 package to.etc.domui.component.meta;
 
+import java.lang.reflect.*;
 import java.util.*;
 
 import to.etc.domui.component.meta.impl.*;
@@ -23,6 +24,14 @@ public interface PropertyMetaModel {
 	 * @return
 	 */
 	public Class< ? > getActualType();
+
+	/**
+	 * The abomination that is Java Generics requires a separate dysfunctional type system to represent
+	 * generic typing, at the few places it is available. This returns the generic type information that
+	 * is present on whatever type is the return type. This CAN return NULL!!!
+	 * @return
+	 */
+	public Type getGenericActualType();
 
 	/**
 	 * Return any default label (the text to use before the control that inputs this property) for this

@@ -2,6 +2,7 @@ package to.etc.domui.component.meta.impl;
 
 import java.beans.*;
 import java.lang.annotation.*;
+import java.lang.reflect.*;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
@@ -220,6 +221,18 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 
 	public Class< ? > getActualType() {
 		return m_descriptor.getPropertyType();
+	}
+
+	public Type getGenericActualType() {
+		Method m = m_descriptor.getReadMethod();
+		if(m != null) {
+			return m.getGenericReturnType();
+		}
+		m = m_descriptor.getWriteMethod();
+		if(m != null) {
+			return m.getGenericParameterTypes()[0];
+		}
+		return null;
 	}
 
 	public String getDefaultLabel() {

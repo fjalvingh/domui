@@ -1,5 +1,6 @@
 package to.etc.domui.component.meta;
 
+import java.lang.reflect.*;
 import java.math.*;
 import java.util.*;
 
@@ -355,6 +356,110 @@ final public class MetaManager {
 		return new PathPropertyMetaModel<Object>(name, acl.toArray(new PropertyMetaModel[acl.size()]));
 	}
 
+	/**
+	 * Parse the property path and return the list of properties in the path. This explicitly allows
+	 * traversing child relations provided generic type information is present to denote the child's type.
+	 * @param m
+	 * @param compoundName
+	 * @return
+	 */
+	static public List<PropertyMetaModel> parsePropertyPath(ClassMetaModel m, String compoundName) {
+		int ix = 0;
+		int len = compoundName.length();
+		List<PropertyMetaModel> res = new ArrayList<PropertyMetaModel>();
+		ClassMetaModel cmm = m;
+		while(ix < len) {
+			int pos = compoundName.indexOf('.', ix);
+			String name;
+			if(pos == -1) {
+				name = compoundName.substring(ix); // Last segment
+				ix = len;
+			} else {
+				name = compoundName.substring(ix, pos); // Intermediary segment,
+				ix = pos + 1;
+			}
+
+			PropertyMetaModel pmm = cmm.findSimpleProperty(name);
+			if(pmm == null)
+				throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_COMPOUND_PROPERTY_NOT_FOUND, compoundName, name, cmm.toString());
+
+			//-- If this is a child property it represents some collection; use the collection's type as next thing.
+			if(pmm.getRelationType() == PropertyRelationType.DOWN) {
+				ClassMetaModel nextmm = null;
+
+				//-- This must be some kind of collectable subtype or we're in sh*t.
+				Type vtype = pmm.getGenericActualType();
+				if(vtype != null) {
+					Class< ? > vclass = findCollectionType(vtype); // Try to get value class type.
+					if(vclass != null)
+						nextmm = findClassMeta(vclass);
+				}
+				if(nextmm == null && ix >= len)
+					throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_UNKNOWN_COLLECTION_TYPE, compoundName, name, vtype);
+				cmm = nextmm;
+			} else {
+				cmm = MetaManager.findClassMeta(pmm.getActualType());
+			}
+			res.add(pmm);
+		}
+		return res;
+	}
+
+	/**
+	 * This tries to determine the value class for a property defined as some kind
+	 * of Collection&lt;T&gt; or T[]. If the type cannot be determined this returns
+	 * null.
+	 *
+	 * @param genericType
+	 * @return
+	 */
+	static public Class< ? > findCollectionType(Type genericType) {
+		if(genericType instanceof Class<?>) {
+			Class<?> cl = (Class<?>) genericType;
+			if(cl.isArray()) {
+				return cl.getComponentType();
+			}
+		}
+		if(genericType instanceof ParameterizedType) {
+			ParameterizedType pt = (ParameterizedType) genericType;
+			Type raw = pt.getRawType();
+
+			//-- This must be a collection type of class.
+			if(raw instanceof Class< ? >) {
+				Class< ? > cl = (Class< ? >) raw;
+				if(Collection.class.isAssignableFrom(cl)) {
+					Type[] tar = pt.getActualTypeArguments();
+					if(tar != null && tar.length == 1) { // Collection<T> required
+						return (Class< ? >) tar[0];
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	//	static public Class< ? > getCollectionType(Class< ? > rtype) {
+	//		if(rtype.isArray())
+	//			return rtype.getComponentType();
+	//
+	//		//-- Some kind of collection thingerydoo?
+	//		if(Collection.class.isAssignableFrom(rtype)) {
+	//			//-- Try to get collection value type.
+	//			TypeVariable tvar[] = rtype.getTypeParameters();
+	//			if(tvar != null) {
+	//				TypeVariable tv = tvar[0];
+	//				tv.get
+	//
+	//
+	//
+	//
+	//			}
+	//		}
+	//
+	//
+	//	}
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Expanding properties.								*/
 	/*--------------------------------------------------------------*/
@@ -381,4 +486,5 @@ final public class MetaManager {
 		SIMPLE.add(String.class);
 		SIMPLE.add(BigInteger.class);
 	}
+
 }

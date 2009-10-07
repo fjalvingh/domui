@@ -103,6 +103,11 @@ public interface Msgs {
 	/** The page has been reset and loaded again; the error message is passed on. */
 	public static final String S_PAGE_CLEARED = "s.page.cleared";
 
+	/*---------- Metamodel ----------*/
+	public static final String MM_COMPOUND_PROPERTY_NOT_FOUND = "mm.compound.prop";
+
+	public static final String MM_UNKNOWN_COLLECTION_TYPE = "mm.unknown.collection.type";
+
 
 	//# Login and access denied code
 	public static final String LOGIN_ACCESS_TITLE = "login.access.title";

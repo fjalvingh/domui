@@ -1,5 +1,6 @@
 package to.etc.domui.component.meta.impl;
 
+import java.lang.reflect.*;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
@@ -254,6 +255,14 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 
 	public Class< ? > getActualType() {
 		return m_actualType;
+	}
+
+	/**
+	 * Returns null always; this seems reasonable for a type like this.
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getGenericActualType()
+	 */
+	public Type getGenericActualType() {
+		return null;
 	}
 
 	public String getDefaultLabel() {
