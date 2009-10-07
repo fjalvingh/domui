@@ -47,6 +47,10 @@ public class LookupFactoryEnumAndBool implements ILookupControlFactory {
 		if(s != null) {
 			c.setTitle(s);
 		}
+		String hint = MetaUtils.findHintText(spm);
+		if(hint != null)
+			c.setTitle(hint);
+
 		return new AbstractLookupControlImpl(c) {
 			@Override
 			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {

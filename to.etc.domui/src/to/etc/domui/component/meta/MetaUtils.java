@@ -40,6 +40,14 @@ public class MetaUtils {
 		return paramValue;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	LookupForm and search metadata helper code.			*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param pl
+	 * @return
+	 */
 	static public PropertyMetaModel findLastProperty(List<PropertyMetaModel> pl) {
 		if(pl == null || pl.size() == 0)
 			return null;
@@ -62,5 +70,15 @@ public class MetaUtils {
 		if(m == null)
 			throw new IllegalStateException("The search property " + spm.getPropertyName() + " is not found");
 		return m;
+	}
+
+	static public String findHintText(SearchPropertyMetaModel spm) {
+		String hint = spm.getLookupHint();
+		if(hint == null) {
+			PropertyMetaModel pmm = findLastProperty(spm);
+			if(pmm != null)
+				hint = pmm.getDefaultHint();
+		}
+		return hint;
 	}
 }

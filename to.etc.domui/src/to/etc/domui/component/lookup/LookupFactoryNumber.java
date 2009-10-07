@@ -16,6 +16,8 @@ import to.etc.webapp.query.*;
 /**
  * Represents factory for numeric values lookup. For lookup condition uses combo with numeric relation trailed by one or two fields (when between relation is selected) for definition of numeric parameters.
  *
+ * FIXME The condition must be mandatory and may not have an empty value; the default MUST be "equals". The lookup is to be considered "empty" when the value field is empty.
+ *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 13 Aug 2009
  */
@@ -48,6 +50,12 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 				}
 			}
 		});
+
+		String hint = MetaUtils.findHintText(spm);
+		if(hint != null) {
+			numA.setTitle(hint);
+			numB.setTitle(hint);
+		}
 
 		return new AbstractLookupControlImpl(relationCombo, numA, numB) {
 			/*			@Override

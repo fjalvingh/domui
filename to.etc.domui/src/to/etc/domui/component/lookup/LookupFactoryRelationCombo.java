@@ -35,6 +35,9 @@ public class LookupFactoryRelationCombo implements ILookupControlFactory {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			co.setTitle(s);
+		String hint = MetaUtils.findHintText(spm);
+		if(hint != null)
+			co.setTitle(hint);
 
 		return new AbstractLookupControlImpl(co) {
 			@Override

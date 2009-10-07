@@ -384,7 +384,7 @@ final public class MetaManager {
 				throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_COMPOUND_PROPERTY_NOT_FOUND, compoundName, name, cmm.toString());
 
 			//-- If this is a child property it represents some collection; use the collection's type as next thing.
-			if(pmm.getRelationType() == PropertyRelationType.DOWN) {
+			if(pmm.getRelationType() == PropertyRelationType.DOWN || Collection.class.isAssignableFrom(pmm.getActualType()) || pmm.getActualType().isArray()) {
 				ClassMetaModel nextmm = null;
 
 				//-- This must be some kind of collectable subtype or we're in sh*t.

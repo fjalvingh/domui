@@ -45,6 +45,8 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	private String m_lookupTitle;
 
+	private String m_hint;
+
 	private String[] m_resultColumns;
 
 	private IErrorMessageListener m_customErrorMessageListener;
@@ -226,6 +228,12 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			m_result.setModel(model); // Change the model
 		}
 		m_result.setTestID("resultTableLookupInput");
+	}
+
+	public void setHint(String text) {
+		m_hint = text;
+		if(m_selButton != null)
+			m_selButton.setTitle(text);
 	}
 
 	public boolean isMandatory() {

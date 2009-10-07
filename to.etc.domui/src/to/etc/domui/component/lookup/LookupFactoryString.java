@@ -38,6 +38,9 @@ final class LookupFactoryString implements ILookupControlFactory {
 			txt.setConverterClass((Class) pmm.getConverterClass());
 		if(pmm.getLength() > 0)
 			txt.setMaxLength(pmm.getLength());
+		String hint = MetaUtils.findHintText(spm);
+		if(hint != null)
+			txt.setTitle(hint);
 
 		//-- Converter thingy is known. Now add a
 		return new AbstractLookupControlImpl(txt) {

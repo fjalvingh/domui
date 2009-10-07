@@ -68,6 +68,10 @@ public class LookupFactoryNumber2 implements ILookupControlFactory {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			numText.setTitle(s);
+		String hint = MetaUtils.findHintText(spm);
+		if(hint != null)
+			numText.setTitle(hint);
+
 		return new NumberInputImpl(spm.getPropertyName(), pmm, numText);
 	}
 

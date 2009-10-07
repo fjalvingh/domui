@@ -17,6 +17,9 @@ public class LookupFactoryRelation implements ILookupControlFactory {
 		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 
 		final LookupInput<Object> l = new LookupInput<Object>((Class<Object>) pmm.getActualType()); // Create a lookup thing for this one
+		String hint = MetaUtils.findHintText(spm);
+		l.setHint(hint);
+
 		return new AbstractLookupControlImpl(l) {
 			@Override
 			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {

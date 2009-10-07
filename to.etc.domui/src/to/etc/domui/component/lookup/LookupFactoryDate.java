@@ -14,6 +14,12 @@ final class LookupFactoryDate implements ILookupControlFactory {
 		final DateInput df = new DateInput();
 		TextNode tn = new TextNode(NlsContext.getGlobalMessage(Msgs.UI_LOOKUP_DATE_TILL));
 		final DateInput dt = new DateInput();
+
+		String hint = MetaUtils.findHintText(spm);
+		if(hint != null) {
+			df.setTitle(hint);
+			dt.setTitle(hint);
+		}
 		return new AbstractLookupControlImpl(df, tn, dt) {
 			@Override
 			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
