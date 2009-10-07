@@ -3,12 +3,6 @@ package to.etc.domui.component.meta;
 
 public interface SearchPropertyMetaModel {
 	/**
-	 * The property that is being searched on.
-	 * @return
-	 */
-	PropertyMetaModel getProperty();
-
-	/**
 	 * When T (default) the search is done in a case-independent way provided we are looking
 	 * for some string value.
 	 * @return
@@ -31,4 +25,6 @@ public interface SearchPropertyMetaModel {
 	int getMinLength();
 
 	String getPropertyName();
+
+	String getLookupLabel();
 }

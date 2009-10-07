@@ -77,7 +77,11 @@ public class LookupForm<T> extends Div {
 	 * Created on Jul 31, 2009
 	 */
 	public static class Item implements SearchPropertyMetaModel {
-		private PropertyMetaModel m_property;
+		private String m_propertyName;
+
+		private List<PropertyMetaModel> m_propertyPath;
+
+		//		private PropertyMetaModel m_property;
 
 		private ILookupControlInstance m_instance;
 
@@ -91,16 +95,34 @@ public class LookupForm<T> extends Div {
 
 		private int m_order;
 
-		public PropertyMetaModel getProperty() {
-			return m_property;
-		}
-
-		void setProperty(PropertyMetaModel property) {
-			m_property = property;
-		}
+		//		public PropertyMetaModel getProperty() {
+		//			return m_property;
+		//		}
+		//
+		//		void setProperty(PropertyMetaModel property) {
+		//			m_property = property;
+		//		}
 
 		public String getPropertyName() {
-			return getProperty() == null ? "" : getProperty().getName();
+			return m_propertyName;
+		}
+
+		public void setPropertyName(String propertyName) {
+			m_propertyName = propertyName;
+		}
+
+		public List<PropertyMetaModel> getPropertyPath() {
+			return m_propertyPath;
+		}
+
+		public void setPropertyPath(List<PropertyMetaModel> propertyPath) {
+			m_propertyPath = propertyPath;
+		}
+
+		public PropertyMetaModel getLastProperty() {
+			if(m_propertyPath == null || m_propertyPath.size() == 0)
+				return null;
+			return m_propertyPath.get(m_propertyPath.size() - 1);
 		}
 
 		public boolean isIgnoreCase() {
@@ -125,6 +147,10 @@ public class LookupForm<T> extends Div {
 
 		public void setLabelText(String labelText) {
 			m_labelText = labelText;
+		}
+
+		public String getLookupLabel() {
+			return m_labelText;
 		}
 
 		public Label getLabel() {
@@ -352,7 +378,9 @@ public class LookupForm<T> extends Div {
 			Item it = new Item();
 			it.setIgnoreCase(sp.isIgnoreCase());
 			it.setMinLength(sp.getMinLength());
-			it.setProperty(sp.getProperty());
+			it.setPropertyName(sp.getPropertyName());
+			it.setLabelText(sp.getLookupLabel()); // If a lookup label is defined use it.
+			//			it.setProperty(sp.getProperty());
 			m_itemList.add(it);
 		}
 	}
@@ -401,19 +429,20 @@ public class LookupForm<T> extends Div {
 	 */
 	private Item addProperty(String path, String label, int minlen, Boolean ignorecase) {
 		for(Item it : m_itemList) { // FIXME Useful?
-			if(it.getProperty() != null && path.equals(it.getProperty().getName())) // Already present there?
+			if(it.getPropertyName() != null && path.equals(it.getPropertyName())) // Already present there?
 				throw new ProgrammerErrorException("The property " + path + " is already part of the search field list.");
 		}
 
 		//-- Get the property from the metadata
 		ClassMetaModel cm = MetaManager.findClassMeta(getLookupClass());
-		PropertyMetaModel pmm = cm.findProperty(path);
-		if(pmm == null)
-			throw new ProgrammerErrorException("Unknown property " + path + " on class=" + getLookupClass());
+		List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(cm, path);
+		if(pl.size() == 0)
+			throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + path + " on class=" + getLookupClass());
 
 		//-- Define the item.
 		Item it = new Item();
-		it.setProperty(pmm);
+		it.setPropertyName(path);
+		it.setPropertyPath(pl);
 		if(label != null) {
 			it.setLabelText(label);
 		}
@@ -475,7 +504,7 @@ public class LookupForm<T> extends Div {
 	 * @param it
 	 */
 	private void internalAddLookupItem(Item it) {
-		if(it.getProperty() != null) {
+		if(it.getInstance() == null && it.getPropertyPath() != null && it.getPropertyPath().size() > 0) {
 			//-- Create everything using a control creation factory,
 			ILookupControlInstance lci = createControlFor(it);
 			if(lci == null)
@@ -499,8 +528,9 @@ public class LookupForm<T> extends Div {
 	private String calculateLocation(Item it) {
 		if(it.getLabelText() != null)
 			return it.getLabelText();
-		if(it.getProperty() != null)
-			return it.getProperty().getDefaultLabel();
+		if(it.getPropertyPath() != null && it.getPropertyPath().size() > 0) {
+			return it.getPropertyPath().get(it.getPropertyPath().size() - 1).getDefaultLabel();
+		}
 		return null;
 	}
 
@@ -544,8 +574,9 @@ public class LookupForm<T> extends Div {
 					l = new Label(labelcontrol, it.getLabelText());
 			} else {
 				//-- No default label set. Do we have metadata?
-				if(it.getProperty() != null) {
-					String dl = it.getProperty().getDefaultLabel();
+				if(it.getPropertyPath() != null && it.getPropertyPath().size() > 0) {
+					String dl = it.getPropertyPath().get(it.getPropertyPath().size() - 1).getDefaultLabel();
+
 					if(dl != null && dl.length() > 0)
 						l = new Label(labelcontrol, dl);
 				}
@@ -568,27 +599,27 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	private ILookupControlInstance createControlFor(Item it) {
-		if(it.getProperty() == null)
+		PropertyMetaModel pmm = it.getLastProperty();
+		if(pmm == null)
 			throw new IllegalStateException("property cannot be null when creating using factory.");
 		IRequestContext rq = PageContext.getRequestContext();
 		boolean viewable = true;
 		boolean editable = true;
-		if(it.getProperty() != null) {
-			viewable = MetaManager.isAccessAllowed(it.getProperty().getViewRoles(), rq);
-			editable = MetaManager.isAccessAllowed(it.getProperty().getEditRoles(), rq);
-			if(!viewable) {
-				//-- Check edit stuff:
-				if(it.getProperty().getEditRoles() == null) // No edit roles at all -> exit
-					return null;
-				if(!editable)
-					return null;
-			}
+
+		viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
+		editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);
+		if(!viewable) {
+			//-- Check edit stuff:
+			if(pmm.getEditRoles() == null) // No edit roles at all -> exit
+				return null;
+			if(!editable)
+				return null;
 		}
 
-		LookupControlFactory lcf = m_builder.getLookupControlFactory(it.getProperty());
+		LookupControlFactory lcf = m_builder.getLookupControlFactory(pmm);
 		ILookupControlInstance qt = lcf.createControl(it, it.getProperty());
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
-			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + it.getProperty());
+			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + it.getPropertyName());
 		return qt;
 	}
 

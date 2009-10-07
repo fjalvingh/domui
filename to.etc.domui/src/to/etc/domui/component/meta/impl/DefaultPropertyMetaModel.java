@@ -146,7 +146,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			mm.setOrder(sp.order());
 			mm.setMinLength(sp.minLength());
 			mm.setPropertyName(getName());
-			mm.setProperty(this);
+			//			mm.setProperty(this);
 			((DefaultClassMetaModel) getClassModel()).addSearchProperty(mm);
 		} else if(an instanceof MetaObject) {
 			MetaObject o = (MetaObject) an;

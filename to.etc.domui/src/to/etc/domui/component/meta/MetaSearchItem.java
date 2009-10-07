@@ -40,4 +40,10 @@ public @interface MetaSearchItem {
 	 * @return
 	 */
 	public boolean ignoreCase() default true;
+
+	/**
+	 * This defines a key in the class's bundle for a string to use as the lookup field's label. This is normally used for
+	 * compound specs only.
+	 */
+	public String lookupLabelKey() default "";
 }
