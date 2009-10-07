@@ -200,6 +200,18 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 			if(!mo.defaultSortColumn().equals(Constants.NONE))
 				setDefaultSortProperty(mo.defaultSortColumn());
 			setDefaultSortDirection(mo.defaultSortOrder());
+		} else if(an instanceof MetaSearch) {
+			MetaSearch ms = (MetaSearch) an;
+			int index = 0;
+			for(MetaSearchItem msi : ms.value()) {
+				index++;
+				SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(this);
+				mm.setIgnoreCase(msi.ignoreCase());
+				mm.setOrder(msi.order() == -1 ? index : msi.order());
+				mm.setMinLength(msi.minLength());
+				mm.setPropertyName(msi.name().length() == 0 ? null : msi.name());
+				addSearchProperty(mm);
+			}
 		}
 	}
 

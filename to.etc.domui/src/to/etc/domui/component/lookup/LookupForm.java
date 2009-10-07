@@ -99,6 +99,10 @@ public class LookupForm<T> extends Div {
 			m_property = property;
 		}
 
+		public String getPropertyName() {
+			return getProperty() == null ? "" : getProperty().getName();
+		}
+
 		public boolean isIgnoreCase() {
 			return m_ignoreCase;
 		}

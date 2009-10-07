@@ -1,6 +1,7 @@
 package to.etc.domui.component.meta.impl;
 
 import to.etc.domui.component.meta.*;
+import to.etc.webapp.*;
 
 /**
  * Represents the metadata for a field that can be searched on.
@@ -9,7 +10,11 @@ import to.etc.domui.component.meta.*;
  * Created on Jul 31, 2009
  */
 public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
-	private DefaultPropertyMetaModel m_property;
+	private DefaultClassMetaModel m_classModel;
+
+	private String m_propertyName;
+
+	private PropertyMetaModel m_property;
 
 	private boolean m_ignoreCase;
 
@@ -17,10 +22,26 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 
 	private int m_minLength;
 
+	public SearchPropertyMetaModelImpl(DefaultClassMetaModel cmm) {
+		m_classModel = cmm;
+	}
+
 	/**
+	 * Returns the property model for the attached property. This value is usually
+	 * set when the @SearchProperty is defined on a property because at that time
+	 * the actual property is known. But for @MetaSearch properties the actual
+	 * property cannot be set at metadata creation time because they can refer
+	 * to <i>other</i> class models. For these properties we do the lookup here
+	 * the first time it gets referenced.
+	 *
 	 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#getProperty()
 	 */
-	public DefaultPropertyMetaModel getProperty() {
+	public synchronized PropertyMetaModel getProperty() {
+		if(m_property == null && m_propertyName != null) {
+			m_property = m_classModel.findProperty(m_propertyName);
+			if(m_property == null)
+				throw new ProgrammerErrorException("MetaModel error: the search property '" + m_propertyName + "' cannot be located on class=" + m_classModel);
+		}
 		return m_property;
 	}
 
@@ -64,5 +85,13 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 
 	public void setMinLength(int minLength) {
 		m_minLength = minLength;
+	}
+
+	public String getPropertyName() {
+		return m_propertyName;
+	}
+
+	public void setPropertyName(String propertyName) {
+		m_propertyName = propertyName;
 	}
 }
