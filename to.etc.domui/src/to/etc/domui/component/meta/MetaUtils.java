@@ -1,5 +1,7 @@
 package to.etc.domui.component.meta;
 
+import java.util.*;
+
 import to.etc.webapp.*;
 
 
@@ -36,5 +38,29 @@ public class MetaUtils {
 		}
 
 		return paramValue;
+	}
+
+	static public PropertyMetaModel findLastProperty(List<PropertyMetaModel> pl) {
+		if(pl == null || pl.size() == 0)
+			return null;
+		return pl.get(pl.size() - 1);
+	}
+
+	static public PropertyMetaModel findLastProperty(SearchPropertyMetaModel spm) {
+		return findLastProperty(spm.getPropertyPath());
+	}
+
+	static public PropertyMetaModel getLastProperty(List<PropertyMetaModel> pl) {
+		PropertyMetaModel m = findLastProperty(pl);
+		if(m == null)
+			throw new IllegalStateException("No property in property list");
+		return m;
+	}
+
+	static public PropertyMetaModel getLastProperty(SearchPropertyMetaModel spm) {
+		PropertyMetaModel m = findLastProperty(spm);
+		if(m == null)
+			throw new IllegalStateException("The search property " + spm.getPropertyName() + " is not found");
+		return m;
 	}
 }

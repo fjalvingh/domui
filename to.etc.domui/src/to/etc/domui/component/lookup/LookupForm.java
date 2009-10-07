@@ -81,8 +81,6 @@ public class LookupForm<T> extends Div {
 
 		private List<PropertyMetaModel> m_propertyPath;
 
-		//		private PropertyMetaModel m_property;
-
 		private ILookupControlInstance m_instance;
 
 		private boolean m_ignoreCase = true;
@@ -91,17 +89,11 @@ public class LookupForm<T> extends Div {
 
 		private String m_labelText;
 
+		private String m_lookupHint;
+
 		private Label m_label;
 
 		private int m_order;
-
-		//		public PropertyMetaModel getProperty() {
-		//			return m_property;
-		//		}
-		//
-		//		void setProperty(PropertyMetaModel property) {
-		//			m_property = property;
-		//		}
 
 		public String getPropertyName() {
 			return m_propertyName;
@@ -179,6 +171,14 @@ public class LookupForm<T> extends Div {
 
 		void setOrder(int order) {
 			m_order = order;
+		}
+
+		public String getLookupHint() {
+			return m_lookupHint;
+		}
+
+		public void setLookupHint(String lookupHint) {
+			m_lookupHint = lookupHint;
 		}
 	}
 
@@ -380,6 +380,8 @@ public class LookupForm<T> extends Div {
 			it.setMinLength(sp.getMinLength());
 			it.setPropertyName(sp.getPropertyName());
 			it.setLabelText(sp.getLookupLabel()); // If a lookup label is defined use it.
+			it.setLookupHint(sp.getLookupHint()); // If a lookup hint is defined use it.
+
 			//			it.setProperty(sp.getProperty());
 			m_itemList.add(it);
 		}
@@ -616,8 +618,8 @@ public class LookupForm<T> extends Div {
 				return null;
 		}
 
-		LookupControlFactory lcf = m_builder.getLookupControlFactory(pmm);
-		ILookupControlInstance qt = lcf.createControl(it, it.getProperty());
+		ILookupControlFactory lcf = m_builder.getLookupControlFactory(it);
+		ILookupControlInstance qt = lcf.createControl(it);
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
 			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + it.getPropertyName());
 		return qt;

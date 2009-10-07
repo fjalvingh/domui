@@ -9,8 +9,8 @@ import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
-final class LookupFactoryDate implements LookupControlFactory {
-	public ILookupControlInstance createControl(SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
+final class LookupFactoryDate implements ILookupControlFactory {
+	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm) {
 		final DateInput df = new DateInput();
 		TextNode tn = new TextNode(NlsContext.getGlobalMessage(Msgs.UI_LOOKUP_DATE_TILL));
 		final DateInput dt = new DateInput();
@@ -40,11 +40,11 @@ final class LookupFactoryDate implements LookupControlFactory {
 					}
 
 					//-- Between query
-					crit.between(pmm.getName(), from, till);
+					crit.between(spm.getPropertyName(), from, till);
 				} else if(from != null) {
-					crit.ge(pmm.getName(), from);
+					crit.ge(spm.getPropertyName(), from);
 				} else {
-					crit.lt(pmm.getName(), till);
+					crit.lt(spm.getPropertyName(), till);
 				}
 				return true;
 			}
@@ -56,7 +56,8 @@ final class LookupFactoryDate implements LookupControlFactory {
 		};
 	}
 
-	public int accepts(PropertyMetaModel pmm) {
+	public int accepts(SearchPropertyMetaModel spm) {
+		PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		if(Date.class.isAssignableFrom(pmm.getActualType()))
 			return 2;
 		return 0;

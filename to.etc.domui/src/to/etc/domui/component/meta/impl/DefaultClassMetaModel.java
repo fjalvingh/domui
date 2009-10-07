@@ -210,6 +210,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 				mm.setOrder(msi.order() == -1 ? index : msi.order());
 				mm.setMinLength(msi.minLength());
 				mm.setPropertyName(msi.name().length() == 0 ? null : msi.name());
+				mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
+				mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
 				addSearchProperty(mm);
 			}
 		}

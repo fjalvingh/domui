@@ -46,4 +46,6 @@ public @interface MetaSearchItem {
 	 * compound specs only.
 	 */
 	public String lookupLabelKey() default "";
+
+	public String lookupHintKey() default "";
 }

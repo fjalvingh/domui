@@ -8,19 +8,20 @@ import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
 /**
- * Represents factory for enum values or boolean values lookup. For lookup condition uses combo box automaticaly populated with localized values of enum constants or boolean values. 
+ * Represents factory for enum values or boolean values lookup. For lookup condition uses combo box automaticaly populated with localized values of enum constants or boolean values.
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 1 Aug 2009
  */
-public class LookupFactoryEnumAndBool implements LookupControlFactory {
-
-	public int accepts(PropertyMetaModel pmm) {
+public class LookupFactoryEnumAndBool implements ILookupControlFactory {
+	public int accepts(SearchPropertyMetaModel spm) {
+		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		Class< ? > iclz = pmm.getActualType();
 		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 2 : 0;
 	}
 
-	public ILookupControlInstance createControl(SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
+	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm) {
+		PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 
 		// Create a domainvalued combobox by default.
 		Object[] vals = pmm.getDomainValues();
@@ -51,7 +52,7 @@ public class LookupFactoryEnumAndBool implements LookupControlFactory {
 			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
 				Object value = c.getValue();
 				if(value != null) {
-					crit.eq(pmm.getName(), value);
+					crit.eq(spm.getPropertyName(), value);
 					return true;
 				}
 				return true; // Okay but no data

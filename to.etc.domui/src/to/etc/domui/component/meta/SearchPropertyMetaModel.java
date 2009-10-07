@@ -1,5 +1,7 @@
 package to.etc.domui.component.meta;
 
+import java.util.*;
+
 
 public interface SearchPropertyMetaModel {
 	/**
@@ -26,5 +28,17 @@ public interface SearchPropertyMetaModel {
 
 	String getPropertyName();
 
+	List<PropertyMetaModel> getPropertyPath();
+
+	/**
+	 * Returns the text to use as the control label, if defined in the metadata.
+	 * @return
+	 */
 	String getLookupLabel();
+
+	/**
+	 * Returns the text to use as the control label, if defined in the metadata.
+	 * @return
+	 */
+	String getLookupHint();
 }

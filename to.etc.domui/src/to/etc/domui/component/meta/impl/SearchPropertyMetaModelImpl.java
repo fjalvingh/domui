@@ -25,6 +25,8 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 
 	private String m_lookupLabelKey;
 
+	private String m_lookupHintKey;
+
 	public SearchPropertyMetaModelImpl(DefaultClassMetaModel cmm) {
 		m_classModel = cmm;
 	}
@@ -124,5 +126,19 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 		if(m_lookupLabelKey == null)
 			return null;
 		return m_classModel.getClassBundle().getString(m_lookupLabelKey);
+	}
+
+	public String getLookupHintKey() {
+		return m_lookupHintKey;
+	}
+
+	public void setLookupHintKey(String lookupHintKey) {
+		m_lookupHintKey = lookupHintKey;
+	}
+
+	public String getLookupHint() {
+		if(m_lookupHintKey == null)
+			return null;
+		return m_classModel.getClassBundle().getString(m_lookupHintKey);
 	}
 }

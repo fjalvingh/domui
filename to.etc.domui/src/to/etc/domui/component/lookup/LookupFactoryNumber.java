@@ -19,8 +19,10 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 13 Aug 2009
  */
-final class LookupFactoryNumber implements LookupControlFactory {
-	public ILookupControlInstance createControl(SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
+final class LookupFactoryNumber implements ILookupControlFactory {
+	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm) {
+		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+
 		final List<Pair<NumericRelationType>> values = new ArrayList<Pair<NumericRelationType>>();
 		for(NumericRelationType relationEnum : NumericRelationType.values()) {
 			values.add(new Pair<NumericRelationType>(relationEnum, MetaManager.findClassMeta(NumericRelationType.class).getDomainLabel(NlsContext.getLocale(), relationEnum)));
@@ -71,25 +73,25 @@ final class LookupFactoryNumber implements LookupControlFactory {
 				}
 				switch(relation){
 					case EQ:
-						crit.eq(pmm.getName(), numA.getValue());
+						crit.eq(spm.getPropertyName(), numA.getValue());
 						break;
 					case LT:
-						crit.lt(pmm.getName(), numA.getValue());
+						crit.lt(spm.getPropertyName(), numA.getValue());
 						break;
 					case LE:
-						crit.le(pmm.getName(), numA.getValue());
+						crit.le(spm.getPropertyName(), numA.getValue());
 						break;
 					case GT:
-						crit.gt(pmm.getName(), numA.getValue());
+						crit.gt(spm.getPropertyName(), numA.getValue());
 						break;
 					case GE:
-						crit.ge(pmm.getName(), numA.getValue());
+						crit.ge(spm.getPropertyName(), numA.getValue());
 						break;
 					case NOT_EQ:
-						crit.ne(pmm.getName(), numA.getValue());
+						crit.ne(spm.getPropertyName(), numA.getValue());
 						break;
 					case BETWEEN:
-						crit.between(pmm.getName(), numA.getValue(), numB.getValue());
+						crit.between(spm.getPropertyName(), numA.getValue(), numB.getValue());
 						break;
 				}
 				return true;
@@ -144,7 +146,8 @@ final class LookupFactoryNumber implements LookupControlFactory {
 		return numText;
 	}
 
-	public int accepts(PropertyMetaModel pmm) {
+	public int accepts(SearchPropertyMetaModel spm) {
+		PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		if(DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class) {
 			if(pmm.getComponentTypeHint() != null && pmm.getComponentTypeHint().toLowerCase().contains("numberlookupcombo"))
 				return 8;

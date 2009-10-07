@@ -10,8 +10,8 @@ import to.etc.domui.component.meta.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 23, 2008
  */
-public interface LookupControlFactory {
-	public int accepts(PropertyMetaModel pmm);
+public interface ILookupControlFactory {
+	public int accepts(SearchPropertyMetaModel pmm);
 
-	public ILookupControlInstance createControl(SearchPropertyMetaModel spm, PropertyMetaModel pmm);
+	public ILookupControlInstance createControl(SearchPropertyMetaModel spm);
 }

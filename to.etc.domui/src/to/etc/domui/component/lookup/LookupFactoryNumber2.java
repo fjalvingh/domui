@@ -23,21 +23,23 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 28, 2009
  */
-public class LookupFactoryNumber2 implements LookupControlFactory {
+public class LookupFactoryNumber2 implements ILookupControlFactory {
 	/**
 	 * We accept
-	 * @see to.etc.domui.component.lookup.LookupControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
+	 * @see to.etc.domui.component.lookup.ILookupControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
-	public int accepts(PropertyMetaModel pmm) {
+	public int accepts(SearchPropertyMetaModel spm) {
+		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		return DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class ? 4 : -1;
 	}
 
 	/**
 	 * Create the input control which is a text input.
 	 *
-	 * @see to.etc.domui.component.lookup.LookupControlFactory#createControl(to.etc.domui.component.meta.SearchPropertyMetaModel, to.etc.domui.component.meta.PropertyMetaModel)
+	 * @see to.etc.domui.component.lookup.ILookupControlFactory#createControl(to.etc.domui.component.meta.SearchPropertyMetaModel, to.etc.domui.component.meta.PropertyMetaModel)
 	 */
-	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
+	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm) {
+		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		final Text<String> numText = new Text<String>(String.class);
 
 		/*
@@ -66,7 +68,7 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			numText.setTitle(s);
-		return new NumberInputImpl(pmm, numText);
+		return new NumberInputImpl(spm.getPropertyName(), pmm, numText);
 	}
 
 	private class NumberInputImpl extends AbstractLookupControlImpl {
@@ -76,8 +78,11 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 
 		private MiniScanner m_s;
 
-		public NumberInputImpl(PropertyMetaModel pmm, Text<String> node) {
+		private String m_propertyName;
+
+		public NumberInputImpl(String propname, PropertyMetaModel pmm, Text<String> node) {
 			super(node);
+			m_propertyName = propname;
 			m_input = node;
 			m_pmm = pmm;
 		}
@@ -129,10 +134,10 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 
 				//-- Handle single operators: currently only the '!' to indicate 'not-null'
 				if("!".equals(in)) {
-					crit.isnull(m_pmm.getName());
+					crit.isnull(m_propertyName);
 					return true;
 				} else if("*".equals(in)) {
-					crit.isnotnull(m_pmm.getName());
+					crit.isnotnull(m_propertyName);
 					return true;
 				}
 
@@ -147,7 +152,7 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 					if(value == null)
 						return false;
 					checkNumber(m_pmm, value);
-					crit.eq(m_pmm.getName(), value);
+					crit.eq(m_propertyName, value);
 					return true;
 				}
 
@@ -165,7 +170,7 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 				m_s.skipWs();
 				if(m_s.eof()) {
 					//-- Just add the appropriate operation.
-					QPropertyComparison r = new QPropertyComparison(op, m_pmm.getName(), new QLiteral(value));
+					QPropertyComparison r = new QPropertyComparison(op, m_propertyName, new QLiteral(value));
 					crit.add(r);
 					return true;
 				}
@@ -184,11 +189,11 @@ public class LookupFactoryNumber2 implements LookupControlFactory {
 
 				//-- Now: construct the between proper
 				if((op == QOperation.GE || op == QOperation.GT) && (op2 == QOperation.LT || op2 == QOperation.LE)) {
-					crit.add(new QPropertyComparison(op, m_pmm.getName(), new QLiteral(value)));
-					crit.add(new QPropertyComparison(op2, m_pmm.getName(), new QLiteral(value2)));
+					crit.add(new QPropertyComparison(op, m_propertyName, new QLiteral(value)));
+					crit.add(new QPropertyComparison(op2, m_propertyName, new QLiteral(value2)));
 				} else if((op2 == QOperation.GE || op2 == QOperation.GT) && (op == QOperation.LT || op == QOperation.LE)) {
-					crit.add(new QPropertyComparison(op, m_pmm.getName(), new QLiteral(value)));
-					crit.add(new QPropertyComparison(op2, m_pmm.getName(), new QLiteral(value2)));
+					crit.add(new QPropertyComparison(op, m_propertyName, new QLiteral(value)));
+					crit.add(new QPropertyComparison(op2, m_propertyName, new QLiteral(value2)));
 				} else
 					throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_BAD_OPERATOR_COMBI);
 

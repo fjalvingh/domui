@@ -102,15 +102,15 @@ public class ControlBuilder {
 	 * Add another LookupControlFactory to the registry.
 	 * @param f
 	 */
-	public void register(final LookupControlFactory f) {
+	public void register(final ILookupControlFactory f) {
 		m_lookupControlRegistry.register(f);
 	}
 
-	public LookupControlFactory findLookupControlFactory(final PropertyMetaModel pmm) {
+	public ILookupControlFactory findLookupControlFactory(final SearchPropertyMetaModel pmm) {
 		return m_lookupControlRegistry.findFactory(pmm);
 	}
 
-	public LookupControlFactory getLookupControlFactory(final PropertyMetaModel pmm) {
+	public ILookupControlFactory getLookupControlFactory(final SearchPropertyMetaModel pmm) {
 		return m_lookupControlRegistry.getControlFactory(pmm);
 	}
 

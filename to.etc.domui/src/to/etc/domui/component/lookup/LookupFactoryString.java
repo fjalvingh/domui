@@ -5,12 +5,13 @@ import to.etc.domui.component.meta.*;
 import to.etc.webapp.query.*;
 
 @SuppressWarnings("unchecked")
-final class LookupFactoryString implements LookupControlFactory {
-	public int accepts(PropertyMetaModel pmm) {
+final class LookupFactoryString implements ILookupControlFactory {
+	public int accepts(final SearchPropertyMetaModel pmm) {
 		return 1; // Accept all properties (will fail on incompatible ones @ input time)
 	}
 
-	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final PropertyMetaModel pmm) {
+	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm) {
+		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		Class<?> iclz = pmm.getActualType();
 
 		//-- Boolean/boolean types? These need a tri-state checkbox
@@ -58,9 +59,9 @@ final class LookupFactoryString implements LookupControlFactory {
 				if(value instanceof String) {
 					String str = (String) value;
 					str = str.trim() + "%";
-					crit.ilike(pmm.getName(), str);
+					crit.ilike(spm.getPropertyName(), str);
 				} else {
-					crit.eq(pmm.getName(), value); // property == value
+					crit.eq(spm.getPropertyName(), value); // property == value
 				}
 				return true;
 			}

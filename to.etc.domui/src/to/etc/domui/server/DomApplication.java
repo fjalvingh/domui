@@ -403,7 +403,7 @@ public abstract class DomApplication {
 	 * Register a new LookupControl factory.
 	 * @param f
 	 */
-	public void register(final LookupControlFactory f) {
+	public void register(final ILookupControlFactory f) {
 		getControlBuilder().register(f);
 	}
 

@@ -11,7 +11,7 @@ import to.etc.domui.component.meta.*;
  * Created on Jul 23, 2008
  */
 public class LookupControlRegistry {
-	private List<LookupControlFactory> m_factoryList = new ArrayList<LookupControlFactory>();
+	private List<ILookupControlFactory> m_factoryList = new ArrayList<ILookupControlFactory>();
 
 	public LookupControlRegistry() {
 		register(new LookupFactoryString());
@@ -23,19 +23,19 @@ public class LookupControlRegistry {
 		register(new LookupFactoryRelationCombo());
 	}
 
-	public synchronized List<LookupControlFactory> getFactoryList() {
+	public synchronized List<ILookupControlFactory> getFactoryList() {
 		return m_factoryList;
 	}
 
-	public synchronized void register(LookupControlFactory f) {
-		m_factoryList = new ArrayList<LookupControlFactory>(m_factoryList);
+	public synchronized void register(ILookupControlFactory f) {
+		m_factoryList = new ArrayList<ILookupControlFactory>(m_factoryList);
 		m_factoryList.add(f);
 	}
 
-	public LookupControlFactory findFactory(PropertyMetaModel pmm) {
-		LookupControlFactory best = null;
+	public ILookupControlFactory findFactory(SearchPropertyMetaModel pmm) {
+		ILookupControlFactory best = null;
 		int score = 0;
-		for(LookupControlFactory cf : getFactoryList()) {
+		for(ILookupControlFactory cf : getFactoryList()) {
 			int v = cf.accepts(pmm);
 			if(v > score) {
 				score = v;
@@ -45,8 +45,8 @@ public class LookupControlRegistry {
 		return best;
 	}
 
-	public LookupControlFactory getControlFactory(PropertyMetaModel pmm) {
-		LookupControlFactory cf = findFactory(pmm);
+	public ILookupControlFactory getControlFactory(SearchPropertyMetaModel pmm) {
+		ILookupControlFactory cf = findFactory(pmm);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a Lookup Control factory for " + pmm);
 		return cf;
