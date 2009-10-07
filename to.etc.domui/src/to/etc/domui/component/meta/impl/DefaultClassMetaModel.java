@@ -249,7 +249,10 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @return
 	 */
 	String getPropertyHint(final DefaultPropertyMetaModel p, final Locale loc) {
-		return getClassBundle().findMessage(loc, p.getName() + ".hint");
+		String v = getClassBundle().findMessage(loc, p.getName() + ".hint");
+		if(v == null)
+			v = getClassBundle().findMessage(loc, p.getName() + ".help");
+		return v;
 	}
 
 	/**
