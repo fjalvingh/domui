@@ -322,7 +322,7 @@ public class W3CSchemaCoder {
 		int month = p.parseFixedInt(2);
 		p.require("-");
 		int day = p.parseFixedInt(2);
-		DateUtil.setDate(cal, year, month + 1, day);
+		DateUtil.setDate(cal, year, month - 1, day);
 	}
 
 	/**

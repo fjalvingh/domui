@@ -80,6 +80,7 @@ public class DateUtil {
 	}
 
 
+
 	static private final long	SECS	= 1000;
 
 	static private final long	MINS	= 60 * 1000;
@@ -244,7 +245,7 @@ public class DateUtil {
 	}
 
 	/**
-	 * INTERNAL DAO USE ONLY -- This returns a date/ which ends at 
+	 * INTERNAL DAO USE ONLY -- This returns a date/ which ends at
 	 * 23:59 of the day passed. It is used within DAO's only to
 	 * allow Hibernate to query split date/time fields.
 	 * @param dt
@@ -342,5 +343,27 @@ public class DateUtil {
 		System.out.println(encodeTimeInMS(decodeTime("13:10:00"), 3, true));
 		System.out.println(encodeTimeInMS(decodeTime("13:00:20"), 3, true));
 
+	}
+
+	/**
+	 * Updates the date part of a date only, leaving the time part unaltered.
+	 * @param finisheddate
+	 * @param dt
+	 * @return
+	 */
+	public static Date setDateOnly(Date finisheddate, Date dt) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(finisheddate);
+		int hr = cal.get(Calendar.HOUR_OF_DAY); // Retrieve time from value to set;
+		int mn = cal.get(Calendar.MINUTE);
+		int sc = cal.get(Calendar.SECOND);
+		int ms = cal.get(Calendar.MILLISECOND);
+
+		cal.setTime(dt);
+		cal.set(Calendar.HOUR_OF_DAY, hr);
+		cal.set(Calendar.MINUTE, mn);
+		cal.set(Calendar.SECOND, sc);
+		cal.set(Calendar.MILLISECOND, ms);
+		return cal.getTime();
 	}
 }
