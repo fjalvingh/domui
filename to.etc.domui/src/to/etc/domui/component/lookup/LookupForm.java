@@ -73,6 +73,8 @@ public class LookupForm<T> extends Div {
 	 * will generate the actual lookup items on the screen, in the order
 	 * specified by the item definition list.
 	 *
+	 * FIXME Should this actually be public??
+	 *
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Jul 31, 2009
 	 */
@@ -91,7 +93,7 @@ public class LookupForm<T> extends Div {
 
 		private String m_lookupHint;
 
-		private Label m_label;
+		private String m_errorLocation;
 
 		private int m_order;
 
@@ -145,12 +147,12 @@ public class LookupForm<T> extends Div {
 			return m_labelText;
 		}
 
-		public Label getLabel() {
-			return m_label;
+		public String getErrorLocation() {
+			return m_errorLocation;
 		}
 
-		public void setLabel(Label label) {
-			m_label = label;
+		public void setErrorLocation(String errorLocation) {
+			m_errorLocation = errorLocation;
 		}
 
 		ILookupControlInstance getInstance() {
@@ -179,6 +181,21 @@ public class LookupForm<T> extends Div {
 
 		public void setLookupHint(String lookupHint) {
 			m_lookupHint = lookupHint;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Item:");
+			if(m_propertyName != null) {
+				sb.append(" property: ");
+				sb.append(m_propertyName);
+			}
+			if(m_labelText != null) {
+				sb.append(" label: ");
+				sb.append(m_labelText);
+			}
+			return sb.toString();
 		}
 	}
 
@@ -379,11 +396,10 @@ public class LookupForm<T> extends Div {
 			it.setIgnoreCase(sp.isIgnoreCase());
 			it.setMinLength(sp.getMinLength());
 			it.setPropertyName(sp.getPropertyName());
+			it.setPropertyPath(sp.getPropertyPath());
 			it.setLabelText(sp.getLookupLabel()); // If a lookup label is defined use it.
 			it.setLookupHint(sp.getLookupHint()); // If a lookup hint is defined use it.
-
-			//			it.setProperty(sp.getProperty());
-			m_itemList.add(it);
+			addAndFinish(it);
 		}
 	}
 
@@ -435,23 +451,13 @@ public class LookupForm<T> extends Div {
 				throw new ProgrammerErrorException("The property " + path + " is already part of the search field list.");
 		}
 
-		//-- Get the property from the metadata
-		ClassMetaModel cm = MetaManager.findClassMeta(getLookupClass());
-		List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(cm, path);
-		if(pl.size() == 0)
-			throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + path + " on class=" + getLookupClass());
-
 		//-- Define the item.
 		Item it = new Item();
 		it.setPropertyName(path);
-		it.setPropertyPath(pl);
-		if(label != null) {
-			it.setLabelText(label);
-		}
-		if(ignorecase != null)
-			it.setIgnoreCase(ignorecase.booleanValue());
+		it.setLabelText(label);
+		it.setIgnoreCase(ignorecase == null ? true : ignorecase.booleanValue());
 		it.setMinLength(minlen);
-		m_itemList.add(it);
+		addAndFinish(it);
 		return it;
 	}
 
@@ -462,7 +468,7 @@ public class LookupForm<T> extends Div {
 	public Item addManual(ILookupControlInstance lci) {
 		Item it = new Item();
 		it.setInstance(lci);
-		m_itemList.add(it);
+		addAndFinish(it);
 		return it;
 	}
 
@@ -501,12 +507,52 @@ public class LookupForm<T> extends Div {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Internal.											*/
 	/*--------------------------------------------------------------*/
+
+	/**
+	 * This adds the item to the item list, and tries to resolve all of the stuff needed to display
+	 * the item. This means that the default label and the hint are calculated if missing, and that
+	 * the lookup property is resolved if needed etc.
+	 */
+	private void addAndFinish(Item it) {
+		m_itemList.add(it);
+
+		//-- 1. If a property name is present but the path is unknown calculate the path
+		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
+			ClassMetaModel cm = MetaManager.findClassMeta(getLookupClass());
+			List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(cm, it.getPropertyName());
+			if(pl.size() == 0)
+				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
+			it.setPropertyPath(pl);
+		}
+
+		//-- 2. Calculate/determine a label text if empty from metadata, else ignore
+		PropertyMetaModel pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
+		if(it.getLabelText() == null) {
+			if(pmm == null)
+				it.setLabelText(it.getPropertyName()); // Last resort: default to property name if available
+			else
+				it.setLabelText(pmm.getDefaultLabel());
+		}
+
+		//-- 3. Calculate a default hint
+		if(it.getLookupHint() == null) {
+			if(pmm != null)
+				it.setLookupHint(pmm.getDefaultHint());
+		}
+
+		//-- 4. Set an errorLocation
+		if(it.getErrorLocation() == null) {
+			it.setErrorLocation(it.getLabelText());
+		}
+	}
+
+
 	/**
 	 * Create the lookup item, depending on it's kind.
 	 * @param it
 	 */
 	private void internalAddLookupItem(Item it) {
-		if(it.getInstance() == null && it.getPropertyPath() != null && it.getPropertyPath().size() > 0) {
+		if(it.getInstance() == null) {
 			//-- Create everything using a control creation factory,
 			ILookupControlInstance lci = createControlFor(it);
 			if(lci == null)
@@ -517,23 +563,11 @@ public class LookupForm<T> extends Div {
 			throw new IllegalStateException("No idea how to create a lookup control for " + it);
 
 		//-- Assign error locations to all input controls
-		String location = calculateLocation(it);
-		if(location != null && location.trim().length() > 0) {
+		if(it.getErrorLocation() != null && it.getErrorLocation().trim().length() > 0) {
 			for(NodeBase ic : it.getInstance().getInputControls())
-				ic.setErrorLocation(location);
+				ic.setErrorLocation(it.getErrorLocation());
 		}
-
-		//-- Add the visual presentation.
-		addItemToTable(it);
-	}
-
-	private String calculateLocation(Item it) {
-		if(it.getLabelText() != null)
-			return it.getLabelText();
-		if(it.getPropertyPath() != null && it.getPropertyPath().size() > 0) {
-			return it.getPropertyPath().get(it.getPropertyPath().size() - 1).getDefaultLabel();
-		}
-		return null;
+		addItemToTable(it); // Create visuals.
 	}
 
 	/**
@@ -567,26 +601,11 @@ public class LookupForm<T> extends Div {
 		if(labelcontrol == null)
 			labelcontrol = qt.getInputControls()[0];
 
-		//-- Finally: add the label in some way...
-		Label l = it.getLabel(); // Label provided by caller?
-		if(l == null) {
-			//-- Text provided?
-			if(it.getLabelText() != null) {
-				if(it.getLabelText().length() > 0)
-					l = new Label(labelcontrol, it.getLabelText());
-			} else {
-				//-- No default label set. Do we have metadata?
-				if(it.getPropertyPath() != null && it.getPropertyPath().size() > 0) {
-					String dl = it.getPropertyPath().get(it.getPropertyPath().size() - 1).getDefaultLabel();
-
-					if(dl != null && dl.length() > 0)
-						l = new Label(labelcontrol, dl);
-				}
-			}
-		}
-		if(l != null) {
-			if(l.getForNode() == null)
-				l.setForNode(labelcontrol);
+		//-- Finally: add the label
+		if(it.getLabelText() != null && it.getLabelText().length() > 0) {
+			Label l = new Label(labelcontrol, it.getLabelText());
+			//			if(l.getForNode() == null)
+			//				l.setForNode(labelcontrol);
 			lcell.add(l);
 		}
 	}

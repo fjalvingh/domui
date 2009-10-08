@@ -319,6 +319,7 @@ public class OptimalDeltaRenderer {
 				 * any normal way, so for now we render it's value as a domjs_value attribute.
 				 */
 				renderAttributeChange(ni.node);
+				o().setIndentEnabled(true);
 				return;
 			} else {
 				o().tag("replaceContent");
