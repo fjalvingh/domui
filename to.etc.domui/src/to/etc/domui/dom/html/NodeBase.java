@@ -492,9 +492,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	public void onHeaderContributors(final Page page) {}
 
-	public boolean validate() {
-		return true;
-	}
+	//	public boolean validate() {
+	//		return true;
+	//	}
 
 	public Object getUserObject() {
 		return m_userObject;

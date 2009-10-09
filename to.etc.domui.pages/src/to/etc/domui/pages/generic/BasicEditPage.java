@@ -138,8 +138,14 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 	protected void save() throws Exception {
 		if(getBindings() != null)
 			getBindings().moveControlToModel();
+		if(!validate())
+			return;
 		onSave(getValue());
 		UIGoto.back();
+	}
+
+	protected boolean validate() throws Exception {
+		return true;
 	}
 
 	protected void cancel() throws Exception {

@@ -51,7 +51,6 @@ public class TextArea extends InputNodeContainer implements IInputNode<String> {
 		m_rows = rows;
 	}
 
-	@Override
 	public boolean validate() {
 		if(m_value == null || m_value.length() == 0) {
 			if(isMandatory()) {

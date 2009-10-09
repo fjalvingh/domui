@@ -102,7 +102,6 @@ public class Text<T> extends Input implements IInputNode<T> {
 	 * message into the Page. When in ERROR state an input control will add an "invalidValue"
 	 * class to it's HTML class, and it may expose error labels on it.
 	 */
-	@Override
 	public boolean validate() {
 		if(m_validated)
 			return isValid();

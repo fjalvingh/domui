@@ -118,6 +118,12 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
 			SimpleRowRenderer rr = provideRowRenderer();
+			rr.setRowClicked(new ICellClicked<T>() {
+				public void cellClicked(Page pg, NodeBase tr, T rowval) throws Exception {
+					onSelect(rowval);
+				}
+			});
+
 			m_result = new DataTable(model, rr);
 			add(m_result);
 			m_result.setPageSize(20);

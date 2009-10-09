@@ -384,15 +384,15 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	//		setLiteralText(ref.getString(key));
 	//	}
 
-	@Override
-	public boolean validate() {
-		boolean ok = true;
-		for(NodeBase nb : m_children) {
-			if(!nb.validate())
-				ok = false;
-		}
-		return ok;
-	}
+	//	@Override
+	//	public boolean validate() {
+	//		boolean ok = true;
+	//		for(NodeBase nb : m_children) {
+	//			if(!nb.validate())
+	//				ok = false;
+	//		}
+	//		return ok;
+	//	}
 
 	public IErrorFence getErrorFence() {
 		return m_errorFence;
