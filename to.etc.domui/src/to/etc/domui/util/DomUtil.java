@@ -695,12 +695,18 @@ final public class DomUtil {
 		}
 
 		//-- Try page class related bundle.
-		String cn = urlPage.getClass().getName();
-		cn = cn.substring(cn.lastIndexOf('.') + 1); // Classname only,
+		String fullname = urlPage.getClass().getName();
+		int ix = fullname.lastIndexOf('.');
+
+		String cn = fullname.substring(ix + 1); // Classname only,
 		BundleRef br = BundleRef.create(urlPage.getClass(), cn); // Try to find
 		if(br.exists())
 			return br;
 
+		//-- Finally: allow 'messages' bundle in this package, if present
+		br = BundleRef.create(urlPage.getClass(), "messages");
+		if(br.exists())
+			return br;
 		return null; // Failed to get bundle.
 	}
 
