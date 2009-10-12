@@ -9,7 +9,7 @@ import java.lang.annotation.*;
  * Created on Jul 14, 2008
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target(ElementType.TYPE)
 public @interface MetaSearch {
 	public MetaSearchItem[] value() default {};
 }
