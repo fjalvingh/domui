@@ -313,11 +313,13 @@ public class MsgBox extends FloatingWindow {
 		String lbl = MetaManager.findEnumLabel(mbb);
 		if(lbl == null)
 			lbl = mbb.name();
-		m_theButtons.add(new DefaultButton(lbl, new IClicked<DefaultButton>() {
+		DefaultButton btn = new DefaultButton(lbl, new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
 				close(mbb);
 			}
-		}));
+		});
+		btn.setTestID(mbb.name());
+		m_theButtons.add(btn);
 	}
 
 	protected void addButton(final String lbl, final Object selval) {
