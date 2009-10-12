@@ -15,7 +15,7 @@ public class QRestrictionsBase<T> {
 	private final Class<T> m_baseClass;
 
 	/** If this is a selection query instead of an object instance query, this will contain the selected items. */
-	private final List<QSelectionColumn> m_itemList = Collections.EMPTY_LIST;
+	private List<QSelectionColumn> m_itemList = Collections.EMPTY_LIST;
 
 	private int m_limit = -1;
 
@@ -26,7 +26,7 @@ public class QRestrictionsBase<T> {
 	private List<QOrder> m_order = Collections.EMPTY_LIST;
 
 	/** Query options */
-	private Map<String, Object>	m_optionMap = null;
+	private Map<String, Object> m_optionMap = null;
 
 	protected QRestrictionsBase(Class<T> clz) {
 		m_baseClass = clz;
@@ -65,7 +65,7 @@ public class QRestrictionsBase<T> {
 	 * @param name
 	 * @param val
 	 */
-	public void	setOption(String name, Object val) {
+	public void setOption(String name, Object val) {
 		if(m_optionMap == null)
 			m_optionMap = new HashMap<String, Object>();
 		m_optionMap.put(name, val);
@@ -76,7 +76,7 @@ public class QRestrictionsBase<T> {
 	 * @param name
 	 * @return
 	 */
-	public boolean	hasOption(String name) {
+	public boolean hasOption(String name) {
 		return m_optionMap != null && m_optionMap.containsKey(name);
 	}
 
@@ -85,7 +85,7 @@ public class QRestrictionsBase<T> {
 	 * @param name
 	 * @return
 	 */
-	public Object	getOption(String name) {
+	public Object getOption(String name) {
 		return m_optionMap == null ? null : m_optionMap.get(name);
 	}
 
@@ -95,8 +95,11 @@ public class QRestrictionsBase<T> {
 	/**
 	 * Add a column selector to the selection list.
 	 */
-	protected void	addColumn(QSelectionItem item, String alias) {
-		QSelectionColumn	col	= new QSelectionColumn(item, alias);
+	protected void addColumn(QSelectionItem item, String alias) {
+		QSelectionColumn col = new QSelectionColumn(item, alias);
+		if(m_itemList.size() == 0) {
+			m_itemList = new ArrayList<QSelectionColumn>();
+		}
 		m_itemList.add(col);
 	}
 
@@ -106,10 +109,10 @@ public class QRestrictionsBase<T> {
 	 * @param prop
 	 * @param alias
 	 */
-	protected void	addPropertySelection(QSelectionFunction f, String prop, String alias) {
+	protected void addPropertySelection(QSelectionFunction f, String prop, String alias) {
 		if(prop == null || prop.length() == 0)
-			throw new ProgrammerErrorException("The property for a "+f+" selection cannot be null or empty");
-		QPropertySelection	ps	= new QPropertySelection(f, prop);
+			throw new ProgrammerErrorException("The property for a " + f + " selection cannot be null or empty");
+		QPropertySelection ps = new QPropertySelection(f, prop);
 		addColumn(ps, alias);
 	}
 
@@ -118,7 +121,7 @@ public class QRestrictionsBase<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	selectProperty(String property) {
+	protected QRestrictionsBase<T> selectProperty(String property) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, null);
 		return this;
 	}
@@ -129,7 +132,7 @@ public class QRestrictionsBase<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	selectProperty(String property, String alias) {
+	protected QRestrictionsBase<T> selectProperty(String property, String alias) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, alias);
 		return this;
 	}
@@ -139,7 +142,7 @@ public class QRestrictionsBase<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	max(String property) {
+	protected QRestrictionsBase<T> max(String property) {
 		addPropertySelection(QSelectionFunction.MAX, property, null);
 		return this;
 	}
@@ -150,7 +153,7 @@ public class QRestrictionsBase<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	max(String property, String alias) {
+	protected QRestrictionsBase<T> max(String property, String alias) {
 		addPropertySelection(QSelectionFunction.MAX, property, alias);
 		return this;
 	}
@@ -160,7 +163,7 @@ public class QRestrictionsBase<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	min(String property) {
+	protected QRestrictionsBase<T> min(String property) {
 		addPropertySelection(QSelectionFunction.MIN, property, null);
 		return this;
 	}
@@ -171,16 +174,17 @@ public class QRestrictionsBase<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	min(String property, String alias) {
+	protected QRestrictionsBase<T> min(String property, String alias) {
 		addPropertySelection(QSelectionFunction.MIN, property, alias);
 		return this;
 	}
+
 	/**
 	 * Select the average value of a property in the set. This will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	avg(String property) {
+	protected QRestrictionsBase<T> avg(String property) {
 		addPropertySelection(QSelectionFunction.AVG, property, null);
 		return this;
 	}
@@ -191,7 +195,7 @@ public class QRestrictionsBase<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	avg(String property, String alias) {
+	protected QRestrictionsBase<T> avg(String property, String alias) {
 		addPropertySelection(QSelectionFunction.AVG, property, alias);
 		return this;
 	}
@@ -201,7 +205,7 @@ public class QRestrictionsBase<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	sum(String property) {
+	protected QRestrictionsBase<T> sum(String property) {
 		addPropertySelection(QSelectionFunction.SUM, property, null);
 		return this;
 	}
@@ -212,7 +216,7 @@ public class QRestrictionsBase<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	sum(String property, String alias) {
+	protected QRestrictionsBase<T> sum(String property, String alias) {
 		addPropertySelection(QSelectionFunction.SUM, property, alias);
 		return this;
 	}
@@ -222,7 +226,7 @@ public class QRestrictionsBase<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	count(String property) {
+	protected QRestrictionsBase<T> count(String property) {
 		addPropertySelection(QSelectionFunction.COUNT, property, null);
 		return this;
 	}
@@ -233,7 +237,7 @@ public class QRestrictionsBase<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	count(String property, String alias) {
+	protected QRestrictionsBase<T> count(String property, String alias) {
 		addPropertySelection(QSelectionFunction.COUNT, property, alias);
 		return this;
 	}
@@ -243,7 +247,7 @@ public class QRestrictionsBase<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	countDistinct(String property) {
+	protected QRestrictionsBase<T> countDistinct(String property) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, null);
 		return this;
 	}
@@ -254,7 +258,7 @@ public class QRestrictionsBase<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QRestrictionsBase<T>	countDistinct(String property, String alias) {
+	protected QRestrictionsBase<T> countDistinct(String property, String alias) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, alias);
 		return this;
 	}

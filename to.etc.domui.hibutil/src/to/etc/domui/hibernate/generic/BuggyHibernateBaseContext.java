@@ -19,10 +19,12 @@ import to.etc.webapp.query.*;
  * Created on Jul 15, 2009
  */
 public class BuggyHibernateBaseContext implements QDataContext, ConversationStateListener {
-	private QDataContextFactory		m_contextFactory;
+	private QDataContextFactory m_contextFactory;
+
 	protected HibernateSessionMaker m_sessionMaker;
 
 	private boolean m_ignoreClose;
+
 	protected Session m_session;
 
 	/**
@@ -86,7 +88,7 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.webapp.query.QDataContext#getInstance(java.lang.Class, java.lang.Object)
 	 */
 	public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
-		return (T) getSession().load(clz, (Serializable) pk);		// Do not check if instance exists.
+		return (T) getSession().load(clz, (Serializable) pk); // Do not check if instance exists.
 	}
 
 	/**
@@ -119,6 +121,21 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 			return null;
 		if(res.size() > 1)
 			throw new IllegalStateException("The criteria-query " + q + " returns " + res.size() + " results instead of one");
+		return res.get(0);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QDataContext#queryOne(to.etc.webapp.query.QCriteria)
+	 */
+	public Object queryOne(final QSelection< ? > sel) throws Exception {
+		getFactory().getEventListeners().callOnBeforeQuery(this, sel);
+		Criteria crit = GenericHibernateHandler.createCriteria(getSession(), sel);
+		List<Object> res = crit.list();
+		if(res.size() == 0)
+			return null;
+		if(res.size() > 1)
+			throw new IllegalStateException("The criteria-query " + sel + " returns " + res.size() + " results instead of one");
 		return res.get(0);
 	}
 
@@ -234,7 +251,7 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.domui.state.ConversationStateListener#conversationDestroyed(to.etc.domui.state.ConversationContext)
 	 */
 	public void conversationDestroyed(final ConversationContext cc) throws Exception {
-		setIgnoreClose(false);				// Disable ignore close - this close should work.
+		setIgnoreClose(false); // Disable ignore close - this close should work.
 		close();
 	}
 
@@ -243,7 +260,7 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.domui.state.ConversationStateListener#conversationDetached(to.etc.domui.state.ConversationContext)
 	 */
 	public void conversationDetached(final ConversationContext cc) throws Exception {
-		setIgnoreClose(false);				// Disable ignore close - this close should work.
+		setIgnoreClose(false); // Disable ignore close - this close should work.
 		close();
 	}
 
