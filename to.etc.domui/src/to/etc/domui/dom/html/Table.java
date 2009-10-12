@@ -13,6 +13,8 @@ public class Table extends NodeContainer {
 
 	private int m_tableBorder = -1;
 
+	private TableAlignType m_align;
+
 	//	private THead		m_head;
 	//	private TBody		m_body;
 
@@ -144,5 +146,13 @@ public class Table extends NodeContainer {
 
 	public void setTableHeight(final String tableHeight) {
 		m_tableHeight = tableHeight;
+	}
+
+	public TableAlignType getAlign() {
+		return m_align;
+	}
+
+	public void setAlign(final TableAlignType align) {
+		m_align = align;
 	}
 }
