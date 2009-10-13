@@ -178,4 +178,30 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 	public List<Pair<T>> getData() {
 		return m_choiceList;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*--------------------------------------------------------------*/
+
+	/** When this is bound this contains the binder instance handling the binding. */
+	private SimpleBinder m_binder;
+
+	/**
+	 * Return the binder for this control.
+	 * @see to.etc.domui.component.input.IBindable#bind()
+	 */
+	public IBinder bind() {
+		if(m_binder == null)
+			m_binder = new SimpleBinder(this);
+		return m_binder;
+	}
+
+	/**
+	 * Returns T if this control is bound to some data value.
+	 *
+	 * @see to.etc.domui.component.input.IBindable#isBound()
+	 */
+	public boolean isBound() {
+		return m_binder != null && m_binder.isBound();
+	}
 }

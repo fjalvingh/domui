@@ -5,7 +5,7 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
-public class TextArea extends InputNodeContainer implements IInputNode<String>, IBindable {
+public class TextArea extends InputNodeContainer implements IInputNode<String> {
 	private int m_cols = -1;
 
 	private int m_rows = -1;

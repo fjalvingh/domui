@@ -20,7 +20,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
-public class Text<T> extends Input implements IInputNode<T>, IBindable {
+public class Text<T> extends Input implements IInputNode<T> {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
 

@@ -1,6 +1,8 @@
 package to.etc.domui.dom.html;
 
-public interface IInputNode<T> extends IInputBase {
+import to.etc.domui.component.input.*;
+
+public interface IInputNode<T> extends IInputBase, IBindable {
 	public T getValue();
 
 	public void setValue(T v);
