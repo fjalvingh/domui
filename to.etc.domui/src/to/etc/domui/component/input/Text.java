@@ -20,7 +20,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
-public class Text<T> extends Input implements IInputNode<T> {
+public class Text<T> extends Input implements IInputNode<T>, IBindable {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
 
@@ -318,5 +318,32 @@ public class Text<T> extends Input implements IInputNode<T> {
 
 	public void addValidator(Class< ? extends IValueValidator<T>> clz, String[] parameters) {
 		addValidator(new MetaPropertyValidatorImpl(clz, parameters));
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*--------------------------------------------------------------*/
+
+	/** When this is bound this contains the binder instance handling the binding. */
+	private SimpleBinder m_binder;
+
+	/**
+	 * Return the binder for this control.
+	 * @see to.etc.domui.component.input.IBindable#bind()
+	 */
+	public IBinder bind() {
+		if(m_binder == null)
+			m_binder = new SimpleBinder(this);
+		return m_binder;
+	}
+
+	/**
+	 * Returns T if this control is bound to some data value.
+	 *
+	 * @see to.etc.domui.component.input.IBindable#isBound()
+	 */
+	public boolean isBound() {
+		return m_binder != null && m_binder.isBound();
 	}
 }
