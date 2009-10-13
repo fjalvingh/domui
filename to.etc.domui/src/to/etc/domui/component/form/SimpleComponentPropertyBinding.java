@@ -5,7 +5,7 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-public class SimpleComponentPropertyBinding implements ModelBinding, IFormControl {
+public class SimpleComponentPropertyBinding implements IModelBinding, IFormControl {
 	final IInputNode<Object> m_control;
 
 	private PropertyMetaModel m_propertyMeta;
@@ -34,7 +34,7 @@ public class SimpleComponentPropertyBinding implements ModelBinding, IFormContro
 		m_control.setValue(pval);
 	}
 
-	public void setEnabled(boolean on) {
+	public void setControlsEnabled(boolean on) {
 		m_control.setReadOnly(!on);
 	}
 

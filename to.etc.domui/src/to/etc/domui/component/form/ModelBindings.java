@@ -2,16 +2,16 @@ package to.etc.domui.component.form;
 
 import java.util.*;
 
-public class ModelBindings implements ModelBinding {
-	private List<ModelBinding> m_bindings = new ArrayList<ModelBinding>();
+public class ModelBindings implements IModelBinding {
+	private List<IModelBinding> m_bindings = new ArrayList<IModelBinding>();
 
-	public void add(ModelBinding b) {
+	public void add(IModelBinding b) {
 		m_bindings.add(b);
 	}
 
 	public void moveControlToModel() throws Exception {
 		Exception cx = null;
-		for(ModelBinding b : m_bindings) {
+		for(IModelBinding b : m_bindings) {
 			try {
 				b.moveControlToModel();
 			} catch(Exception x) {
@@ -24,7 +24,7 @@ public class ModelBindings implements ModelBinding {
 	}
 
 	public void moveModelToControl() throws Exception {
-		for(ModelBinding b : m_bindings)
+		for(IModelBinding b : m_bindings)
 			b.moveModelToControl();
 	}
 
@@ -32,8 +32,8 @@ public class ModelBindings implements ModelBinding {
 		return m_bindings.size();
 	}
 
-	public void setEnabled(boolean on) {
-		for(ModelBinding b : m_bindings)
-			b.setEnabled(on);
+	public void setControlsEnabled(boolean on) {
+		for(IModelBinding b : m_bindings)
+			b.setControlsEnabled(on);
 	}
 }
