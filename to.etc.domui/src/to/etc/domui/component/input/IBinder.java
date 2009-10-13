@@ -1,5 +1,6 @@
 package to.etc.domui.component.input;
 
+import to.etc.domui.component.form.*;
 import to.etc.domui.util.*;
 
 /**
@@ -7,10 +8,12 @@ import to.etc.domui.util.*;
  * A thingy which handles binding a control to a model/property, data move event or
  * IReadOnlyModel/property.
  *
+ * FIXME Question - should this <i>be</i> a IModelBinding or should this <i>have</i> a IModelBinding?
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-public interface IBinder {
+public interface IBinder extends IModelBinding {
 	/**
 	 * EXPERIMENTAL - DO NOT USE.
 	 * Create a binding to the associated control and the specified object instance and the named property of that instance.

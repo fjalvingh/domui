@@ -3,6 +3,7 @@ package to.etc.domui.dom.html;
 import java.util.*;
 
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
@@ -843,6 +844,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @see to.etc.domui.component.form.IModelBinding#moveControlToModel()
 	 */
 	public void moveControlToModel() throws Exception {
+		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
+		if(v instanceof IBindable) {
+			IBindable b = (IBindable) v;
+			if(b.isBound())
+				b.bind().moveControlToModel();
+		}
 	}
 
 	/**
@@ -851,6 +858,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @see to.etc.domui.component.form.IModelBinding#moveModelToControl()
 	 */
 	public void moveModelToControl() throws Exception {
+		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
+		if(v instanceof IBindable) {
+			IBindable b = (IBindable) v;
+			if(b.isBound())
+				b.bind().moveModelToControl();
+		}
 	}
 
 	/**
@@ -860,5 +873,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @see to.etc.domui.component.form.IModelBinding#setControlsEnabled(boolean)
 	 */
 	public void setControlsEnabled(boolean on) {
+		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
+		if(v instanceof IBindable) {
+			IBindable b = (IBindable) v;
+			if(b.isBound())
+				b.bind().setControlsEnabled(on);
+		}
 	}
 }

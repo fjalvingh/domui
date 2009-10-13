@@ -76,4 +76,40 @@ public class SimpleBinder implements IBinder {
 		m_propertyModel = MetaManager.getPropertyMeta(instance.getClass(), property);
 		m_instance = instance;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IModelBinding interface implementation.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Move the control value to wherever it's needed. If this is a listener binding it calls the listener,
+	 * else it moves the value either to the model's value or the instance's value.
+	 * @see to.etc.domui.component.form.IModelBinding#moveControlToModel()
+	 */
+	public void moveControlToModel() throws Exception {
+		if(m_listener != null)
+			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
+		else {
+			Object val = m_control.getValue();
+			Object base = m_instance == null ? m_model.getValue() : m_instance;
+			IValueAccessor<Object> a = (IValueAccessor<Object>) m_propertyModel.getAccessor();
+			a.setValue(base, val);
+		}
+	}
+
+	public void moveModelToControl() throws Exception {
+		if(m_listener != null)
+			((IBindingListener<NodeBase>) m_listener).moveModelToControl((NodeBase) m_control); // Stupid generics idiocy requires cast
+		else {
+			Object base = m_instance == null ? m_model.getValue() : m_instance;
+			IValueAccessor< ? > vac = m_propertyModel.getAccessor();
+			if(vac == null)
+				throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyModel);
+			Object pval = vac.getValue(base);
+			((IInputNode<Object>) m_control).setValue(pval);
+		}
+	}
+
+	public void setControlsEnabled(boolean on) {
+		m_control.setDisabled(!on);
+	}
 }
