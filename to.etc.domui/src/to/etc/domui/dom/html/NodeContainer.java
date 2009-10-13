@@ -420,4 +420,28 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		for(int i = m_children.size(); --i >= 0;)
 			m_children.get(i).internalUnshelve();
 	}
+
+	/**
+	 * Utility method to add a table; it returns the TBody.
+	 * @param cssclass	When not null this is set as the css class for the TABLE tag.
+	 * @return
+	 */
+	public TBody addTable(String css) {
+		Table t = new Table();
+		add(t);
+		if(css != null)
+			t.setCssClass(css);
+		TBody b = new TBody();
+		t.add(b);
+		return b;
+	}
+
+	/**
+	 * Utility method to add a table; it returns the TBody.
+	 *
+	 * @return
+	 */
+	public TBody addTable() {
+		return addTable(null);
+	}
 }

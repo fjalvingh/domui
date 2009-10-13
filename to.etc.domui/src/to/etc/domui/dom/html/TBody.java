@@ -11,6 +11,23 @@ public class TBody extends NodeContainer {
 		v.visitTBody(this);
 	}
 
+	/**
+	 * Return the table that contains this body.
+	 * @return
+	 */
+	public Table getTable() {
+		return getParent(Table.class);
+	}
+
+	/**
+	 * Utility to return the nth child as a row.
+	 * @param ix
+	 * @return
+	 */
+	public TR getRow(int ix) {
+		return (TR) getChild(ix);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Utility functions.									*/
 	/*--------------------------------------------------------------*/
