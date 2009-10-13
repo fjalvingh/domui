@@ -247,6 +247,7 @@ public class LookupForm<T> extends Div {
 			TR searchRootRow = new TR();
 			searchRootTableBody.add(searchRootRow);
 			TD searchRootCell = new TD();
+			searchRootCell.setValign(TableVAlign.TOP);
 			searchRootRow.add(searchRootCell);
 			searchContainer = searchRootCell;
 		}
@@ -266,6 +267,7 @@ public class LookupForm<T> extends Div {
 		for(Item it : m_itemList) {
 			if(it instanceof ItemBreak) {
 				TD anotherSearchRootCell = new TD();
+				anotherSearchRootCell.setValign(TableVAlign.TOP);
 				searchContainer.appendAfterMe(anotherSearchRootCell);
 				searchContainer = anotherSearchRootCell;
 				m_table = new Table();
