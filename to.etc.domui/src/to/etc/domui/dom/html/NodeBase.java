@@ -2,6 +2,7 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
+import to.etc.domui.component.form.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
@@ -74,7 +75,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
-abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
+abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding {
 	/** The owner page. If set then this node IS attached to the parent in some way; if null it is not attached. */
 	private Page m_page;
 
@@ -831,5 +832,33 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		DropEvent dx = new DropEvent((NodeContainer) this, dragnode, index);
 		dragh.onDropped(dx);
 		droph.onDropped(dx);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IModelBinding implementation.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * EXPERIMENTAL - DO NOT USE.
+	 * For non-input non-container nodes this does exactly nothing.
+	 * @see to.etc.domui.component.form.IModelBinding#moveControlToModel()
+	 */
+	public void moveControlToModel() throws Exception {
+	}
+
+	/**
+	 * EXPERIMENTAL - DO NOT USE.
+	 * For non-input non-container nodes this does exactly nothing.
+	 * @see to.etc.domui.component.form.IModelBinding#moveModelToControl()
+	 */
+	public void moveModelToControl() throws Exception {
+	}
+
+	/**
+	 * EXPERIMENTAL - DO NOT USE.
+	 * For non-input non-container nodes this does exactly nothing.
+	 *
+	 * @see to.etc.domui.component.form.IModelBinding#setControlsEnabled(boolean)
+	 */
+	public void setControlsEnabled(boolean on) {
 	}
 }

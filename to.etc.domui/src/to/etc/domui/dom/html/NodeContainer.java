@@ -444,4 +444,60 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	public TBody addTable() {
 		return addTable(null);
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IModelBinding implementation.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * EXPERIMENTAL - DO NOT USE.
+	 * For all bound controls that are contained in this container, move the value
+	 * present in the control to the data model. This converts and validates each
+	 * control value as per the defined converters and validators. This will always
+	 * attempt to move all values even if some control fails; the exception for the
+	 * first failed control is rethrown after all controls are moved.
+	 *
+	 * @see to.etc.domui.dom.html.NodeBase#moveControlToModel()
+	 */
+	@Override
+	public void moveControlToModel() throws Exception {
+		super.moveControlToModel(); // FIXME Is this useful?
+		Exception x = null;
+		for(NodeBase b : this) {
+			try {
+				b.moveControlToModel();
+			} catch(Exception nx) {
+				if(x == null)
+					x = nx;
+			}
+		}
+		if(x != null)
+			throw x;
+	}
+
+	/**
+	 * EXPERIMENTAL - DO NOT USE.
+	 * For all bound controls that are contained in this container, move the value found in
+	 * the model to the control so it can be edited. If setting a value into a control results
+	 * in an error (Exception) this will terminate immediately with that exception (meaning
+	 * data is not moved to the controls following the failed controls).
+	 *
+	 * @see to.etc.domui.dom.html.NodeBase#moveModelToControl()
+	 */
+	@Override
+	public void moveModelToControl() throws Exception {
+		super.moveModelToControl(); // FIXME Is this useful?
+		for(NodeBase b : this)
+			b.moveModelToControl();
+	}
+
+	/**
+	 * EXPERIMENTAL - DO NOT USE.
+	 *
+	 * @see to.etc.domui.dom.html.NodeBase#setControlsEnabled(boolean)
+	 */
+	@Override
+	public void setControlsEnabled(boolean on) {
+		for(NodeBase b : this)
+			b.setControlsEnabled(on);
+	}
 }
