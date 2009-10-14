@@ -68,6 +68,10 @@ public class TextArea extends InputNodeContainer implements IInputNode<String> {
 		return m_value;
 	}
 
+	public String getRawValue() {
+		return m_value;
+	}
+
 	public boolean isDisabled() {
 		return m_disabled;
 	}

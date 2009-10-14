@@ -769,7 +769,7 @@ public class HtmlRenderer implements INodeVisitor {
 
 		//-- Fix for bug 627: render textarea content in attribute to prevent zillion of IE fuckups.
 		if(getMode() != HtmlRenderMode.FULL) {
-			String txt = n.getValue();
+			String txt = n.getRawValue();
 			if(txt != null) {
 				txt = StringTool.strToJavascriptString(txt, false);
 				o().attr("domjs_value", txt);
