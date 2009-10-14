@@ -199,6 +199,15 @@ public class LookupForm<T> extends Div {
 		}
 	}
 
+	/**
+	 * Item that is used internally by LookupForm to mark table break when creating search field components.  
+	 *
+	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+	 * Created on 13 Oct 2009
+	 */
+	static class ItemBreak extends Item {
+	}
+
 	/** The primary list of defined lookup items. */
 	private List<Item> m_itemList = new ArrayList<Item>(20);
 
@@ -229,10 +238,23 @@ public class LookupForm<T> extends Div {
 			add(sroot);
 			m_content = sroot;
 		}
+		NodeContainer searchContainer = sroot;
+		if(containsItemBreaks(m_itemList)) {
+			Table searchRootTable = new Table();
+			sroot.add(searchRootTable);
+			TBody searchRootTableBody = new TBody();
+			searchRootTable.add(searchRootTableBody);
+			TR searchRootRow = new TR();
+			searchRootTableBody.add(searchRootRow);
+			TD searchRootCell = new TD();
+			searchRootCell.setValign(TableVAlign.TOP);
+			searchRootRow.add(searchRootCell);
+			searchContainer = searchRootCell;
+		}
 
 		//-- Walk all search fields
 		m_table = new Table();
-		sroot.add(m_table);
+		searchContainer.add(m_table);
 		m_tbody = new TBody();
 		m_tbody.setTestID("tableBodyLookupForm");
 		m_table.add(m_tbody);
@@ -243,7 +265,19 @@ public class LookupForm<T> extends Div {
 
 		//-- Start populating the lookup form with lookup items.
 		for(Item it : m_itemList) {
-			internalAddLookupItem(it);
+			if(it instanceof ItemBreak) {
+				TD anotherSearchRootCell = new TD();
+				anotherSearchRootCell.setValign(TableVAlign.TOP);
+				searchContainer.appendAfterMe(anotherSearchRootCell);
+				searchContainer = anotherSearchRootCell;
+				m_table = new Table();
+				searchContainer.add(m_table);
+				m_tbody = new TBody();
+				m_tbody.setTestID("tableBodyLookupForm");
+				m_table.add(m_tbody);
+			} else {
+				internalAddLookupItem(it);
+			}
 		}
 
 		//-- The button bar.
@@ -316,6 +350,15 @@ public class LookupForm<T> extends Div {
 					m_clicker.clicked(LookupForm.this);
 			}
 		});
+	}
+
+	private boolean containsItemBreaks(List<Item> itemList) {
+		for(Item item : itemList) {
+			if(item instanceof ItemBreak) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -459,6 +502,11 @@ public class LookupForm<T> extends Div {
 		it.setMinLength(minlen);
 		addAndFinish(it);
 		return it;
+	}
+
+	public void addItemBreak() {
+		ItemBreak itemBreak = new ItemBreak();
+		m_itemList.add(itemBreak);
 	}
 
 	/**

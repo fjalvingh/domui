@@ -489,6 +489,8 @@ public class HtmlRenderer implements INodeVisitor {
 			o().attr("width", n.getTableWidth());
 		if(n.getTableHeight() != null)
 			o().attr("height", n.getTableHeight());
+		if(n.getAlign() != null)
+			o().attr("align", n.getAlign().getCode());
 		renderTagend(n, m_o);
 	}
 

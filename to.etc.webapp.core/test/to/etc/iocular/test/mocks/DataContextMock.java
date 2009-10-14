@@ -21,9 +21,11 @@ public class DataContextMock implements QDataContext {
 	public QDataContextFactory getFactory() {
 		return null;
 	}
+
 	public <T> T find(final Class<T> clz, final Object pk) throws Exception {
 		return null;
 	}
+
 	public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
 		return null;
 	}
@@ -43,7 +45,12 @@ public class DataContextMock implements QDataContext {
 	public <T> T queryOne(final QCriteria<T> q) throws Exception {
 		return null;
 	}
+
 	public List<Object[]> query(QSelection< ? > sel) throws Exception {
+		return null;
+	}
+
+	public Object queryOne(QSelection< ? > sel) throws Exception {
 		return null;
 	}
 

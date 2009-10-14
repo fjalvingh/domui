@@ -17,7 +17,7 @@ public interface QDataContext {
 	 * query listeners to execute when a query is done.
 	 * @return
 	 */
-	QDataContextFactory	getFactory();
+	QDataContextFactory getFactory();
 
 	/**
 	 * When ignoreClose is set to T the close call must be silently ignored. Ugly, but for a lot of reasons (all having
@@ -62,7 +62,17 @@ public interface QDataContext {
 	 * @return
 	 * @throws Exception
 	 */
-	List<Object[]>	query(QSelection<?> sel) throws Exception;
+	List<Object[]> query(QSelection< ? > sel) throws Exception;
+
+	/**
+	 * Execute the selection query specified by q, and expect and return at most 1 result. If the query has no
+	 * result this will return null. If more than one result is obtained this will throw an IllegalStateException.
+	 * @param <T>
+	 * @param q
+	 * @return
+	 * @throws Exception
+	 */
+	Object queryOne(QSelection< ? > q) throws Exception;
 
 	/**
 	 * Load the persistent object with the specified type and primary key from the database. This will
