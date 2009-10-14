@@ -51,6 +51,8 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	private IErrorMessageListener m_customErrorMessageListener;
 
+	private IActionAllowed m_isLookupAllowed;
+
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass);
 		m_resultColumns = resultColumns;
@@ -122,7 +124,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		}
 	}
 
-	void toggleFloater() {
+	void toggleFloater() throws Exception {
 		if(m_floater != null) {
 			m_floater.close();
 			m_floater = null;
@@ -130,40 +132,43 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			return;
 		}
 
-		m_floater = FloatingWindow.create(this, getLookupTitle() == null ? Msgs.BUNDLE.getString("ui.lui.ttl") : getLookupTitle());
-		//		getPage().getBody().add(m_floater);
+		if(m_isLookupAllowed == null || m_isLookupAllowed.isAllowed()) {
 
-		m_floater.setHeight("90%");
-		m_floater.setIcon("THEME/btnFind.png");
-		m_floater.setTestID("floaterWindowLookupInput");
-		//in case when external error message listener is set
-		if(m_customErrorMessageListener != null && m_customErrorMessageListener instanceof NodeBase) {
-			m_floater.setErrorFence();
-			m_floater.add((NodeBase) m_customErrorMessageListener);
-			DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
+			m_floater = FloatingWindow.create(this, getLookupTitle() == null ? Msgs.BUNDLE.getString("ui.lui.ttl") : getLookupTitle());
+			//		getPage().getBody().add(m_floater);
+
+			m_floater.setHeight("90%");
+			m_floater.setIcon("THEME/btnFind.png");
+			m_floater.setTestID("floaterWindowLookupInput");
+			//in case when external error message listener is set
+			if(m_customErrorMessageListener != null && m_customErrorMessageListener instanceof NodeBase) {
+				m_floater.setErrorFence();
+				m_floater.add((NodeBase) m_customErrorMessageListener);
+				DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
+			}
+			LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(m_lookupClass);
+			lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
+			m_floater.add(lf);
+			m_floater.setOnClose(new IClicked<FloatingWindow>() {
+				public void clicked(FloatingWindow b) throws Exception {
+					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+					m_floater = null;
+					m_result = null;
+				}
+			});
+
+			lf.setClicked(new IClicked<LookupForm<T>>() {
+				public void clicked(LookupForm<T> b) throws Exception {
+					search(b);
+				}
+			});
+
+			lf.setOnCancel(new IClicked<LookupForm<T>>() {
+				public void clicked(LookupForm<T> b) throws Exception {
+					m_floater.closePressed();
+				}
+			});
 		}
-		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(m_lookupClass);
-		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
-		m_floater.add(lf);
-		m_floater.setOnClose(new IClicked<FloatingWindow>() {
-			public void clicked(FloatingWindow b) throws Exception {
-				m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-				m_floater = null;
-				m_result = null;
-			}
-		});
-
-		lf.setClicked(new IClicked<LookupForm<T>>() {
-			public void clicked(LookupForm<T> b) throws Exception {
-				search(b);
-			}
-		});
-
-		lf.setOnCancel(new IClicked<LookupForm<T>>() {
-			public void clicked(LookupForm<T> b) throws Exception {
-				m_floater.closePressed();
-			}
-		});
 
 	}
 
@@ -495,5 +500,13 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	 */
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
+	}
+
+	public IActionAllowed getIsLookupAllowed() {
+		return m_isLookupAllowed;
+	}
+
+	public void setIsLookupAllowed(IActionAllowed isLookupAllowed) {
+		m_isLookupAllowed = isLookupAllowed;
 	}
 }
