@@ -24,6 +24,12 @@ public class LinkButton extends ATag {
 		setImage(image);
 	}
 
+	public LinkButton(final String txt, final String image) {
+		setCssClass("ui-lbtn");
+		m_text = txt;
+		setImage(image);
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		setText(m_text);

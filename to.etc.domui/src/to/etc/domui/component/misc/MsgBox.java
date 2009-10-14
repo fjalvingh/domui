@@ -246,6 +246,43 @@ public class MsgBox extends FloatingWindow {
 	}
 
 	/**
+	 * Create a LinkButton which will show an "are you sure" yes/no dialog with a specified text. Only if the user
+	 * presses the "yes" button will the clicked handler be executed.
+	 * @param icon
+	 * @param text		The button's text.
+	 * @param message	The message to show in the are you sure popup
+	 * @param ch		The delegate to call when the user is sure.
+	 * @return
+	 */
+	public static LinkButton areYouSureLinkButton(String text, String icon, final String message, final IClicked<LinkButton> ch) {
+		final LinkButton btn = new LinkButton(text, icon);
+		IClicked<LinkButton> bch = new IClicked<LinkButton>() {
+			public void clicked(LinkButton b) throws Exception {
+				yesNo(b, message, new IClicked<MsgBox>() {
+					public void clicked(MsgBox bx) throws Exception {
+						ch.clicked(btn);
+					}
+				});
+			}
+		};
+		btn.setClicked(bch);
+		return btn;
+	}
+
+	/**
+	 * Create a button which will show an "are you sure" yes/no dialog with a specified text. Only if the user
+	 * presses the "yes" button will the clicked handler be executed.
+	 *
+	 * @param text		The button's text.
+	 * @param message	The message to show in the are you sure popup
+	 * @param ch		The delegate to call when the user is sure.
+	 * @return
+	 */
+	public static LinkButton areYouSureLinkButton(String text, final String message, final IClicked<LinkButton> ch) {
+		return areYouSureLinkButton(text, null, message, ch);
+	}
+
+	/**
 	 * Adjust dimensions in addition to inherited floater behavior.
 	 * @see to.etc.domui.dom.html.NodeBase#createContent()
 	 */

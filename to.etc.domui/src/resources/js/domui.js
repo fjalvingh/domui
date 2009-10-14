@@ -951,7 +951,7 @@ var WebUI = {
 		rq.open("GET", DomUI.getObituaryURL() + "?$cid=" + DomUICID + "&webuia=OBITUARY&$pt=" + DomUIpageTag, false);
 		rq.send(null);
 		} catch(ex) {
-			alert("Sending obit failed:"+ex);
+//			alert("Sending obit failed:"+ex);
 		}
 	},
 
