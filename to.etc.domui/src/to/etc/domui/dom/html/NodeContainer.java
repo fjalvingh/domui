@@ -426,24 +426,16 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param cssclass	When not null this is set as the css class for the TABLE tag.
 	 * @return
 	 */
-	public TBody addTable(String css) {
+	public TBody addTable(String... headers) {
 		Table t = new Table();
 		add(t);
-		if(css != null)
-			t.setCssClass(css);
+		if(headers != null && headers.length > 0)
+			t.getHead().setHeaders(headers);
 		TBody b = new TBody();
 		t.add(b);
 		return b;
 	}
 
-	/**
-	 * Utility method to add a table; it returns the TBody.
-	 *
-	 * @return
-	 */
-	public TBody addTable() {
-		return addTable(null);
-	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IModelBinding implementation.						*/
