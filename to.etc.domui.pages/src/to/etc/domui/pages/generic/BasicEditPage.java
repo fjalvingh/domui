@@ -186,14 +186,18 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 		//-- Do a commit, then exit;
 		QDataContext dc = QContextManager.getContext(getPage());
 		dc.startTransaction();
-		dc.save(object);
+		saveObject(dc, object);
 		dc.commit();
+	}
+
+	protected void saveObject(QDataContext dc, T object) throws Exception {
+		dc.save(object);
 	}
 
 	protected void onDelete(T object) throws Exception {
 		QDataContext dc = QContextManager.getContext(getPage());
 		dc.startTransaction();
-		dc.save(object);
+		dc.delete(object);
 		dc.commit();
 	}
 }
