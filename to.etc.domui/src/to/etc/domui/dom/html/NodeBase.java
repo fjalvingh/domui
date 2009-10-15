@@ -372,7 +372,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	void unregisterFromPage() {
 		if(getPage() == null)
 			return;
-		//			throw new IllegalStateException("?? Already disconnected from page");
+		clearMessage(); // jal 20091015 Remove any pending messages for removed nodes.
 		getPage().unregisterNode(this);
 	}
 

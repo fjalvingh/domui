@@ -254,8 +254,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			throw new IllegalStateException("Child " + child + " was not in list!? " + this);
 		treeChanging();
 		m_children.remove(ix);
-		child.setParent(null);
 		child.unregisterFromPage();
+		child.setParent(null); // jal 20091015 moved after unregister to allow nodes to clear their error state
 		childChanged();
 	}
 
@@ -264,8 +264,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			throw new IllegalStateException("Bad delete index " + index + " on node " + this + " with " + m_children.size() + " children");
 		treeChanging();
 		NodeBase child = m_children.remove(index);
-		child.setParent(null);
 		child.unregisterFromPage();
+		child.setParent(null); // jal 20091015 moved after unregister to allow nodes to clear their error state
 		childChanged();
 		return child;
 	}
@@ -279,8 +279,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			throw new IllegalStateException("Child " + child + " was not in list!? " + this);
 		treeChanging();
 		m_children.set(ix, nw); // Replace inline
-		child.setParent(null);
 		child.unregisterFromPage();
+		child.setParent(null); // jal 20091015 moved after unregister to allow nodes to clear their error state
 		nw.setParent(this);
 		registerWithPage(nw); // ORDERED Must be AFTER hanging this into the tree
 		childChanged();
@@ -296,8 +296,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		m_childHasUpdates = false; // They're gone.... No changes I guess.
 		m_mustRenderChildrenFully = true; // Just render all my children again
 		for(NodeBase b : m_children) {
-			b.setParent(null);
 			b.unregisterFromPage();
+			b.setParent(null); // jal 20091015 moved after unregister to allow nodes to clear their error state
 		}
 		m_children.clear();
 	}
@@ -308,6 +308,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return m_children.indexOf(b);
 	}
 
+	/**
+	 * The NodeContainer version of this call unregisters itself AND all it's children, recursively.
+	 * @see to.etc.domui.dom.html.NodeBase#unregisterFromPage()
+	 */
 	@Override
 	void unregisterFromPage() {
 		for(int i = 0; i < 50; i++) {
