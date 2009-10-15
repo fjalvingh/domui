@@ -796,6 +796,7 @@ var WebUI = {
 	startPolling : function() {
 		if (WebUI._pollActive)
 			return;
+		WebUI._pollActive = true;
 		WebUI._pollTimer = setTimeout("WebUI.poll()", 2500);
 	},
 	cancelPolling : function() {
@@ -820,6 +821,7 @@ var WebUI = {
 			dataType :"text/xml",
 			data :fields,
 			cache :false,
+			global: false, // jal 20091015 prevent block/unblock on polling call.
 			success :WebUI.handleResponse,
 			error :WebUI.handleError
 		});

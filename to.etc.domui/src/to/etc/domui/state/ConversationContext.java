@@ -364,17 +364,29 @@ public class ConversationContext implements IQContextContainer {
 			m_delayManager.start();
 	}
 
-	public void processDelayedResults(final Page pg) {
+	public void processDelayedResults(final Page pg) throws Exception {
 		if(m_delayManager == null)
 			return;
-		DelayedActivityState das = m_delayManager.getState();
-		if(das == null)
-			return;
-		m_delayManager.applyToTree(das);
+		m_delayManager.processDelayedResults(pg);
 	}
 
 	public boolean hasDelayedActions() {
 		return m_delayManager == null ? false : m_delayManager.callbackRequired();
+	}
+
+	/**
+	 * Registers a node as a thingy which needs to be called every polltime seconds to
+	 * update the screen. This is not an asy action by itself (it starts no threads) but
+	 * it will cause the poll handler to start, and will use the same response mechanism
+	 * as the asy callback code.
+	 * @param nc
+	 */
+	public <T extends NodeContainer & IPolledForUpdate> void registerPoller(T nc) {
+		getDelayedActivitiesManager().registerPoller(nc);
+	}
+
+	public <T extends NodeContainer & IPolledForUpdate> void unregisterPoller(T nc) {
+		getDelayedActivitiesManager().unregisterPoller(nc);
 	}
 
 	/*--------------------------------------------------------------*/

@@ -23,7 +23,13 @@ public class DelayedActivitiesManager implements Runnable {
 
 	private DelayedActivityInfo m_runningActivity;
 
+	/** When set this forces termination of any handling thread for the asynchronous actions. */
 	private boolean m_terminated;
+
+	/**
+	 * The set of nodes that need a callback for changes to the UI every polltime seconds.
+	 */
+	private Set<NodeContainer> m_pollSet = new HashSet<NodeContainer>();
 
 	protected DelayedActivitiesManager(ConversationContext conversation) {
 	//		m_conversation = conversation;
@@ -106,7 +112,7 @@ public class DelayedActivitiesManager implements Runnable {
 	 *
 	 * @return
 	 */
-	public DelayedActivityState getState() {
+	private DelayedActivityState getState() {
 		//		System.out.println("$$$$$ getState called.");
 		synchronized(this) {
 			List<DelayedActivityState.Progress> pl = Collections.EMPTY_LIST;
@@ -156,9 +162,13 @@ public class DelayedActivitiesManager implements Runnable {
 		return true;
 	}
 
+	/**
+	 * Returns whether the client needs to use it's polltimer again and poll for changes.
+	 * @return
+	 */
 	public boolean callbackRequired() {
 		synchronized(this) {
-			return m_pendingQueue.size() > 0 || m_completionQueue.size() > 0 || m_runningActivity != null;
+			return m_pendingQueue.size() > 0 || m_completionQueue.size() > 0 || m_runningActivity != null || m_pollSet.size() > 0;
 		}
 	}
 
@@ -316,4 +326,42 @@ public class DelayedActivitiesManager implements Runnable {
 			c.updateCompleted(dai);
 		}
 	}
+
+	public void processDelayedResults(Page pg) throws Exception {
+		DelayedActivityState das = getState();
+		if(das != null)
+			applyToTree(das);
+
+		//-- Handle PollThingy callbacks.
+		for(NodeContainer nc : m_pollSet) {
+			((IPolledForUpdate) nc).checkForChanges();
+		}
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Polled UI node handling.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Registers a node as a thingy which needs to be called every polltime seconds to
+	 * update the screen. This is not an asy action by itself (it starts no threads) but
+	 * it will cause the poll handler to start, and will use the same response mechanism
+	 * as the asy callback code.
+	 *
+	 * @param <T>
+	 * @param nc
+	 */
+	public <T extends NodeContainer & IPolledForUpdate> void registerPoller(T nc) {
+		m_pollSet.add(nc);
+	}
+
+	/**
+	 * Deregister a node from the poll-regularly queue.
+	 * @param <T>
+	 * @param nc
+	 */
+	public <T extends NodeBase & IPolledForUpdate> void unregisterPoller(T nc) {
+		m_pollSet.remove(nc);
+	}
+
 }
