@@ -170,7 +170,7 @@ public class Janitor implements Runnable {
 		jt.m_t_interval = -1; // Interval, in seconds.
 
 		//-- Calculate the time this task has to awaken,
-		System.out.println("TaskAT " + name + " runs at " + attime.toString());
+		//		System.out.println("TaskAT " + name + " runs at " + attime.toString());
 		jt.setNextTime(attime);
 		synchronized(this) {
 			if(m_task_v.contains(jt)) // Already in tables?

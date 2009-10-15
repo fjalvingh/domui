@@ -4,6 +4,7 @@ import java.util.*;
 
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.webapp.*;
 
 /**
  * Base node for tags that can contain other nodes.
@@ -425,6 +426,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			m_children.get(i).internalUnshelve();
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Utility functions.									*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Utility method to add a table; it returns the TBody.
 	 * @param cssclass	When not null this is set as the css class for the TABLE tag.
@@ -438,6 +442,53 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		TBody b = new TBody();
 		t.add(b);
 		return b;
+	}
+
+	/**
+	 * Locate all <i>direct</i> children of this container that are instancesof [ofClass].
+	 * @param <T>
+	 * @param ofClass
+	 * @return
+	 */
+	public <T> List<T> getChildren(Class<T> ofClass) {
+		List<T> res = null;
+		for(NodeBase b : m_children) {
+			if(ofClass.isAssignableFrom(b.getClass())) {
+				if(res == null)
+					res = new ArrayList<T>();
+				res.add((T) b);
+			}
+		}
+		return res == null ? Collections.EMPTY_LIST : res;
+	}
+
+	/**
+	 * Get a list of all children in the <i>entire subtree</i> that are an instance of the specified class.
+	 * @param <T>
+	 * @param ofClass
+	 * @return
+	 */
+	public <T> List<T> getDeepChildren(Class<T> ofClass) {
+		List<T> res = new ArrayList<T>();
+		internalDeepChildren(res, ofClass);
+		return res;
+	}
+
+	private <T> void internalDeepChildren(List<T> res, Class<T> ofClass) {
+		for(NodeBase b : m_children) {
+			if(ofClass.isAssignableFrom(b.getClass())) {
+				res.add((T) b);
+			} else if(b instanceof NodeContainer) {
+				((NodeContainer) b).internalDeepChildren(res, ofClass);
+			}
+		}
+	}
+
+	public <T> T getDeepChild(Class<T> ofClass, int instance) {
+		List<T> res = getDeepChildren(ofClass);
+		if(res.size() <= instance)
+			throw new ProgrammerErrorException("Cannot find the " + instance + "th instance of a " + ofClass + " in subtree");
+		return res.get(instance);
 	}
 
 

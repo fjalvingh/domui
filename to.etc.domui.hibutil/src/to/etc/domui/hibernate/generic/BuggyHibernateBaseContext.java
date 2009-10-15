@@ -3,6 +3,7 @@ package to.etc.domui.hibernate.generic;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.logging.*;
 
 import org.hibernate.*;
 
@@ -19,6 +20,8 @@ import to.etc.webapp.query.*;
  * Created on Jul 15, 2009
  */
 public class BuggyHibernateBaseContext implements QDataContext, ConversationStateListener {
+	static protected final Logger LOG = Logger.getLogger("to.etc.domui.db");
+
 	private QDataContextFactory m_contextFactory;
 
 	protected HibernateSessionMaker m_sessionMaker;

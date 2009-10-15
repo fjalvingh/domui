@@ -72,7 +72,7 @@ public class RadioButton extends NodeBase {
 		if(values == null || values.length != 1)
 			throw new IllegalStateException("RadioButton: expecting a single input value, not " + Arrays.toString(values));
 
-		System.out.println("Value=" + values[0]);
+		//		System.out.println("Value=" + values[0]);
 		String s = values[0].trim();
 		m_checked = "y".equalsIgnoreCase(s);
 	}

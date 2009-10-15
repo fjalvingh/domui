@@ -1,6 +1,7 @@
 package to.etc.domui.hibernate.generic;
 
 import java.util.*;
+import java.util.logging.*;
 
 import org.hibernate.*;
 import org.hibernate.engine.*;
@@ -35,7 +36,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 			m_session.setFlushMode(FlushMode.MANUAL);
 		}
 		if(!m_session.isConnected())
-			System.out.println("Hibernate: reconnecting session.");
+			LOG.fine("Hibernate: reconnecting session.");
 		return m_session;
 	}
 
@@ -47,7 +48,8 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		SessionImpl sim = (SessionImpl) m_session;
 		StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
 		Map< ? , ? > flups = spc.getEntitiesByKey();
-		System.out.println("Hibernate: closing (destroying) session "+System.identityHashCode(m_session)+" containing " + flups.size() + " persisted instances");
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("Hibernate: closing (destroying) session " + System.identityHashCode(m_session) + " containing " + flups.size() + " persisted instances");
 		if(m_session.getTransaction().isActive())
 			m_session.getTransaction().rollback();
 		close();
@@ -60,7 +62,8 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		SessionImpl sim = (SessionImpl) m_session;
 		StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
 		Map< ? , ? > flups = spc.getEntitiesByKey();
-		System.out.println("Hibernate: disconnecting session "+System.identityHashCode(m_session)+" containing " + flups.size() + " persisted instances");
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("Hibernate: disconnecting session " + System.identityHashCode(m_session) + " containing " + flups.size() + " persisted instances");
 		if(m_session.getTransaction().isActive())
 			m_session.getTransaction().rollback();
 		m_session.disconnect(); // Disconnect the dude.

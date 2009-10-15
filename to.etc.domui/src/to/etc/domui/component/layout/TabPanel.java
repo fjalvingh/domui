@@ -86,8 +86,8 @@ public class TabPanel extends Div {
 			if(hasErrors()) {
 				m_tab.addCssClass("ui-tab-err");
 				//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
-				//is this same 'HTML rendering already done for visited node' bug in framework?	
-				//for now error image is set through css	
+				//is this same 'HTML rendering already done for visited node' bug in framework?
+				//for now error image is set through css
 				/*
 				if(m_errorInfo == null) {
 					m_errorInfo = new Img("THEME/mini-error.png");
@@ -100,7 +100,7 @@ public class TabPanel extends Div {
 			} else {
 				m_tab.removeCssClass("ui-tab-err");
 				//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
-				//is this same 'HTML rendering already done for visited node' bug in framework?	
+				//is this same 'HTML rendering already done for visited node' bug in framework?
 				/*
 				if(m_errorInfo != null) {
 					if(m_tab.getChildCount() > 0 && m_tab.getChild(0) instanceof ATag) {
@@ -204,8 +204,8 @@ public class TabPanel extends Div {
 	 * The complete generated structure looks like:
 	 * <pre><![CDATA[
 	 * 	<div class="ui-tab-c">
-	 * 
-	 * 
+	 *
+	 *
 	 *  </div>
 	 * ]]></pre>
 	 *
@@ -219,7 +219,7 @@ public class TabPanel extends Div {
 		if(getCurrentTab() >= m_tablist.size())
 			m_currentTab = 0;
 
-		//-- Create the TAB structure.. 
+		//-- Create the TAB structure..
 		Div hdr = new Div();
 		add(hdr); // The div containing the tab buttons
 		hdr.setCssClass("ui-tab-hdr");
@@ -267,7 +267,7 @@ public class TabPanel extends Div {
 	}
 
 	public void setCurrentTab(int index) throws Exception {
-		System.out.println("Switching to tab " + index);
+		//		System.out.println("Switching to tab " + index);
 		if(index == getCurrentTab() || index < 0 || index >= m_tablist.size()) // Silly index
 			return;
 		if(isBuilt()) {

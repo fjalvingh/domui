@@ -1,6 +1,7 @@
 package to.etc.domui.hibernate.generic;
 
 import java.util.*;
+import java.util.logging.*;
 
 import org.hibernate.*;
 import org.hibernate.engine.*;
@@ -39,7 +40,8 @@ public class HibernateReattachingDataContext extends BuggyHibernateBaseContext {
 				m_session.update(el); // What a beaut: this makes the object DIRTY, causing a full write @ end. What a piece of crap.
 			}
 			ts = System.nanoTime() - ts;
-			System.out.println("hib: re-attached " + m_hibernatePersistedObjects.size() + " objects in " + StringTool.strNanoTime(ts));
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("hib: re-attached " + m_hibernatePersistedObjects.size() + " objects in " + StringTool.strNanoTime(ts));
 			m_hibernatePersistedObjects.clear();
 		}
 		return m_session;
@@ -70,7 +72,8 @@ public class HibernateReattachingDataContext extends BuggyHibernateBaseContext {
 			m_hibernatePersistedObjects.add(ent);
 		}
 		ts = System.nanoTime() - ts;
-		System.out.println("hib: saved " + flups.size() + " persisted objects in the conversation for reattachment in " + StringTool.strNanoTime(ts));
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("hib: saved " + flups.size() + " persisted objects in the conversation for reattachment in " + StringTool.strNanoTime(ts));
 		close();
 	}
 }

@@ -424,7 +424,8 @@ final public class WindowSession {
 	}
 
 	private void generateRedirect(final RequestContextImpl ctx, final String url) throws Exception {
-		System.out.println("redirecting to " + url);
+		if(LOG.isLoggable(Level.INFO))
+			LOG.info("redirecting to " + url);
 
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");

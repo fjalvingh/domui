@@ -1,5 +1,7 @@
 package to.etc.domui.server;
 
+import java.util.logging.*;
+
 import to.etc.domui.annotations.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
@@ -20,6 +22,8 @@ import to.etc.webapp.query.*;
  * Created on May 22, 2008
  */
 public class ApplicationRequestHandler implements IFilterRequestHandler {
+	static Logger LOG = Logger.getLogger(ApplicationRequestHandler.class.getName());
+
 	private final DomApplication m_application;
 
 	public ApplicationRequestHandler(final DomApplication application) {
@@ -105,7 +109,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(cida == null)
 				throw new IllegalStateException("Missing $cid in OBITUARY request");
 
-			System.out.println("OBITUARY received for " + cid + ": pageTag=" + pageTag);
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("OBITUARY received for " + cid + ": pageTag=" + pageTag);
 			ctx.getSession().internalObituaryReceived(cida[0], pageTag);
 
 			//-- Send a silly response.
@@ -130,8 +135,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			//-- We explicitly need to create a new Window and need to send a redirect back
 			cm = ctx.getSession().createWindowSession();
-			System.out.println("$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID());
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID());
 			StringBuilder sb = new StringBuilder(256);
+
 			//			sb.append('/');
 			sb.append(ctx.getRelativePath(ctx.getInputPath()));
 			sb.append('?');
@@ -191,8 +198,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(!Constants.ASYPOLL.equals(action)) {
 			long ts = System.nanoTime();
 			handleComponentInput(ctx, page); // Move all request parameters to their input field(s)
-			ts = System.nanoTime() - ts;
-			System.out.println("rq: input handling took " + StringTool.strNanoTime(ts));
+			if(LOG.isLoggable(Level.FINE)) {
+				ts = System.nanoTime() - ts;
+				LOG.fine("rq: input handling took " + StringTool.strNanoTime(ts));
+			}
 		}
 
 		if(action != null) {
@@ -250,9 +259,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- Full render completed: indicate that and reset the exception count
 		page.setFullRenderCompleted(true);
 		page.setPageExceptionCount(0);
-
-		ts = System.nanoTime() - ts;
-		System.out.println("rq: full render took " + StringTool.strNanoTime(ts));
+		if(LOG.isLoggable(Level.FINE)) {
+			ts = System.nanoTime() - ts;
+			LOG.fine("rq: full render took " + StringTool.strNanoTime(ts));
+		}
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
@@ -428,7 +438,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			 * When an action handler failed because it accessed a component which has a validation error
 			 * we just continue - the failed validation will have posted an error message.
 			 */
-			System.out.println("rq: ignoring validation exception " + x);
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("rq: ignoring validation exception " + x);
 		} catch(Exception x) {
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl == null) // No handler?
@@ -436,9 +447,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(!xl.handleException(ctx, page, wcomp, x))
 				throw x;
 		}
-		ts = System.nanoTime() - ts;
-		System.out.println("rq: Action handling took " + StringTool.strNanoTime(ts));
-
+		if(LOG.isLoggable(Level.INFO)) {
+			ts = System.nanoTime() - ts;
+			LOG.info("rq: Action handling took " + StringTool.strNanoTime(ts));
+		}
 		if(!page.isDestroyed()) // jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
 			page.getConversation().processDelayedResults(page);
 
@@ -462,8 +474,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//		DeltaRenderer	dr	= new DeltaRenderer(base, out);
 		OptimalDeltaRenderer dr = new OptimalDeltaRenderer(base, out);
 		dr.render(ctx, page);
-		ts = System.nanoTime() - ts;
-		System.out.println("rq: Optimal Delta rendering took " + StringTool.strNanoTime(ts));
+		if(LOG.isLoggable(Level.INFO)) {
+			ts = System.nanoTime() - ts;
+			LOG.info("rq: Optimal Delta rendering took " + StringTool.strNanoTime(ts));
+		}
 		page.getConversation().startDelayedExecution();
 	}
 

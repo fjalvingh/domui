@@ -313,7 +313,8 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * @param cm
 	 */
 	void internalDropWindowSession(final WindowSession cm) {
-		System.out.println("session: destroying WindowSession=" + cm.getWindowID() + " because it's obituary was received.");
+		if(LOG.isLoggable(Level.INFO))
+			LOG.info("session: destroying WindowSession=" + cm.getWindowID() + " because it's obituary was received.");
 		synchronized(this) {
 			if(cm.getObituaryTimer() == -1) // Was cancelled?
 				return; // Do not drop it then.
@@ -326,9 +327,11 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Helper utility to dump the session's conversational state.
 	 */
 	public synchronized void dump() {
-		System.out.println("============= AppSession's WindowList =============");
-		for(WindowSession cm : m_windowMap.values()) {
-			cm.dump();
+		if(LOG.isLoggable(Level.FINE)) {
+			System.out.println("============= AppSession's WindowList =============");
+			for(WindowSession cm : m_windowMap.values()) {
+				cm.dump();
+			}
 		}
 	}
 
@@ -336,7 +339,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	/*	CODING:	IAttributeContainer implementation.					*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.server.IAttributeContainer#getAttribute(java.lang.String)
 	 */
 	public Object getAttribute(String name) {

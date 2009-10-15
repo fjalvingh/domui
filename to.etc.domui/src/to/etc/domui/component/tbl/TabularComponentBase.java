@@ -169,7 +169,7 @@ abstract public class TabularComponentBase extends Div implements ITableModelLis
 	protected void onUnshelve() throws Exception {
 		super.onUnshelve();
 		if(m_model instanceof IShelvedListener) {
-			System.out.println("Unshelving the model: refreshing it's contents");
+			//			System.out.println("Unshelving the model: refreshing it's contents");
 			((IShelvedListener) m_model).onUnshelve();
 			forceRebuild();
 			firePageChanged();

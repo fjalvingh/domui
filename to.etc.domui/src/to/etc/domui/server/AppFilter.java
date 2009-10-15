@@ -9,6 +9,7 @@ import javax.servlet.Filter;
 import javax.servlet.http.*;
 
 import to.etc.domui.util.*;
+import to.etc.log.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
@@ -80,6 +81,15 @@ public class AppFilter implements Filter {
 		try {
 			java.util.logging.LogManager.getLogManager().reset();
 			java.util.logging.LogManager.getLogManager().readConfiguration(AppFilter.class.getResourceAsStream("logging.properties"));
+
+			Logger root = LogManager.getLogManager().getLogger("");
+			for(Handler h : root.getHandlers()) {
+				if(h instanceof ConsoleHandler) {
+					ConsoleHandler ch = (ConsoleHandler) h;
+					ch.setFormatter(new NonStupidLogFormatter());
+					System.out.println("**** changed ConsoleHandler logger.");
+				}
+			}
 		} catch(IOException x) {
 			x.printStackTrace();
 			throw new WrappedException(x);
