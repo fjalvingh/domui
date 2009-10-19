@@ -26,7 +26,7 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 		return rurl.substring(dot2 + 1, dot1).equals("theme");
 	}
 
-	public Object decodeKey(String rurl, IParameterInfo param) throws Exception {
+	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
 		return rurl;
 	}
 

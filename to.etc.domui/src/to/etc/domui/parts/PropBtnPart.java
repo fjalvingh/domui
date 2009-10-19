@@ -94,7 +94,7 @@ public class PropBtnPart implements IBufferedPartFactory {
 	 * Decode the parameters for this button thingy.
 	 * @see to.etc.domui.server.parts.IBufferedPartFactory#decodeKey(java.lang.String, to.etc.domui.server.IParameterInfo)
 	 */
-	public Object decodeKey(String rurl, IParameterInfo info) throws Exception {
+	public Object decodeKey(String rurl, IExtendedParameterInfo info) throws Exception {
 		ButtonPartKey k = new ButtonPartKey();
 		k.m_propfile = info.getParameter("src");
 		k.m_text = info.getParameter("txt");

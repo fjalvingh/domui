@@ -75,7 +75,8 @@ public class SvgPartFactory implements IBufferedPartFactory, IUrlPart {
 	public boolean accepts(String rurl) {
 		return rurl.endsWith(".png.svg");
 	}
-	public Object decodeKey(String rurl, IParameterInfo param) throws Exception {
+
+	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
 		int width = PartUtil.getInt(param, "w", -1);
 		int height = PartUtil.getInt(param, "h", -1);
 		return new SvgKey(rurl, width, height);

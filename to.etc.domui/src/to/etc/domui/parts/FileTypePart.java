@@ -11,10 +11,10 @@ public class FileTypePart implements IBufferedPartFactory {
 	static private final String PREFIX = "$filetype$";
 
 	/**
-	 * Decodes the request into a resource to generate. This simply returns 
+	 * Decodes the request into a resource to generate. This simply returns
 	 * the resource name preceded with a prefix to make it unique.
 	 */
-	public Object decodeKey(String rurl, IParameterInfo param) throws Exception {
+	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
 		return PREFIX + rurl;
 	}
 

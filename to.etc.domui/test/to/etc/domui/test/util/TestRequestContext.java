@@ -101,6 +101,9 @@ public class TestRequestContext implements IRequestContext {
 		return "themes/blue/" + frag;
 	}
 
+	public BrowserVersion getBrowserVersion() {
+		return null;
+	}
 	/**
 	 * FIXME Does this need more?
 	 * @see to.etc.domui.server.IRequestContext#hasPermission(java.lang.String)

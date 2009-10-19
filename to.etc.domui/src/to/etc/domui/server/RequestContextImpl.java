@@ -33,6 +33,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	private Writer m_outWriter;
 
+	private BrowserVersion m_browserVersion;
+
 	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
 	RequestContextImpl(DomApplication app, AppSession ses, HttpServletRequest request, HttpServletResponse response) {
@@ -193,6 +195,13 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 */
 	public String getUserAgent() {
 		return m_request.getHeader("user-agent");
+	}
+
+	public BrowserVersion getBrowserVersion() {
+		if(m_browserVersion == null) {
+			m_browserVersion = BrowserVersion.parseUserAgent(getUserAgent());
+		}
+		return m_browserVersion;
 	}
 
 	protected void flush() throws Exception {

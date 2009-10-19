@@ -13,12 +13,12 @@ public interface IBufferedPartFactory extends IPartFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	public Object decodeKey(String rurl, IParameterInfo param) throws Exception;
+	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception;
 
 	/**
 	 * This must generate the output for the resource. That output will be put into the cache and re-rendered
 	 * when the same resource is used <i>without</i> calling this method again.
-	 * 
+	 *
 	 * @param os		The stream to write the data to.
 	 * @param da		The Application on behalf of which this resource is generated.
 	 * @param key		The key, as specified by decodeKey.
