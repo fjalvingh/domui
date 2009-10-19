@@ -65,6 +65,13 @@ public class PartRequestHandler implements IFilterRequestHandler {
 		}
 	}
 
+	static private void dumpHeaders(RequestContextImpl ctx) {
+		for(Enumeration<String> e = ctx.getRequest().getHeaderNames(); e.hasMoreElements();) {
+			String name = e.nextElement();
+			System.out.println("  hdr " + name + ": " + ctx.getRequest().getHeader(name));
+		}
+	}
+
 	public boolean acceptURL(final String in) {
 		if(in.endsWith(".part"))
 			return true;
@@ -93,6 +100,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 
 	public void handleRequest(final RequestContextImpl ctx) throws Exception {
 		String input = ctx.getInputPath();
+		dumpHeaders(ctx);
 		boolean part = false;
 		if(input.endsWith(".part")) {
 			input = input.substring(0, input.length() - 5); // Strip ".part" off the name
