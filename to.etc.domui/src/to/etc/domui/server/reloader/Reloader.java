@@ -354,7 +354,6 @@ final public class Reloader {
 			zis = new ZipInputStream(is);
 			ZipEntry ze;
 			while(null != (ze = zis.getNextEntry())) { // Walk entry
-				String name = ze.getName();
 				m_jarMap.put(ze.getName(), jarref); // Update the reference.
 			}
 		} catch(Exception xz) {

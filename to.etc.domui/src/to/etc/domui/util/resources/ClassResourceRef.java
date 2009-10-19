@@ -39,14 +39,9 @@ public class ClassResourceRef implements IResourceRef {
 		if(m_source == null || !(m_source instanceof ClasspathJarRef))
 			return m_base.getResourceAsStream(m_name);
 
-		//-- This is a JAR reference; use it's classloader.
+		//-- This is a JAR reference: ask it to return the resource to prevent URL caching in the JDK
 		ClasspathJarRef jref = (ClasspathJarRef) m_source;
-		ClassLoader cl = jref.getResourceLoader();
-		if(cl == null)
-			return m_base.getResourceAsStream(m_name);
-
-		//-- Use this classloader to load the resource
-		return cl.getResourceAsStream(m_name.substring(1)); // Remove starting /
+		return jref.getResource(m_name.substring(1));
 	}
 
 	/**

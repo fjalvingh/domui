@@ -35,8 +35,6 @@ public @interface MetaDisplayProperty {
 
 	public int displayLength() default -1;
 
-	@SuppressWarnings("unchecked")
-	// Sigh
 	public Class< ? extends IConverter< ? >> converterClass() default DummyConverter.class;
 
 	public String join() default Constants.NO_JOIN;
