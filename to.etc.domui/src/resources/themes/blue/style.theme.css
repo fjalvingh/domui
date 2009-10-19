@@ -840,6 +840,13 @@ body,html {
 	filter:alpha(opacity=50);
 }
 
+/*** Percentage progress bar ***/
+.ui-pct-rlr {
+	display: inline-table;
+	width: 50px;
+	height: 1em;
+}
+
 /*** Helper classes ***/
 .ui-szless {
 	padding: 0px;

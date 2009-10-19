@@ -8,6 +8,7 @@ import java.util.regex.*;
 import java.util.zip.*;
 
 import to.etc.domui.server.*;
+import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 
 /**
@@ -43,8 +44,11 @@ import to.etc.util.*;
 final public class Reloader {
 	static final Logger LOG = Logger.getLogger(Reloader.class.getName());
 
-	static private final IResourceRef NOT_FOUND = new IResourceRef() {
-		public long lastModified() {
+	/** A reloader exists only once in a webapp. */
+	static private Reloader m_instance;
+
+	static private final IModifyableResource NOT_FOUND = new IModifyableResource() {
+		public long getLastModified() {
 			throw new IllegalStateException("Whazzup!?");
 		}
 	};
@@ -80,7 +84,7 @@ final public class Reloader {
 	/** The set of URLs that are accessed by all my classloaders. */
 	private Set<URL> m_urlSet = new HashSet<URL>();
 
-	private Map<String, IResourceRef> m_lookupMap = new HashMap<String, IResourceRef>();
+	private Map<String, IModifyableResource> m_lookupMap = new HashMap<String, IModifyableResource>();
 
 	private boolean m_changed;
 
@@ -114,10 +118,15 @@ final public class Reloader {
 
 		//-- ORDERED: must be below findUrlFor's
 		m_currentLoader = new ReloadingClassLoader(getClass().getClassLoader(), this);
+		m_instance = this;
 	}
 
 	URL[] getUrls() {
 		return m_urlSet.toArray(new URL[m_urlSet.size()]);
+	}
+
+	static private Reloader internalGetReloader() {
+		return m_instance;
 	}
 
 	//	ClassLoader	getCheckingLoader() {
@@ -139,7 +148,7 @@ final public class Reloader {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Code which locates the source for a class.			*/
+	/*	CODING:	Code which locates the source for a class/resource.	*/
 	/*--------------------------------------------------------------*/
 
 	private void addURL(URL u) {
@@ -166,40 +175,87 @@ final public class Reloader {
 	}
 
 	/**
-	 * Tries to find the class in the set of URL's passed. This currently does not
-	 * cache the set; it scans for resources every time the class is passed in.
+	 * Locate the source for some file that is part of the classpath (either a class resource or a .class file itself),
+	 * and return a timestamp for that thing if found. If the resource is not found this returns null.
+	 * @param resourceName
+	 * @return
+	 */
+	synchronized ResourceTimestamp findResourceSource(String resourceName) {
+		long t = System.nanoTime();
+		IModifyableResource rr = m_lookupMap.get(resourceName); // Already looked up earlier?
+		if(rr != null) {
+			if(rr == NOT_FOUND)
+				return null;
+			return new ResourceTimestamp(rr, rr.getLastModified()); // Return timestamp
+		}
+
+		//-- Scan all paths for this thingy.
+		ResourceTimestamp ts = scanActually(resourceName);
+
+		//-- Still not found -> make BADREF && store, then return nuttin'
+		if(ts == null) {
+			m_lookupMap.put(resourceName, NOT_FOUND);
+			if(LOG.isLoggable(Level.FINE)) {
+				t = System.nanoTime() - t;
+				LOG.fine("reloader: unsuccesful findResourceSource " + resourceName + " took " + StringTool.strNanoTime(t));
+			}
+			return null;
+		}
+
+		m_lookupMap.put(resourceName, ts.getRef()); // Save found/not found ref
+		if(LOG.isLoggable(Level.FINE)) {
+			t = System.nanoTime() - t;
+			LOG.fine("reloader: succesful findClassSource " + resourceName + " took " + StringTool.strNanoTime(t));
+		}
+		return ts;
+	}
+
+	/**
+	 * Tries to find the class in the set of URL's passed.
 	 *
 	 * @param clz
 	 * @return
 	 */
 	synchronized ResourceTimestamp findClassSource(Class< ? > clz) {
-		long t = System.nanoTime();
-		IResourceRef rr = m_lookupMap.get(clz.getName()); // Already looked up earlier?
+		//-- 1. Do a quick lookup of the classname itself
+		IModifyableResource rr = m_lookupMap.get(clz.getName()); // Already looked up earlier?
 		if(rr != null) {
 			if(rr == NOT_FOUND)
 				return null;
-			return new ResourceTimestamp(rr, rr.lastModified()); // Return timestamp
+			return new ResourceTimestamp(rr, rr.getLastModified()); // Return timestamp
 		}
 
+		//-- 2. Lookup the .class file as a resource.
 		String path = clz.getName().replace('.', '/') + ".class"; // Make path-like structure
-		ResourceTimestamp ts = scanActually(path);
-
-		//-- Still not found -> make BADREF && store, then return nuttin'
-		if(ts == null) {
-			m_lookupMap.put(clz.getName(), NOT_FOUND);
-			if(LOG.isLoggable(Level.FINE)) {
-				t = System.nanoTime() - t;
-				LOG.fine("reloader: unsuccesful findClassSource " + clz + " took " + StringTool.strNanoTime(t));
-			}
-			return null;
-		}
-
-		m_lookupMap.put(clz.getName(), ts.getRef()); // Save found/not found ref
-		if(LOG.isLoggable(Level.FINE)) {
-			t = System.nanoTime() - t;
-			LOG.fine("reloader: succesful findClassSource " + clz + " took " + StringTool.strNanoTime(t));
-		}
+		ResourceTimestamp ts = findResourceSource(path); // Lookup .class file
+		m_lookupMap.put(clz.getName(), ts == null ? NOT_FOUND : ts.getRef());
 		return ts;
+	}
+
+	/**
+	 * Can be called by code to locate a class's .class file in debug mode. This returns null if the resource
+	 * is not found OR if we're not running with a reloader (i.e. not in debug mode).
+	 * @param clz
+	 * @return
+	 */
+	static public ResourceTimestamp findClasspathSource(Class< ? > clz) {
+		Reloader r = internalGetReloader();
+		if(r == null)
+			return null;
+		return r.findClassSource(clz);
+	}
+
+	/**
+	 * Can be called by code to locate class resources in debug mode. This returns null if the resource
+	 * is not found OR if we're not running with a reloader (i.e. not in debug mode).
+	 * @param clz
+	 * @return
+	 */
+	static public ResourceTimestamp findClasspathSource(String resourceName) {
+		Reloader r = internalGetReloader();
+		if(r == null)
+			return null;
+		return r.findResourceSource(resourceName);
 	}
 
 	/**
@@ -406,7 +462,7 @@ final public class Reloader {
 		long ts = System.nanoTime();
 		try {
 			for(ResourceTimestamp fr : list) {
-				if(fr.changed()) {
+				if(fr.isModified()) {
 					if(LOG.isLoggable(Level.INFO))
 						LOG.info("Class Source " + fr + " has changed.");
 					return true;

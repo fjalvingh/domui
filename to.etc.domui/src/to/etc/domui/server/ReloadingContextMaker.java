@@ -35,6 +35,10 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		checkReload(); // Initial: force load and init of Application object.
 	}
 
+	public Reloader getReloader() {
+		return m_reloader;
+	}
+
 	@Override
 	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception {
 		synchronized(this) {

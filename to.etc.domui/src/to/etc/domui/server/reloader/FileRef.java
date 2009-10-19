@@ -2,20 +2,22 @@ package to.etc.domui.server.reloader;
 
 import java.io.*;
 
+import to.etc.domui.util.resources.*;
+
 /**
  * Holds a reference to a file entry to access a timestamp.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 28, 2009
  */
-final class FileRef implements IResourceRef {
+final class FileRef implements IModifyableResource {
 	private File m_src;
 
 	public FileRef(File src) {
 		m_src = src;
 	}
 
-	public long lastModified() {
+	public long getLastModified() {
 		try {
 			if(!m_src.exists())
 				return -1;

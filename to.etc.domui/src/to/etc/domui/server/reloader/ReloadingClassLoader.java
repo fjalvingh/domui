@@ -4,6 +4,8 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
+import to.etc.domui.util.resources.*;
+
 /**
  * The classloader used by the reloader. Classes matching the include
  * pattern are loaded using this classloader, and all of the files
