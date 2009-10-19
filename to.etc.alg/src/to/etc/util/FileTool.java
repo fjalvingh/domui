@@ -937,18 +937,27 @@ public class FileTool {
 	 */
 	static public byte[][] loadByteBuffers(final InputStream is) throws IOException {
 		ArrayList<byte[]> al = new ArrayList<byte[]>();
+		byte[] buf = new byte[8192];
+		int off = 0;
 		for(;;) {
-			byte[] buf = new byte[8192];
-			int sz = is.read(buf);
-			if(sz < 8192) {
-				if(sz <= 0)
+			//-- Fill the (next part of the) buffer
+			int max = buf.length - off;
+			int sz = is.read(buf, off, max);
+			if(sz == -1) {
+				//-- EOF - data complete.
+				if(off <= 0)
 					break;
-				byte[] newbuf = new byte[sz];
-				System.arraycopy(buf, 0, newbuf, 0, sz);
+				byte[] newbuf = new byte[off];
+				System.arraycopy(buf, 0, newbuf, 0, off);
 				al.add(newbuf);
 				break;
 			}
-			al.add(buf);
+			off += sz;
+			if(off >= buf.length) {
+				al.add(buf);
+				off = 0;
+				buf = new byte[8192];
+			}
 		}
 		return al.toArray(new byte[al.size()][]);
 	}
