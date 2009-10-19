@@ -1,6 +1,7 @@
 package to.etc.domui.server.reloader;
 
 import java.io.*;
+import java.net.*;
 
 import to.etc.domui.util.resources.*;
 
@@ -14,6 +15,10 @@ import to.etc.domui.util.resources.*;
 public class ClasspathJarRef implements IModifyableResource {
 	private File m_src;
 
+	private URLClassLoader m_resourceLoader;
+
+	private long m_resourceLoaderTS;
+
 	public ClasspathJarRef(File src) {
 		m_src = src;
 	}
@@ -25,6 +30,28 @@ public class ClasspathJarRef implements IModifyableResource {
 			return m_src.lastModified();
 		} catch(Exception x) {
 			return -1;
+		}
+	}
+
+	/**
+	 * This returns a classloader to use to load the resource; it creates a new classloader (in debug mode) if the
+	 * underlying .jar has changed.
+	 * @return
+	 */
+	public synchronized ClassLoader getResourceLoader() {
+		try {
+			long cts = m_src.lastModified(); // Jar's timestamp
+			if(m_resourceLoader != null && m_resourceLoaderTS == cts)
+				return m_resourceLoader;
+
+			//-- Jar has changed!! Create a new loader && update;
+			URL url = m_src.toURL();
+
+			m_resourceLoader = new URLClassLoader(new URL[]{url}, null);
+			m_resourceLoaderTS = cts;
+			return m_resourceLoader;
+		} catch(Exception x) {
+			return null;
 		}
 	}
 

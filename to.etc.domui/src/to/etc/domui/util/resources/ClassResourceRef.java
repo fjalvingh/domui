@@ -41,9 +41,12 @@ public class ClassResourceRef implements IResourceRef {
 
 		//-- This is a JAR reference; use it's classloader.
 		ClasspathJarRef jref = (ClasspathJarRef) m_source;
+		ClassLoader cl = jref.getResourceLoader();
+		if(cl == null)
+			return m_base.getResourceAsStream(m_name);
 
-
-
+		//-- Use this classloader to load the resource
+		return cl.getResourceAsStream(m_name.substring(1)); // Remove starting /
 	}
 
 	/**
