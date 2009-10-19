@@ -92,51 +92,51 @@ public class InternalResourcePart implements IBufferedPartFactory {
 
 		//-- 1. Locate the resource
 		IResourceRef ires;
-		if(k.getLoc() == null) {
-			String rurl = k.getRURL();
+		if(k.getLoc() != null)
+			throw new IllegalStateException("Locale in resource not implemented.");
+//			if(rurl.startsWith("$RES/")) {
+//				//-- Java resource
+//				ires = new ClassResourceRef(getClass(), rurl.substring(4));
+//			} else if(!rurl.startsWith("$"))
+//				throw new IllegalStateException("Internal: bad rurl passed, missing $");
+//			else {
+//				rurl = rurl.substring(1);
+//
+//				//-- 1. Is a file-based resource available?
+//				File f = da.getAppFile(rurl);
+//				if(f.exists()) {
+//					ires = new WebappResourceRef(f);
+//					if(!da.inDevelopmentMode()) // Webapp resources are cached ONLY when in production mode.
+//						pr.setCacheTime(da.getDefaultExpiryTime());
+//				} else {
+//					//-- In the url, replace all '.' but the last one with /
+//					//				String	name = k.getRURL();
+//					//				int	pos	= name.lastIndexOf('.');
+//					//				if(pos != -1) {
+//					//					name = name.substring(0, pos).replace('.', '/')+name.substring(pos);
+//					//				}
+//					ires = new ClassResourceRef(getClass(), "/resources/" + rurl);
+//					pr.setCacheTime(da.getDefaultExpiryTime()); // Allow caching for a long time
+//				}
+//				if(rdl != null)
+//					rdl.add(ires);
+//			}
+		String rurl = k.getRURL();
+		ires = da.getApplicationResourceByName(rurl);
+		if(!da.inDevelopmentMode()) // Resources are cached ONLY when in production mode.
+			pr.setCacheTime(da.getDefaultExpiryTime());
 
-
-			if(rurl.startsWith("$RES/")) {
-				//-- Java resource
-				ires = new ClassResourceRef(getClass(), rurl.substring(4));
-			} else if(!rurl.startsWith("$"))
-				throw new IllegalStateException("Internal: bad rurl passed, missing $");
-			else {
-				rurl = rurl.substring(1);
-
-				//-- 1. Is a file-based resource available?
-				File f = da.getAppFile(rurl);
-				if(f.exists()) {
-					ires = new WebappResourceRef(f);
-					if(!da.inDevelopmentMode()) // Webapp resources are cached ONLY when in production mode.
-						pr.setCacheTime(da.getDefaultExpiryTime());
-				} else {
-					//-- In the url, replace all '.' but the last one with /
-					//				String	name = k.getRURL();
-					//				int	pos	= name.lastIndexOf('.');
-					//				if(pos != -1) {
-					//					name = name.substring(0, pos).replace('.', '/')+name.substring(pos);
-					//				}
-					ires = new ClassResourceRef(getClass(), "/resources/" + rurl);
-					pr.setCacheTime(da.getDefaultExpiryTime()); // Allow caching for a long time
-				}
-				if(rdl != null)
-					rdl.add(ires);
-			}
-
-			pr.setMime(ServerTools.getExtMimeType(FileTool.getFileExtension(rurl)));
-			InputStream is = ires.getInputStream();
-			if(is == null)
-				throw new ThingyNotFoundException(k.getRURL());
+		pr.setMime(ServerTools.getExtMimeType(FileTool.getFileExtension(rurl)));
+		InputStream is = ires.getInputStream();
+		if(is == null)
+			throw new ThingyNotFoundException(k.getRURL());
+		try {
+			FileTool.copyFile(pr.getOutputStream(), is);
+		} finally {
 			try {
-				FileTool.copyFile(pr.getOutputStream(), is);
-			} finally {
-				try {
-					is.close();
-				} catch(Exception x) {}
-			}
-			return;
+				is.close();
+			} catch(Exception x) {}
 		}
-		throw new ThingyNotFoundException(k.getLoc() + "/" + k.getRURL());
+		return;
 	}
 }

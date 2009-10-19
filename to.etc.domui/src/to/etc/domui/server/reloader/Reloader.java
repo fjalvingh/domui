@@ -180,32 +180,23 @@ final public class Reloader {
 	 * @param resourceName
 	 * @return
 	 */
-	synchronized ResourceTimestamp findResourceSource(String resourceName) {
+	synchronized IModifyableResource findResourceSource(String resourceName) {
 		long t = System.nanoTime();
 		IModifyableResource rr = m_lookupMap.get(resourceName); // Already looked up earlier?
 		if(rr != null) {
 			if(rr == NOT_FOUND)
 				return null;
-			return new ResourceTimestamp(rr, rr.getLastModified()); // Return timestamp
+			return rr;
 		}
 
 		//-- Scan all paths for this thingy.
-		ResourceTimestamp ts = scanActually(resourceName);
+		IModifyableResource ts = scanActually(resourceName);
 
 		//-- Still not found -> make BADREF && store, then return nuttin'
-		if(ts == null) {
-			m_lookupMap.put(resourceName, NOT_FOUND);
-			if(LOG.isLoggable(Level.FINE)) {
-				t = System.nanoTime() - t;
-				LOG.fine("reloader: unsuccesful findResourceSource " + resourceName + " took " + StringTool.strNanoTime(t));
-			}
-			return null;
-		}
-
-		m_lookupMap.put(resourceName, ts.getRef()); // Save found/not found ref
+		m_lookupMap.put(resourceName, ts == null ? NOT_FOUND : ts);
 		if(LOG.isLoggable(Level.FINE)) {
 			t = System.nanoTime() - t;
-			LOG.fine("reloader: succesful findClassSource " + resourceName + " took " + StringTool.strNanoTime(t));
+			LOG.fine("reloader: " + (ts == null ? "un" : "") + "succesful findResourceSource " + resourceName + " took " + StringTool.strNanoTime(t));
 		}
 		return ts;
 	}
@@ -216,19 +207,19 @@ final public class Reloader {
 	 * @param clz
 	 * @return
 	 */
-	synchronized ResourceTimestamp findClassSource(Class< ? > clz) {
+	synchronized IModifyableResource findClassSource(Class< ? > clz) {
 		//-- 1. Do a quick lookup of the classname itself
 		IModifyableResource rr = m_lookupMap.get(clz.getName()); // Already looked up earlier?
 		if(rr != null) {
 			if(rr == NOT_FOUND)
 				return null;
-			return new ResourceTimestamp(rr, rr.getLastModified()); // Return timestamp
+			return rr; // Return timestamp
 		}
 
 		//-- 2. Lookup the .class file as a resource.
 		String path = clz.getName().replace('.', '/') + ".class"; // Make path-like structure
-		ResourceTimestamp ts = findResourceSource(path); // Lookup .class file
-		m_lookupMap.put(clz.getName(), ts == null ? NOT_FOUND : ts.getRef());
+		IModifyableResource ts = findResourceSource(path); // Lookup .class file
+		m_lookupMap.put(clz.getName(), ts == null ? NOT_FOUND : ts);
 		return ts;
 	}
 
@@ -238,7 +229,7 @@ final public class Reloader {
 	 * @param clz
 	 * @return
 	 */
-	static public ResourceTimestamp findClasspathSource(Class< ? > clz) {
+	static public IModifyableResource findClasspathSource(Class< ? > clz) {
 		Reloader r = internalGetReloader();
 		if(r == null)
 			return null;
@@ -251,7 +242,7 @@ final public class Reloader {
 	 * @param clz
 	 * @return
 	 */
-	static public ResourceTimestamp findClasspathSource(String resourceName) {
+	static public IModifyableResource findClasspathSource(String resourceName) {
 		Reloader r = internalGetReloader();
 		if(r == null)
 			return null;
@@ -263,8 +254,8 @@ final public class Reloader {
 	 * @param path
 	 * @return
 	 */
-	private synchronized ResourceTimestamp scanActually(String path) {
-		ResourceTimestamp ts = null;
+	private synchronized IModifyableResource scanActually(String path) {
+		IModifyableResource ts = null;
 
 		/*
 		 * Initially scan all directories. This is fast; we just see if the file exists in the specified directories.
@@ -282,7 +273,7 @@ final public class Reloader {
 			File jar = m_jarMap.get(path);
 			if(jar != null) {
 				//-- Matched a JAR entry...
-				return new ResourceTimestamp(new ClasspathFileRef(jar), jar.lastModified());
+				return new ClasspathFileRef(jar);
 			}
 			LOG.info("? Odd: the class " + path + " cannot be found in the jars... I will do a full rescan.");
 		}
@@ -294,11 +285,10 @@ final public class Reloader {
 		File jar = m_jarMap.get(path);
 		if(jar != null) {
 			//-- Matched a JAR entry...
-			return new ResourceTimestamp(new ClasspathFileRef(jar), jar.lastModified());
+			return new ClasspathFileRef(jar);
 		}
 		return null;
 	}
-
 
 	/**
 	 * Try to find the specified class file name as a file relative to the
@@ -310,7 +300,7 @@ final public class Reloader {
 	 * @param rel
 	 * @return
 	 */
-	private ResourceTimestamp checkForFile(URL u, String rel) {
+	private IModifyableResource checkForFile(URL u, String rel) {
 		if(!"file".equals(u.getProtocol()))
 			return null;
 		if(u.getPath().endsWith(".jar"))
@@ -325,7 +315,7 @@ final public class Reloader {
 			return null;
 
 		LOG.fine("Found class " + rel + " in " + u);
-		return new ResourceTimestamp(new ClasspathFileRef(nw), nw.lastModified());
+		return new ClasspathFileRef(nw);
 	}
 
 	private Map<String, File> m_jarMap = new HashMap<String, File>();

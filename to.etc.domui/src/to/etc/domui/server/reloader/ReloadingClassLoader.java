@@ -51,7 +51,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 	}
 
 	private void addWatchFor(Class< ? > clz) {
-		ResourceTimestamp rt = m_reloader.findClassSource(clz); // Try to locate,
+		IModifyableResource rt = m_reloader.findClassSource(clz); // Try to locate,
 		if(rt == null) {
 			LOG.info("Cannot find source file for class=" + clz + "; changes to this class are not tracked");
 			return;
@@ -59,7 +59,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("Watching " + clz); //rt.getRef());
 		synchronized(m_reloader) {
-			m_dependList.add(rt);
+			m_dependList.add(new ResourceTimestamp(rt, rt.getLastModified()));
 		}
 	}
 

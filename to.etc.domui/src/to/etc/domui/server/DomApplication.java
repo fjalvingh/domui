@@ -582,9 +582,9 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	private ClassResourceRef createClasspathReference(String name) {
-		ResourceTimestamp ts = Reloader.findClasspathSource(name);
-
-
+		//-- If running in debug mode get this classpath resource's original source file
+		IModifyableResource ts = Reloader.findClasspathSource(name);
+		return new ClassResourceRef(ts, name);
 	}
 
 
@@ -601,7 +601,7 @@ public abstract class DomApplication {
 	 */
 	public IResourceRef getApplicationResourceByName(String name) {
 		if(name.startsWith(Constants.RESOURCE_PREFIX))
-			return new ClassResourceRef(getClass(), name.substring(Constants.RESOURCE_PREFIX.length() - 1));
+			return createClasspathReference(name.substring(Constants.RESOURCE_PREFIX.length() - 1));
 		if(name.startsWith("$")) {
 			name = name.substring(1);
 
@@ -615,7 +615,7 @@ public abstract class DomApplication {
 			if(pos != -1) {
 				name = name.substring(0, pos).replace('.', '/') + name.substring(pos);
 			}
-			return new ClassResourceRef(getClass(), "/resources/" + name);
+			return createClasspathReference("/resources/" + name);
 		}
 
 		//		if(name.startsWith(Constants.THEME_PREFIX)) {
@@ -952,22 +952,26 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	public String getThemeReplacedString(ResourceDependencyList rdl, String rurl) throws Exception {
-		boolean isresource;
-		if(rurl.startsWith("$")) {
-			isresource = true;
-			rurl = rurl.substring(1);
-		} else
-			isresource = false;
-
-		//-- 1. Is a file-based resource available?
-		IResourceRef ires;
-		File f = getAppFile(rurl);
-		if(f.exists()) {
-			ires = new WebappResourceRef(f);
-		} else if(isresource) {
-			ires = new ClassResourceRef(getClass(), "/resources/" + rurl);
-		} else
+		IResourceRef ires = getApplicationResourceByName(rurl);
+		if(ires == null)
 			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
+
+		//		boolean isresource;
+		//		if(rurl.startsWith("$")) {
+		//			isresource = true;
+		//			rurl = rurl.substring(1);
+		//		} else
+		//			isresource = false;
+		//
+		//		//-- 1. Is a file-based resource available?
+		//		IResourceRef ires;
+		//		File f = getAppFile(rurl);
+		//		if(f.exists()) {
+		//			ires = new WebappResourceRef(f);
+		//		} else if(isresource) {
+		//			ires = new ClassResourceRef(getClass(), "/resources/" + rurl);
+		//		} else
+		//			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
 		if(rdl != null)
 			rdl.add(ires);
 
