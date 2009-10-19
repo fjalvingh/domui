@@ -844,7 +844,9 @@ body,html {
 .ui-pct-rlr {
 	display: inline-block;
 	width: 50px;
-	border: 1px solid #ddd;
+	background-image: url(bg-progress.png);
+	background-position: -375px 0px;
+	background-repeat: no-repeat;
 }
 
 /*** Helper classes ***/
