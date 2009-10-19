@@ -2,8 +2,12 @@ package to.etc.domui.util.resources;
 
 import java.io.*;
 
-import to.etc.domui.util.*;
-
+/**
+ * A full reference to a web app file (a file somewhere in the webapp's web files or WEB-INF directorty).
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Oct 19, 2009
+ */
 public class WebappResourceRef implements IResourceRef {
 	private File m_resource;
 

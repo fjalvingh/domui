@@ -1,9 +1,0 @@
-package to.etc.domui.util;
-
-import java.io.*;
-
-import to.etc.domui.util.resources.*;
-
-public interface IResourceRef extends IModifyableResource {
-	public InputStream getInputStream() throws Exception;
-}

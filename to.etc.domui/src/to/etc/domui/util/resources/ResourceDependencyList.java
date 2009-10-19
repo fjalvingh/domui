@@ -12,31 +12,16 @@ import java.util.*;
  * Created on Oct 19, 2009
  */
 final public class ResourceDependencyList {
-	static private class DependencyTimestamp {
-		private IModifyableResource m_resource;
-
-		private long m_timestamp;
-
-		public DependencyTimestamp(IModifyableResource resource) {
-			m_resource = resource;
-			m_timestamp = resource.getLastModified();
-		}
-
-		public boolean isModified() {
-			return m_timestamp != m_resource.getLastModified();
-		}
-	}
-
-	private List<DependencyTimestamp> m_deplist = Collections.EMPTY_LIST;
+	private List<ResourceTimestamp> m_deplist = Collections.EMPTY_LIST;
 
 	public void add(IModifyableResource c) {
 		if(m_deplist == Collections.EMPTY_LIST)
-			m_deplist = new ArrayList<DependencyTimestamp>(5);
-		m_deplist.add(new DependencyTimestamp(c));
+			m_deplist = new ArrayList<ResourceTimestamp>(5);
+		m_deplist.add(new ResourceTimestamp(c, c.getLastModified()));
 	}
 
 	public boolean isModified() {
-		for(DependencyTimestamp c : m_deplist) {
+		for(ResourceTimestamp c : m_deplist) {
 			if(c.isModified())
 				return true;
 		}

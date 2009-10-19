@@ -2,8 +2,6 @@ package to.etc.domui.util.resources;
 
 import java.io.*;
 
-import to.etc.domui.util.*;
-
 public class ClassResourceRef implements IResourceRef {
 	private Class< ? > m_base;
 
@@ -23,6 +21,8 @@ public class ClassResourceRef implements IResourceRef {
 	 * @see to.etc.domui.util.resources.IModifyableResource#getLastModified()
 	 */
 	public long getLastModified() {
+
+		toodo!!!!!
 		return 0;
 	}
 }

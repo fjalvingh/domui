@@ -282,9 +282,9 @@ public class Text<T> extends Input implements IInputNode<T> {
 		m_untrimmed = untrimmed;
 	}
 
-	private boolean isValidated() {
-		return m_validated;
-	}
+	//	private boolean isValidated() {
+	//		return m_validated;
+	//	}
 
 	/**
 	 * Returns the current numeric mode in effect. This mode prevents letters from being input on the screen.

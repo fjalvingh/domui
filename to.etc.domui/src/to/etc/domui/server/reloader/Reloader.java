@@ -282,7 +282,7 @@ final public class Reloader {
 			File jar = m_jarMap.get(path);
 			if(jar != null) {
 				//-- Matched a JAR entry...
-				return new ResourceTimestamp(new FileRef(jar), jar.lastModified());
+				return new ResourceTimestamp(new ClasspathFileRef(jar), jar.lastModified());
 			}
 			LOG.info("? Odd: the class " + path + " cannot be found in the jars... I will do a full rescan.");
 		}
@@ -294,7 +294,7 @@ final public class Reloader {
 		File jar = m_jarMap.get(path);
 		if(jar != null) {
 			//-- Matched a JAR entry...
-			return new ResourceTimestamp(new FileRef(jar), jar.lastModified());
+			return new ResourceTimestamp(new ClasspathFileRef(jar), jar.lastModified());
 		}
 		return null;
 	}
@@ -325,7 +325,7 @@ final public class Reloader {
 			return null;
 
 		LOG.fine("Found class " + rel + " in " + u);
-		return new ResourceTimestamp(new FileRef(nw), nw.lastModified());
+		return new ResourceTimestamp(new ClasspathFileRef(nw), nw.lastModified());
 	}
 
 	private Map<String, File> m_jarMap = new HashMap<String, File>();

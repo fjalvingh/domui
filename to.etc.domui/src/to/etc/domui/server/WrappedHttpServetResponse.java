@@ -6,7 +6,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
-	private String m_name;
+	//	private String m_name;
 	private boolean m_ie8capable;
 	private boolean m_flushed;
 
@@ -28,7 +28,7 @@ public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 
 	public WrappedHttpServetResponse(String name, HttpServletResponse resp) {
 		super(resp);
-		m_name = name;
+		//		m_name = name;
 		m_blen = 8192;
 	}
 

@@ -15,6 +15,7 @@ import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.login.*;
 import to.etc.domui.server.parts.*;
+import to.etc.domui.server.reloader.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -571,6 +572,21 @@ public abstract class DomApplication {
 			return res;
 		return null;
 	}
+
+	/**
+	 * Create a resource ref to a class based resource. If we are running in DEBUG mode this will
+	 * generate something which knows the source of the resource, so it can handle changes to that
+	 * source while developing.
+	 *
+	 * @param name
+	 * @return
+	 */
+	private ClassResourceRef createClasspathReference(String name) {
+		ResourceTimestamp ts = Reloader.findClasspathSource(name);
+
+
+	}
+
 
 	/**
 	 * Tries to resolve an application-based resource by decoding it's name. We allow

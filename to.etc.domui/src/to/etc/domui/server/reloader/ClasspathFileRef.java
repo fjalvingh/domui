@@ -5,15 +5,15 @@ import java.io.*;
 import to.etc.domui.util.resources.*;
 
 /**
- * Holds a reference to a file entry to access a timestamp.
+ * Holds a reference to a file entry to access a timestamp, for resource changed checking only.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 28, 2009
  */
-final class FileRef implements IModifyableResource {
+final class ClasspathFileRef implements IModifyableResource {
 	private File m_src;
 
-	public FileRef(File src) {
+	public ClasspathFileRef(File src) {
 		m_src = src;
 	}
 

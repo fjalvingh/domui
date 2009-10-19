@@ -10,7 +10,6 @@ import org.apache.batik.transcoder.image.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
 import to.etc.sjit.*;
 import to.etc.util.*;

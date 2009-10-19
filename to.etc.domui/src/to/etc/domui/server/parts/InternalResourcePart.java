@@ -94,6 +94,8 @@ public class InternalResourcePart implements IBufferedPartFactory {
 		IResourceRef ires;
 		if(k.getLoc() == null) {
 			String rurl = k.getRURL();
+
+
 			if(rurl.startsWith("$RES/")) {
 				//-- Java resource
 				ires = new ClassResourceRef(getClass(), rurl.substring(4));
