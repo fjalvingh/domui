@@ -182,6 +182,9 @@ final public class Reloader {
 	 */
 	synchronized IModifyableResource findResourceSource(String resourceName) {
 		long t = System.nanoTime();
+		if(resourceName.startsWith("/")) // Resources should start with /, but do not use that in the scan.
+			resourceName = resourceName.substring(1);
+
 		IModifyableResource rr = m_lookupMap.get(resourceName); // Already looked up earlier?
 		if(rr != null) {
 			if(rr == NOT_FOUND)
@@ -270,24 +273,17 @@ final public class Reloader {
 		 * Not a file. Does the jar map contain an entry?
 		 */
 		if(m_jarMap.size() != 0) {
-			File jar = m_jarMap.get(path);
-			if(jar != null) {
-				//-- Matched a JAR entry...
-				return new ClasspathFileRef(jar);
-			}
-			LOG.info("? Odd: the class " + path + " cannot be found in the jars... I will do a full rescan.");
+			ClasspathJarRef jref = m_jarMap.get(path);
+			if(jref != null)
+				return jref;
+			LOG.info("? Odd: the classpath resource '" + path + "' cannot be found in the jars... I will do a full rescan.");
 		}
 
 		/*
 		 * Not in the jars, or the jar cache was empty. Do a full rescan then try again
 		 */
 		scanJars();
-		File jar = m_jarMap.get(path);
-		if(jar != null) {
-			//-- Matched a JAR entry...
-			return new ClasspathFileRef(jar);
-		}
-		return null;
+		return m_jarMap.get(path);
 	}
 
 	/**
@@ -318,7 +314,10 @@ final public class Reloader {
 		return new ClasspathFileRef(nw);
 	}
 
-	private Map<String, File> m_jarMap = new HashMap<String, File>();
+	/**
+	 * This maps classpath resource names to the jar they are contained in...
+	 */
+	private Map<String, ClasspathJarRef> m_jarMap = new HashMap<String, ClasspathJarRef>();
 
 	/**
 	 * Scan all JAR files and create a map of their content linked to the jar file itself.
@@ -347,6 +346,7 @@ final public class Reloader {
 	 * @param u
 	 */
 	private void loadJarFiles(File f) {
+		ClasspathJarRef jarref = new ClasspathJarRef(f);
 		InputStream is = null;
 		ZipInputStream zis = null;
 		try {
@@ -355,8 +355,7 @@ final public class Reloader {
 			ZipEntry ze;
 			while(null != (ze = zis.getNextEntry())) { // Walk entry
 				String name = ze.getName();
-				if(!m_jarMap.containsKey(name))
-					m_jarMap.put(ze.getName(), f); // Only store the 1st entry
+				m_jarMap.put(ze.getName(), jarref); // Update the reference.
 			}
 		} catch(Exception xz) {
 		} finally {

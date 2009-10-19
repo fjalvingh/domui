@@ -600,8 +600,9 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	public IResourceRef getApplicationResourceByName(String name) {
-		if(name.startsWith(Constants.RESOURCE_PREFIX))
-			return createClasspathReference(name.substring(Constants.RESOURCE_PREFIX.length() - 1));
+		if(name.startsWith(Constants.RESOURCE_PREFIX)) {
+			return createClasspathReference(name.substring(Constants.RESOURCE_PREFIX.length() - 1)); // Strip off $RES, rest is absolute resource path starting with /
+		}
 		if(name.startsWith("$")) {
 			name = name.substring(1);
 
@@ -609,12 +610,12 @@ public abstract class DomApplication {
 			File f = getAppFile(name);
 			if(f.exists())
 				return new WebappResourceRef(f);
-
-			//-- In the url, replace all '.' but the last one with /
-			int pos = name.lastIndexOf('.');
-			if(pos != -1) {
-				name = name.substring(0, pos).replace('.', '/') + name.substring(pos);
-			}
+			// 20091019 jal removed: $ resources are literal entries; they are never classnames - that is done using $RES/ only.
+			//			//-- In the url, replace all '.' but the last one with /
+			//			int pos = name.lastIndexOf('.');
+			//			if(pos != -1) {
+			//				name = name.substring(0, pos).replace('.', '/') + name.substring(pos);
+			//			}
 			return createClasspathReference("/resources/" + name);
 		}
 
@@ -977,6 +978,10 @@ public abstract class DomApplication {
 
 		//-- 2. Load the thing as UTF-8 string
 		InputStream is = ires.getInputStream();
+		if(is == null) {
+			System.out.println(">>>> RESOURCE ERROR: " + rurl + ", ref=" + ires);
+			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + rurl + ", ref=" + ires);
+		}
 		String cont;
 		try {
 			cont = FileTool.readStreamAsString(is, "utf-8");

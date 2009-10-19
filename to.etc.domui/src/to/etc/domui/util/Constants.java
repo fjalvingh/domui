@@ -9,7 +9,7 @@ public class Constants {
 
 	static public final String RESOURCE_PREFIX = "$RES/";
 
-	static public final String THEME_PREFIX = "themes/";
+	static public final String THEME_PREFIX = "THEME/";
 
 	static public final String COMPONENT_COMBO = "comboLookup";
 

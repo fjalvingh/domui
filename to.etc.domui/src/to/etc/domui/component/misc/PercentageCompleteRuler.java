@@ -8,9 +8,6 @@ public class PercentageCompleteRuler extends Div {
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("ui-pct-rlr");
-		setWidth("100px");
-		setHeight("1em");
-
 		updateValues();
 	}
 

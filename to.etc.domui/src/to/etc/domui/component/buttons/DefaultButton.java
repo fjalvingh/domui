@@ -94,11 +94,7 @@ public class DefaultButton extends Button {
 	 * @param name
 	 */
 	public void setConfig(final Class< ? > resourceBase, final String name) {
-		String rb = resourceBase.getName();
-		int pos = rb.lastIndexOf('.');
-		if(pos == -1)
-			throw new IllegalStateException("??");
-		m_propSrc = Constants.RESOURCE_PREFIX + rb.substring(0, pos + 1).replace('.', '/') + name;
+		m_propSrc = DomUtil.getJavaResourceRURL(resourceBase, name);
 		genURL();
 	}
 

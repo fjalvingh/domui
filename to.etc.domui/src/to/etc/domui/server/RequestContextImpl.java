@@ -239,7 +239,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	}
 
 	/**
-	 * Translates the input resource specifier by checking for special location indicators like $THEME and
+	 * Translates the input resource specifier by checking for special location indicators like THEME and
 	 * such at the start of the input. If input does not start with any of these it is returned unaltered.
 	 * @see to.etc.domui.server.IRequestContext#translateResourceName(java.lang.String)
 	 */
@@ -328,7 +328,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	/*	CODING:	IAttributeContainer implementation.					*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.server.IAttributeContainer#getAttribute(java.lang.String)
 	 */
 	public Object getAttribute(String name) {

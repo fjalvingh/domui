@@ -1,6 +1,6 @@
 @IMPORT url("calendar-blue2.css");
 
-/*
+/* TEST
  * Base stylesheet to style the provided controls.
  */
 #inputjes {
@@ -842,9 +842,9 @@ body,html {
 
 /*** Percentage progress bar ***/
 .ui-pct-rlr {
-	display: inline-table;
+	display: inline-block;
 	width: 50px;
-	height: 1em;
+	border: 1px solid #ddd;
 }
 
 /*** Helper classes ***/

@@ -5,15 +5,16 @@ import java.io.*;
 import to.etc.domui.util.resources.*;
 
 /**
- * Holds a reference to a file entry to access a timestamp, for resource changed checking only.
+ * A reference to a .jar file containing some resource. This has special code to handle
+ * resources loaded from a jar to prevent per-classloader caching of loaded resources.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jul 28, 2009
+ * Created on Oct 19, 2009
  */
-final class ClasspathFileRef implements IModifyableResource {
+public class ClasspathJarRef implements IModifyableResource {
 	private File m_src;
 
-	public ClasspathFileRef(File src) {
+	public ClasspathJarRef(File src) {
 		m_src = src;
 	}
 
@@ -29,6 +30,6 @@ final class ClasspathFileRef implements IModifyableResource {
 
 	@Override
 	public String toString() {
-		return "[ClasspathFile " + m_src.toString() + "]";
+		return "[ClasspathJar: " + m_src.toString() + "]";
 	}
 }
