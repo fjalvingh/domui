@@ -850,9 +850,14 @@ body,html {
 	/*border-collapse: separate; */
 	border: 1px solid black;
 }
+<if browser.isIE>
 .ui-pct-rlr { /* IE 7 FIX: by repeating the display: inline in a SEPARATE css selector we force proper inline-block behaviour, see http://www.brunildo.org/test/InlineBlockLayout.html */
 	/*display: inline;*/
 }
+</if>
+<if browser.isFirefox>
+	/** FIREFOX BROWSERT */
+</if>
 
 /*** Helper classes ***/
 .ui-szless {

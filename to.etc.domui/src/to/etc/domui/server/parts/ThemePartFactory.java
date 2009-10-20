@@ -16,6 +16,64 @@ import to.etc.util.*;
  * Created on Sep 1, 2009
  */
 public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
+	static private class Key {
+		private String m_rurl;
+
+		private String m_browserID;
+
+		private BrowserVersion m_bv;
+
+		public Key(BrowserVersion bv, String rurl) {
+			m_bv = bv;
+			m_browserID = bv.getBrowserName() + "/" + bv.getMajorVersion();
+			m_rurl = rurl;
+		}
+
+		public String getBrowserID() {
+			return m_browserID;
+		}
+
+		public BrowserVersion getBrowserVersion() {
+			return m_bv;
+		}
+
+		public String getRurl() {
+			return m_rurl;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((m_browserID == null) ? 0 : m_browserID.hashCode());
+			result = prime * result + ((m_rurl == null) ? 0 : m_rurl.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			if(obj == null)
+				return false;
+			if(getClass() != obj.getClass())
+				return false;
+			Key other = (Key) obj;
+			if(m_browserID == null) {
+				if(other.m_browserID != null)
+					return false;
+			} else if(!m_browserID.equals(other.m_browserID))
+				return false;
+			if(m_rurl == null) {
+				if(other.m_rurl != null)
+					return false;
+			} else if(!m_rurl.equals(other.m_rurl))
+				return false;
+			return true;
+		}
+	};
+
+
 	public boolean accepts(String rurl) {
 		int dot1 = rurl.lastIndexOf('.');
 		if(dot1 == -1)
@@ -27,18 +85,19 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 	}
 
 	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
-		return rurl;
+		return new Key(param.getBrowserVersion(), rurl);
 	}
 
-	public void generate(PartResponse pr, DomApplication da, Object key, ResourceDependencyList rdl) throws Exception {
+	public void generate(PartResponse pr, DomApplication da, Object k, ResourceDependencyList rdl) throws Exception {
+		Key key = (Key) k;
+
 		if(!da.inDevelopmentMode()) { // Not gotten from WebContent or not in DEBUG mode? Then we may cache!
 			pr.setCacheTime(da.getDefaultExpiryTime());
 		}
-		String src = (String) key;
-		String content = da.getThemeReplacedString(rdl, src);
+		String content = da.getThemeReplacedString(rdl, key.getRurl(), key.getBrowserVersion());
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(pr.getOutputStream()));
 		pw.append(content);
 		pw.close();
-		pr.setMime(ServerTools.getExtMimeType(FileTool.getFileExtension(src)));
+		pr.setMime(ServerTools.getExtMimeType(FileTool.getFileExtension(key.getRurl())));
 	}
 }

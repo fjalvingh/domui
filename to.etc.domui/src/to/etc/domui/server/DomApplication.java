@@ -941,6 +941,10 @@ public abstract class DomApplication {
 		m_partHandler.registerUrlPart(factory);
 	}
 
+	public String getThemeReplacedString(ResourceDependencyList rdl, String rurl) throws Exception {
+		return getThemeReplacedString(rdl, rurl, null);
+	}
+
 	/**
 	 * This loads a resource which is assumed to be an UTF-8 encoded text file from
 	 * either the webapp or the class resources, then does theme based replacement
@@ -952,7 +956,7 @@ public abstract class DomApplication {
 	 * @param key
 	 * @return
 	 */
-	public String getThemeReplacedString(ResourceDependencyList rdl, String rurl) throws Exception {
+	public String getThemeReplacedString(ResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
 		IResourceRef ires = getApplicationResourceByName(rurl);
 		if(ires == null)
 			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
@@ -985,12 +989,12 @@ public abstract class DomApplication {
 		String cont;
 		try {
 			cont = FileTool.readStreamAsString(is, "utf-8");
-			if(m_themeMapFactory == null)
-				return cont;
-			IThemeMap map = m_themeMapFactory.createThemeMap(this);
-			//			if(map instanceof IResourceRef)
-			rdl.add(map);
-			cont = rvs(cont, map);
+			IThemeMap map = null;
+			if(m_themeMapFactory != null) {
+				map = m_themeMapFactory.createThemeMap(this);
+				rdl.add(map);
+			}
+			cont = rvs(cont, map, bv);
 			return cont;
 		} finally {
 			try {
@@ -1005,12 +1009,16 @@ public abstract class DomApplication {
 	 * @param map
 	 * @return
 	 */
-	private String rvs(String cont, final IThemeMap map) throws Exception {
+	private String rvs(String cont, final IThemeMap map, final BrowserVersion bv) throws Exception {
 		//-- 3. Do calculated replacement using templater engine
 		TplExpander tx = new TplExpander(new TplCallback() {
 			public Object getValue(String name) {
 				try {
-					return map.getValue(name);
+					if(bv != null && "browser".equals(name))
+						return bv;
+					if(map != null)
+						return map.getValue(name);
+					return null;
 				} catch(Exception x) {
 					throw WrappedException.wrap(x);
 				}

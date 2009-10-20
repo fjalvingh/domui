@@ -100,7 +100,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 
 	public void handleRequest(final RequestContextImpl ctx) throws Exception {
 		String input = ctx.getInputPath();
-		dumpHeaders(ctx);
+		//		dumpHeaders(ctx);
 		boolean part = false;
 		if(input.endsWith(".part")) {
 			input = input.substring(0, input.length() - 5); // Strip ".part" off the name
