@@ -11,26 +11,26 @@ import to.etc.webapp.query.*;
 
 final class LookupFactoryDate implements ILookupControlFactory {
 	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm) {
-		final DateInput df = new DateInput();
+		final DateInput dateFrom = new DateInput();
 		TextNode tn = new TextNode(NlsContext.getGlobalMessage(Msgs.UI_LOOKUP_DATE_TILL));
-		final DateInput dt = new DateInput();
+		final DateInput dateTo = new DateInput();
 
 		String hint = MetaUtils.findHintText(spm);
 		if(hint != null) {
-			df.setTitle(hint);
-			dt.setTitle(hint);
+			dateFrom.setTitle(hint);
+			dateTo.setTitle(hint);
 		}
-		return new AbstractLookupControlImpl(df, tn, dt) {
+		return new AbstractLookupControlImpl(dateFrom, tn, dateTo) {
 			@Override
 			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
 				Date from, till;
 				try {
-					from = df.getValue();
+					from = dateFrom.getValue();
 				} catch(Exception x) {
 					return false;
 				}
 				try {
-					till = dt.getValue();
+					till = dateTo.getValue();
 				} catch(Exception x) {
 					return false;
 				}
@@ -39,10 +39,10 @@ final class LookupFactoryDate implements ILookupControlFactory {
 				if(from != null && till != null) {
 					if(from.getTime() > till.getTime()) {
 						//-- Swap vals
-						df.setValue(till);
-						dt.setValue(from);
+						dateFrom.setValue(till);
+						dateTo.setValue(from);
 						from = till;
-						till = dt.getValue();
+						till = dateTo.getValue();
 					}
 
 					//-- Between query
@@ -57,7 +57,8 @@ final class LookupFactoryDate implements ILookupControlFactory {
 
 			@Override
 			public void clearInput() {
-				dt.setValue(null);
+				dateFrom.setValue(null);
+				dateTo.setValue(null);
 			}
 		};
 	}

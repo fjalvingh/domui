@@ -135,6 +135,28 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	}
 
 	/**
+	 * Add a user-specified control for a given property. This adds the control, using
+	 * the specified label and creates a binding for the property on the
+	 * control. 
+	 *
+	 * FORMAL-INTERFACE.
+	 *
+	 * @param name
+	 * @param label		The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
+	 * @param ctl
+	 */
+	public <T extends NodeBase & IInputNode< ? >> IFormControl addProp(final String name, String label, final T ctl) {
+		PropertyMetaModel pmm = resolveProperty(name);
+		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), pmm);
+		if(label != null)
+			ctl.setErrorLocation(label);
+		SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(getModel(), pmm, ctl);
+		getBindings().add(b);
+		return b;
+	}
+
+
+	/**
 	 * Add a fully manually specified label and control to the layout. This does not create any binding.
 	 * @param label
 	 * @param control
