@@ -191,8 +191,16 @@ public class DateUtil {
 	static public String extractTimeString(Date dt, int size) {
 		if(size != 5 && size != 8)
 			throw new IllegalStateException("Accepts only 5 or 8 char times.");
+		//prevents crash when dt == null
+		if(dt == null) {
+			return null;
+		}
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dt);
+		//prevent object to become dirty because null time was read from db, in case of 00:00 return null since reading of null time would store 00:00 value into Date object
+		if(cal.get(Calendar.HOUR_OF_DAY) == 0 && cal.get(Calendar.MINUTE) == 0) {
+			return null;
+		}
 		char[] b = new char[size];
 		int v = cal.get(Calendar.HOUR_OF_DAY);
 		b[0] = (char) (v / 10 + '0');
@@ -211,6 +219,10 @@ public class DateUtil {
 	}
 
 	static public Date truncateDate(Date dt) {
+		//prevents crash when dt == null
+		if(dt == null) {
+			return null;
+		}
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dt);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -352,8 +364,17 @@ public class DateUtil {
 	 * @return
 	 */
 	public static Date setDateOnly(Date finisheddate, Date dt) {
+		if(dt == null) {
+			//time part without date is not valid data, so both should be null then
+			return null;
+		}
 		Calendar cal = Calendar.getInstance();
+		//prevents crash when finisheddate == null
+		if(finisheddate == null) {
+			cal.set(0, 0, 0, 0, 0);
+		} else {
 		cal.setTime(finisheddate);
+		}
 		int hr = cal.get(Calendar.HOUR_OF_DAY); // Retrieve time from value to set;
 		int mn = cal.get(Calendar.MINUTE);
 		int sc = cal.get(Calendar.SECOND);
