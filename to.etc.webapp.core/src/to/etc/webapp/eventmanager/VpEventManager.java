@@ -271,7 +271,14 @@ public class VpEventManager implements Runnable {
 			ps = dbc.prepareStatement(seq);
 			ps.executeUpdate();
 		} catch(Exception x) {
-			System.out.println("SystemEventManager: table creation exception " + x);
+			String msg = x.toString().toLowerCase();
+
+			//-- Ignore silly errors.
+			if(msg.contains("ora-00955"))
+				return;
+			if(msg.contains("exist"))
+				return;
+			System.out.println("SystemEventManager: table creation exception " + x + ", if this is just because the table already exists there is no problem.");
 		} finally {
 			try {
 				if(ps != null)
