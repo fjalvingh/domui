@@ -133,7 +133,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		}
 
 		//In case that action is resolved as not allowed then do nothing.
-		if(m_isLookupAllowed != null || !m_isLookupAllowed.isAllowed()) {
+		if(m_isLookupAllowed != null && !m_isLookupAllowed.isAllowed()) {
 			return;
 		}
 
