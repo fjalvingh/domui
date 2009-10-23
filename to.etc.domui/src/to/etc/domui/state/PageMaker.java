@@ -247,8 +247,4 @@ public class PageMaker {
 			return ConversationContext.class;
 		return ccclz;
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Page parameters injector stack.						*/
-	/*--------------------------------------------------------------*/
 }

@@ -16,7 +16,7 @@ import to.etc.domui.state.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 19, 2008
  */
-final class UrlParameterInjector extends PropertyInjector {
+public class UrlParameterInjector extends PropertyInjector {
 	final private String m_name;
 
 	final private boolean m_mandatory;

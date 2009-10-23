@@ -11,6 +11,17 @@ import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
+/**
+ * This is the default DomUI page injector. It is responsible for providing (injecting) values into
+ * page setters where required. This default version only accepts the @{@link UIUrlParameter} annotation
+ * and uses it to inject either URL parameter values or entities loaded from an URL parameter into
+ * the page. This can be extended to add extra methods to inject values into a page, for instance using
+ * Spring (NO! NO! Use something good instead of this piece of shit!), Guice, Pico/Nanocontainer or
+ * whatever.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Oct 23, 2009
+ */
 public class DefaultPageInjector implements IPageInjector {
 	private Set<String> m_ucs = new HashSet<String>();
 
@@ -83,31 +94,46 @@ public class DefaultPageInjector implements IPageInjector {
 		if(m == null)
 			m = pi.getSetter();
 
+		return calculatePropertyInjector(pi, m);
+	}
+
+	protected PropertyInjector calculatePropertyInjector(PropertyInfo pi, Method annotatedMethod) {
 		//-- Check annotation.
-		UIUrlParameter upp = m.getAnnotation(UIUrlParameter.class);
+		UIUrlParameter upp = annotatedMethod.getAnnotation(UIUrlParameter.class);
 
-		if(upp != null) {
-			String name = upp.name() == Constants.NONE ? pi.getName() : upp.name();
-			Class< ? > ent = upp.entity();
-			if(ent == Object.class) {
-				//-- Use getter's type.
-				ent = pi.getGetter().getReturnType();
-			}
-
-			/*
-			 * Entity auto-discovery: if entity is specified we're always certain we have an entity. If not,
-			 * we check the property type; if that is in a supported conversion class we assume a normal value.
-			 */
-			if(upp.entity() == Object.class) {
-				//-- Can be entity or literal.
-				if(upp.name() == Constants.NONE || m_ucs.contains(ent.getName())) // If no name is set this is NEVER an entity,
-					return new UrlParameterInjector(pi.getSetter(), name, upp.mandatory());
-			}
-
-			//-- Entity lookup.
-			return new UrlEntityInjector(pi.getSetter(), name, upp.mandatory(), ent);
-		}
+		if(upp != null)
+			return createUrlAnnotationConnector(pi, upp);
 		return null;
+	}
+
+	protected PropertyInjector createUrlAnnotationConnector(final PropertyInfo pi, UIUrlParameter upp) {
+		String name = upp.name() == Constants.NONE ? pi.getName() : upp.name();
+		Class< ? > ent = upp.entity();
+		if(ent == Object.class) {
+			//-- Use getter's type.
+			ent = pi.getGetter().getReturnType();
+		}
+
+		/*
+		 * Entity auto-discovery: if entity is specified we're always certain we have an entity. If not,
+		 * we check the property type; if that is in a supported conversion class we assume a normal value.
+		 */
+		if(upp.entity() == Object.class) {
+			//-- Can be entity or literal.
+			if(upp.name() == Constants.NONE || m_ucs.contains(ent.getName())) // If no name is set this is NEVER an entity,
+				return createParameterInjector(pi, name, upp.mandatory());
+		}
+
+		//-- Entity lookup.
+		return createEntityInjector(pi, name, upp.mandatory(), ent);
+	}
+
+	protected PropertyInjector createParameterInjector(PropertyInfo pi, String name, boolean mandatory) {
+		return new UrlParameterInjector(pi.getSetter(), name, mandatory);
+	}
+
+	protected PropertyInjector createEntityInjector(PropertyInfo pi, String name, boolean mandatory, Class< ? > entityType) {
+		return new UrlEntityInjector(pi.getSetter(), name, mandatory, entityType);
 	}
 
 	/**
@@ -142,12 +168,13 @@ public class DefaultPageInjector implements IPageInjector {
 
 	/**
 	 * This scans the page for properties that are to be injected. It scans for properties on the Page's UrlPage class
-	 * and injects any stuff it finds.
+	 * and injects any stuff it finds. This version only handles the @UIUrlParameter annotation.
 	 *
 	 * @param page
 	 * @param ctx
 	 * @param papa
-	 * @throws Exception
+	 *
+	 * @see to.etc.domui.state.IPageInjector#injectPageValues(to.etc.domui.dom.html.UrlPage, to.etc.domui.server.RequestContextImpl, to.etc.domui.state.PageParameters)
 	 */
 	public void injectPageValues(final UrlPage page, final RequestContextImpl ctx, final PageParameters papa) throws Exception {
 		PageInjector pij = findPageInjector(page.getClass());
