@@ -8,6 +8,6 @@ package to.etc.webapp.qsql;
  */
 public interface IJdbcCalculable {
 
-	void calculate();
+	void calculate() throws Exception;
 
 }
