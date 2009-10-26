@@ -53,12 +53,14 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		JdbcClassMeta cm = JdbcMetaManager.getMeta(root.getDataClass()); // Will throw exception if not proper jdbc class.
 		int startIndex = m_nextFieldIndex;
 		for(JdbcPropertyMeta pm : cm.getPropertyList()) {
-			if(m_fields.length() != 0)
-				m_fields.append(",");
-			m_fields.append(root.getAlias());
-			m_fields.append(".");
-			m_fields.append(pm.getColumnName());
-			m_nextFieldIndex++;
+			if(!pm.isTransient()) {
+				if(m_fields.length() != 0)
+					m_fields.append(",");
+				m_fields.append(root.getAlias());
+				m_fields.append(".");
+				m_fields.append(pm.getColumnName());
+				m_nextFieldIndex++;
+			}
 		}
 		m_retrieverList.add(new ClassInstanceMaker(root, startIndex, cm));
 	}

@@ -27,9 +27,16 @@ class ClassInstanceMaker implements IInstanceMaker {
 		int index = m_startIndex;
 		boolean gotsome = false;
 		for(JdbcPropertyMeta pm : m_meta.getPropertyList()) {
-			if(moveRsToProperty(inst, rs, index, pm))
-				gotsome = true;
-			index++;
+			if(!pm.isTransient()) {
+				if(moveRsToProperty(inst, rs, index, pm)) {
+					gotsome = true;
+				}
+				index++;
+			}
+		}
+
+		if(inst instanceof IInitializable) {
+			((IInitializable) inst).initializeInstance();
 		}
 
 		return gotsome ? inst : null; // No data -> no object (for later join impl)

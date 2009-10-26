@@ -51,6 +51,8 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	private IErrorMessageListener m_customErrorMessageListener;
 
+	private IActionAllowed m_isLookupAllowed;
+
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass);
 		m_resultColumns = resultColumns;
@@ -122,11 +124,16 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		}
 	}
 
-	void toggleFloater() {
+	void toggleFloater() throws Exception {
 		if(m_floater != null) {
 			m_floater.close();
 			m_floater = null;
 			m_result = null;
+			return;
+		}
+
+		//In case that action is resolved as not allowed then do nothing.
+		if(m_isLookupAllowed != null && !m_isLookupAllowed.isAllowed()) {
 			return;
 		}
 
@@ -495,5 +502,13 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	 */
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
+	}
+
+	public IActionAllowed getIsLookupAllowed() {
+		return m_isLookupAllowed;
+	}
+
+	public void setIsLookupAllowed(IActionAllowed isLookupAllowed) {
+		m_isLookupAllowed = isLookupAllowed;
 	}
 }

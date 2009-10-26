@@ -48,7 +48,7 @@ public class JdbcClassMeta {
 		List<PropertyInfo> pilist = ClassUtil.getProperties(m_dataClass);
 		if(pilist.size() == 0)
 			throw new IllegalStateException("No properties on data class!?");
-		Map<String, JdbcPropertyMeta>	map = new HashMap<String, JdbcPropertyMeta>();
+		Map<String, JdbcPropertyMeta> map = new HashMap<String, JdbcPropertyMeta>();
 		Map<String, JdbcPropertyMeta> colmap = new HashMap<String, JdbcPropertyMeta>();
 		for(PropertyInfo pi : pilist) {
 			JdbcPropertyMeta pm = evaluateProperty(pi);
@@ -65,9 +65,9 @@ public class JdbcClassMeta {
 	}
 
 	private JdbcPropertyMeta evaluateProperty(PropertyInfo pi) throws Exception {
-		if(pi.getGetter() == null)			// Writeonly not accepted
+		if(pi.getGetter() == null) // Writeonly not accepted
 			return null;
-		if(pi.getSetter() == null)	// Readonly not accepted
+		if(pi.getSetter() == null) // Readonly not accepted
 			return null;
 		JdbcPropertyMeta pm = new JdbcPropertyMeta(this, pi);
 
@@ -75,6 +75,7 @@ public class JdbcClassMeta {
 		if(col != null) {
 			pm.setColumnName(col.name());
 			pm.setNullable(col.nullable());
+			pm.setTransient(col.istransient());
 			pm.setLength(col.length());
 			pm.setActualClass(pi.getGetter().getReturnType());
 			pm.setScale(col.scale());
@@ -82,7 +83,7 @@ public class JdbcClassMeta {
 				pm.setTypeConverter(col.columnConverter().newInstance());
 		}
 
-		if(pm.getColumnName() == null)
+		if(pm.getColumnName() == null && !pm.isTransient())
 			throw new IllegalStateException(m_dataClass + ": property " + pi.getName() + " has no name for it's JDBC column name");
 
 		return pm;

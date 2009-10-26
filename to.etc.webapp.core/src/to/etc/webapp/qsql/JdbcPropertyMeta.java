@@ -17,6 +17,8 @@ public class JdbcPropertyMeta {
 
 	private boolean m_nullable;
 
+	private boolean m_transient;
+
 	private String m_nullValue;
 
 	private ITypeConverter m_typeConverter;
@@ -86,6 +88,14 @@ public class JdbcPropertyMeta {
 
 	public void setNullable(boolean nullable) {
 		m_nullable = nullable;
+	}
+
+	public boolean isTransient() {
+		return m_transient;
+	}
+
+	public void setTransient(boolean calculated) {
+		m_transient = calculated;
 	}
 
 	public String getNullValue() {
