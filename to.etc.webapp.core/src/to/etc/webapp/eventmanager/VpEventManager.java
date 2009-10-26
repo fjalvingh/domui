@@ -287,6 +287,16 @@ public class VpEventManager implements Runnable {
 		}
 	}
 
+	/**
+	 * This initializes the event manager and should be called early in system startup. System startup should abort (fail) if this
+	 * causes an exception. This creates the database table (if needed), opens the event manager for event registration
+	 * and allows posting events. The event handler thread is *not* started though - it should be started by a call to start() after
+	 * system initialization completes fully, to allow started events to use the entire system.
+	 *
+	 * @param ds
+	 * @param tableName
+	 * @throws Exception
+	 */
 	private synchronized void init(final DataSource ds, final String tableName) throws Exception {
 		m_tableName = tableName;
 		Connection dbc = null;
@@ -319,10 +329,20 @@ public class VpEventManager implements Runnable {
 			} catch(Exception x) {}
 		}
 		m_ds = ds;
-		m_handlerThread = new Thread(this);
-		m_handlerThread.setName("SystemEventManager");
-		m_handlerThread.setDaemon(true);
-		m_handlerThread.start();
+	}
+
+	/**
+	 * Must be called after init to actually start handling events.
+	 */
+	public synchronized void start() {
+		synchronized(m_instance) {
+			if(m_handlerThread != null)
+				return;
+			m_handlerThread = new Thread(this);
+			m_handlerThread.setName("SystemEventManager");
+			m_handlerThread.setDaemon(true);
+			m_handlerThread.start();
+		}
 	}
 
 	/*--------------------------------------------------------------*/
