@@ -131,6 +131,9 @@ public interface Msgs {
 	/** lookupform.cancel key */
 	public static final String LOOKUP_FORM_CANCEL = "lookupform.cancel";
 
+	/** lookupform.confirm key */
+	public static final String LOOKUP_FORM_CONFIRM = "lookupform.confirm";
+
 	/** lookupform.new key */
 	public static final String LOOKUP_FORM_NEW = "lookupform.new";
 

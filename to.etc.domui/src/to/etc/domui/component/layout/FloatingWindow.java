@@ -107,8 +107,17 @@ public class FloatingWindow extends Div {
 			setZIndex(100);
 		setPosition(PositionType.FIXED);
 
+		String widthStr = getWidth();
+		widthStr = widthStr.replace("px", "").trim();
+		int width = WIDTH;
+		try {
+			width = Integer.parseInt(widthStr);
+		} catch(Exception ex) {
+			width = WIDTH;
+		}
+
 		// center floating window horizontally on screen
-		setMarginLeft("-" + WIDTH / 2 + "px");
+		setMarginLeft("-" + width / 2 + "px");
 
 		//-- Construct the title bar
 		createTitleBar();

@@ -13,14 +13,14 @@ import to.etc.webapp.nls.*;
  * Created on Jun 1, 2008
  */
 public class DataTable extends TabularComponentBase {
-	private Table m_table = new Table();
+	protected Table m_table = new Table();
 
-	private IRowRenderer m_rowRenderer;
+	protected IRowRenderer m_rowRenderer;
 
 	/** The size of the page */
 	private int m_pageSize;
 
-	private TBody m_dataBody;
+	protected TBody m_dataBody;
 
 	public DataTable(IRowRenderer r) {
 		m_rowRenderer = r;
