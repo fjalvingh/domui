@@ -35,7 +35,7 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 		m_returnComment = returnComment;
 	}
 
-	protected int scanString() throws IOException {
+	protected int scanString() throws IOException, SourceErrorException {
 		scanSimpleString(false);
 		return T_STRING;
 	}
@@ -48,11 +48,11 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 		return m_lastToken;
 	}
 
-	public int nextToken() throws IOException {
+	public int nextToken() throws IOException, SourceErrorException {
 		return (m_lastToken = _nextToken());
 	}
 
-	private int _nextToken() throws IOException {
+	private int _nextToken() throws IOException, SourceErrorException {
 		for(;;) // Till a non-filtered token is found
 		{
 			if(!m_return_ws && !m_return_nl)

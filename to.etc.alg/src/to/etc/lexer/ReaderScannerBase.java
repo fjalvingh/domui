@@ -43,6 +43,8 @@ public class ReaderScannerBase {
 
 	private int					m_qlen;
 
+	private boolean				m_allowNewlineInString;
+
 	/** The literal token representation buffer. */
 	private StringBuilder		m_sb				= new StringBuilder();
 
@@ -52,6 +54,14 @@ public class ReaderScannerBase {
 	public ReaderScannerBase(Object source, Reader r) {
 		m_r = r;
 		m_src = source;
+	}
+
+	public boolean isAllowNewlineInString() {
+		return m_allowNewlineInString;
+	}
+
+	public void setAllowNewlineInString(boolean allowNewlineInString) {
+		m_allowNewlineInString = allowNewlineInString;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -116,7 +126,7 @@ public class ReaderScannerBase {
 	}
 
 	/**
-	 * Returns the "current" character in the queue. 
+	 * Returns the "current" character in the queue.
 	 * @return
 	 */
 	final public int LA() throws IOException {
@@ -144,7 +154,7 @@ public class ReaderScannerBase {
 	}
 
 	/**
-	 * Called to advance the character. Consumes the current character, causing the 
+	 * Called to advance the character. Consumes the current character, causing the
 	 * next one to become the current one. Accept increments line numbers and column
 	 * numbers.
 	 * @throws IOException
@@ -224,7 +234,7 @@ public class ReaderScannerBase {
 	 * with the same something and not allowing anything ugly in between.
 	 * @throws IOException
 	 */
-	protected void scanSimpleString(boolean keepquotes) throws IOException {
+	protected void scanSimpleString(boolean keepquotes) throws IOException, SourceErrorException {
 		int qc = LA(); // Get quote start
 		accept();
 		if(!keepquotes)
@@ -235,10 +245,12 @@ public class ReaderScannerBase {
 			int c = LA();
 			if(c == qc)
 				break;
-			else if(c == -1)
-				throw new IllegalStateException("Unexpected EOF in string constant started at line " + m_token_lnr + ":" + m_token_cnr);
-			else if(c == '\n')
-				throw new IllegalStateException("Unexpected newline in string constant started at line " + m_token_lnr + ":" + m_token_cnr);
+			else if(c == -1) {
+				error("Unexpected EOF in string constant started at line " + m_token_lnr + ":" + m_token_cnr);
+				//				throw new IllegalStateException("Unexpected EOF in string constant started at line " + m_token_lnr + ":" + m_token_cnr);
+			} else if(c == '\n' && !isAllowNewlineInString())
+				error("Unexpected newline in string constant started at line " + m_token_lnr + ":" + m_token_cnr + " (collected was " + m_sb.toString() + ")");
+			//				throw new IllegalStateException("Unexpected newline in string constant started at line " + m_token_lnr + ":" + m_token_cnr + " (collected was " + m_sb.toString() + ")");
 			m_sb.append((char) c);
 			accept();
 		}
