@@ -208,7 +208,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			runAction(ctx, page, action);
 			return;
 		} else {
-			PageMaker.injectPageValues(page.getBody(), ctx, papa);
+			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
 
 			if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
 				page.getBody().forceRebuild(); // Cleanout state

@@ -75,7 +75,7 @@ public class JdbcClassMeta {
 		if(col != null) {
 			pm.setColumnName(col.name());
 			pm.setNullable(col.nullable());
-			pm.setCalculated(col.calculated());
+			pm.setTransient(col.istransient());
 			pm.setLength(col.length());
 			pm.setActualClass(pi.getGetter().getReturnType());
 			pm.setScale(col.scale());
@@ -83,7 +83,7 @@ public class JdbcClassMeta {
 				pm.setTypeConverter(col.columnConverter().newInstance());
 		}
 
-		if(pm.getColumnName() == null && !pm.isCalculated())
+		if(pm.getColumnName() == null && !pm.isTransient())
 			throw new IllegalStateException(m_dataClass + ": property " + pi.getName() + " has no name for it's JDBC column name");
 
 		return pm;

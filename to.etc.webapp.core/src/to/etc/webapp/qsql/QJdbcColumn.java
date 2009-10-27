@@ -13,7 +13,7 @@ public @interface QJdbcColumn {
 
 	boolean nullable() default false;
 
-	boolean calculated() default false;
+	boolean istransient() default false;
 
 	Class< ? extends ITypeConverter> columnConverter() default ITypeConverter.class;
 }

@@ -869,5 +869,23 @@ final public class DomUtil {
 		}
 	}
 
+	/**
+	 * Obtain a parameter and convert it to a Long wrapper.
+	 * @param pp
+	 * @param name
+	 * @param def
+	 * @return
+	 */
+	static public Long getLongParameter(PageParameters pp, String name, Long def) {
+		String s = pp.getString(name, null); // Parameter present?
+		if(s == null || s.trim().length() == 0)
+			return def;
+		try {
+			return Long.valueOf(s.trim());
+		} catch(Exception x) {
+			throw new UIException(Msgs.X_INVALID_PARAMETER, name);
+		}
+	}
+
 
 }

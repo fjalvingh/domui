@@ -67,6 +67,9 @@ public interface Msgs {
 	/** The required page parameter {0} is missing. */
 	public static final String X_MISSING_PARAMETER = "x.missing.parameter";
 
+	/** The page parameter {0} is invalid . */
+	public static final String X_INVALID_PARAMETER = "x.invalid.parameter";
+
 	/** The page {0} is in too many conversations, and a conversation was not specified. This usually indicates that a page was linked to incorrectly. */
 	public static final String X_TOO_MANY_CONVERSATIONS = "x.conver.toomany";
 

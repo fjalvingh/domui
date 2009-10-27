@@ -17,7 +17,7 @@ public class JdbcPropertyMeta {
 
 	private boolean m_nullable;
 
-	private boolean m_calculated;
+	private boolean m_transient;
 
 	private String m_nullValue;
 
@@ -90,12 +90,12 @@ public class JdbcPropertyMeta {
 		m_nullable = nullable;
 	}
 
-	public boolean isCalculated() {
-		return m_calculated;
+	public boolean isTransient() {
+		return m_transient;
 	}
 
-	public void setCalculated(boolean calculated) {
-		m_calculated = calculated;
+	public void setTransient(boolean calculated) {
+		m_transient = calculated;
 	}
 
 	public String getNullValue() {
@@ -120,5 +120,4 @@ public class JdbcPropertyMeta {
 		return m_classMeta.getDataClass().getName() + "." + getName() + " (row " + m_classMeta.getTableName() + "." + getColumnName() + "): " + getActualClass();
 		//		return sb.toString();
 	}
-
 }

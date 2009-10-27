@@ -13,6 +13,7 @@ import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.injector.*;
 import to.etc.domui.login.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.server.reloader.*;
@@ -80,6 +81,8 @@ public abstract class DomApplication {
 	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
 
 	private IThemeMapFactory m_themeMapFactory;
+
+	private IPageInjector m_injector = new DefaultPageInjector();
 
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
@@ -833,6 +836,17 @@ public abstract class DomApplication {
 		return m_loginListenerList;
 	}
 
+	/**
+	 * Get the page injector.
+	 * @return
+	 */
+	public synchronized IPageInjector getInjector() {
+		return m_injector;
+	}
+
+	public synchronized void setInjector(IPageInjector injector) {
+		m_injector = injector;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Rights registry.									*/

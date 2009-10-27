@@ -27,7 +27,7 @@ class ClassInstanceMaker implements IInstanceMaker {
 		int index = m_startIndex;
 		boolean gotsome = false;
 		for(JdbcPropertyMeta pm : m_meta.getPropertyList()) {
-			if(!pm.isCalculated()) {
+			if(!pm.isTransient()) {
 				if(moveRsToProperty(inst, rs, index, pm)) {
 					gotsome = true;
 				}
@@ -35,8 +35,8 @@ class ClassInstanceMaker implements IInstanceMaker {
 			}
 		}
 
-		if(inst instanceof IJdbcCalculable) {
-			((IJdbcCalculable) inst).calculate();
+		if(inst instanceof IInitializable) {
+			((IInitializable) inst).initializeInstance();
 		}
 
 		return gotsome ? inst : null; // No data -> no object (for later join impl)
