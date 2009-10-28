@@ -16,6 +16,8 @@ import to.etc.webapp.query.*;
  * Created on 27 Oct 2009
  */
 public class MultipleSelectionLookup<T> extends FloatingWindow {
+	private int WIDTH = 740;
+
 	private Class<T> m_lookupClass;
 
 	private LookupForm<T> m_externalLookupForm;
@@ -36,14 +38,16 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	private IErrorMessageListener m_customErrorMessageListener;
 
-	private String[] m_resultColumns;
+	private String[] m_resultColumns = new String[0];
 
 	public MultipleSelectionLookup(Class<T> lookupClass, boolean isModal, String title, IMultiSelectionResult<T> onReceiveResult) {
 		super(isModal, title);
 		m_lookupClass = lookupClass;
 		setCssClass("ui-fw");
 		m_selectionResult = new ArrayList<T>();
-		setWidth("740px");
+		if(getWidth() == null) {
+			setWidth(WIDTH + "px");
+		}
 		m_onReceiveResult = onReceiveResult;
 	}
 
@@ -124,12 +128,17 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 		if(m_queryResultTable == null) {
 			//-- We do not yet have a result table -> create one.
-			MultipleSelectionRowRenderer rr = null;
-			if(m_resultColumns != null) {
-				rr = new MultipleSelectionRowRenderer(m_lookupClass, m_resultColumns);
-			} else {
-				rr = new MultipleSelectionRowRenderer(m_lookupClass);
-			}
+			MultipleSelectionRowRenderer rr = new MultipleSelectionRowRenderer(m_lookupClass, m_resultColumns) {
+				@Override
+				public int getRowWidth() {
+					return (getPxWidth() != null ? getPxWidth().intValue() : WIDTH) - 4;
+				}
+
+				@Override
+				public int getSelectionColWidth() {
+					return 50;
+				}
+			};
 
 			m_queryResultTable = new MultipleSelectionDataTable<T>(m_lookupClass, model, rr);
 			add(m_queryResultTable);

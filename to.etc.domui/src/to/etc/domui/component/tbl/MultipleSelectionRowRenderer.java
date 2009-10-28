@@ -5,12 +5,13 @@ import java.util.*;
 import to.etc.domui.component.meta.impl.*;
 
 /**
- * Row renderer that is used for MultipleSelectionLookup control.  
+ * Row renderer that is used for MultipleSelectionLookup control.
+ * First selection indicator column is additionaly rendered from outer code, so abstract methods that resolve selection column and total row width must be set additionaly.   
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 27 Oct 2009
  */
-public class MultipleSelectionRowRenderer extends SimpleRowRenderer {
+public abstract class MultipleSelectionRowRenderer extends SimpleRowRenderer {
 
 	public MultipleSelectionRowRenderer(Class< ? > dataClass, String[] cols) {
 		super(dataClass, cols);
@@ -29,14 +30,17 @@ public class MultipleSelectionRowRenderer extends SimpleRowRenderer {
 	protected void initialize(final List<ExpandedDisplayProperty> xdpl) {
 		//-- For all properties in the list, use metadata to define'm
 		final int[] widths = new int[80];
-		m_totwidth = 55;
+		m_totwidth = 0;
 		int ix = 0;
 		addColumns(xdpl, widths);
 		ix = 0;
 		for(final SimpleColumnDef scd : m_columnList) {
-			final int pct = (100 * widths[ix++]) / m_totwidth;
+			final int pct = (100 * widths[ix++] * (getRowWidth() - getSelectionColWidth())) / (m_totwidth * getRowWidth());
 			scd.setWidth(pct + "%");
 		}
 	}
 
+	public abstract int getRowWidth();
+
+	public abstract int getSelectionColWidth();
 }

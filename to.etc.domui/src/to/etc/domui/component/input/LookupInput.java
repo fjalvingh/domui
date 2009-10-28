@@ -137,7 +137,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			return;
 		}
 
-		m_floater = FloatingWindow.create(this, getLookupTitle() == null ? Msgs.BUNDLE.getString("ui.lui.ttl") : getLookupTitle());
+		m_floater = FloatingWindow.create(this, getLookupTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_LUI_TTL) : getLookupTitle());
 		//		getPage().getBody().add(m_floater);
 
 		m_floater.setHeight("90%");

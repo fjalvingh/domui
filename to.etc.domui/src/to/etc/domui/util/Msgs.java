@@ -53,6 +53,8 @@ public interface Msgs {
 
 	public static final String UI_LUI_TTL = "ui.lui.ttl";
 
+	public static final String UI_MLUI_COL_TTL = "ui.mlui.col.ttl";
+
 	//# Control: message box
 	public static final String UI_MBX_WARNING = "ui.mbx.warning";
 

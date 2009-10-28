@@ -30,6 +30,8 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 
 	private Class<T> m_dataClass;
 
+	private String m_selectionColTitle;
+
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("ui-dt");
@@ -53,7 +55,7 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 			tr.setCssClass("ui-dt-hdr");
 			hd.add(tr);
 			hc.setParent(tr);
-			hc.add("Selection");
+			hc.add(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
 			m_rowRenderer.renderHeader(this, hc);
 
 			//-- Render loop: add rows && ask the renderer to add columns.
@@ -67,7 +69,7 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 				tr = new TR();
 				m_dataBody.add(tr);
 				boolean selected = (m_accumulatedSelections.size() > index ? m_accumulatedSelections.get(index).booleanValue() : false);
-				renderAccumulatedItem(tr, cc, accumulatedItem, selected);
+				renderAccumulatedItem(tr, cc, accumulatedItem, selected, index);
 			}
 
 			if(m_accumulatedRows.size() > 0) {
@@ -82,18 +84,22 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 				tr = new TR();
 				m_dataBody.add(tr);
 				cc.setParent(tr);
-				Img imgAddToSelection = new Img("THEME/addToSelection.png");
-				TD addToSelectionCell = new TD();
-				addToSelectionCell.setUserObject(item);
-				addToSelectionCell.add(imgAddToSelection);
-				addToSelectionCell.setClicked(new IClicked<TD>() {
-					public void clicked(TD cell) throws Exception {
-						if(cell.getUserObject() != null) {
-							accumulateSelection((T) cell.getUserObject());
-						}
-					}
-				});
-				tr.add(addToSelectionCell);
+				TD selectionMarkerCell = new TD();
+				if(!m_accumulatedRows.contains(item)) {
+					Img imgAddToSelection = new Img("THEME/addToSelection.png");
+					selectionMarkerCell.add(imgAddToSelection);
+				} else {
+					selectionMarkerCell.add(" ");
+				}
+				selectionMarkerCell.setUserObject(item);
+				/*				selectionMarkerCell.setClicked(new IClicked<TD>() {
+									public void clicked(TD cell) throws Exception {
+										if(cell.getUserObject() != null) {
+											accumulateSelection((T) cell.getUserObject());
+										}
+									}
+								});*/
+				tr.add(selectionMarkerCell);
 				m_rowRenderer.renderRow(this, cc, ix, o);
 				ix++;
 			}
@@ -119,13 +125,16 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 		return splitterRow;
 	}
 
-	private void renderAccumulatedItem(TR tr, ColumnContainer cc, T item, boolean selected) throws Exception {
+	private void renderAccumulatedItem(TR tr, ColumnContainer cc, T item, boolean selected, int index) throws Exception {
 		cc.setParent(tr);
 		Checkbox ckb = new Checkbox();
-		ckb.setOnValueChanged(new IValueChanged<Checkbox, Boolean>() {
-			public void onValueChanged(Checkbox ckb, Boolean value) throws Exception {
+		ckb.setClicked(new IClicked<Checkbox>() {
+			public void clicked(Checkbox ckb) throws Exception {
+				//FIXME: must be done as double change of value to cause changed protected field to be set, otherwise is not rendered properly in HTML response.
+				ckb.setChecked(!ckb.isChecked());
+				ckb.setChecked(!ckb.isChecked());
 				TR row = ckb.getParent(TR.class);
-				handleAccumulatedItemRowSelectionChanged(row, value);
+				handleAccumulatedItemRowSelectionChanged(row, new Boolean(ckb.isChecked()));
 			}
 		});
 		ckb.setChecked(selected);
@@ -141,7 +150,7 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 				}
 			}
 		});
-		m_rowRenderer.renderRow(this, cc, 0, item);
+		m_rowRenderer.renderRow(this, cc, index, item);
 	}
 
 	protected void handleAccumulatedItemRowSelectionChanged(TR row, Boolean value) {
@@ -151,19 +160,24 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 		}
 	}
 
-	public void accumulateSelection(T item) throws Exception {
+	public void accumulateSelection(TR row, T item) throws Exception {
 		if(!m_accumulatedRows.contains(item)) {
 			m_accumulatedRows.add(item);
 			m_accumulatedSelections.add(Boolean.TRUE);
 			TR tr = new TR();
 			m_dataBody.add(m_accumulatedRows.size() - 1, tr);
 			ColumnContainer cc = new ColumnContainer(this);
-			renderAccumulatedItem(tr, cc, item, true);
+			renderAccumulatedItem(tr, cc, item, true, m_accumulatedRows.size() - 1);
 
 			if(m_accumulatedRows.size() == 1) {
 				TR splitterRow = createSplitterRow();
 				m_dataBody.add(m_accumulatedRows.size(), splitterRow);
 			}
+
+			assert (row.getChildren(TD.class).size() > 0);
+			TD selectionMarkerCell = row.getChildren(TD.class).get(0);
+			selectionMarkerCell.removeAllChildren();
+			selectionMarkerCell.add(" ");
 		}
 	}
 
@@ -189,12 +203,16 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 	}
 
 	public void handleRowClicked(Page pg, NodeBase tr, T val) throws Exception {
-		if(tr instanceof TR && tr.getUserObject() instanceof Checkbox) {
-			Checkbox ckb = (Checkbox) tr.getUserObject();
-			ckb.setChecked(!ckb.isChecked());
-			handleAccumulatedItemRowSelectionChanged((TR) tr, new Boolean(ckb.isChecked()));
+		if(tr instanceof TR) {
+			if(tr.getUserObject() instanceof Checkbox) {
+				Checkbox ckb = (Checkbox) tr.getUserObject();
+				ckb.setChecked(!ckb.isChecked());
+				handleAccumulatedItemRowSelectionChanged((TR) tr, new Boolean(ckb.isChecked()));
+			} else {
+				accumulateSelection((TR) tr, val);
+			}
 		} else {
-			accumulateSelection(val);
+			throw new IllegalStateException("expected TR: " + tr);
 		}
 	}
 
@@ -207,6 +225,14 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 			}
 		}
 		return results;
+	}
+
+	public String getSelectionColTitle() {
+		return m_selectionColTitle;
+	}
+
+	public void setSelectionColTitle(String selectionColTitle) {
+		m_selectionColTitle = selectionColTitle;
 	}
 
 }

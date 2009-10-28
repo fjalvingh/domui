@@ -498,6 +498,22 @@ public class CssBase {
 		m_width = width;
 	}
 
+	/**
+	 * Utility method that returns int part of width defined as pixel width. Returns null in case when no value is set, or some other units are used.
+	 * @return
+	 */
+	public Integer getPxWidth() {
+		String widthStr = getWidth();
+		widthStr = widthStr.replace("px", "").trim();
+		Integer result = null;
+		try {
+			result = new Integer(Integer.parseInt(widthStr));
+		} catch(Exception ex) {
+			//in case of conversion error returns null;
+		}
+		return result;
+	}
+
 	public String getFontFamily() {
 		return m_fontFamily;
 	}
