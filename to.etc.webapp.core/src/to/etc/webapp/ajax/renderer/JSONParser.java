@@ -107,7 +107,7 @@ public class JSONParser extends ReaderTokenizerBase {
 		int token = getLastToken();
 		switch(token){
 			default:
-				throw new JSONParserException("Unexpected token '" + getText() + "' in input");
+				throw new JSONParserException("Unexpected token '" + getCopied() + "' in input");
 
 			case '{':
 				return parseObject();
@@ -117,30 +117,30 @@ public class JSONParser extends ReaderTokenizerBase {
 				return null;
 			case ReaderScannerBase.T_IDENT:
 				//-- 'undefined' is allowed and treated as 'null'
-				if(getText().equals("undefined") || getText().equals("null")) {
+				if(getCopied().equals("undefined") || getCopied().equals("null")) {
 					nextToken();
 					return null;
 				}
-				throw new JSONParserException("Unexpected identifier '" + getText() + "'");
+				throw new JSONParserException("Unexpected identifier '" + getCopied() + "'");
 			case ReaderScannerBase.T_IPADDR:
-				throw new JSONParserException("Unexpected IP address '" + getText() + "'");
+				throw new JSONParserException("Unexpected IP address '" + getCopied() + "'");
 			case ReaderScannerBase.T_NUMBER:
 				return parseNumber();
 			case ReaderScannerBase.T_STRING:
-				String txt = getText();
+				String txt = getCopied();
 				nextToken();
 				return txt;
 			case '-':
 				token = nextToken();
 				if(token != ReaderScannerBase.T_NUMBER)
-					throw new JSONParserException("Unexpected token '" + getText() + "' after '-' sign; expecting a number");
+					throw new JSONParserException("Unexpected token '" + getCopied() + "' after '-' sign; expecting a number");
 				Number v = parseNumber();
 				return Long.valueOf(-v.longValue());
 		}
 	}
 
 	private Number parseNumber() throws Exception {
-		Long i = Long.decode(getText());
+		Long i = Long.decode(getCopied());
 		nextToken();
 		return i;
 	}
@@ -149,7 +149,7 @@ public class JSONParser extends ReaderTokenizerBase {
 		int token = getLastToken();
 		switch(token){
 			default:
-				throw new JSONParserException("Unexpected token '" + getText() + "' in input");
+				throw new JSONParserException("Unexpected token '" + getCopied() + "' in input");
 			case '{':
 				throw new JSONParserException("An object cannot be the key of an object item");
 			case '[':
@@ -157,12 +157,12 @@ public class JSONParser extends ReaderTokenizerBase {
 			case ReaderScannerBase.T_EOF:
 				throw new JSONParserException("Unexpected EOF while parsing an object key");
 			case ReaderScannerBase.T_IPADDR:
-				throw new JSONParserException("Unexpected IP address '" + getText() + "' in input");
+				throw new JSONParserException("Unexpected IP address '" + getCopied() + "' in input");
 			case ReaderScannerBase.T_NUMBER:
 				return parseNumber();
 			case ReaderScannerBase.T_IDENT:
 			case ReaderScannerBase.T_STRING:
-				String txt = getText();
+				String txt = getCopied();
 				nextToken();
 				return txt;
 		}
@@ -204,7 +204,7 @@ public class JSONParser extends ReaderTokenizerBase {
 				nextToken();
 				return res;
 			} else if(getLastToken() != ',')
-				throw new JSONParserException("Expecting a ',' or a '}' after an object item:value pair, but I got an '" + getText() + "'");
+				throw new JSONParserException("Expecting a ',' or a '}' after an object item:value pair, but I got an '" + getCopied() + "'");
 			nextToken();
 		}
 	}
@@ -231,7 +231,7 @@ public class JSONParser extends ReaderTokenizerBase {
 				nextToken();
 				return res;
 			} else if(getLastToken() != ',')
-				throw new JSONParserException("Expecting a ',' or a ']' after an array value, but I got an '" + getText() + "'");
+				throw new JSONParserException("Expecting a ',' or a ']' after an array value, but I got an '" + getCopied() + "'");
 			nextToken();
 		}
 	}
