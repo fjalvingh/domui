@@ -17,4 +17,9 @@ final public class XMLNameSpaces {
 	static public final String	XMLSCHEMA			= "http://www.w3.org/2001/XMLSchema";
 
 	static public final String	XMLSCHEMA_INSTANCE	= "http://www.w3.org/2001/XMLSchema-instance";
+
+	/**
+	 * The mother of all namespaces bound by definition to the prefix xml
+	 */
+	static public final String	XMLNAMESPACE		= "http://www.w3.org/XML/1998/namespace";
 }
