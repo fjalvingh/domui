@@ -413,7 +413,7 @@ public class MultipartStream {
 			try {
 				b[0] = readByte();
 			} catch(IOException e) {
-				throw new MalformedStreamException("Stream ended unexpectedly");
+				throw new MalformedStreamException("Stream ended unexpectedly: " + e);
 			}
 			size++;
 			if(b[0] == HEADER_SEPARATOR[i]) {
