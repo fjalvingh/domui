@@ -54,7 +54,7 @@ public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
 				System.out.println("~~ form item name=" + name);
 			} else {
 				//-- This is some kind of FILE thingy..
-				System.out.println("~~ file item name=" + name);
+				//				System.out.println("~~ file item name=" + name);
 				List<UploadItem> v = filemap.get(name);
 				if(v == null) {
 					v = new ArrayList<UploadItem>(5);

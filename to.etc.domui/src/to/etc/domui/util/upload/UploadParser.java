@@ -60,7 +60,7 @@ public class UploadParser {
 	 * @param req
 	 * @return
 	 */
-	public static final boolean isMultipartContent(final HttpServletRequest req) {
+	public static final boolean isMultipartContent(HttpServletRequest req) {
 		if(!"POST".equalsIgnoreCase(req.getMethod())) // Must be post method
 			return false;
 		String contentType = req.getContentType(); // Must be multipart encoding.
@@ -98,7 +98,21 @@ public class UploadParser {
 		String ct = ctx.getContentType();
 		int requestSize = ctx.getContentLength();
 
-		return parseRequest(ctx.getInputStream(), hdrencoding, ct, requestSize);
+		//		ByteArrayOutputStream bos = new ByteArrayOutputStream(1 * 1024 * 1024);
+		//		InputStream tis = ctx.getInputStream();
+		//		FileTool.copyFile(bos, tis);
+		//		tis.close();
+		//		bos.close();
+		//
+		//		//-- Write data to tmpfile
+		//		byte[] data = bos.toByteArray();
+		//		FileTool.save(new File("/tmp/in.bin"), new byte[][]{data});
+		//
+		//		final InputStream sis = new ByteArrayInputStream(data);
+		final InputStream is = ctx.getInputStream();
+
+		return parseRequest(is, hdrencoding, ct, requestSize);
+		//		return parseRequest(ctx.getInputStream(), hdrencoding, ct, requestSize);
 	}
 
 	static private String getStringHeader(final Map<String, Object> hdr, final String name) {
@@ -237,7 +251,6 @@ public class UploadParser {
 		return null;
 	}
 
-
 	/**
 	 * Handle reading a single item. If the 'filename' field is not null then this is an actual file, else
 	 * it is a form field.
@@ -274,7 +287,7 @@ public class UploadParser {
 		if(isfile && fn.trim().length() == 0)
 			fn = null; // Empty string means no file entered
 
-		ImplUploadItem ui = new ImplUploadItem(fieldname, contenttype, charset, fn, isfile);
+		UploadItem ui = new UploadItem(fieldname, contenttype, charset, fn, isfile);
 
 		//-- Copy data to an output buffer or output file, depending on the size.
 		OutputStream os = null;
