@@ -49,7 +49,7 @@ public class MultipartPoster {
 
 	static private byte[]			m_boundary_mark;
 
-	static private byte[]			m_boundary_mark_crlf;
+	static private byte[] m_boundary_mark_final;
 
 	/** The proxy authentication string, in base64(userid:password) encoding, or null for no password */
 	private String					m_proxy_auth;
@@ -60,7 +60,7 @@ public class MultipartPoster {
 		m_boundary_str = BOUNDARY + Long.toHexString(System.currentTimeMillis()) + "etc";
 		//		m_boundary	= m_boundary_str.getBytes();
 		m_boundary_mark = ("--" + m_boundary_str + "\r\n").getBytes();
-		m_boundary_mark_crlf = ("\r\n--" + m_boundary_str + "\r\n").getBytes();
+		m_boundary_mark_final = ("\r\n--" + m_boundary_str + "--\r\n").getBytes();
 	}
 
 
@@ -201,7 +201,7 @@ public class MultipartPoster {
 
 				//-- Content-disposition
 				sb.setLength(0);
-				sb.append("content-disposition: form-data; name=\"");
+				sb.append("Content-Disposition: form-data; name=\"");
 				sb.append(ap.m_name);
 				sb.append("\"");
 				if(ap.m_mpf != null) // File parameter??
@@ -211,11 +211,10 @@ public class MultipartPoster {
 					sb.append("\"");
 				}
 				sb.append("\r\n");
-				os.write(sb.toString().getBytes()); // Write content-disposition
 
 				//-- for files we need a content-type also,
 				if(ap.m_mpf != null)
-					sb.append("content-type: application/octet-stream\r\n");
+					sb.append("Content-Type: application/octet-stream\r\n");
 				sb.append("\r\n"); // Empty line denotes start of data
 
 				if(ap.m_mpf == null) // Not a file?
@@ -242,7 +241,7 @@ public class MultipartPoster {
 				}
 
 				//-- All done! Add a CRLF and a boundary marker.
-				os.write(m_boundary_mark_crlf);
+				os.write(m_boundary_mark_final);
 			}
 			if(m_mpsl != null)
 				m_mpsl.sending(totsz, totsz);

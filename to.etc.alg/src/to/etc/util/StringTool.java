@@ -739,6 +739,27 @@ public class StringTool {
 		arrayToAsciiStr(sb, ar, bi, nc);
 	}
 
+	/**
+	 * Dump the data as a formatted multiline buffer: like
+	 * <pre>
+	 * 	0000 ff ef aa bb cc dd 99 88  ff ef aa bb cc dd 99 88 sgdfkajse
+	 * </pre>
+	 * @param sb
+	 * @param ar
+	 * @param off
+	 * @param len
+	 * @throws IOException
+	 */
+	static public void dumpData(final Appendable sb, final byte[] ar, final int off, final int len) throws IOException {
+		int ix = off;
+		int left = len;
+		while(left > 0) {
+			StringTool.arrayToDumpLine(sb, ar, ix, left > 16 ? 16 : left);
+			sb.append("\n");
+			left -= 16;
+			ix += 16;
+		}
+	}
 
 	static public void printHex(final PrintWriter pw, final byte[] arr) {
 		printHex(pw, arr, 0, arr.length);
