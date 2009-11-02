@@ -100,6 +100,17 @@ public class FormBuilderBase {
 		m_currentInputClass = null;
 	}
 
+	public <T> void setInstance(final T instance) {
+		if(instance == null)
+			throw new IllegalArgumentException("Instance cannot be null");
+		IReadOnlyModel<T> instanceModel = new IReadOnlyModel<T>() {
+			public T getValue() throws Exception {
+				return instance;
+			}
+		};
+		setClassModel((Class<T>) instance.getClass(), instanceModel); // I HATE Java Generics. What a bunch of shit.
+	}
+
 	/**
 	 * Return the currently active class metamodel (the model that properties are obtained from). This
 	 * will never return null.
