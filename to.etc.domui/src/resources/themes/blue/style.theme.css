@@ -615,12 +615,6 @@ a.ui-nbtn:hover,a.ui-nbtn:active {
 	text-align: left;
 }
 
-.ui-dt-scrollable {
-	height: 135px;
-	overflow-x: hidden;
-	overflow-y: auto;
-}
-
 .ui-dt-hdr {
 	/* default domui table header style is still to be defined */
 }
