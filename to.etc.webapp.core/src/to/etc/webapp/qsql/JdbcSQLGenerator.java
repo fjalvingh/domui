@@ -336,4 +336,20 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 				return 100;
 		}
 	}
+
+	@Override
+	public void visitUnaryNode(final QUnaryNode n) throws Exception {
+		switch(n.getOperation()){
+			default:
+				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
+			case SQL:
+				if(n.getNode() instanceof QLiteral) {
+					QLiteral l = (QLiteral) n.getNode();
+					appendWhere((String) l.getValue());
+					return;
+				}
+				break;
+		}
+		throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
+	}
 }

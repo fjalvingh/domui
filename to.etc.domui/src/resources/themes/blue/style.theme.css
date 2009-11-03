@@ -663,6 +663,10 @@ th.ui-sortable {
 	font-size: 11px;
 }
 
+.ui-dt-separator {
+	background: url(bg-horiz-separator.png) repeat-x center;
+}
+
 /*** Small Image button ***/
 .ui-sib {
 	padding: 0px 1px 0px 1px;

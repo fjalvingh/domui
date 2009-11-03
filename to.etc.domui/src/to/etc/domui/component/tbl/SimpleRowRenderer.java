@@ -13,6 +13,16 @@ import to.etc.domui.component.meta.impl.*;
  * Created on Jun 18, 2008
  */
 public class SimpleRowRenderer extends AbstractRowRenderer implements IRowRenderer {
+	private int m_totwidth;
+
+	protected void setTotalWidth(int w) {
+		m_totwidth = w;
+	}
+
+	protected int getTotalWidth() {
+		return m_totwidth;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple renderer initialization && parameterisation	*/
 	/*--------------------------------------------------------------*/
@@ -56,14 +66,12 @@ public class SimpleRowRenderer extends AbstractRowRenderer implements IRowRender
 		initialize(xdpl);
 	}
 
-	private int m_totwidth;
-
 	/**
 	 * Initialize, using the genericized table column set.
 	 * @param clz
 	 * @param xdpl
 	 */
-	private void initialize(final List<ExpandedDisplayProperty> xdpl) {
+	protected void initialize(final List<ExpandedDisplayProperty> xdpl) {
 		//-- For all properties in the list, use metadata to define'm
 		final int[] widths = new int[80];
 		m_totwidth = 0;
@@ -76,7 +84,7 @@ public class SimpleRowRenderer extends AbstractRowRenderer implements IRowRender
 		}
 	}
 
-	private void addColumns(final List<ExpandedDisplayProperty> xdpl, final int[] widths) {
+	protected void addColumns(final List<ExpandedDisplayProperty> xdpl, final int[] widths) {
 		for(final ExpandedDisplayProperty xdp : xdpl) {
 			if(xdp instanceof ExpandedDisplayPropertyList) {
 				//-- Flatten: call for subs recursively.

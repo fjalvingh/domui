@@ -15,7 +15,7 @@ import to.etc.webapp.nls.*;
 public class DataTable extends TabularComponentBase {
 	private Table m_table = new Table();
 
-	private IRowRenderer m_rowRenderer;
+	protected IRowRenderer m_rowRenderer;
 
 	/** The size of the page */
 	private int m_pageSize;
@@ -29,6 +29,26 @@ public class DataTable extends TabularComponentBase {
 	public DataTable(ITableModel< ? > m, IRowRenderer r) {
 		super(m);
 		m_rowRenderer = r;
+	}
+
+	/**
+	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
+	 * @return
+	 */
+	protected Table getTable() {
+		return m_table;
+	}
+
+	/**
+	 * UNSTABLE INTERFACE - UNDER CONSIDERATION.
+	 * @param dataBody
+	 */
+	protected void setDataBody(TBody dataBody) {
+		m_dataBody = dataBody;
+	}
+
+	protected TBody getDataBody() {
+		return m_dataBody;
 	}
 
 	@Override

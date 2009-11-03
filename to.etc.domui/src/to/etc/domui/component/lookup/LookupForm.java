@@ -58,6 +58,8 @@ public class LookupForm<T> extends Div {
 
 	IClicked<LookupForm<T>> m_onCancel;
 
+	IClicked<LookupForm<T>> m_onConfirm;
+
 	private Table m_table;
 
 	private TBody m_tbody;
@@ -343,6 +345,21 @@ public class LookupForm<T> extends Div {
 		b.setTestID("hideButton");
 		d.add(b);
 
+		if(null != getOnConfirm()) {
+			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
+			d.add(b);
+			b.setIcon("THEME/btnConfirm.png");
+			b.setTestID("confirmButton");
+			b.setClicked(new IClicked<NodeBase>() {
+				public void clicked(final NodeBase xb) throws Exception {
+
+					if(getOnConfirm() != null) {
+						getOnConfirm().clicked(LookupForm.this);
+					}
+				}
+			});
+		}
+
 		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
 		setReturnPressed(new IReturnPressed() {
 			public void returnPressed(final Div node) throws Exception {
@@ -397,6 +414,20 @@ public class LookupForm<T> extends Div {
 
 					if(getOnCancel() != null) {
 						getOnCancel().clicked(LookupForm.this);
+					}
+				}
+			});
+		}
+		if(null != getOnConfirm()) {
+			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
+			m_collapsed.add(b);
+			b.setIcon("THEME/btnConfirm.png");
+			b.setTestID("confirmButtonCollapsed");
+			b.setClicked(new IClicked<NodeBase>() {
+				public void clicked(final NodeBase xb) throws Exception {
+
+					if(getOnConfirm() != null) {
+						getOnConfirm().clicked(LookupForm.this);
 					}
 				}
 			});
@@ -826,5 +857,17 @@ public class LookupForm<T> extends Div {
 
 	public IClicked<LookupForm<T>> getOnCancel() {
 		return m_onCancel;
+	}
+
+	/**
+	 * When set, this causes a "confirm" button to be added to the form. When that button is pressed this handler gets called.
+	 * @param onCancel
+	 */
+	public void setOnConfirm(IClicked<LookupForm<T>> onConfirm) {
+		m_onConfirm = onConfirm;
+	}
+
+	public IClicked<LookupForm<T>> getOnConfirm() {
+		return m_onConfirm;
 	}
 }

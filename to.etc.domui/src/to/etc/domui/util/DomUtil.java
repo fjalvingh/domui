@@ -887,5 +887,20 @@ final public class DomUtil {
 		}
 	}
 
-
+	/**
+	 * Convert a CSS size string like '200px' into the 200... If the size string is in any way
+	 * invalid this returns -1.
+	 *
+	 * @param css
+	 * @return
+	 */
+	static public int pixelSize(String css) {
+		if(!css.endsWith("px"))
+			return -1;
+		try {
+			return Integer.parseInt(css.substring(0, css.length() - 2).trim());
+		} catch(Exception x) {
+			return -1;
+		}
+	}
 }
