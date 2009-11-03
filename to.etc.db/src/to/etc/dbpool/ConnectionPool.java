@@ -301,7 +301,11 @@ public class ConnectionPool implements DbConnectorSet {
 	/** When T this logs all statements to stdout */
 	private boolean m_logStatements;
 
-	public ConnectionPool(final PoolManager pm, final String id, final String driver, final String url, final String userid, final String passwd, final String driverpath) throws SQLException {
+	private boolean m_ignoreUnclosed;
+
+	private boolean m_disableOldiesScanner;
+
+	public ConnectionPool(PoolManager pm, String id, String driver, String url, String userid, String passwd, String driverpath) throws SQLException {
 		m_manager = pm;
 		m_id = id;
 		m_url = url;
@@ -346,6 +350,8 @@ public class ConnectionPool implements DbConnectorSet {
 			String dp = cs.getProperty(id, "driverpath");
 			boolean cost = cs.getBool(id, "statistics", false);
 			m_printExceptions = cs.getBool(id, "printexceptions", false);
+			m_ignoreUnclosed = cs.getBool(id, "ignoreunclosed", false);
+			m_disableOldiesScanner = cs.getBool(id, "disablescan", false);
 			if(cost)
 				pm.setCollectStatistics(true);
 
@@ -1655,4 +1661,11 @@ public class ConnectionPool implements DbConnectorSet {
 		m_logStatements = logStatements;
 	}
 
+	public boolean isIgnoreUnclosed() {
+		return m_ignoreUnclosed;
+	}
+
+	public boolean isDisableOldiesScanner() {
+		return m_disableOldiesScanner;
+	}
 }
