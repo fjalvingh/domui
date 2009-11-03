@@ -55,7 +55,7 @@ public class ConnectionPoolEntry {
 
 	static protected final String connInvalidated = "INVALIDATED";
 
-	/** 
+	/**
 	 * TRUE if this is an unpooled connection.
 	 */
 	private boolean m_is_unpooled;
@@ -497,7 +497,7 @@ public class ConnectionPoolEntry {
 
 	/**
 	 * This takes a dbpool stacktrace and "filters" out lines. The lines that have
-	 * to do with the dumping process (dbgSaveLocation and the like) are removed, 
+	 * to do with the dumping process (dbgSaveLocation and the like) are removed,
 	 * and if maxlines is > 0 only the #of lines specified is dumped. It also
 	 * removes the "dummy" exception line. While each line gets copied this also
 	 * checks if the line contains a generic servlet request line; if so all after
@@ -651,7 +651,6 @@ public class ConnectionPoolEntry {
 			m_pool.decOpenStmt();
 	}
 
-
 	/**
 	 *	Called by close() to close all tracked resources. MUST BE CALLED WITHOUT
 	 *  LOCK!!!!
@@ -674,7 +673,6 @@ public class ConnectionPoolEntry {
 		//-- Now decrement statement count out of lock.
 		m_pool.decOpenStmt(nclosed);
 	}
-
 
 	/**
 	 *	Closes a specified resource and IGNORES all exceptions there... CALLED

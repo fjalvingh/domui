@@ -373,7 +373,7 @@ public class DateUtil {
 		if(finisheddate == null) {
 			cal.set(0, 0, 0, 0, 0);
 		} else {
-		cal.setTime(finisheddate);
+			cal.setTime(finisheddate);
 		}
 		int hr = cal.get(Calendar.HOUR_OF_DAY); // Retrieve time from value to set;
 		int mn = cal.get(Calendar.MINUTE);

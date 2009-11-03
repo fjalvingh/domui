@@ -19,7 +19,7 @@ import to.etc.dbutil.*;
  * The connection pool is a generic provider for database connections of
  * several types. These can be pooled connections but the thing can also be
  * used to provide connections without a pooled set being built.</p>
- * 
+ *
  * <p>To start a pool it needs to be <i>defined</i> first. Defining the
  * pool means that the definePool() call in the PoolManager has been called,
  * providing the pool's data like it's ID, the database driver to use, the
@@ -27,32 +27,32 @@ import to.etc.dbutil.*;
  * of connections.
  * After definition all of the connection calls work but when a connection
  * is closed it gets discarded as well, i.e. it is not returned to the pool.</p>
- * 
+ *
  * <p>To start pooling connections you need to call initializePool() after it's
  * definition. This forces the pool to allocate it's minimum number of available
  * connections, and new connections will be retrieved from here. When connections
  * are closed they will be returned to the pool unless the max #of open connections
  * is reached in which case the connection will be discarded.</p>
- * 
+ *
  * <h2>Connections from the pool</h2>
  * <p>Connections returned by this code are always wrapped by a Connection
- * wrapper. We call these connections <b>Connection proxies</b>. 
+ * wrapper. We call these connections <b>Connection proxies</b>.
  * To obtain the actual connection (for instance when you need to
  * do driver-specific calls) you need to cast the Connection to the
  * PooledConnection wrapper and call getRealConnection() on it.</p>
- * 
- * <p>All of the pools' connections do resource management: all resources (statements, 
+ *
+ * <p>All of the pools' connections do resource management: all resources (statements,
  * result sets) obtained from the connection is kept in a list with the connection
  * so that they can be released/closed as soon as the connection proxy is closed. This
  * prevents reused real connections from having open statements. It also means that resource
- * leaks are minimized: as long as the connection is closed it also closes all open 
+ * leaks are minimized: as long as the connection is closed it also closes all open
  * cursors.</p>
- * 
+ *
  * <h2>Main connection types</h2>
  * <p>Two main types of connection exist: <i>Pooled connections</i> and <i>Unpooled
  * connections</i>. The latter is a bit of a misnomer but the term is kept because
  * too much code uses these terms.</p>
- * 
+ *
  * <h3>Pooled connections</h3>
  * <p>Pooled connections are connections that are used in server applications. These
  * are obtained from the set of free connections if possible and are subject to several
@@ -76,7 +76,7 @@ import to.etc.dbutil.*;
  * <h3>Unpooled connections</h3>
  * <p>Unpooled connections are connections that do not have the above checks
  * executed on them. As such they can execute database code that takes longer
- * for instance for deamon-like tasks. If the pool operates in pooled mode 
+ * for instance for deamon-like tasks. If the pool operates in pooled mode
  * the connections are allocated from the available connections in the pool so
  * they will be provided quickly.</p>
  * <p>In addition, Unpooled connections are not counted as "used" connections
@@ -90,8 +90,8 @@ import to.etc.dbutil.*;
  * proxy into <i>uncloseable</i> mode with a call to setCloseable(false). After
  * this call all calls to close() are silently ignored. To actually close the proxy
  * you need to call closeForced().</p>
- * 
- * <p>This is used in server code where connections are cached during a request. As 
+ *
+ * <p>This is used in server code where connections are cached during a request. As
  * a server executes many code sections during the handling of a request the overhead
  * of allocating connections for every database action is large. Another problem is
  * that calling code from other code can cause multiple connections to be allocated
@@ -101,25 +101,25 @@ import to.etc.dbutil.*;
  * to uncloseable at allocation time and closing it in a top-level code part just
  * before the request terminates. Setting the connection to uncloseable ensures that
  * if code calls close the connection stays alive for other code.</p>
- * 
+ *
  * <h2>Thread connections<h2>
- * <p>Besides explicit connection caching where a connection is obtained, set to 
+ * <p>Besides explicit connection caching where a connection is obtained, set to
  * uncloseable and reused by calls there is another way to cache connections during
  * the lifetime of a request: by using ThreadConnections. A thread connection can
  * be pooled or unpooled as usual. When a thread connection is allocated the connection
  * is registered to belong to the thread which allocated it. This thread becomes the
  * "owner" of that thread. The current ThreadConnection for any given pool and Thread
  * can be quickly obtained by looking in a per-thread hashtable mapped by pool.</p>
- * 
+ *
  * <p>The first time a thread allocates a ThreadConnection it will not have a current
  * one so a new connection of the requested base type (pooled, unpooled) is allocated
  * and saved in the thread's map. This connection will then be set to uncloseable to
  * prevent it from being closed inadvertedly.</p>
- * 
+ *
  * <p>The next time the thread requests a ThreadConnection this stored copy will be
  * returned, allowing for reuse of a connection during the time it is allocated to
  * the thread.</p>
- * 
+ *
  * <p>Since a ThreadConnection is uncloseable calling close() on it will not close
  * the connection; this must be done either by calling closeForced() or by calling
  * the closeThreadConnections() call on the poolmanager. This call will walk the
@@ -128,14 +128,14 @@ import to.etc.dbutil.*;
  * will allocate a new connection from the poolset.
  *
  * <h2>Interaction between ThreadConnections and the other shit</h2>
- * <p>Unfortunately the "cache-it-myself" and the ThreadConnections method of 
+ * <p>Unfortunately the "cache-it-myself" and the ThreadConnections method of
  * connection caching do not mix that well. It would be best to select one method
  * for a complete system and not use the other. If this is impossible (because multiple
  * code bases each use their own approach like NEMA) there are some special semantics
  * to remember.
- * 
- * <p>Mixing both methods works best if the "cache-it-yourself" method uses a 
- * ThreadConnection and does not forcefully close it, leaving that to the 
+ *
+ * <p>Mixing both methods works best if the "cache-it-yourself" method uses a
+ * ThreadConnection and does not forcefully close it, leaving that to the
  * closeThreadConnections() call. If the "cache-it-yourself" method allocates a pooled
  * connection (not a thread connection) and another piece of code allocates a thread
  * connection this will cause a single thread to use two connections (possibly to the
@@ -170,8 +170,8 @@ public class ConnectionPool implements DbConnectorSet {
 	/** The current #of allocated and used unpooled connections. */
 	private int m_n_unpooled_inuse;
 
-	/** 
-	 * The current #of connections allocated for the POOL. This does NOT include 
+	/**
+	 * The current #of connections allocated for the POOL. This does NOT include
 	 * the unpooled connections. The total #of connections used by the pool is
 	 * the sum of this variable plus m_n_unpooled_inuse.
 	 */
@@ -442,7 +442,7 @@ public class ConnectionPool implements DbConnectorSet {
 			}
 		}
 
-		//-- Step 2: create an instance. 
+		//-- Step 2: create an instance.
 		try {
 			Driver d = (Driver) cl.newInstance();
 			System.out.println("load: class=" + d + ", inst=" + d.getMajorVersion() + "." + d.getMinorVersion());
@@ -554,7 +554,7 @@ public class ConnectionPool implements DbConnectorSet {
 	/**
 	 * Called to get the "is connection OK" sql command for this
 	 * pool.
-	 * 
+	 *
 	 * @return
 	 * @throws SQLException
 	 */
@@ -573,10 +573,10 @@ public class ConnectionPool implements DbConnectorSet {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Tries to put the pool in "pooled mode". If the pool already is
-	 * in pooled mode we are done before we knew it ;-) 
+	 * in pooled mode we are done before we knew it ;-)
 	 */
 	public synchronized void initialize() throws SQLException {
-		if(m_is_pooledmode) // Already in pooled mode? 
+		if(m_is_pooledmode) // Already in pooled mode?
 			return;
 		m_manager.dbStartJanitor(); // Start the checker thread.
 
@@ -658,13 +658,13 @@ public class ConnectionPool implements DbConnectorSet {
 	 * it will be returned. If the request is for an unpooled connection and the
 	 * free pool was empty a new connection will be allocated and returned, without
 	 * it being counted as a "used" connection.
-	 * 
+	 *
 	 * <p>If the freelist is exhausted we need to allocate a new connection, if
 	 * allowed. This needs to be done outside the lock because JDBC can lock too
 	 * and this would cause the pool to be locked while a connection gets allocated.
 	 * Before allocating the connection we up the connection counts to ensure that
-	 * the connection count is not exceeded. 
-	 * 
+	 * the connection count is not exceeded.
+	 *
 	 * @return
 	 * @throws SQLException
 	 */
@@ -693,7 +693,7 @@ public class ConnectionPool implements DbConnectorSet {
 						m_n_pooledAllocated--; // One less allocated in the poolset.
 						m_n_unpooled_inuse++; // And one more in use
 					} else {
-						//-- Unpooled connections influence the "used" count. 
+						//-- Unpooled connections influence the "used" count.
 						m_n_pooled_inuse++;
 						if(m_n_pooled_inuse > m_max_used)
 							m_max_used = m_n_pooled_inuse;
@@ -737,7 +737,7 @@ public class ConnectionPool implements DbConnectorSet {
 						PoolManager.panic("No more database pool connections for pool " + getID(), msg);
 					}
 
-					if(ctries > 5) { // If too many retries abort, 
+					if(ctries > 5) { // If too many retries abort,
 						m_n_connectionfails++;
 						StringBuffer sb = new StringBuffer(1024 * 1024);
 						dumpUsedConnections(sb);
@@ -857,7 +857,7 @@ public class ConnectionPool implements DbConnectorSet {
 	}
 
 	/**
-	 * Called to demote a pooled to an unpooled connection. 
+	 * Called to demote a pooled to an unpooled connection.
 	 * @param dbc
 	 */
 	void makeUnpooled(final PooledConnection dbc) {
@@ -903,7 +903,7 @@ public class ConnectionPool implements DbConnectorSet {
 		} finally {
 			synchronized(this) {
 				/*
-				 * If the reset was okay AND the connection count does not exceed 
+				 * If the reset was okay AND the connection count does not exceed
 				 * the max count we return this to the pool, else we discard the
 				 * connection.
 				 */
@@ -1025,7 +1025,7 @@ public class ConnectionPool implements DbConnectorSet {
 			ConnectionPoolEntry pe = allocateConnection(unpooled);
 			Exception x = checkConnection(pe.m_cx); // Is the connection still valid?
 			if(x == null) {
-				PooledConnection dbc = pe.proxyMake(); // Yes-> make the proxy and be done. 
+				PooledConnection dbc = pe.proxyMake(); // Yes-> make the proxy and be done.
 				dbgAlloc("getConnection", dbc);
 				return dbc;
 			}
@@ -1039,7 +1039,7 @@ public class ConnectionPool implements DbConnectorSet {
 	/**
 	 * This is the code to be called to allocate a connection using a
 	 * possible cache.
-	 * 
+	 *
 	 * @param unpooled
 	 * @return
 	 * @throws SQLException
