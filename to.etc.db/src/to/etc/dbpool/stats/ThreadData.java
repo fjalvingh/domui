@@ -33,7 +33,7 @@ public class ThreadData implements InfoCollector {
 	private byte m_type;
 
 	/** The time that this request started. */
-	private long m_ts_started;
+	private final long m_ts_started;
 
 	/** Duration of the entire request in nano's */
 	private long m_requestDuration;

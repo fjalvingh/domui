@@ -289,8 +289,10 @@ public class PoolManager {
 		//-- Righty right. Get a list of ALL pools and scan them for old shit.
 		ConnectionPool[] ar = getPoolList();
 		//		DBJAN.msg("Scanning for hanging connections in "+ar.length+" pools");
-		for(int i = 0; i < ar.length; i++)
-			ar[i].scanForOldies(scaninterval_in_secs);
+		for(int i = 0; i < ar.length; i++) {
+			if(!ar[i].isDisableOldiesScanner())
+				ar[i].scanForOldies(scaninterval_in_secs);
+		}
 	}
 
 	/*--------------------------------------------------------------*/

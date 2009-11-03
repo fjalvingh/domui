@@ -661,10 +661,12 @@ public class ConnectionPoolEntry {
 
 		synchronized(this) // Remove and close all resources while locked,
 		{
-			for(Iterator i = m_use_set.iterator(); i.hasNext();) {
-				Object o = i.next();
-				_closeResource(o);
-				nclosed++;
+			if(!m_pool.isIgnoreUnclosed()) {
+				for(Iterator i = m_use_set.iterator(); i.hasNext();) {
+					Object o = i.next();
+					_closeResource(o);
+					nclosed++;
+				}
 			}
 			m_use_set.clear();
 		}
