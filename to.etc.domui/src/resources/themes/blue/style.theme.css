@@ -405,19 +405,25 @@ table.ui-lui {
 table.ui-lui-selected {
 	width: 100%;
 	white-space: nowrap;
+	margine: 1px;
 }
-
-.ui-lui-v {
+.ui-lui-v { /* no selection is rendered transparent without border */
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+}
+.ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
 	padding: 0px;
 	margin: 0px;
 	background-color: #ffffff;
 	width: 100%;
+	outline:#7F9DB9 solid 1px; /* same border color as default one for input fields is hardcoded */
 }
 .ui-input-err * .ui-lui-v {
 	background-color: #ffe5e5 !important;
 }
 .ui-lui-vcell {
-	width: 90%;
+	width: 99%;
 }
 
 /*** LookupForm ***/
@@ -782,7 +788,6 @@ li.ui-tab-err {
 
 .ui-tab-hdr .ui-tab-err a {
 	background-image: url(tab-off-err-right.png);
-	padding: 5px 28px 4px 6px;
 }
 
 .ui-tab-hdr .ui-tab-sel a {
