@@ -45,9 +45,9 @@ public class MultipartPoster {
 
 	//	static private	byte[]		m_boundary;
 
-	static private String			m_boundary_str;
+	static private String m_boundary_str;
 
-	static private byte[]			m_boundary_mark;
+	static private byte[] m_boundary_mark;
 
 	static private byte[] m_boundary_mark_final;
 

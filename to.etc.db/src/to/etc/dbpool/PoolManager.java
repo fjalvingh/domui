@@ -97,7 +97,7 @@ public class PoolManager {
 	/*	CODING:	Defining and initializing pools.					*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Defines the pool with the specified ID from the ConfigSource passed. 
+	 * Defines the pool with the specified ID from the ConfigSource passed.
 	 * The pool is defined but NOT initialized. The same pool can be
 	 * defined more than once provided it's parameters are all the same. After
 	 * this call the pool can be used but it operates in "unpooled" mode, meaning
@@ -138,7 +138,7 @@ public class PoolManager {
 
 	/**
 	 * This defines a pool, taking it's config from a properties file.
-	 *  
+	 *
 	 * @param poolfile
 	 * @param id
 	 * @throws Exception
@@ -149,7 +149,7 @@ public class PoolManager {
 	}
 
 	/**
-	 * This defines a pool using the default poolfile ".dbpool.properties" stored 
+	 * This defines a pool using the default poolfile ".dbpool.properties" stored
 	 * in the user's home directory. If no such file is found then an exception
 	 * is thrown.
 	 * @param id
@@ -181,7 +181,7 @@ public class PoolManager {
 	}
 
 	/**
-	 * This combines defining and initializing a pool. 
+	 * This combines defining and initializing a pool.
 	 * @param cs	The configsource to take definitions from
 	 * @param id	The ID of the pool to define.
 	 * @throws Exception
@@ -193,9 +193,9 @@ public class PoolManager {
 	}
 
 	/**
-	 * This combines defining and initializing a pool, taking it's config from 
+	 * This combines defining and initializing a pool, taking it's config from
 	 * a properties file.
-	 *  
+	 *
 	 * @param poolfile
 	 * @param id
 	 * @throws Exception
@@ -224,7 +224,7 @@ public class PoolManager {
 
 	/**
 	 * Tries to return a database type for the connection passed.
-	 * 
+	 *
 	 * @param dbc		the connection to check
 	 * @return			a dbtype for the connection.
 	 */
@@ -340,16 +340,16 @@ public class PoolManager {
 	/*----------------------------------------------------------*/
 	/*	CODING:	ThreadConnection stuff.							*/
 	/*----------------------------------------------------------*/
-	/** 
-	 * <p>The thread map. Contains a ThreadConnectionInfo per thread. We 
+	/**
+	 * <p>The thread map. Contains a ThreadConnectionInfo per thread. We
 	 * cannot use a ThreadLocal thingy because the Janitor thread must be able
 	 * to remove ThreadConnections when they expire. This map is locked
-	 * on 'this'; the connection maps contained herein are locked by self. 
-	 * 
+	 * on 'this'; the connection maps contained herein are locked by self.
+	 *
 	 * <p><b>WARNING</b>: Please do NOT assume that since the connection map
 	 * is a per-thread entry that locking it is unneccesary! In normal
 	 * circumstances this is true, but not when a connection is forcefully
-	 * released by a Janitor process for instance!   
+	 * released by a Janitor process for instance!
 	 */
 	private final WeakHashMap m_thread_ht = new WeakHashMap();
 
@@ -427,7 +427,7 @@ public class PoolManager {
 	 * for this thread. If not a connection will be allocated and cached, else
 	 * the cached copy will be returned. Calls to this MUST be terminated somewhere
 	 * with a call to closeThreadConnections to close all cached connections.
-	 * 
+	 *
 	 * <p>The connections allocated by this call are all made "uncloseable", meaning
 	 * that calls to "close" do not work.
 	 */
@@ -443,7 +443,7 @@ public class PoolManager {
 	 * publicly accessible connection allocation methods. It checks to see if the
 	 * thread has caching enabled. If so it tries to use a cached connection. If not
 	 * it returns a newly allocated connection using a protected allocation method.
-	 *  
+	 *
 	 * @param p
 	 * @param unpooled
 	 * @return
@@ -529,18 +529,18 @@ public class PoolManager {
 	//				String s = "Connection released for thread "+t+" is DIFFERENT from the CURRENT connection for this thread!";
 	//				PoolManager.logUnexpected(s);
 	//				throw new IllegalStateException(s);
-	//			}	
+	//			}
 	//			else
 	//			{
 	//				if(null == wm.remove(p.getID()))
 	//					throw new IllegalStateException("Failed to remove thread connection: "+pc);
-	//						
+	//
 	//			}
 	//		}
 	//	}
 
 
-	/**	
+	/**
 	 * Closes the single named connection in the thread's connection
 	 * list if it IS open.
 	 * @param poolid
