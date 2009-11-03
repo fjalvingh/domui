@@ -58,7 +58,7 @@ public class LookupForm<T> extends Div {
 
 	IClicked<LookupForm<T>> m_onCancel;
 
-	IClicked<LookupForm<T>> m_onConfirm;
+	private DefaultButton m_collapseButton;
 
 	private Table m_table;
 
@@ -67,6 +67,8 @@ public class LookupForm<T> extends Div {
 	private Div m_content;
 
 	private NodeContainer m_collapsed;
+
+	private NodeContainer m_buttonRow;
 
 	private ControlBuilder m_builder;
 
@@ -202,7 +204,7 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
-	 * Item that is used internally by LookupForm to mark table break when creating search field components.  
+	 * Item that is used internally by LookupForm to mark table break when creating search field components.
 	 *
 	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
 	 * Created on 13 Oct 2009
@@ -213,6 +215,52 @@ public class LookupForm<T> extends Div {
 	/** The primary list of defined lookup items. */
 	private List<Item> m_itemList = new ArrayList<Item>(20);
 
+	static public enum ButtonMode {
+		/** Show this button only when the lookup form is expanded */
+		NORMAL,
+
+		/** Show this button only when the lookup form is collapsed */
+		COLLAPSED,
+
+		/** Always show this button. */
+		BOTH
+	}
+
+	/**
+	 * A button that needs to be present @ the button bar.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Nov 3, 2009
+	 */
+	private static class ButtonRowItem {
+		private int m_order;
+
+		private ButtonMode m_mode;
+
+		private NodeBase m_thingy;
+
+		public ButtonRowItem(int order, ButtonMode mode, NodeBase thingy) {
+			m_order = order;
+			m_mode = mode;
+			m_thingy = thingy;
+		}
+
+		public ButtonMode getMode() {
+			return m_mode;
+		}
+
+		public int getOrder() {
+			return m_order;
+		}
+
+		public NodeBase getThingy() {
+			return m_thingy;
+		}
+	}
+
+	/** The list of buttons to show on the button row. */
+	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
+
 	/**
 	 * Create a LookupForm to find instances of the specified class.
 	 * @param lookupClass
@@ -222,6 +270,7 @@ public class LookupForm<T> extends Div {
 		m_lookupClass = lookupClass;
 		for(String prop : propertyList)
 			addProperty(prop);
+		defineDefaultButtons();
 	}
 
 	/**
@@ -286,9 +335,20 @@ public class LookupForm<T> extends Div {
 		Div d = new Div();
 		d.setTestID("buttonBar");
 		sroot.add(d);
+		m_buttonRow = d;
+		createButtonRow(d, false);
 
+		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
+		setReturnPressed(new IReturnPressed() {
+			public void returnPressed(final Div node) throws Exception {
+				if(m_clicker != null)
+					m_clicker.clicked(LookupForm.this);
+			}
+		});
+	}
+
+	protected void defineDefaultButtons() {
 		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
-		d.add(b);
 		b.setIcon("THEME/btnFind.png");
 		b.setTestID("searchButton");
 		b.setClicked(new IClicked<NodeBase>() {
@@ -297,9 +357,9 @@ public class LookupForm<T> extends Div {
 					m_clicker.clicked(LookupForm.this);
 			}
 		});
+		addButtonItem(b, 100, ButtonMode.NORMAL);
 
 		b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
-		d.add(b);
 		b.setIcon("THEME/btnClear.png");
 		b.setTestID("clearButton");
 		b.setClicked(new IClicked<NodeBase>() {
@@ -309,10 +369,10 @@ public class LookupForm<T> extends Div {
 					getOnClear().clicked(LookupForm.this);
 			}
 		});
+		addButtonItem(b, 200, ButtonMode.NORMAL);
 
 		if(getOnNew() != null) {
 			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
-			d.add(b);
 			b.setIcon("THEME/btnNew.png");
 			b.setTestID("newButton");
 			b.setClicked(new IClicked<NodeBase>() {
@@ -320,10 +380,11 @@ public class LookupForm<T> extends Div {
 					getOnNew().clicked(LookupForm.this);
 				}
 			});
+			addButtonItem(b, 300, ButtonMode.BOTH);
 		}
+
 		if(null != getOnCancel()) {
 			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
-			d.add(b);
 			b.setIcon("THEME/btnCancel.png");
 			b.setTestID("cancelButton");
 			b.setClicked(new IClicked<NodeBase>() {
@@ -334,39 +395,32 @@ public class LookupForm<T> extends Div {
 					}
 				}
 			});
+			addButtonItem(b, 400, ButtonMode.BOTH);
 		}
 
 		//-- Collapse button thingy
-		b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
+		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton bx) throws Exception {
 				collapse();
 			}
 		});
-		b.setTestID("hideButton");
-		d.add(b);
-
-		if(null != getOnConfirm()) {
-			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
-			d.add(b);
-			b.setIcon("THEME/btnConfirm.png");
-			b.setTestID("confirmButton");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
-
-					if(getOnConfirm() != null) {
-						getOnConfirm().clicked(LookupForm.this);
-					}
-				}
-			});
-		}
-
-		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
-		setReturnPressed(new IReturnPressed() {
-			public void returnPressed(final Div node) throws Exception {
-				if(m_clicker != null)
-					m_clicker.clicked(LookupForm.this);
-			}
-		});
+		m_collapseButton.setTestID("hideButton");
+		addButtonItem(m_collapseButton, 500, ButtonMode.BOTH);
+		//
+		//		if(null != getOnConfirm()) {
+		//			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
+		//			d.add(b);
+		//			b.setIcon("THEME/btnConfirm.png");
+		//			b.setTestID("confirmButton");
+		//			b.setClicked(new IClicked<NodeBase>() {
+		//				public void clicked(final NodeBase xb) throws Exception {
+		//
+		//					if(getOnConfirm() != null) {
+		//						getOnConfirm().clicked(LookupForm.this);
+		//					}
+		//				}
+		//			});
+		//		}
 	}
 
 	private boolean containsItemBreaks(List<Item> itemList) {
@@ -390,57 +444,58 @@ public class LookupForm<T> extends Div {
 		//		m_content.setDisplay(DisplayType.NONE);
 		m_collapsed = new Div();
 		m_collapsed.setCssClass("ui-lf-coll");
-
 		add(m_collapsed);
 
-		if(getOnNew() != null) {
-			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
-			b.setTestID("newButtonCollapsed");
-			m_collapsed.add(b);
-			b.setIcon("THEME/btnNew.png");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
-					getOnNew().clicked(LookupForm.this);
-				}
-			});
-		}
-		if(null != getOnCancel()) {
-			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
-			b.setTestID("cancelButtonCollapsed");
-			m_collapsed.add(b);
-			b.setIcon("THEME/btnCancel.png");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
-
-					if(getOnCancel() != null) {
-						getOnCancel().clicked(LookupForm.this);
-					}
-				}
-			});
-		}
-		if(null != getOnConfirm()) {
-			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
-			m_collapsed.add(b);
-			b.setIcon("THEME/btnConfirm.png");
-			b.setTestID("confirmButtonCollapsed");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
-
-					if(getOnConfirm() != null) {
-						getOnConfirm().clicked(LookupForm.this);
-					}
-				}
-			});
-		}
-
 		//-- Collapse button thingy
-		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
+		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
+		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton bx) throws Exception {
 				restore();
 			}
 		});
-		b.setTestID("restoreButtonCollapsed");
-		m_collapsed.add(b);
+		createButtonRow(m_collapsed, true);
+
+		//
+		//		if(getOnNew() != null) {
+		//			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
+		//			b.setTestID("newButtonCollapsed");
+		//			m_collapsed.add(b);
+		//			b.setIcon("THEME/btnNew.png");
+		//			b.setClicked(new IClicked<NodeBase>() {
+		//				public void clicked(final NodeBase xb) throws Exception {
+		//					getOnNew().clicked(LookupForm.this);
+		//				}
+		//			});
+		//		}
+		//		if(null != getOnCancel()) {
+		//			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
+		//			b.setTestID("cancelButtonCollapsed");
+		//			m_collapsed.add(b);
+		//			b.setIcon("THEME/btnCancel.png");
+		//			b.setClicked(new IClicked<NodeBase>() {
+		//				public void clicked(final NodeBase xb) throws Exception {
+		//
+		//					if(getOnCancel() != null) {
+		//						getOnCancel().clicked(LookupForm.this);
+		//					}
+		//				}
+		//			});
+		//		}
+		//		if(null != getOnConfirm()) {
+		//			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
+		//			m_collapsed.add(b);
+		//			b.setIcon("THEME/btnConfirm.png");
+		//			b.setTestID("confirmButtonCollapsed");
+		//			b.setClicked(new IClicked<NodeBase>() {
+		//				public void clicked(final NodeBase xb) throws Exception {
+		//
+		//					if(getOnConfirm() != null) {
+		//						getOnConfirm().clicked(LookupForm.this);
+		//					}
+		//				}
+		//			});
+		//		}
+
 	}
 
 	void restore() {
@@ -448,6 +503,15 @@ public class LookupForm<T> extends Div {
 			return;
 		m_collapsed.remove();
 		m_collapsed = null;
+		createButtonRow(m_buttonRow, false);
+
+		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
+		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
+			public void clicked(DefaultButton bx) throws Exception {
+				collapse();
+			}
+		});
+
 		m_content.setDisplay(DisplayType.BLOCK);
 	}
 
@@ -859,15 +923,53 @@ public class LookupForm<T> extends Div {
 		return m_onCancel;
 	}
 
-	/**
-	 * When set, this causes a "confirm" button to be added to the form. When that button is pressed this handler gets called.
-	 * @param onCancel
-	 */
-	public void setOnConfirm(IClicked<LookupForm<T>> onConfirm) {
-		m_onConfirm = onConfirm;
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Button row code.									*/
+	/*--------------------------------------------------------------*/
+
+	public void addButtonItem(NodeBase b) {
+		addButtonItem(b, m_buttonItemList.size(), ButtonMode.BOTH);
 	}
 
-	public IClicked<LookupForm<T>> getOnConfirm() {
-		return m_onConfirm;
+	/**
+	 * Add a button (or other item) to show on the button row. The item will
+	 * be visible always.
+	 * @param b
+	 * @param order
+	 */
+	public void addButtonItem(NodeBase b, int order) {
+		addButtonItem(b, order, ButtonMode.BOTH);
+	}
+
+	/**
+	 * Add a button (or other item) to show on the button row.
+	 *
+	 * @param b
+	 * @param order
+	 * @param both
+	 */
+	public void addButtonItem(NodeBase b, int order, ButtonMode both) {
+		if(m_buttonItemList == Collections.EMPTY_LIST)
+			m_buttonItemList = new ArrayList<ButtonRowItem>(10);
+		m_buttonItemList.add(new ButtonRowItem(order, both, b));
+	}
+
+	/**
+	 * Add all buttons defined for the button row to it.
+	 * @param c
+	 * @param iscollapsed
+	 */
+	private void createButtonRow(NodeContainer c, boolean iscollapsed) {
+		Collections.sort(m_buttonItemList, new Comparator<ButtonRowItem>() { // Sort in ascending order,
+				public int compare(ButtonRowItem o1, ButtonRowItem o2) {
+					return o1.getOrder() - o2.getOrder();
+				}
+			});
+
+		for(ButtonRowItem bi: m_buttonItemList) {
+			if((iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.COLLAPSED)) || (!iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.NORMAL))) {
+				c.add(bi.getThingy());
+			}
+		}
 	}
 }
