@@ -5,7 +5,7 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
-public class TextArea extends InputNodeContainer implements IInputNode<String> {
+public class TextArea extends InputNodeContainer implements IInputNode<String>, IHasModifiedIndication {
 	private int m_cols = -1;
 
 	private int m_rows = -1;
@@ -13,6 +13,9 @@ public class TextArea extends InputNodeContainer implements IInputNode<String> {
 	private String m_value;
 
 	private boolean m_disabled;
+
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	private boolean m_modifiedByUser;
 
 	public TextArea() {
 		super("textarea");
@@ -92,10 +95,30 @@ public class TextArea extends InputNodeContainer implements IInputNode<String> {
 
 	@Override
 	public void acceptRequestParameter(String[] values) throws Exception {
-		if(values == null || values.length != 1)
-			setValue(null);
-		else
-			setValue(values[0]);
+		String nw = (values == null || values.length != 1) ? null : values[0];
+		if(!DomUtil.isEqual(nw, m_value)) {
+			setValue(nw);
+			m_modifiedByUser = true;
+		}
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
 	}
 
 	/*--------------------------------------------------------------*/

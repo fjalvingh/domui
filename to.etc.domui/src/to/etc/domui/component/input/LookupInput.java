@@ -16,7 +16,7 @@ import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
-public class LookupInput<T> extends Table implements IInputNode<T> {
+public class LookupInput<T> extends Table implements IInputNode<T>, IHasModifiedIndication {
 	private LookupForm<T> m_externalLookupForm;
 
 	private SmallImgButton m_selButton;
@@ -29,7 +29,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	DataTable m_result;
 
-	private T m_value;
+	T m_value;
 
 	private boolean m_mandatory;
 
@@ -53,6 +53,9 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	private IActionAllowed m_isLookupAllowed;
 
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	boolean m_modifiedByUser;
+
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass);
 		m_resultColumns = resultColumns;
@@ -72,6 +75,8 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
 			public void clicked(SmallImgButton b) throws Exception {
+				if(m_value != null)
+					m_modifiedByUser = true;
 				setValue(null);
 				//-- Handle onValueChanged
 				if(getOnValueChanged() != null) {
@@ -219,6 +224,8 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 					//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
 					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					LookupInput.this.toggleFloater();
+					if(!MetaManager.areObjectsEqual(val, m_value, null))
+						m_modifiedByUser = true;
 					setValue(val);
 
 					//-- Handle onValueChanged
@@ -476,6 +483,25 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	public void setCustomErrorMessageListener(IErrorMessageListener customErrorMessageListener) {
 		m_customErrorMessageListener = customErrorMessageListener;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
 	}
 
 	/*--------------------------------------------------------------*/

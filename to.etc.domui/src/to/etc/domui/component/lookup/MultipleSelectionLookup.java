@@ -2,7 +2,9 @@ package to.etc.domui.component.lookup;
 
 import java.util.*;
 
+import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
+import to.etc.domui.component.lookup.LookupForm.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -56,6 +58,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		body.add(this);
 	}
 
+
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
@@ -72,12 +75,17 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(m_lookupClass);
 		if(m_onReceiveResult != null) {
-			lf.setOnConfirm(new IClicked<LookupForm<T>>() {
-				public void clicked(LookupForm<T> b) throws Exception {
+			//-- Add a "confirm" button to the lookup form
+			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
+			b.setIcon("THEME/btnConfirm.png");
+			b.setTestID("confirmButtonCollapsed");
+			b.setClicked(new IClicked<NodeBase>() {
+				public void clicked(final NodeBase xb) throws Exception {
 					close();
 					m_onReceiveResult.onReturnResult((m_queryResultTable != null) ? m_queryResultTable.getAccumulatedResults() : Collections.EMPTY_LIST);
 				}
 			});
+			lf.addButtonItem(b, 600, ButtonMode.BOTH);
 		}
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		add(lf);
