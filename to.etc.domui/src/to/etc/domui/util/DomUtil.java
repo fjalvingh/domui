@@ -903,4 +903,93 @@ final public class DomUtil {
 			return -1;
 		}
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Tree walking helpers.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Functor interface to handle tree walking.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Nov 3, 2009
+	 */
+	static public interface IPerNode {
+		public Object before(NodeBase n) throws Exception;
+
+		public Object after(NodeBase n) throws Exception;
+	}
+
+	/**
+	 * Walks a node tree, calling the handler for every node in the tree. As soon as
+	 * a handler returns not-null traversing stops and that object gets returned.
+	 * @param handler
+	 * @return
+	 * @throws Exception
+	 */
+	static public Object walkTree(NodeBase root, IPerNode handler) throws Exception {
+		if(root == null)
+			return null;
+		Object v = handler.before(root);
+		if(v != null)
+			return v;
+		if(root instanceof NodeContainer) {
+			for(NodeBase ch : (NodeContainer) root) {
+				v = walkTree(ch, handler);
+				if(v != null)
+					return v;
+			}
+		}
+		return handler.after(root);
+	}
+
+	/**
+	 * This sets/clears the 'modified' flag for all nodes in the subtree that implement {@link IHasModifiedIndication}.
+	 * @param root		The subtree to traverse
+	 * @param tovalue	Set or clear the flag.
+	 */
+	static public void setModifiedFlag(NodeBase root, final boolean tovalue) {
+		try {
+			walkTree(root, new IPerNode() {
+				public Object before(NodeBase n) throws Exception {
+					if(n instanceof IHasModifiedIndication)
+						((IHasModifiedIndication) n).setModified(tovalue);
+					return null;
+				}
+
+				public Object after(NodeBase n) throws Exception {
+					return null;
+				}
+			});
+		} catch(Exception x) { // Cannot happen.
+			throw new RuntimeException(x);
+		}
+	}
+
+	/**
+	 * Walks the subtree and asks any node implementing {@link IHasModifiedIndication} whether it has been
+	 * modified; return as soon as one node tells us it has been modified.
+	 * @param root
+	 */
+	static public boolean isModified(NodeBase root) {
+		try {
+			Object res = walkTree(root, new IPerNode() {
+				public Object before(NodeBase n) throws Exception {
+					if(n instanceof IHasModifiedIndication) {
+						if(((IHasModifiedIndication) n).isModified())
+							return Boolean.TRUE;
+					}
+					return null;
+				}
+
+				public Object after(NodeBase n) throws Exception {
+					return null;
+				}
+			});
+			return res != null;
+		} catch(Exception x) { // Cannot happen.
+			throw new RuntimeException(x);
+		}
+	}
+
 }

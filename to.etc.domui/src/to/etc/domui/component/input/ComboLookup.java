@@ -36,7 +36,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 11, 2008
  */
-public class ComboLookup<T> extends Select implements IInputNode<T> {
+public class ComboLookup<T> extends Select implements IInputNode<T>, IHasModifiedIndication {
 	private Class< ? extends IComboDataSet<T>> m_dataSetClass;
 
 	private IComboDataSet<T> m_dataSet;
@@ -48,6 +48,9 @@ public class ComboLookup<T> extends Select implements IInputNode<T> {
 	private T m_currentValue;
 
 	private String m_emptyText;
+
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	private boolean m_modifiedByUser;
 
 	//	private Class<IKeyTranslator<T>>	m_keyTranslatorClass;
 
@@ -154,7 +157,7 @@ public class ComboLookup<T> extends Select implements IInputNode<T> {
 		SelectOption selo = (SelectOption) getPage().findNodeByID(in);
 		//		T	oldvalue = m_currentValue;
 		if(selo == null) {
-			m_currentValue = null; // Nuttin' selected @ all.
+			updateCurrent(null); // Nuttin' selected @ all.
 		} else {
 			int index = findChildIndex(selo); // Must be found
 			if(index == -1)
@@ -162,18 +165,42 @@ public class ComboLookup<T> extends Select implements IInputNode<T> {
 			if(!isMandatory()) {
 				//-- If the index is 0 we have the "unselected" thingy; if not we need to decrement by 1 to skip that entry.
 				if(index == 0)
-					m_currentValue = null; // "Unselected"
+					updateCurrent(null); // "Unselected"
 				index--; // IMPORTANT Index becomes -ve if value lookup may not be done!
 			}
 
 			if(index >= 0) {
 				List<T> data = getData();
 				if(index >= data.size()) {
-					m_currentValue = null; // Unexpected: value has gone.
+					updateCurrent(null); // Unexpected: value has gone.
 				} else
-					m_currentValue = data.get(index); // Retrieve actual value.
+					updateCurrent(data.get(index)); // Retrieve actual value.
 			}
 		}
+	}
+
+	private void updateCurrent(T newval) {
+		if(!MetaManager.areObjectsEqual(newval, m_currentValue, null))
+			m_modifiedByUser = true;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
 	}
 
 	/*--------------------------------------------------------------*/

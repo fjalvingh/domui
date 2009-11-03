@@ -20,7 +20,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
-public class Text<T> extends Input implements IInputNode<T> {
+public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndication {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
 
@@ -58,6 +58,9 @@ public class Text<T> extends Input implements IInputNode<T> {
 
 	private NumberMode m_numberMode = NumberMode.NONE;
 
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	private boolean m_modifiedByUser;
+
 	public Text(Class<T> inputClass) {
 		m_inputClass = inputClass;
 
@@ -89,6 +92,7 @@ public class Text<T> extends Input implements IInputNode<T> {
 		if(DomUtil.isEqual(value, getRawValue()))
 			return;
 		m_validated = false;
+		m_modifiedByUser = true;
 	}
 
 	/**
@@ -320,6 +324,24 @@ public class Text<T> extends Input implements IInputNode<T> {
 		addValidator(new MetaPropertyValidatorImpl(clz, parameters));
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/

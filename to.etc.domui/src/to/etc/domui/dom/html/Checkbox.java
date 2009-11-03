@@ -4,7 +4,7 @@ import java.util.*;
 
 import to.etc.domui.component.input.*;
 
-public class Checkbox extends NodeBase implements IInputNode<Boolean> {
+public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModifiedIndication {
 
 	private boolean m_checked;
 
@@ -16,6 +16,9 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean> {
 	 * T when this input value is a REQUIRED value.
 	 */
 	private boolean m_mandatory;
+
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	private boolean m_modifiedByUser;
 
 	private IValueChanged< ? , ? > m_onValueChanged;
 
@@ -68,7 +71,11 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean> {
 		if(values == null || values.length != 1)
 			throw new IllegalStateException("Checkbox: expecting a single input value, not " + Arrays.toString(values));
 		String s = values[0].trim();
-		m_checked = "y".equalsIgnoreCase(s);
+
+		boolean on = "y".equalsIgnoreCase(s);
+		if(m_checked != on)
+			m_modifiedByUser = true;
+		m_checked = on;
 	}
 
 	public Boolean getValue() {
@@ -101,6 +108,26 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean> {
 	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/

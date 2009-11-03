@@ -8,7 +8,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
-public class ComboFixed<T> extends Select implements IInputNode<T> {
+public class ComboFixed<T> extends Select implements IInputNode<T>, IHasModifiedIndication {
 	static public final class Pair<T> {
 		private T m_value;
 
@@ -33,6 +33,9 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 	private String m_emptyText;
 
 	private List<Pair<T>> m_choiceList = new ArrayList<Pair<T>>();
+
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	private boolean m_modifiedByUser;
 
 	public ComboFixed(List<Pair<T>> choiceList) {
 		m_choiceList = choiceList;
@@ -148,7 +151,7 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 		SelectOption selo = (SelectOption) getPage().findNodeByID(in);
 		//		T	oldvalue = m_currentValue;
 		if(selo == null) {
-			m_currentValue = null; // Nuttin' selected @ all.
+			updateCurrent(null); // Nuttin' selected @ all.
 		} else {
 			int index = findChildIndex(selo); // Must be found
 			if(index == -1)
@@ -157,17 +160,22 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 			if(!isMandatory()) {
 				//-- If the index is 0 we have the "unselected" thingy; if not we need to decrement by 1 to skip that entry.
 				if(index == 0)
-					m_currentValue = null; // "Unselected"
+					updateCurrent(null); // "Unselected"
 				index--; // IMPORTANT Index becomes -ve if value lookup may not be done!
 			}
 
 			if(index >= 0) {
 				if(index >= m_choiceList.size()) {
-					m_currentValue = null; // Unexpected: value has gone.
+					updateCurrent(null); // Unexpected: value has gone.
 				} else
-					m_currentValue = m_choiceList.get(index).getValue(); // Retrieve actual value.
+					updateCurrent(m_choiceList.get(index).getValue()); // Retrieve actual value.
 			}
 		}
+	}
+
+	private void updateCurrent(T newval) {
+		if(!MetaManager.areObjectsEqual(newval, m_currentValue, null))
+			m_modifiedByUser = true;
 	}
 
 	public void setData(List<Pair<T>> set) {
@@ -177,6 +185,25 @@ public class ComboFixed<T> extends Select implements IInputNode<T> {
 
 	public List<Pair<T>> getData() {
 		return m_choiceList;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
 	}
 
 	/*--------------------------------------------------------------*/
