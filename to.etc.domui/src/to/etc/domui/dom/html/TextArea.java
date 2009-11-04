@@ -96,9 +96,13 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 	@Override
 	public void acceptRequestParameter(String[] values) throws Exception {
 		String nw = (values == null || values.length != 1) ? null : values[0];
+		//fixes problem when no data is entered on form and modified flag is raised 
+		if(m_value == null && nw != null && nw.length() == 0) {
+			nw = null;
+		}
 		if(!DomUtil.isEqual(nw, m_value)) {
 			setValue(nw);
-			m_modifiedByUser = true;
+			DomUtil.setModifiedFlag(this);
 		}
 	}
 

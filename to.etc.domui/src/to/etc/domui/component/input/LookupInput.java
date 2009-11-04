@@ -75,8 +75,9 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
 			public void clicked(SmallImgButton b) throws Exception {
-				if(m_value != null)
-					m_modifiedByUser = true;
+				if(m_value != null) {
+					DomUtil.setModifiedFlag(LookupInput.this);
+				}
 				setValue(null);
 				//-- Handle onValueChanged
 				if(getOnValueChanged() != null) {
@@ -224,8 +225,9 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 					//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
 					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					LookupInput.this.toggleFloater();
-					if(!MetaManager.areObjectsEqual(val, m_value, null))
-						m_modifiedByUser = true;
+					if(!MetaManager.areObjectsEqual(val, m_value, null)) {
+						DomUtil.setModifiedFlag(LookupInput.this);
+					}
 					setValue(val);
 
 					//-- Handle onValueChanged

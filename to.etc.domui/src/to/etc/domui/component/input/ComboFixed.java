@@ -174,8 +174,11 @@ public class ComboFixed<T> extends Select implements IInputNode<T>, IHasModified
 	}
 
 	private void updateCurrent(T newval) {
-		if(!MetaManager.areObjectsEqual(newval, m_currentValue, null))
-			m_modifiedByUser = true;
+		ClassMetaModel cmm = (newval != null ? MetaManager.findClassMeta(newval.getClass()) : null);
+		if(!MetaManager.areObjectsEqual(newval, m_currentValue, cmm)) {
+			m_currentValue = newval;
+			DomUtil.setModifiedFlag(this);
+		}
 	}
 
 	public void setData(List<Pair<T>> set) {
@@ -199,7 +202,7 @@ public class ComboFixed<T> extends Select implements IInputNode<T>, IHasModified
 	}
 
 	/**
-	 * Set or clear the modified by user flag.
+	 * Set or clear the modified by user flag. 
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
 	public void setModified(boolean as) {

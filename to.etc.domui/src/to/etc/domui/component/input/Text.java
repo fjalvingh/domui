@@ -92,7 +92,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		if(DomUtil.isEqual(value, getRawValue()))
 			return;
 		m_validated = false;
-		m_modifiedByUser = true;
+		DomUtil.setModifiedFlag(this);
 	}
 
 	/**
