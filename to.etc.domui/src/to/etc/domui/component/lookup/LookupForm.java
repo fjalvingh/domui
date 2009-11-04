@@ -406,21 +406,6 @@ public class LookupForm<T> extends Div {
 		});
 		m_collapseButton.setTestID("hideButton");
 		addButtonItem(m_collapseButton, 500, ButtonMode.BOTH);
-		//
-		//		if(null != getOnConfirm()) {
-		//			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
-		//			d.add(b);
-		//			b.setIcon("THEME/btnConfirm.png");
-		//			b.setTestID("confirmButton");
-		//			b.setClicked(new IClicked<NodeBase>() {
-		//				public void clicked(final NodeBase xb) throws Exception {
-		//
-		//					if(getOnConfirm() != null) {
-		//						getOnConfirm().clicked(LookupForm.this);
-		//					}
-		//				}
-		//			});
-		//		}
 	}
 
 	private boolean containsItemBreaks(List<Item> itemList) {
@@ -454,48 +439,6 @@ public class LookupForm<T> extends Div {
 			}
 		});
 		createButtonRow(m_collapsed, true);
-
-		//
-		//		if(getOnNew() != null) {
-		//			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
-		//			b.setTestID("newButtonCollapsed");
-		//			m_collapsed.add(b);
-		//			b.setIcon("THEME/btnNew.png");
-		//			b.setClicked(new IClicked<NodeBase>() {
-		//				public void clicked(final NodeBase xb) throws Exception {
-		//					getOnNew().clicked(LookupForm.this);
-		//				}
-		//			});
-		//		}
-		//		if(null != getOnCancel()) {
-		//			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
-		//			b.setTestID("cancelButtonCollapsed");
-		//			m_collapsed.add(b);
-		//			b.setIcon("THEME/btnCancel.png");
-		//			b.setClicked(new IClicked<NodeBase>() {
-		//				public void clicked(final NodeBase xb) throws Exception {
-		//
-		//					if(getOnCancel() != null) {
-		//						getOnCancel().clicked(LookupForm.this);
-		//					}
-		//				}
-		//			});
-		//		}
-		//		if(null != getOnConfirm()) {
-		//			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
-		//			m_collapsed.add(b);
-		//			b.setIcon("THEME/btnConfirm.png");
-		//			b.setTestID("confirmButtonCollapsed");
-		//			b.setClicked(new IClicked<NodeBase>() {
-		//				public void clicked(final NodeBase xb) throws Exception {
-		//
-		//					if(getOnConfirm() != null) {
-		//						getOnConfirm().clicked(LookupForm.this);
-		//					}
-		//				}
-		//			});
-		//		}
-
 	}
 
 	void restore() {
@@ -966,7 +909,7 @@ public class LookupForm<T> extends Div {
 				}
 			});
 
-		for(ButtonRowItem bi: m_buttonItemList) {
+		for(ButtonRowItem bi : m_buttonItemList) {
 			if((iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.COLLAPSED)) || (!iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.NORMAL))) {
 				c.add(bi.getThingy());
 			}

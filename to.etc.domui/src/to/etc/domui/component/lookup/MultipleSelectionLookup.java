@@ -78,7 +78,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 			//-- Add a "confirm" button to the lookup form
 			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
 			b.setIcon("THEME/btnConfirm.png");
-			b.setTestID("confirmButtonCollapsed");
+			b.setTestID("confirmButton");
 			b.setClicked(new IClicked<NodeBase>() {
 				public void clicked(final NodeBase xb) throws Exception {
 					close();

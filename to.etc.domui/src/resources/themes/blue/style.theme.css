@@ -405,7 +405,7 @@ table.ui-lui {
 table.ui-lui-selected {
 	width: 100%;
 	white-space: nowrap;
-	margine: 1px;
+	margin: 1px;
 }
 .ui-lui-v { /* no selection is rendered transparent without border */
 	padding: 0px;
