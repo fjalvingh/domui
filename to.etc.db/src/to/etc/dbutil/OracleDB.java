@@ -115,7 +115,7 @@ public class OracleDB extends BaseDB {
 				dbc.setAutoCommit(false);
 
 			//-- Set to NULL or DBNULL,
-			StringBuffer sb = new StringBuffer(64);
+			StringBuilder sb = new StringBuilder(64);
 			sb.append("update ");
 			sb.append(table);
 			sb.append(" set ");
@@ -195,7 +195,7 @@ public class OracleDB extends BaseDB {
 	}
 
 	/**
-	 * Generic caller of a method using reflection. This prevents us from having 
+	 * Generic caller of a method using reflection. This prevents us from having
 	 * to link to the stupid Oracle driver.
 	 * @param src
 	 * @param name
@@ -234,7 +234,7 @@ public class OracleDB extends BaseDB {
 				dbc.setAutoCommit(false);
 
 			//-- Set to NULL or DBNULL,
-			StringBuffer sb = new StringBuffer(64);
+			StringBuilder sb = new StringBuilder(64);
 			sb.append("update ");
 			sb.append(table);
 			sb.append(" set ");

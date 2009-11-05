@@ -88,7 +88,7 @@ public class PostgresDB extends BaseDB {
 	protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is) throws SQLException {
 		PreparedStatement ps = null;
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("update ");
 			sb.append(table);
 			sb.append(" set ");
@@ -152,7 +152,7 @@ public class PostgresDB extends BaseDB {
 				ps = dbc.prepareStatement("update " + table + " set " + column + " = null where " + where);
 			else {
 				ps = dbc.prepareStatement("update " + table + " set " + column + " = ? where " + where);
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				DbPoolUtil.readAsString(sb, r);
 				ps.setString(1, sb.toString());
 

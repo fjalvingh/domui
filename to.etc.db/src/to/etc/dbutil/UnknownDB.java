@@ -86,7 +86,7 @@ public class UnknownDB extends BaseDB {
 	protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is) throws SQLException {
 		PreparedStatement ps = null;
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("update ");
 			sb.append(table);
 			sb.append(" set ");

@@ -36,7 +36,7 @@ public class BetterSQLException extends SQLException {
 	}
 
 	static private String format(String sql, SQLException rootcause, Object[] par, int ct) {
-		StringBuffer sb = new StringBuffer(128);
+		StringBuilder sb = new StringBuilder(128);
 		sb.append(rootcause.toString());
 		sb.append("\n\nSQL: ");
 		sb.append(sql);
@@ -67,7 +67,7 @@ public class BetterSQLException extends SQLException {
 	}
 
 	static public String format(Object[] par, int ct) {
-		StringBuffer sb = new StringBuffer(128);
+		StringBuilder sb = new StringBuilder(128);
 		if(par != null && ct > 0) {
 			sb.append("Parameters:\n");
 			for(int i = 1; i <= ct; i++) {

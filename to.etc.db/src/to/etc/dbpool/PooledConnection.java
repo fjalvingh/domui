@@ -114,7 +114,7 @@ public class PooledConnection implements Connection {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(64);
+		StringBuilder sb = new StringBuilder(64);
 		sb.append("ConnectionProxy[");
 		sb.append(Integer.toString(m_id));
 		sb.append("] of ");
@@ -156,8 +156,8 @@ public class PooledConnection implements Connection {
 				 * allocates a connection it uses the same connection as the earlier
 				 * copy, causing this error.
 				 */
-				//				
-				//				
+				//
+				//
 				//				String em	= "Connection used by 2 contexts!?!";
 				//
 				//				PoolManager.panic(em, em);
@@ -207,7 +207,7 @@ public class PooledConnection implements Connection {
 	/**
 	 * Can be called for connections that ignore the normal close operation to
 	 * force the proxy closed. The connection is returned to the pool proper.
-	 * 
+	 *
 	 * @throws SQLException
 	 */
 	public void closeForced() throws SQLException {
@@ -225,7 +225,7 @@ public class PooledConnection implements Connection {
 
 	//	/**
 	//	 * Called from the thread cache handler to drop the connection when
-	//	 * the thread connection cache is cleared. This merely closes the 
+	//	 * the thread connection cache is cleared. This merely closes the
 	//	 * real connection but does not do a callback to drop the connection
 	//	 * from the thread cache.
 	//	 */
@@ -235,7 +235,7 @@ public class PooledConnection implements Connection {
 	//		m_pe.proxyClosed(this);
 	//		m_closed = true;					// No: drop the connection
 	//	}
-	//	
+	//
 
 	/**
 	 * Called from the NEMA versions of the resources only, this removes the
