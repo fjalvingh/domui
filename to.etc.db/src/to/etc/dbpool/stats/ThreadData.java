@@ -90,7 +90,7 @@ public class ThreadData implements InfoCollector {
 	/** Number of rows retrieved, */
 	private int m_nRows;
 
-	private long m_rowRetrievalTime;
+	//	private long m_rowRetrievalTime;
 
 	/**
 	 * The #of statements passed

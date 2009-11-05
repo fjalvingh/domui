@@ -8,22 +8,20 @@ import javax.naming.spi.*;
 
 /**
  * Object factory for the database pool. This allows this pool to be used from within applications.
- * 
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 16, 2007
  */
 public class PoolResourceFactory implements ObjectFactory {
-
-	public Object getObjectInstance(Object arg0, Name arg1, Context arg2, Hashtable arg3) throws Exception {
+	public Object getObjectInstance(Object arg0, Name arg1, Context arg2, Hashtable< ? , ? > arg3) throws Exception {
 		System.out.println("Called getObjectFactory.");
 
 		//-- 1. Initialize the pool, and return a datasource.
-		final Map map = new HashMap();
+		final Map<String, String> map = new HashMap<String, String>();
 
 		Reference ref = (Reference) arg0;
-		for(Enumeration e = ref.getAll(); e.hasMoreElements();) {
-			RefAddr ra = (RefAddr) e.nextElement();
+		for(Enumeration<RefAddr> e = ref.getAll(); e.hasMoreElements();) {
+			RefAddr ra = e.nextElement();
 			String name = ra.getType();
 			String val = (String) ra.getContent();
 			if(name.equals("factory"))
@@ -31,10 +29,10 @@ public class PoolResourceFactory implements ObjectFactory {
 			map.put(name, val);
 		}
 
-		final String id = (String) map.get("poolid");
+		final String id = map.get("poolid");
 		if(id == null)
 			throw new IllegalArgumentException("Missing 'poolid' parameter for database pool");
-		String pfname = (String) map.get("poolfile");
+		String pfname = map.get("poolfile");
 		ConnectionPool p;
 		if(pfname != null) {
 			//-- File-based pool.
@@ -48,7 +46,7 @@ public class PoolResourceFactory implements ObjectFactory {
 
 				@Override
 				public String getProperty(String section, String name) throws Exception {
-					return (String) map.get(name);
+					return map.get(name);
 				}
 			};
 			p = PoolManager.getInstance().initializePool(cs, id);

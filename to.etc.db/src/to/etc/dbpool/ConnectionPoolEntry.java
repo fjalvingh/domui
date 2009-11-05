@@ -620,8 +620,7 @@ public class ConnectionPoolEntry {
 	/*	CODING:	Connection resource management...					*/
 	/*--------------------------------------------------------------*/
 	/** All objects allocated FROM this connection. */
-	private final HashSet m_use_set = new HashSet();
-
+	private final HashSet<Object> m_use_set = new HashSet<Object>();
 
 	/**
 	 *	Adds a resource to this statement's tracking list, so that it will be
@@ -661,8 +660,7 @@ public class ConnectionPoolEntry {
 		synchronized(this) // Remove and close all resources while locked,
 		{
 			if(!m_pool.isIgnoreUnclosed()) {
-				for(Iterator i = m_use_set.iterator(); i.hasNext();) {
-					Object o = i.next();
+				for(Object o : m_use_set) {
 					_closeResource(o);
 					nclosed++;
 				}
