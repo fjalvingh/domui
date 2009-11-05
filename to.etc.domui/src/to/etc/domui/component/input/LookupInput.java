@@ -45,7 +45,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	private String m_lookupTitle;
 
-	private String m_hint;
+	//	private String m_hint;
 
 	private String[] m_resultColumns;
 
@@ -245,7 +245,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	}
 
 	public void setHint(String text) {
-		m_hint = text;
+		//		m_hint = text;
 		if(m_selButton != null)
 			m_selButton.setTitle(text);
 	}

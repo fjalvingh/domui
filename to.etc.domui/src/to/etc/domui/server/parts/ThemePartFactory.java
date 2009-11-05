@@ -29,9 +29,9 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 			m_rurl = rurl;
 		}
 
-		public String getBrowserID() {
-			return m_browserID;
-		}
+		//		public String getBrowserID() {
+		//			return m_browserID;
+		//		}
 
 		public BrowserVersion getBrowserVersion() {
 			return m_bv;

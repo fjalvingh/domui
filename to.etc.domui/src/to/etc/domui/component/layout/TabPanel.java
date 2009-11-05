@@ -23,7 +23,7 @@ public class TabPanel extends Div {
 
 		private Img m_img;
 
-		private Img m_errorInfo;
+		//		private Img m_errorInfo;
 
 		private Li m_tab;
 
