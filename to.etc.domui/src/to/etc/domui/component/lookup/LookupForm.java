@@ -52,6 +52,8 @@ public class LookupForm<T> extends Div {
 
 	IClicked<LookupForm<T>> m_clicker;
 
+	IClicked<LookupForm<T>> m_onNew;
+
 	IClicked<LookupForm<T>> m_onClear;
 
 	IClicked<LookupForm<T>> m_onCancel;
@@ -259,6 +261,9 @@ public class LookupForm<T> extends Div {
 	/** The list of buttons to show on the button row. */
 	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
 
+	/** The list of custom buttons to show on the button row. */
+	private List<ButtonRowItem> m_customButtonItemList = Collections.EMPTY_LIST;
+
 	/**
 	 * Create a LookupForm to find instances of the specified class.
 	 * @param lookupClass
@@ -268,7 +273,6 @@ public class LookupForm<T> extends Div {
 		m_lookupClass = lookupClass;
 		for(String prop : propertyList)
 			addProperty(prop);
-		defineDefaultButtons();
 	}
 
 	/**
@@ -277,6 +281,7 @@ public class LookupForm<T> extends Div {
 	 */
 	@Override
 	public void createContent() throws Exception {
+		defineDefaultButtons();
 		//-- If a page title is present render the search block in a CaptionedPanel, else present in it;s own div.
 		Div sroot = new Div();
 		if(getPageTitle() != null) {
@@ -368,6 +373,18 @@ public class LookupForm<T> extends Div {
 			}
 		});
 		addButtonItem(b, 200, ButtonMode.NORMAL);
+
+		if(getOnNew() != null) {
+			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
+			b.setIcon("THEME/btnNew.png");
+			b.setTestID("newButton");
+			b.setClicked(new IClicked<NodeBase>() {
+				public void clicked(final NodeBase xb) throws Exception {
+					getOnNew().clicked(LookupForm.this);
+				}
+			});
+			addButtonItem(b, 300, ButtonMode.BOTH);
+		}
 
 		if(null != getOnCancel()) {
 			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
@@ -766,6 +783,23 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
+	 * Sets the onNew handler. When set this will render a "new" button in the form's button bar.
+	 * @return
+	 */
+	public IClicked<LookupForm<T>> getOnNew() {
+		return m_onNew;
+	}
+
+	/**
+	 * Returns the onNew handler. When set this will render a "new" button in the form's button bar.
+	 * @param onNew
+	 */
+	public void setOnNew(final IClicked<LookupForm<T>> onNew) {
+		m_onNew = onNew;
+		forceRebuild();
+	}
+
+	/**
 	 * Returns the class whose instances we're looking up (a persistent class somehow).
 	 * @return
 	 */
@@ -840,7 +874,7 @@ public class LookupForm<T> extends Div {
 	/*--------------------------------------------------------------*/
 
 	public void addButtonItem(NodeBase b) {
-		addButtonItem(b, m_buttonItemList.size(), ButtonMode.BOTH);
+		addButtonItem(b, m_buttonItemList.size() + m_customButtonItemList.size(), ButtonMode.BOTH);
 	}
 
 	/**
@@ -861,24 +895,32 @@ public class LookupForm<T> extends Div {
 	 * @param both
 	 */
 	public void addButtonItem(NodeBase b, int order, ButtonMode both) {
-		if(m_buttonItemList == Collections.EMPTY_LIST)
-			m_buttonItemList = new ArrayList<ButtonRowItem>(10);
-		m_buttonItemList.add(new ButtonRowItem(order, both, b));
+		if(m_customButtonItemList == Collections.EMPTY_LIST)
+			m_customButtonItemList = new ArrayList<ButtonRowItem>(10);
+		m_customButtonItemList.add(new ButtonRowItem(order, both, b));
 	}
 
 	/**
-	 * Add all buttons defined for the button row to it.
+	 * Add all buttons, both default and custom to buttom row.
 	 * @param c
 	 * @param iscollapsed
 	 */
 	private void createButtonRow(NodeContainer c, boolean iscollapsed) {
-		Collections.sort(m_buttonItemList, new Comparator<ButtonRowItem>() { // Sort in ascending order,
+		List<ButtonRowItem> buttonItemList = new ArrayList<ButtonRowItem>();
+		for(ButtonRowItem item : m_buttonItemList) {
+			buttonItemList.add(item);
+		}
+		for(ButtonRowItem item : m_customButtonItemList) {
+			buttonItemList.add(item);
+		}
+
+		Collections.sort(buttonItemList, new Comparator<ButtonRowItem>() { // Sort in ascending order,
 				public int compare(ButtonRowItem o1, ButtonRowItem o2) {
 					return o1.getOrder() - o2.getOrder();
 				}
 			});
 
-		for(ButtonRowItem bi : m_buttonItemList) {
+		for(ButtonRowItem bi : buttonItemList) {
 			if((iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.COLLAPSED)) || (!iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.NORMAL))) {
 				c.add(bi.getThingy());
 			}
