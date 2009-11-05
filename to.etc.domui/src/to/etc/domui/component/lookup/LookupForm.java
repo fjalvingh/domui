@@ -52,8 +52,6 @@ public class LookupForm<T> extends Div {
 
 	IClicked<LookupForm<T>> m_clicker;
 
-	IClicked<LookupForm<T>> m_onNew;
-
 	IClicked<LookupForm<T>> m_onClear;
 
 	IClicked<LookupForm<T>> m_onCancel;
@@ -370,18 +368,6 @@ public class LookupForm<T> extends Div {
 			}
 		});
 		addButtonItem(b, 200, ButtonMode.NORMAL);
-
-		if(getOnNew() != null) {
-			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
-			b.setIcon("THEME/btnNew.png");
-			b.setTestID("newButton");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
-					getOnNew().clicked(LookupForm.this);
-				}
-			});
-			addButtonItem(b, 300, ButtonMode.BOTH);
-		}
 
 		if(null != getOnCancel()) {
 			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
@@ -777,23 +763,6 @@ public class LookupForm<T> extends Div {
 			if(it.getInstance() != null)
 				it.getInstance().clearInput();
 		}
-	}
-
-	/**
-	 * Sets the onNew handler. When set this will render a "new" button in the form's button bar.
-	 * @return
-	 */
-	public IClicked<LookupForm<T>> getOnNew() {
-		return m_onNew;
-	}
-
-	/**
-	 * Returns the onNew handler. When set this will render a "new" button in the form's button bar.
-	 * @param onNew
-	 */
-	public void setOnNew(final IClicked<LookupForm<T>> onNew) {
-		m_onNew = onNew;
-		forceRebuild();
 	}
 
 	/**

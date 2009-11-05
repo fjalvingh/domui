@@ -1,6 +1,8 @@
 package to.etc.domui.pages.generic;
 
+import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.lookup.*;
+import to.etc.domui.component.lookup.LookupForm.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -84,11 +86,17 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 				search(b);
 			}
 		});
-		lf.setOnNew(new IClicked<LookupForm<T>>() {
-			public void clicked(LookupForm<T> b) throws Exception {
+
+		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
+		b.setIcon("THEME/btnNew.png");
+		b.setTestID("newButton");
+		b.setClicked(new IClicked<NodeBase>() {
+			public void clicked(final NodeBase xb) throws Exception {
 				doNew();
 			}
 		});
+		lf.addButtonItem(b, 300, ButtonMode.BOTH);
+
 
 		customizeLookupForm(lf);
 
