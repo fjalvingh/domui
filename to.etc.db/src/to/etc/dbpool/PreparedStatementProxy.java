@@ -436,7 +436,156 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
 	public void setURL(final int id, final URL u) throws SQLException {
 		try {
+			_set(id, u);
 			getRealPreparedStatement().setURL(id, u);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setAsciiStream(int arg0, InputStream arg1, long arg2) throws SQLException {
+		try {
+			getRealPreparedStatement().setAsciiStream(arg0, arg1, arg2);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setAsciiStream(int arg0, InputStream arg1) throws SQLException {
+		try {
+			getRealPreparedStatement().setAsciiStream(arg0, arg1);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setBinaryStream(int arg0, InputStream arg1, long arg2) throws SQLException {
+		try {
+			getRealPreparedStatement().setBinaryStream(arg0, arg1, arg2);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setBinaryStream(int arg0, InputStream arg1) throws SQLException {
+		try {
+			getRealPreparedStatement().setBinaryStream(arg0, arg1);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setBlob(int arg0, InputStream arg1, long arg2) throws SQLException {
+		try {
+			getRealPreparedStatement().setBlob(arg0, arg1, arg2);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setBlob(int arg0, InputStream arg1) throws SQLException {
+		try {
+			getRealPreparedStatement().setBlob(arg0, arg1);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setCharacterStream(int arg0, Reader arg1, long arg2) throws SQLException {
+		try {
+			getRealPreparedStatement().setCharacterStream(arg0, arg1, arg2);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setCharacterStream(int arg0, Reader arg1) throws SQLException {
+		try {
+			getRealPreparedStatement().setCharacterStream(arg0, arg1);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setClob(int arg0, Reader arg1, long arg2) throws SQLException {
+		try {
+			getRealPreparedStatement().setClob(arg0, arg1, arg2);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setClob(int arg0, Reader arg1) throws SQLException {
+		try {
+			getRealPreparedStatement().setClob(arg0, arg1);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+
+	public void setNCharacterStream(int arg0, Reader arg1, long arg2) throws SQLException {
+		try {
+			getRealPreparedStatement().setNCharacterStream(arg0, arg1, arg2);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setNCharacterStream(int arg0, Reader arg1) throws SQLException {
+		try {
+			getRealPreparedStatement().setNCharacterStream(arg0, arg1);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setNClob(int arg0, NClob arg1) throws SQLException {
+		try {
+			getRealPreparedStatement().setNClob(arg0, arg1);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setNClob(int arg0, Reader arg1, long arg2) throws SQLException {
+		try {
+			getRealPreparedStatement().setNClob(arg0, arg1, arg2);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setNClob(int arg0, Reader arg1) throws SQLException {
+		try {
+			getRealPreparedStatement().setNClob(arg0, arg1);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setNString(int arg0, String arg1) throws SQLException {
+		try {
+			_set(arg0, arg1);
+			getRealPreparedStatement().setNString(arg0, arg1);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setRowId(int arg0, RowId arg1) throws SQLException {
+		try {
+			_set(arg0, arg1);
+			getRealPreparedStatement().setRowId(arg0, arg1);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setSQLXML(int arg0, SQLXML arg1) throws SQLException {
+		try {
+			_set(arg0, arg1);
+			getRealPreparedStatement().setSQLXML(arg0, arg1);
 		} catch(SQLException xx) {
 			throw wrap(xx);
 		}

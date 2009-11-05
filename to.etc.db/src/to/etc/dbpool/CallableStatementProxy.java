@@ -127,6 +127,7 @@ public class CallableStatementProxy extends PreparedStatementProxy implements Ca
 		return getRealCallableStatement().getBigDecimal(parameterIndex);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object getObject(int i, Map map) throws SQLException {
 		return getRealCallableStatement().getObject(i, map);
 	}
@@ -224,6 +225,7 @@ public class CallableStatementProxy extends PreparedStatementProxy implements Ca
 		return getRealCallableStatement().getRef(name);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object getObject(String name, Map map) throws SQLException {
 		return getRealCallableStatement().getObject(name, map);
 	}
@@ -346,5 +348,138 @@ public class CallableStatementProxy extends PreparedStatementProxy implements Ca
 
 	public void registerOutParameter(String name, int m, String v) throws SQLException {
 		getRealCallableStatement().registerOutParameter(name, m, v);
+	}
+
+
+	/*-------------------- JDK6 shit --------------------*/
+
+	public Reader getCharacterStream(int arg0) throws SQLException {
+		return getRealCallableStatement().getCharacterStream(arg0);
+	}
+
+	public Reader getCharacterStream(String arg0) throws SQLException {
+		return getRealCallableStatement().getCharacterStream(arg0);
+	}
+
+	public Reader getNCharacterStream(int arg0) throws SQLException {
+		return getRealCallableStatement().getNCharacterStream(arg0);
+	}
+
+	public Reader getNCharacterStream(String arg0) throws SQLException {
+		return getRealCallableStatement().getNCharacterStream(arg0);
+	}
+
+	public NClob getNClob(int arg0) throws SQLException {
+		return getRealCallableStatement().getNClob(arg0);
+	}
+
+	public NClob getNClob(String arg0) throws SQLException {
+		return getRealCallableStatement().getNClob(arg0);
+	}
+
+	public String getNString(int arg0) throws SQLException {
+		return getRealCallableStatement().getNString(arg0);
+	}
+
+	public String getNString(String arg0) throws SQLException {
+		return getRealCallableStatement().getNString(arg0);
+	}
+
+
+	public RowId getRowId(int arg0) throws SQLException {
+		return getRealCallableStatement().getRowId(arg0);
+	}
+
+	public RowId getRowId(String arg0) throws SQLException {
+		return getRealCallableStatement().getRowId(arg0);
+	}
+
+	public SQLXML getSQLXML(int arg0) throws SQLException {
+		return getRealCallableStatement().getSQLXML(arg0);
+	}
+
+	public SQLXML getSQLXML(String arg0) throws SQLException {
+		return getRealCallableStatement().getSQLXML(arg0);
+	}
+
+
+	public void setAsciiStream(String arg0, InputStream arg1, long arg2) throws SQLException {
+		getRealCallableStatement().setAsciiStream(arg0, arg1, arg2);
+	}
+
+	public void setAsciiStream(String arg0, InputStream arg1) throws SQLException {
+		getRealCallableStatement().setAsciiStream(arg0, arg1);
+	}
+
+	public void setBinaryStream(String arg0, InputStream arg1, long arg2) throws SQLException {
+		getRealCallableStatement().setBinaryStream(arg0, arg1, arg2);
+	}
+
+	public void setBinaryStream(String arg0, InputStream arg1) throws SQLException {
+		getRealCallableStatement().setBinaryStream(arg0, arg1);
+	}
+
+	public void setBlob(String arg0, Blob arg1) throws SQLException {
+		getRealCallableStatement().setBlob(arg0, arg1);
+	}
+
+	public void setBlob(String arg0, InputStream arg1, long arg2) throws SQLException {
+		getRealCallableStatement().setBlob(arg0, arg1, arg2);
+	}
+
+	public void setBlob(String arg0, InputStream arg1) throws SQLException {
+		getRealCallableStatement().setBlob(arg0, arg1);
+	}
+
+	public void setCharacterStream(String arg0, Reader arg1, long arg2) throws SQLException {
+		getRealCallableStatement().setCharacterStream(arg0, arg1, arg2);
+	}
+
+	public void setCharacterStream(String arg0, Reader arg1) throws SQLException {
+		getRealCallableStatement().setCharacterStream(arg0, arg1);
+	}
+
+	public void setClob(String arg0, Clob arg1) throws SQLException {
+		getRealCallableStatement().setClob(arg0, arg1);
+	}
+
+	public void setClob(String arg0, Reader arg1, long arg2) throws SQLException {
+		getRealCallableStatement().setClob(arg0, arg1, arg2);
+	}
+
+	public void setClob(String arg0, Reader arg1) throws SQLException {
+		getRealCallableStatement().setClob(arg0, arg1);
+	}
+
+	public void setNCharacterStream(String arg0, Reader arg1, long arg2) throws SQLException {
+		getRealCallableStatement().setNCharacterStream(arg0, arg1, arg2);
+	}
+
+	public void setNCharacterStream(String arg0, Reader arg1) throws SQLException {
+		getRealCallableStatement().setNCharacterStream(arg0, arg1);
+	}
+
+	public void setNClob(String arg0, NClob arg1) throws SQLException {
+		getRealCallableStatement().setNClob(arg0, arg1);
+	}
+
+	public void setNClob(String arg0, Reader arg1, long arg2) throws SQLException {
+		getRealCallableStatement().setNClob(arg0, arg1, arg2);
+	}
+
+	public void setNClob(String arg0, Reader arg1) throws SQLException {
+		getRealCallableStatement().setNClob(arg0, arg1);
+	}
+
+	public void setNString(String arg0, String arg1) throws SQLException {
+		getRealCallableStatement().setNString(arg0, arg1);
+	}
+
+	public void setRowId(String arg0, RowId arg1) throws SQLException {
+		getRealCallableStatement().setRowId(arg0, arg1);
+	}
+
+	public void setSQLXML(String arg0, SQLXML arg1) throws SQLException {
+		getRealCallableStatement().setSQLXML(arg0, arg1);
 	}
 }

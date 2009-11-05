@@ -1,6 +1,7 @@
 package to.etc.dbpool;
 
 import java.sql.*;
+import java.util.*;
 
 import to.etc.dbpool.stats.*;
 import to.etc.dbutil.*;
@@ -156,8 +157,8 @@ public class PooledConnection implements Connection {
 				 * allocates a connection it uses the same connection as the earlier
 				 * copy, causing this error.
 				 */
-				//				
-				//				
+				//
+				//
 				//				String em	= "Connection used by 2 contexts!?!";
 				//
 				//				PoolManager.panic(em, em);
@@ -207,7 +208,7 @@ public class PooledConnection implements Connection {
 	/**
 	 * Can be called for connections that ignore the normal close operation to
 	 * force the proxy closed. The connection is returned to the pool proper.
-	 * 
+	 *
 	 * @throws SQLException
 	 */
 	public void closeForced() throws SQLException {
@@ -225,7 +226,7 @@ public class PooledConnection implements Connection {
 
 	//	/**
 	//	 * Called from the thread cache handler to drop the connection when
-	//	 * the thread connection cache is cleared. This merely closes the 
+	//	 * the thread connection cache is cleared. This merely closes the
 	//	 * real connection but does not do a callback to drop the connection
 	//	 * from the thread cache.
 	//	 */
@@ -235,7 +236,7 @@ public class PooledConnection implements Connection {
 	//		m_pe.proxyClosed(this);
 	//		m_closed = true;					// No: drop the connection
 	//	}
-	//	
+	//
 
 	/**
 	 * Called from the NEMA versions of the resources only, this removes the
@@ -314,6 +315,7 @@ public class PooledConnection implements Connection {
 		check().clearWarnings();
 	}
 
+	@SuppressWarnings("unchecked")
 	public java.util.Map getTypeMap() throws java.sql.SQLException {
 		return check().getTypeMap();
 	}
@@ -370,7 +372,7 @@ public class PooledConnection implements Connection {
 		return check().nativeSQL(p1);
 	}
 
-
+	@SuppressWarnings("unchecked")
 	public void setTypeMap(final java.util.Map p1) throws java.sql.SQLException {
 		check().setTypeMap(p1);
 	}
@@ -402,5 +404,60 @@ public class PooledConnection implements Connection {
 
 	public void setHoldability(final int m) throws SQLException {
 		check().setHoldability(m);
+	}
+
+
+	/*--------------- New JDK6 garbage ------------------*/
+
+	public Array createArrayOf(String arg0, Object[] arg1) throws SQLException {
+		return check().createArrayOf(arg0, arg1);
+	}
+
+	public Blob createBlob() throws SQLException {
+		return check().createBlob();
+	}
+
+	public Clob createClob() throws SQLException {
+		return check().createClob();
+	}
+
+	public NClob createNClob() throws SQLException {
+		return check().createNClob();
+	}
+
+	public SQLXML createSQLXML() throws SQLException {
+		return check().createSQLXML();
+	}
+
+	public Struct createStruct(String arg0, Object[] arg1) throws SQLException {
+		return check().createStruct(arg0, arg1);
+	}
+
+	public Properties getClientInfo() throws SQLException {
+		return check().getClientInfo();
+	}
+
+	public String getClientInfo(String arg0) throws SQLException {
+		return check().getClientInfo(arg0);
+	}
+
+	public boolean isValid(int arg0) throws SQLException {
+		return check().isValid(arg0);
+	}
+
+	public boolean isWrapperFor(Class< ? > iface) throws SQLException {
+		return iface.isAssignableFrom(getClass());
+	}
+
+	public void setClientInfo(Properties arg0) throws SQLClientInfoException {
+		check().setClientInfo(arg0);
+	}
+
+	public void setClientInfo(String arg0, String arg1) throws SQLClientInfoException {
+		check().setClientInfo(arg0, arg1);
+	}
+
+	public <T> T unwrap(Class<T> iface) throws SQLException {
+		return (T) check();
 	}
 }

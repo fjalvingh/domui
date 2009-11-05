@@ -542,4 +542,43 @@ public class StatementProxy implements Statement {
 		}
 	}
 
+	public boolean isClosed() throws SQLException {
+		try {
+			return getRealStatement().isClosed();
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public boolean isPoolable() throws SQLException {
+		try {
+			return getRealStatement().isPoolable();
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public boolean isWrapperFor(Class< ? > iface) throws SQLException {
+		try {
+			return getRealStatement().isWrapperFor(iface);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public void setPoolable(boolean arg0) throws SQLException {
+		try {
+			getRealStatement().setPoolable(arg0);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
+	public <T> T unwrap(Class<T> iface) throws SQLException {
+		try {
+			return getRealStatement().unwrap(iface);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
 }
