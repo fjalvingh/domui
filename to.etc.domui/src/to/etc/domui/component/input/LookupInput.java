@@ -148,7 +148,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 		m_floater.setHeight("90%");
 		m_floater.setIcon("THEME/btnFind.png");
-		m_floater.setTestID("floaterWindowLookupInput");
+		m_floater.setTestID(getTestID()+"_floaterWindowLookupInput");
 		//in case when external error message listener is set
 		if(m_customErrorMessageListener != null && m_customErrorMessageListener instanceof NodeBase) {
 			m_floater.setErrorFence();
