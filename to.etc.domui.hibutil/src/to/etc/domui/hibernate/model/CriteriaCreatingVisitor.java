@@ -65,7 +65,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 		//-- 2. Parse the name.
 		String path = null;
-		int len = name.length();
+		//		int len = name.length();
 		int ix = 0;
 		for(;;) {
 			String sub = name.substring(ix, pos); // Current substring;
