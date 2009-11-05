@@ -74,7 +74,7 @@ public class DbPoolUtil {
 		} catch(IllegalStateException x) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(msg);
-			sb.append("\nLocation:");
+			sb.append("\n");
 			getFilteredStacktrace(sb, x);
 			System.out.println(sb.toString());
 		}
