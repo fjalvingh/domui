@@ -115,7 +115,7 @@ public class PooledConnection implements Connection {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(64);
+		StringBuilder sb = new StringBuilder(64);
 		sb.append("ConnectionProxy[");
 		sb.append(Integer.toString(m_id));
 		sb.append("] of ");

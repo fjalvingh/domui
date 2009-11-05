@@ -203,7 +203,7 @@ abstract public class BaseDB {
 	 */
 	protected abstract String getCheckString();
 
-	PreparedStatement mkKeyedSQL(Connection dbc, StringBuffer sb, String[] pkfields, Object[] keys, int baseix, String trailer) throws SQLException {
+	PreparedStatement mkKeyedSQL(Connection dbc, StringBuilder sb, String[] pkfields, Object[] keys, int baseix, String trailer) throws SQLException {
 		if(pkfields.length != keys.length)
 			throw new IllegalStateException("PK fields array differs in size from key value array");
 		sb.append(" (");

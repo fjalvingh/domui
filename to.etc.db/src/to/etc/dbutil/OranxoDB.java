@@ -88,7 +88,7 @@ public class OranxoDB extends BaseDB {
 	protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is) throws SQLException {
 		PreparedStatement ps = null;
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("update ");
 			sb.append(table);
 			sb.append(" set ");
@@ -114,7 +114,7 @@ public class OranxoDB extends BaseDB {
 	}
 
 	/**
-	 *	Writes a blob to the requested record. 
+	 *	Writes a blob to the requested record.
 	 *  @parameter is	The stream to write to the blob. If this is null then the
 	 *  				field is set to dbnull.
 	 */
@@ -132,7 +132,7 @@ public class OranxoDB extends BaseDB {
 				dbc.setAutoCommit(false);
 
 			//-- Set to NULL or DBNULL,
-			StringBuffer sb = new StringBuffer(64);
+			StringBuilder sb = new StringBuilder(64);
 			sb.append("update ");
 			sb.append(table);
 			sb.append(" set ");

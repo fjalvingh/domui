@@ -1740,6 +1740,54 @@ public class StringTool {
 		}
 	}
 
+	static private boolean inSkipSet(final String[] set, final String name) {
+		for(String s : set) {
+			if(name.startsWith(s))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Report a filtered location stack trace, where the start of the stack trace and the end can be removed.
+	 * @param sb
+	 * @param t
+	 * @param skipbefore
+	 * @param skipafter
+	 */
+	static public void strStacktraceFiltered(final Appendable sb, final Throwable t, String[] skipbefore, String[] skipafter, int linelimit) {
+		StackTraceElement[] se = t.getStackTrace();
+
+		//-- Find the first part to log,
+		int len = se.length;
+		int ix = 0;
+		while(ix < len) {
+			String m = se[ix].getClassName();
+			if(!inSkipSet(skipbefore, m))
+				break;
+			ix++;
+		}
+		int sx = ix++; // First item not in head skipset; always logged.
+
+		while(ix < len) {
+			String m = se[ix].getClassName();
+			if(inSkipSet(skipafter, m))
+				break;
+			ix++;
+		}
+		int ex = ix; // End bound, exclusive
+		if(linelimit > 0) {
+			if(ex - sx > linelimit)
+				ex = sx + linelimit;
+		}
+		for(int i = sx; i < ex; i++) {
+			try {
+				sb.append("    " + se[i].toString() + "\n");
+			} catch(IOException x) {
+				throw new RuntimeException(x); // Sigh
+			}
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	URL normalization and concatenation.				*/

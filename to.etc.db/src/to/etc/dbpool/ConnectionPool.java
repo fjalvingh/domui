@@ -506,11 +506,11 @@ public class ConnectionPool implements DbConnectorSet {
 		}
 		if(!ALLOC.isLoggable(Level.FINE))
 			return;
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("ALLOCATE pool(" + m_id + ") " + what + " database[allocated for pool=" + m_n_pooledAllocated + ", allocated unpooled=" + m_n_unpooled_inuse + "] pool[inuse=" + m_n_pooled_inuse
 			+ ", free=" + m_freeList.size() + "]");
 		sb.append("\nConnection: " + dbc + "\n");
-		DbPoolUtil.getLocation(sb);
+		DbPoolUtil.getThreadAndLocation(sb);
 		ALLOC.fine(sb.toString());
 	}
 
@@ -523,12 +523,12 @@ public class ConnectionPool implements DbConnectorSet {
 		}
 		if(!ALLOC.isLoggable(Level.FINE))
 			return;
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("RELEASED pool(" + m_id + ") " + what + " database[allocated for pool=" + m_n_pooledAllocated + ", allocated unpooled=" + m_n_unpooled_inuse + "] pool[inuse=" + m_n_pooled_inuse
 			+ ", free=" + m_freeList.size() + "]");
 		if(dbc != null)
 			sb.append("\nConnection: " + dbc + "\n");
-		DbPoolUtil.getLocation(sb);
+		DbPoolUtil.getThreadAndLocation(sb);
 		ALLOC.fine(sb.toString());
 	}
 
@@ -724,7 +724,7 @@ public class ConnectionPool implements DbConnectorSet {
 					MSG.severe(s);
 					ctries++;
 					if(ctries == 2) {
-						StringBuffer sb = new StringBuffer(1024 * 1024);
+						StringBuilder sb = new StringBuilder(1024 * 1024);
 						dumpUsedConnections(sb);
 						String msg = sb.toString();
 						saveError("No more database connections for pool=" + getID() + ", try 2..", msg);
@@ -733,7 +733,7 @@ public class ConnectionPool implements DbConnectorSet {
 
 					if(ctries > 5) { // If too many retries abort,
 						m_n_connectionfails++;
-						StringBuffer sb = new StringBuffer(1024 * 1024);
+						StringBuilder sb = new StringBuilder(1024 * 1024);
 						dumpUsedConnections(sb);
 						String msg = sb.toString();
 						saveError("No more database connections for pool=" + getID() + " - ABORTING REQUEST", msg);
@@ -913,9 +913,9 @@ public class ConnectionPool implements DbConnectorSet {
 					if(!m_usedSet.remove(pe)) {
 						//--cannot happen.
 						String subj = "pool(" + m_id + "): connection not in USED pool??";
-						StringBuffer sb = new StringBuffer(65536);
+						StringBuilder sb = new StringBuilder(65536);
 						sb.append("Connection not in used pool! Location of release is:\n");
-						DbPoolUtil.getLocation(sb);
+						DbPoolUtil.getThreadAndLocation(sb);
 						sb.append("\n\nConnection dump:\n");
 						pe.dbgPrintStackTrace(sb, 20, 20);
 						String msg = sb.toString();
@@ -980,9 +980,9 @@ public class ConnectionPool implements DbConnectorSet {
 		synchronized(this) {
 			if(!m_usedSet.remove(pe)) {
 				String subj = "pool(" + m_id + "): connection not in USED pool??";
-				StringBuffer sb = new StringBuffer(65536);
+				StringBuilder sb = new StringBuilder(65536);
 				sb.append("Connection not in used pool! Location of release is:\n");
-				DbPoolUtil.getLocation(sb);
+				DbPoolUtil.getThreadAndLocation(sb);
 				sb.append("\n\nConnection stack dump:\n");
 				pe.dbgPrintStackTrace(sb, 20, 20);
 				String msg = sb.toString();
@@ -1046,12 +1046,12 @@ public class ConnectionPool implements DbConnectorSet {
 	/*	CODING:	The scan for hanging connections handler.		 	*/
 	/*--------------------------------------------------------------*/
 	//	private String dumpUsedConnections() {
-	//		StringBuffer sb = new StringBuffer(1024 * 1024);
+	//		StringBuilder sb = new StringBuilder(1024 * 1024);
 	//		dumpUsedConnections(sb);
 	//		return sb.toString();
 	//	}
 
-	private synchronized void dumpUsedConnections(final StringBuffer sb) {
+	private synchronized void dumpUsedConnections(final StringBuilder sb) {
 		int maxsz = 8192;
 		int i = 0;
 		for(ConnectionPoolEntry pe : m_usedSet) {
@@ -1113,8 +1113,8 @@ public class ConnectionPool implements DbConnectorSet {
 		//		long			ets	= ts - Nema.getDbScanInterval()*1000;	// Earliest time that's still valid.
 		long ets = ts - scaninterval_in_secs * 1000; // Earliest time that's still valid
 		int nhanging = 0;
-		StringBuffer sb = null;
-		StringBuffer unsb = new StringBuffer();
+		StringBuilder sb = null;
+		StringBuilder unsb = new StringBuilder();
 		for(int i = upar.length; --i >= 0;) {
 			ConnectionPoolEntry pe = upar[i]; // The connection to check.
 			if(!pe.isUnpooled()) {
@@ -1122,7 +1122,7 @@ public class ConnectionPool implements DbConnectorSet {
 				{
 					nhanging++;
 					if(sb == null) {
-						sb = new StringBuffer(8192); // Lazily create the string buffer and init it,
+						sb = new StringBuilder(8192); // Lazily create the string buffer and init it,
 						sb.append("*** DATABASE CONNECTIONS WERE HANGING ***\n");
 						sb.append("Releasing hanging connections:\n");
 					}
@@ -1161,7 +1161,7 @@ public class ConnectionPool implements DbConnectorSet {
 	 *	Called when a "hanging" connection must be purged, this closes all
 	 *  associated data, and sends a problem email...
 	 */
-	private void purgeOld(final StringBuffer sb, final ConnectionPoolEntry pe) {
+	private void purgeOld(final StringBuilder sb, final ConnectionPoolEntry pe) {
 		long cts = System.currentTimeMillis() - pe.getAllocationTime();
 
 		sb.append("Hanging database connection " + pe.getID() + " found in pool ");
@@ -1259,7 +1259,7 @@ public class ConnectionPool implements DbConnectorSet {
 		if(!m_dbg_stacktrace)
 			return "Stacktrace is off.";
 
-		StringBuffer sb = new StringBuffer(10240);
+		StringBuilder sb = new StringBuilder(10240);
 		sb.append("There are ");
 		sb.append(Integer.toString(m_usedSet.size()));
 		sb.append(" connections in the USED pool.\n");
@@ -1336,7 +1336,7 @@ public class ConnectionPool implements DbConnectorSet {
 			return;
 
 		//-- !! Connection took a shitload of time! log!
-		StringBuffer sb = new StringBuffer(1024);
+		StringBuilder sb = new StringBuilder(1024);
 		sb.append("** Connection was used for more than ");
 		sb.append(Integer.toString(m_conntime_warning_ms));
 		sb.append("ms: it took ");
@@ -1366,7 +1366,7 @@ public class ConnectionPool implements DbConnectorSet {
 	 * @return
 	 */
 	public String getUseTimeTableStr() {
-		StringBuffer sb = new StringBuffer(512);
+		StringBuilder sb = new StringBuilder(512);
 		sb.append("<table class=\"perftbl\">\n");
 		sb.append("<tr>\n");
 		for(int i = 0; i < TIMES.length; i++) {

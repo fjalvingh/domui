@@ -149,7 +149,7 @@ public class ConnectionPoolEntry {
 	}
 
 	public synchronized String getDesc() {
-		StringBuffer sb = new StringBuffer(64);
+		StringBuilder sb = new StringBuilder(64);
 		sb.append("Poolentry[");
 		sb.append(m_pool.toString());
 		sb.append(',');
@@ -244,9 +244,9 @@ public class ConnectionPoolEntry {
 			else {
 				//-- This is a real close! Swap state atomically,
 				if(pc != m_proxy_dbc) {
-					StringBuffer sb = new StringBuffer(8192);
+					StringBuilder sb = new StringBuilder(8192);
 					sb.append("Current location:\n");
-					DbPoolUtil.getLocation(sb);
+					DbPoolUtil.getThreadAndLocation(sb);
 					sb.append("\nEntry stack\n");
 					dbgPrintStackTrace(sb, 20, 20);
 
@@ -290,10 +290,10 @@ public class ConnectionPoolEntry {
 	 */
 	protected Connection proxyCheck(final PooledConnection pc, final boolean savestack) {
 		RuntimeException x = null;
-		StringBuffer sb = null;
+		StringBuilder sb = null;
 		synchronized(this) {
 			if(pc.m_detach_reason != null) {
-				sb = new StringBuffer(8192);
+				sb = new StringBuilder(8192);
 				sb.append("in proxyCheck: connection was closed: " + pc.m_detach_reason);
 				sb.append("\nThe close-location is:\n");
 				sb.append(pc.m_detach_location == null ? "Unknown" : pc.m_detach_location);
@@ -302,7 +302,7 @@ public class ConnectionPoolEntry {
 				dbgPrintStackTrace(sb, 40, 15);
 				x = new IllegalStateException(pc.toString() + ": connection was " + pc.m_detach_reason);
 			} else if(pc != m_proxy_dbc) {
-				sb = new StringBuffer(8192);
+				sb = new StringBuilder(8192);
 				sb.append("in proxyCheck: proxy refers to entry that's currently in use by someone else.\n");
 				x = new IllegalStateException(pc + ": valid proxy checked but entry's not owning it");
 			}
@@ -385,7 +385,7 @@ public class ConnectionPoolEntry {
 	 * @param nowts
 	 * @return
 	 */
-	synchronized void checkUnpooledUnused(final StringBuffer sb, final long nowts) {
+	synchronized void checkUnpooledUnused(final StringBuilder sb, final long nowts) {
 		//-- Is this connection still in use?
 		if(m_state != null)
 			return; // Already closed/invalidated
@@ -400,7 +400,7 @@ public class ConnectionPoolEntry {
 		sb.append("The connection was allocated on ");
 		sb.append(new Date(m_ts_alloc));
 		sb.append("; the allocation point is ");
-		DbPoolUtil.strStacktrace(sb, m_allocationPoint);
+		DbPoolUtil.getFilteredStacktrace(sb, m_allocationPoint);
 		sb.append("\n");
 		m_n_warncount++;
 	}
@@ -506,7 +506,7 @@ public class ConnectionPoolEntry {
 	 * @param trace
 	 * @param maxlines
 	 */
-	static public void filterStackTrace(final StringBuffer sb, final String trace, int maxlines) {
+	static public void filterStackTrace(final StringBuilder sb, final String trace, int maxlines) {
 		if(maxlines <= 0)
 			maxlines = Integer.MAX_VALUE;
 		int ix = 0;
@@ -561,7 +561,7 @@ public class ConnectionPoolEntry {
 	 * @param maxlines The max #of lines per trace; if 0 dumps all lines.
 	 * @param maxtraces The max #of traces to dump. 0 or -1 dumps all traces.
 	 */
-	public void dbgPrintStackTrace(final StringBuffer sb, final int maxlines, int maxtraces) {
+	public void dbgPrintStackTrace(final StringBuilder sb, final int maxlines, int maxtraces) {
 		if(maxtraces <= 0)
 			maxtraces = Integer.MAX_VALUE;
 		String[] ar = dbgGetTrace();
