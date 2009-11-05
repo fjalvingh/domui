@@ -399,68 +399,66 @@ public class StringTool {
 	/********************************************************************/
 	/*	CODING:	Fuzzy String comparisons..								*/
 	/********************************************************************/
-	private static String unspaceAndSo(final String s) {
-		//** 1. Remove all space, and force all to uppercase,
-		StringBuffer sb = new StringBuffer(s.length());
-
-		for(int i = 0; i < s.length(); i++) {
-			char c = Character.toUpperCase(s.charAt(i));
-			if(c != ' ' && c != '\t')
-				sb.append(c);
-		}
-		return sb.toString();
-	}
 
 	/**
-	 *	scoreAgainst() tries to get the largest number of string matches.
+	 * This returns the Levenshtein distance between two strings, which is the number of <i>changes</i> (adds, removes)
+	 * that are needed to convert source into target. The number of changes is an indication of the difference between
+	 * those strings.
 	 */
-	private static int scoreAgainst(final String realname, final String ms) {
-		int mc = 0;
+	public static int getLevenshteinDistance(String s, String t, boolean ignorecase) {
+		if(s == null || t == null)
+			throw new IllegalArgumentException("Strings must not be null");
+		if(ignorecase) {
+			s = s.trim().toLowerCase();
+			t = t.trim().toLowerCase();
+		}
+		int n = s.length();
+		int m = t.length();
 
-		//** Slice the matchstring shorter and shorter,
-		for(int i = 0; i < ms.length(); i++) {
-			String sms = ms.substring(i); // The part to match
+		if(n == 0) {
+			return m;
+		} else if(m == 0) {
+			return n;
+		} else if(m == n) {
+			if(s.equals(t)) // Optimization for when strings are equal.
+				return 0;
+		}
 
-			//** Find the largest part matching realname,
-			int ct = 0;
-			for(int j = 0; j < realname.length(); j++) {
-				if(sms.charAt(0) == realname.charAt(j)) {
-					ct = 1 + scoreAgainst(realname.substring(j + 1), sms.substring(1));
-					if(ct > mc)
-						mc = ct;
-				}
+		int p[] = new int[n + 1]; // 'previous' cost array, horizontally
+		int d[] = new int[n + 1]; // cost array, horizontally
+		int _d[]; //placeholder to assist in swapping p and d
+
+		// indexes into strings s and t
+		int i; // iterates through s
+		int j; // iterates through t
+
+		char t_j; // jth character of t
+
+		int cost; // cost
+
+		for(i = 0; i <= n; i++) {
+			p[i] = i;
+		}
+
+		for(j = 1; j <= m; j++) {
+			t_j = t.charAt(j - 1);
+			d[0] = j;
+
+			for(i = 1; i <= n; i++) {
+				cost = s.charAt(i - 1) == t_j ? 0 : 1;
+				//-- minimum of cell to the left+1, to the top+1, diagonally left and up +cost
+				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1] + cost);
 			}
-		}
-		return mc;
-	}
 
-
-	/**
-	 *	Compare two strings and return the max. number of matched letters,
-	 *	ignoring spaces.
-	 *	@parameter	realname	Contains the actual name: the string we look FOR,
-	 *	@parameter	ats			Contains the attempted string, i.e. the one that
-	 *							should match the realname,
-	 *
-	 *
-	 */
-	public static int compareStrings(String realname, String ats) {
-		//** 1. Remove all space, and force all to uppercase,
-		realname = unspaceAndSo(realname);
-		ats = unspaceAndSo(ats);
-
-		//** Determine a score, scanning against the required one, and keep the
-		//** largest score: that's the end result..
-		int maxscore = 0, score;
-		for(int i = 0; i < realname.length(); i++) {
-			score = scoreAgainst(realname.substring(i), ats); // Get score,
-			if(score > maxscore)
-				maxscore = score;
-			if(score == realname.length() - i)
-				break; //
+			//-- copy current distance counts to 'previous row' distance counts
+			_d = p;
+			p = d;
+			d = _d;
 		}
 
-		return maxscore;
+		//-- our last action in the above loop was to switch d and p, so p now
+		//-- actually has the most recent cost counts
+		return p[n];
 	}
 
 	/**
