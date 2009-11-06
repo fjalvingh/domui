@@ -31,6 +31,14 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	 */
 	@Override
 	protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, PropertyMetaModel pmm) {
+		addControl(label, 1, labelnode, list, mandatory, pmm);
+	}
+
+	/**
+	 * @see to.etc.domui.component.form.GenericFormBuilder#addControl(java.lang.String, to.etc.domui.dom.html.NodeBase, to.etc.domui.dom.html.NodeBase[], boolean, to.etc.domui.component.meta.PropertyMetaModel)
+	 * In addition, enables customization of colSpan for rendered cell.	
+	 */
+	protected void addControl(String label, int colSpan, NodeBase labelnode, NodeBase[] list, boolean mandatory, PropertyMetaModel pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = getBuilder().getControlLabelFactory();
@@ -38,7 +46,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
 		Label l = clf.createControlLabel(labelnode, label, true, mandatory, pmm);
-		modalAdd(l, list);
+		modalAdd(l, colSpan, list);
 	}
 
 	@Override
@@ -60,17 +68,44 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param list
 	 */
-	private void modalAdd(Label l, NodeBase[] list) {
+	private void modalAdd(Label l, int colSpan, NodeBase[] list) {
 		TR tr = getLabelRow(); // Row containing zhe labelz.
 		TD td = tr.addCell(); // Create cell for label;
 		td.setCssClass("ui-fvs-lbl");
 		td.add(l);
+		if(colSpan > 1) {
+			td.setColspan(colSpan);
+		}
 
 		tr = getEditRow();
 		td = tr.addCell();
 		td.setCssClass("ui-fvs-in");
+		if(colSpan > 1) {
+			td.setColspan(colSpan);
+		}
 		for(NodeBase nb : list)
 			td.add(nb);
+	}
+
+	@Override
+	public TD addCell() {
+		return addCell(null, 1, 2);
+	}
+
+	public TD addCell(int colSpan, int rowSpan) {
+		return addCell(null, colSpan, rowSpan);
+	}
+
+	public TD addCell(String css, int colSpan, int rowSpan) {
+		TR tr = getLabelRow();
+		TD td = tr.addCell(css);
+		if(colSpan > 1) {
+			td.setColspan(colSpan);
+		}
+		if(rowSpan > 1) {
+			td.setRowspan(rowSpan);
+		}
+		return td;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -80,6 +115,25 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	protected void internalClearLocation() {
 		m_labelRow = null;
 		m_editRow = null;
+	}
+
+	/**
+	 * This finishes off the current table by calculating colspans for all skewed rows. This discards the
+	 * current table!
+	 *
+	 * @return
+	 */
+	@Override
+	public Table finish() {
+		if(m_parentTable == null)
+			return null;
+
+		//-- jal 20090508 MUST clear the table, because when the builder is used for the NEXT tab it must return a new table!
+		Table tbl = m_parentTable;
+		//-- vmijic 20091106 Do not automatically change colspans, no need for this and also cause rowspans to not working properly  
+		//DomUtil.adjustTableColspans(tbl);
+		reset();
+		return tbl;
 	}
 
 	/**
@@ -111,5 +165,43 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 		m_labelRow = null;
 		m_editRow = null;
 	}
+
+	/**
+	 * Enable adding of field into table cell with possibility to customize colspan.  
+	 * Add an input for the specified property. The property is based at the current input
+	 * class. The input model is default (using metadata) and the property is labeled using
+	 * the metadata-provided label.
+	 *
+	 * FORMAL-INTERFACE.
+	 *
+	 * @param name
+	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
+	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
+	 * @param span Specify cell span.
+	 * @return
+	 */
+	public IFormControl addPropWithSpan(final String name, final boolean readOnly, final boolean mandatory, int span) {
+		PropertyMetaModel pmm = resolveProperty(name);
+		String label = pmm.getDefaultLabel();
+
+		//-- Check control permissions: does it have view permissions?
+		if(!rights().calculate(pmm))
+			return null;
+		final ControlFactory.Result r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
+		addControl(label, span, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
+
+		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
+		if(label != null) {
+			for(NodeBase b : r.getNodeList())
+				b.setErrorLocation(label);
+		}
+
+		if(r.getBinding() != null)
+			getBindings().add(r.getBinding());
+		else
+			throw new IllegalStateException("No binding for a " + r);
+		return r.getFormControl();
+	}
+
 
 }
