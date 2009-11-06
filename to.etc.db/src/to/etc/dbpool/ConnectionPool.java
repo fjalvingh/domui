@@ -303,7 +303,11 @@ public class ConnectionPool implements DbConnectorSet {
 
 	private boolean m_ignoreUnclosed;
 
-	private boolean m_disableOldiesScanner;
+	static public enum ScanMode {
+		DISABLED, ENABLED, WARNING
+	}
+
+	private ScanMode m_scanMode = ScanMode.ENABLED;
 
 	public ConnectionPool(PoolManager pm, String id, String driver, String url, String userid, String passwd, String driverpath) throws SQLException {
 		m_manager = pm;
@@ -351,7 +355,19 @@ public class ConnectionPool implements DbConnectorSet {
 			boolean cost = cs.getBool(id, "statistics", false);
 			m_printExceptions = cs.getBool(id, "printexceptions", false);
 			m_ignoreUnclosed = cs.getBool(id, "ignoreunclosed", false);
-			m_disableOldiesScanner = cs.getBool(id, "disablescan", false);
+
+			dp = cs.getProperty(id, "scan");
+			if(dp == null)
+				m_scanMode = ScanMode.ENABLED;
+			else if("enabled".equalsIgnoreCase(dp) || "on".equalsIgnoreCase(dp))
+				m_scanMode = ScanMode.ENABLED;
+			else if("disabled".equalsIgnoreCase(dp) || "off".equalsIgnoreCase(dp))
+				m_scanMode = ScanMode.DISABLED;
+			else if("warning".equalsIgnoreCase(dp) || "warn".equalsIgnoreCase(dp))
+				m_scanMode = ScanMode.WARNING;
+			else
+				throw new IllegalStateException("Invalid 'scan' mode: must be enabled, disabled or warn.");
+
 			if(cost)
 				pm.setCollectStatistics(true);
 
@@ -1097,6 +1113,9 @@ public class ConnectionPool implements DbConnectorSet {
 	 *  @returns	T if the scan found and released "hanging" connections.
 	 */
 	boolean scanForOldies(final int scaninterval_in_secs) {
+		if(getScanMode() == ScanMode.DISABLED)
+			return false;
+
 		/*
 		 * Scan all used connections, and invalidate all connections that are
 		 * too old. They will be removed from the queues and be made invalid so
@@ -1110,7 +1129,6 @@ public class ConnectionPool implements DbConnectorSet {
 
 		//-- 2. Now: check connection by connection with lock order always entry, then pool...
 		long ts = System.currentTimeMillis();
-		//		long			ets	= ts - Nema.getDbScanInterval()*1000;	// Earliest time that's still valid.
 		long ets = ts - scaninterval_in_secs * 1000; // Earliest time that's still valid
 		int nhanging = 0;
 		StringBuilder sb = null;
@@ -1655,7 +1673,7 @@ public class ConnectionPool implements DbConnectorSet {
 		return m_ignoreUnclosed;
 	}
 
-	public boolean isDisableOldiesScanner() {
-		return m_disableOldiesScanner;
+	public ScanMode getScanMode() {
+		return m_scanMode;
 	}
 }
