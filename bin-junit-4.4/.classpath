@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="junit-4.4.jar" sourcepath="junit-4.4-src.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
