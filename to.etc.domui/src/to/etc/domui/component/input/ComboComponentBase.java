@@ -8,7 +8,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
-public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
+public class ComboComponentBase<T, V> extends SpanBasedControl<V> implements IHasModifiedIndication {
 	/** The name of the set of ReferenceCodes to show in this combo */
 	private Select m_combo;
 
@@ -33,6 +33,9 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 
 	private IValueTransformer<V> m_valueTransformer;
 
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	private boolean m_modifiedByUser;
+
 	public ComboComponentBase() {}
 
 	public ComboComponentBase(IListMaker<T> maker) {
@@ -52,7 +55,7 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 				String in = values[0]; // Must be the ID of the selected Option thingy.
 				SelectOption selo = (SelectOption) getPage().findNodeByID(in);
 				if(selo == null) {
-					setRawValue(null);
+					internalUpdateValue(null);
 				} else {
 					int index = findChildIndex(selo); // Must be found
 					if(index == -1)
@@ -61,16 +64,16 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 					if(!ComboComponentBase.this.isMandatory()) {
 						//-- If the index is 0 we have the "unselected" thingy; if not we need to decrement by 1 to skip that entry.
 						if(index == 0)
-							setRawValue(null);
+							internalUpdateValue(null);
 						index--; // IMPORTANT Index becomes -ve if value lookup may not be done!
 					}
 
 					if(index >= 0) {
 						List<T> data = getData();
 						if(index >= data.size()) {
-							setRawValue(null);
+							internalUpdateValue(null);
 						} else
-							setRawValue(listToValue(data.get(index)));
+							internalUpdateValue(listToValue(data.get(index)));
 					}
 				}
 			}
@@ -99,6 +102,13 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 				cmm = MetaManager.findClassMeta(res.getClass());
 			boolean eq = MetaManager.areObjectsEqual(res, getRawValue(), cmm);
 			o.setSelected(eq);
+		}
+	}
+
+	protected void internalUpdateValue(V value) {
+		if(!MetaManager.areObjectsEqual(value, getRawValue(), null)) {
+			setRawValue(value);
+			m_modifiedByUser = true;
 		}
 	}
 
@@ -235,4 +245,25 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> {
 	public void setValueTransformer(IValueTransformer<V> valueTransformer) {
 		m_valueTransformer = valueTransformer;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
+	}
+
+
 }

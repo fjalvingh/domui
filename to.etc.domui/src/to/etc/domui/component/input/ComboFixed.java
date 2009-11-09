@@ -174,8 +174,10 @@ public class ComboFixed<T> extends Select implements IInputNode<T>, IHasModified
 	}
 
 	private void updateCurrent(T newval) {
-		if(!MetaManager.areObjectsEqual(newval, m_currentValue, null))
+		if(!MetaManager.areObjectsEqual(newval, m_currentValue, null)) {
 			m_modifiedByUser = true;
+			m_currentValue = newval;
+		}
 	}
 
 	public void setData(List<Pair<T>> set) {
