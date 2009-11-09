@@ -526,6 +526,7 @@ var WebUI = {
 	},
 
 	handleResponse : function(data, state) {
+		WebUI._asyalerted = false;
 		if (false && window.console && window.console.debug)
 			console.debug("data is ", data);
 		$.webui(data);
@@ -540,7 +541,23 @@ var WebUI = {
 		document.write(txt);
 		window.setTimeout('document.body.style.cursor="default"', 1000);
 	},
+	_asyalerted: false,
+	handleErrorAsy : function(request, status, exc) {
+		if(WebUI._asyalerted)
+			return;
+		WebUI._asyalerted = true;
 
+		var txt = request.responseText;
+		if (document.body)
+			document.body.style.cursor = 'default';
+		// alert('Server error: '+status+", len="+txt.length+", val="+txt);
+		if (txt.length == 0)
+			txt = "De server is niet bereikbaar.";
+		else if(txt.length > 200)
+			txt = txt.substring(0, 200);
+		alert("Automatische server update mislukt: "+txt);
+	},
+	
 	/*
 	 * IE/FF compatibility: IE only has the 'keycode' field, and it always hides
 	 * all non-input like arrows, fn keys etc. FF has keycode which is used ONLY
@@ -823,7 +840,7 @@ var WebUI = {
 			cache :false,
 			global: false, // jal 20091015 prevent block/unblock on polling call.
 			success :WebUI.handleResponse,
-			error :WebUI.handleError
+			error :WebUI.handleErrorAsy
 		});
 	},
 
