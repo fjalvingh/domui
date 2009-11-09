@@ -481,6 +481,11 @@ table.ui-lui-selected {
 	filter:alpha(opacity=50);
 }
 
+.ui-fw-btn-close {
+	margin-top: -1px;
+	margin-right: -2px;
+}
+
 /** Tree control ***/
 
 .ui-tree {

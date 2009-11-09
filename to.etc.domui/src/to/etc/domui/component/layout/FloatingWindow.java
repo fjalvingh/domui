@@ -152,9 +152,14 @@ public class FloatingWindow extends Div {
 		if(m_titleIcon == null) {
 			m_titleIcon = new Img();
 			m_titleIcon.setBorder(0);
-			m_titleIcon.setCssClass("ui-fw-ti");
-			if(m_titleBar != null)
-				m_titleBar.add(0, m_titleIcon);
+			if(m_titleBar != null) {
+				//Since IE has bug that floater object is rendered under previous sibling, close button must be rendered before any other element in title bar.
+				if(m_closeButton != null && m_titleBar.getChildCount() > 0 && m_titleBar.getChild(0) == m_closeButton) {
+					m_titleBar.add(1, m_titleIcon);
+				} else {
+					m_titleBar.add(0, m_titleIcon);
+				}
+			}
 		}
 		return m_titleIcon;
 	}
@@ -196,6 +201,8 @@ public class FloatingWindow extends Div {
 			m_closeButton = new Img();
 			m_closeButton.setSrc("THEME/close.png");
 			m_closeButton.setFloat(FloatType.RIGHT);
+			//some margin fixes have to be applied with css
+			m_closeButton.setCssClass("ui-fw-btn-close");
 			ttl.add(m_closeButton);
 			m_closeButton.setClicked(new IClicked<NodeBase>() {
 				public void clicked(NodeBase b) throws Exception {
