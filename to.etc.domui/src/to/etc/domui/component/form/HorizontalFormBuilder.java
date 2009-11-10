@@ -180,7 +180,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @param span Specify cell span.
 	 * @return
 	 */
-	public IFormControl addPropWithSpan(final String name, final boolean readOnly, final boolean mandatory, int span) {
+	public IFormControl addPropWithSpan(final String name, final boolean readOnly, final boolean mandatory, int colSpan) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		String label = pmm.getDefaultLabel();
 
@@ -188,7 +188,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 		if(!rights().calculate(pmm))
 			return null;
 		final ControlFactory.Result r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
-		addControl(label, span, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
+		addControl(label, colSpan, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
 		if(label != null) {
@@ -203,5 +203,23 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 		return r.getFormControl();
 	}
 
+	/**
+	 * Enable adding of field into table cell with possibility to customize colspan.  
+	 * This adds a fully user-specified control for a given property with it's default label,
+	 * without creating <i>any<i> binding. The only reason the property is passed is to use
+	 * it's metadata to define it's access rights and default label.
+	 * 
+	 * @param propertyName
+	 * @param nb
+	 * @param mandatory
+	 * @param colSpan
+	 */
+	public void addPropertyAndControlWithSpan(final String propertyName, final NodeBase nb, final boolean mandatory, int colSpan) {
+		PropertyMetaModel pmm = resolveProperty(propertyName);
+		String label = pmm.getDefaultLabel();
+		addControl(label, colSpan, nb, new NodeBase[]{nb}, mandatory, pmm);
+		if(label != null)
+			nb.setErrorLocation(label);
+	}
 
 }
