@@ -348,19 +348,8 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 //					alert('attr '+n+' is '+v+", inline = "+inline);
 
 					if (inline) {
-						//-- 20091110 jal When inlining we have no choice but to copy special attributes.. Hope it works in IE 8-(
-						//-- so translate the values back to their originals
-						if("domjs_checked" == n) {
-							v = v == "true" ? "checked" : "";
-							attr += ('checked="'+v+'" ');
-							alert('inline: '+attr)
-						} else if("domjs_disabled" == n) {
-							v = v == "true" ? "disabled" : "";
-							attr += ('disabled="'+v+'" ');
-						} else if("domjs_readonly" == n) {
-							v = v == "true" ? "readonly" : "";
-							attr += ('readonly="'+v+'" ');
-						} else if(n.substring(0, 6) == 'domjs_') {
+						//-- 20091110 jal When inlining we are in trouble if domjs_ is used... The domjs_ mechanism is replaced with setDelayedAttributes in java.
+						if(n.substring(0, 6) == 'domjs_') {
 							alert('Unsupported domjs_ attribute in INLINE mode: '+n);
 						} else
 							attr += (n + '="' + v + '" ');
@@ -611,6 +600,25 @@ var WebUI = {
 			return true;
 		WebUI.scall(evt.currentTarget ? evt.currentTarget.id : node.id, 'returnpressed');
 		return false;
+	},
+
+	delayedSetAttributes: function() {
+		if(arguments.length < 3 || ((arguments.length & 1) != 1)) {
+			alert('internal: odd call to delayedSetAttributes: '+arguments.length);
+			return;
+		}
+		var n = document.getElementById(arguments[0]);
+		if(n == undefined)
+			return;
+//		alert('Node is '+arguments[0]);
+		//-- Now set pair values
+		for(var i = 1; i < arguments.length; i += 2) {
+			try {
+				n[arguments[i]] = arguments[i+1];
+			} catch(x) {
+				alert('Failed to set javascript property '+arguments[i]+' to '+arguments[i+1]+": "+x);
+			}
+		}
 	},
 
 	focus : function(id) {

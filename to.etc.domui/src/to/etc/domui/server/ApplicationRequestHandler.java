@@ -233,7 +233,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 
 		//		String	usag = ctx.getUserAgent();
-		FullHtmlRenderer hr = m_application.findRendererFor(ctx.getUserAgent(), out);
+		FullHtmlRenderer hr = m_application.findRendererFor(ctx.getBrowserVersion(), out);
 
 		try {
 			hr.render(ctx, page);
@@ -475,7 +475,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		long ts = System.nanoTime();
 		//		String	usag = ctx.getUserAgent();
-		HtmlRenderer base = new HtmlRenderer(out);
+		HtmlRenderer base = new HtmlRenderer(ctx.getBrowserVersion(), out);
 		//		DeltaRenderer	dr	= new DeltaRenderer(base, out);
 		OptimalDeltaRenderer dr = new OptimalDeltaRenderer(base, out);
 		dr.render(ctx, page);

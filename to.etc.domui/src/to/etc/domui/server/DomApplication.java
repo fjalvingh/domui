@@ -21,6 +21,7 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
+import to.etc.domui.util.resources.IResourceRef;
 import to.etc.template.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
@@ -275,8 +276,8 @@ public abstract class DomApplication {
 	}
 
 
-	protected FullHtmlRenderer findRendererFor(final String useragent, final IBrowserOutput o) {
-		HtmlRenderer base = new HtmlRenderer(o);
+	protected FullHtmlRenderer findRendererFor(BrowserVersion bv, final IBrowserOutput o) {
+		HtmlRenderer base = new HtmlRenderer(bv, o);
 		return new FullHtmlRenderer(base, o);
 	}
 
