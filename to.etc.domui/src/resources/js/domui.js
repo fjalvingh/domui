@@ -344,16 +344,29 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 
 			function copyAttrs(dest, src, inline) {
 				for ( var i = 0, attr = ''; i < src.attributes.length; i++) {
-					var a = src.attributes[i], n = $.trim(a.name), v = $
-							.trim(a.value);
-					// alert('attr '+n+' is '+v);
-					if (inline)
-						attr += (n + '="' + v + '" ');
-					else if (n == 'style') { // IE workaround
-						dest.style.cssText = v;
-						dest.setAttribute(n, v);
+					var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
+//					alert('attr '+n+' is '+v+", inline = "+inline);
+
+					if (inline) {
+						//-- 20091110 jal When inlining we have no choice but to copy special attributes.. Hope it works in IE 8-(
+						//-- so translate the values back to their originals
+						if("domjs_checked" == n) {
+							v = v == "true" ? "checked" : "";
+							attr += ('checked="'+v+'" ');
+							alert('inline: '+attr)
+						} else if("domjs_disabled" == n) {
+							v = v == "true" ? "disabled" : "";
+							attr += ('disabled="'+v+'" ');
+						} else if("domjs_readonly" == n) {
+							v = v == "true" ? "readonly" : "";
+							attr += ('readonly="'+v+'" ');
+						} else if(n.substring(0, 6) == 'domjs_') {
+							alert('Unsupported domjs_ attribute in INLINE mode: '+n);
+						} else
+							attr += (n + '="' + v + '" ');
 					} else if (n.substring(0, 6) == 'domjs_') {
 						var s = "dest." + n.substring(6) + " = " + v;
+						//alert('domjs eval: '+s);
 						try {
 							eval(s);
 						} catch(ex) {
@@ -361,18 +374,26 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if ($.browser.msie && n.substring(0, 2) == 'on') {
-						// alert('event '+n+' value '+v);
-						// var se = 'function(){'+v+';}';
-						var se;
-						if (v.indexOf('return') != -1)
-							se = new Function(v);
-						else
-							se = new Function('return ' + v);
-						// alert('event '+n+' value '+se);
-						dest[n] = se;
-					} else
+					} else if (dest && $.browser.msie && n.substring(0, 2) == 'on') {
+						try {
+							// alert('event '+n+' value '+v);
+							// var se = 'function(){'+v+';}';
+							var se;
+							if (v.indexOf('return') != -1)
+								se = new Function(v);
+							else
+								se = new Function('return ' + v);
+							// alert('event '+n+' value '+se);
+							dest[n] = se;
+						} catch(x) {
+							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);
+						}
+					} else if (n == 'style') { // IE workaround
+						dest.style.cssText = v;
+						dest.setAttribute(n, v);
+					} else {
 						$.attr(dest, n, v);
+					}
 				}
 				return attr;
 			}

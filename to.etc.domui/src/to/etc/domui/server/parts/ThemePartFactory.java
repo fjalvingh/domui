@@ -33,6 +33,10 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 		//			return m_browserID;
 		//		}
 
+		@Override
+		public String toString() {
+			return "[themed:" + m_rurl + ", browser=" + m_bv + "]";
+		}
 		public BrowserVersion getBrowserVersion() {
 			return m_bv;
 		}
