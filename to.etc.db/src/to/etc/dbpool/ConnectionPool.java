@@ -351,12 +351,11 @@ public class ConnectionPool implements DbConnectorSet {
 			m_trace = cs.getBool(id, "trace", false);
 			m_max_conns = cs.getInt(id, "maxconn", 20);
 			m_min_conns = cs.getInt(id, "minconn", 5);
-			String dp = cs.getProperty(id, "driverpath");
 			boolean cost = cs.getBool(id, "statistics", false);
 			m_printExceptions = cs.getBool(id, "printexceptions", false);
 			m_ignoreUnclosed = cs.getBool(id, "ignoreunclosed", false);
 
-			dp = cs.getProperty(id, "scan");
+			String dp = cs.getProperty(id, "scan");
 			if(dp == null)
 				m_scanMode = ScanMode.ENABLED;
 			else if("enabled".equalsIgnoreCase(dp) || "on".equalsIgnoreCase(dp))
@@ -371,6 +370,7 @@ public class ConnectionPool implements DbConnectorSet {
 			if(cost)
 				pm.setCollectStatistics(true);
 
+			dp = cs.getProperty(id, "driverpath");
 			if(dp != null) {
 				File f = new File(dp);
 				if(!f.exists()) {
@@ -1116,6 +1116,8 @@ public class ConnectionPool implements DbConnectorSet {
 		if(getScanMode() == ScanMode.DISABLED)
 			return false;
 
+		boolean logonly = getScanMode() == ScanMode.WARNING;
+
 		/*
 		 * Scan all used connections, and invalidate all connections that are
 		 * too old. They will be removed from the queues and be made invalid so
@@ -1136,17 +1138,27 @@ public class ConnectionPool implements DbConnectorSet {
 		for(int i = upar.length; --i >= 0;) {
 			ConnectionPoolEntry pe = upar[i]; // The connection to check.
 			if(!pe.isUnpooled()) {
-				if(pe.checkTimeOut(ts, ets)) // If this has timed out it will have been removed from the queue
+				if(pe.checkTimeOut(ts, ets, !logonly)) // If this has timed out and we're not logging-only it will have been removed from the queue
 				{
 					nhanging++;
 					if(sb == null) {
 						sb = new StringBuilder(8192); // Lazily create the string buffer and init it,
-						sb.append("*** DATABASE CONNECTIONS WERE HANGING ***\n");
-						sb.append("Releasing hanging connections:\n");
+						if(logonly) {
+							sb.append("pool(").append(m_id).append(") connection(s) used for a long time:\n");
+						} else {
+							sb.append("*** DATABASE CONNECTIONS WERE HANGING ***\n");
+							sb.append("Releasing hanging connections:\n");
+						}
 					}
 
 					//-- Purge the connection.
-					purgeOld(sb, pe); // Remove the connection.
+					if(logonly) {
+						long cts = System.currentTimeMillis() - pe.getAllocationTime();
+						long luts = System.currentTimeMillis() - pe.getLastUsedTime();
+						sb.append("- connection ").append(pe.getID()).append(" active for ").append(DbPoolUtil.strMillis(cts));
+						sb.append(", last use ").append(DbPoolUtil.strMillis(luts)).append(" ago\n");
+					} else
+						purgeOld(sb, pe); // Remove the connection.
 				}
 			} else
 				pe.checkUnpooledUnused(unsb, ts);
@@ -1162,15 +1174,19 @@ public class ConnectionPool implements DbConnectorSet {
 			JAN.info(m_id + ": no hanging connections found.");
 			return false; // No old stuff found.
 		}
-		synchronized(this) {
-			m_n_hangdisconnects += nhanging;
-		}
-		String subj = nhanging + " hanging database connections were released";
-		JAN.info(subj);
-		if(sb != null) {
-			String msg = sb.toString();
-			saveError(subj, msg);
-			PoolManager.panic(subj, msg);
+		if(!logonly) {
+			synchronized(this) {
+				m_n_hangdisconnects += nhanging;
+			}
+			String subj = nhanging + " hanging database connections were released";
+			JAN.info(subj);
+			if(sb != null) {
+				String msg = sb.toString();
+				saveError(subj, msg);
+				PoolManager.panic(subj, msg);
+			}
+		} else {
+			System.out.println(sb.toString());
 		}
 		return true;
 	}
