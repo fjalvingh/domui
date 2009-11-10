@@ -54,9 +54,13 @@ public class LookupForm<T> extends Div {
 
 	IClicked<LookupForm<T>> m_onNew;
 
+	DefaultButton m_newBtn;
+
 	IClicked<LookupForm<T>> m_onClear;
 
 	IClicked<LookupForm<T>> m_onCancel;
+
+	DefaultButton m_cancelBtn;
 
 	private DefaultButton m_collapseButton;
 
@@ -765,18 +769,28 @@ public class LookupForm<T> extends Div {
 	 * @param onNew
 	 */
 	public void setOnNew(final IClicked<LookupForm<T>> onNew) {
-		m_onNew = onNew;
-		if(m_onNew != null) {
-			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
-			b.setIcon("THEME/btnNew.png");
-			b.setTestID("newButton");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
-					m_onNew.clicked(LookupForm.this);
+		if(m_onNew != onNew) {
+			m_onNew = onNew;
+			if(m_onNew != null && m_newBtn == null) {
+				m_newBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
+				m_newBtn.setIcon("THEME/btnNew.png");
+				m_newBtn.setTestID("newButton");
+				m_newBtn.setClicked(new IClicked<NodeBase>() {
+					public void clicked(final NodeBase xb) throws Exception {
+						if(getOnNew() != null) {
+							getOnNew().clicked(LookupForm.this);
+						}
+					}
+				});
+				addButtonItem(m_newBtn, 300, ButtonMode.BOTH);
+				forceRebuild();
+			} else if(m_onNew == null && m_newBtn != null) {
+				if(m_buttonItemList.contains(m_newBtn)) {
+					m_buttonItemList.remove(m_newBtn);
 				}
-			});
-			addButtonItem(b, 300, ButtonMode.BOTH);
-			forceRebuild();
+				m_newBtn = null;
+				forceRebuild();
+			}
 		}
 	}
 
@@ -843,22 +857,30 @@ public class LookupForm<T> extends Div {
 	 * @param onCancel
 	 */
 	public void setOnCancel(IClicked<LookupForm<T>> onCancel) {
-		m_onCancel = onCancel;
-		if(m_onCancel != null) {
-			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
-			b.setIcon("THEME/btnCancel.png");
-			b.setTestID("cancelButton");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
+		if(m_onCancel != onCancel) {
+			m_onCancel = onCancel;
+			if(m_onCancel != null && m_cancelBtn == null) {
+				m_cancelBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
+				m_cancelBtn.setIcon("THEME/btnCancel.png");
+				m_cancelBtn.setTestID("cancelButton");
+				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
+					public void clicked(final NodeBase xb) throws Exception {
 
-					if(getOnCancel() != null) {
-						getOnCancel().clicked(LookupForm.this);
+						if(getOnCancel() != null) {
+							getOnCancel().clicked(LookupForm.this);
+						}
 					}
+				});
+				addButtonItem(m_cancelBtn, 400, ButtonMode.BOTH);
+				forceRebuild();
+			} else if(m_onCancel == null && m_cancelBtn != null) {
+				if(m_buttonItemList.contains(m_cancelBtn)) {
+					m_buttonItemList.remove(m_cancelBtn);
 				}
-			});
-			addButtonItem(b, 400, ButtonMode.BOTH);
+				m_cancelBtn = null;
+				forceRebuild();
+			}
 		}
-		forceRebuild();
 	}
 
 	public IClicked<LookupForm<T>> getOnCancel() {
