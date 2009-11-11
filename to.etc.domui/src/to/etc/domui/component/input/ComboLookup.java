@@ -180,9 +180,10 @@ public class ComboLookup<T> extends Select implements IInputNode<T>, IHasModifie
 	}
 
 	private void updateCurrent(T newval) {
-		if(!MetaManager.areObjectsEqual(newval, m_currentValue, null)) {
-			m_modifiedByUser = true;
+		ClassMetaModel cmm = (newval != null ? MetaManager.findClassMeta(newval.getClass()) : null);
+		if(!MetaManager.areObjectsEqual(newval, m_currentValue, cmm)) {
 			m_currentValue = newval;
+			DomUtil.setModifiedFlag(this);
 		}
 	}
 

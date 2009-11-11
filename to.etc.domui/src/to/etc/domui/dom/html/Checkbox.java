@@ -3,6 +3,7 @@ package to.etc.domui.dom.html;
 import java.util.*;
 
 import to.etc.domui.component.input.*;
+import to.etc.domui.util.*;
 
 public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModifiedIndication {
 
@@ -73,7 +74,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 
 		boolean on = "y".equalsIgnoreCase(s);
 		if(m_checked != on)
-			m_modifiedByUser = true;
+			DomUtil.setModifiedFlag(this);
 		m_checked = on;
 	}
 

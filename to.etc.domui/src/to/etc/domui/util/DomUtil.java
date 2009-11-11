@@ -810,10 +810,10 @@ final public class DomUtil {
 					top = n;
 				} else if(tag.startsWith("</")) {
 					//-- Some kind of end tag.
-					tag = tag.substring(2, tag.length()-1).trim();			// Remove </ >
+					tag = tag.substring(2, tag.length() - 1).trim(); // Remove </ >
 					if(tag.equalsIgnoreCase("b") || tag.equalsIgnoreCase("i") || tag.equalsIgnoreCase("strong") || tag.equalsIgnoreCase("em")) {
 						//-- Recognised end tag: pop node stack.
-						ix	= tix;
+						ix = tix;
 						appendOptionalText(top, sb); // Append the text for this node because it ends.
 						if(nodestack.size() > 0) {
 							nodestack.remove(nodestack.size() - 1);
@@ -944,16 +944,15 @@ final public class DomUtil {
 	}
 
 	/**
-	 * This sets/clears the 'modified' flag for all nodes in the subtree that implement {@link IHasModifiedIndication}.
+	 * This clears the 'modified' flag for all nodes in the subtree that implement {@link IHasModifiedIndication}.
 	 * @param root		The subtree to traverse
-	 * @param tovalue	Set or clear the flag.
 	 */
-	static public void setModifiedFlag(NodeBase root, final boolean tovalue) {
+	static public void clearModifiedFlag(NodeBase root) {
 		try {
 			walkTree(root, new IPerNode() {
 				public Object before(NodeBase n) throws Exception {
 					if(n instanceof IHasModifiedIndication)
-						((IHasModifiedIndication) n).setModified(tovalue);
+						((IHasModifiedIndication) n).setModified(false);
 					return null;
 				}
 
@@ -992,4 +991,19 @@ final public class DomUtil {
 		}
 	}
 
+	/**
+	 * Update modified flag of node. Propagate notify signal up to final modified fence in parant tree, if any is defined.
+	 * Use it to set modified flag as result of handling of user data modification.
+	 * @param node
+	 */
+	static public void setModifiedFlag(NodeBase node) {
+		NodeBase n = node;
+		while(n != null) {
+			if(n instanceof IHasModifiedIndication)
+				((IHasModifiedIndication) n).setModified(true);
+			if(n instanceof IUserInputModifiedFence && ((IUserInputModifiedFence) n).isFinalUserInputModifiedFence())
+				return;
+			n = (NodeBase) n.getParent(IUserInputModifiedFence.class);
+		}
+	}
 }

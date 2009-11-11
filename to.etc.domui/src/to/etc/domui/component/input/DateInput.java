@@ -6,6 +6,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * Date input component: this is an INPUT component with a button attached; pressing
@@ -48,6 +49,8 @@ public class DateInput extends Text<Date> {
 				m_todayButton = new SmallImgButton("THEME/btnToday.png", new IClicked<SmallImgButton>() {
 					public void clicked(SmallImgButton b) throws Exception {
 						Date currentDate = new Date();
+						//modified flag must be set externaly
+						DomUtil.setModifiedFlag(DateInput.this);
 						DateInput.this.setValue(currentDate);
 						if(getOnValueChanged() != null) {
 							((IValueChanged<NodeBase, Object>) getOnValueChanged()).onValueChanged(DateInput.this, currentDate);

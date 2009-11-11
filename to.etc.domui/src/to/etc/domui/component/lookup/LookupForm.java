@@ -52,11 +52,15 @@ public class LookupForm<T> extends Div {
 
 	IClicked<LookupForm<T>> m_clicker;
 
-	IClicked<LookupForm<T>> m_onNew;
+	private IClicked<LookupForm<T>> m_onNew;
 
-	IClicked<LookupForm<T>> m_onClear;
+	private DefaultButton m_newBtn;
 
-	IClicked<LookupForm<T>> m_onCancel;
+	private IClicked<LookupForm<T>> m_onClear;
+
+	private IClicked<LookupForm<T>> m_onCancel;
+
+	private DefaultButton m_cancelBtn;
 
 	private DefaultButton m_collapseButton;
 
@@ -209,7 +213,8 @@ public class LookupForm<T> extends Div {
 	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
 	 * Created on 13 Oct 2009
 	 */
-	static class ItemBreak extends Item {
+	static private class ItemBreak extends Item {
+		public ItemBreak() {}
 	}
 
 	/** The primary list of defined lookup items. */
@@ -371,33 +376,6 @@ public class LookupForm<T> extends Div {
 		});
 		addButtonItem(b, 200, ButtonMode.NORMAL);
 
-		if(getOnNew() != null) {
-			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
-			b.setIcon("THEME/btnNew.png");
-			b.setTestID("newButton");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
-					getOnNew().clicked(LookupForm.this);
-				}
-			});
-			addButtonItem(b, 300, ButtonMode.BOTH);
-		}
-
-		if(null != getOnCancel()) {
-			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
-			b.setIcon("THEME/btnCancel.png");
-			b.setTestID("cancelButton");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
-
-					if(getOnCancel() != null) {
-						getOnCancel().clicked(LookupForm.this);
-					}
-				}
-			});
-			addButtonItem(b, 400, ButtonMode.BOTH);
-		}
-
 		//-- Collapse button thingy
 		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton bx) throws Exception {
@@ -406,21 +384,6 @@ public class LookupForm<T> extends Div {
 		});
 		m_collapseButton.setTestID("hideButton");
 		addButtonItem(m_collapseButton, 500, ButtonMode.BOTH);
-		//
-		//		if(null != getOnConfirm()) {
-		//			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
-		//			d.add(b);
-		//			b.setIcon("THEME/btnConfirm.png");
-		//			b.setTestID("confirmButton");
-		//			b.setClicked(new IClicked<NodeBase>() {
-		//				public void clicked(final NodeBase xb) throws Exception {
-		//
-		//					if(getOnConfirm() != null) {
-		//						getOnConfirm().clicked(LookupForm.this);
-		//					}
-		//				}
-		//			});
-		//		}
 	}
 
 	private boolean containsItemBreaks(List<Item> itemList) {
@@ -454,48 +417,6 @@ public class LookupForm<T> extends Div {
 			}
 		});
 		createButtonRow(m_collapsed, true);
-
-		//
-		//		if(getOnNew() != null) {
-		//			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
-		//			b.setTestID("newButtonCollapsed");
-		//			m_collapsed.add(b);
-		//			b.setIcon("THEME/btnNew.png");
-		//			b.setClicked(new IClicked<NodeBase>() {
-		//				public void clicked(final NodeBase xb) throws Exception {
-		//					getOnNew().clicked(LookupForm.this);
-		//				}
-		//			});
-		//		}
-		//		if(null != getOnCancel()) {
-		//			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
-		//			b.setTestID("cancelButtonCollapsed");
-		//			m_collapsed.add(b);
-		//			b.setIcon("THEME/btnCancel.png");
-		//			b.setClicked(new IClicked<NodeBase>() {
-		//				public void clicked(final NodeBase xb) throws Exception {
-		//
-		//					if(getOnCancel() != null) {
-		//						getOnCancel().clicked(LookupForm.this);
-		//					}
-		//				}
-		//			});
-		//		}
-		//		if(null != getOnConfirm()) {
-		//			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
-		//			m_collapsed.add(b);
-		//			b.setIcon("THEME/btnConfirm.png");
-		//			b.setTestID("confirmButtonCollapsed");
-		//			b.setClicked(new IClicked<NodeBase>() {
-		//				public void clicked(final NodeBase xb) throws Exception {
-		//
-		//					if(getOnConfirm() != null) {
-		//						getOnConfirm().clicked(LookupForm.this);
-		//					}
-		//				}
-		//			});
-		//		}
-
 	}
 
 	void restore() {
@@ -849,8 +770,28 @@ public class LookupForm<T> extends Div {
 	 * @param onNew
 	 */
 	public void setOnNew(final IClicked<LookupForm<T>> onNew) {
-		m_onNew = onNew;
-		forceRebuild();
+		if(m_onNew != onNew) {
+			m_onNew = onNew;
+			if(m_onNew != null && m_newBtn == null) {
+				m_newBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
+				m_newBtn.setIcon("THEME/btnNew.png");
+				m_newBtn.setTestID("newButton");
+				m_newBtn.setClicked(new IClicked<NodeBase>() {
+					public void clicked(final NodeBase xb) throws Exception {
+						if(getOnNew() != null) {
+							getOnNew().clicked(LookupForm.this);
+						}
+					}
+				});
+				addButtonItem(m_newBtn, 300, ButtonMode.BOTH);
+			} else if(m_onNew == null && m_newBtn != null) {
+				if(m_buttonItemList.contains(m_newBtn)) {
+					m_buttonItemList.remove(m_newBtn);
+				}
+				m_newBtn = null;
+			}
+			forceRebuild();
+		}
 	}
 
 	/**
@@ -916,7 +857,29 @@ public class LookupForm<T> extends Div {
 	 * @param onCancel
 	 */
 	public void setOnCancel(IClicked<LookupForm<T>> onCancel) {
-		m_onCancel = onCancel;
+		if(m_onCancel != onCancel) {
+			m_onCancel = onCancel;
+			if(m_onCancel != null && m_cancelBtn == null) {
+				m_cancelBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
+				m_cancelBtn.setIcon("THEME/btnCancel.png");
+				m_cancelBtn.setTestID("cancelButton");
+				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
+					public void clicked(final NodeBase xb) throws Exception {
+
+						if(getOnCancel() != null) {
+							getOnCancel().clicked(LookupForm.this);
+						}
+					}
+				});
+				addButtonItem(m_cancelBtn, 400, ButtonMode.BOTH);
+			} else if(m_onCancel == null && m_cancelBtn != null) {
+				if(m_buttonItemList.contains(m_cancelBtn)) {
+					m_buttonItemList.remove(m_cancelBtn);
+				}
+				m_cancelBtn = null;
+			}
+			forceRebuild();
+		}
 	}
 
 	public IClicked<LookupForm<T>> getOnCancel() {
@@ -955,7 +918,7 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
-	 * Add all buttons defined for the button row to it.
+	 * Add all buttons, both default and custom to buttom row.
 	 * @param c
 	 * @param iscollapsed
 	 */
@@ -966,7 +929,7 @@ public class LookupForm<T> extends Div {
 				}
 			});
 
-		for(ButtonRowItem bi: m_buttonItemList) {
+		for(ButtonRowItem bi : m_buttonItemList) {
 			if((iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.COLLAPSED)) || (!iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.NORMAL))) {
 				c.add(bi.getThingy());
 			}

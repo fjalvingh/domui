@@ -4,6 +4,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
 public class MsgBox extends FloatingWindow {
@@ -40,7 +41,13 @@ public class MsgBox extends FloatingWindow {
 			public void clicked(FloatingWindow b) throws Exception {
 				if(null != m_onAnswer) {
 					m_selectedChoice = m_closeButtonObject;
-					m_onAnswer.onAnswer(m_closeButtonObject);
+					try {
+						m_onAnswer.onAnswer(m_closeButtonObject);
+					} catch(ValidationException ex) {
+						//close message box in case of validation exception is thrown as result of answer. Other exceptions do not close.
+						close();
+						throw ex;
+					}
 				}
 			}
 		});
@@ -332,10 +339,16 @@ public class MsgBox extends FloatingWindow {
 		m_selectedChoice = selectedChoice;
 	}
 
-	protected void close(Object sel) throws Exception {
+	protected void answer(Object sel) throws Exception {
 		m_selectedChoice = sel;
 		if(m_onAnswer != null) {
-			m_onAnswer.onAnswer((MsgBoxButton) m_selectedChoice);
+			try {
+				m_onAnswer.onAnswer((MsgBoxButton) m_selectedChoice);
+			} catch(ValidationException ex) {
+				//close message box in case of validation exception is thrown as result of answer
+				close();
+				throw ex;
+			}
 		}
 		close();
 	}
@@ -352,7 +365,7 @@ public class MsgBox extends FloatingWindow {
 			lbl = mbb.name();
 		DefaultButton btn = new DefaultButton(lbl, new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
-				close(mbb);
+				answer(mbb);
 			}
 		});
 		btn.setTestID(mbb.name());
@@ -362,7 +375,7 @@ public class MsgBox extends FloatingWindow {
 	protected void addButton(final String lbl, final Object selval) {
 		m_theButtons.add(new DefaultButton(lbl, new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
-				close(selval);
+				answer(selval);
 			}
 		}));
 	}
