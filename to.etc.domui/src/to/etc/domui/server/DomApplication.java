@@ -21,7 +21,6 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
-import to.etc.domui.util.resources.IResourceRef;
 import to.etc.template.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
@@ -593,7 +592,7 @@ public abstract class DomApplication {
 
 
 	/**
-	 * Tries to resolve an application-based resource by decoding it's name. We allow
+	 * Tries to resolve an application-based resource by decoding it's name, and throw an exception if not found. We allow
 	 * the following constructs:
 	 * <ul>
 	 *	<li>$RES/xxxx: denotes a class-based resource. The xxxx is the full package/classname of the resource</li>
