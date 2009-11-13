@@ -44,7 +44,7 @@ public class MsgBox extends FloatingWindow {
 					try {
 						m_onAnswer.onAnswer(m_closeButtonObject);
 					} catch(ValidationException ex) {
-						//close message box in case of validation exception is thrown as result of answer 
+						//close message box in case of validation exception is thrown as result of answer. Other exceptions do not close.
 						close();
 						throw ex;
 					}
@@ -345,7 +345,7 @@ public class MsgBox extends FloatingWindow {
 			try {
 				m_onAnswer.onAnswer((MsgBoxButton) m_selectedChoice);
 			} catch(ValidationException ex) {
-				//close message box in case of validation exception is thrown as result of answer 
+				//close message box in case of validation exception is thrown as result of answer
 				close();
 				throw ex;
 			}

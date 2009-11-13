@@ -233,7 +233,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 
 		//		String	usag = ctx.getUserAgent();
-		FullHtmlRenderer hr = m_application.findRendererFor(ctx.getUserAgent(), out);
+		FullHtmlRenderer hr = m_application.findRendererFor(ctx.getBrowserVersion(), out);
 
 		try {
 			hr.render(ctx, page);
@@ -419,12 +419,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 		}
 
+		boolean inhibitlog = false;
 		try {
 			if("clicked".equals(action)) {
 				handleClicked(ctx, page, wcomp);
 			} else if("vchange".equals(action)) {
 				handleValueChanged(ctx, page, wcomp);
 			} else if(Constants.ASYPOLL.equals(action)) {
+				inhibitlog = true;
 				//-- Async poll request..
 				//			} else if("WEBUIDROP".equals(action)) {
 				//				handleDrop(ctx, page, wcomp);
@@ -447,7 +449,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(!xl.handleException(ctx, page, wcomp, x))
 				throw x;
 		}
-		if(LOG.isLoggable(Level.INFO)) {
+		if(LOG.isLoggable(Level.INFO) && !inhibitlog) {
 			ts = System.nanoTime() - ts;
 			LOG.info("rq: Action handling took " + StringTool.strNanoTime(ts));
 		}
@@ -460,21 +462,24 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			return;
 
 		//-- We stay on the same page. Render tree delta as response
-		renderOptimalDelta(ctx, page);
+		renderOptimalDelta(ctx, page, inhibitlog);
+	}
+	static public void renderOptimalDelta(final RequestContextImpl ctx, final Page page) throws Exception {
+		renderOptimalDelta(ctx, page, false);
 	}
 
-	static public void renderOptimalDelta(final RequestContextImpl ctx, final Page page) throws Exception {
+	static private void renderOptimalDelta(final RequestContextImpl ctx, final Page page, boolean inhibitlog) throws Exception {
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 
 		long ts = System.nanoTime();
 		//		String	usag = ctx.getUserAgent();
-		HtmlRenderer base = new HtmlRenderer(out);
+		HtmlRenderer base = new HtmlRenderer(ctx.getBrowserVersion(), out);
 		//		DeltaRenderer	dr	= new DeltaRenderer(base, out);
 		OptimalDeltaRenderer dr = new OptimalDeltaRenderer(base, out);
 		dr.render(ctx, page);
-		if(LOG.isLoggable(Level.INFO)) {
+		if(LOG.isLoggable(Level.INFO) && !inhibitlog) {
 			ts = System.nanoTime() - ts;
 			LOG.info("rq: Optimal Delta rendering took " + StringTool.strNanoTime(ts));
 		}

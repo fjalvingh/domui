@@ -174,5 +174,10 @@ public class BrowserVersion {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "[browser " + m_browserName + ", version=" + m_browserVersion + "]";
+	}
+
 
 }

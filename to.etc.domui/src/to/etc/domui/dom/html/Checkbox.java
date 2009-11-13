@@ -11,8 +11,6 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 
 	private boolean m_disabled;
 
-	private boolean m_readOnly;
-
 	/**
 	 * T when this input value is a REQUIRED value.
 	 */
@@ -52,19 +50,20 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 		m_disabled = disabled;
 	}
 
+	/**
+	 * Checkboxes cannot be readonly; we make them disabled instead.
+	 * @see to.etc.domui.dom.html.IInputNode#isReadOnly()
+	 */
 	public boolean isReadOnly() {
-		return m_readOnly;
+		return isDisabled();
 	}
 
 	public void setReadOnly(boolean readOnly) {
-		if(m_readOnly != readOnly)
-			changed();
-		m_readOnly = readOnly;
-		m_readOnly = readOnly;
-		if(readOnly)
-			addCssClass("ui-ro");
-		else
-			removeCssClass("ui-ro");
+		setDisabled(readOnly);
+		//		if(readOnly)
+		//			addCssClass("ui-ro");
+		//		else
+		//			removeCssClass("ui-ro");
 	}
 
 	@Override
@@ -74,9 +73,8 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 		String s = values[0].trim();
 
 		boolean on = "y".equalsIgnoreCase(s);
-		if(m_checked != on) {
+		if(m_checked != on)
 			DomUtil.setModifiedFlag(this);
-		}
 		m_checked = on;
 	}
 

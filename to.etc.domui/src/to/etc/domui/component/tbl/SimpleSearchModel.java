@@ -40,7 +40,6 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	 * @param ss
 	 * @param qc
 	 */
-	@Deprecated
 	public SimpleSearchModel(QDataContextFactory ss, QCriteria<T> qc) {
 		m_query = qc;
 		m_sessionSource = ss;

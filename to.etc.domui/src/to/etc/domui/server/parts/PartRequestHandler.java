@@ -65,12 +65,12 @@ public class PartRequestHandler implements IFilterRequestHandler {
 		}
 	}
 
-	static private void dumpHeaders(RequestContextImpl ctx) {
-		for(Enumeration<String> e = ctx.getRequest().getHeaderNames(); e.hasMoreElements();) {
-			String name = e.nextElement();
-			System.out.println("  hdr " + name + ": " + ctx.getRequest().getHeader(name));
-		}
-	}
+	//	static private void dumpHeaders(RequestContextImpl ctx) {
+	//		for(Enumeration<String> e = ctx.getRequest().getHeaderNames(); e.hasMoreElements();) {
+	//			String name = e.nextElement();
+	//			System.out.println("  hdr " + name + ": " + ctx.getRequest().getHeader(name));
+	//		}
+	//	}
 
 	public boolean acceptURL(final String in) {
 		if(in.endsWith(".part"))

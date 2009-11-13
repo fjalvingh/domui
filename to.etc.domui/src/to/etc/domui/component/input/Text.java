@@ -87,12 +87,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 */
 	@Override
 	public void acceptRequestParameter(String[] values) {
-		String value = getRawValue();
-		//when string is rendered into Input html tag, it is rendered as trimmed, so old raw value for comparasion has also to be trimmed 
-		if(value != null) {
+		String value = getRawValue(); // Retain previous value,
+		super.acceptRequestParameter(values); // Set the new one;
+
+		//-- when string is rendered into Input html tag, it is rendered as trimmed, so old raw value for comparasion has also to be trimmed
+		if(value != null)
 			value = value.trim();
-		}
-		super.acceptRequestParameter(values);
 		if(DomUtil.isEqual(value, getRawValue()))
 			return;
 		m_validated = false;

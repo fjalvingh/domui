@@ -104,11 +104,11 @@ public class PageMaker {
 		return p;
 	}
 
-	static public Constructor< ? extends UrlPage> getBestPageConstructor(final Class< ? extends UrlPage> clz, final boolean hasparam) {
-		Constructor< ? extends UrlPage>[] car = clz.getConstructors();
-		Constructor< ? extends UrlPage> bestcc = null; // Will be set if a conversationless constructor is found
+	static public <T extends UrlPage> Constructor<T> getBestPageConstructor(final Class<T> clz, final boolean hasparam) {
+		Constructor<T>[] car = (Constructor<T>[]) clz.getConstructors(); // Can we kill the idiot that defined this generics idiocy? Please?
+		Constructor<T> bestcc = null; // Will be set if a conversationless constructor is found
 		int score = 0;
-		for(Constructor< ? extends UrlPage> cc : car) {
+		for(Constructor<T> cc : car) {
 			//-- Check accessibility
 			int mod = cc.getModifiers();
 			if(!Modifier.isPublic(mod))
@@ -166,10 +166,10 @@ public class PageMaker {
 	 * @param hasparam
 	 * @return
 	 */
-	static public Constructor< ? extends UrlPage> getPageConstructor(final Class< ? extends UrlPage> clz, final Class< ? extends ConversationContext> ccclz, final boolean hasparam) {
-		Constructor< ? extends UrlPage> bestcc = null; // Will be set if a conversationless constructor is found
+	static public <T extends UrlPage> Constructor<T> getPageConstructor(final Class<T> clz, final Class< ? extends ConversationContext> ccclz, final boolean hasparam) {
+		Constructor<T> bestcc = null; // Will be set if a conversationless constructor is found
 		int score = 0;
-		for(Constructor< ? extends UrlPage> cc : clz.getConstructors()) {
+		for(Constructor<T> cc : (Constructor<T>[]) clz.getConstructors()) { // Generics idiocy requires useless cast.
 			//-- Check accessibility
 			int mod = cc.getModifiers();
 			if(!Modifier.isPublic(mod))

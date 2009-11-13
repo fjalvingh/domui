@@ -52,15 +52,15 @@ public class LookupForm<T> extends Div {
 
 	IClicked<LookupForm<T>> m_clicker;
 
-	IClicked<LookupForm<T>> m_onNew;
+	private IClicked<LookupForm<T>> m_onNew;
 
-	DefaultButton m_newBtn;
+	private DefaultButton m_newBtn;
 
-	IClicked<LookupForm<T>> m_onClear;
+	private IClicked<LookupForm<T>> m_onClear;
 
-	IClicked<LookupForm<T>> m_onCancel;
+	private IClicked<LookupForm<T>> m_onCancel;
 
-	DefaultButton m_cancelBtn;
+	private DefaultButton m_cancelBtn;
 
 	private DefaultButton m_collapseButton;
 
@@ -213,7 +213,8 @@ public class LookupForm<T> extends Div {
 	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
 	 * Created on 13 Oct 2009
 	 */
-	static class ItemBreak extends Item {
+	static private class ItemBreak extends Item {
+		public ItemBreak() {}
 	}
 
 	/** The primary list of defined lookup items. */
@@ -783,14 +784,13 @@ public class LookupForm<T> extends Div {
 					}
 				});
 				addButtonItem(m_newBtn, 300, ButtonMode.BOTH);
-				forceRebuild();
 			} else if(m_onNew == null && m_newBtn != null) {
 				if(m_buttonItemList.contains(m_newBtn)) {
 					m_buttonItemList.remove(m_newBtn);
 				}
 				m_newBtn = null;
-				forceRebuild();
 			}
+			forceRebuild();
 		}
 	}
 
@@ -872,14 +872,13 @@ public class LookupForm<T> extends Div {
 					}
 				});
 				addButtonItem(m_cancelBtn, 400, ButtonMode.BOTH);
-				forceRebuild();
 			} else if(m_onCancel == null && m_cancelBtn != null) {
 				if(m_buttonItemList.contains(m_cancelBtn)) {
 					m_buttonItemList.remove(m_cancelBtn);
 				}
 				m_cancelBtn = null;
-				forceRebuild();
 			}
+			forceRebuild();
 		}
 	}
 

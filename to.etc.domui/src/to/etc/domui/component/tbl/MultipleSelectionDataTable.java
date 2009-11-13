@@ -7,7 +7,7 @@ import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
 /**
- * DataTable customized to support multiple selection functionality. Supports accmulation of selection along multiple queries. 
+ * DataTable customized to support multiple selection functionality. Supports accmulation of selection along multiple queries.
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 26 Oct 2009
@@ -16,19 +16,19 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 
 	public MultipleSelectionDataTable(Class<T> dataClass, ITableModel< ? > m, IRowRenderer r) {
 		super(m, r);
-		m_dataClass = dataClass;
+		//		m_dataClass = dataClass;
 	}
 
 	public MultipleSelectionDataTable(Class<T> dataClass, IRowRenderer r) {
 		super(r);
-		m_dataClass = dataClass;
+		//		m_dataClass = dataClass;
 	}
 
 	private List<T> m_accumulatedRows = new ArrayList<T>();
 
 	List<Boolean> m_accumulatedSelections = new ArrayList<Boolean>();
 
-	private Class<T> m_dataClass;
+	//	private Class<T> m_dataClass;
 
 	private String m_selectionColTitle;
 
@@ -79,7 +79,7 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 
 			int ix = m_six;
 			for(Object o : list) {
-				//FIXME: unsecures boxing. instanceof can not be used here... 
+				//FIXME: unsecures boxing. instanceof can not be used here...
 				T item = (T) o;
 				tr = new TR();
 				getDataBody().add(tr);
@@ -127,21 +127,22 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 
 	private void renderAccumulatedItem(TR tr, ColumnContainer cc, T item, boolean selected, int index) throws Exception {
 		cc.setParent(tr);
-		Checkbox ckb = new Checkbox();
-		ckb.setClicked(new IClicked<Checkbox>() {
+		Checkbox b = new Checkbox();
+		b.setClicked(new IClicked<Checkbox>() {
 			public void clicked(Checkbox ckb) throws Exception {
 				//FIXME: must be done as double change of value to cause changed protected field to be set, otherwise is not rendered properly in HTML response.
+				// jal 20091105 Please explain??? The 2nd call is not doing anything right now.... I would understand if the 1st call was ckb.setChecked(ckb.isChecked())...
 				ckb.setChecked(!ckb.isChecked());
 				ckb.setChecked(!ckb.isChecked());
 				TR row = ckb.getParent(TR.class);
 				handleAccumulatedItemRowSelectionChanged(row, new Boolean(ckb.isChecked()));
 			}
 		});
-		ckb.setChecked(selected);
+		b.setChecked(selected);
 		TD selectionCell = new TD();
-		selectionCell.add(ckb);
+		selectionCell.add(b);
 		tr.add(selectionCell);
-		tr.setUserObject(ckb);
+		tr.setUserObject(b);
 		tr.setClicked(new IClicked<TR>() {
 
 			public void clicked(TR row) throws Exception {

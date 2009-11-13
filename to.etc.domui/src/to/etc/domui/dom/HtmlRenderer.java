@@ -5,6 +5,7 @@ import java.io.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -18,6 +19,8 @@ public class HtmlRenderer implements INodeVisitor {
 	/** Scratch stringbuffer. */
 	private StringBuilder m_sb;
 
+	private BrowserVersion m_browserVersion;
+
 	private final IBrowserOutput m_o;
 
 	private boolean m_tagless;
@@ -28,8 +31,13 @@ public class HtmlRenderer implements INodeVisitor {
 
 	//	private boolean				m_isNewNode;
 
-	public HtmlRenderer(final IBrowserOutput o) {
+	public HtmlRenderer(BrowserVersion bv, final IBrowserOutput o) {
 		m_o = o;
+		m_browserVersion = bv;
+	}
+
+	protected BrowserVersion getBrowser() {
+		return m_browserVersion;
 	}
 
 	/**
@@ -95,6 +103,61 @@ public class HtmlRenderer implements INodeVisitor {
 		else
 			m_sb.setLength(0);
 		return m_sb;
+	}
+
+	/**
+	 * For browsers that have trouble with attribute updates (Microsoft's sinking flagship of course) this
+	 * can be used to postphone setting node attributes until after the delta has been applied to the DOM; it
+	 * executes attribute updates using Javascript at the end of a delta update.
+	 *
+	 * @param nodeID
+	 * @param pairs
+	 */
+	protected void addDelayedAttrs(NodeBase n, String... pairs) {
+		if(pairs.length == 0)
+			return;
+		if(0 != (pairs.length & 0x1))
+			throw new IllegalArgumentException("Odd number of attribute/value strings.");
+
+		StringBuilder sb = sb();
+		sb.append("WebUI.delayedSetAttributes(\"");
+		sb.append(n.getActualID());
+		sb.append("\"");
+		boolean isattr = false;
+		for(String s : pairs) {
+			sb.append(',');
+			if(isattr) {
+				//-- copy verbatim
+				sb.append(s);
+			} else {
+				//-- Attribute name: enclose in string
+				sb.append('"');
+				sb.append(s);
+				sb.append('"');
+			}
+			isattr = !isattr;
+		}
+		sb.append(");\n");
+		n.getPage().appendJS(sb);
+	}
+
+	private void renderDisabled(NodeBase n, boolean disabled) throws IOException {
+		if(!isFullRender())
+			addDelayedAttrs(n, "disabled", disabled ? "true" : "false");
+		else if(disabled)
+			o().attr("disabled", "disabled");
+	}
+
+	private void renderReadOnly(NodeBase n, boolean readonly) throws IOException {
+		if(!isFullRender())
+			addDelayedAttrs(n, "readonly", readonly ? "true" : "false");
+		else if(readonly)
+			o().attr("readonly", "readonly");
+	}
+
+	private void renderDiRo(NodeBase n, boolean disabled, boolean readonly) throws IOException {
+		renderDisabled(n, disabled);
+		renderReadOnly(n, readonly);
 	}
 
 	static public String fixColor(final String s) {
@@ -594,14 +657,9 @@ public class HtmlRenderer implements INodeVisitor {
 		basicNodeRender(n, m_o);
 		o().attr("name", n.getActualID());
 		renderType("text");
-		if(!isFullRender())
-			o().attr("domjs_disabled", n.isDisabled() ? "true" : "false");
-		else if(n.isDisabled())
-			o().attr("disabled", "disabled");
+		renderDiRo(n, n.isDisabled(), n.isReadOnly());
 		if(n.getMaxLength() > 0)
 			o().attr("maxlength", n.getMaxLength());
-		if(n.isReadOnly())
-			o().attr("readonly", "readonly");
 		if(n.getSize() > 0)
 			o().attr("size", n.getSize());
 		if(n.getRawValue() != null)
@@ -642,13 +700,11 @@ public class HtmlRenderer implements INodeVisitor {
 		//		if(! isUpdating())
 		//			o().attr("type", "checkbox");					// FIXME Cannot change the "type" of an existing INPUT node.
 		o().attr("name", n.getActualID());
-		if(n.isDisabled())
-			o().attr("disabled", "disabled");
-		if(n.isReadOnly())
-			o().attr("readonly", "readonly");
-		if(!isFullRender())
-			o().attr("domjs_checked", n.isChecked() ? "true" : "false");
-		else if(n.isChecked())
+		renderDisabled(n, n.isDisabled()); // 20091110 jal Checkboxes do not have a readonly attribute.
+
+		if(!isFullRender()) {
+			addDelayedAttrs(n, "checked", n.isChecked() ? "true" : "false");
+		} else if(n.isChecked())
 			o().attr("checked", "checked");
 		renderTagend(n, m_o);
 	}
@@ -666,12 +722,11 @@ public class HtmlRenderer implements INodeVisitor {
 
 		if(n.getName() != null)
 			o().attr("name", n.getName());
-		if(n.isDisabled())
-			o().attr("disabled", "disabled");
-		if(n.isReadOnly())
-			o().attr("readonly", "readonly");
+
+		renderDiRo(n, n.isDisabled(), n.isReadOnly());
+
 		if(!isFullRender())
-			o().attr("domjs_checked", n.isChecked() ? "true" : "false");
+			addDelayedAttrs(n, "checked", n.isChecked() ? "true" : "false");
 		else if(n.isChecked())
 			o().attr("checked", "checked");
 		renderTagend(n, m_o);
@@ -696,10 +751,7 @@ public class HtmlRenderer implements INodeVisitor {
 
 	public void visitButton(final Button n) throws Exception {
 		basicNodeRender(n, o());
-		if(!isFullRender())
-			o().attr("domjs_disabled", n.isDisabled() ? "true" : "false");
-		else if(n.isDisabled())
-			o().attr("disabled", "disabled");
+		renderDisabled(n, n.isDisabled());
 		if(n.getType() != null && !isAttrRender())
 			o().attr("type", n.getType().getCode());
 		if(n.getValue() != null)
@@ -720,14 +772,9 @@ public class HtmlRenderer implements INodeVisitor {
 		basicNodeRender(n, o());
 		if(n.isMultiple())
 			o().attr("multiple", "multiple");
-		if(!isFullRender())
-			o().attr("domjs_disabled", n.isDisabled() ? "true" : "false");
-		else if(n.isDisabled())
-			o().attr("disabled", "disabled");
-		if(!isFullRender())
-			o().attr("domjs_readonly", n.isReadOnly() ? "true" : "false");
-		else if(n.isReadOnly())
-			o().attr("readonly", "readonly");
+
+		renderDiRo(n, n.isDisabled(), n.isReadOnly());
+
 		if(n.getSize() > 0)
 			o().attr("size", n.getSize());
 		renderTagend(n, o());
@@ -735,12 +782,10 @@ public class HtmlRenderer implements INodeVisitor {
 
 	public void visitOption(final SelectOption n) throws Exception {
 		basicNodeRender(n, o());
+		renderDisabled(n, n.isDisabled());
+
 		if(!isFullRender())
-			o().attr("domjs_disabled", n.isDisabled() ? "true" : "false");
-		else if(n.isDisabled())
-			o().attr("disabled", "disabled");
-		if(!isFullRender())
-			o().attr("domjs_selected", n.isSelected() ? "true" : "false");
+			addDelayedAttrs(n, "selected", n.isSelected() ? "true" : "false");
 		else if(n.isSelected())
 			o().attr("selected", "selected");
 		o().attr("value", n.getActualID());
@@ -758,14 +803,8 @@ public class HtmlRenderer implements INodeVisitor {
 			o().attr("cols", n.getCols());
 		if(n.getRows() > 0)
 			o().attr("rows", n.getRows());
-		if(!isFullRender())
-			o().attr("domjs_disabled", n.isDisabled() ? "true" : "false");
-		else if(n.isDisabled())
-			o().attr("disabled", "disabled");
-		if(!isFullRender())
-			o().attr("domjs_readonly", n.isReadOnly() ? "true" : "false");
-		else if(n.isReadOnly())
-			o().attr("readonly", "readonly");
+
+		renderDiRo(n, n.isDisabled(), n.isReadOnly());
 
 		//-- Fix for bug 627: render textarea content in attribute to prevent zillion of IE fuckups.
 		if(getMode() != HtmlRenderMode.FULL) {

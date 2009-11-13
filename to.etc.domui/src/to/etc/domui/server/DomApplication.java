@@ -275,8 +275,8 @@ public abstract class DomApplication {
 	}
 
 
-	protected FullHtmlRenderer findRendererFor(final String useragent, final IBrowserOutput o) {
-		HtmlRenderer base = new HtmlRenderer(o);
+	protected FullHtmlRenderer findRendererFor(BrowserVersion bv, final IBrowserOutput o) {
+		HtmlRenderer base = new HtmlRenderer(bv, o);
 		return new FullHtmlRenderer(base, o);
 	}
 
@@ -592,7 +592,7 @@ public abstract class DomApplication {
 
 
 	/**
-	 * Tries to resolve an application-based resource by decoding it's name. We allow
+	 * Tries to resolve an application-based resource by decoding it's name, and throw an exception if not found. We allow
 	 * the following constructs:
 	 * <ul>
 	 *	<li>$RES/xxxx: denotes a class-based resource. The xxxx is the full package/classname of the resource</li>

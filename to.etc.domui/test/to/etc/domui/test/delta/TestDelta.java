@@ -59,15 +59,19 @@ public class TestDelta {
 		render = getDeltaRenderText(p);
 		System.out.println("\n\n---- Render after remove node 1 in child list ----\n" + render);
 		p.getBody().visit(new DirtyNodeChecker());
-
-
 	}
 
+	public BrowserVersion getBrowserVersion() {
+		return BrowserVersion.parseUserAgent("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727)");
+	}
 
 	public String getFullRenderText(Page pg) throws Exception {
+		return getFullRenderText(getBrowserVersion(), pg);
+	}
+	public String getFullRenderText(BrowserVersion bv, Page pg) throws Exception {
 		StringWriter sw = new StringWriter();
 		IBrowserOutput ro = new PrettyXmlOutputWriter(sw);
-		HtmlRenderer bhr = new HtmlRenderer(ro);
+		HtmlRenderer bhr = new HtmlRenderer(bv, ro);
 		FullHtmlRenderer hr = new FullHtmlRenderer(bhr, ro);
 
 		IRequestContext ctx = new TestRequestContext();
@@ -77,9 +81,12 @@ public class TestDelta {
 	}
 
 	public String getDeltaRenderText(Page pg) throws Exception {
+		return getDeltaRenderText(getBrowserVersion(), pg);
+	}
+	public String getDeltaRenderText(BrowserVersion bv, Page pg) throws Exception {
 		StringWriter sw = new StringWriter();
 		IBrowserOutput ro = new PrettyXmlOutputWriter(sw);
-		HtmlRenderer bhr = new HtmlRenderer(ro);
+		HtmlRenderer bhr = new HtmlRenderer(bv, ro);
 		OptimalDeltaRenderer hr = new OptimalDeltaRenderer(bhr, ro);
 
 		IRequestContext ctx = new TestRequestContext();

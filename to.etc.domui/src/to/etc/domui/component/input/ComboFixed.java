@@ -202,7 +202,7 @@ public class ComboFixed<T> extends Select implements IInputNode<T>, IHasModified
 	}
 
 	/**
-	 * Set or clear the modified by user flag. 
+	 * Set or clear the modified by user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
 	public void setModified(boolean as) {

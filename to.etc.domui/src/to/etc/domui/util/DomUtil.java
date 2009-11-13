@@ -997,16 +997,13 @@ final public class DomUtil {
 	 * @param node
 	 */
 	static public void setModifiedFlag(NodeBase node) {
-		if(node instanceof IHasModifiedIndication) {
-			((IHasModifiedIndication) node).setModified(true);
-		}
-		if(node instanceof IUserInputModifiedFence && ((IUserInputModifiedFence) node).isFinalUserInputModifiedFence()) {
-			return;
-		}
-		IUserInputModifiedFence fence = node.getParent(IUserInputModifiedFence.class);
-		if(fence != null && fence instanceof NodeBase) {
-			setModifiedFlag((NodeBase) fence);
+		NodeBase n = node;
+		while(n != null) {
+			if(n instanceof IHasModifiedIndication)
+				((IHasModifiedIndication) n).setModified(true);
+			if(n instanceof IUserInputModifiedFence && ((IUserInputModifiedFence) n).isFinalUserInputModifiedFence())
+				return;
+			n = (NodeBase) n.getParent(IUserInputModifiedFence.class);
 		}
 	}
-
 }

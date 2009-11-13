@@ -98,7 +98,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		}
 	}
 
-	void search(LookupForm<T> lf) throws Exception {
+	protected void search(LookupForm<T> lf) throws Exception {
 		QCriteria<T> c = lf.getEnteredCriteria();
 		if(c == null) // Some error has occured?
 			return; // Don't do anything (errors will have been registered)
@@ -108,7 +108,12 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 			return;
 		} else
 			clearGlobalMessage();
+		c = adjustQuery(c);
 		setTableQuery(c);
+	}
+
+	protected QCriteria<T> adjustQuery(QCriteria<T> c) {
+		return c;
 	}
 
 	private void setTableQuery(QCriteria<T> qc) {

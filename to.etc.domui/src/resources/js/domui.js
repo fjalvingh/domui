@@ -4,7 +4,6 @@ function _block() {
 function _unblock() {
 	WebUI.unblockUI();
 }
-
 $().ajaxStart(_block).ajaxStop(_unblock);
 
 ( function($) {
@@ -344,16 +343,18 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 
 			function copyAttrs(dest, src, inline) {
 				for ( var i = 0, attr = ''; i < src.attributes.length; i++) {
-					var a = src.attributes[i], n = $.trim(a.name), v = $
-							.trim(a.value);
-					// alert('attr '+n+' is '+v);
-					if (inline)
-						attr += (n + '="' + v + '" ');
-					else if (n == 'style') { // IE workaround
-						dest.style.cssText = v;
-						dest.setAttribute(n, v);
+					var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
+//					alert('attr '+n+' is '+v+", inline = "+inline);
+
+					if (inline) {
+						//-- 20091110 jal When inlining we are in trouble if domjs_ is used... The domjs_ mechanism is replaced with setDelayedAttributes in java.
+						if(n.substring(0, 6) == 'domjs_') {
+							alert('Unsupported domjs_ attribute in INLINE mode: '+n);
+						} else
+							attr += (n + '="' + v + '" ');
 					} else if (n.substring(0, 6) == 'domjs_') {
 						var s = "dest." + n.substring(6) + " = " + v;
+						//alert('domjs eval: '+s);
 						try {
 							eval(s);
 						} catch(ex) {
@@ -361,18 +362,26 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if ($.browser.msie && n.substring(0, 2) == 'on') {
-						// alert('event '+n+' value '+v);
-						// var se = 'function(){'+v+';}';
-						var se;
-						if (v.indexOf('return') != -1)
-							se = new Function(v);
-						else
-							se = new Function('return ' + v);
-						// alert('event '+n+' value '+se);
-						dest[n] = se;
-					} else
+					} else if (dest && $.browser.msie && n.substring(0, 2) == 'on') {
+						try {
+							// alert('event '+n+' value '+v);
+							// var se = 'function(){'+v+';}';
+							var se;
+							if (v.indexOf('return') != -1)
+								se = new Function(v);
+							else
+								se = new Function('return ' + v);
+							// alert('event '+n+' value '+se);
+							dest[n] = se;
+						} catch(x) {
+							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);
+						}
+					} else if (n == 'style') { // IE workaround
+						dest.style.cssText = v;
+						dest.setAttribute(n, v);
+					} else {
 						$.attr(dest, n, v);
+					}
 				}
 				return attr;
 			}
@@ -526,6 +535,7 @@ var WebUI = {
 	},
 
 	handleResponse : function(data, state) {
+		WebUI._asyalerted = false;
 		if (false && window.console && window.console.debug)
 			console.debug("data is ", data);
 		$.webui(data);
@@ -540,7 +550,23 @@ var WebUI = {
 		document.write(txt);
 		window.setTimeout('document.body.style.cursor="default"', 1000);
 	},
+	_asyalerted: false,
+	handleErrorAsy : function(request, status, exc) {
+		if(WebUI._asyalerted)
+			return;
+		WebUI._asyalerted = true;
 
+		var txt = request.responseText;
+		if (document.body)
+			document.body.style.cursor = 'default';
+		// alert('Server error: '+status+", len="+txt.length+", val="+txt);
+		if (txt.length == 0)
+			txt = "De server is niet bereikbaar.";
+		else if(txt.length > 200)
+			txt = txt.substring(0, 200);
+		alert("Automatische server update mislukt: "+txt);
+	},
+	
 	/*
 	 * IE/FF compatibility: IE only has the 'keycode' field, and it always hides
 	 * all non-input like arrows, fn keys etc. FF has keycode which is used ONLY
@@ -573,6 +599,25 @@ var WebUI = {
 			return true;
 		WebUI.scall(evt.currentTarget ? evt.currentTarget.id : node.id, 'returnpressed');
 		return false;
+	},
+
+	delayedSetAttributes: function() {
+		if(arguments.length < 3 || ((arguments.length & 1) != 1)) {
+			alert('internal: odd call to delayedSetAttributes: '+arguments.length);
+			return;
+		}
+		var n = document.getElementById(arguments[0]);
+		if(n == undefined)
+			return;
+//		alert('Node is '+arguments[0]);
+		//-- Now set pair values
+		for(var i = 1; i < arguments.length; i += 2) {
+			try {
+				n[arguments[i]] = arguments[i+1];
+			} catch(x) {
+				alert('Failed to set javascript property '+arguments[i]+' to '+arguments[i+1]+": "+x);
+			}
+		}
 	},
 
 	focus : function(id) {
@@ -823,7 +868,7 @@ var WebUI = {
 			cache :false,
 			global: false, // jal 20091015 prevent block/unblock on polling call.
 			success :WebUI.handleResponse,
-			error :WebUI.handleError
+			error :WebUI.handleErrorAsy
 		});
 	},
 

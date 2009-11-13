@@ -59,7 +59,7 @@ public class SimpleColumnDef {
 		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
 		if(m.getBestConverter() != null) {
 			setValueConverter(m.getBestConverter());
-		} else if(m.getActualType().isEnum()) {
+		} else if(m.getActualType().isEnum() || m.getActualType() == Boolean.TYPE || m.getActualType() == Boolean.class) {
 			setValueConverter(ConverterRegistry.findConverter(m.getActualType(), m));
 		}
 		setSortable(m.getSortable());

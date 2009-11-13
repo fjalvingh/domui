@@ -36,7 +36,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 
 	/**
 	 * @see to.etc.domui.component.form.GenericFormBuilder#addControl(java.lang.String, to.etc.domui.dom.html.NodeBase, to.etc.domui.dom.html.NodeBase[], boolean, to.etc.domui.component.meta.PropertyMetaModel)
-	 * In addition, enables customization of colSpan for rendered cell.	
+	 * In addition, enables customization of colSpan for rendered cell.
 	 */
 	protected void addControl(String label, int colSpan, NodeBase labelnode, NodeBase[] list, boolean mandatory, PropertyMetaModel pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
@@ -130,9 +130,10 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 
 		//-- jal 20090508 MUST clear the table, because when the builder is used for the NEXT tab it must return a new table!
 		Table tbl = m_parentTable;
-		//-- vmijic 20091106 Do not automatically change colspans, no need for this and also cause rowspans to not working properly  
-		//DomUtil.adjustTableColspans(tbl);
 		reset();
+
+		//-- vmijic 20091106 Do not automatically change colspans, no need for this and also cause rowspans to not working properly
+		//DomUtil.adjustTableColspans(tbl);
 		return tbl;
 	}
 
@@ -167,7 +168,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	/**
-	 * Enable adding of field into table cell with possibility to customize colspan.  
+	 * Enable adding of field into table cell with possibility to customize colspan.
 	 * Add an input for the specified property. The property is based at the current input
 	 * class. The input model is default (using metadata) and the property is labeled using
 	 * the metadata-provided label.
@@ -204,11 +205,11 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	/**
-	 * Enable adding of field into table cell with possibility to customize colspan.  
+	 * Enable adding of field into table cell with possibility to customize colspan.
 	 * This adds a fully user-specified control for a given property with it's default label,
 	 * without creating <i>any<i> binding. The only reason the property is passed is to use
 	 * it's metadata to define it's access rights and default label.
-	 * 
+	 *
 	 * @param propertyName
 	 * @param nb
 	 * @param mandatory
