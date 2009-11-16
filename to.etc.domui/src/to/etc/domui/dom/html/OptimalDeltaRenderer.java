@@ -167,7 +167,7 @@ public class OptimalDeltaRenderer {
 		calc(page);
 
 
-		StringBuilder sq = page.getAppendedJS();
+		StringBuilder sq = page.internalGetAppendedJS();
 		o().tag("eval");
 		o().endtag();
 

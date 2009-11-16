@@ -135,6 +135,7 @@
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
+	font-size: 12px;
 }
 a:hover.ui-lbtn {
 	text-decoration: underline !important;
@@ -256,7 +257,7 @@ TD.ui-tr-sel:hover {
 /*** MonthPanel ***/
 .ui-mp {
 /*	background-color: #eeeeee; */
-	font-size: 10pt;
+	font-size: 13px;
 }
 .ui-mp-mn {
 	background-color: #82b4f8;
@@ -298,7 +299,7 @@ TD.ui-mp-ch:hover {
 
 .ui-wa-hd {
 	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
-	font-size: 8pt;
+	font-size: 10px;
 	font-weight: bold;
 	vertical-align: top;
 	text-align: center;
@@ -326,7 +327,7 @@ div.ui-wa-f {
 table.ui-wa-bgtbl {
 	background-color: #cccccc;
 	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
-	font-size: 8pt;
+	font-size: 10px;
 }
 
 .ui-wa-gt {
@@ -337,14 +338,14 @@ table.ui-wa-bgtbl {
 
 .ui-wa-hour {
 	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
-	font-size: 12pt;
+	font-size: 13px;
 	font-weight: bold;
 	vertical-align: top;
 }
 
 .ui-wa-min {
 	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
-	font-size: 8pt;
+	font-size: 10px;
 	font-weight: bold;
 	vertical-align: top;
 }
@@ -359,7 +360,7 @@ table.ui-wa-bgtbl {
 	border: 1px solid black;
 	background-color: #00ffcc;
 	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
-	font-size: 8pt;
+	font-size: 10px;
 }
 
 .ui-wa-img {
@@ -369,7 +370,7 @@ table.ui-wa-bgtbl {
 
 .ui-wa-ity {
 	font-variant: small-caps;
-	font-size: 8pt;
+	font-size: 10px;
 }
 
 .ui-wa-nm {
@@ -377,11 +378,11 @@ table.ui-wa-bgtbl {
 }
 
 .ui-wa-dt {
-	font-size: 8pt;
+	font-size: 10px;
 }
 
 .ui-wa-tm {
-	font-size: 6pt;
+	font-size: 7px;
 	color: blue;
 	margin-left: 5px;
 }
@@ -829,7 +830,7 @@ body,html {
 	background: url(bg-body.png) repeat-x;
 	background-color: #fdfefe;
 	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
-	font-size: 12pt;
+	font-size: 13px;
 	height: 90%;
 }
 

@@ -59,7 +59,7 @@ public class QDefaultContextManager implements IQContextManager {
 	public QDataContext getSharedContext(IQContextContainer cc) throws Exception {
 		QDataContext dc = cc.internalGetSharedContext();
 		if(dc == null) {
-			System.out.println(".... allocate new shared dataContext");
+			//			System.out.println(".... allocate new shared dataContext");
 			dc = getSharedContextFactory(cc).getDataContext();
 			cc.internalSetSharedContext(dc);
 		}

@@ -304,6 +304,29 @@ final public class DomUtil {
 		}
 	}
 
+	/**
+	 * Calculate a full URL from a rurl. If the rurl starts with a scheme it is returned verbatim;
+	 * if it starts with slash (host-relative path absolute) it is returned verbatim; in all other
+	 * cases it is returned with the webapp context appended. Examples:
+	 * <ul>
+	 *	<li>img/text.gif becomes /Itris_VO02/img/text.gif</li>
+	 *	<li>/ui/generic.gif remains the same</li>
+	 * </ul>
+	 * @param ci
+	 * @param rurl
+	 * @return
+	 */
+	static public String calculateURL(IRequestContext ci, String rurl) {
+		int pos = rurl.indexOf(":/"); // http://?
+		if(pos > 0 && pos < 20)
+			return rurl;
+		if(rurl.startsWith("/"))
+			return rurl;
+
+		//-- Append context.
+		return ci.getRelativePath(rurl);
+	}
+
 	static public String[] decodeCID(final String param) {
 		if(param == null)
 			return null;

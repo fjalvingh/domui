@@ -50,7 +50,7 @@ public class ButtonBar extends Table {
 	}
 
 	public DefaultButton addBackButton() {
-		return addBackButton("Terug", "/img/btnCancel.png");
+		return addBackButton("Terug", "THEME/btnCancel.png");
 	}
 
 	public NodeContainer getContent() {

@@ -2,9 +2,12 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
+import to.etc.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -302,22 +305,6 @@ final public class Page implements IQContextContainer {
 		m_title = title;
 	}
 
-	//	public void	add(NodeBase node) {
-	//		getBody().add(node);
-	//	}
-
-	public void appendJS(final CharSequence sq) {
-		if(m_appendJS == null)
-			m_appendJS = new StringBuilder(sq.length() + 100);
-		m_appendJS.append(sq);
-	}
-
-	public StringBuilder getAppendedJS() {
-		StringBuilder sb = m_appendJS;
-		m_appendJS = null;
-		return sb;
-	}
-
 	public <T> void setData(final T inst) {
 		if(m_pageData == Collections.EMPTY_MAP)
 			m_pageData = new HashMap<String, Object>();
@@ -327,6 +314,115 @@ final public class Page implements IQContextContainer {
 	public <T> T getData(final Class<T> clz) {
 		return (T) m_pageData.get(clz.getName());
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Per-request Javascript handling.					*/
+	/*--------------------------------------------------------------*/
+	/*
+	 * The code below allows Javascript to be added for every event roundtrip. All of the
+	 * javascript added gets executed /after/ all of the DOM delta has been executed by
+	 * the browser.
+	 */
+
+	/**
+	 * Add a Javascript statement (MUST be a valid, semicolon-terminated statement or statement list) to
+	 * execute on return to the browser (once).
+	 */
+	public void appendJS(final CharSequence sq) {
+		if(m_appendJS == null)
+			m_appendJS = new StringBuilder(sq.length() + 100);
+		m_appendJS.append(sq);
+	}
+
+	public StringBuilder internalGetAppendedJS() {
+		StringBuilder sb = m_appendJS;
+		m_appendJS = null;
+		return sb;
+	}
+
+	/**
+	 * Force the browser to open a new window with a user-specified URL. The new window does NOT
+	 * inherit any DomUI session data, of course, and has no WindowSession. After creation the
+	 * window cannot be manipulated by DomUI code.
+	 *
+	 * @param windowURL	The url to open. If this is a relative path it will get the webapp
+	 * 					context appended to it.
+	 * @param wp
+	 */
+	public void openWindow(String windowURL, WindowParameters wp) {
+		if(windowURL == null || windowURL.length() == 0)
+			throw new IllegalArgumentException("Empty window URL");
+		StringBuilder sb = new StringBuilder(256);
+		sb.append("return DomUI.openWindow('");
+		sb.append(DomUtil.calculateURL(PageContext.getRequestContext(), windowURL));
+		sb.append("','");
+		String name = null;
+		if(wp != null)
+			name = wp.getName();
+		if(name == null || name.length() == 0) {
+			name = "window" + DomUtil.generateGUID();
+		}
+		sb.append(name);
+		sb.append("','");
+
+		if(wp == null) {
+			sb.append("resizable=yes;scrollbars=yes;toolbar=no;location=no;directories=no;status=yes;menubar=yes;copyhistory=no;");
+		} else {
+			sb.append("resizable=");
+			sb.append(wp.isResizable() ? "yes" : "no");
+			sb.append(",scrollbars=");
+			sb.append(wp.isShowScrollbars() ? "yes" : "no");
+			sb.append(",toolbar=");
+			sb.append(wp.isShowToolbar() ? "yes" : "no");
+			sb.append(",location=");
+			sb.append(wp.isShowLocation() ? "yes" : "no");
+			sb.append(",directories=");
+			sb.append(wp.isShowDirectories() ? "yes" : "no");
+			sb.append(",status=");
+			sb.append(wp.isShowStatus() ? "yes" : "no");
+			sb.append(",menubar=");
+			sb.append(wp.isShowMenubar() ? "yes" : "no");
+			sb.append(",copyhistory=");
+			sb.append(wp.isCopyhistory() ? "yes" : "no");
+
+			if(wp.getWidth() > 0) {
+				sb.append(",width=");
+				sb.append(wp.getWidth());
+			}
+			if(wp.getHeight() > 0) {
+				sb.append(",height=");
+				sb.append(wp.getHeight());
+			}
+		}
+		sb.append("');\n");
+		appendJS(sb);
+	}
+
+	/**
+	 * Open a DomUI page in a separate browser popup window. This window will create it's own WindowSession.
+	 * FIXME URGENT This code needs to CREATE the window session BEFORE referring to it!!!!
+	 *
+	 * @param clz
+	 * @param pp
+	 * @param wp
+	 */
+	public void openWindow(Class< ? extends UrlPage> clz, PageParameters pp, WindowParameters wp) {
+		StringBuilder sb = new StringBuilder(80);
+
+		IRequestContext ctx = PageContext.getRequestContext();
+		String wid = DomUtil.generateGUID();
+		sb.append(ctx.getRelativePath(clz.getName()));
+		sb.append(".ui?");
+		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+		sb.append('=');
+		sb.append(wid);
+		sb.append(".x");
+		if(pp != null)
+			DomUtil.addUrlParameters(sb, pp, false);
+		openWindow(sb.toString(), wp);
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Component focus handling.							*/

@@ -223,7 +223,7 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 		 * Render all attached Javascript in an onReady() function. This code will run
 		 * as soon as the body load has completed.
 		 */
-		StringBuilder sq = page.getAppendedJS();
+		StringBuilder sq = page.internalGetAppendedJS();
 		o().tag("script");
 		o().attr("language", "javascript");
 		o().endtag();
