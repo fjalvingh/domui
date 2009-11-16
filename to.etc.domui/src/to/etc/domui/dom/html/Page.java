@@ -354,7 +354,7 @@ final public class Page implements IQContextContainer {
 		if(windowURL == null || windowURL.length() == 0)
 			throw new IllegalArgumentException("Empty window URL");
 		StringBuilder sb = new StringBuilder(256);
-		sb.append("return DomUI.openWindow('");
+		sb.append("DomUI.openWindow('");
 		sb.append(DomUtil.calculateURL(PageContext.getRequestContext(), windowURL));
 		sb.append("','");
 		String name = null;
