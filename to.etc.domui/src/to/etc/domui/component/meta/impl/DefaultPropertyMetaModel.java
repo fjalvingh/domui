@@ -94,7 +94,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			if(mp.required() != YesNoType.UNKNOWN)
 				setRequired(mp.required() == YesNoType.YES);
 			if(mp.converterClass() != DummyConverter.class)
-				setConverterClass(mp.converterClass());
+				setConverter(ConverterRegistry.getConverterInstance(mp.converterClass()));
 			if(mp.editpermissions().length != 0)
 				setEditRoles(makeRoleSet(mp.editpermissions()));
 			if(mp.viewpermissions().length != 0)
@@ -246,6 +246,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	static private final Object[] BOOLS = {Boolean.FALSE, Boolean.TRUE};
 
 	/**
+	 * FIXME Needs to be filled in by some kind of factory, not in this thingy directly!!
 	 * For enum and boolean property types this returns the possible values for the domain. Booleans
 	 * always return Boolean.TRUE and Boolean.FALSE; enums return all enum values.
 	 * @return
@@ -258,7 +259,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			Class< ? > ec = getActualType();
 			return ec.getEnumConstants();
 		}
-		throw new IllegalStateException("Property " + this + " is not an enumerable or boolean domain");
+		return null;
 	}
 
 	/**

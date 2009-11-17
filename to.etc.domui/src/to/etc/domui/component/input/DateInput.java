@@ -31,7 +31,7 @@ public class DateInput extends Text<Date> {
 		super(Date.class);
 		setMaxLength(10);
 		setSize(10);
-		setConverterClass(DateConverter.class);
+		setConverter(ConverterRegistry.getConverterInstance(DateConverter.class));
 		m_selCalButton = new SmallImgButton("THEME/btn-datein.png");
 	}
 
@@ -108,7 +108,7 @@ public class DateInput extends Text<Date> {
 		}
 		setMaxLength(len);
 		setSize(len);
-		setConverterClass(isWithTime() ? DateTimeConverter.class : DateConverter.class);
+		setConverter(ConverterRegistry.getConverterInstance(isWithTime() ? DateTimeConverter.class : DateConverter.class));
 	}
 
 	public boolean isWithSeconds() {

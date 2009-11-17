@@ -99,12 +99,8 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 		return m_original.getComponentTypeHint();
 	}
 
-	public Class<? extends IConverter<?>> getConverterClass() {
-		return m_original.getConverterClass();
-	}
-
-	public IConverter<?> getBestConverter() {
-		return m_original.getBestConverter();
+	public IConverter< ? > getConverter() {
+		return m_original.getConverter();
 	}
 
 	public String getDefaultHint() {

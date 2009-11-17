@@ -102,18 +102,11 @@ public interface PropertyMetaModel {
 	public IValueAccessor< ? > getAccessor();
 
 	/**
-	 * Returns the converter to use when converting this property's value to and from string. Can be null.
+	 * Returns the user-specified converter to use when converting this property's value to and from string. Can be null.
 	 *
 	 * @return
 	 */
-	public Class<? extends IConverter<?>> getConverterClass();
-
-	/**
-	 * If known returns the best converter to use to convert this to a string value and v.v. This will
-	 * return the proper (calculated or set) converter to use for numeric types.
-	 * @return
-	 */
-	public IConverter<?> getBestConverter();
+	public IConverter< ? > getConverter();
 
 	/**
 	 * Whether the property is defined as requiring a value.

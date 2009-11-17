@@ -158,7 +158,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 		if(cclz != null) {
 			if(ins != null)
 				throw new IllegalArgumentException("Both a IConverter class AND an instance specified: " + cclz + " and " + ins);
-			return ConverterRegistry.getConverter(cclz);
+			return ConverterRegistry.getConverterInstance(cclz);
 		}
 		return ins;
 	}
@@ -255,8 +255,8 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 			scd.setColumnType(xdp.getActualType());
 			scd.setValueTransformer(xdp.getAccessor()); // Thing which can obtain the value from the property
 			scd.setPresentationConverter(tryConverter(convclz, conv));
-			if(scd.getPresentationConverter() == null && xdp.getConverterClass() != null)
-				scd.setPresentationConverter(ConverterRegistry.getConverter(xdp.getConverterClass()));
+			if(scd.getPresentationConverter() == null && xdp.getConverter() != null)
+				scd.setPresentationConverter(xdp.getConverter());
 			if(scd.getPresentationConverter() == null) {
 				/*
 				 * Try to get a converter for this, if needed.

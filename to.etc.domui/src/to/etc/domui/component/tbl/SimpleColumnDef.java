@@ -57,12 +57,7 @@ public class SimpleColumnDef {
 		setColumnLabel(m.getDefaultLabel());
 		setColumnType(m.getActualType());
 		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
-
-		if(m.getBestConverter() != null) {
-			setPresentationConverter(m.getBestConverter());
-		} else if(m.getActualType().isEnum()) {
-			setPresentationConverter(ConverterRegistry.findConverter(m.getActualType(), m));
-		}
+		setPresentationConverter(ConverterRegistry.findBestConverter(m));
 		setSortable(m.getSortable());
 		setPropertyName(m.getName());
 		setNumericPresentation(m.getNumericPresentation());
@@ -72,11 +67,7 @@ public class SimpleColumnDef {
 		setColumnLabel(m.getDefaultLabel());
 		setColumnType(m.getActualType());
 		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
-		if(m.getBestConverter() != null) {
-			setPresentationConverter(m.getBestConverter());
-		} else if(m.getActualType().isEnum()) {
-			setPresentationConverter(ConverterRegistry.findConverter(m.getActualType(), m));
-		}
+		setPresentationConverter(m.getBestConverter());
 		setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
 		setSortable(m.getSortable());
 		setPropertyName(m.getName());

@@ -6,7 +6,6 @@ import java.util.*;
 
 import to.etc.domui.component.input.ComboFixed.*;
 import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -76,41 +75,11 @@ final public class MetaManager {
 
 	/**
 	 * Finalizes the metamodel for a property when all metadata providers have had their
-	 * go. EVALUATE: this can be seen as an abuse of the metamodel, but it sure does make
-	 * using it easier and quick...
+	 * go.
+	 *
 	 * @param pmm
 	 */
 	private static void finalizeProperty(PropertyMetaModel pmm) {
-		//-- If this is a numeric type, set a converter when needed.
-		Class<? extends IConverter<?>> clz = null;
-		DefaultPropertyMetaModel p = (DefaultPropertyMetaModel) pmm;
-		if(pmm.getConverterClass() != null)
-			clz = pmm.getConverterClass();
-
-		if(pmm.getNumericPresentation() != NumericPresentation.UNKNOWN && pmm.getConverterClass() == null) {
-			switch(pmm.getNumericPresentation()){
-				default:
-					throw new IllegalStateException("Unexpected numeric presentation: " + pmm.getNumericPresentation());
-				case NUMBER:
-					break;
-				case MONEY:
-				case MONEY_FULL:
-				case MONEY_FULL_TRUNC:
-				case MONEY_NO_SYMBOL:
-				case MONEY_NUMERIC:
-					//-- These are applicable for Double and BigDecimal only,
-					if(pmm.getActualType() == Double.class || pmm.getActualType() == Double.TYPE) {
-						clz = MoneyConverterFactory.createDoubleMoneyConverters(pmm.getNumericPresentation());
-					} else if(pmm.getActualType() == BigDecimal.class) {
-						clz = MoneyConverterFactory.createBigDecimalMoneyConverters(pmm.getNumericPresentation());
-					} else {
-						throw new ProgrammerErrorException("The monetary presentation " + pmm.getNumericPresentation() + " is not valid for type=" + pmm.getActualType());
-					}
-					break;
-			}
-		}
-		if(clz != null)
-			p.setBestConverter(ConverterRegistry.getConverter(clz));
 	}
 
 	static public PropertyMetaModel findPropertyMeta(Class< ? > clz, String name) {
@@ -437,68 +406,6 @@ final public class MetaManager {
 		}
 		return null;
 	}
-
-	//	static public Class< ? > getCollectionType(Class< ? > rtype) {
-	//		if(rtype.isArray())
-	//			return rtype.getComponentType();
-	//
-	//		//-- Some kind of collection thingerydoo?
-	//		if(Collection.class.isAssignableFrom(rtype)) {
-	//			//-- Try to get collection value type.
-	//			TypeVariable tvar[] = rtype.getTypeParameters();
-	//			if(tvar != null) {
-	//				TypeVariable tv = tvar[0];
-	//				tv.get
-	//
-	//
-	//
-	//
-	//			}
-	//		}
-	//
-	//
-	//	}
-
-	/**
-	 *
-	 */
-	static public IConverter< ? > getBestConverter(PropertyMetaModel pmm) {
-		//-- User specified converters always override anything else.
-
-
-		Class< ? extends IConverter< ? >> clz = null;
-		DefaultPropertyMetaModel p = (DefaultPropertyMetaModel) pmm;
-		if(pmm.getConverterClass() != null)
-			clz = pmm.getConverterClass();
-
-		if(pmm.getNumericPresentation() != NumericPresentation.UNKNOWN && pmm.getConverterClass() == null) {
-			switch(pmm.getNumericPresentation()){
-				default:
-					throw new IllegalStateException("Unexpected numeric presentation: " + pmm.getNumericPresentation());
-				case NUMBER:
-					break;
-				case MONEY:
-				case MONEY_FULL:
-				case MONEY_FULL_TRUNC:
-				case MONEY_NO_SYMBOL:
-				case MONEY_NUMERIC:
-					//-- These are applicable for Double and BigDecimal only,
-					if(pmm.getActualType() == Double.class || pmm.getActualType() == Double.TYPE) {
-						clz = MoneyConverterFactory.createDoubleMoneyConverters(pmm.getNumericPresentation());
-					} else if(pmm.getActualType() == BigDecimal.class) {
-						clz = MoneyConverterFactory.createBigDecimalMoneyConverters(pmm.getNumericPresentation());
-					} else {
-						throw new ProgrammerErrorException("The monetary presentation " + pmm.getNumericPresentation() + " is not valid for type=" + pmm.getActualType());
-					}
-					break;
-			}
-		}
-		if(clz != null)
-			p.setBestConverter(ConverterRegistry.getConverter(clz));
-
-		return null;
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Expanding properties.								*/

@@ -5,6 +5,7 @@ import java.util.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * Implementation for a Display Property metamodel. The Display Property data overrides the default
@@ -34,7 +35,7 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 		m_name = p.name();
 		if(!Constants.NO_DEFAULT_LABEL.equals(p.defaultLabel()))
 			m_labelKey = p.defaultLabel();
-		setConverterClass((p.converterClass() == DummyConverter.class ? null : p.converterClass()));
+		setConverter((p.converterClass() == DummyConverter.class ? null : ConverterRegistry.getConverterInstance(p.converterClass())));
 		setSortable(p.defaultSortable());
 		setDisplayLength(p.displayLength());
 		setReadOnly(p.readOnly());
@@ -101,8 +102,8 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	 */
 	public <X, T extends IConverter<X>> String getAsString(Object root) throws Exception {
 		Object value = DomUtil.getPropertyValue(root, getName());
-		if(getConverterClass() != null)
-			return ConverterRegistry.convertValueToString((Class<T>) getConverterClass(), (X) value);
+		if(getConverter() != null)
+			return ((T) getConverter()).convertObjectToString(NlsContext.getLocale(), (X) value);
 		return value == null ? "" : value.toString();
 	}
 

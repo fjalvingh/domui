@@ -25,15 +25,15 @@ public class DateConverterFactory implements IConverterFactory {
 	 */
 	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel pmm) {
 		if(pmm == null)
-			return (T) ConverterRegistry.getConverter(DateTimeConverter.class);
+			return (T) ConverterRegistry.getConverterInstance(DateTimeConverter.class);
 
 		switch(pmm.getTemporal()){
 			default:
-				return (T) ConverterRegistry.getConverter(DateTimeConverter.class);
+				return (T) ConverterRegistry.getConverterInstance(DateTimeConverter.class);
 			case DATE:
-				return (T) ConverterRegistry.getConverter(DateConverter.class);
+				return (T) ConverterRegistry.getConverterInstance(DateConverter.class);
 			case TIME:
-				return (T) ConverterRegistry.getConverter(TimeOnlyConverter.class);
+				return (T) ConverterRegistry.getConverterInstance(TimeOnlyConverter.class);
 		}
 	}
 }

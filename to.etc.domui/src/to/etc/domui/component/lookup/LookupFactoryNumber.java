@@ -107,12 +107,11 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		};
 	}
 
-	@SuppressWarnings("unchecked")
-	private Text< ? > createNumericInput(final PropertyMetaModel pmm) {
-		Class< ? > iclz = pmm.getActualType();
+	private <T> Text<T> createNumericInput(final PropertyMetaModel pmm) {
+		Class<T> iclz = (Class<T>) pmm.getActualType();
 
 		//-- Create first text control that accept any numeric type.
-		final Text< ? > numText = new Text(iclz);
+		final Text<T> numText = new Text<T>(iclz);
 		/*
 		 * Length calculation using the metadata. This uses the "length" field as LAST, because it is often 255 because the
 		 * JPA's column annotation defaults length to 255 to make sure it's usability is bloody reduced. Idiots.
@@ -135,13 +134,8 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		} else if(pmm.getLength() > 0) {
 			numText.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
 		}
-
-		if(pmm.getConverterClass() != null)
-			numText.setConverterClass((Class) pmm.getConverterClass());
-		else if(NumericPresentation.isMonetary(pmm.getNumericPresentation()) && (pmm.getActualType() == double.class || pmm.getActualType() == Double.class))
-			((Text<Double>) numText).setConverterClass(MoneyDoubleNumeric.class);
-		else if(NumericPresentation.isMonetary(pmm.getNumericPresentation()) && pmm.getActualType() == BigDecimal.class)
-			((Text<BigDecimal>) numText).setConverterClass(MoneyBigDecimalNumeric.class);
+		IConverter<T> cvt = (IConverter<T>) ConverterRegistry.findBestConverter(pmm);
+		numText.setConverter(cvt);
 
 		if(pmm.getLength() > 0)
 			numText.setMaxLength(pmm.getLength());

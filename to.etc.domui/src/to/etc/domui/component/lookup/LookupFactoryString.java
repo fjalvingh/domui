@@ -2,6 +2,7 @@ package to.etc.domui.component.lookup;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.converter.*;
 import to.etc.webapp.query.*;
 
 @SuppressWarnings("unchecked")
@@ -12,7 +13,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 
 	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm) {
 		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
-		Class<?> iclz = pmm.getActualType();
+		Class< ? > iclz = pmm.getActualType();
 
 		//-- Boolean/boolean types? These need a tri-state checkbox
 		if(iclz == Boolean.class || iclz == Boolean.TYPE) {
@@ -34,8 +35,8 @@ final class LookupFactoryString implements ILookupControlFactory {
 			if(sz != 0)
 				txt.setSize(sz);
 		}
-		if(pmm.getConverterClass() != null)
-			txt.setConverterClass((Class) pmm.getConverterClass());
+		if(pmm.getConverter() != null)
+			txt.setConverter((IConverter) pmm.getConverter());
 		if(pmm.getLength() > 0)
 			txt.setMaxLength(pmm.getLength());
 		String hint = MetaUtils.findHintText(spm);

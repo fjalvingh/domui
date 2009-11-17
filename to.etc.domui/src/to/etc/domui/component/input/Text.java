@@ -27,7 +27,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	/**
 	 * If the value is to be converted use this converter for it.
 	 */
-	private Class< ? extends IConverter<T>> m_converterClass;
+	private IConverter<T> m_converter;
 
 	/** Defined value validators on this field. */
 	private List<PropertyMetaValidator> m_validators = Collections.EMPTY_LIST;
@@ -136,14 +136,14 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		//-- Handle conversion and validation.
 		Object converted;
 		try {
-			if(m_converterClass == null) {
-				IConverter<T> c = ConverterRegistry.findConverter(getInputClass());
-				if(c != null)
-					converted = c.convertStringToObject(NlsContext.getLocale(), raw);
-				else
-					converted = RuntimeConversions.convertTo(raw, m_inputClass);
-			} else
-				converted = ConverterRegistry.convertStringToValue(m_converterClass, raw);
+			IConverter<T> c = m_converter;
+			if(c == null)
+				c = ConverterRegistry.findConverter(getInputClass());
+
+			if(c != null)
+				converted = m_converter.convertStringToObject(NlsContext.getLocale(), raw);
+			else
+				converted = RuntimeConversions.convertTo(raw, m_inputClass);
 
 			if(m_validators.size() != 0)
 				ValidatorRegistry.validate(converted, m_validators);
@@ -187,8 +187,8 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 *
 	 * @return
 	 */
-	public Class< ? extends IConverter<T>> getConverterClass() {
-		return m_converterClass;
+	public IConverter<T> getConverter() {
+		return m_converter;
 	}
 
 	/**
@@ -196,10 +196,10 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * responsibility to ensure that the converter actually converts to a T; if not the code will throw
 	 * ClassCastExceptions.
 	 *
-	 * @param converterClass
+	 * @param converter
 	 */
-	public void setConverterClass(Class< ? extends IConverter<T>> converterClass) {
-		m_converterClass = converterClass;
+	public void setConverter(IConverter<T> converter) {
+		m_converter = converter;
 	}
 
 	/**
@@ -234,10 +234,14 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		m_value = value;
 		String converted;
 		try {
-			if(m_converterClass == null) {
+			IConverter<T> c = m_converter;
+			if(c == null)
+				c = ConverterRegistry.findConverter(getInputClass());
+
+			if(c != null)
+				converted = m_converter.convertObjectToString(NlsContext.getLocale(), value);
+			else
 				converted = (String) RuntimeConversions.convertTo(value, String.class);
-			} else
-				converted = ConverterRegistry.convertValueToString(m_converterClass, value);
 		} catch(UIException x) {
 			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
 			return;

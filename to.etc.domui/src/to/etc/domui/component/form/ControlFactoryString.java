@@ -2,6 +2,7 @@ package to.etc.domui.component.form;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
 
 /**
@@ -65,8 +66,8 @@ public class ControlFactoryString implements ControlFactory {
 			txt.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
 		}
 
-		if(pmm.getConverterClass() != null)
-			txt.setConverterClass((Class) pmm.getConverterClass());
+		if(pmm.getConverter() != null)
+			txt.setConverter((IConverter) pmm.getConverter());
 		if(pmm.getLength() > 0)
 			txt.setMaxLength(pmm.getLength());
 		if(pmm.isRequired())

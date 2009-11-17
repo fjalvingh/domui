@@ -5,6 +5,7 @@ import java.util.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * A special property consisting of a list of joined properties.
@@ -59,7 +60,11 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty implements IV
 			Object value = pm.getAccessor().getValue(root);
 			if(value == null)
 				continue;
-			String s = ConverterRegistry.convertValueToString((Class<? extends IConverter<Object>>) getConverterClass(), value);
+			String s;
+			if(getConverter() != null)
+				s = ((IConverter<Object>) getConverter()).convertObjectToString(NlsContext.getLocale(), value);
+			else
+				s = ConverterRegistry.convertToString(pm, value);
 			if(s == null || s.length() == 0)
 				continue;
 			if(join != null)

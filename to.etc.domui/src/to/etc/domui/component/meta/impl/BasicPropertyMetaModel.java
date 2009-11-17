@@ -6,9 +6,7 @@ import to.etc.domui.converter.*;
 public class BasicPropertyMetaModel {
 	static private final PropertyMetaValidator[] NO_VALIDATORS = new PropertyMetaValidator[0];
 
-	private Class< ? extends IConverter< ? >> m_converterClass;
-
-	private IConverter<?> m_bestConverter;
+	private IConverter< ? > m_converter;
 
 	private SortableType m_sortable = SortableType.UNKNOWN;
 
@@ -32,20 +30,12 @@ public class BasicPropertyMetaModel {
 
 	private PropertyMetaValidator[] m_validators = NO_VALIDATORS;
 
-	public Class< ? extends IConverter< ? >> getConverterClass() {
-		return m_converterClass;
+	public IConverter< ? > getConverter() {
+		return m_converter;
 	}
 
-	public void setConverterClass(Class< ? extends IConverter< ? >> converter) {
-		m_converterClass = converter;
-	}
-
-	public IConverter<?> getBestConverter() {
-		return m_bestConverter;
-	}
-
-	public void setBestConverter(IConverter<?> bestConverter) {
-		m_bestConverter = bestConverter;
+	public void setConverter(IConverter< ? > converter) {
+		m_converter = converter;
 	}
 
 	public SortableType getSortable() {
