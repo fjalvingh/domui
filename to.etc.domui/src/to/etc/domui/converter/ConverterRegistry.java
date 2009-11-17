@@ -29,7 +29,6 @@ public class ConverterRegistry {
 		register(new MoneyConverterFactory());
 		register(new DoubleFactory());
 		register(new EnumFactory());
-		register(new BooleanFactory());
 	}
 
 	/**

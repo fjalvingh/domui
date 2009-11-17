@@ -344,6 +344,7 @@ public class AbstractRowRenderer {
 	 * @param colVal
 	 * @return string representation of colVal to be rendered.
 	 */
+	@Deprecated
 	protected String provideStringValue(final int index, final Object instance, final SimpleColumnDef cd, final Object colVal) {
 		return colVal.toString();
 	}
@@ -377,8 +378,8 @@ public class AbstractRowRenderer {
 			if(colval == null)
 				s = null;
 			else {
-				if(cd.getValueConverter() != null)
-					s = ((IConverter<X>) cd.getValueConverter()).convertObjectToString(NlsContext.getLocale(), colval);
+				if(cd.getPresentationConverter() != null)
+					s = ((IConverter<X>) cd.getPresentationConverter()).convertObjectToString(NlsContext.getLocale(), colval);
 				else
 					s = provideStringValue(index, instance, cd, colval);
 			}

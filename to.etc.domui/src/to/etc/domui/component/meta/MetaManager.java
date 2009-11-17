@@ -459,6 +459,46 @@ final public class MetaManager {
 	//
 	//	}
 
+	/**
+	 *
+	 */
+	static public IConverter< ? > getBestConverter(PropertyMetaModel pmm) {
+		//-- User specified converters always override anything else.
+
+
+		Class< ? extends IConverter< ? >> clz = null;
+		DefaultPropertyMetaModel p = (DefaultPropertyMetaModel) pmm;
+		if(pmm.getConverterClass() != null)
+			clz = pmm.getConverterClass();
+
+		if(pmm.getNumericPresentation() != NumericPresentation.UNKNOWN && pmm.getConverterClass() == null) {
+			switch(pmm.getNumericPresentation()){
+				default:
+					throw new IllegalStateException("Unexpected numeric presentation: " + pmm.getNumericPresentation());
+				case NUMBER:
+					break;
+				case MONEY:
+				case MONEY_FULL:
+				case MONEY_FULL_TRUNC:
+				case MONEY_NO_SYMBOL:
+				case MONEY_NUMERIC:
+					//-- These are applicable for Double and BigDecimal only,
+					if(pmm.getActualType() == Double.class || pmm.getActualType() == Double.TYPE) {
+						clz = MoneyConverterFactory.createDoubleMoneyConverters(pmm.getNumericPresentation());
+					} else if(pmm.getActualType() == BigDecimal.class) {
+						clz = MoneyConverterFactory.createBigDecimalMoneyConverters(pmm.getNumericPresentation());
+					} else {
+						throw new ProgrammerErrorException("The monetary presentation " + pmm.getNumericPresentation() + " is not valid for type=" + pmm.getActualType());
+					}
+					break;
+			}
+		}
+		if(clz != null)
+			p.setBestConverter(ConverterRegistry.getConverter(clz));
+
+		return null;
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Expanding properties.								*/

@@ -35,7 +35,7 @@ public class SimpleColumnDef {
 	/** The thingy which obtains the column's value (as an object) */
 	private IValueTransformer< ? > m_valueTransformer;
 
-	private IConverter< ? > m_valueConverter;
+	private IObjectToStringConverter< ? > m_presentationConverter;
 
 	private NumericPresentation m_numericPresentation;
 
@@ -57,10 +57,11 @@ public class SimpleColumnDef {
 		setColumnLabel(m.getDefaultLabel());
 		setColumnType(m.getActualType());
 		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
+
 		if(m.getBestConverter() != null) {
-			setValueConverter(m.getBestConverter());
-		} else if(m.getActualType().isEnum() || m.getActualType() == Boolean.TYPE || m.getActualType() == Boolean.class) {
-			setValueConverter(ConverterRegistry.findConverter(m.getActualType(), m));
+			setPresentationConverter(m.getBestConverter());
+		} else if(m.getActualType().isEnum()) {
+			setPresentationConverter(ConverterRegistry.findConverter(m.getActualType(), m));
 		}
 		setSortable(m.getSortable());
 		setPropertyName(m.getName());
@@ -72,9 +73,9 @@ public class SimpleColumnDef {
 		setColumnType(m.getActualType());
 		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
 		if(m.getBestConverter() != null) {
-			setValueConverter(m.getBestConverter());
+			setPresentationConverter(m.getBestConverter());
 		} else if(m.getActualType().isEnum()) {
-			setValueConverter(ConverterRegistry.findConverter(m.getActualType(), m));
+			setPresentationConverter(ConverterRegistry.findConverter(m.getActualType(), m));
 		}
 		setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
 		setSortable(m.getSortable());
@@ -125,12 +126,16 @@ public class SimpleColumnDef {
 		m_valueTransformer = valueTransformer;
 	}
 
-	public IConverter< ? > getValueConverter() {
-		return m_valueConverter;
+	/**
+	 * Returns the optional converter to use to convert raw object values to some presentation string value.
+	 * @return
+	 */
+	public IObjectToStringConverter< ? > getPresentationConverter() {
+		return m_presentationConverter;
 	}
 
-	public void setValueConverter(IConverter< ? > valueConverter) {
-		m_valueConverter = valueConverter;
+	public void setPresentationConverter(IConverter< ? > valueConverter) {
+		m_presentationConverter = valueConverter;
 	}
 
 	public String getPropertyName() {

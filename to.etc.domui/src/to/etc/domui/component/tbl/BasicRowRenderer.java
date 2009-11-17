@@ -189,7 +189,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 			cd.setColumnType(getActualClass()); // By definition, the data value is the record instance,
 			cd.setContentRenderer(tryRenderer(nodeRenderer, nrclass));
 			cd.setPropertyName("");
-			cd.setValueConverter(tryConverter(convclz, conv));
+			cd.setPresentationConverter(tryConverter(convclz, conv));
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
 			cd.setNowrap(nowrap);
@@ -212,7 +212,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 			cd.setColumnType(pmm.getActualType());
 			cd.setContentRenderer(tryRenderer(nodeRenderer, nrclass));
 			cd.setPropertyName(property);
-			cd.setValueConverter(tryConverter(convclz, conv)); // FIXME Not used as per the definition on content renderers??
+			cd.setPresentationConverter(tryConverter(convclz, conv)); // FIXME Not used as per the definition on content renderers??
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
 			cd.setNowrap(nowrap);
@@ -254,16 +254,16 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 			scd.setColumnLabel(caption == null ? xdp.getDefaultLabel() : caption);
 			scd.setColumnType(xdp.getActualType());
 			scd.setValueTransformer(xdp.getAccessor()); // Thing which can obtain the value from the property
-			scd.setValueConverter(tryConverter(convclz, conv));
-			if(scd.getValueConverter() == null && xdp.getConverterClass() != null)
-				scd.setValueConverter(ConverterRegistry.getConverter(xdp.getConverterClass()));
-			if(scd.getValueConverter() == null) {
+			scd.setPresentationConverter(tryConverter(convclz, conv));
+			if(scd.getPresentationConverter() == null && xdp.getConverterClass() != null)
+				scd.setPresentationConverter(ConverterRegistry.getConverter(xdp.getConverterClass()));
+			if(scd.getPresentationConverter() == null) {
 				/*
 				 * Try to get a converter for this, if needed.
 				 */
 				if(xdp.getActualType() != String.class) {
 					final IConverter<?> c = ConverterRegistry.getConverter(xdp.getActualType(), xdp);
-					scd.setValueConverter(c);
+					scd.setPresentationConverter(c);
 				}
 			}
 			scd.setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
