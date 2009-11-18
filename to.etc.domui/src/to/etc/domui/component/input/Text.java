@@ -141,7 +141,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 				c = ConverterRegistry.findConverter(getInputClass());
 
 			if(c != null)
-				converted = m_converter.convertStringToObject(NlsContext.getLocale(), raw);
+				converted = c.convertStringToObject(NlsContext.getLocale(), raw);
 			else
 				converted = RuntimeConversions.convertTo(raw, m_inputClass);
 
@@ -239,7 +239,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 				c = ConverterRegistry.findConverter(getInputClass());
 
 			if(c != null)
-				converted = m_converter.convertObjectToString(NlsContext.getLocale(), value);
+				converted = c.convertObjectToString(NlsContext.getLocale(), value);
 			else
 				converted = (String) RuntimeConversions.convertTo(value, String.class);
 		} catch(UIException x) {
