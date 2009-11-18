@@ -424,6 +424,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if("clicked".equals(action)) {
 				handleClicked(ctx, page, wcomp);
 			} else if("vchange".equals(action)) {
+				if(wcomp == null)
+					throw new IllegalStateException("onValueChanged AJAX command node (" + wid + ") not found in server DOM");
 				handleValueChanged(ctx, page, wcomp);
 			} else if(Constants.ASYPOLL.equals(action)) {
 				inhibitlog = true;
