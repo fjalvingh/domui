@@ -238,7 +238,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 			if(c == null)
 				c = ConverterRegistry.findConverter(getInputClass());
 
-			if(c != null)
+			if(c != null && m_converter != null)
 				converted = m_converter.convertObjectToString(NlsContext.getLocale(), value);
 			else
 				converted = (String) RuntimeConversions.convertTo(value, String.class);
