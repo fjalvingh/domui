@@ -2,6 +2,7 @@ package to.etc.domui.converter;
 
 import java.math.*;
 import java.text.*;
+import java.util.*;
 
 import to.etc.webapp.nls.*;
 
@@ -90,7 +91,7 @@ public class MoneyUtil {
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
 			DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 			StringBuilder sb = new StringBuilder(20);
-			sb.append(NlsContext.getCurrency().getSymbol());
+			sb.append(NlsContext.getCurrencySymbol());
 			sb.append('\u00a0');
 			sb.append(df.format(v));
 			s = sb.toString();
@@ -98,7 +99,7 @@ public class MoneyUtil {
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
 			DecimalFormat df = new DecimalFormat("##############0.00", dfs);
 			StringBuilder sb = new StringBuilder(20);
-			sb.append(NlsContext.getCurrency().getSymbol());
+			sb.append(NlsContext.getCurrencySymbol());
 			sb.append('\u00a0');
 			sb.append(df.format(v));
 			s = sb.toString();
@@ -136,7 +137,7 @@ public class MoneyUtil {
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
 			DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 			StringBuilder sb = new StringBuilder(20);
-			sb.append(NlsContext.getCurrency().getSymbol());
+			sb.append(NlsContext.getCurrencySymbol());
 			sb.append('\u00a0');
 			sb.append(df.format(v));
 			s = sb.toString();
@@ -144,7 +145,7 @@ public class MoneyUtil {
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
 			DecimalFormat df = new DecimalFormat("##############0.00", dfs);
 			StringBuilder sb = new StringBuilder(20);
-			sb.append(NlsContext.getCurrency().getSymbol());
+			sb.append(NlsContext.getCurrencySymbol());
 			sb.append('\u00a0');
 			sb.append(df.format(v));
 			s = sb.toString();
@@ -202,7 +203,7 @@ public class MoneyUtil {
 		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
 		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 		StringBuilder sb = new StringBuilder(20);
-		sb.append(NlsContext.getCurrency().getSymbol());
+		sb.append(NlsContext.getCurrencySymbol());
 		sb.append('\u00a0');
 		sb.append(df.format(v));
 		String s = sb.toString();
@@ -245,7 +246,7 @@ public class MoneyUtil {
 		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
 		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
 		StringBuilder sb = new StringBuilder(20);
-		sb.append(NlsContext.getCurrency().getSymbol());
+		sb.append(NlsContext.getCurrencySymbol());
 		sb.append('\u00a0');
 		sb.append(df.format(v));
 		String s = sb.toString();
@@ -254,5 +255,11 @@ public class MoneyUtil {
 		return s;
 	}
 
-
+	public static void main(String[] args) {
+		Locale l = new Locale("nl", "NL");
+		NlsContext.setLocale(l);
+		NlsContext.setCurrencyLocale(l);
+		String s = renderFullWithSign(new BigDecimal("123.45"));
+		System.out.println(">> " + s);
+	}
 }
