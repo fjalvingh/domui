@@ -28,6 +28,11 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 		m_dottedName = dottedName;
 	}
 
+	@Override
+	public String toString() {
+		return "PathProperty[" + m_dottedName + "@" + m_accessPath[0].getClassModel().toString() + "]";
+	}
+
 	/**
 	 * Calculate the value to get. If any path component is null this returns null, it does not
 	 * throw exceptions.

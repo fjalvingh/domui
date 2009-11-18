@@ -11,7 +11,7 @@ public class MoneyConverterFactory implements IConverterFactory {
 			return -1;
 
 		//-- We only accept double and BigDecimal as base types,
-		if(clz != Double.class && clz != BigDecimal.class)
+		if(clz != Double.class && clz != double.class && clz != BigDecimal.class)
 			return -1;
 
 		switch(pmm.getNumericPresentation()){
@@ -75,7 +75,7 @@ public class MoneyConverterFactory implements IConverterFactory {
 	 */
 	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel pmm) {
 		try {
-			if(clz == Double.class) {
+			if(clz == Double.class || clz == double.class) {
 				return (T) createDoubleMoneyConverters(pmm.getNumericPresentation());
 			}
 			if(clz == BigDecimal.class) {
