@@ -27,7 +27,13 @@ public final class DomainListConverter implements IConverter<Object> {
 	public String convertObjectToString(Locale loc, Object in) throws UIException {
 		if(in == null)
 			return null;
-		return m_pmm.getDomainValueLabel(loc, in);
+		String s = m_pmm.getDomainValueLabel(loc, in); // Prefer property label
+		if(s == null) {
+			s = m_pmm.getClassModel().getDomainLabel(loc, in);
+			if(s == null)
+				s = in.toString();
+		}
+		return s;
 	}
 
 	/**
@@ -42,6 +48,11 @@ public final class DomainListConverter implements IConverter<Object> {
 		Object[] ar = m_pmm.getDomainValues();
 		for(Object o: ar) {
 			String v = m_pmm.getDomainValueLabel(loc, o);
+			if(v == null) {
+				v = m_pmm.getClassModel().getDomainLabel(loc, o);
+				if(v == null)
+					v = o.toString();
+			}
 			if(v.equalsIgnoreCase(in))
 				return o;
 		}
