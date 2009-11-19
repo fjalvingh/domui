@@ -314,6 +314,7 @@ public class PooledConnection implements Connection {
 		check().clearWarnings();
 	}
 
+	@SuppressWarnings("unchecked")
 	public java.util.Map getTypeMap() throws java.sql.SQLException {
 		return check().getTypeMap();
 	}
@@ -370,7 +371,7 @@ public class PooledConnection implements Connection {
 		return check().nativeSQL(p1);
 	}
 
-
+	@SuppressWarnings("unchecked")
 	public void setTypeMap(final java.util.Map p1) throws java.sql.SQLException {
 		check().setTypeMap(p1);
 	}
@@ -402,5 +403,9 @@ public class PooledConnection implements Connection {
 
 	public void setHoldability(final int m) throws SQLException {
 		check().setHoldability(m);
+	}
+
+	public <T> T unwrap(Class<T> iface) throws SQLException {
+		return (T) check();
 	}
 }

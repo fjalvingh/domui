@@ -541,5 +541,4 @@ public class StatementProxy implements Statement {
 			throw wrap(xx);
 		}
 	}
-
 }

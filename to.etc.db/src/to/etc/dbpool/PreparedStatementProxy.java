@@ -436,9 +436,11 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
 	public void setURL(final int id, final URL u) throws SQLException {
 		try {
+			_set(id, u);
 			getRealPreparedStatement().setURL(id, u);
 		} catch(SQLException xx) {
 			throw wrap(xx);
 		}
 	}
+
 }

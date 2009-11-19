@@ -160,12 +160,12 @@ public class ConnectionPool implements DbConnectorSet {
 	private boolean m_is_pooledmode;
 
 	/** All connection entries that are allocated but free for use. */
-	private Stack m_freeList = new Stack();
+	private Stack<ConnectionPoolEntry> m_freeList = new Stack<ConnectionPoolEntry>();
 
 	/** The connections that are currently in use (both pooled and unpooled), */
 	//	private Set			m_usedSet = new HashSet();
 
-	private Set m_usedSet = new HashSet();
+	private Set<ConnectionPoolEntry> m_usedSet = new HashSet<ConnectionPoolEntry>();
 
 	/** The current #of allocated and used unpooled connections. */
 	private int m_n_unpooled_inuse;
@@ -207,7 +207,7 @@ public class ConnectionPool implements DbConnectorSet {
 	/** This-pool's ID */
 	private final String m_id;
 
-	private List m_lastErrorStack = new ArrayList(10);
+	private List<ErrorEntry> m_lastErrorStack = new ArrayList<ErrorEntry>(10);
 
 	/** The connector. */
 	private final DbConnector m_pooled_connector = new DbConnector() {
@@ -303,7 +303,11 @@ public class ConnectionPool implements DbConnectorSet {
 
 	private boolean m_ignoreUnclosed;
 
-	private boolean m_disableOldiesScanner;
+	static public enum ScanMode {
+		DISABLED, ENABLED, WARNING
+	}
+
+	private ScanMode m_scanMode = ScanMode.ENABLED;
 
 	public ConnectionPool(PoolManager pm, String id, String driver, String url, String userid, String passwd, String driverpath) throws SQLException {
 		m_manager = pm;
@@ -347,14 +351,26 @@ public class ConnectionPool implements DbConnectorSet {
 			m_trace = cs.getBool(id, "trace", false);
 			m_max_conns = cs.getInt(id, "maxconn", 20);
 			m_min_conns = cs.getInt(id, "minconn", 5);
-			String dp = cs.getProperty(id, "driverpath");
 			boolean cost = cs.getBool(id, "statistics", false);
 			m_printExceptions = cs.getBool(id, "printexceptions", false);
 			m_ignoreUnclosed = cs.getBool(id, "ignoreunclosed", false);
-			m_disableOldiesScanner = cs.getBool(id, "disablescan", false);
+
+			String dp = cs.getProperty(id, "scan");
+			if(dp == null)
+				m_scanMode = ScanMode.ENABLED;
+			else if("enabled".equalsIgnoreCase(dp) || "on".equalsIgnoreCase(dp))
+				m_scanMode = ScanMode.ENABLED;
+			else if("disabled".equalsIgnoreCase(dp) || "off".equalsIgnoreCase(dp))
+				m_scanMode = ScanMode.DISABLED;
+			else if("warning".equalsIgnoreCase(dp) || "warn".equalsIgnoreCase(dp))
+				m_scanMode = ScanMode.WARNING;
+			else
+				throw new IllegalStateException("Invalid 'scan' mode: must be enabled, disabled or warn.");
+
 			if(cost)
 				pm.setCollectStatistics(true);
 
+			dp = cs.getProperty(id, "driverpath");
 			if(dp != null) {
 				File f = new File(dp);
 				if(!f.exists()) {
@@ -394,9 +410,9 @@ public class ConnectionPool implements DbConnectorSet {
 		}
 
 		@Override
-		protected synchronized Class loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
+		protected synchronized Class< ? > loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
 			// First, check if the class has already been loaded
-			Class c = findLoadedClass(name);
+			Class< ? > c = findLoadedClass(name);
 			//            System.out.println(name+": findLoadedClass="+c);
 			if(c == null) {
 				//-- Try to load by THIS loader 1st,
@@ -424,7 +440,7 @@ public class ConnectionPool implements DbConnectorSet {
 	 * @throws Exception
 	 */
 	private Driver loadDriver() throws Exception {
-		Class cl = null;
+		Class< ? > cl = null;
 		if(m_driverPath == null) {
 			//-- Default method: instantiate the driver using the normal mechanism.
 			try {
@@ -434,7 +450,7 @@ public class ConnectionPool implements DbConnectorSet {
 			}
 		} else {
 			//-- Load the driver off the classloader.
-			URLClassLoader loader = new NoLoader(new URL[]{m_driverPath.toURL()});
+			URLClassLoader loader = new NoLoader(new URL[]{m_driverPath.toURI().toURL()}); // Sun people are idiots.
 			try {
 				cl = loader.loadClass(m_driverClassName);
 			} catch(Exception x) {
@@ -608,15 +624,9 @@ public class ConnectionPool implements DbConnectorSet {
 	 * Releases all connections. Connections that are used are waited for.
 	 * FIXME This needs a new implementation.
 	 */
-	private synchronized void deinitPool(final Collection s) {
-		//-- Release all connections immediately
-		while(!s.isEmpty()) {
-			Iterator it = s.iterator();
-			if(it.hasNext()) {
-				ConnectionPoolEntry pe = (ConnectionPoolEntry) it.next();
-				pe.closeRealConnection(); // Force this closed..
-			}
-		}
+	private synchronized void deinitPool(final Collection<ConnectionPoolEntry> s) {
+		for(ConnectionPoolEntry pe : s)
+			pe.closeRealConnection(); // Force this closed..
 	}
 
 	/**
@@ -625,13 +635,13 @@ public class ConnectionPool implements DbConnectorSet {
 	public void deinitialize() {
 		if(m_error_x == null)
 			m_error_x = new SQLException("dbPool(" + m_id + "): pool has been de-initialized.");
-		Set usedset;
-		Stack freelist;
+		Set<ConnectionPoolEntry> usedset;
+		Stack<ConnectionPoolEntry> freelist;
 		synchronized(this) {
 			usedset = m_usedSet;
 			freelist = m_freeList;
-			m_usedSet = new HashSet();
-			m_freeList = new Stack();
+			m_usedSet = new HashSet<ConnectionPoolEntry>();
+			m_freeList = new Stack<ConnectionPoolEntry>();
 			m_n_exec = 0;
 			m_n_open_rs = 0;
 			m_n_open_stmt = 0;
@@ -680,7 +690,7 @@ public class ConnectionPool implements DbConnectorSet {
 
 				//-- 1. Is a connection available in the free pool?
 				while(!m_freeList.isEmpty()) {
-					ConnectionPoolEntry pe = (ConnectionPoolEntry) m_freeList.pop();
+					ConnectionPoolEntry pe = m_freeList.pop();
 					m_usedSet.add(pe); // Saved used entry.
 					pe.setUnpooled(unpooled); // Tell the entry whether it is a pooled one or not
 
@@ -1051,19 +1061,17 @@ public class ConnectionPool implements DbConnectorSet {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	The scan for hanging connections handler.		 	*/
 	/*--------------------------------------------------------------*/
-	private String dumpUsedConnections() {
-		StringBuilder sb = new StringBuilder(1024 * 1024);
-		dumpUsedConnections(sb);
-		return sb.toString();
-	}
+	//	private String dumpUsedConnections() {
+	//		StringBuilder sb = new StringBuilder(1024 * 1024);
+	//		dumpUsedConnections(sb);
+	//		return sb.toString();
+	//	}
 
 	private synchronized void dumpUsedConnections(final StringBuilder sb) {
 		int maxsz = 8192;
 		int i = 0;
-		for(Iterator it = m_usedSet.iterator(); it.hasNext();) {
-			ConnectionPoolEntry pe = (ConnectionPoolEntry) it.next();
-
-			//-- Get a stack dump for this brothar
+		for(ConnectionPoolEntry pe : m_usedSet) {
+			//-- Get a stack dump for this brotha
 			sb.append("Dump for entry #" + i + "\n\n");
 			int clen = sb.length();
 			pe.dbgPrintStackTrace(sb, 10, 2); // Dump stack trace,
@@ -1083,7 +1091,7 @@ public class ConnectionPool implements DbConnectorSet {
 	 */
 	private ConnectionPoolEntry[] getUsedConnections() {
 		synchronized(this) {
-			return (ConnectionPoolEntry[]) m_usedSet.toArray(new ConnectionPoolEntry[m_usedSet.size()]);
+			return m_usedSet.toArray(new ConnectionPoolEntry[m_usedSet.size()]);
 		}
 	}
 
@@ -1105,6 +1113,11 @@ public class ConnectionPool implements DbConnectorSet {
 	 *  @returns	T if the scan found and released "hanging" connections.
 	 */
 	boolean scanForOldies(final int scaninterval_in_secs) {
+		if(getScanMode() == ScanMode.DISABLED)
+			return false;
+
+		boolean logonly = getScanMode() == ScanMode.WARNING;
+
 		/*
 		 * Scan all used connections, and invalidate all connections that are
 		 * too old. They will be removed from the queues and be made invalid so
@@ -1118,7 +1131,6 @@ public class ConnectionPool implements DbConnectorSet {
 
 		//-- 2. Now: check connection by connection with lock order always entry, then pool...
 		long ts = System.currentTimeMillis();
-		//		long			ets	= ts - Nema.getDbScanInterval()*1000;	// Earliest time that's still valid.
 		long ets = ts - scaninterval_in_secs * 1000; // Earliest time that's still valid
 		int nhanging = 0;
 		StringBuilder sb = null;
@@ -1126,17 +1138,27 @@ public class ConnectionPool implements DbConnectorSet {
 		for(int i = upar.length; --i >= 0;) {
 			ConnectionPoolEntry pe = upar[i]; // The connection to check.
 			if(!pe.isUnpooled()) {
-				if(pe.checkTimeOut(ts, ets)) // If this has timed out it will have been removed from the queue
+				if(pe.checkTimeOut(ts, ets, !logonly)) // If this has timed out and we're not logging-only it will have been removed from the queue
 				{
 					nhanging++;
 					if(sb == null) {
 						sb = new StringBuilder(8192); // Lazily create the string buffer and init it,
-						sb.append("*** DATABASE CONNECTIONS WERE HANGING ***\n");
-						sb.append("Releasing hanging connections:\n");
+						if(logonly) {
+							sb.append("pool(").append(m_id).append(") connection(s) used for a long time:\n");
+						} else {
+							sb.append("*** DATABASE CONNECTIONS WERE HANGING ***\n");
+							sb.append("Releasing hanging connections:\n");
+						}
 					}
 
 					//-- Purge the connection.
-					purgeOld(sb, pe); // Remove the connection.
+					if(logonly) {
+						long cts = System.currentTimeMillis() - pe.getAllocationTime();
+						long luts = System.currentTimeMillis() - pe.getLastUsedTime();
+						sb.append("- connection ").append(pe.getID()).append(" active for ").append(DbPoolUtil.strMillis(cts));
+						sb.append(", last use ").append(DbPoolUtil.strMillis(luts)).append(" ago\n");
+					} else
+						purgeOld(sb, pe); // Remove the connection.
 				}
 			} else
 				pe.checkUnpooledUnused(unsb, ts);
@@ -1152,15 +1174,19 @@ public class ConnectionPool implements DbConnectorSet {
 			JAN.info(m_id + ": no hanging connections found.");
 			return false; // No old stuff found.
 		}
-		synchronized(this) {
-			m_n_hangdisconnects += nhanging;
-		}
-		String subj = nhanging + " hanging database connections were released";
-		JAN.info(subj);
-		if(sb != null) {
-			String msg = sb.toString();
-			saveError(subj, msg);
-			PoolManager.panic(subj, msg);
+		if(!logonly) {
+			synchronized(this) {
+				m_n_hangdisconnects += nhanging;
+			}
+			String subj = nhanging + " hanging database connections were released";
+			JAN.info(subj);
+			if(sb != null) {
+				String msg = sb.toString();
+				saveError(subj, msg);
+				PoolManager.panic(subj, msg);
+			}
+		} else {
+			System.out.println(sb.toString());
 		}
 		return true;
 	}
@@ -1273,9 +1299,7 @@ public class ConnectionPool implements DbConnectorSet {
 		sb.append(" connections in the USED pool.\n");
 		int ct = 0;
 		synchronized(this) {
-			Iterator it = m_usedSet.iterator();
-			while(it.hasNext()) {
-				ConnectionPoolEntry pc = (ConnectionPoolEntry) it.next();
+			for(ConnectionPoolEntry pc : m_usedSet) {
 				sb.append("\n\n<b>----- Pooled connection number ");
 				sb.append(Integer.toString(ct));
 				sb.append(" ----------</b>\n");
@@ -1369,7 +1393,7 @@ public class ConnectionPool implements DbConnectorSet {
 		}
 	}
 
-	static private final String[] COLOR = new String[]{"#660000", "#330000",};
+	//	static private final String[] COLOR = new String[]{"#660000", "#330000",};
 
 	/**
 	 * Returns a HTML-formatted table of connection usage times.
@@ -1528,7 +1552,7 @@ public class ConnectionPool implements DbConnectorSet {
 
 	public synchronized void setSaveErrors(final boolean on) {
 		if(on && m_lastErrorStack == null)
-			m_lastErrorStack = new ArrayList();
+			m_lastErrorStack = new ArrayList<ErrorEntry>();
 		else if(!on && m_lastErrorStack != null)
 			m_lastErrorStack = null;
 	}
@@ -1537,10 +1561,10 @@ public class ConnectionPool implements DbConnectorSet {
 		return m_lastErrorStack != null;
 	}
 
-	public synchronized List getSavedErrorList() {
+	public synchronized List<ErrorEntry> getSavedErrorList() {
 		if(m_lastErrorStack == null)
 			return null;
-		return new ArrayList(m_lastErrorStack);
+		return new ArrayList<ErrorEntry>(m_lastErrorStack);
 	}
 
 	static public class ErrorEntry {
@@ -1665,7 +1689,7 @@ public class ConnectionPool implements DbConnectorSet {
 		return m_ignoreUnclosed;
 	}
 
-	public boolean isDisableOldiesScanner() {
-		return m_disableOldiesScanner;
+	public ScanMode getScanMode() {
+		return m_scanMode;
 	}
 }

@@ -14,9 +14,9 @@ import to.etc.dbutil.*;
  */
 public class PoolManager {
 	/** The table of pools (ConnectionPool), identified by ID */
-	private final Hashtable m_pool_ht = new Hashtable();
+	private final HashMap<String, ConnectionPool> m_pool_ht = new HashMap<String, ConnectionPool>();
 
-	private final ArrayList m_listeners = new ArrayList();
+	private final ArrayList<iPoolMessageHandler> m_listeners = new ArrayList<iPoolMessageHandler>();
 
 	static private Object m_connidlock = new Object();
 
@@ -27,7 +27,7 @@ public class PoolManager {
 	/**
 	 * Threadlocal containing the per-thread collected statistics, per request.
 	 */
-	private final ThreadLocal m_threadStats = new ThreadLocal();
+	private final ThreadLocal<ThreadData> m_threadStats = new ThreadLocal<ThreadData>();
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Static entries to the pool manager (obsolete).		*/
@@ -72,7 +72,7 @@ public class PoolManager {
 	public void sendLogUnexpected(final Exception t, final String s) {
 		for(int i = m_listeners.size(); --i >= 0;) {
 			try {
-				((iPoolMessageHandler) m_listeners.get(i)).sendLogUnexpected(t, s);
+				(m_listeners.get(i)).sendLogUnexpected(t, s);
 			} catch(RuntimeException e) {
 				e.printStackTrace();
 			}
@@ -82,7 +82,7 @@ public class PoolManager {
 	public void sendPanic(final String shortdesc, final String body) {
 		for(int i = m_listeners.size(); --i >= 0;) {
 			try {
-				((iPoolMessageHandler) m_listeners.get(i)).sendPanic(shortdesc, body);
+				(m_listeners.get(i)).sendPanic(shortdesc, body);
 			} catch(RuntimeException e) {
 				e.printStackTrace();
 			}
@@ -108,7 +108,7 @@ public class PoolManager {
 		ConnectionPool newpool = new ConnectionPool(this, id, cs);
 		synchronized(m_pool_ht) {
 			//-- If this pool is already there then compare else add the new one
-			ConnectionPool cp = (ConnectionPool) m_pool_ht.get(id);
+			ConnectionPool cp = m_pool_ht.get(id);
 			if(cp != null) // Pool exists.. Must have same parameters,
 			{
 				if(!cp.equals(newpool))
@@ -124,7 +124,7 @@ public class PoolManager {
 		ConnectionPool newpool = new ConnectionPool(this, id, driver, url, userid, password, driverpath);
 		synchronized(m_pool_ht) {
 			//-- If this pool is already there then compare else add the new one
-			ConnectionPool cp = (ConnectionPool) m_pool_ht.get(id);
+			ConnectionPool cp = m_pool_ht.get(id);
 			if(cp != null) // Pool exists.. Must have same parameters,
 			{
 				if(!cp.equals(newpool))
@@ -215,7 +215,7 @@ public class PoolManager {
 		if(id == null)
 			throw new IllegalArgumentException("The pool ID cannot be null");
 		synchronized(m_pool_ht) {
-			ConnectionPool pool = (ConnectionPool) m_pool_ht.get(id); // Find the pool
+			ConnectionPool pool = m_pool_ht.get(id); // Find the pool
 			if(pool == null)
 				throw new SQLException("PoolManager: pool with ID " + id + " not found.");
 			return pool;
@@ -257,12 +257,14 @@ public class PoolManager {
 	/*	CODING:	Pool management and teardown.						*/
 	/*--------------------------------------------------------------*/
 	public void destroyAll() {
-		for(Enumeration e = m_pool_ht.elements(); e.hasMoreElements();) {
-			ConnectionPool p = (ConnectionPool) e.nextElement();
-			p.deinitialize();
-			//			m_pool_tbl.remove(p.getId());
+		List<ConnectionPool> l;
+		synchronized(m_pool_ht) {
+			l = new ArrayList<ConnectionPool>(m_pool_ht.values());
+			m_pool_ht.clear();
 		}
-		m_pool_ht.clear();
+		for(ConnectionPool p : l) {
+			p.deinitialize();
+		}
 	}
 
 	/**
@@ -271,14 +273,7 @@ public class PoolManager {
 	 */
 	public ConnectionPool[] getPoolList() {
 		synchronized(m_pool_ht) {
-			ConnectionPool[] ar = new ConnectionPool[m_pool_ht.size()];
-			int i = 0;
-			Enumeration e = m_pool_ht.elements();
-			while(e.hasMoreElements()) {
-				ConnectionPool cp = (ConnectionPool) e.nextElement();
-				ar[i++] = cp;
-			}
-			return ar;
+			return m_pool_ht.values().toArray(new ConnectionPool[m_pool_ht.size()]);
 		}
 	}
 
@@ -290,8 +285,7 @@ public class PoolManager {
 		ConnectionPool[] ar = getPoolList();
 		//		DBJAN.msg("Scanning for hanging connections in "+ar.length+" pools");
 		for(int i = 0; i < ar.length; i++) {
-			if(!ar[i].isDisableOldiesScanner())
-				ar[i].scanForOldies(scaninterval_in_secs);
+			ar[i].scanForOldies(scaninterval_in_secs);
 		}
 	}
 
@@ -351,7 +345,7 @@ public class PoolManager {
 	 * circumstances this is true, but not when a connection is forcefully
 	 * released by a Janitor process for instance!
 	 */
-	private final WeakHashMap m_thread_ht = new WeakHashMap();
+	private final WeakHashMap<Thread, ThreadConnectionInfo> m_thread_ht = new WeakHashMap<Thread, ThreadConnectionInfo>();
 
 	static final private class ThreadConnectionInfo {
 		/** T if connections allocated by current thread must */
@@ -361,7 +355,7 @@ public class PoolManager {
 		 * A map of [poolid, Connection] for connections currently allocated
 		 * for this thread.
 		 */
-		private final Map m_pool_map = new Hashtable();
+		private final Map<ConnectionPool, PooledConnection> m_pool_map = new HashMap<ConnectionPool, PooledConnection>();
 
 		public ThreadConnectionInfo() {}
 
@@ -389,7 +383,7 @@ public class PoolManager {
 		}
 
 		final public PooledConnection get(final ConnectionPool pool) {
-			return (PooledConnection) m_pool_map.get(pool);
+			return m_pool_map.get(pool);
 		}
 
 		final public void put(final ConnectionPool pool, final PooledConnection conn) {
@@ -399,7 +393,7 @@ public class PoolManager {
 		final public PooledConnection[] discardMap() {
 			if(m_pool_map.size() == 0)
 				return null;
-			PooledConnection[] ar = (PooledConnection[]) m_pool_map.values().toArray(new PooledConnection[m_pool_map.size()]);
+			PooledConnection[] ar = m_pool_map.values().toArray(new PooledConnection[m_pool_map.size()]);
 			m_pool_map.clear();
 			return ar;
 		}
@@ -412,7 +406,7 @@ public class PoolManager {
 	private ThreadConnectionInfo getThreadMap(final Thread t) {
 		//-- 1. Find the thread's pool map
 		synchronized(this) {
-			ThreadConnectionInfo tci = (ThreadConnectionInfo) m_thread_ht.get(t);
+			ThreadConnectionInfo tci = m_thread_ht.get(t);
 			if(tci == null) {
 				tci = new ThreadConnectionInfo();
 				m_thread_ht.put(t, tci);
@@ -560,7 +554,7 @@ public class PoolManager {
 	//	}
 
 	public ThreadData threadData() {
-		return (ThreadData) m_threadStats.get();
+		return m_threadStats.get();
 	}
 
 	public InfoCollector threadCollector() {
@@ -580,7 +574,7 @@ public class PoolManager {
 			if(!m_collectStatistics)
 				return;
 		}
-		ThreadData td = (ThreadData) m_threadStats.get();
+		ThreadData td = m_threadStats.get();
 		if(td == null) {
 			td = new ThreadData(ident);
 			m_threadStats.set(td);
@@ -589,7 +583,7 @@ public class PoolManager {
 	}
 
 	public ThreadData stopCollecting(final boolean report) {
-		ThreadData td = (ThreadData) m_threadStats.get();
+		ThreadData td = m_threadStats.get();
 		if(td == null)
 			return null;
 		if(!td.decrement())

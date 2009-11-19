@@ -127,6 +127,7 @@ public class CallableStatementProxy extends PreparedStatementProxy implements Ca
 		return getRealCallableStatement().getBigDecimal(parameterIndex);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object getObject(int i, Map map) throws SQLException {
 		return getRealCallableStatement().getObject(i, map);
 	}
@@ -224,6 +225,7 @@ public class CallableStatementProxy extends PreparedStatementProxy implements Ca
 		return getRealCallableStatement().getRef(name);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object getObject(String name, Map map) throws SQLException {
 		return getRealCallableStatement().getObject(name, map);
 	}

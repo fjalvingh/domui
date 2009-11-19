@@ -25,6 +25,10 @@ public class ResultSetProxy implements ResultSet {
 		m_pc = sp._conn();
 	}
 
+	public String internalGetCloseReason() {
+		return m_close_rsn;
+	}
+
 	public boolean absolute(final int row) throws SQLException {
 		return m_rs.absolute(row);
 	}
@@ -246,6 +250,7 @@ public class ResultSetProxy implements ResultSet {
 		return m_rs.getMetaData();
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object getObject(final int arg0, final Map arg1) throws SQLException {
 		return m_rs.getObject(arg0, arg1);
 	}
@@ -254,6 +259,7 @@ public class ResultSetProxy implements ResultSet {
 		return m_rs.getObject(columnIndex);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object getObject(final String arg0, final Map arg1) throws SQLException {
 		return m_rs.getObject(arg0, arg1);
 	}
@@ -622,6 +628,4 @@ public class ResultSetProxy implements ResultSet {
 	public boolean wasNull() throws SQLException {
 		return m_rs.wasNull();
 	}
-
-
 }

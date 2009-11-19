@@ -141,4 +141,60 @@ public class DbPoolUtil {
 		}
 	}
 
+	static private final long DAYS = 24 * 60 * 60;
+
+	static private final long HOURS = 60 * 60;
+
+
+	static public String strMillis(long dlt) {
+		StringBuffer sb = new StringBuffer();
+
+		int millis = (int) (dlt % 1000); // Get milliseconds,
+		dlt /= 1000; // Now in seconds,
+
+		boolean sp = false;
+		if(dlt >= DAYS) {
+			sb.append(dlt / DAYS);
+			sb.append("D");
+			dlt %= DAYS;
+			sp = true;
+		}
+		if(dlt >= HOURS) {
+			long v = dlt / HOURS;
+			if(v != 0) {
+				if(sp)
+					sb.append(' ');
+				sb.append(v);
+				sb.append("u");
+				sp = true;
+			}
+			dlt %= HOURS;
+		}
+		if(dlt >= 60) {
+			long v = dlt / 60;
+			if(v != 0) {
+				if(sp)
+					sb.append(' ');
+				sb.append(v);
+				sb.append("m");
+				sp = true;
+			}
+			dlt %= 60;
+		}
+		if(dlt != 0) {
+			if(sp)
+				sb.append(' ');
+			sb.append(dlt);
+			sb.append("s");
+			sp = true;
+		}
+		if(millis != 0) {
+			if(sp)
+				sb.append(' ');
+			sb.append(millis);
+			sb.append("ms");
+		}
+		return sb.toString();
+	}
+
 }

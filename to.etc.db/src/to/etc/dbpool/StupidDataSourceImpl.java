@@ -45,4 +45,11 @@ public class StupidDataSourceImpl implements DataSource {
 		return 0;
 	}
 
+	public boolean isWrapperFor(Class< ? > iface) throws SQLException {
+		return false;
+	}
+
+	public <T> T unwrap(Class<T> iface) throws SQLException {
+		throw new IllegalStateException("Cannot unwrap to " + iface);
+	}
 }

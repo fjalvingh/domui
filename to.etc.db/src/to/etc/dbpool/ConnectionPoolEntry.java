@@ -127,8 +127,12 @@ public class ConnectionPoolEntry {
 		return m_is_unpooled;
 	}
 
-	protected long getAllocationTime() {
+	protected synchronized long getAllocationTime() {
 		return m_ts_alloc;
+	}
+
+	protected synchronized long getLastUsedTime() {
+		return m_ts_lastuse;
 	}
 
 	int getWarningCount() {
@@ -345,7 +349,7 @@ public class ConnectionPoolEntry {
 	 * sometimes.
 	 * <p>MAY ONLY BE CALLED FROM THE SCAN CODE WITHOUT A LOCKED POOL</p>
 	 */
-	protected synchronized boolean checkTimeOut(final long currts, final long maxage) {
+	protected synchronized boolean checkTimeOut(final long currts, final long maxage, boolean removeontimeout) {
 		//-- Is this connection still in use?
 		if(m_state != null)
 			return false; // Already closed/invalidated
@@ -364,10 +368,12 @@ public class ConnectionPoolEntry {
 			return false; // Not older: still not expired.
 
 		//-- This connection has timed out. Invalidate!
-		m_pool.invalidateForTimeout(this); // Remove me from the pool!
-		m_state = connInvalidated;
-		m_proxy_dbc.m_detach_reason = connInvalidated;
-		m_proxy_dbc = null; // Disconnect proxy.
+		if(removeontimeout) {
+			m_pool.invalidateForTimeout(this); // Remove me from the pool!
+			m_state = connInvalidated;
+			m_proxy_dbc.m_detach_reason = connInvalidated;
+			m_proxy_dbc = null; // Disconnect proxy.
+		}
 		return true;
 	}
 
@@ -620,8 +626,7 @@ public class ConnectionPoolEntry {
 	/*	CODING:	Connection resource management...					*/
 	/*--------------------------------------------------------------*/
 	/** All objects allocated FROM this connection. */
-	private final HashSet m_use_set = new HashSet();
-
+	private final HashSet<Object> m_use_set = new HashSet<Object>();
 
 	/**
 	 *	Adds a resource to this statement's tracking list, so that it will be
@@ -661,8 +666,7 @@ public class ConnectionPoolEntry {
 		synchronized(this) // Remove and close all resources while locked,
 		{
 			if(!m_pool.isIgnoreUnclosed()) {
-				for(Iterator i = m_use_set.iterator(); i.hasNext();) {
-					Object o = i.next();
+				for(Object o : m_use_set) {
 					_closeResource(o);
 					nclosed++;
 				}
