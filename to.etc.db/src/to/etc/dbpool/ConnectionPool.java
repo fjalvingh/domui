@@ -303,6 +303,8 @@ public class ConnectionPool implements DbConnectorSet {
 
 	private boolean m_ignoreUnclosed;
 
+	private boolean m_logResultSetLocations;
+
 	static public enum ScanMode {
 		DISABLED, ENABLED, WARNING
 	}
@@ -353,7 +355,6 @@ public class ConnectionPool implements DbConnectorSet {
 			m_min_conns = cs.getInt(id, "minconn", 5);
 			boolean cost = cs.getBool(id, "statistics", false);
 			m_printExceptions = cs.getBool(id, "printexceptions", false);
-			m_ignoreUnclosed = cs.getBool(id, "ignoreunclosed", false);
 
 			String dp = cs.getProperty(id, "scan");
 			if(dp == null)
@@ -362,10 +363,15 @@ public class ConnectionPool implements DbConnectorSet {
 				m_scanMode = ScanMode.ENABLED;
 			else if("disabled".equalsIgnoreCase(dp) || "off".equalsIgnoreCase(dp))
 				m_scanMode = ScanMode.DISABLED;
-			else if("warning".equalsIgnoreCase(dp) || "warn".equalsIgnoreCase(dp))
+			else if("warning".equalsIgnoreCase(dp) || "warn".equalsIgnoreCase(dp)) { // Typical development setting.
 				m_scanMode = ScanMode.WARNING;
-			else
+				m_logResultSetLocations = true;
+				m_ignoreUnclosed = false;
+			} else
 				throw new IllegalStateException("Invalid 'scan' mode: must be enabled, disabled or warn.");
+
+			m_logResultSetLocations = cs.getBool(id, "logrslocations", m_logResultSetLocations); // Only override default if explicitly set.
+			m_ignoreUnclosed = cs.getBool(id, "ignoreunclosed", m_ignoreUnclosed); //ditto
 
 			if(cost)
 				pm.setCollectStatistics(true);
@@ -1691,5 +1697,13 @@ public class ConnectionPool implements DbConnectorSet {
 
 	public ScanMode getScanMode() {
 		return m_scanMode;
+	}
+
+	public synchronized boolean isLogResultSetLocations() {
+		return m_logResultSetLocations;
+	}
+
+	public synchronized void setLogResultSetLocations(boolean logResultSetLocations) {
+		m_logResultSetLocations = logResultSetLocations;
 	}
 }

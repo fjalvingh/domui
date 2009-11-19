@@ -19,14 +19,47 @@ public class ResultSetProxy implements ResultSet {
 
 	private String m_close_rsn;
 
+	/** Copy of the SQL statement causing this resultset, from statement-proxy (if available) */
+	private String m_sql;
+
+	private Object[] m_par;
+
+	private Throwable m_allocationLocation;
+
 	protected ResultSetProxy(final StatementProxy sp, final ResultSet rs) {
 		m_collector = sp._conn().collector();
 		m_rs = rs;
 		m_pc = sp._conn();
+		m_sql = sp.getSQL();		// SQL at time of query,
+		if(sp instanceof PreparedStatementProxy) {
+			m_par = ((PreparedStatementProxy) sp).internalGetParameters();
+		}
+		if(sp.pool().isLogResultSetLocations()) {
+			try {
+				throw new RuntimeException();
+			} catch(RuntimeException x) {
+				m_allocationLocation = x;
+			}
+		}
 	}
 
 	public String internalGetCloseReason() {
 		return m_close_rsn;
+	}
+
+	protected void internalDumpInfo() {
+		StringBuilder	sb	= new StringBuilder(512);
+		if(m_sql != null) {
+			sb.append("ResultSet Query: ").append(m_sql).append("\n");
+			if(m_par != null && m_par.length > 0)
+				sb.append(BetterSQLException.format(m_par, m_par.length)).append("\n");
+		}
+		if(m_allocationLocation != null) {
+			sb.append("ResultSet was allocated at:\n");
+			DbPoolUtil.getFilteredStacktrace(sb, m_allocationLocation);
+		}
+		if(sb.length() > 0)
+			System.out.println(sb);
 	}
 
 	public boolean absolute(final int row) throws SQLException {
@@ -62,7 +95,8 @@ public class ResultSetProxy implements ResultSet {
 	public void closedByConnection() throws SQLException {
 		if(m_rs != null) {
 			m_close_rsn = "Closed because connection was closed";
-			System.out.println("ERROR: ResultSet forced CLOSED because connection is closed");
+			System.out.println("---- ResultSet forced CLOSED because connection is closed ----");
+			internalDumpInfo();
 			DbPoolUtil.dumpLocation("Location of close");
 			try {
 				m_rs.close();

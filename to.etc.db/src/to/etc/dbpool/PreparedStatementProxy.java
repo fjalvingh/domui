@@ -28,6 +28,15 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 		super(c, st, sql);
 	}
 
+	@Override
+	protected void appendQuery(StringBuilder sb) {
+		if(getSQL() != null) {
+			sb.append("Query: ").append(getSQL()).append("\n");
+			if(m_par != null && m_maxpar > 0)
+				sb.append(BetterSQLException.format(m_par, m_maxpar)).append("\n");
+		}
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	New methods.										*/
 	/*--------------------------------------------------------------*/
@@ -39,9 +48,12 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 		return (PreparedStatement) getRealStatement();
 	}
 
-	private void _set(final int ix, final Object v) {
-		if(ix > m_maxpar)
-			m_maxpar = ix;
+	private void _set(int ix, final Object v) {
+		if(ix < 1)
+			return;
+		ix--;
+		if(ix >= m_maxpar)
+			m_maxpar = ix + 1;
 		if(ix >= m_par.length) {
 			Object[] nar = new Object[ix + 30];
 			System.arraycopy(m_par, 0, nar, 0, m_par.length);
@@ -52,7 +64,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
 	Object[] internalGetParameters() {
 		Object[] res = new Object[m_maxpar];
-		System.arraycopy(m_par, 1, res, 0, m_maxpar);
+		System.arraycopy(m_par, 0, res, 0, m_maxpar);
 		return res;
 	}
 
