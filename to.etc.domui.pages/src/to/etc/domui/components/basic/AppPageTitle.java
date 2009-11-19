@@ -124,13 +124,24 @@ public class AppPageTitle extends Div {
 	}
 
 	/**
-	 * Calculate the title URL to use for this thing.
+	 * Return the title that is used by this bar. If no user title is set this returns the
+	 * calculated title (from annotations and metadata).
 	 * @return
 	 */
-	protected String getPageTitle() {
+	public String getPageTitle() {
 		if(m_title != null) // Manually set?
 			return m_title;
 		return DomUtil.calcPageTitle(getPage().getBody().getClass());
+	}
+
+	public void setPageTitle(String ttl) {
+		if(DomUtil.isEqual(m_title, ttl))
+			return;
+
+		m_title = ttl;
+		if(isBuilt()) {
+			getTitlePart().setText(ttl);
+		}
 	}
 
 	protected void addDefaultButtons(final NodeContainer nc) {
