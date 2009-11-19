@@ -101,7 +101,7 @@ public class StatementProxy implements Statement {
 		if(m_c.m_pe.m_pool.isPrintExceptions()) {
 			System.out.println("----- db: exception in statement -----");
 			System.out.println("SQL: " + getSQL());
-			System.out.println(BetterSQLException.format(null, 0));
+			//			System.out.println(BetterSQLException.format(null, 0));
 			x.printStackTrace();
 		}
 		return new BetterSQLException(getSQL(), null, 0, x);

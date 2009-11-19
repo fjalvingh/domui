@@ -70,9 +70,9 @@ public class BetterSQLException extends SQLException {
 		StringBuilder sb = new StringBuilder(128);
 		if(par != null && ct > 0) {
 			sb.append("Parameters:\n");
-			for(int i = 1; i <= ct; i++) {
+			for(int i = 0; i < ct; i++) {
 				sb.append("#");
-				sb.append(i);
+				sb.append(i + 1);
 				sb.append(":");
 				Object o = par[i];
 				if(o == null)
