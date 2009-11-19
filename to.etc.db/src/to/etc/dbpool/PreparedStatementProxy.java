@@ -28,6 +28,15 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 		super(c, st, sql);
 	}
 
+	@Override
+	protected void appendQuery(StringBuilder sb) {
+		if(getSQL() != null) {
+			sb.append("Query: ").append(getSQL()).append("\n");
+			if(m_par != null && m_par.length > 0)
+				sb.append(BetterSQLException.format(m_par, m_maxpar)).append("\n");
+		}
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	New methods.										*/
 	/*--------------------------------------------------------------*/

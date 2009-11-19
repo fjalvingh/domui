@@ -24,6 +24,7 @@ public class StatementProxy implements Statement {
 
 	private String m_close_rsn;
 
+	private Throwable m_allocationLocation;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Changed/intercepted methods..						*/
@@ -33,6 +34,13 @@ public class StatementProxy implements Statement {
 		m_c = c;
 		m_st = st;
 		m_sql_str = sql;
+		if(c.m_pe.m_pool.isLogResultSetLocations()) {
+			try {
+				throw new RuntimeException();
+			} catch(RuntimeException x) {
+				m_allocationLocation = x;
+			}
+		}
 	}
 
 	/**
@@ -73,8 +81,15 @@ public class StatementProxy implements Statement {
 	public void closedByConnection() throws SQLException {
 		if(m_st != null) {
 			m_close_rsn = "Closed because connection was closed";
-			System.out.println("ERROR: Statement forced CLOSED because connection is closed");
-			System.out.println("Statement: " + m_sql_str);
+			StringBuilder sb = new StringBuilder(512);
+			sb.append("---- Statement forced CLOSED because connection is closed ----\n");
+			appendQuery(sb);
+			if(m_allocationLocation != null) {
+				sb.append("StatementProxy was allocated at:\n");
+				DbPoolUtil.getFilteredStacktrace(sb, m_allocationLocation);
+			}
+			if(sb.length() > 0)
+				System.out.println(sb);
 			DbPoolUtil.dumpLocation("Location of close");
 			try {
 				m_st.close();
@@ -82,6 +97,15 @@ public class StatementProxy implements Statement {
 				m_st = null;
 			}
 		}
+	}
+
+	protected void appendQuery(StringBuilder sb) {
+		if(getSQL() != null) {
+			sb.append("Query: ").append(getSQL()).append("\n");
+		}
+	}
+
+	protected void internalDumpInfo() {
 	}
 
 	/**

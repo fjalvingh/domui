@@ -47,18 +47,19 @@ public class ResultSetProxy implements ResultSet {
 		return m_close_rsn;
 	}
 
-	public void internalDumpInfo() {
-		if(m_sql == null)
-			return;
+	protected void internalDumpInfo() {
 		StringBuilder	sb	= new StringBuilder(512);
-		sb.append("ResultSet Query: ").append(m_sql).append("\n");
-		if(m_par != null && m_par.length > 0)
-			sb.append(BetterSQLException.format(m_par, m_par.length)).append("\n");
+		if(m_sql != null) {
+			sb.append("ResultSet Query: ").append(m_sql).append("\n");
+			if(m_par != null && m_par.length > 0)
+				sb.append(BetterSQLException.format(m_par, m_par.length)).append("\n");
+		}
 		if(m_allocationLocation != null) {
 			sb.append("ResultSet was allocated at:\n");
 			DbPoolUtil.getFilteredStacktrace(sb, m_allocationLocation);
 		}
-		System.out.println(sb);
+		if(sb.length() > 0)
+			System.out.println(sb);
 	}
 
 	public boolean absolute(final int row) throws SQLException {
