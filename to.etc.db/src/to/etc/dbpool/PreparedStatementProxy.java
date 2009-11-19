@@ -32,7 +32,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 	protected void appendQuery(StringBuilder sb) {
 		if(getSQL() != null) {
 			sb.append("Query: ").append(getSQL()).append("\n");
-			if(m_par != null && m_par.length > 0)
+			if(m_par != null && m_maxpar > 0)
 				sb.append(BetterSQLException.format(m_par, m_maxpar)).append("\n");
 		}
 	}
