@@ -127,7 +127,7 @@ public class AppPageTitle extends Div {
 	 * Calculate the title URL to use for this thing.
 	 * @return
 	 */
-	private String getPageTitle() {
+	protected String getPageTitle() {
 		if(m_title != null) // Manually set?
 			return m_title;
 		return DomUtil.calcPageTitle(getPage().getBody().getClass());

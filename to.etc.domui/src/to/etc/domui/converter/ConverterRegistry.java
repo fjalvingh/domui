@@ -19,7 +19,7 @@ public class ConverterRegistry {
 	/** The list of registered factories. */
 	static private List<IConverterFactory> m_factoryList = new ArrayList<IConverterFactory>();
 
-	static private Map<Class< ? >, List<IConverterFactory>> m_factoryMap = new HashMap<Class< ? >, List<IConverterFactory>>();
+	//	static private Map<Class< ? >, List<IConverterFactory>> m_factoryMap = new HashMap<Class< ? >, List<IConverterFactory>>();
 
 	static private IConverterFactory m_defaultConverterFactory;
 
@@ -223,7 +223,6 @@ public class ConverterRegistry {
 			return;
 		m_factoryList = new ArrayList<IConverterFactory>(m_factoryList); // Dup the original list,
 		m_factoryList.add(cf);
-		m_factoryMap.clear(); // Discard all assignments: others can be made.
 	}
 
 	/**
@@ -261,38 +260,15 @@ public class ConverterRegistry {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Finds the best factory to use. Returns null if no factory was found.
+	 * <p>jal 20091118 Per-class factory cache removed because more than just class is used to determine the factory to use.</p>
 	 * @param clz
 	 * @param pmm
 	 * @return
 	 */
 	static private IConverterFactory findFactory(Class< ? > clz, PropertyMetaModel pmm) {
 		synchronized(ConverterRegistry.class) {
-			//-- Can we quickly find a thingy in the per-type map?
-			List<IConverterFactory> flist = m_factoryMap.get(clz);
-			if(flist != null) {
-				//-- Only use these to find the best factories
-				IConverterFactory best = null;
-				int bestscore = 0;
-				for(IConverterFactory cf : flist) {
-					int score = cf.accept(clz, pmm);
-					if(score < 0)
-						throw new IllegalStateException("INTERNAL: IConverterFactory " + cf + " suddenly does not accept class=" + clz
-							+ " anymore?! Make sure it returns 0, not -1 if it does not accept the propertyMetaData!!!");
-					if(score > bestscore) { // > 0 (!) and > highscore
-						best = cf;
-						bestscore = score;
-					}
-				}
-
-				/*
-				 * Return the result so far. If no match was found we exit too; the per-class list was exhausted so walking the full list will not result in more hits.
-				 */
-				return best;
-			}
-
 			//-- Scan teh full list, and build a list-of-factories-accepting-this-class during it,
-			flist = new ArrayList<IConverterFactory>();
-			m_factoryMap.put(clz, flist);
+			List<IConverterFactory> flist = new ArrayList<IConverterFactory>();
 			IConverterFactory best = null;
 			int bestscore = 0;
 			for(IConverterFactory cf : getFactoryList()) {
@@ -306,10 +282,6 @@ public class ConverterRegistry {
 					bestscore = score;
 				}
 			}
-
-			//			flist.add(getDefaultFactory()); // Always accept the default factory thingy.
-			//			if(best == null)
-			//				best = getDefaultFactory(); // Always return the default factory if no converter known.
 			return best;
 		}
 	}
@@ -381,40 +353,13 @@ public class ConverterRegistry {
 
 	/**
 	 * Obtain the very best presentation converter we can find for the specified property.
-	 * FIXME This should be replaced with the generic {@link #getConverter(Class, PropertyMetaModel)} code, and the content
-	 * should move to individual factoried instances.
+	 * @param pmm
+	 * @return
 	 */
 	static public IConverter< ? > findBestConverter(PropertyMetaModel pmm) {
 		//-- User specified converters always override anything else.
 		if(pmm.getConverter() != null) // User-specified converters always override all else.
 			return pmm.getConverter();
-
-		//		//-- Handle numeric thingies having a numeric presentation hint.
-		//		if(pmm.getNumericPresentation() != NumericPresentation.UNKNOWN) {
-		//			switch(pmm.getNumericPresentation()){
-		//				default:
-		//					throw new IllegalStateException("Unexpected numeric presentation: " + pmm.getNumericPresentation());
-		//				case NUMBER:
-		//					return null;
-		//				case MONEY:
-		//				case MONEY_FULL:
-		//				case MONEY_FULL_TRUNC:
-		//				case MONEY_NO_SYMBOL:
-		//				case MONEY_NUMERIC:
-		//					//-- These are applicable for Double and BigDecimal only,
-		//					if(pmm.getActualType() == Double.class || pmm.getActualType() == Double.TYPE) {
-		//						return MoneyConverterFactory.createDoubleMoneyConverters(pmm.getNumericPresentation());
-		//					} else if(pmm.getActualType() == BigDecimal.class) {
-		//						return MoneyConverterFactory.createBigDecimalMoneyConverters(pmm.getNumericPresentation());
-		//					}
-		//					break;
-		//			}
-		//			throw new ProgrammerErrorException("The monetary presentation " + pmm.getNumericPresentation() + " is not valid for type=" + pmm.getActualType());
-		//		}
-		//
-		//		//-- Property with a fixed set of values (enum, boolean, lov thingy)
-		//		if(pmm.getDomainValues() != null)
-		//			return new DomainListConverter(pmm);
 
 		//-- Ask the converter registry for a converter for this
 		return findConverter(pmm.getActualType(), pmm);

@@ -9,6 +9,7 @@ import javax.annotation.*;
 import javax.servlet.http.*;
 
 import to.etc.domui.annotations.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -624,7 +625,16 @@ final public class DomUtil {
 			return s;
 
 		//-- No annotation, or the annotation did not deliver data. Try the menu.
-		return null;
+
+		//-- Try metadata
+		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
+		String name = cmm.getUserEntityName();
+		if(name != null)
+			return name;
+
+		//-- Nothing worked.... Return the class name as a last resort.
+		s = clz.getName();
+		return s.substring(s.lastIndexOf('.') + 1);
 	}
 
 	/**
