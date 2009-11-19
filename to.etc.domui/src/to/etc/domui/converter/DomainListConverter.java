@@ -3,6 +3,7 @@ package to.etc.domui.converter;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
@@ -27,13 +28,7 @@ public final class DomainListConverter implements IConverter<Object> {
 	public String convertObjectToString(Locale loc, Object in) throws UIException {
 		if(in == null)
 			return null;
-		String s = m_pmm.getDomainValueLabel(loc, in); // Prefer property label
-		if(s == null) {
-			s = m_pmm.getClassModel().getDomainLabel(loc, in);
-			if(s == null)
-				s = in.toString();
-		}
-		return s;
+		return UIControlUtil.getEnumLabel(m_pmm, in);
 	}
 
 	/**
@@ -47,12 +42,7 @@ public final class DomainListConverter implements IConverter<Object> {
 			return null;
 		Object[] ar = m_pmm.getDomainValues();
 		for(Object o: ar) {
-			String v = m_pmm.getDomainValueLabel(loc, o);
-			if(v == null) {
-				v = m_pmm.getClassModel().getDomainLabel(loc, o);
-				if(v == null)
-					v = o.toString();
-			}
+			String v = UIControlUtil.getEnumLabel(m_pmm, o);
 			if(v.equalsIgnoreCase(in))
 				return o;
 		}

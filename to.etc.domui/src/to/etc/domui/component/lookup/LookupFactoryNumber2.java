@@ -6,6 +6,7 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
@@ -23,54 +24,60 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 28, 2009
  */
-public class LookupFactoryNumber2 implements ILookupControlFactory {
-	/**
-	 * We accept
-	 * @see to.etc.domui.component.lookup.ILookupControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
-	 */
-	public int accepts(SearchPropertyMetaModel spm) {
+final class LookupFactoryNumber2 implements ILookupControlFactory {
+	public <X extends IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
+		if(control != null) {
+			if(!(control instanceof Text< ? >))
+				return -1;
+			Text< ? > t = (Text< ? >) control;
+			if(t.getInputClass() != String.class)
+				return -1;
+		}
+
 		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		return DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class ? 4 : -1;
 	}
 
 	/**
 	 * Create the input control which is a text input.
-	 *
-	 * @see to.etc.domui.component.lookup.ILookupControlFactory#createControl(to.etc.domui.component.meta.SearchPropertyMetaModel, to.etc.domui.component.meta.PropertyMetaModel)
+	 * @see to.etc.domui.component.lookup.ILookupControlFactory#createControl(to.etc.domui.component.meta.SearchPropertyMetaModel, to.etc.domui.dom.html.IInputNode)
 	 */
-	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm) {
+	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
-		final Text<String> numText = new Text<String>(String.class);
+		Text<String> numText = (Text<String>) control;
+		if(numText == null) {
+			numText = new Text<String>(String.class);
 
-		/*
-		 * Calculate a "size=" for entering this number. We cannot assign a "maxlength" because not only the number but
-		 * operators can be added to the string too. By default we size the field some 5 characters wider than the max size
-		 * for the number as defined by scale and precision.
-		 */
-		if(pmm.getDisplayLength() > 0)
-			numText.setSize(pmm.getDisplayLength() + 5);
-		else if(pmm.getPrecision() > 0) {
-			//-- Calculate a size using scale and precision.
-			int size = pmm.getPrecision();
-			int d = size;
-			if(pmm.getScale() > 0) {
-				size++; // Inc size to allow for decimal point or comma
-				d -= pmm.getScale(); // Reduce integer part,
-				if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
-					int nd = (d - 1) / 3; // How many thousand separators could there be?
-					size += nd; // Increment input size with that
+			/*
+			 * Calculate a "size=" for entering this number. We cannot assign a "maxlength" because not only the number but
+			 * operators can be added to the string too. By default we size the field some 5 characters wider than the max size
+			 * for the number as defined by scale and precision.
+			 */
+			if(pmm.getDisplayLength() > 0)
+				numText.setSize(pmm.getDisplayLength() + 5);
+			else if(pmm.getPrecision() > 0) {
+				//-- Calculate a size using scale and precision.
+				int size = pmm.getPrecision();
+				int d = size;
+				if(pmm.getScale() > 0) {
+					size++; // Inc size to allow for decimal point or comma
+					d -= pmm.getScale(); // Reduce integer part,
+					if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
+						int nd = (d - 1) / 3; // How many thousand separators could there be?
+						size += nd; // Increment input size with that
+					}
 				}
+				numText.setSize(size + 5);
+			} else if(pmm.getLength() > 0) {
+				numText.setSize(pmm.getLength() < 40 ? pmm.getLength() + 5 : 40);
 			}
-			numText.setSize(size + 5);
-		} else if(pmm.getLength() > 0) {
-			numText.setSize(pmm.getLength() < 40 ? pmm.getLength() + 5 : 40);
+			String s = pmm.getDefaultHint();
+			if(s != null)
+				numText.setTitle(s);
+			String hint = MetaUtils.findHintText(spm);
+			if(hint != null)
+				numText.setTitle(hint);
 		}
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			numText.setTitle(s);
-		String hint = MetaUtils.findHintText(spm);
-		if(hint != null)
-			numText.setTitle(hint);
 
 		return new NumberInputImpl(spm.getPropertyName(), pmm, numText);
 	}

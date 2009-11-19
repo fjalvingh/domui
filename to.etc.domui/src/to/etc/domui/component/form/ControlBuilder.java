@@ -114,6 +114,9 @@ public class ControlBuilder {
 		return m_lookupControlRegistry.getControlFactory(pmm);
 	}
 
+	public <X extends NodeBase & IInputNode< ? >> ILookupControlFactory getLookupQueryFactory(final SearchPropertyMetaModel pmm, X control) {
+		return m_lookupControlRegistry.getLookupQueryFactory(pmm, control);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Utilities to help you to create controls..			*/

@@ -3,6 +3,7 @@ package to.etc.domui.component.lookup;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.html.*;
 
 /**
  * Default Registry of Lookup control factories.
@@ -36,7 +37,7 @@ public class LookupControlRegistry {
 		ILookupControlFactory best = null;
 		int score = 0;
 		for(ILookupControlFactory cf : getFactoryList()) {
-			int v = cf.accepts(pmm);
+			int v = cf.accepts(pmm, null);
 			if(v > score) {
 				score = v;
 				best = cf;
@@ -50,5 +51,21 @@ public class LookupControlRegistry {
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a Lookup Control factory for " + pmm);
 		return cf;
+	}
+
+
+	public <X extends NodeBase & IInputNode< ? >> ILookupControlFactory getLookupQueryFactory(final SearchPropertyMetaModel pmm, X control) {
+		ILookupControlFactory best = null;
+		int score = 0;
+		for(ILookupControlFactory cf : getFactoryList()) {
+			int v = cf.accepts(pmm, control);
+			if(v > score) {
+				score = v;
+				best = cf;
+			}
+		}
+		if(best == null)
+			throw new IllegalStateException("Cannot get a Lookup Control QueryFragment factory for " + pmm + " and control " + control);
+		return best;
 	}
 }

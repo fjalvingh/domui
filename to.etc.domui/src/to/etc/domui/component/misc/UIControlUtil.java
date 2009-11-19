@@ -62,9 +62,7 @@ final public class UIControlUtil {
 			throw new IllegalArgumentException(pmm + " is not a list-of-values domain property");
 		List<Pair<T>> l = new ArrayList<Pair<T>>();
 		for(T v : var) {
-			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), v);
-			if(label == null)
-				label = v.toString();
+			String label = getEnumLabel(pmm, var);
 			l.add(new Pair<T>(v, label));
 		}
 		return new ComboFixed<T>(l);
@@ -117,12 +115,47 @@ final public class UIControlUtil {
 			throw new IllegalArgumentException("Missing parameters");
 		List<Pair<T>> l = new ArrayList<Pair<T>>();
 		for(T v : domainvalues) {
-			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), v);
-			if(label == null)
-				label = v.toString();
+			String label = getEnumLabel(pmm, v);
 			l.add(new Pair<T>(v, label));
 		}
 		return new ComboFixed<T>(l);
 	}
+
+	static public String getEnumLabel(Enum< ? > label) {
+		if(label == null)
+			return null;
+		ClassMetaModel cmm = MetaManager.findClassMeta(label.getClass());
+		String s = cmm.getDomainLabel(NlsContext.getLocale(), label);
+		if(s == null)
+			s = String.valueOf(label);
+		return s;
+	}
+
+	static public String getEnumLabel(Class< ? > clz, String property, Object value) {
+		if(value == null)
+			return null;
+		return getEnumLabel(MetaManager.findPropertyMeta(clz, property), value);
+	}
+
+	static public String getEnumLabel(PropertyMetaModel pmm, Object value) {
+		if(value == null)
+			return null;
+		Locale loc = NlsContext.getLocale();
+		String v = pmm.getDomainValueLabel(loc, value);
+		if(v == null) {
+			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType());
+			v = cmm.getDomainLabel(loc, value);
+			if(v == null) {
+				if(value.getClass() != cmm.getActualClass()) {
+					cmm = MetaManager.findClassMeta(value.getClass());
+					v = cmm.getDomainLabel(loc, value);
+				}
+				if(v == null)
+					v = String.valueOf(value);
+			}
+		}
+		return v;
+	}
+
 
 }

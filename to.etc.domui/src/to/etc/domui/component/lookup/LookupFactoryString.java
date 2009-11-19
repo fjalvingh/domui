@@ -3,15 +3,23 @@ package to.etc.domui.component.lookup;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
+import to.etc.domui.dom.html.*;
 import to.etc.webapp.query.*;
 
 @SuppressWarnings("unchecked")
 final class LookupFactoryString implements ILookupControlFactory {
-	public int accepts(final SearchPropertyMetaModel pmm) {
+	public <X extends IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
+		if(control != null) {
+			if(!(control instanceof Text< ? >))
+				return -1;
+			Text< ? > t = (Text< ? >) control;
+			if(t.getInputClass() != String.class)
+				return -1;
+		}
 		return 1; // Accept all properties (will fail on incompatible ones @ input time)
 	}
 
-	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm) {
+	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		Class< ? > iclz = pmm.getActualType();
 

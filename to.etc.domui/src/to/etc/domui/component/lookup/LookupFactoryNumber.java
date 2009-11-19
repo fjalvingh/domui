@@ -22,9 +22,11 @@ import to.etc.webapp.query.*;
  * Created on 13 Aug 2009
  */
 final class LookupFactoryNumber implements ILookupControlFactory {
-	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm) {
-		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
+		if(control != null)
+			throw new IllegalStateException();
 
+		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		final List<Pair<NumericRelationType>> values = new ArrayList<Pair<NumericRelationType>>();
 		for(NumericRelationType relationEnum : NumericRelationType.values()) {
 			values.add(new Pair<NumericRelationType>(relationEnum, MetaManager.findClassMeta(NumericRelationType.class).getDomainLabel(NlsContext.getLocale(), relationEnum)));
@@ -33,7 +35,6 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		final Text< ? > numA = createNumericInput(pmm);
 		final Text< ? > numB = createNumericInput(pmm);
 		numB.setDisplay(DisplayType.NONE);
-
 
 		final ComboFixed<NumericRelationType> relationCombo = new ComboFixed<NumericRelationType>(values);
 
@@ -148,7 +149,9 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		return numText;
 	}
 
-	public int accepts(SearchPropertyMetaModel spm) {
+	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
+		if(control != null)
+			return -1;
 		PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		if(DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class) {
 			if(pmm.getComponentTypeHint() != null && pmm.getComponentTypeHint().toLowerCase().contains("numberlookupcombo"))

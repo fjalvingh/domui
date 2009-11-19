@@ -537,6 +537,30 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
+	 * Add a manually created control and link it to some property. The controls's configuration must be fully
+	 * done by the caller; this will ask control factories to provide an ILookupControlInstance for the property
+	 * and control passed in. The label for the lookup will come from property metadata.
+	 *
+	 * @param <X>
+	 * @param property
+	 * @param control
+	 * @return
+	 */
+	public <X extends NodeBase & IInputNode< ? >> Item addManual(String property, X control) {
+		Item it = new Item();
+		it.setPropertyName(property);
+		addAndFinish(it);
+
+		//-- Add the generic thingy
+		ILookupControlFactory lcf = m_builder.getLookupQueryFactory(it, control);
+		ILookupControlInstance qt = lcf.createControl(it, control);
+		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
+			throw new IllegalStateException("Lookup factory " + lcf + " did not link thenlookup thingy for property " + it.getPropertyName());
+		it.setInstance(qt);
+		return it;
+	}
+
+	/**
 	 * Add a manually-created lookup control instance with user-specified label to the item list.
 	 * @return
 	 */
@@ -702,7 +726,7 @@ public class LookupForm<T> extends Div {
 		}
 
 		ILookupControlFactory lcf = m_builder.getLookupControlFactory(it);
-		ILookupControlInstance qt = lcf.createControl(it);
+		ILookupControlInstance qt = lcf.createControl(it, null);
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
 			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + it.getPropertyName());
 		return qt;
