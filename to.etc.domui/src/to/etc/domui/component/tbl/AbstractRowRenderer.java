@@ -334,20 +334,20 @@ public class AbstractRowRenderer {
 		}
 	}
 
-	/**
-	 * (Do not use: use setNodeRenderer() or setConverter instead!)
-	 *
-	 * Provides posibility of converion into rendering value. This method should be used as last resource rendering data conversion.
-	 * @param index
-	 * @param instance
-	 * @param cd
-	 * @param colVal
-	 * @return string representation of colVal to be rendered.
-	 */
-	@Deprecated
-	protected String provideStringValue(final int index, final Object instance, final SimpleColumnDef cd, final Object colVal) {
-		return colVal.toString();
-	}
+	//	/**
+	//	 * (Do not use: use setNodeRenderer() or setConverter instead!)
+	//	 *
+	//	 * Provides posibility of converion into rendering value. This method should be used as last resource rendering data conversion.
+	//	 * @param index
+	//	 * @param instance
+	//	 * @param cd
+	//	 * @param colVal
+	//	 * @return string representation of colVal to be rendered.
+	//	 */
+	//	@Deprecated
+	//	final protected String provideStringValue(final int index, final Object instance, final SimpleColumnDef cd, final Object colVal) {
+	//		return colVal.toString();
+	//	}
 
 	/**
 	 * Render a single column fully.
@@ -381,7 +381,7 @@ public class AbstractRowRenderer {
 				if(cd.getPresentationConverter() != null)
 					s = ((IConverter<X>) cd.getPresentationConverter()).convertObjectToString(NlsContext.getLocale(), colval);
 				else
-					s = provideStringValue(index, instance, cd, colval);
+					s = String.valueOf(colval);
 			}
 
 			if(s == null)

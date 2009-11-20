@@ -51,11 +51,13 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> implements IHa
 		super.createContent();
 		m_combo = new Select() {
 			@Override
-			public void acceptRequestParameter(String[] values) throws Exception {
+			public boolean acceptRequestParameter(String[] values) throws Exception {
+				V oldvalue = getRawValue();
+
 				String in = values[0]; // Must be the ID of the selected Option thingy.
 				SelectOption selo = (SelectOption) getPage().findNodeByID(in);
 				if(selo == null) {
-					internalUpdateValue(null);
+					setRawValue(null);
 				} else {
 					int index = findChildIndex(selo); // Must be found
 					if(index == -1)
@@ -64,18 +66,25 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> implements IHa
 					if(!ComboComponentBase.this.isMandatory()) {
 						//-- If the index is 0 we have the "unselected" thingy; if not we need to decrement by 1 to skip that entry.
 						if(index == 0)
-							internalUpdateValue(null);
+							setRawValue(null);
 						index--; // IMPORTANT Index becomes -ve if value lookup may not be done!
 					}
 
 					if(index >= 0) {
 						List<T> data = getData();
 						if(index >= data.size()) {
-							internalUpdateValue(null);
+							setRawValue(null);
 						} else
-							internalUpdateValue(listToValue(data.get(index)));
+							setRawValue(listToValue(data.get(index)));
 					}
 				}
+
+				//-- Determine if anything actually changed
+				ClassMetaModel cmm = (oldvalue != null ? MetaManager.findClassMeta(oldvalue.getClass()) : null);
+				if(MetaManager.areObjectsEqual(oldvalue, getRawValue(), cmm))
+					return false;
+				DomUtil.setModifiedFlag(ComboComponentBase.this);
+				return true;
 			}
 		};
 		add(m_combo);
@@ -102,13 +111,6 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> implements IHa
 				cmm = MetaManager.findClassMeta(res.getClass());
 			boolean eq = MetaManager.areObjectsEqual(res, getRawValue(), cmm);
 			o.setSelected(eq);
-		}
-	}
-
-	protected void internalUpdateValue(V value) {
-		if(!MetaManager.areObjectsEqual(value, getRawValue(), null)) {
-			setRawValue(value);
-			m_modifiedByUser = true;
 		}
 	}
 

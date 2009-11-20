@@ -86,7 +86,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * @see to.etc.domui.dom.html.Input#acceptRequestParameter(java.lang.String[])
 	 */
 	@Override
-	public void acceptRequestParameter(String[] values) {
+	public boolean acceptRequestParameter(String[] values) {
 		String value = getRawValue(); // Retain previous value,
 		super.acceptRequestParameter(values); // Set the new one;
 
@@ -94,9 +94,10 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		if(value != null)
 			value = value.trim();
 		if(DomUtil.isEqual(value, getRawValue()))
-			return;
+			return false;
 		m_validated = false;
 		DomUtil.setModifiedFlag(this);
+		return true;
 	}
 
 	/**

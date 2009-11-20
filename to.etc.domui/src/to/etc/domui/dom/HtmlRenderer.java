@@ -502,8 +502,8 @@ public class HtmlRenderer implements INodeVisitor {
 		if(b.getOnMouseDownJS() != null) {
 			o.attr("onmousedown", b.getOnMouseDownJS());
 		}
-		if(b instanceof IInputBase) {
-			IInputBase inb = (IInputBase) b;
+		if(b instanceof IHasChangeListener) {
+			IHasChangeListener inb = (IHasChangeListener) b;
 			if(null != inb.getOnValueChanged()) {
 				o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
 			}

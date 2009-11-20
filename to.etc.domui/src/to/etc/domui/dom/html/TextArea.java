@@ -94,16 +94,19 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 	}
 
 	@Override
-	public void acceptRequestParameter(String[] values) throws Exception {
+	public boolean acceptRequestParameter(String[] values) throws Exception {
 		String nw = (values == null || values.length != 1) ? null : values[0];
 		//fixes problem when no data is entered on form and modified flag is raised
 		if(nw != null && nw.length() == 0)
 			nw = null;
+		String cur = m_value != null && m_value.length() == 0 ? null : m_value; // Treat empty string and null the same
 
-		if(!DomUtil.isEqual(nw, m_value)) {
-			setValue(nw);
-			DomUtil.setModifiedFlag(this);
-		}
+		if(DomUtil.isEqual(nw, cur))
+			return false;
+
+		setValue(nw);
+		DomUtil.setModifiedFlag(this);
+		return true;
 	}
 
 	/*--------------------------------------------------------------*/

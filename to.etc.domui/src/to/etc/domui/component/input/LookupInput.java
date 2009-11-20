@@ -316,14 +316,14 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputBase#getOnValueChanged()
+	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
 	public IValueChanged< ? , ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputBase#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
+	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
 	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;

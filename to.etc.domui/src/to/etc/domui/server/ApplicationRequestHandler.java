@@ -1,5 +1,6 @@
 package to.etc.domui.server;
 
+import java.util.*;
 import java.util.logging.*;
 
 import to.etc.domui.annotations.*;
@@ -95,7 +96,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		String[] cida = DomUtil.decodeCID(cid);
 
 		//-- If this is an OBITUARY just mark the window as possibly gone, then exit;
-		if(Constants.OBITUARY.equals(action)) {
+		if(Constants.ACMD_OBITUARY.equals(action)) {
 			/*
 			 * Warning: do NOT access the WindowSession by findWindowSession: that updates the window touched
 			 * timestamp and causes obituary timeout handling to fail.
@@ -130,7 +131,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(action != null) {
 				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_EXPIRED));
 				return;
-				//				throw new IllegalStateException("AJAX request '"+action+"' has no WindowID/CID");
 			}
 
 			//-- We explicitly need to create a new Window and need to send a redirect back
@@ -195,9 +195,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		PageContext.internalSet(page);
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
-		if(!Constants.ASYPOLL.equals(action)) {
+		List<NodeBase> pendingChangeList = null;
+		if(!Constants.ACMD_ASYPOLL.equals(action)) {
 			long ts = System.nanoTime();
-			handleComponentInput(ctx, page); // Move all request parameters to their input field(s)
+			pendingChangeList = handleComponentInput(ctx, page); // Move all request parameters to their input field(s)
 			if(LOG.isLoggable(Level.FINE)) {
 				ts = System.nanoTime() - ts;
 				LOG.fine("rq: input handling took " + StringTool.strNanoTime(ts));
@@ -205,24 +206,24 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		if(action != null) {
-			runAction(ctx, page, action);
+			runAction(ctx, page, action, pendingChangeList);
 			return;
-		} else {
-			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
+		}
 
-			if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
-				page.getBody().forceRebuild(); // Cleanout state
-				QContextManager.closeSharedContext(page.getConversation());
-			}
-			page.getBody().onReload();
+		ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
 
-			//-- EXPERIMENTAL Handle stored message in session
-			String message = (String) cm.getAttribute(UIGoto.SINGLESHOT_ERROR);
-			if(message != null) {
-				page.getBody().build();
-				page.getBody().addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, message));
-				cm.setAttribute(UIGoto.SINGLESHOT_ERROR, null);
-			}
+		if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
+			page.getBody().forceRebuild(); // Cleanout state
+			QContextManager.closeSharedContext(page.getConversation());
+		}
+		page.getBody().onReload();
+
+		//-- EXPERIMENTAL Handle stored message in session
+		String message = (String) cm.getAttribute(UIGoto.SINGLESHOT_ERROR);
+		if(message != null) {
+			page.getBody().build();
+			page.getBody().addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, message));
+			cm.setAttribute(UIGoto.SINGLESHOT_ERROR, null);
 		}
 		page.getConversation().processDelayedResults(page);
 
@@ -382,13 +383,17 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Walk the request parameter list and bind all values that came from an input thingy
 	 * to the appropriate Node. Nodes whose value change will leave a trail in the pending
 	 * change list which will later be used to fire change events, if needed.
+	 * <p>This collects a list of nodes whose input values have changed <b>and</b> that have
+	 * an onValueChanged listener. This list will later be used to call the change handles
+	 * on all these nodes (bug# 664).
 	 *
 	 * @param ctx
 	 * @param page
 	 * @throws Exception
 	 */
-	private void handleComponentInput(final IRequestContext ctx, final Page page) throws Exception {
+	private List<NodeBase> handleComponentInput(final IRequestContext ctx, final Page page) throws Exception {
 		//-- Just walk all parameters in the input request.
+		List<NodeBase> changed = new ArrayList<NodeBase>();
 		for(String name : ctx.getParameterNames()) {
 			String[] values = ctx.getParameters(name); // Get the value;
 			//			System.out.println("input: "+name+", value="+values[0]);
@@ -398,14 +403,23 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				NodeBase nb = page.findNodeByID(name); // Can we find this literally?
 				if(nb != null) {
 					//-- Try to bind this value to the component.
-					nb.acceptRequestParameter(values); // Make the thingy accept the parameter(s)
+					if(nb.acceptRequestParameter(values)) { // Make the thingy accept the parameter(s)
+						//-- This thing has changed.
+						if(nb instanceof IInputNode< ? >) { // Can have a value changed thingy?
+							IInputNode< ? > ch = (IInputNode< ? >) nb;
+							if(ch.getOnValueChanged() != null) {
+								changed.add(nb);
+							}
+						}
+					}
 				}
 			}
 		}
+		return changed;
 	}
 
 
-	private void runAction(final RequestContextImpl ctx, final Page page, final String action) throws Exception {
+	private void runAction(final RequestContextImpl ctx, final Page page, final String action, List<NodeBase> pendingChangeList) throws Exception {
 		//		System.out.println("# action="+action);
 		long ts = System.nanoTime();
 
@@ -413,21 +427,45 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		String wid = ctx.getRequest().getParameter("webuic");
 		if(wid != null) {
 			wcomp = page.findNodeByID(wid);
-			if(wcomp == null) {
-				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_BADNODE, wid));
-				//				throw new IllegalStateException("Unknown node '"+wid+"'");
-			}
+			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?
+			//			if(wcomp == null) {
+			//				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_BADNODE, wid));
+			//				//				throw new IllegalStateException("Unknown node '"+wid+"'");
+			//			}
 		}
 
 		boolean inhibitlog = false;
 		try {
-			if("clicked".equals(action)) {
+			/*
+			 * If we have pending changes execute them before executing any actual command. Also: be
+			 * very sure the changed component is part of that list!! Fix for bug# 664.
+			 */
+			//-- If we are a vchange command *and* the node that changed still exists make sure it is part of the changed list.
+			if(Constants.ACMD_VALUE_CHANGED.equals(action) && wcomp != null && wcomp instanceof IHasChangeListener) {
+				if(!pendingChangeList.contains(wcomp))
+					pendingChangeList.add(wcomp);
+			}
+
+			//-- Call all "changed" handlers.
+			for(NodeBase n : pendingChangeList) {
+				if(n instanceof IHasChangeListener) {
+					IHasChangeListener chb = (IHasChangeListener) n;
+					IValueChanged<NodeBase, Object> vc = (IValueChanged<NodeBase, Object>) chb.getOnValueChanged();
+					if(vc != null) { // Well, other listeners *could* have changed this one, you know
+						Object value = null;
+						try {
+							value = ((IInputNode< ? >) chb).getValue();
+						} catch(Exception x) {}
+						vc.onValueChanged(n, value);
+					}
+				}
+			}
+
+			if(Constants.ACMD_CLICKED.equals(action)) {
 				handleClicked(ctx, page, wcomp);
-			} else if("vchange".equals(action)) {
-				if(wcomp == null)
-					throw new IllegalStateException("onValueChanged AJAX command node (" + wid + ") not found in server DOM");
-				handleValueChanged(ctx, page, wcomp);
-			} else if(Constants.ASYPOLL.equals(action)) {
+			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
+				//-- Don't do anything at all - everything is done beforehand (bug #664).
+			} else if(Constants.ACMD_ASYPOLL.equals(action)) {
 				inhibitlog = true;
 				//-- Async poll request..
 				//			} else if("WEBUIDROP".equals(action)) {
@@ -501,22 +539,5 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(b == null)
 			throw new IllegalStateException("Clicked must have a node!!");
 		b.internalOnClicked();
-	}
-
-	private void handleValueChanged(final IRequestContext ctx, final Page page, final NodeBase b) throws Exception {
-		if(b == null)
-			throw new IllegalStateException("onValueChanged must have a node!!");
-		if(!(b instanceof IInputNode< ? >))
-			throw new IllegalStateException("Internal: node " + b + " must be an IInputValue node");
-		IInputNode< ? > in = (IInputNode< ? >) b;
-
-		IValueChanged<NodeBase, Object> c = (IValueChanged<NodeBase, Object>) in.getOnValueChanged();
-		if(c == null)
-			throw new IllegalStateException("? Node " + b.getActualID() + " does not have a ValueChanged handler??");
-		Object value = null;
-		try {
-			value = in.getValue();
-		} catch(Exception x) {}
-		c.onValueChanged(b, value);
 	}
 }

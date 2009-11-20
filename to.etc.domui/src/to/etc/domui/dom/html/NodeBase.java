@@ -468,7 +468,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return n.substring(pos + 1) + ":" + m_actualID + (m_title == null ? "" : "/" + m_title);
 	}
 
-	public void acceptRequestParameter(final String[] values) throws Exception {
+	public boolean acceptRequestParameter(final String[] values) throws Exception {
 		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
 	}
 
@@ -736,9 +736,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		fence.removeMessage(this, msg);
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IInputBase#getMessage()
-	 */
 	public UIMessage getMessage() {
 		if(m_errorDelegate != null)
 			return m_errorDelegate.getMessage();

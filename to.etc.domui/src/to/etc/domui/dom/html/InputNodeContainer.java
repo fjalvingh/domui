@@ -1,6 +1,6 @@
 package to.etc.domui.dom.html;
 
-abstract public class InputNodeContainer extends NodeContainer implements IInputBase {
+abstract public class InputNodeContainer extends NodeContainer implements IHasChangeListener {
 	private IValueChanged< ? , ? > m_onValueChanged;
 
 	private boolean m_readOnly;
@@ -15,14 +15,14 @@ abstract public class InputNodeContainer extends NodeContainer implements IInput
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputBase#getOnValueChanged()
+	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
 	public IValueChanged< ? , ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputBase#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
+	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
 	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;

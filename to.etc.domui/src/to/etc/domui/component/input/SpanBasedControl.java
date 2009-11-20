@@ -86,14 +86,14 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputBase#getOnValueChanged()
+	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
 	public IValueChanged< ? , ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputBase#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
+	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
 	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;

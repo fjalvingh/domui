@@ -1,5 +1,7 @@
 package to.etc.domui.dom.html;
 
+import to.etc.domui.util.*;
+
 /**
  * INCOMPLETE A full-coded select box: this is unsuitable for large amount of options.
  *
@@ -8,7 +10,7 @@ package to.etc.domui.dom.html;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 11, 2008
  */
-public class Select extends InputNodeContainer {
+public class Select extends InputNodeContainer implements IHasModifiedIndication {
 	private boolean m_multiple;
 
 	private boolean m_disabled;
@@ -16,6 +18,9 @@ public class Select extends InputNodeContainer {
 	private int m_size;
 
 	private int m_selectedIndex;
+
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	private boolean m_modifiedByUser;
 
 	public Select() {
 		super("select");
@@ -86,17 +91,16 @@ public class Select extends InputNodeContainer {
 	}
 
 	@Override
-	public void acceptRequestParameter(String[] values) throws Exception {
+	public boolean acceptRequestParameter(String[] values) throws Exception {
 		String in = values[0];
 		SelectOption selo = (SelectOption) getPage().findNodeByID(in);
-		if(selo == null) {
-			m_selectedIndex = -1;
-		} else {
-			m_selectedIndex = findChildIndex(selo); // Must be found
-		}
-		for(int i = getChildCount(); --i >= 0;) {
-			getOption(i).setSelected(i == m_selectedIndex);
-		}
+		int nindex = selo == null ? -1 : findChildIndex(selo);
+		int oldindex = m_selectedIndex;
+		setSelectedIndex(nindex);
+		if(oldindex == nindex)
+			return false;
+		DomUtil.setModifiedFlag(this);
+		return true;
 	}
 
 	public void clearSelected() {
@@ -116,4 +120,24 @@ public class Select extends InputNodeContainer {
 			getOption(i).setSelected(i == m_selectedIndex);
 		}
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
+	}
+
 }

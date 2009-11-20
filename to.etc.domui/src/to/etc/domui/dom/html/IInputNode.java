@@ -1,8 +1,9 @@
 package to.etc.domui.dom.html;
 
 import to.etc.domui.component.input.*;
+import to.etc.domui.dom.errors.*;
 
-public interface IInputNode<T> extends IInputBase, IBindable {
+public interface IInputNode<T> extends IHasChangeListener, IBindable, INodeErrorDelegate {
 	public T getValue();
 
 	public void setValue(T v);

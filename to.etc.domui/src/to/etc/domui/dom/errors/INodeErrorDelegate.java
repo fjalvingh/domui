@@ -24,8 +24,5 @@ public interface INodeErrorDelegate {
 	 */
 	public void clearMessage();
 
-	/**
-	 * @see to.etc.domui.dom.html.IInputBase#getMessage()
-	 */
 	public UIMessage getMessage();
 }

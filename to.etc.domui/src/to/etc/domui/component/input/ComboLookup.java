@@ -49,9 +49,6 @@ public class ComboLookup<T> extends Select implements IInputNode<T>, IHasModifie
 
 	private String m_emptyText;
 
-	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
-	private boolean m_modifiedByUser;
-
 	//	private Class<IKeyTranslator<T>>	m_keyTranslatorClass;
 
 	public ComboLookup(Class< ? extends IComboDataSet<T>> set, INodeContentRenderer<T> renderer) {
@@ -152,10 +149,10 @@ public class ComboLookup<T> extends Select implements IInputNode<T>, IHasModifie
 	//	}
 
 	@Override
-	public void acceptRequestParameter(String[] values) throws Exception {
+	public boolean acceptRequestParameter(String[] values) throws Exception {
 		String in = values[0]; // Must be the ID of the selected Option thingy.
 		SelectOption selo = (SelectOption) getPage().findNodeByID(in);
-		//		T	oldvalue = m_currentValue;
+		T oldvalue = m_currentValue;
 		if(selo == null) {
 			updateCurrent(null); // Nuttin' selected @ all.
 		} else {
@@ -177,33 +174,18 @@ public class ComboLookup<T> extends Select implements IInputNode<T>, IHasModifie
 					updateCurrent(data.get(index)); // Retrieve actual value.
 			}
 		}
+
+		//-- Determine if things have changed...
+		ClassMetaModel cmm = (m_currentValue != null ? MetaManager.findClassMeta(m_currentValue.getClass()) : null);
+		if(MetaManager.areObjectsEqual(oldvalue, m_currentValue, cmm))
+			return false; // Unchanged
+
+		DomUtil.setModifiedFlag(this);
+		return true;
 	}
 
 	private void updateCurrent(T newval) {
-		ClassMetaModel cmm = (newval != null ? MetaManager.findClassMeta(newval.getClass()) : null);
-		if(!MetaManager.areObjectsEqual(newval, m_currentValue, cmm)) {
-			m_currentValue = newval;
-			DomUtil.setModifiedFlag(this);
-		}
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IHasModifiedIndication impl							*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Returns the modified-by-user flag.
-	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
-	 */
-	public boolean isModified() {
-		return m_modifiedByUser;
-	}
-
-	/**
-	 * Set or clear the modified by user flag.
-	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
-	 */
-	public void setModified(boolean as) {
-		m_modifiedByUser = as;
+		m_currentValue = newval;
 	}
 
 	/*--------------------------------------------------------------*/

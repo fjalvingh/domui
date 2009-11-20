@@ -67,15 +67,18 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	}
 
 	@Override
-	public void acceptRequestParameter(String[] values) {
+	public boolean acceptRequestParameter(String[] values) {
 		if(values == null || values.length != 1)
 			throw new IllegalStateException("Checkbox: expecting a single input value, not " + Arrays.toString(values));
 		String s = values[0].trim();
 
 		boolean on = "y".equalsIgnoreCase(s);
-		if(m_checked != on)
-			DomUtil.setModifiedFlag(this);
+		if(m_checked == on)
+			return false; // Unchanged
+
+		DomUtil.setModifiedFlag(this);
 		m_checked = on;
+		return true; // Value changed
 	}
 
 	public Boolean getValue() {
@@ -96,14 +99,14 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputBase#getOnValueChanged()
+	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
 	public IValueChanged< ? , ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputBase#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
+	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
 	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
