@@ -9,7 +9,7 @@ import to.etc.domui.dom.errors.*;
  * Created on Jun 12, 2008
  */
 abstract public class InputNodeBase extends NodeBase implements IHasChangeListener, INodeErrorDelegate {
-	private IValueChanged< ? , ? > m_onValueChanged;
+	private IValueChanged< ? > m_onValueChanged;
 
 	@Override
 	abstract public void visit(INodeVisitor v) throws Exception;
@@ -21,14 +21,14 @@ abstract public class InputNodeBase extends NodeBase implements IHasChangeListen
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
-	public IValueChanged< ? , ? > getOnValueChanged() {
+	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
-	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 }

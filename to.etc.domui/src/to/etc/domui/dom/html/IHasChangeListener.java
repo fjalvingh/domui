@@ -8,7 +8,7 @@ package to.etc.domui.dom.html;
  * Created on 4 Sep 2009
  */
 public interface IHasChangeListener {
-	IValueChanged< ? , ? > getOnValueChanged();
+	IValueChanged< ? > getOnValueChanged();
 
-	void setOnValueChanged(IValueChanged< ? , ? > onValueChanged);
+	void setOnValueChanged(IValueChanged< ? > onValueChanged);
 }

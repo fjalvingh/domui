@@ -55,7 +55,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	/*--------------------------------------------------------------*/
 	private T m_value;
 
-	private IValueChanged< ? , ? > m_onValueChanged;
+	private IValueChanged< ? > m_onValueChanged;
 
 	protected T getRawValue() {
 		return m_value;
@@ -88,14 +88,14 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
-	public IValueChanged< ? , ? > getOnValueChanged() {
+	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
-	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

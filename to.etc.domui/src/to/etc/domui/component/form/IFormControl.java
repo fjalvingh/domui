@@ -32,7 +32,7 @@ public interface IFormControl extends INodeErrorDelegate {
 	 * Set a listener to be called when this control's value changes.
 	 * @param listener
 	 */
-	void setOnValueChanged(IValueChanged<NodeBase, Object> listener);
+	void setOnValueChanged(IValueChanged<NodeBase> listener);
 
 	/**
 	 * Set testID of the bound control.

@@ -19,7 +19,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	private boolean m_modifiedByUser;
 
-	private IValueChanged< ? , ? > m_onValueChanged;
+	private IValueChanged< ? > m_onValueChanged;
 
 	public Checkbox() {
 		super("input");
@@ -101,14 +101,14 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
-	public IValueChanged< ? , ? > getOnValueChanged() {
+	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
-	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

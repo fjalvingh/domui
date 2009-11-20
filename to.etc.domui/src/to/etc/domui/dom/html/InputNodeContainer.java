@@ -1,7 +1,7 @@
 package to.etc.domui.dom.html;
 
 abstract public class InputNodeContainer extends NodeContainer implements IHasChangeListener {
-	private IValueChanged< ? , ? > m_onValueChanged;
+	private IValueChanged< ? > m_onValueChanged;
 
 	private boolean m_readOnly;
 
@@ -17,21 +17,21 @@ abstract public class InputNodeContainer extends NodeContainer implements IHasCh
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
-	public IValueChanged< ? , ? > getOnValueChanged() {
+	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
-	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 
-	protected void callOnValueChanged(Object value) throws Exception {
+	protected void callOnValueChanged() throws Exception {
 		if(m_onValueChanged != null) {
-			IValueChanged<InputNodeContainer, Object> vc = (IValueChanged<InputNodeContainer, Object>) m_onValueChanged;
-			vc.onValueChanged(this, value);
+			IValueChanged<InputNodeContainer> vc = (IValueChanged<InputNodeContainer>) m_onValueChanged;
+			vc.onValueChanged(this);
 		}
 	}
 

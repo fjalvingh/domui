@@ -53,7 +53,7 @@ public class DateInput extends Text<Date> {
 						DomUtil.setModifiedFlag(DateInput.this);
 						DateInput.this.setValue(currentDate);
 						if(getOnValueChanged() != null) {
-							((IValueChanged<NodeBase, Object>) getOnValueChanged()).onValueChanged(DateInput.this, currentDate);
+							((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(DateInput.this);
 						}
 					}
 				});

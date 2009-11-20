@@ -81,7 +81,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				setValue(null);
 				//-- Handle onValueChanged
 				if(getOnValueChanged() != null) {
-					((IValueChanged<NodeBase, Object>) getOnValueChanged()).onValueChanged(LookupInput.this, null);
+					((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(LookupInput.this);
 				}
 
 			}
@@ -232,7 +232,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 					//-- Handle onValueChanged
 					if(getOnValueChanged() != null) {
-						((IValueChanged<NodeBase, Object>) getOnValueChanged()).onValueChanged(LookupInput.this, val);
+						((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(LookupInput.this);
 					}
 				}
 			});
@@ -285,7 +285,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IInputNode implementation.							*/
 	/*--------------------------------------------------------------*/
-	private IValueChanged< ? , ? > m_onValueChanged;
+	private IValueChanged< ? > m_onValueChanged;
 
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
@@ -318,14 +318,14 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
-	public IValueChanged< ? , ? > getOnValueChanged() {
+	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
-	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

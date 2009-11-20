@@ -49,7 +49,7 @@ public class SimpleComponentPropertyBinding implements IModelBinding, IFormContr
 		return m_control.getValue();
 	}
 
-	public void setOnValueChanged(IValueChanged<NodeBase, Object> listener) {
+	public void setOnValueChanged(IValueChanged<NodeBase> listener) {
 		m_control.setOnValueChanged(listener);
 	}
 

@@ -450,13 +450,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			for(NodeBase n : pendingChangeList) {
 				if(n instanceof IHasChangeListener) {
 					IHasChangeListener chb = (IHasChangeListener) n;
-					IValueChanged<NodeBase, Object> vc = (IValueChanged<NodeBase, Object>) chb.getOnValueChanged();
+					IValueChanged<NodeBase> vc = (IValueChanged<NodeBase>) chb.getOnValueChanged();
 					if(vc != null) { // Well, other listeners *could* have changed this one, you know
-						Object value = null;
-						try {
-							value = ((IInputNode< ? >) chb).getValue();
-						} catch(Exception x) {}
-						vc.onValueChanged(n, value);
+						vc.onValueChanged(n);
 					}
 				}
 			}

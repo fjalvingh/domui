@@ -38,9 +38,9 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 
 		final ComboFixed<NumericRelationType> relationCombo = new ComboFixed<NumericRelationType>(values);
 
-		relationCombo.setOnValueChanged(new IValueChanged<ComboFixed<NumericRelationType>, NumericRelationType>() {
-			public void onValueChanged(ComboFixed<NumericRelationType> component, NumericRelationType value) throws Exception {
-				if(value == NumericRelationType.BETWEEN) {
+		relationCombo.setOnValueChanged(new IValueChanged<ComboFixed<NumericRelationType>>() {
+			public void onValueChanged(ComboFixed<NumericRelationType> component) throws Exception {
+				if(component.getValue() == NumericRelationType.BETWEEN) {
 					if(numB.getDisplay() == DisplayType.NONE) {
 						numB.setDisplay(DisplayType.INLINE);
 					}
