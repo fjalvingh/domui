@@ -1,5 +1,6 @@
 package to.etc.domui.dom.html;
 
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.util.*;
 
 /**
@@ -8,7 +9,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class Input extends InputNodeBase {
+public class Input extends NodeBase implements IHasChangeListener, INodeErrorDelegate {
 	private boolean m_disabled;
 
 	private int m_maxLength;
@@ -20,6 +21,8 @@ public class Input extends InputNodeBase {
 	private String m_rawValue;
 
 	private String m_onKeyPressJS;
+
+	private IValueChanged< ? > m_onValueChanged;
 
 	public Input() {
 		super("input");
@@ -111,5 +114,21 @@ public class Input extends InputNodeBase {
 		if((prev == null || prev.length() == 0) && (m_rawValue == null || m_rawValue.length() == 0))
 			return false; // Both are "empty" meaning null/""
 		return !DomUtil.isEqual(prev, m_rawValue); // Changed if not equal
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
+	 */
+	@Override
+	public IValueChanged< ? > getOnValueChanged() {
+		return m_onValueChanged;
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
+	 */
+	@Override
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		m_onValueChanged = onValueChanged;
 	}
 }
