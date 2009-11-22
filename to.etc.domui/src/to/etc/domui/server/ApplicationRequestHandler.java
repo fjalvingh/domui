@@ -195,7 +195,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		PageContext.internalSet(page);
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
-		List<NodeBase> pendingChangeList = null;
+		List<NodeBase> pendingChangeList = Collections.EMPTY_LIST;
 		if(!Constants.ACMD_ASYPOLL.equals(action)) {
 			long ts = System.nanoTime();
 			pendingChangeList = handleComponentInput(ctx, page); // Move all request parameters to their input field(s)
@@ -210,12 +210,16 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			return;
 		}
 
+		/*
+		 * We are doing a full refresh/rebuild of a page.
+		 */
 		ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
 
 		if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
 			page.getBody().forceRebuild(); // Cleanout state
 			QContextManager.closeSharedContext(page.getConversation());
 		}
+
 		page.getBody().onReload();
 
 		//-- EXPERIMENTAL Handle stored message in session
@@ -225,7 +229,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			page.getBody().addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, message));
 			cm.setAttribute(UIGoto.SINGLESHOT_ERROR, null);
 		}
+
+		// ORDERED
 		page.getConversation().processDelayedResults(page);
+
+		//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
+		callNewPageListeners(page);
+		// END ORDERED
 
 		//-- Start the main rendering process. Determine the browser type.
 		long ts = System.nanoTime();
@@ -497,6 +507,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(cm.handleGoto(ctx, page))
 			return;
 
+		//-- Call the 'new page added' listeners for this page, if it is now unbuilt due to some action calling forceRebuild() on it. Fixes bug# 605
+		callNewPageListeners(page);
+
 		//-- We stay on the same page. Render tree delta as response
 		renderOptimalDelta(ctx, page, inhibitlog);
 	}
@@ -520,6 +533,21 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			LOG.info("rq: Optimal Delta rendering took " + StringTool.strNanoTime(ts));
 		}
 		page.getConversation().startDelayedExecution();
+	}
+
+	/**
+	 * Call all "new page" listeners when a page is unbuilt or new at this time.
+	 *
+	 * @param pg
+	 * @throws Exception
+	 */
+	private void callNewPageListeners(final Page pg) throws Exception {
+		if(pg.getBody().isBuilt())
+			return;
+		//		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
+		pg.build();
+		for(INewPageInstantiated npi : m_application.getNewPageInstantiatedListeners())
+			npi.newPageInstantiated(pg.getBody());
 	}
 
 	/**
