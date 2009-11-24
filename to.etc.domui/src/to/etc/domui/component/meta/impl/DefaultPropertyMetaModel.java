@@ -179,6 +179,21 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			} catch(Exception x) {
 				Trouble.wrapException(x);
 			}
+		} else if("javax.persistence.Temporal".equals(name)) {
+			try {
+				Object val = DomUtil.getClassValue(an, "value");
+				if(val != null) {
+					String s = val.toString();
+					if("DATE".equals(s))
+						setTemporal(TemporalPresentationType.DATE);
+					else if("TIME".equals(s))
+						setTemporal(TemporalPresentationType.TIME);
+					else if("TIMESTAMP".equals(s))
+						setTemporal(TemporalPresentationType.DATETIME);
+				}
+			} catch(Exception x) {
+				Trouble.wrapException(x);
+			}
 		}
 	}
 
