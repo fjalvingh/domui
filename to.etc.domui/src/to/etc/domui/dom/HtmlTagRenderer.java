@@ -78,7 +78,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	//		m_updating = updating;
 	//	}
 
-	private boolean isFullRender() {
+	protected boolean isFullRender() {
 		return m_mode == HtmlRenderMode.FULL;
 	}
 
@@ -141,21 +141,55 @@ public class HtmlTagRenderer implements INodeVisitor {
 		n.getPage().appendJS(sb);
 	}
 
-	private void renderDisabled(NodeBase n, boolean disabled) throws IOException {
-		if(!isFullRender())
-			addDelayedAttrs(n, "disabled", disabled ? "true" : "false");
-		else if(disabled)
-			o().attr("disabled", "disabled");
+	/**
+	 * Render the "disabled" attribute. Override for shitware.
+	 * @param n
+	 * @param disabled
+	 * @throws IOException
+	 */
+	protected void renderDisabled(NodeBase n, boolean disabled) throws IOException {
+		if(isFullRender() && ! disabled)
+			return;
+		o().attr("disabled", disabled ? "disabled" : "");
 	}
 
-	private void renderReadOnly(NodeBase n, boolean readonly) throws IOException {
-		if(!isFullRender())
-			addDelayedAttrs(n, "readonly", readonly ? "true" : "false");
-		else if(readonly)
-			o().attr("readonly", "readonly");
+	/**
+	 * Render the "checked" attribute. Override for shitware.
+	 * @param n
+	 * @param checked
+	 * @throws IOException
+	 */
+	protected void renderChecked(NodeBase n, boolean checked) throws IOException {
+		if(isFullRender() && !checked)
+			return;
+		o().attr("checked", checked ? "checked" : "");
 	}
 
-	private void renderDiRo(NodeBase n, boolean disabled, boolean readonly) throws IOException {
+	/**
+	 * Render the 'selected' attribute. Override for shitware.
+	 * @param n
+	 * @param checked
+	 * @throws IOException
+	 */
+	protected void renderSelected(NodeBase n, boolean checked) throws IOException {
+		if(isFullRender() && !checked)
+			return;
+		o().attr("selected", checked ? "selected" : "");
+	}
+
+	/**
+	 * Render the 'readonly' attribute. Override for shitware.
+	 * @param n
+	 * @param readonly
+	 * @throws IOException
+	 */
+	protected void renderReadOnly(NodeBase n, boolean readonly) throws IOException {
+		if(isFullRender() && ! readonly)
+			return;
+		o().attr("readonly", readonly ? "readonly" : "");
+	}
+
+	protected void renderDiRo(NodeBase n, boolean disabled, boolean readonly) throws IOException {
 		renderDisabled(n, disabled);
 		renderReadOnly(n, readonly);
 	}
@@ -701,11 +735,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		//			o().attr("type", "checkbox");					// FIXME Cannot change the "type" of an existing INPUT node.
 		o().attr("name", n.getActualID());
 		renderDisabled(n, n.isDisabled()); // 20091110 jal Checkboxes do not have a readonly attribute.
-
-		if(!isFullRender()) {
-			addDelayedAttrs(n, "checked", n.isChecked() ? "true" : "false");
-		} else if(n.isChecked())
-			o().attr("checked", "checked");
+		renderChecked(n, n.isChecked());
 		renderTagend(n, m_o);
 	}
 
@@ -724,11 +754,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("name", n.getName());
 
 		renderDiRo(n, n.isDisabled(), n.isReadOnly());
-
-		if(!isFullRender())
-			addDelayedAttrs(n, "checked", n.isChecked() ? "true" : "false");
-		else if(n.isChecked())
-			o().attr("checked", "checked");
+		renderChecked(n, n.isChecked());
 		renderTagend(n, m_o);
 	}
 
@@ -783,11 +809,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void visitOption(final SelectOption n) throws Exception {
 		basicNodeRender(n, o());
 		renderDisabled(n, n.isDisabled());
-
-		if(!isFullRender())
-			addDelayedAttrs(n, "selected", n.isSelected() ? "true" : "false");
-		else if(n.isSelected())
-			o().attr("selected", "selected");
+		renderSelected(n, n.isSelected());
 		o().attr("value", n.getActualID());
 		renderTagend(n, o());
 	}
@@ -797,6 +819,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 		renderTagend(n, o());
 	}
 
+	/**
+	 * FIXME This now contains IE code where browser-standard code would just generate a proper TextArea with a content block. It needs to move to the crapware renderers.
+	 *
+	 * @see to.etc.domui.dom.html.INodeVisitor#visitTextArea(to.etc.domui.dom.html.TextArea)
+	 */
 	public void visitTextArea(final TextArea n) throws Exception {
 		basicNodeRender(n, o());
 		if(n.getCols() > 0)
@@ -811,7 +838,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 			String txt = n.getRawValue();
 			if(txt != null) {
 				txt = StringTool.strToJavascriptString(txt, false);
-				o().attr("domjs_value", txt);
+				o().attr("domjs_value", txt); // FIXME THIS DOES NOT ALWAYS WORK
 			}
 		}
 		renderTagend(n, o());
