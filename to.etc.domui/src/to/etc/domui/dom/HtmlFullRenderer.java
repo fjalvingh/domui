@@ -12,9 +12,11 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 17, 2007
  */
-public class FullHtmlRenderer extends NodeVisitorBase {
+public class HtmlFullRenderer extends NodeVisitorBase {
+	//	private BrowserVersion m_browserVersion;
+
 	/** The thingy responsible for rendering the tags, */
-	private HtmlRenderer m_tagRenderer;
+	private HtmlTagRenderer m_tagRenderer;
 
 	private IBrowserOutput m_o;
 
@@ -26,14 +28,15 @@ public class FullHtmlRenderer extends NodeVisitorBase {
 
 	private StringBuilder m_createJS = new StringBuilder();
 
-	public FullHtmlRenderer(HtmlRenderer tagRenderer, IBrowserOutput o) {
+	protected HtmlFullRenderer(HtmlTagRenderer tagRenderer, IBrowserOutput o) {
+		//		m_browserVersion = tagRenderer.getBrowser();
 		m_tagRenderer = tagRenderer;
 		m_o = o;
 		// 20090701 jal was ADDS which is WRONG - by definition a FULL render IS a full renderer... This caused SELECT tags to be rendered with domui_selected attributes instead of selected attributes.
 		setRenderMode(HtmlRenderMode.FULL);
 	}
 
-	private HtmlRenderer getTagRenderer() {
+	public HtmlTagRenderer getTagRenderer() {
 		// 20090701 jal was ADDS which is WRONG - by definition a FULL render IS a full renderer... This caused SELECT tags to be rendered with domui_selected attributes instead of selected attributes.
 		// 20091002 jal removed, make callers specify render mode...
 		//		m_tagRenderer.setRenderMode(HtmlRenderMode.FULL); // All nodes from the full renderer are NEW by definition.

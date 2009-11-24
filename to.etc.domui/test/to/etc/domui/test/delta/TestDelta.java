@@ -68,11 +68,16 @@ public class TestDelta {
 	public String getFullRenderText(Page pg) throws Exception {
 		return getFullRenderText(getBrowserVersion(), pg);
 	}
+
+	public HtmlFullRenderer	getFullRenderer(IBrowserOutput o) {
+		BrowserVersion	bv = getBrowserVersion();
+		return TestUtil.getApplication().findRendererFor(bv, o);
+	}
+
 	public String getFullRenderText(BrowserVersion bv, Page pg) throws Exception {
 		StringWriter sw = new StringWriter();
 		IBrowserOutput ro = new PrettyXmlOutputWriter(sw);
-		HtmlRenderer bhr = new HtmlRenderer(bv, ro);
-		FullHtmlRenderer hr = new FullHtmlRenderer(bhr, ro);
+		HtmlFullRenderer hr = getFullRenderer(ro);
 
 		IRequestContext ctx = new TestRequestContext();
 		hr.render(ctx, pg);
@@ -86,11 +91,10 @@ public class TestDelta {
 	public String getDeltaRenderText(BrowserVersion bv, Page pg) throws Exception {
 		StringWriter sw = new StringWriter();
 		IBrowserOutput ro = new PrettyXmlOutputWriter(sw);
-		HtmlRenderer bhr = new HtmlRenderer(bv, ro);
-		OptimalDeltaRenderer hr = new OptimalDeltaRenderer(bhr, ro);
-
 		IRequestContext ctx = new TestRequestContext();
-		hr.render(ctx, pg);
+		HtmlFullRenderer hr = getFullRenderer(ro);
+		OptimalDeltaRenderer odr = new OptimalDeltaRenderer(hr, ctx, pg);
+		odr.render();
 		return sw.getBuffer().toString();
 	}
 

@@ -21,7 +21,7 @@ import to.etc.domui.dom.*;
 abstract public class HeaderContributor {
 	static private Map<String, HeaderContributor> m_jsMap = new HashMap<String, HeaderContributor>();
 
-	abstract public void contribute(FullHtmlRenderer r) throws Exception;
+	abstract public void contribute(HtmlFullRenderer r) throws Exception;
 
 	@Override
 	abstract public int hashCode();

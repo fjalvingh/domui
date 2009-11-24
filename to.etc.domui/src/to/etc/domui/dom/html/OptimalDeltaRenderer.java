@@ -36,13 +36,13 @@ public class OptimalDeltaRenderer {
 
 	private IBrowserOutput m_o;
 
-	private HtmlRenderer m_html;
+	private HtmlTagRenderer m_html;
 
 	private IRequestContext m_ctx;
 
 	private Page m_page;
 
-	private FullHtmlRenderer m_fullRenderer;
+	private HtmlFullRenderer m_fullRenderer;
 
 	/**
 	 * Info on a changed container. It contains the deletes and adds list, plus
@@ -123,13 +123,14 @@ public class OptimalDeltaRenderer {
 	 */
 	private Map<NodeContainer, NodeInfo> m_infoMap = new HashMap<NodeContainer, NodeInfo>(255);
 
-	public OptimalDeltaRenderer(HtmlRenderer html, IBrowserOutput o) {
-		m_o = o;
-		m_html = html;
-		m_fullRenderer = new FullHtmlRenderer(html, o);
+	public OptimalDeltaRenderer(HtmlFullRenderer fullr, IRequestContext ctx, Page page) {
+		m_o = fullr.o();
+		m_html = fullr.getTagRenderer();
+		m_fullRenderer = fullr;
 		m_fullRenderer.setXml(true);
 		m_html.setRenderMode(HtmlRenderMode.ATTR);
-		//		m_html.setUpdating(true);
+		m_ctx = ctx;
+		m_page = page;
 	}
 
 	public IBrowserOutput o() {
@@ -144,13 +145,11 @@ public class OptimalDeltaRenderer {
 		return m_page;
 	}
 
-	public void render(IRequestContext ctx, Page page) throws Exception {
-		m_ctx = ctx;
-		m_page = page;
-		page.build();
+	public void render() throws Exception {
+		m_page.build();
 
 		if(DEBUG) {
-			DumpDirtyStateRenderer.dump(page.getBody());
+			DumpDirtyStateRenderer.dump(m_page.getBody());
 			System.out.println("--- BEFORE node map: ----");
 			if(m_page.getBeforeMap() == null) {
 				System.out.println("No before map - no tree changes");
@@ -164,10 +163,10 @@ public class OptimalDeltaRenderer {
 		o().writeRaw("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 		o().tag("delta");
 		o().endtag();
-		calc(page);
+		calc(m_page);
 
 
-		StringBuilder sq = page.internalGetAppendedJS();
+		StringBuilder sq = m_page.internalGetAppendedJS();
 		o().tag("eval");
 		o().endtag();
 
@@ -177,13 +176,13 @@ public class OptimalDeltaRenderer {
 			o().text(sq.toString());
 
 		//-- If a component has requested focus - do it.
-		if(page.getFocusComponent() != null) {
-			o().text("WebUI.focus('" + page.getFocusComponent().getActualID() + "');");
-			page.setFocusComponent(null);
+		if(m_page.getFocusComponent() != null) {
+			o().text("WebUI.focus('" + m_page.getFocusComponent().getActualID() + "');");
+			m_page.setFocusComponent(null);
 		}
 
 		//-- Handle delayed stuff...
-		if(page.getConversation().hasDelayedActions())
+		if(m_page.getConversation().hasDelayedActions())
 			o().writeRaw("WebUI.startPolling();");
 		else
 			o().writeRaw("WebUI.cancelPolling();");

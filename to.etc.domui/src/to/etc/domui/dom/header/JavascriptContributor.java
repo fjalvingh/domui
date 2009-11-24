@@ -41,7 +41,7 @@ public class JavascriptContributor extends HeaderContributor {
 	}
 
 	@Override
-	public void contribute(FullHtmlRenderer r) throws Exception {
+	public void contribute(HtmlFullRenderer r) throws Exception {
 		r.renderLoadJavascript(m_path);
 	}
 

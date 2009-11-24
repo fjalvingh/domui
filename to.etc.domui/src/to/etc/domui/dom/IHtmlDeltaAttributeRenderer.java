@@ -9,5 +9,5 @@ import to.etc.domui.dom.html.*;
  * Created on May 9, 2009
  */
 public interface IHtmlDeltaAttributeRenderer {
-	void renderAttributeChanges(HtmlRenderer privity, OptimalDeltaRenderer odt, IBrowserOutput o) throws Exception;
+	void renderAttributeChanges(HtmlTagRenderer privity, OptimalDeltaRenderer odt, IBrowserOutput o) throws Exception;
 }

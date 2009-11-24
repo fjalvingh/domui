@@ -244,7 +244,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 
 		//		String	usag = ctx.getUserAgent();
-		FullHtmlRenderer hr = m_application.findRendererFor(ctx.getBrowserVersion(), out);
+		HtmlFullRenderer hr = m_application.findRendererFor(ctx.getBrowserVersion(), out);
 
 		try {
 			hr.render(ctx, page);
@@ -524,10 +524,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		long ts = System.nanoTime();
 		//		String	usag = ctx.getUserAgent();
-		HtmlRenderer base = new HtmlRenderer(ctx.getBrowserVersion(), out);
-		//		DeltaRenderer	dr	= new DeltaRenderer(base, out);
-		OptimalDeltaRenderer dr = new OptimalDeltaRenderer(base, out);
-		dr.render(ctx, page);
+		HtmlFullRenderer fullr = ctx.getApplication().findRendererFor(ctx.getBrowserVersion(), out);
+		OptimalDeltaRenderer dr = new OptimalDeltaRenderer(fullr, ctx, page);
+		dr.render();
 		if(LOG.isLoggable(Level.INFO) && !inhibitlog) {
 			ts = System.nanoTime() - ts;
 			LOG.info("rq: Optimal Delta rendering took " + StringTool.strNanoTime(ts));

@@ -34,10 +34,10 @@ final public class JavaScriptletContributor extends HeaderContributor {
 
 	/**
 	 * Generate the specified scriptlet as a script tag.
-	 * @see to.etc.domui.dom.header.HeaderContributor#contribute(to.etc.domui.dom.FullHtmlRenderer)
+	 * @see to.etc.domui.dom.header.HeaderContributor#contribute(to.etc.domui.dom.HtmlFullRenderer)
 	 */
 	@Override
-	public void contribute(final FullHtmlRenderer r) throws Exception {
+	public void contribute(final HtmlFullRenderer r) throws Exception {
 		r.o().tag("script");
 		r.o().attr("language", "javascript");
 		r.o().endtag();

@@ -10,12 +10,12 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 
 /**
- * Base handler for rendering nodes.
+ * Basic, mostly standard-compliant handler for rendering HTML tags.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 17, 2007
  */
-public class HtmlRenderer implements INodeVisitor {
+public class HtmlTagRenderer implements INodeVisitor {
 	/** Scratch stringbuffer. */
 	private StringBuilder m_sb;
 
@@ -31,7 +31,7 @@ public class HtmlRenderer implements INodeVisitor {
 
 	//	private boolean				m_isNewNode;
 
-	public HtmlRenderer(BrowserVersion bv, final IBrowserOutput o) {
+	protected HtmlTagRenderer(BrowserVersion bv, final IBrowserOutput o) {
 		m_o = o;
 		m_browserVersion = bv;
 	}
