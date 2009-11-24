@@ -91,6 +91,11 @@ public abstract class DomApplication {
 	 */
 	abstract public Class< ? extends UrlPage> getRootPage();
 
+	/**
+	 * Render factories for different browser versions.
+	 */
+	private List<IHtmlRenderFactory> m_renderFactoryList = new ArrayList<IHtmlRenderFactory>();
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
 	/*--------------------------------------------------------------*/
@@ -100,6 +105,7 @@ public abstract class DomApplication {
 	public DomApplication() {
 		registerControlFactories();
 		registerPartFactories();
+		addRenderFactory(new MsCrapwareRenderFactory()); // Add html renderers for IE <= 7
 	}
 
 	protected void registerControlFactories() {
@@ -275,9 +281,45 @@ public abstract class DomApplication {
 	}
 
 
-	protected FullHtmlRenderer findRendererFor(BrowserVersion bv, final IBrowserOutput o) {
-		HtmlRenderer base = new HtmlRenderer(bv, o);
-		return new FullHtmlRenderer(base, o);
+	/*--------------------------------------------------------------*/
+	/*	CODING:	HTML per-browser rendering code.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Creates the appropriate full renderer for the specified browser version.
+	 * @param bv
+	 * @param o
+	 * @return
+	 */
+	public HtmlFullRenderer findRendererFor(BrowserVersion bv, final IBrowserOutput o) {
+		for(IHtmlRenderFactory f : getRenderFactoryList()) {
+			HtmlFullRenderer tr = f.createFullRenderer(bv, o);
+			if(tr != null)
+				return tr;
+		}
+
+		return new StandardHtmlFullRenderer(new StandardHtmlTagRenderer(bv, o), o);
+		//		HtmlTagRenderer base = new HtmlTagRenderer(bv, o);
+		//		return new HtmlFullRenderer(base, o);
+	}
+
+	public HtmlTagRenderer findTagRendererFor(BrowserVersion bv, final IBrowserOutput o) {
+		for(IHtmlRenderFactory f : getRenderFactoryList()) {
+			HtmlTagRenderer tr = f.createTagRenderer(bv, o);
+			if(tr != null)
+				return tr;
+		}
+		return new StandardHtmlTagRenderer(bv, o);
+	}
+
+	private synchronized List<IHtmlRenderFactory> getRenderFactoryList() {
+		return m_renderFactoryList;
+	}
+
+	public synchronized void addRenderFactory(IHtmlRenderFactory f) {
+		if(m_renderFactoryList.contains(f))
+			throw new IllegalStateException("Don't be silly, this one is already added");
+		m_renderFactoryList = new ArrayList<IHtmlRenderFactory>(m_renderFactoryList);
+		m_renderFactoryList.add(0, f);
 	}
 
 	/*--------------------------------------------------------------*/

@@ -375,7 +375,7 @@ final public class WindowSession {
 		shelvePage(m_currentPage);
 
 		//-- Call all of the page's listeners.
-		callNewPageListeners(m_currentPage);
+		//		callNewPageListeners(m_currentPage); // jal 20091122 Bug# 605 Move this globally.
 		generateRedirect(ctx, m_currentPage);
 		return true;
 	}
@@ -610,15 +610,16 @@ final public class WindowSession {
 		shelvePage(m_currentPage); // Append the current page to the shelve,
 
 		//-- Call all of the page's listeners.
-		callNewPageListeners(m_currentPage);
+		//		callNewPageListeners(m_currentPage); jal 20091122 Bug# 605 Move this globally.
 		return m_currentPage;
 	}
 
-	private void callNewPageListeners(final Page pg) throws Exception {
-		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
-		for(INewPageInstantiated npi : getApplication().getNewPageInstantiatedListeners())
-			npi.newPageInstantiated(m_currentPage.getBody());
-	}
+	// jal 20091122 Bug# 605 Move this globally.
+	//	private void callNewPageListeners(final Page pg) throws Exception {
+	//		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
+	//		for(INewPageInstantiated npi : getApplication().getNewPageInstantiatedListeners())
+	//			npi.newPageInstantiated(m_currentPage.getBody());
+	//	}
 
 	/**
 	 * Check to see if we can use a page stack entry.
