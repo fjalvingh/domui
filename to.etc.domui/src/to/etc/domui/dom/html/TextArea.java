@@ -101,6 +101,10 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 			nw = null;
 		String cur = m_value != null && m_value.length() == 0 ? null : m_value; // Treat empty string and null the same
 
+		//vmijic 20091124 - some existing entries have \n\r, but after client request roundtrip nw get values with \n instead. Prevent differencies being raised because of this.
+		if(cur != null) {
+			cur = cur.replace("\r\n", "\n");
+		}
 		if(DomUtil.isEqual(nw, cur))
 			return false;
 

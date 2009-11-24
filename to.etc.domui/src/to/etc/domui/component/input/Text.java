@@ -91,8 +91,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		super.acceptRequestParameter(values); // Set the new one;
 
 		//-- when string is rendered into Input html tag, it is rendered as trimmed, so old raw value for comparasion has also to be trimmed
-		if(value != null)
+		//vmijic 20091124 - when no input is done, empty string is returned as request parameter, so if old raw value was null it has to be replaced with empty string 
+		if(value != null) {
 			value = value.trim();
+		} else {
+			value = "";
+		}
 		if(DomUtil.isEqual(value, getRawValue()))
 			return false;
 		m_validated = false;
