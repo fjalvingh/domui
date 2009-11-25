@@ -66,6 +66,11 @@ public class FloatingWindow extends Div {
 	static public FloatingWindow create(NodeBase parent, String ttl, boolean modal) {
 		UrlPage body = parent.getPage().getBody();
 		FloatingWindow w = new FloatingWindow(modal, ttl); // Create instance
+		//vmijic 20091125 - in case of cascading floating windows, z-index higher than one from parent floating window must be set.
+		FloatingWindow parentFloatingWindow = parent.getParent(FloatingWindow.class);
+		if(parentFloatingWindow != null) {
+			w.setZIndex(parentFloatingWindow.getZIndex() + 100);
+		}
 		body.add(w);
 		return w;
 	}
@@ -103,8 +108,12 @@ public class FloatingWindow extends Div {
 			setWidth(WIDTH + "px");
 		if(getHeight() == null)
 			setHeight(HEIGHT + "px");
-		if(getZIndex() <= 0)
+		if(getZIndex() <= 0) {
 			setZIndex(100);
+		}
+		//vmijic 20091125 - hider z-index has to be set in order to hide other floating windows with lower z-index, if any exists in same time.
+		m_hider.setZIndex(getZIndex() - 1);
+
 		setPosition(PositionType.FIXED);
 
 		int width = DomUtil.pixelSize(getWidth());
@@ -122,7 +131,8 @@ public class FloatingWindow extends Div {
 		//		appendCreateJS("$('#"+getActualID()+"').draggable({" +
 		//			"ghosting: false, zIndex:100, opacity: 0.7, handle: '#"+m_titleBar.getActualID()+"'});"
 		//		);
-		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:100, handle: '#" + m_titleBar.getActualID() + "'});");
+		//vmijic 20091125 - since z-index is dinamic value, correct value has to be used also in js.
+		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:" + getZIndex() + ", handle: '#" + m_titleBar.getActualID() + "'});");
 		//		m_constructed = true;
 	}
 

@@ -843,6 +843,7 @@ body,html {
 	top: 0px;
 	left: 0px;
 	filter:alpha(opacity=0);
+	z-index: 1000;
 }
 .ui-io-blk2 {
 	height: 100%;
@@ -853,6 +854,7 @@ body,html {
 	left: 0px;
 	background-color: black;
 	filter:alpha(opacity=50);
+	z-index: 1000;
 }
 
 /*** Percentage progress bar ***/
