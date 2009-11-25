@@ -114,4 +114,9 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	public void setRenderHint(String renderHint) {
 		m_renderHint = renderHint;
 	}
+
+	@Override
+	public String toString() {
+		return "DisplayPropertyMetaModel[" + getName() + "]";
+	}
 }

@@ -295,8 +295,15 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 					+ " has no @MetaObject definition defining a set of columns as default table columns, so there.");
 			List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
 			xdpl = ExpandedDisplayProperty.flatten(xdpl); // Flatten the list: expand any compounds.
-			for(final ExpandedDisplayProperty xdp : xdpl)
-				m_columnList.add(new SimpleColumnDef(xdp));
+			for(final ExpandedDisplayProperty xdp : xdpl) {
+				SimpleColumnDef scd = new SimpleColumnDef(xdp);
+				if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
+					scd.setCssClass("ui-numeric");
+					scd.setHeaderCssClass("ui-numeric");
+				}
+
+				m_columnList.add(scd);
+			}
 		}
 
 		//-- Is there a default sort thingy? Is that column present?
