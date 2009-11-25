@@ -14,18 +14,18 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 13, 2009
  */
-public class HorizontalFormBuilder extends GenericTableFormBuilder {
+public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	private TR m_labelRow;
 
 	private TR m_editRow;
 
-	public HorizontalFormBuilder() {}
+	public OldHorizontalFormBuilder() {}
 
-	public <T> HorizontalFormBuilder(Class<T> clz, IReadOnlyModel<T> mdl) {
+	public <T> OldHorizontalFormBuilder(Class<T> clz, IReadOnlyModel<T> mdl) {
 		super(clz, mdl);
 	}
 
-	public <T> HorizontalFormBuilder(T instance) {
+	public <T> OldHorizontalFormBuilder(T instance) {
 		setInstance(instance);
 	}
 
