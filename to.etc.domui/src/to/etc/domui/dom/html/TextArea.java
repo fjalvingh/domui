@@ -65,11 +65,32 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 		return true;
 	}
 
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 */
 	public String getValue() {
 		if(!validate())
 			throw new ValidationException(Msgs.NOT_VALID, m_value);
 		return m_value;
 	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 */
+	@Override
+	public String getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		getValueSafe();
+		return super.hasError();
+	}
+
 
 	public String getRawValue() {
 		return m_value;

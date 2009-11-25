@@ -287,12 +287,32 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	/*--------------------------------------------------------------*/
 	private IValueChanged< ? > m_onValueChanged;
 
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 */
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
 			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
 			throw new ValidationException(Msgs.MANDATORY);
 		}
 		return m_value;
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 */
+	@Override
+	public T getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		getValueSafe();
+		return super.hasError();
 	}
 
 	/**

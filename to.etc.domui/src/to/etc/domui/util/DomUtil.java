@@ -55,6 +55,14 @@ final public class DomUtil {
 		return true;
 	}
 
+	static public <T> T getValueSafe(IInputNode<T> node) {
+		try {
+			return node.getValue();
+		} catch(ValidationException x) {
+			return null;
+		}
+	}
+
 	/**
 	 * Returns T if the given Java Resource exists.
 	 * @param clz

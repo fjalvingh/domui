@@ -81,9 +81,37 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 		return true; // Value changed
 	}
 
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 */
 	public Boolean getValue() {
 		return new Boolean(isChecked());
 	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
+	 */
+	public void setValue(Boolean v) {
+		setChecked((v == null) ? false : v.booleanValue());
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 */
+	@Override
+	public Boolean getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		getValueSafe();
+		return super.hasError();
+	}
+
 
 	public boolean isMandatory() {
 		return m_mandatory;
@@ -92,10 +120,6 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	public void setMandatory(boolean mandatory) {
 		m_mandatory = mandatory;
 
-	}
-
-	public void setValue(Boolean v) {
-		setChecked((v == null) ? false : v.booleanValue());
 	}
 
 	/**

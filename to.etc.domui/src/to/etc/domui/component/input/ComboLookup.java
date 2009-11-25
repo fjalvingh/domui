@@ -112,6 +112,9 @@ public class ComboLookup<T> extends Select implements IInputNode<T>, IHasModifie
 		return m_dataList;
 	}
 
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 */
 	public T getValue() {
 		if(isMandatory() && m_currentValue == null) {
 			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
@@ -120,11 +123,31 @@ public class ComboLookup<T> extends Select implements IInputNode<T>, IHasModifie
 		return m_currentValue;
 	}
 
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
+	 */
 	public void setValue(T v) {
 		if(DomUtil.isEqual(v, m_currentValue))
 			return;
 		m_currentValue = v;
 		forceRebuild();
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 */
+	@Override
+	public T getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		getValueSafe();
+		return super.hasError();
 	}
 
 	public String getEmptyText() {

@@ -204,13 +204,30 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * Return the converted and validated value, or throw an exception. This always returns validated and valid values.
-	 * @return
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
 	 */
+	@Override
 	public T getValue() {
 		if(!validate())
 			throw new ValidationException(Msgs.NOT_VALID, getRawValue());
 		return m_value;
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 */
+	@Override
+	public T getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		getValueSafe();
+		return super.hasError();
 	}
 
 	/**

@@ -742,6 +742,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return m_message;
 	}
 
+	/**
+	 * Return T if this node currently has an error associated with it.
+	 * @return
+	 */
+	public boolean hasError() {
+		return getMessage() != null && getMessage().getType() == MsgType.ERROR;
+	}
+
 	public void setErrorDelegate(final INodeErrorDelegate errorDelegate) {
 		m_errorDelegate = errorDelegate;
 	}

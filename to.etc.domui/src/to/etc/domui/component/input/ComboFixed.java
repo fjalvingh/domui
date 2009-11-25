@@ -74,12 +74,32 @@ public class ComboFixed<T> extends Select implements IInputNode<T>, IHasModified
 		super.forceRebuild();
 	}
 
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 */
 	public T getValue() {
 		if(isMandatory() && m_currentValue == null) {
 			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
 			throw new ValidationException(Msgs.NOT_VALID, "null");
 		}
 		return m_currentValue;
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 */
+	@Override
+	public T getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		getValueSafe();
+		return super.hasError();
 	}
 
 	/**
