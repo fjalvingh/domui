@@ -559,8 +559,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	private void handleClicked(final IRequestContext ctx, final Page page, final NodeBase b) throws Exception {
-		if(b == null)
-			throw new IllegalStateException("Clicked must have a node!!");
+		if(b == null) {
+			System.out.println("User clicked too fast? Node not found. Ignoring.");
+			return;
+			//			throw new IllegalStateException("Clicked must have a node!!");
+		}
 		b.internalOnClicked();
 	}
 }
