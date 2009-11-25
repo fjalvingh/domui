@@ -25,6 +25,10 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 		super(clz, mdl);
 	}
 
+	public <T> HorizontalFormBuilder(T instance) {
+		setInstance(instance);
+	}
+
 	/**
 	 *
 	 * @see to.etc.domui.component.form.GenericFormBuilder#addControl(java.lang.String, to.etc.domui.dom.html.NodeBase, to.etc.domui.dom.html.NodeBase[], boolean, to.etc.domui.component.meta.PropertyMetaModel)
