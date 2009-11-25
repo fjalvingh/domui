@@ -450,6 +450,37 @@ final public class DomUtil {
 		}
 	}
 
+
+	/**
+	 * This balances tables to ensure that all rows have an equal number of rows and
+	 * columns, taking rowspans and colspans into effect.
+	 * FIXME Boring, lotso work, complete later.
+	 * @param t
+	 */
+	public static void balanceTable(Table t) {
+		List<List<TD>> matrix = new ArrayList<List<TD>>(40);
+
+		//-- Phase 1: start marking extends in the matrix.
+		int rowindex = 0;
+		for(NodeBase l0 : t) { // Expecting THead and TBodies here.
+			if(l0 instanceof THead || l0 instanceof TBody) {
+				//-- Walk all rows.
+				for(NodeBase trb : ((NodeContainer) l0)) {
+					if(!(trb instanceof TR))
+						throw new IllegalStateException("Unexpected child of type " + l0 + " in TBody/THead node (expecting TR)");
+					TR tr = (TR) trb;
+
+
+
+					rowindex++;
+				}
+			} else
+				throw new IllegalStateException("Unexpected child of type " + l0 + " in TABLE node");
+		}
+
+		//-- Phase 2: for all cells, handle their row/colspan by recounting their spread
+	}
+
 	/**
 	 * Remove all HTML tags from the input and keep only the text content. Things like script tags and the like
 	 * will be removed but their contents will be kept.
