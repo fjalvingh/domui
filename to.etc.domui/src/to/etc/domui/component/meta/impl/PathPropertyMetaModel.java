@@ -6,10 +6,13 @@ import java.util.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * This is a proxy for an existing PropertyMetaModel for path-based properties. This overrides
- * the Accessor and replaces it with an accessor which walks the path to the target property.
+ * the Accessor and replaces it with an accessor which walks the path to the target property. In
+ * addition this uses extended rules to determine the default label and stuff for the extended
+ * property.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 29, 2008
@@ -64,6 +67,116 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 		}
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Overrides for labels and hints						*/
+	/*--------------------------------------------------------------*/
+	/*
+	 * We use an extended mechanism to determine text resources for pathbased
+	 * properties. This allows overriding of remote properties in the reached
+	 * class from within the property file of the root source.
+	 * The mechanism is as follows: start to locate the full path name starting
+	 * from the current location in the class' bundle.
+	 */
+	/**
+	 *
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDefaultHint()
+	 */
+	public String getDefaultHint() {
+		return locateProperty("hint");
+	}
+
+	/**
+	 *
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDefaultLabel()
+	 */
+	public String getDefaultLabel() {
+		System.out.println("LOCATE label for " + getName());
+		return locateProperty("label");
+	}
+
+	/**
+	 * Walk the access path to locate a label/hint for the specified property. For
+	 * the property a.b.c it must try the following:
+	 * <pre>
+	 * a.b.c.label, a.b.*.label, a.*.*.label, a.*.label
+	 * Then move to bundle for b, and try:
+	 * b.c.label, b.*.label
+	 * And finally move to c and try c.label.
+	 * </pre>
+	 *
+	 * @param type
+	 * @return
+	 */
+	private String locateProperty(String type) {
+		Locale loc = NlsContext.getLocale();
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < m_accessPath.length - 1; i++) {
+			PropertyMetaModel	pmm = m_accessPath[i];
+			BundleRef br = pmm.getClassModel().getClassBundle(); // Current target-path
+			String v = attemptProperty(sb, br, i, type, loc);
+			if(v != null)
+				return v;
+		}
+		//-- Last resort...
+		sb.setLength(0);
+		sb.append(m_original.getName());
+		sb.append('.');
+		sb.append(type);
+		String s = m_original.getClassModel().getClassBundle().findMessage(loc, sb.toString());
+		if(s != null)
+			return s;
+		return getName();
+	}
+
+	/**
+	 * Starting at the specified level, generate all of the pertinent names and try for
+	 * a resource string on 'm.
+	 *
+	 * @param sb
+	 * @param br
+	 * @param i
+	 * @param type
+	 * @param loc
+	 * @return
+	 */
+	private String attemptProperty(StringBuilder sb, BundleRef br, int startix, String type, Locale loc) {
+		//-- 1. Try a.b.c, a.b.*, a.*.*
+		for(int i = m_accessPath.length; i > startix; i--) {
+			sb.setLength(0);
+			for(int j = startix; j < m_accessPath.length; j++) {
+				if(sb.length() > 0)
+					sb.append('.');
+				if(j >= i)
+					sb.append('*');
+				else
+					sb.append(m_accessPath[j].getName());
+			}
+
+			//-- Gotta name...
+			sb.append('.');
+			sb.append(type);
+			String k = sb.toString();
+			System.out.println("k=" + k);
+			String s = br.findMessage(loc, k);
+			if(s != null)
+				return s;
+		}
+
+		//		//-- try a.b.c.d.e, a.b.c.d.*, a.b.c.*.*, a.b.c.*, a.b.*.*, a.b.*,
+		//		for(int i = m_accessPath.length; i > startix; i--) {
+		//
+		//
+		//		}
+		//
+
+		// TODO
+
+		return null;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Silly proxies.										*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Create a compound accessor.
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAccessor()
@@ -106,14 +219,6 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 
 	public IConverter< ? > getConverter() {
 		return m_original.getConverter();
-	}
-
-	public String getDefaultHint() {
-		return m_original.getDefaultHint();
-	}
-
-	public String getDefaultLabel() {
-		return m_original.getDefaultLabel();
 	}
 
 	public int getDisplayLength() {
