@@ -107,8 +107,8 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 		if(m_parentTable == null) {
 			m_parentTable = new Table();
 			internalClearLocation();
-			//m_lastUsedRow = null;
-			//m_lastUsedCell = null;
+			m_lastUsedRow = null;
+			m_lastUsedCell = null;
 			onTableAdded(m_parentTable);
 		}
 		return m_parentTable;
@@ -122,8 +122,8 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	protected TBody tbody() {
 		if(m_tbody == null) {
 			m_tbody = table().getBody();
-			//m_lastUsedRow = null;
-			//m_lastUsedCell = null;
+			m_lastUsedRow = null;
+			m_lastUsedCell = null;
 			internalClearLocation();
 			onBodyAdded(m_tbody);
 		}
