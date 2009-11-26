@@ -5,7 +5,7 @@ import to.etc.domui.util.*;
 
 /**
  * The base tag for an Image.
- * 
+ *
  * <h2>Tips and tricks</h2>
  * <p>To prevent the butt-ugly border on any image placed in an A tag add the following rule to the CSS:
  *  <pre>

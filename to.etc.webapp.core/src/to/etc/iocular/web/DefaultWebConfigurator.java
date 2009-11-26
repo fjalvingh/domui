@@ -8,7 +8,7 @@ import to.etc.iocular.util.*;
 
 /**
  * Default implementation of a web configurator. This version gets used if no
- * specific implementation is defined in the web configuration. The default 
+ * specific implementation is defined in the web configuration. The default
  * configurator uses context properties to load the container definitions for
  * session, request and application.
  *

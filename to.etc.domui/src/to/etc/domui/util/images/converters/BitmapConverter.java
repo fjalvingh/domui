@@ -92,7 +92,7 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 	/*	CODING:	Identify an image's characteristics					*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.util.images.converters.IImageIdentifier#identifyImage(java.io.File, java.lang.String)
 	 */
 	public ImageData identifyImage(File src, String mime) {

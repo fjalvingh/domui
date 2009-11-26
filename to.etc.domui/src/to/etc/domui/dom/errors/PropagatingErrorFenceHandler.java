@@ -5,7 +5,7 @@ import to.etc.domui.util.*;
 
 /**
  * Use this error fence handler in case when some UIMessage should be handled by more than one error fence.
- * 
+ *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 23 Sep 2009

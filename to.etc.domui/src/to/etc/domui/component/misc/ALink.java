@@ -7,7 +7,7 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 
 /**
- * A hyperlink which allows for opening windows in a separate conversation from the 
+ * A hyperlink which allows for opening windows in a separate conversation from the
  * link. This is a rather complex interaction which works as follows:
  * <ul>
  *	<li>The link is generated as an A tag with both an onclick handler and a href URL.</li>

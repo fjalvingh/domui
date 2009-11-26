@@ -16,7 +16,7 @@ import to.etc.domui.trouble.*;
  * FCKeditor) for images and other files. When called it always gets
  * passed the conversation and the ID of the editor in question. It
  * uses that to retrieve the IEditorFileSystem implementation added
- * on it. That filesystem is then used to generate the required 
+ * on it. That filesystem is then used to generate the required
  * responses.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -191,7 +191,7 @@ public class EditResPart implements IUnbufferedPartFactory {
 	/*	CODING:	File content sender.								*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @param app
 	 * @param ifs
 	 * @param ctx

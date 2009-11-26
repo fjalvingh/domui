@@ -137,7 +137,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	/**
 	 * Add a user-specified control for a given property. This adds the control, using
 	 * the specified label and creates a binding for the property on the
-	 * control. 
+	 * control.
 	 *
 	 * FORMAL-INTERFACE.
 	 *

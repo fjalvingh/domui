@@ -33,7 +33,7 @@ public class AccessCalculator {
 		m_viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
 		m_editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);
 		if(!m_viewable) {
-			//-- Check edit stuff: 
+			//-- Check edit stuff:
 			if(pmm.getEditRoles() == null) // No edit roles at all -> exit
 				return false;
 			if(!m_editable)

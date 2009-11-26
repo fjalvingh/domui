@@ -31,7 +31,7 @@ public class ImageConverterHelper {
 
 	/**
 	 * Creates a new tempfile. Files creates by this call will be discarded when the image
-	 * has been generated fully (when this helper is destroyed). 
+	 * has been generated fully (when this helper is destroyed).
 	 * @return
 	 */
 	public File createWorkFile(String ext) throws IOException {

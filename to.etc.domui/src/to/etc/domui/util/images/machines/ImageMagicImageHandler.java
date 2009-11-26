@@ -36,7 +36,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	private ImageMagicImageHandler() {}
 
 	/**
-	 * This returns the ImageMagic manipulator *if* it is available. If 
+	 * This returns the ImageMagic manipulator *if* it is available. If
 	 * ImageMagic is not available then this returns null.
 	 * @return
 	 */

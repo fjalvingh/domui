@@ -15,7 +15,7 @@ public class DefaultDataMetaModel implements DataMetaModel {
 	}
 
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.component.meta.DataMetaModel#findFieldData(java.lang.Class, java.lang.String)
 	 */
 	public PropertyMetaModel findFieldData(Class< ? > clz, String fieldname) {

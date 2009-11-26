@@ -118,7 +118,7 @@ public class DataCellTable extends TabularComponentBase {
 	/*	CODING:	Content (re)renderers.								*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.dom.html.NodeBase#createContent()
 	 */
 	@Override
@@ -180,7 +180,7 @@ public class DataCellTable extends TabularComponentBase {
 	/*	CODING:	TableModelListener interface implementation.		*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#modelChanged(to.etc.domui.component.tbl.ITableModel)
 	 */
 	public void modelChanged(ITableModel<Object> model) {

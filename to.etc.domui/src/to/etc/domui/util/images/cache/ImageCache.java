@@ -23,8 +23,8 @@ import to.etc.util.*;
  * 		it's LRU location to most-recently-used.</li>
  *	<li>If not found AND the requested thing is not the ORIGINAL image we try to load it from the file system's cache location. We
  *		determine the filename that the copy would have then load it. If this load succeeds we enter it in the cache and return it's
- *		REF.</li> 
- *	<li>If still not found we at the very least need the ORIGINAL (source). IF we are requesting a permutated original (not the 
+ *		REF.</li>
+ *	<li>If still not found we at the very least need the ORIGINAL (source). IF we are requesting a permutated original (not the
  *		original itself) we try to get that by doing another cache lookup. If we are locating the original itself another lookup
  *		is useless because the first lookup would have located it.</li>
  *	<li>If the original is NOT FOUND we use the factory provided to retrieve the image and it's data. The image is then entered
@@ -108,12 +108,12 @@ public class ImageCache {
 	/**
 	 * Retrieves the ORIGINAL for a given image. It checks the cache first; if that does not contain the
 	 * original then it will be retrieved. This uses a double locking mechanism: it locks the cache (global
-	 * lock) to obtain an ImageInstance after which the cache (global) lock is released. This is a very 
+	 * lock) to obtain an ImageInstance after which the cache (global) lock is released. This is a very
 	 * fast operation because only small structures are allocated, if needed. It then uses the second lock
-	 * on a forced initialize on the data that should be contained in the instance. If the instance has 
+	 * on a forced initialize on the data that should be contained in the instance. If the instance has
 	 * already initialized this returns immediately; if not the first accessor (which by definition has all
 	 * of the required data needed to create the image) will perform the initialization. If initialization
-	 * fails for whatever reason this code will retry the initialization the next time the object is 
+	 * fails for whatever reason this code will retry the initialization the next time the object is
 	 * accessed.
 	 *
 	 * @param irt
@@ -274,7 +274,7 @@ public class ImageCache {
 	/**
 	 * This is the main workhorse for the image cache. This retrieves a possible converted image off some source,
 	 * using all kinds of caching to make it fast.
-	 * 
+	 *
 	 * @param cacheKey
 	 * @param sir
 	 * @param conversions

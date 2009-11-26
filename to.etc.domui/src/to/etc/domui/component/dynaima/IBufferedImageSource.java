@@ -4,14 +4,14 @@ import java.awt.image.*;
 
 /**
  * The source of the image is a BufferedImage.
- * 
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 2, 2008
  */
 public interface IBufferedImageSource {
 	/**
 	 * Return or create the bufferedImage to output.
-	 * 
+	 *
 	 * @return
 	 * @throws Exception
 	 */

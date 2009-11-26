@@ -6,7 +6,7 @@ package to.etc.webapp.query;
  * a QCriteria in that it collects not one persistent class instance per row but multiple
  * items per row, and each item can either be a persistent class or some property or
  * calculated value (max, min, count et al).
- * 
+ *
  * <p>Even though this type has a generic type parameter representing the base object
  * being queried, the list() method for this object will return a List<Object[]> always.</p>
  *
