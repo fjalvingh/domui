@@ -2,8 +2,8 @@ package to.etc.util;
 
 /**
  * Handles embedded progress actions.
- * 
- * 
+ *
+ *
  * @author jal
  * Created on May 9, 2004
  */
@@ -55,7 +55,7 @@ public class ProgressHandler {
 	/**
 	 * return a progress handler for a subrange of THIS range. The number
 	 * of steps in THIS range can be set.
-	 * 
+	 *
 	 * @param spread
 	 * @return
 	 */
@@ -80,7 +80,7 @@ public class ProgressHandler {
 	}
 
 	/**
-	 * Called when progress is made with the current progress 
+	 * Called when progress is made with the current progress
 	 * state for this progress range.
 	 * @param v
 	 */

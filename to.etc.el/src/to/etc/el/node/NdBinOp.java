@@ -7,7 +7,7 @@ import javax.servlet.jsp.el.*;
 import to.etc.el.*;
 import to.etc.util.*;
 
-/** 
+/**
  * A binary arithmetic operation: +, -, *
  *
  * @author jal

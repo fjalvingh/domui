@@ -78,7 +78,7 @@ public class UploadParser {
 	 * @return
 	 */
 	public static final boolean isMultipartContent(HttpServletRequest req) {
-		if(!"POST".equalsIgnoreCase(req.getMethod())) // Must be post method 
+		if(!"POST".equalsIgnoreCase(req.getMethod())) // Must be post method
 			return false;
 		String contentType = req.getContentType(); // Must be multipart encoding.
 		if(contentType == null)
@@ -280,7 +280,7 @@ public class UploadParser {
 		}
 
 		/*
-		 * 
+		 *
 		 * If "filename" is null it was not passed and this is a form item.
 		 * If it's not null but the empty string then the upload file box
 		 * was left empty.

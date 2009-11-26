@@ -11,7 +11,7 @@ public class ExtendedPrintWriter extends PrintWriter {
 	}
 
 	/**
-	 * Print a string with a fixed width. If the size overflows it takes the overflown size. 
+	 * Print a string with a fixed width. If the size overflows it takes the overflown size.
 	 * @param s
 	 * @param width
 	 */

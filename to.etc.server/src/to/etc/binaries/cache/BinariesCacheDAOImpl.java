@@ -9,7 +9,7 @@ import to.etc.dbutil.*;
 
 
 public class BinariesCacheDAOImpl implements BinariesCacheDAO {
-	//    static private final String[] CREATES = 
+	//    static private final String[] CREATES =
 	//    {   "create table sys_binary(sbi_id number(16, 0) not null primary key,"
 	//        +   "sbi_type varchar(10) not null,"
 	//        +   "sbi_mimetype varchar(40) not null,"

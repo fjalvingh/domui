@@ -6,7 +6,7 @@ import java.util.*;
 
 /**
  * Static utilities for within the taglibs.
- * 
+ *
  * Created on May 13, 2005
  * @author jal
  */
@@ -19,7 +19,7 @@ public class TagUtil {
 	 * tag attribute to a quoted form. It outputs the start and end
 	 * quotes and will escape or convert any invalid character to
 	 * the appropriate format.
-	 * 
+	 *
 	 * To quote proper we assume we need double quotes. If the content
 	 * contains those we switch to single quote; if the content contains
 	 * single quotes and double quotes we use double quotes and make
@@ -126,11 +126,11 @@ public class TagUtil {
 	//		Object	bean = pc.getVariableResolver().resolveVariable(bname);
 	//		if(bean == null)
 	//			throw new JspTagException("The variable '"+bname+"' was not found in any context.");
-	//		
+	//
 	//		//-- Now resolve the rest.
 	//		return BeanUtil.getSimpleProperty(bean, binding);
 	//	}
-	//	
+	//
 	//	static public void	bindInput(NaviContext ctx, IMessageSink ms, String binding, String value) throws Exception
 	//	{
 	//		//-- 1. Get the first thingy before the dot (the bean name) and resolve that thing,
@@ -218,7 +218,7 @@ public class TagUtil {
 	 * <p>The current version does *not* allow for extra embedded stuff
 	 * in the string, i.e. a value binding expression of "mama#{papa}" is
 	 * not treated as a binding expression.
-	 * 
+	 *
 	 * @param s
 	 * @return
 	 */

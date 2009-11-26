@@ -29,7 +29,7 @@ public class ImageMagicImageHandler implements ImageHandler {
 	}
 
 	/**
-	 * This returns the ImageMagic manipulator *if* it is available. If 
+	 * This returns the ImageMagic manipulator *if* it is available. If
 	 * ImageMagic is not available then this returns null.
 	 * @return
 	 */

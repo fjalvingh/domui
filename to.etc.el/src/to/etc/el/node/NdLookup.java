@@ -134,7 +134,7 @@ public class NdLookup extends NdBase {
 	//		Object b = m_key.evaluate(vr);
 	//		if(b == null)
 	//			return null;
-	//		
+	//
 	//		/*
 	//		 * If the object is a list, map or array then it cannot be set.
 	//		 */

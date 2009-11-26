@@ -31,7 +31,7 @@ public class NdVarLookup extends NdBase {
 
 	/**
 	 * Return the variable.
-	 * 
+	 *
 	 * @see to.etc.el.node.NdBase#evaluate(javax.servlet.jsp.el.VariableResolver, javax.servlet.jsp.el.FunctionMapper)
 	 */
 	@Override

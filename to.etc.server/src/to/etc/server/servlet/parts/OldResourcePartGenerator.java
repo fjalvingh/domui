@@ -14,7 +14,7 @@ public class OldResourcePartGenerator implements BufferedPartFactory {
 	static private final String	PREFIX	= "$respg";
 
 	/**
-	 * Decodes the request into a resource to generate. This simply returns 
+	 * Decodes the request into a resource to generate. This simply returns
 	 * the resource name preceded with a prefix to make it unique.
 	 *
 	 * @see to.etc.server.servlet.parts.BufferedPartFactory#decodeKey(to.etc.server.vfs.VfsPathResolver, to.etc.server.servlet.RequestContext, java.lang.String)

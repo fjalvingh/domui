@@ -1,7 +1,7 @@
 package to.etc.server.cache;
 
 /**
- * The core cache entry representing the resource identified by a given physical 
+ * The core cache entry representing the resource identified by a given physical
  * key. This contains all of the cache related data.
  *
  * @author jal

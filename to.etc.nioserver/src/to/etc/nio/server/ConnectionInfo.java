@@ -4,7 +4,7 @@ import java.net.*;
 
 /**
  * Data that is available while message fragments are being handled.
- * 
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 27, 2006

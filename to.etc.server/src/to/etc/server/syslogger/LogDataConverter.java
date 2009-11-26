@@ -1,7 +1,7 @@
 package to.etc.server.syslogger;
 
 /**
- * 
+ *
  *
  * @author jal
  * Created on Jan 21, 2005

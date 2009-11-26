@@ -20,7 +20,7 @@ import to.etc.xml.*;
 /**
  * A generic class that allows for Java services (methods on a service class)
  * to be called using several calling sequences and entries.
- * 
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 16, 2006
  */

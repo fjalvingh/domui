@@ -56,7 +56,7 @@ public class TextScanner {
 	}
 
 	/**
-	 * Scans for an integer number at the current location. Returns T if a 
+	 * Scans for an integer number at the current location. Returns T if a
 	 * number was found. The value for that number can be obtained with a
 	 * call to getLastInt()
 	 * @return

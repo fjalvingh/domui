@@ -5,7 +5,7 @@ import java.io.*;
 import to.etc.util.*;
 
 /**
- * 
+ *
  *
  * @author jal
  * Created on Jan 21, 2005

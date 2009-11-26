@@ -1,7 +1,7 @@
 package to.etc.util;
 
 /**
- * 
+ *
  *
  * @author jal
  * Created on Jan 22, 2005

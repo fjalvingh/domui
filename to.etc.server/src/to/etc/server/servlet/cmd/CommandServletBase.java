@@ -17,7 +17,7 @@ import to.etc.server.servlet.*;
  * passed a context structure to obtain their data from.
  *
  * Created on Aug 23, 2005
- * 
+ *
  * @author jal
  */
 abstract public class CommandServletBase extends ContextServletBase {
@@ -109,7 +109,7 @@ abstract public class CommandServletBase extends ContextServletBase {
 	}
 
 	/**
-	 * Gets the specified nonce's data structures. This can be called 
+	 * Gets the specified nonce's data structures. This can be called
 	 * only once: the nonce is removed by the call.
 	 * @param nonce
 	 * @return

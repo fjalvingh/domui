@@ -5,7 +5,7 @@ import java.sql.*;
 
 /**
  * This contains the data for the job to schedule.
- * 
+ *
  * Created on Apr 4, 2003
  * @author jal
  */
@@ -31,7 +31,7 @@ public class Job {
 	/** The scheduler scheduling this dude */
 	private JobScheduler		m_js;
 
-	/** 
+	/**
 	 * The Job Unique Key identifier. This is a key that CAN be used
 	 * to prevent multiple jobs for the same task to be stored. If a
 	 * JUK is present then the scheduler will check to see if a job

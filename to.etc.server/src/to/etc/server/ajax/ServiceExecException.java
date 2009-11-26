@@ -4,7 +4,7 @@ import java.lang.reflect.*;
 
 /**
  * Any kind of service execution error on a defined service
- * 
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 18, 2006

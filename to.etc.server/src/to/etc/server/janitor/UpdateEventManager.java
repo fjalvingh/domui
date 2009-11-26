@@ -8,11 +8,11 @@ import to.etc.server.syslogger.*;
 import to.etc.util.*;
 
 /**
- * This class manages events that are posted in a 
+ * This class manages events that are posted in a
  * database table. It allows multiple databases to
  * be scanned for events. It is a generalized version
  * of the NEMA UpdateChecker.
- *  
+ *
  * @author jal
  * Created on Jan 22, 2005
  */

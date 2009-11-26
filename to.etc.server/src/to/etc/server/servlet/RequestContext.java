@@ -3,7 +3,7 @@ package to.etc.server.servlet;
 import javax.servlet.http.*;
 
 /**
- * An informational base class for a request context. This generically encapsulates 
+ * An informational base class for a request context. This generically encapsulates
  * all that should be known about a request and it's context.
  *
  * @author jal

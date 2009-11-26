@@ -7,7 +7,7 @@ import javax.servlet.jsp.el.*;
 
 /**
  * A function mapper implementation.
- * 
+ *
  *
  * @author jal
  * Created on Aug 4, 2005

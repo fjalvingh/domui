@@ -318,9 +318,9 @@ public class CalculationUtil {
 			} else if(c == dp) // Found decimal point?
 			{
 				/*
-				 * If thousands separators are used then the dp must be at a 
+				 * If thousands separators are used then the dp must be at a
 				 * thousand interval or the luser is possibly mistaking the
-				 * thousands and decimal point signs. 
+				 * thousands and decimal point signs.
 				 */
 				if(lastthou > 0) // Found thousands separator?
 				{

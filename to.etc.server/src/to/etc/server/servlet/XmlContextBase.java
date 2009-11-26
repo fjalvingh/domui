@@ -85,7 +85,7 @@ public class XmlContextBase extends CtxServletContextBase {
 	}
 
 	/**
-	 * Loads the input request as an XML document. 
+	 * Loads the input request as an XML document.
 	 * @return
 	 */
 	public Document getInputDocument() throws Exception {

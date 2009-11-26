@@ -10,7 +10,7 @@ import javax.servlet.jsp.el.*;
  * codes. It saves token values in variables that can be gotten before
  * the next token is requested. The lexer keeps track of a string position
  * for a token only; it does NOT handle line numbering.
- * 
+ *
  * Created on May 17, 2005
  * @author jal
  */
@@ -96,14 +96,14 @@ public class ElLexer {
 	private int LA() {
 		if(m_pos >= m_len) // At/past the end?
 			return -1; // return eof
-		return (m_in.charAt(m_pos) & 0xffff); // Return the current character and advance. 
+		return (m_in.charAt(m_pos) & 0xffff); // Return the current character and advance.
 	}
 
 	//	private int		LA(int pos)
 	//	{
 	//		if(m_pos + pos >= m_len)
 	//			return -1;
-	//		return ((int)m_in.charAt(m_pos+pos) & 0xffff);	// Return the current character and advance. 
+	//		return ((int)m_in.charAt(m_pos+pos) & 0xffff);	// Return the current character and advance.
 	//	}
 	//	private void consume()
 	//	{
@@ -116,7 +116,7 @@ public class ElLexer {
 	private int nextc() {
 		if(m_pos >= m_len) // At/past the end?
 			return -1; // return eof
-		return (m_in.charAt(m_pos++) & 0xffff); // Return the current character and advance. 
+		return (m_in.charAt(m_pos++) & 0xffff); // Return the current character and advance.
 	}
 
 	//	private void	skipws()
@@ -315,7 +315,7 @@ public class ElLexer {
 		// le		1
 		// lt		4
 		// mod		3
-		// ne		4	
+		// ne		4
 		// not		2
 		// null		4
 		// or		3
@@ -383,7 +383,7 @@ public class ElLexer {
 						return ElToken.NotEqual;
 					//-- No more tokens
 				}
-			} else // > not 
+			} else // > not
 			{
 				res = "or".compareTo(m_text);
 				if(res == 0)

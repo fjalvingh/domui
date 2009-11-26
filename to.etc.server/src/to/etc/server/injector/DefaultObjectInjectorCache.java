@@ -55,8 +55,8 @@ public class DefaultObjectInjectorCache extends ObjectInjectorCache {
 	 * no provider can be found this returns null.
 	 *
 	 * @param sourcecl          The type of the "source" object
-	 * @param m                 The setter method which needs a value 
-	 * @param propertyName     
+	 * @param m                 The setter method which needs a value
+	 * @param propertyName
 	 * @param type
 	 * @return
 	 */

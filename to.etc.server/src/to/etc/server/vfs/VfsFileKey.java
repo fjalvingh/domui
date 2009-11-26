@@ -4,7 +4,7 @@ import java.io.*;
 
 /**
  * Generic full-class file key.
- * 
+ *
  * @author jal
  * Created on Jan 20, 2006
  */

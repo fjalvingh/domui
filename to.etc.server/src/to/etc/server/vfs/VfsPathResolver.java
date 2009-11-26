@@ -6,7 +6,7 @@ public interface VfsPathResolver {
 	/**
 	 * This must resolve the input path into an opague VFS key object. If the path cannot
 	 * be resolved this will throw a VfsNotFoundException.
-	 * 
+	 *
 	 * @param path
 	 * @return
 	 * @throws Exception

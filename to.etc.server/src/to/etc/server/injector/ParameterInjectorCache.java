@@ -9,7 +9,7 @@ import to.etc.util.*;
 
 /**
  * This caches the rules that are used to "inject" values into a
- * method's parameters. Indexed by the method to inject this caches 
+ * method's parameters. Indexed by the method to inject this caches
  * the rules calculated for injecting all of the parameters of the
  * method off a given source type.
  *

@@ -8,7 +8,7 @@ import to.etc.smtp.*;
 import to.etc.util.*;
 
 /**
- * Handler for panics and log messages. 
+ * Handler for panics and log messages.
  *
  * @author jal
  * Created on Jan 22, 2005

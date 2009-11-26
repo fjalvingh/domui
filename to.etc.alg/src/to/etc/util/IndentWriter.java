@@ -4,7 +4,7 @@ import java.io.*;
 
 /**
  * Handles indented writing for dumps and the like.
- * 
+ *
  * @author jal
  * Created on May 3, 2004
  */

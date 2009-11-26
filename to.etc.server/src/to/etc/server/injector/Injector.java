@@ -14,7 +14,7 @@ import to.etc.xml.*;
 /**
  * This maintains a set of Injector providers. Each provider is able
  * to generate a "setter" for a given pair of (Source Object, Target type/name).
- * 
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 11, 2006
@@ -52,7 +52,7 @@ public class Injector {
 	}
 
 	/**
-	 * Utility method to initialize this injector from a servlet. This gets the 
+	 * Utility method to initialize this injector from a servlet. This gets the
 	 * context parameters and the servlet parameters that have to do
 	 * with default parameter injection.
 	 *

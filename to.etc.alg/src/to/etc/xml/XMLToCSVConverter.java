@@ -7,11 +7,11 @@ import org.w3c.dom.*;
 
 /**
  * This helper class handles conversions from XML to CSV format, using
- * a description of the file to generate from a .properties file (or 
+ * a description of the file to generate from a .properties file (or
  * Properties structure).
- * 
+ *
  * See the example conversion descriptor in ./examples/xmltocsv.properties.
- * 
+ *
  * <p>Created on May 23, 2005
  * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
  */
@@ -144,7 +144,7 @@ public class XMLToCSVConverter {
 	/**
 	 * Decodes the entire layout descriptor and builds the
 	 * per-record descriptor for layout.
-	 * 
+	 *
 	 * @param layout
 	 * @throws Exception
 	 */
@@ -161,7 +161,7 @@ public class XMLToCSVConverter {
 
 	/**
 	 * Decodes a single field.
-	 * 
+	 *
 	 * @param key
 	 * @return
 	 * @throws Exception
@@ -246,7 +246,7 @@ public class XMLToCSVConverter {
 
 	/**
 	 * This class contains all that's needed to convert a field.
-	 * 
+	 *
 	 * <p>Created on May 23, 2005
 	 * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
 	 */
@@ -375,7 +375,7 @@ public class XMLToCSVConverter {
 	}
 
 	/**
-	 * Walks the document and generates a CSV record for every 
+	 * Walks the document and generates a CSV record for every
 	 * record found there.
 	 * @param w
 	 * @param doc
@@ -388,7 +388,7 @@ public class XMLToCSVConverter {
 		if(n == null)
 			error(m_error_sb + " in recordlist selector.");
 
-		// mbp: treat a record node name of "/" as a single record having 
+		// mbp: treat a record node name of "/" as a single record having
 		// the given node for root
 		if(m_record.compareToIgnoreCase("/") == 0) {
 			convertRecord(w, root, root, 1);

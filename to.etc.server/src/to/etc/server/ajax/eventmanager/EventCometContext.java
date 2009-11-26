@@ -75,7 +75,7 @@ public class EventCometContext implements CometContext {
 	 * this instance does not release it to the client but merely posts it's intention
 	 * to do so. Only when the lock count reaches 0 again will the actual continue be
 	 * done. While this count is > 0 the context is "owned". This gets used to allow
-	 * ajax event filters to run outside of any locks.  
+	 * ajax event filters to run outside of any locks.
 	 */
 	private int					m_lockCount;
 
@@ -236,8 +236,8 @@ public class EventCometContext implements CometContext {
 	 * 		]
 	 * 	}
 	 * </pre>
-	 * 
-	 *  
+	 *
+	 *
 	 *
 	 * @see to.etc.server.ajax.comet.CometContext#respond(javax.servlet.http.HttpServletResponse, boolean)
 	 */
@@ -278,7 +278,7 @@ public class EventCometContext implements CometContext {
 	 * Appends the event to the list *only* if it is not already there. This
 	 * can easily be seen since event ids are always ascending in calls, so
 	 * if the lists last item has a higher or equal event # the event was seen.
-	 * 
+	 *
 	 * @param e
 	 * @return true if the event was accepted (added), false if it was seen earlier.
 	 */
@@ -329,7 +329,7 @@ public class EventCometContext implements CometContext {
 	}
 
 	/**
-	 * Set the data to send as an event, and use the lasteventid passed as the 
+	 * Set the data to send as an event, and use the lasteventid passed as the
 	 * lastid.
 	 * @param nexteventid
 	 */
@@ -371,7 +371,7 @@ public class EventCometContext implements CometContext {
 	}
 
 	/**
-	 * Sets this thing as "completed OK". This prepares the response object. 
+	 * Sets this thing as "completed OK". This prepares the response object.
 	 */
 	void setCompletedOK() {
 		if(m_completionState != CompletionState.csWAITING)
@@ -382,7 +382,7 @@ public class EventCometContext implements CometContext {
 
 	/**
 	 * Called when the browser timeout has been reached.
-	 * 
+	 *
 	 * @param nexteventid
 	 */
 	void setBrowserTimeout(int nexteventid) {

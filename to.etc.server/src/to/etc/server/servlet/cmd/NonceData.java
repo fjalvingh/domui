@@ -3,7 +3,7 @@ package to.etc.server.servlet.cmd;
 /**
  * Saved nonce and associated client data for SOAP
  * authentication.
- * 
+ *
  * Created on Feb 8, 2005
  * @author jal
  */

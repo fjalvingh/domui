@@ -103,7 +103,7 @@ public class HttpSessionWrapper implements HttpSession {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void invalidate() {
 		m_hs.invalidate();

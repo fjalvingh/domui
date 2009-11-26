@@ -44,7 +44,7 @@ public class NdFCall extends NdBase {
 	@Override
 	public Object evaluate(VariableResolver vr) throws ELException {
 		/*
-		 * Evaluate all arguments and convert them to the appropriate 
+		 * Evaluate all arguments and convert them to the appropriate
 		 * type. Report an exception on converter errors.
 		 */
 		Object[] ar = new Object[m_actuals.size()];

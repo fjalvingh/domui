@@ -17,7 +17,7 @@ import javax.annotation.meta.TypeQualifierDefault;
  * <li> there is a default parameter annotation applied to a more tightly nested
  * element.
  * </ul>
- * 
+ *
  */
 @Documented
 @Nonnull

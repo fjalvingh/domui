@@ -13,7 +13,7 @@ public class CommandServletRegistry {
 	private Class< ? >	m_defaulthandler_cl;
 
 	/**
-	 * The list of registered ManyCmd classes. 
+	 * The list of registered ManyCmd classes.
 	 * Then each class registered is checked for
 	 * existence of such a function with the correct parameters. When found the
 	 * Method for that class is retrieved so that the function can be called.
@@ -30,7 +30,7 @@ public class CommandServletRegistry {
 
 	/**
 	 * Registers a handler class.
-	 * 
+	 *
 	 * @param cl the class to register, obtained like <i>Handler.class </i>
 	 */
 	public void register(Class cl) {
@@ -70,7 +70,7 @@ public class CommandServletRegistry {
 	/**
 	 * Returns all handlers that have a name. These usually are extentions, and
 	 * the names are returned in the new-session packet.
-	 * 
+	 *
 	 * @return
 	 */
 	public ArrayList getNamedHandlers() {
@@ -83,7 +83,7 @@ public class CommandServletRegistry {
 	/**
 	 * Tries to locate a caller method with the appropriate signature in the
 	 * class passed.
-	 * 
+	 *
 	 * @param cl
 	 *            the class to check for the method
 	 * @param name
@@ -109,7 +109,7 @@ public class CommandServletRegistry {
 	 * will be converted to <code>execGetSiteList</code>. This function must
 	 * not be called directly, but is called thru handlerByName, which caches
 	 * the functions it has found.
-	 * 
+	 *
 	 * @param name
 	 *            the xml name to convert and lookup.
 	 * @return a method, or null if nothing was found
@@ -165,7 +165,7 @@ public class CommandServletRegistry {
 	 * <code>execGetSiteList</code>. This function must not be called
 	 * directly, but is called thru handlerByName, which caches the functions it
 	 * has found.
-	 * 
+	 *
 	 * @param name
 	 *            the xml name to convert and lookup.
 	 * @return a method, or null if nothing was found

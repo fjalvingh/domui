@@ -6,7 +6,7 @@ import to.etc.el.node.*;
 import to.etc.util.*;
 
 /**
- * This encapsulates a "property" expression. This is a possibly 
+ * This encapsulates a "property" expression. This is a possibly
  * complex property reference based off some unknown object. To
  * resolve the reference one needs to pass in the object where
  * the root of the property can be resolved on.
@@ -48,7 +48,7 @@ public class PropertyExpression {
 	}
 
 	/**
-	 * The type of the expression. 
+	 * The type of the expression.
 	 * @param vr		The resolver to use when evaluating variables
 	 * @return
 	 */

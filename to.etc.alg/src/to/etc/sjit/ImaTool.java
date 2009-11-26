@@ -101,7 +101,7 @@ public class ImaTool {
 	/*--------------------------------------------------------------*/
 	static public BufferedImage loadPNG(InputStream is) throws IOException {
 		return ImageIO.read(is);
-		//		
+		//
 		//		PngImage	p = new PngImage();
 		//		return p.read(is, false);
 	}

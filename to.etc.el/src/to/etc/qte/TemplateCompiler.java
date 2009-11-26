@@ -17,13 +17,13 @@ import to.etc.el.*;
  * initializers, The rest of the code can then expand the template by simply providing an
  * Appendable as sink and a VariableResolver.
  * </p>
- * <p>The template engine uses the EL expression evaluator to allow for expressions in the 
+ * <p>The template engine uses the EL expression evaluator to allow for expressions in the
  * template. The EL expressions in this engine do not start with ${ ... } or #{ ... } though
  * to make it easier to generate JSP from these templates. The syntax used in the templates is
  * shown below.
  * </p>
  *
- * <p>The templates are very simple and only allow for replacement EL expressions and 
+ * <p>The templates are very simple and only allow for replacement EL expressions and
  * if/else/endif/loop.</p>
  *
  * <p>Created on Nov 25, 2005
@@ -189,7 +189,7 @@ public class TemplateCompiler {
 	/*--------------------------------------------------------------*/
 	//	/** Lexer mode: when T we're in an expression part (scanning for %>). */
 	//	private boolean		m_inexpr;
-	//	
+	//
 	/**
 	 * Scans for data until a token start character is found (&lt;%).
 	 * @return

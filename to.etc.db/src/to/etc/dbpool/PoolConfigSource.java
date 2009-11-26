@@ -4,7 +4,7 @@ import java.io.*;
 
 /**
  * Some thingy that can retrieve pool parameters.
- * 
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 16, 2007

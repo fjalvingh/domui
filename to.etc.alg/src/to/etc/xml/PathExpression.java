@@ -10,7 +10,7 @@ import org.w3c.dom.*;
  * order to get to a given value within an XML structure. The
  * matcher code is not very efficient as it traverses the
  * DOM from start to finish every time a value needs to be got.
- * 
+ *
  * <p>Created on May 23, 2005
  * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
  */

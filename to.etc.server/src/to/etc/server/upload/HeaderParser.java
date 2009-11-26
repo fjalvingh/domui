@@ -85,7 +85,7 @@ public class HeaderParser {
 			return false;
 		m_property = m_str.substring(sp, ep);
 		if(lc == 13 && c == 10)
-			return true; // Have a name but no value -> keep 
+			return true; // Have a name but no value -> keep
 
 		//-- We have a ':': parse the value.
 		sp = m_ix;

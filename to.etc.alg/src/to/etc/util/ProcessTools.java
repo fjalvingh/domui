@@ -136,7 +136,7 @@ public class ProcessTools {
 	}
 
 	/**
-	 * Runs the process whose data is in the ProcessBuilder and captures the 
+	 * Runs the process whose data is in the ProcessBuilder and captures the
 	 * result with stdout and stderr merged into a writer.
 	 * @param pb
 	 * @param sb
