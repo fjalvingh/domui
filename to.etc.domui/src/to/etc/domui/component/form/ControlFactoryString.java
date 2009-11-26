@@ -29,19 +29,37 @@ public class ControlFactoryString implements ControlFactory {
 
 	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		Class< ? > iclz = pmm.getActualType();
-
-		//-- Treat everything else as a String using a converter.
 		Text< ? > txt = new Text(iclz);
+
+		//-- Get simple things to do out of the way.
 		if(!editable)
 			txt.setReadOnly(true);
+		if(pmm.getConverter() != null)
+			txt.setConverter((IConverter) pmm.getConverter());
+		if(pmm.isRequired())
+			txt.setMandatory(true);
+		String s = pmm.getDefaultHint();
+		if(s != null)
+			txt.setTitle(s);
+		for(PropertyMetaValidator mpv : pmm.getValidators())
+			txt.addValidator(mpv);
 
 		/*
-		 * Length calculation using the metadata. This uses the "length" field as LAST, because it is often 255 because the
-		 * JPA's column annotation defaults length to 255 to make sure it's usability is bloody reduced. Idiots.
+		 * Start calculating maxlength and display length. Display length means the presented size on the
+		 * UI (size= attribute); maxlength means just that - no data longer than maxlength can be entered.
+		 * The calculation is complex and depends on the input type; the common types are handled here; other
+		 * types should be handled by their own control factory.
+		 *
+		 * Length calculation is made fragile because the JPA @Column annotation's length attribute defaults
+		 * to 255 (a decision made by some complete and utter idiot), so we take some special care with it
+		 * if it has this value - it is not really used in the decision process anymore.
+		 *
 		 */
-		if(pmm.getDisplayLength() > 0)
-			txt.setSize(pmm.getDisplayLength());
-		else if(pmm.getPrecision() > 0) {
+		//-- Precalculate some sizes for well-known types like numerics.
+		int calcmaxsz = -1; // Calculated max input size
+		int calcsz = -1; // Calculated display size,
+
+		if(pmm.getPrecision() > 0) {
 			// FIXME This should be localized somehow...
 			//-- Calculate a size using scale and precision.
 			int size = pmm.getPrecision();
@@ -60,23 +78,43 @@ public class ControlFactoryString implements ControlFactory {
 					size += nd; // Increment input size with that
 				}
 			}
-			txt.setSize(size);
-			txt.setMaxLength(size); // FIXME QUESTIONABLE: Euro sign input??
-		} else if(pmm.getLength() > 0) {
-			txt.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
+
+			//-- If this is some form of money allow extra room for the currency indicator + space.
+			if(NumericPresentation.isMonetary(pmm.getNumericPresentation())) {
+				size += 2; // For now allow 2 extra characters
+			}
+			calcsz = size;
+			calcmaxsz = size;
+		} else if(NumericPresentation.isMonetary(pmm.getNumericPresentation())) {
+			//-- Monetary amount with unclear precision- do a reasonable default. Allow for E 1.000.000.000,00 input size and way bigger max size
+			calcsz = 18;
+			calcmaxsz = 30;
 		}
 
-		if(pmm.getConverter() != null)
-			txt.setConverter((IConverter) pmm.getConverter());
-		if(pmm.getLength() > 0)
-			txt.setMaxLength(pmm.getLength());
-		if(pmm.isRequired())
-			txt.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			txt.setTitle(s);
-		for(PropertyMetaValidator mpv : pmm.getValidators())
-			txt.addValidator(mpv);
+		//-- When a display length *is* present it *always* overrides any calculated value,
+		if(pmm.getDisplayLength() > 0)
+			calcsz = pmm.getDisplayLength();
+
+		if(pmm.getLength() > 0 && pmm.getLength() != 255) { // Handle non-jpa-blundered lengths, if present
+			//-- A length is present. It only defines the max. input size if no converter is present...
+			if(pmm.getConverter() == null) {
+				calcmaxsz = pmm.getLength(); // Defined max length always overrides anything else
+				if(calcsz <= 0 && calcmaxsz < 40)
+					calcsz = calcmaxsz; // Set the display size provided it is reasonable
+			}
+		}
+
+		//-- Wrap it up...
+		if(calcmaxsz > 0)
+			txt.setMaxLength(calcmaxsz);
+		if(calcsz <= 0) {
+			if(calcmaxsz <= 0 || calcmaxsz > 40)
+				calcsz = 40;
+			else
+				calcsz = calcmaxsz;
+		}
+		txt.setSize(calcsz);
+
 		return new Result(txt, model, pmm);
 	}
 
