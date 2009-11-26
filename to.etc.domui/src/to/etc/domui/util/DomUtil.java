@@ -462,6 +462,7 @@ final public class DomUtil {
 
 		//-- Phase 1: start marking extends in the matrix.
 		int rowindex = 0;
+		int maxcols = 0;
 		for(NodeBase l0 : t) { // Expecting THead and TBodies here.
 			if(l0 instanceof THead || l0 instanceof TBody) {
 				//-- Walk all rows.
@@ -469,16 +470,40 @@ final public class DomUtil {
 					if(!(trb instanceof TR))
 						throw new IllegalStateException("Unexpected child of type " + l0 + " in TBody/THead node (expecting TR)");
 					TR tr = (TR) trb;
+					int minrowspan = 1;
+
+					//-- Start traversing the TD's.
+					List<TD> baserowlist = getTdList(matrix, rowindex);
+					int colindex = 0;
+					for(NodeBase tdb : tr) {
+						if(!(tdb instanceof TD))
+							throw new IllegalStateException("Unexpected child of type " + tr + " in TBody/THead node (expecting TD)");
+						TD td = (TD) tdb;
+
+						int colspan = td.getColspan();
+						int rowspan = td.getRowspan();
+						if(colspan < 1)
+							colspan = 1;
+						if(rowspan < 1)
+							rowspan = 1;
 
 
 
-					rowindex++;
+					}
+					rowindex += minrowspan;
 				}
 			} else
 				throw new IllegalStateException("Unexpected child of type " + l0 + " in TABLE node");
 		}
 
 		//-- Phase 2: for all cells, handle their row/colspan by recounting their spread
+	}
+
+	static private List<TD> getTdList(List<List<TD>> matrix, int row) {
+		while(matrix.size() <= row) {
+			matrix.add(new ArrayList<TD>());
+		}
+		return matrix.get(row);
 	}
 
 	/**
