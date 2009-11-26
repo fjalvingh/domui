@@ -172,7 +172,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 
 				//-- 2nd part MUST be numeric, so scan a value
 				String v = scanNumeric();
-				if(v == null)
+				if(v == null || "".equals(v))
 					throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
 				Object value = parseNumber(v); // Convert to appropriate type,
 				checkNumber(m_pmm, value);

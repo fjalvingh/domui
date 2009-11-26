@@ -126,7 +126,9 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 		if(cur != null) {
 			cur = cur.replace("\r\n", "\n");
 		}
-		if(DomUtil.isEqual(nw, cur))
+		//vmijic 20091126 - now IE returns \n\r, but FF returns \n... So, both nw and cur have to be compared with "\r\n" replaced by "\n"...
+		String flattenLineBreaksNw = (nw != null) ? nw.replace("\r\n", "\n") : null;
+		if(DomUtil.isEqual(flattenLineBreaksNw, cur))
 			return false;
 
 		setValue(nw);

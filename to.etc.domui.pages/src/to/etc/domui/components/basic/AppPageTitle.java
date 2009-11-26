@@ -66,6 +66,7 @@ public class AppPageTitle extends Div {
 		td = b.addCell();
 		m_titlePart = td;
 		td.setCssClass("vp-ttl-t");
+		td.setTestID("pageTitle");
 		String ttl = getPageTitle();
 		if(ttl != null)
 			td.add(ttl);

@@ -115,7 +115,7 @@ final public class DomUtil {
 	}
 
 	static public boolean isLongOrWrapper(Class< ? > clz) {
-		return clz == Long.class || clz == Long.class;
+		return clz == Long.class || clz == long.class;
 	}
 
 	/**
