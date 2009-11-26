@@ -463,4 +463,8 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		m_renderHint = renderHint;
 	}
 
+	@Override
+	public String toString() {
+		return "ExpandedDisplayProperty[" + m_propertyName + "]";
+	}
 }

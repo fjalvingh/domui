@@ -27,8 +27,8 @@ public class OddCharacters extends FloatingWindow {
 		super.createContent();
 		TabPanel tp = new TabPanel();
 		add(tp);
-		tp.add(createTekens(), "Tekens", "img/btnSpecialChar.png");
-		tp.add(createDates(), "Datum/tijd", "img/btnClock.png");
+		tp.add(createTekens(), "Tekens", "THEME/btnSpecialChar.png");
+		tp.add(createDates(), "Datum/tijd", "THEME/btnClock.png");
 	}
 
 	private NodeBase createTekens() throws IOException {

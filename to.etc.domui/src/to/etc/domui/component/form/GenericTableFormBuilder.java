@@ -48,7 +48,8 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	}
 
 	/**
-	 * Sets a new table. This resets the current body and stuff.
+	 * Sets a new table. This resets the current body and stuff. Since the table was not created here the
+	 * onBodyAdded local event is not fired.
 	 * @param b
 	 */
 	public void setTable(final Table b) {
@@ -60,12 +61,9 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 		internalClearLocation();
 	}
 
-	public Table getTable() {
-		return m_parentTable;
-	}
-
 	/**
-	 * Sets the TBody to use. This resets all layout state.
+	 * Sets the TBody to use. This resets all layout state. Since the table and the body was not created here the
+	 * onBodyAdded local event is not fired.
 	 * @param b
 	 */
 	public void setTBody(final TBody b) {
@@ -74,11 +72,60 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 		m_parentTable = b.getParent(Table.class);
 	}
 
+	/**
+	 * Called when a new table is added.
+	 * @param t
+	 */
+	protected void onTableAdded(Table t) {}
+
+	protected void onBodyAdded(TBody b) {}
+
+	protected void onRowAdded(TR row) {}
+
+	/**
+	 * Return the current table, or null if nothing is current.
+	 * @return
+	 */
+	public Table getTable() {
+		return m_parentTable;
+	}
+
+	/**
+	 * Return the current tbody, or null if nothing is current.
+	 * @return
+	 */
+	public TBody getTBody() {
+		return m_tbody;
+	}
+
+	/**
+	 * Gets the current table, or creates a new one if none is set. If a new one
+	 * is created this fires the {@link #onTableAdded(Table)} event.
+	 * @return
+	 */
+	protected Table table() {
+		if(m_parentTable == null) {
+			m_parentTable = new Table();
+			internalClearLocation();
+			m_lastUsedRow = null;
+			m_lastUsedCell = null;
+			onTableAdded(m_parentTable);
+		}
+		return m_parentTable;
+	}
+
+	/**
+	 * Gets the current tbody, or creates a new one if none is set. If a new one
+	 * is created this fires the {@link #onBodyAdded(TBody)} event.
+	 * @return
+	 */
 	protected TBody tbody() {
 		if(m_tbody == null) {
-			if(m_parentTable == null)
-				m_parentTable = new Table();
-			m_tbody = m_parentTable.getBody(); // Force a new body.
+			m_tbody = table().getBody();
+			m_lastUsedRow = null;
+			m_lastUsedCell = null;
+			internalClearLocation();
+			onBodyAdded(m_tbody);
 		}
 		return m_tbody;
 	}
@@ -90,13 +137,13 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	 * @return
 	 */
 	public TBody newBody() {
-		TBody b = new TBody();
-		m_parentTable.add(b);
-		m_tbody = b;
-		internalClearLocation();
+		m_tbody = new TBody();
+		table().add(m_tbody);
 		m_lastUsedRow = null;
 		m_lastUsedCell = null;
-		return b;
+		internalClearLocation();
+		onBodyAdded(m_tbody);
+		return m_tbody;
 	}
 
 	/**
@@ -106,7 +153,7 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	 * @return
 	 */
 	@Override
-	public Table finish() {
+	public NodeContainer finish() {
 		if(m_parentTable == null)
 			return null;
 

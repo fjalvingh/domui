@@ -18,7 +18,7 @@ public class SimpleColumnDef {
 
 	private Class< ? > m_columnType;
 
-	private SortableType m_sortable;
+	private SortableType m_sortable = SortableType.UNKNOWN;
 
 	private String m_width;
 

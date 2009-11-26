@@ -57,6 +57,10 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		setClassModel(clz, mdl);
 	}
 
+	public <T> TabularFormBuilder(T instance) {
+		setInstance(instance);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	GenericTableFormBuilder extensions.					*/
 	/*--------------------------------------------------------------*/

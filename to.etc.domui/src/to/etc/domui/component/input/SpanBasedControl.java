@@ -65,6 +65,9 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 		m_value = v;
 	}
 
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 */
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
 			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
@@ -83,6 +86,23 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 			return;
 		m_value = v;
 		forceRebuild();
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 */
+	@Override
+	public T getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		getValueSafe();
+		return super.hasError();
 	}
 
 	/**
