@@ -307,9 +307,8 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param c
 	 */
 	protected void modeAddNormal(final Label l, final NodeBase[] c) {
-		m_lastUsedRow = new TR();
-		tbody().add(m_lastUsedRow);
-		addCells(m_lastUsedRow, l, c);
+		addRow();
+		addCells(row(), l, c);
 	}
 
 	/**
@@ -320,11 +319,10 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 */
 	protected void modeAddAppend(final Label l, final NodeBase[] c) {
 		//-- Find the last used TR in the body.
-		if(tbody().getChildCount() == 0 || m_lastUsedRow == null) {
-			m_lastUsedRow = new TR();
-			tbody().add(m_lastUsedRow);
+		if(tbody().getChildCount() == 0 || getLastUsedRow() == null) { // FIXME Why this exhaustive test? Null lastrow should be enough?
+			addRow();
 		}
-		addCells(m_lastUsedRow, l, c);
+		addCells(row(), l, c);
 	}
 
 	/**
@@ -334,20 +332,18 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 */
 	protected void modeAddColumnar(final Label l, final NodeBase[] c) {
 		//-- 1. Find the appropriate "row" or make sure it exists.
-		while(tbody().getChildCount() <= m_colRow)
-			tbody().add(new TR());
-		m_lastUsedRow = (TR) tbody().getChild(m_colRow);
+		TR tr = selectRow(m_colRow);
 
 		//-- 2. Move to the proper cellpair, or cause them to exist.
 		int cindex = 2 * m_colCol;
 		TD lcell, ccell;
-		while(m_lastUsedRow.getChildCount() <= cindex + 1) {
+		while(tr.getChildCount() <= cindex + 1) {
 			TD td = new TD();
-			td.setCssClass((m_lastUsedRow.getChildCount() & 1) == 0 ? "ui-f-lbl" : "ui-f-in");
-			m_lastUsedRow.add(td);
+			td.setCssClass((tr.getChildCount() & 1) == 0 ? "ui-f-lbl" : "ui-f-in");
+			tr.add(td);
 		}
-		lcell = (TD) m_lastUsedRow.getChild(cindex);
-		ccell = (TD) m_lastUsedRow.getChild(cindex + 1);
+		lcell = (TD) tr.getChild(cindex);
+		ccell = (TD) tr.getChild(cindex + 1);
 
 		//-- Set the data into the cells but make sure they're empty
 		lcell.removeAllChildren();
@@ -365,17 +361,14 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param c
 	 */
 	protected void modeAppendInto(final Label l, final NodeBase[] c) {
-		if(m_lastUsedRow == null) { // If there's no row-> add one,
-			m_lastUsedRow = new TR();
-			tbody().add(m_lastUsedRow);
-		}
+		TR tr = row(); // If there's no row-> add one,
 
-		if(m_lastUsedRow.getChildCount() == 0) { // No cells yet?
+		if(tr.getChildCount() == 0) { // No cells yet?
 			modeAddNormal(l, c); // Then add as normal
 			return;
 		}
 
-		TD td = (TD) m_lastUsedRow.getChild(m_lastUsedRow.getChildCount() - 1); // Find last td
+		TD td = (TD) tr.getChild(tr.getChildCount() - 1); // Find last td
 		if(m_appendIntoSeparator != null && m_appendIntoSeparator.length() > 0)
 			td.add(m_appendIntoSeparator); // Append any string separator
 
@@ -388,5 +381,4 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		for(NodeBase nb : c)
 			td.add(nb);
 	}
-
 }

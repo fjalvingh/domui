@@ -169,7 +169,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 					tbody();
 				else {
 					//-- We have an existing table and body... The body must be empty or we need to create new table and body.
-					if(m_tbody.getChildCount() > 0) {
+					if(getTBody().getChildCount() > 0) {
 						reset();
 					}
 				}

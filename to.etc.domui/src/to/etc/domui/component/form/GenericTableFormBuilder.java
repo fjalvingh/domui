@@ -1,5 +1,7 @@
 package to.etc.domui.component.form;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -11,14 +13,14 @@ import to.etc.domui.util.*;
  * Created on Aug 13, 2009
  */
 abstract public class GenericTableFormBuilder extends GenericFormBuilder {
-	protected Table m_parentTable;
+	private Table m_parentTable;
 
 	/** The current body we're filling in */
-	protected TBody m_tbody;
+	private TBody m_tbody;
 
-	protected TR m_lastUsedRow;
+	private TR m_lastUsedRow;
 
-	protected TD m_lastUsedCell;
+	private TD m_lastUsedCell;
 
 	public GenericTableFormBuilder() {}
 
@@ -168,30 +170,71 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	/*	CODING:	Simple table manipulation.							*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Add a new row.
+	 * Add a new row to the current body; create a body (and a table) if necessary. The row becomes the "last row".
 	 * @return
 	 */
+	@Nonnull
 	public TR addRow() {
-		return m_lastUsedRow = tbody().addRow();
+		m_lastUsedRow = tbody().addRow();
+		onRowAdded(m_lastUsedRow);
+		return m_lastUsedRow;
 	}
 
 	/**
-	 * Add a new cell.
+	 * Gets the last-used row. If it is unset it gets created and added to the current tbody. This also creates tbody and
+	 * table if needed.
 	 * @return
 	 */
+	@Nonnull
+	public TR row() {
+		if(m_lastUsedRow == null)
+			addRow();
+		return m_lastUsedRow;
+	}
+
+	/**
+	 * Get the last-used row. This can return null!!
+	 * @return
+	 */
+	@Nullable
+	public TR getLastUsedRow() {
+		return m_lastUsedRow;
+	}
+
+	/**
+	 * This makes the row with the specified index in the current body the "current" row. If it does
+	 * not already exist it gets created!
+	 * @param ix
+	 * @return
+	 */
+	public TR selectRow(int ix) {
+		while(tbody().getChildCount() <= ix)
+			addRow();
+		m_lastUsedRow = (TR) tbody().getChild(ix);
+		return m_lastUsedRow;
+	}
+
+	/**
+	 * Add a new cell to the last-used row.
+	 * @return
+	 */
+	@Nonnull
 	public TD addCell() {
-		return m_lastUsedCell = tbody().addCell();
+		return m_lastUsedCell = row().addCell();
 	}
 
+	@Nonnull
 	public TD addCell(String css) {
-		return m_lastUsedCell = tbody().addCell(css);
+		return m_lastUsedCell = row().addCell(css);
 	}
 
+	@Nonnull
 	public TD addRowAndCell() {
 		addRow();
 		return addCell();
 	}
 
+	@Nonnull
 	public TD addRowAndCell(String tdcss) {
 		addRow();
 		return addCell(tdcss);

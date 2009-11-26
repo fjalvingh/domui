@@ -129,11 +129,11 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	 */
 	@Override
 	public Table finish() {
-		if(m_parentTable == null)
+		if(getTable() == null)
 			return null;
 
 		//-- jal 20090508 MUST clear the table, because when the builder is used for the NEXT tab it must return a new table!
-		Table tbl = m_parentTable;
+		Table tbl = getTable();
 		reset();
 
 		//-- vmijic 20091106 Do not automatically change colspans, no need for this and also cause rowspans to not working properly
