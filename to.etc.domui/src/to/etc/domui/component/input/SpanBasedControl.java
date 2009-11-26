@@ -6,12 +6,14 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
 /**
+ * DEPRECATED - one big bag full of problems.
  * Base class to implement an input control using a span as the baae. This implements
  * all basic code for an input control like the IInputNode interface.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 13, 2008
  */
+@Deprecated
 abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> {
 	private boolean m_mandatory;
 

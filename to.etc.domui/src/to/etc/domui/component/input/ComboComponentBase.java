@@ -2,22 +2,14 @@ package to.etc.domui.component.input;
 
 import java.util.*;
 
-import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
-public class ComboComponentBase<T, V> extends SpanBasedControl<V> implements IHasModifiedIndication {
-	/** The name of the set of ReferenceCodes to show in this combo */
-	private Select m_combo;
-
-	private List<SmallImgButton> m_buttonList = Collections.EMPTY_LIST;
-
+public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
 	private List<T> m_data;
-
-	/** The text value to show on the "unselected" option */
-	private String m_emptyText;
 
 	/** The specified ComboRenderer used. */
 	private INodeContentRenderer<T> m_contentRenderer;
@@ -31,10 +23,11 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> implements IHa
 	/** When set this maker will be used to provide a list of values for this combo. */
 	private IListMaker<T> m_listMaker;
 
-	private IValueTransformer<V> m_valueTransformer;
+	private Class< ? extends IComboDataSet<T>> m_dataSetClass;
 
-	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
-	private boolean m_modifiedByUser;
+	private IComboDataSet<T> m_dataSet;
+
+	private IValueTransformer<V> m_valueTransformer;
 
 	public ComboComponentBase() {}
 
@@ -42,78 +35,103 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> implements IHa
 		m_listMaker = maker;
 	}
 
+	public ComboComponentBase(IComboDataSet<T> dataSet) {
+		m_dataSet = dataSet;
+	}
+
+	public ComboComponentBase(Class< ? extends IComboDataSet<T>> dataSetClass) {
+		m_dataSetClass = dataSetClass;
+	}
+
 	public ComboComponentBase(List<T> in) {
 		m_data = in;
 	}
 
+	public ComboComponentBase(Class< ? extends IComboDataSet<T>> set, INodeContentRenderer<T> r) {
+		m_dataSetClass = set;
+		m_contentRenderer = r;
+	}
+
 	@Override
 	public void createContent() throws Exception {
-		super.createContent();
-		m_combo = new Select() {
-			@Override
-			public boolean acceptRequestParameter(String[] values) throws Exception {
-				V oldvalue = getRawValue();
-
-				String in = values[0]; // Must be the ID of the selected Option thingy.
-				SelectOption selo = (SelectOption) getPage().findNodeByID(in);
-				if(selo == null) {
-					setRawValue(null);
-				} else {
-					int index = findChildIndex(selo); // Must be found
-					if(index == -1)
-						throw new IllegalStateException("Where has my child " + in + " gone to??");
-					this.setSelectedIndex(index);
-					if(!ComboComponentBase.this.isMandatory()) {
-						//-- If the index is 0 we have the "unselected" thingy; if not we need to decrement by 1 to skip that entry.
-						if(index == 0)
-							setRawValue(null);
-						index--; // IMPORTANT Index becomes -ve if value lookup may not be done!
-					}
-
-					if(index >= 0) {
-						List<T> data = getData();
-						if(index >= data.size()) {
-							setRawValue(null);
-						} else
-							setRawValue(listToValue(data.get(index)));
-					}
-				}
-
-				//-- Determine if anything actually changed
-				ClassMetaModel cmm = (oldvalue != null ? MetaManager.findClassMeta(oldvalue.getClass()) : null);
-				if(MetaManager.areObjectsEqual(oldvalue, getRawValue(), cmm))
-					return false;
-				DomUtil.setModifiedFlag(ComboComponentBase.this);
-				return true;
-			}
-		};
-		add(m_combo);
-		for(SmallImgButton b : m_buttonList)
-			add(b);
-
 		//-- Append shtuff to the combo
+		int ix = 0;
+		V raw = internalGetCurrentValue();
 		if(!isMandatory()) {
 			//-- Add 1st "empty" thingy representing the unchosen.
 			SelectOption o = new SelectOption();
 			if(getEmptyText() != null)
 				o.setText(getEmptyText());
-			m_combo.add(o);
-			o.setSelected(getRawValue() == null);
+			add(o);
+			if(raw == null) {
+				o.setSelected(true);
+				internalSetSelectedIndex(0);
+			}
+			ix++;
 		}
 
 		ClassMetaModel cmm = null;
 		for(T val : getData()) {
 			SelectOption o = new SelectOption();
-			m_combo.add(o);
+			add(o);
 			renderOptionLabel(o, val);
 			V res = listToValue(val);
 			if(cmm == null)
 				cmm = MetaManager.findClassMeta(res.getClass());
-			boolean eq = MetaManager.areObjectsEqual(res, getRawValue(), cmm);
-			o.setSelected(eq);
+			boolean eq = MetaManager.areObjectsEqual(res, raw, cmm);
+			if(eq) {
+				o.setSelected(eq);
+				internalSetSelectedIndex(ix);
+			}
+			ix++;
 		}
 	}
 
+	/**
+	 * Find the index of the value [newvalue].
+	 * @see to.etc.domui.component.input.SelectBasedControl#findListIndexForValue(java.lang.Object)
+	 */
+	@Override
+	protected int findListIndexForValue(V newvalue) {
+		try {
+			ClassMetaModel	cmm = newvalue == null ? null : MetaManager.findClassMeta(newvalue.getClass());;
+			List<T> data = getData();
+			for(int ix = 0; ix < data.size(); ix++) {
+				V	value = listToValue(data.get(ix));
+				if(MetaManager.areObjectsEqual(value, newvalue, cmm))
+					return ix;
+			}
+			return -1;
+		} catch(Exception x) { // Need to wrap; James Gosling is an idiot.
+			throw WrappedException.wrap(x);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.component.input.SelectBasedControl#findOptionValueByIndex(int)
+	 */
+	@Override
+	protected V findOptionValueByIndex(int ix) {
+		try {
+			List<T> data = getData();
+			if(ix < 0 || ix >= data.size())
+				return null;
+			return listToValue(data.get(ix));
+		} catch(Exception x) { // Need to wrap; James Gosling is an idiot.
+			throw WrappedException.wrap(x);
+		}
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	List - value conversions and list management		*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param in
+	 * @return
+	 * @throws Exception
+	 */
 	protected V listToValue(T in) throws Exception {
 		if(m_valueTransformer == null)
 			return (V) in;
@@ -136,26 +154,6 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> implements IHa
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(object);
 		m_actualContentRenderer.renderNodeContent(this, o, object, this);
-	}
-
-	public void addExtraButton(String img, String title, final IClicked<ComboComponentBase<T, V>> clicked) {
-		if(m_buttonList == Collections.EMPTY_LIST)
-			m_buttonList = new ArrayList<SmallImgButton>();
-		SmallImgButton si = new SmallImgButton(img);
-		if(clicked != null) {
-			si.setClicked(new IClicked<SmallImgButton>() {
-				public void clicked(SmallImgButton b) throws Exception {
-					clicked.clicked(ComboComponentBase.this);
-				}
-			});
-		}
-		if(title != null)
-			si.setTitle(title);
-		si.addCssClass("ui-cl2-btn");
-		m_buttonList.add(si);
-
-		if(isBuilt())
-			forceRebuild();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -194,20 +192,19 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> implements IHa
 	protected List<T> provideData() throws Exception {
 		if(m_listMaker != null)
 			return DomApplication.get().getCachedList(m_listMaker);
+
+		//-- Try datasets,
+		IComboDataSet<T> builder = m_dataSet;
+		if(builder == null && m_dataSetClass != null)
+			builder = DomApplication.get().createInstance(m_dataSetClass);
+		if(builder != null)
+			return builder.getComboDataSet(getPage().getConversation(), null);
 		throw new IllegalStateException("I have no way to get data to show in my combo..");
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getters, setters and other boring crud.				*/
 	/*--------------------------------------------------------------*/
-	public String getEmptyText() {
-		return m_emptyText;
-	}
-
-	public void setEmptyText(String emptyText) {
-		m_emptyText = emptyText;
-	}
-
 	public INodeContentRenderer<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
@@ -247,25 +244,4 @@ public class ComboComponentBase<T, V> extends SpanBasedControl<V> implements IHa
 	public void setValueTransformer(IValueTransformer<V> valueTransformer) {
 		m_valueTransformer = valueTransformer;
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IHasModifiedIndication impl							*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Returns the modified-by-user flag.
-	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
-	 */
-	public boolean isModified() {
-		return m_modifiedByUser;
-	}
-
-	/**
-	 * Set or clear the modified by user flag.
-	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
-	 */
-	public void setModified(boolean as) {
-		m_modifiedByUser = as;
-	}
-
-
 }

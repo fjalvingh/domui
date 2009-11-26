@@ -798,9 +798,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		basicNodeRender(n, o());
 		if(n.isMultiple())
 			o().attr("multiple", "multiple");
-
-		renderDiRo(n, n.isDisabled(), n.isReadOnly());
-
+		renderDisabled(n, n.isDisabled()); // WATCH OUT: The SELECT tag HAS no READONLY attribute!!!
 		if(n.getSize() > 0)
 			o().attr("size", n.getSize());
 		renderTagend(n, o());

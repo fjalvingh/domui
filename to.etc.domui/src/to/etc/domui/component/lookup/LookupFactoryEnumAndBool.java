@@ -28,7 +28,7 @@ final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 			// Create a domainvalued combobox by default.
 			Object[] vals = pmm.getDomainValues();
 			ClassMetaModel ecmm = null;
-			List<ComboFixed.Pair<Object>> vl = new ArrayList<ComboFixed.Pair<Object>>();
+			List<ValueLabelPair<Object>> vl = new ArrayList<ValueLabelPair<Object>>();
 			for(Object o : vals) {
 				String label = pmm.getDomainValueLabel(NlsContext.getLocale(), o); // Label known to property?
 				if(label == null) {
@@ -38,7 +38,7 @@ final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 					if(label == null)
 						label = o == null ? "" : o.toString();
 				}
-				vl.add(new ComboFixed.Pair<Object>(o, label));
+				vl.add(new ValueLabelPair<Object>(o, label));
 			}
 
 			final ComboFixed< ? > c = new ComboFixed<Object>(vl);

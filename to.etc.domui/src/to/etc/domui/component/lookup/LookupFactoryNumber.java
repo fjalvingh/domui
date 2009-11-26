@@ -4,7 +4,6 @@ import java.math.*;
 import java.util.*;
 
 import to.etc.domui.component.input.*;
-import to.etc.domui.component.input.ComboFixed.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
@@ -27,9 +26,9 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 			throw new IllegalStateException();
 
 		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
-		final List<Pair<NumericRelationType>> values = new ArrayList<Pair<NumericRelationType>>();
+		final List<ValueLabelPair<NumericRelationType>> values = new ArrayList<ValueLabelPair<NumericRelationType>>();
 		for(NumericRelationType relationEnum : NumericRelationType.values()) {
-			values.add(new Pair<NumericRelationType>(relationEnum, MetaManager.findClassMeta(NumericRelationType.class).getDomainLabel(NlsContext.getLocale(), relationEnum)));
+			values.add(new ValueLabelPair<NumericRelationType>(relationEnum, MetaManager.findClassMeta(NumericRelationType.class).getDomainLabel(NlsContext.getLocale(), relationEnum)));
 		}
 
 		final Text< ? > numA = createNumericInput(pmm);

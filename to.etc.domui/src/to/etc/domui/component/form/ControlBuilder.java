@@ -189,12 +189,12 @@ public class ControlBuilder {
 		if(vals == null || vals.length == 0)
 			throw new IllegalArgumentException("The type " + type + " is not known as a fixed-size domain type");
 
-		List<ComboFixed.Pair<T>> vl = new ArrayList<ComboFixed.Pair<T>>();
+		List<ValueLabelPair<T>> vl = new ArrayList<ValueLabelPair<T>>();
 		for(T o : vals) {
 			String label = cmm.getDomainLabel(NlsContext.getLocale(), o); // Label known to property?
 			if(label == null)
 				label = o == null ? "" : o.toString();
-			vl.add(new ComboFixed.Pair<T>(o, label));
+			vl.add(new ValueLabelPair<T>(o, label));
 		}
 		ComboFixed<T> c = new ComboFixed<T>(vl);
 		return c;
@@ -216,7 +216,7 @@ public class ControlBuilder {
 			throw new IllegalArgumentException("The type of property " + pmm + " (" + pmm.getActualType() + ") is not known as a fixed-size domain type");
 
 		ClassMetaModel ecmm = null;
-		List<ComboFixed.Pair<Object>> vl = new ArrayList<ComboFixed.Pair<Object>>();
+		List<ValueLabelPair<Object>> vl = new ArrayList<ValueLabelPair<Object>>();
 		for(Object o : vals) {
 			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), o); // Label known to property?
 			if(label == null) {
@@ -226,7 +226,7 @@ public class ControlBuilder {
 				if(label == null)
 					label = o == null ? "" : o.toString();
 			}
-			vl.add(new ComboFixed.Pair<Object>(o, label));
+			vl.add(new ValueLabelPair<Object>(o, label));
 		}
 
 		ComboFixed< ? > c = new ComboFixed<Object>(vl);

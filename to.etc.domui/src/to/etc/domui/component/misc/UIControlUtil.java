@@ -3,7 +3,6 @@ package to.etc.domui.component.misc;
 import java.util.*;
 
 import to.etc.domui.component.input.*;
-import to.etc.domui.component.input.ComboFixed.*;
 import to.etc.domui.component.meta.*;
 import to.etc.webapp.nls.*;
 
@@ -27,13 +26,13 @@ final public class UIControlUtil {
 	 */
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class<T> clz) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
-		List<Pair<T>> l = new ArrayList<Pair<T>>();
+		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
 		T[] ar = clz.getEnumConstants();
 		for(T v : ar) {
 			String label = cmm.getDomainLabel(NlsContext.getLocale(), v);
 			if(label == null)
 				label = v.name();
-			l.add(new Pair<T>(v, label));
+			l.add(new ValueLabelPair<T>(v, label));
 		}
 		return new ComboFixed<T>(l);
 	}
@@ -60,10 +59,10 @@ final public class UIControlUtil {
 		T[] var = (T[]) pmm.getDomainValues();
 		if(var == null)
 			throw new IllegalArgumentException(pmm + " is not a list-of-values domain property");
-		List<Pair<T>> l = new ArrayList<Pair<T>>();
+		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
 		for(T v : var) {
 			String label = getEnumLabel(pmm, var);
-			l.add(new Pair<T>(v, label));
+			l.add(new ValueLabelPair<T>(v, label));
 		}
 		return new ComboFixed<T>(l);
 	}
@@ -81,12 +80,12 @@ final public class UIControlUtil {
 			throw new IllegalArgumentException("Missing parameters");
 
 		ClassMetaModel cmm = MetaManager.findClassMeta(items[0].getClass());
-		List<Pair<T>> l = new ArrayList<Pair<T>>();
+		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
 		for(T v : items) {
 			String label = cmm.getDomainLabel(NlsContext.getLocale(), v);
 			if(label == null)
 				label = v.name();
-			l.add(new Pair<T>(v, label));
+			l.add(new ValueLabelPair<T>(v, label));
 		}
 		return new ComboFixed<T>(l);
 	}
@@ -113,10 +112,10 @@ final public class UIControlUtil {
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel pmm, T... domainvalues) {
 		if(domainvalues.length == 0)
 			throw new IllegalArgumentException("Missing parameters");
-		List<Pair<T>> l = new ArrayList<Pair<T>>();
+		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
 		for(T v : domainvalues) {
 			String label = getEnumLabel(pmm, v);
-			l.add(new Pair<T>(v, label));
+			l.add(new ValueLabelPair<T>(v, label));
 		}
 		return new ComboFixed<T>(l);
 	}

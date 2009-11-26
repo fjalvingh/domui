@@ -3,7 +3,6 @@ package to.etc.domui.util;
 import java.util.*;
 
 import to.etc.domui.component.input.*;
-import to.etc.domui.component.input.ComboFixed.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.upload.*;
 import to.etc.domui.dom.html.*;
@@ -154,32 +153,32 @@ public class MiniTableBuilder {
 		return addUpload(maxfiles, exts);
 	}
 
-	public <T> ComboLookup2<T> addComboLookup(IListMaker<T> maker) {
-		ComboLookup2<T> cb = new ComboLookup2<T>(maker);
+	public <T> ComboLookup<T> addComboLookup(IListMaker<T> maker) {
+		ComboLookup<T> cb = new ComboLookup<T>(maker);
 		return add(cb);
 	}
 
-	public <T> ComboLookup2<T> addComboLookup(String label, IListMaker<T> maker) {
+	public <T> ComboLookup<T> addComboLookup(String label, IListMaker<T> maker) {
 		doLabelCtl(label);
 		return addComboLookup(maker);
 	}
 
-	public <T> ComboLookup2<T> addComboLookup(List<T> input) {
-		ComboLookup2<T> cb = new ComboLookup2<T>(input);
+	public <T> ComboLookup<T> addComboLookup(List<T> input) {
+		ComboLookup<T> cb = new ComboLookup<T>(input);
 		return add(cb);
 	}
 
-	public <T> ComboLookup2<T> addComboLookup(String label, List<T> input) {
+	public <T> ComboLookup<T> addComboLookup(String label, List<T> input) {
 		doLabelCtl(label);
 		return addComboLookup(input);
 	}
 
-	public <T> ComboFixed<T> addComboFixed(List<Pair<T>> list) {
+	public <T> ComboFixed<T> addComboFixed(List<ValueLabelPair<T>> list) {
 		ComboFixed<T> cf = new ComboFixed<T>(list);
 		return add(cf);
 	}
 
-	public <T> ComboFixed<T> addComboFixed(String label, List<Pair<T>> list) {
+	public <T> ComboFixed<T> addComboFixed(String label, List<ValueLabelPair<T>> list) {
 		doLabelCtl(label);
 		return addComboFixed(list);
 	}

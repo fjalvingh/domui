@@ -4,7 +4,7 @@ import java.lang.reflect.*;
 import java.math.*;
 import java.util.*;
 
-import to.etc.domui.component.input.ComboFixed.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -279,8 +279,8 @@ final public class MetaManager {
 	 * @param clz
 	 * @return
 	 */
-	static public <T extends Enum< ? >> List<Pair<T>> createEnumList(Class<T> clz) {
-		List<Pair<T>> res = new ArrayList<Pair<T>>();
+	static public <T extends Enum< ? >> List<ValueLabelPair<T>> createEnumList(Class<T> clz) {
+		List<ValueLabelPair<T>> res = new ArrayList<ValueLabelPair<T>>();
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		Object[] values = cmm.getDomainValues();
 		if(values == null)
@@ -289,7 +289,7 @@ final public class MetaManager {
 			String label = cmm.getDomainLabel(NlsContext.getLocale(), value);
 			if(label == null)
 				label = value == null ? "" : value.toString();
-			res.add(new Pair<T>((T) value, label));
+			res.add(new ValueLabelPair<T>((T) value, label));
 		}
 		return res;
 	}

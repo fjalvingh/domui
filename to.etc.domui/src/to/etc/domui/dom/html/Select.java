@@ -76,11 +76,13 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 		changed();
 	}
 
+	/**
+	 * WARNING: The "select" node HAS NO READONLY!!!
+	 * @see to.etc.domui.dom.html.InputNodeContainer#setReadOnly(boolean)
+	 */
 	@Override
 	public void setReadOnly(boolean readOnly) {
-		if(isReadOnly() == readOnly)
-			return;
-		changed();
+		setDisabled(readOnly);
 		super.setReadOnly(readOnly);
 	}
 
@@ -91,18 +93,34 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 	}
 
 	@Override
-	public boolean acceptRequestParameter(String[] values) throws Exception {
+	final public boolean acceptRequestParameter(String[] values) throws Exception {
 		String in = values[0];
 		SelectOption selo = (SelectOption) getPage().findNodeByID(in);
 		int nindex = selo == null ? -1 : findChildIndex(selo);
+		if(nindex == m_selectedIndex)
+			return false;
+
 		int oldindex = m_selectedIndex;
 		setSelectedIndex(nindex);
-		if(oldindex == nindex)
+		if(!internalOnUserInput(oldindex, nindex))
 			return false;
 		DomUtil.setModifiedFlag(this);
 		return true;
 	}
 
+	/**
+	 * Called when user input has changed the selected index.
+	 * @param oldindex
+	 * @param nindex
+	 */
+	protected boolean internalOnUserInput(int oldindex, int nindex) {
+		return true; // Index has changed so this is a change
+	}
+
+	/**
+	 * Dangerous interface for derived classes.
+	 */
+	@Deprecated
 	public void clearSelected() {
 		m_selectedIndex = -1;
 		for(int i = getChildCount(); --i >= 0;) {
@@ -114,6 +132,20 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 		return m_selectedIndex;
 	}
 
+	/**
+	 * Fast way to set index without walking the option tree, to use if the subclass knows
+	 * a faster way to set all option selected values.
+	 * @param ix
+	 */
+	protected void internalSetSelectedIndex(int ix) {
+		m_selectedIndex = ix;
+	}
+
+	/**
+	 * Set the selected index - expensive because it has to walk all Option children and reset their
+	 * selected attribute - O(n) runtime.
+	 * @param ix
+	 */
 	public void setSelectedIndex(int ix) {
 		m_selectedIndex = ix;
 		for(int i = getChildCount(); --i >= 0;) {
@@ -128,7 +160,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 	 * Returns the modified-by-user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
 	 */
-	public boolean isModified() {
+	final public boolean isModified() {
 		return m_modifiedByUser;
 	}
 
@@ -136,7 +168,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 	 * Set or clear the modified by user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
-	public void setModified(boolean as) {
+	final public void setModified(boolean as) {
 		m_modifiedByUser = as;
 	}
 
