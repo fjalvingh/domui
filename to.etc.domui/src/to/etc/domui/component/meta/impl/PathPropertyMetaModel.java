@@ -90,7 +90,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDefaultLabel()
 	 */
 	public String getDefaultLabel() {
-		System.out.println("LOCATE label for " + getName());
+		//		System.out.println("LOCATE label for " + getName());
 		return locateProperty("label");
 	}
 
@@ -156,7 +156,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 			sb.append('.');
 			sb.append(type);
 			String k = sb.toString();
-			System.out.println("k=" + k);
+			//			System.out.println("k=" + k);
 			String s = br.findMessage(loc, k);
 			if(s != null)
 				return s;
