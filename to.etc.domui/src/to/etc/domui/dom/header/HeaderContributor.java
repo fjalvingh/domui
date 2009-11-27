@@ -3,6 +3,7 @@ package to.etc.domui.dom.header;
 import java.util.*;
 
 import to.etc.domui.dom.*;
+import to.etc.domui.dom.html.*;
 
 /**
  * A header contributor can be registered by nodes to cause something to
@@ -22,6 +23,8 @@ abstract public class HeaderContributor {
 	static private Map<String, HeaderContributor> m_jsMap = new HashMap<String, HeaderContributor>();
 
 	abstract public void contribute(HtmlFullRenderer r) throws Exception;
+
+	abstract public void contribute(OptimalDeltaRenderer r) throws Exception;
 
 	@Override
 	abstract public int hashCode();
