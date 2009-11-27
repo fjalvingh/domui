@@ -209,7 +209,7 @@ public class Tree extends Div implements ITreeModelChangedListener {
 
 			if(vn.childNodes == null) {
 				/*
-				 * Not currently visibly expanded.. Do the in-table expansion of this node by replacing 
+				 * Not currently visibly expanded.. Do the in-table expansion of this node by replacing
 				 * it's TR image with a 'collapse' image OR a LEAF image if we determine here the thing
 				 * is a lazy leaf.
 				 */

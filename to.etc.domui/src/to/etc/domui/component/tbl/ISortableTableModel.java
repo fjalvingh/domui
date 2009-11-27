@@ -19,7 +19,7 @@ public interface ISortableTableModel {
 	public String getSortKey();
 
 	/**
-	 * If the set is a sorted set, this returns TRUE if the sort order is 
+	 * If the set is a sorted set, this returns TRUE if the sort order is
 	 * descending. The return value is <b>undefined</b> for an unsorted model.
 	 * @return
 	 */

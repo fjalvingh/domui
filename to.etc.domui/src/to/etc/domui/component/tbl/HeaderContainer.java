@@ -4,7 +4,7 @@ import to.etc.domui.dom.html.*;
 
 /**
  * Temp thingy to create the header for a table. This is PENDING DELETE- DO NOT USE.
- * 
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 2, 2008

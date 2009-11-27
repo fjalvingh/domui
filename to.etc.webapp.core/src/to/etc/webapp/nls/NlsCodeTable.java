@@ -4,7 +4,7 @@ package to.etc.webapp.nls;
  * Represents a code table with localized translations for several
  * languages. This gets created for every single code table, and
  * is an accessor to the cached translated strings.
- * 
+ *
  * FIXME Implement, please.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>

@@ -22,7 +22,7 @@ import to.etc.domui.util.upload.*;
  * <h2>Client side upload thingy</h2>
  * <p>In the browser the primary upload thingy is an input type='file' component. This gets used to allow
  * the user to add a file. As soon as a file is selected an onchange event will ensure the posting of
- * the file to the server using an AJAX/IFrame upload. This upload will be received by the Upload part 
+ * the file to the server using an AJAX/IFrame upload. This upload will be received by the Upload part
  * which will attach the file to the control doing the upload.
  * When the upload is complete the input type="file" thing gets replaced by a "file reference" containing
  * the input filename and a delete button. If the input thingy allows for multiple files to be uploaded

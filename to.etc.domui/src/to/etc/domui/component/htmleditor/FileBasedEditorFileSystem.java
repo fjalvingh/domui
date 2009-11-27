@@ -65,7 +65,7 @@ public class FileBasedEditorFileSystem implements IEditorFileSystem {
 	}
 
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.component.htmleditor.IEditorFileSystem#getStreamRef(java.lang.String, java.lang.String)
 	 */
 	public IEditorFileRef getStreamRef(String type, String path) throws Exception {

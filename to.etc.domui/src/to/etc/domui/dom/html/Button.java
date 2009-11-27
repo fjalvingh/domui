@@ -4,7 +4,7 @@ import to.etc.domui.util.*;
 
 /**
  * The HTML Button tag.
- * 
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 19, 2008

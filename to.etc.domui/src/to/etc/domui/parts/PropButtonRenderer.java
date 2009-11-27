@@ -274,7 +274,7 @@ public class PropButtonRenderer {
 	}
 
 	/**
-	 * Render the actual, attributed text on the image. 
+	 * Render the actual, attributed text on the image.
 	 * @throws Exception
 	 */
 	protected void renderAttributedText() throws Exception {

@@ -9,7 +9,7 @@ package to.etc.domui.util;
  */
 public interface IDraggable {
 	/**
-	 * Set the drag handler to use for this thingy. When set (no an actual instance) this 
+	 * Set the drag handler to use for this thingy. When set (no an actual instance) this
 	 * means the associated class can be dragged. When set to null the instance is undraggable.
 	 * @param dh
 	 */

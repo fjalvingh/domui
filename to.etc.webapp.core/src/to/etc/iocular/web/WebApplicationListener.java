@@ -31,7 +31,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 	/**
 	 * A webapp is starting. This retrieves the configuration for all containers,
 	 * and creates the Application container.
-	 * 
+	 *
 	 * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
 	 */
 	public void contextInitialized(ServletContextEvent cxe) {
@@ -54,7 +54,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 
 	/**
 	 * Creates the session container when a new session is registered.
-	 * 
+	 *
 	 * @see javax.servlet.http.HttpSessionListener#sessionCreated(javax.servlet.http.HttpSessionEvent)
 	 */
 	public void sessionCreated(HttpSessionEvent se) {
