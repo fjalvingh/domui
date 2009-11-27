@@ -574,7 +574,11 @@ button {
 	background: #eff7ff;
 }
 
-
+/*** Panning Image Panel ***/
+.ui-pip-img {
+	overflow: hidden;
+	border: 2px solid black;
+}
 
 
 
