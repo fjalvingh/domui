@@ -85,7 +85,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 				LOG.fine("Class " + name + " not matching watch pattern delegated to root loader");
 			return m_rootLoader.loadClass(name); // Delegate to the rootLoader.
 		}
-		System.out.println("reloadingClassLoader: watching " + name);
+		//		System.out.println("reloadingClassLoader: watching " + name);
 
 
 		//-- We need to watch this class..

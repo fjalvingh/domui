@@ -395,6 +395,39 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 })(jQuery);
 
 var WebUI = {
+	/**
+	 * Create a curried function containing a 'this' and a fixed set of elements.
+	 */
+	curry: function(scope, fn) {
+	    var scope = scope || window;
+	    var args = [];
+	    for (var i=2, len = arguments.length; i < len; ++i) {
+	        args.push(arguments[i]);
+	    };
+	    return function() {
+		    fn.apply(scope, args);
+	    };
+	},
+
+	/**
+	 * Embeds the "this" and any *partial* parameters to the function.
+	 */
+	pickle: function(scope, fn) {
+	    var scope = scope || window;
+	    var args = [];
+	    for (var i=2, len = arguments.length; i < len; ++i) {
+	        args.push(arguments[i]);
+	    };
+	    return function() {
+	    	var nargs = [];
+	    	for(var i = 0, len = args.length; i < len; i++) // Append all args added to pickle
+	    		nargs.push(args[i]);
+	    	for(var i = 0, len = arguments.length; i < len; i++) // Append all params of the actual function after it
+	    		nargs.push(arguments[i]);
+		    fn.apply(scope, nargs);
+	    };
+	},
+
 	getInputFields : function(fields) {
 		// Collect all input, then create input.
 		var q1 = $("input").get();
@@ -1173,6 +1206,7 @@ var WebUI = {
 			return WebUI._ROW_DROPZONE_HANDLER;
 		return WebUI._DEFAULT_DROPZONE_HANDLER;
 	},
+
 	dropClearZone : function() {
 		if (WebUI._currentDropZone) {
 			WebUI._currentDropZone._drophandler.unmark(WebUI._currentDropZone);
