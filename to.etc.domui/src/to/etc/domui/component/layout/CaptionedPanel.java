@@ -1,5 +1,7 @@
 package to.etc.domui.component.layout;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 /**
@@ -61,6 +63,7 @@ public class CaptionedPanel extends Div {
 	}
 
 	@Override
+	@OverridingMethodsMustInvokeSuper
 	public void createContent() throws Exception {
 		super.createContent();
 		add(m_titleContainer);

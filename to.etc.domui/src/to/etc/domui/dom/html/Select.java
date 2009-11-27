@@ -97,9 +97,6 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 		String in = values[0];
 		SelectOption selo = (SelectOption) getPage().findNodeByID(in);
 		int nindex = selo == null ? -1 : findChildIndex(selo);
-		if(nindex == m_selectedIndex)
-			return false;
-
 		int oldindex = m_selectedIndex;
 		setSelectedIndex(nindex);
 		if(!internalOnUserInput(oldindex, nindex))
@@ -114,7 +111,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 	 * @param nindex
 	 */
 	protected boolean internalOnUserInput(int oldindex, int nindex) {
-		return true; // Index has changed so this is a change
+		return oldindex != nindex; // Index has changed so this is a change
 	}
 
 	/**
