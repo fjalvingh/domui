@@ -30,12 +30,18 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 
 	public DisplayPropertyMetaModel() {}
 
+	@SuppressWarnings("unchecked")
 	public DisplayPropertyMetaModel(ClassMetaModel cmm, MetaDisplayProperty p) {
 		m_containedInClass = cmm;
 		m_name = p.name();
 		if(!Constants.NO_DEFAULT_LABEL.equals(p.defaultLabel()))
 			m_labelKey = p.defaultLabel();
-		setConverter((p.converterClass() == DummyConverter.class ? null : ConverterRegistry.getConverterInstance(p.converterClass())));
+		//		setConverter((p.converterClass() == DummyConverter.class ? null : ConverterRegistry.getConverterInstance(p.converterClass())));
+		// 20091123 This kludge below is needed because otherwise the JDK compiler pukes on this generics abomination.
+		IConverter c = null;
+		if(p.converterClass() != DummyConverter.class)
+			c = ConverterRegistry.getConverterInstance((Class) p.converterClass());
+		setConverter(c);
 		setSortable(p.defaultSortable());
 		setDisplayLength(p.displayLength());
 		setReadOnly(p.readOnly());

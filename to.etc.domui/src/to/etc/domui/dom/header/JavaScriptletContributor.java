@@ -1,6 +1,7 @@
 package to.etc.domui.dom.header;
 
 import to.etc.domui.dom.*;
+import to.etc.domui.dom.html.*;
 
 final public class JavaScriptletContributor extends HeaderContributor {
 	private final String m_javascript;
@@ -45,5 +46,10 @@ final public class JavaScriptletContributor extends HeaderContributor {
 		r.o().writeRaw(m_javascript);
 		r.o().writeRaw("\n-->");
 		r.o().closetag("script");
+	}
+
+	@Override
+	public void contribute(OptimalDeltaRenderer r) throws Exception {
+		r.o().writeRaw(m_javascript);
 	}
 }

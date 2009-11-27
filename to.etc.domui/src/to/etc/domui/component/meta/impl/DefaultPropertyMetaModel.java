@@ -81,6 +81,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		}
 	}
 
+	@SuppressWarnings({"cast", "unchecked"})
 	protected void decodeAnnotation(final Annotation an) {
 		if(an instanceof MetaProperty) {
 			//-- Handle meta-assignments.
@@ -94,7 +95,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			if(mp.required() != YesNoType.UNKNOWN)
 				setRequired(mp.required() == YesNoType.YES);
 			if(mp.converterClass() != DummyConverter.class)
-				setConverter(ConverterRegistry.getConverterInstance(mp.converterClass()));
+				setConverter((IConverter)ConverterRegistry.getConverterInstance((Class)mp.converterClass()));
 			if(mp.editpermissions().length != 0)
 				setEditRoles(makeRoleSet(mp.editpermissions()));
 			if(mp.viewpermissions().length != 0)

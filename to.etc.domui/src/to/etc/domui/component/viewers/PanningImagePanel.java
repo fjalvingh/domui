@@ -1,7 +1,9 @@
 package to.etc.domui.component.viewers;
 
 import to.etc.domui.dom.css.*;
+import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * This shows a bitmapped image and allows it to be dragged etc.
@@ -20,6 +22,13 @@ public class PanningImagePanel extends Div {
 
 	public void setImageURL(String url) {
 		m_img.setSrc(url);
+	}
+
+	@Override
+	public void onAddedToPage(Page p) {
+		super.onAddedToPage(p);
+		getPage().addHeaderContributor(HeaderContributor.loadJavascript(DomUtil.getJavaResourceRURL(PanningImagePanel.class, "pip.js")));
+		appendCreateJS("WebUI.PanningImagePanel.attach('" + getActualID() + "');");
 	}
 
 	@Override

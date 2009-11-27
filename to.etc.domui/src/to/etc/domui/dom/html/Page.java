@@ -52,6 +52,14 @@ final public class Page implements IQContextContainer {
 	private List<HeaderContributor> m_orderedContributorList = Collections.EMPTY_LIST;
 
 	/**
+	 * As soon as header contributor are rendered to the browser this gets set to the
+	 * length of the list rendered out. When new contributors are added by components
+	 * this gets seen because the list is bigger than this index; we need to render
+	 * from this index till end-of-list to include the contributors.
+	 */
+	private int m_lastContributorIndex;
+
+	/**
 	 * Set containing the same header contributors, but in a fast-lookup format.
 	 */
 	private Set<HeaderContributor> m_headerContributorSet;
@@ -266,6 +274,9 @@ final public class Page implements IQContextContainer {
 		m_sb = null;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Header contributors									*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Call from within the onHeaderContributor call on a node to register any header
 	 * contributors needed by a node.
@@ -286,7 +297,17 @@ final public class Page implements IQContextContainer {
 	}
 
 	public List<HeaderContributor> getHeaderContributorList() {
-		return m_orderedContributorList;
+		return new ArrayList<HeaderContributor>(m_orderedContributorList);
+	}
+
+	public List<HeaderContributor> getAddedContributors() {
+		if(m_orderedContributorList == null || m_lastContributorIndex >= m_orderedContributorList.size())
+			return Collections.EMPTY_LIST;
+		return new ArrayList<HeaderContributor>(m_orderedContributorList.subList(m_lastContributorIndex, m_orderedContributorList.size()));
+	}
+
+	public void internalContributorsRendered() {
+		m_lastContributorIndex = m_orderedContributorList == null ? 0 : m_orderedContributorList.size();
 	}
 
 	public UrlPage getBody() {

@@ -168,6 +168,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		for(HeaderContributor hc : page().getHeaderContributorList()) {
 			hc.contribute(this);
 		}
+		page().internalContributorsRendered(); // Mark as rendered.
 	}
 
 	public void renderLoadCSS(String path) throws Exception {

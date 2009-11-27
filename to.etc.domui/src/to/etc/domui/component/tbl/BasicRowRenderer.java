@@ -69,21 +69,22 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 	 *
 	 * @param clz
 	 * @param cols
+	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
 	@SuppressWarnings("fallthrough")
-	public <X, C extends IConverter<X>, R extends INodeContentRenderer<X>> BasicRowRenderer addColumns(final Object... cols) throws Exception {
+	public BasicRowRenderer addColumns(final Object... cols) throws Exception {
 		check();
 		if(cols == null || cols.length == 0)
 			throw new IllegalStateException("The list-of-columns is empty or null; I need at least one column to continue.");
 		String property = null;
 		String width = null;
-		C conv = null;
-		Class<C> convclz = null;
+		IConverter< ? > conv = null;
+		Class< ? > convclz = null;
 		String caption = null;
 		String cssclass = null;
 		boolean nowrap = false;
-		R nodeRenderer = null;
-		Class<R> nrclass = null;
+		INodeContentRenderer< ? > nodeRenderer = null;
+		Class< ? > nrclass = null;
 
 		for(final Object val : cols) {
 			if(property == null) { // Always must start with a property.
@@ -125,15 +126,15 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 						break;
 				}
 			} else if(val instanceof IConverter< ? >)
-				conv = (C) val;
+				conv = (IConverter< ? >) val;
 			else if(val instanceof INodeContentRenderer< ? >)
-				nodeRenderer = (R) val;
+				nodeRenderer = (INodeContentRenderer< ? >) val;
 			else if(val instanceof Class< ? >) {
 				final Class< ? > c = (Class< ? >) val;
 				if(INodeContentRenderer.class.isAssignableFrom(c))
-					nrclass = (Class<R>) c;
+					nrclass = c;
 				else if(IConverter.class.isAssignableFrom(c))
-					convclz = (Class<C>) c;
+					convclz = c;
 				else
 					throw new IllegalArgumentException("Invalid 'class' argument: " + c);
 			} else
@@ -143,7 +144,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 		return this;
 	}
 
-	private INodeContentRenderer< ? > tryRenderer(final INodeContentRenderer< ? > nodeRenderer, final Class< ? extends INodeContentRenderer< ? >> nrclass) throws Exception {
+	private INodeContentRenderer< ? > tryRenderer(final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass) throws Exception {
 		if(nodeRenderer != null) {
 			if(nrclass != null)
 				throw new IllegalArgumentException("Both a NodeContentRenderer instance AND a class specified: " + nodeRenderer + " + " + nrclass);
@@ -151,14 +152,24 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 		}
 		if(nrclass == null)
 			return null;
-		return DomApplication.get().createInstance(nrclass);
+		return (INodeContentRenderer< ? >) DomApplication.get().createInstance(nrclass);
 	}
 
-	private <X, T extends IConverter<X>> T tryConverter(final Class<T> cclz, final T ins) {
+	/**
+	 *
+	 * @param <X>
+	 * @param <T>
+	 * @param cclz
+	 * @param ins
+	 * @return
+	 * <X, T extends IConverter<X>>
+	 */
+	@SuppressWarnings("unchecked")
+	private IConverter< ? > tryConverter(final Class< ? > cclz, final IConverter< ? > ins) {
 		if(cclz != null) {
 			if(ins != null)
 				throw new IllegalArgumentException("Both a IConverter class AND an instance specified: " + cclz + " and " + ins);
-			return ConverterRegistry.getConverterInstance(cclz);
+			return ConverterRegistry.getConverterInstance((Class) cclz);
 		}
 		return ins;
 	}
@@ -173,9 +184,10 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 	 * @param cssclass
 	 * @param nodeRenderer
 	 * @param nrclass
+	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
-	private <X, C extends IConverter<X>, R extends INodeContentRenderer<X>> void internalAddProperty(final String property, final String width, final C conv, final Class<C> convclz,
-		final String caption, final String cssclass, final R nodeRenderer, final Class<R> nrclass, final boolean nowrap) throws Exception {
+	private void internalAddProperty(final String property, final String width, final IConverter< ? > conv, final Class< ? > convclz, final String caption, final String cssclass,
+		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap) throws Exception {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
 

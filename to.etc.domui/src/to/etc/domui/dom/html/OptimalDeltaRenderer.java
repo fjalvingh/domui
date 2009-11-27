@@ -4,7 +4,10 @@ import java.io.*;
 import java.util.*;
 
 import to.etc.domui.dom.*;
+import to.etc.domui.dom.header.*;
 import to.etc.domui.server.*;
+import to.etc.domui.util.*;
+import to.etc.domui.util.DomUtil.*;
 import to.etc.util.*;
 
 /**
@@ -163,8 +166,31 @@ public class OptimalDeltaRenderer {
 		o().writeRaw("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 		o().tag("delta");
 		o().endtag();
-		calc(m_page);
 
+		//-- 20091127 jal Add header contributors delta rendering
+		DomUtil.walkTree(m_page.getBody(), new IPerNode() {
+			@Override
+			public Object before(NodeBase n) throws Exception {
+				n.build();
+				return null;
+			}
+
+			@Override
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
+		List<HeaderContributor> list = m_page.getAddedContributors();
+		if(list.size() > 0) {
+			o().tag("eval");
+			o().endtag();
+			for(HeaderContributor hc : list)
+				hc.contribute(this);
+			o().closetag("eval");
+		}
+
+		//-- 20091127 jal Add header contributors delta rendering end
+		calc(m_page);
 
 		StringBuilder sq = m_page.internalGetAppendedJS();
 		o().tag("eval");
@@ -189,6 +215,14 @@ public class OptimalDeltaRenderer {
 
 		o().closetag("eval");
 		o().closetag("delta");
+	}
+
+	public void renderLoadCSS(String path) throws IOException {
+		o().writeRaw("WebUI.loadStylesheet(" + StringTool.strToJavascriptString(path, false) + ");\n");
+	}
+
+	public void renderLoadJavascript(String path) throws IOException {
+		o().writeRaw("WebUI.loadJavascript(" + StringTool.strToJavascriptString(path, false) + ");\n");
 	}
 
 
