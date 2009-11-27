@@ -158,6 +158,10 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 		return m_currentValue;
 	}
 
+	protected void internalSetCurrentValue(T val) {
+		m_currentValue = val;
+	}
+
 	/**
 	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
 	 */

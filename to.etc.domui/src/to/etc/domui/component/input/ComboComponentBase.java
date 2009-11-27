@@ -55,6 +55,7 @@ public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
 	@Override
 	public void createContent() throws Exception {
 		//-- Append shtuff to the combo
+		List<T>	list = getData();
 		int ix = 0;
 		V raw = internalGetCurrentValue();
 		if(!isMandatory()) {
@@ -68,10 +69,18 @@ public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
 				internalSetSelectedIndex(0);
 			}
 			ix++;
+		} else if(raw == null) {
+			/*
+			 * When not mandatory a combobox always has a value in the browser. The browser simply selects
+			 * the 1st option in the list if none is selected. To prevent trouble with state we set the
+			 * current value here to the 1st element in the list.
+			 */
+			if(list.size() > 0)
+				internalSetCurrentValue(listToValue(list.get(0)));
 		}
 
 		ClassMetaModel cmm = null;
-		for(T val : getData()) {
+		for(T val : list) {
 			SelectOption o = new SelectOption();
 			add(o);
 			renderOptionLabel(o, val);
