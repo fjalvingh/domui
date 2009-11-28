@@ -341,7 +341,13 @@ public class LookupForm<T> extends Div {
 		d.setTestID("buttonBar");
 		sroot.add(d);
 		m_buttonRow = d;
-		createButtonRow(d, false);
+
+		//20091127 vmijic - since LookupForm can be reused each new rebuild should execute restore if previous state of form was collapsed.
+		if(m_collapsed != null) {
+			restore();
+		} else {
+			createButtonRow(d, false);
+		}
 
 		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
 		setReturnPressed(new IReturnPressed() {
