@@ -865,21 +865,13 @@ public class FileTool {
 		}
 	}
 
-	/**
-	 * Unzip the contents of the zipfile to the directory. The directory is
-	 * created if it does not yet exist.
-	 */
-	public static void unzip(final File dest, final File zipfile) throws Exception {
+	public static void unzip(File dest, InputStream is) throws Exception {
 		dest.mkdirs();
-
 		ZipInputStream zis = null;
 		OutputStream os = null;
 		byte[] buf = new byte[8192];
 		try {
-			if(zipfile.length() < 1)
-				return;
-
-			zis = new ZipInputStream(new FileInputStream(zipfile));
+			zis = new ZipInputStream(is);
 			ZipEntry ze;
 			while(null != (ze = zis.getNextEntry())) {
 				File of = new File(dest, ze.getName()); // Create a full path
@@ -907,6 +899,24 @@ public class FileTool {
 				try {
 					os.close();
 				} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Unzip the contents of the zipfile to the directory. The directory is
+	 * created if it does not yet exist.
+	 */
+	public static void unzip(final File dest, final File zipfile) throws Exception {
+		if(zipfile.length() < 1)
+			return;
+
+		InputStream is = new FileInputStream(zipfile);
+		try {
+			unzip(dest, is);
+		} finally {
+			try {
+				is.close();
+			} catch(Exception x) {}
 		}
 	}
 
@@ -1186,4 +1196,5 @@ public class FileTool {
 		tgt.append(new String(data, encoding));
 		return new ByteArrayInputStream(data);
 	}
+
 }
