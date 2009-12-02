@@ -220,7 +220,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 			final SimpleColumnDef cd = new SimpleColumnDef();
 			m_columnList.add(cd);
 			cd.setValueTransformer(pmm.getAccessor());
-			cd.setColumnLabel(caption);
+			cd.setColumnLabel(caption == null ? pmm.getDefaultLabel() : caption);
 			cd.setColumnType(pmm.getActualType());
 			cd.setContentRenderer(tryRenderer(nodeRenderer, nrclass));
 			cd.setPropertyName(property);
