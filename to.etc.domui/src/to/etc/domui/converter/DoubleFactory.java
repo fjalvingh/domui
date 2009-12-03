@@ -11,7 +11,7 @@ import to.etc.domui.component.meta.*;
  */
 final public class DoubleFactory implements IConverterFactory {
 	public int accept(final Class< ? > clz, final PropertyMetaModel pmm) {
-		if(!Double.class.isAssignableFrom(clz))
+		if(!Double.class.isAssignableFrom(clz) && double.class != clz)
 			return -1;
 		return 5;
 	}
