@@ -443,8 +443,16 @@ final public class WindowSession {
 		int ix = m_shelvedPageStack.size() - 2;
 		if(ix < 0) {
 			clearShelve(0); // Discard EVERYTHING
-			internalSetNextPage(MoveMode.NEW, getApplication().getRootPage(), null, null, null);
-			handleGoto(ctx, m_currentPage);
+
+			//-- If we have a root page go there, else
+			Class< ? extends UrlPage> clz = getApplication().getRootPage();
+			if(clz != null) {
+				internalSetNextPage(MoveMode.NEW, getApplication().getRootPage(), null, null, null);
+				handleGoto(ctx, m_currentPage);
+			} else {
+				//-- Last resort: move to root of the webapp by redirecting to some URL
+				generateRedirect(ctx, ctx.getRelativePath(""));
+			}
 			return;
 		}
 
