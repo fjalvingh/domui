@@ -3,6 +3,7 @@ package to.etc.domui.component.tbl;
 import java.util.*;
 import java.util.logging.*;
 
+import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
@@ -17,6 +18,8 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	/** Thingy to get a database session from, if needed, */
 	private QDataContextFactory m_sessionSource;
+
+	private NodeBase m_contextSourceNode;
 
 	/** Generalized search query. */
 	private QCriteria<T> m_query;
@@ -34,6 +37,16 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	private boolean m_refreshAfterShelve;
 
 	private IQueryHandler<T> m_queryHandler;
+
+	/**
+	 * EXPERIMENTAL INTERFACE
+	 * @param contextSourceNode
+	 * @param qc
+	 */
+	public SimpleSearchModel(NodeBase contextSourceNode, QCriteria<T> qc) {
+		m_query = qc;
+		m_contextSourceNode = contextSourceNode;
+	}
 
 	/**
 	 * Use {@link SimpleSearchModel#SimpleSearchModel(IQueryHandler, QCriteria) instead!
@@ -75,6 +88,10 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			m_workResult = qs.query(qc); // Execute the query.
 		} else if(m_queryHandler != null) {
 			m_workResult = m_queryHandler.query(qc);
+		} else if(m_contextSourceNode != null) {
+			QDataContext dc = QContextManager.getContext(m_contextSourceNode.getPage());
+			m_workResult = dc.query(qc); // Execute the query.
+			dc.close();
 		} else
 			throw new IllegalStateException("No QueryHandler nor SessionSource set- don't know how to do the query");
 		if(m_workResult.size() > 1000) {
