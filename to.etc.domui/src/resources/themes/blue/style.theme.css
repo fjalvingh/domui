@@ -129,6 +129,15 @@
 	font-family: verdana, tahoma, helvetica, sans-serif;
 }
 
+/*** InfoPanel ***/
+.ui-ipa {
+	padding: 4px;
+	margin: 4px;
+	-moz-border-radius: 5px;
+	border: 1px solid #d0d0d0;
+	font-style: italic;
+}
+
 /*** LinkButton component. ***/
 .ui-lbtn {
 	cursor: pointer;
