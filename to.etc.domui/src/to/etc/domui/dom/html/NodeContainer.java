@@ -39,6 +39,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	private IErrorFence m_errorFence;
 
+	private NodeContainer m_delegate;
+
 	public NodeContainer(final String tag) {
 		super(tag);
 	}
@@ -59,6 +61,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		setMustRenderChildrenFully(true);
 	}
 
+	protected void delegateTo(NodeContainer c) {
+		m_delegate = c;
+	}
 
 	protected boolean canContain(final NodeBase node) {
 		return true;
@@ -165,6 +170,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param nd
 	 */
 	public void add(final NodeBase nd) {
+		if(m_delegate != null) {
+			m_delegate.add(nd);
+			return;
+		}
 		if(!canContain(nd))
 			throw new IllegalStateException("This node " + this + " cannot contain a " + nd);
 		if(m_children == Collections.EMPTY_LIST)
@@ -181,6 +190,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	public void add(final int index, final NodeBase nd) {
+		if(m_delegate != null) {
+			m_delegate.add(index, nd);
+			return;
+		}
+
 		if(!canContain(nd))
 			throw new IllegalStateException("This node " + this + " cannot contain a " + nd);
 		if(m_children == Collections.EMPTY_LIST)
@@ -333,6 +347,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	public void forceRebuild() {
 		//-- If we have nodes destroy 'm all
+		m_delegate = null;
 		removeAllChildren(); // Remove all old crap
 		treeChanging();
 		clearBuilt();
