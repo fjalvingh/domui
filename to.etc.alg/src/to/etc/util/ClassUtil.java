@@ -154,8 +154,15 @@ final public class ClassUtil {
 			}
 			if(setter)
 				i.setterList.add(m);
-			else
-				i.getter = m;
+			else {
+				//-- The stupid generics impl will generate Object-returning property methods also, but we need the actual typed one..
+				if(i.getter == null)
+					i.getter = m;
+				else {
+					if(i.getter.getReturnType().isAssignableFrom(m.getReturnType()))
+						i.getter = m;
+				}
+			}
 		}
 
 		//-- Construct actual list
