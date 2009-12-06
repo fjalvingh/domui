@@ -42,21 +42,32 @@ public class SimpleComponentPropertyBinding implements IModelBinding, IFormContr
 	/*	CODING:	IFormControl interface								*/
 	/*--------------------------------------------------------------*/
 	/**
-	 *
-	 * @see to.etc.domui.component.form.IFormControl#getValue()
+	 * {@inheritDoc}
 	 */
 	public Object getValue() {
 		return m_control.getValue();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setOnValueChanged(IValueChanged<NodeBase> listener) {
 		m_control.setOnValueChanged(listener);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setValue(Object value) {
 		m_control.setValue(value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setTestID(String testID) {
+		m_control.setTestID(testID);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	INodeErrorDelegate interface.						*/
@@ -77,7 +88,4 @@ public class SimpleComponentPropertyBinding implements IModelBinding, IFormContr
 		return m_control.setMessage(m);
 	}
 
-	public void setTestID(String testID) {
-		m_control.setTestID(testID);
-	}
 }

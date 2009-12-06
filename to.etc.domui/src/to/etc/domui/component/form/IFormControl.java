@@ -9,7 +9,6 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2009
  */
-
 public interface IFormControl extends INodeErrorDelegate {
 	/*
 	 * change info: extends INodeErrorDelegate to enable external validations.
