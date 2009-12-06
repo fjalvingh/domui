@@ -51,15 +51,22 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		super.createContent(); // Page title and crud
 		createButtonBar();
 		createButtons();
+		createEditableBase();
+	}
+
+	private void createEditableBase() throws Exception {
 		m_bindings = createEditable();
 		if(m_bindings == null) {
 			if(m_formBuilder != null) {
-				add(m_formBuilder.finish());
-				m_bindings = m_formBuilder.getBindings();
+				NodeContainer nc = m_formBuilder.finish();
+				if(nc != null) {
+					add(nc);
+					m_bindings = m_formBuilder.getBindings();
+				}
 			}
 		}
 		if(m_bindings == null)
-			throw new IllegalStateException("The form's content is undefined: please override createEditable.");
+			throw new IllegalStateException("The form's bindings are undefined: please override createForm.");
 		m_bindings.moveModelToControl();
 	}
 
