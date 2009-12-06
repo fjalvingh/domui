@@ -562,8 +562,9 @@ final public class Page implements IQContextContainer {
 	 */
 	public void clearPopIn() {
 		if(m_currentPopIn != null) {
-			m_currentPopIn.remove();
+			NodeContainer old = m_currentPopIn;
 			m_currentPopIn = null;
+			old.remove();
 		}
 	}
 

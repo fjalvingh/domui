@@ -407,6 +407,32 @@ final public class MetaManager {
 		return null;
 	}
 
+	/**
+	 * Returns T if instance.propertyname is a duplicate in some other instance in the list.
+	 * @param <T>
+	 * @param items
+	 * @param instance
+	 * @param propertyname
+	 * @return
+	 * @throws Exception
+	 */
+	static public <T> boolean hasDuplicates(List<T> items, T instance, String propertyname) throws Exception {
+		ClassMetaModel cmm = findClassMeta(instance.getClass());
+		PropertyMetaModel pmm = getPropertyMeta(instance.getClass(), propertyname);
+		Object vi = pmm.getAccessor().getValue(instance);
+		ClassMetaModel vcmm = vi == null ? null : findClassMeta(vi.getClass());
+		for(T v : items) {
+			if(areObjectsEqual(instance, v, cmm))
+				continue;
+			Object vl = pmm.getAccessor().getValue(v);
+			if(areObjectsEqual(vi, vl, vcmm)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Expanding properties.								*/
 	/*--------------------------------------------------------------*/

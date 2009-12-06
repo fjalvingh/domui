@@ -108,6 +108,26 @@
 	border-color: 1px solid red;
 }
 
+/*** pop-in panel ***/
+div.ui-popin {
+	z-index: 20;
+	border: 1px dotted #333333;
+	background-color: #b8e59d;
+	margin-top: 15px;
+	-moz-border-radius: 5px;
+}
+
+.ui-popin-ttl {
+	position: relative;
+	top: -10px;
+	left: 15px;
+	border: 1px solid black;
+	-moz-border-radius: 5px;
+	background-color: #6af218;
+	padding: 3px;
+	font-weight: bold;
+}
+
 /*** AccessDeniedPage ***/
 .ui-acd-ttl {
 	font-size: larger;
@@ -115,7 +135,6 @@
 }
 
 /*** MsgBox ***/
-
 .ui-mbx-top {
 	height: 140px;
 }

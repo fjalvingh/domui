@@ -5,6 +5,12 @@ import java.util.*;
 abstract public class TableListModelBase<T> extends TableModelBase<T> {
 	abstract protected List<T> getList() throws Exception;
 
+	/** When set this becomes an ordered model. */
+	private Comparator<T> m_comparator;
+
+	/** Indicates that the list has been sorted. */
+	private boolean m_ordered;
+
 	public List<T> getItems(int start, int end) throws Exception {
 		int size = getRows();
 		if(start < 0)
@@ -25,25 +31,63 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> {
 		return getList().size();
 	}
 
+	/**
+	 * When set the list will be kept ordered.
+	 * @return
+	 */
+	public Comparator<T> getComparator() {
+		return m_comparator;
+	}
+
+	/**
+	 * Sets a new comparator to use. This resorts the model, if needed, causing a full model update.
+	 * @param comparator
+	 * @throws Exception
+	 */
+	public void setComparator(Comparator<T> comparator) throws Exception {
+		if(m_comparator == comparator)
+			return;
+		m_comparator = comparator;
+		if(m_comparator != null) {
+			resort();
+			fireModelChanged();
+		}
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handling model changes								*/
 	/*--------------------------------------------------------------*/
+
+	private void resort() throws Exception {
+		Collections.sort(getList(), m_comparator);
+		m_ordered = true;
+	}
 
 	/**
 	 * Add the item at the specified index. The item currently at that position
 	 * and all items above it move up a notch.
 	 */
 	public void add(int index, T row) throws Exception {
+		if(m_comparator != null)
+			throw new IllegalStateException("Cannot add by index on a sorted model: the sorting order determines the insert index");
 		getList().add(index, row);
 		fireAdded(index);
 	}
 
 	/**
-	 * Add the item at the end of the list.
+	 * Add the item at the end (or the appropriate location wrt the sort order) of the list.
 	 */
 	public void add(T row) throws Exception {
-		int index = getList().size();
-		getList().add(row);
+		int index;
+		if(m_comparator == null) {
+			index = getList().size();
+			getList().add(row);
+		} else {
+			index = Collections.binarySearch(getList(), row, m_comparator);
+			if(index < 0)
+				index = -(index + 1);
+			getList().add(index, row);
+		}
 		fireAdded(index);
 	}
 
@@ -77,6 +121,8 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> {
 	 * @throws Exception
 	 */
 	public void move(int to, int from) throws Exception {
+		if(m_comparator != null)
+			throw new IllegalStateException("Cannot move objects in a sorted model: the sorting order determines the insert index");
 		//-- Sanity checks
 		if(to == from)
 			throw new IllegalStateException("'from' and 'to' are the same: " + to);
