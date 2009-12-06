@@ -1,6 +1,7 @@
 package to.etc.domui.component.layout;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 
@@ -27,6 +28,13 @@ public class ButtonBar extends Table {
 		td.setCssClass("ui-bb-right");
 	}
 
+	/**
+	 * Add a normal button.
+	 * @param txt
+	 * @param icon
+	 * @param click
+	 * @return
+	 */
 	public DefaultButton addButton(final String txt, final String icon, final IClicked<DefaultButton> click) {
 		DefaultButton b = new DefaultButton(txt, icon, click);
 		m_center.add(b);
@@ -52,6 +60,19 @@ public class ButtonBar extends Table {
 	public DefaultButton addBackButton() {
 		return addBackButton("Terug", "THEME/btnCancel.png");
 	}
+
+	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click) {
+		DefaultButton b = MsgBox.areYouSureButton(txt, msg, click);
+		getContent().add(b);
+		return b;
+	}
+
+	public DefaultButton addConfirmedButton(final String icon, final String txt, final String msg, final IClicked<DefaultButton> click) {
+		DefaultButton b = MsgBox.areYouSureButton(txt, msg, click);
+		getContent().add(b);
+		return b;
+	}
+
 
 	public NodeContainer getContent() {
 		return m_center;
