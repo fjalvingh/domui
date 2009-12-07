@@ -12,9 +12,9 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 26 Oct 2009
  */
-public class MultipleSelectionDataTable<T> extends DataTable {
+public class MultipleSelectionDataTable<T> extends DataTable<T> {
 
-	public MultipleSelectionDataTable(Class<T> dataClass, ITableModel< ? > m, IRowRenderer r) {
+	public MultipleSelectionDataTable(Class<T> dataClass, ITableModel<T> m, IRowRenderer r) {
 		super(m, r);
 		//		m_dataClass = dataClass;
 	}
@@ -62,7 +62,7 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 			setDataBody(new TBody());
 			getTable().add(getDataBody());
 
-			ColumnContainer cc = new ColumnContainer(this);
+			ColumnContainer<T> cc = new ColumnContainer<T>(this);
 
 			for(int index = 0; index < m_accumulatedRows.size(); index++) {
 				T accumulatedItem = m_accumulatedRows.get(index);
@@ -125,7 +125,7 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 		return splitterRow;
 	}
 
-	private void renderAccumulatedItem(TR tr, ColumnContainer cc, T item, boolean selected, int index) throws Exception {
+	private void renderAccumulatedItem(TR tr, ColumnContainer<T> cc, T item, boolean selected, int index) throws Exception {
 		cc.setParent(tr);
 		Checkbox b = new Checkbox();
 		b.setClicked(new IClicked<Checkbox>() {
@@ -167,7 +167,7 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 			m_accumulatedSelections.add(Boolean.TRUE);
 			TR tr = new TR();
 			getDataBody().add(m_accumulatedRows.size() - 1, tr);
-			ColumnContainer cc = new ColumnContainer(this);
+			ColumnContainer<T> cc = new ColumnContainer<T>(this);
 			renderAccumulatedItem(tr, cc, item, true, m_accumulatedRows.size() - 1);
 
 			if(m_accumulatedRows.size() == 1) {
@@ -186,7 +186,7 @@ public class MultipleSelectionDataTable<T> extends DataTable {
 	 * Set a new model for this table. This discards the entire presentation and causes a full build at render time.
 	 */
 	@Override
-	public void setModel(ITableModel< ? > model) {
+	public void setModel(ITableModel<T> model) {
 		clearDeselectedAccumulatedRows();
 		super.setModel(model);
 	}

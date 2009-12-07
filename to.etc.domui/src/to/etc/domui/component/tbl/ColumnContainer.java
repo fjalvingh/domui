@@ -8,12 +8,12 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class ColumnContainer {
-	private DataTable m_table;
+public class ColumnContainer<T> {
+	private TableModelTableBase<T> m_table;
 
 	private TR m_tr;
 
-	public ColumnContainer(DataTable table) {
+	public ColumnContainer(TableModelTableBase<T> table) {
 		m_table = table;
 	}
 
@@ -21,7 +21,7 @@ public class ColumnContainer {
 		m_tr = p;
 	}
 
-	public DataTable getTable() {
+	public TableModelTableBase<T> getTable() {
 		return m_table;
 	}
 

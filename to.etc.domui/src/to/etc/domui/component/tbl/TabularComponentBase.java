@@ -2,12 +2,7 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-
-abstract public class TabularComponentBase extends Div implements ITableModelListener<Object> {
-	private ITableModel<Object> m_model;
-
+abstract public class TabularComponentBase<T> extends TableModelTableBase<T> implements ITableModelListener<T> {
 	/** The current page #, starting at 0 */
 	private int m_currentPage;
 
@@ -17,13 +12,25 @@ abstract public class TabularComponentBase extends Div implements ITableModelLis
 
 	abstract int getPageSize();
 
-	public TabularComponentBase() {}
-
-	public TabularComponentBase(ITableModel< ? > model) {
-		m_model = (ITableModel<Object>) model;
-		m_model.addChangeListener(this);
+	public TabularComponentBase() {
+		super(null); // FIXME Historic reasons- DataTable has no class
 	}
 
+	public TabularComponentBase(ITableModel<T> model) {
+		super(null, model); // FIXME Historic reasons- DataTable has no class
+	}
+
+	public TabularComponentBase(Class<T> actualClass, ITableModel<T> model) {
+		super(actualClass, model);
+	}
+
+	public TabularComponentBase(Class<T> actualClass) {
+		super(actualClass);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Model/page changed listener code..					*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Add a change listener to this model. Don't forget to remove it at destruction time.
 	 */
@@ -51,7 +58,8 @@ abstract public class TabularComponentBase extends Div implements ITableModelLis
 		return m_listeners;
 	}
 
-	protected void fireModelChanged(ITableModel< ? > old, ITableModel< ? > nw) {
+	@Override
+	protected void fireModelChanged(ITableModel<T> old, ITableModel<T> nw) {
 		for(IDataTableChangeListener l : getListeners()) {
 			try {
 				l.modelChanged(this, old, nw);
@@ -61,6 +69,7 @@ abstract public class TabularComponentBase extends Div implements ITableModelLis
 		}
 	}
 
+	@Override
 	protected void firePageChanged() {
 		for(IDataTableChangeListener l : getListeners()) {
 			try {
@@ -72,7 +81,7 @@ abstract public class TabularComponentBase extends Div implements ITableModelLis
 	}
 
 	protected void calcIndices() throws Exception {
-		int size = m_model.getRows();
+		int size = getModel().getRows();
 		int pageSize = getPageSize();
 		if(pageSize <= 0) {
 			m_six = 0;
@@ -90,13 +99,8 @@ abstract public class TabularComponentBase extends Div implements ITableModelLis
 		}
 	}
 
-
 	protected List< ? > getPageItems() throws Exception {
-		return m_model.getItems(m_six, m_eix); // Data to show
-	}
-
-	public ITableModel< ? > getModel() {
-		return m_model;
+		return getModel().getItems(m_six, m_eix); // Data to show
 	}
 
 	public int getCurrentPage() {
@@ -117,62 +121,15 @@ abstract public class TabularComponentBase extends Div implements ITableModelLis
 		int pageSize = getPageSize();
 		if(pageSize <= 0)
 			return 1;
-		return (m_model.getRows() + pageSize - 1) / pageSize;
+		return (getModel().getRows() + pageSize - 1) / pageSize;
 	}
 
 	public int getTruncatedCount() {
-		if(m_model == null || !(m_model instanceof ITruncateableDataModel))
+		ITableModel<T> tm = getModel();
+		if(tm == null || !(tm instanceof ITruncateableDataModel))
 			return 0;
-		ITruncateableDataModel t = (ITruncateableDataModel) m_model;
+		ITruncateableDataModel t = (ITruncateableDataModel) tm;
 		return t.getTruncatedCount();
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Model updates.										*/
-	/*--------------------------------------------------------------*/
-
-	/**
-	 * Set a new model for this table. This discards the entire presentation
-	 * and causes a full build at render time.
-	 */
-	public void setModel(ITableModel< ? > model) {
-		ITableModel<Object> itm = (ITableModel<Object>) model; // Stupid Java Generics need cast here
-		if(m_model == itm) // If the model did not change at all begone
-			return;
-		ITableModel< ? > old = m_model;
-		if(m_model != null)
-			m_model.removeChangeListener(this); // Remove myself from listening to my old model
-		m_model = itm;
-		if(itm != null)
-			itm.addChangeListener(this); // Listen for changes on the new model
-		m_currentPage = 0;
-		forceRebuild(); // Force a rebuild of all my nodes
-		fireModelChanged(old, model);
-	}
-
-	protected Object getModelItem(int index) throws Exception {
-		List<Object> res = m_model.getItems(index, index + 1);
-		if(res.size() == 0)
-			return null;
-		return res.get(0);
-	}
-
-	@Override
-	protected void onShelve() throws Exception {
-		super.onShelve();
-		if(m_model instanceof IShelvedListener) {
-			((IShelvedListener) m_model).onShelve();
-		}
-	}
-
-	@Override
-	protected void onUnshelve() throws Exception {
-		super.onUnshelve();
-		if(m_model instanceof IShelvedListener) {
-			//			System.out.println("Unshelving the model: refreshing it's contents");
-			((IShelvedListener) m_model).onUnshelve();
-			forceRebuild();
-			firePageChanged();
-		}
-	}
 }
