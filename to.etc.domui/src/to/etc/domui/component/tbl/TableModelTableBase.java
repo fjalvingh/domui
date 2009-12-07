@@ -57,7 +57,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		fireModelChanged(old, model);
 	}
 
-	protected Object getModelItem(int index) throws Exception {
+	protected T getModelItem(int index) throws Exception {
 		List<T> res = m_model.getItems(index, index + 1);
 		if(res.size() == 0)
 			return null;

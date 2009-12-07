@@ -12,7 +12,7 @@ import to.etc.domui.component.meta.impl.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2008
  */
-public class SimpleRowRenderer extends AbstractRowRenderer implements IRowRenderer {
+public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRowRenderer<T> {
 	private int m_totwidth;
 
 	protected void setTotalWidth(int w) {
@@ -31,7 +31,7 @@ public class SimpleRowRenderer extends AbstractRowRenderer implements IRowRender
 	 * @param dataClass
 	 * @param cols
 	 */
-	public SimpleRowRenderer(final Class< ? > dataClass, final String... cols) {
+	public SimpleRowRenderer(final Class<T> dataClass, final String... cols) {
 		super(dataClass);
 		final ClassMetaModel cmm = MetaManager.findClassMeta(dataClass);
 		if(cols.length != 0)

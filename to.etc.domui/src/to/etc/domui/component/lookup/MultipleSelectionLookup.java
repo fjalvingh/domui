@@ -136,7 +136,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 		if(m_queryResultTable == null) {
 			//-- We do not yet have a result table -> create one.
-			MultipleSelectionRowRenderer rr = new MultipleSelectionRowRenderer(m_lookupClass, m_resultColumns) {
+			MultipleSelectionRowRenderer<T> rr = new MultipleSelectionRowRenderer<T>(m_lookupClass, m_resultColumns) {
 				@Override
 				public int getRowWidth() {
 					int pxw = DomUtil.pixelSize(getWidth());

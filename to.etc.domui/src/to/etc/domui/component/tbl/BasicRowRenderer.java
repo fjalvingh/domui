@@ -28,7 +28,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2008
  */
-public class BasicRowRenderer extends AbstractRowRenderer implements IRowRenderer {
+public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowRenderer<T> {
 	static public final String NOWRAP = "-NOWRAP";
 
 	/** The column name to sort on by default, set by metadata. This is only used to keep it for a while until the actual column list is known; at that point the column def to sort on is determined and used. */
@@ -44,7 +44,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 	 * @param dataClass
 	 * @param cols
 	 */
-	public BasicRowRenderer(final Class< ? > dataClass, final Object... cols) throws Exception {
+	public BasicRowRenderer(final Class<T> dataClass, final Object... cols) throws Exception {
 		super(dataClass);
 		if(cols.length != 0)
 			addColumns(cols);
@@ -72,7 +72,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
 	@SuppressWarnings("fallthrough")
-	public BasicRowRenderer addColumns(final Object... cols) throws Exception {
+	public BasicRowRenderer<T> addColumns(final Object... cols) throws Exception {
 		check();
 		if(cols == null || cols.length == 0)
 			throw new IllegalStateException("The list-of-columns is empty or null; I need at least one column to continue.");
@@ -294,7 +294,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 	 * Complete this object if it is not already complete.
 	 */
 	@Override
-	protected void complete(final DataTable tbl) {
+	protected void complete(final DataTable<T> tbl) {
 		if(isComplete())
 			return;
 

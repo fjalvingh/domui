@@ -11,13 +11,13 @@ import to.etc.domui.component.meta.impl.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 27 Oct 2009
  */
-public abstract class MultipleSelectionRowRenderer extends SimpleRowRenderer {
+public abstract class MultipleSelectionRowRenderer<T> extends SimpleRowRenderer<T> {
 
-	public MultipleSelectionRowRenderer(Class< ? > dataClass, String[] cols) {
+	public MultipleSelectionRowRenderer(Class<T> dataClass, String[] cols) {
 		super(dataClass, cols);
 	}
 
-	public MultipleSelectionRowRenderer(Class< ? > dataClass) {
+	public MultipleSelectionRowRenderer(Class<T> dataClass) {
 		super(dataClass);
 	}
 

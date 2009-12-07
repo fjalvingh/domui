@@ -27,7 +27,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	FloatingWindow m_floater;
 
-	DataTable m_result;
+	DataTable<T> m_result;
 
 	T m_value;
 
@@ -208,14 +208,14 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
-			SimpleRowRenderer rr = null;
+			SimpleRowRenderer<T> rr = null;
 			if(m_resultColumns != null) {
-				rr = new SimpleRowRenderer(m_lookupClass, m_resultColumns);
+				rr = new SimpleRowRenderer<T>(m_lookupClass, m_resultColumns);
 			} else {
-				rr = new SimpleRowRenderer(m_lookupClass);
+				rr = new SimpleRowRenderer<T>(m_lookupClass);
 			}
 
-			m_result = new DataTable(model, rr);
+			m_result = new DataTable<T>(model, rr);
 			m_floater.add(m_result);
 			m_result.setPageSize(20);
 			m_result.setTableWidth("100%");

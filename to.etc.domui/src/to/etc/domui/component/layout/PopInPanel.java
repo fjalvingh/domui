@@ -14,7 +14,7 @@ public class PopInPanel extends Div {
 
 	private ButtonBar m_buttonBar;
 
-	private Div m_content;
+	//	private Div m_content;
 
 	static public enum Bar {
 		LEFT, TOP, RIGHT, BOTTOM
@@ -35,7 +35,7 @@ public class PopInPanel extends Div {
 
 	@Override
 	final public void createContent() throws Exception {
-		m_content = null;
+		//		m_content = null;
 		Span	ttl = new Span();
 		ttl.setCssClass("ui-popin-ttl");
 		add(ttl);

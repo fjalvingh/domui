@@ -99,7 +99,7 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 		}
 	}
 
-	protected List< ? > getPageItems() throws Exception {
+	protected List<T> getPageItems() throws Exception {
 		return getModel().getItems(m_six, m_eix); // Data to show
 	}
 

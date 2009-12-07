@@ -26,16 +26,16 @@ import to.etc.domui.dom.html.*;
 public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 	private Table m_table = new Table();
 
-	protected IRowRenderer m_rowRenderer;
+	protected IRowRenderer<T> m_rowRenderer;
 
-	private TBody m_dataBody;
+	//	private TBody m_dataBody;
 
-	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer r) {
+	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
 		super(actualClass);
 		m_rowRenderer = r;
 	}
 
-	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable ITableModel<T> m, @Nullable IRowRenderer r) {
+	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable ITableModel<T> m, @Nullable IRowRenderer<T> r) {
 		super(actualClass, m);
 		m_rowRenderer = r;
 	}

@@ -8,8 +8,8 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> {
 	/** When set this becomes an ordered model. */
 	private Comparator<T> m_comparator;
 
-	/** Indicates that the list has been sorted. */
-	private boolean m_ordered;
+	//	/** Indicates that the list has been sorted. */
+	//	private boolean m_ordered;
 
 	public List<T> getItems(int start, int end) throws Exception {
 		int size = getRows();
@@ -60,7 +60,7 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> {
 
 	private void resort() throws Exception {
 		Collections.sort(getList(), m_comparator);
-		m_ordered = true;
+		//		m_ordered = true;
 	}
 
 	/**

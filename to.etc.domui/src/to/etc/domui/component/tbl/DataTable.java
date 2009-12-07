@@ -15,28 +15,28 @@ import to.etc.webapp.nls.*;
 public class DataTable<T> extends TabularComponentBase<T> {
 	private Table m_table = new Table();
 
-	protected IRowRenderer m_rowRenderer;
+	protected IRowRenderer<T> m_rowRenderer;
 
 	/** The size of the page */
 	private int m_pageSize;
 
 	private TBody m_dataBody;
 
-	public DataTable(IRowRenderer r) {
+	public DataTable(IRowRenderer<T> r) {
 		m_rowRenderer = r;
 	}
 
-	public DataTable(ITableModel<T> m, IRowRenderer r) {
+	public DataTable(ITableModel<T> m, IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
 	}
 
-	public DataTable(Class<T> actualClass, ITableModel<T> model, IRowRenderer r) {
+	public DataTable(Class<T> actualClass, ITableModel<T> model, IRowRenderer<T> r) {
 		super(actualClass, model);
 		m_rowRenderer = r;
 	}
 
-	public DataTable(Class<T> actualClass, IRowRenderer r) {
+	public DataTable(Class<T> actualClass, IRowRenderer<T> r) {
 		super(actualClass);
 		m_rowRenderer = r;
 	}
@@ -70,7 +70,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 
 		calcIndices(); // Calculate rows to show.
 
-		List< ? > list = getPageItems(); // Data to show
+		List<T> list = getPageItems(); // Data to show
 		if(list.size() == 0) {
 			Div error = new Div();
 			error.setCssClass("ui-dt-nores");
@@ -84,7 +84,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		//-- Render the header.
 		THead hd = new THead();
 		m_table.add(hd);
-		HeaderContainer hc = new HeaderContainer(this);
+		HeaderContainer<T> hc = new HeaderContainer<T>(this);
 		TR tr = new TR();
 		tr.setCssClass("ui-dt-hdr");
 		hd.add(tr);
@@ -100,7 +100,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		int ix = m_six;
-		for(Object o : list) {
+		for(T o : list) {
 			tr = new TR();
 			m_dataBody.add(tr);
 			cc.setParent(tr);

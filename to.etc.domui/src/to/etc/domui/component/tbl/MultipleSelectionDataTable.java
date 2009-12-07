@@ -14,12 +14,12 @@ import to.etc.webapp.nls.*;
  */
 public class MultipleSelectionDataTable<T> extends DataTable<T> {
 
-	public MultipleSelectionDataTable(Class<T> dataClass, ITableModel<T> m, IRowRenderer r) {
+	public MultipleSelectionDataTable(Class<T> dataClass, ITableModel<T> m, IRowRenderer<T> r) {
 		super(m, r);
 		//		m_dataClass = dataClass;
 	}
 
-	public MultipleSelectionDataTable(Class<T> dataClass, IRowRenderer r) {
+	public MultipleSelectionDataTable(Class<T> dataClass, IRowRenderer<T> r) {
 		super(r);
 		//		m_dataClass = dataClass;
 	}
@@ -41,7 +41,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 
 		calcIndices(); // Calculate rows to show.
 
-		List< ? > list = getPageItems(); // Data to show
+		List<T> list = getPageItems(); // Data to show
 
 		if(m_accumulatedRows.size() > 0 || list.size() > 0) {
 			getTable().removeAllChildren();
@@ -50,7 +50,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			//-- Render the header.
 			THead hd = new THead();
 			getTable().add(hd);
-			HeaderContainer hc = new HeaderContainer(this);
+			HeaderContainer<T> hc = new HeaderContainer<T>(this);
 			TR tr = new TR();
 			tr.setCssClass("ui-dt-hdr");
 			hd.add(tr);
@@ -78,9 +78,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			}
 
 			int ix = m_six;
-			for(Object o : list) {
-				//FIXME: unsecures boxing. instanceof can not be used here...
-				T item = (T) o;
+			for(T item : list) {
 				tr = new TR();
 				getDataBody().add(tr);
 				cc.setParent(tr);
@@ -100,7 +98,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 									}
 								});*/
 				tr.add(selectionMarkerCell);
-				m_rowRenderer.renderRow(this, cc, ix, o);
+				m_rowRenderer.renderRow(this, cc, ix, item);
 				ix++;
 			}
 		}
