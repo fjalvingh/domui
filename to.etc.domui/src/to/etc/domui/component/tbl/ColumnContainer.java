@@ -17,7 +17,7 @@ public class ColumnContainer<T> {
 		m_table = table;
 	}
 
-	void setParent(TR p) {
+	public void setParent(TR p) {
 		m_tr = p;
 	}
 

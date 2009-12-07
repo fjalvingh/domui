@@ -294,7 +294,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 	 * Complete this object if it is not already complete.
 	 */
 	@Override
-	protected void complete(final DataTable<T> tbl) {
+	protected void complete(final TableModelTableBase<T> tbl) {
 		if(isComplete())
 			return;
 

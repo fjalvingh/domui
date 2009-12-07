@@ -377,7 +377,7 @@ public class LookupForm<T> extends Div {
 			public void clicked(final NodeBase xb) throws Exception {
 				clearInput();
 				if(getOnClear() != null)
-					((IClicked<LookupForm>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
+					((IClicked<LookupForm<T>>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
 			}
 		});
 		addButtonItem(b, 200, ButtonMode.NORMAL);

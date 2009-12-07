@@ -7,9 +7,9 @@ package to.etc.domui.component.tbl;
  * Created on Jun 1, 2008
  */
 public interface IRowRenderer<T> {
-	abstract public void beforeQuery(DataTable<T> tbl) throws Exception;
+	abstract public void beforeQuery(TableModelTableBase<T> tbl) throws Exception;
 
-	abstract public void renderRow(DataTable<T> tbl, ColumnContainer<T> cc, int index, T instance) throws Exception;
+	abstract public void renderRow(TableModelTableBase<T> tbl, ColumnContainer<T> cc, int index, T instance) throws Exception;
 
-	abstract public void renderHeader(DataTable<T> tbl, HeaderContainer<T> cc) throws Exception;
+	abstract public void renderHeader(TableModelTableBase<T> tbl, HeaderContainer<T> cc) throws Exception;
 }

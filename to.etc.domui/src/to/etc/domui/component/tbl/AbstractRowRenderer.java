@@ -61,7 +61,7 @@ public class AbstractRowRenderer<T> {
 	/**
 	 * Complete this object if it is not already complete (internal).
 	 */
-	protected void complete(final DataTable<T> tbl) {
+	protected void complete(final TableModelTableBase<T> tbl) {
 		m_completed = true;
 	}
 
@@ -201,7 +201,7 @@ public class AbstractRowRenderer<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderHeader(to.etc.domui.component.tbl.HeaderContainer)
 	 */
-	public void renderHeader(final DataTable<T> tbl, final HeaderContainer<T> cc) throws Exception {
+	public void renderHeader(final TableModelTableBase<T> tbl, final HeaderContainer<T> cc) throws Exception {
 		m_sortImages = new Img[m_columnList.size()];
 		int ix = 0;
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
@@ -284,7 +284,7 @@ public class AbstractRowRenderer<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.IRowRenderer#beforeQuery(to.etc.domui.component.tbl.DataTable)
 	 */
-	public void beforeQuery(final DataTable<T> tbl) throws Exception {
+	public void beforeQuery(final TableModelTableBase<T> tbl) throws Exception {
 		complete(tbl);
 		if(!(tbl.getModel() instanceof ISortableTableModel)) {
 			//			m_sortableModel = false;
@@ -305,14 +305,14 @@ public class AbstractRowRenderer<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
-	@SuppressWarnings("unchecked")
-	public void renderRow(final DataTable tbl, final ColumnContainer cc, final int index, final Object instance) throws Exception {
+	public void renderRow(final TableModelTableBase<T> tbl, final ColumnContainer<T> cc, final int index, final T instance) throws Exception {
 		if(m_rowClicked != null) {
 			/*
 			 * FIXME For now I add a separate instance of the handler to every row. A single instance is OK too,
 			 * provided it can calculate the row data from the TR it is attached to.
 			 */
 			cc.getTR().setClicked(new IClicked<TR>() {
+				@SuppressWarnings("unchecked")
 				public void clicked(final TR b) throws Exception {
 					((ICellClicked) getRowClicked()).cellClicked(tbl.getPage(), b, instance);
 				}
@@ -358,7 +358,7 @@ public class AbstractRowRenderer<T> {
 	 * @param cd
 	 * @throws Exception
 	 */
-	protected <X> void renderColumn(final DataTable<T> tbl, final ColumnContainer<T> cc, final int index, final Object instance, final SimpleColumnDef cd) throws Exception {
+	protected <X> void renderColumn(final TableModelTableBase<T> tbl, final ColumnContainer<T> cc, final int index, final T instance, final SimpleColumnDef cd) throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
 		X colval;
 		if(cd.getValueTransformer() == null)

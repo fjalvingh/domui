@@ -28,7 +28,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 
 	protected IRowRenderer<T> m_rowRenderer;
 
-	//	private TBody m_dataBody;
+	private TBody m_dataBody;
 
 	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
 		super(actualClass);
@@ -78,21 +78,12 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 		if(!isBuilt())
 			return;
 
-		//		//-- Create an insert row && show as collapsed item
-		//		ColumnContainer cc = new ColumnContainer(this);
-		//		TR tr = new TR();
-		//		cc.setParent(tr);
-		//		m_rowRenderer.renderRow(this, cc, index, value);
-		//		m_dataBody.add(rrow, tr);
-		//
-		//		//-- What relative row?
-		//		int rrow = index - m_six; // This is the location within the child array
-		//
-		//		//-- Is the size not > the page size?
-		//		if(m_pageSize > 0 && m_dataBody.getChildCount() > m_pageSize) {
-		//			//-- Delete the last row.
-		//			m_dataBody.removeChild(m_dataBody.getChildCount() - 1); // Delete last element
-		//		}
+		//-- Create an insert row && show as collapsed item
+		ColumnContainer<T> cc = new ColumnContainer<T>(this);
+		TR tr = new TR();
+		cc.setParent(tr);
+		m_rowRenderer.renderRow(this, cc, index, value);
+		m_dataBody.add(index, tr);
 	}
 
 	/**
