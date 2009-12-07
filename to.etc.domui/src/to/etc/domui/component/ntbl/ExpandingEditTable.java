@@ -92,6 +92,10 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 			tr.setCssClass("ui-xdt-hdr");
 			hd.add(tr);
 			hc.setParent(tr);
+			if(!isHideIndex()) {
+				hc.add((NodeBase) null);
+			}
+
 			m_rowRenderer.renderHeader(this, hc);
 		}
 
