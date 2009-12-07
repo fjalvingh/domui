@@ -56,7 +56,7 @@ public class LookupForm<T> extends Div {
 
 	private DefaultButton m_newBtn;
 
-	private IClicked<LookupForm<T>> m_onClear;
+	private IClicked< ? extends LookupForm<T>> m_onClear;
 
 	private IClicked<LookupForm<T>> m_onCancel;
 
@@ -377,7 +377,7 @@ public class LookupForm<T> extends Div {
 			public void clicked(final NodeBase xb) throws Exception {
 				clearInput();
 				if(getOnClear() != null)
-					getOnClear().clicked(LookupForm.this);
+					((IClicked<LookupForm>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
 			}
 		});
 		addButtonItem(b, 200, ButtonMode.NORMAL);
@@ -870,7 +870,7 @@ public class LookupForm<T> extends Div {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
 	}
 
-	public IClicked<LookupForm<T>> getOnClear() {
+	public IClicked< ? extends LookupForm<T>> getOnClear() {
 		return m_onClear;
 	}
 
@@ -878,7 +878,7 @@ public class LookupForm<T> extends Div {
 	 * Listener to call when the "clear" button is pressed.
 	 * @param onClear
 	 */
-	public void setOnClear(IClicked<LookupForm<T>> onClear) {
+	public void setOnClear(IClicked< ? extends LookupForm<T>> onClear) {
 		m_onClear = onClear;
 	}
 
