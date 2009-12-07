@@ -11,7 +11,7 @@ import to.etc.domui.component.meta.*;
  */
 final public class DoubleFactory implements IConverterFactory {
 	public int accept(final Class< ? > clz, final PropertyMetaModel pmm) {
-		if(!Double.class.isAssignableFrom(clz))
+		if(!Double.class.isAssignableFrom(clz) && double.class != clz)
 			return -1;
 		return 5;
 	}
@@ -21,6 +21,6 @@ final public class DoubleFactory implements IConverterFactory {
 	 * @see to.etc.domui.converter.IConverterFactory#createConverter(java.lang.Class, to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	public <X, T extends IConverter<X>> T createConverter(final Class<X> clz, final PropertyMetaModel pmm) {
-		return (T)ConverterRegistry.getConverterInstance(DoubleConverter.class);
+		return (T) ConverterRegistry.getConverterInstance(DoubleConverter.class);
 	}
 }
