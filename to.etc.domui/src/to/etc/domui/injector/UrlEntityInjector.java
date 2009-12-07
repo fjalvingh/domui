@@ -110,6 +110,8 @@ public class UrlEntityInjector extends PropertyInjector {
 			value = createNew(page, ctx);
 		} else {
 			value = loadInstance(page, pv);
+			if(value == null && m_mandatory)
+				throw new RuntimeException("The " + m_entityClass.getName() + " instance with primary key " + getKeyInstance(page, pv) + " does not exist");
 		}
 		setValue(page, value);
 	}

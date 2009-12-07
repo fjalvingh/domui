@@ -10,19 +10,19 @@ import to.etc.domui.dom.html.*;
  * Created on Jun 2, 2008
  */
 public class HeaderContainer<T> {
-	private DataTable<T> m_table;
+	private TableModelTableBase<T> m_table;
 
 	private TR m_tr;
 
-	public HeaderContainer(DataTable<T> table) {
+	public HeaderContainer(TableModelTableBase<T> table) {
 		m_table = table;
 	}
 
-	void setParent(TR p) {
+	public void setParent(TR p) {
 		m_tr = p;
 	}
 
-	public DataTable<T> getTable() {
+	public TableModelTableBase<T> getTable() {
 		return m_table;
 	}
 

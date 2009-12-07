@@ -1,9 +1,13 @@
 package to.etc.domui.component.ntbl;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * This component is a table, using a TableModel, which can also edit it's rows
@@ -30,6 +34,10 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 
 	private TBody m_dataBody;
 
+	private boolean m_hideHeader;
+
+	private boolean m_hideIndex;
+
 	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
 		super(actualClass);
 		m_rowRenderer = r;
@@ -53,6 +61,112 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 		m_table.setTableWidth(w);
 	}
 
+	/**
+	 *
+	 * @see to.etc.domui.dom.html.NodeBase#createContent()
+	 */
+	@Override
+	public void createContent() throws Exception {
+		setCssClass("ui-xdt");
+
+		//-- Ask the renderer for a sort order, if applicable
+		m_rowRenderer.beforeQuery(this); // ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
+
+		List<T> list = getPageItems(); // Data to show
+		if(list.size() == 0) {
+			Div error = new Div();
+			error.setCssClass("ui-xdt-nores");
+			error.setText(NlsContext.getGlobalMessage(Msgs.UI_DATATABLE_EMPTY));
+			add(error);
+			return;
+		}
+		m_table.removeAllChildren();
+		add(m_table);
+
+		//-- Render the header, if applicable
+		if(!isHideHeader()) {
+			THead hd = new THead();
+			m_table.add(hd);
+			HeaderContainer<T> hc = new HeaderContainer<T>(this);
+			TR tr = new TR();
+			tr.setCssClass("ui-xdt-hdr");
+			hd.add(tr);
+			hc.setParent(tr);
+			m_rowRenderer.renderHeader(this, hc);
+		}
+
+		//-- Render loop: add rows && ask the renderer to add columns.
+		m_dataBody = new TBody();
+		m_table.add(m_dataBody);
+
+		ColumnContainer<T> cc = new ColumnContainer<T>(this);
+		int ix = 0;
+		for(T o : list) {
+			TR tr = new TR();
+			m_dataBody.add(tr);
+			renderCollapsedRow(cc, tr, ix, o);
+			ix++;
+		}
+	}
+
+	/**
+	 * Returns all items in the list.
+	 * @return
+	 * @throws Exception
+	 */
+	protected List<T> getPageItems() throws Exception {
+		return getModel() == null ? Collections.EMPTY_LIST : getModel().getItems(0, getModel().getRows());
+	}
+
+	/**
+	 * Renders a row with all embellishments.
+	 * @param index
+	 * @param value
+	 * @throws Exception
+	 */
+	private void renderCollapsedRow(int index, T value) throws Exception {
+		ColumnContainer<T> cc = new ColumnContainer<T>(this);
+		TR tr = (TR) m_dataBody.getChild(index);
+		tr.removeAllChildren(); // Discard current contents.
+		renderCollapsedRow(cc, tr, index, value);
+	}
+
+	private void renderCollapsedRow(ColumnContainer<T> cc, TR tr, int index, T value) throws Exception {
+		cc.setParent(tr);
+
+		if(! isHideIndex()) {
+			TD td = cc.add((NodeBase) null);
+			createIndexNode(td, index, true);
+		}
+		m_rowRenderer.renderRow(this, cc, index, value);
+	}
+
+	private void createIndexNode(TD td, int index, boolean collapsed) {
+		Div d = new Div(Integer.toString(index + 1));
+		td.add(d);
+		d.setCssClass(collapsed ? "ui-xdt-ix ui-xdt-clp" : "ui-xdt-ix ui-xdt-exp");
+	}
+
+	/**
+	 * When a row is added or deleted all indexes of existing rows after the changed one must change.
+	 * @param start
+	 */
+	private void updateIndexes(int start) {
+		if(isHideIndex())
+			return;
+		for(int ix = start; ix < m_dataBody.getChildCount(); ix++) {
+			TR tr = (TR) m_dataBody.getChild(ix);
+			TD td = (TD) tr.getChild(0);
+			td.removeAllChildren();
+			createIndexNode(td, ix, isExpanded(ix));
+		}
+	}
+
+
+	private boolean isExpanded(int ix) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	TableModelListener implementation					*/
@@ -65,12 +179,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 	}
 
 	/**
-	 * Row add. Determine if the row is within the paged-in indexes. If not we ignore the
-	 * request. If it IS within the paged content we insert the new TR. Since this adds a
-	 * new row to the visible set we check if the resulting rowset is not bigger than the
-	 * page size; if it is we delete the last node. After all this the renderer will render
-	 * the correct result.
-	 * When called the actual insert has already taken place in the model.
+	 * A record is added. Add a collapsed row at the required position.
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
@@ -78,12 +187,15 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 		if(!isBuilt())
 			return;
 
+		//-- Sanity
+		if(index < 0 || index > m_dataBody.getChildCount())
+			throw new IllegalStateException("Insane index: " + index);
+
 		//-- Create an insert row && show as collapsed item
-		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = new TR();
-		cc.setParent(tr);
-		m_rowRenderer.renderRow(this, cc, index, value);
 		m_dataBody.add(index, tr);
+		renderCollapsedRow(index, value);
+		updateIndexes(index + 1);
 	}
 
 	/**
@@ -93,40 +205,68 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowDeleted(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
-	public void rowDeleted(ITableModel<T> model, int index, T value) throws Exception {
+	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
-		//		if(index < m_six || index >= m_eix) // Outside visible bounds
-		//			return;
-		//		int rrow = index - m_six; // This is the location within the child array
-		//		m_dataBody.removeChild(rrow); // Discard this one;
-		//
-		//		//-- One row gone; must we add one at the end?
-		//		int peix = m_six + m_pageSize - 1; // Index of last element on "page"
-		//		if(m_pageSize > 0 && peix < m_eix) {
-		//			ColumnContainer cc = new ColumnContainer(this);
-		//			TR tr = new TR();
-		//			cc.setParent(tr);
-		//			m_rowRenderer.renderRow(this, cc, peix, getModelItem(peix));
-		//			m_dataBody.add(m_pageSize - 1, tr);
-		//		}
+
+		//-- Sanity
+		if(index < 0 || index >= m_dataBody.getChildCount())
+			throw new IllegalStateException("Insane index: " + index);
+
+		//-- Remove, and discard any open edit box
+		TR row = (TR) m_dataBody.removeChild(index); // Discard this one;
+		updateIndexes(index);
+
+		// TODO close editor
+
 	}
 
 	/**
-	 * Merely force a full redraw of the appropriate row.
+	 * When a row is modified we redraw the row in collapsed mode; if it was in edit mode before bad luck.
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	public void rowModified(ITableModel<T> model, int index, T value) throws Exception {
 		if(!isBuilt())
 			return;
-		//		if(index < m_six || index >= m_eix) // Outside visible bounds
-		//			return;
-		//		int rrow = index - m_six; // This is the location within the child array
-		//		TR tr = (TR) m_dataBody.getChild(rrow); // The visible row there
-		//		tr.removeAllChildren(); // Discard current contents.
-		//
-		//		ColumnContainer cc = new ColumnContainer(this);
-		//		m_rowRenderer.renderRow(this, cc, index, value);
+		//-- Sanity
+		if(index < 0 || index >= m_dataBody.getChildCount())
+			throw new IllegalStateException("Insane index: " + index);
+
+		// TODO Close any open editor
+		renderCollapsedRow(index, value);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Sillyness.											*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * When set the table will not render a THead.
+	 * @return
+	 */
+	public boolean isHideHeader() {
+		return m_hideHeader;
+	}
+
+	public void setHideHeader(boolean hideHeader) {
+		if(m_hideHeader == hideHeader)
+			return;
+		m_hideHeader = hideHeader;
+		forceRebuild();
+	}
+
+	/**
+	 * When set the index number before the row is not shown.
+	 * @return
+	 */
+	public boolean isHideIndex() {
+		return m_hideIndex;
+	}
+
+	public void setHideIndex(boolean hideIndex) {
+		if(m_hideIndex == hideIndex)
+			return;
+		m_hideIndex = hideIndex;
+		forceRebuild();
 	}
 }

@@ -291,6 +291,28 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 	}
 
 	/**
+	 * Add all of the columns as defined by the metadata to the list.
+	 */
+	public void addDefaultColumns() {
+		final ClassMetaModel cmm = model();
+		final List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
+		if(dpl.size() == 0)
+			throw new IllegalStateException("The list-of-columns to show is empty, and the class " + getActualClass()
+				+ " has no @MetaObject definition defining a set of columns as default table columns, so there.");
+		List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
+		xdpl = ExpandedDisplayProperty.flatten(xdpl); // Flatten the list: expand any compounds.
+		for(final ExpandedDisplayProperty xdp : xdpl) {
+			SimpleColumnDef scd = new SimpleColumnDef(xdp);
+			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
+				scd.setCssClass("ui-numeric");
+				scd.setHeaderCssClass("ui-numeric");
+			}
+
+			m_columnList.add(scd);
+		}
+	}
+
+	/**
 	 * Complete this object if it is not already complete.
 	 */
 	@Override
@@ -299,24 +321,8 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 			return;
 
 		//-- If we have no columns at all we use a default column list.
-		if(m_columnList.size() == 0) {
-			final ClassMetaModel cmm = model();
-			final List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
-			if(dpl.size() == 0)
-				throw new IllegalStateException("The list-of-columns to show is empty, and the class " + getActualClass()
-					+ " has no @MetaObject definition defining a set of columns as default table columns, so there.");
-			List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
-			xdpl = ExpandedDisplayProperty.flatten(xdpl); // Flatten the list: expand any compounds.
-			for(final ExpandedDisplayProperty xdp : xdpl) {
-				SimpleColumnDef scd = new SimpleColumnDef(xdp);
-				if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
-					scd.setCssClass("ui-numeric");
-					scd.setHeaderCssClass("ui-numeric");
-				}
-
-				m_columnList.add(scd);
-			}
-		}
+		if(m_columnList.size() == 0)
+			addDefaultColumns();
 
 		//-- Is there a default sort thingy? Is that column present?
 		if(m_sortColumnName != null) {

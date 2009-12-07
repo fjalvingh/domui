@@ -650,6 +650,40 @@ a.ui-nbtn:hover,a.ui-nbtn:active {
 	cursor: pointer;
 }
 
+/*** ExpandingTable ***/
+.ui-xdt {
+	overflow: auto;
+}
+
+.ui-xdt TH {
+	text-align: left;
+}
+
+.ui-xdt-hdr {
+	/* default domui table header style is still to be defined */
+}
+
+.ui-xdt-ix {
+	cursor: pointer;
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+	font-size: 12px;
+	color: #1700ee;
+	text-decoration: underline !important;
+}
+div:hover.ui-xdt-clp {
+	background-image: url(xdt-collapsed.png);
+}
+div:hover.ui-xdt-exp {
+	background-image: url(xdt-expanded.png);
+}
+
+.ui-dt-nores {
+	padding: 10px 0px 10px 0px;
+	font-style: italic;
+}
+
 /*** DataTable default style ***/
 .ui-dt {
 	overflow: auto;
