@@ -3,6 +3,9 @@ package to.etc.domui.util.images.converters;
 import java.io.*;
 import java.util.*;
 
+import to.etc.domui.util.images.cache.*;
+import to.etc.domui.util.images.machines.*;
+
 /**
  * This handles a converter chain. For every operation in the chain we lookup the appropriate
  * factory, then we execute the conversion. For each next conversion we try to reuse the
@@ -83,7 +86,7 @@ public class ImageConverterHelper {
 		try {
 			//-- Execute a single conversion.
 			File src = new File("/home/jal/img_5589.jpg");
-			ImageData id = ImageConverterRegistry.identify("image/jpeg", src);
+			OriginalImageData id = ImageConverterRegistry.identify("image/jpeg", src);
 			ImageSpec sis = new ImageSpec(src, id);
 
 			List<IImageConversionSpecifier> l = new ArrayList<IImageConversionSpecifier>();

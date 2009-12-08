@@ -1,5 +1,7 @@
 package to.etc.domui.util.images.machines;
 
+import java.io.*;
+
 public class ImageManipulator {
 	static private ImageHandler m_instance;
 
@@ -12,19 +14,7 @@ public class ImageManipulator {
 		return m_instance;
 	}
 
-	//    public List<ImagePage>  identify(File input) throws Exception {
-	//        return getImageHandler().identify(input);
-	//    }
-	//
-	//    static public ImageDataSource thumbnail(File inf, int page, int w, int h, String mime) throws Exception {
-	//        return getImageHandler().thumbnail(inf, page, w, h, mime);
-	//    }
-	//
-	//    static public ImageDataSource            scale(File inf, int page, int w, int h, String mime) throws Exception {
-	//        return getImageHandler().scale(inf, page, w, h, mime);
-	//    }
-	//    static public ImageDataSource scale(File inf, int page, int sw, int sh, int w, int h, String mime) throws Exception {
-	////        int size = (int) ((long)sw * (long)sh * 32 / (1024*1024));
-	//        return getImageHandler().scale(inf, page, w, h, mime);
-	//    }
+	static public OriginalImageData identify(File input) throws Exception {
+		return getImageHandler().identify(input);
+	}
 }
