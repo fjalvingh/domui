@@ -1048,7 +1048,8 @@ public abstract class DomApplication {
 			IThemeMap map = null;
 			if(m_themeMapFactory != null) {
 				map = m_themeMapFactory.createThemeMap(this);
-				rdl.add(map);
+				if(rdl != null)
+					rdl.add(map);
 			}
 			cont = rvs(cont, map, bv);
 			return cont;

@@ -327,7 +327,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			throw new IllegalStateException("Insane index: " + index);
 
 		//-- Remove, and discard any open edit box
-		TR row = (TR) m_dataBody.removeChild(index); // Discard this one;
+		//		TR row = (TR) m_dataBody.removeChild(index); // Discard this one;
 		updateIndexes(index);
 
 		// TODO close editor

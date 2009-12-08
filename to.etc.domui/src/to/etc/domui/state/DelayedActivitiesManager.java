@@ -128,7 +128,7 @@ public class DelayedActivitiesManager implements Runnable {
 			}
 
 			//-- Handle all completed thingies.
-			List<DelayedActivityInfo> comp = m_completionQueue.size() == 0 ? Collections.EMPTY_LIST : new ArrayList<DelayedActivityInfo>(m_completionQueue);
+			List<DelayedActivityInfo> comp = m_completionQueue.size() == 0 ? (List<DelayedActivityInfo>) Collections.EMPTY_LIST : new ArrayList<DelayedActivityInfo>(m_completionQueue);
 			m_completionQueue.clear();
 			if(comp.size() == 0 && pl.size() == 0)
 				return null;

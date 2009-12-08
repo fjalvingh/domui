@@ -114,9 +114,10 @@ public class PageMaker {
 			if(!Modifier.isPublic(mod))
 				continue;
 			Class< ? >[] par = cc.getParameterTypes(); // Zhe parameters
-			int sc;
-			if((par == null || par.length == 0) && score < 1) {
-				sc = 1;
+			int sc = -1;
+			if(par == null || par.length == 0) {
+				if(score < 1)
+					sc = 1;
 			} else {
 				sc = 3; // Better match always
 				int cnt = 0;
