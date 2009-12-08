@@ -678,8 +678,14 @@ div:hover.ui-xdt-clp {
 div:hover.ui-xdt-exp {
 	background-image: url(xdt-expanded.png);
 }
-
-.ui-dt-nores {
+.ui-xdt-edt {
+	background-color: #dffbf7;
+	width: 99%;
+	vertical-align: top;
+	-moz-border-radius: 5px;
+	border: 1px dotted #333333;
+}
+.ui-xdt-nores {
 	padding: 10px 0px 10px 0px;
 	font-style: italic;
 }

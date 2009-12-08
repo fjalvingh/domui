@@ -27,16 +27,22 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 7, 2009
  */
-public class ExpandingEditTable<T> extends TableModelTableBase<T> {
+public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHasModifiedIndication {
 	private Table m_table = new Table();
 
-	protected IRowRenderer<T> m_rowRenderer;
+	private IRowRenderer<T> m_rowRenderer;
+
+	private IRowEditorFactory<T> m_editorFactory;
 
 	private TBody m_dataBody;
 
 	private boolean m_hideHeader;
 
 	private boolean m_hideIndex;
+
+	private int m_columnCount;
+
+	private boolean m_modifiedByUser;
 
 	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
 		super(actualClass);
@@ -46,19 +52,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable ITableModel<T> m, @Nullable IRowRenderer<T> r) {
 		super(actualClass, m);
 		m_rowRenderer = r;
-	}
-
-	/**
-	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
-	 * @return
-	 */
-	@Nonnull
-	protected Table getTable() {
-		return m_table;
-	}
-
-	public void setTableWidth(@Nullable String w) {
-		m_table.setTableWidth(w);
 	}
 
 	/**
@@ -97,6 +90,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 			}
 
 			m_rowRenderer.renderHeader(this, hc);
+			m_columnCount = tr.getChildCount();
+			if(!isHideIndex())
+				m_columnCount--;
 		}
 
 		//-- Render loop: add rows && ask the renderer to add columns.
@@ -132,6 +128,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = (TR) m_dataBody.getChild(index);
 		tr.removeAllChildren(); // Discard current contents.
+		tr.setUserObject(null);
 		renderCollapsedRow(cc, tr, index, value);
 	}
 
@@ -143,12 +140,22 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 			createIndexNode(td, index, true);
 		}
 		m_rowRenderer.renderRow(this, cc, index, value);
+		m_columnCount = tr.getChildCount();
+		if(!isHideIndex())
+			m_columnCount--;
 	}
 
-	private void createIndexNode(TD td, int index, boolean collapsed) {
+	private void createIndexNode(TD td, final int index, boolean collapsed) {
 		Div d = new Div(Integer.toString(index + 1));
 		td.add(d);
 		d.setCssClass(collapsed ? "ui-xdt-ix ui-xdt-clp" : "ui-xdt-ix ui-xdt-exp");
+
+		td.setClicked(new IClicked<TD>() {
+			@Override
+			public void clicked(TD clickednode) throws Exception {
+				toggleExpanded(index);
+			}
+		});
 	}
 
 	/**
@@ -166,10 +173,112 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 		}
 	}
 
-
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Expanding and collapsing.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns T if this row is expanded (seen by looking at the UserObect which contains
+	 * the edit node if expanded).
+	 * @param ix
+	 * @return
+	 */
 	private boolean isExpanded(int ix) {
-		// TODO Auto-generated method stub
-		return false;
+		if(ix < 0 || ix >= m_dataBody.getChildCount())
+			return false;
+		TR tr = (TR) m_dataBody.getChild(ix);
+		return tr.getUserObject() != null;
+	}
+
+	private void createEditor(NodeContainer into, T instance) throws Exception {
+		if(getEditorFactory() == null)
+			throw new IllegalStateException("Auto editor creation not yet supported");
+		getEditorFactory().createRowEditor(into, instance);
+	}
+
+	/**
+	 * If the selected row is collapsed it gets expanded; if it is expanded it's values get
+	 * moved to the model and if that worked the row gets collapsed.
+	 * @param index
+	 */
+	protected void toggleExpanded(int index) throws Exception {
+		if(index < 0 || index >= m_dataBody.getChildCount()) // Ignore invalid indices
+			return;
+		TR tr = (TR) m_dataBody.getChild(index);
+		if(tr.getUserObject() == null)
+			expandRow(index, tr);
+		else
+			collapseRow(index, tr);
+	}
+
+	public void collapseRow(int index) throws Exception {
+		if(index < 0 || index >= m_dataBody.getChildCount()) // Ignore invalid indices
+			return;
+		TR tr = (TR) m_dataBody.getChild(index);
+		collapseRow(index, tr);
+	}
+
+	public void expandRow(int index) throws Exception {
+		if(index < 0 || index >= m_dataBody.getChildCount()) // Ignore invalid indices
+			return;
+		TR tr = (TR) m_dataBody.getChild(index);
+		expandRow(index, tr);
+	}
+
+	private int	getColumnCount() {
+		return m_columnCount;
+	}
+
+	/**
+	 * Expand the specified row: destroy the collapsed content, then insert an editor there.
+	 * @param index
+	 * @param tr
+	 */
+	private void expandRow(int index, TR tr) throws Exception {
+		if(tr.getUserObject() != null) // Already expanded?
+			return;
+
+		//-- Remove the current contents of the row, then add back the index cell if needed.
+		tr.removeAllChildren();
+		if(!isHideIndex()) {
+			TD td = tr.addCell();
+			createIndexNode(td, index, false);
+		}
+
+		//-- Create a single big cell that will contain the editor.
+		TD td = tr.addCell();
+		td.setCssClass("ui-xdt-edt");
+		int colspan = getColumnCount();
+		td.setColspan(colspan);
+		tr.setUserObject(td);
+
+		//-- Add the editor into that,
+		T	item	= getModelItem(index);
+		createEditor(td, item);
+		td.moveModelToControl();
+	}
+
+	/**
+	 * Collapse the row by destroying the editor, if possible.
+	 * @param index
+	 * @param tr
+	 */
+	private void collapseRow(int index, TR tr) throws Exception {
+		if(tr.getUserObject() == null) // Already collapsed?
+			return;
+		TD	editor = (TD) tr.getUserObject();
+		T	item	= getModelItem(index);
+		if(DomUtil.isModified(editor)) // On collapse pass on modified state
+			setModified(true);
+		validateEditor(editor, item); // Move data to model, abort on input error
+
+		//-- Done: just re-render the collapsed row
+		renderCollapsedRow(index, item);
+	}
+
+
+	private void validateEditor(TD editor, T item) {
+	// TODO Auto-generated method stub
+
 	}
 
 	/*--------------------------------------------------------------*/
@@ -242,8 +351,40 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 	}
 
 	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
+	}
+
+	/*--------------------------------------------------------------*/
 	/*	CODING:	Sillyness.											*/
 	/*--------------------------------------------------------------*/
+	/**
+	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
+	 * @return
+	 */
+	@Nonnull
+	protected Table getTable() {
+		return m_table;
+	}
+
+	public void setTableWidth(@Nullable String w) {
+		m_table.setTableWidth(w);
+	}
+
 	/**
 	 * When set the table will not render a THead.
 	 * @return
@@ -273,4 +414,14 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> {
 		m_hideIndex = hideIndex;
 		forceRebuild();
 	}
+
+	public IRowEditorFactory<T> getEditorFactory() {
+		return m_editorFactory;
+	}
+
+	public void setEditorFactory(IRowEditorFactory<T> editorFactory) {
+		m_editorFactory = editorFactory;
+	}
+
+
 }
