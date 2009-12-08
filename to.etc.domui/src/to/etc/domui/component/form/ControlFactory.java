@@ -1,5 +1,6 @@
 package to.etc.domui.component.form;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -61,6 +62,12 @@ public interface ControlFactory {
 			SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(model, pmm, control);
 			m_binding = b;
 			m_handle = b;
+
+			//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
+			if(control instanceof IBindable) {
+				IBindable bi = control;
+				bi.bind().to(model, pmm);
+			}
 		}
 
 		public NodeBase[] getNodeList() {
