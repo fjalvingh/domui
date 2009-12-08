@@ -5,7 +5,14 @@ import java.util.*;
 import to.etc.domui.util.*;
 
 /**
- * The SimpleCollectionModel is a very basic model that directly represents a collection.
+ * DEPRECATED Use SimpleListModel instead. The SimpleCollectionModel is a very basic model that directly represents a collection.
+ *
+ * <p>20091206 jal This model is deprecated because TableModel's <i>REQUIRE</i> the use of indexed addressing, and this
+ * addressing needs to remain stable while using this. This implementation uses Collection and re-creates a list
+ * for every time we need indexed addressing. This is VERY expensive, but also unstable when items are added: when
+ * they are added to a HashSet for instance the entire internal order can change (after a rehash) causing all items
+ * in the table to shift position. Although this model does fire modelChanged so at least the presentation remains
+ * correct, this is unacceptable behaviour.</i>
  *
  * The implementation depends on the unshelve command, during unshelving all listeners are notified that the model changed,
  * so changes in the collection this model represents constructor will be reflected in the component that is bound to the model.
@@ -17,8 +24,8 @@ import to.etc.domui.util.*;
  *
  * @param <T>
  */
+@Deprecated
 public class SimpleCollectionModel<T> extends TableModelBase<T> implements IShelvedListener {
-
 	private Collection<T> m_collection;
 
 	public SimpleCollectionModel(Collection<T> collection) {

@@ -20,6 +20,7 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 
 	private TR m_lastUsedRow;
 
+	@SuppressWarnings("unused")
 	private TD m_lastUsedCell;
 
 	public GenericTableFormBuilder() {}

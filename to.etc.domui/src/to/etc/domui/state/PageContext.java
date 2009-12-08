@@ -207,6 +207,45 @@ public class PageContext {
 		}
 	}
 
+	/**
+	 * Logs out a user.
+	 * @throws Exception
+	 */
+	static public void logout() throws Exception {
+		RequestContextImpl ci = m_current.get();
+		if(ci == null)
+			throw new IllegalStateException("You can logout from a server request only");
+
+		HttpSession hs = ci.getRequest().getSession(false);
+		if(hs == null)
+			return;
+		synchronized(hs) {
+			IUser user = internalGetLoggedInUser(ci);
+			if(user == null)
+				return;
+
+			//-- Call logout handlers BEFORE actual logout
+			List<ILoginListener> ll = ci.getApplication().getLoginListenerList();
+			for(ILoginListener l : ll) {
+				try {
+					l.userLogout(user);
+				} catch(Exception x) {
+					x.printStackTrace();
+				}
+			}
+
+			//-- Force logout
+			hs.removeAttribute(LOGIN_KEY);
+			m_currentUser.set(null);
+			try {
+				hs.invalidate();
+			} catch(Exception x) {
+				//-- Invalidating 2ce causes a useless exception.
+				x.printStackTrace();
+			}
+		}
+	}
+
 	public static Cookie createLoginCookie(final long l) throws Exception {
 		IUser user = m_currentUser.get();
 		if(user == null)

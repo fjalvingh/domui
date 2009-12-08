@@ -35,17 +35,18 @@ public interface ControlFactory {
 		/** The FormControl handle for the created control */
 		private IFormControl m_handle;
 
-		public Result(final IModelBinding binding, final NodeBase labelNode, final NodeBase[] nodeList) {
-			m_binding = binding;
-			m_labelNode = labelNode;
-			m_nodeList = nodeList;
-		}
+		// jal 20091206 tentative removal of unused/unusable constructors because they does not expose the IFormControl interface
+		//		public Result(final IModelBinding binding, final NodeBase labelNode, final NodeBase[] nodeList) {
+		//			m_binding = binding;
+		//			m_labelNode = labelNode;
+		//			m_nodeList = nodeList;
+		//		}
 
-		public Result(final IModelBinding binding, final NodeBase control) {
-			m_binding = binding;
-			m_labelNode = control;
-			m_nodeList = new NodeBase[]{control};
-		}
+		//		public Result(final IModelBinding binding, final NodeBase control) {
+		//			m_binding = binding;
+		//			m_labelNode = control;
+		//			m_nodeList = new NodeBase[]{control};
+		//		}
 
 		public Result(final IModelBinding binding, IFormControl fc, final NodeBase control) {
 			m_binding = binding;
@@ -75,7 +76,7 @@ public interface ControlFactory {
 		}
 
 		public IFormControl getFormControl() {
-			if(m_handle != null)
+			if(m_handle != null) // 20091206 jal WTF??
 				return m_handle;
 			return null;
 		}

@@ -313,7 +313,7 @@ public class MsgBox extends FloatingWindow {
 		td.setWidth("1%");
 
 		td = b.addCell("ui-mbx-mc");
-		td.add(m_theText);
+		DomUtil.renderHtmlString(td, m_theText); // 20091206 Allow simple markup in message
 		add(m_theButtons);
 		//FIXME: vmijic 20090911 Set initial focus to first button. However preventing of keyboard input focus on window in background has to be resolved properly.
 		setFocusOnButton();

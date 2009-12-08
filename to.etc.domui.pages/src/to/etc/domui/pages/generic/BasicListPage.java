@@ -14,7 +14,7 @@ import to.etc.webapp.query.*;
  * Created on 29 Jul 2009
  */
 abstract public class BasicListPage<T> extends BasicPage<T> {
-	private DataTable m_result;
+	private DataTable<T> m_result;
 
 	private DataPager m_pager;
 
@@ -52,8 +52,8 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	 * metadata for the class.
 	 * @return
 	 */
-	protected SimpleRowRenderer provideRowRenderer() {
-		return new SimpleRowRenderer(getBaseClass());
+	protected SimpleRowRenderer<T> provideRowRenderer() {
+		return new SimpleRowRenderer<T>(getBaseClass());
 	}
 
 	/**
@@ -122,14 +122,14 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
-			SimpleRowRenderer rr = provideRowRenderer();
+			SimpleRowRenderer<T> rr = provideRowRenderer();
 			rr.setRowClicked(new ICellClicked<T>() {
 				public void cellClicked(Page pg, NodeBase tr, T rowval) throws Exception {
 					onSelect(rowval);
 				}
 			});
 
-			m_result = new DataTable(model, rr);
+			m_result = new DataTable<T>(model, rr);
 			add(m_result);
 			m_result.setPageSize(20);
 			m_result.setTableWidth("100%");

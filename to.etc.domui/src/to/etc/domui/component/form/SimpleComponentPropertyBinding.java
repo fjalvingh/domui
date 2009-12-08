@@ -6,7 +6,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 public class SimpleComponentPropertyBinding implements IModelBinding, IFormControl {
-	final IInputNode<Object> m_control;
+	final IControl<Object> m_control;
 
 	private PropertyMetaModel m_propertyMeta;
 
@@ -39,24 +39,89 @@ public class SimpleComponentPropertyBinding implements IModelBinding, IFormContr
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IFormControl interface								*/
+	/*	CODING:	IControl interface									*/
 	/*--------------------------------------------------------------*/
 	/**
-	 *
-	 * @see to.etc.domui.component.form.IFormControl#getValue()
+	 * {@inheritDoc}
 	 */
 	public Object getValue() {
 		return m_control.getValue();
 	}
 
-	public void setOnValueChanged(IValueChanged<NodeBase> listener) {
-		m_control.setOnValueChanged(listener);
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setValue(Object value) {
 		m_control.setValue(value);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
+	 */
+	@Override
+	public Object getValueSafe() {
+		return m_control.getValueSafe();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
+	 */
+	@Override
+	public IValueChanged< ? > getOnValueChanged() {
+		return m_control.getOnValueChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setOnValueChanged(IValueChanged< ? > listener) {
+		m_control.setOnValueChanged(listener);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.dom.html.IControl#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		return m_control.hasError();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.dom.html.IActionControl#setDisabled(boolean)
+	 */
+	@Override
+	public void setDisabled(boolean d) {
+		m_control.setDisabled(d);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.dom.html.IControl#setMandatory(boolean)
+	 */
+	@Override
+	public void setMandatory(boolean ro) {
+		m_control.setMandatory(ro);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.dom.html.IControl#setReadOnly(boolean)
+	 */
+	@Override
+	public void setReadOnly(boolean ro) {
+		m_control.setReadOnly(ro);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setTestID(String testID) {
+		m_control.setTestID(testID);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	INodeErrorDelegate interface.						*/
@@ -75,9 +140,5 @@ public class SimpleComponentPropertyBinding implements IModelBinding, IFormContr
 
 	public UIMessage setMessage(UIMessage m) {
 		return m_control.setMessage(m);
-	}
-
-	public void setTestID(String testID) {
-		m_control.setTestID(testID);
 	}
 }

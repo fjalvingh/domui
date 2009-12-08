@@ -9,20 +9,20 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 2, 2008
  */
-public class HeaderContainer {
-	private DataTable m_table;
+public class HeaderContainer<T> {
+	private TableModelTableBase<T> m_table;
 
 	private TR m_tr;
 
-	public HeaderContainer(DataTable table) {
+	public HeaderContainer(TableModelTableBase<T> table) {
 		m_table = table;
 	}
 
-	void setParent(TR p) {
+	public void setParent(TR p) {
 		m_tr = p;
 	}
 
-	public DataTable getTable() {
+	public TableModelTableBase<T> getTable() {
 		return m_table;
 	}
 

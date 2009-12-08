@@ -457,6 +457,7 @@ final public class DomUtil {
 	 * FIXME Boring, lotso work, complete later.
 	 * @param t
 	 */
+	@SuppressWarnings("unused")
 	public static void balanceTable(Table t) {
 		List<List<TD>> matrix = new ArrayList<List<TD>>(40);
 

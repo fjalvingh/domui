@@ -30,7 +30,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private Img m_truncated;
 
-	TabularComponentBase m_table;
+	TabularComponentBase< ? > m_table;
 
 	private TextNode m_txt;
 
@@ -40,7 +40,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	public DataPager() {}
 
-	public DataPager(final TabularComponentBase tbl) {
+	public DataPager(final TabularComponentBase< ? > tbl) {
 		m_table = tbl;
 		tbl.addChangeListener(this);
 	}
@@ -171,11 +171,11 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DataTableChangeListener implementation.				*/
 	/*--------------------------------------------------------------*/
-	public void modelChanged(final TabularComponentBase tbl, final ITableModel< ? > old, final ITableModel< ? > nw) throws Exception {
+	public void modelChanged(final TabularComponentBase< ? > tbl, final ITableModel< ? > old, final ITableModel< ? > nw) throws Exception {
 		redraw();
 	}
 
-	public void pageChanged(final TabularComponentBase tbl) throws Exception {
+	public void pageChanged(final TabularComponentBase< ? > tbl) throws Exception {
 		redraw();
 	}
 }

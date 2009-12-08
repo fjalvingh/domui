@@ -28,7 +28,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2008
  */
-public class BasicRowRenderer extends AbstractRowRenderer implements IRowRenderer {
+public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowRenderer<T> {
 	static public final String NOWRAP = "-NOWRAP";
 
 	/** The column name to sort on by default, set by metadata. This is only used to keep it for a while until the actual column list is known; at that point the column def to sort on is determined and used. */
@@ -44,7 +44,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 	 * @param dataClass
 	 * @param cols
 	 */
-	public BasicRowRenderer(final Class< ? > dataClass, final Object... cols) throws Exception {
+	public BasicRowRenderer(final Class<T> dataClass, final Object... cols) throws Exception {
 		super(dataClass);
 		if(cols.length != 0)
 			addColumns(cols);
@@ -72,7 +72,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
 	@SuppressWarnings("fallthrough")
-	public BasicRowRenderer addColumns(final Object... cols) throws Exception {
+	public BasicRowRenderer<T> addColumns(final Object... cols) throws Exception {
 		check();
 		if(cols == null || cols.length == 0)
 			throw new IllegalStateException("The list-of-columns is empty or null; I need at least one column to continue.");
@@ -220,7 +220,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 			final SimpleColumnDef cd = new SimpleColumnDef();
 			m_columnList.add(cd);
 			cd.setValueTransformer(pmm.getAccessor());
-			cd.setColumnLabel(caption);
+			cd.setColumnLabel(caption == null ? pmm.getDefaultLabel() : caption);
 			cd.setColumnType(pmm.getActualType());
 			cd.setContentRenderer(tryRenderer(nodeRenderer, nrclass));
 			cd.setPropertyName(property);
@@ -291,32 +291,38 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 	}
 
 	/**
+	 * Add all of the columns as defined by the metadata to the list.
+	 */
+	public void addDefaultColumns() {
+		final ClassMetaModel cmm = model();
+		final List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
+		if(dpl.size() == 0)
+			throw new IllegalStateException("The list-of-columns to show is empty, and the class " + getActualClass()
+				+ " has no @MetaObject definition defining a set of columns as default table columns, so there.");
+		List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
+		xdpl = ExpandedDisplayProperty.flatten(xdpl); // Flatten the list: expand any compounds.
+		for(final ExpandedDisplayProperty xdp : xdpl) {
+			SimpleColumnDef scd = new SimpleColumnDef(xdp);
+			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
+				scd.setCssClass("ui-numeric");
+				scd.setHeaderCssClass("ui-numeric");
+			}
+
+			m_columnList.add(scd);
+		}
+	}
+
+	/**
 	 * Complete this object if it is not already complete.
 	 */
 	@Override
-	protected void complete(final DataTable tbl) {
+	protected void complete(final TableModelTableBase<T> tbl) {
 		if(isComplete())
 			return;
 
 		//-- If we have no columns at all we use a default column list.
-		if(m_columnList.size() == 0) {
-			final ClassMetaModel cmm = model();
-			final List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
-			if(dpl.size() == 0)
-				throw new IllegalStateException("The list-of-columns to show is empty, and the class " + getActualClass()
-					+ " has no @MetaObject definition defining a set of columns as default table columns, so there.");
-			List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
-			xdpl = ExpandedDisplayProperty.flatten(xdpl); // Flatten the list: expand any compounds.
-			for(final ExpandedDisplayProperty xdp : xdpl) {
-				SimpleColumnDef scd = new SimpleColumnDef(xdp);
-				if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
-					scd.setCssClass("ui-numeric");
-					scd.setHeaderCssClass("ui-numeric");
-				}
-
-				m_columnList.add(scd);
-			}
-		}
+		if(m_columnList.size() == 0)
+			addDefaultColumns();
 
 		//-- Is there a default sort thingy? Is that column present?
 		if(m_sortColumnName != null) {

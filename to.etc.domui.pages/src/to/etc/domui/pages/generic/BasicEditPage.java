@@ -6,7 +6,6 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
-import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -15,12 +14,10 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 22, 2008
  */
-public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnlyModel<T> {
+public abstract class BasicEditPage<T> extends BasicPage<T> {
 	private ButtonBar m_buttonBar;
 
 	private boolean m_deleteable;
-
-	private T m_value;
 
 	private boolean m_displayonly;
 
@@ -28,7 +25,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 
 	private ModelBindings m_bindings;
 
-	abstract public T initializeValue() throws Exception;
+	abstract public T getInstance() throws Exception;
 
 	public BasicEditPage(Class<T> valueClass) {
 		this(valueClass, false);
@@ -39,15 +36,10 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 		m_deleteable = deleteable;
 	}
 
-	public TabularFormBuilder getBuilder() {
+	public TabularFormBuilder getBuilder() throws Exception {
 		if(m_formBuilder == null)
-			m_formBuilder = new TabularFormBuilder(getBaseClass(), this);
+			m_formBuilder = new TabularFormBuilder(getInstance());
 		return m_formBuilder;
-	}
-
-	@Override
-	protected void afterCreateContent() throws Exception {
-		super.afterCreateContent();
 	}
 
 	@Override
@@ -59,15 +51,22 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 		super.createContent(); // Page title and crud
 		createButtonBar();
 		createButtons();
+		createEditableBase();
+	}
+
+	private void createEditableBase() throws Exception {
 		m_bindings = createEditable();
 		if(m_bindings == null) {
 			if(m_formBuilder != null) {
-				add(m_formBuilder.finish());
-				m_bindings = m_formBuilder.getBindings();
+				NodeContainer nc = m_formBuilder.finish();
+				if(nc != null) {
+					add(nc);
+					m_bindings = m_formBuilder.getBindings();
+				}
 			}
 		}
 		if(m_bindings == null)
-			throw new IllegalStateException("The form's content is undefined: please override createEditable.");
+			throw new IllegalStateException("The form's bindings are undefined: please override createForm.");
 		m_bindings.moveModelToControl();
 	}
 
@@ -140,7 +139,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 			getBindings().moveControlToModel();
 		if(!validate())
 			return;
-		onSave(getValue());
+		onSave(getInstance());
 		UIGoto.back();
 	}
 
@@ -153,7 +152,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 	}
 
 	protected void delete() throws Exception {
-		onDelete(getValue());
+		onDelete(getInstance());
 		UIGoto.back();
 	}
 
@@ -170,16 +169,6 @@ public abstract class BasicEditPage<T> extends BasicPage<T> implements IReadOnly
 
 	public ModelBindings getBindings() {
 		return m_bindings;
-	}
-
-	final public T getValue() throws Exception {
-		if(m_value == null)
-			m_value = initializeValue();
-		return m_value;
-	}
-
-	final public void setValue(T val) {
-		m_value = val;
 	}
 
 	protected void onSave(T object) throws Exception {

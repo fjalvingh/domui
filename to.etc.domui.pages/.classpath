@@ -9,5 +9,6 @@
 			<attribute name="owner.project.facets" value="jst.java"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.db"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

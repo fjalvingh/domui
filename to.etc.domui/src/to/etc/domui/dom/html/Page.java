@@ -550,8 +550,9 @@ final public class Page implements IQContextContainer {
 	 */
 	public void setPopIn(final NodeContainer pin) {
 		if(m_currentPopIn != null && m_currentPopIn != pin) {
-			m_currentPopIn.remove();
+			NodeContainer old = m_currentPopIn;
 			m_currentPopIn = null;
+			old.remove();
 		}
 		m_currentPopIn = pin;
 	}
@@ -561,8 +562,9 @@ final public class Page implements IQContextContainer {
 	 */
 	public void clearPopIn() {
 		if(m_currentPopIn != null) {
-			m_currentPopIn.remove();
+			NodeContainer old = m_currentPopIn;
 			m_currentPopIn = null;
+			old.remove();
 		}
 	}
 
