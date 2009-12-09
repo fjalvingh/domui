@@ -6,6 +6,7 @@ import java.util.*;
 import javax.annotation.*;
 import javax.annotation.concurrent.*;
 
+import to.etc.domui.caches.filecache.*;
 import to.etc.domui.util.images.*;
 import to.etc.domui.util.images.machines.*;
 import to.etc.util.*;
@@ -150,174 +151,118 @@ public class ImageTask extends CacheChange {
 	 * @return
 	 * @throws Exception
 	 */
-	ImageInstance loadOriginal() throws Exception {
+	@Nonnull
+	CachedImageData getOriginalData() throws Exception {
+		removeOutdatedVersions(); // Remove all old thingies from the cache.
+
+		//-- Is the required version cached? In that case it's current so reuse
+		CachedImageData cid = getRoot().findOriginalData();
+		if(cid != null) {
+			addUsedImage(cid); // Mark recently used
+			return cid;
+		}
+
+		//-- We need to create the thingy. Get a file ref to store it in,
 		long cts = getCurrentVersionLong();
-		ImageInstance ii = new ImageInstance(getRoot(), "", cts);
+		String	cachename	= getKey().getRetriever().getRetrieverKey()+"/"+getKey().getInstanceKey()+"-"+Long.toHexString(cts)+".data";
+		FileCacheRef ref = cache().getFileRef(cachename);
 		InputStream is = null;
-		try {
-			//-- Copy the data into the files AND a buffer set,
-			long memload = 0l;
-			is = getImageSource().getInputStream();
-			copyAndCache(ii, is);
-			is.close();
-			is = null;
-			memload += ii.getSize();
-
-			//-- Data read. Now expose as a file, then load and identify
-			File f = makeFileBased(ii);
-			OriginalImageData odata = ImageManipulator.identify(f);
-			ii.initImageData(odata);
-			memload += 32 + 32 * odata.getPageCount();
-
-			//-- Housekeeping: sizes for the new ImageInstance.
-			ii.setMemoryCacheSize(memload);
-			addUsedImage(ii);
-			addMemoryLoad(memload);
-
-			//-- At this point the root instance is fully initialized. Add it to the image set.
-			getRoot().registerInstance(ii);
-			return ii;
-
-			//-- FIXME Save the loaded identify to the database as a dbcached value. There is no need to store it in a file: it is never reused.
-			//			FileTool.saveSerialized(dets, odata); // Cache file details NO: THIS IS USELESS- it will never be reused. We need to get the data from the database instead.
-
-		} finally {
-			FileTool.closeAll(is);
-		}
-	}
-
-	//	/**
-	//	 * Return the original version of an image. It's usecount remains 0; the cache will increment it after return.
-	//	 * you're done!
-	//	 * @return
-	//	 */
-	//	public ImageInstance getOriginal() throws Exception {
-	//		removeOutdatedVersions();
-	//
-	//
-	//
-	//
-	//	}
-
-
-	/**
-	 * Force the instance to a file. If the thing is already file based use
-	 * that file. If a file is created for it this will be added to the "new file"
-	 * list, to allow it to be accounted for in the cache when the task ends.
-	 * @param ii
-	 * @return
-	 */
-	private File makeFileBased(ImageInstance ii) throws IOException {
-		File f = ii.getCacheFile();
-		if(f == null) {
-			f = cache().createTemp();
-			FileTool.save(f, ii.getBuffers());
-			ii.setCachedFile(f);
-		}
-		return f;
-	}
-
-	private void copyAndCache(ImageInstance ii, @WillNotClose InputStream is) throws Exception {
-		List<byte[]> buflist = new ArrayList<byte[]>();
-		int fence = cache().getMemoryFence();
-		int total = 0;
-		byte[] buf = null;
 		OutputStream os = null;
-		File dataf = null;
+		boolean ok = false;
 		try {
-			for(;;) {
-				//-- Are we past the max amount to cache in memory?
-				if(total >= fence && os == null) {
-					dataf = cache().createTemp();
-					os	= new FileOutputStream(dataf);
-					for(byte[] b: buflist)
-						os.write(b);
-					buflist = null;
-				} else {
-					buf = new byte[32768];
-					int szrd = readFully(is, buf);
-					if(szrd <= 0)
-						break;
-					total += szrd;
-
-					//-- If this was the last block resize buffer and be done;
-					if(szrd < buf.length) {
-						if(os != null) {
-							os.write(buf, 0, szrd);		// Just flush last part,
-						} else {
-							byte[] w = new byte[szrd];	// Resize byte[] buffer
-							System.arraycopy(buf, 0, w, 0, szrd);
-							buflist.add(buf);
-						}
-						break;
-					}
-					if(os == null)
-						buflist.add(buf);
-				}
-			}
-			if(os != null) {
+			//-- 1. Does the file data exist on the file system still?
+			int	len = 0;
+			if(!ref.getFile().exists() || ref.getFile().length() == 0) {
+				//-- The file does not exist or is 0 bytes long. Reload from it's source.
+				is = getImageSource().getInputStream();
+				os = new FileOutputStream(ref.getFile());
+				FileTool.copyFile(os, is);
 				os.close();
-				os	= null;
-				ii.initFile(dataf, total);
-			} else {
-				ii.initBuffers(buflist.toArray(new byte[buflist.size()][]), total);
+				os = null;
+				is.close();
+				is = null;
 			}
+			len = (int) ref.getFile().length();
+
+			//-- 2. The file exists. Is it suitable for memory caching?
+			int memload = 64;
+			byte[][] bufs = null;
+			if(len < cache().getMemoryFence()) {
+				bufs = FileTool.loadByteBuffers(ref.getFile()); // Load as a bufferset
+				memload += len;
+			}
+
+			//-- All of this worked!! Nothing normal can go wrong after this so link and register all data
+			CachedImageData ii = new CachedImageData(getRoot(), "", cts, ref, len, bufs, memload);
+			addUsedImage(ii); // Link/relink in LRU
+			getRoot().registerInstance(ii);
+			ok = true;
+			return ii;
 		} finally {
-			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) { // Ignore double fault
+			if(!ok) {
+				ref.getFile().delete();
+				ref.close();
 			}
+
+			FileTool.closeAll(is, os);
 		}
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:		*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * This fully reads a buffer, issuing another read when an incomplete read
-	 * returns. It only exits on buffer full or eof.
-	 * @param is
-	 * @param buf
-	 * @return
-	 * @throws IOException
-	 */
-	static private int readFully(InputStream is, byte[] buf) throws IOException {
-		int off = 0;
-		for(;;) {
-			int left = buf.length - off;
-			if(left <= 0)
-				return off;
-			int rd = is.read(buf, off, left);
-			if(rd <= 0)
-				return off;
-			off += rd;
-		}
-	}
-
-	/**
-	 * Indicate that a new file has been created in this task. This file gets added to the
-	 * cache's load.
-	 * @param f
-	 */
-	private void addCachedFile(File f) {
-		if(m_addedFiles == null)
-			m_addedFiles = new ArrayList<File>();
-		m_addedFiles.add(f);
 	}
 
 	/**
 	 *
-	 * @param ii
+	 * @return
 	 * @throws Exception
 	 */
-	private void refreshInstance(ImageInstance ii) throws Exception {
+	CachedImageInfo getOriginalInfo() throws Exception {
+		removeOutdatedVersions(); // Remove all old thingies from the cache.
 
+		//-- Is the required version cached? In that case it's current so reuse
+		CachedImageInfo cii = getRoot().findOriginalInfo();
+		if(cii != null) {
+			addUsedImage(cii); // Mark recently used
+			return cii;
+		}
 
-		long dts = getKey().getRetriever().getCheckInterval();
+		//-- Not cached in memory.. Try to get the stuff from a cachefile..
+		long cts = getCurrentVersionLong();
+		String cachename = getKey().getRetriever().getRetrieverKey() + "/" + getKey().getInstanceKey() + "-" + Long.toHexString(cts) + ".meta";
+		FileCacheRef ref = cache().getFileRef(cachename);
+		InputStream is = null;
+		OutputStream os = null;
+		boolean ok = false;
+		try {
+			//-- 1. Does the file data exist on the file system still?
+			OriginalImageData oid = null;
+			try {
+				oid = (OriginalImageData) FileTool.loadSerialized(ref.getFile());
+			} catch(Exception x) {}
 
+			//-- 2. If the data is null we need to (re)create it.
+			if(oid == null) {
+				//-- Obtain the ORIGINAL data (exception on whatever error)
+				CachedImageData	cid = getOriginalData();
+				oid = ImageManipulator.identify(cid.getFile());
 
+				//-- IDENTIFY complete, now serialize to cachefile
+				FileTool.saveSerialized(ref.getFile(), oid);
+			}
+
+			//-- 3. Done - nothing normal can go wrong after this
+			int memload = 64 + oid.getPageCount() * 32;
+
+			//-- All of this worked!! Nothing normal can go wrong after this so link and register all data
+			CachedImageInfo ii = new CachedImageInfo(getRoot(), "", cts, ref, oid, memload);
+			addUsedImage(ii); // Link/relink in LRU
+			getRoot().registerInstance(ii);
+			ok = true;
+			return ii;
+		} finally {
+			if(!ok) {
+				ref.getFile().delete();
+				ref.close();
+			}
+			FileTool.closeAll(is, os);
+		}
 	}
 
 

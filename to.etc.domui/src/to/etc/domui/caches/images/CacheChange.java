@@ -24,11 +24,11 @@ class CacheChange {
 	/** When this action has caused extra memory to be used this contains the #bytes that the MEMORY cacheload has increased */
 	private long m_extraMemoryUsed;
 
-	/** Contains every ImageInstance that was used (and not deleted) in this task. Each of these will be marked as recently-used when the action returns to the cache. */
-	private List<ImageInstance> m_instancesUsed = new ArrayList<ImageInstance>();
+	/** Contains every CachedImageData that was used (and not deleted) in this task. Each of these will be marked as recently-used when the action returns to the cache. */
+	private List<CachedImageFragment> m_instancesUsed = new ArrayList<CachedImageFragment>();
 
 	/** Contains invalidated image instances, for instance because the source image has changed. These need to be subtracted from the cache and it's use count needs to be decremented. */
-	private List<ImageInstance> m_imagesDiscarded = new ArrayList<ImageInstance>();
+	private List<CachedImageFragment> m_imagesDiscarded = new ArrayList<CachedImageFragment>();
 
 	public void addMemoryLoad(long load) {
 		m_extraMemoryUsed += load;
@@ -39,13 +39,13 @@ class CacheChange {
 	 * called for deleted images.
 	 * @param ii
 	 */
-	public void addUsedImage(ImageInstance ii) {
+	public void addUsedImage(CachedImageFragment ii) {
 		if(m_imagesDiscarded.contains(ii))
 			throw new IllegalStateException("Trying to use an image that is marked as deleted: " + ii);
 		m_instancesUsed.add(ii);
 	}
 
-	public void addDeletedImage(ImageInstance ii) {
+	public void addDeletedImage(CachedImageFragment ii) {
 		m_instancesUsed.remove(ii); // If it was used earlier remove from there
 		m_imagesDiscarded.add(ii);
 

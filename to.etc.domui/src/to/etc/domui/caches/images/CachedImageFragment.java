@@ -24,7 +24,7 @@ class CachedImageFragment {
 	 * The LRU pointers for the cache's LRU list. These are locked and maintained by the ImageCache itself; access to these is "verboten" from self.
 	 */
 	@GuardedBy("cache()")
-	ImageInstance m_lruPrev, m_lruNext;
+	CachedImageData m_lruPrev, m_lruNext;
 
 	@GuardedBy("cache()")
 	InstanceCacheState m_cacheState;

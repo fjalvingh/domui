@@ -85,7 +85,7 @@ import to.etc.domui.util.images.converters.*;
  * </p>
  * <h2>Image retrieval process</h2>
  * <ul>
- * 	<li>Using the cacheKey, try to locate the image in the hashmap by finding the ImageRoot, then walking the ImageInstance list
+ * 	<li>Using the cacheKey, try to locate the image in the hashmap by finding the ImageRoot, then walking the CachedImageData list
  * 		to find a matching image. If we find one we return it's REF which prevents it's data from being GC'd. We also update
  * 		it's LRU location to most-recently-used.</li>
  *	<li>If not found AND the requested thing is not the ORIGINAL image we try to load it from the file system's cache location. We
@@ -135,7 +135,7 @@ public class ImageCache {
 	/** The map of keys to their image root */
 	private Map<ImageKey, ImageRoot> m_cacheMap = new HashMap<ImageKey, ImageRoot>();
 
-	private ImageInstance m_lruFirst, m_lruLast;
+	private CachedImageData m_lruFirst, m_lruLast;
 
 	/** File ID counters */
 	private int[] m_counters = new int[4];
@@ -211,6 +211,13 @@ public class ImageCache {
 		return m_memoryFenceSize;
 	}
 
+	FileCache getFileCache() {
+		return m_fileCache;
+	}
+
+	FileCacheRef getFileRef(String path) {
+		return getFileCache().getFile(path);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Image task initialization.							*/
@@ -246,10 +253,50 @@ public class ImageCache {
 	}
 
 	static private interface ISpecTask {
-		void executeTask(ImageTask task);
+		Object executeTask(ImageTask task) throws Exception;
 	}
 
+	/**
+	 * Handle ImageTask related actions. This does all of the cache-locking related work
+	 * around an ImageTask.
+	 * @param key
+	 * @param t
+	 * @throws Exception
+	 */
+	private Object executeTask(ImageKey key, ISpecTask t) throws Exception {
+		ImageTask it = getImageTask(key);
+		try {
+			synchronized(it.getRoot()) { // All of the task is executed with a locked root
+				return t.executeTask(it);
 
+				//-- Cleanup and cache maintenance chores with locked root
+			}
+
+
+		} finally {
+			synchronized(this) {
+				//-- Cache maintenance.
+
+
+			}
+		}
+	}
+
+	static private final ISpecTask C_GETORIGINALDATA = new ISpecTask() {
+		@Override
+		public Object executeTask(ImageTask task) throws Exception {
+			return task.getOriginalData();
+		}
+	};
+
+	/**
+	 * Return a data reference to the original image's data.
+	 * @param k
+	 * @return
+	 */
+	public CachedImageData getOriginalData(ImageKey k) throws Exception {
+		return (CachedImageData) executeTask(k, C_GETORIGINALDATA);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:		*/
@@ -260,7 +307,7 @@ public class ImageCache {
 	 * This must take care of the race conditions caused by the double-lock initialization.
 	 * @param ii
 	 */
-	private void registerAndLink(ImageInstance ii) {
+	private void registerAndLink(CachedImageData ii) {
 		//-- Atomically add in new cache load, and if it exceeds the maximum reap the thingies to remove.
 		synchronized(this) {
 			if(ii.m_cacheState != InstanceCacheState.NONE) // Already linked (cannot happen) or discarded (can happen if 2nd init works && race)
@@ -277,7 +324,7 @@ public class ImageCache {
 			long size = 0;
 			while(m_lruLast != m_lruFirst && m_currentMemorySize > m_maxMemorySize) {
 				//-- Discard from all metadata
-				ImageInstance itd = m_lruLast;
+				CachedImageData itd = m_lruLast;
 				unlink(itd); // Discard thingy from LRU chain;
 				m_currentMemorySize -= itd.getSize(); // Reduce cache load with this-item's size;
 				size += itd.getSize();
@@ -295,7 +342,7 @@ public class ImageCache {
 	 * Links the entry at the most recently used position of the LRU chain.
 	 * @param e
 	 */
-	private void link(ImageInstance e) {
+	private void link(CachedImageData e) {
 		unlink(e); // Make sure we're unlinked
 		if(m_lruFirst == null) { // Empty initial list?
 			m_lruFirst = e;
@@ -311,7 +358,7 @@ public class ImageCache {
 		m_lruFirst = e; // I'm the 1st one now;
 	}
 
-	private void unlink(ImageInstance e) {
+	private void unlink(CachedImageData e) {
 		if(e.m_lruNext == null) // Already unlinked?
 			return;
 		if(e.m_lruNext == e.m_lruPrev) { // I'm the only one?
@@ -333,7 +380,7 @@ public class ImageCache {
 	}
 
 
-	public ImageInstance getImage(IImageRetriever irt, Object cacheKey, IImageConversionSpecifier[] conversions) throws Exception {
+	public CachedImageData getImage(IImageRetriever irt, Object cacheKey, IImageConversionSpecifier[] conversions) throws Exception {
 		List<IImageConversionSpecifier> l = new ArrayList<IImageConversionSpecifier>();
 		for(IImageConversionSpecifier s : conversions)
 			l.add(s);
@@ -376,14 +423,14 @@ public class ImageCache {
 	//
 	//			String key = "img_5589.jpg";
 	//			for(int i = 0; i < 5; i++) {
-	//				ImageInstance ii = ic.getOriginal(golden_retriever, key);
+	//				CachedImageData ii = ic.getOriginal(golden_retriever, key);
 	//				System.out.println("Instance: " + ii);
 	//			}
 	//
 	//			//-- Get a cached, converted result.
 	//			System.out.println("Getting a thumbnailed thingy 5x.");
 	//			for(int i = 0; i < 5; i++) {
-	//				ImageInstance ii = ic.getImage(golden_retriever, key, new IImageConversionSpecifier[]{new ImagePageSelect(0), new ImageThumbnail(400, 300, "image/png")});
+	//				CachedImageData ii = ic.getImage(golden_retriever, key, new IImageConversionSpecifier[]{new ImagePageSelect(0), new ImageThumbnail(400, 300, "image/png")});
 	//				System.out.println("Instance: " + ii);
 	//			}
 	//		} catch(Exception x) {

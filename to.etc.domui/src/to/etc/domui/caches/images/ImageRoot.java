@@ -15,7 +15,7 @@ import javax.annotation.concurrent.*;
  */
 final class ImageRoot {
 	@Nonnull
-	private ImageCache m_lock;
+	private ImageCache m_cache;
 
 	/** The unique key for this image, which includes it's retriever. */
 	@Nonnull
@@ -31,12 +31,15 @@ final class ImageRoot {
 	//	private Dimension			m_originalDimension;
 
 	@GuardedBy("this")
-	private List<ImageInstance> m_instanceList = new ArrayList<ImageInstance>();
+	private List<CachedImageData> m_dataList = new ArrayList<CachedImageData>();
+
+	@GuardedBy("this")
+	private List<CachedImageInfo> m_infoList = new ArrayList<CachedImageInfo>();
 
 	ImageRoot(@Nonnull ImageCache ic, @Nonnull ImageKey key) {
 		if(ic == null || key == null)
 			throw new IllegalArgumentException("Args cannot be null");
-		m_lock = ic;
+		m_cache = ic;
 		m_imageKey = key;
 	}
 
@@ -60,9 +63,9 @@ final class ImageRoot {
 	 * @return
 	 */
 	@Nullable
-	ImageInstance findOriginal() {
+	CachedImageData findOriginalData() {
 		synchronized(this) {
-			for(ImageInstance ii : m_instanceList) {
+			for(CachedImageData ii : m_dataList) {
 				if(ii.getPermutation().length() == 0)
 					return ii;
 			}
@@ -71,14 +74,31 @@ final class ImageRoot {
 	}
 
 	/**
+	 * If the original image reference is present locate and return it.
+	 * @return
+	 */
+	@Nullable
+	CachedImageInfo findOriginalInfo() {
+		synchronized(this) {
+			for(CachedImageInfo ii : m_infoList) {
+				if(ii.getPermutation().length() == 0)
+					return ii;
+			}
+			return null;
+		}
+	}
+
+
+
+	/**
 	 * Try to find the specified permutation of the original document in this root document's cache entry.
 	 * @param perm
 	 * @return
 	 */
 	@Nullable
-	ImageInstance findPermutation(String perm) {
+	CachedImageData findPermutation(String perm) {
 		synchronized(this) {
-			for(ImageInstance ii : m_instanceList) {
+			for(CachedImageData ii : m_dataList) {
 				if(perm.equals(ii.getPermutation()))
 					return ii;
 			}
@@ -92,7 +112,7 @@ final class ImageRoot {
 	 */
 	@Nonnull
 	final ImageCache getCache() {
-		return m_lock;
+		return m_cache;
 	}
 
 	/**
@@ -101,16 +121,22 @@ final class ImageRoot {
 	 *
 	 * @param ii
 	 */
-	void registerInstance(ImageInstance id) {
-		synchronized(m_lock) {
-			m_instanceList.add(id);
+	void registerInstance(CachedImageData id) {
+		synchronized(this) {
+			m_dataList.add(id);
 		}
 	}
 
-	boolean unregisterInstance(ImageInstance ii) {
-		synchronized(m_lock) {
-			m_instanceList.remove(ii);
-			return m_instanceList.size() == 0;
+	void registerInstance(CachedImageInfo id) {
+		synchronized(this) {
+			m_infoList.add(id);
+		}
+	}
+
+	boolean unregisterInstance(CachedImageData ii) {
+		synchronized(this) {
+			m_dataList.remove(ii);
+			return m_dataList.size() == 0;
 		}
 	}
 
@@ -126,11 +152,11 @@ final class ImageRoot {
 
 		//-- All versions are outdated- discard the lot of 'm.
 		m_versionLong = currentversion;
-		List<ImageInstance> old = m_instanceList;
-		m_instanceList = new ArrayList<ImageInstance>();
+		List<CachedImageData> old = m_dataList;
+		m_dataList = new ArrayList<CachedImageData>();
 
 		//-- Now decrement all of their use counts- they are removed from cache. Usecount is protected by THIS too.
-		for(ImageInstance ii : old) {
+		for(CachedImageData ii : old) {
 			try {
 				cc.addDeletedImage(ii); // Account for deleting this instance
 			} catch(Exception x) {
@@ -141,6 +167,6 @@ final class ImageRoot {
 	}
 
 	int getInstanceCount() {
-		return m_instanceList.size();
+		return m_dataList.size();
 	}
 }

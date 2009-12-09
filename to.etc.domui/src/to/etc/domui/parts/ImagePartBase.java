@@ -73,22 +73,22 @@ abstract public class ImagePartBase implements IUnbufferedPartFactory {
 		ImageKeys ik = new ImageKeys(app, param, rurl);
 		decodeSource(ik);
 		decodeMutations(ik);
-		ImageInstance ii = getImage(ik);
+		CachedImageData ii = getImage(ik);
 		if(ii == null)
 			throw new ThingyNotFoundException("Image not found.");
 		generateImage(param, ii);
 	}
 
-	protected ImageInstance getImage(ImageKeys ik) throws Exception {
+	protected CachedImageData getImage(ImageKeys ik) throws Exception {
 		if(ik.getRetriever() == null)
 			throw new IllegalStateException("No image source (retriever) known");
 		if(ik.getKey() == null)
 			throw new IllegalStateException("No image source (key) known");
-		ImageInstance ii = ImageCache.getInstance().getImage(ik.getRetriever(), ik.getKey(), ik.getConversions());
+		CachedImageData ii = ImageCache.getInstance().getImage(ik.getRetriever(), ik.getKey(), ik.getConversions());
 		return ii;
 	}
 
-	protected void generateImage(RequestContextImpl ri, ImageInstance ii) throws Exception {
+	protected void generateImage(RequestContextImpl ri, CachedImageData ii) throws Exception {
 		ri.getResponse().setContentType(ii.getImageData().getMime());
 		ri.getResponse().setContentLength(ii.getSize());
 		OutputStream os = ri.getResponse().getOutputStream();
