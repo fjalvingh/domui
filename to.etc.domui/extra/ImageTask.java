@@ -157,6 +157,7 @@ public class ImageTask extends CacheChange {
 		try {
 			//-- Copy the data into the files AND a buffer set,
 			long memload = 0l;
+			long fileload = 0l;
 			is = getImageSource().getInputStream();
 			copyAndCache(ii, is);
 			is.close();
@@ -165,13 +166,16 @@ public class ImageTask extends CacheChange {
 
 			//-- Data read. Now expose as a file, then load and identify
 			File f = makeFileBased(ii);
+			fileload += ii.getSize();
 			OriginalImageData odata = ImageManipulator.identify(f);
 			ii.initImageData(odata);
 			memload += 32 + 32 * odata.getPageCount();
 
 			//-- Housekeeping: sizes for the new ImageInstance.
+			ii.setFileCacheSize(fileload);
 			ii.setMemoryCacheSize(memload);
 			addUsedImage(ii);
+			addFileLoad(fileload);
 			addMemoryLoad(memload);
 
 			//-- At this point the root instance is fully initialized. Add it to the image set.
@@ -186,18 +190,18 @@ public class ImageTask extends CacheChange {
 		}
 	}
 
-	//	/**
-	//	 * Return the original version of an image. It's usecount remains 0; the cache will increment it after return.
-	//	 * you're done!
-	//	 * @return
-	//	 */
-	//	public ImageInstance getOriginal() throws Exception {
-	//		removeOutdatedVersions();
-	//
-	//
-	//
-	//
-	//	}
+	/**
+	 * Return the original version of an image. It's usecount remains 0; the cache will increment it after return.
+	 * you're done!
+	 * @return
+	 */
+	public ImageInstance getOriginal() throws Exception {
+		removeOutdatedVersions();
+
+
+
+
+	}
 
 
 	/**

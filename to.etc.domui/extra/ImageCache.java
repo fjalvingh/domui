@@ -9,6 +9,7 @@ import to.etc.domui.caches.filecache.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.util.images.*;
 import to.etc.domui.util.images.converters.*;
+import to.etc.domui.util.images.machines.*;
 
 /**
  * This cache handles images and transformations of images.
@@ -252,6 +253,269 @@ public class ImageCache {
 
 
 	/*--------------------------------------------------------------*/
+	/*	CODING:	Handling the ORIGINAL image.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Retrieve the ImageInstance for the "original" image.
+	 *
+	 * Retrieves the ORIGINAL for a given image. It checks the cache first; if that does not contain the
+	 * original then it will be retrieved. This uses a double locking mechanism: it locks the cache (global
+	 * lock) to obtain an ImageInstance after which the cache (global) lock is released. This is a very
+	 * fast operation because only small structures are allocated, if needed. It then uses the second lock
+	 * on a forced initialize on the data that should be contained in the instance. If the instance has
+	 * already initialized this returns immediately; if not the first accessor (which by definition has all
+	 * of the required data needed to create the image) will perform the initialization. If initialization
+	 * fails for whatever reason this code will retry the initialization the next time the object is
+	 * accessed.
+	 *
+	 * @param irt
+	 * @param cacheKey
+	 * @return
+	 */
+	@Nullable
+	public ImageDetails getOriginal(ImageKey key) throws Exception {
+		IImageReference iref = key.getRetriever().loadImage(key.getInstanceKey());
+		try {
+			return getOriginal(key, iref);
+		} finally {
+			try {
+				iref.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	@Nullable
+	ImageDetails getOriginal(ImageKey key, @WillNotClose IImageReference iref) throws Exception {
+		//-- Create/get ImageDetails instance. This can be empty if it gets created anew.
+		ImageRoot root;
+		ImageDetails id;
+		long revisionLong = iref.getVersionLong();
+
+		synchronized(this) { // First lock: find/create the appropriate ImageInstance
+			if(revisionLong == -1) {
+				m_cacheMap.remove(key); // Drop object
+				return null; // Does-not-exist
+			}
+
+			root = getImageRoot(key); // Get image root.
+			id = root.findOriginal(); // Find unpermutated original
+			if(id == null) {
+				//-- We'll get a new ImageInstance containing the original..
+				id = new ImageDetails(root, "");
+				root.registerInstance(id); // Append the thingy to the root,
+			}
+		}
+
+		/*
+		 * 2. If uninitialized we need to initialize it. We first try to locate any cached copy by
+		 * scanning the file system and the database. If neither works we generate directly. If
+		 * generating the required data fails we mark this as an ERROR entry and discard it after use.
+		 */
+		boolean okay = false;
+		try {
+			initializeOriginalDetails(root, id, iref);
+			//
+			//
+			//			ii.initializeInstance(irt, cacheKey); // Force initialization of the thingy.
+			okay = true;
+			//			root.setOriginalDimension(ii.getDimension());
+			return id;
+		} finally {
+			if(okay) {
+				/*
+				 * If image initialization is succesful we register the resulting image into the LRU chain and add it's load
+				 * to the cache. After this the image is usable.
+				 */
+				registerAndLink(ii); // Register as MRU and add size to cache load, in lock,
+			} else {
+				/*
+				 * Image creation has failed. We must discard this instance. It is possible that this same
+				 * instance is undergoing initialization /again/ (because the init lock has been released,
+				 * and the thingy is accessible from cache). This is OK; we just try to set the "invalid"
+				 * flag in the instance and do not link it. If, during this, we see that the instance *has*
+				 * been linked (because the n-th init that ran after our init failed worked) we quit immediately
+				 * and exit.
+				 */
+				discardFailed(ii);
+			}
+		}
+	}
+
+	/**
+	 * Try to get the full details on the original if unset.
+	 *
+	 * Try to get the details info for an image from disk, database or by (re)generating the image.
+	 * @param id
+	 */
+	private void initializeOriginalDetails(ImageRoot root, ImageDetails id, @WillNotClose IImageReference iref) throws Exception {
+		synchronized(root) {
+			OriginalImageData oid = root.getOriginalData();
+			if(oid != null) {
+				//-- We have a copy. Is it still up-to-date?
+				if(oid.getVersionLong() == iref.getVersionLong())
+					return;
+
+				//-- We are outdated!!
+				root.setOriginalData(null); // RESET
+			}
+
+			//-- Ok; we have no (or outdated) original data.. Try to reload from file cache or db cache..
+			if(loadOriginalDetailsFromFile(root, iref.getVersionLong()))
+				return;
+
+			if(!loadOriginalDetailsFromDB(root, iref.getVersionLong())) {
+				//-- Still not found- we need to do an actual identify and store the results.
+				identifyOriginal(root, iref);
+				saveOriginalToDB(root);
+
+			}
+			saveOriginalToFile(root);
+		}
+	}
+
+	private ImageInstance loadOriginalData(ImageRoot root, IImageReference iref) {
+
+
+
+	}
+
+
+	/**
+	 * We need to run Identify on the original image. Load it's data, cache wherever needed, then
+	 * start identify.
+	 * @param root
+	 * @param iref
+	 */
+	private void identifyOriginal(ImageRoot root, IImageReference iref) {
+		ImageInstance orig = loadOriginalData(iref);
+
+
+
+	}
+
+
+	private void saveOriginalToDB(ImageRoot root) {}
+
+	private boolean loadOriginalDetailsFromDB(ImageRoot root, long lastModifiedDate) {
+		return false;
+	}
+
+
+	private void saveOriginalToFile(ImageRoot root) {
+	// TODO Auto-generated method stub
+
+	}
+
+	private boolean loadOriginalDetailsFromFile(ImageRoot root, long versionLong) {
+		if(m_cacheDir == null) // No filecache-> exit
+			return false;
+		File detf = null;
+		InputStream is = null;
+		try {
+			detf = getCacheFile(root, "odet");
+			is = new FileInputStream(detf);
+			OriginalImageData oid = (OriginalImageData) loadSerialized(is);
+			is = null;
+			if(oid != null) {
+				if(oid.getVersionLong() != versionLong) {
+					detf.delete();
+					return false;
+				}
+
+				root.setOriginalData(oid);
+				return true;
+			}
+			return false;
+		} catch(Exception x) {
+			System.out.println("Ignored exception: cannot load original's data for " + root + " from file cache");
+			x.printStackTrace();
+			return false;
+		} finally {
+			try {
+				if(is != null)
+					is.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * File cache: try to load a cached details structure from a cachefile on the file system. If the
+	 * loaded data's version is not correct or the data could not be loaded or whatever this returns
+	 * null.
+	 * @param id
+	 * @return
+	 */
+	private boolean loadDetailsFromFile(ImageDetails id, long versionLong) {
+		if(m_cacheDir == null) // No filecache-> exit
+			return false;
+		File detf = null;
+		InputStream is = null;
+		try {
+			detf = getCacheFile(id, "det");
+			is = new FileInputStream(detf);
+			SerializedImageDetails sid = (SerializedImageDetails) loadSerialized(is);
+			is = null;
+			if(sid != null) {
+				if(sid.getVersionLong() != versionLong) {
+					detf.delete();
+					return false;
+				}
+
+				id.setSerialized(sid);
+				return true;
+			}
+			return false;
+		} catch(Exception x) {
+			System.out.println("Ignored exception: cannot load " + id + " from file cache");
+			x.printStackTrace();
+			return false;
+		} finally {
+			try {
+				if(is != null)
+					is.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Generate the filename for a given cache file and a given object.
+	 * @param id
+	 * @param ext
+	 * @return
+	 */
+	private File getCacheFile(ImageDetails id, String ext) {
+		ImageKey k = id.getImageRoot().getKey(); // Start with the original object's key
+		File prov = new File(m_cacheDir, k.getRetriever().getRetrieverKey()); // Per-provider directories.
+		prov.mkdirs();
+
+		StringBuilder sb = new StringBuilder(64);
+		sb.append("f");
+		sb.append(k.getInstanceKey());
+		sb.append(".");
+		sb.append(ext);
+		return new File(prov, sb.toString());
+	}
+
+	/**
+	 * Generate the filename for a given cache file and a given object.
+	 * @param id
+	 * @param ext
+	 * @return
+	 */
+	private File getCacheFile(ImageRoot id, String ext) {
+		ImageKey k = id.getKey(); // Start with the original object's key
+		File prov = new File(m_cacheDir, k.getRetriever().getRetrieverKey()); // Per-provider directories.
+		prov.mkdirs();
+		StringBuilder sb = new StringBuilder(64);
+		sb.append("f");
+		sb.append(k.getInstanceKey());
+		sb.append(".");
+		sb.append(ext);
+		return new File(prov, sb.toString());
+	}
+
+
+	/*--------------------------------------------------------------*/
 	/*	CODING:		*/
 	/*--------------------------------------------------------------*/
 	/**
@@ -284,10 +548,34 @@ public class ImageCache {
 				count++;
 				if(itd.remove()) { // Ask it's root object to discard this,
 					//-- Root has zero entries-> delete
-					m_cacheMap.remove(itd.getRoot().getKey()); // Drop ImageRoot
+					m_cacheMap.remove(itd.getRoot().getImageKey()); // Drop ImageRoot
 				}
 			}
 			System.out.println("ImageCache: reaped " + count + " image instances totalling " + size + " bytes");
+		}
+	}
+
+	/**
+	 * Discards an instance that failed to initialize, if still possible. If this
+	 * instance has a state LINKED this means that of several initializations at least
+	 * one succeeded; in that case we'll leave the properly initialized instance intact.
+	 * In all other cases we'll remove the instance from the root and cache.
+	 *
+	 * @param ii
+	 */
+	private void discardFailed(ImageInstance ii) {
+		synchronized(this) {
+			if(ii.m_cacheState == InstanceCacheState.LINKED)// Linked, though- another init has worked & completed it's sequence
+				return;
+
+			//-- Discard all referrals to this instance. It is only linked thru the hash access path.
+			ImageRoot root = ii.getRoot();
+			root.unregisterInstance(ii); // Unlink from root -> no longer accessible from outside
+			ii.m_cacheState = InstanceCacheState.DISCARD; // Is DISCARDED now - prevents LRU linking while access path has been dropped.
+
+			if(root.getInstanceCount() == 0) { // No instances left in this root thingy?
+				m_cacheMap.remove(root.getImageKey()); // Discard root referral
+			}
 		}
 	}
 
@@ -340,6 +628,65 @@ public class ImageCache {
 		return getImage(irt, cacheKey, l);
 	}
 
+	/**
+	 * This is the main workhorse for the image cache. This retrieves a possible converted image off some source,
+	 * using all kinds of caching to make it fast.
+	 *
+	 * @param cacheKey
+	 * @param sir
+	 * @param conversions
+	 * @return
+	 * @throws Exception
+	 */
+	public ImageInstance getImage(IImageRetriever irt, Object cacheKey, List<IImageConversionSpecifier> conversions) throws Exception {
+		//-- Shortcut: if referring to the ORIGINAL...
+		if(conversions == null || conversions.size() == 0)
+			return getOriginal(irt, cacheKey);
+
+		//-- Create the cache strings,
+		StringBuilder sb = new StringBuilder(128);
+		for(IImageConversionSpecifier ic : conversions)
+			sb.append(ic.getConversionKey()); // Get a string rep of the conversion applied
+		String perm = sb.toString(); // Permutation string;
+
+		//-- 2. Is this permutation in the memory cache?
+		ImageInstance ii;
+		synchronized(this) { // First lock: find/create the appropriate ImageInstance
+			ImageRoot root = getImageRoot(irt, cacheKey); // Locate the image root,
+			ii = root.findPermutation(perm); // Find mutation
+			if(ii == null) {
+				//-- We'll get a new ImageInstance containing the original..
+				ii = new ImageInstance(root, perm);
+				root.registerInstance(ii); // Append the thingy to the root,
+			}
+		}
+
+		//-- 2nd phase lock: lock the object, then initialize in a few steps
+		boolean okay = false;
+		try {
+			ii.initializeConvertedInstance(irt, cacheKey, conversions); // Force initialization of the thingy, using conversions.
+			okay = true;
+			return ii;
+		} finally {
+			if(okay) {
+				/*
+				 * If image initialization is succesful we register the resulting image into the LRU chain and add it's load
+				 * to the cache. After this the image is usable.
+				 */
+				registerAndLink(ii); // Register as MRU and add size to cache load, in lock,
+			} else {
+				/*
+				 * Image creation has failed. We must discard this instance. It is possible that this same
+				 * instance is undergoing initialization /again/ (because the init lock has been released,
+				 * and the thingy is accessible from cache). This is OK; we just try to set the "invalid"
+				 * flag in the instance and do not link it. If, during this, we see that the instance *has*
+				 * been linked (because the n-th init that ran after our init failed worked) we quit immediately
+				 * and exit.
+				 */
+				discardFailed(ii);
+			}
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Test code.											*/

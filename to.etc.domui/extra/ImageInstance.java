@@ -170,11 +170,48 @@ final public class ImageInstance {
 		return m_imageData;
 	}
 
-
-	boolean remove() {
-		m_cacheState = InstanceCacheState.DISCARD;
-		return getRoot().unregisterInstance(this);
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Reference counting code.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * LOCKS ROOT: Increment the use count by 1. If the use count is <= 0 we die.
+	 */
+	@GuardedBy("getRoot()")
+	protected void use() {
+		synchronized(getRoot()) {
+			if(m_useCount <= 0)
+				throw new IllegalStateException("Access to destroyed ImageInstance: usecount=" + m_useCount);
+			m_useCount++;
+		}
 	}
+
+	/**
+	 * LOCKS ROOT: This decrements the use count by 1. If the use count becomes 0 it's resources are destroyed.
+	 */
+	@GuardedBy("getRoot()")
+	protected void release() {
+		synchronized(getRoot()) {
+			if(m_useCount <= 0)
+				throw new IllegalStateException("Access to destroyed ImageInstance: usecount=" + m_useCount);
+			if(--m_useCount > 0)
+				return;
+			m_buffers = null;
+			m_size = 0;
+			m_mimeType = null;
+			m_sourceVersionLong = -1;
+		}
+
+		if(m_cacheFile != null) {
+			File d = m_cacheFile;
+			m_cacheFile = null;
+			d.delete();
+		}
+	}
+
+	//	boolean remove() {
+	//		m_cacheState = InstanceCacheState.DISCARD;
+	//		return getRoot().unregisterInstance(this);
+	//	}
 
 
 	public byte[][] getBuffers() {
@@ -187,5 +224,13 @@ final public class ImageInstance {
 
 	public void setMemoryCacheSize(long memoryCacheSize) {
 		m_memoryCacheSize = memoryCacheSize;
+	}
+
+	public long getFileCacheSize() {
+		return m_fileCacheSize;
+	}
+
+	public void setFileCacheSize(long fileCacheSize) {
+		m_fileCacheSize = fileCacheSize;
 	}
 }

@@ -1,4 +1,4 @@
-package to.etc.domui.util.images.cache;
+package to.etc.domui.caches.filecache;
 
 import java.io.*;
 import java.util.*;
@@ -36,6 +36,12 @@ public class FileCache {
 
 	File getCacheRoot() {
 		return m_cacheRoot;
+	}
+
+	public void initialize() throws Exception {
+		m_cacheRoot.mkdirs();
+		if(!m_cacheRoot.exists() || !m_cacheRoot.isDirectory())
+			throw new IOException(m_cacheRoot + ": file cache root cannot be created or is not a directory.");
 	}
 
 	/**
@@ -197,4 +203,5 @@ public class FileCache {
 		}
 		reaplist.add(ix, reapentry);
 	}
+
 }

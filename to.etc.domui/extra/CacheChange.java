@@ -24,6 +24,9 @@ class CacheChange {
 	/** When this action has caused extra memory to be used this contains the #bytes that the MEMORY cacheload has increased */
 	private long m_extraMemoryUsed;
 
+	/** When this action has caused extra file(s) to be used this contains the #bytes that the FILE cacheload has increased */
+	private long m_extraFilespaceUsed;
+
 	/** Contains every ImageInstance that was used (and not deleted) in this task. Each of these will be marked as recently-used when the action returns to the cache. */
 	private List<ImageInstance> m_instancesUsed = new ArrayList<ImageInstance>();
 
@@ -32,6 +35,10 @@ class CacheChange {
 
 	public void addMemoryLoad(long load) {
 		m_extraMemoryUsed += load;
+	}
+
+	public void addFileLoad(long load) {
+		m_extraFilespaceUsed += load;
 	}
 
 	/**
@@ -50,7 +57,9 @@ class CacheChange {
 		m_imagesDiscarded.add(ii);
 
 		//-- Reduce cache loads by the released image's sizes,
-		m_extraMemoryUsed -= ii.getMemoryCacheSize();
+		m_extraFilespaceUsed -= ii.getFileCacheSize();
+		m_extraMemoryUsed -= ii.getFileCacheSize();
+		ii.setFileCacheSize(0); // Make very certain they are not counted again.
 		ii.setMemoryCacheSize(0);
 	}
 }

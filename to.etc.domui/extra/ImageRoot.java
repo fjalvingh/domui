@@ -133,6 +133,7 @@ final class ImageRoot {
 		for(ImageInstance ii : old) {
 			try {
 				cc.addDeletedImage(ii); // Account for deleting this instance
+				ii.release();
 			} catch(Exception x) {
 				System.err.println("Exception while release()ing " + ii + ": " + x);
 				x.printStackTrace();
