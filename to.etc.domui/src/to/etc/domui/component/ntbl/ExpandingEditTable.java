@@ -33,7 +33,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 	private IRowRenderer<T> m_rowRenderer;
 
-	private IRowEditorFactory<T> m_editorFactory;
+	private IEditRowHandler<T, ? > m_editorFactory;
 
 	private TBody m_dataBody;
 
@@ -58,6 +58,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 	private IClicked< ? extends ExpandingEditTable<T>> m_onNew;
 
+	private NodeContainer m_newEditor;
+
 	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
 		super(actualClass);
 		m_rowRenderer = r;
@@ -71,7 +73,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	}
 
 	/**
-	 * Create the structure [(div=self)][ErrorMessageDiv][
+	 * Create the structure [(div=self)][ErrorMessageDiv][table]
 	 * @see to.etc.domui.dom.html.NodeBase#createContent()
 	 */
 	@Override
@@ -214,12 +216,15 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param instance
 	 * @throws Exception
 	 */
-	private void createEditor(NodeContainer into, T instance) throws Exception {
-		if(getEditorFactory() == null)
+	private NodeContainer createEditor(TD into, T instance) throws Exception {
+		if(getRowHandler() == null)
 			throw new IllegalStateException("Auto editor creation not yet supported");
-		getEditorFactory().createRowEditor(into, instance);
-		into.moveModelToControl(); // Ensure items are moved
 
+		NodeContainer editor = getRowHandler().createRowEditor(instance);
+		into.add(editor);
+		into.getParent(TR.class).setUserObject(editor);
+		editor.moveModelToControl();
+		return editor;
 	}
 
 	/**
@@ -276,12 +281,10 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		td.setCssClass("ui-xdt-edt");
 		int colspan = getColumnCount();
 		td.setColspan(colspan);
-		tr.setUserObject(td);
 
 		//-- Add the editor into that,
 		T	item	= getModelItem(index);
 		createEditor(td, item);
-		td.moveModelToControl();
 	}
 
 	/**
@@ -292,20 +295,26 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	private void collapseRow(int index, TR tr) throws Exception {
 		if(tr.getUserObject() == null) // Already collapsed?
 			return;
-		TD	editor = (TD) tr.getUserObject();
+		NodeContainer editor = (NodeContainer) tr.getUserObject();
 		T	item	= getModelItem(index);
 		if(DomUtil.isModified(editor)) // On collapse pass on modified state
 			setModified(true);
-		validateEditor(editor, item); // Move data to model, abort on input error
+
+		editor.moveControlToModel(); // Phase 1 move data to model;
+		if(editor instanceof IEditor) {
+			IEditor e = (IEditor) editor;
+			if(!e.validate(false))
+				return;
+		}
+
+		if(getRowHandler() != null) {
+			if(!((IEditRowHandler) getRowHandler()).onRowEditComplete(m_newEditor, m_newInstance))
+				return;
+		}
 
 		//-- Done: just re-render the collapsed row
 		renderCollapsedRow(index, item);
 	}
-
-	private void validateEditor(TD editor, T item) throws Exception {
-		editor.moveControlToModel();
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	New-row editor mode.								*/
@@ -367,11 +376,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		td.setCssClass("ui-xdt-edt");
 		int colspan = getColumnCount();
 		td.setColspan(colspan);
-		tr.setUserObject(td);
 
 		//-- Add the editor into that,
-		createEditor(td, instance);
-		td.moveModelToControl();
+		m_newEditor = createEditor(td, instance);
 		m_newInstance = instance;
 	}
 
@@ -384,7 +391,17 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			return;
 
 		//-- Try to commit, then add;
-		m_newBody.moveControlToModel(); // Move data, exception @ err
+		m_newEditor.moveControlToModel(); // Move data, exception @ err
+
+		if(m_newEditor instanceof IEditor) {
+			IEditor e = (IEditor) m_newEditor;
+			if(!e.validate(true))
+				return;
+		}
+		if(getRowHandler() != null) {
+			if(!((IEditRowHandler) getRowHandler()).onRowNewComplete(m_newEditor, m_newInstance))
+				return;
+		}
 
 		//-- If no new click listener is present try to add it ourselves.
 		if(m_onNew != null) {
@@ -398,6 +415,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_newBody.remove(); // Discard editor & stuff
 		m_newBody = null;
 		m_newInstance = null;
+		m_newEditor = null;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -534,11 +552,11 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		forceRebuild();
 	}
 
-	public IRowEditorFactory<T> getEditorFactory() {
+	public IEditRowHandler<T, ? extends NodeContainer> getRowHandler() {
 		return m_editorFactory;
 	}
 
-	public void setEditorFactory(IRowEditorFactory<T> editorFactory) {
+	public void setRowHandler(IEditRowHandler<T, ? extends NodeContainer> editorFactory) {
 		m_editorFactory = editorFactory;
 	}
 

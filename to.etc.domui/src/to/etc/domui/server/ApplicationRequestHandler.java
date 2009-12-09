@@ -529,7 +529,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		dr.render();
 		if(LOG.isLoggable(Level.INFO) && !inhibitlog) {
 			ts = System.nanoTime() - ts;
-			LOG.info("rq: Optimal Delta rendering took " + StringTool.strNanoTime(ts));
+			LOG.info("rq: Optimal Delta rendering using " + fullr + " took " + StringTool.strNanoTime(ts));
 		}
 		page.getConversation().startDelayedExecution();
 	}
