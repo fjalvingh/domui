@@ -5,7 +5,6 @@ import java.io.*;
 import java.util.*;
 import java.util.List;
 
-import to.etc.domui.util.images.cache.*;
 import to.etc.domui.util.images.machines.*;
 import to.etc.sjit.*;
 
@@ -100,8 +99,7 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 		//-- Ask ImageMagick...
 		ImageHandler ih = ImageManipulator.getImageHandler();
 		try {
-			List<OriginalImagePage> l = ih.identify(src); // Try to identify
-			return new OriginalImageData(mime, l);
+			return ih.identify(src); // Try to identify
 		} catch(Exception x) {
 			return null;
 		}

@@ -1,4 +1,4 @@
-package to.etc.domui.util.images.cache;
+package to.etc.domui.caches.images;
 
 public enum InstanceCacheState {
 	/** The instance is not properly linked yet. It will exist in the access map but it's size and LRU links are not used */

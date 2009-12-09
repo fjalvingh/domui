@@ -3,7 +3,6 @@ package to.etc.domui.util.images.converters;
 import java.io.*;
 import java.util.*;
 
-import to.etc.domui.util.images.cache.*;
 import to.etc.domui.util.images.machines.*;
 
 public class ImageSpec {
@@ -21,7 +20,7 @@ public class ImageSpec {
 	public ImageSpec(File source, String mime, int w, int h) {
 		m_source = source;
 		List<OriginalImagePage> l = new ArrayList<OriginalImagePage>(1);
-		l.add(new OriginalImagePage(0, w, h, false));
+		l.add(new OriginalImagePage(0, w, h, mime, null, false));
 		m_data = new OriginalImageData(mime, l);
 	}
 

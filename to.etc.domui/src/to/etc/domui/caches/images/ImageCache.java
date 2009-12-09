@@ -1,4 +1,4 @@
-package to.etc.domui.util.images.cache;
+package to.etc.domui.caches.images;
 
 import java.io.*;
 import java.util.*;

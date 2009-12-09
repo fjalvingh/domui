@@ -1,4 +1,4 @@
-package to.etc.domui.util.images.cache;
+package to.etc.domui.caches.images;
 
 /**
  * This is a stream source which allows access to a set of buffers representing the

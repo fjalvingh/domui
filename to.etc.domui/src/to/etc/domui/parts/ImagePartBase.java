@@ -3,11 +3,11 @@ package to.etc.domui.parts;
 import java.io.*;
 import java.util.*;
 
+import to.etc.domui.caches.images.*;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.images.*;
-import to.etc.domui.util.images.cache.*;
 import to.etc.domui.util.images.converters.*;
 
 abstract public class ImagePartBase implements IUnbufferedPartFactory {
