@@ -27,16 +27,15 @@ public class FileCacheSet {
 	 * @return
 	 */
 	public File getFile(String path) {
-		File	f	= new File(m_cache.getCacheRoot(), path).getAbsoluteFile();
 		for(FileCacheEntry ce : m_contents) {
-			if(ce.getFile().equals(f))
-				return f;
+			if(ce.getKey().equals(path))
+				return ce.getFile(); // Re-use existing entry without incrementing usecount
 		}
 
 		//-- Allocate a new REF for here
-		FileCacheEntry r = m_cache.getCacheEntry(f);
+		FileCacheEntry r = m_cache.getCacheEntry(path);
 		m_contents.add(r);
-		return f;
+		return r.getFile();
 	}
 
 	/**
@@ -44,7 +43,7 @@ public class FileCacheSet {
 	 */
 	public void close() {
 		for(FileCacheEntry fe : m_contents) {
-			m_cache.entryClosed(fe);
+			fe.dec();
 		}
 		m_contents.clear();
 	}

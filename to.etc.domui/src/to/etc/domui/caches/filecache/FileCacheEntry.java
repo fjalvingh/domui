@@ -3,17 +3,22 @@ package to.etc.domui.caches.filecache;
 import java.io.*;
 
 import javax.annotation.*;
+import javax.annotation.concurrent.*;
 
-public class FileCacheEntry {
+class FileCacheEntry {
+	private FileCache m_cache;
+
 	private String m_key;
 
 	private File m_file;
 
-	private int m_useCount;
+	@GuardedBy("m_cache")
+	int m_useCount;
 
 	public FileCacheEntry(File file, String key) {
 		m_file = file;
 		m_key = key;
+		m_useCount = 1;
 	}
 
 	@Nonnull
@@ -27,12 +32,10 @@ public class FileCacheEntry {
 	}
 
 	void inc() {
-		m_useCount++;
+		m_cache.incUse(this);
 	}
 
-	boolean dec() {
-		if(m_useCount == 0)
-			throw new IllegalStateException("Unexpected: use count already zero");
-		return --m_useCount == 0;
+	void dec() {
+		m_cache.decUse(this);
 	}
 }

@@ -45,28 +45,34 @@ public class FileCache {
 	}
 
 	/**
-	 *
+	 * Internal: allocate a cache entry and return it, with an incremented use count.
 	 * @param path
 	 * @return
 	 */
-	FileCacheEntry getCacheEntry(File f) {
-		//-- Be very sure the path is OK, and make the path fully relative wrt the root of the cache (canonicalize names for repo access)
-		String s = f.getAbsolutePath().replace('\\', '/');
-		int pos = m_cacheRootPath.length();
-		if(!m_cacheRootPath.equals(f.getAbsolutePath().substring(0, pos)))
-			throw new IllegalStateException("Unexpected: input path " + f + " resulting in " + s + " is not in cache " + m_cacheRootPath);
-		String key = s.substring(pos); // This is formal relative name.
+	FileCacheEntry getCacheEntry(String rpath) {
+		//-- Check path for validity: cannot start with /, cannot contain '..'.
+		if(rpath.contains(".."))
+			throw new IllegalStateException("Invalid path: cannot contain ..");
+		if(rpath.contains(":") || rpath.startsWith("/"))
+			throw new IllegalStateException("Invalid path: cannot be absolute");
+
+		File f = new File(getCacheRoot(), rpath);
 
 		//-- Allocate a FileRef for this.
 		synchronized(this) {
-			FileCacheEntry fe = m_refMap.get(key);
+			FileCacheEntry fe = m_refMap.get(rpath);
 			if(fe == null) {
-				fe = new FileCacheEntry(f, key);
-				m_refMap.put(key, fe);
-			}
-			fe.inc();
+				fe = new FileCacheEntry(f, rpath);
+				m_refMap.put(rpath, fe);
+			} else
+				fe.inc();
 			return fe;
 		}
+	}
+
+	public FileCacheRef getFile(String rpath) {
+		FileCacheEntry ce = getCacheEntry(rpath);
+		return new FileCacheRef(ce);
 	}
 
 	synchronized boolean inuse(String key) {
@@ -74,13 +80,22 @@ public class FileCache {
 	}
 
 	/**
-	 * Called when an entry is dereferenced. Removes the entry from the used set, allowing it to be reaped.
+	 * Increment use count.
 	 * @param ce
 	 */
-	synchronized void entryClosed(FileCacheEntry ce) {
-		if(!ce.dec())
+	synchronized void incUse(FileCacheEntry ce) {
+		if(ce.m_useCount <= 0)
+			throw new IllegalStateException("Internal: use count invalid");
+		ce.m_useCount++;
+	}
+
+	synchronized void decUse(FileCacheEntry ce) {
+		if(ce.m_useCount <= 0)
+			throw new IllegalStateException("Internal: use count invalid");
+		if(--ce.m_useCount > 0)
 			return;
 
+		//-- Discard this entry: usecount has reached 0.
 		//-- This entry is no longer in use.
 		m_refMap.remove(ce.getKey());
 
