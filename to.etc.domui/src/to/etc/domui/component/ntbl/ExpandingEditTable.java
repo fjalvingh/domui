@@ -47,6 +47,17 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 	private boolean m_disableErrors = true;
 
+	/** By default new rows are edited @ the end; set this to edit @ the start. */
+	private boolean m_newAtStart;
+
+	/** When editing a new node, this contains the instance being filled */
+	private T m_newInstance;
+
+	/** The TBody which contains the new-editor. */
+	private TBody m_newBody;
+
+	private IClicked< ? extends ExpandingEditTable<T>> m_onNew;
+
 	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
 		super(actualClass);
 		m_rowRenderer = r;
@@ -57,18 +68,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		super(actualClass, m);
 		m_rowRenderer = r;
 		setErrorFence();
-	}
-
-	public void setDisableErrors(boolean on) {
-		if(m_disableErrors == on)
-			return;
-		m_disableErrors = on;
-		if(on) {
-			setErrorFence();
-		} else {
-			setErrorFence(null);
-		}
-		forceRebuild();
 	}
 
 	/**
@@ -307,6 +306,100 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		editor.moveControlToModel();
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	New-row editor mode.								*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Make the control enter ADD NEW mode for the specified instance. The previous
+	 * NEW row, if present, is commited if possible; if that fails we exit with an
+	 * exception. After that we create a new edit row at the end or the start of the
+	 * table and edit it.
+	 * This version uses an {@link IModifyableTableModel} to do the actual adding
+	 * of the item to the model.
+	 * @param instance
+	 */
+	public void addNew(T instance) throws Exception {
+		if(!(getModel() instanceof IModifyableTableModel< ? >))
+			throw new IllegalStateException("The model is not an IModifyableTableModel: use addNew(T, IClicked) instead");
+		addNew(instance, null);
+	}
+
+	/**
+	 * Make the control enter ADD NEW mode for the specified instance. The previous
+	 * NEW row, if present, is commited if possible; if that fails we exit with an
+	 * exception. After that we create a new edit row at the end or the start of the
+	 * table and edit it.
+	 * @param instance
+	 * @param cl		The handler to call after the row should be commited. This handler should add the row
+	 * 					to the tablemodel.
+	 */
+	public void addNew(T instance, IClicked< ? extends ExpandingEditTable<T>> cl) throws Exception {
+		clearNewEditor();
+		m_onNew = cl;
+
+		//-- Create a new edit body @ the appropriate location.
+		m_newBody = new TBody();
+		if(m_newAtStart)
+			getTable().add(0, m_newBody);
+		else
+			getTable().add(m_newBody);
+		TR tr = m_newBody.addRow();
+
+		//-- Create row superstructure.
+		if(!isHideIndex()) {
+			TD td = tr.addCell();
+			Div d = new Div("*");
+			td.add(d);
+			d.setCssClass("ui-xdt-ix ui-xdt-new");
+
+			td.setClicked(new IClicked<TD>() {
+				@Override
+				public void clicked(TD clickednode) throws Exception {
+					commitNewRow();
+				}
+			});
+		}
+
+		//-- Create a single big cell that will contain the editor.
+		TD td = tr.addCell();
+		td.setCssClass("ui-xdt-edt");
+		int colspan = getColumnCount();
+		td.setColspan(colspan);
+		tr.setUserObject(td);
+
+		//-- Add the editor into that,
+		createEditor(td, instance);
+		td.moveModelToControl();
+		m_newInstance = instance;
+	}
+
+	protected void commitNewRow() throws Exception {
+		clearNewEditor();
+	}
+
+	private void clearNewEditor() throws Exception {
+		if(m_newBody == null)
+			return;
+
+		//-- Try to commit, then add;
+		m_newBody.moveControlToModel(); // Move data, exception @ err
+
+		//-- If no new click listener is present try to add it ourselves.
+		if(m_onNew != null) {
+			((IClicked) m_onNew).clicked(this); // On exception leave input as-is to allow fixing the problem.
+		} else {
+			IModifyableTableModel<T> mtm = (IModifyableTableModel<T>) getModel();
+			mtm.add(m_newInstance);
+		}
+
+		//-- Data move succesful. Move to model proper
+		m_newBody.remove(); // Discard editor & stuff
+		m_newBody = null;
+		m_newInstance = null;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	TableModelListener implementation					*/
 	/*--------------------------------------------------------------*/
@@ -447,6 +540,42 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 	public void setEditorFactory(IRowEditorFactory<T> editorFactory) {
 		m_editorFactory = editorFactory;
+	}
+
+	/**
+	 * When set to T this control no longer shows errors.
+	 * @param on
+	 */
+	public void setDisableErrors(boolean on) {
+		if(m_disableErrors == on)
+			return;
+		m_disableErrors = on;
+		//		if(on) {
+		//			setErrorFence();
+		//		} else {
+		//			setErrorFence(null);
+		//		}
+		forceRebuild();
+	}
+
+	/**
+	 * Returns T if this control's error handling has been disabled, causing the
+	 * parent to handle errors instead of showing the errors in the control.
+	 * @return
+	 */
+	public boolean isDisableErrors() {
+		return m_disableErrors;
+	}
+
+	/**
+	 * By default new rows are edited @ the end; set this to edit @ the start.
+	 */
+	public boolean isNewAtStart() {
+		return m_newAtStart;
+	}
+
+	public void setNewAtStart(boolean newAtStart) {
+		m_newAtStart = newAtStart;
 	}
 
 

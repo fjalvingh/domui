@@ -700,9 +700,13 @@ div:hover.ui-xdt-clp {
 div:hover.ui-xdt-exp {
 	background-image: url(xdt-expanded.png);
 }
+.ui-xdt-new {
+	background-image: url(btnCheckmark.png);
+}
+
 .ui-xdt-edt {
 	background-color: #dffbf7;
-	width: 99%;
+	/*width: 99%;  */
 	vertical-align: top;
 	-moz-border-radius: 5px;
 	border: 1px dotted #333333;

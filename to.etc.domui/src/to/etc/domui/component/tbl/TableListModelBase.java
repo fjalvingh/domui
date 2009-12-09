@@ -2,7 +2,7 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
-abstract public class TableListModelBase<T> extends TableModelBase<T> {
+abstract public class TableListModelBase<T> extends TableModelBase<T> implements IModifyableTableModel<T> {
 	abstract protected List<T> getList() throws Exception;
 
 	/** When set this becomes an ordered model. */
