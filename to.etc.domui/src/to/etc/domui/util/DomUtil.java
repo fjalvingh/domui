@@ -30,27 +30,32 @@ final public class DomUtil {
 	}
 
 	static public final void ie8Capable(HttpServletResponse req) throws IOException {
-		if(!(req instanceof WrappedHttpServetResponse))
+		if(!(req instanceof WrappedHttpServetResponse)) {
 			return;
+		}
 		WrappedHttpServetResponse wsr = (WrappedHttpServetResponse) req;
 		wsr.setIE8Capable();
 	}
 
 	static public final boolean isEqual(final Object a, final Object b) {
-		if(a == b)
+		if(a == b) {
 			return true;
-		if(a == null || b == null)
+		}
+		if(a == null || b == null) {
 			return false;
+		}
 		return a.equals(b);
 	}
 
 	static public final boolean isEqual(final Object... ar) {
-		if(ar.length < 2)
+		if(ar.length < 2) {
 			throw new IllegalStateException("Silly.");
+		}
 		Object a = ar[0];
 		for(int i = ar.length; --i >= 1;) {
-			if(!isEqual(a, ar[i]))
+			if(!isEqual(a, ar[i])) {
 				return false;
+			}
 		}
 		return true;
 	}
@@ -71,8 +76,9 @@ final public class DomUtil {
 	 */
 	static public boolean classResourceExists(final Class< ? extends DomApplication> clz, final String name) {
 		InputStream is = clz.getResourceAsStream(name);
-		if(is == null)
+		if(is == null) {
 			return false;
+		}
 		try {
 			is.close();
 		} catch(Exception x) {
@@ -137,8 +143,9 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public final Object getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
-		if(inst == null)
+		if(inst == null) {
 			throw new IllegalStateException("The input object is null");
+		}
 		Class< ? > clz = inst.getClass();
 		Method m;
 		try {
@@ -152,12 +159,13 @@ final public class DomUtil {
 			throw new IllegalStateException("Cannot call method '" + name + "()' on class=" + clz + ": " + iax);
 		} catch(InvocationTargetException itx) {
 			Throwable c = itx.getCause();
-			if(c instanceof Exception)
+			if(c instanceof Exception) {
 				throw (Exception) c;
-			else if(c instanceof Error)
+			} else if(c instanceof Error) {
 				throw (Error) c;
-			else
+			} else {
 				throw itx;
+			}
 		}
 	}
 
@@ -172,8 +180,9 @@ final public class DomUtil {
 		int len = path.length();
 		Object next = base;
 		while(pos < len) {
-			if(next == null)
+			if(next == null) {
 				return null;
+			}
 			int npos = path.indexOf('.', pos);
 			String name;
 			if(npos == -1) {
@@ -183,15 +192,17 @@ final public class DomUtil {
 				name = path.substring(pos, npos);
 				pos = npos;
 			}
-			if(name.length() == 0)
+			if(name.length() == 0) {
 				throw new IllegalStateException("Invalid property path: " + path);
+			}
 
 			//-- Do a single-property resolve;
 			next = getSinglePropertyValue(next, name);
 			if(pos < len) {
 				//-- Next thingy must be a '.'
-				if(path.charAt(pos) != '.')
+				if(path.charAt(pos) != '.') {
 					throw new IllegalStateException("Invalid property path: " + path);
+				}
 				pos++;
 			}
 		}
@@ -202,9 +213,9 @@ final public class DomUtil {
 		try {
 			StringBuilder sb = new StringBuilder(name.length() + 3);
 			sb.append("get");
-			if(Character.isUpperCase(name.charAt(0)))
+			if(Character.isUpperCase(name.charAt(0))) {
 				sb.append(name);
-			else {
+			} else {
 				sb.append(Character.toUpperCase(name.charAt(0)));
 				sb.append(name, 1, name.length());
 			}
@@ -225,12 +236,14 @@ final public class DomUtil {
 
 	static public IErrorFence getMessageFence(NodeBase start) {
 		for(;;) {
-			if(start == null)
+			if(start == null) {
 				throw new IllegalStateException("Cannot locate error fence. Did you call an error routine on an unattached Node?");
+			}
 			if(start instanceof NodeContainer) {
 				NodeContainer nc = (NodeContainer) start;
-				if(nc.getErrorFence() != null)
+				if(nc.getErrorFence() != null) {
 					return nc.getErrorFence();
+				}
 			}
 			//			if(start.getParent() == null) {
 			//				return start.getPage().getErrorFence();	// Use the generic page's fence.
@@ -250,7 +263,7 @@ final public class DomUtil {
 		byte[] bin = new byte[18];
 		ByteArrayUtil.setInt(bin, 0, m_guidSeed); // Start with the seed
 		ByteArrayUtil.setShort(bin, 4, (short) (Math.random() * 65536));
-		long v = System.currentTimeMillis() / 1000 - (m_guidSeed * 60);
+		long v = System.currentTimeMillis() / 1000 - m_guidSeed * 60;
 		ByteArrayUtil.setInt(bin, 6, (int) v);
 		ByteArrayUtil.setLong(bin, 10, System.nanoTime());
 
@@ -262,32 +275,35 @@ final public class DomUtil {
 		//-- 3-byte to 4-byte conversion + 0-63 to ascii printable conversion
 		int sidx;
 		for(sidx = 0; sidx < bin.length - 2; sidx += 3) {
-			sb.append(BASE64MAP[(bin[sidx] >>> 2) & 0x3f]);
-			sb.append(BASE64MAP[(bin[sidx + 1] >>> 4) & 0xf | (bin[sidx] << 4) & 0x3f]);
-			sb.append(BASE64MAP[(bin[sidx + 2] >>> 6) & 0x3 | (bin[sidx + 1] << 2) & 0x3f]);
+			sb.append(BASE64MAP[bin[sidx] >>> 2 & 0x3f]);
+			sb.append(BASE64MAP[bin[sidx + 1] >>> 4 & 0xf | bin[sidx] << 4 & 0x3f]);
+			sb.append(BASE64MAP[bin[sidx + 2] >>> 6 & 0x3 | bin[sidx + 1] << 2 & 0x3f]);
 			sb.append(BASE64MAP[bin[sidx + 2] & 0x3f]);
 		}
 		if(sidx < bin.length) {
-			sb.append(BASE64MAP[(bin[sidx] >>> 2) & 077]);
+			sb.append(BASE64MAP[bin[sidx] >>> 2 & 077]);
 			if(sidx < bin.length - 1) {
-				sb.append(BASE64MAP[(bin[sidx + 1] >>> 4) & 017 | (bin[sidx] << 4) & 077]);
-				sb.append(BASE64MAP[(bin[sidx + 1] << 2) & 077]);
-			} else
-				sb.append(BASE64MAP[(bin[sidx] << 4) & 077]);
+				sb.append(BASE64MAP[bin[sidx + 1] >>> 4 & 017 | bin[sidx] << 4 & 077]);
+				sb.append(BASE64MAP[bin[sidx + 1] << 2 & 077]);
+			} else {
+				sb.append(BASE64MAP[bin[sidx] << 4 & 077]);
+			}
 		}
 		return sb.toString();
 	}
 
 	static public void addUrlParameters(final StringBuilder sb, final IRequestContext ctx, boolean first) {
 		for(String name : ctx.getParameterNames()) {
-			if(name.equals(Constants.PARAM_CONVERSATION_ID))
+			if(name.equals(Constants.PARAM_CONVERSATION_ID)) {
 				continue;
+			}
 			for(String value : ctx.getParameters(name)) {
 				if(first) {
 					sb.append('?');
 					first = false;
-				} else
+				} else {
 					sb.append('&');
+				}
 				StringTool.encodeURLEncoded(sb, name);
 				sb.append('=');
 				StringTool.encodeURLEncoded(sb, value);
@@ -296,17 +312,20 @@ final public class DomUtil {
 	}
 
 	static public void addUrlParameters(final StringBuilder sb, final PageParameters ctx, boolean first) {
-		if(ctx == null)
+		if(ctx == null) {
 			return;
+		}
 		for(String name : ctx.getParameterNames()) {
-			if(name.equals(Constants.PARAM_CONVERSATION_ID))
+			if(name.equals(Constants.PARAM_CONVERSATION_ID)) {
 				continue;
+			}
 			String value = ctx.getString(name);
 			if(first) {
 				sb.append('?');
 				first = false;
-			} else
+			} else {
 				sb.append('&');
+			}
 			StringTool.encodeURLEncoded(sb, name);
 			sb.append('=');
 			StringTool.encodeURLEncoded(sb, value);
@@ -327,21 +346,25 @@ final public class DomUtil {
 	 */
 	static public String calculateURL(IRequestContext ci, String rurl) {
 		int pos = rurl.indexOf(":/"); // http://?
-		if(pos > 0 && pos < 20)
+		if(pos > 0 && pos < 20) {
 			return rurl;
-		if(rurl.startsWith("/"))
+		}
+		if(rurl.startsWith("/")) {
 			return rurl;
+		}
 
 		//-- Append context.
 		return ci.getRelativePath(rurl);
 	}
 
 	static public String[] decodeCID(final String param) {
-		if(param == null)
+		if(param == null) {
 			return null;
+		}
 		int pos = param.indexOf('.');
-		if(pos == -1)
+		if(pos == -1) {
 			throw new IllegalStateException("Missing '.' in $CID parameter");
+		}
 		String[] res = new String[]{param.substring(0, pos), param.substring(pos + 1)};
 		return res;
 	}
@@ -354,8 +377,9 @@ final public class DomUtil {
 		p.build();
 		if(p instanceof NodeContainer) {
 			NodeContainer nc = (NodeContainer) p;
-			for(NodeBase c : nc)
+			for(NodeBase c : nc) {
 				buildTree(c);
+			}
 		}
 	}
 
@@ -369,27 +393,32 @@ final public class DomUtil {
 	 * @throws Exception
 	 */
 	static public <T extends NodeBase> T findComponentInTree(final NodeBase p, final Class<T> clz) throws Exception {
-		if(clz.isAssignableFrom(p.getClass()))
+		if(clz.isAssignableFrom(p.getClass())) {
 			return (T) p;
+		}
 		p.build();
 		if(p instanceof NodeContainer) {
 			NodeContainer nc = (NodeContainer) p;
 			for(NodeBase c : nc) {
 				T res = findComponentInTree(c, clz);
-				if(res != null)
+				if(res != null) {
 					return res;
+				}
 			}
 		}
 		return null;
 	}
 
 	static public String nlsLabel(final String label) {
-		if(label == null)
+		if(label == null) {
 			return label;
-		if(label.charAt(0) != '~')
+		}
+		if(label.charAt(0) != '~') {
 			return label;
-		if(label.startsWith("~~"))
+		}
+		if(label.startsWith("~~")) {
 			return label.substring(1);
+		}
 
 		//-- Lookup as a resource.
 		return "???" + label.substring(1) + "???";
@@ -415,8 +444,9 @@ final public class DomUtil {
 								count += td.getColspan() > 0 ? td.getColspan() : 1;
 							}
 						}
-						if(count > maxcol)
+						if(count > maxcol) {
 							maxcol = count;
+						}
 					}
 				}
 			}
@@ -467,9 +497,10 @@ final public class DomUtil {
 		for(NodeBase l0 : t) { // Expecting THead and TBodies here.
 			if(l0 instanceof THead || l0 instanceof TBody) {
 				//-- Walk all rows.
-				for(NodeBase trb : ((NodeContainer) l0)) {
-					if(!(trb instanceof TR))
+				for(NodeBase trb : (NodeContainer) l0) {
+					if(!(trb instanceof TR)) {
 						throw new IllegalStateException("Unexpected child of type " + l0 + " in TBody/THead node (expecting TR)");
+					}
 					TR tr = (TR) trb;
 					int minrowspan = 1;
 
@@ -477,24 +508,27 @@ final public class DomUtil {
 					List<TD> baserowlist = getTdList(matrix, rowindex);
 					int colindex = 0;
 					for(NodeBase tdb : tr) {
-						if(!(tdb instanceof TD))
+						if(!(tdb instanceof TD)) {
 							throw new IllegalStateException("Unexpected child of type " + tr + " in TBody/THead node (expecting TD)");
+						}
 						TD td = (TD) tdb;
 
 						int colspan = td.getColspan();
 						int rowspan = td.getRowspan();
-						if(colspan < 1)
+						if(colspan < 1) {
 							colspan = 1;
-						if(rowspan < 1)
+						}
+						if(rowspan < 1) {
 							rowspan = 1;
-
+						}
 
 
 					}
 					rowindex += minrowspan;
 				}
-			} else
+			} else {
 				throw new IllegalStateException("Unexpected child of type " + l0 + " in TABLE node");
+			}
 		}
 
 		//-- Phase 2: for all cells, handle their row/colspan by recounting their spread
@@ -519,20 +553,23 @@ final public class DomUtil {
 		hs.setDocument(in);
 		for(;;) {
 			String tag = hs.nextTag(); // Find the next tag.
-			if(tag == null)
+			if(tag == null) {
 				break;
+			}
 
 			//-- Append any text segment between the last tag and the current one,
 			int len = hs.getPos() - lpos;
-			if(len > 0)
+			if(len > 0) {
 				sb.append(in, lpos, hs.getPos()); // Append the normal text fragment
+			}
 
 			//-- Skip this tag;
 			hs.skipTag();
 			lpos = hs.getPos(); // Position just after the >
 		}
-		if(hs.getPos() < in.length())
+		if(hs.getPos() < in.length()) {
 			sb.append(in, hs.getPos(), in.length());
+		}
 	}
 
 	static public void dumpException(final Exception x) {
@@ -541,8 +578,9 @@ final public class DomUtil {
 		Throwable next = null;
 		for(Throwable curr = x; curr != null; curr = next) {
 			next = curr.getCause();
-			if(next == curr)
+			if(next == curr) {
 				next = null;
+			}
 
 			if(curr instanceof SQLException) {
 				SQLException sx = (SQLException) curr;
@@ -557,14 +595,16 @@ final public class DomUtil {
 	static public String getJavaResourceRURL(final Class< ? > resourceBase, final String name) {
 		String rb = resourceBase.getName();
 		int pos = rb.lastIndexOf('.');
-		if(pos == -1)
+		if(pos == -1) {
 			throw new IllegalStateException("??");
+		}
 		return Constants.RESOURCE_PREFIX + rb.substring(0, pos + 1).replace('.', '/') + name;
 	}
 
 	public static void main(final String[] args) {
-		for(int i = 0; i < 10; i++)
+		for(int i = 0; i < 10; i++) {
 			System.out.println(generateGUID());
+		}
 	}
 
 	/**
@@ -580,8 +620,9 @@ final public class DomUtil {
 			return is != null;
 		} finally {
 			try {
-				if(is != null)
+				if(is != null) {
 					is.close();
+				}
 			} catch(Exception x) {}
 		}
 	}
@@ -600,8 +641,9 @@ final public class DomUtil {
 	static public BundleRef findBundle(final UIMenu ma, final Class< ? > clz) {
 		if(ma != null && ma.bundleBase() != Object.class) { // Bundle base class specified?
 			String s = ma.bundleName();
-			if(s.length() == 0) // Do we have a name?
+			if(s.length() == 0) {
 				s = "messages"; // If not use messages in this package
+			}
 			return BundleRef.create(ma.bundleBase(), s);
 		}
 
@@ -610,8 +652,9 @@ final public class DomUtil {
 			String s = clz.getName();
 			s = s.substring(s.lastIndexOf('.') + 1); // Get to base class name (no path)
 			BundleRef br = BundleRef.create(clz, s); // Get ref to this bundle;
-			if(br.exists())
+			if(br.exists()) {
 				return br; // Return if it has data
+			}
 
 			//-- Use messages bundle off this thing
 			return BundleRef.create(clz, "messages");
@@ -647,55 +690,64 @@ final public class DomUtil {
 		//-- Explicit specification of the names?
 		if(ma != null && br != null) {
 			//-- Has menu annotation. Is there a title key?
-			if(ma.titleKey().length() != 0)
+			if(ma.titleKey().length() != 0) {
 				return br.getString(loc, ma.titleKey()); // When present it MUST exist.
+			}
 
 			//-- Is there a keyBase?
 			if(ma.baseKey().length() != 0) {
 				String s = br.findMessage(loc, ma.baseKey() + ".title"); // Is this base thing present?
-				if(s != null) // This can be not-present...
+				if(s != null) {
 					return s;
+				}
 			}
 
 			//-- No title. Can we use the menu label?
-			if(ma.labelKey().length() > 0)
+			if(ma.labelKey().length() > 0) {
 				return br.getString(loc, ma.labelKey()); // When present this must exist
+			}
 
 			//-- Try the label from keyBase..
 			if(ma.baseKey().length() != 0) {
 				String s = br.findMessage(loc, ma.baseKey() + ".label");
-				if(s != null) // This can be not-present...
+				if(s != null) {
 					return s;
+				}
 			}
 		}
 
 		//-- Try default page bundle and package bundle names.
 		br = getClassBundle(clz); // Find bundle for the class
 		String s = br.findMessage(loc, "title"); // Find title key
-		if(s != null)
+		if(s != null) {
 			return s;
+		}
 		s = br.findMessage(loc, "label");
-		if(s != null)
+		if(s != null) {
 			return s;
+		}
 
 		//-- Try package bundle.
 		br = getPackageBundle(clz);
 		String root = clz.getName();
 		root = root.substring(root.lastIndexOf('.') + 1); // Class name without package
 		s = br.findMessage(loc, root + ".title"); // Find title key
-		if(s != null)
+		if(s != null) {
 			return s;
+		}
 		s = br.findMessage(loc, root + ".label");
-		if(s != null)
+		if(s != null) {
 			return s;
+		}
 
 		//-- No annotation, or the annotation did not deliver data. Try the menu.
 
 		//-- Try metadata
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		String name = cmm.getUserEntityName();
-		if(name != null)
+		if(name != null) {
 			return name;
+		}
 
 		//-- Nothing worked.... Return the class name as a last resort.
 		s = clz.getName();
@@ -715,47 +767,55 @@ final public class DomUtil {
 		//-- Explicit specification of the names?
 		if(ma != null && br != null) {
 			//-- Has menu annotation. Is there a title key?
-			if(ma.titleKey().length() != 0)
+			if(ma.titleKey().length() != 0) {
 				return br.getString(loc, ma.titleKey()); // When present it MUST exist.
+			}
 
 			//-- Is there a keyBase?
 			if(ma.baseKey().length() != 0) {
 				String s = br.findMessage(loc, ma.baseKey() + ".label"); // Is this base thing present?
-				if(s != null) // This can be not-present...
+				if(s != null) {
 					return s;
+				}
 			}
 
 			//-- No title. Can we use the menu label?
-			if(ma.labelKey().length() > 0)
+			if(ma.labelKey().length() > 0) {
 				return br.getString(loc, ma.labelKey()); // When present this must exist
+			}
 
 			//-- Try the label from keyBase..
 			if(ma.baseKey().length() != 0) {
 				String s = br.findMessage(loc, ma.baseKey() + ".title");
-				if(s != null) // This can be not-present...
+				if(s != null) {
 					return s;
+				}
 			}
 		}
 
 		//-- Try default page bundle and package bundle names.
 		br = getClassBundle(clz); // Find bundle for the class
 		String s = br.findMessage(loc, "label"); // Find title key
-		if(s != null)
+		if(s != null) {
 			return s;
+		}
 		s = br.findMessage(loc, "title");
-		if(s != null)
+		if(s != null) {
 			return s;
+		}
 
 		//-- Try package bundle.
 		br = getPackageBundle(clz);
 		String root = clz.getName();
 		root = root.substring(root.lastIndexOf('.') + 1); // Class name without package
 		s = br.findMessage(loc, root + ".label"); // Find title key
-		if(s != null)
+		if(s != null) {
 			return s;
+		}
 		s = br.findMessage(loc, root + ".title");
-		if(s != null)
+		if(s != null) {
 			return s;
+		}
 
 		//-- No annotation, or the annotation did not deliver data. Try the menu.
 		return null;
@@ -777,8 +837,9 @@ final public class DomUtil {
 	 * @return
 	 */
 	public static BundleRef findPageBundle(UrlPage urlPage) {
-		if(urlPage == null)
+		if(urlPage == null) {
 			throw new NullPointerException("Page cannot be null here");
+		}
 
 		//-- Try to locate UIMenu-based resource
 		UIMenu uim = urlPage.getClass().getAnnotation(UIMenu.class);
@@ -786,8 +847,9 @@ final public class DomUtil {
 			if(uim.bundleBase() != Object.class || uim.bundleName().length() != 0) {
 				//-- We have a specification for the bundle- it must exist
 				BundleRef br = findBundle(uim, urlPage.getClass());
-				if(!br.exists())
+				if(!br.exists()) {
 					throw new ProgrammerErrorException("@UIMenu bundle specified (" + uim.bundleBase() + "," + uim.bundleName() + ") but does not exist on page class " + urlPage.getClass());
+				}
 				return br;
 			}
 		}
@@ -798,13 +860,15 @@ final public class DomUtil {
 
 		String cn = fullname.substring(ix + 1); // Classname only,
 		BundleRef br = BundleRef.create(urlPage.getClass(), cn); // Try to find
-		if(br.exists())
+		if(br.exists()) {
 			return br;
+		}
 
 		//-- Finally: allow 'messages' bundle in this package, if present
 		br = BundleRef.create(urlPage.getClass(), "messages");
-		if(br.exists())
+		if(br.exists()) {
 			return br;
+		}
 		return null; // Failed to get bundle.
 	}
 
@@ -815,17 +879,21 @@ final public class DomUtil {
 	 * @return
 	 */
 	public static String replaceTilded(NodeBase nodeBase, String txt) {
-		if(txt == null) // Unset - exit
+		if(txt == null) {
 			return null;
-		if(!txt.startsWith("~"))
+		}
+		if(!txt.startsWith("~")) {
 			return txt;
-		if(txt.startsWith("~~")) // Dual tilde escapes and returns a single-tilded thingy.
+		}
+		if(txt.startsWith("~~")) {
 			return txt.substring(1);
+		}
 
 		//-- Must do replacement
 		Page p = nodeBase.getPage();
-		if(p == null)
+		if(p == null) {
 			throw new ProgrammerErrorException("Attempt to retrieve a page-bundle's key (" + txt + "), but the node (" + nodeBase + ")is not attached to a page");
+		}
 		return p.getBody().$(txt);
 	}
 
@@ -839,8 +907,9 @@ final public class DomUtil {
 	 * as tags.
 	 */
 	static public void renderHtmlString(NodeContainer d, String text) {
-		if(text == null || text.length() == 0)
+		if(text == null || text.length() == 0) {
 			return;
+		}
 		StringBuilder sb = new StringBuilder(text.length()); // rll string segment buffer
 		List<NodeContainer> nodestack = Collections.EMPTY_LIST; // generated html stack (embedding)
 
@@ -856,15 +925,17 @@ final public class DomUtil {
 			//-- Text scan: scan content and add to the buffer until a possible tag start character is found.
 			while(ix < len) {
 				char c = text.charAt(ix);
-				if(c == '<')
+				if(c == '<') {
 					break;
+				}
 				sb.append(c);
 				ix++;
 			}
 
 			//-- Ok; we possibly have some text in the buffer and have reached a tag or eoln.
-			if(ix >= len)
+			if(ix >= len) {
 				break;
+			}
 
 			//-- Tag scan. We find the end of the tag and check if we recognise it. We currently are on the open '<'.
 			int tix = ix + 1; // Get past >
@@ -915,10 +986,11 @@ final public class DomUtil {
 						appendOptionalText(top, sb); // Append the text for this node because it ends.
 						if(nodestack.size() > 0) {
 							nodestack.remove(nodestack.size() - 1);
-							if(nodestack.size() == 0)
+							if(nodestack.size() == 0) {
 								top = d;
-							else
+							} else {
 								top = nodestack.get(nodestack.size() - 1);
+							}
 						}
 					} else {
 						//-- Unrecognised end tag: just add
@@ -934,20 +1006,23 @@ final public class DomUtil {
 		}
 
 		//-- We have reached eo$. If there is text left in the buffer render it in the last node added, then be done.
-		if(sb.length() > 0)
+		if(sb.length() > 0) {
 			top.add(sb.toString());
+		}
 	}
 
 	static public List<NodeContainer> appendContainer(List<NodeContainer> stack, NodeContainer it) {
-		if(stack == Collections.EMPTY_LIST)
+		if(stack == Collections.EMPTY_LIST) {
 			stack = new ArrayList<NodeContainer>();
+		}
 		stack.add(it);
 		return stack;
 	}
 
 	static private void appendOptionalText(NodeContainer nc, StringBuilder sb) {
-		if(sb.length() == 0)
+		if(sb.length() == 0) {
 			return;
+		}
 		nc.add(sb.toString());
 		sb.setLength(0);
 	}
@@ -957,8 +1032,9 @@ final public class DomUtil {
 	 * the container passed.
 	 */
 	static public void renderErrorMessage(NodeContainer d, UIMessage m) {
-		if(d.getCssClass() == null)
+		if(d.getCssClass() == null) {
 			d.setCssClass("ui-msg ui-msg-" + m.getType().name().toLowerCase());
+		}
 		d.setUserObject(m);
 		String text = m.getErrorLocation() != null ? "<b>" + m.getErrorLocation() + "</b>" + ": " + m.getMessage() : m.getMessage();
 		renderHtmlString(d, text);
@@ -976,8 +1052,9 @@ final public class DomUtil {
 	 */
 	static public Long getLongParameter(PageParameters pp, String name, Long def) {
 		String s = pp.getString(name, null); // Parameter present?
-		if(s == null || s.trim().length() == 0)
+		if(s == null || s.trim().length() == 0) {
 			return def;
+		}
 		try {
 			return Long.valueOf(s.trim());
 		} catch(Exception x) {
@@ -993,8 +1070,9 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public int pixelSize(String css) {
-		if(!css.endsWith("px"))
+		if(!css.endsWith("px")) {
 			return -1;
+		}
 		try {
 			return Integer.parseInt(css.substring(0, css.length() - 2).trim());
 		} catch(Exception x) {
@@ -1018,6 +1096,19 @@ final public class DomUtil {
 		public Object after(NodeBase n) throws Exception;
 	}
 
+	/*--------------------------------------------------------------------*/
+	/*	CODING:	Tree walking helpers with conditional walk on child nodes.*/
+	/*--------------------------------------------------------------------*/
+	/**
+	 * Functor interface to handle tree walking that allows skiping of walking child nodes.
+	 * 
+	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+	 * Created on Dec 9, 2009
+	 */
+	static public interface IPerNodeConditional extends IPerNode {
+		public boolean doWalkChilds(NodeBase n) throws Exception;
+	}
+
 	/**
 	 * Walks a node tree, calling the handler for every node in the tree. As soon as
 	 * a handler returns not-null traversing stops and that object gets returned.
@@ -1026,16 +1117,46 @@ final public class DomUtil {
 	 * @throws Exception
 	 */
 	static public Object walkTree(NodeBase root, IPerNode handler) throws Exception {
-		if(root == null)
+		if(root == null) {
 			return null;
+		}
 		Object v = handler.before(root);
-		if(v != null)
+		if(v != null) {
 			return v;
+		}
 		if(root instanceof NodeContainer) {
 			for(NodeBase ch : (NodeContainer) root) {
 				v = walkTree(ch, handler);
-				if(v != null)
+				if(v != null) {
 					return v;
+				}
+			}
+		}
+		return handler.after(root);
+	}
+
+	/**
+	 * Walks a node tree, calling the handler for every node in the tree. As soon as
+	 * a handler returns not-null traversing stops and that object gets returned.
+	 * In case that doWalkChilds returns false, walk on child nodes is skipped.
+	 * @param handler
+	 * @return
+	 * @throws Exception
+	 */
+	static public Object walkTree(NodeBase root, IPerNodeConditional handler) throws Exception {
+		if(root == null) {
+			return null;
+		}
+		Object v = handler.before(root);
+		if(v != null) {
+			return v;
+		}
+		if(root instanceof NodeContainer && handler.doWalkChilds(root)) {
+			for(NodeBase ch : (NodeContainer) root) {
+				v = walkTree(ch, handler);
+				if(v != null) {
+					return v;
+				}
 			}
 		}
 		return handler.after(root);
@@ -1049,8 +1170,9 @@ final public class DomUtil {
 		try {
 			walkTree(root, new IPerNode() {
 				public Object before(NodeBase n) throws Exception {
-					if(n instanceof IHasModifiedIndication)
+					if(n instanceof IHasModifiedIndication) {
 						((IHasModifiedIndication) n).setModified(false);
+					}
 					return null;
 				}
 
@@ -1070,17 +1192,26 @@ final public class DomUtil {
 	 */
 	static public boolean isModified(NodeBase root) {
 		try {
-			Object res = walkTree(root, new IPerNode() {
+			Object res = walkTree(root, new IPerNodeConditional() {
 				public Object before(NodeBase n) throws Exception {
 					if(n instanceof IHasModifiedIndication) {
-						if(((IHasModifiedIndication) n).isModified())
+						if(((IHasModifiedIndication) n).isModified()) {
 							return Boolean.TRUE;
+						}
 					}
 					return null;
 				}
 
 				public Object after(NodeBase n) throws Exception {
 					return null;
+				}
+
+				@Override
+				public boolean doWalkChilds(NodeBase n) throws Exception {
+					if(n instanceof IUserInputModifiedFence) {
+						return false;
+					}
+					return true;
 				}
 			});
 			return res != null;
@@ -1097,10 +1228,12 @@ final public class DomUtil {
 	static public void setModifiedFlag(NodeBase node) {
 		NodeBase n = node;
 		while(n != null) {
-			if(n instanceof IHasModifiedIndication)
+			if(n instanceof IHasModifiedIndication) {
 				((IHasModifiedIndication) n).setModified(true);
-			if(n instanceof IUserInputModifiedFence && ((IUserInputModifiedFence) n).isFinalUserInputModifiedFence())
+			}
+			if(n instanceof IUserInputModifiedFence && ((IUserInputModifiedFence) n).isFinalUserInputModifiedFence()) {
 				return;
+			}
 			n = (NodeBase) n.getParent(IUserInputModifiedFence.class);
 		}
 	}
