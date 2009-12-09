@@ -56,9 +56,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	/** The TBody which contains the new-editor. */
 	private TBody m_newBody;
 
-	private IClicked< ? extends ExpandingEditTable<T>> m_onNew;
-
 	private NodeContainer m_newEditor;
+
+	private NodeContainer m_emptyDiv;
 
 	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
 		super(actualClass);
@@ -70,6 +70,25 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		super(actualClass, m);
 		m_rowRenderer = r;
 		setErrorFence();
+	}
+
+	private boolean setEmptyDiv() throws Exception {
+		if(getModel().getRows() == 0) {
+			if(m_emptyDiv != null)
+				return true; // Table is empty
+
+			//-- Create the "empty table" message.
+			m_emptyDiv = new Div();
+			m_emptyDiv.setCssClass("ui-xdt-nores");
+			m_emptyDiv.setText(NlsContext.getGlobalMessage(Msgs.UI_DATATABLE_EMPTY));
+			add(m_emptyDiv);
+			return true;
+		}
+
+		if(m_emptyDiv != null) {
+			m_emptyDiv.remove();
+		}
+		return false;
 	}
 
 	/**
@@ -85,16 +104,15 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		//-- Ask the renderer for a sort order, if applicable
 		m_rowRenderer.beforeQuery(this); // ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
 
-		List<T> list = getPageItems(); // Data to show
-		if(list.size() == 0) {
-			Div error = new Div();
-			error.setCssClass("ui-xdt-nores");
-			error.setText(NlsContext.getGlobalMessage(Msgs.UI_DATATABLE_EMPTY));
-			add(error);
-			return;
-		}
 		m_table.removeAllChildren();
 		add(m_table);
+		m_dataBody = new TBody();
+		m_table.add(m_dataBody);
+
+		if(setEmptyDiv())
+			return;
+
+		List<T> list = getPageItems(); // Data to show
 
 		//-- Render the header, if applicable
 		if(!isHideHeader()) {
@@ -116,8 +134,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		}
 
 		//-- Render loop: add rows && ask the renderer to add columns.
-		m_dataBody = new TBody();
-		m_table.add(m_dataBody);
 
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		int ix = 0;
@@ -332,21 +348,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	public void addNew(T instance) throws Exception {
 		if(!(getModel() instanceof IModifyableTableModel< ? >))
 			throw new IllegalStateException("The model is not an IModifyableTableModel: use addNew(T, IClicked) instead");
-		addNew(instance, null);
-	}
-
-	/**
-	 * Make the control enter ADD NEW mode for the specified instance. The previous
-	 * NEW row, if present, is commited if possible; if that fails we exit with an
-	 * exception. After that we create a new edit row at the end or the start of the
-	 * table and edit it.
-	 * @param instance
-	 * @param cl		The handler to call after the row should be commited. This handler should add the row
-	 * 					to the tablemodel.
-	 */
-	public void addNew(T instance, IClicked< ? extends ExpandingEditTable<T>> cl) throws Exception {
 		clearNewEditor();
-		m_onNew = cl;
 
 		//-- Create a new edit body @ the appropriate location.
 		m_newBody = new TBody();
@@ -404,12 +406,12 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		}
 
 		//-- If no new click listener is present try to add it ourselves.
-		if(m_onNew != null) {
-			((IClicked) m_onNew).clicked(this); // On exception leave input as-is to allow fixing the problem.
-		} else {
-			IModifyableTableModel<T> mtm = (IModifyableTableModel<T>) getModel();
-			mtm.add(m_newInstance);
-		}
+		//		if(m_onNew != null) {
+		//			((IClicked) m_onNew).clicked(this); // On exception leave input as-is to allow fixing the problem.
+		//		} else {
+		//			IModifyableTableModel<T> mtm = (IModifyableTableModel<T>) getModel();
+		//			mtm.add(m_newInstance);
+		//		}
 
 		//-- Data move succesful. Move to model proper
 		m_newBody.remove(); // Discard editor & stuff
@@ -446,6 +448,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_dataBody.add(index, tr);
 		renderCollapsedRow(index, value);
 		updateIndexes(index + 1);
+		setEmptyDiv();
 	}
 
 	/**
@@ -464,11 +467,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			throw new IllegalStateException("Insane index: " + index);
 
 		//-- Remove, and discard any open edit box
-		//		TR row = (TR) m_dataBody.removeChild(index); // Discard this one;
+		TR row = (TR) m_dataBody.removeChild(index); // Discard this one;
 		updateIndexes(index);
-
-		// TODO close editor
-
+		setEmptyDiv();
 	}
 
 	/**
