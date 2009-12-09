@@ -1,5 +1,7 @@
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -45,9 +47,26 @@ public class SimpleBinder implements IBinder {
 	 * Bind to a property of the object returned by this model.
 	 * @see to.etc.domui.component.input.IBinder#to(java.lang.Class, to.etc.domui.util.IReadOnlyModel, java.lang.String)
 	 */
-	public <T> void to(Class<T> theClass, IReadOnlyModel<T> model, String property) {
+	public <T> void to(@Nonnull Class<T> theClass, @Nonnull IReadOnlyModel<T> model, @Nonnull String property) {
+		if(theClass == null || property == null || model == null)
+			throw new IllegalArgumentException("Argument cannot be null");
 		m_listener = null;
 		m_propertyModel = MetaManager.getPropertyMeta(theClass, property);
+		m_model = model;
+		m_instance = null;
+	}
+
+	/**
+	 * Bind to a property on some model whose metadata is passed.
+	 * @param <T>
+	 * @param model
+	 * @param pmm
+	 */
+	public <T> void to(@Nonnull IReadOnlyModel<T> model, @Nonnull PropertyMetaModel pmm) {
+		if(pmm == null || model == null)
+			throw new IllegalArgumentException("Argument cannot be null");
+		m_listener = null;
+		m_propertyModel = pmm;
 		m_model = model;
 		m_instance = null;
 	}
@@ -56,7 +75,9 @@ public class SimpleBinder implements IBinder {
 	 *
 	 * @see to.etc.domui.component.input.IBinder#to(to.etc.domui.component.input.IBindingListener)
 	 */
-	public void to(IBindingListener< ? > listener) {
+	public void to(@Nonnull IBindingListener< ? > listener) {
+		if(listener == null)
+			throw new IllegalArgumentException("Argument cannot be null");
 		m_propertyModel = null;
 		m_instance = null;
 		m_model = null;
@@ -68,14 +89,26 @@ public class SimpleBinder implements IBinder {
 	 *
 	 * @see to.etc.domui.component.input.IBinder#to(java.lang.Object, java.lang.String)
 	 */
-	public void to(Object instance, String property) {
-		if(instance == null)
+	public void to(@Nonnull Object instance, @Nonnull String property) {
+		if(instance == null || property == null)
 			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
+		to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
+	}
+
+	/**
+	 * Bind to a propertyMetaModel and the given instance.
+	 * @param instance
+	 * @param pmm
+	 */
+	public void to(@Nonnull Object instance, @Nonnull PropertyMetaModel pmm) {
+		if(instance == null || pmm == null)
+			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
 		m_listener = null;
 		m_model = null;
-		m_propertyModel = MetaManager.getPropertyMeta(instance.getClass(), property);
+		m_propertyModel = pmm;
 		m_instance = instance;
 	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IModelBinding interface implementation.				*/

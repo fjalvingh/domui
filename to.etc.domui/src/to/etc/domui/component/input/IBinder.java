@@ -1,6 +1,9 @@
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 
 /**
@@ -15,32 +18,43 @@ import to.etc.domui.util.*;
  */
 public interface IBinder extends IModelBinding {
 	/**
-	 * EXPERIMENTAL - DO NOT USE.
 	 * Create a binding to the associated control and the specified object instance and the named property of that instance.
 	 * @param instance
 	 * @param property
 	 */
-	void to(Object instance, String property);
+	void to(@Nonnull Object instance, @Nonnull String property);
 
 	/**
-	 * EXPERIMENTAL - DO NOT USE.
+	 * Create a binding to the associated instance's property whose metadata is passed.
+	 * @param instance
+	 * @param pmm
+	 */
+	void to(@Nonnull Object instance, @Nonnull PropertyMetaModel pmm);
+
+	/**
 	 * Create a binding between the associated control, the specified model and the property specified.
 	 * @param <T>
 	 * @param theClass
 	 * @param model
 	 * @param property
 	 */
-	<T> void to(Class<T> theClass, IReadOnlyModel<T> model, String property);
+	<T> void to(@Nonnull Class<T> theClass, @Nonnull IReadOnlyModel<T> model, @Nonnull String property);
+
+	/**
+	 * Create a binding between the specified model and the property whose metadata is passed in.
+	 * @param <T>
+	 * @param model		The model to obtain an instance from
+	 * @param pmm		The propertymeta for a property on that instance.
+	 */
+	<T> void to(@Nonnull IReadOnlyModel<T> model, @Nonnull PropertyMetaModel pmm);
 
 	/**
 	 * Bind the control to a listener.
-	 * EXPERIMENTAL - DO NOT USE.
 	 * @param listener
 	 */
-	void to(IBindingListener< ? > listener);
+	void to(@Nonnull IBindingListener< ? > listener);
 
 	/**
-	 * EXPERIMENTAL - DO NOT USE.
 	 * If this object is actually bound to something return true.
 	 *
 	 * @return

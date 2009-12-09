@@ -8,6 +8,7 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
  * Base node for all non-container html dom nodes.
@@ -849,6 +850,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @see to.etc.domui.component.form.IModelBinding#moveControlToModel()
 	 */
 	public void moveControlToModel() throws Exception {
+		build();
 		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
 		if(v instanceof IBindable) {
 			IBindable b = (IBindable) v;
@@ -863,6 +865,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @see to.etc.domui.component.form.IModelBinding#moveModelToControl()
 	 */
 	public void moveModelToControl() throws Exception {
+		build();
 		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
 		if(v instanceof IBindable) {
 			IBindable b = (IBindable) v;
@@ -878,6 +881,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @see to.etc.domui.component.form.IModelBinding#setControlsEnabled(boolean)
 	 */
 	public void setControlsEnabled(boolean on) {
+		try {
+			build();
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
 		if(v instanceof IBindable) {
 			IBindable b = (IBindable) v;

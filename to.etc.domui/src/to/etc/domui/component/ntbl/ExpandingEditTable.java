@@ -6,6 +6,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
@@ -44,23 +45,41 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 	private boolean m_modifiedByUser;
 
+	private boolean m_disableErrors = true;
+
 	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
 		super(actualClass);
 		m_rowRenderer = r;
+		setErrorFence();
 	}
 
 	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable ITableModel<T> m, @Nullable IRowRenderer<T> r) {
 		super(actualClass, m);
 		m_rowRenderer = r;
+		setErrorFence();
+	}
+
+	public void setDisableErrors(boolean on) {
+		if(m_disableErrors == on)
+			return;
+		m_disableErrors = on;
+		if(on) {
+			setErrorFence();
+		} else {
+			setErrorFence(null);
+		}
+		forceRebuild();
 	}
 
 	/**
-	 *
+	 * Create the structure [(div=self)][ErrorMessageDiv][
 	 * @see to.etc.domui.dom.html.NodeBase#createContent()
 	 */
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("ui-xdt");
+		if(getErrorFence() != null)
+			DomApplication.get().getControlBuilder().addErrorFragment(this);
 
 		//-- Ask the renderer for a sort order, if applicable
 		m_rowRenderer.beforeQuery(this); // ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
@@ -114,6 +133,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	protected List<T> getPageItems() throws Exception {
 		return getModel() == null ? Collections.EMPTY_LIST : getModel().getItems(0, getModel().getRows());
 	}
@@ -189,10 +209,18 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		return tr.getUserObject() != null;
 	}
 
+	/**
+	 * Create the editor into the specified node, ready for editing the instance.
+	 * @param into
+	 * @param instance
+	 * @throws Exception
+	 */
 	private void createEditor(NodeContainer into, T instance) throws Exception {
 		if(getEditorFactory() == null)
 			throw new IllegalStateException("Auto editor creation not yet supported");
 		getEditorFactory().createRowEditor(into, instance);
+		into.moveModelToControl(); // Ensure items are moved
+
 	}
 
 	/**
@@ -275,10 +303,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		renderCollapsedRow(index, item);
 	}
 
-
-	private void validateEditor(TD editor, T item) {
-	// TODO Auto-generated method stub
-
+	private void validateEditor(TD editor, T item) throws Exception {
+		editor.moveControlToModel();
 	}
 
 	/*--------------------------------------------------------------*/

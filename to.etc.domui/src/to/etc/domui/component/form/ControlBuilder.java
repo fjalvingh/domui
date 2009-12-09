@@ -3,8 +3,10 @@ package to.etc.domui.component.form;
 import java.util.*;
 
 import to.etc.domui.component.input.*;
+import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -24,6 +26,13 @@ public class ControlBuilder {
 	private final LookupControlRegistry m_lookupControlRegistry = new LookupControlRegistry();
 
 	private IControlLabelFactory m_controlLabelFactory = new DefaultControlLabelFactory();
+
+	private IControlErrorFragmentFactory m_errorFragmentfactory = new IControlErrorFragmentFactory() {
+		@Override
+		public NodeContainer createErrorFragment() {
+			return new ErrorMessageDiv();
+		}
+	};
 
 	public ControlBuilder(DomApplication app) {
 	//		m_app = app;
@@ -94,6 +103,22 @@ public class ControlBuilder {
 		m_controlLabelFactory = controlLabelFactory;
 	}
 
+
+	public synchronized IControlErrorFragmentFactory getErrorFragmentfactory() {
+		return m_errorFragmentfactory;
+	}
+
+	public synchronized void setErrorFragmentfactory(IControlErrorFragmentFactory errorFragmentfactory) {
+		if(errorFragmentfactory == null)
+			throw new IllegalArgumentException("Cannot accept null");
+		m_errorFragmentfactory = errorFragmentfactory;
+	}
+
+	public void addErrorFragment(NodeContainer nc) {
+		NodeContainer lsn = getErrorFragmentfactory().createErrorFragment();
+		nc.add(lsn);
+		DomUtil.getMessageFence(nc).addErrorListener((IErrorMessageListener) lsn);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Lookup Form control factories.						*/

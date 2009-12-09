@@ -88,6 +88,7 @@
 	font-weight: bold;
 }
 
+/*** 20091208 jal FIXME The vp-ttl-xxx stuff below has to disappear; component needs to use ErrorMessageDiv ***/
 .vp-ttl-msg {
 	background-repeat: no-repeat;
 	background-position: left;
@@ -106,6 +107,27 @@
 	background-color: #ffaaaa;
 	color: red;
 	border-color: 1px solid red;
+}
+
+/*** ErrorMessageDiv helper for components that handle their error display ***/
+.ui-emd {
+	background-color: #ffaaaa;
+	color: red;
+	border-color: 1px solid red;
+}
+.ui-emd-msg {
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+}
+.ui-emd-info {
+	background-image: url(mini-info.png);
+}
+.ui-emd-error {
+	background-image: url(mini-error.png);
+}
+.ui-emd-warning {
+	background-image: url(mini-warning.png);
 }
 
 /*** pop-in panel ***/
