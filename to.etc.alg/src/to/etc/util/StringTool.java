@@ -1152,7 +1152,7 @@ public class StringTool {
 	 *  HTML to be rendered neatly.
 	 */
 	static public String htmlStringize(final String is) {
-		StringBuffer sb = new StringBuffer(is.length() + 20);
+		StringBuilder sb = new StringBuilder(is.length() + 20);
 		htmlStringize(sb, is);
 		return sb.toString();
 	}
@@ -1162,7 +1162,7 @@ public class StringTool {
 	 *  recognised characters with their &..; equivalent. This allows parts of
 	 *  HTML to be rendered neatly.
 	 */
-	static public void htmlStringize(final StringBuffer sb, final String is) {
+	static public void htmlStringize(final StringBuilder sb, final String is) {
 		int len = is.length();
 		for(int i = 0; i < len; i++) {
 			char c = is.charAt(i);
@@ -1191,7 +1191,7 @@ public class StringTool {
 	 *  recognised characters with their &..; equivalent. This allows parts of
 	 *  HTML to be rendered neatly.
 	 */
-	static public void htmlStringize(final iOutput o, final String is) throws Exception {
+	static public void htmlStringize(final Appendable o, final String is) throws Exception {
 		StringBuffer sb = new StringBuffer(256);
 		int len = is.length();
 		for(int i = 0; i < len; i++) {
@@ -1200,39 +1200,39 @@ public class StringTool {
 				default:
 					sb.append(c);
 					if(sb.length() >= 256) {
-						o.output(sb.toString());
+						o.append(sb.toString());
 						sb.setLength(0);
 					}
 					break;
 
 				case '\n':
 					if(sb.length() > 0)
-						o.output(sb.toString());
+						o.append(sb.toString());
 					sb.setLength(0);
-					o.output("<br>");
+					o.append("<br>");
 					break;
 				case '>':
 					if(sb.length() > 0)
-						o.output(sb.toString());
+						o.append(sb.toString());
 					sb.setLength(0);
-					o.output("&gt;");
+					o.append("&gt;");
 					break;
 				case '<':
 					if(sb.length() > 0)
-						o.output(sb.toString());
+						o.append(sb.toString());
 					sb.setLength(0);
-					o.output("&lt;");
+					o.append("&lt;");
 					break;
 				case '&':
 					if(sb.length() > 0)
-						o.output(sb.toString());
+						o.append(sb.toString());
 					sb.setLength(0);
-					o.output("&amp;");
+					o.append("&amp;");
 					break;
 			}
 		}
 		if(sb.length() > 0)
-			o.output(sb.toString());
+			o.append(sb.toString());
 	}
 
 	/**

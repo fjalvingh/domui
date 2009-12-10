@@ -1,10 +1,15 @@
 package to.etc.util;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.net.*;
 import java.security.*;
+import java.sql.*;
 import java.util.*;
+import java.util.logging.*;
 import java.util.zip.*;
+
+import javax.annotation.*;
 
 import org.w3c.dom.*;
 
@@ -25,6 +30,34 @@ public class FileTool {
 	/** The sequence number. */
 	static private long	m_index;
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Directory maintenance and bulk code.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the java.io.tmpdir directory. Throws an exception if it does not exist or
+	 * is inaccessible.
+	 *
+	 * @return
+	 */
+	static public File getTmpDir() {
+		String v = System.getenv("java.io.tmpdir");
+		if(v == null)
+			v = "/tmp";
+		File tmp = new File(v);
+		if(!tmp.exists() || !tmp.isDirectory())
+			throw new IllegalStateException("The 'java.io.tmpdir' variable does not point to an existing directory (" + tmp + ")");
+		return tmp;
+	}
+	static {
+		m_seed_ts = System.currentTimeMillis();
+	}
+
+
+	/**
+	 * Create a temp directory within the root directory.
+	 * @param root
+	 * @return
+	 */
 	static public synchronized File newDir(final File root) {
 		for(;;) {
 			String fn = makeName("td");
@@ -36,6 +69,11 @@ public class FileTool {
 		}
 	}
 
+	/**
+	 * Create a temp file within the specified root directory.
+	 * @param root
+	 * @return
+	 */
 	static public synchronized File makeTempFile(final File root) {
 		for(;;) {
 			String fn = makeName("tf");
@@ -82,9 +120,32 @@ public class FileTool {
 		return dirEmpty(dirf, null);
 	}
 
+	/**
+	 * Delete the directory <i>and</i> all it's contents.
+	 * @param f
+	 */
 	static public void deleteDir(final File f) {
 		dirEmpty(f);
 		f.delete();
+	}
+
+	/**
+	 * prepare a directory in this way: if it does not exist, create it.
+	 * if it does exist then delete all files from the dir.
+	 * @param dir the directory that must be made existent
+	 * @throws Exception when creation fails or when removing old contents
+	 * fails.
+	 */
+	public static void prepareDir(final File dir) throws Exception {
+		if(!dir.exists()) {
+			if(dir.mkdirs()) // make sure all parent dirs exist, then create this one
+				return; // success
+
+			throw new Exception("unable to create directory: " + dir.getPath());
+		} else {
+			if(!dirEmpty(dir))
+				throw new Exception("unable to empty the directory: " + dir.getPath());
+		}
 	}
 
 	/**
@@ -122,6 +183,10 @@ public class FileTool {
 		return !hase;
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	File name manipulation.								*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Returns the extension of a file. The extension DOES NOT INCLUDE the . If no
 	 * extension is present then the empty string is returned ("").
@@ -177,18 +242,6 @@ public class FileTool {
 	}
 
 	/**
-	 * Copies a file from src to dest.
-	 * @param destf
-	 * @param srcf
-	 * @throws IOException
-	 * @deprecated Replaced by copyFile.
-	 */
-	@Deprecated
-	static public void fileCopy(final File destf, final File srcf) throws IOException {
-		copyFile(destf, srcf);
-	}
-
-	/**
 	 * Copies a file.
 	 *
 	 * @param destf		the destination
@@ -216,18 +269,6 @@ public class FileTool {
 	}
 
 	/**
-	 * Copies the inputstream to the outputstream.
-	 * @param os
-	 * @param is
-	 * @throws IOException
-	 * @deprecated Use copyFile instead.
-	 */
-	@Deprecated
-	static public void fileCopy(final OutputStream os, final InputStream is) throws IOException {
-		copyFile(os, is);
-	}
-
-	/**
 	 * Copies the inputstream to the output stream.
 	 *
 	 * @param destf		the destination
@@ -241,6 +282,12 @@ public class FileTool {
 			os.write(buf, 0, sz);
 	}
 
+	/**
+	 * Copy the input reader to the output reader.
+	 * @param w
+	 * @param r
+	 * @throws IOException
+	 */
 	static public void copyFile(final Writer w, final Reader r) throws IOException {
 		char[] buf = new char[8192];
 		int sz;
@@ -285,25 +332,47 @@ public class FileTool {
 		}
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Fully reading some data stream/file into a string.	*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Read a file's contents in a string using the default encoding of the platform.
+	 * @param f
+	 * @return
+	 * @throws Exception
+	 */
 	static public String readFileAsString(final File f) throws Exception {
-		StringOutputBuffer sb = new StringOutputBuffer((int) f.length() + 20);
+		StringBuilder sb = new StringBuilder((int) f.length() + 20);
 		readFileAsString(sb, f);
-		return sb.getValue();
+		return sb.toString();
 	}
 
-	static public void readFileAsString(final iOutput o, final File f) throws Exception {
+	/**
+	 *
+	 * @param o
+	 * @param f
+	 * @throws Exception
+	 */
+	static public void readFileAsString(final Appendable o, final File f) throws Exception {
 		LineNumberReader lr = new LineNumberReader(new FileReader(f));
 		try {
 			String line;
 			while(null != (line = lr.readLine())) {
-				o.output(line);
-				o.output("\n");
+				o.append(line);
+				o.append("\n");
 			}
 		} finally {
 			lr.close();
 		}
 	}
 
+	/**
+	 * Read a file into a string using the specified encoding.
+	 * @param f
+	 * @param encoding
+	 * @return
+	 * @throws Exception
+	 */
 	static public String readFileAsString(final File f, final String encoding) throws Exception {
 		InputStream is = null;
 		try {
@@ -392,12 +461,12 @@ public class FileTool {
 	}
 
 	static public String readStreamAsString(final InputStream is, final String enc) throws Exception {
-		StringOutputBuffer sb = new StringOutputBuffer(128);
+		StringBuilder sb = new StringBuilder(128);
 		readStreamAsString(sb, is, enc);
-		return sb.getValue();
+		return sb.toString();
 	}
 
-	static public void readStreamAsString(final iOutput o, final InputStream f, final String enc) throws Exception {
+	static public void readStreamAsString(final Appendable o, final InputStream f, final String enc) throws Exception {
 		Reader r = new InputStreamReader(f, enc);
 		try {
 			readStreamAsString(o, r);
@@ -406,20 +475,20 @@ public class FileTool {
 		}
 	}
 
-	static public void readStreamAsString(final iOutput o, final Reader r) throws Exception {
+	static public void readStreamAsString(final Appendable o, final Reader r) throws Exception {
 		char[] buf = new char[4096];
 		for(;;) {
 			int ct = r.read(buf);
 			if(ct < 0)
 				break;
-			o.output(new String(buf, 0, ct));
+			o.append(new String(buf, 0, ct));
 		}
 	}
 
 	static public String readStreamAsString(final Reader r) throws Exception {
-		StringOutputBuffer sb = new StringOutputBuffer(128);
+		StringBuilder sb = new StringBuilder(128);
 		readStreamAsString(sb, r);
-		return sb.getValue();
+		return sb.toString();
 	}
 
 	static public void writeFileFromString(final File f, final String v, final String enc) throws Exception {
@@ -444,6 +513,9 @@ public class FileTool {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	File hash stuff..									*/
 	/*--------------------------------------------------------------*/
+	/**
+	 * Create an MD5 hash for a file's contents.
+	 */
 	static public byte[] hashFile(final File f) throws IOException {
 		InputStream is = null;
 		try {
@@ -457,6 +529,11 @@ public class FileTool {
 		}
 	}
 
+	/**
+	 * Create an MD5 hash for a buffer set.
+	 * @param data
+	 * @return
+	 */
 	static public byte[] hashBuffers(final byte[][] data) {
 		MessageDigest md = null;
 		try {
@@ -471,6 +548,11 @@ public class FileTool {
 		return md.digest();
 	}
 
+	/**
+	 * Create a HEX MD5 hash for a buffer set.
+	 * @param data
+	 * @return
+	 */
 	static public String hashBuffersHex(final byte[][] data) {
 		return StringTool.toHex(hashBuffers(data));
 	}
@@ -497,14 +579,36 @@ public class FileTool {
 		return md.digest();
 	}
 
+	/**
+	 * Hash a file and return it's hex MD5hash.
+	 * @param f
+	 * @return
+	 * @throws IOException
+	 */
 	static public String hashFileHex(final File f) throws IOException {
 		return StringTool.toHex(hashFile(f));
 	}
 
+	/**
+	 * Hash an InputStream and return it's hex MD5hash.
+	 * @param is
+	 * @return
+	 * @throws IOException
+	 */
 	static public String hashFileHex(final InputStream is) throws IOException {
 		return StringTool.toHex(hashFile(is));
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Loading properties.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Load a file as a Properties file.
+	 * @param f
+	 * @return
+	 * @throws Exception
+	 */
 	static public Properties loadProperties(final File f) throws Exception {
 		InputStream is = new FileInputStream(f);
 		try {
@@ -517,6 +621,12 @@ public class FileTool {
 		}
 	}
 
+	/**
+	 * Save a properties file.
+	 * @param f
+	 * @param p
+	 * @throws Exception
+	 */
 	static public void saveProperties(final File f, final Properties p) throws Exception {
 		OutputStream os = null;
 		try {
@@ -590,6 +700,9 @@ public class FileTool {
 		return null;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Quickies to load a single file from a ZIP.			*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Opens the jar file and tries to load the plugin.properties file from it.
 	 * @param f
@@ -650,101 +763,10 @@ public class FileTool {
 		return null;
 	}
 
-	/**
-	 * Returns a stream which is the uncompressed data stream for a zip file
-	 * component.
-	 *
-	* @param zipis
-	* @return
-	* @throws IOException
-	*/
-	static public InputStream getZipContent(final File zipfile, final String name) throws IOException {
-		InputStream is = null;
-		try {
-			is = new FileInputStream(zipfile);
-			InputStream isout = getZipContent(is, name);
-			is = null;
-			return isout;
-		} finally {
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {}
-		}
-	}
 
-	/**
-	 * Returns a stream which is the uncompressed data stream for a zip file
-	 * component.
-	 *
-	 * @param zipis
-	 * @return
-	 * @throws IOException
-	 */
-	static public InputStream getZipContent(final InputStream zipis, final String name) throws IOException {
-		ZipInputStream zis = null;
-
-		//-- Try to locate a zipentry for the spec'd name
-		try {
-			zis = new ZipInputStream(zipis);
-			for(;;) {
-				ZipEntry ze = zis.getNextEntry();
-				if(ze == null)
-					break;
-				String n = ze.getName();
-				if(n.equalsIgnoreCase(name)) {
-					final ZipInputStream z = zis;
-					zis = null;
-					return new InputStream() {
-						@Override
-						public long skip(final long size) throws IOException {
-							return z.skip(size);
-						}
-
-						@Override
-						public synchronized void reset() throws IOException {
-							z.reset();
-						}
-
-						@Override
-						public int read(final byte[] b) throws IOException {
-							return z.read(b);
-						}
-
-						@Override
-						public int read(final byte[] b, final int off, final int len) throws IOException {
-							return z.read(b, off, len);
-						}
-
-						@Override
-						public int read() throws IOException {
-							return z.read();
-						}
-
-						@Override
-						public void close() throws IOException {
-							z.close();
-							zipis.close();
-							super.close();
-						}
-
-						@Override
-						public int available() throws IOException {
-							return z.available();
-						}
-					};
-				}
-				zis.closeEntry();
-			}
-			return null;
-		} finally {
-			try {
-				if(zis != null)
-					zis.close();
-			} catch(Exception x) {}
-		}
-	}
-
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Classloader and classrelated stuff.					*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Creates a classloader to load data from the given jar file.
 	 * @param f
@@ -753,13 +775,13 @@ public class FileTool {
 	 * @throws Exception
 	 */
 	static public ClassLoader makeJarLoader(final File f) throws MalformedURLException {
-		URL u = f.toURL();
+		URL u = f.toURI().toURL();
 		URLClassLoader uc = URLClassLoader.newInstance(new URL[]{u});
 		return uc;
 	}
 
 	static public ClassLoader makeJarLoader(final File f, final ClassLoader parent) throws MalformedURLException {
-		URL u = f.toURL();
+		URL u = f.toURI().toURL();
 		URLClassLoader uc = URLClassLoader.newInstance(new URL[]{u}, parent);
 		return uc;
 	}
@@ -777,6 +799,7 @@ public class FileTool {
 				r.close();
 		}
 	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Zip and unzip.										*/
@@ -911,25 +934,104 @@ public class FileTool {
 	}
 
 	/**
-	 * prepare a directory in this way: if it does not exist, create it.
-	 * if it does exist then delete all files from the dir.
-	 * @param dir the directory that must be made existent
-	 * @throws Exception when creation fails or when removing old contents
-	 * fails.
-	 */
-
-	public static void prepareDir(final File dir) throws Exception {
-		if(!dir.exists()) {
-			if(dir.mkdirs()) // make sure all parent dirs exist, then create this one
-				return; // success
-
-			throw new Exception("unable to create directory: " + dir.getPath());
-		} else {
-			if(!dirEmpty(dir))
-				throw new Exception("unable to empty the directory: " + dir.getPath());
+	 * Returns a stream which is the uncompressed data stream for a zip file
+	 * component.
+	 *
+	* @param zipis
+	* @return
+	* @throws IOException
+	*/
+	static public InputStream getZipContent(final File zipfile, final String name) throws IOException {
+		InputStream is = null;
+		try {
+			is = new FileInputStream(zipfile);
+			InputStream isout = getZipContent(is, name);
+			is = null;
+			return isout;
+		} finally {
+			try {
+				if(is != null)
+					is.close();
+			} catch(Exception x) {}
 		}
 	}
 
+	/**
+	 * Returns a stream which is the uncompressed data stream for a zip file
+	 * component.
+	 *
+	 * @param zipis
+	 * @return
+	 * @throws IOException
+	 */
+	static public InputStream getZipContent(final InputStream zipis, final String name) throws IOException {
+		ZipInputStream zis = null;
+
+		//-- Try to locate a zipentry for the spec'd name
+		try {
+			zis = new ZipInputStream(zipis);
+			for(;;) {
+				ZipEntry ze = zis.getNextEntry();
+				if(ze == null)
+					break;
+				String n = ze.getName();
+				if(n.equalsIgnoreCase(name)) {
+					final ZipInputStream z = zis;
+					zis = null;
+					return new InputStream() {
+						@Override
+						public long skip(final long size) throws IOException {
+							return z.skip(size);
+						}
+
+						@Override
+						public synchronized void reset() throws IOException {
+							z.reset();
+						}
+
+						@Override
+						public int read(final byte[] b) throws IOException {
+							return z.read(b);
+						}
+
+						@Override
+						public int read(final byte[] b, final int off, final int len) throws IOException {
+							return z.read(b, off, len);
+						}
+
+						@Override
+						public int read() throws IOException {
+							return z.read();
+						}
+
+						@Override
+						public void close() throws IOException {
+							z.close();
+							zipis.close();
+							super.close();
+						}
+
+						@Override
+						public int available() throws IOException {
+							return z.available();
+						}
+					};
+				}
+				zis.closeEntry();
+			}
+			return null;
+		} finally {
+			try {
+				if(zis != null)
+					zis.close();
+			} catch(Exception x) {}
+		}
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	ByteBufferSet utilities.							*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Loads a byte[][] from an input stream until exhaustion.
 	 * @param is
@@ -962,6 +1064,12 @@ public class FileTool {
 		return al.toArray(new byte[al.size()][]);
 	}
 
+	/**
+	 * Load an entire file in a byte buffer set.
+	 * @param in
+	 * @return
+	 * @throws IOException
+	 */
 	static public byte[][] loadByteBuffers(final File in) throws IOException {
 		InputStream is = new FileInputStream(in);
 		try {
@@ -973,6 +1081,12 @@ public class FileTool {
 		}
 	}
 
+	/**
+	 * Save the data in byte buffers to a file.
+	 * @param of
+	 * @param data
+	 * @throws IOException
+	 */
 	static public void save(final File of, final byte[][] data) throws IOException {
 		OutputStream os = new FileOutputStream(of);
 		try {
@@ -984,31 +1098,21 @@ public class FileTool {
 		}
 	}
 
+	/**
+	 * Save the data in byte buffers to an output stream.
+	 * @param os
+	 * @param data
+	 * @throws IOException
+	 */
 	static public void save(final OutputStream os, final byte[][] data) throws IOException {
 		for(byte[] b : data)
 			os.write(b);
 	}
 
-	/**
-	 * Returns the java.io.tmpdir directory. Throws an exception if it does not exist or
-	 * is inaccessible.
-	 *
-	 * @return
-	 */
-	static public File getTmpDir() {
-		String v = System.getenv("java.io.tmpdir");
-		if(v == null)
-			v = "/tmp";
-		File tmp = new File(v);
-		if(!tmp.exists() || !tmp.isDirectory())
-			throw new IllegalStateException("The 'java.io.tmpdir' variable does not point to an existing directory (" + tmp + ")");
-		return tmp;
-	}
-	static {
-		m_seed_ts = System.currentTimeMillis();
-	}
 
-
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Data marshalling and unmarshalling					*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Sends an int fragment
 	 * @param val
@@ -1186,4 +1290,182 @@ public class FileTool {
 		tgt.append(new String(data, encoding));
 		return new ByteArrayInputStream(data);
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Serialization helpers.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Save a serializable object to a datastream.
+	 * @param os
+	 * @param obj
+	 * @throws IOException
+	 */
+	static public void saveSerialized(@WillClose OutputStream os, Serializable obj) throws IOException {
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(os);
+			oos.writeObject(obj);
+			oos.close();
+			os = null;
+			return;
+		} finally {
+			closeAll(os);
+		}
+	}
+
+	static public void saveSerialized(File f, Serializable obj) throws IOException {
+		OutputStream os = new FileOutputStream(f);
+		try {
+			saveSerialized(os, obj);
+			os.close();
+			os = null;
+		} finally {
+			closeAll(os);
+		}
+	}
+
+	/**
+	 * Load a single serialized object from a datastream.
+	 * @param is
+	 * @return
+	 * @throws IOException
+	 */
+	@Nullable
+	static public Object loadSerialized(@WillNotClose InputStream is) throws IOException, ClassNotFoundException {
+		ObjectInputStream iis = null;
+		try {
+			iis = new ObjectInputStream(is);
+			return iis.readObject();
+		} finally {
+			closeAll(iis);
+		}
+	}
+
+	/**
+	 * Load a single serialized object from a file.
+	 * @param f
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	@Nullable
+	static public Object loadSerialized(File f) throws IOException, ClassNotFoundException {
+		InputStream is = new FileInputStream(f);
+		try {
+			return loadSerialized(is);
+		} finally {
+			closeAll(is);
+		}
+	}
+
+	/**
+	 * Load a serialized object, and return null on any load exception.
+	 * @param is
+	 * @return
+	 */
+	@Nullable
+	static public Object loadSerializedNullOnError(@WillNotClose InputStream is) {
+		ObjectInputStream iis = null;
+		try {
+			iis = new ObjectInputStream(is);
+			return iis.readObject();
+		} catch(Exception x) {
+			return null;
+		} finally {
+			closeAll(iis);
+		}
+	}
+
+	@Nullable
+	static public Object loadSerializedNullOnError(File f) throws IOException, ClassNotFoundException {
+		InputStream is = null;
+		try {
+			is = new FileInputStream(f);
+			return loadSerialized(is);
+		} catch(Exception x) {
+			return null;
+		} finally {
+			closeAll(is);
+		}
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Miscellaneous.										*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * This attempts to close all of the resources passed to it, without throwing exceptions. It
+	 * is meant to be used from finally clauses. Please take care: objects that require a succesful
+	 * close (like writers or outputstreams) should NOT be closed by this method! They must be
+	 * closed using a normal close within the exception handler.
+	 * This list can also contain File objects; these files/directories will be deleted.
+	 * @param list
+	 */
+	static public void closeAll(@WillClose Object... list) {
+		//-- Level 0 closes
+		int tox = 0;
+		for(Object v : list) {
+			try {
+				if(v instanceof Closeable) {
+					((Closeable) v).close();
+				} else if(v instanceof ResultSet) {
+					((ResultSet) v).close();
+				} else if(v instanceof File) {
+					File f = (File) v;
+					if(f.isFile())
+						f.delete();
+					else
+						FileTool.deleteDir(f);
+				} else if(v != null)
+					list[tox++] = v; // Keep, todo
+			} catch(Exception x) {
+				Logger.getLogger(FileTool.class.getName()).log(Level.FINE, "Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+			}
+		}
+
+		//-- Next level: statements..
+		int len = tox;
+		tox = 0;
+		for(int i = 0; i < len; i++) {
+			Object v = list[i];
+			try {
+				if(v instanceof Statement) {
+					((Statement) v).close();
+				} else
+					list[tox++] = v; // Keep, todo
+			} catch(Exception x) {
+				Logger.getLogger(FileTool.class.getName()).log(Level.FINE, "Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+			}
+		}
+
+		//-- Last level: everything else.
+		len = tox;
+		tox = 0;
+		for(int i = 0; i < len; i++) {
+			Object v = list[i];
+			try {
+				if(v instanceof Connection) {
+					((Connection) v).close();
+					v = null;
+				} else {
+					Method m = ClassUtil.findMethod(v.getClass(), "close", null);
+					if(m == null) {
+						m = ClassUtil.findMethod(v.getClass(), "release", null);
+					}
+					if(m != null) {
+						m.invoke(v);
+						v = null;
+					}
+				}
+			} catch(Exception x) {
+				Logger.getLogger(FileTool.class.getName()).log(Level.FINE, "Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+			}
+
+			if(v != null) {
+				StringTool.dumpLocation("UNKNOWN RESOURCE OF TYPE " + v.getClass() + " TO CLOSE PASSED TO FileTool.closeAll()!!!!\nFIX THIS IMMEDIATELY!!!!!!");
+			}
+		}
+	}
+
+
+
 }
