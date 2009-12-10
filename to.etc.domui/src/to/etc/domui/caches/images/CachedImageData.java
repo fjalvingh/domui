@@ -1,7 +1,5 @@
 package to.etc.domui.caches.images;
 
-import java.io.*;
-
 import javax.annotation.concurrent.*;
 
 import to.etc.domui.caches.filecache.*;
@@ -42,11 +40,6 @@ import to.etc.domui.caches.filecache.*;
  */
 @Immutable
 final public class CachedImageData extends CachedImageFragment {
-	static private final int FRAGSZ = 32768;
-
-	/** The cacheref for the file while this thingy is in use. */
-	private FileCacheRef	m_fileRef;
-
 	/** If this is cached in memory the data of this image. */
 	private byte[][] m_buffers;
 
@@ -57,11 +50,9 @@ final public class CachedImageData extends CachedImageFragment {
 	private String m_mimeType;
 
 	CachedImageData(final ImageRoot root, final String perm, long sourceVersionLong, FileCacheRef ref, int datasize, byte[][] membuffers, int cacheload) {
-		super(root, perm, sourceVersionLong);
+		super(root, perm, sourceVersionLong, cacheload, ref);
 		m_buffers = membuffers;
-		m_fileRef = ref;
 		m_size = datasize;
-		setMemoryCacheSize(cacheload);
 	}
 
 	/**
@@ -70,10 +61,6 @@ final public class CachedImageData extends CachedImageFragment {
 	 */
 	public int getSize() {
 		return m_size;
-	}
-
-	public File getFile() {
-		return m_fileRef.getFile();
 	}
 
 	//	/**

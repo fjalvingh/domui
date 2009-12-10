@@ -8,7 +8,7 @@ import javax.annotation.*;
 import to.etc.domui.caches.filecache.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.util.images.*;
-import to.etc.domui.util.images.converters.*;
+import to.etc.domui.util.images.machines.*;
 
 /**
  * This cache handles images and transformations of images.
@@ -135,10 +135,10 @@ public class ImageCache {
 	/** The map of keys to their image root */
 	private Map<ImageKey, ImageRoot> m_cacheMap = new HashMap<ImageKey, ImageRoot>();
 
-	private CachedImageData m_lruFirst, m_lruLast;
+	private CachedImageFragment m_lruFirst, m_lruLast;
 
-	/** File ID counters */
-	private int[] m_counters = new int[4];
+	//	/** File ID counters */
+	//	private int[] m_counters = new int[4];
 
 	private ImageCache(long maxsize, long maxfilesize, File cachedir) {
 		m_fileCache = new FileCache(cachedir, maxfilesize);
@@ -181,31 +181,31 @@ public class ImageCache {
 		return m_factoryMap.get(key);
 	}
 
-	synchronized File createTemp() {
-		int fnr = m_counters[m_counters.length - 1]++;
-		if(fnr >= 1000) {
-			fnr = 0;
-			m_counters[m_counters.length] = 0;
-			for(int i = m_counters.length - 1; --i >= 0;) {
-				int v = m_counters[i]++;
-				if(v >= 1000) {
-					m_counters[i] = 0;
-				} else
-					break;
-			}
-		}
-		StringBuilder sb = new StringBuilder(32);
-		for(int i = 0; i < m_counters.length; i++) {
-			if(i != 0)
-				sb.append('/');
-			sb.append(m_counters[i]);
-		}
-		sb.append(".cached");
-		File tmpf = new File(sb.toString());
-		if(fnr == 0)
-			tmpf.getParentFile().mkdirs();
-		return tmpf;
-	}
+	//	synchronized File createTemp() {
+	//		int fnr = m_counters[m_counters.length - 1]++;
+	//		if(fnr >= 1000) {
+	//			fnr = 0;
+	//			m_counters[m_counters.length] = 0;
+	//			for(int i = m_counters.length - 1; --i >= 0;) {
+	//				int v = m_counters[i]++;
+	//				if(v >= 1000) {
+	//					m_counters[i] = 0;
+	//				} else
+	//					break;
+	//			}
+	//		}
+	//		StringBuilder sb = new StringBuilder(32);
+	//		for(int i = 0; i < m_counters.length; i++) {
+	//			if(i != 0)
+	//				sb.append('/');
+	//			sb.append(m_counters[i]);
+	//		}
+	//		sb.append(".cached");
+	//		File tmpf = new File(sb.toString());
+	//		if(fnr == 0)
+	//			tmpf.getParentFile().mkdirs();
+	//		return tmpf;
+	//	}
 
 	int getMemoryFence() {
 		return m_memoryFenceSize;
@@ -242,6 +242,7 @@ public class ImageCache {
 			if(r == null) {
 				r = new ImageRoot(this, key);
 				m_cacheMap.put(key, r);
+				r.m_cacheUseCount = 1;
 			}
 			ImageTask task = new ImageTask(key, r);
 			return task;
@@ -253,38 +254,52 @@ public class ImageCache {
 	}
 
 	static private interface ISpecTask {
-		Object executeTask(ImageTask task) throws Exception;
+		Object executeTask(ImageTask task, Object args) throws Exception;
 	}
 
 	/**
 	 * Handle ImageTask related actions. This does all of the cache-locking related work
-	 * around an ImageTask.
+	 * around an ImageTask, and handles all administrative details /after/ the task
+	 * completes.
+	 *
 	 * @param key
 	 * @param t
 	 * @throws Exception
 	 */
-	private Object executeTask(ImageKey key, ISpecTask t) throws Exception {
+	private Object executeTask(ImageKey key, ISpecTask t, Object args) throws Exception {
 		ImageTask it = getImageTask(key);
 		try {
 			synchronized(it.getRoot()) { // All of the task is executed with a locked root
-				return t.executeTask(it);
+				return t.executeTask(it, args);
+			}
+		} finally {
+			updateCacheDetails(it);
+		}
+	}
 
-				//-- Cleanup and cache maintenance chores with locked root
+	private void updateCacheDetails(ImageTask it) {
+		synchronized(this) {
+			//-- Remove all fragments that were removed by this task and reduce the cacheload caused by them
+			for(CachedImageFragment cif : it.getDeletedFragmentList()) {
+				unlink(cif);
+				cif.getRoot().m_cacheUseCount--;
 			}
 
+			//-- (re)link all new thingies in the cache.
+			for(CachedImageFragment cif : it.getUsedFragmentList()) {
+				registerAndLink(cif);
+			}
 
-		} finally {
-			synchronized(this) {
-				//-- Cache maintenance.
-
-
+			//-- If at this point the cache root has zero uses- discard it.
+			if(it.getRoot().m_cacheUseCount == 0) {
+				m_cacheMap.remove(it.getRoot().getKey());
 			}
 		}
 	}
 
 	static private final ISpecTask C_GETORIGINALDATA = new ISpecTask() {
 		@Override
-		public Object executeTask(ImageTask task) throws Exception {
+		public Object executeTask(ImageTask task, Object args) throws Exception {
 			return task.getOriginalData();
 		}
 	};
@@ -295,11 +310,29 @@ public class ImageCache {
 	 * @return
 	 */
 	public CachedImageData getOriginalData(ImageKey k) throws Exception {
-		return (CachedImageData) executeTask(k, C_GETORIGINALDATA);
+		return (CachedImageData) executeTask(k, C_GETORIGINALDATA, null);
 	}
 
+	static private final ISpecTask C_GETORIGINALINFO = new ISpecTask() {
+		@Override
+		public Object executeTask(ImageTask task, Object args) throws Exception {
+			return task.getOriginalInfo();
+		}
+	};
+
+	/**
+	 * Return a data reference to the original image's info.
+	 * @param k
+	 * @return
+	 */
+	public ImageInfo getOriginalInfo(ImageKey k) throws Exception {
+		return ((CachedImageInfo) executeTask(k, C_GETORIGINALINFO, null)).getImageInfo();
+	}
+
+
+
 	/*--------------------------------------------------------------*/
-	/*	CODING:		*/
+	/*	CODING:	Administration.										*/
 	/*--------------------------------------------------------------*/
 	/**
 	 * Registers an instance. When called it is implied that initialization WORKED and that the
@@ -307,34 +340,47 @@ public class ImageCache {
 	 * This must take care of the race conditions caused by the double-lock initialization.
 	 * @param ii
 	 */
-	private void registerAndLink(CachedImageData ii) {
+	private void registerAndLink(CachedImageFragment ii) {
 		//-- Atomically add in new cache load, and if it exceeds the maximum reap the thingies to remove.
+		List<CachedImageFragment> dellist = null;
 		synchronized(this) {
 			if(ii.m_cacheState != InstanceCacheState.NONE) // Already linked (cannot happen) or discarded (can happen if 2nd init works && race)
 				return;
 			link(ii); // Link as 1st
-			m_currentMemorySize += ii.getSize(); // Add cache load, in bytes.
+			m_currentMemorySize += ii.getMemoryCacheSize(); // Add cache load, in bytes.
 			ii.m_cacheState = InstanceCacheState.LINKED; // Properly linked and accounted.
 
 			if(m_currentMemorySize <= m_maxMemorySize) // If we're not overdrawn...
 				return;
 
 			//-- Determine the oldest pages && discard 'm
+			dellist = new ArrayList<CachedImageFragment>();
 			int count = 0;
 			long size = 0;
 			while(m_lruLast != m_lruFirst && m_currentMemorySize > m_maxMemorySize) {
 				//-- Discard from all metadata
-				CachedImageData itd = m_lruLast;
+				CachedImageFragment itd = m_lruLast;
 				unlink(itd); // Discard thingy from LRU chain;
-				m_currentMemorySize -= itd.getSize(); // Reduce cache load with this-item's size;
-				size += itd.getSize();
+				dellist.add(itd);
+
+				m_currentMemorySize -= itd.getMemoryCacheSize(); // Reduce cache load with this-item's size;
+				size += itd.getMemoryCacheSize();
 				count++;
-				if(itd.remove()) { // Ask it's root object to discard this,
-					//-- Root has zero entries-> delete
-					m_cacheMap.remove(itd.getRoot().getKey()); // Drop ImageRoot
+
+				//-- Decrement the root's use count; if it becomes zero we'll discard this root.
+				ImageRoot ir = itd.getRoot();
+				if(ir.m_cacheUseCount > 0) { // Not already removed sometimes before?
+					if(--ir.m_cacheUseCount == 0) {
+						m_cacheMap.remove(ir.getKey()); // Drop from cache @ this point.
+					}
 				}
 			}
 			System.out.println("ImageCache: reaped " + count + " image instances totalling " + size + " bytes");
+		}
+
+		//-- Now, while we're out of the lock make the ImageRoot's discard their data.
+		for(CachedImageFragment cif : dellist) {
+			cif.getRoot().lruInstanceDeleted(cif);
 		}
 	}
 
@@ -342,7 +388,7 @@ public class ImageCache {
 	 * Links the entry at the most recently used position of the LRU chain.
 	 * @param e
 	 */
-	private void link(CachedImageData e) {
+	private void link(CachedImageFragment e) {
 		unlink(e); // Make sure we're unlinked
 		if(m_lruFirst == null) { // Empty initial list?
 			m_lruFirst = e;
@@ -358,7 +404,7 @@ public class ImageCache {
 		m_lruFirst = e; // I'm the 1st one now;
 	}
 
-	private void unlink(CachedImageData e) {
+	private void unlink(CachedImageFragment e) {
 		if(e.m_lruNext == null) // Already unlinked?
 			return;
 		if(e.m_lruNext == e.m_lruPrev) { // I'm the only one?
@@ -377,14 +423,6 @@ public class ImageCache {
 		e.m_lruPrev.m_lruNext = e.m_lruNext;
 		e.m_lruNext.m_lruPrev = e.m_lruPrev;
 		e.m_lruNext = e.m_lruPrev = null;
-	}
-
-
-	public CachedImageData getImage(IImageRetriever irt, Object cacheKey, IImageConversionSpecifier[] conversions) throws Exception {
-		List<IImageConversionSpecifier> l = new ArrayList<IImageConversionSpecifier>();
-		for(IImageConversionSpecifier s : conversions)
-			l.add(s);
-		return getImage(irt, cacheKey, l);
 	}
 
 

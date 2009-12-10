@@ -159,7 +159,7 @@ public class ImageTask extends CacheChange {
 		//-- Is the required version cached? In that case it's current so reuse
 		CachedImageData cid = getRoot().findOriginalData();
 		if(cid != null) {
-			addUsedImage(cid); // Mark recently used
+			addUsedFragment(cid); // Mark recently used
 			return cid;
 		}
 
@@ -195,7 +195,7 @@ public class ImageTask extends CacheChange {
 
 			//-- All of this worked!! Nothing normal can go wrong after this so link and register all data
 			CachedImageData ii = new CachedImageData(getRoot(), "", cts, ref, len, bufs, memload);
-			addUsedImage(ii); // Link/relink in LRU
+			addUsedFragment(ii); // Link/relink in LRU
 			getRoot().registerInstance(ii);
 			ok = true;
 			return ii;
@@ -220,7 +220,7 @@ public class ImageTask extends CacheChange {
 		//-- Is the required version cached? In that case it's current so reuse
 		CachedImageInfo cii = getRoot().findOriginalInfo();
 		if(cii != null) {
-			addUsedImage(cii); // Mark recently used
+			addUsedFragment(cii); // Mark recently used
 			return cii;
 		}
 
@@ -264,7 +264,7 @@ public class ImageTask extends CacheChange {
 	private CachedImageInfo addNewInfo(String perm, long cts, FileCacheRef ref, ImageInfo info) {
 		int memload = 64 + info.getPageCount() * 32;
 		CachedImageInfo ii = new CachedImageInfo(getRoot(), perm, cts, ref, info, memload);
-		addUsedImage(ii); // Link/relink in LRU
+		addUsedFragment(ii); // Link/relink in LRU
 		getRoot().registerInstance(ii);
 		return ii;
 	}
@@ -309,7 +309,7 @@ public class ImageTask extends CacheChange {
 		//-- Is the required version cached? In that case it's current so reuse
 		CachedImageData cid = getRoot().findPermutationData(perm);
 		if(cid != null) {
-			addUsedImage(cid); // Mark recently used
+			addUsedFragment(cid); // Mark recently used
 			return cid;
 		}
 
@@ -335,7 +335,7 @@ public class ImageTask extends CacheChange {
 				ImageInfo info = generatePermutation(dataref, conversions); // Generate the derived.
 				CachedImageInfo oldci = getRoot().findPermutationInfo(perm);// Is an older copy available?
 				getRoot().unregisterInstance(oldci);
-				addDeletedImage(oldci); // Tell the cache to update it's admin
+				addDeletedFragment(oldci); // Tell the cache to update it's admin
 
 				//-- Store the new image's serialized info, then register the new image info
 				FileTool.saveSerialized(inforef.getFile(), info);
@@ -353,7 +353,7 @@ public class ImageTask extends CacheChange {
 
 			//-- All of this worked!! Nothing normal can go wrong after this so link and register all data
 			CachedImageData ii = new CachedImageData(getRoot(), perm, cts, dataref, len, bufs, memload);
-			addUsedImage(ii); // Link/relink in LRU
+			addUsedFragment(ii); // Link/relink in LRU
 			getRoot().registerInstance(ii);
 			ok = true;
 			return ii;
@@ -365,7 +365,6 @@ public class ImageTask extends CacheChange {
 			FileTool.closeAll(is, os);
 		}
 	}
-
 
 	private ImageInfo generatePermutation(FileCacheRef targetref, List<IImageConversionSpecifier> conversions) throws Exception {
 		CachedImageData origd = getOriginalData(); // We need the data always
@@ -396,7 +395,7 @@ public class ImageTask extends CacheChange {
 		//-- Is the required version cached? In that case it's current so reuse
 		CachedImageInfo cii = getRoot().findPermutationInfo(perm);
 		if(cii != null) {
-			addUsedImage(cii); // Mark recently used
+			addUsedFragment(cii); // Mark recently used
 			return cii;
 		}
 

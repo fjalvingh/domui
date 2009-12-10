@@ -17,6 +17,14 @@ final class ImageRoot {
 	@Nonnull
 	private ImageCache m_cache;
 
+	/**
+	 * This contains the #of attached image fragments that the cache knows of; if this reaches
+	 * zero the cache may remove this ImageRoot instance. This gets lazily added to/removed from
+	 * in the "administration" (2nd locking) of cache changes, and during LRU removals.
+	 */
+	@GuardedBy("getCache()")
+	int m_cacheUseCount;
+
 	/** The unique key for this image, which includes it's retriever. */
 	@Nonnull
 	private ImageKey m_imageKey;
@@ -175,7 +183,7 @@ final class ImageRoot {
 		//-- Now decrement all of their use counts- they are removed from cache. Usecount is protected by THIS too.
 		for(CachedImageData ii : old) {
 			try {
-				cc.addDeletedImage(ii); // Account for deleting this instance
+				cc.addDeletedFragment(ii); // Account for deleting this instance
 			} catch(Exception x) {
 				System.err.println("Exception while release()ing " + ii + ": " + x);
 				x.printStackTrace();
@@ -185,5 +193,32 @@ final class ImageRoot {
 
 	int getInstanceCount() {
 		return m_dataList.size();
+	}
+
+
+	/**
+	 * Called when the cache has (already) deleted this instance. We need to remove it from this root, and we need to
+	 * release it's resources.
+	 * @param cif
+	 */
+	public void lruInstanceDeleted(CachedImageFragment cif) {
+		synchronized(this) {
+			boolean deleted;
+			if(cif instanceof CachedImageData)
+				deleted = m_dataList.remove(cif);
+			else
+				deleted = m_infoList.remove(cif);
+			/*
+			 * Because we have lock traversal it is possible that the cache deleted these instances but that
+			 * an ImageTask also deleted these records while it held the lock on THIS. So if the instances\
+			 * do not exist here anymore - don't bother.
+			 */
+			if(!deleted)
+				return;
+
+			//-- Thingy was deleted...
+			if(cif.getFileRef() != null)
+				cif.getFileRef().close();
+		}
 	}
 }

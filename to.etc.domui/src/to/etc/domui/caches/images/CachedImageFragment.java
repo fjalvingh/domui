@@ -1,6 +1,10 @@
 package to.etc.domui.caches.images;
 
+import java.io.*;
+
 import javax.annotation.concurrent.*;
+
+import to.etc.domui.caches.filecache.*;
 
 /**
  * The base for a cached image thingerydoo. This is maintained by
@@ -24,7 +28,7 @@ class CachedImageFragment {
 	 * The LRU pointers for the cache's LRU list. These are locked and maintained by the ImageCache itself; access to these is "verboten" from self.
 	 */
 	@GuardedBy("cache()")
-	CachedImageData m_lruPrev, m_lruNext;
+	CachedImageFragment m_lruPrev, m_lruNext;
 
 	@GuardedBy("cache()")
 	InstanceCacheState m_cacheState;
@@ -33,10 +37,15 @@ class CachedImageFragment {
 	@GuardedBy("getRoot()")
 	private long m_memoryCacheSize;
 
-	CachedImageFragment(final ImageRoot root, final String perm, long sourceVersionLong) {
+	/** The cacheref for the file while this thingy is in use. */
+	private FileCacheRef m_fileRef;
+
+	CachedImageFragment(final ImageRoot root, final String perm, long sourceVersionLong, int memorysize, FileCacheRef ref) {
 		m_imageRoot = root;
 		m_permutation = perm;
 		m_sourceVersionLong = sourceVersionLong;
+		m_memoryCacheSize = memorysize;
+		m_fileRef = ref;
 	}
 
 	/**
@@ -63,7 +72,11 @@ class CachedImageFragment {
 		return m_memoryCacheSize;
 	}
 
-	public void setMemoryCacheSize(long memoryCacheSize) {
-		m_memoryCacheSize = memoryCacheSize;
+	final public File getFile() {
+		return m_fileRef.getFile();
+	}
+
+	final public FileCacheRef getFileRef() {
+		return m_fileRef;
 	}
 }
