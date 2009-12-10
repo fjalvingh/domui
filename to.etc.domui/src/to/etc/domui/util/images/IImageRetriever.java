@@ -22,12 +22,6 @@ public interface IImageRetriever {
 	public String getRetrieverKey();
 
 	/**
-	 * When this returns true the datastream obtained through here should be cached on the file system.
-	 * @return
-	 */
-	public boolean cacheOnFS();
-
-	/**
 	 * Returns the check interval, in millis. This is the age that an image may have in the cache before it's
 	 * rechecked for changes again. Returning 0 means the image gets checked for validity always.
 	 * @return
