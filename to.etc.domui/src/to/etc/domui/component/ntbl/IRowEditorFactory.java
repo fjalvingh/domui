@@ -9,5 +9,5 @@ import to.etc.domui.dom.html.*;
  * Created on Dec 8, 2009
  */
 public interface IRowEditorFactory<T, E extends NodeContainer & IEditor> {
-	E createRowEditor(T instance) throws Exception;
+	E createRowEditor(T instance, boolean isnew) throws Exception;
 }

@@ -4,6 +4,8 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -34,6 +36,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	private IRowRenderer<T> m_rowRenderer;
 
 	private IEditRowHandler<T, ? > m_editorFactory;
+
+	private IRowButtonFactory<T> m_rowButtonFactory;
 
 	private TBody m_dataBody;
 
@@ -131,16 +135,19 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			m_columnCount = tr.getChildCount();
 			if(!isHideIndex())
 				m_columnCount--;
+
+			//-- Add the header for the action buttons
+			hc.add((NodeBase) null);
 		}
 
 		//-- Render loop: add rows && ask the renderer to add columns.
-
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
+		RowButtonContainer rc = new RowButtonContainer();
 		int ix = 0;
 		for(T o : list) {
 			TR tr = new TR();
 			m_dataBody.add(tr);
-			renderCollapsedRow(cc, tr, ix, o);
+			renderCollapsedRow(cc, rc, tr, ix, o);
 			ix++;
 		}
 	}
@@ -166,10 +173,11 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		TR tr = (TR) m_dataBody.getChild(index);
 		tr.removeAllChildren(); // Discard current contents.
 		tr.setUserObject(null);
-		renderCollapsedRow(cc, tr, index, value);
+		RowButtonContainer bc = new RowButtonContainer();
+		renderCollapsedRow(cc, bc, tr, index, value);
 	}
 
-	private void renderCollapsedRow(ColumnContainer<T> cc, TR tr, int index, T value) throws Exception {
+	private void renderCollapsedRow(ColumnContainer<T> cc, RowButtonContainer bc, TR tr, int index, T value) throws Exception {
 		cc.setParent(tr);
 
 		if(! isHideIndex()) {
@@ -180,6 +188,12 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_columnCount = tr.getChildCount();
 		if(!isHideIndex())
 			m_columnCount--;
+
+		//-- Ok, now add the (initially empty) action row
+		TD td = cc.add((NodeBase) null);
+		if(getRowButtonFactory() != null) {
+			getRowButtonFactory().addButtonsFor(bc, value);
+		}
 	}
 
 	private void createIndexNode(TD td, final int index, boolean collapsed) {
@@ -229,14 +243,16 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	/**
 	 * Create the editor into the specified node, ready for editing the instance.
 	 * @param into
+	 * @param bc
 	 * @param instance
+	 * @param isnew
 	 * @throws Exception
 	 */
-	private NodeContainer createEditor(TD into, T instance) throws Exception {
+	private NodeContainer createEditor(TD into, RowButtonContainer bc, T instance, boolean isnew) throws Exception {
 		if(getRowHandler() == null)
 			throw new IllegalStateException("Auto editor creation not yet supported");
 
-		NodeContainer editor = getRowHandler().createRowEditor(instance);
+		NodeContainer editor = getRowHandler().createRowEditor(instance, isnew);
 		into.add(editor);
 		into.getParent(TR.class).setUserObject(editor);
 		editor.moveModelToControl();
@@ -297,10 +313,12 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		td.setCssClass("ui-xdt-edt");
 		int colspan = getColumnCount();
 		td.setColspan(colspan);
+		TD atd = tr.addCell();
+		RowButtonContainer bc = new RowButtonContainer(atd);
 
 		//-- Add the editor into that,
 		T	item	= getModelItem(index);
-		createEditor(td, item);
+		createEditor(td, bc, item, false);
 	}
 
 	/**
@@ -378,10 +396,51 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		td.setCssClass("ui-xdt-edt");
 		int colspan = getColumnCount();
 		td.setColspan(colspan);
+		TD atd = tr.addCell();
+		RowButtonContainer bc = new RowButtonContainer(atd);
 
 		//-- Add the editor into that,
-		m_newEditor = createEditor(td, instance);
+		m_newEditor = createEditor(td, bc, instance, true);
 		m_newInstance = instance;
+
+		//-- Now add commit/cancel button in action column
+		bc.addLinkButton("Add", "THEME/btnConfirm.png", new IClicked<LinkButton>() {
+			@Override
+			public void clicked(LinkButton clickednode) throws Exception {
+				commitNewRow();
+			}
+		});
+
+		bc.addLinkButton("Cancel", "THEME/btnDelete.png", new IClicked<LinkButton>() {
+			@Override
+			public void clicked(LinkButton clickednode) throws Exception {
+				cancelNew();
+			}
+		});
+	}
+
+	public void cancelNew() {
+		if(m_newEditor == null)
+			return;
+		if(DomUtil.isModified(m_newEditor)) {
+			MsgBox.continueCancel(this, "Data is modified, are you sure that you want to cancel?", new IClicked<MsgBox>() {
+				@Override
+				public void clicked(MsgBox clickednode) throws Exception {
+					cancelNewReally();
+				}
+			});
+			return;
+		}
+		cancelNewReally();
+	}
+
+	void cancelNewReally() {
+		if(m_newEditor == null)
+			return;
+		m_newEditor = null;
+		m_newBody.remove();
+		m_newBody = null;
+		m_newInstance = null;
 	}
 
 	protected void commitNewRow() throws Exception {
@@ -428,6 +487,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 */
 	public void modelChanged(@Nullable ITableModel<T> model) {
 		forceRebuild();
+		m_newBody = null;
+		m_newEditor = null;
+		m_newInstance = null;
 	}
 
 	/**
@@ -467,7 +529,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			throw new IllegalStateException("Insane index: " + index);
 
 		//-- Remove, and discard any open edit box
-		TR row = (TR) m_dataBody.removeChild(index); // Discard this one;
 		updateIndexes(index);
 		setEmptyDiv();
 	}
@@ -483,8 +544,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		//-- Sanity
 		if(index < 0 || index >= m_dataBody.getChildCount())
 			throw new IllegalStateException("Insane index: " + index);
-
-		// TODO Close any open editor
 		renderCollapsedRow(index, value);
 	}
 
@@ -597,5 +656,11 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_newAtStart = newAtStart;
 	}
 
+	public IRowButtonFactory<T> getRowButtonFactory() {
+		return m_rowButtonFactory;
+	}
 
+	public void setRowButtonFactory(IRowButtonFactory<T> rowButtonFactory) {
+		m_rowButtonFactory = rowButtonFactory;
+	}
 }

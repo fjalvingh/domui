@@ -1,88 +1,12 @@
 package to.etc.domui.component.layout;
 
-import java.util.*;
-
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 
-public class ButtonBar extends Table {
-	private boolean m_vertical;
-
-	private TD m_center;
-
-	private TBody m_body;
-
-	private List<NodeBase> m_list = new ArrayList<NodeBase>();
-
-	public ButtonBar() {
-		setCssClass("ui-buttonbar");
-		setCellSpacing("0");
-		setCellPadding("0");
-		setTableWidth("100%");
-	}
-
-	public ButtonBar(boolean vertical) {
-		this();
-		m_vertical = vertical;
-	}
-
-	@Override
-	public void createContent() throws Exception {
-		m_body = new TBody();
-		add(m_body);
-		if(m_vertical)
-			createVertical();
-		else
-			createHorizontal();
-		for(NodeBase b : m_list)
-			appendObject(b);
-	}
-
-
-	private void appendObject(NodeBase b) {
-		if(m_vertical)
-			appendVertical(b);
-		else
-			appendHorizontal(b);
-	}
-
-	private void appendHorizontal(NodeBase b) {
-		m_center.add(b);
-	}
-
-	private void appendVertical(NodeBase b) {
-		TD td = m_body.addRowAndCell();
-		td.add(b);
-	}
-
-	/**
-	 * For now: just create a row per button; no top- and botton border row.
-	 */
-	private void createVertical() {
-	}
-
-	/**
-	 * Create horizontal presentation: 3 cells for border-left, content, border-right
-	 */
-	private void createHorizontal() {
-		m_body.addRow();
-		TD td = m_body.addCell();
-		td.setCssClass("ui-bb-left");
-
-		m_center = m_body.addCell();
-		m_center.setCssClass("ui-bb-middle");
-
-		td = m_body.addCell();
-		td.setCssClass("ui-bb-right");
-	}
-
-	public void addButton(NodeBase b) {
-		m_list.add(b);
-		if(isBuilt())
-			appendObject(b);
-	}
+abstract public class ButtonMakerBase {
+	abstract protected void addButton(NodeBase b);
 
 	/**
 	 * Add a normal button.
