@@ -6,7 +6,7 @@ import java.io.*;
 import to.etc.domui.util.images.converters.*;
 
 public interface ImageHandler {
-	public OriginalImageData identify(File input) throws Exception;
+	public ImageInfo identify(File input) throws Exception;
 
 	public ImageSpec scale(ImageConverterHelper h, ImageSpec source, int page, int width, int height, String targetMime) throws Exception;
 

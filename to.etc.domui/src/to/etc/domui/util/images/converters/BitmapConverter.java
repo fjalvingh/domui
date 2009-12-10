@@ -73,7 +73,7 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 			throw new IllegalStateException("Not acceptable (not a resize) after accept() accepted the work??");
 
 		//-- Calculate the proper width and height, respecting the aspect ratio of the source
-		OriginalImagePage ip = helper.getSource().getData().getPage(sourcePage);
+		OriginalImagePage ip = helper.getSource().getInfo().getPage(sourcePage);
 		Dimension d = ImaTool.resizeWithAspect(resize.getWidth(), resize.getHeight(), ip.getWidth(), ip.getHeight());
 
 		if(targetMime == null) {
@@ -95,7 +95,7 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 	 *
 	 * @see to.etc.domui.util.images.converters.IImageIdentifier#identifyImage(java.io.File, java.lang.String)
 	 */
-	public OriginalImageData identifyImage(File src, String mime) {
+	public ImageInfo identifyImage(File src, String mime) {
 		//-- Ask ImageMagick...
 		ImageHandler ih = ImageManipulator.getImageHandler();
 		try {

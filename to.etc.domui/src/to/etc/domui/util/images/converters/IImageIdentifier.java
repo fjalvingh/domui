@@ -5,5 +5,5 @@ import java.io.*;
 import to.etc.domui.util.images.machines.*;
 
 public interface IImageIdentifier {
-	public OriginalImageData identifyImage(File src, String mime);
+	public ImageInfo identifyImage(File src, String mime);
 }

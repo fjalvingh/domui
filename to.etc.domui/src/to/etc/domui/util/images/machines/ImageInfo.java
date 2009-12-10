@@ -13,14 +13,14 @@ import javax.annotation.concurrent.*;
  * Created on Oct 10, 2008
  */
 @Immutable
-final public class OriginalImageData implements Serializable {
+final public class ImageInfo implements Serializable {
 	/** The mime type of the original image */
 	private String m_mime;
 
 	/** The decoded list of per-page information, if available. */
 	private List<OriginalImagePage> m_pageList;
 
-	public OriginalImageData(String mime, List<OriginalImagePage> pageList) {
+	public ImageInfo(String mime, List<OriginalImagePage> pageList) {
 		m_mime = mime;
 		m_pageList = pageList == null ? null : Collections.unmodifiableList(pageList);
 	}

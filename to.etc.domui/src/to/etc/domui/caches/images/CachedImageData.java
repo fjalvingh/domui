@@ -81,7 +81,7 @@ final public class CachedImageData extends CachedImageFragment {
 	//	 * a new Identify action is done.
 	//	 * @return
 	//	 */
-	//	public synchronized OriginalImageData getImageData() throws Exception {
+	//	public synchronized ImageInfo getImageData() throws Exception {
 	//		if(m_imageData == null) {
 	//			//-- Create a file containing the thingy.
 	//			File tmp = File.createTempFile("imgi", ".tmp");

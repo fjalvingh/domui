@@ -89,7 +89,7 @@ abstract public class ImagePartBase implements IUnbufferedPartFactory {
 	}
 
 	protected void generateImage(RequestContextImpl ri, CachedImageData ii) throws Exception {
-		ri.getResponse().setContentType(ii.getImageData().getMime());
+		ri.getResponse().setContentType(ii.getImageInfo().getMime());
 		ri.getResponse().setContentLength(ii.getSize());
 		OutputStream os = ri.getResponse().getOutputStream();
 		try {

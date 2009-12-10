@@ -52,9 +52,9 @@ final public class ImageConverterRegistry {
 		return best;
 	}
 
-	static public OriginalImageData identify(String mime, File src) {
+	static public ImageInfo identify(String mime, File src) {
 		for(IImageIdentifier ii : getIdentList()) {
-			OriginalImageData id = ii.identifyImage(src, mime);
+			ImageInfo id = ii.identifyImage(src, mime);
 			if(id != null)
 				return id;
 		}

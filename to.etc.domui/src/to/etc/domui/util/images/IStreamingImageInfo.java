@@ -28,7 +28,7 @@ public interface IStreamingImageInfo {
 	 * @return
 	 * @throws Exception
 	 */
-	public OriginalImageData getImageData() throws Exception;
+	public ImageInfo getImageData() throws Exception;
 
 	/**
 	 * Returns the datastream containing this image. This may be called only ONCE for an image and must

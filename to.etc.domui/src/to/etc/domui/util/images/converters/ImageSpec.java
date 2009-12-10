@@ -8,11 +8,11 @@ import to.etc.domui.util.images.machines.*;
 public class ImageSpec {
 	private File m_source;
 
-	private OriginalImageData m_data;
+	private ImageInfo m_data;
 
 	public ImageSpec() {}
 
-	public ImageSpec(File source, OriginalImageData id) {
+	public ImageSpec(File source, ImageInfo id) {
 		m_source = source;
 		m_data = id;
 	}
@@ -21,7 +21,7 @@ public class ImageSpec {
 		m_source = source;
 		List<OriginalImagePage> l = new ArrayList<OriginalImagePage>(1);
 		l.add(new OriginalImagePage(0, w, h, mime, null, false));
-		m_data = new OriginalImageData(mime, l);
+		m_data = new ImageInfo(mime, l);
 	}
 
 	public String getMime() {
@@ -36,7 +36,7 @@ public class ImageSpec {
 		m_source = source;
 	}
 
-	public OriginalImageData getData() {
+	public ImageInfo getInfo() {
 		return m_data;
 	}
 }

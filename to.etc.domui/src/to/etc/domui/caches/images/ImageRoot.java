@@ -21,7 +21,7 @@ final class ImageRoot {
 	@Nonnull
 	private ImageKey m_imageKey;
 
-	//	private OriginalImageData m_originalData;
+	//	private ImageInfo m_originalData;
 
 	private long m_tsLastCheck;
 
@@ -96,9 +96,19 @@ final class ImageRoot {
 	 * @return
 	 */
 	@Nullable
-	CachedImageData findPermutation(String perm) {
+	CachedImageData findPermutationData(String perm) {
 		synchronized(this) {
 			for(CachedImageData ii : m_dataList) {
+				if(perm.equals(ii.getPermutation()))
+					return ii;
+			}
+			return null;
+		}
+	}
+
+	CachedImageInfo findPermutationInfo(String perm) {
+		synchronized(this) {
+			for(CachedImageInfo ii : m_infoList) {
 				if(perm.equals(ii.getPermutation()))
 					return ii;
 			}
@@ -137,6 +147,13 @@ final class ImageRoot {
 		synchronized(this) {
 			m_dataList.remove(ii);
 			return m_dataList.size() == 0;
+		}
+	}
+
+	boolean unregisterInstance(CachedImageInfo ii) {
+		synchronized(this) {
+			m_infoList.remove(ii);
+			return m_infoList.size() == 0;
 		}
 	}
 

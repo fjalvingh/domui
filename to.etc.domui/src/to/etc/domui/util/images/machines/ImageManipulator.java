@@ -14,7 +14,7 @@ public class ImageManipulator {
 		return m_instance;
 	}
 
-	static public OriginalImageData identify(File input) throws Exception {
+	static public ImageInfo identify(File input) throws Exception {
 		return getImageHandler().identify(input);
 	}
 }

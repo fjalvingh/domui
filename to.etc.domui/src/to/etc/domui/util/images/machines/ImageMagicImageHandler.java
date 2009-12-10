@@ -103,7 +103,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	 * @param input
 	 * @return
 	 */
-	public OriginalImageData identify(File input) throws Exception {
+	public ImageInfo identify(File input) throws Exception {
 		//		start();
 		try {
 			//-- Start 'identify' and capture the resulting data
@@ -137,7 +137,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 					}
 				}
 			}
-			OriginalImageData oid = new OriginalImageData(mime, list);
+			ImageInfo oid = new ImageInfo(mime, list);
 			return oid;
 		} finally {
 			//			done();

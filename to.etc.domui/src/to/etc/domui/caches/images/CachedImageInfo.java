@@ -4,19 +4,19 @@ import to.etc.domui.caches.filecache.*;
 import to.etc.domui.util.images.machines.*;
 
 public class CachedImageInfo extends CachedImageFragment {
-	private OriginalImageData m_imageData;
+	private ImageInfo m_imageData;
 
 	/** The cacheref for the file while this thingy is in use. */
 	private FileCacheRef m_fileRef;
 
-	public CachedImageInfo(ImageRoot root, String perm, long sourceVersionLong, FileCacheRef ref, OriginalImageData oid, int memload) {
+	public CachedImageInfo(ImageRoot root, String perm, long sourceVersionLong, FileCacheRef ref, ImageInfo oid, int memload) {
 		super(root, perm, sourceVersionLong);
 		m_fileRef = ref;
 		m_imageData = oid;
 		setMemoryCacheSize(memload);
 	}
 
-	public OriginalImageData getImageData() {
+	public ImageInfo getImageInfo() {
 		return m_imageData;
 	}
 }

@@ -8,6 +8,7 @@ import javax.annotation.concurrent.*;
 
 import to.etc.domui.caches.filecache.*;
 import to.etc.domui.util.images.*;
+import to.etc.domui.util.images.converters.*;
 import to.etc.domui.util.images.machines.*;
 import to.etc.util.*;
 
@@ -209,7 +210,7 @@ public class ImageTask extends CacheChange {
 	}
 
 	/**
-	 *
+	 * Get the info for an original image.
 	 * @return
 	 * @throws Exception
 	 */
@@ -232,9 +233,9 @@ public class ImageTask extends CacheChange {
 		boolean ok = false;
 		try {
 			//-- 1. Does the file data exist on the file system still?
-			OriginalImageData oid = null;
+			ImageInfo oid = null;
 			try {
-				oid = (OriginalImageData) FileTool.loadSerialized(ref.getFile());
+				oid = (ImageInfo) FileTool.loadSerialized(ref.getFile());
 			} catch(Exception x) {}
 
 			//-- 2. If the data is null we need to (re)create it.
@@ -248,12 +249,7 @@ public class ImageTask extends CacheChange {
 			}
 
 			//-- 3. Done - nothing normal can go wrong after this
-			int memload = 64 + oid.getPageCount() * 32;
-
-			//-- All of this worked!! Nothing normal can go wrong after this so link and register all data
-			CachedImageInfo ii = new CachedImageInfo(getRoot(), "", cts, ref, oid, memload);
-			addUsedImage(ii); // Link/relink in LRU
-			getRoot().registerInstance(ii);
+			CachedImageInfo ii = addNewInfo("", cts, ref, oid);
 			ok = true;
 			return ii;
 		} finally {
@@ -265,5 +261,152 @@ public class ImageTask extends CacheChange {
 		}
 	}
 
+	private CachedImageInfo addNewInfo(String perm, long cts, FileCacheRef ref, ImageInfo info) {
+		int memload = 64 + info.getPageCount() * 32;
+		CachedImageInfo ii = new CachedImageInfo(getRoot(), perm, cts, ref, info, memload);
+		addUsedImage(ii); // Link/relink in LRU
+		getRoot().registerInstance(ii);
+		return ii;
+	}
+
+	static private List<IImageConversionSpecifier>	convertArray(IImageConversionSpecifier[] conversions) {
+		List<IImageConversionSpecifier> l = new ArrayList<IImageConversionSpecifier>();
+		for(IImageConversionSpecifier s : conversions)
+			l.add(s);
+		return l;
+	}
+
+	static private String getPermutationKey(List<IImageConversionSpecifier> conversions) {
+		StringBuilder sb = new StringBuilder(128);
+		for(IImageConversionSpecifier ic : conversions)
+			sb.append(ic.getConversionKey()); // Get a string rep of the conversion applied
+		return sb.toString();
+	}
+
+
+	public CachedImageData getImageData(IImageConversionSpecifier[] conversions) throws Exception {
+		return getImageData(convertArray(conversions));
+	}
+
+	/**
+	 * This is the main workhorse for the image cache. This retrieves a possible converted image off some source,
+	 * using all kinds of caching to make it fast.
+	 *
+	 * @param cacheKey
+	 * @param sir
+	 * @param conversions
+	 * @return
+	 * @throws Exception
+	 */
+	public CachedImageData getImageData(List<IImageConversionSpecifier> conversions) throws Exception {
+		//-- Shortcut: if referring to the ORIGINAL...
+		if(conversions == null || conversions.size() == 0)
+			return getOriginalData();
+
+		removeOutdatedVersions(); // Remove all old thingies from the cache.
+		String perm = getPermutationKey(conversions); // Create the key for the specified conversions
+
+		//-- Is the required version cached? In that case it's current so reuse
+		CachedImageData cid = getRoot().findPermutationData(perm);
+		if(cid != null) {
+			addUsedImage(cid); // Mark recently used
+			return cid;
+		}
+
+		//-- Not cached in memory.. Try to get the stuff from a cachefile..
+		long cts = getCurrentVersionLong();
+		String datacachename = getKey().getRetriever().getRetrieverKey() + "/" + getKey().getInstanceKey() + "-" + perm + "-" + Long.toHexString(cts) + ".data";
+		String infocachename = getKey().getRetriever().getRetrieverKey() + "/" + getKey().getInstanceKey() + "-" + perm + "-" + Long.toHexString(cts) + ".info";
+		FileCacheRef dataref = cache().getFileRef(datacachename);
+		FileCacheRef inforef = cache().getFileRef(infocachename);
+		InputStream is = null;
+		OutputStream os = null;
+		boolean ok = false;
+		try {
+			//-- 1. Does the file data exist on the file system still?
+			int len = 0;
+			if(!dataref.getFile().exists() || dataref.getFile().length() == 0) {
+				/*
+				 * We need to generate the mutation on the image. This does not only create a new
+				 * image data file but it also (re) calculates the image's info. Because there is
+				 * a possibility that the new image has a different info set than a previously loaded
+				 * version we have to replace any existing version.
+				 */
+				ImageInfo info = generatePermutation(dataref, conversions); // Generate the derived.
+				CachedImageInfo oldci = getRoot().findPermutationInfo(perm);// Is an older copy available?
+				getRoot().unregisterInstance(oldci);
+				addDeletedImage(oldci); // Tell the cache to update it's admin
+
+				//-- Store the new image's serialized info, then register the new image info
+				FileTool.saveSerialized(inforef.getFile(), info);
+				addNewInfo(perm, cts, inforef, info);
+			}
+			len = (int) dataref.getFile().length();
+
+			//-- 2. The file exists. Is it suitable for memory caching?
+			int memload = 64;
+			byte[][] bufs = null;
+			if(len < cache().getMemoryFence()) {
+				bufs = FileTool.loadByteBuffers(dataref.getFile()); // Load as a bufferset
+				memload += len;
+			}
+
+			//-- All of this worked!! Nothing normal can go wrong after this so link and register all data
+			CachedImageData ii = new CachedImageData(getRoot(), perm, cts, dataref, len, bufs, memload);
+			addUsedImage(ii); // Link/relink in LRU
+			getRoot().registerInstance(ii);
+			ok = true;
+			return ii;
+		} finally {
+			if(!ok) {
+				dataref.getFile().delete();
+				dataref.close();
+			}
+			FileTool.closeAll(is, os);
+		}
+	}
+
+
+	private ImageInfo generatePermutation(FileCacheRef targetref, List<IImageConversionSpecifier> conversions) throws Exception {
+		CachedImageData origd = getOriginalData(); // We need the data always
+		CachedImageInfo origi = getOriginalInfo(); // And the info's nice too
+
+		//-- 2. Create the object using the permutator factories.
+		ImageConverterHelper ich = new ImageConverterHelper();
+		try {
+			ImageSpec sis = new ImageSpec(origd.getFile(), origi.getImageInfo());
+			ich.executeConversionChain(sis, conversions); // Execute the conversion chain
+
+			//-- Now copy the final result into the cachefile;
+			FileTool.copyFile(targetref.getFile(), ich.getTarget().getSource()); // Copy result to cachefile
+			return ich.getTarget().getInfo();
+		} finally {
+			ich.destroy();
+		}
+	}
+
+	public CachedImageInfo getImageInfo(List<IImageConversionSpecifier> conversions) throws Exception {
+		//-- Shortcut: if referring to the ORIGINAL...
+		if(conversions == null || conversions.size() == 0)
+			return getOriginalInfo();
+
+		removeOutdatedVersions(); // Remove all old thingies from the cache.
+		String perm = getPermutationKey(conversions); // Create the key for the specified conversions
+
+		//-- Is the required version cached? In that case it's current so reuse
+		CachedImageInfo cii = getRoot().findPermutationInfo(perm);
+		if(cii != null) {
+			addUsedImage(cii); // Mark recently used
+			return cii;
+		}
+
+		//-- We need to create it- Just creating the data also creates the info.
+		getImageData(conversions);
+
+		cii = getRoot().findPermutationInfo(perm);
+		if(cii == null)
+			throw new IllegalStateException("? Image transformation did not create an ImageInfo instance in the cache?");
+		return cii;
+	}
 
 }
