@@ -3,6 +3,7 @@ package to.etc.domui.util.images.machines;
 import java.io.*;
 import java.util.*;
 
+import to.etc.domui.util.*;
 import to.etc.domui.util.images.converters.*;
 import to.etc.util.*;
 
@@ -102,7 +103,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	 * @param input
 	 * @return
 	 */
-	public List<ImagePage> identify(File input) throws Exception {
+	public ImageInfo identify(File input) throws Exception {
 		//		start();
 		try {
 			//-- Start 'identify' and capture the resulting data
@@ -114,8 +115,9 @@ final public class ImageMagicImageHandler implements ImageHandler {
 
 			System.out.println("identify: result=" + sb.toString());
 			//-- Walk the resulting thingy
-			List<ImagePage> list = new ArrayList<ImagePage>();
+			List<OriginalImagePage> list = new ArrayList<OriginalImagePage>();
 			LineNumberReader lr = new LineNumberReader(new StringReader(sb.toString()));
+			String mime = null;
 			String line;
 			while(null != (line = lr.readLine())) {
 				StringTokenizer st = new StringTokenizer(line, " \t");
@@ -125,21 +127,24 @@ final public class ImageMagicImageHandler implements ImageHandler {
 						String type = st.nextToken();
 						if(st.hasMoreTokens()) {
 							String size = st.nextToken();
-
-							ImagePage dap = decodePage(file, type, size);
-							if(dap != null)
+							OriginalImagePage dap = decodePage(file, type, size);
+							if(dap != null) {
 								list.add(dap);
+								if(mime == null)
+									mime = dap.getMimeType();
+							}
 						}
 					}
 				}
 			}
-			return list;
+			ImageInfo oid = new ImageInfo(mime, list);
+			return oid;
 		} finally {
 			//			done();
 		}
 	}
 
-	static private ImagePage decodePage(String file, String type, String size) {
+	static private OriginalImagePage decodePage(String file, String type, String size) {
 		int page = 0;
 		int pos = file.indexOf('[');
 		if(pos != -1) {
@@ -158,8 +163,9 @@ final public class ImageMagicImageHandler implements ImageHandler {
 		int height = StringTool.strToInt(size.substring(pos + 1), 0);
 		if(width == 0 || height == 0)
 			return null;
-		ImagePage dap = new ImagePage(page, width, height, false);
-		dap.setType(type);
+		String s = type.toLowerCase();
+		String mime = ServerTools.getExtMimeType(s);
+		OriginalImagePage dap = new OriginalImagePage(page, width, height, mime, type, false);
 		return dap;
 	}
 

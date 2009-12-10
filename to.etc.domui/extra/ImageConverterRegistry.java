@@ -3,6 +3,7 @@ package to.etc.domui.util.images.converters;
 import java.io.*;
 import java.util.*;
 
+import to.etc.domui.util.images.cache.*;
 import to.etc.domui.util.images.machines.*;
 
 final public class ImageConverterRegistry {
@@ -52,9 +53,9 @@ final public class ImageConverterRegistry {
 		return best;
 	}
 
-	static public ImageInfo identify(String mime, File src) {
+	static public OriginalImageData identify(String mime, File src) {
 		for(IImageIdentifier ii : getIdentList()) {
-			ImageInfo id = ii.identifyImage(src, mime);
+			OriginalImageData id = ii.identifyImage(src, mime);
 			if(id != null)
 				return id;
 		}

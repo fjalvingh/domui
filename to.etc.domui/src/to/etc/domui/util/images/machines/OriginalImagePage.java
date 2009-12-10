@@ -1,7 +1,8 @@
-package to.etc.domui.util.images.converters;
+package to.etc.domui.util.images.machines;
 
+import java.io.*;
 
-public class ImagePage {
+public class OriginalImagePage implements Serializable {
 	private int m_pageNumber;
 
 	/** The original width of this page, in pixels. */
@@ -14,11 +15,15 @@ public class ImagePage {
 
 	private String m_type;
 
-	public ImagePage(int pageNumber, int width, int height, boolean bitmap) {
+	private String m_mimeType;
+
+	public OriginalImagePage(int pageNumber, int width, int height, String mime, String type, boolean bitmap) {
 		m_pageNumber = pageNumber;
 		m_width = width;
 		m_height = height;
 		m_bitmap = bitmap;
+		m_mimeType = mime;
+		m_type = type;
 	}
 
 	public boolean isBitmap() {
@@ -41,7 +46,7 @@ public class ImagePage {
 		return m_type;
 	}
 
-	public void setType(String type) {
-		m_type = type;
+	public String getMimeType() {
+		return m_mimeType;
 	}
 }

@@ -3,6 +3,7 @@ package to.etc.domui.util.images.converters;
 import java.io.*;
 import java.util.*;
 
+import to.etc.domui.util.images.cache.*;
 import to.etc.domui.util.images.machines.*;
 
 /**
@@ -85,7 +86,7 @@ public class ImageConverterHelper {
 		try {
 			//-- Execute a single conversion.
 			File src = new File("/home/jal/img_5589.jpg");
-			ImageInfo id = ImageConverterRegistry.identify("image/jpeg", src);
+			OriginalImageData id = ImageConverterRegistry.identify("image/jpeg", src);
 			ImageSpec sis = new ImageSpec(src, id);
 
 			List<IImageConversionSpecifier> l = new ArrayList<IImageConversionSpecifier>();
@@ -94,8 +95,8 @@ public class ImageConverterHelper {
 
 			ImageConverterHelper h = new ImageConverterHelper();
 			h.executeConversionChain(sis, l);
-			System.out.println("Result: " + h.getTarget().getSource() + ", mime=" + h.getTarget().getMime() + ", pages=" + h.getTarget().getInfo().getPageCount() + "; p0.size="
-				+ h.getTarget().getInfo().getPage(0).getWidth() + "x" + h.getTarget().getInfo().getPage(0).getHeight());
+			System.out.println("Result: " + h.getTarget().getSource() + ", mime=" + h.getTarget().getMime() + ", pages=" + h.getTarget().getData().getPageCount() + "; p0.size="
+				+ h.getTarget().getData().getPage(0).getWidth() + "x" + h.getTarget().getData().getPage(0).getHeight());
 		} catch(Exception x) {
 			x.printStackTrace();
 		}
