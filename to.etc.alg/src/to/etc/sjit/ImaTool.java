@@ -6,8 +6,6 @@ import java.io.*;
 
 import javax.imageio.*;
 
-import com.sun.image.codec.jpeg.*;
-
 import to.etc.util.*;
 
 /**
@@ -113,10 +111,12 @@ public class ImaTool {
 	 *	Loads a JPEG image from a stream. The image is returned as a BufferedImage.
 	 */
 	static public BufferedImage loadJPEG(InputStream is) throws IOException {
-		JPEGImageDecoder jd = JPEGCodec.createJPEGDecoder(is);
-		//		JPEGDecodeParam		jdp	= jd.getJPEGDecodeParam();
-		BufferedImage bi = jd.decodeAsBufferedImage();
-		return bi;
+		return ImageIO.read(is);
+		//		
+		//		JPEGImageDecoder jd = JPEGCodec.createJPEGDecoder(is);
+		//		//		JPEGDecodeParam		jdp	= jd.getJPEGDecodeParam();
+		//		BufferedImage bi = jd.decodeAsBufferedImage();
+		//		return bi;
 	}
 
 
@@ -142,13 +142,16 @@ public class ImaTool {
 	 */
 	static public void saveJPEG(BufferedImage bi, OutputStream os, double qf) throws IOException {
 		//-- Write a JPEG
-		JPEGImageEncoder je = JPEGCodec.createJPEGEncoder(os);
-		if(qf != 0.0) {
-			JPEGEncodeParam ep = je.getDefaultJPEGEncodeParam(bi);
-			ep.setQuality((float) qf, false);
-			je.encode(bi, ep);
-		} else
-			je.encode(bi);
+		ImageIO.write(bi, "JPG", os);
+		//
+		//		ImageIO.
+		//		JPEGImageEncoder je = JPEGCodec.createJPEGEncoder(os);
+		//		if(qf != 0.0) {
+		//			JPEGEncodeParam ep = je.getDefaultJPEGEncodeParam(bi);
+		//			ep.setQuality((float) qf, false);
+		//			je.encode(bi, ep);
+		//		} else
+		//			je.encode(bi);
 	}
 
 
