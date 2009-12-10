@@ -21,7 +21,7 @@ final public class ResourceRef {
 	private ResourceLinkState	m_linkStatus	= ResourceLinkState.lsNONE;
 
 	/**
-	 * The actual dependency set for this resource, i.e. all of the items that 
+	 * The actual dependency set for this resource, i.e. all of the items that
 	 * we depend on. This is read-only after ref construction.
 	 */
 	private CacheDependencies	m_dependencies;

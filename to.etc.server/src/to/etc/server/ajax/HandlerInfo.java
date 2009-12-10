@@ -63,7 +63,7 @@ public class HandlerInfo {
 	/*	CODING:	Method interface.									*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 */
 	public synchronized HandlerMethodInfo getMethod(String name) throws Exception {
 		HandlerMethodInfo mi = m_methodMap.get(name);

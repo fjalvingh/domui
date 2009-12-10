@@ -17,7 +17,7 @@ import to.etc.util.*;
 /**
  * This creates a button part from an input URL. The input url has
  * as parameter the image name, the button text and the like.
- * 
+ *
  * <p>Created on January 23, 2006
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */

@@ -65,7 +65,7 @@ public class ServiceClassDefinition {
 	/*	CODING:	Method interface.									*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 */
 	public synchronized ServiceMethodDefinition getMethod(String name) throws Exception {
 		ServiceMethodDefinition mi = m_methodMap.get(name);

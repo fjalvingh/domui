@@ -113,7 +113,7 @@ public class BeanEvaluator {
 	 * Returns a property descriptor for the specified bean class. This uses an uncached
 	 * variant. It obeys the Java bean access rules: it starts to get info using a BeanInfo
 	 * class and falls back to generic introspection if that fails.
-	 * 
+	 *
 	 * @param beancl
 	 * @param name
 	 * @return
@@ -129,12 +129,12 @@ public class BeanEvaluator {
 		 * walk all methods to find both the best getter and all setters for the simple
 		 * property. We do this all at once to prevent is from having to scan multiple
 		 * times.
-		 * 
+		 *
 		 * The getters all must start with get; all setters must start with set (rule 1).
 		 * The best getter is a normal method specifying the normal name (getXxxx). If no
 		 * such method is found it tests to see if DynamicBean is implemented and checks
 		 * the methods from that. If DynaBean also does not exist it checks for a generic
-		 * get(String) method. 
+		 * get(String) method.
 		 */
 		String getname = makeMethodName("get", name);
 		String isname = makeMethodName("is", name);
@@ -145,7 +145,7 @@ public class BeanEvaluator {
 			if(DynamicBean.class.isAssignableFrom(beancl)) // Bean class implements Dynamic beans?
 			{
 				/*
-				 * If the dynabean  
+				 * If the dynabean
 				 */
 				getm = findMethod(beancl, "getDynamicProperty", PARAM_1_STRING);
 				Method setm = findMethod(beancl, "setDynamicProperty", PARAM_2_STR_OBJ);

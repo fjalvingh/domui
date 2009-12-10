@@ -7,9 +7,9 @@ import java.util.*;
 /**
  * This is a single data connection listener. It wraps a thread and a Selector
  * and is used to wait for READ and WRITE events on the selector for the set
- * of connections handled by this listener. Each listener accepts MAX_CONNS 
+ * of connections handled by this listener. Each listener accepts MAX_CONNS
  * connections before it is full.
- * The listener only accepts the keys from the selector for later processing 
+ * The listener only accepts the keys from the selector for later processing
  * by the handler code.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -95,7 +95,7 @@ public class DataListener implements Comparable<DataListener> {
 			m_newChannels.add(ch); // Append to "todo" list
 		}
 		m_selector.wakeup(); // Reader thread wakeup to add new thingy.
-		//        
+		//
 		//        synchronized(ch) {
 		//            SelectionKey k = sch.register(m_selector, SelectionKey.OP_READ, ch);
 		//            ch._setKey(k);
@@ -245,7 +245,7 @@ public class DataListener implements Comparable<DataListener> {
 				//-- Disable all events.
 				k.interestOps(k.interestOps() & ~(SelectionKey.OP_READ | SelectionKey.OP_WRITE));
 				//                int mask = 0;
-				//                
+				//
 				//                if(k.isAcceptable())
 				//                    mask |= SelectionKey.OP_ACCEPT;
 				//                if(k.isConnectable())

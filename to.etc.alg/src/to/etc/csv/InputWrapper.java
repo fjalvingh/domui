@@ -4,7 +4,7 @@ import java.io.*;
 
 /**
  * Wraps around a iRecordReader to provide some extra functions.
- * 
+ *
  * @author jal
  */
 public class InputWrapper {
@@ -47,11 +47,11 @@ public class InputWrapper {
 
 
 	/**
-	 * Defines new names for the field. The list of names 
+	 * Defines new names for the field. The list of names
 	 * is written to each field, depending on the position. Names
 	 * are separated by semicolon.
 	 * The names are rewritten every time this function is called.
-	 * 
+	 *
 	 * TODO: This does not seem to belong here....
 	 */
 	public void setNames(String namelist) {

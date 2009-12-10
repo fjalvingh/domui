@@ -164,7 +164,7 @@ public class BinariesCache {
 
 	/**
 	 * Returns the metrics of an image that would obey the specified requirements. This usually does
-	 * not cause the image to be created. 
+	 * not cause the image to be created.
 	 *
 	 * @param dbcin
 	 * @param originalid
@@ -204,7 +204,7 @@ public class BinariesCache {
 			list = m_infoCache.get(originalid); // Find by original's key,
 			if(list == null) {
 				list = new ArrayList<BinaryInfo>(4); // Make a small list
-				m_infoCache.put(originalid, list); // And save,    
+				m_infoCache.put(originalid, list); // And save,
 			}
 		}
 
@@ -378,7 +378,7 @@ public class BinariesCache {
 	BinaryConverter findConverter(BinaryInfo oribi, String type, String mime, int w, int h) {
 		List<BinaryConverter> list;
 		synchronized(this) {
-			list = m_converterList; // Atomic get. The whole list is replaced when items are added. 
+			list = m_converterList; // Atomic get. The whole list is replaced when items are added.
 		}
 		for(BinaryConverter bc : list) {
 			if(bc.accepts(oribi, type, mime, w, h))
@@ -497,7 +497,7 @@ public class BinariesCache {
 	//
 	////            testJAI3(tgt, src, new Dimension(1024, 768));
 	////            long pk = insertBinary(dbc, "image/jpeg", "TEST", -1, null, -1, -1, src);
-	//            
+	//
 	//            long pk = insertImage(dbc, src, "IMA", "image/jpeg", true);
 	//            System.out.println("Inserted pk="+pk);
 	//        } catch(Exception x) {

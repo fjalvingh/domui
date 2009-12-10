@@ -8,7 +8,7 @@ public interface TypeQualifierValidator<A extends Annotation> {
     /**
      * Given a type qualifier, check to see if a known specific constant value
      * is an instance of the set of values denoted by the qualifier.
-     * 
+     *
      * @param annotation
      *                the type qualifier
      * @param value

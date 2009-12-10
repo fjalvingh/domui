@@ -38,7 +38,7 @@ public class BinaryImageResizeConverter implements TwoStepBinaryConverter {
 
 	/**
 	 * Calculate the metrics of the resulting image.
-	 * 
+	 *
 	 * @see nl.itris.vp.util.binaries.TwoStepBinaryConverter#calculate(nl.itris.vp.util.binaries.BinaryRef, java.lang.String, java.lang.String, int, int)
 	 */
 	public ConverterResult calculate(BinaryInfo corebi, String type, String mime, int w, int h) throws Exception {

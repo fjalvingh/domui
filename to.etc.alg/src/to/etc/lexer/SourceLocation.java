@@ -3,7 +3,7 @@ package to.etc.lexer;
 /**
  * This defines a source location for some parsed construct. It can
  * be obtained for a token from the lexer if needed.
- * 
+ *
  * Created on Sep 13, 2004
  * @author jal
  */

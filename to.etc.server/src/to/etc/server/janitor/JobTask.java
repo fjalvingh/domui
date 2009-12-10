@@ -7,7 +7,7 @@ import to.etc.server.syslogger.*;
 
 /**
  * This is the janitor task called for a job.
- * 
+ *
  * Created on Apr 7, 2003
  * @author jal
  */
@@ -83,7 +83,7 @@ public class JobTask extends JanitorTask {
 			ps = null;
 			db().commit();
 
-			return true; // Job accepted for execution.			
+			return true; // Job accepted for execution.
 		} finally {
 			try {
 				if(rs != null)

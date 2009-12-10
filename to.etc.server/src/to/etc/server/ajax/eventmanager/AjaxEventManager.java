@@ -196,9 +196,9 @@ public class AjaxEventManager {
 	}
 
 	/**
-	 * Registers a context as waiting for an event. The context gets added to 
+	 * Registers a context as waiting for an event. The context gets added to
 	 * all channels.
-	 * in 
+	 * in
 	 * @param ectx
 	 * @param timeout The #of ms after which this should be timed out, either because the
 	 * 					linger period expired or the browser timeout expired.
@@ -229,7 +229,7 @@ public class AjaxEventManager {
 			@Override
 			public void run() {
 				/*
-				 * 
+				 *
 				 */
 				handleTimeout(ectx);
 			}
@@ -264,7 +264,7 @@ public class AjaxEventManager {
 				return;
 			int nextid = m_nextMessageNumber; // Save the first new message ID that will arrive,
 			if(ectx.getEventCount() == 0) { // No events? Then we have expired because of the browser timeout
-				//-- A browser timeout has occured. Set the completion status 
+				//-- A browser timeout has occured. Set the completion status
 				ectx.setBrowserTimeout(nextid); // Set the status to "browser timed out",
 			} else {
 				//-- We timed out but there are events (we were lingering). Just return the result.
@@ -341,7 +341,7 @@ public class AjaxEventManager {
 			 * are pending events for this connection. If not then we set the connection
 			 * to WAITING and we're done (we exit the call). All of this within a single
 			 * synchronized block (fast).
-			 * 
+			 *
 			 * If however events are pending we need to leave the synchronized block to
 			 * call the event filters for the events to forward; then we add all events
 			 * to the context. If that causes the context to be full we do not queue but
@@ -370,7 +370,7 @@ public class AjaxEventManager {
 						newlist.clear(); // Discard,
 
 						/*
-						 * Check if we need to return immediately; this is the case if the 
+						 * Check if we need to return immediately; this is the case if the
 						 * max. #of events is reached, or when we're not allowed to linger for
 						 * new events.
 						 */
@@ -417,8 +417,8 @@ public class AjaxEventManager {
 				} // synchronized
 
 				/*
-				 * Ok; we're not locked now and we have pending events. The context is not queued yet 
-				 * so it is not visible to all other tasks running. First pass all events thru all 
+				 * Ok; we're not locked now and we have pending events. The context is not queued yet
+				 * so it is not visible to all other tasks running. First pass all events thru all
 				 * event filters. Do this as fast as possible, caching all filters.
 				 */
 				Map<String, AjaxEventFilter[]> chainmap = new HashMap<String, AjaxEventFilter[]>(); // channel's filter list
@@ -449,7 +449,7 @@ public class AjaxEventManager {
 
 				/*
 				 * Ok: we're done... These need to be queued/sent; this gets done at entry of
-				 * the above block, so loop on!! 
+				 * the above block, so loop on!!
 				 */
 			}
 		} finally {
@@ -460,11 +460,11 @@ public class AjaxEventManager {
 
 
 	/**
-	 * Onderstaande moet synchronized zijn, omdat er anders bijvoorbeeld 
-	 * een filter toegevoegd kan worden tijdens het copieren. 
+	 * Onderstaande moet synchronized zijn, omdat er anders bijvoorbeeld
+	 * een filter toegevoegd kan worden tijdens het copieren.
 	 * We maken een copie om te voorkomen dat er tijdens de verwerking
-	 * een filter toegevoegd kan worden. 
-	 *  
+	 * een filter toegevoegd kan worden.
+	 *
 	 * @param channel
 	 * @return
 	 */
@@ -480,7 +480,7 @@ public class AjaxEventManager {
 	 * Get the list of event filter factories and create and initialize an array of
 	 * event filters, suitable for filtering the event data passed. If no filters
 	 * are needed this returns null.
-	 * 
+	 *
 	 * @param channel
 	 * @return
 	 */

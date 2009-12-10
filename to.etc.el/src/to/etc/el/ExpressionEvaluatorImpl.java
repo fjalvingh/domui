@@ -10,7 +10,7 @@ import javax.servlet.jsp.el.*;
  * This is the JSP version of the evaluator which forces the expression to
  * be contained in ${ ... }. This class merely strips the JSP shit and uses
  * the generic evaluator to evaluate what's left.
- * 
+ *
  * The evaluator uses a cache to keep expressions from being parsed time
  * and time again.
  *

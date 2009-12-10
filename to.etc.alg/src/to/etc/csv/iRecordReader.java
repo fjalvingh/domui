@@ -14,8 +14,8 @@ public interface iRecordReader {
 	public abstract int getCurrentRecNr();
 
 	/**
-	 * Read the next (or first) record from the input and prepare it for 
-	 * processing. 
+	 * Read the next (or first) record from the input and prepare it for
+	 * processing.
 	 * @return
 	 */
 	public abstract boolean nextRecord() throws IOException;

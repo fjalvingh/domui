@@ -6,17 +6,17 @@ package to.etc.csv;
  *
  * Converts the contents of a node in an XML document to a CSV format.
  * The conversion is described by properties in a properties file.
- * The XML under the input node is expected to conform to the 
+ * The XML under the input node is expected to conform to the
  * structure and tag-naming described in the properties.
- * 
+ *
  * The format of the resulting CSV (field delimiter, separator,
  * how to treat null values etc) can als be controlled by properties.
  * The output CSV is written to anything that implements the Writer
  * interface.
- * 
+ *
  * This class is intended as a general purpose converter.
  * A test class exists in the VFO package:
- * 
+ *
  * 		nl.nccwcasa.qd.TestXMLToCSVConverter
  */
 
@@ -40,7 +40,7 @@ public class XMLToCSVConverter {
 	char						m_csv_delimiter				= '"';
 
 	// field separator char, separates two columns in a line
-	// default is comma 
+	// default is comma
 	char						m_csv_separator				= ',';
 
 	// line terminator sequence, default UNIX
@@ -52,7 +52,7 @@ public class XMLToCSVConverter {
 
 	static private final int	CSV_ESC_DEL_BSLASH			= 1;				// prefix the delimiter with a backslash
 
-	static private final int	CSV_ESC_DOUBLE				= 2;				// output two delimiter chars	
+	static private final int	CSV_ESC_DOUBLE				= 2;				// output two delimiter chars
 
 	int							m_csv_esc_delimiters		= CSV_ESC_DOUBLE;
 
@@ -75,13 +75,13 @@ public class XMLToCSVConverter {
 	/* OBJECT DESCRIBING TRANSLATION FOR 1 COLUMN			*/
 	/*------------------------------------------------------*/
 
-	// This class describes all we known about one column in the 
-	// CSV output. The idea is to create a sequence of these 
-	// object filling in all peculiarities of the CSV columns 
+	// This class describes all we known about one column in the
+	// CSV output. The idea is to create a sequence of these
+	// object filling in all peculiarities of the CSV columns
 	// as read from the properties file.
 	// The we use these definitions to render the data to CSV.
 	private class CSVColumnData {
-		// sequence (or order) of this column, 
+		// sequence (or order) of this column,
 		// counting from 1 for the left-most on the line
 		int				m_column;
 
@@ -96,8 +96,8 @@ public class XMLToCSVConverter {
 		private String	m_output_when_null	= null;
 
 		// This is the XML "datapath" that tells us how to
-		// obtain a data value from the XML for one record 
-		// for this column. 
+		// obtain a data value from the XML for one record
+		// for this column.
 		String			m_xml_path;
 
 		CSVColumnData(int seq, boolean delimited, String output_when_null, String path) {
@@ -151,7 +151,7 @@ public class XMLToCSVConverter {
 	/**
 	 * format the presented value as per the specified handling of
 	 * embedded CSV field delimiters in the value (escaping)
-	 * If value is null return null, if value contains no 
+	 * If value is null return null, if value contains no
 	 * delimiter characters return value as-is.
 	 */
 	public String escapeDelimiters(String value) {
@@ -162,7 +162,7 @@ public class XMLToCSVConverter {
 		if(m_csv_esc_delimiters == CSV_ESC_DEL_NONE)
 			return value; // nope, return string as it is.
 
-		// do we need to perform escape formatting (are escape 
+		// do we need to perform escape formatting (are escape
 		// chars present in the value?)
 		int pos = value.indexOf(m_csv_delimiter);
 		if(pos < 0)
@@ -180,7 +180,7 @@ public class XMLToCSVConverter {
 			// prepend escape sequence
 			switch(m_csv_esc_delimiters){
 				case CSV_ESC_DEL_BSLASH: {
-					// insert one extra backslash (note that java 
+					// insert one extra backslash (note that java
 					// uses the 'DOUBLE' escape sequence for backslashes in strings :)
 					sb.append('\\');
 				}
@@ -210,7 +210,7 @@ public class XMLToCSVConverter {
 
 	/**
 	 * Replace newline characters with something else.
-	 * If value is null return null, if value contains no 
+	 * If value is null return null, if value contains no
 	 * newline characters return value as-is.
 	 */
 	public String escapeNewlines(String value) {
@@ -253,14 +253,14 @@ public class XMLToCSVConverter {
 	/*------------------------------------------------------*/
 
 	/**
-	 * Initializing the array of CSV column descrpiptions from the 
+	 * Initializing the array of CSV column descrpiptions from the
 	 * properties file could turn into a small bit of a mind-bender.
 	 * We do not know in advance how many CSV columns must be written
-	 * to one line of CSV output. We could require this number to be 
-	 * present in the properties file itself but it seems cleaner 
-	 * when this value could be determined from the other 
+	 * to one line of CSV output. We could require this number to be
+	 * present in the properties file itself but it seems cleaner
+	 * when this value could be determined from the other
 	 * contents of the properties file.
-	 * On the other hand, retrieveing field-related data from 
+	 * On the other hand, retrieveing field-related data from
 	 * a properties file that also holds non-field related stuff
 	 * is tricky too.
 	 * I'll settle for this syntax for describing a translation:
@@ -273,9 +273,9 @@ public class XMLToCSVConverter {
 	 * Each tag must have at least a property stating the tagname
 	 * and a property stating the 1-based number of the CSV column.
 	 * Note that the enumeration in the properties file does not in
-	 * any way impose an ordering of data fields in the XML, 
+	 * any way impose an ordering of data fields in the XML,
 	 * nor in the CSV.
-	 * 
+	 *
 	 * And still some more tricky stuff: BIS may require us to
 	 * fill certain columns with static data instead of getting
 	 * values for the CSV column from the XML. E.g. an integer field
@@ -335,7 +335,7 @@ public class XMLToCSVConverter {
 		}
 
 		// Guard a bit against sillyness in general:
-		// if we cannot find the tagname for enum N, then if we can 
+		// if we cannot find the tagname for enum N, then if we can
 		// find enum N+1 somebody messed up the properties file
 		if(prop.getProperty("tag." + (eenum + 1) + ".xmlpath") != null)
 			throw new Exception("Error in XML-to-CSV properties file: detected a gap in the enum for " + eenum);
@@ -400,13 +400,13 @@ public class XMLToCSVConverter {
 	 * If node not found, returns null.
 	 * The method may call itself recursively to delve into deeper
 	 * levels below the current node.
-	 * Presently, it has only been tested for a simple XML structure: 
+	 * Presently, it has only been tested for a simple XML structure:
 	 * payload
 	 *   record
 	 *     item
-	 * 		 subitem 
+	 * 		 subitem
 	 * 		   .. etc
-	 * 
+	 *
 	 * TODO: write better explanation then move to DomTools
 	 */
 
@@ -416,7 +416,7 @@ public class XMLToCSVConverter {
 		int pos = xmlpath.indexOf('.');
 		if(pos > 0) {
 			// yes, recurse. break up xmlpath and find the new
-			// 'look inside here with path' node. 
+			// 'look inside here with path' node.
 			// If not found, return null
 			//			System.out.println("FINDNODE RECURSING");
 			String nodename = xmlpath.substring(0, pos);
@@ -459,7 +459,7 @@ public class XMLToCSVConverter {
 
 	/**
 	 *	Find a node and return the data value. If node not found,
-	 *	returns null.  
+	 *	returns null.
 	 */
 	protected String findValue(Node node, String xmlpath) {
 		Node nd = findNodePath(node, xmlpath);
@@ -487,7 +487,7 @@ public class XMLToCSVConverter {
 		// so must descend one level
 		Node firstdatalevelnode = record.getFirstChild();
 
-		int eenum; // walk all objects by this counter 
+		int eenum; // walk all objects by this counter
 		int prevcol = 0; // keep track of which column we're doing by this counter
 		boolean first = true; // used to suprress comma before first column value
 		for(eenum = 0; eenum < m_columns_al.size(); eenum++) {
@@ -537,7 +537,7 @@ public class XMLToCSVConverter {
 	 * The property "tag.recordtag" holds the "xmlpath"
 	 * which we can use to get at the nodes that contain
 	 * data representing one record, starting at node "payload"
-	 * @return the number of records converted 
+	 * @return the number of records converted
 	 */
 
 	public int convert(Node firstrecordlevelnode, Writer w, Properties prop) throws Exception {

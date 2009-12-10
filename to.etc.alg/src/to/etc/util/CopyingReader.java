@@ -20,7 +20,7 @@ public class CopyingReader extends Reader {
 	}
 
 	/**
-	 * 
+	 *
 	 * @see java.io.Reader#close()
 	 */
 	@Override

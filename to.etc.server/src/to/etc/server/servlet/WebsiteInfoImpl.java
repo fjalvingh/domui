@@ -70,9 +70,9 @@ public class WebsiteInfoImpl implements WebsiteInfo {
 	 * Returns the hostname as specified by the actual request. This overrides
 	 * the HttpServletRequest's getServer call because that one lies about the
 	 * actual host name for instance when running in Apache: all aliases are
-	 * converted to the main sitename. This returns a host name without port 
+	 * converted to the main sitename. This returns a host name without port
 	 * number.
-	 * 
+	 *
 	 * @return	a host name (dns)
 	 */
 	public String getHostName() {
@@ -88,15 +88,15 @@ public class WebsiteInfoImpl implements WebsiteInfo {
 	}
 
 	/**
-	 * Returns the path part of the input URL, without host, port, 
+	 * Returns the path part of the input URL, without host, port,
 	 * starting slash and parameters. The path has URLEncoded parts
 	 * already replaced.
-	 * 
-	 * Example: for the url 
+	 *
+	 * Example: for the url
 	 * <pre>http://www.mumble.to:8080/where/is/my?key=data</pre>
 	 * this returns
 	 * <pre>where/is/my</pre>
-	 * 
+	 *
 	 * @return
 	 */
 	public String getInputPath() {
@@ -109,7 +109,7 @@ public class WebsiteInfoImpl implements WebsiteInfo {
 	 * path info from the URL. The query string is NOT attached. This replaces
 	 * getRequestURI() in HttpServletRequest because that lies about the
 	 * server name :-(
-	 * 
+	 *
 	 * @return	a string containing the full URL to the document, including the
 	 * 			http: protocol indicator.
 	 */
@@ -147,7 +147,7 @@ public class WebsiteInfoImpl implements WebsiteInfo {
 	/**
 	 * Get the path to the root of the current site without any host and protocol
 	 * spec. This returns the URLKEY plus any admin provider strings. The thing
-	 * never starts with a / and always ends with a /, except when this is a 
+	 * never starts with a / and always ends with a /, except when this is a
 	 * host-only site; in that case this returns the empty string.
 	 * @return
 	 */

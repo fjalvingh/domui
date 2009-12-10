@@ -264,7 +264,7 @@ public class DOMDecoderBase {
 	 * When present this selects the node with the specified name, and initializes a list-walk at this level. This
 	 * returns an iterator for the nodes below the list. If the node specified does not exist it returns the empty
 	 * iterator.
-	 * this call returns true (indicating the node exists) you can 
+	 * this call returns true (indicating the node exists) you can
 	 */
 	public Iterable<DOMDecoder> list(String name) {
 		Node nd = nodeFind(getCurrentRoot(), currentNS(), name);

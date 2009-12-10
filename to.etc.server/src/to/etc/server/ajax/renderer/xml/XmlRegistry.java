@@ -8,7 +8,7 @@ import to.etc.xml.*;
 
 /**
  * Renders an AJAX object tree as an XML document that can eb easily used
- * 
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 7, 2006
  */

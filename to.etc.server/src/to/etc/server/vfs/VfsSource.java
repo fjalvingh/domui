@@ -58,8 +58,8 @@ final public class VfsSource {
 		return m_provider.getRealPath(this);
 	}
 
-	/** 
-	 * Gets the last date/time this document was modified 
+	/**
+	 * Gets the last date/time this document was modified
 	 */
 	public long getDateModified() {
 		return m_modified;
@@ -73,8 +73,8 @@ final public class VfsSource {
 	}
 
 	/**
-	 * Returns a valid Java encoding name for the resource *if* the resource is a  
-	 * text type. For binary streams this returns null. This encoding will be used 
+	 * Returns a valid Java encoding name for the resource *if* the resource is a
+	 * text type. For binary streams this returns null. This encoding will be used
 	 * when a reader is needed from the resource.
 	 */
 	public String getEncoding() {

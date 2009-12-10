@@ -336,7 +336,7 @@ public class ConnectionHandler implements Runnable, ConnectionInfo {
 	/*
 	 * There are two ways to send data to the stream:
 	 * 1. By posting ISendCommand's
-	 * 2. By posting a list of ByteBuffer's. 
+	 * 2. By posting a list of ByteBuffer's.
 	 */
 	/** The pending buffer list of writes of the 1st order (they come from the current send command). */
 	private List<ByteBuffer> m_pbl = new ArrayList<ByteBuffer>();
@@ -489,7 +489,7 @@ public class ConnectionHandler implements Runnable, ConnectionInfo {
 			if(m_pblix < m_pbl.size()) { // Data in pending buffer list?
 				m_cwb = m_pbl.get(m_pblix); // Get the buffer (it is already in read mode)
 				m_pbl.set(m_pblix++, null); // Release ownership
-				if(m_pblix >= m_pbl.size()) {// This has emptied the list? 
+				if(m_pblix >= m_pbl.size()) {// This has emptied the list?
 					m_pbl.clear(); // Then drop it.
 					m_pblix = 0; // Reset buffer index.
 				}
@@ -626,7 +626,7 @@ public class ConnectionHandler implements Runnable, ConnectionInfo {
 	 * Called when a command writer stream is closed for a stream allocated
 	 * by getCommandWriter(). It takes the buffer list and adds it to the write
 	 * queue.
-	 * 
+	 *
 	 * @param nos
 	 */
 	synchronized void commandStreamClosed(NioOutputStream nos) {

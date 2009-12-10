@@ -7,7 +7,7 @@ import to.etc.server.ajax.*;
 
 /**
  * This checks to see if the bean passed has a getter for the
- * specified property. If so it returns a retriever which uses 
+ * specified property. If so it returns a retriever which uses
  * that getter to obtain a value for the object.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>

@@ -6,7 +6,7 @@ import javax.servlet.jsp.el.*;
 
 /**
  * Any kind of literal.
- * 
+ *
  * Created on May 18, 2005
  * @author jal
  */

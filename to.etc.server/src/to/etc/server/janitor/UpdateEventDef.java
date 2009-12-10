@@ -5,7 +5,7 @@ import java.sql.*;
 /**
  * A definition class for an update event. Simple interface to
  * handle, post and register update events thru a single class
- * defining the event. 
+ * defining the event.
  *
  * @author jal
  * Created on Feb 21, 2005

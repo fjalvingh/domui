@@ -16,7 +16,7 @@ public class GenericDB {
 		static public final int		dbtypeORACLE	= 1;
 		static public final int		dbtypeMYSQL		= 2;
 		static public final int		dbtypePOSTGRESQL= 3;
-		static public final int		dbtypeORANXO	= 4;		
+		static public final int		dbtypeORANXO	= 4;
 	*/
 
 	static public final BaseDB dbtypeUNKNOWN = new UnknownDB();
@@ -48,7 +48,7 @@ public class GenericDB {
 
 	/**
 	 * Tries to return a database type for the connection passed.
-	 * TODO: Need to be replaced with generic accept() in base specific class 
+	 * TODO: Need to be replaced with generic accept() in base specific class
 	 * @param dbc		the connection to check
 	 * @return			a dbtype for the connection.
 	 */

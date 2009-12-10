@@ -12,11 +12,11 @@ import to.etc.util.*;
  * changed) simply by sending an update event using one of their dependencies.
  * </p>
  * <p>The cache uses the vfs framework for retrieval of cache item sources.</p>
- * 
+ *
  * <p>The objects contained in the cache does not need to know about the cache; the code
  * which <i>creates</i> the objects for cache use does need to know though. Cache items
  * are created using the cache's content factory.</p>
- * 
+ *
  * <p>The cache is a LRU cache with multiple LRU chains. If unmodified the cache has three
  * chains:
  * <ul>
@@ -26,7 +26,7 @@ import to.etc.util.*;
  *		retrieval. This is typically used for huge items that would eat too much memory
  *		when cached in core, and whose retrieval from the actual VfsProvider costs too much
  *		to retrieve them every time they get used. Typical example is a large .pdf residing
- *		in the database: transferring this source to the client usually takes a long time, 
+ *		in the database: transferring this source to the client usually takes a long time,
  *		and it is problematic to keep a database connection open all that time.</li>
  *	<li>The code chain contains items that are class instances, for instance compiled
  *		template classes.</li>
@@ -66,7 +66,7 @@ public class ResourceCache {
 	/** The primary lookup-item-by-key map. This caches ResourceProxies. */
 	private Map<Object, ResourceProxy>		m_proxyMap		= new Hashtable<Object, ResourceProxy>();
 
-	/** 
+	/**
 	 * Dependency map: this maps any kind of object used during the construction of an element
 	 * to all Proxies that used that object in it's construction. For instance when templates
 	 * use an include file the VfsPhysicalKey of that included file is mapped to all templates
@@ -144,7 +144,7 @@ public class ResourceCache {
 	/*--------------------------------------------------------------*/
 	/**
 	 * <p>Get a resource. The resource is looked up from the cache and if found
-	 * gets returned immediately. If the resource is not currently cached 
+	 * gets returned immediately. If the resource is not currently cached
 	 * the code opens the VfsSource for the key and uses it to either load
 	 * or compile the thing depending on it's mime type. After load or compilation
 	 * the resource gets cached and is returned ready for use.</p>
@@ -229,7 +229,7 @@ public class ResourceCache {
 				/*
 				 * Exception handling: if initializing the object causes an exception
 				 * here then we keep the entry as if it was an uninitialized entry.
-				 * This means that the old ref gets discarded (if present) and no 
+				 * This means that the old ref gets discarded (if present) and no
 				 * new ref will be linked. This will cause a reinit the next time
 				 * the resource gets accessed.
 				 */
@@ -262,7 +262,7 @@ public class ResourceCache {
 	}
 
 	/**
-	 * Creates a new reference to some thingy. This asks the factory to create a new object. The factory will do 
+	 * Creates a new reference to some thingy. This asks the factory to create a new object. The factory will do
 	 * that and add it's dependencies and the like.
 	 *
 	 * @param vr
@@ -288,7 +288,7 @@ public class ResourceCache {
 	/*	CODING:	Cache LRU and dependency maps maintenance.			*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Updates the cache's LRU lists and dependency tables when a ref 
+	 * Updates the cache's LRU lists and dependency tables when a ref
 	 * is added, deleted or changed. If an "old" ref is passed it's
 	 * data gets deleted from the tables. This reduces the cache load.
 	 * If a ref is present we check it's link state: it is is linked

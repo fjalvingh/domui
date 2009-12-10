@@ -118,7 +118,7 @@ public class Listener {
 	}
 
 	/**
-	 * Listener mainloop. 
+	 * Listener mainloop.
 	 *
 	 */
 	void runMain() {
@@ -152,7 +152,7 @@ public class Listener {
 	/*	CODING:  NIO Server open code.                       		*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Wait until it's time to reconnect. Awake every 5 seconds 
+	 * Wait until it's time to reconnect. Awake every 5 seconds
 	 */
 	private boolean waitForReconnectTime() {
 		for(;;) {

@@ -7,9 +7,9 @@ import java.util.*;
 /**
  * This static class contains a sh..tload of code which converts
  * runtime objects into other objects, using generic rules for doing that. This
- * code is shared between the EL interpreter, the NEMA template engine and the 
+ * code is shared between the EL interpreter, the NEMA template engine and the
  * like to allow conversion of objects to other types.
- * 
+ *
  * <p>Created on May 25, 2005
  * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
  */
@@ -209,7 +209,7 @@ public class RuntimeConversions {
 		if(in instanceof BigInteger)
 			return (BigInteger) in;
 		if(in instanceof String) // String containing #
-			return new BigInteger((String) in); // Coerce $ to 
+			return new BigInteger((String) in); // Coerce $ to
 		if(in instanceof BigDecimal)
 			return ((BigDecimal) in).toBigInteger();
 		else if(in instanceof Number)
@@ -416,14 +416,14 @@ public class RuntimeConversions {
 	 * object must contain some thing which allows for iteration. The following
 	 * types are supported:
 	 * <ul>
-	 * 	<li>array: any array type is handled by walking over it using a generated 
+	 * 	<li>array: any array type is handled by walking over it using a generated
 	 * 		ArrayIterator. If the array is of a primitive type each element of the
 	 * 		array gets wrapped.</li>
 	 *	<li>Container: any container returns it's iterator.</li>
 	 *	<li>Map: a Map returns it's values().iterator()
 	 * </ul>
 	 * Any other type will throw a RuntimeConversionException.
-	 * converts 
+	 * converts
 	 */
 	static public Iterator makeIterator(Object val) throws Exception {
 		if(val == null)
@@ -468,7 +468,7 @@ public class RuntimeConversions {
 	/**
 	 * Returns T if the object passed can be iterated over using the makeIterator
 	 * call.
-	 * 
+	 *
 	 * @param val
 	 * @return
 	 * @see #makeIterator(Object val)

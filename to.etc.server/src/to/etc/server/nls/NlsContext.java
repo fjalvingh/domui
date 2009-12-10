@@ -4,8 +4,8 @@ import java.text.*;
 import java.util.*;
 
 /**
- * 
- * 
+ *
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 28, 2007

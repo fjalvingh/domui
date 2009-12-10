@@ -6,7 +6,7 @@ import java.util.*;
 import to.etc.util.*;
 
 /**
- * This caches the rules that are used to "inject" values into some 
+ * This caches the rules that are used to "inject" values into some
  * object or some method. Indexed by the class of the object to inject
  * into this caches the rules calculated for injecting.
  *

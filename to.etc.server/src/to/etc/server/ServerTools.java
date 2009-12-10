@@ -10,7 +10,7 @@ import javax.servlet.http.*;
 import to.etc.util.*;
 
 /**
- * 
+ *
  *
  * @author jal
  * Created on Jan 31, 2005
@@ -25,11 +25,11 @@ final public class ServerTools {
 
 	/**
 	 * Returns a shared config source for a servlet set. If the shared
-	 * config does not already exist it gets created: it reads the 
+	 * config does not already exist it gets created: it reads the
 	 * context parameter 'config' and tries to open the specified file
 	 * as a config file. If succesful it will also check the local
-	 * config file (xxx.local) as the primary config source. 
-	 * 
+	 * config file (xxx.local) as the primary config source.
+	 *
 	 * @param ctx
 	 * @return
 	 */
@@ -72,8 +72,8 @@ final public class ServerTools {
 
 	/**
 	 * Tries to find the named config file. It tries the local directory first,
-	 * followed by the WEB-INF path and all classpath entries. 
-	 * 
+	 * followed by the WEB-INF path and all classpath entries.
+	 *
 	 * @param ctx
 	 * @param basename
 	 * @return

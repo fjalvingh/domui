@@ -116,7 +116,7 @@ public class BoolVector {
 			System.arraycopy(s1, s2.length, m_ar, s2.length, m_ar.length - s2.length);
 		} else {
 			for(int i = s1.length; --i >= 0;)
-				// Walk all elements of the source 
+				// Walk all elements of the source
 				m_ar[i] |= s1[i]; // Or the shit
 		}
 	}

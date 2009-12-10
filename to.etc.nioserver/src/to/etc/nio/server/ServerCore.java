@@ -22,7 +22,7 @@ import to.etc.util.*;
  *      than the allowed max.#of connections open (63) it allocates a new
  *      datalistener and adds the connection there.</li>
  *  <li>Each DataListener+Thread selects() on all it's connections (to a max of
- *      63). When any connection gets a select event then the only task of this thread 
+ *      63). When any connection gets a select event then the only task of this thread
  *      is to remove the key, disable it's interests and queue it on a central worker
  *      queue.</li>
  *  <li>The request is actually handled by a pool of Worker threads all reading from

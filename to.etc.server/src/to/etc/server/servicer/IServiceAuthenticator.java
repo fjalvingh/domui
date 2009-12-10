@@ -9,8 +9,8 @@ package to.etc.server.servicer;
 public interface IServiceAuthenticator {
 	/**
 	 * Check to see if the currently authenticated user has the specified role.
-	 * 
-	 * @param roleName	
+	 *
+	 * @param roleName
 	 * @return	T if the user HAS the role specified (or is the ADMIN user).
 	 * @throws Exception
 	 */

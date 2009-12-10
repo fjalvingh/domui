@@ -7,7 +7,7 @@ import to.etc.util.*;
 
 /**
  * Reads CSV files record by record, and implements the iLoadInputProvider interface
- * to access the fields. 
+ * to access the fields.
  * Created on Oct 13, 2003
  * @author jal
  */
@@ -49,7 +49,7 @@ public class CSVRecordReader implements iRecordReader {
 	/** We can use a whitespace as separator. Signal this, otherwise it will be skipped as a whitespace. */
 	private boolean				m_whitespaceSeparator;
 
-	/** 
+	/**
 	 * When set this allows shitty escaping: when quotes are not followed by a field separator they
 	 * are assumed to be within the field data.
 	 */
@@ -85,7 +85,7 @@ public class CSVRecordReader implements iRecordReader {
 		}
 
 		/**
-		 * 
+		 *
 		 * @see to.etc.csv.iInputField#getValue()
 		 */
 		public String getValue() {
@@ -93,7 +93,7 @@ public class CSVRecordReader implements iRecordReader {
 		}
 
 		/**
-		 * 
+		 *
 		 * @see to.etc.csv.iInputField#isEmpty()
 		 */
 		public boolean isEmpty() {
@@ -173,8 +173,8 @@ public class CSVRecordReader implements iRecordReader {
 	}
 
 	/**
-	 * Read the next (or first) record from the input and prepare it for 
-	 * processing. 
+	 * Read the next (or first) record from the input and prepare it for
+	 * processing.
 	 * @return
 	 */
 	public boolean nextRecord() throws IOException {
@@ -211,7 +211,7 @@ public class CSVRecordReader implements iRecordReader {
 
 	/**
 	 * Parses a single line into fields. This fills the field set with
-	 * data from the record. 
+	 * data from the record.
 	 * @param line
 	 */
 	private void decode(String line) throws IOException {
@@ -287,7 +287,7 @@ public class CSVRecordReader implements iRecordReader {
 		if(m_ix == six) // No spaces between separators?
 			addField(m_ix, null); // Treat as NULL value
 		else
-			addLitField(six, m_line, m_ix - six); // add the field.							
+			addLitField(six, m_line, m_ix - six); // add the field.
 	}
 
 	private void parseQuoted() throws IOException {

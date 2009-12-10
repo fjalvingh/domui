@@ -8,7 +8,7 @@ import to.etc.el.node.*;
 
 /**
  * Shared singleton instance of the evaluator which contains the cached shit.
- * 
+ *
  * Created on May 18, 2005
  * @author jal
  */

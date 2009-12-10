@@ -8,10 +8,10 @@ import java.sql.*;
  * the parameters needed to create a connection to that database. It
  * is used to keep a holder to the database that was used/is needed
  * to obtain data for an object, without actually keeping a connection
- * to that database. 
+ * to that database.
  * <p>Connections allocated by this method MUST BE RELEASED WITH CLOSE
  * or they will be lost..
- *  
+ *
  * Created on Oct 17, 2003
  * @author jal
  */

@@ -113,7 +113,7 @@ final public class PartsRegistry {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void generatePart(VfsPathResolver resolver, RequestContext info, String partname, String rurl) throws Exception {
 		PartFactory pf = getFactory(partname);
@@ -152,7 +152,7 @@ final public class PartsRegistry {
 	}
 
 	/**
-	 * CacheObjectFactory implementation which takes a BufferedPartFactory as 
+	 * CacheObjectFactory implementation which takes a BufferedPartFactory as
 	 * a parameter and generates the resulting data.
 	 */
 	static private final CacheObjectFactory	COF	= new CacheObjectFactory() {

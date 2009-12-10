@@ -61,7 +61,7 @@ class DOMNodeIterator implements Iterator<DOMDecoder>, Iterable<DOMDecoder> {
 	/*	CODING:	Iterable<T> implementation.							*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @see java.lang.Iterable#iterator()
 	 */
 	public Iterator<DOMDecoder> iterator() {
@@ -72,7 +72,7 @@ class DOMNodeIterator implements Iterator<DOMDecoder>, Iterable<DOMDecoder> {
 	/*	CODING:	Iterator<T> implementation.							*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @see java.util.Iterator#hasNext()
 	 */
 	public boolean hasNext() {

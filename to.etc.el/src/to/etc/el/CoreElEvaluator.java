@@ -18,8 +18,8 @@ import to.etc.util.*;
  * <p>The expression is a generic expression without ${ ... } or #{ .... } constructs
  * attached to it. The code will calculate a get for the value at minimum and can be
  * asked to provide a set for the value too.
- * 
- * <p>This code tries to compile an expression into an object form where the 
+ *
+ * <p>This code tries to compile an expression into an object form where the
  * object form can be executed very quickly.
  *
  * Created on May 17, 2005
@@ -46,7 +46,7 @@ public class CoreElEvaluator {
 	private FunctionMapper m_mapper;
 
 	/**
-	 * The base compiler for compiling expressions. 
+	 * The base compiler for compiling expressions.
 	 * @param s
 	 * @param mapper
 	 * @return
@@ -188,14 +188,14 @@ public class CoreElEvaluator {
 			/*
 			 * Now we handle precedence: while the "current" token's precedence is
 			 * below the stacked precedence create the stacked operation; repeat till
-			 * the stacked op has a lower prec than the current. 
+			 * the stacked op has a lower prec than the current.
 			 */
 			for(;;) {
 				ElToken stkop = peekTopToken(); // Get the top stacked token
 				if(currop.getPrec() > stkop.getPrec()) {
 					/*
-					 * The current op has higher precedence than the stacked 
-					 * one. We need to stack this and continue.    
+					 * The current op has higher precedence than the stacked
+					 * one. We need to stack this and continue.
 					 */
 					push(currop);
 					push(t); // Save the current term
@@ -223,7 +223,7 @@ public class CoreElEvaluator {
 
 	/**
 	 * Evaluate a term and stack it. The token to use is current.
-	 * 
+	 *
 	 * @throws ELException
 	 */
 	private NdBase term() throws ELException {

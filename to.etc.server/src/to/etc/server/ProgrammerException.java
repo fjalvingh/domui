@@ -1,7 +1,7 @@
 package to.etc.server;
 
 /**
- * 
+ *
  *
  * @author jal
  * Created on Jan 21, 2005

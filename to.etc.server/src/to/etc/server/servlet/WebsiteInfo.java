@@ -18,7 +18,7 @@ public interface WebsiteInfo {
 	 * Gets the relative URL of the website. If this is the ROOT website this returns the
 	 * empty string. For normal webapps this returns the context name ending in a slash. So
 	 * for the webapp 'navidemo' this function returns "navidemo/".
-	 * 
+	 *
 	 * @return
 	 */
 	public String getSiteRURL();

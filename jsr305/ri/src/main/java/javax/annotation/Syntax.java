@@ -13,8 +13,8 @@ import javax.annotation.meta.When;
  * constant values at compile time, run time checking at runtime, and can assist
  * IDEs in deciding how to interpret String constants (e.g., should a
  * refactoring that renames method x() to y() update the String constant "x()").
- * 
- * 
+ *
+ *
  */
 @Documented
 @TypeQualifier(applicableTo = String.class)
@@ -33,7 +33,7 @@ public @interface Syntax {
      * <li> "SQL"
      * <li> "FormatString"
      * </ul>
-     * 
+     *
      * Syntax names can be followed by a colon and a list of key value pairs,
      * separated by commas. For example, "SQL:dialect=Oracle,version=2.3". Tools
      * should ignore any keys they don't recognize.

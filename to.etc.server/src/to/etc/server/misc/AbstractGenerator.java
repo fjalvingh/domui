@@ -5,8 +5,8 @@ import to.etc.server.servlet.*;
 /**
  * Represents a servlet generator: a thingy which is able to
  * generate the result for a servlet. A generator is used in
- * servlets that have several ways to output their data. 
- * 
+ * servlets that have several ways to output their data.
+ *
  * Created on Feb 4, 2005
  * @author jal
  */

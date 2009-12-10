@@ -1,7 +1,7 @@
 package to.etc.server.vfs;
 
 /**
- * Information passed to a VfsChangeListener about the resource 
+ * Information passed to a VfsChangeListener about the resource
  * that has changed.
  *
  * @author jal
