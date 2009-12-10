@@ -8,6 +8,7 @@ import javax.annotation.*;
 import to.etc.domui.caches.filecache.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.util.images.*;
+import to.etc.domui.util.images.converters.*;
 import to.etc.domui.util.images.machines.*;
 
 /**
@@ -25,7 +26,7 @@ import to.etc.domui.util.images.machines.*;
  * a primary key, filename or whatnot and uses that to access the actual image. The combination of an IImageRetriever <i>and</i> a
  * <i>retriever key</i> uniquely identifies an original image. Internally this identity is maintained in {@link ImageKey}. For external
  * purposes the retriever itself can be specified as a string too: the retriever's name. This combination of retriever name and retriever
- * key can be used in URL's to access a given original image. This is the task of the {@link ImagePartBase} part.</p>
+ * key can be used in URL's to access a given original image. This is the task of the {@link CachedImagePart} part.</p>
  *
  * <h2>Image transformations</h2>
  * <p>Getting an original image is nice but it's often not really needed - we usually need to have some specific transformed version
@@ -181,6 +182,14 @@ public class ImageCache {
 		return m_factoryMap.get(key);
 	}
 
+	public ImageKey createImageKey(String retrieverkey, String instancekey) {
+		IImageRetriever ir = findRetriever(retrieverkey);
+		if(ir == null)
+			return null;
+		return new ImageKey(ir, instancekey);
+	}
+
+
 	//	synchronized File createTemp() {
 	//		int fnr = m_counters[m_counters.length - 1]++;
 	//		if(fnr >= 1000) {
@@ -297,6 +306,12 @@ public class ImageCache {
 		}
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	User accessable calls.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Task to call getOriginalData().
+	 */
 	static private final ISpecTask C_GETORIGINALDATA = new ISpecTask() {
 		@Override
 		public Object executeTask(ImageTask task, Object args) throws Exception {
@@ -304,13 +319,21 @@ public class ImageCache {
 		}
 	};
 
+	static IImageStreamSource convert(CachedImageData cid) {
+		if(cid.getBuffers() != null)
+			return new MemoryImageSource(cid);
+		else
+			return new FileImageSource(cid);
+	}
+
 	/**
 	 * Return a data reference to the original image's data.
 	 * @param k
 	 * @return
 	 */
-	public CachedImageData getOriginalData(ImageKey k) throws Exception {
-		return (CachedImageData) executeTask(k, C_GETORIGINALDATA, null);
+	public IImageStreamSource getOriginalData(ImageKey k) throws Exception {
+		CachedImageData cid = (CachedImageData) executeTask(k, C_GETORIGINALDATA, null);
+		return convert(cid);
 	}
 
 	static private final ISpecTask C_GETORIGINALINFO = new ISpecTask() {
@@ -329,6 +352,55 @@ public class ImageCache {
 		return ((CachedImageInfo) executeTask(k, C_GETORIGINALINFO, null)).getImageInfo();
 	}
 
+	static private final ISpecTask C_GETCONVERTEDDATA = new ISpecTask() {
+		@Override
+		public Object executeTask(ImageTask task, Object args) throws Exception {
+			return task.getImageData((List<IImageConversionSpecifier>) args);
+		}
+	};
+
+	static private final ISpecTask C_GETCONVERTEDINFO = new ISpecTask() {
+		@Override
+		public Object executeTask(ImageTask task, Object args) throws Exception {
+			return task.getImageInfo((List<IImageConversionSpecifier>) args);
+		}
+	};
+
+	static private final ISpecTask C_GETFULLINFO = new ISpecTask() {
+		@Override
+		public Object executeTask(ImageTask task, Object args) throws Exception {
+			return task.getFullImage((List<IImageConversionSpecifier>) args);
+		}
+	};
+
+	/**
+	 *
+	 * @param k
+	 * @param convlist
+	 * @return
+	 * @throws Exception
+	 */
+	public IImageStreamSource getImageData(ImageKey k, List<IImageConversionSpecifier> convlist) throws Exception {
+		CachedImageData cid = (CachedImageData) executeTask(k, C_GETCONVERTEDDATA, convlist);
+		return convert(cid);
+	}
+
+	public ImageInfo getImageInfo(ImageKey k, List<IImageConversionSpecifier> convlist) throws Exception {
+		CachedImageInfo cid = (CachedImageInfo) executeTask(k, C_GETCONVERTEDINFO, convlist);
+		return cid.getImageInfo();
+	}
+
+
+	/**
+	 * Get full image data: both the data source AND it's info.
+	 * @param k
+	 * @param convlist
+	 * @return
+	 * @throws Exception
+	 */
+	public FullImage getFullImage(ImageKey k, List<IImageConversionSpecifier> convlist) throws Exception {
+		return (FullImage) executeTask(k, C_GETFULLINFO, convlist);
+	}
 
 
 	/*--------------------------------------------------------------*/

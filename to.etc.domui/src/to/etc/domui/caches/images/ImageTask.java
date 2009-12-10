@@ -408,4 +408,10 @@ public class ImageTask extends CacheChange {
 		return cii;
 	}
 
+	public Object getFullImage(List<IImageConversionSpecifier> conversions) throws Exception {
+		removeOutdatedVersions(); // Remove all old thingies from the cache.
+		CachedImageData cid = getImageData(conversions);
+		CachedImageInfo cii = getImageInfo(conversions);
+		return new FullImage(ImageCache.convert(cid), cii.getImageInfo());
+	}
 }

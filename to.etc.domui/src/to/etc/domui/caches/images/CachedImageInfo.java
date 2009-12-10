@@ -6,7 +6,7 @@ import to.etc.domui.caches.filecache.*;
 import to.etc.domui.util.images.machines.*;
 
 @Immutable
-public class CachedImageInfo extends CachedImageFragment {
+final class CachedImageInfo extends CachedImageFragment {
 	private ImageInfo m_imageData;
 
 	public CachedImageInfo(ImageRoot root, String perm, long sourceVersionLong, FileCacheRef ref, ImageInfo oid, int memload) {

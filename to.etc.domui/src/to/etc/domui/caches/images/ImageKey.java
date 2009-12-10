@@ -11,7 +11,7 @@ import to.etc.domui.util.images.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 30, 2009
  */
-final class ImageKey {
+final public class ImageKey {
 	private IImageRetriever m_retriever;
 
 	private String m_instanceKey;

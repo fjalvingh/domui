@@ -17,4 +17,10 @@ public interface IImageStreamSource {
 	 * @throws Exception
 	 */
 	InputStream getImageStream() throws Exception;
+
+	/**
+	 * The size, in bytes, of the cached data.
+	 * @return
+	 */
+	int getSize();
 }

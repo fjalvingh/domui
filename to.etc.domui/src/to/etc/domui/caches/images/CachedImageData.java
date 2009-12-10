@@ -39,7 +39,7 @@ import to.etc.domui.caches.filecache.*;
  * Created on Oct 2, 2008
  */
 @Immutable
-final public class CachedImageData extends CachedImageFragment {
+final class CachedImageData extends CachedImageFragment {
 	/** If this is cached in memory the data of this image. */
 	private byte[][] m_buffers;
 
