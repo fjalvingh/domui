@@ -943,7 +943,7 @@ public class FileTool {
 		}
 	}
 
-	static public InputStream getZipContent(final File src, final String name) throws Exception {
+	static public InputStream getZipContent(final File src, final String name) throws IOException {
 		InputStream is = new FileInputStream(src);
 		boolean ok = false;
 		try {
