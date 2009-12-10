@@ -323,24 +323,40 @@ public class ImageTask extends CacheChange {
 		OutputStream os = null;
 		boolean ok = false;
 		try {
-			//-- 1. Does the file data exist on the file system still?
+			/*
+			 * We need both data and info file present AND readable or we need to regenerate.
+			 */
+			ImageInfo info = null;
+			if(inforef.getFile().exists() && inforef.getFile().length() > 0) {
+				//-- Try to read the info thingy.
+				try {
+					info = (ImageInfo) FileTool.loadSerialized(inforef.getFile());
+				} catch(Exception x) {}
+			}
+
 			int len = 0;
-			if(!dataref.getFile().exists() || dataref.getFile().length() == 0) {
+			if(!dataref.getFile().exists() || dataref.getFile().length() == 0 || info == null) {
 				/*
 				 * We need to generate the mutation on the image. This does not only create a new
 				 * image data file but it also (re) calculates the image's info. Because there is
 				 * a possibility that the new image has a different info set than a previously loaded
 				 * version we have to replace any existing version.
 				 */
-				ImageInfo info = generatePermutation(dataref, conversions); // Generate the derived.
-				CachedImageInfo oldci = getRoot().findPermutationInfo(perm);// Is an older copy available?
-				getRoot().unregisterInstance(oldci);
-				addDeletedFragment(oldci); // Tell the cache to update it's admin
+				info = generatePermutation(dataref, conversions); // Generate the derived.
 
 				//-- Store the new image's serialized info, then register the new image info
 				FileTool.saveSerialized(inforef.getFile(), info);
-				addNewInfo(perm, cts, inforef, info);
 			}
+
+			//-- Store the info on this image.
+			CachedImageInfo oldci = getRoot().findPermutationInfo(perm);// Is an older copy available?
+			if(oldci != null) {
+				addDeletedFragment(oldci); // Tell the cache to update it's admin
+				getRoot().unregisterInstance(oldci);
+			}
+			addNewInfo(perm, cts, inforef, info);
+
+			//-- Now load the data block.
 			len = (int) dataref.getFile().length();
 
 			//-- 2. The file exists. Is it suitable for memory caching?

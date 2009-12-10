@@ -2,6 +2,8 @@ package to.etc.domui.caches.images;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * This is an accounting record for a cache change in progress. While individual
  * images are manipulated the main cache structures must remain unlocked, but the
@@ -32,21 +34,27 @@ class CacheChange {
 	 * called for deleted images.
 	 * @param ii
 	 */
-	public void addUsedFragment(CachedImageFragment ii) {
+	public void addUsedFragment(@Nonnull CachedImageFragment ii) {
+		if(ii == null)
+			throw new IllegalArgumentException("Cannot pass null");
 		if(m_deletedFragmentList.contains(ii))
 			throw new IllegalStateException("Trying to use an image that is marked as deleted: " + ii);
 		m_usedFragmentList.add(ii);
 	}
 
-	public void addDeletedFragment(CachedImageFragment ii) {
+	public void addDeletedFragment(@Nonnull CachedImageFragment ii) {
+		if(ii == null)
+			throw new IllegalArgumentException("Cannot pass null");
 		m_usedFragmentList.remove(ii); // If it was used earlier remove from there
 		m_deletedFragmentList.add(ii);
 	}
 
+	@Nonnull
 	public List<CachedImageFragment> getUsedFragmentList() {
 		return m_usedFragmentList;
 	}
 
+	@Nonnull
 	public List<CachedImageFragment> getDeletedFragmentList() {
 		return m_deletedFragmentList;
 	}

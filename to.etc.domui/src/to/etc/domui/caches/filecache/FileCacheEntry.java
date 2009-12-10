@@ -15,7 +15,8 @@ class FileCacheEntry {
 	@GuardedBy("m_cache")
 	int m_useCount;
 
-	public FileCacheEntry(File file, String key) {
+	public FileCacheEntry(FileCache fc, File file, String key) {
+		m_cache = fc;
 		m_file = file;
 		m_key = key;
 		m_useCount = 1;

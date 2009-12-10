@@ -8,6 +8,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
 import to.etc.domui.util.images.*;
 import to.etc.domui.util.images.converters.*;
 import to.etc.util.*;
@@ -152,7 +153,16 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 		String v = pin.getParameter("format");
 		if(v == null)
 			return;
-		ik.add(new ImageConvert(v));
+		String mime = v;
+
+		//-- If format is non-mime try to xlate to mime
+		if(mime.indexOf('/') == -1) {
+			mime = ServerTools.getExtMimeType(v.toLowerCase());
+			if(mime == null)
+				throw new IllegalStateException("Cannot find a mime type for format=" + v);
+		}
+
+		ik.add(new ImageConvert(mime));
 	}
 
 	static public String getURL(String providerkey, String instancekey, String... convs) {
@@ -167,6 +177,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 		for(String cv : convs) {
 			sb.append(ix == 0 ? "?" : "&");
 			sb.append(cv);
+			ix++;
 		}
 		return PageContext.getRequestContext().getRelativePath(sb.toString());
 	}

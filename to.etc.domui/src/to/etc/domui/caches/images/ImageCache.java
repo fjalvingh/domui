@@ -282,6 +282,9 @@ public class ImageCache {
 				return t.executeTask(it, args);
 			}
 		} finally {
+			try {
+				it.close();
+			} catch(Exception x) {}
 			updateCacheDetails(it);
 		}
 	}

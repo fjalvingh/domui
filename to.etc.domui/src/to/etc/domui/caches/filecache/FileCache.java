@@ -57,12 +57,13 @@ public class FileCache {
 			throw new IllegalStateException("Invalid path: cannot be absolute");
 
 		File f = new File(getCacheRoot(), rpath);
+		f.getParentFile().mkdirs();
 
 		//-- Allocate a FileRef for this.
 		synchronized(this) {
 			FileCacheEntry fe = m_refMap.get(rpath);
 			if(fe == null) {
-				fe = new FileCacheEntry(f, rpath);
+				fe = new FileCacheEntry(this, f, rpath);
 				m_refMap.put(rpath, fe);
 			} else
 				fe.inc();
