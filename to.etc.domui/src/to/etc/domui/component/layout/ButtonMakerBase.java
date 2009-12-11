@@ -47,8 +47,8 @@ abstract public class ButtonMakerBase {
 		return b;
 	}
 
-	public DefaultButton addConfirmedButton(final String icon, final String txt, final String msg, final IClicked<DefaultButton> click) {
-		DefaultButton b = MsgBox.areYouSureButton(txt, msg, click);
+	public DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click) {
+		DefaultButton b = MsgBox.areYouSureButton(txt, icon, msg, click);
 		addButton(b);
 		return b;
 	}

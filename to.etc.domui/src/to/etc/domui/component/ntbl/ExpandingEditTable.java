@@ -191,6 +191,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 		//-- Ok, now add the (initially empty) action row
 		TD td = cc.add((NodeBase) null);
+		bc.setContainer(td);
 		if(getRowButtonFactory() != null) {
 			getRowButtonFactory().addButtonsFor(bc, value);
 		}
@@ -529,6 +530,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			throw new IllegalStateException("Insane index: " + index);
 
 		//-- Remove, and discard any open edit box
+		TR row = m_dataBody.getRow(index);
+		row.remove();
 		updateIndexes(index);
 		setEmptyDiv();
 	}
