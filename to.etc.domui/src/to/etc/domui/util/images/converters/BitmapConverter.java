@@ -83,8 +83,11 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 				targetMime = "image/png";
 		}
 		ImageHandler ih = ImageManipulator.getImageHandler();
-		ImageSpec tis = resize instanceof ImageThumbnail ? ih.thumbnail(helper, helper.getSource(), 0, d.width, d.height, targetMime) : ih.scale(helper, helper.getSource(), 0, d.width, d.height,
-			targetMime);
+		ImageSpec tis;
+		if(resize instanceof ImageThumbnail)
+			tis = ih.thumbnail(helper, helper.getSource(), sourcePage, d.width, d.height, targetMime);
+		else
+			tis = ih.scale(helper, helper.getSource(), sourcePage, d.width, d.height, targetMime);
 		helper.setTarget(tis);
 	}
 

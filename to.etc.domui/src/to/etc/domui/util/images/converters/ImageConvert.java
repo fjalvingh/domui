@@ -14,4 +14,9 @@ public class ImageConvert implements IImageConversionSpecifier {
 	public String getConversionKey() {
 		return m_targetMime.replace('/', '$');
 	}
+
+	@Override
+	public String toString() {
+		return "ImageConvert[to=" + getTargetMime() + "]";
+	}
 }

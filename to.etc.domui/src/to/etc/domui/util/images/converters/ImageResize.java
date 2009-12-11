@@ -50,4 +50,9 @@ public class ImageResize implements IImageConversionSpecifier {
 	public String getTargetMime() {
 		return m_targetMime;
 	}
+
+	@Override
+	public String toString() {
+		return "ImageResize[" + getWidth() + "x" + getHeight() + ", mime=" + getTargetMime() + ", filterspec=" + getFilterSpec() + "]";
+	}
 }
