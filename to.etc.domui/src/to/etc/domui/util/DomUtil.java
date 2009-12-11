@@ -1094,12 +1094,12 @@ final public class DomUtil {
 		try {
 			Object res = walkTree(root, new IPerNode() {
 				public Object before(NodeBase n) throws Exception {
-					if(n instanceof IUserInputModifiedFence)
-						return SKIP;
 					if(n instanceof IHasModifiedIndication) {
 						if(((IHasModifiedIndication) n).isModified())
 							return Boolean.TRUE;
 					}
+					if(n instanceof IUserInputModifiedFence)
+						return SKIP;
 					return null;
 				}
 
