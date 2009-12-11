@@ -180,12 +180,16 @@ public class OptimalDeltaRenderer {
 				return null;
 			}
 		});
-		List<HeaderContributor> list = m_page.getAddedContributors();
+
+		//-- This is incomplete: see bug 669
+		List<HeaderContributorEntry> list = m_page.getAddedContributors();
 		if(list.size() > 0) {
+			Collections.sort(list, HeaderContributor.C_ENTRY);
+
 			o().tag("eval");
 			o().endtag();
-			for(HeaderContributor hc : list)
-				hc.contribute(this);
+			for(HeaderContributorEntry hc : list)
+				hc.getContributor().contribute(this);
 			o().closetag("eval");
 		}
 

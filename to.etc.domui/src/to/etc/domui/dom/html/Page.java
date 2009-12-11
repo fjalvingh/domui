@@ -49,7 +49,7 @@ final public class Page implements IQContextContainer {
 	/**
 	 * Contains the header contributors in the order that they were added.
 	 */
-	private List<HeaderContributor> m_orderedContributorList = Collections.EMPTY_LIST;
+	private List<HeaderContributorEntry> m_orderedContributorList = Collections.EMPTY_LIST;
 
 	/**
 	 * As soon as header contributor are rendered to the browser this gets set to the
@@ -91,32 +91,11 @@ final public class Page implements IQContextContainer {
 		pageContent.internalSetTagName("body"); // Override it's tagname
 		pageContent.setErrorFence(); // The body ALWAYS accepts ANY errors.
 
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-1.2.6.js"));
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"));
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"));
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"));
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.js"));
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"));
-
-		/*
-		 * FIXME: Delayed construction of components causes problems with components
-		 * that are delayed and that contribute. Example: tab pabel containing a
-		 * DateInput. The TabPanel gets built when header contributions have already
-		 * been handled... For now we add all JS files here 8-(
-		 */
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar.js"));
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar-setup.js"));
-
 		//-- Localize calendar resources
 		String res = DomApplication.get().findLocalizedResourceName("$js/calendarnls", ".js", NlsContext.getLocale());
 		if(res == null)
 			throw new IllegalStateException("internal: missing calendar NLS resource $js/calendarnls{nls}.js");
-		addHeaderContributor(HeaderContributor.loadJavascript(res));
-
-		/*
-		 * FIXME Same as above, this is for loading the FCKEditor.
-		 */
-		addHeaderContributor(HeaderContributor.loadJavascript("$fckeditor/fckeditor.js"));
+		addHeaderContributor(HeaderContributor.loadJavascript(res), -760);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -282,28 +261,32 @@ final public class Page implements IQContextContainer {
 	 * contributors needed by a node.
 	 * @param hc
 	 */
-	final public void addHeaderContributor(final HeaderContributor hc) {
+	final public void addHeaderContributor(final HeaderContributor hc, int order) {
 		if(m_headerContributorSet == null) {
 			m_headerContributorSet = new HashSet<HeaderContributor>(30);
-			m_orderedContributorList = new ArrayList<HeaderContributor>(30);
+			m_orderedContributorList = new ArrayList<HeaderContributorEntry>(30);
 			m_headerContributorSet.add(hc);
-			m_orderedContributorList.add(hc);
+			m_orderedContributorList.add(new HeaderContributorEntry(hc, order));
 			return;
 		}
 		if(m_headerContributorSet.contains(hc)) // Already registered?
 			return;
 		m_headerContributorSet.add(hc);
-		m_orderedContributorList.add(hc);
+		m_orderedContributorList.add(new HeaderContributorEntry(hc, order));
 	}
 
-	public List<HeaderContributor> getHeaderContributorList() {
-		return new ArrayList<HeaderContributor>(m_orderedContributorList);
+	public synchronized void internalAddContributors(List<HeaderContributorEntry> full) {
+		full.addAll(m_orderedContributorList);
 	}
 
-	public List<HeaderContributor> getAddedContributors() {
+	public List<HeaderContributorEntry> getHeaderContributorList() {
+		return new ArrayList<HeaderContributorEntry>(m_orderedContributorList);
+	}
+
+	public List<HeaderContributorEntry> getAddedContributors() {
 		if(m_orderedContributorList == null || m_lastContributorIndex >= m_orderedContributorList.size())
 			return Collections.EMPTY_LIST;
-		return new ArrayList<HeaderContributor>(m_orderedContributorList.subList(m_lastContributorIndex, m_orderedContributorList.size()));
+		return new ArrayList<HeaderContributorEntry>(m_orderedContributorList.subList(m_lastContributorIndex, m_orderedContributorList.size()));
 	}
 
 	public void internalContributorsRendered() {

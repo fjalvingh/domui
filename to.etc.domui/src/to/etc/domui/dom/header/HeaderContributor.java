@@ -20,6 +20,13 @@ import to.etc.domui.dom.html.*;
  * Created on Aug 17, 2007
  */
 abstract public class HeaderContributor {
+	static public final Comparator<HeaderContributorEntry> C_ENTRY = new Comparator<HeaderContributorEntry>() {
+		@Override
+		public int compare(HeaderContributorEntry a, HeaderContributorEntry b) {
+			return a.getOrder() - b.getOrder();
+		}
+	};
+
 	static private Map<String, HeaderContributor> m_jsMap = new HashMap<String, HeaderContributor>();
 
 	abstract public void contribute(HtmlFullRenderer r) throws Exception;
@@ -36,6 +43,33 @@ abstract public class HeaderContributor {
 		HeaderContributor c = m_jsMap.get(name);
 		if(c == null) {
 			c = new JavascriptContributor(name);
+			m_jsMap.put(name, c);
+		}
+		return c;
+	}
+
+	static synchronized public HeaderContributor loadJavaScriptlet(final String name) {
+		HeaderContributor c = m_jsMap.get(name);
+		if(c == null) {
+			c = new JavaScriptletContributor(name);
+			m_jsMap.put(name, c);
+		}
+		return c;
+	}
+
+	static synchronized public HeaderContributor loadStylesheet(final String name) {
+		HeaderContributor c = m_jsMap.get(name);
+		if(c == null) {
+			c = new CssContributor(name);
+			m_jsMap.put(name, c);
+		}
+		return c;
+	}
+
+	static synchronized public HeaderContributor loadThemedJavasciptContributor(final String name) {
+		HeaderContributor c = m_jsMap.get(name);
+		if(c == null) {
+			c = new ThemedJavascriptContributor(name);
 			m_jsMap.put(name, c);
 		}
 		return c;

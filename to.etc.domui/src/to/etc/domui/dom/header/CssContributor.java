@@ -6,7 +6,7 @@ import to.etc.domui.dom.html.*;
 final public class CssContributor extends HeaderContributor {
 	private String m_path;
 
-	public CssContributor(String path) {
+	CssContributor(String path) {
 		m_path = path;
 	}
 

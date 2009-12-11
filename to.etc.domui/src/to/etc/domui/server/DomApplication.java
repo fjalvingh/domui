@@ -64,7 +64,7 @@ public abstract class DomApplication {
 	/**
 	 * Contains the header contributors in the order that they were added.
 	 */
-	private List<HeaderContributor> m_orderedContributorList = Collections.EMPTY_LIST;
+	private List<HeaderContributorEntry> m_orderedContributorList = Collections.EMPTY_LIST;
 
 	private List<INewPageInstantiated> m_newPageInstListeners = Collections.EMPTY_LIST;
 
@@ -105,6 +105,7 @@ public abstract class DomApplication {
 	public DomApplication() {
 		registerControlFactories();
 		registerPartFactories();
+		initHeaderContributors();
 		addRenderFactory(new MsCrapwareRenderFactory()); // Add html renderers for IE <= 7
 	}
 
@@ -398,17 +399,53 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Global header contributors.							*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Call from within the onHeaderContributor call on a node to register any header
-	 * contributors needed by a node.
-	 * @param hc
-	 */
-	final public synchronized void addHeaderContributor(final HeaderContributor hc) {
-		m_orderedContributorList = new ArrayList<HeaderContributor>(m_orderedContributorList); // Dup the original list,
-		m_orderedContributorList.add(hc); // And add the new'un
+
+	protected void initHeaderContributors() {
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-1.2.6.js"), -1000);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"), -990);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"), -970);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.js"), -900);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"), -790);
+
+		/*
+		 * FIXME: Delayed construction of components causes problems with components
+		 * that are delayed and that contribute. Example: tab pabel containing a
+		 * DateInput. The TabPanel gets built when header contributions have already
+		 * been handled... For now we add all JS files here 8-(
+		 */
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar.js"), -780);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar-setup.js"), -770);
+		//-- Localized calendar resources are added per-page.
+
+		/*
+		 * FIXME Same as above, this is for loading the FCKEditor.
+		 */
+		addHeaderContributor(HeaderContributor.loadJavascript("$fckeditor/fckeditor.js"), -760);
 	}
 
-	public synchronized List<HeaderContributor> getHeaderContributorList() {
+
+	/**
+	 * Call from within the onHeaderContributor call on a node to register any header
+	 * contributors needed by a node. The order value determines the order for contributors
+	 * which is mostly important for Javascript ones; higher order items are written later than
+	 * lower order items. All DomUI required Javascript code has orders < 0; user code should
+	 * start at 0 and go up.
+	 *
+	 * @param hc
+	 * @param order
+	 */
+	final public synchronized void addHeaderContributor(final HeaderContributor hc, int order) {
+		for(HeaderContributorEntry hce : m_orderedContributorList) {
+			if(hce.getContributor().equals(hc))
+				throw new IllegalArgumentException("The header contributor " + hc + " has already been added.");
+		}
+
+		m_orderedContributorList = new ArrayList<HeaderContributorEntry>(m_orderedContributorList); // Dup the original list,
+		m_orderedContributorList.add(new HeaderContributorEntry(hc, order)); // And add the new'un
+	}
+
+	public synchronized List<HeaderContributorEntry> getHeaderContributorList() {
 		return m_orderedContributorList;
 	}
 
