@@ -1013,8 +1013,28 @@ final public class DomUtil {
 	 * Created on Nov 3, 2009
 	 */
 	static public interface IPerNode {
+		/** When this object instance is returned by the before(NodeBase) method we SKIP the downwards traversal. */
+		static public final Object SKIP = new Object();
+
+		/**
+		 * Called when the node is first encountered in the tree. It can return null causing the rest of the tree
+		 * to be traversed; if it returns the constant IPerNode.SKIP the subtree starting at this node will not
+		 * be traversed but the rest of the tree will. When you return SKIP the {@link IPerNode#after(NodeBase)} method
+		 * will not be called for this node. Returning any other value will stop the node traversal process
+		 * and return that value to the caller of {@link DomUtil#walkTree(NodeBase, IPerNode)}.
+		 * @param n
+		 * @return
+		 * @throws Exception
+		 */
 		public Object before(NodeBase n) throws Exception;
 
+		/**
+		 * Called when all child nodes of the specified node have been traversed. When this returns a non-null
+		 * value this will terminate the tree walk and return that value to the called of {@link DomUtil#walkTree(NodeBase, IPerNode)}.
+		 * @param n
+		 * @return
+		 * @throws Exception
+		 */
 		public Object after(NodeBase n) throws Exception;
 	}
 
@@ -1029,6 +1049,8 @@ final public class DomUtil {
 		if(root == null)
 			return null;
 		Object v = handler.before(root);
+		if(v == IPerNode.SKIP)
+			return null;
 		if(v != null)
 			return v;
 		if(root instanceof NodeContainer) {
@@ -1072,6 +1094,8 @@ final public class DomUtil {
 		try {
 			Object res = walkTree(root, new IPerNode() {
 				public Object before(NodeBase n) throws Exception {
+					if(n instanceof IUserInputModifiedFence)
+						return SKIP;
 					if(n instanceof IHasModifiedIndication) {
 						if(((IHasModifiedIndication) n).isModified())
 							return Boolean.TRUE;
