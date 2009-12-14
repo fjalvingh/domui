@@ -244,6 +244,12 @@ public class ImageTask extends CacheChange {
 				CachedImageData	cid = getOriginalData();
 				oid = ImageManipulator.identify(cid.getFile());
 
+				//-- If the mime type is still unknown ask the source for a mime type.
+				if(oid.getMime() == null) {
+					oid.setMime(getImageSource().getMimeType());
+				}
+
+
 				//-- IDENTIFY complete, now serialize to cachefile
 				FileTool.saveSerialized(ref.getFile(), oid);
 			}

@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
-import javax.annotation.concurrent.*;
 
 /**
  * The decoded data for an <i>original</i> image.
@@ -12,7 +11,6 @@ import javax.annotation.concurrent.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 10, 2008
  */
-@Immutable
 final public class ImageInfo implements Serializable {
 	/** The mime type of the original image, if known */
 	private String m_mime;
@@ -35,6 +33,10 @@ final public class ImageInfo implements Serializable {
 
 	public String getMime() {
 		return m_mime;
+	}
+
+	public void setMime(String mime) {
+		m_mime = mime;
 	}
 
 	public String getTypeName() {
