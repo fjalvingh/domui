@@ -2076,6 +2076,12 @@ public class StringTool {
 		}
 	}
 
+	static public String encodeURLEncoded(final String str) {
+		StringBuilder sb = new StringBuilder(str.length() + 30);
+		encodeURLEncoded(sb, str);
+		return sb.toString();
+	}
+
 	/**
 	 * Decode the URLEncoded string passed to a real string. An URL encoded string
 	 * is obtained as follows:
