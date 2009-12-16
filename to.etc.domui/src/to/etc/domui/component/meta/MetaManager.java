@@ -237,27 +237,32 @@ final public class MetaManager {
 		if(a.equals(b))
 			return true;
 
+		//-- Classes must be the same type but we allow for proxying
+		Class< ? > acl = a.getClass();
+		Class< ? > bcl = b.getClass();
+		if(!acl.isAssignableFrom(bcl) && !bcl.isAssignableFrom(acl))
+			return false;
+
 		//-- Try Object key identity, if available
-		if(cmm != null) {
-			if(cmm.getPrimaryKey() != null) {
-				// jal 20090924 We are going to check for PK identity. Before we do that we need to be sure both objects are of the same type.
-				Class< ? > acl = a.getClass();
-				Class< ? > bcl = b.getClass();
-				boolean sametype = acl.isAssignableFrom(bcl) || bcl.isAssignableFrom(acl); // Allow for proxying.
-				if(!sametype)
-					return false;
-				try {
-					Object pka = cmm.getPrimaryKey().getAccessor().getValue(a);
-					Object pkb = cmm.getPrimaryKey().getAccessor().getValue(b);
-					return DomUtil.isEqual(pka, pkb);
-				} catch(Exception x) {
-					x.printStackTrace();
-					return false;
-				}
+		if(cmm == null)
+			cmm = findClassMeta(a.getClass());
+		if(cmm.getPrimaryKey() != null) {
+			try {
+				Object pka = cmm.getPrimaryKey().getAccessor().getValue(a);
+				Object pkb = cmm.getPrimaryKey().getAccessor().getValue(b);
+				return DomUtil.isEqual(pka, pkb);
+			} catch(Exception x) {
+				x.printStackTrace();
+				return false;
 			}
 		}
 		return false;
 	}
+
+	static public boolean areObjectsEqual(Object a, Object b) {
+		return areObjectsEqual(a, b, null);
+	}
+
 
 	/**
 	 * Locate the enum's default label.
