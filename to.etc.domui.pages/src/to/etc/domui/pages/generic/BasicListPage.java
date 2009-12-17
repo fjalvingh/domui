@@ -20,6 +20,8 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	private boolean m_allowEmptySearch;
 
+	private boolean m_searchImmediately;
+
 	/**
 	 * Implement to handle a selection of a record that was found.
 	 * @param rcord
@@ -72,6 +74,14 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		m_allowEmptySearch = allowEmptySearch;
 	}
 
+	public boolean isSearchImmediately() {
+		return m_searchImmediately;
+	}
+
+	public void setSearchImmediately(boolean searchImmediately) {
+		m_searchImmediately = searchImmediately;
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
@@ -92,7 +102,9 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 		customizeLookupForm(lf);
 
-		if(m_result != null) {
+		if(isAllowEmptySearch() && isSearchImmediately()) {
+			search(lf);
+		} else if(m_result != null) {
 			add(m_result);
 			add(m_pager);
 		}
