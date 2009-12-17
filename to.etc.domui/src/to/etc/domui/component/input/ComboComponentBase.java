@@ -208,7 +208,9 @@ public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
 			builder = DomApplication.get().createInstance(m_dataSetClass);
 		if(builder != null)
 			return builder.getComboDataSet(getPage().getConversation(), null);
-		throw new IllegalStateException("I have no way to get data to show in my combo..");
+		return Collections.EMPTY_LIST;
+		//		
+		//		throw new IllegalStateException("I have no way to get data to show in my combo..");
 	}
 
 	/*--------------------------------------------------------------*/

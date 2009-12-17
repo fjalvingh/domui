@@ -6,7 +6,7 @@ import to.etc.domui.dom.html.*;
 final public class JavaScriptletContributor extends HeaderContributor {
 	private final String m_javascript;
 
-	public JavaScriptletContributor(final String javascript) {
+	JavaScriptletContributor(final String javascript) {
 		m_javascript = javascript;
 	}
 

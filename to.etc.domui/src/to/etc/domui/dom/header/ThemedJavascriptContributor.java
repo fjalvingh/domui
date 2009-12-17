@@ -13,7 +13,7 @@ import to.etc.domui.dom.html.*;
 public class ThemedJavascriptContributor extends HeaderContributor {
 	private String m_path;
 
-	public ThemedJavascriptContributor(String path) {
+	ThemedJavascriptContributor(String path) {
 		m_path = path;
 	}
 

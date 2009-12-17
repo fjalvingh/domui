@@ -1,5 +1,7 @@
 package to.etc.domui.dom;
 
+import java.util.*;
+
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
@@ -161,13 +163,16 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().writeRaw("\"></link>\n");
 	}
 
+	/**
+	 * Get all contributor sources and create an ordered list (ordered by the indicated 'order') to render.
+	 * @throws Exception
+	 */
 	public void renderHeadContributors() throws Exception {
-		for(HeaderContributor hc : page().getApplication().getHeaderContributorList())
-			hc.contribute(this);
-
-		for(HeaderContributor hc : page().getHeaderContributorList()) {
-			hc.contribute(this);
-		}
+		List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(page().getApplication().getHeaderContributorList());
+		page().internalAddContributors(full);
+		Collections.sort(full, HeaderContributor.C_ENTRY);
+		for(HeaderContributorEntry hce : full)
+			hce.getContributor().contribute(this);
 		page().internalContributorsRendered(); // Mark as rendered.
 	}
 

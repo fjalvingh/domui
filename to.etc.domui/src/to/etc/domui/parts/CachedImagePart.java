@@ -93,7 +93,25 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 
 	protected void generateImage(RequestContextImpl ri, FullImage fima) throws Exception {
 		ri.getResponse().setContentType(fima.getInfo().getMime());
+		System.out.println("CachedImagePart: mime=" + fima.getInfo().getMime());
 		ri.getResponse().setContentLength(fima.getSource().getSize());
+
+		//-- Do we need a content-disposition header to force a filename/download?
+		String filename = ri.getParameter("filename");
+		String dis = ri.getParameter("disposition");
+		if(dis != null || filename != null) {
+			StringBuilder sb = new StringBuilder();
+			if(dis == null)
+				dis = "inline";
+			sb.append(dis);
+			if(filename != null) {
+				sb.append(";");
+				sb.append("filename=");
+				sb.append(filename);
+			}
+			ri.getResponse().addHeader("Content-Disposition", sb.toString());
+		}
+
 		OutputStream os = ri.getResponse().getOutputStream();
 		InputStream is = null;
 		try {
@@ -119,9 +137,14 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 	}
 
 	protected void decodeResize(IParameterInfo pin, List<IImageConversionSpecifier> ik) throws Exception {
+		boolean thumb = false;
 		String v = pin.getParameter("resize");
-		if(v == null)
-			return;
+		if(v == null) {
+			v = pin.getParameter("thumbnail");
+			if(v == null)
+				return;
+			thumb = true;
+		}
 		int p = v.indexOf('x');
 		if(p != -1) {
 			String ws = v.substring(0, p).trim();
@@ -129,11 +152,11 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 			try {
 				int w = Integer.parseInt(ws);
 				int h = Integer.parseInt(hs);
-				ik.add(new ImageResize(w, h));
+				ik.add(thumb ? new ImageThumbnail(w, h) : new ImageResize(w, h));
 				return;
 			} catch(Exception x) {}
 		}
-		throw new IllegalStateException("The value of 'resize' must be a size spec in the format 'wxh', like '300x200', not '" + v + "'");
+		throw new IllegalStateException("The value of 'resize' or 'thumbnail' must be a size spec in the format 'wxh', like '300x200', not '" + v + "'");
 	}
 
 	/**

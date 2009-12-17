@@ -28,6 +28,8 @@ final public class ImageMagicImageHandler implements ImageHandler {
 
 	private File m_identify;
 
+	private File m_fileCommand;
+
 	/** Allow max. 2 concurrent ImageMagick tasks to prevent server trouble. */
 	private int m_maxTasks = 2;
 
@@ -62,7 +64,16 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			paths = UNIXPATHS;
 			ext = "";
 		}
+
 		ImageMagicImageHandler m = new ImageMagicImageHandler();
+		for(String s : paths) {
+			File f = new File(s, "file" + ext);
+			if(f.exists()) {
+				m.m_fileCommand = f;
+				break;
+			}
+		}
+
 		for(String s : paths) {
 			File f = new File(s, "convert" + ext);
 			if(f.exists()) {
@@ -106,12 +117,42 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	public ImageInfo identify(File input) throws Exception {
 		//		start();
 		try {
+			//-- Start with issuing a 'file' command, if available
+			StringBuilder sb = new StringBuilder(8192);
+			String typeDescription = null;
+			if(m_fileCommand != null) {
+				ProcessBuilder pb = new ProcessBuilder(m_fileCommand.getAbsolutePath(), "-b", input.getAbsolutePath());
+				int xc = ProcessTools.runProcess(pb, sb);
+				if(xc == 0) {
+					String txt = sb.toString().trim();
+					int len = txt.length();
+					int ix = 0;
+					while(ix < len) {
+						char c = txt.charAt(ix);
+						if(c != '\r' && c != '\n' && !Character.isWhitespace(c))
+							break;
+						ix++;
+					}
+					if(ix < len) {
+						int epos = txt.indexOf('\n', ix);
+						if(epos != -1)
+							txt = txt.substring(ix, epos).trim();
+						else
+							txt = txt.substring(ix).trim();
+					}
+					typeDescription = txt;
+				}
+			}
+
 			//-- Start 'identify' and capture the resulting data
 			ProcessBuilder pb = new ProcessBuilder(m_identify.toString(), "-ping", input.toString());
-			StringBuilder sb = new StringBuilder(8192);
+			sb.setLength(0);
 			int xc = ProcessTools.runProcess(pb, sb);
-			if(xc != 0)
-				throw new Exception("External command exception: " + m_identify + " returned error code " + xc + "\n" + sb.toString());
+			if(xc != 0) {
+				//-- Identify has failed... Assume the format is incorrect - should we fix this later?
+				return new ImageInfo(null, typeDescription, false, null);
+				//				throw new Exception("External command exception: " + m_identify + " returned error code " + xc + "\n" + sb.toString());
+			}
 
 			System.out.println("identify: result=" + sb.toString());
 			//-- Walk the resulting thingy
@@ -137,7 +178,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 					}
 				}
 			}
-			ImageInfo oid = new ImageInfo(mime, list);
+			ImageInfo oid = new ImageInfo(mime, typeDescription, true, list);
 			return oid;
 		} finally {
 			//			done();
@@ -195,7 +236,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 				throw new IllegalArgumentException("The mime type '" + targetMime + "' is not supported");
 			File tof = h.createWorkFile(ext);
 			ProcessBuilder pb = new ProcessBuilder(m_convert.toString(), source.getSource().toString() + "[" + page + "]", "-thumbnail", width + "x" + height, tof.toString());
-			System.out.println("Command: " + pb.toString());
+			//			System.out.println("Command: " + pb.toString());
 			StringBuilder sb = new StringBuilder(8192);
 			int xc = ProcessTools.runProcess(pb, sb);
 			System.out.println("convert: " + sb.toString());
@@ -218,7 +259,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 
 			//-- Start 'identify' and capture the resulting data.
 			ProcessBuilder pb = new ProcessBuilder(m_convert.toString(), "-resize", width + "x" + height, source.getSource().toString() + "[" + page + "]", "-strip", tof.toString());
-			System.out.println("Command: " + pb.toString());
+			//			System.out.println("Command: " + pb.toString());
 			StringBuilder sb = new StringBuilder(8192);
 			int xc = ProcessTools.runProcess(pb, sb);
 			System.out.println("convert: " + sb.toString());

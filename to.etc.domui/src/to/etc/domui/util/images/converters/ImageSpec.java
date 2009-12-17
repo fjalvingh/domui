@@ -21,7 +21,7 @@ public class ImageSpec {
 		m_source = source;
 		List<OriginalImagePage> l = new ArrayList<OriginalImagePage>(1);
 		l.add(new OriginalImagePage(0, w, h, mime, null, false));
-		m_data = new ImageInfo(mime, l);
+		m_data = new ImageInfo(mime, null, true, l);
 	}
 
 	public String getMime() {
