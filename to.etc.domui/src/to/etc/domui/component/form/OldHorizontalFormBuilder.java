@@ -188,6 +188,26 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	public IFormControl addPropWithSpan(final String name, final boolean readOnly, final boolean mandatory, int colSpan) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		String label = pmm.getDefaultLabel();
+		return addPropWithSpan(name, label, readOnly, mandatory, colSpan);
+	}
+
+	/**
+	 * Enable adding of field into table cell with possibility to customize colspan.
+	 * Add an input for the specified property. The property is based at the current input
+	 * class. The input model is default (using metadata) and the property is labeled using
+	 * the label provided by method parameter.
+	 *
+	 * FORMAL-INTERFACE.
+	 *
+	 * @param name
+	 * @param label User defined label.
+	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
+	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
+	 * @param span Specify cell span.
+	 * @return
+	 */
+	public IFormControl addPropWithSpan(final String name, final String label, final boolean readOnly, final boolean mandatory, int colSpan) {
+		PropertyMetaModel pmm = resolveProperty(name);
 
 		//-- Check control permissions: does it have view permissions?
 		if(!rights().calculate(pmm))
