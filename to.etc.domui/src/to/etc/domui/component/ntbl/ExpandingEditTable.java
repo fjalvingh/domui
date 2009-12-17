@@ -311,7 +311,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 		//-- Create a single big cell that will contain the editor.
 		TD td = tr.addCell();
-		td.setCssClass("ui-xdt-edt");
+		//td.setCssClass("ui-xdt-edt"); vmijic - this should be left to row editor to set it's style...
 		int colspan = getColumnCount();
 		td.setColspan(colspan);
 		TD atd = tr.addCell();
@@ -342,8 +342,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 				return;
 		}
 
+
 		if(getRowHandler() != null) {
-			if(!((IEditRowHandler) getRowHandler()).onRowEditComplete(m_newEditor, m_newInstance))
+			if(!((IEditRowHandler) getRowHandler()).onRowEditComplete(editor, item))
 				return;
 		}
 
@@ -394,7 +395,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 		//-- Create a single big cell that will contain the editor.
 		TD td = tr.addCell();
-		td.setCssClass("ui-xdt-edt");
+		//td.setCssClass("ui-xdt-edt"); vmijic - this should be left to row editor to set it's style...
 		int colspan = getColumnCount();
 		td.setColspan(colspan);
 		TD atd = tr.addCell();
