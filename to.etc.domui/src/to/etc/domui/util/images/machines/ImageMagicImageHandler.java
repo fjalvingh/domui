@@ -49,6 +49,10 @@ final public class ImageMagicImageHandler implements ImageHandler {
 		return m_instance;
 	}
 
+	static private boolean onWindows() {
+		return File.separatorChar == '\\';
+	}
+
 	/**
 	 * Initializes and checks to see if ImageMagick is present.
 	 * @return
@@ -56,17 +60,27 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	static private synchronized void initialize() {
 		m_initialized = true;
 		String ext = "";
-		String[] paths;
+
+		List<String> pathlist = new ArrayList<String>();
 		if(File.separatorChar == '\\') {
-			paths = WINDOWSPATHS;
+			pathlist.addAll(Arrays.asList(WINDOWSPATHS));
 			ext = ".exe";
 		} else {
-			paths = UNIXPATHS;
+			pathlist.addAll(Arrays.asList(UNIXPATHS));
 			ext = "";
 		}
+		String path = System.getenv("PATH");
+		if(path != null) {
+			String[] list = path.split("\\" + File.pathSeparator);
+			if(list != null)
+				pathlist.addAll(Arrays.asList(list));
+		}
+		System.out.println("ImageMagickHandler: paths " + pathlist);
 
 		ImageMagicImageHandler m = new ImageMagicImageHandler();
-		for(String s : paths) {
+
+		//-- Locate the Linux 'file' command, if present,
+		for(String s : pathlist) {
 			File f = new File(s, "file" + ext);
 			if(f.exists()) {
 				m.m_fileCommand = f;
@@ -74,7 +88,8 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			}
 		}
 
-		for(String s : paths) {
+		//-- Locate ImageMagick using predefined paths;
+		for(String s : pathlist) {
 			File f = new File(s, "convert" + ext);
 			if(f.exists()) {
 				m.m_convert = f;
@@ -249,6 +264,9 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	}
 
 	public ImageSpec scale(ImageConverterHelper h, ImageSpec source, int page, int width, int height, String targetMime) throws Exception {
+		if(onWindows()) {
+			return thumbnail(h, source, page, width, height, targetMime);
+		}
 		//-- Create a scaled image
 		start();
 		try {
