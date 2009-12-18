@@ -28,17 +28,11 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 			return -1;
 
 		//-- Check for supported converters.
-		IImageConversionSpecifier ics = conversions.get(0);
-		if(ics instanceof ImagePageSelect) {
-			if(conversions.size() == 1)
+		for(IImageConversionSpecifier ics : conversions) {
+			if(!(ics instanceof ImagePageSelect) && !(ics instanceof ImageResize) && !(ics instanceof ImageConvert))
 				return -1;
-			ics = conversions.get(1);
 		}
-
-		//-- Supported crud?
-		if(ics instanceof ImageResize)
-			return 2;
-		return -1;
+		return 2;
 	}
 
 	public void convert(ImageConverterHelper helper, List<IImageConversionSpecifier> convs) throws Exception {
