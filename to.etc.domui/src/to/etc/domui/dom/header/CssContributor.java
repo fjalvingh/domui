@@ -6,7 +6,7 @@ import to.etc.domui.dom.html.*;
 final public class CssContributor extends HeaderContributor {
 	private String m_path;
 
-	CssContributor(String path) {
+	public CssContributor(String path) {
 		m_path = path;
 	}
 
@@ -14,7 +14,7 @@ final public class CssContributor extends HeaderContributor {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((m_path == null) ? 0 : m_path.hashCode());
+		result = prime * result + (m_path == null ? 0 : m_path.hashCode());
 		return result;
 	}
 
