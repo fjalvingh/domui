@@ -26,6 +26,12 @@ import to.etc.webapp.nls.*;
  * Created on Jul 29, 2009
  */
 public class MoneyUtil {
+
+	/**
+	 * Used for money scaling at two decimal precision.
+	 */
+	public static final int MONEY_SCALE = 2;
+
 	/**
 	 * Parse into a double; return 0.0d for empty input.
 	 * @param input
@@ -71,7 +77,7 @@ public class MoneyUtil {
 	 */
 	static public String renderAsSimpleDotted(double v) {
 		BigDecimal bd = BigDecimal.valueOf(v);
-		return bd.setScale(2, RoundingMode.HALF_EVEN).toString();
+		return bd.setScale(MONEY_SCALE, RoundingMode.HALF_EVEN).toString();
 	}
 
 	/**
@@ -262,4 +268,5 @@ public class MoneyUtil {
 		String s = renderFullWithSign(new BigDecimal("123.45"));
 		System.out.println(">> " + s);
 	}
+
 }
