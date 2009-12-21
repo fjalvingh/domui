@@ -10,7 +10,7 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 21, 2009
  */
-public interface IRowEditorEvent<T, E extends NodeContainer & IEditor> {
+public interface IRowEditorEvent<T, E extends NodeContainer> {
 	/**
 	 * Called after a row has been edited in an editable table component, when editing is (somehow) marked
 	 * as complete. When called the editor's contents has been moved to the model by using the bindings. This method
