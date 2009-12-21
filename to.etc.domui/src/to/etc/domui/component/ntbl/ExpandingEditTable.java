@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
@@ -35,7 +36,12 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 	private IRowRenderer<T> m_rowRenderer;
 
-	private IEditRowHandler<T, ? > m_editorFactory;
+	/** When set this factory is used to create the editor; when null this will create the "default" editor. */
+	private IRowEditorFactory<T, ? > m_editorFactory;
+
+	private IRowEditorEvent<T, ? > m_onNewComplete;
+
+	private IRowEditorEvent<T, ? > m_onEditComplete;
 
 	private IRowButtonFactory<T> m_rowButtonFactory;
 
@@ -250,11 +256,13 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @throws Exception
 	 */
 	private NodeContainer createEditor(TD into, RowButtonContainer bc, T instance, boolean isnew) throws Exception {
-		if(getRowHandler() == null)
+		if(getEditorFactory() == null)
 			throw new IllegalStateException("Auto editor creation not yet supported");
 
-		NodeContainer editor = getRowHandler().createRowEditor(instance, isnew);
+		NodeContainer editor = getEditorFactory().createRowEditor(instance, isnew);
 		into.add(editor);
+		if(editor.getCssClass() == null)
+			editor.setCssClass("ui-xdt-edt"); // 20091221 jal Configuration by exception: provide a reasonable style for simple editors
 		into.getParent(TR.class).setUserObject(editor);
 		editor.moveModelToControl();
 		return editor;
@@ -311,7 +319,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 		//-- Create a single big cell that will contain the editor.
 		TD td = tr.addCell();
-		td.setCssClass("ui-xdt-edt");
+		//td.setCssClass("ui-xdt-edt"); vmijic - this should be left to row editor to set it's style... jal: style is set in createEditor, below.
 		int colspan = getColumnCount();
 		td.setColspan(colspan);
 		TD atd = tr.addCell();
@@ -342,8 +350,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 				return;
 		}
 
-		if(getRowHandler() != null) {
-			if(!((IEditRowHandler) getRowHandler()).onRowEditComplete(m_newEditor, m_newInstance))
+		if(getOnEditComplete() != null) {
+			if(!((IRowEditorEvent) getOnEditComplete()).onRowChanged(this, editor, item))
 				return;
 		}
 
@@ -394,7 +402,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 		//-- Create a single big cell that will contain the editor.
 		TD td = tr.addCell();
-		td.setCssClass("ui-xdt-edt");
+		//td.setCssClass("ui-xdt-edt"); vmijic - this should be left to row editor to set it's style... jal: style is set in createEditor, below.
 		int colspan = getColumnCount();
 		td.setColspan(colspan);
 		TD atd = tr.addCell();
@@ -460,8 +468,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			if(!e.validate(true))
 				return;
 		}
-		if(getRowHandler() != null) {
-			if(!((IEditRowHandler) getRowHandler()).onRowNewComplete(m_newEditor, m_newInstance))
+
+		if(getOnEditComplete() != null) {
+			if(!((IRowEditorEvent) getOnNewComplete()).onRowChanged(this, m_newEditor, m_newInstance))
 				return;
 		}
 
@@ -615,14 +624,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		forceRebuild();
 	}
 
-	public IEditRowHandler<T, ? extends NodeContainer> getRowHandler() {
-		return m_editorFactory;
-	}
-
-	public void setRowHandler(IEditRowHandler<T, ? extends NodeContainer> editorFactory) {
-		m_editorFactory = editorFactory;
-	}
-
 	/**
 	 * When set to T this control no longer shows errors.
 	 * @param on
@@ -659,11 +660,82 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_newAtStart = newAtStart;
 	}
 
+	/**
+	 * Return the editor factory to use to create the row editor. If null we'll use a default editor.
+	 * @return
+	 */
+	public IRowEditorFactory<T, ? extends NodeContainer> getEditorFactory() {
+		return m_editorFactory;
+	}
+
+	public void setEditorFactory(IRowEditorFactory<T, ? extends NodeContainer> editorFactory) {
+		m_editorFactory = editorFactory;
+	}
+
+	/**
+	 * Returns the button factory to use to add buttons to a row, when needed.
+	 * @return
+	 */
+	@Nullable
 	public IRowButtonFactory<T> getRowButtonFactory() {
 		return m_rowButtonFactory;
 	}
 
-	public void setRowButtonFactory(IRowButtonFactory<T> rowButtonFactory) {
+	/**
+	 * Returns the button factory to use to add buttons to a row, when needed.
+	 * @param rowButtonFactory
+	 */
+	public void setRowButtonFactory(@Nullable IRowButtonFactory<T> rowButtonFactory) {
 		m_rowButtonFactory = rowButtonFactory;
+	}
+
+	/**
+	 * Set a handler to call when editing a <i>new</i> row in an editable table component after
+	 * editing is (somehow) marked as complete. When called the editor's contents has been moved
+	 * to the model by using the bindings. This method can be used to check the data for validity
+	 * or to check for duplicates, for instance by using {@link MetaManager#hasDuplicates(java.util.List, Object, String)}.
+	 *
+	 * @return
+	 */
+	@Nullable
+	public IRowEditorEvent<T, ? > getOnNewComplete() {
+		return m_onNewComplete;
+	}
+
+	/**
+	 * Set a handler to call when editing a <i>new</i> row in an editable table component after
+	 * editing is (somehow) marked as complete. When called the editor's contents has been moved
+	 * to the model by using the bindings. This method can be used to check the data for validity
+	 * or to check for duplicates, for instance by using {@link MetaManager#hasDuplicates(java.util.List, Object, String)}.
+	 *
+	 * @param onNewComplete
+	 */
+	public void setOnNewComplete(@Nullable IRowEditorEvent<T, ? > onNewComplete) {
+		m_onNewComplete = onNewComplete;
+	}
+
+	/**
+	 * Set a handler to call when editing an <i>existing</i> row in an editable table component after
+	 * editing is (somehow) marked as complete. When called the editor's contents has been moved to
+	 * the model by using the bindings. This method can be used to check the data for validity or to
+	 * check for duplicates, for instance by using {@link MetaManager#hasDuplicates(java.util.List, Object, String)}.
+	 *
+	 * @return
+	 */
+	@Nullable
+	public IRowEditorEvent<T, ? > getOnEditComplete() {
+		return m_onEditComplete;
+	}
+
+	/**
+	 * Set a handler to call when editing an <i>existing</i> row in an editable table component after
+	 * editing is (somehow) marked as complete. When called the editor's contents has been moved to
+	 * the model by using the bindings. This method can be used to check the data for validity or to
+	 * check for duplicates, for instance by using {@link MetaManager#hasDuplicates(java.util.List, Object, String)}.
+	 *
+	 * @param onEditComplete
+	 */
+	public void setOnEditComplete(@Nullable IRowEditorEvent<T, ? > onEditComplete) {
+		m_onEditComplete = onEditComplete;
 	}
 }

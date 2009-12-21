@@ -95,6 +95,9 @@ public interface Msgs {
 	/** Invalid operator */
 	public static final String V_INVALID_OPERATOR = "v.invalid.operator";
 
+	/** Invalid not unique */
+	public static final String V_INVALID_NOT_UNIQUE = "v.invalid.not.unique";
+
 	/** Value out of range */
 	public static final String V_OUT_OF_RANGE = "v.out.of.range";
 
