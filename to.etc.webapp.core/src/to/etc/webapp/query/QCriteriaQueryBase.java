@@ -10,13 +10,16 @@ import to.etc.webapp.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 21, 2009
  */
-public class QCriteriaQueryBase<T> extends QRestrictionBase<T> {
+public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements IQRestrictionContainer {
 	/** If this is a selection query instead of an object instance query, this will contain the selected items. */
 	private List<QSelectionColumn> m_itemList = Collections.EMPTY_LIST;
 
 	private int m_limit = -1;
 
 	private int m_start = 0;
+
+	/** The restrictions (where clause) in effect. */
+	private QOperatorNode m_restrictions;
 
 	private List<QOrder> m_order = Collections.EMPTY_LIST;
 
@@ -25,17 +28,37 @@ public class QCriteriaQueryBase<T> extends QRestrictionBase<T> {
 
 	protected QCriteriaQueryBase(Class<T> clz) {
 		super(clz);
+		setContainer(this);
 	}
+
 
 	/**
 	 * Copy constructor.
 	 * @param q
 	 */
 	public QCriteriaQueryBase(QCriteriaQueryBase<T> q) {
-		super(q);
+		super(q.getBaseClass());
 		m_order = new ArrayList<QOrder>(q.m_order);
 		m_limit = q.m_limit;
 		m_start = q.m_start;
+		if(q.m_restrictions != null) {
+			if(q.m_restrictions.getOperation() == QOperation.AND) {
+				m_restrictions = new QMultiNode(QOperation.AND);
+				for(QOperatorNode qn : ((QMultiNode) q.m_restrictions).getChildren())
+					((QMultiNode) m_restrictions).add(qn);
+			} else {
+				m_restrictions = q.m_restrictions;
+			}
+		}
+	}
+
+	@Override
+	public QOperatorNode getRestrictions() {
+		return m_restrictions;
+	}
+
+	public void setRestrictions(QOperatorNode restrictions) {
+		m_restrictions = restrictions;
 	}
 
 	/**

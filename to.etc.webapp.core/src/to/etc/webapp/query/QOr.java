@@ -1,7 +1,7 @@
 package to.etc.webapp.query;
 
 /**
- * This is the result of the or() call on a parent RestrictionBase. It is created by calling {@link QRestrictionBase#or()} and
+ * This is the result of the or() call on a parent RestrictionBase. It is created by calling {@link QRestrictor#or()} and
  * creates the leaves of an "or" operation. After creation of this node the first leaf (1st part of the OR) is active; all
  * operation functions called on this node are added to that "or" leaf as a set of operations separated by and. To create the
  * second leaf (or the nth leaf) of the OR node call {@link #next()}.
@@ -9,7 +9,7 @@ package to.etc.webapp.query;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 22, 2009
  */
-public class QOr<T> extends QRestrictionBase<T> {
+public class QOr<T> extends QRestrictor<T> {
 	//	private QRestrictionBase<T> m_dad;
 
 	/** The OR node we're constructing thingerydoos for. */
@@ -17,28 +17,37 @@ public class QOr<T> extends QRestrictionBase<T> {
 
 	private QOperatorNode m_currentNode;
 
-	QOr(QRestrictionBase<T> parent, QMultiNode ornode) {
+	QOr(QRestrictor<T> parent, QMultiNode ornode) {
 		super(parent.getBaseClass());
 		//		m_dad = parent;
 		m_orNode = ornode;
 	}
 
+	@Override
+	public QOperatorNode getRestrictions() {
+		return m_orNode;
+	}
+
+	@Override
+	public boolean hasRestrictions() {
+		return true;
+	}
 	/**
 	 * We override add here so that all operations added through this node are added to the
 	 * actual OR leaf being constructed. It works as follows:
 	 * <ul>
 	 * </ul>
-	 * @see to.etc.webapp.query.QRestrictionBase#add(to.etc.webapp.query.QOperatorNode)
+	 * @see to.etc.webapp.query.QRestrictor#add(to.etc.webapp.query.QOperatorNode)
 	 */
 	@Override
-	public QOr<T> add(QOperatorNode r) {
+	public void internalAdd(QOperatorNode r) {
 		//-- Collapse any OR node added here into this OR being constructed now;
 		if(r.getOperation() == QOperation.OR) {
 			QMultiNode m = (QMultiNode) r;
 
 			for(QOperatorNode qn : m.getChildren())
 				m_orNode.add(qn);
-			return this;
+			return;
 		}
 
 		//-- 1. Is a new leaf needed? If so just add @ 0.
@@ -55,7 +64,6 @@ public class QOr<T> extends QRestrictionBase<T> {
 			m_currentNode = mn; // Use this as the target for the rest of the adds.
 			m_orNode.replaceTop(mn);
 		}
-		return this;
 	}
 
 	/**

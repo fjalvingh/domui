@@ -75,4 +75,7 @@ public class QNodeVisitorBase implements QNodeVisitor {
 		for(QSelectionItem it: n.getItemList())
 			it.visit(this);
 	}
+
+	@Override
+	public void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception {}
 }

@@ -60,7 +60,7 @@ public class TestQueryRendering {
 		or.next();
 		or.eq("firstname", "marc");
 
-		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE lastname='jalvingh' and firstname='frits' or lastname='mol' and firstname='marc'", render(q));
+		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE (lastname='jalvingh' or lastname='mol') and (firstname='frits' or firstname='marc')", render(q));
 	}
 
 

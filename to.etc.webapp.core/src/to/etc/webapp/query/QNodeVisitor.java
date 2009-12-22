@@ -32,4 +32,7 @@ public interface QNodeVisitor {
 	public void visitPropertySelection(QPropertySelection qPropertySelection) throws Exception;
 
 	public void visitMultiSelection(QMultiSelection n) throws Exception;
+
+	void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception;
+
 }
