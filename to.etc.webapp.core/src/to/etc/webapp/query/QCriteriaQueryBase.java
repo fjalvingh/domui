@@ -10,10 +10,7 @@ import to.etc.webapp.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 21, 2009
  */
-public class QCriteriaQueryBase<T> {
-	/** The base class being queried in this selector. */
-	private final Class<T> m_baseClass;
-
+public class QCriteriaQueryBase<T> extends QRestrictionBase<T> {
 	/** If this is a selection query instead of an object instance query, this will contain the selected items. */
 	private List<QSelectionColumn> m_itemList = Collections.EMPTY_LIST;
 
@@ -21,15 +18,13 @@ public class QCriteriaQueryBase<T> {
 
 	private int m_start = 0;
 
-	private List<QOperatorNode> m_restrictionList = Collections.EMPTY_LIST;
-
 	private List<QOrder> m_order = Collections.EMPTY_LIST;
 
 	/** Query options */
 	private Map<String, Object> m_optionMap;
 
 	protected QCriteriaQueryBase(Class<T> clz) {
-		m_baseClass = clz;
+		super(clz);
 	}
 
 	/**
@@ -37,19 +32,10 @@ public class QCriteriaQueryBase<T> {
 	 * @param q
 	 */
 	public QCriteriaQueryBase(QCriteriaQueryBase<T> q) {
-		m_baseClass = q.m_baseClass;
-		m_restrictionList = new ArrayList<QOperatorNode>(q.m_restrictionList);
+		super(q);
 		m_order = new ArrayList<QOrder>(q.m_order);
 		m_limit = q.m_limit;
 		m_start = q.m_start;
-	}
-
-	/**
-	 * Returns the persistent class being queried and returned.
-	 * @return
-	 */
-	public Class<T> getBaseClass() {
-		return m_baseClass;
 	}
 
 	/**
@@ -263,29 +249,6 @@ public class QCriteriaQueryBase<T> {
 		return this;
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Adding selection restrictions (where clause)		*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Add a new restriction to the list of restrictions on the data. This will do "and" collapsion: when the node added is an "and"
-	 * it's nodes will be added directly to the list (because that already represents an and combinatory).
-	 * @param r
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> add(QOperatorNode r) {
-		if(m_restrictionList == Collections.EMPTY_LIST)
-			m_restrictionList = new ArrayList<QOperatorNode>();
-		if(r.getOperation() == QOperation.AND) {
-			//-- Collapse this node.
-			for(QOperatorNode nb: ((QMultiNode)r).getChildren())
-				m_restrictionList.add(nb);
-			return this;
-		}
-
-		m_restrictionList.add(r);
-		return this;
-	}
-
 	/**
 	 * Add an order clause to the list of sort items.
 	 * @param r
@@ -315,296 +278,6 @@ public class QCriteriaQueryBase<T> {
 	 */
 	public QCriteriaQueryBase<T> descending(String property) {
 		add(QOrder.descending(property));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> eq(String property, Object value) {
-		add(QRestriction.eq(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> eq(String property, long value) {
-		add(QRestriction.eq(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> eq(String property, double value) {
-		add(QRestriction.eq(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> ne(String property, Object value) {
-		add(QRestriction.ne(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> ne(String property, long value) {
-		add(QRestriction.ne(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> ne(String property, double value) {
-		add(QRestriction.ne(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> gt(String property, Object value) {
-		add(QRestriction.gt(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> gt(String property, long value) {
-		add(QRestriction.gt(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> gt(String property, double value) {
-		add(QRestriction.gt(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> lt(String property, Object value) {
-		add(QRestriction.lt(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> lt(String property, long value) {
-		add(QRestriction.lt(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> lt(String property, double value) {
-		add(QRestriction.lt(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> ge(String property, Object value) {
-		add(QRestriction.ge(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> ge(String property, long value) {
-		add(QRestriction.ge(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> ge(String property, double value) {
-		add(QRestriction.ge(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> le(String property, Object value) {
-		add(QRestriction.le(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> le(String property, long value) {
-		add(QRestriction.le(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> le(String property, double value) {
-		add(QRestriction.le(property, value));
-		return this;
-	}
-
-	/**
-	 * Do a 'like' comparison. The wildcard marks here are always %; a literal % is to
-	 * be presented as \%. The comparison is case-dependent.
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> like(String property, Object value) {
-		add(QRestriction.like(property, value));
-		return this;
-	}
-
-	/**
-	 * Compare the value of a property with two literal bounds.
-	 * @param property
-	 * @param a
-	 * @param b
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> between(String property, Object a, Object b) {
-		add(QRestriction.between(property, a, b));
-		return this;
-	}
-
-	/**
-	 * Do a case-independent 'like' comparison. The wildcard marks here are always %; a literal % is to
-	 * be presented as \%. The comparison is case-independent.
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> ilike(String property, Object value) {
-		add(QRestriction.ilike(property, value));
-		return this;
-	}
-
-	/**
-	 * Add a set of OR nodes to the set.
-	 * @param a
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> or(QOperatorNode... a) {
-		add(QRestriction.or(a));
-		return this;
-	}
-
-	/**
-	 * Add the restriction that the property specified must be null.
-	 * @param property
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> isnull(String property) {
-		add(QRestriction.isnull(property));
-		return this;
-	}
-
-	/**
-	 * Add the restriction that the property specified must be not-null.
-	 *
-	 * @param property
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> isnotnull(String property) {
-		add(QRestriction.isnotnull(property));
-		return this;
-	}
-
-	/**
-	 * Add a restriction specified in bare SQL. This is implementation-dependent.
-	 * @param sql
-	 * @return
-	 */
-	public QCriteriaQueryBase<T> sqlCondition(String sql) {
-		add(QRestriction.sqlCondition(sql));
 		return this;
 	}
 
@@ -645,30 +318,12 @@ public class QCriteriaQueryBase<T> {
 	}
 
 	/**
-	 * Return all restrictions added to this set; these represent the "where" clause of a query.
-	 * @return
-	 */
-	final public QOperatorNode getRestrictions() {
-		if(m_restrictionList.size() == 0)
-			return null;
-		if(m_restrictionList.size() == 1)
-			return m_restrictionList.get(0); // Return the single restriction.
-		return new QMultiNode(QOperation.AND, m_restrictionList); // Return an AND of all restrictions
-	}
-
-	/**
-	 * Returns the #of restrictions added to this set!? Useless??
-	 * @return
-	 */
-	final public boolean hasRestrictions() {
-		return m_restrictionList.size() > 0;
-	}
-
-	/**
 	 * Returns the order-by list.
 	 * @return
 	 */
 	final public List<QOrder> getOrder() {
 		return m_order;
 	}
+
+
 }

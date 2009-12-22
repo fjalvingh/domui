@@ -299,8 +299,8 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#or(to.etc.webapp.query.QOperatorNode[])
 	 */
 	@Override
-	public QCriteria<T> or(final QOperatorNode... a) {
-		return (QCriteria<T>) super.or(a);
+	public QCriteria<T> or(final QOperatorNode a1, final QOperatorNode a2, final QOperatorNode... a) {
+		return (QCriteria<T>) super.or(a1, a2, a);
 	}
 
 	/**
