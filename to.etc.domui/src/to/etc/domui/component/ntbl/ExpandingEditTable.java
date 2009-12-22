@@ -45,7 +45,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 	private IRowButtonFactory<T> m_rowButtonFactory;
 
-	private TBody m_dataBody;
+	TBody m_dataBody;
 
 	private boolean m_hideHeader;
 
@@ -69,6 +69,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	private NodeContainer m_newEditor;
 
 	private NodeContainer m_emptyDiv;
+
+	private boolean m_enableDeleteButton = true;
 
 	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
 		super(actualClass);
@@ -200,6 +202,21 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		bc.setContainer(td);
 		if(getRowButtonFactory() != null) {
 			getRowButtonFactory().addButtonsFor(bc, value);
+		}
+
+		if(isEnableDeleteButton() && getModel() instanceof IModifyableTableModel< ? >) {
+			//-- Render a default "delete" button.
+			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), "THEME/btnDelete.png", Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IClicked<LinkButton>() {
+				@Override
+				public void clicked(LinkButton clickednode) throws Exception {
+					//-- ! We cannot use the index because this node can move due to model updates!! So we need to /calculate/ the actual index!
+					TR row = getParent(TR.class);
+					int rix = m_dataBody.findChildIndex(row);
+					if(rix < 0)
+						return;
+					((IModifyableTableModel<T>) getModel()).delete(rix);
+				}
+			});
 		}
 	}
 
@@ -682,10 +699,12 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	}
 
 	/**
-	 * Returns the button factory to use to add buttons to a row, when needed.
+	 * Returns the button factory to use to add buttons to a row, when needed. When set it disables the automatic rendering of the delete button.
 	 * @param rowButtonFactory
 	 */
 	public void setRowButtonFactory(@Nullable IRowButtonFactory<T> rowButtonFactory) {
+		if(m_rowButtonFactory != null)
+			setEnableDeleteButton(false);
 		m_rowButtonFactory = rowButtonFactory;
 	}
 
@@ -737,5 +756,20 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 */
 	public void setOnEditComplete(@Nullable IRowEditorEvent<T, ? > onEditComplete) {
 		m_onEditComplete = onEditComplete;
+	}
+
+	/**
+	 * When T (the default) this component will render a 'delete' linkbutton in the button area after the row, for
+	 * <i>every</i> row present. Pressing this button will cause the row to be deleted unconditionally.
+	 * <p>This is only very basic functionality. To make it better just disable the this and use {@link ExpandingEditTable#setRowButtonFactory(IRowButtonFactory)}
+	 * to define your own method to add buttons; allowing for way more complex interactions.</p>
+	 * @return
+	 */
+	public boolean isEnableDeleteButton() {
+		return m_enableDeleteButton;
+	}
+
+	public void setEnableDeleteButton(boolean enableDeleteButton) {
+		m_enableDeleteButton = enableDeleteButton;
 	}
 }

@@ -64,6 +64,12 @@ public interface Msgs {
 
 	public static final String UI_MBX_DIALOG = "ui.mbx.dialog";
 
+	//-- ExpandingEditTable
+	public static final String UI_XDT_DELETE = "ui.xdt.delete";
+
+	public static final String UI_XDT_DELSURE = "ui.xdt.delsure";
+
+
 	//# Exceptions.
 
 	/** The required page parameter {0} is missing. */
