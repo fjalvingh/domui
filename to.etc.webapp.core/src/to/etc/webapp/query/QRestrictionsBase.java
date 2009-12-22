@@ -267,13 +267,21 @@ public class QRestrictionsBase<T> {
 	/*	CODING:	Adding selection restrictions (where clause)		*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Add a new restriction to the list of restrictions on the data.
+	 * Add a new restriction to the list of restrictions on the data. This will do "and" collapsion: when the node added is an "and"
+	 * it's nodes will be added directly to the list (because that already represents an and combinatory).
 	 * @param r
 	 * @return
 	 */
 	public QRestrictionsBase<T> add(QOperatorNode r) {
 		if(m_restrictionList == Collections.EMPTY_LIST)
 			m_restrictionList = new ArrayList<QOperatorNode>();
+		if(r.getOperation() == QOperation.AND) {
+			//-- Collapse this node.
+			for(QOperatorNode nb: ((QMultiNode)r).getChildren())
+				m_restrictionList.add(nb);
+			return this;
+		}
+
 		m_restrictionList.add(r);
 		return this;
 	}

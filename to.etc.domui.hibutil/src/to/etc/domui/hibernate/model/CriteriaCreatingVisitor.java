@@ -9,7 +9,10 @@ import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
 /**
- * Thingy which creates a Hibernate Criteria thingy from a generic query.
+ * Thingy which creates a Hibernate Criteria thingy from a generic query. Please look at
+ * <a href="http://bugzilla.etc.to/show_bug.cgi?id=640">Bug 640</a> for more details, and see
+ * the wiki page http://info.etc.to/xwiki/bin/view/Main/UIAbstractDatabase for more details
+ * on the working of all this.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 24, 2008

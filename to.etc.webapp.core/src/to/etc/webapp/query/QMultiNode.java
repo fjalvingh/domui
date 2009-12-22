@@ -14,6 +14,25 @@ public class QMultiNode extends QOperatorNode {
 
 	public QMultiNode(QOperation operation, QOperatorNode[] ch) {
 		super(operation);
+		//-- Check to see if we need to collapse..
+		for(QOperatorNode qn : ch) {
+			if(qn.getOperation() == operation) {
+				//-- We need to collapse: we have a similar child.
+				List<QOperatorNode> list = new ArrayList<QOperatorNode>(ch.length + 20);
+				for(QOperatorNode n : ch) {
+					if(n.getOperation() != operation)
+						list.add(n);
+					else {
+						for(QOperatorNode sub : ((QMultiNode) n).getChildren()) {
+							list.add(sub);
+						}
+					}
+				}
+				m_children = list.toArray(new QOperatorNode[list.size()]);
+				return;
+			}
+		}
+
 		m_children = ch;
 	}
 
