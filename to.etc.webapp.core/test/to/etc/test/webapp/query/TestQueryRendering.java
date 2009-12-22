@@ -33,4 +33,35 @@ public class TestQueryRendering {
 		;
 		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE organizationID=1000L and (name='Frits' or lastname='Jalvingh' or shoeSize<43L) and isNotNull (lastname)", render(q));
 	}
+
+	@Test
+	public void testNewOr1() throws Exception {
+		QCriteria<TestQueryRendering>	q = QCriteria.create(TestQueryRendering.class);
+		QOr<TestQueryRendering> or = q.or();
+		or.eq("lastname", "jalvingh");
+		or.eq("firstname", "frits");
+		or.next();
+		or.eq("lastname", "mol");
+		or.eq("firstname", "marc");
+
+		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE lastname='jalvingh' and firstname='frits' or lastname='mol' and firstname='marc'", render(q));
+	}
+
+	@Test
+	public void testNewOr2() throws Exception {
+		QCriteria<TestQueryRendering> q = QCriteria.create(TestQueryRendering.class);
+		QOr<TestQueryRendering> or = q.or();
+		or.eq("lastname", "jalvingh");
+		or.next();
+		or.eq("lastname", "mol");
+
+		or = q.or();
+		or.eq("firstname", "frits");
+		or.next();
+		or.eq("firstname", "marc");
+
+		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE lastname='jalvingh' and firstname='frits' or lastname='mol' and firstname='marc'", render(q));
+	}
+
+
 }

@@ -344,7 +344,9 @@ public class QRestrictionBase<T> {
 	 * @return
 	 */
 	public QOr<T> or() {
-		return new QOr<T>(this);
+		QMultiNode or = new QMultiNode(QOperation.OR);
+		add(or);
+		return new QOr<T>(this, or);
 	}
 
 	/**
