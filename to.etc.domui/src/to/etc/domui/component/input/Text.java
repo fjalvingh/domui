@@ -2,6 +2,7 @@ package to.etc.domui.component.input;
 
 import java.math.*;
 import java.util.*;
+import java.util.regex.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
@@ -60,6 +61,10 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	private boolean m_modifiedByUser;
+
+	private String m_validationRegexp;
+
+	private String m_regexpUserString;
 
 	public Text(Class<T> inputClass) {
 		m_inputClass = inputClass;
@@ -136,6 +141,18 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 			m_value = null;
 			clearMessage();
 			return true;
+		}
+
+		//-- If a pattern validation is present apply it to the raw string value.
+		if(getValidationRegexp() != null) {
+			if(!Pattern.matches(getValidationRegexp(), raw)) {
+				//-- We have a validation error.
+				if(getRegexpUserString() != null)
+					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_NO_RE_MATCH, getRegexpUserString()));// Input format must be {0}
+				else
+					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_INVALID));
+				return false;
+			}
 		}
 
 		//-- Handle conversion and validation.
@@ -352,6 +369,22 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 
 	public void addValidator(Class< ? extends IValueValidator<T>> clz, String[] parameters) {
 		addValidator(new MetaPropertyValidatorImpl(clz, parameters));
+	}
+
+	public String getValidationRegexp() {
+		return m_validationRegexp;
+	}
+
+	public void setValidationRegexp(String validationRegexp) {
+		m_validationRegexp = validationRegexp;
+	}
+
+	public String getRegexpUserString() {
+		return m_regexpUserString;
+	}
+
+	public void setRegexpUserString(String regexpUserString) {
+		m_regexpUserString = regexpUserString;
 	}
 
 	/*--------------------------------------------------------------*/

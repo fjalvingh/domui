@@ -4,6 +4,7 @@ import java.beans.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.regex.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -119,6 +120,19 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 				list.add(vi);
 			}
 			setValidators(list.toArray(new PropertyMetaValidator[list.size()]));
+
+			//-- Regexp validators.
+			if(mp.regexpValidation().length() > 0) {
+				try {
+					//-- Precompile to make sure it's valid;
+					Pattern p = Pattern.compile(mp.regexpValidation());
+				} catch(Exception x) {
+					throw new MetaModelException(Msgs.MM_BAD_REGEXP, mp.regexpValidation(), this.toString());
+				}
+				setRegexpValidator(mp.regexpValidation());
+				if(mp.regexpUserString().length() > 0)
+					setRegexpUserString(mp.regexpUserString());
+			}
 		} else if(an instanceof MetaCombo) {
 			MetaCombo c = (MetaCombo) an;
 			if(c.dataSet() != UndefinedComboDataSet.class) {

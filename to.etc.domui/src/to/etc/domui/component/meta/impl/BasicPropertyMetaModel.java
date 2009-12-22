@@ -30,6 +30,10 @@ public class BasicPropertyMetaModel {
 
 	private PropertyMetaValidator[] m_validators = NO_VALIDATORS;
 
+	private String m_regexpValidator;
+
+	private String m_regexpUserString;
+
 	public IConverter< ? > getConverter() {
 		return m_converter;
 	}
@@ -138,5 +142,21 @@ public class BasicPropertyMetaModel {
 
 	public void setValidators(PropertyMetaValidator[] validators) {
 		m_validators = validators;
+	}
+
+	public String getRegexpValidator() {
+		return m_regexpValidator;
+	}
+
+	public void setRegexpValidator(String regexpValidator) {
+		m_regexpValidator = regexpValidator;
+	}
+
+	public String getRegexpUserString() {
+		return m_regexpUserString;
+	}
+
+	public void setRegexpUserString(String regexpUserString) {
+		m_regexpUserString = regexpUserString;
 	}
 }

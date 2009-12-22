@@ -690,7 +690,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void visitInput(final Input n) throws Exception {
 		basicNodeRender(n, m_o);
 		o().attr("name", n.getActualID());
-		renderType("text");
+		renderType(n.getInputType());
 		renderDiRo(n, n.isDisabled(), n.isReadOnly());
 		if(n.getMaxLength() > 0)
 			o().attr("maxlength", n.getMaxLength());

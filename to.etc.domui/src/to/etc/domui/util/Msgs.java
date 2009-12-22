@@ -104,6 +104,9 @@ public interface Msgs {
 	/** Invalid value */
 	public static final String V_INVALID = "v.invalid";
 
+	/** The input is not in the format {0} */
+	public static final String V_NO_RE_MATCH = "v.no.re.match";
+
 	//# Server errors.
 	/** Your session with the server has expired. The page will be reloaded with original data from the server. */
 	public static final String S_EXPIRED = "s.session.expired";
@@ -119,6 +122,7 @@ public interface Msgs {
 
 	public static final String MM_UNKNOWN_COLLECTION_TYPE = "mm.unknown.collection.type";
 
+	public static final String MM_BAD_REGEXP = "mm.bad.re";
 
 	//# Login and access denied code
 	public static final String LOGIN_ACCESS_TITLE = "login.access.title";

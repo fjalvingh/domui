@@ -300,4 +300,14 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	public boolean isRequired() {
 		return m_original.isRequired();
 	}
+
+	@Override
+	public String getRegexpUserString() {
+		return m_original.getRegexpUserString();
+	}
+
+	@Override
+	public String getRegexpValidator() {
+		return m_original.getRegexpValidator();
+	}
 }

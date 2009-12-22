@@ -44,6 +44,9 @@ public class ControlFactoryString implements ControlFactory {
 		for(PropertyMetaValidator mpv : pmm.getValidators())
 			txt.addValidator(mpv);
 
+		txt.setRegexpUserString(pmm.getRegexpUserString());
+		txt.setValidationRegexp(pmm.getRegexpValidator());
+
 		/*
 		 * Start calculating maxlength and display length. Display length means the presented size on the
 		 * UI (size= attribute); maxlength means just that - no data longer than maxlength can be entered.

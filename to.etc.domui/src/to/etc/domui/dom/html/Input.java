@@ -28,6 +28,14 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 		super("input");
 	}
 
+	/**
+	 * Returns the input type= string which defaults to 'text' but which can be changed to 'password' by the HiddenText&lt;T&gt; control.
+	 * @return
+	 */
+	public String getInputType() {
+		return "text";
+	}
+
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitInput(this);

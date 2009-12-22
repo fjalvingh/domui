@@ -239,4 +239,16 @@ public interface PropertyMetaModel {
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();
 
 	public PropertyMetaValidator[] getValidators();
+
+	/**
+	 * Returns the regexp to use to validate input.
+	 * @return
+	 */
+	String getRegexpValidator();
+
+	/**
+	 * Use the string to use as the pattern indicator in regexp-validator error messages.
+	 * @return
+	 */
+	String getRegexpUserString();
 }

@@ -467,4 +467,14 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	public String toString() {
 		return "ExpandedDisplayProperty[" + m_propertyName + "]";
 	}
+
+	@Override
+	public String getRegexpUserString() {
+		return null;
+	}
+
+	@Override
+	public String getRegexpValidator() {
+		return null;
+	}
 }
