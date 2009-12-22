@@ -29,7 +29,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitRestrictionsBase(QRestrictionsBase<?> n) throws Exception {
+	public void visitRestrictionsBase(QCriteriaQueryBase<?> n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		if(r == null)
 			return;

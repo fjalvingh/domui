@@ -18,7 +18,7 @@ package to.etc.webapp.query;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 14, 2009
  */
-public class QSelection<T> extends QRestrictionsBase<T> {
+public class QSelection<T> extends QCriteriaQueryBase<T> {
 	private QSelection(Class<T> clz) {
 		super(clz);
 	}
@@ -173,7 +173,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 	/*--------------------------------------------------------------*/
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#add(to.etc.webapp.query.QOperatorNode)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#add(to.etc.webapp.query.QOperatorNode)
 	 */
 	@Override
 	public QSelection<T> add(final QOperatorNode r) {
@@ -182,7 +182,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#add(to.etc.webapp.query.QOrder)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#add(to.etc.webapp.query.QOrder)
 	 */
 	@Override
 	public QSelection<T> add(final QOrder r) {
@@ -191,7 +191,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#ascending(java.lang.String)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#ascending(java.lang.String)
 	 */
 	@Override
 	public QSelection<T> ascending(final String property) {
@@ -199,7 +199,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 	}
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#between(java.lang.String, java.lang.Object, java.lang.Object)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#between(java.lang.String, java.lang.Object, java.lang.Object)
 	 */
 	@Override
 	public QSelection<T> between(final String property, final Object a, final Object b) {
@@ -208,7 +208,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#descending(java.lang.String)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#descending(java.lang.String)
 	 */
 	@Override
 	public QSelection<T> descending(final String property) {
@@ -217,7 +217,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#eq(java.lang.String, double)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#eq(java.lang.String, double)
 	 */
 	@Override
 	public QSelection<T> eq(final String property, final double value) {
@@ -225,7 +225,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 	}
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#eq(java.lang.String, long)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#eq(java.lang.String, long)
 	 */
 	@Override
 	public QSelection<T> eq(final String property, final long value) {
@@ -234,7 +234,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#eq(java.lang.String, java.lang.Object)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#eq(java.lang.String, java.lang.Object)
 	 */
 	@Override
 	public QSelection<T> eq(final String property, final Object value) {
@@ -243,7 +243,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#ge(java.lang.String, double)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#ge(java.lang.String, double)
 	 */
 	@Override
 	public QSelection<T> ge(final String property, final double value) {
@@ -252,7 +252,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#ge(java.lang.String, long)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#ge(java.lang.String, long)
 	 */
 	@Override
 	public QSelection<T> ge(final String property, final long value) {
@@ -261,7 +261,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#ge(java.lang.String, java.lang.Object)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#ge(java.lang.String, java.lang.Object)
 	 */
 	@Override
 	public QSelection<T> ge(final String property, final Object value) {
@@ -270,7 +270,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#gt(java.lang.String, double)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#gt(java.lang.String, double)
 	 */
 	@Override
 	public QSelection<T> gt(final String property, final double value) {
@@ -279,7 +279,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#gt(java.lang.String, long)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#gt(java.lang.String, long)
 	 */
 	@Override
 	public QSelection<T> gt(final String property, final long value) {
@@ -288,7 +288,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#gt(java.lang.String, java.lang.Object)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#gt(java.lang.String, java.lang.Object)
 	 */
 	@Override
 	public QSelection<T> gt(final String property, final Object value) {
@@ -297,7 +297,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#ilike(java.lang.String, java.lang.Object)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#ilike(java.lang.String, java.lang.Object)
 	 */
 	@Override
 	public QSelection<T> ilike(final String property, final Object value) {
@@ -306,7 +306,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#isnotnull(java.lang.String)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#isnotnull(java.lang.String)
 	 */
 	@Override
 	public QSelection<T> isnotnull(final String property) {
@@ -315,7 +315,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#isnull(java.lang.String)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#isnull(java.lang.String)
 	 */
 	@Override
 	public QSelection<T> isnull(final String property) {
@@ -324,7 +324,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#le(java.lang.String, double)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#le(java.lang.String, double)
 	 */
 	@Override
 	public QSelection<T> le(final String property, final double value) {
@@ -333,7 +333,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#le(java.lang.String, long)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#le(java.lang.String, long)
 	 */
 	@Override
 	public QSelection<T> le(final String property, final long value) {
@@ -342,7 +342,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#le(java.lang.String, java.lang.Object)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#le(java.lang.String, java.lang.Object)
 	 */
 	@Override
 	public QSelection<T> le(final String property, final Object value) {
@@ -351,7 +351,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#like(java.lang.String, java.lang.Object)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#like(java.lang.String, java.lang.Object)
 	 */
 	@Override
 	public QSelection<T> like(final String property, final Object value) {
@@ -360,7 +360,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#lt(java.lang.String, double)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#lt(java.lang.String, double)
 	 */
 	@Override
 	public QSelection<T> lt(final String property, final double value) {
@@ -369,7 +369,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#lt(java.lang.String, long)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#lt(java.lang.String, long)
 	 */
 	@Override
 	public QSelection<T> lt(final String property, final long value) {
@@ -378,7 +378,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#lt(java.lang.String, java.lang.Object)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#lt(java.lang.String, java.lang.Object)
 	 */
 	@Override
 	public QSelection<T> lt(final String property, final Object value) {
@@ -387,7 +387,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#ne(java.lang.String, double)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#ne(java.lang.String, double)
 	 */
 	@Override
 	public QSelection<T> ne(final String property, final double value) {
@@ -396,7 +396,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#ne(java.lang.String, long)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#ne(java.lang.String, long)
 	 */
 	@Override
 	public QSelection<T> ne(final String property, final long value) {
@@ -405,7 +405,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#ne(java.lang.String, java.lang.Object)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#ne(java.lang.String, java.lang.Object)
 	 */
 	@Override
 	public QSelection<T> ne(final String property, final Object value) {
@@ -414,7 +414,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#or(to.etc.webapp.query.QOperatorNode[])
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#or(to.etc.webapp.query.QOperatorNode[])
 	 */
 	@Override
 	public QSelection<T> or(final QOperatorNode... a) {
@@ -423,7 +423,7 @@ public class QSelection<T> extends QRestrictionsBase<T> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QRestrictionsBase#sqlCondition(java.lang.String)
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#sqlCondition(java.lang.String)
 	 */
 	@Override
 	public QSelection<T> sqlCondition(final String sql) {

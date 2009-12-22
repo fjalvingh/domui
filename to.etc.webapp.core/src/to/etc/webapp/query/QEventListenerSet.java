@@ -58,7 +58,7 @@ public class QEventListenerSet {
 	 * Calls all listeners in order.
 	 * @param qc
 	 */
-	public void		callOnBeforeQuery(QDataContext dc, QRestrictionsBase<?> qc) throws Exception {
+	public void		callOnBeforeQuery(QDataContext dc, QCriteriaQueryBase<?> qc) throws Exception {
 		for(IQueryListener l: getListenerIterator())
 			l.onBeforeQuery(dc, qc);
 	}

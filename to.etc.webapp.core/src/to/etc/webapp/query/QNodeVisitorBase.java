@@ -29,7 +29,7 @@ public class QNodeVisitorBase implements QNodeVisitor {
 		n.getB().visit(this);
 	}
 
-	public void visitRestrictionsBase(QRestrictionsBase<?> n) throws Exception {
+	public void visitRestrictionsBase(QCriteriaQueryBase<?> n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		if(r != null)
 			r.visit(this);
