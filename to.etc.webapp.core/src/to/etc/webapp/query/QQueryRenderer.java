@@ -239,5 +239,15 @@ public class QQueryRenderer extends QNodeVisitorBase {
 		}
 	}
 
+	@Override
+	public void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception {
+		append("exists (select 1 from $[parent." + q.getParentProperty() + "] where ");
+		if(q.getRestrictions() == null)
+			append("MISSING WHERE - invalid exists subquery)");
+		else {
+			q.getRestrictions().visit(this);
+			append(")");
+		}
+	}
 
 }

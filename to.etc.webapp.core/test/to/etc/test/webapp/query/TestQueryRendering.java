@@ -2,6 +2,7 @@ package to.etc.test.webapp.query;
 
 import org.junit.*;
 
+import to.etc.test.webapp.qsql.*;
 import to.etc.webapp.query.*;
 
 public class TestQueryRendering {
@@ -61,6 +62,16 @@ public class TestQueryRendering {
 		or.eq("firstname", "marc");
 
 		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE (lastname='jalvingh' or lastname='mol') and (firstname='frits' or firstname='marc')", render(q));
+	}
+
+	@Test
+	public void testSubSelect1() throws Exception {
+		QCriteria<TestQueryRendering> q = QCriteria.create(TestQueryRendering.class);
+		QRestrictor<LedgerAccount> r = q.exists(LedgerAccount.class, "ledgerList");
+		r.eq("code", "1210012");
+		r.gt("date", 12345);
+
+		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE exists (select 1 from $[parent.ledgerList] where code='1210012' and date>12345L)", render(q));
 	}
 
 

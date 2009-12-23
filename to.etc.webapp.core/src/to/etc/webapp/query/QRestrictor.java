@@ -7,7 +7,7 @@ package to.etc.webapp.query;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 22, 2009
  */
-abstract class QRestrictor<T> {
+abstract public class QRestrictor<T> {
 	/** The base class being queried in this selector. */
 	private final Class<T> m_baseClass;
 
