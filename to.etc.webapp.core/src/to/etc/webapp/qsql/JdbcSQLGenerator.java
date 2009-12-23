@@ -108,10 +108,10 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	 */
 	@Override
 	public void visitMulti(QMultiNode n) throws Exception {
-		if(n.getChildren().length == 0)
+		if(n.getChildren().size() == 0)
 			return;
-		if(n.getChildren().length == 1) { // Should not really happen
-			n.getChildren()[0].visit(this);
+		if(n.getChildren().size() == 1) { // Should not really happen
+			n.getChildren().get(0).visit(this);
 			return;
 		}
 		int oldprec = m_curPrec;

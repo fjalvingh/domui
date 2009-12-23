@@ -28,11 +28,33 @@ import to.etc.webapp.nls.*;
 public class MoneyUtil {
 
 	/**
-	 * FIXME jal 20091221 This cannot be here- currency precision is dependent on the currency used AND the function it is used in (rounding depends on where you are rounding).
-	 * Used for money scaling at two decimal precision.
+	 * Used for money scaling at two decimal precision on euro amounts.
 	 */
-	@Deprecated
-	public static final int MONEY_SCALE = 2;
+	private static final int MONEY_SCALE_EURO = 2;
+
+	/**
+	 * Use this method for money amount rounding purposes.
+	 * @return Returns used maximum fraction digits value.
+	 */
+	public static int getMoneyScale() {
+		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
+			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).getMaximumFractionDigits();
+		} else {
+			return MONEY_SCALE_EURO;
+		}
+	}
+
+	/**
+	 * Use this method for money amount rounding purposes.
+	 * @return returs used rounding mode.
+	 */
+	public static RoundingMode getRoundingMode() {
+		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
+			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).getRoundingMode();
+		} else {
+			return RoundingMode.HALF_EVEN;
+		}
+	}
 
 	/**
 	 * Parse into a double; return 0.0d for empty input.
@@ -81,7 +103,7 @@ public class MoneyUtil {
 	@Deprecated
 	static public String renderAsSimpleDotted(double v) {
 		BigDecimal bd = BigDecimal.valueOf(v);
-		return bd.setScale(MONEY_SCALE, RoundingMode.HALF_EVEN).toString();
+		return bd.setScale(getMoneyScale(), getRoundingMode()).toString();
 	}
 
 	/**
