@@ -638,6 +638,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getCellWidth() != null)
 			o().attr("width", n.getCellWidth());
 		renderTagend(n, m_o);
+
+		//-- jal 20091223 If the TD is fully-empty add a nbsp to prevent IE from misrendering the cell.
+		if(n.getChildCount() == 0) {
+			o().writeRaw("\u00a0"); // Render a nbsp. DO NOT USE THE ENTITY - IT DOES NOT EXIST IN XML.
+		}
 	}
 
 	public void visitTR(final TR n) throws Exception {
