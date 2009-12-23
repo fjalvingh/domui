@@ -127,6 +127,9 @@ public class AppFilter implements Filter {
 		} catch(Exception x) {
 			x.printStackTrace();
 			throw new WrappedException(x); // James Gosling is an idiot
+		} catch(Error x) {
+			x.printStackTrace();
+			throw x;
 		}
 	}
 

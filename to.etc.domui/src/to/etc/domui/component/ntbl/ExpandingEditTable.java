@@ -703,7 +703,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param rowButtonFactory
 	 */
 	public void setRowButtonFactory(@Nullable IRowButtonFactory<T> rowButtonFactory) {
-		if(m_rowButtonFactory != null)
+		if(rowButtonFactory != null)
 			setEnableDeleteButton(false);
 		m_rowButtonFactory = rowButtonFactory;
 	}

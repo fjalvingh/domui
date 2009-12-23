@@ -267,6 +267,20 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		throw new IllegalStateException("? Unexpected literal: " + n);
 	}
 
+	/**
+	 * Child-related subquery: determine existence of children having certain characteristics.
+	 * @see to.etc.webapp.query.QNodeVisitorBase#visitExistsSubquery(to.etc.webapp.query.QExistsSubquery)
+	 */
+	@Override
+	public void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception {
+	//-- 1. The property must represent some child of the parent.
+
+	//-- 2. Create an exists subquery
+
+
+	}
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Selection translation to Projection.				*/
 	/*--------------------------------------------------------------*/
