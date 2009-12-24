@@ -103,7 +103,38 @@ final public class ClassUtil {
 		public List<Method>	setterList	= new ArrayList<Method>();
 	};
 
+	static private final Map<Class< ? >, ClassInfo>	m_classMap	= new HashMap<Class< ? >, ClassInfo>();
+
+	/**
+	 * Get introspected bean information for the class. This info is cached so access will be fast after the 1st try.
+	 * @param clz
+	 * @return
+	 */
+	static synchronized public ClassInfo getClassInfo(Class< ? > clz) {
+		ClassInfo ci = m_classMap.get(clz);
+		if(ci == null) {
+			List<PropertyInfo> proplist = calculateProperties(clz);
+			ci = new ClassInfo(clz, proplist);
+			m_classMap.put(clz, ci);
+		}
+		return ci;
+	}
+
+	static public PropertyInfo findPropertyInfo(Class< ? > clz, String property) {
+		return getClassInfo(clz).findProperty(property);
+	}
+
 	static public List<PropertyInfo> getProperties(final Class< ? > cl) {
+		ClassInfo ci = getClassInfo(cl);
+		return ci.getProperties();
+	}
+
+	/**
+	 * DO NOT USE - uncached calculation of a class's properties.
+	 * @param cl
+	 * @return
+	 */
+	static public List<PropertyInfo> calculateProperties(final Class< ? > cl) {
 		Map<String, Info> map = new HashMap<String, Info>();
 
 		StringBuilder sb = new StringBuilder(40);
@@ -226,4 +257,57 @@ final public class ClassUtil {
 		}
 		return null;
 	}
+
+	static public void propertyNameToJava(StringBuilder sb, String in) {
+		if(in.length() == 0)
+			return;
+		int len = sb.length();
+		sb.append(in);
+		sb.setCharAt(len, Character.toUpperCase(sb.charAt(len)));
+	}
+
+	static public String propertyNameToJava(String in) {
+		StringBuilder sb = new StringBuilder();
+		propertyNameToJava(sb, in);
+		return sb.toString();
+	}
+
+	/**
+	 * This tries to determine the value class for a property defined as some kind
+	 * of Collection&lt;T&gt; or T[]. If the type cannot be determined this returns
+	 * null.
+	 *
+	 * @param genericType
+	 * @return
+	 */
+	static public Class< ? > findCollectionType(Type genericType) {
+		if(genericType instanceof Class< ? >) {
+			Class< ? > cl = (Class< ? >) genericType;
+			if(cl.isArray()) {
+				return cl.getComponentType();
+			}
+		}
+		if(genericType instanceof ParameterizedType) {
+			ParameterizedType pt = (ParameterizedType) genericType;
+			Type raw = pt.getRawType();
+
+			//-- This must be a collection type of class.
+			if(raw instanceof Class< ? >) {
+				Class< ? > cl = (Class< ? >) raw;
+				if(Collection.class.isAssignableFrom(cl)) {
+					Type[] tar = pt.getActualTypeArguments();
+					if(tar != null && tar.length == 1) { // Collection<T> required
+						return (Class< ? >) tar[0];
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	static public boolean isCollectionOrArrayType(Class< ? > clz) {
+		return clz.isArray() || Collection.class.isAssignableFrom(clz);
+	}
+
+
 }
