@@ -185,7 +185,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		renderCollapsedRow(cc, bc, tr, index, value);
 	}
 
-	private void renderCollapsedRow(ColumnContainer<T> cc, RowButtonContainer bc, TR tr, int index, T value) throws Exception {
+	private void renderCollapsedRow(ColumnContainer<T> cc, RowButtonContainer bc, TR tr, int index, final T value) throws Exception {
 		cc.setParent(tr);
 
 		if(! isHideIndex()) {
@@ -198,7 +198,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			m_columnCount--;
 
 		//-- Ok, now add the (initially empty) action row
-		TD td = cc.add((NodeBase) null);
+		final TD td = cc.add((NodeBase) null);
 		bc.setContainer(td);
 		if(getRowButtonFactory() != null) {
 			getRowButtonFactory().addButtonsFor(bc, value);
@@ -209,12 +209,13 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), "THEME/btnDelete.png", Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IClicked<LinkButton>() {
 				@Override
 				public void clicked(LinkButton clickednode) throws Exception {
-					//-- ! We cannot use the index because this node can move due to model updates!! So we need to /calculate/ the actual index!
-					TR row = getParent(TR.class);
-					int rix = m_dataBody.findChildIndex(row);
-					if(rix < 0)
-						return;
-					((IModifyableTableModel<T>) getModel()).delete(rix);
+					/*					//-- ! We cannot use the index because this node can move due to model updates!! So we need to /calculate/ the actual index!
+										TR row = getParent(TR.class);
+										int rix = m_dataBody.findChildIndex(row);
+										if(rix < 0)
+											return;*/
+					//vmijic 20091225 delete value, why bother with index?
+					((IModifyableTableModel<T>) getModel()).delete(value);
 				}
 			});
 		}
@@ -486,7 +487,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 				return;
 		}
 
-		if(getOnEditComplete() != null) {
+		if(getOnNewComplete() != null) {
 			if(!((IRowEditorEvent) getOnNewComplete()).onRowChanged(this, m_newEditor, m_newInstance))
 				return;
 		}
@@ -498,6 +499,10 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		//			IModifyableTableModel<T> mtm = (IModifyableTableModel<T>) getModel();
 		//			mtm.add(m_newInstance);
 		//		}
+
+		//vmijic 20091225 adding to model has to be done here. onRowChanged is just validation method, it does not add to model.
+		IModifyableTableModel<T> mtm = (IModifyableTableModel<T>) getModel();
+		mtm.add(m_newInstance);
 
 		//-- Data move succesful. Move to model proper
 		m_newBody.remove(); // Discard editor & stuff
