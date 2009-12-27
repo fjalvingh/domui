@@ -1361,7 +1361,11 @@ var WebUI = {
 			return;
 
 		el.style.cursor = "default";
-		el.removeChild(WebUI._busyOvl);
+		try {
+			el.removeChild(WebUI._busyOvl);
+		} catch(x) {
+			//-- It can fail when the entire page has been replaced.
+		}
 		WebUI._busyOvl= null;
 	}
 	
