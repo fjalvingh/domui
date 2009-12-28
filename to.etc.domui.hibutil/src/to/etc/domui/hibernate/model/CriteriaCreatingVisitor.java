@@ -385,7 +385,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		System.out.println("'UP' property is " + childupprop);
 
 		//-- Well, that was it. What a sheitfest. Add the join condition  (QD - need to determine the key property names proper)
-		dc.add(Restrictions.eqProperty(childupprop + ".id", "base.id"));
+		String parentAlias = getParentAlias();
+		dc.add(Restrictions.eqProperty(childupprop + ".id", parentAlias + ".id"));
 
 		//-- Sigh; Recursively apply all parts to the detached thingerydoo
 		Object old = m_currentCriteria;
@@ -397,6 +398,15 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		}
 		m_currentCriteria = old;
 		m_last = exists;
+	}
+
+	private String getParentAlias() {
+		if(m_currentCriteria instanceof Criteria)
+			return ((Criteria) m_currentCriteria).getAlias();
+		else if(m_currentCriteria instanceof DetachedCriteria)
+			return ((DetachedCriteria) m_currentCriteria).getAlias();
+		else
+			throw new IllegalStateException("Unknown type");
 	}
 
 	/**
