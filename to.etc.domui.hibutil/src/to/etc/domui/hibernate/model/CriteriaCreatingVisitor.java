@@ -19,6 +19,9 @@ import to.etc.webapp.query.*;
  * it looks because the Criteria and DetachedCriteria kludge and Hibernate's metadata dungheap
  * makes generic work very complex and error-prone.
  *
+ * <p>It might be a better idea to start generating SQL from here, using Hibernate internal code
+ * to instantiate the query's result only.</p>
+ *
  * Please look a <a href="http://bugzilla.etc.to/show_bug.cgi?id=640">Bug 640</a> for more details, and see
  * the wiki page http://info.etc.to/xwiki/bin/view/Main/UIAbstractDatabase for more details
  * on the working of all this.
@@ -365,28 +368,28 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		dc.setProjection(Projections.id()); // Whatever: just some thingy.
 
 		//-- Append the join condition; we need all children here that are in the parent's collection. We need the parent reference to use in the child.
-		ClassMetadata cm = m_session.getSessionFactory().getClassMetadata(coltype);
+		ClassMetadata childmd = m_session.getSessionFactory().getClassMetadata(coltype);
 
 		//-- Entering the crofty hellhole that is Hibernate meta"data": never seen more horrible cruddy garbage
-		ClassMetadata cmp = m_session.getSessionFactory().getClassMetadata(q.getParentQuery().getBaseClass());
-		int index = findMoronicPropertyIndexBecauseHibernateIsTooStupidToHaveAPropertyMetaDamnit(cmp, q.getParentProperty());
+		ClassMetadata parentmd = m_session.getSessionFactory().getClassMetadata(q.getParentQuery().getBaseClass());
+		int index = findMoronicPropertyIndexBecauseHibernateIsTooStupidToHaveAPropertyMetaDamnit(parentmd, q.getParentProperty());
 		if(index == -1)
 			throw new IllegalStateException("Hibernate does not know property");
-		Type type = cmp.getPropertyTypes()[index];
+		Type type = parentmd.getPropertyTypes()[index];
 		BagType bt = (BagType) type;
 		final OneToManyPersister persister = (OneToManyPersister) ((SessionFactoryImpl) m_session.getSessionFactory()).getCollectionPersister(bt.getRole());
 		String[] keyCols = persister.getKeyColumnNames();
 
 		//-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
-		int fkindex = findCruddyChildProperty(cm, keyCols);
+		int fkindex = findCruddyChildProperty(childmd, keyCols);
 		if(fkindex < 0)
 			throw new IllegalStateException("Cannot find child's parent property in cruddy Hibernate metadata toiletbowl: " + keyCols);
-		String childupprop = cm.getPropertyNames()[fkindex];
+		String childupprop = childmd.getPropertyNames()[fkindex];
 		System.out.println("'UP' property is " + childupprop);
 
-		//-- Well, that was it. What a sheitfest. Add the join condition  (QD - need to determine the key property names proper)
+		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
 		String parentAlias = getParentAlias();
-		dc.add(Restrictions.eqProperty(childupprop + ".id", parentAlias + ".id"));
+		dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
 
 		//-- Sigh; Recursively apply all parts to the detached thingerydoo
 		Object old = m_currentCriteria;
