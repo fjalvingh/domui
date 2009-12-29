@@ -32,11 +32,18 @@ import to.etc.webapp.query.*;
 public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	private Session m_session;
 
+	/** The topmost Criteria: the one that will be returned to effect the translated query */
 	private final Criteria m_rootCriteria;
 
+	/**
+	 * This either holds a Criteria or a DetachedCriteria; since these are not related (sigh) we must
+	 * use instanceof everywhere. Bad, bad, bad hibernate design.
+	 */
 	private Object m_currentCriteria;
 
 	private Criterion m_last;
+
+	private int m_aliasIndex;
 
 	private Map<String, Object> m_subCriteriaMap = Collections.EMPTY_MAP;
 
@@ -44,6 +51,10 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		m_session = ses;
 		m_rootCriteria = crit;
 		m_currentCriteria = crit;
+	}
+
+	private String nextAlias() {
+		return "a" + (++m_aliasIndex);
 	}
 
 	private void addCriterion(Criterion c) {
@@ -81,7 +92,6 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		} else
 			throw new IllegalStateException("Unexpected current thing: " + m_subCriteria);
 	}
-
 
 	@Override
 	public void visitRestrictionsBase(QCriteriaQueryBase<?> n) throws Exception {
@@ -363,7 +373,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			throw new ProgrammerErrorException("The property '" + q.getParentQuery().getBaseClass() + "." + q.getParentProperty() + "' has an undeterminable child type");
 
 		//-- 2. Create an exists subquery; create a sub-statement
-		DetachedCriteria dc = DetachedCriteria.forClass(coltype, "idiot1");
+		DetachedCriteria dc = DetachedCriteria.forClass(coltype, nextAlias());
 		Criterion exists = Subqueries.exists(dc);
 		dc.setProjection(Projections.id()); // Whatever: just some thingy.
 
