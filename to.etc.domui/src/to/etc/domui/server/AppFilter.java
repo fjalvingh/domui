@@ -73,21 +73,50 @@ public class AppFilter implements Filter {
 		//		chain.doFilter(req, res);
 	}
 
+	private InputStream findLogConfig(String logconfig) {
+		if(logconfig != null) {
+			//-- Try to find this as a class-relative resource;
+			if(!logconfig.startsWith("/")) {
+				InputStream is = getClass().getResourceAsStream("/" + logconfig);
+				if(is != null) {
+					System.out.println("DomUI: using user-specified logging classpath-resource " + logconfig);
+					return is;
+				}
+			}
+
+			try {
+				File f = new File(logconfig);
+				if(f.exists() && f.isFile()) {
+					System.out.println("DomUI: using logging configuration file " + f.getAbsolutePath());
+					return new FileInputStream(f);
+				}
+			} catch(Exception x) {}
+		}
+		InputStream is = AppFilter.class.getResourceAsStream("logging.properties");
+		if(is != null)
+			System.out.println("DomUI: using internal logging.properties");
+		return is;
+	}
+
 	/**
 	 * Initialize by reading config from the web.xml.
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
 	public void init(final FilterConfig config) throws ServletException {
 		try {
-			java.util.logging.LogManager.getLogManager().reset();
-			java.util.logging.LogManager.getLogManager().readConfiguration(AppFilter.class.getResourceAsStream("logging.properties"));
+			String logconfig = config.getInitParameter("logpath");
+			InputStream logStream = findLogConfig(logconfig);
+			if(logStream != null) {
+				java.util.logging.LogManager.getLogManager().reset();
+				java.util.logging.LogManager.getLogManager().readConfiguration(logStream);
+			}
 
 			Logger root = LogManager.getLogManager().getLogger("");
 			for(Handler h : root.getHandlers()) {
 				if(h instanceof ConsoleHandler) {
 					ConsoleHandler ch = (ConsoleHandler) h;
 					ch.setFormatter(new NonStupidLogFormatter());
-					System.out.println("**** changed ConsoleHandler logger.");
+					System.out.println("DomUI: changed ConsoleHandler logger.");
 				}
 			}
 		} catch(IOException x) {
