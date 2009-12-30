@@ -1,9 +1,10 @@
 package to.etc.iocular.web;
 
-import java.util.logging.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
+
+import org.slf4j.*;
 
 import to.etc.iocular.*;
 import to.etc.iocular.container.*;
@@ -26,7 +27,7 @@ import to.etc.iocular.util.*;
  * Created on Mar 25, 2007
  */
 public class WebApplicationListener implements ServletContextListener, HttpSessionListener, ServletRequestListener {
-	static private final Logger LOG = Logger.getLogger(WebApplicationListener.class.getName());
+	static private final Logger LOG = LoggerFactory.getLogger(WebApplicationListener.class);
 
 	/**
 	 * A webapp is starting. This retrieves the configuration for all containers,
@@ -36,9 +37,9 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 	 */
 	public void contextInitialized(ServletContextEvent cxe) {
 		try {
-			LOG.fine("Starting web application.");
+			LOG.debug("Starting web application.");
 			createConfiguration(cxe.getServletContext());
-			LOG.fine("Starting web application succeeded.");
+			LOG.debug("Starting web application succeeded.");
 		} catch(Throwable x) {
 			x.printStackTrace();
 		}
@@ -58,7 +59,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 	 * @see javax.servlet.http.HttpSessionListener#sessionCreated(javax.servlet.http.HttpSessionEvent)
 	 */
 	public void sessionCreated(HttpSessionEvent se) {
-		LOG.fine("Session created");
+		LOG.debug("Session created");
 		createSessionContainer(se.getSession());
 		//		WebConfiguration	wc = Iocular.getConfiguration(se.getSession().getServletContext());
 		//		Container c = Iocular.findApplicationContainer(se.getSession().getServletContext());
@@ -94,7 +95,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 	}
 
 	public void requestInitialized(ServletRequestEvent e) {
-		LOG.finer("Request entered");
+		LOG.debug("Request entered");
 
 		HttpServletRequest req = (HttpServletRequest) e.getServletRequest();
 		WebConfiguration wc = Iocular.getConfiguration(e.getServletContext());
@@ -110,7 +111,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 	}
 
 	public void requestDestroyed(ServletRequestEvent e) {
-		LOG.finer("Request destroyed");
+		LOG.debug("Request destroyed");
 		Container c = Iocular.findRequestContainer((HttpServletRequest) e.getServletRequest());
 		if(c != null)
 			c.destroy();

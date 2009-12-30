@@ -2,7 +2,6 @@ package to.etc.domui.server;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -87,7 +86,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			try {
 				ri.before(ctx);
 			} catch(Exception x) {
-				DomApplication.LOG.log(Level.SEVERE, "Exception in RequestInterceptor.before()", x);
+				DomApplication.LOG.error("Exception in RequestInterceptor.before()", x);
 
 				//-- Call enders for all already-called thingies
 				while(--i >= 0) {
@@ -95,7 +94,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 					try {
 						ri.after(ctx, x);
 					} catch(Exception xx) {
-						DomApplication.LOG.log(Level.SEVERE, "Exception in RequestInterceptor.after() in wrapup", xx);
+						DomApplication.LOG.error("Exception in RequestInterceptor.after() in wrapup", xx);
 					}
 				}
 				throw x;
@@ -113,7 +112,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			} catch(Exception xx) {
 				if(endx == null)
 					endx = xx;
-				DomApplication.LOG.log(Level.SEVERE, "Exception in RequestInterceptor.after()", xx);
+				DomApplication.LOG.error("Exception in RequestInterceptor.after()", xx);
 			}
 		}
 		if(endx != null)

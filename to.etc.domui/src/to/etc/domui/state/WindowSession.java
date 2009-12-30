@@ -2,7 +2,8 @@ package to.etc.domui.state;
 
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.logging.*;
+
+import org.slf4j.*;
 
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.html.*;
@@ -19,7 +20,7 @@ import to.etc.util.*;
  * Created on Oct 24, 2008
  */
 final public class WindowSession {
-	static final Logger LOG = Logger.getLogger(WindowSession.class.getName());
+	static final Logger LOG = LoggerFactory.getLogger(WindowSession.class);
 
 	final AppSession m_appSession;
 
@@ -209,12 +210,12 @@ final public class WindowSession {
 			if(cc.getState() == ConversationState.ATTACHED)
 				cc.internalDetach();
 		} catch(Exception x) {
-			LOG.log(Level.SEVERE, "Exception on onDetach() of destroyed conversation", x);
+			LOG.error("Exception on onDetach() of destroyed conversation", x);
 		}
 		try {
 			cc.internalDestroy();
 		} catch(Exception x) {
-			LOG.log(Level.SEVERE, "Exception in onDestroy() of destroyed conversation", x);
+			LOG.error("Exception in onDestroy() of destroyed conversation", x);
 		}
 	}
 
@@ -424,7 +425,7 @@ final public class WindowSession {
 	}
 
 	private void generateRedirect(final RequestContextImpl ctx, final String url) throws Exception {
-		if(LOG.isLoggable(Level.INFO))
+		if(LOG.isInfoEnabled())
 			LOG.info("redirecting to " + url);
 
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
@@ -607,7 +608,7 @@ final public class WindowSession {
 		ConversationContext coco = createConversation(rctx, ccclz);
 
 		coco.setId(cid == null ? "" + nextCID() : cid);
-		ConversationContext.LOG.fine("Created conversation=" + coco + " for new page=" + clz);
+		ConversationContext.LOG.debug("Created conversation=" + coco + " for new page=" + clz);
 
 		//-- Since this is a new page we clear ALL existing conversations
 		registerConversation(coco); // ORDERED 2

@@ -1,9 +1,10 @@
 package to.etc.domui.state;
 
 import java.util.*;
-import java.util.logging.*;
 
 import javax.servlet.http.*;
+
+import org.slf4j.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.util.janitor.*;
@@ -26,7 +27,7 @@ import to.etc.domui.util.janitor.*;
  * Created on May 22, 2008
  */
 public class AppSession implements HttpSessionBindingListener, IAttributeContainer {
-	static private final Logger LOG = Logger.getLogger(AppSession.class.getName());
+	static private final Logger LOG = LoggerFactory.getLogger(AppSession.class);
 
 	private DomApplication m_application;
 
@@ -45,12 +46,12 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
 	final public void internalDestroy() {
-		LOG.fine("Destroying AppSession " + this);
+		LOG.debug("Destroying AppSession " + this);
 		destroyWindowSessions();
 		try {
 			destroy();
 		} catch(Throwable x) {
-			LOG.log(Level.INFO, "Exception when destroying session", x);
+			LOG.warn("Exception when destroying session", x);
 		}
 	}
 
@@ -203,7 +204,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			try {
 				cm.destroyConversations();
 			} catch(Exception x) {
-				LOG.log(Level.SEVERE, "Exception in destroyConversations", x);
+				LOG.warn("Exception in destroyConversations", x);
 			}
 		}
 	}
@@ -313,7 +314,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * @param cm
 	 */
 	void internalDropWindowSession(final WindowSession cm) {
-		if(LOG.isLoggable(Level.INFO))
+		if(LOG.isInfoEnabled())
 			LOG.info("session: destroying WindowSession=" + cm.getWindowID() + " because it's obituary was received.");
 		synchronized(this) {
 			if(cm.getObituaryTimer() == -1) // Was cancelled?
@@ -327,7 +328,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Helper utility to dump the session's conversational state.
 	 */
 	public synchronized void dump() {
-		if(LOG.isLoggable(Level.FINE)) {
+		if(LOG.isDebugEnabled()) {
 			System.out.println("============= AppSession's WindowList =============");
 			for(WindowSession cm : m_windowMap.values()) {
 				cm.dump();

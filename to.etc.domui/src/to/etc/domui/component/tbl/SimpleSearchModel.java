@@ -1,7 +1,8 @@
 package to.etc.domui.component.tbl;
 
 import java.util.*;
-import java.util.logging.*;
+
+import org.slf4j.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -14,7 +15,7 @@ import to.etc.webapp.query.*;
  * Created on Jun 16, 2008
  */
 public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeyedTableModel<T>, ITruncateableDataModel, ISortableTableModel, IShelvedListener {
-	private static final Logger LOG = Logger.getLogger("to.etc.domui.db");
+	private static final Logger LOG = LoggerFactory.getLogger(SimpleSearchModel.class);
 
 	/** Thingy to get a database session from, if needed, */
 	private QDataContextFactory m_sessionSource;
@@ -99,9 +100,9 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			m_truncated = true;
 		} else
 			m_truncated = false;
-		if(LOG.isLoggable(Level.FINE)) {
+		if(LOG.isDebugEnabled()) {
 			ts = System.nanoTime() - ts;
-			LOG.fine("db: persistence framework query and materialize took " + StringTool.strNanoTime(ts));
+			LOG.debug("db: persistence framework query and materialize took " + StringTool.strNanoTime(ts));
 		}
 	}
 
@@ -203,7 +204,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	 * @see to.etc.domui.util.IShelvedListener#onShelve()
 	 */
 	public void onShelve() throws Exception {
-		LOG.fine("Shelving the model");
+		LOG.debug("Shelving the model");
 		clear();
 	}
 

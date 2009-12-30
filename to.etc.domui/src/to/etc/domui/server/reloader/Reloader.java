@@ -3,9 +3,10 @@ package to.etc.domui.server.reloader;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.logging.*;
 import java.util.regex.*;
 import java.util.zip.*;
+
+import org.slf4j.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.util.resources.*;
@@ -42,7 +43,7 @@ import to.etc.util.*;
  * Created on May 22, 2008
  */
 final public class Reloader {
-	static final Logger LOG = Logger.getLogger(Reloader.class.getName());
+	static final Logger LOG = LoggerFactory.getLogger(Reloader.class);
 
 	/** A reloader exists only once in a webapp. */
 	static private Reloader m_instance;
@@ -197,9 +198,9 @@ final public class Reloader {
 
 		//-- Still not found -> make BADREF && store, then return nuttin'
 		m_lookupMap.put(resourceName, ts == null ? NOT_FOUND : ts);
-		if(LOG.isLoggable(Level.FINE)) {
+		if(LOG.isDebugEnabled()) {
 			t = System.nanoTime() - t;
-			LOG.fine("reloader: " + (ts == null ? "un" : "") + "succesful findResourceSource " + resourceName + " took " + StringTool.strNanoTime(t));
+			LOG.debug("reloader: " + (ts == null ? "un" : "") + "succesful findResourceSource " + resourceName + " took " + StringTool.strNanoTime(t));
 		}
 		return ts;
 	}
@@ -310,7 +311,7 @@ final public class Reloader {
 		if(!nw.exists() || !nw.isFile())
 			return null;
 
-		LOG.fine("Found class " + rel + " in " + u);
+		LOG.debug("Found class " + rel + " in " + u);
 		return new ClasspathFileRef(nw);
 	}
 
@@ -451,20 +452,20 @@ final public class Reloader {
 		try {
 			for(ResourceTimestamp fr : list) {
 				if(fr.isModified()) {
-					if(LOG.isLoggable(Level.INFO))
-						LOG.info("Class Source " + fr + " has changed.");
+					if(LOG.isDebugEnabled())
+						LOG.debug("Class Source " + fr + " has changed.");
 					return true;
 				} else {
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Unchanged source for " + fr);
+					if(LOG.isDebugEnabled())
+						LOG.debug("Unchanged source for " + fr);
 				}
 				fc++;
 			}
 			return false;
 		} finally {
 			ts = System.nanoTime() - ts;
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("Scanned " + fc + " .class files in " + StringTool.strNanoTime(ts));
+			if(LOG.isDebugEnabled())
+				LOG.debug("Scanned " + fc + " .class files in " + StringTool.strNanoTime(ts));
 		}
 	}
 }

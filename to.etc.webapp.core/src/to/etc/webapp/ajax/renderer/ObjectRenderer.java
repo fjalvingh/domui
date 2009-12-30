@@ -2,7 +2,8 @@ package to.etc.webapp.ajax.renderer;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
+
+import org.slf4j.*;
 
 import to.etc.util.*;
 
@@ -15,7 +16,7 @@ import to.etc.util.*;
  * Created on Apr 6, 2006
  */
 abstract public class ObjectRenderer {
-	static private Logger LOG = Logger.getLogger(ObjectRenderer.class.getName());
+	static private Logger LOG = LoggerFactory.getLogger(ObjectRenderer.class);
 
 	private final RenderRegistry m_registry;
 
@@ -54,7 +55,7 @@ abstract public class ObjectRenderer {
 			long ts = System.nanoTime();
 			renderRoot(o);
 			ts = System.nanoTime() - ts;
-			LOG.finer("renderer completed in " + StringTool.strNanoTime(ts));
+			LOG.debug("renderer completed in " + StringTool.strNanoTime(ts));
 		} finally {
 			m_parentSet.clear();
 		}
@@ -70,8 +71,8 @@ abstract public class ObjectRenderer {
 
 	protected void renderSub(final Object o) throws Exception {
 		//-- If the current object is on the parent stack then we have a cycle.
-		if(LOG.isLoggable(Level.FINE) && o != null)
-			LOG.fine("sub: type=" + o.getClass().getCanonicalName() + ": " + o);
+		if(LOG.isDebugEnabled() && o != null)
+			LOG.debug("sub: type=" + o.getClass().getCanonicalName() + ": " + o);
 		if(m_parentSet.contains(o)) {
 			return;
 			//			throw new IllegalStateException("Cycle in object tree.");

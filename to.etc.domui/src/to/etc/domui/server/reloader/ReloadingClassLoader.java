@@ -2,7 +2,8 @@ package to.etc.domui.server.reloader;
 
 import java.net.*;
 import java.util.*;
-import java.util.logging.*;
+
+import org.slf4j.*;
 
 import to.etc.domui.util.resources.*;
 
@@ -42,7 +43,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 		m_reloader = r;
 		m_id = nextID();
 		m_rootLoader = getClass().getClassLoader();
-		LOG.fine("ReloadingClassLoader: new instance "+this+" created");
+		LOG.debug("ReloadingClassLoader: new instance " + this + " created");
 	}
 
 	@Override
@@ -56,8 +57,8 @@ public class ReloadingClassLoader extends URLClassLoader {
 			LOG.info("Cannot find source file for class=" + clz + "; changes to this class are not tracked");
 			return;
 		}
-		if(LOG.isLoggable(Level.FINE))
-			LOG.fine("Watching " + clz); //rt.getRef());
+		if(LOG.isDebugEnabled())
+			LOG.debug("Watching " + clz); //rt.getRef());
 		synchronized(m_reloader) {
 			m_dependList.add(new ResourceTimestamp(rt, rt.getLastModified()));
 		}
@@ -81,8 +82,8 @@ public class ReloadingClassLoader extends URLClassLoader {
 			return m_rootLoader.loadClass(name); // Delegate to the rootLoader.
 		}
 		if(!m_reloader.watchClass(name)) {
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("Class " + name + " not matching watch pattern delegated to root loader");
+			if(LOG.isDebugEnabled())
+				LOG.debug("Class " + name + " not matching watch pattern delegated to root loader");
 			return m_rootLoader.loadClass(name); // Delegate to the rootLoader.
 		}
 		//		System.out.println("reloadingClassLoader: watching " + name);
@@ -92,8 +93,8 @@ public class ReloadingClassLoader extends URLClassLoader {
 		Class< ? > clz = findLoadedClass(name);
 		if(clz == null) {
 			//-- Must we handle this class?
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("loading class-to-watch=" + name);
+			if(LOG.isDebugEnabled())
+				LOG.debug("loading class-to-watch=" + name);
 
 			//-- Try to find the path for the class resource
 			try {

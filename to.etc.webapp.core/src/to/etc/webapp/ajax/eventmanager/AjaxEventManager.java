@@ -1,7 +1,8 @@
 package to.etc.webapp.ajax.eventmanager;
 
 import java.util.*;
-import java.util.logging.*;
+
+import org.slf4j.*;
 
 /**
  * <p>Singleton AJAX event manager. This allows Java code to post an event to browsers
@@ -24,7 +25,7 @@ import java.util.logging.*;
  * Created on Oct 25, 2006
  */
 public class AjaxEventManager {
-	static private final Logger LOG = Logger.getLogger(AjaxEventManager.class.getName());
+	static private final Logger LOG = LoggerFactory.getLogger(AjaxEventManager.class);
 
 	static private final int MIN_LINGER = 300;
 
@@ -555,7 +556,7 @@ public class AjaxEventManager {
 					/*
 					 * Exceptions within the filter leave the data as-is, i.e. as if the filter has not run.
 					 */
-					LOG.log(Level.INFO, "Exception in AjaxEventFilter " + ef, x);
+					LOG.error("Exception in AjaxEventFilter " + ef, x);
 					x.printStackTrace();
 				}
 			}

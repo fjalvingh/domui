@@ -1,6 +1,6 @@
 package to.etc.domui.component.form;
 
-import java.util.logging.*;
+import org.slf4j.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.server.*;
@@ -13,7 +13,7 @@ import to.etc.domui.util.*;
  * Created on Aug 13, 2009
  */
 public class FormBuilderBase {
-	static protected final Logger LOG = Logger.getLogger(FormBuilderBase.class.getName());
+	static protected final Logger LOG = LoggerFactory.getLogger(FormBuilderBase.class);
 
 	/** If a concrete input class is known this contains it's type. */
 	private Class< ? > m_currentInputClass;
@@ -160,7 +160,7 @@ public class FormBuilderBase {
 
 	public void setBindings(final ModelBindings bindings) {
 		if(m_bindings != null && m_bindings.size() > 0)
-			LOG.warning("Setting new bindings but current binding list has bindings!! Make sure you use the old list to bind too!!");
+			LOG.warn("Setting new bindings but current binding list has bindings!! Make sure you use the old list to bind too!!");
 		m_bindings = bindings;
 	}
 

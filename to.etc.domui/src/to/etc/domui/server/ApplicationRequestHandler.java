@@ -1,7 +1,8 @@
 package to.etc.domui.server;
 
 import java.util.*;
-import java.util.logging.*;
+
+import org.slf4j.*;
 
 import to.etc.domui.annotations.*;
 import to.etc.domui.dom.*;
@@ -23,7 +24,7 @@ import to.etc.webapp.query.*;
  * Created on May 22, 2008
  */
 public class ApplicationRequestHandler implements IFilterRequestHandler {
-	static Logger LOG = Logger.getLogger(ApplicationRequestHandler.class.getName());
+	static Logger LOG = LoggerFactory.getLogger(ApplicationRequestHandler.class);
 
 	private final DomApplication m_application;
 
@@ -110,8 +111,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(cida == null)
 				throw new IllegalStateException("Missing $cid in OBITUARY request");
 
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("OBITUARY received for " + cid + ": pageTag=" + pageTag);
+			if(LOG.isDebugEnabled())
+				LOG.debug("OBITUARY received for " + cid + ": pageTag=" + pageTag);
 			ctx.getSession().internalObituaryReceived(cida[0], pageTag);
 
 			//-- Send a silly response.
@@ -135,8 +136,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			//-- We explicitly need to create a new Window and need to send a redirect back
 			cm = ctx.getSession().createWindowSession();
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID());
+			if(LOG.isDebugEnabled())
+				LOG.debug("$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID());
 			StringBuilder sb = new StringBuilder(256);
 
 			//			sb.append('/');
@@ -199,9 +200,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(!Constants.ACMD_ASYPOLL.equals(action)) {
 			long ts = System.nanoTime();
 			pendingChangeList = handleComponentInput(ctx, page); // Move all request parameters to their input field(s)
-			if(LOG.isLoggable(Level.FINE)) {
+			if(LOG.isDebugEnabled()) {
 				ts = System.nanoTime() - ts;
-				LOG.fine("rq: input handling took " + StringTool.strNanoTime(ts));
+				LOG.debug("rq: input handling took " + StringTool.strNanoTime(ts));
 			}
 		}
 
@@ -270,9 +271,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- Full render completed: indicate that and reset the exception count
 		page.setFullRenderCompleted(true);
 		page.setPageExceptionCount(0);
-		if(LOG.isLoggable(Level.FINE)) {
+		if(LOG.isDebugEnabled()) {
 			ts = System.nanoTime() - ts;
-			LOG.fine("rq: full render took " + StringTool.strNanoTime(ts));
+			LOG.debug("rq: full render took " + StringTool.strNanoTime(ts));
 		}
 
 		//-- Start any delayed actions now.
@@ -486,8 +487,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			 * When an action handler failed because it accessed a component which has a validation error
 			 * we just continue - the failed validation will have posted an error message.
 			 */
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("rq: ignoring validation exception " + x);
+			if(LOG.isDebugEnabled())
+				LOG.debug("rq: ignoring validation exception " + x);
 		} catch(Exception x) {
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl == null) // No handler?
@@ -495,7 +496,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(!xl.handleException(ctx, page, wcomp, x))
 				throw x;
 		}
-		if(LOG.isLoggable(Level.INFO) && !inhibitlog) {
+		if(LOG.isInfoEnabled() && !inhibitlog) {
 			ts = System.nanoTime() - ts;
 			LOG.info("rq: Action handling took " + StringTool.strNanoTime(ts));
 		}
@@ -527,7 +528,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		HtmlFullRenderer fullr = ctx.getApplication().findRendererFor(ctx.getBrowserVersion(), out);
 		OptimalDeltaRenderer dr = new OptimalDeltaRenderer(fullr, ctx, page);
 		dr.render();
-		if(LOG.isLoggable(Level.INFO) && !inhibitlog) {
+		if(LOG.isInfoEnabled() && !inhibitlog) {
 			ts = System.nanoTime() - ts;
 			LOG.info("rq: Optimal Delta rendering using " + fullr + " took " + StringTool.strNanoTime(ts));
 		}

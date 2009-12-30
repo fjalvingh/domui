@@ -6,9 +6,10 @@ import java.lang.reflect.*;
 import java.net.*;
 import java.sql.*;
 import java.util.*;
-import java.util.logging.*;
 
 import javax.sql.*;
+
+import org.slf4j.*;
 
 /**
  * <h1>Overview</h1>
@@ -114,7 +115,7 @@ import javax.sql.*;
  * Created on Sep 12, 2006
  */
 public class VpEventManager implements Runnable {
-	static private final Logger LOG = Logger.getLogger(VpEventManager.class.getName());
+	static private final Logger LOG = LoggerFactory.getLogger(VpEventManager.class);
 
 	static private final long DELETEINTERVAL = 10 * 60 * 1000;
 
@@ -213,11 +214,11 @@ public class VpEventManager implements Runnable {
 	}
 
 	private void log(final String s) {
-		LOG.fine(s);
+		LOG.debug(s);
 	}
 
 	private void exception(final Throwable t, final String s) {
-		LOG.log(Level.ALL, s, t);
+		LOG.error(s, t);
 		System.out.println("VpEventManager: EXCEPTION " + s);
 		t.printStackTrace();
 	}

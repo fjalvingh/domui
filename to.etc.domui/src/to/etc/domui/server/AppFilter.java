@@ -2,14 +2,18 @@ package to.etc.domui.server;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
 
 import javax.servlet.*;
-import javax.servlet.Filter;
 import javax.servlet.http.*;
 
+import org.slf4j.*;
+import org.slf4j.Logger;
+
+import ch.qos.logback.classic.*;
+import ch.qos.logback.classic.joran.*;
+import ch.qos.logback.core.util.*;
+
 import to.etc.domui.util.*;
-import to.etc.log.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
@@ -21,7 +25,7 @@ import to.etc.webapp.nls.*;
  * Created on May 22, 2008
  */
 public class AppFilter implements Filter {
-	static final Logger LOG = Logger.getLogger(AppFilter.class.getName());
+	static final Logger LOG = LoggerFactory.getLogger(AppFilter.class);
 
 	private ConfigParameters m_config;
 
@@ -79,7 +83,7 @@ public class AppFilter implements Filter {
 			if(!logconfig.startsWith("/")) {
 				InputStream is = getClass().getResourceAsStream("/" + logconfig);
 				if(is != null) {
-					System.out.println("DomUI: using user-specified logging classpath-resource " + logconfig);
+					System.out.println("DomUI: using user-specified logback config file from classpath-resource " + logconfig);
 					return is;
 				}
 			}
@@ -87,14 +91,14 @@ public class AppFilter implements Filter {
 			try {
 				File f = new File(logconfig);
 				if(f.exists() && f.isFile()) {
-					System.out.println("DomUI: using logging configuration file " + f.getAbsolutePath());
+					System.out.println("DomUI: using logback logging configuration file " + f.getAbsolutePath());
 					return new FileInputStream(f);
 				}
 			} catch(Exception x) {}
 		}
-		InputStream is = AppFilter.class.getResourceAsStream("logging.properties");
+		InputStream is = AppFilter.class.getResourceAsStream("logback.xml");
 		if(is != null)
-			System.out.println("DomUI: using internal logging.properties");
+			System.out.println("DomUI: using internal logback.xml");
 		return is;
 	}
 
@@ -107,21 +111,30 @@ public class AppFilter implements Filter {
 			String logconfig = config.getInitParameter("logpath");
 			InputStream logStream = findLogConfig(logconfig);
 			if(logStream != null) {
-				java.util.logging.LogManager.getLogManager().reset();
-				java.util.logging.LogManager.getLogManager().readConfiguration(logStream);
-			}
+				JoranConfigurator jc = new JoranConfigurator();
+				LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+				jc.setContext(lc);
+				lc.reset();
+				jc.doConfigure(logStream);
+				System.out.println("DomUI: logging configured.");
+				StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
 
-			Logger root = LogManager.getLogManager().getLogger("");
-			for(Handler h : root.getHandlers()) {
-				if(h instanceof ConsoleHandler) {
-					ConsoleHandler ch = (ConsoleHandler) h;
-					ch.setFormatter(new NonStupidLogFormatter());
-					System.out.println("DomUI: changed ConsoleHandler logger.");
-				}
 			}
-		} catch(IOException x) {
+			//
+			//			//-- Replace SLF4J log formatter.
+			//
+			//
+			//			Logger root = LogManager.getLogManager().getLogger("");
+			//			for(Handler h : root.getHandlers()) {
+			//				if(h instanceof ConsoleHandler) {
+			//					ConsoleHandler ch = (ConsoleHandler) h;
+			//					ch.setFormatter(new NonStupidLogFormatter());
+			//					System.out.println("DomUI: changed ConsoleHandler logger.");
+			//				}
+			//			}
+		} catch(Exception x) {
 			x.printStackTrace();
-			throw new WrappedException(x);
+			throw WrappedException.wrap(x);
 		}
 		try {
 			System.out.println("Init logger");

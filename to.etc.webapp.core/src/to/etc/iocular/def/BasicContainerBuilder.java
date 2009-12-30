@@ -3,7 +3,8 @@ package to.etc.iocular.def;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.logging.*;
+
+import org.slf4j.*;
 
 import to.etc.iocular.*;
 
@@ -17,7 +18,7 @@ import to.etc.iocular.*;
  * Created on Apr 3, 2007
  */
 public class BasicContainerBuilder implements Builder {
-	static private final Logger LOG = Logger.getLogger(BasicContainerBuilder.class.getName());
+	static private final Logger LOG = LoggerFactory.getLogger(BasicContainerBuilder.class);
 
 	/** The created definition from this build. When set the builder has completed. */
 	private ContainerDefinition m_myDefinition;

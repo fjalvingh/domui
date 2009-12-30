@@ -4,7 +4,8 @@ import java.io.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.logging.*;
+
+import org.slf4j.*;
 
 import to.etc.domui.annotations.*;
 import to.etc.util.*;
@@ -21,7 +22,7 @@ import to.etc.xml.*;
  * Created on Nov 16, 2006
  */
 public class RpcCallHandler {
-	static private final Logger LOG = Logger.getLogger(RpcCallHandler.class.getName());
+	static private final Logger LOG = LoggerFactory.getLogger(RpcCallHandler.class);
 
 	//	static private boolean[]		PARAMONE = {true};
 	//

@@ -1,7 +1,8 @@
 package to.etc.domui.server.reloader;
 
 import java.net.*;
-import java.util.logging.*;
+
+import org.slf4j.*;
 
 /**
  * This ClassLoader is used to load classes that are not to be reloaded but which must
@@ -52,7 +53,7 @@ public class CheckingClassLoader extends URLClassLoader {
 		Class< ? > clz = findLoadedClass(name);
 		if(clz == null) {
 			//-- Must we handle this class?
-			LOG.fine("Load class " + name + " using checking loader");
+			LOG.debug("Load class " + name + " using checking loader");
 
 			//-- Try to find the path for the class resource
 			try {

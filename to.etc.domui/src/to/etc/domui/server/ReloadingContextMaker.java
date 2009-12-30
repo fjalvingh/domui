@@ -1,16 +1,17 @@
 package to.etc.domui.server;
 
 import java.util.*;
-import java.util.logging.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
+
+import org.slf4j.*;
 
 import to.etc.domui.server.reloader.*;
 import to.etc.domui.state.*;
 
 public class ReloadingContextMaker extends AbstractContextMaker {
-	static private final Logger LOG = Logger.getLogger(ReloadingContextMaker.class.getName());
+	static private final Logger LOG = LoggerFactory.getLogger(ReloadingContextMaker.class);
 
 	private String m_applicationClassName;
 
@@ -80,7 +81,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	 * other threads execute in the code (and this remains true while this runs).
 	 */
 	private void checkReload() throws Exception {
-		LOG.fine("Checking for reload");
+		LOG.debug("Checking for reload");
 		if(m_application == null) {
 			//-- Just load && be done
 			m_application = createApplication();
@@ -95,7 +96,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			try {
 				l.classesReloaded();
 			} catch(Exception x) {
-				AppFilter.LOG.log(Level.INFO, "Error calling listener: " + x, x);
+				AppFilter.LOG.error("Error calling listener: " + x, x);
 			}
 		}
 		m_reloader.clear();

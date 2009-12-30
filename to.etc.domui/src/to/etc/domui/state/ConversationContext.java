@@ -2,7 +2,8 @@ package to.etc.domui.state;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
+
+import org.slf4j.*;
 
 import to.etc.domui.component.delayed.*;
 import to.etc.domui.dom.html.*;
@@ -101,7 +102,7 @@ import to.etc.webapp.query.*;
  * Created on Jun 23, 2008
  */
 public class ConversationContext implements IQContextContainer {
-	static public final Logger LOG = Logger.getLogger(ConversationContext.class.getName());
+	static public final Logger LOG = LoggerFactory.getLogger(ConversationContext.class);
 
 	static enum ConversationState {
 		DETACHED, ATTACHED, DESTROYED
@@ -179,7 +180,7 @@ public class ConversationContext implements IQContextContainer {
 	public void onDestroy() throws Exception {}
 
 	void internalAttach() throws Exception {
-		LOG.fine("Attaching " + this);
+		LOG.debug("Attaching " + this);
 		if(m_state != ConversationState.DETACHED)
 			throw new IllegalStateException("Wrong state for ATTACH: " + m_state);
 		for(Object o : m_map.values()) {
@@ -188,7 +189,7 @@ public class ConversationContext implements IQContextContainer {
 					((ConversationStateListener) o).conversationAttached(this);
 				} catch(Exception x) {
 					x.printStackTrace();
-					LOG.log(Level.SEVERE, "In calling attach listener", x);
+					LOG.error("In calling attach listener", x);
 				}
 			}
 		}
@@ -200,7 +201,7 @@ public class ConversationContext implements IQContextContainer {
 	}
 
 	void internalDetach() throws Exception {
-		LOG.fine("Detaching " + this);
+		LOG.debug("Detaching " + this);
 		if(m_state != ConversationState.ATTACHED)
 			throw new IllegalStateException("Wrong state for DETACH: " + m_state + " in " + this);
 		for(Object o : m_map.values()) {
@@ -209,7 +210,7 @@ public class ConversationContext implements IQContextContainer {
 					((ConversationStateListener) o).conversationDetached(this);
 				} catch(Exception x) {
 					x.printStackTrace();
-					LOG.log(Level.SEVERE, "In calling detach listener", x);
+					LOG.error("In calling detach listener", x);
 				}
 			}
 		}
@@ -247,7 +248,7 @@ public class ConversationContext implements IQContextContainer {
 					((ConversationStateListener) o).conversationDestroyed(this);
 				} catch(Exception x) {
 					x.printStackTrace();
-					LOG.log(Level.SEVERE, "In calling destroy listener", x);
+					LOG.error("In calling destroy listener", x);
 				}
 			}
 		}
@@ -327,7 +328,7 @@ public class ConversationContext implements IQContextContainer {
 					((ConversationStateListener) old).conversationDetached(this);
 				} catch(Exception x) {
 					x.printStackTrace();
-					LOG.log(Level.SEVERE, "In calling detach listener", x);
+					LOG.error("In calling detach listener", x);
 				}
 			}
 		}

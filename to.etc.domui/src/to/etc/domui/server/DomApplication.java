@@ -3,7 +3,8 @@ package to.etc.domui.server;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.logging.*;
+
+import org.slf4j.*;
 
 import to.etc.domui.ajax.*;
 import to.etc.domui.component.form.*;
@@ -31,7 +32,7 @@ import to.etc.webapp.nls.*;
  * Created on May 22, 2008
  */
 public abstract class DomApplication {
-	static public final Logger LOG = Logger.getLogger(DomApplication.class.getName());
+	static public final Logger LOG = LoggerFactory.getLogger(DomApplication.class);
 
 	private final ApplicationRequestHandler m_requestHandler = new ApplicationRequestHandler(this);
 
@@ -203,11 +204,11 @@ public abstract class DomApplication {
 	}
 
 	final void internalDestroy() {
-		LOG.fine("Destroying application " + this);
+		LOG.info("Destroying application " + this);
 		try {
 			destroy();
 		} catch(Throwable x) {
-			AppFilter.LOG.log(Level.INFO, "Exception when destroying Application", x);
+			AppFilter.LOG.error("Exception when destroying Application", x);
 		}
 	}
 
