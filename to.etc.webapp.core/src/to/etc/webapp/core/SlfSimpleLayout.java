@@ -27,6 +27,9 @@ public class SlfSimpleLayout extends LayoutBase<ILoggingEvent> {
 		sb.append(e.getCallerData()[0].getMethodName());
 		sb.append(")");
 		sb.append('\n');
+		if(e.getThrowableProxy() != null) {
+			sb.append(ThrowableProxyUtil.asString(e.getThrowableProxy()));
+		}
 		return sb.toString();
 	}
 }

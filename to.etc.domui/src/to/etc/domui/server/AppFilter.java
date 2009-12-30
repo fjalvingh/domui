@@ -8,6 +8,7 @@ import javax.servlet.http.*;
 
 import org.slf4j.*;
 import org.slf4j.Logger;
+import org.slf4j.bridge.*;
 
 import ch.qos.logback.classic.*;
 import ch.qos.logback.classic.joran.*;
@@ -118,6 +119,7 @@ public class AppFilter implements Filter {
 				jc.doConfigure(logStream);
 				System.out.println("DomUI: logging configured.");
 				StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
+				SLF4JBridgeHandler.install();
 
 			}
 			//
