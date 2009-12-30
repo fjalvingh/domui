@@ -102,12 +102,15 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			QMultiNode mn = (QMultiNode) r;
 			for(QOperatorNode qtn : mn.getChildren()) {
 				qtn.visit(this);
-				if(m_last != null)
+				if(m_last != null) {
 					addCriterion(m_last);
+					m_last = null;
+				}
 			}
 		} else {
 			r.visit(this);
 			addCriterion(m_last);
+			m_last = null;
 		}
 	}
 
@@ -265,19 +268,24 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		Criterion c1 = null;
 		for(QOperatorNode n : inn.getChildren()) {
 			n.visit(this); // Convert node to Criterion thingydoodle
-			if(c1 == null)
+			if(c1 == null) {
 				c1 = m_last; // If 1st one use as lhs,
-			else {
+				m_last = null;
+			} else {
 				switch(inn.getOperation()){
 					default:
 						throw new IllegalStateException("Unexpected operation: " + inn.getOperation());
 					case AND:
-						if(m_last != null)
+						if(m_last != null) {
 							c1 = Restrictions.and(c1, m_last);
+							m_last = null;
+						}
 						break;
 					case OR:
-						if(m_last != null)
+						if(m_last != null) {
 							c1 = Restrictions.or(c1, m_last);
+							m_last = null;
+						}
 						break;
 				}
 			}
@@ -395,7 +403,6 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		if(fkindex < 0)
 			throw new IllegalStateException("Cannot find child's parent property in cruddy Hibernate metadata toiletbowl: " + keyCols);
 		String childupprop = childmd.getPropertyNames()[fkindex];
-		System.out.println("'UP' property is " + childupprop);
 
 		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
 		String parentAlias = getParentAlias();
