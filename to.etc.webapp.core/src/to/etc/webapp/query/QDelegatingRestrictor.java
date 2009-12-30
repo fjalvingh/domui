@@ -33,6 +33,18 @@ public class QDelegatingRestrictor<T> extends QRestrictor<T> {
 		return m_container.getRestrictions() != null;
 	}
 
+	@Override
+	public QRestrictor<T> and() {
+		return this;
+	}
+
+	@Override
+	public QRestrictor<T> or() {
+		QMultiNode or = new QMultiNode(QOperation.OR);
+		add(or);
+		return new QRestrictorImpl<T>(this, or);
+	}
+
 	/**
 	 * Construct the restrictions by building an AND node, if needed.
 	 * @see to.etc.webapp.query.QRestrictor#internalAdd(to.etc.webapp.query.QOperatorNode)

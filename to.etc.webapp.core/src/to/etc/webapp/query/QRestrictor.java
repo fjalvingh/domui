@@ -27,6 +27,14 @@ abstract public class QRestrictor<T> {
 	 */
 	abstract public void internalAdd(QOperatorNode r);
 
+	/**
+	 * Return a thingy that constructs nodes combined with "or".
+	 * @return
+	 */
+	abstract public QRestrictor<T> or();
+
+	abstract public QRestrictor<T> and();
+
 	protected QRestrictor(Class<T> baseClass) {
 		m_baseClass = baseClass;
 	}
@@ -38,6 +46,22 @@ abstract public class QRestrictor<T> {
 	public Class<T> getBaseClass() {
 		return m_baseClass;
 	}
+
+	//	/**
+	//	 * Return a thingy that constructs nodes combined with "or".
+	//	 * @return
+	//	 */
+	//	public QRestrictor<T> or() {
+	//		QMultiNode or = new QMultiNode(QOperation.OR);
+	//		add(or);
+	//		return new QRestrictorImpl<T>(this, or);
+	//	}
+	//
+	//	public QRestrictor<T> and() {
+	//		QMultiNode and = new QMultiNode(QOperation.AND);
+	//		add(and);
+	//		return new QRestrictorImpl<T>(this, and);
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding selection restrictions (where clause)		*/
@@ -309,16 +333,6 @@ abstract public class QRestrictor<T> {
 		System.arraycopy(rest, 0, ar, 2, rest.length);
 		add(QRestriction.or(ar));
 		return this;
-	}
-
-	/**
-	 * Return a thingy that can be used to create "or" nodes;
-	 * @return
-	 */
-	public QOr<T> or() {
-		QMultiNode or = new QMultiNode(QOperation.OR);
-		add(or);
-		return new QOr<T>(this, or);
 	}
 
 	/**

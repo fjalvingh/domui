@@ -38,27 +38,21 @@ public class TestQueryRendering {
 	@Test
 	public void testNewOr1() throws Exception {
 		QCriteria<TestQueryRendering>	q = QCriteria.create(TestQueryRendering.class);
-		QOr<TestQueryRendering> or = q.or();
-		or.eq("lastname", "jalvingh");
-		or.eq("firstname", "frits");
-		or.next();
-		or.eq("lastname", "mol");
-		or.eq("firstname", "marc");
-
+		QRestrictor<TestQueryRendering> or = q.or();
+		or.and().eq("lastname", "jalvingh").eq("firstname", "frits");
+		or.and().eq("lastname", "mol").eq("firstname", "marc");
 		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE lastname='jalvingh' and firstname='frits' or lastname='mol' and firstname='marc'", render(q));
 	}
 
 	@Test
 	public void testNewOr2() throws Exception {
 		QCriteria<TestQueryRendering> q = QCriteria.create(TestQueryRendering.class);
-		QOr<TestQueryRendering> or = q.or();
+		QRestrictor<TestQueryRendering> or = q.or();
 		or.eq("lastname", "jalvingh");
-		or.next();
 		or.eq("lastname", "mol");
 
 		or = q.or();
 		or.eq("firstname", "frits");
-		or.next();
 		or.eq("firstname", "marc");
 
 		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE (lastname='jalvingh' or lastname='mol') and (firstname='frits' or firstname='marc')", render(q));
