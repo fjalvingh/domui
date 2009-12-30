@@ -5,9 +5,10 @@ import java.net.*;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
-import java.util.logging.*;
 
 import javax.sql.*;
+
+import org.slf4j.*;
 
 import to.etc.dbpool.stats.*;
 import to.etc.dbutil.*;
@@ -147,11 +148,11 @@ import to.etc.dbutil.*;
  * @version $Version$
  */
 public class ConnectionPool implements DbConnectorSet {
-	static public final Logger MSG = Logger.getLogger("to.etc.dbpool.msg");
+	static public final Logger MSG = LoggerFactory.getLogger("to.etc.dbpool.msg");
 
-	static public final Logger JAN = Logger.getLogger("to.etc.dbpool.janitor");
+	static public final Logger JAN = LoggerFactory.getLogger("to.etc.dbpool.janitor");
 
-	static public final Logger ALLOC = Logger.getLogger("to.etc.dbpool.alloc");
+	static public final Logger ALLOC = LoggerFactory.getLogger("to.etc.dbpool.alloc");
 
 	/** The manager this pool comes from, */
 	private final PoolManager m_manager;
@@ -526,14 +527,14 @@ public class ConnectionPool implements DbConnectorSet {
 				System.out.println(DbPoolUtil.getLocation());
 			}
 		}
-		if(!ALLOC.isLoggable(Level.FINE))
+		if(!ALLOC.isDebugEnabled())
 			return;
 		StringBuilder sb = new StringBuilder();
 		sb.append("ALLOCATE pool(" + m_id + ") " + what + " database[allocated for pool=" + m_n_pooledAllocated + ", allocated unpooled=" + m_n_unpooled_inuse + "] pool[inuse=" + m_n_pooled_inuse
 			+ ", free=" + m_freeList.size() + "]");
 		sb.append("\nConnection: " + dbc + "\n");
 		DbPoolUtil.getThreadAndLocation(sb);
-		ALLOC.fine(sb.toString());
+		ALLOC.debug(sb.toString());
 	}
 
 	public synchronized void dbgRelease(final String what, final Connection dbc) {
@@ -543,7 +544,7 @@ public class ConnectionPool implements DbConnectorSet {
 				System.out.println(DbPoolUtil.getLocation());
 			}
 		}
-		if(!ALLOC.isLoggable(Level.FINE))
+		if(!ALLOC.isDebugEnabled())
 			return;
 		StringBuilder sb = new StringBuilder();
 		sb.append("RELEASED pool(" + m_id + ") " + what + " database[allocated for pool=" + m_n_pooledAllocated + ", allocated unpooled=" + m_n_unpooled_inuse + "] pool[inuse=" + m_n_pooled_inuse
@@ -551,7 +552,7 @@ public class ConnectionPool implements DbConnectorSet {
 		if(dbc != null)
 			sb.append("\nConnection: " + dbc + "\n");
 		DbPoolUtil.getThreadAndLocation(sb);
-		ALLOC.fine(sb.toString());
+		ALLOC.debug(sb.toString());
 	}
 
 	/**
@@ -743,7 +744,7 @@ public class ConnectionPool implements DbConnectorSet {
 				try {
 					String s = "POOL[" + m_id + "]: no more connections available on " + ctries + " try!?";
 					System.out.println(s);
-					MSG.severe(s);
+					MSG.error(s);
 					ctries++;
 					if(ctries == 2) {
 						StringBuilder sb = new StringBuilder(1024 * 1024);

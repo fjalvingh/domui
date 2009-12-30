@@ -6,7 +6,6 @@ import java.net.*;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
-import java.util.logging.*;
 
 /**
  *	Encapsulates a java.sql.PreparedStatement for NEMA purposes. This class
@@ -89,9 +88,9 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 	/*--------------------------------------------------------------*/
 	public ResultSet executeQuery() throws SQLException {
 		pool().logExecution(this);
-		if(LOG.isLoggable(Level.FINE)) {
-			LOG.fine("executeQuery(): " + getSQL());
-			LOG.fine("parameters:" + BetterSQLException.format(m_par, m_maxpar));
+		if(LOG.isDebugEnabled()) {
+			LOG.debug("executeQuery(): " + getSQL());
+			LOG.debug("parameters:" + BetterSQLException.format(m_par, m_maxpar));
 		}
 		ResultSetProxy rpx = null;
 		try {
@@ -111,9 +110,9 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
 	public int executeUpdate() throws SQLException {
 		pool().logExecution(this);
-		if(LOG.isLoggable(Level.FINE)) {
-			LOG.fine("executeUpdate(): " + getSQL());
-			LOG.fine("parameters:" + BetterSQLException.format(m_par, m_maxpar));
+		if(LOG.isDebugEnabled()) {
+			LOG.debug("executeUpdate(): " + getSQL());
+			LOG.debug("parameters:" + BetterSQLException.format(m_par, m_maxpar));
 		}
 		int rc = -1;
 		try {
@@ -330,8 +329,8 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 	public boolean execute() throws SQLException {
 		pool().logExecution(this);
 
-		if(LOG.isLoggable(Level.FINE))
-			LOG.fine("execute called");
+		if(LOG.isDebugEnabled())
+			LOG.debug("execute called");
 		try {
 			return getRealPreparedStatement().execute();
 		} catch(SQLException xx) {
@@ -341,9 +340,9 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
 	public void addBatch() throws SQLException {
 		pool().logExecution(this, true);
-		if(LOG.isLoggable(Level.FINE)) {
-			LOG.fine("addBatch(prepared): " + getSQL());
-			LOG.fine("parameters:" + BetterSQLException.format(m_par, m_maxpar));
+		if(LOG.isDebugEnabled()) {
+			LOG.debug("addBatch(prepared): " + getSQL());
+			LOG.debug("parameters:" + BetterSQLException.format(m_par, m_maxpar));
 		}
 
 		try {
