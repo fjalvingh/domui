@@ -407,6 +407,36 @@ public class HtmlTagRenderer implements INodeVisitor {
 			a.append(";");
 		}
 
+		if(c.getFontSize() != null) {
+			a.append("font-size:");
+			a.append(c.getFontSize());
+			a.append(';');
+		}
+		if(c.getFontFamily() != null) {
+			a.append("font-family:");
+			a.append(c.getFontFamily());
+			a.append(';');
+		}
+		if(c.getFontSizeAdjust() != null) {
+			a.append("font-size-adjust:");
+			a.append(c.getFontSizeAdjust());
+			a.append(';');
+		}
+		if(c.getFontStyle() != null) {
+			a.append("font-style:");
+			a.append(c.getFontStyle().name().toLowerCase());
+			a.append(';');
+		}
+		if(c.getFontVariant() != null) {
+			a.append("font-variant:");
+			a.append(c.getFontVariant().name().toLowerCase());
+			a.append(';');
+		}
+		if(c.getFontWeight() != null) {
+			a.append("font-weight:");
+			a.append(c.getFontWeight());
+			a.append(';');
+		}
 		if(c.getTextAlign() != null) {
 			a.append("text-align:");
 			a.append(c.getTextAlign().name().toLowerCase());
