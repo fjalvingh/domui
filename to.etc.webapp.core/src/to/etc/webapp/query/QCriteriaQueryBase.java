@@ -3,6 +3,7 @@ package to.etc.webapp.query;
 import java.util.*;
 
 import to.etc.webapp.*;
+import to.etc.webapp.annotations.*;
 
 /**
  * Base class representing most of the query structure, just not the public interface part.
@@ -118,7 +119,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param prop
 	 * @param alias
 	 */
-	protected void addPropertySelection(QSelectionFunction f, String prop, String alias) {
+	protected void addPropertySelection(QSelectionFunction f, @GProperty String prop, String alias) {
 		if(prop == null || prop.length() == 0)
 			throw new ProgrammerErrorException("The property for a " + f + " selection cannot be null or empty");
 		QPropertySelection ps = new QPropertySelection(f, prop);
@@ -130,7 +131,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> selectProperty(String property) {
+	protected QCriteriaQueryBase<T> selectProperty(@GProperty final String property) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, null);
 		return this;
 	}
@@ -141,7 +142,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> selectProperty(String property, String alias) {
+	protected QCriteriaQueryBase<T> selectProperty(@GProperty final String property, String alias) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, alias);
 		return this;
 	}
@@ -151,7 +152,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> max(String property) {
+	protected QCriteriaQueryBase<T> max(@GProperty final String property) {
 		addPropertySelection(QSelectionFunction.MAX, property, null);
 		return this;
 	}
@@ -162,7 +163,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> max(String property, String alias) {
+	protected QCriteriaQueryBase<T> max(@GProperty final String property, String alias) {
 		addPropertySelection(QSelectionFunction.MAX, property, alias);
 		return this;
 	}
@@ -172,7 +173,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> min(String property) {
+	protected QCriteriaQueryBase<T> min(@GProperty final String property) {
 		addPropertySelection(QSelectionFunction.MIN, property, null);
 		return this;
 	}
@@ -183,7 +184,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> min(String property, String alias) {
+	protected QCriteriaQueryBase<T> min(@GProperty final String property, String alias) {
 		addPropertySelection(QSelectionFunction.MIN, property, alias);
 		return this;
 	}
@@ -193,7 +194,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> avg(String property) {
+	protected QCriteriaQueryBase<T> avg(@GProperty final String property) {
 		addPropertySelection(QSelectionFunction.AVG, property, null);
 		return this;
 	}
@@ -204,7 +205,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> avg(String property, String alias) {
+	protected QCriteriaQueryBase<T> avg(@GProperty final String property, String alias) {
 		addPropertySelection(QSelectionFunction.AVG, property, alias);
 		return this;
 	}
@@ -214,7 +215,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> sum(String property) {
+	protected QCriteriaQueryBase<T> sum(@GProperty final String property) {
 		addPropertySelection(QSelectionFunction.SUM, property, null);
 		return this;
 	}
@@ -225,7 +226,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> sum(String property, String alias) {
+	protected QCriteriaQueryBase<T> sum(@GProperty final String property, String alias) {
 		addPropertySelection(QSelectionFunction.SUM, property, alias);
 		return this;
 	}
@@ -235,7 +236,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> count(String property) {
+	protected QCriteriaQueryBase<T> count(@GProperty final String property) {
 		addPropertySelection(QSelectionFunction.COUNT, property, null);
 		return this;
 	}
@@ -246,7 +247,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> count(String property, String alias) {
+	protected QCriteriaQueryBase<T> count(@GProperty final String property, String alias) {
 		addPropertySelection(QSelectionFunction.COUNT, property, alias);
 		return this;
 	}
@@ -256,7 +257,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> countDistinct(String property) {
+	protected QCriteriaQueryBase<T> countDistinct(@GProperty final String property) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, null);
 		return this;
 	}
@@ -267,7 +268,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> countDistinct(String property, String alias) {
+	protected QCriteriaQueryBase<T> countDistinct(@GProperty final String property, String alias) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, alias);
 		return this;
 	}
@@ -289,7 +290,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param property
 	 * @return
 	 */
-	public QCriteriaQueryBase<T> ascending(String property) {
+	public QCriteriaQueryBase<T> ascending(@GProperty final String property) {
 		add(QOrder.ascending(property));
 		return this;
 	}
@@ -299,7 +300,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	 * @param property
 	 * @return
 	 */
-	public QCriteriaQueryBase<T> descending(String property) {
+	public QCriteriaQueryBase<T> descending(@GProperty final String property) {
 		add(QOrder.descending(property));
 		return this;
 	}

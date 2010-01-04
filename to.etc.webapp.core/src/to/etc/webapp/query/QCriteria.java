@@ -1,5 +1,7 @@
 package to.etc.webapp.query;
 
+import to.etc.webapp.annotations.*;
+
 /**
  * Represents the selection of a list of persistent entity classes from the database. A QCriteria
  * has a fixed type (the type of the class being selected) and maintains the list of conditions (criteria's)
@@ -74,7 +76,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#ascending(java.lang.String)
 	 */
 	@Override
-	public QCriteria<T> ascending(final String property) {
+	public QCriteria<T> ascending(@GProperty final String property) {
 		return (QCriteria<T>) super.ascending(property);
 	}
 
@@ -83,7 +85,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#between(java.lang.String, java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> between(final String property, final Object a, final Object b) {
+	public QCriteria<T> between(@GProperty final String property, final Object a, final Object b) {
 		return (QCriteria<T>) super.between(property, a, b);
 	}
 
@@ -92,7 +94,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#descending(java.lang.String)
 	 */
 	@Override
-	public QCriteria<T> descending(final String property) {
+	public QCriteria<T> descending(@GProperty final String property) {
 		return (QCriteria<T>) super.descending(property);
 	}
 
@@ -101,7 +103,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#eq(java.lang.String, double)
 	 */
 	@Override
-	public QCriteria<T> eq(final String property, final double value) {
+	public QCriteria<T> eq(@GProperty final String property, final double value) {
 		return (QCriteria<T>) super.eq(property, value);
 	}
 
@@ -110,7 +112,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#eq(java.lang.String, long)
 	 */
 	@Override
-	public QCriteria<T> eq(final String property, final long value) {
+	public QCriteria<T> eq(@GProperty final String property, final long value) {
 		return (QCriteria<T>) super.eq(property, value);
 	}
 
@@ -119,7 +121,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#eq(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> eq(final String property, final Object value) {
+	public QCriteria<T> eq(@GProperty final String property, final Object value) {
 		return (QCriteria<T>) super.eq(property, value);
 	}
 
@@ -128,7 +130,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#ge(java.lang.String, double)
 	 */
 	@Override
-	public QCriteria<T> ge(final String property, final double value) {
+	public QCriteria<T> ge(@GProperty final String property, final double value) {
 		return (QCriteria<T>) super.ge(property, value);
 	}
 
@@ -137,7 +139,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#ge(java.lang.String, long)
 	 */
 	@Override
-	public QCriteria<T> ge(final String property, final long value) {
+	public QCriteria<T> ge(@GProperty final String property, final long value) {
 		return (QCriteria<T>) super.ge(property, value);
 	}
 
@@ -146,7 +148,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#ge(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> ge(final String property, final Object value) {
+	public QCriteria<T> ge(@GProperty final String property, final Object value) {
 		return (QCriteria<T>) super.ge(property, value);
 	}
 
@@ -155,7 +157,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#gt(java.lang.String, double)
 	 */
 	@Override
-	public QCriteria<T> gt(final String property, final double value) {
+	public QCriteria<T> gt(@GProperty final String property, final double value) {
 		return (QCriteria<T>) super.gt(property, value);
 	}
 
@@ -164,7 +166,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#gt(java.lang.String, long)
 	 */
 	@Override
-	public QCriteria<T> gt(final String property, final long value) {
+	public QCriteria<T> gt(@GProperty final String property, final long value) {
 		return (QCriteria<T>) super.gt(property, value);
 	}
 
@@ -173,7 +175,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#gt(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> gt(final String property, final Object value) {
+	public QCriteria<T> gt(@GProperty final String property, final Object value) {
 		return (QCriteria<T>) super.gt(property, value);
 	}
 
@@ -182,7 +184,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#ilike(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> ilike(final String property, final Object value) {
+	public QCriteria<T> ilike(@GProperty final String property, final Object value) {
 		return (QCriteria<T>) super.ilike(property, value);
 	}
 
@@ -191,7 +193,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#isnotnull(java.lang.String)
 	 */
 	@Override
-	public QCriteria<T> isnotnull(final String property) {
+	public QCriteria<T> isnotnull(@GProperty final String property) {
 		return (QCriteria<T>) super.isnotnull(property);
 	}
 
@@ -200,7 +202,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#isnull(java.lang.String)
 	 */
 	@Override
-	public QCriteria<T> isnull(final String property) {
+	public QCriteria<T> isnull(@GProperty final String property) {
 		return (QCriteria<T>) super.isnull(property);
 	}
 
@@ -209,7 +211,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#le(java.lang.String, double)
 	 */
 	@Override
-	public QCriteria<T> le(final String property, final double value) {
+	public QCriteria<T> le(@GProperty final String property, final double value) {
 		return (QCriteria<T>) super.le(property, value);
 	}
 
@@ -218,7 +220,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#le(java.lang.String, long)
 	 */
 	@Override
-	public QCriteria<T> le(final String property, final long value) {
+	public QCriteria<T> le(@GProperty final String property, final long value) {
 		return (QCriteria<T>) super.le(property, value);
 	}
 
@@ -227,7 +229,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#le(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> le(final String property, final Object value) {
+	public QCriteria<T> le(@GProperty final String property, final Object value) {
 		return (QCriteria<T>) super.le(property, value);
 	}
 
@@ -236,7 +238,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#like(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> like(final String property, final Object value) {
+	public QCriteria<T> like(@GProperty final String property, final Object value) {
 		return (QCriteria<T>) super.like(property, value);
 	}
 
@@ -245,7 +247,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#lt(java.lang.String, double)
 	 */
 	@Override
-	public QCriteria<T> lt(final String property, final double value) {
+	public QCriteria<T> lt(@GProperty final String property, final double value) {
 		return (QCriteria<T>) super.lt(property, value);
 	}
 
@@ -254,7 +256,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#lt(java.lang.String, long)
 	 */
 	@Override
-	public QCriteria<T> lt(final String property, final long value) {
+	public QCriteria<T> lt(@GProperty final String property, final long value) {
 		return (QCriteria<T>) super.lt(property, value);
 	}
 
@@ -263,7 +265,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#lt(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> lt(final String property, final Object value) {
+	public QCriteria<T> lt(@GProperty final String property, final Object value) {
 		return (QCriteria<T>) super.lt(property, value);
 	}
 
@@ -272,7 +274,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#ne(java.lang.String, double)
 	 */
 	@Override
-	public QCriteria<T> ne(final String property, final double value) {
+	public QCriteria<T> ne(@GProperty final String property, final double value) {
 		return (QCriteria<T>) super.ne(property, value);
 	}
 
@@ -281,7 +283,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#ne(java.lang.String, long)
 	 */
 	@Override
-	public QCriteria<T> ne(final String property, final long value) {
+	public QCriteria<T> ne(@GProperty final String property, final long value) {
 		return (QCriteria<T>) super.ne(property, value);
 	}
 
@@ -290,7 +292,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#ne(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> ne(final String property, final Object value) {
+	public QCriteria<T> ne(@GProperty final String property, final Object value) {
 		return (QCriteria<T>) super.ne(property, value);
 	}
 
