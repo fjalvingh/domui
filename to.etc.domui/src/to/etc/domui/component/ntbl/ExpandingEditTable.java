@@ -39,9 +39,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	/** When set this factory is used to create the editor; when null this will create the "default" editor. */
 	private IRowEditorFactory<T, ? > m_editorFactory;
 
-	private IRowEditorEvent<T, ? > m_onNewComplete;
-
-	private IRowEditorEvent<T, ? > m_onEditComplete;
+	private IRowEditorEvent<T, ? > m_onRowChangeCompleted;
 
 	private IRowButtonFactory<T> m_rowButtonFactory;
 
@@ -71,6 +69,13 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	private NodeContainer m_emptyDiv;
 
 	private boolean m_enableDeleteButton = true;
+
+	/**
+	 * By default set to true.
+	 * Set to false to disable default componet behavior to handle adding of items when no handler is set to getOnRowChangeCompleted.
+	 * In case when set to true, component model must be instanceof IModifyableTableModel<T>.
+	 */
+	private boolean m_enableAddingItems = true;
 
 	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
 		super(actualClass);
@@ -362,8 +367,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 				return;
 		}
 
-		if(getOnEditComplete() != null) {
-			if(!((IRowEditorEvent) getOnEditComplete()).onRowChanged(this, editor, item))
+		if(getOnRowChangeCompleted() != null) {
+			if(!((IRowEditorEvent) getOnRowChangeCompleted()).onRowChanged(this, editor, item, false))
 				return;
 		}
 
@@ -479,15 +484,20 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 				return;
 		}
 
-		if(getOnNewComplete() != null) {
-			if(!((IRowEditorEvent) getOnNewComplete()).onRowChanged(this, m_newEditor, m_newInstance))
+		if(getOnRowChangeCompleted() != null) {
+			if(!((IRowEditorEvent) getOnRowChangeCompleted()).onRowChanged(this, m_newEditor, m_newInstance, true)) {
 				return;
-		} else {
-			// vmijic 20100104 In case that no extra handling is set to getOnNewComplete than default adding is done here.
+			}
+		} else if(isEnableAddingItems()) {
+			// vmijic 20100105 In case that no extra handling is set to getOnRowChangeCompleted than default adding is done here.
 			//		// jal 20091229 See wiki merge reports - commented out until discussed.
 			//		//vmijic 20091225 adding to model has to be done here. onRowChanged is just validation method, it does not add to model.
-			IModifyableTableModel<T> mtm = (IModifyableTableModel<T>) getModel();
-			mtm.add(m_newInstance);
+			if(getModel() instanceof IModifyableTableModel< ? >) {
+				IModifyableTableModel<T> mtm = (IModifyableTableModel<T>) getModel();
+				mtm.add(m_newInstance);
+			} else {
+				throw new IllegalStateException("model not of expected type IModifyableTableModel<T> : " + getModel().getClass().getName());
+			}
 		}
 
 
@@ -701,53 +711,28 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	}
 
 	/**
-	 * Set a handler to call when editing a <i>new</i> row in an editable table component after
-	 * editing is (somehow) marked as complete. When called the editor's contents has been moved
-	 * to the model by using the bindings. This method can be used to check the data for validity
+	 * Set a handler to call when editing a row in an editable table component after
+	 * editing is (somehow) marked as complete. When called the editor's contents has to be handled (f.e. instance should be
+	 * added to the model by using the bindings. This method can also be used to check the data for validity
 	 * or to check for duplicates, for instance by using {@link MetaManager#hasDuplicates(java.util.List, Object, String)}.
 	 *
 	 * @return
 	 */
 	@Nullable
-	public IRowEditorEvent<T, ? > getOnNewComplete() {
-		return m_onNewComplete;
+	public IRowEditorEvent<T, ? > getOnRowChangeCompleted() {
+		return m_onRowChangeCompleted;
 	}
 
 	/**
-	 * Set a handler to call when editing a <i>new</i> row in an editable table component after
-	 * editing is (somehow) marked as complete. When called the editor's contents has been moved
-	 * to the model by using the bindings. This method can be used to check the data for validity
+	 * Set a handler to call when editing a row in an editable table component after
+	 * editing is (somehow) marked as complete. When called the editor's contents has to be handled (f.e. instance should be
+	 * added to the model by using the bindings. This method can also be used to check the data for validity
 	 * or to check for duplicates, for instance by using {@link MetaManager#hasDuplicates(java.util.List, Object, String)}.
 	 *
 	 * @param onNewComplete
 	 */
-	public void setOnNewComplete(@Nullable IRowEditorEvent<T, ? > onNewComplete) {
-		m_onNewComplete = onNewComplete;
-	}
-
-	/**
-	 * Set a handler to call when editing an <i>existing</i> row in an editable table component after
-	 * editing is (somehow) marked as complete. When called the editor's contents has been moved to
-	 * the model by using the bindings. This method can be used to check the data for validity or to
-	 * check for duplicates, for instance by using {@link MetaManager#hasDuplicates(java.util.List, Object, String)}.
-	 *
-	 * @return
-	 */
-	@Nullable
-	public IRowEditorEvent<T, ? > getOnEditComplete() {
-		return m_onEditComplete;
-	}
-
-	/**
-	 * Set a handler to call when editing an <i>existing</i> row in an editable table component after
-	 * editing is (somehow) marked as complete. When called the editor's contents has been moved to
-	 * the model by using the bindings. This method can be used to check the data for validity or to
-	 * check for duplicates, for instance by using {@link MetaManager#hasDuplicates(java.util.List, Object, String)}.
-	 *
-	 * @param onEditComplete
-	 */
-	public void setOnEditComplete(@Nullable IRowEditorEvent<T, ? > onEditComplete) {
-		m_onEditComplete = onEditComplete;
+	public void setOnRowChangeCompleted(@Nullable IRowEditorEvent<T, ? > onRowChangeCompleted) {
+		m_onRowChangeCompleted = onRowChangeCompleted;
 	}
 
 	/**
@@ -763,5 +748,13 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 	public void setEnableDeleteButton(boolean enableDeleteButton) {
 		m_enableDeleteButton = enableDeleteButton;
+	}
+
+	public boolean isEnableAddingItems() {
+		return m_enableAddingItems;
+	}
+
+	public void setEnableAddingItems(boolean enableAddingItems) {
+		m_enableAddingItems = enableAddingItems;
 	}
 }
