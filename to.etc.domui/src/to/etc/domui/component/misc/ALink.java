@@ -78,10 +78,14 @@ public class ALink extends ATag {
 		return m_targetClass;
 	}
 
-	public void setTargetClass(Class< ? extends UrlPage> targetClass) {
-		if(m_targetClass == targetClass)
-			return;
+	public void setTargetClass(Class< ? extends UrlPage> targetClass, Object... parameters) {
+//		if(m_targetClass == targetClass)
+//			return;
 		m_targetClass = targetClass;
+		if(parameters == null || parameters.length == 0)
+			m_targetParameters = null;
+		else
+			m_targetParameters = new PageParameters(parameters);
 		updateLink();
 	}
 
