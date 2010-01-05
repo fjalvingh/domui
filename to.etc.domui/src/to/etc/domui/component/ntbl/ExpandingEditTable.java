@@ -473,7 +473,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 		//-- Try to commit, then add;
 		m_newEditor.moveControlToModel(); // Move data, exception @ err
-
 		if(m_newEditor instanceof IEditor) {
 			IEditor e = (IEditor) m_newEditor;
 			if(!e.validate(true))
@@ -483,12 +482,14 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		if(getOnNewComplete() != null) {
 			if(!((IRowEditorEvent) getOnNewComplete()).onRowChanged(this, m_newEditor, m_newInstance))
 				return;
+		} else {
+			// vmijic 20100104 In case that no extra handling is set to getOnNewComplete than default adding is done here.
+			//		// jal 20091229 See wiki merge reports - commented out until discussed.
+			//		//vmijic 20091225 adding to model has to be done here. onRowChanged is just validation method, it does not add to model.
+			IModifyableTableModel<T> mtm = (IModifyableTableModel<T>) getModel();
+			mtm.add(m_newInstance);
 		}
 
-		// jal 20091229 See wiki merge reports - commented out until discussed.
-		//		//vmijic 20091225 adding to model has to be done here. onRowChanged is just validation method, it does not add to model.
-		//		IModifyableTableModel<T> mtm = (IModifyableTableModel<T>) getModel();
-		//		mtm.add(m_newInstance);
 
 		//-- Data move succesful. Move to model proper
 		m_newBody.remove(); // Discard editor & stuff
