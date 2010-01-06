@@ -240,7 +240,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		//-- Start the main rendering process. Determine the browser type.
 		long ts = System.nanoTime();
-		ctx.getResponse().setContentType("text/html; charset=UTF-8");
+		if(page.getBody() instanceof IXHTMLPage)
+			ctx.getResponse().setContentType("application/xhtml+xml; charset=UTF-8");
+		else
+			ctx.getResponse().setContentType("text/html; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 

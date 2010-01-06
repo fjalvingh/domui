@@ -152,15 +152,26 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	}
 
 	protected void renderPageHeader() throws Exception {
-		o().writeRaw(
-			"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html>\n" + "<head>\n"
-				+ "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
+		if(isXml()) {
+			o().writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/xhtml1-transitional.dtd\">\n" //
+				+ "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" //
+				+ "<head>\n" //
+				+ "<meta http-equiv=\"Content-Type\" content=\"application/xhtml+xml; charset=UTF-8\"/>\n" //
+			);
+		} else {
+			o().writeRaw(
+				"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html>\n" + "<head>\n"
+					+ "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
+		}
 	}
 
 	public void renderThemeCSS() throws Exception {
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
 		o().writeRaw(ctx().getRelativePath(ctx().getRelativeThemePath("style.theme.css")));
-		o().writeRaw("\"></link>\n");
+		if(isXml())
+			o().writeRaw("\"/>");
+		else
+			o().writeRaw("\"></link>\n");
 	}
 
 	/**
@@ -202,6 +213,9 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	public void render(IRequestContext ctx, Page page) throws Exception {
 		m_ctx = ctx;
 		m_page = page;
+		if(page.getBody() instanceof IXHTMLPage) {
+			setXml(true);
+		}
 		page.build();
 		renderPageHeader();
 		//		o().writeRaw(
