@@ -19,8 +19,9 @@ public interface IRowEditorEvent<T, E extends NodeContainer> {
 	 * @param tablecomponent
 	 * @param editor
 	 * @param instance
+	 * @param isNew true when inserting row is changed, false when editing row is changed
 	 * @return false to refuse the change.
 	 * @throws Exception
 	 */
-	boolean onRowChanged(TableModelTableBase<T> tablecomponent, E editor, T instance) throws Exception;
+	boolean onRowChanged(TableModelTableBase<T> tablecomponent, E editor, T instance, boolean isNew) throws Exception;
 }
