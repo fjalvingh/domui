@@ -701,7 +701,7 @@ div:hover.ui-xdt-exp {
 	background-image: url(xdt-expanded.png);
 }
 .ui-xdt-new {
-	background-image: url(btnCheckmark.png);
+	background-image: url(btnConfirm.png);
 }
 
 .ui-xdt-edt {

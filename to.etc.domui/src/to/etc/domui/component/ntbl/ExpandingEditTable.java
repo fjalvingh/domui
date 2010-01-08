@@ -77,6 +77,18 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 */
 	private boolean m_enableAddingItems = true;
 
+	/**
+	 * By default set to true.
+	 * Set to false to disable default componet behavior to enable items expaning and showing editor, i.e. for readonly data presentation.
+	 */
+	private boolean m_enableExpandItems = true;
+
+	/**
+	 * By default set to true.
+	 * Set to false to disable items editing when expanded, i.e. for readonly data presentation but when row expanding is in use (showing some row details in expanded view).
+	 */
+	private boolean m_enableRowEdit = true;
+
 	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
 		super(actualClass);
 		m_rowRenderer = r;
@@ -225,14 +237,16 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	private void createIndexNode(TD td, final int index, boolean collapsed) {
 		Div d = new Div(Integer.toString(index + 1));
 		td.add(d);
-		d.setCssClass(collapsed ? "ui-xdt-ix ui-xdt-clp" : "ui-xdt-ix ui-xdt-exp");
+		if(isEnableExpandItems()) {
+			d.setCssClass(collapsed ? "ui-xdt-ix ui-xdt-clp" : "ui-xdt-ix ui-xdt-exp");
 
-		td.setClicked(new IClicked<TD>() {
-			@Override
-			public void clicked(TD clickednode) throws Exception {
-				toggleExpanded(index);
-			}
-		});
+			td.setClicked(new IClicked<TD>() {
+				@Override
+				public void clicked(TD clickednode) throws Exception {
+					toggleExpanded(index);
+				}
+			});
+		}
 	}
 
 	/**
@@ -278,7 +292,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		if(getEditorFactory() == null)
 			throw new IllegalStateException("Auto editor creation not yet supported");
 
-		NodeContainer editor = getEditorFactory().createRowEditor(instance, isnew);
+		NodeContainer editor = getEditorFactory().createRowEditor(instance, isnew, !m_enableRowEdit);
 		into.add(editor);
 		if(editor.getCssClass() == null)
 			editor.setCssClass("ui-xdt-edt"); // 20091221 jal Configuration by exception: provide a reasonable style for simple editors
@@ -797,5 +811,21 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		}
 
 		return dataValid;
+	}
+
+	public boolean isEnableExpandItems() {
+		return m_enableExpandItems;
+	}
+
+	public void setEnableExpandItems(boolean enableExpandItems) {
+		m_enableExpandItems = enableExpandItems;
+	}
+
+	public boolean isEnableRowEdit() {
+		return m_enableRowEdit;
+	}
+
+	public void setEnableRowEdit(boolean enableRowEdit) {
+		m_enableRowEdit = enableRowEdit;
 	}
 }
