@@ -46,6 +46,10 @@ public class ModificationFenceDiv extends Div implements IUserInputModifiedFence
 		m_finalUserInputModifiedFence = finalUserInputModifiedFence;
 	}
 
+	public void onModifyFlagRaised() {
+	//by default do nothing
+	}
+
 	@Override
 	public boolean isModified() {
 		return m_ignoreModifiedInputs ? false : m_modified;

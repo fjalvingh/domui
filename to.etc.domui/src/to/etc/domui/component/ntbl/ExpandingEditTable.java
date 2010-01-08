@@ -216,6 +216,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 				public void clicked(LinkButton clickednode) throws Exception {
 					//vmijic 20091225 delete value, why bother with index? jal 20091229 Because I forgot delete() was part of the model ;-)
 					((IModifyableTableModel<T>) getModel()).delete(value);
+					DomUtil.setModifiedFlag(ExpandingEditTable.this);
 				}
 			});
 		}
@@ -357,8 +358,10 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			return;
 		NodeContainer editor = (NodeContainer) tr.getUserObject();
 		T	item	= getModelItem(index);
-		if(DomUtil.isModified(editor)) // On collapse pass on modified state
-			setModified(true);
+		//vmijic 20100108 not needed since editor itself would pass modified flag through its input fields.
+		//				  in case that user didn't chaged any input, then there is no need to raise modified flag.
+		//if(DomUtil.isModified(editor)) // On collapse pass on modified state
+		//	DomUtil.setModifiedFlag(ExpandingEditTable.this);
 
 		editor.moveControlToModel(); // Phase 1 move data to model;
 		if(editor instanceof IEditor) {
@@ -761,5 +764,38 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 */
 	public void setEnableAddingItems(boolean enableAddingItems) {
 		m_enableAddingItems = enableAddingItems;
+	}
+
+	/**
+	 * When executed, method would try to collapse all currently expanded rows.
+	 * In case that some row can not be collapsed, method would return false, that means that probably data validation has failed on some expanded row. 
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean collapseAllExpandedRows() throws Exception {
+		boolean dataValid = true;
+		if(m_newAtStart && m_newBody != null) {
+			clearNewEditor();
+			dataValid = m_newBody == null;
+		}
+
+		if(m_dataBody != null) {
+			int index = 0;
+			for(TR row : m_dataBody.getChildren(TR.class)) {
+				if(row.getUserObject() != null && row.getUserObject() instanceof IEditor) {
+					collapseRow(index, row);
+					//in case that row can be collapsed, editing is successful
+					dataValid = dataValid && row.getUserObject() == null;
+				}
+				index++;
+			}
+		}
+
+		if(!m_newAtStart && m_newBody != null) {
+			clearNewEditor();
+			dataValid = dataValid && m_newBody == null;
+		}
+
+		return dataValid;
 	}
 }
