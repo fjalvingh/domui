@@ -1175,10 +1175,11 @@ public class ConnectionPool implements DbConnectorSet {
 			String msg = unsb.toString();
 			saveError(subj, msg);
 			PoolManager.panic(subj, msg);
+			JAN.warn(m_id + ": Unpooled connection(s) possibly not freed:" + msg);
 		}
 
 		if(nhanging == 0) {
-			JAN.info(m_id + ": no hanging connections found.");
+			JAN.debug(m_id + ": no hanging connections found.");
 			return false; // No old stuff found.
 		}
 		if(!logonly) {
