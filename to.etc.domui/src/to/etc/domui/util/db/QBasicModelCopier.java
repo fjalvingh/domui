@@ -5,6 +5,7 @@ import java.util.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 abstract public class QBasicModelCopier implements IModelCopier {
@@ -60,6 +61,21 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		}
 	}
 
+	static private String identify(Object t) {
+		if(t == null)
+			return "null";
+		ClassMetaModel cmm = MetaManager.findClassMeta(t.getClass());
+		if(!cmm.isPersistentClass() || cmm.getPrimaryKey() == null)
+			return t.toString();
+		try {
+			Object k = cmm.getPrimaryKey().getAccessor().getValue(t);
+			return t.getClass().getName() + "#" + k + " @" + System.identityHashCode(t);
+			//			return t.getClass().getName() + "#null@" + System.identityHashCode(t);
+		} catch(Exception x) {
+			return t.toString();
+		}
+	}
+
 	/**
 	 * Do a shallow copy of the instance. This only copies all public fields.
 	 * @see to.etc.domui.util.db.IModelCopier#copyInstanceShallow(to.etc.webapp.query.QDataContext, java.lang.Object)
@@ -104,7 +120,11 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 	public <T> T copyInstanceDeep(QDataContext dc, T source) throws Exception {
 		CopyInfo ci = new CopyInfo();
-		return internalCopy(dc, ci, source);
+		long ts = System.nanoTime();
+		T res = internalCopy(dc, ci, source);
+		ts = System.nanoTime() - ts;
+		System.out.println("Q: created 'save' copy of " + identify(source) + " by copying " + ci.getNCopied() + ", adding " + ci.m_nNew + " records in " + StringTool.strNanoTime(ts));
+		return res;
 	}
 
 	private <T> T internalCopy(QDataContext dc, CopyInfo donemap, T source) throws Exception {
@@ -134,6 +154,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			donemap.incCopies();
 		}
 		donemap.put(source, copy); // Save as mapping
+		System.out.println("--- copying " + identify(source));
 		copyProperties(dc, donemap, source, copy, cmm);
 		//		/*
 		//		 * Deep copy of (database) property values. All properties that refer to some relation will be copied *if* their
@@ -162,7 +183,10 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		//					break;
 		//			}
 		//		}
-
+		if(null == pk) {
+			System.out.println(">>> save " + identify(copy));
+			dc.save(copy);
+		}
 		return copy;
 	}
 
@@ -175,6 +199,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			//-- We cannot copy readonly properties, so skip those
 			if(pmm.getReadOnly() == YesNoType.YES)
 				continue;
+			System.out.println("Copying " + pmm.getName() + " of " + pmm.getClassModel());
 
 			switch(pmm.getRelationType()){
 				default:
@@ -215,7 +240,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			//-- We ignore NULL lists
 			return;
 		}
-		List<Object> slist = (List<Object>) schild;
+		Collection<Object> slist = (List<Object>) schild;
 
 		Object dchild = pmm.getAccessor().getValue(copy);
 		if(dchild == null) {
@@ -223,7 +248,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			dchild = new ArrayList<Object>(slist.size());
 			((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, dchild);
 		}
-		List<Object> dlist = (List<Object>) dchild;
+		Collection<Object> dlist = (List<Object>) dchild;
 
 		//-- Locate the child class's type
 		Type vtype = pmm.getGenericActualType();
@@ -257,6 +282,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			if(spk == null) {
 				//-- A new record @ source. Map it to dest && add to dlist
 				Object di = internalCopy(dc, donemap, si);
+				System.out.println(">>> save " + identify(di));
 				dc.save(di);
 				dlist.add(di);
 			} else {
@@ -266,8 +292,10 @@ abstract public class QBasicModelCopier implements IModelCopier {
 				} else {
 					//-- This did not exist @ destination. Map it to a destination object then add it there.
 					di = internalCopy(dc, donemap, si);
+					System.out.println(">>> save " + identify(di));
 					dc.save(di);
 					dlist.add(di);
+					//					donemap.incNew();
 				}
 			}
 		}

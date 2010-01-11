@@ -216,6 +216,11 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			}
 		} else if("javax.persistence.Transient".equals(name)) {
 			setTransient(true);
+		} else if("javax.persistence.OneToMany".equals(name)) {
+			//-- This must be a list
+			if(!Collection.class.isAssignableFrom(getActualType()))
+				throw new IllegalStateException("Invalid property type for DOWN relation of property " + this + ": only List<T> is allowed");
+			setRelationType(PropertyRelationType.DOWN);
 		}
 	}
 
