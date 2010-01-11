@@ -134,7 +134,39 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			donemap.incCopies();
 		}
 		donemap.put(source, copy); // Save as mapping
+		copyProperties(dc, donemap, source, copy, cmm);
+		//		/*
+		//		 * Deep copy of (database) property values. All properties that refer to some relation will be copied *if* their
+		//		 * value is instantiated (not lazy and clean). All other properties are just copied by reference.
+		//		 */
+		//		for(PropertyMetaModel pmm : cmm.getProperties()) {
+		//			//-- We cannot copy readonly properties, so skip those
+		//			if(pmm.getReadOnly() == YesNoType.YES)
+		//				continue;
+		//
+		//			switch(pmm.getRelationType()){
+		//				default:
+		//					throw new IllegalStateException("Unexpected relation type: " + pmm.getRelationType() + " in " + pmm);
+		//				case NONE:
+		//					//-- Normal non-relation field. Just copy the value or the reference.
+		//					Object v = pmm.getAccessor().getValue(source);
+		//					((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, v);
+		//					break;
+		//
+		//				case UP:
+		//					copyParentProperty(dc, donemap, source, copy, pmm);
+		//					break;
+		//
+		//				case DOWN:
+		//					copyChildListProperty(dc, donemap, source, copy, pmm);
+		//					break;
+		//			}
+		//		}
 
+		return copy;
+	}
+
+	private <T> void copyProperties(QDataContext dc, CopyInfo donemap, T source, T copy, ClassMetaModel cmm) throws Exception {
 		/*
 		 * Deep copy of (database) property values. All properties that refer to some relation will be copied *if* their
 		 * value is instantiated (not lazy and clean). All other properties are just copied by reference.
@@ -162,12 +194,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 					break;
 			}
 		}
-
-		return copy;
-	}
-
-	private <T> void copyProperties(QDataContext dc, CopyInfo donemap, T source, T copy) throws Exception {
-
 	}
 
 	/**
@@ -236,7 +262,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			} else {
 				Object di = dpkmap.remove(spk); // Does this same record exist @ destination?
 				if(di != null) {
-					copyProperties(dc, donemap, si, di);
+					copyProperties(dc, donemap, si, di, childmm);
 				} else {
 					//-- This did not exist @ destination. Map it to a destination object then add it there.
 					di = internalCopy(dc, donemap, si);
