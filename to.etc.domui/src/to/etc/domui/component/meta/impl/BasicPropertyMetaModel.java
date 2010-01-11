@@ -34,6 +34,9 @@ public class BasicPropertyMetaModel {
 
 	private String m_regexpUserString;
 
+	/** T if marked as @Transient */
+	private boolean m_transient;
+
 	public IConverter< ? > getConverter() {
 		return m_converter;
 	}
@@ -158,5 +161,13 @@ public class BasicPropertyMetaModel {
 
 	public void setRegexpUserString(String regexpUserString) {
 		m_regexpUserString = regexpUserString;
+	}
+
+	public boolean isTransient() {
+		return m_transient;
+	}
+
+	public void setTransient(boolean transient1) {
+		m_transient = transient1;
 	}
 }

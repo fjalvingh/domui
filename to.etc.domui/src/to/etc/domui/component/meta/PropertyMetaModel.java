@@ -213,6 +213,9 @@ public interface PropertyMetaModel {
 
 	public YesNoType getReadOnly();
 
+	/** If marked as transient in the persistent class this returns true */
+	public boolean isTransient();
+
 	/**
 	 * When present this gives a hint to the component factories to help with choosing a
 	 * proper component to <i>select</i> a single record of the type specified by this

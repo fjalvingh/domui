@@ -140,6 +140,10 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		 * value is instantiated (not lazy and clean). All other properties are just copied by reference.
 		 */
 		for(PropertyMetaModel pmm : cmm.getProperties()) {
+			//-- We cannot copy readonly properties, so skip those
+			if(pmm.getReadOnly() == YesNoType.YES)
+				continue;
+
 			switch(pmm.getRelationType()){
 				default:
 					throw new IllegalStateException("Unexpected relation type: " + pmm.getRelationType() + " in " + pmm);

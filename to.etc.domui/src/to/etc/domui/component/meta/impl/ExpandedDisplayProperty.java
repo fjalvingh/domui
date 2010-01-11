@@ -455,6 +455,11 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		return m_propertyMeta == null ? false : m_propertyMeta.isRequired();
 	}
 
+	@Override
+	public boolean isTransient() {
+		return m_propertyMeta == null ? true : m_propertyMeta.isTransient();
+	}
+
 	public String getRenderHint() {
 		return m_renderHint;
 	}

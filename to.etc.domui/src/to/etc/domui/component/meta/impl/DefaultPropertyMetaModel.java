@@ -73,7 +73,11 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		if(classModel == null)
 			throw new IllegalStateException("Cannot be null dude");
 		m_descriptor = descriptor;
-		m_accessor = new PropertyAccessor<Object>(descriptor.getReadMethod(), descriptor.getWriteMethod());
+		m_accessor = new PropertyAccessor<Object>(descriptor.getReadMethod(), descriptor.getWriteMethod(), this);
+		if(descriptor.getWriteMethod() == null) {
+			setReadOnly(YesNoType.YES);
+		}
+
 		Annotation[] annar = descriptor.getReadMethod().getAnnotations();
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName();
@@ -105,7 +109,8 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 				setTemporal(mp.temporal());
 			if(mp.numericPresentation() != NumericPresentation.UNKNOWN)
 				setNumericPresentation(mp.numericPresentation());
-			setReadOnly(mp.readOnly());
+			if(getReadOnly() != YesNoType.YES) // Do not override readonlyness from missing write method
+				setReadOnly(mp.readOnly());
 			if(mp.componentTypeHint().length() != 0)
 				setComponentTypeHint(mp.componentTypeHint());
 
@@ -209,6 +214,8 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			} catch(Exception x) {
 				Trouble.wrapException(x);
 			}
+		} else if("javax.persistence.Transient".equals(name)) {
+			setTransient(true);
 		}
 	}
 

@@ -302,6 +302,11 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	}
 
 	@Override
+	public boolean isTransient() {
+		return m_original.isTransient();
+	}
+
+	@Override
 	public String getRegexpUserString() {
 		return m_original.getRegexpUserString();
 	}
