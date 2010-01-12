@@ -25,6 +25,8 @@ public interface Msgs {
 
 	public static final String UI_BOOL_FALSE = "ui.boolean.false";
 
+	public static final String DATA_INCONSISTEN = "ui.data.inconsistent";
+
 	//# Control texts
 	/** Page x of y */
 	public static final String UI_PAGER_TEXT = "ui.pagertext";
