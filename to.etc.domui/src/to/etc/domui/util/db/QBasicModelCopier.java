@@ -24,11 +24,19 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	static public class CopyInfo {
 		private Map<Object, Object> m_sourceToTargetMap = new HashMap<Object, Object>();
 
+		/**
+		 * Objects that are determined to be new need to be fully initialized before they are saved, especially
+		 * when saving objects that are part of a bidirectional relation.
+		 */
+		private List<Object> m_saveList = new ArrayList<Object>();
+
 		private int m_nCopied;
 
 		private int m_nChanged;
 
 		private int m_nNew;
+
+		private int m_level;
 
 		public CopyInfo() {}
 
@@ -38,6 +46,21 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 		public Object get(Object src) {
 			return m_sourceToTargetMap.get(src);
+		}
+
+		/**
+		 * Add the object to the pending save list, to be saved in order of addition.
+		 * @param o
+		 */
+		public void save(Object o) {
+			if(m_saveList.contains(o))
+				return;
+			//				throw new IllegalStateException("Duplicate saved object: " + identify(o));
+			m_saveList.add(o);
+		}
+
+		public List<Object> getSaveList() {
+			return m_saveList;
 		}
 
 		public void incCopies() {
@@ -58,6 +81,22 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 		public int getNCopied() {
 			return m_nCopied;
+		}
+
+		public void inc() {
+			m_level++;
+		}
+
+		public void dec() {
+			m_level--;
+		}
+
+		public void log(String s) {
+			StringBuilder sb = new StringBuilder(128);
+			for(int i = 0; i < m_level; i++)
+				sb.append(' ');
+			sb.append(s);
+			System.out.println(sb.toString());
 		}
 	}
 
@@ -122,6 +161,13 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		CopyInfo ci = new CopyInfo();
 		long ts = System.nanoTime();
 		T res = internalCopy(dc, ci, source);
+
+		//-- Now save all objects;
+		for(Object o : ci.getSaveList()) {
+			ci.log("Save new object: " + identify(o));
+			dc.save(o);
+		}
+
 		ts = System.nanoTime() - ts;
 		System.out.println("Q: created 'save' copy of " + identify(source) + " by copying " + ci.getNCopied() + ", adding " + ci.m_nNew + " records in " + StringTool.strNanoTime(ts));
 		return res;
@@ -130,8 +176,10 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	private <T> T internalCopy(QDataContext dc, CopyInfo donemap, T source) throws Exception {
 		//-- 1. If the instance we're doing is part of the done set exit to prevent infinite loop
 		T copy = (T) donemap.get(source); // Already mapped before?
-		if(copy != null)
+		if(copy != null) {
+			donemap.log("returning existing copy for " + identify(source));
 			return copy; // Yes-> return earlier copy.
+		}
 
 		//-- Get the target instance to use.
 		assertPrivateContext(dc);
@@ -154,8 +202,17 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			donemap.incCopies();
 		}
 		donemap.put(source, copy); // Save as mapping
-		System.out.println("--- copying " + identify(source));
+		System.out.println();
+		donemap.log("Copying " + identify(source) + (pk == null ? " (new)" : ""));
+		if(null == pk) {
+			donemap.log("Post for save " + identify(copy) + " (copy of " + identify(source) + ")");
+			donemap.save(copy);
+		}
+		donemap.inc();
 		copyProperties(dc, donemap, source, copy, cmm);
+		donemap.dec();
+		donemap.log("Finished copy of " + identify(source) + (pk == null ? " (new)" : ""));
+
 		//		/*
 		//		 * Deep copy of (database) property values. All properties that refer to some relation will be copied *if* their
 		//		 * value is instantiated (not lazy and clean). All other properties are just copied by reference.
@@ -183,11 +240,21 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		//					break;
 		//			}
 		//		}
-		if(null == pk) {
-			System.out.println(">>> save " + identify(copy));
-			dc.save(copy);
-		}
+		//		if(null == pk) {
+		//			donemap.log("Post for save " + identify(copy));
+		//			donemap.save(copy);
+		//		}
 		return copy;
+	}
+
+	static private String dumpValue(Object o) {
+		if(o == null)
+			return "null";
+
+		String s = String.valueOf(o);
+		if(s.length() > 20)
+			return s.substring(0, 20) + "...";
+		return s;
 	}
 
 	private <T> void copyProperties(QDataContext dc, CopyInfo donemap, T source, T copy, ClassMetaModel cmm) throws Exception {
@@ -199,7 +266,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			//-- We cannot copy readonly properties, so skip those
 			if(pmm.getReadOnly() == YesNoType.YES)
 				continue;
-			System.out.println("Copying " + pmm.getName() + " of " + pmm.getClassModel());
 
 			switch(pmm.getRelationType()){
 				default:
@@ -208,13 +274,16 @@ abstract public class QBasicModelCopier implements IModelCopier {
 					//-- Normal non-relation field. Just copy the value or the reference.
 					Object v = pmm.getAccessor().getValue(source);
 					((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, v);
+					donemap.log("value property " + pmm.getName() + " of " + pmm.getClassModel() + ": " + dumpValue(v));
 					break;
 
 				case UP:
+					donemap.log("UP relation " + pmm.getName() + " of " + pmm.getClassModel());
 					copyParentProperty(dc, donemap, source, copy, pmm);
 					break;
 
 				case DOWN:
+					donemap.log("DOWN relation " + pmm.getName() + " of " + pmm.getClassModel());
 					copyChildListProperty(dc, donemap, source, copy, pmm);
 					break;
 			}
@@ -282,8 +351,8 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			if(spk == null) {
 				//-- A new record @ source. Map it to dest && add to dlist
 				Object di = internalCopy(dc, donemap, si);
-				System.out.println(">>> save " + identify(di));
-				dc.save(di);
+				donemap.log("Post for save " + identify(di));
+				donemap.save(di);
 				dlist.add(di);
 			} else {
 				Object di = dpkmap.remove(spk); // Does this same record exist @ destination?
@@ -292,8 +361,8 @@ abstract public class QBasicModelCopier implements IModelCopier {
 				} else {
 					//-- This did not exist @ destination. Map it to a destination object then add it there.
 					di = internalCopy(dc, donemap, si);
-					System.out.println(">>> save " + identify(di));
-					dc.save(di);
+					donemap.log("Post for save " + identify(di));
+					donemap.save(di);
 					dlist.add(di);
 					//					donemap.incNew();
 				}
