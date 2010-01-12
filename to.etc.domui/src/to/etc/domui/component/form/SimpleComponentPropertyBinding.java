@@ -141,4 +141,14 @@ public class SimpleComponentPropertyBinding implements IModelBinding, IFormContr
 	public UIMessage setMessage(UIMessage m) {
 		return m_control.setMessage(m);
 	}
+
+	@Override
+	public String getErrorLocation() {
+		return m_control.getErrorLocation();
+	}
+
+	@Override
+	public void setErrorLocation(String errorLocation) {
+		m_control.setErrorLocation(errorLocation);
+	}
 }
