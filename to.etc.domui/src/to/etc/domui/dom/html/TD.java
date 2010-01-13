@@ -35,7 +35,7 @@ public class TD extends NodeContainer {
 	}
 
 	public void setValign(TableVAlign valign) {
-		if(m_valign != valign)
+		if(m_valign == valign)
 			return;
 		m_valign = valign;
 		changed();

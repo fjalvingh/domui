@@ -1121,10 +1121,19 @@ final public class DomUtil {
 	static public void setModifiedFlag(NodeBase node) {
 		NodeBase n = node;
 		while(n != null) {
-			if(n instanceof IHasModifiedIndication)
+			boolean wasModifiedBefore = false;
+			if(n instanceof IHasModifiedIndication) {
+				wasModifiedBefore = ((IHasModifiedIndication) n).isModified();
 				((IHasModifiedIndication) n).setModified(true);
-			if(n instanceof IUserInputModifiedFence && ((IUserInputModifiedFence) n).isFinalUserInputModifiedFence())
-				return;
+			}
+			if(n instanceof IUserInputModifiedFence) {
+				if(!wasModifiedBefore) {
+					((IUserInputModifiedFence) n).onModifyFlagRaised();
+				}
+				if(((IUserInputModifiedFence) n).isFinalUserInputModifiedFence()) {
+					return;
+				}
+			}
 			n = (NodeBase) n.getParent(IUserInputModifiedFence.class);
 		}
 	}

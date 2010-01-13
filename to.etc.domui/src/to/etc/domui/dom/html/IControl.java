@@ -67,4 +67,18 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * @param ro
 	 */
 	void setMandatory(boolean ro);
+
+	/**
+	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
+	 * the "label" associated with the control, and is set automatically by form builders if possible.
+	 * @param errorLocation
+	 */
+	void setErrorLocation(String errorLocation);
+
+	/**
+	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
+	 * the "label" associated with the control, and is set automatically by form builders if possible.
+	 * @return
+	 */
+	String getErrorLocation();
 }

@@ -9,4 +9,9 @@ package to.etc.domui.dom.html;
  */
 public interface IUserInputModifiedFence extends IHasModifiedIndication {
 	boolean isFinalUserInputModifiedFence();
+
+	/**
+	 * Used to notify fence component in case when its modified flag is being set for first time.
+	 */
+	void onModifyFlagRaised();
 }
