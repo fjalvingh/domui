@@ -55,7 +55,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		public void save(Object o) {
 			if(m_saveList.contains(o))
 				return;
-			//				throw new IllegalStateException("Duplicate saved object: " + identify(o));
+			//				throw new IllegalStateException("Duplicate saved object: " + identify(o)); // Indicative of a save order error.
 			m_saveList.add(o);
 		}
 
@@ -173,6 +173,21 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		return res;
 	}
 
+	/**
+	 * Main recursively called workhorse of copying the node graph. It copies an object and it's properties, and takes care to
+	 * "save" records that were new. It must do so in the proper order or Hibernate barfs up:
+	 * <ol>
+	 *	<li>Any 'parent' record of this object must be saved</li>
+	 *	<li>The record itself, if new, must be saved</li>
+	 *	<li>Any child record must be saved.</li>
+	 * </ol>
+	 * @param <T>
+	 * @param dc
+	 * @param donemap
+	 * @param source
+	 * @return
+	 * @throws Exception
+	 */
 	private <T> T internalCopy(QDataContext dc, CopyInfo donemap, T source) throws Exception {
 		//-- 1. If the instance we're doing is part of the done set exit to prevent infinite loop
 		T copy = (T) donemap.get(source); // Already mapped before?
@@ -204,46 +219,14 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		donemap.put(source, copy); // Save as mapping
 		System.out.println();
 		donemap.log("Copying " + identify(source) + (pk == null ? " (new)" : ""));
-		if(null == pk) {
-			donemap.log("Post for save " + identify(copy) + " (copy of " + identify(source) + ")");
-			donemap.save(copy);
-		}
+		//		if(null == pk) {
+		//			donemap.log("Post for save " + identify(copy) + " (copy of " + identify(source) + ")");
+		//			donemap.save(copy);
+		//		}
 		donemap.inc();
 		copyProperties(dc, donemap, source, copy, cmm);
 		donemap.dec();
 		donemap.log("Finished copy of " + identify(source) + (pk == null ? " (new)" : ""));
-
-		//		/*
-		//		 * Deep copy of (database) property values. All properties that refer to some relation will be copied *if* their
-		//		 * value is instantiated (not lazy and clean). All other properties are just copied by reference.
-		//		 */
-		//		for(PropertyMetaModel pmm : cmm.getProperties()) {
-		//			//-- We cannot copy readonly properties, so skip those
-		//			if(pmm.getReadOnly() == YesNoType.YES)
-		//				continue;
-		//
-		//			switch(pmm.getRelationType()){
-		//				default:
-		//					throw new IllegalStateException("Unexpected relation type: " + pmm.getRelationType() + " in " + pmm);
-		//				case NONE:
-		//					//-- Normal non-relation field. Just copy the value or the reference.
-		//					Object v = pmm.getAccessor().getValue(source);
-		//					((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, v);
-		//					break;
-		//
-		//				case UP:
-		//					copyParentProperty(dc, donemap, source, copy, pmm);
-		//					break;
-		//
-		//				case DOWN:
-		//					copyChildListProperty(dc, donemap, source, copy, pmm);
-		//					break;
-		//			}
-		//		}
-		//		if(null == pk) {
-		//			donemap.log("Post for save " + identify(copy));
-		//			donemap.save(copy);
-		//		}
 		return copy;
 	}
 
@@ -257,11 +240,31 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		return s;
 	}
 
+	/**
+	 * Copies properties, recursively traversing the graph by following parent and child relations. This
+	 * code takes care to ensure that parent properties are saved BEFORE the class they occur in, and that
+	 * child properties are saved ONLY when their parent has been saved. It fails when the graph has a cycle
+	 * of new nodes - which should not normally occur.
+	 *
+	 * @param <T>
+	 * @param dc
+	 * @param donemap
+	 * @param source
+	 * @param copy
+	 * @param cmm
+	 * @throws Exception
+	 */
 	private <T> void copyProperties(QDataContext dc, CopyInfo donemap, T source, T copy, ClassMetaModel cmm) throws Exception {
 		/*
 		 * Deep copy of (database) property values. All properties that refer to some relation will be copied *if* their
-		 * value is instantiated (not lazy and clean). All other properties are just copied by reference.
+		 * value is instantiated (not lazy and clean). All other properties are just copied by reference. We first handle
+		 * all normal properties and all "UP" relations. By handling UP relations first we ensure that parent records
+		 * that are "new" are always saved <i>before</i> this one. After these we check if the "current" record needs to
+		 * be saved; we can do that at this time because all it's parents are saved. Only then we'll pass over all
+		 * child relations, because these can save their data <i>only</i> if this record has been saved.
 		 */
+		List<PropertyMetaModel> childpropertylist = null;
+
 		for(PropertyMetaModel pmm : cmm.getProperties()) {
 			//-- We cannot copy readonly properties, so skip those
 			if(pmm.getReadOnly() == YesNoType.YES)
@@ -274,18 +277,37 @@ abstract public class QBasicModelCopier implements IModelCopier {
 					//-- Normal non-relation field. Just copy the value or the reference.
 					Object v = pmm.getAccessor().getValue(source);
 					((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, v);
-					donemap.log("value property " + pmm.getName() + " of " + pmm.getClassModel() + ": " + dumpValue(v));
+					//					donemap.log("value property " + pmm.getName() + " of " + pmm.getClassModel() + ": " + dumpValue(v));
 					break;
 
 				case UP:
+					//-- Traverse these immediately.
 					donemap.log("UP relation " + pmm.getName() + " of " + pmm.getClassModel());
+					donemap.inc();
 					copyParentProperty(dc, donemap, source, copy, pmm);
+					donemap.dec();
 					break;
 
 				case DOWN:
-					donemap.log("DOWN relation " + pmm.getName() + " of " + pmm.getClassModel());
-					copyChildListProperty(dc, donemap, source, copy, pmm);
+					if(childpropertylist == null)
+						childpropertylist = new ArrayList<PropertyMetaModel>();
+					childpropertylist.add(pmm);
 					break;
+
+			}
+		}
+
+		//-- 2. If the current record is unsaved save it now;
+		if(cmm.getPrimaryKey().getAccessor().getValue(copy) == null) {
+			donemap.log("Post for save " + identify(copy) + " (copy of " + identify(source) + ")");
+			donemap.save(copy);
+		}
+
+		//-- Now traverse all child relations - this record (parent of those children) has been saved.
+		if(childpropertylist != null) {
+			for(PropertyMetaModel pmm : childpropertylist) {
+				donemap.log("DOWN relation " + pmm.getName() + " of " + pmm.getClassModel());
+				copyChildListProperty(dc, donemap, source, copy, pmm);
 			}
 		}
 	}
@@ -351,8 +373,8 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			if(spk == null) {
 				//-- A new record @ source. Map it to dest && add to dlist
 				Object di = internalCopy(dc, donemap, si);
-				donemap.log("Post for save " + identify(di));
-				donemap.save(di);
+				//				donemap.log("Post for save " + identify(di)); Already done by internalCopy.
+				//				donemap.save(di);
 				dlist.add(di);
 			} else {
 				Object di = dpkmap.remove(spk); // Does this same record exist @ destination?
@@ -361,8 +383,8 @@ abstract public class QBasicModelCopier implements IModelCopier {
 				} else {
 					//-- This did not exist @ destination. Map it to a destination object then add it there.
 					di = internalCopy(dc, donemap, si);
-					donemap.log("Post for save " + identify(di));
-					donemap.save(di);
+					//					donemap.log("Post for save " + identify(di)); Already done by internalCopy.
+					//					donemap.save(di);
 					dlist.add(di);
 					//					donemap.incNew();
 				}
@@ -387,21 +409,31 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	 */
 	private <T> void copyParentProperty(QDataContext dc, CopyInfo donemap, T source, T copy, PropertyMetaModel pmm) throws Exception {
 		//-- Upward reference. If this is a lazy proxy that is NOT instantiated (clean) we do nothing, else we load and copy.
-		if(isUnloadedParent(source, pmm))
-			return;
-
-		//-- If the parent pointer is null then just clear the value in the copy and be gone.
 		Object sparent = pmm.getAccessor().getValue(source); // We are instantiated so get the property
+		Object dparent;
 		if(sparent == null) {
-			//-- Source parent is null- set target parent to null too
-			pmm.getAccessor().setValue(copy, null);
-			return;
+			donemap.log("parent property is null."); // Nothing to see here, begone
+			dparent = null;
+		} else if(isUnloadedParent(source, pmm)) {
+			//-- This *will* be an existing thing but it is not 'loaded' in this session. Just get a PK reference to it and use that.
+			ClassMetaModel pcmm = MetaManager.findClassMeta(sparent.getClass()); // Get the type of the parent,
+			if(!pcmm.isPersistentClass())
+				throw new IllegalStateException("parent instance pointed to by " + pmm + " is not a persistent class");
+			PropertyMetaModel pkpm = pcmm.getPrimaryKey();
+			if(pkpm == null)
+				throw new IllegalStateException("parent instance pointed to by " + pmm + " has no primary key defined");
+			Object pk = pkpm.getAccessor().getValue(sparent); // Get PK of parent;
+			if(pk == null)
+				throw new IllegalStateException("undirtied and existing parent instance has a null PK!?");
+
+			//-- Get an instance /reference/ in the target datacontext
+			dparent = dc.getInstance(pcmm.getActualClass(), pk);
+			donemap.log("property is not instantiated (lazy loaded and unused in this session), loading instance");
+		} else {
+			//-- Fsuck. Load the appropriate copy from the database;
+			dparent = internalCopy(dc, donemap, sparent); // Make a deep copy of the source parent object instance
 		}
-
-		//-- Fsuck. Load the appropriate copy from the database;
-		Object dparent = internalCopy(dc, donemap, sparent); // Make a deep copy of the source parent object instance
 		((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, dparent);
+		donemap.log("parent property set to " + identify(dparent) + " (source was " + identify(sparent) + ")");
 	}
-
-
 }
