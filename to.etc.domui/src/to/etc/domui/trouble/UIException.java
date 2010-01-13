@@ -13,15 +13,7 @@ public class UIException extends CodeException {
 		super(bundle, code, parameters);
 	}
 
-	public UIException(final String code, final Object... parameters) {
-		super(code, parameters);
-	}
-
 	public UIException(final Throwable t, final BundleRef bundle, final String code, final Object... parameters) {
 		super(t, bundle, code, parameters);
-	}
-
-	public UIException(final Throwable t, final String code, final Object... parameters) {
-		super(t, code, parameters);
 	}
 }

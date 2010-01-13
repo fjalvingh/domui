@@ -132,7 +132,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 					//-- Precompile to make sure it's valid;
 					Pattern p = Pattern.compile(mp.regexpValidation());
 				} catch(Exception x) {
-					throw new MetaModelException(Msgs.MM_BAD_REGEXP, mp.regexpValidation(), this.toString());
+					throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_BAD_REGEXP, mp.regexpValidation(), this.toString());
 				}
 				setRegexpValidator(mp.regexpValidation());
 				if(mp.regexpUserString().length() > 0)

@@ -981,7 +981,7 @@ final public class DomUtil {
 		try {
 			return Long.valueOf(s.trim());
 		} catch(Exception x) {
-			throw new UIException(Msgs.X_INVALID_PARAMETER, name);
+			throw new UIException(Msgs.BUNDLE, Msgs.X_INVALID_PARAMETER, name);
 		}
 	}
 

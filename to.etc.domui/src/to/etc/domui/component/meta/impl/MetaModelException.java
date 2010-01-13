@@ -8,15 +8,7 @@ public class MetaModelException extends UIException {
 		super(bundle, code, parameters);
 	}
 
-	public MetaModelException(String code, Object... parameters) {
-		super(code, parameters);
-	}
-
 	public MetaModelException(Throwable t, BundleRef bundle, String code, Object... parameters) {
 		super(t, bundle, code, parameters);
-	}
-
-	public MetaModelException(Throwable t, String code, Object... parameters) {
-		super(t, code, parameters);
 	}
 }
