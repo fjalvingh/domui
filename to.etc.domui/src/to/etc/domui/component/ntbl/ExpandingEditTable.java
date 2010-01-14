@@ -226,7 +226,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), "THEME/btnDelete.png", Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IClicked<LinkButton>() {
 				@Override
 				public void clicked(LinkButton clickednode) throws Exception {
-					// 20091225 delete value, why bother with index? jal 20091229 Because I forgot delete() was part of the model ;-)
+					//vmijic 20091225 delete value, why bother with index? jal 20091229 Because I forgot delete() was part of the model ;-)
 					((IModifyableTableModel<T>) getModel()).delete(value);
 					DomUtil.setModifiedFlag(ExpandingEditTable.this);
 				}
@@ -374,8 +374,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		T	item	= getModelItem(index);
 		//vmijic 20100108 not needed since editor itself would pass modified flag through its input fields.
 		//				  in case that user didn't chaged any input, then there is no need to raise modified flag.
-		if(DomUtil.isModified(editor)) // On collapse pass on modified state
-			DomUtil.setModifiedFlag(ExpandingEditTable.this);
+		//if(DomUtil.isModified(editor)) // On collapse pass on modified state
+		//	DomUtil.setModifiedFlag(ExpandingEditTable.this);
 
 		editor.moveControlToModel(); // Phase 1 move data to model;
 		if(editor instanceof IEditor) {
@@ -782,7 +782,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 	/**
 	 * When executed, method would try to collapse all currently expanded rows.
-	 * In case that some row can not be collapsed, method would return false, that means that probably data validation has failed on some expanded row.
+	 * In case that some row can not be collapsed, method would return false, that means that probably data validation has failed on some expanded row. 
 	 * @return
 	 * @throws Exception
 	 */
