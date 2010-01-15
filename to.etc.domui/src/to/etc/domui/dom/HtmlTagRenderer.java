@@ -733,8 +733,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("size", n.getSize());
 		if(n.getRawValue() != null)
 			o().attr("value", n.getRawValue());
-		if(n.getOnKeyPressJS() != null)
+		if(n.getOnKeyPressJS() != null) {
 			o().attr("onkeypress", n.getOnKeyPressJS());
+		} else if(null != n.getOnTyping()) {
+			o().attr("onkeypress", sb().append("WebUI.typing(this, '").append(n.getActualID()).append("', event)").toString());
+		}
+
 		renderTagend(n, m_o);
 	}
 

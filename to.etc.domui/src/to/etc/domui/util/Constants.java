@@ -26,4 +26,7 @@ public class Constants {
 	static public final String ACMD_VALUE_CHANGED = "vchange";
 
 	static public final String ACMD_CLICKED = "clicked";
+
+	static public final String ACMD_INPUT_TYPING = "typing";
+
 }

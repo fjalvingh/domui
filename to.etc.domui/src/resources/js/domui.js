@@ -567,6 +567,27 @@ var WebUI = {
 		});
 	},
 
+	typing : function(h, id, event) {
+		
+		// Collect all input, then create input.
+		var fields = new Object();
+		this.getInputFields(fields);
+		fields.webuia = "typing";
+		fields.webuic = id;
+		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
+		WebUI.cancelPolling();
+
+		$.ajax( {
+			url :DomUI.getPostURL(),
+			dataType :"text/xml",
+			data :fields,
+			cache :false,
+			type: "POST",
+			success :WebUI.handleResponse,
+			error :WebUI.handleError
+		});
+	},	
 	handleResponse : function(data, state) {
 		WebUI._asyalerted = false;
 		if (false && window.console && window.console.debug)
