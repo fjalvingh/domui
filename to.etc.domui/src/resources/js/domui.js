@@ -594,24 +594,28 @@ var WebUI = {
 	},
 	
 	typing : function(id) {
-		// Collect all input, then create input.
-		var fields = new Object();
-		this.getInputFields(fields);
-		fields.webuia = "typing";
-		fields.webuic = id;
-		fields["$pt"] = DomUIpageTag;
-		fields["$cid"] = DomUICID;
-		WebUI.cancelPolling();
+		var typingField = document.getElementById(id);
+		//check for exsistence, since it is delayed action component can be removed when action is executed.
+		if (typingField){
+			// Collect all input, then create input.
+			var fields = new Object();
+			this.getInputFields(fields);
+			fields.webuia = "typing";
+			fields.webuic = id;
+			fields["$pt"] = DomUIpageTag;
+			fields["$cid"] = DomUICID;
+			WebUI.cancelPolling();
 
-		$.ajax( {
-			url :DomUI.getPostURL(),
-			dataType :"text/xml",
-			data :fields,
-			cache :false,
-			type: "POST",
-			success :WebUI.handleResponse,
-			error :WebUI.handleError
-		});
+			$.ajax( {
+				url :DomUI.getPostURL(),
+				dataType :"text/xml",
+				data :fields,
+				cache :false,
+				type: "POST",
+				success :WebUI.handleResponse,
+				error :WebUI.handleError
+			});
+		}
 	},	
 	typingDone : function(id) {
 		// Collect all input, then create input.
