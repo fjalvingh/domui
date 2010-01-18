@@ -437,6 +437,51 @@ final public class MetaManager {
 		return false;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Generic data model utility functions.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param t
+	 * @return
+	 */
+	static public String identify(Object t) {
+		if(t == null)
+			return "null";
+		ClassMetaModel cmm = MetaManager.findClassMeta(t.getClass());
+		if(cmm.isPersistentClass() && cmm.getPrimaryKey() != null) {
+			try {
+				Object k = cmm.getPrimaryKey().getAccessor().getValue(t);
+				return t.getClass().getName() + "#" + k + " @" + System.identityHashCode(t);
+			} catch(Exception x) {}
+		}
+		return t.toString() + " @" + System.identityHashCode(t);
+	}
+
+	/**
+	 * Return the primary key field for a given instance. This throws IllegalArgumentException's when the
+	 * instance passed is not persistent or has an unknown primary key. If the primary key is just null
+	 * this returns null.
+	 *
+	 * @param instance
+	 * @return
+	 */
+	static public Object getPrimaryKey(Object instance) throws Exception {
+		return getPrimaryKey(instance, null);
+	}
+
+	static public Object getPrimaryKey(Object instance, ClassMetaModel cmm) throws Exception {
+		if(instance == null)
+			throw new IllegalArgumentException("Instance cannot be null");
+		if(cmm == null)
+			cmm = findClassMeta(instance.getClass());
+		if(! cmm.isPersistentClass())
+			throw new IllegalArgumentException("The instance " + identify(instance) + " is not a persistent class");
+		PropertyMetaModel pmm = cmm.getPrimaryKey();
+		if(pmm == null)
+			throw new IllegalArgumentException("The instance " + identify(instance) + " has an undefined primary key (cannot be obtained by metadata)");
+		return pmm.getAccessor().getValue(instance);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Expanding properties.								*/

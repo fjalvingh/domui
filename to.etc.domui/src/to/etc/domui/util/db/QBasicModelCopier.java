@@ -15,6 +15,8 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 	abstract protected QPersistentObjectState getObjectState(QDataContext dc, Object instance) throws Exception;
 
+	abstract protected QPersistentObjectState getObjectState(QDataContext dc, Class< ? > pclass, Object pk) throws Exception;
+
 	/**
 	 * Make sure the data context is not a shared one.
 	 * @param dc
@@ -118,18 +120,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	}
 
 	static private String identify(Object t) {
-		if(t == null)
-			return "null";
-		ClassMetaModel cmm = MetaManager.findClassMeta(t.getClass());
-		if(!cmm.isPersistentClass() || cmm.getPrimaryKey() == null)
-			return t.toString();
-		try {
-			Object k = cmm.getPrimaryKey().getAccessor().getValue(t);
-			return t.getClass().getName() + "#" + k + " @" + System.identityHashCode(t);
-			//			return t.getClass().getName() + "#null@" + System.identityHashCode(t);
-		} catch(Exception x) {
-			return t.toString();
-		}
+		return MetaManager.identify(t);
 	}
 
 	/**
@@ -305,7 +296,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			case NEW:
 			case DIRTY:
 				docopy = true;
-				//$FALL-THROUGH$
+				break;
 
 			case PERSISTED: // The object is unchanged and persisted
 				donemap.log("Not copying fields for clean object " + identify(source));
@@ -359,7 +350,9 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		if(childpropertylist != null) {
 			for(PropertyMetaModel pmm : childpropertylist) {
 				donemap.log("DOWN relation " + pmm.getName() + " of " + pmm.getClassModel());
+				donemap.inc();
 				copyChildListProperty(donemap, source, copy, pmm);
+				donemap.dec();
 			}
 		}
 	}
@@ -376,11 +369,14 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	 */
 	private <T> void copyChildListProperty(CopyInfo donemap, T source, T copy, PropertyMetaModel pmm) throws Exception {
 		//-- If this list is not yet present (lazily loaded and not-loaded) exit- it cannot have changed
-		if(isUnloadedChildList(source, pmm))
+		if(isUnloadedChildList(source, pmm)) {
+			donemap.log("Child set not loaded, skip children");
 			return;
+		}
 		Object schild = pmm.getAccessor().getValue(source);
 		if(schild == null) {
 			//-- We ignore NULL lists
+			donemap.log("Child set is null, no children");
 			return;
 		}
 		Collection<Object> slist = (List<Object>) schild;
@@ -425,15 +421,18 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			if(spk == null) {
 				//-- A new record @ source. Map it to dest && add to dlist
 				Object di = internalCopy(donemap, si);
+				donemap.log("new child " + identify(si) + " copied as " + identify(di));
 				//				donemap.log("Post for save " + identify(di)); Already done by internalCopy.
 				//				donemap.save(di);
 				dlist.add(di);
 			} else {
 				Object di = dpkmap.remove(spk); // Does this same record exist @ destination?
 				if(di != null) {
+					donemap.log("existing child " + identify(si) + " copying properties to " + identify(di));
 					copyProperties(donemap, si, di, childmm);
 				} else {
 					//-- This did not exist @ destination. Map it to a destination object then add it there.
+					donemap.log("new child (existing record " + identify(si) + ") copied as " + identify(di));
 					di = internalCopy(donemap, si);
 					//					donemap.log("Post for save " + identify(di)); Already done by internalCopy.
 					//					donemap.save(di);
@@ -445,11 +444,14 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 		//-- 2. What's left in dpkmap is destination thingerydoos that do not exist in the source anymore.
 		for(Object di : dpkmap.values()) {
+			donemap.log("Child " + identify(di) + " not in source's set anymore, deleting");
 			dlist.remove(di);
+			donemap.inc();
+			possiblyDeletedRecordInSource(donemap, di);
+			donemap.dec();
 		}
 		for(Object di : dpkmap.values()) {
 			//-- Check whether this is a deleted object in source too.
-			possiblyDeletedRecordInSource(donemap, di);
 		}
 	}
 
@@ -515,15 +517,23 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	private void possiblyDeletedRecordInSource(CopyInfo donemap, Object obj) throws Exception {
 		if(obj == null)
 			throw new IllegalStateException("Target object cannot be null");
-		Object source = loadCopyFrom(donemap.getSourceDC(), obj, null, true);
-		if(source == null)
+
+		//-- We need to check the state of the object in the source context. We do this using the object's PK.
+		ClassMetaModel	cmm	= MetaManager.findClassMeta(obj.getClass());
+		Object pk = MetaManager.getPrimaryKey(obj, cmm);
+		if(pk == null) { // Appears to be unsaved somehow.
+			donemap.log("delete not possible: null pk on instance " + identify(obj));
 			return;
-		QPersistentObjectState pos = getObjectState(donemap.getSourceDC(), source); // Get the state of the thing in the source's context
+		}
+
+		QPersistentObjectState pos = getObjectState(donemap.getSourceDC(), cmm.getActualClass(), pk); // Get the state of the thing in the source's context
 		switch(pos){
 			default:
+				donemap.log("Delete not needed: " + identify(obj) + " has persistent state " + pos + " in the source context");
 				return;
 
 			case DELETED:
+			case UNKNOWN:
 				break;
 		}
 

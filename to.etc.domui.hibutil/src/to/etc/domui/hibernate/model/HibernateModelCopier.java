@@ -69,4 +69,19 @@ public class HibernateModelCopier extends QBasicModelCopier {
 		}
 		return dirtyProperties == null || dirtyProperties.length == 0 ? QPersistentObjectState.PERSISTED : QPersistentObjectState.DIRTY;
 	}
+
+	@Override
+	protected QPersistentObjectState getObjectState(QDataContext dc, Class< ? > pclass, Object pk) throws Exception {
+		if(pk == null)
+			return QPersistentObjectState.NEW;
+		Object instance;
+		try {
+			instance = dc.find(pclass, pk);
+		} catch(ObjectNotFoundException onfx) {
+			return QPersistentObjectState.DELETED;
+		}
+		if(instance == null)
+			return QPersistentObjectState.UNKNOWN;
+		return getObjectState(dc, instance);
+	}
 }
