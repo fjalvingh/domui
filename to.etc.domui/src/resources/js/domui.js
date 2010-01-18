@@ -394,6 +394,11 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 	$.fn.executeDeltaXML = executeXML;
 })(jQuery);
 
+/**
+ * Create handle for timer delayed actions, used for onTyping event.
+ */
+var scheduledOnTypingTimerID = 0;
+
 var WebUI = {
 	/**
 	 * Create a curried function containing a 'this' and a fixed set of elements.
@@ -567,12 +572,52 @@ var WebUI = {
 		});
 	},
 
-	typing : function(h, id, event) {
-		
+	scheduleOnTypingEvent : function(h, id, event) {
+		var keyCode = WebUI.normalizeKey(event);
+		var isReturn = (keyCode == 13000 || keyCode == 13);
+		if (scheduledOnTypingTimerID != 0)
+			window.clearTimeout(scheduledOnTypingTimerID);
+		if (isReturn){
+			//-- Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
+			if(! event)
+				event = window.event;
+			if(event) {
+				event.cancelBubble = true;
+				if(event.stopPropagation)
+					event.stopPropagation();
+			}
+			//trigger typing done when enter is pressed
+			WebUI.typingDone(id);
+		}
+		else
+			scheduledOnTypingTimerID = window.setTimeout("WebUI.typing('" + id + "')", 500);
+	},
+	
+	typing : function(id) {
 		// Collect all input, then create input.
 		var fields = new Object();
 		this.getInputFields(fields);
 		fields.webuia = "typing";
+		fields.webuic = id;
+		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
+		WebUI.cancelPolling();
+
+		$.ajax( {
+			url :DomUI.getPostURL(),
+			dataType :"text/xml",
+			data :fields,
+			cache :false,
+			type: "POST",
+			success :WebUI.handleResponse,
+			error :WebUI.handleError
+		});
+	},	
+	typingDone : function(id) {
+		// Collect all input, then create input.
+		var fields = new Object();
+		this.getInputFields(fields);
+		fields.webuia = "typingDone";
 		fields.webuic = id;
 		fields["$pt"] = DomUIpageTag;
 		fields["$cid"] = DomUICID;

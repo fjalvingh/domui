@@ -77,6 +77,11 @@ public class LookupForm<T> extends Div {
 	private ControlBuilder m_builder;
 
 	/**
+	 * Set to true in case that control have to be rendered as collapsed by default. It is used when lookup form have to popup with initial search results already shown. 
+	 */
+	private boolean m_renderAsCollapsed;
+
+	/**
 	 * This is the definition for an Item to look up. A list of these
 	 * will generate the actual lookup items on the screen, in the order
 	 * specified by the item definition list.
@@ -343,8 +348,13 @@ public class LookupForm<T> extends Div {
 		m_buttonRow = d;
 
 		//20091127 vmijic - since LookupForm can be reused each new rebuild should execute restore if previous state of form was collapsed.
-		if(m_collapsed != null) {
+		//20100118 vmijic - since LookupForm can be by default rendered as collapsed checks m_renderAsCollapsed are added.
+		if(!m_renderAsCollapsed && m_collapsed != null) {
 			restore();
+		} else if(m_renderAsCollapsed && m_content.getDisplay() != DisplayType.NONE) {
+			collapse();
+			//Focus must be set, otherwise IE reports javascript problem since focus is requested on not displayed input tag.
+			m_cancelBtn.setFocus();
 		} else {
 			createButtonRow(d, false);
 		}
@@ -964,5 +974,13 @@ public class LookupForm<T> extends Div {
 				c.add(bi.getThingy());
 			}
 		}
+	}
+
+	public boolean isRenderAsCollapsed() {
+		return m_renderAsCollapsed;
+	}
+
+	public void setRenderAsCollapsed(boolean renderAsCollapsed) {
+		m_renderAsCollapsed = renderAsCollapsed;
 	}
 }

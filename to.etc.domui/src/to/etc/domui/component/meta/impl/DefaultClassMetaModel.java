@@ -56,6 +56,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private List<SearchPropertyMetaModelImpl> m_searchProperties = Collections.EMPTY_LIST;
 
+	private List<SearchPropertyMetaModelImpl> m_keyWordSearchProperties = Collections.EMPTY_LIST;
+
 	/**
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
 	 * data pertaining to the looked-up item as a single element on the "edit" screen.
@@ -351,12 +353,32 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_searchProperties.add(sp);
 	}
 
+	public void addKeyWordSearchProperty(final SearchPropertyMetaModelImpl sp) {
+		if(m_keyWordSearchProperties == Collections.EMPTY_LIST)
+			m_keyWordSearchProperties = new ArrayList<SearchPropertyMetaModelImpl>();
+		m_keyWordSearchProperties.add(sp);
+	}
+
 	/**
 	 * Returns the SORTED list of search properties defined on this class.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getSearchProperties()
 	 */
 	public List<SearchPropertyMetaModelImpl> getSearchProperties() {
 		List<SearchPropertyMetaModelImpl> list = new ArrayList<SearchPropertyMetaModelImpl>(m_searchProperties);
+		Collections.sort(list, new Comparator<SearchPropertyMetaModelImpl>() {
+			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
+				return o1.getOrder() - o2.getOrder();
+			}
+		});
+		return list;
+	}
+
+	/**
+	 * Returns the SORTED list of key word search properties defined on this class.
+	 * @see to.etc.domui.component.meta.ClassMetaModel#getKeyWordSearchProperties()
+	 */
+	public List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties() {
+		List<SearchPropertyMetaModelImpl> list = new ArrayList<SearchPropertyMetaModelImpl>(m_keyWordSearchProperties);
 		Collections.sort(list, new Comparator<SearchPropertyMetaModelImpl>() {
 			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
 				return o1.getOrder() - o2.getOrder();

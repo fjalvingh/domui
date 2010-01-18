@@ -24,8 +24,6 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 
 	private IValueChanged< ? > m_onValueChanged;
 
-	private IValueChanged< ? > m_onTyping;
-
 	public Input() {
 		super("input");
 	}
@@ -140,20 +138,5 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
-	}
-
-	public void internalOnTyping() throws Exception {
-		IValueChanged<Input> c = (IValueChanged<Input>) getOnTyping();
-		if(c == null)
-			throw new IllegalStateException("? Input node " + this.getActualID() + " does not have a onTyping handler??");
-		c.onValueChanged(this);
-	}
-
-	public IValueChanged< ? > getOnTyping() {
-		return m_onTyping;
-	}
-
-	public void setOnTyping(IValueChanged< ? > onTyping) {
-		m_onTyping = onTyping;
 	}
 }

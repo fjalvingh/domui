@@ -29,4 +29,6 @@ public class Constants {
 
 	static public final String ACMD_INPUT_TYPING = "typing";
 
+	static public final String ACMD_INPUT_TYPING_DONE = "typingDone";
+
 }

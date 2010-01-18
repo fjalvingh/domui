@@ -106,6 +106,12 @@ public interface ClassMetaModel {
 	 */
 	public List<SearchPropertyMetaModelImpl> getSearchProperties();
 
+	/**
+	 * Returns the SORTED list of key word search properties defined on this class.
+	 * @return
+	 */
+	public List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties();
+
 	public String getDefaultSortProperty();
 
 	public SortableType getDefaultSortDirection();

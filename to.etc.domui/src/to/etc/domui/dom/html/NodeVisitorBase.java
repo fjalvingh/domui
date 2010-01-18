@@ -1,5 +1,6 @@
 package to.etc.domui.dom.html;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.misc.*;
 
 public class NodeVisitorBase implements INodeVisitor {
@@ -41,6 +42,10 @@ public class NodeVisitorBase implements INodeVisitor {
 	}
 
 	public void visitInput(Input n) throws Exception {
+		visitNodeBase(n);
+	}
+
+	public void visitText(Text< ? > n) throws Exception {
 		visitNodeBase(n);
 	}
 
