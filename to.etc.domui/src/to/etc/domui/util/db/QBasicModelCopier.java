@@ -305,6 +305,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			case NEW:
 			case DIRTY:
 				docopy = true;
+				//$FALL-THROUGH$
 
 			case PERSISTED: // The object is unchanged and persisted
 				donemap.log("Not copying fields for clean object " + identify(source));
@@ -445,8 +446,10 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		//-- 2. What's left in dpkmap is destination thingerydoos that do not exist in the source anymore.
 		for(Object di : dpkmap.values()) {
 			dlist.remove(di);
-
-			//-- FIXME We may need to DELETE those things too - we need to ask Hibernate if they are deleted
+		}
+		for(Object di : dpkmap.values()) {
+			//-- Check whether this is a deleted object in source too.
+			possiblyDeletedRecordInSource(donemap, di);
 		}
 	}
 
@@ -461,10 +464,11 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	private <T> void copyParentProperty(CopyInfo donemap, T source, T copy, PropertyMetaModel pmm) throws Exception {
 		//-- Upward reference. If this is a lazy proxy that is NOT instantiated (clean) we do nothing, else we load and copy.
 		Object sparent = pmm.getAccessor().getValue(source); // We are instantiated so get the property
-		Object dparent;
+		Object currparent = pmm.getAccessor().getValue(copy); // Get the 'current' parent in the just-loaded object
+		Object copyparent;
 		if(sparent == null) {
 			donemap.log("parent property is null."); // Nothing to see here, begone
-			dparent = null;
+			copyparent = null;
 		} else if(isUnloadedParent(source, pmm)) {
 			//-- This *will* be an existing thing but it is not 'loaded' in this session. Just get a PK reference to it and use that.
 			ClassMetaModel pcmm = MetaManager.findClassMeta(sparent.getClass()); // Get the type of the parent,
@@ -478,13 +482,75 @@ abstract public class QBasicModelCopier implements IModelCopier {
 				throw new IllegalStateException("undirtied and existing parent instance has a null PK!?");
 
 			//-- Get an instance /reference/ in the target datacontext
-			dparent = donemap.getTargetDC().getInstance(pcmm.getActualClass(), pk);
+			copyparent = donemap.getTargetDC().getInstance(pcmm.getActualClass(), pk);
 			donemap.log("property is not instantiated (lazy loaded and unused in this session), loading instance");
 		} else {
 			//-- Fsuck. Load the appropriate copy from the database;
-			dparent = internalCopy(donemap, sparent); // Make a deep copy of the source parent object instance
+			copyparent = internalCopy(donemap, sparent); // Make a deep copy of the source parent object instance
 		}
-		((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, dparent);
-		donemap.log("parent property set to " + identify(dparent) + " (source was " + identify(sparent) + ")");
+
+		/*
+		 * If the 'copy' parent is not equal to the 'current' parent in the save model then we are sure that
+		 * the parent has changed. In this case we test to see if the 'old' parent is perhaps deleted in source;
+		 * in that case we delete it in target too.
+		 * Because copyparent and currparent are by definion part of the same 'target' session we can check
+		 * for equality using object identity (== instead of comparing PK's).
+		 */
+		if(copyparent != currparent) {
+			//-- The parent has changed. Is the current perhaps deleted in source?
+			if(currparent != null) // There *is* a current parent record, though...
+				possiblyDeletedRecordInSource(donemap, currparent);
+		}
+
+		((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, copyparent);
+		donemap.log("parent property set to " + identify(copyparent) + " (source was " + identify(sparent) + ")");
 	}
+
+	/**
+	 * Checks to see if the object passed (which is a 'TARGET' object just loaded from the DB) exists in source, and is deleted there. If so
+	 * delete the object here too.
+	 * @param donemap
+	 * @param obj
+	 */
+	private void possiblyDeletedRecordInSource(CopyInfo donemap, Object obj) throws Exception {
+		if(obj == null)
+			throw new IllegalStateException("Target object cannot be null");
+		Object source = loadCopyFrom(donemap.getSourceDC(), obj, null, true);
+		if(source == null)
+			return;
+		QPersistentObjectState pos = getObjectState(donemap.getSourceDC(), source); // Get the state of the thing in the source's context
+		switch(pos){
+			default:
+				return;
+
+			case DELETED:
+				break;
+		}
+
+		//-- This is DELETED in source.... Delete it in TARGET too....
+		deleteFromTarget(donemap, obj);
+	}
+
+	protected void deleteFromTarget(CopyInfo donemap, Object obj) throws Exception {
+		donemap.log("deleting target object " + identify(obj));
+		donemap.getTargetDC().delete(obj);
+	}
+
+	protected Object loadCopyFrom(QDataContext dc, Object source, ClassMetaModel cmm, boolean refonly) throws Exception {
+		if(source == null)
+			return null;
+		if(cmm == null)
+			cmm = MetaManager.findClassMeta(source.getClass());
+		if(!cmm.isPersistentClass())
+			throw new IllegalStateException("Instance " + identify(source) + " is not a persistent class");
+		PropertyMetaModel pkpm = cmm.getPrimaryKey();
+		if(pkpm == null)
+			throw new IllegalStateException("Instance " + identify(source) + " has no primary key defined");
+		Object pk = pkpm.getAccessor().getValue(source); // Get PK of source
+		if(pk == null)
+			throw new IllegalStateException("Instance " + identify(source) + " has a null primary key?");
+		return refonly ? dc.getInstance(cmm.getActualClass(), pk) : dc.find(cmm.getActualClass(), pk);
+	}
+
+
 }
