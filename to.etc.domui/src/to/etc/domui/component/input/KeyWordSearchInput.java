@@ -17,6 +17,8 @@ public class KeyWordSearchInput extends Div {
 
 	private IValueChanged<KeyWordSearchInput> m_onShowResults;
 
+	private String m_inputCssClass;
+
 	public KeyWordSearchInput() {
 	}
 
@@ -24,6 +26,12 @@ public class KeyWordSearchInput extends Div {
 	public void createContent() throws Exception {
 		super.createContent();
 		m_keySearch = new TextStr();
+		m_keySearch.setCssClass("ui-lui-keyword");
+		if(m_inputCssClass != null) {
+			m_keySearch.setCssClass(m_inputCssClass);
+		}
+		m_keySearch.setMaxLength(40);
+		m_keySearch.setSize(14);
 
 		m_keySearch.setOnTyping(new ITypingListener<TextStr>() {
 
@@ -100,6 +108,21 @@ public class KeyWordSearchInput extends Div {
 
 	public void setOnShowResults(IValueChanged<KeyWordSearchInput> onShowResults) {
 		m_onShowResults = onShowResults;
+	}
+
+	@Override
+	public void setFocus() {
+		if(m_keySearch != null) {
+			m_keySearch.setFocus();
+		}
+	}
+
+	public String getInputCssClass() {
+		return m_inputCssClass;
+	}
+
+	public void setInputCssClass(String cssClass) {
+		m_inputCssClass = cssClass;
 	}
 
 }

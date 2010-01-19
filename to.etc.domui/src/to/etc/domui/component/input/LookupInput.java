@@ -67,12 +67,14 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	boolean m_renderCollapsedLookupForm;
 
+	private boolean m_allowEmptyQuery;
+
+	private String m_keyWordSearchCssClass;
+
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass);
 		m_resultColumns = resultColumns;
 	}
-
-	private boolean m_allowEmptyQuery;
 
 	public LookupInput(Class<T> lookupClass) {
 		m_lookupClass = lookupClass;
@@ -85,11 +87,15 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		});
 
 		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
+			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {
 				if(m_value != null) {
 					DomUtil.setModifiedFlag(LookupInput.this);
 				}
 				setValue(null);
+				if(m_keySearch != null) {
+					m_keySearch.setFocus();
+				}
 				//-- Handle onValueChanged
 				if(getOnValueChanged() != null) {
 					((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(LookupInput.this);
@@ -151,6 +157,11 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				cell.add(m_selButton);
 			}
 			m_selButton.appendAfterMe(m_clearButton);
+			if(m_clearButton.getDisplay() == DisplayType.NONE) {
+				m_clearButton.getParent().setMinWidth("24px");
+			} else {
+				m_clearButton.getParent().setMinWidth("56px");
+			}
 		}
 	}
 
@@ -185,7 +196,8 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		TD tdParameters = new TD();
 		cell.appendAfterMe(tdParameters);
 		tdParameters.setValign(TableVAlign.TOP);
-		tdParameters.setWidth("1%");
+		tdParameters.setMinWidth("24px");
+		tdParameters.setTextAlign(TextAlign.RIGHT);
 		tdParameters.add((NodeBase) parameters); // Add the button,
 	}
 
@@ -193,6 +205,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		TD td = addRowAndCell();
 		td.setValign(TableVAlign.TOP);
 		td.setCssClass("ui-lui-v");
+		td.setWidth("100%");
 		addKeySearchField(td, object);
 		//-- parameters is either the button, or null if this is a readonly version.
 		if(parameters != null) {
@@ -220,11 +233,15 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 					m_keySearchModel = null;
 					m_keySearchCriteria = null;
 					component.setResultsCount(-1);
+					component.setFocus();
 					return;
 				}
 				m_keySearchModel = searchKeyWord(component.getKeySearchValue());
 				if(m_keySearchModel.getRows() == 1) {
 					LookupInput.this.setValue(m_keySearchModel.getItems(0, 1).get(0));
+					if(LookupInput.this.getOnValueChanged() != null) {
+						((IValueChanged<NodeBase>) LookupInput.this.getOnValueChanged()).onValueChanged(LookupInput.this);
+					}
 				} else {
 					component.setResultsCount(m_keySearchModel.getRows());
 				}
@@ -247,6 +264,9 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				m_keySearchModel = searchKeyWord(component.getKeySearchValue());
 				if(m_keySearchModel.getRows() == 1) {
 					LookupInput.this.setValue(m_keySearchModel.getItems(0, 1).get(0));
+					if(LookupInput.this.getOnValueChanged() != null) {
+						((IValueChanged<NodeBase>) LookupInput.this.getOnValueChanged()).onValueChanged(LookupInput.this);
+					}
 				} else {
 					component.setResultsCount(m_keySearchModel.getRows());
 					m_renderCollapsedLookupForm = (m_keySearchModel.getRows() > 0);
@@ -256,6 +276,10 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		});
 
 		parent.add(m_keySearch);
+		if(m_keyWordSearchCssClass != null) {
+			m_keySearch.setInputCssClass(m_keyWordSearchCssClass);
+			addCssClass(m_keyWordSearchCssClass);
+		}
 	}
 
 	ITableModel<T> searchKeyWord(String condition) throws Exception {
@@ -769,5 +793,17 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	public void setKeyWordSearchHandler(IKeyWordSearchQueryManipulator<T> keyWordSearchManipulator) {
 		m_keyWordSearchHandler = keyWordSearchManipulator;
+	}
+
+	public String getKeyWordSearchCssClass() {
+		return m_keyWordSearchCssClass;
+	}
+
+	/**
+	 * Set custom css that would be applied only in case that component is rendering keyWordSearch. Use for example in row inline rendering, where width and min-width should be additionaly customized. 
+	 * @param keWordSearchCssClass
+	 */
+	public void setKeyWordSearchCssClass(String cssClass) {
+		m_keyWordSearchCssClass = cssClass;
 	}
 }

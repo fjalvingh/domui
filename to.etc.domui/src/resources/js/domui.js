@@ -573,14 +573,14 @@ var WebUI = {
 	},
 
 	scheduleOnTypingEvent : function(h, id, event) {
+		if(!event)
+			event = window.event;
 		var keyCode = WebUI.normalizeKey(event);
 		var isReturn = (keyCode == 13000 || keyCode == 13);
 		if (scheduledOnTypingTimerID != 0)
 			window.clearTimeout(scheduledOnTypingTimerID);
 		if (isReturn){
 			//-- Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
-			if(! event)
-				event = window.event;
 			if(event) {
 				event.cancelBubble = true;
 				if(event.stopPropagation)
