@@ -110,6 +110,8 @@ public class LookupForm<T> extends Div {
 
 		private int m_order;
 
+		private String testId;
+
 		public String getPropertyName() {
 			return m_propertyName;
 		}
@@ -209,6 +211,14 @@ public class LookupForm<T> extends Div {
 				sb.append(m_labelText);
 			}
 			return sb.toString();
+		}
+
+		public String getTestId() {
+			return testId;
+		}
+
+		public void setTestId(String testId) {
+			this.testId = testId;
 		}
 	}
 
@@ -667,10 +677,25 @@ public class LookupForm<T> extends Div {
 			throw new IllegalStateException("No idea how to create a lookup control for " + it);
 
 		//-- Assign error locations to all input controls
-		if(it.getErrorLocation() != null && it.getErrorLocation().trim().length() > 0) {
+		if(!DomUtil.isBlank(it.getErrorLocation()) ) {
 			for(NodeBase ic : it.getInstance().getInputControls())
 				ic.setErrorLocation(it.getErrorLocation());
 		}
+
+		//-- Assign test id. If single control is created, testId as it is will be applied,
+		//   if multiple component control is created, testId with suffix number will be applied.
+		if(!DomUtil.isBlank(it.getTestId())) {
+			if(it.getInstance().getInputControls().length == 1) {
+				it.getInstance().getInputControls()[0].setTestID(it.getTestId());
+			} else if(it.getInstance().getInputControls().length > 1) {
+				int controlCounter = 1;
+				for(NodeBase ic : it.getInstance().getInputControls()) {
+					ic.setTestID(it.getTestId() + "_" + controlCounter);
+					controlCounter++;
+				}
+			}
+		}
+
 		addItemToTable(it); // Create visuals.
 	}
 

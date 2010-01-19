@@ -1137,4 +1137,13 @@ final public class DomUtil {
 			n = (NodeBase) n.getParent(IUserInputModifiedFence.class);
 		}
 	}
+
+	/**
+	 * Checks if string is blank.
+	 * @param s String to be validated.
+	 * @return true if it is blank, false otherwise.
+	 */
+	static public boolean isBlank(String s) {
+		return s == null || s.trim().length() == 0;
+	}
 }
