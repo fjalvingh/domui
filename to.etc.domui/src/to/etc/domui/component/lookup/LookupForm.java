@@ -77,6 +77,11 @@ public class LookupForm<T> extends Div {
 	private ControlBuilder m_builder;
 
 	/**
+	 * Set to true in case that control have to be rendered as collapsed by default. It is used when lookup form have to popup with initial search results already shown. 
+	 */
+	private boolean m_renderAsCollapsed;
+
+	/**
 	 * This is the definition for an Item to look up. A list of these
 	 * will generate the actual lookup items on the screen, in the order
 	 * specified by the item definition list.
@@ -104,6 +109,8 @@ public class LookupForm<T> extends Div {
 		private String m_errorLocation;
 
 		private int m_order;
+
+		private String testId;
 
 		public String getPropertyName() {
 			return m_propertyName;
@@ -204,6 +211,14 @@ public class LookupForm<T> extends Div {
 				sb.append(m_labelText);
 			}
 			return sb.toString();
+		}
+
+		public String getTestId() {
+			return testId;
+		}
+
+		public void setTestId(String testId) {
+			this.testId = testId;
 		}
 	}
 
@@ -343,8 +358,13 @@ public class LookupForm<T> extends Div {
 		m_buttonRow = d;
 
 		//20091127 vmijic - since LookupForm can be reused each new rebuild should execute restore if previous state of form was collapsed.
-		if(m_collapsed != null) {
+		//20100118 vmijic - since LookupForm can be by default rendered as collapsed checks m_renderAsCollapsed are added.
+		if(!m_renderAsCollapsed && m_collapsed != null) {
 			restore();
+		} else if(m_renderAsCollapsed && m_content.getDisplay() != DisplayType.NONE) {
+			collapse();
+			//Focus must be set, otherwise IE reports javascript problem since focus is requested on not displayed input tag.
+			m_cancelBtn.setFocus();
 		} else {
 			createButtonRow(d, false);
 		}
@@ -657,10 +677,25 @@ public class LookupForm<T> extends Div {
 			throw new IllegalStateException("No idea how to create a lookup control for " + it);
 
 		//-- Assign error locations to all input controls
-		if(it.getErrorLocation() != null && it.getErrorLocation().trim().length() > 0) {
+		if(!DomUtil.isBlank(it.getErrorLocation()) ) {
 			for(NodeBase ic : it.getInstance().getInputControls())
 				ic.setErrorLocation(it.getErrorLocation());
 		}
+
+		//-- Assign test id. If single control is created, testId as it is will be applied,
+		//   if multiple component control is created, testId with suffix number will be applied.
+		if(!DomUtil.isBlank(it.getTestId())) {
+			if(it.getInstance().getInputControls().length == 1) {
+				it.getInstance().getInputControls()[0].setTestID(it.getTestId());
+			} else if(it.getInstance().getInputControls().length > 1) {
+				int controlCounter = 1;
+				for(NodeBase ic : it.getInstance().getInputControls()) {
+					ic.setTestID(it.getTestId() + "_" + controlCounter);
+					controlCounter++;
+				}
+			}
+		}
+
 		addItemToTable(it); // Create visuals.
 	}
 
@@ -964,5 +999,13 @@ public class LookupForm<T> extends Div {
 				c.add(bi.getThingy());
 			}
 		}
+	}
+
+	public boolean isRenderAsCollapsed() {
+		return m_renderAsCollapsed;
+	}
+
+	public void setRenderAsCollapsed(boolean renderAsCollapsed) {
+		m_renderAsCollapsed = renderAsCollapsed;
 	}
 }

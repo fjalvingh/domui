@@ -13,10 +13,10 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
-import to.etc.webapp.*;
+import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
-public class LookupInput<T> extends Table implements IInputNode<T>, IHasModifiedIndication {
+public class LookupInputOld<T> extends Table implements IInputNode<T>, IHasModifiedIndication {
 	private LookupForm<T> m_externalLookupForm;
 
 	private SmallImgButton m_selButton;
@@ -53,29 +53,17 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	private IActionAllowed m_isLookupAllowed;
 
-	private KeyWordSearchInput m_keySearch;
-
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	boolean m_modifiedByUser;
 
-	private IKeyWordSearchQueryManipulator<T> m_keyWordSearchHandler;
-
-	//	QCriteria<T> m_keySearchCriteria;
-
-	ITableModel<T> m_keySearchModel;
-
-	boolean m_renderCollapsedLookupForm;
-
-	private boolean m_allowEmptyQuery;
-
-	private String m_keyWordSearchCssClass;
-
-	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
+	public LookupInputOld(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass);
 		m_resultColumns = resultColumns;
 	}
 
-	public LookupInput(Class<T> lookupClass) {
+	private boolean m_allowEmptyQuery;
+
+	public LookupInputOld(Class<T> lookupClass) {
 		m_lookupClass = lookupClass;
 		m_selButton = new SmallImgButton("THEME/btn-popuplookup.png");
 		m_selButton.setTestID("selButtonInputLookup");
@@ -86,18 +74,14 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		});
 
 		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
-			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {
 				if(m_value != null) {
-					DomUtil.setModifiedFlag(LookupInput.this);
+					DomUtil.setModifiedFlag(LookupInputOld.this);
 				}
 				setValue(null);
-				if(m_keySearch != null) {
-					m_keySearch.setFocus();
-				}
 				//-- Handle onValueChanged
 				if(getOnValueChanged() != null) {
-					((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(LookupInput.this);
+					((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(LookupInputOld.this);
 				}
 
 			}
@@ -120,23 +104,10 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	@Override
 	public void createContent() throws Exception {
-		m_keySearch = null;
-		//		m_keySearchCriteria = null;
-		m_keySearchModel = null;
-		if(m_value == null && isKeyWordSearchDefined()) {
-			//Key word search rendering should be generic, no need for customization posibilities.
-			if(!isReadOnly() && !isDisabled()) {
-				renderKeyWordSearch(null, m_selButton);
-			} else {
-				renderEmptySelection();
-			}
-		} else {
-			//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
-			INodeContentRenderer<T> r = getContentRenderer();
-			if(r == null)
-				r = (INodeContentRenderer<T>) DEFAULT_RENDERER; // Prevent idiotic generics error
-			r.renderNodeContent(this, this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
-		}
+		INodeContentRenderer<T> r = getContentRenderer();
+		if(r == null)
+			r = (INodeContentRenderer<T>) DEFAULT_RENDERER; // Prevent idiotic generics error
+		r.renderNodeContent(this, this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
 
 		if(!isReadOnly() && !isDisabled()) {
 			if(m_selButton.getPage() == null) { // If the above did not add the button do it now.
@@ -156,174 +127,6 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				cell.add(m_selButton);
 			}
 			m_selButton.appendAfterMe(m_clearButton);
-			if(m_clearButton.getDisplay() == DisplayType.NONE) {
-				m_clearButton.getParent().setMinWidth("24px");
-			} else {
-				m_clearButton.getParent().setMinWidth("56px");
-			}
-		}
-	}
-
-	/**
-	 * @return true either when query control is manually implemented by keyWordSearchHandler, or if keyword search meta data is defined.
-	 */
-	private boolean isKeyWordSearchDefined() {
-		if(getKeyWordSearchHandler() != null) {
-			return true;
-		}
-		ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
-		if(cmm != null) {
-			//-- Has default meta?
-			List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
-			if(spml.size() > 0) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private void appendParameters(TD cell, Object parameters) {
-		TD tdParameters = new TD();
-		cell.appendAfterMe(tdParameters);
-		tdParameters.setValign(TableVAlign.TOP);
-		tdParameters.setMinWidth("24px");
-		tdParameters.setTextAlign(TextAlign.RIGHT);
-		tdParameters.add((NodeBase) parameters); // Add the button,
-	}
-
-	private void renderKeyWordSearch(T value, Object parameters) {
-		TD td = getBody().addRowAndCell();
-		td.setValign(TableVAlign.TOP);
-		td.setCssClass("ui-lui-v");
-		td.setWidth("100%");
-		addKeySearchField(td, value);
-		//-- parameters is either the button, or null if this is a readonly version.
-		if(parameters != null) {
-			appendParameters(td, parameters);
-		}
-	}
-
-	private void renderEmptySelection() {
-		TD td = getBody().addRowAndCell();
-		td.setValign(TableVAlign.TOP);
-		td.setCssClass("ui-lui-v");
-		String txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
-		td.add(txt);
-	}
-
-	private void addKeySearchField(NodeContainer parent, T value) {
-		m_keySearch = new KeyWordSearchInput();
-		m_keySearch.setWidth("100%");
-		m_keySearch.setOnTyping(new IValueChanged<KeyWordSearchInput>() {
-
-			@Override
-			public void onValueChanged(KeyWordSearchInput component) throws Exception {
-				String searchstring = component.getKeySearchValue();
-				if(searchstring == null || searchstring.trim().length() == 0) {
-					m_keySearchModel = null;
-					//					m_keySearchCriteria = null;
-					component.setResultsCount(-1);
-					component.setFocus();
-					return;
-				}
-				m_keySearchModel = searchKeyWord(searchstring);
-				if(m_keySearchModel.getRows() == 1) {
-					LookupInput.this.setValue(m_keySearchModel.getItems(0, 1).get(0));
-					if(LookupInput.this.getOnValueChanged() != null) {
-						((IValueChanged<NodeBase>) LookupInput.this.getOnValueChanged()).onValueChanged(LookupInput.this);
-					}
-				} else {
-					component.setResultsCount(m_keySearchModel.getRows());
-				}
-			}
-		});
-
-		m_keySearch.setOnShowResults(new IValueChanged<KeyWordSearchInput>() {
-
-			@Override
-			public void onValueChanged(KeyWordSearchInput component) throws Exception {
-				String searchstring = component.getKeySearchValue();
-				if(searchstring == null || searchstring.trim().length() == 0) {
-					m_keySearchModel = null;
-					component.setResultsCount(-1);
-					m_renderCollapsedLookupForm = false;
-					toggleFloater();
-					return;
-				}
-				m_keySearchModel = searchKeyWord(component.getKeySearchValue());
-				if(m_keySearchModel.getRows() == 1) {
-					LookupInput.this.setValue(m_keySearchModel.getItems(0, 1).get(0));
-					if(LookupInput.this.getOnValueChanged() != null) {
-						((IValueChanged<NodeBase>) LookupInput.this.getOnValueChanged()).onValueChanged(LookupInput.this);
-					}
-				} else {
-					component.setResultsCount(m_keySearchModel.getRows());
-					m_renderCollapsedLookupForm = (m_keySearchModel.getRows() > 0);
-					toggleFloater();
-				}
-			}
-		});
-
-		parent.add(m_keySearch);
-		if(m_keyWordSearchCssClass != null) {
-			m_keySearch.setInputCssClass(m_keyWordSearchCssClass);
-			addCssClass(m_keyWordSearchCssClass);
-		}
-	}
-
-	ITableModel<T> searchKeyWord(String searchstring) throws Exception {
-		QCriteria<T> searchq = QCriteria.create(m_lookupClass);
-
-		if(getKeyWordSearchHandler() != null) {
-			searchq = getKeyWordSearchHandler().adjustQuery(searchq, searchstring);
-		} else {
-			ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
-			if(cmm != null) {
-				//-- Has default meta?
-				List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
-				if(spml.size() > 0) {
-					//-- Determine the thing to add the criteria to.
-					QRestrictor<T> r = searchq;
-					if(spml.size() > 1)
-						r = searchq.or(); // Multiple fields are combined using OR
-
-					//-- Build the query, and while doing that determine the minimal query length.
-					int minlen = 0;
-					for(SearchPropertyMetaModelImpl spm: cmm.getKeyWordSearchProperties()) {
-						if(spm.getMinLength() > minlen)
-							minlen = spm.getMinLength();
-
-						//-- Abort on invalid metadata; never continue with invalid data.
-						if(spm.getPropertyName() == null)
-							throw new ProgrammerErrorException("The quick lookup properties for " + cmm + " are invalid: the property name is null");
-
-						List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(cmm, spm.getPropertyName()); // This will return an empty list on empty string input
-						if(pl.size() == 0)
-							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + cmm);
-						if(spm.isIgnoreCase())
-							r.ilike(spm.getPropertyName(), searchstring + "%");
-						else
-							r.like(spm.getPropertyName(), searchstring + "%");
-					}
-
-					//-- If the min length has not been reached we MAY NOT QUERY to prevent huge resultset
-					if(searchstring.length() < minlen) {
-						// FIXME SHOULD NOT HAPPEN, AND CANNOT QUERY!!! Please fix ;-)
-						throw new IllegalStateException("Ohmy...");
-					}
-				}
-			}
-		}
-
-		if(getQueryManipulator() != null) {
-			searchq = getQueryManipulator().adjustQuery(searchq);
-		}
-
-		if(m_queryHandler == null) {
-			QDataContextFactory src = QContextManager.getDataContextFactory(getPage().getConversation());
-			return new SimpleSearchModel<T>(src, searchq);
-		} else {
-			return new SimpleSearchModel<T>(m_queryHandler, searchq);
 		}
 	}
 
@@ -341,11 +144,11 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		}
 
 		m_floater = FloatingWindow.create(this, getLookupTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_LUI_TTL) : getLookupTitle());
+		//		getPage().getBody().add(m_floater);
 
 		m_floater.setHeight("90%");
 		m_floater.setIcon("THEME/btnFind.png");
-		m_floater.setTestID(getTestID() + "_floaterWindowLookupInput");
-
+		m_floater.setTestID(getTestID() + "_floaterWindowLookupInputOld");
 		//in case when external error message listener is set
 		if(m_customErrorMessageListener != null && m_customErrorMessageListener instanceof NodeBase) {
 			m_floater.setErrorFence();
@@ -353,7 +156,6 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
 		}
 		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(m_lookupClass);
-		lf.setRenderAsCollapsed(m_keySearchModel != null && m_keySearchModel.getRows() > 0);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		m_floater.add(lf);
 		m_floater.setOnClose(new IClicked<FloatingWindow>() {
@@ -376,9 +178,6 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			}
 		});
 
-		if(m_keySearchModel != null && m_keySearchModel.getRows() > 0) {
-			setResultModel(m_keySearchModel);
-		}
 	}
 
 	void search(LookupForm<T> lf) throws Exception {
@@ -406,10 +205,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		} else {
 			model = new SimpleSearchModel<T>(m_queryHandler, qc);
 		}
-		setResultModel(model);
-	}
 
-	private void setResultModel(ITableModel<T> model) {
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
 			SimpleRowRenderer<T> rr = null;
@@ -428,15 +224,15 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
 					//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
 					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-					LookupInput.this.toggleFloater();
+					LookupInputOld.this.toggleFloater();
 					if(!MetaManager.areObjectsEqual(val, m_value, null)) {
-						DomUtil.setModifiedFlag(LookupInput.this);
+						DomUtil.setModifiedFlag(LookupInputOld.this);
 					}
 					setValue(val);
 
 					//-- Handle onValueChanged
 					if(getOnValueChanged() != null) {
-						((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(LookupInput.this);
+						((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(LookupInputOld.this);
 					}
 				}
 			});
@@ -447,7 +243,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		} else {
 			m_result.setModel(model); // Change the model
 		}
-		m_result.setTestID("resultTableLookupInput");
+		m_result.setTestID("resultTableLookupInputOld");
 	}
 
 	public void setHint(String text) {
@@ -543,11 +339,6 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
 	public IValueChanged< ? > getOnValueChanged() {
-		if(m_floater != null) {
-			//Fix for FF: prevent onchange event to be propagate on control when return key is pressed and popup is opened.
-			//This does not happen on IE. Be sure that it is executed after popup is already closed.
-			return null;
-		}
 		return m_onValueChanged;
 	}
 
@@ -672,7 +463,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				}
 				txt = object.toString();
 			} else
-				txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
+				txt = NlsContext.getGlobalMessage(Msgs.UI_LOOKUP_EMPTY);
 			TR r = new TR();
 			tbl.add(r);
 			TD td = new TD();
@@ -767,25 +558,5 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	public void setIsLookupAllowed(IActionAllowed isLookupAllowed) {
 		m_isLookupAllowed = isLookupAllowed;
-	}
-
-	public IKeyWordSearchQueryManipulator<T> getKeyWordSearchHandler() {
-		return m_keyWordSearchHandler;
-	}
-
-	public void setKeyWordSearchHandler(IKeyWordSearchQueryManipulator<T> keyWordSearchManipulator) {
-		m_keyWordSearchHandler = keyWordSearchManipulator;
-	}
-
-	public String getKeyWordSearchCssClass() {
-		return m_keyWordSearchCssClass;
-	}
-
-	/**
-	 * Set custom css that would be applied only in case that component is rendering keyWordSearch. Use for example in row inline rendering, where width and min-width should be additionaly customized.
-	 * @param keWordSearchCssClass
-	 */
-	public void setKeyWordSearchCssClass(String cssClass) {
-		m_keyWordSearchCssClass = cssClass;
 	}
 }

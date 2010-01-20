@@ -48,4 +48,11 @@ public @interface MetaSearchItem {
 	public String lookupLabelKey() default "";
 
 	public String lookupHintKey() default "";
+
+	/**
+	 * This defines how search property would be used.
+	 * By default it is set to use only see {@link SearchPropertyType#SEARCH_FIELD}.
+	 * This is normally used for compound specs only.
+	 */
+	public SearchPropertyType[] searchType() default {SearchPropertyType.SEARCH_FIELD};
 }

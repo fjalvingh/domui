@@ -48,6 +48,8 @@ public interface Msgs {
 	/** (empty field) - the text shown when a lookup-popup-thingy is empty. */
 	public static final String UI_LOOKUP_EMPTY = "ui.lookup.empty";
 
+	public static final String UI_KEYWORD_SEARCH_COUNT = "ui.keyword.search.count";
+
 	/** Lookup value invalid */
 	public static final String UI_LOOKUP_INVALID = "ui.lookup.invalid";
 

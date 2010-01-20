@@ -226,7 +226,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), "THEME/btnDelete.png", Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IClicked<LinkButton>() {
 				@Override
 				public void clicked(LinkButton clickednode) throws Exception {
-					// 20091225 delete value, why bother with index? jal 20091229 Because I forgot delete() was part of the model ;-)
 					((IModifyableTableModel<T>) getModel()).delete(value);
 					DomUtil.setModifiedFlag(ExpandingEditTable.this);
 				}
