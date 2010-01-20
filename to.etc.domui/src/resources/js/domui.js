@@ -572,6 +572,12 @@ var WebUI = {
 		});
 	},
 
+	/*
+	 * Executed as onkeyup event on input field that has implemented listener for onTyping event.
+	 * In case of return key call typingDone ajax that is transformed into onTyping(done=true).
+	 * In case of other key, typing funcion is called with delay of 500ms. Previuosly scheduled typing function is canceled.
+	 * This cause that fast typing would not trigger ajax for each key stroke, only when user stops typing for 500ms ajax would be called by typing function.
+	 */
 	scheduleOnTypingEvent : function(h, id, event) {
 		if(!event)
 			event = window.event;
@@ -592,6 +598,36 @@ var WebUI = {
 		else
 			scheduledOnTypingTimerID = window.setTimeout("WebUI.typing('" + id + "')", 500);
 	},
+
+	/*
+	 * In case of longer waiting for typing ajax response show waiting animated marker. 
+	 * Function is called with delay of 500ms from ajax.beforeSend method for typing event. 
+	 */
+	displayWaiting: function(id) {
+		var node = document.getElementById(id);
+		if (node){
+			for ( var i = 0; i < node.childNodes.length; i++ ){
+				if (node.childNodes[i].className == 'ui-lui-waiting'){
+					node.childNodes[i].style.display = 'inline';
+				}
+			}
+		}
+	},
+
+	/*
+	 * Hiding waiting animated marker that was shown in case of longer waiting for typing ajax response.
+	 * Function is called from ajax.completed method for typing event. 
+	 */
+	hideWaiting: function(id) {
+		var node = document.getElementById(id);
+		if (node){
+			for ( var i = 0; i < node.childNodes.length; i++ ){
+				if (node.childNodes[i].className == 'ui-lui-waiting'){
+					node.childNodes[i].style.display = 'none';
+				}
+			}
+		}
+	},
 	
 	typing : function(id) {
 		var typingField = document.getElementById(id);
@@ -605,6 +641,7 @@ var WebUI = {
 			fields["$pt"] = DomUIpageTag;
 			fields["$cid"] = DomUICID;
 			WebUI.cancelPolling();
+			var displayWaitingTimerID = 0;
 
 			$.ajax( {
 				url :DomUI.getPostURL(),
@@ -612,6 +649,27 @@ var WebUI = {
 				data :fields,
 				cache :false,
 				type: "POST",
+				global: false,
+				beforeSend: function(){
+								// Handle the local beforeSend event
+								_block;
+								var parentDiv = typingField.parentNode;
+								if (parentDiv){
+									displayWaitingTimerID = window.setTimeout("WebUI.displayWaiting('" + parentDiv.id + "')", 500);
+								}
+			   				},
+			   	complete: function(){
+			   			     // Handle the local complete event
+								_unblock;
+			   					if (displayWaitingTimerID != 0){
+			   						window.clearTimeout(displayWaitingTimerID);
+			   						var parentDiv = typingField.parentNode;
+			   						if (parentDiv){
+			   							WebUI.hideWaiting(parentDiv.id);
+			   						}
+			   					}
+			   			  },
+
 				success :WebUI.handleResponse,
 				error :WebUI.handleError
 			});

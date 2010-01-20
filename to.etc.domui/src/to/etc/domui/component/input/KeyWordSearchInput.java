@@ -1,5 +1,6 @@
 package to.etc.domui.component.input;
 
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -19,12 +20,19 @@ public class KeyWordSearchInput extends Div {
 
 	private String m_inputCssClass;
 
+	private Img m_imgWaiting;
+
 	public KeyWordSearchInput() {
 	}
 
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
+		//position must be set to relative to enable absoulute positioning of child elements (waiting image)
+		setPosition(PositionType.RELATIVE);
+		m_imgWaiting = new Img("THEME/wait16trans.gif");
+		m_imgWaiting.setCssClass("ui-lui-waiting");
+		m_imgWaiting.setDisplay(DisplayType.NONE);
 		m_keySearch = new TextStr();
 		m_keySearch.setCssClass("ui-lui-keyword");
 		if(m_inputCssClass != null) {
@@ -49,6 +57,7 @@ public class KeyWordSearchInput extends Div {
 			}
 		});
 
+		add(m_imgWaiting);
 		add(m_keySearch);
 		renderResultsCountPart();
 	}
