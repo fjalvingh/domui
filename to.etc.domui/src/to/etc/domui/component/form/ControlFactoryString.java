@@ -67,18 +67,26 @@ public class ControlFactoryString implements ControlFactory {
 			//-- Calculate a size using scale and precision.
 			int size = pmm.getPrecision();
 			int d = size;
-			size++; // Allow minus
-			if(pmm.getScale() > 0) {
-				size++; // Inc size to allow for decimal point or comma
-				d -= pmm.getScale(); // Reduce integer part,
-				if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
-					int nd = (d - 1) / 3; // How many thousand separators could there be?
-					size += nd; // Increment input size with that
-				}
-			} else {
-				if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
-					int nd = (d - 1) / 3; // How many thousand separators could there be?
-					size += nd; // Increment input size with that
+			String hint = pmm.getComponentTypeHint();
+			if(hint != null) {
+				hint = hint.toLowerCase();
+			}
+			if(hint == null || !hint.contains("no-minus")) {
+				size++; // Allow minus
+			}
+			if(hint == null || !hint.contains("no-separator")) {
+				if(pmm.getScale() > 0) {
+					size++; // Inc size to allow for decimal point or comma
+					d -= pmm.getScale(); // Reduce integer part,
+					if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
+						int nd = (d - 1) / 3; // How many thousand separators could there be?
+						size += nd; // Increment input size with that
+					}
+				} else {
+					if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
+						int nd = (d - 1) / 3; // How many thousand separators could there be?
+						size += nd; // Increment input size with that
+					}
 				}
 			}
 
