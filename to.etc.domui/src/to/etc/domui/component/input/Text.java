@@ -460,7 +460,6 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 */
 	@Override
 	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
-		super.componentHandleWebAction(ctx, action);
 		if(Constants.ACMD_INPUT_TYPING.equals(action)) {
 			handleTyping(ctx);
 		} else if(Constants.ACMD_INPUT_TYPING_DONE.equals(action)) {
