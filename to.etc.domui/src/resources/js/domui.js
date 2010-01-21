@@ -397,7 +397,7 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 /**
  * Create handle for timer delayed actions, used for onTyping event.
  */
-var scheduledOnTypingTimerID = 0;
+var scheduledOnTypingTimerID = null;
 
 var WebUI = {
 	/**
@@ -578,13 +578,15 @@ var WebUI = {
 	 * In case of other key, typing funcion is called with delay of 500ms. Previuosly scheduled typing function is canceled.
 	 * This cause that fast typing would not trigger ajax for each key stroke, only when user stops typing for 500ms ajax would be called by typing function.
 	 */
-	scheduleOnTypingEvent : function(h, id, event) {
+	scheduleOnTypingEvent : function(id, event) {
 		if(!event)
 			event = window.event;
 		var keyCode = WebUI.normalizeKey(event);
 		var isReturn = (keyCode == 13000 || keyCode == 13);
-		if (scheduledOnTypingTimerID != 0)
+		if (scheduledOnTypingTimerID){
 			window.clearTimeout(scheduledOnTypingTimerID);
+			scheduledOnTypingTimerID = null;
+		}
 		if (isReturn){
 			//-- Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
 			if(event) {
