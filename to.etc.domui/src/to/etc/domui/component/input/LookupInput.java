@@ -60,10 +60,6 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	private IKeyWordSearchQueryManipulator<T> m_keyWordSearchHandler;
 
-	//	QCriteria<T> m_keySearchCriteria;
-
-	ITableModel<T> m_keySearchModel;
-
 	private boolean m_allowEmptyQuery;
 
 	private String m_keyWordSearchCssClass;
@@ -85,7 +81,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		m_selButton.setTestID("selButtonInputLookup");
 		m_selButton.setClicked(new IClicked<NodeBase>() {
 			public void clicked(NodeBase b) throws Exception {
-				toggleFloater();
+				toggleFloaterByClick();
 			}
 		});
 
@@ -125,8 +121,6 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	@Override
 	public void createContent() throws Exception {
 		m_keySearch = null;
-		//		m_keySearchCriteria = null;
-		m_keySearchModel = null;
 		if(m_value == null && isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
 			//Key word search rendering should be generic, no need for customization posibilities.
 			if(!isReadOnly() && !isDisabled()) {
@@ -160,6 +154,8 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				cell.add(m_selButton);
 			}
 			m_selButton.appendAfterMe(m_clearButton);
+			//This code is needed for proper control alignment. 
+			//FIXME: vmijic, not suitable for larger button images, see is this can be resolved by introducing span container for buttons. 
 			if(m_clearButton.getDisplay() == DisplayType.NONE) {
 				m_clearButton.getParent().setMinWidth("24px");
 			} else {
@@ -222,28 +218,22 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 			@Override
 			public void onValueChanged(KeyWordSearchInput component) throws Exception {
-				String searchstring = component.getKeySearchValue();
-				boolean canceled = (searchstring == null || searchstring.trim().length() == 0);
-				if(!canceled) {
-					m_keySearchModel = searchKeyWord(searchstring);
-					canceled = m_keySearchModel == null;
-				}
-				if(canceled) {
+				ITableModel<T> keySearchModel = searchKeyWord(component.getKeySearchValue());
+				if(keySearchModel == null) {
 					//in case of insufficient searchString data cancel search and return. 
-					m_keySearchModel = null;
-					//					m_keySearchCriteria = null;
 					component.setResultsCount(-1);
-					component.setFocus();
+					component.setFocus(); //focus must be set manually.
 					return;
 				}
-				if(m_keySearchModel.getRows() == 1) {
-					//in case of single match insufficient searchString data cancel search and return. 
-					LookupInput.this.setValue(m_keySearchModel.getItems(0, 1).get(0));
+				if(keySearchModel.getRows() == 1) {
+					//in case of single match select value. 
+					LookupInput.this.setValue(keySearchModel.getItems(0, 1).get(0));
 					if(LookupInput.this.getOnValueChanged() != null) {
 						((IValueChanged<NodeBase>) LookupInput.this.getOnValueChanged()).onValueChanged(LookupInput.this);
 					}
 				} else {
-					component.setResultsCount(m_keySearchModel.getRows());
+					//show results count info 
+					component.setResultsCount(keySearchModel.getRows());
 				}
 			}
 		});
@@ -252,22 +242,23 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 			@Override
 			public void onValueChanged(KeyWordSearchInput component) throws Exception {
-				String searchstring = component.getKeySearchValue();
-				if(searchstring == null || searchstring.trim().length() == 0) {
-					m_keySearchModel = null;
+				ITableModel<T> keySearchModel = searchKeyWord(component.getKeySearchValue());
+				if(keySearchModel == null) {
+					//in case of insufficient searchString data cancel search and popup clean search dialog. 
 					component.setResultsCount(-1);
-					toggleFloater();
+					toggleFloater(null);
 					return;
 				}
-				m_keySearchModel = searchKeyWord(component.getKeySearchValue());
-				if(m_keySearchModel.getRows() == 1) {
-					LookupInput.this.setValue(m_keySearchModel.getItems(0, 1).get(0));
+				if(keySearchModel.getRows() == 1) {
+					//in case of single match select value. 
+					LookupInput.this.setValue(keySearchModel.getItems(0, 1).get(0));
 					if(LookupInput.this.getOnValueChanged() != null) {
 						((IValueChanged<NodeBase>) LookupInput.this.getOnValueChanged()).onValueChanged(LookupInput.this);
 					}
 				} else {
-					component.setResultsCount(m_keySearchModel.getRows());
-					toggleFloater();
+					//in case of more results show narrow result in search popup. 
+					component.setResultsCount(keySearchModel.getRows());
+					toggleFloater(keySearchModel);
 				}
 			}
 		});
@@ -284,10 +275,17 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	 * @throws Exception
 	 */
 	ITableModel<T> searchKeyWord(String searchString) throws Exception {
+		if(searchString == null || searchString.trim().length() == 0) {
+			return null;
+		}
 		QCriteria<T> searchQuery = QCriteria.create(m_lookupClass);
 
 		if(getKeyWordSearchHandler() != null) {
 			searchQuery = getKeyWordSearchHandler().adjustQuery(searchQuery, searchString);
+			if(searchQuery == null) {
+				//in case of canceled search return null
+				return null;
+			}
 		} else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
 			if(cmm != null) {
@@ -344,7 +342,15 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		}
 	}
 
-	void toggleFloater() throws Exception {
+	void toggleFloaterByClick() throws Exception {
+		if(m_keySearch != null) {
+			toggleFloater(searchKeyWord(m_keySearch.getKeySearchValue()));
+		} else {
+			toggleFloater(null);
+		}
+	}
+
+	void toggleFloater(ITableModel<T> keySearchModel) throws Exception {
 		if(m_floater != null) {
 			m_floater.close();
 			m_floater = null;
@@ -370,7 +376,8 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
 		}
 		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(m_lookupClass);
-		lf.setRenderAsCollapsed(m_keySearchModel != null && m_keySearchModel.getRows() > 0);
+
+		lf.setRenderAsCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		m_floater.add(lf);
 		m_floater.setOnClose(new IClicked<FloatingWindow>() {
@@ -393,8 +400,8 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			}
 		});
 
-		if(m_keySearchModel != null && m_keySearchModel.getRows() > 0) {
-			setResultModel(m_keySearchModel);
+		if(keySearchModel != null && keySearchModel.getRows() > 0) {
+			setResultModel(keySearchModel);
 		}
 	}
 
@@ -445,7 +452,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
 					//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
 					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-					LookupInput.this.toggleFloater();
+					LookupInput.this.toggleFloater(null);
 					if(!MetaManager.areObjectsEqual(val, m_value, null)) {
 						DomUtil.setModifiedFlag(LookupInput.this);
 					}
@@ -801,7 +808,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	/**
 	 * Set custom css that would be applied only in case that component is rendering keyWordSearch. 
 	 * Used for example in row inline rendering, where width and min-width should be additionaly customized.
-	 * @param keWordSearchCssClass
+	 * @param cssClass
 	 */
 	public void setKeyWordSearchCssClass(String cssClass) {
 		m_keyWordSearchCssClass = cssClass;
