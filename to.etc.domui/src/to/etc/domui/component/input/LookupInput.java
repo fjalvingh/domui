@@ -58,7 +58,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	boolean m_modifiedByUser;
 
-	private IKeyWordSearchQueryManipulator<T> m_keyWordSearchHandler;
+	private IKeyWordSearchQueryFactory<T> m_keyWordSearchHandler;
 
 	private boolean m_allowEmptyQuery;
 
@@ -278,45 +278,45 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		if(searchString == null || searchString.trim().length() == 0) {
 			return null;
 		}
-		QCriteria<T> searchQuery = QCriteria.create(m_lookupClass);
+		QCriteria<T> searchQuery;
 
 		if(getKeyWordSearchHandler() != null) {
-			searchQuery = getKeyWordSearchHandler().adjustQuery(searchQuery, searchString);
+			searchQuery = getKeyWordSearchHandler().createQuery(searchString);
 			if(searchQuery == null) {
-				//in case of canceled search return null
+				//in case of cancelled search return null
 				return null;
 			}
 		} else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
-			if(cmm != null) {
-				//-- Has default meta?
-				List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
-				QRestrictor<T> r = searchQuery.or();
-				int ncond = 0;
-				if(spml.size() > 0) {
-					for(SearchPropertyMetaModelImpl spm : spml) {
-						if(spm.getMinLength() < searchString.length()) {
 
-							//-- Abort on invalid metadata; never continue with invalid data.
-							if(spm.getPropertyName() == null)
-								throw new ProgrammerErrorException("The quick lookup properties for " + cmm + " are invalid: the property name is null");
+			//-- Has default meta?
+			List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
+			searchQuery = QCriteria.create(m_lookupClass);
+			QRestrictor<T> r = searchQuery.or();
+			int ncond = 0;
+			if(spml.size() > 0) {
+				for(SearchPropertyMetaModelImpl spm : spml) {
+					if(spm.getMinLength() < searchString.length()) {
 
-							List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(cmm, spm.getPropertyName()); // This will return an empty list on empty string input
-							if(pl.size() == 0)
-								throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + cmm);
+						//-- Abort on invalid metadata; never continue with invalid data.
+						if(spm.getPropertyName() == null)
+							throw new ProgrammerErrorException("The quick lookup properties for " + cmm + " are invalid: the property name is null");
 
-							if(spm.isIgnoreCase()) {
-								r.ilike(spm.getPropertyName(), searchString + "%");
-							} else {
-								r.like(spm.getPropertyName(), searchString + "%");
-							}
-							ncond++;
+						List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(cmm, spm.getPropertyName()); // This will return an empty list on empty string input
+						if(pl.size() == 0)
+							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + cmm);
+
+						if(spm.isIgnoreCase()) {
+							r.ilike(spm.getPropertyName(), searchString + "%");
+						} else {
+							r.like(spm.getPropertyName(), searchString + "%");
 						}
+						ncond++;
 					}
 				}
-				if(ncond == 0) {
-					return null;//no search meta data is matching minimal lenght condition, search is cancelled
-				}
+			}
+			if(ncond == 0) {
+				return null;//no search meta data is matching minimal lenght condition, search is cancelled
 			}
 		}
 
@@ -783,11 +783,11 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		m_isLookupAllowed = isLookupAllowed;
 	}
 
-	public IKeyWordSearchQueryManipulator<T> getKeyWordSearchHandler() {
+	public IKeyWordSearchQueryFactory<T> getKeyWordSearchHandler() {
 		return m_keyWordSearchHandler;
 	}
 
-	public void setKeyWordSearchHandler(IKeyWordSearchQueryManipulator<T> keyWordSearchManipulator) {
+	public void setKeyWordSearchHandler(IKeyWordSearchQueryFactory<T> keyWordSearchManipulator) {
 		m_keyWordSearchHandler = keyWordSearchManipulator;
 	}
 
