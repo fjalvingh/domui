@@ -394,11 +394,6 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 	$.fn.executeDeltaXML = executeXML;
 })(jQuery);
 
-/**
- * Create handle for timer delayed actions, used for onTyping event.
- */
-var scheduledOnTypingTimerID = null;
-
 var WebUI = {
 	/**
 	 * Create a curried function containing a 'this' and a fixed set of elements.
@@ -572,6 +567,11 @@ var WebUI = {
 		});
 	},
 
+	/**
+	 * Handle for timer delayed actions, used for onTyping event.
+	 */
+	scheduledOnTypingTimerID: null,
+	
 	/*
 	 * Executed as onkeyup event on input field that has implemented listener for onTyping event.
 	 * In case of return key call typingDone ajax that is transformed into onTyping(done=true).
@@ -583,9 +583,9 @@ var WebUI = {
 			event = window.event;
 		var keyCode = WebUI.normalizeKey(event);
 		var isReturn = (keyCode == 13000 || keyCode == 13);
-		if (scheduledOnTypingTimerID){
-			window.clearTimeout(scheduledOnTypingTimerID);
-			scheduledOnTypingTimerID = null;
+		if (WebUI.scheduledOnTypingTimerID){
+			window.clearTimeout(WebUI.scheduledOnTypingTimerID);
+			WebUI.scheduledOnTypingTimerID = null;
 		}
 		if (isReturn){
 			//-- Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
@@ -598,7 +598,7 @@ var WebUI = {
 			WebUI.typingDone(id);
 		}
 		else
-			scheduledOnTypingTimerID = window.setTimeout("WebUI.typing('" + id + "')", 500);
+			WebUI.scheduledOnTypingTimerID = window.setTimeout("WebUI.typing('" + id + "')", 500);
 	},
 
 	/*
@@ -643,7 +643,7 @@ var WebUI = {
 			fields["$pt"] = DomUIpageTag;
 			fields["$cid"] = DomUICID;
 			WebUI.cancelPolling();
-			var displayWaitingTimerID = 0;
+			var displayWaitingTimerID = null;
 
 			$.ajax( {
 				url :DomUI.getPostURL(),
@@ -663,8 +663,9 @@ var WebUI = {
 			   	complete: function(){
 			   			     // Handle the local complete event
 								_unblock;
-			   					if (displayWaitingTimerID != 0){
+			   					if (displayWaitingTimerID){
 			   						window.clearTimeout(displayWaitingTimerID);
+			   						displayWaitingTimerID = null;
 			   						var parentDiv = typingField.parentNode;
 			   						if (parentDiv){
 			   							WebUI.hideWaiting(parentDiv.id);

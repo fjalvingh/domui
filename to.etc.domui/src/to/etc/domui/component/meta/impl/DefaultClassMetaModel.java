@@ -214,6 +214,14 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 				mm.setPropertyName(msi.name().length() == 0 ? null : msi.name());
 				mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
 				mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
+
+				//FIXME NEED TO ADD HERE ACCORDING TO TYPE.
+				//				if(msi. == SearchPropertyType.SEARCH_FIELD) {
+				//					((DefaultClassMetaModel) getClassModel()).addSearchProperty(mm);
+				//				}
+				//				if(searchType == SearchPropertyType.KEYWORD) {
+				//					((DefaultClassMetaModel) getClassModel()).addKeyWordSearchProperty(mm);
+				//				}
 				addSearchProperty(mm);
 			}
 		}
@@ -329,6 +337,13 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	public void initialized() {
 		m_initialized = true;
+
+		//-- Finalize: sort search properties.
+		Collections.sort(m_searchProperties, new Comparator<SearchPropertyMetaModelImpl>() {
+			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
+				return o1.getOrder() - o2.getOrder();
+			}
+		});
 	}
 
 	public ComboOptionalType getComboOptional() {
@@ -364,27 +379,22 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getSearchProperties()
 	 */
 	public List<SearchPropertyMetaModelImpl> getSearchProperties() {
-		List<SearchPropertyMetaModelImpl> list = new ArrayList<SearchPropertyMetaModelImpl>(m_searchProperties);
-		Collections.sort(list, new Comparator<SearchPropertyMetaModelImpl>() {
-			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
-				return o1.getOrder() - o2.getOrder();
-			}
-		});
-		return list;
+		return m_searchProperties;
 	}
 
 	/**
-	 * Returns the SORTED list of key word search properties defined on this class.
+	 * Returns the list of key word search properties defined on this class (unsorted).
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getKeyWordSearchProperties()
 	 */
 	public List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties() {
-		List<SearchPropertyMetaModelImpl> list = new ArrayList<SearchPropertyMetaModelImpl>(m_keyWordSearchProperties);
-		Collections.sort(list, new Comparator<SearchPropertyMetaModelImpl>() {
-			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
-				return o1.getOrder() - o2.getOrder();
-			}
-		});
-		return list;
+		return m_keyWordSearchProperties;
+		//		List<SearchPropertyMetaModelImpl> list = new ArrayList<SearchPropertyMetaModelImpl>(m_keyWordSearchProperties);
+		//		Collections.sort(list, new Comparator<SearchPropertyMetaModelImpl>() {
+		//			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
+		//				return o1.getOrder() - o2.getOrder();
+		//			}
+		//		});
+		//		return list;
 	}
 
 	public Class< ? > getActualClass() {

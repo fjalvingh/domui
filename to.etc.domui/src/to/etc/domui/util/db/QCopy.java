@@ -24,8 +24,8 @@ public class QCopy {
 		return c().copyInstanceShallow(dc, source);
 	}
 
-	static public <T> T copyDeep(QDataContext dc, T source) throws Exception {
-		return c().copyInstanceDeep(dc, source);
+	static public <T> T copyDeep(QDataContext targetdc, QDataContext sourcedc, T source) throws Exception {
+		return c().copyInstanceDeep(targetdc, sourcedc, source);
 	}
 
 

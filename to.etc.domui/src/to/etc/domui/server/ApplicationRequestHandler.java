@@ -473,10 +473,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			if(Constants.ACMD_CLICKED.equals(action)) {
 				handleClicked(ctx, page, wcomp);
-			} else if(Constants.ACMD_INPUT_TYPING.equals(action) && wcomp != null && wcomp instanceof IHasTypingListener) {
-				handleTyping(ctx, page, wcomp);
-			} else if(Constants.ACMD_INPUT_TYPING_DONE.equals(action) && wcomp != null && wcomp instanceof IHasTypingListener) {
-				handleTypingDone(ctx, page, wcomp);
 			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
 				//-- Don't do anything at all - everything is done beforehand (bug #664).
 			} else if(Constants.ACMD_ASYPOLL.equals(action)) {
@@ -489,7 +485,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
 				wcomp.componentHandleWebAction(ctx, action);
 			}
-
 		} catch(ValidationException x) {
 			/*
 			 * When an action handler failed because it accessed a component which has a validation error
@@ -574,49 +569,5 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			//			throw new IllegalStateException("Clicked must have a node!!");
 		}
 		b.internalOnClicked();
-	}
-
-	/**
-	 * Called when the action is a TYPING event on some Input thingy. This causes the onTyping handler for
-	 * the input to be called. Typing event is triggered after time delay of 500ms after user has stopped typing.
-	 *
-	 * @param ctx
-	 * @param page
-	 * @param cid
-	 * @throws Exception
-	 */
-	private void handleTyping(final IRequestContext ctx, final Page page, final NodeBase b) throws Exception {
-		if(b == null) {
-			System.out.println("User typed too fast? Node not found. Ignoring.");
-			return;
-			//			throw new IllegalStateException("Clicked must have a node!!");
-		}
-
-		ITypingListener<NodeBase> tl = (ITypingListener<NodeBase>) ((IHasTypingListener) b).getOnTyping();
-		if(tl != null) {
-			tl.onTyping(b, false);
-		}
-	}
-
-	/**
-	 * Called when the action is a TYPING DONE event on some Input thingy. This causes the onTyping handler for
-	 * the input to be called with parame done set to true. Occurs when user press return key on input with registered onTyping listener. 
-	 *
-	 * @param ctx
-	 * @param page
-	 * @param cid
-	 * @throws Exception
-	 */
-	private void handleTypingDone(final IRequestContext ctx, final Page page, final NodeBase b) throws Exception {
-		if(b == null) {
-			System.out.println("User typed too fast? Node not found. Ignoring.");
-			return;
-			//			throw new IllegalStateException("Clicked must have a node!!");
-		}
-
-		ITypingListener<NodeBase> tl = (ITypingListener<NodeBase>) ((IHasTypingListener) b).getOnTyping();
-		if(tl != null) {
-			tl.onTyping(b, true);
-		}
 	}
 }

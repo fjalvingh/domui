@@ -1,6 +1,7 @@
 package to.etc.domui.dom.html;
 
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 /**
@@ -23,6 +24,8 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 	private String m_onKeyPressJS;
 
 	private IValueChanged< ? > m_onValueChanged;
+
+	private ITypingListener< ? > m_onTyping;
 
 	public Input() {
 		super("input");
@@ -125,6 +128,51 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 	}
 
 	/**
+	 * The input tag handles {@link Constants#ACMD_INPUT_TYPING} and {@link Constants#ACMD_INPUT_TYPING_DONE} browser commands. 
+	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
+	 */
+	@Override
+	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
+		if(Constants.ACMD_INPUT_TYPING.equals(action)) {
+			handleTyping(ctx);
+		} else if(Constants.ACMD_INPUT_TYPING_DONE.equals(action)) {
+			handleTypingDone(ctx);
+		}
+	}
+
+	/**
+	 * Called when the action is a TYPING event on some Input thingy. This causes the onTyping handler for
+	 * the input to be called. Typing event is triggered after time delay of 500ms after user has stopped typing.
+	 *
+	 * @param ctx
+	 * @param page
+	 * @param cid
+	 * @throws Exception
+	 */
+	private void handleTyping(final IRequestContext ctx) throws Exception {
+		ITypingListener<NodeBase> tl = (ITypingListener<NodeBase>) getOnTyping();
+		if(tl != null) {
+			tl.onTyping(this, false);
+		}
+	}
+
+	/**
+	 * Called when the action is a TYPING DONE event on some Input thingy. This causes the onTyping handler for
+	 * the input to be called with parame done set to true. Occurs when user press return key on input with registered onTyping listener.
+	 *
+	 * @param ctx
+	 * @param page
+	 * @param cid
+	 * @throws Exception
+	 */
+	private void handleTypingDone(final IRequestContext ctx) throws Exception {
+		ITypingListener<NodeBase> tl = (ITypingListener<NodeBase>) getOnTyping();
+		if(tl != null) {
+			tl.onTyping(this, true);
+		}
+	}
+
+	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
 	@Override
@@ -139,4 +187,13 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
+
+	public ITypingListener< ? > getOnTyping() {
+		return m_onTyping;
+	}
+
+	public void setOnTyping(ITypingListener< ? > onTyping) {
+		m_onTyping = onTyping;
+	}
+
 }

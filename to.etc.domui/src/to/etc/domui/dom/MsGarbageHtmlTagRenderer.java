@@ -37,7 +37,7 @@ public class MsGarbageHtmlTagRenderer extends HtmlTagRenderer {
 	@Override
 	protected void renderReadOnly(NodeBase n, boolean readonly) throws IOException {
 		if(!isFullRender())
-			addDelayedAttrs(n, "readonly", readonly ? "true" : "false");
+			addDelayedAttrs(n, "readOnly", readonly ? "true" : "false");
 		else
 			super.renderReadOnly(n, readonly);
 	}

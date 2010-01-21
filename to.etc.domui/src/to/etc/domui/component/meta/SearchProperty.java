@@ -34,9 +34,8 @@ public @interface SearchProperty {
 	public boolean ignoreCase() default true;
 
 	/**
-	 * This defines how search property would be used. 
-	 * By default it is set to use only see {@link SearchPropertyType#SEARCH_FIELD}.
-	 * This is normally used for compound specs only.
+	 * This defines how search property would be used. By default set to  This is normally used for
+	 * compound specs only.
 	 */
-	public SearchPropertyType[] searchType() default {SearchPropertyType.SEARCH_FIELD};
+	public SearchPropertyType searchType() default SearchPropertyType.SEARCH_FIELD;
 }

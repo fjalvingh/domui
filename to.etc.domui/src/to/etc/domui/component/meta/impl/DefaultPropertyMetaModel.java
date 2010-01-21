@@ -167,13 +167,11 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			mm.setMinLength(sp.minLength());
 			mm.setPropertyName(getName());
 			//			mm.setProperty(this);
-			for(SearchPropertyType searchType : ((SearchProperty) an).searchType()) {
-				if(searchType == SearchPropertyType.SEARCH_FIELD) {
-					((DefaultClassMetaModel) getClassModel()).addSearchProperty(mm);
-				}
-				if(searchType == SearchPropertyType.KEYWORD) {
-					((DefaultClassMetaModel) getClassModel()).addKeyWordSearchProperty(mm);
-				}
+			if(((SearchProperty) an).searchType() == SearchPropertyType.SEARCH_FIELD || ((SearchProperty) an).searchType() == SearchPropertyType.BOTH) {
+				((DefaultClassMetaModel) getClassModel()).addSearchProperty(mm);
+			}
+			if(((SearchProperty) an).searchType() == SearchPropertyType.KEYWORD || ((SearchProperty) an).searchType() == SearchPropertyType.BOTH) {
+				((DefaultClassMetaModel) getClassModel()).addKeyWordSearchProperty(mm);
 			}
 
 		} else if(an instanceof MetaObject) {

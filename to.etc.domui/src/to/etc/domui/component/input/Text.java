@@ -21,7 +21,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
-public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndication, IHasTypingListener {
+public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndication {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
 
@@ -65,8 +65,6 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	private String m_validationRegexp;
 
 	private String m_regexpUserString;
-
-	private ITypingListener< ? > m_onTyping;
 
 	public Text(Class<T> inputClass) {
 		m_inputClass = inputClass;
@@ -433,20 +431,4 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
 	}
-
-	@Override
-	public ITypingListener< ? > getOnTyping() {
-		return m_onTyping;
-	}
-
-	@Override
-	public void setOnTyping(ITypingListener< ? > onTyping) {
-		m_onTyping = onTyping;
-	}
-
-	@Override
-	public void visit(INodeVisitor v) throws Exception {
-		v.visitText(this);
-	}
-
 }
