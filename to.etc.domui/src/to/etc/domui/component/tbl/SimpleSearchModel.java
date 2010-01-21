@@ -76,7 +76,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		long ts = System.nanoTime();
 		QCriteria<T> qc = m_query; // Get the base query,
 		if(qc.getLimit() <= 0)
-			qc.limit(1001);
+			qc.limit(ITableModel.DEFAULT_MAX_SIZE + 1);
 		if(m_sort != null) { // Are we sorting?
 			qc = qc.dup(); // Copy original query
 			if(m_desc)
@@ -95,7 +95,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			dc.close();
 		} else
 			throw new IllegalStateException("No QueryHandler nor SessionSource set- don't know how to do the query");
-		if(m_workResult.size() > 1000) {
+		if(m_workResult.size() > ITableModel.DEFAULT_MAX_SIZE) {
 			m_workResult.remove(m_workResult.size() - 1);
 			m_truncated = true;
 		} else
@@ -111,7 +111,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	}
 
 	public int getTruncatedCount() {
-		return isTruncated() ? 1000 : 0;
+		return isTruncated() ? ITableModel.DEFAULT_MAX_SIZE : 0;
 	}
 
 	protected void initResult() throws Exception {

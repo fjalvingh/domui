@@ -12,7 +12,11 @@ public enum SearchPropertyType {
 	 */
 	SEARCH_FIELD,
 	/**
-	 *	Search metadata would be used to generate built in key word search conditions. Multiple search fields are put into OR restriction.  
+	 *	Search metadata would be used to generate built in key word search conditions. 
 	 */
-	KEYWORD
+	KEYWORD,
+	/**
+	 *	Search metadata would be used both to generate both search fields and key word search conditions. 
+	 */
+	BOTH
 }

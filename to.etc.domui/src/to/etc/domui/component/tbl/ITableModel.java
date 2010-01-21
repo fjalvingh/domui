@@ -11,6 +11,11 @@ import java.util.*;
  * Created on Jun 1, 2008
  */
 public interface ITableModel<T> {
+	/**
+	 * Default size used to truncate results in case of large datasets as query results, if no other limit has been set.
+	 */
+	public static final int DEFAULT_MAX_SIZE = 1000;
+
 	public List<T> getItems(int start, int end) throws Exception;
 
 	/**

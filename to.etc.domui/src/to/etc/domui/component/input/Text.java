@@ -9,7 +9,6 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -22,7 +21,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
-public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndication, IHasTypingListener {
+public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndication {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
 
@@ -66,8 +65,6 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	private String m_validationRegexp;
 
 	private String m_regexpUserString;
-
-	private ITypingListener< ? > m_onTyping;
 
 	public Text(Class<T> inputClass) {
 		m_inputClass = inputClass;
@@ -433,71 +430,5 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 */
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
-	}
-
-	@Override
-	public ITypingListener< ? > getOnTyping() {
-		return m_onTyping;
-	}
-
-	@Override
-	public void setOnTyping(ITypingListener< ? > onTyping) {
-		m_onTyping = onTyping;
-	}
-
-	/**
-	 * NOT ALLOWED HERE, REMOVE
-	 * @see to.etc.domui.dom.html.Input#visit(to.etc.domui.dom.html.INodeVisitor)
-	 */
-	@Override
-	public void visit(INodeVisitor v) throws Exception {
-		v.visitText(this);
-	}
-
-	/**
-	 * MOVE TO INPUT
-	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
-	 */
-	@Override
-	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
-		if(Constants.ACMD_INPUT_TYPING.equals(action)) {
-			handleTyping(ctx);
-		} else if(Constants.ACMD_INPUT_TYPING_DONE.equals(action)) {
-			handleTypingDone(ctx);
-		}
-	}
-
-	/**
-	 * MOVE TO INPUT
-	 * Called when the action is a TYPING event on some Input thingy. This causes the onTyping handler for
-	 * the input to be called. Typing event is triggered after time delay of 500ms after user has stopped typing.
-	 *
-	 * @param ctx
-	 * @param page
-	 * @param cid
-	 * @throws Exception
-	 */
-	private void handleTyping(final IRequestContext ctx) throws Exception {
-		ITypingListener<NodeBase> tl = (ITypingListener<NodeBase>) getOnTyping();
-		if(tl != null) {
-			tl.onTyping(this, false);
-		}
-	}
-
-	/**
-	 * MOVE TO INPUT
-	 * Called when the action is a TYPING DONE event on some Input thingy. This causes the onTyping handler for
-	 * the input to be called with parame done set to true. Occurs when user press return key on input with registered onTyping listener.
-	 *
-	 * @param ctx
-	 * @param page
-	 * @param cid
-	 * @throws Exception
-	 */
-	private void handleTypingDone(final IRequestContext ctx) throws Exception {
-		ITypingListener<NodeBase> tl = (ITypingListener<NodeBase>) getOnTyping();
-		if(tl != null) {
-			tl.onTyping(this, true);
-		}
 	}
 }

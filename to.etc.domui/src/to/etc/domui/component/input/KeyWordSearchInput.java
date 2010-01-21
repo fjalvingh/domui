@@ -1,34 +1,51 @@
 package to.etc.domui.component.input;
 
+import to.etc.domui.component.tbl.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-public class KeyWordSearchInput extends Div {
+/**
+ * Represents keyword search panel that is used from other components, like LookupInput.
+ * Shows input field, marker that shows found results and waiting image that is hidden by default.
+ * Waiting image is passive here, but it is used from browser script.
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on 21 Jan 2010
+ */
+class KeyWordSearchInput extends Div {
 
 	private int m_resultsCount = -1; //-1 states for not visible
 
-	private TextStr m_keySearch;
+	private TextStr m_keySearch = new TextStr();
 
-	private Label m_lblSearchCount;
-
-	private BR m_newLine;
+	private Div m_pnlSearchCount;
 
 	private IValueChanged<KeyWordSearchInput> m_onTyping;
 
 	private IValueChanged<KeyWordSearchInput> m_onShowResults;
 
-	private String m_inputCssClass;
+	private Img m_imgWaiting;
 
 	public KeyWordSearchInput() {
+		super();
+	}
+
+	public KeyWordSearchInput(String m_inputCssClass) {
+		super();
+		m_keySearch.setCssClass(m_inputCssClass);
 	}
 
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
-		m_keySearch = new TextStr();
-		m_keySearch.setCssClass("ui-lui-keyword");
-		if(m_inputCssClass != null) {
-			m_keySearch.setCssClass(m_inputCssClass);
+		//position must be set to relative to enable absoulute positioning of child elements (waiting image)
+		setPosition(PositionType.RELATIVE);
+		m_imgWaiting = new Img("THEME/wait16trans.gif");
+		m_imgWaiting.setCssClass("ui-lui-waiting");
+		m_imgWaiting.setDisplay(DisplayType.NONE);
+		if(m_keySearch.getCssClass() == null) {
+			m_keySearch.setCssClass("ui-lui-keyword");
 		}
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
@@ -49,6 +66,7 @@ public class KeyWordSearchInput extends Div {
 			}
 		});
 
+		add(m_imgWaiting);
 		add(m_keySearch);
 		renderResultsCountPart();
 	}
@@ -80,25 +98,31 @@ public class KeyWordSearchInput extends Div {
 
 	private void renderResultsCountPart() {
 		if(m_resultsCount == -1 || m_resultsCount == 1) {
-			if(m_lblSearchCount != null) {
-				removeChild(m_lblSearchCount);
+			if(m_pnlSearchCount != null) {
+				removeChild(m_pnlSearchCount);
 			}
-			m_lblSearchCount = null;
-			if(m_newLine != null) {
-				removeChild(m_newLine);
-			}
-			m_newLine = null;
+			m_pnlSearchCount = null;
 		} else {
-			if(m_newLine == null) {
-				m_newLine = new BR();
-				add(m_newLine);
+			if(m_pnlSearchCount == null) {
+				m_pnlSearchCount = new Div();
+				add(m_pnlSearchCount);
 			}
-			if(m_lblSearchCount == null) {
-				m_lblSearchCount = new Label();
-				add(m_lblSearchCount);
+			if(m_resultsCount == 0) {
+				m_pnlSearchCount.setCssClass("ui-lui-keyword-no-res");
+				m_pnlSearchCount.setText(Msgs.BUNDLE.getString(Msgs.UI_KEYWORD_SEARCH_NO_MATCH));
+			} else if(m_resultsCount == ITableModel.DEFAULT_MAX_SIZE) {
+				//usually this means that query cutoff rest data, corner case when real m_resultsCount == MAX_RESULTS is not that important  
+				m_pnlSearchCount.setCssClass("ui-lui-keyword-large");
+				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_LARGE_MATCH, "" + ITableModel.DEFAULT_MAX_SIZE));
+			} else {
+				if(m_resultsCount > ITableModel.DEFAULT_MAX_SIZE) {
+					//in case that query does not cutoff rest of data (JDBC queries) report actual data size, but render as to large match
+					m_pnlSearchCount.setCssClass("ui-lui-keyword-large");
+				} else {
+					m_pnlSearchCount.setCssClass("ui-lui-keyword-res");
+				}
+				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_COUNT, "" + m_resultsCount));
 			}
-			//m_resultsCount + " record(s)"
-			m_lblSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_COUNT, "" + m_resultsCount));
 		}
 	}
 
@@ -115,14 +139,6 @@ public class KeyWordSearchInput extends Div {
 		if(m_keySearch != null) {
 			m_keySearch.setFocus();
 		}
-	}
-
-	public String getInputCssClass() {
-		return m_inputCssClass;
-	}
-
-	public void setInputCssClass(String cssClass) {
-		m_inputCssClass = cssClass;
 	}
 
 }

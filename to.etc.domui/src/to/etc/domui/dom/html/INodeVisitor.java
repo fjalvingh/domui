@@ -1,6 +1,5 @@
 package to.etc.domui.dom.html;
 
-import to.etc.domui.component.input.*;
 import to.etc.domui.component.misc.*;
 
 /**
@@ -29,8 +28,6 @@ public interface INodeVisitor {
 	public void visitA(ATag a) throws Exception;
 
 	public void visitInput(Input n) throws Exception;
-
-	public void visitText(Text< ? > n) throws Exception;
 
 	public void visitTHead(THead n) throws Exception;
 

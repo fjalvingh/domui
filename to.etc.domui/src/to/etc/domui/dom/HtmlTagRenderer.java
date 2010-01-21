@@ -2,7 +2,6 @@ package to.etc.domui.dom;
 
 import java.io.*;
 
-import to.etc.domui.component.input.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -737,32 +736,9 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getOnKeyPressJS() != null) {
 			o().attr("onkeypress", n.getOnKeyPressJS());
 		}
-
-		renderTagend(n, m_o);
-	}
-
-	/**
-	 * Render the basic text input tag.
-	 * Adds rendering of special onkeypress handler when getOnTyping is defined.
-	 * @see to.etc.domui.dom.html.INodeVisitor#visitText(Text)
-	 */
-	public void visitText(final Text< ? > n) throws Exception {
-		basicNodeRender(n, m_o);
-		o().attr("name", n.getActualID());
-		renderType(n.getInputType());
-		renderDiRo(n, n.isDisabled(), n.isReadOnly());
-		if(n.getMaxLength() > 0)
-			o().attr("maxlength", n.getMaxLength());
-		if(n.getSize() > 0)
-			o().attr("size", n.getSize());
-		if(n.getRawValue() != null)
-			o().attr("value", n.getRawValue());
-		if(n.getOnKeyPressJS() != null)
-			o().attr("onkeypress", n.getOnKeyPressJS());
-		if(null != n.getOnTyping()) {
-			o().attr("onkeyup", sb().append("WebUI.scheduleOnTypingEvent(this, '").append(n.getActualID()).append("', event)").toString());
+		if(n.getOnTyping() != null) {
+			o().attr("onkeyup", sb().append("WebUI.scheduleOnTypingEvent('").append(n.getActualID()).append("', event)").toString());
 		}
-
 		renderTagend(n, m_o);
 	}
 
