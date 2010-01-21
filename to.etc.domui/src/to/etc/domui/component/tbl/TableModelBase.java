@@ -3,6 +3,7 @@ package to.etc.domui.component.tbl;
 import java.util.*;
 
 abstract public class TableModelBase<T> implements ITableModel<T> {
+
 	private List<ITableModelListener<T>> m_listeners = Collections.EMPTY_LIST;
 
 	abstract public T getItem(int ix) throws Exception;

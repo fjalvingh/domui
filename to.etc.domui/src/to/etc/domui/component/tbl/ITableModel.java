@@ -11,6 +11,11 @@ import java.util.*;
  * Created on Jun 1, 2008
  */
 public interface ITableModel<T> {
+	/**
+	 * Used to truncate results in case of large datasets as query results. 
+	 */
+	public static final int MAX_SIZE = 1000;
+
 	public List<T> getItems(int start, int end) throws Exception;
 
 	/**

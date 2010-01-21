@@ -1,5 +1,6 @@
 package to.etc.domui.component.input;
 
+import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -108,11 +109,20 @@ class KeyWordSearchInput extends Div {
 			}
 			if(m_resultsCount == 0) {
 				m_pnlSearchCount.setCssClass("ui-lui-keyword-no-res");
+				m_pnlSearchCount.setText(Msgs.BUNDLE.getString(Msgs.UI_KEYWORD_SEARCH_NO_MATCH));
+			} else if(m_resultsCount == ITableModel.MAX_SIZE) {
+				//usually this means that query cutoff rest data, corner case when real m_resultsCount == MAX_RESULTS is not that important  
+				m_pnlSearchCount.setCssClass("ui-lui-keyword-large");
+				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_LARGE_MATCH, "" + ITableModel.MAX_SIZE));
 			} else {
-				m_pnlSearchCount.setCssClass("ui-lui-keyword-res");
+				if(m_resultsCount > ITableModel.MAX_SIZE) {
+					//in case that query does not cutoff rest of data (JDBC queries) report actual data size, but render as to large match
+					m_pnlSearchCount.setCssClass("ui-lui-keyword-large");
+				} else {
+					m_pnlSearchCount.setCssClass("ui-lui-keyword-res");
+				}
+				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_COUNT, "" + m_resultsCount));
 			}
-			//m_resultsCount + " record(s)"
-			m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_COUNT, "" + m_resultsCount));
 		}
 	}
 

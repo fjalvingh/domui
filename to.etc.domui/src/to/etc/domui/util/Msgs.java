@@ -50,6 +50,10 @@ public interface Msgs {
 
 	public static final String UI_KEYWORD_SEARCH_COUNT = "ui.keyword.search.count";
 
+	public static final String UI_KEYWORD_SEARCH_NO_MATCH = "ui.keyword.search.no.match";
+
+	public static final String UI_KEYWORD_SEARCH_LARGE_MATCH = "ui.keyword.search.large.match";
+
 	/** Lookup value invalid */
 	public static final String UI_LOOKUP_INVALID = "ui.lookup.invalid";
 

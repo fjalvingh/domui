@@ -223,15 +223,21 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			@Override
 			public void onValueChanged(KeyWordSearchInput component) throws Exception {
 				String searchstring = component.getKeySearchValue();
-				if(searchstring == null || searchstring.trim().length() == 0) {
+				boolean canceled = (searchstring == null || searchstring.trim().length() == 0);
+				if(!canceled) {
+					m_keySearchModel = searchKeyWord(searchstring);
+					canceled = m_keySearchModel == null;
+				}
+				if(canceled) {
+					//in case of insufficient searchString data cancel search and return. 
 					m_keySearchModel = null;
 					//					m_keySearchCriteria = null;
 					component.setResultsCount(-1);
 					component.setFocus();
 					return;
 				}
-				m_keySearchModel = searchKeyWord(searchstring);
 				if(m_keySearchModel.getRows() == 1) {
+					//in case of single match insufficient searchString data cancel search and return. 
 					LookupInput.this.setValue(m_keySearchModel.getItems(0, 1).get(0));
 					if(LookupInput.this.getOnValueChanged() != null) {
 						((IValueChanged<NodeBase>) LookupInput.this.getOnValueChanged()).onValueChanged(LookupInput.this);
@@ -271,59 +277,70 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		}
 	}
 
-	ITableModel<T> searchKeyWord(String searchstring) throws Exception {
-		QCriteria<T> searchq = QCriteria.create(m_lookupClass);
+	/**
+	 * Returns data that matches keyword search string. 
+	 * @param searchString
+	 * @return mathcing data or null in case that search is canceled because of insufficient number of characters typed into keyword search field.
+	 * @throws Exception
+	 */
+	ITableModel<T> searchKeyWord(String searchString) throws Exception {
+		QCriteria<T> searchQuery = QCriteria.create(m_lookupClass);
 
 		if(getKeyWordSearchHandler() != null) {
-			searchq = getKeyWordSearchHandler().adjustQuery(searchq, searchstring);
+			searchQuery = getKeyWordSearchHandler().adjustQuery(searchQuery, searchString);
 		} else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
 			if(cmm != null) {
 				//-- Has default meta?
 				List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
+				List<String> metaConditions = new ArrayList<String>();
 				if(spml.size() > 0) {
-					//-- Determine the thing to add the criteria to.
-					QRestrictor<T> r = searchq;
-					if(spml.size() > 1)
-						r = searchq.or(); // Multiple fields are combined using OR
+					for(SearchPropertyMetaModelImpl spm : spml) {
+						if(spm.getMinLength() < searchString.length()) {
+						
+							//-- Abort on invalid metadata; never continue with invalid data.
+							if(spm.getPropertyName() == null)
+								throw new ProgrammerErrorException("The quick lookup properties for " + cmm + " are invalid: the property name is null");
 
-					//-- Build the query, and while doing that determine the minimal query length.
-					int minlen = 0;
-					for(SearchPropertyMetaModelImpl spm: cmm.getKeyWordSearchProperties()) {
-						if(spm.getMinLength() > minlen)
-							minlen = spm.getMinLength();
+							List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(cmm, spm.getPropertyName()); // This will return an empty list on empty string input
+							if(pl.size() == 0)
+								throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + cmm);
 
-						//-- Abort on invalid metadata; never continue with invalid data.
-						if(spm.getPropertyName() == null)
-							throw new ProgrammerErrorException("The quick lookup properties for " + cmm + " are invalid: the property name is null");
-
-						List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(cmm, spm.getPropertyName()); // This will return an empty list on empty string input
-						if(pl.size() == 0)
-							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + cmm);
-						if(spm.isIgnoreCase())
-							r.ilike(spm.getPropertyName(), searchstring + "%");
-						else
-							r.like(spm.getPropertyName(), searchstring + "%");
+							if(spm.isIgnoreCase()) {
+								metaConditions.add("ilike");
+							} else {
+								metaConditions.add("like");
+							}
+							metaConditions.add(spm.getPropertyName());
+						}
 					}
-
-					//-- If the min length has not been reached we MAY NOT QUERY to prevent huge resultset
-					if(searchstring.length() < minlen) {
-						// FIXME SHOULD NOT HAPPEN, AND CANNOT QUERY!!! Please fix ;-)
-						throw new IllegalStateException("Ohmy...");
+				}
+				if(metaConditions.size() == 0) {
+					return null;//no search meta data is matching minimal lenght condition, search is cancelled 
+				}
+				QRestrictor<T> r = searchQuery;
+				if(metaConditions.size() > 1) {
+					r = r.or(); // Multiple fields are combined using OR
+				}
+				for(int i = 0; i < metaConditions.size(); i = i + 2) {
+					if(metaConditions.get(i).equals("ilike")) {
+						r.ilike(metaConditions.get(i + 1), searchString + "%");
+					} else {
+						r.like(metaConditions.get(i + 1), searchString + "%");
 					}
 				}
 			}
 		}
 
 		if(getQueryManipulator() != null) {
-			searchq = getQueryManipulator().adjustQuery(searchq);
+			searchQuery = getQueryManipulator().adjustQuery(searchQuery);
 		}
 
 		if(m_queryHandler == null) {
 			QDataContextFactory src = QContextManager.getDataContextFactory(getPage().getConversation());
-			return new SimpleSearchModel<T>(src, searchq);
+			return new SimpleSearchModel<T>(src, searchQuery);
 		} else {
-			return new SimpleSearchModel<T>(m_queryHandler, searchq);
+			return new SimpleSearchModel<T>(m_queryHandler, searchQuery);
 		}
 	}
 
