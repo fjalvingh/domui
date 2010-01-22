@@ -290,8 +290,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				}
 			}
 		}
-		if(c1 == null)
-			throw new IllegalStateException("? Odd multi - no members?!");
+		// jal 20100122 FIXME Remove to allow combinatories on subchildren; needs to be revisited when join/logic is formalized.
+		//		if(c1 == null)
+		//			throw new IllegalStateException("? Odd multi - no members?!");
 		m_last = c1;
 	}
 
