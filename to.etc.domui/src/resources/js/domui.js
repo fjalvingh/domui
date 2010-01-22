@@ -453,7 +453,8 @@ var WebUI = {
 				val = sel.options[sel.selectedIndex].value;
 			}
 
-			fields[sel.id] = val;
+			if(val != undefined)
+				fields[sel.id] = val;
 		}
 		var q1 = $("textarea").get();
 		for ( var i = q1.length; --i >= 0;) {
