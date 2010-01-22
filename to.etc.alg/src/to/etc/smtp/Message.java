@@ -25,7 +25,12 @@ final public class Message {
 
 	private String			m_subject;
 
+	/** Text variant of body */
 	private String			m_body;
+
+	private String			m_htmlBody;
+
+	private List<IMailAttachment>	m_attachment	= new ArrayList<IMailAttachment>();
 
 	public Message() {
 	}
@@ -110,5 +115,21 @@ final public class Message {
 
 	public void addTo(Address a) {
 		m_to.add(a);
+	}
+
+	public void setHtmlBody(String htmlBody) {
+		m_htmlBody = htmlBody;
+	}
+
+	public void addAttachment(IMailAttachment a) {
+		m_attachment.add(a);
+	}
+
+	public String getHtmlBody() {
+		return m_htmlBody;
+	}
+
+	public List<IMailAttachment> getAttachmentList() {
+		return m_attachment;
 	}
 }

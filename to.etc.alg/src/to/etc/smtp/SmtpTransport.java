@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import to.etc.util.*;
+
 /**
  * A thingy which uses the SMTP protocol to send messages.
  *
@@ -11,6 +13,8 @@ import java.util.*;
  * Created on Jun 16, 2006
  */
 public class SmtpTransport {
+	static private final String		BOUNDARY	= "boun-da-ry-0xababaeaGfHdNarcolethe-mumble-to-content-eNCoDer-gxixmar-rennes-le-chateau";
+
 	static private final boolean	DEBUG	= false;
 
 	private String					m_myhostname;
@@ -163,22 +167,15 @@ public class SmtpTransport {
 			write(os, "\r\n");
 
 			write(os, "Subject: " + msg.getSubject() + "\r\n");
-			String str = msg.getBody();
-			if(str != null && str.length() > 0) {
-				int ix = 0;
-				int len = str.length();
-				while(ix < len) {
-					int pos = str.indexOf('\n', ix);
-					if(pos == -1) {
-						sendLine(os, str.substring(ix));
-						break;
-					}
-					String ss = str.substring(ix, pos);
-					sendLine(os, ss);
-					ix = pos + 1;
-				}
+
+			//-- Does this need to be a MIME message?
+			boolean ismime = msg.getAttachmentList().size() > 0 || msg.getHtmlBody() != null;
+			if(ismime) {
+				writeMime(os, msg);
+			} else {
+				writeText(os, msg);
 			}
-			write(os, ".\r\n");
+
 			cr = readLine(is);
 			if(!cr.startsWith("250"))
 				throw new MailException(m_server + ": did not accept the DATA message, it answered: " + cr);
@@ -200,6 +197,103 @@ public class SmtpTransport {
 			}
 		}
 	}
+
+	private void writeMime(OutputStream os, Message msg) throws Exception {
+		write(os, "Mime-Version: 1.0\r\n");
+		write(os, "Content-Type: multipart/related; boundary=\"" + BOUNDARY + "\"; type=\"text/text\"\r\n");
+
+		//-- Lead-in boundary and multipart segment containing the text version.
+		write(os, "\r\n--"); // Empty line + boundary lead
+		write(os, BOUNDARY);
+		write(os, "\r\n");
+
+		//-- Write this-part's headers.
+		write(os, "Content-Type: text/text; charset=\"UTF-8\"\r\n");
+		write(os, "\r\n"); // End of headers indicator; data follows.
+		writeStringData(os, msg.getBody());
+
+		//-- Start HTML section.
+		write(os, "\r\n--"); // Write boundary to next part
+		write(os, BOUNDARY);
+		write(os, "Content-Type: text/html; charset=\"UTF-8\"\r\n");
+		write(os, "\r\n"); // End of headers indicator; data follows.
+		writeStringData(os, msg.getHtmlBody());
+
+		//-- Start writing attachments in base64 encoding.
+		if(msg.getAttachmentList().size() > 0) {
+			for(IMailAttachment ma: msg.getAttachmentList()) {
+				write(os, "\r\n--"); // Write boundary to next part
+				write(os, BOUNDARY);
+
+				write(os, "Content-Location: CID:blarf.net\r\n"); // disregarded
+
+				write(os, "Content-ID: <");
+				write(os, ma.getIdent());
+				write(os, ">\r\n");
+
+				write(os, "Content-Type: ");
+				write(os, ma.getMime());
+				write(os, "\r\n");
+
+				write(os, "Content-Transfer-Encoding: BASE64\r\n");
+				write(os, "\r\n"); // End of headers
+
+				//-- Now- encapsulate
+				InputStream is = ma.getInputStream();
+				try {
+					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					FileTool.copyFile(bos, is);
+					bos.close();
+					writeStringData(os, StringTool.encodeBase64ToString(bos.toByteArray()));
+				} finally {
+					FileTool.closeAll(is);
+				}
+			}
+		}
+
+		//-- Write the last and final boundary
+		write(os, "\r\n--"); // Write boundary to next part
+		write(os, BOUNDARY);
+		write(os, "--\r\n");
+		write(os, ".\r\n");
+	}
+
+	private void writeText(OutputStream os, Message msg) throws Exception {
+		String str = msg.getBody();
+		if(str != null && str.length() > 0) {
+			int ix = 0;
+			int len = str.length();
+			while(ix < len) {
+				int pos = str.indexOf('\n', ix);
+				if(pos == -1) {
+					sendLine(os, str.substring(ix));
+					break;
+				}
+				String ss = str.substring(ix, pos);
+				sendLine(os, ss);
+				ix = pos + 1;
+			}
+		}
+		write(os, ".\r\n");
+	}
+
+	private void writeStringData(OutputStream os, String str) throws Exception {
+		if(str != null && str.length() > 0) {
+			int ix = 0;
+			int len = str.length();
+			while(ix < len) {
+				int pos = str.indexOf('\n', ix);
+				if(pos == -1) {
+					sendLine(os, str.substring(ix));
+					break;
+				}
+				String ss = str.substring(ix, pos);
+				sendLine(os, ss);
+				ix = pos + 1;
+			}
+		}
+	}
+
 
 	private void sendLine(OutputStream os, String line) throws Exception {
 		if(line.startsWith("."))
