@@ -12,16 +12,21 @@ public class QDelegatingRestrictor<T> extends QRestrictor<T> {
 
 	QDelegatingRestrictor(Class<T> baseClass) {
 		super(baseClass);
+		m_container = (IQRestrictionContainer) this;
 	}
 
 	QDelegatingRestrictor(Class<T> baseClass, IQRestrictionContainer target) {
 		super(baseClass);
 		m_container = target;
+		if(target == null)
+			throw new NullPointerException("Cannot set a null container");
 	}
 
-	void setContainer(IQRestrictionContainer c) {
-		m_container = c;
-	}
+	//	void setContainer(IQRestrictionContainer c) {
+	//		if(m_container == null)
+	//			throw new NullPointerException("Cannot set a null container");
+	//		m_container = c;
+	//	}
 
 	@Override
 	public QOperatorNode getRestrictions() {

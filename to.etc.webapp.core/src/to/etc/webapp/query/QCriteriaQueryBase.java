@@ -29,9 +29,7 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 
 	protected QCriteriaQueryBase(Class<T> clz) {
 		super(clz);
-		setContainer(this);
 	}
-
 
 	/**
 	 * Copy constructor.
