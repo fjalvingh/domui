@@ -9,6 +9,11 @@ class QRestrictorImpl<T> extends QRestrictor<T> {
 		m_orNode = ornode;
 	}
 
+	//	QRestrictorImpl(Class<T> clz, QOperatorNode ornode) {
+	//		super(clz, ornode.getOperation());
+	//		m_orNode = ornode;
+	//	}
+
 	@Override
 	public QOperatorNode getRestrictions() {
 		return m_orNode;

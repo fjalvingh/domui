@@ -78,7 +78,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		if(qc.getLimit() <= 0)
 			qc.limit(ITableModel.DEFAULT_MAX_SIZE + 1);
 		if(m_sort != null) { // Are we sorting?
-			qc = qc.dup(); // Copy original query
+			qc.getOrder().clear(); // FIXME Need to duplicate.
 			if(m_desc)
 				qc.descending(m_sort);
 			else

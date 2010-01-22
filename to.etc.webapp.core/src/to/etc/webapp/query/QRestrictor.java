@@ -395,8 +395,18 @@ abstract public class QRestrictor<T> {
 	 * @return
 	 */
 	public <U> QRestrictor<U> exists(Class<U> childclass, @GProperty(parameter = 1) String childproperty) {
-		QExistsSubquery<U> sq = new QExistsSubquery<U>(this, childclass, childproperty);
-		QDelegatingRestrictor<U> builder = new QDelegatingRestrictor<U>(childclass, sq);
+		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this, childclass, childproperty);
+		QRestrictor<U> builder = new QRestrictor<U>(childclass, QOperation.AND) {
+			@Override
+			public QOperatorNode getRestrictions() {
+				return sq.getRestrictions();
+			}
+
+			@Override
+			public void setRestrictions(QOperatorNode n) {
+				sq.setRestrictions(n);
+			}
+		};
 		add(sq);
 		return builder;
 	}

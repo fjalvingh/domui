@@ -15,7 +15,7 @@ package to.etc.webapp.query;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 22, 2009
  */
-public class QExistsSubquery<T> extends QOperatorNode implements IQRestrictionContainer {
+public class QExistsSubquery<T> extends QOperatorNode {
 	private QRestrictor< ? > m_parentQuery;
 
 	private String m_parentProperty;
