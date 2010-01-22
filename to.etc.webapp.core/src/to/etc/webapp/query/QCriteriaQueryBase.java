@@ -11,7 +11,7 @@ import to.etc.webapp.annotations.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 21, 2009
  */
-public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements IQRestrictionContainer {
+public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	/** If this is a selection query instead of an object instance query, this will contain the selected items. */
 	private List<QSelectionColumn> m_itemList = Collections.EMPTY_LIST;
 
@@ -28,36 +28,35 @@ public class QCriteriaQueryBase<T> extends QDelegatingRestrictor<T> implements I
 	private Map<String, Object> m_optionMap;
 
 	protected QCriteriaQueryBase(Class<T> clz) {
-		super(clz);
-		setContainer(this);
+		super(clz, QOperation.AND);
 	}
 
-
-	/**
-	 * Copy constructor.
-	 * @param q
-	 */
-	public QCriteriaQueryBase(QCriteriaQueryBase<T> q) {
-		super(q.getBaseClass());
-		m_order = new ArrayList<QOrder>(q.m_order);
-		m_limit = q.m_limit;
-		m_start = q.m_start;
-		if(q.m_restrictions != null) {
-			if(q.m_restrictions.getOperation() == QOperation.AND) {
-				m_restrictions = new QMultiNode(QOperation.AND);
-				for(QOperatorNode qn : ((QMultiNode) q.m_restrictions).getChildren())
-					((QMultiNode) m_restrictions).add(qn);
-			} else {
-				m_restrictions = q.m_restrictions;
-			}
-		}
-	}
+	//	/** jal 20100122 Copy constructor needs to do FULL DEEP COPY of the data since it is no longer immutable!!
+	//	 * Copy constructor.
+	//	 * @param q
+	//	 */
+	//	public QCriteriaQueryBase(QCriteriaQueryBase<T> q) {
+	//		super(q.getBaseClass());
+	//		m_order = new ArrayList<QOrder>(q.m_order);
+	//		m_limit = q.m_limit;
+	//		m_start = q.m_start;
+	//		if(q.m_restrictions != null) {
+	//			if(q.m_restrictions.getOperation() == QOperation.AND) {
+	//				m_restrictions = new QMultiNode(QOperation.AND);
+	//				for(QOperatorNode qn : ((QMultiNode) q.m_restrictions).getChildren())
+	//					((QMultiNode) m_restrictions).add(qn);
+	//			} else {
+	//				m_restrictions = q.m_restrictions;
+	//			}
+	//		}
+	//	}
 
 	@Override
 	public QOperatorNode getRestrictions() {
 		return m_restrictions;
 	}
 
+	@Override
 	public void setRestrictions(QOperatorNode restrictions) {
 		m_restrictions = restrictions;
 	}

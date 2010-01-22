@@ -18,13 +18,13 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 		super(b);
 	}
 
-	/**
-	 * Copy constructor.
-	 * @param q
-	 */
-	protected QCriteria(final QCriteria<T> q) {
-		super(q);
-	}
+	//	/** 20100122 jal needs full deep copy
+	//	 * Copy constructor.
+	//	 * @param q
+	//	 */
+	//	protected QCriteria(final QCriteria<T> q) {
+	//		super(q);
+	//	}
 
 	/**
 	 * Create a QCriteria to select a set of the specified class. When used on it's own without
@@ -37,13 +37,13 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 		return new QCriteria<U>(clz);
 	}
 
-	/**
-	 * Create a duplicate of this Criteria.
-	 * @return
-	 */
-	public QCriteria<T> dup() {
-		return new QCriteria<T>(this);
-	}
+	//	/**
+	//	 * Create a duplicate of this Criteria.
+	//	 * @return
+	//	 */
+	//	public QCriteria<T> dup() {
+	//		return new QCriteria<T>(this);
+	//	}
 
 	/**
 	 * Visit everything in this QCriteria.

@@ -2,9 +2,9 @@ package to.etc.webapp.query;
 
 import to.etc.webapp.annotations.*;
 
-
 /**
- * Represents the "where" part of a query, or a part of that "where" part, under construction.
+ * Builds the "where" part of a query, or a part of that "where" part, under construction. The nodes added,
+ * when &gt; 1, are combined using either OR or AND.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 22, 2009
@@ -13,32 +13,16 @@ abstract public class QRestrictor<T> {
 	/** The base class being queried in this selector. */
 	private final Class<T> m_baseClass;
 
+	/** Is either OR or AND, indicating how added items are to be combined. */
+	private QOperation m_combinator;
+
 	abstract public QOperatorNode getRestrictions();
 
-	/**
-	 * Returns the #of restrictions added to this set!? Useless??
-	 * @return
-	 */
-	abstract public boolean hasRestrictions();
+	abstract public void setRestrictions(QOperatorNode n);
 
-	/**
-	 * Add a new restriction to the list of restrictions on the data. This will do "and" collapsion: when the node added is an "and"
-	 * it's nodes will be added directly to the list (because that already represents an and combinatory).
-	 * @param r
-	 * @return
-	 */
-	abstract public void internalAdd(QOperatorNode r);
-
-	/**
-	 * Return a thingy that constructs nodes combined with "or".
-	 * @return
-	 */
-	abstract public QRestrictor<T> or();
-
-	abstract public QRestrictor<T> and();
-
-	protected QRestrictor(Class<T> baseClass) {
+	protected QRestrictor(Class<T> baseClass, QOperation combinator) {
 		m_baseClass = baseClass;
+		m_combinator = combinator;
 	}
 
 	/**
@@ -49,21 +33,53 @@ abstract public class QRestrictor<T> {
 		return m_baseClass;
 	}
 
-	//	/**
-	//	 * Return a thingy that constructs nodes combined with "or".
-	//	 * @return
-	//	 */
-	//	public QRestrictor<T> or() {
-	//		QMultiNode or = new QMultiNode(QOperation.OR);
-	//		add(or);
-	//		return new QRestrictorImpl<T>(this, or);
-	//	}
-	//
-	//	public QRestrictor<T> and() {
-	//		QMultiNode and = new QMultiNode(QOperation.AND);
-	//		add(and);
-	//		return new QRestrictorImpl<T>(this, and);
-	//	}
+	/**
+	 * Returns T if this has restrictions.
+	 */
+	public final boolean hasRestrictions() {
+		return getRestrictions() != null;
+	}
+
+	/**
+	 * Add a new restriction to the list of restrictions on the data. This will do "and" collapsion: when the node added is an "and"
+	 * it's nodes will be added directly to the list (because that already represents an and combinatory).
+	 * @param r
+	 * @return
+	 */
+	protected void internalAdd(QOperatorNode r) {
+		if(getRestrictions() == null) {
+			setRestrictions(r); // Just set the single operation,
+		} else if(getRestrictions().getOperation() == m_combinator) {
+			//-- Already the proper combinator - add the node to it.
+			((QMultiNode) getRestrictions()).add(r);
+		} else {
+			//-- We need to replace the current restriction with a higher combinatory node and add the items there.
+			QMultiNode comb = new QMultiNode(m_combinator);
+			comb.add(getRestrictions());
+			comb.add(r);
+			setRestrictions(comb);
+		}
+	}
+
+	/**
+	 * Return a thingy that constructs nodes combined with "or".
+	 * @return
+	 */
+	public QRestrictor<T> or() {
+		if(m_combinator == QOperation.OR) // If I myself am combining with OR return myself
+			return this;
+		QMultiNode or = new QMultiNode(QOperation.OR);
+		add(or);
+		return new QRestrictorImpl<T>(this, or);
+	}
+
+	public QRestrictor<T> and() {
+		if(m_combinator == QOperation.AND) // If I myself am combining with OR return myself
+			return this;
+		QMultiNode and = new QMultiNode(QOperation.AND);
+		add(and);
+		return new QRestrictorImpl<T>(this, and);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding selection restrictions (where clause)		*/
@@ -379,8 +395,18 @@ abstract public class QRestrictor<T> {
 	 * @return
 	 */
 	public <U> QRestrictor<U> exists(Class<U> childclass, @GProperty(parameter = 1) String childproperty) {
-		QExistsSubquery<U> sq = new QExistsSubquery<U>(this, childclass, childproperty);
-		QDelegatingRestrictor<U> builder = new QDelegatingRestrictor<U>(childclass, sq);
+		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this, childclass, childproperty);
+		QRestrictor<U> builder = new QRestrictor<U>(childclass, QOperation.AND) {
+			@Override
+			public QOperatorNode getRestrictions() {
+				return sq.getRestrictions();
+			}
+
+			@Override
+			public void setRestrictions(QOperatorNode n) {
+				sq.setRestrictions(n);
+			}
+		};
 		add(sq);
 		return builder;
 	}
