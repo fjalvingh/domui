@@ -22,13 +22,13 @@ public class EmailOutputStream extends OutputStream {
 
 	@Override
 	public void write(int b) throws IOException {
-		if(b == 0x13) {
-			if(m_prev == 0x13)
+		if(b == 0x0d) {
+			if(m_prev == 0x0d)
 				throw new IllegalStateException("CR CR sequence in stream is invalid");
 			m_os.write(b);
-		} else if(b == '\n') {
-			if(m_prev != 0x13)
-				m_os.write(0x13);
+		} else if(b == 0x0a) {
+			if(m_prev != 0x0d)
+				m_os.write(0x0d);
 			m_os.write(b);
 			m_col = 0;
 		} else if(b == '.' && m_col == 0) {

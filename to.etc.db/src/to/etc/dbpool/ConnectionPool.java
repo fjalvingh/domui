@@ -345,6 +345,8 @@ public class ConnectionPool implements DbConnectorSet {
 		m_id = id;
 		try {
 			m_url = cs.getProperty(id, "url"); // Get URL and other parameters,
+			if(m_url == null)
+				throw new SQLException("Pool '" + id + "' undefined in config " + cs);
 			m_driverClassName = cs.getProperty(id, "driver");
 			m_uid = cs.getProperty(id, "userid");
 			m_pw = cs.getProperty(id, "password");

@@ -210,51 +210,31 @@ public class SmtpTransport {
 		pw.close();
 
 		//-- Start HTML section.
-		write(os, "\r\n--"); // Write boundary to next part
-		write(os, BOUNDARY);
-		write(os, "\r\n");
-		write(os, "Content-Type: text/html; charset=\"UTF-8\"\r\n");
-		write(os, "\r\n"); // End of headers indicator; data follows.
-		writeStringData(os, msg.getHtmlBody());
+		MimeWriter hw = w.createSubMime("multipart/related", "text/html");
+		hw.partStart(false, "text/html", "; charset=\"UTF-8\"");
+		pw = hw.partWriter("UTF-8"); // The writer for this part's contents; also indicates end of header writing.
+		pw.append(msg.getHtmlBody()); // Just write raw string stream here.
+		pw.close();
 
 		//-- Start writing attachments in base64 encoding.
 		if(msg.getAttachmentList().size() > 0) {
 			for(IMailAttachment ma: msg.getAttachmentList()) {
-				write(os, "\r\n--"); // Write boundary to next part
-				write(os, BOUNDARY);
-				write(os, "\r\n");
-
-				write(os, "Content-Location: CID:blarf.net\r\n"); // disregarded
-
-				write(os, "Content-ID: <");
-				write(os, ma.getIdent());
-				write(os, ">\r\n");
-
-				write(os, "Content-Type: ");
-				write(os, ma.getMime());
-				write(os, "\r\n");
-
-				write(os, "Content-Transfer-Encoding: BASE64\r\n");
-				write(os, "\r\n"); // End of headers
+				hw.partStart(true, ma.getMime(), "");
+				hw.partHeader("Content-Location", "CID:blarf.net");
+				hw.partHeader("Content-ID", "<" + ma.getIdent() + ">");
 
 				//-- Now- encapsulate
 				InputStream is = ma.getInputStream();
+				OutputStream ios = hw.partStream();
 				try {
-					ByteArrayOutputStream bos = new ByteArrayOutputStream();
-					FileTool.copyFile(bos, is);
-					bos.close();
-					writeStringData(os, StringTool.encodeBase64ToString(bos.toByteArray()));
+					FileTool.copyFile(ios, is);
 				} finally {
-					FileTool.closeAll(is);
+					FileTool.closeAll(is, ios);
 				}
 			}
 		}
-
-		//-- Write the last and final boundary
-		write(os, "\r\n--"); // Write boundary to next part
-		write(os, BOUNDARY);
-		write(os, "--\r\n");
-
+		hw.close();
+		w.close();
 		eos.flush();
 		write(os, ".\r\n");
 	}

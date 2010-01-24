@@ -198,7 +198,7 @@ public class MimeWriter {
 			writeCRLF();
 
 			if(m_part_base64)
-				m_part_os = new Base64OutputStream(m_os);
+				m_part_os = new Base64OutputStream(m_os, false);
 			else
 				m_part_os = m_os; //new QuotedPrintableOutputStream(m_os);
 		}
@@ -222,7 +222,7 @@ public class MimeWriter {
 	 * boundary header and the initial MIME headers.
 	 * @return
 	 */
-	public MimeWriter createSubMime(boolean base64, String contenttype, String rest) throws IOException {
+	public MimeWriter createSubMime(String contenttype, String rest) throws IOException {
 		flush(); // Close all other open subtypes
 		writeOpenBoundary();
 
