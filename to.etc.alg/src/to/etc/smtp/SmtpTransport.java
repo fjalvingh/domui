@@ -200,7 +200,7 @@ public class SmtpTransport {
 
 	private void writeMime(OutputStream os, Message msg) throws Exception {
 		write(os, "Mime-Version: 1.0\r\n");
-		write(os, "Content-Type: multipart/related; boundary=\"" + BOUNDARY + "\"; type=\"text/text\"\r\n");
+		write(os, "Content-Type: multipart/related; boundary=\"" + BOUNDARY + "\"; type=\"text/plain\"\r\n");
 
 		//-- Lead-in boundary and multipart segment containing the text version.
 		write(os, "\r\n--"); // Empty line + boundary lead
@@ -215,6 +215,7 @@ public class SmtpTransport {
 		//-- Start HTML section.
 		write(os, "\r\n--"); // Write boundary to next part
 		write(os, BOUNDARY);
+		write(os, "\r\n");
 		write(os, "Content-Type: text/html; charset=\"UTF-8\"\r\n");
 		write(os, "\r\n"); // End of headers indicator; data follows.
 		writeStringData(os, msg.getHtmlBody());
@@ -224,6 +225,7 @@ public class SmtpTransport {
 			for(IMailAttachment ma: msg.getAttachmentList()) {
 				write(os, "\r\n--"); // Write boundary to next part
 				write(os, BOUNDARY);
+				write(os, "\r\n");
 
 				write(os, "Content-Location: CID:blarf.net\r\n"); // disregarded
 
