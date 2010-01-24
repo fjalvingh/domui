@@ -1590,6 +1590,10 @@ public class StringTool {
 			BASE64DECMAP[BASE64MAP[ix]] = (byte) ix;
 	}
 
+	static public final byte[] getBase64Map() {
+		return BASE64MAP;
+	}
+
 	/**
 	 * This method encodes the given string using the base64-encoding
 	 * specified in RFC-2045 (Section 6.8). It's used for example in the

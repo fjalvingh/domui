@@ -199,8 +199,95 @@ public class SmtpTransport {
 	}
 
 	private void writeMime(OutputStream os, Message msg) throws Exception {
+		//-- 1.. Make sure all string data is crlf terminated, and all lines starting with '.' are escaped.
+		EmailOutputStream eos = new EmailOutputStream(os);
+		MimeWriter w = MimeWriter.createMimeWriter(eos, "multipart/alternative", "type=\"text/plain\"");
+
+		//-- Write the text/plain part
+		w.partStart(false, "text/plain", "; charset=\"UTF-8\"");
+		Writer pw = w.partWriter("UTF-8"); // The writer for this part's contents; also indicates end of header writing.
+		pw.append(msg.getBody()); // Just write raw string stream here.
+		pw.close();
+
+		//-- Start HTML section.
+		write(os, "\r\n--"); // Write boundary to next part
+		write(os, BOUNDARY);
+		write(os, "\r\n");
+		write(os, "Content-Type: text/html; charset=\"UTF-8\"\r\n");
+		write(os, "\r\n"); // End of headers indicator; data follows.
+		writeStringData(os, msg.getHtmlBody());
+
+		//-- Start writing attachments in base64 encoding.
+		if(msg.getAttachmentList().size() > 0) {
+			for(IMailAttachment ma: msg.getAttachmentList()) {
+				write(os, "\r\n--"); // Write boundary to next part
+				write(os, BOUNDARY);
+				write(os, "\r\n");
+
+				write(os, "Content-Location: CID:blarf.net\r\n"); // disregarded
+
+				write(os, "Content-ID: <");
+				write(os, ma.getIdent());
+				write(os, ">\r\n");
+
+				write(os, "Content-Type: ");
+				write(os, ma.getMime());
+				write(os, "\r\n");
+
+				write(os, "Content-Transfer-Encoding: BASE64\r\n");
+				write(os, "\r\n"); // End of headers
+
+				//-- Now- encapsulate
+				InputStream is = ma.getInputStream();
+				try {
+					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					FileTool.copyFile(bos, is);
+					bos.close();
+					writeStringData(os, StringTool.encodeBase64ToString(bos.toByteArray()));
+				} finally {
+					FileTool.closeAll(is);
+				}
+			}
+		}
+
+		//-- Write the last and final boundary
+		write(os, "\r\n--"); // Write boundary to next part
+		write(os, BOUNDARY);
+		write(os, "--\r\n");
+
+		eos.flush();
+		write(os, ".\r\n");
+	}
+
+	private void writeStringData(MimeWriter w, String str) throws Exception {
+		if(str != null && str.length() > 0) {
+			int ix = 0;
+			int len = str.length();
+			while(ix < len) {
+				int pos = str.indexOf('\n', ix);
+				if(pos == -1) {
+					sendLine(w, str.substring(ix));
+					break;
+				}
+				String ss = str.substring(ix, pos);
+				sendLine(w, ss);
+				ix = pos + 1;
+			}
+		}
+	}
+
+	private void sendLine(MimeWriter w, String line) throws Exception {
+		if(line.startsWith(".")) {
+			w.write("." + line);
+		} else {
+			w.write(line);
+		}
+		w.writeCRLF();
+	}
+
+	private void writeMimeOLD(OutputStream os, Message msg) throws Exception {
 		write(os, "Mime-Version: 1.0\r\n");
-		write(os, "Content-Type: multipart/related; boundary=\"" + BOUNDARY + "\"; type=\"text/plain\"\r\n");
+		write(os, "Content-Type: multipart/alternative; boundary=\"" + BOUNDARY + "\"; type=\"text/plain\"\r\n");
 
 		//-- Lead-in boundary and multipart segment containing the text version.
 		write(os, "\r\n--"); // Empty line + boundary lead
@@ -208,7 +295,9 @@ public class SmtpTransport {
 		write(os, "\r\n");
 
 		//-- Write this-part's headers.
-		write(os, "Content-Type: text/text; charset=\"UTF-8\"\r\n");
+		write(os, "Content-Type: text/plain; charset=\"UTF-8\"\r\n");
+		write(os, "Content-Transfer-Encoding: quoted-printable\r\n");
+
 		write(os, "\r\n"); // End of headers indicator; data follows.
 		writeStringData(os, msg.getBody());
 
@@ -222,7 +311,7 @@ public class SmtpTransport {
 
 		//-- Start writing attachments in base64 encoding.
 		if(msg.getAttachmentList().size() > 0) {
-			for(IMailAttachment ma: msg.getAttachmentList()) {
+			for(IMailAttachment ma : msg.getAttachmentList()) {
 				write(os, "\r\n--"); // Write boundary to next part
 				write(os, BOUNDARY);
 				write(os, "\r\n");
