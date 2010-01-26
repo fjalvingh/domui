@@ -25,6 +25,15 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	// FIXME Need to find a way to mark the context as shared
 	}
 
+	static private class InstancePair {
+		Object source, copy;
+
+		public InstancePair(Object source, Object copy) {
+			this.source = source;
+			this.copy = copy;
+		}
+	}
+
 	static public class CopyInfo {
 		private QDataContext m_sourcedc;
 
@@ -36,7 +45,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		 * Objects that are determined to be new need to be fully initialized before they are saved, especially
 		 * when saving objects that are part of a bidirectional relation.
 		 */
-		private List<Object> m_saveList = new ArrayList<Object>();
+		private List<InstancePair> m_saveList = new ArrayList<InstancePair>();
 
 		private int m_nCopied;
 
@@ -71,14 +80,16 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		 * Add the object to the pending save list, to be saved in order of addition.
 		 * @param o
 		 */
-		public void save(Object o) {
-			if(m_saveList.contains(o))
-				return;
+		public void save(Object source, Object copy) {
+			for(InstancePair ip : m_saveList) {
+				if(ip.copy == copy)
+					return;
+			}
 			//				throw new IllegalStateException("Duplicate saved object: " + identify(o)); // Indicative of a save order error.
-			m_saveList.add(o);
+			m_saveList.add(new InstancePair(source, copy));
 		}
 
-		public List<Object> getSaveList() {
+		public List<InstancePair> getSaveList() {
 			return m_saveList;
 		}
 
@@ -121,6 +132,17 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 	static private String identify(Object t) {
 		return MetaManager.identify(t);
+	}
+
+	/**
+	 * Does the actual save of a new object into the database context. This can be overridden when the
+	 * persistence framework fscks up the save process (Cough "Hibernate" Cough)...
+	 * @param ci
+	 * @param instance
+	 * @throws Exception
+	 */
+	protected void save(CopyInfo ci, Object instance) throws Exception {
+		ci.getTargetDC().save(instance);
 	}
 
 	/**
@@ -180,9 +202,16 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		T res = internalCopy(ci, source);
 
 		//-- Now save all objects;
-		for(Object o : ci.getSaveList()) {
-			ci.log("Save new object: " + identify(o));
-			targetdc.save(o);
+		for(InstancePair o : ci.getSaveList()) {
+			save(ci, o.copy);
+			ci.log("Saved new object: " + identify(o.copy) + " (from " + identify(o.source) + ")");
+
+			//-- Using Hibernate, even the easiest of assumptions are wrong...
+			ClassMetaModel cmm = MetaManager.findClassMeta(o.source.getClass());
+			Object spk = MetaManager.getPrimaryKey(o.source, cmm);
+			Object dpk = MetaManager.getPrimaryKey(o.copy, cmm);
+			if(spk != null && !spk.equals(dpk))
+				ci.log("FATAL- PRIMARY KEY CHANGED BY HIBERNATE!!!??");
 		}
 
 		ts = System.nanoTime() - ts;
@@ -222,28 +251,33 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		Object pk = cmm.getPrimaryKey().getAccessor().getValue(source);
 
 		//-- Create a new instance as the copy
+		boolean isnew = true;
+		QPersistentObjectState pos = getObjectState(donemap.getSourceDC(), source);
 		if(pk == null) {
 			//-- We have a new instance. Create one.
 			copy = clz.newInstance();
 			donemap.incNew();
 		} else {
-			//-- Load the instance
-			copy = donemap.getTargetDC().find(clz, pk);
-			if(copy == null)
-				throw new IllegalStateException("INTERNAL: probably a concurrency problem? Instance " + pk + " of class=" + clz + " cannot be loaded");
-			donemap.incCopies();
+			//-- 20100125 jal Even objects with a PK can be 'new'....
+			if(pos == QPersistentObjectState.NEW || pos == QPersistentObjectState.UNKNOWN) {
+				//-- Treat these as new too.
+				copy = clz.newInstance();
+				donemap.incNew();
+			} else {
+				//-- Load the instance
+				copy = donemap.getTargetDC().find(clz, pk);
+				if(copy == null)
+					throw new IllegalStateException("INTERNAL: probably a concurrency problem? Instance " + pk + " of class=" + clz + " cannot be loaded");
+				donemap.incCopies();
+				isnew = true;
+			}
 		}
 		donemap.put(source, copy); // Save as mapping
 		System.out.println();
-		donemap.log("Copying " + identify(source) + (pk == null ? " (new)" : ""));
-		//		if(null == pk) {
-		//			donemap.log("Post for save " + identify(copy) + " (copy of " + identify(source) + ")");
-		//			donemap.save(copy);
-		//		}
 		donemap.inc();
-		copyProperties(donemap, source, copy, cmm);
+		copyProperties(donemap, source, copy, cmm, pos, isnew);
 		donemap.dec();
-		donemap.log("Finished copy of " + identify(source) + (pk == null ? " (new)" : ""));
+		donemap.log("Finished src->target copy of " + identify(source) + (pk == null ? " (new)" : ""));
 		return copy;
 	}
 
@@ -271,7 +305,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	 * @param cmm
 	 * @throws Exception
 	 */
-	private <T> void copyProperties(CopyInfo donemap, T source, T copy, ClassMetaModel cmm) throws Exception {
+	private <T> void copyProperties(CopyInfo donemap, T source, T copy, ClassMetaModel cmm, QPersistentObjectState pos, boolean copyisnew) throws Exception {
 		/*
 		 * Deep copy of (database) property values. All properties that refer to some relation will be copied *if* their
 		 * value is instantiated (not lazy and clean). All other properties are just copied by reference. We first handle
@@ -281,7 +315,8 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		 * child relations, because these can save their data <i>only</i> if this record has been saved.
 		 */
 		QDataContext targetdc = donemap.getTargetDC();
-		QPersistentObjectState pos = getObjectState(targetdc, source);
+		if(pos == null)
+			pos = getObjectState(donemap.getSourceDC(), source);
 		boolean docopy = false;
 		switch(pos){
 			default:
@@ -320,7 +355,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 					if(docopy) {
 						Object v = pmm.getAccessor().getValue(source);
 						((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, v);
-						//					donemap.log("value property " + pmm.getName() + " of " + pmm.getClassModel() + ": " + dumpValue(v));
+						donemap.log("value property " + pmm.getName() + " of " + pmm.getClassModel() + ": " + dumpValue(v));
 					}
 					break;
 
@@ -341,9 +376,9 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		}
 
 		//-- 2. If the current record is unsaved save it now;
-		if(cmm.getPrimaryKey().getAccessor().getValue(copy) == null) {
+		if(copyisnew) {
 			donemap.log("Post for save " + identify(copy) + " (copy of " + identify(source) + ")");
-			donemap.save(copy);
+			donemap.save(source, copy);
 		}
 
 		//-- Now traverse all child relations - this record (parent of those children) has been saved.
@@ -420,16 +455,20 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			Object spk = childpkpmm.getAccessor().getValue(si);
 			if(spk == null) {
 				//-- A new record @ source. Map it to dest && add to dlist
+
 				Object di = internalCopy(donemap, si);
 				donemap.log("new child " + identify(si) + " copied as " + identify(di));
 				//				donemap.log("Post for save " + identify(di)); Already done by internalCopy.
 				//				donemap.save(di);
 				dlist.add(di);
 			} else {
+				if(spk.equals(new Long(1100063029))) {
+					System.out.println("GOTCHA");
+				}
 				Object di = dpkmap.remove(spk); // Does this same record exist @ destination?
 				if(di != null) {
 					donemap.log("existing child " + identify(si) + " copying properties to " + identify(di));
-					copyProperties(donemap, si, di, childmm);
+					copyProperties(donemap, si, di, childmm, null, false);
 				} else {
 					//-- This did not exist @ destination. Map it to a destination object then add it there.
 					donemap.log("new child (existing record " + identify(si) + ") copied as " + identify(di));
