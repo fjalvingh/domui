@@ -644,9 +644,10 @@ public class ConnectionPoolEntry {
 	void removeResource(final PooledConnection pc, final Object o) {
 		synchronized(this) {
 			proxyCheck(pc, false); // Still the active proxy?
-			if(!m_use_set.remove(o)) // Remove from set,
-				throw new RuntimeException("Removing element without it ever being added");
-			//			System.out.println("        ....closing resource "+o);
+			if(!m_use_set.remove(o)) { // Remove from set,
+				ConnectionPool.MSG.info("to.etc.Removing element without it ever being added");
+				return;
+			}
 		}
 
 		//-- Ok: decrement statement count OUT OF LOCK
