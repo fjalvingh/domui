@@ -47,11 +47,11 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		 */
 		private List<InstancePair> m_saveList = new ArrayList<InstancePair>();
 
-		private int m_nCopied;
+		int m_nCopied;
 
-		private int m_nChanged;
+		int m_nChanged;
 
-		private int m_nNew;
+		int m_nNew;
 
 		private int m_level;
 
@@ -215,7 +215,8 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		}
 
 		ts = System.nanoTime() - ts;
-		System.out.println("Q: created 'save' copy of " + identify(source) + " by copying " + ci.getNCopied() + ", adding " + ci.m_nNew + " records in " + StringTool.strNanoTime(ts));
+		System.out.println("Q: created 'save' copy of " + identify(source) + ". " + ci.getNCopied() + " copied, " + ci.m_nNew + " added and " + ci.m_nChanged + " changed records in "
+			+ StringTool.strNanoTime(ts));
 		return res;
 	}
 
@@ -250,27 +251,27 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		Class<T> clz = (Class<T>) cmm.getActualClass(); // Use this as the class indicator - source can be a proxy class
 		Object pk = cmm.getPrimaryKey().getAccessor().getValue(source);
 
+		/*
+		 * FIXME: There is an overlap with handling state here with copyProperties. If the source object being
+		 * copied is uninstantiated or not-dirty we do not *need* an actual instance; it is enough to create a
+		 * proxy to the instance?
+		 * 20100126 Perhaps not, we need to instantiate to follow references to children and parents?
+		 */
 		//-- Create a new instance as the copy
-		boolean isnew = true;
+		boolean isnew;
 		QPersistentObjectState pos = getObjectState(donemap.getSourceDC(), source);
-		if(pk == null) {
-			//-- We have a new instance. Create one.
+		if(pk == null || pos == QPersistentObjectState.NEW || pos == QPersistentObjectState.UNKNOWN) {
+			//-- 20100125 jal Even objects with a PK can be 'new'.... We have a <<new>> instance. Create one.
 			copy = clz.newInstance();
-			donemap.incNew();
+			//			donemap.incNew();
+			isnew = true;
 		} else {
-			//-- 20100125 jal Even objects with a PK can be 'new'....
-			if(pos == QPersistentObjectState.NEW || pos == QPersistentObjectState.UNKNOWN) {
-				//-- Treat these as new too.
-				copy = clz.newInstance();
-				donemap.incNew();
-			} else {
-				//-- Load the instance
-				copy = donemap.getTargetDC().find(clz, pk);
-				if(copy == null)
-					throw new IllegalStateException("INTERNAL: probably a concurrency problem? Instance " + pk + " of class=" + clz + " cannot be loaded");
-				donemap.incCopies();
-				isnew = true;
-			}
+			//-- Load the instance
+			copy = donemap.getTargetDC().find(clz, pk);
+			if(copy == null)
+				throw new IllegalStateException("INTERNAL: probably a concurrency problem? Instance " + pk + " of class=" + clz + " cannot be loaded");
+			//			donemap.incCopies();
+			isnew = false;
 		}
 		donemap.put(source, copy); // Save as mapping
 		System.out.println();
@@ -314,7 +315,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		 * be saved; we can do that at this time because all it's parents are saved. Only then we'll pass over all
 		 * child relations, because these can save their data <i>only</i> if this record has been saved.
 		 */
-		QDataContext targetdc = donemap.getTargetDC();
 		if(pos == null)
 			pos = getObjectState(donemap.getSourceDC(), source);
 		boolean docopy = false;
@@ -327,9 +327,12 @@ abstract public class QBasicModelCopier implements IModelCopier {
 				System.out.println("HELP! Deleted object in object graph " + identify(source));
 				return;
 
+			case DIRTY:
+				donemap.incChanges();
+				/*$FALL-THROUGH$*/
+
 			case UNKNOWN:
 			case NEW:
-			case DIRTY:
 				docopy = true;
 				break;
 
@@ -361,7 +364,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 				case UP:
 					//-- Traverse these immediately.
-					donemap.log("UP relation " + pmm.getName() + " of " + pmm.getClassModel());
+					donemap.log("UP: " + pmm.getName() + " of " + pmm.getClassModel());
 					donemap.inc();
 					copyParentProperty(donemap, source, copy, pmm);
 					donemap.dec();
@@ -379,12 +382,14 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		if(copyisnew) {
 			donemap.log("Post for save " + identify(copy) + " (copy of " + identify(source) + ")");
 			donemap.save(source, copy);
-		}
+			donemap.incNew();
+		} else
+			donemap.incCopies();
 
 		//-- Now traverse all child relations - this record (parent of those children) has been saved.
 		if(childpropertylist != null) {
 			for(PropertyMetaModel pmm : childpropertylist) {
-				donemap.log("DOWN relation " + pmm.getName() + " of " + pmm.getClassModel());
+				donemap.log("DOWN: " + pmm.getName() + " of " + pmm.getClassModel());
 				donemap.inc();
 				copyChildListProperty(donemap, source, copy, pmm);
 				donemap.dec();
@@ -489,9 +494,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			possiblyDeletedRecordInSource(donemap, di);
 			donemap.dec();
 		}
-		for(Object di : dpkmap.values()) {
-			//-- Check whether this is a deleted object in source too.
-		}
 	}
 
 	/**
@@ -524,7 +526,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 			//-- Get an instance /reference/ in the target datacontext
 			copyparent = donemap.getTargetDC().getInstance(pcmm.getActualClass(), pk);
-			donemap.log("property is not instantiated (lazy loaded and unused in this session), loading instance");
+			donemap.log("property is not instantiated (lazy loaded and unused in this session), get uninstantiated reference in target");
 		} else {
 			//-- Fsuck. Load the appropriate copy from the database;
 			copyparent = internalCopy(donemap, sparent); // Make a deep copy of the source parent object instance
