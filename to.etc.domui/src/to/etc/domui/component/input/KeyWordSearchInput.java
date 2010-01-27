@@ -192,7 +192,6 @@ class KeyWordSearchInput<T> extends Div {
 			tbl.setWidth("100%");
 			tbl.setOverflow(Overflow.HIDDEN);
 			tbl.setPosition(PositionType.RELATIVE);
-			m_pnlSearchPopup.setHeight(popupResults.getRows() * 17 + "px");
 			m_pnlSearchPopup.setDisplay(DisplayType.NONE);
 		}
 	}
