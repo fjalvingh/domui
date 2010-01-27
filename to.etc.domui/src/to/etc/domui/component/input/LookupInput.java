@@ -53,7 +53,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	private IActionAllowed m_isLookupAllowed;
 
-	private KeyWordSearchInput m_keySearch;
+	private KeyWordSearchInput<T> m_keySearch;
 
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	boolean m_modifiedByUser;
@@ -212,13 +212,33 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	}
 
 	private void addKeySearchField(NodeContainer parent, T value) {
-		m_keySearch = new KeyWordSearchInput(m_keyWordSearchCssClass);
+		m_keySearch = new KeyWordSearchInput<T>(m_keyWordSearchCssClass);
 		m_keySearch.setWidth("100%");
-		m_keySearch.setOnTyping(new IValueChanged<KeyWordSearchInput>() {
+		KeyWordPopupRowRenderer<T> rr = null;
+		if(m_resultColumns != null) {
+			rr = new KeyWordPopupRowRenderer<T>(m_lookupClass, m_resultColumns);
+		} else {
+			rr = new KeyWordPopupRowRenderer<T>(m_lookupClass);
+		}
+
+		rr.setRowClicked(new ICellClicked<T>() {
+			public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
+				setValue(val);
+				//-- Handle onValueChanged
+				if(getOnValueChanged() != null) {
+					((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(LookupInput.this);
+				}
+			}
+		});
+		m_keySearch.setResultsHintPopupRowRenderer(rr);
+
+
+		m_keySearch.setOnTyping(new IValueChanged<KeyWordSearchInput<T>>() {
 
 			@Override
-			public void onValueChanged(KeyWordSearchInput component) throws Exception {
+			public void onValueChanged(KeyWordSearchInput<T> component) throws Exception {
 				ITableModel<T> keySearchModel = searchKeyWord(component.getKeySearchValue());
+				component.showResultsHintPopup(null);
 				if(keySearchModel == null) {
 					//in case of insufficient searchString data cancel search and return.
 					component.setResultsCount(-1);
@@ -234,15 +254,19 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				} else {
 					//show results count info
 					component.setResultsCount(keySearchModel.getRows());
+					if((keySearchModel.getRows() > 0) && (keySearchModel.getRows() < 10)) {
+						component.showResultsHintPopup(keySearchModel);
+					}
 				}
 			}
 		});
 
-		m_keySearch.setOnShowResults(new IValueChanged<KeyWordSearchInput>() {
+		m_keySearch.setOnShowResults(new IValueChanged<KeyWordSearchInput<T>>() {
 
 			@Override
-			public void onValueChanged(KeyWordSearchInput component) throws Exception {
+			public void onValueChanged(KeyWordSearchInput<T> component) throws Exception {
 				ITableModel<T> keySearchModel = searchKeyWord(component.getKeySearchValue());
+				component.showResultsHintPopup(null);
 				if(keySearchModel == null) {
 					//in case of insufficient searchString data cancel search and popup clean search dialog.
 					component.setResultsCount(-1);

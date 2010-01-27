@@ -49,14 +49,19 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 
 			//-- Render the header.
 			THead hd = new THead();
-			getTable().add(hd);
 			HeaderContainer<T> hc = new HeaderContainer<T>(this);
 			TR tr = new TR();
 			tr.setCssClass("ui-dt-hdr");
 			hd.add(tr);
 			hc.setParent(tr);
 			hc.add(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
-			m_rowRenderer.renderHeader(this, hc);
+			if(m_rowRenderer.renderHeader(this, hc)) {
+				getTable().add(hd);
+			} else {
+				hc = null;
+				hd = null;
+				tr = null;
+			}
 
 			//-- Render loop: add rows && ask the renderer to add columns.
 			setDataBody(new TBody());

@@ -83,13 +83,18 @@ public class DataTable<T> extends TabularComponentBase<T> {
 
 		//-- Render the header.
 		THead hd = new THead();
-		m_table.add(hd);
 		HeaderContainer<T> hc = new HeaderContainer<T>(this);
 		TR tr = new TR();
 		tr.setCssClass("ui-dt-hdr");
 		hd.add(tr);
 		hc.setParent(tr);
-		m_rowRenderer.renderHeader(this, hc);
+		if(m_rowRenderer.renderHeader(this, hc)) {
+			m_table.add(hd);
+		} else {
+			hc = null;
+			hd = null;
+			tr = null;
+		}
 
 		//-- Render loop: add rows && ask the renderer to add columns.
 		m_dataBody = new TBody();
