@@ -1,5 +1,6 @@
 package to.etc.domui.component.input;
 
+import to.etc.domui.component.layout.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -13,7 +14,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 21 Jan 2010
  */
-class KeyWordSearchInput extends Div {
+class KeyWordSearchInput<T> extends Div {
 
 	private int m_resultsCount = -1; //-1 states for not visible
 
@@ -21,11 +22,15 @@ class KeyWordSearchInput extends Div {
 
 	private Div m_pnlSearchCount;
 
-	private IValueChanged<KeyWordSearchInput> m_onTyping;
+	private IValueChanged<KeyWordSearchInput<T>> m_onTyping;
 
-	private IValueChanged<KeyWordSearchInput> m_onShowResults;
+	private IValueChanged<KeyWordSearchInput<T>> m_onShowResults;
+
+	public IRowRenderer<T> m_resultsHintPopupRowRenderer;
 
 	private Img m_imgWaiting;
+
+	private Div m_pnlSearchPopup;
 
 	public KeyWordSearchInput() {
 		super();
@@ -41,6 +46,7 @@ class KeyWordSearchInput extends Div {
 		super.createContent();
 		//position must be set to relative to enable absoulute positioning of child elements (waiting image)
 		setPosition(PositionType.RELATIVE);
+
 		m_imgWaiting = new Img("THEME/wait16trans.gif");
 		m_imgWaiting.setCssClass("ui-lui-waiting");
 		m_imgWaiting.setDisplay(DisplayType.NONE);
@@ -71,11 +77,11 @@ class KeyWordSearchInput extends Div {
 		renderResultsCountPart();
 	}
 
-	public IValueChanged<KeyWordSearchInput> getOnTyping() {
+	public IValueChanged<KeyWordSearchInput<T>> getOnTyping() {
 		return m_onTyping;
 	}
 
-	public void setOnTyping(IValueChanged<KeyWordSearchInput> onTyping) {
+	public void setOnTyping(IValueChanged<KeyWordSearchInput<T>> onTyping) {
 		m_onTyping = onTyping;
 	}
 
@@ -126,11 +132,11 @@ class KeyWordSearchInput extends Div {
 		}
 	}
 
-	public IValueChanged<KeyWordSearchInput> getOnShowResults() {
+	public IValueChanged<KeyWordSearchInput<T>> getOnShowResults() {
 		return m_onShowResults;
 	}
 
-	public void setOnShowResults(IValueChanged<KeyWordSearchInput> onShowResults) {
+	public void setOnShowResults(IValueChanged<KeyWordSearchInput<T>> onShowResults) {
 		m_onShowResults = onShowResults;
 	}
 
@@ -141,4 +147,61 @@ class KeyWordSearchInput extends Div {
 		}
 	}
 
+	/**
+	 * Get current window Z index and set its value to current control.
+	 */
+	private void fixZIndex() {
+		//bug fix for IE when combining relative positioning, and overlapping control with absolute positioning.
+		FloatingWindow parentFloatingWindow = getParent(FloatingWindow.class);
+		int parentWindowZIndex = 0;
+		if(parentFloatingWindow != null) {
+			parentWindowZIndex = parentFloatingWindow.getZIndex();
+		}
+		if(parentWindowZIndex < 0) {
+			parentWindowZIndex = 0;
+		}
+		setZIndex(parentWindowZIndex);
+	}
+
+	public void showResultsHintPopup(ITableModel<T> popupResults) throws Exception {
+		assert (isBuilt());
+		if(popupResults == null) {
+			if(m_pnlSearchPopup != null) {
+				removeChild(m_pnlSearchPopup);
+				m_pnlSearchPopup = null;
+			}
+			fixZIndex(); //do not delete, fix for bug in IE
+			m_keySearch.setZIndex(getZIndex()); //do not delete, fix for bug in domui
+		} else {
+			if(m_pnlSearchPopup == null) {
+				m_pnlSearchPopup = new Div();
+				m_pnlSearchPopup.setCssClass("ui-lui-keyword-popup");
+				fixZIndex();
+				//increase Z index both for current DIV and popup DIV.
+				setZIndex(getZIndex() + 1); //FIXME: unfortunatelly this value never gets to browser. So that is why it is fixed in javascript on browser side.
+				m_pnlSearchPopup.setZIndex(getZIndex());
+				add(m_pnlSearchPopup);
+			} else {
+				m_pnlSearchPopup.removeAllChildren();
+			}
+
+			assert (m_resultsHintPopupRowRenderer != null);
+
+			DataTable<T> tbl = new DataTable<T>(popupResults, m_resultsHintPopupRowRenderer);
+			m_pnlSearchPopup.add(tbl);
+			tbl.setWidth("100%");
+			tbl.setOverflow(Overflow.HIDDEN);
+			tbl.setPosition(PositionType.RELATIVE);
+			m_pnlSearchPopup.setHeight(popupResults.getRows() * 17 + "px");
+			m_pnlSearchPopup.setDisplay(DisplayType.NONE);
+		}
+	}
+
+	public IRowRenderer<T> getResultsHintPopupRowRenderer() {
+		return m_resultsHintPopupRowRenderer;
+	}
+
+	public void setResultsHintPopupRowRenderer(IRowRenderer<T> resultsHintPopupRowRenderer) {
+		m_resultsHintPopupRowRenderer = resultsHintPopupRowRenderer;
+	}
 }

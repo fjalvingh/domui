@@ -201,7 +201,7 @@ public class AbstractRowRenderer<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderHeader(to.etc.domui.component.tbl.HeaderContainer)
 	 */
-	public void renderHeader(final TableModelTableBase<T> tbl, final HeaderContainer<T> cc) throws Exception {
+	public boolean renderHeader(final TableModelTableBase<T> tbl, final HeaderContainer<T> cc) throws Exception {
 		m_sortImages = new Img[m_columnList.size()];
 		int ix = 0;
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
@@ -249,6 +249,7 @@ public class AbstractRowRenderer<T> {
 			th.setWidth(cd.getWidth());
 			ix++;
 		}
+		return true;
 	}
 
 	void handleSortClick(final NodeBase nb, final SimpleColumnDef scd) throws Exception {

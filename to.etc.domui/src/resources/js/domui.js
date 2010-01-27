@@ -433,7 +433,7 @@ var WebUI = {
 		var q1 = $("input").get();
 		for ( var i = q1.length; --i >= 0;) {
 			var t = q1[i];
-			if (t.type == 'file')
+			if (t.type == 'file' || t.type == 'hidden')
 				continue;
 			var val = undefined;
 			if (t.type == 'checkbox') {
@@ -580,28 +580,136 @@ var WebUI = {
 	 * This cause that fast typing would not trigger ajax for each key stroke, only when user stops typing for 500ms ajax would be called by typing function.
 	 */
 	scheduleOnTypingEvent : function(id, event) {
+		var node = $("input#" + id).get(0);
+		if (!node)
+			return;
+		
 		if(!event)
 			event = window.event;
 		var keyCode = WebUI.normalizeKey(event);
-		var isReturn = (keyCode == 13000 || keyCode == 13);
+		var isLeftArrowKey = (keyCode == 37000 || keyCode == 37);
+		var isRightArrowKey = (keyCode == 39000 || keyCode == 39);
+		if (isLeftArrowKey || isRightArrowKey){
+			//in case of left or right arrow keys do nothing 
+			return;
+		}
 		if (WebUI.scheduledOnTypingTimerID){
+			//cancel already scheduled timer event 
 			window.clearTimeout(WebUI.scheduledOnTypingTimerID);
 			WebUI.scheduledOnTypingTimerID = null;
 		}
+		var isReturn = (keyCode == 13000 || keyCode == 13);
+		var isDownArrowKey = (keyCode == 40000 || keyCode == 40);
+		var isUpArrowKey = (keyCode == 38000 || keyCode == 38);
+		if(event && (isReturn || isDownArrowKey || isUpArrowKey)) {
+			//Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
+			event.cancelBubble = true;
+			if(event.stopPropagation)
+				event.stopPropagation();
+		}
 		if (isReturn){
-			//-- Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
-			if(event) {
-				event.cancelBubble = true;
-				if(event.stopPropagation)
-					event.stopPropagation();
+			//handle return key 
+			//locate keyword input node 
+			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+			if(trNode){
+				WebUI.clicked(trNode, trNode.id, null);
+			} else {
+				//trigger typing done when enter is pressed
+				WebUI.typingDone(id);
 			}
-			//trigger typing done when enter is pressed
-			WebUI.typingDone(id);
+		}
+		else if(isDownArrowKey || isUpArrowKey){
+			//locate keyword input node
+			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+			if(trNode){
+				trNode.className = "ui-rowsel";
+			}
+			var trNodes = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr");
+			if (trNodes.length > 0){
+				var divPopup = $(node.parentNode).children("div.ui-lui-keyword-popup").get(0);
+				if (divPopup){
+					$(divPopup).fadeIn(300);
+					//must be set due to IE bug in rendering
+					node.parentNode.style.zIndex = divPopup.style.zIndex;
+				}
+				if (isDownArrowKey){
+					selectedIndex++;
+				}else{
+					selectedIndex--;
+				}
+				if (selectedIndex > trNodes.length){
+					selectedIndex = 0;
+				}
+				if (selectedIndex < 0){
+					selectedIndex = trNodes.length;
+				}
+				trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+				if(trNode){
+					trNode.className = "ui-keyword-popop-rowsel";
+				}
+			}else{
+				selectedIndex = 0;
+			}
+			WebUI.setKeywordPopupSelectedRowIndex(node, selectedIndex);
 		}
 		else
 			WebUI.scheduledOnTypingTimerID = window.setTimeout("WebUI.typing('" + id + "')", 500);
 	},
 
+	getKeywordPopupSelectedRowIndex: function(keywordInputNode){
+		var selectedIndexInput = $(keywordInputNode.parentNode).children("input:hidden").get(0);
+		if (selectedIndexInput){
+			if (selectedIndexInput.value && selectedIndexInput.value != ""){
+				return parseInt(selectedIndexInput.value);
+			};
+		}
+		return 0;
+	},
+
+	setKeywordPopupSelectedRowIndex: function(keywordInputNode, intValue){
+		var selectedIndexInput = $(keywordInputNode.parentNode).children("input:hidden").get(0);
+		if (!selectedIndexInput){
+			selectedIndexInput = document.createElement("input");
+			selectedIndexInput.setAttribute("type","hidden");
+			$(keywordInputNode.parentNode).append($(selectedIndexInput));
+		}
+		selectedIndexInput.value = intValue;
+	},
+	
+	hideKeywordPopup: function(id) {
+		var node = $("input#" + id).get(0);
+		if (node){
+			var divPopup = $(node.parentNode).children("div.ui-lui-keyword-popup").get();
+			if (divPopup){
+				$(divPopup).fadeOut(200);
+			}
+			//fix z-index to one saved in input node
+			node.parentNode.style.zIndex = node.style.zIndex;
+		}
+	},
+
+	showKeywordPopupIfStillFocusedAndFixZIndex: function(id) {
+		var node = $("input#" + id).get(0);
+		if (node){
+			var wasInFocus = node == document.activeElement; 
+			var qDivPopup = $(node.parentNode).children("div.ui-lui-keyword-popup");
+			if (qDivPopup.length > 0){
+				var divPopup = qDivPopup.get(0); 
+				//must be set manually from javascript because bug in domui, parent attribute updated from child node is not rendered in response
+				node.parentNode.style.zIndex = divPopup.style.zIndex;
+			}else{
+				//fix z-index to one saved in input node
+				node.parentNode.style.zIndex = node.style.zIndex;
+			}
+			if (wasInFocus){
+				//show popup in case that input field still has focus
+				$(divPopup).show();
+			}
+		}
+	},
+	
 	/*
 	 * In case of longer waiting for typing ajax response show waiting animated marker. 
 	 * Function is called with delay of 500ms from ajax.beforeSend method for typing event. 
@@ -655,7 +763,6 @@ var WebUI = {
 				global: false,
 				beforeSend: function(){
 					// Handle the local beforeSend event
-					_block;
 					var parentDiv = typingField.parentNode;
 					if (parentDiv){
 						displayWaitingTimerID = window.setTimeout("WebUI.displayWaiting('" + parentDiv.id + "')", 500);
@@ -663,8 +770,8 @@ var WebUI = {
    				},
 			   	complete: function(){
    					// Handle the local complete event
-					_unblock;
 					if (displayWaitingTimerID) {
+						//handle waiting marker
    						window.clearTimeout(displayWaitingTimerID);
    						displayWaitingTimerID = null;
    						var parentDiv = typingField.parentNode;
@@ -672,6 +779,8 @@ var WebUI = {
    							WebUI.hideWaiting(parentDiv.id);
    						}
    					}
+					//handle received lookup content
+					WebUI.showKeywordPopupIfStillFocusedAndFixZIndex(id);
    				},
 
 				success :WebUI.handleResponse,

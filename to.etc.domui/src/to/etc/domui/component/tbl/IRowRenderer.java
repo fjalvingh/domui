@@ -11,5 +11,12 @@ public interface IRowRenderer<T> {
 
 	abstract public void renderRow(TableModelTableBase<T> tbl, ColumnContainer<T> cc, int index, T instance) throws Exception;
 
-	abstract public void renderHeader(TableModelTableBase<T> tbl, HeaderContainer<T> cc) throws Exception;
+	/**
+	 * Render table header. 
+	 * @param tbl
+	 * @param cc
+	 * @return Return true in case that table header should be rendered, on false in case when table header should not be rendered. 
+	 * @throws Exception
+	 */
+	abstract public boolean renderHeader(TableModelTableBase<T> tbl, HeaderContainer<T> cc) throws Exception;
 }
