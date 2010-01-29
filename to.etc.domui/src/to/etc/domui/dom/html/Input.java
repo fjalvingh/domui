@@ -25,7 +25,7 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 
 	private IValueChanged< ? > m_onValueChanged;
 
-	private ITypingListener< ? > m_onTyping;
+	private ILookupTypingListener< ? > m_onLookupTyping;
 
 	public Input() {
 		super("input");
@@ -128,15 +128,15 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 	}
 
 	/**
-	 * The input tag handles {@link Constants#ACMD_INPUT_TYPING} and {@link Constants#ACMD_INPUT_TYPING_DONE} browser commands. 
+	 * The input tag handles {@link Constants#ACMD_LOOKUP_TYPING} and {@link Constants#ACMD_LOOKUP_TYPING_DONE} browser commands. 
 	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
 	 */
 	@Override
 	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
-		if(Constants.ACMD_INPUT_TYPING.equals(action)) {
-			handleTyping(ctx);
-		} else if(Constants.ACMD_INPUT_TYPING_DONE.equals(action)) {
-			handleTypingDone(ctx);
+		if(Constants.ACMD_LOOKUP_TYPING.equals(action)) {
+			handleLookupTyping(ctx);
+		} else if(Constants.ACMD_LOOKUP_TYPING_DONE.equals(action)) {
+			handleLookupTypingDone(ctx);
 		}
 	}
 
@@ -149,10 +149,10 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 	 * @param cid
 	 * @throws Exception
 	 */
-	private void handleTyping(final IRequestContext ctx) throws Exception {
-		ITypingListener<NodeBase> tl = (ITypingListener<NodeBase>) getOnTyping();
+	private void handleLookupTyping(final IRequestContext ctx) throws Exception {
+		ILookupTypingListener<NodeBase> tl = (ILookupTypingListener<NodeBase>) getOnLookupTyping();
 		if(tl != null) {
-			tl.onTyping(this, false);
+			tl.onLookupTyping(this, false);
 		}
 	}
 
@@ -165,10 +165,10 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 	 * @param cid
 	 * @throws Exception
 	 */
-	private void handleTypingDone(final IRequestContext ctx) throws Exception {
-		ITypingListener<NodeBase> tl = (ITypingListener<NodeBase>) getOnTyping();
+	private void handleLookupTypingDone(final IRequestContext ctx) throws Exception {
+		ILookupTypingListener<NodeBase> tl = (ILookupTypingListener<NodeBase>) getOnLookupTyping();
 		if(tl != null) {
-			tl.onTyping(this, true);
+			tl.onLookupTyping(this, true);
 		}
 	}
 
@@ -188,12 +188,12 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 		m_onValueChanged = onValueChanged;
 	}
 
-	public ITypingListener< ? > getOnTyping() {
-		return m_onTyping;
+	public ILookupTypingListener< ? > getOnLookupTyping() {
+		return m_onLookupTyping;
 	}
 
-	public void setOnTyping(ITypingListener< ? > onTyping) {
-		m_onTyping = onTyping;
+	public void setOnLookupTyping(ILookupTypingListener< ? > onLookupTyping) {
+		m_onLookupTyping = onLookupTyping;
 	}
 
 }

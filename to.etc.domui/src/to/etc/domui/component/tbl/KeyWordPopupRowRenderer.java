@@ -194,7 +194,7 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 					((ICellClicked) getRowClicked()).cellClicked(tbl.getPage(), b, instance);
 				}
 			});
-			cc.getTR().addCssClass("ui-rowsel");
+			cc.getTR().addCssClass("ui-keyword-popup-row");
 		}
 
 		//must be set as bug fix for IE table rendering
@@ -258,8 +258,8 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	}
 
 	@Override
-	public boolean renderHeader(TableModelTableBase<T> tbl, HeaderContainer<T> cc) throws Exception {
-		return false;
+	public void renderHeader(TableModelTableBase<T> tbl, HeaderContainer<T> cc) throws Exception {
+	//empty since header is not rendered.
 	}
 
 	protected void addColumns(final List<ExpandedDisplayProperty> xdpl) {

@@ -27,8 +27,8 @@ public class Constants {
 
 	static public final String ACMD_CLICKED = "clicked";
 
-	static public final String ACMD_INPUT_TYPING = "typing";
+	static public final String ACMD_LOOKUP_TYPING = "lookupTyping";
 
-	static public final String ACMD_INPUT_TYPING_DONE = "typingDone";
+	static public final String ACMD_LOOKUP_TYPING_DONE = "lookupTypingDone";
 
 }

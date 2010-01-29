@@ -22,9 +22,9 @@ class KeyWordSearchInput<T> extends Div {
 
 	private Div m_pnlSearchCount;
 
-	private IValueChanged<KeyWordSearchInput<T>> m_onTyping;
+	private IValueChanged<KeyWordSearchInput<T>> m_onLookupTyping;
 
-	private IValueChanged<KeyWordSearchInput<T>> m_onShowResults;
+	private IValueChanged<KeyWordSearchInput<T>> m_onShowTypingResults;
 
 	public IRowRenderer<T> m_resultsHintPopupRowRenderer;
 
@@ -56,17 +56,17 @@ class KeyWordSearchInput<T> extends Div {
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
 
-		m_keySearch.setOnTyping(new ITypingListener<TextStr>() {
+		m_keySearch.setOnLookupTyping(new ILookupTypingListener<TextStr>() {
 
 			@Override
-			public void onTyping(TextStr component, boolean done) throws Exception {
+			public void onLookupTyping(TextStr component, boolean done) throws Exception {
 				if(done) {
 					if(getOnShowResults() != null) {
 						getOnShowResults().onValueChanged(KeyWordSearchInput.this);
 					}
 				} else {
-					if(getOnTyping() != null) {
-						getOnTyping().onValueChanged(KeyWordSearchInput.this);
+					if(getOnLookupTyping() != null) {
+						getOnLookupTyping().onValueChanged(KeyWordSearchInput.this);
 					}
 				}
 			}
@@ -77,12 +77,12 @@ class KeyWordSearchInput<T> extends Div {
 		renderResultsCountPart();
 	}
 
-	public IValueChanged<KeyWordSearchInput<T>> getOnTyping() {
-		return m_onTyping;
+	public IValueChanged<KeyWordSearchInput<T>> getOnLookupTyping() {
+		return m_onLookupTyping;
 	}
 
-	public void setOnTyping(IValueChanged<KeyWordSearchInput<T>> onTyping) {
-		m_onTyping = onTyping;
+	public void setOnLookupTyping(IValueChanged<KeyWordSearchInput<T>> onLookupTyping) {
+		m_onLookupTyping = onLookupTyping;
 	}
 
 	public String getKeySearchValue() {
@@ -133,11 +133,11 @@ class KeyWordSearchInput<T> extends Div {
 	}
 
 	public IValueChanged<KeyWordSearchInput<T>> getOnShowResults() {
-		return m_onShowResults;
+		return m_onShowTypingResults;
 	}
 
 	public void setOnShowResults(IValueChanged<KeyWordSearchInput<T>> onShowResults) {
-		m_onShowResults = onShowResults;
+		m_onShowTypingResults = onShowResults;
 	}
 
 	@Override

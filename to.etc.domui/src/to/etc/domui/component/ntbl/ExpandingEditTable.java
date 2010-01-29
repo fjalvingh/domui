@@ -155,13 +155,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 				hc.add((NodeBase) null);
 			}
 
-			if(m_rowRenderer.renderHeader(this, hc)) {
-				m_table.add(hd);
-			} else {
-				hc = null;
-				hd = null;
-				tr = null;
-			}
+			m_rowRenderer.renderHeader(this, hc);
+			m_table.add(hd);
 
 			m_columnCount = tr.getChildCount();
 			if(!isHideIndex())
