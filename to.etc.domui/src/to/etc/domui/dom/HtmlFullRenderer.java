@@ -213,6 +213,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	public void render(IRequestContext ctx, Page page) throws Exception {
 		m_ctx = ctx;
 		m_page = page;
+
 		if(page.getBody() instanceof IXHTMLPage) {
 			setXml(true);
 		}
@@ -229,6 +230,16 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		genVar("DomUIThemeURL", StringTool.strToJavascriptString(ctx.getRelativePath(ctx.getRelativeThemePath("")), true));
 		genVar("DomUICID", StringTool.strToJavascriptString(page.getConversation().getFullId(), true));
 		o().writeRaw("--></script>\n");
+
+		// EXPERIMENTAL SVG/VML support
+		if(m_page.isAllowVectorGraphics()) {
+			if(ctx.getBrowserVersion().isIE()) {
+				o().writeRaw("<style>v\\: * { behavior:url(#default#VML); display:inline-block;} </style>\n"); // Puke....
+				o().writeRaw("<xml:namespace ns=\"urn:schemas-microsoft-com:vml\" prefix=\"v\">\n");
+			}
+		}
+		// END EXPERIMENTAL
+
 		renderThemeCSS();
 		renderHeadContributors();
 		if(page.getTitle() != null) {

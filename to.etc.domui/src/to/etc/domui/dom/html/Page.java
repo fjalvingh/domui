@@ -84,6 +84,8 @@ final public class Page implements IQContextContainer {
 
 	private Map<String, Object> m_pageData = Collections.EMPTY_MAP;
 
+	private boolean m_allowVectorGraphics;
+
 	public Page(final UrlPage pageContent) {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
@@ -584,5 +586,13 @@ final public class Page implements IQContextContainer {
 
 	public void internalSetDataContextFactory(final QDataContextFactory s) {
 		getConversation().internalSetDataContextFactory(s);
+	}
+
+	public boolean isAllowVectorGraphics() {
+		return m_allowVectorGraphics;
+	}
+
+	public void setAllowVectorGraphics(boolean allowVectorGraphics) {
+		m_allowVectorGraphics = allowVectorGraphics;
 	}
 }
