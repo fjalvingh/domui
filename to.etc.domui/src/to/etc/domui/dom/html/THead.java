@@ -18,26 +18,39 @@ public class THead extends NodeContainer {
 		v.visitTHead(this);
 	}
 
-	public void setHeaders(String... labels) {
+	public TH[] setHeaders(String... labels) {
 		forceRebuild();
 		TR row = new TR();
 		add(row);
+		TH[] res = new TH[labels.length];
+		int ix = 0;
 		for(String s : labels) {
 			TH th = new TH();
 			row.add(th);
 			th.setText(s);
+			res[ix++] = th;
 		}
+		return res;
 	}
 
-	public void setHeaders(BundleRef b, String... keys) {
+	public TH[] setHeaders(BundleRef b, String... keys) {
 		forceRebuild();
 		TR row = new TR();
 		add(row);
+		TH[] res = new TH[keys.length];
+		int ix = 0;
 		for(String s : keys) {
 			TH th = new TH();
 			row.add(th);
 			th.setText(b.getString(s));
+			res[ix++] = th;
 		}
+		return res;
+	}
+
+	public void setHeaderCssClasses(String cls) {
+		for(TH th : getChildren(TH.class))
+			th.setCssClass(cls);
 	}
 
 	private TR getRow() {
