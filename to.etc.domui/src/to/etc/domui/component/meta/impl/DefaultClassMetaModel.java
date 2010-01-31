@@ -92,6 +92,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		try {
 			BeanInfo bi = Introspector.getBeanInfo(m_metaClass);
 			PropertyDescriptor[] ar = bi.getPropertyDescriptors();
+			//			for(PropertyDescriptor pd : ar)
+			//				System.out.println("PR: " + pd.getName());
 
 			//-- If this is an enumerable thingerydoo...
 			if(m_metaClass == Boolean.class) {
@@ -113,6 +115,9 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private void createPropertyInfo(final PropertyDescriptor pd) {
 		//		System.out.println("Property: "+pd.getName()+", reader="+pd.getReadMethod());
+		//		if(pd.getName().equals("id"))
+		//			System.out.println("GOTCHA");
+
 		Method rm = pd.getReadMethod();
 		if(rm == null) {
 			//-- Handle 'isXxxx()' getters because those morons at Sun *still* don't get it.
@@ -144,7 +149,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		DefaultPropertyMetaModel pm = new DefaultPropertyMetaModel(this, pd);
 		m_propertyMap.put(pm.getName(), pm);
 		if(pm.isPrimaryKey())
-			m_primaryKey = pm;
+			setPrimaryKey(pm);
 	}
 
 	/**

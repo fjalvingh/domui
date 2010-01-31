@@ -193,7 +193,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		if("javax.persistence.Column".equals(name)) {
 			decodeJpaColumn(an);
 		} else if("javax.persistence.Id".equals(name)) {
-			m_primaryKey = true;
+			setPrimaryKey(true);
 			m_classModel.setPersistentClass(true);
 		} else if("javax.persistence.ManyToOne".equals(name)) {
 			setRelationType(PropertyRelationType.UP);

@@ -1,5 +1,6 @@
 package to.etc.webapp.qsql;
 
-public interface ILongIdentifyable {
-	public Long getId();
+
+public interface ILongIdentifyable /* extends IIdentifyable<Long> */{
+	Long getId();
 }
