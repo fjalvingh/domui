@@ -55,6 +55,8 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	private KeyWordSearchInput<T> m_keySearch;
 
+	private String m_keySearchHint;
+
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	boolean m_modifiedByUser;
 
@@ -272,6 +274,30 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		if(m_keyWordSearchCssClass != null) {
 			addCssClass(m_keyWordSearchCssClass);
 		}
+		m_keySearch.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (m_keySearchHint != null) ? m_keySearchHint : getDefaultKeySearchHint()));
+	}
+
+	private String getDefaultKeySearchHint() {
+		String result = null;
+		ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
+		if(cmm != null) {
+			//-- Has default meta?
+			List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
+			if(spml.size() > 0) {
+				result = "";
+				for(int i = 0; i < spml.size(); i++) {
+					SearchPropertyMetaModelImpl spm = spml.get(i);
+					if(spm.getLookupLabel() != null) {
+						result = result + spm.getLookupLabel();
+					} else {
+						result = result + cmm.findProperty(spm.getPropertyName()).getDefaultLabel();
+					}
+					if(i < spml.size() - 1)
+						result = result + ", ";
+				}
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -832,5 +858,21 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	 */
 	public void setAllowKeyWordSearch(boolean allowKeyWordSearch) {
 		m_allowKeyWordSearch = allowKeyWordSearch;
+	}
+
+	/**
+	 * Getter for keyword search hint. See {@link LookupInput#setKeySearchHint}. 
+	 * @param hint
+	 */
+	public String getKeySearchHint() {
+		return m_keySearchHint;
+	}
+
+	/**
+	 * Set hint to keyword search input. Usually says how search condition is resolved.
+	 * @param hint
+	 */
+	public void setKeySearchHint(String keySearchHint) {
+		m_keySearchHint = keySearchHint;
 	}
 }

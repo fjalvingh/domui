@@ -32,6 +32,8 @@ class KeyWordSearchInput<T> extends Div {
 
 	private Div m_pnlSearchPopup;
 
+	private String m_hint;
+
 	public KeyWordSearchInput() {
 		super();
 	}
@@ -55,6 +57,7 @@ class KeyWordSearchInput<T> extends Div {
 		}
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
+		m_keySearch.setTitle(m_hint);
 
 		m_keySearch.setOnLookupTyping(new ILookupTypingListener<TextStr>() {
 
@@ -202,5 +205,21 @@ class KeyWordSearchInput<T> extends Div {
 
 	public void setResultsHintPopupRowRenderer(IRowRenderer<T> resultsHintPopupRowRenderer) {
 		m_resultsHintPopupRowRenderer = resultsHintPopupRowRenderer;
+	}
+
+	/**
+	 * Getter for hint. See {@link KeyWordSearchInput#setHint}. 
+	 * @param hint
+	 */
+	public String getHint() {
+		return m_hint;
+	}
+
+	/**
+	 * Set hint to keyword search input. Usually says how search condition is resolved.
+	 * @param hint
+	 */
+	public void setHint(String hint) {
+		m_hint = hint;
 	}
 }

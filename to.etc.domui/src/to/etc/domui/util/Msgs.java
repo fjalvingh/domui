@@ -54,6 +54,8 @@ public interface Msgs {
 
 	public static final String UI_KEYWORD_SEARCH_LARGE_MATCH = "ui.keyword.search.large.match";
 
+	public static final String UI_KEYWORD_SEARCH_HINT = "ui.keyword.search.hint";
+
 	/** Lookup value invalid */
 	public static final String UI_LOOKUP_INVALID = "ui.lookup.invalid";
 
