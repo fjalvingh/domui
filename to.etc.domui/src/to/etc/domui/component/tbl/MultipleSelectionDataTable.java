@@ -55,13 +55,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			hd.add(tr);
 			hc.setParent(tr);
 			hc.add(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
-			if(m_rowRenderer.renderHeader(this, hc)) {
-				getTable().add(hd);
-			} else {
-				hc = null;
-				hd = null;
-				tr = null;
-			}
+			getTable().add(hd);
 
 			//-- Render loop: add rows && ask the renderer to add columns.
 			setDataBody(new TBody());

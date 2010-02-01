@@ -55,6 +55,8 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	private KeyWordSearchInput<T> m_keySearch;
 
+	private String m_keySearchHint;
+
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	boolean m_modifiedByUser;
 
@@ -88,18 +90,10 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
 			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {
-				if(m_value != null) {
-					DomUtil.setModifiedFlag(LookupInput.this);
-				}
-				setValue(null);
+				handleSetValue(null);
 				if(m_keySearch != null) {
 					m_keySearch.setFocus();
 				}
-				//-- Handle onValueChanged
-				if(getOnValueChanged() != null) {
-					((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(LookupInput.this);
-				}
-
 			}
 		});
 		m_clearButton.setTestID("clearButtonInputLookup");
@@ -223,17 +217,13 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 		rr.setRowClicked(new ICellClicked<T>() {
 			public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
-				setValue(val);
-				//-- Handle onValueChanged
-				if(getOnValueChanged() != null) {
-					((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(LookupInput.this);
-				}
+				handleSetValue(val);
 			}
 		});
 		m_keySearch.setResultsHintPopupRowRenderer(rr);
 
 
-		m_keySearch.setOnTyping(new IValueChanged<KeyWordSearchInput<T>>() {
+		m_keySearch.setOnLookupTyping(new IValueChanged<KeyWordSearchInput<T>>() {
 
 			@Override
 			public void onValueChanged(KeyWordSearchInput<T> component) throws Exception {
@@ -247,10 +237,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				}
 				if(keySearchModel.getRows() == 1) {
 					//in case of single match select value.
-					LookupInput.this.setValue(keySearchModel.getItems(0, 1).get(0));
-					if(LookupInput.this.getOnValueChanged() != null) {
-						((IValueChanged<NodeBase>) LookupInput.this.getOnValueChanged()).onValueChanged(LookupInput.this);
-					}
+					handleSetValue(keySearchModel.getItems(0, 1).get(0));
 				} else {
 					//show results count info
 					component.setResultsCount(keySearchModel.getRows());
@@ -275,10 +262,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				}
 				if(keySearchModel.getRows() == 1) {
 					//in case of single match select value.
-					LookupInput.this.setValue(keySearchModel.getItems(0, 1).get(0));
-					if(LookupInput.this.getOnValueChanged() != null) {
-						((IValueChanged<NodeBase>) LookupInput.this.getOnValueChanged()).onValueChanged(LookupInput.this);
-					}
+					handleSetValue(keySearchModel.getItems(0, 1).get(0));
 				} else {
 					//in case of more results show narrow result in search popup.
 					component.setResultsCount(keySearchModel.getRows());
@@ -290,6 +274,30 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		if(m_keyWordSearchCssClass != null) {
 			addCssClass(m_keyWordSearchCssClass);
 		}
+		m_keySearch.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (m_keySearchHint != null) ? m_keySearchHint : getDefaultKeySearchHint()));
+	}
+
+	private String getDefaultKeySearchHint() {
+		String result = null;
+		ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
+		if(cmm != null) {
+			//-- Has default meta?
+			List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
+			if(spml.size() > 0) {
+				result = "";
+				for(int i = 0; i < spml.size(); i++) {
+					SearchPropertyMetaModelImpl spm = spml.get(i);
+					if(spm.getLookupLabel() != null) {
+						result = result + spm.getLookupLabel();
+					} else {
+						result = result + cmm.findProperty(spm.getPropertyName()).getDefaultLabel();
+					}
+					if(i < spml.size() - 1)
+						result = result + ", ";
+				}
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -467,15 +475,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 					//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
 					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					LookupInput.this.toggleFloater(null);
-					if(!MetaManager.areObjectsEqual(val, m_value, null)) {
-						DomUtil.setModifiedFlag(LookupInput.this);
-					}
-					setValue(val);
-
-					//-- Handle onValueChanged
-					if(getOnValueChanged() != null) {
-						((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(LookupInput.this);
-					}
+					handleSetValue(val);
 				}
 			});
 
@@ -575,6 +575,22 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			setCssClass("ui-lui");
 		}
 		forceRebuild();
+	}
+
+	/**
+	 * In case that new value is different than one previously selected, set modified flag, selected value and trigger onValueChange event if defined.
+	 * @param value
+	 * @throws Exception
+	 */
+	void handleSetValue(T value) throws Exception {
+		if(!MetaManager.areObjectsEqual(value, m_value, null)) {
+			DomUtil.setModifiedFlag(this);
+			setValue(value);
+			//-- Handle onValueChanged
+			if(getOnValueChanged() != null) {
+				((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(this);
+			}
+		}
 	}
 
 	/**
@@ -842,5 +858,23 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	 */
 	public void setAllowKeyWordSearch(boolean allowKeyWordSearch) {
 		m_allowKeyWordSearch = allowKeyWordSearch;
+	}
+
+	/**
+	 * Getter for keyword search hint. See {@link LookupInput#setKeySearchHint}.
+	 * @param hint
+	 */
+	public String getKeySearchHint() {
+		return m_keySearchHint;
+	}
+
+	/**
+	 * Set hint to keyword search input. Usually says how search condition is resolved.
+	 * @param hint
+	 */
+	public void setKeySearchHint(String keySearchHint) {
+		m_keySearchHint = keySearchHint;
+		if(m_keySearch != null)
+			m_keySearch.setHint(keySearchHint); // Remove the hint on null.
 	}
 }

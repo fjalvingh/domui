@@ -3,6 +3,7 @@ package to.etc.domui.component.lookup;
 import java.util.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.LookupForm.*;
 import to.etc.domui.component.tbl.*;
@@ -37,6 +38,8 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 	IMultiSelectionResult<T> m_onReceiveResult;
 
 	private IQueryHandler<T> m_queryHandler;
+
+	private IQueryManipulator<T> m_queryManipulator;
 
 	private IErrorMessageListener m_customErrorMessageListener;
 
@@ -116,6 +119,10 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		if(c == null) // Some error has occured?
 			return; // Don't do anything (errors will have been registered)
 
+		if(getQueryManipulator() != null) {
+			c = getQueryManipulator().adjustQuery(c); // Adjust the query where needed,
+		}
+
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		if(!c.hasRestrictions()) {
 			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH));
@@ -193,6 +200,14 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	public void setCustomErrorMessageListener(IErrorMessageListener customErrorMessageListener) {
 		m_customErrorMessageListener = customErrorMessageListener;
+	}
+
+	public IQueryManipulator<T> getQueryManipulator() {
+		return m_queryManipulator;
+	}
+
+	public void setQueryManipulator(IQueryManipulator<T> queryManipulator) {
+		m_queryManipulator = queryManipulator;
 	}
 
 

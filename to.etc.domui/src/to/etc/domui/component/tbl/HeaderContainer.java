@@ -3,7 +3,7 @@ package to.etc.domui.component.tbl;
 import to.etc.domui.dom.html.*;
 
 /**
- * Temp thingy to create the header for a table. This is PENDING DELETE- DO NOT USE.
+ * Temp thingy to create the header for a table.
  *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -48,5 +48,13 @@ public class HeaderContainer<T> {
 
 		//-- Just add an empty (for now) header and return it.
 		return add((NodeBase) null);
+	}
+
+	/**
+	 * Use to check whether there is some content rendered to it or not.
+	 * @return
+	 */
+	public boolean hasContent() {
+		return (m_tr != null && m_tr.getChildCount() > 0);
 	}
 }

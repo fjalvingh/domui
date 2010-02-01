@@ -481,9 +481,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				//			} else if("WEBUIDROP".equals(action)) {
 				//				handleDrop(ctx, page, wcomp);
 			} else {
-				if(wcomp == null)
+				if(wcomp == null && (Constants.ACMD_LOOKUP_TYPING.equals(action) || Constants.ACMD_LOOKUP_TYPING_DONE.equals(action))) {
+					//-- Don't do anything at all - value is already selected by some of previous ajax requests, it is save to ignore remained late lookup typing events
+					inhibitlog = true;
+				} else if(wcomp == null) {
 					throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
-				wcomp.componentHandleWebAction(ctx, action);
+				} else {
+					wcomp.componentHandleWebAction(ctx, action);
+				}
 			}
 		} catch(ValidationException x) {
 			/*

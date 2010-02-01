@@ -88,7 +88,8 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		tr.setCssClass("ui-dt-hdr");
 		hd.add(tr);
 		hc.setParent(tr);
-		if(m_rowRenderer.renderHeader(this, hc)) {
+		m_rowRenderer.renderHeader(this, hc);
+		if(hc.hasContent()) {
 			m_table.add(hd);
 		} else {
 			hc = null;

@@ -22,9 +22,9 @@ class KeyWordSearchInput<T> extends Div {
 
 	private Div m_pnlSearchCount;
 
-	private IValueChanged<KeyWordSearchInput<T>> m_onTyping;
+	private IValueChanged<KeyWordSearchInput<T>> m_onLookupTyping;
 
-	private IValueChanged<KeyWordSearchInput<T>> m_onShowResults;
+	private IValueChanged<KeyWordSearchInput<T>> m_onShowTypingResults;
 
 	public IRowRenderer<T> m_resultsHintPopupRowRenderer;
 
@@ -56,17 +56,17 @@ class KeyWordSearchInput<T> extends Div {
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
 
-		m_keySearch.setOnTyping(new ITypingListener<TextStr>() {
+		m_keySearch.setOnLookupTyping(new ILookupTypingListener<TextStr>() {
 
 			@Override
-			public void onTyping(TextStr component, boolean done) throws Exception {
+			public void onLookupTyping(TextStr component, boolean done) throws Exception {
 				if(done) {
 					if(getOnShowResults() != null) {
 						getOnShowResults().onValueChanged(KeyWordSearchInput.this);
 					}
 				} else {
-					if(getOnTyping() != null) {
-						getOnTyping().onValueChanged(KeyWordSearchInput.this);
+					if(getOnLookupTyping() != null) {
+						getOnLookupTyping().onValueChanged(KeyWordSearchInput.this);
 					}
 				}
 			}
@@ -77,12 +77,12 @@ class KeyWordSearchInput<T> extends Div {
 		renderResultsCountPart();
 	}
 
-	public IValueChanged<KeyWordSearchInput<T>> getOnTyping() {
-		return m_onTyping;
+	public IValueChanged<KeyWordSearchInput<T>> getOnLookupTyping() {
+		return m_onLookupTyping;
 	}
 
-	public void setOnTyping(IValueChanged<KeyWordSearchInput<T>> onTyping) {
-		m_onTyping = onTyping;
+	public void setOnLookupTyping(IValueChanged<KeyWordSearchInput<T>> onLookupTyping) {
+		m_onLookupTyping = onLookupTyping;
 	}
 
 	public String getKeySearchValue() {
@@ -117,7 +117,7 @@ class KeyWordSearchInput<T> extends Div {
 				m_pnlSearchCount.setCssClass("ui-lui-keyword-no-res");
 				m_pnlSearchCount.setText(Msgs.BUNDLE.getString(Msgs.UI_KEYWORD_SEARCH_NO_MATCH));
 			} else if(m_resultsCount == ITableModel.DEFAULT_MAX_SIZE) {
-				//usually this means that query cutoff rest data, corner case when real m_resultsCount == MAX_RESULTS is not that important  
+				//usually this means that query cutoff rest data, corner case when real m_resultsCount == MAX_RESULTS is not that important
 				m_pnlSearchCount.setCssClass("ui-lui-keyword-large");
 				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_LARGE_MATCH, "" + ITableModel.DEFAULT_MAX_SIZE));
 			} else {
@@ -133,11 +133,11 @@ class KeyWordSearchInput<T> extends Div {
 	}
 
 	public IValueChanged<KeyWordSearchInput<T>> getOnShowResults() {
-		return m_onShowResults;
+		return m_onShowTypingResults;
 	}
 
 	public void setOnShowResults(IValueChanged<KeyWordSearchInput<T>> onShowResults) {
-		m_onShowResults = onShowResults;
+		m_onShowTypingResults = onShowResults;
 	}
 
 	@Override
@@ -202,5 +202,21 @@ class KeyWordSearchInput<T> extends Div {
 
 	public void setResultsHintPopupRowRenderer(IRowRenderer<T> resultsHintPopupRowRenderer) {
 		m_resultsHintPopupRowRenderer = resultsHintPopupRowRenderer;
+	}
+
+	/**
+	 * Getter for hint. See {@link KeyWordSearchInput#setHint}.
+	 * @param hint
+	 */
+	public String getHint() {
+		return m_keySearch.getTitle();
+	}
+
+	/**
+	 * Set hint to keyword search input. Usually says how search condition is resolved.
+	 * @param hint
+	 */
+	public void setHint(String hint) {
+		m_keySearch.setTitle(hint);
 	}
 }
