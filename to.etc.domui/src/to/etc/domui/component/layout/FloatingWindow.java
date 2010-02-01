@@ -112,16 +112,15 @@ public class FloatingWindow extends Div {
 			setZIndex(100);
 		}
 		//vmijic 20091125 - hider z-index has to be set in order to hide other floating windows with lower z-index, if any exists in same time.
-		m_hider.setZIndex(getZIndex() - 1);
-
-		m_hider.setClicked(new IClicked<NodeBase>() {
-
-			@Override
-			public void clicked(NodeBase clickednode) throws Exception {
-				closePressed();
-			}
-
-		});
+		if(null != m_hider) { // Initial createContent will have null hider usually.
+			m_hider.setZIndex(getZIndex() - 1);
+			m_hider.setClicked(new IClicked<NodeBase>() {
+				@Override
+				public void clicked(NodeBase clickednode) throws Exception {
+					closePressed();
+				}
+			});
+		}
 
 		setPosition(PositionType.FIXED);
 
