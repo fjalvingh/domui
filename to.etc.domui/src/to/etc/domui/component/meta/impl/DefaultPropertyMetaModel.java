@@ -1,6 +1,5 @@
 package to.etc.domui.component.meta.impl;
 
-import java.beans.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
@@ -16,7 +15,7 @@ import to.etc.webapp.nls.*;
 public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements PropertyMetaModel {
 	private final DefaultClassMetaModel m_classModel;
 
-	private final PropertyDescriptor m_descriptor;
+	private final PropertyInfo m_descriptor;
 
 	private final PropertyAccessor< ? > m_accessor;
 
@@ -68,17 +67,17 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	private List<DisplayPropertyMetaModel> m_tableDisplayProperties = Collections.EMPTY_LIST;
 
 
-	public DefaultPropertyMetaModel(final DefaultClassMetaModel classModel, final PropertyDescriptor descriptor) {
+	public DefaultPropertyMetaModel(final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
 		m_classModel = classModel;
 		if(classModel == null)
 			throw new IllegalStateException("Cannot be null dude");
 		m_descriptor = descriptor;
-		m_accessor = new PropertyAccessor<Object>(descriptor.getReadMethod(), descriptor.getWriteMethod(), this);
-		if(descriptor.getWriteMethod() == null) {
+		m_accessor = new PropertyAccessor<Object>(descriptor.getGetter(), descriptor.getSetter(), this);
+		if(descriptor.getSetter() == null) {
 			setReadOnly(YesNoType.YES);
 		}
 
-		Annotation[] annar = descriptor.getReadMethod().getAnnotations();
+		Annotation[] annar = descriptor.getGetter().getAnnotations();
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName();
 			decodeAnnotationByName(an, ana);
@@ -268,15 +267,15 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	}
 
 	public Class< ? > getActualType() {
-		return m_descriptor.getPropertyType();
+		return m_descriptor.getActualType();
 	}
 
 	public Type getGenericActualType() {
-		Method m = m_descriptor.getReadMethod();
+		Method m = m_descriptor.getGetter();
 		if(m != null) {
 			return m.getGenericReturnType();
 		}
-		m = m_descriptor.getWriteMethod();
+		m = m_descriptor.getSetter();
 		if(m != null) {
 			return m.getGenericParameterTypes()[0];
 		}
