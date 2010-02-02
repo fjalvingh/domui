@@ -121,9 +121,9 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	private void createPropertyInfo(final PropertyInfo pd) {
-		System.out.println("Property: " + pd.getName() + ", reader=" + pd.getGetter());
-		if(pd.getName().equals("id"))
-			System.out.println("GOTCHA");
+		//		System.out.println("Property: " + pd.getName() + ", reader=" + pd.getGetter());
+		//		if(pd.getName().equals("id"))
+		//			System.out.println("GOTCHA");
 
 		Method rm = pd.getGetter();
 		if(pd.getGetter().getParameterTypes().length != 0)
