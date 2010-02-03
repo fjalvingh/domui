@@ -225,11 +225,16 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		//		+	"var DomUIThemeURL="+StringTool.strToJavascriptString(ctx.getRelativePath( ctx.getRelativeThemePath("") ), true)+";\n"
 		//		+	"--></script>\n"
 		//		);
-		o().writeRaw("<script language=\"javascript\"><!--\n");
+		o().writeRaw("<script language=\"javascript\">");
+		if(!isXml())
+			o().writeRaw("<!--\n");
+
 		genVar("DomUIpageTag", Integer.toString(page.getPageTag()));
 		genVar("DomUIThemeURL", StringTool.strToJavascriptString(ctx.getRelativePath(ctx.getRelativeThemePath("")), true));
 		genVar("DomUICID", StringTool.strToJavascriptString(page.getConversation().getFullId(), true));
-		o().writeRaw("--></script>\n");
+		if(!isXml())
+			o().writeRaw("\n-->");
+		o().writeRaw("\n</script>\n");
 
 		// EXPERIMENTAL SVG/VML support
 		if(m_page.isAllowVectorGraphics()) {
