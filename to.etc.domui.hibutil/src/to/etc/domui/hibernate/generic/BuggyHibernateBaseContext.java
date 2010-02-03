@@ -106,12 +106,28 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * This overrides the behaviour of Hibernate where a single-column selection does not
+	 * return an array but that single object, for consistency's sake. It is slightly more
+	 * expensive because an Object[1] is needed for every row, but compared with the heaps
+	 * of memory Hibernate is already wasting this is peanuts.
+	 *
 	 * @see to.etc.webapp.query.QDataContext#query(to.etc.webapp.query.QSelection)
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Object[]> query(QSelection< ? > sel) throws Exception {
 		getFactory().getEventListeners().callOnBeforeQuery(this, sel);
 		Criteria crit = GenericHibernateHandler.createCriteria(getSession(), sel);
-		return crit.list();
+		List resl = crit.list(); // Need to use raw class because ? is a monster fuckup.
+		if(resl.size() == 0)
+			return Collections.EMPTY_LIST;
+		if(sel.getColumnList().size() == 1 && !(resl.get(0) instanceof Object[])) {
+			//-- Re-wrap this result as a list of Object[].
+			for(int i = resl.size(); --i >= 0;) {
+				resl.set(i, new Object[]{resl.get(i)});
+			}
+		}
+		return resl;
 	}
 
 	/**
