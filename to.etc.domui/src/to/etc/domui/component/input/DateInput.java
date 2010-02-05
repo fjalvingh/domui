@@ -39,6 +39,7 @@ public class DateInput extends Text<Date> {
 	public void createContent() throws Exception {
 		setCssClass("ui-di");
 		m_selCalButton.setOnClickJS("WebUI.showCalendar('" + getActualID() + "'," + isWithTime() + ")");
+		setSpecialAttribute("onblur", "WebUI.dateInputCheckInput(event);");
 	}
 
 	@Override
