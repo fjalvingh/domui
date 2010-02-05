@@ -30,6 +30,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 	private StringBuilder m_createJS = new StringBuilder();
 
+	private StringBuilder m_stateJS = new StringBuilder();
+
 	protected HtmlFullRenderer(HtmlTagRenderer tagRenderer, IBrowserOutput o) {
 		//		m_browserVersion = tagRenderer.getBrowser();
 		m_tagRenderer = tagRenderer;
@@ -76,9 +78,11 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	@Override
 	public void visitNodeBase(NodeBase n) throws Exception {
 		n.build();
+		n.onBeforeFullRender(); // Do pre-node stuff,
 		n.visit(getTagRenderer());
 		if(n.getCreateJS() != null)
 			m_createJS.append(n.getCreateJS());
+		n.renderJavascriptState(m_stateJS); // Append Javascript state to state buffer
 		if(!(n instanceof TextNode)) {
 			if(m_xml)
 				getTagRenderer().renderEndTag(n);
@@ -124,10 +128,13 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	@Override
 	public void visitNodeContainer(NodeContainer n) throws Exception {
 		n.build();
+		n.onBeforeFullRender(); // Do pre-node stuff,
+
 		boolean indena = o().isIndentEnabled(); // jal 20090903 Save indenting request....
 		n.visit(getTagRenderer()); // Ask base renderer to render tag
 		if(n.getCreateJS() != null)
 			m_createJS.append(n.getCreateJS());
+		n.renderJavascriptState(m_stateJS); // Append Javascript state to state buffer
 		visitChildren(n);
 		getTagRenderer().renderEndTag(n);
 		o().setIndentEnabled(indena); // And restore indenting if tag handler caused it to be cleared.
@@ -274,8 +281,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			o().text("WebUI.focus('" + f.getActualID() + "');");
 			page.setFocusComponent(null);
 		}
-		if(m_createJS.length() > 0) {
-			o().writeRaw(m_createJS.toString());
+		if(getCreateJS().length() > 0) {
+			o().writeRaw(getCreateJS().toString());
 			//				o().text(m_createJS.toString());
 		}
 		if(sq != null) {
@@ -292,7 +299,16 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().closetag("html");
 	}
 
+	/**
+	 * Return all of the Javascript code to create/recreate this page.
+	 * @return
+	 */
 	public StringBuilder getCreateJS() {
+		if(m_stateJS.length() > 0) { // Stuff present in state buffer too?
+			m_createJS.append(';'); // Always add after all create stuff
+			m_createJS.append(m_stateJS);
+			m_stateJS.setLength(0);
+		}
 		return m_createJS;
 	}
 }
