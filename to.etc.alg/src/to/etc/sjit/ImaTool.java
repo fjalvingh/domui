@@ -112,7 +112,7 @@ public class ImaTool {
 	 */
 	static public BufferedImage loadJPEG(InputStream is) throws IOException {
 		return ImageIO.read(is);
-		//		
+		//
 		//		JPEGImageDecoder jd = JPEGCodec.createJPEGDecoder(is);
 		//		//		JPEGDecodeParam		jdp	= jd.getJPEGDecodeParam();
 		//		BufferedImage bi = jd.decodeAsBufferedImage();
