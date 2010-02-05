@@ -12,7 +12,7 @@ import org.xml.sax.*;
 /**
  * Helper thing to allow easy reading of an XML document into
  * a DOM structure.
- * 
+ *
  * Created on Mar 30, 2005
  * @author jal
  */
@@ -179,7 +179,7 @@ public class XmlReader implements ErrorHandler {
 	}
 
 	/**
-	 * Decodes an XML node and calls a specific setter method in the specified object for 
+	 * Decodes an XML node and calls a specific setter method in the specified object for
 	 * all nodes encountered in the method. With a null xlist if a node is found with the
 	 * name 'Abcd':
 	 * <ul>
@@ -188,7 +188,7 @@ public class XmlReader implements ErrorHandler {
 	 *		attribute data.</li>
 	 *	<li>The function inAbcd is located and called if found.</li>
 	 * </ul>
-	 * 
+	 *
 	 * If the parameter namemap is present it maps input names (xml node names) to function
 	 * names. This can be used to translate xml names.
 	 *
@@ -296,7 +296,7 @@ public class XmlReader implements ErrorHandler {
 
 	/**
 	 * Tries to call setters for all attributes in a thingy... This tries specific
-	 * attribute setters first, then it tries normal setters. 
+	 * attribute setters first, then it tries normal setters.
 	 * @param nd
 	 * @param callobj
 	 * @param key
@@ -410,7 +410,7 @@ public class XmlReader implements ErrorHandler {
 		}
 	}
 
-	//	
+	//
 	//	/**
 	//	 * Tries to find a handler routine in the class specified.
 	//	 * @param nd
@@ -432,14 +432,14 @@ public class XmlReader implements ErrorHandler {
 	//			if(m == null)
 	//				return false;
 	//		}
-	//		
+	//
 	//		//-- We have a method and need to find parameters..
 	//		Class[]		par	= m.getParameterTypes();
 	//		Object[]	obj = new Object[par.length];			// For param values.
 	//		for(int i = par.length; --i >= 0;)
 	//		{
 	//			String txt = DomTools.textFrom(nd);
-	//			
+	//
 	//			if(par[i] == Node.class)
 	//				obj[i] = nd;
 	//			else if(par[i] == String.class)
@@ -461,10 +461,10 @@ public class XmlReader implements ErrorHandler {
 	//			}
 	//			else
 	//				throw new Exception(m+": cannot provide value for parameter "+i+": "+par[i].getName());
-	//			
+	//
 	////			System.out.println("  call: set param "+i+" type "+par[i].getName()+" to "+obj[i]);
 	//		}
-	//		
+	//
 	//		//-- Invoke
 	//		try
 	//		{

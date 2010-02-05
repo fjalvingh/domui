@@ -3,7 +3,7 @@ package to.etc.util;
 /**
  * Base implementation of a maker which has a single integer key
  * and the class type as match value.
- * 
+ *
  * @author jal
  * Created on May 12, 2004
  */

@@ -39,7 +39,7 @@ public class StandardLogfile implements LogSink {
 		return m_path_f;
 	}
 
-	/** 
+	/**
 	 * Sets a new file as the logfile. If the logging was open the old file
 	 * is closed and the new one opened.
 	 * @param f

@@ -3,7 +3,7 @@ package to.etc.lexer;
 /**
  * Some kind of error found while parsing a source. Contains an error with associated
  * source (file) location.
- * 
+ *
  * Created on Sep 13, 2004
  * @author jal
  */

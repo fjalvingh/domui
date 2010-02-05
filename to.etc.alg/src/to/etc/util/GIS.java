@@ -41,7 +41,7 @@ public class GIS {
 	 * RD(x,y) --> WGS84(long,lat)
 	 * 81 Amsterdam (Westertoren): (120700.723, 487525.501) --> (52.37453253, 4.88352559)
 	 * 21 Groningen (Martinitoren): (233883.131, 582065.167)--> (53.21938317, 6.56820053)
-	 * 
+	 *
 	 * result[0] = lon, result[1] = lat.
 	 */
 	static public void convertRDToWGS84(double[] result, double rdx, double rdy) {

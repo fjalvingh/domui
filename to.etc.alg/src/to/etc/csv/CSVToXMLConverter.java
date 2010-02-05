@@ -11,7 +11,7 @@ import to.etc.util.*;
  * based on a properties file describing the format for
  * each field. The output is generated into an output
  * writer.
- * 
+ *
  * Created on Jan 20, 2005
  * @author jal
  */
@@ -232,7 +232,7 @@ public class CSVToXMLConverter {
 	/**
 	 * Converts a single field as per the directions in the
 	 * properties file.
-	 * 
+	 *
 	 * @param fnr		The CSV field # starting at 0.
 	 * @param input		The value read from that field
 	 * @param ow		The writer to dump the shit to.

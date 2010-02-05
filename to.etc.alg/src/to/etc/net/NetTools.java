@@ -21,7 +21,7 @@ final public class NetTools {
 	/**
 	 * Takes the host= parameter in the header to construct the real
 	 * hostname.
-	 * 
+	 *
 	 * @param sb
 	 * @param req
 	 * @throws Exception
@@ -81,7 +81,7 @@ final public class NetTools {
 	 * the request. This properly handles URLEncoding and returns a
 	 * string which NEVER starts with a '/', and which contains
 	 * no hostname or port.
-	 * 
+	 *
 	 * @param req
 	 * @return
 	 */

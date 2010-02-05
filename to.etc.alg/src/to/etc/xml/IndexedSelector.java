@@ -19,7 +19,7 @@ public class IndexedSelector implements PathSelector {
 		//-- 1. Move to the nearest node
 		NodeList nl = parent.getChildNodes();
 		int len = nl.getLength();
-		if(len < m_index) // Too small already-> exit,	
+		if(len < m_index) // Too small already-> exit,
 			return null;
 		int ct = 0;
 		for(int i = 0; i < len; i++) // For all nodes,
