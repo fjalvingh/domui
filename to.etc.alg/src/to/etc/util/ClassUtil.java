@@ -209,8 +209,8 @@ final public class ClassUtil {
 					break;
 				}
 			}
-			if(setter == null)
-				continue;
+			//			if(setter == null) jal 20100205 read-only properties should be allowed explicitly.
+			//				continue;
 			res.add(new PropertyInfo(name, i.getter, setter));
 		}
 		return res;
