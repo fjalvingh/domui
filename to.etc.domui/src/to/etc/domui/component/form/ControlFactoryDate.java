@@ -4,6 +4,7 @@ import java.util.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
 
 /**
@@ -32,6 +33,8 @@ public class ControlFactoryDate implements ControlFactory {
 		if(!editable && (controlClass == null || controlClass.isAssignableFrom(Text.class))) {
 			Text<Date> txt = new Text<Date>(Date.class);
 			txt.setReadOnly(true);
+			//20100208 vmijic - fixed readonly presentation for date fields.
+			txt.setConverter(ConverterRegistry.getConverterInstance(pmm.getTemporal() == TemporalPresentationType.DATETIME ? DateTimeConverter.class : DateConverter.class));
 			return new Result(txt, model, pmm);
 		}
 
