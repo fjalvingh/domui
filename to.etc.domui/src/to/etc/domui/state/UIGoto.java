@@ -1,5 +1,6 @@
 package to.etc.domui.state;
 
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 
 /**
@@ -10,6 +11,8 @@ import to.etc.domui.dom.html.*;
  */
 final public class UIGoto {
 	static public final String SINGLESHOT_ERROR = "uigoto.error";
+
+	static public final String SINGLESHOT_INFO = "uigoto.info";
 
 	private UIGoto() {}
 
@@ -153,5 +156,12 @@ final public class UIGoto {
 		ws.setAttribute(UIGoto.SINGLESHOT_ERROR, msg);
 		pg.getConversation().destroy();
 		replace(target, pp);
+	}
+
+	static public final void clearPageAndReloadWithInfo(Page pg, UIMessage msg) {
+		WindowSession ws = pg.getConversation().getWindowSession();
+		ws.setAttribute(UIGoto.SINGLESHOT_INFO, msg);
+		pg.getConversation().destroy();
+		replace(pg.getBody().getClass(), pg.getPageParameters());
 	}
 }

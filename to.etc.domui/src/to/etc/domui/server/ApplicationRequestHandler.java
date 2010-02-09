@@ -231,6 +231,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			cm.setAttribute(UIGoto.SINGLESHOT_ERROR, null);
 		}
 
+		//-- EXPERIMENTAL Handle stored message in session
+		UIMessage infoMessage = (UIMessage) cm.getAttribute(UIGoto.SINGLESHOT_INFO);
+		if(infoMessage != null) {
+			page.getBody().build();
+			page.getBody().addGlobalMessage(infoMessage);
+			cm.setAttribute(UIGoto.SINGLESHOT_INFO, null);
+		}
+
 		// ORDERED
 		page.getConversation().processDelayedResults(page);
 
