@@ -16,6 +16,8 @@ import java.util.*;
  * Created on Feb 15, 2006
  */
 public class DeveloperOptions {
+	/** This becomes T if a .developer.properties exists, indicating that this is a developer's workstation */
+	static private boolean m_isdeveloper;
 	static private Properties			m_p;
 
 	static private Map<String, Object>	m_map;
@@ -35,6 +37,7 @@ public class DeveloperOptions {
 			File f = new File(new File(s), ".developer.properties");
 			if(!f.exists())
 				return;
+			m_isdeveloper = true;
 
 			InputStream is = null;
 			try {
@@ -59,6 +62,14 @@ public class DeveloperOptions {
 		initialize();
 	}
 
+	/**
+	 * Returns T if this is a developer's workstation. It is true if the
+	 * .developer.properties file exists in the user's home.
+	 * @return
+	 */
+	static public synchronized boolean isDeveloperWorkstation() {
+		return m_isdeveloper;
+	}
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getting values.										*/
 	/*--------------------------------------------------------------*/

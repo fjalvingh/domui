@@ -346,6 +346,9 @@ public class DateUtil {
 		return v.getTime() >= start.getTime() && v.getTime() < end.getTime();
 	}
 
+	static public boolean overlaps(Date s1, Date e1, Date s2, Date e2) {
+		return s1.getTime() < e2.getTime() && s2.getTime() < e1.getTime();
+	}
 	public static void main(String[] args) {
 		System.out.println(encodeTimeInMS(decodeTime("13:40:21"), 3, true));
 		System.out.println(encodeTimeInMS(decodeTime("13:40:21"), 2, true));
