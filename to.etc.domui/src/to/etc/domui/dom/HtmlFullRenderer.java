@@ -142,6 +142,18 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		checkForFocus(n);
 	}
 
+	@Override
+	public void visitChildren(NodeContainer c) throws Exception {
+		if(c instanceof TD) {
+			if(c.getChildCount() == 0) {
+				//-- jal 20091223 If the TD is fully-empty add a nbsp to prevent IE from misrendering the cell.
+				o().text("\u00a0"); // Render a nbsp. DO NOT USE THE ENTITY - IT DOES NOT EXIST IN XML.
+				return;
+			}
+		}
+		super.visitChildren(c);
+	}
+
 	/*
 	 * Handle default input focus: if no focus is set AND this is an input control -> set focus.
 	 */
