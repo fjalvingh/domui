@@ -114,6 +114,7 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 				T value = parseNumber(in);
 				if(value == null)
 					return false;
+				checkNumber(value);
 				return appendCriteria(crit, QOperation.EQ, value);
 			}
 
