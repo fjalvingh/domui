@@ -243,7 +243,11 @@ public class PooledConnection implements Connection {
 	 * @param o		the resource to remove.
 	 */
 	protected void removeResource(final Object o) {
-		m_pe.proxyRemoveResource(this, o);
+		try {
+			m_pe.proxyRemoveResource(this, o);
+		} catch(InvalidProxyException x) {
+			System.out.println("Ignored: " + x + ", at:\n" + DbPoolUtil.getLocation());
+		}
 	}
 
 

@@ -85,9 +85,12 @@ public class ResultSetProxy implements ResultSet {
 	public void close() throws SQLException {
 		if(m_rs == null)
 			return;
-		m_pc.m_pe.removeResource(m_pc, this);
-		m_rs.close();
-		m_rs = null;
+		try {
+			m_pc.m_pe.removeResource(m_pc, this);
+			m_rs.close();
+		} finally {
+			m_rs = null;
+		}
 	}
 
 	/**

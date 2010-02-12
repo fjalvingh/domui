@@ -304,11 +304,11 @@ public class ConnectionPoolEntry {
 				sb.append("\nThe connection stack is:\n");
 
 				dbgPrintStackTrace(sb, 40, 15);
-				x = new IllegalStateException(pc.toString() + ": connection was " + pc.m_detach_reason);
+				x = new InvalidProxyException(pc.toString() + ": connection was " + pc.m_detach_reason);
 			} else if(pc != m_proxy_dbc) {
 				sb = new StringBuilder(8192);
 				sb.append("in proxyCheck: proxy refers to entry that's currently in use by someone else.\n");
-				x = new IllegalStateException(pc + ": valid proxy checked but entry's not owning it");
+				x = new InvalidProxyException(pc + ": valid proxy checked but entry's not owning it");
 			}
 			m_ts_lastuse = System.currentTimeMillis();
 		}
