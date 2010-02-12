@@ -47,7 +47,7 @@ class KeyWordSearchInput<T> extends Div {
 		//position must be set to relative to enable absoulute positioning of child elements (waiting image)
 		setPosition(PositionType.RELATIVE);
 
-		m_imgWaiting = new Img("THEME/wait16trans.gif");
+		m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
 		m_imgWaiting.setCssClass("ui-lui-waiting");
 		m_imgWaiting.setDisplay(DisplayType.NONE);
 		if(m_keySearch.getCssClass() == null) {

@@ -223,12 +223,15 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		page.getBody().onReload();
 
-		//-- EXPERIMENTAL Handle stored message in session
-		String message = (String) cm.getAttribute(UIGoto.SINGLESHOT_ERROR);
-		if(message != null) {
-			page.getBody().build();
-			page.getBody().addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, message));
-			cm.setAttribute(UIGoto.SINGLESHOT_ERROR, null);
+		//-- EXPERIMENTAL Handle stored messages in session
+		List<UIMessage> ml = (List<UIMessage>) cm.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
+		if(ml != null) {
+			if(ml.size() > 0) {
+				page.getBody().build();
+				for(UIMessage m : ml)
+					page.getBody().addGlobalMessage(m);
+			}
+			cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
 		}
 
 		// ORDERED

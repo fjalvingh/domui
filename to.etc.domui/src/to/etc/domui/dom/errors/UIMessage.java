@@ -162,6 +162,10 @@ public class UIMessage {
 		return new UIMessage(null, null, MsgType.WARNING, ref, code, param);
 	}
 
+	static public UIMessage info(BundleRef ref, String code, Object... param) {
+		return new UIMessage(null, null, MsgType.INFO, ref, code, param);
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

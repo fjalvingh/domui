@@ -202,7 +202,7 @@ a:hover.ui-lbtn {
 .ui-drp-ins {
 	font-size: x-small;
 	font-variant: small-caps;
-	background: url(separator.png) repeat-x center;
+	background: url(dnd-separator.png) repeat-x center;
 	text-align: center;
 }
 
@@ -950,7 +950,7 @@ body,html {
 	position: fixed;
 	top: 0px;
 	left: 0px;
-	background-color: black;
+	background: black url(io-blk-wait.gif) no-repeat center center; 
 	filter:alpha(opacity=50);
 	z-index: 1000;
 }

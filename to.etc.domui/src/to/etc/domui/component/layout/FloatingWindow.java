@@ -111,6 +111,10 @@ public class FloatingWindow extends Div {
 		if(getZIndex() <= 0) {
 			setZIndex(100);
 		}
+		if(getTestID() == null) {
+			setTestID("popup_" + getZIndex());
+		}
+
 		//vmijic 20091125 - hider z-index has to be set in order to hide other floating windows with lower z-index, if any exists in same time.
 		if(null != m_hider) { // Initial createContent will have null hider usually.
 			m_hider.setZIndex(getZIndex() - 1);
