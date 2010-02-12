@@ -56,7 +56,11 @@ public class StatementProxy implements Statement {
 			m_st.close();
 		} finally {
 			m_st = null; // Force this connection cleared
-			m_c.removeResource(this);
+			try {
+				m_c.removeResource(this);
+			} catch(Exception x) {
+				System.out.println("Failed to remove resource from connection: " + x + ", at:\n" + DbPoolUtil.getLocation());
+			}
 		}
 	}
 
