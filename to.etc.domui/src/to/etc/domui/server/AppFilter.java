@@ -73,9 +73,10 @@ public class AppFilter implements Filter {
 		} catch(Exception x) {
 			DomUtil.dumpException(x);
 			throw new WrappedException(x); // James Gosling is an idiot
+		} catch(Error x) {
+			x.printStackTrace();
+			throw x;
 		}
-		//
-		//		chain.doFilter(req, res);
 	}
 
 	private InputStream findLogConfig(String logconfig) {
@@ -163,14 +164,14 @@ public class AppFilter implements Filter {
 			else
 				m_contextMaker = new NormalContextMaker(m_applicationClassName, m_config);
 		} catch(RuntimeException x) {
-			x.printStackTrace();
+			DomUtil.dumpException(x);
 			throw x;
 		} catch(ServletException x) {
-			x.printStackTrace();
+			DomUtil.dumpException(x);
 			throw x;
 		} catch(Exception x) {
-			x.printStackTrace();
-			throw new WrappedException(x); // James Gosling is an idiot
+			DomUtil.dumpException(x);
+			throw new RuntimeException(x); // James Gosling is an idiot
 		} catch(Error x) {
 			x.printStackTrace();
 			throw x;
