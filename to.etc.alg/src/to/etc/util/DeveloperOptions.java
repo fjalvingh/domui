@@ -17,7 +17,8 @@ import java.util.*;
  */
 public class DeveloperOptions {
 	/** This becomes T if a .developer.properties exists, indicating that this is a developer's workstation */
-	static private boolean m_isdeveloper;
+	static private boolean				m_isdeveloper;
+
 	static private Properties			m_p;
 
 	static private Map<String, Object>	m_map;
@@ -70,6 +71,7 @@ public class DeveloperOptions {
 	static public synchronized boolean isDeveloperWorkstation() {
 		return m_isdeveloper;
 	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getting values.										*/
 	/*--------------------------------------------------------------*/
