@@ -25,7 +25,7 @@ public class AsyncContainer extends Div {
 		//-- Render a thingy containing a spinner
 		setCssClass("ui-asc");
 		Img img = new Img();
-		img.setSrc(PageContext.getRequestContext().getRelativeThemePath("spinner.gif"));
+		img.setSrc(PageContext.getRequestContext().getRelativeThemePath("asy-container-busy.gif"));
 		add(img);
 		DefaultButton db = new DefaultButton("Cancel", new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {

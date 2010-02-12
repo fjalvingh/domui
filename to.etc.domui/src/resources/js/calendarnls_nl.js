@@ -78,6 +78,7 @@ Calendar._TT["NEXT_YEAR"] = "Volgend jaar (ingedrukt voor menu)";
 Calendar._TT["SEL_DATE"] = "Selecteer datum";
 Calendar._TT["DRAG_TO_MOVE"] = "Klik en sleep om te verplaatsen";
 Calendar._TT["PART_TODAY"] = " (vandaag)";
+Calendar._TT["INVALID"] = "Ongeldige datum";
 
 // the following is to inform that "%s" is to be the first day of week
 // %s will be replaced with the day name.

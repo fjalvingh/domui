@@ -274,6 +274,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return m_tag;
 	}
 
+	/**
+	 * INTERNAL USE ONLY, FOR SPECIAL CASES!!!! Node tags may NEVER change once rendered to the browser.
+	 * @param tag
+	 */
 	final protected void setTag(final String tag) {
 		m_tag = tag;
 	}
@@ -540,9 +544,19 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		m_onMouseDownJS = onMouseDownJS;
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Javascript handling.								*/
+	/*--------------------------------------------------------------*/
 	/**
-	 * EXPERIMENTAL This adds a Javascript segment to be executed as soon as the
-	 * current request returns. The code is rendered only once.
+	 * This adds a Javascript segment to be executed <b>one time</b>, as soon as the
+	 * current request returns. <b>The code is rendered only once</b>. This should
+	 * only be used in "event" based code; if you need javascript to <i>create</i> a component
+	 * you need to call {@link #appendCreateJS(CharSequence)}. This method can
+	 * be called from all code to add a Javascript to execute on the browser. This
+	 * Javascript should <i>only</i> reference global state or this specific component
+	 * <b>because the order of execution for multiple components is explicitly undefined</b>.
+	 *
 	 * @param js
 	 */
 	public void appendJavascript(final CharSequence js) {
@@ -557,8 +571,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
-	 * EXPERIMENTAL This adds a Javascript segment to be executed when the component is (re)constructed. It
-	 * gets added to the page's onload() code every time this object is constructed.
+	 * This adds a Javascript segment to be executed when the component is (re)constructed. It
+	 * gets added to the page's onload() code every time this object is constructed. It gets
+	 * rendered <i>only</i> when the component is initially created <i>or</i> when the page
+	 * is fully refreshed. The latter means that this string <b>may not contain</b> state
+	 * information because this means that the running Javascript state of the component will
+	 * be reset when the page is refreshed.
+	 * This Javascript should <i>only</i> reference global state or this specific component
+	 * <b>because the order of execution for multiple components is explicitly undefined</b>.
+	 *
 	 * @param js
 	 */
 	public void appendCreateJS(final CharSequence js) {
@@ -572,6 +593,36 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return m_createJS;
 	}
 
+	/**
+	 * This gets called when a component is re-rendered fully because of a full page
+	 * refresh. It should only be used for components that maintain a lot of state
+	 * in Javascript on the browser. These components need to add Javascript commands
+	 * to that browser to restore/initialize the state to whatever is present in the
+	 * server's data store. It must do that by adding the needed Javascript to the buffer
+	 * passed.
+	 *
+	 * @param sb
+	 * @throws Exception
+	 */
+	public void renderJavascriptState(StringBuilder sb) throws Exception {
+
+	}
+
+	public void onBeforeFullRender() throws Exception {
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Generic attribute and event handling.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * This is a generic method to add tag add attributes to a tag. It can be used to add
+	 * attributes that are not defined on the HTML class for the node, like "onblur", "testid"
+	 * and the like. There are no limitations to what can be generated with it but since it
+	 * is expensive it should be used little. If a given attribute is used many times it
+	 * must be created as a field proper.
+	 * @param name
+	 * @param value
+	 */
 	public void setSpecialAttribute(final String name, final String value) {
 		if(m_specialAttributes == null) {
 			m_specialAttributes = new ArrayList<String>(5);
@@ -594,6 +645,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		changed();
 	}
 
+	/**
+	 * Return the list of special attributes and their value. The even index retrieves
+	 * the name, the odd index it's value. See {@link #setSpecialAttribute(String, String)} for
+	 * details.
+	 *
+	 * @return
+	 */
 	public List<String> getSpecialAttributeList() {
 		return m_specialAttributes;
 	}

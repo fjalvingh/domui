@@ -1,7 +1,10 @@
 package to.etc.domui.state;
 
+import java.util.*;
+
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * Moving to other pages.
@@ -10,9 +13,7 @@ import to.etc.domui.dom.html.*;
  * Created on Jan 9, 2009
  */
 final public class UIGoto {
-	static public final String SINGLESHOT_ERROR = "uigoto.error";
-
-	static public final String SINGLESHOT_INFO = "uigoto.info";
+	static public final String SINGLESHOT_MESSAGE = "uigoto.msgs";
 
 	private UIGoto() {}
 
@@ -147,21 +148,55 @@ final public class UIGoto {
 		context().internalSetNextPage(MoveMode.BACK, null, null, null, null);
 	}
 
+	/**
+	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
+	 * message as an ERROR message.
+	 *
+	 * @param pg
+	 * @param msg
+	 */
 	static public final void clearPageAndReload(Page pg, String msg) {
 		clearPageAndReload(pg, pg.getBody().getClass(), pg.getPageParameters(), msg);
 	}
 
+	/**
+	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
+	 * message as an ERROR message.
+	 *
+	 * @param pg
+	 * @param target
+	 * @param pp
+	 * @param msg
+	 */
 	static public final void clearPageAndReload(Page pg, Class< ? extends UrlPage> target, PageParameters pp, String msg) {
-		WindowSession	ws	= pg.getConversation().getWindowSession();
-		ws.setAttribute(UIGoto.SINGLESHOT_ERROR, msg);
-		pg.getConversation().destroy();
-		replace(target, pp);
+		clearPageAndReload(pg, UIMessage.error(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, msg), pp);
 	}
 
-	static public final void clearPageAndReloadWithInfo(Page pg, UIMessage msg) {
+	/**
+	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
+	 * message.
+	 *
+	 * @param pg
+	 * @param msg
+	 */
+	static public final void clearPageAndReload(Page pg, UIMessage msg) {
+		clearPageAndReload(pg, msg, pg.getPageParameters());
+	}
+
+	/**
+	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
+	 * message.
+	 *
+	 * @param pg
+	 * @param msg
+	 * @param pp
+	 */
+	static public final void clearPageAndReload(Page pg, UIMessage msg, PageParameters pp) {
 		WindowSession ws = pg.getConversation().getWindowSession();
-		ws.setAttribute(UIGoto.SINGLESHOT_INFO, msg);
+		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
+		msgl.add(msg);
+		ws.setAttribute(UIGoto.SINGLESHOT_MESSAGE, msgl);
 		pg.getConversation().destroy();
-		replace(pg.getBody().getClass(), pg.getPageParameters());
+		replace(pg.getBody().getClass(), pp);
 	}
 }

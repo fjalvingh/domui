@@ -13,7 +13,6 @@ import to.etc.domui.util.*;
  * It can be additionaly customized (before and after custom content) by setting provided {@link ICustomContentFactory} fields.
  * See {@link SimpleLookupInputRenderer#setBeforeContent} and {@link SimpleLookupInputRenderer#setAfterContent}.  
  * Custom added content would be enveloped into separate row(s).  
- * 
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Feb 10, 2010

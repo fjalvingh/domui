@@ -1,6 +1,5 @@
 package to.etc.domui.component.meta.impl;
 
-import java.beans.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
@@ -90,10 +89,19 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		decodeClassAnnotations();
 
 		try {
-			BeanInfo bi = Introspector.getBeanInfo(m_metaClass);
-			PropertyDescriptor[] ar = bi.getPropertyDescriptors();
-			//			for(PropertyDescriptor pd : ar)
-			//				System.out.println("PR: " + pd.getName());
+			/*
+			 * Business as usual: the Introspector does not properly resolve properties when using
+			 * invariant returns. We're forced to do something by ourselves. The Introspector does
+			 * not return the defined method in the class, but it returns the synthetic proxy generated
+			 * by the compiler with the fixed "Object" return type. This means that the return type
+			 * would be incorrect, but even worse: the generated method lacks the annotations on
+			 * the real method. This caused metadata to be unavailable for classes that implemented
+			 * IIdentifyable&gt;Long&gl;.
+			 *
+			 * BeanInfo bi = Introspector.getBeanInfo(m_metaClass);
+			 * PropertyDescriptor[] ar = bi.getPropertyDescriptors();
+			 */
+			List<PropertyInfo> pilist = ClassUtil.getProperties(m_metaClass);
 
 			//-- If this is an enumerable thingerydoo...
 			if(m_metaClass == Boolean.class) {
@@ -104,47 +112,21 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 			}
 
 			//-- Create model data from this thingy.
-
-			for(PropertyDescriptor pd : ar) {
+			for(PropertyInfo pd : pilist) {
 				createPropertyInfo(pd);
 			}
-		} catch(IntrospectionException x) {
-			throw new WrappedException(x);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
 		}
 	}
 
-	private void createPropertyInfo(final PropertyDescriptor pd) {
-		//		System.out.println("Property: "+pd.getName()+", reader="+pd.getReadMethod());
+	private void createPropertyInfo(final PropertyInfo pd) {
+		//		System.out.println("Property: " + pd.getName() + ", reader=" + pd.getGetter());
 		//		if(pd.getName().equals("id"))
 		//			System.out.println("GOTCHA");
 
-		Method rm = pd.getReadMethod();
-		if(rm == null) {
-			//-- Handle 'isXxxx()' getters because those morons at Sun *still* don't get it.
-			StringBuilder sb = new StringBuilder();
-			sb.append("is");
-			String s = pd.getName();
-			if(s.length() > 2 && Character.isUpperCase(s.charAt(1)))
-				sb.append(s);
-			else {
-				sb.append(Character.toUpperCase(s.charAt(0)));
-				sb.append(s, 1, s.length());
-			}
-			s = sb.toString();
-
-			try {
-				rm = getActualClass().getMethod(s, (Class[]) null);
-			} catch(Exception x) {}
-			if(rm == null) // If there's no READ method here just ignore it? This is the case for getters like getChild(int ix) which are stupidly seen as array getters.
-				return;
-			//				throw new IllegalStateException("The 'read' method for property "+pd.getName()+" of class "+this+" is not present!?");
-			try {
-				pd.setReadMethod(rm);
-			} catch(IntrospectionException x) {
-				throw new WrappedException("Unexpected exception out of very dumb Sun interface: " + x, x);
-			}
-		}
-		if(pd.getReadMethod().getParameterTypes().length != 0)
+		Method rm = pd.getGetter();
+		if(pd.getGetter().getParameterTypes().length != 0)
 			return;
 		DefaultPropertyMetaModel pm = new DefaultPropertyMetaModel(this, pd);
 		m_propertyMap.put(pm.getName(), pm);

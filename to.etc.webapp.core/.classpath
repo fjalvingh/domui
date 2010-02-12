@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/bin-j2ee-1.4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.alg"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/bin-junit-4.4"/>
