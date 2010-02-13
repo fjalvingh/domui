@@ -111,7 +111,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 						cssclass = null;
 						nodeRenderer = null;
 						nrclass = null;
-						nowrap = true;
+						nowrap = false;
 						break;
 
 					case '%':

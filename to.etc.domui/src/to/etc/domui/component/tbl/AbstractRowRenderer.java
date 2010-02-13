@@ -390,9 +390,9 @@ public class AbstractRowRenderer<T> {
 				cell = cc.add(s);
 			if(cd.getCssClass() != null)
 				cell.addCssClass(cd.getCssClass());
-			if(cd.isNowrap())
-				cell.setNowrap(true);
 		}
+		if(cd.isNowrap())
+			cell.setNowrap(true);
 
 		//-- If a cellclicked thing is present attach it to the td
 		if(cd.getCellClicked() != null) {
