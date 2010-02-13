@@ -17,6 +17,8 @@ public class TextScanner {
 
 	private long	m_lastint;
 
+	public TextScanner() {
+	}
 	public TextScanner(String s) {
 		setString(s);
 	}
@@ -116,6 +118,25 @@ public class TextScanner {
 		if(six == m_ix)
 			return null;
 		return m_text.substring(six, m_ix);
+	}
+
+	/**
+	 * Return the next char and advance the ptr.
+	 * @return
+	 */
+	public int nextChar() {
+		if(m_ix >= m_len)
+			return -1;
+		return m_text.charAt(m_ix++) & 0xffff;
+	}
+
+	public boolean skip(char c) {
+		if(m_ix >= m_len)
+			return false;
+		if((c & 0xffff) != m_text.charAt(m_ix))
+			return false;
+		m_ix++;
+		return true;
 	}
 
 	public char currentChar() {
