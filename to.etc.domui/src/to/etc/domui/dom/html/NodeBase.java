@@ -413,8 +413,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	final public void build() throws Exception {
 		if(!m_built) {
-			internalCreateContent();
 			m_built = true;
+			boolean ok = false;
+			try {
+				internalCreateContent();
+				ok = true;
+			} finally {
+				m_built = ok;
+			}
 		}
 	}
 
