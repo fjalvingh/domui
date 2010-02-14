@@ -109,6 +109,28 @@
 	border-color: 1px solid red;
 }
 
+/*** CaptionedHeader ***/
+.ui-chdr {
+	width: 100%;
+	background-image: url(bg-chdr.png);
+	margin-top: 10px;
+}
+.ui-chdr-ttl {
+/*	border: 1px dotted #333333; */
+	background-color: #bed6f8;
+	-moz-border-radius: 5px;
+	padding: 2px 10px 2px 10px;
+}
+.ui-chdr-l {
+	width: 20px;
+	padding: 0;
+	margin: 0;
+}
+.ui-chdr-c {
+	width: 1%;
+	overflow: visible;
+}
+
 /*** ErrorMessageDiv helper for components that handle their error display ***/
 .ui-emd {
 	background-color: #ffaaaa;
