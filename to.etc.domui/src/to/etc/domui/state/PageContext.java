@@ -88,7 +88,7 @@ public class PageContext {
 	static public IUser getLoggedInUser() {
 		IUser u = getCurrentUser();
 		if(u == null)
-			throw NotLoggedInException.create(getRequestContext());
+			throw NotLoggedInException.create(getRequestContext(), getCurrentPage());
 		return u;
 	}
 

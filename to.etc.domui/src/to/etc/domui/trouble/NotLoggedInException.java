@@ -1,5 +1,6 @@
 package to.etc.domui.trouble;
 
+import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -27,7 +28,7 @@ public class NotLoggedInException extends RuntimeException {
 	 * @param ctx
 	 * @return
 	 */
-	static public NotLoggedInException create(IRequestContext ctx) {
+	static public NotLoggedInException create(IRequestContext ctx, Page page) {
 		//-- Create the after-login target URL.
 		StringBuilder sb = new StringBuilder(256);
 		//				sb.append('/');
@@ -36,7 +37,12 @@ public class NotLoggedInException extends RuntimeException {
 		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 		sb.append('=');
 		sb.append(ctx.getWindowSession().getWindowID());
-		sb.append(".x"); // Dummy conversation ID
+
+		// FIXME Not having a page here is VERY questionable!!!
+		if(page != null)
+			sb.append('.').append(page.getConversation().getId());
+		else
+			sb.append(".x"); // Dummy conversation ID
 		DomUtil.addUrlParameters(sb, ctx, false);
 		return new NotLoggedInException(sb.toString()); // Force login exception.
 	}
