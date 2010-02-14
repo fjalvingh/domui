@@ -15,6 +15,7 @@ import ch.qos.logback.classic.joran.*;
 import ch.qos.logback.core.util.*;
 
 import to.etc.domui.util.*;
+import to.etc.net.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
@@ -33,6 +34,8 @@ public class AppFilter implements Filter {
 	private String m_applicationClassName;
 
 	private boolean m_logRequest;
+
+	static private String m_appContext;
 
 	/**
 	 * If a reloader is needed for debug/development pps this will hold the reloader.
@@ -58,6 +61,7 @@ public class AppFilter implements Filter {
 			}
 			NlsContext.setLocale(rq.getLocale());
 			//			NlsContext.setLocale(new Locale("nl", "NL"));
+			initContext(req);
 
 			if(m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain))
 				return;
@@ -77,6 +81,17 @@ public class AppFilter implements Filter {
 			x.printStackTrace();
 			throw x;
 		}
+	}
+
+	static synchronized private void initContext(ServletRequest req) {
+		if(m_appContext != null || !(req instanceof HttpServletRequest))
+			return;
+
+		m_appContext = NetTools.getApplicationContext((HttpServletRequest) req);
+	}
+
+	static synchronized public String internalGetWebappContext() {
+		return m_appContext;
 	}
 
 	private InputStream findLogConfig(String logconfig) {
