@@ -75,6 +75,8 @@ public class SimpleColumnDef {
 			throw new IllegalStateException("All columns MUST have some name");
 		setNumericPresentation(m.getNumericPresentation());
 		setRenderHint(m.getRenderHint());
+		if(m.getDisplayLength() > 0)
+			setDisplayLength(m.getDisplayLength());
 	}
 
 	public String getColumnLabel() {
