@@ -13,7 +13,6 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
-import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -76,6 +75,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		throw new IllegalStateException("Cannot decode URL " + ctx.getInputPath());
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Initial and initial (full) page rendering.			*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Intermediary impl; should later use interface impl on class to determine factory
 	 * to use.
@@ -130,7 +132,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		if(cm == null) {
 			if(action != null) {
-				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_EXPIRED));
+				generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
 				return;
 			}
 
@@ -188,7 +190,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					/*
 					 * The page tag differs-> session has expired.
 					 */
-					generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_EXPIRED));
+					generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
 					return;
 				}
 			}
@@ -214,62 +216,57 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		/*
 		 * We are doing a full refresh/rebuild of a page.
 		 */
-		ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
-
-		if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
-			page.getBody().forceRebuild(); // Cleanout state
-			QContextManager.closeSharedContext(page.getConversation());
-		}
-
-		page.getBody().onReload();
-
-		//-- EXPERIMENTAL Handle stored messages in session
-		List<UIMessage> ml = (List<UIMessage>) cm.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
-		if(ml != null) {
-			if(ml.size() > 0) {
-				page.getBody().build();
-				for(UIMessage m : ml)
-					page.getBody().addGlobalMessage(m);
-			}
-			cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
-		}
-
-		// ORDERED
-		page.getConversation().processDelayedResults(page);
-
-		//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
-		callNewPageListeners(page);
-		// END ORDERED
-
-		//-- Start the main rendering process. Determine the browser type.
 		long ts = System.nanoTime();
-		if(page.getBody() instanceof IXHTMLPage)
-			ctx.getResponse().setContentType("application/xhtml+xml; charset=UTF-8");
-		else
-			ctx.getResponse().setContentType("text/html; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
-
-		//		String	usag = ctx.getUserAgent();
-		HtmlFullRenderer hr = m_application.findRendererFor(ctx.getBrowserVersion(), out);
-
 		try {
+			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
+
+			if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
+				page.getBody().forceRebuild(); // Cleanout state
+				QContextManager.closeSharedContext(page.getConversation());
+			}
+
+			page.getBody().onReload();
+
+			//-- EXPERIMENTAL Handle stored messages in session
+			List<UIMessage> ml = (List<UIMessage>) cm.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
+			if(ml != null) {
+				if(ml.size() > 0) {
+					page.getBody().build();
+					for(UIMessage m : ml)
+						page.getBody().addGlobalMessage(m);
+				}
+				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
+			}
+
+			// ORDERED
+			page.getConversation().processDelayedResults(page);
+
+			//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
+			callNewPageListeners(page);
+			// END ORDERED
+
+			//-- Start the main rendering process. Determine the browser type.
+			if(page.getBody() instanceof IXHTMLPage)
+				ctx.getResponse().setContentType("application/xhtml+xml; charset=UTF-8");
+			else
+				ctx.getResponse().setContentType("text/html; charset=UTF-8");
+			ctx.getResponse().setCharacterEncoding("UTF-8");
+			IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+
+			//		String	usag = ctx.getUserAgent();
+			HtmlFullRenderer hr = m_application.findRendererFor(ctx.getBrowserVersion(), out);
+
 			hr.render(ctx, page);
 		} catch(Exception x) {
-			//-- Full renderer aborted. Handle exception counting.
-			if(!page.isFullRenderCompleted()) { // Has the page at least once rendered OK?
-				//-- This page is initially unrenderable; the error is not due to state changes. Just rethrow and give up.
-				throw x;
+			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
+				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
+				if(url != null) {
+					generateRedirect(ctx, url, "You need to be logged in");
+					return;
+				}
 			}
 
-			//-- The page was initially renderable; the current problem is due to state changes. Increment the exception count and if too big clear the page before throwing up.
-			page.setPageExceptionCount(page.getPageExceptionCount() + 1);
-			if(page.getPageExceptionCount() >= 2) {
-				//-- Just destroy the stuff - it keeps dying on you.
-				page.getConversation().destroy();
-				throw new RuntimeException("The page keeps dying on you.. The page has been destroyed so that a new one will be allocated on the next refresh.", x);
-			}
-			throw x;
+			checkFullExceptionCount(page, x); // Rethrow, but clear state if page throws up too much.
 		} finally {
 			page.clearDeltaFully();
 		}
@@ -286,6 +283,34 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		page.getConversation().startDelayedExecution();
 	}
 
+	/**
+	 * Check if an exception is thrown every time; if so reset the page and rebuild it again.
+	 * @param page
+	 * @param x
+	 * @throws Exception
+	 */
+	private void checkFullExceptionCount(Page page, Exception x) throws Exception {
+		//-- Full renderer aborted. Handle exception counting.
+		if(!page.isFullRenderCompleted()) { // Has the page at least once rendered OK?
+			//-- This page is initially unrenderable; the error is not due to state changes. Just rethrow and give up.
+			throw x;
+		}
+
+		//-- The page was initially renderable; the current problem is due to state changes. Increment the exception count and if too big clear the page before throwing up.
+		page.setPageExceptionCount(page.getPageExceptionCount() + 1);
+		if(page.getPageExceptionCount() >= 2) {
+			//-- Just destroy the stuff - it keeps dying on you.
+			page.getConversation().destroy();
+			throw new RuntimeException("The page keeps dying on you.. The page has been destroyed so that a new one will be allocated on the next refresh.", x);
+		}
+
+		//-- Just throw it now.
+		throw x;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handle existing page events.						*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Authentication checks: if the page has a "UIRights" annotation we need a logged-in
 	 * user to check it's rights against the page's required rights.
@@ -501,6 +526,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(LOG.isDebugEnabled())
 				LOG.debug("rq: ignoring validation exception " + x);
 		} catch(Exception x) {
+			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
+				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
+				if(url != null) {
+					generateRedirect(ctx, url, "You need to be logged in");
+					return;
+				}
+			}
+
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl == null) // No handler?
 				throw x; // Move on, nothing to see here,
@@ -523,7 +556,15 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		callNewPageListeners(page);
 
 		//-- We stay on the same page. Render tree delta as response
-		renderOptimalDelta(ctx, page, inhibitlog);
+		try {
+			renderOptimalDelta(ctx, page, inhibitlog);
+		} catch(NotLoggedInException x) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
+			String url = m_application.handleNotLoggedInException(ctx, page, x);
+			if(url != null) {
+				generateRedirect(ctx, url, "You need to be logged in");
+				return;
+			}
+		}
 	}
 	static public void renderOptimalDelta(final RequestContextImpl ctx, final Page page) throws Exception {
 		renderOptimalDelta(ctx, page, false);

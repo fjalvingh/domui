@@ -2,11 +2,13 @@ package to.etc.domui.state;
 
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.http.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.login.*;
 import to.etc.domui.server.*;
+import to.etc.domui.trouble.*;
 
 /**
  * A class which allows access to the page's context and related information. This
@@ -67,8 +69,27 @@ public class PageContext {
 		return getCurrentPage().getConversation();
 	}
 
+	/**
+	 * Return the currently-known logged in user, or null if unknown/not logged in.
+	 * FIXME Should be named findCurrentUser().
+	 * @return
+	 */
+	@Nullable
 	static public IUser getCurrentUser() {
 		return m_currentUser.get();
+	}
+
+	/**
+	 * This returns the currently logged in user. If the user is not logged in this throws
+	 * a login exception which should cause the user to log in.
+	 * @return
+	 */
+	@Nonnull
+	static public IUser getLoggedInUser() {
+		IUser u = getCurrentUser();
+		if(u == null)
+			throw NotLoggedInException.create(getRequestContext());
+		return u;
 	}
 
 	/*--------------------------------------------------------------*/

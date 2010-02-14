@@ -917,6 +917,30 @@ public abstract class DomApplication {
 	}
 
 	/**
+	 * Responsible for redirecting to the appropriate login page. This default implementation checks
+	 * to see if there is an authenticator registered and uses it's result to redirect. If no
+	 * authenticator is registered this returns null, asking the caller to do normal exception
+	 * handling.
+	 *
+	 * @param ci
+	 * @param page
+	 * @param nlix
+	 */
+	public String handleNotLoggedInException(RequestContextImpl ci, Page page, NotLoggedInException x) {
+		ILoginDialogFactory ldf = ci.getApplication().getLoginDialogFactory();
+		if(ldf == null)
+			return null; // Nothing can be done- I don't know how to log in.
+
+		//-- Redirect to the LOGIN page, passing the current page to return back to.
+		String target = ldf.getLoginRURL(x.getURL()); // Create a RURL to move to.
+		if(target == null)
+			throw new IllegalStateException("The Login Dialog Handler=" + ldf + " returned an invalid URL for the login dialog.");
+
+		//-- Make this an absolute URL by appending the webapp path
+		return ci.getRelativePath(target);
+	}
+
+	/**
 	 * Get the page injector.
 	 * @return
 	 */

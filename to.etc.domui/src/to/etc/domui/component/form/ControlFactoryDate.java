@@ -40,7 +40,7 @@ public class ControlFactoryDate implements ControlFactory {
 				default:
 					throw new IllegalStateException("Unsupported temporal metadata type: " + pmm.getTemporal());
 				case UNKNOWN:
-					/*$FALL_THROUGH*/
+					/*$FALL_THROUGH$*/
 				case DATETIME:
 					cc = DateTimeConverter.class;
 					break;
