@@ -13,17 +13,17 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 15, 2010
  */
-public class DisplayOnlyPropertyBinding implements IModelBinding, IFormControl {
-	final IControl<Object> m_control;
+public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IFormControl {
+	final IDisplayControl<Object> m_control;
 
 	private PropertyMetaModel m_propertyMeta;
 
 	private IReadOnlyModel< ? > m_model;
 
-	public DisplayOnlyPropertyBinding(IReadOnlyModel< ? > model, PropertyMetaModel propertyMeta, IInputNode< ? > control) {
+	public DisplayOnlyPropertyBinding(IReadOnlyModel< ? > model, PropertyMetaModel propertyMeta, IDisplayControl<T> control) {
 		m_model = model;
 		m_propertyMeta = propertyMeta;
-		m_control = (IInputNode<Object>) control;
+		m_control = (IDisplayControl<Object>) control;
 	}
 
 	public void moveControlToModel() throws Exception {
@@ -43,11 +43,10 @@ public class DisplayOnlyPropertyBinding implements IModelBinding, IFormControl {
 	}
 
 	public void setControlsEnabled(boolean on) {
-		m_control.setReadOnly(!on);
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IControl interface									*/
+	/*	CODING:	IDisplayControl interface									*/
 	/*--------------------------------------------------------------*/
 	/**
 	 * {@inheritDoc}
@@ -69,7 +68,7 @@ public class DisplayOnlyPropertyBinding implements IModelBinding, IFormControl {
 	 */
 	@Override
 	public Object getValueSafe() {
-		return m_control.getValueSafe();
+		return m_control.getValue();
 	}
 
 	/**
@@ -78,14 +77,13 @@ public class DisplayOnlyPropertyBinding implements IModelBinding, IFormControl {
 	 */
 	@Override
 	public IValueChanged< ? > getOnValueChanged() {
-		return m_control.getOnValueChanged();
+		return null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void setOnValueChanged(IValueChanged< ? > listener) {
-		m_control.setOnValueChanged(listener);
 	}
 
 	/**
@@ -94,7 +92,8 @@ public class DisplayOnlyPropertyBinding implements IModelBinding, IFormControl {
 	 */
 	@Override
 	public boolean hasError() {
-		return m_control.hasError();
+		return false;
+		//		return m_control.hasError();
 	}
 
 	/**
@@ -103,7 +102,6 @@ public class DisplayOnlyPropertyBinding implements IModelBinding, IFormControl {
 	 */
 	@Override
 	public void setDisabled(boolean d) {
-		m_control.setDisabled(d);
 	}
 
 	/**
@@ -112,7 +110,6 @@ public class DisplayOnlyPropertyBinding implements IModelBinding, IFormControl {
 	 */
 	@Override
 	public void setMandatory(boolean ro) {
-		m_control.setMandatory(ro);
 	}
 
 	/**
@@ -121,7 +118,6 @@ public class DisplayOnlyPropertyBinding implements IModelBinding, IFormControl {
 	 */
 	@Override
 	public void setReadOnly(boolean ro) {
-		m_control.setReadOnly(ro);
 	}
 
 	/**
@@ -139,24 +135,28 @@ public class DisplayOnlyPropertyBinding implements IModelBinding, IFormControl {
 	 * @see to.etc.domui.dom.errors.INodeErrorDelegate#clearMessage()
 	 */
 	public void clearMessage() {
-		m_control.clearMessage();
+	//		m_control.clearMessage();
 	}
 
 	public UIMessage getMessage() {
-		return m_control.getMessage();
+		return null;
+		//		return m_control.getMessage();
 	}
 
 	public UIMessage setMessage(UIMessage m) {
-		return m_control.setMessage(m);
+		throw new IllegalStateException("Attempt to set an error message on a display-only control: " + m_control + ", bound on " + m_propertyMeta);
+		//		return m_control.setMessage(m);
 	}
 
 	@Override
 	public String getErrorLocation() {
-		return m_control.getErrorLocation();
+		return null;
+		//		return m_control.getErrorLocation();
 	}
 
 	@Override
 	public void setErrorLocation(String errorLocation) {
-		m_control.setErrorLocation(errorLocation);
+		throw new IllegalStateException("Attempt to set an error location on a display-only control: " + m_control + ", bound on " + m_propertyMeta);
+		//		m_control.setErrorLocation(errorLocation);
 	}
 }

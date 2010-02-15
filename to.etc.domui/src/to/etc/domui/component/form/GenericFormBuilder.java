@@ -98,6 +98,58 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	}
 
 	/**
+	 * Add an input for the specified property. The property is based at the current input
+	 * class. The input model is default (using metadata) and the property is labeled using
+	 * the metadata-provided label.
+	 *
+	 * FORMAL-INTERFACE.
+	 *
+	 * @param name
+	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
+	 */
+	public IFormControl addProp(final String name, final boolean readOnly) {
+		if(readOnly) {
+			return addDisplayProp(name);
+		} else {
+			return addProp(name);
+		}
+	}
+
+	/**
+	 * Add an input for the specified property. The property is based at the current input
+	 * class. The input model is default (using metadata) and the property is labeled using
+	 * the metadata-provided label.
+	 *
+	 * FORMAL-INTERFACE.
+	 *
+	 * @param name
+	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
+	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
+	 */
+	public IFormControl addProp(final String name, final boolean readOnly, final boolean mandatory) {
+		PropertyMetaModel pmm = resolveProperty(name);
+		String label = pmm.getDefaultLabel();
+
+		//-- Check control permissions: does it have view permissions?
+		if(!rights().calculate(pmm))
+			return null;
+		final ControlFactory.Result r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
+		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
+
+		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
+		if(label != null) {
+			for(NodeBase b : r.getNodeList())
+				b.setErrorLocation(label);
+		}
+
+		if(r.getBinding() != null)
+			getBindings().add(r.getBinding());
+		else
+			throw new IllegalStateException("No binding for a " + r);
+		return r.getFormControl();
+	}
+
+	/**
 	 * Add a display-only field for the specified property. The field cannot be made
 	 * editable.
 	 *
