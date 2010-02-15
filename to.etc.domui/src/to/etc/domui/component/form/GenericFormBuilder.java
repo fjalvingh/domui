@@ -105,13 +105,13 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * FORMAL-INTERFACE.
 	 *
 	 * @param name
-	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
+	 * @param editable When false add a display-only control, else add an editable control.
 	 */
-	public IFormControl addProp(final String name, final boolean readOnly) {
-		if(readOnly) {
-			return addDisplayProp(name);
-		} else {
+	public IFormControl addProp(final String name, final boolean editable) {
+		if(editable) {
 			return addProp(name);
+		} else {
+			return addDisplayProp(name);
 		}
 	}
 
