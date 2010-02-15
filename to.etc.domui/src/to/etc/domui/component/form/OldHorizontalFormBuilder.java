@@ -61,7 +61,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 			if(editable)
 				res[ix] = addProp(name);
 			else
-				res[ix] = addReadOnlyProp(name);
+				res[ix] = addDisplayProp(name);
 			ix++;
 		}
 		return res;

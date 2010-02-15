@@ -45,6 +45,16 @@ public class FormBuilderBase {
 		setClassModel(clz, mdl);
 	}
 
+	/**
+	 * Initialize with a single unchangeable instance. Please consider using a model though
+	 * as it is more resilient to changes.
+	 * @param <T>
+	 * @param instance
+	 */
+	public <T> FormBuilderBase(T instance) {
+		setInstance(instance);
+	}
+
 	final public ControlBuilder getBuilder() {
 		if(m_builder == null)
 			m_builder = DomApplication.get().getControlBuilder();

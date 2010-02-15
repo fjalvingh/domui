@@ -53,6 +53,15 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		super(clz, mdl);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @param <T>
+	 * @param instance
+	 */
+	public <T> GenericFormBuilder(T instance) {
+		super(instance);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Core shared public interface - all builders.		*/
 	/*--------------------------------------------------------------*/
@@ -70,16 +79,6 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	}
 
 	/**
-	 * Add an input for the specified property just as <code>addProp(String)</code>,
-	 * only this input won't be editable.
-	 *
-	 * @param name
-	 */
-	public IFormControl addReadOnlyProp(final String name) {
-		return addReadOnlyProp(name, null);
-	}
-
-	/**
 	 * Add an input for the specified property. The property is based at the current input
 	 * class. The input model is default (using metadata) and the property is labeled.
 	 *
@@ -92,20 +91,30 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		PropertyMetaModel pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
-		boolean edit = true;
+		boolean editable = true;
 		if(pmm.getReadOnly() == YesNoType.YES)
-			edit = false;
-		return addPropertyControl(name, label, pmm, edit);
+			editable = false;
+		return addPropertyControl(name, label, pmm, editable);
+	}
+
+	/**
+	 * Add a display-only field for the specified property. The field cannot be made
+	 * editable.
+	 *
+	 * @param name
+	 */
+	public IFormControl addDisplayProp(final String name) {
+		return addDisplayProp(name, null);
 	}
 
 	/**
 	 * Add an input for the specified property just as <code>addProp(String, String)</code>,
-	 * only this input won't be editable.
+	 * only this input won't be editable (ever).
 	 *
 	 * @param name
 	 * @param label
 	 */
-	public IFormControl addReadOnlyProp(final String name, String label) {
+	public IFormControl addDisplayProp(final String name, String label) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
@@ -170,71 +179,19 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	}
 
 	/**
-	 * Add an input for the specified property. The property is based at the current input
-	 * class. The input model is default (using metadata) and the property is labeled using
-	 * the metadata-provided label.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param name
-	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
-	 */
-	public IFormControl addProp(final String name, final boolean readOnly) {
-		if(readOnly) {
-			return addReadOnlyProp(name);
-		} else {
-			return addProp(name);
-		}
-	}
-
-	/**
-	 * Add an input for the specified property. The property is based at the current input
-	 * class. The input model is default (using metadata) and the property is labeled using
-	 * the metadata-provided label.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param name
-	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
-	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
-	 */
-	public IFormControl addProp(final String name, final boolean readOnly, final boolean mandatory) {
-		PropertyMetaModel pmm = resolveProperty(name);
-		String label = pmm.getDefaultLabel();
-
-		//-- Check control permissions: does it have view permissions?
-		if(!rights().calculate(pmm))
-			return null;
-		final ControlFactory.Result r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
-
-		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
-		if(label != null) {
-			for(NodeBase b : r.getNodeList())
-				b.setErrorLocation(label);
-		}
-
-		if(r.getBinding() != null)
-			getBindings().add(r.getBinding());
-		else
-			throw new IllegalStateException("No binding for a " + r);
-		return r.getFormControl();
-	}
-
-	/**
 	 *
 	 * @param name
 	 * @param label
 	 * @param pmm
-	 * @param editPossible, when false, the rendered control will be display-only and cannot be changed back to EDITABLE.
+	 * @param editable  when false, the rendered control will be display-only.
 	 * @return	If the property was created and is controllable this will return an IFormControl instance. This will explicitly <i>not</i> be
 	 * 			created if the control is readonly, not allowed by permissions or simply uncontrollable (the last one is uncommon).
 	 */
-	protected IFormControl addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editPossible) {
+	protected IFormControl addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editable) {
 		//-- Check control permissions: does it have view permissions?
 		if(!rights().calculate(pmm))
 			return null;
-		final ControlFactory.Result r = createControlFor(getModel(), pmm, editPossible && rights().isEditable()); // Add the proper input control for that type
+		final ControlFactory.Result r = createControlFor(getModel(), pmm, editable && rights().isEditable()); // Add the proper input control for that type
 		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), pmm);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
@@ -283,11 +240,10 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 */
 	public IFormControl[] addProps(final String... names) {
 		return addListOfProperties(true, names);
-		//		return this;
 	}
 
 	/**
-	 * Add the specified properties to the form as READONLY properties, in the current
+	 * Add the specified properties to the form as display-only properties, in the current
 	 * mode. Watch out: if a MODIFIER is in place the modifier is obeyed for <b>all
 	 * properties</b>, not for the first one only!! This means that when this gets called
 	 * like:
@@ -300,8 +256,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param names
 	 */
-	public IFormControl[] addReadOnlyProps(final String... names) {
+	public IFormControl[] addDisplayProps(final String... names) {
 		return addListOfProperties(false, names);
-		//		return this;
 	}
 }

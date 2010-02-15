@@ -325,8 +325,10 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			sb.append("false");
 		else if(val instanceof Enum< ? >)
 			sb.append(((Enum< ? >) val).name());
-		else
-			throw new IllegalStateException("Property value " + val + " for property " + this + " is not an enumerable or boolean domain");
+		else if(val instanceof Boolean) {
+			sb.append(((Boolean)val).booleanValue() ? "true" : "false");
+		} else
+			throw new IllegalStateException("Property value " + val + " for property " + this + " is not an enumerable or boolean domain (class=" + val.getClass() + ")");
 		sb.append(".label");
 
 		return b.findMessage(loc, sb.toString()); // jal 20081201 Do not lie about a resource based name!!

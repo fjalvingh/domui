@@ -58,7 +58,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	}
 
 	public <T> TabularFormBuilder(T instance) {
-		setInstance(instance);
+		super(instance);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -69,31 +69,6 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		m_colRow = 0;
 		m_colCol = 0;
 	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Core public interface.								*/
-	/*--------------------------------------------------------------*/
-	//	/**
-	//	 * {@inheritDoc}
-	//	 * Overridden to allow chaining.
-	//	 */
-	//	@Override
-	//	public IFormControl[] addProps(final String... names) {
-	//		return (TabularFormBuilder) super.addProps(names);
-	//	}
-	//
-	//	/**
-	//	 * {@inheritDoc}
-	//	 * Overridden to allow chaining.
-	//	 * @param names
-	//	 * @return
-	//	 */
-	//	@Override
-	//	public TabularFormBuilder addReadOnlyProps(final String... names) {
-	//		return (TabularFormBuilder) super.addReadOnlyProps(names);
-	//	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	GenericFormBuilder implementation.					*/
@@ -116,7 +91,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 			if(editable)
 				res[ix] = addProp(name);
 			else
-				res[ix] = addReadOnlyProp(name);
+				res[ix] = addDisplayProp(name);
 			ix++;
 		}
 		if(nextm != null)

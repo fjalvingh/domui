@@ -33,6 +33,13 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public <T> GenericTableFormBuilder(T instance) {
+		super(instance);
+	}
+
+	/**
 	 * Called when a new table, body or whatever is made current; it should reset all known positioning information.
 	 */
 	protected void internalClearLocation() {

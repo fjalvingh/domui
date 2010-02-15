@@ -207,7 +207,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 			if(editable)
 				res[ix] = addProp(name);
 			else
-				res[ix] = addReadOnlyProp(name);
+				res[ix] = addDisplayProp(name);
 			ix++;
 		}
 		clearRun();
@@ -509,16 +509,4 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 		m_controlWidth = s;
 		return this;
 	}
-
-	//	public HorizontalFormBuilder label(String s) {
-	//		m_label = s;
-	//		return this;
-	//	}
-	//
-	//	public HorizontalFormBuilder control(String s) {
-	//		m_control = s;
-	//		return this;
-	//	}
-
-
 }
