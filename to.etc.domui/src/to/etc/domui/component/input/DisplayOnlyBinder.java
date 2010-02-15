@@ -7,16 +7,15 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 /**
- * EXPERIMENTAL - DO NOT USE.
- * This is a simple binder implementation for base IInputNode<T> implementing controls. It handles all
- * binding chores.
+ * This is a binder to be used when IDisplayControl's are to be bound
+ * to a model.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Oct 13, 2009
+ * Created on Feb 15, 2010
  */
-public class SimpleBinder implements IBinder {
+public class DisplayOnlyBinder implements IBinder {
 	@Nonnull
-	private IInputNode< ? > m_control;
+	private IDisplayControl< ? > m_control;
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
 	@Nullable
@@ -34,7 +33,7 @@ public class SimpleBinder implements IBinder {
 	@Nullable
 	private IBindingListener< ? > m_listener;
 
-	public SimpleBinder(IInputNode< ? > control) {
+	public DisplayOnlyBinder(@Nonnull IDisplayControl< ? > control) {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
 		m_control = control;
@@ -147,7 +146,10 @@ public class SimpleBinder implements IBinder {
 		}
 	}
 
+	/**
+	 * Not applicable for display-only controls.
+	 * @see to.etc.domui.component.form.IModelBinding#setControlsEnabled(boolean)
+	 */
 	public void setControlsEnabled(boolean on) {
-		m_control.setDisabled(!on);
 	}
 }

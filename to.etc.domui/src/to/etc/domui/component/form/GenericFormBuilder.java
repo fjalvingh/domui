@@ -123,7 +123,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * FORMAL-INTERFACE.
 	 *
 	 * @param name
-	 * @param editable In case of readOnly set to true behaves same as addReadOnlyProp.
+	 * @param editable When false this adds a display-only field, when true a fully editable control.
 	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
 	 */
 	public IFormControl addProp(final String name, final boolean editable, final boolean mandatory) {
@@ -237,7 +237,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param pmm
 	 * @param editable  when false, the rendered control will be display-only.
 	 * @return	If the property was created and is controllable this will return an IFormControl instance. This will explicitly <i>not</i> be
-	 * 			created if the control is readonly, not allowed by permissions or simply uncontrollable (the last one is uncommon).
+	 * 			created if the control is display-only, not allowed by permissions or simply uncontrollable (the last one is uncommon).
 	 */
 	protected IFormControl addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editable) {
 		//-- Check control permissions: does it have view permissions?
