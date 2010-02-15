@@ -2,6 +2,7 @@ package to.etc.domui.component.form;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
@@ -30,6 +31,13 @@ public class ControlFactoryEnumAndBool implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
+		if(!editable && controlClass == null) {
+			DisplayValue<Object> dv = new DisplayValue<Object>(Object.class); // No idea what goes in here.
+			dv.defineFrom(pmm);
+			return new Result(dv, model, pmm);
+		}
+
 		ComboFixed< ? > c = DomApplication.get().getControlBuilder().createComboFor(pmm, editable);
 
 		//		// Create a domainvalued combobox by default.

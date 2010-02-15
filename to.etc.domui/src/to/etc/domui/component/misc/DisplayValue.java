@@ -90,6 +90,8 @@ public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindab
 		if(cmm.getDomainValues() != null) {
 			//-- This is a domain-based value like boolean or enum. Try to use it's default labels.
 			String label = cmm.getDomainLabel(NlsContext.getLocale(), val);
+			if(label == null)
+				label = val.toString();
 			setString(label);
 			return;
 		}
@@ -207,5 +209,13 @@ public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindab
 			return;
 		m_value = v;
 		forceRebuild();
+	}
+
+	public void defineFrom(@Nonnull PropertyMetaModel pmm) {
+		String s = pmm.getDefaultHint();
+		if(s != null)
+			setTitle(s);
+
+		// FIXME Define more fully.
 	}
 }

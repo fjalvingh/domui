@@ -4,6 +4,7 @@ import java.util.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
 
@@ -31,25 +32,31 @@ public class ControlFactoryDate implements ControlFactory {
 
 	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		if(!editable && (controlClass == null || controlClass.isAssignableFrom(Text.class))) {
-			Text<Date> txt = new Text<Date>(Date.class);
-			txt.setReadOnly(true);
+			//			Text<Date> txt = new Text<Date>(Date.class);
+			//			txt.setReadOnly(true);
+			// FIXME EXPERIMENTAL Replace the TEXT control with a DisplayValue control.
+			DisplayValue<Date> txt = new DisplayValue<Date>(Date.class);
+
 			//20100208 vmijic - fixed readonly presentation for date fields.
 			Class< ? extends IConverter<Date>> cc;
-
-			switch(pmm.getTemporal()){
-				default:
-					throw new IllegalStateException("Unsupported temporal metadata type: " + pmm.getTemporal());
-				case UNKNOWN:
-					/*$FALL_THROUGH$*/
-				case DATETIME:
-					cc = DateTimeConverter.class;
-					break;
-				case DATE:
-					cc = DateConverter.class;
-					break;
-				case TIME:
-					cc = TimeOnlyConverter.class;
-					break;
+			if(pmm == null)
+				cc = DateTimeConverter.class;
+			else {
+				switch(pmm.getTemporal()){
+					default:
+						throw new IllegalStateException("Unsupported temporal metadata type: " + pmm.getTemporal());
+					case UNKNOWN:
+						/*$FALL_THROUGH$*/
+					case DATETIME:
+						cc = DateTimeConverter.class;
+						break;
+					case DATE:
+						cc = DateConverter.class;
+						break;
+					case TIME:
+						cc = TimeOnlyConverter.class;
+						break;
+				}
 			}
 
 			txt.setConverter(ConverterRegistry.getConverterInstance(cc));

@@ -55,65 +55,6 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Adding components.									*/
-	/*--------------------------------------------------------------*/
-	//	/**
-	//	 * Enable adding of field into table cell with possibility to customize colspan.
-	//	 * Add an input for the specified property. The property is based at the current input
-	//	 * class. The input model is default (using metadata) and the property is labeled using
-	//	 * the metadata-provided label.
-	//	 *
-	//	 * FORMAL-INTERFACE.
-	//	 *
-	//	 * @param name
-	//	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
-	//	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
-	//	 * @param span Specify cell span.
-	//	 * @return
-	//	 */
-	//	public IFormControl addPropWithSpan(final String name, final boolean readOnly, final boolean mandatory, int colSpan) {
-	//		PropertyMetaModel pmm = resolveProperty(name);
-	//		String label = pmm.getDefaultLabel();
-	//
-	//		//-- Check control permissions: does it have view permissions?
-	//		if(!rights().calculate(pmm))
-	//			return null;
-	//		final ControlFactory.Result r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
-	//		addControl(label, colSpan, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
-	//
-	//		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
-	//		if(label != null) {
-	//			for(NodeBase b : r.getNodeList())
-	//				b.setErrorLocation(label);
-	//		}
-	//
-	//		if(r.getBinding() != null)
-	//			getBindings().add(r.getBinding());
-	//		else
-	//			throw new IllegalStateException("No binding for a " + r);
-	//		return r.getFormControl();
-	//	}
-	//
-	//	/**
-	//	 * Enable adding of field into table cell with possibility to customize colspan.
-	//	 * This adds a fully user-specified control for a given property with it's default label,
-	//	 * without creating <i>any<i> binding. The only reason the property is passed is to use
-	//	 * it's metadata to define it's access rights and default label.
-	//	 *
-	//	 * @param propertyName
-	//	 * @param nb
-	//	 * @param mandatory
-	//	 * @param colSpan
-	//	 */
-	//	public void addPropertyAndControlWithSpan(final String propertyName, final NodeBase nb, final boolean mandatory, int colSpan) {
-	//		PropertyMetaModel pmm = resolveProperty(propertyName);
-	//		String label = pmm.getDefaultLabel();
-	//		addControl(label, colSpan, nb, new NodeBase[]{nb}, mandatory, pmm);
-	//		if(label != null)
-	//			nb.setErrorLocation(label);
-	//	}
-
-	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple helpers										*/
 	/*--------------------------------------------------------------*/
 	/**
@@ -187,14 +128,14 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @see to.etc.domui.component.form.GenericFormBuilder#addControl(java.lang.String, to.etc.domui.dom.html.NodeBase, to.etc.domui.dom.html.NodeBase[], boolean, to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
-	protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, PropertyMetaModel pmm) {
+	protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = getBuilder().getControlLabelFactory();
 			if(clf == null)
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
-		Label l = clf.createControlLabel(labelnode, label, true, mandatory, pmm);
+		Label l = clf.createControlLabel(labelnode, label, editable, mandatory, pmm);
 		modalAdd(l, list);
 		clearRun();
 	}

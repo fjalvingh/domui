@@ -8,7 +8,7 @@ public class DefaultControlLabelFactory implements IControlLabelFactory {
 	public Label createControlLabel(NodeBase control, String text, boolean editable, boolean mandatory, PropertyMetaModel pmm) {
 		if(text == null)
 			return null;
-		if(mandatory)
+		if(mandatory && editable)
 			text = "* " + text;
 		if(pmm != null && editable && NumericPresentation.isMonetary(pmm.getNumericPresentation()))
 			text = text + " \u20ac";

@@ -19,10 +19,11 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param label
 	 * @param labelnode
 	 * @param list
-	 * @param mandatory
+	 * @param mandatory	T when the node is mandatory, needed by the label factory
+	 * @param editable	T when the node is editable, needed by the label factory
 	 * @param pmm
 	 */
-	abstract protected void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, PropertyMetaModel pmm);
+	abstract protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm);
 
 	/**
 	 * Handle placement of a list of property names, all obeying the current mode in effect.
@@ -133,8 +134,9 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		//-- Check control permissions: does it have view permissions?
 		if(!rights().calculate(pmm))
 			return null;
-		final ControlFactory.Result r = createControlFor(getModel(), pmm, editable && rights().isEditable()); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
+		boolean reallyeditable = editable && rights().isEditable();
+		final ControlFactory.Result r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
+		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, reallyeditable, pmm);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
 		if(label != null) {
@@ -187,7 +189,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	public <T extends NodeBase & IInputNode< ? >> IFormControl addProp(final String propertyname, final T ctl) {
 		PropertyMetaModel pmm = resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
-		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), pmm);
+		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
 		SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(getModel(), pmm, ctl);
@@ -208,7 +210,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 */
 	public <T extends NodeBase & IInputNode< ? >> IFormControl addProp(final String name, String label, final T ctl) {
 		PropertyMetaModel pmm = resolveProperty(name);
-		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), pmm);
+		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
 		SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(getModel(), pmm, ctl);
@@ -227,7 +229,11 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
 		if(label != null)
 			control.setErrorLocation(label);
-		addControl(label, control, new NodeBase[]{control}, mandatory, null);
+
+		// FIXME Kludge to determine if the control is meant to be editable!
+		boolean editable = control instanceof IControl< ? >;
+
+		addControl(label, control, new NodeBase[]{control}, mandatory, editable, null);
 	}
 
 	/**
@@ -243,8 +249,10 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		//-- Check control permissions: does it have view permissions?
 		if(!rights().calculate(pmm))
 			return null;
-		final ControlFactory.Result r = createControlFor(getModel(), pmm, editable && rights().isEditable()); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), pmm);
+		boolean reallyeditable = editable && rights().isEditable();
+
+		final ControlFactory.Result r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
+		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), reallyeditable, pmm);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
 		if(label != null) {
@@ -272,7 +280,11 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	public void addPropertyAndControl(final String propertyName, final NodeBase nb, final boolean mandatory) {
 		PropertyMetaModel pmm = resolveProperty(propertyName);
 		String label = pmm.getDefaultLabel();
-		addControl(label, nb, new NodeBase[]{nb}, mandatory, pmm);
+
+		// FIXME Kludge to determine if the control is meant to be editable!
+		boolean editable = nb instanceof IControl< ? >;
+
+		addControl(label, nb, new NodeBase[]{nb}, mandatory, editable, pmm);
 		if(label != null)
 			nb.setErrorLocation(label);
 	}

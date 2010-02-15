@@ -2,13 +2,15 @@ package to.etc.domui.component.form;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
 
 /**
- * This is a fallback factory; it accepts anything and shows a String edit component for it. It
- * hopes that the Text<?> control can convert the string input value to the actual type using the
- * registered Converters. This is also the factory for regular Strings.
+ * This is a fallback factory; it accepts anything and shows a String edit component OR a
+ * DisplayValue component for it. It hopes that the control can convert the string input
+ * value to the actual type using the registered Converters. This is also the factory
+ * for regular Strings.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
@@ -21,14 +23,30 @@ public class ControlFactoryString implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
-		if(controlClass != null && !controlClass.isAssignableFrom(Text.class))
-			return -1;
+		if(controlClass != null) {
+			if(!controlClass.isAssignableFrom(Text.class) && !controlClass.isAssignableFrom(DisplayValue.class))
+				return -1;
+		}
 
 		return 1;
 	}
 
 	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		Class< ? > iclz = pmm.getActualType();
+		if(!editable) {
+			/*
+			 * FIXME EXPERIMENTAL: replace the code below (which is still fully available) with the
+			 * display-only component.
+			 */
+			DisplayValue dv = new DisplayValue(iclz);
+			if(pmm.getConverter() != null)
+				dv.setConverter(pmm.getConverter());
+			String s = pmm.getDefaultHint();
+			if(s != null)
+				dv.setTitle(s);
+			return new Result(dv, model, pmm);
+		}
+
 		Text< ? > txt = new Text(iclz);
 
 		//-- Get simple things to do out of the way.

@@ -106,18 +106,14 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param mandatory
 	 */
 	@Override
-	public void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, PropertyMetaModel pmm) {
+	public void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = getBuilder().getControlLabelFactory();
 			if(clf == null)
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
-		Label l = clf.createControlLabel(labelnode, label, true, mandatory, pmm);
-		//
-		//		if(mandatory)
-		//			label = "*"+label;
-		//		Label	l = new Label(ctl, label);
+		Label l = clf.createControlLabel(labelnode, label, editable, mandatory, pmm);
 		modalAdd(l, list);
 	}
 

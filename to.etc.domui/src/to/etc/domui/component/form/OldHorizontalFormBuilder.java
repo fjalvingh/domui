@@ -34,22 +34,22 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @see to.etc.domui.component.form.GenericFormBuilder#addControl(java.lang.String, to.etc.domui.dom.html.NodeBase, to.etc.domui.dom.html.NodeBase[], boolean, to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
-	protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, PropertyMetaModel pmm) {
-		addControl(label, 1, labelnode, list, mandatory, pmm);
+	protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+		addControl(label, 1, labelnode, list, mandatory, editable, pmm);
 	}
 
 	/**
 	 * @see to.etc.domui.component.form.GenericFormBuilder#addControl(java.lang.String, to.etc.domui.dom.html.NodeBase, to.etc.domui.dom.html.NodeBase[], boolean, to.etc.domui.component.meta.PropertyMetaModel)
 	 * In addition, enables customization of colSpan for rendered cell.
 	 */
-	protected void addControl(String label, int colSpan, NodeBase labelnode, NodeBase[] list, boolean mandatory, PropertyMetaModel pmm) {
+	protected void addControl(String label, int colSpan, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = getBuilder().getControlLabelFactory();
 			if(clf == null)
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
-		Label l = clf.createControlLabel(labelnode, label, true, mandatory, pmm);
+		Label l = clf.createControlLabel(labelnode, label, editable, mandatory, pmm);
 		modalAdd(l, colSpan, list);
 	}
 
@@ -213,7 +213,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 		if(!rights().calculate(pmm))
 			return null;
 		final ControlFactory.Result r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
-		addControl(label, colSpan, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
+		addControl(label, colSpan, r.getLabelNode(), r.getNodeList(), mandatory, !readOnly, pmm);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
 		if(label != null) {
@@ -242,7 +242,11 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	public void addPropertyAndControlWithSpan(final String propertyName, final NodeBase nb, final boolean mandatory, int colSpan) {
 		PropertyMetaModel pmm = resolveProperty(propertyName);
 		String label = pmm.getDefaultLabel();
-		addControl(label, colSpan, nb, new NodeBase[]{nb}, mandatory, pmm);
+
+		// FIXME Kludge to determine if the control is meant to be editable!
+		boolean editable = nb instanceof IControl< ? >;
+
+		addControl(label, colSpan, nb, new NodeBase[]{nb}, mandatory, editable, pmm);
 		if(label != null)
 			nb.setErrorLocation(label);
 	}

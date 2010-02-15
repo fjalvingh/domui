@@ -142,7 +142,7 @@ public class DisplayOnlyBinder implements IBinder {
 			if(vac == null)
 				throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyModel);
 			Object pval = vac.getValue(base);
-			((IInputNode<Object>) m_control).setValue(pval);
+			((IDisplayControl<Object>) m_control).setValue(pval);
 		}
 	}
 
