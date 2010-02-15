@@ -9,6 +9,7 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.query.*;
 
 /**
  * Base node for all non-container html dom nodes.
@@ -956,5 +957,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			if(b.isBound())
 				b.bind().setControlsEnabled(on);
 		}
+	}
+
+	public QDataContext getSharedContext() throws Exception {
+		return QContextManager.getContext(getPage());
 	}
 }
