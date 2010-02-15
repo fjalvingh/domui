@@ -20,16 +20,16 @@ public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
 
 	public SimpleLookupInputRenderer() {}
 
-	private INodeContentRenderer<T> m_beforeContent;
+	private INodeContentRenderer<T> m_beforeRenderer;
 
-	private INodeContentRenderer<T> m_afterContent;
+	private INodeContentRenderer<T> m_afterRenderer;
 
 	public void renderNodeContent(NodeBase component, NodeContainer node, T object, Object parameters) throws Exception {
 		String txt;
 		TBody tbl = ((Table) node).getBody();
-		if(getBeforeContent() != null) {
+		if(getBeforeRenderer() != null) {
 			TD cell = new TD();
-			getBeforeContent().renderNodeContent(component, cell, object, parameters);
+			getBeforeRenderer().renderNodeContent(component, cell, object, parameters);
 			if(cell.getChildCount() != 0)
 				tbl.addRow().add(cell);
 		}
@@ -98,9 +98,9 @@ public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
 			td.add((NodeBase) parameters); // Add the button,
 		}
 
-		if(getAfterContent() != null) {
+		if(getAfterRenderer() != null) {
 			TD cell = new TD();
-			getAfterContent().renderNodeContent(component, cell, object, parameters);
+			getAfterRenderer().renderNodeContent(component, cell, object, parameters);
 			if(cell.getChildCount() != 0)
 				tbl.addRow().add(cell);
 		}
@@ -109,31 +109,30 @@ public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
 	/**
 	 * Enables inserting of custom content that would be enveloped into additionaly added row that is inserted before rows that are part of builtin content.
 	 */
-	public INodeContentRenderer<T> getBeforeContent() {
-		return m_beforeContent;
+	public INodeContentRenderer<T> getBeforeRenderer() {
+		return m_beforeRenderer;
 	}
 
 	/**
 	 * Enables inserting of custom content that would be enveloped into additionaly added row that is inserted before rows that are part of builtin content.
 	 * @param afterContent
 	 */
-	public void setBeforeContent(INodeContentRenderer<T> beforeContent) {
-		m_beforeContent = beforeContent;
+	public void setBeforeRenderer(INodeContentRenderer<T> beforeContent) {
+		m_beforeRenderer = beforeContent;
 	}
 
 	/**
 	 * Enables appending of custom content that would be enveloped into additionaly added row <i>after</i> the actual data.
 	 */
-	public INodeContentRenderer<T> getAfterContent() {
-		return m_afterContent;
+	public INodeContentRenderer<T> getAfterRenderer() {
+		return m_afterRenderer;
 	}
 
 	/**
 	 * Enables appending of custom content that would be enveloped into additionaly added row <i>after</i> the actual data.
 	 * @param afterContent
 	 */
-	public void setAfterContent(INodeContentRenderer<T> afterContent) {
-		m_afterContent = afterContent;
+	public void setAfterRenderer(INodeContentRenderer<T> afterContent) {
+		m_afterRenderer = afterContent;
 	}
 }
-
