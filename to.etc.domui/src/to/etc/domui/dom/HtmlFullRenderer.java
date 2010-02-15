@@ -98,6 +98,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	 * @see to.etc.domui.dom.html.NodeVisitorBase#visitLiteralXhtml(to.etc.domui.component.misc.LiteralXhtml)
 	 */
 	@Override
+	@Deprecated
 	public void visitLiteralXhtml(LiteralXhtml n) throws Exception {
 		visitNodeBase(n); // Handle most thingies we need to do,
 		if(!m_xml) {

@@ -29,6 +29,11 @@ public class NodeVisitorBase implements INodeVisitor {
 		sub(n);
 	}
 
+	@Override
+	public void visitXmlNode(XmlTextNode n) throws Exception {
+		sub(n);
+	}
+
 	public void visitLi(Li n) throws Exception {
 		sub(n);
 	}

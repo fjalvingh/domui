@@ -5,11 +5,12 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 
 /**
- * This is a component which allows it's content to be literal XHTML.
+ * DEPRECATED: Try to use XmlTextNode, instead. This is a component which allows it's content to be literal XHTML.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 9, 2008
  */
+@Deprecated
 public class LiteralXhtml extends NodeBase {
 	private String m_xml;
 

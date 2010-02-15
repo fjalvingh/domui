@@ -681,6 +681,22 @@ public class HtmlTagRenderer implements INodeVisitor {
 			m_o.text(lit);
 	}
 
+	/**
+	 * This is a TextNode with the special characteristic that it contains
+	 * not normal text but XML to be rendered verbatim. The XML may not be
+	 * indented in any way and may not be escaped (that should already have
+	 * been done by the one creating it).
+	 *
+	 * @see to.etc.domui.dom.html.INodeVisitor#visitXmlNode(to.etc.domui.dom.html.XmlTextNode)
+	 */
+	@Override
+	public void visitXmlNode(XmlTextNode n) throws Exception {
+		String lit = n.getText(); // Get tilde-replaced text
+		if(lit != null && lit.length() > 0) {
+			m_o.writeRaw(lit);
+		}
+	}
+
 	public void renderEndTag(final NodeBase b) throws IOException {
 		if(!m_tagless)
 			m_o.closetag(b.getTag());
