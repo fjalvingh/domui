@@ -109,6 +109,12 @@
 	border-color: 1px solid red;
 }
 
+/*** DisplayValue ***/
+.ui-dspv {
+	background: white;
+	padding: 2px;
+}
+
 /*** CaptionedHeader ***/
 .ui-chdr {
 	width: 100%;
@@ -584,6 +590,13 @@ table.ui-lui-selected {
 	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: middle; /* jal 20090818 changed from top to middle to align DateInput buttons better */
 }
+.ui-f-do {
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	vertical-align: middle; /* jal 20090818 changed from top to middle to align DateInput buttons better */
+	background-color: white;
+	padding: 2px;
+}
 
 /*** Form basic styles: for forms having the label ABOVE the field (vertical stacked) ***/
 .ui-fvs-lbl {
@@ -595,6 +608,13 @@ table.ui-lui-selected {
 	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
 	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: top;
+}
+
+.ui-fvs-do { /* displayonly field */
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	background-color: white;
+	padding: 2px;
 }
 
 /*** Typed presentation for fields containing numerics ***/
@@ -611,24 +631,25 @@ table.ui-lui-selected {
 }
 
 /*** Form basic styles: for forms where the label is above the edit control (vertical). ***/
+/* jal 20100215 Appears to be unused, should merge with -fvs- above.
 .ui-fv-lbl {
 	text-align: left;
 	font-weight: bold;
 	font-size: 11px;
-	/* FIXME: Fuck-me-gently with a chainsaw: viewpoint uses PIXEL sizing!? */
 	vertical-align: top;
 }
 .ui-fv-in {
-	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-size: 11px;
 	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: top;
 }
 .ui-fv-display {
-	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-size: 11px;
 	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: top;
 	background: #eff7ff;
 }
+*/
 
 input {
 	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */

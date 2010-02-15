@@ -136,7 +136,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
 		Label l = clf.createControlLabel(labelnode, label, editable, mandatory, pmm);
-		modalAdd(l, list);
+		modalAdd(l, list, editable);
 		clearRun();
 	}
 
@@ -160,7 +160,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param list
 	 */
-	private void modalAdd(Label l, NodeBase[] list) {
+	private void modalAdd(Label l, NodeBase[] list, boolean editable) {
 		TR tr = getLabelRow(); // Row containing zhe labelz.
 		TD td = tr.addCell(); // Create cell for label;
 		td.setCssClass(m_labelClass == null ? m_defaultLabelClass : m_labelClass);
@@ -176,7 +176,11 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 
 		tr = getEditRow();
 		td = tr.addCell();
-		td.setCssClass(m_controlClass == null ? m_defaultControlClass : m_controlClass);
+		String css = editable ? m_defaultControlClass : "ui-fvs-do";
+		if(m_controlClass != null)
+			css = m_controlClass;
+
+		td.setCssClass(css);
 		if(m_controlColSpan > 1)
 			td.setColspan(m_controlColSpan);
 		if(m_controlRowSpan > 1)
