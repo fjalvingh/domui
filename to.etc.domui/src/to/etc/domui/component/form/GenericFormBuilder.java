@@ -123,17 +123,17 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * FORMAL-INTERFACE.
 	 *
 	 * @param name
-	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
+	 * @param editable In case of readOnly set to true behaves same as addReadOnlyProp.
 	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
 	 */
-	public IFormControl addProp(final String name, final boolean readOnly, final boolean mandatory) {
+	public IFormControl addProp(final String name, final boolean editable, final boolean mandatory) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		String label = pmm.getDefaultLabel();
 
 		//-- Check control permissions: does it have view permissions?
 		if(!rights().calculate(pmm))
 			return null;
-		final ControlFactory.Result r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
+		final ControlFactory.Result r = createControlFor(getModel(), pmm, editable && rights().isEditable()); // Add the proper input control for that type
 		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
