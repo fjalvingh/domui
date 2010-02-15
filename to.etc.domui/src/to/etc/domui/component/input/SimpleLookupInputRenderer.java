@@ -9,8 +9,9 @@ import to.etc.domui.util.*;
 
 /**
  * This renderer represents default renderer that is used for {@link LookupInput} control.
- * It can also be used as base class for custom lookup renderers.
- *
+ * It can be additionaly customized (before and after custom content) by setting provided {@link ICustomContentFactory} fields.
+ * See {@link SimpleLookupInputRenderer#setBeforeContent} and {@link SimpleLookupInputRenderer#setAfterContent}.
+ * Custom added content would be enveloped into separate row(s).
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Feb 10, 2010
@@ -19,9 +20,20 @@ public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
 
 	public SimpleLookupInputRenderer() {}
 
+	private INodeContentRenderer<T> m_beforeContent;
+
+	private INodeContentRenderer<T> m_afterContent;
+
 	public void renderNodeContent(NodeBase component, NodeContainer node, T object, Object parameters) throws Exception {
 		String txt;
 		TBody tbl = ((Table) node).getBody();
+		if(getBeforeContent() != null) {
+			TD cell = new TD();
+			getBeforeContent().renderNodeContent(component, cell, object, parameters);
+			if(cell.getChildCount() != 0)
+				tbl.addRow().add(cell);
+		}
+
 		if(object != null) {
 			ClassMetaModel cmm = MetaManager.findClassMeta(object.getClass());
 			if(cmm != null) {
@@ -85,6 +97,43 @@ public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
 			td.setWidth("1%");
 			td.add((NodeBase) parameters); // Add the button,
 		}
+
+		if(getAfterContent() != null) {
+			TD cell = new TD();
+			getAfterContent().renderNodeContent(component, cell, object, parameters);
+			if(cell.getChildCount() != 0)
+				tbl.addRow().add(cell);
+		}
+	}
+
+	/**
+	 * Enables inserting of custom content that would be enveloped into additionaly added row that is inserted before rows that are part of builtin content.
+	 */
+	public INodeContentRenderer<T> getBeforeContent() {
+		return m_beforeContent;
+	}
+
+	/**
+	 * Enables inserting of custom content that would be enveloped into additionaly added row that is inserted before rows that are part of builtin content.
+	 * @param afterContent
+	 */
+	public void setBeforeContent(INodeContentRenderer<T> beforeContent) {
+		m_beforeContent = beforeContent;
+	}
+
+	/**
+	 * Enables appending of custom content that would be enveloped into additionaly added row <i>after</i> the actual data.
+	 */
+	public INodeContentRenderer<T> getAfterContent() {
+		return m_afterContent;
+	}
+
+	/**
+	 * Enables appending of custom content that would be enveloped into additionaly added row <i>after</i> the actual data.
+	 * @param afterContent
+	 */
+	public void setAfterContent(INodeContentRenderer<T> afterContent) {
+		m_afterContent = afterContent;
 	}
 }
 
