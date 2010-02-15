@@ -4,6 +4,8 @@ import java.lang.reflect.*;
 import java.math.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
@@ -160,6 +162,7 @@ final public class MetaManager {
 		}
 	};
 
+
 	/**
 	 * This creates a default combo option value renderer using whatever metadata is available.
 	 * @param pmm	If not-null this takes precedence. This then <b>must</b> be the property that
@@ -171,7 +174,8 @@ final public class MetaManager {
 	 * @param cmm
 	 * @return
 	 */
-	static public INodeContentRenderer< ? > createDefaultComboRenderer(PropertyMetaModel pmm, ClassMetaModel cmm) {
+	@Nonnull
+	static public INodeContentRenderer< ? > createDefaultComboRenderer(@Nullable PropertyMetaModel pmm, @Nullable ClassMetaModel cmm) {
 		//-- Property-level metadata is the 1st choice
 		if(pmm != null) {
 			cmm = MetaManager.findClassMeta(pmm.getActualType()); // Always use property's class model.
