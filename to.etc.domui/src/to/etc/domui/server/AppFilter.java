@@ -155,9 +155,6 @@ public class AppFilter implements Filter {
 			throw WrappedException.wrap(x);
 		}
 		try {
-			System.out.println("Init logger");
-			//		System.out.println("QDataContext="+QDataContext.class.getClassLoader());
-
 			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
 
 			//-- Get the root for all files in the webapp
