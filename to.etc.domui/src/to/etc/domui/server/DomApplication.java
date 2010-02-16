@@ -447,6 +447,14 @@ public abstract class DomApplication {
 		return new File(m_webFilePath, path);
 	}
 
+	/**
+	 * Returns the root of the webapp's installation directory on the local file system.
+	 * @return
+	 */
+	public final File getWebAppFileRoot() {
+		return m_webFilePath;
+	}
+
 	/** Cache for 'hasApplicationResource' containing all resources we have checked existence for */
 	private final Map<String, Boolean> m_knownResourceSet = new HashMap<String, Boolean>();
 
