@@ -14,6 +14,8 @@ import to.etc.webapp.query.*;
  * Created on 29 Jul 2009
  */
 abstract public class BasicListPage<T> extends BasicPage<T> {
+	private LookupForm<T> m_lookupForm;
+
 	private DataTable<T> m_result;
 
 	private DataPager m_pager;
@@ -21,6 +23,10 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	private boolean m_allowEmptySearch;
 
 	private boolean m_searchImmediately;
+
+	private IQueryHandler<T> m_queryHandler;
+
+	private IRowRenderer<T> m_rowRenderer;
 
 	/**
 	 * Implement to handle a selection of a record that was found.
@@ -33,30 +39,170 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	 * Implement to handle pressing the "new record" button.
 	 * @throws Exception
 	 */
-	abstract protected void doNew() throws Exception;
+	abstract protected void onNew() throws Exception;
 
 	public BasicListPage(Class<T> clz) {
 		super(clz);
 	}
 
-	public BasicListPage(Class<T> clz, String titlekey) {
-		super(clz, titlekey);
+	public BasicListPage(Class<T> baseClass, String txt) {
+		super(baseClass, txt);
 	}
 
 	/**
 	 * Override this to customize the lookup form. No need to call super. method.
 	 * @param lf
 	 */
-	protected void customizeLookupForm(LookupForm<T> lf) {}
+	protected void customizeLookupForm(LookupForm<T> lf) throws Exception {}
+
+	@Override
+	public void createContent() throws Exception {
+		super.createContent();
+
+		//-- Lookup thingy.
+		m_lookupForm = new LookupForm<T>(getBaseClass());
+		add(m_lookupForm);
+		m_lookupForm.setClicked(new IClicked<LookupForm<T>>() {
+			public void clicked(LookupForm<T> b) throws Exception {
+				search(b);
+			}
+		});
+		if(hasEditRight()) {
+			m_lookupForm.setOnNew(new IClicked<LookupForm<T>>() {
+				public void clicked(LookupForm<T> b) throws Exception {
+					onNew();
+				}
+			});
+		}
+		m_lookupForm.setOnClear(new IClicked<LookupForm<T>>() {
+			public void clicked(LookupForm<T> b) throws Exception {
+				onLookupFormClear(b);
+			}
+		});
+
+		customizeLookupForm(m_lookupForm);
+
+		if(m_result != null) {
+			add(m_result);
+			add(m_pager);
+		}
+
+		if(isSearchImmediately()) {
+			search(m_lookupForm);
+		}
+	}
+
+	void search(LookupForm<T> lf) throws Exception {
+		QCriteria<T> c = lf.getEnteredCriteria();
+		if(c == null) // Some error has occured?
+			return; // Don't do anything (errors will have been registered)
+		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+		if(!c.hasRestrictions() && !isAllowEmptySearch()) {
+			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
+			return;
+		} else {
+			clearGlobalMessage();
+		}
+		setTableQuery(c);
+	}
+
+	protected void adjustCriteria(QCriteria<T> crit) {}
+
+	private void setTableQuery(QCriteria<T> qc) throws Exception {
+		adjustCriteria(qc);
+		ITableModel<T> model;
+		if(m_queryHandler == null) {
+			QDataContextFactory src = QContextManager.getDataContextFactory(getPage());
+			model = new SimpleSearchModel<T>(src, qc);
+		} else {
+			model = new SimpleSearchModel<T>(m_queryHandler, qc);
+		}
+
+		if(m_result == null) {
+			// Create a table
+			m_result = new DataTable<T>(model, getRowRenderer());
+
+			add(m_result);
+			m_result.setPageSize(20);
+			m_result.setTableWidth("100%");
+			m_result.setTestID("resultBasicVpListPage");
+
+			//-- Add the pager,
+			m_pager = new DataPager(m_result);
+
+			add(m_pager);
+			m_pager.setTestID("pagerBasicVpListPage");
+
+		} else {
+			m_result.setModel(model); // Change the model
+		}
+	}
+
+	@Override
+	protected void onShelve() throws Exception {
+		QContextManager.closeSharedContext(getPage().getConversation());
+	}
 
 	/**
-	 * Override to provide your own Row Renderer; this version returns a SimpleRowRenderer() using full
-	 * metadata for the class.
+	 * Override to do extra things when the lookupform's "clear" button is pressed. Can be used to
+	 * set items to defaults after their input has been cleared. When this is called all inputs in
+	 * the form have <i>already</i> been set to null (empty) - so do <b>not</b> call {@link LookupForm#clearInput()}.
+	 * @param lf
+	 * @throws Exception
+	 */
+	protected void onLookupFormClear(LookupForm<T> lf) throws Exception {
+	//lf.clearInput(); jal 20091002 DO NOT ADD BACK!!!! Pressing the clear button ALREADY CALLS this.
+	}
+
+	/**
+	 * Get the row renderer to use for the request.
 	 * @return
 	 */
-	protected SimpleRowRenderer<T> provideRowRenderer() {
-		return new SimpleRowRenderer<T>(getBaseClass());
+	public IRowRenderer<T> getRowRenderer() throws Exception {
+		if(m_rowRenderer == null) {
+			m_rowRenderer = new BasicRowRenderer<T>(getBaseClass()); // Create a default one
+		}
+
+		//-- jal 20091111 It is required that any search result has clickable rows. If no row click handler is set set one to call onNew.
+		if(m_rowRenderer instanceof AbstractRowRenderer< ? >) { // Silly ? is needed even though cast cant do anything with it. Idiots.
+			AbstractRowRenderer<T> arrh = (AbstractRowRenderer<T>) m_rowRenderer;
+			if(arrh.getRowClicked() == null) {
+				arrh.setRowClicked(new ICellClicked<T>() {
+					public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
+						onSelect(val);
+					}
+				});
+			}
+		}
+		return m_rowRenderer;
 	}
+
+	/**
+	 * Override to provide your own Row Renderer. If not set a BasicRowRenderer with reasonable
+	 * defaults will be created for you.
+	 */
+	public void setRowRenderer(IRowRenderer<T> rr) {
+		m_rowRenderer = rr;
+	}
+
+	/**
+	 * When set to TRUE this makes the form immediately execute a query with all
+	 * empty lookup fields, meaning it will immediately show a list of rows.
+	 * @return
+	 */
+	public boolean isSearchImmediately() {
+		return m_searchImmediately;
+	}
+
+	/**
+	 * When set to TRUE this makes the form immediately execute a query with all
+	 * empty lookup fields, meaning it will immediately show a list of rows.
+	 * @param showDefaultSearch
+	 */
+	public void setSearchImmediately(boolean searchImmediately) {
+		m_searchImmediately = searchImmediately;
+	}
+
 
 	/**
 	 * When set to T this allows searching a set without any specified criteria.
@@ -74,95 +220,23 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		m_allowEmptySearch = allowEmptySearch;
 	}
 
-	public boolean isSearchImmediately() {
-		return m_searchImmediately;
+	public boolean hasEditRight() {
+		return true;
 	}
 
-	public void setSearchImmediately(boolean searchImmediately) {
-		m_searchImmediately = searchImmediately;
+	protected LookupForm<T> getLookupForm() {
+		return m_lookupForm;
 	}
 
-	@Override
-	public void createContent() throws Exception {
-		super.createContent();
-
-		//-- Lookup thingy.
-		final LookupForm<T> lf = new LookupForm<T>(getBaseClass());
-		add(lf);
-		lf.setClicked(new IClicked<LookupForm<T>>() {
-			public void clicked(LookupForm<T> b) throws Exception {
-				search(b);
-			}
-		});
-		lf.setOnNew(new IClicked<LookupForm<T>>() {
-			public void clicked(LookupForm<T> b) throws Exception {
-				doNew();
-			}
-		});
-
-		customizeLookupForm(lf);
-
-		if(isAllowEmptySearch() && isSearchImmediately()) {
-			search(lf);
-		} else if(m_result != null) {
-			add(m_result);
-			add(m_pager);
-		}
+	protected void setLookupForm(LookupForm<T> lookupForm) {
+		m_lookupForm = lookupForm;
 	}
 
-	protected void search(LookupForm<T> lf) throws Exception {
-		QCriteria<T> c = lf.getEnteredCriteria();
-		if(c == null) // Some error has occured?
-			return; // Don't do anything (errors will have been registered)
-		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions() && !isAllowEmptySearch()) {
-			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
-			return;
-		} else
-			clearGlobalMessage();
-		c = adjustQuery(c);
-		setTableQuery(c);
+	protected IQueryHandler<T> getQueryHandler() {
+		return m_queryHandler;
 	}
 
-	protected QCriteria<T> adjustQuery(QCriteria<T> c) {
-		return c;
-	}
-
-	private void setTableQuery(QCriteria<T> qc) {
-		QDataContextFactory src = QContextManager.getDataContextFactory(getPage());
-		ITableModel<T> model = new SimpleSearchModel<T>(src, qc);
-
-		if(m_result == null) {
-			//-- We do not yet have a result table -> create one.
-			SimpleRowRenderer<T> rr = provideRowRenderer();
-			rr.setRowClicked(new ICellClicked<T>() {
-				public void cellClicked(Page pg, NodeBase tr, T rowval) throws Exception {
-					onSelect(rowval);
-				}
-			});
-
-			m_result = new DataTable<T>(model, rr);
-			add(m_result);
-			m_result.setPageSize(20);
-			m_result.setTableWidth("100%");
-
-			//** FIXME : make some protected overidable method that specifies if row should get row click functionality.
-			/*			rr.setRowClicked(new ICellClicked<T>() {
-				public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
-					onSelect(val);
-				}
-			});*/
-
-			//-- Add the pager,
-			m_pager = new DataPager(m_result);
-			add(m_pager);
-		} else {
-			m_result.setModel(model); // Change the model
-		}
-	}
-
-	@Override
-	protected void onShelve() throws Exception {
-		QContextManager.closeSharedContext(getPage().getConversation());
+	protected void setQueryHandler(IQueryHandler<T> queryHandler) {
+		m_queryHandler = queryHandler;
 	}
 }
