@@ -1,9 +1,12 @@
 package to.etc.util;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.net.*;
 import java.security.*;
+import java.sql.*;
 import java.util.*;
+import java.util.logging.*;
 import java.util.zip.*;
 
 import org.w3c.dom.*;
@@ -1185,5 +1188,82 @@ public class FileTool {
 		byte[] data = bos.toByteArray(); // Data read from stream;
 		tgt.append(new String(data, encoding));
 		return new ByteArrayInputStream(data);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Miscellaneous.										*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * This attempts to close all of the resources passed to it, without throwing exceptions. It
+	 * is meant to be used from finally clauses. Please take care: objects that require a succesful
+	 * close (like writers or outputstreams) should NOT be closed by this method! They must be
+	 * closed using a normal close within the exception handler.
+	 * This list can also contain File objects; these files/directories will be deleted.
+	 * @param list
+	 */
+	static public void closeAll(Object... list) {
+		//-- Level 0 closes
+		int tox = 0;
+		for(Object v : list) {
+			try {
+				if(v instanceof Closeable) {
+					((Closeable) v).close();
+				} else if(v instanceof ResultSet) {
+					((ResultSet) v).close();
+				} else if(v instanceof File) {
+					File f = (File) v;
+					if(f.isFile())
+						f.delete();
+					else
+						FileTool.deleteDir(f);
+				} else if(v != null)
+					list[tox++] = v; // Keep, todo
+			} catch(Exception x) {
+				Logger.getLogger(FileTool.class.getName()).log(Level.FINE, "Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+			}
+		}
+
+		//-- Next level: statements..
+		int len = tox;
+		tox = 0;
+		for(int i = 0; i < len; i++) {
+			Object v = list[i];
+			try {
+				if(v instanceof Statement) {
+					((Statement) v).close();
+				} else
+					list[tox++] = v; // Keep, todo
+			} catch(Exception x) {
+				Logger.getLogger(FileTool.class.getName()).log(Level.FINE, "Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+			}
+		}
+
+		//-- Last level: everything else.
+		len = tox;
+		tox = 0;
+		for(int i = 0; i < len; i++) {
+			Object v = list[i];
+			try {
+				if(v instanceof Connection) {
+					((Connection) v).close();
+					v = null;
+				} else {
+					Method m = ClassUtil.findMethod(v.getClass(), "close", null);
+					if(m == null) {
+						m = ClassUtil.findMethod(v.getClass(), "release", null);
+					}
+					if(m != null) {
+						m.invoke(v);
+						v = null;
+					}
+				}
+			} catch(Exception x) {
+				Logger.getLogger(FileTool.class.getName()).log(Level.FINE, "Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+			}
+
+			if(v != null) {
+				StringTool.dumpLocation("UNKNOWN RESOURCE OF TYPE " + v.getClass() + " TO CLOSE PASSED TO FileTool.closeAll()!!!!\nFIX THIS IMMEDIATELY!!!!!!");
+			}
+		}
 	}
 }
