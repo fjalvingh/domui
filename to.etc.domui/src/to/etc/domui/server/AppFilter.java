@@ -91,6 +91,7 @@ public class AppFilter implements Filter {
 					System.out.println("**** changed ConsoleHandler logger.");
 				}
 			}
+
 		} catch(IOException x) {
 			x.printStackTrace();
 			throw new WrappedException(x);
