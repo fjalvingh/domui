@@ -462,7 +462,7 @@ public class VpEventManager implements Runnable {
 			al.add(e);
 		} catch(Exception x) {
 			log("Event " + upid + ": serialization got exception " + x);
-			x.printStackTrace();
+			//			x.printStackTrace();
 		} finally {
 			try {
 				if(ois != null)
