@@ -96,6 +96,9 @@
 }
 .vp-ttl-info {
 	background-image: url(mini-info.png);
+	background-color: #a9c5f1; /* some nice light blue */
+	color: blue;
+	border-color: 1px solid blue;
 }
 .vp-ttl-error {
 	background-image: url(mini-error.png);
@@ -486,6 +489,7 @@ table.ui-lui-selected {
 	white-space: nowrap;
 	margin: 1px;
 }
+
 .ui-lui-v { /* no selection is rendered transparent without border */
 	padding: 0px;
 	margin: 0px;

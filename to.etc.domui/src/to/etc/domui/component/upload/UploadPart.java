@@ -29,7 +29,7 @@ public class UploadPart implements IUnbufferedPartFactory {
 
 			//-- Render an optimal delta as the response,
 			ServerTools.generateNoCache(param.getResponse()); // Do not allow the browser to cache
-			ApplicationRequestHandler.renderOptimalDelta(param, r.getPage());
+			ApplicationRequestHandler.renderOptimalDelta(param, r.getPage(), false);
 		} catch(Exception x) {
 			x.printStackTrace();
 		}

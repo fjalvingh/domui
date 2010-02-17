@@ -138,18 +138,6 @@ public class AppFilter implements Filter {
 				SLF4JBridgeHandler.install();
 
 			}
-			//
-			//			//-- Replace SLF4J log formatter.
-			//
-			//
-			//			Logger root = LogManager.getLogManager().getLogger("");
-			//			for(Handler h : root.getHandlers()) {
-			//				if(h instanceof ConsoleHandler) {
-			//					ConsoleHandler ch = (ConsoleHandler) h;
-			//					ch.setFormatter(new NonStupidLogFormatter());
-			//					System.out.println("DomUI: changed ConsoleHandler logger.");
-			//				}
-			//			}
 		} catch(Exception x) {
 			x.printStackTrace();
 			throw WrappedException.wrap(x);

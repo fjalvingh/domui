@@ -371,9 +371,9 @@ final public class ServerTools {
 	 * @param res
 	 */
 	static public void generateNoCache(HttpServletResponse response) {
-		response.addHeader("Pragma", "no-cache");
-		response.addHeader("Cache-Control", "no-cache, must-revalidate, no-store");
-		response.addHeader("Expires", "Mon, 8 Aug 2006 10:00:00 GMT");
+		response.setHeader("Pragma", "no-cache");
+		response.setHeader("Cache-Control", "no-cache, must-revalidate, no-store");
+		response.setHeader("Expires", "Mon, 8 Aug 2006 10:00:00 GMT");
 	}
 
 	/**
