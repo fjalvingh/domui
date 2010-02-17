@@ -78,7 +78,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 		Double minmax = Double.valueOf(calcMaxValue(pmm));
 
 		//-- FIXME Generic bounds violation due to it's gross definition, ignored.
-		return new LookupNumberControl<Number>((Class) pmm.getActualType(), numText, spm.getPropertyName(), minmax, minmax);
+		return new LookupNumberControl<Number>((Class) pmm.getActualType(), numText, spm.getPropertyName(), Double.valueOf(-minmax.doubleValue()), minmax);
 	}
 
 	static private double calcMaxValue(PropertyMetaModel pmm) {
