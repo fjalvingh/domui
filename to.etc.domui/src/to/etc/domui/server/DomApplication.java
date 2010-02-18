@@ -4,6 +4,8 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.ajax.*;
@@ -544,8 +546,57 @@ public abstract class DomApplication {
 		return m_webFilePath;
 	}
 
-	/** Cache for 'hasApplicationResource' containing all resources we have checked existence for */
+
+	/** Cache for application resources containing all resources we have checked existence for */
+	private final Map<String, IResourceRef> m_resourceSet = new HashMap<String, IResourceRef>();
+
 	private final Map<String, Boolean> m_knownResourceSet = new HashMap<String, Boolean>();
+
+	/**
+	 * Create a resource ref to a class based resource. If we are running in DEBUG mode this will
+	 * generate something which knows the source of the resource, so it can handle changes to that
+	 * source while developing.
+	 *
+	 * @param name
+	 * @return
+	 */
+	private ClassResourceRef createClasspathReference(String name) {
+		//-- If running in debug mode get this classpath resource's original source file
+		IModifyableResource ts = Reloader.findClasspathSource(name);
+		return new ClassResourceRef(ts, name);
+	}
+
+	/**
+	 * Tries to resolve an application-based resource by decoding it's name, and throw an exception if not found. We allow
+	 * the following constructs:
+	 * <ul>
+	 *	<li>$RES/xxxx: denotes a class-based resource. The xxxx is the full package/classname of the resource</li>
+	 *	<li>$THEME/xxxx: denotes a current-theme based resource.</li>
+	 * </ul>
+	 *
+	 * @param name
+	 * @return
+	 */
+	public IResourceRef getApplicationResourceByName(String name) {
+		IResourceRef ref = internalFindResource(name);
+
+		/*
+		 * The code below was needed because the original code caused a 404 exception on web resources which were
+		 * checked every time. All other resource types like class resources were not checked for existence.
+		 */
+		if(ref instanceof WebappResourceRef) {
+			if(ref.getLastModified() == -1)
+				throw new ThingyNotFoundException(name);
+		}
+		return ref;
+	}
+
+	private ClassResourceRef tryVersionedResource(String name) {
+		name = "/resources/" + name;
+		if(!DomUtil.classResourceExists(getClass(), name))
+			return null;
+		return createClasspathReference(name);
+	}
 
 	/**
 	 * Quickly determines if a given resource exists. Enter with the full resource path, like $js/xxx, THEME/xxx and the like; it
@@ -561,7 +612,8 @@ public abstract class DomApplication {
 		}
 
 		//-- Determine existence out-of-lock (single init is unimportant)
-		Boolean k = Boolean.valueOf(internalHasResource(name));
+		IResourceRef ref = internalFindCachedResource(name);
+		Boolean k = Boolean.valueOf(ref.getLastModified() != -1);
 		synchronized(this) {
 			m_knownResourceSet.put(name, k);
 		}
@@ -569,51 +621,93 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Determines the existence of a resource. This <b>must</b> mirror the logic of {@link #getApplicationResourceByName(String)}.
+	 * Cached version to locate an application resource.
+	 * @param name
+	 * @return
+	 */
+	private IResourceRef internalFindCachedResource(@Nonnull String name) {
+		IResourceRef ref;
+		synchronized(this) {
+			ref = m_resourceSet.get(name);
+			if(ref != null)
+				return ref;
+		}
+
+		//-- Determine existence out-of-lock (single init is unimportant)
+		ref = internalFindResource(name);
+		synchronized(this) {
+			m_resourceSet.put(name, ref);
+		}
+		return ref;
+	}
+
+	/**
+	 * UNCACHED version to locate a resource. This handles all special DomUI url's
+	 * starting with '$' but also all webapp-relative requests. It also handles the
+	 * "scriptVersion" logic and the expanded/compressed logic for $js/ resources.
 	 *
 	 * @param name
 	 * @return
 	 */
-	private boolean internalHasResource(String name) {
-		if(name == null || name.length() == 0)
-			return false;
-		if(name.startsWith(Constants.RESOURCE_PREFIX))
-			return DomUtil.classResourceExists(getClass(), name.substring(Constants.RESOURCE_PREFIX.length() - 1));
+	@Nonnull
+	private IResourceRef internalFindResource(@Nonnull String name) {
+		if(name.startsWith(Constants.RESOURCE_PREFIX)) {
+			return createClasspathReference(name.substring(Constants.RESOURCE_PREFIX.length() - 1)); // Strip off $RES, rest is absolute resource path starting with /
+		}
+
 		if(name.startsWith("$")) {
 			name = name.substring(1);
-
 			//-- 1. Is a file-based resource available?
 			File f = getAppFile(name);
-			if(f.exists() && f.isFile())
-				return true;
-
-			//-- 2. Must be /resources/ class resource. In the url, replace all '.' but the last one with /
-			int pos = name.lastIndexOf('.');
-			if(pos != -1) {
-				name = name.substring(0, pos).replace('.', '/') + name.substring(pos);
-			}
+			if(f.exists())
+				return new WebappResourceRef(f);
+			// 20091019 jal removed: $ resources are literal entries; they are never classnames - that is done using $RES/ only.
+			//			//-- In the url, replace all '.' but the last one with /
+			//			int pos = name.lastIndexOf('.');
+			//			if(pos != -1) {
+			//				name = name.substring(0, pos).replace('.', '/') + name.substring(pos);
+			//			}
 
 			/*
 			 * For class-based resources we are able to select different versions of a resource if it's name
-			 * starts with $js/. These will be replaced with $js/[scriptVersion]/rest.
-			 * FIXME Hard check for jquery to switch between compressed and expanded version; should be replaced
-			 * with a check if for abc.js a version abc-min.js exists, with cache.
+			 * starts with $js/. These will be scanned in resources/js/[scriptversion]/[name] and resources/js/[name].
 			 */
-			if(name.startsWith("js/")) {
-				if(!inDevelopmentMode() && name.equals("js/jquery.js"))
-					name = "js/" + getScriptVersion() + "jquery-min.js";
-				else
-					name = "js/" + getScriptVersion() + name.substring(2);
+			if(!name.startsWith("js/"))
+				return createClasspathReference("/resources/" + name);
+
+			//-- 1. Create a 'min version of the name
+			name = name.substring(2); // Strip js, leave leading /.
+			int pos = name.lastIndexOf('.');
+			String min = pos < 0 ? null : name.substring(0, pos) + "-min" + name.substring(pos);
+
+			StringBuilder sb = new StringBuilder(64);
+			ClassResourceRef r;
+			if(!inDevelopmentMode() && min != null) {
+				//-- Try all min versions in production, first
+				sb.append("js/").append(getScriptVersion()).append(min);
+				r = tryVersionedResource(sb.toString());
+				if(r != null)
+					return r;
+				sb.setLength(0);
+				sb.append("js").append(min);
+				r = tryVersionedResource(sb.toString());
+				if(r != null)
+					return r;
 			}
 
-			return DomUtil.classResourceExists(getClass(), "/resources/" + name);
+			//-- Try normal versions only in development.
+			sb.setLength(0);
+			sb.append("js/").append(getScriptVersion()).append(name);
+			r = tryVersionedResource(sb.toString());
+			if(r != null)
+				return r;
+
+			return createClasspathReference("/resources/js" + name);
 		}
 
-		//-- Normal unprefixed rurl. Use webapp-direct path.
+		//-- Normal url. Use webapp-direct path.
 		File src = new File(m_webFilePath, name);
-		if(src.exists() && src.isFile())
-			return true;
-		return false;
+		return new WebappResourceRef(src);
 	}
 
 	/**
@@ -660,23 +754,23 @@ public abstract class DomApplication {
 	private String tryKey(final StringBuilder sb, final String basename, final String suffix, final String lang, final String country, final String variant, final String dialect) {
 		sb.setLength(0);
 		sb.append(basename);
-		if(dialect != null) {
+		if(dialect != null && dialect.length() > 0) {
 			sb.append('_');
 			sb.append(dialect);
 		}
-		if(lang != null) {
+		if(lang != null && lang.length() > 0) {
 			sb.append('_');
 			sb.append(lang);
 		}
-		if(country != null) {
+		if(country != null && country.length() > 0) {
 			sb.append('_');
 			sb.append(country);
 		}
-		if(variant != null) {
+		if(variant != null && variant.length() > 0) {
 			sb.append('_');
 			sb.append(variant);
 		}
-		if(suffix != null)
+		if(suffix != null && suffix.length() > 0)
 			sb.append(suffix);
 		String res = sb.toString();
 		if(hasApplicationResource(res))
@@ -684,81 +778,6 @@ public abstract class DomApplication {
 		return null;
 	}
 
-	/**
-	 * Create a resource ref to a class based resource. If we are running in DEBUG mode this will
-	 * generate something which knows the source of the resource, so it can handle changes to that
-	 * source while developing.
-	 *
-	 * @param name
-	 * @return
-	 */
-	private ClassResourceRef createClasspathReference(String name) {
-		//-- If running in debug mode get this classpath resource's original source file
-		IModifyableResource ts = Reloader.findClasspathSource(name);
-		return new ClassResourceRef(ts, name);
-	}
-
-	/**
-	 * Tries to resolve an application-based resource by decoding it's name, and throw an exception if not found. We allow
-	 * the following constructs:
-	 * <ul>
-	 *	<li>$RES/xxxx: denotes a class-based resource. The xxxx is the full package/classname of the resource</li>
-	 *	<li>$THEME/xxxx: denotes a current-theme based resource.</li>
-	 * </ul>
-	 *
-	 * @param name
-	 * @return
-	 */
-	public IResourceRef getApplicationResourceByName(String name) {
-		if(name.startsWith(Constants.RESOURCE_PREFIX)) {
-			return createClasspathReference(name.substring(Constants.RESOURCE_PREFIX.length() - 1)); // Strip off $RES, rest is absolute resource path starting with /
-		}
-		if(name.startsWith("$")) {
-			name = name.substring(1);
-			//-- 1. Is a file-based resource available?
-			File f = getAppFile(name);
-			if(f.exists())
-				return new WebappResourceRef(f);
-			// 20091019 jal removed: $ resources are literal entries; they are never classnames - that is done using $RES/ only.
-			//			//-- In the url, replace all '.' but the last one with /
-			//			int pos = name.lastIndexOf('.');
-			//			if(pos != -1) {
-			//				name = name.substring(0, pos).replace('.', '/') + name.substring(pos);
-			//			}
-
-			/*
-			 * For class-based resources we are able to select different versions of a resource if it's name
-			 * starts with $js/. These will be replaced with $js/[scriptVersion]/rest.
-			 * FIXME Hard check for jquery to switch between compressed and expanded version; should be replaced
-			 * with a check if for abc.js a version abc-min.js exists, with cache.
-			 */
-			if(name.startsWith("js/")) {
-				if(!inDevelopmentMode() && name.equals("js/jquery.js"))
-					name = "js/" + getScriptVersion() + "jquery-min.js";
-				else
-					name = "js/" + getScriptVersion() + name.substring(2);
-			}
-
-			return createClasspathReference("/resources/" + name);
-		}
-
-		//		if(name.startsWith(Constants.THEME_PREFIX)) {
-		//			//-- Is an override available? If so use that one;
-		//			String	rel	= "themes/"+name.substring(Constants.THEME_PREFIX.length());	// Reform '$THEME/blue/style.css' to 'themes/blue/style.css'
-		//			File	src	= new File(m_webFilePath, rel);
-		//			if(src.exists())
-		//				return new WebappResourceRef(src);
-		//
-		//			//-- Theme data. Try to get it from a resource; use the webapp path if it does not exist.
-		//			return new ClassResourceRef(getClass(), "/"+rel);
-		//		}
-		//
-		//-- Normal url. Use webapp-direct path.
-		File src = new File(m_webFilePath, name);
-		if(src.exists())
-			return new WebappResourceRef(src);
-		throw new ThingyNotFoundException(name);
-	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Code table cache.									*/
@@ -1118,23 +1137,6 @@ public abstract class DomApplication {
 		IResourceRef ires = getApplicationResourceByName(rurl);
 		if(ires == null)
 			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
-
-		//		boolean isresource;
-		//		if(rurl.startsWith("$")) {
-		//			isresource = true;
-		//			rurl = rurl.substring(1);
-		//		} else
-		//			isresource = false;
-		//
-		//		//-- 1. Is a file-based resource available?
-		//		IResourceRef ires;
-		//		File f = getAppFile(rurl);
-		//		if(f.exists()) {
-		//			ires = new WebappResourceRef(f);
-		//		} else if(isresource) {
-		//			ires = new ClassResourceRef(getClass(), "/resources/" + rurl);
-		//		} else
-		//			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
 		if(rdl != null)
 			rdl.add(ires);
 
