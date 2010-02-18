@@ -97,6 +97,8 @@ public abstract class DomApplication {
 	 */
 	private List<IHtmlRenderFactory> m_renderFactoryList = new ArrayList<IHtmlRenderFactory>();
 
+	final private String m_scriptVersion;
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
 	/*--------------------------------------------------------------*/
@@ -104,6 +106,7 @@ public abstract class DomApplication {
 	 * The only constructor.
 	 */
 	public DomApplication() {
+		m_scriptVersion = DeveloperOptions.getString("domui.scriptversion", "jquery-1.4.1");
 		registerControlFactories();
 		registerPartFactories();
 		initHeaderContributors();
@@ -282,6 +285,9 @@ public abstract class DomApplication {
 		return (Class< ? extends UrlPage>) clz;
 	}
 
+	public String getScriptVersion() {
+		return m_scriptVersion;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	HTML per-browser rendering code.					*/
@@ -402,7 +408,7 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 
 	protected void initHeaderContributors() {
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-1.2.6.js"), -1000);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.js"), -1000);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"), -990);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"), -970);
@@ -586,6 +592,20 @@ public abstract class DomApplication {
 			if(pos != -1) {
 				name = name.substring(0, pos).replace('.', '/') + name.substring(pos);
 			}
+
+			/*
+			 * For class-based resources we are able to select different versions of a resource if it's name
+			 * starts with $js/. These will be replaced with $js/[scriptVersion]/rest.
+			 * FIXME Hard check for jquery to switch between compressed and expanded version; should be replaced
+			 * with a check if for abc.js a version abc-min.js exists, with cache.
+			 */
+			if(name.startsWith("js/")) {
+				if(!inDevelopmentMode() && name.equals("js/jquery.js"))
+					name = "js/" + getScriptVersion() + "jquery-min.js";
+				else
+					name = "js/" + getScriptVersion() + name.substring(2);
+			}
+
 			return DomUtil.classResourceExists(getClass(), "/resources/" + name);
 		}
 
@@ -678,7 +698,6 @@ public abstract class DomApplication {
 		return new ClassResourceRef(ts, name);
 	}
 
-
 	/**
 	 * Tries to resolve an application-based resource by decoding it's name, and throw an exception if not found. We allow
 	 * the following constructs:
@@ -696,7 +715,6 @@ public abstract class DomApplication {
 		}
 		if(name.startsWith("$")) {
 			name = name.substring(1);
-
 			//-- 1. Is a file-based resource available?
 			File f = getAppFile(name);
 			if(f.exists())
@@ -707,6 +725,20 @@ public abstract class DomApplication {
 			//			if(pos != -1) {
 			//				name = name.substring(0, pos).replace('.', '/') + name.substring(pos);
 			//			}
+
+			/*
+			 * For class-based resources we are able to select different versions of a resource if it's name
+			 * starts with $js/. These will be replaced with $js/[scriptVersion]/rest.
+			 * FIXME Hard check for jquery to switch between compressed and expanded version; should be replaced
+			 * with a check if for abc.js a version abc-min.js exists, with cache.
+			 */
+			if(name.startsWith("js/")) {
+				if(!inDevelopmentMode() && name.equals("js/jquery.js"))
+					name = "js/" + getScriptVersion() + "jquery-min.js";
+				else
+					name = "js/" + getScriptVersion() + name.substring(2);
+			}
+
 			return createClasspathReference("/resources/" + name);
 		}
 

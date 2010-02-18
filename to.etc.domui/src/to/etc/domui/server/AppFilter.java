@@ -158,8 +158,11 @@ public class AppFilter implements Filter {
 			if(m_applicationClassName == null)
 				throw new UnavailableException("The application class name is not set. Use 'application' in the Filter parameters to set a main class.");
 
+			//-- Are we running in development mode?
 			String autoload = m_config.getString("auto-reload");
-			if(autoload != null && autoload.trim().length() > 0)
+			autoload = DeveloperOptions.getString("domui.reload", autoload); // Allow override of web.xml values.
+
+			if(DeveloperOptions.isDeveloperWorkstation() && DeveloperOptions.getBool("domui.developer", true) && autoload != null && autoload.trim().length() > 0)
 				m_contextMaker = new ReloadingContextMaker(m_applicationClassName, m_config, autoload);
 			else
 				m_contextMaker = new NormalContextMaker(m_applicationClassName, m_config);
