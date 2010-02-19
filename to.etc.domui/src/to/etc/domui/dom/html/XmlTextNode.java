@@ -16,6 +16,12 @@ package to.etc.domui.dom.html;
  * Created on Feb 15, 2010
  */
 public class XmlTextNode extends TextNode {
+	public XmlTextNode() {}
+
+	public XmlTextNode(String txt) {
+		setText(txt);
+	}
+
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitXmlNode(this);
