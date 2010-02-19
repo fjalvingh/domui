@@ -382,9 +382,10 @@
 
                 if ( newY == 0 && element.rows )
                     newY = ( element.rows * 16 ) + 16;
-
+// jal 20100219 height added because editor did not listen.
                 var editor = this.editor = $('<iframe src="javascript:false;"></iframe>').css({
                     minHeight : ( newY - 6 ).toString() + 'px',
+                    height : ( newY - 6 ).toString() + 'px',
                     width     : ( newX - 8 ).toString() + 'px'
                 }).attr('id', $(element).attr('id') + 'IFrame')
                 .attr('frameborder', '0');
