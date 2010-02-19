@@ -108,9 +108,12 @@ public class AppFilter implements Filter {
 				}
 			}
 
-		} catch(IOException x) {
+		} catch(Exception x) {
 			x.printStackTrace();
 			throw WrappedException.wrap(x);
+		} catch(Error x) {
+			x.printStackTrace();
+			throw x;
 		}
 		try {
 			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
