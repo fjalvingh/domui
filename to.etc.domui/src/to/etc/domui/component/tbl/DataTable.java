@@ -4,7 +4,6 @@ import java.util.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
 
 /**
  * POC for a datatable based on the live dom code.
@@ -20,7 +19,11 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	/** The size of the page */
 	private int m_pageSize;
 
+	/** If a result is visible this is the data table */
 	private TBody m_dataBody;
+
+	/** When the query has 0 results this is set to the div displaying that message. */
+	private Div m_errorDiv;
 
 	public DataTable(IRowRenderer<T> r) {
 		m_rowRenderer = r;
@@ -72,12 +75,53 @@ public class DataTable<T> extends TabularComponentBase<T> {
 
 		List<T> list = getPageItems(); // Data to show
 		if(list.size() == 0) {
-			Div error = new Div();
-			error.setCssClass("ui-dt-nores");
-			error.setText(NlsContext.getGlobalMessage(Msgs.UI_DATATABLE_EMPTY));
-			add(error);
+			setNoResults();
 			return;
 		}
+
+		setResults();
+		//		m_table.removeAllChildren();
+		//		add(m_table);
+		//
+		//		//-- Render the header.
+		//		THead hd = new THead();
+		//		HeaderContainer<T> hc = new HeaderContainer<T>(this);
+		//		TR tr = new TR();
+		//		tr.setCssClass("ui-dt-hdr");
+		//		hd.add(tr);
+		//		hc.setParent(tr);
+		//		m_rowRenderer.renderHeader(this, hc);
+		//		if(hc.hasContent()) {
+		//			m_table.add(hd);
+		//		} else {
+		//			hc = null;
+		//			hd = null;
+		//			tr = null;
+		//		}
+		//
+		//		//-- Render loop: add rows && ask the renderer to add columns.
+		//		m_dataBody = new TBody();
+		//		m_table.add(m_dataBody);
+
+		ColumnContainer<T> cc = new ColumnContainer<T>(this);
+		int ix = m_six;
+		for(T o : list) {
+			TR tr = new TR();
+			m_dataBody.add(tr);
+			cc.setParent(tr);
+			m_rowRenderer.renderRow(this, cc, ix, o);
+			ix++;
+		}
+	}
+
+	private void setResults() throws Exception {
+		if(m_errorDiv != null) {
+			m_errorDiv.remove();
+			m_errorDiv = null;
+		}
+		if(m_dataBody != null)
+			return;
+
 		m_table.removeAllChildren();
 		add(m_table);
 
@@ -103,16 +147,33 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		//		b.setOverflow(Overflow.SCROLL);
 		//		b.setHeight("400px");
 		//		b.setWidth("100%");
+	}
 
-		ColumnContainer<T> cc = new ColumnContainer<T>(this);
-		int ix = m_six;
-		for(T o : list) {
-			tr = new TR();
-			m_dataBody.add(tr);
-			cc.setParent(tr);
-			m_rowRenderer.renderRow(this, cc, ix, o);
-			ix++;
+	/**
+	 * Removes any data table, and presents the "no results found" div.
+	 */
+	private void setNoResults() {
+		if(m_errorDiv != null)
+			return;
+
+		if(m_table != null) {
+			m_table.removeAllChildren();
+			m_table.remove();
+			m_dataBody = null;
 		}
+
+		m_errorDiv = new Div();
+		m_errorDiv.setCssClass("ui-dt-nores");
+		m_errorDiv.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
+		add(m_errorDiv);
+		return;
+	}
+
+	private void updateResults(int count) throws Exception {
+		if(count == 0)
+			setNoResults();
+		else
+			setResults();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -160,6 +221,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 			return;
 
 		//-- What relative row?
+		setResults();
 		int rrow = index - m_six; // This is the location within the child array
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = new TR();
@@ -188,6 +250,10 @@ public class DataTable<T> extends TabularComponentBase<T> {
 			return;
 		int rrow = index - m_six; // This is the location within the child array
 		m_dataBody.removeChild(rrow); // Discard this one;
+		if(m_dataBody.getChildCount() == 0) {
+			setNoResults();
+			return;
+		}
 
 		//-- One row gone; must we add one at the end?
 		int peix = m_six + m_pageSize - 1; // Index of last element on "page"
