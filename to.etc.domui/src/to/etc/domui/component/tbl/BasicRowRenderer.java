@@ -28,7 +28,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2008
  */
-public class BasicRowRenderer extends AbstractRowRenderer implements IRowRenderer {
+public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowRenderer<T> {
 	static public final String NOWRAP = "-NOWRAP";
 
 	/** The column name to sort on by default, set by metadata. This is only used to keep it for a while until the actual column list is known; at that point the column def to sort on is determined and used. */
@@ -44,7 +44,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 	 * @param dataClass
 	 * @param cols
 	 */
-	public BasicRowRenderer(final Class< ? > dataClass, final Object... cols) throws Exception {
+	public BasicRowRenderer(final Class<T> dataClass, final Object... cols) throws Exception {
 		super(dataClass);
 		if(cols.length != 0)
 			addColumns(cols);
@@ -69,21 +69,22 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 	 *
 	 * @param clz
 	 * @param cols
+	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
 	@SuppressWarnings("fallthrough")
-	public <X, C extends IConverter<X>, R extends INodeContentRenderer<X>> BasicRowRenderer addColumns(final Object... cols) throws Exception {
+	public BasicRowRenderer<T> addColumns(final Object... cols) throws Exception {
 		check();
 		if(cols == null || cols.length == 0)
 			throw new IllegalStateException("The list-of-columns is empty or null; I need at least one column to continue.");
 		String property = null;
 		String width = null;
-		C conv = null;
-		Class<C> convclz = null;
+		IConverter< ? > conv = null;
+		Class< ? > convclz = null;
 		String caption = null;
 		String cssclass = null;
 		boolean nowrap = false;
-		R nodeRenderer = null;
-		Class<R> nrclass = null;
+		INodeContentRenderer< ? > nodeRenderer = null;
+		Class< ? > nrclass = null;
 
 		for(final Object val : cols) {
 			if(property == null) { // Always must start with a property.
@@ -110,7 +111,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 						cssclass = null;
 						nodeRenderer = null;
 						nrclass = null;
-						nowrap = true;
+						nowrap = false;
 						break;
 
 					case '%':
@@ -125,15 +126,15 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 						break;
 				}
 			} else if(val instanceof IConverter< ? >)
-				conv = (C) val;
+				conv = (IConverter< ? >) val;
 			else if(val instanceof INodeContentRenderer< ? >)
-				nodeRenderer = (R) val;
+				nodeRenderer = (INodeContentRenderer< ? >) val;
 			else if(val instanceof Class< ? >) {
 				final Class< ? > c = (Class< ? >) val;
 				if(INodeContentRenderer.class.isAssignableFrom(c))
-					nrclass = (Class<R>) c;
+					nrclass = c;
 				else if(IConverter.class.isAssignableFrom(c))
-					convclz = (Class<C>) c;
+					convclz = c;
 				else
 					throw new IllegalArgumentException("Invalid 'class' argument: " + c);
 			} else
@@ -143,7 +144,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 		return this;
 	}
 
-	private INodeContentRenderer< ? > tryRenderer(final INodeContentRenderer< ? > nodeRenderer, final Class< ? extends INodeContentRenderer< ? >> nrclass) throws Exception {
+	private INodeContentRenderer< ? > tryRenderer(final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass) throws Exception {
 		if(nodeRenderer != null) {
 			if(nrclass != null)
 				throw new IllegalArgumentException("Both a NodeContentRenderer instance AND a class specified: " + nodeRenderer + " + " + nrclass);
@@ -151,14 +152,24 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 		}
 		if(nrclass == null)
 			return null;
-		return DomApplication.get().createInstance(nrclass);
+		return (INodeContentRenderer< ? >) DomApplication.get().createInstance(nrclass);
 	}
 
-	private <X, T extends IConverter<X>> T tryConverter(final Class<T> cclz, final T ins) {
+	/**
+	 *
+	 * @param <X>
+	 * @param <T>
+	 * @param cclz
+	 * @param ins
+	 * @return
+	 * <X, T extends IConverter<X>>
+	 */
+	@SuppressWarnings("unchecked")
+	private IConverter< ? > tryConverter(final Class< ? > cclz, final IConverter< ? > ins) {
 		if(cclz != null) {
 			if(ins != null)
 				throw new IllegalArgumentException("Both a IConverter class AND an instance specified: " + cclz + " and " + ins);
-			return ConverterRegistry.getConverter(cclz);
+			return ConverterRegistry.getConverterInstance((Class) cclz);
 		}
 		return ins;
 	}
@@ -173,9 +184,10 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 	 * @param cssclass
 	 * @param nodeRenderer
 	 * @param nrclass
+	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
-	private <X, C extends IConverter<X>, R extends INodeContentRenderer<X>> void internalAddProperty(final String property, final String width, final C conv, final Class<C> convclz,
-		final String caption, final String cssclass, final R nodeRenderer, final Class<R> nrclass, final boolean nowrap) throws Exception {
+	private void internalAddProperty(final String property, final String width, final IConverter< ? > conv, final Class< ? > convclz, final String caption, final String cssclass,
+		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap) throws Exception {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
 
@@ -189,7 +201,7 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 			cd.setColumnType(getActualClass()); // By definition, the data value is the record instance,
 			cd.setContentRenderer(tryRenderer(nodeRenderer, nrclass));
 			cd.setPropertyName("");
-			cd.setValueConverter(tryConverter(convclz, conv));
+			cd.setPresentationConverter(tryConverter(convclz, conv));
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
 			cd.setNowrap(nowrap);
@@ -208,11 +220,11 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 			final SimpleColumnDef cd = new SimpleColumnDef();
 			m_columnList.add(cd);
 			cd.setValueTransformer(pmm.getAccessor());
-			cd.setColumnLabel(caption);
+			cd.setColumnLabel(caption == null ? pmm.getDefaultLabel() : caption);
 			cd.setColumnType(pmm.getActualType());
 			cd.setContentRenderer(tryRenderer(nodeRenderer, nrclass));
 			cd.setPropertyName(property);
-			cd.setValueConverter(tryConverter(convclz, conv)); // FIXME Not used as per the definition on content renderers??
+			cd.setPresentationConverter(tryConverter(convclz, conv)); // FIXME Not used as per the definition on content renderers??
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
 			cd.setNowrap(nowrap);
@@ -254,16 +266,16 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 			scd.setColumnLabel(caption == null ? xdp.getDefaultLabel() : caption);
 			scd.setColumnType(xdp.getActualType());
 			scd.setValueTransformer(xdp.getAccessor()); // Thing which can obtain the value from the property
-			scd.setValueConverter(tryConverter(convclz, conv));
-			if(scd.getValueConverter() == null && xdp.getConverterClass() != null)
-				scd.setValueConverter(ConverterRegistry.getConverter(xdp.getConverterClass()));
-			if(scd.getValueConverter() == null) {
+			scd.setPresentationConverter(tryConverter(convclz, conv));
+			if(scd.getPresentationConverter() == null && xdp.getConverter() != null)
+				scd.setPresentationConverter(xdp.getConverter());
+			if(scd.getPresentationConverter() == null) {
 				/*
 				 * Try to get a converter for this, if needed.
 				 */
 				if(xdp.getActualType() != String.class) {
 					final IConverter<?> c = ConverterRegistry.getConverter(xdp.getActualType(), xdp);
-					scd.setValueConverter(c);
+					scd.setPresentationConverter(c);
 				}
 			}
 			scd.setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
@@ -279,25 +291,38 @@ public class BasicRowRenderer extends AbstractRowRenderer implements IRowRendere
 	}
 
 	/**
+	 * Add all of the columns as defined by the metadata to the list.
+	 */
+	public void addDefaultColumns() {
+		final ClassMetaModel cmm = model();
+		final List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
+		if(dpl.size() == 0)
+			throw new IllegalStateException("The list-of-columns to show is empty, and the class " + getActualClass()
+				+ " has no @MetaObject definition defining a set of columns as default table columns, so there.");
+		List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
+		xdpl = ExpandedDisplayProperty.flatten(xdpl); // Flatten the list: expand any compounds.
+		for(final ExpandedDisplayProperty xdp : xdpl) {
+			SimpleColumnDef scd = new SimpleColumnDef(xdp);
+			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
+				scd.setCssClass("ui-numeric");
+				scd.setHeaderCssClass("ui-numeric");
+			}
+
+			m_columnList.add(scd);
+		}
+	}
+
+	/**
 	 * Complete this object if it is not already complete.
 	 */
 	@Override
-	protected void complete(final DataTable tbl) {
+	protected void complete(final TableModelTableBase<T> tbl) {
 		if(isComplete())
 			return;
 
 		//-- If we have no columns at all we use a default column list.
-		if(m_columnList.size() == 0) {
-			final ClassMetaModel cmm = model();
-			final List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
-			if(dpl.size() == 0)
-				throw new IllegalStateException("The list-of-columns to show is empty, and the class " + getActualClass()
-					+ " has no @MetaObject definition defining a set of columns as default table columns, so there.");
-			List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
-			xdpl = ExpandedDisplayProperty.flatten(xdpl); // Flatten the list: expand any compounds.
-			for(final ExpandedDisplayProperty xdp : xdpl)
-				m_columnList.add(new SimpleColumnDef(xdp));
-		}
+		if(m_columnList.size() == 0)
+			addDefaultColumns();
 
 		//-- Is there a default sort thingy? Is that column present?
 		if(m_sortColumnName != null) {

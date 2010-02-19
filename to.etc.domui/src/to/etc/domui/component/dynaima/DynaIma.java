@@ -11,9 +11,9 @@ import to.etc.util.*;
 
 /**
  * UNSTABLE INTERFACE
- * Dynamic image component. This is an img tag containing server-generated 
+ * Dynamic image component. This is an img tag containing server-generated
  * content.
- * 
+ *
  * <h2>Internals</h2>
  * <p>This component uses the concept of an "image source" as the mechanism to send server-side generated
  * bitmap images to the client. We accept multiple source types as the source for an image. The most basic

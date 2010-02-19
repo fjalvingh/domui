@@ -19,7 +19,16 @@ public class Constants {
 
 	static public final String PARAM_PAGE_TAG = "$pt";
 
-	static public final String ASYPOLL = "pollasy";
+	static public final String ACMD_ASYPOLL = "pollasy";
 
-	static public final String OBITUARY = "OBITUARY";
+	static public final String ACMD_OBITUARY = "OBITUARY";
+
+	static public final String ACMD_VALUE_CHANGED = "vchange";
+
+	static public final String ACMD_CLICKED = "clicked";
+
+	static public final String ACMD_LOOKUP_TYPING = "lookupTyping";
+
+	static public final String ACMD_LOOKUP_TYPING_DONE = "lookupTypingDone";
+
 }

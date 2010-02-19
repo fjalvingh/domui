@@ -3,6 +3,7 @@ package to.etc.domui.dom.header;
 import java.util.*;
 
 import to.etc.domui.dom.*;
+import to.etc.domui.dom.html.*;
 
 /**
  * A header contributor can be registered by nodes to cause something to
@@ -19,9 +20,18 @@ import to.etc.domui.dom.*;
  * Created on Aug 17, 2007
  */
 abstract public class HeaderContributor {
+	static public final Comparator<HeaderContributorEntry> C_ENTRY = new Comparator<HeaderContributorEntry>() {
+		@Override
+		public int compare(HeaderContributorEntry a, HeaderContributorEntry b) {
+			return a.getOrder() - b.getOrder();
+		}
+	};
+
 	static private Map<String, HeaderContributor> m_jsMap = new HashMap<String, HeaderContributor>();
 
-	abstract public void contribute(FullHtmlRenderer r) throws Exception;
+	abstract public void contribute(HtmlFullRenderer r) throws Exception;
+
+	abstract public void contribute(OptimalDeltaRenderer r) throws Exception;
 
 	@Override
 	abstract public int hashCode();
@@ -33,6 +43,33 @@ abstract public class HeaderContributor {
 		HeaderContributor c = m_jsMap.get(name);
 		if(c == null) {
 			c = new JavascriptContributor(name);
+			m_jsMap.put(name, c);
+		}
+		return c;
+	}
+
+	static synchronized public HeaderContributor loadJavaScriptlet(final String name) {
+		HeaderContributor c = m_jsMap.get(name);
+		if(c == null) {
+			c = new JavaScriptletContributor(name);
+			m_jsMap.put(name, c);
+		}
+		return c;
+	}
+
+	static synchronized public HeaderContributor loadStylesheet(final String name) {
+		HeaderContributor c = m_jsMap.get(name);
+		if(c == null) {
+			c = new CssContributor(name);
+			m_jsMap.put(name, c);
+		}
+		return c;
+	}
+
+	static synchronized public HeaderContributor loadThemedJavasciptContributor(final String name) {
+		HeaderContributor c = m_jsMap.get(name);
+		if(c == null) {
+			c = new ThemedJavascriptContributor(name);
 			m_jsMap.put(name, c);
 		}
 		return c;

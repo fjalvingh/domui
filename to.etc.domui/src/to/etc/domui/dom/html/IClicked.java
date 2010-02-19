@@ -11,8 +11,8 @@ public interface IClicked<T extends NodeBase> {
 	 * This gets called when the node is clicked. The parameter is the node that the click
 	 * handler was attached to. Since the node itself is passed you can easily reuse a click
 	 * handler instance for several same-type nodes.
-	 * @param b
+	 * @param clickednode
 	 * @throws Exception
 	 */
-	public void clicked(T b) throws Exception;
+	public void clicked(T clickednode) throws Exception;
 }

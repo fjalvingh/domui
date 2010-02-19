@@ -19,16 +19,18 @@ public class ConverterRegistry {
 	/** The list of registered factories. */
 	static private List<IConverterFactory> m_factoryList = new ArrayList<IConverterFactory>();
 
-	static private Map<Class< ? >, List<IConverterFactory>> m_factoryMap = new HashMap<Class< ? >, List<IConverterFactory>>();
+	//	static private Map<Class< ? >, List<IConverterFactory>> m_factoryMap = new HashMap<Class< ? >, List<IConverterFactory>>();
 
 	static private IConverterFactory m_defaultConverterFactory;
 
 	static {
 		setDefaultFactory(new DefaultConverterFactory());
+		register(new DomainListConverterFactory()); // Accepts anything having domain value list
 		register(new DateConverterFactory());
 		register(new MoneyConverterFactory());
-		register(new DoubleFactory());
-		register(new EnumFactory());
+		register(new DoubleFactory()); // Low-level Double converters (numeric only)
+		register(new EnumFactory()); // last-resort: Accepts generic enums without propertyMeta;
+		register(new BooleanConverterFactory()); // last-resort: Accepts generic boolean without metadata (yes, no texts only)
 	}
 
 	/**
@@ -36,7 +38,7 @@ public class ConverterRegistry {
 	 * @param clz
 	 * @return
 	 */
-	static public synchronized <X, T extends IConverter<X>> T getConverter(Class<T> clz) {
+	static public synchronized <X, T extends IConverter<X>> T getConverterInstance(Class<T> clz) {
 		T c = (T) m_converterMap.get(clz);
 		if(c == null) {
 			try {
@@ -58,7 +60,7 @@ public class ConverterRegistry {
 	 * @throws Exception
 	 */
 	static public <X, T extends IConverter<X>> X convertStringToValue(Class<T> clz, Locale loc, String in) throws Exception {
-		IConverter<X> c = getConverter(clz);
+		IConverter<X> c = getConverterInstance(clz);
 		return c.convertStringToObject(loc, in);
 	}
 
@@ -71,7 +73,7 @@ public class ConverterRegistry {
 	 * @throws Exception
 	 */
 	static public <X, T extends IConverter<X>> String convertValueToString(Class<T> clz, Locale loc, X in) throws Exception {
-		IConverter<X> c = getConverter(clz);
+		IConverter<X> c = getConverterInstance(clz);
 		return c.convertObjectToString(loc, in);
 	}
 
@@ -84,7 +86,7 @@ public class ConverterRegistry {
 	 * @throws Exception
 	 */
 	static public <X, T extends IConverter<X>> X convertStringToValue(Class<T> clz, String in) throws Exception {
-		T c = getConverter(clz);
+		T c = getConverterInstance(clz);
 		Locale loc = NlsContext.getLocale();
 		return c.convertStringToObject(loc, in);
 	}
@@ -100,7 +102,7 @@ public class ConverterRegistry {
 	static public <X, T extends IConverter<X>> String convertValueToString(Class<T> clz, X in) throws Exception {
 		if(clz == null)
 			return in == null ? "" : in.toString();
-		T c = getConverter(clz);
+		T c = getConverterInstance(clz);
 		Locale loc = NlsContext.getLocale();
 		return c.convertObjectToString(loc, in);
 	}
@@ -109,143 +111,6 @@ public class ConverterRegistry {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Default conversions per type.						*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Registers the specified converter factory.
-	 */
-	static synchronized public void register(IConverterFactory cf) {
-		if(m_factoryList.contains(cf))
-			return;
-		m_factoryList = new ArrayList<IConverterFactory>(m_factoryList); // Dup the original list,
-		m_factoryList.add(cf);
-		m_factoryMap.clear(); // Discard all assignments: others can be made.
-	}
-
-	/**
-	 * Return a thread-safe copy of the factory list.
-	 * @return
-	 */
-	static synchronized private List<IConverterFactory> getFactoryList() {
-		return m_factoryList;
-	}
-
-	/**
-	 * Returns the "default" converter factory, which returns the "factory of last resort"; this one converts
-	 * everything by using toString(), and does not convert anything back.
-	 *
-	 * @return
-	 */
-	static synchronized IConverterFactory getDefaultFactory() {
-		return m_defaultConverterFactory;
-	}
-
-	/**
-	 * Replaces the default factory (converter of last resort) - USE WITH CARE, OR BETTER YET - DO NOT USE AT ALL!!
-	 * @param f
-	 */
-	static synchronized void setDefaultFactory(IConverterFactory f) {
-		if(f == null)
-			throw new NullPointerException("Default converter CANNOT BE NULL!!");
-		m_defaultConverterFactory = f;
-		m_converterMap.clear();
-	}
-
-	/**
-	 * Finds the best converter to convert a value of the specified type to a string. This walks
-	 * the converter factory list and finds the best converter to use. If no factory accepts the
-	 * type this returns null. To get a valid converter all of the time use getConverter(); this
-	 * returns the "default converter" if no specific converter could be found.
-	 *
-	 * @param clz	The class type of the value to convert
-	 */
-	static public <X> IConverter<X> findConverter(Class<X> clz) {
-		return findConverter(clz, null);
-	}
-
-	/**
-	 * Finds the best converter to convert a value of the specified type (and the optionally specified metadata) to a string. This walks
-	 * the converter factory list and finds the best converter to use. If no factory accepts the type this returns null. To get a valid
-	 * converter all of the time use getConverter(); this returns the "default converter" if no specific converter could be found.
-	 *
-	 * @param clz	The class type of the value to convert
-	 * @param pmm	The metadata for the property, or null if unknown.
-	 * @return A converter instance, or null if no factory claimed the type.
-	 */
-	static public <X> IConverter<X> findConverter(Class<X> clz, PropertyMetaModel pmm) {
-		IConverterFactory cf = getFactory(clz, pmm);
-		if(cf == getDefaultFactory())
-			return null;
-		return cf.createConverter(clz, pmm);
-	}
-
-	/**
-	 * Gets the best converter to convert a value of the specified type (and the optionally specified metadata) to a string. This walks
-	 * the converter factory list and finds the best converter to use. If no factory accepts the type this returns the default converter.
-	 *
-	 * @param clz	The class type of the value to convert
-	 * @param pmm	The metadata for the property, or null if unknown.
-	 * @return A converter instance.
-	 */
-	static public <X> IConverter<X> getConverter(Class<X> clz, PropertyMetaModel pmm) {
-		IConverterFactory cf = getFactory(clz, pmm);
-		return cf.createConverter(clz, pmm);
-	}
-
-	/**
-	 * Finds the best factory to use.
-	 * @param clz
-	 * @param pmm
-	 * @return
-	 */
-	static private IConverterFactory getFactory(Class< ? > clz, PropertyMetaModel pmm) {
-		synchronized(ConverterRegistry.class) {
-			//-- Can we quickly find a thingy in the per-type map?
-			List<IConverterFactory> flist = m_factoryMap.get(clz);
-			if(flist != null) {
-				//-- Only use these to find the best factories
-				IConverterFactory best = null;
-				int bestscore = 0;
-				for(IConverterFactory cf : flist) {
-					int score = cf.accept(clz, pmm);
-					if(score < 0)
-						throw new IllegalStateException("INTERNAL: IConverterFactory " + cf + " suddenly does not accept class=" + clz
-							+ " anymore?! Make sure it returns 0, not -1 if it does not accept the propertyMetaData!!!");
-					if(score > bestscore) { // > 0 (!) and > highscore
-						best = cf;
-						bestscore = score;
-					}
-				}
-
-				/*
-				 * Return the result so far. If no match was found we exit too; the per-class list was exhausted so walking the full list will not result in more hits.
-				 */
-				return best;
-			}
-
-			//-- Scan teh full list, and build a list-of-factories-accepting-this-class during it,
-			flist = new ArrayList<IConverterFactory>();
-			m_factoryMap.put(clz, flist);
-			IConverterFactory best = null;
-			int bestscore = 0;
-			for(IConverterFactory cf : getFactoryList()) {
-				int score = cf.accept(clz, pmm);
-				if(score < 0)
-					continue;
-				flist.add(cf); // Factory at least accepts the class- add to per-type list,
-
-				if(score > bestscore) { // > 0 (!) and > highscore
-					best = cf;
-					bestscore = score;
-				}
-			}
-
-			flist.add(getDefaultFactory()); // Always accept the default factory thingy.
-			if(best == null)
-				best = getDefaultFactory(); // Always return the default factory if no converter known.
-			return best;
-		}
-	}
-
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	URL Converters.										*/
 	/*--------------------------------------------------------------*/
@@ -338,5 +203,165 @@ public class ConverterRegistry {
 		if(c == null)
 			return (X) RuntimeConversions.convertTo(svalue, toType);
 		return c.convertStringToObject(NlsContext.getLocale(), svalue);
+	}
+
+
+	/*----------------------------------- NEW, ACCEPTED CODE ------------------------*/
+	/*
+	 * Everything above this part is due for refactoring because the converter framework is messy. Refactored code
+	 * goes below this line.
+	 */
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Define factories.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Registers the specified converter factory.
+	 */
+	static synchronized public void register(IConverterFactory cf) {
+		if(m_factoryList.contains(cf))
+			return;
+		m_factoryList = new ArrayList<IConverterFactory>(m_factoryList); // Dup the original list,
+		m_factoryList.add(cf);
+	}
+
+	/**
+	 * Return a thread-safe copy of the factory list.
+	 * @return
+	 */
+	static synchronized private List<IConverterFactory> getFactoryList() {
+		return m_factoryList;
+	}
+
+	/**
+	 * Returns the "default" converter factory, which returns the "factory of last resort"; this one converts
+	 * everything by using toString(), and does not convert anything back.
+	 *
+	 * @return
+	 */
+	static synchronized IConverterFactory getDefaultFactory() {
+		return m_defaultConverterFactory;
+	}
+
+	/**
+	 * Replaces the default factory (converter of last resort) - USE WITH CARE, OR BETTER YET - DO NOT USE AT ALL!!
+	 * @param f
+	 */
+	static synchronized void setDefaultFactory(IConverterFactory f) {
+		if(f == null)
+			throw new NullPointerException("Default converter CANNOT BE NULL!!");
+		m_defaultConverterFactory = f;
+		m_converterMap.clear();
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Find factories for conversions.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Finds the best factory to use. Returns null if no factory was found.
+	 * <p>jal 20091118 Per-class factory cache removed because more than just class is used to determine the factory to use.</p>
+	 * @param clz
+	 * @param pmm
+	 * @return
+	 */
+	static private IConverterFactory findFactory(Class< ? > clz, PropertyMetaModel pmm) {
+		synchronized(ConverterRegistry.class) {
+			//-- Scan teh full list, and build a list-of-factories-accepting-this-class during it,
+			List<IConverterFactory> flist = new ArrayList<IConverterFactory>();
+			IConverterFactory best = null;
+			int bestscore = 0;
+			for(IConverterFactory cf : getFactoryList()) {
+				int score = cf.accept(clz, pmm);
+				if(score < 0)
+					continue;
+				flist.add(cf); // Factory at least accepts the class- add to per-type list,
+
+				if(score > bestscore) { // > 0 (!) and > highscore
+					best = cf;
+					bestscore = score;
+				}
+			}
+			return best;
+		}
+	}
+
+	/**
+	 * Like {@link #findFactory(Class, PropertyMetaModel), but never returns null; this returns the default converter
+	 * factory if no specific one is found.
+	 * @param clz
+	 * @param pmm
+	 * @return
+	 */
+	static private IConverterFactory getFactory(Class< ? > clz, PropertyMetaModel pmm) {
+		IConverterFactory cf = findFactory(clz, pmm);
+		return cf == null ? getDefaultFactory() : cf;
+	}
+
+	/**
+	 * Finds the best converter to convert a value of the specified type (and the optionally specified metadata) to a string. This walks
+	 * the converter factory list and finds the best converter to use. If no factory accepts the type this returns null. To get a valid
+	 * converter all of the time use getConverter(); this returns the "default converter" if no specific converter could be found.
+	 *
+	 * @param clz	The class type of the value to convert
+	 * @param pmm	The metadata for the property, or null if unknown.
+	 * @return A converter instance, or null if no factory claimed the type.
+	 */
+	static public <X> IConverter<X> findConverter(Class<X> clz, PropertyMetaModel pmm) {
+		IConverterFactory cf = findFactory(clz, pmm);
+		if(cf == null)
+			return null;
+		return cf.createConverter(clz, pmm);
+	}
+
+	/**
+	 * Finds the best converter to convert a value of the specified type to a string. This walks
+	 * the converter factory list and finds the best converter to use. If no factory accepts the
+	 * type this returns null. To get a valid converter all of the time use getConverter(); this
+	 * returns the "default converter" if no specific converter could be found.
+	 *
+	 * @param clz	The class type of the value to convert
+	 */
+	static public <X> IConverter<X> findConverter(Class<X> clz) {
+		return findConverter(clz, null);
+	}
+
+	/**
+	 * Gets the best converter to convert a value of the specified type (and the optionally specified metadata) to a string. This walks
+	 * the converter factory list and finds the best converter to use. If no factory accepts the type this returns the default converter.
+	 *
+	 * @param clz	The class type of the value to convert
+	 * @param pmm	The metadata for the property, or null if unknown.
+	 * @return A converter instance.
+	 */
+	static public <X> IConverter<X> getConverter(Class<X> clz, PropertyMetaModel pmm) {
+		IConverterFactory cf = getFactory(clz, pmm);
+		return cf.createConverter(clz, pmm);
+	}
+
+	/**
+	 * Convert the value which is for a given property to a presentation string.
+	 * @param <X>
+	 * @param pmm
+	 * @param value
+	 * @return
+	 */
+	static public <X> String convertToString(PropertyMetaModel pmm, X value) {
+		IConverter<X> conv = (IConverter<X>) getConverter(pmm.getActualType(), pmm);
+		return conv.convertObjectToString(NlsContext.getLocale(), value);
+	}
+
+	/**
+	 * Obtain the very best presentation converter we can find for the specified property.
+	 * @param pmm
+	 * @return
+	 */
+	static public IConverter< ? > findBestConverter(PropertyMetaModel pmm) {
+		//-- User specified converters always override anything else.
+		if(pmm.getConverter() != null) // User-specified converters always override all else.
+			return pmm.getConverter();
+
+		//-- Ask the converter registry for a converter for this
+		return findConverter(pmm.getActualType(), pmm);
 	}
 }

@@ -29,7 +29,7 @@ public class QNodeVisitorBase implements QNodeVisitor {
 		n.getB().visit(this);
 	}
 
-	public void visitRestrictionsBase(QRestrictionsBase<?> n) throws Exception {
+	public void visitRestrictionsBase(QCriteriaQueryBase<?> n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		if(r != null)
 			r.visit(this);
@@ -75,4 +75,7 @@ public class QNodeVisitorBase implements QNodeVisitor {
 		for(QSelectionItem it: n.getItemList())
 			it.visit(this);
 	}
+
+	@Override
+	public void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception {}
 }

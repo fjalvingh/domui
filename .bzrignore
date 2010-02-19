@@ -10,3 +10,5 @@ work
 to.etc.domui/javadoc
 to.etc.domui/.refactorings
 *Thumbs.db
+to.etc.domui/src/resources/themes/blue/style.theme.css.bak
+*.bak

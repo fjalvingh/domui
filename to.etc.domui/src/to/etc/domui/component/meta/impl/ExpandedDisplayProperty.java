@@ -6,6 +6,7 @@ import java.util.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * This describes a normalized expanded display property. This is the base version
@@ -28,9 +29,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 
 	private int m_displayLength;
 
-	private Class< ? extends IConverter< ? >> m_converterClass;
-
-	private IConverter< ? > m_bestConverter;
+	private IConverter< ? > m_converter;
 
 	private SortableType m_sortableType = SortableType.UNKNOWN;
 
@@ -39,6 +38,8 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	private String m_renderHint;
 
 	private String m_defaultLabel;
+
+	private IConverter< ? > m_bestConverter;
 
 	protected ExpandedDisplayProperty(DisplayPropertyMetaModel displayMeta, PropertyMetaModel propertyMeta, IValueAccessor< ? > accessor) {
 		//		m_displayMeta = displayMeta;
@@ -49,8 +50,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 			m_classModel = m_propertyMeta.getClassModel();
 			m_actualType = m_propertyMeta.getActualType();
 			m_propertyName = m_propertyMeta.getName();
-			m_converterClass = propertyMeta.getConverterClass();
-			m_bestConverter = propertyMeta.getBestConverter();
+			m_converter = propertyMeta.getConverter();
 			if(m_sortableType == SortableType.UNKNOWN)
 				setSortable(propertyMeta.getSortable());
 			if(m_displayLength <= 0) {
@@ -60,10 +60,8 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 			}
 		}
 		if(displayMeta != null) { // ORDER 2 (overrides propertyMeta)
-			if(displayMeta.getConverterClass() != null)
-				m_converterClass = displayMeta.getConverterClass();
-			if(displayMeta.getBestConverter() != null)
-				m_bestConverter = displayMeta.getBestConverter();
+			if(displayMeta.getConverter() != null)
+				m_converter = displayMeta.getConverter();
 			if(displayMeta.getSortable() != SortableType.UNKNOWN)
 				setSortable(displayMeta.getSortable());
 			if(displayMeta.getDisplayLength() > 0)
@@ -75,6 +73,10 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 			if(s != null)
 				m_defaultLabel = s;
 		}
+		if(m_converter != null)
+			m_bestConverter = m_converter;
+		else if(propertyMeta != null)
+			m_bestConverter = ConverterRegistry.findBestConverter(propertyMeta);
 	}
 
 	/**
@@ -269,16 +271,8 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		return m_defaultLabel;
 	}
 
-	public Class< ? extends IConverter< ? >> getConverterClass() {
-		return m_converterClass;
-	}
-
-	public IConverter< ? > getBestConverter() {
-		return m_bestConverter;
-	}
-
-	public void setBestConverter(IConverter< ? > bestConverter) {
-		m_bestConverter = bestConverter;
+	public IConverter< ? > getConverter() {
+		return m_converter;
 	}
 
 	public int getDisplayLength() {
@@ -313,14 +307,19 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		m_propertyName = propertyName;
 	}
 
+	public IConverter< ? > getBestConverter() {
+		return m_bestConverter;
+	}
+
 	public String getPresentationString(Object root) throws Exception {
 		Object colval = getAccessor().getValue(root);
 		String s;
 		if(colval == null)
 			s = "";
 		else {
-			if(getConverterClass() != null)
-				s = ConverterRegistry.convertValueToString((Class<IConverter<Object>>) getConverterClass(), colval);
+			//-- FIXME Need to think about generic, non-user-specified properties.
+			if(getBestConverter() != null)
+				s = ((IObjectToStringConverter<Object>) getBestConverter()).convertObjectToString(NlsContext.getLocale(), colval);
 			else
 				s = colval.toString();
 		}
@@ -456,6 +455,11 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		return m_propertyMeta == null ? false : m_propertyMeta.isRequired();
 	}
 
+	@Override
+	public boolean isTransient() {
+		return m_propertyMeta == null ? true : m_propertyMeta.isTransient();
+	}
+
 	public String getRenderHint() {
 		return m_renderHint;
 	}
@@ -464,4 +468,18 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		m_renderHint = renderHint;
 	}
 
+	@Override
+	public String toString() {
+		return "ExpandedDisplayProperty[" + m_propertyName + "]";
+	}
+
+	@Override
+	public String getRegexpUserString() {
+		return null;
+	}
+
+	@Override
+	public String getRegexpValidator() {
+		return null;
+	}
 }

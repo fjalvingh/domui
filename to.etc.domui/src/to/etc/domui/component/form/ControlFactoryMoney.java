@@ -37,7 +37,7 @@ public class ControlFactoryMoney implements ControlFactory {
 	 */
 	@SuppressWarnings("unchecked")
 	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
-		Class<?> iclz = pmm.getActualType();
+		Class< ? > iclz = pmm.getActualType();
 
 		//		if(!editable) {
 		//			//-- Return a span containing the value.
@@ -46,7 +46,7 @@ public class ControlFactoryMoney implements ControlFactory {
 		//		}
 
 		//-- Treat everything else as a String using a converter.
-		Text<?> txt = new Text(iclz);
+		Text< ? > txt = new Text(iclz);
 		if(!editable)
 			txt.setReadOnly(true);
 
@@ -74,13 +74,13 @@ public class ControlFactoryMoney implements ControlFactory {
 			txt.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
 		}
 
-		if(pmm.getConverterClass() != null)
-			txt.setConverterClass((Class) pmm.getConverterClass());
+		if(pmm.getConverter() != null)
+			txt.setConverter((IConverter) pmm.getConverter());
 		else {
 			if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class)
-				txt.setConverterClass((Class) MoneyDoubleNumeric.class);
+				txt.setConverter((IConverter) ConverterRegistry.getConverterInstance(MoneyDoubleNumeric.class));
 			else if(pmm.getActualType() == BigDecimal.class)
-				txt.setConverterClass((Class) MoneyBigDecimalNumeric.class);
+				txt.setConverter((IConverter) ConverterRegistry.getConverterInstance(MoneyBigDecimalNumeric.class));
 			else
 				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
 		}

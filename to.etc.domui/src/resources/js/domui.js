@@ -4,7 +4,6 @@ function _block() {
 function _unblock() {
 	WebUI.unblockUI();
 }
-
 $().ajaxStart(_block).ajaxStop(_unblock);
 
 ( function($) {
@@ -344,16 +343,18 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 
 			function copyAttrs(dest, src, inline) {
 				for ( var i = 0, attr = ''; i < src.attributes.length; i++) {
-					var a = src.attributes[i], n = $.trim(a.name), v = $
-							.trim(a.value);
-					// alert('attr '+n+' is '+v);
-					if (inline)
-						attr += (n + '="' + v + '" ');
-					else if (n == 'style') { // IE workaround
-						dest.style.cssText = v;
-						dest.setAttribute(n, v);
+					var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
+//					alert('attr '+n+' is '+v+", inline = "+inline);
+
+					if (inline) {
+						//-- 20091110 jal When inlining we are in trouble if domjs_ is used... The domjs_ mechanism is replaced with setDelayedAttributes in java.
+						if(n.substring(0, 6) == 'domjs_') {
+							alert('Unsupported domjs_ attribute in INLINE mode: '+n);
+						} else
+							attr += (n + '="' + v + '" ');
 					} else if (n.substring(0, 6) == 'domjs_') {
 						var s = "dest." + n.substring(6) + " = " + v;
+						//alert('domjs eval: '+s);
 						try {
 							eval(s);
 						} catch(ex) {
@@ -361,18 +362,26 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if ($.browser.msie && n.substring(0, 2) == 'on') {
-						// alert('event '+n+' value '+v);
-						// var se = 'function(){'+v+';}';
-						var se;
-						if (v.indexOf('return') != -1)
-							se = new Function(v);
-						else
-							se = new Function('return ' + v);
-						// alert('event '+n+' value '+se);
-						dest[n] = se;
-					} else
+					} else if (dest && ($.browser.msie || $.browser.chrome) && n.substring(0, 2) == 'on') {
+						try {
+							// alert('event '+n+' value '+v);
+							// var se = 'function(){'+v+';}';
+							var se;
+							if (v.indexOf('return') != -1)
+								se = new Function(v);
+							else
+								se = new Function('return ' + v);
+							// alert('event '+n+' value '+se);
+							dest[n] = se;
+						} catch(x) {
+							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);
+						}
+					} else if (n == 'style') { // IE workaround
+						dest.style.cssText = v;
+						dest.setAttribute(n, v);
+					} else {
 						$.attr(dest, n, v);
+					}
 				}
 				return attr;
 			}
@@ -386,12 +395,46 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 })(jQuery);
 
 var WebUI = {
+	/**
+	 * Create a curried function containing a 'this' and a fixed set of elements.
+	 */
+	curry: function(scope, fn) {
+	    var scope = scope || window;
+	    var args = [];
+	    for (var i=2, len = arguments.length; i < len; ++i) {
+	        args.push(arguments[i]);
+	    };
+	    return function() {
+		    fn.apply(scope, args);
+	    };
+	},
+
+	/**
+	 * Embeds the "this" and any *partial* parameters to the function.
+	 */
+	pickle: function(scope, fn) {
+	    var scope = scope || window;
+	    var args = [];
+	    for (var i=2, len = arguments.length; i < len; ++i) {
+	        args.push(arguments[i]);
+	    };
+	    return function() {
+	    	var nargs = [];
+	    	for(var i = 0, len = args.length; i < len; i++) // Append all args added to pickle
+	    		nargs.push(args[i]);
+	    	for(var i = 0, len = arguments.length; i < len; i++) // Append all params of the actual function after it
+	    		nargs.push(arguments[i]);
+		    fn.apply(scope, nargs);
+	    };
+	},
+
 	getInputFields : function(fields) {
 		// Collect all input, then create input.
 		var q1 = $("input").get();
 		for ( var i = q1.length; --i >= 0;) {
 			var t = q1[i];
-			if (t.type == 'file')
+			if (t.type == 'file' || t.type == 'hidden')
+				// All hidden input nodes are created directly in browser java-script and because that are filtered out from server requests.				
 				continue;
 			var val = undefined;
 			if (t.type == 'checkbox') {
@@ -411,7 +454,8 @@ var WebUI = {
 				val = sel.options[sel.selectedIndex].value;
 			}
 
-			fields[sel.id] = val;
+			if(val != undefined)
+				fields[sel.id] = val;
 		}
 		var q1 = $("textarea").get();
 		for ( var i = q1.length; --i >= 0;) {
@@ -525,7 +569,252 @@ var WebUI = {
 		});
 	},
 
+	/**
+	 * Handle for timer delayed actions, used for onLookupTyping event.
+	 */
+	scheduledOnLookupTypingTimerID: null,
+	
+	/*
+	 * Executed as onkeyup event on input field that has implemented listener for onLookupTyping event.
+	 * In case of return key call lookupTypingDone ajax that is transformed into onLookupTyping(done=true).
+	 * In case of other key, lookupTyping funcion is called with delay of 500ms. Previuosly scheduled lookupTyping function is canceled.
+	 * This cause that fast typing would not trigger ajax for each key stroke, only when user stops typing for 500ms ajax would be called by lookupTyping function.
+	 */
+	scheduleOnLookupTypingEvent : function(id, event) {
+		var node = document.getElementById(id);
+		if(!node || node.tagName.toLowerCase() != 'input')    
+			return;
+		
+		if(!event){
+			event = window.event;
+			if (!event)
+				return;
+		}
+		var keyCode = WebUI.normalizeKey(event);
+		var isLeftArrowKey = (keyCode == 37000 || keyCode == 37);
+		var isRightArrowKey = (keyCode == 39000 || keyCode == 39);
+		if (isLeftArrowKey || isRightArrowKey){
+			//in case of left or right arrow keys do nothing 
+			return;
+		}
+		if (WebUI.scheduledOnLookupTypingTimerID){
+			//cancel already scheduled timer event 
+			window.clearTimeout(WebUI.scheduledOnLookupTypingTimerID);
+			WebUI.scheduledOnLookupTypingTimerID = null;
+		}
+		var isReturn = (keyCode == 13000 || keyCode == 13);
+		var isDownArrowKey = (keyCode == 40000 || keyCode == 40);
+		var isUpArrowKey = (keyCode == 38000 || keyCode == 38);
+		if (isReturn || isDownArrowKey || isUpArrowKey) {
+			//Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
+			event.cancelBubble = true;
+			if(event.stopPropagation)
+				event.stopPropagation();
+		}
+		if (isReturn){
+			//handle return key 
+			//locate keyword input node 
+			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+			if(trNode){
+				WebUI.clicked(trNode, trNode.id, null);
+			} else {
+				//trigger lookupTypingDone when return is pressed
+				WebUI.lookupTypingDone(id);
+			}
+		}
+		else if(isDownArrowKey || isUpArrowKey){
+			//locate keyword input node
+			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+			if(trNode){
+				trNode.className = "ui-keyword-popup-row";
+			}
+			var trNodes = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr");
+			if (trNodes.length > 0){
+				var divPopup = $(node.parentNode).children("div.ui-lui-keyword-popup").get(0);
+				if (divPopup){
+					$(divPopup).fadeIn(300);
+					//must be set due to IE bug in rendering
+					node.parentNode.style.zIndex = divPopup.style.zIndex;
+				}
+				if (isDownArrowKey){
+					selectedIndex++;
+				}else{
+					selectedIndex--;
+				}
+				if (selectedIndex > trNodes.length){
+					selectedIndex = 0;
+				}
+				if (selectedIndex < 0){
+					selectedIndex = trNodes.length;
+				}
+				trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+				if(trNode){
+					trNode.className = "ui-keyword-popop-rowsel";
+				}
+			}else{
+				selectedIndex = 0;
+			}
+			WebUI.setKeywordPopupSelectedRowIndex(node, selectedIndex);
+		}
+		else
+			WebUI.scheduledOnLookupTypingTimerID = window.setTimeout("WebUI.lookupTyping('" + id + "')", 500);
+	},
+
+	getKeywordPopupSelectedRowIndex: function(keywordInputNode){
+		var selectedIndexInput = $(keywordInputNode.parentNode).children("input:hidden").get(0);
+		if (selectedIndexInput){
+			if (selectedIndexInput.value && selectedIndexInput.value != ""){
+				return parseInt(selectedIndexInput.value);
+			};
+		}
+		return 0;
+	},
+
+	setKeywordPopupSelectedRowIndex: function(keywordInputNode, intValue){
+		var selectedIndexInput = $(keywordInputNode.parentNode).children("input:hidden").get(0);
+		if (!selectedIndexInput){
+			selectedIndexInput = document.createElement("input");
+			selectedIndexInput.setAttribute("type","hidden");
+			$(keywordInputNode.parentNode).append($(selectedIndexInput));
+		}
+		selectedIndexInput.value = intValue;
+	},
+	
+	//Called only from onBlur of input node that is used for lookup typing.  
+	hideLookupTypingPopup: function(id) {
+		var node = document.getElementById(id);
+		if(!node || node.tagName.toLowerCase() != 'input')    
+			return;
+		var divPopup = $(node.parentNode).children("div.ui-lui-keyword-popup").get();
+		if (divPopup){
+			$(divPopup).fadeOut(200);
+		}
+		//fix z-index to one saved in input node
+		node.parentNode.style.zIndex = node.style.zIndex;
+	},
+
+	showLookupTypingPopupIfStillFocusedAndFixZIndex: function(id) {
+		var node = document.getElementById(id);
+		if(!node || node.tagName.toLowerCase() != 'input')    
+			return;
+		var wasInFocus = node == document.activeElement; 
+		var qDivPopup = $(node.parentNode).children("div.ui-lui-keyword-popup");
+		if (qDivPopup.length > 0){
+			var divPopup = qDivPopup.get(0); 
+			//must be set manually from javascript because bug in domui, parent attribute updated from child node is not rendered in response
+			node.parentNode.style.zIndex = divPopup.style.zIndex;
+		}else{
+			//fix z-index to one saved in input node
+			node.parentNode.style.zIndex = node.style.zIndex;
+		}
+		if (wasInFocus){
+			//show popup in case that input field still has focus
+			$(divPopup).show();
+		}
+	},
+	
+	/*
+	 * In case of longer waiting for lookupTyping ajax response show waiting animated marker. 
+	 * Function is called with delay of 500ms from ajax.beforeSend method for lookupTyping event. 
+	 */
+	displayWaiting: function(id) {
+		var node = document.getElementById(id);
+		if (node){
+			for ( var i = 0; i < node.childNodes.length; i++ ){
+				if (node.childNodes[i].className == 'ui-lui-waiting'){
+					node.childNodes[i].style.display = 'inline';
+				}
+			}
+		}
+	},
+
+	/*
+	 * Hiding waiting animated marker that was shown in case of longer waiting for lookupTyping ajax response.
+	 * Function is called from ajax.completed method for lookupTyping event. 
+	 */
+	hideWaiting: function(id) {
+		var node = document.getElementById(id);
+		if (node){
+			for ( var i = 0; i < node.childNodes.length; i++ ){
+				if (node.childNodes[i].className == 'ui-lui-waiting'){
+					node.childNodes[i].style.display = 'none';
+				}
+			}
+		}
+	},
+	
+	lookupTyping : function(id) {
+		var lookupField = document.getElementById(id);
+		//check for exsistence, since it is delayed action component can be removed when action is executed.
+		if (lookupField){
+			// Collect all input, then create input.
+			var fields = new Object();
+			this.getInputFields(fields);
+			fields.webuia = "lookupTyping";
+			fields.webuic = id;
+			fields["$pt"] = DomUIpageTag;
+			fields["$cid"] = DomUICID;
+			WebUI.cancelPolling();
+			var displayWaitingTimerID = null;
+
+			$.ajax( {
+				url :DomUI.getPostURL(),
+				dataType :"text/xml",
+				data :fields,
+				cache :false,
+				type: "POST",
+				global: false,
+				beforeSend: function(){
+					// Handle the local beforeSend event
+					var parentDiv = lookupField.parentNode;
+					if (parentDiv){
+						displayWaitingTimerID = window.setTimeout("WebUI.displayWaiting('" + parentDiv.id + "')", 500);
+					}
+   				},
+			   	complete: function(){
+   					// Handle the local complete event
+					if (displayWaitingTimerID) {
+						//handle waiting marker
+   						window.clearTimeout(displayWaitingTimerID);
+   						displayWaitingTimerID = null;
+   						var parentDiv = lookupField.parentNode;
+   						if (parentDiv) {
+   							WebUI.hideWaiting(parentDiv.id);
+   						}
+   					}
+					//handle received lookupTyping component content
+					WebUI.showLookupTypingPopupIfStillFocusedAndFixZIndex(id);
+   				},
+
+				success :WebUI.handleResponse,
+				error :WebUI.handleError
+			});
+		}
+	},	
+	lookupTypingDone : function(id) {
+		// Collect all input, then create input.
+		var fields = new Object();
+		this.getInputFields(fields);
+		fields.webuia = "lookupTypingDone";
+		fields.webuic = id;
+		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
+		WebUI.cancelPolling();
+
+		$.ajax( {
+			url :DomUI.getPostURL(),
+			dataType :"text/xml",
+			data :fields,
+			cache :false,
+			type: "POST",
+			success :WebUI.handleResponse,
+			error :WebUI.handleError
+		});
+	},	
 	handleResponse : function(data, state) {
+		WebUI._asyalerted = false;
 		if (false && window.console && window.console.debug)
 			console.debug("data is ", data);
 		$.webui(data);
@@ -540,7 +829,23 @@ var WebUI = {
 		document.write(txt);
 		window.setTimeout('document.body.style.cursor="default"', 1000);
 	},
+	_asyalerted: false,
+	handleErrorAsy : function(request, status, exc) {
+		if(WebUI._asyalerted)
+			return;
+		WebUI._asyalerted = true;
 
+		var txt = request.responseText;
+		if (document.body)
+			document.body.style.cursor = 'default';
+		// alert('Server error: '+status+", len="+txt.length+", val="+txt);
+		if (txt.length == 0)
+			txt = "De server is niet bereikbaar.";
+		else if(txt.length > 200)
+			txt = txt.substring(0, 200);
+		alert("Automatische server update mislukt: "+txt);
+	},
+	
 	/*
 	 * IE/FF compatibility: IE only has the 'keycode' field, and it always hides
 	 * all non-input like arrows, fn keys etc. FF has keycode which is used ONLY
@@ -575,12 +880,113 @@ var WebUI = {
 		return false;
 	},
 
+	delayedSetAttributes: function() {
+		if(arguments.length < 3 || ((arguments.length & 1) != 1)) {
+			alert('internal: odd call to delayedSetAttributes: '+arguments.length);
+			return;
+		}
+		var n = document.getElementById(arguments[0]);
+		if(n == undefined)
+			return;
+//		alert('Node is '+arguments[0]);
+		//-- Now set pair values
+		for(var i = 1; i < arguments.length; i += 2) {
+			try {
+				n[arguments[i]] = arguments[i+1];
+			} catch(x) {
+				alert('Failed to set javascript property '+arguments[i]+' to '+arguments[i+1]+": "+x);
+			}
+		}
+	},
+
 	focus : function(id) {
 		var n = document.getElementById(id);
 		if (n)
 			n.focus();
 	},
+	
+	/***** DateInput control code ****/
+	dateInputCheckInput: function(evt) {
+		if(! evt) {
+			evt = window.event;
+			if(! evt) {
+				return;
+			}
+		}
+		var c = evt.target;
+		var val = c.value;
+		if(! val || val.length == 0) // Nothing to see here, please move on.
+			return;
+		Calendar.__init();
 
+		//-- Try to decode then reformat the date input
+		var fmt = Calendar._TT["DEF_DATE_FORMAT"];
+		try {
+			if(! WebUI.hasSeparators(val)) {
+				val = WebUI.insertDateSeparators(val, fmt);
+				var res = Date.parseDate(val, fmt);
+				c.value = res.print(fmt);
+			} else {
+				//-- Only parse the input to see if it parses.
+				var res = Date.parseDate(val, fmt);
+			}
+		} catch(x) {
+			alert(Calendar._TT["INVALID"]);
+		}
+	},
+
+	/**
+	 * Returns T if the string has separator chars (anything else than letters and/or digits).
+	 */
+	hasSeparators: function(str) {
+		for(var i = str.length; --i >= 0;) {
+			var c= str.charAt(i);
+			if(!( ( c >= 'A' && c <= 'Z') || (c >='a' && c <= 'z') || (c >= '0' && c <= '9')))
+				return true;
+		}
+		return false;
+	},
+
+	insertDateSeparators: function(str, fmt) {
+		var b = fmt.match(/%./g); // Split format items
+		var len = str.length;
+		var ylen;
+		if(len == 8)
+			ylen = 4;
+		else if(len == 6)
+			ylen = 2;
+		else
+			throw "date invalid";
+
+		//-- Edit the string according to the pattern,
+		var res = "";
+		for(var fix= 0; fix < b.length; fix++) {
+			if(res.length != 0)
+				res = res + '-';				// Just a random separator.
+			switch(b[fix]) {
+				default:
+					throw "date invalid";
+				case "%d":
+		    	case "%e":
+			    case "%m":
+		    		//-- 2-digit day or month. Copy.
+		    		res += str.substring(0, 2);
+		    		str = str.substring(2);
+		    		break;
+
+			    case '%y': case '%Y':
+			    	//-- 2- or 4 digit year,
+		    		res += str.substring(0, ylen);
+		    		str = str.substring(ylen);
+			    	break;
+			}
+		}
+		return res;
+	},
+
+	/**
+	 * 
+	 */
 	showCalendar : function(id, withtime) {
 		var inp = document.getElementById(id);
 		var params = {
@@ -823,8 +1229,34 @@ var WebUI = {
 			cache :false,
 			global: false, // jal 20091015 prevent block/unblock on polling call.
 			success :WebUI.handleResponse,
-			error :WebUI.handleError
+			error :WebUI.handleErrorAsy
 		});
+	},
+	
+	/** Dynamically loading stylesheets and javascript files (Header Contributer delta's) **/
+	/**
+	 * Load the specified stylesheet by creating a script tag and inserting it @ head.
+	 */
+	loadStylesheet: function(path) {
+		var head = document.getElementsByTagName("head")[0];  
+		if(! head)
+			throw "Headless document!?";
+		var link = document.createElement('link');
+		link.type = 'text/css';
+		link.rel = 'stylesheet';
+		link.href = path;
+		link.media = 'screen';
+		head.appendChild(link);
+	},
+
+	loadJavascript: function(path) {
+		var head = document.getElementsByTagName("head")[0];         
+		if(! head)
+			throw "Headless document!?";
+		var scp = document.createElement('script');
+		scp.type = 'text/javascript';
+		scp.src = path;
+		head.appendChild(scp);
 	},
 
 	/** ***************** File upload stuff. **************** */
@@ -1102,6 +1534,7 @@ var WebUI = {
 			return WebUI._ROW_DROPZONE_HANDLER;
 		return WebUI._DEFAULT_DROPZONE_HANDLER;
 	},
+
 	dropClearZone : function() {
 		if (WebUI._currentDropZone) {
 			WebUI._currentDropZone._drophandler.unmark(WebUI._currentDropZone);
@@ -1256,7 +1689,11 @@ var WebUI = {
 			return;
 
 		el.style.cursor = "default";
-		el.removeChild(WebUI._busyOvl);
+		try {
+			el.removeChild(WebUI._busyOvl);
+		} catch(x) {
+			//-- It can fail when the entire page has been replaced.
+		}
 		WebUI._busyOvl= null;
 	}
 	

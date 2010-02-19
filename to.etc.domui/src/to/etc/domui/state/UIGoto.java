@@ -1,6 +1,10 @@
 package to.etc.domui.state;
 
+import java.util.*;
+
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * Moving to other pages.
@@ -9,7 +13,7 @@ import to.etc.domui.dom.html.*;
  * Created on Jan 9, 2009
  */
 final public class UIGoto {
-	static public final String SINGLESHOT_ERROR = "uigoto.error";
+	static public final String SINGLESHOT_MESSAGE = "uigoto.msgs";
 
 	private UIGoto() {}
 
@@ -40,6 +44,23 @@ final public class UIGoto {
 	}
 
 	/**
+	 * Push (shelve) the current page, then move to a new page. The page is started in a NEW ConversationContext.
+	 *
+	 * @param clz
+	 * @param param	A list of parameters, in {@link PageParameters#addParameters(Object...)} format.
+	 */
+	static public void moveSub(final Class< ? extends UrlPage> clz, final Object... param) {
+		if(clz == null)
+			throw new IllegalArgumentException("The class to move-to cannot be null");
+		PageParameters pp;
+		if(param == null || param.length == 0)
+			pp = null;
+		else
+			pp = new PageParameters(param);
+		context().internalSetNextPage(MoveMode.SUB, clz, null, null, pp);
+	}
+
+	/**
 	 * Push (shelve) the current page, then move to a new page. The page JOINS the conversation context passed; if the page does not accept
 	 * that conversation an exception is thrown.
 	 *
@@ -56,7 +77,7 @@ final public class UIGoto {
 	}
 
 	/**
-	 * Clear the entire shelve, then goto a new page. The page uses a NEW ConversationContext.
+	 * Clear the entire shelf, then goto a new page. The page uses a NEW ConversationContext.
 	 *
 	 * @param clz
 	 * @param pp
@@ -64,6 +85,23 @@ final public class UIGoto {
 	static public void moveNew(final Class< ? extends UrlPage> clz, final PageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
+		context().internalSetNextPage(MoveMode.NEW, clz, null, null, pp);
+	}
+
+	/**
+	 * Clear the entire shelf, then goto a new page. The page uses a NEW ConversationContext.
+	 *
+	 * @param clz
+	 * @param param	A list of parameters, in {@link PageParameters#addParameters(Object...)} format.
+	 */
+	static public void moveNew(final Class< ? extends UrlPage> clz, Object... param) {
+		if(clz == null)
+			throw new IllegalArgumentException("The class to move-to cannot be null");
+		PageParameters pp;
+		if(param == null || param.length == 0)
+			pp = null;
+		else
+			pp = new PageParameters(param);
 		context().internalSetNextPage(MoveMode.NEW, clz, null, null, pp);
 	}
 
@@ -110,14 +148,55 @@ final public class UIGoto {
 		context().internalSetNextPage(MoveMode.BACK, null, null, null, null);
 	}
 
+	/**
+	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
+	 * message as an ERROR message.
+	 *
+	 * @param pg
+	 * @param msg
+	 */
 	static public final void clearPageAndReload(Page pg, String msg) {
 		clearPageAndReload(pg, pg.getBody().getClass(), pg.getPageParameters(), msg);
 	}
 
+	/**
+	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
+	 * message as an ERROR message.
+	 *
+	 * @param pg
+	 * @param target
+	 * @param pp
+	 * @param msg
+	 */
 	static public final void clearPageAndReload(Page pg, Class< ? extends UrlPage> target, PageParameters pp, String msg) {
-		WindowSession	ws	= pg.getConversation().getWindowSession();
-		ws.setAttribute(UIGoto.SINGLESHOT_ERROR, msg);
+		clearPageAndReload(pg, UIMessage.error(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, msg), pp);
+	}
+
+	/**
+	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
+	 * message.
+	 *
+	 * @param pg
+	 * @param msg
+	 */
+	static public final void clearPageAndReload(Page pg, UIMessage msg) {
+		clearPageAndReload(pg, msg, pg.getPageParameters());
+	}
+
+	/**
+	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
+	 * message.
+	 *
+	 * @param pg
+	 * @param msg
+	 * @param pp
+	 */
+	static public final void clearPageAndReload(Page pg, UIMessage msg, PageParameters pp) {
+		WindowSession ws = pg.getConversation().getWindowSession();
+		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
+		msgl.add(msg);
+		ws.setAttribute(UIGoto.SINGLESHOT_MESSAGE, msgl);
 		pg.getConversation().destroy();
-		replace(target, pp);
+		replace(pg.getBody().getClass(), pp);
 	}
 }

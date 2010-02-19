@@ -10,7 +10,7 @@ import to.etc.webapp.nls.*;
 /**
  * This generic converter for enums should be used only as convertObjectToString renderer.
  * It is used for default rendering of enum fields inside table results.
- * Backward conversion using  convertStringToObject is not supported and would throw exception.   
+ * Backward conversion using  convertStringToObject is not supported and would throw exception.
  *
  * @author vmijic
  * Created on 29 Jul 2009

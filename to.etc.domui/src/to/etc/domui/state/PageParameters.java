@@ -2,8 +2,11 @@ package to.etc.domui.state;
 
 import java.util.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
+import to.etc.util.*;
+import to.etc.webapp.qsql.*;
 
 /**
  * Encapsulates parameters for a page. All parameters must be presentable in URL form,
@@ -20,15 +23,94 @@ public class PageParameters {
 	public PageParameters() {}
 
 	public PageParameters(Object... list) {
-		if((list.length & 0x1) != 0)
-			throw new IllegalStateException("Incorrect parameter count: must be an even number of objects, each [string], [object]");
-		for(int i = 0; i < list.length; i += 2) {
-			Object a = list[i];
-			if(!(a instanceof String))
-				throw new IllegalStateException("Expecting a 'String' as parameter " + i + ", but got a '" + a + "'");
-			Object b = list[i + 1];
-			addParameter((String) a, b);
+		try {
+			addParameters(list);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
 		}
+		//
+		//
+		//		if((list.length & 0x1) != 0)
+		//			throw new IllegalStateException("Incorrect parameter count: must be an even number of objects, each [string], [object]");
+		//		for(int i = 0; i < list.length; i += 2) {
+		//			Object a = list[i];
+		//			if(!(a instanceof String))
+		//				throw new IllegalStateException("Expecting a 'String' as parameter " + i + ", but got a '" + a + "'");
+		//			Object b = list[i + 1];
+		//			addParameter((String) a, b);
+		//		}
+	}
+
+	/**
+	 * Add parameters. This accepts multiple formats that can all be mixed. Each actual parameter always is a
+	 * name, value pair. The simplest way to use this is to specify a list of strings in pairs where the first
+	 * string in the pair is the key and the second one is the value. You can also substitute an object instance
+	 * for the value; if this object instance represents some persistent entity or implements {@link ILongIdentifyable}
+	 * the primary key for the object will be rendered as the value, otherwise it will be rendered as a tostring.
+	 * You can also specify a single object in the location for the next key; in this case both key and value will
+	 * be determined from this object; it must be some persistent object which knows it's key field.
+	 *
+	 * @param plist
+	 */
+	public void addParameters(Object... plist) throws Exception {
+		int ix = 0;
+		int len = plist.length;
+		while(ix < len) {
+			Object k = plist[ix++]; // Consume the key
+			if(k instanceof String) {
+				//-- Must be [key, value] pair. Append it.
+				if(ix >= len)
+					throw new IllegalStateException("Missing value for key string '" + k + "'");
+				internalAdd((String) k, plist[ix++]);
+			} else if(k != null) {
+				//-- Non-string @ key position: this must be a persistent class.
+				ClassMetaModel cmm = MetaManager.findClassMeta(k.getClass());
+				if(! cmm.isPersistentClass())
+					throw new IllegalStateException("Instance of "+k.getClass()+" is not a persistent class");
+				//-- Get the PK attribute of the persistent class;
+				PropertyMetaModel pkpm = cmm.getPrimaryKey();
+				if(pkpm == null)
+					throw new IllegalStateException("The instance of " + k.getClass() + " passed has no primary key defined");
+				Object key = pkpm.getAccessor().getValue(k);
+				if(key == null)
+					throw new IllegalStateException("The instance of " + k.getClass() + " passed has a null primary key");
+
+				String	pk = cmm.getClassBundle().getString("pk.name");
+				if(pk == null) {
+					pk = k.getClass().getName();
+					pk = pk.substring(pk.lastIndexOf('.') + 1);
+				}
+				m_parameterMap.put(pk, String.valueOf(key));
+			}
+		}
+	}
+
+	/**
+	 * Add string, value pair.
+	 * @param k
+	 * @param object
+	 */
+	private void internalAdd(String k, Object o) throws Exception {
+		if(o == null)
+			return;
+
+		if(o instanceof ILongIdentifyable) {
+			m_parameterMap.put(k, String.valueOf(((ILongIdentifyable) o).getId()));
+			return;
+		}
+		Object key = o;
+		ClassMetaModel cmm = MetaManager.findClassMeta(o.getClass());
+		if(cmm.isPersistentClass()) {
+			//-- Get the PK attribute of the persistent class;
+			PropertyMetaModel pkpm = cmm.getPrimaryKey();
+			if(pkpm != null) {
+				key = pkpm.getAccessor().getValue(o);
+				if(key == null)
+					throw new IllegalStateException("The instance of " + o.getClass() + " passed has a null primary key");
+			}
+		}
+
+		m_parameterMap.put(k, String.valueOf(key));
 	}
 
 	public void addParameter(String name, Object value) {

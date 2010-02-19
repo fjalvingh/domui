@@ -1,5 +1,6 @@
 package to.etc.domui.component.form;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -35,17 +36,18 @@ public interface ControlFactory {
 		/** The FormControl handle for the created control */
 		private IFormControl m_handle;
 
-		public Result(final IModelBinding binding, final NodeBase labelNode, final NodeBase[] nodeList) {
-			m_binding = binding;
-			m_labelNode = labelNode;
-			m_nodeList = nodeList;
-		}
+		// jal 20091206 tentative removal of unused/unusable constructors because they does not expose the IFormControl interface
+		//		public Result(final IModelBinding binding, final NodeBase labelNode, final NodeBase[] nodeList) {
+		//			m_binding = binding;
+		//			m_labelNode = labelNode;
+		//			m_nodeList = nodeList;
+		//		}
 
-		public Result(final IModelBinding binding, final NodeBase control) {
-			m_binding = binding;
-			m_labelNode = control;
-			m_nodeList = new NodeBase[]{control};
-		}
+		//		public Result(final IModelBinding binding, final NodeBase control) {
+		//			m_binding = binding;
+		//			m_labelNode = control;
+		//			m_nodeList = new NodeBase[]{control};
+		//		}
 
 		public Result(final IModelBinding binding, IFormControl fc, final NodeBase control) {
 			m_binding = binding;
@@ -54,13 +56,28 @@ public interface ControlFactory {
 			m_nodeList = new NodeBase[]{control};
 		}
 
-		public <T extends NodeBase & IInputNode< ? >> Result(final T control, final IReadOnlyModel< ? > model, final PropertyMetaModel pmm) {
-			m_labelNode = control;
-			m_nodeList = new NodeBase[]{control};
+		public <M, C> Result(final IInputNode<C> control, final IReadOnlyModel<M> model, final PropertyMetaModel pmm) {
+			m_labelNode = (NodeBase) control;
+			m_nodeList = new NodeBase[]{(NodeBase) control};
 			SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(model, pmm, control);
 			m_binding = b;
 			m_handle = b;
+
+			//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
+			control.bind().to(model, pmm);
 		}
+
+		public <A, B> Result(final IDisplayControl<A> control, final IReadOnlyModel<B> model, final PropertyMetaModel pmm) {
+			m_labelNode = (NodeBase) control;
+			m_nodeList = new NodeBase[]{(NodeBase) control};
+			DisplayOnlyPropertyBinding<A> b = new DisplayOnlyPropertyBinding<A>(model, pmm, control);
+			m_binding = b;
+			m_handle = b;
+
+			//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
+			((IBindable) control).bind().to(model, pmm);
+		}
+
 
 		public NodeBase[] getNodeList() {
 			return m_nodeList;
@@ -75,7 +92,7 @@ public interface ControlFactory {
 		}
 
 		public IFormControl getFormControl() {
-			if(m_handle != null)
+			if(m_handle != null) // 20091206 jal WTF??
 				return m_handle;
 			return null;
 		}

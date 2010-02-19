@@ -2,17 +2,26 @@ package to.etc.domui.component.lookup;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.converter.*;
+import to.etc.domui.dom.html.*;
 import to.etc.webapp.query.*;
 
 @SuppressWarnings("unchecked")
 final class LookupFactoryString implements ILookupControlFactory {
-	public int accepts(final SearchPropertyMetaModel pmm) {
+	public <X extends IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
+		if(control != null) {
+			if(!(control instanceof Text< ? >))
+				return -1;
+			Text< ? > t = (Text< ? >) control;
+			if(t.getInputClass() != String.class)
+				return -1;
+		}
 		return 1; // Accept all properties (will fail on incompatible ones @ input time)
 	}
 
-	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm) {
+	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
-		Class<?> iclz = pmm.getActualType();
+		Class< ? > iclz = pmm.getActualType();
 
 		//-- Boolean/boolean types? These need a tri-state checkbox
 		if(iclz == Boolean.class || iclz == Boolean.TYPE) {
@@ -34,8 +43,8 @@ final class LookupFactoryString implements ILookupControlFactory {
 			if(sz != 0)
 				txt.setSize(sz);
 		}
-		if(pmm.getConverterClass() != null)
-			txt.setConverterClass((Class) pmm.getConverterClass());
+		if(pmm.getConverter() != null)
+			txt.setConverter((IConverter) pmm.getConverter());
 		if(pmm.getLength() > 0)
 			txt.setMaxLength(pmm.getLength());
 		String hint = MetaUtils.findHintText(spm);

@@ -4,7 +4,6 @@ import java.util.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 
 /**
@@ -33,7 +32,6 @@ public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<
 		m_flat = ExpandedDisplayProperty.flatten(m_list);
 	}
 
-	@SuppressWarnings("unchecked")
 	public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) throws Exception {
 		prepare();
 		StringBuilder sb = new StringBuilder();
@@ -41,21 +39,9 @@ public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<
 		for(ExpandedDisplayProperty xdp : m_flat) {
 			if(sb.length() > 0)
 				sb.append(' ');
-			Object val = xdp.getAccessor().getValue(object);
-			String s;
-			if(xdp.getConverterClass() != null)
-				s = ConverterRegistry.convertValueToString((Class< ? extends IConverter>) xdp.getConverterClass(), val);
-			else
-				s = val == null ? "" : val.toString();
+			String s = xdp.getPresentationString(object);
 			sb.append(s);
 		}
-		//
-		//
-		//		for(DisplayPropertyMetaModel dm : m_list) {
-		//			if(sb.length() > 0)
-		//				sb.append(' ');
-		//			sb.append(dm.getAsString(object));
-		//		}
 		node.setText(sb.toString());
 	}
 }

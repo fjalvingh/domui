@@ -2,7 +2,7 @@ package to.etc.domui.util.images;
 
 import java.io.*;
 
-import to.etc.domui.util.images.converters.*;
+import to.etc.domui.util.images.machines.*;
 
 /**
  * This gets returned by the streaming image factory classes.
@@ -11,6 +11,16 @@ import to.etc.domui.util.images.converters.*;
  * Created on Oct 2, 2008
  */
 public interface IStreamingImageInfo {
+	/**
+	 * If this retriever accesses resources that can change after use this must return some usable
+	 * indication of the version, usually a "last date changed" timestamp. This value should remain
+	 * unchanged over invocations if the object accessed has not changed. It should return -1 if
+	 * the source object has been deleted; it should return 0 if the timestamp does not matter.
+	 *
+	 * @return
+	 */
+	public long getLastModifiedDate(String key) throws Exception;
+
 	public String getMimeType() throws Exception;
 
 	/**
@@ -18,7 +28,7 @@ public interface IStreamingImageInfo {
 	 * @return
 	 * @throws Exception
 	 */
-	public ImageData getImageData() throws Exception;
+	public ImageInfo getImageData() throws Exception;
 
 	/**
 	 * Returns the datastream containing this image. This may be called only ONCE for an image and must

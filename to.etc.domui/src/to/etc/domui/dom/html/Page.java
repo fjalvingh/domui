@@ -2,9 +2,12 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
+import to.etc.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -46,7 +49,15 @@ final public class Page implements IQContextContainer {
 	/**
 	 * Contains the header contributors in the order that they were added.
 	 */
-	private List<HeaderContributor> m_orderedContributorList = Collections.EMPTY_LIST;
+	private List<HeaderContributorEntry> m_orderedContributorList = Collections.EMPTY_LIST;
+
+	/**
+	 * As soon as header contributor are rendered to the browser this gets set to the
+	 * length of the list rendered out. When new contributors are added by components
+	 * this gets seen because the list is bigger than this index; we need to render
+	 * from this index till end-of-list to include the contributors.
+	 */
+	private int m_lastContributorIndex;
 
 	/**
 	 * Set containing the same header contributors, but in a fast-lookup format.
@@ -73,6 +84,8 @@ final public class Page implements IQContextContainer {
 
 	private Map<String, Object> m_pageData = Collections.EMPTY_MAP;
 
+	private boolean m_allowVectorGraphics;
+
 	public Page(final UrlPage pageContent) {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
@@ -80,32 +93,11 @@ final public class Page implements IQContextContainer {
 		pageContent.internalSetTagName("body"); // Override it's tagname
 		pageContent.setErrorFence(); // The body ALWAYS accepts ANY errors.
 
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-1.2.6.js"));
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"));
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"));
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"));
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.js"));
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"));
-
-		/*
-		 * FIXME: Delayed construction of components causes problems with components
-		 * that are delayed and that contribute. Example: tab pabel containing a
-		 * DateInput. The TabPanel gets built when header contributions have already
-		 * been handled... For now we add all JS files here 8-(
-		 */
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar.js"));
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar-setup.js"));
-
 		//-- Localize calendar resources
 		String res = DomApplication.get().findLocalizedResourceName("$js/calendarnls", ".js", NlsContext.getLocale());
 		if(res == null)
 			throw new IllegalStateException("internal: missing calendar NLS resource $js/calendarnls{nls}.js");
-		addHeaderContributor(HeaderContributor.loadJavascript(res));
-
-		/*
-		 * FIXME Same as above, this is for loading the FCKEditor.
-		 */
-		addHeaderContributor(HeaderContributor.loadJavascript("$fckeditor/fckeditor.js"));
+		addHeaderContributor(HeaderContributor.loadJavascript(res), -760);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -263,27 +255,44 @@ final public class Page implements IQContextContainer {
 		m_sb = null;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Header contributors									*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Call from within the onHeaderContributor call on a node to register any header
 	 * contributors needed by a node.
 	 * @param hc
 	 */
-	final public void addHeaderContributor(final HeaderContributor hc) {
+	final public void addHeaderContributor(final HeaderContributor hc, int order) {
 		if(m_headerContributorSet == null) {
 			m_headerContributorSet = new HashSet<HeaderContributor>(30);
-			m_orderedContributorList = new ArrayList<HeaderContributor>(30);
+			m_orderedContributorList = new ArrayList<HeaderContributorEntry>(30);
 			m_headerContributorSet.add(hc);
-			m_orderedContributorList.add(hc);
+			m_orderedContributorList.add(new HeaderContributorEntry(hc, order));
 			return;
 		}
 		if(m_headerContributorSet.contains(hc)) // Already registered?
 			return;
 		m_headerContributorSet.add(hc);
-		m_orderedContributorList.add(hc);
+		m_orderedContributorList.add(new HeaderContributorEntry(hc, order));
 	}
 
-	public List<HeaderContributor> getHeaderContributorList() {
-		return m_orderedContributorList;
+	public synchronized void internalAddContributors(List<HeaderContributorEntry> full) {
+		full.addAll(m_orderedContributorList);
+	}
+
+	public List<HeaderContributorEntry> getHeaderContributorList() {
+		return new ArrayList<HeaderContributorEntry>(m_orderedContributorList);
+	}
+
+	public List<HeaderContributorEntry> getAddedContributors() {
+		if(m_orderedContributorList == null || m_lastContributorIndex >= m_orderedContributorList.size())
+			return Collections.EMPTY_LIST;
+		return new ArrayList<HeaderContributorEntry>(m_orderedContributorList.subList(m_lastContributorIndex, m_orderedContributorList.size()));
+	}
+
+	public void internalContributorsRendered() {
+		m_lastContributorIndex = m_orderedContributorList == null ? 0 : m_orderedContributorList.size();
 	}
 
 	public UrlPage getBody() {
@@ -302,22 +311,6 @@ final public class Page implements IQContextContainer {
 		m_title = title;
 	}
 
-	//	public void	add(NodeBase node) {
-	//		getBody().add(node);
-	//	}
-
-	public void appendJS(final CharSequence sq) {
-		if(m_appendJS == null)
-			m_appendJS = new StringBuilder(sq.length() + 100);
-		m_appendJS.append(sq);
-	}
-
-	public StringBuilder getAppendedJS() {
-		StringBuilder sb = m_appendJS;
-		m_appendJS = null;
-		return sb;
-	}
-
 	public <T> void setData(final T inst) {
 		if(m_pageData == Collections.EMPTY_MAP)
 			m_pageData = new HashMap<String, Object>();
@@ -327,6 +320,115 @@ final public class Page implements IQContextContainer {
 	public <T> T getData(final Class<T> clz) {
 		return (T) m_pageData.get(clz.getName());
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Per-request Javascript handling.					*/
+	/*--------------------------------------------------------------*/
+	/*
+	 * The code below allows Javascript to be added for every event roundtrip. All of the
+	 * javascript added gets executed /after/ all of the DOM delta has been executed by
+	 * the browser.
+	 */
+
+	/**
+	 * Add a Javascript statement (MUST be a valid, semicolon-terminated statement or statement list) to
+	 * execute on return to the browser (once).
+	 */
+	public void appendJS(final CharSequence sq) {
+		if(m_appendJS == null)
+			m_appendJS = new StringBuilder(sq.length() + 100);
+		m_appendJS.append(sq);
+	}
+
+	public StringBuilder internalGetAppendedJS() {
+		StringBuilder sb = m_appendJS;
+		m_appendJS = null;
+		return sb;
+	}
+
+	/**
+	 * Force the browser to open a new window with a user-specified URL. The new window does NOT
+	 * inherit any DomUI session data, of course, and has no WindowSession. After creation the
+	 * window cannot be manipulated by DomUI code.
+	 *
+	 * @param windowURL	The url to open. If this is a relative path it will get the webapp
+	 * 					context appended to it.
+	 * @param wp
+	 */
+	public void openWindow(String windowURL, WindowParameters wp) {
+		if(windowURL == null || windowURL.length() == 0)
+			throw new IllegalArgumentException("Empty window URL");
+		StringBuilder sb = new StringBuilder(256);
+		sb.append("DomUI.openWindow('");
+		sb.append(DomUtil.calculateURL(PageContext.getRequestContext(), windowURL));
+		sb.append("','");
+		String name = null;
+		if(wp != null)
+			name = wp.getName();
+		if(name == null || name.length() == 0) {
+			name = "window" + DomUtil.generateGUID();
+		}
+		sb.append(name);
+		sb.append("','");
+
+		if(wp == null) {
+			sb.append("resizable=yes;scrollbars=yes;toolbar=no;location=no;directories=no;status=yes;menubar=yes;copyhistory=no;");
+		} else {
+			sb.append("resizable=");
+			sb.append(wp.isResizable() ? "yes" : "no");
+			sb.append(",scrollbars=");
+			sb.append(wp.isShowScrollbars() ? "yes" : "no");
+			sb.append(",toolbar=");
+			sb.append(wp.isShowToolbar() ? "yes" : "no");
+			sb.append(",location=");
+			sb.append(wp.isShowLocation() ? "yes" : "no");
+			sb.append(",directories=");
+			sb.append(wp.isShowDirectories() ? "yes" : "no");
+			sb.append(",status=");
+			sb.append(wp.isShowStatus() ? "yes" : "no");
+			sb.append(",menubar=");
+			sb.append(wp.isShowMenubar() ? "yes" : "no");
+			sb.append(",copyhistory=");
+			sb.append(wp.isCopyhistory() ? "yes" : "no");
+
+			if(wp.getWidth() > 0) {
+				sb.append(",width=");
+				sb.append(wp.getWidth());
+			}
+			if(wp.getHeight() > 0) {
+				sb.append(",height=");
+				sb.append(wp.getHeight());
+			}
+		}
+		sb.append("');\n");
+		appendJS(sb);
+	}
+
+	/**
+	 * Open a DomUI page in a separate browser popup window. This window will create it's own WindowSession.
+	 * FIXME URGENT This code needs to CREATE the window session BEFORE referring to it!!!!
+	 *
+	 * @param clz
+	 * @param pp
+	 * @param wp
+	 */
+	public void openWindow(Class< ? extends UrlPage> clz, PageParameters pp, WindowParameters wp) {
+		StringBuilder sb = new StringBuilder(80);
+
+		IRequestContext ctx = PageContext.getRequestContext();
+		String wid = DomUtil.generateGUID();
+		sb.append(ctx.getRelativePath(clz.getName()));
+		sb.append(".ui?");
+		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+		sb.append('=');
+		sb.append(wid);
+		sb.append(".x");
+		if(pp != null)
+			DomUtil.addUrlParameters(sb, pp, false);
+		openWindow(sb.toString(), wp);
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Component focus handling.							*/
@@ -433,8 +535,9 @@ final public class Page implements IQContextContainer {
 	 */
 	public void setPopIn(final NodeContainer pin) {
 		if(m_currentPopIn != null && m_currentPopIn != pin) {
-			m_currentPopIn.remove();
+			NodeContainer old = m_currentPopIn;
 			m_currentPopIn = null;
+			old.remove();
 		}
 		m_currentPopIn = pin;
 	}
@@ -444,8 +547,9 @@ final public class Page implements IQContextContainer {
 	 */
 	public void clearPopIn() {
 		if(m_currentPopIn != null) {
-			m_currentPopIn.remove();
+			NodeContainer old = m_currentPopIn;
 			m_currentPopIn = null;
+			old.remove();
 		}
 	}
 
@@ -482,5 +586,13 @@ final public class Page implements IQContextContainer {
 
 	public void internalSetDataContextFactory(final QDataContextFactory s) {
 		getConversation().internalSetDataContextFactory(s);
+	}
+
+	public boolean isAllowVectorGraphics() {
+		return m_allowVectorGraphics;
+	}
+
+	public void setAllowVectorGraphics(boolean allowVectorGraphics) {
+		m_allowVectorGraphics = allowVectorGraphics;
 	}
 }

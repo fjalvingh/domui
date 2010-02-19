@@ -1,9 +1,9 @@
 package to.etc.domui.component.meta.impl;
 
-import java.beans.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.regex.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -15,7 +15,7 @@ import to.etc.webapp.nls.*;
 public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements PropertyMetaModel {
 	private final DefaultClassMetaModel m_classModel;
 
-	private final PropertyDescriptor m_descriptor;
+	private final PropertyInfo m_descriptor;
 
 	private final PropertyAccessor< ? > m_accessor;
 
@@ -67,13 +67,17 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	private List<DisplayPropertyMetaModel> m_tableDisplayProperties = Collections.EMPTY_LIST;
 
 
-	public DefaultPropertyMetaModel(final DefaultClassMetaModel classModel, final PropertyDescriptor descriptor) {
+	public DefaultPropertyMetaModel(final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
 		m_classModel = classModel;
 		if(classModel == null)
 			throw new IllegalStateException("Cannot be null dude");
 		m_descriptor = descriptor;
-		m_accessor = new PropertyAccessor<Object>(descriptor.getReadMethod(), descriptor.getWriteMethod());
-		Annotation[] annar = descriptor.getReadMethod().getAnnotations();
+		m_accessor = new PropertyAccessor<Object>(descriptor.getGetter(), descriptor.getSetter(), this);
+		if(descriptor.getSetter() == null) {
+			setReadOnly(YesNoType.YES);
+		}
+
+		Annotation[] annar = descriptor.getGetter().getAnnotations();
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName();
 			decodeAnnotationByName(an, ana);
@@ -81,6 +85,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		}
 	}
 
+	@SuppressWarnings({"cast", "unchecked"})
 	protected void decodeAnnotation(final Annotation an) {
 		if(an instanceof MetaProperty) {
 			//-- Handle meta-assignments.
@@ -94,7 +99,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			if(mp.required() != YesNoType.UNKNOWN)
 				setRequired(mp.required() == YesNoType.YES);
 			if(mp.converterClass() != DummyConverter.class)
-				setConverterClass(mp.converterClass());
+				setConverter((IConverter)ConverterRegistry.getConverterInstance((Class)mp.converterClass()));
 			if(mp.editpermissions().length != 0)
 				setEditRoles(makeRoleSet(mp.editpermissions()));
 			if(mp.viewpermissions().length != 0)
@@ -103,7 +108,8 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 				setTemporal(mp.temporal());
 			if(mp.numericPresentation() != NumericPresentation.UNKNOWN)
 				setNumericPresentation(mp.numericPresentation());
-			setReadOnly(mp.readOnly());
+			if(getReadOnly() != YesNoType.YES) // Do not override readonlyness from missing write method
+				setReadOnly(mp.readOnly());
 			if(mp.componentTypeHint().length() != 0)
 				setComponentTypeHint(mp.componentTypeHint());
 
@@ -118,6 +124,19 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 				list.add(vi);
 			}
 			setValidators(list.toArray(new PropertyMetaValidator[list.size()]));
+
+			//-- Regexp validators.
+			if(mp.regexpValidation().length() > 0) {
+				try {
+					//-- Precompile to make sure it's valid;
+					Pattern p = Pattern.compile(mp.regexpValidation());
+				} catch(Exception x) {
+					throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_BAD_REGEXP, mp.regexpValidation(), this.toString());
+				}
+				setRegexpValidator(mp.regexpValidation());
+				if(mp.regexpUserString().length() > 0)
+					setRegexpUserString(mp.regexpUserString());
+			}
 		} else if(an instanceof MetaCombo) {
 			MetaCombo c = (MetaCombo) an;
 			if(c.dataSet() != UndefinedComboDataSet.class) {
@@ -147,7 +166,13 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			mm.setMinLength(sp.minLength());
 			mm.setPropertyName(getName());
 			//			mm.setProperty(this);
-			((DefaultClassMetaModel) getClassModel()).addSearchProperty(mm);
+			if(((SearchProperty) an).searchType() == SearchPropertyType.SEARCH_FIELD || ((SearchProperty) an).searchType() == SearchPropertyType.BOTH) {
+				((DefaultClassMetaModel) getClassModel()).addSearchProperty(mm);
+			}
+			if(((SearchProperty) an).searchType() == SearchPropertyType.KEYWORD || ((SearchProperty) an).searchType() == SearchPropertyType.BOTH) {
+				((DefaultClassMetaModel) getClassModel()).addKeyWordSearchProperty(mm);
+			}
+
 		} else if(an instanceof MetaObject) {
 			MetaObject o = (MetaObject) an;
 			if(o.defaultColumns().length > 0) {
@@ -167,7 +192,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		if("javax.persistence.Column".equals(name)) {
 			decodeJpaColumn(an);
 		} else if("javax.persistence.Id".equals(name)) {
-			m_primaryKey = true;
+			setPrimaryKey(true);
 			m_classModel.setPersistentClass(true);
 		} else if("javax.persistence.ManyToOne".equals(name)) {
 			setRelationType(PropertyRelationType.UP);
@@ -179,6 +204,28 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			} catch(Exception x) {
 				Trouble.wrapException(x);
 			}
+		} else if("javax.persistence.Temporal".equals(name)) {
+			try {
+				Object val = DomUtil.getClassValue(an, "value");
+				if(val != null) {
+					String s = val.toString();
+					if("DATE".equals(s))
+						setTemporal(TemporalPresentationType.DATE);
+					else if("TIME".equals(s))
+						setTemporal(TemporalPresentationType.TIME);
+					else if("TIMESTAMP".equals(s))
+						setTemporal(TemporalPresentationType.DATETIME);
+				}
+			} catch(Exception x) {
+				Trouble.wrapException(x);
+			}
+		} else if("javax.persistence.Transient".equals(name)) {
+			setTransient(true);
+		} else if("javax.persistence.OneToMany".equals(name)) {
+			//-- This must be a list
+			if(!Collection.class.isAssignableFrom(getActualType()))
+				throw new IllegalStateException("Invalid property type for DOWN relation of property " + this + ": only List<T> is allowed");
+			setRelationType(PropertyRelationType.DOWN);
 		}
 	}
 
@@ -220,15 +267,15 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	}
 
 	public Class< ? > getActualType() {
-		return m_descriptor.getPropertyType();
+		return m_descriptor.getActualType();
 	}
 
 	public Type getGenericActualType() {
-		Method m = m_descriptor.getReadMethod();
+		Method m = m_descriptor.getGetter();
 		if(m != null) {
 			return m.getGenericReturnType();
 		}
-		m = m_descriptor.getWriteMethod();
+		m = m_descriptor.getSetter();
 		if(m != null) {
 			return m.getGenericParameterTypes()[0];
 		}
@@ -246,6 +293,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	static private final Object[] BOOLS = {Boolean.FALSE, Boolean.TRUE};
 
 	/**
+	 * FIXME Needs to be filled in by some kind of factory, not in this thingy directly!!
 	 * For enum and boolean property types this returns the possible values for the domain. Booleans
 	 * always return Boolean.TRUE and Boolean.FALSE; enums return all enum values.
 	 * @return
@@ -258,7 +306,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			Class< ? > ec = getActualType();
 			return ec.getEnumConstants();
 		}
-		throw new IllegalStateException("Property " + this + " is not an enumerable or boolean domain");
+		return null;
 	}
 
 	/**
@@ -277,8 +325,10 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			sb.append("false");
 		else if(val instanceof Enum< ? >)
 			sb.append(((Enum< ? >) val).name());
-		else
-			throw new IllegalStateException("Property value " + val + " for property " + this + " is not an enumerable or boolean domain");
+		else if(val instanceof Boolean) {
+			sb.append(((Boolean)val).booleanValue() ? "true" : "false");
+		} else
+			throw new IllegalStateException("Property value " + val + " for property " + this + " is not an enumerable or boolean domain (class=" + val.getClass() + ")");
 		sb.append(".label");
 
 		return b.findMessage(loc, sb.toString()); // jal 20081201 Do not lie about a resource based name!!

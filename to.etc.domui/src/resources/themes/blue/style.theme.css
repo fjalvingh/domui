@@ -88,6 +88,7 @@
 	font-weight: bold;
 }
 
+/*** 20091208 jal FIXME The vp-ttl-xxx stuff below has to disappear; component needs to use ErrorMessageDiv ***/
 .vp-ttl-msg {
 	background-repeat: no-repeat;
 	background-position: left;
@@ -187,7 +188,6 @@ div.ui-popin {
 }
 
 /*** MsgBox ***/
-
 .ui-mbx-top {
 	height: 140px;
 }
@@ -233,7 +233,7 @@ a:hover.ui-lbtn {
 .ui-drp-ins {
 	font-size: x-small;
 	font-variant: small-caps;
-	background: url(separator.png) repeat-x center;
+	background: url(dnd-separator.png) repeat-x center;
 	text-align: center;
 }
 
@@ -506,7 +506,51 @@ table.ui-lui-selected {
 	background-color: #ffe5e5 !important;
 }
 .ui-lui-vcell {
-	width: 90%;
+	width: 99%;
+}
+input.ui-lui-keyword {
+	min-width: 98px;
+}
+
+img.ui-lui-waiting{
+	position:absolute;
+	top:2px;
+	right:2px;
+}
+.ui-lui-keyword-res{
+	color: black;
+}
+.ui-lui-keyword-no-res{
+	color: red;
+}
+.ui-lui-keyword-large{
+	color: red;
+}
+.ui-lui-keyword-popup{
+	position: absolute;
+	left: 0px;
+	top: 18px;
+	background-color: white;
+	border: 1px solid gray;
+	width: 402px;
+	overflow: hidden;
+}
+tr.ui-keyword-popop-rowsel {
+	cursor: pointer;
+	background-color: #ffe1bf !important;
+}
+
+tr.ui-keyword-popop-rowsel:hover {
+	background-color: #ffe1bf !important;
+}
+
+tr.ui-keyword-popup-row {
+	cursor: pointer;
+}
+
+.no-wrap{
+	white-space: nowrap;
+    overflow: hidden;
 }
 
 /*** LookupForm ***/
@@ -564,6 +608,11 @@ table.ui-lui-selected {
 	filter:alpha(opacity=50);
 }
 
+.ui-fw-btn-close {
+	margin-top: -1px;
+	margin-right: -2px;
+}
+
 /** Tree control ***/
 
 .ui-tree {
@@ -589,6 +638,13 @@ table.ui-lui-selected {
 	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: middle; /* jal 20090818 changed from top to middle to align DateInput buttons better */
 }
+.ui-f-do {
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	vertical-align: middle; /* jal 20090818 changed from top to middle to align DateInput buttons better */
+	background-color: white;
+	padding: 2px;
+}
 
 /*** Form basic styles: for forms having the label ABOVE the field (vertical stacked) ***/
 .ui-fvs-lbl {
@@ -600,6 +656,13 @@ table.ui-lui-selected {
 	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
 	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: top;
+}
+
+.ui-fvs-do { /* displayonly field */
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	background-color: white;
+	padding: 2px;
 }
 
 /*** Typed presentation for fields containing numerics ***/
@@ -616,24 +679,25 @@ table.ui-lui-selected {
 }
 
 /*** Form basic styles: for forms where the label is above the edit control (vertical). ***/
+/* jal 20100215 Appears to be unused, should merge with -fvs- above.
 .ui-fv-lbl {
 	text-align: left;
 	font-weight: bold;
 	font-size: 11px;
-	/* FIXME: Fuck-me-gently with a chainsaw: viewpoint uses PIXEL sizing!? */
 	vertical-align: top;
 }
 .ui-fv-in {
-	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-size: 11px;
 	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: top;
 }
 .ui-fv-display {
-	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-size: 11px;
 	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: top;
 	background: #eff7ff;
 }
+*/
 
 input {
 	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
@@ -651,7 +715,11 @@ button {
 	background: #eff7ff;
 }
 
-
+/*** Panning Image Panel ***/
+.ui-pip-img {
+	overflow: hidden;
+	border: 2px solid black;
+}
 
 
 
@@ -693,6 +761,50 @@ a.ui-nbtn:hover,a.ui-nbtn:active {
 /*** Old Image button ***/
 .ui-ibtn {
 	cursor: pointer;
+}
+
+/*** ExpandingTable ***/
+.ui-xdt {
+	overflow: auto;
+}
+
+.ui-xdt TH {
+	text-align: left;
+}
+
+.ui-xdt-hdr {
+	/* default domui table header style is still to be defined */
+}
+
+.ui-xdt-ix {
+	cursor: pointer;
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+	font-size: 12px;
+	color: #1700ee;
+	text-decoration: underline !important;
+}
+div:hover.ui-xdt-clp {
+	background-image: url(xdt-collapsed.png);
+}
+div:hover.ui-xdt-exp {
+	background-image: url(xdt-expanded.png);
+}
+.ui-xdt-new {
+	background-image: url(btnConfirm.png);
+}
+
+.ui-xdt-edt {
+	background-color: #dffbf7;
+	/*width: 99%;  */
+	vertical-align: top;
+	-moz-border-radius: 5px;
+	border: 1px dotted #333333;
+}
+.ui-xdt-nores {
+	padding: 10px 0px 10px 0px;
+	font-style: italic;
 }
 
 /*** DataTable default style ***/
@@ -753,6 +865,10 @@ th.ui-sortable {
 
 .ui-dt {
 	font-size: 11px;
+}
+
+.ui-dt-separator {
+	background: url(bg-horiz-separator.png) repeat-x center;
 }
 
 /*** Small Image button ***/
@@ -870,7 +986,6 @@ li.ui-tab-err {
 
 .ui-tab-hdr .ui-tab-err a {
 	background-image: url(tab-off-err-right.png);
-	padding: 5px 28px 4px 6px;
 }
 
 .ui-tab-hdr .ui-tab-sel a {
@@ -929,7 +1044,7 @@ body,html {
 	position: fixed;
 	top: 0px;
 	left: 0px;
-	background-color: black;
+	background: black url(io-blk-wait.gif) no-repeat center center; 
 	filter:alpha(opacity=50);
 	z-index: 1000;
 }
@@ -957,4 +1072,12 @@ body,html {
 .ui-szless {
 	padding: 0px;
 	margin: 0px;
+}
+.ui-sup {
+	font-size: xx-small;
+	vertical-align: top;
+}
+.ui-sub {
+	font-size: xx-small;
+	vertical-align: bottom;
 }

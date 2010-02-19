@@ -2,13 +2,15 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
+import to.etc.domui.util.*;
+
 /**
  *
  * @author <a href="mailto:jo.seaton@itris.nl">Jo Seaton</a>
  * Created on Aug 20, 2008
  */
 
-public class RadioButton extends NodeBase {
+public class RadioButton extends NodeBase implements IHasModifiedIndication {
 	//public class RadioButton extends NodeContainer {
 
 	private boolean m_checked;
@@ -18,6 +20,9 @@ public class RadioButton extends NodeBase {
 	private boolean m_readOnly;
 
 	private String m_name;
+
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	private boolean m_modifiedByUser;
 
 	public RadioButton() {
 		super("input");
@@ -66,16 +71,38 @@ public class RadioButton extends NodeBase {
 		m_readOnly = readOnly;
 	}
 
-
 	@Override
-	public void acceptRequestParameter(String[] values) {
+	public boolean acceptRequestParameter(String[] values) {
 		if(values == null || values.length != 1)
 			throw new IllegalStateException("RadioButton: expecting a single input value, not " + Arrays.toString(values));
 
 		//		System.out.println("Value=" + values[0]);
 		String s = values[0].trim();
-		m_checked = "y".equalsIgnoreCase(s);
+		boolean on = "y".equalsIgnoreCase(s);
+		if(on == m_checked)
+			return false; // Unchanged
+		DomUtil.setModifiedFlag(this);
+		m_checked = on;
+		return true;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
+	}
 
 }

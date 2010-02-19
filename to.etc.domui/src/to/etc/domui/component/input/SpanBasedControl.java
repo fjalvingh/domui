@@ -6,12 +6,14 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
 /**
+ * DEPRECATED - one big bag full of problems.
  * Base class to implement an input control using a span as the baae. This implements
  * all basic code for an input control like the IInputNode interface.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 13, 2008
  */
+@Deprecated
 abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> {
 	private boolean m_mandatory;
 
@@ -55,7 +57,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	/*--------------------------------------------------------------*/
 	private T m_value;
 
-	private IValueChanged< ? , ? > m_onValueChanged;
+	private IValueChanged< ? > m_onValueChanged;
 
 	protected T getRawValue() {
 		return m_value;
@@ -65,6 +67,9 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 		m_value = v;
 	}
 
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 */
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
 			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
@@ -86,16 +91,33 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputBase#getOnValueChanged()
+	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
 	 */
-	public IValueChanged< ? , ? > getOnValueChanged() {
+	@Override
+	public T getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		getValueSafe();
+		return super.hasError();
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
+	 */
+	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputBase#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
+	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
-	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 

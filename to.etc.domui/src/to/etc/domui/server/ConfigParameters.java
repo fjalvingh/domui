@@ -7,7 +7,7 @@ import javax.servlet.*;
 /**
  * Hides the method to get app parameters. Currently proxies to
  * FilterConfig.
- * 
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2008

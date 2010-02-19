@@ -1,5 +1,7 @@
 package to.etc.domui.component.form;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -11,14 +13,15 @@ import to.etc.domui.util.*;
  * Created on Aug 13, 2009
  */
 abstract public class GenericTableFormBuilder extends GenericFormBuilder {
-	protected Table m_parentTable;
+	private Table m_parentTable;
 
 	/** The current body we're filling in */
-	protected TBody m_tbody;
+	private TBody m_tbody;
 
-	protected TR m_lastUsedRow;
+	private TR m_lastUsedRow;
 
-	protected TD m_lastUsedCell;
+	@SuppressWarnings("unused")
+	private TD m_lastUsedCell;
 
 	public GenericTableFormBuilder() {}
 
@@ -27,6 +30,13 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	 */
 	public <T> GenericTableFormBuilder(Class<T> clz, IReadOnlyModel<T> mdl) {
 		super(clz, mdl);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public <T> GenericTableFormBuilder(T instance) {
+		super(instance);
 	}
 
 	/**
@@ -48,7 +58,8 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	}
 
 	/**
-	 * Sets a new table. This resets the current body and stuff.
+	 * Sets a new table. This resets the current body and stuff. Since the table was not created here the
+	 * onBodyAdded local event is not fired.
 	 * @param b
 	 */
 	public void setTable(final Table b) {
@@ -60,12 +71,9 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 		internalClearLocation();
 	}
 
-	public Table getTable() {
-		return m_parentTable;
-	}
-
 	/**
-	 * Sets the TBody to use. This resets all layout state.
+	 * Sets the TBody to use. This resets all layout state. Since the table and the body was not created here the
+	 * onBodyAdded local event is not fired.
 	 * @param b
 	 */
 	public void setTBody(final TBody b) {
@@ -74,11 +82,60 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 		m_parentTable = b.getParent(Table.class);
 	}
 
+	/**
+	 * Called when a new table is added.
+	 * @param t
+	 */
+	protected void onTableAdded(Table t) {}
+
+	protected void onBodyAdded(TBody b) {}
+
+	protected void onRowAdded(TR row) {}
+
+	/**
+	 * Return the current table, or null if nothing is current.
+	 * @return
+	 */
+	public Table getTable() {
+		return m_parentTable;
+	}
+
+	/**
+	 * Return the current tbody, or null if nothing is current.
+	 * @return
+	 */
+	public TBody getTBody() {
+		return m_tbody;
+	}
+
+	/**
+	 * Gets the current table, or creates a new one if none is set. If a new one
+	 * is created this fires the {@link #onTableAdded(Table)} event.
+	 * @return
+	 */
+	protected Table table() {
+		if(m_parentTable == null) {
+			m_parentTable = new Table();
+			internalClearLocation();
+			m_lastUsedRow = null;
+			m_lastUsedCell = null;
+			onTableAdded(m_parentTable);
+		}
+		return m_parentTable;
+	}
+
+	/**
+	 * Gets the current tbody, or creates a new one if none is set. If a new one
+	 * is created this fires the {@link #onBodyAdded(TBody)} event.
+	 * @return
+	 */
 	protected TBody tbody() {
 		if(m_tbody == null) {
-			if(m_parentTable == null)
-				m_parentTable = new Table();
-			m_tbody = m_parentTable.getBody(); // Force a new body.
+			m_tbody = table().getBody();
+			m_lastUsedRow = null;
+			m_lastUsedCell = null;
+			internalClearLocation();
+			onBodyAdded(m_tbody);
 		}
 		return m_tbody;
 	}
@@ -90,13 +147,13 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	 * @return
 	 */
 	public TBody newBody() {
-		TBody b = new TBody();
-		m_parentTable.add(b);
-		m_tbody = b;
-		internalClearLocation();
+		m_tbody = new TBody();
+		table().add(m_tbody);
 		m_lastUsedRow = null;
 		m_lastUsedCell = null;
-		return b;
+		internalClearLocation();
+		onBodyAdded(m_tbody);
+		return m_tbody;
 	}
 
 	/**
@@ -106,7 +163,7 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	 * @return
 	 */
 	@Override
-	public Table finish() {
+	public NodeContainer finish() {
 		if(m_parentTable == null)
 			return null;
 
@@ -121,30 +178,71 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	/*	CODING:	Simple table manipulation.							*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Add a new row.
+	 * Add a new row to the current body; create a body (and a table) if necessary. The row becomes the "last row".
 	 * @return
 	 */
+	@Nonnull
 	public TR addRow() {
-		return m_lastUsedRow = tbody().addRow();
+		m_lastUsedRow = tbody().addRow();
+		onRowAdded(m_lastUsedRow);
+		return m_lastUsedRow;
 	}
 
 	/**
-	 * Add a new cell.
+	 * Gets the last-used row. If it is unset it gets created and added to the current tbody. This also creates tbody and
+	 * table if needed.
 	 * @return
 	 */
+	@Nonnull
+	public TR row() {
+		if(m_lastUsedRow == null)
+			addRow();
+		return m_lastUsedRow;
+	}
+
+	/**
+	 * Get the last-used row. This can return null!!
+	 * @return
+	 */
+	@Nullable
+	public TR getLastUsedRow() {
+		return m_lastUsedRow;
+	}
+
+	/**
+	 * This makes the row with the specified index in the current body the "current" row. If it does
+	 * not already exist it gets created!
+	 * @param ix
+	 * @return
+	 */
+	public TR selectRow(int ix) {
+		while(tbody().getChildCount() <= ix)
+			addRow();
+		m_lastUsedRow = (TR) tbody().getChild(ix);
+		return m_lastUsedRow;
+	}
+
+	/**
+	 * Add a new cell to the last-used row.
+	 * @return
+	 */
+	@Nonnull
 	public TD addCell() {
-		return m_lastUsedCell = tbody().addCell();
+		return m_lastUsedCell = row().addCell();
 	}
 
+	@Nonnull
 	public TD addCell(String css) {
-		return m_lastUsedCell = tbody().addCell(css);
+		return m_lastUsedCell = row().addCell(css);
 	}
 
+	@Nonnull
 	public TD addRowAndCell() {
 		addRow();
 		return addCell();
 	}
 
+	@Nonnull
 	public TD addRowAndCell(String tdcss) {
 		addRow();
 		return addCell(tdcss);

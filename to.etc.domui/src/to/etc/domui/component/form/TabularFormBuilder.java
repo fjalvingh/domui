@@ -57,6 +57,10 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		setClassModel(clz, mdl);
 	}
 
+	public <T> TabularFormBuilder(T instance) {
+		super(instance);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	GenericTableFormBuilder extensions.					*/
 	/*--------------------------------------------------------------*/
@@ -65,31 +69,6 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		m_colRow = 0;
 		m_colCol = 0;
 	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Core public interface.								*/
-	/*--------------------------------------------------------------*/
-	//	/**
-	//	 * {@inheritDoc}
-	//	 * Overridden to allow chaining.
-	//	 */
-	//	@Override
-	//	public IFormControl[] addProps(final String... names) {
-	//		return (TabularFormBuilder) super.addProps(names);
-	//	}
-	//
-	//	/**
-	//	 * {@inheritDoc}
-	//	 * Overridden to allow chaining.
-	//	 * @param names
-	//	 * @return
-	//	 */
-	//	@Override
-	//	public TabularFormBuilder addReadOnlyProps(final String... names) {
-	//		return (TabularFormBuilder) super.addReadOnlyProps(names);
-	//	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	GenericFormBuilder implementation.					*/
@@ -112,7 +91,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 			if(editable)
 				res[ix] = addProp(name);
 			else
-				res[ix] = addReadOnlyProp(name);
+				res[ix] = addDisplayProp(name);
 			ix++;
 		}
 		if(nextm != null)
@@ -127,19 +106,15 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param mandatory
 	 */
 	@Override
-	public void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, PropertyMetaModel pmm) {
+	public void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = getBuilder().getControlLabelFactory();
 			if(clf == null)
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
-		Label l = clf.createControlLabel(labelnode, label, true, mandatory, pmm);
-		//
-		//		if(mandatory)
-		//			label = "*"+label;
-		//		Label	l = new Label(ctl, label);
-		modalAdd(l, list);
+		Label l = clf.createControlLabel(labelnode, label, editable, mandatory, pmm);
+		modalAdd(l, list, editable);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -256,21 +231,21 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	/**
 	 * Adds the node to the table, using the current mode. This decides the form placement.
 	 */
-	private void modalAdd(final Label l, final NodeBase[] ctlcontainer) {
+	private void modalAdd(final Label l, final NodeBase[] ctlcontainer, boolean editable) {
 		switch(m_nextNodeMode){
 			default:
 				throw new IllegalStateException("Invalid table insert mode: " + m_mode);
 			case NORM:
-				modeAddNormal(l, ctlcontainer);
+				modeAddNormal(l, ctlcontainer, editable);
 				break;
 			case APPEND:
-				modeAddAppend(l, ctlcontainer);
+				modeAddAppend(l, ctlcontainer, editable);
 				break;
 			case COL:
-				modeAddColumnar(l, ctlcontainer);
+				modeAddColumnar(l, ctlcontainer, editable);
 				break;
 			case APPEND_INTO:
-				modeAppendInto(l, ctlcontainer);
+				modeAppendInto(l, ctlcontainer, editable);
 				break;
 		}
 
@@ -282,7 +257,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		m_appendIntoSeparator = m_appendIntoDefaultSeparator; // Make sure this thingy is reset,
 	}
 
-	private void addCells(final TR tr, final NodeBase l, final NodeBase[] c) {
+	private void addCells(final TR tr, final NodeBase l, final NodeBase[] c, boolean editable) {
 		TD lcell = new TD();
 		tr.add(lcell);
 		lcell.setCssClass("ui-f-lbl");
@@ -291,7 +266,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 
 		TD ccell = new TD();
 		tr.add(ccell);
-		ccell.setCssClass("ui-f-in");
+		ccell.setCssClass(editable ? "ui-f-in" : "ui-f-do");
 		for(NodeBase ch : c)
 			ccell.add(ch);
 	}
@@ -302,10 +277,9 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAddNormal(final Label l, final NodeBase[] c) {
-		m_lastUsedRow = new TR();
-		tbody().add(m_lastUsedRow);
-		addCells(m_lastUsedRow, l, c);
+	protected void modeAddNormal(final Label l, final NodeBase[] c, boolean editable) {
+		addRow();
+		addCells(row(), l, c, editable);
 	}
 
 	/**
@@ -314,13 +288,12 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAddAppend(final Label l, final NodeBase[] c) {
+	protected void modeAddAppend(final Label l, final NodeBase[] c, boolean editable) {
 		//-- Find the last used TR in the body.
-		if(tbody().getChildCount() == 0 || m_lastUsedRow == null) {
-			m_lastUsedRow = new TR();
-			tbody().add(m_lastUsedRow);
+		if(tbody().getChildCount() == 0 || getLastUsedRow() == null) { // FIXME Why this exhaustive test? Null lastrow should be enough?
+			addRow();
 		}
-		addCells(m_lastUsedRow, l, c);
+		addCells(row(), l, c, editable);
 	}
 
 	/**
@@ -328,22 +301,20 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAddColumnar(final Label l, final NodeBase[] c) {
+	protected void modeAddColumnar(final Label l, final NodeBase[] c, boolean editable) {
 		//-- 1. Find the appropriate "row" or make sure it exists.
-		while(tbody().getChildCount() <= m_colRow)
-			tbody().add(new TR());
-		m_lastUsedRow = (TR) tbody().getChild(m_colRow);
+		TR tr = selectRow(m_colRow);
 
 		//-- 2. Move to the proper cellpair, or cause them to exist.
 		int cindex = 2 * m_colCol;
 		TD lcell, ccell;
-		while(m_lastUsedRow.getChildCount() <= cindex + 1) {
+		while(tr.getChildCount() <= cindex + 1) {
 			TD td = new TD();
-			td.setCssClass((m_lastUsedRow.getChildCount() & 1) == 0 ? "ui-f-lbl" : "ui-f-in");
-			m_lastUsedRow.add(td);
+			td.setCssClass((tr.getChildCount() & 1) == 0 ? "ui-f-lbl" : "ui-f-in");
+			tr.add(td);
 		}
-		lcell = (TD) m_lastUsedRow.getChild(cindex);
-		ccell = (TD) m_lastUsedRow.getChild(cindex + 1);
+		lcell = (TD) tr.getChild(cindex);
+		ccell = (TD) tr.getChild(cindex + 1);
 
 		//-- Set the data into the cells but make sure they're empty
 		lcell.removeAllChildren();
@@ -352,6 +323,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 			lcell.add(l);
 		for(NodeBase nb : c)
 			ccell.add(nb);
+		ccell.setCssClass(editable ? "ui-f-in" : "ui-f-do");
 		m_colRow++;
 	}
 
@@ -360,18 +332,15 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAppendInto(final Label l, final NodeBase[] c) {
-		if(m_lastUsedRow == null) { // If there's no row-> add one,
-			m_lastUsedRow = new TR();
-			tbody().add(m_lastUsedRow);
-		}
+	protected void modeAppendInto(final Label l, final NodeBase[] c, boolean editable) {
+		TR tr = row(); // If there's no row-> add one,
 
-		if(m_lastUsedRow.getChildCount() == 0) { // No cells yet?
-			modeAddNormal(l, c); // Then add as normal
+		if(tr.getChildCount() == 0) { // No cells yet?
+			modeAddNormal(l, c, editable); // Then add as normal
 			return;
 		}
 
-		TD td = (TD) m_lastUsedRow.getChild(m_lastUsedRow.getChildCount() - 1); // Find last td
+		TD td = (TD) tr.getChild(tr.getChildCount() - 1); // Find last td
 		if(m_appendIntoSeparator != null && m_appendIntoSeparator.length() > 0)
 			td.add(m_appendIntoSeparator); // Append any string separator
 
@@ -384,5 +353,4 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		for(NodeBase nb : c)
 			td.add(nb);
 	}
-
 }

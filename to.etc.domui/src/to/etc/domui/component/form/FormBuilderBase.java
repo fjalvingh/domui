@@ -45,6 +45,16 @@ public class FormBuilderBase {
 		setClassModel(clz, mdl);
 	}
 
+	/**
+	 * Initialize with a single unchangeable instance. Please consider using a model though
+	 * as it is more resilient to changes.
+	 * @param <T>
+	 * @param instance
+	 */
+	public <T> FormBuilderBase(T instance) {
+		setInstance(instance);
+	}
+
 	final public ControlBuilder getBuilder() {
 		if(m_builder == null)
 			m_builder = DomApplication.get().getControlBuilder();
@@ -98,6 +108,17 @@ public class FormBuilderBase {
 		m_classMeta = cmm;
 		m_model = source;
 		m_currentInputClass = null;
+	}
+
+	public <T> void setInstance(final T instance) {
+		if(instance == null)
+			throw new IllegalArgumentException("Instance cannot be null");
+		IReadOnlyModel<T> instanceModel = new IReadOnlyModel<T>() {
+			public T getValue() throws Exception {
+				return instance;
+			}
+		};
+		setClassModel((Class<T>) instance.getClass(), instanceModel); // I HATE Java Generics. What a bunch of shit.
 	}
 
 	/**

@@ -14,5 +14,5 @@ public interface IQueryListener {
 	 * @param criteria
 	 * @throws Exception
 	 */
-	void	onBeforeQuery(QDataContext dc, QRestrictionsBase<?> criteria) throws Exception;
+	void	onBeforeQuery(QDataContext dc, QCriteriaQueryBase<?> criteria) throws Exception;
 }

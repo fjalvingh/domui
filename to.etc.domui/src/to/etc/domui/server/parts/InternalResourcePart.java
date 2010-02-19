@@ -10,6 +10,21 @@ import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
+/**
+ * This part handler handles all internal resource requests; this are requests where the URL starts
+ * with a dollar sign (and the URL is not some well-known name). The reason for this code is to allow
+ * resources to come from the <i>classpath</i> and not just from within a webapp's files. This
+ * code serves most of the default DomUI browser resources.
+ * <p>Resources are located as follows:
+ * <ul>
+ *	<li>The dollar is stripped from the start of the base URL</li>
+ *	<li>Try to find the resulting name in the webapp data files (below WebContent). If found there return this resource as a cached stream.</li>
+ *	<li>Try to find the name as a Java classpath resource below /resources/, and return it as a cached stream.</li>
+ * </ul>
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 11, 2009
+ */
 public class InternalResourcePart implements IBufferedPartFactory {
 	private static class ResKey {
 		private Locale m_loc;
@@ -19,6 +34,11 @@ public class InternalResourcePart implements IBufferedPartFactory {
 		public ResKey(Locale loc, String rurl) {
 			m_loc = loc;
 			m_rurl = rurl;
+		}
+
+		@Override
+		public String toString() {
+			return "[$resource " + m_rurl + "]";
 		}
 
 		public Locale getLoc() {
@@ -94,35 +114,11 @@ public class InternalResourcePart implements IBufferedPartFactory {
 		IResourceRef ires;
 		if(k.getLoc() != null)
 			throw new IllegalStateException("Locale in resource not implemented.");
-//			if(rurl.startsWith("$RES/")) {
-//				//-- Java resource
-//				ires = new ClassResourceRef(getClass(), rurl.substring(4));
-//			} else if(!rurl.startsWith("$"))
-//				throw new IllegalStateException("Internal: bad rurl passed, missing $");
-//			else {
-//				rurl = rurl.substring(1);
-//
-//				//-- 1. Is a file-based resource available?
-//				File f = da.getAppFile(rurl);
-//				if(f.exists()) {
-//					ires = new WebappResourceRef(f);
-//					if(!da.inDevelopmentMode()) // Webapp resources are cached ONLY when in production mode.
-//						pr.setCacheTime(da.getDefaultExpiryTime());
-//				} else {
-//					//-- In the url, replace all '.' but the last one with /
-//					//				String	name = k.getRURL();
-//					//				int	pos	= name.lastIndexOf('.');
-//					//				if(pos != -1) {
-//					//					name = name.substring(0, pos).replace('.', '/')+name.substring(pos);
-//					//				}
-//					ires = new ClassResourceRef(getClass(), "/resources/" + rurl);
-//					pr.setCacheTime(da.getDefaultExpiryTime()); // Allow caching for a long time
-//				}
-//				if(rdl != null)
-//					rdl.add(ires);
-//			}
 		String rurl = k.getRURL();
 		ires = da.getApplicationResourceByName(rurl);
+		if(rdl != null)
+			rdl.add(ires);
+
 		if(!da.inDevelopmentMode()) // Resources are cached ONLY when in production mode.
 			pr.setCacheTime(da.getDefaultExpiryTime());
 

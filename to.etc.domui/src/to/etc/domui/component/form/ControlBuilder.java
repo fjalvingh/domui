@@ -3,8 +3,10 @@ package to.etc.domui.component.form;
 import java.util.*;
 
 import to.etc.domui.component.input.*;
+import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -24,6 +26,13 @@ public class ControlBuilder {
 	private final LookupControlRegistry m_lookupControlRegistry = new LookupControlRegistry();
 
 	private IControlLabelFactory m_controlLabelFactory = new DefaultControlLabelFactory();
+
+	private IControlErrorFragmentFactory m_errorFragmentfactory = new IControlErrorFragmentFactory() {
+		@Override
+		public NodeContainer createErrorFragment() {
+			return new ErrorMessageDiv();
+		}
+	};
 
 	public ControlBuilder(DomApplication app) {
 	//		m_app = app;
@@ -95,6 +104,22 @@ public class ControlBuilder {
 	}
 
 
+	public synchronized IControlErrorFragmentFactory getErrorFragmentfactory() {
+		return m_errorFragmentfactory;
+	}
+
+	public synchronized void setErrorFragmentfactory(IControlErrorFragmentFactory errorFragmentfactory) {
+		if(errorFragmentfactory == null)
+			throw new IllegalArgumentException("Cannot accept null");
+		m_errorFragmentfactory = errorFragmentfactory;
+	}
+
+	public void addErrorFragment(NodeContainer nc) {
+		NodeContainer lsn = getErrorFragmentfactory().createErrorFragment();
+		nc.add(lsn);
+		DomUtil.getMessageFence(nc).addErrorListener((IErrorMessageListener) lsn);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Lookup Form control factories.						*/
 	/*--------------------------------------------------------------*/
@@ -114,6 +139,9 @@ public class ControlBuilder {
 		return m_lookupControlRegistry.getControlFactory(pmm);
 	}
 
+	public <X extends NodeBase & IInputNode< ? >> ILookupControlFactory getLookupQueryFactory(final SearchPropertyMetaModel pmm, X control) {
+		return m_lookupControlRegistry.getLookupQueryFactory(pmm, control);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Utilities to help you to create controls..			*/
@@ -186,12 +214,12 @@ public class ControlBuilder {
 		if(vals == null || vals.length == 0)
 			throw new IllegalArgumentException("The type " + type + " is not known as a fixed-size domain type");
 
-		List<ComboFixed.Pair<T>> vl = new ArrayList<ComboFixed.Pair<T>>();
+		List<ValueLabelPair<T>> vl = new ArrayList<ValueLabelPair<T>>();
 		for(T o : vals) {
 			String label = cmm.getDomainLabel(NlsContext.getLocale(), o); // Label known to property?
 			if(label == null)
 				label = o == null ? "" : o.toString();
-			vl.add(new ComboFixed.Pair<T>(o, label));
+			vl.add(new ValueLabelPair<T>(o, label));
 		}
 		ComboFixed<T> c = new ComboFixed<T>(vl);
 		return c;
@@ -213,7 +241,7 @@ public class ControlBuilder {
 			throw new IllegalArgumentException("The type of property " + pmm + " (" + pmm.getActualType() + ") is not known as a fixed-size domain type");
 
 		ClassMetaModel ecmm = null;
-		List<ComboFixed.Pair<Object>> vl = new ArrayList<ComboFixed.Pair<Object>>();
+		List<ValueLabelPair<Object>> vl = new ArrayList<ValueLabelPair<Object>>();
 		for(Object o : vals) {
 			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), o); // Label known to property?
 			if(label == null) {
@@ -223,7 +251,7 @@ public class ControlBuilder {
 				if(label == null)
 					label = o == null ? "" : o.toString();
 			}
-			vl.add(new ComboFixed.Pair<Object>(o, label));
+			vl.add(new ValueLabelPair<Object>(o, label));
 		}
 
 		ComboFixed< ? > c = new ComboFixed<Object>(vl);

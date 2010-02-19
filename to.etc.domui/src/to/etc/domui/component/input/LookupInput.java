@@ -13,10 +13,10 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
-public class LookupInput<T> extends Table implements IInputNode<T> {
+public class LookupInput<T> extends Table implements IInputNode<T>, IHasModifiedIndication {
 	private LookupForm<T> m_externalLookupForm;
 
 	private SmallImgButton m_selButton;
@@ -27,9 +27,9 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	FloatingWindow m_floater;
 
-	DataTable m_result;
+	DataTable<T> m_result;
 
-	private T m_value;
+	T m_value;
 
 	private boolean m_mandatory;
 
@@ -45,18 +45,37 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	private String m_lookupTitle;
 
-	private String m_hint;
+	//	private String m_hint;
 
 	private String[] m_resultColumns;
 
 	private IErrorMessageListener m_customErrorMessageListener;
 
+	private IActionAllowed m_isLookupAllowed;
+
+	private KeyWordSearchInput<T> m_keySearch;
+
+	private String m_keySearchHint;
+
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	boolean m_modifiedByUser;
+
+	private IKeyWordSearchQueryFactory<T> m_keyWordSearchHandler;
+
+	private boolean m_allowEmptyQuery;
+
+	private String m_keyWordSearchCssClass;
+
+	/**
+	 * By default set to true.
+	 * Set to false in cases when keyword search functionality should be disabled regardless if metadata for this feature is defined or not.
+	 */
+	private boolean m_allowKeyWordSearch = true;
+
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass);
 		m_resultColumns = resultColumns;
 	}
-
-	private boolean m_allowEmptyQuery;
 
 	public LookupInput(Class<T> lookupClass) {
 		m_lookupClass = lookupClass;
@@ -64,18 +83,17 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		m_selButton.setTestID("selButtonInputLookup");
 		m_selButton.setClicked(new IClicked<NodeBase>() {
 			public void clicked(NodeBase b) throws Exception {
-				toggleFloater();
+				toggleFloaterByClick();
 			}
 		});
 
 		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
+			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {
-				setValue(null);
-				//-- Handle onValueChanged
-				if(getOnValueChanged() != null) {
-					((IValueChanged<NodeBase, Object>) getOnValueChanged()).onValueChanged(LookupInput.this, null);
+				handleSetValue(null);
+				if(m_keySearch != null) {
+					m_keySearch.setFocus();
 				}
-
 			}
 		});
 		m_clearButton.setTestID("clearButtonInputLookup");
@@ -96,10 +114,21 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 
 	@Override
 	public void createContent() throws Exception {
-		INodeContentRenderer<T> r = getContentRenderer();
-		if(r == null)
-			r = (INodeContentRenderer<T>) DEFAULT_RENDERER; // Prevent idiotic generics error
-		r.renderNodeContent(this, this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
+		m_keySearch = null;
+		if(m_value == null && isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
+			//Key word search rendering should be generic, no need for customization posibilities.
+			if(!isReadOnly() && !isDisabled()) {
+				renderKeyWordSearch(null, m_selButton);
+			} else {
+				renderEmptySelection();
+			}
+		} else {
+			//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
+			INodeContentRenderer<T> r = getContentRenderer();
+			if(r == null)
+				r = (INodeContentRenderer<T>) DEFAULT_RENDERER; // Prevent idiotic generics error
+			r.renderNodeContent(this, this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
+		}
 
 		if(!isReadOnly() && !isDisabled()) {
 			if(m_selButton.getPage() == null) { // If the above did not add the button do it now.
@@ -119,10 +148,231 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 				cell.add(m_selButton);
 			}
 			m_selButton.appendAfterMe(m_clearButton);
+			//This code is needed for proper control alignment.
+			//FIXME: vmijic, not suitable for larger button images, see is this can be resolved by introducing span container for buttons.
+			if(m_clearButton.getDisplay() == DisplayType.NONE) {
+				m_clearButton.getParent().setMinWidth("24px");
+			} else {
+				m_clearButton.getParent().setMinWidth("56px");
+			}
 		}
 	}
 
-	void toggleFloater() {
+	/**
+	 * @return true either when query control is manually implemented by keyWordSearchHandler, or if keyword search meta data is defined.
+	 */
+	private boolean isKeyWordSearchDefined() {
+		if(getKeyWordSearchHandler() != null) {
+			return true;
+		}
+		ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
+		if(cmm != null) {
+			//-- Has default meta?
+			List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
+			if(spml.size() > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void appendParameters(TD cell, Object parameters) {
+		TD tdParameters = new TD();
+		cell.appendAfterMe(tdParameters);
+		tdParameters.setValign(TableVAlign.TOP);
+		tdParameters.setMinWidth("24px");
+		tdParameters.setTextAlign(TextAlign.RIGHT);
+		tdParameters.add((NodeBase) parameters); // Add the button,
+	}
+
+	private void renderKeyWordSearch(T value, Object parameters) {
+		TD td = getBody().addRowAndCell();
+		td.setValign(TableVAlign.TOP);
+		td.setCssClass("ui-lui-v");
+		td.setWidth("100%");
+		addKeySearchField(td, value);
+		//-- parameters is either the button, or null if this is a readonly version.
+		if(parameters != null) {
+			appendParameters(td, parameters);
+		}
+	}
+
+	private void renderEmptySelection() {
+		TD td = getBody().addRowAndCell();
+		td.setValign(TableVAlign.TOP);
+		td.setCssClass("ui-lui-v");
+		String txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
+		td.add(txt);
+	}
+
+	private void addKeySearchField(NodeContainer parent, T value) {
+		m_keySearch = new KeyWordSearchInput<T>(m_keyWordSearchCssClass);
+		m_keySearch.setWidth("100%");
+		KeyWordPopupRowRenderer<T> rr = null;
+		if(m_resultColumns != null) {
+			rr = new KeyWordPopupRowRenderer<T>(m_lookupClass, m_resultColumns);
+		} else {
+			rr = new KeyWordPopupRowRenderer<T>(m_lookupClass);
+		}
+
+		rr.setRowClicked(new ICellClicked<T>() {
+			public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
+				handleSetValue(val);
+			}
+		});
+		m_keySearch.setResultsHintPopupRowRenderer(rr);
+
+
+		m_keySearch.setOnLookupTyping(new IValueChanged<KeyWordSearchInput<T>>() {
+
+			@Override
+			public void onValueChanged(KeyWordSearchInput<T> component) throws Exception {
+				ITableModel<T> keySearchModel = searchKeyWord(component.getKeySearchValue());
+				component.showResultsHintPopup(null);
+				if(keySearchModel == null) {
+					//in case of insufficient searchString data cancel search and return.
+					component.setResultsCount(-1);
+					component.setFocus(); //focus must be set manually.
+					return;
+				}
+				if(keySearchModel.getRows() == 1) {
+					//in case of single match select value.
+					handleSetValue(keySearchModel.getItems(0, 1).get(0));
+				} else {
+					//show results count info
+					component.setResultsCount(keySearchModel.getRows());
+					if((keySearchModel.getRows() > 0) && (keySearchModel.getRows() < 10)) {
+						component.showResultsHintPopup(keySearchModel);
+					}
+				}
+			}
+		});
+
+		m_keySearch.setOnShowResults(new IValueChanged<KeyWordSearchInput<T>>() {
+
+			@Override
+			public void onValueChanged(KeyWordSearchInput<T> component) throws Exception {
+				ITableModel<T> keySearchModel = searchKeyWord(component.getKeySearchValue());
+				component.showResultsHintPopup(null);
+				if(keySearchModel == null) {
+					//in case of insufficient searchString data cancel search and popup clean search dialog.
+					component.setResultsCount(-1);
+					toggleFloater(null);
+					return;
+				}
+				if(keySearchModel.getRows() == 1) {
+					//in case of single match select value.
+					handleSetValue(keySearchModel.getItems(0, 1).get(0));
+				} else {
+					//in case of more results show narrow result in search popup.
+					component.setResultsCount(keySearchModel.getRows());
+					toggleFloater(keySearchModel);
+				}
+			}
+		});
+		parent.add(m_keySearch);
+		if(m_keyWordSearchCssClass != null) {
+			addCssClass(m_keyWordSearchCssClass);
+		}
+		m_keySearch.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (m_keySearchHint != null) ? m_keySearchHint : getDefaultKeySearchHint()));
+	}
+
+	private String getDefaultKeySearchHint() {
+		String result = null;
+		ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
+		if(cmm != null) {
+			//-- Has default meta?
+			List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
+			if(spml.size() > 0) {
+				result = "";
+				for(int i = 0; i < spml.size(); i++) {
+					SearchPropertyMetaModelImpl spm = spml.get(i);
+					if(spm.getLookupLabel() != null) {
+						result = result + spm.getLookupLabel();
+					} else {
+						result = result + cmm.findProperty(spm.getPropertyName()).getDefaultLabel();
+					}
+					if(i < spml.size() - 1)
+						result = result + ", ";
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Returns data that matches keyword search string.
+	 * @param searchString
+	 * @return mathcing data or null in case that search is canceled because of insufficient number of characters typed into keyword search field.
+	 * @throws Exception
+	 */
+	ITableModel<T> searchKeyWord(String searchString) throws Exception {
+		if(searchString == null || searchString.trim().length() == 0) {
+			return null;
+		}
+		QCriteria<T> searchQuery;
+
+		if(getKeyWordSearchHandler() != null) {
+			searchQuery = getKeyWordSearchHandler().createQuery(searchString);
+			if(searchQuery == null) {
+				//in case of cancelled search return null
+				return null;
+			}
+		} else {
+			ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
+
+			//-- Has default meta?
+			List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
+			searchQuery = QCriteria.create(m_lookupClass);
+			QRestrictor<T> r = searchQuery.or();
+			int ncond = 0;
+			if(spml.size() > 0) {
+				for(SearchPropertyMetaModelImpl spm : spml) {
+					if(spm.getMinLength() < searchString.length()) {
+
+						//-- Abort on invalid metadata; never continue with invalid data.
+						if(spm.getPropertyName() == null)
+							throw new ProgrammerErrorException("The quick lookup properties for " + cmm + " are invalid: the property name is null");
+
+						List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(cmm, spm.getPropertyName()); // This will return an empty list on empty string input
+						if(pl.size() == 0)
+							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + cmm);
+
+						if(spm.isIgnoreCase()) {
+							r.ilike(spm.getPropertyName(), searchString + "%");
+						} else {
+							r.like(spm.getPropertyName(), searchString + "%");
+						}
+						ncond++;
+					}
+				}
+			}
+			if(ncond == 0) {
+				return null;//no search meta data is matching minimal lenght condition, search is cancelled
+			}
+		}
+
+		if(getQueryManipulator() != null) {
+			searchQuery = getQueryManipulator().adjustQuery(searchQuery);
+		}
+
+		if(m_queryHandler == null) {
+			QDataContextFactory src = QContextManager.getDataContextFactory(getPage().getConversation());
+			return new SimpleSearchModel<T>(src, searchQuery);
+		} else {
+			return new SimpleSearchModel<T>(m_queryHandler, searchQuery);
+		}
+	}
+
+	void toggleFloaterByClick() throws Exception {
+		if(m_keySearch != null) {
+			toggleFloater(searchKeyWord(m_keySearch.getKeySearchValue()));
+		} else {
+			toggleFloater(null);
+		}
+	}
+
+	void toggleFloater(ITableModel<T> keySearchModel) throws Exception {
 		if(m_floater != null) {
 			m_floater.close();
 			m_floater = null;
@@ -130,12 +380,17 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			return;
 		}
 
-		m_floater = FloatingWindow.create(this, getLookupTitle() == null ? Msgs.BUNDLE.getString("ui.lui.ttl") : getLookupTitle());
-		//		getPage().getBody().add(m_floater);
+		//In case that action is resolved as not allowed then do nothing.
+		if(m_isLookupAllowed != null && !m_isLookupAllowed.isAllowed()) {
+			return;
+		}
+
+		m_floater = FloatingWindow.create(this, getLookupTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_LUI_TTL) : getLookupTitle());
 
 		m_floater.setHeight("90%");
 		m_floater.setIcon("THEME/btnFind.png");
-		m_floater.setTestID("floaterWindowLookupInput");
+		m_floater.setTestID(getTestID() + "_floaterWindowLookupInput");
+
 		//in case when external error message listener is set
 		if(m_customErrorMessageListener != null && m_customErrorMessageListener instanceof NodeBase) {
 			m_floater.setErrorFence();
@@ -143,6 +398,8 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
 		}
 		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(m_lookupClass);
+
+		lf.setRenderAsCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		m_floater.add(lf);
 		m_floater.setOnClose(new IClicked<FloatingWindow>() {
@@ -165,6 +422,9 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 			}
 		});
 
+		if(keySearchModel != null && keySearchModel.getRows() > 0) {
+			setResultModel(keySearchModel);
+		}
 	}
 
 	void search(LookupForm<T> lf) throws Exception {
@@ -192,17 +452,20 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		} else {
 			model = new SimpleSearchModel<T>(m_queryHandler, qc);
 		}
+		setResultModel(model);
+	}
 
+	private void setResultModel(ITableModel<T> model) {
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
-			SimpleRowRenderer rr = null;
+			SimpleRowRenderer<T> rr = null;
 			if(m_resultColumns != null) {
-				rr = new SimpleRowRenderer(m_lookupClass, m_resultColumns);
+				rr = new SimpleRowRenderer<T>(m_lookupClass, m_resultColumns);
 			} else {
-				rr = new SimpleRowRenderer(m_lookupClass);
+				rr = new SimpleRowRenderer<T>(m_lookupClass);
 			}
 
-			m_result = new DataTable(model, rr);
+			m_result = new DataTable<T>(model, rr);
 			m_floater.add(m_result);
 			m_result.setPageSize(20);
 			m_result.setTableWidth("100%");
@@ -211,13 +474,8 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 				public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
 					//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
 					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-					LookupInput.this.toggleFloater();
-					setValue(val);
-
-					//-- Handle onValueChanged
-					if(getOnValueChanged() != null) {
-						((IValueChanged<NodeBase, Object>) getOnValueChanged()).onValueChanged(LookupInput.this, val);
-					}
+					LookupInput.this.toggleFloater(null);
+					handleSetValue(val);
 				}
 			});
 
@@ -231,7 +489,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	}
 
 	public void setHint(String text) {
-		m_hint = text;
+		//		m_hint = text;
 		if(m_selButton != null)
 			m_selButton.setTitle(text);
 	}
@@ -269,14 +527,34 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IInputNode implementation.							*/
 	/*--------------------------------------------------------------*/
-	private IValueChanged< ? , ? > m_onValueChanged;
+	private IValueChanged< ? > m_onValueChanged;
 
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 */
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
 			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
 			throw new ValidationException(Msgs.MANDATORY);
 		}
 		return m_value;
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 */
+	@Override
+	public T getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		getValueSafe();
+		return super.hasError();
 	}
 
 	/**
@@ -300,16 +578,37 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputBase#getOnValueChanged()
+	 * In case that new value is different than one previously selected, set modified flag, selected value and trigger onValueChange event if defined.
+	 * @param value
+	 * @throws Exception
 	 */
-	public IValueChanged< ? , ? > getOnValueChanged() {
+	void handleSetValue(T value) throws Exception {
+		if(!MetaManager.areObjectsEqual(value, m_value, null)) {
+			DomUtil.setModifiedFlag(this);
+			setValue(value);
+			//-- Handle onValueChanged
+			if(getOnValueChanged() != null) {
+				((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(this);
+			}
+		}
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
+	 */
+	public IValueChanged< ? > getOnValueChanged() {
+		if(m_floater != null) {
+			//Fix for FF: prevent onchange event to be propagate on control when return key is pressed and popup is opened.
+			//This does not happen on IE. Be sure that it is executed after popup is already closed.
+			return null;
+		}
 		return m_onValueChanged;
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputBase#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
+	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
-	public void setOnValueChanged(IValueChanged< ? , ? > onValueChanged) {
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 
@@ -374,78 +673,7 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 		m_queryManipulator = queryManipulator;
 	}
 
-	static public final INodeContentRenderer< ? > DEFAULT_RENDERER = new INodeContentRenderer<Object>() {
-		public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) throws Exception {
-			String txt;
-			TBody tbl = ((Table) node).getBody();
-			if(object != null) {
-				ClassMetaModel cmm = MetaManager.findClassMeta(object.getClass());
-				if(cmm != null) {
-					//-- Has default meta?
-					List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
-					if(l.size() == 0)
-						l = cmm.getComboDisplayProperties();
-					if(l.size() > 0) {
-						//-- Expand the thingy: render a single line separated with BRs
-						List<ExpandedDisplayProperty> xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
-						xpl = ExpandedDisplayProperty.flatten(xpl);
-
-						//						node.add(tbl);
-						tbl.setCssClass("ui-lui-v");
-						int c = 0;
-						int mw = 0;
-						for(ExpandedDisplayProperty xp : xpl) {
-							String val = xp.getPresentationString(object);
-							if(val == null || val.length() == 0)
-								continue;
-							TR tr = new TR();
-							tbl.add(tr);
-							TD td = new TD(); // Value thingy.
-							tr.add(td);
-							td.setCssClass("ui-lui-vcell");
-							td.setValign(TableVAlign.TOP);
-							td.add(val);
-							int len = val.length();
-							if(len > mw)
-								mw = len;
-
-							td = new TD();
-							tr.add(td);
-							td.setValign(TableVAlign.TOP);
-							td.setCssClass("ui-lui-btncell");
-							td.setWidth("1%");
-							if(c++ == 0 && parameters != null) {
-								td.add((NodeBase) parameters); // Add the button,
-							}
-						}
-						mw += 4;
-						if(mw > 40)
-							mw = 40;
-						tbl.setWidth(mw + "em");
-						return;
-					}
-				}
-				txt = object.toString();
-			} else
-				txt = NlsContext.getGlobalMessage(Msgs.UI_LOOKUP_EMPTY);
-			TR r = new TR();
-			tbl.add(r);
-			TD td = new TD();
-			r.add(td);
-			td.setValign(TableVAlign.TOP);
-			td.setCssClass("ui-lui-v");
-			td.add(txt);
-
-			//-- parameters is either the button, or null if this is a readonly version.
-			if(parameters != null) {
-				td = new TD();
-				r.add(td);
-				td.setValign(TableVAlign.TOP);
-				td.setWidth("1%");
-				td.add((NodeBase) parameters); // Add the button,
-			}
-		}
-	};
+	static public final INodeContentRenderer< ? > DEFAULT_RENDERER = new SimpleLookupInputRenderer();
 
 	public LookupForm<T> getExternalLookupForm() {
 		return m_externalLookupForm;
@@ -472,6 +700,25 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	}
 
 	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
+	}
+
+	/*--------------------------------------------------------------*/
 	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
 	/*--------------------------------------------------------------*/
 
@@ -495,5 +742,68 @@ public class LookupInput<T> extends Table implements IInputNode<T> {
 	 */
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
+	}
+
+	public IActionAllowed getIsLookupAllowed() {
+		return m_isLookupAllowed;
+	}
+
+	public void setIsLookupAllowed(IActionAllowed isLookupAllowed) {
+		m_isLookupAllowed = isLookupAllowed;
+	}
+
+	public IKeyWordSearchQueryFactory<T> getKeyWordSearchHandler() {
+		return m_keyWordSearchHandler;
+	}
+
+	public void setKeyWordSearchHandler(IKeyWordSearchQueryFactory<T> keyWordSearchManipulator) {
+		m_keyWordSearchHandler = keyWordSearchManipulator;
+	}
+
+	public String getKeyWordSearchCssClass() {
+		return m_keyWordSearchCssClass;
+	}
+
+	/**
+	 * Set custom css that would be applied only in case that component is rendering keyWordSearch.
+	 * Used for example in row inline rendering, where width and min-width should be additionaly customized.
+	 * @param cssClass
+	 */
+	public void setKeyWordSearchCssClass(String cssClass) {
+		m_keyWordSearchCssClass = cssClass;
+	}
+
+	/**
+	 * Getter for property {@link LookupInput#m_allowKeyWordSearch}.
+	 * @return
+	 */
+	public boolean isAllowKeyWordSearch() {
+		return m_allowKeyWordSearch;
+	}
+
+	/**
+	 * Setter for property {@link LookupInput#m_allowKeyWordSearch}.
+	 * @return
+	 */
+	public void setAllowKeyWordSearch(boolean allowKeyWordSearch) {
+		m_allowKeyWordSearch = allowKeyWordSearch;
+	}
+
+	/**
+	 * Getter for keyword search hint. See {@link LookupInput#setKeySearchHint}.
+	 * @param hint
+	 */
+	public String getKeySearchHint() {
+		return m_keySearchHint;
+	}
+
+	/**
+	 * Set hint to keyword search input. Usually says how search condition is resolved.
+	 * @param hint
+	 */
+	public void setKeySearchHint(String keySearchHint) {
+		m_keySearchHint = keySearchHint;
+		if(m_keySearch != null)
+			m_keySearch.setHint(keySearchHint); // Remove the hint on null.
 	}
 }

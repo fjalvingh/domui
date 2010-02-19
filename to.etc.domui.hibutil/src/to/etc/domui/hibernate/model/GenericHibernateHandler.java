@@ -22,7 +22,7 @@ public class GenericHibernateHandler {
 	static public Criteria createCriteria(Session ses, QCriteria< ? > qc) {
 		try {
 			Criteria c = ses.createCriteria(qc.getBaseClass(), "base");
-			qc.visit(new CriteriaCreatingVisitor(c));
+			qc.visit(new CriteriaCreatingVisitor(ses, c));
 			return c;
 		} catch(RuntimeException x) {
 			throw x;
@@ -33,7 +33,7 @@ public class GenericHibernateHandler {
 	static public Criteria createCriteria(Session ses, QSelection< ? > qc) {
 		try {
 			Criteria c = ses.createCriteria(qc.getBaseClass(), "base");
-			qc.visit(new CriteriaCreatingVisitor(c));
+			qc.visit(new CriteriaCreatingVisitor(ses, c));
 			return c;
 		} catch(RuntimeException x) {
 			throw x;

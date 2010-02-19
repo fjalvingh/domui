@@ -2,6 +2,7 @@ package to.etc.domui.state;
 
 import java.lang.reflect.*;
 import java.util.*;
+
 import java.util.logging.*;
 
 import to.etc.domui.dom.*;
@@ -375,7 +376,7 @@ final public class WindowSession {
 		shelvePage(m_currentPage);
 
 		//-- Call all of the page's listeners.
-		callNewPageListeners(m_currentPage);
+		//		callNewPageListeners(m_currentPage); // jal 20091122 Bug# 605 Move this globally.
 		generateRedirect(ctx, m_currentPage);
 		return true;
 	}
@@ -443,8 +444,16 @@ final public class WindowSession {
 		int ix = m_shelvedPageStack.size() - 2;
 		if(ix < 0) {
 			clearShelve(0); // Discard EVERYTHING
-			internalSetNextPage(MoveMode.NEW, getApplication().getRootPage(), null, null, null);
-			handleGoto(ctx, m_currentPage);
+
+			//-- If we have a root page go there, else
+			Class< ? extends UrlPage> clz = getApplication().getRootPage();
+			if(clz != null) {
+				internalSetNextPage(MoveMode.NEW, getApplication().getRootPage(), null, null, null);
+				handleGoto(ctx, m_currentPage);
+			} else {
+				//-- Last resort: move to root of the webapp by redirecting to some URL
+				generateRedirect(ctx, ctx.getRelativePath(""));
+			}
 			return;
 		}
 
@@ -610,15 +619,16 @@ final public class WindowSession {
 		shelvePage(m_currentPage); // Append the current page to the shelve,
 
 		//-- Call all of the page's listeners.
-		callNewPageListeners(m_currentPage);
+		//		callNewPageListeners(m_currentPage); jal 20091122 Bug# 605 Move this globally.
 		return m_currentPage;
 	}
 
-	private void callNewPageListeners(final Page pg) throws Exception {
-		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
-		for(INewPageInstantiated npi : getApplication().getNewPageInstantiatedListeners())
-			npi.newPageInstantiated(m_currentPage.getBody());
-	}
+	// jal 20091122 Bug# 605 Move this globally.
+	//	private void callNewPageListeners(final Page pg) throws Exception {
+	//		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
+	//		for(INewPageInstantiated npi : getApplication().getNewPageInstantiatedListeners())
+	//			npi.newPageInstantiated(m_currentPage.getBody());
+	//	}
 
 	/**
 	 * Check to see if we can use a page stack entry.

@@ -4,7 +4,6 @@ import java.math.*;
 import java.util.*;
 
 import to.etc.domui.component.input.*;
-import to.etc.domui.component.input.ComboFixed.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
@@ -22,24 +21,25 @@ import to.etc.webapp.query.*;
  * Created on 13 Aug 2009
  */
 final class LookupFactoryNumber implements ILookupControlFactory {
-	public ILookupControlInstance createControl(final SearchPropertyMetaModel spm) {
-		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
+		if(control != null)
+			throw new IllegalStateException();
 
-		final List<Pair<NumericRelationType>> values = new ArrayList<Pair<NumericRelationType>>();
+		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+		final List<ValueLabelPair<NumericRelationType>> values = new ArrayList<ValueLabelPair<NumericRelationType>>();
 		for(NumericRelationType relationEnum : NumericRelationType.values()) {
-			values.add(new Pair<NumericRelationType>(relationEnum, MetaManager.findClassMeta(NumericRelationType.class).getDomainLabel(NlsContext.getLocale(), relationEnum)));
+			values.add(new ValueLabelPair<NumericRelationType>(relationEnum, MetaManager.findClassMeta(NumericRelationType.class).getDomainLabel(NlsContext.getLocale(), relationEnum)));
 		}
 
 		final Text< ? > numA = createNumericInput(pmm);
 		final Text< ? > numB = createNumericInput(pmm);
 		numB.setDisplay(DisplayType.NONE);
 
-
 		final ComboFixed<NumericRelationType> relationCombo = new ComboFixed<NumericRelationType>(values);
 
-		relationCombo.setOnValueChanged(new IValueChanged<ComboFixed<NumericRelationType>, NumericRelationType>() {
-			public void onValueChanged(ComboFixed<NumericRelationType> component, NumericRelationType value) throws Exception {
-				if(value == NumericRelationType.BETWEEN) {
+		relationCombo.setOnValueChanged(new IValueChanged<ComboFixed<NumericRelationType>>() {
+			public void onValueChanged(ComboFixed<NumericRelationType> component) throws Exception {
+				if(component.getValue() == NumericRelationType.BETWEEN) {
 					if(numB.getDisplay() == DisplayType.NONE) {
 						numB.setDisplay(DisplayType.INLINE);
 					}
@@ -107,12 +107,11 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		};
 	}
 
-	@SuppressWarnings("unchecked")
-	private Text< ? > createNumericInput(final PropertyMetaModel pmm) {
-		Class< ? > iclz = pmm.getActualType();
+	private <T> Text<T> createNumericInput(final PropertyMetaModel pmm) {
+		Class<T> iclz = (Class<T>) pmm.getActualType();
 
 		//-- Create first text control that accept any numeric type.
-		final Text< ? > numText = new Text(iclz);
+		final Text<T> numText = new Text<T>(iclz);
 		/*
 		 * Length calculation using the metadata. This uses the "length" field as LAST, because it is often 255 because the
 		 * JPA's column annotation defaults length to 255 to make sure it's usability is bloody reduced. Idiots.
@@ -135,13 +134,8 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		} else if(pmm.getLength() > 0) {
 			numText.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
 		}
-
-		if(pmm.getConverterClass() != null)
-			numText.setConverterClass((Class) pmm.getConverterClass());
-		else if(NumericPresentation.isMonetary(pmm.getNumericPresentation()) && (pmm.getActualType() == double.class || pmm.getActualType() == Double.class))
-			((Text<Double>) numText).setConverterClass(MoneyDoubleNumeric.class);
-		else if(NumericPresentation.isMonetary(pmm.getNumericPresentation()) && pmm.getActualType() == BigDecimal.class)
-			((Text<BigDecimal>) numText).setConverterClass(MoneyBigDecimalNumeric.class);
+		IConverter<T> cvt = (IConverter<T>) ConverterRegistry.findBestConverter(pmm);
+		numText.setConverter(cvt);
 
 		if(pmm.getLength() > 0)
 			numText.setMaxLength(pmm.getLength());
@@ -154,7 +148,9 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		return numText;
 	}
 
-	public int accepts(SearchPropertyMetaModel spm) {
+	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
+		if(control != null)
+			return -1;
 		PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		if(DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class) {
 			if(pmm.getComponentTypeHint() != null && pmm.getComponentTypeHint().toLowerCase().contains("numberlookupcombo"))

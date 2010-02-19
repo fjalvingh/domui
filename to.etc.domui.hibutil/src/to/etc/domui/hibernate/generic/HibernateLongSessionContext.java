@@ -76,4 +76,12 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		m_session.flush();
 		super.commit();
 	}
+
+	/**
+	 * Should never be used on a long-used context (20091206 jal, error in table update if object not saved 1st).
+	 * @see to.etc.domui.hibernate.generic.BuggyHibernateBaseContext#attach(java.lang.Object)
+	 */
+	@Override
+	public void attach(Object o) throws Exception {
+	}
 }

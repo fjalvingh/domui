@@ -7,7 +7,7 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 
 /**
- * A hyperlink which allows for opening windows in a separate conversation from the 
+ * A hyperlink which allows for opening windows in a separate conversation from the
  * link. This is a rather complex interaction which works as follows:
  * <ul>
  *	<li>The link is generated as an A tag with both an onclick handler and a href URL.</li>
@@ -78,10 +78,14 @@ public class ALink extends ATag {
 		return m_targetClass;
 	}
 
-	public void setTargetClass(Class< ? extends UrlPage> targetClass) {
-		if(m_targetClass == targetClass)
-			return;
+	public void setTargetClass(Class< ? extends UrlPage> targetClass, Object... parameters) {
+//		if(m_targetClass == targetClass)
+//			return;
 		m_targetClass = targetClass;
+		if(parameters == null || parameters.length == 0)
+			m_targetParameters = null;
+		else
+			m_targetParameters = new PageParameters(parameters);
 		updateLink();
 	}
 

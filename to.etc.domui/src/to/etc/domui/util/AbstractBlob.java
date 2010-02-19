@@ -44,4 +44,10 @@ abstract public class AbstractBlob implements Blob {
 	public void truncate(long len) throws SQLException {
 		throw new IllegalStateException("Do not call this");
 	}
+
+	public void free() throws SQLException {}
+
+	public InputStream getBinaryStream(long pos, long length) throws SQLException {
+		throw new IllegalStateException("Do not call this");
+	}
 }

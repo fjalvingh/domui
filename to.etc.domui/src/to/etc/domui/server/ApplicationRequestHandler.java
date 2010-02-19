@@ -1,5 +1,6 @@
 package to.etc.domui.server;
 
+import java.util.*;
 import java.util.logging.*;
 
 import to.etc.domui.annotations.*;
@@ -11,7 +12,6 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
-import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -74,6 +74,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		throw new IllegalStateException("Cannot decode URL " + ctx.getInputPath());
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Initial and initial (full) page rendering.			*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Intermediary impl; should later use interface impl on class to determine factory
 	 * to use.
@@ -95,7 +98,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		String[] cida = DomUtil.decodeCID(cid);
 
 		//-- If this is an OBITUARY just mark the window as possibly gone, then exit;
-		if(Constants.OBITUARY.equals(action)) {
+		if(Constants.ACMD_OBITUARY.equals(action)) {
 			/*
 			 * Warning: do NOT access the WindowSession by findWindowSession: that updates the window touched
 			 * timestamp and causes obituary timeout handling to fail.
@@ -128,9 +131,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		if(cm == null) {
 			if(action != null) {
-				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_EXPIRED));
+				generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
 				return;
-				//				throw new IllegalStateException("AJAX request '"+action+"' has no WindowID/CID");
 			}
 
 			//-- We explicitly need to create a new Window and need to send a redirect back
@@ -187,7 +189,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					/*
 					 * The page tag differs-> session has expired.
 					 */
-					generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_EXPIRED));
+					generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
 					return;
 				}
 			}
@@ -195,9 +197,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		PageContext.internalSet(page);
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
-		if(!Constants.ASYPOLL.equals(action)) {
+		List<NodeBase> pendingChangeList = Collections.EMPTY_LIST;
+		if(!Constants.ACMD_ASYPOLL.equals(action)) {
 			long ts = System.nanoTime();
-			handleComponentInput(ctx, page); // Move all request parameters to their input field(s)
+			pendingChangeList = handleComponentInput(ctx, page); // Move all request parameters to their input field(s)
 			if(LOG.isLoggable(Level.FINE)) {
 				ts = System.nanoTime() - ts;
 				LOG.fine("rq: input handling took " + StringTool.strNanoTime(ts));
@@ -205,53 +208,64 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		if(action != null) {
-			runAction(ctx, page, action);
+			runAction(ctx, page, action, pendingChangeList);
 			return;
-		} else {
-			PageMaker.injectPageValues(page.getBody(), ctx, papa);
+		}
+
+		/*
+		 * We are doing a full refresh/rebuild of a page.
+		 */
+		long ts = System.nanoTime();
+		try {
+			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
 
 			if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
 				page.getBody().forceRebuild(); // Cleanout state
 				QContextManager.closeSharedContext(page.getConversation());
 			}
+
 			page.getBody().onReload();
 
-			//-- EXPERIMENTAL Handle stored message in session
-			String message = (String) cm.getAttribute(UIGoto.SINGLESHOT_ERROR);
-			if(message != null) {
-				page.getBody().build();
-				page.getBody().addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, message));
-				cm.setAttribute(UIGoto.SINGLESHOT_ERROR, null);
+			//-- EXPERIMENTAL Handle stored messages in session
+			List<UIMessage> ml = (List<UIMessage>) cm.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
+			if(ml != null) {
+				if(ml.size() > 0) {
+					page.getBody().build();
+					for(UIMessage m : ml)
+						page.getBody().addGlobalMessage(m);
+				}
+				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
 			}
-		}
-		page.getConversation().processDelayedResults(page);
 
-		//-- Start the main rendering process. Determine the browser type.
-		long ts = System.nanoTime();
-		ctx.getResponse().setContentType("text/html; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+			// ORDERED
+			page.getConversation().processDelayedResults(page);
 
-		//		String	usag = ctx.getUserAgent();
-		FullHtmlRenderer hr = m_application.findRendererFor(ctx.getUserAgent(), out);
+			//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
+			callNewPageListeners(page);
+			// END ORDERED
 
-		try {
+			//-- Start the main rendering process. Determine the browser type.
+			if(page.getBody() instanceof IXHTMLPage)
+				ctx.getResponse().setContentType("application/xhtml+xml; charset=UTF-8");
+			else
+				ctx.getResponse().setContentType("text/html; charset=UTF-8");
+			ctx.getResponse().setCharacterEncoding("UTF-8");
+			IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+
+			//		String	usag = ctx.getUserAgent();
+			HtmlFullRenderer hr = m_application.findRendererFor(ctx.getBrowserVersion(), out);
+
 			hr.render(ctx, page);
 		} catch(Exception x) {
-			//-- Full renderer aborted. Handle exception counting.
-			if(!page.isFullRenderCompleted()) { // Has the page at least once rendered OK?
-				//-- This page is initially unrenderable; the error is not due to state changes. Just rethrow and give up.
-				throw x;
+			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
+				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
+				if(url != null) {
+					generateRedirect(ctx, url, "You need to be logged in");
+					return;
+				}
 			}
 
-			//-- The page was initially renderable; the current problem is due to state changes. Increment the exception count and if too big clear the page before throwing up.
-			page.setPageExceptionCount(page.getPageExceptionCount() + 1);
-			if(page.getPageExceptionCount() >= 2) {
-				//-- Just destroy the stuff - it keeps dying on you.
-				page.getConversation().destroy();
-				throw new RuntimeException("The page keeps dying on you.. The page has been destroyed so that a new one will be allocated on the next refresh.", x);
-			}
-			throw x;
+			checkFullExceptionCount(page, x); // Rethrow, but clear state if page throws up too much.
 		} finally {
 			page.clearDeltaFully();
 		}
@@ -268,6 +282,34 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		page.getConversation().startDelayedExecution();
 	}
 
+	/**
+	 * Check if an exception is thrown every time; if so reset the page and rebuild it again.
+	 * @param page
+	 * @param x
+	 * @throws Exception
+	 */
+	private void checkFullExceptionCount(Page page, Exception x) throws Exception {
+		//-- Full renderer aborted. Handle exception counting.
+		if(!page.isFullRenderCompleted()) { // Has the page at least once rendered OK?
+			//-- This page is initially unrenderable; the error is not due to state changes. Just rethrow and give up.
+			throw x;
+		}
+
+		//-- The page was initially renderable; the current problem is due to state changes. Increment the exception count and if too big clear the page before throwing up.
+		page.setPageExceptionCount(page.getPageExceptionCount() + 1);
+		if(page.getPageExceptionCount() >= 2) {
+			//-- Just destroy the stuff - it keeps dying on you.
+			page.getConversation().destroy();
+			throw new RuntimeException("The page keeps dying on you.. The page has been destroyed so that a new one will be allocated on the next refresh.", x);
+		}
+
+		//-- Just throw it now.
+		throw x;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handle existing page events.						*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Authentication checks: if the page has a "UIRights" annotation we need a logged-in
 	 * user to check it's rights against the page's required rights.
@@ -382,13 +424,17 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Walk the request parameter list and bind all values that came from an input thingy
 	 * to the appropriate Node. Nodes whose value change will leave a trail in the pending
 	 * change list which will later be used to fire change events, if needed.
+	 * <p>This collects a list of nodes whose input values have changed <b>and</b> that have
+	 * an onValueChanged listener. This list will later be used to call the change handles
+	 * on all these nodes (bug# 664).
 	 *
 	 * @param ctx
 	 * @param page
 	 * @throws Exception
 	 */
-	private void handleComponentInput(final IRequestContext ctx, final Page page) throws Exception {
+	private List<NodeBase> handleComponentInput(final IRequestContext ctx, final Page page) throws Exception {
 		//-- Just walk all parameters in the input request.
+		List<NodeBase> changed = new ArrayList<NodeBase>();
 		for(String name : ctx.getParameterNames()) {
 			String[] values = ctx.getParameters(name); // Get the value;
 			//			System.out.println("input: "+name+", value="+values[0]);
@@ -398,14 +444,23 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				NodeBase nb = page.findNodeByID(name); // Can we find this literally?
 				if(nb != null) {
 					//-- Try to bind this value to the component.
-					nb.acceptRequestParameter(values); // Make the thingy accept the parameter(s)
+					if(nb.acceptRequestParameter(values)) { // Make the thingy accept the parameter(s)
+						//-- This thing has changed.
+						if(nb instanceof IInputNode< ? >) { // Can have a value changed thingy?
+							IInputNode< ? > ch = (IInputNode< ? >) nb;
+							if(ch.getOnValueChanged() != null) {
+								changed.add(nb);
+							}
+						}
+					}
 				}
 			}
 		}
+		return changed;
 	}
 
 
-	private void runAction(final RequestContextImpl ctx, final Page page, final String action) throws Exception {
+	private void runAction(final RequestContextImpl ctx, final Page page, final String action, List<NodeBase> pendingChangeList) throws Exception {
 		//		System.out.println("# action="+action);
 		long ts = System.nanoTime();
 
@@ -413,27 +468,54 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		String wid = ctx.getRequest().getParameter("webuic");
 		if(wid != null) {
 			wcomp = page.findNodeByID(wid);
-			if(wcomp == null) {
-				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_BADNODE, wid));
-				//				throw new IllegalStateException("Unknown node '"+wid+"'");
-			}
+			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?
+			//			if(wcomp == null) {
+			//				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_BADNODE, wid));
+			//				//				throw new IllegalStateException("Unknown node '"+wid+"'");
+			//			}
 		}
 
 		boolean inhibitlog = false;
 		try {
-			if("clicked".equals(action)) {
+			/*
+			 * If we have pending changes execute them before executing any actual command. Also: be
+			 * very sure the changed component is part of that list!! Fix for bug# 664.
+			 */
+			//-- If we are a vchange command *and* the node that changed still exists make sure it is part of the changed list.
+			if(Constants.ACMD_VALUE_CHANGED.equals(action) && wcomp != null && wcomp instanceof IHasChangeListener) {
+				if(!pendingChangeList.contains(wcomp))
+					pendingChangeList.add(wcomp);
+			}
+
+			//-- Call all "changed" handlers.
+			for(NodeBase n : pendingChangeList) {
+				if(n instanceof IHasChangeListener) {
+					IHasChangeListener chb = (IHasChangeListener) n;
+					IValueChanged<NodeBase> vc = (IValueChanged<NodeBase>) chb.getOnValueChanged();
+					if(vc != null) { // Well, other listeners *could* have changed this one, you know
+						vc.onValueChanged(n);
+					}
+				}
+			}
+
+			if(Constants.ACMD_CLICKED.equals(action)) {
 				handleClicked(ctx, page, wcomp);
-			} else if("vchange".equals(action)) {
-				handleValueChanged(ctx, page, wcomp);
-			} else if(Constants.ASYPOLL.equals(action)) {
+			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
+				//-- Don't do anything at all - everything is done beforehand (bug #664).
+			} else if(Constants.ACMD_ASYPOLL.equals(action)) {
+				inhibitlog = true;
 				//-- Async poll request..
 				//			} else if("WEBUIDROP".equals(action)) {
 				//				handleDrop(ctx, page, wcomp);
-				inhibitlog = true;
 			} else {
-				if(wcomp == null)
+				if(wcomp == null && (Constants.ACMD_LOOKUP_TYPING.equals(action) || Constants.ACMD_LOOKUP_TYPING_DONE.equals(action))) {
+					//-- Don't do anything at all - value is already selected by some of previous ajax requests, it is save to ignore remained late lookup typing events
+					inhibitlog = true;
+				} else if(wcomp == null) {
 					throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
-				wcomp.componentHandleWebAction(ctx, action);
+				} else {
+					wcomp.componentHandleWebAction(ctx, action);
+				}
 			}
 		} catch(ValidationException x) {
 			/*
@@ -443,6 +525,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("rq: ignoring validation exception " + x);
 		} catch(Exception x) {
+			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
+				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
+				if(url != null) {
+					generateRedirect(ctx, url, "You need to be logged in");
+					return;
+				}
+			}
+
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl == null) // No handler?
 				throw x; // Move on, nothing to see here,
@@ -461,26 +551,54 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(cm.handleGoto(ctx, page))
 			return;
 
+		//-- Call the 'new page added' listeners for this page, if it is now unbuilt due to some action calling forceRebuild() on it. Fixes bug# 605
+		callNewPageListeners(page);
+
 		//-- We stay on the same page. Render tree delta as response
-		renderOptimalDelta(ctx, page, inhibitlog);
+		try {
+			renderOptimalDelta(ctx, page, inhibitlog);
+		} catch(NotLoggedInException x) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
+			String url = m_application.handleNotLoggedInException(ctx, page, x);
+			if(url != null) {
+				generateRedirect(ctx, url, "You need to be logged in");
+				return;
+			}
+		}
+	}
+	static public void renderOptimalDelta(final RequestContextImpl ctx, final Page page) throws Exception {
+		renderOptimalDelta(ctx, page, false);
 	}
 
-	static public void renderOptimalDelta(final RequestContextImpl ctx, final Page page, boolean inhibitlog) throws Exception {
+	static private void renderOptimalDelta(final RequestContextImpl ctx, final Page page, boolean inhibitlog) throws Exception {
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 
 		long ts = System.nanoTime();
 		//		String	usag = ctx.getUserAgent();
-		HtmlRenderer base = new HtmlRenderer(out);
-		//		DeltaRenderer	dr	= new DeltaRenderer(base, out);
-		OptimalDeltaRenderer dr = new OptimalDeltaRenderer(base, out);
-		dr.render(ctx, page);
+		HtmlFullRenderer fullr = ctx.getApplication().findRendererFor(ctx.getBrowserVersion(), out);
+		OptimalDeltaRenderer dr = new OptimalDeltaRenderer(fullr, ctx, page);
+		dr.render();
 		if(LOG.isLoggable(Level.INFO) && !inhibitlog) {
 			ts = System.nanoTime() - ts;
-			LOG.info("rq: Optimal Delta rendering took " + StringTool.strNanoTime(ts));
+			LOG.info("rq: Optimal Delta rendering using " + fullr + " took " + StringTool.strNanoTime(ts));
 		}
 		page.getConversation().startDelayedExecution();
+	}
+
+	/**
+	 * Call all "new page" listeners when a page is unbuilt or new at this time.
+	 *
+	 * @param pg
+	 * @throws Exception
+	 */
+	private void callNewPageListeners(final Page pg) throws Exception {
+		if(pg.getBody().isBuilt())
+			return;
+		//		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
+		pg.build();
+		for(INewPageInstantiated npi : m_application.getNewPageInstantiatedListeners())
+			npi.newPageInstantiated(pg.getBody());
 	}
 
 	/**
@@ -493,25 +611,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	private void handleClicked(final IRequestContext ctx, final Page page, final NodeBase b) throws Exception {
-		if(b == null)
-			throw new IllegalStateException("Clicked must have a node!!");
+		if(b == null) {
+			System.out.println("User clicked too fast? Node not found. Ignoring.");
+			return;
+			//			throw new IllegalStateException("Clicked must have a node!!");
+		}
 		b.internalOnClicked();
-	}
-
-	private void handleValueChanged(final IRequestContext ctx, final Page page, final NodeBase b) throws Exception {
-		if(b == null)
-			throw new IllegalStateException("onValueChanged must have a node!!");
-		if(!(b instanceof IInputNode< ? >))
-			throw new IllegalStateException("Internal: node " + b + " must be an IInputValue node");
-		IInputNode< ? > in = (IInputNode< ? >) b;
-
-		IValueChanged<NodeBase, Object> c = (IValueChanged<NodeBase, Object>) in.getOnValueChanged();
-		if(c == null)
-			throw new IllegalStateException("? Node " + b.getActualID() + " does not have a ValueChanged handler??");
-		Object value = null;
-		try {
-			value = in.getValue();
-		} catch(Exception x) {}
-		c.onValueChanged(b, value);
 	}
 }

@@ -1,11 +1,12 @@
 package to.etc.domui.dom.header;
 
 import to.etc.domui.dom.*;
+import to.etc.domui.dom.html.*;
 
 final public class JavaScriptletContributor extends HeaderContributor {
 	private final String m_javascript;
 
-	public JavaScriptletContributor(final String javascript) {
+	JavaScriptletContributor(final String javascript) {
 		m_javascript = javascript;
 	}
 
@@ -34,10 +35,10 @@ final public class JavaScriptletContributor extends HeaderContributor {
 
 	/**
 	 * Generate the specified scriptlet as a script tag.
-	 * @see to.etc.domui.dom.header.HeaderContributor#contribute(to.etc.domui.dom.FullHtmlRenderer)
+	 * @see to.etc.domui.dom.header.HeaderContributor#contribute(to.etc.domui.dom.HtmlFullRenderer)
 	 */
 	@Override
-	public void contribute(final FullHtmlRenderer r) throws Exception {
+	public void contribute(final HtmlFullRenderer r) throws Exception {
 		r.o().tag("script");
 		r.o().attr("language", "javascript");
 		r.o().endtag();
@@ -45,5 +46,10 @@ final public class JavaScriptletContributor extends HeaderContributor {
 		r.o().writeRaw(m_javascript);
 		r.o().writeRaw("\n-->");
 		r.o().closetag("script");
+	}
+
+	@Override
+	public void contribute(OptimalDeltaRenderer r) throws Exception {
+		r.o().writeRaw(m_javascript);
 	}
 }

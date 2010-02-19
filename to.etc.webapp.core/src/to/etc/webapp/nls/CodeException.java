@@ -18,30 +18,34 @@ public class CodeException extends RuntimeException {
 	private final Object[] m_parameters;
 
 	public CodeException(final BundleRef bundle, final String code, final Object... parameters) {
+		if(bundle == null || code == null)
+			throw new IllegalArgumentException("Bundle or code cannot be null");
 		m_bundle = bundle;
 		m_code = code;
 		m_parameters = parameters;
 	}
 
-	public CodeException(final String code, final Object... parameters) {
-		m_code = code;
-		m_parameters = parameters;
-		m_bundle = null;
-	}
+	//	public CodeException(final String code, final Object... parameters) {
+	//		m_code = code;
+	//		m_parameters = parameters;
+	//		m_bundle = null;
+	//	}
 
 	public CodeException(final Throwable t, final BundleRef bundle, final String code, final Object... parameters) {
 		super(t);
+		if(bundle == null || code == null)
+			throw new IllegalArgumentException("Bundle or code cannot be null");
 		m_bundle = bundle;
 		m_code = code;
 		m_parameters = parameters;
 	}
 
-	public CodeException(final Throwable t, final String code, final Object... parameters) {
-		super(t);
-		m_code = code;
-		m_parameters = parameters;
-		m_bundle = null;
-	}
+	//	public CodeException(final Throwable t, final String code, final Object... parameters) {
+	//		super(t);
+	//		m_code = code;
+	//		m_parameters = parameters;
+	//		m_bundle = null;
+	//	}
 
 	public BundleRef getBundle() {
 		return m_bundle;
@@ -57,8 +61,8 @@ public class CodeException extends RuntimeException {
 
 	@Override
 	public String getMessage() {
-		if(m_bundle == null)
-			return NlsContext.getGlobalMessage(m_code, m_parameters);
+		//		if(m_bundle == null)
+		//			return NlsContext.getGlobalMessage(m_code, m_parameters);
 		Locale loc = NlsContext.getLocale();
 		String msg = m_bundle.getString(m_code);
 		MessageFormat temp = new MessageFormat(msg, loc); // SUN people are dumb. It's idiotic to have to create an object for this.

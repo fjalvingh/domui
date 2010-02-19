@@ -60,4 +60,6 @@ public interface INodeVisitor {
 	public void visitLiteralXhtml(LiteralXhtml n) throws Exception;
 
 	public void visitH(HTag n) throws Exception;
+
+	public void visitXmlNode(XmlTextNode n) throws Exception;
 }

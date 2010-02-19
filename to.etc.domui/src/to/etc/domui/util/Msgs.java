@@ -25,6 +25,8 @@ public interface Msgs {
 
 	public static final String UI_BOOL_FALSE = "ui.boolean.false";
 
+	public static final String UI_DATA_INCONSISTENT = "ui.data.inconsistent";
+
 	//# Control texts
 	/** Page x of y */
 	public static final String UI_PAGER_TEXT = "ui.pagertext";
@@ -46,12 +48,22 @@ public interface Msgs {
 	/** (empty field) - the text shown when a lookup-popup-thingy is empty. */
 	public static final String UI_LOOKUP_EMPTY = "ui.lookup.empty";
 
+	public static final String UI_KEYWORD_SEARCH_COUNT = "ui.keyword.search.count";
+
+	public static final String UI_KEYWORD_SEARCH_NO_MATCH = "ui.keyword.search.no.match";
+
+	public static final String UI_KEYWORD_SEARCH_LARGE_MATCH = "ui.keyword.search.large.match";
+
+	public static final String UI_KEYWORD_SEARCH_HINT = "ui.keyword.search.hint";
+
 	/** Lookup value invalid */
 	public static final String UI_LOOKUP_INVALID = "ui.lookup.invalid";
 
 	public static final String UI_LOOKUP_BAD_OPERATOR_COMBI = "ui.lookup.op.combi";
 
 	public static final String UI_LUI_TTL = "ui.lui.ttl";
+
+	public static final String UI_MLUI_COL_TTL = "ui.mlui.col.ttl";
 
 	//# Control: message box
 	public static final String UI_MBX_WARNING = "ui.mbx.warning";
@@ -61,6 +73,12 @@ public interface Msgs {
 	public static final String UI_MBX_INFO = "ui.mbx.info";
 
 	public static final String UI_MBX_DIALOG = "ui.mbx.dialog";
+
+	//-- ExpandingEditTable
+	public static final String UI_XDT_DELETE = "ui.xdt.delete";
+
+	public static final String UI_XDT_DELSURE = "ui.xdt.delsure";
+
 
 	//# Exceptions.
 
@@ -93,8 +111,17 @@ public interface Msgs {
 	/** Invalid operator */
 	public static final String V_INVALID_OPERATOR = "v.invalid.operator";
 
+	/** Invalid not unique */
+	public static final String V_INVALID_NOT_UNIQUE = "v.invalid.not.unique";
+
 	/** Value out of range */
 	public static final String V_OUT_OF_RANGE = "v.out.of.range";
+
+	/** Invalid value */
+	public static final String V_INVALID = "v.invalid";
+
+	/** The input is not in the format {0} */
+	public static final String V_NO_RE_MATCH = "v.no.re.match";
 
 	//# Server errors.
 	/** Your session with the server has expired. The page will be reloaded with original data from the server. */
@@ -111,6 +138,7 @@ public interface Msgs {
 
 	public static final String MM_UNKNOWN_COLLECTION_TYPE = "mm.unknown.collection.type";
 
+	public static final String MM_BAD_REGEXP = "mm.bad.re";
 
 	//# Login and access denied code
 	public static final String LOGIN_ACCESS_TITLE = "login.access.title";
@@ -130,6 +158,9 @@ public interface Msgs {
 
 	/** lookupform.cancel key */
 	public static final String LOOKUP_FORM_CANCEL = "lookupform.cancel";
+
+	/** lookupform.confirm key */
+	public static final String LOOKUP_FORM_CONFIRM = "lookupform.confirm";
 
 	/** lookupform.new key */
 	public static final String LOOKUP_FORM_NEW = "lookupform.new";

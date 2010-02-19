@@ -6,7 +6,7 @@ package to.etc.domui.state;
  * existing page's parameters on the URL change the existing page
  * is discarded and a new page is created. Pages implementing this
  * will get a pageParametersChanged() event instead.
- * 
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 21, 2008

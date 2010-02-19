@@ -12,10 +12,12 @@ import to.etc.webapp.nls.*;
  * in a table. This results in an w x h grid where each cell in the grid contains
  * a single data item. Example is a photo album's index page.
  *
+ * FIXME Needs to be generic?
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2008
  */
-public class DataCellTable extends TabularComponentBase {
+public class DataCellTable extends TabularComponentBase<Object> {
 	private int m_rows = 3, m_columns = 3;
 
 	private Table m_table = new Table();
@@ -118,7 +120,7 @@ public class DataCellTable extends TabularComponentBase {
 	/*	CODING:	Content (re)renderers.								*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.dom.html.NodeBase#createContent()
 	 */
 	@Override
@@ -180,7 +182,7 @@ public class DataCellTable extends TabularComponentBase {
 	/*	CODING:	TableModelListener interface implementation.		*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#modelChanged(to.etc.domui.component.tbl.ITableModel)
 	 */
 	public void modelChanged(ITableModel<Object> model) {

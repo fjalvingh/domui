@@ -4,6 +4,6 @@ import to.etc.domui.util.*;
 
 public class MissingParameterException extends UIException {
 	public MissingParameterException(String name) {
-		super(Msgs.X_MISSING_PARAMETER, name);
+		super(Msgs.BUNDLE, Msgs.X_MISSING_PARAMETER, name);
 	}
 }

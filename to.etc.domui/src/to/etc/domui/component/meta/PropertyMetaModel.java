@@ -102,18 +102,11 @@ public interface PropertyMetaModel {
 	public IValueAccessor< ? > getAccessor();
 
 	/**
-	 * Returns the converter to use when converting this property's value to and from string. Can be null.
+	 * Returns the user-specified converter to use when converting this property's value to and from string. Can be null.
 	 *
 	 * @return
 	 */
-	public Class<? extends IConverter<?>> getConverterClass();
-
-	/**
-	 * If known returns the best converter to use to convert this to a string value and v.v. This will
-	 * return the proper (calculated or set) converter to use for numeric types.
-	 * @return
-	 */
-	public IConverter<?> getBestConverter();
+	public IConverter< ? > getConverter();
 
 	/**
 	 * Whether the property is defined as requiring a value.
@@ -220,6 +213,9 @@ public interface PropertyMetaModel {
 
 	public YesNoType getReadOnly();
 
+	/** If marked as transient in the persistent class this returns true */
+	public boolean isTransient();
+
 	/**
 	 * When present this gives a hint to the component factories to help with choosing a
 	 * proper component to <i>select</i> a single record of the type specified by this
@@ -246,4 +242,16 @@ public interface PropertyMetaModel {
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();
 
 	public PropertyMetaValidator[] getValidators();
+
+	/**
+	 * Returns the regexp to use to validate input.
+	 * @return
+	 */
+	String getRegexpValidator();
+
+	/**
+	 * Use the string to use as the pattern indicator in regexp-validator error messages.
+	 * @return
+	 */
+	String getRegexpUserString();
 }

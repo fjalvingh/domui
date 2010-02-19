@@ -66,6 +66,11 @@ public class FloatingWindow extends Div {
 	static public FloatingWindow create(NodeBase parent, String ttl, boolean modal) {
 		UrlPage body = parent.getPage().getBody();
 		FloatingWindow w = new FloatingWindow(modal, ttl); // Create instance
+		//vmijic 20091125 - in case of cascading floating windows, z-index higher than one from parent floating window must be set.
+		FloatingWindow parentFloatingWindow = parent.getParent(FloatingWindow.class);
+		if(parentFloatingWindow != null) {
+			w.setZIndex(parentFloatingWindow.getZIndex() + 100);
+		}
 		body.add(w);
 		return w;
 	}
@@ -103,12 +108,32 @@ public class FloatingWindow extends Div {
 			setWidth(WIDTH + "px");
 		if(getHeight() == null)
 			setHeight(HEIGHT + "px");
-		if(getZIndex() <= 0)
+		if(getZIndex() <= 0) {
 			setZIndex(100);
+		}
+		if(getTestID() == null) {
+			setTestID("popup_" + getZIndex());
+		}
+
+		//vmijic 20091125 - hider z-index has to be set in order to hide other floating windows with lower z-index, if any exists in same time.
+		if(null != m_hider) { // Initial createContent will have null hider usually.
+			m_hider.setZIndex(getZIndex() - 1);
+			m_hider.setClicked(new IClicked<NodeBase>() {
+				@Override
+				public void clicked(NodeBase clickednode) throws Exception {
+					closePressed();
+				}
+			});
+		}
+
 		setPosition(PositionType.FIXED);
 
+		int width = DomUtil.pixelSize(getWidth());
+		if(width == -1)
+			width = WIDTH;
+
 		// center floating window horizontally on screen
-		setMarginLeft("-" + WIDTH / 2 + "px");
+		setMarginLeft("-" + width / 2 + "px");
 
 		//-- Construct the title bar
 		createTitleBar();
@@ -118,7 +143,8 @@ public class FloatingWindow extends Div {
 		//		appendCreateJS("$('#"+getActualID()+"').draggable({" +
 		//			"ghosting: false, zIndex:100, opacity: 0.7, handle: '#"+m_titleBar.getActualID()+"'});"
 		//		);
-		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:100, handle: '#" + m_titleBar.getActualID() + "'});");
+		//vmijic 20091125 - since z-index is dinamic value, correct value has to be used also in js.
+		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:" + getZIndex() + ", handle: '#" + m_titleBar.getActualID() + "'});");
 		//		m_constructed = true;
 	}
 
@@ -148,9 +174,14 @@ public class FloatingWindow extends Div {
 		if(m_titleIcon == null) {
 			m_titleIcon = new Img();
 			m_titleIcon.setBorder(0);
-			m_titleIcon.setCssClass("ui-fw-ti");
-			if(m_titleBar != null)
-				m_titleBar.add(0, m_titleIcon);
+			if(m_titleBar != null) {
+				//Since IE has bug that floater object is rendered under previous sibling, close button must be rendered before any other element in title bar.
+				if(m_closeButton != null && m_titleBar.getChildCount() > 0 && m_titleBar.getChild(0) == m_closeButton) {
+					m_titleBar.add(1, m_titleIcon);
+				} else {
+					m_titleBar.add(0, m_titleIcon);
+				}
+			}
 		}
 		return m_titleIcon;
 	}
@@ -192,6 +223,8 @@ public class FloatingWindow extends Div {
 			m_closeButton = new Img();
 			m_closeButton.setSrc("THEME/close.png");
 			m_closeButton.setFloat(FloatType.RIGHT);
+			//some margin fixes have to be applied with css
+			m_closeButton.setCssClass("ui-fw-btn-close");
 			ttl.add(m_closeButton);
 			m_closeButton.setClicked(new IClicked<NodeBase>() {
 				public void clicked(NodeBase b) throws Exception {

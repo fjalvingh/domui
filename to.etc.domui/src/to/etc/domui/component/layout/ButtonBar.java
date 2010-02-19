@@ -1,41 +1,105 @@
 package to.etc.domui.component.layout;
 
+import java.util.*;
+
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 
 public class ButtonBar extends Table {
-	private final TD m_center;
+	private boolean m_vertical;
+
+	private TD m_center;
+
+	private TBody m_body;
+
+	private List<NodeBase> m_list = new ArrayList<NodeBase>();
 
 	public ButtonBar() {
 		setCssClass("ui-buttonbar");
 		setCellSpacing("0");
 		setCellPadding("0");
 		setTableWidth("100%");
-		TBody b = new TBody();
-		add(b);
-		b.addRow();
-		TD td = b.addCell();
-		//		td.setWidth("15px");
-		//		td.setHeight("26px");
+	}
+
+	public ButtonBar(boolean vertical) {
+		this();
+		m_vertical = vertical;
+	}
+
+	@Override
+	public void createContent() throws Exception {
+		m_body = new TBody();
+		add(m_body);
+		if(m_vertical)
+			createVertical();
+		else
+			createHorizontal();
+		for(NodeBase b : m_list)
+			appendObject(b);
+	}
+
+
+	private void appendObject(NodeBase b) {
+		if(m_vertical)
+			appendVertical(b);
+		else
+			appendHorizontal(b);
+	}
+
+	private void appendHorizontal(NodeBase b) {
+		m_center.add(b);
+	}
+
+	private void appendVertical(NodeBase b) {
+		TD td = m_body.addRowAndCell();
+		td.add(b);
+	}
+
+	/**
+	 * For now: just create a row per button; no top- and botton border row.
+	 */
+	private void createVertical() {
+	}
+
+	/**
+	 * Create horizontal presentation: 3 cells for border-left, content, border-right
+	 */
+	private void createHorizontal() {
+		m_body.addRow();
+		TD td = m_body.addCell();
 		td.setCssClass("ui-bb-left");
 
-		m_center = b.addCell();
+		m_center = m_body.addCell();
 		m_center.setCssClass("ui-bb-middle");
 
-		td = b.addCell();
+		td = m_body.addCell();
 		td.setCssClass("ui-bb-right");
 	}
 
+	public void addButton(NodeBase b) {
+		m_list.add(b);
+		if(isBuilt())
+			appendObject(b);
+	}
+
+	/**
+	 * Add a normal button.
+	 * @param txt
+	 * @param icon
+	 * @param click
+	 * @return
+	 */
 	public DefaultButton addButton(final String txt, final String icon, final IClicked<DefaultButton> click) {
 		DefaultButton b = new DefaultButton(txt, icon, click);
-		m_center.add(b);
+		addButton(b);
 		return b;
 	}
 
 	public DefaultButton addButton(final String txt, final IClicked<DefaultButton> click) {
 		DefaultButton b = new DefaultButton(txt, click);
-		m_center.add(b);
+		addButton(b);
 		return b;
 	}
 
@@ -45,15 +109,35 @@ public class ButtonBar extends Table {
 				UIGoto.back();
 			}
 		});
-		m_center.add(b);
+		addButton(b);
 		return b;
 	}
 
 	public DefaultButton addBackButton() {
-		return addBackButton("Terug", "/img/btnCancel.png");
+		return addBackButton("Terug", "THEME/btnCancel.png");
 	}
 
-	public NodeContainer getContent() {
-		return m_center;
+	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click) {
+		DefaultButton b = MsgBox.areYouSureButton(txt, msg, click);
+		addButton(b);
+		return b;
+	}
+
+	public DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click) {
+		DefaultButton b = MsgBox.areYouSureButton(txt, icon, msg, click);
+		addButton(b);
+		return b;
+	}
+
+	public LinkButton addLinkButton(final String txt, final String img, final IClicked<LinkButton> click) {
+		LinkButton b = new LinkButton(txt, img, click);
+		addButton(b);
+		return b;
+	}
+
+	public LinkButton addConfirmedLinkButton(final String txt, final String img, String msg, final IClicked<LinkButton> click) {
+		LinkButton b = MsgBox.areYouSureLinkButton(txt, img, msg, click);
+		addButton(b);
+		return b;
 	}
 }

@@ -24,4 +24,8 @@ public class ImageThumbnail extends ImageResize {
 		super(height, width);
 	}
 
+	@Override
+	public String toString() {
+		return "ImageThumbnail[" + getWidth() + "x" + getHeight() + ", mime=" + getTargetMime() + ", filterspec=" + getFilterSpec() + "]";
+	}
 }

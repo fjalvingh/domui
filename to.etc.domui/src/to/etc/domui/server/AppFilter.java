@@ -10,6 +10,7 @@ import javax.servlet.http.*;
 
 import to.etc.domui.util.*;
 import to.etc.log.*;
+import to.etc.net.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
@@ -28,6 +29,8 @@ public class AppFilter implements Filter {
 	private String m_applicationClassName;
 
 	private boolean m_logRequest;
+
+	static private String m_appContext;
 
 	/**
 	 * If a reloader is needed for debug/development pps this will hold the reloader.
@@ -53,6 +56,7 @@ public class AppFilter implements Filter {
 			}
 			NlsContext.setLocale(rq.getLocale());
 			//			NlsContext.setLocale(new Locale("nl", "NL"));
+			initContext(req);
 
 			if(m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain))
 				return;
@@ -74,6 +78,18 @@ public class AppFilter implements Filter {
 		}
 	}
 
+	static synchronized private void initContext(ServletRequest req) {
+		if(m_appContext != null || !(req instanceof HttpServletRequest))
+			return;
+
+		m_appContext = NetTools.getApplicationContext((HttpServletRequest) req);
+	}
+
+	static synchronized public String internalGetWebappContext() {
+		return m_appContext;
+	}
+
+
 	/**
 	 * Initialize by reading config from the web.xml.
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
@@ -94,7 +110,7 @@ public class AppFilter implements Filter {
 
 		} catch(IOException x) {
 			x.printStackTrace();
-			throw new WrappedException(x);
+			throw WrappedException.wrap(x);
 		}
 		try {
 			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);

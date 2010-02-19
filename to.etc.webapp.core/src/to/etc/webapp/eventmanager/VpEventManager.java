@@ -10,6 +10,7 @@ import java.util.logging.*;
 
 import javax.sql.*;
 
+
 /**
  * <h1>Overview</h1>
  * <p>This is an implementation of an event manager. It will handle two

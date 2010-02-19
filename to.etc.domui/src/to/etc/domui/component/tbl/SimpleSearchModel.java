@@ -3,6 +3,7 @@ package to.etc.domui.component.tbl;
 import java.util.*;
 import java.util.logging.*;
 
+import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
@@ -17,6 +18,8 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	/** Thingy to get a database session from, if needed, */
 	private QDataContextFactory m_sessionSource;
+
+	private NodeBase m_contextSourceNode;
 
 	/** Generalized search query. */
 	private QCriteria<T> m_query;
@@ -36,11 +39,20 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	private IQueryHandler<T> m_queryHandler;
 
 	/**
+	 * EXPERIMENTAL INTERFACE
+	 * @param contextSourceNode
+	 * @param qc
+	 */
+	public SimpleSearchModel(NodeBase contextSourceNode, QCriteria<T> qc) {
+		m_query = qc;
+		m_contextSourceNode = contextSourceNode;
+	}
+
+	/**
 	 * Use {@link SimpleSearchModel#SimpleSearchModel(IQueryHandler, QCriteria) instead!
 	 * @param ss
 	 * @param qc
 	 */
-	@Deprecated
 	public SimpleSearchModel(QDataContextFactory ss, QCriteria<T> qc) {
 		m_query = qc;
 		m_sessionSource = ss;
@@ -63,9 +75,9 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		long ts = System.nanoTime();
 		QCriteria<T> qc = m_query; // Get the base query,
 		if(qc.getLimit() <= 0)
-			qc.limit(1001);
+			qc.limit(ITableModel.DEFAULT_MAX_SIZE + 1);
 		if(m_sort != null) { // Are we sorting?
-			qc = qc.dup(); // Copy original query
+			qc.getOrder().clear(); // FIXME Need to duplicate.
 			if(m_desc)
 				qc.descending(m_sort);
 			else
@@ -76,9 +88,13 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			m_workResult = qs.query(qc); // Execute the query.
 		} else if(m_queryHandler != null) {
 			m_workResult = m_queryHandler.query(qc);
+		} else if(m_contextSourceNode != null) {
+			QDataContext dc = QContextManager.getContext(m_contextSourceNode.getPage());
+			m_workResult = dc.query(qc); // Execute the query.
+			dc.close();
 		} else
 			throw new IllegalStateException("No QueryHandler nor SessionSource set- don't know how to do the query");
-		if(m_workResult.size() > 1000) {
+		if(m_workResult.size() > ITableModel.DEFAULT_MAX_SIZE) {
 			m_workResult.remove(m_workResult.size() - 1);
 			m_truncated = true;
 		} else
@@ -94,7 +110,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	}
 
 	public int getTruncatedCount() {
-		return isTruncated() ? 1000 : 0;
+		return isTruncated() ? ITableModel.DEFAULT_MAX_SIZE : 0;
 	}
 
 	protected void initResult() throws Exception {

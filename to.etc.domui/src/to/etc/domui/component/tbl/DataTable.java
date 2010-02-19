@@ -12,23 +12,53 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class DataTable extends TabularComponentBase {
+public class DataTable<T> extends TabularComponentBase<T> {
 	private Table m_table = new Table();
 
-	private IRowRenderer m_rowRenderer;
+	protected IRowRenderer<T> m_rowRenderer;
 
 	/** The size of the page */
 	private int m_pageSize;
 
 	private TBody m_dataBody;
 
-	public DataTable(IRowRenderer r) {
+	public DataTable(IRowRenderer<T> r) {
 		m_rowRenderer = r;
 	}
 
-	public DataTable(ITableModel< ? > m, IRowRenderer r) {
+	public DataTable(ITableModel<T> m, IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
+	}
+
+	public DataTable(Class<T> actualClass, ITableModel<T> model, IRowRenderer<T> r) {
+		super(actualClass, model);
+		m_rowRenderer = r;
+	}
+
+	public DataTable(Class<T> actualClass, IRowRenderer<T> r) {
+		super(actualClass);
+		m_rowRenderer = r;
+	}
+
+	/**
+	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
+	 * @return
+	 */
+	protected Table getTable() {
+		return m_table;
+	}
+
+	/**
+	 * UNSTABLE INTERFACE - UNDER CONSIDERATION.
+	 * @param dataBody
+	 */
+	protected void setDataBody(TBody dataBody) {
+		m_dataBody = dataBody;
+	}
+
+	protected TBody getDataBody() {
+		return m_dataBody;
 	}
 
 	@Override
@@ -40,7 +70,7 @@ public class DataTable extends TabularComponentBase {
 
 		calcIndices(); // Calculate rows to show.
 
-		List< ? > list = getPageItems(); // Data to show
+		List<T> list = getPageItems(); // Data to show
 		if(list.size() == 0) {
 			Div error = new Div();
 			error.setCssClass("ui-dt-nores");
@@ -53,13 +83,19 @@ public class DataTable extends TabularComponentBase {
 
 		//-- Render the header.
 		THead hd = new THead();
-		m_table.add(hd);
-		HeaderContainer hc = new HeaderContainer(this);
+		HeaderContainer<T> hc = new HeaderContainer<T>(this);
 		TR tr = new TR();
 		tr.setCssClass("ui-dt-hdr");
 		hd.add(tr);
 		hc.setParent(tr);
 		m_rowRenderer.renderHeader(this, hc);
+		if(hc.hasContent()) {
+			m_table.add(hd);
+		} else {
+			hc = null;
+			hd = null;
+			tr = null;
+		}
 
 		//-- Render loop: add rows && ask the renderer to add columns.
 		m_dataBody = new TBody();
@@ -68,9 +104,9 @@ public class DataTable extends TabularComponentBase {
 		//		b.setHeight("400px");
 		//		b.setWidth("100%");
 
-		ColumnContainer cc = new ColumnContainer(this);
+		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		int ix = m_six;
-		for(Object o : list) {
+		for(T o : list) {
 			tr = new TR();
 			m_dataBody.add(tr);
 			cc.setParent(tr);
@@ -102,7 +138,7 @@ public class DataTable extends TabularComponentBase {
 	/**
 	 * Called when there are sweeping changes to the model. It forces a complete re-render of the table.
 	 */
-	public void modelChanged(ITableModel<Object> model) {
+	public void modelChanged(ITableModel<T> model) {
 		forceRebuild();
 	}
 
@@ -116,7 +152,7 @@ public class DataTable extends TabularComponentBase {
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
-	public void rowAdded(ITableModel<Object> model, int index, Object value) throws Exception {
+	public void rowAdded(ITableModel<T> model, int index, T value) throws Exception {
 		if(!isBuilt())
 			return;
 		calcIndices(); // Calculate visible nodes
@@ -125,7 +161,7 @@ public class DataTable extends TabularComponentBase {
 
 		//-- What relative row?
 		int rrow = index - m_six; // This is the location within the child array
-		ColumnContainer cc = new ColumnContainer(this);
+		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = new TR();
 		cc.setParent(tr);
 		m_rowRenderer.renderRow(this, cc, index, value);
@@ -145,7 +181,7 @@ public class DataTable extends TabularComponentBase {
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowDeleted(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
-	public void rowDeleted(ITableModel<Object> model, int index, Object value) throws Exception {
+	public void rowDeleted(ITableModel<T> model, int index, T value) throws Exception {
 		if(!isBuilt())
 			return;
 		if(index < m_six || index >= m_eix) // Outside visible bounds
@@ -156,7 +192,7 @@ public class DataTable extends TabularComponentBase {
 		//-- One row gone; must we add one at the end?
 		int peix = m_six + m_pageSize - 1; // Index of last element on "page"
 		if(m_pageSize > 0 && peix < m_eix) {
-			ColumnContainer cc = new ColumnContainer(this);
+			ColumnContainer<T> cc = new ColumnContainer<T>(this);
 			TR tr = new TR();
 			cc.setParent(tr);
 			m_rowRenderer.renderRow(this, cc, peix, getModelItem(peix));
@@ -169,7 +205,7 @@ public class DataTable extends TabularComponentBase {
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
-	public void rowModified(ITableModel<Object> model, int index, Object value) throws Exception {
+	public void rowModified(ITableModel<T> model, int index, T value) throws Exception {
 		if(!isBuilt())
 			return;
 		if(index < m_six || index >= m_eix) // Outside visible bounds
@@ -178,7 +214,7 @@ public class DataTable extends TabularComponentBase {
 		TR tr = (TR) m_dataBody.getChild(rrow); // The visible row there
 		tr.removeAllChildren(); // Discard current contents.
 
-		ColumnContainer cc = new ColumnContainer(this);
+		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		m_rowRenderer.renderRow(this, cc, index, value);
 	}
 

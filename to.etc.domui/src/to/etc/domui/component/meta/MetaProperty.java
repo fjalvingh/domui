@@ -90,6 +90,17 @@ public @interface MetaProperty {
 	public MetaValueValidator[] parameterizedValidator() default {};
 
 	/**
+	 * A regular expression defining what text input must look like to be accepted. Can be
+	 * used to define a default regexp when a Text control is used for this property; it is
+	 * ignored on other input controls. If validation fails the error generated will be a
+	 * validation error showing a 'pattern'; this pattern can be set using {@link #regexpUserString()}.
+	 * @return
+	 */
+	public String regexpValidation() default "";
+
+	public String regexpUserString() default "";
+
+	/**
 	 * Defines the number class AND it's presentation format for numeric values.
 	 * @return
 	 */

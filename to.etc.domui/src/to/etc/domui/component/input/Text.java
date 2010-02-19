@@ -2,6 +2,7 @@ package to.etc.domui.component.input;
 
 import java.math.*;
 import java.util.*;
+import java.util.regex.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
@@ -20,14 +21,14 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
-public class Text<T> extends Input implements IInputNode<T> {
+public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndication {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
 
 	/**
 	 * If the value is to be converted use this converter for it.
 	 */
-	private Class< ? extends IConverter<T>> m_converterClass;
+	private IConverter<T> m_converter;
 
 	/** Defined value validators on this field. */
 	private List<PropertyMetaValidator> m_validators = Collections.EMPTY_LIST;
@@ -58,6 +59,13 @@ public class Text<T> extends Input implements IInputNode<T> {
 
 	private NumberMode m_numberMode = NumberMode.NONE;
 
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	private boolean m_modifiedByUser;
+
+	private String m_validationRegexp;
+
+	private String m_regexpUserString;
+
 	public Text(Class<T> inputClass) {
 		m_inputClass = inputClass;
 
@@ -83,12 +91,22 @@ public class Text<T> extends Input implements IInputNode<T> {
 	 * @see to.etc.domui.dom.html.Input#acceptRequestParameter(java.lang.String[])
 	 */
 	@Override
-	public void acceptRequestParameter(String[] values) {
-		String value = getRawValue();
-		super.acceptRequestParameter(values);
+	public boolean acceptRequestParameter(String[] values) {
+		String value = getRawValue(); // Retain previous value,
+		super.acceptRequestParameter(values); // Set the new one;
+
+		//-- when string is rendered into Input html tag, it is rendered as trimmed, so old raw value for comparasion has also to be trimmed
+		//vmijic 20091124 - when no input is done, empty string is returned as request parameter, so if old raw value was null it has to be replaced with empty string
+		if(value != null) {
+			value = value.trim();
+		} else {
+			value = "";
+		}
 		if(DomUtil.isEqual(value, getRawValue()))
-			return;
+			return false;
 		m_validated = false;
+		DomUtil.setModifiedFlag(this);
+		return true;
 	}
 
 	/**
@@ -125,17 +143,29 @@ public class Text<T> extends Input implements IInputNode<T> {
 			return true;
 		}
 
+		//-- If a pattern validation is present apply it to the raw string value.
+		if(getValidationRegexp() != null) {
+			if(!Pattern.matches(getValidationRegexp(), raw)) {
+				//-- We have a validation error.
+				if(getRegexpUserString() != null)
+					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_NO_RE_MATCH, getRegexpUserString()));// Input format must be {0}
+				else
+					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_INVALID));
+				return false;
+			}
+		}
+
 		//-- Handle conversion and validation.
 		Object converted;
 		try {
-			if(m_converterClass == null) {
-				IConverter<T> c = ConverterRegistry.findConverter(getInputClass());
-				if(c != null)
-					converted = c.convertStringToObject(NlsContext.getLocale(), raw);
-				else
-					converted = RuntimeConversions.convertTo(raw, m_inputClass);
-			} else
-				converted = ConverterRegistry.convertStringToValue(m_converterClass, raw);
+			IConverter<T> c = m_converter;
+			if(c == null)
+				c = ConverterRegistry.findConverter(getInputClass());
+
+			if(c != null)
+				converted = c.convertStringToObject(NlsContext.getLocale(), raw);
+			else
+				converted = RuntimeConversions.convertTo(raw, m_inputClass);
 
 			if(m_validators.size() != 0)
 				ValidatorRegistry.validate(converted, m_validators);
@@ -179,8 +209,8 @@ public class Text<T> extends Input implements IInputNode<T> {
 	 *
 	 * @return
 	 */
-	public Class< ? extends IConverter<T>> getConverterClass() {
-		return m_converterClass;
+	public IConverter<T> getConverter() {
+		return m_converter;
 	}
 
 	/**
@@ -188,20 +218,37 @@ public class Text<T> extends Input implements IInputNode<T> {
 	 * responsibility to ensure that the converter actually converts to a T; if not the code will throw
 	 * ClassCastExceptions.
 	 *
-	 * @param converterClass
+	 * @param converter
 	 */
-	public void setConverterClass(Class< ? extends IConverter<T>> converterClass) {
-		m_converterClass = converterClass;
+	public void setConverter(IConverter<T> converter) {
+		m_converter = converter;
 	}
 
 	/**
-	 * Return the converted and validated value, or throw an exception. This always returns validated and valid values.
-	 * @return
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
 	 */
+	@Override
 	public T getValue() {
 		if(!validate())
 			throw new ValidationException(Msgs.NOT_VALID, getRawValue());
 		return m_value;
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 */
+	@Override
+	public T getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		getValueSafe();
+		return super.hasError();
 	}
 
 	/**
@@ -226,10 +273,14 @@ public class Text<T> extends Input implements IInputNode<T> {
 		m_value = value;
 		String converted;
 		try {
-			if(m_converterClass == null) {
+			IConverter<T> c = m_converter;
+			if(c == null)
+				c = ConverterRegistry.findConverter(getInputClass());
+
+			if(c != null)
+				converted = c.convertObjectToString(NlsContext.getLocale(), value);
+			else
 				converted = (String) RuntimeConversions.convertTo(value, String.class);
-			} else
-				converted = ConverterRegistry.convertValueToString(m_converterClass, value);
 		} catch(UIException x) {
 			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
 			return;
@@ -320,6 +371,40 @@ public class Text<T> extends Input implements IInputNode<T> {
 		addValidator(new MetaPropertyValidatorImpl(clz, parameters));
 	}
 
+	public String getValidationRegexp() {
+		return m_validationRegexp;
+	}
+
+	public void setValidationRegexp(String validationRegexp) {
+		m_validationRegexp = validationRegexp;
+	}
+
+	public String getRegexpUserString() {
+		return m_regexpUserString;
+	}
+
+	public void setRegexpUserString(String regexpUserString) {
+		m_regexpUserString = regexpUserString;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/

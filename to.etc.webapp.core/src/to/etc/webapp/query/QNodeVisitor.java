@@ -21,7 +21,7 @@ public interface QNodeVisitor {
 
 	public void visitUnaryProperty(QUnaryProperty n) throws Exception;
 
-	public void visitRestrictionsBase(QRestrictionsBase<?> n) throws Exception;
+	public void visitRestrictionsBase(QCriteriaQueryBase<?> n) throws Exception;
 
 	public void visitOrderList(List<QOrder> orderlist) throws Exception;
 
@@ -32,4 +32,7 @@ public interface QNodeVisitor {
 	public void visitPropertySelection(QPropertySelection qPropertySelection) throws Exception;
 
 	public void visitMultiSelection(QMultiSelection n) throws Exception;
+
+	void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception;
+
 }

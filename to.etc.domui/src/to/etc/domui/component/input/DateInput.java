@@ -6,6 +6,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * Date input component: this is an INPUT component with a button attached; pressing
@@ -30,7 +31,7 @@ public class DateInput extends Text<Date> {
 		super(Date.class);
 		setMaxLength(10);
 		setSize(10);
-		setConverterClass(DateConverter.class);
+		setConverter(ConverterRegistry.getConverterInstance(DateConverter.class));
 		m_selCalButton = new SmallImgButton("THEME/btn-datein.png");
 	}
 
@@ -38,6 +39,7 @@ public class DateInput extends Text<Date> {
 	public void createContent() throws Exception {
 		setCssClass("ui-di");
 		m_selCalButton.setOnClickJS("WebUI.showCalendar('" + getActualID() + "'," + isWithTime() + ")");
+		setSpecialAttribute("onblur", "WebUI.dateInputCheckInput(event);");
 	}
 
 	@Override
@@ -48,9 +50,11 @@ public class DateInput extends Text<Date> {
 				m_todayButton = new SmallImgButton("THEME/btnToday.png", new IClicked<SmallImgButton>() {
 					public void clicked(SmallImgButton b) throws Exception {
 						Date currentDate = new Date();
+						//modified flag must be set externaly
+						DomUtil.setModifiedFlag(DateInput.this);
 						DateInput.this.setValue(currentDate);
 						if(getOnValueChanged() != null) {
-							((IValueChanged<NodeBase, Object>) getOnValueChanged()).onValueChanged(DateInput.this, currentDate);
+							((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(DateInput.this);
 						}
 					}
 				});
@@ -105,7 +109,7 @@ public class DateInput extends Text<Date> {
 		}
 		setMaxLength(len);
 		setSize(len);
-		setConverterClass(isWithTime() ? DateTimeConverter.class : DateConverter.class);
+		setConverter(ConverterRegistry.getConverterInstance(isWithTime() ? DateTimeConverter.class : DateConverter.class));
 	}
 
 	public boolean isWithSeconds() {

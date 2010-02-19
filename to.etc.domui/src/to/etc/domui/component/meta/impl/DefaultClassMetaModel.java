@@ -1,6 +1,5 @@
 package to.etc.domui.component.meta.impl;
 
-import java.beans.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
@@ -56,6 +55,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private List<SearchPropertyMetaModelImpl> m_searchProperties = Collections.EMPTY_LIST;
 
+	private List<SearchPropertyMetaModelImpl> m_keyWordSearchProperties = Collections.EMPTY_LIST;
+
 	/**
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
 	 * data pertaining to the looked-up item as a single element on the "edit" screen.
@@ -88,8 +89,19 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		decodeClassAnnotations();
 
 		try {
-			BeanInfo bi = Introspector.getBeanInfo(m_metaClass);
-			PropertyDescriptor[] ar = bi.getPropertyDescriptors();
+			/*
+			 * Business as usual: the Introspector does not properly resolve properties when using
+			 * invariant returns. We're forced to do something by ourselves. The Introspector does
+			 * not return the defined method in the class, but it returns the synthetic proxy generated
+			 * by the compiler with the fixed "Object" return type. This means that the return type
+			 * would be incorrect, but even worse: the generated method lacks the annotations on
+			 * the real method. This caused metadata to be unavailable for classes that implemented
+			 * IIdentifyable&gt;Long&gl;.
+			 *
+			 * BeanInfo bi = Introspector.getBeanInfo(m_metaClass);
+			 * PropertyDescriptor[] ar = bi.getPropertyDescriptors();
+			 */
+			List<PropertyInfo> pilist = ClassUtil.getProperties(m_metaClass);
 
 			//-- If this is an enumerable thingerydoo...
 			if(m_metaClass == Boolean.class) {
@@ -100,49 +112,26 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 			}
 
 			//-- Create model data from this thingy.
-
-			for(PropertyDescriptor pd : ar) {
+			for(PropertyInfo pd : pilist) {
 				createPropertyInfo(pd);
 			}
-		} catch(IntrospectionException x) {
-			throw new WrappedException(x);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
 		}
 	}
 
-	private void createPropertyInfo(final PropertyDescriptor pd) {
-		//		System.out.println("Property: "+pd.getName()+", reader="+pd.getReadMethod());
-		Method rm = pd.getReadMethod();
-		if(rm == null) {
-			//-- Handle 'isXxxx()' getters because those morons at Sun *still* don't get it.
-			StringBuilder sb = new StringBuilder();
-			sb.append("is");
-			String s = pd.getName();
-			if(s.length() > 2 && Character.isUpperCase(s.charAt(1)))
-				sb.append(s);
-			else {
-				sb.append(Character.toUpperCase(s.charAt(0)));
-				sb.append(s, 1, s.length());
-			}
-			s = sb.toString();
+	private void createPropertyInfo(final PropertyInfo pd) {
+		//		System.out.println("Property: " + pd.getName() + ", reader=" + pd.getGetter());
+		//		if(pd.getName().equals("id"))
+		//			System.out.println("GOTCHA");
 
-			try {
-				rm = getActualClass().getMethod(s, (Class[]) null);
-			} catch(Exception x) {}
-			if(rm == null) // If there's no READ method here just ignore it? This is the case for getters like getChild(int ix) which are stupidly seen as array getters.
-				return;
-			//				throw new IllegalStateException("The 'read' method for property "+pd.getName()+" of class "+this+" is not present!?");
-			try {
-				pd.setReadMethod(rm);
-			} catch(IntrospectionException x) {
-				throw new WrappedException("Unexpected exception out of very dumb Sun interface: " + x, x);
-			}
-		}
-		if(pd.getReadMethod().getParameterTypes().length != 0)
+		Method rm = pd.getGetter();
+		if(pd.getGetter().getParameterTypes().length != 0)
 			return;
 		DefaultPropertyMetaModel pm = new DefaultPropertyMetaModel(this, pd);
 		m_propertyMap.put(pm.getName(), pm);
 		if(pm.isPrimaryKey())
-			m_primaryKey = pm;
+			setPrimaryKey(pm);
 	}
 
 	/**
@@ -212,6 +201,14 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 				mm.setPropertyName(msi.name().length() == 0 ? null : msi.name());
 				mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
 				mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
+
+				//FIXME NEED TO ADD HERE ACCORDING TO TYPE.
+				//				if(msi. == SearchPropertyType.SEARCH_FIELD) {
+				//					((DefaultClassMetaModel) getClassModel()).addSearchProperty(mm);
+				//				}
+				//				if(searchType == SearchPropertyType.KEYWORD) {
+				//					((DefaultClassMetaModel) getClassModel()).addKeyWordSearchProperty(mm);
+				//				}
 				addSearchProperty(mm);
 			}
 		}
@@ -327,6 +324,13 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	public void initialized() {
 		m_initialized = true;
+
+		//-- Finalize: sort search properties.
+		Collections.sort(m_searchProperties, new Comparator<SearchPropertyMetaModelImpl>() {
+			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
+				return o1.getOrder() - o2.getOrder();
+			}
+		});
 	}
 
 	public ComboOptionalType getComboOptional() {
@@ -351,18 +355,33 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_searchProperties.add(sp);
 	}
 
+	public void addKeyWordSearchProperty(final SearchPropertyMetaModelImpl sp) {
+		if(m_keyWordSearchProperties == Collections.EMPTY_LIST)
+			m_keyWordSearchProperties = new ArrayList<SearchPropertyMetaModelImpl>();
+		m_keyWordSearchProperties.add(sp);
+	}
+
 	/**
 	 * Returns the SORTED list of search properties defined on this class.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getSearchProperties()
 	 */
 	public List<SearchPropertyMetaModelImpl> getSearchProperties() {
-		List<SearchPropertyMetaModelImpl> list = new ArrayList<SearchPropertyMetaModelImpl>(m_searchProperties);
-		Collections.sort(list, new Comparator<SearchPropertyMetaModelImpl>() {
-			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
-				return o1.getOrder() - o2.getOrder();
-			}
-		});
-		return list;
+		return m_searchProperties;
+	}
+
+	/**
+	 * Returns the list of key word search properties defined on this class (unsorted).
+	 * @see to.etc.domui.component.meta.ClassMetaModel#getKeyWordSearchProperties()
+	 */
+	public List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties() {
+		return m_keyWordSearchProperties;
+		//		List<SearchPropertyMetaModelImpl> list = new ArrayList<SearchPropertyMetaModelImpl>(m_keyWordSearchProperties);
+		//		Collections.sort(list, new Comparator<SearchPropertyMetaModelImpl>() {
+		//			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
+		//				return o1.getOrder() - o2.getOrder();
+		//			}
+		//		});
+		//		return list;
 	}
 
 	public Class< ? > getActualClass() {

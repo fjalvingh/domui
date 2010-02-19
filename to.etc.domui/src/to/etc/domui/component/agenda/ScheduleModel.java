@@ -8,7 +8,7 @@ import java.util.*;
  * <strong>Important</strong> None of the calls here must buffer it's contents!! All controls that
  * use this model will only ask for a given dataset <i>once</i> and cache the response locally. Only
  * when a control's display format or date range changes will it re-query the contents of this
- * model!! 
+ * model!!
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 27, 2007
@@ -29,7 +29,7 @@ public interface ScheduleModel<T extends ScheduleItem> {
 	/**
 	 * Returns a list of holidays in the given period. Each holiday can be a single day only; the
 	 * date it contains gets time-truncated.
-	 * This gets called only once as long as the component's date range does not change. <b>This 
+	 * This gets called only once as long as the component's date range does not change. <b>This
 	 * means that this call should not cache it's response to this call</b>.
 	 * @param start
 	 * @param end

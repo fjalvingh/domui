@@ -4,9 +4,10 @@ import java.lang.reflect.*;
 import java.math.*;
 import java.util.*;
 
-import to.etc.domui.component.input.ComboFixed.*;
+import javax.annotation.*;
+
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -76,41 +77,11 @@ final public class MetaManager {
 
 	/**
 	 * Finalizes the metamodel for a property when all metadata providers have had their
-	 * go. EVALUATE: this can be seen as an abuse of the metamodel, but it sure does make
-	 * using it easier and quick...
+	 * go.
+	 *
 	 * @param pmm
 	 */
 	private static void finalizeProperty(PropertyMetaModel pmm) {
-		//-- If this is a numeric type, set a converter when needed.
-		Class<? extends IConverter<?>> clz = null;
-		DefaultPropertyMetaModel p = (DefaultPropertyMetaModel) pmm;
-		if(pmm.getConverterClass() != null)
-			clz = pmm.getConverterClass();
-
-		if(pmm.getNumericPresentation() != NumericPresentation.UNKNOWN && pmm.getConverterClass() == null) {
-			switch(pmm.getNumericPresentation()){
-				default:
-					throw new IllegalStateException("Unexpected numeric presentation: " + pmm.getNumericPresentation());
-				case NUMBER:
-					break;
-				case MONEY:
-				case MONEY_FULL:
-				case MONEY_FULL_TRUNC:
-				case MONEY_NO_SYMBOL:
-				case MONEY_NUMERIC:
-					//-- These are applicable for Double and BigDecimal only,
-					if(pmm.getActualType() == Double.class || pmm.getActualType() == Double.TYPE) {
-						clz = MoneyConverterFactory.createDoubleMoneyConverters(pmm.getNumericPresentation());
-					} else if(pmm.getActualType() == BigDecimal.class) {
-						clz = MoneyConverterFactory.createBigDecimalMoneyConverters(pmm.getNumericPresentation());
-					} else {
-						throw new ProgrammerErrorException("The monetary presentation " + pmm.getNumericPresentation() + " is not valid for type=" + pmm.getActualType());
-					}
-					break;
-			}
-		}
-		if(clz != null)
-			p.setBestConverter(ConverterRegistry.getConverter(clz));
 	}
 
 	static public PropertyMetaModel findPropertyMeta(Class< ? > clz, String name) {
@@ -191,6 +162,7 @@ final public class MetaManager {
 		}
 	};
 
+
 	/**
 	 * This creates a default combo option value renderer using whatever metadata is available.
 	 * @param pmm	If not-null this takes precedence. This then <b>must</b> be the property that
@@ -202,7 +174,8 @@ final public class MetaManager {
 	 * @param cmm
 	 * @return
 	 */
-	static public INodeContentRenderer< ? > createDefaultComboRenderer(PropertyMetaModel pmm, ClassMetaModel cmm) {
+	@Nonnull
+	static public INodeContentRenderer< ? > createDefaultComboRenderer(@Nullable PropertyMetaModel pmm, @Nullable ClassMetaModel cmm) {
 		//-- Property-level metadata is the 1st choice
 		if(pmm != null) {
 			cmm = MetaManager.findClassMeta(pmm.getActualType()); // Always use property's class model.
@@ -268,27 +241,32 @@ final public class MetaManager {
 		if(a.equals(b))
 			return true;
 
+		//-- Classes must be the same type but we allow for proxying
+		Class< ? > acl = a.getClass();
+		Class< ? > bcl = b.getClass();
+		if(!acl.isAssignableFrom(bcl) && !bcl.isAssignableFrom(acl))
+			return false;
+
 		//-- Try Object key identity, if available
-		if(cmm != null) {
-			if(cmm.getPrimaryKey() != null) {
-				// jal 20090924 We are going to check for PK identity. Before we do that we need to be sure both objects are of the same type.
-				Class< ? > acl = a.getClass();
-				Class< ? > bcl = b.getClass();
-				boolean sametype = acl.isAssignableFrom(bcl) || bcl.isAssignableFrom(acl); // Allow for proxying.
-				if(!sametype)
-					return false;
-				try {
-					Object pka = cmm.getPrimaryKey().getAccessor().getValue(a);
-					Object pkb = cmm.getPrimaryKey().getAccessor().getValue(b);
-					return DomUtil.isEqual(pka, pkb);
-				} catch(Exception x) {
-					x.printStackTrace();
-					return false;
-				}
+		if(cmm == null)
+			cmm = findClassMeta(a.getClass());
+		if(cmm.getPrimaryKey() != null) {
+			try {
+				Object pka = cmm.getPrimaryKey().getAccessor().getValue(a);
+				Object pkb = cmm.getPrimaryKey().getAccessor().getValue(b);
+				return DomUtil.isEqual(pka, pkb);
+			} catch(Exception x) {
+				x.printStackTrace();
+				return false;
 			}
 		}
 		return false;
 	}
+
+	static public boolean areObjectsEqual(Object a, Object b) {
+		return areObjectsEqual(a, b, null);
+	}
+
 
 	/**
 	 * Locate the enum's default label.
@@ -310,8 +288,8 @@ final public class MetaManager {
 	 * @param clz
 	 * @return
 	 */
-	static public <T extends Enum< ? >> List<Pair<T>> createEnumList(Class<T> clz) {
-		List<Pair<T>> res = new ArrayList<Pair<T>>();
+	static public <T extends Enum< ? >> List<ValueLabelPair<T>> createEnumList(Class<T> clz) {
+		List<ValueLabelPair<T>> res = new ArrayList<ValueLabelPair<T>>();
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		Object[] values = cmm.getDomainValues();
 		if(values == null)
@@ -320,7 +298,7 @@ final public class MetaManager {
 			String label = cmm.getDomainLabel(NlsContext.getLocale(), value);
 			if(label == null)
 				label = value == null ? "" : value.toString();
-			res.add(new Pair<T>((T) value, label));
+			res.add(new ValueLabelPair<T>((T) value, label));
 		}
 		return res;
 	}
@@ -438,27 +416,76 @@ final public class MetaManager {
 		return null;
 	}
 
-	//	static public Class< ? > getCollectionType(Class< ? > rtype) {
-	//		if(rtype.isArray())
-	//			return rtype.getComponentType();
-	//
-	//		//-- Some kind of collection thingerydoo?
-	//		if(Collection.class.isAssignableFrom(rtype)) {
-	//			//-- Try to get collection value type.
-	//			TypeVariable tvar[] = rtype.getTypeParameters();
-	//			if(tvar != null) {
-	//				TypeVariable tv = tvar[0];
-	//				tv.get
-	//
-	//
-	//
-	//
-	//			}
-	//		}
-	//
-	//
-	//	}
+	/**
+	 * Returns T if instance.propertyname is a duplicate in some other instance in the list.
+	 * @param <T>
+	 * @param items
+	 * @param instance
+	 * @param propertyname
+	 * @return
+	 * @throws Exception
+	 */
+	static public <T> boolean hasDuplicates(List<T> items, T instance, String propertyname) throws Exception {
+		ClassMetaModel cmm = findClassMeta(instance.getClass());
+		PropertyMetaModel pmm = getPropertyMeta(instance.getClass(), propertyname);
+		Object vi = pmm.getAccessor().getValue(instance);
+		ClassMetaModel vcmm = vi == null ? null : findClassMeta(vi.getClass());
+		for(T v : items) {
+			if(areObjectsEqual(instance, v, cmm))
+				continue;
+			Object vl = pmm.getAccessor().getValue(v);
+			if(areObjectsEqual(vi, vl, vcmm)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Generic data model utility functions.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param t
+	 * @return
+	 */
+	static public String identify(Object t) {
+		if(t == null)
+			return "null";
+		ClassMetaModel cmm = MetaManager.findClassMeta(t.getClass());
+		if(cmm.isPersistentClass() && cmm.getPrimaryKey() != null) {
+			try {
+				Object k = cmm.getPrimaryKey().getAccessor().getValue(t);
+				return t.getClass().getName() + "#" + k + " @" + System.identityHashCode(t);
+			} catch(Exception x) {}
+		}
+		return t.toString() + " @" + System.identityHashCode(t);
+	}
+
+	/**
+	 * Return the primary key field for a given instance. This throws IllegalArgumentException's when the
+	 * instance passed is not persistent or has an unknown primary key. If the primary key is just null
+	 * this returns null.
+	 *
+	 * @param instance
+	 * @return
+	 */
+	static public Object getPrimaryKey(Object instance) throws Exception {
+		return getPrimaryKey(instance, null);
+	}
+
+	static public Object getPrimaryKey(Object instance, ClassMetaModel cmm) throws Exception {
+		if(instance == null)
+			throw new IllegalArgumentException("Instance cannot be null");
+		if(cmm == null)
+			cmm = findClassMeta(instance.getClass());
+		if(! cmm.isPersistentClass())
+			throw new IllegalArgumentException("The instance " + identify(instance) + " is not a persistent class");
+		PropertyMetaModel pmm = cmm.getPrimaryKey();
+		if(pmm == null)
+			throw new IllegalArgumentException("The instance " + identify(instance) + " has an undefined primary key (cannot be obtained by metadata)");
+		return pmm.getAccessor().getValue(instance);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Expanding properties.								*/

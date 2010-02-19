@@ -9,6 +9,7 @@ import javax.annotation.*;
 import javax.servlet.http.*;
 
 import to.etc.domui.annotations.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -52,6 +53,14 @@ final public class DomUtil {
 				return false;
 		}
 		return true;
+	}
+
+	static public <T> T getValueSafe(IInputNode<T> node) {
+		try {
+			return node.getValue();
+		} catch(ValidationException x) {
+			return null;
+		}
 	}
 
 	/**
@@ -106,7 +115,7 @@ final public class DomUtil {
 	}
 
 	static public boolean isLongOrWrapper(Class< ? > clz) {
-		return clz == Long.class || clz == Long.class;
+		return clz == Long.class || clz == long.class;
 	}
 
 	/**
@@ -304,6 +313,29 @@ final public class DomUtil {
 		}
 	}
 
+	/**
+	 * Calculate a full URL from a rurl. If the rurl starts with a scheme it is returned verbatim;
+	 * if it starts with slash (host-relative path absolute) it is returned verbatim; in all other
+	 * cases it is returned with the webapp context appended. Examples:
+	 * <ul>
+	 *	<li>img/text.gif becomes /Itris_VO02/img/text.gif</li>
+	 *	<li>/ui/generic.gif remains the same</li>
+	 * </ul>
+	 * @param ci
+	 * @param rurl
+	 * @return
+	 */
+	static public String calculateURL(IRequestContext ci, String rurl) {
+		int pos = rurl.indexOf(":/"); // http://?
+		if(pos > 0 && pos < 20)
+			return rurl;
+		if(rurl.startsWith("/"))
+			return rurl;
+
+		//-- Append context.
+		return ci.getRelativePath(rurl);
+	}
+
 	static public String[] decodeCID(final String param) {
 		if(param == null)
 			return null;
@@ -416,6 +448,63 @@ final public class DomUtil {
 				}
 			}
 		}
+	}
+
+
+	/**
+	 * This balances tables to ensure that all rows have an equal number of rows and
+	 * columns, taking rowspans and colspans into effect.
+	 * FIXME Boring, lotso work, complete later.
+	 * @param t
+	 */
+	@SuppressWarnings("unused")
+	public static void balanceTable(Table t) {
+		List<List<TD>> matrix = new ArrayList<List<TD>>(40);
+
+		//-- Phase 1: start marking extends in the matrix.
+		int rowindex = 0;
+		int maxcols = 0;
+		for(NodeBase l0 : t) { // Expecting THead and TBodies here.
+			if(l0 instanceof THead || l0 instanceof TBody) {
+				//-- Walk all rows.
+				for(NodeBase trb : ((NodeContainer) l0)) {
+					if(!(trb instanceof TR))
+						throw new IllegalStateException("Unexpected child of type " + l0 + " in TBody/THead node (expecting TR)");
+					TR tr = (TR) trb;
+					int minrowspan = 1;
+
+					//-- Start traversing the TD's.
+					List<TD> baserowlist = getTdList(matrix, rowindex);
+					int colindex = 0;
+					for(NodeBase tdb : tr) {
+						if(!(tdb instanceof TD))
+							throw new IllegalStateException("Unexpected child of type " + tr + " in TBody/THead node (expecting TD)");
+						TD td = (TD) tdb;
+
+						int colspan = td.getColspan();
+						int rowspan = td.getRowspan();
+						if(colspan < 1)
+							colspan = 1;
+						if(rowspan < 1)
+							rowspan = 1;
+
+
+
+					}
+					rowindex += minrowspan;
+				}
+			} else
+				throw new IllegalStateException("Unexpected child of type " + l0 + " in TABLE node");
+		}
+
+		//-- Phase 2: for all cells, handle their row/colspan by recounting their spread
+	}
+
+	static private List<TD> getTdList(List<List<TD>> matrix, int row) {
+		while(matrix.size() <= row) {
+			matrix.add(new ArrayList<TD>());
+		}
+		return matrix.get(row);
 	}
 
 	/**
@@ -601,7 +690,16 @@ final public class DomUtil {
 			return s;
 
 		//-- No annotation, or the annotation did not deliver data. Try the menu.
-		return null;
+
+		//-- Try metadata
+		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
+		String name = cmm.getUserEntityName();
+		if(name != null)
+			return name;
+
+		//-- Nothing worked.... Return the class name as a last resort.
+		s = clz.getName();
+		return s.substring(s.lastIndexOf('.') + 1);
 	}
 
 	/**
@@ -810,10 +908,10 @@ final public class DomUtil {
 					top = n;
 				} else if(tag.startsWith("</")) {
 					//-- Some kind of end tag.
-					tag = tag.substring(2, tag.length()-1).trim();			// Remove </ >
+					tag = tag.substring(2, tag.length() - 1).trim(); // Remove </ >
 					if(tag.equalsIgnoreCase("b") || tag.equalsIgnoreCase("i") || tag.equalsIgnoreCase("strong") || tag.equalsIgnoreCase("em")) {
 						//-- Recognised end tag: pop node stack.
-						ix	= tix;
+						ix = tix;
 						appendOptionalText(top, sb); // Append the text for this node because it ends.
 						if(nodestack.size() > 0) {
 							nodestack.remove(nodestack.size() - 1);
@@ -883,9 +981,169 @@ final public class DomUtil {
 		try {
 			return Long.valueOf(s.trim());
 		} catch(Exception x) {
-			throw new UIException(Msgs.X_INVALID_PARAMETER, name);
+			throw new UIException(Msgs.BUNDLE, Msgs.X_INVALID_PARAMETER, name);
+		}
+	}
+
+	/**
+	 * Convert a CSS size string like '200px' into the 200... If the size string is in any way
+	 * invalid this returns -1.
+	 *
+	 * @param css
+	 * @return
+	 */
+	static public int pixelSize(String css) {
+		if(!css.endsWith("px"))
+			return -1;
+		try {
+			return Integer.parseInt(css.substring(0, css.length() - 2).trim());
+		} catch(Exception x) {
+			return -1;
 		}
 	}
 
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Tree walking helpers.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Functor interface to handle tree walking.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Nov 3, 2009
+	 */
+	static public interface IPerNode {
+		/** When this object instance is returned by the before(NodeBase) method we SKIP the downwards traversal. */
+		static public final Object SKIP = new Object();
+
+		/**
+		 * Called when the node is first encountered in the tree. It can return null causing the rest of the tree
+		 * to be traversed; if it returns the constant IPerNode.SKIP the subtree starting at this node will not
+		 * be traversed but the rest of the tree will. When you return SKIP the {@link IPerNode#after(NodeBase)} method
+		 * will not be called for this node. Returning any other value will stop the node traversal process
+		 * and return that value to the caller of {@link DomUtil#walkTree(NodeBase, IPerNode)}.
+		 * @param n
+		 * @return
+		 * @throws Exception
+		 */
+		public Object before(NodeBase n) throws Exception;
+
+		/**
+		 * Called when all child nodes of the specified node have been traversed. When this returns a non-null
+		 * value this will terminate the tree walk and return that value to the called of {@link DomUtil#walkTree(NodeBase, IPerNode)}.
+		 * @param n
+		 * @return
+		 * @throws Exception
+		 */
+		public Object after(NodeBase n) throws Exception;
+	}
+
+	/**
+	 * Walks a node tree, calling the handler for every node in the tree. As soon as
+	 * a handler returns not-null traversing stops and that object gets returned.
+	 * @param handler
+	 * @return
+	 * @throws Exception
+	 */
+	static public Object walkTree(NodeBase root, IPerNode handler) throws Exception {
+		if(root == null)
+			return null;
+		Object v = handler.before(root);
+		if(v == IPerNode.SKIP)
+			return null;
+		if(v != null)
+			return v;
+		if(root instanceof NodeContainer) {
+			for(NodeBase ch : (NodeContainer) root) {
+				v = walkTree(ch, handler);
+				if(v != null)
+					return v;
+			}
+		}
+		return handler.after(root);
+	}
+
+	/**
+	 * This clears the 'modified' flag for all nodes in the subtree that implement {@link IHasModifiedIndication}.
+	 * @param root		The subtree to traverse
+	 */
+	static public void clearModifiedFlag(NodeBase root) {
+		try {
+			walkTree(root, new IPerNode() {
+				public Object before(NodeBase n) throws Exception {
+					if(n instanceof IHasModifiedIndication)
+						((IHasModifiedIndication) n).setModified(false);
+					return null;
+				}
+
+				public Object after(NodeBase n) throws Exception {
+					return null;
+				}
+			});
+		} catch(Exception x) { // Cannot happen.
+			throw new RuntimeException(x);
+		}
+	}
+
+	/**
+	 * Walks the subtree and asks any node implementing {@link IHasModifiedIndication} whether it has been
+	 * modified; return as soon as one node tells us it has been modified.
+	 * @param root
+	 */
+	static public boolean isModified(NodeBase root) {
+		try {
+			Object res = walkTree(root, new IPerNode() {
+				public Object before(NodeBase n) throws Exception {
+					if(n instanceof IHasModifiedIndication) {
+						if(((IHasModifiedIndication) n).isModified())
+							return Boolean.TRUE;
+					}
+					if(n instanceof IUserInputModifiedFence)
+						return SKIP;
+					return null;
+				}
+
+				public Object after(NodeBase n) throws Exception {
+					return null;
+				}
+			});
+			return res != null;
+		} catch(Exception x) { // Cannot happen.
+			throw new RuntimeException(x);
+		}
+	}
+
+	/**
+	 * Update modified flag of node. Propagate notify signal up to final modified fence in parant tree, if any is defined.
+	 * Use it to set modified flag as result of handling of user data modification.
+	 * @param node
+	 */
+	static public void setModifiedFlag(NodeBase node) {
+		NodeBase n = node;
+		while(n != null) {
+			boolean wasModifiedBefore = false;
+			if(n instanceof IHasModifiedIndication) {
+				wasModifiedBefore = ((IHasModifiedIndication) n).isModified();
+				((IHasModifiedIndication) n).setModified(true);
+			}
+			if(n instanceof IUserInputModifiedFence) {
+				if(!wasModifiedBefore) {
+					((IUserInputModifiedFence) n).onModifyFlagRaised();
+				}
+				if(((IUserInputModifiedFence) n).isFinalUserInputModifiedFence()) {
+					return;
+				}
+			}
+			n = (NodeBase) n.getParent(IUserInputModifiedFence.class);
+		}
+	}
+
+	/**
+	 * Checks if string is blank.
+	 * @param s String to be validated.
+	 * @return true if it is blank, false otherwise.
+	 */
+	static public boolean isBlank(String s) {
+		return s == null || s.trim().length() == 0;
+	}
 }

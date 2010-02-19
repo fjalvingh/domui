@@ -12,6 +12,31 @@ import to.etc.webapp.*;
  */
 public class MetaUtils {
 	/**
+	 * Use in component hint when rendering componet maxsize should not calculate extra space for minus sign.   
+	 */
+	public static final String NO_MINUS = "no-minus";
+
+	/**
+	 * Use in component hint when rendering componet maxsize should not calculate extra space for thousent separators.   
+	 */
+	public static final String NO_SEPARATOR = "no-separator";
+
+	/**
+	 * Use in component hint when rendering of TextArea component is required.   
+	 */
+	public static final String TEXT_AREA = "textarea";
+
+	/**
+	 * Use in component hint when setting default rows attribute for TextArea based components.   
+	 */
+	public static final String ROW = "row";
+
+	/**
+	 * Use in component hint when setting default cols attribute for TextArea based components.   
+	 */
+	public static final String COL = "col";
+
+	/**
 	 * Parses value of param defined in metadataLine string as Integer value.
 	 * @return Integer value represented as string, in case that param is not defined or NumberFormatException exception returns default value.
 	 */

@@ -13,7 +13,7 @@ public class ControlFactoryTextArea implements ControlFactory {
 		if(controlClass != null && !controlClass.isAssignableFrom(TextArea.class))
 			return -1;
 		if(pmm.getComponentTypeHint() != null) {
-			if(pmm.getComponentTypeHint().toLowerCase().contains("textarea"))
+			if(pmm.getComponentTypeHint().toLowerCase().contains(MetaUtils.TEXT_AREA))
 				return 10;
 		}
 		return 0;
@@ -24,8 +24,8 @@ public class ControlFactoryTextArea implements ControlFactory {
 		if(!editable)
 			ta.setReadOnly(true);
 		String hint = pmm.getComponentTypeHint().toLowerCase();
-		ta.setCols(MetaUtils.parseIntParam(hint, "col", 80));
-		ta.setRows(MetaUtils.parseIntParam(hint, "row", 4));
+		ta.setCols(MetaUtils.parseIntParam(hint, MetaUtils.COL, 80));
+		ta.setRows(MetaUtils.parseIntParam(hint, MetaUtils.ROW, 4));
 		if(pmm.isRequired())
 			ta.setMandatory(true);
 		String s = pmm.getDefaultHint();

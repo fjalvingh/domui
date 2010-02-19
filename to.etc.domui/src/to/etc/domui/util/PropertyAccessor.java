@@ -3,6 +3,8 @@ package to.etc.domui.util;
 import java.beans.*;
 import java.lang.reflect.*;
 
+import to.etc.domui.component.meta.*;
+
 /**
  * Generalized access to a property's value.
  *
@@ -10,22 +12,26 @@ import java.lang.reflect.*;
  * Created on Jun 18, 2008
  */
 final public class PropertyAccessor<T> implements IValueAccessor<T> {
+	private PropertyMetaModel m_pmm;
 	private Method m_readm;
 
 	private Method m_writem;
 
-	public PropertyAccessor(Method getmethod, Method setmethod) {
+	public PropertyAccessor(Method getmethod, Method setmethod, PropertyMetaModel pmm) {
 		m_readm = getmethod;
 		m_writem = setmethod;
+		m_pmm = pmm;
 	}
 
-	public PropertyAccessor(PropertyDescriptor pd) {
-		this(pd.getReadMethod(), pd.getWriteMethod());
+	public PropertyAccessor(PropertyDescriptor pd, PropertyMetaModel pmm) {
+		this(pd.getReadMethod(), pd.getWriteMethod(), pmm);
 	}
 
 	public void setValue(Object target, T value) throws Exception {
 		if(target == null)
 			throw new IllegalStateException("The 'target' object is null");
+		if(m_writem == null)
+			throw new IllegalAccessError("The property " + m_pmm + " is read-only.");
 		try {
 			m_writem.invoke(target, value);
 		} catch(InvocationTargetException itx) {

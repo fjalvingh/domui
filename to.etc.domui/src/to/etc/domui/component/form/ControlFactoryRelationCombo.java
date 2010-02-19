@@ -2,6 +2,7 @@ package to.etc.domui.component.form;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.util.*;
 
 /**
@@ -31,6 +32,17 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 	}
 
 	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
+		if(!editable && controlClass == null) {
+			DisplayValue<Object> dv = new DisplayValue<Object>(Object.class); // No idea what goes in here.
+			dv.defineFrom(pmm);
+			if(dv.getConverter() == null && dv.getRenderer() == null) {
+				INodeContentRenderer<Object> r = (INodeContentRenderer<Object>) MetaManager.createDefaultComboRenderer(pmm, null); // FIXME Needed?
+				dv.setRenderer(r);
+			}
+			return new Result(dv, model, pmm);
+		}
+
 		//		if(!editable)
 		//			throw new IllegalStateException("Implementation: please implement ReadOnly combobox thingy.");
 

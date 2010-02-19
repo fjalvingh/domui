@@ -5,6 +5,7 @@ import java.util.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * Implementation for a Display Property metamodel. The Display Property data overrides the default
@@ -29,12 +30,18 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 
 	public DisplayPropertyMetaModel() {}
 
+	@SuppressWarnings("unchecked")
 	public DisplayPropertyMetaModel(ClassMetaModel cmm, MetaDisplayProperty p) {
 		m_containedInClass = cmm;
 		m_name = p.name();
 		if(!Constants.NO_DEFAULT_LABEL.equals(p.defaultLabel()))
 			m_labelKey = p.defaultLabel();
-		setConverterClass((p.converterClass() == DummyConverter.class ? null : p.converterClass()));
+		//		setConverter((p.converterClass() == DummyConverter.class ? null : ConverterRegistry.getConverterInstance(p.converterClass())));
+		// 20091123 This kludge below is needed because otherwise the JDK compiler pukes on this generics abomination.
+		IConverter c = null;
+		if(p.converterClass() != DummyConverter.class)
+			c = ConverterRegistry.getConverterInstance((Class) p.converterClass());
+		setConverter(c);
 		setSortable(p.defaultSortable());
 		setDisplayLength(p.displayLength());
 		setReadOnly(p.readOnly());
@@ -101,8 +108,8 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	 */
 	public <X, T extends IConverter<X>> String getAsString(Object root) throws Exception {
 		Object value = DomUtil.getPropertyValue(root, getName());
-		if(getConverterClass() != null)
-			return ConverterRegistry.convertValueToString((Class<T>) getConverterClass(), (X) value);
+		if(getConverter() != null)
+			return ((T) getConverter()).convertObjectToString(NlsContext.getLocale(), (X) value);
 		return value == null ? "" : value.toString();
 	}
 
@@ -112,5 +119,10 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 
 	public void setRenderHint(String renderHint) {
 		m_renderHint = renderHint;
+	}
+
+	@Override
+	public String toString() {
+		return "DisplayPropertyMetaModel[" + getName() + "]";
 	}
 }

@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.*;
 
 import to.etc.domui.dom.html.*;
+import to.etc.domui.state.*;
 import to.etc.webapp.qsql.*;
 import to.etc.webapp.query.*;
 
@@ -21,6 +22,10 @@ public class SameDbJdbcQueryHandler<T> implements IQueryHandler<T> {
 
 	public SameDbJdbcQueryHandler(NodeBase b) {
 		m_dcf = QContextManager.getDataContextFactory(b.getPage().getConversation());
+	}
+
+	public SameDbJdbcQueryHandler(ConversationContext cc) {
+		m_dcf = QContextManager.getDataContextFactory(cc);
 	}
 
 	/**

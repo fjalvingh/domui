@@ -53,12 +53,14 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		JdbcClassMeta cm = JdbcMetaManager.getMeta(root.getDataClass()); // Will throw exception if not proper jdbc class.
 		int startIndex = m_nextFieldIndex;
 		for(JdbcPropertyMeta pm : cm.getPropertyList()) {
-			if(m_fields.length() != 0)
-				m_fields.append(",");
-			m_fields.append(root.getAlias());
-			m_fields.append(".");
-			m_fields.append(pm.getColumnName());
-			m_nextFieldIndex++;
+			if(!pm.isTransient()) {
+				if(m_fields.length() != 0)
+					m_fields.append(",");
+				m_fields.append(root.getAlias());
+				m_fields.append(".");
+				m_fields.append(pm.getColumnName());
+				m_nextFieldIndex++;
+			}
 		}
 		m_retrieverList.add(new ClassInstanceMaker(root, startIndex, cm));
 	}
@@ -106,10 +108,10 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	 */
 	@Override
 	public void visitMulti(QMultiNode n) throws Exception {
-		if(n.getChildren().length == 0)
+		if(n.getChildren().size() == 0)
 			return;
-		if(n.getChildren().length == 1) { // Should not really happen
-			n.getChildren()[0].visit(this);
+		if(n.getChildren().size() == 1) { // Should not really happen
+			n.getChildren().get(0).visit(this);
 			return;
 		}
 		int oldprec = m_curPrec;
@@ -333,5 +335,21 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 			case LITERAL:
 				return 100;
 		}
+	}
+
+	@Override
+	public void visitUnaryNode(final QUnaryNode n) throws Exception {
+		switch(n.getOperation()){
+			default:
+				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
+			case SQL:
+				if(n.getNode() instanceof QLiteral) {
+					QLiteral l = (QLiteral) n.getNode();
+					appendWhere((String) l.getValue());
+					return;
+				}
+				break;
+		}
+		throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 	}
 }

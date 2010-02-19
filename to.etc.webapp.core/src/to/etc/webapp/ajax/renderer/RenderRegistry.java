@@ -159,9 +159,8 @@ abstract public class RenderRegistry {
 		m_arrayRendererMap.put(primitive, r);
 	}
 
-	@SuppressWarnings("unchecked")
 	public synchronized boolean isIgnoredType(final Class< ? > c) {
-		for(Class tcl : m_ignoredTypeSet) {
+		for(Class< ? > tcl : m_ignoredTypeSet) {
 			if(tcl.isAssignableFrom(c))
 				return true;
 		}

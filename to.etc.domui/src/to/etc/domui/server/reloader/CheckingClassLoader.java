@@ -1,6 +1,7 @@
 package to.etc.domui.server.reloader;
 
 import java.net.*;
+
 import java.util.logging.*;
 
 /**
@@ -39,7 +40,7 @@ public class CheckingClassLoader extends URLClassLoader {
 	/**
 	 * Main workhorse for loading. This ONLY loads the SPECIFIED class thru this-loader; all OTHER
 	 * classes go through the RELOADING classloader.
-	 * 
+	 *
 	 * @see java.lang.ClassLoader#loadClass(java.lang.String)
 	 */
 	@Override

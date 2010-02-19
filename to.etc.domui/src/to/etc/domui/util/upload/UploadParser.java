@@ -284,7 +284,7 @@ public class UploadParser {
 		 * was left empty.
 		 */
 		boolean isfile = fn != null; // Is a file item?
-		if(isfile && fn.trim().length() == 0)
+		if(fn != null && fn.trim().length() == 0)
 			fn = null; // Empty string means no file entered
 
 		UploadItem ui = new UploadItem(fieldname, contenttype, charset, fn, isfile);

@@ -2,11 +2,13 @@ package to.etc.domui.state;
 
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.http.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.login.*;
 import to.etc.domui.server.*;
+import to.etc.domui.trouble.*;
 
 /**
  * A class which allows access to the page's context and related information. This
@@ -67,8 +69,27 @@ public class PageContext {
 		return getCurrentPage().getConversation();
 	}
 
+	/**
+	 * Return the currently-known logged in user, or null if unknown/not logged in.
+	 * FIXME Should be named findCurrentUser().
+	 * @return
+	 */
+	@Nullable
 	static public IUser getCurrentUser() {
 		return m_currentUser.get();
+	}
+
+	/**
+	 * This returns the currently logged in user. If the user is not logged in this throws
+	 * a login exception which should cause the user to log in.
+	 * @return
+	 */
+	@Nonnull
+	static public IUser getLoggedInUser() {
+		IUser u = getCurrentUser();
+		if(u == null)
+			throw NotLoggedInException.create(getRequestContext(), getCurrentPage());
+		return u;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -204,6 +225,45 @@ public class PageContext {
 			for(ILoginListener l : ll)
 				l.userLogin(user);
 			return true;
+		}
+	}
+
+	/**
+	 * Logs out a user.
+	 * @throws Exception
+	 */
+	static public void logout() throws Exception {
+		RequestContextImpl ci = m_current.get();
+		if(ci == null)
+			throw new IllegalStateException("You can logout from a server request only");
+
+		HttpSession hs = ci.getRequest().getSession(false);
+		if(hs == null)
+			return;
+		synchronized(hs) {
+			IUser user = internalGetLoggedInUser(ci);
+			if(user == null)
+				return;
+
+			//-- Call logout handlers BEFORE actual logout
+			List<ILoginListener> ll = ci.getApplication().getLoginListenerList();
+			for(ILoginListener l : ll) {
+				try {
+					l.userLogout(user);
+				} catch(Exception x) {
+					x.printStackTrace();
+				}
+			}
+
+			//-- Force logout
+			hs.removeAttribute(LOGIN_KEY);
+			m_currentUser.set(null);
+			try {
+				hs.invalidate();
+			} catch(Exception x) {
+				//-- Invalidating 2ce causes a useless exception.
+				x.printStackTrace();
+			}
 		}
 	}
 

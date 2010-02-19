@@ -3,6 +3,8 @@ package to.etc.domui.util.images.converters;
 import java.io.*;
 import java.util.*;
 
+import to.etc.domui.util.images.machines.*;
+
 /**
  * This handles a converter chain. For every operation in the chain we lookup the appropriate
  * factory, then we execute the conversion. For each next conversion we try to reuse the
@@ -31,7 +33,7 @@ public class ImageConverterHelper {
 
 	/**
 	 * Creates a new tempfile. Files creates by this call will be discarded when the image
-	 * has been generated fully (when this helper is destroyed). 
+	 * has been generated fully (when this helper is destroyed).
 	 * @return
 	 */
 	public File createWorkFile(String ext) throws IOException {
@@ -83,7 +85,7 @@ public class ImageConverterHelper {
 		try {
 			//-- Execute a single conversion.
 			File src = new File("/home/jal/img_5589.jpg");
-			ImageData id = ImageConverterRegistry.identify("image/jpeg", src);
+			ImageInfo id = ImageConverterRegistry.identify("image/jpeg", src);
 			ImageSpec sis = new ImageSpec(src, id);
 
 			List<IImageConversionSpecifier> l = new ArrayList<IImageConversionSpecifier>();
@@ -92,8 +94,8 @@ public class ImageConverterHelper {
 
 			ImageConverterHelper h = new ImageConverterHelper();
 			h.executeConversionChain(sis, l);
-			System.out.println("Result: " + h.getTarget().getSource() + ", mime=" + h.getTarget().getMime() + ", pages=" + h.getTarget().getData().getPageCount() + "; p0.size="
-				+ h.getTarget().getData().getPage(0).getWidth() + "x" + h.getTarget().getData().getPage(0).getHeight());
+			System.out.println("Result: " + h.getTarget().getSource() + ", mime=" + h.getTarget().getMime() + ", pages=" + h.getTarget().getInfo().getPageCount() + "; p0.size="
+				+ h.getTarget().getInfo().getPage(0).getWidth() + "x" + h.getTarget().getInfo().getPage(0).getHeight());
 		} catch(Exception x) {
 			x.printStackTrace();
 		}

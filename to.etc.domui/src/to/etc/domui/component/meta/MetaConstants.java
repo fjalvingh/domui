@@ -1,7 +1,7 @@
 package to.etc.domui.component.meta;
 
 /**
- * 
+ *
  *
  * @author <a href="mailto:dprica@execom.eu">Darko Prica</a>
  * Created on 10 Aug 2009

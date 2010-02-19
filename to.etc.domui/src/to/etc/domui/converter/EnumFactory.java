@@ -11,10 +11,10 @@ public class EnumFactory implements IConverterFactory {
 	}
 
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.converter.IConverterFactory#createConverter(java.lang.Class, to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel pmm) {
-		return (T) ConverterRegistry.getConverter(EnumConverter.class);
+		return (T) ConverterRegistry.getConverterInstance(EnumConverter.class);
 	}
 }

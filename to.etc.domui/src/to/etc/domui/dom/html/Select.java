@@ -1,5 +1,7 @@
 package to.etc.domui.dom.html;
 
+import to.etc.domui.util.*;
+
 /**
  * INCOMPLETE A full-coded select box: this is unsuitable for large amount of options.
  *
@@ -8,7 +10,7 @@ package to.etc.domui.dom.html;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 11, 2008
  */
-public class Select extends InputNodeContainer {
+public class Select extends InputNodeContainer implements IHasModifiedIndication {
 	private boolean m_multiple;
 
 	private boolean m_disabled;
@@ -16,6 +18,9 @@ public class Select extends InputNodeContainer {
 	private int m_size;
 
 	private int m_selectedIndex;
+
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	private boolean m_modifiedByUser;
 
 	public Select() {
 		super("select");
@@ -71,11 +76,13 @@ public class Select extends InputNodeContainer {
 		changed();
 	}
 
+	/**
+	 * WARNING: The "select" node HAS NO READONLY!!!
+	 * @see to.etc.domui.dom.html.InputNodeContainer#setReadOnly(boolean)
+	 */
 	@Override
 	public void setReadOnly(boolean readOnly) {
-		if(isReadOnly() == readOnly)
-			return;
-		changed();
+		setDisabled(readOnly);
 		super.setReadOnly(readOnly);
 	}
 
@@ -86,19 +93,31 @@ public class Select extends InputNodeContainer {
 	}
 
 	@Override
-	public void acceptRequestParameter(String[] values) throws Exception {
+	final public boolean acceptRequestParameter(String[] values) throws Exception {
 		String in = values[0];
 		SelectOption selo = (SelectOption) getPage().findNodeByID(in);
-		if(selo == null) {
-			m_selectedIndex = -1;
-		} else {
-			m_selectedIndex = findChildIndex(selo); // Must be found
-		}
-		for(int i = getChildCount(); --i >= 0;) {
-			getOption(i).setSelected(i == m_selectedIndex);
-		}
+		int nindex = selo == null ? -1 : findChildIndex(selo);
+		int oldindex = m_selectedIndex;
+		setSelectedIndex(nindex);
+		if(!internalOnUserInput(oldindex, nindex))
+			return false;
+		DomUtil.setModifiedFlag(this);
+		return true;
 	}
 
+	/**
+	 * Called when user input has changed the selected index.
+	 * @param oldindex
+	 * @param nindex
+	 */
+	protected boolean internalOnUserInput(int oldindex, int nindex) {
+		return oldindex != nindex; // Index has changed so this is a change
+	}
+
+	/**
+	 * Dangerous interface for derived classes.
+	 */
+	@Deprecated
 	public void clearSelected() {
 		m_selectedIndex = -1;
 		for(int i = getChildCount(); --i >= 0;) {
@@ -110,10 +129,44 @@ public class Select extends InputNodeContainer {
 		return m_selectedIndex;
 	}
 
+	/**
+	 * Fast way to set index without walking the option tree, to use if the subclass knows
+	 * a faster way to set all option selected values.
+	 * @param ix
+	 */
+	protected void internalSetSelectedIndex(int ix) {
+		m_selectedIndex = ix;
+	}
+
+	/**
+	 * Set the selected index - expensive because it has to walk all Option children and reset their
+	 * selected attribute - O(n) runtime.
+	 * @param ix
+	 */
 	public void setSelectedIndex(int ix) {
 		m_selectedIndex = ix;
 		for(int i = getChildCount(); --i >= 0;) {
 			getOption(i).setSelected(i == m_selectedIndex);
 		}
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	final public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	final public void setModified(boolean as) {
+		m_modifiedByUser = as;
+	}
+
 }

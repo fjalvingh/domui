@@ -19,10 +19,11 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param label
 	 * @param labelnode
 	 * @param list
-	 * @param mandatory
+	 * @param mandatory	T when the node is mandatory, needed by the label factory
+	 * @param editable	T when the node is editable, needed by the label factory
 	 * @param pmm
 	 */
-	abstract protected void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, PropertyMetaModel pmm);
+	abstract protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm);
 
 	/**
 	 * Handle placement of a list of property names, all obeying the current mode in effect.
@@ -53,6 +54,15 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		super(clz, mdl);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @param <T>
+	 * @param instance
+	 */
+	public <T> GenericFormBuilder(T instance) {
+		super(instance);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Core shared public interface - all builders.		*/
 	/*--------------------------------------------------------------*/
@@ -70,16 +80,6 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	}
 
 	/**
-	 * Add an input for the specified property just as <code>addProp(String)</code>,
-	 * only this input won't be editable.
-	 *
-	 * @param name
-	 */
-	public IFormControl addReadOnlyProp(final String name) {
-		return addReadOnlyProp(name, null);
-	}
-
-	/**
 	 * Add an input for the specified property. The property is based at the current input
 	 * class. The input model is default (using metadata) and the property is labeled.
 	 *
@@ -92,20 +92,83 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		PropertyMetaModel pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
-		boolean edit = true;
+		boolean editable = true;
 		if(pmm.getReadOnly() == YesNoType.YES)
-			edit = false;
-		return addPropertyControl(name, label, pmm, edit);
+			editable = false;
+		return addPropertyControl(name, label, pmm, editable);
+	}
+
+	/**
+	 * Add an input for the specified property. The property is based at the current input
+	 * class. The input model is default (using metadata) and the property is labeled using
+	 * the metadata-provided label.
+	 *
+	 * FORMAL-INTERFACE.
+	 *
+	 * @param name
+	 * @param editable When false add a display-only control, else add an editable control.
+	 */
+	public IFormControl addProp(final String name, final boolean editable) {
+		if(editable) {
+			return addProp(name);
+		} else {
+			return addDisplayProp(name);
+		}
+	}
+
+	/**
+	 * Add an input for the specified property. The property is based at the current input
+	 * class. The input model is default (using metadata) and the property is labeled using
+	 * the metadata-provided label.
+	 *
+	 * FORMAL-INTERFACE.
+	 *
+	 * @param name
+	 * @param editable When false this adds a display-only field, when true a fully editable control.
+	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
+	 */
+	public IFormControl addProp(final String name, final boolean editable, final boolean mandatory) {
+		PropertyMetaModel pmm = resolveProperty(name);
+		String label = pmm.getDefaultLabel();
+
+		//-- Check control permissions: does it have view permissions?
+		if(!rights().calculate(pmm))
+			return null;
+		boolean reallyeditable = editable && rights().isEditable();
+		final ControlFactory.Result r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
+		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, reallyeditable, pmm);
+
+		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
+		if(label != null) {
+			for(NodeBase b : r.getNodeList())
+				b.setErrorLocation(label);
+		}
+
+		if(r.getBinding() != null)
+			getBindings().add(r.getBinding());
+		else
+			throw new IllegalStateException("No binding for a " + r);
+		return r.getFormControl();
+	}
+
+	/**
+	 * Add a display-only field for the specified property. The field cannot be made
+	 * editable.
+	 *
+	 * @param name
+	 */
+	public IFormControl addDisplayProp(final String name) {
+		return addDisplayProp(name, null);
 	}
 
 	/**
 	 * Add an input for the specified property just as <code>addProp(String, String)</code>,
-	 * only this input won't be editable.
+	 * only this input won't be editable (ever).
 	 *
 	 * @param name
 	 * @param label
 	 */
-	public IFormControl addReadOnlyProp(final String name, String label) {
+	public IFormControl addDisplayProp(final String name, String label) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
@@ -126,7 +189,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	public <T extends NodeBase & IInputNode< ? >> IFormControl addProp(final String propertyname, final T ctl) {
 		PropertyMetaModel pmm = resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
-		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), pmm);
+		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
 		SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(getModel(), pmm, ctl);
@@ -137,7 +200,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	/**
 	 * Add a user-specified control for a given property. This adds the control, using
 	 * the specified label and creates a binding for the property on the
-	 * control. 
+	 * control.
 	 *
 	 * FORMAL-INTERFACE.
 	 *
@@ -147,7 +210,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 */
 	public <T extends NodeBase & IInputNode< ? >> IFormControl addProp(final String name, String label, final T ctl) {
 		PropertyMetaModel pmm = resolveProperty(name);
-		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), pmm);
+		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
 		SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(getModel(), pmm, ctl);
@@ -166,59 +229,11 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
 		if(label != null)
 			control.setErrorLocation(label);
-		addControl(label, control, new NodeBase[]{control}, mandatory, null);
-	}
 
-	/**
-	 * Add an input for the specified property. The property is based at the current input
-	 * class. The input model is default (using metadata) and the property is labeled using
-	 * the metadata-provided label.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param name
-	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
-	 */
-	public IFormControl addProp(final String name, final boolean readOnly) {
-		if(readOnly) {
-			return addReadOnlyProp(name);
-		} else {
-			return addProp(name);
-		}
-	}
+		// FIXME Kludge to determine if the control is meant to be editable!
+		boolean editable = control instanceof IControl< ? >;
 
-	/**
-	 * Add an input for the specified property. The property is based at the current input
-	 * class. The input model is default (using metadata) and the property is labeled using
-	 * the metadata-provided label.
-	 *
-	 * FORMAL-INTERFACE.
-	 *
-	 * @param name
-	 * @param readOnly In case of readOnly set to true behaves same as addReadOnlyProp.
-	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
-	 */
-	public IFormControl addProp(final String name, final boolean readOnly, final boolean mandatory) {
-		PropertyMetaModel pmm = resolveProperty(name);
-		String label = pmm.getDefaultLabel();
-
-		//-- Check control permissions: does it have view permissions?
-		if(!rights().calculate(pmm))
-			return null;
-		final ControlFactory.Result r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, pmm);
-
-		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
-		if(label != null) {
-			for(NodeBase b : r.getNodeList())
-				b.setErrorLocation(label);
-		}
-
-		if(r.getBinding() != null)
-			getBindings().add(r.getBinding());
-		else
-			throw new IllegalStateException("No binding for a " + r);
-		return r.getFormControl();
+		addControl(label, control, new NodeBase[]{control}, mandatory, editable, null);
 	}
 
 	/**
@@ -226,16 +241,18 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param name
 	 * @param label
 	 * @param pmm
-	 * @param editPossible, when false, the rendered control will be display-only and cannot be changed back to EDITABLE.
+	 * @param editable  when false, the rendered control will be display-only.
 	 * @return	If the property was created and is controllable this will return an IFormControl instance. This will explicitly <i>not</i> be
-	 * 			created if the control is readonly, not allowed by permissions or simply uncontrollable (the last one is uncommon).
+	 * 			created if the control is display-only, not allowed by permissions or simply uncontrollable (the last one is uncommon).
 	 */
-	protected IFormControl addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editPossible) {
+	protected IFormControl addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editable) {
 		//-- Check control permissions: does it have view permissions?
 		if(!rights().calculate(pmm))
 			return null;
-		final ControlFactory.Result r = createControlFor(getModel(), pmm, editPossible && rights().isEditable()); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), pmm);
+		boolean reallyeditable = editable && rights().isEditable();
+
+		final ControlFactory.Result r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
+		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), reallyeditable, pmm);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
 		if(label != null) {
@@ -263,7 +280,11 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	public void addPropertyAndControl(final String propertyName, final NodeBase nb, final boolean mandatory) {
 		PropertyMetaModel pmm = resolveProperty(propertyName);
 		String label = pmm.getDefaultLabel();
-		addControl(label, nb, new NodeBase[]{nb}, mandatory, pmm);
+
+		// FIXME Kludge to determine if the control is meant to be editable!
+		boolean editable = nb instanceof IControl< ? >;
+
+		addControl(label, nb, new NodeBase[]{nb}, mandatory, editable, pmm);
 		if(label != null)
 			nb.setErrorLocation(label);
 	}
@@ -283,11 +304,10 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 */
 	public IFormControl[] addProps(final String... names) {
 		return addListOfProperties(true, names);
-		//		return this;
 	}
 
 	/**
-	 * Add the specified properties to the form as READONLY properties, in the current
+	 * Add the specified properties to the form as display-only properties, in the current
 	 * mode. Watch out: if a MODIFIER is in place the modifier is obeyed for <b>all
 	 * properties</b>, not for the first one only!! This means that when this gets called
 	 * like:
@@ -300,8 +320,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param names
 	 */
-	public IFormControl[] addReadOnlyProps(final String... names) {
+	public IFormControl[] addDisplayProps(final String... names) {
 		return addListOfProperties(false, names);
-		//		return this;
 	}
 }

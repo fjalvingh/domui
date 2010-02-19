@@ -28,17 +28,11 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 			return -1;
 
 		//-- Check for supported converters.
-		IImageConversionSpecifier ics = conversions.get(0);
-		if(ics instanceof ImagePageSelect) {
-			if(conversions.size() == 1)
+		for(IImageConversionSpecifier ics : conversions) {
+			if(!(ics instanceof ImagePageSelect) && !(ics instanceof ImageResize) && !(ics instanceof ImageConvert))
 				return -1;
-			ics = conversions.get(1);
 		}
-
-		//-- Supported crud?
-		if(ics instanceof ImageResize)
-			return 2;
-		return -1;
+		return 2;
 	}
 
 	public void convert(ImageConverterHelper helper, List<IImageConversionSpecifier> convs) throws Exception {
@@ -73,7 +67,7 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 			throw new IllegalStateException("Not acceptable (not a resize) after accept() accepted the work??");
 
 		//-- Calculate the proper width and height, respecting the aspect ratio of the source
-		ImagePage ip = helper.getSource().getData().getPage(sourcePage);
+		OriginalImagePage ip = helper.getSource().getInfo().getPage(sourcePage);
 		Dimension d = ImaTool.resizeWithAspect(resize.getWidth(), resize.getHeight(), ip.getWidth(), ip.getHeight());
 
 		if(targetMime == null) {
@@ -83,8 +77,11 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 				targetMime = "image/png";
 		}
 		ImageHandler ih = ImageManipulator.getImageHandler();
-		ImageSpec tis = resize instanceof ImageThumbnail ? ih.thumbnail(helper, helper.getSource(), 0, d.width, d.height, targetMime) : ih.scale(helper, helper.getSource(), 0, d.width, d.height,
-			targetMime);
+		ImageSpec tis;
+		if(resize instanceof ImageThumbnail)
+			tis = ih.thumbnail(helper, helper.getSource(), sourcePage, d.width, d.height, targetMime);
+		else
+			tis = ih.scale(helper, helper.getSource(), sourcePage, d.width, d.height, targetMime);
 		helper.setTarget(tis);
 	}
 
@@ -92,15 +89,14 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 	/*	CODING:	Identify an image's characteristics					*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * 
+	 *
 	 * @see to.etc.domui.util.images.converters.IImageIdentifier#identifyImage(java.io.File, java.lang.String)
 	 */
-	public ImageData identifyImage(File src, String mime) {
+	public ImageInfo identifyImage(File src, String mime) {
 		//-- Ask ImageMagick...
 		ImageHandler ih = ImageManipulator.getImageHandler();
 		try {
-			List<ImagePage> l = ih.identify(src); // Try to identify
-			return new ImageData(mime, l);
+			return ih.identify(src); // Try to identify
 		} catch(Exception x) {
 			return null;
 		}

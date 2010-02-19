@@ -1,11 +1,16 @@
 package to.etc.domui.dom.header;
 
-import to.etc.domui.dom.*;
+import javax.annotation.*;
 
-final public class CssContributor extends HeaderContributor {
+import to.etc.domui.dom.*;
+import to.etc.domui.dom.html.*;
+
+final class CssContributor extends HeaderContributor {
 	private String m_path;
 
-	public CssContributor(String path) {
+	CssContributor(@Nonnull String path) {
+		if(path == null || path.length() == 0)
+			throw new IllegalArgumentException("Null path not allowed");
 		m_path = path;
 	}
 
@@ -13,7 +18,7 @@ final public class CssContributor extends HeaderContributor {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((m_path == null) ? 0 : m_path.hashCode());
+		result = prime * result + m_path.hashCode();
 		return result;
 	}
 
@@ -35,7 +40,12 @@ final public class CssContributor extends HeaderContributor {
 	}
 
 	@Override
-	public void contribute(FullHtmlRenderer r) throws Exception {
+	public void contribute(HtmlFullRenderer r) throws Exception {
+		r.renderLoadCSS(m_path);
+	}
+
+	@Override
+	public void contribute(OptimalDeltaRenderer r) throws Exception {
 		r.renderLoadCSS(m_path);
 	}
 }

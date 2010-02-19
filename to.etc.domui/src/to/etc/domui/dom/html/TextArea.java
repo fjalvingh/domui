@@ -5,7 +5,7 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
-public class TextArea extends InputNodeContainer implements IInputNode<String> {
+public class TextArea extends InputNodeContainer implements IInputNode<String>, IHasModifiedIndication {
 	private int m_cols = -1;
 
 	private int m_rows = -1;
@@ -13,6 +13,9 @@ public class TextArea extends InputNodeContainer implements IInputNode<String> {
 	private String m_value;
 
 	private boolean m_disabled;
+
+	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
+	private boolean m_modifiedByUser;
 
 	public TextArea() {
 		super("textarea");
@@ -62,11 +65,32 @@ public class TextArea extends InputNodeContainer implements IInputNode<String> {
 		return true;
 	}
 
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 */
 	public String getValue() {
 		if(!validate())
 			throw new ValidationException(Msgs.NOT_VALID, m_value);
 		return m_value;
 	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 */
+	@Override
+	public String getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		getValueSafe();
+		return super.hasError();
+	}
+
 
 	public String getRawValue() {
 		return m_value;
@@ -91,11 +115,44 @@ public class TextArea extends InputNodeContainer implements IInputNode<String> {
 	}
 
 	@Override
-	public void acceptRequestParameter(String[] values) throws Exception {
-		if(values == null || values.length != 1)
-			setValue(null);
-		else
-			setValue(values[0]);
+	public boolean acceptRequestParameter(String[] values) throws Exception {
+		String nw = (values == null || values.length != 1) ? null : values[0];
+		//fixes problem when no data is entered on form and modified flag is raised
+		if(nw != null && nw.length() == 0)
+			nw = null;
+		String cur = m_value != null && m_value.length() == 0 ? null : m_value; // Treat empty string and null the same
+
+		//vmijic 20091124 - some existing entries have \n\r, but after client request roundtrip nw get values with \n instead. Prevent differencies being raised because of this.
+		if(cur != null) {
+			cur = cur.replace("\r\n", "\n");
+		}
+		//vmijic 20091126 - now IE returns \n\r, but FF returns \n... So, both nw and cur have to be compared with "\r\n" replaced by "\n"...
+		String flattenLineBreaksNw = (nw != null) ? nw.replace("\r\n", "\n") : null;
+		if(DomUtil.isEqual(flattenLineBreaksNw, cur))
+			return false;
+
+		setValue(nw);
+		DomUtil.setModifiedFlag(this);
+		return true;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IHasModifiedIndication impl							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the modified-by-user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
+	 */
+	public boolean isModified() {
+		return m_modifiedByUser;
+	}
+
+	/**
+	 * Set or clear the modified by user flag.
+	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
+	 */
+	public void setModified(boolean as) {
+		m_modifiedByUser = as;
 	}
 
 	/*--------------------------------------------------------------*/

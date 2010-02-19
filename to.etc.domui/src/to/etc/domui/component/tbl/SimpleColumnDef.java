@@ -18,7 +18,7 @@ public class SimpleColumnDef {
 
 	private Class< ? > m_columnType;
 
-	private SortableType m_sortable;
+	private SortableType m_sortable = SortableType.UNKNOWN;
 
 	private String m_width;
 
@@ -35,7 +35,7 @@ public class SimpleColumnDef {
 	/** The thingy which obtains the column's value (as an object) */
 	private IValueTransformer< ? > m_valueTransformer;
 
-	private IConverter< ? > m_valueConverter;
+	private IObjectToStringConverter< ? > m_presentationConverter;
 
 	private NumericPresentation m_numericPresentation;
 
@@ -57,11 +57,7 @@ public class SimpleColumnDef {
 		setColumnLabel(m.getDefaultLabel());
 		setColumnType(m.getActualType());
 		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
-		if(m.getBestConverter() != null) {
-			setValueConverter(m.getBestConverter());
-		} else if(m.getActualType().isEnum()) {
-			setValueConverter(ConverterRegistry.findConverter(m.getActualType(), m));
-		}
+		setPresentationConverter(ConverterRegistry.findBestConverter(m));
 		setSortable(m.getSortable());
 		setPropertyName(m.getName());
 		setNumericPresentation(m.getNumericPresentation());
@@ -71,11 +67,7 @@ public class SimpleColumnDef {
 		setColumnLabel(m.getDefaultLabel());
 		setColumnType(m.getActualType());
 		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
-		if(m.getBestConverter() != null) {
-			setValueConverter(m.getBestConverter());
-		} else if(m.getActualType().isEnum()) {
-			setValueConverter(ConverterRegistry.findConverter(m.getActualType(), m));
-		}
+		setPresentationConverter(m.getBestConverter());
 		setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
 		setSortable(m.getSortable());
 		setPropertyName(m.getName());
@@ -83,6 +75,8 @@ public class SimpleColumnDef {
 			throw new IllegalStateException("All columns MUST have some name");
 		setNumericPresentation(m.getNumericPresentation());
 		setRenderHint(m.getRenderHint());
+		if(m.getDisplayLength() > 0)
+			setDisplayLength(m.getDisplayLength());
 	}
 
 	public String getColumnLabel() {
@@ -125,12 +119,16 @@ public class SimpleColumnDef {
 		m_valueTransformer = valueTransformer;
 	}
 
-	public IConverter< ? > getValueConverter() {
-		return m_valueConverter;
+	/**
+	 * Returns the optional converter to use to convert raw object values to some presentation string value.
+	 * @return
+	 */
+	public IObjectToStringConverter< ? > getPresentationConverter() {
+		return m_presentationConverter;
 	}
 
-	public void setValueConverter(IConverter< ? > valueConverter) {
-		m_valueConverter = valueConverter;
+	public void setPresentationConverter(IConverter< ? > valueConverter) {
+		m_presentationConverter = valueConverter;
 	}
 
 	public String getPropertyName() {

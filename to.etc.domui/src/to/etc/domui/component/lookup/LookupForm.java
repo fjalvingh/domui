@@ -52,11 +52,17 @@ public class LookupForm<T> extends Div {
 
 	IClicked<LookupForm<T>> m_clicker;
 
-	IClicked<LookupForm<T>> m_onNew;
+	private IClicked<LookupForm<T>> m_onNew;
 
-	IClicked<LookupForm<T>> m_onClear;
+	private DefaultButton m_newBtn;
 
-	IClicked<LookupForm<T>> m_onCancel;
+	private IClicked< ? extends LookupForm<T>> m_onClear;
+
+	private IClicked<LookupForm<T>> m_onCancel;
+
+	private DefaultButton m_cancelBtn;
+
+	private DefaultButton m_collapseButton;
 
 	private Table m_table;
 
@@ -66,7 +72,14 @@ public class LookupForm<T> extends Div {
 
 	private NodeContainer m_collapsed;
 
+	private NodeContainer m_buttonRow;
+
 	private ControlBuilder m_builder;
+
+	/**
+	 * Set to true in case that control have to be rendered as collapsed by default. It is used when lookup form have to popup with initial search results already shown. 
+	 */
+	private boolean m_renderAsCollapsed;
 
 	/**
 	 * This is the definition for an Item to look up. A list of these
@@ -96,6 +109,8 @@ public class LookupForm<T> extends Div {
 		private String m_errorLocation;
 
 		private int m_order;
+
+		private String testId;
 
 		public String getPropertyName() {
 			return m_propertyName;
@@ -197,19 +212,74 @@ public class LookupForm<T> extends Div {
 			}
 			return sb.toString();
 		}
+
+		public String getTestId() {
+			return testId;
+		}
+
+		public void setTestId(String testId) {
+			this.testId = testId;
+		}
 	}
 
 	/**
-	 * Item that is used internally by LookupForm to mark table break when creating search field components.  
+	 * Item that is used internally by LookupForm to mark table break when creating search field components.
 	 *
 	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
 	 * Created on 13 Oct 2009
 	 */
-	static class ItemBreak extends Item {
+	static private class ItemBreak extends Item {
+		public ItemBreak() {}
 	}
 
 	/** The primary list of defined lookup items. */
 	private List<Item> m_itemList = new ArrayList<Item>(20);
+
+	static public enum ButtonMode {
+		/** Show this button only when the lookup form is expanded */
+		NORMAL,
+
+		/** Show this button only when the lookup form is collapsed */
+		COLLAPSED,
+
+		/** Always show this button. */
+		BOTH
+	}
+
+	/**
+	 * A button that needs to be present @ the button bar.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Nov 3, 2009
+	 */
+	private static class ButtonRowItem {
+		private int m_order;
+
+		private ButtonMode m_mode;
+
+		private NodeBase m_thingy;
+
+		public ButtonRowItem(int order, ButtonMode mode, NodeBase thingy) {
+			m_order = order;
+			m_mode = mode;
+			m_thingy = thingy;
+		}
+
+		public ButtonMode getMode() {
+			return m_mode;
+		}
+
+		public int getOrder() {
+			return m_order;
+		}
+
+		public NodeBase getThingy() {
+			return m_thingy;
+		}
+	}
+
+	/** The list of buttons to show on the button row. */
+	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
 
 	/**
 	 * Create a LookupForm to find instances of the specified class.
@@ -220,6 +290,7 @@ public class LookupForm<T> extends Div {
 		m_lookupClass = lookupClass;
 		for(String prop : propertyList)
 			addProperty(prop);
+		defineDefaultButtons();
 	}
 
 	/**
@@ -284,64 +355,19 @@ public class LookupForm<T> extends Div {
 		Div d = new Div();
 		d.setTestID("buttonBar");
 		sroot.add(d);
+		m_buttonRow = d;
 
-		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
-		d.add(b);
-		b.setIcon("THEME/btnFind.png");
-		b.setTestID("searchButton");
-		b.setClicked(new IClicked<NodeBase>() {
-			public void clicked(final NodeBase bx) throws Exception {
-				if(m_clicker != null)
-					m_clicker.clicked(LookupForm.this);
-			}
-		});
-
-		b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
-		d.add(b);
-		b.setIcon("THEME/btnClear.png");
-		b.setTestID("clearButton");
-		b.setClicked(new IClicked<NodeBase>() {
-			public void clicked(final NodeBase xb) throws Exception {
-				clearInput();
-				if(getOnClear() != null)
-					getOnClear().clicked(LookupForm.this);
-			}
-		});
-
-		if(getOnNew() != null) {
-			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
-			d.add(b);
-			b.setIcon("THEME/btnNew.png");
-			b.setTestID("newButton");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
-					getOnNew().clicked(LookupForm.this);
-				}
-			});
+		//20091127 vmijic - since LookupForm can be reused each new rebuild should execute restore if previous state of form was collapsed.
+		//20100118 vmijic - since LookupForm can be by default rendered as collapsed checks m_renderAsCollapsed are added.
+		if(!m_renderAsCollapsed && m_collapsed != null) {
+			restore();
+		} else if(m_renderAsCollapsed && m_content.getDisplay() != DisplayType.NONE) {
+			collapse();
+			//Focus must be set, otherwise IE reports javascript problem since focus is requested on not displayed input tag.
+			m_cancelBtn.setFocus();
+		} else {
+			createButtonRow(d, false);
 		}
-		if(null != getOnCancel()) {
-			b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
-			d.add(b);
-			b.setIcon("THEME/btnCancel.png");
-			b.setTestID("cancelButton");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
-
-					if(getOnCancel() != null) {
-						getOnCancel().clicked(LookupForm.this);
-					}
-				}
-			});
-		}
-
-		//-- Collapse button thingy
-		b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
-			public void clicked(DefaultButton bx) throws Exception {
-				collapse();
-			}
-		});
-		b.setTestID("hideButton");
-		d.add(b);
 
 		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
 		setReturnPressed(new IReturnPressed() {
@@ -350,6 +376,40 @@ public class LookupForm<T> extends Div {
 					m_clicker.clicked(LookupForm.this);
 			}
 		});
+	}
+
+	protected void defineDefaultButtons() {
+		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
+		b.setIcon("THEME/btnFind.png");
+		b.setTestID("searchButton");
+		b.setClicked(new IClicked<NodeBase>() {
+			public void clicked(final NodeBase bx) throws Exception {
+				if(m_clicker != null)
+					m_clicker.clicked(LookupForm.this);
+			}
+		});
+		addButtonItem(b, 100, ButtonMode.NORMAL);
+
+		b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
+		b.setIcon("THEME/btnClear.png");
+		b.setTestID("clearButton");
+		b.setClicked(new IClicked<NodeBase>() {
+			public void clicked(final NodeBase xb) throws Exception {
+				clearInput();
+				if(getOnClear() != null)
+					((IClicked<LookupForm<T>>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
+			}
+		});
+		addButtonItem(b, 200, ButtonMode.NORMAL);
+
+		//-- Collapse button thingy
+		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
+			public void clicked(DefaultButton bx) throws Exception {
+				collapse();
+			}
+		});
+		m_collapseButton.setTestID("hideButton");
+		addButtonItem(m_collapseButton, 500, ButtonMode.BOTH);
 	}
 
 	private boolean containsItemBreaks(List<Item> itemList) {
@@ -373,43 +433,16 @@ public class LookupForm<T> extends Div {
 		//		m_content.setDisplay(DisplayType.NONE);
 		m_collapsed = new Div();
 		m_collapsed.setCssClass("ui-lf-coll");
-
 		add(m_collapsed);
 
-		if(getOnNew() != null) {
-			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
-			b.setTestID("newButtonCollapsed");
-			m_collapsed.add(b);
-			b.setIcon("THEME/btnNew.png");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
-					getOnNew().clicked(LookupForm.this);
-				}
-			});
-		}
-		if(null != getOnCancel()) {
-			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
-			b.setTestID("cancelButtonCollapsed");
-			m_collapsed.add(b);
-			b.setIcon("THEME/btnCancel.png");
-			b.setClicked(new IClicked<NodeBase>() {
-				public void clicked(final NodeBase xb) throws Exception {
-
-					if(getOnCancel() != null) {
-						getOnCancel().clicked(LookupForm.this);
-					}
-				}
-			});
-		}
-
 		//-- Collapse button thingy
-		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
+		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
+		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton bx) throws Exception {
 				restore();
 			}
 		});
-		b.setTestID("restoreButtonCollapsed");
-		m_collapsed.add(b);
+		createButtonRow(m_collapsed, true);
 	}
 
 	void restore() {
@@ -417,6 +450,15 @@ public class LookupForm<T> extends Div {
 			return;
 		m_collapsed.remove();
 		m_collapsed = null;
+		createButtonRow(m_buttonRow, false);
+
+		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
+		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
+			public void clicked(DefaultButton bx) throws Exception {
+				collapse();
+			}
+		});
+
 		m_content.setDisplay(DisplayType.BLOCK);
 	}
 
@@ -521,6 +563,30 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
+	 * Add a manually created control and link it to some property. The controls's configuration must be fully
+	 * done by the caller; this will ask control factories to provide an ILookupControlInstance for the property
+	 * and control passed in. The label for the lookup will come from property metadata.
+	 *
+	 * @param <X>
+	 * @param property
+	 * @param control
+	 * @return
+	 */
+	public <X extends NodeBase & IInputNode< ? >> Item addManual(String property, X control) {
+		Item it = new Item();
+		it.setPropertyName(property);
+		addAndFinish(it);
+
+		//-- Add the generic thingy
+		ILookupControlFactory lcf = m_builder.getLookupQueryFactory(it, control);
+		ILookupControlInstance qt = lcf.createControl(it, control);
+		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
+			throw new IllegalStateException("Lookup factory " + lcf + " did not link thenlookup thingy for property " + it.getPropertyName());
+		it.setInstance(qt);
+		return it;
+	}
+
+	/**
 	 * Add a manually-created lookup control instance with user-specified label to the item list.
 	 * @return
 	 */
@@ -611,10 +677,25 @@ public class LookupForm<T> extends Div {
 			throw new IllegalStateException("No idea how to create a lookup control for " + it);
 
 		//-- Assign error locations to all input controls
-		if(it.getErrorLocation() != null && it.getErrorLocation().trim().length() > 0) {
+		if(!DomUtil.isBlank(it.getErrorLocation()) ) {
 			for(NodeBase ic : it.getInstance().getInputControls())
 				ic.setErrorLocation(it.getErrorLocation());
 		}
+
+		//-- Assign test id. If single control is created, testId as it is will be applied,
+		//   if multiple component control is created, testId with suffix number will be applied.
+		if(!DomUtil.isBlank(it.getTestId())) {
+			if(it.getInstance().getInputControls().length == 1) {
+				it.getInstance().getInputControls()[0].setTestID(it.getTestId());
+			} else if(it.getInstance().getInputControls().length > 1) {
+				int controlCounter = 1;
+				for(NodeBase ic : it.getInstance().getInputControls()) {
+					ic.setTestID(it.getTestId() + "_" + controlCounter);
+					controlCounter++;
+				}
+			}
+		}
+
 		addItemToTable(it); // Create visuals.
 	}
 
@@ -686,7 +767,7 @@ public class LookupForm<T> extends Div {
 		}
 
 		ILookupControlFactory lcf = m_builder.getLookupControlFactory(it);
-		ILookupControlInstance qt = lcf.createControl(it);
+		ILookupControlInstance qt = lcf.createControl(it, null);
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
 			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + it.getPropertyName());
 		return qt;
@@ -754,8 +835,28 @@ public class LookupForm<T> extends Div {
 	 * @param onNew
 	 */
 	public void setOnNew(final IClicked<LookupForm<T>> onNew) {
-		m_onNew = onNew;
-		forceRebuild();
+		if(m_onNew != onNew) {
+			m_onNew = onNew;
+			if(m_onNew != null && m_newBtn == null) {
+				m_newBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
+				m_newBtn.setIcon("THEME/btnNew.png");
+				m_newBtn.setTestID("newButton");
+				m_newBtn.setClicked(new IClicked<NodeBase>() {
+					public void clicked(final NodeBase xb) throws Exception {
+						if(getOnNew() != null) {
+							getOnNew().clicked(LookupForm.this);
+						}
+					}
+				});
+				addButtonItem(m_newBtn, 300, ButtonMode.BOTH);
+			} else if(m_onNew == null && m_newBtn != null) {
+				if(m_buttonItemList.contains(m_newBtn)) {
+					m_buttonItemList.remove(m_newBtn);
+				}
+				m_newBtn = null;
+			}
+			forceRebuild();
+		}
 	}
 
 	/**
@@ -804,7 +905,7 @@ public class LookupForm<T> extends Div {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
 	}
 
-	public IClicked<LookupForm<T>> getOnClear() {
+	public IClicked< ? extends LookupForm<T>> getOnClear() {
 		return m_onClear;
 	}
 
@@ -812,7 +913,7 @@ public class LookupForm<T> extends Div {
 	 * Listener to call when the "clear" button is pressed.
 	 * @param onClear
 	 */
-	public void setOnClear(IClicked<LookupForm<T>> onClear) {
+	public void setOnClear(IClicked< ? extends LookupForm<T>> onClear) {
 		m_onClear = onClear;
 	}
 
@@ -821,10 +922,90 @@ public class LookupForm<T> extends Div {
 	 * @param onCancel
 	 */
 	public void setOnCancel(IClicked<LookupForm<T>> onCancel) {
-		m_onCancel = onCancel;
+		if(m_onCancel != onCancel) {
+			m_onCancel = onCancel;
+			if(m_onCancel != null && m_cancelBtn == null) {
+				m_cancelBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
+				m_cancelBtn.setIcon("THEME/btnCancel.png");
+				m_cancelBtn.setTestID("cancelButton");
+				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
+					public void clicked(final NodeBase xb) throws Exception {
+
+						if(getOnCancel() != null) {
+							getOnCancel().clicked(LookupForm.this);
+						}
+					}
+				});
+				addButtonItem(m_cancelBtn, 400, ButtonMode.BOTH);
+			} else if(m_onCancel == null && m_cancelBtn != null) {
+				if(m_buttonItemList.contains(m_cancelBtn)) {
+					m_buttonItemList.remove(m_cancelBtn);
+				}
+				m_cancelBtn = null;
+			}
+			forceRebuild();
+		}
 	}
 
 	public IClicked<LookupForm<T>> getOnCancel() {
 		return m_onCancel;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Button row code.									*/
+	/*--------------------------------------------------------------*/
+
+	public void addButtonItem(NodeBase b) {
+		addButtonItem(b, m_buttonItemList.size(), ButtonMode.BOTH);
+	}
+
+	/**
+	 * Add a button (or other item) to show on the button row. The item will
+	 * be visible always.
+	 * @param b
+	 * @param order
+	 */
+	public void addButtonItem(NodeBase b, int order) {
+		addButtonItem(b, order, ButtonMode.BOTH);
+	}
+
+	/**
+	 * Add a button (or other item) to show on the button row.
+	 *
+	 * @param b
+	 * @param order
+	 * @param both
+	 */
+	public void addButtonItem(NodeBase b, int order, ButtonMode both) {
+		if(m_buttonItemList == Collections.EMPTY_LIST)
+			m_buttonItemList = new ArrayList<ButtonRowItem>(10);
+		m_buttonItemList.add(new ButtonRowItem(order, both, b));
+	}
+
+	/**
+	 * Add all buttons, both default and custom to buttom row.
+	 * @param c
+	 * @param iscollapsed
+	 */
+	private void createButtonRow(NodeContainer c, boolean iscollapsed) {
+		Collections.sort(m_buttonItemList, new Comparator<ButtonRowItem>() { // Sort in ascending order,
+				public int compare(ButtonRowItem o1, ButtonRowItem o2) {
+					return o1.getOrder() - o2.getOrder();
+				}
+			});
+
+		for(ButtonRowItem bi : m_buttonItemList) {
+			if((iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.COLLAPSED)) || (!iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.NORMAL))) {
+				c.add(bi.getThingy());
+			}
+		}
+	}
+
+	public boolean isRenderAsCollapsed() {
+		return m_renderAsCollapsed;
+	}
+
+	public void setRenderAsCollapsed(boolean renderAsCollapsed) {
+		m_renderAsCollapsed = renderAsCollapsed;
 	}
 }

@@ -3,6 +3,7 @@ package to.etc.domui.server;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
+
 import java.util.logging.*;
 
 import to.etc.domui.ajax.*;
@@ -13,6 +14,7 @@ import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.injector.*;
 import to.etc.domui.login.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.server.reloader.*;
@@ -63,7 +65,7 @@ public abstract class DomApplication {
 	/**
 	 * Contains the header contributors in the order that they were added.
 	 */
-	private List<HeaderContributor> m_orderedContributorList = Collections.EMPTY_LIST;
+	private List<HeaderContributorEntry> m_orderedContributorList = Collections.EMPTY_LIST;
 
 	private List<INewPageInstantiated> m_newPageInstListeners = Collections.EMPTY_LIST;
 
@@ -81,12 +83,19 @@ public abstract class DomApplication {
 
 	private IThemeMapFactory m_themeMapFactory;
 
+	private IPageInjector m_injector = new DefaultPageInjector();
+
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
 	 * root URL is entered without a class name.
 	 * @return
 	 */
 	abstract public Class< ? extends UrlPage> getRootPage();
+
+	/**
+	 * Render factories for different browser versions.
+	 */
+	private List<IHtmlRenderFactory> m_renderFactoryList = new ArrayList<IHtmlRenderFactory>();
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
@@ -97,6 +106,8 @@ public abstract class DomApplication {
 	public DomApplication() {
 		registerControlFactories();
 		registerPartFactories();
+		initHeaderContributors();
+		addRenderFactory(new MsCrapwareRenderFactory()); // Add html renderers for IE <= 7
 	}
 
 	protected void registerControlFactories() {
@@ -272,9 +283,45 @@ public abstract class DomApplication {
 	}
 
 
-	protected FullHtmlRenderer findRendererFor(final String useragent, final IBrowserOutput o) {
-		HtmlRenderer base = new HtmlRenderer(o);
-		return new FullHtmlRenderer(base, o);
+	/*--------------------------------------------------------------*/
+	/*	CODING:	HTML per-browser rendering code.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Creates the appropriate full renderer for the specified browser version.
+	 * @param bv
+	 * @param o
+	 * @return
+	 */
+	public HtmlFullRenderer findRendererFor(BrowserVersion bv, final IBrowserOutput o) {
+		for(IHtmlRenderFactory f : getRenderFactoryList()) {
+			HtmlFullRenderer tr = f.createFullRenderer(bv, o);
+			if(tr != null)
+				return tr;
+		}
+
+		return new StandardHtmlFullRenderer(new StandardHtmlTagRenderer(bv, o), o);
+		//		HtmlTagRenderer base = new HtmlTagRenderer(bv, o);
+		//		return new HtmlFullRenderer(base, o);
+	}
+
+	public HtmlTagRenderer findTagRendererFor(BrowserVersion bv, final IBrowserOutput o) {
+		for(IHtmlRenderFactory f : getRenderFactoryList()) {
+			HtmlTagRenderer tr = f.createTagRenderer(bv, o);
+			if(tr != null)
+				return tr;
+		}
+		return new StandardHtmlTagRenderer(bv, o);
+	}
+
+	private synchronized List<IHtmlRenderFactory> getRenderFactoryList() {
+		return m_renderFactoryList;
+	}
+
+	public synchronized void addRenderFactory(IHtmlRenderFactory f) {
+		if(m_renderFactoryList.contains(f))
+			throw new IllegalStateException("Don't be silly, this one is already added");
+		m_renderFactoryList = new ArrayList<IHtmlRenderFactory>(m_renderFactoryList);
+		m_renderFactoryList.add(0, f);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -353,17 +400,53 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Global header contributors.							*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Call from within the onHeaderContributor call on a node to register any header
-	 * contributors needed by a node.
-	 * @param hc
-	 */
-	final public synchronized void addHeaderContributor(final HeaderContributor hc) {
-		m_orderedContributorList = new ArrayList<HeaderContributor>(m_orderedContributorList); // Dup the original list,
-		m_orderedContributorList.add(hc); // And add the new'un
+
+	protected void initHeaderContributors() {
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-1.2.6.js"), -1000);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"), -990);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"), -970);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.js"), -900);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"), -790);
+
+		/*
+		 * FIXME: Delayed construction of components causes problems with components
+		 * that are delayed and that contribute. Example: tab pabel containing a
+		 * DateInput. The TabPanel gets built when header contributions have already
+		 * been handled... For now we add all JS files here 8-(
+		 */
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar.js"), -780);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/calendar-setup.js"), -770);
+		//-- Localized calendar resources are added per-page.
+
+		/*
+		 * FIXME Same as above, this is for loading the FCKEditor.
+		 */
+		addHeaderContributor(HeaderContributor.loadJavascript("$fckeditor/fckeditor.js"), -760);
 	}
 
-	public synchronized List<HeaderContributor> getHeaderContributorList() {
+
+	/**
+	 * Call from within the onHeaderContributor call on a node to register any header
+	 * contributors needed by a node. The order value determines the order for contributors
+	 * which is mostly important for Javascript ones; higher order items are written later than
+	 * lower order items. All DomUI required Javascript code has orders < 0; user code should
+	 * start at 0 and go up.
+	 *
+	 * @param hc
+	 * @param order
+	 */
+	final public synchronized void addHeaderContributor(final HeaderContributor hc, int order) {
+		for(HeaderContributorEntry hce : m_orderedContributorList) {
+			if(hce.getContributor().equals(hc))
+				throw new IllegalArgumentException("The header contributor " + hc + " has already been added.");
+		}
+
+		m_orderedContributorList = new ArrayList<HeaderContributorEntry>(m_orderedContributorList); // Dup the original list,
+		m_orderedContributorList.add(new HeaderContributorEntry(hc, order)); // And add the new'un
+	}
+
+	public synchronized List<HeaderContributorEntry> getHeaderContributorList() {
 		return m_orderedContributorList;
 	}
 
@@ -597,7 +680,7 @@ public abstract class DomApplication {
 
 
 	/**
-	 * Tries to resolve an application-based resource by decoding it's name. We allow
+	 * Tries to resolve an application-based resource by decoding it's name, and throw an exception if not found. We allow
 	 * the following constructs:
 	 * <ul>
 	 *	<li>$RES/xxxx: denotes a class-based resource. The xxxx is the full package/classname of the resource</li>
@@ -841,6 +924,41 @@ public abstract class DomApplication {
 		return m_loginListenerList;
 	}
 
+	/**
+	 * Responsible for redirecting to the appropriate login page. This default implementation checks
+	 * to see if there is an authenticator registered and uses it's result to redirect. If no
+	 * authenticator is registered this returns null, asking the caller to do normal exception
+	 * handling.
+	 *
+	 * @param ci
+	 * @param page
+	 * @param nlix
+	 */
+	public String handleNotLoggedInException(RequestContextImpl ci, Page page, NotLoggedInException x) {
+		ILoginDialogFactory ldf = ci.getApplication().getLoginDialogFactory();
+		if(ldf == null)
+			return null; // Nothing can be done- I don't know how to log in.
+
+		//-- Redirect to the LOGIN page, passing the current page to return back to.
+		String target = ldf.getLoginRURL(x.getURL()); // Create a RURL to move to.
+		if(target == null)
+			throw new IllegalStateException("The Login Dialog Handler=" + ldf + " returned an invalid URL for the login dialog.");
+
+		//-- Make this an absolute URL by appending the webapp path
+		return ci.getRelativePath(target);
+	}
+
+	/**
+	 * Get the page injector.
+	 * @return
+	 */
+	public synchronized IPageInjector getInjector() {
+		return m_injector;
+	}
+
+	public synchronized void setInjector(IPageInjector injector) {
+		m_injector = injector;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Rights registry.									*/
@@ -1000,7 +1118,8 @@ public abstract class DomApplication {
 			IThemeMap map = null;
 			if(m_themeMapFactory != null) {
 				map = m_themeMapFactory.createThemeMap(this);
-				rdl.add(map);
+				if(rdl != null)
+					rdl.add(map);
 			}
 			cont = rvs(cont, map, bv);
 			return cont;

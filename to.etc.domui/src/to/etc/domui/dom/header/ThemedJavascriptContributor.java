@@ -1,6 +1,7 @@
 package to.etc.domui.dom.header;
 
 import to.etc.domui.dom.*;
+import to.etc.domui.dom.html.*;
 
 /**
  * Javascript contributor which obtains the Javascript to use from the
@@ -12,7 +13,7 @@ import to.etc.domui.dom.*;
 public class ThemedJavascriptContributor extends HeaderContributor {
 	private String m_path;
 
-	public ThemedJavascriptContributor(String path) {
+	ThemedJavascriptContributor(String path) {
 		m_path = path;
 	}
 
@@ -42,7 +43,12 @@ public class ThemedJavascriptContributor extends HeaderContributor {
 	}
 
 	@Override
-	public void contribute(FullHtmlRenderer r) throws Exception {
+	public void contribute(HtmlFullRenderer r) throws Exception {
+		r.renderLoadJavascript(m_path);
+	}
+
+	@Override
+	public void contribute(OptimalDeltaRenderer r) throws Exception {
 		r.renderLoadJavascript(m_path);
 	}
 }

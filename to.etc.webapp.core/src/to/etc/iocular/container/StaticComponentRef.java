@@ -7,7 +7,7 @@ import to.etc.iocular.def.*;
  * part of a component. It is kept within the container and gets used
  * to lock the initialization and termination of the static portion
  * of objects.
- * 
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 26, 2007
