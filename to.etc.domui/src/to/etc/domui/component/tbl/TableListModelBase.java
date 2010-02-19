@@ -113,6 +113,12 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 		fireModified(index);
 	}
 
+	public void modified(T val) throws Exception {
+		int ix = getList().indexOf(val);
+		if(ix != -1)
+			fireModified(ix);
+	}
+
 	/**
 	 * Convenience method to move an item from index <i>from</i> to index <i>to</i>.
 	 *
