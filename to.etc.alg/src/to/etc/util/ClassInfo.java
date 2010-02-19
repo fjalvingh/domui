@@ -1,7 +1,6 @@
 package to.etc.util;
 
 import java.util.*;
-
 import javax.annotation.concurrent.*;
 
 /**
