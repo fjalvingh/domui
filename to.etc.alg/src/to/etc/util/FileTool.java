@@ -9,6 +9,8 @@ import java.util.*;
 import java.util.logging.*;
 import java.util.zip.*;
 
+import javax.annotation.*;
+
 import org.w3c.dom.*;
 
 import to.etc.xml.*;
@@ -447,6 +449,9 @@ public class FileTool {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	File hash stuff..									*/
 	/*--------------------------------------------------------------*/
+	/**
+	 * Create an MD5 hash for a file's contents.
+	 */
 	static public byte[] hashFile(final File f) throws IOException {
 		InputStream is = null;
 		try {
@@ -460,6 +465,11 @@ public class FileTool {
 		}
 	}
 
+	/**
+	 * Create an MD5 hash for a buffer set.
+	 * @param data
+	 * @return
+	 */
 	static public byte[] hashBuffers(final byte[][] data) {
 		MessageDigest md = null;
 		try {
@@ -474,6 +484,11 @@ public class FileTool {
 		return md.digest();
 	}
 
+	/**
+	 * Create a HEX MD5 hash for a buffer set.
+	 * @param data
+	 * @return
+	 */
 	static public String hashBuffersHex(final byte[][] data) {
 		return StringTool.toHex(hashBuffers(data));
 	}
@@ -500,14 +515,35 @@ public class FileTool {
 		return md.digest();
 	}
 
+	/**
+	 * Hash a file and return it's hex MD5hash.
+	 * @param f
+	 * @return
+	 * @throws IOException
+	 */
 	static public String hashFileHex(final File f) throws IOException {
 		return StringTool.toHex(hashFile(f));
 	}
 
+	/**
+	 * Hash an InputStream and return it's hex MD5hash.
+	 * @param is
+	 * @return
+	 * @throws IOException
+	 */
 	static public String hashFileHex(final InputStream is) throws IOException {
 		return StringTool.toHex(hashFile(is));
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Loading properties.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Load a file as a Properties file.
+	 * @param f
+	 * @return
+	 * @throws Exception
+	 */
 	static public Properties loadProperties(final File f) throws Exception {
 		InputStream is = new FileInputStream(f);
 		try {
@@ -520,6 +556,12 @@ public class FileTool {
 		}
 	}
 
+	/**
+	 * Save a properties file.
+	 * @param f
+	 * @param p
+	 * @throws Exception
+	 */
 	static public void saveProperties(final File f, final Properties p) throws Exception {
 		OutputStream os = null;
 		try {
@@ -593,6 +635,9 @@ public class FileTool {
 		return null;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Quickies to load a single file from a ZIP.			*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Opens the jar file and tries to load the plugin.properties file from it.
 	 * @param f
@@ -1189,6 +1234,102 @@ public class FileTool {
 		tgt.append(new String(data, encoding));
 		return new ByteArrayInputStream(data);
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Serialization helpers.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Save a serializable object to a datastream.
+	 * @param os
+	 * @param obj
+	 * @throws IOException
+	 */
+	static public void saveSerialized(@WillClose OutputStream os, Serializable obj) throws IOException {
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(os);
+			oos.writeObject(obj);
+			oos.close();
+			os = null;
+			return;
+		} finally {
+			closeAll(os);
+		}
+	}
+
+	static public void saveSerialized(File f, Serializable obj) throws IOException {
+		OutputStream os = new FileOutputStream(f);
+		try {
+			saveSerialized(os, obj);
+			os.close();
+			os = null;
+		} finally {
+			closeAll(os);
+		}
+	}
+
+	/**
+	 * Load a single serialized object from a datastream.
+	 * @param is
+	 * @return
+	 * @throws IOException
+	 */
+	static public Object loadSerialized(@WillNotClose InputStream is) throws IOException, ClassNotFoundException {
+		ObjectInputStream iis = null;
+		try {
+			iis = new ObjectInputStream(is);
+			return iis.readObject();
+		} finally {
+			closeAll(iis);
+		}
+	}
+
+	/**
+	 * Load a single serialized object from a file.
+	 * @param f
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	static public Object loadSerialized(File f) throws IOException, ClassNotFoundException {
+		InputStream is = new FileInputStream(f);
+		try {
+			return loadSerialized(is);
+		} finally {
+			closeAll(is);
+		}
+	}
+
+	/**
+	 * Load a serialized object, and return null on any load exception.
+	 * @param is
+	 * @return
+	 */
+	@Nullable
+	static public Object loadSerializedNullOnError(@WillNotClose InputStream is) {
+		ObjectInputStream iis = null;
+		try {
+			iis = new ObjectInputStream(is);
+			return iis.readObject();
+		} catch(Exception x) {
+			return null;
+		} finally {
+			closeAll(iis);
+		}
+	}
+
+	@Nullable
+	static public Object loadSerializedNullOnError(File f) throws IOException, ClassNotFoundException {
+		InputStream is = null;
+		try {
+			is = new FileInputStream(f);
+			return loadSerialized(is);
+		} catch(Exception x) {
+			return null;
+		} finally {
+			closeAll(is);
+		}
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Miscellaneous.										*/
