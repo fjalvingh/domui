@@ -314,6 +314,22 @@ final public class DomUtil {
 	}
 
 	/**
+	 *
+	 * @param clz
+	 * @param pp
+	 * @return
+	 */
+	static public String createPageURL(Class< ? extends UrlPage> clz, PageParameters pp) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(DomApplication.get().getApplicationURL());
+		sb.append(clz.getClass().getName());
+		sb.append('.');
+		sb.append(DomApplication.get().getUrlExtension());
+		addUrlParameters(sb, pp, true);
+		return sb.toString();
+	}
+
+	/**
 	 * Calculate a full URL from a rurl. If the rurl starts with a scheme it is returned verbatim;
 	 * if it starts with slash (host-relative path absolute) it is returned verbatim; in all other
 	 * cases it is returned with the webapp context appended. Examples:

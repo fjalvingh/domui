@@ -43,6 +43,9 @@ public class AppFilter implements Filter {
 
 	private IContextMaker m_contextMaker;
 
+	/** After the 1st request has been seen, this contains the application's root url. */
+	static private String m_applicationURL;
+
 	public void destroy() {}
 
 	static public String minitime() {
@@ -88,10 +91,15 @@ public class AppFilter implements Filter {
 			return;
 
 		m_appContext = NetTools.getApplicationContext((HttpServletRequest) req);
+		m_applicationURL = NetTools.getApplicationURL((HttpServletRequest) req);
 	}
 
 	static synchronized public String internalGetWebappContext() {
 		return m_appContext;
+	}
+
+	static synchronized public String getApplicationURL() {
+		return m_applicationURL;
 	}
 
 	private InputStream findLogConfig(String logconfig) {

@@ -5,7 +5,6 @@ import java.util.*;
 
 import org.slf4j.*;
 
-import to.etc.domui.dom.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.ConversationContext.*;
@@ -425,15 +424,7 @@ final public class WindowSession {
 	}
 
 	private void generateRedirect(final RequestContextImpl ctx, final String url) throws Exception {
-		if(LOG.isInfoEnabled())
-			LOG.info("redirecting to " + url);
-
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
-		out.tag("redirect");
-		out.attr("url", url);
-		out.endAndCloseXmltag();
+		ApplicationRequestHandler.generateAjaxRedirect(ctx, url);
 	}
 
 	/**

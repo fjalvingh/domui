@@ -150,7 +150,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			sb.append(cm.getWindowID());
 			sb.append(".x"); // Dummy conversation ID
 			DomUtil.addUrlParameters(sb, ctx, false);
-			generateRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
+			generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
 			return;
 		}
 		ctx.internalSetWindowSession(cm);
@@ -261,7 +261,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
 				if(url != null) {
-					generateRedirect(ctx, url, "You need to be logged in");
+					generateHttpRedirect(ctx, url, "You need to be logged in");
 					return;
 				}
 			}
@@ -349,7 +349,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			//-- Make this an absolute URL by appending the webapp path
 			target = ctx.getRelativePath(target);
-			generateRedirect(ctx, target, "You need to login before accessing this function");
+			generateHttpRedirect(ctx, target, "You need to login before accessing this function");
 			return false;
 		}
 
@@ -386,11 +386,19 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			ix++;
 			StringTool.encodeURLEncoded(sb, r);
 		}
-		generateRedirect(ctx, sb.toString(), "Access denied");
+		generateHttpRedirect(ctx, sb.toString(), "Access denied");
 		return false;
 	}
 
-	private void generateRedirect(final RequestContextImpl ctx, final String to, final String rsn) throws Exception {
+	/**
+	 * Sends a redirect as a 304 MOVED command. This should be done for all full-requests.
+	 *
+	 * @param ctx
+	 * @param to
+	 * @param rsn
+	 * @throws Exception
+	 */
+	static public void generateHttpRedirect(final RequestContextImpl ctx, final String to, final String rsn) throws Exception {
 		//		ctx.getResponse().sendRedirect(sb.toString());	// Force redirect.
 
 		ctx.getResponse().setContentType("text/html; charset=UTF-8");
@@ -399,6 +407,25 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
 			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + ");\n" + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
 	}
+
+	/**
+	 * Generate an AJAX redirect command. Should be used by all COMMAND actions.
+	 * @param ctx
+	 * @param url
+	 * @throws Exception
+	 */
+	static public void generateAjaxRedirect(final RequestContextImpl ctx, final String url) throws Exception {
+		if(LOG.isInfoEnabled())
+			LOG.info("redirecting to " + url);
+
+		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
+		ctx.getResponse().setCharacterEncoding("UTF-8");
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		out.tag("redirect");
+		out.attr("url", url);
+		out.endAndCloseXmltag();
+	}
+
 
 	/**
 	 * Generates an EXPIRED message when the page here does not correspond with
@@ -529,7 +556,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
 				if(url != null) {
-					generateRedirect(ctx, url, "You need to be logged in");
+					generateAjaxRedirect(ctx, url);
 					return;
 				}
 			}
@@ -561,7 +588,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		} catch(NotLoggedInException x) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
 			String url = m_application.handleNotLoggedInException(ctx, page, x);
 			if(url != null) {
-				generateRedirect(ctx, url, "You need to be logged in");
+				generateHttpRedirect(ctx, url, "You need to be logged in");
 				return;
 			}
 		}
