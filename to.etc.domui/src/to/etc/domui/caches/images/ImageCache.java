@@ -5,6 +5,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.caches.*;
 import to.etc.domui.caches.filecache.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.util.images.*;
@@ -166,6 +167,7 @@ public class ImageCache {
 
 	private void init() throws Exception {
 		m_fileCache.initialize();
+		addRetriever(new FileImageRetriever());
 	}
 
 	/**
