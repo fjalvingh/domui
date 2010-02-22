@@ -954,6 +954,43 @@ final public class DomUtil {
 			top.add(sb.toString());
 	}
 
+	/**
+	 * This scans the input, and only copies "safe" html, which is HTML with only
+	 * simple constructs. It checks to make sure the resulting document is xml-safe (well-formed),
+	 * if the input is not well-formed it will add or remove tags until the result is valid.
+	 *
+	 * @param sb
+	 * @param html
+	 */
+	static public void htmlRemoveUnsafe(StringBuilder outsb, String text) {
+		if(text == null || text.length() == 0)
+			return;
+		new HtmlTextScanner().scan(outsb, text);
+	}
+
+	static public String htmlRemoveUnsafe(String html) {
+		if(html == null || html.length() == 0)
+			return "";
+		StringBuilder sb = new StringBuilder(html.length() + 20);
+		htmlRemoveUnsafe(sb, html);
+		return sb.toString();
+	}
+
+	static public void htmlRemoveAll(StringBuilder outsb, String text, boolean lf) {
+		if(text == null || text.length() == 0)
+			return;
+		new HtmlTextScanner().scanAndRemove(outsb, text, lf);
+	}
+
+	static public String htmlRemoveAll(String html, boolean lf) {
+		if(html == null || html.length() == 0)
+			return "";
+		StringBuilder sb = new StringBuilder(html.length() + 20);
+		htmlRemoveAll(sb, html, lf);
+		return sb.toString();
+	}
+
+
 	static public List<NodeContainer> appendContainer(List<NodeContainer> stack, NodeContainer it) {
 		if(stack == Collections.EMPTY_LIST)
 			stack = new ArrayList<NodeContainer>();
