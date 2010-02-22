@@ -322,7 +322,7 @@ final public class DomUtil {
 	static public String createPageURL(Class< ? extends UrlPage> clz, PageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(DomApplication.get().getApplicationURL());
-		sb.append(clz.getClass().getName());
+		sb.append(clz.getName());
 		sb.append('.');
 		sb.append(DomApplication.get().getUrlExtension());
 		addUrlParameters(sb, pp, true);
