@@ -416,6 +416,8 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"), -970);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.js"), -900);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"), -790);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.wysiwyg.js"), -780);
+		addHeaderContributor(HeaderContributor.loadStylesheet("$js/jquery.wysiwyg.css"), -780);
 
 		/*
 		 * FIXME: Delayed construction of components causes problems with components
