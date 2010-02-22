@@ -17,6 +17,10 @@ public class TextScanner {
 
 	private long	m_lastint;
 
+	private StringBuilder	m_sb	= null;
+
+	public TextScanner() {
+	}
 	public TextScanner(String s) {
 		setString(s);
 	}
@@ -29,6 +33,20 @@ public class TextScanner {
 		m_text = s;
 		m_ix = 0;
 		m_len = s.length();
+		clear();
+	}
+
+	public void clear() {
+		if(m_sb != null)
+			m_sb.setLength(0);
+	}
+
+	public String getCopied() {
+		return m_sb == null ? "" : m_sb.toString();
+	}
+
+	public StringBuilder getBuffer() {
+		return sb();
 	}
 
 	public long getInt() {
@@ -118,11 +136,76 @@ public class TextScanner {
 		return m_text.substring(six, m_ix);
 	}
 
+	@Deprecated
 	public char currentChar() {
 		return m_ix >= m_len ? 0 : m_text.charAt(m_ix);
 	}
 
+	@Deprecated
 	public void inc() {
 		m_ix++;
+	}
+
+	public int LA() {
+		return m_ix >= m_len ? -1 : (0xffff & m_text.charAt(m_ix));
+	}
+
+	public int LA(int x) {
+		return m_ix + x >= m_len ? -1 : (0xffff & m_text.charAt(m_ix + x));
+	}
+
+	public void accept() {
+		m_ix++;
+	}
+
+	public StringBuilder sb() {
+		if(m_sb == null)
+			m_sb = new StringBuilder();
+		return m_sb;
+	}
+
+	public int length() {
+		return m_len;
+	}
+
+	public int index() {
+		return m_ix;
+	}
+
+	public void setIndex(int ix) {
+		m_ix = ix;
+	}
+
+	public void accept(int ct) {
+		m_ix += ct;
+	}
+
+	public void copy() {
+		if(m_ix < m_len) {
+			sb().append(m_text.charAt(m_ix++));
+		}
+	}
+
+	public void copy(StringBuilder sb) {
+		if(m_ix < m_len) {
+			sb.append(m_text.charAt(m_ix++));
+		}
+	}
+
+	public void copy(int n) {
+		while(--n > 0)
+			copy();
+	}
+
+	public void append(String s) {
+		sb().append(s);
+	}
+
+	public void append(long i) {
+		sb().append(Long.valueOf(i));
+	}
+
+	public void append(char c) {
+		sb().append(c);
 	}
 }
