@@ -1073,6 +1073,9 @@ body,html {
 	padding: 0px;
 	margin: 0px;
 }
+.ui-clickable {
+	cursor: pointer;
+}
 .ui-sup {
 	font-size: xx-small;
 	vertical-align: top;
