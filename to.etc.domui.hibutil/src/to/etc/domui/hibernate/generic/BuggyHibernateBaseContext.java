@@ -250,9 +250,12 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	}
 
 	/**
+	 * We explicitly undeprecate here.
+	 *
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QDataContext#getConnection()
 	 */
+	@SuppressWarnings("deprecation")
 	public Connection getConnection() throws Exception {
 		return getSession().connection();
 	}
