@@ -126,7 +126,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		//			System.out.println("GOTCHA");
 
 		Method rm = pd.getGetter();
-		if(pd.getGetter().getParameterTypes().length != 0)
+		if(rm.getParameterTypes().length != 0)
 			return;
 		DefaultPropertyMetaModel pm = new DefaultPropertyMetaModel(this, pd);
 		m_propertyMap.put(pm.getName(), pm);

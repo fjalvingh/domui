@@ -169,12 +169,12 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		return;
 	}
 
-	private void updateResults(int count) throws Exception {
-		if(count == 0)
-			setNoResults();
-		else
-			setResults();
-	}
+	//	private void updateResults(int count) throws Exception {
+	//		if(count == 0)
+	//			setNoResults();
+	//		else
+	//			setResults();
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Dumbass setters and getters.						*/

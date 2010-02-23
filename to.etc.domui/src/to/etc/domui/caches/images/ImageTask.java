@@ -39,7 +39,7 @@ public class ImageTask extends CacheChange {
 	@GuardedBy("getRoot()")
 	private boolean m_outdatedChecked;
 
-	private List<File> m_addedFiles;
+	//	private List<File> m_addedFiles;
 
 	ImageTask(ImageKey key, ImageRoot root) {
 		m_key = key;

@@ -4,7 +4,6 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
 
 /**
  * This is a CaptionedPanel which captures and displays errors for the tree
@@ -25,7 +24,7 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 	 * Create a default error panel.
 	 */
 	public ErrorPanel() {
-		super(NlsContext.getGlobalMessage(Msgs.UI_ERROR_HEADER), new Div());
+		super(Msgs.BUNDLE.getString(Msgs.UI_ERROR_HEADER), new Div());
 		setDisplay(DisplayType.NONE);
 		getTitleContainer().setCssClass("ui-err-caption");
 		setCssClass("ui-err-outer");

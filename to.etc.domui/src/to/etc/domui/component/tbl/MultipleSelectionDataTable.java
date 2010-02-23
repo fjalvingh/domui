@@ -4,7 +4,6 @@ import java.util.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
 
 /**
  * DataTable customized to support multiple selection functionality. Supports accmulation of selection along multiple queries.
@@ -105,7 +104,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 		if(list.size() == 0) {
 			Div error = new Div();
 			error.setCssClass("ui-dt-nores");
-			error.setText(NlsContext.getGlobalMessage(Msgs.UI_DATATABLE_EMPTY));
+			error.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
 			add(error);
 		}
 	}

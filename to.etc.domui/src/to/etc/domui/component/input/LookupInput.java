@@ -673,7 +673,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		m_queryManipulator = queryManipulator;
 	}
 
-	static public final INodeContentRenderer< ? > DEFAULT_RENDERER = new SimpleLookupInputRenderer();
+	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
 	public LookupForm<T> getExternalLookupForm() {
 		return m_externalLookupForm;

@@ -11,7 +11,6 @@ import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
 
 /**
  * This component is a table, using a TableModel, which can also edit it's rows
@@ -109,7 +108,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			//-- Create the "empty table" message.
 			m_emptyDiv = new Div();
 			m_emptyDiv.setCssClass("ui-xdt-nores");
-			m_emptyDiv.setText(NlsContext.getGlobalMessage(Msgs.UI_DATATABLE_EMPTY));
+			m_emptyDiv.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
 			add(m_emptyDiv);
 			return true;
 		}
@@ -368,6 +367,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param index
 	 * @param tr
 	 */
+	@SuppressWarnings("unchecked")
 	private void collapseRow(int index, TR tr) throws Exception {
 		if(tr.getUserObject() == null) // Already collapsed?
 			return;
@@ -490,6 +490,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		clearNewEditor();
 	}
 
+	@SuppressWarnings("unchecked")
 	private void clearNewEditor() throws Exception {
 		if(m_newBody == null)
 			return;

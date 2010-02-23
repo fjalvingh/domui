@@ -113,9 +113,9 @@ public class ImageCache {
 	/** The images file cache. */
 	private FileCache m_fileCache;
 
-	private long m_maxFileSize = 10l * 1024l * 1024l * 1024l;
-
-	private long m_currentFileSize = 0;
+	//	private long m_maxFileSize = 10l * 1024l * 1024l * 1024l;
+	//
+	//	private long m_currentFileSize = 0;
 
 
 	//	/** Max. #bytes we may allocate on the file system for cached data; defaults to 1GB */

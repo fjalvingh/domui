@@ -28,11 +28,11 @@ class HtmlTextScanner extends TextScanner {
 	static private class TagInfo {
 		public boolean ends;
 
-		public boolean args;
+		//		public boolean args;
 
 		public TagInfo(boolean ends, boolean args) {
 			this.ends = ends;
-			this.args = args;
+			//			this.args = args;
 		}
 	}
 

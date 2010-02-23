@@ -118,6 +118,7 @@ public class NodeVisitorBase implements INodeVisitor {
 
 	public void visitNodeContainer(NodeContainer n) throws Exception {}
 
+	@Deprecated
 	public void visitLiteralXhtml(LiteralXhtml n) throws Exception {
 		visitNodeBase(n);
 	}

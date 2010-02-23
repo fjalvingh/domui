@@ -4,6 +4,7 @@ import java.util.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -127,7 +128,7 @@ public class UIMessage {
 		if(m_bundle != null)
 			return m_bundle.formatMessage(m_code, m_parameters);
 
-		return NlsContext.getGlobalMessage(m_code, m_parameters);
+		return Msgs.BUNDLE.formatMessage(m_code, m_parameters);
 	}
 
 	static public UIMessage error(UIException x) {

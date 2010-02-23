@@ -46,8 +46,8 @@ final class CachedImageData extends CachedImageFragment {
 	/** The number of bytes of data in the above buffers. Also the cache load. */
 	private int m_size;
 
-	/** The mime type of the data stored in this data block (original mime or mime of permutation) */
-	private String m_mimeType;
+	//	/** The mime type of the data stored in this data block (original mime or mime of permutation) */
+	//	private String m_mimeType;
 
 	CachedImageData(final ImageRoot root, final String perm, long sourceVersionLong, FileCacheRef ref, int datasize, byte[][] membuffers, int cacheload) {
 		super(root, perm, sourceVersionLong, cacheload, ref);

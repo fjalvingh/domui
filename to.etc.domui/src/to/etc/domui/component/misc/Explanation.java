@@ -3,7 +3,7 @@ package to.etc.domui.component.misc;
 import to.etc.domui.dom.html.*;
 
 public class Explanation extends Div {
-	private final LiteralXhtml m_text = new LiteralXhtml();
+	private final XmlTextNode m_text = new XmlTextNode();
 
 	public Explanation(final String txt) {
 		setCssClass("ui-expl");
@@ -20,11 +20,6 @@ public class Explanation extends Div {
 
 	@Override
 	public void setText(final String txt) {
-		m_text.setXml(txt);
+		m_text.setText(txt);
 	}
-
-	//	@Override
-	//	public void setText(final BundleRef b, final String key) {
-	//		m_text.setXml(b.getString(key));
-	//	}
 }

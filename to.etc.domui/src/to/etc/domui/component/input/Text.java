@@ -195,13 +195,13 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		return true;
 	}
 
-	/**
-	 * Returns TRUE if the input for this control is currently valid. This does NOT call the validator if needed!!!!
-	 * @return
-	 */
-	private boolean isValid() {
-		return m_validated && (getMessage() == null || getMessage().getType() != MsgType.ERROR);
-	}
+	//	/**
+	//	 * Returns TRUE if the input for this control is currently valid. This does NOT call the validator if needed!!!!
+	//	 * @return
+	//	 */
+	//	private boolean isValid() {
+	//		return m_validated && (getMessage() == null || getMessage().getType() != MsgType.ERROR);
+	//	}
 
 	/**
 	 * Returns the datatype of the value of this control, as passed in the constructor.

@@ -20,9 +20,9 @@ class CachedImageFragment {
 	/** An unique string describing the permutation of the original that this contains. When "" (empty string) this is the ORIGINAL image. */
 	private final String m_permutation;
 
-	/** The versionLong of the source for this image at the time it was created. */
-	@GuardedBy("getRoot()")
-	private long m_sourceVersionLong;
+	//	/** The versionLong of the source for this image at the time it was created. */
+	//	@GuardedBy("getRoot()")
+	//	private long m_sourceVersionLong;
 
 	/**
 	 * The LRU pointers for the cache's LRU list. These are locked and maintained by the ImageCache itself; access to these is "verboten" from self.
@@ -43,7 +43,7 @@ class CachedImageFragment {
 	CachedImageFragment(final ImageRoot root, final String perm, long sourceVersionLong, int memorysize, FileCacheRef ref) {
 		m_imageRoot = root;
 		m_permutation = perm;
-		m_sourceVersionLong = sourceVersionLong;
+		//		m_sourceVersionLong = sourceVersionLong;
 		m_memoryCacheSize = memorysize;
 		m_fileRef = ref;
 	}

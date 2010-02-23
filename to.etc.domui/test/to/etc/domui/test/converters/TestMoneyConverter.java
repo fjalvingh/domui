@@ -128,6 +128,7 @@ public class TestMoneyConverter {
 		check("1000.99-", "-1000.99");
 	}
 
+	@Deprecated
 	private void testSimple(double v, String exp) {
 		String res = MoneyUtil.renderAsSimpleDotted(v);
 		System.out.println("  ... " + v + " -> " + res);

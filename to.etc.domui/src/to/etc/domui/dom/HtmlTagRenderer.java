@@ -916,6 +916,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		renderTagend(n, o());
 	}
 
+	@Deprecated
 	public void visitLiteralXhtml(final LiteralXhtml n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);

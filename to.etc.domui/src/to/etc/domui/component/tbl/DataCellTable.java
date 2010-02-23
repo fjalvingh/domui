@@ -5,7 +5,6 @@ import java.util.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
 
 /**
  * A table-related component which shows all "rows" in a single cell instead of
@@ -133,7 +132,7 @@ public class DataCellTable extends TabularComponentBase<Object> {
 		if(list.size() == 0) {
 			Div error = new Div();
 			error.setCssClass("ui-dct-nores");
-			error.setText(NlsContext.getGlobalMessage(Msgs.UI_DATATABLE_EMPTY));
+			error.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
 			add(error);
 			return;
 		}

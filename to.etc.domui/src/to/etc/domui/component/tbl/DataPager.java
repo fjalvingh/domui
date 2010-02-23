@@ -118,7 +118,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			// m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_EMPTY));
 			m_txt.setText("");
 		else
-			m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(m_table.getModel().getRows())));
+			m_txt.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(m_table.getModel().getRows())));
 
 		if(cp <= 0) {
 			m_firstBtn.setSrc("THEME/nav-first-dis.png");
@@ -140,7 +140,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			if(m_truncated == null) {
 				m_truncated = new Img();
 				m_truncated.setSrc("THEME/nav-overflow.png");
-				m_truncated.setTitle(NlsContext.getGlobalMessage(Msgs.UI_PAGER_OVER, Integer.valueOf(tc)));
+				m_truncated.setTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_OVER, Integer.valueOf(tc)));
 				m_textDiv.add(m_truncated);
 			}
 		} else {

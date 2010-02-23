@@ -186,13 +186,13 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param propertyname
 	 * @param ctl
 	 */
-	public <T extends NodeBase & IInputNode< ? >> IControl< ? > addProp(final String propertyname, final T ctl) {
+	public <V, T extends NodeBase & IInputNode<V>> IControl<V> addProp(final String propertyname, final T ctl) {
 		PropertyMetaModel pmm = resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
 		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
-		SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(getModel(), pmm, ctl);
+		SimpleComponentPropertyBinding<V> b = new SimpleComponentPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
 		return b;
 	}
@@ -208,12 +208,12 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param label		The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
 	 * @param ctl
 	 */
-	public <T extends NodeBase & IInputNode< ? >> IControl< ? > addProp(final String name, String label, final T ctl) {
+	public <V, T extends NodeBase & IInputNode<V>> IControl<V> addProp(final String name, String label, final T ctl) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
-		SimpleComponentPropertyBinding b = new SimpleComponentPropertyBinding(getModel(), pmm, ctl);
+		SimpleComponentPropertyBinding<V> b = new SimpleComponentPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
 		return b;
 	}
