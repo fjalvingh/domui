@@ -119,6 +119,35 @@ public class TextScanner {
 		return m_text.substring(six, m_ix);
 	}
 
+	public String scanDelimited(String delimiters, int quote1, int quote2) {
+		int inq = -1;
+		if(m_ix >= m_len)
+			return null; // eof
+
+		int c = (m_text.charAt(m_ix) & 0xffff);
+		if(c == quote1 || c == quote2) {
+			inq = c;
+			m_ix++;
+		}
+		int six = m_ix; // Start index for word
+		while(m_ix < m_len) {
+			c = (m_text.charAt(m_ix++) & 0xffff);
+			if(inq != -1) {
+				if(c == inq) {
+					return m_text.substring(six, m_ix - 1);
+				}
+			} else {
+				for(int i = delimiters.length(); --i >= 0;) {
+					if(delimiters.charAt(i) == c) {
+						m_ix--;
+						return m_text.substring(six, m_ix);
+					}
+				}
+			}
+		}
+		return m_text.substring(six, m_ix);
+	}
+
 	/**
 	 * Scans for a word consisting only of letters.
 	 * @return
