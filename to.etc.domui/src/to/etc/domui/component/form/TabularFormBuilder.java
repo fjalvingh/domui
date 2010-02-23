@@ -79,12 +79,12 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * obeys the "current" mode setting, not just the 1st control added.
 	 */
 	@Override
-	protected IFormControl[] addListOfProperties(boolean editable, final String... names) {
+	protected IControl< ? >[] addListOfProperties(boolean editable, final String... names) {
 		//-- Store the current mode override && restore after each property (keep mode-override active for each property)
 		Mode m = m_nextNodeMode;
 		Mode nextm = m_nextMode;
 
-		IFormControl[] res = new IFormControl[names.length];
+		IControl< ? >[] res = new IControl< ? >[names.length];
 		int ix = 0;
 		for(String name : names) {
 			m_nextNodeMode = m;

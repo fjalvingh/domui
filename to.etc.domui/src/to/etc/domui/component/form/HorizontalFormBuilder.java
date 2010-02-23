@@ -141,8 +141,8 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	@Override
-	protected IFormControl[] addListOfProperties(boolean editable, String... names) {
-		IFormControl[] res = new IFormControl[names.length];
+	protected IControl< ? >[] addListOfProperties(boolean editable, String... names) {
+		IControl< ? >[] res = new IControl< ? >[names.length];
 		int ix = 0;
 		for(String name : names) {
 			if(editable)

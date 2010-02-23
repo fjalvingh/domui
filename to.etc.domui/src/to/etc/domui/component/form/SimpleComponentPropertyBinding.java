@@ -5,17 +5,17 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-public class SimpleComponentPropertyBinding implements IModelBinding, IFormControl {
-	final IControl<Object> m_control;
+public class SimpleComponentPropertyBinding<T> implements IModelBinding, IControl<T> {
+	final IControl<T> m_control;
 
 	private PropertyMetaModel m_propertyMeta;
 
 	private IReadOnlyModel< ? > m_model;
 
-	public SimpleComponentPropertyBinding(IReadOnlyModel< ? > model, PropertyMetaModel propertyMeta, IInputNode< ? > control) {
+	public SimpleComponentPropertyBinding(IReadOnlyModel< ? > model, PropertyMetaModel propertyMeta, IInputNode<T> control) {
 		m_model = model;
 		m_propertyMeta = propertyMeta;
-		m_control = (IInputNode<Object>) control;
+		m_control = control;
 	}
 
 	public void moveControlToModel() throws Exception {
@@ -30,7 +30,7 @@ public class SimpleComponentPropertyBinding implements IModelBinding, IFormContr
 		IValueAccessor< ? > vac = m_propertyMeta.getAccessor();
 		if(vac == null)
 			throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyMeta);
-		Object pval = m_propertyMeta.getAccessor().getValue(base);
+		T pval = (T) m_propertyMeta.getAccessor().getValue(base);
 		m_control.setValue(pval);
 	}
 
@@ -44,14 +44,14 @@ public class SimpleComponentPropertyBinding implements IModelBinding, IFormContr
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object getValue() {
+	public T getValue() {
 		return m_control.getValue();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setValue(Object value) {
+	public void setValue(T value) {
 		m_control.setValue(value);
 	}
 
@@ -60,7 +60,7 @@ public class SimpleComponentPropertyBinding implements IModelBinding, IFormContr
 	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
 	 */
 	@Override
-	public Object getValueSafe() {
+	public T getValueSafe() {
 		return m_control.getValueSafe();
 	}
 

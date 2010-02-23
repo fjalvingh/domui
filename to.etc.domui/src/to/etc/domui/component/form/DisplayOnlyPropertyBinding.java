@@ -13,8 +13,8 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 15, 2010
  */
-public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IFormControl {
-	final IDisplayControl<Object> m_control;
+public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T> {
+	final IDisplayControl<T> m_control;
 
 	private PropertyMetaModel m_propertyMeta;
 
@@ -23,7 +23,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IFormContro
 	public DisplayOnlyPropertyBinding(IReadOnlyModel< ? > model, PropertyMetaModel propertyMeta, IDisplayControl<T> control) {
 		m_model = model;
 		m_propertyMeta = propertyMeta;
-		m_control = (IDisplayControl<Object>) control;
+		m_control = control;
 	}
 
 	public void moveControlToModel() throws Exception {
@@ -38,7 +38,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IFormContro
 		IValueAccessor< ? > vac = m_propertyMeta.getAccessor();
 		if(vac == null)
 			throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyMeta);
-		Object pval = m_propertyMeta.getAccessor().getValue(base);
+		T pval = (T) m_propertyMeta.getAccessor().getValue(base);
 		m_control.setValue(pval);
 	}
 
@@ -51,14 +51,14 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IFormContro
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object getValue() {
+	public T getValue() {
 		return m_control.getValue();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setValue(Object value) {
+	public void setValue(T value) {
 		m_control.setValue(value);
 	}
 
@@ -67,7 +67,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IFormContro
 	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
 	 */
 	@Override
-	public Object getValueSafe() {
+	public T getValueSafe() {
 		return m_control.getValue();
 	}
 

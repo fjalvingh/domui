@@ -54,8 +54,8 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	@Override
-	protected IFormControl[] addListOfProperties(boolean editable, String... names) {
-		IFormControl[] res = new IFormControl[names.length];
+	protected IControl< ? >[] addListOfProperties(boolean editable, String... names) {
+		IControl< ? >[] res = new IControl< ? >[names.length];
 		int ix = 0;
 		for(String name : names) {
 			if(editable)
@@ -185,7 +185,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @param span Specify cell span.
 	 * @return
 	 */
-	public IFormControl addPropWithSpan(final String name, final boolean readOnly, final boolean mandatory, int colSpan) {
+	public IControl< ? > addPropWithSpan(final String name, final boolean readOnly, final boolean mandatory, int colSpan) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		String label = pmm.getDefaultLabel();
 		return addPropWithSpan(name, label, readOnly, mandatory, colSpan);
@@ -206,7 +206,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @param span Specify cell span.
 	 * @return
 	 */
-	public IFormControl addPropWithSpan(final String name, final String label, final boolean readOnly, final boolean mandatory, int colSpan) {
+	public IControl< ? > addPropWithSpan(final String name, final String label, final boolean readOnly, final boolean mandatory, int colSpan) {
 		PropertyMetaModel pmm = resolveProperty(name);
 
 		//-- Check control permissions: does it have view permissions?

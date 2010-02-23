@@ -30,7 +30,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param editable
 	 * @param names
 	 */
-	abstract protected IFormControl[] addListOfProperties(boolean editable, final String... names);
+	abstract protected IControl< ? >[] addListOfProperties(boolean editable, final String... names);
 
 	/**
 	 * Complete the visual representation of this form, and return the node representing it.
@@ -75,7 +75,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param name
 	 */
-	public IFormControl addProp(final String name) {
+	public IControl< ? > addProp(final String name) {
 		return addProp(name, (String) null);
 	}
 
@@ -88,7 +88,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param name
 	 * @param label		The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
 	 */
-	public IFormControl addProp(final String name, String label) {
+	public IControl< ? > addProp(final String name, String label) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
@@ -108,7 +108,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param name
 	 * @param editable When false add a display-only control, else add an editable control.
 	 */
-	public IFormControl addProp(final String name, final boolean editable) {
+	public IControl< ? > addProp(final String name, final boolean editable) {
 		if(editable) {
 			return addProp(name);
 		} else {
@@ -127,7 +127,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param editable When false this adds a display-only field, when true a fully editable control.
 	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
 	 */
-	public IFormControl addProp(final String name, final boolean editable, final boolean mandatory) {
+	public IControl< ? > addProp(final String name, final boolean editable, final boolean mandatory) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		String label = pmm.getDefaultLabel();
 
@@ -157,7 +157,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param name
 	 */
-	public IFormControl addDisplayProp(final String name) {
+	public IControl< ? > addDisplayProp(final String name) {
 		return addDisplayProp(name, null);
 	}
 
@@ -168,7 +168,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param name
 	 * @param label
 	 */
-	public IFormControl addDisplayProp(final String name, String label) {
+	public IControl< ? > addDisplayProp(final String name, String label) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
@@ -186,7 +186,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param propertyname
 	 * @param ctl
 	 */
-	public <T extends NodeBase & IInputNode< ? >> IFormControl addProp(final String propertyname, final T ctl) {
+	public <T extends NodeBase & IInputNode< ? >> IControl< ? > addProp(final String propertyname, final T ctl) {
 		PropertyMetaModel pmm = resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
 		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
@@ -208,7 +208,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param label		The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
 	 * @param ctl
 	 */
-	public <T extends NodeBase & IInputNode< ? >> IFormControl addProp(final String name, String label, final T ctl) {
+	public <T extends NodeBase & IInputNode< ? >> IControl< ? > addProp(final String name, String label, final T ctl) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
@@ -245,7 +245,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @return	If the property was created and is controllable this will return an IFormControl instance. This will explicitly <i>not</i> be
 	 * 			created if the control is display-only, not allowed by permissions or simply uncontrollable (the last one is uncommon).
 	 */
-	protected IFormControl addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editable) {
+	protected IControl< ? > addPropertyControl(final String name, final String label, final PropertyMetaModel pmm, final boolean editable) {
 		//-- Check control permissions: does it have view permissions?
 		if(!rights().calculate(pmm))
 			return null;
@@ -302,7 +302,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param names
 	 */
-	public IFormControl[] addProps(final String... names) {
+	public IControl< ? >[] addProps(final String... names) {
 		return addListOfProperties(true, names);
 	}
 
@@ -320,7 +320,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 *
 	 * @param names
 	 */
-	public IFormControl[] addDisplayProps(final String... names) {
+	public IControl< ? >[] addDisplayProps(final String... names) {
 		return addListOfProperties(false, names);
 	}
 }
