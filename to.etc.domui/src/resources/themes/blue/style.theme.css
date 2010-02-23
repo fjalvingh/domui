@@ -307,8 +307,8 @@ A.ui-brc-l, A.ui-brc-l:hover A.ui-brc-l :VISITED, A.ui-brc-l:ACTIVE {
 .ui-bb-left {
 	padding: 0; margin: 0;
 	/* background-image: url(bg-rounded-left.png); vmijic looks better without background image */
-	width: 19px;
-	height: 36px;
+	width: 0px;
+	height: 0px;
 }
 .ui-bb-right {
 	padding: 0; margin: 0;

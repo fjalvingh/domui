@@ -42,6 +42,9 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 */
 	private boolean m_validated;
 
+	/** If validated this contains the last validation result. */
+	private boolean m_wasvalid;
+
 	/**
 	 * T when this input value is a REQUIRED value.
 	 */
@@ -122,7 +125,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 */
 	public boolean validate() {
 		if(m_validated)
-			return isValid();
+			return m_wasvalid;
 
 		//-- 1. Get the appropriate raw value && trim
 		String raw = getRawValue();
@@ -131,6 +134,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 
 		//-- Do mandatory checking && exit if value is missing.
 		m_validated = true;
+		m_wasvalid = false;
 		if(raw == null || raw.length() == 0) {
 			if(isMandatory()) {
 				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
@@ -140,6 +144,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 			//-- Empty field always results in null object.
 			m_value = null;
 			clearMessage();
+			m_wasvalid = true;
 			return true;
 		}
 
@@ -151,6 +156,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_NO_RE_MATCH, getRegexpUserString()));// Input format must be {0}
 				else
 					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_INVALID));
+				m_wasvalid = false;
 				return false;
 			}
 		}
@@ -169,6 +175,8 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 
 			if(m_validators.size() != 0)
 				ValidatorRegistry.validate(converted, m_validators);
+
+			m_wasvalid = true;
 		} catch(UIException x) {
 			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
 			return false;
@@ -294,8 +302,10 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
 		if((converted == null || converted.trim().length() == 0) && isMandatory())
 			m_validated = false;
-		else
+		else {
 			m_validated = true;
+			m_wasvalid = true;
+		}
 		clearMessage();
 	}
 

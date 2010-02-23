@@ -75,6 +75,10 @@ public class XmlOutputWriterBase {
 
 	public void dec() {}
 
+	public boolean isIndentEnabled() {
+		return false;
+	}
+
 	/**
 	 * Writes a tag start. It can be followed by attr() calls. If the namespace is in the current
 	 * namespace the tag will not have prefixes.
@@ -84,7 +88,8 @@ public class XmlOutputWriterBase {
 	 */
 	public void tag(final String tagname) throws IOException {
 		closePrevious(); // If an earlier tag is open close it,
-		nl();
+		if(isIndentEnabled())
+			nl();
 		writeRaw("<");
 		writeRaw(tagname);
 		m_intag = true;
@@ -130,7 +135,8 @@ public class XmlOutputWriterBase {
 		writeRaw("</");
 		writeRaw(name);
 		writeRaw(">");
-		nl();
+		if(isIndentEnabled())
+			nl();
 	}
 
 	/*--------------------------------------------------------------*/

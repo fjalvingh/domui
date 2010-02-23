@@ -38,6 +38,7 @@ public class PrettyXmlOutputWriter extends XmlOutputWriterBase implements IBrows
 		m_w.setIndentEnabled(ind);
 	}
 
+	@Override
 	public boolean isIndentEnabled() {
 		return m_w.isIndentEnabled();
 	}

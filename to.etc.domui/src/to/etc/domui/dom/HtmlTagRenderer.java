@@ -641,6 +641,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	public void visitTD(final TD n) throws Exception {
+		o().setIndentEnabled(false); // 20100222 jal
 		basicNodeRender(n, m_o);
 		if(n.getValign() != null) {
 			switch(n.getValign()){
@@ -811,6 +812,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	public void visitImg(final Img n) throws Exception {
+		o().setIndentEnabled(false); // 20100222 jal
 		basicNodeRender(n, o());
 		if(n.getAlign() != null)
 			o().attr("align", n.getAlign().getCode());
@@ -828,6 +830,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	public void visitButton(final Button n) throws Exception {
+		o().setIndentEnabled(false); // 20100222 jal
 		basicNodeRender(n, o());
 		renderDisabled(n, n.isDisabled());
 		if(n.getType() != null && !isAttrRender())
