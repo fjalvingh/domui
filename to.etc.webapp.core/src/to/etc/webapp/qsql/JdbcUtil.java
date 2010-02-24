@@ -27,6 +27,13 @@ public class JdbcUtil {
 			ps.setInt(index, value.intValue());
 	}
 
+	static public void setDouble(PreparedStatement ps, int index, Double value) throws SQLException {
+		if(value == null)
+			ps.setNull(index, Types.DOUBLE);
+		else
+			ps.setDouble(index, value.doubleValue());
+	}
+
 	/**
 	 * Sets a TIMESTAMP value containing both TIME and DATE values.
 	 * @param ps

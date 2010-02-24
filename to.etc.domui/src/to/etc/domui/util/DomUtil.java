@@ -330,6 +330,26 @@ final public class DomUtil {
 	}
 
 	/**
+	 * Generate an URL to some page with parameters.
+	 *
+	 * @param rurl	The absolute or relative URL to whatever resource.
+	 * @param pageParameters
+	 * @return
+	 */
+	public static String createPageURL(String rurl, PageParameters pageParameters) {
+		StringBuilder sb = new StringBuilder();
+		RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
+		if(DomUtil.isRelativeURL(rurl))
+			sb.append(ctx.getRelativePath(rurl));
+		else
+			sb.append(rurl);
+		if(pageParameters != null) {
+			addUrlParameters(sb, pageParameters, true);
+		}
+		return sb.toString();
+	}
+
+	/**
 	 * Calculate a full URL from a rurl. If the rurl starts with a scheme it is returned verbatim;
 	 * if it starts with slash (host-relative path absolute) it is returned verbatim; in all other
 	 * cases it is returned with the webapp context appended. Examples:
@@ -1199,4 +1219,13 @@ final public class DomUtil {
 	static public boolean isBlank(String s) {
 		return s == null || s.trim().length() == 0;
 	}
+
+	static public boolean isRelativeURL(String in) {
+		if(in == null)
+			return false;
+		if(in.startsWith("http:") || in.startsWith("https:") || in.startsWith("/"))
+			return false;
+		return true;
+	}
+
 }

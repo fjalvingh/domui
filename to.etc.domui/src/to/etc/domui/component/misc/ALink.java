@@ -25,7 +25,11 @@ import to.etc.util.*;
  * Created on Nov 3, 2008
  */
 public class ALink extends ATag {
+	/** The target class this link should move to. When set targetURL must be null. */
 	private Class< ? extends UrlPage> m_targetClass;
+
+	/** The target URL this page should move to. When set targetClass must be null. */
+	private String m_targetURL;
 
 	private PageParameters m_targetParameters;
 
@@ -72,6 +76,19 @@ public class ALink extends ATag {
 		m_targetClass = targetClass;
 		m_targetParameters = targetParameters;
 		m_newWindowParameters = newWindowParameters;
+	}
+
+	/**
+	 * Link to some http: url that is not a DomUI page.
+	 *
+	 * @param targetURL
+	 * @param targetParameters
+	 */
+	public ALink(String targetURL, PageParameters targetParameters, WindowParameters newWindowParameters) {
+		m_targetURL = targetURL;
+		m_targetParameters = targetParameters;
+		m_newWindowParameters = newWindowParameters;
+		updateLink();
 	}
 
 	public Class< ? extends UrlPage> getTargetClass() {
@@ -123,16 +140,18 @@ public class ALink extends ATag {
 	 * Generate the actual link to the thing.
 	 */
 	private void updateLink() {
-		if(m_targetClass == null) {
+		if(m_targetClass != null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(PageContext.getRequestContext().getRelativePath(m_targetClass.getName()));
+			sb.append(".ui");
+			DomUtil.addUrlParameters(sb, m_targetParameters, true);
+			setHref(sb.toString()); // Append URL only, without WID
+		} else if(! DomUtil.isBlank(m_targetURL)) {
+			setHref(m_targetURL);
+		} else {
 			setHref(null);
 			return;
 		}
-		StringBuilder sb = new StringBuilder();
-		sb.append(PageContext.getRequestContext().getRelativePath(m_targetClass.getName()));
-		sb.append(".ui");
-		//		DomUtil.addUrlParameters(sb, PageContext.getRequestContext(), true);
-		DomUtil.addUrlParameters(sb, m_targetParameters, true);
-		setHref(sb.toString()); // Append URL only, without WID
 
 		if(getClicked() == null && getNewWindowParameters() != null) {
 			//-- Generate an onclick javascript thingy to open the window to prevent popup blockers.
@@ -140,17 +159,25 @@ public class ALink extends ATag {
 			RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
 
 			//-- Send a special JAVASCRIPT open command, containing the shtuff.
-			sb.setLength(0);
+			StringBuilder sb = new StringBuilder();
 			String wid = DomUtil.generateGUID();
 			sb.append("return DomUI.openWindow('");
-			sb.append(ctx.getRelativePath(m_targetClass.getName()));
-			sb.append(".ui?");
-			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-			sb.append('=');
-			sb.append(wid);
-			sb.append(".x");
-			if(m_targetParameters != null)
-				DomUtil.addUrlParameters(sb, m_targetParameters, false);
+
+			if(!DomUtil.isBlank(m_targetURL)) {
+				sb.append(DomUtil.createPageURL(m_targetURL, m_targetParameters));
+			} else {
+				sb.append(ctx.getRelativePath(m_targetClass.getName()));
+				sb.append('.');
+				sb.append(DomApplication.get().getUrlExtension());
+				sb.append('?');
+				StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+				sb.append('=');
+				sb.append(wid);
+				sb.append(".x");
+				if(m_targetParameters != null) {
+					DomUtil.addUrlParameters(sb, m_targetParameters, false);
+				}
+			}
 			sb.append("','");
 			sb.append(wid);
 			sb.append("','");
