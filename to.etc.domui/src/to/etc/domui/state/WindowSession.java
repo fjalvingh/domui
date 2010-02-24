@@ -309,6 +309,13 @@ final public class WindowSession {
 			clearShelve(psix + 1);
 			internalAttachConversations();
 			m_currentPage = m_shelvedPageStack.get(psix).getPage();
+
+			/*
+			 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
+			 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
+			 * make sure it is correct even though the request was for another page and is almost dying.
+			 */
+			PageContext.internalSet(m_currentPage);
 			m_currentPage.internalUnshelve();
 			generateRedirect(ctx, m_currentPage);
 			return true;
@@ -372,6 +379,7 @@ final public class WindowSession {
 		if(pp == null)
 			pp = new PageParameters();
 		m_currentPage = PageMaker.createPageWithContent(ctx, bestpc, cc, pp);
+		PageContext.internalSet(m_currentPage); // jal 20100224 Code can run in new page on shelve.
 		shelvePage(m_currentPage);
 
 		//-- Call all of the page's listeners.
@@ -452,6 +460,13 @@ final public class WindowSession {
 		clearShelve(ix + 1); // Destroy everything above;
 		ShelvedEntry se = m_shelvedPageStack.get(ix); // Get the thing to move to,
 		m_currentPage = se.getPage();
+
+		/*
+		 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
+		 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
+		 * make sure it is correct even though the request was for another page and is almost dying.
+		 */
+		PageContext.internalSet(m_currentPage);
 		m_currentPage.internalUnshelve();
 		generateRedirect(ctx, m_currentPage);
 	}
