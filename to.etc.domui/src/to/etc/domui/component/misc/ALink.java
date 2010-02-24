@@ -33,6 +33,8 @@ public class ALink extends ATag {
 
 	private MoveMode m_moveMode = MoveMode.SUB;
 
+	private String m_jspPageName;
+
 	public ALink() {}
 
 	/**
@@ -72,6 +74,18 @@ public class ALink extends ATag {
 		m_targetClass = targetClass;
 		m_targetParameters = targetParameters;
 		m_newWindowParameters = newWindowParameters;
+	}
+
+	/**
+	 * Link to an old jsp page.
+	 * @param jspPageName
+	 * @param targetParameters
+	 */
+	public ALink(String jspPageName, PageParameters targetParameters, WindowParameters newWindowParameters) {
+		m_jspPageName = jspPageName;
+		m_targetParameters = targetParameters;
+		m_newWindowParameters = newWindowParameters;
+		updateLink();
 	}
 
 	public Class< ? extends UrlPage> getTargetClass() {
@@ -123,15 +137,21 @@ public class ALink extends ATag {
 	 * Generate the actual link to the thing.
 	 */
 	private void updateLink() {
-		if(m_targetClass == null) {
-			setHref(null);
-			return;
-		}
+
 		StringBuilder sb = new StringBuilder();
-		sb.append(PageContext.getRequestContext().getRelativePath(m_targetClass.getName()));
-		sb.append(".ui");
-		//		DomUtil.addUrlParameters(sb, PageContext.getRequestContext(), true);
-		DomUtil.addUrlParameters(sb, m_targetParameters, true);
+
+		if(m_jspPageName == null || "".equals(m_jspPageName)) {
+			if(m_targetClass == null) {
+				setHref(null);
+				return;
+			}
+			sb.append(PageContext.getRequestContext().getRelativePath(m_targetClass.getName()));
+			sb.append(".ui");
+			//			DomUtil.addUrlParameters(sb, PageContext.getRequestContext(), true);
+			DomUtil.addUrlParameters(sb, m_targetParameters, true);
+		} else {
+			sb.append(m_jspPageName);
+		}
 		setHref(sb.toString()); // Append URL only, without WID
 
 		if(getClicked() == null && getNewWindowParameters() != null) {
@@ -143,14 +163,23 @@ public class ALink extends ATag {
 			sb.setLength(0);
 			String wid = DomUtil.generateGUID();
 			sb.append("return DomUI.openWindow('");
-			sb.append(ctx.getRelativePath(m_targetClass.getName()));
-			sb.append(".ui?");
-			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-			sb.append('=');
-			sb.append(wid);
-			sb.append(".x");
-			if(m_targetParameters != null)
-				DomUtil.addUrlParameters(sb, m_targetParameters, false);
+
+			if(m_jspPageName != null || !"".equals(m_jspPageName)) {
+				sb.append(ctx.getRelativePath(m_jspPageName));
+				if(m_targetParameters != null) {
+					DomUtil.addUrlParameters(sb, m_targetParameters, true);
+				}
+			} else {
+				sb.append(ctx.getRelativePath(m_targetClass.getName()));
+				sb.append(".ui?");
+				StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+				sb.append('=');
+				sb.append(wid);
+				sb.append(".x");
+				if(m_targetParameters != null) {
+					DomUtil.addUrlParameters(sb, m_targetParameters, false);
+				}
+			}
 			sb.append("','");
 			sb.append(wid);
 			sb.append("','");
@@ -183,6 +212,24 @@ public class ALink extends ATag {
 			sb.append("');");
 			setOnClickJS(sb.toString());
 		}
+	}
+
+	/**
+	 * Generate string link to thing.
+	 * 
+	 * @param jspPageName
+	 * @param pageParameters
+	 * @return
+	 */
+	public static String generatePageUrl(String jspPageName, PageParameters pageParameters) {
+
+		StringBuilder sb = new StringBuilder();
+		RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
+		sb.append(ctx.getRelativePath(jspPageName));
+		if(pageParameters != null) {
+			DomUtil.addUrlParameters(sb, pageParameters, true);
+		}
+		return sb.toString();
 	}
 
 	@Override
