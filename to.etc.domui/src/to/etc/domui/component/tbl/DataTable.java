@@ -66,6 +66,8 @@ public class DataTable<T> extends TabularComponentBase<T> {
 
 	@Override
 	public void createContent() throws Exception {
+		m_dataBody = null;
+		m_errorDiv = null;
 		setCssClass("ui-dt");
 
 		//-- Ask the renderer for a sort order, if applicable
