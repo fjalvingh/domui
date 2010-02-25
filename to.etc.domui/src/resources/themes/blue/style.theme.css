@@ -1,7 +1,7 @@
 @IMPORT url("calendar-blue2.css");
 
-/* TEST ZES
- * Base stylesheet to style the provided controls.
+/*
+ * DomUI default stylesheet - base stylesheet to style the provided controls.
  */
 #inputjes {
 	border: 1px solid #781351;
@@ -88,30 +88,6 @@
 	font-weight: bold;
 }
 
-/*** 20091208 jal FIXME The vp-ttl-xxx stuff below has to disappear; component needs to use ErrorMessageDiv ***/
-.vp-ttl-msg {
-	background-repeat: no-repeat;
-	background-position: left;
-	padding-left: 18px;
-}
-.vp-ttl-info {
-	background-image: url(mini-info.png);
-	background-color: #a9c5f1; /* some nice light blue */
-	color: blue;
-	border-color: 1px solid blue;
-}
-.vp-ttl-error {
-	background-image: url(mini-error.png);
-}
-.vp-ttl-warning {
-	background-image: url(mini-warning.png);
-}
-.vp-ttl-err {
-	background-color: #ffaaaa;
-	color: red;
-	border-color: 1px solid red;
-}
-
 /*** DisplayValue ***/
 .ui-dspv {
 	background: white;
@@ -153,6 +129,9 @@
 }
 .ui-emd-info {
 	background-image: url(mini-info.png);
+	background-color: #a9c5f1; /* some nice light blue */
+	color: blue;
+	border-color: 1px solid blue;
 }
 .ui-emd-error {
 	background-image: url(mini-error.png);
