@@ -108,7 +108,8 @@ public abstract class DomApplication {
 	 * The only constructor.
 	 */
 	public DomApplication() {
-		m_scriptVersion = DeveloperOptions.getString("domui.scriptversion", "jquery-1.4.1");
+		//vmijic 20100226 - new lookup component does not work on jquery-1.4.1 in IE! 
+		m_scriptVersion = DeveloperOptions.getString("domui.scriptversion", "jquery-1.2.6");
 		registerControlFactories();
 		registerPartFactories();
 		initHeaderContributors();
