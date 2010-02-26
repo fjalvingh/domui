@@ -106,6 +106,41 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * FORMAL-INTERFACE.
 	 *
 	 * @param name
+	 * @param label Add custom label.
+	 * @param editable When false this adds a display-only field, when true a fully editable control.
+	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
+	 */
+	public IControl< ? > addProp(final String name, String label, final boolean editable, final boolean mandatory) {
+		PropertyMetaModel pmm = resolveProperty(name);
+
+		//-- Check control permissions: does it have view permissions?
+		if(!rights().calculate(pmm))
+			return null;
+		boolean reallyeditable = editable && rights().isEditable();
+		final ControlFactory.Result r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
+		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, reallyeditable, pmm);
+
+		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
+		if(label != null) {
+			for(NodeBase b : r.getNodeList())
+				b.setErrorLocation(label);
+		}
+
+		if(r.getBinding() != null)
+			getBindings().add(r.getBinding());
+		else
+			throw new IllegalStateException("No binding for a " + r);
+		return r.getFormControl();
+	}
+
+	/**
+	 * Add an input for the specified property. The property is based at the current input
+	 * class. The input model is default (using metadata) and the property is labeled using
+	 * the metadata-provided label.
+	 *
+	 * FORMAL-INTERFACE.
+	 *
+	 * @param name
 	 * @param editable When false add a display-only control, else add an editable control.
 	 */
 	public IControl< ? > addProp(final String name, final boolean editable) {
@@ -130,25 +165,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	public IControl< ? > addProp(final String name, final boolean editable, final boolean mandatory) {
 		PropertyMetaModel pmm = resolveProperty(name);
 		String label = pmm.getDefaultLabel();
-
-		//-- Check control permissions: does it have view permissions?
-		if(!rights().calculate(pmm))
-			return null;
-		boolean reallyeditable = editable && rights().isEditable();
-		final ControlFactory.Result r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, reallyeditable, pmm);
-
-		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
-		if(label != null) {
-			for(NodeBase b : r.getNodeList())
-				b.setErrorLocation(label);
-		}
-
-		if(r.getBinding() != null)
-			getBindings().add(r.getBinding());
-		else
-			throw new IllegalStateException("No binding for a " + r);
-		return r.getFormControl();
+		return addProp(name, label, editable, mandatory);
 	}
 
 	/**
