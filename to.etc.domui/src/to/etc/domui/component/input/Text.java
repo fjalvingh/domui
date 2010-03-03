@@ -21,7 +21,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
-public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndication {
+public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndication, IConvertable<T> {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
 
@@ -212,8 +212,8 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * Returns the class of the converter for this control. This returns null if no converter has been set. It also
-	 * returns null if a default converter is used.
+	 * See {@link IConvertable#getConverter()}.
+	 * This returns null if no converter has been set. It also returns null if a default converter is used.
 	 *
 	 * @return
 	 */
@@ -222,6 +222,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
+	 * See {@link IConvertable#setConverter(IConverter)}.
 	 * Sets the Converter to use to convert the string value to a T and vice versa. It is the programmer's
 	 * responsibility to ensure that the converter actually converts to a T; if not the code will throw
 	 * ClassCastExceptions.
