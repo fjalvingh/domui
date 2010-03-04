@@ -19,6 +19,8 @@ public interface Msgs {
 
 	public static final String MANDATORY = "ui.mandatory";
 
+	public static final String ONE_OF_IS_MANDATORY = "ui.one.of.mandatory";
+
 	public static final String NOT_VALID = "ui.invalid";
 
 	public static final String UI_BOOL_TRUE = "ui.boolean.true";
