@@ -6,6 +6,7 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.converter.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
 
 /**
@@ -47,6 +48,7 @@ public class ControlFactoryMoney implements ControlFactory {
 			 * display-only component.
 			 */
 			DisplayValue dv = new DisplayValue(iclz);
+			dv.setTextAlign(TextAlign.RIGHT);
 			assignConverter(pmm, editable, dv);
 			String s = pmm.getDefaultHint();
 			if(s != null)
@@ -94,6 +96,7 @@ public class ControlFactoryMoney implements ControlFactory {
 			txt.setTitle(s);
 		for(PropertyMetaValidator mpv : pmm.getValidators())
 			txt.addValidator(mpv);
+		txt.setTextAlign(TextAlign.RIGHT);
 		return new Result(txt, model, pmm);
 	}
 
