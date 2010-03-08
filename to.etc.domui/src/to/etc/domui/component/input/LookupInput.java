@@ -354,6 +354,10 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 		if(getQueryManipulator() != null) {
 			searchQuery = getQueryManipulator().adjustQuery(searchQuery);
+			if(searchQuery == null) {
+				//in case of cancelled search by query manipulator return  
+				return null;
+			}
 		}
 
 		if(m_queryHandler == null) {
@@ -434,6 +438,10 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 		if(getQueryManipulator() != null) {
 			c = getQueryManipulator().adjustQuery(c); // Adjust the query where needed,
+			if(c == null) {
+				//in case of cancelled search by query manipulator return null  
+				return;
+			}
 		}
 		m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {

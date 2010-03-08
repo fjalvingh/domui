@@ -17,7 +17,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 15, 2010
  */
-public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindable {
+public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindable, IConvertable<T> {
 	@Nonnull
 	private Class<T> m_valueClass;
 
@@ -116,8 +116,8 @@ public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindab
 	}
 
 	/**
-	 * Returns the class of the converter for this control. This returns null if no converter has been set. It also
-	 * returns null if a default converter is used.
+	 * See {@link IConvertable#getConverter()}.
+	 * This returns null if no converter has been set. It also returns null if a default converter is used.
 	 *
 	 * @return
 	 */
@@ -127,7 +127,7 @@ public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindab
 	}
 
 	/**
-	 * Sets the Converter to use to convert the value to a string.
+	 * See {@link IConvertable#setConverter(IConverter)}.
 	 * @param converter
 	 */
 	public void setConverter(@Nullable IConverter<T> converter) {

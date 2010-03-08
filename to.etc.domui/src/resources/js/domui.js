@@ -681,6 +681,38 @@ var WebUI = {
 		selectedIndexInput.value = intValue;
 	},
 	
+	lookupRowMouseOver : function(keywordInputId, rowNodeId) {
+		var keywordInput = document.getElementById(keywordInputId);
+		if(!keywordInput || keywordInput.tagName.toLowerCase() != 'input') {    
+			return;
+		}
+		
+		var rowNode = document.getElementById(rowNodeId);
+		if(!rowNode || rowNode.tagName.toLowerCase() != 'tr') {    
+			return;
+		}
+
+		var oldIndex = WebUI.getKeywordPopupSelectedRowIndex(keywordInput);
+		
+		var trNodes = $(rowNode.parentNode).children("tr");
+		var newIndex = 0;
+		for(var i = 1; i <= trNodes.length; i++){
+			if (rowNode == trNodes.get(i-1)) {
+				newIndex = i;
+				break;
+			}
+		}
+		
+		if (oldIndex != newIndex){
+			var deselectRow = $(rowNode.parentNode).children("tr:nth-child(" + oldIndex + ")").get(0);
+			if (deselectRow){
+				deselectRow.className = "ui-keyword-popop-row";
+			}
+			rowNode.className = "ui-keyword-popop-rowsel";
+			WebUI.setKeywordPopupSelectedRowIndex(keywordInput, newIndex);
+		}
+	},
+
 	//Called only from onBlur of input node that is used for lookup typing.  
 	hideLookupTypingPopup: function(id) {
 		var node = document.getElementById(id);
@@ -712,6 +744,15 @@ var WebUI = {
 			//show popup in case that input field still has focus
 			$(divPopup).show();
 		}
+		
+		var trNods = $(qDivPopup).children("div").children("table").children("tbody").children("tr");
+		if (trNods && trNods.length > 0) {
+			for(var i=0; i < trNods.length; i++) {
+				var trNod = trNods.get(i);
+				trNod.setAttribute("onmouseover","WebUI.lookupRowMouseOver('" + id + "', '" + trNod.id + "');");
+			}
+		}
+		
 	},
 	
 	/*

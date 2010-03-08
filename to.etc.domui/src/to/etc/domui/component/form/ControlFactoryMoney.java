@@ -4,7 +4,9 @@ import java.math.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.converter.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
 
 /**
@@ -39,11 +41,21 @@ public class ControlFactoryMoney implements ControlFactory {
 	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		Class< ? > iclz = pmm.getActualType();
 
-		//		if(!editable) {
-		//			//-- Return a span containing the value.
-		//
-		//
-		//		}
+		if(!editable) {
+			/*
+			 * 20100302 vmijic - added DisplayValue as money readonly presentation
+			 * FIXME EXPERIMENTAL: replace the code below (which is still fully available) with the
+			 * display-only component.
+			 */
+			DisplayValue dv = new DisplayValue(iclz);
+			//			dv.setTextAlign(TextAlign.RIGHT);
+			dv.addCssClass("ui-numeric");
+			assignConverter(pmm, false, dv);
+			String s = pmm.getDefaultHint();
+			if(s != null)
+				dv.setTitle(s);
+			return new Result(dv, model, pmm);
+		}
 
 		//-- Treat everything else as a String using a converter.
 		Text< ? > txt = new Text(iclz);
@@ -74,16 +86,8 @@ public class ControlFactoryMoney implements ControlFactory {
 			txt.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
 		}
 
-		if(pmm.getConverter() != null)
-			txt.setConverter((IConverter) pmm.getConverter());
-		else {
-			if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class)
-				txt.setConverter((IConverter) ConverterRegistry.getConverterInstance(MoneyDoubleNumeric.class));
-			else if(pmm.getActualType() == BigDecimal.class)
-				txt.setConverter((IConverter) ConverterRegistry.getConverterInstance(MoneyBigDecimalNumeric.class));
-			else
-				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
-		}
+		assignConverter(pmm, editable, txt);
+
 		if(pmm.getLength() > 0)
 			txt.setMaxLength(pmm.getLength());
 		if(pmm.isRequired())
@@ -93,6 +97,29 @@ public class ControlFactoryMoney implements ControlFactory {
 			txt.setTitle(s);
 		for(PropertyMetaValidator mpv : pmm.getValidators())
 			txt.addValidator(mpv);
+		txt.setTextAlign(TextAlign.RIGHT);
 		return new Result(txt, model, pmm);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void assignConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable< ? > node) {
+		if(pmm.getConverter() != null)
+			node.setConverter((IConverter) pmm.getConverter());
+		else {
+			NumericPresentation np = null;
+			if(!editable) {
+				np = pmm.getNumericPresentation();
+			}
+			if(np == null) {
+				np = NumericPresentation.MONEY_NUMERIC;
+			}
+			if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
+				node.setConverter((IConverter) MoneyConverterFactory.createDoubleMoneyConverters(np));
+			} else if(pmm.getActualType() == BigDecimal.class) {
+				node.setConverter((IConverter) MoneyConverterFactory.createBigDecimalMoneyConverters(np));
+			}
+			else
+				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
+		}
 	}
 }
