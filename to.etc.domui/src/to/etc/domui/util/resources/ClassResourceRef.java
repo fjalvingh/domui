@@ -48,7 +48,7 @@ public class ClassResourceRef implements IResourceRef {
 	 * @see to.etc.domui.util.resources.IModifyableResource#getLastModified()
 	 */
 	public long getLastModified() {
-		return m_source == null ? 0 : m_source.getLastModified();
+		return m_source == null ? -1 : m_source.getLastModified();
 	}
 
 	@Override

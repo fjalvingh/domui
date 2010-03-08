@@ -10,7 +10,12 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 	$.webui = function(xml) {
 		processDoc(xml);
 	};
-	$.expr[':'].taconiteTag = 'a.taconiteTag';
+
+	if($().jquery === "1.4.1") {
+		$.expr[':'].taconiteTag = function(a) { return a.taconiteTag === 1; };
+	} else {
+		$.expr[':'].taconiteTag = 'a.taconiteTag';
+	}
 
 	// add 'replace' and 'replaceContent' plugins (conditionally)
 	if (typeof $.fn.replace == 'undefined')
@@ -137,17 +142,17 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 			return;
 		}
 
-		try {
+//		try {
 			var t = new Date().getTime();
 			// process the document
 			process(xml.documentElement.childNodes);
 			var lastTime = (new Date().getTime()) - t;
 			log('Response handled in ' + lastTime + 'ms');
-		} catch (e) {
-			if (window.console && window.console.debug)
-				window.console.debug('ERROR in xml handler:' + e, e);
-			throw e;
-		}
+	//	} catch (e) {
+	//		if (window.console && window.console.debug)
+	//			window.console.debug('ERROR in xml handler:' + e, e);
+	//		throw e;
+	//	}
 		return true;
 
 		// -- process the commands
