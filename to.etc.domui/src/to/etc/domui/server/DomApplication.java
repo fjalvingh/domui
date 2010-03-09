@@ -56,7 +56,9 @@ public abstract class DomApplication {
 
 	private boolean m_developmentMode;
 
-	static private final ThreadLocal<DomApplication> m_current = new ThreadLocal<DomApplication>();
+	//	static private final ThreadLocal<DomApplication> m_current = new ThreadLocal<DomApplication>();
+
+	static private DomApplication m_application;
 
 	static private int m_nextPageTag = (int) (System.nanoTime() & 0x7fffffff);
 
@@ -129,16 +131,31 @@ public abstract class DomApplication {
 		registerUrlPart(new ThemePartFactory());
 	}
 
-	static public void internalSetCurrent(final DomApplication da) {
-		m_current.set(da);
+	//	static public void internalSetCurrent(final DomApplication da) {
+	//		m_current.set(da);
+	//	}
+
+	//	/**
+	//	 * Returns the single DomApplication instance in use for the webapp.
+	//	 * @return
+	//	 */
+	//	static public DomApplication get() {
+	//		DomApplication da = m_current.get();
+	//		if(da == null)
+	//			throw new IllegalStateException("The 'current application' is unset!?");
+	//		return da;
+	//	}
+
+	static private synchronized void setCurrentApplication(DomApplication da) {
+		m_application = da;
 	}
 
 	/**
 	 * Returns the single DomApplication instance in use for the webapp.
 	 * @return
 	 */
-	static public DomApplication get() {
-		DomApplication da = m_current.get();
+	static synchronized public DomApplication get() {
+		DomApplication da = m_application;
 		if(da == null)
 			throw new IllegalStateException("The 'current application' is unset!?");
 		return da;
@@ -233,6 +250,8 @@ public abstract class DomApplication {
 
 
 	final public void internalInitialize(final ConfigParameters pp) throws Exception {
+		setCurrentApplication(this);
+
 		//		m_myClassLoader = appClassLoader;
 		m_webFilePath = pp.getWebFileRoot();
 
