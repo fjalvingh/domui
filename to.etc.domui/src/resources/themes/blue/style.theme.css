@@ -726,11 +726,12 @@ a.ui-nbtn:hover,a.ui-nbtn:active {
 
 /*** Image Button ***/
 .ui-ib {
-	width: 114px;
+	width: 124px;
 	height: 22px;
 	border: none;
 	background: none;
 	cursor: pointer;
+	padding: 0px;
 }
 
 .ui-ib:hover {
