@@ -11,7 +11,7 @@ import to.etc.webapp.query.*;
 final class LookupFactoryDate implements ILookupControlFactory {
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
 		final DateInput dateFrom = new DateInput();
-		TextNode tn = new TextNode(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL));
+		TextNode tn = new TextNode(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL) + " ");
 		final DateInput dateTo = new DateInput();
 
 		String hint = MetaUtils.findHintText(spm);
