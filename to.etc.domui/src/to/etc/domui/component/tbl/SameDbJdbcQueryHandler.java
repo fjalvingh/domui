@@ -1,6 +1,5 @@
 package to.etc.domui.component.tbl;
 
-import java.sql.*;
 import java.util.*;
 
 import to.etc.domui.dom.html.*;
@@ -17,6 +16,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 31, 2009
  */
+@Deprecated
 public class SameDbJdbcQueryHandler<T> implements IQueryHandler<T> {
 	private QDataContextFactory m_dcf;
 
@@ -35,9 +35,8 @@ public class SameDbJdbcQueryHandler<T> implements IQueryHandler<T> {
 	public List<T> query(QCriteria<T> q) throws Exception {
 		QDataContext dc = m_dcf.getDataContext();
 		try {
-			Connection dbc = dc.getConnection();
 			JdbcQuery<T> query = JdbcQuery.create(q); // Convert to JDBC query.
-			return query.query(dbc);
+			return (List<T>) query.query(dc);
 		} finally {
 			try {
 				dc.close();
