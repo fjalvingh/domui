@@ -960,6 +960,12 @@ var WebUI = {
 		}
 		var c = evt.target;
 		var val = c.value;
+		// On IE c is undefined at this point. 
+		// FIXME: This has to be fixed later [http://bugzilla.etc.to/show_bug.cgi?id=604].
+		if (! c){ 
+			return;
+		}
+		
 		if(! val || val.length == 0) // Nothing to see here, please move on.
 			return;
 		Calendar.__init();
