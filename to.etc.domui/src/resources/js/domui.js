@@ -958,7 +958,7 @@ var WebUI = {
 				return;
 			}
 		}
-		var c = evt.target;
+		var c = evt.target || evt.srcElement;
 		var val = c.value;
 		if(! val || val.length == 0) // Nothing to see here, please move on.
 			return;
