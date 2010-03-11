@@ -49,6 +49,11 @@ public class JdbcQuery<T> {
 				}
 			}
 			return res;
+		} catch(Exception x) {
+			QDbException dx = QDbException.findTranslation(x);
+			if(dx != null)
+				throw dx;
+			throw x;
 		} finally {
 			try {
 				if(rs != null)
