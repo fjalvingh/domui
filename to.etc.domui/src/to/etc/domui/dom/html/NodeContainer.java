@@ -524,7 +524,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	public void moveControlToModel() throws Exception {
 		super.moveControlToModel(); // FIXME Is this useful?
 		Exception x = null;
-		for(NodeBase b : this) {
+		for(NodeBase b : new ArrayList<NodeBase>(m_children)) {
 			try {
 				b.moveControlToModel();
 			} catch(Exception nx) {

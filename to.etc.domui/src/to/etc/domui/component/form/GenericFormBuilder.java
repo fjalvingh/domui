@@ -119,6 +119,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		boolean reallyeditable = editable && rights().isEditable();
 		final ControlFactory.Result r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
 		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, reallyeditable, pmm);
+		r.getFormControl().setMandatory(mandatory);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
 		if(label != null) {

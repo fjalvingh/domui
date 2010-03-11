@@ -173,4 +173,6 @@ public interface Msgs {
 	/** lookupform.restore key */
 	public static final String LOOKUP_FORM_RESTORE = "lookupform.restore";
 
+	public static final String VERBATIM = "verbatim";
+
 }
