@@ -114,6 +114,10 @@ public class JdbcPropertyMeta {
 		m_typeConverter = typeConverter;
 	}
 
+	public boolean isPrimaryKey() {
+		return this == m_classMeta.getPrimaryKey();
+	}
+
 	@Override
 	public String toString() {
 		//		StringBuilder sb = new StringBuilder(32);

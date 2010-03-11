@@ -1,5 +1,7 @@
 package to.etc.webapp.qsql;
 
+import to.etc.webapp.query.*;
+
 /**
  * Used for computing value of calculated fields.
  *
@@ -7,5 +9,5 @@ package to.etc.webapp.qsql;
  * Created on 22 Oct 2009
  */
 public interface IInitializable {
-	void initializeInstance() throws Exception;
+	void initializeInstance(QDataContext dc) throws Exception;
 }

@@ -2,6 +2,8 @@ package to.etc.webapp.qsql;
 
 import java.sql.*;
 
+import to.etc.webapp.query.*;
+
 class ClassInstanceMaker implements IInstanceMaker {
 	private JdbcClassMeta m_meta;
 
@@ -19,7 +21,7 @@ class ClassInstanceMaker implements IInstanceMaker {
 	 * Traverse all properties and obtain their value from the result set.
 	 * @see to.etc.webapp.qsql.IInstanceMaker#make(java.sql.ResultSet)
 	 */
-	public Object make(ResultSet rs) throws Exception {
+	public Object make(QDataContext dc, ResultSet rs) throws Exception {
 		//-- 1. Create an object instance.
 		Object inst = m_meta.getDataClass().newInstance(); // This will abort when constructor is bad
 
@@ -36,7 +38,7 @@ class ClassInstanceMaker implements IInstanceMaker {
 		}
 
 		if(inst instanceof IInitializable) {
-			((IInitializable) inst).initializeInstance();
+			((IInitializable) inst).initializeInstance(dc);
 		}
 
 		return gotsome ? inst : null; // No data -> no object (for later join impl)

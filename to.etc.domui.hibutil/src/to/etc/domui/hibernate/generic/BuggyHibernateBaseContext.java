@@ -9,12 +9,17 @@ import org.slf4j.*;
 
 import to.etc.domui.hibernate.model.*;
 import to.etc.domui.state.*;
+import to.etc.webapp.qsql.*;
 import to.etc.webapp.query.*;
 
 /**
  * This is a basic Hibernate QDataContext implementation, suitable for
  * being used in DomUI code. This base class implements every QDataContext call
  * but does not do any session lifecycle handling.
+ *
+ * FIXME 20100310 jal This now supports JDBC queries using the same JDBC context but with
+ * a butt-ugly mechanism; it needs to be replaced with some kind of switch proxy implementation
+ * later on.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 15, 2009
@@ -29,6 +34,9 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	private boolean m_ignoreClose;
 
 	protected Session m_session;
+
+	/** FIXME This is a helper which handles JDBC queries using this same context. */
+	private JdbcDataContext m_jdc;
 
 	/**
 	 * Create a context, using the specified factory to create Hibernate sessions.
@@ -61,6 +69,18 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	}
 
 	/*--------------------------------------------------------------*/
+	/*	CODING:	Determine query route helper code.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * FIXME Determine if this is a JDBC query.
+	 * @param clz
+	 * @return
+	 */
+	static private boolean isJdbcQuery(Class< ? > clz) {
+		return clz.getAnnotation(QJdbcTable.class) != null;
+	}
+
+	/*--------------------------------------------------------------*/
 	/*	CODING:	QDataContext implementation.						*/
 	/*--------------------------------------------------------------*/
 	/**
@@ -83,6 +103,9 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.webapp.query.QDataContext#find(java.lang.Class, java.lang.Object)
 	 */
 	public <T> T find(final Class<T> clz, final Object pk) throws Exception {
+		if(isJdbcQuery(clz)) // FIXME Butt-ugly
+			return JdbcQuery.find(this, clz, pk);
+
 		return (T) getSession().get(clz, (Serializable) pk);
 	}
 
@@ -91,6 +114,8 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.webapp.query.QDataContext#getInstance(java.lang.Class, java.lang.Object)
 	 */
 	public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
+		if(isJdbcQuery(clz)) // FIXME Butt-ugly
+			return JdbcQuery.getInstance(this, clz, pk);
 		return (T) getSession().load(clz, (Serializable) pk); // Do not check if instance exists.
 	}
 
@@ -100,6 +125,9 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 */
 	public <T> List<T> query(final QCriteria<T> q) throws Exception {
 		getFactory().getEventListeners().callOnBeforeQuery(this, q);
+		if(isJdbcQuery(q.getBaseClass())) // FIXME Butt-ugly
+			return JdbcQuery.query(this, q);
+
 		Criteria crit = GenericHibernateHandler.createCriteria(getSession(), q); // Convert to Hibernate criteria
 		return crit.list();
 	}
@@ -117,6 +145,9 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	@SuppressWarnings("unchecked")
 	public List<Object[]> query(QSelection< ? > sel) throws Exception {
 		getFactory().getEventListeners().callOnBeforeQuery(this, sel);
+		if(isJdbcQuery(sel.getBaseClass())) // FIXME Butt-ugly
+			return JdbcQuery.query(this, sel);
+
 		Criteria crit = GenericHibernateHandler.createCriteria(getSession(), sel);
 		List resl = crit.list(); // Need to use raw class because ? is a monster fuckup.
 		if(resl.size() == 0)
@@ -149,6 +180,9 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 */
 	public Object queryOne(final QSelection< ? > sel) throws Exception {
 		getFactory().getEventListeners().callOnBeforeQuery(this, sel);
+		if(isJdbcQuery(sel.getBaseClass())) // FIXME Butt-ugly
+			return JdbcQuery.query(this, sel);
+
 		Criteria crit = GenericHibernateHandler.createCriteria(getSession(), sel);
 		List<Object> res = crit.list();
 		if(res.size() == 0)
@@ -187,7 +221,8 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.webapp.query.QDataContext#attach(java.lang.Object)
 	 */
 	public void attach(final Object o) throws Exception {
-		getSession().update(o);
+		if(!isJdbcQuery(o.getClass())) // FIXME Butt-ugly
+			getSession().update(o);
 	}
 
 	/**
@@ -195,7 +230,8 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.webapp.query.QDataContext#delete(java.lang.Object)
 	 */
 	public void delete(final Object o) throws Exception {
-		getSession().delete(o);
+		if(!isJdbcQuery(o.getClass())) // FIXME Butt-ugly
+			getSession().delete(o);
 	}
 
 	/**
@@ -203,7 +239,8 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.webapp.query.QDataContext#save(java.lang.Object)
 	 */
 	public void save(final Object o) throws Exception {
-		getSession().save(o);
+		if(!isJdbcQuery(o.getClass())) // FIXME Butt-ugly
+			getSession().save(o);
 	}
 
 	/**
@@ -211,7 +248,8 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.webapp.query.QDataContext#refresh(java.lang.Object)
 	 */
 	public void refresh(final Object o) throws Exception {
-		getSession().refresh(o);
+		if(!isJdbcQuery(o.getClass())) // FIXME Butt-ugly
+			getSession().refresh(o);
 	}
 
 	/**
@@ -291,5 +329,4 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	 * @see to.etc.domui.state.ConversationStateListener#conversationNew(to.etc.domui.state.ConversationContext)
 	 */
 	public void conversationNew(final ConversationContext cc) throws Exception {}
-
 }

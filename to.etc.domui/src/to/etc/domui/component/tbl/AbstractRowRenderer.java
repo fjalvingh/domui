@@ -3,6 +3,7 @@ package to.etc.domui.component.tbl;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.ntbl.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -27,6 +28,8 @@ public class AbstractRowRenderer<T> {
 	private Img[] m_sortImages;
 
 	private ICellClicked<?> m_rowClicked;
+
+	private IRowButtonFactory<T> m_rowButtonFactory;
 
 	public AbstractRowRenderer(Class<T> data) {
 		m_dataClass = data;
@@ -249,6 +252,9 @@ public class AbstractRowRenderer<T> {
 			th.setWidth(cd.getWidth());
 			ix++;
 		}
+
+		if(getRowButtonFactory() != null)
+			cc.add("");
 	}
 
 	void handleSortClick(final NodeBase nb, final SimpleColumnDef scd) throws Exception {
@@ -322,6 +328,13 @@ public class AbstractRowRenderer<T> {
 
 		for(final SimpleColumnDef cd : m_columnList) {
 			renderColumn(tbl, cc, index, instance, cd);
+		}
+
+		//-- If a button factory is attached give it the opportunity to add buttons.
+		if(getRowButtonFactory() != null) {
+			TD td = cc.add((NodeBase) null);
+			cc.getRowButtonContainer().setContainer(td);
+			getRowButtonFactory().addButtonsFor(cc.getRowButtonContainer(), instance);
 		}
 
 		//-- Toggle odd/even indicator
@@ -413,5 +426,13 @@ public class AbstractRowRenderer<T> {
 		else if(cd.getCssClass() != null) {
 			cell.addCssClass(cd.getCssClass());
 		}
+	}
+
+	public IRowButtonFactory<T> getRowButtonFactory() {
+		return m_rowButtonFactory;
+	}
+
+	public void setRowButtonFactory(IRowButtonFactory<T> rowButtonFactory) {
+		m_rowButtonFactory = rowButtonFactory;
 	}
 }

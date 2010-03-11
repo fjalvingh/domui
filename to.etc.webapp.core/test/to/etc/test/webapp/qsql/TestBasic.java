@@ -22,9 +22,10 @@ public class TestBasic {
 
 	static <T> List<T> exec(JdbcQuery<T> q) throws Exception {
 		Connection dbc = m_ds.getConnection();
+		JdbcDataContext	jdc = new JdbcDataContext(null, dbc);
 		try {
 			q.dump();
-			return q.query(dbc);
+			return (List<T>) q.query(jdc);
 		} finally {
 			try {
 				dbc.close();

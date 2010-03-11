@@ -1,11 +1,9 @@
 package to.etc.domui.component.tbl;
 
-import java.sql.*;
 import java.util.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
-import to.etc.webapp.qsql.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -35,9 +33,10 @@ public class SameDbJdbcQueryHandler<T> implements IQueryHandler<T> {
 	public List<T> query(QCriteria<T> q) throws Exception {
 		QDataContext dc = m_dcf.getDataContext();
 		try {
-			Connection dbc = dc.getConnection();
-			JdbcQuery<T> query = JdbcQuery.create(q); // Convert to JDBC query.
-			return query.query(dbc);
+			return dc.query(q);
+			//			Connection dbc = dc.getConnection();
+			//			JdbcQuery<T> query = JdbcQuery.create(q); // Convert to JDBC query.
+			//			return query.query(dbc);
 		} finally {
 			try {
 				dc.close();
