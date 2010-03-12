@@ -37,6 +37,8 @@ public class ALink extends ATag {
 
 	private MoveMode m_moveMode = MoveMode.SUB;
 
+	private String m_imageUrl;
+
 	public ALink() {}
 
 	/**
@@ -288,4 +290,27 @@ public class ALink extends ATag {
 		//-- Normal link; moveTo.
 		PageContext.getRequestContext().getWindowSession().internalSetNextPage(m_moveMode, m_targetClass, null, null, m_targetParameters);
 	}
+
+	public void setImage(final String url) {
+		if(DomUtil.isEqual(url, m_imageUrl))
+			return;
+		m_imageUrl = url;
+		if(m_imageUrl != null) {
+			addCssClass("ui-alnk");
+		} else {
+			removeCssClass("ui-alnk");
+		}
+		changed();
+		updateStyle();
+		forceRebuild();
+	}
+
+	public String getImage() {
+		return m_imageUrl;
+	}
+
+	private void updateStyle() {
+		setBackgroundImage(PageContext.getRequestContext().translateResourceName(m_imageUrl));
+	}
+
 }

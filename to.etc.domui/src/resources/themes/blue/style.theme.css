@@ -201,6 +201,13 @@ a:hover.ui-lbtn {
 	text-decoration: underline !important;
 }
 
+/*** ALink component. ***/
+.ui-alnk {
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+}
+
 /*** Drag and drop ***/
 .ui-drgbl {
 	cursor: move;
@@ -700,8 +707,6 @@ button {
 	border: 2px solid black;
 }
 
-
-
 /*** NiceButton ***/
 a.ui-nbtn {
 	/* display: inline-table; jal 20080711 This works proper with FF3 et al but of course not with IE7.. IE8 does work though */
@@ -727,7 +732,7 @@ a.ui-nbtn:hover,a.ui-nbtn:active {
 /*** Image Button ***/
 .ui-ib {
 	width: 124px;
-	height: 22px;
+	height: 24px;
 	border: none;
 	background: none;
 	cursor: pointer;
