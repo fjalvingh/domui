@@ -4,7 +4,15 @@ import java.io.*;
 
 import to.etc.domui.server.reloader.*;
 
-public class ClassResourceRef implements IResourceRef {
+/**
+ * This is a resource reference to something on the classpath used only in debug mode. This
+ * version allows reloading of classpath resources when they change while the server is
+ * running.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Mar 15, 2010
+ */
+public class ReloadingClassResourceRef implements IResourceRef {
 	/** When running in debug mode AND if a source for this resource can be found- this contains a ref to it. */
 	private IModifyableResource m_source;
 
@@ -17,9 +25,9 @@ public class ClassResourceRef implements IResourceRef {
 	 * @param mr
 	 * @param name
 	 */
-	public ClassResourceRef(IModifyableResource mr, String name) {
+	public ReloadingClassResourceRef(IModifyableResource mr, String name) {
 		m_source = mr;
-		m_base = ClassResourceRef.class;
+		m_base = ReloadingClassResourceRef.class;
 		if(!name.startsWith("/"))
 			throw new IllegalStateException("The root-based resource reference " + name + " must start with a '/'");
 		m_name = name;

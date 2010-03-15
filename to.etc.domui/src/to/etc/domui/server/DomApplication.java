@@ -584,10 +584,13 @@ public abstract class DomApplication {
 	 * @param name
 	 * @return
 	 */
-	private ClassResourceRef createClasspathReference(String name) {
-		//-- If running in debug mode get this classpath resource's original source file
-		IModifyableResource ts = Reloader.findClasspathSource(name);
-		return new ClassResourceRef(ts, name);
+	private IResourceRef createClasspathReference(String name) {
+		if(inDevelopmentMode()) {
+			//-- If running in debug mode get this classpath resource's original source file
+			IModifyableResource ts = Reloader.findClasspathSource(name);
+			return new ReloadingClassResourceRef(ts, name);
+		}
+		return new ProductionClassResourceRef(name);
 	}
 
 	/**
@@ -615,7 +618,7 @@ public abstract class DomApplication {
 		return ref;
 	}
 
-	private ClassResourceRef tryVersionedResource(String name) {
+	private IResourceRef tryVersionedResource(String name) {
 		name = "/resources/" + name;
 		if(!DomUtil.classResourceExists(getClass(), name))
 			return null;
@@ -705,7 +708,7 @@ public abstract class DomApplication {
 			String min = pos < 0 ? null : name.substring(0, pos) + "-min" + name.substring(pos);
 
 			StringBuilder sb = new StringBuilder(64);
-			ClassResourceRef r;
+			IResourceRef r;
 			if(!inDevelopmentMode() && min != null) {
 				//-- Try all min versions in production, first
 				sb.append("js/").append(getScriptVersion()).append(min);
