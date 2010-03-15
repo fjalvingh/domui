@@ -111,7 +111,9 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 	}
 
 	private TR createSplitterRow() {
-		assert (getDataBody().getChildCount() > 0);
+		if(getDataBody().getChildCount() == 0) {
+			throw new IllegalStateException("Missing childs!");
+		}
 		TR headerRow = getDataBody().getRow(0);
 		TR splitterRow = new TR();
 		TD splitterCell = new TD();
@@ -172,7 +174,9 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 				getDataBody().add(m_accumulatedRows.size(), splitterRow);
 			}
 
-			assert (row.getChildren(TD.class).size() > 0);
+			if(row.getChildren(TD.class).size() == 0) {
+				throw new IllegalStateException("Missing row childs!");
+			}
 			TD selectionMarkerCell = row.getChildren(TD.class).get(0);
 			selectionMarkerCell.removeAllChildren();
 			selectionMarkerCell.add(" ");
