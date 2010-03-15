@@ -37,6 +37,8 @@ public class ALink extends ATag {
 
 	private MoveMode m_moveMode = MoveMode.SUB;
 
+	private String m_imageUrl;
+
 	public ALink() {}
 
 	/**
@@ -44,14 +46,11 @@ public class ALink extends ATag {
 	 * @param targetClass
 	 */
 	public ALink(Class< ? extends UrlPage> targetClass) {
-		m_targetClass = targetClass;
-		updateLink();
+		this(targetClass, null, null, null);
 	}
 
 	public ALink(Class< ? extends UrlPage> targetClass, MoveMode mode) {
-		m_targetClass = targetClass;
-		m_moveMode = mode;
-		updateLink();
+		this(targetClass, null, null, mode);
 	}
 
 	/**
@@ -60,22 +59,25 @@ public class ALink extends ATag {
 	 * @param targetParameters
 	 */
 	public ALink(Class< ? extends UrlPage> targetClass, PageParameters targetParameters) {
-		m_targetClass = targetClass;
-		m_targetParameters = targetParameters;
-		updateLink();
+		this(targetClass, targetParameters, null, null);
 	}
 
 	public ALink(Class< ? extends UrlPage> targetClass, PageParameters targetParameters, MoveMode mode) {
-		m_targetClass = targetClass;
-		m_targetParameters = targetParameters;
-		m_moveMode = mode;
-		updateLink();
+		this(targetClass, targetParameters, null, mode);
 	}
 
 	public ALink(Class< ? extends UrlPage> targetClass, PageParameters targetParameters, WindowParameters newWindowParameters) {
+		this(targetClass, targetParameters, newWindowParameters, null);
+	}
+
+	private ALink(Class< ? extends UrlPage> targetClass, PageParameters targetParameters, WindowParameters newWindowParameters, MoveMode mode) {
+		setCssClass("ui-alnk");
 		m_targetClass = targetClass;
 		m_targetParameters = targetParameters;
 		m_newWindowParameters = newWindowParameters;
+		if(mode != null)
+			m_moveMode = mode;
+		updateLink();
 	}
 
 	/**
@@ -85,6 +87,7 @@ public class ALink extends ATag {
 	 * @param targetParameters
 	 */
 	public ALink(String targetURL, PageParameters targetParameters, WindowParameters newWindowParameters) {
+		setCssClass("ui-alnk");
 		m_targetURL = targetURL;
 		m_targetParameters = targetParameters;
 		m_newWindowParameters = newWindowParameters;
@@ -288,4 +291,44 @@ public class ALink extends ATag {
 		//-- Normal link; moveTo.
 		PageContext.getRequestContext().getWindowSession().internalSetNextPage(m_moveMode, m_targetClass, null, null, m_targetParameters);
 	}
+
+	/**
+	 * Add an image to the link. The image is added just before the link text and should be an icon of
+	 * max 16x16 px. The image is cleared by passing null as a parameter.
+	 * @param url
+	 */
+	public void setImage(final String url) {
+		if(DomUtil.isEqual(url, m_imageUrl))
+			return;
+		m_imageUrl = url;
+		if(m_imageUrl != null) {
+			addCssClass("ui-alnk-i");
+		} else {
+			removeCssClass("ui-alnk-i");
+		}
+		changed();
+		updateStyle();
+		forceRebuild();
+	}
+
+	/**
+	 * Add an image to the link. The image is added just before the link text and should be an icon of max 16x16 px.
+	 * @param url
+	 */
+	public void setImage(Class< ? > resourceBase, final String name) {
+		setImage(DomUtil.getJavaResourceRURL(resourceBase, name));
+	}
+
+	/**
+	 * Return the URL for the link's image, or null if unassigned.
+	 * @return
+	 */
+	public String getImage() {
+		return m_imageUrl;
+	}
+
+	private void updateStyle() {
+		setBackgroundImage(PageContext.getRequestContext().translateResourceName(m_imageUrl));
+	}
+
 }
