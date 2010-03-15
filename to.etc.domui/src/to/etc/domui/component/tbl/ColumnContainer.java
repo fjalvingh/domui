@@ -11,6 +11,8 @@ import to.etc.domui.dom.html.*;
 public class ColumnContainer<T> {
 	private TableModelTableBase<T> m_table;
 
+	private RowButtonContainer m_rowButtonContainer;
+
 	private TR m_tr;
 
 	public ColumnContainer(TableModelTableBase<T> table) {
@@ -43,5 +45,11 @@ public class ColumnContainer<T> {
 
 	public TR getTR() {
 		return m_tr;
+	}
+
+	public RowButtonContainer getRowButtonContainer() {
+		if(m_rowButtonContainer == null)
+			m_rowButtonContainer = new RowButtonContainer();
+		return m_rowButtonContainer;
 	}
 }

@@ -63,7 +63,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			}
 
 			//-- Ok: does the sessionlink have a session?
-			DomApplication.internalSetCurrent(m_application);
+			//			DomApplication.internalSetCurrent(m_application);
 			AppSession ass = link.getAppSession(m_application);
 			RequestContextImpl ctx = new RequestContextImpl(m_application, ass, request, response);
 			return execute(ctx, chain);
@@ -71,7 +71,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			synchronized(this) {
 				m_nestCount--;
 			}
-			DomApplication.internalSetCurrent(null);
+			//			DomApplication.internalSetCurrent(null);
 		}
 	}
 

@@ -17,7 +17,7 @@ public class TestUtil {
 					return null;
 				}
 			};
-			DomApplication.internalSetCurrent(m_application);
+			//			DomApplication.internalSetCurrent(m_application);
 		}
 		return m_application;
 	}

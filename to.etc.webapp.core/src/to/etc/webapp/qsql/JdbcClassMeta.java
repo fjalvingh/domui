@@ -22,6 +22,8 @@ public class JdbcClassMeta {
 	/** Immutable list of properties. */
 	private List<JdbcPropertyMeta> m_propertyList;
 
+	private JdbcPropertyMeta m_primaryKey;
+
 	public JdbcClassMeta() {}
 
 	public JdbcClassMeta(Class< ? > cm) {
@@ -82,6 +84,12 @@ public class JdbcClassMeta {
 			if(col.columnConverter() != ITypeConverter.class)
 				pm.setTypeConverter(col.columnConverter().newInstance());
 		}
+		if(null != pi.getGetter().getAnnotation(QJdbcId.class)) {
+			//-- This is the PK.
+			if(m_primaryKey != null)
+				throw new IllegalStateException("Duplicate PK: " + pi.getName() + " and " + m_primaryKey.getName());
+			m_primaryKey = pm;
+		}
 
 		if(pm.getColumnName() == null && !pm.isTransient())
 			throw new IllegalStateException(m_dataClass + ": property " + pi.getName() + " has no name for it's JDBC column name");
@@ -118,5 +126,13 @@ public class JdbcClassMeta {
 
 	public JdbcPropertyMeta findProperty(String pname) {
 		return m_propertyMap.get(pname);
+	}
+
+	public JdbcPropertyMeta getPrimaryKey() {
+		return m_primaryKey;
+	}
+
+	public void setPrimaryKey(JdbcPropertyMeta primaryKey) {
+		m_primaryKey = primaryKey;
 	}
 }
