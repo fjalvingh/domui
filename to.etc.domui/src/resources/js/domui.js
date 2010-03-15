@@ -553,6 +553,13 @@ var WebUI = {
 	},
 
 	valuechanged : function(h, id) {
+		// FIXME 20100315 jal Temporary fix for bug 680: if a DateInput has a value changed listener the onblur does not execute. So handle it here too.... The fix is horrible and needs generalization.
+		var item = document.getElementById(id);
+		if(item && (item.tagName == "input" || item.tagName == "INPUT") && item.className == "ui-di") {
+			//-- DateInput control: manually call the onblur listener.
+			this.dateInputRepairValueIn(item);
+		}
+
 		// Collect all input, then create input.
 		var fields = new Object();
 		this.getInputFields(fields);
@@ -959,8 +966,14 @@ var WebUI = {
 			}
 		}
 		var c = evt.target || evt.srcElement;
+		WebUI.dateInputRepairValueIn(c);
+	},
+
+	dateInputRepairValueIn: function(c) {
+		if(! c)
+			return;
 		var val = c.value;
-		
+
 		if(! val || val.length == 0) // Nothing to see here, please move on.
 			return;
 		Calendar.__init();
