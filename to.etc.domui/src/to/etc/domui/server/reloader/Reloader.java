@@ -249,7 +249,7 @@ final public class Reloader {
 	static public IModifyableResource findClasspathSource(String resourceName) {
 		Reloader r = internalGetReloader();
 		if(r == null)
-			return null;
+			throw new IllegalStateException("Do not call reloader code when running in production mode!");
 		return r.findResourceSource(resourceName);
 	}
 
