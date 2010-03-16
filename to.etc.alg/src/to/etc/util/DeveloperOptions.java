@@ -78,7 +78,8 @@ public class DeveloperOptions {
 
 	static synchronized public String getString(final String name) {
 		String val = internalGetString(name);
-		System.out.println("WARNING: Development-time option " + name + " (string) set to " + val);
+		if(val != null)
+			System.out.println("WARNING: Development-time option " + name + " (string) changed to " + val);
 		return val;
 	}
 
@@ -97,8 +98,9 @@ public class DeveloperOptions {
 		s = m_p.getProperty(name);
 		if(s == null)
 			s = def;
+		else
+			System.out.println("WARNING: Development-time option " + name + " (string) changed to " + s);
 		m_map.put(name, s);
-		System.out.println("WARNING: Development-time option " + name + " (string) set to " + s);
 		return s;
 	}
 
@@ -114,9 +116,9 @@ public class DeveloperOptions {
 		else {
 			s = s.toLowerCase();
 			b = Boolean.valueOf(s.startsWith("t") || s.startsWith("y"));
+			System.out.println("WARNING: Development-time option " + name + " (boolean) changed to " + b);
 		}
 		m_map.put(name, b);
-		System.out.println("WARNING: Development-time option " + name + " (boolean) set to " + b);
 		return b.booleanValue();
 	}
 
@@ -131,10 +133,9 @@ public class DeveloperOptions {
 			b = Integer.valueOf(def);
 		else {
 			b = Integer.valueOf(s);
+			System.out.println("WARNING: Development-time option " + name + " (int) changed to " + b);
 		}
 		m_map.put(name, b);
-		System.out.println("WARNING: Development-time option " + name + " (int) set to " + b);
 		return b.intValue();
 	}
-
 }

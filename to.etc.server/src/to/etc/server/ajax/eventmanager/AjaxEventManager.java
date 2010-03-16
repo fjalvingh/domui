@@ -153,6 +153,10 @@ public class AjaxEventManager {
 		if(startingeventid < m_firstMessageNumber || startingeventid >= m_nextMessageNumber)// Too old or at current level
 			return null;
 		int delta = (startingeventid - m_firstMessageNumber); // Get index within queue
+		if(m_eventQueue == null)
+			throw new IllegalStateException("Eventqueue NULL??");
+		if(channels == null)
+			throw new IllegalStateException("Channels null????");
 
 		List<QueuedEvent> list = null;
 		int ix = m_qget_ix + delta;
@@ -161,6 +165,8 @@ public class AjaxEventManager {
 		int len = m_qlength - delta; // #entries to handle,
 		while(len-- > 0) {
 			QueuedEvent e = m_eventQueue[ix++]; // Get item,
+			if(e == null)
+				throw new IllegalStateException("NULL EVENT encountered??");
 			if(channels.contains(e.getChannel())) {
 				if(list == null)
 					list = new ArrayList<QueuedEvent>();
@@ -179,8 +185,12 @@ public class AjaxEventManager {
 	 * the timestamp passed.
 	 */
 	private synchronized void expire(long ts) {
+		if(m_eventQueue == null)
+			throw new IllegalStateException("Eventqueue NULL??");
 		while(m_qlength > 0) {
 			QueuedEvent e = m_eventQueue[m_qget_ix];
+			if(e == null)
+				throw new IllegalStateException("NULL EVENT encountered??");
 			if(e.getEventTS() > ts) // This event is still valid?
 				return; // Then we're done (the queue is sorted)
 
