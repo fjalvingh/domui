@@ -215,6 +215,18 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		return b;
 	}
 
+	public <V, T extends NodeBase & IDisplayControl<V>> IControl<V> addDisplayProp(final String propertyname, final T ctl) {
+		PropertyMetaModel pmm = resolveProperty(propertyname);
+		String label = pmm.getDefaultLabel();
+		addControl(label, ctl, new NodeBase[]{ctl}, false, true, pmm); // Since this is a full control it is editable
+		if(label != null)
+			ctl.setErrorLocation(label);
+		DisplayOnlyPropertyBinding<V> b = new DisplayOnlyPropertyBinding<V>(getModel(), pmm, ctl);
+		getBindings().add(b);
+		return b;
+	}
+
+
 	/**
 	 * Add a user-specified control for a given property. This adds the control, using
 	 * the specified label and creates a binding for the property on the
