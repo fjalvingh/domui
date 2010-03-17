@@ -1072,3 +1072,6 @@ body,html {
 	font-size: xx-small;
 	vertical-align: bottom;
 }
+.ui-pre {
+	white-space: pre;
+}
