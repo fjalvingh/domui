@@ -109,7 +109,7 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 			m_s.init(m_input.getValue());
 			m_s.skipWs();
 
-			if(Character.isDigit(m_s.LA())) {
+			if(Character.isDigit(m_s.LA()) || m_s.LA() == '-') {
 				//-- This is just a number and cannot have operators. Parse and create equality test.
 				T value = parseNumber(in);
 				if(value == null)

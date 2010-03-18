@@ -82,6 +82,12 @@ public class ControlFactoryMoney implements ControlFactory {
 				}
 			}
 			txt.setSize(size);
+
+			//-- 20100318 Since we have precision and scale, add a range check to this control.
+			BigDecimal bd = BigDecimal.valueOf(10);
+			bd = bd.pow(d); // 10^n, this is the EXCLUSIVE max/min value.
+			bd = bd.subtract(BigDecimal.valueOf(1)); // Inclusive now;
+			txt.addValidator(new MaxMinValidator(bd.negate(), bd));
 		} else if(pmm.getLength() > 0) {
 			txt.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
 		}

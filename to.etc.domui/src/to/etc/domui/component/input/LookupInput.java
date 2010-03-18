@@ -338,12 +338,26 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 						if(pl.size() == 0)
 							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + cmm);
 
-						if(spm.isIgnoreCase()) {
-							r.ilike(spm.getPropertyName(), searchString + "%");
-						} else {
-							r.like(spm.getPropertyName(), searchString + "%");
+						//It is required that lookup by id is also available, for now only Long type is supported
+						//FIXME: see if it is possible to generalize things for all integer based types... (DomUtil.isIntegerType(pmm.getActualType()))
+						if(pl.get(0).getActualType() == Long.class) {
+							try {
+								Long val = Long.valueOf(searchString);
+								if(val != null) {
+									r.eq(spm.getPropertyName(), val.longValue());
+									ncond++;
+								}
+							} catch(NumberFormatException ex) {
+								//just ignore this since it means that it is not correct Long condition.
+							}
+						} else if(pl.get(0).getActualType().isAssignableFrom(String.class)) {
+							if(spm.isIgnoreCase()) {
+								r.ilike(spm.getPropertyName(), searchString + "%");
+							} else {
+								r.like(spm.getPropertyName(), searchString + "%");
+							}
+							ncond++;
 						}
-						ncond++;
 					}
 				}
 			}

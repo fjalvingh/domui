@@ -31,7 +31,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	private IConverter<T> m_converter;
 
 	/** Defined value validators on this field. */
-	private List<PropertyMetaValidator> m_validators = Collections.EMPTY_LIST;
+	private List<IValueValidator< ? >> m_validators = Collections.EMPTY_LIST;
 
 	private T m_value;
 
@@ -173,8 +173,8 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 			else
 				converted = RuntimeConversions.convertTo(raw, m_inputClass);
 
-			if(m_validators.size() != 0)
-				ValidatorRegistry.validate(converted, m_validators);
+			for(IValueValidator< ? > vv : m_validators)
+				((IValueValidator<Object>) vv).validate(converted);
 
 			m_wasvalid = true;
 		} catch(UIException x) {
@@ -364,18 +364,20 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		m_numberMode = numberMode;
 	}
 
-	public void addValidator(PropertyMetaValidator v) {
+	public void addValidator(IValueValidator< ? > v) {
 		if(m_validators == Collections.EMPTY_LIST)
-			m_validators = new ArrayList<PropertyMetaValidator>(5);
+			m_validators = new ArrayList<IValueValidator< ? >>(5);
 		m_validators.add(v);
 	}
 
-	public void setValidators(List<PropertyMetaValidator> validators) {
-		m_validators = validators;
+	public void addValidator(PropertyMetaValidator v) {
+		IValueValidator<T> vi = ValidatorRegistry.getValueValidator((Class< ? extends IValueValidator<T>>) v.getValidatorClass(), v.getParameters());
+		addValidator(vi);
 	}
 
 	public void addValidator(Class< ? extends IValueValidator<T>> clz) {
-		addValidator(new MetaPropertyValidatorImpl(clz));
+		IValueValidator<T> vi = ValidatorRegistry.getValueValidator(clz, null);
+		addValidator(vi);
 	}
 
 	public void addValidator(Class< ? extends IValueValidator<T>> clz, String[] parameters) {

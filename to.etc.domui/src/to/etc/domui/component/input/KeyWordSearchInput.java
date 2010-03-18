@@ -164,7 +164,9 @@ class KeyWordSearchInput<T> extends Div {
 	}
 
 	public void showResultsHintPopup(ITableModel<T> popupResults) throws Exception {
-		assert (isBuilt());
+		if(!isBuilt()) {
+			throw new IllegalStateException("Must be built already!");
+		}
 		if(popupResults == null) {
 			if(m_pnlSearchPopup != null) {
 				removeChild(m_pnlSearchPopup);
@@ -185,7 +187,9 @@ class KeyWordSearchInput<T> extends Div {
 				m_pnlSearchPopup.removeAllChildren();
 			}
 
-			assert (m_resultsHintPopupRowRenderer != null);
+			if(m_resultsHintPopupRowRenderer == null) {
+				throw new IllegalStateException("Undefined m_resultsHintPopupRowRenderer!");
+			}
 
 			DataTable<T> tbl = new DataTable<T>(popupResults, m_resultsHintPopupRowRenderer);
 			m_pnlSearchPopup.add(tbl);

@@ -45,7 +45,8 @@ final class LookupFactoryDate implements ILookupControlFactory {
 					}
 
 					//-- Between query
-					crit.between(spm.getPropertyName(), from, till);
+					crit.ge(spm.getPropertyName(), from);
+					crit.lt(spm.getPropertyName(), till);
 				} else if(from != null) {
 					crit.ge(spm.getPropertyName(), from);
 				} else {
