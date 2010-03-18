@@ -46,7 +46,7 @@ public class DoubleType implements ITypeConverter {
 	 * @see to.etc.webapp.qsql.ITypeConverter#convertToInstance(java.sql.ResultSet, int, to.etc.webapp.qsql.JdbcPropertyMeta)
 	 */
 	public Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
-		int val = rs.getInt(index);
+		double val = rs.getDouble(index);
 		if(rs.wasNull()) {
 			if(!pm.getActualClass().isPrimitive())
 				return null;
