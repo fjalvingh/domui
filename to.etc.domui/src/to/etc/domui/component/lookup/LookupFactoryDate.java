@@ -49,7 +49,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 				} else if(from != null) {
 					crit.ge(spm.getPropertyName(), from);
 				} else {
-					crit.lt(spm.getPropertyName(), till);
+					crit.le(spm.getPropertyName(), till);
 				}
 				return true;
 			}
