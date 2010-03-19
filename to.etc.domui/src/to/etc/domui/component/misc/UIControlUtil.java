@@ -271,12 +271,10 @@ final public class UIControlUtil {
 			node.setConverter((IConverter) pmm.getConverter());
 		else {
 			NumericPresentation np = null;
-			if(!editable)
-				np = pmm.getNumericPresentation();
-			if(np == null)
-				np = NumericPresentation.NUMBER;
-
-			IConverter<T> c = NumericUtil.createNumberConverter(type, np);
+			//			if(!editable)
+			np = pmm.getNumericPresentation();
+			int scale = pmm.getScale();
+			IConverter<T> c = NumericUtil.createNumberConverter(type, np, scale);
 			node.setConverter(c);
 		}
 	}
@@ -336,4 +334,33 @@ final public class UIControlUtil {
 		txt.setTextAlign(TextAlign.RIGHT);
 		return txt;
 	}
+
+	static public Text<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
+		return createDoubleInput(MetaManager.findPropertyMeta(clz, property), editable);
+	}
+
+	static public Text<Double> createDoubleInput(PropertyMetaModel pmm, boolean editable) {
+		if(pmm == null)
+			throw new NullPointerException("Null property model not allowed");
+		Text<Double> txt = new Text<Double>(Double.class);
+		configureNumericInput(txt, pmm, editable);
+		assignNumericConverter(pmm, editable, txt, Double.class);
+		txt.setTextAlign(TextAlign.RIGHT);
+		return txt;
+	}
+
+	static public Text<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
+		return createBigDecimalInput(MetaManager.findPropertyMeta(clz, property), editable);
+	}
+
+	static public Text<BigDecimal> createBigDecimalInput(PropertyMetaModel pmm, boolean editable) {
+		if(pmm == null)
+			throw new NullPointerException("Null property model not allowed");
+		Text<BigDecimal> txt = new Text<BigDecimal>(BigDecimal.class);
+		configureNumericInput(txt, pmm, editable);
+		assignNumericConverter(pmm, editable, txt, BigDecimal.class);
+		txt.setTextAlign(TextAlign.RIGHT);
+		return txt;
+	}
 }
+

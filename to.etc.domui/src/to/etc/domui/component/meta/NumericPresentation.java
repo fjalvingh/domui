@@ -10,8 +10,14 @@ public enum NumericPresentation {
 	/** No explicit presentation set. */
 	UNKNOWN,
 
-	/** Just a run-of-the-mill number */
+	/** Just a run-of-the-mill number, containing only a fraction separator when needed */
 	NUMBER,
+
+	/** Presented in full precision, moving to scientific (x.xxEyy) mode when needed */
+	NUMBER_SCIENTIFIC,
+
+	/** Fully embellished number, with thousand separators and such */
+	NUMBER_FULL,
 
 	/** Default monetary representation. */
 	MONEY,
