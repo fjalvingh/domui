@@ -113,14 +113,6 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	private void redraw() throws Exception {
 		int cp = m_table.getCurrentPage();
 		int np = m_table.getPageCount();
-
-		// imilovanovic: scalling current page to the last page in case if 
-		// current page (from previous search) is greater than page count (from current search)
-		if(cp > np - 1) {
-			m_table.setCurrentPage(np - 1);
-			cp = np - 1;
-		}
-
 		if(np == 0)
 			// mtesic:there is already 'There are no results' message inside DataCellTable
 			// m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_EMPTY));
