@@ -5,8 +5,6 @@ import java.math.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
 
 /**
@@ -50,82 +48,20 @@ public class ControlFactoryMoney implements ControlFactory {
 			DisplayValue dv = new DisplayValue(iclz);
 			//			dv.setTextAlign(TextAlign.RIGHT);
 			dv.addCssClass("ui-numeric");
-			assignConverter(pmm, false, dv);
+			UIControlUtil.assignMonetaryConverter(pmm, editable, dv);
 			String s = pmm.getDefaultHint();
 			if(s != null)
 				dv.setTitle(s);
 			return new Result(dv, model, pmm);
 		}
 
-		//-- Treat everything else as a String using a converter.
-		Text< ? > txt = new Text(iclz);
-		if(!editable)
-			txt.setReadOnly(true);
-
-		/*
-		 * Length calculation using the metadata. This uses the "length" field as LAST, because it is often 255 because the
-		 * JPA's column annotation defaults length to 255 to make sure it's usability is bloody reduced. Idiots.
-		 */
-		if(pmm.getDisplayLength() > 0)
-			txt.setSize(pmm.getDisplayLength());
-		else if(pmm.getPrecision() > 0) {
-			// FIXME This should be localized somehow...
-			//-- Calculate a size using scale and precision.
-			int size = pmm.getPrecision();
-			int d = size;
-			if(pmm.getScale() > 0) {
-				size++; // Inc size to allow for decimal point or comma
-				d -= pmm.getScale(); // Reduce integer part,
-				if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
-					int nd = (d - 1) / 3; // How many thousand separators could there be?
-					size += nd; // Increment input size with that
-				}
-			}
-			txt.setSize(size);
-
-			//-- 20100318 Since we have precision and scale, add a range check to this control.
-			BigDecimal bd = BigDecimal.valueOf(10);
-			bd = bd.pow(d); // 10^n, this is the EXCLUSIVE max/min value.
-			bd = bd.subtract(BigDecimal.valueOf(1)); // Inclusive now;
-			txt.addValidator(new MaxMinValidator(bd.negate(), bd));
-		} else if(pmm.getLength() > 0) {
-			txt.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
-		}
-
-		assignConverter(pmm, editable, txt);
-
-		if(pmm.getLength() > 0)
-			txt.setMaxLength(pmm.getLength());
-		if(pmm.isRequired())
-			txt.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			txt.setTitle(s);
-		for(PropertyMetaValidator mpv : pmm.getValidators())
-			txt.addValidator(mpv);
-		txt.setTextAlign(TextAlign.RIGHT);
-		return new Result(txt, model, pmm);
-	}
-
-	@SuppressWarnings("unchecked")
-	private void assignConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable< ? > node) {
-		if(pmm.getConverter() != null)
-			node.setConverter((IConverter) pmm.getConverter());
-		else {
-			NumericPresentation np = null;
-			if(!editable) {
-				np = pmm.getNumericPresentation();
-			}
-			if(np == null) {
-				np = NumericPresentation.MONEY_NUMERIC;
-			}
-			if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
-				node.setConverter((IConverter) MoneyConverterFactory.createDoubleMoneyConverters(np));
-			} else if(pmm.getActualType() == BigDecimal.class) {
-				node.setConverter((IConverter) MoneyConverterFactory.createBigDecimalMoneyConverters(np));
-			}
-			else
+		Text<?> txt;
+		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
+			txt = UIControlUtil.createDoubleMoneyInput(pmm, editable);
+		} else if(pmm.getActualType() == BigDecimal.class) {
+			txt = UIControlUtil.createBDMoneyInput(pmm, editable);
+		} else
 				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
-		}
+		return new Result(txt, model, pmm);
 	}
 }

@@ -89,13 +89,6 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 					selectionMarkerCell.add(" ");
 				}
 				selectionMarkerCell.setUserObject(item);
-				/*				selectionMarkerCell.setClicked(new IClicked<TD>() {
-									public void clicked(TD cell) throws Exception {
-										if(cell.getUserObject() != null) {
-											accumulateSelection((T) cell.getUserObject());
-										}
-									}
-								});*/
 				tr.add(selectionMarkerCell);
 				m_rowRenderer.renderRow(this, cc, ix, item);
 				ix++;

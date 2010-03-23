@@ -1,9 +1,14 @@
 package to.etc.domui.component.misc;
 
+import java.math.*;
 import java.util.*;
+
+import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.converter.*;
+import to.etc.domui.dom.css.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -16,6 +21,9 @@ final public class UIControlUtil {
 	private UIControlUtil() {
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Creating ComboFixed controls for enum's				*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Create a combo for all members of an enum. It uses the enums labels as description. Since this has no known property it cannot
 	 * use per-property translations!!
@@ -156,5 +164,197 @@ final public class UIControlUtil {
 		return v;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Creating monetary input controls.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Create a control to input a monetary value proper for the specified property.
+	 * @param clz
+	 * @param property
+	 * @return
+	 */
+	@Nonnull
+	static public Text<Double> createDoubleMoneyInput(@Nonnull Class< ? > clz, @Nonnull String property, boolean editable) {
+		return createDoubleMoneyInput(MetaManager.findPropertyMeta(clz, property), editable);
+	}
 
+	static public Text<BigDecimal> createBDMoneyInput(Class< ? > clz, String property, boolean editable) {
+		return createBDMoneyInput(MetaManager.findPropertyMeta(clz, property), editable);
+	}
+
+	static public Text<BigDecimal> createBDMoneyInput(PropertyMetaModel pmm, boolean editable) {
+		if(pmm == null)
+			throw new NullPointerException("Null property model not allowed");
+		Text<BigDecimal> txt = new Text<BigDecimal>(BigDecimal.class);
+		configureNumericInput(txt, pmm, editable);
+		assignMonetaryConverter(pmm, editable, txt);
+		return txt;
+	}
+
+	@Nonnull
+	static public Text<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel pmm, boolean editable) {
+		if(pmm == null)
+			throw new NullPointerException("Null property model not allowed");
+		Text<Double> txt = new Text<Double>(Double.class);
+		configureNumericInput(txt, pmm, editable);
+		assignMonetaryConverter(pmm, editable, txt);
+		return txt;
+	}
+
+	static private void configureNumericInput(Text< ? > txt, PropertyMetaModel pmm, boolean editable) {
+		if(!editable)
+			txt.setReadOnly(true);
+
+		/*
+		 * Length calculation using the metadata. This uses the "length" field as LAST, because it is often 255 because the
+		 * JPA's column annotation defaults length to 255 to make sure it's usability is bloody reduced. Idiots.
+		 */
+		if(pmm.getDisplayLength() > 0)
+			txt.setSize(pmm.getDisplayLength());
+		else if(pmm.getPrecision() > 0) {
+			// FIXME This should be localized somehow...
+			//-- Calculate a size using scale and precision.
+			int size = pmm.getPrecision();
+			int d = size;
+			if(pmm.getScale() > 0) {
+				size++; // Inc size to allow for decimal point or comma
+				d -= pmm.getScale(); // Reduce integer part,
+				if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
+					int nd = (d - 1) / 3; // How many thousand separators could there be?
+					size += nd; // Increment input size with that
+				}
+			}
+			txt.setSize(size);
+
+			//-- 20100318 Since we have precision and scale, add a range check to this control.
+			assignPrecisionValidator(txt, pmm);
+		} else if(pmm.getLength() > 0) {
+			txt.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
+		}
+		if(pmm.getLength() > 0)
+			txt.setMaxLength(pmm.getLength());
+		if(pmm.isRequired())
+			txt.setMandatory(true);
+		String s = pmm.getDefaultHint();
+		if(s != null)
+			txt.setTitle(s);
+		for(PropertyMetaValidator mpv : pmm.getValidators())
+			txt.addValidator(mpv);
+		txt.setTextAlign(TextAlign.RIGHT);
+	}
+
+	@SuppressWarnings("unchecked")
+	static public void assignMonetaryConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable< ? > node) {
+		if(pmm.getConverter() != null)
+			node.setConverter((IConverter) pmm.getConverter());
+		else {
+			NumericPresentation np = null;
+			if(!editable)
+				np = pmm.getNumericPresentation();
+			if(np == null)
+				np = NumericPresentation.MONEY_NUMERIC;
+
+			if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
+				node.setConverter((IConverter) MoneyConverterFactory.createDoubleMoneyConverters(np));
+			} else if(pmm.getActualType() == BigDecimal.class) {
+				node.setConverter((IConverter) MoneyConverterFactory.createBigDecimalMoneyConverters(np));
+			} else
+				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " for monetary types");
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	static private <T> void assignNumericConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
+		if(pmm.getConverter() != null)
+			node.setConverter((IConverter) pmm.getConverter());
+		else {
+			NumericPresentation np = null;
+			//			if(!editable)
+			np = pmm.getNumericPresentation();
+			int scale = pmm.getScale();
+			IConverter<T> c = NumericUtil.createNumberConverter(type, np, scale);
+			node.setConverter(c);
+		}
+	}
+
+	static private final void	assignPrecisionValidator(@Nonnull Text<?> control, @Nonnull PropertyMetaModel pmm) {
+		assignPrecisionValidator(control, pmm.getPrecision(), pmm.getScale());
+	}
+
+	static private final void assignPrecisionValidator(@Nonnull Text< ? > control, int precision, int scale) {
+		if(precision > 0) {
+			int d = precision;
+			if(scale > 0)
+				d -= scale;
+			if(d < 0)
+				return;
+			BigDecimal bd = BigDecimal.valueOf(10);
+			bd = bd.pow(d); // 10^n, this is the EXCLUSIVE max/min value.
+			bd = bd.subtract(BigDecimal.valueOf(1)); // Inclusive now;
+			control.addValidator(new MaxMinValidator(bd.negate(), bd));
+		}
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Numeric Text inputs for base types.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Create an int input control, properly configured for the specified property.
+	 * @param clz
+	 * @param property
+	 * @param editable
+	 * @return
+	 */
+	static public Text<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
+		return createIntInput(MetaManager.findPropertyMeta(clz, property), editable);
+	}
+
+	static public Text<Integer> createIntInput(PropertyMetaModel pmm, boolean editable) {
+		if(pmm == null)
+			throw new NullPointerException("Null property model not allowed");
+		Text<Integer> txt = new Text<Integer>(Integer.class);
+		configureNumericInput(txt, pmm, editable);
+		assignNumericConverter(pmm, editable, txt, Integer.class);
+		return txt;
+	}
+
+	static public Text<Long> createLongInput(Class< ? > clz, String property, boolean editable) {
+		return createLongInput(MetaManager.findPropertyMeta(clz, property), editable);
+	}
+
+	static public Text<Long> createLongInput(PropertyMetaModel pmm, boolean editable) {
+		if(pmm == null)
+			throw new NullPointerException("Null property model not allowed");
+		Text<Long> txt = new Text<Long>(Long.class);
+		configureNumericInput(txt, pmm, editable);
+		assignNumericConverter(pmm, editable, txt, Long.class);
+		return txt;
+	}
+
+	static public Text<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
+		return createDoubleInput(MetaManager.findPropertyMeta(clz, property), editable);
+	}
+
+	static public Text<Double> createDoubleInput(PropertyMetaModel pmm, boolean editable) {
+		if(pmm == null)
+			throw new NullPointerException("Null property model not allowed");
+		Text<Double> txt = new Text<Double>(Double.class);
+		configureNumericInput(txt, pmm, editable);
+		assignNumericConverter(pmm, editable, txt, Double.class);
+		return txt;
+	}
+
+	static public Text<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
+		return createBigDecimalInput(MetaManager.findPropertyMeta(clz, property), editable);
+	}
+
+	static public Text<BigDecimal> createBigDecimalInput(PropertyMetaModel pmm, boolean editable) {
+		if(pmm == null)
+			throw new NullPointerException("Null property model not allowed");
+		Text<BigDecimal> txt = new Text<BigDecimal>(BigDecimal.class);
+		configureNumericInput(txt, pmm, editable);
+		assignNumericConverter(pmm, editable, txt, BigDecimal.class);
+		return txt;
+	}
 }
+
