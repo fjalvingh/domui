@@ -150,6 +150,27 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 		}
 	}
 
+	public void selectAll() throws Exception {
+		if(m_selectedRows == Collections.EMPTY_LIST) {
+			m_selectedRows = new ArrayList<T>();
+		}
+		m_selectedRows.clear();
+		for(T item : getModel().getItems(0, getModel().getRows())) {
+			m_selectedRows.add(item);
+		}
+		if(isBuilt()) {
+			forceRebuild();
+		}
+	}
+
+	public void deselectAll() {
+		if(m_selectedRows != Collections.EMPTY_LIST) {
+			m_selectedRows.clear();
+		}
+		if(isBuilt()) {
+			forceRebuild();
+		}
+	}
 
 	public String getSelectionColTitle() {
 		return m_selectionColTitle;
