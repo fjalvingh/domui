@@ -18,10 +18,14 @@ public class JdbcQuery<T> {
 
 	private List<ValSetter> m_valList;
 
-	public JdbcQuery(String sql, List<IInstanceMaker> retrieverList, List<ValSetter> vl) {
+	private int m_start, m_limit;
+
+	public JdbcQuery(String sql, List<IInstanceMaker> retrieverList, List<ValSetter> vl, int start, int limit) {
 		m_sql = sql;
 		m_rowMaker = retrieverList;
 		m_valList = vl;
+		m_start = start;
+		m_limit = limit;
 	}
 
 	public List< ? > query(QDataContext dc) throws Exception {
@@ -37,16 +41,23 @@ public class JdbcQuery<T> {
 
 			List<Object> res = new ArrayList<Object>();
 			rs = ps.executeQuery();
+			int rownum = 0;
 			while(rs.next()) {
-				if(m_rowMaker.size() == 1) {
-					res.add(m_rowMaker.get(0).make(dc, rs));
-				} else {
-					Object[] row = new Object[m_rowMaker.size()];
-					for(int i = 0; i < m_rowMaker.size(); i++) {
-						row[i] = m_rowMaker.get(i).make(dc, rs);
+				if(rownum >= m_start) {
+					if(m_limit > 0 && res.size() >= m_limit)
+						break;
+
+					if(m_rowMaker.size() == 1) {
+						res.add(m_rowMaker.get(0).make(dc, rs));
+					} else {
+						Object[] row = new Object[m_rowMaker.size()];
+						for(int i = 0; i < m_rowMaker.size(); i++) {
+							row[i] = m_rowMaker.get(i).make(dc, rs);
+						}
+						res.add(row);
 					}
-					res.add(row);
 				}
+				rownum++;
 			}
 			return res;
 		} catch(Exception x) {

@@ -155,14 +155,35 @@ public class MiniScanner {
 	 * a parseable numeric string for one of the to-java-type converters.
 	 */
 	public boolean scanLaxEuro(String in) throws ValidationException {
+		return scanLax(in, true);
+	}
+
+	/**
+	 * FIXME THIS IS WRONG - for any real type we cannot distinguish between the use
+	 * of decimal point or comma as either separator or fraction indicator.
+	 * @param in
+	 * @return
+	 * @throws ValidationException
+	 */
+	public boolean scanLaxNumber(String in) throws ValidationException {
+		return scanLax(in, false);
+	}
+
+	/**
+	 * Scans the input as a lax euro string and leave the buffer to hold
+	 * a parseable numeric string for one of the to-java-type converters.
+	 */
+	private boolean scanLax(String in, boolean monetary) throws ValidationException {
 		init(in.trim()); // Remove leading and trailing spaces
 		boolean haseur = skip('\u20ac');		// Skip euro sign
 		skipWs();			// And any ws after
 		if(eof()) {
 			if(haseur) // Euro sign without anything around it is error
-				badamount();
+				badamount(monetary);
 			return false; // But accept whitespace only (empty input, null value)
 		}
+		if(haseur && !monetary)
+			badnumber();
 
 		if(skip('-')) { // Leading minus?
 			m_buffer.append('-');
@@ -197,11 +218,11 @@ public class MiniScanner {
 				if(commact > 1) {
 					//-- COMMA Encountered at least 2ce, this means this MUST be the thousands separator. Issue checks for that, then;
 					if(dotct > 1) // Also has more dots - cannot determine thousands separator.
-						badamount();
+						badamount(monetary);
 
 					//-- Since this is thousands separator the last encounter must be 3 pos ago
 					if(lastcommaix + 4 != cix) // Bad location of thousands separator (4 = 3 digits + separator).
-						badamount();
+						badamount(monetary);
 				}
 				lastcommaix = cix;
 				accept();
@@ -210,11 +231,11 @@ public class MiniScanner {
 				if(dotct > 1) {
 					//-- DOT Encountered at least 2ce, this means this MUST be the thousands separator. Issue checks for that, then;
 					if(commact > 1) // Also has more commas - cannot determine thousands separator.
-						badamount();
+						badamount(monetary);
 
 					//-- Since this is thousands separator the last encounter must be 3 pos ago
 					if(lastdotix + 4 != cix) // Bad location of thousands separator (4 = 3 digits + separator).
-						badamount();
+						badamount(monetary);
 				}
 				lastdotix = cix;
 				accept();
@@ -222,12 +243,12 @@ public class MiniScanner {
 				copy(); // copy to output buffer,
 				ndigits++;
 			} else
-				badamount();
+				badamount(monetary);
 			cix++;
 		}
 
 		if(ndigits == 0) // Got some commas and stuff but no digits?
-			badamount();
+			badamount(monetary);
 
 		/*
 		 * Basic parsing is over and real silly errors have been fixed. We now need to formally decide
@@ -265,9 +286,9 @@ public class MiniScanner {
 			} else if(delta == 4) {
 				//-- 4= .000 which is proper for thousands separator. Since that is checked by this we leave the lastthoupos unaltered
 				if(ndigits <= 3) // Do not allow .000 but require 1.000
-					badamount();
+					badamount(monetary);
 			} else
-				badamount();
+				badamount(monetary);
 		} else if(dotct == 0 && commact == 1) {
 			//-- Only a single comma somewhere. Check it's location to see if it is decimal point or comma,
 			int delta = cix - lastcommaix; // #of chars from END of number
@@ -277,9 +298,9 @@ public class MiniScanner {
 			} else if(delta == 4) {
 				//-- 4= ,000 which is proper for thousands separator. Since that is checked by this we leave the lastthoupos unaltered
 				if(ndigits <= 3) // Do not allow ,000 but require 1,000
-					badamount();
+					badamount(monetary);
 			} else
-				badamount();
+				badamount(monetary);
 		} else {
 			//-- We have one dot and one comma. Which one is which?
 			int cdelta = cix - lastcommaix;
@@ -290,20 +311,20 @@ public class MiniScanner {
 			} else if(ddelta <= 3 && lastdotix - lastcommaix == 4) { // Dot is decimal point
 				decimalpos = lastdotix;
 			} else
-				badamount();
+				badamount(monetary);
 		}
 
 		//-- Do the final checks if still needed,
 		if(decimalpos == -1) {
 			if(lastthoupos != -1 && (cix - lastthoupos) != 4)
-				badamount();
+				badamount(monetary);
 		} else {
 			//-- We have a decimal point; check it's location;
 			int ddelta = cix - decimalpos;
 			if(ddelta > 3)
-				badamount();
+				badamount(monetary);
 			if(lastthoupos != -1 && decimalpos - lastthoupos != 4)
-				badamount();
+				badamount(monetary);
 
 			//-- Add decimal point in output buffer @ proper location
 			if(ddelta > 1) {
@@ -314,8 +335,12 @@ public class MiniScanner {
 		return true;
 	}
 
-	private void badamount() throws ValidationException {
-		throw new ValidationException(Msgs.V_BAD_AMOUNT, m_in);
+	private void badnumber() throws ValidationException {
+		throw new ValidationException(Msgs.V_INVALID, m_in);
+	}
+
+	private void badamount(boolean monetary) {
+		throw new ValidationException(monetary ? Msgs.V_BAD_AMOUNT : Msgs.V_INVALID, m_in);
 	}
 
 	/*--------------------------------------------------------------*/

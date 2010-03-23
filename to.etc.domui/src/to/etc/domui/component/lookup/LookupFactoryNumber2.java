@@ -76,9 +76,10 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 				numText.setTitle(hint);
 		}
 		Double minmax = Double.valueOf(calcMaxValue(pmm));
+		boolean monetary = NumericPresentation.isMonetary(pmm.getNumericPresentation());
 
 		//-- FIXME Generic bounds violation due to it's gross definition, ignored.
-		return new LookupNumberControl<Number>((Class) pmm.getActualType(), numText, spm.getPropertyName(), Double.valueOf(-minmax.doubleValue()), minmax);
+		return new LookupNumberControl<Number>((Class) pmm.getActualType(), numText, spm.getPropertyName(), Double.valueOf(-minmax.doubleValue()), minmax, monetary);
 	}
 
 	static private double calcMaxValue(PropertyMetaModel pmm) {

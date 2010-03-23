@@ -35,11 +35,15 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	/** FIXME Need some better way to set this */
 	private boolean m_oracle = true;
 
+	private int m_start, m_limit;
+
 	@Override
 	public void visitCriteria(QCriteria< ? > qc) throws Exception {
 		m_root = new PClassRef(qc.getBaseClass(), "this_");
 		m_tblMap.put(m_root.getAlias(), m_root);
 		m_rootMeta = JdbcMetaManager.getMeta(qc.getBaseClass());
+		m_start = qc.getStart();
+		m_limit = qc.getLimit();
 		generateClassGetter(m_root);
 		super.visitCriteria(qc);
 	}
@@ -92,7 +96,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	}
 
 	public JdbcQuery< ? > getQuery() throws Exception {
-		return new JdbcQuery<Object>(getSQL(), m_retrieverList, m_valList);
+		return new JdbcQuery<Object>(getSQL(), m_retrieverList, m_valList, m_start, m_limit);
 	}
 
 	/*--------------------------------------------------------------*/
