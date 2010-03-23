@@ -4,6 +4,7 @@ import java.math.*;
 import java.text.*;
 import java.util.*;
 
+import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -31,6 +32,24 @@ public class MoneyUtil {
 	 * Used for money scaling at two decimal precision on euro amounts.
 	 */
 	private static final int MONEY_SCALE_EURO = 2;
+
+	/**
+	 * Parse a monetary value and return the proper value type, either Double or BigDecimal.
+	 * FIXME Localization failure.
+	 *
+	 * @param <T>
+	 * @param valueClass
+	 * @param in
+	 * @return
+	 */
+	static public <T> T parseMoney(Class<T> valueClass, String in) {
+		if(DomUtil.isDoubleOrWrapper(valueClass))
+			return (T) parseEuroToDoubleW(in);
+		else if(BigDecimal.class == valueClass)
+			return (T) parseEuroToBigDecimal(in);
+		else
+			throw new IllegalArgumentException("The value class " + valueClass + " is not a valid monetary type");
+	}
 
 	/**
 	 * Use this method for money amount rounding purposes.

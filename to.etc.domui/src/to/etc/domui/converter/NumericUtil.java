@@ -22,75 +22,110 @@ public class NumericUtil {
 	 * @return
 	 */
 	static public int parseInt(String input) {
-		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxEuro(input))
-			return 0;
-		try {
-			return Integer.parseInt(ms.getStringResult());
-		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID);
-		}
+		return internalParseInt(input);
+		//
+		//		MiniScanner ms = MiniScanner.getInstance();
+		//		if(!ms.scanLaxNumber(input))
+		//			return 0;
+		//		try {
+		//			return Integer.parseInt(ms.getStringResult());
+		//		} catch(Exception x) {
+		//			throw new ValidationException(Msgs.V_INVALID, input);
+		//		}
 	}
 
 	@Nullable
 	static public Integer parseIntWrapper(String input) {
-		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxEuro(input))
-			return null;
+		return Integer.valueOf(internalParseInt(input));
+		//
+		//		MiniScanner ms = MiniScanner.getInstance();
+		//		if(!ms.scanLaxNumber(input))
+		//			return null;
+		//		try {
+		//			return Integer.valueOf(ms.getStringResult());
+		//		} catch(Exception x) {
+		//			throw new ValidationException(Msgs.V_INVALID, input);
+		//		}
+	}
+
+	static private final BigDecimal MAXINT = BigDecimal.valueOf(Integer.MAX_VALUE);
+
+	static private final BigDecimal MININT = BigDecimal.valueOf(Integer.MIN_VALUE);
+
+	/**
+	 * Parses an integer as a BigDecimal, then converts it. It also
+	 * does a range check on that BigDecimal. FIXME Complex, do later.
+	 * @param input
+	 * @return
+	 */
+	static private int internalParseInt(String input) {
+		BigDecimal bd = parseBigDecimal(input);
+		if(bd.compareTo(MAXINT) > 0)
+			throw new ValidationException(Msgs.V_TOOLARGE, MAXINT);
+		if(bd.compareTo(MININT) < 0)
+			throw new ValidationException(Msgs.V_TOOSMALL, MININT);
 		try {
-			return Integer.valueOf(ms.getStringResult());
+			return bd.intValueExact();
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID);
+			throw new ValidationException(Msgs.V_INVALID, input); // Happens when a fraction is present.
 		}
 	}
 
 	static public long parseLong(String input) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxEuro(input))
+		if(!ms.scanLaxNumber(input))
 			return 0;
-		return Long.parseLong(ms.getStringResult());
+		try {
+			return Long.parseLong(ms.getStringResult());
+		} catch(Exception x) {
+			throw new ValidationException(Msgs.V_INVALID, input);
+		}
 	}
 
 	@Nullable
 	static public Long parseLongWrapper(String input) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxEuro(input))
+		if(!ms.scanLaxNumber(input))
 			return null;
 		try {
 			return Long.valueOf(ms.getStringResult());
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID);
+			throw new ValidationException(Msgs.V_INVALID, input);
 		}
 	}
 
 	static public double parseDouble(String input) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxEuro(input))
+		if(!ms.scanLaxNumber(input))
 			return 0;
 		try {
 			return Double.parseDouble(ms.getStringResult());
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID);
+			throw new ValidationException(Msgs.V_INVALID, input);
 		}
 	}
 
 	@Nullable
 	static public Double parseDoubleWrapper(String input) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxEuro(input))
+		if(!ms.scanLaxNumber(input))
 			return null;
-		return Double.valueOf(ms.getStringResult());
+		try {
+			return Double.valueOf(ms.getStringResult());
+		} catch(Exception x) {
+			throw new ValidationException(Msgs.V_INVALID, input);
+		}
 	}
 
 	@Nullable
 	static public BigDecimal parseBigDecimal(String input) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxEuro(input))
+		if(!ms.scanLaxNumber(input))
 			return null;
 		try {
 			return new BigDecimal(ms.getStringResult());
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID);
+			throw new ValidationException(Msgs.V_INVALID, input);
 		}
 	}
 

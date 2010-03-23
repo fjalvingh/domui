@@ -34,6 +34,8 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 
 	private Number m_maxValue;
 
+	private boolean m_monetary;
+
 	static {
 		UNARY_OPS = new HashSet<QOperation>();
 		UNARY_OPS.add(QOperation.ISNOTNULL);
@@ -50,13 +52,22 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 		BINARY_OPS.add(QOperation.ILIKE);
 	}
 
-	public LookupNumberControl(final Class<T> valueType, Text<String> node, String propertyName, Number minValue, Number maxValue) {
+	public LookupNumberControl(final Class<T> valueType, Text<String> node, String propertyName, Number minValue, Number maxValue, boolean monetary) {
 		super(node);
 		m_input = node;
 		m_valueType = valueType;
 		m_propertyName = propertyName;
 		m_minValue = minValue;
 		m_maxValue = maxValue;
+		m_monetary = monetary;
+	}
+
+	/**
+	 * T if this control handles a monetary amount.
+	 * @return
+	 */
+	final public boolean isMonetary() {
+		return m_monetary;
 	}
 
 	protected boolean appendCriteria(QCriteria< ? > crit, QOperation op, T val) throws Exception {
@@ -75,11 +86,15 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 
 	protected void checkNumber(T value) {
 		if(value instanceof Double || value instanceof BigDecimal) { // FIXME BigDecimal is wrongly compared here
-			if((m_maxValue != null && value.doubleValue() > m_maxValue.doubleValue()) || (m_minValue != null && value.doubleValue() < m_minValue.doubleValue()))
-				throw new ValidationException(Msgs.BUNDLE, Msgs.V_OUT_OF_RANGE, value);
+			if(m_maxValue != null && value.doubleValue() > m_maxValue.doubleValue())
+				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_maxValue);
+			if(m_minValue != null && value.doubleValue() < m_minValue.doubleValue())
+				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, m_minValue);
 		} else if(value instanceof Long || value instanceof Integer) {
-			if((m_maxValue != null && value.longValue() > m_maxValue.longValue()) || (m_minValue != null && value.longValue() < m_minValue.longValue()))
-				throw new ValidationException(Msgs.BUNDLE, Msgs.V_OUT_OF_RANGE, value);
+			if(m_maxValue != null && value.longValue() > m_maxValue.longValue())
+				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_maxValue);
+			if(m_minValue != null && value.longValue() < m_minValue.longValue())
+				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, m_minValue);
 		} else
 			throw new IllegalStateException("Unsupported value type: " + value.getClass());
 	}
@@ -211,18 +226,29 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 	 * @return
 	 */
 	protected T parseNumber(String in) {
-		BigDecimal bd = MoneyUtil.parseEuroToBigDecimal(in);
-		if(m_valueType == BigDecimal.class)
-			return (T) bd;
-		if(DomUtil.isLongOrWrapper(m_valueType))
-			return (T) Long.valueOf(bd.longValue());
-		if(DomUtil.isIntegerOrWrapper(m_valueType))
-			return (T) Integer.valueOf(bd.intValue());
-		else if(DomUtil.isDoubleOrWrapper(m_valueType))
-			return (T) Double.valueOf(bd.doubleValue());
-		else if(DomUtil.isFloatOrWrapper(m_valueType))
-			return (T) Float.valueOf(bd.floatValue());
-		else
-			throw new IllegalStateException("Unknown value type for control: " + m_valueType);
+		try {
+			if(isMonetary())
+				return MoneyUtil.parseMoney(m_valueType, in);
+			else
+				return NumericUtil.parseNumber(m_valueType, in);
+		} catch(ValidationException vx) {
+			/*
+			 * Partial fix for bug 682:
+			 * Oddity: if the value entered is too big for the target data type (like too big to fit in an int) the parse
+			 * routine will throw a validation exception with toolarge or toosmall. But that value there will be maxint or
+			 * minint (for integer) while this field can have other max/min constraints. To properly show the actual value
+			 * constraint we need to check if a max/min exception was thrown and the replace the max/min value in that
+			 * exception with the actual ones defined here. If not the user gets a different maximum value for large values
+			 * than for smaller ones.
+			 */
+			if(vx.getCode().equals(Msgs.V_TOOLARGE)) {
+				if(m_maxValue != null)
+					throw new ValidationException(Msgs.V_TOOLARGE, m_maxValue);
+			} else if(vx.getCode().equals(Msgs.V_TOOSMALL)) {
+				if(m_minValue != null)
+					throw new ValidationException(Msgs.V_TOOSMALL, m_minValue);
+			}
+			throw vx;
+		}
 	}
 }
