@@ -188,7 +188,6 @@ final public class UIControlUtil {
 		Text<BigDecimal> txt = new Text<BigDecimal>(BigDecimal.class);
 		configureNumericInput(txt, pmm, editable);
 		assignMonetaryConverter(pmm, editable, txt);
-		txt.setTextAlign(TextAlign.RIGHT);
 		return txt;
 	}
 
@@ -199,7 +198,6 @@ final public class UIControlUtil {
 		Text<Double> txt = new Text<Double>(Double.class);
 		configureNumericInput(txt, pmm, editable);
 		assignMonetaryConverter(pmm, editable, txt);
-		txt.setTextAlign(TextAlign.RIGHT);
 		return txt;
 	}
 
@@ -317,7 +315,6 @@ final public class UIControlUtil {
 		Text<Integer> txt = new Text<Integer>(Integer.class);
 		configureNumericInput(txt, pmm, editable);
 		assignNumericConverter(pmm, editable, txt, Integer.class);
-		txt.setTextAlign(TextAlign.RIGHT);
 		return txt;
 	}
 
@@ -331,7 +328,6 @@ final public class UIControlUtil {
 		Text<Long> txt = new Text<Long>(Long.class);
 		configureNumericInput(txt, pmm, editable);
 		assignNumericConverter(pmm, editable, txt, Long.class);
-		txt.setTextAlign(TextAlign.RIGHT);
 		return txt;
 	}
 
@@ -345,7 +341,6 @@ final public class UIControlUtil {
 		Text<Double> txt = new Text<Double>(Double.class);
 		configureNumericInput(txt, pmm, editable);
 		assignNumericConverter(pmm, editable, txt, Double.class);
-		txt.setTextAlign(TextAlign.RIGHT);
 		return txt;
 	}
 
@@ -359,7 +354,6 @@ final public class UIControlUtil {
 		Text<BigDecimal> txt = new Text<BigDecimal>(BigDecimal.class);
 		configureNumericInput(txt, pmm, editable);
 		assignNumericConverter(pmm, editable, txt, BigDecimal.class);
-		txt.setTextAlign(TextAlign.RIGHT);
 		return txt;
 	}
 }
