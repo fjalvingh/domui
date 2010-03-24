@@ -112,6 +112,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		JdbcPropertyMeta pm = resolveProperty(o.getProperty());
 		if(m_order.length() > 0)
 			m_order.append(",");
+		m_order.append("this_.");
 		m_order.append(pm.getColumnName());
 		switch(o.getDirection()){
 			default:

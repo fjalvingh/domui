@@ -45,7 +45,7 @@ public class TestBasic {
 		gc.visitCriteria(qc);
 
 		System.out.println(gc.getSQL());
-		Assert.assertEquals("select this_.grbr_code,this_.grbr_type_omschrijving,this_.omschrijving,this_.ID from v_dec_grootboekrekeningen this_", gc.getSQL());
+		Assert.assertEquals("select this_.ID,this_.grbr_code,this_.omschrijving,this_.grbr_type_omschrijving from v_dec_grootboekrekeningen this_", gc.getSQL());
 		Assert.assertEquals(1, gc.getRetrieverList().size());
 		Assert.assertEquals(0, gc.getValList().size());
 	}
@@ -58,7 +58,25 @@ public class TestBasic {
 		gc.visitCriteria(qc);
 
 		System.out.println(gc.getSQL());
-		Assert.assertEquals("select this_.grbr_code,this_.grbr_type_omschrijving,this_.omschrijving,this_.ID from v_dec_grootboekrekeningen this_ where ID=? and grbr_code=?", gc.getSQL());
+		Assert.assertEquals("select this_.ID,this_.grbr_code,this_.omschrijving,this_.grbr_type_omschrijving from v_dec_grootboekrekeningen this_ where ID=? and grbr_code=?", gc.getSQL());
+		Assert.assertEquals(1, gc.getRetrieverList().size());
+		Assert.assertEquals(2, gc.getValList().size());
+	}
+
+	@Test
+	public void testSQLGen3() throws Exception {
+		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class).eq("id", Long.valueOf(12)).eq("code", "BR12");
+		qc.ascending("code");
+		qc.descending("description");
+
+		JdbcSQLGenerator gc = new JdbcSQLGenerator();
+		gc.visitCriteria(qc);
+
+		System.out.println(gc.getSQL());
+		Assert
+			.assertEquals(
+				"select this_.ID,this_.grbr_code,this_.omschrijving,this_.grbr_type_omschrijving from v_dec_grootboekrekeningen this_ where ID=? and grbr_code=? order by this_.grbr_code asc,this_.omschrijving desc",
+				gc.getSQL());
 		Assert.assertEquals(1, gc.getRetrieverList().size());
 		Assert.assertEquals(2, gc.getValList().size());
 	}

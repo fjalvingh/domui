@@ -63,8 +63,20 @@ public class JdbcClassMeta {
 		}
 		m_propertyMap = map;
 		m_columnMap = colmap;
-		m_propertyList = Collections.unmodifiableList(new ArrayList<JdbcPropertyMeta>(m_propertyMap.values()));
+		List<JdbcPropertyMeta>	res = new ArrayList<JdbcPropertyMeta>(m_propertyMap.values());
+		Collections.sort(res, C_PROP);
+		m_propertyList = Collections.unmodifiableList(new ArrayList<JdbcPropertyMeta>(res));
 	}
+
+	static private final Comparator<JdbcPropertyMeta> C_PROP = new Comparator<JdbcPropertyMeta>() {
+		@Override
+		public int compare(JdbcPropertyMeta a, JdbcPropertyMeta b) {
+			if(a.isPrimaryKey() != b.isPrimaryKey()) {
+				return a.isPrimaryKey() ? -1 : 1;
+			}
+			return a.getName().compareTo(b.getName());
+		}
+	};
 
 	private JdbcPropertyMeta evaluateProperty(PropertyInfo pi) throws Exception {
 		if(pi.getGetter() == null) // Writeonly not accepted
