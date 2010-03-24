@@ -85,6 +85,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 				selectionCell.add(b);
 				tr.add(selectionCell);
 				tr.setUserObject(b);
+				tr.addCssClass("ui-rowsel");
 				tr.setClicked(new IClicked<TR>() {
 
 					public void clicked(TR row) throws Exception {
@@ -165,14 +166,21 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 		if(isBuilt()) {
 			forceRebuild();
 		}
+		if(getSelectionChangedHandler() != null) {
+			getSelectionChangedHandler().onValueChanged(this);
+		}
 	}
 
-	public void deselectAll() {
+	public void deselectAll() throws Exception {
+		boolean notifyChange = m_selectedRows.size() > 0;
 		if(m_selectedRows != Collections.EMPTY_LIST) {
 			m_selectedRows.clear();
 		}
 		if(isBuilt()) {
 			forceRebuild();
+		}
+		if(notifyChange && getSelectionChangedHandler() != null) {
+			getSelectionChangedHandler().onValueChanged(this);
 		}
 	}
 
