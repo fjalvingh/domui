@@ -291,7 +291,15 @@ final public class UIControlUtil {
 			BigDecimal bd = BigDecimal.valueOf(10);
 			bd = bd.pow(d); // 10^n, this is the EXCLUSIVE max/min value.
 			bd = bd.subtract(BigDecimal.valueOf(1)); // Inclusive now;
-			control.addValidator(new MaxMinValidator(bd.negate(), bd));
+
+			//negative values must contain one digit less
+			BigDecimal nbd = bd.negate();
+			if(d > 1) {
+				nbd = BigDecimal.valueOf(10);
+				nbd = nbd.pow(d - 1); // 10^n, this is the EXCLUSIVE max/min value.
+				nbd = bd.subtract(BigDecimal.valueOf(1)); // Inclusive now;
+			}
+			control.addValidator(new MaxMinValidator(nbd, bd));
 		}
 	}
 
