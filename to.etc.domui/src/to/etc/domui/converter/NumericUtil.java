@@ -138,11 +138,11 @@ public class NumericUtil {
 	 */
 	@Nullable
 	static public <T> T parseNumber(Class<T> type, String input) {
-		if(Integer.class == type)
+		if(Integer.class == type || int.class == type)
 			return (T) parseIntWrapper(input);
-		else if(Long.class == type)
+		else if(Long.class == type || long.class == type)
 			return (T) parseLongWrapper(input);
-		else if(Double.class == type)
+		else if(Double.class == type || double.class == type)
 			return (T) parseDoubleWrapper(input);
 		else if(BigDecimal.class == type)
 			return (T) parseBigDecimal(input);
