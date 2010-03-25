@@ -226,6 +226,8 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			if(!Collection.class.isAssignableFrom(getActualType()))
 				throw new IllegalStateException("Invalid property type for DOWN relation of property " + this + ": only List<T> is allowed");
 			setRelationType(PropertyRelationType.DOWN);
+		} else if("to.etc.webapp.qsql.QJdbcId".equals(name)) {
+			setPrimaryKey(true);
 		}
 	}
 

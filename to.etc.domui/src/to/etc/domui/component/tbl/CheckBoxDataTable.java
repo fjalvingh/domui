@@ -2,6 +2,7 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -61,7 +62,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 		if(m_selectedRows == Collections.EMPTY_LIST) {
 			m_selectedRows = new ArrayList<T>();
 		}
-		if(!m_selectedRows.contains(item)) {
+		if(getSelectedIndexOf(item) == -1) {
 			m_selectedRows.add(item);
 		}
 	}
@@ -70,8 +71,9 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 		if(m_selectedRows == Collections.EMPTY_LIST) {
 			m_selectedRows = new ArrayList<T>();
 		}
-		if(m_selectedRows.contains(item)) {
-			m_selectedRows.remove(item);
+		int index = getSelectedIndexOf(item);
+		if(index > -1) {
+			m_selectedRows.remove(index);
 		}
 	}
 
@@ -132,7 +134,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 				handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
 			}
 		});
-		b.setChecked(m_selectedRows.contains(value));
+		b.setChecked(getSelectedIndexOf(value) > -1);
 		b.setUserObject(value);
 		selectionCell.add(b);
 		tr.add(selectionCell);
@@ -151,6 +153,17 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 
 		tr.add(selectionCell);
 		m_rowRenderer.renderRow(this, cc, index, value);
+	}
+
+	private int getSelectedIndexOf(T value) {
+		int index = 0;
+		for(T item : m_selectedRows) {
+			if(MetaManager.areObjectsEqual(value, item)) {
+				return index;
+			}
+			index++;
+		}
+		return -1;
 	}
 
 	public String getSelectionColTitle() {
