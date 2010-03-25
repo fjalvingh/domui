@@ -26,6 +26,8 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 	private StringBuilder m_where = new StringBuilder();
 
+	private StringBuilder m_order;
+
 	private int m_nextWhereIndex = 1;
 
 	private int m_curPrec = 0;
@@ -84,6 +86,10 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 			sb.append(" where ");
 			sb.append(m_where);
 		}
+		if(m_order != null) {
+			sb.append(" order by ");
+			sb.append(m_order);
+		}
 		return sb.toString();
 	}
 
@@ -97,6 +103,27 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 	public JdbcQuery< ? > getQuery() throws Exception {
 		return new JdbcQuery<Object>(getSQL(), m_retrieverList, m_valList, m_start, m_limit);
+	}
+
+	@Override
+	public void visitOrder(QOrder o) throws Exception {
+		if(m_order == null)
+			m_order = new StringBuilder();
+		JdbcPropertyMeta pm = resolveProperty(o.getProperty());
+		if(m_order.length() > 0)
+			m_order.append(",");
+		m_order.append("this_.");
+		m_order.append(pm.getColumnName());
+		switch(o.getDirection()){
+			default:
+				throw new IllegalStateException("Bad order: " + o.getDirection());
+			case ASC:
+				m_order.append(" asc");
+				break;
+			case DESC:
+				m_order.append(" desc");
+				break;
+		}
 	}
 
 	/*--------------------------------------------------------------*/

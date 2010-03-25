@@ -267,7 +267,6 @@ final public class MetaManager {
 		return areObjectsEqual(a, b, null);
 	}
 
-
 	/**
 	 * Locate the enum's default label.
 	 * @param <T>
