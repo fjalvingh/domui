@@ -74,6 +74,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private PropertyMetaModel m_primaryKey;
 
+	private PropertyMetaModel m_jdbcPrimaryKey;
+
 	private Object[] m_domainValues;
 
 	public DefaultClassMetaModel(final Class< ? > metaClass) {
@@ -132,6 +134,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_propertyMap.put(pm.getName(), pm);
 		if(pm.isPrimaryKey())
 			setPrimaryKey(pm);
+		if(pm.isJdbcPrimaryKey())
+			setJdbcPrimaryKey(pm);
 	}
 
 	/**
@@ -459,6 +463,14 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	public void setPrimaryKey(final PropertyMetaModel primaryKey) {
 		m_primaryKey = primaryKey;
+	}
+
+	public PropertyMetaModel getJdbcPrimaryKey() {
+		return m_jdbcPrimaryKey;
+	}
+
+	public void setJdbcPrimaryKey(final PropertyMetaModel jdbcPrimaryKey) {
+		m_jdbcPrimaryKey = jdbcPrimaryKey;
 	}
 
 	@Override

@@ -40,6 +40,8 @@ public interface ClassMetaModel {
 
 	public PropertyMetaModel getPrimaryKey();
 
+	public PropertyMetaModel getJdbcPrimaryKey();
+
 	/**
 	 * If this class is an enum or represents some enumerated value, this returns the possible value objects. If
 	 * this is not a domain type this MUST return null.

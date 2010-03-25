@@ -259,6 +259,15 @@ final public class MetaManager {
 				x.printStackTrace();
 				return false;
 			}
+		} else if(cmm.getJdbcPrimaryKey() != null) {
+			try {
+				Object pka = cmm.getJdbcPrimaryKey().getAccessor().getValue(a);
+				Object pkb = cmm.getJdbcPrimaryKey().getAccessor().getValue(b);
+				return DomUtil.isEqual(pka, pkb);
+			} catch(Exception x) {
+				x.printStackTrace();
+				return false;
+			}
 		}
 		return false;
 	}

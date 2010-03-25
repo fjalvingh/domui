@@ -23,6 +23,8 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 
 	private boolean m_primaryKey;
 
+	private boolean m_jdbcPrimaryKey;
+
 	private PropertyRelationType m_relationType = PropertyRelationType.NONE;
 
 	private String m_componentTypeHint;
@@ -226,6 +228,8 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			if(!Collection.class.isAssignableFrom(getActualType()))
 				throw new IllegalStateException("Invalid property type for DOWN relation of property " + this + ": only List<T> is allowed");
 			setRelationType(PropertyRelationType.DOWN);
+		} else if("to.etc.webapp.qsql.QJdbcId".equals(name)) {
+			setJdbcPrimaryKey(true);
 		}
 	}
 
@@ -352,6 +356,14 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 
 	public void setPrimaryKey(final boolean primaryKey) {
 		m_primaryKey = primaryKey;
+	}
+
+	public boolean isJdbcPrimaryKey() {
+		return m_jdbcPrimaryKey;
+	}
+
+	public void setJdbcPrimaryKey(final boolean jdbcPrimaryKey) {
+		m_jdbcPrimaryKey = jdbcPrimaryKey;
 	}
 
 	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
