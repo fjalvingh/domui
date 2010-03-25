@@ -111,7 +111,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 			TR tr = new TR();
 			m_dataBody.add(tr);
 			cc.setParent(tr);
-			m_rowRenderer.renderRow(this, cc, ix, o);
+			renderRow(tr, cc, ix, o);
 			ix++;
 		}
 	}
@@ -134,7 +134,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		tr.setCssClass("ui-dt-hdr");
 		hd.add(tr);
 		hc.setParent(tr);
-		m_rowRenderer.renderHeader(this, hc);
+		renderHeader(hc);
 		if(hc.hasContent()) {
 			m_table.add(hd);
 		} else {
@@ -206,6 +206,28 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	}
 
 	/**
+	 * Renders row content into specified row.
+	 * It can be overriden if some specific content rendering is needed in sub class.
+	 * @param cc
+	 * @param index
+	 * @param value
+	 * @throws Exception
+	 */
+	protected void renderRow(TR tr, ColumnContainer<T> cc, int index, T value) throws Exception {
+		m_rowRenderer.renderRow(this, cc, index, value);
+	}
+
+	/**
+	 * Renders row header into specified header container.
+	 * It can be overriden if some specific content rendering is needed in sub class.
+	 * @param hc specified header container
+	 * @throws Exception
+	 */
+	protected void renderHeader(HeaderContainer<T> hc) throws Exception {
+		m_rowRenderer.renderHeader(this, hc);
+	}
+
+	/**
 	 * Row add. Determine if the row is within the paged-in indexes. If not we ignore the
 	 * request. If it IS within the paged content we insert the new TR. Since this adds a
 	 * new row to the visible set we check if the resulting rowset is not bigger than the
@@ -228,7 +250,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = new TR();
 		cc.setParent(tr);
-		m_rowRenderer.renderRow(this, cc, index, value);
+		renderRow(tr, cc, index, value);
 		m_dataBody.add(rrow, tr);
 
 		//-- Is the size not > the page size?
@@ -263,7 +285,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 			ColumnContainer<T> cc = new ColumnContainer<T>(this);
 			TR tr = new TR();
 			cc.setParent(tr);
-			m_rowRenderer.renderRow(this, cc, peix, getModelItem(peix));
+			renderRow(tr, cc, peix, getModelItem(peix));
 			m_dataBody.add(m_pageSize - 1, tr);
 		}
 	}
@@ -283,7 +305,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		tr.removeAllChildren(); // Discard current contents.
 
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
-		m_rowRenderer.renderRow(this, cc, index, value);
+		renderRow(tr, cc, index, value);
 	}
 
 	public void setTableWidth(String w) {
