@@ -17,97 +17,18 @@ import to.etc.domui.util.*;
 @Deprecated
 public class CheckBoxDataTable<T> extends DataTable<T> {
 
-	public CheckBoxDataTable(ITableModel<T> m, IRowRenderer<T> r) {
-		super(m, r);
-	}
-
-	public CheckBoxDataTable(IRowRenderer<T> r) {
-		super(r);
-	}
-
 	private List<T> m_selectedRows = Collections.EMPTY_LIST;
 
 	private String m_selectionColTitle;
 
 	private IValueChanged<CheckBoxDataTable<T>> m_selectionChangedHandler;
 
-	@Override
-	public void createContent() throws Exception {
-		setCssClass("ui-dt");
+	public CheckBoxDataTable(ITableModel<T> m, IRowRenderer<T> r) {
+		super(m, r);
+	}
 
-		//-- Ask the renderer for a sort order, if applicable
-		m_rowRenderer.beforeQuery(this); // ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
-
-		calcIndices(); // Calculate rows to show.
-
-		List<T> list = getPageItems(); // Data to show
-
-		if(list.size() > 0) {
-			getTable().removeAllChildren();
-			add(getTable());
-
-			//-- Render the header.
-			THead hd = new THead();
-			HeaderContainer<T> hc = new HeaderContainer<T>(this);
-			TR tr = new TR();
-			tr.setCssClass("ui-dt-hdr");
-			hd.add(tr);
-			hc.setParent(tr);
-			hc.add(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
-			m_rowRenderer.renderHeader(this, hc);
-			getTable().add(hd);
-
-			//-- Render loop: add rows && ask the renderer to add columns.
-			setDataBody(new TBody());
-			getTable().add(getDataBody());
-
-			ColumnContainer<T> cc = new ColumnContainer<T>(this);
-
-			int ix = m_six;
-			for(T item : list) {
-				tr = new TR();
-				getDataBody().add(tr);
-				cc.setParent(tr);
-				TD selectionCell = new TD();
-
-				Checkbox b = new Checkbox();
-				b.setClicked(new IClicked<Checkbox>() {
-					public void clicked(Checkbox ckb) throws Exception {
-						//FIXME: must be done as double change of value to cause changed protected field to be set, otherwise is not rendered properly in HTML response.
-						// jal 20091105 Please explain??? The 2nd call is not doing anything right now.... I would understand if the 1st call was ckb.setChecked(ckb.isChecked())...
-						ckb.setChecked(!ckb.isChecked());
-						ckb.setChecked(!ckb.isChecked());
-						handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
-					}
-				});
-				b.setChecked(m_selectedRows.contains(item));
-				b.setUserObject(item);
-				selectionCell.add(b);
-				tr.add(selectionCell);
-				tr.setUserObject(b);
-				tr.setClicked(new IClicked<TR>() {
-
-					public void clicked(TR row) throws Exception {
-						if(row.getUserObject() instanceof Checkbox) {
-							Checkbox ckb = (Checkbox) row.getUserObject();
-							ckb.setChecked(!((Checkbox) row.getUserObject()).isChecked());
-							handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
-						}
-					}
-				});
-
-				tr.add(selectionCell);
-				m_rowRenderer.renderRow(this, cc, ix, item);
-				ix++;
-			}
-		}
-
-		if(list.size() == 0) {
-			Div error = new Div();
-			error.setCssClass("ui-dt-nores");
-			error.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
-			add(error);
-		}
+	public CheckBoxDataTable(IRowRenderer<T> r) {
+		super(r);
 	}
 
 	protected void handleSelectionChanged(boolean selected, T item) throws Exception {
@@ -165,15 +86,71 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 		if(isBuilt()) {
 			forceRebuild();
 		}
+		if(getSelectionChangedHandler() != null) {
+			getSelectionChangedHandler().onValueChanged(this);
+		}
 	}
 
-	public void deselectAll() {
+	public void deselectAll() throws Exception {
+		boolean notifyChange = m_selectedRows.size() > 0;
 		if(m_selectedRows != Collections.EMPTY_LIST) {
 			m_selectedRows.clear();
 		}
 		if(isBuilt()) {
 			forceRebuild();
 		}
+		if(notifyChange && getSelectionChangedHandler() != null) {
+			getSelectionChangedHandler().onValueChanged(this);
+		}
+	}
+
+	/**
+	 * Add selection column as first column.
+	 * @see to.etc.domui.component.tbl.DataTable#renderHeader(to.etc.domui.component.tbl.HeaderContainer)
+	 */
+	@Override
+	protected void renderHeader(HeaderContainer<T> hc) throws Exception {
+		hc.add(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
+		m_rowRenderer.renderHeader(this, hc);
+	}
+
+	/**
+	 * Add checkbox for selection as first column.
+	 * @see to.etc.domui.component.tbl.DataTable#renderRow(to.etc.domui.dom.html.TR, to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
+	 */
+	@Override
+	protected void renderRow(TR tr, ColumnContainer<T> cc, int index, T value) throws Exception {
+		TD selectionCell = new TD();
+
+		Checkbox b = new Checkbox();
+		b.setClicked(new IClicked<Checkbox>() {
+			public void clicked(Checkbox ckb) throws Exception {
+				//FIXME: must be done as double change of value to cause changed protected field to be set, otherwise is not rendered properly in HTML response.
+				// jal 20091105 Please explain??? The 2nd call is not doing anything right now.... I would understand if the 1st call was ckb.setChecked(ckb.isChecked())...
+				ckb.setChecked(!ckb.isChecked());
+				ckb.setChecked(!ckb.isChecked());
+				handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
+			}
+		});
+		b.setChecked(m_selectedRows.contains(value));
+		b.setUserObject(value);
+		selectionCell.add(b);
+		tr.add(selectionCell);
+		tr.setUserObject(b);
+		tr.addCssClass("ui-rowsel");
+		tr.setClicked(new IClicked<TR>() {
+
+			public void clicked(TR row) throws Exception {
+				if(row.getUserObject() instanceof Checkbox) {
+					Checkbox ckb = (Checkbox) row.getUserObject();
+					ckb.setChecked(!((Checkbox) row.getUserObject()).isChecked());
+					handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
+				}
+			}
+		});
+
+		tr.add(selectionCell);
+		m_rowRenderer.renderRow(this, cc, index, value);
 	}
 
 	public String getSelectionColTitle() {
