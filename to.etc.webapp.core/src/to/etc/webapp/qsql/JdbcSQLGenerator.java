@@ -124,19 +124,21 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		if(m_order == null)
 			m_order = new StringBuilder();
 		JdbcPropertyMeta pm = resolveProperty(o.getProperty());
-		if(m_order.length() > 0)
-			m_order.append(",");
-		m_order.append("this_.");
-		m_order.append(pm.getColumnName());
-		switch(o.getDirection()){
-			default:
-				throw new IllegalStateException("Bad order: " + o.getDirection());
-			case ASC:
-				m_order.append(" asc");
-				break;
-			case DESC:
-				m_order.append(" desc");
-				break;
+		for(String col : pm.getColumnNames()) {
+			if(m_order.length() > 0)
+				m_order.append(",");
+			m_order.append("this_.");
+			m_order.append(col);
+			switch(o.getDirection()){
+				default:
+					throw new IllegalStateException("Bad order: " + o.getDirection());
+				case ASC:
+					m_order.append(" asc");
+					break;
+				case DESC:
+					m_order.append(" desc");
+					break;
+			}
 		}
 	}
 
@@ -225,8 +227,26 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	}
 
 	private JdbcPropertyMeta resolveProperty(String pname) throws Exception {
-		if(pname.indexOf('.') != -1)
-			throw new IllegalStateException("Path properties are not allowed (yet): " + pname);
+		if(pname.indexOf('.') != -1) {
+			String[] segs = pname.split("\\.");
+			JdbcClassMeta currclz = m_rootMeta;
+			JdbcPropertyMeta selpm = null;
+			int i = 0;
+			for(;;) {
+				String name = segs[i++];
+				selpm = currclz.findProperty(name);
+				if(selpm == null)
+					throw new QQuerySyntaxException("Property '" + name + "' not found in class=" + currclz.getDataClass() + " in property path '" + pname + "'");
+
+				if(i >= segs.length) // Done?
+					return selpm;
+
+				//-- There is another property. The current property MUST refer to a compound.
+				if(!selpm.isCompound())
+					throw new QQuerySyntaxException("Property '" + name + "' in class=" + currclz.getDataClass() + " in property path '" + pname + "' is not a compound property");
+				currclz = JdbcMetaManager.getMeta(selpm.getActualClass());
+			}
+		}
 
 		//-- Lookup,
 		JdbcPropertyMeta pm = m_rootMeta.findProperty(pname);
