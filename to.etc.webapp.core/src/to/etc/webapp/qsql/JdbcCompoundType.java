@@ -36,9 +36,23 @@ class JdbcCompoundType implements IJdbcType, IJdbcTypeFactory {
 		return m_compoundMeta.getColumnCount();
 	}
 
+	/**
+	 * Assign values to the columns as rendered in a parameter set.
+	 * @see to.etc.webapp.qsql.IJdbcType#assignParameter(java.sql.PreparedStatement, int, to.etc.webapp.qsql.JdbcPropertyMeta, java.lang.Object)
+	 */
 	@Override
-	public void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta pm, Object value) throws Exception {
-		throw new IllegalStateException("Not implemented yet");
+	public void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta srcpm, Object inst) throws Exception {
+		int rix = index;
+		for(JdbcPropertyMeta pm : m_compoundMeta.getPropertyList()) {
+			if(pm.isTransient())
+				continue;
+			IJdbcType type = pm.getTypeConverter();
+
+			//-- Get the value for this property
+			Object pvalue = inst == null ? null : pm.getPropertyValue(inst);
+			type.assignParameter(ps, rix, pm, pvalue);
+			rix += type.columnCount();
+		}
 	}
 
 	@Override

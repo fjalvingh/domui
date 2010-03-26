@@ -58,7 +58,7 @@ public class TestBasic {
 		gc.visitCriteria(qc);
 
 		System.out.println(gc.getSQL());
-		Assert.assertEquals("select this_.ID,this_.grbr_code,this_.omschrijving,this_.grbr_type_omschrijving from v_dec_grootboekrekeningen this_ where ID=? and grbr_code=?", gc.getSQL());
+		Assert.assertEquals("select this_.ID,this_.grbr_code,this_.omschrijving,this_.grbr_type_omschrijving from v_dec_grootboekrekeningen this_ where this_.ID=? and this_.grbr_code=?", gc.getSQL());
 		Assert.assertEquals(1, gc.getRetrieverList().size());
 		Assert.assertEquals(2, gc.getValList().size());
 	}
@@ -75,7 +75,7 @@ public class TestBasic {
 		System.out.println(gc.getSQL());
 		Assert
 			.assertEquals(
-				"select this_.ID,this_.grbr_code,this_.omschrijving,this_.grbr_type_omschrijving from v_dec_grootboekrekeningen this_ where ID=? and grbr_code=? order by this_.grbr_code asc,this_.omschrijving desc",
+				"select this_.ID,this_.grbr_code,this_.omschrijving,this_.grbr_type_omschrijving from v_dec_grootboekrekeningen this_ where this_.ID=? and this_.grbr_code=? order by this_.grbr_code asc,this_.omschrijving desc",
 				gc.getSQL());
 		Assert.assertEquals(1, gc.getRetrieverList().size());
 		Assert.assertEquals(2, gc.getValList().size());

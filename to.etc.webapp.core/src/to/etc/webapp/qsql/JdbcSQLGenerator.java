@@ -55,6 +55,10 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		throw new IllegalStateException("Not implemented yet");
 	}
 
+	private String getColumnRef(PClassRef ref, String name) {
+		return ref.getAlias() + "." + name;
+	}
+
 	/**
 	 * Generate getter code for an entire class instance from a result set.
 	 * @param root
@@ -74,9 +78,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	private void addSelectColumn(PClassRef root, String name) {
 		if(m_fields.length() != 0)
 			m_fields.append(",");
-		m_fields.append(root.getAlias());
-		m_fields.append(".");
-		m_fields.append(name);
+		m_fields.append(getColumnRef(root, name));
 		m_nextFieldIndex++;
 	}
 
@@ -127,8 +129,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		for(String col : pm.getColumnNames()) {
 			if(m_order.length() > 0)
 				m_order.append(",");
-			m_order.append("this_.");
-			m_order.append(col);
+			m_order.append(getColumnRef(m_root, col));
 			switch(o.getDirection()){
 				default:
 					throw new IllegalStateException("Bad order: " + o.getDirection());
@@ -180,36 +181,80 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 	@Override
 	public void visitPropertyComparison(QPropertyComparison n) throws Exception {
+		//-- Lookup the property name. For now it cannot be dotted
+		JdbcPropertyMeta pm = resolveProperty(n.getProperty());
+		if(pm.isCompound()) {
+			//-- Compound criteria work for EQ and NE only.
+			if(n.getOperation() != QOperation.EQ && n.getOperation() != QOperation.NE)
+				throw new QQuerySyntaxException("The " + n.getOperation() + " operation is not supported on compound property " + n.getProperty());
+			generateCompoundComparison(n, pm);
+			return;
+		}
+
 		int oldprec = m_curPrec;
 		m_curPrec = getOperationPrecedence(n.getOperation());
 		if(oldprec > m_curPrec)
 			appendWhere("(");
 
-		//-- Lookup the property name. For now it cannot be dotted
 		if(n.getOperation() == QOperation.ILIKE && m_oracle) {
-			JdbcPropertyMeta pm = resolveProperty(n.getProperty());
 			appendWhere("upper(");
-			appendWhere(pm.getColumnName());
+			appendWhere(getColumnRef(m_root, pm.getColumnName()));
 			appendWhere(") like upper(");
 
 			if(n.getExpr() instanceof QLiteral) {
 				appendValueSetter(pm, (QLiteral) n.getExpr());
 			} else
-				throw new IllegalStateException("Unexpected argument to " + n + ": " + n.getExpr());
+				throw new QQuerySyntaxException("Unexpected argument to " + n + ": " + n.getExpr());
 			appendWhere(")");
 		} else {
-			JdbcPropertyMeta pm = resolveProperty(n.getProperty());
-			appendWhere(pm.getColumnName());
+			appendWhere(getColumnRef(m_root, pm.getColumnName()));
 			appendOperation(n.getOperation());
 
 			if(n.getExpr() instanceof QLiteral) {
 				appendValueSetter(pm, (QLiteral) n.getExpr());
 			} else
-				throw new IllegalStateException("Unexpected argument to " + n + ": " + n.getExpr());
+				throw new QQuerySyntaxException("Unexpected argument to " + n + ": " + n.getExpr());
 		}
 		if(oldprec > m_curPrec)
 			appendWhere(")");
 		m_curPrec = oldprec;
+	}
+
+	/**
+	 * Generate a compound eq/ne comparison.
+	 * @param n
+	 * @param pm
+	 */
+	private void generateCompoundComparison(QPropertyComparison n, JdbcPropertyMeta pm) {
+		//-- Make sure the value instance passed is of the compound's type.
+		if(!(n.getExpr() instanceof QLiteral))
+			throw new QQuerySyntaxException("Unexpected argument to " + n + ": " + n.getExpr());
+		QLiteral ql = (QLiteral) n.getExpr();
+		Object inst = ql.getValue();
+		if(inst != null) {
+			if(!pm.getActualClass().isAssignableFrom(inst.getClass()))
+				throw new QQuerySyntaxException("The value of type " + inst.getClass() + " is not assignment-compatible with the compound type=" + pm.getActualClass() + " in property "
+					+ n.getProperty());
+		}
+
+		//-- Generate the compound's where part.
+		appendWhere("(");
+		int ix = 0;
+		for(String col : pm.getColumnNames()) {
+			if(ix++ > 0)
+				appendWhere(" and ");
+
+			appendWhere(getColumnRef(m_root, col));
+			appendOperation(n.getOperation());
+			appendWhere("?");
+		}
+		appendWhere(")");
+
+		int index = m_nextWhereIndex;
+		IJdbcType tc = pm.getTypeConverter();
+		m_nextWhereIndex += tc.columnCount();
+		ValSetter vs = new ValSetter(index, inst, tc, pm);
+		m_valList.add(vs);
 	}
 
 	/**
@@ -266,7 +311,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		appendOperation(n.getOperation());
 		appendWhere("(");
 		JdbcPropertyMeta pm = resolveProperty(n.getProperty());
-		appendWhere(pm.getColumnName());
+		appendWhere(getColumnRef(m_root, pm.getColumnName()));
 		appendWhere(")");
 
 		if(oldprec > m_curPrec)
@@ -283,7 +328,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 		//-- Lookup the property name. For now it cannot be dotted
 		JdbcPropertyMeta pm = resolveProperty(n.getProp());
-		appendWhere(pm.getColumnName());
+		appendWhere(getColumnRef(m_root, pm.getColumnName()));
 		appendWhere(" between ");
 
 		if(n.getA() instanceof QLiteral) {
