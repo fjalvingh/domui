@@ -8,13 +8,12 @@ import java.sql.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 25, 2009
  */
-interface ITypeConverter {
+interface IJdbcType {
 	/**
-	 * Must return a +ve nonzero score when this converter accepts this property for conversion.
-	 * @param pm
+	 * Returns the #of columns occupied by this type.
 	 * @return
 	 */
-	int accept(JdbcPropertyMeta pm);
+	int columnCount();
 
 	/**
 	 * Must convert the value at the specified location of the result set to the type represented by this type.
@@ -24,7 +23,7 @@ interface ITypeConverter {
 	 * @return
 	 * @throws Exception
 	 */
-	Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception;
+	Object convertToInstance(ResultSet rs, int index) throws Exception;
 
 	void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta pm, Object value) throws Exception;
 }
