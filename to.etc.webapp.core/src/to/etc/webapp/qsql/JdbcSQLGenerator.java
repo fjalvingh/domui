@@ -55,20 +55,34 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		throw new IllegalStateException("Not implemented yet");
 	}
 
+	/**
+	 * Generate getter code for an entire class instance from a result set.
+	 * @param root
+	 * @throws Exception
+	 */
 	private void generateClassGetter(PClassRef root) throws Exception {
 		JdbcClassMeta cm = JdbcMetaManager.getMeta(root.getDataClass()); // Will throw exception if not proper jdbc class.
 		int startIndex = m_nextFieldIndex;
 		for(JdbcPropertyMeta pm : cm.getPropertyList()) {
 			if(!pm.isTransient()) {
-				if(m_fields.length() != 0)
-					m_fields.append(",");
-				m_fields.append(root.getAlias());
-				m_fields.append(".");
-				m_fields.append(pm.getColumnName());
-				m_nextFieldIndex++;
+				generatePropertyGetter(root, pm);
 			}
 		}
 		m_retrieverList.add(new ClassInstanceMaker(root, startIndex, cm));
+	}
+
+	private void addSelectColumn(PClassRef root, String name) {
+		if(m_fields.length() != 0)
+			m_fields.append(",");
+		m_fields.append(root.getAlias());
+		m_fields.append(".");
+		m_fields.append(name);
+		m_nextFieldIndex++;
+	}
+
+	private void generatePropertyGetter(PClassRef root, JdbcPropertyMeta pm) throws Exception {
+		for(String col : pm.getColumnNames())
+			addSelectColumn(root, col);
 	}
 
 	public String getSQL() throws Exception {
@@ -205,22 +219,20 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	private void appendValueSetter(JdbcPropertyMeta pm, QLiteral expr) {
 		appendWhere("?");
 		int index = m_nextWhereIndex++;
-
-		ITypeConverter tc = pm.getTypeConverter();
-		if(tc == null)
-			tc = JdbcMetaManager.getConverter(pm);
+		IJdbcType tc = pm.getTypeConverter();
 		ValSetter vs = new ValSetter(index, expr.getValue(), tc, pm);
 		m_valList.add(vs);
 	}
 
-	private JdbcPropertyMeta resolveProperty(String pname) {
+	private JdbcPropertyMeta resolveProperty(String pname) throws Exception {
 		if(pname.indexOf('.') != -1)
 			throw new IllegalStateException("Path properties are not allowed (yet): " + pname);
 
 		//-- Lookup,
 		JdbcPropertyMeta pm = m_rootMeta.findProperty(pname);
-		if(pm == null)
+		if(pm == null) {
 			throw new IllegalStateException(m_rootMeta.getDataClass() + "." + pname + ": unknown property");
+		}
 		return pm;
 	}
 

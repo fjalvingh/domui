@@ -4,16 +4,11 @@ import java.sql.*;
 
 import to.etc.webapp.query.*;
 
-class ClassInstanceMaker implements IInstanceMaker {
-	private JdbcClassMeta m_meta;
-
-	//	private PClassRef m_root;
-
+class ClassInstanceMaker extends JdbcCompoundType implements IInstanceMaker {
 	private int m_startIndex;
 
 	public ClassInstanceMaker(PClassRef root, int startIndex, JdbcClassMeta cm) {
-		m_meta = cm;
-		//		m_root = root;
+		super(cm);
 		m_startIndex = startIndex;
 	}
 
@@ -22,46 +17,10 @@ class ClassInstanceMaker implements IInstanceMaker {
 	 * @see to.etc.webapp.qsql.IInstanceMaker#make(java.sql.ResultSet)
 	 */
 	public Object make(QDataContext dc, ResultSet rs) throws Exception {
-		//-- 1. Create an object instance.
-		Object inst = m_meta.getDataClass().newInstance(); // This will abort when constructor is bad
-
-		//-- 2. Walk the result set and fill in zhe blanks.
-		int index = m_startIndex;
-		boolean gotsome = false;
-		for(JdbcPropertyMeta pm : m_meta.getPropertyList()) {
-			if(!pm.isTransient()) {
-				if(moveRsToProperty(inst, rs, index, pm)) {
-					gotsome = true;
-				}
-				index++;
-			}
-		}
-
+		Object inst = convertToInstance(rs, m_startIndex);
 		if(inst instanceof IInitializable) {
 			((IInitializable) inst).initializeInstance(dc);
 		}
-
-		return gotsome ? inst : null; // No data -> no object (for later join impl)
-	}
-
-	private boolean moveRsToProperty(Object inst, ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
-		ITypeConverter tc = pm.getTypeConverter();
-		if(tc == null)
-			tc = JdbcMetaManager.getConverter(pm);
-		try {
-			Object value = tc.convertToInstance(rs, index, pm);
-			if(rs.wasNull())
-				return false;
-			pm.getPi().getSetter().invoke(inst, value);
-			return true;
-		} catch(Exception x) {
-			String lv = "(-)";
-			try {
-				lv = rs.getString(index);
-			} catch(Exception xx) {}
-
-			throw new RuntimeException("Failed to convert column " + pm.getColumnName() + " of class " + pm.getActualClass() + "\nUsing ITypeConverter " + tc + "\nResultSet value: " + lv
-				+ "\nException: " + x);
-		}
+		return inst;
 	}
 }
