@@ -21,13 +21,37 @@ public class TestCompound {
 	}
 
 	@Test
-	public void testCompoundSQL() throws Exception {
+	public void testCompoundSQL1() throws Exception {
 		QCriteria<DecadePaymentOrder> qc = QCriteria.create(DecadePaymentOrder.class);
 		JdbcSQLGenerator gc = new JdbcSQLGenerator();
 		gc.visitCriteria(qc);
 
 		System.out.println(gc.getSQL());
 	}
+
+	@Test
+	public void testCompoundSQL2() throws Exception {
+		QCriteria<DecadePaymentOrder> qc = QCriteria.create(DecadePaymentOrder.class).ascending("id.docnr");
+		JdbcSQLGenerator gc = new JdbcSQLGenerator();
+		gc.visitCriteria(qc);
+
+		System.out.println(gc.getSQL());
+		Assert.assertEquals("select this_.admn_id,this_.docnr,this_.bedrag,this_.bankrekening,this_.bankrek_relatie,this_.vzop_id,this_.akst_id,this_.omschrijving,this_.betaalwijze,this_.periode,this_.jaar,this_.relatiecode,this_.relatie_naam,this_.valutadatum from v_dec_betaalopdrachten this_ order by this_.docnr asc", gc.getSQL());
+	}
+
+	@Test
+	public void testCompoundSQL3() throws Exception {
+		QCriteria<DecadePaymentOrder> qc = QCriteria.create(DecadePaymentOrder.class).descending("id");
+		JdbcSQLGenerator gc = new JdbcSQLGenerator();
+		gc.visitCriteria(qc);
+
+		System.out.println(gc.getSQL());
+		Assert
+			.assertEquals(
+				"select this_.admn_id,this_.docnr,this_.bedrag,this_.bankrekening,this_.bankrek_relatie,this_.vzop_id,this_.akst_id,this_.omschrijving,this_.betaalwijze,this_.periode,this_.jaar,this_.relatiecode,this_.relatie_naam,this_.valutadatum from v_dec_betaalopdrachten this_ order by this_.admn_id desc,this_.docnr desc",
+				gc.getSQL());
+	}
+
 
 	static <T> List<T> exec(JdbcQuery<T> q) throws Exception {
 		Connection dbc = m_ds.getConnection();
