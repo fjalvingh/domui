@@ -54,8 +54,13 @@ public class MsgBox extends FloatingWindow {
 	}
 
 	static public MsgBox create(NodeBase parent) {
-		UrlPage body = parent.getPage().getBody();
 		MsgBox w = new MsgBox(); // Create instance
+		//vmijic 20100326 - in case of cascading floating windows, z-index higher than one from parent floating window must be set.
+		FloatingWindow parentFloatingWindow = parent.getParent(FloatingWindow.class);
+		if(parentFloatingWindow != null) {
+			w.setZIndex(parentFloatingWindow.getZIndex() + 100);
+		}
+		UrlPage body = parent.getPage().getBody();
 		body.add(w);
 		return w;
 	}
