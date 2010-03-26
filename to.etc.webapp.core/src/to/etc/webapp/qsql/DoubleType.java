@@ -10,12 +10,18 @@ import to.etc.util.*;
  * @author <a href="mailto:dprica@execom.eu">Darko Prica</a>
  * Created on 21 Oct 2009
  */
-public class DoubleType implements ITypeConverter {
-
-	/**
-	 * @see to.etc.webapp.qsql.ITypeConverter#accept(to.etc.webapp.qsql.JdbcPropertyMeta)
-	 */
+public class DoubleType implements ITypeConverter, IJdbcTypeFactory {
 	public int accept(JdbcPropertyMeta pm) {
+		return pm.getActualClass() == double.class || pm.getActualClass() == Double.class ? 10 : -1;
+	}
+
+	@Override
+	public ITypeConverter createType(JdbcPropertyMeta pm) {
+		return this;
+	}
+
+	@Override
+	public int columnCount() {
 		return 1;
 	}
 
@@ -45,16 +51,10 @@ public class DoubleType implements ITypeConverter {
 	/**
 	 * @see to.etc.webapp.qsql.ITypeConverter#convertToInstance(java.sql.ResultSet, int, to.etc.webapp.qsql.JdbcPropertyMeta)
 	 */
-	public Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
+	public Object convertToInstance(ResultSet rs, int index) throws Exception {
 		double val = rs.getDouble(index);
-		if(rs.wasNull()) {
-			if(!pm.getActualClass().isPrimitive())
-				return null;
-			if(pm.getNullValue() == null)
-				return Double.valueOf(0);
-			return Double.valueOf(pm.getNullValue());
-		}
+		if(rs.wasNull())
+			return null;
 		return Double.valueOf(val);
 	}
-
 }

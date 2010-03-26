@@ -8,12 +8,22 @@ import java.sql.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 25, 2009
  */
-class StringType implements ITypeConverter {
+class StringType implements ITypeConverter, IJdbcTypeFactory {
 	public int accept(JdbcPropertyMeta pm) {
+		return pm.getActualClass() == String.class ? 10 : -1;
+	}
+
+	@Override
+	public ITypeConverter createType(JdbcPropertyMeta pm) {
+		return this;
+	}
+
+	@Override
+	public int columnCount() {
 		return 1;
 	}
 
-	public Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
+	public Object convertToInstance(ResultSet rs, int index) throws Exception {
 		return rs.getString(index);
 	}
 

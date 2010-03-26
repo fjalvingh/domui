@@ -7,6 +7,9 @@ public class JdbcPropertyMeta {
 
 	private String m_columnName;
 
+	/** For a compound property this contains all column names, in order. */
+	private String[] m_columnNames;
+
 	private PropertyInfo m_pi;
 
 	private Class< ? > m_actualClass;
@@ -22,6 +25,8 @@ public class JdbcPropertyMeta {
 	private String m_nullValue;
 
 	private ITypeConverter m_typeConverter;
+
+	private boolean m_compound;
 
 	public JdbcPropertyMeta() {}
 
@@ -39,6 +44,8 @@ public class JdbcPropertyMeta {
 	}
 
 	public String getColumnName() {
+		if(isCompound())
+			throw new IllegalStateException("Illegal reference to getColumnName for compound property " + m_classMeta.getDataClass().getName() + "." + getName());
 		return m_columnName;
 	}
 
@@ -48,6 +55,7 @@ public class JdbcPropertyMeta {
 
 	public void setColumnName(String columnName) {
 		m_columnName = columnName;
+		m_columnNames = new String[]{columnName};
 	}
 
 	public PropertyInfo getPi() {
@@ -121,7 +129,27 @@ public class JdbcPropertyMeta {
 	@Override
 	public String toString() {
 		//		StringBuilder sb = new StringBuilder(32);
-		return m_classMeta.getDataClass().getName() + "." + getName() + " (row " + m_classMeta.getTableName() + "." + getColumnName() + "): " + getActualClass();
+		return m_classMeta.getDataClass().getName() + "." + getName() + " (row " + m_classMeta.getTableName() + "." + m_columnName + "): " + getActualClass();
 		//		return sb.toString();
+	}
+
+	/**
+	 * T if this is a COMPOUND JDBC class.
+	 * @return
+	 */
+	public boolean isCompound() {
+		return m_compound;
+	}
+
+	public void setCompound(boolean compound) {
+		m_compound = compound;
+	}
+
+	public String[] getColumnNames() {
+		return m_columnNames;
+	}
+
+	public void setColumnNames(String[] columnNames) {
+		m_columnNames = columnNames;
 	}
 }

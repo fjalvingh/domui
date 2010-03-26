@@ -22,7 +22,12 @@ public class JdbcClassMeta {
 	/** Immutable list of properties. */
 	private List<JdbcPropertyMeta> m_propertyList;
 
+	private List<String> m_columnNames;
+
 	private JdbcPropertyMeta m_primaryKey;
+
+	/** T if this is a COMPOUND class, meaning it is not a table but a fragment of one. */
+	private boolean m_compound;
 
 	public JdbcClassMeta() {}
 
@@ -45,6 +50,14 @@ public class JdbcClassMeta {
 		if(tbl != null) {
 			m_tableName = tbl.table();
 		}
+		QJdbcCompound co = m_dataClass.getAnnotation(QJdbcCompound.class);
+		if(co != null) {
+			m_compound = true;
+		}
+
+		//-- Do not allow both table and compound
+		if(m_compound && m_tableName != null)
+			throw new IllegalStateException(m_dataClass + ": A table cannot also be a compound");
 
 		//-- Get properties from the class
 		List<PropertyInfo> pilist = ClassUtil.getProperties(m_dataClass);
@@ -57,8 +70,6 @@ public class JdbcClassMeta {
 			if(pm != null) {
 				if(null != map.put(pm.getName(), pm))
 					throw new IllegalStateException(m_dataClass + ": duplicate property name " + pm.getName());
-				if(null != colmap.put(pm.getColumnName(), pm))
-					throw new IllegalStateException(m_dataClass + ": duplicate column name " + pm.getColumnName());
 			}
 		}
 		m_propertyMap = map;
@@ -66,6 +77,19 @@ public class JdbcClassMeta {
 		List<JdbcPropertyMeta>	res = new ArrayList<JdbcPropertyMeta>(m_propertyMap.values());
 		Collections.sort(res, C_PROP);
 		m_propertyList = Collections.unmodifiableList(new ArrayList<JdbcPropertyMeta>(res));
+
+		//-- Create column names in EXACT SAME order.
+		List<String> colnames = new ArrayList<String>();
+		for(JdbcPropertyMeta pm: res) {
+			if(!pm.isTransient()) {
+				for(String cn : pm.getColumnNames()) {
+					if(null != colmap.put(cn, pm))
+						throw new IllegalStateException(m_dataClass + ": duplicate column name " + cn);
+					colnames.add(cn);
+				}
+			}
+		}
+		m_columnNames = Collections.unmodifiableList(colnames);
 	}
 
 	static private final Comparator<JdbcPropertyMeta> C_PROP = new Comparator<JdbcPropertyMeta>() {
@@ -78,12 +102,19 @@ public class JdbcClassMeta {
 		}
 	};
 
+	/**
+	 * Decode all metadata for this property.
+	 * @param pi
+	 * @return
+	 * @throws Exception
+	 */
 	private JdbcPropertyMeta evaluateProperty(PropertyInfo pi) throws Exception {
 		if(pi.getGetter() == null) // Writeonly not accepted
 			return null;
 		if(pi.getSetter() == null) // Readonly not accepted
 			return null;
 		JdbcPropertyMeta pm = new JdbcPropertyMeta(this, pi);
+		pm.setActualClass(pi.getGetter().getReturnType());
 
 		QJdbcColumn col = pi.getGetter().getAnnotation(QJdbcColumn.class);
 		if(col != null) {
@@ -91,11 +122,35 @@ public class JdbcClassMeta {
 			pm.setNullable(col.nullable());
 			pm.setTransient(col.istransient());
 			pm.setLength(col.length());
-			pm.setActualClass(pi.getGetter().getReturnType());
 			pm.setScale(col.scale());
 			if(col.columnConverter() != ITypeConverter.class)
 				pm.setTypeConverter(col.columnConverter().newInstance());
 		}
+
+		//-- If this is a non-simple type AND not transient it must be a compound..
+		if(!JdbcMetaManager.isSimpleType(pm.getActualClass()) && !pm.isTransient()) {
+			//-- Must be compound. Decode compound *before* this to get column mappings proper.
+			Class< ? > clz = pm.getActualClass();
+			if(clz.getAnnotation(QJdbcCompound.class) == null)
+				throw new IllegalStateException(m_dataClass + ": property " + pi.getName() + " has complex type " + pm.getActualClass()
+					+ ", but it is not marked as a compound type with @QJdbcCompound");
+
+			JdbcClassMeta pcm = JdbcMetaManager.getMeta(clz);
+			if(! pcm.isCompound())
+				throw new IllegalStateException(m_dataClass + ": property " + pi.getName() + " has complex type " + pm.getActualClass()
+					+ ", but it is not marked as a compound type with @QJdbcCompound");
+			pm.setCompound(true);
+
+			//-- Create the full column list.
+			List<String>	cols = new ArrayList<String>();
+			for(JdbcPropertyMeta cpm: pcm.getPropertyList()) {
+				for(String s: cpm.getColumnNames())
+					cols.add(s);
+			}
+			pm.setColumnNames(cols.toArray(new String[cols.size()]));
+
+		}
+
 		if(null != pi.getGetter().getAnnotation(QJdbcId.class)) {
 			//-- This is the PK.
 			if(m_primaryKey != null)
@@ -103,9 +158,9 @@ public class JdbcClassMeta {
 			m_primaryKey = pm;
 		}
 
-		if(pm.getColumnName() == null && !pm.isTransient())
+		if(!pm.isTransient() && !pm.isCompound() && pm.getColumnName() == null)
 			throw new IllegalStateException(m_dataClass + ": property " + pi.getName() + " has no name for it's JDBC column name");
-
+		pm.setTypeConverter(JdbcMetaManager.createConverter(pm));
 		return pm;
 	}
 
@@ -146,5 +201,17 @@ public class JdbcClassMeta {
 
 	public void setPrimaryKey(JdbcPropertyMeta primaryKey) {
 		m_primaryKey = primaryKey;
+	}
+
+	public boolean isCompound() {
+		return m_compound;
+	}
+
+	public int getColumnCount() {
+		return m_columnNames.size();
+	}
+
+	public List<String> getColumnNames() {
+		return m_columnNames;
 	}
 }
