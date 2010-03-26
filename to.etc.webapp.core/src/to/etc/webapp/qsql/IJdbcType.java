@@ -8,14 +8,7 @@ import java.sql.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 25, 2009
  */
-interface ITypeConverter {
-	//	/**
-	//	 * Must return a +ve nonzero score when this converter accepts this property for conversion.
-	//	 * @param pm
-	//	 * @return
-	//	 */
-	//	int accept(JdbcPropertyMeta pm);
-
+interface IJdbcType {
 	/**
 	 * Returns the #of columns occupied by this type.
 	 * @return

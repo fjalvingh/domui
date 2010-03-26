@@ -10,13 +10,13 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 25, 2009
  */
-public class TimestampType implements ITypeConverter, IJdbcTypeFactory {
+public class TimestampType implements IJdbcType, IJdbcTypeFactory {
 	public int accept(JdbcPropertyMeta pm) {
 		return pm.getActualClass() == java.util.Date.class ? 10 : -1;
 	}
 
 	@Override
-	public ITypeConverter createType(JdbcPropertyMeta pm) {
+	public IJdbcType createType(JdbcPropertyMeta pm) {
 		return this;
 	}
 

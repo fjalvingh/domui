@@ -45,6 +45,12 @@ public class DecadePaymentOrderPK {
 		return result;
 	}
 
+
+	@Override
+	public String toString() {
+		return "DecadePaymentOrderPK [m_administrationID=" + m_administrationID + ", m_docnr=" + m_docnr + "]";
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if(this == obj)

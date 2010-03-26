@@ -40,7 +40,7 @@ public class JdbcMetaManager {
 		return m_factoryList;
 	}
 
-	static public ITypeConverter createConverter(JdbcPropertyMeta pm) throws Exception {
+	static public IJdbcType createConverter(JdbcPropertyMeta pm) throws Exception {
 		IJdbcTypeFactory best = null;
 		int bestscore = 0;
 		for(IJdbcTypeFactory f : getFactoryList()) {

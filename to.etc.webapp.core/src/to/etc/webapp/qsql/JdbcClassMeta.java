@@ -123,7 +123,7 @@ public class JdbcClassMeta {
 			pm.setTransient(col.istransient());
 			pm.setLength(col.length());
 			pm.setScale(col.scale());
-			if(col.columnConverter() != ITypeConverter.class)
+			if(col.columnConverter() != IJdbcType.class)
 				pm.setTypeConverter(col.columnConverter().newInstance());
 		}
 

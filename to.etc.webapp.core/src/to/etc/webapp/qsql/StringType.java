@@ -8,13 +8,13 @@ import java.sql.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 25, 2009
  */
-class StringType implements ITypeConverter, IJdbcTypeFactory {
+class StringType implements IJdbcType, IJdbcTypeFactory {
 	public int accept(JdbcPropertyMeta pm) {
 		return pm.getActualClass() == String.class ? 10 : -1;
 	}
 
 	@Override
-	public ITypeConverter createType(JdbcPropertyMeta pm) {
+	public IJdbcType createType(JdbcPropertyMeta pm) {
 		return this;
 	}
 

@@ -24,7 +24,7 @@ public class JdbcPropertyMeta {
 
 	private String m_nullValue;
 
-	private ITypeConverter m_typeConverter;
+	private IJdbcType m_typeConverter;
 
 	private boolean m_compound;
 
@@ -114,11 +114,11 @@ public class JdbcPropertyMeta {
 		m_nullValue = nullValue;
 	}
 
-	public ITypeConverter getTypeConverter() {
+	public IJdbcType getTypeConverter() {
 		return m_typeConverter;
 	}
 
-	public void setTypeConverter(ITypeConverter typeConverter) {
+	public void setTypeConverter(IJdbcType typeConverter) {
 		m_typeConverter = typeConverter;
 	}
 

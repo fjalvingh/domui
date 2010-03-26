@@ -10,13 +10,13 @@ import to.etc.util.*;
  * @author <a href="mailto:dprica@execom.eu">Darko Prica</a>
  * Created on 21 Oct 2009
  */
-public class DoubleType implements ITypeConverter, IJdbcTypeFactory {
+public class DoubleType implements IJdbcType, IJdbcTypeFactory {
 	public int accept(JdbcPropertyMeta pm) {
 		return pm.getActualClass() == double.class || pm.getActualClass() == Double.class ? 10 : -1;
 	}
 
 	@Override
-	public ITypeConverter createType(JdbcPropertyMeta pm) {
+	public IJdbcType createType(JdbcPropertyMeta pm) {
 		return this;
 	}
 
@@ -26,7 +26,7 @@ public class DoubleType implements ITypeConverter, IJdbcTypeFactory {
 	}
 
 	/**
-	 * @see to.etc.webapp.qsql.ITypeConverter#assignParameter(java.sql.PreparedStatement, int, to.etc.webapp.qsql.JdbcPropertyMeta, java.lang.Object)
+	 * @see to.etc.webapp.qsql.IJdbcType#assignParameter(java.sql.PreparedStatement, int, to.etc.webapp.qsql.JdbcPropertyMeta, java.lang.Object)
 	 */
 	public void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta pm, Object value) throws Exception {
 		Double doubleValue;
@@ -49,7 +49,7 @@ public class DoubleType implements ITypeConverter, IJdbcTypeFactory {
 	}
 
 	/**
-	 * @see to.etc.webapp.qsql.ITypeConverter#convertToInstance(java.sql.ResultSet, int, to.etc.webapp.qsql.JdbcPropertyMeta)
+	 * @see to.etc.webapp.qsql.IJdbcType#convertToInstance(java.sql.ResultSet, int, to.etc.webapp.qsql.JdbcPropertyMeta)
 	 */
 	public Object convertToInstance(ResultSet rs, int index) throws Exception {
 		double val = rs.getDouble(index);

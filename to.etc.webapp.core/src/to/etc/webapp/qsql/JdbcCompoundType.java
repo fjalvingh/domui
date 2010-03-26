@@ -4,7 +4,7 @@ import java.sql.*;
 
 import to.etc.util.*;
 
-class JdbcCompoundType implements ITypeConverter, IJdbcTypeFactory {
+class JdbcCompoundType implements IJdbcType, IJdbcTypeFactory {
 	private JdbcClassMeta m_compoundMeta;
 
 	public JdbcCompoundType(JdbcClassMeta compoundcm) {
@@ -24,7 +24,7 @@ class JdbcCompoundType implements ITypeConverter, IJdbcTypeFactory {
 	 * @see to.etc.webapp.qsql.IJdbcTypeFactory#createType(to.etc.webapp.qsql.JdbcPropertyMeta)
 	 */
 	@Override
-	public ITypeConverter createType(JdbcPropertyMeta pm) throws Exception {
+	public IJdbcType createType(JdbcPropertyMeta pm) throws Exception {
 		JdbcClassMeta cm = JdbcMetaManager.getMeta(pm.getActualClass());
 		if(!cm.isCompound())
 			throw new IllegalStateException("Property " + pm + " has complex type " + pm.getActualClass() + ", but it is not marked as a compound type with @QJdbcCompound");
@@ -50,7 +50,7 @@ class JdbcCompoundType implements ITypeConverter, IJdbcTypeFactory {
 		for(JdbcPropertyMeta pm : m_compoundMeta.getPropertyList()) {
 			if(pm.isTransient())
 				continue;
-			ITypeConverter type = pm.getTypeConverter();
+			IJdbcType type = pm.getTypeConverter();
 			Object pvalue;
 			try {
 				pvalue = type.convertToInstance(rs, rix);

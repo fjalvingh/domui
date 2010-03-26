@@ -15,5 +15,5 @@ public @interface QJdbcColumn {
 
 	boolean istransient() default false;
 
-	Class< ? extends ITypeConverter> columnConverter() default ITypeConverter.class;
+	Class< ? extends IJdbcType> columnConverter() default IJdbcType.class;
 }

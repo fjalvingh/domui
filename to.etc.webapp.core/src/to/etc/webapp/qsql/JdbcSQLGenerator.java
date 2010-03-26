@@ -219,7 +219,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	private void appendValueSetter(JdbcPropertyMeta pm, QLiteral expr) {
 		appendWhere("?");
 		int index = m_nextWhereIndex++;
-		ITypeConverter tc = pm.getTypeConverter();
+		IJdbcType tc = pm.getTypeConverter();
 		ValSetter vs = new ValSetter(index, expr.getValue(), tc, pm);
 		m_valList.add(vs);
 	}
