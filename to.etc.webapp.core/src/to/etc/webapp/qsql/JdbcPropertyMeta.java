@@ -1,5 +1,9 @@
 package to.etc.webapp.qsql;
 
+import java.lang.reflect.*;
+
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 public class JdbcPropertyMeta {
@@ -151,5 +155,31 @@ public class JdbcPropertyMeta {
 
 	public void setColumnNames(String[] columnNames) {
 		m_columnNames = columnNames;
+	}
+
+	/**
+	 * Return the value of this property on the specified class instance. This throws an exception if inst is null!!!
+	 * @param inst
+	 * @return
+	 */
+	@Nullable
+	public Object getPropertyValue(@Nonnull Object inst) throws Exception {
+		if(inst == null)
+			throw new IllegalArgumentException("Null instance not allowed");
+		try {
+			return m_pi.getGetter().invoke(inst);
+		} catch(InvocationTargetException itx) {
+			throw WrappedException.unwrap(itx);
+		}
+	}
+
+	public void setPropertyValue(@Nonnull Object inst, @Nullable Object value) throws Exception {
+		if(inst == null)
+			throw new IllegalArgumentException("Null instance not allowed");
+		try {
+			m_pi.getSetter().invoke(inst, value);
+		} catch(InvocationTargetException itx) {
+			throw WrappedException.unwrap(itx);
+		}
 	}
 }

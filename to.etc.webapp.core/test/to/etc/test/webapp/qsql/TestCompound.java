@@ -52,6 +52,30 @@ public class TestCompound {
 				gc.getSQL());
 	}
 
+	@Test
+	public void testCompoundSQL4() throws Exception {
+		QCriteria<DecadePaymentOrder> qc = QCriteria.create(DecadePaymentOrder.class).eq("id.administrationID", "ADM1");
+		JdbcSQLGenerator gc = new JdbcSQLGenerator();
+		gc.visitCriteria(qc);
+		System.out.println(gc.getSQL());
+		Assert
+			.assertEquals(
+				"select this_.admn_id,this_.docnr,this_.bedrag,this_.bankrekening,this_.bankrek_relatie,this_.vzop_id,this_.akst_id,this_.omschrijving,this_.betaalwijze,this_.periode,this_.jaar,this_.relatiecode,this_.relatie_naam,this_.valutadatum from v_dec_betaalopdrachten this_ where this_.admn_id=?",
+				gc.getSQL());
+	}
+
+	@Test
+	public void testCompoundSQL5() throws Exception {
+		DecadePaymentOrderPK pk = new DecadePaymentOrderPK();
+		pk.setAdministrationID("ADM1");
+		pk.setDocnr(Long.valueOf(1234));
+
+		QCriteria<DecadePaymentOrder> qc = QCriteria.create(DecadePaymentOrder.class).eq("id", pk);
+		JdbcSQLGenerator gc = new JdbcSQLGenerator();
+		gc.visitCriteria(qc);
+		System.out.println(gc.getSQL());
+		Assert.assertEquals("select this_.admn_id,this_.docnr,this_.bedrag,this_.bankrekening,this_.bankrek_relatie,this_.vzop_id,this_.akst_id,this_.omschrijving,this_.betaalwijze,this_.periode,this_.jaar,this_.relatiecode,this_.relatie_naam,this_.valutadatum from v_dec_betaalopdrachten this_ where (this_.admn_id=? and this_.docnr=?)", gc.getSQL());
+	}
 
 	static <T> List<T> exec(JdbcQuery<T> q) throws Exception {
 		Connection dbc = m_ds.getConnection();
@@ -85,4 +109,22 @@ public class TestCompound {
 		}
 	}
 
+	@Test
+	public void testCompoundSelect2() throws Exception {
+		DecadePaymentOrderPK pk = new DecadePaymentOrderPK();
+		pk.setAdministrationID("ADM1");
+		pk.setDocnr(Long.valueOf(4506000448l));
+
+		QCriteria<DecadePaymentOrder> qc = QCriteria.create(DecadePaymentOrder.class).eq("id", pk);
+		List<DecadePaymentOrder> res = exec(qc);
+
+		System.out.println("Got " + res.size() + " results");
+		int ix = 0;
+		for(DecadePaymentOrder la : res) {
+			System.out.println("id=" + la.getId() + ", desc=" + la.getPaymentDescription());
+			if(ix++ > 10)
+				break;
+		}
+		Assert.assertEquals(1, res.size());
+	}
 }
