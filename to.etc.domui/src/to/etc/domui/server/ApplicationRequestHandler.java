@@ -504,6 +504,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		boolean inhibitlog = false;
+		page.setTheCurrentNode(wcomp);
 		try {
 			/*
 			 * If we have pending changes execute them before executing any actual command. Also: be
@@ -564,6 +565,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl == null) // No handler?
 				throw x; // Move on, nothing to see here,
+			if(wcomp != null && wcomp.getPage() == null) {
+				wcomp = page.getTheCurrentControl();
+				System.out.println("DEBUG: Report exception on a " + wcomp.getClass());
+			}
+			if(wcomp == null || wcomp.getPage() == null)
+				throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/");
+
 			if(!xl.handleException(ctx, page, wcomp, x))
 				throw x;
 		}
@@ -593,6 +601,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 		}
 	}
+
 	static public void renderOptimalDelta(final RequestContextImpl ctx, final Page page) throws Exception {
 		renderOptimalDelta(ctx, page, false);
 	}
