@@ -126,7 +126,7 @@ final public class Page implements IQContextContainer {
 	}
 
 	public void setTheCurrentNode(NodeBase b) {
-		if(b.getPage() != this)
+		if(b != null && b.getPage() != this)
 			throw new IllegalStateException("The node is not part of this page!");
 		m_theCurrentNode = b;
 	}
@@ -143,7 +143,7 @@ final public class Page implements IQContextContainer {
 	public NodeBase getTheCurrentControl() {
 		//-- Locate the best encapsulating control if possible.
 		NodeBase nb = getTheCurrentNode();
-		while(!(nb instanceof IControl< ? >)) {
+		while(nb != null && !(nb instanceof IControl< ? >)) {
 			nb = nb.getParent();
 		}
 		return nb != null ? nb : getTheCurrentNode();
