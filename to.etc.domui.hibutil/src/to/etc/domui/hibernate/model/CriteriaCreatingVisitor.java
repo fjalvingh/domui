@@ -427,7 +427,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		//-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
 		int fkindex = findCruddyChildProperty(childmd, keyCols);
 		if(fkindex < 0)
-			throw new IllegalStateException("Cannot find child's parent property in cruddy Hibernate metadata toiletbowl: " + keyCols);
+			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + keyCols);
 		String childupprop = childmd.getPropertyNames()[fkindex];
 
 		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
@@ -436,6 +436,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 		//-- Sigh; Recursively apply all parts to the detached thingerydoo
 		Object old = m_currentCriteria;
+		Class< ? > oldroot = m_rootClass;
+		m_rootClass = q.getBaseClass();
 		m_currentCriteria = dc;
 		where.visit(this);
 		if(m_last != null) {
@@ -443,6 +445,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			m_last = null;
 		}
 		m_currentCriteria = old;
+		m_rootClass = oldroot;
 		m_last = exists;
 	}
 
