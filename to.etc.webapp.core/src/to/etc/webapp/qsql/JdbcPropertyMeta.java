@@ -1,11 +1,18 @@
 package to.etc.webapp.qsql;
 
+import java.lang.reflect.*;
+
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 public class JdbcPropertyMeta {
 	private JdbcClassMeta m_classMeta;
 
 	private String m_columnName;
+
+	/** For a compound property this contains all column names, in order. */
+	private String[] m_columnNames;
 
 	private PropertyInfo m_pi;
 
@@ -21,7 +28,9 @@ public class JdbcPropertyMeta {
 
 	private String m_nullValue;
 
-	private ITypeConverter m_typeConverter;
+	private IJdbcType m_typeConverter;
+
+	private boolean m_compound;
 
 	public JdbcPropertyMeta() {}
 
@@ -39,6 +48,8 @@ public class JdbcPropertyMeta {
 	}
 
 	public String getColumnName() {
+		if(isCompound())
+			throw new IllegalStateException("Illegal reference to getColumnName for compound property " + m_classMeta.getDataClass().getName() + "." + getName());
 		return m_columnName;
 	}
 
@@ -48,6 +59,7 @@ public class JdbcPropertyMeta {
 
 	public void setColumnName(String columnName) {
 		m_columnName = columnName;
+		m_columnNames = new String[]{columnName};
 	}
 
 	public PropertyInfo getPi() {
@@ -106,11 +118,11 @@ public class JdbcPropertyMeta {
 		m_nullValue = nullValue;
 	}
 
-	public ITypeConverter getTypeConverter() {
+	public IJdbcType getTypeConverter() {
 		return m_typeConverter;
 	}
 
-	public void setTypeConverter(ITypeConverter typeConverter) {
+	public void setTypeConverter(IJdbcType typeConverter) {
 		m_typeConverter = typeConverter;
 	}
 
@@ -121,7 +133,53 @@ public class JdbcPropertyMeta {
 	@Override
 	public String toString() {
 		//		StringBuilder sb = new StringBuilder(32);
-		return m_classMeta.getDataClass().getName() + "." + getName() + " (row " + m_classMeta.getTableName() + "." + getColumnName() + "): " + getActualClass();
+		return m_classMeta.getDataClass().getName() + "." + getName() + " (row " + m_classMeta.getTableName() + "." + m_columnName + "): " + getActualClass();
 		//		return sb.toString();
+	}
+
+	/**
+	 * T if this is a COMPOUND JDBC class.
+	 * @return
+	 */
+	public boolean isCompound() {
+		return m_compound;
+	}
+
+	public void setCompound(boolean compound) {
+		m_compound = compound;
+	}
+
+	public String[] getColumnNames() {
+		return m_columnNames;
+	}
+
+	public void setColumnNames(String[] columnNames) {
+		m_columnNames = columnNames;
+	}
+
+	/**
+	 * Return the value of this property on the specified class instance. This throws an exception if inst is null!!!
+	 * @param inst
+	 * @return
+	 */
+	@Nullable
+	public Object getPropertyValue(@Nonnull Object inst) throws Exception {
+		if(inst == null)
+			throw new IllegalArgumentException("Null instance not allowed");
+		try {
+			return m_pi.getGetter().invoke(inst);
+		} catch(InvocationTargetException itx) {
+			throw WrappedException.unwrap(itx);
+		}
+	}
+
+	public void setPropertyValue(@Nonnull Object inst, @Nullable Object value) throws Exception {
+		if(inst == null)
+			throw new IllegalArgumentException("Null instance not allowed");
+		try {
+			m_pi.getSetter().invoke(inst, value);
+		} catch(InvocationTargetException itx) {
+			throw WrappedException.unwrap(itx);
+		}
 	}
 }

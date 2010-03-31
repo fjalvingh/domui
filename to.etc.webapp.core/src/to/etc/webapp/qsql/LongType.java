@@ -10,20 +10,25 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 25, 2009
  */
-public class LongType implements ITypeConverter {
+public class LongType implements IJdbcType, IJdbcTypeFactory {
 	public int accept(JdbcPropertyMeta pm) {
+		return pm.getActualClass() == long.class || pm.getActualClass() == Long.class ? 10 : -1;
+	}
+
+	@Override
+	public IJdbcType createType(JdbcPropertyMeta pm) {
+		return this;
+	}
+
+	@Override
+	public int columnCount() {
 		return 1;
 	}
 
-	public Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
+	public Object convertToInstance(ResultSet rs, int index) throws Exception {
 		long val = rs.getLong(index);
-		if(rs.wasNull()) {
-			if(! pm.getActualClass().isPrimitive())
-				return null;
-			if(pm.getNullValue() == null)
-				return Long.valueOf(0);
-			return Long.valueOf(pm.getNullValue());
-		}
+		if(rs.wasNull())
+			return null;
 		return Long.valueOf(val);
 	}
 

@@ -10,12 +10,22 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 25, 2009
  */
-public class TimestampType implements ITypeConverter {
+public class TimestampType implements IJdbcType, IJdbcTypeFactory {
 	public int accept(JdbcPropertyMeta pm) {
+		return pm.getActualClass() == java.util.Date.class ? 10 : -1;
+	}
+
+	@Override
+	public IJdbcType createType(JdbcPropertyMeta pm) {
+		return this;
+	}
+
+	@Override
+	public int columnCount() {
 		return 1;
 	}
 
-	public Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
+	public Object convertToInstance(ResultSet rs, int index) throws Exception {
 		Timestamp ts = rs.getTimestamp(index);
 		if(ts == null)
 			return null;

@@ -10,8 +10,10 @@ import org.hibernate.persister.collection.*;
 import org.hibernate.persister.entity.*;
 import org.hibernate.type.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
+import to.etc.webapp.qsql.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -44,6 +46,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	private Criterion m_last;
 
 	private int m_aliasIndex;
+
+	private Class< ? > m_rootClass;
 
 	private Map<String, Object> m_subCriteriaMap = Collections.EMPTY_MAP;
 
@@ -94,7 +98,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitRestrictionsBase(QCriteriaQueryBase<?> n) throws Exception {
+	public void visitRestrictionsBase(QCriteriaQueryBase< ? > n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		if(r == null)
 			return;
@@ -116,6 +120,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	@Override
 	public void visitCriteria(final QCriteria< ? > qc) throws Exception {
+		m_rootClass = qc.getBaseClass();
 		super.visitCriteria(qc);
 
 		//-- 2. Handle limits and start: applicable to root criterion only
@@ -126,9 +131,14 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		}
 	}
 
+	/** The current subcriteria. */
 	private Object m_subCriteria;
 
+	/** The current subcriteria's base class. */
+	private Class< ? > m_subCriteriaClass;
+
 	private String parseSubcriteria(String name) {
+		m_subCriteriaClass = null;
 		m_subCriteria = null;
 		int pos = name.indexOf('.'); // Is the name containing a dot?
 		if(pos == -1) // If not: no subcriteria query.
@@ -149,11 +159,25 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			//-- Create/lookup the appropriate subcriteria association
 			Object sc = m_subCriteriaMap.get(path);
 			if(sc == null) { //-- This path is not yet known? Then we need to create it.
+				//-- Get the property metadata and the reached class.
+				if(m_subCriteriaClass == null) {
+					m_subCriteriaClass = m_rootClass;
+				}
+				PropertyMetaModel pmm = MetaManager.getPropertyMeta(m_subCriteriaClass, sub);
+				if(pmm.getRelationType() == PropertyRelationType.NONE)
+					throw new QQuerySyntaxException("The property " + pmm + " reached by path=" + name + " must be a parent or child relation property.");
+
+				int joinType = pmm.isRequired() ? CriteriaSpecification.INNER_JOIN : CriteriaSpecification.LEFT_JOIN;
+
 				if(m_subCriteria == null) {
+					//-- 1. We need the metadata for this relation to determine the join...
+					Class< ? > rootcl;
+					ClassMetaModel cmm;
+
 					if(m_currentCriteria instanceof Criteria)
-						m_subCriteria = ((Criteria) m_currentCriteria).createCriteria(sub);
+						m_subCriteria = ((Criteria) m_currentCriteria).createCriteria(sub, joinType);
 					else if(m_currentCriteria instanceof DetachedCriteria)
-						m_subCriteria = ((DetachedCriteria) m_currentCriteria).createCriteria(sub);
+						m_subCriteria = ((DetachedCriteria) m_currentCriteria).createCriteria(sub, joinType);
 					else
 						throw new IllegalStateException("Unknown current thingy: " + m_currentCriteria);
 
@@ -161,13 +185,14 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 					// FIXME jal 20091224 I think this is crap.
 					//					m_subCriteria = sc;
 					if(m_subCriteria instanceof Criteria)
-						m_subCriteria = ((Criteria) m_subCriteria).createCriteria(sub);
+						m_subCriteria = ((Criteria) m_subCriteria).createCriteria(sub, joinType);
 					else if(m_subCriteria instanceof DetachedCriteria)
-						m_subCriteria = ((DetachedCriteria) m_subCriteria).createCriteria(sub);
+						m_subCriteria = ((DetachedCriteria) m_subCriteria).createCriteria(sub, joinType);
 				}
 				if(m_subCriteriaMap == Collections.EMPTY_MAP)
 					m_subCriteriaMap = new HashMap<String, Object>();
 				m_subCriteriaMap.put(path, m_subCriteria);
+				m_subCriteriaClass = pmm.getActualType();
 			} else
 				m_subCriteria = sc;
 
@@ -402,7 +427,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		//-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
 		int fkindex = findCruddyChildProperty(childmd, keyCols);
 		if(fkindex < 0)
-			throw new IllegalStateException("Cannot find child's parent property in cruddy Hibernate metadata toiletbowl: " + keyCols);
+			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + keyCols);
 		String childupprop = childmd.getPropertyNames()[fkindex];
 
 		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
@@ -411,6 +436,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 		//-- Sigh; Recursively apply all parts to the detached thingerydoo
 		Object old = m_currentCriteria;
+		Class< ? > oldroot = m_rootClass;
+		m_rootClass = q.getBaseClass();
 		m_currentCriteria = dc;
 		where.visit(this);
 		if(m_last != null) {
@@ -418,6 +445,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			m_last = null;
 		}
 		m_currentCriteria = old;
+		m_rootClass = oldroot;
 		m_last = exists;
 	}
 
@@ -464,17 +492,20 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Selection translation to Projection.				*/
 	/*--------------------------------------------------------------*/
-	private ProjectionList		m_proli;
-	private Projection			m_lastProj;
+	private ProjectionList m_proli;
+
+	private Projection m_lastProj;
 
 	@Override
 	public void visitMultiSelection(QMultiSelection n) throws Exception {
 		throw new ProgrammerErrorException("multi-operation selections not supported by Hibernate");
 	}
+
 	@Override
 	public void visitSelection(QSelection< ? > s) throws Exception {
 		if(m_proli != null)
 			throw new IllegalStateException("? Projection list already initialized??");
+		m_rootClass = s.getBaseClass();
 		m_proli = Projections.projectionList();
 		visitSelectionColumns(s);
 		if(m_currentCriteria instanceof Criteria)
@@ -496,22 +527,41 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	@Override
 	public void visitSelectionItem(QSelectionItem n) throws Exception {
-		throw new ProgrammerErrorException("Unexpected selection item: "+n);
+		throw new ProgrammerErrorException("Unexpected selection item: " + n);
 	}
+
 	@Override
 	public void visitPropertySelection(QPropertySelection n) throws Exception {
-		switch(n.getFunction()) {
+		switch(n.getFunction()){
 			default:
-				throw new IllegalStateException("Unexpected selection item function: "+n.getFunction());
-			case AVG:	m_lastProj = Projections.avg(n.getProperty());	break;
-			case MAX:	m_lastProj = Projections.max(n.getProperty());	break;
-			case MIN:	m_lastProj = Projections.min(n.getProperty());	break;
-			case SUM:	m_lastProj = Projections.sum(n.getProperty());	break;
-			case COUNT:	m_lastProj = Projections.count(n.getProperty());	break;
-			case COUNT_DISTINCT:	m_lastProj = Projections.countDistinct(n.getProperty());	break;
-			case ID:	m_lastProj = Projections.id();	break;
-			case PROPERTY:	m_lastProj = Projections.property(n.getProperty());	break;
-			case ROWCOUNT:	m_lastProj = Projections.rowCount();			break;
+				throw new IllegalStateException("Unexpected selection item function: " + n.getFunction());
+			case AVG:
+				m_lastProj = Projections.avg(n.getProperty());
+				break;
+			case MAX:
+				m_lastProj = Projections.max(n.getProperty());
+				break;
+			case MIN:
+				m_lastProj = Projections.min(n.getProperty());
+				break;
+			case SUM:
+				m_lastProj = Projections.sum(n.getProperty());
+				break;
+			case COUNT:
+				m_lastProj = Projections.count(n.getProperty());
+				break;
+			case COUNT_DISTINCT:
+				m_lastProj = Projections.countDistinct(n.getProperty());
+				break;
+			case ID:
+				m_lastProj = Projections.id();
+				break;
+			case PROPERTY:
+				m_lastProj = Projections.property(n.getProperty());
+				break;
+			case ROWCOUNT:
+				m_lastProj = Projections.rowCount();
+				break;
 		}
 	}
 }

@@ -11,11 +11,11 @@ class ValSetter {
 
 	private Object m_value;
 
-	private ITypeConverter m_converter;
+	private IJdbcType m_converter;
 
 	private JdbcPropertyMeta m_property;
 
-	public ValSetter(int index, Object value, ITypeConverter converter, JdbcPropertyMeta pm) {
+	public ValSetter(int index, Object value, IJdbcType converter, JdbcPropertyMeta pm) {
 		m_index = index;
 		m_value = value;
 		m_converter = converter;
@@ -33,7 +33,7 @@ class ValSetter {
 		return m_value;
 	}
 
-	public ITypeConverter getConverter() {
+	public IJdbcType getConverter() {
 		return m_converter;
 	}
 }

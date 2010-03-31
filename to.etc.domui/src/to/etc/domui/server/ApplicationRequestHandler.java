@@ -504,6 +504,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		boolean inhibitlog = false;
+		page.setTheCurrentNode(wcomp);
 		try {
 			/*
 			 * If we have pending changes execute them before executing any actual command. Also: be
@@ -526,6 +527,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				}
 			}
 
+			// FIXME 20100331 jal Odd wcomp==null logic. Generalize.
 			if(Constants.ACMD_CLICKED.equals(action)) {
 				handleClicked(ctx, page, wcomp);
 			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
@@ -535,15 +537,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				//-- Async poll request..
 				//			} else if("WEBUIDROP".equals(action)) {
 				//				handleDrop(ctx, page, wcomp);
+			} else if(wcomp == null && (Constants.ACMD_LOOKUP_TYPING.equals(action) || Constants.ACMD_LOOKUP_TYPING_DONE.equals(action))) {
+				//-- Don't do anything at all - value is already selected by some of previous ajax requests, it is safe to ignore remaineing late lookup typing events
+				inhibitlog = true;
+			} else if(wcomp == null) {
+				throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
 			} else {
-				if(wcomp == null && (Constants.ACMD_LOOKUP_TYPING.equals(action) || Constants.ACMD_LOOKUP_TYPING_DONE.equals(action))) {
-					//-- Don't do anything at all - value is already selected by some of previous ajax requests, it is save to ignore remained late lookup typing events
-					inhibitlog = true;
-				} else if(wcomp == null) {
-					throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
-				} else {
-					wcomp.componentHandleWebAction(ctx, action);
-				}
+				wcomp.componentHandleWebAction(ctx, action);
 			}
 		} catch(ValidationException x) {
 			/*
@@ -564,6 +564,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl == null) // No handler?
 				throw x; // Move on, nothing to see here,
+			if(wcomp != null && wcomp.getPage() == null) {
+				wcomp = page.getTheCurrentControl();
+				System.out.println("DEBUG: Report exception on a " + wcomp.getClass());
+			}
+			if(wcomp == null || wcomp.getPage() == null)
+				throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
+
 			if(!xl.handleException(ctx, page, wcomp, x))
 				throw x;
 		}
@@ -593,6 +600,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 		}
 	}
+
 	static public void renderOptimalDelta(final RequestContextImpl ctx, final Page page) throws Exception {
 		renderOptimalDelta(ctx, page, false);
 	}
