@@ -86,6 +86,13 @@ final public class Page implements IQContextContainer {
 
 	private boolean m_allowVectorGraphics;
 
+	/**
+	 * When calling user handlers on nodes this will keep track of the node the handler was
+	 * called on. If that node becomes somehow removed it will move upward to it's parent,
+	 * so that it points to an on-screen node always. This is needed for error handling.
+	 */
+	private NodeBase m_theCurrentNode;
+
 	public Page(final UrlPage pageContent) {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
@@ -116,6 +123,30 @@ final public class Page implements IQContextContainer {
 
 		m_cc = cc;
 		m_pageParameters = pp;
+	}
+
+	public void setTheCurrentNode(NodeBase b) {
+		if(b.getPage() != this)
+			throw new IllegalStateException("The node is not part of this page!");
+		m_theCurrentNode = b;
+	}
+
+	public NodeBase getTheCurrentNode() {
+		return m_theCurrentNode;
+	}
+
+	/**
+	 * This tries to locate the control that the "theCurrentNode" is associated with. If no control
+	 * can be found it returns the node verbatim.
+	 * @return
+	 */
+	public NodeBase getTheCurrentControl() {
+		//-- Locate the best encapsulating control if possible.
+		NodeBase nb = getTheCurrentNode();
+		while(!(nb instanceof IControl< ? >)) {
+			nb = nb.getParent();
+		}
+		return nb != null ? nb : getTheCurrentNode();
 	}
 
 	public Map<String, NodeBase> internalNodeMap() {
@@ -207,6 +238,8 @@ final public class Page implements IQContextContainer {
 			throw new IllegalStateException("This node does not belong to this page!?");
 		if(n.getActualID() == null)
 			throw new IllegalStateException("This-node's actual ID has gone!?");
+		if(m_theCurrentNode == n)
+			m_theCurrentNode = n.getParent();
 		n.internalOnRemoveFromPage(this);
 		n.setPage(null);
 		if(m_nodeMap.remove(n.getActualID()) == null)
