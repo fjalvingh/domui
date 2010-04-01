@@ -20,18 +20,24 @@ public class QExistsSubquery<T> extends QOperatorNode {
 
 	private String m_parentProperty;
 
+	private Class< ? > m_baseClass;
+
 	private QOperatorNode m_restrictions;
 
 	public QExistsSubquery(QRestrictor< ? > parent, Class<T> baseClass, String property) {
 		super(QOperation.EXISTS_SUBQUERY);
 		m_parentQuery = parent;
 		m_parentProperty = property;
+		m_baseClass = baseClass;
 	}
 
 	public QRestrictor< ? > getParentQuery() {
 		return m_parentQuery;
 	}
 
+	public Class< ? > getBaseClass() {
+		return m_baseClass;
+	}
 	public String getParentProperty() {
 		return m_parentProperty;
 	}
