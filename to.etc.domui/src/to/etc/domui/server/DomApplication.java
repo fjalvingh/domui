@@ -1108,7 +1108,7 @@ public abstract class DomApplication {
 		synchronized(m_rightsBundleMap) {
 			br = m_rightsBundleMap.get(right);
 		}
-		return br == null ? null : br.findMessage(NlsContext.getLocale(), "right." + right);
+		return br == null ? null : br.findMessage(NlsContext.getLocale(), right);
 	}
 
 	/**

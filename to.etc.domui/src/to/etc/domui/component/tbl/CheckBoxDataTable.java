@@ -58,6 +58,21 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 		}
 	}
 
+	/**
+	 * Set the specified item as SELECTED or DESELECTED.
+	 * FIXME 20100404 jal Must update presentation which is currently hard
+	 * @param item
+	 * @param on
+	 */
+	public void setSelected(T item, boolean on) {
+		if(on)
+			addToSelection(item);
+		else
+			removeFromSelection(item);
+
+
+	}
+
 	private void addToSelection(T item) {
 		if(m_selectedRows == Collections.EMPTY_LIST) {
 			m_selectedRows = new ArrayList<T>();
