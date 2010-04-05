@@ -24,6 +24,8 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 
 	private IValueChanged<CheckBoxDataTable<T>> m_selectionChangedHandler;
 
+	public CheckBoxDataTable() {}
+
 	public CheckBoxDataTable(ITableModel<T> m, IRowRenderer<T> r) {
 		super(m, r);
 	}
@@ -128,7 +130,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 	@Override
 	protected void renderHeader(HeaderContainer<T> hc) throws Exception {
 		hc.add(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
-		m_rowRenderer.renderHeader(this, hc);
+		getRowRenderer().renderHeader(this, hc);
 	}
 
 	/**
@@ -167,7 +169,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 		});
 
 		tr.add(selectionCell);
-		m_rowRenderer.renderRow(this, cc, index, value);
+		getRowRenderer().renderRow(this, cc, index, value);
 	}
 
 	private int getSelectedIndexOf(T value) {

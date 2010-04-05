@@ -36,7 +36,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 		setCssClass("ui-dt");
 
 		//-- Ask the renderer for a sort order, if applicable
-		m_rowRenderer.beforeQuery(this); // ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
+		getRowRenderer().beforeQuery(this); // ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
 
 		calcIndices(); // Calculate rows to show.
 
@@ -54,7 +54,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			hd.add(tr);
 			hc.setParent(tr);
 			hc.add(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
-			m_rowRenderer.renderHeader(this, hc);
+			getRowRenderer().renderHeader(this, hc);
 			getTable().add(hd);
 
 			//-- Render loop: add rows && ask the renderer to add columns.
@@ -90,7 +90,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 				}
 				selectionMarkerCell.setUserObject(item);
 				tr.add(selectionMarkerCell);
-				m_rowRenderer.renderRow(this, cc, ix, item);
+				getRowRenderer().renderRow(this, cc, ix, item);
 				ix++;
 			}
 		}
@@ -143,7 +143,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 				}
 			}
 		});
-		m_rowRenderer.renderRow(this, cc, index, item);
+		getRowRenderer().renderRow(this, cc, index, item);
 	}
 
 	protected void handleAccumulatedItemRowSelectionChanged(TR row, Boolean value) {
