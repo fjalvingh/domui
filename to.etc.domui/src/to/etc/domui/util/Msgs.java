@@ -155,6 +155,9 @@ public interface Msgs {
 
 	public static final String LOGIN_TO_INDEX = " login.toindex";
 
+	//# Data not found code
+	public static final String DATA_EXPIRED_TITLE = "expired.data.title";
+
 	//# LookupForm
 	/** lookupform.search key */
 	public static final String LOOKUP_FORM_SEARCH = "lookupform.search";

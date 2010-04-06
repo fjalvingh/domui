@@ -265,7 +265,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					return;
 				}
 			}
-
+			if(x instanceof QNotFoundException) {
+				String url = m_application.handleNotFoundException(ctx, page, (QNotFoundException) x);
+				if(url != null) {
+					generateHttpRedirect(ctx, url, "Data not found");
+					return;
+				}
+			}
 			checkFullExceptionCount(page, x); // Rethrow, but clear state if page throws up too much.
 		} finally {
 			page.clearDeltaFully();
@@ -555,6 +561,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		} catch(Exception x) {
 			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
+				if(url != null) {
+					generateAjaxRedirect(ctx, url);
+					return;
+				}
+			}
+			if(x instanceof QNotFoundException) { // FIXME Fugly also?
+				String url = m_application.handleNotFoundException(ctx, page, (QNotFoundException) x);
 				if(url != null) {
 					generateAjaxRedirect(ctx, url);
 					return;
