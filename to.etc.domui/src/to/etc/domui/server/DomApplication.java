@@ -1034,7 +1034,7 @@ public abstract class DomApplication {
 	 * @param page
 	 * @param nlix
 	 */
-	public String handleNotFoundException(RequestContextImpl ci, Page page, QNotFoundException x) {
+	public String handleQNotFoundException(RequestContextImpl ci, Page page, QNotFoundException x) {
 		/*
 		 * data has removed in meanwhile: redirect to error page.
 		 */

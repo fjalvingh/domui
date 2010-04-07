@@ -266,7 +266,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				}
 			}
 			if(x instanceof QNotFoundException) {
-				String url = m_application.handleNotFoundException(ctx, page, (QNotFoundException) x);
+				String url = m_application.handleQNotFoundException(ctx, page, (QNotFoundException) x);
 				if(url != null) {
 					generateHttpRedirect(ctx, url, "Data not found");
 					return;
@@ -567,7 +567,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				}
 			}
 			if(x instanceof QNotFoundException) { // FIXME Fugly also?
-				String url = m_application.handleNotFoundException(ctx, page, (QNotFoundException) x);
+				String url = m_application.handleQNotFoundException(ctx, page, (QNotFoundException) x);
 				if(url != null) {
 					generateAjaxRedirect(ctx, url);
 					return;
