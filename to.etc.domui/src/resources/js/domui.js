@@ -693,6 +693,19 @@ var WebUI = {
 		selectedIndexInput.value = intValue;
 	},
 	
+	lookupPopupClicked : function(id) {
+		var node = document.getElementById(id);
+		if(!node || node.tagName.toLowerCase() != 'input') {    
+			return;
+		}
+
+		var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+		var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+		if(trNode){
+			WebUI.clicked(trNode, trNode.id, null);
+		}
+	},
+	
 	lookupRowMouseOver : function(keywordInputId, rowNodeId) {
 		var keywordInput = document.getElementById(keywordInputId);
 		if(!keywordInput || keywordInput.tagName.toLowerCase() != 'input') {    
@@ -764,7 +777,8 @@ var WebUI = {
 				trNod.setAttribute("onmouseover","WebUI.lookupRowMouseOver('" + id + "', '" + trNod.id + "');");
 			}
 		}
-		
+
+		divPopup.setAttribute("onclick","WebUI.lookupPopupClicked('" + id + "');");
 	},
 	
 	/*
