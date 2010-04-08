@@ -6,13 +6,20 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 final class LookupFactoryDate implements ILookupControlFactory {
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
+		//get temporal type from metadata
+		PropertyMetaModel pmm = (spm != null && spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
+		boolean withTime = (pmm != null && pmm.getTemporal() == TemporalPresentationType.DATETIME) ? true : false;
+
 		final DateInput dateFrom = new DateInput();
+		dateFrom.setWithTime(withTime);
 		TextNode tn = new TextNode(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL) + " ");
 		final DateInput dateTo = new DateInput();
+		dateTo.setWithTime(withTime);
 
 		String hint = MetaUtils.findHintText(spm);
 		if(hint != null) {
@@ -25,11 +32,18 @@ final class LookupFactoryDate implements ILookupControlFactory {
 				Date from, till;
 				try {
 					from = dateFrom.getValue();
+					if(from != null && !dateFrom.isWithTime()) {
+						from = DateUtil.truncateDate(from);
+					}
 				} catch(Exception x) {
 					return false;
 				}
 				try {
 					till = dateTo.getValue();
+					if(till != null && !dateTo.isWithTime()) {
+						till = DateUtil.truncateDate(DateUtil.getTomorrowFromDate(till));
+					}
+
 				} catch(Exception x) {
 					return false;
 				}
