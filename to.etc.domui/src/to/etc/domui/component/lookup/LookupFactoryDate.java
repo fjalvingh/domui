@@ -11,7 +11,7 @@ import to.etc.webapp.query.*;
 
 final class LookupFactoryDate implements ILookupControlFactory {
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
-		//get temporal type from metadata
+		//get temporal type from metadata and set withTime later to date inout components
 		PropertyMetaModel pmm = (spm != null && spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
 		boolean withTime = (pmm != null && pmm.getTemporal() == TemporalPresentationType.DATETIME) ? true : false;
 
@@ -32,6 +32,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 				Date from, till;
 				try {
 					from = dateFrom.getValue();
+					//in case of date only search truncate time
 					if(from != null && !dateFrom.isWithTime()) {
 						from = DateUtil.truncateDate(from);
 					}
@@ -40,8 +41,9 @@ final class LookupFactoryDate implements ILookupControlFactory {
 				}
 				try {
 					till = dateTo.getValue();
+					//in case of date only search add 1 day and truncate time, since date only search is inclusive for dateTo
 					if(till != null && !dateTo.isWithTime()) {
-						till = DateUtil.truncateDate(DateUtil.getTomorrowFromDate(till));
+						till = DateUtil.truncateDate(DateUtil.incrementDate(till, Calendar.DATE, 1));
 					}
 
 				} catch(Exception x) {
