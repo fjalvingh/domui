@@ -75,6 +75,8 @@ public class AppFilter implements Filter {
 			DomUtil.dumpException(x);
 			throw x;
 		} catch(IOException x) {
+			if(x.getClass().getName().endsWith("ClientAbortException")) // Do not log these.
+				throw x;
 			DomUtil.dumpException(x);
 			throw x;
 		} catch(Exception x) {
