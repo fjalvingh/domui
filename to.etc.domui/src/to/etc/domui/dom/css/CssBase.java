@@ -106,6 +106,8 @@ public class CssBase {
 	/*--- TEXT properties -----*/
 	private TextAlign m_textAlign;
 
+	private VerticalAlignType m_verticalAlign;
+
 	/*-- CSS Margin properties --*/
 	private String m_marginLeft;
 
@@ -658,6 +660,17 @@ public class CssBase {
 			return;
 		changed();
 		m_textAlign = textAlign;
+	}
+
+	public VerticalAlignType getVerticalAlign() {
+		return m_verticalAlign;
+	}
+
+	public void setVerticalAlign(final VerticalAlignType verticalAlign) {
+		if(m_verticalAlign == verticalAlign)
+			return;
+		changed();
+		m_verticalAlign = verticalAlign;
 	}
 
 	public String getMarginLeft() {

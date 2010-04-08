@@ -27,6 +27,7 @@ import to.etc.domui.util.resources.*;
 import to.etc.template.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.query.*;
 
 /**
  *
@@ -1024,6 +1025,30 @@ public abstract class DomApplication {
 
 		//-- Make this an absolute URL by appending the webapp path
 		return ci.getRelativePath(target);
+	}
+
+	/**
+	 * Responsible for redirecting to the appropriate login page. This default implementation just generate redirect url. To
+	 * handle this exception generically using exception listeners override this method and make it return null.
+	 *
+	 * @param ci
+	 * @param page
+	 * @param nlix
+	 */
+	public String handleQNotFoundException(RequestContextImpl ci, Page page, QNotFoundException x) {
+		/*
+		 * data has removed in meanwhile: redirect to error page.
+		 */
+		String rurl = ExpiredDataPage.class.getName() + "." + getUrlExtension();
+
+		//-- Add info about the failed thingy.
+		StringBuilder sb = new StringBuilder(128);
+		sb.append(rurl);
+		sb.append("?errorMessage=");
+		StringTool.encodeURLEncoded(sb, x.getLocalizedMessage());
+
+		//-- Make this an absolute URL by appending the webapp path
+		return ci.getRelativePath(sb.toString());
 	}
 
 	/**
