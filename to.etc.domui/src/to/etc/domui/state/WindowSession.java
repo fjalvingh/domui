@@ -258,12 +258,12 @@ final public class WindowSession {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean handleGoto(final RequestContextImpl ctx, final Page currentpg) throws Exception {
+	public boolean handleGoto(final RequestContextImpl ctx, final Page currentpg, boolean ajax) throws Exception {
 		if(getTargetMode() == null)
 			return false;
 		if(getTargetMode() == MoveMode.BACK) {
 			// Back requested-> move back, then.
-			handleMoveBack(ctx);
+			handleMoveBack(ctx, ajax);
 			return true;
 		}
 		if(getTargetMode() == MoveMode.REDIRECT) {
@@ -273,7 +273,7 @@ final public class WindowSession {
 			if(tu.indexOf(':') == -1) {
 				tu = ctx.getRelativePath(tu); // Make absolute.
 			}
-			generateRedirect(ctx, tu);
+			generateRedirect(ctx, tu, ajax);
 			return true;
 		}
 
@@ -317,7 +317,7 @@ final public class WindowSession {
 			 */
 			PageContext.internalSet(m_currentPage);
 			m_currentPage.internalUnshelve();
-			generateRedirect(ctx, m_currentPage);
+			generateRedirect(ctx, m_currentPage, ajax);
 			return true;
 		}
 
@@ -384,7 +384,7 @@ final public class WindowSession {
 
 		//-- Call all of the page's listeners.
 		//		callNewPageListeners(m_currentPage); // jal 20091122 Bug# 605 Move this globally.
-		generateRedirect(ctx, m_currentPage);
+		generateRedirect(ctx, m_currentPage, ajax);
 		return true;
 	}
 
@@ -404,7 +404,7 @@ final public class WindowSession {
 		return false;
 	}
 
-	private void generateRedirect(final RequestContextImpl ctx, final Page to) throws Exception {
+	private void generateRedirect(final RequestContextImpl ctx, final Page to, boolean ajax) throws Exception {
 		//-- Send a "redirect" to the new page;
 		StringBuilder sb = new StringBuilder();
 		sb.append(ctx.getRelativePath(to.getBody().getClass().getName()));
@@ -428,18 +428,21 @@ final public class WindowSession {
 				StringTool.encodeURLEncoded(sb, pp.getString(name));
 			}
 		}
-		generateRedirect(ctx, sb.toString());
+		generateRedirect(ctx, sb.toString(), ajax);
 	}
 
-	private void generateRedirect(final RequestContextImpl ctx, final String url) throws Exception {
-		ApplicationRequestHandler.generateAjaxRedirect(ctx, url);
+	private void generateRedirect(final RequestContextImpl ctx, final String url, boolean ajax) throws Exception {
+		if(ajax)
+			ApplicationRequestHandler.generateAjaxRedirect(ctx, url);
+		else
+			ApplicationRequestHandler.generateHttpRedirect(ctx, url, "Redirecting");
 	}
 
 	/**
 	 * Moves one shelve entry back. If there's no shelve entry current moves back
 	 * to the application's index.
 	 */
-	private void handleMoveBack(final RequestContextImpl ctx) throws Exception {
+	private void handleMoveBack(final RequestContextImpl ctx, boolean ajax) throws Exception {
 		int ix = m_shelvedPageStack.size() - 2;
 		if(ix < 0) {
 			clearShelve(0); // Discard EVERYTHING
@@ -448,10 +451,10 @@ final public class WindowSession {
 			Class< ? extends UrlPage> clz = getApplication().getRootPage();
 			if(clz != null) {
 				internalSetNextPage(MoveMode.NEW, getApplication().getRootPage(), null, null, null);
-				handleGoto(ctx, m_currentPage);
+				handleGoto(ctx, m_currentPage, ajax);
 			} else {
 				//-- Last resort: move to root of the webapp by redirecting to some URL
-				generateRedirect(ctx, ctx.getRelativePath(""));
+				generateRedirect(ctx, ctx.getRelativePath(""), ajax);
 			}
 			return;
 		}
@@ -468,7 +471,7 @@ final public class WindowSession {
 		 */
 		PageContext.internalSet(m_currentPage);
 		m_currentPage.internalUnshelve();
-		generateRedirect(ctx, m_currentPage);
+		generateRedirect(ctx, m_currentPage, ajax);
 	}
 
 	/*--------------------------------------------------------------*/
