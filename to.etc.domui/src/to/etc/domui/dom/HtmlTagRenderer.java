@@ -442,6 +442,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 			a.append(c.getTextAlign().name().toLowerCase());
 			a.append(';');
 		}
+		if(c.getVerticalAlign() != null) {
+			a.append("vertical-align:");
+			a.append(c.getVerticalAlign().toString());
+			a.append(';');
+		}
 
 		//Margins
 		if(c.getMarginLeft() != null) {
