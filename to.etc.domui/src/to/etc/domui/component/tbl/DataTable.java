@@ -14,7 +14,7 @@ import to.etc.domui.util.*;
 public class DataTable<T> extends TabularComponentBase<T> {
 	private Table m_table = new Table();
 
-	protected IRowRenderer<T> m_rowRenderer;
+	private IRowRenderer<T> m_rowRenderer;
 
 	/** The size of the page */
 	private int m_pageSize;
@@ -24,6 +24,8 @@ public class DataTable<T> extends TabularComponentBase<T> {
 
 	/** When the query has 0 results this is set to the div displaying that message. */
 	private Div m_errorDiv;
+
+	public DataTable() {}
 
 	public DataTable(IRowRenderer<T> r) {
 		m_rowRenderer = r;
@@ -310,5 +312,16 @@ public class DataTable<T> extends TabularComponentBase<T> {
 
 	public void setTableWidth(String w) {
 		m_table.setTableWidth(w);
+	}
+
+	public IRowRenderer<T> getRowRenderer() {
+		return m_rowRenderer;
+	}
+
+	public void setRowRenderer(IRowRenderer<T> rowRenderer) {
+		if(DomUtil.isEqual(m_rowRenderer, rowRenderer))
+			return;
+		m_rowRenderer = rowRenderer;
+		forceRebuild();
 	}
 }

@@ -257,6 +257,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			HtmlFullRenderer hr = m_application.findRendererFor(ctx.getBrowserVersion(), out);
 
 			hr.render(ctx, page);
+
+			//-- 20100408 jal If an UIGoto was done in createContent handle that
+			if(cm.handleGoto(ctx, page, false))
+				return;
 		} catch(Exception x) {
 			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
@@ -596,7 +600,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		//-- Determine the response class to render; exit if we have a redirect,
 		WindowSession cm = ctx.getWindowSession();
-		if(cm.handleGoto(ctx, page))
+		if(cm.handleGoto(ctx, page, true))
 			return;
 
 		//-- Call the 'new page added' listeners for this page, if it is now unbuilt due to some action calling forceRebuild() on it. Fixes bug# 605

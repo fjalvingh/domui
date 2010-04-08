@@ -1028,7 +1028,8 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Responsible for redirecting to the appropriate login page. This default implementation just generate redirect url.
+	 * Responsible for redirecting to the appropriate login page. This default implementation just generate redirect url. To
+	 * handle this exception generically using exception listeners override this method and make it return null.
 	 *
 	 * @param ci
 	 * @param page
@@ -1132,7 +1133,7 @@ public abstract class DomApplication {
 		synchronized(m_rightsBundleMap) {
 			br = m_rightsBundleMap.get(right);
 		}
-		return br == null ? null : br.findMessage(NlsContext.getLocale(), "right." + right);
+		return br == null ? null : br.findMessage(NlsContext.getLocale(), right);
 	}
 
 	/**

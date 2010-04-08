@@ -9,8 +9,6 @@ import java.util.*;
  * Created on Dec 24, 2008
  */
 public class ValidatorRegistry {
-	static private final Object[] NOPE = new Object[0];
-
 	static private Map<Class< ? extends IValueValidator< ? >>, IValueValidator< ? >> m_validatorMap = new HashMap<Class< ? extends IValueValidator< ? >>, IValueValidator< ? >>();
 
 	/**
