@@ -232,6 +232,22 @@ public class DateUtil {
 		return new Date(cal.getTimeInMillis());
 	}
 
+	/**
+	 * Returns date incremented for specified value. 
+	 * @param dt
+	 * @param field see {@link Calendar#add(int, int)}
+	 * @param amount see {@link Calendar#add(int, int)}
+	 * @return In case of <B>dt</B> is null returns null
+	 */
+	static public Date incrementDate(Date dt, int field, int amount) {
+		if(dt == null) {
+			return null;
+		}
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dt);
+		cal.add(field, amount);
+		return new Date(cal.getTimeInMillis());
+	}
 	static public void truncateDate(Date dest, Date dt) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dt);
