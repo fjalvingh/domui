@@ -308,7 +308,7 @@ public class ALink extends ATag {
 		}
 		changed();
 		updateStyle();
-		forceRebuild();
+		//		forceRebuild();	jal 20100409 DONT DO THIS - IT DELETES THE LINKS CONTENT!
 	}
 
 	/**
