@@ -364,6 +364,15 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			return false;
 		}
 
+		//		//-- EXPERIMENTAL If this is a data-bound right we need to get the data item to use to check
+		//		Object dataItem = null;
+		//		if(rann.dataPath().length() != 0) {
+		//			//-- Obtain the value for the specified property path.
+		//			PropertyMetaModel	pmm = MetaManager.getPropertyMeta()
+		//
+		//
+		//		}
+
 		//-- Issue rights check,
 		boolean allowed = true;
 		for(String right : rann.value()) {
