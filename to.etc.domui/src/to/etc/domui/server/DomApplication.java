@@ -116,6 +116,20 @@ public abstract class DomApplication {
 		registerPartFactories();
 		initHeaderContributors();
 		addRenderFactory(new MsCrapwareRenderFactory()); // Add html renderers for IE <= 7
+		addExceptionListener(QNotFoundException.class, new IExceptionListener() {
+			@SuppressWarnings("synthetic-access")
+			public boolean handleException(final IRequestContext ctx, final Page page, final NodeBase source, final Throwable x) throws Exception {
+				if(x instanceof QNotFoundException) {
+					String url = handleQNotFoundException(ctx, (QNotFoundException) x);
+
+					if(url != null && ctx instanceof RequestContextImpl) {
+						ApplicationRequestHandler.generateHttpRedirect((RequestContextImpl) ctx, url, "Data not found");
+						return true;
+					}
+				}
+				return false;
+			}
+		});
 	}
 
 	protected void registerControlFactories() {
@@ -1028,14 +1042,12 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Responsible for redirecting to the appropriate login page. This default implementation just generate redirect url. To
-	 * handle this exception generically using exception listeners override this method and make it return null.
-	 *
+	 * Generate default error page URL for expired data, with exception localized message as errorMessage url parameter.
 	 * @param ci
-	 * @param page
-	 * @param nlix
+	 * @param x
+	 * @return
 	 */
-	public String handleQNotFoundException(RequestContextImpl ci, Page page, QNotFoundException x) {
+	private String handleQNotFoundException(IRequestContext ci, QNotFoundException x) {
 		/*
 		 * data has removed in meanwhile: redirect to error page.
 		 */
