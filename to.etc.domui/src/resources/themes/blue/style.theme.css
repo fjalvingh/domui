@@ -88,6 +88,13 @@
 	font-weight: bold;
 }
 
+/*** DisplayCheckbox ***/
+.ui-dspcb {
+	border: none;
+	width: 18px;
+	height: 18px;
+}
+
 /*** DisplayValue ***/
 .ui-dspv {
 	background: white;
