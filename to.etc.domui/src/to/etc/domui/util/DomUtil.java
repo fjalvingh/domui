@@ -325,7 +325,8 @@ final public class DomUtil {
 		sb.append(clz.getName());
 		sb.append('.');
 		sb.append(DomApplication.get().getUrlExtension());
-		addUrlParameters(sb, pp, true);
+		if(pp != null)
+			addUrlParameters(sb, pp, true);
 		return sb.toString();
 	}
 

@@ -115,7 +115,24 @@ public abstract class DomApplication {
 		registerControlFactories();
 		registerPartFactories();
 		initHeaderContributors();
-		addRenderFactory(new MsCrapwareRenderFactory()); // Add html renderers for IE <= 7
+		addRenderFactory(new MsCrapwareRenderFactory()); // Add html renderers for IE <= 8
+		addExceptionListener(QNotFoundException.class, new IExceptionListener() {
+			public boolean handleException(final IRequestContext ctx, final Page page, final NodeBase source, final Throwable x) throws Exception {
+				if(!(x instanceof QNotFoundException))
+					throw new IllegalStateException("??");
+
+				// data has removed in meanwhile: redirect to error page.
+				String rurl = ctx.getRelativePath(DomUtil.createPageURL(ExpiredDataPage.class, null));
+
+				//-- Add info about the failed thingy.
+				StringBuilder sb = new StringBuilder(128);
+				sb.append(rurl);
+				sb.append("?errorMessage=");
+				StringTool.encodeURLEncoded(sb, x.getLocalizedMessage());
+				ApplicationRequestHandler.generateHttpRedirect((RequestContextImpl) ctx, rurl, "Data not found");
+				return true;
+			}
+		});
 	}
 
 	protected void registerControlFactories() {
@@ -936,10 +953,12 @@ public abstract class DomApplication {
 		//-- Do a sortish insert.
 		for(int i = 0; i < m_exceptionListeners.size(); i++) {
 			ExceptionEntry ee = m_exceptionListeners.get(i);
-			if(ee.getExceptionClass().isAssignableFrom(xclass)) {
-				//-- Class [ee] is a SUPERCLASS of [xclass]; you can do [ee] = [xclass]. We need to add this handler BEFORE this superclass! If they are the SAME class throw up,
-				if(ee.getExceptionClass() == xclass)
-					throw new IllegalStateException("An exception handler for Exception=" + xclass + " has already been registered. There can be only one handler for every exception type.");
+			if(ee.getExceptionClass() == xclass) {
+				//-- Same class-> replace the handler with the new one.
+				m_exceptionListeners.set(i, new ExceptionEntry(xclass, l));
+				return;
+			} else if(ee.getExceptionClass().isAssignableFrom(xclass)) {
+				//-- Class [ee] is a SUPERCLASS of [xclass]; you can do [ee] = [xclass]. We need to add this handler BEFORE this superclass!
 				m_exceptionListeners.add(i, new ExceptionEntry(xclass, l));
 				return;
 			}
@@ -1025,30 +1044,6 @@ public abstract class DomApplication {
 
 		//-- Make this an absolute URL by appending the webapp path
 		return ci.getRelativePath(target);
-	}
-
-	/**
-	 * Responsible for redirecting to the appropriate login page. This default implementation just generate redirect url. To
-	 * handle this exception generically using exception listeners override this method and make it return null.
-	 *
-	 * @param ci
-	 * @param page
-	 * @param nlix
-	 */
-	public String handleQNotFoundException(RequestContextImpl ci, Page page, QNotFoundException x) {
-		/*
-		 * data has removed in meanwhile: redirect to error page.
-		 */
-		String rurl = ExpiredDataPage.class.getName() + "." + getUrlExtension();
-
-		//-- Add info about the failed thingy.
-		StringBuilder sb = new StringBuilder(128);
-		sb.append(rurl);
-		sb.append("?errorMessage=");
-		StringTool.encodeURLEncoded(sb, x.getLocalizedMessage());
-
-		//-- Make this an absolute URL by appending the webapp path
-		return ci.getRelativePath(sb.toString());
 	}
 
 	/**
