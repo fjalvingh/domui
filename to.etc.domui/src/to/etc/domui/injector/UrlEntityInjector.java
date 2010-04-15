@@ -76,7 +76,7 @@ public class UrlEntityInjector extends PropertyInjector {
 		return "NEW".equals(value);
 	}
 
-	protected Object getKeyInstance(final UrlPage page, String pv) throws Exception {
+	protected Object getKeyInstance(QDataContext dc, final UrlPage page, String pv) throws Exception {
 		//-- Try to find the PK for this entity
 		ClassMetaModel cmm = MetaManager.findClassMeta(m_entityClass); // Locatish
 		PropertyMetaModel pmm = cmm.getPrimaryKey(); // Find it's PK;
@@ -84,18 +84,19 @@ public class UrlEntityInjector extends PropertyInjector {
 			throw new RuntimeException("Cannot find the primary key property for entity class '" + m_entityClass + "' for URL parameter=" + m_name + " of page=" + page.getClass() + ": ");
 
 		//-- Convert the URL's value to the TYPE of the primary key, using URL converters.
-		Object pk = ConverterRegistry.convertURLStringToValue(pmm.getActualType(), pv);
+		Object pk = CompoundKeyConverter.INSTANCE.unmarshal(dc, pmm.getActualType(), pv);
+		//		Object pk = ConverterRegistry.convertURLStringToValue(pmm.getActualType(), pv);
 		if(pk == null)
 			throw new RuntimeException("URL parameter value='" + pv + "' converted to Null primary key value for entity class '" + m_entityClass + "' for URL parameter=" + m_name + " of page="
 				+ page.getClass() + ": ");
 		return pk;
 	}
 
-	protected Object loadInstance(final UrlPage page, String pv) throws Exception {
-		Object pk = getKeyInstance(page, pv);
-		return QContextManager.getContext(page.getPage()).find(m_entityClass, pk);
-	}
-
+	//	final protected Object loadInstance(final UrlPage page, String pv) throws Exception {
+	//		QDataContext dc = QContextManager.getContext(page.getPage());
+	//		Object pk = getKeyInstance(dc, page, pv);
+	//		return dc.find(m_entityClass, pk);
+	//	}
 
 	@Override
 	public void inject(final UrlPage page, final RequestContextImpl ctx, final PageParameters papa) throws Exception {
@@ -109,9 +110,12 @@ public class UrlEntityInjector extends PropertyInjector {
 		if(isNew(page, ctx, papa, pv)) {
 			value = createNew(page, ctx);
 		} else {
-			value = loadInstance(page, pv);
+			QDataContext dc = QContextManager.getContext(page.getPage());
+			Object pk = getKeyInstance(dc, page, pv);
+			value = dc.find(m_entityClass, pk);
+			//			value = loadInstance(page, pv);
 			if(value == null && m_mandatory)
-				throw new QNotFoundException(m_entityClass, getKeyInstance(page, pv));
+				throw new QNotFoundException(m_entityClass, pk);
 		}
 		setValue(page, value);
 	}

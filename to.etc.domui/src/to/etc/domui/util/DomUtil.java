@@ -118,6 +118,10 @@ final public class DomUtil {
 		return clz == Long.class || clz == long.class;
 	}
 
+	static public boolean isBooleanOrWrapper(Class< ? > clz) {
+		return clz == Boolean.class || clz == boolean.class;
+	}
+
 	/**
 	 * Return T if the class represents a real (double or float) type.
 	 * @param clz

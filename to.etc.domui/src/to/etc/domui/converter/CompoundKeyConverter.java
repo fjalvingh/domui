@@ -5,7 +5,9 @@ import java.util.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.query.*;
 
 /**
  * URL Converter class which converts a (compound) primary key into a string and v.v.
@@ -16,22 +18,160 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 15, 2010
  */
-public class CompoundKeyConverter implements IConverter<Object> {
+public class CompoundKeyConverter {
 	static public final CompoundKeyConverter INSTANCE = new CompoundKeyConverter();
 
-	@Override
-	public String convertObjectToString(Locale loc, Object in) throws UIException {
+	static private class Scanner extends TextScanner {
+		private QDataContext m_dc;
+
+		private Class< ? > m_root;
+
+		private String m_input;
+
+		public Scanner(QDataContext dc, Class< ? > root, String s) {
+			super(s);
+			m_dc = dc;
+			m_root = root;
+			m_input = s;
+		}
+
+		public QDataContext getDc() {
+			return m_dc;
+		}
+
+		public Class< ? > getRoot() {
+			return m_root;
+		}
+
+		/**
+		 * Marshalled string scanner. These are just strings where comma and backslash are escaped.
+		 * @param ts
+		 * @return
+		 */
+		public String scanString() {
+			clear();
+			int c;
+			while(!eof()) {
+				c = LA();
+				if(c == '\\') {
+					accept();
+					copy();
+				} else if(c == ',') {
+					accept();
+					return getCopied();
+				} else
+					copy();
+			}
+			return getCopied();
+		}
+
+
+		/**
+		 * Scans the next part at the current location, and returns the object
+		 * properly filled in from the input string.
+		 * @param ts
+		 * @param type
+		 * @return
+		 */
+		public Object scanAnything(Class< ? > type) throws Exception {
+			if(isRenderable(type)) {
+				//-- Simple type: decode from parameter string.
+				if(type == String.class) {
+					return scanString();
+				} else if(DomUtil.isIntegerOrWrapper(type) || DomUtil.isLongOrWrapper(type) || DomUtil.isDoubleOrWrapper(type) || DomUtil.isFloatOrWrapper(type) || DomUtil.isBooleanOrWrapper(type)) {
+					String s = scanString();
+					return RuntimeConversions.convertTo(s, type);
+				} else
+					throw new IllegalStateException("?? Unexpected type in unmarshaller: " + type);
+			}
+
+			//-- If the type is a persistent class we need it's PK, then we instantiate a proxied version
+			ClassMetaModel cmm = MetaManager.findClassMeta(type);
+			if(cmm.isPersistentClass())
+				return scanPersistentClass(type, cmm);
+
+			//-- Scan as an object having properties, and assign those properties.
+			return scanObject(type, cmm);
+		}
+
+		/**
+		 * Scan a persistent class by scanning it's PK, then loading a proxied instance.
+		 * @param type
+		 * @param cmm
+		 * @return
+		 * @throws Exception
+		 */
+		private Object scanPersistentClass(Class< ? > type, ClassMetaModel cmm) throws Exception {
+			//-- Not renderable: only acceptable item is another persistent class, in which case we need to render it's PK too
+			if(!cmm.isPersistentClass())
+				throw new IllegalStateException("Unexpected: PK entry is not a persistent class: " + cmm + ", in root PK " + m_root.getClass());
+
+			//-- Obtain it's PK and render it as well
+			PropertyMetaModel pkpm = cmm.getPrimaryKey();
+			if(pkpm == null)
+				throw new IllegalStateException("Unexpected: persistent class " + cmm + " has an undefined PK property");
+			Object pk = scanAnything(pkpm.getActualType());
+			if(pk == null)
+				throw new IllegalStateException("Primary key " + pkpm + " is null in [[" + m_input + "]]");
+
+			//-- Now load a proxied instance.
+			return m_dc.getInstance(cmm.getActualClass(), pk);
+		}
+
+		/**
+		 * Scan the object type passed by creating an instance, then filling all of its
+		 * properties.
+		 * @param ts
+		 * @param type
+		 * @param cmm
+		 * @return
+		 */
+		private Object scanObject(Class< ? > type, ClassMetaModel cmm) throws Exception {
+			Object inst;
+			try {
+				inst = type.newInstance();
+			} catch(Exception x) {
+				throw new IllegalStateException("Cannot create instance of " + type + " for PK=" + m_root + ": " + x, x);
+			}
+
+			for(PropertyMetaModel pmm : cmm.getProperties()) {
+				Object pvalue = scanAnything(pmm.getActualType());
+				if(pvalue == null)
+					throw new IllegalStateException("Null value for property " + pmm + " in pk " + m_root);
+				((IValueAccessor<Object>) pmm.getAccessor()).setValue(inst, pvalue);
+			}
+			return inst;
+		}
+	}
+
+	/**
+	 *
+	 * @param pkclass
+	 * @param in
+	 * @return
+	 * @throws UIException
+	 */
+	public Object unmarshal(QDataContext dc, Class< ? > pkclass, String in) throws Exception {
+		if(in.trim().length() == 0)
+			return null;
+		Scanner ts = new Scanner(dc, pkclass, in);
+		return ts.scanAnything(pkclass);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Marshaller part..									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Marshalling a PK object into a string.
+	 * @param in
+	 * @return
+	 * @throws UIException
+	 */
+	public String marshal(Object in) throws Exception {
 		if(in == null)
 			return "$$null$$";
 		StringBuilder sb = new StringBuilder();
-		//		StringBuilder namesb = new StringBuilder();
-		try {
-			renderAnything(sb, in, in);
-		} catch(Exception x) {
-			if(x instanceof UIException)
-				throw (UIException) x;
-			throw WrappedException.wrap(x);
-		}
+		renderAnything(sb, in, in);
 		return sb.toString();
 	}
 
@@ -91,17 +231,12 @@ public class CompoundKeyConverter implements IConverter<Object> {
 	 * @param actualType
 	 * @return
 	 */
-	private boolean isRenderable(Class< ? > t) {
+	static boolean isRenderable(Class< ? > t) {
 		if(t.isPrimitive())
 			return true;
 		if(t == Integer.class || t == Long.class || t == Short.class || t == String.class || t == Byte.class || t == BigDecimal.class || t == BigInteger.class || t == Double.class || t == Float.class
 			|| t == Date.class)
 			return true;
 		return false;
-	}
-
-	@Override
-	public Object convertStringToObject(Locale loc, String in) throws UIException {
-		return null;
 	}
 }

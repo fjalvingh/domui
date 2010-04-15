@@ -109,7 +109,7 @@ public class PageParameters {
 				Object key = pkpm.getAccessor().getValue(o);
 				if(key == null)
 					throw new IllegalStateException("The instance of " + o.getClass() + " passed has a null primary key");
-				keyval = CompoundKeyConverter.INSTANCE.convertObjectToString(null, key);
+				keyval = CompoundKeyConverter.INSTANCE.marshal(key);
 			}
 		}
 
