@@ -113,7 +113,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 			//-- Create model data from this thingy.
 			for(PropertyInfo pd : pilist) {
-				createPropertyInfo(pd);
+				if(!pd.getName().equals("class"))
+					createPropertyInfo(pd);
 			}
 		} catch(Exception x) {
 			throw WrappedException.wrap(x);

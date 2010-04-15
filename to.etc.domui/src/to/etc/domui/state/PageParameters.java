@@ -3,6 +3,7 @@ package to.etc.domui.state;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.converter.*;
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.util.*;
@@ -98,19 +99,23 @@ public class PageParameters {
 			m_parameterMap.put(k, String.valueOf(((ILongIdentifyable) o).getId()));
 			return;
 		}
-		Object key = o;
+
+		String keyval = null;
 		ClassMetaModel cmm = MetaManager.findClassMeta(o.getClass());
 		if(cmm.isPersistentClass()) {
 			//-- Get the PK attribute of the persistent class;
 			PropertyMetaModel pkpm = cmm.getPrimaryKey();
 			if(pkpm != null) {
-				key = pkpm.getAccessor().getValue(o);
+				Object key = pkpm.getAccessor().getValue(o);
 				if(key == null)
 					throw new IllegalStateException("The instance of " + o.getClass() + " passed has a null primary key");
+				keyval = CompoundKeyConverter.INSTANCE.convertObjectToString(null, key);
 			}
 		}
 
-		m_parameterMap.put(k, String.valueOf(key));
+		if(keyval == null)
+			keyval = String.valueOf(o);
+		m_parameterMap.put(k, keyval);
 	}
 
 	public void addParameter(String name, Object value) {
