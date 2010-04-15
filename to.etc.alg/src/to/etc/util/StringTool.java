@@ -2063,21 +2063,48 @@ public class StringTool {
 			int len = data.length;
 			for(int i = 0; i < len; i++) {
 				byte da = data[i];
-				if(da >= '0' && da <= '9')
-					sb.append((char) da);
-				else if(da >= 'a' && da <= 'z')
-					sb.append((char) da);
-				else if(da >= 'A' && da <= 'Z')
-					sb.append((char) da);
-				else {
+				if(isSpecialUrlChar(da)) {
 					sb.append('%');
 					sb.append(Character.forDigit(((da >> 4) & 0xf), 16));
 					sb.append(Character.forDigit(da & 0xf, 16));
+				} else {
+					sb.append((char) da);
 				}
 			}
 		} catch(Exception x) {
 			throw new RuntimeException(x.toString(), x);
 		}
+	}
+
+	/**
+	 * ! 	* 	' 	( 	) 	; 	: 	@ 	& 	= 	+ 	$ 	, 	/ 	? 	% 	# 	[ 	]
+	 * @param da
+	 * @return
+	 */
+	static private boolean isSpecialUrlChar(byte da) {
+		switch(da){
+			case '!':
+			case '*':
+			case '\'':
+			case '(':
+			case ')':
+			case ';':
+			case ':':
+			case '@':
+			case '&':
+			case '=':
+			case '+':
+				//			case '$':
+				//			case ',':
+			case '/':
+			case '?':
+			case '%':
+			case '#':
+			case '[':
+			case ']':
+				return true;
+		}
+		return false;
 	}
 
 	static public String encodeURLEncoded(final String str) {
