@@ -77,7 +77,7 @@ public class LookupForm<T> extends Div {
 	private ControlBuilder m_builder;
 
 	/**
-	 * Set to true in case that control have to be rendered as collapsed by default. It is used when lookup form have to popup with initial search results already shown. 
+	 * Set to true in case that control have to be rendered as collapsed by default. It is used when lookup form have to popup with initial search results already shown.
 	 */
 	private boolean m_renderAsCollapsed;
 
@@ -473,8 +473,11 @@ public class LookupForm<T> extends Div {
 		m_itemList.clear();
 		ClassMetaModel cm = MetaManager.findClassMeta(getLookupClass());
 		List<SearchPropertyMetaModelImpl> list = cm.getSearchProperties();
-		if(list == null || list.size() == 0)
-			throw new IllegalStateException("The class " + m_lookupClass + " has no search properties defined in it's meta data.");
+		if(list == null || list.size() == 0) {
+			list = MetaManager.calculateSearchProperties(cm); // 20100416 jal EXPERIMENTAL
+			if(list == null || list.size() == 0)
+				throw new IllegalStateException("The class " + m_lookupClass + " has no search properties defined in it's meta data.");
+		}
 
 		for(SearchPropertyMetaModel sp : list) { // The list is already in ascending order, so just add items;
 			Item it = new Item();

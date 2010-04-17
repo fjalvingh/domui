@@ -2,8 +2,10 @@ package to.etc.domui.util;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.math.*;
 import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 import javax.annotation.*;
 import javax.servlet.http.*;
@@ -129,6 +131,20 @@ final public class DomUtil {
 	 */
 	static public boolean isRealType(Class< ? > clz) {
 		return clz == float.class || clz == Float.class || clz == Double.class || clz == double.class;
+	}
+
+	/**
+	 * Returns T if this is one of the basic types: any numeric including BigDecimal and BigInteger; string, or date.
+	 * @param t
+	 * @return
+	 */
+	static public boolean isBasicType(Class< ? > t) {
+		if(t.isPrimitive())
+			return true;
+		if(t == Integer.class || t == Long.class || t == Short.class || t == String.class || t == Byte.class || t == BigDecimal.class || t == BigInteger.class || t == Double.class || t == Float.class
+			|| t == Date.class)
+			return true;
+		return false;
 	}
 
 	/**

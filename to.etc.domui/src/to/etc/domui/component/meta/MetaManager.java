@@ -11,6 +11,7 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
@@ -513,4 +514,86 @@ final public class MetaManager {
 		SIMPLE.add(BigInteger.class);
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Generate metadata for search and display for testing*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Try to calculate some search properties off a data class for debug/test pps, if enabled
+	 * @param cm
+	 * @return
+	 */
+	public static List<SearchPropertyMetaModelImpl> calculateSearchProperties(ClassMetaModel cm) {
+		if(!DeveloperOptions.getBool("domui.generatemeta", false))
+			return null;
+		if(cm.getSearchProperties() != null && cm.getSearchProperties().size() > 0)
+			return cm.getSearchProperties();
+
+		//-- Make a selection of reasonable properties to search on. Skip any compounds.
+		int order = 0;
+		List<SearchPropertyMetaModelImpl> res = new ArrayList<SearchPropertyMetaModelImpl>();
+		for(PropertyMetaModel pmm : cm.getProperties()) {
+			if(DomUtil.isBasicType(pmm.getActualType())) {
+				//-- Very basic. Only support small sizes;
+				if(pmm.getLength() > 50)
+					continue;
+
+				//-- Accept
+			} else if(pmm.getRelationType() == PropertyRelationType.UP) {
+				//-- accept ;-)
+			} else
+				continue;
+
+			//-- Accepted
+			SearchPropertyMetaModelImpl sp = new SearchPropertyMetaModelImpl((DefaultClassMetaModel) cm);
+			sp.setIgnoreCase(true);
+			sp.setOrder(order++);
+			sp.setPropertyName(pmm.getName());
+			List<PropertyMetaModel> pl = new ArrayList<PropertyMetaModel>(1);
+			pl.add(pmm);
+			sp.setPropertyPath(pl);
+			res.add(sp);
+		}
+		return res;
+	}
+
+	/**
+	 * Generate some set of columns to show from a class' metadata, if enabled.
+	 * @param cmm
+	 * @return
+	 */
+	static public List<DisplayPropertyMetaModel> calculateObjectProperties(ClassMetaModel cm) {
+		if(!DeveloperOptions.getBool("domui.generatemeta", false))
+			return null;
+
+		List<DisplayPropertyMetaModel> res = new ArrayList<DisplayPropertyMetaModel>();
+		int totlen = 0;
+		for(PropertyMetaModel pmm : cm.getProperties()) {
+			if(totlen > 120 || res.size() > 20)
+				break;
+
+			if(DomUtil.isBasicType(pmm.getActualType())) {
+				//-- Very basic. Only support small sizes;
+				if(pmm.getLength() > 50)
+					continue;
+				if(pmm.getLength() > 0)
+					totlen += pmm.getLength();
+				else if(pmm.getPrecision() > 0) {
+					totlen += pmm.getPrecision();
+				} else
+					totlen += 10;
+
+				//-- Accept
+				//			} else if(pmm.getRelationType() == PropertyRelationType.UP) {
+				//				//-- accept ;-)
+			} else
+				continue;
+
+			DisplayPropertyMetaModel dp = new DisplayPropertyMetaModel();
+			dp.setName(pmm.getName());
+			res.add(dp);
+		}
+
+		return res;
+	}
 }

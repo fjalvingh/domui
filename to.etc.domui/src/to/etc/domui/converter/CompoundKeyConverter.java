@@ -227,6 +227,7 @@ public class CompoundKeyConverter {
 	}
 
 	/**
+	 * FIXME Replace with DomUtil.isBasicType later?
 	 * Returns T if the type can be rendered as a PK component.
 	 * @param actualType
 	 * @return

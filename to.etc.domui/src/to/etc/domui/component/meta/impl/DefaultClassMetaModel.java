@@ -389,7 +389,10 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return m_metaClass;
 	}
 
-	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
+	public synchronized List<DisplayPropertyMetaModel> getTableDisplayProperties() {
+		if(m_tableDisplayProperties == null || m_tableDisplayProperties.size() == 0) {
+			m_tableDisplayProperties = MetaManager.calculateObjectProperties(this);
+		}
 		return m_tableDisplayProperties;
 	}
 
