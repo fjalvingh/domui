@@ -32,24 +32,24 @@ public class DefaultPageInjector implements IPageInjector {
 	private Map<String, PageInjector> m_injectorMap = new HashMap<String, PageInjector>();
 
 	public DefaultPageInjector() {
-		m_ucs.add(String.class.toString());
-		m_ucs.add(Byte.class.toString());
+		m_ucs.add(String.class.getName());
+		m_ucs.add(Byte.class.getName());
 		m_ucs.add(Byte.TYPE.getName());
-		m_ucs.add(Character.class.toString());
+		m_ucs.add(Character.class.getName());
 		m_ucs.add(Character.TYPE.getName());
-		m_ucs.add(Short.class.toString());
+		m_ucs.add(Short.class.getName());
 		m_ucs.add(Short.TYPE.getName());
-		m_ucs.add(Integer.class.toString());
+		m_ucs.add(Integer.class.getName());
 		m_ucs.add(Integer.TYPE.getName());
-		m_ucs.add(Long.class.toString());
+		m_ucs.add(Long.class.getName());
 		m_ucs.add(Long.TYPE.getName());
-		m_ucs.add(Float.class.toString());
+		m_ucs.add(Float.class.getName());
 		m_ucs.add(Float.TYPE.getName());
-		m_ucs.add(Double.class.toString());
+		m_ucs.add(Double.class.getName());
 		m_ucs.add(Double.TYPE.getName());
-		m_ucs.add(Date.class.toString());
-		m_ucs.add(BigDecimal.class.toString());
-		m_ucs.add(BigInteger.class.toString());
+		m_ucs.add(Date.class.getName());
+		m_ucs.add(BigDecimal.class.getName());
+		m_ucs.add(BigInteger.class.getName());
 		//		UCS.add(Byte.class.toString());
 		//		UCS.add(Byte.class.toString());
 		//		UCS.add(Byte.class.toString());
