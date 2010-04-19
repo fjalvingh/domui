@@ -135,35 +135,60 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	private Object m_subCriteria;
 
 	/** The current subcriteria's base class. */
-	private Class< ? > m_subCriteriaClass;
+	//	private Class< ? > m_subCriteriaClass;
 
 	private String parseSubcriteria(String name) {
-		m_subCriteriaClass = null;
+		Class< ? > subCriteriaClass = null;
 		m_subCriteria = null;
 		int pos = name.indexOf('.'); // Is the name containing a dot?
 		if(pos == -1) // If not: no subcriteria query.
 			return name;
 
 		//-- 2. Parse the name.
-		String path = null;
+		String path = null; // The full path currently reached
+		String subpath = null; // The subpath reached from the last PK association change, if applicable
 		//		int len = name.length();
 		int ix = 0;
-		for(;;) {
+
+		while(pos != -1) {
 			String sub = name.substring(ix, pos); // Current substring;
 			ix = pos + 1;
-			if(path == null)
-				path = sub;
-			else
-				path = path + "." + sub;
+
+			//-- Move to the NEXT pos for the next iteration
+			pos = name.indexOf('.', ix);
+
+			//-- Now handle the current name fragment.
+			path = path == null ? sub : path + "." + sub;
+			subpath = subpath == null ? sub : subpath + "." + sub;
+
+			/*
+			 * We either have an association path which needs to lead to a subcriterion, or
+			 * we have a compound PK. In this case we need to keep the name of that compound
+			 * without entering a subcriterion (because these fields are actually part of that
+			 * record). Only when while traversing that PK a non-PK field gets accessed need
+			 * we create a subcriterion, but on the dotted path reaching that key!
+			 */
 
 			//-- Create/lookup the appropriate subcriteria association
 			Object sc = m_subCriteriaMap.get(path);
 			if(sc == null) { //-- This path is not yet known? Then we need to create it.
 				//-- Get the property metadata and the reached class.
-				if(m_subCriteriaClass == null) {
-					m_subCriteriaClass = m_rootClass;
+				if(subCriteriaClass == null) {
+					subCriteriaClass = m_rootClass;
 				}
-				PropertyMetaModel pmm = MetaManager.getPropertyMeta(m_subCriteriaClass, sub);
+				PropertyMetaModel pmm = MetaManager.getPropertyMeta(subCriteriaClass, sub);
+				if(pmm.isPrimaryKey()) {
+					//-- This is a PK property. We do not need to join, we just need a larger subpath.
+
+
+				}
+
+
+				//-- If this is a PK property just stay @ the current criterion, we just need a compound name there....
+
+
+
+
 				if(pmm.getRelationType() == PropertyRelationType.NONE)
 					throw new QQuerySyntaxException("The property " + pmm + " reached by path=" + name + " must be a parent or child relation property.");
 
@@ -182,8 +207,6 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 						throw new IllegalStateException("Unknown current thingy: " + m_currentCriteria);
 
 				} else {
-					// FIXME jal 20091224 I think this is crap.
-					//					m_subCriteria = sc;
 					if(m_subCriteria instanceof Criteria)
 						m_subCriteria = ((Criteria) m_subCriteria).createCriteria(sub, joinType);
 					else if(m_subCriteria instanceof DetachedCriteria)
@@ -192,7 +215,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				if(m_subCriteriaMap == Collections.EMPTY_MAP)
 					m_subCriteriaMap = new HashMap<String, Object>();
 				m_subCriteriaMap.put(path, m_subCriteria);
-				m_subCriteriaClass = pmm.getActualType();
+				subCriteriaClass = pmm.getActualType();
 			} else
 				m_subCriteria = sc;
 
@@ -202,8 +225,11 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				return name.substring(ix); // Return the last segment of the name which must be a field in this subcriteria
 			}
 		}
-	}
 
+		//-- End of part. Append the last name to the subpath, if necessary
+		String sub = name.substring(ix); // Last (untreated) segment
+		return subpath == null ? sub : subpath + "." + sub;
+	}
 
 	@Override
 	public void visitPropertyComparison(QPropertyComparison n) throws Exception {
