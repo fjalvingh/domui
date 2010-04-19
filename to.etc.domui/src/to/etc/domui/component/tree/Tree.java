@@ -33,6 +33,8 @@ public class Tree extends Div implements ITreeModelChangedListener {
 
 	private ICellClicked< ? > m_cellClicked;
 
+	private ITreeWillExpandListener m_treeWillExpand;
+
 	/**
 	 * Represents the internal visible state of the tree.
 	 *
@@ -186,6 +188,9 @@ public class Tree extends Div implements ITreeModelChangedListener {
 	 * @throws Exception
 	 */
 	public void expandNode(Object item) throws Exception {
+		if(getTreeWillExpand() != null) {
+			getTreeWillExpand().treeWillExpand(item);
+		}
 		List<Object> path = getTreePath(item); // Calculate a path.
 		if(path.size() == 0)
 			throw new IllegalStateException("No TREE path found to node=" + item);
@@ -273,6 +278,10 @@ public class Tree extends Div implements ITreeModelChangedListener {
 	 * @throws Exception
 	 */
 	public void collapseNode(final Object item) throws Exception {
+		if(getTreeWillExpand() != null) {
+			getTreeWillExpand().treeWillCollapse(item);
+		}
+
 		VisibleNode vn = m_openMap.get(item);
 		if(vn == null)
 			return;
@@ -475,5 +484,13 @@ public class Tree extends Div implements ITreeModelChangedListener {
 
 	public void setPropertyMetaModel(PropertyMetaModel propertyMetaModel) {
 		m_propertyMetaModel = propertyMetaModel;
+	}
+
+	public ITreeWillExpandListener getTreeWillExpand() {
+		return m_treeWillExpand;
+	}
+
+	public void setTreeWillExpand(ITreeWillExpandListener treeWillExpand) {
+		m_treeWillExpand = treeWillExpand;
 	}
 }
