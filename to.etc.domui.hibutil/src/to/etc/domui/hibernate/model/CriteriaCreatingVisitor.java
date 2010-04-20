@@ -183,8 +183,15 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		}
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Property path resolution code.						*/
+	/*--------------------------------------------------------------*/
 	/** The current subcriteria. */
 	private Object m_subCriteria;
+
+	/** Temp array used in parser to decode the properties reached; used to prevent multiple object allocations. */
+	private PropertyMetaModel[] m_propertyPath = new PropertyMetaModel[20];
 
 	/** The current subcriteria's base class. */
 	//	private Class< ? > m_subCriteriaClass;
@@ -229,6 +236,30 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 * not the actual definition from the data model.</p>
 	 */
 	private String parseSubcriteria(String input) {
+		//-- 1. Calculate a full property path stack from the dotted input part; IF the input IS dotted.
+		int ix = 0;
+		int dix = 0;
+		Class< ? > root = m_rootClass;
+		for(;;) {
+			int pos = input.indexOf('.', ix);
+			String name;
+			if(pos == -1) {
+				name = input.substring(ix);
+			} else {
+				name = input.substring(ix, pos);
+				ix = pos + 1;
+			}
+			if(dix >= m_propertyPath.length)
+				throw new IllegalStateException("Path expression too complex");
+			PropertyMetaModel pmm = MetaManager.findPropertyMeta(root, name);
+			m_propertyPath[dix++] = pmm;
+			root = pmm.getActualType();
+			if(pos == -1)
+				break;
+		}
+
+
+
 		Class< ? > currentClass = m_rootClass; // The current class reached by the property; start @ the root entity
 		m_subCriteria = null;
 		String path = null; // The full path currently reached
