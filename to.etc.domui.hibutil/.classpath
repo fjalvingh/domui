@@ -8,7 +8,6 @@
 			<attribute name="owner.project.facets" value="jst.java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/lib-hibernate"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/bin-hibernate-annotations-3.4.0"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bin-hibernate-3.5.1"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
