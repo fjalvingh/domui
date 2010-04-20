@@ -49,7 +49,41 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	private Class< ? > m_rootClass;
 
-	private Map<String, Object> m_subCriteriaMap = Collections.EMPTY_MAP;
+	static private final class CritEntry {
+		/** The class type queried by this subcriterion */
+		private Class< ? > m_actualClass;
+
+		/** Either a Criteria or a DetachedCriteria object, sigh */
+		private Object m_abomination;
+
+		public CritEntry(Class< ? > actualClass, Object abomination) {
+			m_actualClass = actualClass;
+			m_abomination = abomination;
+		}
+
+		/**
+		 * Return either the Criteria or DetachedCriteria.
+		 * @return
+		 */
+		public Object getAbomination() {
+			return m_abomination;
+		}
+
+		/**
+		 * Return the actual type queried by the criterion.
+		 * @return
+		 */
+		public Class< ? > getActualClass() {
+			return m_actualClass;
+		}
+	}
+
+	/**
+	 * Maps all subcriteria created for path entries, indexed by their FULL path name
+	 * from the root object. This prevents us from creating multiple subcriteria for
+	 * fields that lay after the same path reaching a parent relation.
+	 */
+	private Map<String, CritEntry> m_subCriteriaMap = Collections.EMPTY_MAP;
 
 	public CriteriaCreatingVisitor(Session ses, final Criteria crit) {
 		m_session = ses;
@@ -87,6 +121,24 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		} else
 			throw new IllegalStateException("Unexpected current thing: " + m_subCriteria);
 	}
+
+	/**
+	 * Create a join either on a Criteria or a DetachedCriteria. Needed because the idiot that creates those
+	 * did not interface/baseclass them.
+	 * @param current
+	 * @param name
+	 * @param joinType
+	 * @return
+	 */
+	private Object createSubCriteria(Object current, String name, int joinType) {
+		if(current instanceof Criteria)
+			return ((Criteria) current).createCriteria(name, joinType);
+		else if(current instanceof DetachedCriteria)
+			return ((DetachedCriteria) current).createCriteria(name, joinType);
+		else
+			throw new IllegalStateException("? Unexpected criteria abomination: " + current);
+	}
+
 
 	private void addSubOrder(Order c) {
 		if(m_subCriteria instanceof Criteria) {
@@ -137,97 +189,107 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	/** The current subcriteria's base class. */
 	//	private Class< ? > m_subCriteriaClass;
 
-	private String parseSubcriteria(String name) {
-		Class< ? > subCriteriaClass = null;
+	/**
+	 * This parses all dotted paths, and translates them to the proper Hibernate paths and joins. A big
+	 * bundle of hair is growing on this code. Take heed changing it!
+	 * <p>A dotted path reaching some final property on some part of a persistent class tree must
+	 * be interpreted in multiple ways, depending on the parts of the tree that are reached. All cases only
+	 * resolve the part <i>before</i> the last name in the path. So a dotted path like <i>address.city</i> will
+	 * resolve the "address" into a subcritera (see below) and return the name "city" as a property name to resolve
+	 * on the Address persistent class.
+	 *
+	 * <p>The possibilities for different resolutions are:
+	 * <dl>
+	 *	<dt>Parent relations<dt>
+	 *	<dd>When a parent relation is encountered directly on some persistent class it implies that a
+	 *		<i>join</i> is to be done with that persistent class. If the property is non-null(1) an inner
+	 *		join will be generated; if a property is optional it will generate an outer join to it. In Hibernate
+	 *		terms: this will create another Criteria on that property, and that criteria instance should be used
+	 *		to append criterions on that other table. If such a relation property is used more than once (because
+	 *		multiple restrictions are placed on the joined table) we <i>must</i> reuse the same sub-Criteria
+	 *		instance initially created to prevent multiple joins to that same table.</dd>
+	 *	<dt>Compound primary keys</dt>
+	 *	<dd>These are the hardest. A compound PK usually consists of "simple" fields and "parent" relation types.
+	 *	The "simple" fields are usually of basic types like numbers or strings, and are present in the root table
+	 *	only, forming the unique part of that root type's primary key. The "parent" relation properties in the PK
+	 *	represent the parent entities that are part of the identifying relation for the root table.
+	 *	<p>The problem is that depending on what is reached we either need to specify a join, or we just reach "deeper"
+	 *	inside the compound key structure, reaching a property that is ultimately still a field in the root table.
+	 *	</p>
+	 *	<p>When parsing a PK structure deeply we usually have properties that alternate between pk fields and relation
+	 *	fields. Only when this path touches a non-PK field need we create a subcriteria to the reached tables. In all
+	 *	other cases, if the final property reaches a primary key field of an identifying PK somewhere in the root
+	 *	table the column representing that field is part of that root table, so no joins are wanted.</p>
+	 * </dd>
+	 *
+	 * </dl>
+	 * Notes:
+	 * <p>(1): the nullity of a property should be directly derived off the datamodel. If it is changed from the
+	 * datamodel's definition then the resulting join will not be technically correct: it follows the override,
+	 * not the actual definition from the data model.</p>
+	 */
+	private String parseSubcriteria(String input) {
+		Class< ? > currentClass = m_rootClass; // The current class reached by the property; start @ the root entity
 		m_subCriteria = null;
-		int pos = name.indexOf('.'); // Is the name containing a dot?
-		if(pos == -1) // If not: no subcriteria query.
-			return name;
-
-		//-- 2. Parse the name.
 		String path = null; // The full path currently reached
 		String subpath = null; // The subpath reached from the last PK association change, if applicable
-		//		int len = name.length();
 		int ix = 0;
-
-		while(pos != -1) {
-			String sub = name.substring(ix, pos); // Current substring;
+		for(;;) {
+			int pos = input.indexOf('.', ix); // Move to the NEXT dot,
+			if(pos == -1) // Nothing present (anymore) -> exit loop and return result
+				break;
+			String name = input.substring(ix, pos); // Current name in dotted path
 			ix = pos + 1;
 
-			//-- Move to the NEXT pos for the next iteration
-			pos = name.indexOf('.', ix);
-
-			//-- Now handle the current name fragment.
-			path = path == null ? sub : path + "." + sub;
-			subpath = subpath == null ? sub : subpath + "." + sub;
+			//-- Handle the current name (path fragment)
+			path = path == null ? name : path + "." + name; // Full dotted path to the currently reached name
+			subpath = subpath == null ? name : subpath + "." + name; // Partial dotted path (from the last relation) to the currently reached name
 
 			/*
 			 * We either have an association path which needs to lead to a subcriterion, or
 			 * we have a compound PK. In this case we need to keep the name of that compound
 			 * without entering a subcriterion (because these fields are actually part of that
 			 * record). Only when while traversing that PK a non-PK field gets accessed need
-			 * we create a subcriterion, but on the dotted path reaching that key!
+			 * we create a subcriterion, but on the dotted path reaching that non-key through
+			 * the key.
 			 */
-
 			//-- Create/lookup the appropriate subcriteria association
-			Object sc = m_subCriteriaMap.get(path);
-			if(sc == null) { //-- This path is not yet known? Then we need to create it.
+			CritEntry ce = m_subCriteriaMap.get(path);
+			if(ce != null) { // We already know all there is to know about this part
+				m_subCriteria = ce.getAbomination();
+				currentClass = ce.getActualClass();
+			} else {
 				//-- Get the property metadata and the reached class.
-				if(subCriteriaClass == null) {
-					subCriteriaClass = m_rootClass;
-				}
-				PropertyMetaModel pmm = MetaManager.getPropertyMeta(subCriteriaClass, sub);
+				if(currentClass == null)
+					currentClass = m_rootClass;
+				PropertyMetaModel pmm = MetaManager.getPropertyMeta(currentClass, name);
 				if(pmm.isPrimaryKey()) {
 					//-- This is a PK property. We do not need to join, we just need a larger subpath.
+					currentClass = pmm.getActualType();
 
+				} else if(pmm.getRelationType() != PropertyRelationType.NONE) { // We MUST have a relation type here, now
+					int joinType = pmm.isRequired() ? CriteriaSpecification.INNER_JOIN : CriteriaSpecification.LEFT_JOIN;
 
-				}
+					if(m_subCriteria == null) { // Current is the ROOT criteria?
+						m_subCriteria = createSubCriteria(m_currentCriteria, subpath, joinType);
+					} else {
+						//-- Create a new version on the current subcriterion (multi join)
+						m_subCriteria = createSubCriteria(m_subCriteria, subpath, joinType);
+					}
 
-
-				//-- If this is a PK property just stay @ the current criterion, we just need a compound name there....
-
-
-
-
-				if(pmm.getRelationType() == PropertyRelationType.NONE)
-					throw new QQuerySyntaxException("The property " + pmm + " reached by path=" + name + " must be a parent or child relation property.");
-
-				int joinType = pmm.isRequired() ? CriteriaSpecification.INNER_JOIN : CriteriaSpecification.LEFT_JOIN;
-
-				if(m_subCriteria == null) {
-					//-- 1. We need the metadata for this relation to determine the join...
-					Class< ? > rootcl;
-					ClassMetaModel cmm;
-
-					if(m_currentCriteria instanceof Criteria)
-						m_subCriteria = ((Criteria) m_currentCriteria).createCriteria(sub, joinType);
-					else if(m_currentCriteria instanceof DetachedCriteria)
-						m_subCriteria = ((DetachedCriteria) m_currentCriteria).createCriteria(sub, joinType);
-					else
-						throw new IllegalStateException("Unknown current thingy: " + m_currentCriteria);
-
-				} else {
-					if(m_subCriteria instanceof Criteria)
-						m_subCriteria = ((Criteria) m_subCriteria).createCriteria(sub, joinType);
-					else if(m_subCriteria instanceof DetachedCriteria)
-						m_subCriteria = ((DetachedCriteria) m_subCriteria).createCriteria(sub, joinType);
-				}
-				if(m_subCriteriaMap == Collections.EMPTY_MAP)
-					m_subCriteriaMap = new HashMap<String, Object>();
-				m_subCriteriaMap.put(path, m_subCriteria);
-				subCriteriaClass = pmm.getActualType();
-			} else
-				m_subCriteria = sc;
-
-			//-- Move to the next segment, if present,
-			pos = name.indexOf('.', ix);
-			if(pos == -1) {
-				return name.substring(ix); // Return the last segment of the name which must be a field in this subcriteria
+					//-- Store this subcriteria so that other paths will use the same one
+					if(m_subCriteriaMap == Collections.EMPTY_MAP)
+						m_subCriteriaMap = new HashMap<String, CritEntry>();
+					currentClass = pmm.getActualType();
+					m_subCriteriaMap.put(path, new CritEntry(currentClass, m_subCriteria));
+					subpath = null; // Restart subpath @ next property.
+				} else
+					throw new QQuerySyntaxException("Property " + subpath + " in path " + input + " must be a parent relation or a compound primary key (property=" + pmm + ")");
 			}
 		}
 
 		//-- End of part. Append the last name to the subpath, if necessary
-		String sub = name.substring(ix); // Last (untreated) segment
+		String sub = input.substring(ix); // Last (untreated) segment
 		return subpath == null ? sub : subpath + "." + sub;
 	}
 
