@@ -569,7 +569,7 @@ final public class MetaManager {
 		List<DisplayPropertyMetaModel> res = new ArrayList<DisplayPropertyMetaModel>();
 		int totlen = 0;
 		for(PropertyMetaModel pmm : cm.getProperties()) {
-			if(totlen > 120 || res.size() > 20)
+			if(totlen > 512 || res.size() > 20)
 				break;
 
 			if(DomUtil.isBasicType(pmm.getActualType())) {
