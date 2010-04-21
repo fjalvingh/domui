@@ -116,6 +116,10 @@ final public class DomUtil {
 		return clz == Short.class || clz == short.class;
 	}
 
+	static public boolean isByteOrWrapper(Class< ? > clz) {
+		return clz == Byte.class || clz == byte.class;
+	}
+
 	static public boolean isLongOrWrapper(Class< ? > clz) {
 		return clz == Long.class || clz == long.class;
 	}
@@ -141,10 +145,8 @@ final public class DomUtil {
 	static public boolean isBasicType(Class< ? > t) {
 		if(t.isPrimitive())
 			return true;
-		if(t == Integer.class || t == Long.class || t == Short.class || t == String.class || t == Byte.class || t == BigDecimal.class || t == BigInteger.class || t == Double.class || t == Float.class
-			|| t == Date.class)
-			return true;
-		return false;
+		return isIntegerOrWrapper(t) || isLongOrWrapper(t) || isShortOrWrapper(t) || isByteOrWrapper(t) || isDoubleOrWrapper(t) || isFloatOrWrapper(t) || isBooleanOrWrapper(t) || t == String.class
+			|| t == BigDecimal.class || t == BigInteger.class || t == Date.class;
 	}
 
 	/**
