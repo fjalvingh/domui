@@ -191,7 +191,15 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	private Object m_subCriteria;
 
 	/** Temp array used in parser to decode the properties reached; used to prevent multiple object allocations. */
-	private PropertyMetaModel[] m_propertyPath = new PropertyMetaModel[20];
+	private PropertyMetaModel[] m_pendingJoinProps = new PropertyMetaModel[20];
+
+	private String[] m_pendingJoinPaths = new String[20];
+
+	private int m_pendingJoinIx;
+
+	private String m_inputPath;
+
+	private StringBuilder	m_sb = new StringBuilder();
 
 	/** The current subcriteria's base class. */
 	//	private Class< ? > m_subCriteriaClass;
@@ -236,93 +244,191 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 * not the actual definition from the data model.</p>
 	 */
 	private String parseSubcriteria(String input) {
-		//-- 1. Calculate a full property path stack from the dotted input part; IF the input IS dotted.
+		m_subCriteria = null;
+		m_inputPath = input;
+
+		/*
+		 * We are going to traverse all names and determine the reached type. When a relation type
+		 * is encountered it's put on the "pending relation stack". The next name will determine
+		 * what to do with that relation:
+		 * - if there is NO next field the relation itself is meant. No join should be added.
+		 * - if the next field is a non-PK field then the relation MUST be joined in using a
+		 *   subcriterion, and the next field will take off from there
+		 * - if the next field is a PK field we delay the join by keeping the relation stacked
+		 *   and we follow the PK field, maintaining the subpath. If the entire path is always
+		 *   either a parent relation or a PK field then we are staying in the /same/ record, never
+		 *   leaving it's PK. In that case this will return the entire dotted path to that PK field,
+		 *   for use by Hibernate.
+		 * - if the next field is NOT a pk we know that we must join fully all relations stacked.
+		 */
+		Class< ? > currentClass = m_rootClass; // The current class reached by the property; start @ the root entity
+		String path = null; // The full path currently reached
+		String subpath = null; // The subpath reached from the last PK association change, if applicable
 		int ix = 0;
-		int dix = 0;
-		Class< ? > root = m_rootClass;
-		for(;;) {
-			int pos = input.indexOf('.', ix);
+		final int len = input.length();
+		m_pendingJoinIx = 0;
+		boolean last = false;
+		boolean inpk = false; // Not following a PK path
+		boolean previspk = false;
+		while(!last) {
+			//-- Get next name.
+			int pos = input.indexOf('.', ix); // Move to the NEXT dot,
 			String name;
 			if(pos == -1) {
+				//-- QUICK EXIT: if the entire name has no dots quit immediately with the input.
+				if(ix == 0)
+					return input;
+
+				//-- Get the last name fragment.
 				name = input.substring(ix);
+				ix = len;
+				last = true;
 			} else {
 				name = input.substring(ix, pos);
 				ix = pos + 1;
 			}
-			if(dix >= m_propertyPath.length)
-				throw new IllegalStateException("Path expression too complex");
-			PropertyMetaModel pmm = MetaManager.findPropertyMeta(root, name);
-			m_propertyPath[dix++] = pmm;
-			root = pmm.getActualType();
-			if(pos == -1)
-				break;
-		}
 
-
-
-		Class< ? > currentClass = m_rootClass; // The current class reached by the property; start @ the root entity
-		m_subCriteria = null;
-		String path = null; // The full path currently reached
-		String subpath = null; // The subpath reached from the last PK association change, if applicable
-		int ix = 0;
-		for(;;) {
-			int pos = input.indexOf('.', ix); // Move to the NEXT dot,
-			if(pos == -1) // Nothing present (anymore) -> exit loop and return result
-				break;
-			String name = input.substring(ix, pos); // Current name in dotted path
-			ix = pos + 1;
-
-			//-- Handle the current name (path fragment)
+			//-- Create the path and the subpath by adding the current name.
 			path = path == null ? name : path + "." + name; // Full dotted path to the currently reached name
 			subpath = subpath == null ? name : subpath + "." + name; // Partial dotted path (from the last relation) to the currently reached name
 
-			/*
-			 * We either have an association path which needs to lead to a subcriterion, or
-			 * we have a compound PK. In this case we need to keep the name of that compound
-			 * without entering a subcriterion (because these fields are actually part of that
-			 * record). Only when while traversing that PK a non-PK field gets accessed need
-			 * we create a subcriterion, but on the dotted path reaching that non-key through
-			 * the key.
-			 */
-			//-- Create/lookup the appropriate subcriteria association
-			CritEntry ce = m_subCriteriaMap.get(path);
-			if(ce != null) { // We already know all there is to know about this part
-				m_subCriteria = ce.getAbomination();
-				currentClass = ce.getActualClass();
-			} else {
-				//-- Get the property metadata and the reached class.
-				if(currentClass == null)
-					currentClass = m_rootClass;
-				PropertyMetaModel pmm = MetaManager.getPropertyMeta(currentClass, name);
-				if(pmm.isPrimaryKey()) {
-					//-- This is a PK property. We do not need to join, we just need a larger subpath.
-					currentClass = pmm.getActualType();
+			//-- Get the property metadata and the reached class.
+			PropertyMetaModel pmm = MetaManager.getPropertyMeta(currentClass, name);
+			if(pmm.isPrimaryKey()) {
+				if(previspk)
+					throw new IllegalStateException("Pk field immediately after PK field - don't know what this is!?");
 
-				} else if(pmm.getRelationType() != PropertyRelationType.NONE) { // We MUST have a relation type here, now
-					int joinType = pmm.isRequired() ? CriteriaSpecification.INNER_JOIN : CriteriaSpecification.LEFT_JOIN;
+				inpk = true;
+				previspk = true;
+				pushPendingJoin(path, pmm);
+				currentClass = pmm.getActualType();
+			} else if(pmm.getRelationType() != PropertyRelationType.NONE) {
+				/*
+				 * This is a relation. If we are NOT in a PK currently AND there are relations queued then
+				 * we are sure that the queued ones must be joined, so flush as a simple join.
+				 */
+				//-- This is a relation type. If another relation was queued flush it: we always need a join.
+				if(m_pendingJoinIx > 0 && !previspk) {
+					flushJoin();
+					inpk = false;
+				}
 
-					if(m_subCriteria == null) { // Current is the ROOT criteria?
-						m_subCriteria = createSubCriteria(m_currentCriteria, subpath, joinType);
-					} else {
-						//-- Create a new version on the current subcriterion (multi join)
-						m_subCriteria = createSubCriteria(m_subCriteria, subpath, joinType);
-					}
-
-					//-- Store this subcriteria so that other paths will use the same one
-					if(m_subCriteriaMap == Collections.EMPTY_MAP)
-						m_subCriteriaMap = new HashMap<String, CritEntry>();
-					currentClass = pmm.getActualType();
-					m_subCriteriaMap.put(path, new CritEntry(currentClass, m_subCriteria));
-					subpath = null; // Restart subpath @ next property.
-				} else
-					throw new QQuerySyntaxException("Property " + subpath + " in path " + input + " must be a parent relation or a compound primary key (property=" + pmm + ")");
-			}
+				//-- Now queue this one- we decide whether to join @ the next name.
+				pushPendingJoin(path, pmm);
+				currentClass = pmm.getActualType();
+				previspk = false;
+			} else if(!last)
+				throw new QQuerySyntaxException("Property " + subpath + " in path " + input + " must be a parent relation or a compound primary key (property=" + pmm + ")");
+			else
+				pushPendingJoin(path, pmm); // Push the last segment too, even though it is not a join!!
 		}
 
-		//-- End of part. Append the last name to the subpath, if necessary
-		String sub = input.substring(ix); // Last (untreated) segment
-		return subpath == null ? sub : subpath + "." + sub;
+		/*
+		 * We have reached the last field, and it's meta is on the stack. Always remove it there (because it will never
+		 * be joined). Then see if data is left on the stack and handle that.
+		 */
+		if(m_pendingJoinIx <= 0)
+			throw new IllegalStateException("Logic failure"); // Cannot happen
+//		PropertyMetaModel pmm = m_pendingJoinProps[--m_pendingJoinIx];
+//		path = m_pendingJoinPaths[m_pendingJoinIx];
+//		String	name = pmm.getName();	// This will be the name of the property to return if the stack is empty
+
+		//-- In all cases: we just need the qualified subname to this property, because all needed joins have been done already.
+		m_sb.setLength(0);
+		for(int i = 0; i < m_pendingJoinIx; i++) {
+			if(m_sb.length() > 0)
+				m_sb.append('.');
+			m_sb.append(m_pendingJoinProps[i].getName());
+		}
+		String name = m_sb.toString();
+		return name;
 	}
+
+	/**
+	 * Flush everything on the join stack and create the pertinent joins. The stack
+	 * is guaranteed to end in a RELATION property, but it can have PK fragments in
+	 * between. Those fragments are all part of a single record (the one that has
+	 * that PK) and should not be "joined". Instead the entire subpath leading to
+	 * that first relation that "exits" that record will be used as a path for the
+	 * subcriterion.
+	 */
+	private void flushJoin() {
+		//-- Create the join path upto and including till the last relation (subpath from last criterion to it).
+		m_sb.setLength(0);
+		PropertyMetaModel pmm = null;
+		for(int i = 0; i < m_pendingJoinIx; i++) {
+			pmm = m_pendingJoinProps[i];
+			if(m_sb.length() != 0)
+				m_sb.append('.');
+			m_sb.append(pmm.getName());
+		}
+		String subpath = m_sb.toString(); // This leads to the relation;
+
+		//-- Now create/retrieve the subcriterion to that relation
+		String path = m_pendingJoinPaths[m_pendingJoinIx - 1]; // The full path to this relation,
+		CritEntry	ce = m_subCriteriaMap.get(path);	// Is a criteria entry present already?
+		if(ce != null) {
+			m_subCriteria = ce.getAbomination();		// Obtain cached version
+		} else {
+			//-- We need to create this join.
+			int joinType = pmm.isRequired() ? CriteriaSpecification.INNER_JOIN : CriteriaSpecification.LEFT_JOIN;
+
+			if(m_subCriteria == null) { // Current is the ROOT criteria?
+				m_subCriteria = createSubCriteria(m_currentCriteria, subpath, joinType);
+			} else {
+				//-- Create a new version on the current subcriterion (multi join)
+				m_subCriteria = createSubCriteria(m_subCriteria, subpath, joinType);
+			}
+
+			//-- Cache this so later paths refer to the same subcriteria
+			if(m_subCriteriaMap == Collections.EMPTY_MAP)
+				m_subCriteriaMap = new HashMap<String, CritEntry>();
+			m_subCriteriaMap.put(path, new CritEntry(pmm.getActualType(), m_subCriteria));
+		}
+		m_pendingJoinIx = 0;
+	}
+
+	private void dumpStateError(String string) {
+		throw new IllegalStateException(string);
+	}
+
+	/**
+	 * Push a pending join or PK fragment on the TODO stack.
+	 * @param path
+	 * @param pmm
+	 */
+	private void pushPendingJoin(String path, PropertyMetaModel pmm) {
+		if(m_pendingJoinIx >= m_pendingJoinPaths.length)
+			throw new QQuerySyntaxException("The property path " + m_inputPath + " is too complex");
+		m_pendingJoinPaths[m_pendingJoinIx] = path;
+		m_pendingJoinProps[m_pendingJoinIx++] = pmm;
+	}
+
+//	/**
+//	 * Flush all entries on the pending relation stack. This stack should ALWAYS contain
+//	 * relation and PK entries ajacent, i.e. a relation item ALWAYS follows a PK item and
+//	 * a PK item always follows a relation item.
+//	 *
+//	 * If this stack holds a PK path it ALWAYS starts with a PK
+//	 *
+//	 */
+//	private void flushPendingRelationJoins() {
+//		int joinType = pmm.isRequired() ? CriteriaSpecification.INNER_JOIN : CriteriaSpecification.LEFT_JOIN;
+//
+//		if(m_subCriteria == null) { // Current is the ROOT criteria?
+//			m_subCriteria = createSubCriteria(m_currentCriteria, subpath, joinType);
+//		} else {
+//			//-- Create a new version on the current subcriterion (multi join)
+//			m_subCriteria = createSubCriteria(m_subCriteria, subpath, joinType);
+//		}
+//
+//		//-- Store this subcriteria so that other paths will use the same one
+//		if(m_subCriteriaMap == Collections.EMPTY_MAP)
+//			m_subCriteriaMap = new HashMap<String, CritEntry>();
+//		currentClass = pmm.getActualType();
+//		m_subCriteriaMap.put(path, new CritEntry(currentClass, m_subCriteria));
+//		subpath = null; // Restart subpath @ next property.
+//	}
 
 	@Override
 	public void visitPropertyComparison(QPropertyComparison n) throws Exception {
