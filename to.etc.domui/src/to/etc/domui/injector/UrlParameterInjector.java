@@ -42,7 +42,7 @@ public class UrlParameterInjector extends PropertyInjector {
 		}
 
 		//-- 2. Convert the thing to the appropriate type.
-		Class< ? > type = getPropertySetter().getReturnType();
+		Class< ? > type = getPropertySetter().getParameterTypes()[0];
 		Object value;
 		try {
 			value = ConverterRegistry.convertURLStringToValue(type, pv);
