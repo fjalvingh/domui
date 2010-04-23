@@ -232,11 +232,11 @@ public class ConnectionPool implements DbConnectorSet {
 		}
 	};
 
-	/** The unpooled datasource instance. */
-	private final StupidDataSourceImpl m_unpooled_ds = new StupidDataSourceImpl(this, true);
-
 	/** The pooled datasource instance. */
-	private final StupidDataSourceImpl m_pooled_ds = new StupidDataSourceImpl(this, false);
+	private final StupidDataSourceImpl m_pooled_ds = new StupidDataSourceImpl(this, true);
+
+	/** The unpooled datasource instance. */
+	private final UnpooledDataSourceImpl m_unpooled_ds = new UnpooledDataSourceImpl(this);
 
 	/** The driver instance to get connections from. */
 	private Driver m_driver;
@@ -835,13 +835,17 @@ public class ConnectionPool implements DbConnectorSet {
 		}
 	}
 
+	private Connection getCheckedConnection() throws SQLException {
+		return getCheckedConnection(null, null);
+	}
+
 	/**
 	 * Returns a new connection from the driver. The connection is checked for
 	 * errors before it is returned. This should prevent the !@*%% "End of file
 	 * on TNS channel" oracle error... If a connection could not be obtained
 	 * after 5 tries then the last exception is rethrown.
 	 */
-	private Connection getCheckedConnection() throws SQLException {
+	private Connection getCheckedConnection(String user, String passwd) throws SQLException {
 		int tries = 5;
 		SQLException lastx = null;
 
@@ -850,8 +854,14 @@ public class ConnectionPool implements DbConnectorSet {
 
 			try {
 				//				ALLOC.msg(m_id+": get connection on "+m_url+", uid="+m_uid);
-				dbc = m_driver.connect(m_url, m_properties);
-				//				dbc	= DriverManager.getConnection(m_url, m_uid, m_pw);
+				Properties p = m_properties;
+				if(user != null) {
+					p = new Properties(m_properties);
+					p.setProperty("user", user);
+					p.setProperty("password", passwd);
+				}
+
+				dbc = m_driver.connect(m_url, p);
 			} catch(SQLException x) {
 				x.printStackTrace();
 				MSG.info("Failed to get connection for " + getID() + ": " + x.toString());
@@ -1054,6 +1064,45 @@ public class ConnectionPool implements DbConnectorSet {
 			discardEntry(pe); // Delete this soonest
 		}
 	}
+
+	/**
+	 *
+	 * @param username
+	 * @param password
+	 * @return
+	 */
+	public Connection getUnpooledConnection(String username, String password) throws SQLException {
+		ThreadData d = m_manager.threadData();
+		if(d != null)
+			d.connectionAllocated();
+		int newid;
+		synchronized(this) {
+			newid = m_entryidgen++;
+		}
+
+		boolean ok = false;
+		ConnectionPoolEntry pe = null;
+		try {
+			//-- Allocate a connection AND A new proxydude
+			Connection c = getCheckedConnection(username, password);
+			pe = new ConnectionPoolEntry(c, this, newid);
+			ok = true;
+			pe.setUnpooled(true);
+
+			PooledConnection dbc = pe.proxyMake(); // Yes-> make the proxy and be done.
+			dbgAlloc("getUnpooledConnection", dbc);
+			return dbc;
+		} finally {
+			//-- We need to handle accounting!!
+			synchronized(this) {
+				if(ok) {
+					m_n_unpooled_inuse++;
+					m_usedSet.add(pe);
+				}
+			}
+		}
+	}
+
 
 	/**
 	 * This is the code to be called to allocate a connection using a

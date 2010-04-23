@@ -5,36 +5,19 @@ import java.sql.*;
 
 import javax.sql.*;
 
-/**
- * Pooled or unpooled datasource implementation using a connection pool. It
- * only implements the getConnection method; the rest of the silly crap is
- * ignored.
- *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jan 31, 2006
- */
-public class StupidDataSourceImpl implements DataSource {
-	private ConnectionPool m_pool;
+public class UnpooledDataSourceImpl implements DataSource {
+	final private ConnectionPool m_pool;
 
-	private boolean m_unpooled;
-
-	StupidDataSourceImpl(ConnectionPool p, boolean unpooled) {
+	UnpooledDataSourceImpl(ConnectionPool p) {
 		m_pool = p;
-		m_unpooled = unpooled;
-	}
-
-	public ConnectionPool getPool() {
-		return m_pool;
 	}
 
 	public Connection getConnection() throws SQLException {
-		return m_pool.getConnection(m_unpooled);
+		return m_pool.getConnection(true);
 	}
 
 	public Connection getConnection(String username, String password) throws SQLException {
-		if(!m_pool.getUserID().equalsIgnoreCase(username))
-			throw new SQLException("Bad user ID or password.");
-		return getConnection();
+		return m_pool.getUnpooledConnection(username, password);
 	}
 
 	public PrintWriter getLogWriter() throws SQLException {
