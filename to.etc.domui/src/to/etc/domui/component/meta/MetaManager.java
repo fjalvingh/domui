@@ -1,7 +1,6 @@
 package to.etc.domui.component.meta;
 
 import java.lang.reflect.*;
-import java.math.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -24,7 +23,7 @@ import to.etc.webapp.nls.*;
 final public class MetaManager {
 	static private List<DataMetaModel> m_modelList = new ArrayList<DataMetaModel>();
 
-	static private Set<Class< ? >> SIMPLE = new HashSet<Class< ? >>();
+//	static private Set<Class< ? >> SIMPLE = new HashSet<Class< ? >>();
 
 	static private Map<Class< ? >, DefaultClassMetaModel> m_classMap = new HashMap<Class< ? >, DefaultClassMetaModel>();
 
@@ -97,10 +96,6 @@ final public class MetaManager {
 		if(pmm == null)
 			throw new ProgrammerErrorException("The property '" + clz.getName() + "." + name + "' is not known.");
 		return pmm;
-	}
-
-	static public boolean isSimpleClass(Class< ? > clz) {
-		return SIMPLE.contains(clz);
 	}
 
 	/**
@@ -491,28 +486,28 @@ final public class MetaManager {
 	/*	CODING:	Expanding properties.								*/
 	/*--------------------------------------------------------------*/
 
-	static {
-		SIMPLE = new HashSet<Class< ? >>();
-		SIMPLE.add(Integer.class);
-		SIMPLE.add(Integer.TYPE);
-		SIMPLE.add(Long.class);
-		SIMPLE.add(Long.TYPE);
-		SIMPLE.add(Character.class);
-		SIMPLE.add(Character.TYPE);
-		SIMPLE.add(Short.class);
-		SIMPLE.add(Short.TYPE);
-		SIMPLE.add(Byte.class);
-		SIMPLE.add(Byte.TYPE);
-		SIMPLE.add(Double.class);
-		SIMPLE.add(Double.TYPE);
-		SIMPLE.add(Float.class);
-		SIMPLE.add(Float.TYPE);
-		SIMPLE.add(Boolean.class);
-		SIMPLE.add(Boolean.TYPE);
-		SIMPLE.add(BigDecimal.class);
-		SIMPLE.add(String.class);
-		SIMPLE.add(BigInteger.class);
-	}
+//	static {
+//		SIMPLE = new HashSet<Class< ? >>();
+//		SIMPLE.add(Integer.class);
+//		SIMPLE.add(Integer.TYPE);
+//		SIMPLE.add(Long.class);
+//		SIMPLE.add(Long.TYPE);
+//		SIMPLE.add(Character.class);
+//		SIMPLE.add(Character.TYPE);
+//		SIMPLE.add(Short.class);
+//		SIMPLE.add(Short.TYPE);
+//		SIMPLE.add(Byte.class);
+//		SIMPLE.add(Byte.TYPE);
+//		SIMPLE.add(Double.class);
+//		SIMPLE.add(Double.TYPE);
+//		SIMPLE.add(Float.class);
+//		SIMPLE.add(Float.TYPE);
+//		SIMPLE.add(Boolean.class);
+//		SIMPLE.add(Boolean.TYPE);
+//		SIMPLE.add(BigDecimal.class);
+//		SIMPLE.add(String.class);
+//		SIMPLE.add(BigInteger.class);
+//	}
 
 
 	/*--------------------------------------------------------------*/

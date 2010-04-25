@@ -146,7 +146,7 @@ final public class DomUtil {
 		if(t.isPrimitive())
 			return true;
 		return isIntegerOrWrapper(t) || isLongOrWrapper(t) || isShortOrWrapper(t) || isByteOrWrapper(t) || isDoubleOrWrapper(t) || isFloatOrWrapper(t) || isBooleanOrWrapper(t) || t == String.class
-			|| t == BigDecimal.class || t == BigInteger.class || t == Date.class;
+			|| t == BigDecimal.class || t == BigInteger.class || t == Date.class || Enum.class.isAssignableFrom(t);
 	}
 
 	/**
