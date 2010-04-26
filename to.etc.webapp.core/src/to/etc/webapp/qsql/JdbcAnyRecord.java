@@ -4,6 +4,8 @@ import java.math.*;
 import java.sql.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 /**
@@ -13,11 +15,15 @@ import to.etc.util.*;
  * Created on Apr 26, 2010
  */
 public class JdbcAnyRecord {
+	static private final Object NULL_VAL = new Object();
+
 	private Map<String, Object> m_valueMap = new HashMap<String, Object>();
 
 	private String m_tableName;
 
-	public void initFromRS(String tablename, ResultSetMetaData rsm, ResultSet rs) throws SQLException {
+	public void initFromRS(String tablename, ResultSetMetaData rsm, @Nonnull ResultSet rs) throws SQLException {
+		if(rs == null)
+			throw new IllegalStateException("Null rs not allowed");
 		m_valueMap.clear();
 		m_tableName = tablename;
 		for(int i = 1, len = rsm.getColumnCount(); i <= len; i++) {
@@ -37,13 +43,21 @@ public class JdbcAnyRecord {
 				case Types.CHAR:
 					set(name, rs.getString(i));
 					break;
+				case Types.DATE:
+				case Types.TIMESTAMP:
+					Timestamp ts = rs.getTimestamp(i);
+					if(ts == null)
+						set(name, NULL_VAL);
+					else
+						set(name, new java.util.Date(ts.getTime()));
+					break;
 			}
 		}
 	}
 
 	public void set(String name, Object bd) {
 		if(bd == null)
-			m_valueMap.remove(name);
+			m_valueMap.put(name, NULL_VAL);
 		else
 			m_valueMap.put(name.toLowerCase(), bd);
 	}
@@ -54,8 +68,10 @@ public class JdbcAnyRecord {
 
 	public <T> T getValue(Class<T> type, String name) {
 		Object v = get(name);
-		if(v == null)
+		if(v == NULL_VAL)
 			return null;
+		if(v == null)
+			return null; // FIXME Should throw column not found exception.
 		return (T) RuntimeConversions.convertTo(v, type);
 	}
 
