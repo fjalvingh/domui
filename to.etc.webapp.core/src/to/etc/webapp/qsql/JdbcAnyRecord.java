@@ -43,6 +43,11 @@ public class JdbcAnyRecord {
 				case Types.CHAR:
 					set(name, rs.getString(i));
 					break;
+
+				case Types.ROWID:
+					set(name, rs.getString(1));
+					break;
+
 				case Types.DATE:
 				case Types.TIMESTAMP:
 					Timestamp ts = rs.getTimestamp(i);

@@ -335,7 +335,7 @@ public class JdbcUtil {
 		sb.append(sp).append('(');
 		appendSPParameters(sb, pars, args);
 		sb.append(");");
-		sb.append("end");
+		sb.append("end;");
 		String stmt = sb.toString();
 		System.out.println("CALLING: " + stmt);
 
