@@ -322,7 +322,7 @@ public class JdbcUtil {
 	 */
 	static public <T> T oracleMoronsCallSP(Connection dbc, Class<T> rtype, String sp, Object... args) throws SQLException {
 		if(rtype == Boolean.class || rtype == boolean.class)
-			return (T) oracleMoronsCallSPReturningBool(dbc, sp, args);
+			return (T) Boolean.valueOf(oracleMoronsCallSPReturningBool(dbc, sp, args));
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("begin ");
