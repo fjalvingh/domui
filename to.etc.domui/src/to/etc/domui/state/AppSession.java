@@ -53,6 +53,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		} catch(Throwable x) {
 			LOG.warn("Exception when destroying session", x);
 		}
+		unbindAll();
 	}
 
 	/**
@@ -350,9 +351,30 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	public void setAttribute(String name, Object value) {
 		if(m_attributeMap == Collections.EMPTY_MAP)
 			m_attributeMap = new HashMap<String, Object>();
-		if(value == null)
-			m_attributeMap.remove(name);
-		else
+		if(value == null) {
+			Object item = m_attributeMap.remove(name);
+			if(item instanceof IAppSessionBindingListener)
+				((IAppSessionBindingListener) item).unboundFromSession(this, name);
+		} else {
 			m_attributeMap.put(name, value);
+			if(value instanceof IAppSessionBindingListener)
+				((IAppSessionBindingListener) value).boundToSession(this, name);
+		}
 	}
+
+	private void	unbindAll() {
+		if(m_attributeMap.size() == 0)
+			return;
+		for(String name: m_attributeMap.keySet()) {
+			Object value = m_attributeMap.get(name);
+			if(value instanceof IAppSessionBindingListener) {
+				try {
+					((IAppSessionBindingListener) value).unboundFromSession(this, name);
+				} catch(Exception x) {
+					x.printStackTrace();
+				}
+			}
+		}
+	}
+
 }

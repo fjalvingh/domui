@@ -102,7 +102,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		if(pmm == null)
 			throw new IllegalArgumentException("Null property???");
 		Class< ? > rescl = pmm.getActualType();
-		if(!MetaManager.isSimpleClass(rescl)) {
+		if(!DomUtil.isBasicType(rescl)) {
 			ClassMetaModel cmm = MetaManager.findClassMeta(rescl); // Find the property's type metadata (the meta for the class pointed to).
 
 			if(pmm.getTableDisplayProperties().size() > 0 || cmm.getTableDisplayProperties().size() > 0) {
@@ -220,7 +220,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	}
 
 	static private ClassMetaModel findCompoundClassModel(Class< ? > clz) {
-		if(MetaManager.isSimpleClass(clz)) // Simple classes have no model
+		if(DomUtil.isBasicType(clz)) // Simple classes have no model
 			return null;
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		return cmm;
