@@ -26,5 +26,5 @@ public interface QDataContextFactory {
 	 * Returns handlers for all query types.
 	 * @return
 	 */
-	QQueryHandlerList getQueryHandlerList();
+	QQueryExecutorRegistry getQueryHandlerList();
 }

@@ -123,7 +123,7 @@ public class QDefaultContextManager implements IQContextManager {
 		}
 
 		@Override
-		public QQueryHandlerList getQueryHandlerList() {
+		public QQueryExecutorRegistry getQueryHandlerList() {
 			return m_orig.getQueryHandlerList();
 		}
 	}

@@ -20,7 +20,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	/*	CODING:	Determine query route helper code.					*/
 	/*--------------------------------------------------------------*/
 
-	protected QQueryHandlerList getHandlerFactory() {
+	protected QQueryExecutorRegistry getHandlerFactory() {
 		return getFactory().getQueryHandlerList();
 	}
 

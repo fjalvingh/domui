@@ -7,9 +7,9 @@ public class HibernateLongSessionContextFactory implements QDataContextFactory {
 
 	private QEventListenerSet m_eventSet;
 
-	private QQueryHandlerList m_handlers;
+	private QQueryExecutorRegistry m_handlers;
 
-	public HibernateLongSessionContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, QQueryHandlerList handlers) {
+	public HibernateLongSessionContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, QQueryExecutorRegistry handlers) {
 		m_eventSet = eventSet;
 		m_sessionMaker = sessionMaker;
 		m_handlers = handlers;
@@ -32,7 +32,7 @@ public class HibernateLongSessionContextFactory implements QDataContextFactory {
 	}
 
 	@Override
-	public QQueryHandlerList getQueryHandlerList() {
+	public QQueryExecutorRegistry getQueryHandlerList() {
 		return m_handlers;
 	}
 }

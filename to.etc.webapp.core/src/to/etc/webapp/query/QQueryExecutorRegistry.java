@@ -9,12 +9,12 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 29, 2010
  */
-final public class QQueryHandlerList {
+final public class QQueryExecutorRegistry {
 	private List<IQueryExecutorFactory> m_queryRendererList = Collections.EMPTY_LIST;
 
-	static private final QQueryHandlerList m_instance = new QQueryHandlerList();
+	static private final QQueryExecutorRegistry m_instance = new QQueryExecutorRegistry();
 
-	static public final QQueryHandlerList getInstance() {
+	static public final QQueryExecutorRegistry getInstance() {
 		return m_instance;
 	}
 

@@ -14,9 +14,9 @@ public class HibernateReattachingContextFactory implements QDataContextFactory {
 
 	private QEventListenerSet m_eventSet;
 
-	private QQueryHandlerList m_handlers;
+	private QQueryExecutorRegistry m_handlers;
 
-	public HibernateReattachingContextFactory(QEventListenerSet set, HibernateSessionMaker sessionMaker, QQueryHandlerList list) {
+	public HibernateReattachingContextFactory(QEventListenerSet set, HibernateSessionMaker sessionMaker, QQueryExecutorRegistry list) {
 		m_eventSet = set;
 		m_sessionMaker = sessionMaker;
 		m_handlers = list;
@@ -39,7 +39,7 @@ public class HibernateReattachingContextFactory implements QDataContextFactory {
 	}
 
 	@Override
-	public QQueryHandlerList getQueryHandlerList() {
+	public QQueryExecutorRegistry getQueryHandlerList() {
 		return m_handlers;
 	}
 }

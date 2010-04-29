@@ -19,8 +19,8 @@ public class TestBasicConfigs {
 			}
 
 			@Override
-			public QQueryHandlerList getQueryHandlerList() {
-				return QQueryHandlerList.getInstance();
+			public QQueryExecutorRegistry getQueryHandlerList() {
+				return QQueryExecutorRegistry.getInstance();
 			}
 		});
 	}
