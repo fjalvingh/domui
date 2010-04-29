@@ -5,6 +5,10 @@ import java.util.*;
 import to.etc.webapp.query.*;
 
 public class JdbcQueryHandler implements IAbstractQueryHandler<QDataContext>, IQueryHandlerFactory {
+	static public final JdbcQueryHandler FACTORY = new JdbcQueryHandler();
+
+	protected JdbcQueryHandler() {}
+
 	/**
 	 * FIXME Determine if this is a JDBC query.
 	 * @param clz
