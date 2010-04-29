@@ -8,6 +8,7 @@ import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -369,7 +370,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		if(getQueryManipulator() != null) {
 			searchQuery = getQueryManipulator().adjustQuery(searchQuery);
 			if(searchQuery == null) {
-				//in case of cancelled search by query manipulator return  
+				//in case of cancelled search by query manipulator return
 				return null;
 			}
 		}
@@ -453,7 +454,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		if(getQueryManipulator() != null) {
 			c = getQueryManipulator().adjustQuery(c); // Adjust the query where needed,
 			if(c == null) {
-				//in case of cancelled search by query manipulator return null  
+				//in case of cancelled search by query manipulator return null
 				return;
 			}
 		}

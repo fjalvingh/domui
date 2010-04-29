@@ -2,6 +2,7 @@ package to.etc.domui.pages.generic;
 
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;

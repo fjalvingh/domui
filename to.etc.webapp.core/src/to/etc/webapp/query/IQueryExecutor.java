@@ -2,7 +2,7 @@ package to.etc.webapp.query;
 
 import java.util.*;
 
-public interface IAbstractQueryHandler<C extends QDataContext> {
+public interface IQueryExecutor<C extends QDataContext> {
 	/**
 	 * Execute the query specified by q and return a list of results. Before and after the query execution all
 	 * registered listeners will be called.

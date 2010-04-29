@@ -4,7 +4,7 @@ import java.util.*;
 
 import to.etc.webapp.query.*;
 
-public class JdbcQueryHandler implements IAbstractQueryHandler<QDataContext>, IQueryHandlerFactory {
+public class JdbcQueryHandler implements IQueryExecutor<QDataContext>, IQueryExecutorFactory {
 	static public final JdbcQueryHandler FACTORY = new JdbcQueryHandler();
 
 	protected JdbcQueryHandler() {}
@@ -22,24 +22,19 @@ public class JdbcQueryHandler implements IAbstractQueryHandler<QDataContext>, IQ
 	/*	CODING:	IQueryHandlerFactory impl.							*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public IAbstractQueryHandler< ? > findContextHandler(QDataContext root, Class< ? > clz) {
+	public IQueryExecutor< ? > findContextHandler(QDataContext root, Class< ? > clz) {
 		if(clz != null && isJdbcQuery(clz))
 			return this;
 		return null;
 	}
 
 	@Override
-	public IAbstractQueryHandler< ? > findContextHandler(QDataContext root, ICriteriaTableDef< ? > tableMeta) {
+	public IQueryExecutor< ? > findContextHandler(QDataContext root, ICriteriaTableDef< ? > tableMeta) {
 		return null;
 	}
 
 	@Override
-	public IAbstractQueryHandler< ? > findContextHandler(QDataContext root, QCriteriaQueryBase< ? > criteria) {
-		return findContextHandler(root, criteria.getBaseClass());
-	}
-
-	@Override
-	public IAbstractQueryHandler< ? > findContextHandler(QDataContext root, Object recordInstance) {
+	public IQueryExecutor< ? > findContextHandler(QDataContext root, Object recordInstance) {
 		if(recordInstance == null || !isJdbcQuery(recordInstance.getClass()))
 			return null;
 		return this;
@@ -50,7 +45,7 @@ public class JdbcQueryHandler implements IAbstractQueryHandler<QDataContext>, IQ
 	/*--------------------------------------------------------------*/
 	/**
 	 *
-	 * @see to.etc.webapp.query.IAbstractQueryHandler#find(to.etc.webapp.query.QDataContext, java.lang.Class, java.lang.Object)
+	 * @see to.etc.webapp.query.IQueryExecutor#find(to.etc.webapp.query.QDataContext, java.lang.Class, java.lang.Object)
 	 */
 	@Override
 	public <T> T find(QDataContext root, Class<T> clz, Object pk) throws Exception {

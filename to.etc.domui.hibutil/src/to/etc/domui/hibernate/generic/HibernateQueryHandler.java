@@ -14,8 +14,8 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 29, 2010
  */
-public class HibernateQueryHandler implements IAbstractQueryHandler<BuggyHibernateBaseContext>, IQueryHandlerFactory {
-	static public final IQueryHandlerFactory FACTORY = new HibernateQueryHandler();
+public class HibernateQueryHandler implements IQueryExecutor<BuggyHibernateBaseContext>, IQueryExecutorFactory {
+	static public final IQueryExecutorFactory FACTORY = new HibernateQueryHandler();
 
 	protected HibernateQueryHandler() {}
 
@@ -23,17 +23,12 @@ public class HibernateQueryHandler implements IAbstractQueryHandler<BuggyHiberna
 	/*	CODING:	IQAlternateContextFactory implementation.			*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public IAbstractQueryHandler< ? > findContextHandler(QDataContext root, ICriteriaTableDef< ? > tableMeta) {
+	public IQueryExecutor< ? > findContextHandler(QDataContext root, ICriteriaTableDef< ? > tableMeta) {
 		return null; // Never acceptable
 	}
 
 	@Override
-	public IAbstractQueryHandler< ? > findContextHandler(QDataContext root, QCriteriaQueryBase< ? > criteria) {
-		return findContextHandler(root, criteria.getBaseClass());
-	}
-
-	@Override
-	public IAbstractQueryHandler< ? > findContextHandler(QDataContext root, Class< ? > clz) {
+	public IQueryExecutor< ? > findContextHandler(QDataContext root, Class< ? > clz) {
 		if(clz == null)
 			return null;
 
@@ -42,7 +37,7 @@ public class HibernateQueryHandler implements IAbstractQueryHandler<BuggyHiberna
 	}
 
 	@Override
-	public IAbstractQueryHandler< ? > findContextHandler(QDataContext root, Object recordInstance) {
+	public IQueryExecutor< ? > findContextHandler(QDataContext root, Object recordInstance) {
 		return recordInstance == null ? null : this;
 	}
 

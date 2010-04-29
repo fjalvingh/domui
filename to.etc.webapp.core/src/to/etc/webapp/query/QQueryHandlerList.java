@@ -10,7 +10,7 @@ import java.util.*;
  * Created on Apr 29, 2010
  */
 final public class QQueryHandlerList {
-	private List<IQueryHandlerFactory> m_queryRendererList = Collections.EMPTY_LIST;
+	private List<IQueryExecutorFactory> m_queryRendererList = Collections.EMPTY_LIST;
 
 	static private final QQueryHandlerList m_instance = new QQueryHandlerList();
 
@@ -18,31 +18,31 @@ final public class QQueryHandlerList {
 		return m_instance;
 	}
 
-	public synchronized void register(IQueryHandlerFactory cf) {
-		m_queryRendererList = new ArrayList<IQueryHandlerFactory>(m_queryRendererList);
+	public synchronized void register(IQueryExecutorFactory cf) {
+		m_queryRendererList = new ArrayList<IQueryExecutorFactory>(m_queryRendererList);
 		m_queryRendererList.add(cf);
 	}
 
-	public synchronized List<IQueryHandlerFactory> getQueryRendererList() {
+	public synchronized List<IQueryExecutorFactory> getQueryRendererList() {
 		return m_queryRendererList;
 	}
 
-	public IAbstractQueryHandler<QDataContext> getHandler(QDataContext root, Class< ? > instanceClass) {
-		List<IQueryHandlerFactory> res = getQueryRendererList();
+	public IQueryExecutor<QDataContext> getHandler(QDataContext root, Class< ? > instanceClass) {
+		List<IQueryExecutorFactory> res = getQueryRendererList();
 		for(int i = 0; i < res.size(); i++) {
-			IQueryHandlerFactory xf = res.get(i);
-			IAbstractQueryHandler<QDataContext> xc = (IAbstractQueryHandler<QDataContext>) xf.findContextHandler(root, instanceClass);
+			IQueryExecutorFactory xf = res.get(i);
+			IQueryExecutor<QDataContext> xc = (IQueryExecutor<QDataContext>) xf.findContextHandler(root, instanceClass);
 			if(xc != null)
 				return xc;
 		}
 		throw new IllegalStateException("None of the QQueryHandlerList's registered accepts a query on class=" + instanceClass);
 	}
 
-	public IAbstractQueryHandler<QDataContext> getHandler(QDataContext root, Object recordInstance) {
-		List<IQueryHandlerFactory> res = getQueryRendererList();
+	public IQueryExecutor<QDataContext> getHandler(QDataContext root, Object recordInstance) {
+		List<IQueryExecutorFactory> res = getQueryRendererList();
 		for(int i = 0; i < res.size(); i++) {
-			IQueryHandlerFactory xf = res.get(i);
-			IAbstractQueryHandler<QDataContext> xc = (IAbstractQueryHandler<QDataContext>) xf.findContextHandler(root, recordInstance);
+			IQueryExecutorFactory xf = res.get(i);
+			IQueryExecutor<QDataContext> xc = (IQueryExecutor<QDataContext>) xf.findContextHandler(root, recordInstance);
 			if(xc != null)
 				return xc;
 		}
@@ -50,25 +50,21 @@ final public class QQueryHandlerList {
 	}
 
 
-	public IAbstractQueryHandler<QDataContext> getHandler(QDataContext root, ICriteriaTableDef< ? > tableMeta) {
-		List<IQueryHandlerFactory> res = getQueryRendererList();
+	public IQueryExecutor<QDataContext> getHandler(QDataContext root, ICriteriaTableDef< ? > tableMeta) {
+		List<IQueryExecutorFactory> res = getQueryRendererList();
 		for(int i = 0; i < res.size(); i++) {
-			IQueryHandlerFactory xf = res.get(i);
-			IAbstractQueryHandler<QDataContext> xc = (IAbstractQueryHandler<QDataContext>) xf.findContextHandler(root, tableMeta);
+			IQueryExecutorFactory xf = res.get(i);
+			IQueryExecutor<QDataContext> xc = (IQueryExecutor<QDataContext>) xf.findContextHandler(root, tableMeta);
 			if(xc != null)
 				return xc;
 		}
 		throw new IllegalStateException("None of the QQueryHandlerList's registered accepts a query on meta-table=" + tableMeta);
 	}
 
-	public IAbstractQueryHandler<QDataContext> getHandler(QDataContext root, QCriteriaQueryBase< ? > query) {
-		List<IQueryHandlerFactory> res = getQueryRendererList();
-		for(int i = 0; i < res.size(); i++) {
-			IQueryHandlerFactory xf = res.get(i);
-			IAbstractQueryHandler<QDataContext> xc = (IAbstractQueryHandler<QDataContext>) xf.findContextHandler(root, query);
-			if(xc != null)
-				return xc;
-		}
-		throw new IllegalStateException("None of the QQueryHandlerList's registered accepts a query on QCriteria=" + query);
+	public IQueryExecutor<QDataContext> getHandler(QDataContext root, QCriteriaQueryBase< ? > query) {
+		if(query.getBaseClass() != null)
+			return getHandler(root, query.getBaseClass());
+		else
+			return getHandler(root, query.getMetaTable());
 	}
 }
