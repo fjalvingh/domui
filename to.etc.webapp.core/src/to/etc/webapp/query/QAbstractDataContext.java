@@ -42,12 +42,22 @@ abstract public class QAbstractDataContext implements QDataContext {
 		return getHandlerFactory().getHandler(this, clz).find(this, clz, pk);
 	}
 
+	@Override
+	public <T> T find(ICriteriaTableDef<T> metatable, Object pk) throws Exception {
+		return getHandlerFactory().getHandler(this, metatable).find(this, metatable, pk);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QDataContext#getInstance(java.lang.Class, java.lang.Object)
 	 */
 	public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
 		return getHandlerFactory().getHandler(this, clz).getInstance(this, clz, pk);
+	}
+
+	@Override
+	public <T> T getInstance(ICriteriaTableDef<T> metatable, Object pk) throws Exception {
+		return getHandlerFactory().getHandler(this, metatable).getInstance(this, metatable, pk);
 	}
 
 	/**

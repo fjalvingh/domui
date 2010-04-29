@@ -35,6 +35,8 @@ public interface IQueryExecutor<C extends QDataContext> {
 	 */
 	<T> T find(C root, Class<T> clz, Object pk) throws Exception;
 
+	<T> T find(C root, ICriteriaTableDef<T> metatable, Object pk) throws Exception;
+
 	/**
 	 * Load the persistent object with the specified type and primary key from the database. This will
 	 * return an object <i>always</i> even if the object does not exist in the database! This should
@@ -50,6 +52,8 @@ public interface IQueryExecutor<C extends QDataContext> {
 	 * @throws Exception
 	 */
 	<T> T getInstance(C root, Class<T> clz, Object pk) throws Exception;
+
+	<T> T getInstance(C root, ICriteriaTableDef<T> clz, Object pk) throws Exception;
 
 	/**
 	 * EXPERIMENTAL/NOT FINAL Cause the object to be inserted in the database.

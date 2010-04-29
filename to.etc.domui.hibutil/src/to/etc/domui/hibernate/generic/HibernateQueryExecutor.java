@@ -14,10 +14,10 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 29, 2010
  */
-public class HibernateQueryHandler implements IQueryExecutor<BuggyHibernateBaseContext>, IQueryExecutorFactory {
-	static public final IQueryExecutorFactory FACTORY = new HibernateQueryHandler();
+public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBaseContext>, IQueryExecutorFactory {
+	static public final IQueryExecutorFactory FACTORY = new HibernateQueryExecutor();
 
-	protected HibernateQueryHandler() {}
+	protected HibernateQueryExecutor() {}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IQAlternateContextFactory implementation.			*/
@@ -60,6 +60,16 @@ public class HibernateQueryHandler implements IQueryExecutor<BuggyHibernateBaseC
 	@Override
 	public <T> T getInstance(BuggyHibernateBaseContext root, Class<T> clz, Object pk) throws Exception {
 		return (T) root.getSession().load(clz, (Serializable) pk); // Do not check if instance exists.
+	}
+
+	@Override
+	public <T> T find(BuggyHibernateBaseContext root, ICriteriaTableDef<T> metatable, Object pk) throws Exception {
+		throw new IllegalStateException("Inapplicable call for " + getClass().getName());
+	}
+
+	@Override
+	public <T> T getInstance(BuggyHibernateBaseContext root, ICriteriaTableDef<T> clz, Object pk) throws Exception {
+		throw new IllegalStateException("Inapplicable call for " + getClass().getName());
 	}
 
 	@Override

@@ -4,10 +4,10 @@ import java.util.*;
 
 import to.etc.webapp.query.*;
 
-public class JdbcQueryHandler implements IQueryExecutor<QDataContext>, IQueryExecutorFactory {
-	static public final JdbcQueryHandler FACTORY = new JdbcQueryHandler();
+public class JdbcQueryExecutor implements IQueryExecutor<QDataContext>, IQueryExecutorFactory {
+	static public final JdbcQueryExecutor FACTORY = new JdbcQueryExecutor();
 
-	protected JdbcQueryHandler() {}
+	protected JdbcQueryExecutor() {}
 
 	/**
 	 * FIXME Determine if this is a JDBC query.
@@ -55,6 +55,16 @@ public class JdbcQueryHandler implements IQueryExecutor<QDataContext>, IQueryExe
 	@Override
 	public <T> T getInstance(QDataContext root, Class<T> clz, Object pk) throws Exception {
 		return JdbcQuery.getInstance(root, clz, pk);
+	}
+
+	@Override
+	public <T> T find(QDataContext root, ICriteriaTableDef<T> metatable, Object pk) throws Exception {
+		throw new IllegalStateException("Inapplicable call for " + getClass().getName());
+	}
+
+	@Override
+	public <T> T getInstance(QDataContext root, ICriteriaTableDef<T> clz, Object pk) throws Exception {
+		throw new IllegalStateException("Inapplicable call for " + getClass().getName());
 	}
 
 	@Override
