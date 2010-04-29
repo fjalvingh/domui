@@ -17,6 +17,11 @@ public class TestBasicConfigs {
 			public QEventListenerSet getEventListeners() {
 				return QEventListenerSet.EMPTY_SET;
 			}
+
+			@Override
+			public QQueryHandlerList getQueryHandlerList() {
+				return QQueryHandlerList.getInstance();
+			}
 		});
 	}
 

@@ -295,7 +295,6 @@ public class JdbcUtil {
 	}
 
 	static public JdbcAnyRecord queryAnyOne(String tblname, ResultSet rs) throws SQLException {
-		List<JdbcAnyRecord> l = new ArrayList<JdbcAnyRecord>();
 		if(!rs.next())
 			return null;
 		ResultSetMetaData md = rs.getMetaData();

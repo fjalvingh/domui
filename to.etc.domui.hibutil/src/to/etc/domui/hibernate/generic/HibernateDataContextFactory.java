@@ -12,9 +12,12 @@ public class HibernateDataContextFactory implements QDataContextFactory {
 	private HibernateSessionMaker m_sessionMaker;
 	private QEventListenerSet m_eventSet;
 
-	public HibernateDataContextFactory(QEventListenerSet set, HibernateSessionMaker sessionMaker) {
+	private QQueryHandlerList m_handlers;
+
+	public HibernateDataContextFactory(QEventListenerSet set, HibernateSessionMaker sessionMaker, QQueryHandlerList list) {
 		m_eventSet = set;
 		m_sessionMaker = sessionMaker;
+		m_handlers = list;
 	}
 
 	/**
@@ -31,5 +34,10 @@ public class HibernateDataContextFactory implements QDataContextFactory {
 	 */
 	public QEventListenerSet getEventListeners() {
 		return m_eventSet;
+	}
+
+	@Override
+	public QQueryHandlerList getQueryHandlerList() {
+		return m_handlers;
 	}
 }
