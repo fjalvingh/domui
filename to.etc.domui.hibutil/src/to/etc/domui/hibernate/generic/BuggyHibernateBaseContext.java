@@ -1,15 +1,11 @@
 package to.etc.domui.hibernate.generic;
 
-import java.io.*;
 import java.sql.*;
-import java.util.*;
 
 import org.hibernate.*;
 import org.slf4j.*;
 
-import to.etc.domui.hibernate.model.*;
 import to.etc.domui.state.*;
-import to.etc.webapp.qsql.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -24,10 +20,8 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 15, 2009
  */
-public class BuggyHibernateBaseContext implements QDataContext, ConversationStateListener {
+public class BuggyHibernateBaseContext extends QAbstractDataContext implements QDataContext, ConversationStateListener {
 	static protected final Logger LOG = LoggerFactory.getLogger(BuggyHibernateBaseContext.class);
-
-	private QDataContextFactory m_contextFactory;
 
 	protected HibernateSessionMaker m_sessionMaker;
 
@@ -35,16 +29,13 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 
 	protected Session m_session;
 
-	/** FIXME This is a helper which handles JDBC queries using this same context. */
-	private JdbcDataContext m_jdc;
-
 	/**
 	 * Create a context, using the specified factory to create Hibernate sessions.
 	 * @param sessionMaker
 	 */
 	BuggyHibernateBaseContext(final HibernateSessionMaker sessionMaker, QDataContextFactory src) {
+		super(src);
 		m_sessionMaker = sessionMaker;
-		m_contextFactory = src;
 	}
 
 	/**
@@ -69,127 +60,14 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Determine query route helper code.					*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * FIXME Determine if this is a JDBC query.
-	 * @param clz
-	 * @return
-	 */
-	static private boolean isJdbcQuery(Class< ? > clz) {
-		return clz.getAnnotation(QJdbcTable.class) != null;
-	}
-
-	/*--------------------------------------------------------------*/
 	/*	CODING:	QDataContext implementation.						*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * {@inheritDoc}
-	 */
-	public QDataContextFactory getFactory() {
-		return m_contextFactory;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QDataContext#setIgnoreClose(boolean)
 	 */
 	public void setIgnoreClose(boolean on) {
 		m_ignoreClose = on;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#find(java.lang.Class, java.lang.Object)
-	 */
-	public <T> T find(final Class<T> clz, final Object pk) throws Exception {
-		if(isJdbcQuery(clz)) // FIXME Butt-ugly
-			return JdbcQuery.find(this, clz, pk);
-
-		return (T) getSession().get(clz, (Serializable) pk);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#getInstance(java.lang.Class, java.lang.Object)
-	 */
-	public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
-		if(isJdbcQuery(clz)) // FIXME Butt-ugly
-			return JdbcQuery.getInstance(this, clz, pk);
-		return (T) getSession().load(clz, (Serializable) pk); // Do not check if instance exists.
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#query(to.etc.webapp.query.QCriteria)
-	 */
-	public <T> List<T> query(final QCriteria<T> q) throws Exception {
-		getFactory().getEventListeners().callOnBeforeQuery(this, q);
-		if(isJdbcQuery(q.getBaseClass())) // FIXME Butt-ugly
-			return JdbcQuery.query(this, q);
-
-		Criteria crit = GenericHibernateHandler.createCriteria(getSession(), q); // Convert to Hibernate criteria
-		return crit.list();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * This overrides the behaviour of Hibernate where a single-column selection does not
-	 * return an array but that single object, for consistency's sake. It is slightly more
-	 * expensive because an Object[1] is needed for every row, but compared with the heaps
-	 * of memory Hibernate is already wasting this is peanuts.
-	 *
-	 * @see to.etc.webapp.query.QDataContext#query(to.etc.webapp.query.QSelection)
-	 */
-	@SuppressWarnings("unchecked")
-	public List<Object[]> query(QSelection< ? > sel) throws Exception {
-		getFactory().getEventListeners().callOnBeforeQuery(this, sel);
-		if(isJdbcQuery(sel.getBaseClass())) // FIXME Butt-ugly
-			return JdbcQuery.query(this, sel);
-
-		Criteria crit = GenericHibernateHandler.createCriteria(getSession(), sel);
-		List resl = crit.list(); // Need to use raw class because ? is a monster fuckup.
-		if(resl.size() == 0)
-			return Collections.EMPTY_LIST;
-		if(sel.getColumnList().size() == 1 && !(resl.get(0) instanceof Object[])) {
-			//-- Re-wrap this result as a list of Object[].
-			for(int i = resl.size(); --i >= 0;) {
-				resl.set(i, new Object[]{resl.get(i)});
-			}
-		}
-		return resl;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#queryOne(to.etc.webapp.query.QCriteria)
-	 */
-	public <T> T queryOne(final QCriteria<T> q) throws Exception {
-		List<T> res = query(q);
-		if(res.size() == 0)
-			return null;
-		if(res.size() > 1)
-			throw new IllegalStateException("The criteria-query " + q + " returns " + res.size() + " results instead of one");
-		return res.get(0);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#queryOne(to.etc.webapp.query.QCriteria)
-	 */
-	public Object queryOne(final QSelection< ? > sel) throws Exception {
-		getFactory().getEventListeners().callOnBeforeQuery(this, sel);
-		if(isJdbcQuery(sel.getBaseClass())) // FIXME Butt-ugly
-			return JdbcQuery.query(this, sel);
-
-		Criteria crit = GenericHibernateHandler.createCriteria(getSession(), sel);
-		List<Object> res = crit.list();
-		if(res.size() == 0)
-			return null;
-		if(res.size() > 1)
-			throw new IllegalStateException("The criteria-query " + sel + " returns " + res.size() + " results instead of one");
-		return res.get(0);
 	}
 
 	/**
@@ -214,42 +92,6 @@ public class BuggyHibernateBaseContext implements QDataContext, ConversationStat
 			x.printStackTrace();
 		}
 		m_session = null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#attach(java.lang.Object)
-	 */
-	public void attach(final Object o) throws Exception {
-		if(!isJdbcQuery(o.getClass())) // FIXME Butt-ugly
-			getSession().update(o);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#delete(java.lang.Object)
-	 */
-	public void delete(final Object o) throws Exception {
-		if(!isJdbcQuery(o.getClass())) // FIXME Butt-ugly
-			getSession().delete(o);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#save(java.lang.Object)
-	 */
-	public void save(final Object o) throws Exception {
-		if(!isJdbcQuery(o.getClass())) // FIXME Butt-ugly
-			getSession().save(o);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#refresh(java.lang.Object)
-	 */
-	public void refresh(final Object o) throws Exception {
-		if(!isJdbcQuery(o.getClass())) // FIXME Butt-ugly
-			getSession().refresh(o);
 	}
 
 	/**

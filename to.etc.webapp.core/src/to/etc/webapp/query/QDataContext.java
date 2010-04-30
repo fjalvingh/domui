@@ -87,6 +87,8 @@ public interface QDataContext {
 	 */
 	<T> T find(Class<T> clz, Object pk) throws Exception;
 
+	<T> T find(ICriteriaTableDef<T> metatable, Object pk) throws Exception;
+
 	/**
 	 * Load the persistent object with the specified type and primary key from the database. This will
 	 * return an object <i>always</i> even if the object does not exist in the database! This should
@@ -102,6 +104,8 @@ public interface QDataContext {
 	 * @throws Exception
 	 */
 	<T> T getInstance(Class<T> clz, Object pk) throws Exception;
+
+	<T> T getInstance(ICriteriaTableDef<T> clz, Object pk) throws Exception;
 
 	/**
 	 * If the object was from an earlier database session reattach it to another, live session.
