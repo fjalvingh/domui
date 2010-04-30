@@ -18,6 +18,11 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 		super(b);
 	}
 
+	private QCriteria(final ICriteriaTableDef<T> td) {
+		super(td);
+	}
+
+
 	//	/** 20100122 jal needs full deep copy
 	//	 * Copy constructor.
 	//	 * @param q
@@ -35,6 +40,16 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 */
 	static public <U> QCriteria<U> create(final Class<U> clz) {
 		return new QCriteria<U>(clz);
+	}
+
+	/**
+	 * EXPERIMENTAL Create a QCriteria on some metadata structured data.
+	 * @param <U>
+	 * @param root
+	 * @return
+	 */
+	static public <U> QCriteria<U> create(final ICriteriaTableDef<U> root) {
+		return new QCriteria<U>(root);
 	}
 
 	//	/**

@@ -1,5 +1,7 @@
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 import to.etc.webapp.annotations.*;
 
 /**
@@ -13,6 +15,13 @@ abstract public class QRestrictor<T> {
 	/** The base class being queried in this selector. */
 	private final Class<T> m_baseClass;
 
+	/** The return data type; baseclass for class-based queries and metaTable.getDataClass() for metatable queries. */
+	private final Class<T> m_returnClass;
+
+	/** If this is a selector on some metathing this represents the metathing. */
+	@Nullable
+	private final ICriteriaTableDef<T> m_metaTable;
+
 	/** Is either OR or AND, indicating how added items are to be combined. */
 	private QOperation m_combinator;
 
@@ -22,15 +31,42 @@ abstract public class QRestrictor<T> {
 
 	protected QRestrictor(Class<T> baseClass, QOperation combinator) {
 		m_baseClass = baseClass;
+		m_returnClass = baseClass;
 		m_combinator = combinator;
+		m_metaTable = null;
+	}
+
+	protected QRestrictor(ICriteriaTableDef<T> meta, QOperation combinator) {
+		m_metaTable = meta;
+		m_returnClass = meta.getDataClass();
+		m_combinator = combinator;
+		m_baseClass = null;
 	}
 
 	/**
-	 * Returns the persistent class being queried and returned.
+	 * Returns the persistent class being queried and returned, <b>if this is a class-based query</b>.
 	 * @return
 	 */
+	@Nullable
 	public Class<T> getBaseClass() {
 		return m_baseClass;
+	}
+
+	/**
+	 * Returns the metatable being queried, or null.
+	 * @return
+	 */
+	@Nullable
+	public ICriteriaTableDef<T> getMetaTable() {
+		return m_metaTable;
+	}
+
+	/**
+	 * Return the datatype returned by a principal query using this criteria.
+	 * @return
+	 */
+	public Class<T> getReturnClass() {
+		return m_returnClass;
 	}
 
 	/**

@@ -121,5 +121,10 @@ public class QDefaultContextManager implements IQContextManager {
 		public QEventListenerSet getEventListeners() {
 			return m_orig.getEventListeners();
 		}
+
+		@Override
+		public QQueryExecutorRegistry getQueryHandlerList() {
+			return m_orig.getQueryHandlerList();
+		}
 	}
 }

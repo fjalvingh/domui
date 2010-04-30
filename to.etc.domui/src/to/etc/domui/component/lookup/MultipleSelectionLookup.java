@@ -7,6 +7,7 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.LookupForm.*;
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;

@@ -151,6 +151,16 @@ public class JdbcDataContext implements QDataContext {
 		return JdbcQuery.queryOne(this, q);
 	}
 
+	@Override
+	public <T> T find(ICriteriaTableDef<T> metatable, Object pk) throws Exception {
+		throw new IllegalStateException("Inapplicable call for JdbcDataContext");
+	}
+
+	@Override
+	public <T> T getInstance(ICriteriaTableDef<T> clz, Object pk) throws Exception {
+		throw new IllegalStateException("Inapplicable call for JdbcDataContext");
+	}
+
 	/**
 	 * Not suppore
 	 * @see to.etc.webapp.query.QDataContext#refresh(java.lang.Object)

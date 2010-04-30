@@ -31,6 +31,10 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 		super(clz, QOperation.AND);
 	}
 
+	protected QCriteriaQueryBase(ICriteriaTableDef<T> meta) {
+		super(meta, QOperation.AND);
+	}
+
 	//	/** jal 20100122 Copy constructor needs to do FULL DEEP COPY of the data since it is no longer immutable!!
 	//	 * Copy constructor.
 	//	 * @param q

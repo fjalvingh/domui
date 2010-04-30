@@ -62,6 +62,17 @@ public class DataContextMock implements QDataContext {
 
 	public void startTransaction() throws Exception {}
 
+
+	@Override
+	public <T> T find(ICriteriaTableDef<T> metatable, Object pk) throws Exception {
+		return null;
+	}
+
+	@Override
+	public <T> T getInstance(ICriteriaTableDef<T> clz, Object pk) throws Exception {
+		return null;
+	}
+
 	/**
 	 * Internal test pps.
 	 */
