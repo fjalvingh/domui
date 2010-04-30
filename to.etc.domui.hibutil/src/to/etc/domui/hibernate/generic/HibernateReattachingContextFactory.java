@@ -9,37 +9,21 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 15, 2009
  */
-public class HibernateReattachingContextFactory implements QDataContextFactory {
-	private HibernateSessionMaker m_sessionMaker;
+public class HibernateReattachingContextFactory extends AbstractHibernateContextFactory {
+	public HibernateReattachingContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, QQueryExecutorRegistry handlers) {
+		super(eventSet, sessionMaker, handlers);
+	}
 
-	private QEventListenerSet m_eventSet;
-
-	private QQueryExecutorRegistry m_handlers;
-
-	public HibernateReattachingContextFactory(QEventListenerSet set, HibernateSessionMaker sessionMaker, QQueryExecutorRegistry list) {
-		m_eventSet = set;
-		m_sessionMaker = sessionMaker;
-		m_handlers = list;
+	public HibernateReattachingContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker) {
+		super(eventSet, sessionMaker);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QDataContextFactory#getDataContext()
 	 */
-	public QDataContext getDataContext() throws Exception {
-		return new HibernateReattachingDataContext(this, m_sessionMaker);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContextFactory#getEventListeners()
-	 */
-	public QEventListenerSet getEventListeners() {
-		return m_eventSet;
-	}
-
 	@Override
-	public QQueryExecutorRegistry getQueryHandlerList() {
-		return m_handlers;
+	public QDataContext getDataContext() throws Exception {
+		return new HibernateReattachingDataContext(this, getSessionMaker());
 	}
 }
