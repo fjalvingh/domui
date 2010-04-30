@@ -2,37 +2,21 @@ package to.etc.domui.hibernate.generic;
 
 import to.etc.webapp.query.*;
 
-public class HibernateLongSessionContextFactory implements QDataContextFactory {
-	protected HibernateSessionMaker m_sessionMaker;
-
-	private QEventListenerSet m_eventSet;
-
-	private QQueryExecutorRegistry m_handlers;
-
+public class HibernateLongSessionContextFactory extends AbstractHibernateContextFactory {
 	public HibernateLongSessionContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, QQueryExecutorRegistry handlers) {
-		m_eventSet = eventSet;
-		m_sessionMaker = sessionMaker;
-		m_handlers = handlers;
+		super(eventSet, sessionMaker, handlers);
+	}
+
+	public HibernateLongSessionContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker) {
+		super(eventSet, sessionMaker);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QDataContextFactory#getDataContext()
 	 */
-	public QDataContext getDataContext() throws Exception {
-		return new HibernateLongSessionContext(this, m_sessionMaker);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContextFactory#getEventListeners()
-	 */
-	public QEventListenerSet getEventListeners() {
-		return m_eventSet;
-	}
-
 	@Override
-	public QQueryExecutorRegistry getQueryHandlerList() {
-		return m_handlers;
+	public QDataContext getDataContext() throws Exception {
+		return new HibernateLongSessionContext(this, getSessionMaker());
 	}
 }
