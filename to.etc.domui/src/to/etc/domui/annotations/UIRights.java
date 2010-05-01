@@ -20,4 +20,11 @@ public @interface UIRights {
 	 * @return
 	 */
 	String[] value() default {};
+
+	/**
+	 * If these rights depend on the data being edited, this must contain a property path expression on the
+	 * <i>annotated class</i> leading to the data item to use for the check.
+	 * @return
+	 */
+	String dataPath() default "";
 }
