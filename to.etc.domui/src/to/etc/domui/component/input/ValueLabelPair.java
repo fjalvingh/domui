@@ -17,4 +17,9 @@ public final class ValueLabelPair<T> {
 	public String getLabel() {
 		return m_label;
 	}
+
+	@Override
+	public String toString() {
+		return getLabel() + "=" + getValue();
+	}
 }

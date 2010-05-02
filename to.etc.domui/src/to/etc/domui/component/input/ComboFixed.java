@@ -13,7 +13,15 @@ import to.etc.domui.util.*;
  * Created on Nov 26, 2009
  */
 public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
+	static private final INodeContentRenderer<ValueLabelPair<Object>> STATICRENDERER = new INodeContentRenderer<ValueLabelPair<Object>>() {
+		@Override
+		public void renderNodeContent(NodeBase component, NodeContainer node, ValueLabelPair<Object> object, Object parameters) throws Exception {
+			node.setText(object.getLabel());
+		}
+	};
+
 	public ComboFixed() {
+		initRenderer();
 	}
 
 	public ComboFixed(Class< ? extends IComboDataSet<ValueLabelPair<T>>> set, INodeContentRenderer<ValueLabelPair<T>> r) {
@@ -22,18 +30,22 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 
 	public ComboFixed(Class< ? extends IComboDataSet<ValueLabelPair<T>>> dataSetClass) {
 		super(dataSetClass);
+		initRenderer();
 	}
 
 	public ComboFixed(IComboDataSet<ValueLabelPair<T>> dataSet) {
 		super(dataSet);
+		initRenderer();
 	}
 
 	public ComboFixed(IListMaker<ValueLabelPair<T>> maker) {
 		super(maker);
+		initRenderer();
 	}
 
 	public ComboFixed(List<ValueLabelPair<T>> in) {
 		super(in);
+		initRenderer();
 	}
 
 	@Override
@@ -41,8 +53,13 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 		return in.getValue();
 	}
 
-	@Override
-	protected void renderOptionLabel(SelectOption o, ValueLabelPair<T> object) throws Exception {
-		o.add(object.getLabel());
+	@SuppressWarnings("unchecked")
+	private void initRenderer() {
+		setContentRenderer((INodeContentRenderer) STATICRENDERER); // Another generics fuckup again: you cannot cast this proper, appearently.
 	}
+	// 20100502 jal Horrible bug! This prevents setting customized option rendering from working!!
+	//	@Override
+	//	protected void renderOptionLabel(SelectOption o, ValueLabelPair<T> object) throws Exception {
+	//		o.add(object.getLabel());
+	//	}
 }
