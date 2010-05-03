@@ -224,6 +224,7 @@ public class VpEventManager implements Runnable {
 	}
 
 	public synchronized void stop() {
+		System.out.println("KILLING EVENTMANAGER THREAD");
 		m_stop = true;
 		notify();
 		try {
