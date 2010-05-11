@@ -128,9 +128,16 @@ public class QRestriction {
 		return new QUnaryNode(QOperation.SQL, new QLiteral(sql));
 	}
 
+	/**
+	 * This will recognise values or subcriteria
+	 * @param value
+	 * @return
+	 */
 	static private QOperatorNode createValueNode(Object value) {
 		if(value instanceof QOperatorNode)
 			return (QOperatorNode) value;
+		else if(value instanceof QSelection< ? >)
+			return new QSelectionSubquery((QSelection< ? >) value);
 		return new QLiteral(value);
 	}
 
