@@ -789,4 +789,49 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				break;
 		}
 	}
+
+	@Override
+	public void visitSelectionSubquery(QSelectionSubquery n) {
+		//-- 2. Create an exists subquery; create a sub-statement
+		DetachedCriteria dc = DetachedCriteria.forClass(n.getSelectionQuery().getBaseClass(), nextAlias());
+		Criterion exists = Subqueries.exists(dc);
+		dc.setProjection(Projections.id()); // Whatever: just some thingy.
+
+		//-- Append the join condition; we need all children here that are in the parent's collection. We need the parent reference to use in the child.
+		ClassMetadata childmd = m_session.getSessionFactory().getClassMetadata(coltype);
+
+		//-- Entering the crofty hellhole that is Hibernate meta"data": never seen more horrible cruddy garbage
+		ClassMetadata parentmd = m_session.getSessionFactory().getClassMetadata(q.getParentQuery().getBaseClass());
+		int index = findMoronicPropertyIndexBecauseHibernateIsTooStupidToHaveAPropertyMetaDamnit(parentmd, q.getParentProperty());
+		if(index == -1)
+			throw new IllegalStateException("Hibernate does not know property");
+		Type type = parentmd.getPropertyTypes()[index];
+		BagType bt = (BagType) type;
+		final OneToManyPersister persister = (OneToManyPersister) ((SessionFactoryImpl) m_session.getSessionFactory()).getCollectionPersister(bt.getRole());
+		String[] keyCols = persister.getKeyColumnNames();
+
+		//-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
+		int fkindex = findCruddyChildProperty(childmd, keyCols);
+		if(fkindex < 0)
+			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + keyCols);
+		String childupprop = childmd.getPropertyNames()[fkindex];
+
+		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
+		String parentAlias = getParentAlias();
+		dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
+
+		//-- Sigh; Recursively apply all parts to the detached thingerydoo
+		Object old = m_currentCriteria;
+		Class< ? > oldroot = m_rootClass;
+		m_rootClass = q.getBaseClass();
+		m_currentCriteria = dc;
+		where.visit(this);
+		if(m_last != null) {
+			dc.add(m_last);
+			m_last = null;
+		}
+		m_currentCriteria = old;
+		m_rootClass = oldroot;
+		m_last = exists;
+	}
 }
