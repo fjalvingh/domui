@@ -80,5 +80,5 @@ public class QNodeVisitorBase implements QNodeVisitor {
 	public void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception {}
 
 	@Override
-	public void visitSelectionSubquery(QSelectionSubquery n) {}
+	public void visitSelectionSubquery(QSelectionSubquery n) throws Exception {}
 }

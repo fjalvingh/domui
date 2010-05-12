@@ -45,6 +45,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	private Criterion m_last;
 
+	private Object m_lastSubCriteria;
+
 	private int m_aliasIndex;
 
 	private Class< ? > m_rootClass;
@@ -437,6 +439,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		QLiteral lit = null;
 		if(rhs.getOperation() == QOperation.LITERAL) {
 			lit = (QLiteral) rhs;
+		} else if(rhs.getOperation() == QOperation.SELECTION_SUBQUERY) {
+			handlePropertySubcriteriaComparison(n);
+			return;
 		} else
 			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
 
@@ -482,6 +487,48 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				break;
 		}
 
+		if(m_subCriteria != null)
+			addSubCriterion(last);
+		else
+			m_last = last;
+		m_subCriteria = null;
+	}
+
+	private void handlePropertySubcriteriaComparison(QPropertyComparison n) throws Exception {
+		QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
+		qsq.visit(this); // Resolve subquery
+		String name = parseSubcriteria(n.getProperty()); // Handle dotted pair in name
+		Criterion last = null;
+
+		switch(n.getOperation()){
+			default:
+				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
+
+			case EQ:
+				last = Subqueries.propertyEq(name, (DetachedCriteria) m_lastSubCriteria);
+				break;
+			case NE:
+				last = Subqueries.propertyNe(name, (DetachedCriteria) m_lastSubCriteria);
+				break;
+//			case GT:
+//				last = Restrictions.gt(name, lit.getValue());
+//				break;
+//			case GE:
+//				last = Restrictions.ge(name, lit.getValue());
+//				break;
+//			case LT:
+//				last = Restrictions.lt(name, lit.getValue());
+//				break;
+//			case LE:
+//				last = Restrictions.le(name, lit.getValue());
+//				break;
+//			case LIKE:
+//				last = Restrictions.like(name, lit.getValue());
+//				break;
+//			case ILIKE:
+//				last = Restrictions.ilike(name, lit.getValue());
+//				break;
+		}
 		if(m_subCriteria != null)
 			addSubCriterion(last);
 		else
@@ -791,47 +838,27 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitSelectionSubquery(QSelectionSubquery n) {
-		//-- 2. Create an exists subquery; create a sub-statement
+	public void visitSelectionSubquery(QSelectionSubquery n) throws Exception {
 		DetachedCriteria dc = DetachedCriteria.forClass(n.getSelectionQuery().getBaseClass(), nextAlias());
-		Criterion exists = Subqueries.exists(dc);
-		dc.setProjection(Projections.id()); // Whatever: just some thingy.
 
-		//-- Append the join condition; we need all children here that are in the parent's collection. We need the parent reference to use in the child.
-		ClassMetadata childmd = m_session.getSessionFactory().getClassMetadata(coltype);
-
-		//-- Entering the crofty hellhole that is Hibernate meta"data": never seen more horrible cruddy garbage
-		ClassMetadata parentmd = m_session.getSessionFactory().getClassMetadata(q.getParentQuery().getBaseClass());
-		int index = findMoronicPropertyIndexBecauseHibernateIsTooStupidToHaveAPropertyMetaDamnit(parentmd, q.getParentProperty());
-		if(index == -1)
-			throw new IllegalStateException("Hibernate does not know property");
-		Type type = parentmd.getPropertyTypes()[index];
-		BagType bt = (BagType) type;
-		final OneToManyPersister persister = (OneToManyPersister) ((SessionFactoryImpl) m_session.getSessionFactory()).getCollectionPersister(bt.getRole());
-		String[] keyCols = persister.getKeyColumnNames();
-
-		//-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
-		int fkindex = findCruddyChildProperty(childmd, keyCols);
-		if(fkindex < 0)
-			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + keyCols);
-		String childupprop = childmd.getPropertyNames()[fkindex];
-
-		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
-		String parentAlias = getParentAlias();
-		dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
-
-		//-- Sigh; Recursively apply all parts to the detached thingerydoo
+		//-- Recursively apply all parts to the detached thingerydoo
+		ProjectionList oldpro = m_proli;
+		m_proli = null;
+		Projection oldlastproj = m_lastProj;
+		m_lastProj = null;
 		Object old = m_currentCriteria;
 		Class< ? > oldroot = m_rootClass;
-		m_rootClass = q.getBaseClass();
+		m_rootClass = n.getSelectionQuery().getBaseClass();
 		m_currentCriteria = dc;
-		where.visit(this);
+		n.getSelectionQuery().visit(this);
 		if(m_last != null) {
 			dc.add(m_last);
 			m_last = null;
 		}
-		m_currentCriteria = old;
+		m_currentCriteria = old; // Restore root query
 		m_rootClass = oldroot;
-		m_last = exists;
+		m_proli = oldpro;
+		m_lastProj = oldlastproj;
+		m_lastSubCriteria = dc;
 	}
 }

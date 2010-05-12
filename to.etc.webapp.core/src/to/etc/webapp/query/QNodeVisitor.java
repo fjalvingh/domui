@@ -35,6 +35,6 @@ public interface QNodeVisitor {
 
 	void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception;
 
-	void visitSelectionSubquery(QSelectionSubquery n);
+	void visitSelectionSubquery(QSelectionSubquery n) throws Exception;
 
 }
