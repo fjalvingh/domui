@@ -38,12 +38,20 @@ public class MailBuilder {
 			return ident;
 		}
 
+		public void setIdent(String ident) {
+			this.ident = ident;
+		}
+
 		public InputStream getInputStream() throws Exception {
 			return new FileInputStream(source);
 		}
 
 		public String getMime() {
 			return mime;
+		}
+
+		public void setMime(String mime) {
+			this.mime = mime;
 		}
 	}
 
@@ -82,6 +90,24 @@ public class MailBuilder {
 	public MailBuilder append(String s) {
 		m_text_sb.append(s);
 		StringTool.htmlStringize(m_html_sb, s);
+		return this;
+	}
+
+	public MailBuilder appendText(String s) {
+		m_text_sb.append(s);
+		return this;
+	}
+
+	public StringBuilder getHtmlBuffer() {
+		return m_html_sb;
+	}
+
+	public StringBuilder getTextBuffer() {
+		return m_text_sb;
+	}
+
+	public MailBuilder appendHTML(String s) {
+		m_html_sb.append(s);
 		return this;
 	}
 
@@ -177,6 +203,50 @@ public class MailBuilder {
 
 		//-- Create the attachment image.
 		m_attachmentList.add(new Attachment(mime, imgkey, source));
+		return this;
+	}
+
+	public MailBuilder image(String name, String mime, Attachment a) throws Exception {
+		String imgkey = name + "-" + (m_attindex++);
+
+		m_text_sb.append("(see attached image ");
+		m_text_sb.append(imgkey);
+		m_text_sb.append(") ");
+
+		m_html_sb.append("<img src=\"cid:");
+		m_html_sb.append(imgkey);
+		m_html_sb.append("\">");
+		a.setMime(mime);
+		a.setIdent(imgkey);
+
+		//-- Create the attachment image.
+		m_attachmentList.add(a);
+		return this;
+	}
+
+	public MailBuilder image(String name, final Class< ? > rbase, final String rname, String mime) throws Exception {
+		String imgkey = name + "-" + (m_attindex++);
+
+		m_text_sb.append("(see attached image ");
+		m_text_sb.append(imgkey);
+		m_text_sb.append(") ");
+
+		m_html_sb.append("<img src=\"cid:");
+		m_html_sb.append(imgkey);
+		m_html_sb.append("\">");
+
+		Attachment a = new Attachment(mime, imgkey, null) {
+			@Override
+			public InputStream getInputStream() throws Exception {
+				InputStream is = rbase.getResourceAsStream(rname);
+				if(is == null)
+					throw new IllegalArgumentException("Missing class resource " + rname + " using base class " + rbase);
+				return is;
+			}
+		};
+
+		//-- Create the attachment image.
+		m_attachmentList.add(a);
 		return this;
 	}
 
