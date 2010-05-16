@@ -38,6 +38,14 @@ public interface ClassMetaModel {
 
 	public boolean isPersistentClass();
 
+	/**
+	 * If this is a persistent class that is directly mapped onto some table, this might return the table name. This
+	 * should NOT return a name for data that is strictly derived from a metamodel-based database because there all
+	 * value records share the same table.
+	 * @return
+	 */
+	public String getTableName();
+
 	public PropertyMetaModel getPrimaryKey();
 
 	/**
