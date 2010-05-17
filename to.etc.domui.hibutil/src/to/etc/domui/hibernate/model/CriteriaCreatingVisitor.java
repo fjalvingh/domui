@@ -45,6 +45,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	private Criterion m_last;
 
+	private Object m_lastSubCriteria;
+
 	private int m_aliasIndex;
 
 	private Class< ? > m_rootClass;
@@ -437,6 +439,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		QLiteral lit = null;
 		if(rhs.getOperation() == QOperation.LITERAL) {
 			lit = (QLiteral) rhs;
+		} else if(rhs.getOperation() == QOperation.SELECTION_SUBQUERY) {
+			handlePropertySubcriteriaComparison(n);
+			return;
 		} else
 			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
 
@@ -482,6 +487,48 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				break;
 		}
 
+		if(m_subCriteria != null)
+			addSubCriterion(last);
+		else
+			m_last = last;
+		m_subCriteria = null;
+	}
+
+	private void handlePropertySubcriteriaComparison(QPropertyComparison n) throws Exception {
+		QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
+		qsq.visit(this); // Resolve subquery
+		String name = parseSubcriteria(n.getProperty()); // Handle dotted pair in name
+		Criterion last = null;
+
+		switch(n.getOperation()){
+			default:
+				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
+
+			case EQ:
+				last = Subqueries.propertyEq(name, (DetachedCriteria) m_lastSubCriteria);
+				break;
+			case NE:
+				last = Subqueries.propertyNe(name, (DetachedCriteria) m_lastSubCriteria);
+				break;
+//			case GT:
+//				last = Restrictions.gt(name, lit.getValue());
+//				break;
+//			case GE:
+//				last = Restrictions.ge(name, lit.getValue());
+//				break;
+//			case LT:
+//				last = Restrictions.lt(name, lit.getValue());
+//				break;
+//			case LE:
+//				last = Restrictions.le(name, lit.getValue());
+//				break;
+//			case LIKE:
+//				last = Restrictions.like(name, lit.getValue());
+//				break;
+//			case ILIKE:
+//				last = Restrictions.ilike(name, lit.getValue());
+//				break;
+		}
 		if(m_subCriteria != null)
 			addSubCriterion(last);
 		else
@@ -788,5 +835,30 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				m_lastProj = Projections.rowCount();
 				break;
 		}
+	}
+
+	@Override
+	public void visitSelectionSubquery(QSelectionSubquery n) throws Exception {
+		DetachedCriteria dc = DetachedCriteria.forClass(n.getSelectionQuery().getBaseClass(), nextAlias());
+
+		//-- Recursively apply all parts to the detached thingerydoo
+		ProjectionList oldpro = m_proli;
+		m_proli = null;
+		Projection oldlastproj = m_lastProj;
+		m_lastProj = null;
+		Object old = m_currentCriteria;
+		Class< ? > oldroot = m_rootClass;
+		m_rootClass = n.getSelectionQuery().getBaseClass();
+		m_currentCriteria = dc;
+		n.getSelectionQuery().visit(this);
+		if(m_last != null) {
+			dc.add(m_last);
+			m_last = null;
+		}
+		m_currentCriteria = old; // Restore root query
+		m_rootClass = oldroot;
+		m_proli = oldpro;
+		m_lastProj = oldlastproj;
+		m_lastSubCriteria = dc;
 	}
 }

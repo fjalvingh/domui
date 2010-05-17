@@ -158,8 +158,6 @@ public class ALink extends ATag {
 
 		if(getClicked() == null && getNewWindowParameters() != null) {
 			//-- Generate an onclick javascript thingy to open the window to prevent popup blockers.
-			//-- We need a NEW window session. Create it,
-			RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
 
 			//-- Send a special JAVASCRIPT open command, containing the shtuff.
 			StringBuilder sb = new StringBuilder();
@@ -169,6 +167,8 @@ public class ALink extends ATag {
 			if(!DomUtil.isBlank(m_targetURL)) {
 				sb.append(DomUtil.createPageURL(m_targetURL, m_targetParameters));
 			} else {
+				//-- We need a NEW window session. Create it,
+				RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
 				sb.append(ctx.getRelativePath(m_targetClass.getName()));
 				sb.append('.');
 				sb.append(DomApplication.get().getUrlExtension());

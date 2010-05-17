@@ -163,7 +163,7 @@ public class JdbcQuery<T> {
 		throw new IllegalStateException("The criteria-query " + q + " returns " + res.size() + " results instead of one");
 	}
 
-	static public Object queryOne(QDataContext dc, QSelection< ? > q) throws Exception {
+	static public Object[] queryOne(QDataContext dc, QSelection< ? > q) throws Exception {
 		List<Object[]> res = query(dc, q);
 		if(res.size() == 0)
 			return null;
