@@ -338,9 +338,10 @@ final public class DomUtil {
 	 */
 	public static String createPageURL(String rurl, PageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
-		RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
-		if(DomUtil.isRelativeURL(rurl))
+		if(DomUtil.isRelativeURL(rurl)) {
+			RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
 			sb.append(ctx.getRelativePath(rurl));
+		}
 		else
 			sb.append(rurl);
 		if(pageParameters != null) {
