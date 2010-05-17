@@ -321,29 +321,48 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				previspk = false;
 			} else if(!last)
 				throw new QQuerySyntaxException("Property " + subpath + " in path " + input + " must be a parent relation or a compound primary key (property=" + pmm + ")");
-			else
-				pushPendingJoin(path, pmm); // Push the last segment too, even though it is not a join!!
+			else {
+				/*
+				 * This is the last part and it is not a PK or relation itself. We need to decide what to do with the
+				 * current join stack. If the previous item was a PK we do not join but return the compound path...
+				 */
+				if(previspk)
+					return createPendingJoinPath(); // This is a non-relation property immediately on a PK. Return dotted path.
+
+				/*
+				 * This is a normal property. Make sure a join is present then return the path inside that join.
+				 */
+				flushJoin();
+				return name;
+			}
 		}
 
-		/*
-		 * We have reached the last field, and it's meta is on the stack. Always remove it there (because it will never
-		 * be joined). Then see if data is left on the stack and handle that.
-		 */
-		if(m_pendingJoinIx <= 0)
-			throw new IllegalStateException("Logic failure"); // Cannot happen
-//		PropertyMetaModel pmm = m_pendingJoinProps[--m_pendingJoinIx];
-//		path = m_pendingJoinPaths[m_pendingJoinIx];
-//		String	name = pmm.getName();	// This will be the name of the property to return if the stack is empty
+		throw new IllegalStateException("Should be unreachable?");
+//
+//		/*
+//		 * We have reached the last field, and it's meta is on the stack. Always remove it there (because it will never
+//		 * be joined). Then see if data is left on the stack and handle that.
+//		 */
+//		if(m_pendingJoinIx <= 0)
+//			throw new IllegalStateException("Logic failure"); // Cannot happen
+////		PropertyMetaModel pmm = m_pendingJoinProps[--m_pendingJoinIx];
+////		path = m_pendingJoinPaths[m_pendingJoinIx];
+////		String	name = pmm.getName();	// This will be the name of the property to return if the stack is empty
+//
+//
+//		//-- In all cases: we just need the qualified subname to this property, because all needed joins have been done already.
+//		String name = createPendingJoinPath();
+//		return name;
+	}
 
-		//-- In all cases: we just need the qualified subname to this property, because all needed joins have been done already.
+	private String createPendingJoinPath() {
 		m_sb.setLength(0);
 		for(int i = 0; i < m_pendingJoinIx; i++) {
 			if(m_sb.length() > 0)
 				m_sb.append('.');
 			m_sb.append(m_pendingJoinProps[i].getName());
 		}
-		String name = m_sb.toString();
-		return name;
+		return m_sb.toString();
 	}
 
 	/**
