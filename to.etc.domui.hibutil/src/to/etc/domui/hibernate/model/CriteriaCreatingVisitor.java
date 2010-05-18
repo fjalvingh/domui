@@ -85,7 +85,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 * from the root object. This prevents us from creating multiple subcriteria for
 	 * fields that lay after the same path reaching a parent relation.
 	 */
-	private Map<String, CritEntry> m_subCriteriaMap = Collections.EMPTY_MAP;
+	private Map<String, CritEntry> m_subCriteriaMap = new HashMap<String, CritEntry>();
 
 	public CriteriaCreatingVisitor(Session ses, final Criteria crit) {
 		m_session = ses;
@@ -310,6 +310,43 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				}
 
 				currentClass = pmm.getActualType();
+			} else if(pmm.getRelationType() == PropertyRelationType.DOWN) {
+				/*
+				 * Downward (childset) relation. This implicitly queries /existence/ of a child record having these
+				 * characteristics. This can never be a last item.
+				 */
+				if(last)
+					throw new QQuerySyntaxException("The path '" + path + " reaches a 'list-of-children' (DOWN) property (" + pmm + ")- it is meaningless here");
+
+				/*
+				 * Must be a List type, and we must be able to determine the type of the child.
+				 */
+				if(!List.class.isAssignableFrom(pmm.getActualType()))
+					throw new ProgrammerErrorException("The property '" + path + "' should be a list (it is a " + pmm.getActualType() + ")");
+				java.lang.reflect.Type coltype = pmm.getGenericActualType();
+				if(coltype == null)
+					throw new ProgrammerErrorException("The property '" + path + "' has an undeterminable child type");
+				Class< ? > childtype = MetaManager.findCollectionType(coltype);
+
+				//-- We are not really joining here; we're just querying. Drop the pending joinset;
+				m_pendingJoinIx = 0; // Discard all pending;
+
+				/*
+				 * We need to create a joined "exists" query, or get the "existing" one.
+				 */
+				CritEntry ce = m_subCriteriaMap.get(path);
+				if(ce != null) {
+					//-- Use this.
+					m_subCriteria = ce.getAbomination();
+				} else {
+					//-- Create a joined subselect
+					DetachedCriteria dc = createExistsSubquery(childtype, currentClass, subpath);
+					m_subCriteriaMap.put(path, new CritEntry(childtype, dc));
+					m_subCriteria = dc;
+				}
+
+				currentClass = childtype;
+
 			} else if(pmm.getRelationType() != PropertyRelationType.NONE) {
 				/*
 				 * This is a relation. If we are NOT in a PK currently AND there are relations queued then
@@ -352,6 +389,38 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		throw new IllegalStateException("Should be unreachable?");
 	}
 
+	private DetachedCriteria createExistsSubquery(Class< ? > childtype, Class< ? > parentclass, String parentproperty) {
+		DetachedCriteria dc = DetachedCriteria.forClass(childtype, nextAlias());
+		Criterion exists = Subqueries.exists(dc);
+		dc.setProjection(Projections.id()); // Whatever: just some thingy.
+
+		//-- Append the join condition; we need all children here that are in the parent's collection. We need the parent reference to use in the child.
+		ClassMetadata childmd = m_session.getSessionFactory().getClassMetadata(childtype);
+
+		//-- Entering the crufty hellhole that is Hibernate meta"data": never seen more horrible cruddy garbage
+		ClassMetadata parentmd = m_session.getSessionFactory().getClassMetadata(parentclass);
+		int index = findMoronicPropertyIndexBecauseHibernateIsTooStupidToHaveAPropertyMetaDamnit(parentmd, parentproperty);
+		if(index == -1)
+			throw new IllegalStateException("Hibernate does not know property");
+		Type type = parentmd.getPropertyTypes()[index];
+		BagType bt = (BagType) type;
+		final OneToManyPersister persister = (OneToManyPersister) ((SessionFactoryImpl) m_session.getSessionFactory()).getCollectionPersister(bt.getRole());
+		String[] keyCols = persister.getKeyColumnNames();
+
+		//-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
+		int fkindex = findCruddyChildProperty(childmd, keyCols);
+		if(fkindex < 0)
+			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + keyCols);
+		String childupprop = childmd.getPropertyNames()[fkindex];
+
+		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
+		String parentAlias = getParentAlias();
+		dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
+
+		addCriterion(exists);
+		return dc;
+	}
+
 	private String createPendingJoinPath() {
 		m_sb.setLength(0);
 		for(int i = 0; i < m_pendingJoinIx; i++) {
@@ -371,6 +440,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 * subcriterion.
 	 */
 	private void flushJoin() {
+		if(m_pendingJoinIx <= 0)
+			return;
+
 		//-- Create the join path upto and including till the last relation (subpath from last criterion to it).
 		m_sb.setLength(0);
 		PropertyMetaModel pmm = null;
