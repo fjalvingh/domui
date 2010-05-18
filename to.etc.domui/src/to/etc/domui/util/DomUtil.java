@@ -1151,7 +1151,9 @@ final public class DomUtil {
 		if(v != null)
 			return v;
 		if(root instanceof NodeContainer) {
-			for(NodeBase ch : (NodeContainer) root) {
+			NodeContainer nc = (NodeContainer) root;
+			for(int i = 0, len = nc.getChildCount(); i < len; i++) {
+				NodeBase ch = nc.getChild(i);
 				v = walkTree(ch, handler);
 				if(v != null)
 					return v;
