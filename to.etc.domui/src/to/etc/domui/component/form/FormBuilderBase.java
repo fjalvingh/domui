@@ -70,7 +70,7 @@ public class FormBuilderBase {
 	 * @param editable		When false this must make a displayonly control.
 	 * @return				The binding to bind the control to it's valueset
 	 */
-	protected ControlFactory.Result createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
+	protected ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
 		return getBuilder().createControlFor(model, pmm, editable); // Delegate
 	}
 

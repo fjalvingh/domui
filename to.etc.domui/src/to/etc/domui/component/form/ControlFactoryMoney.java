@@ -36,7 +36,7 @@ public class ControlFactoryMoney implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@SuppressWarnings("unchecked")
-	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		Class< ? > iclz = pmm.getActualType();
 
 		if(!editable) {
@@ -52,7 +52,7 @@ public class ControlFactoryMoney implements ControlFactory {
 			String s = pmm.getDefaultHint();
 			if(s != null)
 				dv.setTitle(s);
-			return new Result(dv, model, pmm);
+			return new ControlFactoryResult(dv, model, pmm);
 		}
 
 		Text<?> txt;
@@ -62,6 +62,6 @@ public class ControlFactoryMoney implements ControlFactory {
 			txt = UIControlUtil.createBDMoneyInput(pmm, editable);
 		} else
 				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
-		return new Result(txt, model, pmm);
+		return new ControlFactoryResult(txt, model, pmm);
 	}
 }

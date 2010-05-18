@@ -31,7 +31,7 @@ public class ControlFactoryString implements ControlFactory {
 		return 1;
 	}
 
-	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		Class< ? > iclz = pmm.getActualType();
 		if(!editable) {
 			/*
@@ -44,7 +44,7 @@ public class ControlFactoryString implements ControlFactory {
 			String s = pmm.getDefaultHint();
 			if(s != null)
 				dv.setTitle(s);
-			return new Result(dv, model, pmm);
+			return new ControlFactoryResult(dv, model, pmm);
 		}
 
 		Text< ? > txt = new Text(iclz);
@@ -144,7 +144,7 @@ public class ControlFactoryString implements ControlFactory {
 		}
 		txt.setSize(calcsz);
 
-		return new Result(txt, model, pmm);
+		return new ControlFactoryResult(txt, model, pmm);
 	}
 
 }

@@ -19,7 +19,7 @@ public class ControlFactoryTextArea implements ControlFactory {
 		return 0;
 	}
 
-	public Result createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable, Class< ? > controlClass) {
+	public ControlFactoryResult createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable, Class< ? > controlClass) {
 		TextArea ta = new TextArea();
 		if(!editable)
 			ta.setReadOnly(true);
@@ -31,6 +31,6 @@ public class ControlFactoryTextArea implements ControlFactory {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			ta.setTitle(s);
-		return new Result(ta, model, pmm);
+		return new ControlFactoryResult(ta, model, pmm);
 	}
 }
