@@ -122,13 +122,12 @@ public abstract class DomApplication {
 					throw new IllegalStateException("??");
 
 				// data has removed in meanwhile: redirect to error page.
-				String rurl = ctx.getRelativePath(DomUtil.createPageURL(ExpiredDataPage.class, null));
-
+				String rurl = DomUtil.createPageURL(ExpiredDataPage.class, new PageParameters("errorMessage", x.getLocalizedMessage()));
 				//-- Add info about the failed thingy.
-				StringBuilder sb = new StringBuilder(128);
+				/*StringBuilder sb = new StringBuilder(1024);
 				sb.append(rurl);
 				sb.append("?errorMessage=");
-				StringTool.encodeURLEncoded(sb, x.getLocalizedMessage());
+				StringTool.encodeURLEncoded(sb, x.getLocalizedMessage());*/
 				ApplicationRequestHandler.generateHttpRedirect((RequestContextImpl) ctx, rurl, "Data not found");
 				return true;
 			}

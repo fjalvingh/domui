@@ -3,6 +3,7 @@ package to.etc.domui.component.delayed;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
 import to.etc.util.*;
 
 public class AsyncContainer extends Div {
@@ -27,7 +28,7 @@ public class AsyncContainer extends Div {
 		Img img = new Img();
 		img.setSrc(PageContext.getRequestContext().getRelativeThemePath("asy-container-busy.gif"));
 		add(img);
-		DefaultButton db = new DefaultButton("Cancel", new IClicked<DefaultButton>() {
+		DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), new IClicked<DefaultButton>() {
 			public void clicked(DefaultButton b) throws Exception {
 				cancel();
 				b.setDisabled(true);
@@ -56,7 +57,7 @@ public class AsyncContainer extends Div {
 			sb.append(' ');
 			sb.append(msg);
 		} else {
-			sb.append(" compleet");
+			sb.append(" " + Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_COMPLETE_INDICATOR));
 		}
 		m_progress.setText(sb.toString());
 	}
@@ -73,9 +74,9 @@ public class AsyncContainer extends Div {
 		//-- Replace THIS node with the new thingy.
 		if(dai.getExecutionResult() == null) {
 			if(dai.getMonitor().isCancelled()) {
-				setText("De opdracht is onderbroken door de gebruiker");
+				setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED_MSG));
 			} else {
-				setText("De actie levert geen resultaat!?!?");
+				setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_NO_RESULTS_MSG));
 			}
 			return;
 		}
@@ -86,6 +87,6 @@ public class AsyncContainer extends Div {
 	}
 
 	public void confirmCancelled() {
-		setText("Cancelled");
+		setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED));
 	}
 }
