@@ -303,6 +303,12 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				inpk = true;
 				previspk = true;
 				pushPendingJoin(path, pmm);
+
+				if(last) {
+					//-- We have ended in a PK. All subrelations leading up to this are *part* of the PK of the current subcriterion. We need not join but just have to specify a dotted path.
+					return createPendingJoinPath();
+				}
+
 				currentClass = pmm.getActualType();
 			} else if(pmm.getRelationType() != PropertyRelationType.NONE) {
 				/*
@@ -317,6 +323,11 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 				//-- Now queue this one- we decide whether to join @ the next name.
 				pushPendingJoin(path, pmm);
+				if(last) {
+					//-- Last entry is a relation: we do not need to join this last one, just refer to it using it's dotted path also.
+					return createPendingJoinPath();
+				}
+
 				currentClass = pmm.getActualType();
 				previspk = false;
 			} else if(!last)
@@ -337,22 +348,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			}
 		}
 
+		//-- Failsafe exit: all specific paths should have exited when last was signalled.
 		throw new IllegalStateException("Should be unreachable?");
-//
-//		/*
-//		 * We have reached the last field, and it's meta is on the stack. Always remove it there (because it will never
-//		 * be joined). Then see if data is left on the stack and handle that.
-//		 */
-//		if(m_pendingJoinIx <= 0)
-//			throw new IllegalStateException("Logic failure"); // Cannot happen
-////		PropertyMetaModel pmm = m_pendingJoinProps[--m_pendingJoinIx];
-////		path = m_pendingJoinPaths[m_pendingJoinIx];
-////		String	name = pmm.getName();	// This will be the name of the property to return if the stack is empty
-//
-//
-//		//-- In all cases: we just need the qualified subname to this property, because all needed joins have been done already.
-//		String name = createPendingJoinPath();
-//		return name;
 	}
 
 	private String createPendingJoinPath() {
