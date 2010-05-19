@@ -1166,6 +1166,12 @@ public class ConnectionPool implements DbConnectorSet {
 						long luts = System.currentTimeMillis() - pe.getLastUsedTime();
 						sb.append("- connection ").append(pe.getID()).append(" active for ").append(DbPoolUtil.strMillis(cts));
 						sb.append(", last use ").append(DbPoolUtil.strMillis(luts)).append(" ago\n");
+
+						//-- For connections not used for > 10 minutes dump stacks.
+						if(luts >= 15 * 60 * 1000) {
+							pe.dbgPrintStackTrace(sb, 20, 40);
+						}
+
 					} else
 						purgeOld(sb, pe); // Remove the connection.
 				}
@@ -1304,15 +1310,28 @@ public class ConnectionPool implements DbConnectorSet {
 			return "Stacktrace is off.";
 
 		StringBuilder sb = new StringBuilder(10240);
-		sb.append("There are ");
-		sb.append(Integer.toString(m_usedSet.size()));
-		sb.append(" connections in the USED pool.\n");
 		int ct = 0;
+		long cts = System.currentTimeMillis();
 		synchronized(this) {
+			sb.append("There are ");
+			sb.append(Integer.toString(m_usedSet.size()));
+			sb.append(" connections in the USED pool.\n");
+
 			for(ConnectionPoolEntry pc : m_usedSet) {
-				sb.append("\n\n<b>----- Pooled connection number ");
-				sb.append(Integer.toString(ct));
+				sb.append("\n\n<b>----- Pooled connection ID=");
+				sb.append(pc.getID());
+				sb.append(" (number ").append(ct).append(" of ").append(m_usedSet.size()).append(")");
 				sb.append(" ----------</b>\n");
+
+				long durts = cts - pc.getAllocationTime();
+				long luts = cts - pc.getLastUsedTime();
+				if(luts > 10 * 60 * 1000l)
+					sb.append("<font color=\"red\">");
+				sb.append("Connection active for: ");
+				sb.append(DbPoolUtil.strMillis(durts));
+				sb.append(", last use ").append(DbPoolUtil.strMillis(luts)).append(" ago\n");
+				if(luts > 10 * 60 * 1000l)
+					sb.append("</font>");
 
 				//-- Dump the stack traces for this thing....
 				String[] ar = pc.dbgGetTrace();
