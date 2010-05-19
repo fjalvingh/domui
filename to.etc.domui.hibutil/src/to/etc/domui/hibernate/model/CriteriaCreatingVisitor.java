@@ -45,6 +45,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	private Criterion m_last;
 
+	private Object m_lastSubCriteria;
+
 	private int m_aliasIndex;
 
 	private Class< ? > m_rootClass;
@@ -83,7 +85,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 * from the root object. This prevents us from creating multiple subcriteria for
 	 * fields that lay after the same path reaching a parent relation.
 	 */
-	private Map<String, CritEntry> m_subCriteriaMap = Collections.EMPTY_MAP;
+	private Map<String, CritEntry> m_subCriteriaMap = new HashMap<String, CritEntry>();
 
 	public CriteriaCreatingVisitor(Session ses, final Criteria crit) {
 		m_session = ses;
@@ -301,7 +303,50 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				inpk = true;
 				previspk = true;
 				pushPendingJoin(path, pmm);
+
+				if(last) {
+					//-- We have ended in a PK. All subrelations leading up to this are *part* of the PK of the current subcriterion. We need not join but just have to specify a dotted path.
+					return createPendingJoinPath();
+				}
+
 				currentClass = pmm.getActualType();
+			} else if(pmm.getRelationType() == PropertyRelationType.DOWN) {
+				/*
+				 * Downward (childset) relation. This implicitly queries /existence/ of a child record having these
+				 * characteristics. This can never be a last item.
+				 */
+				if(last)
+					throw new QQuerySyntaxException("The path '" + path + " reaches a 'list-of-children' (DOWN) property (" + pmm + ")- it is meaningless here");
+
+				/*
+				 * Must be a List type, and we must be able to determine the type of the child.
+				 */
+				if(!List.class.isAssignableFrom(pmm.getActualType()))
+					throw new ProgrammerErrorException("The property '" + path + "' should be a list (it is a " + pmm.getActualType() + ")");
+				java.lang.reflect.Type coltype = pmm.getGenericActualType();
+				if(coltype == null)
+					throw new ProgrammerErrorException("The property '" + path + "' has an undeterminable child type");
+				Class< ? > childtype = MetaManager.findCollectionType(coltype);
+
+				//-- We are not really joining here; we're just querying. Drop the pending joinset;
+				m_pendingJoinIx = 0; // Discard all pending;
+
+				/*
+				 * We need to create a joined "exists" query, or get the "existing" one.
+				 */
+				CritEntry ce = m_subCriteriaMap.get(path);
+				if(ce != null) {
+					//-- Use this.
+					m_subCriteria = ce.getAbomination();
+				} else {
+					//-- Create a joined subselect
+					DetachedCriteria dc = createExistsSubquery(childtype, currentClass, subpath);
+					m_subCriteriaMap.put(path, new CritEntry(childtype, dc));
+					m_subCriteria = dc;
+				}
+
+				currentClass = childtype;
+
 			} else if(pmm.getRelationType() != PropertyRelationType.NONE) {
 				/*
 				 * This is a relation. If we are NOT in a PK currently AND there are relations queued then
@@ -315,33 +360,75 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 				//-- Now queue this one- we decide whether to join @ the next name.
 				pushPendingJoin(path, pmm);
+				if(last) {
+					//-- Last entry is a relation: we do not need to join this last one, just refer to it using it's dotted path also.
+					return createPendingJoinPath();
+				}
+
 				currentClass = pmm.getActualType();
 				previspk = false;
 			} else if(!last)
 				throw new QQuerySyntaxException("Property " + subpath + " in path " + input + " must be a parent relation or a compound primary key (property=" + pmm + ")");
-			else
-				pushPendingJoin(path, pmm); // Push the last segment too, even though it is not a join!!
+			else {
+				/*
+				 * This is the last part and it is not a PK or relation itself. We need to decide what to do with the
+				 * current join stack. If the previous item was a PK we do not join but return the compound path...
+				 */
+				if(previspk)
+					return createPendingJoinPath(); // This is a non-relation property immediately on a PK. Return dotted path.
+
+				/*
+				 * This is a normal property. Make sure a join is present then return the path inside that join.
+				 */
+				flushJoin();
+				return name;
+			}
 		}
 
-		/*
-		 * We have reached the last field, and it's meta is on the stack. Always remove it there (because it will never
-		 * be joined). Then see if data is left on the stack and handle that.
-		 */
-		if(m_pendingJoinIx <= 0)
-			throw new IllegalStateException("Logic failure"); // Cannot happen
-//		PropertyMetaModel pmm = m_pendingJoinProps[--m_pendingJoinIx];
-//		path = m_pendingJoinPaths[m_pendingJoinIx];
-//		String	name = pmm.getName();	// This will be the name of the property to return if the stack is empty
+		//-- Failsafe exit: all specific paths should have exited when last was signalled.
+		throw new IllegalStateException("Should be unreachable?");
+	}
 
-		//-- In all cases: we just need the qualified subname to this property, because all needed joins have been done already.
+	private DetachedCriteria createExistsSubquery(Class< ? > childtype, Class< ? > parentclass, String parentproperty) {
+		DetachedCriteria dc = DetachedCriteria.forClass(childtype, nextAlias());
+		Criterion exists = Subqueries.exists(dc);
+		dc.setProjection(Projections.id()); // Whatever: just some thingy.
+
+		//-- Append the join condition; we need all children here that are in the parent's collection. We need the parent reference to use in the child.
+		ClassMetadata childmd = m_session.getSessionFactory().getClassMetadata(childtype);
+
+		//-- Entering the crufty hellhole that is Hibernate meta"data": never seen more horrible cruddy garbage
+		ClassMetadata parentmd = m_session.getSessionFactory().getClassMetadata(parentclass);
+		int index = findMoronicPropertyIndexBecauseHibernateIsTooStupidToHaveAPropertyMetaDamnit(parentmd, parentproperty);
+		if(index == -1)
+			throw new IllegalStateException("Hibernate does not know property");
+		Type type = parentmd.getPropertyTypes()[index];
+		BagType bt = (BagType) type;
+		final OneToManyPersister persister = (OneToManyPersister) ((SessionFactoryImpl) m_session.getSessionFactory()).getCollectionPersister(bt.getRole());
+		String[] keyCols = persister.getKeyColumnNames();
+
+		//-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
+		int fkindex = findCruddyChildProperty(childmd, keyCols);
+		if(fkindex < 0)
+			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + keyCols);
+		String childupprop = childmd.getPropertyNames()[fkindex];
+
+		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
+		String parentAlias = getParentAlias();
+		dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
+
+		addCriterion(exists);
+		return dc;
+	}
+
+	private String createPendingJoinPath() {
 		m_sb.setLength(0);
 		for(int i = 0; i < m_pendingJoinIx; i++) {
 			if(m_sb.length() > 0)
 				m_sb.append('.');
 			m_sb.append(m_pendingJoinProps[i].getName());
 		}
-		String name = m_sb.toString();
-		return name;
+		return m_sb.toString();
 	}
 
 	/**
@@ -353,6 +440,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 * subcriterion.
 	 */
 	private void flushJoin() {
+		if(m_pendingJoinIx <= 0)
+			return;
+
 		//-- Create the join path upto and including till the last relation (subpath from last criterion to it).
 		m_sb.setLength(0);
 		PropertyMetaModel pmm = null;
@@ -437,6 +527,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		QLiteral lit = null;
 		if(rhs.getOperation() == QOperation.LITERAL) {
 			lit = (QLiteral) rhs;
+		} else if(rhs.getOperation() == QOperation.SELECTION_SUBQUERY) {
+			handlePropertySubcriteriaComparison(n);
+			return;
 		} else
 			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
 
@@ -482,6 +575,48 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				break;
 		}
 
+		if(m_subCriteria != null)
+			addSubCriterion(last);
+		else
+			m_last = last;
+		m_subCriteria = null;
+	}
+
+	private void handlePropertySubcriteriaComparison(QPropertyComparison n) throws Exception {
+		QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
+		qsq.visit(this); // Resolve subquery
+		String name = parseSubcriteria(n.getProperty()); // Handle dotted pair in name
+		Criterion last = null;
+
+		switch(n.getOperation()){
+			default:
+				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
+
+			case EQ:
+				last = Subqueries.propertyEq(name, (DetachedCriteria) m_lastSubCriteria);
+				break;
+			case NE:
+				last = Subqueries.propertyNe(name, (DetachedCriteria) m_lastSubCriteria);
+				break;
+//			case GT:
+//				last = Restrictions.gt(name, lit.getValue());
+//				break;
+//			case GE:
+//				last = Restrictions.ge(name, lit.getValue());
+//				break;
+//			case LT:
+//				last = Restrictions.lt(name, lit.getValue());
+//				break;
+//			case LE:
+//				last = Restrictions.le(name, lit.getValue());
+//				break;
+//			case LIKE:
+//				last = Restrictions.like(name, lit.getValue());
+//				break;
+//			case ILIKE:
+//				last = Restrictions.ilike(name, lit.getValue());
+//				break;
+		}
 		if(m_subCriteria != null)
 			addSubCriterion(last);
 		else
@@ -788,5 +923,30 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				m_lastProj = Projections.rowCount();
 				break;
 		}
+	}
+
+	@Override
+	public void visitSelectionSubquery(QSelectionSubquery n) throws Exception {
+		DetachedCriteria dc = DetachedCriteria.forClass(n.getSelectionQuery().getBaseClass(), nextAlias());
+
+		//-- Recursively apply all parts to the detached thingerydoo
+		ProjectionList oldpro = m_proli;
+		m_proli = null;
+		Projection oldlastproj = m_lastProj;
+		m_lastProj = null;
+		Object old = m_currentCriteria;
+		Class< ? > oldroot = m_rootClass;
+		m_rootClass = n.getSelectionQuery().getBaseClass();
+		m_currentCriteria = dc;
+		n.getSelectionQuery().visit(this);
+		if(m_last != null) {
+			dc.add(m_last);
+			m_last = null;
+		}
+		m_currentCriteria = old; // Restore root query
+		m_rootClass = oldroot;
+		m_proli = oldpro;
+		m_lastProj = oldlastproj;
+		m_lastSubCriteria = dc;
 	}
 }

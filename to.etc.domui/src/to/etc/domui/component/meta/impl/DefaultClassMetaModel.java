@@ -5,6 +5,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
@@ -37,6 +38,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	private Class< ? extends IComboDataSet< ? >> m_comboDataSet;
 
 	private boolean m_persistentClass;
+
+	private String m_tableName;
 
 	/**
 	 * When this relation-property is presented as a single field this can contain a class to render
@@ -153,7 +156,20 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @param name
 	 */
 	protected void decodeAnnotationByName(final Annotation an, final String name) {
-
+		if("javax.persistence.Table".equals(name)) {
+			//-- Decode fields from the annotation.
+			try {
+				String tablename = (String) DomUtil.getClassValue(an, "name");
+				String tableschema = (String) DomUtil.getClassValue(an, "schema");
+				if(tablename != null) {
+					if(tableschema != null)
+						tablename = tableschema + "." + tablename;
+					setTableName(tablename);
+				}
+			} catch(Exception x) {
+				Trouble.wrapException(x);
+			}
+		}
 	}
 
 	/**
@@ -463,6 +479,14 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	public void setPrimaryKey(final PropertyMetaModel primaryKey) {
 		m_primaryKey = primaryKey;
+	}
+
+	public String getTableName() {
+		return m_tableName;
+	}
+
+	public void setTableName(String tableName) {
+		m_tableName = tableName;
 	}
 
 	@Override

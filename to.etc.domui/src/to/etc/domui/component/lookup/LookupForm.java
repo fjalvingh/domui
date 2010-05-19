@@ -594,8 +594,10 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	public Item addManualTextLabel(String labelText, ILookupControlInstance lci) {
-		Item it = addManual(lci);
+		Item it = new Item();
+		it.setInstance(lci);
 		it.setLabelText(labelText);
+		addAndFinish(it);
 		return it;
 	}
 

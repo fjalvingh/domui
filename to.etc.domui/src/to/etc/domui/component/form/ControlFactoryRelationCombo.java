@@ -31,7 +31,7 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 		return 2;
 	}
 
-	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
 		if(!editable && controlClass == null) {
 			DisplayValue<Object> dv = new DisplayValue<Object>(Object.class); // No idea what goes in here.
@@ -40,7 +40,7 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 				INodeContentRenderer<Object> r = (INodeContentRenderer<Object>) MetaManager.createDefaultComboRenderer(pmm, null); // FIXME Needed?
 				dv.setRenderer(r);
 			}
-			return new Result(dv, model, pmm);
+			return new ControlFactoryResult(dv, model, pmm);
 		}
 
 		//		if(!editable)
@@ -62,6 +62,6 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 		if(s != null)
 			co.setTitle(s);
 		co.setDisabled(!editable);
-		return new Result(co, model, pmm);
+		return new ControlFactoryResult(co, model, pmm);
 	}
 }

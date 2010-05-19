@@ -1,7 +1,11 @@
 package to.etc.domui.dom.html;
 
-public class TR extends NodeContainer {
+import to.etc.domui.util.*;
+
+public class TR extends NodeContainer implements IDraggable {
 	private Object m_rowData;
+
+	private IDragHandler m_dragHandler;
 
 	public TR() {
 		super("tr");
@@ -31,5 +35,16 @@ public class TR extends NodeContainer {
 		add(td);
 		td.setCssClass(cssclass);
 		return td;
+	}
+
+
+	@Override
+	public IDragHandler getDragHandler() {
+		return m_dragHandler;
+	}
+
+	@Override
+	public void setDragHandler(IDragHandler dh) {
+		m_dragHandler = dh;
 	}
 }

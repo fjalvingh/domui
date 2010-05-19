@@ -361,9 +361,10 @@ final public class DomUtil {
 	 */
 	public static String createPageURL(String rurl, PageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
-		RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
-		if(DomUtil.isRelativeURL(rurl))
+		if(DomUtil.isRelativeURL(rurl)) {
+			RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
 			sb.append(ctx.getRelativePath(rurl));
+		}
 		else
 			sb.append(rurl);
 		if(pageParameters != null) {
@@ -1150,7 +1151,9 @@ final public class DomUtil {
 		if(v != null)
 			return v;
 		if(root instanceof NodeContainer) {
-			for(NodeBase ch : (NodeContainer) root) {
+			NodeContainer nc = (NodeContainer) root;
+			for(int i = 0, len = nc.getChildCount(); i < len; i++) {
+				NodeBase ch = nc.getChild(i);
 				v = walkTree(ch, handler);
 				if(v != null)
 					return v;

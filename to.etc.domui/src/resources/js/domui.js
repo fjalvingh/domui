@@ -1554,11 +1554,39 @@ var WebUI = {
 
 	dragCreateCopy : function(source) {
 		var dv = document.createElement('div');
-		dv.innerHTML = source.innerHTML;
+
+		// If we drag a TR we need to encapsulate the thingy in a table/tbody to prevent trouble.
+		if(source.tagName != "TR") {
+			dv.innerHTML = source.innerHTML;
+		} else {
+			//-- This IS a tr. Create a table/TBody then add the content model
+			var t = document.createElement('table');
+			dv.appendChild(t);
+			var b = document.createElement('tbody');
+			t.appendChild(b);
+			b.innerHTML = source.innerHTML;			// Copy tr inside tbody we just constructed
+
+			//-- Find parent table's CSS class so we can copy it's style.
+			var dad = WebUI.findParentOfTagName(source, 'TABLE');
+			if(dad) {
+				t.className= dad.className;
+			}
+		}
+
 		dv.style.position = 'absolute';
 		dv.style.width = source.clientWidth + "px";
 		dv.style.height = source.clientHeigt + "px";
+		//console.debug("DragNode isa "+source.tagName+", "+dv.innerHTML);
 		return dv;
+	},
+
+	findParentOfTagName: function(node, type) {
+		while(node != null) {
+			node = node.parentNode;
+			if(node.tagName == type)
+				return node;
+		}
+		return null;
 	},
 
 	/**

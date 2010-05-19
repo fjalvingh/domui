@@ -182,4 +182,20 @@ public interface Msgs {
 
 	public static final String VERBATIM = "verbatim";
 
+	//# AsyncContainer
+	/** asynccontainer.cancel key */
+	public static final String ASYNC_CONTAINER_CANCEL = "asynccontainer.cancel";
+
+	/** asynccontainer.complete.indicator key */
+	public static final String ASYNC_CONTAINER_COMPLETE_INDICATOR = "asynccontainer.complete.indicator";
+
+	/** asynccontainer.cancelled key */
+	public static final String ASYNC_CONTAINER_CANCELLED = "asynccontainer.cancelled";
+
+	/** asynccontainer.cancelled.msg key */
+	public static final String ASYNC_CONTAINER_CANCELLED_MSG = "asynccontainer.cancelled.msg";
+
+	/** asynccontainer.no.results.msg key */
+	public static final String ASYNC_CONTAINER_NO_RESULTS_MSG = "asynccontainer.no.results.msg";
+
 }

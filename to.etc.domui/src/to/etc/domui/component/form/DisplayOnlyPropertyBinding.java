@@ -92,8 +92,11 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 	 */
 	@Override
 	public boolean hasError() {
+		//It is possible to set visual error marker onto data that is not editable directly 
+		if(m_control instanceof NodeBase) {
+			return ((NodeBase) m_control).hasError();
+		}
 		return false;
-		//		return m_control.hasError();
 	}
 
 	/**
@@ -135,28 +138,44 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 	 * @see to.etc.domui.dom.errors.INodeErrorDelegate#clearMessage()
 	 */
 	public void clearMessage() {
-	//		m_control.clearMessage();
+		//It is possible to set visual error marker onto data that is not editable directly 
+		if(m_control instanceof NodeBase) {
+			((NodeBase) m_control).clearMessage();
+		}
 	}
 
 	public UIMessage getMessage() {
+		//It is possible to set visual error marker onto data that is not editable directly 
+		if(m_control instanceof NodeBase) {
+			return ((NodeBase) m_control).getMessage();
+		}
 		return null;
-		//		return m_control.getMessage();
 	}
 
 	public UIMessage setMessage(UIMessage m) {
-		throw new IllegalStateException("Attempt to set an error message on a display-only control: " + m_control + ", bound on " + m_propertyMeta);
-		//		return m_control.setMessage(m);
+		//It is possible to set visual error marker onto data that is not editable directly 
+		if(m_control instanceof NodeBase) {
+			return ((NodeBase) m_control).setMessage(m);
+		} else {
+			throw new IllegalStateException("Attempt to set an error message on a display-only control: " + m_control + ", bound on " + m_propertyMeta);
+		}
 	}
 
 	@Override
 	public String getErrorLocation() {
+		//It is possible to set visual error marker onto data that is not editable directly 
+		if(m_control instanceof NodeBase) {
+			return ((NodeBase) m_control).getErrorLocation();
+		}
 		return null;
-		//		return m_control.getErrorLocation();
 	}
 
 	@Override
 	public void setErrorLocation(String errorLocation) {
+		//It is possible to set visual error marker onto data that is not editable directly 
+		if(m_control instanceof NodeBase) {
+			((NodeBase) m_control).setErrorLocation(errorLocation);
+		}
 		throw new IllegalStateException("Attempt to set an error location on a display-only control: " + m_control + ", bound on " + m_propertyMeta);
-		//		m_control.setErrorLocation(errorLocation);
 	}
 }
