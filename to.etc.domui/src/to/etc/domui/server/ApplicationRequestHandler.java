@@ -655,7 +655,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(pg.getBody().isBuilt())
 			return;
 		//		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
-		pg.build();
+		pg.internalFullBuild();
+//		pg.build();
 		for(INewPageInstantiated npi : m_application.getNewPageInstantiatedListeners())
 			npi.newPageInstantiated(pg.getBody());
 	}

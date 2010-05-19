@@ -6,8 +6,6 @@ import java.util.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.server.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.DomUtil.*;
 import to.etc.util.*;
 
 /**
@@ -149,7 +147,8 @@ public class OptimalDeltaRenderer {
 	}
 
 	public void render() throws Exception {
-		m_page.build();
+		//-- 20100519 jal Force full rebuild before rendering, always. See bug 688.
+		m_page.internalDeltaBuild();
 
 		if(DEBUG) {
 			DumpDirtyStateRenderer.dump(m_page.getBody());
@@ -168,19 +167,6 @@ public class OptimalDeltaRenderer {
 		o().endtag();
 
 		//-- 20091127 jal Add header contributors delta rendering
-		DomUtil.walkTree(m_page.getBody(), new IPerNode() {
-			@Override
-			public Object before(NodeBase n) throws Exception {
-				n.build();
-				return null;
-			}
-
-			@Override
-			public Object after(NodeBase n) throws Exception {
-				return null;
-			}
-		});
-
 		//-- This is incomplete: see bug 669
 		List<HeaderContributorEntry> list = m_page.getAddedContributors();
 		if(list.size() > 0) {
@@ -482,7 +468,9 @@ public class OptimalDeltaRenderer {
 	 */
 	private void doContainer(NodeInfo parentChanges, NodeContainer n) throws Exception {
 		//-- Handle tree changes, after build
-		n.build();
+		if(!n.isBuilt())
+			throw new IllegalStateException("Node " + n + " is not BUILT in delta renderer");
+//		n.build();
 		NodeBase[] oldl = n.getOldChildren();
 		if(oldl != null) {
 			/*

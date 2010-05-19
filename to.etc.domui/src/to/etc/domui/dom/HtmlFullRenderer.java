@@ -237,7 +237,9 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		if(page.getBody() instanceof IXHTMLPage) {
 			setXml(true);
 		}
-		page.build();
+//		page.build();
+		page.internalFullBuild();
+
 		renderPageHeader();
 		//		o().writeRaw(
 		//			"<script language=\"javascript\"><!--\n"
