@@ -81,7 +81,7 @@ public class TestDelta {
 
 		IRequestContext ctx = new TestRequestContext();
 		hr.render(ctx, pg);
-		pg.clearDeltaFully();
+		pg.internalClearDeltaFully();
 		return sw.getBuffer().toString();
 	}
 

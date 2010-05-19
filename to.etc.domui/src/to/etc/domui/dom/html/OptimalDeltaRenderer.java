@@ -247,7 +247,7 @@ public class OptimalDeltaRenderer {
 		//-- At this point we have a CHANGE tree which we can render immediately
 		renderDeletes(root);
 		renderRest(root);
-		page.clearDeltaFully();
+		page.internalClearDeltaFully();
 	}
 
 	private void renderDeletes(NodeInfo ni) throws IOException {

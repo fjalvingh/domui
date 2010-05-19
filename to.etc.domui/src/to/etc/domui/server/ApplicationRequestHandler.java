@@ -282,7 +282,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			checkFullExceptionCount(page, x); // Rethrow, but clear state if page throws up too much.
 		} finally {
-			page.clearDeltaFully();
+			page.internalClearDeltaFully();
 		}
 
 		//-- Full render completed: indicate that and reset the exception count
