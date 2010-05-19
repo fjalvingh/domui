@@ -452,26 +452,25 @@ public class ConnectionPoolEntry {
 		try {
 			throw new Exception("Dummy");
 		} catch(Exception x) {
-			StringWriter sw = new StringWriter(2048);
-			PrintWriter pw = new PrintWriter(sw);
+			StringBuilder sb = new StringBuilder();
 			if(pc != null) {
-				pw.println(pc.toString()); // Save proxy name,
-				if(m_ts_alloc != 0) // Is stamping time?
-				{
+				sb.append(pc.toString()).append("\n"); // Save proxy name,
+				if(m_ts_alloc != 0) {
 					long dt = System.currentTimeMillis() - m_ts_alloc;
-					pw.println("Time: " + dt + " ms after connection was allocated");
+					if(clearstack)
+						sb.append("<font color=\"orange\">Connection was allocated here</font>\n");
+					else
+						sb.append("Time: ").append(DbPoolUtil.strMillis(dt)).append(" after connection was allocated\n");
 				}
 
 				if(pc.m_owner_info != null) {
-					pw.print("Associated owner context: ");
-					pw.print(pc.m_owner_info.getDbConnectionOwnerInformation());
-					pw.println(".");
+					sb.append("Associated owner context: ");
+					sb.append(pc.m_owner_info.getDbConnectionOwnerInformation());
+					sb.append(".\n");
 				}
 			}
-
-			x.printStackTrace(pw);
-			pw.close();
-			s = sw.getBuffer().toString();
+			DbPoolUtil.getFilteredStacktrace(sb, x);
+			s = sb.toString();
 		}
 
 		//-- Now add to the queue (ahead)
@@ -480,7 +479,8 @@ public class ConnectionPoolEntry {
 				for(int i = m_stl_ar.length; --i >= 1;)
 					m_stl_ar[i] = null;
 			} else {
-				for(int i = m_stl_ar.length; --i > 0;)
+				int from = m_stl_ar[m_stl_ar.length - 1] == null ? m_stl_ar.length : m_stl_ar.length - 1; // Dont overwrite last entry if filled-> will be allocation stacktrace
+				for(int i = from; --i > 0;)
 					m_stl_ar[i] = m_stl_ar[i - 1];
 			}
 			m_stl_ar[0] = s;
