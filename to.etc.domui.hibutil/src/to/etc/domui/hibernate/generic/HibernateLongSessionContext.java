@@ -20,8 +20,6 @@ import to.etc.webapp.query.*;
  * Created on Oct 23, 2008
  */
 public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
-	private String m_conversationInvalid;
-
 	public HibernateLongSessionContext(final QDataContextFactory src, final HibernateSessionMaker sessionMaker) {
 		super(sessionMaker, src);
 	}
@@ -32,8 +30,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 	 */
 	@Override
 	public Session getSession() throws Exception {
-		if(m_conversationInvalid != null)
-			throw new IllegalStateException("You cannot use this context: it's conversation is invalid: " + m_conversationInvalid);
+		checkValid();
 		if(m_session == null) {
 			super.getSession();
 			m_session.setFlushMode(FlushMode.MANUAL);
@@ -47,7 +44,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 	public void conversationDestroyed(final ConversationContext cc) throws Exception {
 		if(m_session == null || !m_session.isConnected())
 			return;
-		m_conversationInvalid = "Conversation was destroyed";
+		setConversationInvalid("Conversation was destroyed");
 		setIgnoreClose(false);
 		SessionImpl sim = (SessionImpl) m_session;
 		StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
@@ -63,7 +60,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 	public void conversationDetached(final ConversationContext cc) throws Exception {
 		if(m_session == null || !m_session.isConnected())
 			return;
-		m_conversationInvalid = "Conversation is detached";
+		setConversationInvalid("Conversation is detached");
 		SessionImpl sim = (SessionImpl) m_session;
 		StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
 		Map< ? , ? > flups = spc.getEntitiesByKey();
@@ -78,25 +75,18 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 
 	@Override
 	public void conversationAttached(ConversationContext cc) throws Exception {
-		m_conversationInvalid = null;
+		setConversationInvalid(null);
 	}
 
 	@Override
 	public void conversationNew(ConversationContext cc) throws Exception {
-		m_conversationInvalid = null;
+		setConversationInvalid(null);
 	}
 
 	@Override
 	public void commit() throws Exception {
 		m_session.flush();
 		super.commit();
-	}
-
-	@Override
-	public void close() {
-		super.close();
-		if(!isIgnoreClose())
-			m_conversationInvalid = "QDataContext was CLOSED";
 	}
 
 	/**

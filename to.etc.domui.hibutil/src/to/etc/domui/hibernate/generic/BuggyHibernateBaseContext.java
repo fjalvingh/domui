@@ -23,6 +23,8 @@ import to.etc.webapp.query.*;
 public class BuggyHibernateBaseContext extends QAbstractDataContext implements QDataContext, ConversationStateListener {
 	static protected final Logger LOG = LoggerFactory.getLogger(BuggyHibernateBaseContext.class);
 
+	private String m_conversationInvalid;
+
 	protected HibernateSessionMaker m_sessionMaker;
 
 	private boolean m_ignoreClose;
@@ -59,6 +61,15 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 		return m_session;
 	}
 
+	protected void checkValid() {
+		if(m_conversationInvalid != null)
+			throw new IllegalStateException("You cannot use this QDataContext: " + m_conversationInvalid);
+	}
+
+	protected void setConversationInvalid(String conversationInvalid) {
+		m_conversationInvalid = conversationInvalid;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	QDataContext implementation.						*/
 	/*--------------------------------------------------------------*/
@@ -82,6 +93,8 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	public void close() {
 		if(m_session == null || m_ignoreClose)
 			return;
+		setConversationInvalid("DataContext has been CLOSED");
+
 		//		System.out.println("..... closing hibernate session: "+System.identityHashCode(m_session));
 		try {
 			if(m_session.getTransaction().isActive()) {
@@ -150,7 +163,9 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	/**
 	 * {@inheritDoc}
 	 */
-	public void conversationAttached(final ConversationContext cc) throws Exception {}
+	public void conversationAttached(final ConversationContext cc) throws Exception {
+		setConversationInvalid(null);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -159,6 +174,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	public void conversationDestroyed(final ConversationContext cc) throws Exception {
 		setIgnoreClose(false); // Disable ignore close - this close should work.
 		close();
+		setConversationInvalid("Conversation was destroyed");
 	}
 
 	/**
@@ -168,6 +184,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	public void conversationDetached(final ConversationContext cc) throws Exception {
 		setIgnoreClose(false); // Disable ignore close - this close should work.
 		close();
+		setConversationInvalid("Conversation is detached");
 	}
 
 	/**
