@@ -282,7 +282,7 @@ final public class Page implements IQContextContainer {
 		return m_beforeMap;
 	}
 
-	public void clearDeltaFully() {
+	public void internalClearDeltaFully() {
 		getBody().clearDeltaFully();
 		m_beforeMap = null;
 		m_sb = null;
