@@ -198,12 +198,15 @@ div.ui-popin {
 
 /*** LinkButton component. ***/
 .ui-lbtn {
-	cursor: pointer;
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
 	font-size: 12px;
 }
+a.ui-lbtn {
+	cursor: pointer;
+}
+
 a:hover.ui-lbtn {
 	text-decoration: underline !important;
 }

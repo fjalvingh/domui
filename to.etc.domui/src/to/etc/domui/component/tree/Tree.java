@@ -33,8 +33,6 @@ public class Tree extends Div implements ITreeModelChangedListener {
 
 	private ICellClicked< ? > m_cellClicked;
 
-	private ITreeWillExpandListener m_treeWillExpand;
-
 	/**
 	 * Represents the internal visible state of the tree.
 	 *
@@ -188,9 +186,7 @@ public class Tree extends Div implements ITreeModelChangedListener {
 	 * @throws Exception
 	 */
 	public void expandNode(Object item) throws Exception {
-		if(getTreeWillExpand() != null) {
-			getTreeWillExpand().treeWillExpand(item);
-		}
+		m_model.fireNodeWillExpand(item);
 		List<Object> path = getTreePath(item); // Calculate a path.
 		if(path.size() == 0)
 			throw new IllegalStateException("No TREE path found to node=" + item);
@@ -278,10 +274,7 @@ public class Tree extends Div implements ITreeModelChangedListener {
 	 * @throws Exception
 	 */
 	public void collapseNode(final Object item) throws Exception {
-		if(getTreeWillExpand() != null) {
-			getTreeWillExpand().treeWillCollapse(item);
-		}
-
+		m_model.fireNodeWillCollapse(item);
 		VisibleNode vn = m_openMap.get(item);
 		if(vn == null)
 			return;
@@ -486,11 +479,17 @@ public class Tree extends Div implements ITreeModelChangedListener {
 		m_propertyMetaModel = propertyMetaModel;
 	}
 
-	public ITreeWillExpandListener getTreeWillExpand() {
-		return m_treeWillExpand;
-	}
+	/**
+	 * In case that some custom action has to be done before node collapse, override this method.
+	 * @see to.etc.domui.component.tree.ITreeModelChangedListener#nodeWillCollapse(to.etc.domui.component.tree.ITreeNode)
+	 */
+	@Override
+	public void nodeWillCollapse(ITreeNode< ? > item) throws Exception {}
 
-	public void setTreeWillExpand(ITreeWillExpandListener treeWillExpand) {
-		m_treeWillExpand = treeWillExpand;
-	}
+	/**
+	 * In case that some custom action has to be done before node expands, override this method.
+	 * @see to.etc.domui.component.tree.ITreeModelChangedListener#nodeWillCollapse(to.etc.domui.component.tree.ITreeNode)
+	 */
+	@Override
+	public void nodeWillExpand(ITreeNode< ? > item) throws Exception {}
 }

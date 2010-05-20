@@ -46,7 +46,11 @@ public class AppFilter implements Filter {
 	/** After the 1st request has been seen, this contains the application's root url. */
 	static private String m_applicationURL;
 
-	public void destroy() {}
+	public void destroy() {
+		//-- Pass DESTROY on to Application, if present.
+		if(DomApplication.get() != null)
+			DomApplication.get().internalDestroy();
+	}
 
 	static public String minitime() {
 		Calendar cal = Calendar.getInstance();

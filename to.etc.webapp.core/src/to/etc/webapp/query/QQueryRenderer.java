@@ -250,4 +250,11 @@ public class QQueryRenderer extends QNodeVisitorBase {
 		}
 	}
 
+	@Override
+	public void visitSelectionSubquery(QSelectionSubquery n) throws Exception {
+		append("(");
+		n.getSelectionQuery().visit(this);
+		append(")");
+	}
+
 }

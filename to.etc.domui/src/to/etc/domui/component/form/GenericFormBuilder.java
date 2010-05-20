@@ -117,7 +117,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		if(!rights().calculate(pmm))
 			return null;
 		boolean reallyeditable = editable && rights().isEditable();
-		final ControlFactory.Result r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
+		final ControlFactoryResult r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
 		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, reallyeditable, pmm);
 		r.getFormControl().setMandatory(mandatory);
 
@@ -281,7 +281,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			return null;
 		boolean reallyeditable = editable && rights().isEditable();
 
-		final ControlFactory.Result r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
+		final ControlFactoryResult r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
 		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), reallyeditable, pmm);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages

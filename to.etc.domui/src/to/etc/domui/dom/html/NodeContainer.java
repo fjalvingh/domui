@@ -345,12 +345,13 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * This destroys all existing nodes and causes this node to be rebuilt the next time the
 	 * tree is rendered.
 	 */
+	@Override
 	public void forceRebuild() {
 		//-- If we have nodes destroy 'm all
 		m_delegate = null;
 		removeAllChildren(); // Remove all old crap
 		treeChanging();
-		clearBuilt();
+		super.forceRebuild();
 	}
 
 	/**

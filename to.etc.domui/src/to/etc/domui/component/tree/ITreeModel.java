@@ -48,4 +48,9 @@ public interface ITreeModel<T> {
 	public void addChangeListener(ITreeModelChangedListener l);
 
 	public void removeChangeListener(ITreeModelChangedListener l);
+
+	public void fireNodeWillExpand(T item) throws Exception;
+
+	public void fireNodeWillCollapse(T item) throws Exception;
+
 }

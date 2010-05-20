@@ -72,7 +72,7 @@ public interface QDataContext {
 	 * @return
 	 * @throws Exception
 	 */
-	Object queryOne(QSelection< ? > q) throws Exception;
+	Object[] queryOne(QSelection< ? > q) throws Exception;
 
 	/**
 	 * Load the persistent object with the specified type and primary key from the database. This will

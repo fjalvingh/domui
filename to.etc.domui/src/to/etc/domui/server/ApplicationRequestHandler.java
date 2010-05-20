@@ -262,6 +262,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(cm.handleGoto(ctx, page, false))
 				return;
 		} catch(Exception x) {
+			//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
+			page.getBody().forceRebuild();
+
 			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
 				if(url != null) {

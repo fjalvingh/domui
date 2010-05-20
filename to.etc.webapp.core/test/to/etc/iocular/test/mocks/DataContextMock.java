@@ -50,7 +50,7 @@ public class DataContextMock implements QDataContext {
 		return null;
 	}
 
-	public Object queryOne(QSelection< ? > sel) throws Exception {
+	public Object[] queryOne(QSelection< ? > sel) throws Exception {
 		return null;
 	}
 

@@ -150,7 +150,7 @@ public class ControlBuilder {
 	/**
 	 * Main workhorse which creates input controls for forms, from metadata.
 	 */
-	public ControlFactory.Result createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
+	public ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
 		ControlFactory cf = getControlFactory(pmm, editable, null);
 		return cf.createControl(model, pmm, editable, null);
 	}
@@ -182,7 +182,7 @@ public class ControlBuilder {
 		if(controlClass == null)
 			throw new IllegalArgumentException("controlClass cannot be null");
 		ControlFactory cf = getControlFactory(pmm, editable, null);
-		ControlFactory.Result r = cf.createControl(null, pmm, editable, controlClass);
+		ControlFactoryResult r = cf.createControl(null, pmm, editable, controlClass);
 
 		//-- This must have generated a single control of the specified type, so check...
 		if(r.getNodeList().length != 1)

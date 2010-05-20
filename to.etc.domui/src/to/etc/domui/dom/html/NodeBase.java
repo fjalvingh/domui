@@ -422,7 +422,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			} finally {
 				m_built = ok;
 			}
+
+			// 20100504 jal If createContent throws an exception the node is not built but can contain data, causing duplicates in the page if rebuilt.
+			if(!ok)
+				forceRebuild();
 		}
+	}
+
+	public void forceRebuild() {
+		clearBuilt();
 	}
 
 	protected void clearBuilt() {

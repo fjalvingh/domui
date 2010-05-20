@@ -30,7 +30,7 @@ public class ControlFactoryDate implements ControlFactory {
 		return 0;
 	}
 
-	public Result createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
 		if(!editable && (controlClass == null || controlClass.isAssignableFrom(Text.class))) {
 			//			Text<Date> txt = new Text<Date>(Date.class);
 			//			txt.setReadOnly(true);
@@ -60,7 +60,7 @@ public class ControlFactoryDate implements ControlFactory {
 			}
 
 			txt.setConverter(ConverterRegistry.getConverterInstance(cc));
-			return new Result(txt, model, pmm);
+			return new ControlFactoryResult(txt, model, pmm);
 		}
 
 		DateInput di = new DateInput();
@@ -73,6 +73,6 @@ public class ControlFactoryDate implements ControlFactory {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			di.setTitle(s);
-		return new Result(di, model, pmm);
+		return new ControlFactoryResult(di, model, pmm);
 	}
 }

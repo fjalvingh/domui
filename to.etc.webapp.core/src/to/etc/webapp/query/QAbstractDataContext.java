@@ -101,7 +101,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QDataContext#queryOne(to.etc.webapp.query.QCriteria)
 	 */
-	public Object queryOne(final QSelection< ? > sel) throws Exception {
+	public Object[] queryOne(final QSelection< ? > sel) throws Exception {
 		List<Object[]> res = query(sel);
 		if(res.size() == 0)
 			return null;

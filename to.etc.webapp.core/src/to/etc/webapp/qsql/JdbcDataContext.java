@@ -146,7 +146,7 @@ public class JdbcDataContext implements QDataContext {
 	}
 
 	@Override
-	public Object queryOne(QSelection< ? > q) throws Exception {
+	public Object[] queryOne(QSelection< ? > q) throws Exception {
 		unclosed();
 		return JdbcQuery.queryOne(this, q);
 	}
