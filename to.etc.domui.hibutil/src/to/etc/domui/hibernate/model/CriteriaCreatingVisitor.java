@@ -374,8 +374,10 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				 * This is the last part and it is not a PK or relation itself. We need to decide what to do with the
 				 * current join stack. If the previous item was a PK we do not join but return the compound path...
 				 */
-				if(previspk)
+				if(previspk) {
+					pushPendingJoin(path, pmm);
 					return createPendingJoinPath(); // This is a non-relation property immediately on a PK. Return dotted path.
+				}
 
 				/*
 				 * This is a normal property. Make sure a join is present then return the path inside that join.
