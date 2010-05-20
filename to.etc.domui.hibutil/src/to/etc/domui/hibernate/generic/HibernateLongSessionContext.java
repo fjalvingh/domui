@@ -82,9 +82,21 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 	}
 
 	@Override
+	public void conversationNew(ConversationContext cc) throws Exception {
+		m_conversationInvalid = null;
+	}
+
+	@Override
 	public void commit() throws Exception {
 		m_session.flush();
 		super.commit();
+	}
+
+	@Override
+	public void close() {
+		super.close();
+		if(!isIgnoreClose())
+			m_conversationInvalid = "QDataContext was CLOSED";
 	}
 
 	/**
