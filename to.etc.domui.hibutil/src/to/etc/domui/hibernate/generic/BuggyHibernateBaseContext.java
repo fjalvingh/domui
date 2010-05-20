@@ -70,6 +70,10 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 		m_ignoreClose = on;
 	}
 
+	public boolean isIgnoreClose() {
+		return m_ignoreClose;
+	}
+
 	/**
 	 * This version just delegates to the Factory immediately.
 	 * {@inheritDoc}
