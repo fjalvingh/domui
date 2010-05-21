@@ -219,8 +219,7 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	protected AppSession createSession() {
-		AppSession aps = new AppSession();
-		aps.internalInitialize(this);
+		AppSession aps = new AppSession(this);
 		return aps;
 	}
 

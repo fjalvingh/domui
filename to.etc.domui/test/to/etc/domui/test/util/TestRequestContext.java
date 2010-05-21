@@ -70,7 +70,7 @@ public class TestRequestContext implements IRequestContext {
 
 	public AppSession getSession() {
 		if(m_session == null)
-			m_session = new AppSession();
+			m_session = new AppSession(getApplication());
 		return m_session;
 	}
 

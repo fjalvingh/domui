@@ -144,6 +144,7 @@ public class DelayedActivitiesManager implements Runnable {
 	 * when data is present in the completion queue.
 	 */
 	public boolean start() {
+		Thread t;
 		synchronized(this) {
 			if(m_executorThread != null) // Active thread?
 				return true; // Begone.
@@ -157,8 +158,9 @@ public class DelayedActivitiesManager implements Runnable {
 			m_executorThread.setName("xc");
 			m_executorThread.setDaemon(true);
 			m_executorThread.setPriority(Thread.MIN_PRIORITY);
+			t = m_executorThread; // Prevent naked access to m_ variable even though it is untouched by other code.
 		}
-		m_executorThread.start();
+		t.start();
 		return true;
 	}
 

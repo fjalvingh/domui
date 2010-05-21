@@ -25,7 +25,7 @@ public class TestUtil {
 	static public AppSession getAppSession() {
 		getApplication();
 		if(m_session == null) {
-			m_session = new AppSession();
+			m_session = new AppSession(getApplication());
 		}
 		return m_session;
 	}
