@@ -218,12 +218,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 */
 		long ts = System.nanoTime();
 		try {
-			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
-
 			if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
 				page.getBody().forceRebuild(); // Cleanout state
 				QContextManager.closeSharedContext(page.getConversation());
 			}
+			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
 
 			page.getBody().onReload();
 
