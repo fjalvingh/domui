@@ -116,14 +116,14 @@ public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 			return;
 
 		//-- If no IE8 capable indication is received add the header...
-		if(m_sos == null && m_wr != null) {
-			//			System.out.println("??? NO OUTPUTBUFFER ALLOCATED: " + m_name);
-		}
+//		if(m_sos == null && m_wr != null) {
+//			System.out.println("??? NO OUTPUTBUFFER ALLOCATED: " + m_name);
+//		}
 		if(! m_ie8capable) {
 			//			System.out.println("IE8: Sending emulate-IE7 header: " + m_name);
 			addHeader("X-UA-Compatible", "IE=EmulateIE7");
-		} else {
-			//			System.out.println("IE8: Resource is IE8-capable, flushing: " + m_name);
+//		} else {
+//			System.out.println("IE8: Resource is IE8-capable, flushing: " + m_name);
 		}
 
 		//-- Writeout the buffert

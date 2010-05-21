@@ -39,9 +39,7 @@ public class LongSizeConverter implements IConverter<Long> {
 			size *= 1024l * 1024l * 1024l;
 		else if("t".equals(f))
 			size *= 1024l * 1024l * 1024l * 1024l;
-		else if(f.length() == 0)
-			;
-		else
+		else if(f.length() != 0)
 			throw new ValidationException(Msgs.V_INVALID);
 
 		return Long.valueOf((long) size);

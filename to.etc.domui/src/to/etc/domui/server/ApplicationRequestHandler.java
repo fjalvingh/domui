@@ -555,6 +555,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				handleClicked(ctx, page, wcomp);
 			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
 				//-- Don't do anything at all - everything is done beforehand (bug #664).
+				;
 			} else if(Constants.ACMD_ASYPOLL.equals(action)) {
 				inhibitlog = true;
 				//-- Async poll request..
