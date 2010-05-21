@@ -15,7 +15,7 @@ import to.etc.util.*;
 public class SmtpTransport {
 	static private final String		BOUNDARY	= "boun-da-ry-0xababaeaGfHdNarcolethe-mumble-to-content-eNCoDer-gxixmar-rennes-le-chateau";
 
-	static private final boolean	DEBUG		= true;
+	static private boolean		DEBUG		= DeveloperOptions.getBool("smtp.debug", false);
 
 	private String					m_myhostname;
 
