@@ -4,6 +4,8 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -292,6 +294,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * not exist this returns null.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#findProperty(java.lang.String)
 	 */
+	@Nullable
 	public synchronized PropertyMetaModel findProperty(final String name) {
 		PropertyMetaModel pmm = m_propertyMap.get(name);
 		if(pmm != null)

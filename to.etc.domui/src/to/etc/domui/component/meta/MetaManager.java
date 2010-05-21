@@ -41,6 +41,7 @@ final public class MetaManager {
 		return m_modelList;
 	}
 
+	@Nonnull
 	static public ClassMetaModel findClassMeta(Class< ? > clz) {
 		DefaultClassMetaModel dmm;
 		synchronized(MetaManager.class) {
@@ -84,13 +85,13 @@ final public class MetaManager {
 	private static void finalizeProperty(PropertyMetaModel pmm) {
 	}
 
+	@Nullable
 	static public PropertyMetaModel findPropertyMeta(Class< ? > clz, String name) {
 		ClassMetaModel cm = findClassMeta(clz);
-		if(cm == null)
-			return null;
 		return cm.findProperty(name);
 	}
 
+	@Nonnull
 	static public PropertyMetaModel getPropertyMeta(Class< ? > clz, String name) {
 		PropertyMetaModel pmm = findPropertyMeta(clz, name);
 		if(pmm == null)

@@ -274,14 +274,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 
 	public Type getGenericActualType() {
 		Method m = m_descriptor.getGetter();
-		if(m != null) {
-			return m.getGenericReturnType();
-		}
-		m = m_descriptor.getSetter();
-		if(m != null) {
-			return m.getGenericParameterTypes()[0];
-		}
-		return null;
+		return m.getGenericReturnType();
 	}
 
 	public String getDefaultLabel() {

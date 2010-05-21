@@ -5,6 +5,8 @@ import java.awt.image.*;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.apache.batik.transcoder.*;
 import org.apache.batik.transcoder.image.*;
 
@@ -46,17 +48,14 @@ public class PartUtil {
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	static public Properties loadProperties(DomApplication da, String src, ResourceDependencyList rdl) throws Exception {
 		String svg = da.getThemeReplacedString(rdl, src);
 
 		InputStream is = new StringInputStream(svg, "utf-8");
-		if(is == null)
-			return null;
 		try {
 			Properties p = new Properties();
 			p.load(is);
-			//			if(ref instanceof WebappResourceRef)
-			//				p.put("webui.webapp", "true");
 			return p;
 		} finally {
 			try {
@@ -97,8 +96,8 @@ public class PartUtil {
 		IParameterInfo param = getParameters(in);
 
 		IResourceRef ref = da.getApplicationResourceByName(image);
-		if(ref == null)
-			throw new ThingyNotFoundException("The image '" + image + "' was not found.");
+//		if(ref == null)
+//			throw new ThingyNotFoundException("The image '" + image + "' was not found.");
 		InputStream is = ref.getInputStream();
 		if(is == null)
 			throw new ThingyNotFoundException("The image '" + image + "' was not found.");
@@ -129,8 +128,7 @@ public class PartUtil {
 			return newbi;
 		} finally {
 			try {
-				if(is != null)
-					is.close();
+				is.close();
 			} catch(Exception x) {}
 		}
 	}

@@ -2,6 +2,8 @@ package to.etc.domui.component.meta;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
@@ -34,6 +36,7 @@ public interface ClassMetaModel {
 	 * @param name
 	 * @return
 	 */
+	@Nullable
 	public PropertyMetaModel findProperty(String name);
 
 	public boolean isPersistentClass();
