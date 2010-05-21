@@ -232,6 +232,8 @@ public class JdbcUtil {
 				ps.setLong(px, ((Long) val).longValue());
 			} else if(val instanceof Integer) {
 				ps.setInt(px, ((Integer) val).intValue());
+			} else if(val instanceof BigDecimal) {
+				ps.setBigDecimal(px, (BigDecimal) val);
 			} else if(val instanceof java.sql.Timestamp) {
 				ps.setTimestamp(px, (java.sql.Timestamp) val);
 			} else if(val instanceof java.util.Date) {
