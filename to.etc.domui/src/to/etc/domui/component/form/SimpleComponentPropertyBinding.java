@@ -91,6 +91,15 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 
 	/**
 	 * {@inheritDoc}
+	 * @see to.etc.domui.dom.html.IControl#isDisabled()
+	 */
+	@Override
+	public boolean isDisabled() {
+		return m_control.isDisabled();
+	}
+
+	/**
+	 * {@inheritDoc}
 	 * @see to.etc.domui.dom.html.IActionControl#setDisabled(boolean)
 	 */
 	@Override
@@ -100,11 +109,29 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 
 	/**
 	 * {@inheritDoc}
+	 * @see to.etc.domui.dom.html.IControl#isMandatory()
+	 */
+	@Override
+	public boolean isMandatory() {
+		return m_control.isMandatory();
+	}
+
+	/**
+	 * {@inheritDoc}
 	 * @see to.etc.domui.dom.html.IControl#setMandatory(boolean)
 	 */
 	@Override
 	public void setMandatory(boolean ro) {
 		m_control.setMandatory(ro);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.dom.html.IControl#isReadOnly()
+	 */
+	@Override
+	public boolean isReadOnly() {
+		return m_control.isReadOnly();
 	}
 
 	/**

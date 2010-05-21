@@ -33,6 +33,11 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	}
 
 	@Override
+	public boolean isMandatory() {
+		return m_mandatory;
+	}
+
+	@Override
 	public void setMandatory(boolean m) {
 		if(m_mandatory == m)
 			return;
@@ -42,6 +47,11 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 
 	protected void mandatoryChanged() {
 		forceRebuild();
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return m_readOnly;
 	}
 
 	@Override
@@ -68,6 +78,11 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	@Override
 	public void setValue(T v) {
 		m_value = v;
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return m_disabled;
 	}
 
 	@Override
