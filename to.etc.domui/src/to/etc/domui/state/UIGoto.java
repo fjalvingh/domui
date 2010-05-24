@@ -22,6 +22,19 @@ final public class UIGoto {
 	}
 
 	/**
+	 * Destroy the current page and reload the exact same page with the same parameters as a
+	 * new one. This has the effect of fully refreshing all data, and reinitializing the page
+	 * at it's initial state.
+	 */
+	static public void reload() {
+		Page pg = PageContext.getCurrentPage();
+		Class< ? extends UrlPage> clz = pg.getBody().getClass();
+		PageParameters pp = pg.getPageParameters();
+		pg.getConversation().destroy();
+		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
+	}
+
+	/**
 	 * Push (shelve) the current page, then move to a new page. The page is parameterless, and is started in a NEW ConversationContext.
 	 * @param clz
 	 */
