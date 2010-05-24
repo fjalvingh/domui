@@ -354,4 +354,10 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	}
 
 	public void onUnshelve() throws Exception {}
+
+
+	@Override
+	public void refresh() {
+		clear();
+	}
 }

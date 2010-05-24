@@ -27,4 +27,6 @@ public interface ITableModel<T> {
 	public void addChangeListener(ITableModelListener<T> l);
 
 	public void removeChangeListener(ITableModelListener<T> l);
+
+	void refresh();
 }

@@ -83,6 +83,13 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		}
 	}
 
+	@Override
+	protected void onRefresh() throws Exception {
+		if(m_model != null)
+			m_model.refresh();
+		//		super.onRefresh();
+	}
+
 	protected void firePageChanged() {}
 
 	protected void fireModelChanged(ITableModel<T> old, ITableModel<T> model) {}

@@ -33,4 +33,7 @@ public class DefaultTableModel<T> extends TableListModelBase<T> implements ITabl
 	protected List<T> getList() throws Exception {
 		return m_list;
 	}
+
+	@Override
+	public void refresh() {}
 }

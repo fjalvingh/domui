@@ -563,4 +563,15 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		for(NodeBase b : this)
 			b.setControlsEnabled(on);
 	}
+
+	/**
+	 * Default onRefresh for a container will call refresh on all children.
+	 *
+	 * @see to.etc.domui.dom.html.NodeBase#onRefresh()
+	 */
+	@Override
+	protected void onRefresh() throws Exception {
+		for(int i = 0; i < m_children.size(); i++)
+			m_children.get(i).onRefresh();
+	}
 }
