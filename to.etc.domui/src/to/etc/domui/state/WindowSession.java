@@ -43,8 +43,6 @@ final public class WindowSession {
 
 	private boolean m_attached;
 
-	private Page m_currentPage;
-
 	private Class< ? extends ConversationContext> m_targetConversationClass;
 
 	private Class< ? extends UrlPage> m_targetPageClass;
@@ -175,6 +173,12 @@ final public class WindowSession {
 		for(ConversationContext cc : m_conversationMap.values()) {
 			cc.dump();
 		}
+		System.out.println("  Page shelve");
+		for(int i = 0; i < m_shelvedPageStack.size(); i++) {
+			ShelvedEntry se = m_shelvedPageStack.get(i);
+			System.out.println("  " + i + ": " + se.getPage() + " in " + se.getPage().internalGetConversation() + ": " + se.getPage().internalGetConversation().getState());
+		}
+
 		//		System.out.println("  ---- Conversation dump end -----");
 	}
 
@@ -259,11 +263,12 @@ final public class WindowSession {
 	 * @throws Exception
 	 */
 	public boolean handleGoto(final RequestContextImpl ctx, final Page currentpg, boolean ajax) throws Exception {
+		Page m_currentPage = null;
 		if(getTargetMode() == null)
 			return false;
 		if(getTargetMode() == MoveMode.BACK) {
 			// Back requested-> move back, then.
-			handleMoveBack(ctx, ajax);
+			handleMoveBack(ctx, currentpg, ajax);
 			return true;
 		}
 		if(getTargetMode() == MoveMode.REDIRECT) {
@@ -441,8 +446,9 @@ final public class WindowSession {
 	/**
 	 * Moves one shelve entry back. If there's no shelve entry current moves back
 	 * to the application's index.
+	 * @param currentpg
 	 */
-	private void handleMoveBack(final RequestContextImpl ctx, boolean ajax) throws Exception {
+	private void handleMoveBack(final RequestContextImpl ctx, Page currentpg, boolean ajax) throws Exception {
 		int ix = m_shelvedPageStack.size() - 2;
 		if(ix < 0) {
 			clearShelve(0); // Discard EVERYTHING
@@ -451,7 +457,7 @@ final public class WindowSession {
 			Class< ? extends UrlPage> clz = getApplication().getRootPage();
 			if(clz != null) {
 				internalSetNextPage(MoveMode.NEW, getApplication().getRootPage(), null, null, null);
-				handleGoto(ctx, m_currentPage, ajax);
+				handleGoto(ctx, currentpg, ajax);
 			} else {
 				//-- Last resort: move to root of the webapp by redirecting to some URL
 				generateRedirect(ctx, ctx.getRelativePath(""), ajax);
@@ -462,16 +468,16 @@ final public class WindowSession {
 		//-- Unshelve and destroy the topmost thingy, then move back to the then-topmost.
 		clearShelve(ix + 1); // Destroy everything above;
 		ShelvedEntry se = m_shelvedPageStack.get(ix); // Get the thing to move to,
-		m_currentPage = se.getPage();
+		Page newpg = se.getPage();
 
 		/*
 		 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
 		 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
 		 * make sure it is correct even though the request was for another page and is almost dying.
 		 */
-		PageContext.internalSet(m_currentPage);
-		m_currentPage.internalUnshelve();
-		generateRedirect(ctx, m_currentPage, ajax);
+		PageContext.internalSet(newpg);
+		newpg.internalUnshelve();
+		generateRedirect(ctx, newpg, ajax);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -543,7 +549,7 @@ final public class WindowSession {
 		 */
 		while(m_shelvedPageStack.size() > ix) {
 			ShelvedEntry se = m_shelvedPageStack.remove(m_shelvedPageStack.size() - 1);
-			System.out.println("Trying to discard " + se.getPage());
+			System.out.println("Trying to discard " + se.getPage() + " in conversation " + se.getPage().getConversation());
 			discardPage(se.getPage());
 		}
 	}
@@ -624,12 +630,12 @@ final public class WindowSession {
 		internalAttachConversations(); // ORDERED 3
 
 		//-- Create the page && add to shelve,
-		m_currentPage = PageMaker.createPageWithContent(rctx, bestpc, coco, PageParameters.createFrom(rctx));
-		shelvePage(m_currentPage); // Append the current page to the shelve,
+		Page newpg = PageMaker.createPageWithContent(rctx, bestpc, coco, PageParameters.createFrom(rctx));
+		shelvePage(newpg); // Append the current page to the shelve,
 
 		//-- Call all of the page's listeners.
 		//		callNewPageListeners(m_currentPage); jal 20091122 Bug# 605 Move this globally.
-		return m_currentPage;
+		return newpg;
 	}
 
 	// jal 20091122 Bug# 605 Move this globally.
