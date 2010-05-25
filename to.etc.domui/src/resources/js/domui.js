@@ -1834,7 +1834,8 @@ WebUI._ROW_DROPZONE_HANDLER = {
 
 		// -- Use the current mouseish Y position to distinguish between rows.
 	var cy = WebUI._dragLastY;
-	// console.debug("Starting position det: drag Y = "+cy);
+	
+//	console.debug("Starting position det: drag Y = "+cy);
 	var gravity = 0; // Prefer upward gravity
 	var lastrow = null;
 	var rowindex = 0;
@@ -1843,19 +1844,20 @@ WebUI._ROW_DROPZONE_HANDLER = {
 		if (tr.nodeName != 'TR')
 			continue;
 		lastrow = tr;
-		var position = WebUI.getAbsScrolledPosition(tr); // Take scrolling
-															// into account!!
-		// console.debug('row: by='+position.by+", ey="+position.ey+",
-		// type="+tr.nodeName);
+//		var position = WebUI.getAbsScrolledPosition(tr); // Take scrolling into account!!
+		var off = $(tr).offset();
+		var position = { by: off.top, ey: off.top + 20 };
+		
 		if (position) {
+//			console.debug('row: by='+position.by+", ey="+position.ey+", type="+tr.nodeName);
+			
 			// -- Is the mouse IN the Y range for this row?
 			if (cy >= position.by && cy < position.ey) {
 				// -- Cursor is WITHIN this node. Is it near the TOP or near the
 				// BOTTOM?
 				var hy = (position.by + position.ey) / 2;
 				gravity = cy < hy ? 0 : 1;
-				// console.debug('ACCEPTED by='+position.by+",
-				// ey="+position.ey+", hy="+hy+", rowindex="+rowindex);
+//				console.debug('ACCEPTED by='+position.by+", ey="+position.ey+", hy="+hy+", rowindex="+rowindex);
 
 				return {
 					index :rowindex,
@@ -1867,10 +1869,8 @@ WebUI._ROW_DROPZONE_HANDLER = {
 
 			// -- Is the thing between this row and the PREVIOUS one?
 			if (cy < position.by) {
-				// -- Use this row with gravity 0 (should insert BEFORE this
-				// row).
-				// console.debug('ACCEPTED BEFORE node by='+position.by+",
-				// ey="+position.ey+", rowindex="+rowindex);
+				// -- Use this row with gravity 0 (should insert BEFORE this row).
+//				console.debug('ACCEPTED BEFORE node by='+position.by+", ey="+position.ey+", rowindex="+rowindex);
 				return {
 					index :rowindex,
 					iindex :i,
@@ -1878,12 +1878,13 @@ WebUI._ROW_DROPZONE_HANDLER = {
 					row :tr
 				};
 			}
-			// console.debug('REFUSED by='+position.by+", ey="+position.ey+",
-			// rowindex="+rowindex);
+//			console.debug('REFUSED by='+position.by+", ey="+position.ey+", rowindex="+rowindex);
+		} else {
+//			console.debug("row: no location.");
 		}
 		rowindex++;
 	}
-	// console.debug("ACCEPTED last one");
+//	console.debug("ACCEPTED last one");
 
 	// -- If we're here we must insert at the last location
 	return {

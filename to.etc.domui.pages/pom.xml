@@ -1,0 +1,10 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsl="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0"><modelVersion>4.0.0</modelVersion>
+  <groupId>to.etc</groupId>
+  <artifactId>to.etc.domui.pages.BasePOM</artifactId>
+  <name>to.etc.domui.pages</name>
+  <version>trunk-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>.maven/source</module>
+    </modules>
+  </project>

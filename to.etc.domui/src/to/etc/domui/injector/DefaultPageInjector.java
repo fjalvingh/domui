@@ -4,6 +4,8 @@ import java.lang.reflect.*;
 import java.math.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.annotations.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -87,12 +89,13 @@ public class DefaultPageInjector implements IPageInjector {
 	 * @param pi
 	 * @return
 	 */
+	@Nullable
 	protected PropertyInjector calculateInjector(final PropertyInfo pi) {
 		if(pi.getSetter() == null) // Read-only property?
 			return null; // Be gone;
 		Method m = pi.getGetter();
-		if(m == null)
-			m = pi.getSetter();
+//		if(m == null)
+//			m = pi.getSetter();
 
 		return calculatePropertyInjector(pi, m);
 	}

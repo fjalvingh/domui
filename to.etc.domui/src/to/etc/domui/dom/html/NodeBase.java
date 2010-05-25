@@ -435,6 +435,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	protected void clearBuilt() {
 		m_built = false;
+		if(m_page != null)
+			m_page.internalAddPendingBuild(this);
 	}
 
 	/**
@@ -873,6 +875,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	protected void onUnshelve() throws Exception {}
 
+	protected void onRefresh() throws Exception {}
+
+	public final void refresh() throws Exception {
+		onRefresh();
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle dropping of dnd nodes.						*/

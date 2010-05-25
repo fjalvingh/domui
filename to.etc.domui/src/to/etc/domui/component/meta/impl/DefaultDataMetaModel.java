@@ -20,8 +20,6 @@ public class DefaultDataMetaModel implements DataMetaModel {
 	 */
 	public PropertyMetaModel findFieldData(Class< ? > clz, String fieldname) {
 		DefaultClassMetaModel cm = (DefaultClassMetaModel) MetaManager.findClassMeta(clz);
-		if(cm == null)
-			return null;
 		return cm.findProperty(fieldname);
 	}
 }

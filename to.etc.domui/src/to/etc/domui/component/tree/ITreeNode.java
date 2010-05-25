@@ -6,7 +6,7 @@ package to.etc.domui.component.tree;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 17, 2008
  */
-public interface ITreeNode<T extends ITreeNode< ? >> {
+public interface ITreeNode<T extends ITreeNode<T>> {
 	/**
 	 * If possible this should quickly decide if this node has children or not. This is
 	 * used to render an expanded node's state icons. If determining whether a node has

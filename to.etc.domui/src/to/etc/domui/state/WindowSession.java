@@ -714,17 +714,6 @@ final public class WindowSession {
 		else {
 			old = m_map.put(name, val);
 		}
-		if(old != null) {
-			// FIXME Some kind of session listener.
-			//			if(old instanceof ConversationStateListener) {
-			//				try {
-			//					((ConversationStateListener) old).conversationDetached(this);
-			//				} catch(Exception x) {
-			//					x.printStackTrace();
-			//					LOG.log(Level.SEVERE, "In calling detach listener", x);
-			//				}
-			//			}
-		}
 	}
 
 	/**

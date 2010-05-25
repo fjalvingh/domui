@@ -219,8 +219,7 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	protected AppSession createSession() {
-		AppSession aps = new AppSession();
-		aps.internalInitialize(this);
+		AppSession aps = new AppSession(this);
 		return aps;
 	}
 
@@ -621,6 +620,7 @@ public abstract class DomApplication {
 	 * @param name
 	 * @return
 	 */
+	@Nonnull
 	public IResourceRef getApplicationResourceByName(String name) {
 		IResourceRef ref = internalFindResource(name);
 
@@ -1181,8 +1181,8 @@ public abstract class DomApplication {
 	 */
 	public String getThemeReplacedString(ResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
 		IResourceRef ires = getApplicationResourceByName(rurl);
-		if(ires == null)
-			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
+//		if(ires == null)
+//			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
 		if(rdl != null)
 			rdl.add(ires);
 

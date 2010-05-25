@@ -30,6 +30,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 	 */
 	@Override
 	public Session getSession() throws Exception {
+		checkValid();
 		if(m_session == null) {
 			super.getSession();
 			m_session.setFlushMode(FlushMode.MANUAL);
@@ -43,6 +44,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 	public void conversationDestroyed(final ConversationContext cc) throws Exception {
 		if(m_session == null || !m_session.isConnected())
 			return;
+		setConversationInvalid("Conversation was destroyed");
 		setIgnoreClose(false);
 		SessionImpl sim = (SessionImpl) m_session;
 		StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
@@ -58,6 +60,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 	public void conversationDetached(final ConversationContext cc) throws Exception {
 		if(m_session == null || !m_session.isConnected())
 			return;
+		setConversationInvalid("Conversation is detached");
 		SessionImpl sim = (SessionImpl) m_session;
 		StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
 		Map< ? , ? > flups = spc.getEntitiesByKey();
@@ -68,6 +71,16 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		m_session.disconnect(); // Disconnect the dude.
 		//		if(m_session.isConnected())
 		//			System.out.println("Session connected after disconnect ;-)");
+	}
+
+	@Override
+	public void conversationAttached(ConversationContext cc) throws Exception {
+		setConversationInvalid(null);
+	}
+
+	@Override
+	public void conversationNew(ConversationContext cc) throws Exception {
+		setConversationInvalid(null);
 	}
 
 	@Override

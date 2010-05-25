@@ -69,7 +69,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 		return m_propertyPath;
 	}
 
-	public void setPropertyPath(List<PropertyMetaModel> propertyPath) {
+	public synchronized void setPropertyPath(List<PropertyMetaModel> propertyPath) {
 		m_propertyPath = propertyPath;
 	}
 
@@ -106,11 +106,11 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 		m_minLength = minLength;
 	}
 
-	public String getPropertyName() {
+	public synchronized String getPropertyName() {
 		return m_propertyName;
 	}
 
-	public void setPropertyName(String propertyName) {
+	public synchronized void setPropertyName(String propertyName) {
 		m_propertyName = propertyName;
 	}
 

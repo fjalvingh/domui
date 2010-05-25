@@ -3,6 +3,8 @@ package to.etc.domui.component.lookup;
 import java.math.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
@@ -156,8 +158,8 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 
 			//-- 2nd fragment of 2nd part MUST be numeric, so scan a value
 			v = scanNumeric();
-			if(v == null)
-				throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+//			if(v == null)
+//				throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
 			T value2 = parseNumber(v); // Convert to appropriate type,
 			checkNumber(value2);
 
@@ -175,6 +177,7 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 		}
 	}
 
+	@Nonnull
 	private String scanNumeric() {
 		m_s.skipWs();
 		m_s.getStringResult(); // Clear old result

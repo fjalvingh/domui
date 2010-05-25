@@ -45,6 +45,10 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
+	public AppSession(DomApplication da) {
+		m_application = da;
+	}
+
 	final public void internalDestroy() {
 		LOG.debug("Destroying AppSession " + this);
 		destroyWindowSessions();
@@ -70,7 +74,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		return m_currentTheme;
 	}
 
-	public void setCurrentTheme(final String currentTheme) {
+	public synchronized void setCurrentTheme(final String currentTheme) {
 		m_currentTheme = currentTheme;
 	}
 
@@ -78,12 +82,6 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Override to get control when this user's session is destroyed.
 	 */
 	public void destroy() {}
-
-	final public synchronized void internalInitialize(final DomApplication app) {
-		if(m_application == null) {
-			m_application = app;
-		}
-	}
 
 	/**
 	 * Unused, needed for interface.

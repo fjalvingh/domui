@@ -5,6 +5,8 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.annotations.*;
@@ -85,6 +87,7 @@ public class RpcCallHandler {
 	 * package list.
 	 * @param name	The dotted package.classname, or a single classname.
 	 */
+	@Nonnull
 	RpcClassDefinition resolveHandler(final String name) throws Exception {
 		String basename = name.replace('/', '.'); // Unslash name
 		RpcClassDefinition hi = getServiceClassDefinition(basename);
@@ -108,8 +111,8 @@ public class RpcCallHandler {
 
 		//-- Resolve the URL into a handler class to execute,
 		RpcClassDefinition hi = resolveHandler(cn);
-		if(hi == null)
-			throw new RpcException("Unknown AJAX service class '" + cn + "'");
+//		if(hi == null)
+//			throw new RpcException("Unknown AJAX service class '" + cn + "'");
 
 		//-- 1. Constraints on the handler itself: security
 		String[] roles = hi.getRoles();

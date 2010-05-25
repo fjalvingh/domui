@@ -87,6 +87,13 @@ final public class Page implements IQContextContainer {
 	private boolean m_allowVectorGraphics;
 
 	/**
+	 * Contains all nodes that were added or marked as forceRebuild <i>during</i> the BUILD
+	 * phase. If this set is non-empty after a build loop then the loop needs to repeat the
+	 * build for the nodes and their subtrees in here. See bug 688.
+	 */
+	private Set<NodeBase> m_pendingBuildSet = new HashSet<NodeBase>();
+
+	/**
 	 * When calling user handlers on nodes this will keep track of the node the handler was
 	 * called on. If that node becomes somehow removed it will move upward to it's parent,
 	 * so that it points to an on-screen node always. This is needed for error handling.
@@ -201,6 +208,7 @@ final public class Page implements IQContextContainer {
 	final void registerNode(final NodeBase n) {
 		if(n.getPage() != null)
 			throw new IllegalStateException("Node still attached to other page");
+
 		/*
 		 * jal 20081211 If a node already has an ID reuse that if not currently assigned. This should fix
 		 * the following bug in drag and drop: a dropped node is REMOVED, then ADDED to another node (2 ops).
@@ -227,6 +235,7 @@ final public class Page implements IQContextContainer {
 			setFocusComponent(n);
 			n.clearFocusRequested();
 		}
+		internalAddPendingBuild(n);
 	}
 
 	/**
@@ -244,6 +253,7 @@ final public class Page implements IQContextContainer {
 		n.setPage(null);
 		if(m_nodeMap.remove(n.getActualID()) == null)
 			throw new IllegalStateException("The node with ID=" + n.getActualID() + " was not found!?");
+		m_pendingBuildSet.remove(n); // ?? Needed?
 	}
 
 	public NodeBase findNodeByID(final String id) {
@@ -332,10 +342,6 @@ final public class Page implements IQContextContainer {
 		return m_rootContent;
 	}
 
-	public void build() throws Exception {
-		getBody().build();
-	}
-
 	public String getTitle() {
 		return m_title;
 	}
@@ -354,6 +360,93 @@ final public class Page implements IQContextContainer {
 		return (T) m_pageData.get(clz.getName());
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	BUILD phase coding (see bug 688).					*/
+	/*--------------------------------------------------------------*/
+//	/**
+//	 * @throws Exception
+//	 */
+//	public void build() throws Exception {
+//		getBody().build();
+//	}
+
+	void internalAddPendingBuild(NodeBase n) {
+		m_pendingBuildSet.add(n);
+	}
+
+	/**
+	 * This handles the BUILD phase for a FULL page render.
+	 * @throws Exception
+	 */
+	public void internalFullBuild() throws Exception {
+		m_pendingBuildSet.clear();
+		buildSubTree(getBody());
+		rebuildLoop();
+	}
+
+	/**
+	 * This handles the BUILD phase for the DELTA build. It walks only the nodes that
+	 * are marked as changed initially and does not descend subtrees that are unchanged.
+	 *
+	 * @throws Exception
+	 */
+	public void internalDeltaBuild() throws Exception {
+		m_pendingBuildSet.clear();
+		buildChangedTree(getBody());
+//		buildSubTree(getBody());
+		rebuildLoop();
+	}
+
+	/**
+	 * Loop over the changed-nodeset until it stays empty.
+	 * @throws Exception
+	 */
+	private void rebuildLoop() throws Exception {
+		int tries = 0;
+		while(m_pendingBuildSet.size() > 0) {
+			if(tries++ > 10)
+				throw new IllegalStateException("Internal: building the tree failed after " + tries + " attempts: the tree keeps changing every build....");
+			NodeBase[] todo = m_pendingBuildSet.toArray(new NodeBase[m_pendingBuildSet.size()]); // Dup todolist,
+			m_pendingBuildSet.clear();
+			for(NodeBase nd : todo)
+				buildSubTree(nd);
+		}
+	}
+
+	/**
+	 * Call 'build' on all subtree nodes and reset all rebuild markers in the set code.
+	 * @param nd
+	 * @throws Exception
+	 */
+	private void buildSubTree(NodeBase nd) throws Exception {
+		nd.build();
+		m_pendingBuildSet.remove(nd); // We're building this dude.
+		if(!(nd instanceof NodeContainer))
+			return;
+		NodeContainer nc = (NodeContainer) nd;
+		for(int i = 0, len = nc.getChildCount(); i < len; i++) {
+			buildSubTree(nc.getChild(i));
+		}
+	}
+
+	private void buildChangedTree(NodeBase nd) throws Exception {
+		m_pendingBuildSet.remove(nd);
+		if(!(nd instanceof NodeContainer)) {
+			//-- NodeBase only- simple; always rebuild.
+			nd.build();
+			return;
+		}
+		NodeContainer nc = (NodeContainer) nd;
+		if(nc.childHasUpdates() && nc.getOldChildren() == null) {
+			nc.build();
+			for(int i = 0, len = nc.getChildCount(); i < len; i++) {
+				buildChangedTree(nc.getChild(i));
+			}
+		}
+		if(nc.getOldChildren() != null || nc.childHasUpdates() || nc.mustRenderChildrenFully()) {
+			buildSubTree(nc);
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Per-request Javascript handling.					*/
@@ -363,7 +456,6 @@ final public class Page implements IQContextContainer {
 	 * javascript added gets executed /after/ all of the DOM delta has been executed by
 	 * the browser.
 	 */
-
 	/**
 	 * Add a Javascript statement (MUST be a valid, semicolon-terminated statement or statement list) to
 	 * execute on return to the browser (once).

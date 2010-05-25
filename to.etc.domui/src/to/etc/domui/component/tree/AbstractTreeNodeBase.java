@@ -2,7 +2,7 @@ package to.etc.domui.component.tree;
 
 import java.util.*;
 
-public abstract class AbstractTreeNodeBase<T extends ITreeNode< ? >> implements ITreeNode<T> {
+public abstract class AbstractTreeNodeBase<T extends ITreeNode<T>> implements ITreeNode<T> {
 	private T m_parent;
 
 	private List<T> m_childList;

@@ -218,12 +218,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 */
 		long ts = System.nanoTime();
 		try {
-			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
-
 			if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
 				page.getBody().forceRebuild(); // Cleanout state
 				QContextManager.closeSharedContext(page.getConversation());
 			}
+			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
 
 			page.getBody().onReload();
 
@@ -555,6 +554,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				handleClicked(ctx, page, wcomp);
 			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
 				//-- Don't do anything at all - everything is done beforehand (bug #664).
+				;
 			} else if(Constants.ACMD_ASYPOLL.equals(action)) {
 				inhibitlog = true;
 				//-- Async poll request..
@@ -655,7 +655,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(pg.getBody().isBuilt())
 			return;
 		//		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
-		pg.build();
+		pg.internalFullBuild();
+//		pg.build();
 		for(INewPageInstantiated npi : m_application.getNewPageInstantiatedListeners())
 			npi.newPageInstantiated(pg.getBody());
 	}

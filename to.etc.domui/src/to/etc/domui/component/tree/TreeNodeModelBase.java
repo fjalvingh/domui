@@ -8,12 +8,12 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 21, 2008
  */
-public class TreeNodeModelBase<T extends ITreeNode< ? >> implements ITreeModel<ITreeNode< ? >> {
-	private ITreeNode< ? > m_root;
+public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> {
+	private T m_root;
 
 	private List<ITreeModelChangedListener> m_listeners = Collections.EMPTY_LIST;
 
-	public TreeNodeModelBase(ITreeNode< ? > root) {
+	public TreeNodeModelBase(T root) {
 		m_root = root;
 	}
 
@@ -34,35 +34,29 @@ public class TreeNodeModelBase<T extends ITreeNode< ? >> implements ITreeModel<I
 		return m_listeners;
 	}
 
-	public ITreeNode< ? > getChild(ITreeNode< ? > parent, int index) throws Exception {
+	public T getChild(T parent, int index) throws Exception {
 		return parent.getChild(index);
 	}
 
-	public int getChildCount(ITreeNode< ? > item) throws Exception {
+	public int getChildCount(T item) throws Exception {
 		return item.getChildCount();
 	}
 
-	public ITreeNode< ? > getParent(ITreeNode< ? > child) throws Exception {
+	public T getParent(T child) throws Exception {
 		return child.getParent();
 	}
 
-	public ITreeNode< ? > getRoot() throws Exception {
+	public T getRoot() throws Exception {
 		return m_root;
 	}
 
-	public boolean hasChildren(ITreeNode< ? > item) throws Exception {
+	public boolean hasChildren(T item) throws Exception {
 		return item.hasChildren();
 	}
 
-	public void fireNodeWillExpand(ITreeNode< ? > item) throws Exception {
-		for(ITreeModelChangedListener listener : getListeners()) {
-			listener.nodeWillExpand(item);
-		}
+	public void expandChildren(T item) throws Exception {
 	}
 
-	public void fireNodeWillCollapse(ITreeNode< ? > item) throws Exception {
-		for(ITreeModelChangedListener listener : getListeners()) {
-			listener.nodeWillCollapse(item);
-		}
+	public void collapseChildren(T item) throws Exception {
 	}
 }

@@ -65,9 +65,9 @@ public class ImageConverterHelper {
 		m_source = src;
 		while(speclist.size() > 0) {
 			//-- Find the best converter for the first operation(s) in the list,
-			IImageConverter ic = ImageConverterRegistry.findBestConverter(src.getMime(), speclist);
-			if(ic == null)
-				throw new IllegalStateException("Cannot find a converter to convert mime=" + src.getMime() + " using " + speclist);
+			IImageConverter ic = ImageConverterRegistry.getBestConverter(src.getMime(), speclist);
+//			if(ic == null)
+//				throw new IllegalStateException("Cannot find a converter to convert mime=" + src.getMime() + " using " + speclist);
 			int prec = speclist.size();
 			m_target = null;
 			ic.convert(this, speclist);

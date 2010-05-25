@@ -62,6 +62,9 @@ public class JanitorThread implements Runnable {
 		jt.m_t_lastrun = m_t_start; // Task last run,
 	}
 
+	private synchronized long getStartTS() {
+		return m_t_start;
+	}
 
 	/**
 	 *	The main thread entry for the job...
@@ -73,7 +76,7 @@ public class JanitorThread implements Runnable {
 		try {
 			Date d = new Date();
 			m_jt.run(); // Run the task,
-			long dt = d.getTime() - m_t_start;
+			long dt = d.getTime() - getStartTS();
 			m_j.logTask(this, "Task completed in " + Long.toString(dt) + " ms");
 		} catch(Exception x) {
 			m_j.logTask(this, "Task EXCEPTION: " + x.getMessage());

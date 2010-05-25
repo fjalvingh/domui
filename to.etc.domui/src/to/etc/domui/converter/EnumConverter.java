@@ -21,10 +21,7 @@ public class EnumConverter<E extends Enum<E>> implements IConverter<E> {
 		if(in == null)
 			return "";
 		ClassMetaModel ecmm = MetaManager.findClassMeta(in.getClass());
-		if(ecmm != null) {
-			return ecmm.getDomainLabel(NlsContext.getLocale(), in);
-		}
-		return String.valueOf(in);
+		return ecmm.getDomainLabel(NlsContext.getLocale(), in);
 	}
 
 	public E convertStringToObject(Locale loc, String input) throws UIException {

@@ -103,7 +103,7 @@ public class BrowserVersion {
 				return m_version;
 			}
 			String[] ar = m_browserVersion.split("\\.");
-			if(ar == null)
+			if(ar.length == 0)
 				ar = new String[]{m_browserVersion};
 			m_version = new int[ar.length];
 			for(int i = 0; i < ar.length; i++) {
