@@ -6,6 +6,7 @@ import org.hibernate.*;
 import org.slf4j.*;
 
 import to.etc.domui.state.*;
+import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -86,6 +87,10 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 		return m_ignoreClose;
 	}
 
+	static private final String[] PRESET = {"to.etc.dbpool.", "oracle.", "nl.itris.viewpoint.db.hibernate."};
+
+	static private final String[] ENDSET = {"to.etc.dbpool.", "to.etc.domui.server.", "org.apache.tomcat"};
+
 	/**
 	 * This version just delegates to the Factory immediately.
 	 * {@inheritDoc}
@@ -94,7 +99,26 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	public void close() {
 		if(m_session == null || m_ignoreClose)
 			return;
-		setConversationInvalid("DataContext has been CLOSED");
+
+		if(!DeveloperOptions.isDeveloperWorkstation()) {
+			setConversationInvalid("DataContext has been CLOSED");
+		} else {
+			//-- Log close location when running on development
+			StringBuilder sb = new StringBuilder();
+			sb.append("DataContext has been CLOSED");
+
+			Exception mxx = null;
+			try {
+				throw new Exception();
+			} catch(Exception x) {
+				mxx = x;
+			}
+			if(mxx != null) {
+				sb.append("\nClose location:\n");
+				StringTool.strStacktraceFiltered(sb, mxx, PRESET, ENDSET, 40);
+			}
+			setConversationInvalid(sb.toString());
+		}
 
 		//		System.out.println("..... closing hibernate session: "+System.identityHashCode(m_session));
 		try {
