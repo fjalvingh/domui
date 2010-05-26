@@ -154,7 +154,7 @@ public class ConversationContext implements IQContextContainer {
 
 	@Override
 	public String toString() {
-		return "conversation[" + getId() + "]";
+		return "conversation[" + getFullId() + "]";
 	}
 
 	/*--------------------------------------------------------------*/

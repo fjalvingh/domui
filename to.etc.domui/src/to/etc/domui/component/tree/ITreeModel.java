@@ -62,13 +62,13 @@ public interface ITreeModel<T> {
 	 * Add a listener to be called when nodes on the tree change.
 	 * @param l
 	 */
-	void addChangeListener(@Nonnull ITreeModelChangedListener l);
+	void addChangeListener(@Nonnull ITreeModelChangedListener<T> l);
 
 	/**
 	 * Remove a registered change listener. Fails silently when the listener was not registered at all.
 	 * @param l
 	 */
-	void removeChangeListener(@Nonnull ITreeModelChangedListener l);
+	void removeChangeListener(@Nonnull ITreeModelChangedListener<T> l);
 
 	/**
 	 * Called when this node is attempted to be expanded. This call can be used to refresh/lazily load the
