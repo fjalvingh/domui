@@ -69,7 +69,8 @@ public class ControlFactoryResult {
 		m_handle = b;
 
 		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
-		((IBindable) control).bind().to(model, pmm);
+		if(control instanceof IBindable)
+			((IBindable) control).bind().to(model, pmm);
 	}
 
 
