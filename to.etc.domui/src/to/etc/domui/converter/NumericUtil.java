@@ -211,7 +211,7 @@ public class NumericUtil {
 		}
 	}
 
-	public static <T> IConverter<T> createNumberConverter(Class<T> type, NumericPresentation np, int scale) {
-		return new NumberConverter(type, np, scale);
+	public static <T extends Number> IConverter<T> createNumberConverter(Class<T> type, NumericPresentation np, int scale) {
+		return new NumberConverter<T>(type, np, scale);
 	}
 }

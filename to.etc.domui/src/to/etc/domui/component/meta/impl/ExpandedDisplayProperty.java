@@ -3,6 +3,7 @@ package to.etc.domui.component.meta.impl;
 import java.lang.reflect.*;
 import java.util.*;
 
+import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -429,6 +430,11 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 
 	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getTableDisplayProperties();
+	}
+
+	@Override
+	public ControlFactory getControlFactory() {
+		return m_propertyMeta == null ? null : m_propertyMeta.getControlFactory();
 	}
 
 	public TemporalPresentationType getTemporal() {

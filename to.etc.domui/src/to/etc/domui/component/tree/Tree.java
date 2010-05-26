@@ -9,7 +9,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 
-public class Tree extends Div implements ITreeModelChangedListener {
+public class Tree extends Div implements ITreeModelChangedListener<Object> {
 	private ITreeModel<Object> m_model;
 
 	private boolean m_showRoot;

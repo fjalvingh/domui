@@ -1,5 +1,6 @@
 package to.etc.domui.component.input;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
 /**
@@ -77,7 +78,10 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 
 	@Override
 	public void setValue(T v) {
+		if(MetaManager.areObjectsEqual(v, m_value))
+			return;
 		m_value = v;
+		forceRebuild();
 	}
 
 	@Override

@@ -264,7 +264,7 @@ final public class UIControlUtil {
 	}
 
 	@SuppressWarnings("unchecked")
-	static private <T> void assignNumericConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
+	static private <T extends Number> void assignNumericConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
 		if(pmm.getConverter() != null)
 			node.setConverter((IConverter) pmm.getConverter());
 		else {

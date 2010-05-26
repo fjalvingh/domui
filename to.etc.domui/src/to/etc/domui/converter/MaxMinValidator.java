@@ -21,6 +21,7 @@ public class MaxMinValidator implements IValueValidator<Number> {
 	 * be useful.
 	 * @see to.etc.domui.converter.IValueValidator#validate(java.lang.Object)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void validate(Number input) throws Exception {
 		Class< ? > ac = input.getClass();

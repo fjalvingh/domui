@@ -11,26 +11,26 @@ import java.util.*;
 public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> {
 	private T m_root;
 
-	private List<ITreeModelChangedListener> m_listeners = Collections.EMPTY_LIST;
+	private List<ITreeModelChangedListener<T>> m_listeners = Collections.EMPTY_LIST;
 
 	public TreeNodeModelBase(T root) {
 		m_root = root;
 	}
 
-	public void addChangeListener(ITreeModelChangedListener l) {
+	public void addChangeListener(ITreeModelChangedListener<T> l) {
 		if(m_listeners == Collections.EMPTY_LIST) {
-			m_listeners = new ArrayList<ITreeModelChangedListener>();
+			m_listeners = new ArrayList<ITreeModelChangedListener<T>>();
 		}
 		if(m_listeners.contains(l))
 			return;
 		m_listeners.add(l);
 	}
 
-	public void removeChangeListener(ITreeModelChangedListener l) {
+	public void removeChangeListener(ITreeModelChangedListener<T> l) {
 		m_listeners.remove(l);
 	}
 
-	protected List<ITreeModelChangedListener> getListeners() {
+	protected List<ITreeModelChangedListener<T>> getListeners() {
 		return m_listeners;
 	}
 

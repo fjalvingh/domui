@@ -714,11 +714,10 @@ final public class WindowSession {
 	public void setAttribute(final String name, final Object val) {
 		if(m_map == Collections.EMPTY_MAP)
 			m_map = new HashMap<String, Object>();
-		Object old;
 		if(val == null)
-			old = m_map.remove(name);
+			m_map.remove(name);
 		else {
-			old = m_map.put(name, val);
+			m_map.put(name, val);
 		}
 	}
 

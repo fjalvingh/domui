@@ -1,5 +1,6 @@
 package to.etc.domui.component.meta.impl;
 
+import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 
@@ -36,6 +37,8 @@ public class BasicPropertyMetaModel {
 
 	/** T if marked as @Transient */
 	private boolean m_transient;
+
+	private ControlFactory m_controlFactory;
 
 	public IConverter< ? > getConverter() {
 		return m_converter;
@@ -169,5 +172,13 @@ public class BasicPropertyMetaModel {
 
 	public void setTransient(boolean transient1) {
 		m_transient = transient1;
+	}
+
+	public ControlFactory getControlFactory() {
+		return m_controlFactory;
+	}
+
+	public void setControlFactory(ControlFactory controlFactory) {
+		m_controlFactory = controlFactory;
 	}
 }
