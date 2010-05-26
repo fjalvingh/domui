@@ -11,6 +11,9 @@ import to.etc.webapp.query.*;
 
 final class LookupFactoryDate implements ILookupControlFactory {
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
+		if(spm == null)
+			throw new IllegalStateException("? SearchPropertyModel should not be null here.");
+
 		//get temporal type from metadata and set withTime later to date inout components
 		PropertyMetaModel pmm = (spm != null && spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
 		boolean withTime = (pmm != null && pmm.getTemporal() == TemporalPresentationType.DATETIME);

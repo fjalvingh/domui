@@ -3,6 +3,7 @@ package to.etc.domui.component.meta.impl;
 import java.lang.reflect.*;
 import java.util.*;
 
+import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -314,5 +315,10 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	@Override
 	public String getRegexpValidator() {
 		return m_original.getRegexpValidator();
+	}
+
+	@Override
+	public ControlFactory getControlFactory() {
+		return m_original.getControlFactory();
 	}
 }

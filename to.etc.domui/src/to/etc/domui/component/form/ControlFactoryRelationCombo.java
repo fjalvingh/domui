@@ -20,7 +20,7 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 	 *
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
-	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(ComboLookup.class))
 			return -1;
 
@@ -31,7 +31,7 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 		return 2;
 	}
 
-	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
 		if(!editable && controlClass == null) {
 			DisplayValue<Object> dv = new DisplayValue<Object>(Object.class); // No idea what goes in here.

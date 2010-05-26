@@ -35,14 +35,6 @@ public class CompoundKeyConverter {
 			m_input = s;
 		}
 
-		public QDataContext getDc() {
-			return m_dc;
-		}
-
-		public Class< ? > getRoot() {
-			return m_root;
-		}
-
 		/**
 		 * Marshalled string scanner. These are just strings where comma and backslash are escaped.
 		 * @param ts
