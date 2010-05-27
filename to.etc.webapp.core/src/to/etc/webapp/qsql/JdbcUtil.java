@@ -232,6 +232,8 @@ public class JdbcUtil {
 				ps.setLong(px, ((Long) val).longValue());
 			} else if(val instanceof Integer) {
 				ps.setInt(px, ((Integer) val).intValue());
+			} else if(val instanceof BigDecimal) {
+				ps.setBigDecimal(px, (BigDecimal) val);
 			} else if(val instanceof java.sql.Timestamp) {
 				ps.setTimestamp(px, (java.sql.Timestamp) val);
 			} else if(val instanceof java.util.Date) {
@@ -347,7 +349,22 @@ public class JdbcUtil {
 			setParameters(ps, startix, pars.toArray());
 			ps.execute();
 
-			return null;
+			if(startix != 1) {
+				if(rtype == String.class) {
+					return (T) ps.getString(1);
+				} else if(rtype == Integer.class || rtype == int.class) {
+					return (T) (Integer.valueOf(ps.getInt(1)));
+				} else if(rtype == Long.class || rtype == long.class) {
+					return (T) (Long.valueOf(ps.getLong(1)));
+				} else if(rtype == BigDecimal.class) {
+					return (T) ps.getBigDecimal(1);
+				} else {
+					throw new IllegalStateException("Call error: cannot get out parameter for result java type=" + rtype);
+				}
+
+			} else {
+				return null;
+			}
 		} finally {
 			try {
 				if(ps != null)
