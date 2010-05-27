@@ -26,8 +26,6 @@ final public class NlsContext {
 
 	static private String m_dialect;
 
-	private NlsContext() {}
-
 	/**
 	 * The thingy holding the current locale per thread. If the thingy is null
 	 * the current locale is unknown and the default locale will be returned, mirroring
@@ -51,6 +49,12 @@ final public class NlsContext {
 	 * to return an euro sign as it should.
 	 */
 	static private String m_currencySymbol;
+
+	/**
+	 * Make sure this is never constructed.
+	 */
+	private NlsContext() {}
+
 
 	/**
 	 * Returns the default ViewPoint locale. <b>DO NOT USE!!!!</b>, except when absolutely necessary! To get
@@ -165,23 +169,23 @@ final public class NlsContext {
 	/*--------------------------------------------------------------*/
 	/* CODING: Globalized message management (bundle pools).        */
 	/*--------------------------------------------------------------*/
-	static private NlsMessageProviderList m_msgProvList = new NlsMessageProviderList();
+	//	static private NlsMessageProviderList m_msgProvList = new NlsMessageProviderList();
 
-	static private NlsCachingMessageProvider m_cp = new NlsCachingMessageProvider(m_msgProvList);
+	//	static private NlsCachingMessageProvider m_cp = new NlsCachingMessageProvider(m_msgProvList);
 
-	/**
-	 * ALL NEW USE EXPRESSLY FORBIDDEN - PENDING DELETION.
-	 * Walks all registered message providers and gets the most appropriate message. If
-	 * the message has been provided before it will be returned.
-	 *
-	 * @param loc
-	 * @param code
-	 * @return
-	 */
-	@Deprecated
-	static public String findGlobalMessage(final Locale loc, final String code) {
-		return m_cp.findMessage(loc, code);
-	}
+	//	/**
+	//	 * ALL NEW USE EXPRESSLY FORBIDDEN - PENDING DELETION.
+	//	 * Walks all registered message providers and gets the most appropriate message. If
+	//	 * the message has been provided before it will be returned.
+	//	 *
+	//	 * @param loc
+	//	 * @param code
+	//	 * @return
+	//	 */
+	//	@Deprecated
+	//	static public String findGlobalMessage(final Locale loc, final String code) {
+	//		return m_cp.findMessage(loc, code);
+	//	}
 
 	/**
 	 * ALL NEW USE EXPRESSLY FORBIDDEN - PENDING DELETION.
@@ -189,66 +193,66 @@ final public class NlsContext {
 	 * @param param
 	 * @return
 	 */
-	@Deprecated
-	static public String getGlobalMessage(final String code, final Object... param) {
-		Locale loc = getLocale();
-		String msg = findGlobalMessage(loc, code);
-		if(msg == null)
-			return "???" + code + "???";
-		MessageFormat temp = new MessageFormat(msg, loc);
-		return temp.format(param);
-	}
+	//	@Deprecated
+	//	static public String getGlobalMessage(final String code, final Object... param) {
+	//		Locale loc = getLocale();
+	//		String msg = findGlobalMessage(loc, code);
+	//		if(msg == null)
+	//			return "???" + code + "???";
+	//		MessageFormat temp = new MessageFormat(msg, loc);
+	//		return temp.format(param);
+	//	}
 
-	/**
-	 * ALL NEW USE EXPRESSLY FORBIDDEN - PENDING DELETION.
-	 * DO NOT USE GLOBAL BUNDLES ANYMORE!!
-	 * @param bundlekey
-	 */
-	@Deprecated
-	static public void registerBundle(final String bundlekey) {
-		m_msgProvList.addProvider(getBundleRef(bundlekey));
-	}
+	//	/**
+	//	 * ALL NEW USE EXPRESSLY FORBIDDEN - PENDING DELETION.
+	//	 * DO NOT USE GLOBAL BUNDLES ANYMORE!!
+	//	 * @param bundlekey
+	//	 */
+	//	@Deprecated
+	//	static public void registerBundle(final String bundlekey) {
+	//		m_msgProvList.addProvider(getBundleRef(bundlekey));
+	//	}
+	//
 
+	//	/**
+	//	 * ALL NEW USE EXPRESSLY FORBIDDEN - PENDING DELETION (GLOBAL MESSAGE BUNDLES).
+	//	 * Checks if this object is a resource key specificator (~key~) and replaces
+	//	 * it if so by looking up the global message. This only gets the message; it
+	//	 * does not pass it through MessageFormat.format()!!
+	//	 * @param in
+	//	 * @return
+	//	 */
+	//	@Deprecated
+	//	static public Object replaceResource(final Object in) {
+	//		if(in == null || !(in instanceof String))
+	//			return null;
+	//		return replaceResource((String) in);
+	//	}
 
-	/**
-	 * ALL NEW USE EXPRESSLY FORBIDDEN - PENDING DELETION (GLOBAL MESSAGE BUNDLES).
-	 * Checks if this object is a resource key specificator (~key~) and replaces
-	 * it if so by looking up the global message. This only gets the message; it
-	 * does not pass it through MessageFormat.format()!!
-	 * @param in
-	 * @return
-	 */
-	@Deprecated
-	static public Object replaceResource(final Object in) {
-		if(in == null || !(in instanceof String))
-			return null;
-		return replaceResource((String) in);
-	}
-
-	/**
-	 * ALL NEW USE EXPRESSLY FORBIDDEN - PENDING DELETION (GLOBAL MESSAGE BUNDLES).
-	 * Checks if this string is a resource key specificator (~key~) and replaces
-	 * it if so by looking up the global message. This only gets the message; it
-	 * does not pass it through MessageFormat.format()!!
-	 * @param in
-	 * @return
-	 */
-	@Deprecated
-	static public String replaceResource(final String s) {
-		if(s == null || s.length() < 3) // Too small- exit
-			return s;
-		if(s.charAt(0) != '~')
-			return s;
-		if(s.charAt(s.length() - 1) != '~')
-			return s;
-		if(s.charAt(1) == '~') // is ~~bleh~ -> replace to ~bleh~
-			return s.substring(1);
-
-		//-- This is a replacement expression - replace
-		Locale loc = getLocale();
-		String msg = findGlobalMessage(loc, s.substring(1, s.length() - 1));
-		return msg == null ? s : msg;
-	}
+	//	/**
+	//	 * ALL NEW USE EXPRESSLY FORBIDDEN - PENDING DELETION (GLOBAL MESSAGE BUNDLES).
+	//	 * Checks if this string is a resource key specificator (~key~) and replaces
+	//	 * it if so by looking up the global message. This only gets the message; it
+	//	 * does not pass it through MessageFormat.format()!!
+	//	 * @param in
+	//	 * @return
+	//	 */
+	//	@Deprecated
+	//	static public String replaceResource(final String s) {
+	//		if(s == null || s.length() < 3) // Too small- exit
+	//			return s;
+	//		if(s.charAt(0) != '~')
+	//			return s;
+	//		if(s.charAt(s.length() - 1) != '~')
+	//			return s;
+	//		if(s.charAt(1) == '~') // is ~~bleh~ -> replace to ~bleh~
+	//			return s.substring(1);
+	//
+	//		//-- This is a replacement expression - replace
+	//		Locale loc = getLocale();
+	//		String msg = findGlobalMessage(loc, s.substring(1, s.length() - 1));
+	//		return msg == null ? s : msg;
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/* CODING: Static code table message/description replacement.   */
@@ -270,11 +274,11 @@ final public class NlsContext {
 		return defmsg;
 	}
 
-	/**
-	 * Register default global bundles for this project
-	 */
-	static {
-		registerBundle("to.etc.domui.util.messages");
-	}
+	//	/**
+	//	 * Register default global bundles for this project
+	//	 */
+	//	static {
+	//		registerBundle("to.etc.domui.util.messages");
+	//	}
 
 }

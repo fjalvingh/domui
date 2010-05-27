@@ -60,11 +60,14 @@ public class ControlBuilder {
 	 * @param editable	When false this is a displayonly control request.
 	 * @return			null if no factory is found.
 	 */
-	public ControlFactory findControlFactory(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+	public ControlFactory findControlFactory(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+		if(pmm.getControlFactory() != null)
+			return pmm.getControlFactory();
+
 		ControlFactory best = null;
 		int score = 0;
 		for(ControlFactory cf : getControlFactoryList()) {
-			int v = cf.accepts(pmm, editable, controlClass);
+			int v = cf.accepts(pmm, editable, controlClass, context);
 			if(v > score) {
 				score = v;
 				best = cf;
@@ -74,6 +77,38 @@ public class ControlBuilder {
 	}
 
 	/**
+	 * Locate a factory by it's full class name. If the factory is found it is registered if needed.
+	 * @param name
+	 * @return
+	 */
+	public synchronized ControlFactory findFactoryByName(String name) {
+		//-- 1. Walk the registered factory list
+		for(ControlFactory cf : m_controlFactoryList) {
+			if(name.equals(cf.getClass().getName()))
+				return cf;
+		}
+
+		//-- 2. Can we load this as a control factory class?
+		Class< ? > clz = null;
+		try {
+			clz = getClass().getClassLoader().loadClass(name);
+		} catch(Exception x) {}
+		if(clz == null)
+			return null;
+		if(!ControlFactory.class.isAssignableFrom(clz))
+			return null;
+
+		//-- Try to instantiate and register.
+		try {
+			ControlFactory cf = (ControlFactory) clz.newInstance();
+			registerControlFactory(cf);
+			return cf;
+		} catch(Exception x) {}
+		return null;
+	}
+
+
+	/**
 	 * Find the best control factory to use to create a control for the given property and mode, throws
 	 * an Exception if the factory cannot be found.
 	 *
@@ -81,8 +116,8 @@ public class ControlBuilder {
 	 * @param editable
 	 * @return	The factory to use
 	 */
-	public ControlFactory getControlFactory(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
-		ControlFactory cf = findControlFactory(pmm, editable, controlClass);
+	public ControlFactory getControlFactory(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+		ControlFactory cf = findControlFactory(pmm, editable, controlClass, context);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a control factory for " + pmm);
 		return cf;
@@ -150,9 +185,9 @@ public class ControlBuilder {
 	/**
 	 * Main workhorse which creates input controls for forms, from metadata.
 	 */
-	public ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
-		ControlFactory cf = getControlFactory(pmm, editable, null);
-		return cf.createControl(model, pmm, editable, null);
+	public ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Object context) {
+		ControlFactory cf = getControlFactory(pmm, editable, null, context);
+		return cf.createControl(model, pmm, editable, null, context);
 	}
 
 	/**
@@ -164,9 +199,9 @@ public class ControlBuilder {
 	 * @param editableWhen
 	 * @return
 	 */
-	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, String propertyName, boolean editable) {
+	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, String propertyName, boolean editable, Object context) {
 		PropertyMetaModel pmm = MetaManager.getPropertyMeta(dataClass, propertyName); // Must exist or throws exception.
-		return createControl(controlClass, dataClass, pmm, editable);
+		return createControl(controlClass, dataClass, pmm, editable, context);
 	}
 
 	/**
@@ -178,11 +213,11 @@ public class ControlBuilder {
 	 * @param editable
 	 * @return
 	 */
-	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, PropertyMetaModel pmm, boolean editable) {
+	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, PropertyMetaModel pmm, boolean editable, Object context) {
 		if(controlClass == null)
 			throw new IllegalArgumentException("controlClass cannot be null");
-		ControlFactory cf = getControlFactory(pmm, editable, null);
-		ControlFactoryResult r = cf.createControl(null, pmm, editable, controlClass);
+		ControlFactory cf = getControlFactory(pmm, editable, null, context);
+		ControlFactoryResult r = cf.createControl(null, pmm, editable, controlClass, context);
 
 		//-- This must have generated a single control of the specified type, so check...
 		if(r.getNodeList().length != 1)

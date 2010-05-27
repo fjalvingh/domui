@@ -649,6 +649,10 @@ final public class Page implements IQContextContainer {
 		getBody().internalUnshelve();
 	}
 
+	public boolean isShelved() {
+		return m_shelved;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Pop-in support.										*/
 	/*--------------------------------------------------------------*/

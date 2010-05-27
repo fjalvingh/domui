@@ -3,6 +3,8 @@ package to.etc.domui.state;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.dom.html.*;
@@ -262,8 +264,8 @@ final public class WindowSession {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean handleGoto(final RequestContextImpl ctx, final Page currentpg, boolean ajax) throws Exception {
-		Page m_currentPage = null;
+	public boolean handleGoto(@Nonnull final RequestContextImpl ctx, @Nonnull final Page currentpg, boolean ajax) throws Exception {
+		System.out.println("GOTO: currentpg=" + currentpg + ", shelved=" + currentpg.isShelved());
 		if(getTargetMode() == null)
 			return false;
 		if(getTargetMode() == MoveMode.BACK) {
@@ -313,16 +315,16 @@ final public class WindowSession {
 			 */
 			clearShelve(psix + 1);
 			internalAttachConversations();
-			m_currentPage = m_shelvedPageStack.get(psix).getPage();
+			Page currentPage = m_shelvedPageStack.get(psix).getPage();
 
 			/*
 			 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
 			 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
 			 * make sure it is correct even though the request was for another page and is almost dying.
 			 */
-			PageContext.internalSet(m_currentPage);
-			m_currentPage.internalUnshelve();
-			generateRedirect(ctx, m_currentPage, ajax);
+			PageContext.internalSet(currentPage);
+			currentPage.internalUnshelve();
+			generateRedirect(ctx, currentPage, ajax);
 			return true;
 		}
 
@@ -338,11 +340,13 @@ final public class WindowSession {
 			if(psix < 0) // If there is no topmost page
 				psix = 0; // Just clear.
 			clearShelve(psix);
-			m_currentPage = null;
+//			currentPage = null;
 		} else if(getTargetMode() == MoveMode.SUB) {
 			//-- We're shelving the current page- call all shelve handlers.
-			if(m_currentPage != null)
-				m_currentPage.internalShelve();
+			currentpg.internalShelve();
+
+//			if(currentPage != null)
+//				currentPage.internalShelve();
 		} else
 			throw new IllegalStateException("Internal: don't know how to handle shelve mode " + getTargetMode());
 
@@ -383,13 +387,13 @@ final public class WindowSession {
 		//-- Conversation has been validated now, and it is active. Create and link the new page now.
 		if(pp == null)
 			pp = new PageParameters();
-		m_currentPage = PageMaker.createPageWithContent(ctx, bestpc, cc, pp);
-		PageContext.internalSet(m_currentPage); // jal 20100224 Code can run in new page on shelve.
-		shelvePage(m_currentPage);
+		Page currentPage = PageMaker.createPageWithContent(ctx, bestpc, cc, pp);
+		PageContext.internalSet(currentPage); // jal 20100224 Code can run in new page on shelve.
+		shelvePage(currentPage);
 
 		//-- Call all of the page's listeners.
 		//		callNewPageListeners(m_currentPage); // jal 20091122 Bug# 605 Move this globally.
-		generateRedirect(ctx, m_currentPage, ajax);
+		generateRedirect(ctx, currentPage, ajax);
 		return true;
 	}
 
@@ -448,7 +452,7 @@ final public class WindowSession {
 	 * to the application's index.
 	 * @param currentpg
 	 */
-	private void handleMoveBack(final RequestContextImpl ctx, Page currentpg, boolean ajax) throws Exception {
+	private void handleMoveBack(@Nonnull final RequestContextImpl ctx, @Nonnull Page currentpg, boolean ajax) throws Exception {
 		int ix = m_shelvedPageStack.size() - 2;
 		if(ix < 0) {
 			clearShelve(0); // Discard EVERYTHING
@@ -604,7 +608,10 @@ final public class WindowSession {
 				 */
 				clearShelve(psix + 1);
 				internalAttachConversations();
-				return m_shelvedPageStack.get(psix).getPage();
+				Page pg = m_shelvedPageStack.get(psix).getPage();
+				if(pg.isShelved())
+					pg.internalUnshelve();
+				return pg;
 			}
 		}
 
@@ -714,11 +721,10 @@ final public class WindowSession {
 	public void setAttribute(final String name, final Object val) {
 		if(m_map == Collections.EMPTY_MAP)
 			m_map = new HashMap<String, Object>();
-		Object old;
 		if(val == null)
-			old = m_map.remove(name);
+			m_map.remove(name);
 		else {
-			old = m_map.put(name, val);
+			m_map.put(name, val);
 		}
 	}
 

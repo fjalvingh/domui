@@ -20,7 +20,7 @@ public class ControlFactoryMoney implements ControlFactory {
 	 * Accept any type using a string.
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
-	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(Text.class)) // This will create a Text class,
 			return -1;
 		Class<?> clz = pmm.getActualType();
@@ -36,7 +36,7 @@ public class ControlFactoryMoney implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@SuppressWarnings("unchecked")
-	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		Class< ? > iclz = pmm.getActualType();
 
 		if(!editable) {

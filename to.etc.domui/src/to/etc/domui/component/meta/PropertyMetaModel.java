@@ -3,6 +3,7 @@ package to.etc.domui.component.meta;
 import java.lang.reflect.*;
 import java.util.*;
 
+import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -254,4 +255,10 @@ public interface PropertyMetaModel {
 	 * @return
 	 */
 	String getRegexpUserString();
+
+	/**
+	 * If a specific control factory is to be used to create controls for this item this returns that factory.
+	 * @return
+	 */
+	ControlFactory getControlFactory();
 }
