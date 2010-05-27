@@ -349,7 +349,22 @@ public class JdbcUtil {
 			setParameters(ps, startix, pars.toArray());
 			ps.execute();
 
-			return null;
+			if(startix != 1) {
+				if(rtype == String.class) {
+					return (T) ps.getString(1);
+				} else if(rtype == Integer.class || rtype == int.class) {
+					return (T) (Integer.valueOf(ps.getInt(1)));
+				} else if(rtype == Long.class || rtype == long.class) {
+					return (T) (Long.valueOf(ps.getLong(1)));
+				} else if(rtype == BigDecimal.class) {
+					return (T) ps.getBigDecimal(1);
+				} else {
+					throw new IllegalStateException("Call error: cannot get out parameter for result java type=" + rtype);
+				}
+
+			} else {
+				return null;
+			}
 		} finally {
 			try {
 				if(ps != null)
