@@ -265,6 +265,7 @@ final public class WindowSession {
 	 * @throws Exception
 	 */
 	public boolean handleGoto(@Nonnull final RequestContextImpl ctx, @Nonnull final Page currentpg, boolean ajax) throws Exception {
+		System.out.println("GOTO: currentpg=" + currentpg + ", shelved=" + currentpg.isShelved());
 		if(getTargetMode() == null)
 			return false;
 		if(getTargetMode() == MoveMode.BACK) {
@@ -607,7 +608,10 @@ final public class WindowSession {
 				 */
 				clearShelve(psix + 1);
 				internalAttachConversations();
-				return m_shelvedPageStack.get(psix).getPage();
+				Page pg = m_shelvedPageStack.get(psix).getPage();
+				if(pg.isShelved())
+					pg.internalUnshelve();
+				return pg;
 			}
 		}
 
