@@ -152,6 +152,13 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 				return;
 			}
 		}
+		if(c instanceof DisplayValue< ? >) {
+			if(c.getChildCount() == 0 && ((DisplayValue< ? >) c).getValue() == null) {
+				//-- vmijic 20100528 In case of null value render &nbsp; so that height of display value can be correct.
+				o().text("\u00a0"); // Render a nbsp. DO NOT USE THE ENTITY - IT DOES NOT EXIST IN XML.
+				return;
+			}
+		}
 		super.visitChildren(c);
 	}
 
