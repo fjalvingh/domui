@@ -97,8 +97,9 @@
 
 /*** DisplayValue ***/
 .ui-dspv {
-	background: white;
-	padding: 2px;
+	background:none repeat scroll 0 0 #F5F5FA;
+	display:block;
+	padding:2px;
 }
 
 /*** CaptionedHeader ***/
@@ -486,13 +487,14 @@ table.ui-lui {
 table.ui-lui-selected {
 	width: 100%;
 	white-space: nowrap;
-	margin: 1px;
+	padding: 1px;
 }
 
 .ui-lui-v { /* no selection is rendered transparent without border */
 	padding: 0px;
 	margin: 0px;
 	width: 100%;
+	padding: 0px;
 }
 .ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
 	padding: 0px;
@@ -642,7 +644,7 @@ tr.ui-keyword-popup-row {
 	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: middle; /* jal 20090818 changed from top to middle to align DateInput buttons better */
 	background-color: white;
-	padding: 2px;
+	padding: 0px;
 }
 
 /*** Form basic styles: for forms having the label ABOVE the field (vertical stacked) ***/
