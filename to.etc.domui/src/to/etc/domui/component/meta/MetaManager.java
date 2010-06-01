@@ -58,12 +58,12 @@ final public class MetaManager {
 		m_modelList = mm;
 	}
 
-//	@Nonnull
-//	static private synchronized List<IClassMetaModelFactory> getList() {
-//		if(m_modelList.size() == 0)
-//			registerModel(new DefaultJavaClassMetaModelFactory());
-//		return m_modelList;
-//	}
+	@Nonnull
+	static private synchronized List<IClassMetaModelFactory> getList() {
+		if(m_modelList.size() == 0)
+			registerModel(new DefaultJavaClassMetaModelFactory());
+		return m_modelList;
+	}
 
 	@Nonnull
 	static public ClassMetaModel findClassMeta(@Nonnull Class< ? > clz) {
@@ -73,7 +73,7 @@ final public class MetaManager {
 		MRef ref;
 		List<IClassMetaModelFactory> list;
 		synchronized(MetaManager.class) {
-			list = m_modelList;
+			list = getList();
 			ref = m_classMap.get(clz);
 			if(ref == null) {
 				if(clz.getName().contains("$$")) {
@@ -108,7 +108,7 @@ final public class MetaManager {
 		MRef ref;
 		List<IClassMetaModelFactory> list;
 		synchronized(MetaManager.class) {
-			list = m_modelList;
+			list = getList();
 			ref = m_classMap.get(mc);
 			if(ref == null) {
 				ref = new MRef();

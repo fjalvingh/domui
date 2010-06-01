@@ -2,6 +2,8 @@ package to.etc.domui.component.lookup;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
@@ -46,7 +48,12 @@ import to.etc.webapp.query.*;
  */
 public class LookupForm<T> extends Div {
 	/** The data class we're looking for */
+	@Nonnull
 	private Class<T> m_lookupClass;
+
+	/** The metamodel for the class. */
+	@Nonnull
+	private ClassMetaModel m_metaModel;
 
 	private String m_title;
 
@@ -281,16 +288,63 @@ public class LookupForm<T> extends Div {
 	/** The list of buttons to show on the button row. */
 	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
 
+	public LookupForm(@Nonnull final Class<T> lookupClass, String... propertyList) {
+		this(lookupClass, (ClassMetaModel) null, propertyList);
+	}
+
 	/**
 	 * Create a LookupForm to find instances of the specified class.
 	 * @param lookupClass
 	 */
-	public LookupForm(final Class<T> lookupClass, String... propertyList) {
-		m_builder = DomApplication.get().getControlBuilder();
+	public LookupForm(@Nonnull final Class<T> lookupClass, @Nonnull final ClassMetaModel cmm, String... propertyList) {
 		m_lookupClass = lookupClass;
+		m_metaModel = cmm != null ? cmm : MetaManager.findClassMeta(lookupClass);
+		m_builder = DomApplication.get().getControlBuilder();
 		for(String prop : propertyList)
 			addProperty(prop);
 		defineDefaultButtons();
+	}
+
+	public ClassMetaModel getMetaModel() {
+		return m_metaModel;
+	}
+
+	/**
+	 * Returns the class whose instances we're looking up (a persistent class somehow).
+	 * @return
+	 */
+	public Class<T> getLookupClass() {
+		if(null == m_lookupClass)
+			throw new NullPointerException("The LookupForm's 'lookupClass' cannot be null");
+		return m_lookupClass;
+	}
+
+	/**
+	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
+	 * Change the class for which we are searching. This clear ALL definitions!
+	 * @param lookupClass
+	 */
+	@Deprecated
+	public void setLookupClass(@Nonnull final Class<T> lookupClass) {
+		if(m_lookupClass == lookupClass)
+			return;
+		m_lookupClass = lookupClass;
+		m_metaModel = MetaManager.findClassMeta(lookupClass);
+		reset();
+	}
+
+	/**
+	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
+	 * Change the class and metamodel for which we are searching. This clear ALL definitions!
+	 * @param lookupClass
+	 */
+	@Deprecated
+	public void setLookupClass(@Nonnull final Class<T> lookupClass, @Nonnull ClassMetaModel cmm) {
+		if(m_lookupClass == lookupClass)
+			return;
+		m_lookupClass = lookupClass;
+		m_metaModel = cmm;
+		reset();
 	}
 
 	/**
@@ -471,12 +525,11 @@ public class LookupForm<T> extends Div {
 	 */
 	private void setItems() {
 		m_itemList.clear();
-		ClassMetaModel cm = MetaManager.findClassMeta(getLookupClass());
-		List<SearchPropertyMetaModelImpl> list = cm.getSearchProperties();
+		List<SearchPropertyMetaModelImpl> list = getMetaModel().getSearchProperties();
 		if(list == null || list.size() == 0) {
-			list = MetaManager.calculateSearchProperties(cm); // 20100416 jal EXPERIMENTAL
+			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
 			if(list == null || list.size() == 0)
-				throw new IllegalStateException("The class " + m_lookupClass + " has no search properties defined in it's meta data.");
+				throw new IllegalStateException(getMetaModel() + " has no search properties defined in it's meta data.");
 		}
 
 		for(SearchPropertyMetaModel sp : list) { // The list is already in ascending order, so just add items;
@@ -608,8 +661,7 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	public Item addManualPropertyLabel(String property, ILookupControlInstance lci) {
-		ClassMetaModel cm = MetaManager.findClassMeta(getLookupClass());
-		PropertyMetaModel pmm = cm.findProperty(property);
+		PropertyMetaModel pmm = getMetaModel().findProperty(property);
 		if(null == pmm)
 			throw new ProgrammerErrorException(property + ": undefined property for class=" + getLookupClass());
 		return addManualTextLabel(pmm.getDefaultLabel(), lci);
@@ -637,8 +689,7 @@ public class LookupForm<T> extends Div {
 
 		//-- 1. If a property name is present but the path is unknown calculate the path
 		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
-			ClassMetaModel cm = MetaManager.findClassMeta(getLookupClass());
-			List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(cm, it.getPropertyName());
+			List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
 			if(pl.size() == 0)
 				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
 			it.setPropertyPath(pl);
@@ -862,27 +913,6 @@ public class LookupForm<T> extends Div {
 			}
 			forceRebuild();
 		}
-	}
-
-	/**
-	 * Returns the class whose instances we're looking up (a persistent class somehow).
-	 * @return
-	 */
-	public Class<T> getLookupClass() {
-		if(null == m_lookupClass)
-			throw new NullPointerException("The LookupForm's 'lookupClass' cannot be null");
-		return m_lookupClass;
-	}
-
-	/**
-	 * Change the class for which we are searching. This clear ALL definitions!
-	 * @param lookupClass
-	 */
-	public void setLookupClass(final Class<T> lookupClass) {
-		if(m_lookupClass == lookupClass)
-			return;
-		m_lookupClass = lookupClass;
-		reset();
 	}
 
 	/**
