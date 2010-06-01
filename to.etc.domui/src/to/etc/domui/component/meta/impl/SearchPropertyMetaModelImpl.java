@@ -11,7 +11,7 @@ import to.etc.domui.component.meta.*;
  * Created on Jul 31, 2009
  */
 public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
-	private DefaultClassMetaModel m_classModel;
+	private ClassMetaModel m_classModel;
 
 	private String m_propertyName;
 
@@ -27,7 +27,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 
 	private String m_lookupHintKey;
 
-	public SearchPropertyMetaModelImpl(DefaultClassMetaModel cmm) {
+	public SearchPropertyMetaModelImpl(ClassMetaModel cmm) {
 		m_classModel = cmm;
 	}
 
