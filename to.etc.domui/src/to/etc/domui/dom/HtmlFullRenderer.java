@@ -145,9 +145,10 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 	@Override
 	public void visitChildren(NodeContainer c) throws Exception {
-		if(c instanceof TD) {
+		if(c instanceof IRenderNBSPIfEmpty) {
 			if(c.getChildCount() == 0) {
 				//-- jal 20091223 If the TD is fully-empty add a nbsp to prevent IE from misrendering the cell.
+				//-- vmijic 20100528 In case of null DisplayValue value render &nbsp; so that height of display value can be correct.
 				o().text("\u00a0"); // Render a nbsp. DO NOT USE THE ENTITY - IT DOES NOT EXIST IN XML.
 				return;
 			}
