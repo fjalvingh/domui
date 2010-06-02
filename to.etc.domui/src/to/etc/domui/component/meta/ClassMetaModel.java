@@ -9,14 +9,21 @@ import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
 public interface ClassMetaModel {
+	/**
+	 * FIXME Questionable nullity
+	 * @return
+	 */
+	@Nonnull
 	public Class< ? > getActualClass();
 
 	/**
 	 * Returns the message bundle for translations related to this class. This will never return null.
 	 * @return
 	 */
+	@Nullable
 	public BundleRef getClassBundle();
 
+	@Nonnull
 	public List<PropertyMetaModel> getProperties();
 
 	/**
@@ -25,6 +32,7 @@ public interface ClassMetaModel {
 	 * @param name
 	 * @return
 	 */
+	@Nullable
 	public PropertyMetaModel findSimpleProperty(String name);
 
 	/**
@@ -47,8 +55,10 @@ public interface ClassMetaModel {
 	 * value records share the same table.
 	 * @return
 	 */
+	@Nullable
 	public String getTableName();
 
+	@Nullable
 	public PropertyMetaModel getPrimaryKey();
 
 	/**
@@ -56,6 +66,7 @@ public interface ClassMetaModel {
 	 * this is not a domain type this MUST return null.
 	 * @return
 	 */
+	@Nullable
 	public Object[] getDomainValues();
 
 	/**
@@ -65,17 +76,20 @@ public interface ClassMetaModel {
 	 * @param value
 	 * @return
 	 */
+	@Nonnull
 	public String getDomainLabel(Locale loc, Object value);
 
 	/**
 	 * Return a user-presentable entity name (singular) for this class. This defaults to the classname itself if unset.
 	 */
+	@Nonnull
 	public String getUserEntityName();
 
 	/**
 	 * Returns the name of this entity in user terms; the returned name is plural.
 	 * @return
 	 */
+	@Nullable
 	public String getUserEntityNamePlural();
 
 	/**
@@ -86,6 +100,7 @@ public interface ClassMetaModel {
 	 *
 	 * @return
 	 */
+	@Nullable
 	public Class< ? extends IComboDataSet< ? >> getComboDataSet();
 
 	/**
@@ -93,8 +108,10 @@ public interface ClassMetaModel {
 	 * that field as a string.
 	 * @return
 	 */
+	@Nullable
 	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer();
 
+	@Nullable
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
 
 	/**
@@ -102,6 +119,7 @@ public interface ClassMetaModel {
 	 * properties as the display value.
 	 * @return
 	 */
+	@Nonnull
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties();
 
 	/**
@@ -109,22 +127,27 @@ public interface ClassMetaModel {
 	 * properties there.
 	 * @return
 	 */
+	@Nonnull
 	public List<DisplayPropertyMetaModel> getTableDisplayProperties();
 
 	/**
 	 * Returns the SORTED list of search properties defined on this class.
 	 * @return
 	 */
+	@Nonnull
 	public List<SearchPropertyMetaModelImpl> getSearchProperties();
 
 	/**
 	 * Returns the SORTED list of key word search properties defined on this class.
 	 * @return
 	 */
+	@Nonnull
 	public List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties();
 
+	@Nullable
 	public String getDefaultSortProperty();
 
+	@Nonnull
 	public SortableType getDefaultSortDirection();
 
 	/**
@@ -134,6 +157,7 @@ public interface ClassMetaModel {
 	 * control to help it select one parent.
 	 * @return
 	 */
+	@Nullable
 	public String getComponentTypeHint();
 
 	/**
@@ -142,6 +166,7 @@ public interface ClassMetaModel {
 	 * record in the edit page. If empty this will use the lookupFieldDisplayProperties.
 	 * @return
 	 */
+	@Nullable
 	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer();
 
 	/**
@@ -150,5 +175,6 @@ public interface ClassMetaModel {
 	 * record in the edit page.
 	 * @return
 	 */
+	@Nonnull
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();
 }
