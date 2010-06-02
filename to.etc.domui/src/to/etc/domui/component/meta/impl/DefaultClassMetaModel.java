@@ -8,6 +8,15 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
+/**
+ * This is a DomUI class metamodel info record that only contains data. It can be constructed by
+ * metamodel factories and filled in by calling the appropriate setters. When an instance of this
+ * class has been returned by a factory then it is NOT ALLOWED TO CHANGE IT ANYMORE(!) to maintain
+ * thread-safety.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jun 2, 2010
+ */
 public class DefaultClassMetaModel implements ClassMetaModel {
 	/** The class this is a class metamodel <i>for</i> */
 	private final Class< ? > m_metaClass;
