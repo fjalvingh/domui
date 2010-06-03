@@ -199,14 +199,17 @@ public class PendingOperation {
 	}
 
 	public void setProperty(final String name, final String value) {
-		if(m_properties == null && value != null)
-			m_properties = new Properties();
 		if(value == null) {
-			m_properties.remove(name);
-			if(m_properties.size() == 0)
-				m_properties = null;
-		} else
+			if(m_properties != null) {
+				m_properties.remove(name);
+				if(m_properties.size() == 0)
+					m_properties = null;
+			}
+		} else {
+			if(m_properties == null)
+				m_properties = new Properties();
 			m_properties.setProperty(name, value);
+		}
 	}
 
 	public String getLastError() {

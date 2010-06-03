@@ -115,8 +115,12 @@ final public class NlsContext {
 		return m_currencySymbol;
 	}
 
-	static public String getDialect() {
+	static public synchronized String getDialect() {
 		return m_dialect;
+	}
+
+	public static synchronized void setDialect(String dialect) {
+		m_dialect = dialect;
 	}
 
 	/**
