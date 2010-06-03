@@ -18,7 +18,7 @@ public class AjaxRequestHandler implements IFilterRequestHandler {
 
 	private final DomApplication m_application;
 
-	private IInstanceBuilder m_instanceBuilder;
+	//	private IInstanceBuilder m_instanceBuilder;
 
 	private List<IRequestInterceptor> m_interceptorList = new ArrayList<IRequestInterceptor>();
 
@@ -49,9 +49,9 @@ public class AjaxRequestHandler implements IFilterRequestHandler {
 		return m_interceptorList;
 	}
 
-	public IInstanceBuilder getInstanceBuilder() {
-		return m_instanceBuilder;
-	}
+	//	public IInstanceBuilder getInstanceBuilder() {
+	//		return m_instanceBuilder;
+	//	}
 
 	public Container getApplicationContainer() {
 		return m_applicationContainer;

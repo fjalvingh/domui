@@ -34,6 +34,10 @@ public class DataCellTable extends TabularComponentBase<Object> {
 
 	private Class< ? extends INodeContentRenderer< ? >> m_contentRendererClass;
 
+	public DataCellTable(ITableModel<Object> model) {
+		super(model);
+	}
+
 	public int getRows() {
 		return m_rows;
 	}

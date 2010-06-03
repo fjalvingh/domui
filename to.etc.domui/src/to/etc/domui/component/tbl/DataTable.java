@@ -2,6 +2,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -25,31 +27,32 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	/** When the query has 0 results this is set to the div displaying that message. */
 	private Div m_errorDiv;
 
-	public DataTable() {}
+	//	public DataTable() {}
 
-	public DataTable(IRowRenderer<T> r) {
-		m_rowRenderer = r;
-	}
+	//	public DataTable(IRowRenderer<T> r) {
+	//		m_rowRenderer = r;
+	//	}
 
-	public DataTable(ITableModel<T> m, IRowRenderer<T> r) {
+	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
 	}
 
-	public DataTable(Class<T> actualClass, ITableModel<T> model, IRowRenderer<T> r) {
-		super(actualClass, model);
-		m_rowRenderer = r;
-	}
-
-	public DataTable(Class<T> actualClass, IRowRenderer<T> r) {
-		super(actualClass);
-		m_rowRenderer = r;
-	}
+	//	public DataTable(Class<T> actualClass, ITableModel<T> model, IRowRenderer<T> r) {
+	//		super(actualClass, model);
+	//		m_rowRenderer = r;
+	//	}
+	//
+	//	public DataTable(Class<T> actualClass, IRowRenderer<T> r) {
+	//		super(actualClass);
+	//		m_rowRenderer = r;
+	//	}
 
 	/**
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
 	 * @return
 	 */
+	@Nullable
 	protected Table getTable() {
 		return m_table;
 	}
@@ -58,10 +61,11 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	 * UNSTABLE INTERFACE - UNDER CONSIDERATION.
 	 * @param dataBody
 	 */
-	protected void setDataBody(TBody dataBody) {
+	protected void setDataBody(@Nullable TBody dataBody) {
 		m_dataBody = dataBody;
 	}
 
+	@Nullable
 	protected TBody getDataBody() {
 		return m_dataBody;
 	}
@@ -203,7 +207,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	/**
 	 * Called when there are sweeping changes to the model. It forces a complete re-render of the table.
 	 */
-	public void modelChanged(ITableModel<T> model) {
+	public void modelChanged(@Nullable ITableModel<T> model) {
 		forceRebuild();
 	}
 
@@ -215,7 +219,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	 * @param value
 	 * @throws Exception
 	 */
-	protected void renderRow(TR tr, ColumnContainer<T> cc, int index, T value) throws Exception {
+	protected void renderRow(@Nonnull TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable T value) throws Exception {
 		m_rowRenderer.renderRow(this, cc, index, value);
 	}
 
@@ -225,7 +229,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	 * @param hc specified header container
 	 * @throws Exception
 	 */
-	protected void renderHeader(HeaderContainer<T> hc) throws Exception {
+	protected void renderHeader(@Nonnull HeaderContainer<T> hc) throws Exception {
 		m_rowRenderer.renderHeader(this, hc);
 	}
 
@@ -239,7 +243,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
-	public void rowAdded(ITableModel<T> model, int index, T value) throws Exception {
+	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
 		calcIndices(); // Calculate visible nodes
@@ -269,7 +273,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowDeleted(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
-	public void rowDeleted(ITableModel<T> model, int index, T value) throws Exception {
+	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
 		if(index < m_six || index >= m_eix) // Outside visible bounds
@@ -297,7 +301,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
-	public void rowModified(ITableModel<T> model, int index, T value) throws Exception {
+	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
 		if(index < m_six || index >= m_eix) // Outside visible bounds
@@ -310,15 +314,16 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		renderRow(tr, cc, index, value);
 	}
 
-	public void setTableWidth(String w) {
+	public void setTableWidth(@Nullable String w) {
 		m_table.setTableWidth(w);
 	}
 
+	@Nonnull
 	public IRowRenderer<T> getRowRenderer() {
 		return m_rowRenderer;
 	}
 
-	public void setRowRenderer(IRowRenderer<T> rowRenderer) {
+	public void setRowRenderer(@Nonnull IRowRenderer<T> rowRenderer) {
 		if(DomUtil.isEqual(m_rowRenderer, rowRenderer))
 			return;
 		m_rowRenderer = rowRenderer;

@@ -2,6 +2,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -12,23 +14,19 @@ import to.etc.domui.util.*;
  * Created on 26 Oct 2009
  */
 public class MultipleSelectionDataTable<T> extends DataTable<T> {
-
-	public MultipleSelectionDataTable(Class<T> dataClass, ITableModel<T> m, IRowRenderer<T> r) {
+	public MultipleSelectionDataTable(@Nonnull Class<T> dataClass, @Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m, r);
-		//		m_dataClass = dataClass;
 	}
 
-	public MultipleSelectionDataTable(Class<T> dataClass, IRowRenderer<T> r) {
-		super(r);
-		//		m_dataClass = dataClass;
-	}
-
+	@Nonnull
 	private List<T> m_accumulatedRows = new ArrayList<T>();
 
+	@Nonnull
 	List<Boolean> m_accumulatedSelections = new ArrayList<Boolean>();
 
 	//	private Class<T> m_dataClass;
 
+	@Nullable
 	private String m_selectionColTitle;
 
 	@Override

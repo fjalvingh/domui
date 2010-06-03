@@ -296,7 +296,7 @@ public class LookupForm<T> extends Div {
 	 * Create a LookupForm to find instances of the specified class.
 	 * @param lookupClass
 	 */
-	public LookupForm(@Nonnull final Class<T> lookupClass, @Nonnull final ClassMetaModel cmm, String... propertyList) {
+	public LookupForm(@Nonnull final Class<T> lookupClass, @Nullable final ClassMetaModel cmm, String... propertyList) {
 		m_lookupClass = lookupClass;
 		m_metaModel = cmm != null ? cmm : MetaManager.findClassMeta(lookupClass);
 		m_builder = DomApplication.get().getControlBuilder();
@@ -906,8 +906,11 @@ public class LookupForm<T> extends Div {
 				});
 				addButtonItem(m_newBtn, 300, ButtonMode.BOTH);
 			} else if(m_onNew == null && m_newBtn != null) {
-				if(m_buttonItemList.contains(m_newBtn)) {
-					m_buttonItemList.remove(m_newBtn);
+				for(ButtonRowItem bri : m_buttonItemList) {
+					if(bri.getThingy() == m_newBtn) {
+						m_buttonItemList.remove(bri);
+						break;
+					}
 				}
 				m_newBtn = null;
 			}
@@ -973,8 +976,11 @@ public class LookupForm<T> extends Div {
 				});
 				addButtonItem(m_cancelBtn, 400, ButtonMode.BOTH);
 			} else if(m_onCancel == null && m_cancelBtn != null) {
-				if(m_buttonItemList.contains(m_cancelBtn)) {
-					m_buttonItemList.remove(m_cancelBtn);
+				for(ButtonRowItem bri : m_buttonItemList) {
+					if(bri.getThingy() == m_cancelBtn) {
+						m_buttonItemList.remove(bri);
+						break;
+					}
 				}
 				m_cancelBtn = null;
 			}

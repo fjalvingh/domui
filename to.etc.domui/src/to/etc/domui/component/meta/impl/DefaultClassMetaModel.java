@@ -382,6 +382,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		}
 		if(value instanceof Boolean)
 			return Msgs.BUNDLE.getString(((Boolean) value).booleanValue() ? Msgs.UI_BOOL_TRUE : Msgs.UI_BOOL_FALSE);
-		return null;
+
+		throw new IllegalStateException("Invalid call for non-domain object.");
+		//		return null;
 	}
 }

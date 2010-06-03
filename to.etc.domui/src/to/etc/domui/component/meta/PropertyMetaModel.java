@@ -160,7 +160,7 @@ public interface PropertyMetaModel {
 	 * @param val
 	 * @return
 	 */
-	@Nonnull
+	@Nullable
 	public String getDomainValueLabel(Locale loc, Object val);
 
 	/**
@@ -269,7 +269,7 @@ public interface PropertyMetaModel {
 	@Nonnull
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();
 
-	@Nonnull
+	@Nullable
 	public PropertyMetaValidator[] getValidators();
 
 	/**

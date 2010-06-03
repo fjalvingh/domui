@@ -2,6 +2,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -17,22 +19,24 @@ import to.etc.domui.util.*;
  */
 @Deprecated
 public class CheckBoxDataTable<T> extends DataTable<T> {
-
+	@Nonnull
 	private List<T> m_selectedRows = Collections.EMPTY_LIST;
 
+	@Nullable
 	private String m_selectionColTitle;
 
+	@Nullable
 	private IValueChanged<CheckBoxDataTable<T>> m_selectionChangedHandler;
 
-	public CheckBoxDataTable() {}
+	//	public CheckBoxDataTable() {}
 
-	public CheckBoxDataTable(ITableModel<T> m, IRowRenderer<T> r) {
+	public CheckBoxDataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m, r);
 	}
 
-	public CheckBoxDataTable(IRowRenderer<T> r) {
-		super(r);
-	}
+	//	public CheckBoxDataTable(IRowRenderer<T> r) {
+	//		super(r);
+	//	}
 
 	protected void handleSelectionChanged(boolean selected, T item) throws Exception {
 		if(selected) {
