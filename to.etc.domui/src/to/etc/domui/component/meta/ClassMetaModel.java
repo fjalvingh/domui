@@ -7,6 +7,7 @@ import javax.annotation.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.query.*;
 
 public interface ClassMetaModel {
 	/**
@@ -14,17 +15,17 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nonnull
-	public Class< ? > getActualClass();
+	Class< ? > getActualClass();
 
 	/**
 	 * Returns the message bundle for translations related to this class. This will never return null.
 	 * @return
 	 */
 	@Nullable
-	public BundleRef getClassBundle();
+	BundleRef getClassBundle();
 
 	@Nonnull
-	public List<PropertyMetaModel> getProperties();
+	List<PropertyMetaModel> getProperties();
 
 	/**
 	 * Returns the named property on <i>this</i> class. This does not allow
@@ -33,7 +34,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	public PropertyMetaModel findSimpleProperty(String name);
+	PropertyMetaModel findSimpleProperty(String name);
 
 	/**
 	 * Returns a property reference to the specified property by following the dotted path
@@ -45,9 +46,9 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	public PropertyMetaModel findProperty(String name);
+	PropertyMetaModel findProperty(String name);
 
-	public boolean isPersistentClass();
+	boolean isPersistentClass();
 
 	/**
 	 * If this is a persistent class that is directly mapped onto some table, this might return the table name. This
@@ -56,10 +57,10 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	public String getTableName();
+	String getTableName();
 
 	@Nullable
-	public PropertyMetaModel getPrimaryKey();
+	PropertyMetaModel getPrimaryKey();
 
 	/**
 	 * If this class is an enum or represents some enumerated value, this returns the possible value objects. If
@@ -67,7 +68,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	public Object[] getDomainValues();
+	Object[] getDomainValues();
 
 	/**
 	 * For a Domain type (Enum, Boolean) this returns a label for a given domain value. When called for
@@ -77,20 +78,20 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nonnull
-	public String getDomainLabel(Locale loc, Object value);
+	String getDomainLabel(Locale loc, Object value);
 
 	/**
 	 * Return a user-presentable entity name (singular) for this class. This defaults to the classname itself if unset.
 	 */
 	@Nonnull
-	public String getUserEntityName();
+	String getUserEntityName();
 
 	/**
 	 * Returns the name of this entity in user terms; the returned name is plural.
 	 * @return
 	 */
 	@Nullable
-	public String getUserEntityNamePlural();
+	String getUserEntityNamePlural();
 
 	/**
 	 * If this class is the UP in a relation this specifies that it must
@@ -101,7 +102,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	public Class< ? extends IComboDataSet< ? >> getComboDataSet();
+	Class< ? extends IComboDataSet< ? >> getComboDataSet();
 
 	/**
 	 * When this relation-property is presented as a single field this can contain a class to render
@@ -109,10 +110,10 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer();
+	Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer();
 
 	@Nullable
-	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
+	Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
 
 	/**
 	 * If this object is shown in a combobox it needs to show the following
@@ -120,7 +121,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nonnull
-	public List<DisplayPropertyMetaModel> getComboDisplayProperties();
+	List<DisplayPropertyMetaModel> getComboDisplayProperties();
 
 	/**
 	 * If this object is shown in a Table it needs to show the following
@@ -128,27 +129,27 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nonnull
-	public List<DisplayPropertyMetaModel> getTableDisplayProperties();
+	List<DisplayPropertyMetaModel> getTableDisplayProperties();
 
 	/**
 	 * Returns the SORTED list of search properties defined on this class.
 	 * @return
 	 */
 	@Nonnull
-	public List<SearchPropertyMetaModelImpl> getSearchProperties();
+	List<SearchPropertyMetaModelImpl> getSearchProperties();
 
 	/**
 	 * Returns the SORTED list of key word search properties defined on this class.
 	 * @return
 	 */
 	@Nonnull
-	public List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties();
+	List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties();
 
 	@Nullable
-	public String getDefaultSortProperty();
+	String getDefaultSortProperty();
 
 	@Nonnull
-	public SortableType getDefaultSortDirection();
+	SortableType getDefaultSortDirection();
 
 	/**
 	 * When present this gives a hint to the component factories to help with choosing a
@@ -158,7 +159,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	public String getComponentTypeHint();
+	String getComponentTypeHint();
 
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
@@ -167,7 +168,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer();
+	Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer();
 
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
@@ -176,5 +177,21 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nonnull
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();
+	List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();
+
+	/**
+	 * EXPERIMENTAL
+	 * If this is a persistent class, this should create a base QCriteria instance to do queries
+	 * on this class. The QCriteria&lt;T&gt; instance returned <i>must</i> have a T that is equal
+	 * to the value returned by this.getActualClass(). In addition it should have only restrictions
+	 * that limit the result to valid instances of this class, <i>nothing else</i>! This usually
+	 * means the restriction set is empty.
+	 *
+	 * <p>Needs evaluation.</p>
+	 *
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	QCriteria< ? > createCriteria() throws Exception;
 }

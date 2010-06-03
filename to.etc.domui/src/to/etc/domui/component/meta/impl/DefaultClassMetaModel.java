@@ -7,6 +7,7 @@ import javax.annotation.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.query.*;
 
 /**
  * This is a DomUI class metamodel info record that only contains data. It can be constructed by
@@ -20,6 +21,8 @@ import to.etc.webapp.nls.*;
 public class DefaultClassMetaModel implements ClassMetaModel {
 	/** The class this is a class metamodel <i>for</i> */
 	private final Class< ? > m_metaClass;
+
+	private ICriteriaTableDef< ? > m_metaTableDef;
 
 	private String m_classNameOnly;
 
@@ -386,4 +389,28 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		throw new IllegalStateException("Invalid call for non-domain object.");
 		//		return null;
 	}
+
+	@Nullable
+	public ICriteriaTableDef< ? > getMetaTableDef() {
+		return m_metaTableDef;
+	}
+
+	public void setMetaTableDef(@Nullable ICriteriaTableDef< ? > metaTableDef) {
+		m_metaTableDef = metaTableDef;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.component.meta.ClassMetaModel#createCriteria()
+	 */
+	@Override
+	@Nonnull
+	public QCriteria< ? > createCriteria() throws Exception {
+		if(!isPersistentClass())
+			throw new IllegalStateException("This ClassMetaModel (" + this + ") is not persistent.");
+		if(getMetaTableDef() != null)
+			return QCriteria.create(getMetaTableDef());
+		return QCriteria.create(getActualClass());
+	}
+
 }

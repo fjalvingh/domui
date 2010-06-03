@@ -5,6 +5,7 @@ import java.util.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.query.*;
 
 public class ClassMetaModelWrapper implements ClassMetaModel {
 	private ClassMetaModel m_parent;
@@ -144,5 +145,10 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	@Override
 	public boolean isPersistentClass() {
 		return m_parent.isPersistentClass();
+	}
+
+	@Override
+	public QCriteria< ? > createCriteria() throws Exception {
+		return m_parent.createCriteria();
 	}
 }

@@ -339,7 +339,8 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		} else {
 			//-- Has default meta?
 			List<SearchPropertyMetaModelImpl> spml = getMetaModel().getKeyWordSearchProperties();
-			searchQuery = QCriteria.create(getLookupClass()); // FIXME FIXME FIXME FATAL ERROR
+			searchQuery = (QCriteria<T>) getMetaModel().createCriteria();
+
 			QRestrictor<T> r = searchQuery.or();
 			int ncond = 0;
 			if(spml.size() > 0) {

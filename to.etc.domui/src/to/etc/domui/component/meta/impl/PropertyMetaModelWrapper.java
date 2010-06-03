@@ -8,7 +8,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
 
-public class PropertyMetaModelWrapper implements PropertyMetaModel {
+abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
 	private PropertyMetaModel m_parent;
 
 	protected PropertyMetaModelWrapper(PropertyMetaModel parent) {
@@ -39,9 +39,7 @@ public class PropertyMetaModelWrapper implements PropertyMetaModel {
 	}
 
 	@Override
-	public ClassMetaModel getClassModel() {
-		return m_parent.getClassModel();
-	}
+	abstract public ClassMetaModel getClassModel();
 
 	@Override
 	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {

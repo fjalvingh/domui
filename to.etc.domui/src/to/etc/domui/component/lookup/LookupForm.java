@@ -849,7 +849,8 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	public QCriteria<T> getEnteredCriteria() throws Exception {
-		QCriteria<T> root = QCriteria.create(m_lookupClass);
+//		QCriteria<T> root = QCriteria.create(m_lookupClass);
+		QCriteria<T> root = (QCriteria<T>) getMetaModel().createCriteria();
 		boolean success = true;
 		for(Item it : m_itemList) {
 			ILookupControlInstance li = it.getInstance();
