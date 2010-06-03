@@ -93,6 +93,19 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		m_currentCriteria = crit;
 	}
 
+	/**
+	 * Does a check to see if the class is a persistent class- because Hibernate itself is too
+	 * bloody stupid to do it. Querying an unknown class in Hibernate will return an empty
+	 * result set, sigh.
+	 * @param clz
+	 * @return
+	 */
+	public void checkHibernateClass(Class< ? > clz) {
+		ClassMetadata childmd = m_session.getSessionFactory().getClassMetadata(clz);
+		if(childmd == null)
+			throw new IllegalArgumentException("The class " + clz + " is not known by Hibernate as a persistent class");
+	}
+
 	private String nextAlias() {
 		return "a" + (++m_aliasIndex);
 	}
@@ -174,6 +187,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	@Override
 	public void visitCriteria(final QCriteria< ? > qc) throws Exception {
+		checkHibernateClass(qc.getBaseClass());
 		m_rootClass = qc.getBaseClass();
 		super.visitCriteria(qc);
 
@@ -800,6 +814,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		Object old = m_currentCriteria;
 		Class< ? > oldroot = m_rootClass;
 		m_rootClass = q.getBaseClass();
+		checkHibernateClass(m_rootClass);
 		m_currentCriteria = dc;
 		where.visit(this);
 		if(m_last != null) {
@@ -867,6 +882,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	public void visitSelection(QSelection< ? > s) throws Exception {
 		if(m_proli != null)
 			throw new IllegalStateException("? Projection list already initialized??");
+		checkHibernateClass(s.getBaseClass());
 		m_rootClass = s.getBaseClass();
 		m_proli = Projections.projectionList();
 		visitSelectionColumns(s);
@@ -939,6 +955,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		Object old = m_currentCriteria;
 		Class< ? > oldroot = m_rootClass;
 		m_rootClass = n.getSelectionQuery().getBaseClass();
+		checkHibernateClass(m_rootClass);
 		m_currentCriteria = dc;
 		n.getSelectionQuery().visit(this);
 		if(m_last != null) {
