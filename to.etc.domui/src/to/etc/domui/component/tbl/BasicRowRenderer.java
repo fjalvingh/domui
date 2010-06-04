@@ -2,6 +2,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
@@ -34,23 +36,30 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 	/** The column name to sort on by default, set by metadata. This is only used to keep it for a while until the actual column list is known; at that point the column def to sort on is determined and used. */
 	private String m_sortColumnName;
 
-	//	private boolean					m_sortableModel;
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Simple renderer initialization && parameterisation	*/
-	/*--------------------------------------------------------------*/
 	/**
 	 * Create a renderer by handling the specified class and a list of properties off it.
 	 * @param dataClass
 	 * @param cols
 	 */
-	public BasicRowRenderer(final Class<T> dataClass, final Object... cols) throws Exception {
+	public BasicRowRenderer(@Nonnull final Class<T> dataClass, final Object... cols) throws Exception {
 		super(dataClass);
+		initColumnSet(cols);
+	}
+
+	public BasicRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final Object... cols) throws Exception {
+		super(dataClass, cmm);
+		initColumnSet(cols);
+	}
+
+	private void initColumnSet(Object[] cols) throws Exception {
 		if(cols.length != 0)
 			addColumns(cols);
 		m_sortColumnName = model().getDefaultSortProperty();
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Simple renderer initialization && parameterisation	*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Add the specified list of property names and presentation options to the column definitions. The items passed in the
 	 * columns object can be multiple property definitions followed by specifications. A property name is a string starting

@@ -2,6 +2,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 
@@ -15,32 +17,29 @@ import to.etc.domui.component.meta.impl.*;
 public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRowRenderer<T> {
 	private int m_totwidth;
 
-	protected void setTotalWidth(int w) {
-		m_totwidth = w;
-	}
-
-	protected int getTotalWidth() {
-		return m_totwidth;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Simple renderer initialization && parameterisation	*/
-	/*--------------------------------------------------------------*/
 	/**
 	 * Create a renderer by handling the specified class and a list of properties off it.
 	 * @param dataClass
 	 * @param cols
 	 */
-	public SimpleRowRenderer(final Class<T> dataClass, final String... cols) {
+	public SimpleRowRenderer(@Nonnull final Class<T> dataClass, final String... cols) {
 		super(dataClass);
-		final ClassMetaModel cmm = MetaManager.findClassMeta(dataClass);
+		initColumnList(cols);
+	}
+
+	public SimpleRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final String... cols) {
+		super(dataClass, cmm);
+		initColumnList(cols);
+	}
+
+	private void initColumnList(@Nonnull String[] cols) {
 		if(cols.length != 0)
-			initializeExplicitColumns(cmm, cols);
+			initializeExplicitColumns(cols);
 		else
-			initializeDefaultColumns(cmm);
+			initializeDefaultColumns();
 
 		//-- Is there a default sort thingy? Is that column present?
-		final String sort = cmm.getDefaultSortProperty();
+		final String sort = model().getDefaultSortProperty();
 		if(sort != null) {
 			for(final SimpleColumnDef scd : m_columnList) {
 				if(scd.getPropertyName().equals(sort)) {
@@ -51,6 +50,10 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 		}
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Simple renderer initialization && parameterisation	*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * This initializes the ColumnList by auto-decoding all required data from the class and the
 	 * list of columns specified. It uses metamodel info if present.
@@ -58,11 +61,11 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 	 * @param clz
 	 * @param cols
 	 */
-	protected void initializeExplicitColumns(final ClassMetaModel cmm, final String[] cols) {
+	protected void initializeExplicitColumns(final String[] cols) {
 		if(cols == null || cols.length == 0)
 			throw new IllegalStateException("The list-of-columns is empty or null; I need at least one column to continue.");
 
-		final List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandProperties(cmm, cols);
+		final List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandProperties(model(), cols);
 		initialize(xdpl);
 	}
 
@@ -115,16 +118,24 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 	 * the metadata does not contain stuff this aborts.
 	 * @param clz
 	 */
-	private void initializeDefaultColumns(final ClassMetaModel cmm) {
-		final List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
+	private void initializeDefaultColumns() {
+		final List<DisplayPropertyMetaModel> dpl = model().getTableDisplayProperties();
 		if(dpl.size() == 0)
 			throw new IllegalStateException("The list-of-columns to show is empty, and the class has no metadata (@MetaObject) defining a set of columns as default table columns, so there.");
-		final List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
+		final List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, model(), null);
 		initialize(xdpl);
 	}
 
 	//	public boolean isSortableModel() {
 	//		return m_sortableModel;
 	//	}
+
+	protected void setTotalWidth(int w) {
+		m_totwidth = w;
+	}
+
+	protected int getTotalWidth() {
+		return m_totwidth;
+	}
 
 }

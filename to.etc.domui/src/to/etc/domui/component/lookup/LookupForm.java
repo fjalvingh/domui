@@ -305,6 +305,7 @@ public class LookupForm<T> extends Div {
 		defineDefaultButtons();
 	}
 
+	@Nonnull
 	public ClassMetaModel getMetaModel() {
 		return m_metaModel;
 	}

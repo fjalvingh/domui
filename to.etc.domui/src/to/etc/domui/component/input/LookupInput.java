@@ -499,9 +499,9 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			//-- We do not yet have a result table -> create one.
 			SimpleRowRenderer<T> rr = null;
 			if(m_resultColumns != null) {
-				rr = new SimpleRowRenderer<T>(getLookupClass(), m_resultColumns);
+				rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel(), m_resultColumns);
 			} else {
-				rr = new SimpleRowRenderer<T>(getLookupClass());
+				rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel());
 			}
 
 			m_result = new DataTable<T>(model, rr);
