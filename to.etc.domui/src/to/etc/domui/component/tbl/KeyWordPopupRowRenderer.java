@@ -2,6 +2,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
@@ -12,7 +14,7 @@ import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
 /**
- * This is simplified row renderer that is used ad default render for popup results in keyword search.    
+ * This is simplified row renderer that is used ad default render for popup results in keyword search.
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 27 Jan 2010
@@ -30,11 +32,6 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 
 	private ICellClicked< ? > m_rowClicked;
 
-	protected KeyWordPopupRowRenderer(Class<T> data) {
-		m_dataClass = data;
-		m_metaModel = MetaManager.findClassMeta(m_dataClass);
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple renderer initialization && parameterisation	*/
 	/*--------------------------------------------------------------*/
@@ -43,9 +40,8 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 * @param dataClass
 	 * @param cols
 	 */
-	public KeyWordPopupRowRenderer(final Class<T> dataClass, final String... cols) {
-		this(dataClass);
-		final ClassMetaModel cmm = MetaManager.findClassMeta(dataClass);
+	public KeyWordPopupRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final String... cols) {
+		this(dataClass, cmm);
 		List<ExpandedDisplayProperty> xdpl;
 		if(cols.length != 0)
 			xdpl = ExpandedDisplayProperty.expandProperties(cmm, cols);
@@ -56,6 +52,11 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 			xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
 		}
 		addColumns(xdpl);
+	}
+
+	protected KeyWordPopupRowRenderer(@Nonnull Class<T> data, @Nonnull ClassMetaModel cmm) {
+		m_dataClass = data;
+		m_metaModel = cmm;
 	}
 
 	/**

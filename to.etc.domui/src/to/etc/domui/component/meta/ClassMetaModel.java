@@ -7,17 +7,25 @@ import javax.annotation.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.query.*;
 
 public interface ClassMetaModel {
-	public Class< ? > getActualClass();
+	/**
+	 * FIXME Questionable nullity
+	 * @return
+	 */
+	@Nonnull
+	Class< ? > getActualClass();
 
 	/**
 	 * Returns the message bundle for translations related to this class. This will never return null.
 	 * @return
 	 */
-	public BundleRef getClassBundle();
+	@Nullable
+	BundleRef getClassBundle();
 
-	public List<PropertyMetaModel> getProperties();
+	@Nonnull
+	List<PropertyMetaModel> getProperties();
 
 	/**
 	 * Returns the named property on <i>this</i> class. This does not allow
@@ -25,7 +33,8 @@ public interface ClassMetaModel {
 	 * @param name
 	 * @return
 	 */
-	public PropertyMetaModel findSimpleProperty(String name);
+	@Nullable
+	PropertyMetaModel findSimpleProperty(String name);
 
 	/**
 	 * Returns a property reference to the specified property by following the dotted path
@@ -37,9 +46,9 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	public PropertyMetaModel findProperty(String name);
+	PropertyMetaModel findProperty(String name);
 
-	public boolean isPersistentClass();
+	boolean isPersistentClass();
 
 	/**
 	 * If this is a persistent class that is directly mapped onto some table, this might return the table name. This
@@ -47,16 +56,19 @@ public interface ClassMetaModel {
 	 * value records share the same table.
 	 * @return
 	 */
-	public String getTableName();
+	@Nullable
+	String getTableName();
 
-	public PropertyMetaModel getPrimaryKey();
+	@Nullable
+	PropertyMetaModel getPrimaryKey();
 
 	/**
 	 * If this class is an enum or represents some enumerated value, this returns the possible value objects. If
 	 * this is not a domain type this MUST return null.
 	 * @return
 	 */
-	public Object[] getDomainValues();
+	@Nullable
+	Object[] getDomainValues();
 
 	/**
 	 * For a Domain type (Enum, Boolean) this returns a label for a given domain value. When called for
@@ -65,18 +77,21 @@ public interface ClassMetaModel {
 	 * @param value
 	 * @return
 	 */
-	public String getDomainLabel(Locale loc, Object value);
+	@Nonnull
+	String getDomainLabel(Locale loc, Object value);
 
 	/**
 	 * Return a user-presentable entity name (singular) for this class. This defaults to the classname itself if unset.
 	 */
-	public String getUserEntityName();
+	@Nonnull
+	String getUserEntityName();
 
 	/**
 	 * Returns the name of this entity in user terms; the returned name is plural.
 	 * @return
 	 */
-	public String getUserEntityNamePlural();
+	@Nullable
+	String getUserEntityNamePlural();
 
 	/**
 	 * If this class is the UP in a relation this specifies that it must
@@ -86,46 +101,55 @@ public interface ClassMetaModel {
 	 *
 	 * @return
 	 */
-	public Class< ? extends IComboDataSet< ? >> getComboDataSet();
+	@Nullable
+	Class< ? extends IComboDataSet< ? >> getComboDataSet();
 
 	/**
 	 * When this relation-property is presented as a single field this can contain a class to render
 	 * that field as a string.
 	 * @return
 	 */
-	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer();
+	@Nullable
+	Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer();
 
-	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
+	@Nullable
+	Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
 
 	/**
 	 * If this object is shown in a combobox it needs to show the following
 	 * properties as the display value.
 	 * @return
 	 */
-	public List<DisplayPropertyMetaModel> getComboDisplayProperties();
+	@Nonnull
+	List<DisplayPropertyMetaModel> getComboDisplayProperties();
 
 	/**
 	 * If this object is shown in a Table it needs to show the following
 	 * properties there.
 	 * @return
 	 */
-	public List<DisplayPropertyMetaModel> getTableDisplayProperties();
+	@Nonnull
+	List<DisplayPropertyMetaModel> getTableDisplayProperties();
 
 	/**
 	 * Returns the SORTED list of search properties defined on this class.
 	 * @return
 	 */
-	public List<SearchPropertyMetaModelImpl> getSearchProperties();
+	@Nonnull
+	List<SearchPropertyMetaModelImpl> getSearchProperties();
 
 	/**
 	 * Returns the SORTED list of key word search properties defined on this class.
 	 * @return
 	 */
-	public List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties();
+	@Nonnull
+	List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties();
 
-	public String getDefaultSortProperty();
+	@Nullable
+	String getDefaultSortProperty();
 
-	public SortableType getDefaultSortDirection();
+	@Nonnull
+	SortableType getDefaultSortDirection();
 
 	/**
 	 * When present this gives a hint to the component factories to help with choosing a
@@ -134,7 +158,8 @@ public interface ClassMetaModel {
 	 * control to help it select one parent.
 	 * @return
 	 */
-	public String getComponentTypeHint();
+	@Nullable
+	String getComponentTypeHint();
 
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
@@ -142,7 +167,8 @@ public interface ClassMetaModel {
 	 * record in the edit page. If empty this will use the lookupFieldDisplayProperties.
 	 * @return
 	 */
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer();
+	@Nullable
+	Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer();
 
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
@@ -150,5 +176,22 @@ public interface ClassMetaModel {
 	 * record in the edit page.
 	 * @return
 	 */
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();
+	@Nonnull
+	List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();
+
+	/**
+	 * EXPERIMENTAL
+	 * If this is a persistent class, this should create a base QCriteria instance to do queries
+	 * on this class. The QCriteria&lt;T&gt; instance returned <i>must</i> have a T that is equal
+	 * to the value returned by this.getActualClass(). In addition it should have only restrictions
+	 * that limit the result to valid instances of this class, <i>nothing else</i>! This usually
+	 * means the restriction set is empty.
+	 *
+	 * <p>Needs evaluation.</p>
+	 *
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	QCriteria< ? > createCriteria() throws Exception;
 }

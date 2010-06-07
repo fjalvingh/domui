@@ -4,7 +4,7 @@ function _block() {
 function _unblock() {
 	WebUI.unblockUI();
 }
-$().ajaxStart(_block).ajaxStop(_unblock);
+$(document).ajaxStart(_block).ajaxStop(_unblock);
 
 ( function($) {
 	$.webui = function(xml) {

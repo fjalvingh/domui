@@ -361,7 +361,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	}
 
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
-		return m_propertyMeta == null ? null : m_propertyMeta.getComboDisplayProperties();
+		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getComboDisplayProperties();
 	}
 
 	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer() {
@@ -401,7 +401,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	}
 
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
-		return m_propertyMeta == null ? null : m_propertyMeta.getLookupFieldDisplayProperties();
+		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getLookupFieldDisplayProperties();
 	}
 
 	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
@@ -413,11 +413,11 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	}
 
 	public YesNoType getReadOnly() {
-		return m_propertyMeta == null ? null : m_propertyMeta.getReadOnly();
+		return m_propertyMeta == null ? YesNoType.UNKNOWN : m_propertyMeta.getReadOnly();
 	}
 
 	public PropertyRelationType getRelationType() {
-		return m_propertyMeta == null ? null : m_propertyMeta.getRelationType();
+		return m_propertyMeta == null ? PropertyRelationType.NONE : m_propertyMeta.getRelationType();
 	}
 
 	public int getScale() {
@@ -429,7 +429,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	//	}
 
 	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
-		return m_propertyMeta == null ? null : m_propertyMeta.getTableDisplayProperties();
+		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getTableDisplayProperties();
 	}
 
 	@Override
@@ -438,7 +438,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	}
 
 	public TemporalPresentationType getTemporal() {
-		return m_propertyMeta == null ? null : m_propertyMeta.getTemporal();
+		return m_propertyMeta == null ? TemporalPresentationType.UNKNOWN : m_propertyMeta.getTemporal();
 	}
 
 	public NumericPresentation getNumericPresentation() {

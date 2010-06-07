@@ -7,7 +7,6 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.LookupForm.*;
 import to.etc.domui.component.tbl.*;
-import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -38,7 +37,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	IMultiSelectionResult<T> m_onReceiveResult;
 
-	private IQueryHandler<T> m_queryHandler;
+	//	private IQueryHandler<T> m_queryHandler;
 
 	private IQueryManipulator<T> m_queryManipulator;
 
@@ -135,12 +134,12 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	private void setTableQuery(QCriteria<T> qc) throws Exception {
 		ITableModel<T> model;
-		if(m_queryHandler == null) {
+		//		if(m_queryHandler == null) {
 			QDataContextFactory src = QContextManager.getDataContextFactory(getPage().getConversation());
 			model = new SimpleSearchModel<T>(src, qc);
-		} else {
-			model = new SimpleSearchModel<T>(m_queryHandler, qc);
-		}
+		//		} else {
+		//			model = new SimpleSearchModel<T>(m_queryHandler, qc);
+		//		}
 
 		if(m_queryResultTable == null) {
 			//-- We do not yet have a result table -> create one.

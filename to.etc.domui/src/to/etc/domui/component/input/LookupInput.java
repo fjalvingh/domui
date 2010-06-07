@@ -8,7 +8,6 @@ import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.component.tbl.*;
-import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -18,13 +17,23 @@ import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
 public class LookupInput<T> extends Table implements IInputNode<T>, IHasModifiedIndication {
+	/**
+	 * The result class. For Java classes this usually also defines the metamodel to use; for generic meta this should
+	 * be the value record class type.
+	 */
+	final private Class<T> m_lookupClass;
+
+	/**
+	 * The metamodel to use to handle the data in this class. For Javabean data classes this is automatically
+	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
+	 */
+	final private ClassMetaModel m_metaModel;
+
 	private LookupForm<T> m_externalLookupForm;
 
 	private SmallImgButton m_selButton;
 
 	private SmallImgButton m_clearButton;
-
-	private Class<T> m_lookupClass;
 
 	FloatingWindow m_floater;
 
@@ -74,12 +83,21 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	private boolean m_allowKeyWordSearch = true;
 
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
-		this(lookupClass);
+		this(lookupClass, (ClassMetaModel) null);
 		m_resultColumns = resultColumns;
 	}
 
+	/**
+	 * Lookup a POJO Java bean persistent class.
+	 * @param lookupClass
+	 */
 	public LookupInput(Class<T> lookupClass) {
+		this(lookupClass, (ClassMetaModel) null);
+	}
+
+	public LookupInput(Class<T> lookupClass, ClassMetaModel metaModel) {
 		m_lookupClass = lookupClass;
+		m_metaModel = metaModel != null ? metaModel : MetaManager.findClassMeta(lookupClass);
 		m_selButton = new SmallImgButton("THEME/btn-popuplookup.png");
 		m_selButton.setTestID("selButtonInputLookup");
 		m_selButton.setClicked(new IClicked<NodeBase>() {
@@ -103,6 +121,15 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		setCssClass("ui-lui");
 		setCellPadding("0");
 		setCellSpacing("0");
+	}
+
+
+	public Class<T> getLookupClass() {
+		return m_lookupClass;
+	}
+
+	public ClassMetaModel getMetaModel() {
+		return m_metaModel;
 	}
 
 	public INodeContentRenderer<T> getContentRenderer() {
@@ -166,15 +193,9 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		if(getKeyWordSearchHandler() != null) {
 			return true;
 		}
-		ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
-		if(cmm != null) {
-			//-- Has default meta?
-			List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
-			if(spml.size() > 0) {
-				return true;
-			}
-		}
-		return false;
+
+		List<SearchPropertyMetaModelImpl> spml = getMetaModel().getKeyWordSearchProperties();
+		return spml.size() > 0;
 	}
 
 	private void appendParameters(TD cell, Object parameters) {
@@ -211,9 +232,9 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		m_keySearch.setWidth("100%");
 		KeyWordPopupRowRenderer<T> rr = null;
 		if(m_resultColumns != null) {
-			rr = new KeyWordPopupRowRenderer<T>(m_lookupClass, m_resultColumns);
+			rr = new KeyWordPopupRowRenderer<T>(getLookupClass(), getMetaModel(), m_resultColumns);
 		} else {
-			rr = new KeyWordPopupRowRenderer<T>(m_lookupClass);
+			rr = new KeyWordPopupRowRenderer<T>(getLookupClass(), getMetaModel());
 		}
 
 		rr.setRowClicked(new ICellClicked<T>() {
@@ -280,22 +301,18 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	private String getDefaultKeySearchHint() {
 		String result = null;
-		ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
-		if(cmm != null) {
-			//-- Has default meta?
-			List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
-			if(spml.size() > 0) {
-				result = "";
-				for(int i = 0; i < spml.size(); i++) {
-					SearchPropertyMetaModelImpl spm = spml.get(i);
-					if(spm.getLookupLabel() != null) {
-						result = result + spm.getLookupLabel();
-					} else {
-						result = result + cmm.findProperty(spm.getPropertyName()).getDefaultLabel();
-					}
-					if(i < spml.size() - 1)
-						result = result + ", ";
+		List<SearchPropertyMetaModelImpl> spml = getMetaModel().getKeyWordSearchProperties();
+		if(spml.size() > 0) {
+			result = "";
+			for(int i = 0; i < spml.size(); i++) {
+				SearchPropertyMetaModelImpl spm = spml.get(i);
+				if(spm.getLookupLabel() != null) {
+					result = result + spm.getLookupLabel();
+				} else {
+					result = result + getMetaModel().findProperty(spm.getPropertyName()).getDefaultLabel();
 				}
+				if(i < spml.size() - 1)
+					result = result + ", ";
 			}
 		}
 		return result;
@@ -320,11 +337,10 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				return null;
 			}
 		} else {
-			ClassMetaModel cmm = MetaManager.findClassMeta(m_lookupClass);
-
 			//-- Has default meta?
-			List<SearchPropertyMetaModelImpl> spml = cmm.getKeyWordSearchProperties();
-			searchQuery = QCriteria.create(m_lookupClass);
+			List<SearchPropertyMetaModelImpl> spml = getMetaModel().getKeyWordSearchProperties();
+			searchQuery = (QCriteria<T>) getMetaModel().createCriteria();
+
 			QRestrictor<T> r = searchQuery.or();
 			int ncond = 0;
 			if(spml.size() > 0) {
@@ -333,11 +349,11 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 						//-- Abort on invalid metadata; never continue with invalid data.
 						if(spm.getPropertyName() == null)
-							throw new ProgrammerErrorException("The quick lookup properties for " + cmm + " are invalid: the property name is null");
+							throw new ProgrammerErrorException("The quick lookup properties for " + getMetaModel() + " are invalid: the property name is null");
 
-						List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(cmm, spm.getPropertyName()); // This will return an empty list on empty string input
+						List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(getMetaModel(), spm.getPropertyName()); // This will return an empty list on empty string input
 						if(pl.size() == 0)
-							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + cmm);
+							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + getMetaModel());
 
 						//It is required that lookup by id is also available, for now only Long type is supported
 						//FIXME: see if it is possible to generalize things for all integer based types... (DomUtil.isIntegerType(pmm.getActualType()))
@@ -416,7 +432,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			m_floater.add((NodeBase) m_customErrorMessageListener);
 			DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
 		}
-		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(m_lookupClass);
+		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(getLookupClass(), getMetaModel());
 
 		lf.setRenderAsCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
@@ -483,9 +499,9 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			//-- We do not yet have a result table -> create one.
 			SimpleRowRenderer<T> rr = null;
 			if(m_resultColumns != null) {
-				rr = new SimpleRowRenderer<T>(m_lookupClass, m_resultColumns);
+				rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel(), m_resultColumns);
 			} else {
-				rr = new SimpleRowRenderer<T>(m_lookupClass);
+				rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel());
 			}
 
 			m_result = new DataTable<T>(model, rr);

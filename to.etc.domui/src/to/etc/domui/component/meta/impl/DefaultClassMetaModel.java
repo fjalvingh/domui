@@ -1,20 +1,28 @@
 package to.etc.domui.component.meta.impl;
 
-import java.lang.annotation.*;
-import java.lang.reflect.*;
 import java.util.*;
 
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
-import to.etc.util.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.query.*;
 
+/**
+ * This is a DomUI class metamodel info record that only contains data. It can be constructed by
+ * metamodel factories and filled in by calling the appropriate setters. When an instance of this
+ * class has been returned by a factory then it is NOT ALLOWED TO CHANGE IT ANYMORE(!) to maintain
+ * thread-safety.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jun 2, 2010
+ */
 public class DefaultClassMetaModel implements ClassMetaModel {
 	/** The class this is a class metamodel <i>for</i> */
 	private final Class< ? > m_metaClass;
+
+	private ICriteriaTableDef< ? > m_metaTableDef;
 
 	private String m_classNameOnly;
 
@@ -87,151 +95,6 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_classBundle = BundleRef.create(metaClass, m_classNameOnly);
 	}
 
-	/**
-	 * Decodes all properties and retrieves all known info from them.
-	 */
-	synchronized void initialize() {
-		decodeClassAnnotations();
-
-		try {
-			/*
-			 * Business as usual: the Introspector does not properly resolve properties when using
-			 * invariant returns. We're forced to do something by ourselves. The Introspector does
-			 * not return the defined method in the class, but it returns the synthetic proxy generated
-			 * by the compiler with the fixed "Object" return type. This means that the return type
-			 * would be incorrect, but even worse: the generated method lacks the annotations on
-			 * the real method. This caused metadata to be unavailable for classes that implemented
-			 * IIdentifyable&gt;Long&gl;.
-			 *
-			 * BeanInfo bi = Introspector.getBeanInfo(m_metaClass);
-			 * PropertyDescriptor[] ar = bi.getPropertyDescriptors();
-			 */
-			List<PropertyInfo> pilist = ClassUtil.getProperties(m_metaClass);
-
-			//-- If this is an enumerable thingerydoo...
-			if(m_metaClass == Boolean.class) {
-				m_domainValues = new Object[]{Boolean.FALSE, Boolean.TRUE};
-			} else if(Enum.class.isAssignableFrom(m_metaClass)) {
-				Class<Enum< ? >> ecl = (Class<Enum< ? >>) m_metaClass;
-				m_domainValues = ecl.getEnumConstants();
-			}
-
-			//-- Create model data from this thingy.
-			for(PropertyInfo pd : pilist) {
-				if(!pd.getName().equals("class"))
-					createPropertyInfo(pd);
-			}
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
-	}
-
-	private void createPropertyInfo(final PropertyInfo pd) {
-		//		System.out.println("Property: " + pd.getName() + ", reader=" + pd.getGetter());
-		//		if(pd.getName().equals("id"))
-		//			System.out.println("GOTCHA");
-
-		Method rm = pd.getGetter();
-		if(rm.getParameterTypes().length != 0)
-			return;
-		DefaultPropertyMetaModel pm = new DefaultPropertyMetaModel(this, pd);
-		m_propertyMap.put(pm.getName(), pm);
-		if(pm.isPrimaryKey())
-			setPrimaryKey(pm);
-	}
-
-	/**
-	 * Walk all known class annotations and use them to add class based metadata.
-	 */
-	protected void decodeClassAnnotations() {
-		Annotation[] annar = m_metaClass.getAnnotations(); // All class-level thingerydoos
-		for(Annotation an : annar) {
-			String ana = an.annotationType().getName(); // Get the annotation's name
-			decodeAnnotationByName(an, ana); // Decode by name literal
-			decodeAnnotation(an); // Decode well-known annotations
-		}
-	}
-
-	/**
-	 * Can be overridden to decode user-specific annotations. The default implementation does nothing.
-	 * @param an
-	 * @param name
-	 */
-	protected void decodeAnnotationByName(final Annotation an, final String name) {
-		if("javax.persistence.Table".equals(name)) {
-			//-- Decode fields from the annotation.
-			try {
-				String tablename = (String) DomUtil.getClassValue(an, "name");
-				String tableschema = (String) DomUtil.getClassValue(an, "schema");
-				if(tablename != null) {
-					if(tableschema != null)
-						tablename = tableschema + "." + tablename;
-					setTableName(tablename);
-				}
-			} catch(Exception x) {
-				Trouble.wrapException(x);
-			}
-		}
-	}
-
-	/**
-	 * Decodes all DomUI annotations.
-	 * @param an
-	 */
-	protected void decodeAnnotation(final Annotation an) {
-		if(an instanceof MetaCombo) {
-			MetaCombo c = (MetaCombo) an;
-			if(c.dataSet() != UndefinedComboDataSet.class)
-				setComboDataSet(c.dataSet());
-			if(c.labelRenderer() != UndefinedLabelStringRenderer.class)
-				setComboLabelRenderer(c.labelRenderer());
-			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
-				setComboNodeRenderer(c.nodeRenderer());
-			if(c.optional() != ComboOptionalType.INHERITED)
-				m_comboOptional = c.optional();
-			if(c.properties() != null && c.properties().length > 0) {
-				m_comboDisplayProperties = DisplayPropertyMetaModel.decode(this, c.properties());
-			}
-			setComponentTypeHint(Constants.COMPONENT_COMBO);
-		} else if(an instanceof MetaLookup) {
-			MetaLookup c = (MetaLookup) an;
-			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
-				m_lookupFieldRenderer = c.nodeRenderer();
-			if(c.properties().length != 0)
-				m_lookupFieldDisplayProperties = DisplayPropertyMetaModel.decode(this, c.properties());
-			setComponentTypeHint(Constants.COMPONENT_LOOKUP);
-		} else if(an instanceof MetaObject) {
-			MetaObject mo = (MetaObject) an;
-			if(mo.defaultColumns().length > 0) {
-				m_tableDisplayProperties = DisplayPropertyMetaModel.decode(this, mo.defaultColumns());
-			}
-			if(!mo.defaultSortColumn().equals(Constants.NONE))
-				setDefaultSortProperty(mo.defaultSortColumn());
-			setDefaultSortDirection(mo.defaultSortOrder());
-		} else if(an instanceof MetaSearch) {
-			MetaSearch ms = (MetaSearch) an;
-			int index = 0;
-			for(MetaSearchItem msi : ms.value()) {
-				index++;
-				SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(this);
-				mm.setIgnoreCase(msi.ignoreCase());
-				mm.setOrder(msi.order() == -1 ? index : msi.order());
-				mm.setMinLength(msi.minLength());
-				mm.setPropertyName(msi.name().length() == 0 ? null : msi.name());
-				mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
-				mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
-
-				//FIXME NEED TO ADD HERE ACCORDING TO TYPE.
-				//				if(msi. == SearchPropertyType.SEARCH_FIELD) {
-				//					((DefaultClassMetaModel) getClassModel()).addSearchProperty(mm);
-				//				}
-				//				if(searchType == SearchPropertyType.KEYWORD) {
-				//					((DefaultClassMetaModel) getClassModel()).addKeyWordSearchProperty(mm);
-				//				}
-				addSearchProperty(mm);
-			}
-		}
-	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Resource bundle data.								*/
@@ -303,11 +166,14 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		if(pmm != null)
 			m_propertyMap.put(name, pmm); // Save resolved path's property info
 		return pmm;
-		//		return m_propertyMap.get(name);
 	}
 
 	public synchronized PropertyMetaModel findSimpleProperty(final String name) {
 		return m_propertyMap.get(name);
+	}
+
+	public synchronized void addProperty(PropertyMetaModel pmm) {
+		m_propertyMap.put(pmm.getName(), pmm);
 	}
 
 	public List<PropertyMetaModel> getProperties() {
@@ -395,13 +261,6 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 */
 	public List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties() {
 		return m_keyWordSearchProperties;
-		//		List<SearchPropertyMetaModelImpl> list = new ArrayList<SearchPropertyMetaModelImpl>(m_keyWordSearchProperties);
-		//		Collections.sort(list, new Comparator<SearchPropertyMetaModelImpl>() {
-		//			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
-		//				return o1.getOrder() - o2.getOrder();
-		//			}
-		//		});
-		//		return list;
 	}
 
 	public Class< ? > getActualClass() {
@@ -526,6 +385,32 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		}
 		if(value instanceof Boolean)
 			return Msgs.BUNDLE.getString(((Boolean) value).booleanValue() ? Msgs.UI_BOOL_TRUE : Msgs.UI_BOOL_FALSE);
-		return null;
+
+		throw new IllegalStateException("Invalid call for non-domain object.");
+		//		return null;
 	}
+
+	@Nullable
+	public ICriteriaTableDef< ? > getMetaTableDef() {
+		return m_metaTableDef;
+	}
+
+	public void setMetaTableDef(@Nullable ICriteriaTableDef< ? > metaTableDef) {
+		m_metaTableDef = metaTableDef;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.component.meta.ClassMetaModel#createCriteria()
+	 */
+	@Override
+	@Nonnull
+	public QCriteria< ? > createCriteria() throws Exception {
+		if(!isPersistentClass())
+			throw new IllegalStateException("This ClassMetaModel (" + this + ") is not persistent.");
+		if(getMetaTableDef() != null)
+			return QCriteria.create(getMetaTableDef());
+		return QCriteria.create(getActualClass());
+	}
+
 }
