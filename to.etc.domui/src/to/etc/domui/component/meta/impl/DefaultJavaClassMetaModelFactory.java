@@ -244,6 +244,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			pmm.setRelationType(PropertyRelationType.DOWN);
 		} else if("to.etc.webapp.qsql.QJdbcId".equals(name)) {
 			pmm.setPrimaryKey(true);
+			cmm.setPersistentClass(true);
 		}
 	}
 
@@ -353,6 +354,8 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			} catch(Exception x) {
 				Trouble.wrapException(x);
 			}
+		} else if("to.etc.webapp.qsql.QJdbcTable".equals(name)) {
+			cmm.setPersistentClass(true);
 		}
 	}
 
