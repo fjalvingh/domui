@@ -149,6 +149,24 @@ final public class UIGoto {
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
 	}
 
+	/**
+	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
+	 * On the new page show the specified message as an UI message.
+	 * @param pg
+	 * @param clz
+	 * @param pp
+	 * @param msg
+	 */
+	static public final void replace(Page pg, final Class< ? extends UrlPage> clz, final PageParameters pp, UIMessage msg) {
+		if(clz == null)
+			throw new IllegalArgumentException("The class to move-to cannot be null");
+		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
+		msgl.add(msg);
+		WindowSession ws = pg.getConversation().getWindowSession();
+		ws.setAttribute(UIGoto.SINGLESHOT_MESSAGE, msgl);
+		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
+	}
+
 	static public void redirect(final String targeturl) {
 		context().internalSetRedirect(targeturl);
 	}
