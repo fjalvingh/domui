@@ -9,6 +9,16 @@ import to.etc.util.*;
 /**
  * Utility class for JDBC code.
  *
+ *
+ * <h2>Preparation for calling SP's with TYPE xx IS RECORD parameters.</h2>
+ * <p>Datadict table ALL_PROCEDURES contains all SP's in packages. The parameters for
+ * SPs can be glanced from ALL_ARGUMENTS; something odd so far is that doing a selection:
+ * <pre>
+ * select * from sys.all_arguments where owner='DECADE' and package_name='GEBRUI' and object_name='LEES100';
+ * </pre>
+ * returns data that seem to indicate that the SP exists as a 2-parameter version but also an expanded version
+ * having all parameter fields.</p>
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 21, 2009
  */
@@ -361,7 +371,6 @@ public class JdbcUtil {
 				} else {
 					throw new IllegalStateException("Call error: cannot get out parameter for result java type=" + rtype);
 				}
-
 			} else {
 				return null;
 			}
