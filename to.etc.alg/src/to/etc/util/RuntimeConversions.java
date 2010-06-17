@@ -355,6 +355,8 @@ public class RuntimeConversions {
 			return convertToByteWrapper(o);
 		if(to == Character.class || to == Character.TYPE)
 			return convertToCharacterWrapper(o);
+		if(to == Double.class || to == Double.TYPE)
+			return convertToDoubleWrapper(o);
 
 		if(o == null && !to.isPrimitive()) // Accept null for all non-primitives
 			return o;

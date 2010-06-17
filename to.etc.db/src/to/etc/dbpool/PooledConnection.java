@@ -462,6 +462,7 @@ public class PooledConnection implements Connection {
 	}
 
 	public <T> T unwrap(Class<T> iface) throws SQLException {
-		return (T) check();
+		check();
+		return m_pe.getConnection().unwrap(iface);
 	}
 }
