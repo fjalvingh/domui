@@ -1254,4 +1254,19 @@ final public class DomUtil {
 		return true;
 	}
 
+	/**
+	 * EXPENSIVE - USE WITH CARE Check if first string paramater is equal to some from others
+	 * @param value
+	 * @param values
+	 * @return
+	 */
+	static public boolean isIn(String value, String... values) {
+		for(String item : values) {
+			if(item.equals(value)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
