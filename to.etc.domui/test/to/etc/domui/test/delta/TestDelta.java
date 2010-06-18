@@ -93,6 +93,7 @@ public class TestDelta {
 		IBrowserOutput ro = new PrettyXmlOutputWriter(sw);
 		IRequestContext ctx = new TestRequestContext();
 		HtmlFullRenderer hr = getFullRenderer(ro);
+		pg.internalDeltaBuild();
 		OptimalDeltaRenderer odr = new OptimalDeltaRenderer(hr, ctx, pg);
 		odr.render();
 		return sw.getBuffer().toString();

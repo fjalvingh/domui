@@ -227,7 +227,9 @@ final public class WindowSession {
 	public ConversationContext createConversation(final IRequestContext ctx, final Class< ? extends ConversationContext> clz) throws Exception {
 		if(clz == null)
 			return new SimpleConversationContext();
-		return clz.newInstance(); // FIXME Should do something with injection and stuff.
+		ConversationContext cc = clz.newInstance(); // FIXME Should do something with injection and stuff.
+		m_appSession.getApplication().internalCallConversationCreated(cc);
+		return cc;
 	}
 
 	public void acceptNewConversation(final ConversationContext cc) throws Exception {

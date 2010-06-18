@@ -1239,6 +1239,104 @@ public abstract class DomApplication {
 	}
 
 	/*--------------------------------------------------------------*/
+	/*	CODING:	DomUI state listener handling.						*/
+	/*--------------------------------------------------------------*/
+
+	private List<IDomUIStateListener> m_uiStateListeners = Collections.EMPTY_LIST;
+
+	/**
+	 * Register a listener for internal DomUI events.
+	 * @param sl
+	 */
+	public synchronized void addUIStateListener(IDomUIStateListener sl) {
+		m_uiStateListeners = new ArrayList<IDomUIStateListener>(m_uiStateListeners); // Dup list;
+		m_uiStateListeners.add(sl);
+	}
+
+	/**
+	 * Remove a registered UI state listener.
+	 * @param sl
+	 */
+	public synchronized void removeUIStateListener(IDomUIStateListener sl) {
+		m_uiStateListeners = new ArrayList<IDomUIStateListener>(m_uiStateListeners); // Dup list;
+		m_uiStateListeners.remove(sl);
+	}
+
+	private synchronized List<IDomUIStateListener> getUIStateListeners() {
+		return m_uiStateListeners;
+	}
+
+	public final void internalCallWindowSessionCreated(WindowSession ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.windowSessionCreated(ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void internalCallWindowSessionDestroyed(WindowSession ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.windowSessionDestroyed(ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void internalCallConversationCreated(ConversationContext ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.conversationCreated(ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void internalCallConversationDestroyed(ConversationContext ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.conversationDestroyed(ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void internalCallPageFullRender(RequestContextImpl ctx, Page ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.onBeforeFullRender(ctx, ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void internalCallPageAction(RequestContextImpl ctx, Page ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.onBeforePageAction(ctx, ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void internalCallPageComplete(IRequestContext ctx, Page ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.onAfterPage(ctx, ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	/*--------------------------------------------------------------*/
 	/*	CODING:	Silly helpers.										*/
 	/*--------------------------------------------------------------*/
 

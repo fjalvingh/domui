@@ -238,8 +238,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		if(page.getBody() instanceof IXHTMLPage) {
 			setXml(true);
 		}
-//		page.build();
-		page.internalFullBuild();
+//		page.build();  jal 20100618 moved to users of full renderer; building and rendering are now separate concerns
 
 		renderPageHeader();
 		//		o().writeRaw(

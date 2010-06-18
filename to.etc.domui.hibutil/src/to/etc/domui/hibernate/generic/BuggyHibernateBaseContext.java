@@ -21,7 +21,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 15, 2009
  */
-public class BuggyHibernateBaseContext extends QAbstractDataContext implements QDataContext, ConversationStateListener {
+public class BuggyHibernateBaseContext extends QAbstractDataContext implements QDataContext, IConversationStateListener {
 	static protected final Logger LOG = LoggerFactory.getLogger(BuggyHibernateBaseContext.class);
 
 	private String m_conversationInvalid;
@@ -194,7 +194,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.domui.state.ConversationStateListener#conversationDestroyed(to.etc.domui.state.ConversationContext)
+	 * @see to.etc.domui.state.IConversationStateListener#conversationDestroyed(to.etc.domui.state.ConversationContext)
 	 */
 	public void conversationDestroyed(final ConversationContext cc) throws Exception {
 		setIgnoreClose(false); // Disable ignore close - this close should work.
@@ -204,7 +204,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.domui.state.ConversationStateListener#conversationDetached(to.etc.domui.state.ConversationContext)
+	 * @see to.etc.domui.state.IConversationStateListener#conversationDetached(to.etc.domui.state.ConversationContext)
 	 */
 	public void conversationDetached(final ConversationContext cc) throws Exception {
 		setIgnoreClose(false); // Disable ignore close - this close should work.
@@ -214,7 +214,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.domui.state.ConversationStateListener#conversationNew(to.etc.domui.state.ConversationContext)
+	 * @see to.etc.domui.state.IConversationStateListener#conversationNew(to.etc.domui.state.ConversationContext)
 	 */
 	public void conversationNew(final ConversationContext cc) throws Exception {}
 }

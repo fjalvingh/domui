@@ -170,6 +170,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 		for(WindowSession cm : map.values()) {
 			cm.destroyConversations();
+			m_application.internalCallWindowSessionDestroyed(cm);
 		}
 	}
 
@@ -202,6 +203,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			System.out.println("cm: dropping window session " + cm.getWindowID() + " due to timeout");
 			try {
 				cm.destroyConversations();
+				m_application.internalCallWindowSessionDestroyed(cm);
 			} catch(Exception x) {
 				LOG.warn("Exception in destroyConversations", x);
 			}
@@ -217,6 +219,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		m_windowMap.put(cm.getWindowID(), cm);
 		if(!resurrectWindowSession(cm))
 			return null;
+		m_application.internalCallWindowSessionCreated(cm);
 		return cm;
 	}
 
@@ -321,6 +324,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			m_windowMap.remove(cm.getWindowID()); // Atomically remove the thingy.
 		}
 		cm.destroyConversations(); // Discard all of it's contents.
+		m_application.internalCallWindowSessionDestroyed(cm);
 	}
 
 	/**

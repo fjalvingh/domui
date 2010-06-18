@@ -88,6 +88,29 @@
 	font-weight: bold;
 }
 
+/*** Bug indicator UI ***/
+.ui-bug-ind {
+	background-color: red;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 80px;
+	height: 43px;
+	border: 2px solid black;
+}
+.ui-bug-count {
+	font-size: 25px;
+	font-weight: bold;
+	color: yellow;
+}
+.ui-bug-msg {
+}
+.ui-bug-stk {
+	white-space: pre;
+	font-family: monospace;
+	font-size: 8px;
+}
+
 /*** DisplayCheckbox ***/
 .ui-dspcb {
 	border: none;

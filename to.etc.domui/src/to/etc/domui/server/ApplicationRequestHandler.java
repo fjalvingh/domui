@@ -223,6 +223,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				QContextManager.closeSharedContext(page.getConversation());
 			}
 			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
+			m_application.internalCallPageFullRender(ctx, page);
 
 			page.getBody().onReload();
 
@@ -242,6 +243,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
 			callNewPageListeners(page);
+			page.internalFullBuild(); // Cause full build
+			m_application.internalCallPageComplete(ctx, page);
+			page.internalDeltaBuild(); // If listeners changed the page-> rebuild those parts
 			// END ORDERED
 
 			//-- Start the main rendering process. Determine the browser type.
@@ -252,9 +256,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			ctx.getResponse().setCharacterEncoding("UTF-8");
 			IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 
-			//		String	usag = ctx.getUserAgent();
 			HtmlFullRenderer hr = m_application.findRendererFor(ctx.getBrowserVersion(), out);
-
 			hr.render(ctx, page);
 
 			//-- 20100408 jal If an UIGoto was done in createContent handle that
@@ -514,6 +516,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//		System.out.println("# action="+action);
 		long ts = System.nanoTime();
 
+		m_application.internalCallPageAction(ctx, page);
+
 		NodeBase wcomp = null;
 		String wid = ctx.getRequest().getParameter("webuic");
 		if(wid != null) {
@@ -629,6 +633,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	}
 
 	static private void renderOptimalDelta(final RequestContextImpl ctx, final Page page, boolean inhibitlog) throws Exception {
+		// ORDERED
+		//-- 20100519 jal Force full rebuild before rendering, always. See bug 688.
+		page.internalDeltaBuild();
+		ctx.getApplication().internalCallPageComplete(ctx, page);
+		page.internalDeltaBuild();
+		// /ORDERED
+
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());

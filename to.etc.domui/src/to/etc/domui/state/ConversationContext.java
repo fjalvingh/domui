@@ -184,9 +184,9 @@ public class ConversationContext implements IQContextContainer {
 		if(m_state != ConversationState.DETACHED)
 			throw new IllegalStateException("Wrong state for ATTACH: " + m_state);
 		for(Object o : m_map.values()) {
-			if(o instanceof ConversationStateListener) {
+			if(o instanceof IConversationStateListener) {
 				try {
-					((ConversationStateListener) o).conversationAttached(this);
+					((IConversationStateListener) o).conversationAttached(this);
 				} catch(Exception x) {
 					x.printStackTrace();
 					LOG.error("In calling attach listener", x);
@@ -205,9 +205,9 @@ public class ConversationContext implements IQContextContainer {
 		if(m_state != ConversationState.ATTACHED)
 			throw new IllegalStateException("Wrong state for DETACH: " + m_state + " in " + this);
 		for(Object o : m_map.values()) {
-			if(o instanceof ConversationStateListener) {
+			if(o instanceof IConversationStateListener) {
 				try {
-					((ConversationStateListener) o).conversationDetached(this);
+					((IConversationStateListener) o).conversationDetached(this);
 				} catch(Exception x) {
 					x.printStackTrace();
 					LOG.error("In calling detach listener", x);
@@ -243,15 +243,17 @@ public class ConversationContext implements IQContextContainer {
 		}
 
 		for(Object o : m_map.values()) {
-			if(o instanceof ConversationStateListener) {
+			if(o instanceof IConversationStateListener) {
 				try {
-					((ConversationStateListener) o).conversationDestroyed(this);
+					((IConversationStateListener) o).conversationDestroyed(this);
+					m_manager.getApplication().internalCallConversationDestroyed(this);
 				} catch(Exception x) {
 					x.printStackTrace();
 					LOG.error("In calling destroy listener", x);
 				}
 			}
 		}
+		m_manager.getApplication().internalCallConversationDestroyed(this);
 		try {
 			onDestroy();
 		} finally {
@@ -323,9 +325,9 @@ public class ConversationContext implements IQContextContainer {
 		Object old = m_map.put(name, val);
 
 		if(old != null) {
-			if(old instanceof ConversationStateListener) {
+			if(old instanceof IConversationStateListener) {
 				try {
-					((ConversationStateListener) old).conversationDetached(this);
+					((IConversationStateListener) old).conversationDetached(this);
 				} catch(Exception x) {
 					x.printStackTrace();
 					LOG.error("In calling detach listener", x);
