@@ -267,7 +267,7 @@ final public class WindowSession {
 	 * @throws Exception
 	 */
 	public boolean handleGoto(@Nonnull final RequestContextImpl ctx, @Nonnull final Page currentpg, boolean ajax) throws Exception {
-		System.out.println("GOTO: currentpg=" + currentpg + ", shelved=" + currentpg.isShelved());
+		//		System.out.println("GOTO: currentpg=" + currentpg + ", shelved=" + currentpg.isShelved());
 		if(getTargetMode() == null)
 			return false;
 		if(getTargetMode() == MoveMode.BACK) {
