@@ -197,7 +197,7 @@ public class DefaultBugListener implements IBugListener {
 		if(null == ref || ref.getBugList().size() == 0)
 			return;
 
-		System.out.println("BugListener: need to add UI for bugs are present");
+		System.out.println("BugListener: need to add UI for " + ref.getBugList().size() + " bugs are present");
 
 		//-- We need to create/add to the Bug UI
 		if(ref.getIndicator() == null) {
@@ -229,14 +229,14 @@ public class DefaultBugListener implements IBugListener {
 		}
 		if(ref.getBugList().size() != ref.getLastCount()) {
 			int ct = ref.getBugList().size();
-			if(ct == MAX_BUGS) {
+			if(ct >= MAX_BUGS && ref.getLastCount() < MAX_BUGS) {
 				ref.getCountNode().setText("\u221e"); // Infinity
 				ref.getIndicator().setTitle("Too many bugs..");
 				ref.getImage().setSrc("THEME/ui-bug-ovf.png");
 			} else if(ct < MAX_BUGS) {
 				ref.getCountNode().setText(Integer.toString(ct));
+				ref.setLastCount(ref.getBugList().size());
 			}
-			ref.setLastCount(ref.getBugList().size());
 		}
 	}
 
