@@ -141,6 +141,12 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	@Override
+	protected void addControl(Label label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+		modalAdd(label, list, editable);
+		clearRun();
+	}
+
+	@Override
 	protected IControl< ? >[] addListOfProperties(boolean editable, String... names) {
 		IControl< ? >[] res = new IControl< ? >[names.length];
 		int ix = 0;
