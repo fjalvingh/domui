@@ -27,6 +27,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	private final DomApplication m_application;
 
+	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
+
 	public ApplicationRequestHandler(final DomApplication application) {
 		m_application = application;
 	}
@@ -289,9 +291,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- Full render completed: indicate that and reset the exception count
 		page.setFullRenderCompleted(true);
 		page.setPageExceptionCount(0);
-		if(LOG.isDebugEnabled()) {
+		if(m_logPerf) {
 			ts = System.nanoTime() - ts;
-			LOG.debug("rq: full render took " + StringTool.strNanoTime(ts));
+			System.out.println("domui: full render took " + StringTool.strNanoTime(ts));
 		}
 
 		//-- Start any delayed actions now.
@@ -601,9 +603,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(!xl.handleException(ctx, page, wcomp, x))
 				throw x;
 		}
-		if(LOG.isInfoEnabled() && !inhibitlog) {
+		if(m_logPerf && !inhibitlog) {
 			ts = System.nanoTime() - ts;
-			LOG.info("rq: Action handling took " + StringTool.strNanoTime(ts));
+			System.out.println("domui: Action handling took " + StringTool.strNanoTime(ts));
 		}
 		if(!page.isDestroyed()) // jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
 			page.getConversation().processDelayedResults(page);
@@ -649,9 +651,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		HtmlFullRenderer fullr = ctx.getApplication().findRendererFor(ctx.getBrowserVersion(), out);
 		OptimalDeltaRenderer dr = new OptimalDeltaRenderer(fullr, ctx, page);
 		dr.render();
-		if(LOG.isInfoEnabled() && !inhibitlog) {
+		if(m_logPerf && !inhibitlog) {
 			ts = System.nanoTime() - ts;
-			LOG.info("rq: Optimal Delta rendering using " + fullr + " took " + StringTool.strNanoTime(ts));
+			System.out.println("domui: Optimal Delta rendering using " + fullr + " took " + StringTool.strNanoTime(ts));
 		}
 		page.getConversation().startDelayedExecution();
 	}

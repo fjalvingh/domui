@@ -286,7 +286,7 @@ public class DefaultBugListener implements IBugListener {
 			public int compare(BugItem a, BugItem b) {
 				long res = a.getTimestamp().getTime() - b.getTimestamp().getTime();
 				if(res == 0)
-					return 0;
+					return b.getNumber() - a.getNumber();
 				return res < 0 ? 1 : -1; // REVERSE ORDER (descending date)
 			}
 		});
