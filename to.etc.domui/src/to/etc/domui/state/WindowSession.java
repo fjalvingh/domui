@@ -285,6 +285,10 @@ final public class WindowSession {
 			generateRedirect(ctx, tu, ajax);
 			return true;
 		}
+		if(getTargetMode() == MoveMode.REPLACE) {
+			//-- When replacing destroy the current top-item because we're going to replace it always.
+			currentpg.getConversation().destroy();
+		}
 
 		//-- We move somewhere else. Really?
 		Class< ? extends UrlPage> clz = getTargetPageClass(); // New class set?
