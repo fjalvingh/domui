@@ -9,7 +9,7 @@ import org.slf4j.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
-import to.etc.domui.state.ConversationContext.*;
+import to.etc.domui.state.ConversationContext.ConversationState;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -288,6 +288,7 @@ final public class WindowSession {
 		if(getTargetMode() == MoveMode.REPLACE) {
 			//-- When replacing destroy the current top-item because we're going to replace it always.
 			currentpg.getConversation().destroy();
+			m_targetMode = MoveMode.SUB; // Then treat the rest as a sub
 		}
 
 		//-- We move somewhere else. Really?
