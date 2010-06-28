@@ -30,9 +30,12 @@ final class LookupFactoryString implements ILookupControlFactory {
 
 		//-- Treat everything else as a String using a converter.
 		final Text< ? > txt = new Text(iclz);
-		if(pmm.getDisplayLength() > 0)
-			txt.setSize(pmm.getDisplayLength());
-		else {
+		if(pmm.getDisplayLength() > 0) {
+			int sz = pmm.getDisplayLength();
+			if(sz > 40)
+				sz = 40;
+			txt.setSize(sz);
+		} else {
 			//-- We must decide on a length....
 			int sz = 0;
 			if(pmm.getLength() > 0) {

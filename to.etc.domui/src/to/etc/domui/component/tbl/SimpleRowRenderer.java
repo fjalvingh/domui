@@ -101,6 +101,9 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 			int dl = xdp.getDisplayLength();
 			if(dl <= 0)
 				dl = 10;
+			if(dl > 40) {
+				dl = 40;
+			}
 			//			System.out.println("XDPL: property " + xdp.getName() + " size=" + dl);
 			widths[m_columnList.size()] = dl;
 			m_totwidth += dl;
