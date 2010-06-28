@@ -229,6 +229,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			page.getBody().onReload();
 
+			// ORDERED
+			page.getConversation().processDelayedResults(page);
+
+			//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
+			callNewPageListeners(page);
+			page.internalFullBuild(); // Cause full build
+
 			//-- EXPERIMENTAL Handle stored messages in session
 			List<UIMessage> ml = (List<UIMessage>) cm.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
 			if(ml != null) {
@@ -240,12 +247,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
 			}
 
-			// ORDERED
-			page.getConversation().processDelayedResults(page);
-
-			//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
-			callNewPageListeners(page);
-			page.internalFullBuild(); // Cause full build
 			m_application.internalCallPageComplete(ctx, page);
 			page.internalDeltaBuild(); // If listeners changed the page-> rebuild those parts
 			// END ORDERED

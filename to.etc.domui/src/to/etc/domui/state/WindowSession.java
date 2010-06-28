@@ -285,11 +285,6 @@ final public class WindowSession {
 			generateRedirect(ctx, tu, ajax);
 			return true;
 		}
-		if(getTargetMode() == MoveMode.REPLACE) {
-			//-- When replacing destroy the current top-item because we're going to replace it always.
-			currentpg.getConversation().destroy();
-			m_targetMode = MoveMode.SUB; // Then treat the rest as a sub
-		}
 
 		//-- We move somewhere else. Really?
 		Class< ? extends UrlPage> clz = getTargetPageClass(); // New class set?
@@ -303,36 +298,38 @@ final public class WindowSession {
 		PageParameters pp = getTargetPageParameters();
 		Constructor< ? extends UrlPage> bestpc = null;
 
-		/*
-		 * Look back in the page shelve and check if a compatible page is present there. If so
-		 * we move back by destroying the pages "above" the target.
-		 */
-		//-- Locate the specified page/conversation in the page stack,
-		int psix = findInPageStack(cc, clz, pp);
-		if(psix != -1) {
+		if(getTargetMode() != MoveMode.REPLACE) {
 			/*
-			 * Page found. Is it the current page? If so we just ignore the request.
+			 * Look back in the page shelve and check if a compatible page is present there. If so
+			 * we move back by destroying the pages "above" the target.
 			 */
-			if(psix == m_shelvedPageStack.size() - 1) {
-				return false;
+			//-- Locate the specified page/conversation in the page stack,
+			int psix = findInPageStack(cc, clz, pp);
+			if(psix != -1) {
+				/*
+				 * Page found. Is it the current page? If so we just ignore the request.
+				 */
+				if(psix == m_shelvedPageStack.size() - 1) {
+					return false;
+				}
+
+				/*
+				 * Entry accepted. Discard all stacked entries *above* the selected thing.
+				 */
+				clearShelve(psix + 1);
+				internalAttachConversations();
+				Page currentPage = m_shelvedPageStack.get(psix).getPage();
+
+				/*
+				 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
+				 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
+				 * make sure it is correct even though the request was for another page and is almost dying.
+				 */
+				PageContext.internalSet(currentPage);
+				currentPage.internalUnshelve();
+				generateRedirect(ctx, currentPage, ajax);
+				return true;
 			}
-
-			/*
-			 * Entry accepted. Discard all stacked entries *above* the selected thing.
-			 */
-			clearShelve(psix + 1);
-			internalAttachConversations();
-			Page currentPage = m_shelvedPageStack.get(psix).getPage();
-
-			/*
-			 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
-			 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
-			 * make sure it is correct even though the request was for another page and is almost dying.
-			 */
-			PageContext.internalSet(currentPage);
-			currentPage.internalUnshelve();
-			generateRedirect(ctx, currentPage, ajax);
-			return true;
 		}
 
 		//-- Handle the shelve mode,
@@ -343,17 +340,13 @@ final public class WindowSession {
 			 * The "current" page on top of the shelve stack is destroyed; the new page replaces it on top
 			 * of the stack.
 			 */
-			psix = m_shelvedPageStack.size() - 1; // We need to DESTROY the last page stack element,
+			int psix = m_shelvedPageStack.size() - 1; // We need to DESTROY the last page stack element,
 			if(psix < 0) // If there is no topmost page
 				psix = 0; // Just clear.
 			clearShelve(psix);
-//			currentPage = null;
 		} else if(getTargetMode() == MoveMode.SUB) {
 			//-- We're shelving the current page- call all shelve handlers.
 			currentpg.internalShelve();
-
-//			if(currentPage != null)
-//				currentPage.internalShelve();
 		} else
 			throw new IllegalStateException("Internal: don't know how to handle shelve mode " + getTargetMode());
 
