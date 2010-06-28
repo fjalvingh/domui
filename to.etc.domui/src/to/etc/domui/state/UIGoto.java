@@ -30,7 +30,6 @@ final public class UIGoto {
 		Page pg = PageContext.getCurrentPage();
 		Class< ? extends UrlPage> clz = pg.getBody().getClass();
 		PageParameters pp = pg.getPageParameters();
-		pg.getConversation().destroy();
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
 	}
 
