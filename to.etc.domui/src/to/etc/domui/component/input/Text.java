@@ -244,6 +244,16 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
+	 * Clear message and reset validated flag, so next getValue would result with new validation check.
+	 * @see to.etc.domui.dom.html.NodeBase#clearMessage()
+	 */
+	@Override
+	public void clearMessage() {
+		super.clearMessage();
+		m_validated = false;
+	}
+
+	/**
 	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
 	 */
 	@Override
@@ -300,6 +310,8 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		}
 		setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string
 
+		clearMessage();
+
 		// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
 		if((converted == null || converted.trim().length() == 0) && isMandatory())
 			m_validated = false;
@@ -307,7 +319,6 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 			m_validated = true;
 			m_wasvalid = true;
 		}
-		clearMessage();
 	}
 
 	/**
