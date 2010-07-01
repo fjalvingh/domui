@@ -41,6 +41,12 @@ public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindab
 		setCssClass("ui-dspv");
 	}
 
+	public DisplayValue(T literal) {
+		m_valueClass = (Class<T>) literal.getClass();
+		setCssClass("ui-dspv");
+		m_value = literal;
+	}
+
 	@Nonnull
 	public Class<T> getValueClass() {
 		return m_valueClass;
