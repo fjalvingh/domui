@@ -613,7 +613,7 @@ public class ConnectionPool implements DbConnectorSet {
 			for(int i = 0; i < m_min_conns; i++) {
 				Connection c = getCheckedConnection();
 				//				System.out.println(">> driver version "+c.getMetaData().getDriverVersion());
-				ConnectionPoolEntry pe = new ConnectionPoolEntry(c, this, m_entryidgen++);
+				ConnectionPoolEntry pe = new ConnectionPoolEntry(c, this, m_entryidgen++, m_uid);
 				m_freeList.add(pe);
 				if(m_trace)
 					pe.setTrace(true);
@@ -782,7 +782,7 @@ public class ConnectionPool implements DbConnectorSet {
 		try {
 			//-- Allocate a connection AND A new proxydude
 			Connection c = getCheckedConnection();
-			pe = new ConnectionPoolEntry(c, this, newid);
+			pe = new ConnectionPoolEntry(c, this, newid, m_uid);
 			ok = true;
 			pe.setUnpooled(unpooled);
 			return pe;
@@ -940,7 +940,7 @@ public class ConnectionPool implements DbConnectorSet {
 				if(unpooled)
 					m_n_unpooled_inuse--; // #of unpooled is one down
 				if(ok) {
-					if(unpooled && m_n_pooledAllocated >= m_max_conns) // Unpooled are returned only when #allocated not too big,
+					if(unpooled && (m_n_pooledAllocated >= m_max_conns || !pe.getUserID().equals(m_uid))) // Unpooled are returned only when #allocated not too big,
 						ok = false; // ok=false means do not re-use the connection
 				}
 				if(ok) {
@@ -1085,7 +1085,7 @@ public class ConnectionPool implements DbConnectorSet {
 		try {
 			//-- Allocate a connection AND A new proxydude
 			Connection c = getCheckedConnection(username, password);
-			pe = new ConnectionPoolEntry(c, this, newid);
+			pe = new ConnectionPoolEntry(c, this, newid, username);
 			ok = true;
 			pe.setUnpooled(true);
 

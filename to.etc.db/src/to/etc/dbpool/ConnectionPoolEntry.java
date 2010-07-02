@@ -1,6 +1,5 @@
 package to.etc.dbpool;
 
-import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -101,14 +100,22 @@ public class ConnectionPoolEntry {
 	/** The #of times a warning has been sent that this connection is inactive. */
 	private int m_n_warncount;
 
-	ConnectionPoolEntry(final Connection cx, final ConnectionPool pool, final int idnr) throws SQLException {
+	/** The user ID this connection was made with */
+	final private String m_userID;
+
+	ConnectionPoolEntry(final Connection cx, final ConnectionPool pool, final int idnr, final String userid) throws SQLException {
 		m_pool = pool;
 		m_cx = cx;
 		m_idnr = idnr;
+		m_userID = userid;
 	}
 
 	public int getID() {
 		return m_idnr;
+	}
+
+	public String getUserID() {
+		return m_userID;
 	}
 
 	void setThreadCached(final boolean tc) {
