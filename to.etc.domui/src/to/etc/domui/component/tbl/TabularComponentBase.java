@@ -60,6 +60,7 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 
 	@Override
 	protected void fireModelChanged(ITableModel<T> old, ITableModel<T> nw) {
+		m_currentPage = 0;
 		for(IDataTableChangeListener l : getListeners()) {
 			try {
 				l.modelChanged(this, old, nw);
@@ -71,6 +72,7 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 
 	@Override
 	protected void firePageChanged() {
+		m_currentPage = 0;
 		for(IDataTableChangeListener l : getListeners()) {
 			try {
 				l.pageChanged(this);
