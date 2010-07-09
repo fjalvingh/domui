@@ -11,7 +11,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 22, 2010
  */
-class HtmlTextScanner extends TextScanner {
+public class HtmlTextScanner extends TextScanner {
 	private List<String>	m_tagStack = new ArrayList<String>();
 
 	static private final Map<String, TagInfo> DEFAULT_MAP = new HashMap<String, TagInfo>();
@@ -21,6 +21,8 @@ class HtmlTextScanner extends TextScanner {
 	private StringBuilder m_sb;
 
 	private String m_lastSingleTag;
+
+	private int m_textlen, m_maxlen = Integer.MAX_VALUE;
 
 	public HtmlTextScanner() {
 	}
@@ -59,12 +61,17 @@ class HtmlTextScanner extends TextScanner {
 		return m_acceptMap;
 	}
 
+	public void setMaxlen(int maxlen) {
+		m_maxlen = maxlen;
+	}
+
 	/**
 	 * Scan HTML and remove unsafe tags and attributes. The result is garantueed to be safe and well-formed.
 	 * @param sb
 	 * @param html
 	 */
 	public void scan(StringBuilder sb, String html) {
+		m_textlen = 0;
 		setString(html);
 		m_sb = sb;
 		m_lastSingleTag = null;
@@ -241,9 +248,19 @@ class HtmlTextScanner extends TextScanner {
 	 * @param sb
 	 */
 	private void scanText(StringBuilder sb) {
+		int wlen = 0;
 		while(! eof()) {
-			if(LA() == '<')
+			int c = LA(wlen);
+			if(c == -1)
+				break;
+			if(c == '<')
 				return;
+			if(m_textlen++ >= m_maxlen) {
+				sb.append("...");
+				setIndex(Integer.MAX_VALUE);
+				return;
+			}
+
 			copy(sb);
 		}
 	}
