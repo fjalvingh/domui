@@ -23,6 +23,8 @@ final public class BundleRef implements NlsMessageProvider {
 
 	private final String m_bundleKey;
 
+	private NlsMessageProvider m_parent;
+
 	static private Map<Class< ? >, Map<String, BundleRef>> m_cachedMap = new HashMap<Class< ? >, Map<String, BundleRef>>();
 
 	private final Map<Object, Object> m_map = new HashMap<Object, Object>();
@@ -41,6 +43,15 @@ final public class BundleRef implements NlsMessageProvider {
 	private BundleRef(final Class< ? > base, final String name) {
 		m_loader = base.getClassLoader();
 		m_bundleKey = calcAbsName(base, name);
+	}
+
+	private BundleRef(NlsMessageProvider mp) {
+		m_bundleKey = null;
+		m_parent = mp;
+	}
+
+	static public BundleRef createWrapper(NlsMessageProvider mp) {
+		return new BundleRef(mp);
 	}
 
 	/**
@@ -96,7 +107,22 @@ final public class BundleRef implements NlsMessageProvider {
 	}
 
 	public boolean exists() {
+		if(m_parent != null)
+			return true;
 		return getBundleList(Locale.US).length != 0;
+	}
+
+	public String findMessage(final Locale loc, final String code) {
+		if(m_parent != null)
+			return m_parent.findMessage(loc, code);
+
+		ResourceBundle[] b = getBundleList(loc);
+		for(ResourceBundle rb : b) {
+			try {
+				return rb.getString(code);
+			} catch(MissingResourceException x) {}
+		}
+		return null;
 	}
 
 	/**
@@ -109,13 +135,8 @@ final public class BundleRef implements NlsMessageProvider {
 	 * @throws  ResourceNotFoundException the bundle cannot be located.
 	 */
 	public String getString(final Locale loc, final String key) {
-		ResourceBundle[] b = getBundleList(loc);
-		for(ResourceBundle rb : b) {
-			try {
-				return rb.getString(key);
-			} catch(MissingResourceException x) {}
-		}
-		return "???" + key + "???";
+		String msg = findMessage(loc, key);
+		return msg != null ? msg : "???" + key + "???";
 	}
 
 	/**
@@ -205,16 +226,6 @@ final public class BundleRef implements NlsMessageProvider {
 	 */
 	public String getString(final String key) {
 		return getString(NlsContext.getLocale(), key);
-	}
-
-	public String findMessage(final Locale loc, final String code) {
-		ResourceBundle[] b = getBundleList(loc);
-		for(ResourceBundle rb : b) {
-			try {
-				return rb.getString(code);
-			} catch(MissingResourceException x) {}
-		}
-		return null;
 	}
 
 	/**
