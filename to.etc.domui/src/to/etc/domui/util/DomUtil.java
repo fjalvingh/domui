@@ -615,6 +615,11 @@ final public class DomUtil {
 	}
 
 	static public String getJavaResourceRURL(final Class< ? > resourceBase, final String name) {
+		if(name.startsWith("/")) {
+			//-- Absolute resource name.
+			return Constants.RESOURCE_PREFIX + name.substring(1);
+		}
+
 		String rb = resourceBase.getName();
 		int pos = rb.lastIndexOf('.');
 		if(pos == -1)
