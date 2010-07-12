@@ -9,7 +9,7 @@ import org.slf4j.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
-import to.etc.domui.state.ConversationContext.ConversationState;
+import to.etc.domui.state.ConversationContext.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -255,6 +255,26 @@ final public class WindowSession {
 
 	public List<ShelvedEntry> getShelvedPageStack() {
 		return m_shelvedPageStack;
+	}
+
+	/**
+	 * Goto handling in EXCEPTION handling mode: only Redirect is allowed here.
+	 * @param ctx
+	 * @param currentpg
+	 * @param ajax
+	 * @return
+	 */
+	public boolean handleExceptionGoto(@Nonnull final RequestContextImpl ctx, @Nonnull final Page currentpg, boolean ajax) throws Exception {
+		switch(getTargetMode()){
+			default:
+				throw new IllegalStateException("UIGoto." + getTargetMode() + " is invalid when calling UIGoto from an exception listener");
+
+			case REDIRECT:
+			case NEW:
+			case SUB:
+				break;
+		}
+		return handleGoto(ctx, currentpg, ajax);
 	}
 
 	/**

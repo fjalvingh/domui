@@ -277,12 +277,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				}
 			}
 
-			if(x instanceof QNotFoundException) {
-				IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
-				if(xl != null && xl.handleException(ctx, page, null, x)) {
+			//-- 20100712 jal EXPERIMENTAL Pass exceptions in initial rendering mode to code too.
+			//			if(x instanceof QNotFoundException) {
+			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
+			if(xl != null && xl.handleException(ctx, page, null, x)) {
+				if(cm.handleExceptionGoto(ctx, page, false))
 					return;
-				}
 			}
+			//			}
 
 			checkFullExceptionCount(page, x); // Rethrow, but clear state if page throws up too much.
 		} finally {
