@@ -260,7 +260,7 @@ public class W3CSchemaCoder {
 		try {
 			MiniParser p = parser(in);
 			GregorianCalendar cal = calendar();
-			parseDate(cal, p); // Date  fragment
+			parseDate(cal, p, true); // Date  fragment
 			TimeZone tz = parseTimeZone(p); // Optional timezone
 
 			if(tz != null)
@@ -282,7 +282,7 @@ public class W3CSchemaCoder {
 		try {
 			MiniParser p = parser(in);
 			GregorianCalendar cal = calendar();
-			parseDate(cal, p); // Date  fragment
+			parseDate(cal, p, true); // Date  fragment
 			if(!p.curIs("T") && !p.curIs("t"))
 				throw new W3CEncodingException("Missing 'T' in dateTime", in);
 			parseTime(cal, p);
@@ -292,6 +292,26 @@ public class W3CSchemaCoder {
 			return cal;
 		} catch(W3CEncodingException x) {
 			x.setReason("Invalid xsd:dateTime: " + x.getReason());
+			throw x;
+		}
+	}
+
+	/**
+	 * XML/RPC datetime type.
+	 * @param in
+	 * @return
+	 */
+	static public final GregorianCalendar decodeDateTime_iso8601(final String in) {
+		try {
+			MiniParser p = parser(in);
+			GregorianCalendar cal = calendar();
+			parseDate(cal, p, false); // Date  fragment
+			if(!p.curIs("T") && !p.curIs("t"))
+				throw new W3CEncodingException("Missing 'T' in dateTime", in);
+			parseTime(cal, p);
+			return cal;
+		} catch(W3CEncodingException x) {
+			x.setReason("Invalid iso8601 datetime: " + x.getReason());
 			throw x;
 		}
 	}
@@ -316,11 +336,13 @@ public class W3CSchemaCoder {
 		}
 	}
 
-	static private void parseDate(final Calendar cal, final MiniParser p) {
+	static private void parseDate(final Calendar cal, final MiniParser p, boolean dashed) {
 		int year = parseYear(p);
-		p.require("-");
+		if(dashed)
+			p.require("-");
 		int month = p.parseFixedInt(2);
-		p.require("-");
+		if(dashed)
+			p.require("-");
 		int day = p.parseFixedInt(2);
 		DateUtil.setDate(cal, year, month - 1, day);
 	}
