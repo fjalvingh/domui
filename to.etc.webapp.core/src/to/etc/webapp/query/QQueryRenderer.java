@@ -30,7 +30,14 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	@Override
 	public void visitCriteria(QCriteria< ? > qc) throws Exception {
 		append("FROM ");
-		append(qc.getBaseClass().getName());
+		if(qc.getBaseClass() != null)
+			append(qc.getBaseClass().getName());
+		else if(qc.getMetaTable() != null) {
+			append("[META:");
+			append(qc.getMetaTable().toString());
+			append("]");
+		} else
+			append("[unknown-table]");
 		append(" WHERE ");
 		super.visitCriteria(qc);
 	}

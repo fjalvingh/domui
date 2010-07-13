@@ -113,6 +113,10 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		m_queryHandler = null;
 	}
 
+	public QCriteria<T> getQuery() {
+		return m_query;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple getters and setters.							*/
 	/*--------------------------------------------------------------*/
