@@ -22,10 +22,9 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 	 * @param nindex
 	 * @return
 	 */
-	abstract protected T findOptionValueByIndex(int nindex);
+	abstract protected T findListValueByIndex(int nindex);
 
-	abstract protected int findListIndexForValue(T newvalue);
-
+	abstract protected int findOptionIndexForValue(T newvalue);
 
 	public String getEmptyText() {
 		return m_emptyText;
@@ -42,16 +41,11 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 	@Override
 	protected boolean internalOnUserInput(int oldindex, int nindex) {
 		T	newval;
-
-		if(!isMandatory() && nindex == 0) // Not mandatory and 0th element is "unselected"
+		if(nindex <= 0)
 			newval = null;
 		else {
-			if(!isMandatory()) // Not mandatory: skip 1st index value
-				nindex--;
-			if(nindex < 0)
-				newval = null; // Invalid index-> make null
-			else
-				newval = findOptionValueByIndex(nindex);
+			nindex--;
+			newval = findListValueByIndex(nindex);
 		}
 		ClassMetaModel cmm = newval == null ? null : MetaManager.findClassMeta(newval.getClass());
 		if(MetaManager.areObjectsEqual(newval, m_currentValue, cmm))
@@ -139,18 +133,7 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 	 * A value was set through setValue(); we need to find the proper thingy to select.
 	 */
 	final protected void internalOnValueSet(T previousvalue, T newvalue) {
-		int ix = 0;
-		if(newvalue == null) {
-			if(isMandatory()) // Cannot set mandatory control to null -> ignore, keeping the current value
-				return;
-			ix = 0;
-		} else {
-			ix = findListIndexForValue(newvalue);
-			if(ix < 0) // Cannot find the value set into the lovset - ignore, keep old value
-				return;
-			if(!isMandatory()) // Skip over 1st "unselected" option
-				ix++;
-		}
+		int ix = findOptionIndexForValue(newvalue);
 		setSelectedIndex(ix);
 	}
 

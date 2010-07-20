@@ -52,55 +52,71 @@ public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
 		m_contentRenderer = r;
 	}
 
+	/**
+	 * Render the actual combobox.
+	 * All combo's will always have an "unselected" choice which is the first item in the
+	 * combobox. This item will be visible when the control's value is null. For mandatory
+	 * items selecting this item will cause an mandaroryness error.
+	 * A later implementation could change this so that combo's that <i>have</i> a value
+	 * will not have this unselected option so that it is not visible when the combo already
+	 * has a value set. But that code is complex, because setting even a mandatory control
+	 * to null must explicitly be allowed; in that case the option value should be added at
+	 * that moment. This new mechanism fixes bug# 790.
+	 */
 	@Override
 	public void createContent() throws Exception {
 		//-- Append shtuff to the combo
 		List<T>	list = getData();
 		int ix = 0;
 		V raw = internalGetCurrentValue();
-		if(!isMandatory()) {
-			//-- Add 1st "empty" thingy representing the unchosen.
-			SelectOption o = new SelectOption();
-			if(getEmptyText() != null)
-				o.setText(getEmptyText());
-			add(o);
-			if(raw == null) {
-				o.setSelected(true);
-				internalSetSelectedIndex(0);
-			}
-			ix++;
-		} else if(raw == null) {
-			/*
-			 * When not mandatory a combobox always has a value in the browser. The browser simply selects
-			 * the 1st option in the list if none is selected. To prevent trouble with state we set the
-			 * current value here to the 1st element in the list.
-			 */
-			if(list.size() > 0)
-				internalSetCurrentValue(listToValue(list.get(0)));
+
+		//-- Add 1st "empty" thingy representing the unchosen. Fix bug# 790 Add it always.
+		SelectOption o = new SelectOption();
+		if(getEmptyText() != null)
+			o.setText(getEmptyText());
+		add(o);
+		if(raw == null) {
+			o.setSelected(true);
+			internalSetSelectedIndex(0);
 		}
+		ix++;
 
 		ClassMetaModel cmm = null;
 		for(T val : list) {
-			SelectOption o = new SelectOption();
+			o = new SelectOption();
 			add(o);
 			renderOptionLabel(o, val);
-			V res = listToValue(val);
-			if(cmm == null)
-				cmm = MetaManager.findClassMeta(res.getClass());
-			boolean eq = MetaManager.areObjectsEqual(res, raw, cmm);
-			if(eq) {
-				o.setSelected(eq);
-				internalSetSelectedIndex(ix);
+			if(null != raw) {
+				V res = listToValue(val);
+				if(cmm == null)
+					cmm = MetaManager.findClassMeta(res.getClass());
+				boolean eq = MetaManager.areObjectsEqual(res, raw, cmm);
+				if(eq) {
+					o.setSelected(eq);
+					internalSetSelectedIndex(ix);
+				}
 			}
 			ix++;
 		}
 	}
 
 	/**
-	 * Find the index of the value [newvalue].
-	 * @see to.etc.domui.component.input.SelectBasedControl#findListIndexForValue(java.lang.Object)
+	 * Find the <i>Option</i> index of the value [newvalue].
+	 * @see to.etc.domui.component.input.SelectBasedControl#findOptionIndexForValue(java.lang.Object)
 	 */
 	@Override
+	protected int findOptionIndexForValue(V newvalue) {
+		if(newvalue == null)
+			return 0; // Select 'unselected' value.
+
+		int ix = findListIndexForValue(newvalue);
+		if(ix < 0) // Not found?
+			ix = 0; // Select "unselected" value
+		else
+			ix++;
+		return ix++;
+	}
+
 	protected int findListIndexForValue(V newvalue) {
 		try {
 			ClassMetaModel	cmm = newvalue == null ? null : MetaManager.findClassMeta(newvalue.getClass());;
@@ -118,10 +134,10 @@ public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.domui.component.input.SelectBasedControl#findOptionValueByIndex(int)
+	 * @see to.etc.domui.component.input.SelectBasedControl#findListValueByIndex(int)
 	 */
 	@Override
-	protected V findOptionValueByIndex(int ix) {
+	protected V findListValueByIndex(int ix) {
 		try {
 			List<T> data = getData();
 			if(ix < 0 || ix >= data.size())
@@ -209,7 +225,7 @@ public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
 		if(builder != null)
 			return builder.getComboDataSet(getPage().getConversation(), null);
 		return Collections.EMPTY_LIST;
-		//		
+		//
 		//		throw new IllegalStateException("I have no way to get data to show in my combo..");
 	}
 

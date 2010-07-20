@@ -207,8 +207,19 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							if (n == 'style') { // IE workaround
 								dest.style.cssText = v;
 								dest.setAttribute(n, v);
-							} else
-								$.attr(dest, n, v);
+							} else {
+								//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
+//								alert('changeAttr: id='+dest.id+' change '+n+" to "+v);
+								
+								if(dest.tagName.toLowerCase() == 'select' && n == 'class' && $.browser.mozilla) {
+									dest.className = v;
+									dest.selectedIndex = 1;			// jal 20100720 Fixes problem where setting BG color on select removes the dropdown button image
+								} else if(v == "" && ("checked" == n || "selected" == n || "disabled" == n || "readonly" == n)) {
+									$(dest).removeAttr(n);
+								} else {
+									$.attr(dest, n, v);
+								}
+							}
 						}
 						continue;
 					} catch(ex) {
@@ -349,14 +360,21 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			function copyAttrs(dest, src, inline) {
 				for ( var i = 0, attr = ''; i < src.attributes.length; i++) {
 					var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
-//					alert('attr '+n+' is '+v+", inline = "+inline);
 
 					if (inline) {
 						//-- 20091110 jal When inlining we are in trouble if domjs_ is used... The domjs_ mechanism is replaced with setDelayedAttributes in java.
 						if(n.substring(0, 6) == 'domjs_') {
 							alert('Unsupported domjs_ attribute in INLINE mode: '+n);
-						} else
-							attr += (n + '="' + v + '" ');
+						} else {
+							//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
+							if("checked" == n || "selected" == n || "disabled" == n || "readonly" == n) {
+//								alert('inline checking '+n+" value="+v);
+								//-- only add item when value != ""
+								if(v != "")
+									attr += (n + '="' + v + '" ');
+							} else
+								attr += (n + '="' + v + '" ');
+						}
 					} else if (n.substring(0, 6) == 'domjs_') {
 						var s = "dest." + n.substring(6) + " = " + v;
 						//alert('domjs eval: '+s);
@@ -385,7 +403,12 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 						dest.style.cssText = v;
 						dest.setAttribute(n, v);
 					} else {
-						$.attr(dest, n, v);
+						//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
+						if(v == "" && ("checked" == n || "selected" == n || "disabled" == n || "readonly" == n)) {
+							$.removeAttr(dest, n);
+						} else {
+							$.attr(dest, n, v);
+						}
 					}
 				}
 				return attr;
