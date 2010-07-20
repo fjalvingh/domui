@@ -385,7 +385,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if (dest && ($.browser.msie || $.browser.chrome) && n.substring(0, 2) == 'on') {
+					} else if (dest && ($.browser.msie || $.browser.webkit) && n.substring(0, 2) == 'on') {
 						try {
 							// alert('event '+n+' value '+v);
 							// var se = 'function(){'+v+';}';
@@ -405,7 +405,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					} else {
 						//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
 						if(v == "" && ("checked" == n || "selected" == n || "disabled" == n || "readonly" == n)) {
-							$.removeAttr(dest, n);
+							$(dest).removeAttr(n);
 						} else {
 							$.attr(dest, n, v);
 						}
