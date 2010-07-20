@@ -3,6 +3,7 @@ package to.etc.domui.dom.html;
 import java.util.*;
 
 import to.etc.domui.component.misc.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
@@ -236,6 +237,12 @@ final public class Page implements IQContextContainer {
 			n.clearFocusRequested();
 		}
 		internalAddPendingBuild(n);
+
+		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
+		if(n.getMessage() != null) {
+			IErrorFence fence = DomUtil.getMessageFence(n); // Get the fence that'll handle the message by looking UPWARDS in the tree
+			fence.addMessage(n, n.getMessage());
+		}
 	}
 
 	/**

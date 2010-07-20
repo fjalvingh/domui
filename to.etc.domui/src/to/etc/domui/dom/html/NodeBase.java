@@ -791,8 +791,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			msg.setErrorLocation(m_errorLocation);
 		msg.setErrorNode(this);
 
-		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.addMessage(this, m_message);
+		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
+		if(m_page != null) {
+			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
+			fence.addMessage(this, m_message);
+		}
 		return m_message;
 	}
 
