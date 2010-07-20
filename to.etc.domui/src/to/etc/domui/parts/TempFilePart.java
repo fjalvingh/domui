@@ -23,13 +23,19 @@ public class TempFilePart implements IUnbufferedPartFactory {
 
 		private String m_mime;
 
-		public FileInfo(String key, String pw, File source, String mime) {
+		private String m_disposition;
+
+		public FileInfo(String key, String pw, File source, String mime, String disp) {
 			m_key = key;
 			m_pw = pw;
 			m_source = source;
 			m_mime = mime;
+			m_disposition = disp;
 		}
 
+		public String getDisposition() {
+			return m_disposition;
+		}
 		public String getKey() {
 			return m_key;
 		}
@@ -47,18 +53,20 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		}
 	}
 
-	static public String registerTempFile(IRequestContext ctx, File target, String mime) {
+	static public String registerTempFile(IRequestContext ctx, File target, String mime, String type, String name) {
 		String key = StringTool.generateGUID();
 		String pw = StringTool.generateGUID();
-		FileInfo fi = new FileInfo(key, pw, target, mime);
+		String disp = null;
+		if(type != null)
+			disp = type + "; filename=" + name;
+		FileInfo fi = new FileInfo(key, pw, target, mime, disp);
 		ctx.getSession().setAttribute("tempf-" + key, fi); // Store in session context
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(TempFilePart.class.getName());
-		sb.append(".ui?key=").append(key).append("&passkey=").append(pw);
+		sb.append(".part?key=").append(key).append("&passkey=").append(pw);
 		return sb.toString();
 	}
-
 
 	@Override
 	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
@@ -74,6 +82,8 @@ public class TempFilePart implements IUnbufferedPartFactory {
 
 		//-- Present: render to output.
 		param.getResponse().setContentType(fi.getMime());
+		if(fi.getDisposition() != null)
+			param.getResponse().addHeader("Content-Disposition", fi.getDisposition());
 		param.getResponse().setContentLength((int) fi.getSource().length());
 		OutputStream os = param.getResponse().getOutputStream();
 		InputStream	is	= new FileInputStream(fi.getSource());
