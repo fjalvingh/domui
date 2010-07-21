@@ -223,10 +223,12 @@ public class VpEventManager implements Runnable {
 		t.printStackTrace();
 	}
 
-	public synchronized void stop() {
+	public void stop() {
 		System.out.println("KILLING EVENTMANAGER THREAD");
-		m_stop = true;
-		notify();
+		synchronized(this) {
+			m_stop = true;
+			notifyAll();
+		}
 		try {
 			m_handlerThread.join(10000);
 		} catch(InterruptedException x) {}
