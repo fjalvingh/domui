@@ -6,6 +6,7 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
 
 public class BreadCrumb extends Div {
 	@Override
@@ -60,12 +61,20 @@ public class BreadCrumb extends Div {
 				s.setCssClass("ui-brc-l");
 			}
 			center.add(s);
-			String ttl = p.getBody().getLiteralTitle();
-			if(ttl == null || ttl.length() == 0) {
-				ttl = p.getBody().getClass().getName();
-				ttl = ttl.substring(ttl.lastIndexOf('.') + 1);
+			String bcname = null;
+			String bctitle = null;
+
+			if(p.getBody() instanceof IBreadCrumbTitler) {
+				bcname = ((IBreadCrumbTitler) p.getBody()).getBreadcrumbName();
+				bctitle = ((IBreadCrumbTitler) p.getBody()).getBreadcrumbTitle();
+			} else if(!DomUtil.isBlank(p.getBody().getLiteralTitle())) {
+				bcname = p.getBody().getLiteralTitle();
+			} else {
+				bcname = p.getBody().getClass().getName();
+				bcname = bcname.substring(bcname.lastIndexOf('.') + 1);
 			}
-			s.setText(ttl);
+			s.setText(bcname);
+			s.setTitle(bctitle);
 		}
 	}
 
