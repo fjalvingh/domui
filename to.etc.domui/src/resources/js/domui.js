@@ -1452,7 +1452,11 @@ var WebUI = {
 	},
 
 	openWindow : function(url, name, par) {
-		var h = window.open(url, name, par);
+		try {
+			var h = window.open(url, name, par);
+		} catch(x) {
+			alert("Got popup exception: "+x);
+		}
 		if (!h)
 			alert("Er is een popup blocker actief. Deze moet voor deze website worden uitgezet.");
 		return false;
