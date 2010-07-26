@@ -62,7 +62,7 @@ public class JdbcAnyRecord {
 
 	public void set(String name, Object bd) {
 		if(bd == null)
-			m_valueMap.put(name, NULL_VAL);
+			m_valueMap.put(name.toLowerCase(), NULL_VAL);
 		else
 			m_valueMap.put(name.toLowerCase(), bd);
 	}

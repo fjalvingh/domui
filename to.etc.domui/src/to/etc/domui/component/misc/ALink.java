@@ -239,52 +239,8 @@ public class ALink extends ATag {
 
 		//-- Is this a WINDOWED link?
 		if(m_newWindowParameters != null) {
-			//-- We need a NEW window session. Create it,
-			RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
-			WindowSession cm = ctx.getSession().createWindowSession();
-
-			//-- Send a special JAVASCRIPT open command, containing the shtuff.
-			StringBuilder sb = new StringBuilder();
-			sb.append("DomUI.openWindow('");
-			sb.append(ctx.getRelativePath(m_targetClass.getName()));
-			sb.append(".ui?");
-			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-			sb.append('=');
-			sb.append(cm.getWindowID());
-			sb.append(".x");
-			if(m_targetParameters != null)
-				DomUtil.addUrlParameters(sb, m_targetParameters, false);
-			sb.append("','");
-			sb.append(cm.getWindowID());
-			sb.append("','");
-
-			sb.append("resizable=");
-			sb.append(m_newWindowParameters.isResizable() ? "yes" : "no");
-			sb.append(",scrollbars=");
-			sb.append(m_newWindowParameters.isShowScrollbars() ? "yes" : "no");
-			sb.append(",toolbar=");
-			sb.append(m_newWindowParameters.isShowToolbar() ? "yes" : "no");
-			sb.append(",location=");
-			sb.append(m_newWindowParameters.isShowLocation() ? "yes" : "no");
-			sb.append(",directories=");
-			sb.append(m_newWindowParameters.isShowDirectories() ? "yes" : "no");
-			sb.append(",status=");
-			sb.append(m_newWindowParameters.isShowStatus() ? "yes" : "no");
-			sb.append(",menubar=");
-			sb.append(m_newWindowParameters.isShowMenubar() ? "yes" : "no");
-			sb.append(",copyhistory=");
-			sb.append(m_newWindowParameters.isCopyhistory() ? "yes" : "no");
-
-			if(m_newWindowParameters.getWidth() > 0) {
-				sb.append(",width=");
-				sb.append(m_newWindowParameters.getWidth());
-			}
-			if(m_newWindowParameters.getHeight() > 0) {
-				sb.append(",height=");
-				sb.append(m_newWindowParameters.getHeight());
-			}
-			sb.append("');");
-			appendJavascript(sb.toString());
+			String open = DomUtil.createOpenWindowJS(m_targetClass, m_targetParameters, m_newWindowParameters);
+			appendJavascript(open);
 			return;
 		}
 

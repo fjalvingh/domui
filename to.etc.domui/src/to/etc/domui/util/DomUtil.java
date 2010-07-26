@@ -12,6 +12,7 @@ import javax.servlet.http.*;
 
 import to.etc.domui.annotations.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -1273,5 +1274,55 @@ final public class DomUtil {
 		}
 		return false;
 	}
+
+	static public String createOpenWindowJS(Class< ? > targetClass, PageParameters targetParameters, WindowParameters newWindowParameters) {
+		//-- We need a NEW window session. Create it,
+		RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
+		WindowSession cm = ctx.getSession().createWindowSession();
+
+		//-- Send a special JAVASCRIPT open command, containing the shtuff.
+		StringBuilder sb = new StringBuilder();
+		sb.append("DomUI.openWindow('");
+		sb.append(ctx.getRelativePath(targetClass.getName()));
+		sb.append(".ui?");
+		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+		sb.append('=');
+		sb.append(cm.getWindowID());
+		sb.append(".x");
+		if(targetParameters != null)
+			DomUtil.addUrlParameters(sb, targetParameters, false);
+		sb.append("','");
+		sb.append(cm.getWindowID());
+		sb.append("','");
+
+		sb.append("resizable=");
+		sb.append(newWindowParameters.isResizable() ? "yes" : "no");
+		sb.append(",scrollbars=");
+		sb.append(newWindowParameters.isShowScrollbars() ? "yes" : "no");
+		sb.append(",toolbar=");
+		sb.append(newWindowParameters.isShowToolbar() ? "yes" : "no");
+		sb.append(",location=");
+		sb.append(newWindowParameters.isShowLocation() ? "yes" : "no");
+		sb.append(",directories=");
+		sb.append(newWindowParameters.isShowDirectories() ? "yes" : "no");
+		sb.append(",status=");
+		sb.append(newWindowParameters.isShowStatus() ? "yes" : "no");
+		sb.append(",menubar=");
+		sb.append(newWindowParameters.isShowMenubar() ? "yes" : "no");
+		sb.append(",copyhistory=");
+		sb.append(newWindowParameters.isCopyhistory() ? "yes" : "no");
+
+		if(newWindowParameters.getWidth() > 0) {
+			sb.append(",width=");
+			sb.append(newWindowParameters.getWidth());
+		}
+		if(newWindowParameters.getHeight() > 0) {
+			sb.append(",height=");
+			sb.append(newWindowParameters.getHeight());
+		}
+		sb.append("');");
+		return sb.toString();
+	}
+
 
 }
