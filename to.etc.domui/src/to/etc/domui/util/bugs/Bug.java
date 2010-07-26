@@ -1,6 +1,10 @@
 package to.etc.domui.util.bugs;
 
+import java.util.*;
+
 import javax.annotation.*;
+
+import to.etc.domui.dom.html.*;
 
 /**
  * Accessor to post odd conditions for later review.
@@ -19,6 +23,11 @@ public class Bug {
 	 */
 	static public void bug(@Nonnull String message) {
 		BugItem	bi = new BugItem(message);
+		postBug(bi);
+	}
+
+	static public void bug(List<NodeBase> msg) {
+		BugItem bi = new BugItem(msg);
 		postBug(bi);
 	}
 

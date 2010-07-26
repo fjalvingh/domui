@@ -7,6 +7,7 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
 import to.etc.util.*;
 
 /**
@@ -333,8 +334,12 @@ public class DefaultBugListener implements IBugListener {
 			td = addCell();
 			Div ttl = new Div();
 			td.add(ttl);
-			ttl.setCssClass("ui-szless");
-			ttl.setText(m_bi.getMessage() + " [" + m_bi.getNumber() + "]");
+			if(m_bi.getFormattedMsg() == null) {
+				DomUtil.renderHtmlString(ttl, m_bi.getMessage() + " [" + m_bi.getNumber() + "]");
+			} else {
+				for(NodeBase nb : m_bi.getFormattedMsg())
+					ttl.add(nb);
+			}
 			ttl.setCssClass("ui-bug-msg");
 			m_maintd = td;
 		}
