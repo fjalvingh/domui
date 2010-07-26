@@ -2,6 +2,9 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
+import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 
 /**
@@ -19,6 +22,10 @@ public abstract class MultipleSelectionRowRenderer<T> extends SimpleRowRenderer<
 
 	public MultipleSelectionRowRenderer(Class<T> dataClass) {
 		super(dataClass);
+	}
+
+	public MultipleSelectionRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final String... cols) {
+		super(dataClass, cmm);
 	}
 
 	/**
