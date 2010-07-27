@@ -38,7 +38,8 @@ public class QQueryRenderer extends QNodeVisitorBase {
 			append("]");
 		} else
 			append("[unknown-table]");
-		append(" WHERE ");
+		if(qc.getRestrictions() != null)
+			append(" WHERE ");
 		super.visitCriteria(qc);
 	}
 
