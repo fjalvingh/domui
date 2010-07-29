@@ -1,20 +1,23 @@
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
+@Deprecated
 abstract public class SelectBasedControl<T> extends Select implements IInputNode<T>, IHasModifiedIndication {
 	private String m_emptyText;
 
 	private T m_currentValue;
 
-	private List<SmallImgButton> m_buttonList = Collections.EMPTY_LIST;
+	/**
+	 * If this combobox has a "unselected" option currently this contains that option. When present it
+	 * means that indexes in the <i>combo</i> list are one <i>higher</i> than indexes in the backing
+	 * dataset (because this empty option is always choice# 0).
+	 */
+	private SelectOption m_emptyOption;
 
 	/**
 	 * Locate the "T" value for the nth selected option. This must return the ACTUAL list value and must
@@ -35,70 +38,51 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 	}
 
 	/**
+	 * If this combobox has a "unselected" option currently this contains that option. When present it
+	 * means that indexes in the <i>combo</i> list are one <i>higher</i> than indexes in the backing
+	 * dataset (because this empty option is always choice# 0).
+	 * @return
+	 */
+	protected SelectOption getEmptyOption() {
+		return m_emptyOption;
+	}
+
+	/**
+	 * See getter.
+	 * @param emptyOption
+	 */
+	protected void setEmptyOption(SelectOption emptyOption) {
+		m_emptyOption = emptyOption;
+	}
+
+	/**
 	 * The user selected a different option.
 	 * @see to.etc.domui.dom.html.Select#internalOnUserInput(int, int)
 	 */
 	@Override
 	protected boolean internalOnUserInput(int oldindex, int nindex) {
 		T	newval;
-		if(nindex <= 0)
-			newval = null;
-		else {
-			nindex--;
+
+		if(nindex < 0) {
+			newval = null; // Should never happen
+		} else if(getEmptyOption() != null) {
+			//-- We have an "unselected" choice @ index 0. Is that one selected?
+			if(nindex <= 0) // Empty value chosen?
+				newval = null;
+			else {
+				nindex--;
+				newval = findListValueByIndex(nindex);
+			}
+		} else {
 			newval = findListValueByIndex(nindex);
 		}
+
 		ClassMetaModel cmm = newval == null ? null : MetaManager.findClassMeta(newval.getClass());
 		if(MetaManager.areObjectsEqual(newval, m_currentValue, cmm))
 			return false;
 		m_currentValue = newval;
 		return true;
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Code to add extra stuff after this combo.			*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Add a small image button after the combo.
-	 * @param img
-	 * @param title
-	 * @param clicked
-	 */
-	public void addExtraButton(String img, String title, final IClicked<SelectBasedControl<T>> click) {
-		if(m_buttonList == Collections.EMPTY_LIST)
-			m_buttonList = new ArrayList<SmallImgButton>();
-		SmallImgButton si = new SmallImgButton(img);
-		if(click != null) {
-			si.setClicked(new IClicked<SmallImgButton>() {
-				public void clicked(SmallImgButton b) throws Exception {
-					click.clicked(SelectBasedControl.this);
-				}
-			});
-		}
-		if(title != null)
-			si.setTitle(title);
-		si.addCssClass("ui-cl2-btn");
-		m_buttonList.add(si);
-
-		if(isBuilt())
-			forceRebuild();
-	}
-
-	@Override
-	public void onAddedToPage(Page p) {
-		NodeContainer curr = this;
-		for(SmallImgButton sib : m_buttonList) {
-			curr.appendAfterMe(sib);
-			curr = sib;
-		}
-	}
-
-	@Override
-	public void onRemoveFromPage(Page p) {
-		for(SmallImgButton sib : m_buttonList) {
-			sib.remove();
-		}
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IInputNode<T> implementation.						*/

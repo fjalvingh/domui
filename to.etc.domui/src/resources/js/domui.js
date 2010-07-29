@@ -213,7 +213,9 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 								
 								if(dest.tagName.toLowerCase() == 'select' && n == 'class' && $.browser.mozilla) {
 									dest.className = v;
+									var old = dest.selectedIndex;
 									dest.selectedIndex = 1;			// jal 20100720 Fixes problem where setting BG color on select removes the dropdown button image
+									dest.selectedIndex = old;
 								} else if(v == "" && ("checked" == n || "selected" == n || "disabled" == n || "readonly" == n)) {
 									$(dest).removeAttr(n);
 								} else {

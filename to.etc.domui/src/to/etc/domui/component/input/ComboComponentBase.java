@@ -3,12 +3,25 @@ package to.etc.domui.component.input;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
-public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
+public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, IHasModifiedIndication {
+	private String m_emptyText;
+
+	private V m_currentValue;
+
+	/**
+	 * If this combobox has a "unselected" option currently this contains that option. When present it
+	 * means that indexes in the <i>combo</i> list are one <i>higher</i> than indexes in the backing
+	 * dataset (because this empty option is always choice# 0).
+	 */
+	private SelectOption m_emptyOption;
+
 	private List<T> m_data;
 
 	/** The specified ComboRenderer used. */
@@ -53,37 +66,29 @@ public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
 	}
 
 	/**
-	 * Render the actual combobox.
-	 * All combo's will always have an "unselected" choice which is the first item in the
-	 * combobox. This item will be visible when the control's value is null. For mandatory
-	 * items selecting this item will cause an mandaroryness error.
-	 * A later implementation could change this so that combo's that <i>have</i> a value
-	 * will not have this unselected option so that it is not visible when the combo already
-	 * has a value set. But that code is complex, because setting even a mandatory control
-	 * to null must explicitly be allowed; in that case the option value should be added at
-	 * that moment. This new mechanism fixes bug# 790.
+	 * Render the actual combobox. This renders the value domain as follows:
+	 * <ul>
+	 *	<li>If the combobox is <i>optional</i> then the value list will always start with an "unselected" option
+	 *		which will be shown if the value is null.</li>
+	 *	<li>If the combobox is mandatory <i>but</i> it's current value is not part of the value domain (i.e. it
+	 *		is null, or the value cannot be found in the list of values) then it <i>also</i> renders an initial
+	 *		"unselected" option value which will become selected.</li>
+	 *	<li>For a mandatory combo with a valid value the "empty" choice will not be rendered.</li>
+	 * </ul>
+	 * Fixes bug# 790.
 	 */
 	@Override
 	public void createContent() throws Exception {
 		//-- Append shtuff to the combo
 		List<T>	list = getData();
-		int ix = 0;
 		V raw = internalGetCurrentValue();
 
-		//-- Add 1st "empty" thingy representing the unchosen. Fix bug# 790 Add it always.
-		SelectOption o = new SelectOption();
-		if(getEmptyText() != null)
-			o.setText(getEmptyText());
-		add(o);
-		if(raw == null) {
-			o.setSelected(true);
-			internalSetSelectedIndex(0);
-		}
-		ix++;
-
+		//-- First loop over all values to find out if current value is part of value domain.
+		boolean isvalidselection = false;
+		int ix = 0;
 		ClassMetaModel cmm = null;
 		for(T val : list) {
-			o = new SelectOption();
+			SelectOption o = new SelectOption();
 			add(o);
 			renderOptionLabel(o, val);
 			if(null != raw) {
@@ -94,30 +99,120 @@ public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
 				if(eq) {
 					o.setSelected(eq);
 					internalSetSelectedIndex(ix);
+					isvalidselection = true;
 				}
 			}
 			ix++;
 		}
+
+		//-- Decide if an "unselected" option needs to be present, and add it at index 0 if so.
+		if(!isMandatory() || !isvalidselection) {
+			//-- We need the "unselected" option.
+			SelectOption o = new SelectOption();
+			if(getEmptyText() != null)
+				o.setText(getEmptyText());
+			add(0, o); // Insert as the very 1st item
+			setEmptyOption(o); // Save this to mark it in-use.
+			if(!isvalidselection) {
+				o.setSelected(true);
+				internalSetSelectedIndex(0);
+			} else
+				internalSetSelectedIndex(getSelectedIndex() + 1); // Increment selected index thingy
+		}
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	value setting logic.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 */
+	@Override
+	final public V getValue() {
+		if(isMandatory() && m_currentValue == null) {
+			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
+			throw new ValidationException(Msgs.MANDATORY);
+		} else
+			clearMessage();
+		return m_currentValue;
 	}
 
 	/**
-	 * Find the <i>Option</i> index of the value [newvalue].
-	 * @see to.etc.domui.component.input.SelectBasedControl#findOptionIndexForValue(java.lang.Object)
+	 * Set the combo to the specified value. The value <i>must</i> be in the
+	 * domain specified by the data list and must be findable in that list; if
+	 * not <b>the results are undefined</b>.
+	 * If the value set is null and the combobox is a mandatory one the code will
+	 * check if an "unselected" item is present to select. If not the unselected
+	 * item will be added by this call(!).
+	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
 	 */
-	@Override
-	protected int findOptionIndexForValue(V newvalue) {
-		if(newvalue == null)
-			return 0; // Select 'unselected' value.
+	final public void setValue(V v) {
+		ClassMetaModel cmm = v != null ? MetaManager.findClassMeta(v.getClass()) : null;
+		if(MetaManager.areObjectsEqual(v, m_currentValue, cmm))
+			return;
+		m_currentValue = v;
+		if(!isBuilt())
+			return;
 
-		int ix = findListIndexForValue(newvalue);
-		if(ix < 0) // Not found?
-			ix = 0; // Select "unselected" value
-		else
+		//-- If the value is NULL we MUST have an unselected option: add it if needed and select that one.
+		int ix = findListIndexForValue(v);
+		if(null == v || ix < 0) { // Also create "unselected" if the value is not part of the domain.
+			if(getEmptyOption() == null) {
+				//-- No empty option yet!! Create one;
+				SelectOption o = new SelectOption();
+				if(getEmptyText() != null)
+					o.setText(getEmptyText());
+				add(0, o); // Insert as the very 1st item
+				setEmptyOption(o); // Save this to mark it in-use.
+			}
+			setSelectedIndex(0);
+			return;
+		}
+
+		//-- Value is not null. Find the index of the option in the dataset
+		if(getEmptyOption() != null)
 			ix++;
-		return ix++;
+		setSelectedIndex(ix);
 	}
 
-	protected int findListIndexForValue(V newvalue) {
+	/**
+	 * The user selected a different option.
+	 * @see to.etc.domui.dom.html.Select#internalOnUserInput(int, int)
+	 */
+	@Override
+	protected boolean internalOnUserInput(int oldindex, int nindex) {
+		V newval;
+
+		if(nindex < 0) {
+			newval = null; // Should never happen
+		} else if(getEmptyOption() != null) {
+			//-- We have an "unselected" choice @ index 0. Is that one selected?
+			if(nindex <= 0) // Empty value chosen?
+				newval = null;
+			else {
+				nindex--;
+				newval = findListValueByIndex(nindex);
+			}
+		} else {
+			newval = findListValueByIndex(nindex);
+		}
+
+		ClassMetaModel cmm = newval == null ? null : MetaManager.findClassMeta(newval.getClass());
+		if(MetaManager.areObjectsEqual(newval, m_currentValue, cmm))
+			return false;
+		m_currentValue = newval;
+		return true;
+	}
+
+	/**
+	 * Return the index in the data list for the specified value, or -1 if not found or if the value is null.
+	 * @param newvalue
+	 * @return
+	 */
+	private int findListIndexForValue(V newvalue) {
+		if(null == newvalue)
+			return -1;
 		try {
 			ClassMetaModel	cmm = newvalue == null ? null : MetaManager.findClassMeta(newvalue.getClass());;
 			List<T> data = getData();
@@ -136,8 +231,7 @@ public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
 	 * {@inheritDoc}
 	 * @see to.etc.domui.component.input.SelectBasedControl#findListValueByIndex(int)
 	 */
-	@Override
-	protected V findListValueByIndex(int ix) {
+	private V findListValueByIndex(int ix) {
 		try {
 			List<T> data = getData();
 			if(ix < 0 || ix >= data.size())
@@ -229,6 +323,55 @@ public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
 		//		throw new IllegalStateException("I have no way to get data to show in my combo..");
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IInputNode<T> implementation.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 */
+	@Override
+	public V getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	/**
+	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 */
+	@Override
+	public boolean hasError() {
+		getValueSafe();
+		return super.hasError();
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*--------------------------------------------------------------*/
+	/** When this is bound this contains the binder instance handling the binding. */
+	private SimpleBinder m_binder;
+
+	/**
+	 * Return the binder for this control.
+	 * @see to.etc.domui.component.input.IBindable#bind()
+	 */
+	@Override
+	public IBinder bind() {
+		if(m_binder == null)
+			m_binder = new SimpleBinder(this);
+		return m_binder;
+	}
+
+	/**
+	 * Returns T if this control is bound to some data value.
+	 *
+	 * @see to.etc.domui.component.input.IBindable#isBound()
+	 */
+	@Override
+	public boolean isBound() {
+		return m_binder != null && m_binder.isBound();
+	}
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getters, setters and other boring crud.				*/
 	/*--------------------------------------------------------------*/
@@ -270,5 +413,39 @@ public class ComboComponentBase<T, V> extends SelectBasedControl<V> {
 
 	public void setValueTransformer(IValueTransformer<V> valueTransformer) {
 		m_valueTransformer = valueTransformer;
+	}
+
+	public String getEmptyText() {
+		return m_emptyText;
+	}
+
+	public void setEmptyText(String emptyText) {
+		m_emptyText = emptyText;
+	}
+
+	/**
+	 * If this combobox has a "unselected" option currently this contains that option. When present it
+	 * means that indexes in the <i>combo</i> list are one <i>higher</i> than indexes in the backing
+	 * dataset (because this empty option is always choice# 0).
+	 * @return
+	 */
+	protected SelectOption getEmptyOption() {
+		return m_emptyOption;
+	}
+
+	/**
+	 * See getter.
+	 * @param emptyOption
+	 */
+	protected void setEmptyOption(SelectOption emptyOption) {
+		m_emptyOption = emptyOption;
+	}
+
+	protected V internalGetCurrentValue() {
+		return m_currentValue;
+	}
+
+	protected void internalSetCurrentValue(V val) {
+		m_currentValue = val;
 	}
 }
