@@ -45,7 +45,7 @@ public class JdbcAnyRecord {
 					break;
 
 				case Types.ROWID:
-					set(name, rs.getString(1));
+					set(name, rs.getString(i));
 					break;
 
 				case Types.DATE:
