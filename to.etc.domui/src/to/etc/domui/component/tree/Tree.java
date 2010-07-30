@@ -275,7 +275,7 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 	 */
 	public void collapseNode(final Object item) throws Exception {
 		VisibleNode vn = m_openMap.get(item);
-		if(vn == null)
+		if(vn == null || !vn.expanded)
 			return;
 
 		//-- We have a node... We must discard all VisibleNodes after this node;
