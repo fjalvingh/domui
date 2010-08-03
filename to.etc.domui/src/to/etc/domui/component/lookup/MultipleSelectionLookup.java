@@ -52,6 +52,8 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	private String[] m_resultColumns = new String[0];
 
+	private boolean m_allowEmptyQuery;
+
 	public MultipleSelectionLookup(Class<T> lookupClass, ClassMetaModel metaModel, boolean isModal, String title, IMultiSelectionResult<T> onReceiveResult) {
 		super(isModal, title);
 		m_lookupClass = lookupClass;
@@ -137,7 +139,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		}
 
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions()) {
+		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
 			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH));
 			return;
 		} else
@@ -242,5 +244,13 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	public void setQueryHandler(IQueryHandler<T> queryHandler) {
 		m_queryHandler = queryHandler;
+	}
+
+	public boolean isAllowEmptyQuery() {
+		return m_allowEmptyQuery;
+	}
+
+	public void setAllowEmptyQuery(boolean allowEmptyQuery) {
+		m_allowEmptyQuery = allowEmptyQuery;
 	}
 }
