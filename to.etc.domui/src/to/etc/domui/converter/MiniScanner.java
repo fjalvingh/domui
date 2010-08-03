@@ -141,7 +141,7 @@ public class MiniScanner {
 			return true;
 		for(int ix = m_ix; ix < m_len; ix++) {
 			char c = m_in.charAt(ix);
-			if(!Character.isWhitespace(c))
+			if(!DomUtil.isWhitespace(c))
 				return false;
 		}
 		return true;
@@ -428,7 +428,7 @@ public class MiniScanner {
 	public void skipWs() {
 		while(m_ix < m_len) {
 			char c = m_in.charAt(m_ix);
-			if(!Character.isWhitespace(c))
+			if(!DomUtil.isWhitespace(c))
 				return;
 			m_ix++;
 		}
