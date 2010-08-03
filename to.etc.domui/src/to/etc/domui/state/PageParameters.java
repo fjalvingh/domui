@@ -136,6 +136,10 @@ public class PageParameters {
 		m_parameterMap.put(name, s);
 	}
 
+	public void removeParameter(String name) {
+		m_parameterMap.remove(name);
+	}
+
 	public boolean hasParameter(String name) {
 		return m_parameterMap.containsKey(name);
 	}
