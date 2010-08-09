@@ -230,6 +230,16 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
+	 * Sets rendering of search fields into two columns. It is in use only in case when search fields are loaded from metadata and loaded items count is bigger then one specified in m_twoColumnsModeMinimalItems.
+	 */
+	private boolean m_twoColumnsMode;
+
+	/**
+	 * Minimal number of items that would cause two column rendering. Always set with m_twoColumnsMode.
+	 */
+	private int m_minSizeForTwoColumnsMode;
+
+	/**
 	 * Item that is used internally by LookupForm to mark table break when creating search field components.
 	 *
 	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
@@ -364,6 +374,11 @@ public class LookupForm<T> extends Div {
 			add(sroot);
 			m_content = sroot;
 		}
+
+		//-- Ok, we need the items we're going to show now.
+		if(m_itemList.size() == 0) // If we don't have an item set yet....
+			setItems(); // ..define it from metadata, and abort if there is nothing there
+
 		NodeContainer searchContainer = sroot;
 		if(containsItemBreaks(m_itemList)) {
 			Table searchRootTable = new Table();
@@ -384,10 +399,6 @@ public class LookupForm<T> extends Div {
 		m_tbody = new TBody();
 		m_tbody.setTestID("tableBodyLookupForm");
 		m_table.add(m_tbody);
-
-		//-- Ok, we need the items we're going to show now.
-		if(m_itemList.size() == 0) // If we don't have an item set yet....
-			setItems(); // ..define it from metadata, and abort if there is nothing there
 
 		//-- Start populating the lookup form with lookup items.
 		for(Item it : m_itemList) {
@@ -533,6 +544,7 @@ public class LookupForm<T> extends Div {
 				throw new IllegalStateException(getMetaModel() + " has no search properties defined in it's meta data.");
 		}
 
+		int totalCount = list.size();
 		for(SearchPropertyMetaModel sp : list) { // The list is already in ascending order, so just add items;
 			Item it = new Item();
 			it.setIgnoreCase(sp.isIgnoreCase());
@@ -542,6 +554,9 @@ public class LookupForm<T> extends Div {
 			it.setLabelText(sp.getLookupLabel()); // If a lookup label is defined use it.
 			it.setLookupHint(sp.getLookupHint()); // If a lookup hint is defined use it.
 			addAndFinish(it);
+			if(m_twoColumnsMode && (totalCount >= m_minSizeForTwoColumnsMode) && m_itemList.size() == (totalCount + 1) / 2) {
+				m_itemList.add(new ItemBreak());
+			}
 		}
 	}
 
@@ -1050,5 +1065,14 @@ public class LookupForm<T> extends Div {
 
 	public void setRenderAsCollapsed(boolean renderAsCollapsed) {
 		m_renderAsCollapsed = renderAsCollapsed;
+	}
+
+	/**
+	 * Sets rendering of search fields into two columns. It is in use only in case when search fields are loaded from metadata and search fields count reach minSizeForTwoColumnsMode value.
+	 * @param minSizeForTwoColumnsMode
+	 */
+	public void setTwoColumnsMode(int minSizeForTwoColumnsMode) {
+		m_twoColumnsMode = true;
+		m_minSizeForTwoColumnsMode = minSizeForTwoColumnsMode;
 	}
 }
