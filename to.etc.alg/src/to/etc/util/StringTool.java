@@ -83,7 +83,7 @@ public class StringTool {
 		int ix = em.indexOf('@');
 		if(ix == -1)
 			return false;
-		String pre = em.substring(0, ix);
+		//		String pre = em.substring(0, ix);
 		String dom = em.substring(ix + 1);
 		if(!isValidDomainName(dom))
 			return false;
@@ -949,29 +949,21 @@ public class StringTool {
 	 *	Adds a path to the vector specified, if the path is an existing file
 	 *  or directory, and it doesn't already exist in the vector.
 	 */
-	static public void addPathToVector(final Vector v, String p) {
+	static public void addPathToVector(final List<String> v, String p) {
 		p = p.trim();
 		File f = new File(p);
 		//		System.out.print("CP: Consider "+f.toString()+" - ");
 		if((f.isDirectory() || f.isFile()) && f.exists()) {
 			//-- No duplicates?
 			for(int i = 0; i < v.size(); i++) {
-				String e = (String) v.elementAt(i);
+				String e = v.get(i);
 				if(e.equals(p)) {
-					//					System.out.println("Already in path.");
 					return;
 				}
 			}
-			//			System.out.println("Added to path");
 			v.add(p);
 			return;
 		}
-		//		System.out.println("Nonexistent/inaccessible file.");
-		//		if(f.isDirectory()) System.out.println("Is directory");
-		//		if(f.isFile()) System.out.println("Is file");
-		//		if(f.exists()) System.out.println("Exixts");
-
-
 	}
 
 
@@ -980,7 +972,7 @@ public class StringTool {
 	 *  system path separator and adds all files/directories specified to the
 	 *  vector v, only if the pathname exists and if it is not already
 	 */
-	static public void addSearchPathToVector(final Vector v, final String searchpath) {
+	static public void addSearchPathToVector(final List<String> v, final String searchpath) {
 		int six = 0;
 		while(six < searchpath.length()) {
 			int eix = searchpath.indexOf(File.pathSeparatorChar, six);
@@ -996,7 +988,7 @@ public class StringTool {
 	 *	Adds the value of a "search path environment variable" to the vector.
 	 *  @see addSearchPathToVector()
 	 */
-	static public void addSearchEnvToVector(final Vector v, final String envvar) {
+	static public void addSearchEnvToVector(final List<String> v, final String envvar) {
 		String ev = System.getProperty(envvar);
 		if(ev == null)
 			return;
@@ -1008,11 +1000,11 @@ public class StringTool {
 	 *	Returns a string buffer containing a search path variable from the
 	 *  vector passed.
 	 */
-	static public void makeSearchPath(final StringBuffer sb, final Vector v) {
+	static public void makeSearchPath(final StringBuilder sb, final List<String> v) {
 		for(int i = 0; i < v.size(); i++) {
 			if(i > 0)
 				sb.append(File.pathSeparator);
-			sb.append((String) v.elementAt(i));
+			sb.append(v.get(i));
 		}
 	}
 
@@ -1020,8 +1012,8 @@ public class StringTool {
 	 *	Returns a string buffer containing a search path variable from the
 	 *  vector passed.
 	 */
-	static public String makeSearchPath(final Vector v) {
-		StringBuffer sb = new StringBuffer(128);
+	static public String makeSearchPath(final List<String> v) {
+		StringBuilder sb = new StringBuilder(128);
 		makeSearchPath(sb, v);
 		return sb.toString();
 	}
@@ -1052,21 +1044,21 @@ public class StringTool {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Get a constant's name from a CLASS by introspection	*/
 	/*--------------------------------------------------------------*/
-	static public String getFinalFrom(final Class cl, final long sval) {
+	static public String getFinalFrom(final Class< ? > cl, final long sval) {
 		return getFinalFrom(cl, sval, null);
 	}
 
 	/**
 	 *	Traverses a given class and tries to find a public
 	 */
-	static public String getFinalFrom(final Class cl, final long sval, final String part) {
+	static public String getFinalFrom(final Class< ? > cl, final long sval, final String part) {
 		return getFinalFrom(cl, sval, part, null);
 	}
 
 	/**
 	 *	Traverses a given class and tries to find a public
 	 */
-	static public String getFinalFrom(final Class cl, final long sval, final String part, final String ign) {
+	static public String getFinalFrom(final Class< ? > cl, final long sval, final String part, final String ign) {
 		java.lang.reflect.Field[] far = cl.getFields();
 		java.lang.reflect.Field f;
 
@@ -1078,7 +1070,7 @@ public class StringTool {
 				try {
 					long val = 0;
 					boolean valid = true;
-					Class ty = f.getType();
+					Class< ? > ty = f.getType();
 					if(ty == Integer.TYPE)
 						val = f.getInt(null);
 					else if(ty == Long.TYPE)
@@ -1507,7 +1499,7 @@ public class StringTool {
 	 *  in their infinite wizdom the Java builders deprecated the use of this
 	 *  we need to do something complex..
 	 */
-	static public Vector getEnvironment() {
+	static public List<String> getEnvironment() {
 		try {
 			String opsys = System.getProperty("os.name").toLowerCase();
 			//		System.out.println(OS);
@@ -1521,7 +1513,7 @@ public class StringTool {
 
 			//-- Take the result..
 			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			Vector v = new Vector();
+			List<String> v = new ArrayList<String>();
 			String line;
 			while((line = br.readLine()) != null) {
 				v.add(line);
@@ -1532,44 +1524,6 @@ public class StringTool {
 			x.printStackTrace();
 		}
 		return null;
-	}
-
-	static private String stGet(final StringTokenizer st) {
-		if(!st.hasMoreTokens())
-			return "";
-		return st.nextToken().trim();
-	}
-
-	static public BuildInfo[] getBuildInfo(final String name) {
-		try {
-			Class cl = Class.forName("to.mumble.builderd." + name);
-			Object oo = cl.newInstance();
-
-			//-- Get method,
-			Method m = cl.getMethod("getBuildData", (Class[]) null);
-			Class rt = m.getReturnType();
-			if(!rt.isArray() || rt.getComponentType() != String.class)
-				return null;
-
-			String[] ar = (String[]) m.invoke(oo, (Object[]) null);
-
-			Vector v = new Vector();
-			for(int i = 0; i < ar.length; i++) {
-				//-- Decode.
-				StringTokenizer st = new StringTokenizer(ar[i], "\n");
-				BuildInfo bi = new BuildInfo();
-				bi.name = stGet(st);
-				bi.buildnr = stGet(st);
-				bi.hostname = stGet(st);
-				bi.userid = stGet(st);
-				bi.date = stGet(st);
-				bi.userlist = stGet(st);
-				v.add(bi);
-			}
-			return (BuildInfo[]) v.toArray(new BuildInfo[v.size()]);
-		} catch(Exception ex) {
-			return null;
-		}
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1967,7 +1921,7 @@ public class StringTool {
 		return getNextPathComponent(0, s, includeslash);
 	}
 
-	static public boolean equalStringList(final ArrayList inl, final ArrayList al, final boolean caseindependent) {
+	static public boolean equalStringList(final List<String> inl, final List<String> al, final boolean caseindependent) {
 		if(inl == al) // Same reference->equal
 			return true;
 		if((al == null && inl != null) || (inl == null && al != null))
@@ -1979,8 +1933,8 @@ public class StringTool {
 
 		//-- Compare all strings, in order.
 		for(int i = al.size(); --i >= 0;) {
-			String a = (String) al.get(i);
-			String b = (String) inl.get(i);
+			String a = al.get(i);
+			String b = inl.get(i);
 			if(caseindependent) {
 				if(!a.equalsIgnoreCase(b))
 					return false;

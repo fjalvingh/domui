@@ -686,7 +686,7 @@ public class DomTools {
 	}
 
 	static public Long longAttrWrapped(final Node n, final String aname) throws Exception {
-		return WrapperCache.getLong(longAttr(n, aname));
+		return Long.valueOf(longAttr(n, aname));
 	}
 
 	static public boolean boolAttr(final Node n, final String aname) throws Exception {
@@ -866,7 +866,7 @@ public class DomTools {
 	}
 
 	static public final String[] getStringList(final Node inn, final String itemname) throws Exception {
-		ArrayList al = new ArrayList();
+		List<String> al = new ArrayList<String>();
 		NodeList nl = inn.getChildNodes();
 		for(int i = 0; i < nl.getLength(); i++) {
 			Node n = nl.item(i);
@@ -877,14 +877,14 @@ public class DomTools {
 			else
 				throw new Exception("xml: unexpected node " + n.getNodeName());
 		}
-		return (String[]) al.toArray(new String[al.size()]);
+		return al.toArray(new String[al.size()]);
 	}
 
-	static public final ArrayList getStringList(final Node inn, final String listname, final String itemname) throws Exception {
+	static public final List<String> getStringList(final Node inn, final String listname, final String itemname) throws Exception {
 		Node ln = DomTools.nodeFind(inn, listname);
 		if(ln == null)
 			return null;
-		ArrayList al = new ArrayList();
+		List<String> al = new ArrayList<String>();
 		NodeList nl = ln.getChildNodes();
 		for(int i = 0; i < nl.getLength(); i++) {
 			Node n = nl.item(i);

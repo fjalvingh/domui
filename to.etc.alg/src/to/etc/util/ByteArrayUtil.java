@@ -3,16 +3,9 @@ package to.etc.util;
 import java.sql.*;
 import java.util.*;
 
-/**
- * Title:
- * Description:
- * Copyright:    Copyright (c) 2000
- * Company:
- * @author
- * @version 1.0
- */
-
 public final class ByteArrayUtil {
+	private ByteArrayUtil() {
+	}
 
 	/**
 	 * Put a long value "val" in a byte array "ba" starting at the offset "offset"
@@ -192,7 +185,7 @@ public final class ByteArrayUtil {
 	 * @param start location where to start comparing the bytes
 	 * @param key   The key to look for.
 	 */
-	public static int findKey(List v, int start, byte[] key) {
+	public static int findKey(List<byte[]> v, int start, byte[] key) {
 		byte[] ba;
 		int mid, rv;
 		int low, high;
@@ -208,7 +201,7 @@ public final class ByteArrayUtil {
 
 			//-- Get middle element,
 			mid = (low + high) / 2;
-			ba = (byte[]) v.get(mid); // Get middle element,
+			ba = v.get(mid); // Get middle element,
 			rv = ByteArrayUtil.compare(ba, start, key.length, key); // Compare,
 			if(rv == 0)
 				return mid;

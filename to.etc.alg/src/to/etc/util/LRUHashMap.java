@@ -38,9 +38,9 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 
 		@Override
 		public boolean equals(Object o) {
-			if(!(o instanceof Map.Entry))
+			if(!(o instanceof Map.Entry< ? , ? >))
 				return false;
-			Map.Entry e = (Map.Entry) o;
+			Map.Entry<K, V> e = (Map.Entry<K, V>) o;
 			Object k1 = getKey();
 			Object k2 = e.getKey();
 			if(k1 == k2 || (k1 != null && k1.equals(k2))) {
@@ -64,7 +64,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	}
 
 	/** The bucket table. */
-	transient Entry[]						m_buckets;
+	transient Entry<K, V>[]					m_buckets;
 
 	/** Head of the LRU chain for this map. */
 	private Entry<K, V>						m_lruFirst, m_lruLast;
@@ -151,7 +151,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	 */
 	public void clear() {
 		m_updateCounter++;
-		Entry[] tab = m_buckets;
+		Entry<K, V>[] tab = m_buckets;
 		for(int i = 0; i < tab.length; i++)
 			tab[i] = null;
 		m_currentSize = 0;
@@ -284,15 +284,15 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	 */
 	private void resize(int newsize) {
 		m_threshold = (int) (newsize * LOAD);
-		Entry[] oldt = m_buckets;
+		Entry<K, V>[] oldt = m_buckets;
 		m_buckets = new Entry[newsize];
 
 		//-- Move all thingies to their new location.
 		for(int i = oldt.length; --i >= 0;) // All buckets in the old geezer
 		{
-			for(Entry curr = oldt[i]; curr != null;) // Walk the list
+			for(Entry<K, V> curr = oldt[i]; curr != null;) // Walk the list
 			{
-				Entry e = curr;
+				Entry<K, V> e = curr;
 				curr = e.m_bucketNext; // Move to next bucket before remapping
 				int index = e.m_hashCode % newsize; // Get bucket pos
 				e.m_bucketNext = m_buckets[index];
@@ -360,9 +360,9 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	}
 
 	Entry<K, V> removeEntry(Object o) {
-		if(!(o instanceof Map.Entry))
+		if(!(o instanceof Map.Entry< ? , ? >))
 			return null;
-		return _remove(((Map.Entry) o).getKey());
+		return _remove(((Map.Entry<K, V>) o).getKey());
 	}
 
 	/**
@@ -594,6 +594,8 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		return m_entrySet;
 	}
 
+
+	@SuppressWarnings("unchecked")
 	private class EntrySet extends AbstractSet/*<Map.Entry<K,V>>*/
 	{
 		public EntrySet() {

@@ -549,24 +549,24 @@ public class W3CSchemaCoder {
 			return value;
 		}
 
-		public int parseInt() {
-			int value = 0;
-			int nc = 0;
-			while(m_ix < m_len) {
-				char c = m_input.charAt(m_ix);
-				if(!Character.isDigit(c)) {
-					if(nc == 0)
-						throw new W3CEncodingException("Missing digits in integer number", m_input);
-					return value;
-				}
-				value = value * 10 + (c - '0');
-				nc++;
-				m_ix++;
-			}
-			if(nc == 0)
-				throw new W3CEncodingException("Missing digits in integer number", m_input);
-			return value;
-		}
+		//		public int parseInt() {
+		//			int value = 0;
+		//			int nc = 0;
+		//			while(m_ix < m_len) {
+		//				char c = m_input.charAt(m_ix);
+		//				if(!Character.isDigit(c)) {
+		//					if(nc == 0)
+		//						throw new W3CEncodingException("Missing digits in integer number", m_input);
+		//					return value;
+		//				}
+		//				value = value * 10 + (c - '0');
+		//				nc++;
+		//				m_ix++;
+		//			}
+		//			if(nc == 0)
+		//				throw new W3CEncodingException("Missing digits in integer number", m_input);
+		//			return value;
+		//		}
 
 		public double parseFraction() {
 			double value = 0.0d;

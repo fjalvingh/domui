@@ -36,11 +36,11 @@ public class HtmlEntity {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Read .ent files and build tables...					*/
 	/*--------------------------------------------------------------*/
-	static private TreeMap	m_name_mp;
+	static private TreeMap<String, Integer>	m_name_mp;
 
-	static private TreeMap	m_val_mp;
+	static private TreeMap<Integer, String>	m_val_mp;
 
-	static private TreeMap	m_desc_mp;
+	static private TreeMap<Integer, String>	m_desc_mp;
 
 	/**
 	 *	Reads an entire token in a string.

@@ -25,7 +25,7 @@ public class ByteBufferOutputStream extends OutputStream {
 	private byte[]		m_buf;
 
 	/** The array of buffers. */
-	private ArrayList	m_al	= new ArrayList(16);
+	private List<byte[]>	m_al	= new ArrayList<byte[]>(16);
 
 	private byte[][]	m_bar;
 
@@ -98,7 +98,7 @@ public class ByteBufferOutputStream extends OutputStream {
 			m_buf = null;
 		}
 
-		m_bar = (byte[][]) m_al.toArray(new byte[m_al.size()][]);
+		m_bar = m_al.toArray(new byte[m_al.size()][]);
 		m_al = null;
 	}
 

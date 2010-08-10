@@ -96,8 +96,6 @@ final public class ClassUtil {
 		public Info() {
 		}
 
-		public String		name;
-
 		public Method		getter;
 
 		public List<Method>	setterList	= new ArrayList<Method>();
@@ -180,7 +178,6 @@ final public class ClassUtil {
 			Info i = map.get(name);
 			if(i == null) {
 				i = new Info();
-				i.name = name;
 				map.put(name, i);
 			}
 			if(setter)
@@ -308,6 +305,4 @@ final public class ClassUtil {
 	static public boolean isCollectionOrArrayType(Class< ? > clz) {
 		return clz.isArray() || Collection.class.isAssignableFrom(clz);
 	}
-
-
 }
