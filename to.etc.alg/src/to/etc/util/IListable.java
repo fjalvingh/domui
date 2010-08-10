@@ -6,8 +6,8 @@ package to.etc.util;
  * <p>Created on May 26, 2005
  * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
  */
-public interface Listable {
-	public int size() throws Exception;
+public interface IListable<T> {
+	int size() throws Exception;
 
-	public Object get(int ix) throws Exception;
+	T get(int ix) throws Exception;
 }

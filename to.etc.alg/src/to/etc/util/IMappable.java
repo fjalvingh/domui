@@ -8,13 +8,13 @@ import java.util.*;
  * <p>Created on May 26, 2005
  * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
  */
-public interface Mappable {
+public interface IMappable<K, V> {
 	/**
 	 * Looks up an object by key.
 	 * @param key
 	 * @return
 	 */
-	public Object get(Object key);
+	public V get(K key);
 
 	/**
 	 * Returns the #of objects in the map
@@ -22,7 +22,7 @@ public interface Mappable {
 	 */
 	public int size();
 
-	public Iterator getKeyIterator();
+	public Iterator<K> getKeyIterator();
 
-	public Iterator getValueIterator();
+	public Iterator<V> getValueIterator();
 }

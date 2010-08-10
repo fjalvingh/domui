@@ -219,11 +219,11 @@ public class RuntimeConversions {
 
 	static public Double convertToDoubleWrapper(Object in) {
 		if(in == null)
-			return WrapperCache.getDouble(0.0);
+			return Double.valueOf(0.0);
 		if(in instanceof Double)
 			return (Double) in;
 		if(in instanceof Number)
-			return WrapperCache.getDouble(((Number) in).doubleValue());
+			return Double.valueOf(((Number) in).doubleValue());
 		if(in instanceof String) {
 			try {
 				return Double.valueOf((String) in);
@@ -234,11 +234,11 @@ public class RuntimeConversions {
 
 	static public Long convertToLongWrapper(Object in) {
 		if(in == null)
-			return WrapperCache.getLong(0);
+			return Long.valueOf(0);
 		if(in instanceof Long)
 			return (Long) in;
 		if(in instanceof Number)
-			return WrapperCache.getLong(((Number) in).longValue());
+			return Long.valueOf(((Number) in).longValue());
 		if(in instanceof String) {
 			try {
 				return Long.valueOf((String) in);
@@ -251,18 +251,18 @@ public class RuntimeConversions {
 
 	static public Integer convertToIntegerWrapper(Object in) {
 		if(in == null)
-			return WrapperCache.getInteger(0);
+			return Integer.valueOf(0);
 		if(in instanceof Integer)
 			return (Integer) in;
 		if(in instanceof Number)
-			return WrapperCache.getInteger(((Number) in).intValue());
+			return Integer.valueOf(((Number) in).intValue());
 		if(in instanceof String) {
 			String s = ((String) in).trim();
 			if(s.length() == 0)
-				return WrapperCache.getInteger(0);
+				return Integer.valueOf(0);
 			try {
 				int val = Integer.parseInt(s);
-				return WrapperCache.getInteger(val);
+				return Integer.valueOf(val);
 			} catch(Exception x) {}
 		}
 		throw new RuntimeConversionException(in, "Integer");
@@ -270,11 +270,11 @@ public class RuntimeConversions {
 
 	static public Short convertToShortWrapper(Object in) {
 		if(in == null)
-			return WrapperCache.getShort((short) 0);
+			return Short.valueOf((short) 0);
 		if(in instanceof Short)
 			return (Short) in;
 		if(in instanceof Number)
-			return WrapperCache.getShort(((Number) in).shortValue());
+			return Short.valueOf(((Number) in).shortValue());
 		if(in instanceof String) {
 			try {
 				return Short.valueOf((String) in);
@@ -285,27 +285,27 @@ public class RuntimeConversions {
 
 	static public Character convertToCharacterWrapper(Object in) {
 		if(in == null)
-			return WrapperCache.getCharacter((char) 0);
+			return Character.valueOf((char) 0);
 		if(in instanceof Character)
 			return (Character) in;
 		if(in instanceof Number)
-			return WrapperCache.getCharacter((char) ((Number) in).intValue());
+			return Character.valueOf((char) ((Number) in).intValue());
 		if(in instanceof String) {
 			String s = (String) in;
 			if(s.length() == 0)
-				return WrapperCache.getCharacter((char) 0);
-			return WrapperCache.getCharacter(s.charAt(0));
+				return Character.valueOf((char) 0);
+			return Character.valueOf(s.charAt(0));
 		}
 		throw new RuntimeConversionException(in, "Character");
 	}
 
 	static public Byte convertToByteWrapper(Object in) {
 		if(in == null)
-			return WrapperCache.getByte((byte) 0);
+			return Byte.valueOf((byte) 0);
 		if(in instanceof Byte)
 			return (Byte) in;
 		if(in instanceof Number)
-			return WrapperCache.getByte(((Number) in).byteValue());
+			return Byte.valueOf(((Number) in).byteValue());
 		if(in instanceof String) {
 			try {
 				return Byte.valueOf((String) in);
@@ -328,63 +328,63 @@ public class RuntimeConversions {
 	/**
 	 * Converts an input type to whatever type is needed.
 	 */
-	static public final Object convertTo(Object o, Class to) {
+	static public final <T> T convertTo(Object o, Class<T> to) {
 		if(to == Object.class || to == null)
-			return o;
+			return (T) o;
 		if(o != null) {
 			//-- Try if the class types match
-			Class from = o.getClass();
+			Class< ? > from = o.getClass();
 			if(from == to) // Same class-> ok
-				return o;
+				return (T) o;
 			if(to.isAssignableFrom(from)) // Can we assign 'o' to the TO class?
-				return o; // Then just be done
+				return (T) o; // Then just be done
 		}
 
 		//-- Handle all known conversions in turn, most used conversions 1st
 		if(to == Integer.class || to == Integer.TYPE)
-			return convertToIntegerWrapper(o);
+			return (T) convertToIntegerWrapper(o);
 		if(to == String.class)
-			return convertToString(o);
+			return (T) convertToString(o);
 		if(to == Boolean.class || to == Boolean.TYPE)
-			return convertToBooleanWrapper(o);
+			return (T) convertToBooleanWrapper(o);
 		if(to == Long.class || to == Long.TYPE)
-			return convertToLongWrapper(o);
+			return (T) convertToLongWrapper(o);
 		if(to == Short.class || to == Short.TYPE)
-			return convertToShortWrapper(o);
+			return (T) convertToShortWrapper(o);
 		if(to == Byte.class || to == Byte.TYPE)
-			return convertToByteWrapper(o);
+			return (T) convertToByteWrapper(o);
 		if(to == Character.class || to == Character.TYPE)
-			return convertToCharacterWrapper(o);
+			return (T) convertToCharacterWrapper(o);
 		if(to == Double.class || to == Double.TYPE)
-			return convertToDoubleWrapper(o);
+			return (T) convertToDoubleWrapper(o);
 
 		if(o == null && !to.isPrimitive()) // Accept null for all non-primitives
-			return o;
+			return (T) o;
 
 		throw new RuntimeConversionException(o, to.getName());
 	}
 
-	static public final Object convertToComplex(Object source, Class totype) {
+	static public final <T> T convertToComplex(Object source, Class<T> totype) {
 		if(source != null) {
 			if(totype.isAssignableFrom(source.getClass()))
-				return source;
+				return (T) source;
 
 			//-- Handle special objects: JSON lists assigned to arrays.
 			if(totype.isArray())
 				return convertToArray(totype, source);
 			if(totype.isEnum())
-				return convertToEnum(totype, source);
+				return (T) convertToEnum((Class<Enum< ? >>) totype, source);
 
 		}
 		//-- As a last resort: handle basic conversions as specified by EL. This throws up if impossible
 		return convertTo(source, totype);
 	}
 
-	static public Object convertToArray(Class totype, Object src) {
+	static public <T> T convertToArray(Class<T> totype, Object src) {
 		if(totype.isAssignableFrom(src.getClass()))
-			return src;
-		Class ccl = totype.getComponentType(); // Array of what, exactly?
-		Class scl = src.getClass();
+			return (T) src;
+		Class< ? > ccl = totype.getComponentType(); // Array of what, exactly?
+		Class< ? > scl = src.getClass();
 		if(scl.isArray()) {
 			//-- Try to convert every component of source array to dest array using complex semantics
 			int len = Array.getLength(src); // #elements in source,
@@ -393,17 +393,17 @@ public class RuntimeConversions {
 				Object val = Array.get(src, i); // Get source item
 				Array.set(res, i, convertToComplex(val, ccl));
 			}
-			return res;
+			return (T) res;
 		}
 
-		if(src instanceof Collection) {
-			Collection c = (Collection) src;
+		if(src instanceof Collection< ? >) {
+			Collection< ? > c = (Collection< ? >) src;
 			Object res = Array.newInstance(ccl, c.size()); // Create new result
 			int i = 0;
 			for(Object o : c) {
 				Array.set(res, i++, convertToComplex(o, ccl));
 			}
-			return res;
+			return (T) res;
 		}
 
 		throw new RuntimeConversionException(src, totype.getName());
@@ -427,20 +427,20 @@ public class RuntimeConversions {
 	 * Any other type will throw a RuntimeConversionException.
 	 * converts
 	 */
-	static public Iterator makeIterator(Object val) throws Exception {
+	static public Iterator< ? > makeIterator(Object val) throws Exception {
 		if(val == null)
 			throw new RuntimeConversionException("Cannot convert null to an iterator.");
-		if(val instanceof Collection)
-			return ((Collection) val).iterator();
-		if(val instanceof Map)
-			return ((Map) val).values().iterator();
-		Class acl = val.getClass();
+		if(val instanceof Collection< ? >)
+			return ((Collection< ? >) val).iterator();
+		if(val instanceof Map< ? , ? >)
+			return ((Map< ? , ? >) val).values().iterator();
+		Class< ? > acl = val.getClass();
 		if(acl.isArray())
 			return new ArrayIterator(val);
 		throw new RuntimeConversionException("Cannot convert a " + acl.getName() + " to an iterator.");
 	}
 
-	static private final class ArrayIterator implements Iterator {
+	static private final class ArrayIterator implements Iterator<Object> {
 		private Object	m_array;
 
 		private int		m_len;
@@ -478,9 +478,9 @@ public class RuntimeConversions {
 	static public boolean isIterable(Object val) {
 		if(val == null)
 			return false;
-		if(val instanceof Collection || val instanceof Map)
+		if(val instanceof Collection< ? > || val instanceof Map< ? , ? >)
 			return true;
-		Class cla = val.getClass();
+		Class< ? > cla = val.getClass();
 		if(cla.isArray())
 			return true;
 		return false;
@@ -489,15 +489,15 @@ public class RuntimeConversions {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Conversions to Listable.							*/
 	/*--------------------------------------------------------------*/
-	static private final Listable	NO_VALUES	= new Listable() {
-													public Object get(int ix) throws Exception {
-														return null;
-													}
+	static private final IListable<Object>	NO_VALUES	= new IListable<Object>() {
+		public Object get(int ix) throws Exception {
+			return null;
+		}
 
-													public int size() throws Exception {
-														return 0;
-													}
-												};
+		public int size() throws Exception {
+			return 0;
+		}
+	};
 
 	/**
 	 * Converts any collection-like structure to a Listable. In addition, maps are
@@ -505,21 +505,21 @@ public class RuntimeConversions {
 	 * @param o
 	 * @return
 	 */
-	static public Listable convertToListable(Object o) {
+	static public IListable< ? > convertToListable(Object o) {
 		if(o == null)
 			return NO_VALUES;
-		if(o instanceof Listable)
-			return (Listable) o;
-		if(o instanceof List)
-			return new ListableListWrapper((List) o);
-		if(o instanceof Collection) {
-			Collection col = (Collection) o;
+		if(o instanceof IListable< ? >)
+			return (IListable< ? >) o;
+		if(o instanceof List< ? >)
+			return new ListableListWrapper((List< ? >) o);
+		if(o instanceof Collection< ? >) {
+			Collection< ? > col = (Collection< ? >) o;
 			return new ListableArrayWrapper(col.toArray());
 		}
-		if(o instanceof Map) {
-			return new ListableMapWrapper((Map) o);
+		if(o instanceof Map< ? , ? >) {
+			return new ListableMapWrapper((Map< ? , ? >) o);
 		}
-		Class acl = o.getClass();
+		Class< ? > acl = o.getClass();
 		if(acl.isArray()) {
 			//-- Allow only object arrays, not thingies of primitive type
 			if(acl.getComponentType().isPrimitive())
@@ -530,7 +530,7 @@ public class RuntimeConversions {
 		throw new RuntimeConversionException("Cannot convert a " + acl.getName() + " to a Listable.");
 	}
 
-	static private class ListableArrayWrapper implements Listable {
+	static private class ListableArrayWrapper implements IListable<Object> {
 		private Object[]	m_val;
 
 		public ListableArrayWrapper(Object[] val) {
@@ -546,32 +546,32 @@ public class RuntimeConversions {
 		}
 	}
 
-	static private final class ListableMapWrapper extends ListableArrayWrapper implements Mappable {
-		private Map	m_map;
+	static private final class ListableMapWrapper extends ListableArrayWrapper implements IMappable<Object, Object> {
+		private Map<Object, Object>	m_map;
 
-		public ListableMapWrapper(Map m) {
+		public ListableMapWrapper(Map< ? , ? > m) {
 			super(m.values().toArray());
-			m_map = m;
+			m_map = (Map<Object, Object>) m;
 		}
 
 		public Object get(Object key) {
 			return m_map.get(key);
 		}
 
-		public Iterator getKeyIterator() {
+		public Iterator<Object> getKeyIterator() {
 			return m_map.keySet().iterator();
 		}
 
-		public Iterator getValueIterator() {
+		public Iterator<Object> getValueIterator() {
 			return m_map.values().iterator();
 		}
 	}
 
-	static private final class ListableListWrapper implements Listable {
-		private List	m_val;
+	static private final class ListableListWrapper implements IListable<Object> {
+		private List<Object>	m_val;
 
-		public ListableListWrapper(List val) {
-			m_val = val;
+		public ListableListWrapper(List< ? > val) {
+			m_val = (List<Object>) val;
 		}
 
 		public Object get(int ix) {
@@ -587,29 +587,29 @@ public class RuntimeConversions {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Conversions to Mappable.							*/
 	/*--------------------------------------------------------------*/
-	static private final Mappable	EMPTY_MAP	= new Mappable() {
-													public Object get(Object key) {
-														return null;
-													}
+	static private final IMappable<Object, Object>	EMPTY_MAP	= new IMappable<Object, Object>() {
+		public Object get(Object key) {
+			return null;
+		}
 
-													public int size() {
-														return 0;
-													}
+		public int size() {
+			return 0;
+		}
 
-													public Iterator getKeyIterator() {
-														throw new UnsupportedOperationException("empty mappable");
-													}
+		public Iterator<Object> getKeyIterator() {
+			throw new UnsupportedOperationException("empty mappable");
+		}
 
-													public Iterator getValueIterator() {
-														throw new UnsupportedOperationException("empty mappable");
-													}
-												};
+		public Iterator<Object> getValueIterator() {
+			throw new UnsupportedOperationException("empty mappable");
+		}
+	};
 
-	static private class MapWrap implements Mappable {
-		private Map	m_map;
+	static private class MapWrap implements IMappable<Object, Object> {
+		private Map<Object, Object>	m_map;
 
-		MapWrap(Map m) {
-			m_map = m;
+		MapWrap(Map< ? , ? > m) {
+			m_map = (Map<Object, Object>) m;
 		}
 
 		public Object get(Object key) {
@@ -620,22 +620,22 @@ public class RuntimeConversions {
 			return m_map.size();
 		}
 
-		public Iterator getKeyIterator() {
+		public Iterator<Object> getKeyIterator() {
 			return m_map.keySet().iterator();
 		}
 
-		public Iterator getValueIterator() {
+		public Iterator<Object> getValueIterator() {
 			return m_map.values().iterator();
 		}
 	}
 
-	static public Mappable convertToMappable(Object o) {
+	static public IMappable< ? , ? > convertToMappable(Object o) {
 		if(o == null)
 			return EMPTY_MAP;
-		if(o instanceof Mappable)
-			return (Mappable) o;
-		if(o instanceof Map)
-			return new MapWrap((Map) o);
+		if(o instanceof IMappable< ? , ? >)
+			return (IMappable< ? , ? >) o;
+		if(o instanceof Map< ? , ? >)
+			return new MapWrap((Map< ? , ? >) o);
 		throw new RuntimeConversionException("Cannot convert a " + o.getClass().getName() + " to a Mappable.");
 	}
 
@@ -652,18 +652,18 @@ public class RuntimeConversions {
 		throw new RuntimeConversionException("Cannot convert a " + o.getClass().getName() + " to a java.util.Date");
 	}
 
-	static public Enum convertToEnum(Class<Enum> cl, Object o) {
+	static public Enum< ? > convertToEnum(Class<Enum< ? >> cl, Object o) {
 		if(o == null)
 			return null;
-		if(o instanceof Enum)
-			return (Enum) o;
+		if(o instanceof Enum< ? >)
+			return (Enum< ? >) o;
 		if(o instanceof String) {
 			String value = (String) o;
 			value = value.trim();
-			Enum[] ar = cl.getEnumConstants();
+			Enum< ? >[] ar = cl.getEnumConstants();
 			if(ar == null)
 				throw new IllegalStateException("!? No enum constants for enum class " + cl.getCanonicalName());
-			for(Enum en : ar) {
+			for(Enum< ? > en : ar) {
 				if(en.name().equalsIgnoreCase(value))
 					return en;
 			}
@@ -680,7 +680,7 @@ public class RuntimeConversions {
 	 * types are Array, List, Set and Collection and concrete
 	 * implementations of those.
 	 */
-	static public boolean isCollectionType(Class cl) {
+	static public boolean isCollectionType(Class< ? > cl) {
 		if(cl.isArray())
 			return true;
 		if(Collection.class.isAssignableFrom(cl)) // Is some generic collection?
@@ -694,15 +694,15 @@ public class RuntimeConversions {
 	 * @param colltype
 	 * @return
 	 */
-	static public Object createConcreteCollection(Class ct) {
+	static public Object createConcreteCollection(Class< ? > ct) {
 		if(ct.isInterface() || Modifier.isAbstract(ct.getModifiers())) {
 			//-- Handle concrete cases here
 			if(List.class.isAssignableFrom(ct))
-				return new ArrayList();
+				return new ArrayList<Object>();
 			else if(Set.class.isAssignableFrom(ct))
-				return new HashSet();
+				return new HashSet<Object>();
 			else if(Collection.class.isAssignableFrom(ct))
-				return new ArrayList();
+				return new ArrayList<Object>();
 			else
 				throw new RuntimeConversionException("Unsupported abstract/interface target class " + ct.getName());
 		}
@@ -716,6 +716,4 @@ public class RuntimeConversions {
 			throw new RuntimeConversionException("Error creating an instance of " + ct.getName() + ": " + x, x);
 		}
 	}
-
-
 }
