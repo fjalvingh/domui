@@ -12,5 +12,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/bin-slf4j"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsr305"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.shared"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.db"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
