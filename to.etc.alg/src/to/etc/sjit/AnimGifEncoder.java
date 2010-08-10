@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 
 /**
@@ -58,7 +59,7 @@ public class AnimGifEncoder {
 	private OutputStream	m_os;
 
 	/** The (current) list of images to embed in the GIF */
-	private Vector			m_ima_ar;
+	private List<AnIma> m_ima_ar;
 
 	/** The total width and height of all combined images */
 	private int				m_w, m_h;
@@ -156,7 +157,7 @@ public class AnimGifEncoder {
 			m_cindex_ar = new short[CHSIZE];
 
 			//			m_color_ht = new IntHashtable(511);			// Contains colors & indexes,
-			m_ima_ar = new Vector(10); // Contains all component images,
+			m_ima_ar = new ArrayList<AnIma>(10); // Contains all component images,
 			m_cv = new Canvas();
 		}
 		m_ima_ar.add(ai);
@@ -229,7 +230,7 @@ public class AnimGifEncoder {
 		 *	table and the complete output size.
 		 */
 		for(int i = 0; i < m_ima_ar.size(); i++) {
-			AnIma ai = (AnIma) m_ima_ar.elementAt(i);
+			AnIma ai = m_ima_ar.get(i);
 			genImage(ai);
 			ai.m_rgb = null;
 		}

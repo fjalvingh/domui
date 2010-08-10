@@ -4,8 +4,6 @@ import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
 
-import com.sun.image.codec.jpeg.*;
-
 
 /**
  *	Subsamples an image to create a smaller (or larger(!)) image. This can use
@@ -283,19 +281,9 @@ public class SlowSampler {
 	/*	CODING:	Testing code.....									*/
 	/*--------------------------------------------------------------*/
 
-	static private void saveImage(BufferedImage bi, String name) throws Exception {
-		FileOutputStream fos = new FileOutputStream(name);
-		JPEGImageEncoder je = JPEGCodec.createJPEGEncoder(fos);
-		//		JPEGEncodeParam		ep	= je.getDefaultJPEGEncodeParam(ima);
-		//		ep.setQuality((float) 0.5, false);
-		je.encode(bi);
-		fos.close();
-	}
-
-
 	static private ResamplerFilter loadFilter(String name) {
 		try {
-			Class cl = Class.forName(name);
+			Class< ? > cl = SlowSampler.class.getClassLoader().loadClass(name);
 			if(!ResamplerFilter.class.isAssignableFrom(cl))
 				throw new IllegalArgumentException(name + ": not a resampler filter class!");
 			return (ResamplerFilter) cl.newInstance();
@@ -375,7 +363,7 @@ public class SlowSampler {
 		BufferedImage obi = resample(bi, filter, p.x, p.y);
 		t = System.currentTimeMillis() - t;
 		System.out.print("save, ");
-		saveImage(obi, "s-" + Integer.toString(p.x) + "x" + Integer.toString(p.y) + "-" + fn + ".jpg");
+		ImaTool.saveJPEG(obi, new File("s-" + Integer.toString(p.x) + "x" + Integer.toString(p.y) + "-" + fn + ".jpg"), 0.7);
 		System.out.println("Done in " + t + " millis");
 	}
 

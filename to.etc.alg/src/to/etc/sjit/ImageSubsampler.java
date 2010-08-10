@@ -4,8 +4,6 @@ import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
 
-import com.sun.image.codec.jpeg.*;
-
 
 /**
  *	<p>Subsamples an image to create a smaller (or larger(!)) image. This can use
@@ -576,18 +574,20 @@ public class ImageSubsampler {
 	/*--------------------------------------------------------------*/
 
 	static private void saveImage(BufferedImage bi, String name) throws Exception {
-		FileOutputStream fos = new FileOutputStream(name);
-		JPEGImageEncoder je = JPEGCodec.createJPEGEncoder(fos);
-		//		JPEGEncodeParam		ep	= je.getDefaultJPEGEncodeParam(ima);
-		//		ep.setQuality((float) 0.5, false);
-		je.encode(bi);
-		fos.close();
+		ImaTool.saveJPEG(bi, new File(name), 0.5);
+		//
+		//		FileOutputStream fos = new FileOutputStream(name);
+		//		JPEGImageEncoder je = JPEGCodec.createJPEGEncoder(fos);
+		//		//		JPEGEncodeParam		ep	= je.getDefaultJPEGEncodeParam(ima);
+		//		//		ep.setQuality((float) 0.5, false);
+		//		je.encode(bi);
+		//		fos.close();
 	}
 
 
 	static private ResamplerFilter loadFilter(String name) {
 		try {
-			Class cl = Class.forName(name);
+			Class< ? > cl = ImageSubsampler.class.getClassLoader().loadClass(name);
 			if(!ResamplerFilter.class.isAssignableFrom(cl))
 				throw new IllegalArgumentException(name + ": not a resampler filter class!");
 			return (ResamplerFilter) cl.newInstance();
@@ -639,9 +639,9 @@ public class ImageSubsampler {
 		if(filter == null)
 			filter = loadFilter(fname + "Filter");
 		if(filter == null)
-			filter = loadFilter("to.mumble.imalib." + fname);
+			filter = loadFilter("to.etc.sjit." + fname);
 		if(filter == null)
-			filter = loadFilter("to.mumble.imalib." + fname + "Filter");
+			filter = loadFilter("to.etc.sjit." + fname + "Filter");
 		if(filter == null) {
 			throw new Exception("Unknown filter. Make sure the name starts with an uppercase letter...");
 		}
