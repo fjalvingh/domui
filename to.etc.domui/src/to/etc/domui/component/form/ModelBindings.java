@@ -2,10 +2,13 @@ package to.etc.domui.component.form;
 
 import java.util.*;
 
-public class ModelBindings implements IModelBinding {
-	private List<IModelBinding> m_bindings = new ArrayList<IModelBinding>();
+import javax.annotation.*;
 
-	public void add(IModelBinding b) {
+public class ModelBindings implements IModelBinding, Iterable<IModelBinding> {
+	@Nonnull
+	final private List<IModelBinding> m_bindings = new ArrayList<IModelBinding>();
+
+	public void add(@Nonnull IModelBinding b) {
 		m_bindings.add(b);
 	}
 
@@ -35,5 +38,16 @@ public class ModelBindings implements IModelBinding {
 	public void setControlsEnabled(boolean on) {
 		for(IModelBinding b : m_bindings)
 			b.setControlsEnabled(on);
+	}
+
+	@Override
+	@Nonnull
+	public Iterator<IModelBinding> iterator() {
+		return m_bindings.iterator();
+	}
+
+	@Nonnull
+	public IModelBinding get(int ix) {
+		return m_bindings.get(ix);
 	}
 }

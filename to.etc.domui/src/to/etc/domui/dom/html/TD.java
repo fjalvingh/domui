@@ -1,8 +1,9 @@
 package to.etc.domui.dom.html;
 
+import to.etc.domui.dom.*;
 import to.etc.domui.util.*;
 
-public class TD extends NodeContainer {
+public class TD extends NodeContainer implements IRenderNBSPIfEmpty {
 	private TableVAlign m_valign;
 
 	private int m_colspan = -1;

@@ -22,7 +22,7 @@ public class ControlFactoryString implements ControlFactory {
 	 * Accept any type using a string.
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
-	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null) {
 			if(!controlClass.isAssignableFrom(Text.class) && !controlClass.isAssignableFrom(DisplayValue.class))
 				return -1;
@@ -31,7 +31,7 @@ public class ControlFactoryString implements ControlFactory {
 		return 1;
 	}
 
-	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass) {
+	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		Class< ? > iclz = pmm.getActualType();
 		if(!editable) {
 			/*

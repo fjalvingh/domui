@@ -56,4 +56,6 @@ abstract public class TableModelBase<T> implements ITableModel<T> {
 			l.modelChanged(this);
 	}
 
+	@Override
+	public void refresh() {}
 }

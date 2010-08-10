@@ -30,11 +30,33 @@ public interface IControl<T> extends IDisplayControl<T>, IActionControl, IHasCha
 	boolean hasError();
 
 	/**
+	 * Returns T if the control is currently in readonly mode. Controls that do not
+	 * have a readonly ability (comboboxes) will use disabled as the readonly state.
+	 * For those controls the readonly state mirrors the disabled state.
+	 * @return
+	 */
+	boolean isReadOnly();
+
+	/**
 	 * Sets the input to readonly-mode. Components that do not implement readonly mode (comboboxes)
 	 * will usually set themselves to disabled which works much the same.
 	 * @param ro
 	 */
 	void setReadOnly(boolean ro);
+
+	/**
+	 * Returns T if the control is currently in disabled. Controls that do not
+	 * have a readonly ability (comboboxes) will use disabled as the readonly state.
+	 * For those controls the readonly state mirrors the disabled state.
+	 * @return
+	 */
+	boolean isDisabled();
+
+	/**
+	 * Returns T if this control is a mandatory input.
+	 * @return
+	 */
+	boolean isMandatory();
 
 	/**
 	 * Make the control mandatory.

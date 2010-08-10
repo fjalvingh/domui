@@ -45,7 +45,7 @@ public class JdbcAnyRecord {
 					break;
 
 				case Types.ROWID:
-					set(name, rs.getString(1));
+					set(name, rs.getString(i));
 					break;
 
 				case Types.DATE:
@@ -62,7 +62,7 @@ public class JdbcAnyRecord {
 
 	public void set(String name, Object bd) {
 		if(bd == null)
-			m_valueMap.put(name, NULL_VAL);
+			m_valueMap.put(name.toLowerCase(), NULL_VAL);
 		else
 			m_valueMap.put(name.toLowerCase(), bd);
 	}

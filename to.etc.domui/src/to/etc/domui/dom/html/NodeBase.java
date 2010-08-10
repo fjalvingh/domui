@@ -791,8 +791,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			msg.setErrorLocation(m_errorLocation);
 		msg.setErrorNode(this);
 
-		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.addMessage(this, m_message);
+		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
+		if(m_page != null) {
+			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
+			fence.addMessage(this, m_message);
+		}
 		return m_message;
 	}
 
@@ -806,10 +809,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		}
 		if(getMessage() == null)
 			return;
-		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		UIMessage msg = m_message;
+		//-- Experimental fix for bug# 787: cannot locate error fence. In case that control is still disconnected just skip error fence part (messge was not posted to it anyway).
+		if(m_page != null) {
+			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
+			UIMessage msg = m_message;
+			fence.removeMessage(this, msg);
+		}
 		m_message = null;
-		fence.removeMessage(this, msg);
 	}
 
 	public UIMessage getMessage() {
@@ -875,6 +881,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	protected void onUnshelve() throws Exception {}
 
+	protected void onRefresh() throws Exception {}
+
+	public final void refresh() throws Exception {
+		onRefresh();
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle dropping of dnd nodes.						*/

@@ -3,6 +3,8 @@ package to.etc.domui.state;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.dom.html.*;
@@ -42,8 +44,6 @@ final public class WindowSession {
 	private int m_nextCid;
 
 	private boolean m_attached;
-
-	private Page m_currentPage;
 
 	private Class< ? extends ConversationContext> m_targetConversationClass;
 
@@ -175,6 +175,12 @@ final public class WindowSession {
 		for(ConversationContext cc : m_conversationMap.values()) {
 			cc.dump();
 		}
+		System.out.println("  Page shelve");
+		for(int i = 0; i < m_shelvedPageStack.size(); i++) {
+			ShelvedEntry se = m_shelvedPageStack.get(i);
+			System.out.println("  " + i + ": " + se.getPage() + " in " + se.getPage().internalGetConversation() + ": " + se.getPage().internalGetConversation().getState());
+		}
+
 		//		System.out.println("  ---- Conversation dump end -----");
 	}
 
@@ -221,7 +227,9 @@ final public class WindowSession {
 	public ConversationContext createConversation(final IRequestContext ctx, final Class< ? extends ConversationContext> clz) throws Exception {
 		if(clz == null)
 			return new SimpleConversationContext();
-		return clz.newInstance(); // FIXME Should do something with injection and stuff.
+		ConversationContext cc = clz.newInstance(); // FIXME Should do something with injection and stuff.
+		m_appSession.getApplication().internalCallConversationCreated(cc);
+		return cc;
 	}
 
 	public void acceptNewConversation(final ConversationContext cc) throws Exception {
@@ -250,6 +258,26 @@ final public class WindowSession {
 	}
 
 	/**
+	 * Goto handling in EXCEPTION handling mode: only Redirect is allowed here.
+	 * @param ctx
+	 * @param currentpg
+	 * @param ajax
+	 * @return
+	 */
+	public boolean handleExceptionGoto(@Nonnull final RequestContextImpl ctx, @Nonnull final Page currentpg, boolean ajax) throws Exception {
+		switch(getTargetMode()){
+			default:
+				throw new IllegalStateException("UIGoto." + getTargetMode() + " is invalid when calling UIGoto from an exception listener");
+
+			case REDIRECT:
+			case NEW:
+			case SUB:
+				break;
+		}
+		return handleGoto(ctx, currentpg, ajax);
+	}
+
+	/**
 	 * This checks whether a new page is to be made resident, instead of the
 	 * current page.
 	 *
@@ -258,12 +286,13 @@ final public class WindowSession {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean handleGoto(final RequestContextImpl ctx, final Page currentpg, boolean ajax) throws Exception {
+	public boolean handleGoto(@Nonnull final RequestContextImpl ctx, @Nonnull final Page currentpg, boolean ajax) throws Exception {
+		//		System.out.println("GOTO: currentpg=" + currentpg + ", shelved=" + currentpg.isShelved());
 		if(getTargetMode() == null)
 			return false;
 		if(getTargetMode() == MoveMode.BACK) {
 			// Back requested-> move back, then.
-			handleMoveBack(ctx, ajax);
+			handleMoveBack(ctx, currentpg, ajax);
 			return true;
 		}
 		if(getTargetMode() == MoveMode.REDIRECT) {
@@ -289,36 +318,38 @@ final public class WindowSession {
 		PageParameters pp = getTargetPageParameters();
 		Constructor< ? extends UrlPage> bestpc = null;
 
-		/*
-		 * Look back in the page shelve and check if a compatible page is present there. If so
-		 * we move back by destroying the pages "above" the target.
-		 */
-		//-- Locate the specified page/conversation in the page stack,
-		int psix = findInPageStack(cc, clz, pp);
-		if(psix != -1) {
+		if(getTargetMode() != MoveMode.REPLACE) {
 			/*
-			 * Page found. Is it the current page? If so we just ignore the request.
+			 * Look back in the page shelve and check if a compatible page is present there. If so
+			 * we move back by destroying the pages "above" the target.
 			 */
-			if(psix == m_shelvedPageStack.size() - 1) {
-				return false;
+			//-- Locate the specified page/conversation in the page stack,
+			int psix = findInPageStack(cc, clz, pp);
+			if(psix != -1) {
+				/*
+				 * Page found. Is it the current page? If so we just ignore the request.
+				 */
+				if(psix == m_shelvedPageStack.size() - 1) {
+					return false;
+				}
+
+				/*
+				 * Entry accepted. Discard all stacked entries *above* the selected thing.
+				 */
+				clearShelve(psix + 1);
+				internalAttachConversations();
+				Page currentPage = m_shelvedPageStack.get(psix).getPage();
+
+				/*
+				 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
+				 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
+				 * make sure it is correct even though the request was for another page and is almost dying.
+				 */
+				PageContext.internalSet(currentPage);
+				currentPage.internalUnshelve();
+				generateRedirect(ctx, currentPage, ajax);
+				return true;
 			}
-
-			/*
-			 * Entry accepted. Discard all stacked entries *above* the selected thing.
-			 */
-			clearShelve(psix + 1);
-			internalAttachConversations();
-			m_currentPage = m_shelvedPageStack.get(psix).getPage();
-
-			/*
-			 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
-			 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
-			 * make sure it is correct even though the request was for another page and is almost dying.
-			 */
-			PageContext.internalSet(m_currentPage);
-			m_currentPage.internalUnshelve();
-			generateRedirect(ctx, m_currentPage, ajax);
-			return true;
 		}
 
 		//-- Handle the shelve mode,
@@ -329,15 +360,13 @@ final public class WindowSession {
 			 * The "current" page on top of the shelve stack is destroyed; the new page replaces it on top
 			 * of the stack.
 			 */
-			psix = m_shelvedPageStack.size() - 1; // We need to DESTROY the last page stack element,
+			int psix = m_shelvedPageStack.size() - 1; // We need to DESTROY the last page stack element,
 			if(psix < 0) // If there is no topmost page
 				psix = 0; // Just clear.
 			clearShelve(psix);
-			m_currentPage = null;
 		} else if(getTargetMode() == MoveMode.SUB) {
 			//-- We're shelving the current page- call all shelve handlers.
-			if(m_currentPage != null)
-				m_currentPage.internalShelve();
+			currentpg.internalShelve();
 		} else
 			throw new IllegalStateException("Internal: don't know how to handle shelve mode " + getTargetMode());
 
@@ -378,13 +407,13 @@ final public class WindowSession {
 		//-- Conversation has been validated now, and it is active. Create and link the new page now.
 		if(pp == null)
 			pp = new PageParameters();
-		m_currentPage = PageMaker.createPageWithContent(ctx, bestpc, cc, pp);
-		PageContext.internalSet(m_currentPage); // jal 20100224 Code can run in new page on shelve.
-		shelvePage(m_currentPage);
+		Page currentPage = PageMaker.createPageWithContent(ctx, bestpc, cc, pp);
+		PageContext.internalSet(currentPage); // jal 20100224 Code can run in new page on shelve.
+		shelvePage(currentPage);
 
 		//-- Call all of the page's listeners.
 		//		callNewPageListeners(m_currentPage); // jal 20091122 Bug# 605 Move this globally.
-		generateRedirect(ctx, m_currentPage, ajax);
+		generateRedirect(ctx, currentPage, ajax);
 		return true;
 	}
 
@@ -441,8 +470,9 @@ final public class WindowSession {
 	/**
 	 * Moves one shelve entry back. If there's no shelve entry current moves back
 	 * to the application's index.
+	 * @param currentpg
 	 */
-	private void handleMoveBack(final RequestContextImpl ctx, boolean ajax) throws Exception {
+	private void handleMoveBack(@Nonnull final RequestContextImpl ctx, @Nonnull Page currentpg, boolean ajax) throws Exception {
 		int ix = m_shelvedPageStack.size() - 2;
 		if(ix < 0) {
 			clearShelve(0); // Discard EVERYTHING
@@ -451,7 +481,7 @@ final public class WindowSession {
 			Class< ? extends UrlPage> clz = getApplication().getRootPage();
 			if(clz != null) {
 				internalSetNextPage(MoveMode.NEW, getApplication().getRootPage(), null, null, null);
-				handleGoto(ctx, m_currentPage, ajax);
+				handleGoto(ctx, currentpg, ajax);
 			} else {
 				//-- Last resort: move to root of the webapp by redirecting to some URL
 				generateRedirect(ctx, ctx.getRelativePath(""), ajax);
@@ -462,16 +492,16 @@ final public class WindowSession {
 		//-- Unshelve and destroy the topmost thingy, then move back to the then-topmost.
 		clearShelve(ix + 1); // Destroy everything above;
 		ShelvedEntry se = m_shelvedPageStack.get(ix); // Get the thing to move to,
-		m_currentPage = se.getPage();
+		Page newpg = se.getPage();
 
 		/*
 		 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
 		 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
 		 * make sure it is correct even though the request was for another page and is almost dying.
 		 */
-		PageContext.internalSet(m_currentPage);
-		m_currentPage.internalUnshelve();
-		generateRedirect(ctx, m_currentPage, ajax);
+		PageContext.internalSet(newpg);
+		newpg.internalUnshelve();
+		generateRedirect(ctx, newpg, ajax);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -543,7 +573,7 @@ final public class WindowSession {
 		 */
 		while(m_shelvedPageStack.size() > ix) {
 			ShelvedEntry se = m_shelvedPageStack.remove(m_shelvedPageStack.size() - 1);
-			System.out.println("Trying to discard " + se.getPage());
+			System.out.println("Trying to discard " + se.getPage() + " in conversation " + se.getPage().getConversation());
 			discardPage(se.getPage());
 		}
 	}
@@ -598,7 +628,10 @@ final public class WindowSession {
 				 */
 				clearShelve(psix + 1);
 				internalAttachConversations();
-				return m_shelvedPageStack.get(psix).getPage();
+				Page pg = m_shelvedPageStack.get(psix).getPage();
+				if(pg.isShelved())
+					pg.internalUnshelve();
+				return pg;
 			}
 		}
 
@@ -624,12 +657,12 @@ final public class WindowSession {
 		internalAttachConversations(); // ORDERED 3
 
 		//-- Create the page && add to shelve,
-		m_currentPage = PageMaker.createPageWithContent(rctx, bestpc, coco, PageParameters.createFrom(rctx));
-		shelvePage(m_currentPage); // Append the current page to the shelve,
+		Page newpg = PageMaker.createPageWithContent(rctx, bestpc, coco, PageParameters.createFrom(rctx));
+		shelvePage(newpg); // Append the current page to the shelve,
 
 		//-- Call all of the page's listeners.
 		//		callNewPageListeners(m_currentPage); jal 20091122 Bug# 605 Move this globally.
-		return m_currentPage;
+		return newpg;
 	}
 
 	// jal 20091122 Bug# 605 Move this globally.
@@ -708,22 +741,10 @@ final public class WindowSession {
 	public void setAttribute(final String name, final Object val) {
 		if(m_map == Collections.EMPTY_MAP)
 			m_map = new HashMap<String, Object>();
-		Object old;
 		if(val == null)
-			old = m_map.remove(name);
+			m_map.remove(name);
 		else {
-			old = m_map.put(name, val);
-		}
-		if(old != null) {
-			// FIXME Some kind of session listener.
-			//			if(old instanceof ConversationStateListener) {
-			//				try {
-			//					((ConversationStateListener) old).conversationDetached(this);
-			//				} catch(Exception x) {
-			//					x.printStackTrace();
-			//					LOG.log(Level.SEVERE, "In calling detach listener", x);
-			//				}
-			//			}
+			m_map.put(name, val);
 		}
 	}
 

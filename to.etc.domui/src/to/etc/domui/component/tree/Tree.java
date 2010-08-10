@@ -9,7 +9,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 
-public class Tree extends Div implements ITreeModelChangedListener {
+public class Tree extends Div implements ITreeModelChangedListener<Object> {
 	private ITreeModel<Object> m_model;
 
 	private boolean m_showRoot;
@@ -186,6 +186,7 @@ public class Tree extends Div implements ITreeModelChangedListener {
 	 * @throws Exception
 	 */
 	public void expandNode(Object item) throws Exception {
+		getModel().expandChildren(item);
 		List<Object> path = getTreePath(item); // Calculate a path.
 		if(path.size() == 0)
 			throw new IllegalStateException("No TREE path found to node=" + item);
@@ -274,11 +275,12 @@ public class Tree extends Div implements ITreeModelChangedListener {
 	 */
 	public void collapseNode(final Object item) throws Exception {
 		VisibleNode vn = m_openMap.get(item);
-		if(vn == null)
+		if(vn == null || !vn.expanded)
 			return;
 
 		//-- We have a node... We must discard all VisibleNodes after this node;
 		dropCrud(vn);
+		getModel().collapseChildren(item);
 		vn.expanded = false;
 		vn.childNodes = null;
 
@@ -301,7 +303,7 @@ public class Tree extends Div implements ITreeModelChangedListener {
 		row.getParent().getChild(rowix + 1).remove(); // Drop the 2nd item
 	}
 
-	private void dropCrud(VisibleNode vnbase) {
+	private void dropCrud(VisibleNode vnbase) throws Exception {
 		if(vnbase.childNodes == null)
 			return;
 		int ix = 0;
@@ -310,6 +312,8 @@ public class Tree extends Div implements ITreeModelChangedListener {
 				throw new IllegalStateException("?? Element " + ix + " of parent=" + vnbase.data + " is null???");
 			m_openMap.remove(vn.data);
 			dropCrud(vn);
+			if(vn.expanded)
+				getModel().collapseChildren(vn.data);
 			ix++;
 		}
 	}

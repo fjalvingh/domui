@@ -219,8 +219,7 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	protected AppSession createSession() {
-		AppSession aps = new AppSession();
-		aps.internalInitialize(this);
+		AppSession aps = new AppSession(this);
 		return aps;
 	}
 
@@ -621,6 +620,7 @@ public abstract class DomApplication {
 	 * @param name
 	 * @return
 	 */
+	@Nonnull
 	public IResourceRef getApplicationResourceByName(String name) {
 		IResourceRef ref = internalFindResource(name);
 
@@ -1181,8 +1181,8 @@ public abstract class DomApplication {
 	 */
 	public String getThemeReplacedString(ResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
 		IResourceRef ires = getApplicationResourceByName(rurl);
-		if(ires == null)
-			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
+//		if(ires == null)
+//			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
 		if(rdl != null)
 			rdl.add(ires);
 
@@ -1236,6 +1236,104 @@ public abstract class DomApplication {
 		tx.expand(cont, pw);
 		pw.close();
 		return sw.getBuffer().toString();
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	DomUI state listener handling.						*/
+	/*--------------------------------------------------------------*/
+
+	private List<IDomUIStateListener> m_uiStateListeners = Collections.EMPTY_LIST;
+
+	/**
+	 * Register a listener for internal DomUI events.
+	 * @param sl
+	 */
+	public synchronized void addUIStateListener(IDomUIStateListener sl) {
+		m_uiStateListeners = new ArrayList<IDomUIStateListener>(m_uiStateListeners); // Dup list;
+		m_uiStateListeners.add(sl);
+	}
+
+	/**
+	 * Remove a registered UI state listener.
+	 * @param sl
+	 */
+	public synchronized void removeUIStateListener(IDomUIStateListener sl) {
+		m_uiStateListeners = new ArrayList<IDomUIStateListener>(m_uiStateListeners); // Dup list;
+		m_uiStateListeners.remove(sl);
+	}
+
+	private synchronized List<IDomUIStateListener> getUIStateListeners() {
+		return m_uiStateListeners;
+	}
+
+	public final void internalCallWindowSessionCreated(WindowSession ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.windowSessionCreated(ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void internalCallWindowSessionDestroyed(WindowSession ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.windowSessionDestroyed(ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void internalCallConversationCreated(ConversationContext ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.conversationCreated(ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void internalCallConversationDestroyed(ConversationContext ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.conversationDestroyed(ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void internalCallPageFullRender(RequestContextImpl ctx, Page ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.onBeforeFullRender(ctx, ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void internalCallPageAction(RequestContextImpl ctx, Page ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.onBeforePageAction(ctx, ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void internalCallPageComplete(IRequestContext ctx, Page ws) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				sl.onAfterPage(ctx, ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
 	}
 
 	/*--------------------------------------------------------------*/

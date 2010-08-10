@@ -18,11 +18,13 @@ public class AppPageTitle extends Div {
 
 	private String m_title;
 
-	private TD m_buttonpart;
+	private TD m_buttonpart = new TD();
 
 	private TD m_titlePart;
 
 	private String m_imageUrl;
+
+	private String m_hint;
 
 	public AppPageTitle() {}
 
@@ -37,6 +39,14 @@ public class AppPageTitle extends Div {
 
 	public void setIcon(final String s) {
 		m_imageUrl = s;
+	}
+
+	public String getHint() {
+		return m_hint;
+	}
+
+	public void setHint(String hint) {
+		m_hint = hint;
 	}
 
 	@Override
@@ -70,13 +80,15 @@ public class AppPageTitle extends Div {
 		String ttl = getPageTitle();
 		if(ttl != null)
 			td.add(ttl);
+		if(!DomUtil.isBlank(getHint()))
+			td.setTitle(getHint());
 
 		//-- Buttons
-		td = b.addCell();
-		td.setCssClass("vp-ttl-bb");
+		b.row().add(m_buttonpart);
+		//		td = b.addCell();
+		m_buttonpart.setCssClass("vp-ttl-bb");
 		//		td.setWidth("1%");
-		m_buttonpart = td;
-		addDefaultButtons(td);
+		addDefaultButtons(m_buttonpart);
 	}
 
 	public TD getButtonpart() {
@@ -143,6 +155,13 @@ public class AppPageTitle extends Div {
 		if(isBuilt()) {
 			getTitlePart().setText(ttl);
 		}
+	}
+
+	public void addButton(String image, String hint, IClicked<NodeBase> handler) {
+		SmallImgButton ib = new SmallImgButton(image);
+		getButtonpart().add(ib);
+		ib.setTitle(hint);
+		ib.setClicked(handler);
 	}
 
 	protected void addDefaultButtons(final NodeContainer nc) {

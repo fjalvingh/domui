@@ -4,7 +4,7 @@ function _block() {
 function _unblock() {
 	WebUI.unblockUI();
 }
-$().ajaxStart(_block).ajaxStop(_unblock);
+$(document).ajaxStart(_block).ajaxStop(_unblock);
 
 ( function($) {
 	$.webui = function(xml) {
@@ -207,8 +207,21 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 							if (n == 'style') { // IE workaround
 								dest.style.cssText = v;
 								dest.setAttribute(n, v);
-							} else
-								$.attr(dest, n, v);
+							} else {
+								//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
+//								alert('changeAttr: id='+dest.id+' change '+n+" to "+v);
+								
+								if(dest.tagName.toLowerCase() == 'select' && n == 'class' && $.browser.mozilla) {
+									dest.className = v;
+									var old = dest.selectedIndex;
+									dest.selectedIndex = 1;			// jal 20100720 Fixes problem where setting BG color on select removes the dropdown button image
+									dest.selectedIndex = old;
+								} else if(v == "" && ("checked" == n || "selected" == n || "disabled" == n || "readonly" == n)) {
+									$(dest).removeAttr(n);
+								} else {
+									$.attr(dest, n, v);
+								}
+							}
 						}
 						continue;
 					} catch(ex) {
@@ -349,14 +362,21 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 			function copyAttrs(dest, src, inline) {
 				for ( var i = 0, attr = ''; i < src.attributes.length; i++) {
 					var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
-//					alert('attr '+n+' is '+v+", inline = "+inline);
 
 					if (inline) {
 						//-- 20091110 jal When inlining we are in trouble if domjs_ is used... The domjs_ mechanism is replaced with setDelayedAttributes in java.
 						if(n.substring(0, 6) == 'domjs_') {
 							alert('Unsupported domjs_ attribute in INLINE mode: '+n);
-						} else
-							attr += (n + '="' + v + '" ');
+						} else {
+							//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
+							if("checked" == n || "selected" == n || "disabled" == n || "readonly" == n) {
+//								alert('inline checking '+n+" value="+v);
+								//-- only add item when value != ""
+								if(v != "")
+									attr += (n + '="' + v + '" ');
+							} else
+								attr += (n + '="' + v + '" ');
+						}
 					} else if (n.substring(0, 6) == 'domjs_') {
 						var s = "dest." + n.substring(6) + " = " + v;
 						//alert('domjs eval: '+s);
@@ -367,7 +387,7 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if (dest && ($.browser.msie || $.browser.chrome) && n.substring(0, 2) == 'on') {
+					} else if (dest && ($.browser.msie || $.browser.webkit) && n.substring(0, 2) == 'on') {
 						try {
 							// alert('event '+n+' value '+v);
 							// var se = 'function(){'+v+';}';
@@ -385,7 +405,12 @@ $().ajaxStart(_block).ajaxStop(_unblock);
 						dest.style.cssText = v;
 						dest.setAttribute(n, v);
 					} else {
-						$.attr(dest, n, v);
+						//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
+						if(v == "" && ("checked" == n || "selected" == n || "disabled" == n || "readonly" == n)) {
+							$(dest).removeAttr(n);
+						} else {
+							$.attr(dest, n, v);
+						}
 					}
 				}
 				return attr;
@@ -1429,7 +1454,11 @@ var WebUI = {
 	},
 
 	openWindow : function(url, name, par) {
-		var h = window.open(url, name, par);
+		try {
+			var h = window.open(url, name, par);
+		} catch(x) {
+			alert("Got popup exception: "+x);
+		}
 		if (!h)
 			alert("Er is een popup blocker actief. Deze moet voor deze website worden uitgezet.");
 		return false;
@@ -1834,7 +1863,8 @@ WebUI._ROW_DROPZONE_HANDLER = {
 
 		// -- Use the current mouseish Y position to distinguish between rows.
 	var cy = WebUI._dragLastY;
-	// console.debug("Starting position det: drag Y = "+cy);
+	
+//	console.debug("Starting position det: drag Y = "+cy);
 	var gravity = 0; // Prefer upward gravity
 	var lastrow = null;
 	var rowindex = 0;
@@ -1843,19 +1873,20 @@ WebUI._ROW_DROPZONE_HANDLER = {
 		if (tr.nodeName != 'TR')
 			continue;
 		lastrow = tr;
-		var position = WebUI.getAbsScrolledPosition(tr); // Take scrolling
-															// into account!!
-		// console.debug('row: by='+position.by+", ey="+position.ey+",
-		// type="+tr.nodeName);
+//		var position = WebUI.getAbsScrolledPosition(tr); // Take scrolling into account!!
+		var off = $(tr).offset();
+		var position = { by: off.top, ey: off.top + 20 };
+		
 		if (position) {
+//			console.debug('row: by='+position.by+", ey="+position.ey+", type="+tr.nodeName);
+			
 			// -- Is the mouse IN the Y range for this row?
 			if (cy >= position.by && cy < position.ey) {
 				// -- Cursor is WITHIN this node. Is it near the TOP or near the
 				// BOTTOM?
 				var hy = (position.by + position.ey) / 2;
 				gravity = cy < hy ? 0 : 1;
-				// console.debug('ACCEPTED by='+position.by+",
-				// ey="+position.ey+", hy="+hy+", rowindex="+rowindex);
+//				console.debug('ACCEPTED by='+position.by+", ey="+position.ey+", hy="+hy+", rowindex="+rowindex);
 
 				return {
 					index :rowindex,
@@ -1867,10 +1898,8 @@ WebUI._ROW_DROPZONE_HANDLER = {
 
 			// -- Is the thing between this row and the PREVIOUS one?
 			if (cy < position.by) {
-				// -- Use this row with gravity 0 (should insert BEFORE this
-				// row).
-				// console.debug('ACCEPTED BEFORE node by='+position.by+",
-				// ey="+position.ey+", rowindex="+rowindex);
+				// -- Use this row with gravity 0 (should insert BEFORE this row).
+//				console.debug('ACCEPTED BEFORE node by='+position.by+", ey="+position.ey+", rowindex="+rowindex);
 				return {
 					index :rowindex,
 					iindex :i,
@@ -1878,12 +1907,13 @@ WebUI._ROW_DROPZONE_HANDLER = {
 					row :tr
 				};
 			}
-			// console.debug('REFUSED by='+position.by+", ey="+position.ey+",
-			// rowindex="+rowindex);
+//			console.debug('REFUSED by='+position.by+", ey="+position.ey+", rowindex="+rowindex);
+		} else {
+//			console.debug("row: no location.");
 		}
 		rowindex++;
 	}
-	// console.debug("ACCEPTED last one");
+//	console.debug("ACCEPTED last one");
 
 	// -- If we're here we must insert at the last location
 	return {

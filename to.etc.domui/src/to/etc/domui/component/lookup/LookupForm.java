@@ -2,6 +2,8 @@ package to.etc.domui.component.lookup;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
@@ -46,7 +48,12 @@ import to.etc.webapp.query.*;
  */
 public class LookupForm<T> extends Div {
 	/** The data class we're looking for */
+	@Nonnull
 	private Class<T> m_lookupClass;
+
+	/** The metamodel for the class. */
+	@Nonnull
+	private ClassMetaModel m_metaModel;
 
 	private String m_title;
 
@@ -223,6 +230,16 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
+	 * Sets rendering of search fields into two columns. It is in use only in case when search fields are loaded from metadata and loaded items count is bigger then one specified in m_twoColumnsModeMinimalItems.
+	 */
+	private boolean m_twoColumnsMode;
+
+	/**
+	 * Minimal number of items that would cause two column rendering. Always set with m_twoColumnsMode.
+	 */
+	private int m_minSizeForTwoColumnsMode;
+
+	/**
 	 * Item that is used internally by LookupForm to mark table break when creating search field components.
 	 *
 	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
@@ -281,16 +298,64 @@ public class LookupForm<T> extends Div {
 	/** The list of buttons to show on the button row. */
 	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
 
+	public LookupForm(@Nonnull final Class<T> lookupClass, String... propertyList) {
+		this(lookupClass, (ClassMetaModel) null, propertyList);
+	}
+
 	/**
 	 * Create a LookupForm to find instances of the specified class.
 	 * @param lookupClass
 	 */
-	public LookupForm(final Class<T> lookupClass, String... propertyList) {
-		m_builder = DomApplication.get().getControlBuilder();
+	public LookupForm(@Nonnull final Class<T> lookupClass, @Nullable final ClassMetaModel cmm, String... propertyList) {
 		m_lookupClass = lookupClass;
+		m_metaModel = cmm != null ? cmm : MetaManager.findClassMeta(lookupClass);
+		m_builder = DomApplication.get().getControlBuilder();
 		for(String prop : propertyList)
 			addProperty(prop);
 		defineDefaultButtons();
+	}
+
+	@Nonnull
+	public ClassMetaModel getMetaModel() {
+		return m_metaModel;
+	}
+
+	/**
+	 * Returns the class whose instances we're looking up (a persistent class somehow).
+	 * @return
+	 */
+	public Class<T> getLookupClass() {
+		if(null == m_lookupClass)
+			throw new NullPointerException("The LookupForm's 'lookupClass' cannot be null");
+		return m_lookupClass;
+	}
+
+	/**
+	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
+	 * Change the class for which we are searching. This clear ALL definitions!
+	 * @param lookupClass
+	 */
+	@Deprecated
+	public void setLookupClass(@Nonnull final Class<T> lookupClass) {
+		if(m_lookupClass == lookupClass)
+			return;
+		m_lookupClass = lookupClass;
+		m_metaModel = MetaManager.findClassMeta(lookupClass);
+		reset();
+	}
+
+	/**
+	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
+	 * Change the class and metamodel for which we are searching. This clear ALL definitions!
+	 * @param lookupClass
+	 */
+	@Deprecated
+	public void setLookupClass(@Nonnull final Class<T> lookupClass, @Nonnull ClassMetaModel cmm) {
+		if(m_lookupClass == lookupClass)
+			return;
+		m_lookupClass = lookupClass;
+		m_metaModel = cmm;
+		reset();
 	}
 
 	/**
@@ -309,6 +374,11 @@ public class LookupForm<T> extends Div {
 			add(sroot);
 			m_content = sroot;
 		}
+
+		//-- Ok, we need the items we're going to show now.
+		if(m_itemList.size() == 0) // If we don't have an item set yet....
+			setItems(); // ..define it from metadata, and abort if there is nothing there
+
 		NodeContainer searchContainer = sroot;
 		if(containsItemBreaks(m_itemList)) {
 			Table searchRootTable = new Table();
@@ -329,10 +399,6 @@ public class LookupForm<T> extends Div {
 		m_tbody = new TBody();
 		m_tbody.setTestID("tableBodyLookupForm");
 		m_table.add(m_tbody);
-
-		//-- Ok, we need the items we're going to show now.
-		if(m_itemList.size() == 0) // If we don't have an item set yet....
-			setItems(); // ..define it from metadata, and abort if there is nothing there
 
 		//-- Start populating the lookup form with lookup items.
 		for(Item it : m_itemList) {
@@ -471,14 +537,14 @@ public class LookupForm<T> extends Div {
 	 */
 	private void setItems() {
 		m_itemList.clear();
-		ClassMetaModel cm = MetaManager.findClassMeta(getLookupClass());
-		List<SearchPropertyMetaModelImpl> list = cm.getSearchProperties();
+		List<SearchPropertyMetaModelImpl> list = getMetaModel().getSearchProperties();
 		if(list == null || list.size() == 0) {
-			list = MetaManager.calculateSearchProperties(cm); // 20100416 jal EXPERIMENTAL
+			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
 			if(list == null || list.size() == 0)
-				throw new IllegalStateException("The class " + m_lookupClass + " has no search properties defined in it's meta data.");
+				throw new IllegalStateException(getMetaModel() + " has no search properties defined in it's meta data.");
 		}
 
+		int totalCount = list.size();
 		for(SearchPropertyMetaModel sp : list) { // The list is already in ascending order, so just add items;
 			Item it = new Item();
 			it.setIgnoreCase(sp.isIgnoreCase());
@@ -488,6 +554,9 @@ public class LookupForm<T> extends Div {
 			it.setLabelText(sp.getLookupLabel()); // If a lookup label is defined use it.
 			it.setLookupHint(sp.getLookupHint()); // If a lookup hint is defined use it.
 			addAndFinish(it);
+			if(m_twoColumnsMode && (totalCount >= m_minSizeForTwoColumnsMode) && m_itemList.size() == (totalCount + 1) / 2) {
+				m_itemList.add(new ItemBreak());
+			}
 		}
 	}
 
@@ -608,8 +677,7 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	public Item addManualPropertyLabel(String property, ILookupControlInstance lci) {
-		ClassMetaModel cm = MetaManager.findClassMeta(getLookupClass());
-		PropertyMetaModel pmm = cm.findProperty(property);
+		PropertyMetaModel pmm = getMetaModel().findProperty(property);
 		if(null == pmm)
 			throw new ProgrammerErrorException(property + ": undefined property for class=" + getLookupClass());
 		return addManualTextLabel(pmm.getDefaultLabel(), lci);
@@ -637,8 +705,7 @@ public class LookupForm<T> extends Div {
 
 		//-- 1. If a property name is present but the path is unknown calculate the path
 		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
-			ClassMetaModel cm = MetaManager.findClassMeta(getLookupClass());
-			List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(cm, it.getPropertyName());
+			List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
 			if(pl.size() == 0)
 				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
 			it.setPropertyPath(pl);
@@ -798,7 +865,8 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	public QCriteria<T> getEnteredCriteria() throws Exception {
-		QCriteria<T> root = QCriteria.create(m_lookupClass);
+//		QCriteria<T> root = QCriteria.create(m_lookupClass);
+		QCriteria<T> root = (QCriteria<T>) getMetaModel().createCriteria();
 		boolean success = true;
 		for(Item it : m_itemList) {
 			ILookupControlInstance li = it.getInstance();
@@ -855,34 +923,16 @@ public class LookupForm<T> extends Div {
 				});
 				addButtonItem(m_newBtn, 300, ButtonMode.BOTH);
 			} else if(m_onNew == null && m_newBtn != null) {
-				if(m_buttonItemList.contains(m_newBtn)) {
-					m_buttonItemList.remove(m_newBtn);
+				for(ButtonRowItem bri : m_buttonItemList) {
+					if(bri.getThingy() == m_newBtn) {
+						m_buttonItemList.remove(bri);
+						break;
+					}
 				}
 				m_newBtn = null;
 			}
 			forceRebuild();
 		}
-	}
-
-	/**
-	 * Returns the class whose instances we're looking up (a persistent class somehow).
-	 * @return
-	 */
-	public Class<T> getLookupClass() {
-		if(null == m_lookupClass)
-			throw new NullPointerException("The LookupForm's 'lookupClass' cannot be null");
-		return m_lookupClass;
-	}
-
-	/**
-	 * Change the class for which we are searching. This clear ALL definitions!
-	 * @param lookupClass
-	 */
-	public void setLookupClass(final Class<T> lookupClass) {
-		if(m_lookupClass == lookupClass)
-			return;
-		m_lookupClass = lookupClass;
-		reset();
 	}
 
 	/**
@@ -943,8 +993,11 @@ public class LookupForm<T> extends Div {
 				});
 				addButtonItem(m_cancelBtn, 400, ButtonMode.BOTH);
 			} else if(m_onCancel == null && m_cancelBtn != null) {
-				if(m_buttonItemList.contains(m_cancelBtn)) {
-					m_buttonItemList.remove(m_cancelBtn);
+				for(ButtonRowItem bri : m_buttonItemList) {
+					if(bri.getThingy() == m_cancelBtn) {
+						m_buttonItemList.remove(bri);
+						break;
+					}
 				}
 				m_cancelBtn = null;
 			}
@@ -1012,5 +1065,14 @@ public class LookupForm<T> extends Div {
 
 	public void setRenderAsCollapsed(boolean renderAsCollapsed) {
 		m_renderAsCollapsed = renderAsCollapsed;
+	}
+
+	/**
+	 * Sets rendering of search fields into two columns. It is in use only in case when search fields are loaded from metadata and search fields count reach minSizeForTwoColumnsMode value.
+	 * @param minSizeForTwoColumnsMode
+	 */
+	public void setTwoColumnsMode(int minSizeForTwoColumnsMode) {
+		m_twoColumnsMode = true;
+		m_minSizeForTwoColumnsMode = minSizeForTwoColumnsMode;
 	}
 }

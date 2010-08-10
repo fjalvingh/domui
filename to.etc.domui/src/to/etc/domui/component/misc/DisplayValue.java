@@ -5,6 +5,7 @@ import javax.annotation.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
+import to.etc.domui.dom.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
@@ -17,7 +18,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 15, 2010
  */
-public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindable, IConvertable<T> {
+public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindable, IConvertable<T>, IRenderNBSPIfEmpty {
 	@Nonnull
 	private Class<T> m_valueClass;
 
@@ -38,6 +39,12 @@ public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindab
 	public DisplayValue(@Nonnull Class<T> valueClass) {
 		m_valueClass = valueClass;
 		setCssClass("ui-dspv");
+	}
+
+	public DisplayValue(T literal) {
+		m_valueClass = (Class<T>) literal.getClass();
+		setCssClass("ui-dspv");
+		m_value = literal;
 	}
 
 	@Nonnull

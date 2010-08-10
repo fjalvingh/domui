@@ -40,6 +40,11 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 		addControl(label, 1, labelnode, list, mandatory, editable, pmm);
 	}
 
+	@Override
+	protected void addControl(Label label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+		modalAdd(label, 1, list);
+	}
+
 	/**
 	 * @see to.etc.domui.component.form.GenericFormBuilder#addControl(java.lang.String, to.etc.domui.dom.html.NodeBase, to.etc.domui.dom.html.NodeBase[], boolean, to.etc.domui.component.meta.PropertyMetaModel)
 	 * In addition, enables customization of colSpan for rendered cell.

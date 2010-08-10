@@ -219,6 +219,7 @@ public class DefaultButton extends Button {
 					setAccessKey(c);
 					return;
 				}
+				pos += 2;
 			}
 		}
 	}

@@ -90,7 +90,7 @@ public class DynaIma extends Img {
 		setSrc(sb.toString());
 	}
 
-	String getCachedMime() {
+	synchronized String getCachedMime() {
 		return m_cachedMime;
 	}
 
@@ -110,7 +110,7 @@ public class DynaIma extends Img {
 		return m_cachedData;
 	}
 
-	void setCachedData(byte[][] cachedData) {
+	synchronized void setCachedData(byte[][] cachedData) {
 		m_cachedData = cachedData;
 	}
 

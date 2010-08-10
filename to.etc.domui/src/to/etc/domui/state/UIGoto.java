@@ -22,6 +22,18 @@ final public class UIGoto {
 	}
 
 	/**
+	 * Destroy the current page and reload the exact same page with the same parameters as a
+	 * new one. This has the effect of fully refreshing all data, and reinitializing the page
+	 * at it's initial state.
+	 */
+	static public void reload() {
+		Page pg = PageContext.getCurrentPage();
+		Class< ? extends UrlPage> clz = pg.getBody().getClass();
+		PageParameters pp = pg.getPageParameters();
+		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
+	}
+
+	/**
 	 * Push (shelve) the current page, then move to a new page. The page is parameterless, and is started in a NEW ConversationContext.
 	 * @param clz
 	 */
@@ -133,6 +145,24 @@ final public class UIGoto {
 	static public void replace(final Class< ? extends UrlPage> clz, final PageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
+		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
+	}
+
+	/**
+	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
+	 * On the new page show the specified message as an UI message.
+	 * @param pg
+	 * @param clz
+	 * @param pp
+	 * @param msg
+	 */
+	static public final void replace(Page pg, final Class< ? extends UrlPage> clz, final PageParameters pp, UIMessage msg) {
+		if(clz == null)
+			throw new IllegalArgumentException("The class to move-to cannot be null");
+		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
+		msgl.add(msg);
+		WindowSession ws = pg.getConversation().getWindowSession();
+		ws.setAttribute(UIGoto.SINGLESHOT_MESSAGE, msgl);
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
 	}
 

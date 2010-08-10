@@ -1,13 +1,9 @@
 package to.etc.domui.component.meta.impl;
 
-import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.regex.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
@@ -17,7 +13,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 
 	private final PropertyInfo m_descriptor;
 
-	private final PropertyAccessor< ? > m_accessor;
+	private PropertyAccessor< ? > m_accessor;
 
 	private int m_length = -1;
 
@@ -68,200 +64,10 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 
 
 	public DefaultPropertyMetaModel(final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
-		m_classModel = classModel;
 		if(classModel == null)
 			throw new IllegalStateException("Cannot be null dude");
+		m_classModel = classModel;
 		m_descriptor = descriptor;
-		m_accessor = new PropertyAccessor<Object>(descriptor.getGetter(), descriptor.getSetter(), this);
-		if(descriptor.getSetter() == null) {
-			setReadOnly(YesNoType.YES);
-		}
-
-		Annotation[] annar = descriptor.getGetter().getAnnotations();
-		for(Annotation an : annar) {
-			String ana = an.annotationType().getName();
-			decodeAnnotationByName(an, ana);
-			decodeAnnotation(an);
-		}
-	}
-
-	@SuppressWarnings({"cast", "unchecked"})
-	protected void decodeAnnotation(final Annotation an) {
-		if(an instanceof MetaProperty) {
-			//-- Handle meta-assignments.
-			MetaProperty mp = (MetaProperty) an;
-			if(mp.defaultSortable() != SortableType.UNKNOWN)
-				setSortable(mp.defaultSortable());
-			if(mp.length() >= 0)
-				m_length = mp.length();
-			if(mp.displaySize() >= 0)
-				setDisplayLength(mp.displaySize());
-			if(mp.required() != YesNoType.UNKNOWN)
-				setRequired(mp.required() == YesNoType.YES);
-			if(mp.converterClass() != DummyConverter.class)
-				setConverter((IConverter)ConverterRegistry.getConverterInstance((Class)mp.converterClass()));
-			if(mp.editpermissions().length != 0)
-				setEditRoles(makeRoleSet(mp.editpermissions()));
-			if(mp.viewpermissions().length != 0)
-				setViewRoles(makeRoleSet(mp.viewpermissions()));
-			if(mp.temporal() != TemporalPresentationType.UNKNOWN && getTemporal() == TemporalPresentationType.UNKNOWN)
-				setTemporal(mp.temporal());
-			if(mp.numericPresentation() != NumericPresentation.UNKNOWN)
-				setNumericPresentation(mp.numericPresentation());
-			if(getReadOnly() != YesNoType.YES) // Do not override readonlyness from missing write method
-				setReadOnly(mp.readOnly());
-			if(mp.componentTypeHint().length() != 0)
-				setComponentTypeHint(mp.componentTypeHint());
-
-			//-- Convert validators.
-			List<MetaPropertyValidatorImpl> list = new ArrayList<MetaPropertyValidatorImpl>();
-			for(Class< ? extends IValueValidator< ? >> vv : mp.validator()) {
-				MetaPropertyValidatorImpl vi = new MetaPropertyValidatorImpl(vv);
-				list.add(vi);
-			}
-			for(MetaValueValidator mvv : mp.parameterizedValidator()) {
-				MetaPropertyValidatorImpl vi = new MetaPropertyValidatorImpl(mvv.validator(), mvv.parameters());
-				list.add(vi);
-			}
-			setValidators(list.toArray(new PropertyMetaValidator[list.size()]));
-
-			//-- Regexp validators.
-			if(mp.regexpValidation().length() > 0) {
-				try {
-					//-- Precompile to make sure it's valid;
-					Pattern.compile(mp.regexpValidation());
-				} catch(Exception x) {
-					throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_BAD_REGEXP, mp.regexpValidation(), this.toString());
-				}
-				setRegexpValidator(mp.regexpValidation());
-				if(mp.regexpUserString().length() > 0)
-					setRegexpUserString(mp.regexpUserString());
-			}
-		} else if(an instanceof MetaCombo) {
-			MetaCombo c = (MetaCombo) an;
-			if(c.dataSet() != UndefinedComboDataSet.class) {
-				setRelationType(PropertyRelationType.UP);
-				setComboDataSet(c.dataSet());
-			}
-			if(c.labelRenderer() != UndefinedLabelStringRenderer.class) {
-				setRelationType(PropertyRelationType.UP);
-				setComboLabelRenderer(c.labelRenderer());
-			}
-			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class) {
-				setRelationType(PropertyRelationType.UP);
-				setComboNodeRenderer(c.nodeRenderer());
-			}
-			if(c.optional() != ComboOptionalType.INHERITED)
-				setRequired(c.optional() == ComboOptionalType.REQUIRED);
-			if(c.properties() != null && c.properties().length > 0) {
-				setRelationType(PropertyRelationType.UP);
-				m_comboDisplayProperties = DisplayPropertyMetaModel.decode(m_classModel, c.properties());
-			}
-			setComponentTypeHint(Constants.COMPONENT_COMBO);
-		} else if(an instanceof SearchProperty) {
-			SearchProperty sp = (SearchProperty) an;
-			SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl((DefaultClassMetaModel) getClassModel());
-			mm.setIgnoreCase(sp.ignoreCase());
-			mm.setOrder(sp.order());
-			mm.setMinLength(sp.minLength());
-			mm.setPropertyName(getName());
-			//			mm.setProperty(this);
-			if(((SearchProperty) an).searchType() == SearchPropertyType.SEARCH_FIELD || ((SearchProperty) an).searchType() == SearchPropertyType.BOTH) {
-				((DefaultClassMetaModel) getClassModel()).addSearchProperty(mm);
-			}
-			if(((SearchProperty) an).searchType() == SearchPropertyType.KEYWORD || ((SearchProperty) an).searchType() == SearchPropertyType.BOTH) {
-				((DefaultClassMetaModel) getClassModel()).addKeyWordSearchProperty(mm);
-			}
-
-		} else if(an instanceof MetaObject) {
-			MetaObject o = (MetaObject) an;
-			if(o.defaultColumns().length > 0) {
-				m_tableDisplayProperties = DisplayPropertyMetaModel.decode(m_classModel, o.defaultColumns());
-			}
-		} else if(an instanceof MetaLookup) {
-			MetaLookup c = (MetaLookup) an;
-			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
-				m_lookupFieldRenderer = c.nodeRenderer();
-			if(c.properties().length != 0)
-				m_lookupFieldDisplayProperties = DisplayPropertyMetaModel.decode(m_classModel, c.properties());
-			setComponentTypeHint(Constants.COMPONENT_LOOKUP);
-		}
-	}
-
-	protected void decodeAnnotationByName(final Annotation an, final String name) {
-		if("javax.persistence.Column".equals(name)) {
-			decodeJpaColumn(an);
-		} else if("javax.persistence.Id".equals(name)) {
-			setPrimaryKey(true);
-			m_classModel.setPersistentClass(true);
-		} else if("javax.persistence.ManyToOne".equals(name)) {
-			setRelationType(PropertyRelationType.UP);
-
-			//-- Decode fields from the annotation.
-			try {
-				Boolean op = (Boolean) DomUtil.getClassValue(an, "optional");
-				setRequired(!op.booleanValue());
-			} catch(Exception x) {
-				Trouble.wrapException(x);
-			}
-		} else if("javax.persistence.Temporal".equals(name)) {
-			try {
-				Object val = DomUtil.getClassValue(an, "value");
-				if(val != null) {
-					String s = val.toString();
-					if("DATE".equals(s))
-						setTemporal(TemporalPresentationType.DATE);
-					else if("TIME".equals(s))
-						setTemporal(TemporalPresentationType.TIME);
-					else if("TIMESTAMP".equals(s))
-						setTemporal(TemporalPresentationType.DATETIME);
-				}
-			} catch(Exception x) {
-				Trouble.wrapException(x);
-			}
-		} else if("javax.persistence.Transient".equals(name)) {
-			setTransient(true);
-		} else if("javax.persistence.OneToMany".equals(name)) {
-			//-- This must be a list
-			if(!Collection.class.isAssignableFrom(getActualType()))
-				throw new IllegalStateException("Invalid property type for DOWN relation of property " + this + ": only List<T> is allowed");
-			setRelationType(PropertyRelationType.DOWN);
-		} else if("to.etc.webapp.qsql.QJdbcId".equals(name)) {
-			setPrimaryKey(true);
-		}
-	}
-
-	/**
-	 * Generically decode a JPA javax.persistence.Column annotation.
-	 * @param an
-	 */
-	private void decodeJpaColumn(final Annotation an) {
-		try {
-			/*
-			 * Handle the "length" annotation. As usual, someone with a brain the size of a pea fucked up the standard. The
-			 * default value for the length is 255, which is of course a totally reasonable size. This makes it impossible to
-			 * see if someone has actually provided a value. This means that in absence of the length the field is fucking
-			 * suddenly 255 characters big. To prevent this utter disaster from fucking up the data we only accept this for
-			 * STRING fields.
-			 */
-			Integer iv = (Integer) DomUtil.getClassValue(an, "length");
-			m_length = iv.intValue();
-			if(m_length == 255) { // Idiot value?
-				if(getActualType() != String.class)
-					m_length = -1;
-			}
-
-			Boolean bv = (Boolean) DomUtil.getClassValue(an, "nullable");
-			setRequired(!bv.booleanValue());
-			iv = (Integer) DomUtil.getClassValue(an, "precision");
-			setPrecision(iv.intValue());
-			iv = (Integer) DomUtil.getClassValue(an, "scale");
-			setScale(iv.intValue());
-		} catch(RuntimeException x) {
-			throw x;
-		} catch(Exception x) {
-			throw new WrappedException(x);
-		}
 	}
 
 	public String getName() {
@@ -274,14 +80,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 
 	public Type getGenericActualType() {
 		Method m = m_descriptor.getGetter();
-		if(m != null) {
-			return m.getGenericReturnType();
-		}
-		m = m_descriptor.getSetter();
-		if(m != null) {
-			return m.getGenericParameterTypes()[0];
-		}
-		return null;
+		return m.getGenericReturnType();
 	}
 
 	public String getDefaultLabel() {
@@ -340,12 +139,20 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		return m_length;
 	}
 
+	public void setLength(int length) {
+		m_length = length;
+	}
+
 	/**
 	 * The thingy to access the property generically.
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAccessor()
 	 */
 	public IValueAccessor< ? > getAccessor() {
 		return m_accessor;
+	}
+
+	public void setAccessor(PropertyAccessor< ? > accessor) {
+		m_accessor = accessor;
 	}
 
 	public boolean isPrimaryKey() {
@@ -411,28 +218,6 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	@Override
 	public String toString() {
 		return getClassModel().getActualClass().getName() + "." + m_descriptor.getName() + "[" + getActualType().getName() + "]";
-	}
-
-	/**
-	 * Decode stringset containing xxx+xxx to duparray.
-	 * @param s
-	 * @return
-	 */
-	static private String[][] makeRoleSet(final String[] sar) {
-		if(sar.length == 0)
-			return null;
-		String[][] mapset = new String[sar.length][];
-		ArrayList<String> al = new ArrayList<String>(10);
-		int ix = 0;
-		for(String s : sar) {
-			StringTokenizer st = new StringTokenizer(s, ";+ \t,");
-			al.clear();
-			while(st.hasMoreElements()) {
-				al.add(st.nextToken());
-			}
-			mapset[ix] = al.toArray(new String[al.size()]);
-		}
-		return mapset;
 	}
 
 	/**

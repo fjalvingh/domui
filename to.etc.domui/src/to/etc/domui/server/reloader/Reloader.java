@@ -133,7 +133,7 @@ final public class Reloader {
 	//	ClassLoader	getCheckingLoader() {
 	//		return m_checkLoader;
 	//	}
-	public ClassLoader getReloadingLoader() {
+	public synchronized ClassLoader getReloadingLoader() {
 		return m_currentLoader;
 	}
 

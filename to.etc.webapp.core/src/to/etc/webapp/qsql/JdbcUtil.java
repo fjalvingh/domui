@@ -9,6 +9,16 @@ import to.etc.util.*;
 /**
  * Utility class for JDBC code.
  *
+ *
+ * <h2>Preparation for calling SP's with TYPE xx IS RECORD parameters.</h2>
+ * <p>Datadict table ALL_PROCEDURES contains all SP's in packages. The parameters for
+ * SPs can be glanced from ALL_ARGUMENTS; something odd so far is that doing a selection:
+ * <pre>
+ * select * from sys.all_arguments where owner='DECADE' and package_name='GEBRUI' and object_name='LEES100';
+ * </pre>
+ * returns data that seem to indicate that the SP exists as a 2-parameter version but also an expanded version
+ * having all parameter fields.</p>
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 21, 2009
  */
@@ -232,6 +242,8 @@ public class JdbcUtil {
 				ps.setLong(px, ((Long) val).longValue());
 			} else if(val instanceof Integer) {
 				ps.setInt(px, ((Integer) val).intValue());
+			} else if(val instanceof BigDecimal) {
+				ps.setBigDecimal(px, (BigDecimal) val);
 			} else if(val instanceof java.sql.Timestamp) {
 				ps.setTimestamp(px, (java.sql.Timestamp) val);
 			} else if(val instanceof java.util.Date) {
@@ -347,7 +359,21 @@ public class JdbcUtil {
 			setParameters(ps, startix, pars.toArray());
 			ps.execute();
 
-			return null;
+			if(startix != 1) {
+				if(rtype == String.class) {
+					return (T) ps.getString(1);
+				} else if(rtype == Integer.class || rtype == int.class) {
+					return (T) (Integer.valueOf(ps.getInt(1)));
+				} else if(rtype == Long.class || rtype == long.class) {
+					return (T) (Long.valueOf(ps.getLong(1)));
+				} else if(rtype == BigDecimal.class) {
+					return (T) ps.getBigDecimal(1);
+				} else {
+					throw new IllegalStateException("Call error: cannot get out parameter for result java type=" + rtype);
+				}
+			} else {
+				return null;
+			}
 		} finally {
 			try {
 				if(ps != null)

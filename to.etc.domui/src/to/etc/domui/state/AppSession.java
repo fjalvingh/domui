@@ -45,6 +45,10 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
+	public AppSession(DomApplication da) {
+		m_application = da;
+	}
+
 	final public void internalDestroy() {
 		LOG.debug("Destroying AppSession " + this);
 		destroyWindowSessions();
@@ -70,7 +74,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		return m_currentTheme;
 	}
 
-	public void setCurrentTheme(final String currentTheme) {
+	public synchronized void setCurrentTheme(final String currentTheme) {
 		m_currentTheme = currentTheme;
 	}
 
@@ -78,12 +82,6 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Override to get control when this user's session is destroyed.
 	 */
 	public void destroy() {}
-
-	final public synchronized void internalInitialize(final DomApplication app) {
-		if(m_application == null) {
-			m_application = app;
-		}
-	}
 
 	/**
 	 * Unused, needed for interface.
@@ -172,6 +170,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 		for(WindowSession cm : map.values()) {
 			cm.destroyConversations();
+			m_application.internalCallWindowSessionDestroyed(cm);
 		}
 	}
 
@@ -204,6 +203,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			System.out.println("cm: dropping window session " + cm.getWindowID() + " due to timeout");
 			try {
 				cm.destroyConversations();
+				m_application.internalCallWindowSessionDestroyed(cm);
 			} catch(Exception x) {
 				LOG.warn("Exception in destroyConversations", x);
 			}
@@ -219,6 +219,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		m_windowMap.put(cm.getWindowID(), cm);
 		if(!resurrectWindowSession(cm))
 			return null;
+		m_application.internalCallWindowSessionCreated(cm);
 		return cm;
 	}
 
@@ -323,6 +324,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			m_windowMap.remove(cm.getWindowID()); // Atomically remove the thingy.
 		}
 		cm.destroyConversations(); // Discard all of it's contents.
+		m_application.internalCallWindowSessionDestroyed(cm);
 	}
 
 	/**

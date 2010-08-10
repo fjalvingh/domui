@@ -121,9 +121,8 @@ public class PropBtnPart implements IBufferedPartFactory {
 	public void generate(PartResponse pr, DomApplication da, Object key, ResourceDependencyList rdl) throws Exception {
 		ButtonPartKey k = (ButtonPartKey) key;
 		Properties p = PartUtil.loadProperties(da, k.m_propfile, rdl);
-		if(p == null)
-			throw new ThingyNotFoundException("The button property file '" + k.m_propfile + "' was not found.");
-		//		System.out.println("Recreating image "+k.m_propfile+"/"+k.m_text);
+//		if(p == null)
+//			throw new ThingyNotFoundException("The button property file '" + k.m_propfile + "' was not found.");
 
 		//-- Instantiate the renderer class
 		String rc = p.getProperty("renderer");

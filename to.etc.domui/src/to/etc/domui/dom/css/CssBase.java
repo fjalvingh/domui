@@ -372,7 +372,7 @@ public class CssBase {
 	 * @param dt
 	 * @return
 	 */
-	protected boolean internalSetDisplay(final DisplayType dt) {
+	public boolean internalSetDisplay(final DisplayType dt) {
 		if(m_display == dt)
 			return false;
 		m_display = dt;

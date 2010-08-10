@@ -117,6 +117,11 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		modalAdd(l, list, editable);
 	}
 
+	@Override
+	public void addControl(final Label label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+		modalAdd(label, list, editable);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Placement manipulators (public interface)			*/
 	/*--------------------------------------------------------------*/

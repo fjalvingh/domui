@@ -37,6 +37,12 @@ public class AbstractRowRenderer<T> {
 		m_sortDescending = model().getDefaultSortDirection() == SortableType.SORTABLE_DESC;
 	}
 
+	public AbstractRowRenderer(Class<T> data, ClassMetaModel cmm) {
+		m_dataClass = data;
+		m_metaModel = cmm;
+		m_sortDescending = model().getDefaultSortDirection() == SortableType.SORTABLE_DESC;
+	}
+
 	/**
 	 * Returns the metamodel used.
 	 * @return

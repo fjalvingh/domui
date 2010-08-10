@@ -3,6 +3,8 @@ package to.etc.domui.util.images.converters;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.util.images.machines.*;
 
 final public class ImageConverterRegistry {
@@ -36,7 +38,8 @@ final public class ImageConverterRegistry {
 	 * @param convs
 	 * @return
 	 */
-	static public IImageConverter findBestConverter(String mime, List<IImageConversionSpecifier> convs) throws Exception {
+	@Nonnull
+	static public IImageConverter getBestConverter(String mime, List<IImageConversionSpecifier> convs) throws Exception {
 		IImageConverter best = null;
 		int bestscore = -1;
 		for(IImageConverter ic : getConverterList()) {

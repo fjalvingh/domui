@@ -2,6 +2,8 @@ package to.etc.domui.component.lookup;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
@@ -10,7 +12,10 @@ import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 final class LookupFactoryDate implements ILookupControlFactory {
-	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
+	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(@Nonnull final SearchPropertyMetaModel spm, final X control) {
+		if(spm == null)
+			throw new IllegalStateException("? SearchPropertyModel should not be null here.");
+
 		//get temporal type from metadata and set withTime later to date inout components
 		PropertyMetaModel pmm = (spm != null && spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
 		boolean withTime = (pmm != null && pmm.getTemporal() == TemporalPresentationType.DATETIME);
@@ -27,6 +32,8 @@ final class LookupFactoryDate implements ILookupControlFactory {
 			dateTo.setTitle(hint);
 		}
 		return new AbstractLookupControlImpl(dateFrom, tn, dateTo) {
+			// FIXME For some reason Eclipse does not "see" the null check @ the start of the method..
+			@SuppressWarnings("null")
 			@Override
 			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
 				Date from, till;

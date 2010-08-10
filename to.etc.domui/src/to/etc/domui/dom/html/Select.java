@@ -1,5 +1,8 @@
 package to.etc.domui.dom.html;
 
+import java.util.*;
+
+import to.etc.domui.component.buttons.*;
 import to.etc.domui.util.*;
 
 /**
@@ -21,6 +24,8 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	private boolean m_modifiedByUser;
+
+	private List<SmallImgButton> m_buttonList = Collections.EMPTY_LIST;
 
 	public Select() {
 		super("select");
@@ -149,6 +154,52 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 			getOption(i).setSelected(i == m_selectedIndex);
 		}
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Code to add extra stuff after this combo.			*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Add a small image button after the combo.
+	 * @param img
+	 * @param title
+	 * @param clicked
+	 */
+	public void addExtraButton(String img, String title, final IClicked<NodeBase> click) {
+		if(m_buttonList == Collections.EMPTY_LIST)
+			m_buttonList = new ArrayList<SmallImgButton>();
+		SmallImgButton si = new SmallImgButton(img);
+		if(click != null) {
+			si.setClicked(new IClicked<SmallImgButton>() {
+				public void clicked(SmallImgButton b) throws Exception {
+					click.clicked(Select.this);
+				}
+			});
+		}
+		if(title != null)
+			si.setTitle(title);
+		si.addCssClass("ui-cl2-btn");
+		m_buttonList.add(si);
+
+		if(isBuilt())
+			forceRebuild();
+	}
+
+	@Override
+	public void onAddedToPage(Page p) {
+		NodeContainer curr = this;
+		for(SmallImgButton sib : m_buttonList) {
+			curr.appendAfterMe(sib);
+			curr = sib;
+		}
+	}
+
+	@Override
+	public void onRemoveFromPage(Page p) {
+		for(SmallImgButton sib : m_buttonList) {
+			sib.remove();
+		}
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IHasModifiedIndication impl							*/

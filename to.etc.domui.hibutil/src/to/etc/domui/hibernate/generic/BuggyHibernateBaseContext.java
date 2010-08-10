@@ -6,6 +6,7 @@ import org.hibernate.*;
 import org.slf4j.*;
 
 import to.etc.domui.state.*;
+import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -20,8 +21,10 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 15, 2009
  */
-public class BuggyHibernateBaseContext extends QAbstractDataContext implements QDataContext, ConversationStateListener {
+public class BuggyHibernateBaseContext extends QAbstractDataContext implements QDataContext, IConversationStateListener {
 	static protected final Logger LOG = LoggerFactory.getLogger(BuggyHibernateBaseContext.class);
+
+	private String m_conversationInvalid;
 
 	protected HibernateSessionMaker m_sessionMaker;
 
@@ -53,10 +56,20 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	 * @throws Exception
 	 */
 	public Session getSession() throws Exception {
+		checkValid();
 		if(m_session == null) {
 			m_session = m_sessionMaker.makeSession();
 		}
 		return m_session;
+	}
+
+	protected void checkValid() {
+		if(m_conversationInvalid != null)
+			throw new IllegalStateException("You cannot use this QDataContext: " + m_conversationInvalid);
+	}
+
+	protected void setConversationInvalid(String conversationInvalid) {
+		m_conversationInvalid = conversationInvalid;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -70,6 +83,14 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 		m_ignoreClose = on;
 	}
 
+	public boolean isIgnoreClose() {
+		return m_ignoreClose;
+	}
+
+	static private final String[] PRESET = {"to.etc.dbpool.", "oracle.", "nl.itris.viewpoint.db.hibernate."};
+
+	static private final String[] ENDSET = {"to.etc.dbpool.", "to.etc.domui.server.", "org.apache.tomcat"};
+
 	/**
 	 * This version just delegates to the Factory immediately.
 	 * {@inheritDoc}
@@ -78,6 +99,27 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	public void close() {
 		if(m_session == null || m_ignoreClose)
 			return;
+
+		if(!DeveloperOptions.isDeveloperWorkstation()) {
+			setConversationInvalid("DataContext has been CLOSED");
+		} else {
+			//-- Log close location when running on development
+			StringBuilder sb = new StringBuilder();
+			sb.append("DataContext has been CLOSED");
+
+			Exception mxx = null;
+			try {
+				throw new Exception();
+			} catch(Exception x) {
+				mxx = x;
+			}
+			if(mxx != null) {
+				sb.append("\nClose location:\n");
+				StringTool.strStacktraceFiltered(sb, mxx, PRESET, ENDSET, 40);
+			}
+			setConversationInvalid(sb.toString());
+		}
+
 		//		System.out.println("..... closing hibernate session: "+System.identityHashCode(m_session));
 		try {
 			if(m_session.getTransaction().isActive()) {
@@ -146,29 +188,33 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	/**
 	 * {@inheritDoc}
 	 */
-	public void conversationAttached(final ConversationContext cc) throws Exception {}
+	public void conversationAttached(final ConversationContext cc) throws Exception {
+		setConversationInvalid(null);
+	}
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.domui.state.ConversationStateListener#conversationDestroyed(to.etc.domui.state.ConversationContext)
+	 * @see to.etc.domui.state.IConversationStateListener#conversationDestroyed(to.etc.domui.state.ConversationContext)
 	 */
 	public void conversationDestroyed(final ConversationContext cc) throws Exception {
 		setIgnoreClose(false); // Disable ignore close - this close should work.
 		close();
+		setConversationInvalid("Conversation was destroyed");
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.domui.state.ConversationStateListener#conversationDetached(to.etc.domui.state.ConversationContext)
+	 * @see to.etc.domui.state.IConversationStateListener#conversationDetached(to.etc.domui.state.ConversationContext)
 	 */
 	public void conversationDetached(final ConversationContext cc) throws Exception {
 		setIgnoreClose(false); // Disable ignore close - this close should work.
 		close();
+		setConversationInvalid("Conversation is detached");
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.domui.state.ConversationStateListener#conversationNew(to.etc.domui.state.ConversationContext)
+	 * @see to.etc.domui.state.IConversationStateListener#conversationNew(to.etc.domui.state.ConversationContext)
 	 */
 	public void conversationNew(final ConversationContext cc) throws Exception {}
 }

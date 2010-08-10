@@ -3,6 +3,9 @@ package to.etc.domui.component.meta;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
+import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -17,12 +20,14 @@ import to.etc.domui.util.*;
  * Created on Jun 16, 2008
  */
 public interface PropertyMetaModel {
+	@Nonnull
 	public ClassMetaModel getClassModel();
 
 	/**
 	 * Returns the actual type of the property's value. This is the return type of the getter function.
 	 * @return
 	 */
+	@Nonnull
 	public Class< ? > getActualType();
 
 	/**
@@ -31,6 +36,7 @@ public interface PropertyMetaModel {
 	 * is present on whatever type is the return type. This CAN return NULL!!!
 	 * @return
 	 */
+	@Nullable
 	public Type getGenericActualType();
 
 	/**
@@ -41,6 +47,7 @@ public interface PropertyMetaModel {
 	 * to lookup the proper resource file.
 	 * @return	the label text, or null if unknown.
 	 */
+	@Nullable
 	public String getDefaultLabel();
 
 	/**
@@ -49,6 +56,7 @@ public interface PropertyMetaModel {
 	 * the resource file for the class this is a property of. The property that is looked up is 'propertyname.hint'.
 	 * @return	The hint text, or null if not known.
 	 */
+	@Nullable
 	public String getDefaultHint();
 
 	/**
@@ -82,6 +90,7 @@ public interface PropertyMetaModel {
 	 * Returns the name of the property.
 	 * @return
 	 */
+	@Nonnull
 	public String getName();
 
 	/**
@@ -89,6 +98,7 @@ public interface PropertyMetaModel {
 	 * the initial sort direction of the property. This defaults to unsortable.
 	 * @return
 	 */
+	@Nonnull
 	public SortableType getSortable();
 
 	/**
@@ -99,6 +109,7 @@ public interface PropertyMetaModel {
 	 *
 	 * @return
 	 */
+	@Nonnull
 	public IValueAccessor< ? > getAccessor();
 
 	/**
@@ -106,6 +117,7 @@ public interface PropertyMetaModel {
 	 *
 	 * @return
 	 */
+	@Nullable
 	public IConverter< ? > getConverter();
 
 	/**
@@ -125,6 +137,7 @@ public interface PropertyMetaModel {
 	 * representing the list of children).
 	 * @return
 	 */
+	@Nonnull
 	public PropertyRelationType getRelationType();
 
 	/**
@@ -133,6 +146,7 @@ public interface PropertyMetaModel {
 	 * Boolean.TRUE and Boolean.FALSE. It returns null for other domains.
 	 * @return
 	 */
+	@Nullable
 	public Object[] getDomainValues();
 
 	/**
@@ -146,12 +160,14 @@ public interface PropertyMetaModel {
 	 * @param val
 	 * @return
 	 */
+	@Nullable
 	public String getDomainValueLabel(Locale loc, Object val);
 
 	/**
 	 * If this is defined as some Date type this further defines the domain (date only, date time etc).
 	 * @return
 	 */
+	@Nonnull
 	public TemporalPresentationType getTemporal();
 
 	/**
@@ -159,12 +175,14 @@ public interface PropertyMetaModel {
 	 * a monetary amount. This gets overridden when a converter is set!
 	 * @return
 	 */
+	@Nonnull
 	public NumericPresentation getNumericPresentation();
 
 	/**
 	 * If this should be represented by a combo this can be set to represent the default combo dataset.
 	 * @return
 	 */
+	@Nullable
 	public Class< ? extends IComboDataSet< ? >> getComboDataSet();
 
 	/**
@@ -172,8 +190,10 @@ public interface PropertyMetaModel {
 	 * that field as a string.
 	 * @return
 	 */
+	@Nullable
 	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer();
 
+	@Nullable
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
 
 	/**
@@ -182,8 +202,10 @@ public interface PropertyMetaModel {
 	 * a default display column or columnset.
 	 * @return
 	 */
+	@Nonnull
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties();
 
+	@Nonnull
 	public List<DisplayPropertyMetaModel> getTableDisplayProperties();
 
 	/**
@@ -202,6 +224,7 @@ public interface PropertyMetaModel {
 	 * </pre>
 	 * @return
 	 */
+	@Nullable
 	public String[][] getViewRoles();
 
 	/**
@@ -209,8 +232,10 @@ public interface PropertyMetaModel {
 	 * at {@link PropertyMetaModel#getViewRoles()} for details.
 	 * @return
 	 */
+	@Nullable
 	public String[][] getEditRoles();
 
+	@Nonnull
 	public YesNoType getReadOnly();
 
 	/** If marked as transient in the persistent class this returns true */
@@ -223,6 +248,7 @@ public interface PropertyMetaModel {
 	 * and the child needs to add a control to help it select one parent.
 	 * @return
 	 */
+	@Nullable
 	public String getComponentTypeHint();
 
 	/**
@@ -231,6 +257,7 @@ public interface PropertyMetaModel {
 	 * record in the edit page. If empty this will use the lookupFieldDisplayProperties.
 	 * @return
 	 */
+	@Nullable
 	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer();
 
 	/**
@@ -239,19 +266,30 @@ public interface PropertyMetaModel {
 	 * record in the edit page.
 	 * @return
 	 */
+	@Nonnull
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();
 
+	@Nullable
 	public PropertyMetaValidator[] getValidators();
 
 	/**
 	 * Returns the regexp to use to validate input.
 	 * @return
 	 */
+	@Nullable
 	String getRegexpValidator();
 
 	/**
 	 * Use the string to use as the pattern indicator in regexp-validator error messages.
 	 * @return
 	 */
+	@Nullable
 	String getRegexpUserString();
+
+	/**
+	 * If a specific control factory is to be used to create controls for this item this returns that factory.
+	 * @return
+	 */
+	@Nullable
+	ControlFactory getControlFactory();
 }

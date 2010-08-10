@@ -1,5 +1,6 @@
 package to.etc.domui.component.layout;
 
+import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -11,6 +12,8 @@ import to.etc.domui.util.*;
  */
 public class CaptionedHeader extends Table {
 	private String m_caption;
+
+	private TD m_buttonpart;
 
 	public CaptionedHeader() {}
 
@@ -48,5 +51,14 @@ public class CaptionedHeader extends Table {
 		ttl.setText(m_caption);
 		TD right = b.addCell();
 		right.setCssClass("ui-chdr-r");
+		m_buttonpart = right;
+		right.setAlign(TDAlignType.RIGHT);
+	}
+
+	public void addButton(String image, String hint, IClicked<NodeBase> handler) {
+		SmallImgButton ib = new SmallImgButton(image);
+		m_buttonpart.add(ib);
+		ib.setTitle(hint);
+		ib.setClicked(handler);
 	}
 }

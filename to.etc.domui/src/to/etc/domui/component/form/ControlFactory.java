@@ -1,8 +1,6 @@
 package to.etc.domui.component.form;
 
-import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 /**
@@ -23,24 +21,26 @@ public interface ControlFactory {
 	 * @param pmm
 	 * @param editable
 	 * @param controlClass When set the control factory *must* be able to return a component which is assignment-compatible with this class type. If it cannot it MUST refuse to create the control.
+	 * @param context TODO
 	 * @return
 	 */
-	int accepts(PropertyMetaModel pmm, boolean editable, Class< ? > controlClass);
+	int accepts(PropertyMetaModel pmm, boolean editable, Class< ? > controlClass, Object context);
 
 	/**
 	 * This MUST create all nodes necessary for a control to edit the specified item. The nodes must be added
 	 * to the container; this <i>must</i> return a ModelBinding to bind and unbind a value to the control
 	 * created.
-	 *
-	 * @param container
 	 * @param pmm
 	 * @param editable
 	 * @param controlClass	When set the control factory *must* return a component which is assignment-compatible with this
 	 * 						class type. When this method is called it has already (by it's accept method) told us it can, so
 	 * 						not creating the proper type is not an option.
+	 * @param context TODO
+	 * @param container
+	 *
 	 * @return
 	 */
-	ControlFactoryResult createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable, Class< ? > controlClass);
+	ControlFactoryResult createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable, Class< ? > controlClass, Object context);
 
 	static public final ControlFactory TEXTAREA_CF = new ControlFactoryTextArea();
 

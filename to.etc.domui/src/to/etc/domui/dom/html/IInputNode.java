@@ -13,25 +13,4 @@ import to.etc.domui.component.input.*;
  * Created on Nov 25, 2009
  */
 public interface IInputNode<T> extends IControl<T>, IBindable {
-	/**
-	 * Returns T if the control is currently in readonly mode. Controls that do not
-	 * have a readonly ability (comboboxes) will use disabled as the readonly state.
-	 * For those controls the readonly state mirrors the disabled state.
-	 * @return
-	 */
-	boolean isReadOnly();
-
-	/**
-	 * Returns T if the control is currently in disabled. Controls that do not
-	 * have a readonly ability (comboboxes) will use disabled as the readonly state.
-	 * For those controls the readonly state mirrors the disabled state.
-	 * @return
-	 */
-	boolean isDisabled();
-
-	/**
-	 * Returns T if this control is a mandatory input.
-	 * @return
-	 */
-	boolean isMandatory();
 }

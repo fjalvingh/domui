@@ -2,6 +2,8 @@ package to.etc.domui.state;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.server.*;
@@ -134,6 +136,10 @@ public class PageParameters {
 		m_parameterMap.put(name, s);
 	}
 
+	public void removeParameter(String name) {
+		m_parameterMap.remove(name);
+	}
+
 	public boolean hasParameter(String name) {
 		return m_parameterMap.containsKey(name);
 	}
@@ -217,6 +223,7 @@ public class PageParameters {
 		return df;
 	}
 
+	@Nonnull
 	public String getString(String name) {
 		String v = m_parameterMap.get(name);
 		if(v != null)
@@ -224,6 +231,7 @@ public class PageParameters {
 		throw new MissingParameterException(name);
 	}
 
+	@Nullable
 	public String getString(String name, String df) {
 		String v = m_parameterMap.get(name);
 		return v == null ? df : v;
@@ -234,6 +242,7 @@ public class PageParameters {
 	 * @param c
 	 * @return
 	 */
+	@Nonnull
 	static public PageParameters createFrom(IRequestContext ctx) {
 		PageParameters pp = new PageParameters();
 		for(String name : ctx.getParameterNames()) {
@@ -251,6 +260,7 @@ public class PageParameters {
 		return "Parameters: " + m_parameterMap.toString();
 	}
 
+	@Nonnull
 	public String[] getParameterNames() {
 		return m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
 	}

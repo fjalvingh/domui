@@ -54,7 +54,6 @@ final public class NormalContextMaker extends AbstractContextMaker {
 					sess.setAttribute(AppSession.class.getName(), ass);
 				}
 			}
-			ass.internalInitialize(m_application);
 			//			DomApplication.internalSetCurrent(m_application);
 			RequestContextImpl ctx = new RequestContextImpl(m_application, ass, request, response);
 			return execute(ctx, chain);

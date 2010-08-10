@@ -6,8 +6,8 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.LookupForm.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
-import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -23,6 +23,12 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 	static final private int WIDTH = 740;
 
 	private Class<T> m_lookupClass;
+
+	/**
+	 * The metamodel to use to handle the data in this class. For Javabean data classes this is automatically
+	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
+	 */
+	final private ClassMetaModel m_metaModel;
 
 	private LookupForm<T> m_externalLookupForm;
 
@@ -46,8 +52,12 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	private String[] m_resultColumns = new String[0];
 
-	public MultipleSelectionLookup(Class<T> lookupClass, boolean isModal, String title, IMultiSelectionResult<T> onReceiveResult) {
+	private boolean m_allowEmptyQuery;
+
+	public MultipleSelectionLookup(Class<T> lookupClass, ClassMetaModel metaModel, boolean isModal, String title, IMultiSelectionResult<T> onReceiveResult) {
 		super(isModal, title);
+		m_lookupClass = lookupClass;
+		m_metaModel = metaModel != null ? metaModel : MetaManager.findClassMeta(lookupClass);
 		m_lookupClass = lookupClass;
 		setCssClass("ui-fw");
 		m_selectionResult = new ArrayList<T>();
@@ -55,6 +65,10 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 			setWidth(WIDTH + "px");
 		}
 		m_onReceiveResult = onReceiveResult;
+	}
+
+	public MultipleSelectionLookup(Class<T> lookupClass, boolean isModal, String title, IMultiSelectionResult<T> onReceiveResult) {
+		this(lookupClass, (ClassMetaModel) null, isModal, title, onReceiveResult);
 	}
 
 	public void show(NodeBase parent) {
@@ -77,7 +91,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 			DomUtil.getMessageFence(this).addErrorListener(m_customErrorMessageListener);
 		}
 
-		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(m_lookupClass);
+		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(getLookupClass(), getMetaModel());
 		if(m_onReceiveResult != null) {
 			//-- Add a "confirm" button to the lookup form
 			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
@@ -125,7 +139,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		}
 
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions()) {
+		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
 			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH));
 			return;
 		} else
@@ -144,7 +158,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 		if(m_queryResultTable == null) {
 			//-- We do not yet have a result table -> create one.
-			MultipleSelectionRowRenderer<T> rr = new MultipleSelectionRowRenderer<T>(m_lookupClass, m_resultColumns) {
+			MultipleSelectionRowRenderer<T> rr = new MultipleSelectionRowRenderer<T>(getLookupClass(), getMetaModel(), m_resultColumns) {
 				@Override
 				public int getRowWidth() {
 					int pxw = DomUtil.pixelSize(getWidth());
@@ -211,5 +225,32 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		m_queryManipulator = queryManipulator;
 	}
 
+	public Class<T> getLookupClass() {
+		return m_lookupClass;
+	}
 
+	public ClassMetaModel getMetaModel() {
+		return m_metaModel;
+	}
+
+	/**
+	 * The query handler to use, if a special one is needed. The default query handler will use the
+	 * normal conversation-associated DataContext to issue the query.
+	 * @return
+	 */
+	public IQueryHandler<T> getQueryHandler() {
+		return m_queryHandler;
+	}
+
+	public void setQueryHandler(IQueryHandler<T> queryHandler) {
+		m_queryHandler = queryHandler;
+	}
+
+	public boolean isAllowEmptyQuery() {
+		return m_allowEmptyQuery;
+	}
+
+	public void setAllowEmptyQuery(boolean allowEmptyQuery) {
+		m_allowEmptyQuery = allowEmptyQuery;
+	}
 }

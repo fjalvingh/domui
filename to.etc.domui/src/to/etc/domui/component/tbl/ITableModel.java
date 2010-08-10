@@ -2,6 +2,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * The model for a table. This is the abstract type.
  * A table model contains a list of objects accessible by index and by
@@ -16,15 +18,18 @@ public interface ITableModel<T> {
 	 */
 	public static final int DEFAULT_MAX_SIZE = 1000;
 
-	public List<T> getItems(int start, int end) throws Exception;
+	@Nonnull
+	List<T> getItems(int start, int end) throws Exception;
 
 	/**
 	 * This must return the total #of rows in this table.
 	 * @return
 	 */
-	public int getRows() throws Exception;
+	int getRows() throws Exception;
 
-	public void addChangeListener(ITableModelListener<T> l);
+	void addChangeListener(@Nonnull ITableModelListener<T> l);
 
-	public void removeChangeListener(ITableModelListener<T> l);
+	void removeChangeListener(@Nonnull ITableModelListener<T> l);
+
+	void refresh();
 }

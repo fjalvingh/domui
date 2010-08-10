@@ -39,6 +39,8 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 	private int m_start, m_limit;
 
+	private String m_sql;
+
 	@Override
 	public void visitCriteria(QCriteria< ? > qc) throws Exception {
 		m_root = new PClassRef(qc.getBaseClass(), "this_");
@@ -48,6 +50,44 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		m_limit = qc.getLimit();
 		generateClassGetter(m_root);
 		super.visitCriteria(qc);
+
+		/*
+		 * Generate SQL. Most of this is disgusting and should be replaced by a SN* tree passed to a database-dependent handler.
+		 */
+		StringBuilder sb = new StringBuilder(256);
+		boolean limiting = qc.getLimit() > 0 || qc.getStart() > 0;
+		if(m_oracle && limiting) {
+			sb.append("select * from (");
+		}
+
+		sb.append("select ");
+		sb.append(m_fields);
+		sb.append(" from ");
+
+		JdbcClassMeta cm = JdbcMetaManager.getMeta(m_root.getDataClass());
+		sb.append(cm.getTableName());
+		sb.append(" ");
+		sb.append(m_root.getAlias());
+
+		if(m_where.length() > 0) {
+			sb.append(" where ");
+			sb.append(m_where);
+		}
+		if(m_order != null) {
+			sb.append(" order by ");
+			sb.append(m_order);
+		}
+		if(m_oracle && limiting) {
+			sb.append(") where");
+			if(qc.getStart() > 0)
+				sb.append(" rownum >= ").append(qc.getStart());
+			if(qc.getLimit() > 0) {
+				if(qc.getStart() > 0)
+					sb.append(" and");
+				sb.append(" rownum <= ").append(qc.getLimit());
+			}
+		}
+		m_sql = sb.toString();
 	}
 
 	@Override
@@ -88,25 +128,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	}
 
 	public String getSQL() throws Exception {
-		StringBuilder sb = new StringBuilder(256);
-		sb.append("select ");
-		sb.append(m_fields);
-		sb.append(" from ");
-
-		JdbcClassMeta cm = JdbcMetaManager.getMeta(m_root.getDataClass());
-		sb.append(cm.getTableName());
-		sb.append(" ");
-		sb.append(m_root.getAlias());
-
-		if(m_where.length() > 0) {
-			sb.append(" where ");
-			sb.append(m_where);
-		}
-		if(m_order != null) {
-			sb.append(" order by ");
-			sb.append(m_order);
-		}
-		return sb.toString();
+		return m_sql;
 	}
 
 	public List<ValSetter> getValList() {

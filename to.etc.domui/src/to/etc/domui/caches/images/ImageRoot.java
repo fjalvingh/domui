@@ -191,11 +191,6 @@ final class ImageRoot {
 		}
 	}
 
-	int getInstanceCount() {
-		return m_dataList.size();
-	}
-
-
 	/**
 	 * Called when the cache has (already) deleted this instance. We need to remove it from this root, and we need to
 	 * release it's resources.

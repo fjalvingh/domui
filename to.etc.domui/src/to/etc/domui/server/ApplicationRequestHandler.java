@@ -27,6 +27,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	private final DomApplication m_application;
 
+	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
+
 	public ApplicationRequestHandler(final DomApplication application) {
 		m_application = application;
 	}
@@ -218,14 +220,21 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 */
 		long ts = System.nanoTime();
 		try {
-			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
-
 			if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
 				page.getBody().forceRebuild(); // Cleanout state
 				QContextManager.closeSharedContext(page.getConversation());
 			}
+			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
+			m_application.internalCallPageFullRender(ctx, page);
 
 			page.getBody().onReload();
+
+			// ORDERED
+			page.getConversation().processDelayedResults(page);
+
+			//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
+			callNewPageListeners(page);
+			page.internalFullBuild(); // Cause full build
 
 			//-- EXPERIMENTAL Handle stored messages in session
 			List<UIMessage> ml = (List<UIMessage>) cm.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
@@ -238,11 +247,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
 			}
 
-			// ORDERED
-			page.getConversation().processDelayedResults(page);
-
-			//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
-			callNewPageListeners(page);
+			m_application.internalCallPageComplete(ctx, page);
+			page.internalDeltaBuild(); // If listeners changed the page-> rebuild those parts
 			// END ORDERED
 
 			//-- Start the main rendering process. Determine the browser type.
@@ -253,9 +259,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			ctx.getResponse().setCharacterEncoding("UTF-8");
 			IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
 
-			//		String	usag = ctx.getUserAgent();
 			HtmlFullRenderer hr = m_application.findRendererFor(ctx.getBrowserVersion(), out);
-
 			hr.render(ctx, page);
 
 			//-- 20100408 jal If an UIGoto was done in createContent handle that
@@ -273,24 +277,26 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				}
 			}
 
-			if(x instanceof QNotFoundException) {
-				IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
-				if(xl != null && xl.handleException(ctx, page, null, x)) {
+			//-- 20100712 jal EXPERIMENTAL Pass exceptions in initial rendering mode to code too.
+			//			if(x instanceof QNotFoundException) {
+			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
+			if(xl != null && xl.handleException(ctx, page, null, x)) {
+				if(cm.handleExceptionGoto(ctx, page, false))
 					return;
-				}
 			}
+			//			}
 
 			checkFullExceptionCount(page, x); // Rethrow, but clear state if page throws up too much.
 		} finally {
-			page.clearDeltaFully();
+			page.internalClearDeltaFully();
 		}
 
 		//-- Full render completed: indicate that and reset the exception count
 		page.setFullRenderCompleted(true);
 		page.setPageExceptionCount(0);
-		if(LOG.isDebugEnabled()) {
+		if(m_logPerf) {
 			ts = System.nanoTime() - ts;
-			LOG.debug("rq: full render took " + StringTool.strNanoTime(ts));
+			System.out.println("domui: full render took " + StringTool.strNanoTime(ts));
 		}
 
 		//-- Start any delayed actions now.
@@ -515,6 +521,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//		System.out.println("# action="+action);
 		long ts = System.nanoTime();
 
+		m_application.internalCallPageAction(ctx, page);
+
 		NodeBase wcomp = null;
 		String wid = ctx.getRequest().getParameter("webuic");
 		if(wid != null) {
@@ -555,6 +563,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				handleClicked(ctx, page, wcomp);
 			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
 				//-- Don't do anything at all - everything is done beforehand (bug #664).
+				;
 			} else if(Constants.ACMD_ASYPOLL.equals(action)) {
 				inhibitlog = true;
 				//-- Async poll request..
@@ -597,9 +606,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(!xl.handleException(ctx, page, wcomp, x))
 				throw x;
 		}
-		if(LOG.isInfoEnabled() && !inhibitlog) {
+		if(m_logPerf && !inhibitlog) {
 			ts = System.nanoTime() - ts;
-			LOG.info("rq: Action handling took " + StringTool.strNanoTime(ts));
+			System.out.println("domui: Action handling took " + StringTool.strNanoTime(ts));
 		}
 		if(!page.isDestroyed()) // jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
 			page.getConversation().processDelayedResults(page);
@@ -629,6 +638,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	}
 
 	static private void renderOptimalDelta(final RequestContextImpl ctx, final Page page, boolean inhibitlog) throws Exception {
+		// ORDERED
+		//-- 20100519 jal Force full rebuild before rendering, always. See bug 688.
+		page.internalDeltaBuild();
+		ctx.getApplication().internalCallPageComplete(ctx, page);
+		page.internalDeltaBuild();
+		// /ORDERED
+
 		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
 		ctx.getResponse().setCharacterEncoding("UTF-8");
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
@@ -638,9 +654,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		HtmlFullRenderer fullr = ctx.getApplication().findRendererFor(ctx.getBrowserVersion(), out);
 		OptimalDeltaRenderer dr = new OptimalDeltaRenderer(fullr, ctx, page);
 		dr.render();
-		if(LOG.isInfoEnabled() && !inhibitlog) {
+		if(m_logPerf && !inhibitlog) {
 			ts = System.nanoTime() - ts;
-			LOG.info("rq: Optimal Delta rendering using " + fullr + " took " + StringTool.strNanoTime(ts));
+			System.out.println("domui: Optimal Delta rendering using " + fullr + " took " + StringTool.strNanoTime(ts));
 		}
 		page.getConversation().startDelayedExecution();
 	}

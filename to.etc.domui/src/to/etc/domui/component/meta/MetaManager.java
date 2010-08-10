@@ -21,80 +21,183 @@ import to.etc.webapp.nls.*;
  * Created on Jun 16, 2008
  */
 final public class MetaManager {
-	static private List<DataMetaModel> m_modelList = new ArrayList<DataMetaModel>();
+	static private List<IClassMetaModelFactory> m_modelList = new ArrayList<IClassMetaModelFactory>();
+
+	/**
+	 * Mapped lock object referring to a ClassMetaModel instance, which can be in initialization.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Jun 1, 2010
+	 */
+	static private final class MRef {
+		private ClassMetaModel m_classModel;
+
+		public MRef() {}
+
+		public ClassMetaModel getClassModel() {
+			return m_classModel;
+		}
+
+		public void setClassModel(ClassMetaModel classModel) {
+			m_classModel = classModel;
+		}
+	}
 
 //	static private Set<Class< ? >> SIMPLE = new HashSet<Class< ? >>();
 
-	static private Map<Class< ? >, DefaultClassMetaModel> m_classMap = new HashMap<Class< ? >, DefaultClassMetaModel>();
+	/**
+	 * Map indexed by Class<?> or IMetaClass returning the classmodel for that instance.
+	 */
+	static private Map<Object, MRef> m_classMap = new HashMap<Object, MRef>();
 
 	private MetaManager() {}
 
-	static synchronized public void registerModel(DataMetaModel model) {
-		List<DataMetaModel> mm = new ArrayList<DataMetaModel>(m_modelList);
+	static synchronized public void registerModel(@Nonnull IClassMetaModelFactory model) {
+		List<IClassMetaModelFactory> mm = new ArrayList<IClassMetaModelFactory>(m_modelList);
 		mm.add(model);
 		m_modelList = mm;
 	}
 
-	static private synchronized List<DataMetaModel> getList() {
+	@Nonnull
+	static private synchronized List<IClassMetaModelFactory> getList() {
 		if(m_modelList.size() == 0)
-			registerModel(new DefaultDataMetaModel());
+			registerModel(new DefaultJavaClassMetaModelFactory());
 		return m_modelList;
 	}
 
-	static public ClassMetaModel findClassMeta(Class< ? > clz) {
-		DefaultClassMetaModel dmm;
+	@Nonnull
+	static public ClassMetaModel findClassMeta(@Nonnull Class< ? > clz) {
+		if(clz == null)
+			throw new IllegalArgumentException("Class<?> parameter cannot be null");
+
+		MRef ref;
+		List<IClassMetaModelFactory> list;
 		synchronized(MetaManager.class) {
-			dmm = m_classMap.get(clz);
-			if(dmm == null) {
+			list = getList();
+			ref = m_classMap.get(clz);
+			if(ref == null) {
 				if(clz.getName().contains("$$")) {
 					//-- Enhanced class (Hibernate). Get base class instead
 					clz = clz.getSuperclass();
-					dmm = m_classMap.get(clz);
+					ref = m_classMap.get(clz);
 				}
-				if(dmm == null) {
-					dmm = new DefaultClassMetaModel(clz); // Create base class info
-					m_classMap.put(clz, dmm); // Save
+				if(ref == null) {
+					ref = new MRef();
+					m_classMap.put(clz, ref); // Save
 				}
 			}
 		}
-
-		//-- Double lock mechanism externalized to prevent long locks on central metadata table
-		synchronized(dmm) {
-			if(!dmm.isInitialized()) {
-				for(DataMetaModel mm : getList()) { // Let all providers add their information.
-					mm.updateClassMeta(dmm);
-				}
-
-				//-- Finalize all properties.
-				for(PropertyMetaModel pmm : dmm.getProperties())
-					finalizeProperty(pmm);
-
-				dmm.initialized();
-			}
-		}
-		return dmm;
+		initializeModel(ref, clz, list);
+		return ref.getClassModel();
 	}
 
 	/**
-	 * Finalizes the metamodel for a property when all metadata providers have had their
-	 * go.
-	 *
-	 * @param pmm
+	 * Get the metamodel for some metadata-defined object.
+	 * @param mc
+	 * @return
 	 */
-	private static void finalizeProperty(PropertyMetaModel pmm) {
+	@Nonnull
+	static public ClassMetaModel findClassMeta(@Nonnull IMetaClass mc) {
+		//-- If the IMetaClass itself is a model- just use it, without caching.
+		if(mc instanceof ClassMetaModel)
+			return (ClassMetaModel) mc;
+		if(mc == null)
+			throw new IllegalArgumentException("IMetaClass parameter cannot be null");
+
+		//-- We need some factory to create it.
+		MRef ref;
+		List<IClassMetaModelFactory> list;
+		synchronized(MetaManager.class) {
+			list = getList();
+			ref = m_classMap.get(mc);
+			if(ref == null) {
+				ref = new MRef();
+				m_classMap.put(mc, ref); // Save
+			}
+		}
+		initializeModel(ref, mc, list);
+		return ref.getClassModel();
 	}
 
+	/**
+	 * Walk all factories and let one of them create the class model for this thingy. If all fail abort.
+	 * @param ref
+	 * @param modelList
+	 */
+	private static void initializeModel(@Nonnull MRef ref, @Nonnull Object theThingy, @Nonnull List<IClassMetaModelFactory> modelList) {
+		synchronized(ref) {
+			if(ref.getClassModel() == null) {
+				/*
+				 * We need to find a factory that knows how to deliver this metadata.
+				 */
+				int bestscore = 0;
+				int hitct = 0;
+				IClassMetaModelFactory best = null;
+				for(IClassMetaModelFactory mmf : modelList) {
+					int score = mmf.accepts(theThingy);
+					if(score > 0) {
+						if(score == bestscore)
+							hitct++;
+						else if(score > bestscore) {
+							bestscore = score;
+							best = mmf;
+							hitct = 1;
+						}
+					}
+				}
+
+				//-- We MUST have some factory now, or we're in trouble.
+				if(best == null)
+					throw new IllegalStateException("No IClassModelFactory accepts the type '" + theThingy + "', which is a " + theThingy.getClass());
+				if(hitct > 1)
+					throw new IllegalStateException("Two IClassModelFactory's accept the type '" + theThingy + "' (which is a " + theThingy.getClass() + ") at score=" + bestscore);
+
+				//-- Acceptable. Let it create the model.
+				ClassMetaModel cmm = best.createModel(theThingy);
+				if(cmm == null)
+					throw new IllegalStateException("The IClassModelFactory " + best + " did not create a ClassMetaModel for '" + theThingy + "' (which is a " + theThingy.getClass() + ")");
+				ref.setClassModel(cmm); // Marks as initialized.
+			}
+		}
+	}
+
+	/**
+	 * Find a property using the metamodel for a class. Returns null if not found.
+	 * @param clz
+	 * @param name
+	 * @return
+	 */
+	@Nullable
 	static public PropertyMetaModel findPropertyMeta(Class< ? > clz, String name) {
 		ClassMetaModel cm = findClassMeta(clz);
-		if(cm == null)
-			return null;
 		return cm.findProperty(name);
 	}
 
+	/**
+	 * Find a property using some genericized meta definition. Returns null if not found.
+	 * @param mc
+	 * @param name
+	 * @return
+	 */
+	@Nullable
+	static public PropertyMetaModel findPropertyMeta(IMetaClass mc, String name) {
+		ClassMetaModel cm = findClassMeta(mc);
+		return cm.findProperty(name);
+	}
+
+	@Nonnull
 	static public PropertyMetaModel getPropertyMeta(Class< ? > clz, String name) {
 		PropertyMetaModel pmm = findPropertyMeta(clz, name);
 		if(pmm == null)
 			throw new ProgrammerErrorException("The property '" + clz.getName() + "." + name + "' is not known.");
+		return pmm;
+	}
+
+	@Nonnull
+	static public PropertyMetaModel getPropertyMeta(IMetaClass clz, String name) {
+		PropertyMetaModel pmm = findPropertyMeta(clz, name);
+		if(pmm == null)
+			throw new ProgrammerErrorException("The property '" + clz + "." + name + "' is not known.");
 		return pmm;
 	}
 
@@ -540,7 +643,7 @@ final public class MetaManager {
 				continue;
 
 			//-- Accepted
-			SearchPropertyMetaModelImpl sp = new SearchPropertyMetaModelImpl((DefaultClassMetaModel) cm);
+			SearchPropertyMetaModelImpl sp = new SearchPropertyMetaModelImpl(cm);
 			sp.setIgnoreCase(true);
 			sp.setOrder(order++);
 			sp.setPropertyName(pmm.getName());

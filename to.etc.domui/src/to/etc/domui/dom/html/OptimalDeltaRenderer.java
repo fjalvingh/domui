@@ -147,9 +147,6 @@ public class OptimalDeltaRenderer {
 	}
 
 	public void render() throws Exception {
-		//-- 20100519 jal Force full rebuild before rendering, always. See bug 688.
-		m_page.internalDeltaBuild();
-
 		if(DEBUG) {
 			DumpDirtyStateRenderer.dump(m_page.getBody());
 			System.out.println("--- BEFORE node map: ----");
@@ -233,7 +230,7 @@ public class OptimalDeltaRenderer {
 		//-- At this point we have a CHANGE tree which we can render immediately
 		renderDeletes(root);
 		renderRest(root);
-		page.clearDeltaFully();
+		page.internalClearDeltaFully();
 	}
 
 	private void renderDeletes(NodeInfo ni) throws IOException {

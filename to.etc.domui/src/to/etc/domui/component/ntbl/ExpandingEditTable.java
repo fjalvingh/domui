@@ -31,17 +31,23 @@ import to.etc.domui.util.*;
  * Created on Dec 7, 2009
  */
 public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHasModifiedIndication {
+	@Nonnull
 	private Table m_table = new Table();
 
+	@Nonnull
 	private IRowRenderer<T> m_rowRenderer;
 
 	/** When set this factory is used to create the editor; when null this will create the "default" editor. */
+	@Nullable
 	private IRowEditorFactory<T, ? > m_editorFactory;
 
+	@Nullable
 	private IRowEditorEvent<T, ? > m_onRowChangeCompleted;
 
+	@Nullable
 	private IRowButtonFactory<T> m_rowButtonFactory;
 
+	@Nullable
 	TBody m_dataBody;
 
 	private boolean m_hideHeader;
@@ -58,13 +64,17 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	private boolean m_newAtStart;
 
 	/** When editing a new node, this contains the instance being filled */
+	@Nullable
 	private T m_newInstance;
 
 	/** The TBody which contains the new-editor. */
+	@Nullable
 	private TBody m_newBody;
 
+	@Nullable
 	private NodeContainer m_newEditor;
 
+	@Nullable
 	private NodeContainer m_emptyDiv;
 
 	private boolean m_enableDeleteButton = true;
@@ -88,17 +98,39 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 */
 	private boolean m_enableRowEdit = true;
 
-	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
-		super(actualClass);
+	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
+		super(m);
 		m_rowRenderer = r;
 		setErrorFence();
 	}
 
-	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable ITableModel<T> m, @Nullable IRowRenderer<T> r) {
-		super(actualClass, m);
+	public ExpandingEditTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
+		super(m);
 		m_rowRenderer = r;
 		setErrorFence();
 	}
+
+	//	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nonnull IRowRenderer<T> r) {
+	//		m_rowRenderer = r;
+	//		setErrorFence();
+	//	}
+
+	//	public ExpandingEditTable(@Nonnull IRowRenderer<T> r) {
+	//		m_rowRenderer = r;
+	//		setErrorFence();
+	//	}
+
+	//	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
+	//		super(actualClass);
+	//		m_rowRenderer = r;
+	//		setErrorFence();
+	//	}
+	//
+	//	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable ITableModel<T> m, @Nullable IRowRenderer<T> r) {
+	//		super(actualClass, m);
+	//		m_rowRenderer = r;
+	//		setErrorFence();
+	//	}
 
 	private boolean setEmptyDiv() throws Exception {
 		if(getModel().getRows() == 0) {
@@ -203,7 +235,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		renderCollapsedRow(cc, bc, tr, index, value);
 	}
 
-	private void renderCollapsedRow(ColumnContainer<T> cc, RowButtonContainer bc, TR tr, int index, final T value) throws Exception {
+	private void renderCollapsedRow(@Nonnull ColumnContainer<T> cc, @Nonnull RowButtonContainer bc, @Nonnull TR tr, int index, @Nullable final T value) throws Exception {
 		cc.setParent(tr);
 
 		if(! isHideIndex()) {
@@ -234,7 +266,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		}
 	}
 
-	private void createIndexNode(TD td, final int index, boolean collapsed) {
+	private void createIndexNode(@Nonnull TD td, final int index, boolean collapsed) {
 		Div d = new Div(Integer.toString(index + 1));
 		td.add(d);
 		if(isEnableExpandItems()) {
@@ -288,7 +320,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param isnew
 	 * @throws Exception
 	 */
-	private NodeContainer createEditor(TD into, RowButtonContainer bc, T instance, boolean isnew) throws Exception {
+	private NodeContainer createEditor(@Nonnull TD into, @Nonnull RowButtonContainer bc, @Nullable T instance, boolean isnew) throws Exception {
 		if(getEditorFactory() == null)
 			throw new IllegalStateException("Auto editor creation not yet supported");
 
@@ -368,7 +400,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param tr
 	 */
 	@SuppressWarnings("unchecked")
-	private void collapseRow(int index, TR tr) throws Exception {
+	private void collapseRow(int index, @Nonnull TR tr) throws Exception {
 		if(tr.getUserObject() == null) // Already collapsed?
 			return;
 		NodeContainer editor = (NodeContainer) tr.getUserObject();
@@ -407,7 +439,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * of the item to the model.
 	 * @param instance
 	 */
-	public void addNew(T instance) throws Exception {
+	public void addNew(@Nonnull T instance) throws Exception {
 		if(!(getModel() instanceof IModifyableTableModel< ? >))
 			throw new IllegalStateException("The model is not an IModifyableTableModel: use addNew(T, IClicked) instead");
 		clearNewEditor();
@@ -583,7 +615,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
-	public void rowModified(ITableModel<T> model, int index, T value) throws Exception {
+	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
 		//-- Sanity
@@ -697,11 +729,12 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * Return the editor factory to use to create the row editor. If null we'll use a default editor.
 	 * @return
 	 */
+	@Nullable
 	public IRowEditorFactory<T, ? extends NodeContainer> getEditorFactory() {
 		return m_editorFactory;
 	}
 
-	public void setEditorFactory(IRowEditorFactory<T, ? extends NodeContainer> editorFactory) {
+	public void setEditorFactory(@Nullable IRowEditorFactory<T, ? extends NodeContainer> editorFactory) {
 		m_editorFactory = editorFactory;
 	}
 

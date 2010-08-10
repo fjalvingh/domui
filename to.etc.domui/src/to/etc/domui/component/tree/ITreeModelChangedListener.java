@@ -1,5 +1,5 @@
 package to.etc.domui.component.tree;
 
-public interface ITreeModelChangedListener {
+public interface ITreeModelChangedListener<T> {
 
 }
