@@ -10,5 +10,5 @@ import to.etc.util.*;
  * Created on Mar 6, 2009
  */
 public interface IPendingOperationExecutor {
-	void executePendingOperation(final PendingOperation po, final LogSink ls) throws Exception;
+	void executePendingOperation(final PendingOperation po, final ILogSink ls) throws Exception;
 }

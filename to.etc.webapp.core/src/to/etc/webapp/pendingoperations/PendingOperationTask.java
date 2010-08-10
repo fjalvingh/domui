@@ -16,7 +16,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Mar 5, 2009
  */
-final public class PendingOperationTask implements Runnable, LogSink {
+final public class PendingOperationTask implements Runnable, ILogSink {
 	private final PendingOperationTaskProvider m_provider;
 
 	private final List<PendingOperation> m_list;
