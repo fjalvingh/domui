@@ -6,7 +6,7 @@ package to.etc.util;
  * @author jal
  * Created on Apr 16, 2005
  */
-public interface LogSink {
+public interface ILogSink {
 	void log(String msg);
 
 	void exception(Throwable t, String msg);

@@ -18,7 +18,7 @@ import to.etc.util.*;
  * Created on Feb 4, 2005
  * @author jal
  */
-abstract public class ContextServletBase extends HttpServlet implements LogSink {
+abstract public class ContextServletBase extends HttpServlet implements ILogSink {
 	static private boolean		SHOWTS	= false;
 
 	static private DateFormat	DATEF	= DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
@@ -71,7 +71,7 @@ abstract public class ContextServletBase extends HttpServlet implements LogSink 
 	/**
 	 * If we're logging log the exception to the log.
 	 *
-	 * @see to.etc.util.LogSink#exception(java.lang.Throwable, java.lang.String)
+	 * @see to.etc.util.ILogSink#exception(java.lang.Throwable, java.lang.String)
 	 */
 	public void exception(Throwable t, String s) {
 		if(m_rlf != null)

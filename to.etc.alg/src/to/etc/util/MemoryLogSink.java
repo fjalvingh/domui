@@ -2,7 +2,7 @@ package to.etc.util;
 
 import java.io.*;
 
-public class MemoryLogSink implements LogSink {
+public class MemoryLogSink implements ILogSink {
 	private Appendable	m_sb;
 
 	public MemoryLogSink(Appendable a) {

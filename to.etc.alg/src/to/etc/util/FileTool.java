@@ -1178,7 +1178,7 @@ public class FileTool {
 	/*	CODING:	Logging helpers.									*/
 	/*--------------------------------------------------------------*/
 
-	static public InputStream wrapInputStream(final InputStream rawStream, final LogSink s, final int maxinmemory) throws Exception {
+	static public InputStream wrapInputStream(final InputStream rawStream, final ILogSink s, final int maxinmemory) throws Exception {
 		//-- Read the input stream and copy to memory or file.
 		File tempfile = null;
 		byte[] buf = new byte[maxinmemory];

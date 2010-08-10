@@ -72,7 +72,7 @@ abstract public class CtxServlet extends HttpServlet {
 	/**
 	 * If we're logging log the exception to the log.
 	 *
-	 * @see to.etc.util.LogSink#exception(java.lang.Throwable, java.lang.String)
+	 * @see to.etc.util.ILogSink#exception(java.lang.Throwable, java.lang.String)
 	 */
 	public void exception(Throwable t, String s) {
 		if(m_rlf != null)

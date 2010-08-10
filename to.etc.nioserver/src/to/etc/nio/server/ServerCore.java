@@ -32,7 +32,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 26, 2006
  */
-public class ServerCore implements LogSink {
+public class ServerCore implements ILogSink {
 	static public final boolean DEBUG = false;
 
 	static private final int MAX_PER_DATALISTENER = 60;

@@ -4,7 +4,7 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
-public class StandardLogfile implements LogSink {
+public class StandardLogfile implements ILogSink {
 	/** The date/time formatter. */
 	private DateFormat	m_df;
 

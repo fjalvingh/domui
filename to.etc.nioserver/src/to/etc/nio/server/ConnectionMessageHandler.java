@@ -19,7 +19,7 @@ public interface ConnectionMessageHandler {
 	 * @param ci
 	 * @throws Exception
 	 */
-	public void connect(ConnectionInfo ci, LogSink ls) throws Exception;
+	public void connect(ConnectionInfo ci, ILogSink ls) throws Exception;
 
 	public void received(ConnectionInfo ci, ByteBuffer bb) throws Exception;
 
