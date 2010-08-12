@@ -23,53 +23,6 @@ final public class ServerTools {
 	private ServerTools() {}
 
 	/**
-	 * Returns a shared config source for a servlet set. If the shared
-	 * config does not already exist it gets created: it reads the
-	 * context parameter 'config' and tries to open the specified file
-	 * as a config file. If succesful it will also check the local
-	 * config file (xxx.local) as the primary config source.
-	 *
-	 * @param ctx
-	 * @return
-	 */
-	static public ConfigSource getSharedConfigSource(ServletContext ctx) throws ServletException {
-		synchronized(ctx) {
-			ConfigSource cs = (ConfigSource) ctx.getAttribute(KEY); // Do we have a shared config?
-			if(cs != null)
-				return cs;
-
-			//-- Get the config context parameter and find it
-			String cp = ctx.getInitParameter("config"); // Do we have a config parameter?
-			if(cp == null)
-				return null;
-
-			//-- If the config parameter does not end in a suffix add .properties
-			if(FileTool.findFilenameExtension(cp) == -1)
-				cp = cp + ".properties";
-			File f = null;
-			try {
-				f = findConfigFileByName(ctx, cp);
-				if(f == null) {
-					f = new File(cp).getAbsoluteFile();
-					throw new UnavailableException("The config file '" + cp + "' cannot be found (" + f + ")");
-				}
-
-				File lf = new File(f.toString() + ".local");
-				cs = new ConfigFile(f, lf);
-			} catch(ServletException x) {
-				throw x;
-			} catch(Exception x) {
-				x.printStackTrace();
-				throw new ServletException("Exception in setting config file '" + f + "'" + x, x);
-			}
-
-			//-- Store the shared source.
-			ctx.setAttribute(KEY, cs);
-			return cs;
-		}
-	}
-
-	/**
 	 * Tries to find the named config file. It tries the local directory first,
 	 * followed by the WEB-INF path and all classpath entries.
 	 *
