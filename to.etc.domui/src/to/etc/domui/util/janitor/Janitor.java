@@ -2,7 +2,7 @@ package to.etc.domui.util.janitor;
 
 import java.util.*;
 
-import to.etc.log.*;
+import org.slf4j.*;
 
 
 /**
@@ -26,9 +26,7 @@ import to.etc.log.*;
  * 	The scheduler keeps all things to-do ordered by time-of-next-execution.
  */
 public class Janitor implements Runnable {
-	static private final Category MSG = LogMaster.getCategory("janitor", "msg");
-
-	static private final Category TASK = LogMaster.getCategory("janitor", "task");
+	static private final Logger LOG = LoggerFactory.getLogger(Janitor.class);
 
 	/// Start phase: not started, not running
 	static private final int jspNONE = 0;
@@ -98,7 +96,7 @@ public class Janitor implements Runnable {
 		}
 		if(ct <= 0)
 			throw new RuntimeException("FATAL Janitor: thread did not start!?");
-		MSG.msg("Janitor: thread seems to run, life's good ;-) " + ct + ", " + m_thread_isrunning);
+		LOG.debug("Janitor: thread seems to run, life's good ;-) " + ct + ", " + m_thread_isrunning);
 	}
 
 
@@ -122,7 +120,7 @@ public class Janitor implements Runnable {
 
 	protected synchronized void logTask(JanitorThread jt, String msg) {
 		synchronized(jt) {
-			TASK.msg("T" + jt.m_slot + ":" + jt.m_jt.m_taskname + "- " + msg);
+			LOG.debug("T" + jt.m_slot + ":" + jt.m_jt.m_taskname + "- " + msg);
 		}
 	}
 
@@ -245,7 +243,7 @@ public class Janitor implements Runnable {
 			m_thread_isrunning = true;
 			notify();
 		}
-		MSG.msg("Janitor thread started - initializing");
+		LOG.debug("Janitor thread started - initializing");
 
 		try {
 			initialize();
@@ -256,11 +254,12 @@ public class Janitor implements Runnable {
 			}
 			terminialize();
 		} catch(Throwable t) {
-			MSG.msg(this, "FATAL exception in mainloop: " + t.getMessage());
+			t.printStackTrace();
+			LOG.error("FATAL exception in mainloop: " + t.getMessage(), t);
 		} finally {
 			m_thread_isrunning = false;
 		}
-		MSG.msg("Janitor thread stopped!?");
+		LOG.debug("Janitor thread stopped!?");
 	}
 
 
@@ -276,12 +275,12 @@ public class Janitor implements Runnable {
 				//-- No slots... How long ago did the scheduler run?
 				if(m_t_freeslot - getSchedTime() > 10 * 60 * 1000) {
 					System.out.println("Janitor: No jobs have completed in 10 minutes; cannot schedule!!");
-					MSG.msg("WARNING: NO JANITOR JOBS COMPLETED IN 10 MINUTES!!");
+					LOG.info("WARNING: NO JANITOR JOBS COMPLETED IN 10 MINUTES!!");
 				}
 			} else
 				m_t_freeslot = getSchedTime();
 		} catch(Throwable x) {
-			MSG.msg("ERROR! Janitor exception catched: " + x.toString());
+			LOG.warn("ERROR! Janitor exception catched: " + x.toString());
 		}
 	}
 
