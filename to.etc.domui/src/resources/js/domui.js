@@ -992,8 +992,12 @@ var WebUI = {
 
 	focus : function(id) {
 		var n = document.getElementById(id);
-		if (n)
-			n.focus();
+		try{
+			if (n)
+				n.focus();
+		} catch (e) {
+			//just ignore
+		}
 	},
 	
 	/***** DateInput control code ****/
