@@ -139,6 +139,12 @@ public class TabPanel extends Div {
 
 	private ITabSelected m_onTabSelected;
 
+	/** If set to T then tab captions would be rendered in single line, and scroller buttons would be visible if needed. */
+	private boolean m_scrollable;
+
+	/** Used only in case of m_scrollable set to T, to store scrollable header container div. */
+	private Div m_scrollNavig;
+
 	public TabPanel() {}
 
 	public TabPanel(final boolean markErrorTabs) {
@@ -146,6 +152,27 @@ public class TabPanel extends Div {
 		if(m_markErrorTabs) {
 			setErrorFence();
 		}
+	}
+
+	/**
+	 * Return tab panel that forces rendering of tab captions in single line and show scroll buttons if needed.
+	 * @return
+	 */
+	public static TabPanel createScrollableTabPanel() {
+		return createScrollableTabPanel(false);
+	}
+
+	/**
+	 * Returns scrollable tab panel with set markErrorTabs flag.
+	 * See {@link TabPanel#createScrollableTabPanel}.
+	 * See {@link TabPanel#m_markErrorTabs}.
+	 * @param markErrorTabs
+	 * @return
+	 */
+	public static TabPanel createScrollableTabPanel(final boolean markErrorTabs) {
+		TabPanel tabPanel = new TabPanel(markErrorTabs);
+		tabPanel.setScrollable(true);
+		return tabPanel;
 	}
 
 	/**
@@ -219,12 +246,55 @@ public class TabPanel extends Div {
 		if(getCurrentTab() >= m_tablist.size())
 			m_currentTab = 0;
 
+		NodeContainer headerCont = this;
+		if(m_scrollable) {
+			//Make scroll container div around tab headers and scroll buttons.
+			m_scrollNavig = new Div();
+			m_scrollNavig.setCssClass("ui-tab-scrl");
+			add(m_scrollNavig);
+			headerCont = m_scrollNavig;
+			Span leftArrow = new Span();
+			leftArrow.setCssClass("ui-tab-scrl-left");
+			leftArrow.setOnClickJS("var offset = Math.abs(parseInt($('ul',this.parentNode).css('marginLeft')));" + //
+				"var diff = $('div',this.parentNode).width();" + //
+				"if (offset <= 0 ){$(this).css('display','none');$('ul', this.parentNode).animate({marginLeft: 0}, 400, 'swing');return;}" + //
+				"else if ( offset - diff <= 0 ){$(this).css('display','none');diff = offset;}" + //
+				"$('.ui-tab-scrl-right', this.parentNode).css('display','inline');" + //
+				"$('ul',$(this).parent()).animate({marginLeft: '+='+diff},400, 'swing');");
+			Span rightArrow = new Span();
+			rightArrow.setCssClass("ui-tab-scrl-right");
+			rightArrow.setOnClickJS( //
+				"var $div = $('div',this.parentNode)" + //
+					",maxoffset = $('li:last',$div).width()+$('li:last',$div).offset().left - $('li:first',$div).offset().left - $div.width() + 14" + //
+					",offset = Math.abs(parseInt( $('ul',$div).css('marginLeft') ))" + //
+					",diff = $div.width();" + //
+					"if (offset >= maxoffset){return;}" + //
+					"else if (offset + diff >= maxoffset){diff = maxoffset - offset + 14;$(this).css('display','none');}" + //
+					"$('.ui-tab-scrl-left', this.parentNode).css('display','inline');" + //
+					"$('ul', $(this).parent() ).animate({marginLeft: '-=' + diff},400, 'swing');");
+			headerCont.add(leftArrow);
+			headerCont.add(rightArrow);
+			appendJavascript("$(document).ready(function() {" + getHandleTabHeaderScrollersJavascriptCall(m_scrollNavig) + //
+				"$(window).resize(function() {" + getHandleTabHeaderScrollersJavascriptCall(m_scrollNavig) + "});" + //
+				"});");
+
+
+		}
 		//-- Create the TAB structure..
 		Div hdr = new Div();
-		add(hdr); // The div containing the tab buttons
+		headerCont.add(hdr); // The div containing the tab buttons
 		hdr.setCssClass("ui-tab-hdr");
 		Ul u = new Ul();
 		m_tabul = u;
+		if(m_scrollable) {
+			//We have to ensure that tabs captions can be rendered in single line.
+			hdr.setOverflow(Overflow.HIDDEN);
+			hdr.setFloat(FloatType.NONE);
+			m_tabul.setWidth("3000px");
+			m_tabul.setMarginLeft("0px");
+		} else {
+			hdr.setWidth("100%");
+		}
 		hdr.add(u);
 		int index = 0;
 		for(TabInstance ti : m_tablist) {
@@ -237,6 +307,15 @@ public class TabPanel extends Div {
 			ti.getContent().addCssClass("ui-tab-pg");
 			index++;
 		}
+	}
+
+	private String getHandleTabHeaderScrollersJavascriptCall(Div scrollNavig) {
+		return "$('#" + scrollNavig.getActualID() + "').each(function(){" + //
+			"if($('li:last',this).width() + $('li:last',this).offset().left > $(this).width()){" + //
+			"$('.ui-tab-scrl-right',this).css('display','inline');" + //
+			"if (parseInt($('ul',this).css('marginLeft')) > 0){$('.ui-tab-scrl-left',this).css('display','inline');}else{$('.ui-tab-scrl-left',this).css('display','none');}" + //
+			"}else{$('.ui-tab-scrl-left',this).css('display','none');$('.ui-tab-scrl-right',this).css('display','none');$('ul', this).animate({marginLeft: 0}, 400, 'swing');}" + //
+			"});";
 	}
 
 	private void renderLabel(int index, TabInstance ti) {
@@ -292,5 +371,21 @@ public class TabPanel extends Div {
 
 	public ITabSelected getOnTabSelected() {
 		return m_onTabSelected;
+	}
+
+	public boolean isScrollable() {
+		return m_scrollable;
+	}
+
+	protected void setScrollable(boolean scrollable) {
+		m_scrollable = scrollable;
+	}
+
+	@Override
+	protected void onUnshelve() throws Exception {
+		if(m_scrollable && m_scrollNavig != null) {
+			//We have to handle tab scrollers after page is reloaded due to unshelve.
+			appendJavascript(getHandleTabHeaderScrollersJavascriptCall(m_scrollNavig));
+		}
 	}
 }
