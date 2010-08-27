@@ -434,5 +434,19 @@ public class JdbcUtil {
 		}
 	}
 
+	public static boolean executeStatement(Connection dbc, String sql, Object... args) throws SQLException {
+		PreparedStatement ps = null;
+		try {
+			ps = dbc.prepareStatement(sql);
+			setParameters(ps, 1, args);
+			return ps.execute();
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
+	}
+
 
 }
