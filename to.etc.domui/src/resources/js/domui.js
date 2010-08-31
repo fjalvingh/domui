@@ -1375,7 +1375,7 @@ var WebUI = {
 			if (li != -1) {
 				var ext = vv.substring(li + 1, vv.length).toLowerCase();
 				for ( var i = 0; i < spl.length; i++) {
-					if (ext == spl[i]) {
+					if (ext == spl[i] || "*" == spl[i]) {
 						ok = true;
 						break;
 					}

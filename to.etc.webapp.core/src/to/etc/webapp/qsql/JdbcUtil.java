@@ -244,6 +244,8 @@ public class JdbcUtil {
 				ps.setInt(px, ((Integer) val).intValue());
 			} else if(val instanceof BigDecimal) {
 				ps.setBigDecimal(px, (BigDecimal) val);
+			} else if(val instanceof Double) {
+				ps.setDouble(px, ((Double) val).doubleValue());
 			} else if(val instanceof java.sql.Timestamp) {
 				ps.setTimestamp(px, (java.sql.Timestamp) val);
 			} else if(val instanceof java.util.Date) {
@@ -366,6 +368,8 @@ public class JdbcUtil {
 					return (T) (Integer.valueOf(ps.getInt(1)));
 				} else if(rtype == Long.class || rtype == long.class) {
 					return (T) (Long.valueOf(ps.getLong(1)));
+				} else if(rtype == Double.class || rtype == double.class) {
+					return (T) (Double.valueOf(ps.getDouble(1)));
 				} else if(rtype == BigDecimal.class) {
 					return (T) ps.getBigDecimal(1);
 				} else {
@@ -385,7 +389,7 @@ public class JdbcUtil {
 	static private int calcSQLTypeFor(Class< ? > rt) {
 		if(rt == String.class)
 			return Types.VARCHAR;
-		else if(rt == Integer.class || rt == int.class || rt == Long.class || rt == long.class || rt == BigDecimal.class)
+		else if(rt == Integer.class || rt == int.class || rt == Long.class || rt == long.class || rt == BigDecimal.class || rt == Double.class || rt == double.class)
 			return Types.NUMERIC;
 		else
 			throw new IllegalStateException("Call error: cannot get SQLType for java type=" + rt);
