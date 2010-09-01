@@ -1,5 +1,7 @@
 package to.etc.domui.parts;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.util.resources.*;
@@ -112,7 +114,7 @@ public class ButtonPart implements IBufferedPartFactory {
 		return k;
 	}
 
-	public void generate(final PartResponse pr, final DomApplication da, final Object key, final ResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull final PartResponse pr, @Nonnull final DomApplication da, @Nonnull final Object key, @Nonnull final ResourceDependencyList rdl) throws Exception {
 		if(true)
 			throw new IllegalStateException("DO NOT USE ANYMORE - REPLACED WITH PropBtnPart.part");
 		//		ButtonPartKey k = (ButtonPartKey) key;

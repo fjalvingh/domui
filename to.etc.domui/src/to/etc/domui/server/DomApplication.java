@@ -1164,7 +1164,7 @@ public abstract class DomApplication {
 		m_partHandler.registerUrlPart(factory);
 	}
 
-	public String getThemeReplacedString(ResourceDependencyList rdl, String rurl) throws Exception {
+	public String getThemeReplacedString(@Nonnull ResourceDependencyList rdl, String rurl) throws Exception {
 		return getThemeReplacedString(rdl, rurl, null);
 	}
 
@@ -1179,12 +1179,11 @@ public abstract class DomApplication {
 	 * @param key
 	 * @return
 	 */
-	public String getThemeReplacedString(ResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
+	public String getThemeReplacedString(@Nonnull ResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
 		IResourceRef ires = getApplicationResourceByName(rurl);
 //		if(ires == null)
 //			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
-		if(rdl != null)
-			rdl.add(ires);
+		rdl.add(ires);
 
 		//-- 2. Load the thing as UTF-8 string
 		InputStream is = ires.getInputStream();
@@ -1198,8 +1197,7 @@ public abstract class DomApplication {
 			IThemeMap map = null;
 			if(m_themeMapFactory != null) {
 				map = m_themeMapFactory.createThemeMap(this);
-				if(rdl != null)
-					rdl.add(map);
+				rdl.add(map);
 			}
 			cont = rvs(cont, map, bv);
 			return cont;

@@ -2,6 +2,8 @@ package to.etc.domui.server.parts;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
@@ -92,7 +94,7 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 		return new Key(param.getBrowserVersion(), rurl);
 	}
 
-	public void generate(PartResponse pr, DomApplication da, Object k, ResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object k, @Nonnull ResourceDependencyList rdl) throws Exception {
 		Key key = (Key) k;
 
 		if(!da.inDevelopmentMode()) { // Not gotten from WebContent or not in DEBUG mode? Then we may cache!

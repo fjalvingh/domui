@@ -2,6 +2,8 @@ package to.etc.domui.parts;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.util.resources.*;
@@ -18,7 +20,7 @@ public class FileTypePart implements IBufferedPartFactory {
 		return PREFIX + rurl;
 	}
 
-	public void generate(PartResponse pr, DomApplication da, Object key, ResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull ResourceDependencyList rdl) throws Exception {
 		String ext = ((String) key).substring(PREFIX.length()).toLowerCase();
 
 		//-- Can we locate a filetype of that type in the web resources?
