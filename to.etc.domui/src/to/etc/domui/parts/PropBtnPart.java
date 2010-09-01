@@ -2,6 +2,8 @@ package to.etc.domui.parts;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.trouble.*;
@@ -118,7 +120,7 @@ public class PropBtnPart implements IBufferedPartFactory {
 	 * Generate the button class.
 	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(java.io.OutputStream, to.etc.domui.server.DomApplication, java.lang.Object)
 	 */
-	public void generate(PartResponse pr, DomApplication da, Object key, ResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull ResourceDependencyList rdl) throws Exception {
 		ButtonPartKey k = (ButtonPartKey) key;
 		Properties p = PartUtil.loadProperties(da, k.m_propfile, rdl);
 		if(p == null)

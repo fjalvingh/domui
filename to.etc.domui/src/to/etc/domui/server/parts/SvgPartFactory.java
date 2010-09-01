@@ -2,6 +2,8 @@ package to.etc.domui.server.parts;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 import org.apache.batik.transcoder.*;
 import org.apache.batik.transcoder.image.*;
 
@@ -82,7 +84,7 @@ public class SvgPartFactory implements IBufferedPartFactory, IUrlPart {
 		return new SvgKey(rurl, width, height);
 	}
 
-	public void generate(PartResponse pr, DomApplication da, Object key, ResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull ResourceDependencyList rdl) throws Exception {
 		SvgKey k = (SvgKey) key;
 
 		//-- 1. Get the input as a theme-replaced resource

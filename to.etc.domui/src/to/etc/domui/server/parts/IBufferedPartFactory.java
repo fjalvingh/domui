@@ -1,5 +1,7 @@
 package to.etc.domui.server.parts;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.util.resources.*;
 
@@ -13,7 +15,8 @@ public interface IBufferedPartFactory extends IPartFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception;
+	@Nonnull
+	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception;
 
 	/**
 	 * This must generate the output for the resource. That output will be put into the cache and re-rendered
@@ -29,5 +32,5 @@ public interface IBufferedPartFactory extends IPartFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	public void generate(PartResponse pr, DomApplication da, Object key, ResourceDependencyList rdl) throws Exception;
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull ResourceDependencyList rdl) throws Exception;
 }
