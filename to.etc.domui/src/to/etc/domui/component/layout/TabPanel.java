@@ -15,6 +15,16 @@ import to.etc.domui.util.*;
  * Created on Jun 1, 2008
  */
 public class TabPanel extends Div {
+	/**
+	 * Defines type of tab panel.
+	 */
+	public static enum Type {
+		/** Render tabs in multiple lines if needed.*/
+		NOT_SCROLLABLE,
+		/** Render tabs in single line, provide scroller buttons if needed.*/
+		SCROLLABLE
+	}
+
 	//vmijic 20090923 TabInstance can be registered as ErrorMessageListener in case when TabPanel has m_markErrorTabs set.
 	private static class TabInstance implements IErrorMessageListener {
 		private NodeBase m_label;
@@ -139,13 +149,28 @@ public class TabPanel extends Div {
 
 	private ITabSelected m_onTabSelected;
 
+	/** If not defined different, by default TabPanel is defined as non scrollable. */
+	private Type m_type = Type.NOT_SCROLLABLE;
+
+	/** Used only in case of m_scrollable set to T, to store scrollable header container div. */
+	private Div m_scrollNavig;
+
 	public TabPanel() {}
+
+	public TabPanel(Type type) {
+		m_type = type;
+	}
 
 	public TabPanel(final boolean markErrorTabs) {
 		m_markErrorTabs = markErrorTabs;
 		if(m_markErrorTabs) {
 			setErrorFence();
 		}
+	}
+
+	public TabPanel(final boolean markErrorTabs, final Type type) {
+		this(markErrorTabs);
+		m_type = type;
 	}
 
 	/**
@@ -219,12 +244,39 @@ public class TabPanel extends Div {
 		if(getCurrentTab() >= m_tablist.size())
 			m_currentTab = 0;
 
+		NodeContainer headerCont = this;
+		if(m_type == Type.SCROLLABLE) {
+			//Make scroll container div around tab headers and scroll buttons.
+			m_scrollNavig = new Div();
+			m_scrollNavig.setCssClass("ui-tab-scrl");
+			add(m_scrollNavig);
+			headerCont = m_scrollNavig;
+			Span leftArrow = new Span();
+			leftArrow.setCssClass("ui-tab-scrl-left");
+			leftArrow.setOnClickJS("WebUI.scrollLeft(this);");
+			Span rightArrow = new Span();
+			rightArrow.setCssClass("ui-tab-scrl-right");
+			rightArrow.setOnClickJS("WebUI.scrollRight(this);");
+			headerCont.add(leftArrow);
+			headerCont.add(rightArrow);
+			appendJavascript("$(document).ready(function(){WebUI.recalculateScrollers('" + m_scrollNavig.getActualID() + "');$(window).resize(function(){WebUI.recalculateScrollers('"
+				+ m_scrollNavig.getActualID() + "');});});");
+		}
 		//-- Create the TAB structure..
 		Div hdr = new Div();
-		add(hdr); // The div containing the tab buttons
+		headerCont.add(hdr); // The div containing the tab buttons
 		hdr.setCssClass("ui-tab-hdr");
 		Ul u = new Ul();
 		m_tabul = u;
+		if(m_type == Type.SCROLLABLE) {
+			//We have to ensure that tabs captions can be rendered in single line.
+			hdr.setOverflow(Overflow.HIDDEN);
+			hdr.setFloat(FloatType.NONE);
+			m_tabul.setWidth("3000px");
+			m_tabul.setMarginLeft("0px");
+		} else {
+			hdr.setWidth("100%");
+		}
 		hdr.add(u);
 		int index = 0;
 		for(TabInstance ti : m_tablist) {
@@ -292,5 +344,17 @@ public class TabPanel extends Div {
 
 	public ITabSelected getOnTabSelected() {
 		return m_onTabSelected;
+	}
+
+	public boolean isScrollable() {
+		return m_type == Type.SCROLLABLE;
+	}
+
+	@Override
+	protected void onUnshelve() throws Exception {
+		if(m_type == Type.SCROLLABLE && m_scrollNavig != null) {
+			//We have to handle tab scrollers after page is reloaded due to unshelve.
+			appendJavascript("WebUI.recalculateScrollers('" + m_scrollNavig.getActualID() + "');");
+		}
 	}
 }

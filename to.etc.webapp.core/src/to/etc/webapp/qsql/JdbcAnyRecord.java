@@ -75,13 +75,16 @@ public class JdbcAnyRecord {
 	}
 
 	public <T> T getValue(Class<T> type, String name) {
-		Object v = get(name);
-		if(v == NULL_VAL)
-			return null;
-		if(v == null)
-			return null; // FIXME Should throw column not found exception.
-		return (T) RuntimeConversions.convertTo(v, type);
+		return getValue(type, name, null);
 	}
 
+	public <T> T getValue(Class<T> type, String name, T defaultValue) {
+		Object v = get(name);
+		if(v == NULL_VAL)
+			return defaultValue;
+		if(v == null)
+			return defaultValue; // FIXME Should throw column not found exception.
+		return (T) RuntimeConversions.convertTo(v, type);
+	}
 
 }
