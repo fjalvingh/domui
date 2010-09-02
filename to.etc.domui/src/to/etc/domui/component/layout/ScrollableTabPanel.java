@@ -31,29 +31,28 @@ public class ScrollableTabPanel extends TabPanelBase {
 		if(getCurrentTab() >= getTabCount() || getCurrentTab() < 0)
 			internalSetCurrentTab(0);
 
-		NodeContainer headerCont = this;
 		//Make scroll container div around tab headers and scroll buttons.
 		m_scrollNavig = new Div();
 		m_scrollNavig.setCssClass("ui-tab-scrl");
 		add(m_scrollNavig);
-		headerCont = m_scrollNavig;
 		Span leftArrow = new Span();
 		leftArrow.setCssClass("ui-tab-scrl-left");
 		leftArrow.setOnClickJS("WebUI.scrollLeft(this);");
 		Span rightArrow = new Span();
 		rightArrow.setCssClass("ui-tab-scrl-right");
 		rightArrow.setOnClickJS("WebUI.scrollRight(this);");
-		headerCont.add(leftArrow);
-		headerCont.add(rightArrow);
+		m_scrollNavig.add(leftArrow);
+		m_scrollNavig.add(rightArrow);
 		appendCreateJS("$(document).ready(function(){WebUI.recalculateScrollers('" + m_scrollNavig.getActualID() + "');$(window).resize(function(){WebUI.recalculateScrollers('"
 			+ m_scrollNavig.getActualID() + "');});});");
 
 		//-- Create the TAB structure..
 		Div hdr = new Div();
-		headerCont.add(hdr); // The div containing the tab buttons
+		m_scrollNavig.add(hdr); // The div containing the tab buttons
 		hdr.setCssClass("ui-tab-hdr");
 		Ul u = new Ul();
 		m_tabul = u;
+
 		//We have to ensure that tabs captions can be rendered in single line.
 		hdr.setOverflow(Overflow.HIDDEN);
 		hdr.setFloat(FloatType.NONE);
