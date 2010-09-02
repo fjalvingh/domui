@@ -1044,6 +1044,39 @@ li.ui-tab-err {
 	border-top: 1px solid black;
 }
 
+.ui-tab-scrl {
+}
+
+.ui-tab-scrl-left {
+	float: left;
+	background: url(tab-scrl-left1.png) no-repeat transparent center;
+	border:0 none;
+	margin:0;
+	display:none;
+	width: 15px;
+	height: 24px;	
+}
+
+.ui-tab-scrl-left:hover {
+	background: url(tab-scrl-left.png) no-repeat transparent center;
+	cursor: pointer;
+}
+
+.ui-tab-scrl-right {
+	float: right;
+	background: url(tab-scrl-right1.png) no-repeat transparent center;
+	border:0 none;
+	margin:0;
+	display:none;	
+	width: 15px;
+	height: 24px;	
+}
+
+.ui-tab-scrl-right:hover {
+	background: url(tab-scrl-right.png) no-repeat transparent center;
+	cursor: pointer;
+}
+
 /*** Body element ***/
 body,html {
 	background: url(bg-body.png) repeat-x;
