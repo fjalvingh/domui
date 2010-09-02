@@ -10,20 +10,13 @@ import to.etc.domui.util.*;
 /**
  * A panel containing multiple tabs. Each tab consists of two components: the
  * tab label component and the tab page body.
+ * Render tabs in multiple lines if component width is not enough to show all tabs.
+ * To have tabs rendered into single line with available scrollers use {@link ScollableTabPanel}.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
 public class TabPanel extends Div {
-	/**
-	 * Defines type of tab panel.
-	 */
-	public static enum Type {
-		/** Render tabs in multiple lines if needed.*/
-		NOT_SCROLLABLE,
-		/** Render tabs in single line, provide scroller buttons if needed.*/
-		SCROLLABLE
-	}
 
 	//vmijic 20090923 TabInstance can be registered as ErrorMessageListener in case when TabPanel has m_markErrorTabs set.
 	private static class TabInstance implements IErrorMessageListener {
@@ -150,27 +143,18 @@ public class TabPanel extends Div {
 	private ITabSelected m_onTabSelected;
 
 	/** If not defined different, by default TabPanel is defined as non scrollable. */
-	private Type m_type = Type.NOT_SCROLLABLE;
+	private boolean m_scrollable = false;
 
 	/** Used only in case of m_scrollable set to T, to store scrollable header container div. */
 	private Div m_scrollNavig;
 
 	public TabPanel() {}
 
-	public TabPanel(Type type) {
-		m_type = type;
-	}
-
 	public TabPanel(final boolean markErrorTabs) {
 		m_markErrorTabs = markErrorTabs;
 		if(m_markErrorTabs) {
 			setErrorFence();
 		}
-	}
-
-	public TabPanel(final boolean markErrorTabs, final Type type) {
-		this(markErrorTabs);
-		m_type = type;
 	}
 
 	/**
@@ -245,7 +229,7 @@ public class TabPanel extends Div {
 			m_currentTab = 0;
 
 		NodeContainer headerCont = this;
-		if(m_type == Type.SCROLLABLE) {
+		if(m_scrollable) {
 			//Make scroll container div around tab headers and scroll buttons.
 			m_scrollNavig = new Div();
 			m_scrollNavig.setCssClass("ui-tab-scrl");
@@ -268,7 +252,7 @@ public class TabPanel extends Div {
 		hdr.setCssClass("ui-tab-hdr");
 		Ul u = new Ul();
 		m_tabul = u;
-		if(m_type == Type.SCROLLABLE) {
+		if(m_scrollable) {
 			//We have to ensure that tabs captions can be rendered in single line.
 			hdr.setOverflow(Overflow.HIDDEN);
 			hdr.setFloat(FloatType.NONE);
@@ -347,12 +331,16 @@ public class TabPanel extends Div {
 	}
 
 	public boolean isScrollable() {
-		return m_type == Type.SCROLLABLE;
+		return m_scrollable;
+	}
+
+	protected void setScrollable(boolean scrollable) {
+		m_scrollable = scrollable;
 	}
 
 	@Override
 	protected void onUnshelve() throws Exception {
-		if(m_type == Type.SCROLLABLE && m_scrollNavig != null) {
+		if(m_scrollable && m_scrollNavig != null) {
 			//We have to handle tab scrollers after page is reloaded due to unshelve.
 			appendJavascript("WebUI.recalculateScrollers('" + m_scrollNavig.getActualID() + "');");
 		}
