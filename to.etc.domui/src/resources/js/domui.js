@@ -1781,14 +1781,21 @@ var WebUI = {
 		var offset = Math.abs(parseInt($('ul',bLeft.parentNode).css('marginLeft')));
 		var diff = $('div',bLeft.parentNode).width();
 		if (offset <= 0 ){
-			$(bLeft).css('display','none');
-			$('ul', bLeft.parentNode).animate({marginLeft: 0}, 400, 'swing');
+			$('ul', bLeft.parentNode).animate({marginLeft: 0}, 400, 'swing', function() {
+				$(bLeft).css('display','none');
+			});
 			return;
-		} else if ( offset - diff <= 0 ){
-			$(bLeft).css('display','none');diff = offset;
+		} 
+		var disa = false;
+		if ( offset - diff <= 0 ){
+			disa = true;
+			diff = offset;
 		}
-		$('.ui-tab-scrl-right', bLeft.parentNode).css('display','inline');
-		$('ul',$(bLeft).parent()).animate({marginLeft: '+=' + diff}, 400, 'swing');
+		$('ul',$(bLeft).parent()).animate({marginLeft: '+=' + diff}, 400, 'swing', function() {
+			$('.ui-tab-scrl-right', bLeft.parentNode).css('display','inline');
+			if(disa)
+				$(bLeft).css('display','none');
+		});
 	},
 
 	scrollRight : function(bRight) {
@@ -1796,14 +1803,19 @@ var WebUI = {
 		,maxoffset = $('li:last',$div).width()+$('li:last',$div).offset().left - $('li:first',$div).offset().left - $div.width() + 14
 		,offset = Math.abs(parseInt( $('ul',$div).css('marginLeft') ))
 		,diff = $div.width();
+
+		var disa = false;
 		if (offset >= maxoffset){
 			return;
 		} else if (offset + diff >= maxoffset){
 			diff = maxoffset - offset + 14;
-			$(bRight).css('display','none');
+			disa = true;
 		}
-		$('.ui-tab-scrl-left', bRight.parentNode).css('display','inline');
-		$('ul', $(bRight).parent() ).animate({marginLeft: '-=' + diff},400, 'swing');
+		$('ul', $(bRight).parent() ).animate({marginLeft: '-=' + diff},400, 'swing', function() {
+			$('.ui-tab-scrl-left', bRight.parentNode).css('display','inline');
+			if (disa)
+				$(bRight).css('display','none');
+		});
 	},
 	
 	recalculateScrollers : function(scrlNavigId){

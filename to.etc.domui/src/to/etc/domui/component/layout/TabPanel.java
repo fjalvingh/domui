@@ -243,7 +243,7 @@ public class TabPanel extends Div {
 			rightArrow.setOnClickJS("WebUI.scrollRight(this);");
 			headerCont.add(leftArrow);
 			headerCont.add(rightArrow);
-			appendJavascript("$(document).ready(function(){WebUI.recalculateScrollers('" + m_scrollNavig.getActualID() + "');$(window).resize(function(){WebUI.recalculateScrollers('"
+			appendCreateJS("$(document).ready(function(){WebUI.recalculateScrollers('" + m_scrollNavig.getActualID() + "');$(window).resize(function(){WebUI.recalculateScrollers('"
 				+ m_scrollNavig.getActualID() + "');});});");
 		}
 		//-- Create the TAB structure..
