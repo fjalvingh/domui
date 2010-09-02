@@ -9,7 +9,7 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Aug 19, 2010
  */
-public class Splitter extends Div {
+public class SplitterPanel extends Div {
 	private Div m_panelA;
 
 	private Div m_panelB;
@@ -31,7 +31,7 @@ public class Splitter extends Div {
 	 * @param pannelB right/bottom panel
 	 * @param vertical T for vertical, F for horizontal layout
 	 */
-	public Splitter(Div panelA, Div panelB, boolean vertical) {
+	public SplitterPanel(Div panelA, Div panelB, boolean vertical) {
 		super();
 		m_panelA = panelA;
 		m_panelB = panelB;
@@ -42,11 +42,11 @@ public class Splitter extends Div {
 
 	private int m_maxBSize = 0;
 
-	public Div getPannelA() {
+	public Div getPanelA() {
 		return m_panelA;
 	}
 
-	public Div getPannelB() {
+	public Div getPanelB() {
 		return m_panelB;
 	}
 
@@ -89,17 +89,17 @@ public class Splitter extends Div {
 	@Override
 	public void createContent() throws Exception {
 		if(m_vertical) {
-			addCssClass("splt-vert-cont");
-			m_panelA.removeCssClass("splt-top");
-			m_panelA.addCssClass("splt-left");
-			m_panelB.removeCssClass("splt-bottom");
-			m_panelB.addCssClass("splt-right");
+			addCssClass("ui-splt-vert");
+			m_panelA.removeCssClass("ui-splt-top");
+			m_panelA.addCssClass("ui-splt-left");
+			m_panelB.removeCssClass("ui-splt-bottom");
+			m_panelB.addCssClass("ui-splt-right");
 		} else {
-			addCssClass("splt-hor-cont");
-			m_panelA.removeCssClass("splt-left");
-			m_panelA.addCssClass("splt-top");
-			m_panelB.removeCssClass("splt-right");
-			m_panelB.addCssClass("splt-bottom");
+			addCssClass("ui-splt-horz");
+			m_panelA.removeCssClass("ui-splt-left");
+			m_panelA.addCssClass("ui-splt-top");
+			m_panelB.removeCssClass("ui-splt-right");
+			m_panelB.addCssClass("ui-splt-bottom");
 		}
 		add(m_panelA);
 		add(m_panelB);

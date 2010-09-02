@@ -1776,6 +1776,53 @@ var WebUI = {
 		node.style.cursor = "default";
 	},
 
+	/** ***************** ScrollableTabPanel stuff. **************** */
+	scrollLeft : function(bLeft) {
+		var offset = Math.abs(parseInt($('ul',bLeft.parentNode).css('marginLeft')));
+		var diff = $('div',bLeft.parentNode).width();
+		if (offset <= 0 ){
+			$(bLeft).css('display','none');
+			$('ul', bLeft.parentNode).animate({marginLeft: 0}, 400, 'swing');
+			return;
+		} else if ( offset - diff <= 0 ){
+			$(bLeft).css('display','none');diff = offset;
+		}
+		$('.ui-tab-scrl-right', bLeft.parentNode).css('display','inline');
+		$('ul',$(bLeft).parent()).animate({marginLeft: '+=' + diff}, 400, 'swing');
+	},
+
+	scrollRight : function(bRight) {
+		var $div = $('div',bRight.parentNode)
+		,maxoffset = $('li:last',$div).width()+$('li:last',$div).offset().left - $('li:first',$div).offset().left - $div.width() + 14
+		,offset = Math.abs(parseInt( $('ul',$div).css('marginLeft') ))
+		,diff = $div.width();
+		if (offset >= maxoffset){
+			return;
+		} else if (offset + diff >= maxoffset){
+			diff = maxoffset - offset + 14;
+			$(bRight).css('display','none');
+		}
+		$('.ui-tab-scrl-left', bRight.parentNode).css('display','inline');
+		$('ul', $(bRight).parent() ).animate({marginLeft: '-=' + diff},400, 'swing');
+	},
+	
+	recalculateScrollers : function(scrlNavigId){
+		var scrlNavig = document.getElementById(scrlNavigId);
+
+		if($('li:last',scrlNavig).width() + $('li:last',scrlNavig).offset().left > $(scrlNavig).width()){
+			$('.ui-tab-scrl-right',scrlNavig).css('display','inline');
+			if (parseInt($('ul',scrlNavig).css('marginLeft')) > 0){
+				$('.ui-tab-scrl-left',scrlNavig).css('display','inline');
+			}else{
+				$('.ui-tab-scrl-left',scrlNavig).css('display','none');
+			}
+		}else{
+			$('.ui-tab-scrl-left',scrlNavig).css('display','none');
+			$('.ui-tab-scrl-right',scrlNavig).css('display','none');
+			$('ul', scrlNavig).animate({marginLeft: 0}, 400, 'swing');
+		}		
+	},
+	
 	_busyCount: 0,
 
 	/*
