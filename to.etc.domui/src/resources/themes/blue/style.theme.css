@@ -971,7 +971,7 @@ th.ui-sortable {
 	/* background: #f2f7ff url(tab-blue-header2-bg.png) repeat-x bottom;  jal 20080710 blauwe bar achter tabbuttons weg */
 	font-size: 12px;
 	line-height: normal;
-	border-bottom: 1px solid black;
+	/* border-bottom: 1px solid black; FIXME needs to switch here or in scroll depending on tab type */
 }
 
 .ui-tab-hdr ul {
@@ -1045,10 +1045,17 @@ li.ui-tab-err {
 }
 
 .ui-tab-scrl {
+	border-bottom: 1px solid black;
+}
+
+.ui-tab-scrl-btn {
+	border: 0 none;
+	margin:0;
+	width: 15px;
+	height: 24px;	
 }
 
 .ui-tab-scrl-left {
-	float: left;
 	background: url(tab-scrl-left1.png) no-repeat transparent center;
 	border:0 none;
 	margin:0;
@@ -1063,7 +1070,6 @@ li.ui-tab-err {
 }
 
 .ui-tab-scrl-right {
-	float: right;
 	background: url(tab-scrl-right1.png) no-repeat transparent center;
 	border:0 none;
 	margin:0;

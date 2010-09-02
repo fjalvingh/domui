@@ -1778,10 +1778,11 @@ var WebUI = {
 
 	/** ***************** ScrollableTabPanel stuff. **************** */
 	scrollLeft : function(bLeft) {
-		var offset = Math.abs(parseInt($('ul',bLeft.parentNode).css('marginLeft')));
-		var diff = $('div',bLeft.parentNode).width();
+		var $div = $('div',bLeft.parentNode.parentNode);
+		var offset = Math.abs(parseInt($('ul',$div).css('marginLeft')));
+		var diff = $('div',$div).width();
 		if (offset <= 0 ){
-			$('ul', bLeft.parentNode).animate({marginLeft: 0}, 400, 'swing', function() {
+			$('ul', $div).animate({marginLeft: 0}, 400, 'swing', function() {
 				$(bLeft).css('display','none');
 			});
 			return;
@@ -1791,15 +1792,15 @@ var WebUI = {
 			disa = true;
 			diff = offset;
 		}
-		$('ul',$(bLeft).parent()).animate({marginLeft: '+=' + diff}, 400, 'swing', function() {
-			$('.ui-tab-scrl-right', bLeft.parentNode).css('display','block');
+		$('ul',$div).animate({marginLeft: '+=' + diff}, 400, 'swing', function() {
+			$('.ui-tab-scrl-right', $div).css('display','block');
 			if(disa)
 				$(bLeft).css('display','none');
 		});
 	},
 
 	scrollRight : function(bRight) {
-		var $div = $('div',bRight.parentNode)
+		var $div = $('div',bRight.parentNode.parentNode)
 		,maxoffset = $('li:last',$div).width()+$('li:last',$div).offset().left - $('li:first',$div).offset().left - $div.width() + 14
 		,offset = Math.abs(parseInt( $('ul',$div).css('marginLeft') ))
 		,diff = $div.width();
@@ -1811,8 +1812,8 @@ var WebUI = {
 			diff = maxoffset - offset + 14;
 			disa = true;
 		}
-		$('ul', $(bRight).parent() ).animate({marginLeft: '-=' + diff},400, 'swing', function() {
-			$('.ui-tab-scrl-left', bRight.parentNode).css('display','block');
+		$('ul', $div ).animate({marginLeft: '-=' + diff},400, 'swing', function() {
+			$('.ui-tab-scrl-left', $div).css('display','block');
 			if (disa)
 				$(bRight).css('display','none');
 		});
