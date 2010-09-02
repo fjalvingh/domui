@@ -3,6 +3,8 @@ package to.etc.domui.server.parts;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -107,7 +109,7 @@ public class InternalResourcePart implements IBufferedPartFactory {
 	 *
 	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(to.etc.domui.server.parts.PartResponse, to.etc.domui.server.DomApplication, java.lang.Object, to.etc.domui.util.resources.ResourceDependencyList)
 	 */
-	public void generate(PartResponse pr, DomApplication da, Object inkey, ResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object inkey, @Nonnull ResourceDependencyList rdl) throws Exception {
 		ResKey k = (ResKey) inkey;
 
 		//-- 1. Locate the resource
@@ -116,11 +118,12 @@ public class InternalResourcePart implements IBufferedPartFactory {
 			throw new IllegalStateException("Locale in resource not implemented.");
 		String rurl = k.getRURL();
 		ires = da.getApplicationResourceByName(rurl);
-		if(rdl != null)
+		if(da.inDevelopmentMode()) {
 			rdl.add(ires);
-
-		if(!da.inDevelopmentMode()) // Resources are cached ONLY when in production mode.
+		} else {
+			// Resources are cached ONLY when in production mode.
 			pr.setCacheTime(da.getDefaultExpiryTime());
+		}
 
 		pr.setMime(ServerTools.getExtMimeType(FileTool.getFileExtension(rurl)));
 		InputStream is = ires.getInputStream();

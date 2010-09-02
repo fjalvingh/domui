@@ -236,10 +236,17 @@ public class PartRequestHandler implements IFilterRequestHandler {
 		synchronized(m_cache) {
 			cp = m_cache.get(key); // Already exists here?
 		}
-		if(cp != null && m_application.inDevelopmentMode()) {
+
+		/*
+		 * jal 20100901 Always check for updated parts, even when in production mode. Part factories themselves will
+		 * decide whether they are reloadable if their source changes, and they will decide whether that is the case
+		 * in development only OR also in production. This should fix VP call 27223: menu colors do not change when
+		 * VP colors are changed.
+		 */
+		if(cp != null /* && m_application.inDevelopmentMode() */) {
 			if(cp.m_dependencies != null) {
 				if(cp.m_dependencies.isModified()) {
-					System.out.println("parts: part " + key + " has changed (DEVMODE).. Reloading..");
+					System.out.println("parts: part " + key + " has changed. Reloading..");
 					cp = null;
 				}
 			}
@@ -248,7 +255,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 		if(cp == null) {
 			//-- We're going to create the part
 			cp = new CachedPart(); // New one to be done,
-			ResourceDependencyList rdl = m_application.inDevelopmentMode() ? new ResourceDependencyList() : null;
+			ResourceDependencyList rdl = new ResourceDependencyList(); // Fix bug# 852: allow resource change checking in production also.
 			ByteBufferOutputStream os = new ByteBufferOutputStream();
 			PartResponse pr = new PartResponse(os);
 			pf.generate(pr, m_application, key, rdl);

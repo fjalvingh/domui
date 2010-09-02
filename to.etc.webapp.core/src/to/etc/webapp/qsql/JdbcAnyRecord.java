@@ -68,7 +68,10 @@ public class JdbcAnyRecord {
 	}
 
 	public Object get(String name) {
-		return m_valueMap.get(name.toLowerCase());
+		Object v = m_valueMap.get(name.toLowerCase());
+		if(v == NULL_VAL)
+			return null;
+		return v;
 	}
 
 	public <T> T getValue(Class<T> type, String name) {
