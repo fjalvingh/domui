@@ -1778,9 +1778,9 @@ var WebUI = {
 
 	/** ***************** ScrollableTabPanel stuff. **************** */
 	scrollLeft : function(bLeft) {
-		var $div = $('div',bLeft.parentNode.parentNode);
+		var $div = $(bLeft.parentNode.parentNode);
 		var offset = Math.abs(parseInt($('ul',$div).css('marginLeft')));
-		var diff = $('div',$div).width();
+		var diff = $div.width();
 		if (offset <= 0 ){
 			$('ul', $div).animate({marginLeft: 0}, 400, 'swing', function() {
 				$(bLeft).css('display','none');
@@ -1800,8 +1800,8 @@ var WebUI = {
 	},
 
 	scrollRight : function(bRight) {
-		var $div = $('div',bRight.parentNode.parentNode)
-		,maxoffset = $('li:last',$div).width()+$('li:last',$div).offset().left - $('li:first',$div).offset().left - $div.width() + 14
+		var $div = $(bRight.parentNode.parentNode)
+		,maxoffset = $('li:last',$div).width()+$('li:last',$div).offset().left - $('li:first',$div).offset().left - $div.width() + 24
 		,offset = Math.abs(parseInt( $('ul',$div).css('marginLeft') ))
 		,diff = $div.width();
 
@@ -1809,7 +1809,7 @@ var WebUI = {
 		if (offset >= maxoffset){
 			return;
 		} else if (offset + diff >= maxoffset){
-			diff = maxoffset - offset + 14;
+			diff = maxoffset - offset + 24;
 			disa = true;
 		}
 		$('ul', $div ).animate({marginLeft: '-=' + diff},400, 'swing', function() {
