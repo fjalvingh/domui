@@ -967,7 +967,7 @@ th.ui-sortable {
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
 .ui-tab-hdr {
 	float: left;
-	width: 100%;
+	/* width: 100%; must be set in code since it is only for header that is not scrollable */
 	/* background: #f2f7ff url(tab-blue-header2-bg.png) repeat-x bottom;  jal 20080710 blauwe bar achter tabbuttons weg */
 	font-size: 12px;
 	line-height: normal;
@@ -1084,6 +1084,8 @@ body,html {
 	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
 	font-size: 13px;
 	height: 90%;
+/*	padding: 0; margin: 0;
+	width: 100%; */
 }
 
 /*** IO hider overlay ***/

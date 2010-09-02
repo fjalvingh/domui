@@ -35,10 +35,10 @@ public class ScrollableTabPanel extends TabPanelBase {
 		m_scrollNavig = new Div();
 		m_scrollNavig.setCssClass("ui-tab-scrl");
 		add(m_scrollNavig);
-		Span leftArrow = new Span();
+		Div leftArrow = new Div();
 		leftArrow.setCssClass("ui-tab-scrl-left");
 		leftArrow.setOnClickJS("WebUI.scrollLeft(this);");
-		Span rightArrow = new Span();
+		Div rightArrow = new Div();
 		rightArrow.setCssClass("ui-tab-scrl-right");
 		rightArrow.setOnClickJS("WebUI.scrollRight(this);");
 		m_scrollNavig.add(leftArrow);

@@ -1792,7 +1792,7 @@ var WebUI = {
 			diff = offset;
 		}
 		$('ul',$(bLeft).parent()).animate({marginLeft: '+=' + diff}, 400, 'swing', function() {
-			$('.ui-tab-scrl-right', bLeft.parentNode).css('display','inline');
+			$('.ui-tab-scrl-right', bLeft.parentNode).css('display','block');
 			if(disa)
 				$(bLeft).css('display','none');
 		});
@@ -1812,7 +1812,7 @@ var WebUI = {
 			disa = true;
 		}
 		$('ul', $(bRight).parent() ).animate({marginLeft: '-=' + diff},400, 'swing', function() {
-			$('.ui-tab-scrl-left', bRight.parentNode).css('display','inline');
+			$('.ui-tab-scrl-left', bRight.parentNode).css('display','block');
 			if (disa)
 				$(bRight).css('display','none');
 		});
@@ -1822,9 +1822,9 @@ var WebUI = {
 		var scrlNavig = document.getElementById(scrlNavigId);
 
 		if($('li:last',scrlNavig).width() + $('li:last',scrlNavig).offset().left > $(scrlNavig).width()){
-			$('.ui-tab-scrl-right',scrlNavig).css('display','inline');
+			$('.ui-tab-scrl-right',scrlNavig).css('display','block');
 			if (parseInt($('ul',scrlNavig).css('marginLeft')) > 0){
-				$('.ui-tab-scrl-left',scrlNavig).css('display','inline');
+				$('.ui-tab-scrl-left',scrlNavig).css('display','block');
 			}else{
 				$('.ui-tab-scrl-left',scrlNavig).css('display','none');
 			}
