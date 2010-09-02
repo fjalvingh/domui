@@ -182,6 +182,24 @@ public class MsgBox extends FloatingWindow {
 	}
 
 	/**
+	 * Show message of specified type, and provide details (More...) button. Usually used to show some error details if user wants to see it.
+	 * @param dad
+	 * @param type
+	 * @param string
+	 * @param onAnswer
+	 */
+	public static void okMore(NodeBase dad, Type type, String string, IAnswer onAnswer) {
+		final MsgBox box = create(dad);
+		box.setType(type);
+		box.setMessage(string);
+		box.addButton(MsgBoxButton.OK);
+		box.addButton(MsgBoxButton.MORE);
+		box.setCloseButton(MsgBoxButton.OK);
+		box.setOnAnswer(onAnswer);
+		box.construct();
+	}
+
+	/**
 	 * Ask a continue/cancel confirmation. This passes either choice to the handler.
 	 * @param dad
 	 * @param string

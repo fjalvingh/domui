@@ -7,6 +7,7 @@ import java.awt.image.*;
 import java.text.*;
 import java.util.*;
 
+import javax.annotation.*;
 import javax.imageio.*;
 
 import to.etc.domui.server.*;
@@ -34,7 +35,7 @@ public class PropButtonRenderer {
 
 	protected BufferedImage m_iconImage;
 
-	public void generate(PartResponse pr, DomApplication da, PropBtnPart.ButtonPartKey key, Properties p, ResourceDependencyList rdl) throws Exception {
+	public void generate(PartResponse pr, DomApplication da, PropBtnPart.ButtonPartKey key, Properties p, @Nonnull ResourceDependencyList rdl) throws Exception {
 		m_application = da;
 		m_properties = p;
 		m_key = key;

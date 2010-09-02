@@ -82,7 +82,6 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		super.createContent();
 		setHeight("90%");
 		setIcon("THEME/btnFind.png");
-		setTestID("workorderSelectionDialog");
 
 		//in case when external error message listener is set
 		if(m_customErrorMessageListener != null && m_customErrorMessageListener instanceof NodeBase) {
