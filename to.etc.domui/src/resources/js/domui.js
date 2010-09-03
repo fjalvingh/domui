@@ -1849,7 +1849,7 @@ var WebUI = {
 			$('.ui-stab-scrl-left',scrlNavig).css('display','none');
 			$('.ui-stab-scrl-right',scrlNavig).css('display','none');
 			$('ul', scrlNavig).animate({marginLeft: 0}, 400, 'swing');
-		}		
+		}
 	},
 	
 	_busyCount: 0,

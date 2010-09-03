@@ -1,4 +1,4 @@
-package to.etc.domui.splitter;
+package to.etc.domui.component.layout;
 
 import to.etc.domui.dom.html.*;
 
