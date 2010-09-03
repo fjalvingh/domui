@@ -26,11 +26,6 @@ public class SplitterPanel extends Div {
 	private int m_maxBSize = 0;
 
 	/**
-	 * In order to use splitter component do not forget to link jquery.splitter.js javascript library.
-	 * Example: <BR/><code>
-	 * getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.splitter.js"), 100);
-	 * </code>
-	 * <BR/>
 	 * panelA, panelB and vertical/horozontal layout can not be changed after creation of splitter.
 	 * @param pannelA left/top panel
 	 * @param pannelB right/bottom panel
@@ -107,6 +102,10 @@ public class SplitterPanel extends Div {
 		appendJavascript("$(document).ready(function() {" + getMakeSplitterJavascriptCall() + "});");
 	}
 
+	/**
+	 * Force the javascript to load when this panel is used.
+	 * @see to.etc.domui.dom.html.NodeBase#onAddedToPage(to.etc.domui.dom.html.Page)
+	 */
 	@Override
 	public void onAddedToPage(Page p) {
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.splitter.js"), 100);
