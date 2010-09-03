@@ -1777,50 +1777,79 @@ var WebUI = {
 	},
 
 	/** ***************** ScrollableTabPanel stuff. **************** */
+	_ignoreScrollClick: 0,
+
 	scrollLeft : function(bLeft) {
-		var offset = Math.abs(parseInt($('ul',bLeft.parentNode).css('marginLeft')));
-		var diff = $('div',bLeft.parentNode).width();
-		if (offset <= 0 ){
-			$(bLeft).css('display','none');
-			$('ul', bLeft.parentNode).animate({marginLeft: 0}, 400, 'swing');
+		if(this._ignoreScrollClick != 0)
 			return;
-		} else if ( offset - diff <= 0 ){
-			$(bLeft).css('display','none');diff = offset;
+
+		var $div = $(bLeft.parentNode.parentNode);
+		var offset = Math.abs(parseInt($('ul',$div).css('marginLeft')));
+		var diff = $div.width();
+		var me = this;
+		if (offset <= 0 ){
+			this._ignoreScrollClick++;
+			$('ul', $div).animate({marginLeft: 0}, 400, 'swing', function() {
+				$(bLeft).css('display','none');
+				me._ignoreScrollClick--;
+			});
+			return;
+		} 
+		var disa = false;
+		if ( offset - diff <= 0 ){
+			disa = true;
+			diff = offset;
 		}
-		$('.ui-tab-scrl-right', bLeft.parentNode).css('display','inline');
-		$('ul',$(bLeft).parent()).animate({marginLeft: '+=' + diff}, 400, 'swing');
+		this._ignoreScrollClick++;
+		$('ul',$div).animate({marginLeft: '+=' + diff}, 400, 'swing', function() {
+			$('.ui-stab-scrl-right', $div).css('display','block');
+			if(disa)
+				$(bLeft).css('display','none');
+			me._ignoreScrollClick--;
+		});
 	},
 
 	scrollRight : function(bRight) {
-		var $div = $('div',bRight.parentNode)
-		,maxoffset = $('li:last',$div).width()+$('li:last',$div).offset().left - $('li:first',$div).offset().left - $div.width() + 14
+		if(this._ignoreScrollClick != 0)
+			return;
+
+		var $div = $(bRight.parentNode.parentNode)
+		,maxoffset = $('li:last',$div).width()+$('li:last',$div).offset().left - $('li:first',$div).offset().left - $div.width() + 24
 		,offset = Math.abs(parseInt( $('ul',$div).css('marginLeft') ))
 		,diff = $div.width();
+
+		var disa = false;
 		if (offset >= maxoffset){
 			return;
 		} else if (offset + diff >= maxoffset){
-			diff = maxoffset - offset + 14;
-			$(bRight).css('display','none');
+			diff = maxoffset - offset + 24;
+			disa = true;
 		}
-		$('.ui-tab-scrl-left', bRight.parentNode).css('display','inline');
-		$('ul', $(bRight).parent() ).animate({marginLeft: '-=' + diff},400, 'swing');
+		this._ignoreScrollClick++;
+		var me = this;
+		$('ul', $div ).animate({marginLeft: '-=' + diff},400, 'swing', function() {
+			$('.ui-stab-scrl-left', $div).css('display','block');
+			if (disa)
+				$(bRight).css('display','none');
+			me._ignoreScrollClick--;
+		});
 	},
 	
 	recalculateScrollers : function(scrlNavigId){
 		var scrlNavig = document.getElementById(scrlNavigId);
 
 		if($('li:last',scrlNavig).width() + $('li:last',scrlNavig).offset().left > $(scrlNavig).width()){
-			$('.ui-tab-scrl-right',scrlNavig).css('display','inline');
+			$('.ui-stab-scrl-right',scrlNavig).css('display','block');
 			if (parseInt($('ul',scrlNavig).css('marginLeft')) > 0){
-				$('.ui-tab-scrl-left',scrlNavig).css('display','inline');
+				$('.ui-stab-scrl-left',scrlNavig).css('display','block');
 			}else{
-				$('.ui-tab-scrl-left',scrlNavig).css('display','none');
+				$('.ui-stab-scrl-left',scrlNavig).css('display','none');
 			}
 		}else{
-			$('.ui-tab-scrl-left',scrlNavig).css('display','none');
-			$('.ui-tab-scrl-right',scrlNavig).css('display','none');
+			$('.ui-stab-scrl-left',scrlNavig).css('display','none');
+			$('.ui-stab-scrl-right',scrlNavig).css('display','none');
 			$('ul', scrlNavig).animate({marginLeft: 0}, 400, 'swing');
-		}		
+		}
 	},
 	
 	_busyCount: 0,

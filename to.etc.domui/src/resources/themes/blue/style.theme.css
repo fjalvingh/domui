@@ -88,6 +88,102 @@
 	font-weight: bold;
 }
 
+/*** SplitterPanel. These style names are required by jquery.splitter.js ***/
+.splitbarV {
+	float: left;
+	width: 6px;
+	height: 100%;
+	line-height: 0px;
+	font-size: 0px;
+	border-left: solid 1px white;
+	border-right: solid 1px white;
+	background: #cbe1fb url(panev.gif) 0% 50%;
+}
+
+.splitbuttonV {
+	margin-top: -41px;
+	margin-left: -4px;
+	top: 50%;
+	position: relative;
+	height: 83px;
+	width: 10px;
+	background: transparent url(panevc.gif) 10px 50%;
+}
+
+.splitbuttonV.invert {
+	margin-left: 0px;
+	background: transparent url(panevc.gif) 0px 50%;
+}
+
+.splitbarV.working,.splitbarH.working,.splitbuttonV.working,.splitbuttonH.working
+	{
+	-moz-opacity: .50;
+	filter: alpha(opacity = 50);
+	opacity: .50;
+}
+
+.splitbarH {
+	height: 6px;
+	text-align: left;
+	line-height: 0px;
+	font-size: 0px;
+	border-top: solid 1px white;
+	border-bottom: solid 1px white;
+	background: #cbe1fb url(paneh.gif) 50% 0%;
+}
+
+.splitbuttonH {
+	margin-left: -41px;
+	left: 50%;
+	position: relative;
+	height: 10px !important;
+	width: 83px;
+	background: transparent url(panehc.gif) 50% 0px;
+}
+
+.splitbuttonH.invert {
+	margin-top: -4px;
+	background: transparent url(panehc.gif) 50% -10px;
+}
+
+/* SplitterPanel stuff that is not dependant on jquery.splitter.js */
+.ui-splt-vert { /* vertical splitter */
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.ui-splt-horz { /* horizontal splitter */
+	height: 100%;
+	width: 100%;
+}
+
+.ui-splt-left {
+	float: left;
+	height: 100%;
+	border-top: solid 1px white;
+	overflow: auto;
+	border-top: solid 1px white;
+	overflow: auto;
+}
+
+.ui-splt-right {
+	float: right;
+	height: 100%;
+}
+
+.ui-splt-top {
+	width: 100%;
+	overflow: auto;
+}
+
+.ui-splt-bottom {
+	width: 100%;
+	overflow: auto;
+	height: 100%;
+}
+
 /*** Bug indicator UI ***/
 .ui-bug-ind {
 	background-color: red;
@@ -104,6 +200,7 @@
 	color: yellow;
 }
 .ui-bug-msg {
+	font-size: 12px;
 }
 .ui-bug-stk {
 	white-space: pre;
@@ -124,6 +221,20 @@
 	border: 1px solid #EEEEEF;
 	display:block;
 	padding:2px;
+}
+
+table.ui-dspv-selected{
+	width: 100%;
+	white-space: nowrap;
+	padding: 1px;
+}
+
+.ui-dspv-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
+	padding: 0px;
+	margin: 0px;
+	background-color: #ffffff;
+	width: 100%;
+	outline:#7F9DB9 solid 1px; /* same border color as default one for input fields is hardcoded */
 }
 
 /*** CaptionedHeader ***/
@@ -331,6 +442,7 @@ A.ui-brc-l, A.ui-brc-l:hover A.ui-brc-l :VISITED, A.ui-brc-l:ACTIVE {
 }
 .ui-bb-left {
 	padding: 0; margin: 0;
+	display: none;
 	/* background-image: url(bg-rounded-left.png); vmijic looks better without background image */
 	width: 0px;
 	height: 0px;
@@ -356,6 +468,9 @@ A.ui-brc-l, A.ui-brc-l:hover A.ui-brc-l :VISITED, A.ui-brc-l:ACTIVE {
 }
 TD.ui-tr-sel:hover {
 	background-color: #ffe1bf !important;
+}
+TD.ui-tr-selected {
+	background-color: white; !important;
 }
 
 /*** AsyncContainer ***/
@@ -508,7 +623,7 @@ table.ui-wa-bgtbl {
 }
 
 table.ui-lui {
-	width: 90%;
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
 	white-space: nowrap;
 }
 
@@ -522,7 +637,6 @@ table.ui-lui-selected {
 	padding: 0px;
 	margin: 0px;
 	width: 100%;
-	padding: 0px;
 }
 .ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
 	padding: 0px;
@@ -665,12 +779,13 @@ tr.ui-keyword-popup-row {
 .ui-f-in {
 	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
 	font-family: verdana, tahoma, helvetica, sans-serif;
-	vertical-align: middle; /* jal 20090818 changed from top to middle to align DateInput buttons better */
+	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
+	padding: 0px;
 }
 .ui-f-do {
 	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
 	font-family: verdana, tahoma, helvetica, sans-serif;
-	vertical-align: middle; /* jal 20090818 changed from top to middle to align DateInput buttons better */
+	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
 	padding: 0px;
 }
 
@@ -967,8 +1082,6 @@ th.ui-sortable {
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
 .ui-tab-hdr {
 	float: left;
-	width: 100%;
-	/* background: #f2f7ff url(tab-blue-header2-bg.png) repeat-x bottom;  jal 20080710 blauwe bar achter tabbuttons weg */
 	font-size: 12px;
 	line-height: normal;
 	border-bottom: 1px solid black;
@@ -1044,11 +1157,63 @@ li.ui-tab-err {
 	border-top: 1px solid black;
 }
 
-.ui-tab-scrl {
+/*** ScrollableTabPanel ***/
+.ui-stab-hdr {
+	float: left;
+	font-size: 12px;
+	line-height: normal;
 }
 
-.ui-tab-scrl-left {
+.ui-stab-hdr ul {
+	margin: 0;
+	padding: 8px 0px 0;
+	list-style: none;
+}
+
+.ui-stab-hdr  li {
 	float: left;
+	margin: 0;
+	padding: 0 0 0 8px;
+	background: url(tab-off-left.png) no-repeat left top;
+}
+
+.ui-stab-hdr a {
+	display: block;
+	background: url(tab-off-right.png) no-repeat right top;
+	padding: 5px 14px 4px 6px;
+	text-decoration: none;
+	font-weight: bold;
+	color: #123667;
+}
+
+.ui-stab-hdr ul a:hover {
+	color: #6ba1eb;
+}
+
+.ui-stab-hdr .ui-tab-sel {
+	background-image: url(tab-norm-left-sel.png);
+}
+
+.ui-stab-hdr .ui-tab-err a {
+	background-image: url(tab-off-err-right.png);
+}
+
+.ui-stab-hdr .ui-tab-sel a {
+	background-image: url(tab-norm-right-sel.png);
+}
+
+.ui-stab-scrl {
+	border-bottom: 1px solid black;
+}
+
+.ui-stab-scrl-btn {
+	border: 0 none;
+	margin:0;
+	width: 15px;
+	height: 24px;	
+}
+
+.ui-stab-scrl-left {
 	background: url(tab-scrl-left1.png) no-repeat transparent center;
 	border:0 none;
 	margin:0;
@@ -1057,13 +1222,12 @@ li.ui-tab-err {
 	height: 24px;	
 }
 
-.ui-tab-scrl-left:hover {
+.ui-stab-scrl-left:hover {
 	background: url(tab-scrl-left.png) no-repeat transparent center;
 	cursor: pointer;
 }
 
-.ui-tab-scrl-right {
-	float: right;
+.ui-stab-scrl-right {
 	background: url(tab-scrl-right1.png) no-repeat transparent center;
 	border:0 none;
 	margin:0;
@@ -1072,7 +1236,7 @@ li.ui-tab-err {
 	height: 24px;	
 }
 
-.ui-tab-scrl-right:hover {
+.ui-stab-scrl-right:hover {
 	background: url(tab-scrl-right.png) no-repeat transparent center;
 	cursor: pointer;
 }
@@ -1084,6 +1248,8 @@ body,html {
 	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
 	font-size: 13px;
 	height: 90%;
+/*	padding: 0; margin: 0;
+	width: 100%; */
 }
 
 /*** IO hider overlay ***/
