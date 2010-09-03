@@ -49,7 +49,6 @@ public class TabPanel extends TabPanelBase {
 		hdr.setCssClass("ui-tab-hdr");
 		Ul u = new Ul();
 		m_tabul = u;
-		hdr.setWidth("100%");
 		hdr.add(u);
 		renderTabPanels(m_tabul, this);
 	}

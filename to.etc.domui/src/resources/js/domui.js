@@ -1802,7 +1802,7 @@ var WebUI = {
 		}
 		this._ignoreScrollClick++;
 		$('ul',$div).animate({marginLeft: '+=' + diff}, 400, 'swing', function() {
-			$('.ui-tab-scrl-right', $div).css('display','block');
+			$('.ui-stab-scrl-right', $div).css('display','block');
 			if(disa)
 				$(bLeft).css('display','none');
 			me._ignoreScrollClick--;
@@ -1828,7 +1828,7 @@ var WebUI = {
 		this._ignoreScrollClick++;
 		var me = this;
 		$('ul', $div ).animate({marginLeft: '-=' + diff},400, 'swing', function() {
-			$('.ui-tab-scrl-left', $div).css('display','block');
+			$('.ui-stab-scrl-left', $div).css('display','block');
 			if (disa)
 				$(bRight).css('display','none');
 			me._ignoreScrollClick--;
@@ -1839,15 +1839,15 @@ var WebUI = {
 		var scrlNavig = document.getElementById(scrlNavigId);
 
 		if($('li:last',scrlNavig).width() + $('li:last',scrlNavig).offset().left > $(scrlNavig).width()){
-			$('.ui-tab-scrl-right',scrlNavig).css('display','block');
+			$('.ui-stab-scrl-right',scrlNavig).css('display','block');
 			if (parseInt($('ul',scrlNavig).css('marginLeft')) > 0){
-				$('.ui-tab-scrl-left',scrlNavig).css('display','block');
+				$('.ui-stab-scrl-left',scrlNavig).css('display','block');
 			}else{
-				$('.ui-tab-scrl-left',scrlNavig).css('display','none');
+				$('.ui-stab-scrl-left',scrlNavig).css('display','none');
 			}
 		}else{
-			$('.ui-tab-scrl-left',scrlNavig).css('display','none');
-			$('.ui-tab-scrl-right',scrlNavig).css('display','none');
+			$('.ui-stab-scrl-left',scrlNavig).css('display','none');
+			$('.ui-stab-scrl-right',scrlNavig).css('display','none');
 			$('ul', scrlNavig).animate({marginLeft: 0}, 400, 'swing');
 		}		
 	},

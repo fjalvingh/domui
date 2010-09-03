@@ -25,7 +25,7 @@ public class ScrollableTabPanel extends TabPanelBase {
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-tab-c");
+		setCssClass("ui-stab-c");
 
 		//-- Adjust selected tab index
 		if(getCurrentTab() >= getTabCount() || getCurrentTab() < 0)
@@ -33,27 +33,27 @@ public class ScrollableTabPanel extends TabPanelBase {
 
 		//Make scroll container div around tab headers and scroll buttons.
 		m_scrollNavig = new Div();
-		m_scrollNavig.setCssClass("ui-tab-scrl");
+		m_scrollNavig.setCssClass("ui-stab-scrl");
 		add(m_scrollNavig);
 
 		Div leftcont = new Div();
 		m_scrollNavig.add(leftcont);
-		leftcont.setCssClass("ui-tab-scrl-btn");
+		leftcont.setCssClass("ui-stab-scrl-btn");
 		leftcont.setFloat(FloatType.LEFT);
 
 		Div leftArrow = new Div();
 		leftcont.add(leftArrow);
-		leftArrow.setCssClass("ui-tab-scrl-left");
+		leftArrow.setCssClass("ui-stab-scrl-left");
 		leftArrow.setOnClickJS("WebUI.scrollLeft(this);");
 
 		Div rightcont = new Div();
 		m_scrollNavig.add(rightcont);
-		rightcont.setCssClass("ui-tab-scrl-btn");
+		rightcont.setCssClass("ui-stab-scrl-btn");
 		rightcont.setFloat(FloatType.RIGHT);
 
 		Div rightArrow = new Div();
 		rightcont.add(rightArrow);
-		rightArrow.setCssClass("ui-tab-scrl-right");
+		rightArrow.setCssClass("ui-stab-scrl-right");
 		rightArrow.setOnClickJS("WebUI.scrollRight(this);");
 
 		appendCreateJS("$(document).ready(function(){WebUI.recalculateScrollers('" + m_scrollNavig.getActualID() + "');$(window).resize(function(){WebUI.recalculateScrollers('"
@@ -62,7 +62,7 @@ public class ScrollableTabPanel extends TabPanelBase {
 		//-- Create the TAB structure..
 		Div hdr = new Div();
 		m_scrollNavig.add(hdr); // The div containing the tab buttons
-		hdr.setCssClass("ui-tab-hdr");
+		hdr.setCssClass("ui-stab-hdr");
 		Ul u = new Ul();
 		m_tabul = u;
 
