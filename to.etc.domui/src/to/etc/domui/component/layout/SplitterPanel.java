@@ -1,5 +1,6 @@
 package to.etc.domui.component.layout;
 
+import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
 /**
@@ -20,6 +21,10 @@ public class SplitterPanel extends Div {
 
 	private int m_maxASize = 0;
 
+	private int m_minBSize = 0;
+
+	private int m_maxBSize = 0;
+
 	/**
 	 * In order to use splitter component do not forget to link jquery.splitter.js javascript library.
 	 * Example: <BR/><code>
@@ -32,15 +37,10 @@ public class SplitterPanel extends Div {
 	 * @param vertical T for vertical, F for horizontal layout
 	 */
 	public SplitterPanel(Div panelA, Div panelB, boolean vertical) {
-		super();
 		m_panelA = panelA;
 		m_panelB = panelB;
 		m_vertical = vertical;
 	}
-
-	private int m_minBSize = 0;
-
-	private int m_maxBSize = 0;
 
 	public Div getPanelA() {
 		return m_panelA;
@@ -105,6 +105,11 @@ public class SplitterPanel extends Div {
 		add(m_panelB);
 		getActualID();
 		appendJavascript("$(document).ready(function() {" + getMakeSplitterJavascriptCall() + "});");
+	}
+
+	@Override
+	public void onAddedToPage(Page p) {
+		getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.splitter.js"), 100);
 	}
 
 	public String getMakeSplitterJavascriptCall() {
