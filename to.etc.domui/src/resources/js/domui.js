@@ -1777,13 +1777,21 @@ var WebUI = {
 	},
 
 	/** ***************** ScrollableTabPanel stuff. **************** */
+	_ignoreScrollClick: 0,
+
 	scrollLeft : function(bLeft) {
+		if(this._ignoreScrollClick != 0)
+			return;
+
 		var $div = $(bLeft.parentNode.parentNode);
 		var offset = Math.abs(parseInt($('ul',$div).css('marginLeft')));
 		var diff = $div.width();
+		var me = this;
 		if (offset <= 0 ){
+			this._ignoreScrollClick++;
 			$('ul', $div).animate({marginLeft: 0}, 400, 'swing', function() {
 				$(bLeft).css('display','none');
+				me._ignoreScrollClick--;
 			});
 			return;
 		} 
@@ -1792,14 +1800,19 @@ var WebUI = {
 			disa = true;
 			diff = offset;
 		}
+		this._ignoreScrollClick++;
 		$('ul',$div).animate({marginLeft: '+=' + diff}, 400, 'swing', function() {
 			$('.ui-tab-scrl-right', $div).css('display','block');
 			if(disa)
 				$(bLeft).css('display','none');
+			me._ignoreScrollClick--;
 		});
 	},
 
 	scrollRight : function(bRight) {
+		if(this._ignoreScrollClick != 0)
+			return;
+
 		var $div = $(bRight.parentNode.parentNode)
 		,maxoffset = $('li:last',$div).width()+$('li:last',$div).offset().left - $('li:first',$div).offset().left - $div.width() + 24
 		,offset = Math.abs(parseInt( $('ul',$div).css('marginLeft') ))
@@ -1812,10 +1825,13 @@ var WebUI = {
 			diff = maxoffset - offset + 24;
 			disa = true;
 		}
+		this._ignoreScrollClick++;
+		var me = this;
 		$('ul', $div ).animate({marginLeft: '-=' + diff},400, 'swing', function() {
 			$('.ui-tab-scrl-left', $div).css('display','block');
 			if (disa)
 				$(bRight).css('display','none');
+			me._ignoreScrollClick--;
 		});
 	},
 	
