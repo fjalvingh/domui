@@ -48,8 +48,6 @@ public class SimpleLookup<T> extends FloatingWindow {
 
 	private boolean m_allowEmptyQuery;
 
-	private NodeBase m_node;
-
 	private IValueSelected<T> m_onValueSelected;
 
 	private boolean m_renderAsCollapsed;
@@ -57,13 +55,13 @@ public class SimpleLookup<T> extends FloatingWindow {
 	/* temporary solution to allow use of same test IDs as it was used withing LookupInput. */
 	private boolean m_usedWithinLookupInput;
 
-	public SimpleLookup(NodeBase node, Class<T> lookupClass, ClassMetaModel metaModel, String[] resultColumns) {
-		this(node, lookupClass, metaModel);
+	public SimpleLookup(Class<T> lookupClass, ClassMetaModel metaModel, String[] resultColumns) {
+		this(lookupClass, metaModel);
 		m_resultColumns = resultColumns;
 	}
 
-	public SimpleLookup(NodeBase node, Class<T> lookupClass, String[] resultColumns) {
-		this(node, lookupClass, (ClassMetaModel) null);
+	public SimpleLookup(Class<T> lookupClass, String[] resultColumns) {
+		this(lookupClass, (ClassMetaModel) null);
 		m_resultColumns = resultColumns;
 	}
 
@@ -71,15 +69,14 @@ public class SimpleLookup<T> extends FloatingWindow {
 	 * Lookup a POJO Java bean persistent class.
 	 * @param lookupClass
 	 */
-	public SimpleLookup(NodeBase node, Class<T> lookupClass) {
-		this(node, lookupClass, (ClassMetaModel) null);
+	public SimpleLookup(Class<T> lookupClass) {
+		this(lookupClass, (ClassMetaModel) null);
 	}
 
-	public SimpleLookup(NodeBase node, Class<T> lookupClass, ClassMetaModel metaModel) {
+	public SimpleLookup(Class<T> lookupClass, ClassMetaModel metaModel) {
 		super(true, null);
 		m_lookupClass = lookupClass;
 		m_metaModel = metaModel != null ? metaModel : MetaManager.findClassMeta(lookupClass);
-		m_node = node;
 	}
 
 
@@ -306,7 +303,7 @@ public class SimpleLookup<T> extends FloatingWindow {
 		m_customErrorMessageListener = customErrorMessageListener;
 	}
 
-	private IValueSelected<T> getOnValueSelected() {
+	protected IValueSelected<T> getOnValueSelected() {
 		return m_onValueSelected;
 	}
 
