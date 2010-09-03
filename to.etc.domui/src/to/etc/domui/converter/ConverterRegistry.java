@@ -201,7 +201,7 @@ public class ConverterRegistry {
 	static public <X> X convertURLStringToValue(Class<X> toType, String svalue) throws Exception {
 		IConverter<X> c = findURLConverter(toType);
 		if(c == null)
-			return (X) RuntimeConversions.convertTo(svalue, toType);
+			return RuntimeConversions.convertTo(svalue, toType);
 		return c.convertStringToObject(NlsContext.getLocale(), svalue);
 	}
 

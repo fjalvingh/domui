@@ -302,7 +302,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 			if(c != null)
 				converted = c.convertObjectToString(NlsContext.getLocale(), value);
 			else
-				converted = (String) RuntimeConversions.convertTo(value, String.class);
+				converted = RuntimeConversions.convertTo(value, String.class);
 		} catch(UIException x) {
 			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
 			return;
@@ -341,7 +341,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	@Override
 	public void setMandatory(boolean mandatory) {
 		if(mandatory && !m_mandatory) {
-			//vmijic 20100326 - m_validated flag must be reset in case that component dinamically become mandatory (since it can happen that was setValue(null) while it not mandatory) 
+			//vmijic 20100326 - m_validated flag must be reset in case that component dinamically become mandatory (since it can happen that was setValue(null) while it not mandatory)
 			m_validated = false;
 		}
 		m_mandatory = mandatory;
