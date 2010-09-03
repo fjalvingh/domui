@@ -252,10 +252,12 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	/*	CODING:	Accessing info on the expanded property.			*/
 	/*--------------------------------------------------------------*/
 
+	@Override
 	public IValueAccessor< ? > getAccessor() {
 		return m_accessor;
 	}
 
+	@Override
 	public Class< ? > getActualType() {
 		return m_actualType;
 	}
@@ -264,18 +266,22 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	 * Returns null always; this seems reasonable for a type like this.
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getGenericActualType()
 	 */
+	@Override
 	public Type getGenericActualType() {
 		return null;
 	}
 
+	@Override
 	public String getDefaultLabel() {
 		return m_defaultLabel;
 	}
 
+	@Override
 	public IConverter< ? > getConverter() {
 		return m_converter;
 	}
 
+	@Override
 	public int getDisplayLength() {
 		return m_displayLength;
 	}
@@ -288,6 +294,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		m_displayLength = displayLength;
 	}
 
+	@Override
 	public SortableType getSortable() {
 		if(m_sortableType == null)
 			throw new IllegalStateException("?? Sortable may never be null??");
@@ -300,6 +307,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		m_sortableType = sortableType;
 	}
 
+	@Override
 	public String getName() {
 		return m_propertyName;
 	}
@@ -352,26 +360,32 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	 * This returns the ClassMetaModel for the ROOT of this property(!).
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getClassModel()
 	 */
+	@Override
 	public ClassMetaModel getClassModel() {
 		return m_classModel;
 	}
 
+	@Override
 	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
 		return m_propertyMeta != null ? m_propertyMeta.getComboDataSet() : null;
 	}
 
+	@Override
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getComboDisplayProperties();
 	}
 
+	@Override
 	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getComboLabelRenderer();
 	}
 
+	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getComboNodeRenderer();
 	}
 
+	@Override
 	public String getComponentTypeHint() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getComponentTypeHint();
 	}
@@ -380,46 +394,57 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	//		return m_converterClass;
 	//	}
 
+	@Override
 	public String getDefaultHint() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getDefaultHint();
 	}
 
+	@Override
 	public String getDomainValueLabel(Locale loc, Object val) {
 		return m_propertyMeta == null ? null : m_propertyMeta.getDomainValueLabel(loc, val);
 	}
 
+	@Override
 	public Object[] getDomainValues() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getDomainValues();
 	}
 
+	@Override
 	public String[][] getEditRoles() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getEditRoles();
 	}
 
+	@Override
 	public int getLength() {
 		return m_propertyMeta == null ? -1 : m_propertyMeta.getLength();
 	}
 
+	@Override
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
 		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getLookupFieldDisplayProperties();
 	}
 
+	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getLookupFieldRenderer();
 	}
 
+	@Override
 	public int getPrecision() {
 		return m_propertyMeta == null ? -1 : m_propertyMeta.getPrecision();
 	}
 
+	@Override
 	public YesNoType getReadOnly() {
 		return m_propertyMeta == null ? YesNoType.UNKNOWN : m_propertyMeta.getReadOnly();
 	}
 
+	@Override
 	public PropertyRelationType getRelationType() {
 		return m_propertyMeta == null ? PropertyRelationType.NONE : m_propertyMeta.getRelationType();
 	}
 
+	@Override
 	public int getScale() {
 		return m_propertyMeta == null ? -1 : m_propertyMeta.getScale();
 	}
@@ -428,6 +453,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	//		return m_propertyMeta == null ? null : m_propertyMeta.getS;
 	//	}
 
+	@Override
 	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getTableDisplayProperties();
 	}
@@ -437,26 +463,32 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		return m_propertyMeta == null ? null : m_propertyMeta.getControlFactory();
 	}
 
+	@Override
 	public TemporalPresentationType getTemporal() {
 		return m_propertyMeta == null ? TemporalPresentationType.UNKNOWN : m_propertyMeta.getTemporal();
 	}
 
+	@Override
 	public NumericPresentation getNumericPresentation() {
 		return m_propertyMeta == null ? NumericPresentation.UNKNOWN : m_propertyMeta.getNumericPresentation();
 	}
 
+	@Override
 	public PropertyMetaValidator[] getValidators() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getValidators();
 	}
 
+	@Override
 	public String[][] getViewRoles() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getViewRoles();
 	}
 
+	@Override
 	public boolean isPrimaryKey() {
 		return m_propertyMeta == null ? false : m_propertyMeta.isPrimaryKey();
 	}
 
+	@Override
 	public boolean isRequired() {
 		return m_propertyMeta == null ? false : m_propertyMeta.isRequired();
 	}

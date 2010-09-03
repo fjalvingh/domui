@@ -70,6 +70,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 		}
 	}
 
+	@Override
 	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
 		//-- Split the url into retriever key and instance key.
 		String[] ar = rurl.split("/");

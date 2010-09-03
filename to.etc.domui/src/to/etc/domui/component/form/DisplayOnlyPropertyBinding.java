@@ -26,6 +26,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 		m_control = control;
 	}
 
+	@Override
 	public void moveControlToModel() throws Exception {
 		Object val = m_control.getValue();
 		Object base = m_model.getValue();
@@ -33,6 +34,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 		a.setValue(base, val);
 	}
 
+	@Override
 	public void moveModelToControl() throws Exception {
 		Object base = m_model.getValue();
 		IValueAccessor< ? > vac = m_propertyMeta.getAccessor();
@@ -42,6 +44,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 		m_control.setValue(pval);
 	}
 
+	@Override
 	public void setControlsEnabled(boolean on) {
 	}
 
@@ -51,6 +54,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public T getValue() {
 		return m_control.getValue();
 	}
@@ -58,6 +62,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setValue(T value) {
 		m_control.setValue(value);
 	}
@@ -83,6 +88,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setOnValueChanged(IValueChanged< ? > listener) {
 	}
 
@@ -141,6 +147,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setTestID(String testID) {
 		m_control.setTestID(testID);
 	}
@@ -152,6 +159,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 	 *
 	 * @see to.etc.domui.dom.errors.INodeErrorDelegate#clearMessage()
 	 */
+	@Override
 	public void clearMessage() {
 		//It is possible to set visual error marker onto data that is not editable directly
 		if(m_control instanceof NodeBase) {
@@ -159,6 +167,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 		}
 	}
 
+	@Override
 	public UIMessage getMessage() {
 		//It is possible to set visual error marker onto data that is not editable directly
 		if(m_control instanceof NodeBase) {
@@ -167,6 +176,7 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 		return null;
 	}
 
+	@Override
 	public UIMessage setMessage(UIMessage m) {
 		//It is possible to set visual error marker onto data that is not editable directly
 		if(m_control instanceof NodeBase) {

@@ -16,6 +16,7 @@ import to.etc.xml.*;
  * Created on Jun 11, 2010
  */
 public class PollInfo implements IUnbufferedPartFactory {
+	@Override
 	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
 		param.getResponse().setContentType("text/xml; charset=UTF-8");
 		Writer w = param.getResponse().getWriter();

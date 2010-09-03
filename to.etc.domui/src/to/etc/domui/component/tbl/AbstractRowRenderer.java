@@ -239,6 +239,7 @@ public class AbstractRowRenderer<T> {
 				th.setCssClass("ui-sortable");
 				final SimpleColumnDef scd = cd;
 				th.setClicked(new IClicked<TH>() {
+					@Override
 					public void clicked(final TH b) throws Exception {
 						handleSortClick(b, scd);
 					}
@@ -324,6 +325,7 @@ public class AbstractRowRenderer<T> {
 			 * provided it can calculate the row data from the TR it is attached to.
 			 */
 			cc.getTR().setClicked(new IClicked<TR>() {
+				@Override
 				@SuppressWarnings("unchecked")
 				public void clicked(final TR b) throws Exception {
 					((ICellClicked) getRowClicked()).cellClicked(tbl.getPage(), b, instance);
@@ -420,6 +422,7 @@ public class AbstractRowRenderer<T> {
 			 * provided it can calculate the row and cell data from the TR it is attached to.
 			 */
 			cell.setClicked(new IClicked<TD>() {
+				@Override
 				public void clicked(final TD b) throws Exception {
 					((ICellClicked<Object>) cd.getCellClicked()).cellClicked(tbl.getPage(), b, instance);
 				}

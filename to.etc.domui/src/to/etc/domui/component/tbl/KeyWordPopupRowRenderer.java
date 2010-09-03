@@ -176,6 +176,7 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.IRowRenderer#beforeQuery(to.etc.domui.component.tbl.DataTable)
 	 */
+	@Override
 	public void beforeQuery(final TableModelTableBase<T> tbl) throws Exception {
 		complete(tbl);
 	}
@@ -187,9 +188,11 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
+	@Override
 	public void renderRow(final TableModelTableBase<T> tbl, final ColumnContainer<T> cc, final int index, final T instance) throws Exception {
 		if(m_rowClicked != null) {
 			cc.getTR().setClicked(new IClicked<TR>() {
+				@Override
 				@SuppressWarnings("unchecked")
 				public void clicked(final TR b) throws Exception {
 					((ICellClicked) getRowClicked()).cellClicked(tbl.getPage(), b, instance);

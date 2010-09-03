@@ -19,6 +19,7 @@ public class PollingDiv extends Div implements IPolledForUpdate {
 	 * and flickering browser horror.
 	 * @throws Exception
 	 */
+	@Override
 	public void checkForChanges() throws Exception {
 		forceRebuild();
 		build();

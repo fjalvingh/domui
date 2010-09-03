@@ -16,10 +16,12 @@ public class FileTypePart implements IBufferedPartFactory {
 	 * Decodes the request into a resource to generate. This simply returns
 	 * the resource name preceded with a prefix to make it unique.
 	 */
+	@Override
 	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
 		return PREFIX + rurl;
 	}
 
+	@Override
 	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull ResourceDependencyList rdl) throws Exception {
 		String ext = ((String) key).substring(PREFIX.length()).toLowerCase();
 

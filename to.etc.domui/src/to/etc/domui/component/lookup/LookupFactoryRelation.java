@@ -5,6 +5,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
 final class LookupFactoryRelation implements ILookupControlFactory {
+	@Override
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		if(pmm.getRelationType() ==  PropertyRelationType.UP) {		// Accept only relations.
@@ -13,6 +14,7 @@ final class LookupFactoryRelation implements ILookupControlFactory {
 		return -1;
 	}
 
+	@Override
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		IInputNode< ? > input = control;

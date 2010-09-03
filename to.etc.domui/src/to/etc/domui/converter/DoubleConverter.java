@@ -6,12 +6,14 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
 public class DoubleConverter implements IConverter<Double> {
+	@Override
 	public String convertObjectToString(Locale loc, Double in) throws UIException {
 		if(in == null)
 			return "";
 		return String.format(loc, "%.3g", in);
 	}
 
+	@Override
 	public Double convertStringToObject(Locale loc, String input) throws UIException {
 		if(input == null)
 			return null;

@@ -90,6 +90,7 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 	/**
 	 * @see to.etc.domui.dom.html.IInputNode#getValue()
 	 */
+	@Override
 	final public T getValue() {
 		if(isMandatory() && m_currentValue == null) {
 			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
@@ -102,6 +103,7 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 	 *
 	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
 	 */
+	@Override
 	final public void setValue(T v) {
 		ClassMetaModel cmm = v != null ? MetaManager.findClassMeta(v.getClass()) : null;
 		if(MetaManager.areObjectsEqual(v, m_currentValue, cmm))
@@ -156,6 +158,7 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
+	@Override
 	public IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
@@ -167,6 +170,7 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 	 *
 	 * @see to.etc.domui.component.input.IBindable#isBound()
 	 */
+	@Override
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
 	}

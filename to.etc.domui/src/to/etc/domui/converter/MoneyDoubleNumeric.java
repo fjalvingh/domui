@@ -12,6 +12,7 @@ import to.etc.domui.trouble.*;
  * Created on Jul 30, 2009
  */
 public class MoneyDoubleNumeric implements IConverter<Double> {
+	@Override
 	public String convertObjectToString(Locale loc, Double in) throws UIException {
 		if(in == null)
 			return null;
@@ -24,6 +25,7 @@ public class MoneyDoubleNumeric implements IConverter<Double> {
 	 *
 	 * @see to.etc.domui.converter.IConverter#convertStringToObject(java.util.Locale, java.lang.String)
 	 */
+	@Override
 	public Double convertStringToObject(Locale loc, String in) throws UIException {
 		return MoneyUtil.parseEuroToDoubleW(in);
 	}

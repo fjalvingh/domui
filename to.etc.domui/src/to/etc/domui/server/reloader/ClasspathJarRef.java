@@ -24,6 +24,7 @@ public class ClasspathJarRef implements IModifyableResource {
 		m_src = src;
 	}
 
+	@Override
 	public long getLastModified() {
 		try {
 			if(!m_src.exists())

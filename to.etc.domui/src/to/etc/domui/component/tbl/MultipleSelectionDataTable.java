@@ -119,6 +119,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 		cc.setParent(tr);
 		Checkbox b = new Checkbox();
 		b.setClicked(new IClicked<Checkbox>() {
+			@Override
 			public void clicked(Checkbox ckb) throws Exception {
 				//FIXME: must be done as double change of value to cause changed protected field to be set, otherwise is not rendered properly in HTML response.
 				// jal 20091105 Please explain??? The 2nd call is not doing anything right now.... I would understand if the 1st call was ckb.setChecked(ckb.isChecked())...
@@ -135,6 +136,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 		tr.setUserObject(b);
 		tr.setClicked(new IClicked<TR>() {
 
+			@Override
 			public void clicked(TR row) throws Exception {
 				if(row.getUserObject() instanceof Checkbox) {
 					((Checkbox) row.getUserObject()).setChecked(!((Checkbox) row.getUserObject()).isChecked());

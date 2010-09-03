@@ -60,6 +60,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 	//	}
 
 
+	@Override
 	public synchronized List<PropertyMetaModel> getPropertyPath() {
 		if(m_propertyPath == null && m_propertyName != null) {
 			m_propertyPath = MetaManager.parsePropertyPath(m_classModel, m_propertyName);
@@ -76,6 +77,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 	/**
 	 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#isIgnoreCase()
 	 */
+	@Override
 	public boolean isIgnoreCase() {
 		return m_ignoreCase;
 	}
@@ -87,6 +89,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 	/**
 	 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#getOrder()
 	 */
+	@Override
 	public int getOrder() {
 		return m_order;
 	}
@@ -98,6 +101,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 	/**
 	 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#getMinLength()
 	 */
+	@Override
 	public int getMinLength() {
 		return m_minLength;
 	}
@@ -106,6 +110,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 		m_minLength = minLength;
 	}
 
+	@Override
 	public synchronized String getPropertyName() {
 		return m_propertyName;
 	}
@@ -122,6 +127,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 		m_lookupLabelKey = lookupLabelKey;
 	}
 
+	@Override
 	public String getLookupLabel() {
 		if(m_lookupLabelKey == null)
 			return null;
@@ -136,6 +142,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 		m_lookupHintKey = lookupHintKey;
 	}
 
+	@Override
 	public String getLookupHint() {
 		if(m_lookupHintKey == null)
 			return null;

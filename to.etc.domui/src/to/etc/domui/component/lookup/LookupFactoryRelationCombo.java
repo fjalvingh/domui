@@ -6,6 +6,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 final class LookupFactoryRelationCombo implements ILookupControlFactory {
+	@Override
 	public <X extends IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 
@@ -16,6 +17,7 @@ final class LookupFactoryRelationCombo implements ILookupControlFactory {
 		return 2;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
 		IInputNode< ? > input = control;

@@ -46,6 +46,7 @@ public class AppFilter implements Filter {
 	/** After the 1st request has been seen, this contains the application's root url. */
 	static private String m_applicationURL;
 
+	@Override
 	public void destroy() {
 		//-- Pass DESTROY on to Application, if present.
 		if(DomApplication.get() != null)
@@ -57,6 +58,7 @@ public class AppFilter implements Filter {
 		return cal.get(Calendar.HOUR_OF_DAY) + StringTool.intToStr(cal.get(Calendar.MINUTE), 10, 2) + StringTool.intToStr(cal.get(Calendar.SECOND), 10, 2) + "." + cal.get(Calendar.MILLISECOND);
 	}
 
+	@Override
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
@@ -137,6 +139,7 @@ public class AppFilter implements Filter {
 	 * Initialize by reading config from the web.xml.
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
+	@Override
 	public void init(final FilterConfig config) throws ServletException {
 		try {
 			String logconfig = config.getInitParameter("logpath");

@@ -127,6 +127,7 @@ public class FormBuilderBase {
 		if(instance == null)
 			throw new IllegalArgumentException("Instance cannot be null");
 		IReadOnlyModel<T> instanceModel = new IReadOnlyModel<T>() {
+			@Override
 			public T getValue() throws Exception {
 				return instance;
 			}

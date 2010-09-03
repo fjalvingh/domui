@@ -128,6 +128,7 @@ public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindab
 	 *
 	 * @return
 	 */
+	@Override
 	@Nullable
 	public IConverter<T> getConverter() {
 		return m_converter;
@@ -137,6 +138,7 @@ public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindab
 	 * See {@link IConvertable#setConverter(IConverter)}.
 	 * @param converter
 	 */
+	@Override
 	public void setConverter(@Nullable IConverter<T> converter) {
 		if(m_renderer != null && converter != null)
 			throw new IllegalStateException("You cannot both use a renderer AND a converter. Set the renderer to null before setting a converter.");
@@ -182,6 +184,7 @@ public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindab
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
+	@Override
 	@Nonnull
 	public IBinder bind() {
 		if(m_binder == null)
@@ -193,6 +196,7 @@ public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindab
 	 * Returns T if this control is bound to some data value.
 	 * @see to.etc.domui.component.input.IBindable#isBound()
 	 */
+	@Override
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
 	}

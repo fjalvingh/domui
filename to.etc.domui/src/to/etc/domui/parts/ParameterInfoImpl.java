@@ -37,6 +37,7 @@ public class ParameterInfoImpl implements IParameterInfo {
 		m_parameterMap.put(name, v);
 	}
 
+	@Override
 	public String getParameter(String name) {
 		String[] v = m_parameterMap.get(name);
 		if(v == null || v.length != 1)
@@ -44,10 +45,12 @@ public class ParameterInfoImpl implements IParameterInfo {
 		return v[0];
 	}
 
+	@Override
 	public String[] getParameterNames() {
 		return m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
 	}
 
+	@Override
 	public String[] getParameters(String name) {
 		return m_parameterMap.get(name);
 	}

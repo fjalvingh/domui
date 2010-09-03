@@ -147,6 +147,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 	 * item will be added by this call(!).
 	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
 	 */
+	@Override
 	final public void setValue(V v) {
 		ClassMetaModel cmm = v != null ? MetaManager.findClassMeta(v.getClass()) : null;
 		if(MetaManager.areObjectsEqual(v, m_currentValue, cmm))

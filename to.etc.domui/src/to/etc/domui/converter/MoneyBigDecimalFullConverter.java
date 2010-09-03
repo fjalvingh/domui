@@ -6,6 +6,7 @@ import java.util.*;
 import to.etc.domui.trouble.*;
 
 public class MoneyBigDecimalFullConverter implements IConverter<BigDecimal> {
+	@Override
 	public String convertObjectToString(Locale loc, BigDecimal in) throws UIException {
 		if(in == null)
 			return null;
@@ -18,6 +19,7 @@ public class MoneyBigDecimalFullConverter implements IConverter<BigDecimal> {
 	 *
 	 * @see to.etc.domui.converter.IConverter#convertStringToObject(java.util.Locale, java.lang.String)
 	 */
+	@Override
 	public BigDecimal convertStringToObject(Locale loc, String in) throws UIException {
 		return MoneyUtil.parseEuroToBigDecimal(in);
 	}

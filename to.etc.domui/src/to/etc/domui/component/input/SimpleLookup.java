@@ -114,6 +114,7 @@ public class SimpleLookup<T> extends FloatingWindow {
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		add(lf);
 		setOnClose(new IClicked<FloatingWindow>() {
+			@Override
 			public void clicked(FloatingWindow b) throws Exception {
 				clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 				m_result = null;
@@ -121,12 +122,14 @@ public class SimpleLookup<T> extends FloatingWindow {
 		});
 
 		lf.setClicked(new IClicked<LookupForm<T>>() {
+			@Override
 			public void clicked(LookupForm<T> b) throws Exception {
 				search(b);
 			}
 		});
 
 		lf.setOnCancel(new IClicked<LookupForm<T>>() {
+			@Override
 			public void clicked(LookupForm<T> b) throws Exception {
 				closePressed();
 			}
@@ -181,6 +184,7 @@ public class SimpleLookup<T> extends FloatingWindow {
 			m_result.setTableWidth("100%");
 
 			rr.setRowClicked(new ICellClicked<T>() {
+				@Override
 				public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
 					clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					close();

@@ -43,6 +43,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	 *
 	 * @see to.etc.domui.util.IValueTransformer#getValue(java.lang.Object)
 	 */
+	@Override
 	public T getValue(Object in) throws Exception {
 		Object cv = in;
 		for(PropertyMetaModel pmm : m_accessPath) {
@@ -53,6 +54,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 		return (T) cv;
 	}
 
+	@Override
 	public void setValue(Object target, T value) throws Exception {
 		Object cv = target;
 		for(PropertyMetaModel pmm : m_accessPath) {
@@ -82,6 +84,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	 *
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDefaultHint()
 	 */
+	@Override
 	public String getDefaultHint() {
 		return locateProperty("hint");
 	}
@@ -90,6 +93,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	 *
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDefaultLabel()
 	 */
+	@Override
 	public String getDefaultLabel() {
 		//		System.out.println("LOCATE label for " + getName());
 		return locateProperty("label");
@@ -182,122 +186,152 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	 * Create a compound accessor.
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAccessor()
 	 */
+	@Override
 	public IValueAccessor< ? > getAccessor() {
 		return this;
 	}
 
+	@Override
 	public Class< ? > getActualType() {
 		return m_original.getActualType();
 	}
 
+	@Override
 	public Type getGenericActualType() {
 		return m_original.getGenericActualType();
 	}
 
+	@Override
 	public ClassMetaModel getClassModel() {
 		return m_original.getClassModel();
 	}
 
+	@Override
 	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
 		return m_original.getComboDataSet();
 	}
 
+	@Override
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_original.getComboDisplayProperties();
 	}
 
+	@Override
 	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer() {
 		return m_original.getComboLabelRenderer();
 	}
 
+	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
 		return m_original.getComboNodeRenderer();
 	}
 
+	@Override
 	public String getComponentTypeHint() {
 		return m_original.getComponentTypeHint();
 	}
 
+	@Override
 	public IConverter< ? > getConverter() {
 		return m_original.getConverter();
 	}
 
+	@Override
 	public int getDisplayLength() {
 		return m_original.getDisplayLength();
 	}
 
+	@Override
 	public String getDomainValueLabel(Locale loc, Object val) {
 		return m_original.getDomainValueLabel(loc, val);
 	}
 
+	@Override
 	public Object[] getDomainValues() {
 		return m_original.getDomainValues();
 	}
 
+	@Override
 	public String[][] getEditRoles() {
 		return m_original.getEditRoles();
 	}
 
+	@Override
 	public int getLength() {
 		return m_original.getLength();
 	}
 
+	@Override
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
 		return m_original.getLookupFieldDisplayProperties();
 	}
 
+	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
 		return m_original.getLookupFieldRenderer();
 	}
 
+	@Override
 	public String getName() {
 		return m_dottedName;
 	}
 
+	@Override
 	public int getPrecision() {
 		return m_original.getPrecision();
 	}
 
+	@Override
 	public YesNoType getReadOnly() {
 		return m_original.getReadOnly();
 	}
 
+	@Override
 	public PropertyRelationType getRelationType() {
 		return m_original.getRelationType();
 	}
 
+	@Override
 	public int getScale() {
 		return m_original.getScale();
 	}
 
+	@Override
 	public SortableType getSortable() {
 		return m_original.getSortable();
 	}
 
+	@Override
 	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		return m_original.getTableDisplayProperties();
 	}
 
+	@Override
 	public TemporalPresentationType getTemporal() {
 		return m_original.getTemporal();
 	}
 
+	@Override
 	public NumericPresentation getNumericPresentation() {
 		return m_original.getNumericPresentation();
 	}
 
+	@Override
 	public PropertyMetaValidator[] getValidators() {
 		return m_original.getValidators();
 	}
 
+	@Override
 	public String[][] getViewRoles() {
 		return m_original.getViewRoles();
 	}
 
+	@Override
 	public boolean isPrimaryKey() {
 		return m_original.isPrimaryKey();
 	}
 
+	@Override
 	public boolean isRequired() {
 		return m_original.isRequired();
 	}

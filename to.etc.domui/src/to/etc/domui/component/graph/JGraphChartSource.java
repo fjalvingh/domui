@@ -11,6 +11,7 @@ public class JGraphChartSource implements IBufferedImageSource {
 
 	private ICharterHelper m_helper;
 
+	@Override
 	public String getMimeType() {
 		return "image/png";
 	}
@@ -19,6 +20,7 @@ public class JGraphChartSource implements IBufferedImageSource {
 		m_chart = c;
 	}
 
+	@Override
 	public BufferedImage getImage() throws Exception {
 		try {
 			createGraph();

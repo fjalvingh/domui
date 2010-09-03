@@ -10,6 +10,7 @@ abstract public class TableModelBase<T> implements ITableModel<T> {
 	/**
 	 * Add a change listener to this model. Don't forget to remove it at destruction time.
 	 */
+	@Override
 	public void addChangeListener(ITableModelListener<T> l) {
 		synchronized(this) {
 			if(m_listeners.contains(l))
@@ -23,6 +24,7 @@ abstract public class TableModelBase<T> implements ITableModel<T> {
 	 * Remove a change listener from the model.
 	 * @see to.etc.domui.component.tbl.ITableModel#removeChangeListener(to.etc.domui.component.tbl.ITableModelListener)
 	 */
+	@Override
 	public void removeChangeListener(ITableModelListener<T> l) {
 		synchronized(this) {
 			m_listeners = new ArrayList<ITableModelListener<T>>();

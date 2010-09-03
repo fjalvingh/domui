@@ -6,6 +6,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.util.*;
 
 public class MoneyConverterFactory implements IConverterFactory {
+	@Override
 	public int accept(Class<?> clz, PropertyMetaModel pmm) {
 		if(pmm == null)
 			return -1;
@@ -73,6 +74,7 @@ public class MoneyConverterFactory implements IConverterFactory {
 	 *
 	 * @see to.etc.domui.converter.IConverterFactory#createConverter(java.lang.Class, to.etc.domui.component.meta.PropertyMetaModel)
 	 */
+	@Override
 	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel pmm) {
 		try {
 			if(clz == Double.class || clz == double.class) {

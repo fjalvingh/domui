@@ -11,6 +11,7 @@ public class SecondDurationConverter implements IConverter<Long> {
 
 	static private final long HOURS = 60 * 60;
 
+	@Override
 	public String convertObjectToString(Locale loc, Long in) throws UIException {
 		if(in == null)
 			return "";
@@ -41,6 +42,7 @@ public class SecondDurationConverter implements IConverter<Long> {
 	 * Convert a duration in the format: [xD] hh:mm[:ss] into a duration in seconds.
 	 * @see to.etc.domui.converter.IConverter#convertStringToObject(java.util.Locale, java.lang.String)
 	 */
+	@Override
 	public Long convertStringToObject(Locale loc, String input) throws UIException {
 		if(input == null)
 			return null;

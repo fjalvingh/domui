@@ -96,6 +96,7 @@ public class PropBtnPart implements IBufferedPartFactory {
 	 * Decode the parameters for this button thingy.
 	 * @see to.etc.domui.server.parts.IBufferedPartFactory#decodeKey(java.lang.String, to.etc.domui.server.IParameterInfo)
 	 */
+	@Override
 	public Object decodeKey(String rurl, IExtendedParameterInfo info) throws Exception {
 		ButtonPartKey k = new ButtonPartKey();
 		k.m_propfile = info.getParameter("src");
@@ -120,6 +121,7 @@ public class PropBtnPart implements IBufferedPartFactory {
 	 * Generate the button class.
 	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(java.io.OutputStream, to.etc.domui.server.DomApplication, java.lang.Object)
 	 */
+	@Override
 	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull ResourceDependencyList rdl) throws Exception {
 		ButtonPartKey k = (ButtonPartKey) key;
 		Properties p = PartUtil.loadProperties(da, k.m_propfile, rdl);

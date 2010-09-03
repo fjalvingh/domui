@@ -48,6 +48,7 @@ public class DateInput extends Text<Date> {
 		if(!m_hideTodayButton) {
 			if(m_todayButton == null) {
 				m_todayButton = new SmallImgButton("THEME/btnToday.png", new IClicked<SmallImgButton>() {
+					@Override
 					public void clicked(SmallImgButton b) throws Exception {
 						Date currentDate = new Date();
 						//modified flag must be set externaly

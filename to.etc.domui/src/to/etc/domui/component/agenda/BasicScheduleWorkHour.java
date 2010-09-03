@@ -12,10 +12,12 @@ public class BasicScheduleWorkHour implements ScheduleWorkHour {
 		m_end = end;
 	}
 
+	@Override
 	public Date getEnd() {
 		return m_end;
 	}
 
+	@Override
 	public Date getStart() {
 		return m_start;
 	}

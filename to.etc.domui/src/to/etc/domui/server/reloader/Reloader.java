@@ -49,6 +49,7 @@ final public class Reloader {
 	static private Reloader m_instance;
 
 	static private final IModifyableResource NOT_FOUND = new IModifyableResource() {
+		@Override
 		public long getLastModified() {
 			throw new IllegalStateException("Whazzup!?");
 		}

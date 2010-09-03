@@ -560,6 +560,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	/**
 	 * Called when there are sweeping changes to the model. It forces a complete re-render of the table.
 	 */
+	@Override
 	public void modelChanged(@Nullable ITableModel<T> model) {
 		forceRebuild();
 		m_newBody = null;
@@ -572,6 +573,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
+	@Override
 	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
@@ -595,6 +597,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowDeleted(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
+	@Override
 	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
@@ -615,6 +618,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
+	@Override
 	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
@@ -631,6 +635,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * Returns the modified-by-user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
 	 */
+	@Override
 	public boolean isModified() {
 		return m_modifiedByUser;
 	}
@@ -639,6 +644,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * Set or clear the modified by user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
+	@Override
 	public void setModified(boolean as) {
 		m_modifiedByUser = as;
 	}

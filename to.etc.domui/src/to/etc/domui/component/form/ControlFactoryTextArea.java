@@ -9,6 +9,7 @@ public class ControlFactoryTextArea implements ControlFactory {
 	 * Accept if the componentHint says textarea.
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
+	@Override
 	public int accepts(PropertyMetaModel pmm, boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(TextArea.class))
 			return -1;
@@ -19,6 +20,7 @@ public class ControlFactoryTextArea implements ControlFactory {
 		return 0;
 	}
 
+	@Override
 	public ControlFactoryResult createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable, Class< ? > controlClass, Object context) {
 		TextArea ta = new TextArea();
 		if(!editable)

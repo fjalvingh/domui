@@ -44,6 +44,7 @@ public class SimpleBinder implements IBinder {
 	 * Returns T if this contains an actual binding. We are bound if property is set OR a listener is set.
 	 * @see to.etc.domui.component.input.IBinder#isBound()
 	 */
+	@Override
 	public boolean isBound() {
 		return m_propertyModel != null || m_listener != null;
 	}
@@ -52,6 +53,7 @@ public class SimpleBinder implements IBinder {
 	 * Bind to a property of the object returned by this model.
 	 * @see to.etc.domui.component.input.IBinder#to(java.lang.Class, to.etc.domui.util.IReadOnlyModel, java.lang.String)
 	 */
+	@Override
 	public <T> void to(@Nonnull Class<T> theClass, @Nonnull IReadOnlyModel<T> model, @Nonnull String property) {
 		if(theClass == null || property == null || model == null)
 			throw new IllegalArgumentException("Argument cannot be null");
@@ -67,6 +69,7 @@ public class SimpleBinder implements IBinder {
 	 * @param model
 	 * @param pmm
 	 */
+	@Override
 	public <T> void to(@Nonnull IReadOnlyModel<T> model, @Nonnull PropertyMetaModel pmm) {
 		if(pmm == null || model == null)
 			throw new IllegalArgumentException("Argument cannot be null");
@@ -80,6 +83,7 @@ public class SimpleBinder implements IBinder {
 	 *
 	 * @see to.etc.domui.component.input.IBinder#to(to.etc.domui.component.input.IBindingListener)
 	 */
+	@Override
 	public void to(@Nonnull IBindingListener< ? > listener) {
 		if(listener == null)
 			throw new IllegalArgumentException("Argument cannot be null");
@@ -94,6 +98,7 @@ public class SimpleBinder implements IBinder {
 	 *
 	 * @see to.etc.domui.component.input.IBinder#to(java.lang.Object, java.lang.String)
 	 */
+	@Override
 	public void to(@Nonnull Object instance, @Nonnull String property) {
 		if(instance == null || property == null)
 			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
@@ -105,6 +110,7 @@ public class SimpleBinder implements IBinder {
 	 * @param instance
 	 * @param pmm
 	 */
+	@Override
 	public void to(@Nonnull Object instance, @Nonnull PropertyMetaModel pmm) {
 		if(instance == null || pmm == null)
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
@@ -123,6 +129,7 @@ public class SimpleBinder implements IBinder {
 	 * else it moves the value either to the model's value or the instance's value.
 	 * @see to.etc.domui.component.form.IModelBinding#moveControlToModel()
 	 */
+	@Override
 	public void moveControlToModel() throws Exception {
 		if(m_listener != null)
 			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
@@ -134,6 +141,7 @@ public class SimpleBinder implements IBinder {
 		}
 	}
 
+	@Override
 	public void moveModelToControl() throws Exception {
 		if(m_listener != null)
 			((IBindingListener<NodeBase>) m_listener).moveModelToControl((NodeBase) m_control); // Stupid generics idiocy requires cast
@@ -147,6 +155,7 @@ public class SimpleBinder implements IBinder {
 		}
 	}
 
+	@Override
 	public void setControlsEnabled(boolean on) {
 		m_control.setDisabled(!on);
 	}

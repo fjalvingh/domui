@@ -32,6 +32,7 @@ public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<
 		m_flat = ExpandedDisplayProperty.flatten(m_list);
 	}
 
+	@Override
 	public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) throws Exception {
 		prepare();
 		StringBuilder sb = new StringBuilder();

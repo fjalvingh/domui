@@ -45,6 +45,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 		m_application = application;
 
 		LRUHashMap.SizeCalculator<CachedPart> sc = new LRUHashMap.SizeCalculator<CachedPart>() {
+			@Override
 			public int getObjectSize(final CachedPart item) {
 				return item == null ? 4 : item.m_size + 32;
 			}
@@ -98,6 +99,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 		return null;
 	}
 
+	@Override
 	public void handleRequest(final RequestContextImpl ctx) throws Exception {
 		String input = ctx.getInputPath();
 		//		dumpHeaders(ctx);
@@ -171,6 +173,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 		final IPartFactory pf = makePartInst(fc); // Instantiate
 		if(pf instanceof IUnbufferedPartFactory) {
 			pr = new IPartRenderer() {
+				@Override
 				public void render(final RequestContextImpl ctx, final String rest) throws Exception {
 					IUnbufferedPartFactory upf = (IUnbufferedPartFactory) pf;
 					upf.generate(getApplication(), rest, ctx);
@@ -178,6 +181,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 			};
 		} else if(pf instanceof IBufferedPartFactory) {
 			pr = new IPartRenderer() {
+				@Override
 				public void render(final RequestContextImpl ctx, final String rest) throws Exception {
 					generate((IBufferedPartFactory) pf, ctx, rest); // Delegate internally
 				}
@@ -192,6 +196,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 	private IPartRenderer createPartRenderer(final IPartFactory pf) {
 		if(pf instanceof IUnbufferedPartFactory) {
 			return new IPartRenderer() {
+				@Override
 				public void render(final RequestContextImpl ctx, final String rest) throws Exception {
 					IUnbufferedPartFactory upf = (IUnbufferedPartFactory) pf;
 					upf.generate(getApplication(), rest, ctx);
@@ -199,6 +204,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 			};
 		} else if(pf instanceof IBufferedPartFactory) {
 			return new IPartRenderer() {
+				@Override
 				public void render(final RequestContextImpl ctx, final String rest) throws Exception {
 					generate((IBufferedPartFactory) pf, ctx, rest); // Delegate internally
 				}

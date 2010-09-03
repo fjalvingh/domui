@@ -18,6 +18,7 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 	 *
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
+	@Override
 	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(LookupInput.class))
 			return -1;
@@ -34,6 +35,7 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 	 *
 	 * @see to.etc.domui.component.form.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
+	@Override
 	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		//-- We'll do a lookup thingy for sure.
 		LookupInput<Object> li = new LookupInput<Object>((Class<Object>) pmm.getActualType());

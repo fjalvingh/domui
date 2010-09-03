@@ -463,12 +463,14 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 		return si.getStart().getTime() < m_end.getTime() && si.getEnd().getTime() > m_date.getTime();
 	}
 
+	@Override
 	public void scheduleItemAdded(T si) throws Exception {
 		if(!inWindow(si))
 			return;
 		renderItem(si);
 	}
 
+	@Override
 	public void scheduleItemChanged(T si) throws Exception {
 		Div d = m_renderMap.remove(si.getID());
 		if(d == null)
@@ -477,6 +479,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 		renderItem(d, si);
 	}
 
+	@Override
 	public void scheduleItemDeleted(T si) throws Exception {
 		Div d = m_renderMap.remove(si.getID());
 		if(d == null)
@@ -484,6 +487,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 		d.remove();
 	}
 
+	@Override
 	public void scheduleModelChanged() throws Exception {
 		forceRebuild();
 	}

@@ -13,10 +13,12 @@ import to.etc.util.*;
  * Created on Jul 30, 2009
  */
 public class LongSizeConverter implements IConverter<Long> {
+	@Override
 	public String convertObjectToString(Locale loc, Long in) throws UIException {
 		return StringTool.strSize(in.longValue());
 	}
 
+	@Override
 	public Long convertStringToObject(Locale loc, String val) throws UIException {
 		val = val.trim();
 		if(val.length() == 0)

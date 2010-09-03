@@ -23,6 +23,7 @@ public class DateConverter implements IConverter<Date> {
 		return df;
 	}
 
+	@Override
 	public String convertObjectToString(final Locale loc, final Date in) throws UIException {
 		if(in == null) {
 			return "";
@@ -40,6 +41,7 @@ public class DateConverter implements IConverter<Date> {
 		return df.format(dt);
 	}
 
+	@Override
 	public Date convertStringToObject(final Locale loc, String input) throws UIException {
 		if(input == null)
 			return null;

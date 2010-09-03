@@ -38,6 +38,7 @@ public class MsgBox extends FloatingWindow {
 		m_theButtons.setCssClass("ui-mbx-bb");
 		m_theImage.setCssClass("ui-mbx-img");
 		setOnClose(new IClicked<FloatingWindow>() {
+			@Override
 			public void clicked(FloatingWindow b) throws Exception {
 				if(null != m_onAnswer) {
 					m_selectedChoice = m_closeButtonObject;
@@ -173,6 +174,7 @@ public class MsgBox extends FloatingWindow {
 		box.addButton(MsgBoxButton.NO);
 		box.setCloseButton(MsgBoxButton.NO);
 		box.setOnAnswer(new IAnswer() {
+			@Override
 			public void onAnswer(MsgBoxButton result) throws Exception {
 				if(result == MsgBoxButton.YES)
 					onAnswer.clicked(box);
@@ -230,6 +232,7 @@ public class MsgBox extends FloatingWindow {
 		box.addButton(MsgBoxButton.CANCEL);
 		box.setCloseButton(MsgBoxButton.CANCEL);
 		box.setOnAnswer(new IAnswer() {
+			@Override
 			public void onAnswer(MsgBoxButton result) throws Exception {
 				if(result == MsgBoxButton.CONTINUE)
 					onAnswer.clicked(box);
@@ -250,8 +253,10 @@ public class MsgBox extends FloatingWindow {
 	public static DefaultButton areYouSureButton(String text, String icon, final String message, final IClicked<DefaultButton> ch) {
 		final DefaultButton btn = new DefaultButton(text, icon);
 		IClicked<DefaultButton> bch = new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(DefaultButton b) throws Exception {
 				yesNo(b, message, new IClicked<MsgBox>() {
+					@Override
 					public void clicked(MsgBox bx) throws Exception {
 						ch.clicked(btn);
 					}
@@ -287,8 +292,10 @@ public class MsgBox extends FloatingWindow {
 	public static LinkButton areYouSureLinkButton(String text, String icon, final String message, final IClicked<LinkButton> ch) {
 		final LinkButton btn = new LinkButton(text, icon);
 		IClicked<LinkButton> bch = new IClicked<LinkButton>() {
+			@Override
 			public void clicked(LinkButton b) throws Exception {
 				yesNo(b, message, new IClicked<MsgBox>() {
+					@Override
 					public void clicked(MsgBox bx) throws Exception {
 						ch.clicked(btn);
 					}
@@ -387,6 +394,7 @@ public class MsgBox extends FloatingWindow {
 		if(lbl == null)
 			lbl = mbb.name();
 		DefaultButton btn = new DefaultButton(lbl, new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(DefaultButton b) throws Exception {
 				answer(mbb);
 			}
@@ -397,6 +405,7 @@ public class MsgBox extends FloatingWindow {
 
 	protected void addButton(final String lbl, final Object selval) {
 		m_theButtons.add(new DefaultButton(lbl, new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(DefaultButton b) throws Exception {
 				answer(selval);
 			}

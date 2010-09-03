@@ -74,11 +74,13 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 		//-- Click handlers for paging.
 		m_firstBtn.setClicked(new IClicked<NodeBase>() {
+			@Override
 			public void clicked(final NodeBase b) throws Exception {
 				m_table.setCurrentPage(0);
 			}
 		});
 		m_lastBtn.setClicked(new IClicked<NodeBase>() {
+			@Override
 			public void clicked(final NodeBase b) throws Exception {
 				int pg = m_table.getPageCount();
 				if(pg == 0)
@@ -87,6 +89,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			}
 		});
 		m_prevBtn.setClicked(new IClicked<NodeBase>() {
+			@Override
 			public void clicked(final NodeBase b) throws Exception {
 				int cp = m_table.getCurrentPage();
 				if(cp <= 0)
@@ -95,6 +98,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			}
 		});
 		m_nextBtn.setClicked(new IClicked<NodeBase>() {
+			@Override
 			public void clicked(final NodeBase b) throws Exception {
 				int cp = m_table.getCurrentPage();
 				int mx = m_table.getPageCount();
@@ -157,6 +161,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	public void addButton(final String image, final IClicked<DataPager> click, final BundleRef bundle, final String ttlkey) {
 		SmallImgButton i = new SmallImgButton(image, new IClicked<SmallImgButton>() {
+			@Override
 			public void clicked(final SmallImgButton b) throws Exception {
 				click.clicked(DataPager.this);
 			}
@@ -171,10 +176,12 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DataTableChangeListener implementation.				*/
 	/*--------------------------------------------------------------*/
+	@Override
 	public void modelChanged(final TabularComponentBase< ? > tbl, final ITableModel< ? > old, final ITableModel< ? > nw) throws Exception {
 		redraw();
 	}
 
+	@Override
 	public void pageChanged(final TabularComponentBase< ? > tbl) throws Exception {
 		redraw();
 	}

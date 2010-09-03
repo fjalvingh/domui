@@ -119,6 +119,7 @@ public class LookupForm<T> extends Div {
 
 		private String testId;
 
+		@Override
 		public String getPropertyName() {
 			return m_propertyName;
 		}
@@ -127,6 +128,7 @@ public class LookupForm<T> extends Div {
 			m_propertyName = propertyName;
 		}
 
+		@Override
 		public List<PropertyMetaModel> getPropertyPath() {
 			return m_propertyPath;
 		}
@@ -141,6 +143,7 @@ public class LookupForm<T> extends Div {
 			return m_propertyPath.get(m_propertyPath.size() - 1);
 		}
 
+		@Override
 		public boolean isIgnoreCase() {
 			return m_ignoreCase;
 		}
@@ -149,6 +152,7 @@ public class LookupForm<T> extends Div {
 			m_ignoreCase = ignoreCase;
 		}
 
+		@Override
 		public int getMinLength() {
 			return m_minLength;
 		}
@@ -165,6 +169,7 @@ public class LookupForm<T> extends Div {
 			m_labelText = labelText;
 		}
 
+		@Override
 		public String getLookupLabel() {
 			return m_labelText;
 		}
@@ -189,6 +194,7 @@ public class LookupForm<T> extends Div {
 		 * Unused; only present to satisfy the interface.
 		 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#getOrder()
 		 */
+		@Override
 		public int getOrder() {
 			return m_order;
 		}
@@ -197,6 +203,7 @@ public class LookupForm<T> extends Div {
 			m_order = order;
 		}
 
+		@Override
 		public String getLookupHint() {
 			return m_lookupHint;
 		}
@@ -437,6 +444,7 @@ public class LookupForm<T> extends Div {
 
 		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
 		setReturnPressed(new IReturnPressed() {
+			@Override
 			public void returnPressed(final Div node) throws Exception {
 				if(m_clicker != null)
 					m_clicker.clicked(LookupForm.this);
@@ -449,6 +457,7 @@ public class LookupForm<T> extends Div {
 		b.setIcon("THEME/btnFind.png");
 		b.setTestID("searchButton");
 		b.setClicked(new IClicked<NodeBase>() {
+			@Override
 			public void clicked(final NodeBase bx) throws Exception {
 				if(m_clicker != null)
 					m_clicker.clicked(LookupForm.this);
@@ -460,6 +469,7 @@ public class LookupForm<T> extends Div {
 		b.setIcon("THEME/btnClear.png");
 		b.setTestID("clearButton");
 		b.setClicked(new IClicked<NodeBase>() {
+			@Override
 			public void clicked(final NodeBase xb) throws Exception {
 				clearInput();
 				if(getOnClear() != null)
@@ -470,6 +480,7 @@ public class LookupForm<T> extends Div {
 
 		//-- Collapse button thingy
 		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(DefaultButton bx) throws Exception {
 				collapse();
 			}
@@ -504,6 +515,7 @@ public class LookupForm<T> extends Div {
 		//-- Collapse button thingy
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
 		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(DefaultButton bx) throws Exception {
 				restore();
 			}
@@ -520,6 +532,7 @@ public class LookupForm<T> extends Div {
 
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
 		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(DefaultButton bx) throws Exception {
 				collapse();
 			}
@@ -915,6 +928,7 @@ public class LookupForm<T> extends Div {
 				m_newBtn.setIcon("THEME/btnNew.png");
 				m_newBtn.setTestID("newButton");
 				m_newBtn.setClicked(new IClicked<NodeBase>() {
+					@Override
 					public void clicked(final NodeBase xb) throws Exception {
 						if(getOnNew() != null) {
 							getOnNew().clicked(LookupForm.this);
@@ -984,6 +998,7 @@ public class LookupForm<T> extends Div {
 				m_cancelBtn.setIcon("THEME/btnCancel.png");
 				m_cancelBtn.setTestID("cancelButton");
 				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
+					@Override
 					public void clicked(final NodeBase xb) throws Exception {
 
 						if(getOnCancel() != null) {
@@ -1047,6 +1062,7 @@ public class LookupForm<T> extends Div {
 	 */
 	private void createButtonRow(NodeContainer c, boolean iscollapsed) {
 		Collections.sort(m_buttonItemList, new Comparator<ButtonRowItem>() { // Sort in ascending order,
+				@Override
 				public int compare(ButtonRowItem o1, ButtonRowItem o2) {
 					return o1.getOrder() - o2.getOrder();
 				}

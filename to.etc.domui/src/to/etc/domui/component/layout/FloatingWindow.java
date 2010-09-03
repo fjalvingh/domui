@@ -227,6 +227,7 @@ public class FloatingWindow extends Div {
 			m_closeButton.setCssClass("ui-fw-btn-close");
 			ttl.add(m_closeButton);
 			m_closeButton.setClicked(new IClicked<NodeBase>() {
+				@Override
 				public void clicked(NodeBase b) throws Exception {
 					closePressed();
 				}

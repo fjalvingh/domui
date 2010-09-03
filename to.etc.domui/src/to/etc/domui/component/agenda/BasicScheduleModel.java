@@ -11,6 +11,7 @@ public class BasicScheduleModel<T extends ScheduleItem> implements ScheduleModel
 
 	private List<ScheduleModelChangedListener<T>> m_listeners = Collections.EMPTY_LIST;
 
+	@Override
 	public List<ScheduleHoliday> getScheduleHolidays(Date start, Date end) throws Exception {
 		List<ScheduleHoliday> l = new ArrayList<ScheduleHoliday>();
 		for(ScheduleHoliday h : m_holidays) {
@@ -20,6 +21,7 @@ public class BasicScheduleModel<T extends ScheduleItem> implements ScheduleModel
 		return l;
 	}
 
+	@Override
 	public List<T> getScheduleItems(Date start, Date end) throws Exception {
 		List<ScheduleItem> l = new ArrayList<ScheduleItem>();
 		for(ScheduleItem h : m_items) {
@@ -29,6 +31,7 @@ public class BasicScheduleModel<T extends ScheduleItem> implements ScheduleModel
 		return m_items;
 	}
 
+	@Override
 	public List<ScheduleWorkHour> getScheduleWorkHours(Date start, Date end) throws Exception {
 		return m_workHours;
 	}
@@ -65,6 +68,7 @@ public class BasicScheduleModel<T extends ScheduleItem> implements ScheduleModel
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Event handling.										*/
 	/*--------------------------------------------------------------*/
+	@Override
 	public synchronized void addScheduleListener(ScheduleModelChangedListener<T> chl) {
 		if(m_listeners.contains(chl))
 			return;
@@ -72,6 +76,7 @@ public class BasicScheduleModel<T extends ScheduleItem> implements ScheduleModel
 		m_listeners.add(chl);
 	}
 
+	@Override
 	public synchronized void removeScheduleListener(ScheduleModelChangedListener<T> chl) {
 		m_listeners = new ArrayList<ScheduleModelChangedListener<T>>(m_listeners);
 		m_listeners.remove(chl);

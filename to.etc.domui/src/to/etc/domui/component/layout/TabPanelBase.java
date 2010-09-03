@@ -49,6 +49,7 @@ public class TabPanelBase extends Div {
 			return m_img;
 		}
 
+		@Override
 		public void errorMessageAdded(Page pg, UIMessage m) {
 			if(isPartOfContent(m.getErrorNode())) {
 				if(m_msgList.contains(m))
@@ -58,6 +59,7 @@ public class TabPanelBase extends Div {
 			}
 		}
 
+		@Override
 		public void errorMessageRemoved(Page pg, UIMessage m) {
 			if(isPartOfContent(m.getErrorNode())) {
 				if(!m_msgList.remove(m))
@@ -168,6 +170,7 @@ public class TabPanelBase extends Div {
 			a.add(ti.getImg());
 		a.add(ti.getLabel()); // Append the label.
 		a.setClicked(new IClicked<ATag>() {
+			@Override
 			public void clicked(ATag b) throws Exception {
 				setCurrentTab(index);
 			}

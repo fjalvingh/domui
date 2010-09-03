@@ -149,6 +149,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	 * Do a shallow copy of the instance. This only copies all public fields.
 	 * @see to.etc.domui.util.db.IModelCopier#copyInstanceShallow(to.etc.webapp.query.QDataContext, java.lang.Object)
 	 */
+	@Override
 	public <T> T copyInstanceShallow(QDataContext dc, T source) throws Exception {
 		if(source == null)
 			return null;
@@ -196,6 +197,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public <T> T copyInstanceDeep(QDataContext targetdc, QDataContext sourcedc, T source) throws Exception {
 		CopyInfo ci = new CopyInfo(targetdc, sourcedc);
 		long ts = System.nanoTime();

@@ -24,6 +24,7 @@ public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
 
 	private INodeContentRenderer<T> m_afterRenderer;
 
+	@Override
 	public void renderNodeContent(NodeBase component, NodeContainer node, T object, Object parameters) throws Exception {
 		String txt;
 		TBody tbl = ((Table) node).getBody();

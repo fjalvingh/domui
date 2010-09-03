@@ -40,16 +40,19 @@ public class SimpleCollectionModel<T> extends TableModelBase<T> implements IShel
 		return list;
 	}
 
+	@Override
 	public void onShelve() throws Exception {
 	// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public void onUnshelve() throws Exception {
 		fireModelChanged();
 	}
 
 	//	@SuppressWarnings("unchecked")
+	@Override
 	public List<T> getItems(int start, int end) throws Exception {
 		int size = getRows();
 		if(start < 0)
@@ -66,6 +69,7 @@ public class SimpleCollectionModel<T> extends TableModelBase<T> implements IShel
 		return getList().get(index);
 	}
 
+	@Override
 	public int getRows() throws Exception {
 		return getList().size();
 	}

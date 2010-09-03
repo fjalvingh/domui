@@ -18,6 +18,7 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 		m_control = control;
 	}
 
+	@Override
 	public void moveControlToModel() throws Exception {
 		Object val = m_control.getValue();
 		Object base = m_model.getValue();
@@ -25,6 +26,7 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 		a.setValue(base, val);
 	}
 
+	@Override
 	public void moveModelToControl() throws Exception {
 		Object base = m_model.getValue();
 		IValueAccessor< ? > vac = m_propertyMeta.getAccessor();
@@ -34,6 +36,7 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 		m_control.setValue(pval);
 	}
 
+	@Override
 	public void setControlsEnabled(boolean on) {
 		m_control.setReadOnly(!on);
 	}
@@ -44,6 +47,7 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public T getValue() {
 		return m_control.getValue();
 	}
@@ -51,6 +55,7 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setValue(T value) {
 		m_control.setValue(value);
 	}
@@ -76,6 +81,7 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setOnValueChanged(IValueChanged< ? > listener) {
 		m_control.setOnValueChanged(listener);
 	}
@@ -146,6 +152,7 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setTestID(String testID) {
 		m_control.setTestID(testID);
 	}
@@ -157,14 +164,17 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 	 *
 	 * @see to.etc.domui.dom.errors.INodeErrorDelegate#clearMessage()
 	 */
+	@Override
 	public void clearMessage() {
 		m_control.clearMessage();
 	}
 
+	@Override
 	public UIMessage getMessage() {
 		return m_control.getMessage();
 	}
 
+	@Override
 	public UIMessage setMessage(UIMessage m) {
 		return m_control.setMessage(m);
 	}

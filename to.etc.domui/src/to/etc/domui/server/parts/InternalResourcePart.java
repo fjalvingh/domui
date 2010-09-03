@@ -83,6 +83,7 @@ public class InternalResourcePart implements IBufferedPartFactory {
 		}
 	}
 
+	@Override
 	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
 		//-- Is this an URL containing an nls'ed resource?
 		Locale loc = null;
@@ -109,6 +110,7 @@ public class InternalResourcePart implements IBufferedPartFactory {
 	 *
 	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(to.etc.domui.server.parts.PartResponse, to.etc.domui.server.DomApplication, java.lang.Object, to.etc.domui.util.resources.ResourceDependencyList)
 	 */
+	@Override
 	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object inkey, @Nonnull ResourceDependencyList rdl) throws Exception {
 		ResKey k = (ResKey) inkey;
 

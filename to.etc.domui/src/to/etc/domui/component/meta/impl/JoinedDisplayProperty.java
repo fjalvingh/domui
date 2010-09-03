@@ -38,6 +38,7 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty implements IV
 		return this;
 	}
 
+	@Override
 	public void setValue(Object target, String value) throws Exception {
 		throw new IllegalStateException("You cannot set a joined display property.");
 	}
@@ -46,6 +47,7 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty implements IV
 	 * This creates the joined value of the items in the set.
 	 * @see to.etc.domui.util.IValueTransformer#getValue(java.lang.Object)
 	 */
+	@Override
 	public String getValue(Object in) throws Exception {
 		Object root = super.getAccessor().getValue(in); // Obtain the root object
 		if(root == null)

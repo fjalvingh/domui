@@ -141,6 +141,7 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 				if(!expanded) {
 					img.setSrc(last ? "THEME/tree-closed-last.png" : "THEME/tree-closed.png");
 					img.setClicked(new IClicked<Img>() {
+						@Override
 						public void clicked(Img bxx) throws Exception {
 							expandNode(item);
 						}
@@ -161,6 +162,7 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 					td.add(tc);
 
 					img.setClicked(new IClicked<Img>() {
+						@Override
 						public void clicked(Img bxx) throws Exception {
 							collapseNode(item);
 						}
@@ -240,6 +242,7 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 					td.add(img);
 					img.setCssClass("ui-tr-act");
 					img.setClicked(new IClicked<Img>() {
+						@Override
 						public void clicked(Img bxx) throws Exception {
 							collapseNode(o);
 						}
@@ -258,6 +261,7 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 					td.add(tc);
 
 					img.setClicked(new IClicked<Img>() {
+						@Override
 						public void clicked(Img bxx) throws Exception {
 							collapseNode(o);
 						}
@@ -295,6 +299,7 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 		td.add(img);
 		img.setCssClass("ui-tr-act");
 		img.setClicked(new IClicked<Img>() {
+			@Override
 			public void clicked(Img bxx) throws Exception {
 				expandNode(item);
 			}
@@ -369,6 +374,7 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 		if(getCellClicked() != null) { // Is a cell clicked thing attached?
 			cell.addCssClass("ui-tr-sel");
 			cell.setClicked(new IClicked<TD>() {
+				@Override
 				public void clicked(TD b) throws Exception {
 					((ICellClicked<Object>) getCellClicked()).cellClicked(getPage(), cell, value);
 				}

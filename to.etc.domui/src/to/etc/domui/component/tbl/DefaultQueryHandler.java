@@ -12,6 +12,7 @@ public class DefaultQueryHandler<T> implements IQueryHandler<T> {
 		m_dcf = QContextManager.getDataContextFactory(b.getPage().getConversation());
 	}
 
+	@Override
 	public List<T> query(QCriteria<T> q) throws Exception {
 		QDataContext dc = m_dcf.getDataContext();
 		try {

@@ -11,6 +11,7 @@ public class ImagePageSelect implements IImageConversionSpecifier {
 		return m_pageNumber;
 	}
 
+	@Override
 	public String getConversionKey() {
 		return "psel-" + m_pageNumber;
 	}

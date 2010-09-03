@@ -13,6 +13,7 @@ import to.etc.domui.util.*;
 public class DefaultScheduleItemRenderer<T extends ScheduleItem> implements INodeContentRenderer<T> {
 	private StringBuilder m_sb = new StringBuilder();
 
+	@Override
 	public synchronized void renderNodeContent(NodeBase component, NodeContainer root, T si, Object parameters) throws Exception {
 		WeekAgendaComponent<T> age = (WeekAgendaComponent<T>) component;
 
