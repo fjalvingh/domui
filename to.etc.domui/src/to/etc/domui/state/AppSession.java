@@ -87,6 +87,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Unused, needed for interface.
 	 * @see javax.servlet.http.HttpSessionBindingListener#valueBound(javax.servlet.http.HttpSessionBindingEvent)
 	 */
+	@Override
 	final public void valueBound(final HttpSessionBindingEvent arg0) {}
 
 	/**
@@ -95,6 +96,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * to be called.
 	 * @see javax.servlet.http.HttpSessionBindingListener#valueUnbound(javax.servlet.http.HttpSessionBindingEvent)
 	 */
+	@Override
 	final public void valueUnbound(final HttpSessionBindingEvent arg0) {
 		internalDestroy();
 	}
@@ -346,10 +348,12 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 *
 	 * @see to.etc.domui.server.IAttributeContainer#getAttribute(java.lang.String)
 	 */
+	@Override
 	public Object getAttribute(String name) {
 		return m_attributeMap.get(name);
 	}
 
+	@Override
 	public void setAttribute(String name, Object value) {
 		if(m_attributeMap == Collections.EMPTY_MAP)
 			m_attributeMap = new HashMap<String, Object>();

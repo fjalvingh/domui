@@ -101,12 +101,14 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		m_selButton = new SmallImgButton("THEME/btn-popuplookup.png");
 		m_selButton.setTestID("selButtonInputLookup");
 		m_selButton.setClicked(new IClicked<NodeBase>() {
+			@Override
 			public void clicked(NodeBase b) throws Exception {
 				toggleFloaterByClick();
 			}
 		});
 
 		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
+			@Override
 			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {
 				handleSetValue(null);
@@ -238,6 +240,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		}
 
 		rr.setRowClicked(new ICellClicked<T>() {
+			@Override
 			public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
 				handleSetValue(val);
 			}
@@ -438,6 +441,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		m_floater.add(lf);
 		m_floater.setOnClose(new IClicked<FloatingWindow>() {
+			@Override
 			public void clicked(FloatingWindow b) throws Exception {
 				m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 				m_floater = null;
@@ -446,12 +450,14 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		});
 
 		lf.setClicked(new IClicked<LookupForm<T>>() {
+			@Override
 			public void clicked(LookupForm<T> b) throws Exception {
 				search(b);
 			}
 		});
 
 		lf.setOnCancel(new IClicked<LookupForm<T>>() {
+			@Override
 			public void clicked(LookupForm<T> b) throws Exception {
 				m_floater.closePressed();
 			}
@@ -510,6 +516,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			m_result.setTableWidth("100%");
 
 			rr.setRowClicked(new ICellClicked<T>() {
+				@Override
 				public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
 					//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
 					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
@@ -533,18 +540,22 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			m_selButton.setTitle(text);
 	}
 
+	@Override
 	public boolean isMandatory() {
 		return m_mandatory;
 	}
 
+	@Override
 	public void setMandatory(boolean mandatory) {
 		m_mandatory = mandatory;
 	}
 
+	@Override
 	public boolean isReadOnly() {
 		return m_readOnly;
 	}
 
+	@Override
 	public void setReadOnly(boolean readOnly) {
 		if(m_readOnly == readOnly)
 			return;
@@ -552,10 +563,12 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		forceRebuild();
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		if(m_disabled == disabled)
 			return;
@@ -571,6 +584,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	/**
 	 * @see to.etc.domui.dom.html.IInputNode#getValue()
 	 */
+	@Override
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
 			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
@@ -601,6 +615,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	 *
 	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
 	 */
+	@Override
 	public void setValue(T v) {
 		if(DomUtil.isEqual(m_value, v))
 			return;
@@ -635,6 +650,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
+	@Override
 	public IValueChanged< ? > getOnValueChanged() {
 		if(m_floater != null) {
 			//Fix for FF: prevent onchange event to be propagate on control when return key is pressed and popup is opened.
@@ -647,6 +663,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
+	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
@@ -745,6 +762,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	 * Returns the modified-by-user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
 	 */
+	@Override
 	public boolean isModified() {
 		return m_modifiedByUser;
 	}
@@ -753,6 +771,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	 * Set or clear the modified by user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
+	@Override
 	public void setModified(boolean as) {
 		m_modifiedByUser = as;
 	}
@@ -768,6 +787,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
+	@Override
 	public IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
@@ -779,6 +799,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	 *
 	 * @see to.etc.domui.component.input.IBindable#isBound()
 	 */
+	@Override
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
 	}

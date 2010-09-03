@@ -40,10 +40,12 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 		m_checked = checked;
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		if(m_disabled != disabled)
 			changed();
@@ -54,10 +56,12 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	 * Checkboxes cannot be readonly; we make them disabled instead.
 	 * @see to.etc.domui.dom.html.IInputNode#isReadOnly()
 	 */
+	@Override
 	public boolean isReadOnly() {
 		return isDisabled();
 	}
 
+	@Override
 	public void setReadOnly(boolean readOnly) {
 		setDisabled(readOnly);
 		//		if(readOnly)
@@ -84,6 +88,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	/**
 	 * @see to.etc.domui.dom.html.IInputNode#getValue()
 	 */
+	@Override
 	public Boolean getValue() {
 		return new Boolean(isChecked());
 	}
@@ -91,6 +96,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	/**
 	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
 	 */
+	@Override
 	public void setValue(Boolean v) {
 		setChecked((v == null) ? false : v.booleanValue());
 	}
@@ -113,10 +119,12 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	}
 
 
+	@Override
 	public boolean isMandatory() {
 		return m_mandatory;
 	}
 
+	@Override
 	public void setMandatory(boolean mandatory) {
 		m_mandatory = mandatory;
 
@@ -125,6 +133,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
+	@Override
 	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
@@ -132,6 +141,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
+	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
@@ -143,6 +153,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	 * Returns the modified-by-user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
 	 */
+	@Override
 	public boolean isModified() {
 		return m_modifiedByUser;
 	}
@@ -151,6 +162,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	 * Set or clear the modified by user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
+	@Override
 	public void setModified(boolean as) {
 		m_modifiedByUser = as;
 	}
@@ -167,6 +179,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
+	@Override
 	public IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
@@ -178,6 +191,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	 *
 	 * @see to.etc.domui.component.input.IBindable#isBound()
 	 */
+	@Override
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
 	}

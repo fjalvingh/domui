@@ -21,6 +21,7 @@ import to.etc.webapp.query.*;
  * Created on 13 Aug 2009
  */
 final class LookupFactoryNumber implements ILookupControlFactory {
+	@Override
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
 		if(control != null)
 			throw new IllegalStateException();
@@ -38,6 +39,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		final ComboFixed<NumericRelationType> relationCombo = new ComboFixed<NumericRelationType>(values);
 
 		relationCombo.setOnValueChanged(new IValueChanged<ComboFixed<NumericRelationType>>() {
+			@Override
 			public void onValueChanged(ComboFixed<NumericRelationType> component) throws Exception {
 				if(component.getValue() == NumericRelationType.BETWEEN) {
 					if(numB.getDisplay() == DisplayType.NONE) {
@@ -148,6 +150,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		return numText;
 	}
 
+	@Override
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
 		if(control != null)
 			return -1;

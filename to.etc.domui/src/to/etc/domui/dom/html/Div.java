@@ -83,6 +83,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	 * {@inheritDoc}
 	 * @see to.etc.domui.util.IDraggable#setDragHandler(to.etc.domui.util.IDragHandler)
 	 */
+	@Override
 	public void setDragHandler(IDragHandler dragHandler) {
 		m_dragHandler = dragHandler;
 	}
@@ -91,6 +92,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	 * {@inheritDoc}
 	 * @see to.etc.domui.util.IDraggable#getDragHandler()
 	 */
+	@Override
 	public IDragHandler getDragHandler() {
 		return m_dragHandler;
 	}
@@ -99,6 +101,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	 * {@inheritDoc}
 	 * @see to.etc.domui.util.IDropTargetable#getDropHandler()
 	 */
+	@Override
 	public IDropHandler getDropHandler() {
 		return m_dropHandler;
 	}
@@ -107,6 +110,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	 * {@inheritDoc}
 	 * @see to.etc.domui.util.IDropTargetable#setDropHandler(to.etc.domui.util.IDropHandler)
 	 */
+	@Override
 	public void setDropHandler(IDropHandler dropHandler) {
 		m_dropHandler = dropHandler;
 		if(m_dropMode == null)

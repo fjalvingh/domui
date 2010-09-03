@@ -29,6 +29,7 @@ public class AsyncContainer extends Div {
 		img.setSrc(PageContext.getRequestContext().getRelativeThemePath("asy-container-busy.gif"));
 		add(img);
 		DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(DefaultButton b) throws Exception {
 				cancel();
 				b.setDisabled(true);

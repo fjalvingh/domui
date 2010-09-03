@@ -68,6 +68,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 	/**
 	 * @see to.etc.domui.dom.html.IInputNode#getValue()
 	 */
+	@Override
 	public String getValue() {
 		if(!validate())
 			throw new ValidationException(Msgs.NOT_VALID, m_value);
@@ -96,10 +97,12 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 		return m_value;
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		if(m_disabled == disabled)
 			return;
@@ -107,6 +110,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 		m_disabled = disabled;
 	}
 
+	@Override
 	public void setValue(String v) {
 		if(DomUtil.isEqual(v, m_value))
 			return;
@@ -143,6 +147,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 	 * Returns the modified-by-user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
 	 */
+	@Override
 	public boolean isModified() {
 		return m_modifiedByUser;
 	}
@@ -151,6 +156,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 	 * Set or clear the modified by user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
+	@Override
 	public void setModified(boolean as) {
 		m_modifiedByUser = as;
 	}
@@ -166,6 +172,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
+	@Override
 	public IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
@@ -177,6 +184,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 	 *
 	 * @see to.etc.domui.component.input.IBindable#isBound()
 	 */
+	@Override
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
 	}

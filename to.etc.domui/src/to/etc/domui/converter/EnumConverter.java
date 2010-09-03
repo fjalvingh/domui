@@ -17,6 +17,7 @@ import to.etc.webapp.nls.*;
  */
 public class EnumConverter<E extends Enum<E>> implements IConverter<E> {
 
+	@Override
 	public String convertObjectToString(Locale loc, E in) throws UIException {
 		if(in == null)
 			return "";
@@ -24,6 +25,7 @@ public class EnumConverter<E extends Enum<E>> implements IConverter<E> {
 		return ecmm.getDomainLabel(NlsContext.getLocale(), in);
 	}
 
+	@Override
 	public E convertStringToObject(Locale loc, String input) throws UIException {
 		throw new ValidationException(Msgs.UNEXPECTED_EXCEPTION);
 	}

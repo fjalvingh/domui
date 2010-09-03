@@ -211,6 +211,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	/**
 	 * Called when there are sweeping changes to the model. It forces a complete re-render of the table.
 	 */
+	@Override
 	public void modelChanged(@Nullable ITableModel<T> model) {
 		forceRebuild();
 	}
@@ -247,6 +248,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
+	@Override
 	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
@@ -277,6 +279,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowDeleted(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
+	@Override
 	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
@@ -305,6 +308,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	 *
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
+	@Override
 	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;

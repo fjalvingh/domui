@@ -27,6 +27,7 @@ final public class PropertyAccessor<T> implements IValueAccessor<T> {
 		this(pd.getReadMethod(), pd.getWriteMethod(), pmm);
 	}
 
+	@Override
 	public void setValue(Object target, T value) throws Exception {
 		if(target == null)
 			throw new IllegalStateException("The 'target' object is null");
@@ -51,6 +52,7 @@ final public class PropertyAccessor<T> implements IValueAccessor<T> {
 	 *
 	 * @see to.etc.domui.util.IValueTransformer#getValue(java.lang.Object)
 	 */
+	@Override
 	public T getValue(Object in) throws Exception {
 		if(in == null)
 			throw new IllegalStateException("The 'input' object is null (getter method=" + m_readm + ")");

@@ -13,18 +13,21 @@ public abstract class AbstractTreeNodeBase<T extends ITreeNode<T>> implements IT
 		m_parent = dad;
 	}
 
+	@Override
 	public T getChild(int index) throws Exception {
 		if(m_childList == null)
 			m_childList = loadChildren();
 		return m_childList.get(index);
 	}
 
+	@Override
 	public int getChildCount() throws Exception {
 		if(m_childList == null)
 			m_childList = loadChildren();
 		return m_childList.size();
 	}
 
+	@Override
 	public boolean hasChildren() throws Exception {
 		if(m_childList == null)
 			return true;
@@ -34,6 +37,7 @@ public abstract class AbstractTreeNodeBase<T extends ITreeNode<T>> implements IT
 		//		return m_childList.size() != 0;
 	}
 
+	@Override
 	public T getParent() throws Exception {
 		return m_parent;
 	}

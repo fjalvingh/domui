@@ -102,6 +102,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/**
 	 * Return the class' resource bundle.
 	 */
+	@Override
 	public BundleRef getClassBundle() {
 		return m_classBundle;
 	}
@@ -138,6 +139,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * Return a user-presentable entity name for this class. This defaults to the classname itself if unset.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityName()
 	 */
+	@Override
 	public String getUserEntityName() {
 		String s = getClassBundle().findMessage(NlsContext.getLocale(), "entity.name");
 		return s == null ? getClassNameOnly() : s;
@@ -147,6 +149,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * Returns a user-presentable entity name as a plural name.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityNamePlural()
 	 */
+	@Override
 	public String getUserEntityNamePlural() {
 		String s = getClassBundle().findMessage(NlsContext.getLocale(), "entity.pluralname");
 		return s == null ? getClassNameOnly() : s;
@@ -157,6 +160,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * not exist this returns null.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#findProperty(java.lang.String)
 	 */
+	@Override
 	@Nullable
 	public synchronized PropertyMetaModel findProperty(final String name) {
 		PropertyMetaModel pmm = m_propertyMap.get(name);
@@ -168,6 +172,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return pmm;
 	}
 
+	@Override
 	public synchronized PropertyMetaModel findSimpleProperty(final String name) {
 		return m_propertyMap.get(name);
 	}
@@ -176,10 +181,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_propertyMap.put(pmm.getName(), pmm);
 	}
 
+	@Override
 	public List<PropertyMetaModel> getProperties() {
 		return new ArrayList<PropertyMetaModel>(m_propertyMap.values());
 	}
 
+	@Override
 	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
 		return m_comboDataSet;
 	}
@@ -188,6 +195,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_comboDataSet = comboDataSet;
 	}
 
+	@Override
 	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer() {
 		return m_comboLabelRenderer;
 	}
@@ -196,6 +204,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_comboLabelRenderer = comboLabelRenderer;
 	}
 
+	@Override
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_comboDisplayProperties;
 	}
@@ -213,6 +222,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 		//-- Finalize: sort search properties.
 		Collections.sort(m_searchProperties, new Comparator<SearchPropertyMetaModelImpl>() {
+			@Override
 			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
 				return o1.getOrder() - o2.getOrder();
 			}
@@ -227,6 +237,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_comboOptional = comboOptional;
 	}
 
+	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
 		return m_comboNodeRenderer;
 	}
@@ -251,6 +262,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * Returns the SORTED list of search properties defined on this class.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getSearchProperties()
 	 */
+	@Override
 	public List<SearchPropertyMetaModelImpl> getSearchProperties() {
 		return m_searchProperties;
 	}
@@ -259,14 +271,17 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * Returns the list of key word search properties defined on this class (unsorted).
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getKeyWordSearchProperties()
 	 */
+	@Override
 	public List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties() {
 		return m_keyWordSearchProperties;
 	}
 
+	@Override
 	public Class< ? > getActualClass() {
 		return m_metaClass;
 	}
 
+	@Override
 	public synchronized List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		if(m_tableDisplayProperties == null || m_tableDisplayProperties.size() == 0) {
 			m_tableDisplayProperties = MetaManager.calculateObjectProperties(this);
@@ -278,6 +293,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_tableDisplayProperties = tableDisplayProperties;
 	}
 
+	@Override
 	public boolean isPersistentClass() {
 		return m_persistentClass;
 	}
@@ -286,6 +302,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_persistentClass = persistentClass;
 	}
 
+	@Override
 	public String getDefaultSortProperty() {
 		return m_defaultSortProperty;
 	}
@@ -294,6 +311,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_defaultSortProperty = defaultSortProperty;
 	}
 
+	@Override
 	public SortableType getDefaultSortDirection() {
 		return m_defaultSortDirection;
 	}
@@ -305,6 +323,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
 		return m_lookupFieldRenderer;
 	}
@@ -316,6 +335,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
@@ -327,6 +347,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getComponentTypeHint() {
 		return m_componentTypeHint;
 	}
@@ -335,6 +356,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_componentTypeHint = componentTypeHint;
 	}
 
+	@Override
 	public PropertyMetaModel getPrimaryKey() {
 		return m_primaryKey;
 	}
@@ -343,6 +365,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_primaryKey = primaryKey;
 	}
 
+	@Override
 	public String getTableName() {
 		return m_tableName;
 	}
@@ -356,6 +379,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return "ClassMetaModel[" + m_metaClass.getName() + "]";
 	}
 
+	@Override
 	public Object[] getDomainValues() {
 		return m_domainValues;
 	}
@@ -376,6 +400,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 *
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getDomainLabel(java.util.Locale, java.lang.Object)
 	 */
+	@Override
 	public String getDomainLabel(final Locale loc, final Object value) {
 		if(value instanceof Enum< ? >) {
 			try {

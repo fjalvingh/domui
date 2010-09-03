@@ -217,6 +217,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 *
 	 * @return
 	 */
+	@Override
 	public IConverter<T> getConverter() {
 		return m_converter;
 	}
@@ -229,6 +230,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 *
 	 * @param converter
 	 */
+	@Override
 	public void setConverter(IConverter<T> converter) {
 		m_converter = converter;
 	}
@@ -277,6 +279,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 *
 	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
 	 */
+	@Override
 	public void setValue(T value) {
 		// jal 20080930 Onderstaande code aangepast. Dit levert als bug op dat "wissen" van een niet-gevalideerde waarde niet werkt. Dat
 		// wordt veroorzaakt als volgt: als de control een niet-gevalideerde tekst bevat dan is m_rawValue de string maar m_value staat nog
@@ -299,7 +302,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 			if(c != null)
 				converted = c.convertObjectToString(NlsContext.getLocale(), value);
 			else
-				converted = (String) RuntimeConversions.convertTo(value, String.class);
+				converted = RuntimeConversions.convertTo(value, String.class);
 		} catch(UIException x) {
 			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
 			return;
@@ -325,6 +328,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * Returns T if this control is mandatory.
 	 * @see to.etc.domui.dom.html.IInputNode#isMandatory()
 	 */
+	@Override
 	public boolean isMandatory() {
 		return m_mandatory;
 	}
@@ -334,9 +338,10 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 *
 	 * @see to.etc.domui.dom.html.IInputNode#setMandatory(boolean)
 	 */
+	@Override
 	public void setMandatory(boolean mandatory) {
 		if(mandatory && !m_mandatory) {
-			//vmijic 20100326 - m_validated flag must be reset in case that component dinamically become mandatory (since it can happen that was setValue(null) while it not mandatory) 
+			//vmijic 20100326 - m_validated flag must be reset in case that component dinamically become mandatory (since it can happen that was setValue(null) while it not mandatory)
 			m_validated = false;
 		}
 		m_mandatory = mandatory;
@@ -422,6 +427,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * Returns the modified-by-user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
 	 */
+	@Override
 	public boolean isModified() {
 		return m_modifiedByUser;
 	}
@@ -430,6 +436,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * Set or clear the modified by user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
+	@Override
 	public void setModified(boolean as) {
 		m_modifiedByUser = as;
 	}
@@ -445,6 +452,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
+	@Override
 	public IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
@@ -456,6 +464,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 *
 	 * @see to.etc.domui.component.input.IBindable#isBound()
 	 */
+	@Override
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
 	}

@@ -27,30 +27,37 @@ public class BasicScheduleItem implements ScheduleItem {
 		m_imageURL = imageURL;
 	}
 
+	@Override
 	public String getDetails() {
 		return m_details;
 	}
 
+	@Override
 	public Date getEnd() {
 		return m_end;
 	}
 
+	@Override
 	public String getID() {
 		return m_id;
 	}
 
+	@Override
 	public String getImageURL() {
 		return m_imageURL;
 	}
 
+	@Override
 	public String getName() {
 		return m_name;
 	}
 
+	@Override
 	public Date getStart() {
 		return m_start;
 	}
 
+	@Override
 	public String getType() {
 		return m_type;
 	}

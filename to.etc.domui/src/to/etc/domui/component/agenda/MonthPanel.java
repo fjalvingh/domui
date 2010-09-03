@@ -51,6 +51,7 @@ public class MonthPanel extends Div {
 		//-- If we need to act on clicks add a clickhandler for dayclicks.
 		if(getDayClicked() != null && m_clickHandler == null) {
 			m_clickHandler = new IClicked<TD>() {
+				@Override
 				public void clicked(TD bx) throws Exception {
 					handleClick(bx);
 				}

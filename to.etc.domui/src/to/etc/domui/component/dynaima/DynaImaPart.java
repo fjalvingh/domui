@@ -9,6 +9,7 @@ import to.etc.domui.trouble.*;
 import to.etc.util.*;
 
 public class DynaImaPart implements IUnbufferedPartFactory {
+	@Override
 	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
 		DynaRenderer cpr = new DynaRenderer();
 		cpr.generate(app, param, rurl); // Decode input to get to the component in question.

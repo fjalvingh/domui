@@ -23,6 +23,7 @@ public class MetaPropertyValidatorImpl implements PropertyMetaValidator {
 		m_parameters = parameters;
 	}
 
+	@Override
 	public Class< ? extends IValueValidator< ? >> getValidatorClass() {
 		return m_vclass;
 	}
@@ -31,6 +32,7 @@ public class MetaPropertyValidatorImpl implements PropertyMetaValidator {
 		m_vclass = vclass;
 	}
 
+	@Override
 	public String[] getParameters() {
 		return m_parameters;
 	}

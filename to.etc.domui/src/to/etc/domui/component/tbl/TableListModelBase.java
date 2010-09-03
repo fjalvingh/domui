@@ -11,6 +11,7 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 	//	/** Indicates that the list has been sorted. */
 	//	private boolean m_ordered;
 
+	@Override
 	public List<T> getItems(int start, int end) throws Exception {
 		int size = getRows();
 		if(start < 0)
@@ -27,6 +28,7 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 		return getList().get(index);
 	}
 
+	@Override
 	public int getRows() throws Exception {
 		return getList().size();
 	}
@@ -67,6 +69,7 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 	 * Add the item at the specified index. The item currently at that position
 	 * and all items above it move up a notch.
 	 */
+	@Override
 	public void add(int index, T row) throws Exception {
 		if(m_comparator != null)
 			throw new IllegalStateException("Cannot add by index on a sorted model: the sorting order determines the insert index");
@@ -77,6 +80,7 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 	/**
 	 * Add the item at the end (or the appropriate location wrt the sort order) of the list.
 	 */
+	@Override
 	public void add(T row) throws Exception {
 		int index;
 		if(m_comparator == null) {
@@ -95,12 +99,14 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 	 * Delete the object at the specified index.
 	 * @param index
 	 */
+	@Override
 	public T delete(int index) throws Exception {
 		T old = getList().remove(index);
 		fireDeleted(index, old);
 		return old;
 	}
 
+	@Override
 	public boolean delete(T val) throws Exception {
 		int ix = getList().indexOf(val);
 		if(ix == -1)

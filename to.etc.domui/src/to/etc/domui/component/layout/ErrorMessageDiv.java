@@ -60,6 +60,7 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 	 *
 	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageAdded(to.etc.domui.dom.html.Page, to.etc.domui.dom.errors.UIMessage)
 	 */
+	@Override
 	public void errorMessageAdded(Page pg, UIMessage m) {
 		if(m_msgList.contains(m))
 			return;
@@ -97,6 +98,7 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 		return d;
 	}
 
+	@Override
 	public void errorMessageRemoved(Page pg, UIMessage m) {
 		if(!m_msgList.remove(m))
 			return;

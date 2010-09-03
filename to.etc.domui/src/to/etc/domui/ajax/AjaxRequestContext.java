@@ -33,10 +33,12 @@ public class AjaxRequestContext implements IRpcCallContext {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ServiceCallerCallback interface.					*/
 	/*--------------------------------------------------------------*/
+	@Override
 	public <T> T createHandlerClass(final Class<T> clz) throws Exception {
 		return m_rh.makeCallClass(clz, this);
 	}
 
+	@Override
 	public boolean hasRight(final String role) {
 		IUser user = PageContext.getCurrentUser();
 		if(user == null)
@@ -44,12 +46,15 @@ public class AjaxRequestContext implements IRpcCallContext {
 		return user.hasRight(role);
 	}
 
+	@Override
 	public <T> T allocateOutput(final Class<T> oc, final ResponseFormat rf) throws Exception {
 		return null;
 	}
 
+	@Override
 	public void outputCompleted(final Object output) throws Exception {}
 
+	@Override
 	public Writer getResponseWriter(final ResponseFormat format, final String callname) throws Exception {
 		switch(format){
 			default:

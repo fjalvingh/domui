@@ -50,6 +50,7 @@ public class PieCharter implements ICharterHelper {
 	 * Called to actually create the generated thingy.
 	 * @see to.etc.domui.component.graph.ICharterHelper#finish()
 	 */
+	@Override
 	public void finish() throws Exception {
 		double[] res = new double[m_valueList.size()];
 		for(int i = res.length; --i >= 0;)

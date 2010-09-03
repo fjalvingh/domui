@@ -8,6 +8,7 @@ import to.etc.webapp.query.*;
 
 @SuppressWarnings("unchecked")
 final class LookupFactoryString implements ILookupControlFactory {
+	@Override
 	public <X extends IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
 		if(control != null) {
 			if(!(control instanceof Text< ? >))
@@ -19,6 +20,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 		return 1; // Accept all properties (will fail on incompatible ones @ input time)
 	}
 
+	@Override
 	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		Class< ? > iclz = pmm.getActualType();
@@ -57,7 +59,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 		//-- Converter thingy is known. Now add a
 		return new AbstractLookupControlImpl(txt) {
 			@Override
-			public boolean appendCriteria(QCriteria crit) throws Exception {
+			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
 				Object value = null;
 				try {
 					value = txt.getValue();

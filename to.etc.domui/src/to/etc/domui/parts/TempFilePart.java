@@ -15,8 +15,6 @@ import to.etc.util.*;
  */
 public class TempFilePart implements IUnbufferedPartFactory {
 	static private class FileInfo {
-		private String m_key;
-
 		private String m_pw;
 
 		private File m_source;
@@ -25,8 +23,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 
 		private String m_disposition;
 
-		public FileInfo(String key, String pw, File source, String mime, String disp) {
-			m_key = key;
+		public FileInfo(String pw, File source, String mime, String disp) {
 			m_pw = pw;
 			m_source = source;
 			m_mime = mime;
@@ -36,10 +33,6 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		public String getDisposition() {
 			return m_disposition;
 		}
-		public String getKey() {
-			return m_key;
-		}
-
 		public String getPw() {
 			return m_pw;
 		}
@@ -59,7 +52,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		String disp = null;
 		if(type != null)
 			disp = type + "; filename=" + name;
-		FileInfo fi = new FileInfo(key, pw, target, mime, disp);
+		FileInfo fi = new FileInfo(pw, target, mime, disp);
 		ctx.getSession().setAttribute("tempf-" + key, fi); // Store in session context
 
 		StringBuilder sb = new StringBuilder();

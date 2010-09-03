@@ -15,6 +15,7 @@ import to.etc.webapp.nls.*;
  * Created on Avg 11, 2009
  */
 public class PercentageDoubleConverter implements IConverter<Double> {
+	@Override
 	public String convertObjectToString(Locale loc, Double in) throws UIException {
 		if(in == null)
 			return null;
@@ -32,6 +33,7 @@ public class PercentageDoubleConverter implements IConverter<Double> {
 	 *
 	 * @see to.etc.domui.converter.IConverter#convertStringToObject(java.util.Locale, java.lang.String)
 	 */
+	@Override
 	public Double convertStringToObject(Locale loc, String in) throws UIException {
 		if(in == null)
 			return null;

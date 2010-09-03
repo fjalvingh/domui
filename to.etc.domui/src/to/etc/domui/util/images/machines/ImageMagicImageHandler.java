@@ -129,6 +129,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	 * @param input
 	 * @return
 	 */
+	@Override
 	public ImageInfo identify(File input) throws Exception {
 		//		start();
 		try {
@@ -241,6 +242,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public ImageSpec thumbnail(ImageConverterHelper h, ImageSpec source, int page, int width, int height, String targetMime) throws Exception {
 		//-- Create a thumb.
 		start();
@@ -263,6 +265,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 		}
 	}
 
+	@Override
 	public ImageSpec scale(ImageConverterHelper h, ImageSpec source, int page, int width, int height, String targetMime) throws Exception {
 		if(onWindows()) {
 			return thumbnail(h, source, page, width, height, targetMime);

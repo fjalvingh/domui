@@ -12,6 +12,7 @@ import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 final class LookupFactoryDate implements ILookupControlFactory {
+	@Override
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(@Nonnull final SearchPropertyMetaModel spm, final X control) {
 		if(spm == null)
 			throw new IllegalStateException("? SearchPropertyModel should not be null here.");
@@ -86,6 +87,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 		};
 	}
 
+	@Override
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(SearchPropertyMetaModel spm, X control) {
 		PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
 		if(Date.class.isAssignableFrom(pmm.getActualType()) && control == null)

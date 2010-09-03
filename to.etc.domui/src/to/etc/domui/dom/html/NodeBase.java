@@ -767,6 +767,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param code
 	 * @param param
 	 */
+	@Override
 	public UIMessage setMessage(final UIMessage msg) {
 		if(m_errorDelegate != null)
 			return m_errorDelegate.setMessage(msg);
@@ -802,6 +803,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	/**
 	 * Remove this-component's "current" error message, if present.
 	 */
+	@Override
 	public void clearMessage() {
 		if(m_errorDelegate != null) {
 			m_errorDelegate.clearMessage();
@@ -818,6 +820,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		m_message = null;
 	}
 
+	@Override
 	public UIMessage getMessage() {
 		if(m_errorDelegate != null)
 			return m_errorDelegate.getMessage();
@@ -935,6 +938,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * For non-input non-container nodes this does exactly nothing.
 	 * @see to.etc.domui.component.form.IModelBinding#moveControlToModel()
 	 */
+	@Override
 	public void moveControlToModel() throws Exception {
 		build();
 		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
@@ -950,6 +954,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * For non-input non-container nodes this does exactly nothing.
 	 * @see to.etc.domui.component.form.IModelBinding#moveModelToControl()
 	 */
+	@Override
 	public void moveModelToControl() throws Exception {
 		build();
 		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
@@ -966,6 +971,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 *
 	 * @see to.etc.domui.component.form.IModelBinding#setControlsEnabled(boolean)
 	 */
+	@Override
 	public void setControlsEnabled(boolean on) {
 		try {
 			build();

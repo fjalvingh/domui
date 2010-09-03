@@ -21,18 +21,22 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 
 	private boolean m_disabled;
 
+	@Override
 	public boolean isMandatory() {
 		return m_mandatory;
 	}
 
+	@Override
 	public void setMandatory(boolean mandatory) {
 		m_mandatory = mandatory;
 	}
 
+	@Override
 	public boolean isReadOnly() {
 		return m_readOnly;
 	}
 
+	@Override
 	public void setReadOnly(boolean readOnly) {
 		if(m_readOnly == readOnly)
 			return;
@@ -40,10 +44,12 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 		forceRebuild();
 	}
 
+	@Override
 	final public boolean isDisabled() {
 		return m_disabled;
 	}
 
+	@Override
 	final public void setDisabled(boolean disabled) {
 		if(m_disabled == disabled)
 			return;
@@ -70,6 +76,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	/**
 	 * @see to.etc.domui.dom.html.IInputNode#getValue()
 	 */
+	@Override
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
 			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
@@ -83,6 +90,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	 *
 	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
 	 */
+	@Override
 	public void setValue(T v) {
 		if(DomUtil.isEqual(v, m_value))
 			return;
@@ -110,6 +118,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
+	@Override
 	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
@@ -117,6 +126,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
+	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
@@ -132,6 +142,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
+	@Override
 	public IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
@@ -143,6 +154,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	 *
 	 * @see to.etc.domui.component.input.IBindable#isBound()
 	 */
+	@Override
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
 	}

@@ -7,12 +7,14 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
 public class TimeOnlyConverter implements IConverter<Date> {
+	@Override
 	public String convertObjectToString(Locale loc, Date in) throws UIException {
 		Date dt = in;
 		DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT, loc);
 		return df.format(dt);
 	}
 
+	@Override
 	public Date convertStringToObject(Locale loc, String in) throws UIException {
 		DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT, loc);
 		try {

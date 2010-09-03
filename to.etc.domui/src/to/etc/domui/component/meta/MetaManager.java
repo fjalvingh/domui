@@ -242,6 +242,7 @@ final public class MetaManager {
 	static private INodeContentRenderer< ? > createComboLabelRenderer(Class< ? extends ILabelStringRenderer< ? >> lsr) {
 		final ILabelStringRenderer<Object> lr = (ILabelStringRenderer<Object>) DomApplication.get().createInstance(lsr);
 		return new INodeContentRenderer<Object>() {
+			@Override
 			public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) {
 				String text = lr.getLabelFor(object);
 				if(text != null)
@@ -255,6 +256,7 @@ final public class MetaManager {
 	}
 
 	static private INodeContentRenderer< ? > TOSTRING_RENDERER = new INodeContentRenderer<Object>() {
+		@Override
 		public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) {
 			if(object != null)
 				node.setText(object.toString());

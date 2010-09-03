@@ -256,6 +256,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		return m_truncated;
 	}
 
+	@Override
 	public int getTruncatedCount() {
 		return isTruncated() ? ITableModel.DEFAULT_MAX_SIZE : 0;
 	}
@@ -301,6 +302,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		return m_workResult.subList(start, end);
 	}
 
+	@Override
 	public T findRowObject(String key) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
@@ -308,6 +310,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	/**
 	 * @see to.etc.domui.component.tbl.ITableModel#getRowKey(int)
 	 */
+	@Override
 	public String getRowKey(int row) throws Exception {
 		throw new IllegalStateException("Not implemented");
 	}
@@ -324,6 +327,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	/**
 	 * When called this does a re-query using the specified sort property.
 	 */
+	@Override
 	public void sortOn(String key, boolean descending) throws Exception {
 		if(DomUtil.isEqual(key, m_sort) && descending == m_desc) // Nothing changed, get lost.
 			return;
@@ -334,11 +338,13 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		fireModelChanged();
 	}
 
+	@Override
 	@Nullable
 	public String getSortKey() {
 		return m_sort;
 	}
 
+	@Override
 	public boolean isSortDescending() {
 		return m_desc;
 	}
@@ -352,11 +358,13 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	 *
 	 * @see to.etc.domui.util.IShelvedListener#onShelve()
 	 */
+	@Override
 	public void onShelve() throws Exception {
 		LOG.debug("Shelving the model");
 		clear();
 	}
 
+	@Override
 	public void onUnshelve() throws Exception {}
 
 

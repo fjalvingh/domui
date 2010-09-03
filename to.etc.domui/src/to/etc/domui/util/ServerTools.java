@@ -16,8 +16,6 @@ import to.etc.util.*;
  * Created on Jan 31, 2005
  */
 final public class ServerTools {
-	static private final String KEY = "mu$st$config";
-
 	static private final String BASECODES = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_";
 
 	private ServerTools() {}

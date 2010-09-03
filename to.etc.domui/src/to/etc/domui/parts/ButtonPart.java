@@ -98,6 +98,7 @@ public class ButtonPart implements IBufferedPartFactory {
 		}
 	}
 
+	@Override
 	public Object decodeKey(final String rurl, final IExtendedParameterInfo info) throws Exception {
 		ButtonPartKey k = new ButtonPartKey();
 		k.m_image = info.getParameter("img");
@@ -114,6 +115,7 @@ public class ButtonPart implements IBufferedPartFactory {
 		return k;
 	}
 
+	@Override
 	public void generate(@Nonnull final PartResponse pr, @Nonnull final DomApplication da, @Nonnull final Object key, @Nonnull final ResourceDependencyList rdl) throws Exception {
 		if(true)
 			throw new IllegalStateException("DO NOT USE ANYMORE - REPLACED WITH PropBtnPart.part");

@@ -81,14 +81,14 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
 	@SuppressWarnings("fallthrough")
-	public BasicRowRenderer<T> addColumns(final Object... cols) throws Exception {
+	public <R> BasicRowRenderer<T> addColumns(final Object... cols) throws Exception {
 		check();
 		if(cols == null || cols.length == 0)
 			throw new IllegalStateException("The list-of-columns is empty or null; I need at least one column to continue.");
 		String property = null;
 		String width = null;
-		IConverter< ? > conv = null;
-		Class< ? > convclz = null;
+		IConverter<R> conv = null;
+		Class<R> convclz = null;
 		String caption = null;
 		String cssclass = null;
 		boolean nowrap = false;
@@ -135,11 +135,11 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 						break;
 				}
 			} else if(val instanceof IConverter< ? >)
-				conv = (IConverter< ? >) val;
+				conv = (IConverter<R>) val;
 			else if(val instanceof INodeContentRenderer< ? >)
 				nodeRenderer = (INodeContentRenderer< ? >) val;
 			else if(val instanceof Class< ? >) {
-				final Class< ? > c = (Class< ? >) val;
+				final Class<R> c = (Class<R>) val;
 				if(INodeContentRenderer.class.isAssignableFrom(c))
 					nrclass = c;
 				else if(IConverter.class.isAssignableFrom(c))
@@ -167,18 +167,18 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 	/**
 	 *
 	 * @param <X>
-	 * @param <T>
+	 * @param <R>
 	 * @param cclz
 	 * @param ins
 	 * @return
 	 * <X, T extends IConverter<X>>
 	 */
 	@SuppressWarnings("unchecked")
-	private IConverter< ? > tryConverter(final Class< ? > cclz, final IConverter< ? > ins) {
+	private <R> IConverter<R> tryConverter(final Class<R> cclz, final IConverter<R> ins) {
 		if(cclz != null) {
 			if(ins != null)
 				throw new IllegalArgumentException("Both a IConverter class AND an instance specified: " + cclz + " and " + ins);
-			return ConverterRegistry.getConverterInstance((Class) cclz);
+			return ConverterRegistry.getConverterInstance((Class< ? extends IConverter<R>>) cclz);
 		}
 		return ins;
 	}
@@ -195,7 +195,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 	 * @param nrclass
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
-	private void internalAddProperty(final String property, final String width, final IConverter< ? > conv, final Class< ? > convclz, final String caption, final String cssclass,
+	private <R> void internalAddProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass,
 		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap) throws Exception {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");

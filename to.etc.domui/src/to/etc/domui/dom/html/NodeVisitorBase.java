@@ -5,26 +5,32 @@ import to.etc.domui.component.misc.*;
 
 public class NodeVisitorBase implements INodeVisitor {
 
+	@Override
 	public void visitDiv(Div n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitSpan(Span n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitTD(TD n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitTR(TR n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitTable(Table n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitTextNode(TextNode n) throws Exception {
 		sub(n);
 	}
@@ -34,18 +40,22 @@ public class NodeVisitorBase implements INodeVisitor {
 		sub(n);
 	}
 
+	@Override
 	public void visitLi(Li n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitUl(Ul n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitA(ATag a) throws Exception {
 		sub(a);
 	}
 
+	@Override
 	public void visitInput(Input n) throws Exception {
 		visitNodeBase(n);
 	}
@@ -54,62 +64,77 @@ public class NodeVisitorBase implements INodeVisitor {
 		visitNodeBase(n);
 	}
 
+	@Override
 	public void visitCheckbox(Checkbox n) throws Exception {
 		visitNodeBase(n);
 	}
 
+	@Override
 	public void visitRadioButton(RadioButton n) throws Exception {
 		visitNodeBase(n);
 	}
 
+	@Override
 	public void visitTH(TH n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitTHead(THead n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitTBody(TBody n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitImg(Img n) throws Exception {
 		visitNodeBase(n);
 	}
 
+	@Override
 	public void visitButton(Button n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitLabel(Label n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitOption(SelectOption n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitSelect(Select n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitBR(BR n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitTextArea(TextArea n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitFileInput(FileInput fi) throws Exception {
 		sub(fi);
 	}
 
+	@Override
 	public void visitForm(Form n) throws Exception {
 		sub(n);
 	}
 
+	@Override
 	public void visitH(HTag n) throws Exception {
 		sub(n);
 	}
@@ -118,6 +143,7 @@ public class NodeVisitorBase implements INodeVisitor {
 
 	public void visitNodeContainer(NodeContainer n) throws Exception {}
 
+	@Override
 	@Deprecated
 	public void visitLiteralXhtml(LiteralXhtml n) throws Exception {
 		visitNodeBase(n);

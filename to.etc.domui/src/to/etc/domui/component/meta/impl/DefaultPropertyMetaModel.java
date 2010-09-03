@@ -70,23 +70,28 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		m_descriptor = descriptor;
 	}
 
+	@Override
 	public String getName() {
 		return m_descriptor.getName();
 	}
 
+	@Override
 	public Class< ? > getActualType() {
 		return m_descriptor.getActualType();
 	}
 
+	@Override
 	public Type getGenericActualType() {
 		Method m = m_descriptor.getGetter();
 		return m.getGenericReturnType();
 	}
 
+	@Override
 	public String getDefaultLabel() {
 		return m_classModel.getPropertyLabel(this, NlsContext.getLocale());
 	}
 
+	@Override
 	public String getDefaultHint() {
 		return m_classModel.getPropertyHint(this, NlsContext.getLocale());
 	}
@@ -99,6 +104,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	 * always return Boolean.TRUE and Boolean.FALSE; enums return all enum values.
 	 * @return
 	 */
+	@Override
 	public Object[] getDomainValues() {
 		if(getActualType() == Boolean.TYPE || getActualType() == Boolean.class) {
 			return BOOLS;
@@ -115,6 +121,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	 *
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDomainValueLabel(java.util.Locale, java.lang.Object)
 	 */
+	@Override
 	public String getDomainValueLabel(final Locale loc, final Object val) {
 		BundleRef b = m_classModel.getClassBundle();
 		StringBuilder sb = new StringBuilder();
@@ -135,6 +142,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		return b.findMessage(loc, sb.toString()); // jal 20081201 Do not lie about a resource based name!!
 	}
 
+	@Override
 	public int getLength() {
 		return m_length;
 	}
@@ -147,6 +155,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	 * The thingy to access the property generically.
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAccessor()
 	 */
+	@Override
 	public IValueAccessor< ? > getAccessor() {
 		return m_accessor;
 	}
@@ -155,6 +164,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		m_accessor = accessor;
 	}
 
+	@Override
 	public boolean isPrimaryKey() {
 		return m_primaryKey;
 	}
@@ -163,6 +173,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		m_primaryKey = primaryKey;
 	}
 
+	@Override
 	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
 		return m_comboDataSet;
 	}
@@ -171,6 +182,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		m_comboDataSet = comboDataSet;
 	}
 
+	@Override
 	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer() {
 		return m_comboLabelRenderer;
 	}
@@ -179,6 +191,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		m_comboLabelRenderer = comboLabelRenderer;
 	}
 
+	@Override
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_comboDisplayProperties;
 	}
@@ -187,6 +200,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		m_comboDisplayProperties = displayProperties;
 	}
 
+	@Override
 	public PropertyRelationType getRelationType() {
 		return m_relationType;
 	}
@@ -195,10 +209,12 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		m_relationType = relationType;
 	}
 
+	@Override
 	public ClassMetaModel getClassModel() {
 		return m_classModel;
 	}
 
+	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
 		return m_comboNodeRenderer;
 	}
@@ -207,6 +223,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
+	@Override
 	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		return m_tableDisplayProperties;
 	}
@@ -223,6 +240,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
 		return m_lookupFieldRenderer;
 	}
@@ -234,6 +252,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
@@ -245,6 +264,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getComponentTypeHint() {
 		return m_componentTypeHint;
 	}

@@ -7,6 +7,7 @@ public class FastXmlOutputWriter extends XmlOutputWriterBase implements IBrowser
 		super(w);
 	}
 
+	@Override
 	public void setIndentEnabled(boolean ind) {}
 
 	@Override

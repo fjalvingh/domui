@@ -61,6 +61,7 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
+	@Override
 	@Nonnull
 	public IBinder bind() {
 		if(m_binder == null)
@@ -72,6 +73,7 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	 * Returns T if this control is bound to some data value.
 	 * @see to.etc.domui.component.input.IBindable#isBound()
 	 */
+	@Override
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
 	}

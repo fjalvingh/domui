@@ -17,6 +17,7 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 		m_root = root;
 	}
 
+	@Override
 	public void addChangeListener(ITreeModelChangedListener<T> l) {
 		if(m_listeners == Collections.EMPTY_LIST) {
 			m_listeners = new ArrayList<ITreeModelChangedListener<T>>();
@@ -26,6 +27,7 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 		m_listeners.add(l);
 	}
 
+	@Override
 	public void removeChangeListener(ITreeModelChangedListener<T> l) {
 		m_listeners.remove(l);
 	}
@@ -34,29 +36,36 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 		return m_listeners;
 	}
 
+	@Override
 	public T getChild(T parent, int index) throws Exception {
 		return parent.getChild(index);
 	}
 
+	@Override
 	public int getChildCount(T item) throws Exception {
 		return item.getChildCount();
 	}
 
+	@Override
 	public T getParent(T child) throws Exception {
 		return child.getParent();
 	}
 
+	@Override
 	public T getRoot() throws Exception {
 		return m_root;
 	}
 
+	@Override
 	public boolean hasChildren(T item) throws Exception {
 		return item.hasChildren();
 	}
 
+	@Override
 	public void expandChildren(T item) throws Exception {
 	}
 
+	@Override
 	public void collapseChildren(T item) throws Exception {
 	}
 }

@@ -80,6 +80,7 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 	};
 
 
+	@Override
 	public boolean accepts(String rurl) {
 		int dot1 = rurl.lastIndexOf('.');
 		if(dot1 == -1)
@@ -90,10 +91,12 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 		return rurl.substring(dot2 + 1, dot1).equals("theme");
 	}
 
+	@Override
 	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
 		return new Key(param.getBrowserVersion(), rurl);
 	}
 
+	@Override
 	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object k, @Nonnull ResourceDependencyList rdl) throws Exception {
 		Key key = (Key) k;
 

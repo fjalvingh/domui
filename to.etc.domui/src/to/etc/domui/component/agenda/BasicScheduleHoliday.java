@@ -16,14 +16,17 @@ public class BasicScheduleHoliday implements ScheduleHoliday {
 		m_imageURL = imageURL;
 	}
 
+	@Override
 	public Date getDate() {
 		return m_date;
 	}
 
+	@Override
 	public String getHolidayName(Locale loc) {
 		return m_name;
 	}
 
+	@Override
 	public String getImageURL() {
 		return m_imageURL;
 	}

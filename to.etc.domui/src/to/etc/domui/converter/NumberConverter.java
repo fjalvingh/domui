@@ -24,6 +24,7 @@ public class NumberConverter<T extends Number> implements IConverter<T> {
 		m_scale = scale;
 	}
 
+	@Override
 	public String convertObjectToString(Locale loc, T in) throws UIException {
 		return NumericUtil.renderNumber(in, m_presentation, m_scale);
 	}

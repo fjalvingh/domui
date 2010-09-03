@@ -99,6 +99,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return m_children;
 	}
 
+	@Override
 	public Iterator<NodeBase> iterator() {
 		return m_children.iterator();
 	}

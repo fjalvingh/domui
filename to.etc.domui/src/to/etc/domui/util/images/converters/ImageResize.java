@@ -43,6 +43,7 @@ public class ImageResize implements IImageConversionSpecifier {
 		return m_filterSpec;
 	}
 
+	@Override
 	public String getConversionKey() {
 		return "rsz-" + m_width + "x" + m_height + "$" + m_filterSpec;
 	}

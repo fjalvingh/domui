@@ -29,6 +29,7 @@ abstract public class ButtonMakerBase {
 
 	public DefaultButton addBackButton(final String txt, final String icon) {
 		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(final DefaultButton bxx) throws Exception {
 				UIGoto.back();
 			}

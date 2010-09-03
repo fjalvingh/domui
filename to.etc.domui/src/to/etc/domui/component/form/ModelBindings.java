@@ -12,6 +12,7 @@ public class ModelBindings implements IModelBinding, Iterable<IModelBinding> {
 		m_bindings.add(b);
 	}
 
+	@Override
 	public void moveControlToModel() throws Exception {
 		Exception cx = null;
 		for(IModelBinding b : m_bindings) {
@@ -26,6 +27,7 @@ public class ModelBindings implements IModelBinding, Iterable<IModelBinding> {
 			throw cx;
 	}
 
+	@Override
 	public void moveModelToControl() throws Exception {
 		for(IModelBinding b : m_bindings)
 			b.moveModelToControl();
@@ -35,6 +37,7 @@ public class ModelBindings implements IModelBinding, Iterable<IModelBinding> {
 		return m_bindings.size();
 	}
 
+	@Override
 	public void setControlsEnabled(boolean on) {
 		for(IModelBinding b : m_bindings)
 			b.setControlsEnabled(on);

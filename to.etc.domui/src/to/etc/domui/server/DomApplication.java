@@ -117,6 +117,7 @@ public abstract class DomApplication {
 		initHeaderContributors();
 		addRenderFactory(new MsCrapwareRenderFactory()); // Add html renderers for IE <= 8
 		addExceptionListener(QNotFoundException.class, new IExceptionListener() {
+			@Override
 			public boolean handleException(final IRequestContext ctx, final Page page, final NodeBase source, final Throwable x) throws Exception {
 				if(!(x instanceof QNotFoundException))
 					throw new IllegalStateException("??");
@@ -1217,6 +1218,7 @@ public abstract class DomApplication {
 	private String rvs(String cont, final IThemeMap map, final BrowserVersion bv) throws Exception {
 		//-- 3. Do calculated replacement using templater engine
 		TplExpander tx = new TplExpander(new TplCallback() {
+			@Override
 			public Object getValue(String name) {
 				try {
 					if(bv != null && "browser".equals(name))

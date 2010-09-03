@@ -69,6 +69,7 @@ public class JanitorThread implements Runnable {
 	/**
 	 *	The main thread entry for the job...
 	 */
+	@Override
 	public void run() {
 		m_j.logTask(this, "Task started..");
 		setState(jtfRUNNING);

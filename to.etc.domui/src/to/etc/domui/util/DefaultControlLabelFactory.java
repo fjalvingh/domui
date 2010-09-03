@@ -5,6 +5,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 
 public class DefaultControlLabelFactory implements IControlLabelFactory {
+	@Override
 	public Label createControlLabel(NodeBase control, String text, boolean editable, boolean mandatory, PropertyMetaModel pmm) {
 		if(text == null)
 			return null;

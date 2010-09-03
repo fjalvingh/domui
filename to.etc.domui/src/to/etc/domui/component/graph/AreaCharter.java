@@ -131,6 +131,7 @@ public class AreaCharter implements ICharterHelper {
 	public List<BucketData> getOrderedBuckets() {
 		List<BucketData> res = new ArrayList<BucketData>(m_bucketSet.values());
 		Collections.sort(res, new Comparator<BucketData>() {
+			@Override
 			public int compare(BucketData o1, BucketData o2) {
 				return o1.getBucketValue().compareTo(o2.getBucketValue());
 			}
@@ -142,6 +143,7 @@ public class AreaCharter implements ICharterHelper {
 	 * Fully create the Area thingy.
 	 * @see to.etc.domui.component.graph.ICharterHelper#finish()
 	 */
+	@Override
 	public void finish() throws Exception {
 		List<BucketData> list = getOrderedBuckets();
 

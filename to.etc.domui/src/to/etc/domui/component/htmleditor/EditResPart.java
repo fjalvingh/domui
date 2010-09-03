@@ -34,6 +34,7 @@ public class EditResPart implements IUnbufferedPartFactory {
 		return df;
 	}
 
+	@Override
 	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
 		System.out.println("QS=" + param.getRequest().getQueryString());
 		System.out.println("RURL=" + rurl);

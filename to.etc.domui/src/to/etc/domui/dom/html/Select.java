@@ -170,6 +170,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 		SmallImgButton si = new SmallImgButton(img);
 		if(click != null) {
 			si.setClicked(new IClicked<SmallImgButton>() {
+				@Override
 				public void clicked(SmallImgButton b) throws Exception {
 					click.clicked(Select.this);
 				}
@@ -208,6 +209,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 	 * Returns the modified-by-user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
 	 */
+	@Override
 	final public boolean isModified() {
 		return m_modifiedByUser;
 	}
@@ -216,6 +218,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 	 * Set or clear the modified by user flag.
 	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
+	@Override
 	final public void setModified(boolean as) {
 		m_modifiedByUser = as;
 	}

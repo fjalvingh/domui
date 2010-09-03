@@ -27,6 +27,7 @@ public class FileBasedEditorFileSystem implements IEditorFileSystem {
 		m_imageRoot = f;
 	}
 
+	@Override
 	public List< ? > getFilesAndFolders(String type, String path) throws Exception {
 		List<Object> res = new ArrayList<Object>();
 		File root = new File(m_imageRoot, path);
@@ -52,6 +53,7 @@ public class FileBasedEditorFileSystem implements IEditorFileSystem {
 		return res;
 	}
 
+	@Override
 	public List<EditorResourceType> getResourceTypes() {
 		if(m_resources == null) {
 			m_resources = new ArrayList<EditorResourceType>();
@@ -60,6 +62,7 @@ public class FileBasedEditorFileSystem implements IEditorFileSystem {
 		return m_resources;
 	}
 
+	@Override
 	public boolean hasThumbnails() {
 		return true;
 	}
@@ -68,6 +71,7 @@ public class FileBasedEditorFileSystem implements IEditorFileSystem {
 	 *
 	 * @see to.etc.domui.component.htmleditor.IEditorFileSystem#getStreamRef(java.lang.String, java.lang.String)
 	 */
+	@Override
 	public IEditorFileRef getStreamRef(String type, String path) throws Exception {
 		final File root = new File(m_imageRoot, path);
 		if(!root.exists() || !root.isFile())
@@ -75,15 +79,18 @@ public class FileBasedEditorFileSystem implements IEditorFileSystem {
 
 		return new IEditorFileRef() {
 
+			@Override
 			public int getSize() throws Exception {
 				return (int) root.length();
 			}
 
+			@Override
 			public String getMimeType() throws Exception {
 				String ext = FileTool.getFileExtension(root.getName());
 				return ServerTools.getExtMimeType(ext);
 			}
 
+			@Override
 			public void copyTo(OutputStream os) throws Exception {
 				InputStream is = null;
 				try {
@@ -97,6 +104,7 @@ public class FileBasedEditorFileSystem implements IEditorFileSystem {
 				}
 			}
 
+			@Override
 			public void close() {}
 		};
 	}

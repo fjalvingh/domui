@@ -52,6 +52,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	/**
 	 * Add a new error message listener to the page.
 	 */
+	@Override
 	public void addErrorListener(IErrorMessageListener eml) {
 		if(m_errorListeners == Collections.EMPTY_LIST)
 			m_errorListeners = new ArrayList<IErrorMessageListener>(4);
@@ -63,10 +64,12 @@ public class ErrorFenceHandler implements IErrorFence {
 	 * Discard an error message listener.
 	 * @param eml
 	 */
+	@Override
 	public void removeErrorListener(IErrorMessageListener eml) {
 		m_errorListeners.remove(eml);
 	}
 
+	@Override
 	public void addMessage(NodeBase source, UIMessage uim) {
 		if(m_messageList == Collections.EMPTY_LIST)
 			m_messageList = new ArrayList<UIMessage>(15);
@@ -86,6 +89,7 @@ public class ErrorFenceHandler implements IErrorFence {
 		}
 	}
 
+	@Override
 	public void removeMessage(NodeBase source, UIMessage uim) {
 		if(!m_messageList.remove(uim)) // Must be known to the page or something's wrong..
 			return;
@@ -101,6 +105,7 @@ public class ErrorFenceHandler implements IErrorFence {
 		}
 	}
 
+	@Override
 	public void clearGlobalMessages(NodeBase source, String code) {
 		List<UIMessage> todo = new ArrayList<UIMessage>();
 		for(UIMessage m : m_messageList) {

@@ -1175,12 +1175,14 @@ final public class DomUtil {
 	static public void clearModifiedFlag(NodeBase root) {
 		try {
 			walkTree(root, new IPerNode() {
+				@Override
 				public Object before(NodeBase n) throws Exception {
 					if(n instanceof IHasModifiedIndication)
 						((IHasModifiedIndication) n).setModified(false);
 					return null;
 				}
 
+				@Override
 				public Object after(NodeBase n) throws Exception {
 					return null;
 				}
@@ -1198,6 +1200,7 @@ final public class DomUtil {
 	static public boolean isModified(NodeBase root) {
 		try {
 			Object res = walkTree(root, new IPerNode() {
+				@Override
 				public Object before(NodeBase n) throws Exception {
 					if(n instanceof IHasModifiedIndication) {
 						if(((IHasModifiedIndication) n).isModified())
@@ -1208,6 +1211,7 @@ final public class DomUtil {
 					return null;
 				}
 
+				@Override
 				public Object after(NodeBase n) throws Exception {
 					return null;
 				}

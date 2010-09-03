@@ -43,6 +43,7 @@ public class ReloadingClassResourceRef implements IResourceRef {
 	 * though the underlying .jar file has changed the resource as read originally will be returned, defeating the purpose of
 	 * DomUI debug mode. To fix this we need to ensure that a //different// instance is returned every time the class is accessed...
 	 */
+	@Override
 	public InputStream getInputStream() throws Exception {
 		if(m_source == null || !(m_source instanceof ClasspathJarRef))
 			return m_base.getResourceAsStream(m_name);
@@ -55,6 +56,7 @@ public class ReloadingClassResourceRef implements IResourceRef {
 	/**
 	 * @see to.etc.domui.util.resources.IModifyableResource#getLastModified()
 	 */
+	@Override
 	public long getLastModified() {
 		return m_source == null ? -1 : m_source.getLastModified();
 	}

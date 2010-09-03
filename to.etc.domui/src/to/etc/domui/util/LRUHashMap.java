@@ -34,14 +34,17 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 			m_hashCode = hashCode;
 		}
 
+		@Override
 		public K getKey() {
 			return (K) decodeKey(m_key);
 		}
 
+		@Override
 		public V getValue() {
 			return m_value;
 		}
 
+		@Override
 		public V setValue(V value) {
 			V old = m_value;
 			m_value = value;
@@ -52,7 +55,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		public boolean equals(Object o) {
 			if(!(o instanceof Map.Entry))
 				return false;
-			Map.Entry e = (Map.Entry) o;
+			Map.Entry< ? , ? > e = (Map.Entry< ? , ? >) o;
 			Object k1 = getKey();
 			Object k2 = e.getKey();
 			if(k1 == k2 || (k1 != null && k1.equals(k2))) {
@@ -76,7 +79,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	}
 
 	/** The bucket table. */
-	transient Entry[] m_buckets;
+	transient Entry<K, V>[] m_buckets;
 
 	private SizeCalculator<V> m_sizeCalculator;
 
@@ -152,6 +155,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	/**
 	 * Returns the current #elements in the map.
 	 */
+	@Override
 	public int size() {
 		return m_currentSize;
 	}
@@ -168,6 +172,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		return m_objectSize;
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return m_currentSize == 0;
 	}
@@ -175,9 +180,10 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	/**
 	 * Clear the map.
 	 */
+	@Override
 	public void clear() {
 		m_updateCounter++;
-		Entry[] tab = m_buckets;
+		Entry<K, V>[] tab = m_buckets;
 		for(int i = 0; i < tab.length; i++)
 			tab[i] = null;
 		m_currentSize = 0;
@@ -243,6 +249,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	 * Retrieve a value by key. If a value is found it gets moved to the
 	 * most recently used position.
 	 */
+	@Override
 	public V get(Object key) {
 		Entry<K, V> e = getEntry(key);
 		if(e == null)
@@ -258,6 +265,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	 * Returns T if this map contains the keyed object. If the element
 	 * is found it is <b>not</b> touched as used.
 	 */
+	@Override
 	public boolean containsKey(Object key) {
 		return getEntry(key) != null;
 	}
@@ -274,6 +282,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	 *	       also indicate that the HashMap previously associated
 	 *	       <tt>null</tt> with the specified key.
 	 */
+	@Override
 	public V put(K key, V value) {
 		Object k = encodeKey(key);
 		int hash = hash(k);
@@ -314,15 +323,13 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	 */
 	private void resize(int newsize) {
 		m_threshold = (int) (newsize * LOAD);
-		Entry[] oldt = m_buckets;
+		Entry<K, V>[] oldt = m_buckets;
 		m_buckets = new Entry[newsize];
 
 		//-- Move all thingies to their new location.
-		for(int i = oldt.length; --i >= 0;) // All buckets in the old geezer
-		{
-			for(Entry curr = oldt[i]; curr != null;) // Walk the list
-			{
-				Entry e = curr;
+		for(int i = oldt.length; --i >= 0;) { // All buckets in the old geezer
+			for(Entry<K, V> curr = oldt[i]; curr != null;) {
+				Entry<K, V> e = curr;
 				curr = e.m_bucketNext; // Move to next bucket before remapping
 				int index = e.m_hashCode % newsize; // Get bucket pos
 				e.m_bucketNext = m_buckets[index];
@@ -334,6 +341,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	/**
 	 * Adds all of the elements to this map.
 	 */
+	@Override
 	public void putAll(Map< ? extends K, ? extends V> m) {
 		int numKeysToBeAdded = m.size();
 		if(numKeysToBeAdded == 0)
@@ -363,6 +371,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	 * Remove an entry by key.
 	 * @see java.util.Map#remove(java.lang.Object)
 	 */
+	@Override
 	public V remove(Object key) {
 		Entry<K, V> e = _remove(key);
 		return (e == null ? null : e.m_value);
@@ -394,7 +403,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	Entry<K, V> removeEntry(Object o) {
 		if(!(o instanceof Map.Entry))
 			return null;
-		return _remove(((Map.Entry) o).getKey());
+		return _remove(((Map.Entry< ? , ? >) o).getKey());
 	}
 
 	/**
@@ -403,6 +412,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	 *
 	 * @see java.util.Map#containsValue(java.lang.Object)
 	 */
+	@Override
 	public boolean containsValue(Object value) {
 		if(value == null) {
 			//-- Null has a faster comparison so handle it separately
@@ -467,6 +477,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 			}
 		}
 
+		@Override
 		public boolean hasNext() {
 			return m_next != null;
 		}
@@ -489,6 +500,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 			return m_current;
 		}
 
+		@Override
 		public void remove() {
 			if(m_current == null)
 				throw new IllegalStateException();
@@ -504,6 +516,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	private class ValueIterator extends HashIterator<V> {
 		public ValueIterator() {}
 
+		@Override
 		public V next() {
 			return nextEntry().m_value;
 		}
@@ -512,6 +525,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	private class KeyIterator extends HashIterator<K> {
 		public KeyIterator() {}
 
+		@Override
 		public K next() {
 			return nextEntry().getKey();
 		}
@@ -520,6 +534,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	private class EntryIterator extends HashIterator<Map.Entry<K, V>> {
 		public EntryIterator() {}
 
+		@Override
 		public Map.Entry<K, V> next() {
 			return nextEntry();
 		}
@@ -566,12 +581,14 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		}
 	}
 
+	@Override
 	public Set<K> keySet() {
 		if(m_keySet == null)
 			m_keySet = new KeySet();
 		return m_keySet;
 	}
 
+	@Override
 	public Collection<V> values() {
 		if(m_values == null)
 			m_values = new ValuesCollection();
@@ -615,18 +632,19 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	 * @return a collection view of the mappings contained in this map.
 	 * @see Map.Entry
 	 */
+	@Override
 	public Set<Map.Entry<K, V>> entrySet() {
 		if(m_entrySet == null)
 			m_entrySet = new EntrySet();
 		return m_entrySet;
 	}
 
-	private class EntrySet extends AbstractSet/*<Map.Entry<K,V>>*/
+	private class EntrySet extends AbstractSet<Map.Entry<K, V>>
 	{
 		public EntrySet() {}
 
 		@Override
-		public Iterator/*<Map.Entry<K,V>>*/iterator() {
+		public Iterator<Map.Entry<K, V>> iterator() {
 			return newEntryIterator();
 		}
 

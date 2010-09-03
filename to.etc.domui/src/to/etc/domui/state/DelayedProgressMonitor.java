@@ -18,18 +18,21 @@ public class DelayedProgressMonitor implements IProgress {
 		m_activity = activity;
 	}
 
+	@Override
 	public void cancel() {
 		synchronized(m_manager) {
 			m_canceled = true;
 		}
 	}
 
+	@Override
 	public boolean isCancelled() {
 		synchronized(m_manager) {
 			return m_canceled;
 		}
 	}
 
+	@Override
 	public void setCompleted(int work) {
 		if(isCancelled())
 			throw new DelayedActivityCanceledException();
@@ -41,6 +44,7 @@ public class DelayedProgressMonitor implements IProgress {
 		}
 	}
 
+	@Override
 	public void setTotalWork(int work) {
 		if(isCancelled())
 			throw new DelayedActivityCanceledException();

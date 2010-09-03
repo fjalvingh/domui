@@ -23,6 +23,7 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 
 	}
 
+	@Override
 	public int accepts(String inputmime, List<IImageConversionSpecifier> conversions) throws Exception {
 		if(!MIMES.contains(inputmime))
 			return -1;
@@ -35,6 +36,7 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 		return 2;
 	}
 
+	@Override
 	public void convert(ImageConverterHelper helper, List<IImageConversionSpecifier> convs) throws Exception {
 		String targetMime = null;
 		int sourcePage = 0;
@@ -92,6 +94,7 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 	 *
 	 * @see to.etc.domui.util.images.converters.IImageIdentifier#identifyImage(java.io.File, java.lang.String)
 	 */
+	@Override
 	public ImageInfo identifyImage(File src, String mime) {
 		//-- Ask ImageMagick...
 		ImageHandler ih = ImageManipulator.getImageHandler();

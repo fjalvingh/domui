@@ -15,12 +15,14 @@ public class WebappResourceRef implements IResourceRef {
 		m_resource = resource;
 	}
 
+	@Override
 	public long getLastModified() {
 		if(!m_resource.exists())
 			return -1;
 		return m_resource.lastModified();
 	}
 
+	@Override
 	public InputStream getInputStream() throws Exception {
 		return new FileInputStream(m_resource);
 	}

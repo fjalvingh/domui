@@ -20,6 +20,7 @@ public class ControlFactoryMoney implements ControlFactory {
 	 * Accept any type using a string.
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
+	@Override
 	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(Text.class)) // This will create a Text class,
 			return -1;
@@ -35,6 +36,7 @@ public class ControlFactoryMoney implements ControlFactory {
 	 * Create a Text control with the basic monetary converter, or the proper converter for the specified type.
 	 * @see to.etc.domui.component.form.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		Class< ? > iclz = pmm.getActualType();

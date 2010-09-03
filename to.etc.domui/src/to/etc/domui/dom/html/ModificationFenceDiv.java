@@ -46,6 +46,7 @@ public class ModificationFenceDiv extends Div implements IUserInputModifiedFence
 		m_finalUserInputModifiedFence = finalUserInputModifiedFence;
 	}
 
+	@Override
 	public void onModifyFlagRaised() {
 	//by default do nothing
 	}

@@ -14,16 +14,19 @@ import to.etc.webapp.query.*;
 abstract public class AbstractLookupControlImpl implements ILookupControlInstance {
 	private NodeBase[] m_nodes;
 
+	@Override
 	abstract public boolean appendCriteria(QCriteria< ? > crit) throws Exception;
 
 	public AbstractLookupControlImpl(NodeBase... nodes) {
 		m_nodes = nodes;
 	}
 
+	@Override
 	public NodeBase[] getInputControls() {
 		return m_nodes;
 	}
 
+	@Override
 	public NodeBase getLabelControl() {
 		return null;
 	}
@@ -33,6 +36,7 @@ abstract public class AbstractLookupControlImpl implements ILookupControlInstanc
 	 *
 	 * @see to.etc.domui.component.lookup.ILookupControlInstance#clearInput()
 	 */
+	@Override
 	public void clearInput() {
 		boolean done = false;
 		if(m_nodes != null) {
