@@ -1905,8 +1905,44 @@ var WebUI = {
 			//-- It can fail when the entire page has been replaced.
 		}
 		WebUI._busyOvl= null;
-	}
+	},
+
+	/*-- Printing support --*/
+	_frmIdCounter: 0,
+
+	backgroundPrint: function(url) {
+		try {
+			// Create embedded sizeless div to contain the iframe, invisibly.
+			var div = document.getElementById('domuiprif');
+			if(div)
+				div.innerHTML = "";
+			else {
+				div = document.createElement('div');
+				div.id = 'domuiprif';
+				div.className = 'ui-printdiv';
+				document.body.appendChild(div);
+			}
 	
+			//-- Create an iframe loading the required thingy.
+			var frmname = "dmuifrm"+(WebUI._frmIdCounter++);		// Create unique name to circumvent ffox "print only once" bug
+
+			$(div).html('<iframe id="'+frmname+'" name="'+frmname+'" src="'+url+'">');
+
+			var frm = window.frames[frmname];
+			$("#"+frmname).load(function() {
+				try {
+					frm.focus();
+					setTimeout(function() {
+						frm.print();
+					}, 1000);
+				} catch(x) {
+					alert('cannot print: '+x);
+				}
+			});
+		} catch(x) {
+			alert("Failed: "+x);
+		}
+	}
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {

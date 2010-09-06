@@ -253,7 +253,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 				throw new IllegalArgumentException("The mime type '" + targetMime + "' is not supported");
 			File tof = h.createWorkFile(ext);
 			ProcessBuilder pb = new ProcessBuilder(m_convert.toString(), source.getSource().toString() + "[" + page + "]", "-thumbnail", width + "x" + height, tof.toString());
-			//			System.out.println("Command: " + pb.toString());
+			System.out.println("Command: " + pb.command().toString());
 			StringBuilder sb = new StringBuilder(8192);
 			int xc = ProcessTools.runProcess(pb, sb);
 			System.out.println("convert: " + sb.toString());
@@ -279,8 +279,12 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			File tof = h.createWorkFile(ext);
 
 			//-- Start 'identify' and capture the resulting data.
-			ProcessBuilder pb = new ProcessBuilder(m_convert.toString(), "-resize", width + "x" + height, source.getSource().toString() + "[" + page + "]", "-strip", tof.toString());
-			//			System.out.println("Command: " + pb.toString());
+			String rsz = width + "x" + height;
+
+			//-- jal 20100906 Use thumbnail, not resize: resize does not properly filter causing an white image because all black pixels are sized out.
+			ProcessBuilder pb = new ProcessBuilder(m_convert.toString(), "-size", rsz, source.getSource().toString() + "[" + page + "]", "-thumbnail", rsz, "-coalesce", "-quality", "100", tof
+				.toString());
+			System.out.println("Command: " + pb.command().toString());
 			StringBuilder sb = new StringBuilder(8192);
 			int xc = ProcessTools.runProcess(pb, sb);
 			System.out.println("convert: " + sb.toString());

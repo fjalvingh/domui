@@ -1329,3 +1329,11 @@ body,html {
 .ui-pre {
 	white-space: pre;
 }
+.ui-printdiv {
+	overflow: hidden;
+	width: 1px;
+	height: 1px;
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+}
