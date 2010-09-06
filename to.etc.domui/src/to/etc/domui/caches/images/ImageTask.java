@@ -396,7 +396,7 @@ public class ImageTask extends CacheChange {
 		ImageConverterHelper ich = new ImageConverterHelper();
 		try {
 			ImageSpec sis = new ImageSpec(origd.getFile(), origi.getImageInfo());
-			ich.executeConversionChain(sis, conversions); // Execute the conversion chain
+			ich.executeConversionChain(sis, new ArrayList<IImageConversionSpecifier>(conversions)); // Execute the conversion chain
 
 			//-- Now copy the final result into the cachefile;
 			FileTool.copyFile(targetref.getFile(), ich.getTarget().getSource()); // Copy result to cachefile
