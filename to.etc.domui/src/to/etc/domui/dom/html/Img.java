@@ -27,9 +27,9 @@ public class Img extends NodeBase {
 
 	private int m_imgBorder = -1;
 
-	private int m_imgHeight = -1;
+	private String m_imgHeight;
 
-	private int m_imgWidth = -1;
+	private String m_imgWidth;
 
 	/**
 	 * Creates an uninitialized image.
@@ -161,23 +161,25 @@ public class Img extends NodeBase {
 		m_imgBorder = imgBorder;
 	}
 
-	public int getImgHeight() {
+	public String getImgHeight() {
 		return m_imgHeight;
 	}
 
-	public void setImgHeight(int imgHeight) {
-		if(m_imgHeight != imgHeight)
-			changed();
+	public void setImgHeight(String imgHeight) {
+		if(DomUtil.isEqual(m_imgHeight, imgHeight))
+			return;
+		changed();
 		m_imgHeight = imgHeight;
 	}
 
-	public int getImgWidth() {
+	public String getImgWidth() {
 		return m_imgWidth;
 	}
 
-	public void setImgWidth(int imgWidth) {
-		if(m_imgWidth != imgWidth)
-			changed();
+	public void setImgWidth(String imgWidth) {
+		if(DomUtil.isEqual(m_imgWidth, imgWidth))
+			return;
+		changed();
 		m_imgWidth = imgWidth;
 	}
 }
