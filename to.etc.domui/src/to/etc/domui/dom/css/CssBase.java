@@ -717,4 +717,35 @@ public class CssBase {
 		m_marginBottom = marginBottom;
 	}
 
+	public void setMargin(String... margin) {
+		switch(margin.length){
+			default:
+				throw new IllegalStateException("Margin must have 1..4 string parameters.");
+			case 1:
+				setMarginTop(margin[0]);
+				setMarginBottom(margin[0]);
+				setMarginLeft(margin[0]);
+				setMarginRight(margin[0]);
+				break;
+			case 2:
+				setMarginTop(margin[0]);
+				setMarginBottom(margin[0]);
+				setMarginLeft(margin[1]);
+				setMarginRight(margin[1]);
+				break;
+			case 3:
+				setMarginTop(margin[0]);
+				setMarginBottom(margin[2]);
+				setMarginLeft(margin[1]);
+				setMarginRight(margin[1]);
+				break;
+			case 4:
+				setMarginTop(margin[0]);
+				setMarginRight(margin[1]);
+				setMarginBottom(margin[2]);
+				setMarginLeft(margin[3]);
+				break;
+		}
+	}
+
 }

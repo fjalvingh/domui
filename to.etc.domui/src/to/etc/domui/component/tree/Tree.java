@@ -61,6 +61,11 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 		setCssClass("ui-tree");
 	}
 
+	public Tree(ITreeModel< ? > model) {
+		this();
+		setModel(model);
+	}
+
 	/**
 	 * Main initial renderer.
 	 * @see to.etc.domui.dom.html.NodeBase#createContent()

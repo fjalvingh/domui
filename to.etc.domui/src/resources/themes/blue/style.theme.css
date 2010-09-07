@@ -426,7 +426,7 @@ table .ui-sh {
 	background: url(bg-rounded-middle.png) repeat-x;
 	height: 36px;
 }
-A.ui-brc-l, A.ui-brc-l:hover A.ui-brc-l :VISITED, A.ui-brc-l:ACTIVE {
+a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 	color: #ffff99;
 	font-weight: bolder;
 	text-decoration: none;
@@ -466,10 +466,13 @@ A.ui-brc-l, A.ui-brc-l:hover A.ui-brc-l :VISITED, A.ui-brc-l:ACTIVE {
 .ui-tr-val {
 	white-space: nowrap;
 }
-TD.ui-tr-sel:hover {
+td.ui-tr-sel:hover {
 	background-color: #ffe1bf !important;
 }
-TD.ui-tr-selected {
+td.ui-tr-sel {
+	cursor: pointer;
+}
+td.ui-tr-selected {
 	background-color: white; !important;
 }
 
