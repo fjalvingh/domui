@@ -6,6 +6,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
 
 public class ButtonBar extends Table {
 	private boolean m_vertical;
@@ -115,7 +116,7 @@ public class ButtonBar extends Table {
 	}
 
 	public DefaultButton addBackButton() {
-		return addBackButton("Terug", "THEME/btnCancel.png");
+		return addBackButton(Msgs.BUNDLE.getString("ui.buttonbar.back"), "THEME/btnCancel.png");
 	}
 
 	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click) {
