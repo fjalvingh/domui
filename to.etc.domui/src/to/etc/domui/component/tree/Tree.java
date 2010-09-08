@@ -14,7 +14,7 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 
 	private boolean m_showRoot;
 
-	private boolean m_expandOnlyOne;
+	//	private boolean m_expandOnlyOne;
 
 	private Table m_rootTable;
 
@@ -210,7 +210,7 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 		//			return;
 		//		}
 
-		//-- The damn thing is visible. We need to re-render where needed.
+		//-- The thing is visible. We need to re-render where needed.
 		for(final Object o : path) {
 			VisibleNode vn = getVisibleNode(o);
 			vn.expanded = true;
@@ -450,14 +450,6 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 
 	public void setShowRoot(boolean showRoot) {
 		m_showRoot = showRoot;
-	}
-
-	public boolean isExpandOnlyOne() {
-		return m_expandOnlyOne;
-	}
-
-	public void setExpandOnlyOne(boolean expandOnlyOne) {
-		m_expandOnlyOne = expandOnlyOne;
 	}
 
 	public INodeContentRenderer< ? > getContentRenderer() {
