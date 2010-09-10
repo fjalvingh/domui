@@ -449,28 +449,46 @@ public class HtmlTagRenderer implements INodeVisitor {
 		}
 
 		//Margins
-		if(c.getMarginLeft() != null) {
-			a.append("margin-left:");
-			a.append(c.getMarginLeft());
-			a.append(';');
-		}
+		if(c.getMarginBottom() != null || c.getMarginLeft() != null || c.getMarginRight() != null || c.getMarginTop() != null) {
+			if(DomUtil.isEqual(c.getMarginBottom(), c.getMarginTop(), c.getMarginLeft(), c.getMarginRight())) {
+				a.append("margin:");
+				a.append(c.getMarginLeft());
+				a.append(';');
+			} else {
+				boolean topbot = DomUtil.isEqual(c.getMarginBottom(), c.getMarginTop()) && c.getMarginBottom() != null;
+				boolean leri = DomUtil.isEqual(c.getMarginLeft(), c.getMarginRight()) && c.getMarginLeft() != null;
+				if(topbot && leri) {
+					a.append("margin:");
+					a.append(c.getMarginTop());
+					a.append(' ');
+					a.append(c.getMarginLeft());
+					a.append(';');
+				} else {
+					if(c.getMarginLeft() != null) {
+						a.append("margin-left:");
+						a.append(c.getMarginLeft());
+						a.append(';');
+					}
 
-		if(c.getMarginRight() != null) {
-			a.append("margin-right:");
-			a.append(c.getMarginRight());
-			a.append(';');
-		}
+					if(c.getMarginRight() != null) {
+						a.append("margin-right:");
+						a.append(c.getMarginRight());
+						a.append(';');
+					}
 
-		if(c.getMarginBottom() != null) {
-			a.append("margin-bottom:");
-			a.append(c.getMarginBottom());
-			a.append(';');
-		}
+					if(c.getMarginBottom() != null) {
+						a.append("margin-bottom:");
+						a.append(c.getMarginBottom());
+						a.append(';');
+					}
 
-		if(c.getMarginTop() != null) {
-			a.append("margin-top:");
-			a.append(c.getMarginTop());
-			a.append(';');
+					if(c.getMarginTop() != null) {
+						a.append("margin-top:");
+						a.append(c.getMarginTop());
+						a.append(';');
+					}
+				}
+			}
 		}
 	}
 

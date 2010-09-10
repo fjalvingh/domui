@@ -9,29 +9,31 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 
-public class Tree extends Div implements ITreeModelChangedListener<Object> {
-	private ITreeModel<Object> m_model;
+public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
+	private ITreeModel<T> m_model;
 
 	private boolean m_showRoot;
 
-	private boolean m_expandOnlyOne;
+	//	private boolean m_expandOnlyOne;
 
 	private Table m_rootTable;
 
 	private boolean m_expandRoot;
 
-	private Map<Object, VisibleNode> m_openMap = new HashMap<Object, VisibleNode>();
+	private Map<Object, VisibleNode<T>> m_openMap = new HashMap<Object, VisibleNode<T>>();
 
 	/** The specified ComboRenderer used. */
 	private INodeContentRenderer< ? > m_contentRenderer;
 
-	private INodeContentRenderer<Object> m_actualContentRenderer;
+	private INodeContentRenderer<T> m_actualContentRenderer;
 
-	private Class< ? extends INodeContentRenderer< ? >> m_contentRendererClass;
+	private Class< ? extends INodeContentRenderer<T>> m_contentRendererClass;
 
 	private PropertyMetaModel m_propertyMetaModel;
 
 	private ICellClicked< ? > m_cellClicked;
+
+	private INodePredicate<T> m_nodeSelectablePredicate;
 
 	/**
 	 * Represents the internal visible state of the tree.
@@ -39,26 +41,31 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Oct 20, 2008
 	 */
-	static class VisibleNode {
-		final Object data;
+	static class VisibleNode<V> {
+		final V data;
 
 		/** The first row of the node's data. */
 		TR nodeRow;
 
 		/** If this is an expanded node this contains the expanded children's nodes. */
-		VisibleNode[] childNodes;
+		VisibleNode<V>[] childNodes;
 
 		boolean expanded;
 
 		boolean unexpandable;
 
-		public VisibleNode(Object data) {
+		public VisibleNode(V data) {
 			this.data = data;
 		}
 	}
 
 	public Tree() {
 		setCssClass("ui-tree");
+	}
+
+	public Tree(ITreeModel<T> model) {
+		this();
+		setModel(model);
 	}
 
 	/**
@@ -68,15 +75,15 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 	@Override
 	public void createContent() throws Exception {
 		//-- The root node is always expanded, of course
-		Object root = getModel().getRoot();
+		T root = getModel().getRoot();
 
 		//-- Render the root thingy && create the 1st visibleNode
-		VisibleNode n = getVisibleNode(root);
+		VisibleNode<T> n = getVisibleNode(root);
 		n.expanded = true;
 		m_rootTable = renderList(root, n);
 		if(m_expandRoot) {
 			for(int i = getModel().getChildCount(root); --i >= 0;) {
-				Object v = getModel().getChild(root, i);
+				T v = getModel().getChild(root, i);
 				expandNode(v);
 				//				for(int j = getModel().getChildCount(v); --j >= 0;) {
 				//					Object w = getModel().getChild(v, j);
@@ -92,16 +99,16 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 	 * @param base
 	 * @return
 	 */
-	private VisibleNode getVisibleNode(Object base) {
-		VisibleNode n = m_openMap.get(base);
+	private VisibleNode<T> getVisibleNode(T base) {
+		VisibleNode<T> n = m_openMap.get(base);
 		if(n == null) {
-			n = new VisibleNode(base);
+			n = new VisibleNode<T>(base);
 			m_openMap.put(base, n);
 		}
 		return n;
 	}
 
-	private Table renderList(Object base, VisibleNode baseInfo) throws Exception {
+	private Table renderList(T base, VisibleNode<T> baseInfo) throws Exception {
 		Table t = new Table();
 		t.setCellSpacing("0");
 		t.setCellPadding("0");
@@ -114,10 +121,10 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 		}
 
 		//-- Render each child && assign their VisibleNode thingy.
-		VisibleNode[] vnar = new VisibleNode[len];
+		VisibleNode<T>[] vnar = new VisibleNode[len];
 		for(int i = 0; i < len; i++) {
-			final Object item = getModel().getChild(base, i); // Get ith child
-			VisibleNode chvn = getVisibleNode(item);
+			final T item = getModel().getChild(base, i); // Get ith child
+			VisibleNode<T> chvn = getVisibleNode(item);
 			vnar[i] = chvn;
 			boolean last = i + 1 == len; // T if this is the last child being rendered
 			chvn.nodeRow = b.addRow();
@@ -187,9 +194,9 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 	 * @param item
 	 * @throws Exception
 	 */
-	public void expandNode(Object item) throws Exception {
+	public void expandNode(T item) throws Exception {
 		getModel().expandChildren(item);
-		List<Object> path = getTreePath(item); // Calculate a path.
+		List<T> path = getTreePath(item); // Calculate a path.
 		if(path.size() == 0)
 			throw new IllegalStateException("No TREE path found to node=" + item);
 		Object root = getModel().getRoot();
@@ -205,9 +212,9 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 		//			return;
 		//		}
 
-		//-- The damn thing is visible. We need to re-render where needed.
-		for(final Object o : path) {
-			VisibleNode vn = getVisibleNode(o);
+		//-- The thing is visible. We need to re-render where needed.
+		for(final T o : path) {
+			VisibleNode<T> vn = getVisibleNode(o);
 			vn.expanded = true;
 
 			if(vn.childNodes == null) {
@@ -277,8 +284,8 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 	 * @param item
 	 * @throws Exception
 	 */
-	public void collapseNode(final Object item) throws Exception {
-		VisibleNode vn = m_openMap.get(item);
+	public void collapseNode(final T item) throws Exception {
+		VisibleNode<T> vn = m_openMap.get(item);
 		if(vn == null || !vn.expanded)
 			return;
 
@@ -308,11 +315,11 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 		row.getParent().getChild(rowix + 1).remove(); // Drop the 2nd item
 	}
 
-	private void dropCrud(VisibleNode vnbase) throws Exception {
+	private void dropCrud(VisibleNode<T> vnbase) throws Exception {
 		if(vnbase.childNodes == null)
 			return;
 		int ix = 0;
-		for(VisibleNode vn : vnbase.childNodes) {
+		for(VisibleNode<T> vn : vnbase.childNodes) {
 			if(vn == null)
 				throw new IllegalStateException("?? Element " + ix + " of parent=" + vnbase.data + " is null???");
 			m_openMap.remove(vn.data);
@@ -333,14 +340,14 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 	 * @param item
 	 * @return
 	 */
-	public List<Object> getTreePath(Object item) throws Exception {
-		List<Object> path = new ArrayList<Object>();
+	public List<T> getTreePath(T item) throws Exception {
+		List<T> path = new ArrayList<T>();
 		addParentPath(path, item);
 		return path;
 	}
 
-	private void addParentPath(List<Object> path, Object item) throws Exception {
-		Object parent = getModel().getParent(item);
+	private void addParentPath(List<T> path, T item) throws Exception {
+		T parent = getModel().getParent(item);
 		/*
 		 * jal 20081127 The explicit compare with the root node is needed because we allow the root
 		 * node to be null. In that case the path to the item MUST start with null (representing the
@@ -366,20 +373,28 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 		return MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
 	}
 
-	private void renderContent(final TD cell, final Object value) throws Exception {
+	private void renderContent(final TD cell, final T value) throws Exception {
 		if(m_actualContentRenderer == null)
-			m_actualContentRenderer = (INodeContentRenderer<Object>) calculateContentRenderer(value);
+			m_actualContentRenderer = (INodeContentRenderer<T>) calculateContentRenderer(value);
 		m_actualContentRenderer.renderNodeContent(this, cell, value, this);
 
-		if(getCellClicked() != null) { // Is a cell clicked thing attached?
+		if(isSelectable(value)) {
 			cell.addCssClass("ui-tr-sel");
+			if(isSelected(value))
+				cell.addCssClass("ui-tr-selected");
+
 			cell.setClicked(new IClicked<TD>() {
 				@Override
 				public void clicked(TD b) throws Exception {
-					((ICellClicked<Object>) getCellClicked()).cellClicked(getPage(), cell, value);
+					cellClicked(cell, value);
 				}
 			});
 		}
+	}
+
+	protected void cellClicked(final TD cell, final T value) throws Exception {
+		if(getCellClicked() != null)
+			((ICellClicked<Object>) getCellClicked()).cellClicked(getPage(), cell, value);
 	}
 
 	/**
@@ -387,11 +402,42 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 	 * @param node
 	 * @return
 	 */
-	public boolean isExpanded(Object node) {
-		VisibleNode vn = m_openMap.get(node);
+	public boolean isExpanded(T node) {
+		VisibleNode<T> vn = m_openMap.get(node);
 		if(vn == null)
 			return false;
 		return vn.expanded;
+	}
+
+
+	protected boolean isSelectable(T node) throws Exception {
+		if(getCellClicked() == null)
+			return false;
+		if(m_nodeSelectablePredicate == null)
+			return true;
+		return m_nodeSelectablePredicate.predicate(node);
+	}
+
+	/**
+	 * Internal use: set or reset the 'selected' indication on the visible node.
+	 * @param node
+	 * @param selected
+	 */
+	protected void markAsSelected(T node, boolean selected) {
+		VisibleNode<T> vn = m_openMap.get(node);
+		if(vn == null)
+			return;
+		if(vn.nodeRow == null)
+			return;
+		TD cell = (TD) vn.nodeRow.getChild(1);
+		if(selected)
+			cell.addCssClass("ui-tr-selected");
+		else
+			cell.removeCssClass("ui-tr-selected");
+	}
+
+	protected boolean isSelected(T node) {
+		return false;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -401,8 +447,8 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 	 * Set a new model for this table. This discards the entire presentation
 	 * and causes a full build at render time.
 	 */
-	public void setModel(ITreeModel< ? > model) {
-		ITreeModel<Object> itm = (ITreeModel<Object>) model; // Stupid Java Generics need cast here
+	public void setModel(ITreeModel<T> model) {
+		ITreeModel<T> itm = model; // Stupid Java Generics need cast here
 		if(m_model == itm) // If the model did not change at all begone
 			return;
 		//		ITreeModel<?>	old = m_model;
@@ -422,7 +468,7 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 		m_expandRoot = x;
 		if(!x || !isBuilt())
 			return;
-		Object root = getModel().getRoot();
+		T root = getModel().getRoot();
 		if(!isExpanded(root))
 			expandNode(root);
 	}
@@ -435,7 +481,7 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 	 * Get the currently used model.
 	 * @return
 	 */
-	public ITreeModel<Object> getModel() {
+	public ITreeModel<T> getModel() {
 		return m_model;
 	}
 
@@ -445,14 +491,6 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 
 	public void setShowRoot(boolean showRoot) {
 		m_showRoot = showRoot;
-	}
-
-	public boolean isExpandOnlyOne() {
-		return m_expandOnlyOne;
-	}
-
-	public void setExpandOnlyOne(boolean expandOnlyOne) {
-		m_expandOnlyOne = expandOnlyOne;
 	}
 
 	public INodeContentRenderer< ? > getContentRenderer() {
@@ -467,7 +505,7 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 		return m_contentRendererClass;
 	}
 
-	public void setContentRendererClass(Class< ? extends INodeContentRenderer< ? >> contentRendererClass) {
+	public void setContentRendererClass(Class< ? extends INodeContentRenderer<T>> contentRendererClass) {
 		m_contentRendererClass = contentRendererClass;
 	}
 
@@ -485,5 +523,13 @@ public class Tree extends Div implements ITreeModelChangedListener<Object> {
 
 	public void setPropertyMetaModel(PropertyMetaModel propertyMetaModel) {
 		m_propertyMetaModel = propertyMetaModel;
+	}
+
+	public INodePredicate<T> getNodeSelectablePredicate() {
+		return m_nodeSelectablePredicate;
+	}
+
+	public void setNodeSelectablePredicate(INodePredicate<T> nodeSelectablePredicate) {
+		m_nodeSelectablePredicate = nodeSelectablePredicate;
 	}
 }
