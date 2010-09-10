@@ -130,7 +130,13 @@ public class SplitterPanel extends Div {
 		} else {
 			params.append("splitHorizontal:true,");
 		}
-		return "$('#" + getActualID() + "').splitter({" + params.toString() + "A:$('#" + m_panelA.getActualID() + "'),B:$('#" + m_panelB.getActualID() + "'),closeableto:0});";
+		if(getHeight() == null || getHeight().equals("100%")) {
+			//In case when it is not defined differently, we have to adjust height of splitter panel to take all available space of parent container. This can be done only using javascript.
+			return "WebUI.stretchHeight('" + getActualID() + "');$('#" + getActualID() + "').splitter({" + params.toString() + "A:$('#" + m_panelA.getActualID() + "'),B:$('#" + m_panelB.getActualID()
+				+ "'),closeableto:0});$(window).resize(function(){WebUI.stretchHeight('" + getActualID() + "');});";
+		} else {
+			return "$('#" + getActualID() + "').splitter({" + params.toString() + "A:$('#" + m_panelA.getActualID() + "'),B:$('#" + m_panelB.getActualID() + "'),closeableto:0});";
+		}
 	}
 
 	@Override

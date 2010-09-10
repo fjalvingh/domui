@@ -1852,6 +1852,20 @@ var WebUI = {
 		}
 	},
 	
+	/** ***************** Stretch elemnt height. Must be done via javascript. **************** */
+	stretchHeight : function(elemId) {
+		var elem = document.getElementById(elemId);
+		var elemHeight = $(elem).height();
+		var totHeight = 0;
+		$(elem).siblings().each(function(index, node) {
+			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
+			if (node != elem && $(node).css('position') == 'static'){
+				totHeight += node.offsetHeight;
+			}
+		});
+		$(elem).height($(elem).parent().height() - totHeight);
+	},
+	
 	_busyCount: 0,
 
 	/*
