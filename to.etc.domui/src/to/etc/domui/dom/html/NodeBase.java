@@ -989,4 +989,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	public QDataContext getSharedContext() throws Exception {
 		return QContextManager.getContext(getPage());
 	}
+
+	/**
+	 * EXPERIMENTAL
+	 * Method can be used to stretch height of element to take all available free space in parent container.
+	 */
+	public void stretchHeight() {
+		appendJavascript("$(document).ready(function() {WebUI.stretchHeight('" + getActualID() + "');});");
+	}
 }
