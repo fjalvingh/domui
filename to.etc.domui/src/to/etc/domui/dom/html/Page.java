@@ -101,6 +101,13 @@ final public class Page implements IQContextContainer {
 	 */
 	private NodeBase m_theCurrentNode;
 
+	/**
+	 * When set, the page will be rendered as XHTML. This is experimental, and used to implement
+	 * the SVG/VML graphic flow editor.
+	 */
+	private boolean m_renderAsXHTML;
+
+
 	public Page(final UrlPage pageContent) {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
@@ -734,5 +741,13 @@ final public class Page implements IQContextContainer {
 
 	public void setAllowVectorGraphics(boolean allowVectorGraphics) {
 		m_allowVectorGraphics = allowVectorGraphics;
+	}
+
+	public boolean isRenderAsXHTML() {
+		return m_renderAsXHTML;
+	}
+
+	public void setRenderAsXHTML(boolean renderAsXHTML) {
+		m_renderAsXHTML = renderAsXHTML;
 	}
 }

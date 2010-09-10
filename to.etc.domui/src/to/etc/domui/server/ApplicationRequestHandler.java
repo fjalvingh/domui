@@ -253,7 +253,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			// END ORDERED
 
 			//-- Start the main rendering process. Determine the browser type.
-			if(page.getBody() instanceof IXHTMLPage)
+			if(page.isRenderAsXHTML())
 				ctx.getResponse().setContentType("application/xhtml+xml; charset=UTF-8");
 			else
 				ctx.getResponse().setContentType("text/html; charset=UTF-8");
