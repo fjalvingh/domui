@@ -81,6 +81,11 @@ public interface Msgs {
 
 	public static final String UI_XDT_DELSURE = "ui.xdt.delsure";
 
+	public static final String UI_XDT_ADD = "ui.xdt.add";
+
+	public static final String UI_XDT_CANCEL = "ui.xdt.cancel";
+
+	public static final String UI_XDT_SURE = "ui.xdt.sure";
 
 	//# Exceptions.
 
