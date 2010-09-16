@@ -490,6 +490,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 				}
 			}
 		}
+
+		if(c.getTransform() != null) {
+			a.append("text-transform:");
+			a.append(c.getTransform().name().toLowerCase());
+			a.append(';');
+		}
 	}
 
 	static private String border(final StringBuilder a, final int w, final String s, final String c) {
@@ -785,9 +791,26 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getOnKeyPressJS() != null) {
 			o().attr("onkeypress", n.getOnKeyPressJS());
 		}
+		String transformScript = "";
+		if(n.getTransform() != null) {
+			switch(n.getTransform()){
+				case LOWERCASE:
+					transformScript = "javascript:this.value=this.value.toLowerCase();";
+					break;
+				case UPPERCASE:
+					transformScript = "javascript:this.value=this.value.toUpperCase();";
+					break;
+				default://do nothing
+			}
+		}
+
 		if(n.getOnLookupTyping() != null) {
-			o().attr("onkeyup", sb().append("WebUI.scheduleOnLookupTypingEvent('").append(n.getActualID()).append("', event)").toString());
+			o().attr("onkeyup", sb().append(transformScript + "WebUI.scheduleOnLookupTypingEvent('").append(n.getActualID()).append("', event)").toString());
 			o().attr("onblur", sb().append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
+		} else {
+			if(!DomUtil.isBlank(transformScript)) {
+				o().attr("onkeyup", sb().append(transformScript).toString());
+			}
 		}
 		renderTagend(n, m_o);
 	}
