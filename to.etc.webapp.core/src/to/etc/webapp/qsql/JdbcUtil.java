@@ -362,19 +362,7 @@ public class JdbcUtil {
 			ps.execute();
 
 			if(startix != 1) {
-				if(rtype == String.class) {
-					return (T) ps.getString(1);
-				} else if(rtype == Integer.class || rtype == int.class) {
-					return (T) (Integer.valueOf(ps.getInt(1)));
-				} else if(rtype == Long.class || rtype == long.class) {
-					return (T) (Long.valueOf(ps.getLong(1)));
-				} else if(rtype == Double.class || rtype == double.class) {
-					return (T) (Double.valueOf(ps.getDouble(1)));
-				} else if(rtype == BigDecimal.class) {
-					return (T) ps.getBigDecimal(1);
-				} else {
-					throw new IllegalStateException("Call error: cannot get out parameter for result java type=" + rtype);
-				}
+				return readPsValue(ps, 1, rtype);
 			} else {
 				return null;
 			}
@@ -449,6 +437,178 @@ public class JdbcUtil {
 				if(ps != null)
 					ps.close();
 			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Similar as {@link JdbcUtil#oracleMoronsCallSP(Connection, Class, String, Object...)}.
+	 * Provides additional interface to read OUT values that are defined in SP/function call.
+	 * Only constraint is that OUT params are always after all IN params.
+	 * @param <T>
+	 * @param con
+	 * @param rtype
+	 * @param sp
+	 * @param outParams
+	 * @param args
+	 * @return
+	 * @throws SQLException
+	 */
+	static public <T> T oracleFunctionCallSP(Connection con, Class<T> rtype, String sp, JdbcOutParam<?>[] outParams, Object... args) throws SQLException {
+		if(rtype == Boolean.class || rtype == boolean.class) {
+			return (T) Boolean.valueOf(oracleFunctionCallSPReturningBool(con, sp, outParams, args));
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("begin ");
+		int startix = 1;
+		if(rtype != null && rtype != Void.class) {
+			sb.append("? := ");
+			startix = 2;
+		}
+		List<Object> pars = new ArrayList<Object>(args.length);
+		sb.append(sp).append('(');
+		appendSPParameters(sb, pars, args);
+		if (args.length > 0) {
+			sb.append(',');
+		}
+		if(outParams != null) {
+			for(int i = 0; i < outParams.length; i++) {
+				sb.append('?');
+				if(i < (outParams.length - 1)) {
+					sb.append(',');
+				}
+			}
+		}
+		sb.append(");");
+		sb.append("end;");
+		String stmt = sb.toString();
+		System.out.println("CALLING: " + stmt);
+
+		//-- Call the SP
+		CallableStatement ps = null;
+		try {
+			ps = con.prepareCall(stmt);
+			if(startix != 1)
+				ps.registerOutParameter(1, calcSQLTypeFor(rtype));
+			setParameters(ps, startix, pars.toArray());
+			if(outParams != null) {
+				registerOutSPParameters(ps, startix + pars.size(), outParams);
+			}
+
+			ps.execute();
+			if(outParams != null) {
+				int outIndex = startix + pars.size();
+				for(JdbcOutParam< ? > outParam : outParams) {
+					setOutParamValue(ps, outIndex++, outParam.getClassType(), outParam);
+				}
+			}
+
+			if(startix != 1) {
+				return readPsValue(ps, 1, rtype);
+			} else {
+				return null;
+			}
+		} finally {
+			FileTool.closeAll(ps);
+		}
+	}
+
+	/**
+	 * Similar as {@link JdbcUtil#oracleFunctionCallSP(Connection, Class, String, JdbcOutParam[], Object...)},
+	 * adjusted to handle returning of oracle boolean type properly.
+	 * @param con
+	 * @param sp
+	 * @param outParams
+	 * @param args
+	 * @return
+	 * @throws SQLException
+	 */
+	public static boolean oracleFunctionCallSPReturningBool(Connection con, String sp, JdbcOutParam< ? >[] outParams, Object... args) throws SQLException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("declare l_res number; ");
+		sb.append("begin if(").append(sp).append("(");
+		List<Object> pars = new ArrayList<Object>(args.length);
+		appendSPParameters(sb, pars, args);
+		if(args.length > 0) {
+			sb.append(',');
+		}
+		int outSize = 0;
+		if(outParams != null) {
+			outSize = outParams.length;
+			for(int i = 0; i < outParams.length; i++) {
+				sb.append('?');
+				if(i < (outSize - 1)) {
+					sb.append(',');
+				}
+			}
+		}
+		sb.append(")) then l_res := 1; else l_res := 0; end if; ? := l_res;");
+		sb.append("end;");
+		String stmt = sb.toString();
+		System.out.println("CALLING: " + stmt + ", outResult=" + (pars.size() + outSize + 1));
+
+		//-- Call the SP
+		CallableStatement ps = null;
+		try {
+			ps = con.prepareCall(stmt);
+			setParameters(ps, 1, pars.toArray());
+			if(outParams != null) {
+				registerOutSPParameters(ps, pars.size() + 1, outParams);
+			}
+			ps.registerOutParameter(pars.size() + outSize + 1, Types.NUMERIC);
+			ps.execute();
+			if(outParams != null) {
+				int outIndex = pars.size() + 1;
+				for(JdbcOutParam< ? > outParam : outParams) {
+					setOutParamValue(ps, outIndex++, outParam.getClassType(), outParam);
+				}
+			}
+			int res = ps.getInt(pars.size() + outSize + 1);
+			return res != 0;
+		} finally {
+			FileTool.closeAll(ps);
+		}
+	}
+
+	/**
+	 * Just a overload wrapper for single OUT param function call.
+	 * See {@link JdbcUtil#oracleFunctionCallSPReturningBool(Connection, String, JdbcOutParam[], Object...)}
+	 * @param con
+	 * @param sp
+	 * @param outParam
+	 * @param args
+	 * @return
+	 * @throws SQLException
+	 */
+	public static boolean oracleFunctionCallSPReturningBool(Connection con, String sp, JdbcOutParam< ? > outParam, Object... args) throws SQLException {
+		JdbcOutParam< ? >[] outParams = new JdbcOutParam[1];
+		return oracleFunctionCallSPReturningBool(con, sp, outParams, args);
+	}
+
+	private static <T> void setOutParamValue(CallableStatement ps, int index, Class<T> rtype, JdbcOutParam< ? > pOutParam) throws SQLException {
+		JdbcOutParam<T> outParam = (JdbcOutParam<T>) pOutParam;
+		outParam.setValue(readPsValue(ps, index, rtype));
+	}
+
+	private static <T> T readPsValue(CallableStatement ps, int index, Class<T> rtype) throws SQLException {
+		if(rtype == String.class) {
+			return (T) ps.getString(index);
+		} else if(rtype == Integer.class || rtype == int.class) {
+			return (T) (Integer.valueOf(ps.getInt(index)));
+		} else if(rtype == Long.class || rtype == long.class) {
+			return (T) (Long.valueOf(ps.getLong(index)));
+		} else if(rtype == Double.class || rtype == double.class) {
+			return (T) (Double.valueOf(ps.getDouble(index)));
+		} else if(rtype == BigDecimal.class) {
+			return (T) ps.getBigDecimal(index);
+		} else {
+			throw new IllegalStateException("Call error: cannot get out parameter for result java type=" + rtype);
+		}
+	}
+
+	private static void registerOutSPParameters(CallableStatement ps, int startix, JdbcOutParam< ? >[] outParams) throws SQLException {
+		for (int i = 0; i < outParams.length; i++) {
+			ps.registerOutParameter(startix + i, calcSQLTypeFor(outParams[i].getClassType()));
 		}
 	}
 

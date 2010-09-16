@@ -329,6 +329,7 @@ final public class MetaManager {
 	 * This is a complex EQUAL routine which compares objects. Each of the objects can be null. Objects
 	 * are considered equal when they are the same reference; if a.equal(b) holds or, when the objects
 	 * are both objects for which a PK is known, when the PK's are equal.
+	 * Also works for array types.
 	 * @param a
 	 * @param b
 	 * @param cmm
@@ -360,6 +361,18 @@ final public class MetaManager {
 				x.printStackTrace();
 				return false;
 			}
+		}
+		//-- We need a special handlings for arrays, since built-in equals does not work for arrays!
+		if(a.getClass().isArray()) {
+			if(Array.getLength(a) != Array.getLength(b)) {
+				return false;
+			}
+			for(int i = 0; i < Array.getLength(a); i++) {
+				if(!areObjectsEqual(Array.get(a, i), Array.get(b, i), findClassMeta(acl.getComponentType()))) {
+					return false;
+				}
+			}
+			return true;
 		}
 		return false;
 	}
