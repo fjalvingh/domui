@@ -582,6 +582,7 @@ public class JdbcUtil {
 	 */
 	public static boolean oracleFunctionCallSPReturningBool(Connection con, String sp, JdbcOutParam< ? > outParam, Object... args) throws SQLException {
 		JdbcOutParam< ? >[] outParams = new JdbcOutParam[1];
+		outParams[0] = outParam;
 		return oracleFunctionCallSPReturningBool(con, sp, outParams, args);
 	}
 
