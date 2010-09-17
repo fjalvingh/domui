@@ -36,25 +36,17 @@ public class ScrollableTabPanel extends TabPanelBase {
 		m_scrollNavig.setCssClass("ui-stab-scrl");
 		add(m_scrollNavig);
 
-		Div leftcont = new Div();
-		m_scrollNavig.add(leftcont);
-		leftcont.setCssClass("ui-stab-scrl-btn");
-		leftcont.setFloat(FloatType.LEFT);
-
 		Div leftArrow = new Div();
-		leftcont.add(leftArrow);
+		m_scrollNavig.add(leftArrow);
 		leftArrow.setCssClass("ui-stab-scrl-left");
 		leftArrow.setOnClickJS("WebUI.scrollLeft(this);");
-
-		Div rightcont = new Div();
-		m_scrollNavig.add(rightcont);
-		rightcont.setCssClass("ui-stab-scrl-btn");
-		rightcont.setFloat(FloatType.RIGHT);
+		leftArrow.setFloat(FloatType.LEFT);
 
 		Div rightArrow = new Div();
-		rightcont.add(rightArrow);
+		m_scrollNavig.add(rightArrow);
 		rightArrow.setCssClass("ui-stab-scrl-right");
 		rightArrow.setOnClickJS("WebUI.scrollRight(this);");
+		rightArrow.setFloat(FloatType.RIGHT);
 
 		appendCreateJS("$(document).ready(function(){WebUI.recalculateScrollers('" + m_scrollNavig.getActualID() + "');$(window).resize(function(){WebUI.recalculateScrollers('"
 			+ m_scrollNavig.getActualID() + "');});});");
