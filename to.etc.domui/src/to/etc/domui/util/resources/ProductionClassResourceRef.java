@@ -39,4 +39,9 @@ public class ProductionClassResourceRef implements IResourceRef {
 	public long getLastModified() {
 		return m_exists ? 1 : -1;
 	}
+
+	@Override
+	public String toString() {
+		return "ProductionClassResourceRef[" + m_path + "]";
+	}
 }
