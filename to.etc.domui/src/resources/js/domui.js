@@ -1783,28 +1783,21 @@ var WebUI = {
 		if(this._ignoreScrollClick != 0)
 			return;
 
-		var $div = $(bLeft.parentNode.parentNode);
-		var offset = Math.abs(parseInt($('ul',$div).css('marginLeft')));
-		var diff = $div.width();
+		var scrlNavig = $(bLeft.parentNode);
+		var offset = -1 * parseInt($('ul',scrlNavig).css('marginLeft'));
+		var diff = $(scrlNavig).width() - 2 * $('.ui-stab-scrl-left',scrlNavig).width();
 		var me = this;
-		if (offset <= 0 ){
-			this._ignoreScrollClick++;
-			$('ul', $div).animate({marginLeft: 0}, 400, 'swing', function() {
-				$(bLeft).css('display','none');
-				me._ignoreScrollClick--;
-			});
-			return;
-		} 
 		var disa = false;
-		if ( offset - diff <= 0 ){
+		if ( diff >= offset ){
 			disa = true;
 			diff = offset;
 		}
 		this._ignoreScrollClick++;
-		$('ul',$div).animate({marginLeft: '+=' + diff}, 400, 'swing', function() {
-			$('.ui-stab-scrl-right', $div).css('display','block');
-			if(disa)
-				$(bLeft).css('display','none');
+		$('ul',scrlNavig).animate({marginLeft: '+=' + diff}, 400, 'swing', function() {
+			$('.ui-stab-scrl-right', scrlNavig).css('visibility','visible');
+			if(disa){
+				$(bLeft).css('visibility','hidden');
+			}
 			me._ignoreScrollClick--;
 		});
 	},
@@ -1813,41 +1806,54 @@ var WebUI = {
 		if(this._ignoreScrollClick != 0)
 			return;
 
-		var $div = $(bRight.parentNode.parentNode)
-		,maxoffset = $('li:last',$div).width()+$('li:last',$div).offset().left - $('li:first',$div).offset().left - $div.width() + 24
-		,offset = Math.abs(parseInt( $('ul',$div).css('marginLeft') ))
-		,diff = $div.width();
-
+		var scrlNavig = $(bRight.parentNode);
+		var tabsTotalWidth = $('li:last',scrlNavig).width() + 8 /* paddong = 8 */ + $('li:last',scrlNavig).offset().left - $('li:first',scrlNavig).offset().left;
+		var tabsVisibleWidth = $(scrlNavig).width() - 2 * $('.ui-stab-scrl-right',scrlNavig).width();
+		var maxLeftOffset = tabsTotalWidth - tabsVisibleWidth;
+		var diff = tabsVisibleWidth;
+		var offset = -1 * parseInt($('ul',scrlNavig).css('marginLeft'));
+		
 		var disa = false;
-		if (offset >= maxoffset){
+		if (offset >= maxLeftOffset){
 			return;
-		} else if (offset + diff >= maxoffset){
-			diff = maxoffset - offset + 24;
+		} else if (diff + offset >= maxLeftOffset){
+			diff = maxLeftOffset - offset;
 			disa = true;
 		}
 		this._ignoreScrollClick++;
 		var me = this;
-		$('ul', $div ).animate({marginLeft: '-=' + diff},400, 'swing', function() {
-			$('.ui-stab-scrl-left', $div).css('display','block');
-			if (disa)
-				$(bRight).css('display','none');
+		$('ul', scrlNavig ).animate({marginLeft: '-=' + diff},400, 'swing', function() {
+			$('.ui-stab-scrl-left', scrlNavig).css('visibility','visible');
+			if (disa){
+				$(bRight).css('visibility','hidden');
+			}
 			me._ignoreScrollClick--;
 		});
 	},
 	
 	recalculateScrollers : function(scrlNavigId){
 		var scrlNavig = document.getElementById(scrlNavigId);
+		var tabsTotalWidth = $('li:last',scrlNavig).width() + 8 /* paddong = 8 */ + $('li:last',scrlNavig).offset().left - $('li:first',scrlNavig).offset().left;
+		var tabsVisibleWidth = $(scrlNavig).width() - 2 * $('.ui-stab-scrl-right',scrlNavig).width();
+		//WebUI.debug('debug1', 50, 150, 'width:' + ($('li:last',scrlNavig).width() + 8 + $('li:last',scrlNavig).offset().left - $('li:first',scrlNavig).offset().left));
+		//WebUI.debug('debug2', 50, 200, 'offsetX:' + ($('li:first',scrlNavig).offset().left - $('ul', scrlNavig).offset().left));
 
-		if($('li:last',scrlNavig).width() + $('li:last',scrlNavig).offset().left > $(scrlNavig).width()){
-			$('.ui-stab-scrl-right',scrlNavig).css('display','block');
-			if (parseInt($('ul',scrlNavig).css('marginLeft')) > 0){
-				$('.ui-stab-scrl-left',scrlNavig).css('display','block');
+		if(tabsTotalWidth > tabsVisibleWidth){
+			var leftM = parseInt($('ul',scrlNavig).css('marginLeft'));
+			//WebUI.debug('debug2', 50, 200, 'leftM:' + leftM);
+			if (tabsTotalWidth + leftM > tabsVisibleWidth){
+				$('.ui-stab-scrl-right',scrlNavig).css('visibility','visible');
 			}else{
-				$('.ui-stab-scrl-left',scrlNavig).css('display','none');
+				$('.ui-stab-scrl-right',scrlNavig).css('visibility','hidden');
+			}
+			if (leftM < 0){
+				$('.ui-stab-scrl-left',scrlNavig).css('visibility','visible');
+			}else{
+				$('.ui-stab-scrl-left',scrlNavig).css('visibility','hidden');
 			}
 		}else{
-			$('.ui-stab-scrl-left',scrlNavig).css('display','none');
-			$('.ui-stab-scrl-right',scrlNavig).css('display','none');
+			$('.ui-stab-scrl-left',scrlNavig).css('visibility','hidden');
+			$('.ui-stab-scrl-right',scrlNavig).css('visibility','hidden');
 			$('ul', scrlNavig).animate({marginLeft: 0}, 400, 'swing');
 		}
 	},
@@ -1864,6 +1870,31 @@ var WebUI = {
 			}
 		});
 		$(elem).height($(elem).parent().height() - totHeight);
+	},
+	
+	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
+	debug : function(debugId, posX, posY, debugInfoHtml) {
+		var debugPanel = document.getElementById(debugId);
+		var existed = 1;
+		//-- 20100921 jal FIXME Please move all css code and append to body inside IF.
+		if (null == debugPanel){
+			debugPanel = document.createElement(debugId);
+		    $(debugPanel).attr('id', debugId);
+		    existed = 0;
+		}
+	    $(debugPanel).css('position', 'absolute');
+		$(debugPanel).css('marginLeft', 0);
+		$(debugPanel).css('marginTop', 0);
+		$(debugPanel).css('background-color', 'yellow');
+		$(debugPanel).css('border', '1px');
+		$(debugPanel).css('left', posX);
+		$(debugPanel).css('top', posY);
+		$(debugPanel).css('z-index', 2000);
+
+	    if (existed == 0){
+	    	$(debugPanel).appendTo('body');
+	    }
+	    $(debugPanel).html(debugInfoHtml);
 	},
 	
 	_busyCount: 0,

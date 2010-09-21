@@ -2,13 +2,14 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
-import to.etc.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -487,6 +488,8 @@ final public class Page implements IQContextContainer {
 	}
 
 	/**
+	 * DEPRECATED: Should use {@link DomUtil#createOpenWindowJS(String, WindowParameters)}.
+	 *
 	 * Force the browser to open a new window with a user-specified URL. The new window does NOT
 	 * inherit any DomUI session data, of course, and has no WindowSession. After creation the
 	 * window cannot be manipulated by DomUI code.
@@ -495,56 +498,16 @@ final public class Page implements IQContextContainer {
 	 * 					context appended to it.
 	 * @param wp
 	 */
-	public void openWindow(String windowURL, WindowParameters wp) {
+	@Deprecated
+	public void openWindow(@Nonnull String windowURL, @Nullable WindowParameters wp) {
 		if(windowURL == null || windowURL.length() == 0)
 			throw new IllegalArgumentException("Empty window URL");
-		StringBuilder sb = new StringBuilder(256);
-		sb.append("DomUI.openWindow('");
-		sb.append(DomUtil.calculateURL(PageContext.getRequestContext(), windowURL));
-		sb.append("','");
-		String name = null;
-		if(wp != null)
-			name = wp.getName();
-		if(name == null || name.length() == 0) {
-			name = "window" + DomUtil.generateGUID();
-		}
-		sb.append(name);
-		sb.append("','");
-
-		if(wp == null) {
-			sb.append("resizable=yes;scrollbars=yes;toolbar=no;location=no;directories=no;status=yes;menubar=yes;copyhistory=no;");
-		} else {
-			sb.append("resizable=");
-			sb.append(wp.isResizable() ? "yes" : "no");
-			sb.append(",scrollbars=");
-			sb.append(wp.isShowScrollbars() ? "yes" : "no");
-			sb.append(",toolbar=");
-			sb.append(wp.isShowToolbar() ? "yes" : "no");
-			sb.append(",location=");
-			sb.append(wp.isShowLocation() ? "yes" : "no");
-			sb.append(",directories=");
-			sb.append(wp.isShowDirectories() ? "yes" : "no");
-			sb.append(",status=");
-			sb.append(wp.isShowStatus() ? "yes" : "no");
-			sb.append(",menubar=");
-			sb.append(wp.isShowMenubar() ? "yes" : "no");
-			sb.append(",copyhistory=");
-			sb.append(wp.isCopyhistory() ? "yes" : "no");
-
-			if(wp.getWidth() > 0) {
-				sb.append(",width=");
-				sb.append(wp.getWidth());
-			}
-			if(wp.getHeight() > 0) {
-				sb.append(",height=");
-				sb.append(wp.getHeight());
-			}
-		}
-		sb.append("');\n");
-		appendJS(sb);
+		String js = DomUtil.createOpenWindowJS(DomUtil.calculateURL(PageContext.getRequestContext(), windowURL), wp);
+		appendJS(js);
 	}
 
 	/**
+	 * DEPRECATED: Should use {@link DomUtil#createOpenWindowJS(Class, PageParameters, WindowParameters)}.
 	 * Open a DomUI page in a separate browser popup window. This window will create it's own WindowSession.
 	 * FIXME URGENT This code needs to CREATE the window session BEFORE referring to it!!!!
 	 *
@@ -552,20 +515,10 @@ final public class Page implements IQContextContainer {
 	 * @param pp
 	 * @param wp
 	 */
-	public void openWindow(Class< ? extends UrlPage> clz, PageParameters pp, WindowParameters wp) {
-		StringBuilder sb = new StringBuilder(80);
-
-		IRequestContext ctx = PageContext.getRequestContext();
-		String wid = DomUtil.generateGUID();
-		sb.append(ctx.getRelativePath(clz.getName()));
-		sb.append(".ui?");
-		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-		sb.append('=');
-		sb.append(wid);
-		sb.append(".x");
-		if(pp != null)
-			DomUtil.addUrlParameters(sb, pp, false);
-		openWindow(sb.toString(), wp);
+	@Deprecated
+	public void openWindow(@Nonnull Class< ? extends UrlPage> clz, @Nullable PageParameters pp, @Nullable WindowParameters wp) {
+		String js = DomUtil.createOpenWindowJS(clz, pp, wp);
+		appendJS(js);
 	}
 
 

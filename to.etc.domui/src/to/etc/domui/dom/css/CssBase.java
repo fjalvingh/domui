@@ -117,6 +117,7 @@ public class CssBase {
 
 	private String m_marginBottom;
 
+	private TextTransformType m_transform;
 
 	public String getCachedStyle() {
 		return m_cachedStyle;
@@ -746,6 +747,16 @@ public class CssBase {
 				setMarginLeft(margin[3]);
 				break;
 		}
+	}
+
+	public TextTransformType getTransform() {
+		return m_transform;
+	}
+
+	public void setTransform(TextTransformType transform) {
+		if(!DomUtil.isEqual(m_transform, transform))
+			changed();
+		m_transform = transform;
 	}
 
 }

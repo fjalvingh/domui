@@ -269,15 +269,16 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	}
 
 	/**
-	 * Add a fully manually specified label and control to the layout. This does not create any binding.
+	 * Add a fully manually specified label and control to the layout. This does not create any binding. Since label caption can contain extra characters, error location can be assigned additionaly.
 	 * @param label
+	 * @param errorLocation
 	 * @param control
 	 * @param mandatory
 	 */
-	public void addLabelAndControl(final Label label, final NodeBase control, final boolean mandatory) {
+	public void addLabelAndControl(final Label label, final String errorLocation, final NodeBase control, final boolean mandatory) {
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
-		//		if(label != null)
-		//			control.setErrorLocation(label.get);
+		if(errorLocation != null)
+			control.setErrorLocation(errorLocation);
 
 		// FIXME Kludge to determine if the control is meant to be editable!
 		boolean editable = control instanceof IControl< ? >;
