@@ -59,8 +59,8 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		if(m_model != null)
 			m_model.removeChangeListener(this); // Remove myself from listening to my old model
 		m_model = itm;
-		//		if(itm != null)
-		//			itm.addChangeListener(this); // Listen for changes on the new model
+		if(itm != null)
+			itm.addChangeListener(this); // Listen for changes on the new model
 		forceRebuild(); // Force a rebuild of all my nodes
 		fireModelChanged(old, model);
 	}

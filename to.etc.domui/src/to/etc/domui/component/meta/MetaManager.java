@@ -367,7 +367,7 @@ final public class MetaManager {
 			if(Array.getLength(a) != Array.getLength(b)) {
 				return false;
 			}
-			for(int i = 0; i < Array.getLength(a); i++) {
+			for(int i = Array.getLength(a); --i >= 0;) {
 				if(!areObjectsEqual(Array.get(a, i), Array.get(b, i), findClassMeta(acl.getComponentType()))) {
 					return false;
 				}

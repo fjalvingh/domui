@@ -441,6 +441,7 @@ public class JdbcUtil {
 	}
 
 	/**
+	 * FIXME: 20100921 jal Please remove outParams array and mingle JdbcOutParam inside Object... args.
 	 * Similar as {@link JdbcUtil#oracleMoronsCallSP(Connection, Class, String, Object...)}.
 	 * Provides additional interface to read OUT values that are defined in SP/function call.
 	 * Only constraint is that OUT params are always after all IN params.
@@ -514,6 +515,8 @@ public class JdbcUtil {
 	}
 
 	/**
+	 * FIXME: 20100921 jal Please remove outParams array and mingle JdbcOutParam inside Object... args.
+	 *
 	 * Similar as {@link JdbcUtil#oracleFunctionCallSP(Connection, Class, String, JdbcOutParam[], Object...)},
 	 * adjusted to handle returning of oracle boolean type properly.
 	 * @param con

@@ -805,7 +805,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		}
 
 		if(n.getOnLookupTyping() != null) {
-			o().attr("onkeyup", sb().append(transformScript + "WebUI.scheduleOnLookupTypingEvent('").append(n.getActualID()).append("', event)").toString());
+			o().attr("onkeyup", sb().append(transformScript).append("WebUI.scheduleOnLookupTypingEvent('").append(n.getActualID()).append("', event)").toString());
 			o().attr("onblur", sb().append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
 		} else {
 			if(!DomUtil.isBlank(transformScript)) {

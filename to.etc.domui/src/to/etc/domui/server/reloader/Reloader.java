@@ -181,6 +181,7 @@ final public class Reloader {
 	 * and return a timestamp for that thing if found. If the resource is not found this returns null.
 	 * @param resourceName
 	 * @return
+	 * @throws URISyntaxException
 	 */
 	synchronized IModifyableResource findResourceSource(String resourceName) {
 		long t = System.nanoTime();
@@ -211,6 +212,7 @@ final public class Reloader {
 	 *
 	 * @param clz
 	 * @return
+	 * @throws URISyntaxException
 	 */
 	synchronized IModifyableResource findClassSource(Class< ? > clz) {
 		//-- 1. Do a quick lookup of the classname itself
@@ -233,6 +235,7 @@ final public class Reloader {
 	 * is not found OR if we're not running with a reloader (i.e. not in debug mode).
 	 * @param clz
 	 * @return
+	 * @throws URISyntaxException
 	 */
 	static public IModifyableResource findClasspathSource(Class< ? > clz) {
 		Reloader r = internalGetReloader();
@@ -246,6 +249,7 @@ final public class Reloader {
 	 * is not found OR if we're not running with a reloader (i.e. not in debug mode).
 	 * @param clz
 	 * @return
+	 * @throws URISyntaxException
 	 */
 	static public IModifyableResource findClasspathSource(String resourceName) {
 		Reloader r = internalGetReloader();
@@ -258,6 +262,7 @@ final public class Reloader {
 	 * Do a scan for a source, uncached.
 	 * @param path
 	 * @return
+	 * @throws URISyntaxException
 	 */
 	private synchronized IModifyableResource scanActually(String path) {
 		IModifyableResource ts = null;
@@ -297,13 +302,19 @@ final public class Reloader {
 	 * @param u
 	 * @param rel
 	 * @return
+	 * @throws URISyntaxException
 	 */
 	private IModifyableResource checkForFile(URL u, String rel) {
 		if(!"file".equals(u.getProtocol()))
 			return null;
 		if(u.getPath().endsWith(".jar"))
 			return null;
-		File f = new File(u.getFile());
+		File f;
+		try {
+			f = new File(u.toURI());
+		} catch(URISyntaxException x) {
+			return null; // Ignore errors in Java's own administration...
+		}
 		if(!f.exists() || !f.isDirectory()) // Must be a dir here,
 			return null;
 
@@ -323,6 +334,7 @@ final public class Reloader {
 
 	/**
 	 * Scan all JAR files and create a map of their content linked to the jar file itself.
+	 * @throws URISyntaxException
 	 */
 	private synchronized void scanJars() {
 		long ts = System.nanoTime();
@@ -332,8 +344,13 @@ final public class Reloader {
 				continue;
 			if(!u.getPath().endsWith(".jar"))
 				continue;
-			File f = new File(u.getFile());
-			if(!f.exists() || !f.isFile()) // Must be a file,
+			File f = null;
+			try {
+				f = new File(u.toURI());
+			} catch(URISyntaxException x) {
+				//-- Ignore errors in Java's own config
+			}
+			if(f == null || !f.exists() || !f.isFile()) // Must be a file,
 				continue;
 
 			//-- This is a jar... Get all of it's files.

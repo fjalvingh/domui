@@ -1876,6 +1876,7 @@ var WebUI = {
 	debug : function(debugId, posX, posY, debugInfoHtml) {
 		var debugPanel = document.getElementById(debugId);
 		var existed = 1;
+		//-- 20100921 jal FIXME Please move all css code and append to body inside IF.
 		if (null == debugPanel){
 			debugPanel = document.createElement(debugId);
 		    $(debugPanel).attr('id', debugId);
