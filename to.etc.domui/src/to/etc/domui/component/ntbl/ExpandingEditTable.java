@@ -479,14 +479,14 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_newInstance = instance;
 
 		//-- Now add commit/cancel button in action column
-		bc.addLinkButton("Add", "THEME/btnConfirm.png", new IClicked<LinkButton>() {
+		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_ADD), "THEME/btnConfirm.png", new IClicked<LinkButton>() {
 			@Override
 			public void clicked(LinkButton clickednode) throws Exception {
 				commitNewRow();
 			}
 		});
 
-		bc.addLinkButton("Cancel", "THEME/btnDelete.png", new IClicked<LinkButton>() {
+		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), "THEME/btnDelete.png", new IClicked<LinkButton>() {
 			@Override
 			public void clicked(LinkButton clickednode) throws Exception {
 				cancelNew();
@@ -498,7 +498,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		if(m_newEditor == null)
 			return;
 		if(DomUtil.isModified(m_newEditor)) {
-			MsgBox.continueCancel(this, "Data is modified, are you sure that you want to cancel?", new IClicked<MsgBox>() {
+			MsgBox.continueCancel(this, Msgs.BUNDLE.getString(Msgs.UI_XDT_SURE), new IClicked<MsgBox>() {
 				@Override
 				public void clicked(MsgBox clickednode) throws Exception {
 					cancelNewReally();

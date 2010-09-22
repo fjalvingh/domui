@@ -659,6 +659,7 @@ public abstract class DomApplication {
 		//-- Determine existence out-of-lock (single init is unimportant)
 		IResourceRef ref = internalFindCachedResource(name);
 		Boolean k = Boolean.valueOf(ref.getLastModified() != -1);
+		System.out.println("hasAppResource: locate " + ref + ", exists=" + k);
 		synchronized(this) {
 			m_knownResourceSet.put(name, k);
 		}
@@ -747,7 +748,9 @@ public abstract class DomApplication {
 			if(r != null)
 				return r;
 
-			return createClasspathReference("/resources/js" + name);
+			r = createClasspathReference("/resources/js" + name);
+			System.out.println("RR: Default ref to " + name + " is " + r);
+			return r;
 		}
 
 		//-- Normal url. Use webapp-direct path.
