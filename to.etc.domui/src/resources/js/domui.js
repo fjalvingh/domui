@@ -1875,25 +1875,19 @@ var WebUI = {
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
 	debug : function(debugId, posX, posY, debugInfoHtml) {
 		var debugPanel = document.getElementById(debugId);
-		var existed = 1;
-		//-- 20100921 jal FIXME Please move all css code and append to body inside IF.
 		if (null == debugPanel){
 			debugPanel = document.createElement(debugId);
 		    $(debugPanel).attr('id', debugId);
-		    existed = 0;
+		    $(debugPanel).css('position', 'absolute');
+		    $(debugPanel).css('marginLeft', 0);
+		    $(debugPanel).css('marginTop', 0);
+		    $(debugPanel).css('background-color', 'yellow');
+		    $(debugPanel).css('border', '1px');
+		    $(debugPanel).css('z-index', 2000);
+		    $(debugPanel).appendTo('body');
 		}
-	    $(debugPanel).css('position', 'absolute');
-		$(debugPanel).css('marginLeft', 0);
-		$(debugPanel).css('marginTop', 0);
-		$(debugPanel).css('background-color', 'yellow');
-		$(debugPanel).css('border', '1px');
 		$(debugPanel).css('left', posX);
 		$(debugPanel).css('top', posY);
-		$(debugPanel).css('z-index', 2000);
-
-	    if (existed == 0){
-	    	$(debugPanel).appendTo('body');
-	    }
 	    $(debugPanel).html(debugInfoHtml);
 	},
 	
