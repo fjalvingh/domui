@@ -329,11 +329,17 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		if(oldprec > m_curPrec)
 			appendWhere("(");
 
-		appendOperation(n.getOperation());
-		appendWhere("(");
-		JdbcPropertyMeta pm = resolveProperty(n.getProperty());
-		appendWhere(getColumnRef(m_root, pm.getColumnName()));
-		appendWhere(")");
+		if(n.getOperation() == QOperation.ISNOTNULL || n.getOperation() == QOperation.ISNULL) {
+			JdbcPropertyMeta pm = resolveProperty(n.getProperty());
+			appendWhere(getColumnRef(m_root, pm.getColumnName()));
+			appendOperation(n.getOperation());
+		} else {
+			appendOperation(n.getOperation());
+			appendWhere("(");
+			JdbcPropertyMeta pm = resolveProperty(n.getProperty());
+			appendWhere(getColumnRef(m_root, pm.getColumnName()));
+			appendWhere(")");
+		}
 
 		if(oldprec > m_curPrec)
 			appendWhere(")");
