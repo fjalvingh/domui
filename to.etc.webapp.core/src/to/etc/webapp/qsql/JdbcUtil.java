@@ -347,61 +347,6 @@ public class JdbcUtil {
 		return a;
 	}
 
-	/**
-	 * Back to the 60's: oracle JDBC cannot interface with PL/SQL boolean type, of course. So
-	 * we need to call PL/SQL methods that use that incredibly complex type using a wrapper. To
-	 * prevent having to create a zillion wrapper procedures we create an anonymous block
-	 * doing that, hopefully.
-	 *
-	 * Oracle: costs a lot, works like shit.
-	 *
-	 * @param <T>
-	 * @param dbc
-	 * @param rv
-	 * @param sp
-	 * @return
-	 */
-	static public <T> T oracleMoronsCallSP(Connection dbc, Class<T> rtype, String sp, Object... args) throws SQLException {
-		if(rtype == Boolean.class || rtype == boolean.class)
-			return (T) Boolean.valueOf(oracleMoronsCallSPReturningBool(dbc, sp, args));
-
-		StringBuilder sb = new StringBuilder();
-		sb.append("begin ");
-		int startix = 1;
-		if(rtype != null && rtype != Void.class) {
-			sb.append("? := ");
-			startix = 2;
-		}
-		List<Object> pars = new ArrayList<Object>(args.length);
-		sb.append(sp).append('(');
-		appendSPParameters(sb, pars, args);
-		sb.append(");");
-		sb.append("end;");
-		String stmt = sb.toString();
-		System.out.println("CALLING: " + stmt);
-
-		//-- Call the SP
-		CallableStatement ps = null;
-		try {
-			ps = dbc.prepareCall(stmt);
-			if(startix != 1)
-				ps.registerOutParameter(1, calcSQLTypeFor(rtype));
-			setParameters(ps, startix, pars.toArray());
-			ps.execute();
-
-			if(startix != 1) {
-				return readPsValue(ps, 1, rtype);
-			} else {
-				return null;
-			}
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
-		}
-	}
-
 	static private int calcSQLTypeFor(Class< ? > rt) {
 		if(rt == String.class)
 			return Types.VARCHAR;
@@ -426,34 +371,6 @@ public class JdbcUtil {
 		}
 	}
 
-	public static boolean oracleMoronsCallSPReturningBool(Connection dbc, String sp, Object... args) throws SQLException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("declare l_res number; ");
-		sb.append("begin if(").append(sp).append("(");
-		List<Object> pars = new ArrayList<Object>(args.length);
-		appendSPParameters(sb, pars, args);
-		sb.append(")) then l_res := 1; else l_res := 0; end if; ? := l_res;");
-		sb.append("end;");
-		String stmt = sb.toString();
-		System.out.println("CALLING: " + stmt + ", out=" + (pars.size() + 1));
-
-		//-- Call the SP
-		CallableStatement ps = null;
-		try {
-			ps = dbc.prepareCall(stmt);
-			setParameters(ps, 1, pars.toArray());
-			ps.registerOutParameter(pars.size() + 1, Types.NUMERIC);
-			ps.execute();
-			int res = ps.getInt(pars.size() + 1);
-			return res != 0;
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
-		}
-	}
-
 	public static boolean executeStatement(Connection dbc, String sql, Object... args) throws SQLException {
 		PreparedStatement ps = null;
 		try {
@@ -470,6 +387,7 @@ public class JdbcUtil {
 
 	/**
 	 * Provides interface to call Oracle stored procedures and functions.
+	 * In case that called function returns boolean use {@link JdbcUtil#oracleSpCallReturningBool(Connection, String, Object...)}
 	 * Support all three type of parameters:<BR/>
 	 * <UL>
 	 * <LI>OUT params: use {@link JdbcOutParam}</LI>
@@ -486,7 +404,7 @@ public class JdbcUtil {
 	 */
 	static public <T> T oracleSpCall(Connection con, Class<T> rtype, String sp, Object... args) throws SQLException {
 		if(rtype == Boolean.class || rtype == boolean.class) {
-			return (T) Boolean.valueOf(oracleSpCallReturningBoolean(con, sp, args));
+			return (T) Boolean.valueOf(oracleSpCallReturningBool(con, sp, args));
 		}
 
 		StringBuilder sb = new StringBuilder();
@@ -534,7 +452,7 @@ public class JdbcUtil {
 	 * @return
 	 * @throws SQLException
 	 */
-	public static boolean oracleSpCallReturningBoolean(Connection con, String sp, Object... args) throws SQLException {
+	public static boolean oracleSpCallReturningBool(Connection con, String sp, Object... args) throws SQLException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("declare l_res number; ");
 		sb.append("begin if(").append(sp).append("(");
