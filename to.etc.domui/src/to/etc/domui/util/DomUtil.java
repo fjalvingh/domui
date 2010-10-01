@@ -1321,4 +1321,10 @@ final public class DomUtil {
 		return sb.toString();
 	}
 
+	public static boolean isWhitespace(char c) {
+		return c == '\u00a0' || Character.isWhitespace(c);
+
+	}
+
+
 }
