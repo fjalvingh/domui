@@ -285,7 +285,7 @@ public class DomTools {
 	 *	Finds the child node with the name specified, and returns it's text
 	 *  value. If the node is not found it returns null.
 	 *  @deprecated
-	 *  @see #findChildString(Node, String)
+	 *  @see #stringNode(Node, String)
 	 */
 	@Deprecated
 	static public String findChildNodeValue(final Node rootnode, final String name) throws Exception {
@@ -936,5 +936,24 @@ public class DomTools {
 		Node n = elem.getOwnerDocument().createAttribute(name);
 		n.setNodeValue(value);
 		elem.getAttributes().setNamedItem(n);
+	}
+
+	/**
+	 * Finds a child node, via the xpath query route. Thus the name of all the nodes, separated by a "/".
+	 * The path can only use unique names. If a child node with the same name exists an exception will be
+	 * thrown.
+	 *
+	 * @param node the node to search
+	 * @param xpathQuery path to the child node
+	 * @return the child node, or null if it cannot be found.
+	 * @throws Exception
+	 */
+	static public Node nodeFindXpath(final Node node, final String xpathQuery) throws Exception {
+		String[] nodes = xpathQuery.split("/");
+		Node returnNode = nodeFind(node, nodes[0]);
+		for(int i = 1; i < nodes.length; i++) {
+			returnNode = nodeFind(returnNode, nodes[i]);
+		}
+		return returnNode;
 	}
 }

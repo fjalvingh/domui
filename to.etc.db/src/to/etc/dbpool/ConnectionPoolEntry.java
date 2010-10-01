@@ -1,6 +1,5 @@
 package to.etc.dbpool;
 
-import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -486,7 +485,6 @@ public class ConnectionPoolEntry {
 			m_stl_ar[0] = s;
 		}
 	}
-
 
 	/**
 	 *	Returns the stack trace array for this connection. It returns null
