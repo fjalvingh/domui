@@ -50,8 +50,14 @@ public class JdbcMetaManager {
 				bestscore = score;
 			}
 		}
-		if(best == null)
-			throw new IllegalStateException("I cannot determine a JDBC converter type for " + pm + " of type=" + pm.getActualClass());
+		if(best == null) {
+			if(pm.isTransient()) {
+				//for transient fields we do not need converter?
+				return null;
+			} else {
+				throw new IllegalStateException("I cannot determine a JDBC converter type for " + pm + " of type=" + pm.getActualClass());
+			}
+		}
 		return best.createType(pm);
 	}
 
@@ -129,6 +135,7 @@ public class JdbcMetaManager {
 		register(new TimestampType());
 		register(new JdbcCompoundType());
 		register(new TimestampType());
+		register(new BooleanType());
 		//		register(new StringType(), String.class);
 		//		register(new IntegerType(), Integer.class, int.class);
 		//		register(new LongType(), Long.class, long.class);

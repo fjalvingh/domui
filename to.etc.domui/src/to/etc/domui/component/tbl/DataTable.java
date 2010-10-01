@@ -319,6 +319,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		tr.removeAllChildren(); // Discard current contents.
 
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
+		cc.setParent(tr);
 		renderRow(tr, cc, index, value);
 	}
 

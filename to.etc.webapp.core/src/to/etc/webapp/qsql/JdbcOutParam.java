@@ -1,10 +1,12 @@
 package to.etc.webapp.qsql;
 
+import java.sql.*;
+
 import javax.annotation.*;
 
 /**
  * OUT parameter definition when calling oracle function/stored procedure that has OUT params.<BR/>
- * See {@link JdbcUtil#oracleFunctionCallSP(java.sql.Connection, Class, String, JdbcOutParam[], Object...)}.
+ * See {@link JdbcUtil#oracleSpCall(Connection, Class, String, Object...)}.
  *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
