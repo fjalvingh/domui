@@ -494,7 +494,6 @@ public class ConnectionPoolEntry {
 		}
 	}
 
-
 	/**
 	 *	Returns the stack trace array for this connection. It returns null
 	 *  if no stack trace exists.
