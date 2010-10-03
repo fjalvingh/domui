@@ -66,9 +66,9 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private List<DisplayPropertyMetaModel> m_tableDisplayProperties = Collections.EMPTY_LIST;
 
-	private List<SearchPropertyMetaModelImpl> m_searchProperties = Collections.EMPTY_LIST;
+	private List<SearchPropertyMetaModel> m_searchProperties = Collections.EMPTY_LIST;
 
-	private List<SearchPropertyMetaModelImpl> m_keyWordSearchProperties = Collections.EMPTY_LIST;
+	private List<SearchPropertyMetaModel> m_keyWordSearchProperties = Collections.EMPTY_LIST;
 
 	/**
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
@@ -221,9 +221,9 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_initialized = true;
 
 		//-- Finalize: sort search properties.
-		Collections.sort(m_searchProperties, new Comparator<SearchPropertyMetaModelImpl>() {
+		Collections.sort(m_searchProperties, new Comparator<SearchPropertyMetaModel>() {
 			@Override
-			public int compare(final SearchPropertyMetaModelImpl o1, final SearchPropertyMetaModelImpl o2) {
+			public int compare(final SearchPropertyMetaModel o1, final SearchPropertyMetaModel o2) {
 				return o1.getOrder() - o2.getOrder();
 			}
 		});
@@ -246,15 +246,15 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
-	public void addSearchProperty(final SearchPropertyMetaModelImpl sp) {
+	public void addSearchProperty(final SearchPropertyMetaModel sp) {
 		if(m_searchProperties == Collections.EMPTY_LIST)
-			m_searchProperties = new ArrayList<SearchPropertyMetaModelImpl>();
+			m_searchProperties = new ArrayList<SearchPropertyMetaModel>();
 		m_searchProperties.add(sp);
 	}
 
-	public void addKeyWordSearchProperty(final SearchPropertyMetaModelImpl sp) {
+	public void addKeyWordSearchProperty(final SearchPropertyMetaModel sp) {
 		if(m_keyWordSearchProperties == Collections.EMPTY_LIST)
-			m_keyWordSearchProperties = new ArrayList<SearchPropertyMetaModelImpl>();
+			m_keyWordSearchProperties = new ArrayList<SearchPropertyMetaModel>();
 		m_keyWordSearchProperties.add(sp);
 	}
 
@@ -263,7 +263,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getSearchProperties()
 	 */
 	@Override
-	public List<SearchPropertyMetaModelImpl> getSearchProperties() {
+	public List<SearchPropertyMetaModel> getSearchProperties() {
 		return m_searchProperties;
 	}
 
@@ -272,7 +272,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getKeyWordSearchProperties()
 	 */
 	@Override
-	public List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties() {
+	public List<SearchPropertyMetaModel> getKeyWordSearchProperties() {
 		return m_keyWordSearchProperties;
 	}
 

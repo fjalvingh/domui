@@ -93,7 +93,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties() {
+	public List<SearchPropertyMetaModel> getKeyWordSearchProperties() {
 		return m_parent.getKeyWordSearchProperties();
 	}
 
@@ -118,7 +118,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public List<SearchPropertyMetaModelImpl> getSearchProperties() {
+	public List<SearchPropertyMetaModel> getSearchProperties() {
 		return m_parent.getSearchProperties();
 	}
 

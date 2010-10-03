@@ -136,14 +136,14 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nonnull
-	List<SearchPropertyMetaModelImpl> getSearchProperties();
+	List<SearchPropertyMetaModel> getSearchProperties();
 
 	/**
 	 * Returns the SORTED list of key word search properties defined on this class.
 	 * @return
 	 */
 	@Nonnull
-	List<SearchPropertyMetaModelImpl> getKeyWordSearchProperties();
+	List<SearchPropertyMetaModel> getKeyWordSearchProperties();
 
 	@Nullable
 	String getDefaultSortProperty();

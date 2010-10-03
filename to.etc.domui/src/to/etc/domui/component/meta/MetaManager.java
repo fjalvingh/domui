@@ -636,7 +636,7 @@ final public class MetaManager {
 	 * @param cm
 	 * @return
 	 */
-	public static List<SearchPropertyMetaModelImpl> calculateSearchProperties(ClassMetaModel cm) {
+	public static List<SearchPropertyMetaModel> calculateSearchProperties(ClassMetaModel cm) {
 		if(!DeveloperOptions.getBool("domui.generatemeta", false))
 			return null;
 		if(cm.getSearchProperties() != null && cm.getSearchProperties().size() > 0)
@@ -644,7 +644,7 @@ final public class MetaManager {
 
 		//-- Make a selection of reasonable properties to search on. Skip any compounds.
 		int order = 0;
-		List<SearchPropertyMetaModelImpl> res = new ArrayList<SearchPropertyMetaModelImpl>();
+		List<SearchPropertyMetaModel> res = new ArrayList<SearchPropertyMetaModel>();
 		for(PropertyMetaModel pmm : cm.getProperties()) {
 			if(DomUtil.isBasicType(pmm.getActualType())) {
 				//-- Very basic. Only support small sizes;

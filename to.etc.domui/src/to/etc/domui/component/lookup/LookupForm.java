@@ -8,7 +8,6 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -550,7 +549,7 @@ public class LookupForm<T> extends Div {
 	 */
 	private void setItems() {
 		m_itemList.clear();
-		List<SearchPropertyMetaModelImpl> list = getMetaModel().getSearchProperties();
+		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
 		if(list == null || list.size() == 0) {
 			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
 			if(list == null || list.size() == 0)

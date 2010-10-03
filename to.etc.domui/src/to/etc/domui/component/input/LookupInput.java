@@ -2,6 +2,8 @@ package to.etc.domui.component.input;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
@@ -81,6 +83,10 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	 * Set to false in cases when keyword search functionality should be disabled regardless if metadata for this feature is defined or not.
 	 */
 	private boolean m_allowKeyWordSearch = true;
+
+	/** Contains manually added quicksearch properties. Is null if none are added. */
+	@Nullable
+	private List<SearchPropertyMetaModel> m_keywordLookupPropertyList;
 
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass, (ClassMetaModel) null);
@@ -196,7 +202,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			return true;
 		}
 
-		List<SearchPropertyMetaModelImpl> spml = getMetaModel().getKeyWordSearchProperties();
+		List<SearchPropertyMetaModel> spml = getMetaModel().getKeyWordSearchProperties();
 		return spml.size() > 0;
 	}
 
@@ -304,11 +310,11 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	private String getDefaultKeySearchHint() {
 		String result = null;
-		List<SearchPropertyMetaModelImpl> spml = getMetaModel().getKeyWordSearchProperties();
+		List<SearchPropertyMetaModel> spml = getMetaModel().getKeyWordSearchProperties();
 		if(spml.size() > 0) {
 			result = "";
 			for(int i = 0; i < spml.size(); i++) {
-				SearchPropertyMetaModelImpl spm = spml.get(i);
+				SearchPropertyMetaModel spm = spml.get(i);
 				if(spm.getLookupLabel() != null) {
 					result = result + spm.getLookupLabel();
 				} else {
@@ -341,13 +347,13 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			}
 		} else {
 			//-- Has default meta?
-			List<SearchPropertyMetaModelImpl> spml = getMetaModel().getKeyWordSearchProperties();
+			List<SearchPropertyMetaModel> spml = m_keywordLookupPropertyList == null ? getMetaModel().getKeyWordSearchProperties() : m_keywordLookupPropertyList;
 			searchQuery = (QCriteria<T>) getMetaModel().createCriteria();
 
 			QRestrictor<T> r = searchQuery.or();
 			int ncond = 0;
 			if(spml.size() > 0) {
-				for(SearchPropertyMetaModelImpl spm : spml) {
+				for(SearchPropertyMetaModel spm : spml) {
 					if(spm.getMinLength() < searchString.length()) {
 
 						//-- Abort on invalid metadata; never continue with invalid data.
@@ -865,5 +871,31 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		m_keySearchHint = keySearchHint;
 		if(m_keySearch != null)
 			m_keySearch.setHint(keySearchHint); // Remove the hint on null.
+	}
+
+	/**
+	 * Define a property to use for quick search. When used this overrides any metadata-defined
+	 * properties.
+	 * @param name
+	 * @param minlen
+	 */
+	public void addKeywordProperty(String name, int minlen) {
+		if(m_keywordLookupPropertyList == null)
+			m_keywordLookupPropertyList = new ArrayList<SearchPropertyMetaModel>();
+		SearchPropertyMetaModelImpl si = new SearchPropertyMetaModelImpl(getMetaModel());
+		if(minlen > 0)
+			si.setMinLength(minlen);
+		si.setPropertyName(name);
+		si.setIgnoreCase(true);
+	}
+
+	/**
+	 * Define a property to use for quick search. When used this overrides any metadata-defined
+	 * properties.
+	 *
+	 * @param name
+	 */
+	public void addKeywordProperty(String name) {
+		addKeywordProperty(name, -1);
 	}
 }
