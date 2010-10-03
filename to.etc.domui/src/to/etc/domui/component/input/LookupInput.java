@@ -202,6 +202,8 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			return true;
 		}
 
+		if(m_keywordLookupPropertyList != null)
+			return true;
 		List<SearchPropertyMetaModel> spml = getMetaModel().getKeyWordSearchProperties();
 		return spml.size() > 0;
 	}
@@ -887,6 +889,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			si.setMinLength(minlen);
 		si.setPropertyName(name);
 		si.setIgnoreCase(true);
+		m_keywordLookupPropertyList.add(si);
 	}
 
 	/**
