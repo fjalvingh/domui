@@ -31,6 +31,8 @@ public class AbstractRowRenderer<T> {
 
 	private IRowButtonFactory<T> m_rowButtonFactory;
 
+	private String m_unknownColumnCaption;
+
 	public AbstractRowRenderer(Class<T> data) {
 		m_dataClass = data;
 		m_metaModel = MetaManager.findClassMeta(m_dataClass);
@@ -234,7 +236,7 @@ public class AbstractRowRenderer<T> {
 				m_sortImages[ix] = img;
 
 				if(label == null || label.trim().length() == 0)
-					label = "(unknown)";
+					label = getUnknownColumnCaption();
 				th.add(label);
 				th.setCssClass("ui-sortable");
 				final SimpleColumnDef scd = cd;
@@ -444,4 +446,17 @@ public class AbstractRowRenderer<T> {
 	public void setRowButtonFactory(IRowButtonFactory<T> rowButtonFactory) {
 		m_rowButtonFactory = rowButtonFactory;
 	}
+
+	public void setUnknownColumnCaption(String unknownColumnCaption) {
+		m_unknownColumnCaption = unknownColumnCaption;
+	}
+
+	public String getUnknownColumnCaption() {
+		if(m_unknownColumnCaption == null) {
+			return "";//FIXME: Was "(unknown)". It remains to be decided whether this is needed to be customizable? We hava some call that says that this have to be empty by default.
+		} else {
+			return m_unknownColumnCaption;
+		}
+	}
+
 }
