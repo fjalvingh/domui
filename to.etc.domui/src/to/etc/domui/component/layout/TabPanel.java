@@ -266,6 +266,15 @@ public class TabPanel extends Div {
 		return m_currentTab;
 	}
 
+	public int getTabIndex(NodeBase tabContent) {
+		for(TabInstance tab : m_tablist) {
+			if(tab.getContent() == tabContent) {
+				return m_tablist.indexOf(tab);
+			}
+		}
+		return -1;
+	}
+
 	public void setCurrentTab(int index) throws Exception {
 		//		System.out.println("Switching to tab " + index);
 		if(index == getCurrentTab() || index < 0 || index >= m_tablist.size()) // Silly index
