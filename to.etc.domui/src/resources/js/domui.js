@@ -1981,6 +1981,44 @@ var WebUI = {
 		} catch(x) {
 			alert("Failed: "+x);
 		}
+	},
+	
+	/*-- Printing support for simple text messages. Parameter is id of input/textarea tag that contrains text to be printed out. --*/
+	printtext: function (id) {
+		var item = document.getElementById(id);
+		var textData;
+		if(item && (item.tagName == "input" || item.tagName == "INPUT" || item.tagName == "textarea" || item.tagName == "TEXTAREA")) {
+			textData = item.value;
+		}
+		if (textData){
+			try {
+				// Create embedded sizeless div to contain the iframe, invisibly.
+				var div = document.getElementById('domuiprif');
+				if(div)
+					div.innerHTML = "";
+				else {
+					div = document.createElement('div');
+					div.id = 'domuiprif';
+					div.className = 'ui-printdiv';
+					document.body.appendChild(div);
+				}
+
+				//-- Create an iframe loading the required thingy.
+				var frmname = "dmuifrm"+(WebUI._frmIdCounter++);		// Create unique name to circumvent ffox "print only once" bug
+
+				$(div).html('<iframe id="'+frmname+'" name="'+frmname+'" width="1000px" height="1000px"/>'); //well, this is simple text printing, so we have some size limitations ;) 
+				var frm = window.frames[frmname];
+				frm.document.open();
+				frm.document.write('<html></head></head><body style="margin:0px;"><form><textarea style="width:99%; height:99%" wrap="virtual">');
+				frm.document.write(textData);
+				frm.document.write('</textarea></form></body></html>');
+				frm.document.close();
+				frm.focus();
+				frm.print();
+			} catch(x) {
+				alert("Failed: "+x);
+			}
+		}
 	}
 };
 

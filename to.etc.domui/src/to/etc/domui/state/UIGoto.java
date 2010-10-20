@@ -190,6 +190,18 @@ final public class UIGoto {
 	}
 
 	/**
+	 * Destroy the current page and replace it with the new page specified with provided page parameters. On the new page show the specified
+	 * message as an ERROR message.
+	 *
+	 * @param pg
+	 * @param msg
+	 * @param pp
+	 */
+	static public final void clearPageAndReload(Page pg, String msg, PageParameters pp) {
+		clearPageAndReload(pg, pg.getBody().getClass(), pp, msg);
+	}
+
+	/**
 	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
 	 * message as an ERROR message.
 	 *

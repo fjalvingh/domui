@@ -86,6 +86,16 @@ public class ButtonBar extends Table {
 	}
 
 	/**
+	 * Removes all buttons. Intended to be used if ButtonBar dinamically changes set of rendered buttons.
+	 * @param b
+	 */
+	public void clearButtons() {
+		m_list.clear();
+		forceRebuild();
+	}
+
+
+	/**
 	 * Add a normal button.
 	 * @param txt
 	 * @param icon
