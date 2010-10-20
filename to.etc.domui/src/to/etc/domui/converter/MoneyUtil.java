@@ -314,4 +314,10 @@ public class MoneyUtil {
 		System.out.println(">> " + s);
 	}
 
+	public static double roundValue(double value) {
+		BigDecimal bdv = BigDecimal.valueOf(value);
+		bdv = bdv.setScale(MoneyUtil.getMoneyScale(), getRoundingMode());
+		return bdv.doubleValue();
+	}
+
 }
