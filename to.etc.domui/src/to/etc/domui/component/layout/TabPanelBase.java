@@ -270,4 +270,14 @@ public class TabPanelBase extends Div {
 	public ITabSelected getOnTabSelected() {
 		return m_onTabSelected;
 	}
+
+	public int getTabIndex(NodeBase tabContent) {
+		for(TabInstance tab : m_tablist) {
+			if(tab.getContent() == tabContent) {
+				return m_tablist.indexOf(tab);
+			}
+		}
+		return -1;
+	}
+
 }
