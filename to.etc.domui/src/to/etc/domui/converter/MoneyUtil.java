@@ -76,10 +76,12 @@ public class MoneyUtil {
 	}
 
 	/**
+	 * Deprecated - do not use double for monetary amounts -
 	 * Parse into a double; return 0.0d for empty input.
 	 * @param input
 	 * @return
 	 */
+	@Deprecated
 	static public double parseEuroToDouble(String input) {
 		MiniScanner ms = MiniScanner.getInstance();
 		if(!ms.scanLaxEuro(input)) // Empty input returned as 0.0d
@@ -88,11 +90,13 @@ public class MoneyUtil {
 	}
 
 	/**
+	 * Deprecated - do not use double for monetary amounts -
 	 * Parse into a double; return null for empty input.
 	 *
 	 * @param input
 	 * @return
 	 */
+	@Deprecated
 	static public Double parseEuroToDoubleW(String input) {
 		MiniScanner ms = MiniScanner.getInstance();
 		if(!ms.scanLaxEuro(input)) // Empty input returned as 0.0d
@@ -126,13 +130,14 @@ public class MoneyUtil {
 	}
 
 	/**
-	 *
+	 * Deprecated - do not use double for monetary amounts.
 	 * @param v
 	 * @param thousands
 	 * @param symbol
 	 * @param trunk
 	 * @return
 	 */
+	@Deprecated
 	static public String render(double v, boolean thousands, boolean symbol, boolean trunk) {
 		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
 			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
@@ -219,12 +224,14 @@ public class MoneyUtil {
 
 
 	/**
+	 * Deprecated - do not use double for monetary amounts -
 	 * Render as a full value: [C -###,###,###.00], including currency sign, thousands separator and all, using the
 	 * specified currency locale. It always renders the fraction.
 	 * formatters suck.
 	 * @param v
 	 * @return
 	 */
+	@Deprecated
 	static public String renderFullWithSign(double v) {
 		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
 			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
@@ -264,10 +271,12 @@ public class MoneyUtil {
 	}
 
 	/**
+	 * Deprecated - do not use double for monetary amounts -
 	 * Renders as a full value [C -###,###,###.##], but removes the fraction if it is all zeroes.
 	 * @param v
 	 * @return
 	 */
+	@Deprecated
 	static public String renderTruncatedWithSign(double v) {
 		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
 			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
@@ -312,6 +321,18 @@ public class MoneyUtil {
 		NlsContext.setCurrencyLocale(l);
 		String s = renderFullWithSign(new BigDecimal("123.45"));
 		System.out.println(">> " + s);
+	}
+
+	/**
+	 * Deprecated - do not use double for monetary amounts.
+	 * @param value
+	 * @return
+	 */
+	@Deprecated
+	public static double roundValue(double value) {
+		BigDecimal bdv = BigDecimal.valueOf(value);
+		bdv = bdv.setScale(MoneyUtil.getMoneyScale(), getRoundingMode());
+		return bdv.doubleValue();
 	}
 
 }

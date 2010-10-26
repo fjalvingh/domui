@@ -8,10 +8,18 @@ package to.etc.webapp.query;
  * Created on Mar 11, 2010
  */
 public class QNotFoundException extends QDbException {
+	/**
+	 * REMOVE AS SOON AS POSSIBLE - You are NOT ALLOWED to change the CODE for a KNOWN EXCEPTION!N!#^*&#!%#*^$%@*^$^@$#^@$#^*!@$13263
+	 */
+	@Deprecated
 	public QNotFoundException() {
 		super("record.not.found.simple");
 	}
 
+	/**
+	 * REMOVE AS SOON AS POSSIBLE - You are NOT ALLOWED to change the CODE for a KNOWN EXCEPTION!N!#^*&#!%#*^$%@*^$^@$#^@$#^*!@$13263
+	 */
+	@Deprecated
 	public QNotFoundException(Throwable x) {
 		super(x, "record.not.found.simple");
 	}
