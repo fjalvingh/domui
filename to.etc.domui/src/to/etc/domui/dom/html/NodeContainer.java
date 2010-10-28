@@ -549,7 +549,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	@Override
 	public void moveModelToControl() throws Exception {
-		super.moveModelToControl(); // FIXME Is this useful?
+		super.moveModelToControl(); // Move the value to *this* node if it is bindable
+		build(); // And only build it AFTER a value can have been set.
 		for(NodeBase b : this)
 			b.moveModelToControl();
 	}

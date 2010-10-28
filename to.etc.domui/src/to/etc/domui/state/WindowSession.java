@@ -573,7 +573,7 @@ final public class WindowSession {
 		 */
 		while(m_shelvedPageStack.size() > ix) {
 			ShelvedEntry se = m_shelvedPageStack.remove(m_shelvedPageStack.size() - 1);
-			System.out.println("Trying to discard " + se.getPage() + " in conversation " + se.getPage().getConversation());
+			//			System.out.println("Trying to discard " + se.getPage() + " in conversation " + se.getPage().getConversation());
 			discardPage(se.getPage());
 		}
 	}

@@ -10,7 +10,7 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 19, 2010
  */
-abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
+abstract public class AbstractDivControl<T> extends Div implements IInputNode<T> {
 	private boolean m_readOnly;
 
 	private boolean m_disabled;
@@ -109,5 +109,31 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_valueChanged = onValueChanged;
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*--------------------------------------------------------------*/
+	/** When this is bound this contains the binder instance handling the binding. */
+	private SimpleBinder m_binder;
+
+	/**
+	 * Return the binder for this control.
+	 * @see to.etc.domui.component.input.IBindable#bind()
+	 */
+	public IBinder bind() {
+		if(m_binder == null)
+			m_binder = new SimpleBinder(this);
+		return m_binder;
+	}
+
+	/**
+	 * Returns T if this control is bound to some data value.
+	 *
+	 * @see to.etc.domui.component.input.IBindable#isBound()
+	 */
+	public boolean isBound() {
+		return m_binder != null && m_binder.isBound();
 	}
 }

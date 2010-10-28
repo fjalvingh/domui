@@ -956,12 +956,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	@Override
 	public void moveModelToControl() throws Exception {
-		build();
+		//		build();		jal 20100606 Do not build: this is not a container, and if *this* implements IBindable set it's value BEFORE it is built.
 		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
 		if(v instanceof IBindable) {
 			IBindable b = (IBindable) v;
-			if(b.isBound())
+			if(b.isBound()) {
+				System.out.println("bind: moveModelToControl called on " + this);
 				b.bind().moveModelToControl();
+			}
 		}
 	}
 
