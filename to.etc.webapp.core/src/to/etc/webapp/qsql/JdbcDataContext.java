@@ -3,6 +3,9 @@ package to.etc.webapp.qsql;
 import java.sql.*;
 import java.util.*;
 
+import javax.annotation.*;
+
+import to.etc.webapp.core.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -24,6 +27,9 @@ public class JdbcDataContext implements QDataContext {
 	private Connection m_dbc;
 
 	private boolean m_ignoreClose;
+
+	@Nonnull
+	private List<IRunnable> m_commitHandlerList = Collections.EMPTY_LIST;
 
 	public JdbcDataContext(QDataContextFactory factory, Connection dbc) {
 		m_factory = factory;
@@ -75,6 +81,20 @@ public class JdbcDataContext implements QDataContext {
 	public void commit() throws Exception {
 		unclosed();
 		internalGetConnection().commit();
+		Exception firstx = null;
+		for(IRunnable r : m_commitHandlerList) {
+			try {
+				r.run();
+			} catch(Exception x) {
+				if(null == firstx)
+					firstx = x;
+				else
+					x.printStackTrace();
+			}
+		}
+		m_commitHandlerList.clear();
+		if(null != firstx)
+			throw firstx;
 	}
 
 	/**
@@ -193,5 +213,12 @@ public class JdbcDataContext implements QDataContext {
 	@Override
 	public void startTransaction() throws Exception {
 		unclosed();
+	}
+
+	@Override
+	public void addCommitAction(IRunnable cx) {
+		if(m_commitHandlerList == Collections.EMPTY_LIST)
+			m_commitHandlerList = new ArrayList<IRunnable>();
+		m_commitHandlerList.add(cx);
 	}
 }

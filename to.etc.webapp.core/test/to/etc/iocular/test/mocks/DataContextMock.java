@@ -3,6 +3,7 @@ package to.etc.iocular.test.mocks;
 import java.sql.*;
 import java.util.*;
 
+import to.etc.webapp.core.*;
 import to.etc.webapp.query.*;
 
 public class DataContextMock implements QDataContext {
@@ -89,4 +90,7 @@ public class DataContextMock implements QDataContext {
 	public void close() {
 		decrement();
 	}
+
+	@Override
+	public void addCommitAction(IRunnable cx) {}
 }

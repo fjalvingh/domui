@@ -1,12 +1,16 @@
 package to.etc.domui.hibernate.generic;
 
 import java.sql.*;
+import java.util.*;
+
+import javax.annotation.*;
 
 import org.hibernate.*;
 import org.slf4j.*;
 
 import to.etc.domui.state.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -31,6 +35,9 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	private boolean m_ignoreClose;
 
 	protected Session m_session;
+
+	@Nonnull
+	private List<IRunnable> m_commitHandlerList = Collections.EMPTY_LIST;
 
 	/**
 	 * Create a context, using the specified factory to create Hibernate sessions.
@@ -150,8 +157,27 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	 * @see to.etc.webapp.query.QDataContext#commit()
 	 */
 	public void commit() throws Exception {
-		if(inTransaction())
-			getSession().getTransaction().commit();
+		if(!inTransaction())
+			throw new IllegalStateException("Commit called without startTransaction."); // jal 20101028 Finally fix problem where commit fails silently.
+		getSession().getTransaction().commit();
+		runCommitHandlers();
+	}
+
+	protected void runCommitHandlers() throws Exception {
+		Exception firstx = null;
+		for(IRunnable r : m_commitHandlerList) {
+			try {
+				r.run();
+			} catch(Exception x) {
+				if(null == firstx)
+					firstx = x;
+				else
+					x.printStackTrace();
+			}
+		}
+		m_commitHandlerList.clear();
+		if(null != firstx)
+			throw firstx;
 	}
 
 	/**
@@ -180,6 +206,13 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	@SuppressWarnings("deprecation")
 	public Connection getConnection() throws Exception {
 		return getSession().connection();
+	}
+
+	@Override
+	public void addCommitAction(IRunnable cx) {
+		if(m_commitHandlerList == Collections.EMPTY_LIST)
+			m_commitHandlerList = new ArrayList<IRunnable>();
+		m_commitHandlerList.add(cx);
 	}
 
 	/*--------------------------------------------------------------*/

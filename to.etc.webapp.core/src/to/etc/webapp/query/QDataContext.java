@@ -3,6 +3,8 @@ package to.etc.webapp.query;
 import java.sql.*;
 import java.util.*;
 
+import to.etc.webapp.core.*;
+
 /**
  * Generalized thingy representing a database connection, and state associated with
  * objects. Equals the "DataContext" or "Hibernate Session". This is a controlled
@@ -151,4 +153,10 @@ public interface QDataContext {
 	boolean inTransaction() throws Exception;
 
 	Connection getConnection() throws Exception;
+
+	/**
+	 * Add an action which should be executed after a succesful commit on this context.
+	 * @param cx
+	 */
+	void addCommitAction(IRunnable cx);
 }

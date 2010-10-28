@@ -83,8 +83,13 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		setConversationInvalid(null);
 	}
 
+	/**
+	 * Commit; make sure a transaction exists (because nothing is flushed anyway) then commit.
+	 * @see to.etc.domui.hibernate.generic.BuggyHibernateBaseContext#commit()
+	 */
 	@Override
 	public void commit() throws Exception {
+		startTransaction();
 		m_session.flush();
 		super.commit();
 	}
