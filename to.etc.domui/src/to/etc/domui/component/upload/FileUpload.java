@@ -94,8 +94,7 @@ public class FileUpload extends Div {
 			td.add(new DefaultButton("delete", new IClicked<DefaultButton>() {
 				@Override
 				public void clicked(DefaultButton bx) throws Exception {
-					m_files.remove(ufi);
-					forceRebuild();
+					removeUploadItem(ufi);
 				}
 			}));
 		}
@@ -111,6 +110,15 @@ public class FileUpload extends Div {
 
 	public boolean isFull() {
 		return m_files.size() >= m_maxFiles;
+	}
+
+	/**
+	 * Removes specified upload item.
+	 * @param ufi
+	 */
+	public void removeUploadItem(UploadItem ufi) {
+		m_files.remove(ufi);
+		forceRebuild();
 	}
 
 	public String getAllowedExtensions() {
