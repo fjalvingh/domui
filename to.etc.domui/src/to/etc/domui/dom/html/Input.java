@@ -52,6 +52,10 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 		if(m_disabled != disabled)
 			changed();
 		m_disabled = disabled;
+		if(disabled)
+			addCssClass("ui-ro");
+		else
+			removeCssClass("ui-ro");
 	}
 
 	public int getMaxLength() {
@@ -128,7 +132,7 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 	}
 
 	/**
-	 * The input tag handles {@link Constants#ACMD_LOOKUP_TYPING} and {@link Constants#ACMD_LOOKUP_TYPING_DONE} browser commands. 
+	 * The input tag handles {@link Constants#ACMD_LOOKUP_TYPING} and {@link Constants#ACMD_LOOKUP_TYPING_DONE} browser commands.
 	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
 	 */
 	@Override

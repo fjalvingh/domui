@@ -67,6 +67,11 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 		if(m_disabled == disabled)
 			return;
 		m_disabled = disabled;
+		if(disabled) {
+			addCssClass("ui-ro");
+		} else {
+			removeCssClass("ui-ro");
+		}
 		changed();
 	}
 
