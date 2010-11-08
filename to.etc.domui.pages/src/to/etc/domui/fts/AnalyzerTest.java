@@ -53,7 +53,7 @@ public class AnalyzerTest {
 	private void	openDB() throws Exception {
 		ConnectionPool	pool = PoolManager.getInstance().definePool("jalpg");
 //		ConnectionPool	pool = PoolManager.getInstance().definePool("vpdemo");
-		m_dbc	= pool.getUnpooledConnector().makeConnection();
+		m_dbc = pool.getUnpooledDataSource().getConnection();
 		m_dbc.setAutoCommit(false);
 	}
 }
