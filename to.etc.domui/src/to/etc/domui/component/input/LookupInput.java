@@ -153,10 +153,10 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		m_keySearch = null;
 		if(m_value == null && isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
 			//Key word search rendering should be generic, no need for customization posibilities.
-			if(!isReadOnly() && !isDisabled()) {
-				renderKeyWordSearch(null, m_selButton);
-			} else {
+			if(isReadOnly() || isDisabled()) {
 				renderEmptySelection();
+			} else {			
+				renderKeyWordSearch(null, m_selButton);
 			}
 		} else {
 			//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
@@ -235,6 +235,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		td.setCssClass("ui-lui-v");
 		String txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
 		td.add(txt);
+		addCssClass("ui-ro");
 	}
 
 	private void addKeySearchField(NodeContainer parent, T value) {
@@ -568,6 +569,11 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		if(m_readOnly == readOnly)
 			return;
 		m_readOnly = readOnly;
+		if(m_readOnly && m_value != null) {
+			addCssClass("ui-lui-selected-ro");
+		} else {
+			removeCssClass("ui-lui-selected-ro");
+		}
 		forceRebuild();
 	}
 
@@ -581,6 +587,11 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		if(m_disabled == disabled)
 			return;
 		m_disabled = disabled;
+		if(m_disabled && m_value != null) {
+			addCssClass("ui-lui-selected-ro");
+		} else {
+			removeCssClass("ui-lui-selected-ro");
+		}
 		forceRebuild();
 	}
 
@@ -632,9 +643,15 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			m_clearButton.setDisplay(DisplayType.INLINE);
 			clearMessage();
 			setCssClass("ui-lui-selected");
+			if(m_readOnly || m_disabled) {
+				addCssClass("ui-lui-selected-ro");
+			} else {
+				removeCssClass("ui-lui-selected-ro");
+			}
 		} else {
 			m_clearButton.setDisplay(DisplayType.NONE);
 			setCssClass("ui-lui");
+			removeCssClass("ui-lui-selected-ro");
 		}
 		forceRebuild();
 	}
