@@ -21,7 +21,7 @@ import to.etc.webapp.qsql.*;
  * Created on Jun 22, 2008
  */
 public class PageParameters {
-	private Map<String, String> m_parameterMap = new HashMap<String, String>();
+	private Map<String, String[]> m_parameterMap = new HashMap<String, String[]>();
 
 	public PageParameters() {}
 
@@ -83,7 +83,7 @@ public class PageParameters {
 					pk = k.getClass().getName();
 					pk = pk.substring(pk.lastIndexOf('.') + 1);
 				}
-				m_parameterMap.put(pk, String.valueOf(key));
+				m_parameterMap.put(pk, new String[] {String.valueOf(key)});
 			}
 		}
 	}
@@ -98,7 +98,7 @@ public class PageParameters {
 			return;
 
 		if(o instanceof ILongIdentifyable) {
-			m_parameterMap.put(k, String.valueOf(((ILongIdentifyable) o).getId()));
+			m_parameterMap.put(k, new String[] {String.valueOf(((ILongIdentifyable) o).getId())});
 			return;
 		}
 
@@ -117,9 +117,16 @@ public class PageParameters {
 
 		if(keyval == null)
 			keyval = String.valueOf(o);
-		m_parameterMap.put(k, keyval);
+		m_parameterMap.put(k, new String[] {keyval});
 	}
 
+	/**
+	 * Adds a parameter with the specified name. When a parameter with the same name already exists,
+	 * the existing value will be overwritten with the specified value.
+	 * 
+	 * @param name, the parameter name.
+	 * @param value, the (new) value.
+	 */
 	public void addParameter(String name, Object value) {
 		//-- Convert the value to a string;
 		String s;
@@ -133,34 +140,63 @@ public class PageParameters {
 			s = value.toString();
 		else
 			throw new IllegalStateException("Cannot convert a " + value.getClass() + " to an URL parameter yet - parameter converters not implemented yet");
-		m_parameterMap.put(name, s);
+		m_parameterMap.put(name, new String[] {s});
 	}
 
+	/**
+	 * Removes the parameter with specified name entirely from the map.
+	 * 
+	 * @param name, the name of the parameter to be removed.
+	 */
 	public void removeParameter(String name) {
 		m_parameterMap.remove(name);
 	}
 
+	/**
+	 * Indicates whether a given parameter name exists in this PageParameters object.
+	 * 
+	 * @param name, the name of the parameter to be checked for.
+	 * @return true when the parameter exists, false otherwise.
+	 */
 	public boolean hasParameter(String name) {
 		return m_parameterMap.containsKey(name);
 	}
 
+	/**
+	 * Gets the value for the specified parametername as an int (primitive).
+	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * If the parameter does not exists or the value cannot be converted to an int, a MissingParameterException is thrown.
+	 * 
+	 * @param name, the name of the parameter who's value is to be retrieved.
+	 * @return the value as an int
+	 */
 	public int getInt(String name) {
-		String v = m_parameterMap.get(name);
+		String[] v = m_parameterMap.get(name);
 		if(v != null) {
 			try {
-				return Integer.parseInt(v);
+				return Integer.parseInt(v[0]);
 			} catch(Exception x) {}
 		}
 		throw new MissingParameterException(name);
 	}
 
+	/**
+	 * Gets the value for the specified parametername as an int (primitive).
+	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * If the parameter does cannot be converted to an int, a MissingParameterException is thrown.
+	 * When the parameter does not exist, the specified default value is returned.
+	 * 
+	 * @param name, the name of the parameter who's value is to be retrieved.
+	 * @param df, the default value to be returned, when the specified parameter does not exist.
+	 * @return the value as an int
+	 */
 	public int getInt(String name, int df) {
-		String v = m_parameterMap.get(name);
-		if(v != null) {
-			v = v.trim();
-			if(v.length() > 0) {
+		String[] v = m_parameterMap.get(name);
+		if(v != null && v.length > 0) {
+			v[0] = v[0].trim();
+			if(v[0].length() > 0) {
 				try {
-					return Integer.parseInt(v);
+					return Integer.parseInt(v[0]);
 				} catch(Exception x) {
 					throw new MissingParameterException(name);
 				}
@@ -169,23 +205,41 @@ public class PageParameters {
 		return df;
 	}
 
+	/**
+	 * Gets the value for the specified parametername as a long (primitive).
+	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * If the parameter does not exists or the value cannot be converted to an int, a MissingParameterException is thrown.
+	 * 
+	 * @param name, the name of the parameter who's value is to be retrieved.
+	 * @return the value as a long
+	 */
 	public long getLong(String name) {
-		String v = m_parameterMap.get(name);
+		String[] v = m_parameterMap.get(name);
 		if(v != null) {
 			try {
-				return Long.parseLong(v);
+				return Long.parseLong(v[0]);
 			} catch(Exception x) {}
 		}
 		throw new MissingParameterException(name);
 	}
 
+	/**
+	 * Gets the value for the specified parametername as a long (primitive).
+	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * If the parameter does cannot be converted to an int, a MissingParameterException is thrown.
+	 * When the parameter does not exist, the specified default value is returned.
+	 * 
+	 * @param name, the name of the parameter who's value is to be retrieved.
+	 * @param df, the default value to be returned, when the specified parameter does not exist.
+	 * @return the value as a long
+	 */
 	public long getLong(String name, long df) {
-		String v = m_parameterMap.get(name);
-		if(v != null) {
-			v = v.trim();
-			if(v.length() > 0) {
+		String[] v = m_parameterMap.get(name);
+		if(v != null && v.length > 0) {
+			v[0] = v[0].trim();
+			if(v[0].length() > 0) {
 				try {
-					return Long.parseLong(v);
+					return Long.parseLong(v[0]);
 				} catch(Exception x) {
 					throw new MissingParameterException(name);
 				}
@@ -194,27 +248,58 @@ public class PageParameters {
 		return df;
 	}
 
+	/**
+	 * Gets the value for the specified parametername as a Long object.
+	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * If the parameter does not exists or the value cannot be converted to an int, a MissingParameterException is thrown.
+	 * This method uses decode() so hexadecimal and octal strings can be used as parameter values.
+	 * 
+	 * @param name, the name of the parameter who's value is to be retrieved.
+	 * @return the value as a Long
+	 */
 	public Long getLongW(String name) {
-		String v = m_parameterMap.get(name);
+		String[] v = m_parameterMap.get(name);
 		if(v != null) {
 			try {
-				return Long.decode(v);
+				return Long.decode(v[0]);
 			} catch(Exception x) {}
 		}
 		throw new MissingParameterException(name);
 	}
 
+	/**
+	 * Gets the value for the specified parametername as a Long object.
+	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * If the parameter does cannot be converted to an int, a MissingParameterException is thrown.
+	 * When the parameter does not exist, the specified default value is returned.
+	 * This method uses decode() so hexadecimal and octal strings can be used as parameter values.
+	 * 
+	 * @param name, the name of the parameter who's value is to be retrieved.
+	 * @param df, the default value to be returned, when the specified parameter does not exist.
+	 * @return the value as a Long
+	 */
 	public Long getLongW(String name, long df) {
 		return getLongW(name, Long.valueOf(df));
 	}
 
+	/**
+	 * Gets the value for the specified parametername as a Long object.
+	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * If the parameter does cannot be converted to an int, a MissingParameterException is thrown.
+	 * When the parameter does not exist, the specified default value is returned.
+	 * This method uses decode() so hexadecimal and octal strings can be used as parameter values.
+	 * 
+	 * @param name, the name of the parameter who's value is to be retrieved.
+	 * @param df, the default value to be returned, when the specified parameter does not exist.
+	 * @return the value as a Long
+	 */
 	public Long getLongW(String name, Long df) {
-		String v = m_parameterMap.get(name);
-		if(v != null) {
-			v = v.trim();
-			if(v.length() > 0) {
+		String[] v = m_parameterMap.get(name);
+		if(v != null && v.length > 0) {
+			v[0] = v[0].trim();
+			if(v[0].length() > 0) {
 				try {
-					return Long.decode(v);
+					return Long.decode(v[0]);
 				} catch(Exception x) {
 					throw new MissingParameterException(name);
 				}
@@ -223,18 +308,52 @@ public class PageParameters {
 		return df;
 	}
 
+	/**
+	 * Gets the value for the specified parametername as a String object.
+	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * When the parameter does not exist, a MissingParameterException is thrown.
+	 * 
+	 * @param name, the name of the parameter who's value is to be retrieved.
+	 * @return the value as a String
+	 */
 	@Nonnull
 	public String getString(String name) {
-		String v = m_parameterMap.get(name);
-		if(v != null)
-			return v;
+		String[] v = m_parameterMap.get(name);
+		if(v != null && v.length > 0)
+			return v[0];
 		throw new MissingParameterException(name);
 	}
 
+	/**
+	 * Gets the value for the specified parametername as a String object.
+	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * When the parameter does not exist, the specified default value is returned.
+	 * 
+	 * @param name, the name of the parameter who's value is to be retrieved.
+	 * @param df, the default value to be returned, when the specified parameter does not exist.
+	 * @return the value as a String
+	 */
 	@Nullable
 	public String getString(String name, String df) {
-		String v = m_parameterMap.get(name);
-		return v == null ? df : v;
+		String[] v = m_parameterMap.get(name);
+		return v == null || v.length == 0? df : v[0];
+	}
+
+	/**
+	 * Gets the value for the specified parametername as a String array.
+	 * When the parameter does not exist, a MissingParameterException is thrown.
+	 * This method is provided for legacy reasons only.
+	 * The domui framework discourages uses of parameter arrays.
+	 * 
+	 * @param name, the name of the parameter who's value is to be retrieved.
+	 * @return the value as a String
+	 */
+	@Nonnull
+	public String[] getStringArray(String name) {
+		String[] v = m_parameterMap.get(name);
+		if(v != null && v.length > 0)
+			return v;
+		throw new MissingParameterException(name);
 	}
 
 	/**
@@ -249,10 +368,14 @@ public class PageParameters {
 			if(name.length() > 0) {
 				char c = name.charAt(0);
 				if(c != '_' && c != '$' && !name.startsWith("webui"))
-					pp.addParameter(name, ctx.getParameter(name));
+					pp.addParameterArray(name, ctx.getParameters(name));
 			}
 		}
 		return pp;
+	}
+
+	private void addParameterArray(String name, String[] parameters) {
+		m_parameterMap.put(name, parameters);
 	}
 
 	@Override
@@ -260,6 +383,10 @@ public class PageParameters {
 		return "Parameters: " + m_parameterMap.toString();
 	}
 
+	/**
+	 * Gets all the names of the parameters this object is holding
+	 * @return the parameter names in an array
+	 */
 	@Nonnull
 	public String[] getParameterNames() {
 		return m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
@@ -283,12 +410,23 @@ public class PageParameters {
 				return false;
 
 			for(String key : m_parameterMap.keySet()) {
-				String val = m_parameterMap.get(key);
-				String aval = a.m_parameterMap.get(key);
-				if(aval == null) // Key not found -> not equal.
+				String[] vals = m_parameterMap.get(key);
+				String[] avals = a.m_parameterMap.get(key);
+				if(avals == null) // Key not found -> not equal.
 					return false;
-				if(!val.equals(aval))
+				if(vals.length != avals.length) //Different array lengths for parameterName
 					return false;
+				for (String val : vals) { //check all items in the array
+					boolean found = false;
+					for (String aval : avals) {//walk through the entire array, same order of members is not necessary to be equal
+						if (aval.equals(val)) {
+							found = true;
+							break;
+						}
+					}
+					if (!found) //this value was not found in other value array, unequal.
+						return false;
+				}
 			}
 			return true;
 		}
