@@ -55,6 +55,8 @@ public class SimpleLookup<T> extends FloatingWindow {
 	/* temporary solution to allow use of same test IDs as it was used withing LookupInput. */
 	private boolean m_usedWithinLookupInput;
 
+	private boolean m_showDefaultSearch;
+
 	public SimpleLookup(Class<T> lookupClass, ClassMetaModel metaModel, String[] resultColumns) {
 		this(lookupClass, metaModel);
 		m_resultColumns = resultColumns;
@@ -131,6 +133,10 @@ public class SimpleLookup<T> extends FloatingWindow {
 				closePressed();
 			}
 		});
+
+		if(m_showDefaultSearch) {
+			search(lf);
+		}
 	}
 
 	void search(LookupForm<T> lf) throws Exception {
@@ -325,5 +331,13 @@ public class SimpleLookup<T> extends FloatingWindow {
 
 	public void setRenderAsCollapsed(boolean renderAsCollapsed) {
 		m_renderAsCollapsed = renderAsCollapsed;
+	}
+
+	public boolean isShowDefaultSearch() {
+		return m_showDefaultSearch;
+	}
+
+	public void setShowDefaultSearch(boolean showDefaultSearch) {
+		m_showDefaultSearch = showDefaultSearch;
 	}
 }
