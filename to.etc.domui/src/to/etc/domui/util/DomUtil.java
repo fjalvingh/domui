@@ -39,13 +39,26 @@ final public class DomUtil {
 		wsr.setIE8Capable();
 	}
 
-	static public final boolean isEqual(final Object a, final Object b) {
+	static public final boolean isEqualOLD(final Object a, final Object b) {
 		if(a == b)
 			return true;
 		if(a == null || b == null)
 			return false;
 		return a.equals(b);
 	}
+
+	static public final boolean isEqual(final Object a, final Object b) {
+		if(a == b)
+			return true;
+		if(a == null || b == null)
+			return false;
+		if(a.getClass() != b.getClass())
+			return false;
+		if(a.getClass().isArray() && b.getClass().isArray())
+			return Arrays.equals((Object[]) a, (Object[]) b);
+		return a.equals(b);
+	}
+
 
 	static public final boolean isEqual(final Object... ar) {
 		if(ar.length < 2)
@@ -324,15 +337,17 @@ final public class DomUtil {
 		for(String name : ctx.getParameterNames()) {
 			if(name.equals(Constants.PARAM_CONVERSATION_ID))
 				continue;
-			String value = ctx.getString(name);
-			if(first) {
-				sb.append('?');
-				first = false;
-			} else
-				sb.append('&');
-			StringTool.encodeURLEncoded(sb, name);
-			sb.append('=');
-			StringTool.encodeURLEncoded(sb, value);
+			String[] values = ctx.getStringArray(name);
+			for(String value : values) {
+				if(first) {
+					sb.append('?');
+					first = false;
+				} else
+					sb.append('&');
+				StringTool.encodeURLEncoded(sb, name);
+				sb.append('=');
+				StringTool.encodeURLEncoded(sb, value);
+			}
 		}
 	}
 
@@ -1071,12 +1086,14 @@ final public class DomUtil {
 	}
 
 	/**
+	 * Should use {@link PageParameters#getLongW(String, Long) instead.
 	 * Obtain a parameter and convert it to a Long wrapper.
 	 * @param pp
 	 * @param name
 	 * @param def
 	 * @return
 	 */
+	@Deprecated
 	static public Long getLongParameter(PageParameters pp, String name, Long def) {
 		String s = pp.getString(name, null); // Parameter present?
 		if(s == null || s.trim().length() == 0)
