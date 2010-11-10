@@ -212,7 +212,6 @@ public class PageParameters {
 
 	/**
 	 * Gets the value for the specified parametername as an int (primitive).
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
 	 * If the parameter does not exists or the value cannot be converted to an int, a MissingParameterException is thrown.
 	 *
 	 * @param name, the name of the parameter who's value is to be retrieved.
@@ -231,7 +230,6 @@ public class PageParameters {
 
 	/**
 	 * Gets the value for the specified parametername as an int (primitive).
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
 	 * If the parameter does cannot be converted to an int, a MissingParameterException is thrown.
 	 * When the parameter does not exist, the specified default value is returned.
 	 *
