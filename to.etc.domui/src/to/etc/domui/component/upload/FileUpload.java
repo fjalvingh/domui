@@ -117,8 +117,9 @@ public class FileUpload extends Div {
 	 * @param ufi
 	 */
 	public void removeUploadItem(UploadItem ufi) {
-		m_files.remove(ufi);
-		forceRebuild();
+		// FIXME We allow the case where the UploadItem is not in the list.... Is that correct or should an exception be thrown?
+		if(m_files.remove(ufi))
+			forceRebuild();
 	}
 
 	public String getAllowedExtensions() {

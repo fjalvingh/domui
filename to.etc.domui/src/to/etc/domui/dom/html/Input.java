@@ -49,10 +49,31 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 	}
 
 	public void setDisabled(boolean disabled) {
-		if(m_disabled != disabled)
-			changed();
+		if(m_disabled == disabled)
+			return;
+		boolean wasro = m_disabled || m_readOnly;
 		m_disabled = disabled;
-		if(disabled)
+		boolean isro = m_disabled || m_readOnly;
+		if(wasro != isro)
+			updateRoStyle();
+	}
+
+	public boolean isReadOnly() {
+		return m_readOnly;
+	}
+
+	public void setReadOnly(boolean readOnly) {
+		if(m_readOnly == readOnly)
+			return;
+		boolean wasro = m_disabled || m_readOnly;
+		m_readOnly = readOnly;
+		boolean isro = m_disabled || m_readOnly;
+		if(wasro != isro)
+			updateRoStyle();
+	}
+
+	private void updateRoStyle() {
+		if(m_disabled || m_readOnly)
 			addCssClass("ui-ro");
 		else
 			removeCssClass("ui-ro");
@@ -66,20 +87,6 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 		if(m_maxLength != maxLength)
 			changed();
 		m_maxLength = maxLength;
-	}
-
-	public boolean isReadOnly() {
-		return m_readOnly;
-	}
-
-	public void setReadOnly(boolean readOnly) {
-		if(m_readOnly == readOnly)
-			return;
-		m_readOnly = readOnly;
-		if(readOnly)
-			addCssClass("ui-ro");
-		else
-			removeCssClass("ui-ro");
 	}
 
 	public int getSize() {

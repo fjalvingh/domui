@@ -153,10 +153,10 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		m_keySearch = null;
 		if(m_value == null && isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
 			//Key word search rendering should be generic, no need for customization posibilities.
-			if(!isReadOnly() && !isDisabled()) {
-				renderKeyWordSearch(null, m_selButton);
-			} else {
+			if(isReadOnly() || isDisabled()) {
 				renderEmptySelection();
+			} else {			
+				renderKeyWordSearch(null, m_selButton);
 			}
 		} else {
 			//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
