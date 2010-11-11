@@ -18,6 +18,30 @@ import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
+/**
+ * Lookup input field component.
+ *
+ * Additional description on use of stylesheets:
+ * LookupInput can have this states:
+ * <UL>
+ * <LI>selected editable -> ui-lui-selected</LI>
+ * <LI>selected readonly||disabled -> ui-lui-selected ui-lui-selected-ro</LI>
+ * <LI>unselected editable -> ui-lui-v</LI>
+ * <LI>unselected readonly -> ui-lui-v ui-ro</LI>
+ * </UL>
+ *
+ * Thing is that when LookupInput is selected (has value), it is
+ * rendered as table. We can't put color onto table border (since we need
+ * to have only out border), so we put color onto tbody outline.
+ * So, when we have readonly LookupInput, then we want only to override
+ * background color (not a border), so for that we have additional class =ui-lui-selected-ro.
+ * Unselected readonly LookupInput has only one TD in table, so there we
+ * can use simple ui-ro, since there we can set border (it would look
+ * ackward if we use style named ui-lui-selected-ro for unselected rendering).
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jun 1, 2008
+ */
 public class LookupInput<T> extends Table implements IInputNode<T>, IHasModifiedIndication {
 	/**
 	 * The result class. For Java classes this usually also defines the metamodel to use; for generic meta this should
@@ -151,11 +175,13 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	@Override
 	public void createContent() throws Exception {
 		m_keySearch = null;
+		removeCssClass("ui-ro");
 		if(m_value == null && isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
 			//Key word search rendering should be generic, no need for customization posibilities.
 			if(isReadOnly() || isDisabled()) {
 				renderEmptySelection();
-			} else {			
+				addCssClass("ui-ro");
+			} else {
 				renderKeyWordSearch(null, m_selButton);
 			}
 		} else {
@@ -235,7 +261,6 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		td.setCssClass("ui-lui-v");
 		String txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
 		td.add(txt);
-		addCssClass("ui-ro");
 	}
 
 	private void addKeySearchField(NodeContainer parent, T value) {
@@ -569,12 +594,15 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		if(m_readOnly == readOnly)
 			return;
 		m_readOnly = readOnly;
-		if(m_readOnly && m_value != null) {
-			addCssClass("ui-lui-selected-ro");
-		} else {
-			removeCssClass("ui-lui-selected-ro");
-		}
+		updateRoStyle();
 		forceRebuild();
+	}
+
+	private void updateRoStyle() {
+		if((m_disabled || m_readOnly) && m_value != null)
+			addCssClass("ui-lui-selected-ro");
+		else
+			removeCssClass("ui-lui-selected-ro");
 	}
 
 	@Override
@@ -587,11 +615,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		if(m_disabled == disabled)
 			return;
 		m_disabled = disabled;
-		if(m_disabled && m_value != null) {
-			addCssClass("ui-lui-selected-ro");
-		} else {
-			removeCssClass("ui-lui-selected-ro");
-		}
+		updateRoStyle();
 		forceRebuild();
 	}
 
@@ -643,16 +667,11 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			m_clearButton.setDisplay(DisplayType.INLINE);
 			clearMessage();
 			setCssClass("ui-lui-selected");
-			if(m_readOnly || m_disabled) {
-				addCssClass("ui-lui-selected-ro");
-			} else {
-				removeCssClass("ui-lui-selected-ro");
-			}
 		} else {
 			m_clearButton.setDisplay(DisplayType.NONE);
 			setCssClass("ui-lui");
-			removeCssClass("ui-lui-selected-ro");
 		}
+		updateRoStyle();
 		forceRebuild();
 	}
 
