@@ -2,7 +2,6 @@ package to.etc.domui.component.input;
 
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
-import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -11,6 +10,7 @@ import to.etc.webapp.query.*;
 
 /**
  * Represents simple lookup dialog that enables single item selection.
+ * Migrated from trunk to 3.3.1 on Nov 08, 2010
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Aug 3, 2010
@@ -20,17 +20,12 @@ public class SimpleLookup<T> extends FloatingWindow {
 	public interface IValueSelected<T> {
 		void valueSelected(T value) throws Exception;
 	}
+
 	/**
 	 * The result class. For Java classes this usually also defines the metamodel to use; for generic meta this should
 	 * be the value record class type.
 	 */
 	final private Class<T> m_lookupClass;
-
-	/**
-	 * The metamodel to use to handle the data in this class. For Javabean data classes this is automatically
-	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
-	 */
-	final private ClassMetaModel m_metaModel;
 
 	private LookupForm<T> m_externalLookupForm;
 
@@ -57,13 +52,8 @@ public class SimpleLookup<T> extends FloatingWindow {
 
 	private boolean m_showDefaultSearch;
 
-	public SimpleLookup(Class<T> lookupClass, ClassMetaModel metaModel, String[] resultColumns) {
-		this(lookupClass, metaModel);
-		m_resultColumns = resultColumns;
-	}
-
 	public SimpleLookup(Class<T> lookupClass, String[] resultColumns) {
-		this(lookupClass, (ClassMetaModel) null);
+		this(lookupClass);
 		m_resultColumns = resultColumns;
 	}
 
@@ -72,22 +62,12 @@ public class SimpleLookup<T> extends FloatingWindow {
 	 * @param lookupClass
 	 */
 	public SimpleLookup(Class<T> lookupClass) {
-		this(lookupClass, (ClassMetaModel) null);
-	}
-
-	public SimpleLookup(Class<T> lookupClass, ClassMetaModel metaModel) {
 		super(true, null);
 		m_lookupClass = lookupClass;
-		m_metaModel = metaModel != null ? metaModel : MetaManager.findClassMeta(lookupClass);
 	}
-
 
 	public Class<T> getLookupClass() {
 		return m_lookupClass;
-	}
-
-	public ClassMetaModel getMetaModel() {
-		return m_metaModel;
 	}
 
 	@Override
@@ -107,7 +87,7 @@ public class SimpleLookup<T> extends FloatingWindow {
 			add((NodeBase) m_customErrorMessageListener);
 			DomUtil.getMessageFence(this).addErrorListener(m_customErrorMessageListener);
 		}
-		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(getLookupClass(), getMetaModel());
+		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(getLookupClass());
 
 		lf.setRenderAsCollapsed(m_renderAsCollapsed);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
@@ -176,9 +156,9 @@ public class SimpleLookup<T> extends FloatingWindow {
 			//-- We do not yet have a result table -> create one.
 			SimpleRowRenderer<T> rr = null;
 			if(m_resultColumns != null) {
-				rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel(), m_resultColumns);
+				rr = new SimpleRowRenderer<T>(getLookupClass(), m_resultColumns);
 			} else {
-				rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel());
+				rr = new SimpleRowRenderer<T>(getLookupClass());
 			}
 
 			m_result = new DataTable<T>(model, rr);
