@@ -139,7 +139,13 @@ public class AppFilter implements Filter {
 	 */
 	public void init(final FilterConfig config) throws ServletException {
 		try {
-			String logconfig = config.getInitParameter("logpath");
+			//-- Where to get log config from?
+			String logconfig = DeveloperOptions.getString("domui.logconfig");
+			if(logconfig == null) {
+				logconfig = System.getProperty("domui.logconfig");
+				if(null == logconfig)
+					logconfig = config.getInitParameter("logpath");
+			}
 			InputStream logStream = findLogConfig(logconfig);
 			if(logStream != null) {
 				JoranConfigurator jc = new JoranConfigurator();

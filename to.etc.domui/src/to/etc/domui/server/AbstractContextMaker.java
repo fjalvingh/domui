@@ -48,7 +48,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			} catch(Exception x) {
 				x.printStackTrace();
 			}
-			PageContext.internalSet((RequestContextImpl) null);
+			PageContext.internalClear();
 		}
 	}
 

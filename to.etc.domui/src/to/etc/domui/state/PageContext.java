@@ -39,19 +39,25 @@ public class PageContext {
 	 * ended.
 	 * @param rc
 	 */
-	static public void internalSet(final RequestContextImpl rc) throws Exception {
+	static public void internalSet(@Nonnull final RequestContextImpl rc) throws Exception {
 		m_current.set(rc);
 		boolean ok = false;
 		try {
-			if(rc == null)
-				m_currentUser.set(null);
-			else
-				m_currentUser.set(internalGetLoggedInUser(rc));
+			m_currentUser.set(internalGetLoggedInUser(rc));
 			ok = true;
 		} finally {
 			if(!ok)
-				m_current.set(null);
+				internalClear();
 		}
+	}
+
+	/**
+	 * This CLEARS all "current state" threadlocals.
+	 */
+	static public void internalClear() {
+		m_current.set(null);
+		m_currentUser.set(null);
+		m_page.set(null);
 	}
 
 	static public void internalSet(final Page pg) {
