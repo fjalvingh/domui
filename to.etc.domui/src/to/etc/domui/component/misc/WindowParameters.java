@@ -166,4 +166,19 @@ public class WindowParameters {
 		p.setShowToolbar(false);
 		return p;
 	}
+
+	static public WindowParameters createResizeableScrollable(int w, int h, String name) {
+		WindowParameters p = new WindowParameters();
+		p.setSize(w, h);
+		p.setName(name);
+		p.setCopyhistory(false);
+		p.setResizable(true);
+		p.setShowDirectories(false);
+		p.setShowLocation(true);
+		p.setShowMenubar(false);
+		p.setShowScrollbars(true);
+		p.setShowStatus(false);
+		p.setShowToolbar(false);
+		return p;
+	}
 }
