@@ -63,22 +63,25 @@ public class CaptionedHeader extends Table {
 	}
 
 	public void addButton(String image, String hint, IClicked<NodeBase> handler) {
-		if(m_btns == Collections.EMPTY_LIST) {
-			m_btns = new ArrayList<SmallImgButton>();
-		}
 		SmallImgButton ib = new SmallImgButton(image);
-		ib.setTitle(hint);
 		ib.setClicked(handler);
-		m_btns.add(ib);
+		internallyAddButton(ib, hint);
 	}
 
 	public void addButton(String image, String hint, String onClickJs) {
+		SmallImgButton ib = new SmallImgButton(image);
+		ib.setOnClickJS(onClickJs);
+		internallyAddButton(ib, hint);
+	}
+
+	private void internallyAddButton(SmallImgButton ib, String hint) {
 		if(m_btns == Collections.EMPTY_LIST) {
 			m_btns = new ArrayList<SmallImgButton>();
 		}
-		SmallImgButton ib = new SmallImgButton(image);
 		ib.setTitle(hint);
-		ib.setOnClickJS(onClickJs);
 		m_btns.add(ib);
+		if(isBuilt() && m_buttonpart != null) {
+			m_buttonpart.add(ib);
+		}
 	}
 }
