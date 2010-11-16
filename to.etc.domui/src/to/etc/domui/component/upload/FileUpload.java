@@ -82,7 +82,8 @@ public class FileUpload extends Div {
 			FileInput fi = new FileInput();
 			f.add(fi);
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
-			fi.setSpecialAttribute("fuallowed", m_allowedExtensions);
+			if(null != m_allowedExtensions)
+				fi.setSpecialAttribute("fuallowed", m_allowedExtensions);
 			fi.setSpecialAttribute("fumaxsz", Integer.toString(m_maxSize));
 			m_input = fi;
 		}
