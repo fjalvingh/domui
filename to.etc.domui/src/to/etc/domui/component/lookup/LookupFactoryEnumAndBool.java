@@ -44,9 +44,6 @@ final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 			}
 
 			final ComboFixed< ? > c = new ComboFixed<Object>(vl);
-			if(pmm.isRequired()) {
-				c.setMandatory(true);
-			}
 			String s = pmm.getDefaultHint();
 			if(s != null) {
 				c.setTitle(s);
