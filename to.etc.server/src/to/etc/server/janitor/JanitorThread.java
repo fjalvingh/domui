@@ -2,7 +2,6 @@ package to.etc.server.janitor;
 
 import java.util.*;
 
-import to.etc.dbpool.*;
 import to.etc.server.syslogger.*;
 
 /**
@@ -81,11 +80,7 @@ public class JanitorThread implements Runnable {
 		} catch(Exception x) {
 			m_j.logTask(this, "Task EXCEPTION: " + x.getMessage());
 			Panicker.logUnexpected(x, "Janitor task " + m_jt.m_taskname);
-		} finally {
-			//-- Discard any connections used by this thread
-			PoolManager.getInstance().closeThreadConnections();
 		}
-
 		//-- Task terminated.
 		setState(jtfTERM);
 	}

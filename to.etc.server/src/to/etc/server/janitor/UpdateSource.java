@@ -3,7 +3,8 @@ package to.etc.server.janitor;
 import java.sql.*;
 import java.util.*;
 
-import to.etc.dbpool.*;
+import javax.sql.*;
+
 import to.etc.dbutil.*;
 
 /**
@@ -15,7 +16,7 @@ import to.etc.dbutil.*;
 public class UpdateSource {
 	private UpdateEventManager	m_em;
 
-	private DbConnector			m_dbconn;
+	private DataSource			m_dbconn;
 
 	private String				m_table		= "nema_updates";
 
@@ -23,7 +24,7 @@ public class UpdateSource {
 
 	private long				m_upid		= -1;
 
-	protected UpdateSource(UpdateEventManager em, DbConnector dbconn, String tbl, String seq) {
+	protected UpdateSource(UpdateEventManager em, DataSource dbconn, String tbl, String seq) {
 		m_em = em;
 		m_dbconn = dbconn;
 		if(tbl != null) {
@@ -34,7 +35,7 @@ public class UpdateSource {
 
 	@Override
 	public int hashCode() {
-		return m_dbconn.getID().hashCode() << 10 ^ m_table.hashCode();
+		return m_dbconn.hashCode() << 10 ^ m_table.hashCode();
 	}
 
 	@Override
@@ -42,7 +43,7 @@ public class UpdateSource {
 		if(!(b instanceof UpdateSource))
 			return false;
 		UpdateSource e = (UpdateSource) b;
-		return e.m_dbconn.getID().equalsIgnoreCase(m_dbconn.getID()) && e.m_table.equalsIgnoreCase(m_table);
+		return e.m_dbconn.equals(m_dbconn) && e.m_table.equalsIgnoreCase(m_table);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -79,7 +80,7 @@ public class UpdateSource {
 		if(m_upid != -1)
 			return;
 
-		Connection dbc = m_dbconn.makeConnection();
+		Connection dbc = m_dbconn.getConnection();
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		try {
@@ -89,7 +90,7 @@ public class UpdateSource {
 			ps = dbc.prepareStatement("select max(upid) from " + m_table);
 			rs = ps.executeQuery();
 			if(!rs.next())
-				throw new IllegalStateException("?? Cannot get max update number from DB=" + m_dbconn.getID() + " table=" + m_table);
+				throw new IllegalStateException("?? Cannot get max update number from DB=" + m_dbconn + " table=" + m_table);
 			m_upid = rs.getLong(1);
 			//			MSG.msg("Initialized, first NEW update will be "+(m_upid+1));
 		} finally {
@@ -117,7 +118,7 @@ public class UpdateSource {
 	 * multiple threads from handling updates this locks the instance.
 	 */
 	protected void checkUpdates(ArrayList al) throws Exception {
-		Connection dbc = m_dbconn.makeConnection();
+		Connection dbc = m_dbconn.getConnection();
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		try {
@@ -156,7 +157,7 @@ public class UpdateSource {
 
 	@Override
 	public String toString() {
-		return m_dbconn.getID() + "/" + m_table;
+		return m_dbconn + "/" + m_table;
 	}
 
 
@@ -168,7 +169,7 @@ public class UpdateSource {
 	/*	CODING:	Post an update generic code...						*/
 	/*--------------------------------------------------------------*/
 	public void postUpdate(String ev, String s1, String s2, long i1, long i2, long i3) throws SQLException {
-		Connection dbc = m_dbconn.makeConnection();
+		Connection dbc = m_dbconn.getConnection();
 		PreparedStatement ps = null;
 		try {
 			//-- Get a new sequence ID

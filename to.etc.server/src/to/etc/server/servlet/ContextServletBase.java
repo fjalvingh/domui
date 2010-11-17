@@ -8,7 +8,6 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import to.etc.dbpool.*;
 import to.etc.server.*;
 import to.etc.server.servlet.cmd.*;
 import to.etc.server.servlet.error.*;
@@ -276,7 +275,6 @@ abstract public class ContextServletBase extends HttpServlet implements ILogSink
 		} finally {
 			if(c != null)
 				callTermHandlers(c);
-			PoolManager.getInstance().closeThreadConnections();
 		}
 	}
 
@@ -321,7 +319,6 @@ abstract public class ContextServletBase extends HttpServlet implements ILogSink
 			super.service(req, res);
 		} finally {
 			closeContext(req);
-			PoolManager.getInstance().closeThreadConnections();
 		}
 	}
 }

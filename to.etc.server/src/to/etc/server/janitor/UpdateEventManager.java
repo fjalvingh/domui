@@ -2,7 +2,8 @@ package to.etc.server.janitor;
 
 import java.util.*;
 
-import to.etc.dbpool.*;
+import javax.sql.*;
+
 import to.etc.log.*;
 import to.etc.server.syslogger.*;
 import to.etc.util.*;
@@ -51,7 +52,7 @@ public class UpdateEventManager implements Runnable {
 	 * start the checks for this connection until an event handler gets
 	 * registered.
 	 */
-	public synchronized UpdateSource addDatabase(DbConnector dbc, String tbl, String sequence) throws Exception {
+	public synchronized UpdateSource addDatabase(DataSource dbc, String tbl, String sequence) throws Exception {
 		UpdateSource e = new UpdateSource(this, dbc, tbl, sequence);
 		UpdateSource o = (UpdateSource) m_db_al.get(e);
 		if(o != null)
@@ -64,7 +65,7 @@ public class UpdateEventManager implements Runnable {
 		return e;
 	}
 
-	public UpdateSource addDatabase(DbConnector dbc) throws Exception {
+	public UpdateSource addDatabase(DataSource dbc) throws Exception {
 		return addDatabase(dbc, null, null);
 	}
 
@@ -139,7 +140,6 @@ public class UpdateEventManager implements Runnable {
 	public void run() {
 		for(;;) {
 			jCheckUpdates();
-			PoolManager.getInstance().closeThreadConnections();
 			try {
 				Thread.sleep(4 * 1000); // Sleep x secs before rerun
 			} catch(Exception ex) {}

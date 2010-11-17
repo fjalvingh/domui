@@ -147,7 +147,7 @@ import to.etc.dbutil.*;
  * @author 	jal
  * @version $Version$
  */
-public class ConnectionPool implements DbConnectorSet {
+public class ConnectionPool {
 	static public final Logger MSG = LoggerFactory.getLogger("to.etc.dbpool.msg");
 
 	static public final Logger JAN = LoggerFactory.getLogger("to.etc.dbpool.janitor");
@@ -209,28 +209,6 @@ public class ConnectionPool implements DbConnectorSet {
 	private final String m_id;
 
 	private List<ErrorEntry> m_lastErrorStack = new ArrayList<ErrorEntry>(10);
-
-	/** The connector. */
-	private final DbConnector m_pooled_connector = new DbConnector() {
-		public String getID() {
-			return ConnectionPool.this.getID();
-		}
-
-		public Connection makeConnection() throws SQLException {
-			return getConnection(false);
-		}
-	};
-
-	/** The connector. */
-	private final DbConnector m_unpooled_connector = new DbConnector() {
-		public String getID() {
-			return ConnectionPool.this.getID();
-		}
-
-		public Connection makeConnection() throws SQLException {
-			return getConnection(true);
-		}
-	};
 
 	/** The pooled datasource instance. */
 	private final StupidDataSourceImpl m_pooled_ds = new StupidDataSourceImpl(this, true);
@@ -1576,15 +1554,6 @@ public class ConnectionPool implements DbConnectorSet {
 	 */
 	public int getConnectionAllocationCount() {
 		return m_n_connallocations;
-	}
-
-
-	public DbConnector getPooledConnector() {
-		return m_pooled_connector;
-	}
-
-	public DbConnector getUnpooledConnector() {
-		return m_unpooled_connector;
 	}
 
 	public Connection getNewPooledConnection() throws SQLException {

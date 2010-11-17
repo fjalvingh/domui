@@ -8,7 +8,6 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import to.etc.dbpool.*;
 import to.etc.server.*;
 import to.etc.server.servlet.cmd.*;
 import to.etc.server.servlet.error.*;
@@ -264,7 +263,6 @@ abstract public class CtxServlet extends HttpServlet {
 			super.service(req, res);
 		} finally {
 			closeContext(req);
-			PoolManager.getInstance().closeThreadConnections();
 		}
 	}
 
@@ -297,7 +295,6 @@ abstract public class CtxServlet extends HttpServlet {
 
 	private void doFinally(CtxServletContextBase c) {
 		callTermHandlers(c);
-		PoolManager.getInstance().closeThreadConnections();
 	}
 
 	@Override

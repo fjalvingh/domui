@@ -2,7 +2,8 @@ package to.etc.server.janitor;
 
 import java.sql.*;
 
-import to.etc.dbpool.*;
+import javax.sql.*;
+
 import to.etc.server.syslogger.*;
 
 /**
@@ -14,7 +15,7 @@ import to.etc.server.syslogger.*;
 public class JobTask extends JanitorTask {
 	private Job			m_job;
 
-	private DbConnector	m_dbconn;
+	private DataSource	m_dbconn;
 
 	private Connection	m_dbc;
 
@@ -29,7 +30,7 @@ public class JobTask extends JanitorTask {
 	 */
 	public Connection db() throws SQLException {
 		if(m_dbc == null)
-			m_dbc = m_dbconn.makeConnection();
+			m_dbc = m_dbconn.getConnection();
 		return m_dbc;
 	}
 
