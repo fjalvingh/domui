@@ -1,9 +1,6 @@
 package to.etc.server.servlet;
 
 import javax.servlet.*;
-import javax.servlet.http.*;
-
-import to.etc.dbpool.*;
 
 /**
  * This listener can be used to collect statistics for the database pool
@@ -15,20 +12,20 @@ import to.etc.dbpool.*;
  */
 public class StatisticsRequestListener implements ServletRequestListener {
 	public void requestDestroyed(ServletRequestEvent ev) {
-		ServletRequest sr = ev.getServletRequest();
-		if(!(sr instanceof HttpServletRequest))
-			return;
-		HttpServletRequest r = (HttpServletRequest) sr;
-		PoolManager.getInstance().stopCollecting();
-		//		System.out.println("RQ-o: "+r.getRequestURL().toString());
+		//		ServletRequest sr = ev.getServletRequest();
+		//		if(!(sr instanceof HttpServletRequest))
+		//			return;
+		//		HttpServletRequest r = (HttpServletRequest) sr;
+		//		PoolManager.getInstance().stopCollecting();
+		//		//		System.out.println("RQ-o: "+r.getRequestURL().toString());
 	}
 
 	public void requestInitialized(ServletRequestEvent ev) {
-		ServletRequest sr = ev.getServletRequest();
-		if(!(sr instanceof HttpServletRequest))
-			return;
-		HttpServletRequest r = (HttpServletRequest) sr;
-		PoolManager.getInstance().startCollecting(r.getRequestURI());
-		//		System.out.println("RQ-i: "+r.getRequestURL().toString());
+		//		ServletRequest sr = ev.getServletRequest();
+		//		if(!(sr instanceof HttpServletRequest))
+		//			return;
+		//		HttpServletRequest r = (HttpServletRequest) sr;
+		//		PoolManager.getInstance().startCollecting(r.getRequestURI());
+		//		//		System.out.println("RQ-i: "+r.getRequestURL().toString());
 	}
 }
