@@ -1,0 +1,11 @@
+<h2>Hanging connection information for <%= ps.getCurrentlyHangingConnections().size() %> connections</h2>
+<p>Press <% self.actionTag(pool, "forceexpired", "this link") %> to force an expiry scan on all hanging connections. This will force all hanging pooled connections closed.</p>
+<br>
+<table width="100%"  class="maintbl">
+	<tr class="hdr">
+		<td width="1%" nowrap>ConnID</td>
+		<td width="1%" nowrap>Type</td>
+		<td width="1%" nowrap>Age</td>
+		<td width="1%" nowrap>Last used</td>
+		<td width="99%">commands</td>
+	</tr>

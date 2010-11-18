@@ -1,0 +1,22 @@
+<table width="100%"  class="maintbl">
+	<tr>
+		<td nowrap width="1%">Time</td>
+		<td nowrap width="1%">#exec</td>
+		<td nowrap width="1%">#rows</td>
+		<td width="99%">Key</td>
+	</tr>
+<%
+	for(var i = 0; i < items.size(); i++) {
+		var pi = items.get(i);
+%>
+	<tr class="statrow <%= self.odd() %>">
+		<td nowrap width="1%" valign="top" rowspan="2"><%= DbPoolUtil.strNanoTime(pi.getMetric()) %></td>
+		<td nowrap width="1%" valign="top"><%= DbPoolUtil.strCommad(pi.data.getExecutions()) %></td>
+		<td nowrap width="1%" valign="top"><%= DbPoolUtil.strCommad(pi.data.getRows()) %></td>
+		<td width="99%" valign="top"><%= DbPoolUtil.q(pi.getKey()) %></td>
+	</tr>
+	<tr class="statrow">
+		<td width="99%" valign="top" colspan="3" class="statrequest"><%= DbPoolUtil.q(pi.getRequest()) %></td>
+	</tr>
+<%	}	%>
+</table>

@@ -13,22 +13,23 @@ import javax.sql.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 31, 2006
  */
-public class StupidDataSourceImpl implements DataSource {
-	private ConnectionPool m_pool;
+final public class DataSourceImpl implements DataSource {
+	final private ConnectionPool m_pool;
 
-	private boolean m_unpooled;
-
-	StupidDataSourceImpl(ConnectionPool p, boolean unpooled) {
+	DataSourceImpl(ConnectionPool p) {
 		m_pool = p;
-		m_unpooled = unpooled;
+	}
+
+	public ConnectionPool getPool() {
+		return m_pool;
 	}
 
 	public Connection getConnection() throws SQLException {
-		return m_pool.getConnection(m_unpooled);
+		return m_pool.getConnection(false);
 	}
 
 	public Connection getConnection(String username, String password) throws SQLException {
-		if(!m_pool.getUserID().equalsIgnoreCase(username))
+		if(!m_pool.c().getUid().equalsIgnoreCase(username))
 			throw new SQLException("Bad user ID or password.");
 		return getConnection();
 	}

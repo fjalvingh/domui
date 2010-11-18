@@ -6,6 +6,7 @@ import java.net.*;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
+import java.util.logging.*;
 
 /**
  *	Encapsulates a java.sql.PreparedStatement for NEMA purposes. This class
@@ -23,7 +24,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 	/*	CODING:	Changed/intercepted methods..						*/
 	/*--------------------------------------------------------------*/
 
-	public PreparedStatementProxy(final PooledConnection c, final PreparedStatement st, final String sql) {
+	public PreparedStatementProxy(final ConnectionProxy c, final PreparedStatement st, final String sql) {
 		super(c, st, sql);
 	}
 
@@ -61,7 +62,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 		m_par[ix] = v;
 	}
 
-	Object[] internalGetParameters() {
+	public Object[] internalGetParameters() {
 		Object[] res = new Object[m_maxpar];
 		System.arraycopy(m_par, 0, res, 0, m_maxpar);
 		return res;
@@ -74,7 +75,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 	 */
 	@Override
 	protected SQLException wrap(final SQLException x) {
-		if(_conn().m_pe.getPool().isPrintExceptions()) {
+		if(pool().c().isPrintExceptions()) {
 			System.out.println("----- db: exception in statement -----");
 			System.out.println("SQL: " + getSQL());
 			System.out.println(BetterSQLException.format(m_par, m_maxpar));
@@ -88,16 +89,16 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 	/*--------------------------------------------------------------*/
 	public ResultSet executeQuery() throws SQLException {
 		pool().logExecution(this);
-		if(LOG.isDebugEnabled()) {
-			LOG.debug("executeQuery(): " + getSQL());
-			LOG.debug("parameters:" + BetterSQLException.format(m_par, m_maxpar));
+		if(LOG.isLoggable(Level.FINE)) {
+			LOG.fine("executeQuery(): " + getSQL());
+			LOG.fine("parameters:" + BetterSQLException.format(m_par, m_maxpar));
 		}
 		ResultSetProxy rpx = null;
 		try {
 			_conn().collector().executePreparedQueryStart(this);
 			rpx = new ResultSetProxy(this, getRealPreparedStatement().executeQuery());
-			_conn().m_pe.m_pool.incOpenRS();
-			_conn().m_pe.addResource(rpx);
+			pool().incOpenRS();
+			_conn().addResource(rpx);
 			return rpx;
 		} catch(SQLException x) {
 			SQLException wx = wrap(x);
@@ -110,9 +111,9 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
 	public int executeUpdate() throws SQLException {
 		pool().logExecution(this);
-		if(LOG.isDebugEnabled()) {
-			LOG.debug("executeUpdate(): " + getSQL());
-			LOG.debug("parameters:" + BetterSQLException.format(m_par, m_maxpar));
+		if(LOG.isLoggable(Level.FINE)) {
+			LOG.fine("executeUpdate(): " + getSQL());
+			LOG.fine("parameters:" + BetterSQLException.format(m_par, m_maxpar));
 		}
 		int rc = -1;
 		try {
@@ -127,6 +128,26 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 			_conn().collector().executeUpdateEnd(this, rc);
 		}
 	}
+
+	public boolean execute() throws SQLException {
+		pool().logExecution(this);
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("execute called");
+
+		boolean res = false;
+		try {
+			_conn().collector().executeStart(this);
+			res = getRealPreparedStatement().execute();
+			return res;
+		} catch(SQLException x) {
+			SQLException wx = wrap(x);
+			_conn().collector().executeError(this, wx);
+			throw wx;
+		} finally {
+			_conn().collector().executeEnd(this, res);
+		}
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/* CODING: Simple callthroughs.                                 */
@@ -326,23 +347,11 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 		}
 	}
 
-	public boolean execute() throws SQLException {
-		pool().logExecution(this);
-
-		if(LOG.isDebugEnabled())
-			LOG.debug("execute called");
-		try {
-			return getRealPreparedStatement().execute();
-		} catch(SQLException xx) {
-			throw wrap(xx);
-		}
-	}
-
 	public void addBatch() throws SQLException {
 		pool().logExecution(this, true);
-		if(LOG.isDebugEnabled()) {
-			LOG.debug("addBatch(prepared): " + getSQL());
-			LOG.debug("parameters:" + BetterSQLException.format(m_par, m_maxpar));
+		if(LOG.isLoggable(Level.FINE)) {
+			LOG.fine("addBatch(prepared): " + getSQL());
+			LOG.fine("parameters:" + BetterSQLException.format(m_par, m_maxpar));
 		}
 
 		try {

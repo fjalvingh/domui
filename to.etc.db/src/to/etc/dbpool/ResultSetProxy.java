@@ -7,7 +7,7 @@ import java.sql.*;
 import java.sql.Date;
 import java.util.*;
 
-import to.etc.dbpool.stats.*;
+import to.etc.dbpool.info.*;
 
 public class ResultSetProxy implements ResultSet {
 	/** The wrapped result set, */
@@ -15,7 +15,7 @@ public class ResultSetProxy implements ResultSet {
 
 	private final InfoCollector m_collector;
 
-	private final PooledConnection m_pc;
+	private final ConnectionProxy m_pc;
 
 	private String m_close_rsn;
 
@@ -24,7 +24,16 @@ public class ResultSetProxy implements ResultSet {
 
 	private Object[] m_par;
 
-	private Throwable m_allocationLocation;
+	private Tracepoint m_allocationLocation;
+
+	/** When collecting statistics, the allocation timestamp */
+	private long m_ts_allocated;
+
+	/** When collecting statistics, the #of rows fetched through this result set. */
+	private int m_rowCount;
+
+	/** When collecting statistics, the timestamp of close() demarking the end of the fetch cycle. */
+	private long m_ts_released;
 
 	protected ResultSetProxy(final StatementProxy sp, final ResultSet rs) {
 		m_collector = sp._conn().collector();
@@ -34,17 +43,28 @@ public class ResultSetProxy implements ResultSet {
 		if(sp instanceof PreparedStatementProxy) {
 			m_par = ((PreparedStatementProxy) sp).internalGetParameters();
 		}
-		if(sp.pool().isLogResultSetLocations()) {
-			try {
-				throw new RuntimeException();
-			} catch(RuntimeException x) {
-				m_allocationLocation = x;
-			}
+		if(sp.pool().c().isLogResultSetLocations()) {
+			m_allocationLocation = Tracepoint.create(sp.getSQL());
+		}
+		if(m_pc.isCollectStatistics()) {
+			m_ts_allocated = System.nanoTime();
 		}
 	}
 
 	public String internalGetCloseReason() {
 		return m_close_rsn;
+	}
+
+	public String getSQL() {
+		return m_sql;
+	}
+
+	public int internalGetRowCount() {
+		return m_rowCount;
+	}
+
+	public long internalGetFetchDuration() {
+		return m_ts_released - m_ts_allocated;
 	}
 
 	protected void internalDumpInfo() {
@@ -56,7 +76,7 @@ public class ResultSetProxy implements ResultSet {
 		}
 		if(m_allocationLocation != null) {
 			sb.append("ResultSet was allocated at:\n");
-			DbPoolUtil.getFilteredStacktrace(sb, m_allocationLocation);
+			DbPoolUtil.strStacktraceFiltered(sb, m_allocationLocation.getElements());
 		}
 		if(sb.length() > 0)
 			System.out.println(sb);
@@ -86,10 +106,14 @@ public class ResultSetProxy implements ResultSet {
 		if(m_rs == null)
 			return;
 		try {
-			m_pc.m_pe.removeResource(m_pc, this);
+			m_pc.removeResource(this);
 			m_rs.close();
 		} finally {
 			m_rs = null;
+		}
+		if(m_pc.isCollectStatistics()) {
+			m_ts_released = System.nanoTime();
+			m_collector.resultSetClosed(this);
 		}
 	}
 
@@ -109,8 +133,22 @@ public class ResultSetProxy implements ResultSet {
 			} finally {
 				m_rs = null;
 			}
+			if(m_pc.isCollectStatistics()) {
+				m_ts_released = System.nanoTime();
+				m_collector.resultSetClosed(this);
+			}
 		}
 	}
+
+	public boolean next() throws SQLException {
+		boolean r = m_rs.next();
+		if(r) {
+//			m_collector.incrementRowCount(this);
+			m_rowCount++;
+		}
+		return r;
+	}
+
 
 	public void deleteRow() throws SQLException {
 		m_rs.deleteRow();
@@ -291,7 +329,7 @@ public class ResultSetProxy implements ResultSet {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Object getObject(final int arg0, final Map arg1) throws SQLException {
+	public Object getObject(final int arg0, @SuppressWarnings("rawtypes") final Map arg1) throws SQLException {
 		return m_rs.getObject(arg0, arg1);
 	}
 
@@ -300,7 +338,7 @@ public class ResultSetProxy implements ResultSet {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Object getObject(final String arg0, final Map arg1) throws SQLException {
+	public Object getObject(final String arg0, @SuppressWarnings("rawtypes") final Map arg1) throws SQLException {
 		return m_rs.getObject(arg0, arg1);
 	}
 
@@ -436,13 +474,6 @@ public class ResultSetProxy implements ResultSet {
 
 	public void moveToInsertRow() throws SQLException {
 		m_rs.moveToInsertRow();
-	}
-
-	public boolean next() throws SQLException {
-		boolean r = m_rs.next();
-		if(r)
-			m_collector.incrementRowCount(this);
-		return r;
 	}
 
 	public boolean previous() throws SQLException {
