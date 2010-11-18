@@ -1865,7 +1865,7 @@ var WebUI = {
 		var totHeight = 0;
 		$(elem).siblings().each(function(index, node) {
 			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
-			if (node != elem && $(node).css('position') == 'static'){
+			if (node != elem && $(node).css('position') == 'static' && $(node).css('float') == 'none'){
 				totHeight += node.offsetHeight;
 			}
 		});
