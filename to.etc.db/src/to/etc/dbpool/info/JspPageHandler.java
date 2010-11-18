@@ -361,11 +361,11 @@ public class JspPageHandler {
 	private String readResource(String name) throws IOException {
 		InputStream is = null;
 		try {
-			if(false) {
-				is = getClass().getResourceAsStream(name);
-			} else {
-				File inf = new File("/home/jal/bzr/trunk-newpool/shared/to.etc.db/src/to/etc/dbpool/info/" + name);
+			File inf = new File("/home/jal/bzr/trunk-newpool/shared/to.etc.db/src/to/etc/dbpool/info/" + name);
+			if(inf.exists()) {
 				is = new FileInputStream(inf);
+			} else {
+				is = getClass().getResourceAsStream(name);
 			}
 			if(null == is)
 				throw new IllegalStateException("Unknown classpath-resource " + name);
