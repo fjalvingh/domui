@@ -24,10 +24,6 @@ final public class DataSourceImpl implements DataSource {
 		return m_pool;
 	}
 
-	public ConnectionPool getPool() {
-		return m_pool;
-	}
-
 	public Connection getConnection() throws SQLException {
 		return m_pool.getConnection(false);
 	}
