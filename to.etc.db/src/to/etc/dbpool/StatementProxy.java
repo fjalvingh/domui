@@ -1,8 +1,7 @@
 package to.etc.dbpool;
 
 import java.sql.*;
-
-import org.slf4j.*;
+import java.util.logging.*;
 
 /**
  *	Encapsulates a java.sql.Statement for NEMA purposes. This class implements
@@ -12,35 +11,31 @@ import org.slf4j.*;
  *  statement list.
  */
 public class StatementProxy implements Statement {
-	static protected Logger LOG = LoggerFactory.getLogger(StatementProxy.class);
+	static protected Logger LOG = Logger.getLogger(StatementProxy.class.getName());
 
 	/// The original statement this connects to,
 	private Statement m_st;
 
 	/// The database connection this derived from,
-	private final PooledConnection m_c;
+	private final ConnectionProxy m_c;
 
 	/** The current SQL statement set into this dude */
 	private String m_sql_str;
 
 	private String m_close_rsn;
 
-	private Throwable m_allocationLocation;
+	private Tracepoint m_allocationLocation;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Changed/intercepted methods..						*/
 	/*--------------------------------------------------------------*/
 
-	public StatementProxy(final PooledConnection c, final Statement st, final String sql) {
+	public StatementProxy(final ConnectionProxy c, final Statement st, final String sql) {
 		m_c = c;
 		m_st = st;
 		m_sql_str = sql;
-		if(c.m_pe.m_pool.isLogResultSetLocations()) {
-			try {
-				throw new RuntimeException();
-			} catch(RuntimeException x) {
-				m_allocationLocation = x;
-			}
+		if(c.getPool().c().isLogResultSetLocations()) {
+			m_allocationLocation = Tracepoint.create(null);
 		}
 	}
 
@@ -70,18 +65,18 @@ public class StatementProxy implements Statement {
 		return m_c.getRealConnection();
 	}
 
-	protected PooledConnection _conn() {
+	protected ConnectionProxy _conn() {
 		return m_c;
 	}
 
 	protected ConnectionPool pool() {
-		return _conn().m_pe.getPool();
+		return _conn().getPool();
 	}
 
 	/**
-	 *  This gets called when the Connection was closed, and it closes the
-	 *  resources. This only closes the actual statement and does not remove
-	 *  the element from the connection's trace list.
+	 * This gets called when the Connection was closed, and it closes the
+	 * resources. This only closes the actual statement and does not remove
+	 * the element from the connection's trace list.
 	 */
 	public void closedByConnection() throws SQLException {
 		if(m_st != null) {
@@ -91,7 +86,7 @@ public class StatementProxy implements Statement {
 			appendQuery(sb);
 			if(m_allocationLocation != null) {
 				sb.append("StatementProxy was allocated at:\n");
-				DbPoolUtil.getFilteredStacktrace(sb, m_allocationLocation);
+				DbPoolUtil.strStacktraceFiltered(sb, m_allocationLocation.getElements());
 			}
 			if(sb.length() > 0)
 				System.out.println(sb);
@@ -127,10 +122,9 @@ public class StatementProxy implements Statement {
 	 * @return
 	 */
 	protected SQLException wrap(final SQLException x) {
-		if(m_c.m_pe.m_pool.isPrintExceptions()) {
+		if(_conn().getPool().c().isPrintExceptions()) {
 			System.out.println("----- db: exception in statement -----");
 			System.out.println("SQL: " + getSQL());
-			//			System.out.println(BetterSQLException.format(null, 0));
 			x.printStackTrace();
 		}
 		return new BetterSQLException(getSQL(), null, 0, x);
@@ -156,14 +150,14 @@ public class StatementProxy implements Statement {
 	public ResultSet executeQuery(final String sql) throws SQLException {
 		m_sql_str = sql;
 		pool().logExecution(this);
-		if(LOG.isDebugEnabled())
-			LOG.debug("executeQuery: " + sql);
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("executeQuery: " + sql);
 		ResultSetProxy rpx = null;
 		try {
 			m_c.collector().executeQueryStart(this);
 			rpx = new ResultSetProxy(this, m_st.executeQuery(sql));
-			_conn().m_pe.m_pool.incOpenRS();
-			_conn().m_pe.addResource(rpx);
+			_conn().getPool().incOpenRS();
+			_conn().addResource(rpx);
 			return rpx;
 		} catch(SQLException x) {
 			SQLException wx = wrap(x);
@@ -177,8 +171,8 @@ public class StatementProxy implements Statement {
 	public int executeUpdate(final String sql) throws SQLException {
 		m_sql_str = sql;
 		pool().logExecution(this);
-		if(LOG.isDebugEnabled())
-			LOG.debug("executeUpdate: " + sql);
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("executeUpdate: " + sql);
 		int rc = -1;
 		try {
 			m_c.collector().executeUpdateStart(this);
@@ -196,8 +190,8 @@ public class StatementProxy implements Statement {
 	public boolean execute(final String sql) throws SQLException {
 		m_sql_str = sql;
 		pool().logExecution(this);
-		if(LOG.isDebugEnabled())
-			LOG.debug("execute: " + sql);
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("execute: " + sql);
 		Boolean res = null;
 		try {
 			m_c.collector().executeStart(this);
@@ -216,8 +210,8 @@ public class StatementProxy implements Statement {
 	public int[] executeBatch() throws SQLException {
 		int[] res = null;
 		pool().logBatch();
-		if(LOG.isDebugEnabled())
-			LOG.debug("executeBatch called");
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("executeBatch called");
 		try {
 			m_c.collector().executeBatchStart(this);
 			res = getRealStatement().executeBatch();
@@ -232,8 +226,8 @@ public class StatementProxy implements Statement {
 	}
 
 	public boolean execute(final String sql, final String ar[]) throws SQLException {
-		if(LOG.isDebugEnabled())
-			LOG.debug("execute: " + sql);
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("execute: " + sql);
 		m_sql_str = sql;
 		pool().logExecution(this);
 		Boolean res = null;
@@ -252,8 +246,8 @@ public class StatementProxy implements Statement {
 	}
 
 	public boolean execute(final String sql, final int[] p2) throws SQLException {
-		if(LOG.isDebugEnabled())
-			LOG.debug("execute: " + sql);
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("execute: " + sql);
 		m_sql_str = sql;
 		pool().logExecution(this);
 		Boolean res = null;
@@ -272,8 +266,8 @@ public class StatementProxy implements Statement {
 	}
 
 	public boolean execute(final String sql, final int p2) throws SQLException {
-		if(LOG.isDebugEnabled())
-			LOG.debug("execute: " + sql);
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("execute: " + sql);
 		m_sql_str = sql;
 		pool().logExecution(this);
 
@@ -294,8 +288,8 @@ public class StatementProxy implements Statement {
 
 	public int executeUpdate(final String sql, final String[] ar) throws SQLException {
 		pool().logExecution(this);
-		if(LOG.isDebugEnabled())
-			LOG.debug("executeUpdate: " + sql);
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("executeUpdate: " + sql);
 		m_sql_str = sql;
 		int res = -1;
 		try {
@@ -313,8 +307,8 @@ public class StatementProxy implements Statement {
 
 	public int executeUpdate(final String sql, final int[] ar) throws SQLException {
 		pool().logExecution(this);
-		if(LOG.isDebugEnabled())
-			LOG.debug("executeUpdate: " + sql);
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("executeUpdate: " + sql);
 		m_sql_str = sql;
 		int res = -1;
 		try {
@@ -332,8 +326,8 @@ public class StatementProxy implements Statement {
 
 	public int executeUpdate(final String sql, final int p2) throws SQLException {
 		pool().logExecution(this);
-		if(LOG.isDebugEnabled())
-			LOG.debug("executeUpdate: " + sql);
+		if(LOG.isLoggable(Level.FINE))
+			LOG.info("executeUpdate: " + sql);
 		m_sql_str = sql;
 		int res = -1;
 		try {
@@ -523,8 +517,8 @@ public class StatementProxy implements Statement {
 
 	public void addBatch(final String sql) throws SQLException {
 		pool().logExecution(this);
-		if(LOG.isDebugEnabled())
-			LOG.debug("addBatch: " + sql);
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("addBatch: " + sql);
 		try {
 			m_sql_str = sql;
 			m_c.collector().addBatch(sql);

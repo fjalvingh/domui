@@ -4,36 +4,37 @@ import java.io.*;
 import java.sql.*;
 import java.util.*;
 
-import to.etc.dbpool.stats.*;
-import to.etc.dbutil.*;
+import javax.annotation.*;
+import javax.annotation.concurrent.*;
+
+import to.etc.dbpool.info.*;
 
 /**
- * Handles database connections.
- * Created on Oct 17, 2003
- * @author jal
+ * Root of the database pool manager code.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 2, 2010
  */
-public class PoolManager {
+final public class PoolManager {
 	/** The table of pools (ConnectionPool), identified by ID */
-	private final HashMap<String, ConnectionPool> m_pool_ht = new HashMap<String, ConnectionPool>();
+	@GuardedBy("this")
+	private final Map<String, ConnectionPool> m_poolMap = new HashMap<String, ConnectionPool>();
 
-	private final ArrayList<iPoolMessageHandler> m_listeners = new ArrayList<iPoolMessageHandler>();
+	@GuardedBy("this")
+	private List<IPoolMessageHandler> m_listenerList = new ArrayList<IPoolMessageHandler>();
 
-	static private Object m_connidlock = new Object();
+	static final private Object m_connidlock = new Object();
 
+	@GuardedBy("m_connidlock")
 	static private int m_nextconnid;
 
 	private boolean m_collectStatistics;
 
-	/**
-	 * Threadlocal containing the per-thread collected statistics, per request.
-	 */
-	private final ThreadLocal<ThreadData> m_threadStats = new ThreadLocal<ThreadData>();
+	/** Threadlocal containing the per-thread collected statistics, per request. */
+	private final ThreadLocal<InfoCollectorSink> m_threadStats = new ThreadLocal<InfoCollectorSink>();
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Static entries to the pool manager (obsolete).		*/
-	/*--------------------------------------------------------------*/
 	/** The shared global instance of a pool manager */
-	static private PoolManager m_instance = new PoolManager();
+	static final private PoolManager m_instance = new PoolManager();
 
 	static int nextConnID() {
 		synchronized(m_connidlock) {
@@ -45,34 +46,36 @@ public class PoolManager {
 		return m_instance;
 	}
 
-	static public void panic(final String shortdesc, final String body) {
-		getInstance().sendPanic(shortdesc, body);
+	public void panic(final String shortdesc, final String body) {
+		sendPanic(shortdesc, body);
 	}
 
-	static public void logUnexpected(final String s) {
-		getInstance().sendLogUnexpected(null, s);
+	public void logUnexpected(final Exception t, final String s) {
+		sendLogUnexpected(t, s);
 	}
 
-	static public void logUnexpected(final Exception t, final String s) {
-		getInstance().sendLogUnexpected(t, s);
+	public void logUnexpected(final String s) {
+		sendLogUnexpected(null, s);
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Database connection pool handler.					*/
-	/*--------------------------------------------------------------*/
-	public void addMessageListener(final iPoolMessageHandler pmh) {
-		if(!m_listeners.contains(pmh))
-			m_listeners.add(pmh);
+	synchronized public void addMessageListener(final IPoolMessageHandler pmh) {
+		m_listenerList = new ArrayList<IPoolMessageHandler>(m_listenerList);
+		m_listenerList.add(pmh);
 	}
 
-	public void removeMessageListener(final iPoolMessageHandler pmh) {
-		m_listeners.remove(pmh);
+	synchronized public void removeMessageListener(final IPoolMessageHandler pmh) {
+		m_listenerList = new ArrayList<IPoolMessageHandler>(m_listenerList);
+		m_listenerList.remove(pmh);
+	}
+
+	synchronized private List<IPoolMessageHandler> getListeners() {
+		return m_listenerList;
 	}
 
 	public void sendLogUnexpected(final Exception t, final String s) {
-		for(int i = m_listeners.size(); --i >= 0;) {
+		for(IPoolMessageHandler pmh : getListeners()) {
 			try {
-				(m_listeners.get(i)).sendLogUnexpected(t, s);
+				pmh.sendLogUnexpected(t, s);
 			} catch(RuntimeException e) {
 				e.printStackTrace();
 			}
@@ -80,22 +83,80 @@ public class PoolManager {
 	}
 
 	public void sendPanic(final String shortdesc, final String body) {
-		for(int i = m_listeners.size(); --i >= 0;) {
+		for(IPoolMessageHandler pmh : getListeners()) {
 			try {
-				(m_listeners.get(i)).sendPanic(shortdesc, body);
+				pmh.sendPanic(shortdesc, body);
 			} catch(RuntimeException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
-	public int getPoolCount() {
-		return m_pool_ht.size();
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Accessing pools.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Return the #of pools currently defined.
+	 * @return
+	 */
+	public synchronized int getPoolCount() {
+		return m_poolMap.size();
 	}
+
+	/**
+	 * Finds the named pool. Throws an exception if not found.
+	 */
+	@Nonnull
+	public ConnectionPool getPool(@Nonnull final String id) throws SQLException {
+		if(id == null)
+			throw new IllegalArgumentException("The pool ID cannot be null");
+		synchronized(this) {
+			ConnectionPool pool = m_poolMap.get(id); // Find the pool
+			if(pool == null)
+				throw new SQLException("PoolManager: pool with ID " + id + " not found.");
+			return pool;
+		}
+	}
+
+	/**
+	 * Return all currently defined pools.
+	 * @return
+	 */
+	public ConnectionPool[] getPoolList() {
+		synchronized(this) {
+			return m_poolMap.values().toArray(new ConnectionPool[m_poolMap.size()]);
+		}
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Defining and initializing pools.					*/
 	/*--------------------------------------------------------------*/
+	/**
+	 * Register a new pool with the manager and allow duplicate definitions.
+	 */
+	private ConnectionPool addPool(ConnectionPool newpool) throws SQLException {
+		synchronized(this) {
+			//-- If this pool is already there then compare else add the new one
+			ConnectionPool cp = m_poolMap.get(newpool.getID());
+			if(cp != null) { // Pool exists.. Must have same parameters,
+				if(!cp.c().equals(newpool.c()))
+					throw new SQLException("PoolManager: database pool with duplicate id " + newpool.getID() + " is being defined with DIFFERENT parameters as the original.");
+				return cp; // Exists and the same: return original pool
+			}
+			m_poolMap.put(newpool.getID(), newpool); // And define it,
+			return newpool;
+		}
+	}
+
+	private ConnectionPool addPool(String id, PoolConfig pc) throws SQLException {
+		//-- Create a new pool structure,
+		ConnectionPool newpool = new ConnectionPool(this, id, pc);
+		newpool.checkParameters(); // Check all parameters outside any lock.
+		return addPool(newpool);
+	}
+
 	/**
 	 * Defines the pool with the specified ID from the ConfigSource passed.
 	 * The pool is defined but NOT initialized. The same pool can be
@@ -104,36 +165,13 @@ public class PoolManager {
 	 * that all allocated connections will be discarded after a close.
 	 */
 	public ConnectionPool definePool(final PoolConfigSource cs, final String id) throws SQLException {
-		//-- Create a new pool structure,
-		ConnectionPool newpool = new ConnectionPool(this, id, cs);
-		synchronized(m_pool_ht) {
-			//-- If this pool is already there then compare else add the new one
-			ConnectionPool cp = m_pool_ht.get(id);
-			if(cp != null) // Pool exists.. Must have same parameters,
-			{
-				if(!cp.equals(newpool))
-					throw new SQLException("PoolManager: database pool with duplicate id " + id + " is being defined with DIFFERENT parameters as the original.");
-				return cp; // Exists and the same: return original pool
-			}
-			m_pool_ht.put(id, newpool); // And define it,
-			return newpool;
-		}
+		PoolConfig pc = new PoolConfig(id, cs);
+		return addPool(id, pc);
 	}
 
 	public ConnectionPool definePool(final String id, final String driver, final String url, final String userid, final String password, final String driverpath) throws SQLException {
-		ConnectionPool newpool = new ConnectionPool(this, id, driver, url, userid, password, driverpath);
-		synchronized(m_pool_ht) {
-			//-- If this pool is already there then compare else add the new one
-			ConnectionPool cp = m_pool_ht.get(id);
-			if(cp != null) // Pool exists.. Must have same parameters,
-			{
-				if(!cp.equals(newpool))
-					throw new SQLException("PoolManager: database pool with duplicate id " + id + " is being defined with DIFFERENT parameters as the original.");
-				return cp; // Exists and the same: return original pool
-			}
-			m_pool_ht.put(id, newpool); // And define it,
-			return newpool;
-		}
+		PoolConfig pc = new PoolConfig(driver, url, userid, password, driverpath);
+		return addPool(id, pc);
 	}
 
 	/**
@@ -205,88 +243,50 @@ public class PoolManager {
 		return initializePool(cs, id);
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Getting pools and shit from the pools.				*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Finds the named pool. Throws an exception if not found.
-	 */
-	public ConnectionPool getPool(final String id) throws SQLException {
-		if(id == null)
-			throw new IllegalArgumentException("The pool ID cannot be null");
-		synchronized(m_pool_ht) {
-			ConnectionPool pool = m_pool_ht.get(id); // Find the pool
-			if(pool == null)
-				throw new SQLException("PoolManager: pool with ID " + id + " not found.");
-			return pool;
-		}
-	}
-
-	/**
-	 * Tries to return a database type for the connection passed.
-	 *
-	 * @param dbc		the connection to check
-	 * @return			a dbtype for the connection.
-	 */
-	public BaseDB getDbType(final Connection dbc) {
-		if(dbc instanceof PooledConnection) // Is it a pooled thing?
-			return ((PooledConnection) dbc).getDbType();
-		return GenericDB.getDbType(dbc); // Try more expensive method to get the type.
-	}
-
-	//	/**
-	//	 *	Returns a non-pooled, freshly allocated connection from the specified
-	//	 *	pool connection. This call does NOT initialize the pool!!
-	//	 */
-	//	private ThreadCacheableDbConnection getUnpooledConnection(String id) throws SQLException
-	//	{
-	//		ConnectionPool	p = getPool(id);
-	//		return p.getUnpooledConnection();			// Ask the pool to provide.
-	//	}
-	//	/**
-	//	 *	Returns a pooled connection from the pool.
-	//	 */
-	//	private ThreadCacheableDbConnection getPooledConnection(String id) throws SQLException
-	//	{
-	//		ConnectionPool	p = getPool(id);
-	//		return p.getConn();									// Ask the pool to provide.
-	//	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Pool management and teardown.						*/
 	/*--------------------------------------------------------------*/
+	/**
+	 * Destroy all current pools.
+	 */
 	public void destroyAll() {
 		List<ConnectionPool> l;
-		synchronized(m_pool_ht) {
-			l = new ArrayList<ConnectionPool>(m_pool_ht.values());
-			m_pool_ht.clear();
+		synchronized(this) {
+			l = new ArrayList<ConnectionPool>(m_poolMap.values());
+			m_poolMap.clear();
 		}
 		for(ConnectionPool p : l) {
-			p.deinitialize();
+			try {
+				p.destroyPool();
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
 		}
 	}
 
-	/**
-	 * Returns a full list of all defined pools.
-	 * @return
-	 */
-	public ConnectionPool[] getPoolList() {
-		synchronized(m_pool_ht) {
-			return m_pool_ht.values().toArray(new ConnectionPool[m_pool_ht.size()]);
-		}
+	public void destroyPool(String poolid) throws SQLException {
+		ConnectionPool pool = getPool(poolid);
+		pool.destroyPool();
 	}
 
 	/**
-	 * The janitor task which scans for unreleased database connections.
+	 * Callback from pool.destroyPool to remove the pool from the manager before it is destroyed. No locks are
+	 * held when called.
+	 * Since we can be called for an already destroyed pool make sure the pool in the map is the
+	 * one we're destroying...
+	 *
+	 * @param id
 	 */
-	private void dbScanOldiesTask(final int scaninterval_in_secs) {
-		//-- Righty right. Get a list of ALL pools and scan them for old shit.
-		ConnectionPool[] ar = getPoolList();
-		//		DBJAN.msg("Scanning for hanging connections in "+ar.length+" pools");
-		for(int i = 0; i < ar.length; i++) {
-			ar[i].scanForOldies(scaninterval_in_secs);
-		}
+	@GuardedBy("this")
+	synchronized boolean internalRemovePool(ConnectionPool cp) {
+		ConnectionPool xp = m_poolMap.get(cp.getID());
+		if(null == xp)
+			return false; // Already removed
+		if(xp != cp) // Different copy is active; old one was removed already
+			return false;
+		m_poolMap.remove(cp.getID());
+		return true;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -299,7 +299,7 @@ public class PoolManager {
 	/**
 	 * Starts the scanner if database locking security is requested.
 	 */
-	synchronized protected void dbStartJanitor() {
+	synchronized protected void startExpiredConnectionScanner() {
 		if(m_dbpool_scaninterval == 0 || m_scanthread != null)
 			return;
 
@@ -307,11 +307,11 @@ public class PoolManager {
 		try {
 			m_scanthread = new Thread(new Runnable() {
 				public void run() {
-					runScanner();
+					expiredConnectionScannerLoop();
 				}
 			});
 			m_scanthread.setDaemon(true);
-			m_scanthread.setName("PoolScanner");
+			m_scanthread.setName("DbPoolScanner");
 			m_scanthread.start();
 		} catch(Exception x) {
 			x.printStackTrace();
@@ -319,11 +319,14 @@ public class PoolManager {
 		}
 	}
 
-	void runScanner() {
+	/**
+	 * FIXME Must terminate when manager is closed.
+	 */
+	void expiredConnectionScannerLoop() {
 		System.out.println("PoolManager: expired connection scanning thread started.");
 		for(;;) {
 			try {
-				dbScanOldiesTask(m_dbpool_scaninterval);
+				scanExpiredConnectionsOnce(m_dbpool_scaninterval);
 				Thread.sleep(m_dbpool_scaninterval * 1000 / 2);
 			} catch(Exception x) {
 				logUnexpected(x, "In scanning for expired connections");
@@ -331,234 +334,29 @@ public class PoolManager {
 		}
 	}
 
-	/*----------------------------------------------------------*/
-	/*	CODING:	ThreadConnection stuff.							*/
-	/*----------------------------------------------------------*/
 	/**
-	 * <p>The thread map. Contains a ThreadConnectionInfo per thread. We
-	 * cannot use a ThreadLocal thingy because the Janitor thread must be able
-	 * to remove ThreadConnections when they expire. This map is locked
-	 * on 'this'; the connection maps contained herein are locked by self.
-	 *
-	 * <p><b>WARNING</b>: Please do NOT assume that since the connection map
-	 * is a per-thread entry that locking it is unneccesary! In normal
-	 * circumstances this is true, but not when a connection is forcefully
-	 * released by a Janitor process for instance!
+	 * The janitor task which scans for unreleased database connections.
 	 */
-	private final WeakHashMap<Thread, ThreadConnectionInfo> m_thread_ht = new WeakHashMap<Thread, ThreadConnectionInfo>();
-
-	static final private class ThreadConnectionInfo {
-		/** T if connections allocated by current thread must */
-		private int m_cache_connections;
-
-		/**
-		 * A map of [poolid, Connection] for connections currently allocated
-		 * for this thread.
-		 */
-		private final Map<ConnectionPool, PooledConnection> m_pool_map = new HashMap<ConnectionPool, PooledConnection>();
-
-		public ThreadConnectionInfo() {}
-
-		final public boolean isCached() {
-			return m_cache_connections > 0;
-		}
-
-		final public void incCached() {
-			m_cache_connections++;
-			if(m_cache_connections > 20)
-				throw new IllegalStateException("Calls to enableCachedConnection() and disableCachedConnection() not balanced!!");
-		}
-
-		/**
-		 * Decrement the cached nesting level, and returns true if
-		 * caching gets disabled. Never decrements below 0.
-		 * @return
-		 */
-		final public boolean decCached() {
-			if(m_cache_connections == 0)
-				return false;
-			m_cache_connections--;
-			//			System.out.println("#db: cached nesting level="+m_cache_connections);
-			return m_cache_connections <= 0;
-		}
-
-		final public PooledConnection get(final ConnectionPool pool) {
-			return m_pool_map.get(pool);
-		}
-
-		final public void put(final ConnectionPool pool, final PooledConnection conn) {
-			m_pool_map.put(pool, conn);
-		}
-
-		final public PooledConnection[] discardMap() {
-			if(m_pool_map.size() == 0)
-				return null;
-			PooledConnection[] ar = m_pool_map.values().toArray(new PooledConnection[m_pool_map.size()]);
-			m_pool_map.clear();
-			return ar;
-		}
+	private void scanExpiredConnectionsOnce(final int scaninterval_in_secs) {
+		//-- Righty right. Get a list of ALL pools and scan them for old shit.
+		ConnectionPool[] ar = getPoolList();
+		for(ConnectionPool p : ar)
+			p.scanExpiredConnections(scaninterval_in_secs, false);
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Per-thread data collection.							*/
+	/*--------------------------------------------------------------*/
 	/**
-	 * Locate (or create) the thread data structure for a given thread.
+	 *
 	 * @return
 	 */
-	private ThreadConnectionInfo getThreadMap(final Thread t) {
-		//-- 1. Find the thread's pool map
-		synchronized(this) {
-			ThreadConnectionInfo tci = m_thread_ht.get(t);
-			if(tci == null) {
-				tci = new ThreadConnectionInfo();
-				m_thread_ht.put(t, tci);
-			}
-			return tci;
-		}
-	}
-
-	/**
-	 * When called this enables connection caching for this thread. All calls
-	 * to allocate a connection will check to see if a connection is cached
-	 * for this thread. If not a connection will be allocated and cached, else
-	 * the cached copy will be returned. Calls to this MUST be terminated somewhere
-	 * with a call to closeThreadConnections to close all cached connections.
-	 *
-	 * <p>The connections allocated by this call are all made "uncloseable", meaning
-	 * that calls to "close" do not work.
-	 */
-	public void enableThreadCaching() {
-		ThreadConnectionInfo tci = getThreadMap(Thread.currentThread());
-		synchronized(tci) {
-			tci.incCached();
-		}
-	}
-
-	/**
-	 * This is the main connection allocation routine, called by all of the pool's
-	 * publicly accessible connection allocation methods. It checks to see if the
-	 * thread has caching enabled. If so it tries to use a cached connection. If not
-	 * it returns a newly allocated connection using a protected allocation method.
-	 *
-	 * @param p
-	 * @param unpooled
-	 * @return
-	 * @throws SQLException
-	 */
-	protected PooledConnection _getConnectionFor(final ConnectionPool p, final boolean unpooled) throws SQLException {
-		ThreadConnectionInfo tci = getThreadMap(Thread.currentThread());
-		synchronized(tci) // Lock against janitor access.
-		{
-			/*
-			 * Even though synchronized I may do long actions here because usually
-			 * the locked structure is ONLY accessed by this thread. The only
-			 * exception is the janitor when it discards a connection; it does not
-			 * matter too much if that has to wait a bit.
-			 */
-			if(tci.isCached()) {
-				//-- Can we find a cached connection instance?
-				PooledConnection pc = tci.get(p);
-				if(pc != null) {
-					//-- If we needed an unpooled one but got a pooled one we need to "demote" pooled to unpooled.
-					if(unpooled && !pc.m_pe.isUnpooled()) // Need unpooled but got pooled?
-						p.makeUnpooled(pc); // Ask to demote the connection,
-					return pc;
-				}
-			}
-
-			//-- We need to allocate a connection regardless.
-			PooledConnection pc = p._getConnection(unpooled); // Allocate a connection (internal call)
-			if(!tci.isCached())
-				return pc; // Exit immediately if not cached
-
-			//			System.out.println("dbpool: returning a new cached connection "+pc);
-			//-- Cache this connection: it is a threaded one
-			pc.setUncloseable(true); // These may not normally be closed.
-			pc.setThreadConnection(); // Indicate it is a thread connection (for debugging)
-			tci.put(p, pc); // Store as current one
-			return pc;
-		}
-	}
-
-	public void disableThreadCaching() {
-		closeThreadConnections();
-	}
-
-	/**
-	 * Closes all connections in this-thread's pool IF the cached nesting count becomes zero
-	 */
-	public void closeThreadConnections() {
-		ThreadConnectionInfo tci = getThreadMap(Thread.currentThread());
-		PooledConnection[] ar;
-		synchronized(tci) // Lock against janitor access.
-		{
-			if(!tci.decCached()) // Has reached top level of nested calls?
-				return; // Nope.
-			ar = tci.discardMap();
-			if(ar == null)
-				return;
-		}
-
-		for(int i = ar.length; --i >= 0;) {
-			//			PooledConnection	pc = ar[i];
-			//			System.out.println("dbpool: closing thread connection "+pc);
-			try {
-				ar[i].closeForced();
-			} catch(Exception x) {
-				x.printStackTrace();
-			}
-		}
-	}
-
-	//	protected void	removeThreadConnection(Thread owning_thread, ConnectionPool p, Connection pc)
-	//	{
-	//		Thread	t	= Thread.currentThread();
-	//		HashMap	wm	= findThreadMap(t, false);
-	//		synchronized(wm)
-	//		{
-	//			//-- Discard the entry for this connection...
-	//			Connection c2 = (Connection)wm.get(p.getID());
-	//			if(c2 == null)
-	//				PoolManager.logUnexpected("Connection not found in thread's connection map when connection was closed.");
-	//			else if(c2 != pc)
-	//			{
-	//				String s = "Connection released for thread "+t+" is DIFFERENT from the CURRENT connection for this thread!";
-	//				PoolManager.logUnexpected(s);
-	//				throw new IllegalStateException(s);
-	//			}
-	//			else
-	//			{
-	//				if(null == wm.remove(p.getID()))
-	//					throw new IllegalStateException("Failed to remove thread connection: "+pc);
-	//
-	//			}
-	//		}
-	//	}
-
-
-	/**
-	 * Closes the single named connection in the thread's connection
-	 * list if it IS open.
-	 * @param poolid
-	 */
-	//	public void	closeThreadConnection(String poolid) throws SQLException
-	//	{
-	//		Thread	t	= Thread.currentThread();
-	//		HashMap	wm	= findThreadMap(t, false);		// Find the thread's connections
-	//		Connection	dbc = null;
-	//		synchronized(wm)
-	//		{
-	//			dbc = (Connection)wm.remove(poolid);
-	//			if(dbc == null)
-	//				return;								// No open connection.
-	//		}
-	//		dbc.close();
-	//	}
-
-	public ThreadData threadData() {
+	public InfoCollectorSink threadData() {
 		return m_threadStats.get();
 	}
 
 	public InfoCollector threadCollector() {
-		ThreadData td = threadData();
+		InfoCollector td = threadData();
 		return td != null ? (InfoCollector) td : (InfoCollector) DummyCollector.INSTANCE;
 	}
 
@@ -569,96 +367,63 @@ public class PoolManager {
 	 * @param ident
 	 * @return
 	 */
-	public void startCollecting(final String ident) {
-		synchronized(this) {
-			if(!m_collectStatistics)
-				return;
-		}
-		ThreadData td = m_threadStats.get();
-		if(td == null) {
-			td = new ThreadData(ident);
-			m_threadStats.set(td);
-		} else
-			td.increment();
-	}
-
-	public ThreadData stopCollecting(final boolean report) {
-		ThreadData td = m_threadStats.get();
-		if(td == null)
-			return null;
-		if(!td.decrement())
-			return null;
-
-		//-- Last use. Report stats and discard,
-		m_threadStats.set(null);
-
-		//-- Log stats,
-		if(report) {
-			System.out.println("S: " + td.getIdent() + ":" + strNanoTime(td.getRequestDuration()) + " #conn=" + td.getNAllocatedConnections() + " #q=" + td.getTotalQueries() + " #u="
-				+ td.getTotalUpdates() + " #qrow=" + td.getNRows() + " #urow=" + td.getNUpdatedRows() + " #errs=" + td.getNErrors());
-		}
-		return td;
-	}
-
-	public void stopCollecting() {
-		stopCollecting(true);
-	}
-
-	static private final long MICROS = 1000;
-
-	static private final long MILLIS = 1000 * 1000;
-
-	static private final long SECONDS = 1000 * 1000 * 1000;
-
-	static private final long MINUTES = 60 * SECONDS;
-
-	static private final long NSHOURS = 60 * MINUTES;
+	//	public void startCollecting(final String ident) {
+	//		synchronized(this) {
+	//			if(!m_collectStatistics)
+	//				return;
+	//		}
+	//		InfoCollector td = m_threadStats.get();
+	//		if(td == null) {
+	//			td = new ThreadData(ident);
+	//			m_threadStats.set(td);
+	//		} else
+	//			td.increment();
+	//	}
 
 	/**
-	 * Return a nanotime timestamp with 2 thousands of precision max.
-	 * @param ns
-	 * @return
+	 * Registers a statistics collection listener for the current thread. If statistics gathering
+	 * is disabled the call is ignored and returns false. Else the listener is added and will
+	 * receive all statement events; in this case the call returns true.
 	 */
-	static public String strNanoTime(final long ns) {
-		if(ns >= NSHOURS) {
-			long h = ns / NSHOURS;
-			long m = (ns % NSHOURS) / MINUTES;
-			return h + "h" + m + "m";
+	public boolean startCollecting(String key, final InfoCollector collector) {
+		synchronized(this) {
+			if(!m_collectStatistics)
+				return false;
 		}
-		if(ns >= MINUTES) {
-			long m = ns / MINUTES;
-			long s = (ns % MINUTES) / SECONDS;
-			return m + "m" + s + "s";
+		InfoCollectorSink sink = threadData();
+		if(null == sink) {
+			sink = new InfoCollectorSink();
+			m_threadStats.set(sink);
 		}
-		if(ns >= SECONDS) {
-			long a = ns / SECONDS;
-			long b = (ns % SECONDS) / MILLIS;
-			return a + "." + numstr(b) + "s";
-		}
-		if(ns >= MILLIS) {
-			long a = ns / MILLIS;
-			long b = (ns % MILLIS) / MICROS;
-			return a + "." + numstr(b) + "ms";
-		}
-		if(ns >= MICROS) {
-			long a = ns / MICROS;
-			long b = (ns % MICROS);
-			return a + "." + numstr(b) + "us";
-		}
-		return ns + "ns";
+		sink.addCollector(key, collector);
+		return true;
 	}
 
-	static private String numstr(final long v) {
-		String s = Long.toString(v);
-		StringBuilder sb = new StringBuilder();
-		int len = s.length();
-		while(len++ < 3)
-			sb.append('0');
-		sb.append(s);
-		return sb.toString();
+	/**
+	 * Returns the collector with the specified key. If statistics collection is not enabled
+	 * this returns null always; else it returns and removes the collector- if found.
+	 * @param key
+	 * @return
+	 */
+	public InfoCollector stopCollecting(String key) {
+		synchronized(this) {
+			if(!m_collectStatistics)
+				return null;
+		}
+		InfoCollectorSink sink = threadData();
+		if(null == sink)
+			return null;
+		InfoCollector ic = sink.removeCollector(key); // Remove collector.
+		if(null != ic)
+			ic.finish();
+		return ic;
 	}
 
 	public synchronized void setCollectStatistics(final boolean on) {
 		m_collectStatistics = on;
+	}
+
+	public synchronized boolean isCollectStatistics() {
+		return m_collectStatistics;
 	}
 }

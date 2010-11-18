@@ -1,0 +1,18 @@
+<table width="100%"  class="maintbl">
+	<tr>
+		<td nowrap width="1%">Time</td>
+		<td width="99%">Key</td>
+	</tr>
+<%
+	for(var i = 0; i < items.size(); i++) {
+		var pi = items.get(i);
+%>
+	<tr class="statrow <%= self.odd() %>">
+		<td nowrap width="1%" valign="top" rowspan="2"><%= DbPoolUtil.strNanoTime(pi.getMetric()) %></td>
+		<td width="99%" valign="top"><%= DbPoolUtil.q(pi.getKey()) %></td>
+	</tr>
+	<tr class="statrow">
+		<td width="99%" valign="top" class="statrequest"><%= DbPoolUtil.q(pi.getRequest()) %></td>
+	</tr>
+<%	}	%>
+</table>

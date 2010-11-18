@@ -18,7 +18,7 @@ public class CallableStatementProxy extends PreparedStatementProxy implements Ca
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Changed/intercepted methods..						*/
 	/*--------------------------------------------------------------*/
-	public CallableStatementProxy(PooledConnection c, CallableStatement st, String sql) {
+	public CallableStatementProxy(ConnectionProxy c, CallableStatement st, String sql) {
 		super(c, st, sql);
 	}
 
@@ -128,7 +128,7 @@ public class CallableStatementProxy extends PreparedStatementProxy implements Ca
 	}
 
 	@SuppressWarnings("unchecked")
-	public Object getObject(int i, Map map) throws SQLException {
+	public Object getObject(int i, @SuppressWarnings("rawtypes") Map map) throws SQLException {
 		return getRealCallableStatement().getObject(i, map);
 	}
 
@@ -226,7 +226,7 @@ public class CallableStatementProxy extends PreparedStatementProxy implements Ca
 	}
 
 	@SuppressWarnings("unchecked")
-	public Object getObject(String name, Map map) throws SQLException {
+	public Object getObject(String name, @SuppressWarnings("rawtypes") Map map) throws SQLException {
 		return getRealCallableStatement().getObject(name, map);
 	}
 

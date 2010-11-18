@@ -1,4 +1,4 @@
-package to.etc.dbpool.stats;
+package to.etc.dbpool.info;
 
 import java.util.*;
 
@@ -278,6 +278,10 @@ public class ThreadData implements InfoCollector {
 			m_nUpdatedRows += uc;
 	}
 
+	public void resultSetClosed(ResultSetProxy rp) {
+		m_nUpdatedRows += rp.internalGetRowCount();
+	}
+
 	public void executeBatchEnd(final StatementProxy sp, final int[] rc) {}
 
 	public void executeBatchStart(final StatementProxy sp) {
@@ -392,5 +396,14 @@ public class ThreadData implements InfoCollector {
 
 	public int getNRows() {
 		return m_nRows;
+	}
+
+	public void finish() {}
+
+	public void reportSimple() {
+		if(getNAllocatedConnections() == 0)
+			return;
+		System.out.println("S: " + getIdent() + ":" + DbPoolUtil.strNanoTime(getRequestDuration()) + " #conn=" + getNAllocatedConnections() + " #q=" + getTotalQueries() + " #u=" + getTotalUpdates()
+			+ " #qrow=" + getNRows() + " #urow=" + getNUpdatedRows() + " #errs=" + getNErrors());
 	}
 }

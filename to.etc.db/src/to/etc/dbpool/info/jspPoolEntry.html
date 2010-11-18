@@ -1,0 +1,50 @@
+<!-- One pool's overview data -->
+<tr class="<%= css %>">
+	<td title="url: <%= pool.c().getUrl() %>"><b><%= pool.getID() %></b><br/><%= pool.isPooledMode() ? "(pooled)":"" %></td>
+	<td class="uconns"><%= ps.getUnpooledAllocated() %></td>
+	<td class="uconns"><%= ps.getUnpooledMaxAllocated() %></td>
+	<td class="<%= udangles > 0 ? "hanging" : "uconns" %>"><%
+		if(udangles > 0) {
+			self.tagText("a", ""+udangles, ["href", "pool.jsp?show=hanging&pool="+pool.getID()]);
+		} else {
+			self.text(""+udangles);
+		}
+	%></td>
+
+	<td class="conns"><%= ps.getPooledUsed() %></td>
+	<td class="conns"><%= ps.getPooledMaxUsed() %></td>
+	<td class="<%= pdangles > 0 ? "hanging" : "conns" %>"><%
+		if(pdangles > 0) {
+			self.tagText("a", ""+pdangles, ["href", "pool.jsp?show=hanging&pool="+pool.getID()]);
+		} else {
+			self.text(""+pdangles);
+		}
+	%></td>
+	<td class="conns"><%= ps.getPooledAllocated() %></td>
+	<td class="conns"><%= pool.c().getMaxConns() %></td>
+	<td class="conns"><%= ps.getTotalAllocations() %></td>
+	<td class="conns"><%= ps.getTotalDatabaseAllocations() %></td>
+
+	<!-- Statements block -->
+	<td class="stats"><%= ps.getStatementOpenCount() %></td>
+	<td class="stats"><%= ps.getStatementPeakCount() %></td>
+	<td class="stats"><%= ps.getStatementTotalPrepareCount() %></td>
+	
+	<!-- error block -->
+	<td class="<%= ps.getConnectionWaitCount() > 0 ? "trblyes" : "errs" %>"><%= ps.getConnectionWaitCount() %></td>
+	<td class="<%= ps.getPoolFailureCount() > 0 ? "trblyes" : "errs" %>"><%= ps.getPoolFailureCount() %></td>
+	<td class="<%= ps.getExpiredDisconnects() > 0 ? "trblyes" : "errs" %>"><%= ps.getExpiredDisconnects() %></td>
+
+	<!-- Pool actions -->
+	<td><%
+		errors = pool.getSavedErrorList();
+		if(pool.isSavingErrors() && errors) {
+			self.actionTag(pool, "errorsoff", "Disable error logging");
+		} else {
+			self.actionTag(pool, "errorson", "Enable error logging");
+		}
+		self.text(", ");
+		self.showTag(pool, "used", "Show used connections");
+	%></td>
+
+</tr>

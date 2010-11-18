@@ -1,0 +1,15 @@
+<table width="100%"  class="maintbl">
+	<tr>
+		<td nowrap width="1%"># allocated</td>
+		<td width="99%">Key</td>
+	</tr>
+<%
+	for(var i = 0; i < items.size(); i++) {
+		var pi = items.get(i);
+%>
+	<tr class="statrow <%= self.odd() %>">
+		<td nowrap width="1%" align="right" valign="top"><%= DbPoolUtil.strCommad(pi.getMetric()) %></td>
+		<td width="99%" valign="top"><%= DbPoolUtil.q(pi.getKey()) %></td>
+	</tr>
+<%	}	%>
+</table>

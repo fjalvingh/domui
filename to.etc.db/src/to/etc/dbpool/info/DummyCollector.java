@@ -1,4 +1,4 @@
-package to.etc.dbpool.stats;
+package to.etc.dbpool.info;
 
 import to.etc.dbpool.*;
 
@@ -35,7 +35,11 @@ public class DummyCollector implements InfoCollector {
 
 	public void prepareStatementEnd(final String sql, final StatementProxy sp) {}
 
-	public void incrementRowCount(final ResultSetProxy rp) {}
+	public void resultSetClosed(ResultSetProxy rp) {}
 
 	public void addBatch(final String sql) {}
+
+	public void connectionAllocated() {}
+
+	public void finish() {}
 }

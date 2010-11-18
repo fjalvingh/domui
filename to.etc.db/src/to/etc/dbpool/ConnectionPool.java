@@ -1,17 +1,16 @@
 package to.etc.dbpool;
 
 import java.io.*;
-import java.net.*;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
+import java.util.logging.*;
 
+import javax.annotation.concurrent.*;
 import javax.sql.*;
 
-import org.slf4j.*;
+import to.etc.dbpool.info.*;
 
-import to.etc.dbpool.stats.*;
-import to.etc.dbutil.*;
 
 /**
  * <h1>Working</h1>
@@ -147,51 +146,71 @@ import to.etc.dbutil.*;
  * @author 	jal
  * @version $Version$
  */
-public class ConnectionPool {
-	static public final Logger MSG = LoggerFactory.getLogger("to.etc.dbpool.msg");
+final public class ConnectionPool {
+	static public final Logger MSG = Logger.getLogger("to.etc.dbpool.msg");
 
-	static public final Logger JAN = LoggerFactory.getLogger("to.etc.dbpool.janitor");
+	static public final Logger JAN = Logger.getLogger("to.etc.dbpool.janitor");
 
-	static public final Logger ALLOC = LoggerFactory.getLogger("to.etc.dbpool.alloc");
+	static public final Logger ALLOC = Logger.getLogger("to.etc.dbpool.alloc");
 
 	/** The manager this pool comes from, */
 	private final PoolManager m_manager;
 
-	/** T if this pool is set to pooled mode. */
-	private boolean m_is_pooledmode;
+	/** The ID for this pool. */
+	private final String m_id;
 
+	/** The immutable pool config. */
+	final private PoolConfig m_config;
+
+	/*------------ Mutable config information -----------------*/
+	/** The driver instance to get connections from. */
+	private Driver m_driver;
+
+	/** T if this pool is set to pooled mode. */
+	private boolean m_isPooled;
+
+	/** The properties to pass to the driver's connect method. */
+	private final Properties m_properties = new Properties();
+
+	/** When T this pool has been destroyed and cannot be used anymore. */
+	private boolean m_destroyed;
+
+	/** The dbtype obtained from the driver. */
+	private DbType m_dbType = DbType.UNKNOWN;
+
+	/** The CALCULATED SQL statement that is to be sent as a check for valid cnnections, if m_check is null. */
+	private String m_check_calc;
+
+	/*---------- Connection administration ---------------------------*/
 	/** All connection entries that are allocated but free for use. */
-	private Stack<ConnectionPoolEntry> m_freeList = new Stack<ConnectionPoolEntry>();
+	private Stack<PoolEntry> m_freeList = new Stack<PoolEntry>();
 
 	/** The connections that are currently in use (both pooled and unpooled), */
-	//	private Set			m_usedSet = new HashSet();
-
-	private Set<ConnectionPoolEntry> m_usedSet = new HashSet<ConnectionPoolEntry>();
+	private Set<PoolEntry> m_usedSet = new HashSet<PoolEntry>();
 
 	/** The current #of allocated and used unpooled connections. */
-	private int m_n_unpooled_inuse;
+	private int m_unpooledAllocatedCount;
+
+	private int m_unpooledMaxUsed;
 
 	/**
 	 * The current #of connections allocated for the POOL. This does NOT include
 	 * the unpooled connections. The total #of connections used by the pool is
 	 * the sum of this variable plus m_n_unpooled_inuse.
 	 */
-	private int m_n_pooledAllocated;
-
-	/** The max. #of connections that can be allocated before the pool blocks */
-	private int m_max_conns;
-
-	/** The #of connections to allocate when INITIALIZING */
-	private int m_min_conns;
+	private int m_pooledAllocatedCount;
 
 	/** The current #of connections used by the clients of the pool, */
-	private int m_n_pooled_inuse;
+	private int m_pooledUsedCount;
 
-	/** The max. #of connections that was simultaneously used. */
-	private int m_max_used;
+	/** The max. #of connections that was simultaneously used by the pool. */
+	private int m_pooledMaxUsed;
 
 	/** #of connection allocations (alloc/free) done. */
-	private int m_n_connallocations;
+	private int m_poolAllocationCount;
+
+	/** #of connection allocations directly from the database.. */
+	private int m_databaseAllocationCount;
 
 	/** The #of times we had to wait for a pooled connection. */
 	private int m_n_connectionwaits;
@@ -202,287 +221,130 @@ public class ConnectionPool {
 	/** The #of connections that were disconnected because they were assumed to be hanging. */
 	private int m_n_hangdisconnects;
 
-	/** The properties to pass to the driver's connect method. */
-	private final Properties m_properties;
+	/** The connections last found in the expiry scanner that look to be hanging. */
+	private List<ConnectionProxy> m_currentlyHangingConnections = Collections.EMPTY_LIST;
 
-	/** This-pool's ID */
-	private final String m_id;
+	/** The connections last released by the connection scanner. */
+	private List<ConnectionProxy> m_releasedConnections = Collections.EMPTY_LIST;
+
+	/** The #of statements CURRENTLY allocated by the pool */
+	protected int m_n_open_stmt;
+
+	/** The #of statements MAX allocated by the pool */
+	protected int m_peak_open_stmt;
+
+	/** The #of resultsets opened by all statements in the pool */
+	protected long m_n_open_rs;
+
+	/** The #of prepare statements executed. */
+	protected long m_statementTotalPrepareCount;
+
+	/// The #of rows returned.
+	@Deprecated
+	protected long m_n_rows;
 
 	private List<ErrorEntry> m_lastErrorStack = new ArrayList<ErrorEntry>(10);
 
 	/** The pooled datasource instance. */
-	private final StupidDataSourceImpl m_pooled_ds = new StupidDataSourceImpl(this, true);
+	private final DataSourceImpl m_pooled_ds = new DataSourceImpl(this);
 
 	/** The unpooled datasource instance. */
 	private final UnpooledDataSourceImpl m_unpooled_ds = new UnpooledDataSourceImpl(this);
 
-	/** The driver instance to get connections from. */
-	private Driver m_driver;
-
-	/** This pool's connection characteristics */
-	private String m_url, m_driverClassName, m_uid, m_pw;
-
-	/** If present (not null) the driver should be instantiated off this file. */
-	private File m_driverPath;
-
-	/** T if this pool's connections need tracing. */
-	private boolean m_trace;
-
 	/** #secs for connection time warning if this pool has connection usage time calculated. */
 	private final int m_conntime_warning_ms = 8000;
 
-	/** The SQL statement that is to be sent as a check for valid cnnections */
-	private String m_check;
-
-	private boolean m_docheck;
-
-	/** The CALCULATED SQL statement that is to be sent as a check for valid cnnections, if m_check is null. */
-	private String m_check_calc;
-
-	/** T if the pool has initialized properly */
-	private Exception m_error_x;
-
-	/// The #of statements CURRENTLY allocated by the pool
-	protected int m_n_open_stmt;
-
-	/// The #of statements MAX allocated by the pool
-	protected int m_peak_open_stmt;
-
-	/// The #of resultsets opened by the
-	protected long m_n_open_rs;
-
-	/// The #of SELECT statements executed.
-	protected long m_n_exec;
-
-	/// The #of rows returned.
-	protected long m_n_rows;
-
-	/// T if this pool has stack tracing enabled.
+	/** T if this pool has stack tracing enabled. */
 	protected boolean m_dbg_stacktrace = true;
-
-	/// The database type.
-	protected BaseDB m_dbtype = GenericDB.dbtypeUNKNOWN;
 
 	/** The sequence generator for entries. */
 	private int m_entryidgen;
 
-	/** Set to T if logstream logging must be enabled. */
-	private boolean m_setlog;
-
-	private boolean m_printExceptions;
-
-	/** When T this logs to stdout every time a connection is allocated or closed */
-	private boolean m_logAllocation;
-
-	/** When T this logs to stdout a stacktrace for every allocation and close */
-	private boolean m_logAllocationStack;
-
-	/** When T this logs all statements to stdout */
-	private boolean m_logStatements;
-
-	private boolean m_ignoreUnclosed;
-
-	private boolean m_logResultSetLocations;
-
-	static public enum ScanMode {
-		DISABLED, ENABLED, WARNING
-	}
-
-	private ScanMode m_scanMode = ScanMode.ENABLED;
-
-	public ConnectionPool(PoolManager pm, String id, String driver, String url, String userid, String passwd, String driverpath) throws SQLException {
+	public ConnectionPool(PoolManager pm, String id, PoolConfig config) throws SQLException {
 		m_manager = pm;
 		m_id = id;
-		m_url = url;
-		m_driverClassName = driver;
-		m_uid = userid;
-		m_pw = passwd;
-		m_docheck = false;
-		m_max_conns = 20;
-		m_min_conns = 5;
-		if(driverpath != null)
-			m_driverPath = new File(driverpath);
-		m_properties = new Properties();
-		m_properties.setProperty("user", m_uid);
-		m_properties.setProperty("password", m_pw);
-
-		initFirst();
-		if(m_min_conns < 1)
-			m_min_conns = 1;
-		if(m_max_conns < m_min_conns)
-			m_max_conns = m_min_conns + 5;
-
+		m_config = config;
 	}
 
 	/**
-	 * Constructor: create the pool with the specified ID by retrieving the
-	 * parameters from the properties file.
-	 */
-	public ConnectionPool(final PoolManager pm, final String id, final PoolConfigSource cs) throws SQLException {
-		m_manager = pm;
-		m_id = id;
-		try {
-			m_url = cs.getProperty(id, "url"); // Get URL and other parameters,
-			if(m_url == null)
-				throw new SQLException("Pool '" + id + "' undefined in config " + cs);
-			m_driverClassName = cs.getProperty(id, "driver");
-			m_uid = cs.getProperty(id, "userid");
-			m_pw = cs.getProperty(id, "password");
-			m_check = cs.getProperty("checksql", null);
-			m_docheck = cs.getBool(id, "check", false);
-			m_setlog = cs.getBool(id, "logstream", false);
-			m_trace = cs.getBool(id, "trace", false);
-			m_max_conns = cs.getInt(id, "maxconn", 20);
-			m_min_conns = cs.getInt(id, "minconn", 5);
-			boolean cost = cs.getBool(id, "statistics", false);
-			m_printExceptions = cs.getBool(id, "printexceptions", false);
-
-			String dp = cs.getProperty(id, "scan");
-			if(dp == null)
-				m_scanMode = ScanMode.ENABLED;
-			else if("enabled".equalsIgnoreCase(dp) || "on".equalsIgnoreCase(dp))
-				m_scanMode = ScanMode.ENABLED;
-			else if("disabled".equalsIgnoreCase(dp) || "off".equalsIgnoreCase(dp))
-				m_scanMode = ScanMode.DISABLED;
-			else if("warning".equalsIgnoreCase(dp) || "warn".equalsIgnoreCase(dp)) { // Typical development setting.
-				m_scanMode = ScanMode.WARNING;
-				m_logResultSetLocations = true;
-				m_ignoreUnclosed = false;
-			} else
-				throw new IllegalStateException("Invalid 'scan' mode: must be enabled, disabled or warn.");
-
-			m_logResultSetLocations = cs.getBool(id, "logrslocations", m_logResultSetLocations); // Only override default if explicitly set.
-			m_ignoreUnclosed = cs.getBool(id, "ignoreunclosed", m_ignoreUnclosed); //ditto
-
-			if(cost)
-				pm.setCollectStatistics(true);
-
-			dp = cs.getProperty(id, "driverpath");
-			if(dp != null) {
-				File f = new File(dp);
-				if(!f.exists()) {
-					f = new File(System.getProperty("user.home"), dp);
-					if(!f.exists())
-						throw new SQLException("The driver path '" + dp + "' does not point to an existing file or directory");
-				}
-				m_driverPath = f;
-			}
-		} catch(SQLException x) {
-			throw x;
-		} catch(Exception x) {
-			//-- We must fucking wrap. I HATE checked exceptions!
-			x.printStackTrace();
-			throw new RuntimeException("Pool " + id + " parameter error: " + x, x);
-		}
-		if(m_driverClassName == null)
-			throw new SQLException("Missing jdbc driver in " + cs);
-		if(m_uid == null)
-			throw new SQLException("Missing uid in " + cs);
-		if(m_url == null)
-			throw new SQLException("Missing jdbc URL in " + cs);
-		m_properties = new Properties();
-		m_properties.setProperty("user", m_uid);
-		m_properties.setProperty("password", m_pw);
-
-		initFirst();
-		if(m_min_conns < 1)
-			m_min_conns = 1;
-		if(m_max_conns < m_min_conns)
-			m_max_conns = m_min_conns + 5;
-	}
-
-	private static class NoLoader extends URLClassLoader {
-		NoLoader(final URL[] u) {
-			super(u);
-		}
-
-		@Override
-		protected synchronized Class< ? > loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
-			// First, check if the class has already been loaded
-			Class< ? > c = findLoadedClass(name);
-			//            System.out.println(name+": findLoadedClass="+c);
-			if(c == null) {
-				//-- Try to load by THIS loader 1st,
-				try {
-					c = findClass(name);
-					//                    System.out.println(name+": findClass="+c);
-				} catch(ClassNotFoundException x) {
-					//                    System.out.println(name+": findClass exception");
-				}
-				if(c == null) {
-					c = super.loadClass(name, resolve); // Try parent
-					//                    System.out.println(name+": super.loadClass="+c);
-				}
-			}
-
-			if(resolve)
-				resolveClass(c);
-			return c;
-		}
-	}
-
-	/**
-	 * Loads the appropriate driver class.
+	 * Return the config parameter class.
 	 * @return
-	 * @throws Exception
 	 */
-	private Driver loadDriver() throws Exception {
-		Class< ? > cl = null;
-		if(m_driverPath == null) {
-			//-- Default method: instantiate the driver using the normal mechanism.
-			try {
-				cl = Class.forName(m_driverClassName);
-			} catch(Exception x) {
-				throw new SQLException("The driver class '" + m_driverClassName + "' could not be loaded: " + x);
-			}
-		} else {
-			//-- Load the driver off the classloader.
-			URLClassLoader loader = new NoLoader(new URL[]{m_driverPath.toURI().toURL()}); // Sun people are idiots.
-			try {
-				cl = loader.loadClass(m_driverClassName);
-			} catch(Exception x) {
-				throw new SQLException("The driver class '" + m_driverClassName + "' could not be loaded from " + m_driverPath + ": " + x);
-			}
-		}
-
-		//-- Step 2: create an instance.
-		try {
-			Driver d = (Driver) cl.newInstance();
-			System.out.println("load: class=" + d + ", inst=" + d.getMajorVersion() + "." + d.getMinorVersion());
-			return d;
-		} catch(Exception x) {
-			throw new SQLException("The driver class '" + m_driverClassName + "' could not be instantiated: " + x);
-		}
+	public PoolConfig c() {
+		return m_config;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Checking pool config and setting derived fields.	*/
+	/*--------------------------------------------------------------*/
 	/**
-	 * Do all initialization tasks.
+	 * Check to make s
 	 * @throws SQLException
 	 */
-	private final void initFirst() throws SQLException {
+	synchronized void checkParameters() throws SQLException {
+		usable();
+
+		m_properties.setProperty("user", c().getUid());
+		m_properties.setProperty("password", c().getPw());
+		if(c().getUrl() == null)
+			throw new SQLException("Pool " + getID() + ": missing 'url' parameter");
+		if(c().getDriverClassName() == null)
+			throw new SQLException("Pool " + getID() + ": missing 'driver' class name parameter");
+		if(c().getUid() == null)
+			throw new SQLException("Pool " + getID() + ": missing 'uid' user name parameter");
+		if(c().isCollectStatistics())
+			m_manager.setCollectStatistics(true);
+		if(c().getDriverPath() != null) {
+			if(!c().getDriverPath().exists())
+				throw new SQLException("Pool " + getID() + ": driver path '" + c().getDriverPath() + "' does not exist");
+		}
+
+
+		//-- Now initialize the rest of the parameters and try to allocate a connection for testing pps.
 		Connection dbc = null;
 		try {
-			if(m_setlog)
+			if(c().isSetlog())
 				DriverManager.setLogWriter(new PrintWriter(System.out));
-			m_driver = loadDriver();
-			//			Class.forName(m_driverClassName);		// Load the driver or abort without it.
-			System.out.println("pool(" + m_id + "): defining " + m_driverClassName + ", url=" + m_url + ", uid=" + m_uid);
-			if(m_printExceptions)
+
+			m_driver = DbPoolUtil.loadDriver(c().getDriverPath(), c().getDriverClassName());
+			System.out.println("pool(" + m_id + "): defining " + c().getDriverClassName() + ", url=" + c().getUrl() + ", uid=" + c().getUid());
+			if(c().isPrintExceptions())
 				System.out.println("  *warning: printExceptions is true");
 			dbc = getCheckedConnection(); // Allocate a connection to see if we're OK
-			m_dbtype = GenericDB.getDbType(dbc); // Try to find the database type.
-			System.out.println("pool(" + getID() + "): driver version " + dbc.getMetaData().getDriverVersion()
-			//			+	", JDBC "+dbc.getMetaData().getJDBCMajorVersion()+"."+dbc.getMetaData().getJDBCMinorVersion()
-				+ ", " + dbc.getMetaData().getDatabaseProductName());
+//			m_dbtype = GenericDB.getDbType(dbc); // Try to find the database type.
+			DatabaseMetaData md = dbc.getMetaData();
+			System.out.println("pool(" + getID() + "): driver version " + md.getDriverVersion() + ", " + md.getDatabaseProductName());
+
+			//-- Get database type.
+			m_dbType = DbPoolUtil.getDbTypeByDriverName(md.getDriverName());
+
+			//-- Define a check string if needed.
+			if(c().isCheckConnection()) {
+				if(c().getCheckSQL() != null) {
+					m_check_calc = c().getCheckSQL();
+				} else {
+					switch(m_dbType){
+						default:
+							throw new SQLException("pool(" + getID() + ")'s type is unknown, it needs a manually-configured 'check' SQL statement");
+						case ORACLE:
+							m_check_calc = "select 1 from dual";
+							break;
+						case POSTGRES:
+						case MYSQL:
+							m_check_calc = "select 1";
+							break;
+					}
+				}
+			}
+
 		} catch(ClassNotFoundException x) {
-			m_error_x = new SQLException("pool(" + m_id + "): driver not found " + m_driverClassName);
-			throw (SQLException) m_error_x;
+			throw new SQLException("pool(" + m_id + "): driver not found " + c().getDriverClassName());
 		} catch(SQLException x) {
-			m_error_x = x;
+			throw x;
+		} catch(RuntimeException x) {
 			throw x;
 		} catch(Exception x) {
-			m_error_x = x;
-			throwWrapped();
+			throw new RuntimeException(x);
 		} finally {
 			try {
 				if(dbc != null)
@@ -491,302 +353,14 @@ public class ConnectionPool {
 		}
 	}
 
-	private void throwWrapped() throws SQLException {
-		if(m_error_x instanceof SQLException)
-			throw (SQLException) m_error_x;
-		if(m_error_x instanceof RuntimeException)
-			throw (RuntimeException) m_error_x;
-		throw new RuntimeException("Wrapped: " + m_error_x, m_error_x);
-	}
-
-	private synchronized void dbgAlloc(final String what, final Connection dbc) {
-		m_n_connallocations++;
-		if(isLogAllocation() || isLogAllocationStack()) {
-			System.out.println("DEBUG: pool(" + m_id + ") ALLOCATED connection " + dbc);
-			if(isLogAllocationStack()) {
-				System.out.println(DbPoolUtil.getLocation());
-			}
-		}
-		if(!ALLOC.isDebugEnabled())
-			return;
-		StringBuilder sb = new StringBuilder();
-		sb.append("ALLOCATE pool(" + m_id + ") " + what + " database[allocated for pool=" + m_n_pooledAllocated + ", allocated unpooled=" + m_n_unpooled_inuse + "] pool[inuse=" + m_n_pooled_inuse
-			+ ", free=" + m_freeList.size() + "]");
-		sb.append("\nConnection: " + dbc + "\n");
-		DbPoolUtil.getThreadAndLocation(sb);
-		ALLOC.debug(sb.toString());
-	}
-
-	public synchronized void dbgRelease(final String what, final Connection dbc) {
-		if(isLogAllocation() || isLogAllocationStack()) {
-			System.out.println("DEBUG: pool(" + m_id + ") CLOSED connection " + dbc + " (back to pool set)");
-			if(isLogAllocationStack()) {
-				System.out.println(DbPoolUtil.getLocation());
-			}
-		}
-		if(!ALLOC.isDebugEnabled())
-			return;
-		StringBuilder sb = new StringBuilder();
-		sb.append("RELEASED pool(" + m_id + ") " + what + " database[allocated for pool=" + m_n_pooledAllocated + ", allocated unpooled=" + m_n_unpooled_inuse + "] pool[inuse=" + m_n_pooled_inuse
-			+ ", free=" + m_freeList.size() + "]");
-		if(dbc != null)
-			sb.append("\nConnection: " + dbc + "\n");
-		DbPoolUtil.getThreadAndLocation(sb);
-		ALLOC.debug(sb.toString());
-	}
-
-	/**
-	 * Used to compare two pools if a pool is redefined.
-	 */
-	@Override
-	public boolean equals(final Object b) {
-		if(!(b instanceof ConnectionPool))
-			return false;
-		ConnectionPool p = (ConnectionPool) b;
-		if(!m_uid.equalsIgnoreCase(p.m_uid))
-			return false;
-		if(!m_url.equalsIgnoreCase(p.m_url))
-			return false;
-		if(!m_driverClassName.equals(p.m_driverClassName))
-			return false;
-		if(!m_pw.equals(p.m_pw))
-			return false;
-		return true;
-	}
-
-	/**
-	 * Called to get the "is connection OK" sql command for this
-	 * pool.
-	 *
-	 * @return
-	 * @throws SQLException
-	 */
-	private synchronized String getCheckString() throws SQLException {
-		if(m_check_calc != null)
-			return m_check_calc;
-		if(m_check != null)
-			m_check_calc = m_check;
-		else
-			m_check_calc = GenericDB.getCheckString(m_dbtype);
-		return m_check_calc;
-	}
-
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Initialization to get into pooled mode.				*/
+	/*	CODING:	Primitive connection allocation.					*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Tries to put the pool in "pooled mode". If the pool already is
-	 * in pooled mode we are done before we knew it ;-)
-	 */
-	public synchronized void initialize() throws SQLException {
-		if(m_is_pooledmode) // Already in pooled mode?
-			return;
-		m_manager.dbStartJanitor(); // Start the checker thread.
-
-		try {
-			//-- Now: display that we're initing,
-			System.out.print("pool(" + m_id + "): initializing to pooled mode - ");
-
-			//-- Allocate to the min. #of connections. If it fails we die.
-			for(int i = 0; i < m_min_conns; i++) {
-				Connection c = getCheckedConnection();
-				//				System.out.println(">> driver version "+c.getMetaData().getDriverVersion());
-				ConnectionPoolEntry pe = new ConnectionPoolEntry(c, this, m_entryidgen++, m_uid);
-				m_freeList.add(pe);
-				if(m_trace)
-					pe.setTrace(true);
-				m_n_pooledAllocated++;
-			}
-			m_is_pooledmode = true;
-			m_error_x = null;
-			System.out.println(m_n_pooledAllocated + " connections allocated, okay.");
-		} catch(SQLException x) {
-			m_error_x = x; // Save what went wrong;
-			System.out.println("FAILED " + x.toString());
-			throw x;
-		}
-	}
-
-	/**
-	 * Releases all connections. Connections that are used are waited for.
-	 * FIXME This needs a new implementation.
-	 */
-	private synchronized void deinitPool(final Collection<ConnectionPoolEntry> s) {
-		for(ConnectionPoolEntry pe : s)
-			pe.closeRealConnection(); // Force this closed..
-	}
-
-	/**
-	 * Terminate the pool. Forces all connections closed.
-	 */
-	public void deinitialize() {
-		if(m_error_x == null)
-			m_error_x = new SQLException("dbPool(" + m_id + "): pool has been de-initialized.");
-		Set<ConnectionPoolEntry> usedset;
-		Stack<ConnectionPoolEntry> freelist;
-		synchronized(this) {
-			usedset = m_usedSet;
-			freelist = m_freeList;
-			m_usedSet = new HashSet<ConnectionPoolEntry>();
-			m_freeList = new Stack<ConnectionPoolEntry>();
-			m_n_exec = 0;
-			m_n_open_rs = 0;
-			m_n_open_stmt = 0;
-			m_n_pooled_inuse = 0;
-			m_n_pooledAllocated = 0;
-			m_n_rows = 0;
-			m_n_unpooled_inuse = 0;
-			m_error_x = null;
-			m_is_pooledmode = false;
-			m_max_used = 0;
-			m_peak_open_stmt = 0;
-		}
-
-		deinitPool(freelist);
-		deinitPool(usedset);
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Pool Entry allocation and release.					*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * This tries to allocate a connection. If a connection is in the free pool
-	 * it will be returned. If the request is for an unpooled connection and the
-	 * free pool was empty a new connection will be allocated and returned, without
-	 * it being counted as a "used" connection.
-	 *
-	 * <p>If the freelist is exhausted we need to allocate a new connection, if
-	 * allowed. This needs to be done outside the lock because JDBC can lock too
-	 * and this would cause the pool to be locked while a connection gets allocated.
-	 * Before allocating the connection we up the connection counts to ensure that
-	 * the connection count is not exceeded.
-	 *
-	 * @return
-	 * @throws SQLException
-	 */
-	private ConnectionPoolEntry allocateConnection(final boolean unpooled) throws SQLException {
-		int ctries = 0;
-		int newid = 0;
-
-		synchronized(this) {
-			//-- Inner loop: check if we CAN allocate any way.
-			for(;;) {
-				if(m_error_x != null)
-					throwWrapped(); // On fatal pool error exit,
-
-				//-- 1. Is a connection available in the free pool?
-				while(!m_freeList.isEmpty()) {
-					ConnectionPoolEntry pe = m_freeList.pop();
-					m_usedSet.add(pe); // Saved used entry.
-					pe.setUnpooled(unpooled); // Tell the entry whether it is a pooled one or not
-
-					if(unpooled) {
-						/*
-						 * Unpooled connections are no longer part of the pool. Because
-						 * this connection was gotten from the pooled set we decrement
-						 * the "connections allocated" for the pool.
-						 */
-						m_n_pooledAllocated--; // One less allocated in the poolset.
-						m_n_unpooled_inuse++; // And one more in use
-					} else {
-						//-- Unpooled connections influence the "used" count.
-						m_n_pooled_inuse++;
-						if(m_n_pooled_inuse > m_max_used)
-							m_max_used = m_n_pooled_inuse;
-					}
-					return pe;
-				}
-
-				//-- 2. No free connections. Can we allocate another one?
-				if(m_n_pooledAllocated < m_max_conns || unpooled) {
-					/*
-					 * We may allocate a new connection. Update data to show
-					 * that we allocate one, then break the loop to do the
-					 * actual allocation OUTSIDE the lock. This makes sure that
-					 * the connection count is not exceeded while we allocate
-					 * another connection.
-					 */
-					if(!unpooled) {
-						m_n_pooledAllocated++; // Increment actual allocation count
-						m_n_pooled_inuse++; // One more used,
-						if(m_n_pooled_inuse > m_max_used)
-							m_max_used = m_n_pooled_inuse;
-					} else
-						m_n_unpooled_inuse++;
-
-					//-- Save data for the creation later,
-					newid = m_entryidgen++;
-					break; // Enter the "allocate new" code.
-				}
-
-				//-- 3. Auch! Nothing! Wait till a connection is released!!
-				try {
-					String s = "POOL[" + m_id + "]: no more connections available on " + ctries + " try!?";
-					System.out.println(s);
-					MSG.error(s);
-					ctries++;
-					if(ctries == 2) {
-						StringBuilder sb = new StringBuilder(1024 * 1024);
-						dumpUsedConnections(sb);
-						String msg = sb.toString();
-						saveError("No more database connections for pool=" + getID() + ", try 2..", msg);
-						PoolManager.panic("No more database pool connections for pool " + getID(), msg);
-					}
-
-					if(ctries > 5) { // If too many retries abort,
-						m_n_connectionfails++;
-						StringBuilder sb = new StringBuilder(1024 * 1024);
-						dumpUsedConnections(sb);
-						String msg = sb.toString();
-						saveError("No more database connections for pool=" + getID() + " - ABORTING REQUEST", msg);
-						throw new SQLException("PANIC: Could not obtain a database connection - pool is exhausted!");
-					}
-					m_n_connectionwaits++;
-					wait(10000); // Wait max. 10 secs,
-				} catch(InterruptedException e) {
-					throw new SQLException("dbPool " + m_id + ": interrupted while waiting for connection to become available");
-				}
-			}
-		}
-
-		/*
-		 * When here we're NO longer locking the pool AND we need to allocate a
-		 * new connection. The connection has already been counted in. This
-		 * must be done outside a lock because JDBC (Oracle driver) may lock also.
-		 */
-		boolean ok = false;
-		ConnectionPoolEntry pe = null;
-		try {
-			//-- Allocate a connection AND A new proxydude
-			Connection c = getCheckedConnection();
-			pe = new ConnectionPoolEntry(c, this, newid, m_uid);
-			ok = true;
-			pe.setUnpooled(unpooled);
-			return pe;
-		} finally {
-			//-- We need to handle accounting!!
-			synchronized(this) {
-				if(ok) {
-					m_usedSet.add(pe);
-				} else {
-					//-- Decrement all counters that were upped assuming the code worked.
-					if(!unpooled) {
-						m_n_pooledAllocated--;
-						m_n_pooled_inuse--;
-					} else
-						m_n_unpooled_inuse--;
-				}
-			}
-		}
-	}
-
-
-	/**
-	 * Checks to see if a connection can be used.
+	 * Checks to see if a connection can be (re)used. If no check is configured this returns immediately.
 	 */
 	private SQLException checkConnection(final Connection dbc) {
-		if(!m_docheck)
+		if(!c().isCheckConnection())
 			return null;
 		ResultSet rs = null;
 		Statement ps = null;
@@ -813,22 +387,31 @@ public class ConnectionPool {
 		}
 	}
 
+	/**
+	 * Get a connection with the default user ID and password.
+	 * @return
+	 * @throws SQLException
+	 */
 	private Connection getCheckedConnection() throws SQLException {
 		return getCheckedConnection(null, null);
 	}
 
 	/**
 	 * Returns a new connection from the driver. The connection is checked for
-	 * errors before it is returned. This should prevent the !@*%% "End of file
-	 * on TNS channel" oracle error... If a connection could not be obtained
-	 * after 5 tries then the last exception is rethrown.
+	 * errors before it is returned (if so configured). This should prevent
+	 * the !@*%% "End of file on TNS channel" oracle error... If a connection
+	 * could not be obtained after 5 tries then the last exception is rethrown.
 	 */
 	private Connection getCheckedConnection(String user, String passwd) throws SQLException {
+		usable();
 		int tries = 5;
 		SQLException lastx = null;
 
 		while(tries-- > 0) {
 			Connection dbc = null;
+			synchronized(this) {
+				m_databaseAllocationCount++;
+			}
 
 			try {
 				//				ALLOC.msg(m_id+": get connection on "+m_url+", uid="+m_uid);
@@ -839,7 +422,7 @@ public class ConnectionPool {
 					p.setProperty("password", passwd);
 				}
 
-				dbc = m_driver.connect(m_url, p);
+				dbc = m_driver.connect(c().getUrl(), p);
 			} catch(SQLException x) {
 				x.printStackTrace();
 				MSG.info("Failed to get connection for " + getID() + ": " + x.toString());
@@ -848,9 +431,6 @@ public class ConnectionPool {
 
 			//-- If the connection was gotten OK then check it....
 			if(dbc != null) {
-				if(!m_docheck)
-					return dbc;
-
 				lastx = checkConnection(dbc); // Can we use the connection?
 				if(lastx == null)
 					return dbc; // YES-> use this!
@@ -863,25 +443,346 @@ public class ConnectionPool {
 		throw lastx;
 	}
 
-	/**
-	 * Called to demote a pooled to an unpooled connection.
-	 * @param dbc
-	 */
-	void makeUnpooled(final PooledConnection dbc) {
-		ConnectionPoolEntry pe = dbc.checkPE();
-		synchronized(this) {
-			if(pe.isUnpooled())
-				return;
 
-			//-- Demote the connection.
-			m_n_pooled_inuse--; // One less pooled in use
-			m_n_pooledAllocated--; // One less pooled allocated
-			m_n_unpooled_inuse++; // One more unpooled,
-			pe.setUnpooled(true); // Make sure this gets no longer checked
-			dbgAlloc("pooled->unpooled migration", dbc);
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Initialization to get into pooled mode.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Tries to put the pool in "pooled mode". If the pool already is
+	 * in pooled mode we are done before we knew it ;-)
+	 */
+	public synchronized void initialize() throws SQLException {
+		usable();
+		if(m_isPooled) // Already in pooled mode?
+			return;
+		m_manager.startExpiredConnectionScanner(); // Start the checker thread.
+
+		try {
+			//-- Now: display that we're initing,
+			System.out.print("pool(" + m_id + "): initializing to pooled mode - ");
+
+			//-- Allocate to the min. #of connections. If it fails we die.
+			for(int i = 0; i < c().getMinConns(); i++) {
+				Connection c = getCheckedConnection();
+				PoolEntry pe = new PoolEntry(c, this, m_entryidgen++, c().getUid());
+				m_freeList.add(pe);
+				if(c().isSqlTraceMode())
+					pe.setSqlTraceMode(true);
+				m_pooledAllocatedCount++;
+			}
+			m_isPooled = true;
+			System.out.println(m_pooledAllocatedCount + " connections allocated, okay.");
+		} catch(SQLException x) {
+			System.out.println("FAILED " + x.toString());
+			throw x;
 		}
 	}
 
+	/**
+	 * Terminate the pool. Forces all connections closed.
+	 */
+	@GuardedBy("this")
+	void destroyPool() {
+		if(!m_manager.internalRemovePool(this))
+			return;
+
+		//-- We are no longer reachable from the pool manager- destroy ourself in piece.
+		Set<PoolEntry> usedset;
+		Stack<PoolEntry> freelist;
+		synchronized(this) {
+			if(m_destroyed)
+				return;
+			m_destroyed = true;
+
+			usedset = m_usedSet;
+			freelist = m_freeList;
+			m_usedSet = new HashSet<PoolEntry>();
+			m_freeList = new Stack<PoolEntry>();
+			m_statementTotalPrepareCount = 0;
+			m_n_open_rs = 0;
+			m_n_open_stmt = 0;
+			m_pooledUsedCount = 0;
+			m_pooledAllocatedCount = 0;
+			m_n_rows = 0;
+			m_unpooledAllocatedCount = 0;
+			m_isPooled = false;
+			m_pooledMaxUsed = 0;
+			m_peak_open_stmt = 0;
+		}
+
+		deinitPool(freelist);
+		deinitPool(usedset);
+	}
+
+	/**
+	 * Releases all connections. Connections that are used are forcefully aborted. Must be
+	 * called outside locks.
+	 */
+	private void deinitPool(final Collection<PoolEntry> s) {
+		List<ConnectionProxy> all = getUsedConnections(); // Get all currently used connections
+		for(ConnectionProxy px : all) {
+			try {
+				px.forceInvalid();
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	private synchronized void usable() {
+		if(m_destroyed)
+			throw new IllegalStateException("This pool(" + getID() + ") has been destroyed.");
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Pool allocation primitives.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param what
+	 * @param dbc
+	 */
+	private synchronized void dbgAlloc(final String what, final Connection dbc) {
+		m_poolAllocationCount++;
+		if(c().isLogAllocation() || c().isLogAllocationStack()) {
+			System.out.println("DEBUG: pool(" + m_id + ") ALLOCATED connection " + dbc);
+			if(c().isLogAllocationStack()) {
+				System.out.println(DbPoolUtil.getLocation());
+			}
+		}
+		if(!ALLOC.isLoggable(Level.FINE))
+			return;
+		StringBuilder sb = new StringBuilder();
+		sb.append("ALLOCATE pool(" + m_id + ") " + what + " database[allocated for pool=" + m_pooledAllocatedCount + ", allocated unpooled=" + m_unpooledAllocatedCount + "] pool[inuse=" + m_pooledUsedCount
+			+ ", free=" + m_freeList.size() + "]");
+		sb.append("\nConnection: " + dbc + "\n");
+		DbPoolUtil.getThreadAndLocation(sb);
+		ALLOC.fine(sb.toString());
+	}
+
+	public synchronized void dbgRelease(final String what, final Connection dbc) {
+		if(c().isLogAllocation() || c().isLogAllocationStack()) {
+			System.out.println("DEBUG: pool(" + m_id + ") CLOSED connection " + dbc + " (back to pool set)");
+			if(c().isLogAllocationStack()) {
+				System.out.println(DbPoolUtil.getLocation());
+			}
+		}
+		if(!ALLOC.isLoggable(Level.FINE))
+			return;
+		StringBuilder sb = new StringBuilder();
+		sb.append("RELEASED pool(" + m_id + ") " + what + " database[allocated for pool=" + m_pooledAllocatedCount + ", allocated unpooled=" + m_unpooledAllocatedCount + "] pool[inuse=" + m_pooledUsedCount
+			+ ", free=" + m_freeList.size() + "]");
+		if(dbc != null)
+			sb.append("\nConnection: " + dbc + "\n");
+		DbPoolUtil.getThreadAndLocation(sb);
+		ALLOC.fine(sb.toString());
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Pool Entry allocation and release.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * This allocates a new connection from the pool, and waits max. 10 seconds
+	 * if no such connection becomes available. If no connection can be allocated
+	 * this returns null. In all cases where a wait is needed will the wait variable
+	 * be incremented.
+	 *
+	 * <p>If the freelist is exhausted we need to allocate a new connection, if
+	 * allowed. This needs to be done outside the lock because JDBC can lock too
+	 * and this would cause the pool to be locked while a connection gets allocated.
+	 * Before allocating the connection we up the connection counts to ensure that
+	 * the connection count is not exceeded.
+	 *
+	 * @return
+	 * @throws SQLException
+	 */
+	private PoolEntry allocateConnectionInner(final boolean unpooled) throws SQLException {
+		int newid = 0;
+		long ets = -1; // No end time yet known
+
+		synchronized(this) {
+			//-- Inner loop: check if we CAN allocate any way. This loop blocks on connection expiry.
+			for(;;) {
+				usable();
+
+				//-- 1. Is a connection available in the free pool?
+				while(!m_freeList.isEmpty()) {
+					PoolEntry pe = m_freeList.pop();
+					m_usedSet.add(pe); // Saved used entry.
+					pe.setUnpooled(unpooled); // Tell the entry whether it is a pooled one or not
+
+					if(unpooled) {
+						/*
+						 * Unpooled connections are no longer part of the pool. Because
+						 * this connection was gotten from the pooled set we decrement
+						 * the "connections allocated" for the pool.
+						 */
+						m_pooledAllocatedCount--; // One less allocated in the poolset.
+						m_unpooledAllocatedCount++; // And one more in use
+						if(m_unpooledAllocatedCount > m_unpooledMaxUsed)
+							m_unpooledMaxUsed = m_unpooledAllocatedCount;
+					} else {
+						//-- Unpooled connections influence the "used" count.
+						m_pooledUsedCount++;
+						if(m_pooledUsedCount > m_pooledMaxUsed)
+							m_pooledMaxUsed = m_pooledUsedCount;
+					}
+					return pe;
+				}
+
+				//-- 2. No free connections. Can we allocate another one?
+				if(m_pooledAllocatedCount < c().getMaxConns() || unpooled) {
+					/*
+					 * We may allocate a new connection. Update data to show
+					 * that we allocate one, then break the loop to do the
+					 * actual allocation OUTSIDE the lock. This makes sure that
+					 * the connection count is not exceeded while we allocate
+					 * another connection.
+					 */
+					if(!unpooled) {
+						m_pooledAllocatedCount++; // Increment actual allocation count
+						m_pooledUsedCount++; // One more used,
+						if(m_pooledUsedCount > m_pooledMaxUsed)
+							m_pooledMaxUsed = m_pooledUsedCount;
+					} else {
+						m_unpooledAllocatedCount++;
+						if(m_unpooledAllocatedCount > m_unpooledMaxUsed)
+							m_unpooledMaxUsed = m_unpooledAllocatedCount;
+					}
+
+					//-- Save data for the creation later,
+					newid = m_entryidgen++;
+					break; // Enter the "allocate new" code.
+				}
+
+				//-- 3. Auch! Nothing! Wait till a connection is released!!
+				m_n_connectionwaits++;
+				long cts = System.currentTimeMillis();
+				if(ets == -1) {
+					//-- This is the 1st time through the loop: set the end time;
+					ets = cts + 10 * 1000; // Delay max. 10 secs
+				} else if(cts >= ets) {
+					//-- We have waited too long- return failure and release lock
+					return null;
+				}
+
+				//-- We're allowed to wait.
+				try {
+					wait(10000); // Wait max. 10 secs,
+				} catch(InterruptedException e) {
+					throw new SQLException("dbPool " + m_id + ": interrupted while waiting for connection to become available");
+				}
+			}
+		}
+
+		/*
+		 * When here we're NO longer locking the pool AND we are allowed to allocate a
+		 * new connection. The connection has already been counted in. This
+		 * must be done outside a lock because JDBC (Oracle driver) may lock also.
+		 */
+		boolean ok = false;
+		PoolEntry pe = null;
+		try {
+			//-- Allocate a connection AND A new proxydude
+			Connection c = getCheckedConnection();
+			pe = new PoolEntry(c, this, newid, c().getUid());
+			pe.setUnpooled(unpooled);
+			if(c().isSqlTraceMode())
+				pe.setSqlTraceMode(true);
+			ok = true;
+			return pe;
+		} finally {
+			//-- We need to handle accounting!!
+			synchronized(this) {
+				if(ok) {
+					m_usedSet.add(pe);
+				} else {
+					//-- Decrement all counters that were upped assuming the code worked.
+					if(!unpooled) {
+						m_pooledAllocatedCount--;
+						m_pooledUsedCount--;
+					} else
+						m_unpooledAllocatedCount--;
+				}
+			}
+		}
+	}
+
+
+	/**
+	 * Allocates a connection or aborts if it is impossible to do so within
+	 * reasonable time. This is the "outer" loop part which calls {@link #allocateConnectionInner(boolean)} to
+	 * try to allocate a connection from the pool or by creating a connection
+	 * new if allowed. This inner method waits max. 10 seconds for a connection
+	 * to become available if it is out of connections.
+	 *
+	 * <p>This outer loop handles the case where the inner loop cannot obtain a
+	 * connection in 10 seconds. It loops for max. 6 times, and reports errors while
+	 * it is looping. If no connection becomes available within this 60 seconds it will
+	 * run the expired connection checker with the "force" flag. This should create
+	 * at least some free connections. After that it fails, mostly.</p>
+	 *
+	 * @return
+	 * @throws SQLException
+	 */
+	private PoolEntry allocateConnection(final boolean unpooled) throws SQLException {
+		int ctries = 0;
+		while(ctries < 6) { // Outer loop, unlocked
+			PoolEntry pe = allocateConnectionInner(unpooled);
+			if(null != pe) // No problems, allocation was fine
+				return pe;
+
+			//-- We failed and waited 10 seconds. Report a warning on the 2nd try.
+			ctries++;
+			String s = "pool[" + getID() + "]: no more connections available on " + ctries + " try!?";
+			System.out.println(s);
+			MSG.warning(s);
+			if(ctries == 2) {
+				StringBuilder sb = new StringBuilder(1024 * 1024);
+				dumpUsedConnections(sb);
+				String msg = sb.toString();
+				saveError("No more database connections for pool=" + getID() + ", try 2..", "....");
+				m_manager.panic("No more database pool connections for pool " + getID(), msg);
+			}
+
+			if(ctries > 5) { // If too many retries abort,
+				m_n_connectionfails++;
+				StringBuilder sb = new StringBuilder(1024 * 1024);
+				dumpUsedConnections(sb);
+				String msg = sb.toString();
+				saveError("No more database connections for pool=" + getID() + " - ABORTING REQUEST", msg);
+				throw new SQLException("PANIC: Could not obtain a database connection - pool is exhausted!");
+			}
+			m_n_connectionwaits++;
+
+
+		}
+
+		//-- We tried it way too many times.... Run the expiry scanner in FORCED mode.
+		scanExpiredConnections(120, true); // All pooled connections not used for > 120 seconds will be forcefully closed.
+
+		//-- Try once more to allocate a connection....
+		PoolEntry pe = allocateConnectionInner(unpooled);
+		if(null != pe) // No problems, allocation was fine
+			return pe;
+
+		//-- We're dyyyyyying.....
+		synchronized(this) {
+			m_n_connectionfails++;
+		}
+		throw new SQLException("PANIC: Could not obtain a database connection - pool is exhausted (and no connections can be forcefully released)!");
+	}
+
+	private void dumpUsedConnections(StringBuilder sb) {
+		List<ConnectionProxy> cpl = getUsedConnections();
+		StringPrinter sp = new StringPrinter(sb);
+		for(ConnectionProxy px: cpl) {
+			if(px.getState() == ConnState.OPEN) {
+				DbPoolUtil.printTracepoints(sp, px, true);
+			}
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Releasing connections.								*/
@@ -893,14 +794,13 @@ public class ConnectionPool {
 	 * cause the current pooled connection count to get above the maximum this code
 	 * will discard the connection.
 	 */
-	void returnToPool(ConnectionPoolEntry pe, final PooledConnection pc) throws SQLException {
+	void returnToPool(PoolEntry pe, final ConnectionProxy pc) throws SQLException {
 		//-- Before doing anything else reset the connection outside the lock,
 		boolean ok = false;
-		pe.setThreadCached(false);
 		try {
-			if(!pe.m_cx.getAutoCommit())
-				pe.m_cx.rollback();
-			pe.m_cx.setAutoCommit(true);
+			if(!pe.getConnection().getAutoCommit())
+				pe.getConnection().rollback();
+			pe.getConnection().setAutoCommit(true);
 			ok = true;
 		} catch(SQLException ex) {
 			//-- Resetting state failed!! Drop connection!!
@@ -916,9 +816,9 @@ public class ConnectionPool {
 				 */
 				boolean unpooled = pe.isUnpooled();
 				if(unpooled)
-					m_n_unpooled_inuse--; // #of unpooled is one down
+					m_unpooledAllocatedCount--; // #of unpooled is one down
 				if(ok) {
-					if(unpooled && (m_n_pooledAllocated >= m_max_conns || !pe.getUserID().equals(m_uid))) // Unpooled are returned only when #allocated not too big,
+					if(unpooled && (m_pooledAllocatedCount >= c().getMaxConns() || !pe.getUserID().equals(c().getUid()))) // Unpooled are returned only when #allocated not too big,
 						ok = false; // ok=false means do not re-use the connection
 				}
 				if(ok) {
@@ -930,16 +830,16 @@ public class ConnectionPool {
 						sb.append("Connection not in used pool! Location of release is:\n");
 						DbPoolUtil.getThreadAndLocation(sb);
 						sb.append("\n\nConnection dump:\n");
-						pe.dbgPrintStackTrace(sb, 20, 20);
+						DbPoolUtil.printTracepoints(new StringPrinter(sb), pc, true);
 						String msg = sb.toString();
 						saveError(subj, msg);
-						PoolManager.panic(subj, msg);
+						m_manager.panic(subj, msg);
 						throw new IllegalStateException(subj);
 					}
 					if(unpooled)
-						m_n_pooledAllocated++; // Unpooled means another allocated one now
+						m_pooledAllocatedCount++; // Unpooled means another allocated one now
 					else
-						m_n_pooled_inuse--; // Decrement pool use count for pooled,
+						m_pooledUsedCount--; // Decrement pool use count for pooled,
 					m_freeList.push(pe);
 					pe = null; // Make sure we do not use this again ;-)
 					dbgRelease("returned to pool", pc);
@@ -960,63 +860,102 @@ public class ConnectionPool {
 	}
 
 	/**
-	 * Called from checkTimeout when the connection has timed out. This removes
-	 * the connection from the pool's used list, preparing it to be removed
-	 * completely.
-	 * Called with a locked connection entry.
-	 *
-	 * @param pe		the entry to remove.
+	 * Called when a PoolEntry is forced closed. This must remove all references to that entry
+	 * from the pool. The entry itself is already invalid and the caller will have locked
+	 * this. The database connection itself is released elsewhere.
+	 * @param pe
 	 */
-	protected boolean invalidateForTimeout(final ConnectionPoolEntry pe) {
-		synchronized(this) // Lock the pool
-		{
-			if(!m_usedSet.remove(pe))
-				return false; // Remove from used pool; exit if not found
-			if(!pe.isUnpooled()) // Was an unpooled connection?
-			{
-				m_n_pooledAllocated--;
-				m_n_pooled_inuse--;
-			} else
-				m_n_unpooled_inuse--;
-			m_dbg_stacktrace = true; // Force enable stack traces for next occurence!
-			return true;
+	synchronized void removeEntryFromPool(PoolEntry pe) {
+		boolean unpooled = pe.isUnpooled();
+		if(unpooled)
+			m_unpooledAllocatedCount--; // #of unpooled is one down
+		else {
+			m_pooledUsedCount--;
+			m_pooledAllocatedCount--; // One less allocated because it's connection will be/is freed.
+		}
+		if(!m_usedSet.remove(pe)) {
+			//-- cannot happen.
+			//			String subj = "pool(" + m_id + "): connection not in USED pool??";
+			StringBuilder sb = new StringBuilder(65536);
+			sb.append("POOLERR: Connection not in used pool! Location of release is:\n");
+			DbPoolUtil.getThreadAndLocation(sb);
+			String msg = sb.toString();
+			System.out.println(msg);
 		}
 	}
 
 	/**
-	 * Called when an entry is to be discarded. It removes the
-	 * entry from all datasets, updates all counts and forcefully
-	 * closes the entry's connection.
+	 * Called when an entry is invalid or must be released back to the OS. Called when
+	 * an invalid PE is found during allocation, or when a returned PE is unneeded. When
+	 * called the PE should be quiescent and not connected to any proxy.
+	 *
 	 * @param pe
 	 */
-	private void discardEntry(final ConnectionPoolEntry pe) {
+	private void discardEntry(final PoolEntry pe) {
+		String subj = null;
+		String msg = null;
 		synchronized(this) {
+			if(!pe.isUnpooled()) { // Discarding pooled means current allocation count must be decremented.
+				m_pooledAllocatedCount--; // One less allocated in the pool
+				m_pooledUsedCount--; // And one less used,
+			} else
+				m_unpooledAllocatedCount--;
+			System.out.println("DISCARD pool=" + m_id + " connection discarded to server; conns=" + m_pooledAllocatedCount + ", #unpooled=" + m_unpooledAllocatedCount);
+
 			if(!m_usedSet.remove(pe)) {
-				String subj = "pool(" + m_id + "): connection not in USED pool??";
+				subj = "pool(" + m_id + "): connection not in USED pool??";
 				StringBuilder sb = new StringBuilder(65536);
 				sb.append("Connection not in used pool! Location of release is:\n");
 				DbPoolUtil.getThreadAndLocation(sb);
-				sb.append("\n\nConnection stack dump:\n");
-				pe.dbgPrintStackTrace(sb, 20, 20);
-				String msg = sb.toString();
+				//				sb.append("\n\nConnection stack dump:\n");
+				//				DbPoolUtil.printTracepoints(sb, )
+				msg = sb.toString();
 				saveError(subj, msg);
-				PoolManager.panic(subj, msg);
-				pe.closeRealConnection(); // Save what can be saved
-				throw new IllegalStateException("pool(" + m_id + "): connection not in USED pool??");
 			}
-			if(!pe.isUnpooled()) // Discarding pooled means current allocation count must be decremented.
-			{
-				m_n_pooledAllocated--; // One less allocated in the pool
-				m_n_pooled_inuse--; // And one less used,
-			} else
-				m_n_unpooled_inuse--;
-			System.out.println("DISCARD pool=" + m_id + " connection discarded to server; conns=" + m_n_pooledAllocated + ", #unpooled=" + m_n_unpooled_inuse);
 
 			try {
 				notify();
 			} catch(Exception x) {}
 		}
-		pe.closeRealConnection(); // Force the thingy really closed.
+
+		/*
+		 * The PE is now fully removed from all pool knowledge. Just force it's connection closed.
+		 */
+		pe.closeResources();
+		pe.releaseConnection();
+
+		if(subj != null) {
+			m_manager.panic(subj, msg);
+			throw new IllegalStateException(subj);
+		}
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Accessing all connections.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Get a list of all ConnextionProxy's currently in use. It gets that list with
+	 * "this" locked but locks nothing else. The entries returned are live, so by the
+	 * time you are using them they can be dead (because they are closed/invalidated
+	 * at that time).
+	 * <p>We return the proxies, not the entries, because the proxies remain valid for
+	 * a single use context. It means they are stable in time and have a single life
+	 * cycle (life, dead).</p>
+	 *
+	 * @return
+	 */
+	public List<ConnectionProxy> getUsedConnections() {
+		synchronized(this) {
+			List<ConnectionProxy> res = new ArrayList<ConnectionProxy>(m_usedSet.size());
+			for(PoolEntry pe : m_usedSet) {
+				ConnectionProxy px = pe.getProxy();
+				if(px == null) // cannot happen
+					throw new IllegalStateException("POOLERR: proxy is null on USED entry=" + pe);
+				res.add(px);
+			}
+			return res;
+		}
 	}
 
 	/**
@@ -1024,15 +963,15 @@ public class ConnectionPool {
 	 * @return
 	 * @throws SQLException
 	 */
-	PooledConnection _getConnection(final boolean unpooled) throws SQLException {
-		ThreadData d = m_manager.threadData();
+	ConnectionProxy getConnection(final boolean unpooled) throws SQLException {
+		InfoCollector d = m_manager.threadData();
 		if(d != null)
 			d.connectionAllocated();
 		for(;;) {
-			ConnectionPoolEntry pe = allocateConnection(unpooled);
-			Exception x = checkConnection(pe.m_cx); // Is the connection still valid?
+			PoolEntry pe = allocateConnection(unpooled);
+			Exception x = checkConnection(pe.getConnection()); // Is the connection still valid?
 			if(x == null) {
-				PooledConnection dbc = pe.proxyMake(); // Yes-> make the proxy and be done.
+				ConnectionProxy dbc = pe.proxyMake(); // Yes-> make the proxy and be done.
 				dbgAlloc("getConnection", dbc);
 				return dbc;
 			}
@@ -1050,7 +989,7 @@ public class ConnectionPool {
 	 * @return
 	 */
 	public Connection getUnpooledConnection(String username, String password) throws SQLException {
-		ThreadData d = m_manager.threadData();
+		InfoCollector d = m_manager.threadData();
 		if(d != null)
 			d.connectionAllocated();
 		int newid;
@@ -1059,22 +998,22 @@ public class ConnectionPool {
 		}
 
 		boolean ok = false;
-		ConnectionPoolEntry pe = null;
+		PoolEntry pe = null;
 		try {
 			//-- Allocate a connection AND A new proxydude
 			Connection c = getCheckedConnection(username, password);
-			pe = new ConnectionPoolEntry(c, this, newid, username);
+			pe = new PoolEntry(c, this, newid, username);
 			ok = true;
 			pe.setUnpooled(true);
 
-			PooledConnection dbc = pe.proxyMake(); // Yes-> make the proxy and be done.
+			ConnectionProxy dbc = pe.proxyMake(); // Yes-> make the proxy and be done.
 			dbgAlloc("getUnpooledConnection", dbc);
 			return dbc;
 		} finally {
 			//-- We need to handle accounting!!
 			synchronized(this) {
 				if(ok) {
-					m_n_unpooled_inuse++;
+					m_unpooledAllocatedCount++;
 					m_usedSet.add(pe);
 				}
 			}
@@ -1082,309 +1021,45 @@ public class ConnectionPool {
 	}
 
 
-	/**
-	 * This is the code to be called to allocate a connection using a
-	 * possible cache.
-	 *
-	 * @param unpooled
-	 * @return
-	 * @throws SQLException
-	 */
-	protected PooledConnection getConnection(final boolean unpooled) throws SQLException {
-		return m_manager._getConnectionFor(this, unpooled);
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	The scan for hanging connections handler.		 	*/
 	/*--------------------------------------------------------------*/
-	//	private String dumpUsedConnections() {
-	//		StringBuilder sb = new StringBuilder(1024 * 1024);
-	//		dumpUsedConnections(sb);
-	//		return sb.toString();
-	//	}
-
-	private synchronized void dumpUsedConnections(final StringBuilder sb) {
-		int maxsz = 8192;
-		int i = 0;
-		for(ConnectionPoolEntry pe : m_usedSet) {
-			//-- Get a stack dump for this brotha
-			sb.append("Dump for entry #" + i + "\n\n");
-			int clen = sb.length();
-			pe.dbgPrintStackTrace(sb, 10, 2); // Dump stack trace,
-			if(sb.length() - clen > maxsz) // Too big?
-			{
-				sb.setLength(clen + maxsz); // Truncate,
-				sb.append("\n--- rest truncated---\n\n");
-			}
-			i++;
-		}
-	}
-
 	/**
-	 * Returns the list of connections currently used. Only used to scan
-	 * for expired/hanging connections. This may ONLY lock the pool.
-	 * @return
+	 * This function gets called from the broker's janitor thread, OR from
+	 * the purgatory handler (the thing called when all connections are used).
+	 * @returns	T if the scan found and released "hanging" connections.
 	 */
-	private ConnectionPoolEntry[] getUsedConnections() {
-		synchronized(this) {
-			return m_usedSet.toArray(new ConnectionPoolEntry[m_usedSet.size()]);
-		}
-	}
-
-	/**
-	 *	This function gets called from the broker's janitor thread, OR from
-	 *  the purgatory handler (the thing called when all connections are used).
-	 *  It scans
-	 *  this pool for any connection that is IN USE. Then it examines the
-	 *  last-scanned timestamp m_scan_ts. If it is zero then the current time
-	 *  is set in there. If it is NOT zero then the connection was in use
-	 *  the last time we scanned. If it is older as the db_scaninterval time
-	 *  we have a stuck connection!!
-	 *  The connection will be removed from the connection list and will be
-	 *  closed. Then a panic message will be sent, including the connection AND
-	 *  if available it's stacktrace list.
-	 *  Finally, this will set the pool's STACKTRACE option to true, allowing
-	 *  the software writers to find out where connections are not released next
-	 *  time this occurs.
-	 *  @returns	T if the scan found and released "hanging" connections.
-	 */
-	boolean scanForOldies(final int scaninterval_in_secs) {
-		if(getScanMode() == ScanMode.DISABLED)
+	public boolean scanExpiredConnections(final int scaninterval_in_secs, boolean forcedisconnects) {
+		if(c().getScanMode() == ScanMode.DISABLED && !forcedisconnects)
 			return false;
 
-		boolean logonly = getScanMode() == ScanMode.WARNING;
+		List<ConnectionProxy> proxylist = getUsedConnections(); // Atomically get assigned ones @ this time
 
-		/*
-		 * Scan all used connections, and invalidate all connections that are
-		 * too old. They will be removed from the queues and be made invalid so
-		 * that all access by the failing thread is aborted. Actually closing
-		 * the connection is done outside the critical region.
-		 */
-		//-- 1. Get the list of used connections...
-		ConnectionPoolEntry[] upar = getUsedConnections();
-		if(upar == null)
-			return false; // No connections in use-> exit.
-
-		//-- 2. Now: check connection by connection with lock order always entry, then pool...
+		//-- Discard all proxies that find themselves too old.
 		long ts = System.currentTimeMillis();
 		long ets = ts - scaninterval_in_secs * 1000; // Earliest time that's still valid
-		int nhanging = 0;
-		StringBuilder sb = null;
-		StringBuilder unsb = new StringBuilder();
-		for(int i = upar.length; --i >= 0;) {
-			ConnectionPoolEntry pe = upar[i]; // The connection to check.
-			if(!pe.isUnpooled()) {
-				if(pe.checkTimeOut(ts, ets, !logonly)) // If this has timed out and we're not logging-only it will have been removed from the queue
-				{
-					nhanging++;
-					if(sb == null) {
-						sb = new StringBuilder(8192); // Lazily create the string buffer and init it,
-						if(logonly) {
-							sb.append("pool(").append(m_id).append(") connection(s) used for a long time:\n");
-						} else {
-							sb.append("*** DATABASE CONNECTIONS WERE HANGING ***\n");
-							sb.append("Releasing hanging connections:\n");
-						}
-					}
+		HangCheckState hs = new HangCheckState(c().getScanMode(), ts, ets, forcedisconnects);
 
-					//-- Purge the connection.
-					if(logonly) {
-						long cts = System.currentTimeMillis() - pe.getAllocationTime();
-						long luts = System.currentTimeMillis() - pe.getLastUsedTime();
-						sb.append("- connection ").append(pe.getID()).append(" active for ").append(DbPoolUtil.strMillis(cts));
-						sb.append(", last use ").append(DbPoolUtil.strMillis(luts)).append(" ago\n");
-
-						//-- For connections not used for > 10 minutes dump stacks.
-						if(luts >= 15 * 60 * 1000) {
-							pe.dbgPrintStackTrace(sb, 20, 40);
-						}
-
-					} else
-						purgeOld(sb, pe); // Remove the connection.
-				}
-			} else
-				pe.checkUnpooledUnused(unsb, ts);
-		}
-		if(unsb.length() > 0) {
-			String subj = "Unpooled connection(s) possibly not freed";
-			String msg = unsb.toString();
-			saveError(subj, msg);
-			PoolManager.panic(subj, msg);
-			JAN.warn(m_id + ": Unpooled connection(s) possibly not freed:" + msg);
+		for(ConnectionProxy cpx : proxylist) {
+			cpx.checkHangState(hs); // Check if it's hanging; this does suicide on it if hanging.
 		}
 
-		if(nhanging == 0) {
-			JAN.debug(m_id + ": no hanging connections found.");
-			return false; // No old stuff found.
-		}
-		if(!logonly) {
-			synchronized(this) {
-				m_n_hangdisconnects += nhanging;
-			}
-			String subj = nhanging + " hanging database connections were released";
-			JAN.info(subj);
-			if(sb != null) {
-				String msg = sb.toString();
-				saveError(subj, msg);
-				PoolManager.panic(subj, msg);
-			}
-		} else {
-			System.out.println(sb.toString());
-		}
-		return true;
-	}
-
-	/**
-	 *	Called when a "hanging" connection must be purged, this closes all
-	 *  associated data, and sends a problem email...
-	 */
-	private void purgeOld(final StringBuilder sb, final ConnectionPoolEntry pe) {
-		long cts = System.currentTimeMillis() - pe.getAllocationTime();
-
-		sb.append("Hanging database connection " + pe.getID() + " found in pool ");
-		sb.append(pe.getDesc());
-		sb.append(": forced closed ");
-		sb.append(cts);
-		sb.append(" ms after allocation\n");
-
-		//-- Try to find a stack trace,
-		try {
-			String sar[] = pe.dbgGetTrace();
-			if(sar != null) {
-				for(int i = 0; i < sar.length; i++) {
-					if(sar[i] != null) {
-						sb.append("\n\n---- Stack trace entry ");
-						sb.append(Integer.toString(i));
-						sb.append("-----\n");
-						sb.append(sar[i]);
-					}
-				}
-			} else
-				sb.append("No stack trace was available.");
-		} catch(Exception ex) {
-			sb.append("Exception while getting stacktraces: " + ex.toString());
-		}
-		pe.closeRealConnection(); // Force the thingy really closed.
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Small data access functions.						*/
-	/*--------------------------------------------------------------*/
-	public String getID() {
-		return m_id;
-	}
-
-	public String getURL() {
-		return m_url;
-	}
-
-	public int getConns() {
-		return m_n_pooledAllocated;
-	}
-
-	public int getMaxConns() {
-		return m_max_conns;
-	}
-
-	public int getUsed() {
-		return m_n_pooled_inuse;
-	}
-
-	public int getMaxUsed() {
-		return m_max_used;
-	}
-
-	/**
-	 *	Returns T if stack tracking is enabled for debugging purposes.
-	 */
-	public synchronized boolean dbgIsStackTraceEnabled() {
-		return m_dbg_stacktrace;
-	}
-
-
-	/**
-	 *	Switches stack tracing ON. This is very expensive and should only be
-	 *  used in case of trouble. Switching on stack trace (done thru the /nema/
-	 *  servlet path) causes the pool to remember the last 10 stack paths that
-	 *  accessed a connection.
-	 */
-	public synchronized void dbgSetStacktrace(final boolean on) {
-		m_dbg_stacktrace = on;
-	}
-
-
-	/**
-	 *	Returns the pool database as a constant from PooledConnection:
-	 *  dbtypeORACLE, dbtypeMYSQL or dbtypeUNKNOWN.
-	 */
-	public BaseDB getDbType() {
-		return m_dbtype;
-	}
-
-
-	public String dbgDumpUsedStacks() {
-		return dbgDumpUsedStacks(false);
-	}
-
-	/**
-	 *	Returns a string containing a stack trace list for all currently USED
-	 *  connections. The dump is used for debugging when connections are not
-	 *  released proper. This buffer should be displayed in a <pre> block.
-	 */
-	public String dbgDumpUsedStacks(final boolean firstonly) {
-		if(!m_dbg_stacktrace)
-			return "Stacktrace is off.";
-
-		StringBuilder sb = new StringBuilder(10240);
-		int ct = 0;
-		long cts = System.currentTimeMillis();
+		/*
+		 * Report the result of the hang check. At this point all actions have already been taken.
+		 */
 		synchronized(this) {
-			sb.append("There are ");
-			sb.append(Integer.toString(m_usedSet.size()));
-			sb.append(" connections in the USED pool.\n");
-
-			for(ConnectionPoolEntry pc : m_usedSet) {
-				sb.append("\n\n<b>----- Pooled connection ID=");
-				sb.append(pc.getID());
-				sb.append(" (number ").append(ct).append(" of ").append(m_usedSet.size()).append(")");
-				sb.append(" ----------</b>\n");
-
-				long durts = cts - pc.getAllocationTime();
-				long luts = cts - pc.getLastUsedTime();
-				if(luts > 10 * 60 * 1000l)
-					sb.append("<font color=\"red\">");
-				sb.append("Connection active for: ");
-				sb.append(DbPoolUtil.strMillis(durts));
-				sb.append(", last use ").append(DbPoolUtil.strMillis(luts)).append(" ago\n");
-				if(luts > 10 * 60 * 1000l)
-					sb.append("</font>");
-
-				//-- Dump the stack traces for this thing....
-				String[] ar = pc.dbgGetTrace();
-				if(ar == null)
-					sb.append("No stack trace associated.\n");
-				else {
-					int limit = firstonly ? 1 : ar.length;
-					for(int i = 0; i < ar.length && ar[i] != null; i++) {
-						if(limit-- <= 0) {
-							sb.append("\nRest of stack traces skipped.\n");
-							break;
-						}
-
-						sb.append("Trace number ");
-						sb.append(Integer.toString(i));
-						sb.append("\n");
-						sb.append(ar[i]);
-						sb.append("\n----------------------------\n");
-					}
-				}
-
-				ct++;
-			}
-
-			return sb.toString();
+			m_n_hangdisconnects += hs.getDestroyCount();
+			m_currentlyHangingConnections = hs.getHangingList();
 		}
+
+		//-- Always at least log the result @ sysout.
+		String report = hs.getReport();
+		if(report.length() > 0) {
+			System.out.println("****Database Pool " + m_id + " Hanging Connections scan *******");
+			System.out.println(report);
+			System.out.println("Destroyed " + hs.getDestroyCount() + ", found " + hs.getHangCount() + " hanging pooled and " + hs.getUnpooledHangCount() + " hanging unpooled connections");
+		}
+		return hs.getDestroyCount() > 0;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1411,12 +1086,11 @@ public class ConnectionPool {
 		return m_conntime_warning_ms;
 	}
 
-
 	/**
 	 * Adds this time to the "connection usage" timer...
 	 * @param ut
 	 */
-	public void handleConnectionUsageTime(final ConnectionPoolEntry pe, final long ut) {
+	void handleConnectionUsageTime(final ConnectionProxy pe, final long ut) {
 		//-- Add to statistics.
 		int slot = getTimeSlot(ut);
 		synchronized(m_usetime_ar) {
@@ -1424,21 +1098,21 @@ public class ConnectionPool {
 		}
 		if(ut < m_conntime_warning_ms)
 			return;
-
-		//-- !! Connection took a shitload of time! log!
-		StringBuilder sb = new StringBuilder(1024);
-		sb.append("** Connection was used for more than ");
-		sb.append(Integer.toString(m_conntime_warning_ms));
-		sb.append("ms: it took ");
-		sb.append(Long.toString(ut));
-		sb.append("ms from OPEN to CLOSE!!!\n");
-
-		sb.append("Stack trace of the connection:\n");
-		pe.dbgPrintStackTrace(sb, 0, 0);
-
-		//-- Now: log and send to admin.
-		PoolManager.logUnexpected(sb.toString());
-		PoolManager.panic("Database connection used too long", sb.toString());
+		//
+		//		//-- !! Connection took a shitload of time! log!
+		//		StringBuilder sb = new StringBuilder(1024);
+		//		sb.append("** Connection was used for more than ");
+		//		sb.append(Integer.toString(m_conntime_warning_ms));
+		//		sb.append("ms: it took ");
+		//		sb.append(Long.toString(ut));
+		//		sb.append("ms from OPEN to CLOSE!!!\n");
+		//
+		//		sb.append("Stack trace of the connection:\n");
+		//		pe.dbgPrintStackTrace(sb, 0, 0);
+		//
+		//		//-- Now: log and send to admin.
+		//		m_manager.logUnexpected(sb.toString());
+		//		m_manager.panic("Database connection used too long", sb.toString());
 	}
 
 	public int[] getUseTimeTable() {
@@ -1490,113 +1164,6 @@ public class ConnectionPool {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getters and setters.								*/
 	/*--------------------------------------------------------------*/
-	public final PoolManager getManager() {
-		return m_manager;
-	}
-
-	public synchronized void incOpenStmt() {
-		m_n_open_stmt++;
-		m_n_exec++;
-		if(m_n_open_stmt > m_peak_open_stmt)
-			m_peak_open_stmt = m_n_open_stmt;
-	}
-
-	public synchronized void decOpenStmt() {
-		m_n_open_stmt--;
-	}
-
-	public synchronized void decOpenStmt(final int count) {
-		m_n_open_stmt -= count;
-	}
-
-	/**
-	 *	Get the current #of statements opened.
-	 */
-	public synchronized int getCurrOpenStmt() {
-		return m_n_open_stmt;
-	}
-
-	public synchronized void incOpenRS() {
-		m_n_open_rs++;
-	}
-
-	public synchronized void decOpenRS() {
-		m_n_open_rs--;
-	}
-
-	public long getOpenResultSets() {
-		return m_n_open_rs;
-	}
-
-	/**
-	 *	Gets the peak #of concurrently open statements.
-	 */
-	public synchronized int getPeakOpenStmt() {
-		return m_peak_open_stmt;
-	}
-
-	public synchronized long getTotalStmt() {
-		return m_n_exec;
-	}
-
-	/**
-	 * The #of connections allocated from the database.
-	 * @return
-	 */
-	public synchronized int getAllocatedConnections() {
-		return m_n_pooledAllocated;
-	}
-
-	/**
-	 * Returns the #of times that a connection was allocated from the pool (i.e. the #of
-	 * calls to getConnection()).
-	 * @return
-	 */
-	public int getConnectionAllocationCount() {
-		return m_n_connallocations;
-	}
-
-	public Connection getNewPooledConnection() throws SQLException {
-		return _getConnection(false);
-	}
-
-	public String getUserID() {
-		return m_uid;
-	}
-
-	public DataSource getUnpooledDataSource() {
-		return m_unpooled_ds;
-	}
-
-	public DataSource getPooledDataSource() {
-		return m_pooled_ds;
-	}
-
-	public synchronized int getConnectionWaits() {
-		return m_n_connectionwaits;
-	}
-
-	public synchronized int getConnectionFails() {
-		return m_n_connectionfails;
-	}
-
-	public boolean isPooledMode() {
-		return m_is_pooledmode;
-	}
-
-	public synchronized int getUnpooledInUse() {
-		return m_n_unpooled_inuse;
-	}
-
-	/**
-	 * Returns the #of times a connection was closed by the Janitor because it
-	 * was allocated for way too long.
-	 * @return
-	 */
-	public synchronized int getHangDisconnects() {
-		return m_n_hangdisconnects;
-	}
-
 	public synchronized void setSaveErrors(final boolean on) {
 		if(on && m_lastErrorStack == null)
 			m_lastErrorStack = new ArrayList<ErrorEntry>();
@@ -1604,6 +1171,9 @@ public class ConnectionPool {
 			m_lastErrorStack = null;
 	}
 
+	public synchronized boolean hasSavedErrors() {
+		return m_lastErrorStack != null && m_lastErrorStack.size() > 0;
+	}
 	public synchronized boolean isSavingErrors() {
 		return m_lastErrorStack != null;
 	}
@@ -1658,7 +1228,7 @@ public class ConnectionPool {
 	 * @param ppx
 	 */
 	void logExecution(final StatementProxy sp, final boolean batch) {
-		if(!isLogStatements())
+		if(!c().isLogStatements())
 			return;
 
 		StringBuilder sb = new StringBuilder();
@@ -1695,56 +1265,108 @@ public class ConnectionPool {
 	}
 
 	void logBatch() {
-		if(!isLogStatements())
+		if(!c().isLogStatements())
 			return;
 		System.out.println("    executeBatch()");
 	}
 
-	public synchronized boolean hasSavedErrors() {
-		return m_lastErrorStack != null && m_lastErrorStack.size() > 0;
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Small data access functions.						*/
+	/*--------------------------------------------------------------*/
+	public String getID() {
+		return m_id;
 	}
 
-	public boolean isPrintExceptions() {
-		return m_printExceptions;
+	/**
+	 * Return the owner pool manager.
+	 * @return
+	 */
+	public final PoolManager getManager() {
+		return m_manager;
 	}
 
-	public synchronized boolean isLogAllocation() {
-		return m_logAllocation;
+	/**
+	 * Called to get the "is connection OK" sql command for this
+	 * pool.
+	 *
+	 * @return
+	 * @throws SQLException
+	 */
+	private synchronized String getCheckString() throws SQLException {
+		return m_check_calc;
 	}
 
-	public synchronized void setLogAllocation(final boolean logAllocation) {
-		m_logAllocation = logAllocation;
+	synchronized public boolean isPooledMode() {
+		return m_isPooled;
 	}
 
-	public synchronized boolean isLogAllocationStack() {
-		return m_logAllocationStack;
+
+	public DataSource getUnpooledDataSource() {
+		return m_unpooled_ds;
 	}
 
-	public synchronized void setLogAllocationStack(final boolean logAllocationStack) {
-		m_logAllocationStack = logAllocationStack;
+	public DataSource getPooledDataSource() {
+		return m_pooled_ds;
 	}
 
-	public synchronized boolean isLogStatements() {
-		return m_logStatements;
+	/**
+	 *	Returns T if stack tracking is enabled for debugging purposes.
+	 */
+	public synchronized boolean dbgIsStackTraceEnabled() {
+		return m_dbg_stacktrace;
 	}
 
-	public synchronized void setLogStatements(final boolean logStatements) {
-		m_logStatements = logStatements;
+	/**
+	 *	Switches stack tracing ON. This is very expensive and should only be
+	 *  used in case of trouble. Switching on stack trace (done thru the /nema/
+	 *  servlet path) causes the pool to remember the last 10 stack paths that
+	 *  accessed a connection.
+	 */
+	public synchronized void dbgSetStacktrace(final boolean on) {
+		m_dbg_stacktrace = on;
 	}
 
-	public boolean isIgnoreUnclosed() {
-		return m_ignoreUnclosed;
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Access to statistics.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Copies all pool data into the poolStats structure. This provides a point-in-time copy of all
+	 * pool statistics in proper relation.
+	 */
+	public synchronized PoolStats getPoolStatistics() {
+		return new PoolStats(m_unpooledAllocatedCount, m_pooledAllocatedCount, m_pooledUsedCount, //
+			m_pooledMaxUsed, m_poolAllocationCount, m_n_connectionwaits, //
+			m_n_connectionfails, m_n_hangdisconnects, m_n_open_stmt, //
+			m_peak_open_stmt, m_n_open_rs, m_statementTotalPrepareCount, //
+			m_n_rows, //
+			new ArrayList<ConnectionProxy>(m_currentlyHangingConnections), //
+			m_databaseAllocationCount, //
+			m_unpooledMaxUsed
+		);
 	}
 
-	public ScanMode getScanMode() {
-		return m_scanMode;
+	synchronized void incOpenStmt() {
+		m_n_open_stmt++;
+		m_statementTotalPrepareCount++;
+		if(m_n_open_stmt > m_peak_open_stmt)
+			m_peak_open_stmt = m_n_open_stmt;
 	}
 
-	public synchronized boolean isLogResultSetLocations() {
-		return m_logResultSetLocations;
+	synchronized void decOpenStmt() {
+		m_n_open_stmt--;
 	}
 
-	public synchronized void setLogResultSetLocations(boolean logResultSetLocations) {
-		m_logResultSetLocations = logResultSetLocations;
+	//	synchronized void decOpenStmt(final int count) {
+	//		m_n_open_stmt -= count;
+	//	}
+
+	synchronized void incOpenRS() {
+		m_n_open_rs++;
+	}
+
+	synchronized void decOpenRS() {
+		m_n_open_rs--;
 	}
 }
