@@ -4,8 +4,6 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import javax.annotation.*;
-
-import javax.annotation.*;
 import javax.annotation.concurrent.*;
 
 /**
@@ -101,5 +99,13 @@ final public class PropertyInfo implements IPropertyAccessor {
 		} catch(InvocationTargetException xte) {
 			throw WrappedException.unwrap(xte);
 		}
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(64);
+		Class< ? > clz = m_getter != null ? m_getter.getDeclaringClass() : m_setter.getDeclaringClass();
+		sb.append("property ").append(m_name).append(" in class ").append(clz.getName());
+		return sb.toString();
 	}
 }
