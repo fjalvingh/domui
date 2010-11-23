@@ -52,14 +52,14 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	private Class< ? > m_rootClass;
 
 	static private final class CritEntry {
-		/** The class type queried by this subcriterion */
-		private Class< ? > m_actualClass;
+		//		/** The class type queried by this subcriterion */
+		//		private Class< ? > m_actualClass;
 
 		/** Either a Criteria or a DetachedCriteria object, sigh */
 		private Object m_abomination;
 
 		public CritEntry(Class< ? > actualClass, Object abomination) {
-			m_actualClass = actualClass;
+			//			m_actualClass = actualClass;
 			m_abomination = abomination;
 		}
 
@@ -71,13 +71,13 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			return m_abomination;
 		}
 
-		/**
-		 * Return the actual type queried by the criterion.
-		 * @return
-		 */
-		public Class< ? > getActualClass() {
-			return m_actualClass;
-		}
+		//		/**
+		//		 * Return the actual type queried by the criterion.
+		//		 * @return
+		//		 */
+		//		public Class< ? > getActualClass() {
+		//			return m_actualClass;
+		//		}
 	}
 
 	/**
@@ -284,7 +284,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		final int len = input.length();
 		m_pendingJoinIx = 0;
 		boolean last = false;
-		boolean inpk = false; // Not following a PK path
+		//		boolean inpk = false; // Not following a PK path
 		boolean previspk = false;
 		while(!last) {
 			//-- Get next name.
@@ -314,7 +314,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				if(previspk)
 					throw new IllegalStateException("Pk field immediately after PK field - don't know what this is!?");
 
-				inpk = true;
+				//				inpk = true;
 				previspk = true;
 				pushPendingJoin(path, pmm);
 
@@ -369,7 +369,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				//-- This is a relation type. If another relation was queued flush it: we always need a join.
 				if(m_pendingJoinIx > 0 && !previspk) {
 					flushJoin();
-					inpk = false;
+					//					inpk = false;
 				}
 
 				//-- Now queue this one- we decide whether to join @ the next name.
@@ -494,9 +494,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		m_pendingJoinIx = 0;
 	}
 
-	private void dumpStateError(String string) {
-		throw new IllegalStateException(string);
-	}
+	//	private void dumpStateError(String string) {
+	//		throw new IllegalStateException(string);
+	//	}
 
 	/**
 	 * Push a pending join or PK fragment on the TODO stack.

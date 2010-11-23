@@ -42,7 +42,7 @@ public class TimestampType implements IJdbcType, IJdbcTypeFactory {
 		} else if(value == null)
 			ts = null;
 		else {
-			java.util.Date dt = (java.util.Date) RuntimeConversions.convertTo(value, java.util.Date.class);
+			java.util.Date dt = RuntimeConversions.convertTo(value, java.util.Date.class);
 			ts = new Timestamp(dt.getTime());
 		}
 		ps.setTimestamp(index, ts);

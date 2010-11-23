@@ -57,6 +57,7 @@ public class Enum5Type implements EnhancedUserType, ParameterizedType {
 		return false;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object nullSafeGet(final ResultSet rs, final String[] names, final Object owner) throws HibernateException, SQLException {
 		if(m_ordinal) {
 			int ord = rs.getInt(names[0]);
@@ -101,6 +102,7 @@ public class Enum5Type implements EnhancedUserType, ParameterizedType {
 		return m_ordinal ? T_ORD : T_NAME;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object fromXMLString(final String xmlValue) {
 		return Enum.valueOf((Class) m_enumClass, xmlValue);
 	}

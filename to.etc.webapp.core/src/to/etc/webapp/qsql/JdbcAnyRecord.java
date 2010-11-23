@@ -19,13 +19,13 @@ public class JdbcAnyRecord {
 
 	private Map<String, Object> m_valueMap = new HashMap<String, Object>();
 
-	private String m_tableName;
+	//	private String m_tableName;
 
 	public void initFromRS(String tablename, ResultSetMetaData rsm, @Nonnull ResultSet rs) throws SQLException {
 		if(rs == null)
 			throw new IllegalStateException("Null rs not allowed");
 		m_valueMap.clear();
-		m_tableName = tablename;
+		//		m_tableName = tablename;
 		for(int i = 1, len = rsm.getColumnCount(); i <= len; i++) {
 			int type = rsm.getColumnType(i);
 			String name = rsm.getColumnName(i);
@@ -84,7 +84,7 @@ public class JdbcAnyRecord {
 			return defaultValue;
 		if(v == null)
 			return defaultValue; // FIXME Should throw column not found exception.
-		return (T) RuntimeConversions.convertTo(v, type);
+		return RuntimeConversions.convertTo(v, type);
 	}
 
 }

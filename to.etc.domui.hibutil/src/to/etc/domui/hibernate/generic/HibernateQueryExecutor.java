@@ -78,7 +78,7 @@ public class HibernateQueryExecutor implements IQueryExecutor<BuggyHibernateBase
 		return crit.list();
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public List<Object[]> query(BuggyHibernateBaseContext root, QSelection< ? > sel) throws Exception {
 		Criteria crit = GenericHibernateHandler.createCriteria(root.getSession(), sel);
