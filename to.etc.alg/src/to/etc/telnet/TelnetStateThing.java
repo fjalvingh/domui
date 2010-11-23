@@ -1,4 +1,4 @@
-package to.etc.log;
+package to.etc.telnet;
 
 /**
  * Known about states for MultiThread-safe objects.

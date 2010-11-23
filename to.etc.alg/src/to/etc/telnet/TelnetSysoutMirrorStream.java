@@ -1,4 +1,4 @@
-package to.etc.log;
+package to.etc.telnet;
 
 import java.io.*;
 

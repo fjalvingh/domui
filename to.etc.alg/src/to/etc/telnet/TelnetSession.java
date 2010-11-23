@@ -1,4 +1,4 @@
-package to.etc.log;
+package to.etc.telnet;
 
 import java.io.*;
 import java.net.*;
@@ -502,8 +502,8 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 		Enumeration e = m_clientdata_ht.elements();
 		while(e.hasMoreElements()) {
 			Object o = e.nextElement();
-			if(o instanceof iTelnetClientEvent)
-				((iTelnetClientEvent) o).sessionClosed(this);
+			if(o instanceof ITelnetClientEvent)
+				((ITelnetClientEvent) o).sessionClosed(this);
 		}
 		m_clientdata_ht.clear();
 	}

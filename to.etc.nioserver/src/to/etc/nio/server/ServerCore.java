@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import to.etc.log.*;
+import to.etc.telnet.*;
 import to.etc.util.*;
 
 /**

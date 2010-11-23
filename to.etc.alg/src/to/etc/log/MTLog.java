@@ -6,6 +6,8 @@ package to.etc.log;
 
 import java.util.*;
 
+import to.etc.telnet.*;
+
 
 /**
  *	This class implements a multi-threaded generic logging class that can be used

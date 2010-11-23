@@ -1,8 +1,9 @@
-package to.etc.log;
+package to.etc.telnet;
 
 import java.net.*;
 import java.util.*;
 
+import to.etc.log.*;
 import to.etc.util.*;
 
 /**
@@ -101,7 +102,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable, iLogEven
 	/**
 	 *	Adds a command handler.
 	 */
-	public void addCommandHandler(iTelnetCommandHandler tch) {
+	public void addCommandHandler(ITelnetCommandHandler tch) {
 		synchronized(m_command_v) {
 			m_command_v.add(tch);
 		}
@@ -125,9 +126,9 @@ public class TelnetServer extends TelnetStateThing implements Runnable, iLogEven
 		}
 
 
-		iTelnetCommandHandler[] ar;
+		ITelnetCommandHandler[] ar;
 		synchronized(m_command_v) {
-			ar = (iTelnetCommandHandler[]) m_command_v.toArray(new iTelnetCommandHandler[m_command_v.size()]);
+			ar = (ITelnetCommandHandler[]) m_command_v.toArray(new ITelnetCommandHandler[m_command_v.size()]);
 		}
 
 		boolean handled = false;
@@ -142,7 +143,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable, iLogEven
 	}
 
 
-	private boolean executeTelnetCommand(TelnetPrintWriter tpw, iTelnetCommandHandler tch, CmdStringDecoder cmd) {
+	private boolean executeTelnetCommand(TelnetPrintWriter tpw, ITelnetCommandHandler tch, CmdStringDecoder cmd) {
 		try {
 			cmd.reset();
 			return tch.executeTelnetCommand(tpw, cmd);

@@ -3,6 +3,7 @@ package to.etc.log;
 import java.io.*;
 import java.util.*;
 
+import to.etc.telnet.*;
 import to.etc.util.*;
 
 
@@ -471,7 +472,7 @@ public class LogMaster implements Runnable {
 				m_telnet_server = TelnetServer.createServer(port);
 
 				//-- Add the logmaster command handler.
-				iTelnetCommandHandler lh = new iTelnetCommandHandler() {
+				ITelnetCommandHandler lh = new ITelnetCommandHandler() {
 					public boolean executeTelnetCommand(TelnetPrintWriter tpw, CmdStringDecoder commandline) throws Exception {
 						return LogMaster.executeTelnetCommand(tpw, commandline);
 					}
@@ -490,7 +491,7 @@ public class LogMaster implements Runnable {
 		}
 	}
 
-	static public void registerTelnetCommand(iTelnetCommandHandler tch) {
+	static public void registerTelnetCommand(ITelnetCommandHandler tch) {
 		synchronized(m_cat_ht) {
 			if(m_telnet_server == null)
 				return;

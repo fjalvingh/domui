@@ -1,4 +1,6 @@
-package to.etc.log;
+package to.etc.telnet;
+
+import to.etc.log.*;
 
 /**
  * A PrintWriter which writes to a telnet session, and which knows about the

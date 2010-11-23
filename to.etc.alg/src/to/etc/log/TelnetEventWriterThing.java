@@ -3,6 +3,9 @@ package to.etc.log;
 import java.text.*;
 import java.util.*;
 
+import to.etc.log.*;
+import to.etc.telnet.*;
+
 
 /**
  *	Interface between the logging modules and a Telnet session.
@@ -14,7 +17,7 @@ import java.util.*;
  * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
  * @version 1.0
  */
-public class TelnetEventWriterThing implements iLogEventListener, iTelnetClientEvent {
+public class TelnetEventWriterThing implements iLogEventListener, ITelnetClientEvent {
 	/// The telnet session receiving these events.
 	private TelnetPrintWriter	m_pw;
 
