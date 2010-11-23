@@ -2,7 +2,6 @@ package to.etc.server.cache;
 
 import java.util.*;
 
-import to.etc.server.syslogger.*;
 import to.etc.server.vfs.*;
 import to.etc.util.*;
 
@@ -406,12 +405,10 @@ public class ResourceCache {
 			Object key = cd.getKey();
 			Set<ResourceRef> set = m_dependencyMap.get(key);
 			if(set == null) {
-				Panicker.getInstance().panic("!? Cannot remove dependency: key not in dependency map!?", "");
 				throw new IllegalStateException("!? Cannot remove dependency: key not in dependency map!?");
 			}
 			if(!set.remove(ref)) // Remove proxy from depset
 			{
-				Panicker.getInstance().panic("!? Cannot remove dependency: ref not in set!?", "");
 				throw new IllegalStateException("!? Cannot remove dependency: ref not in set!?");
 			}
 		}

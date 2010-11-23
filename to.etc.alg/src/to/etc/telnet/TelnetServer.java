@@ -1,9 +1,9 @@
 package to.etc.telnet;
 
+import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import to.etc.log.*;
 import to.etc.util.*;
 
 /**
@@ -23,7 +23,7 @@ import to.etc.util.*;
  * @version 1.0
  *
  */
-public class TelnetServer extends TelnetStateThing implements Runnable, iLogEventWriter {
+public class TelnetServer extends TelnetStateThing implements Runnable {
 	/// This server's debug port
 	private int				m_port;
 
@@ -315,11 +315,6 @@ public class TelnetServer extends TelnetStateThing implements Runnable, iLogEven
 	}
 
 
-	public void writeEventRecord(LogRecord l) {
-		/**@todo: Implement this to.mumble.log.iLogEventWriter method*/
-		throw new java.lang.UnsupportedOperationException("Method writeEventRecord() not yet implemented.");
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Main, test subroutine...							*/
@@ -345,6 +340,49 @@ public class TelnetServer extends TelnetStateThing implements Runnable, iLogEven
 		} catch(Exception x) {
 			System.out.println("EXCEPTION: " + x.toString());
 			x.printStackTrace();
+		}
+	}
+
+	/// The Telnet server
+	static private TelnetServer	m_telnet_server;
+
+	/**
+	 *	Called to start the telnet server. If the server has already
+	 *  started this returns false.
+	 */
+	static public void startTelnetServer(int port) {
+		synchronized(TelnetServer.class) {
+			if(m_telnet_server != null)
+				return;
+			System.out.println("Starting telnet thingy on port " + port);
+			try {
+				m_telnet_server = TelnetServer.createServer(port);
+
+				//-- Add the logmaster command handler.
+				ITelnetCommandHandler lh = new ITelnetCommandHandler() {
+					public boolean executeTelnetCommand(TelnetPrintWriter tpw, CmdStringDecoder commandline) throws Exception {
+						return executeTelnetCommand(tpw, commandline);
+					}
+				};
+				m_telnet_server.addCommandHandler(lh);
+
+				//-- Add system.out handler...
+				TelnetSysoutMirrorStream tsms = new TelnetSysoutMirrorStream(m_telnet_server, System.out);
+				PrintStream ps = new PrintStream(tsms);
+				System.setOut(ps);
+				System.setErr(ps);
+			} catch(Exception x) {
+				System.err.println("LogMaster: startTelnet failed, " + x.toString());
+				x.printStackTrace();
+			}
+		}
+	}
+
+	static public void registerTelnetCommand(ITelnetCommandHandler tch) {
+		synchronized(TelnetServer.class) {
+			if(m_telnet_server == null)
+				return;
+			m_telnet_server.addCommandHandler(tch);
 		}
 	}
 

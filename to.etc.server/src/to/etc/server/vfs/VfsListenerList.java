@@ -3,8 +3,6 @@ package to.etc.server.vfs;
 import java.lang.ref.*;
 import java.util.*;
 
-import to.etc.server.syslogger.*;
-
 /**
  * Encapsulates a list of registered listeners.
  *
@@ -77,7 +75,6 @@ final public class VfsListenerList {
 			try {
 				l.vfsResourceChanged(ev);
 			} catch(Exception x) {
-				Panicker.getInstance().logUnexpected(x, "In calling vfs change listener", null);
 				x.printStackTrace();
 			}
 		}
