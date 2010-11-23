@@ -15,6 +15,8 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 
 	private boolean	m_returnComment;
 
+	private boolean m_keepQuotes;
+
 	//	private StringBuffer	m_sb = new StringBuffer();
 
 	private int		m_lastToken	= T_EOF;
@@ -31,12 +33,20 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 		m_return_nl = nl;
 	}
 
+	public boolean isKeepQuotes() {
+		return m_keepQuotes;
+	}
+
+	public void setKeepQuotes(boolean keepQuotes) {
+		m_keepQuotes = keepQuotes;
+	}
+
 	public void setReturnComment(boolean returnComment) {
 		m_returnComment = returnComment;
 	}
 
 	protected int scanString() throws IOException, SourceErrorException {
-		scanSimpleString(false);
+		scanSimpleString(isKeepQuotes());
 		return T_STRING;
 	}
 
