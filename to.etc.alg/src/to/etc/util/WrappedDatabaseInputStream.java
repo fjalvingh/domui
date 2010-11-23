@@ -37,6 +37,11 @@ public class WrappedDatabaseInputStream extends InputStream {
 		} catch(Exception x) {}
 	}
 
+	/**
+	 * Despite the Eclipse warning: do NOT add synchronized - it is wrong.
+	 *
+	 * @see java.io.InputStream#mark(int)
+	 */
 	@Override
 	public void mark(final int readlimit) {
 		m_is.mark(readlimit);
@@ -57,6 +62,11 @@ public class WrappedDatabaseInputStream extends InputStream {
 		return m_is.read(b);
 	}
 
+	/**
+	 * Despite the Eclipse warning: do NOT add synchronized - it is wrong.
+	 *
+	 * @see java.io.InputStream#reset()
+	 */
 	@Override
 	public void reset() throws IOException {
 		m_is.reset();

@@ -26,6 +26,10 @@ public class StringInputStream extends InputStream {
 		m_is.close();
 	}
 
+	/**
+	 * Despite the Eclipse warning: do NOT add synchronized - it is wrong.
+	 * @see java.io.InputStream#mark(int)
+	 */
 	@Override
 	public void mark(int readAheadLimit) {
 		m_is.mark(readAheadLimit);
@@ -51,6 +55,10 @@ public class StringInputStream extends InputStream {
 		return m_is.read(arg0);
 	}
 
+	/**
+	 * Despite the Eclipse warning: do NOT add synchronized - it is wrong.
+	 * @see java.io.InputStream#reset()
+	 */
 	@Override
 	public void reset() {
 		m_is.reset();
