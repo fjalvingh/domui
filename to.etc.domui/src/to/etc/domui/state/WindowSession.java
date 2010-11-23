@@ -9,7 +9,7 @@ import org.slf4j.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
-import to.etc.domui.state.ConversationContext.*;
+import to.etc.domui.state.ConversationContext.ConversationState;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -447,15 +447,7 @@ final public class WindowSession {
 		//-- Add any parameters
 		PageParameters pp = to.getPageParameters();
 		if(pp != null) {
-			String[] names = pp.getParameterNames();
-			for(String name : names) {
-				if(Constants.PARAM_CONVERSATION_ID.equals(name))
-					continue;
-				sb.append('&');
-				StringTool.encodeURLEncoded(sb, name);
-				sb.append('=');
-				StringTool.encodeURLEncoded(sb, pp.getString(name));
-			}
+			DomUtil.addUrlParameters(sb, pp, false);
 		}
 		generateRedirect(ctx, sb.toString(), ajax);
 	}
