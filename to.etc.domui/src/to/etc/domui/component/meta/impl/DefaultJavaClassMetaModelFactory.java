@@ -101,7 +101,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		}
 	}
 
-	@SuppressWarnings({"cast", "unchecked"})
+	@SuppressWarnings({"cast", "unchecked", "rawtypes"})
 	protected void decodePropertyAnnotation(DefaultClassMetaModel cmm, DefaultPropertyMetaModel pmm, Annotation an) {
 		if(an instanceof MetaProperty) {
 			//-- Handle meta-assignments.

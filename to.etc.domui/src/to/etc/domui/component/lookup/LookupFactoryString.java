@@ -20,6 +20,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 		return 1; // Accept all properties (will fail on incompatible ones @ input time)
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);

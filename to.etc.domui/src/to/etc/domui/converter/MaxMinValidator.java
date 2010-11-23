@@ -26,11 +26,11 @@ public class MaxMinValidator implements IValueValidator<Number> {
 	public void validate(Number input) throws Exception {
 		Class< ? > ac = input.getClass();
 		if(m_max.getClass() == ac && m_min.getClass() == ac && input instanceof Comparable< ? >) {
-			int r = ((Comparable) input).compareTo(m_min);
+			int r = ((Comparable<Number>) input).compareTo(m_min);
 			if(r < 0) {
 				throw new ValidationException(Msgs.V_TOOSMALL, m_min.toString());
 			}
-			r = ((Comparable) input).compareTo(m_max);
+			r = ((Comparable<Number>) input).compareTo(m_max);
 			if(r > 0) {
 				throw new ValidationException(Msgs.V_TOOLARGE, m_max.toString());
 			}

@@ -38,9 +38,9 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 			m_labelKey = p.defaultLabel();
 		//		setConverter((p.converterClass() == DummyConverter.class ? null : ConverterRegistry.getConverterInstance(p.converterClass())));
 		// 20091123 This kludge below is needed because otherwise the JDK compiler pukes on this generics abomination.
-		IConverter c = null;
+		IConverter< ? > c = null;
 		if(p.converterClass() != DummyConverter.class)
-			c = ConverterRegistry.getConverterInstance((Class) p.converterClass());
+			c = ConverterRegistry.getConverterInstance((Class< ? extends IConverter< ? >>) p.converterClass());
 		setConverter(c);
 		setSortable(p.defaultSortable());
 		setDisplayLength(p.displayLength());

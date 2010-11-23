@@ -32,6 +32,7 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 		return 2;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox

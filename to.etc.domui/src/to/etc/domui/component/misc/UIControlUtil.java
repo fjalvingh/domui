@@ -243,7 +243,7 @@ final public class UIControlUtil {
 		txt.setTextAlign(TextAlign.RIGHT);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	static public void assignMonetaryConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable< ? > node) {
 		if(pmm.getConverter() != null)
 			node.setConverter((IConverter) pmm.getConverter());
@@ -263,7 +263,7 @@ final public class UIControlUtil {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	static private <T extends Number> void assignNumericConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
 		if(pmm.getConverter() != null)
 			node.setConverter((IConverter) pmm.getConverter());

@@ -34,7 +34,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 		}
 		return new AbstractLookupControlImpl(dateFrom, tn, dateTo) {
 			// FIXME For some reason Eclipse does not "see" the null check @ the start of the method..
-			@SuppressWarnings("null")
+			//			@SuppressWarnings("null")
 			@Override
 			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
 				Date from, till;

@@ -34,8 +34,8 @@ public class AreaCharter implements ICharterHelper {
 
 	private LegendProperties m_legendProperties = new LegendProperties();
 
-	@SuppressWarnings("unchecked")
 	// FIXME Cannot create ANY construct here that does NOT cause generic warnings. Good job, Sun.
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	static public class BucketData {
 		private String m_bucketName;
 

@@ -32,6 +32,7 @@ public class ControlFactoryString implements ControlFactory {
 		return 1;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		Class< ? > iclz = pmm.getActualType();
