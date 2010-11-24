@@ -162,7 +162,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	}
 
 	/**
-	 * Create a join either on a Criteria or a DetachedCriteria. Needed because the idiot that creates those
+	 * Create a join either on a Criteria or a DetachedCriteria. Needed because the joker that creates those
 	 * did not interface/baseclass them.
 	 * @param current
 	 * @param name

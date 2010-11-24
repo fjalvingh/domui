@@ -498,7 +498,7 @@ var WebUI = {
 					val = fck.GetXHTML();
 				}
 			} else {
-//				if($.browser.msie) { // The MS idiots remove newlines from value.... Idiots.
+//				if($.browser.msie) { // The MS idiots remove newlines from value....
 //					val = sel.innerText;
 //					//alert("inner value="+sel.innerText);
 //				} else
@@ -1435,10 +1435,8 @@ var WebUI = {
 
 	ieUpdateUpload : function(e) { // Piece of crap
 		var iframe = document.getElementById('webuiif');
-		var xml = iframe.contentWindow.document.XMLDocument; // IMPORTANT
-																// Fucking MS
-																// Crap!!!! See
-																// http://p2p.wrox.com/topic.asp?whichpage=1&TOPIC_ID=62981&#153594
+		var xml = iframe.contentWindow.document.XMLDocument; // IMPORTANT Fucking MS Crap!!!! See
+															// http://p2p.wrox.com/topic.asp?whichpage=1&TOPIC_ID=62981&#153594
 		WebUI.updateUpload(xml, iframe);
 	},
 	updateUpload : function(doc, ifr) {

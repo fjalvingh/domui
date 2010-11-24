@@ -233,7 +233,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 		StringBuilder sb = new StringBuilder(32);
 		sb.append(cal.get(Calendar.YEAR));
 		sb.append(',');
-		sb.append(cal.get(Calendar.MONTH) + 1); // fucking SUN idiots
+		sb.append(cal.get(Calendar.MONTH) + 1); // The idiot that defined this standard should be shot.
 		sb.append(',');
 		sb.append(cal.get(Calendar.DAY_OF_MONTH));
 		sb.append(',');

@@ -247,7 +247,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 					return ix;
 			}
 			return -1;
-		} catch(Exception x) { // Need to wrap; James Gosling is an idiot.
+		} catch(Exception x) { // Need to wrap; checked exceptions are idiotic
 			throw WrappedException.wrap(x);
 		}
 	}
@@ -262,7 +262,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 			if(ix < 0 || ix >= data.size())
 				return null;
 			return listToValue(data.get(ix));
-		} catch(Exception x) { // Need to wrap; James Gosling is an idiot.
+		} catch(Exception x) { // Need to wrap; checked exceptions are idiotic
 			throw WrappedException.wrap(x);
 		}
 	}

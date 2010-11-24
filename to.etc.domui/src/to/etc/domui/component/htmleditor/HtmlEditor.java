@@ -121,7 +121,7 @@ public class HtmlEditor extends TextArea {
 		try {
 			StringTool.strToJavascriptString(sb, value, true);
 		} catch(Exception x) {
-			x.printStackTrace(); // James Gosling is an idiot.
+			x.printStackTrace(); // Checked exceptions are idiotic
 		}
 		sb.append(";");
 	}
