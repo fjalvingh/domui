@@ -111,7 +111,7 @@ public class AppFilter implements Filter {
 			throw x;
 		} catch(Exception x) {
 			DomUtil.dumpException(x);
-			throw new WrappedException(x); // James Gosling is an idiot
+			throw new WrappedException(x); // checked exceptions are idiotic
 		} catch(Error x) {
 			x.printStackTrace();
 			throw x;
@@ -224,7 +224,7 @@ public class AppFilter implements Filter {
 			throw x;
 		} catch(Exception x) {
 			DomUtil.dumpException(x);
-			throw new RuntimeException(x); // James Gosling is an idiot
+			throw new RuntimeException(x); // checked exceptions are idiotic
 		} catch(Error x) {
 			x.printStackTrace();
 			throw x;
