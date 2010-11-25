@@ -260,6 +260,7 @@ public class W3CSchemaCoder {
 		try {
 			MiniParser p = parser(in);
 			GregorianCalendar cal = calendar();
+			cal.setLenient(false);
 			parseDate(cal, p); // Date  fragment
 			TimeZone tz = parseTimeZone(p); // Optional timezone
 
@@ -282,6 +283,7 @@ public class W3CSchemaCoder {
 		try {
 			MiniParser p = parser(in);
 			GregorianCalendar cal = calendar();
+			cal.setLenient(false);
 			parseDate(cal, p); // Date  fragment
 			if(!p.curIs("T") && !p.curIs("t"))
 				throw new W3CEncodingException("Missing 'T' in dateTime", in);

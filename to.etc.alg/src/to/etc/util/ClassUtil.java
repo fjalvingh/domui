@@ -9,7 +9,6 @@ final public class ClassUtil {
 	private ClassUtil() {
 	}
 
-
 	/**
 	 * Calls the given method with the given parameters in a given class instance. Used to access
 	 * classes whose definition are not to be linked to the code.
@@ -216,6 +215,17 @@ final public class ClassUtil {
 		return res;
 	}
 
+	static public String getMethodName(String prefix, String property) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix);
+		if(property.length() > 0) {
+			sb.append(Character.toUpperCase(property.charAt(0)));
+			sb.append(property, 1, property.length());
+		}
+		return sb.toString();
+	}
+
+
 	/**
 	 * Generic caller of a method using reflection. This prevents us from having
 	 * to link to the stupid Oracle driver.
@@ -309,5 +319,33 @@ final public class ClassUtil {
 		return clz.isArray() || Collection.class.isAssignableFrom(clz);
 	}
 
+	/*
+	 * Walk the class hierarchy and create a list that goes from base class to derived class. This includes both classes
+	 * and interfaces, where interfaces have "multiple bases".
+	 */
+	static public List<Class< ? >> getClassHierarchy(Class< ? > clzin) {
+		List<Class< ? >> res = new ArrayList<Class< ? >>();
+		appendClassHierarchy(res, clzin);
+		return res;
+	}
 
+	static public void appendClassHierarchy(List<Class< ? >> res, Class< ? > clzin) {
+		if(res.contains(clzin))
+			return;
+
+		//-- If this class has a superclass (it is not an interface and not Object) then add that 1st
+		Class< ? > sclz = clzin.getSuperclass();
+		if(null != sclz) {
+			appendClassHierarchy(res, sclz); // First add parts upside the hierarchy.
+		}
+
+		//-- Get all implemented interfaces as bases and add them 1st also
+		Class< ? >[] ifar = clzin.getInterfaces();
+		for(Class< ? > iclz : ifar) {
+			appendClassHierarchy(res, iclz);
+		}
+		if(res.contains(clzin))
+			return;
+		res.add(clzin);
+	}
 }
