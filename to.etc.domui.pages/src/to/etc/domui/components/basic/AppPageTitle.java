@@ -26,6 +26,10 @@ public class AppPageTitle extends Div {
 
 	private String m_hint;
 
+	private boolean m_showAsModified;
+
+	private INodeContentRenderer<String> m_titleNodeRenderer;
+
 	public AppPageTitle() {}
 
 	public AppPageTitle(final String title) {
@@ -77,11 +81,7 @@ public class AppPageTitle extends Div {
 		m_titlePart = td;
 		td.setCssClass("vp-ttl-t");
 		td.setTestID("pageTitle");
-		String ttl = getPageTitle();
-		if(ttl != null)
-			td.add(ttl);
-		if(!DomUtil.isBlank(getHint()))
-			td.setTitle(getHint());
+		renderTitleCell();
 
 		//-- Buttons
 		b.row().add(m_buttonpart);
@@ -147,13 +147,13 @@ public class AppPageTitle extends Div {
 		return DomUtil.calcPageTitle(getPage().getBody().getClass());
 	}
 
-	public void setPageTitle(String ttl) {
+	public void setPageTitle(String ttl) throws Exception {
 		if(DomUtil.isEqual(m_title, ttl))
 			return;
 
 		m_title = ttl;
 		if(isBuilt()) {
-			getTitlePart().setText(ttl);
+			renderTitleCell();
 		}
 	}
 
@@ -178,5 +178,60 @@ public class AppPageTitle extends Div {
 
 	public TD getTitlePart() {
 		return m_titlePart;
+	}
+
+	public boolean isShowAsModified() {
+		return m_showAsModified;
+	}
+
+	public void setShowAsModified(boolean showAsModified) throws Exception {
+		if(m_showAsModified != showAsModified) {
+			m_showAsModified = showAsModified;
+			if(isBuilt()) {
+				renderTitleCell();
+			}
+		}
+	}
+
+	private void renderTitleCell() throws Exception {
+		TD titleCell = getTitlePart();
+		if(m_titleNodeRenderer != null) {
+			m_titleNodeRenderer.renderNodeContent(this, titleCell, getPageTitle(), Boolean.valueOf(m_showAsModified));
+		} else {
+			internalRenderTitle();
+		}
+	}
+
+	private void internalRenderTitle() {
+		TD titleCell = getTitlePart();
+		titleCell.removeAllChildren();
+		if(isShowAsModified()) {
+			titleCell.add("*" + getPageTitle());
+		} else {
+			titleCell.add(getPageTitle());
+		}
+		if(!DomUtil.isBlank(getHint())) {
+			titleCell.setTitle(getHint());
+		}
+	}
+
+	public INodeContentRenderer<String> getTitleNodeRenderer() {
+		return m_titleNodeRenderer;
+	}
+
+	/**
+	 * Provide setting custom title node renderer.
+	 * Parameters description for use for {@link INodeContentRenderer#renderNodeContent}:<BR/>
+	 * <UL>
+	 * <LI>NodeBase component is page title component.</LI>
+	 * <LI>NodeContainer node is TD caption cell.</LI>
+	 * <LI>String object is page caption.</LI>
+	 * <LI>Object parameters is Boolean: T for modified flag, F for not modifed.</LI>
+	 * </UL>
+	 *
+	 * @param titleNodeRenderer
+	 */
+	public void setTitleNodeRenderer(INodeContentRenderer<String> titleNodeRenderer) {
+		m_titleNodeRenderer = titleNodeRenderer;
 	}
 }
