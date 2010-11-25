@@ -6,6 +6,7 @@ import javax.servlet.jsp.el.*;
 
 import to.etc.util.*;
 
+@SuppressWarnings("deprecation")
 public class ElUtil {
 	private ElUtil() {}
 
@@ -16,7 +17,7 @@ public class ElUtil {
 	/**
 	 * Returns T if the class is any number.
 	 */
-	static public boolean isNumberClass(Class cl) {
+	static public boolean isNumberClass(Class< ? > cl) {
 		return cl == Byte.class || cl == Byte.TYPE || cl == Short.class || cl == Short.TYPE || cl == Integer.class || cl == Integer.TYPE || cl == Long.class || cl == Long.TYPE || cl == Float.class
 			|| cl == Float.TYPE || cl == Double.class || cl == Double.TYPE || cl == BigInteger.class || cl == BigDecimal.class;
 	}
@@ -29,27 +30,27 @@ public class ElUtil {
 		return o instanceof BigDecimal;
 	}
 
-	static public boolean isBigDecimalType(Class cl) {
+	static public boolean isBigDecimalType(Class< ? > cl) {
 		return cl == BigDecimal.class;
 	}
 
-	static public boolean isBigIntegerType(Class cl) {
+	static public boolean isBigIntegerType(Class< ? > cl) {
 		return cl == BigInteger.class;
 	}
 
 	public static boolean isAnyIntegerObject(Object o) {
 		if(o == null)
 			return false;
-		Class cl = o.getClass();
+		Class< ? > cl = o.getClass();
 		return cl == Byte.TYPE || cl == Short.TYPE || cl == Character.TYPE || cl == Integer.TYPE || cl == Long.TYPE;
 	}
 
 	/**
 	 * Returns T if the given class is of an integer type
 	 **/
-	public static boolean isAnyIntegerType(Class pClass) {
-		return pClass == Byte.class || pClass == Byte.TYPE || pClass == Short.class || pClass == Short.TYPE || pClass == Character.class || pClass == Character.TYPE || pClass == Integer.class
-			|| pClass == Integer.TYPE || pClass == Long.class || pClass == Long.TYPE;
+	public static boolean isAnyIntegerType(Class< ? > clz) {
+		return clz == Byte.class || clz == Byte.TYPE || clz == Short.class || clz == Short.TYPE || clz == Character.class || clz == Character.TYPE || clz == Integer.class || clz == Integer.TYPE
+			|| clz == Long.class || clz == Long.TYPE;
 	}
 
 	/**
@@ -75,18 +76,18 @@ public class ElUtil {
 	/**
 	 * Converts a long to some number class.
 	 **/
-	static Number coerceToPrimitiveNumber(long pValue, Class pClass) throws ELException {
-		if(pClass == Byte.class || pClass == Byte.TYPE)
+	static Number coerceToPrimitiveNumber(long pValue, Class< ? > clz) throws ELException {
+		if(clz == Byte.class || clz == Byte.TYPE)
 			return WrapperCache.getByte((byte) pValue);
-		else if(pClass == Short.class || pClass == Short.TYPE)
+		else if(clz == Short.class || clz == Short.TYPE)
 			return WrapperCache.getShort((short) pValue);
-		else if(pClass == Integer.class || pClass == Integer.TYPE)
+		else if(clz == Integer.class || clz == Integer.TYPE)
 			return WrapperCache.getInteger((int) pValue);
-		else if(pClass == Long.class || pClass == Long.TYPE)
+		else if(clz == Long.class || clz == Long.TYPE)
 			return WrapperCache.getLong(pValue);
-		else if(pClass == Float.class || pClass == Float.TYPE)
+		else if(clz == Float.class || clz == Float.TYPE)
 			return WrapperCache.getFloat(pValue);
-		else if(pClass == Double.class || pClass == Double.TYPE)
+		else if(clz == Double.class || clz == Double.TYPE)
 			return WrapperCache.getDouble(pValue);
 		else
 			return WrapperCache.getInteger(0);
@@ -95,25 +96,25 @@ public class ElUtil {
 	/**
 	 * Converts any Number class to some other number class.
 	 **/
-	static Number convNumberToNumber(Number pValue, Class pClass) throws ELException {
-		if(pClass == Byte.class || pClass == Byte.TYPE)
+	static Number convNumberToNumber(Number pValue, Class< ? > clz) throws ELException {
+		if(clz == Byte.class || clz == Byte.TYPE)
 			return WrapperCache.getByte(pValue.byteValue());
-		else if(pClass == Short.class || pClass == Short.TYPE)
+		else if(clz == Short.class || clz == Short.TYPE)
 			return WrapperCache.getShort(pValue.shortValue());
-		else if(pClass == Integer.class || pClass == Integer.TYPE)
+		else if(clz == Integer.class || clz == Integer.TYPE)
 			return WrapperCache.getInteger(pValue.intValue());
-		else if(pClass == Long.class || pClass == Long.TYPE)
+		else if(clz == Long.class || clz == Long.TYPE)
 			return WrapperCache.getLong(pValue.longValue());
-		else if(pClass == Float.class || pClass == Float.TYPE)
+		else if(clz == Float.class || clz == Float.TYPE)
 			return WrapperCache.getFloat(pValue.floatValue());
-		else if(pClass == Double.class || pClass == Double.TYPE)
+		else if(clz == Double.class || clz == Double.TYPE)
 			return WrapperCache.getDouble(pValue.doubleValue());
-		else if(pClass == BigInteger.class) {
+		else if(clz == BigInteger.class) {
 			if(pValue instanceof BigDecimal)
 				return ((BigDecimal) pValue).toBigInteger();
 			else
 				return BigInteger.valueOf(pValue.longValue());
-		} else if(pClass == BigDecimal.class) {
+		} else if(clz == BigDecimal.class) {
 			if(pValue instanceof BigInteger)
 				return new BigDecimal((BigInteger) pValue);
 			else
@@ -206,7 +207,7 @@ public class ElUtil {
 	 * @param cl
 	 * @return
 	 */
-	static public Number convToNumber(Object val, Class cl) {
+	static public Number convToNumber(Object val, Class< ? > cl) {
 		return null;
 	}
 }

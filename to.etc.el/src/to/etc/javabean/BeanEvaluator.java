@@ -14,11 +14,11 @@ import java.util.*;
  * Created on May 18, 2005
  */
 public class BeanEvaluator {
-	static private final Class[] NO_PARAMS = new Class[0];
+	static private final Class< ? >[] NO_PARAMS = new Class< ? >[0];
 
-	static private final Class[] PARAM_1_STRING = new Class[]{String.class};
+	static private final Class< ? >[] PARAM_1_STRING = new Class[]{String.class};
 
-	static private final Class[] PARAM_2_STR_OBJ = new Class[]{String.class, Object.class};
+	static private final Class< ? >[] PARAM_2_STR_OBJ = new Class[]{String.class, Object.class};
 
 	/** Signalling instance. */
 	static private final BeanPropertyDescriptor NO_SUCH_PROP = new BeanPropertyDescriptor();
