@@ -12,7 +12,7 @@ import to.etc.util.*;
  * Implement calling an EL function.
  *
  * <p>Created on Aug 5, 2005
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class NdFCall extends NdBase {
 	private List<NdBase> m_actuals;

@@ -7,7 +7,7 @@ import javax.servlet.http.*;
 import javax.servlet.jsp.*;
 
 public class ImplicitObjects {
-	static final String sAttributeName = "to.mumble.el.ImplObjs";
+	static final String sAttributeName = "to.etc.el.ImplObjs";
 
 	private PageContext m_context;
 
