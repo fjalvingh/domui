@@ -26,13 +26,7 @@ import to.etc.util.*;
  * <p>This structure can be reused by calling clear() before use, which clears
  * all parameters and files set.</p>
  *
- * <p>Header $Header: /cvs/mumblealg/src/to/mumble/net/MultipartPoster.java,v 1.5 2005/07/22 08:00:45 jal Exp $</p>
- * <p>Title: Mumble Global Libraries - Non-database tools</p>
- * <p>Description: Small tools for Java programs</p>
- * <p>Copyright: Copyright (c) 2002 Frits Jalvingh; released under the LGPL licence.</p>
- * <p>Website <a href="http://www.mumble.to/">Mumble</a></p>
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
- * @version 1.0
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class MultipartPoster {
 	static private final String		BOUNDARY	= "--boun-da-ry-0xababaeaGfHdNarcolethe-mumble-to-content-eNCoDer-gxixmar-rennes-le-chateau";
@@ -268,7 +262,7 @@ public class MultipartPoster {
 /**
  * Internal class to hold parameter / file parameter information.
  *
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * @version 1.0
  */
 class aParameter {
@@ -297,9 +291,7 @@ class aParameter {
 /**
  * An implementation of a MultipartFile which reads either a File or an
  * InputStream.
- * <p>Copyright: Copyright (c) 2002 F. Jalvingh; Public domain</p>
- *
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * @version 1.0
  */
 class aFileToSend extends MultipartFile {
