@@ -5,7 +5,7 @@ import java.io.*;
 /**
  * Handles indented writing for dumps and the like.
  *
- * @author jal
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 3, 2004
  */
 public class IndentWriter extends Writer {

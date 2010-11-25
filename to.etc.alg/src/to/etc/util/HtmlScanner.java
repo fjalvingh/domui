@@ -4,12 +4,7 @@ package to.etc.util;
  * This class helps one to scan HTML documents. It contains stuff to scan
  * for tags, to decode attributes and the like.
  *
- * <p>Title: COMA CMS Easy Editor</p>
- * <p>Description: CMS Editor using NEMA</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Remarks None</p>
- * @author <A href="mailto:jal@mumble.to">Frits Jalvingh</A>
- * @version 1.0
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class HtmlScanner {
 	/** The document we're currently scanning */

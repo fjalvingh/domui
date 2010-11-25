@@ -7,12 +7,7 @@ import java.io.*;
  * data from an array of byte arrays. Each byte array contains part of the data,
  * and the sum of all data in the arrays is the total data in the set.
  *
- * <p>Title: NEMA Template System</p>
- * <p>Description: NEMA Compiled and fast template system</p>
- * <p> </p>
- * <p> </p>
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
- * @version 1.0
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class ByteBufferInputStream extends InputStream {
 	/** The table of byte arrays that form this-stream's data */

@@ -3,27 +3,22 @@ package to.etc.util;
 import java.io.*;
 import java.util.*;
 
-
 /**
- *	Encapsulates a config file. The config file looks like a properties file, but
- *  it's keys are case-independent. The config file can be set to be reread
- *  every n seconds. It can also write the file.
- *  The file format is the same as the property file format, and allows comments
- *  before items.
+ * Encapsulates a config file. The config file looks like a properties file, but
+ * it's keys are case-independent. The config file can be set to be reread
+ * every n seconds. It can also write the file.
+ * The file format is the same as the property file format, and allows comments
+ * before items.
  *
- * <p>Title: Mumble Global Libraries - Non-database tools</p>
- * <p>Description: Small tools for Java programs</p>
- * <p>Copyright: Copyright (c) 2002 Frits Jalvingh; released under the LGPL licence.</p>
- * <p>Website <a href="http://www.mumble.to/">Mumble</a></p>
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
- * @version 1.0
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
+@Deprecated
 public class ConfigFile implements ConfigSource {
 	/** The thing containing the keys for the file (lowercased). */
-	private Vector		m_v;
+	private List<PropData>	m_v;
 
 	/** The hashtable. */
-	private Hashtable	m_ht;
+	private Map<String, PropData>	m_ht;
 
 	/** The last time the file was read, */
 	private long		m_read_ts;
@@ -181,7 +176,7 @@ public class ConfigFile implements ConfigSource {
 	public String getProp(String name, String defval) throws Exception {
 		init();
 		synchronized(this) {
-			PropData pd = (PropData) m_ht.get(name);
+			PropData pd = m_ht.get(name);
 			if(pd == null) {
 				//-- Not found here- try the defaults file
 				if(m_default_cf == null)
@@ -214,7 +209,7 @@ public class ConfigFile implements ConfigSource {
 	public void setProp(String key, String val, String comment) throws Exception {
 		init();
 		synchronized(this) {
-			PropData pd = (PropData) m_ht.get(key.toLowerCase());
+			PropData pd = m_ht.get(key.toLowerCase());
 			if(pd == null) {
 				pd = new PropData();
 				pd.m_key = key;
@@ -256,17 +251,15 @@ class PropReader {
 
 	private StringBuffer	m_cmt, m_lrb;
 
-	protected Hashtable		m_ht	= new Hashtable();
+	protected Map<String, PropData>	m_ht	= new HashMap<String, PropData>();
 
-	protected Vector		m_v		= new Vector();
+	protected List<PropData>	m_v		= new ArrayList<PropData>();
 
 
 	/**
 	 *	Reads the properties file and inserts it in order into the table.
 	 */
-	protected Vector readFile(File f) throws Exception {
-		Vector v = new Vector();
-
+	protected void readFile(File f) throws Exception {
 		LineNumberReader lr = new LineNumberReader(new BufferedReader(new FileReader(f), 1024));
 		try {
 			//-- Now start reading line by line or whatever..
@@ -289,7 +282,6 @@ class PropReader {
 				else
 					scanDataLine();
 			}
-			return v;
 		} finally {
 			try {
 				lr.close();
@@ -387,7 +379,7 @@ class PropReader {
 
 		m_v.add(pd);
 		key = key.toLowerCase();
-		PropData pd2 = (PropData) m_ht.get(key);
+		PropData pd2 = m_ht.get(key);
 		if(pd2 != null)
 			throw new Exception("Duplicate key " + key);
 		m_ht.put(key, pd);
@@ -397,13 +389,13 @@ class PropReader {
 }
 
 class PropWriter {
-	protected Hashtable	m_ht		= new Hashtable();
+	protected Map<String, PropData>	m_ht		= new HashMap<String, PropData>();
 
-	protected Vector	m_v			= new Vector();
+	protected List<PropData>	m_v			= new ArrayList<PropData>();
 
 	protected File		m_propFile	= null;
 
-	public void init(File propFile, Hashtable ht, Vector v) {
+	public void init(File propFile, Map<String, PropData> ht, List<PropData> v) {
 		m_propFile = propFile;
 		m_ht = ht;
 		m_v = v;
@@ -411,11 +403,8 @@ class PropWriter {
 
 	public void writePropFile() throws IOException {
 		PrintWriter pw = new PrintWriter(new FileOutputStream(m_propFile));
-		Enumeration e = m_v.elements();
-		PropData pd = null;
 
-		while(e.hasMoreElements()) {
-			pd = (PropData) e.nextElement();
+		for(PropData pd : m_v) {
 			if((pd.m_cmt != null) && (pd.m_cmt.length() != 0))
 				writeCmtLine(pw, pd.m_cmt);
 			pw.println(pd.m_key + "=" + pd.m_val);

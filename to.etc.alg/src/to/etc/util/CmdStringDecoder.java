@@ -11,20 +11,14 @@ import java.util.*;
  * The principal use of this class is from within the TelnetServer where it is
  * used to parse Telnet commands.
  *
- * <p>Title: Mumble Global Libraries - Non-database tools</p>
- * <p>Description: Small tools for Java programs</p>
- * <p>Copyright: Copyright (c) 2002 Frits Jalvingh; released under the LGPL licence.</p>
- * <p>Website <a href="http://www.mumble.to/">Mumble</a></p>
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
- * @version 1.0
- *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class CmdStringDecoder {
 	/// The input string variable.
 	private String	m_cmd;
 
 	/// The vector containing all strings.
-	private Vector	m_argv;
+	private List<String>	m_argv;
 
 	private int		m_ix;
 
@@ -91,7 +85,7 @@ public class CmdStringDecoder {
 
 
 	private void decode(String cmd) {
-		m_argv = new Vector();
+		m_argv = new ArrayList<String>();
 		initSlicer(cmd);
 		while(m_ix < m_sl) {
 			String c = getWord();
@@ -117,7 +111,7 @@ public class CmdStringDecoder {
 	public String getCurr() {
 		if(!hasMore())
 			return "";
-		return (String) m_argv.elementAt(m_curr_ix);
+		return m_argv.get(m_curr_ix);
 	}
 
 	public String getNext() {

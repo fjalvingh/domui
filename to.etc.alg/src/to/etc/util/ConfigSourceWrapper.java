@@ -3,9 +3,10 @@ package to.etc.util;
 /**
  *
  *
- * @author jal
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 22, 2005
  */
+@Deprecated
 public class ConfigSourceWrapper {
 	private ConfigSource	m_s;
 

@@ -6,7 +6,7 @@ import java.util.*;
  * Something which knows about mapping objects.
  *
  * <p>Created on May 26, 2005
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public interface IMappable<K, V> {
 	/**

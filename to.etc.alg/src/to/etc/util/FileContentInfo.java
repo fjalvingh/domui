@@ -2,8 +2,6 @@ package to.etc.util;
 
 import java.io.*;
 
-import to.etc.util.*;
-
 /**
  * Helper class to determine a file's type (text, binary) and encoding (for text files). A file
  * is marked as "binary" if it contains nulls and is not recognized as a text file. This will

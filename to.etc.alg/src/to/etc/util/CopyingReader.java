@@ -7,7 +7,7 @@ import java.io.*;
  * read to an appendable.
  *
  * Created on Aug 23, 2005
- * @author jal
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class CopyingReader extends Reader {
 	private Reader	m_r;
