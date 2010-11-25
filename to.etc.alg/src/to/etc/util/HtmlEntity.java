@@ -195,6 +195,7 @@ public class HtmlEntity {
 	/**
 	 *	Generate the output file.
 	 */
+	@SuppressWarnings("rawtypes")
 	static private void write(File f) throws Exception {
 		PrintWriter pw = new PrintWriter(new FileWriter(f));
 		try {
@@ -354,6 +355,7 @@ public class HtmlEntity {
 		w(pw, lvl, "return -1;");
 	}
 
+	@SuppressWarnings("rawtypes")
 	static private void mkNameFind(PrintWriter pw, Vector v, int lvl, int low, int high) {
 		if(low >= high) {
 			// Nothing left to compare!!!
@@ -418,6 +420,7 @@ public class HtmlEntity {
 		w(pw, lvl, "return null;");
 	}
 
+	@SuppressWarnings("rawtypes")
 	static private void mkValFind(PrintWriter pw, Vector v, int lvl, int low, int high) {
 		if(low >= high) {
 			// Nothing left to compare!!!
@@ -502,6 +505,7 @@ public class HtmlEntity {
 	/**
 	 *	Main.
 	 */
+	@SuppressWarnings("rawtypes")
 	static public void main(String args[]) {
 		try {
 			//-- 1. Scan all .ent files.

@@ -315,7 +315,7 @@ public class XmlWriter extends IndentWriter {
 	}
 
 	public void dumpBean(Object o) throws IOException {
-		Class cl = o.getClass();
+		Class< ? > cl = o.getClass();
 		Method[] mar = cl.getMethods();
 		for(int i = mar.length; --i >= 0;) {
 			handleMethod(o, mar[i]);

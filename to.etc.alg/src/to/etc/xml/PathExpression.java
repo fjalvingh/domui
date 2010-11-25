@@ -31,7 +31,7 @@ public class PathExpression {
 	 * @throws Exception
 	 */
 	static public PathExpression getExpression(String s) throws Exception {
-		ArrayList al = new ArrayList(); // The list of selectors built.
+		List<PathSelector> al = new ArrayList<PathSelector>(); // The list of selectors built.
 
 		//-- First: does the string start with '/'? In that case it is a root selector.
 		if(s.startsWith("/")) {
@@ -47,7 +47,7 @@ public class PathExpression {
 			if(sel.length() != 0) // Replace // with /
 				al.add(decodeSelector(sel)); // Decode the selector and add to the path
 		}
-		return new PathExpression((PathSelector[]) al.toArray(new PathSelector[al.size()]), s);
+		return new PathExpression(al.toArray(new PathSelector[al.size()]), s);
 	}
 
 	@Override
