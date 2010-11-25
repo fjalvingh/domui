@@ -45,9 +45,18 @@ public class StatisticsRequestListener implements ServletRequestListener {
 
 		PerformanceCollector pc = td.findCollector(PerformanceCollector.class);
 		if(null != pc) {
-			//-- Is session-based collection on?
+			/*
+			 * Is session-based collection on? Get the httpsession; this will abort if the session
+			 * has been destroyed (logout) at a higher level. In that case we just return.
+			 */
+			HttpSession hs;
+			try {
+				hs = r.getSession();
+			} catch(Exception x) {
+				return;
+			}
+
 			SessionStatistics ss = null;
-			HttpSession hs = r.getSession();
 			if(hs != null) {
 				synchronized(hs) {
 					ss = (SessionStatistics) hs.getAttribute(getClass().getName());
