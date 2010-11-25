@@ -15,15 +15,7 @@ import java.io.*;
  *  "General Filtered Image Rescaling" by Dale Schumacher which appeared in the
  *  book Graphics Gems III, published by Academic Press, Inc.
  *
- *	Author of the Java version: F. Jalvingh. See http://www.mumble.to/ for
- *  details.
- *
- * <p>Title: Mumble Global Libraries - Non-database tools</p>
- * <p>Description: Small tools for Java programs</p>
- * <p>Copyright: Copyright (c) 2002 Frits Jalvingh; released under the LGPL licence.</p>
- * <p>Website <a href="http://www.mumble.to/">Mumble</a></p>
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
- * @version 1.0
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *
  * @deprecated Use ImageSubsampler class instead.
  */
@@ -335,9 +327,9 @@ public class SlowSampler {
 		if(filter == null)
 			filter = loadFilter(fname + "Filter");
 		if(filter == null)
-			filter = loadFilter("to.mumble.imalib." + fname);
+			filter = loadFilter("to.etc.sjit." + fname);
 		if(filter == null)
-			filter = loadFilter("to.mumble.imalib." + fname + "Filter");
+			filter = loadFilter("to.etc.sjit." + fname + "Filter");
 		if(filter == null) {
 			throw new Exception("Unknown filter. Make sure the name starts with an uppercase letter...");
 		}

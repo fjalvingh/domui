@@ -12,7 +12,7 @@ import org.w3c.dom.*;
  * DOM from start to finish every time a value needs to be got.
  *
  * <p>Created on May 23, 2005
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class PathExpression {
 	private PathSelector[]	m_path;

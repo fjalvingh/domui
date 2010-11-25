@@ -35,21 +35,7 @@ import to.etc.util.*;
  * or <code>bar()</code> on that object. When found it will call that function
  * and the result will be used for the next item in the dotted list.</p>
  *
- * <p>This simple template mechanism has nothing do do with performance- it's
- * actually an example project I used to school some beginning developers ;-)
- * but it can be handy sometimes. For more serious work please look at
- * <a href="http://www.mumble.to/">the NEMA template engine</a> which is
- * very fast and which compiles templates to bytecode.</p>
- *
- * <p>Constructs recognised by this language are the &gt;if&lt; tag; the &gt;ifnot&lt;
- * tag and the &gt;loop&lt; tag.</p>
- *
- * <p>Title: Mumble Global Libraries - Non-database tools</p>
- * <p>Description: Small tools for Java programs</p>
- * <p>Copyright: Copyright (c) 2002 Frits Jalvingh; released under the LGPL licence.</p>
- * <p>Website <a href="http://www.mumble.to/">Mumble</a></p>
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
- * @version 1.0
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class TplExpander {
 	/// The callback to use to retrieve values.

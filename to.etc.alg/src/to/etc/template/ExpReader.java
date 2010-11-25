@@ -4,12 +4,7 @@ package to.etc.template;
  * This class reads the input stream and returns substrings for the tokens
  * found...
  *
- * <p>Title: Mumble Global Libraries - Non-database tools</p>
- * <p>Description: Small tools for Java programs</p>
- * <p>Copyright: Copyright (c) 2002 Frits Jalvingh; released under the LGPL licence.</p>
- * <p>Website <a href="http://www.mumble.to/">Mumble</a></p>
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
- * @version 1.0
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class ExpReader {
 	static public final int	tvEof		= -1;

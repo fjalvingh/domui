@@ -13,7 +13,7 @@ import org.w3c.dom.*;
  * See the example conversion descriptor in ./examples/xmltocsv.properties.
  *
  * <p>Created on May 23, 2005
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class XMLToCSVConverter {
 	static private final int	QR_ALL		= 0;
@@ -248,7 +248,7 @@ public class XMLToCSVConverter {
 	 * This class contains all that's needed to convert a field.
 	 *
 	 * <p>Created on May 23, 2005
-	 * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 */
 	static private class FieldGetter {
 		private PathExpression	m_path;

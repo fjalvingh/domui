@@ -11,7 +11,7 @@ import java.util.*;
  * like to allow conversion of objects to other types.
  *
  * <p>Created on May 25, 2005
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class RuntimeConversions {
 	private RuntimeConversions() {

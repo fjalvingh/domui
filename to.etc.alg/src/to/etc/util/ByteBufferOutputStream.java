@@ -8,8 +8,7 @@ import java.util.*;
  * array of fixed-size buffers. At the end of the write the array of buffers can
  * be gotten from the instance.
  *
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
- * @version 1.0
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class ByteBufferOutputStream extends OutputStream {
 	/** The buffer size requested */

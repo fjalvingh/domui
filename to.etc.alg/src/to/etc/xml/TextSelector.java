@@ -5,7 +5,7 @@ import org.w3c.dom.*;
 /**
  * Matches a single #text node. The node cannot contain anything else but #text nodes.
  * <p>Created on Jun 9, 2005
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class TextSelector implements PathSelector {
 	public TextSelector() {

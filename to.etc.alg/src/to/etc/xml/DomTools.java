@@ -18,12 +18,7 @@ import to.etc.util.*;
  * Static utility class having stuff to easily obtain data from a DOM parsed
  * document.
  *
- * <p>Title: Content Packet eXchange Library</p>
- * <p>Description: Handles secure exchange of packets thru HTTP</p>
- * <p>Copyright: Copyright (c) 2002 F. Jalvingh; released under the LGPL.</p>
- * <p>Website: <a href="http://www.mumble.to/">Mumble</a></p>
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
- * @version 1.0
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class DomTools {
 	static public final Date				OBLIVIAN;
