@@ -17,6 +17,7 @@ import java.io.*;
  * MultipartPoster source.</p>
  *
  */
+@Deprecated
 public abstract class MultipartFile {
 	public MultipartFile() {
 	}

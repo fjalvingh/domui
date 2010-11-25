@@ -11,8 +11,10 @@ import to.etc.util.*;
 import to.etc.xml.*;
 
 /**
+ * Utilities for net access.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 27, 2005
- * @author jal
  */
 final public class NetTools {
 	private NetTools() {
@@ -215,6 +217,10 @@ final public class NetTools {
 			} catch(Exception x) {}
 		}
 
+		/**
+		 * Despite the warning, do not make synchronized.
+		 * @see java.io.InputStream#mark(int)
+		 */
 		@Override
 		public void mark(int readlimit) {
 			m_is.mark(readlimit);
@@ -240,6 +246,10 @@ final public class NetTools {
 			return m_is.read(b);
 		}
 
+		/**
+		 * Despite the warning, do not make synchronized.
+		 * @see java.io.InputStream#mark(int)
+		 */
 		@Override
 		public void reset() throws IOException {
 			m_is.reset();

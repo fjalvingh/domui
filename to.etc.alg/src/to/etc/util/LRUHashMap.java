@@ -8,6 +8,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 25, 2010
  */
+@SuppressWarnings("unchecked")
 public class LRUHashMap<K, V> implements Map<K, V> {
 	static final Object			NULL	= new Object();
 
@@ -601,7 +602,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	}
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	private class EntrySet extends AbstractSet/*<Map.Entry<K,V>>*/
 	{
 		public EntrySet() {

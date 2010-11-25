@@ -27,9 +27,9 @@ public class CSVRecordReader implements iRecordReader {
 	private boolean				m_skip_ws			= true;
 
 	/** The list of fields for the CURRENT record. */
-	private ArrayList			m_fld_al			= new ArrayList();
+	private List<Field>			m_fld_al			= new ArrayList<Field>();
 
-	private ArrayList			m_fldsep_al			= new ArrayList();
+	private List<String>		m_fldsep_al			= new ArrayList<String>();
 
 	/** All characters that are allowed as quote characters */
 	private StringBuffer		m_quote_sb			= new StringBuffer();
@@ -56,7 +56,7 @@ public class CSVRecordReader implements iRecordReader {
 	private boolean				m_escapeBadly		= false;
 
 	private class Field implements iInputField {
-		int		m_lpos;
+		//		int		m_lpos;
 
 		int		m_index;
 
@@ -321,7 +321,7 @@ public class CSVRecordReader implements iRecordReader {
 	private Field elementAt(int i) {
 		if(i > m_fld_al.size())
 			return null;
-		return (Field) m_fld_al.get(i);
+		return m_fld_al.get(i);
 	}
 
 	public iInputField getField(int ix) {
@@ -341,9 +341,9 @@ public class CSVRecordReader implements iRecordReader {
 		//-- 1. Find/add a Field structure
 		if(m_fld_ix >= m_fld_al.size())
 			m_fld_al.add(new Field());
-		Field f = (Field) m_fld_al.get(m_fld_ix);
+		Field f = m_fld_al.get(m_fld_ix);
 		f.m_index = m_fld_ix++;
-		f.m_lpos = spos;
+		//		f.m_lpos = spos;
 		f.setValue(line.substring(spos, spos + len));
 		//		System.out.println(">> addLitField "+f.m_value);
 	}
@@ -352,9 +352,9 @@ public class CSVRecordReader implements iRecordReader {
 		//-- 1. Find/add a Field structure
 		if(m_fld_ix >= m_fld_al.size())
 			m_fld_al.add(new Field());
-		Field f = (Field) m_fld_al.get(m_fld_ix);
+		Field f = m_fld_al.get(m_fld_ix);
 		f.m_index = m_fld_ix++;
-		f.m_lpos = spos;
+		//		f.m_lpos = spos;
 		f.setValue(val);
 		//		System.out.println(">> addField "+f.m_value);
 	}
@@ -449,9 +449,9 @@ public class CSVRecordReader implements iRecordReader {
 
 		if(m_fld_ix >= m_fld_al.size())
 			m_fld_al.add(new Field());
-		Field f = (Field) m_fld_al.get(m_fld_ix);
+		Field f = m_fld_al.get(m_fld_ix);
 		f.m_index = m_fld_ix;
-		f.m_lpos = m_ix;
+		//		f.m_lpos = m_ix;
 		f.setValue(null);
 	}
 
@@ -459,7 +459,7 @@ public class CSVRecordReader implements iRecordReader {
 		if(m_fldsep_al.size() == 0) // Make sure that at least 1 separator (comma) is registered
 			m_fldsep_al.add(",");
 		for(int i = m_fldsep_al.size(); --i >= 0;) {
-			int sc = checkForSeparator((String) m_fldsep_al.get(i), line, ix);
+			int sc = checkForSeparator(m_fldsep_al.get(i), line, ix);
 			if(sc > 0) // This IS a separator
 				return sc;
 		}
@@ -500,7 +500,7 @@ public class CSVRecordReader implements iRecordReader {
 			// If so, return
 			if(hasWhitespaceSeparator()) {
 				for(int i = m_fldsep_al.size(); --i >= 0;) {
-					if(((String) m_fldsep_al.get(i)).length() == 1 && ((String) m_fldsep_al.get(i)).charAt(0) == line.charAt(ix))
+					if((m_fldsep_al.get(i)).length() == 1 && (m_fldsep_al.get(i)).charAt(0) == line.charAt(ix))
 						return ix;
 				}
 			}

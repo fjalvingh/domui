@@ -26,9 +26,6 @@ public class MimeWriter {
 
 	private MimeWriter			m_currentSub;
 
-	/** If the current part is a mime body we have no streams. */
-	private boolean				m_currentIsMime;
-
 	protected MimeWriter(OutputStream os) {
 		m_os = os;
 	}
@@ -147,10 +144,6 @@ public class MimeWriter {
 	private boolean			m_inpart;
 
 	private boolean			m_part_base64;
-
-	private String			m_part_encoding;
-
-	private String			m_part_contentEncoding;
 
 	public void partStart(boolean base64, String contenttype, String rest) throws IOException {
 		flush(); // Close anything partially open

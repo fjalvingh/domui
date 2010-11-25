@@ -28,6 +28,7 @@ import to.etc.util.*;
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
+@Deprecated
 public class MultipartPoster {
 	static private final String		BOUNDARY	= "--boun-da-ry-0xababaeaGfHdNarcolethe-mumble-to-content-eNCoDer-gxixmar-rennes-le-chateau";
 
@@ -35,7 +36,7 @@ public class MultipartPoster {
 	//	private URL			m_url;
 
 	/** The list of params/files to send... */
-	private Vector					m_param_v	= new Vector();
+	private List<AParameter>		m_param_v	= new ArrayList<AParameter>();
 
 	//	static private	byte[]		m_boundary;
 
@@ -99,7 +100,7 @@ public class MultipartPoster {
 	 * @param value		the parameter's value.
 	 */
 	public void addParam(String name, String value) {
-		aParameter ap = new aParameter(name, value);
+		AParameter ap = new AParameter(name, value);
 		m_param_v.add(ap);
 	}
 
@@ -112,7 +113,7 @@ public class MultipartPoster {
 	 * 				is needed.
 	 */
 	public void addFile(String name, String fname, MultipartFile mf) {
-		aParameter ap = new aParameter(name, fname, mf);
+		AParameter ap = new AParameter(name, fname, mf);
 		m_param_v.add(ap);
 	}
 
@@ -124,7 +125,7 @@ public class MultipartPoster {
 	 * @param f			the existing file to send
 	 */
 	public void addFile(String name, String fname, File f) {
-		aFileToSend afts = new aFileToSend(f);
+		AFileToSend afts = new AFileToSend(f);
 		addFile(name, fname, afts);
 	}
 
@@ -136,7 +137,7 @@ public class MultipartPoster {
 	 * @param is		the stream providing the data.
 	 */
 	public void addFile(String name, String fname, InputStream is, int len) {
-		aFileToSend afts = new aFileToSend(is, len);
+		AFileToSend afts = new AFileToSend(is, len);
 		addFile(name, fname, afts);
 	}
 
@@ -158,8 +159,7 @@ public class MultipartPoster {
 
 		//-- 1. Calculate the #bytes in files to send,
 		int totsz = 0;
-		for(Enumeration e = m_param_v.elements(); e.hasMoreElements();) {
-			aParameter ap = (aParameter) e.nextElement();
+		for(AParameter ap : m_param_v) {
 			if(ap.m_mpf != null) {
 				totsz += ap.m_mpf.getSize();
 			}
@@ -190,9 +190,7 @@ public class MultipartPoster {
 			//-- Loop for all parameters,
 			int szdone = 0;
 			StringBuffer sb = new StringBuffer(128);
-			for(Enumeration e = m_param_v.elements(); e.hasMoreElements();) {
-				aParameter ap = (aParameter) e.nextElement();
-
+			for(AParameter ap : m_param_v) {
 				//-- Content-disposition
 				sb.setLength(0);
 				sb.append("Content-Disposition: form-data; name=\"");
@@ -265,7 +263,8 @@ public class MultipartPoster {
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * @version 1.0
  */
-class aParameter {
+@Deprecated
+class AParameter {
 	/** The parameter name, */
 	protected String		m_name;
 
@@ -275,12 +274,12 @@ class aParameter {
 	/** The filehandler for a file parameter, or null */
 	protected MultipartFile	m_mpf;
 
-	protected aParameter(String name, String value) {
+	protected AParameter(String name, String value) {
 		m_name = name;
 		m_value = value;
 	}
 
-	protected aParameter(String name, String filename, MultipartFile value) {
+	protected AParameter(String name, String filename, MultipartFile value) {
 		m_name = name;
 		m_value = filename;
 		m_mpf = value;
@@ -292,9 +291,9 @@ class aParameter {
  * An implementation of a MultipartFile which reads either a File or an
  * InputStream.
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * @version 1.0
  */
-class aFileToSend extends MultipartFile {
+@Deprecated
+class AFileToSend extends MultipartFile {
 	/** The filename of the file to send, */
 	private File		m_f;
 
@@ -303,11 +302,11 @@ class aFileToSend extends MultipartFile {
 
 	private int			m_is_sz;
 
-	protected aFileToSend(File f) {
+	protected AFileToSend(File f) {
 		m_f = f;
 	}
 
-	protected aFileToSend(InputStream is, int sz) {
+	protected AFileToSend(InputStream is, int sz) {
 		m_is = is;
 		m_is_sz = sz;
 	}
