@@ -5,7 +5,7 @@ import javax.servlet.jsp.el.*;
 /**
  * List of nodes to generate
  * <p>Created on Nov 25, 2005
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class NdList extends NdBase {
 	private NdBase[] m_ar;
