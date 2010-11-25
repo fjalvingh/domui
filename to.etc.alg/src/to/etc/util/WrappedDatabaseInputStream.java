@@ -3,6 +3,14 @@ package to.etc.util;
 import java.io.*;
 import java.sql.*;
 
+/**
+ * An input stream which encapsulates the database resources it is derived
+ * from, to allow returning BLOB streams safely. When the stream is closed
+ * it also closes all database resources.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 25, 2010
+ */
 public class WrappedDatabaseInputStream extends InputStream {
 	private final InputStream	m_is;
 

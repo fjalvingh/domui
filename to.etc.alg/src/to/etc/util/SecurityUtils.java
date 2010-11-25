@@ -4,7 +4,7 @@ import java.security.*;
 import java.security.spec.*;
 
 /**
- * @author jal
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 6, 2004
  */
 public class SecurityUtils {

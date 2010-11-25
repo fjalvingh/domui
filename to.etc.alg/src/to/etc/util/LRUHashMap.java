@@ -2,6 +2,12 @@ package to.etc.util;
 
 import java.util.*;
 
+/**
+ * Hashmap which can use LRU removal of items.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 25, 2010
+ */
 public class LRUHashMap<K, V> implements Map<K, V> {
 	static final Object			NULL	= new Object();
 

@@ -572,16 +572,16 @@ abstract public class CommandServletContext implements RequestContext, ErrorHand
 				Node nd = nl.item(i);
 				//				System.out.println("Handling "+nd.getNodeName());
 				if(!nd.getNodeName().equalsIgnoreCase("#text") && nd.getNodeType() == Node.ELEMENT_NODE) {
-					ts = PrecisionTimer.getTime();
+					ts = System.nanoTime();
 					name = nd.getNodeName();
 					execNode(name, nd);
-					ts = PrecisionTimer.getTime() - ts;
+					ts = System.nanoTime() - ts;
 					LOG.info("cmd: " + name + " took " + ts + " us");
 				}
 			}
 			closeAllHandlers();
 		} catch(Exception x) {
-			ts = PrecisionTimer.getTime() - ts;
+			ts = System.nanoTime() - ts;
 
 			//-- Unwrap the exception :-(
 			Throwable t = x;
@@ -590,7 +590,7 @@ abstract public class CommandServletContext implements RequestContext, ErrorHand
 			if(t instanceof WrappedException)
 				t = ((WrappedException) t).getCause();
 
-			LOG.info("cmd: " + name + " exception " + t + " after " + ts + " us");
+			LOG.info("cmd: " + name + " exception " + t + " after " + ts + " ns");
 			exception(t, "Command " + name + " caused exception.");
 			if(t instanceof Exception)
 				throw (Exception) t;

@@ -1,8 +1,10 @@
 package to.etc.util;
 
 /**
+ * DO NOT USE- LOOKS EVIL.
  * Cached values for value objects.
  **/
+@Deprecated
 public class WrapperCache {
 	private static int			BYTE_LOWER_BOUND		= 0;
 

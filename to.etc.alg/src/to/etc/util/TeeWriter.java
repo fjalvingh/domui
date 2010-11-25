@@ -2,6 +2,12 @@ package to.etc.util;
 
 import java.io.*;
 
+/**
+ * A Writer which duplicates all data written to it to two writers.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 25, 2010
+ */
 public class TeeWriter extends Writer {
 	private Writer	m_a;
 

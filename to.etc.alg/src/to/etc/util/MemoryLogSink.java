@@ -2,6 +2,12 @@ package to.etc.util;
 
 import java.io.*;
 
+/**
+ * A logsink which logs into an Appendable.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 25, 2010
+ */
 public class MemoryLogSink implements ILogSink {
 	private Appendable	m_sb;
 

@@ -2,6 +2,12 @@ package to.etc.util;
 
 import java.io.*;
 
+/**
+ * Helper code to spawn processes and capture their output.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 25, 2010
+ */
 public class ProcessTools {
 	private ProcessTools() {
 	}

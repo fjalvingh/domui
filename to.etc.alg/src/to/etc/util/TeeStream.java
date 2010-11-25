@@ -2,6 +2,13 @@ package to.etc.util;
 
 import java.io.*;
 
+/**
+ * An outputstream which duplicates all contents written to it to two
+ * other output streams.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 25, 2010
+ */
 public class TeeStream extends OutputStream {
 	private OutputStream	m_a, m_b;
 

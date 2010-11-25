@@ -7,7 +7,7 @@ import java.util.*;
  * Contains a (small) set of integers. The set is represented by an
  * array of integers, unsorted.
  * Created on Sep 1, 2003
- * @author jal
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class SmallIntSet implements Serializable {
 	private int[]	m_data;

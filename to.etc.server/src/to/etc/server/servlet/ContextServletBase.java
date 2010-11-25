@@ -222,7 +222,7 @@ abstract public class ContextServletBase extends HttpServlet implements ILogSink
 			return -1;
 
 		//-- Allocate a context.
-		long ts = PrecisionTimer.getTime();
+		long ts = System.nanoTime();
 		long tm = 0;
 		StringBuffer sb = SHOWTS ? new StringBuffer(128) : null;
 		try {
@@ -248,10 +248,10 @@ abstract public class ContextServletBase extends HttpServlet implements ILogSink
 			throw new RuntimeException("Wrapped exception: " + x, x);
 		} finally {
 			if(sb != null) {
-				ts = PrecisionTimer.getTime() - ts;
+				ts = System.nanoTime() - ts;
 				sb.append(" in ");
 				sb.append(Long.toString(ts));
-				sb.append(" us");
+				sb.append(" ns");
 			}
 		}
 		if(sb != null)

@@ -3,7 +3,7 @@ package to.etc.util;
 import java.io.*;
 
 /**
- * Returns a stream which is constructed off the specified string.
+ * Returns a stream which is constructed from the specified string.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 10, 2007

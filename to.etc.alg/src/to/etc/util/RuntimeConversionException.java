@@ -1,5 +1,11 @@
 package to.etc.util;
 
+/**
+ * Thrown when a runtime conversion fails.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 25, 2010
+ */
 public class RuntimeConversionException extends RuntimeException {
 	private String	m_where;
 

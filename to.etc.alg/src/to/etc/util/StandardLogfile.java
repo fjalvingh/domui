@@ -4,6 +4,12 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+/**
+ * Non-rotating logfile implementing ILogSink.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 25, 2010
+ */
 public class StandardLogfile implements ILogSink {
 	/** The date/time formatter. */
 	private DateFormat	m_df;

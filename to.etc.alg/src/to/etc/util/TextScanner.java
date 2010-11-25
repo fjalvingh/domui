@@ -2,7 +2,7 @@ package to.etc.util;
 
 /**
  * Small helper class to scan text strings for expected tokens.
- * @author jal
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 21, 2004
  */
 public class TextScanner {
