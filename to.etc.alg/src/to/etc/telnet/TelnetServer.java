@@ -32,14 +32,13 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	private int				m_error_count;
 
 	/// The currently active sessions.
-	private Vector			m_sessions;
+	private List<TelnetSession>	m_sessions	= new ArrayList<TelnetSession>();
 
 	/// The command handler list.
-	private Vector			m_command_v;
+	private List<ITelnetCommandHandler>	m_command_v;
 
 	private TelnetServer(int port) {
 		m_port = port;
-		m_sessions = new Vector(10);
 	}
 
 
@@ -70,7 +69,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	 */
 	private void init() throws Exception {
 		setState(tsINITING);
-		m_command_v = new Vector();
+		m_command_v = new ArrayList<ITelnetCommandHandler>();
 		m_server_socket = new ServerSocket(m_port, 10);
 
 		//-- Now start the thread thing,
@@ -123,7 +122,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 
 		ITelnetCommandHandler[] ar;
 		synchronized(m_command_v) {
-			ar = (ITelnetCommandHandler[]) m_command_v.toArray(new ITelnetCommandHandler[m_command_v.size()]);
+			ar = m_command_v.toArray(new ITelnetCommandHandler[m_command_v.size()]);
 		}
 
 		boolean handled = false;
@@ -235,7 +234,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	/*	CODING:	Writing to ALL stuff....							*/
 	/*--------------------------------------------------------------*/
 	/// The list of "last written all strings". Used to present new terminals with data.
-	private LinkedList	m_string_cache	= new LinkedList();
+	private LinkedList<String>	m_string_cache	= new LinkedList<String>();
 
 
 	/**
@@ -255,17 +254,13 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	private void pumpShit(TelnetSession ts) {
 		try {
 			synchronized(m_string_cache) {
-				Iterator i = m_string_cache.iterator();
-				while(i.hasNext()) {
-					String v = (String) i.next();
+				for(String v : m_string_cache) {
 					ts.write(v);
 				}
 			}
 		} catch(Exception x) {
 			x.printStackTrace();
 		}
-
-
 	}
 
 	/**
@@ -281,7 +276,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 			if(ns == 0)
 				return; // No sessions...
 
-			ar = (TelnetSession[]) m_sessions.toArray(new TelnetSession[ns]);
+			ar = m_sessions.toArray(new TelnetSession[ns]);
 		}
 
 		//-- Now wall to all sessions,

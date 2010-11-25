@@ -1,11 +1,13 @@
 package to.etc.template;
 
 /**
+ * VERY OLD - DO NOT USE
  * This class reads the input stream and returns substrings for the tokens
  * found...
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
+@Deprecated
 public class ExpReader {
 	static public final int	tvEof		= -1;
 
@@ -37,9 +39,6 @@ public class ExpReader {
 
 	/// The current token: tvLit, tvExpand tvLoop.
 	private int				m_token;
-
-	private ExpReader() {
-	}
 
 	public ExpReader(String s) {
 		m_pos = 0;

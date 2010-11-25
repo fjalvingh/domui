@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-
 /**
  * Encapsulates a single session. A session consists of the socket used to talk
  * with the peer, a thread used to read() the socket and to accept input, and
@@ -141,7 +140,7 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 	private long		m_ts_input;
 
 	/// The list of cached strings to be output (while in input mode)
-	private LinkedList	m_pending_output_ll	= new LinkedList();
+	private LinkedList<String>	m_pending_output_ll	= new LinkedList<String>();
 
 
 	/**
@@ -158,7 +157,7 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 			try {
 				_write("\r\n");
 				while(!m_pending_output_ll.isEmpty()) {
-					String s = (String) m_pending_output_ll.removeFirst();
+					String s = m_pending_output_ll.removeFirst();
 					_write(s);
 				}
 			} finally {
@@ -456,18 +455,11 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 	}
 
 
-	//	protected void finalize() throws java.lang.Throwable
-	//	{
-	//		System.out.println("Finalizing TelnetSession "+m_name);
-	//		super.finalize();
-	//	}
-
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Client structures.									*/
 	/*--------------------------------------------------------------*/
-	/// The attached Telnet Client data things.
-	private Hashtable	m_clientdata_ht	= new Hashtable(11);
+	/** The attached Telnet Client data things. */
+	private Map<String, Object>	m_clientdata_ht	= new HashMap<String, Object>(11);
 
 
 	/**
@@ -494,13 +486,10 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 	 *  iTelnetClientEvent interface.
 	 */
 	private synchronized void releaseAllData() {
-		Enumeration e = m_clientdata_ht.elements();
-		while(e.hasMoreElements()) {
-			Object o = e.nextElement();
+		for(Object o : m_clientdata_ht.values()) {
 			if(o instanceof ITelnetClientEvent)
 				((ITelnetClientEvent) o).sessionClosed(this);
 		}
 		m_clientdata_ht.clear();
 	}
-
 }

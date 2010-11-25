@@ -1,12 +1,9 @@
 package to.etc.telnet;
 
-import to.etc.log.*;
-
 /**
  * A PrintWriter which writes to a telnet session, and which knows about the
  * session.
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * @version 1.0
  */
 public class TelnetPrintWriter extends ExtendedPrintWriter {
 	private TelnetWriter	m_tw;

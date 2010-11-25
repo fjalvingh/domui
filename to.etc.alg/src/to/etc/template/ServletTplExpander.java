@@ -7,6 +7,14 @@ import javax.servlet.http.*;
 
 import to.etc.util.*;
 
+/**
+ * VERY OLD - DO NOT USE
+ *
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 25, 2010
+ */
+@Deprecated
 public class ServletTplExpander extends TplExpander {
 	/// The request block from a template, or NULL
 	protected HttpServletRequest	m_req;

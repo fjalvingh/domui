@@ -6,8 +6,8 @@ import java.util.*;
 
 import to.etc.util.*;
 
-
 /**
+ * VERY OLD - DO NOT USE
  *	Expands simple templates in runtime.
  *	All instances of $name are replaced with the value of name in the
  *	context hash table.
@@ -37,12 +37,13 @@ import to.etc.util.*;
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
+@Deprecated
 public class TplExpander {
 	/// The callback to use to retrieve values.
 	protected TplCallback	m_cb;
 
 	/// The current "local vars" table for loop stuff..
-	private Hashtable		m_ht	= new Hashtable(15);
+	private Map<String, Object>	m_ht	= new HashMap<String, Object>(15);
 
 	/// The contents of the template.
 	private String			m_buf;
@@ -412,7 +413,7 @@ public class TplExpander {
 	private Object tryGetOnly(Object root_o) throws TplException {
 		//-- Does a get(String) method exist?
 		String n = "get";
-		Class[] args = new Class[1];
+		Class< ? >[] args = new Class[1];
 		args[0] = n.getClass();
 
 		Method m;
@@ -446,7 +447,7 @@ public class TplExpander {
 
 				if(m.getName().equalsIgnoreCase(name) || m.getName().equalsIgnoreCase(aname)) {
 					//-- Is this getXxx(void)?
-					Class[] par = m.getParameterTypes();
+					Class< ? >[] par = m.getParameterTypes();
 					if(par.length == 0) {
 						Object o = m.invoke(root_o, (Object[]) null);
 						if(o == null)
@@ -573,12 +574,12 @@ public class TplExpander {
 	 *	Iterates thru all elements in an array.
 	 */
 	private boolean tryArrayLoop(Object o, String ivar, String loopsect) throws TplException {
-		Class acl = o.getClass();
+		Class< ? > acl = o.getClass();
 		if(!acl.isArray())
 			return false; // Not an array-> begone
 
 		//-- Start the iteration!
-		Class cl = acl.getComponentType(); // Type of components.
+		Class< ? > cl = acl.getComponentType(); // Type of components.
 		int len = Array.getLength(o); // Get #elements in table
 		for(int ix = 0; ix < len; ix++) // Iterate,
 		{
@@ -601,10 +602,10 @@ public class TplExpander {
 		return true;
 	}
 
-	private boolean doesImpl(Class cl, String ifname) {
-		Class[] ar = cl.getInterfaces();
+	private boolean doesImpl(Class< ? > cl, String ifname) {
+		Class< ? >[] ar = cl.getInterfaces();
 		for(int i = 0; i < ar.length; i++) {
-			Class ic = ar[i];
+			Class< ? > ic = ar[i];
 			if(ic.getName().equals(ifname))
 				return true;
 		}
@@ -617,7 +618,7 @@ public class TplExpander {
 	 *	thru the thingo.
 	 */
 	private boolean tryIsEnum(Object o, String ivar, String loopsect) throws TplException {
-		Class acl = o.getClass();
+		Class< ? > acl = o.getClass();
 
 		//		try
 		//		{
@@ -632,7 +633,7 @@ public class TplExpander {
 			return false;
 
 		//-- Cold! We can!
-		Enumeration e = (Enumeration) o;
+		Enumeration< ? > e = (Enumeration< ? >) o;
 		while(e.hasMoreElements()) {
 			Object ival = e.nextElement();
 			expandLoopSection(ivar, ival, loopsect);
@@ -641,7 +642,7 @@ public class TplExpander {
 	}
 
 
-	private static Method findMethod(Class cl, String name, int nparm) {
+	private static Method findMethod(Class< ? > cl, String name, int nparm) {
 		Method ar[] = cl.getMethods();
 		for(int i = 0; i < ar.length; i++) {
 			if(ar[i].getName().equals(name)) {
@@ -658,7 +659,7 @@ public class TplExpander {
 	 *	then use the enumeration.
 	 */
 	private boolean tryHasEnum(Object o, String ivar, String loopsect) throws TplException {
-		Class acl = o.getClass();
+		Class< ? > acl = o.getClass();
 
 		Method m = findMethod(acl, "elements", 0);
 		if(tryEnumMethod(o, ivar, loopsect, m))
@@ -673,9 +674,9 @@ public class TplExpander {
 		if(m == null)
 			return false;
 
-		Enumeration e;
+		Enumeration< ? > e;
 		try {
-			e = (Enumeration) m.invoke(o, (Object[]) null);
+			e = (Enumeration< ? >) m.invoke(o, (Object[]) null);
 		} catch(Exception x) {
 			throw new TplException("Exception in method invocation " + m.getName() + ": " + x.toString());
 		}
