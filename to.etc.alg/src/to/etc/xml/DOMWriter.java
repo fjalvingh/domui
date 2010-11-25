@@ -62,6 +62,8 @@ import java.io.*;
 import org.w3c.dom.*;
 
 /**
+ * REPLACE WITH PROPER ContentHandler and SAX pusher version.
+ *
  * This class is a utility to serialize a DOM node as XML. This code is
  * derived from the sample of the same name distributed with XML4J_2_0_15.
  * The following significant changes were made:
@@ -72,6 +74,7 @@ import org.w3c.dom.*;
  *
  * @author Matthew J. Duftler (duftler@us.ibm.com)
  */
+@Deprecated
 public class DOMWriter {
 	/**
 	 * Return a string containing this node serialized as XML.
