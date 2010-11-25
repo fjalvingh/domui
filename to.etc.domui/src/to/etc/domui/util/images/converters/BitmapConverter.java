@@ -42,6 +42,7 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 		MIMES.add("image/jpg");
 		MIMES.add("image/jpeg");
 		MIMES.add("image/bmp");
+		MIMES.add("application/pdf");
 		//		MIMES.add("image/");
 		//		MIMES.add("image/");
 
