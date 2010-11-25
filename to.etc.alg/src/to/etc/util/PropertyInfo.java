@@ -4,6 +4,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.annotation.concurrent.*;
 
 /**
  * Information on properties on a class.
@@ -11,12 +12,13 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 9, 2007
  */
-final public class PropertyInfo {
-	private String	m_name;
+@Immutable
+final public class PropertyInfo implements IPropertyAccessor {
+	final private String	m_name;
 
-	private Method	m_getter;
+	final private Method	m_getter;
 
-	private Method	m_setter;
+	final private Method	m_setter;
 
 	public PropertyInfo(String name, Method getter, Method setter) {
 		if(getter == null || name == null)
@@ -46,7 +48,7 @@ final public class PropertyInfo {
 		return m_getter.getReturnType();
 	}
 
-	public Type getGenericActualType() {
+	public Type getActualGenericType() {
 		return m_getter.getGenericReturnType();
 	}
 
@@ -70,11 +72,40 @@ final public class PropertyInfo {
 		if(getActualType().isArray())
 			return getActualType().getComponentType();
 		else if(Collection.class.isAssignableFrom(getActualType())) {
-			Type t = getGenericActualType();
+			Type t = getActualGenericType();
 			if(t == null)
 				return null;
 			return ClassUtil.findCollectionType(t);
 		} else
 			return null;
+	}
+
+	@Nullable
+	public Object getValue(@Nullable Object instance) throws Exception {
+		if(null == m_getter)
+			throw new IllegalAccessException("The property " + this + " does not have a getter method - it is writeonly");
+		try {
+			return m_getter.invoke(instance);
+		} catch(InvocationTargetException xte) {
+			throw WrappedException.unwrap(xte);
+		}
+	}
+
+	public void setValue(@Nullable Object instance, @Nullable Object value) throws Exception {
+		if(null == m_setter)
+			throw new IllegalAccessException("The property " + this + " does not have a getter method - it is writeonly");
+		try {
+			m_setter.invoke(instance, value);
+		} catch(InvocationTargetException xte) {
+			throw WrappedException.unwrap(xte);
+		}
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(64);
+		Class< ? > clz = m_getter != null ? m_getter.getDeclaringClass() : m_setter.getDeclaringClass();
+		sb.append("property ").append(m_name).append(" in class ").append(clz.getName());
+		return sb.toString();
 	}
 }

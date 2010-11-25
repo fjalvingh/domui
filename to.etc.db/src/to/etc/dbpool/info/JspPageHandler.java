@@ -176,7 +176,7 @@ public class JspPageHandler {
 	 */
 	public void generateRefresh() throws IOException {
 		if(m_timeout > 0) {
-			tag("meta", "http-equiv", "refresh", "content", m_timeout + ";" + m_url);
+			tag("meta", "http-equiv", "refresh", "content", m_timeout + ";URL=" + m_url);
 			finishOpenTag();
 		}
 	}

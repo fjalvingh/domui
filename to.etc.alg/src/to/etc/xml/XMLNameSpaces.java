@@ -12,6 +12,12 @@ final public class XMLNameSpaces {
 
 	static public final String	SOAP1_1				= "http://schemas.xmlsoap.org/soap/envelope/";
 
+	static public final String	SOAP_WSDL_SOAP		= "http://schemas.xmlsoap.org/wsdl/soap/";
+
+	static public final String	SOAP_WSDL			= "http://schemas.xmlsoap.org/wsdl/";
+
+	static public final String	SOAP1_2				= "http://schemas.xmlsoap.org/wsdl/soap12/";
+
 	static public final String	SOAP_ENCODING		= "http://schemas.xmlsoap.org/soap/encoding/";
 
 	static public final String	XMLSCHEMA			= "http://www.w3.org/2001/XMLSchema";
@@ -22,4 +28,7 @@ final public class XMLNameSpaces {
 	 * The mother of all namespaces bound by definition to the prefix xml
 	 */
 	static public final String	XMLNAMESPACE		= "http://www.w3.org/XML/1998/namespace";
+
+	static public final String	XHTML1_0			= "http://www.w3.org/1999/xhtml";
+
 }
