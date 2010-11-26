@@ -55,9 +55,8 @@ import to.etc.webapp.query.*;
  * </UL>
  *
  * Thing is that when LookupInput is selected (has value), it is
- * rendered as table. We can't put color onto table border (since we need
- * to have only out border), so we put color onto tbody outline.
- * So, when we have readonly LookupInput, then we want only to override
+ * rendered as table inside div.
+ * When we have readonly LookupInput, then we want only to override
  * background color (not a border), so for that we have additional class =ui-lui-selected-ro.
  * Unselected readonly LookupInput has only one TD in table, so there we
  * can use simple ui-ro, since there we can set border (it would look
@@ -66,7 +65,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class LookupInput<T> extends Table implements IInputNode<T>, IHasModifiedIndication {
+public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIndication {
 	/**
 	 * The result class. For Java classes this usually also defines the metamodel to use; for generic meta this should
 	 * be the value record class type.
@@ -90,6 +89,8 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	DataTable<T> m_result;
 
 	T m_value;
+
+	Table m_table;
 
 	private boolean m_mandatory;
 
@@ -175,8 +176,6 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		m_clearButton.setDisplay(DisplayType.NONE);
 
 		setCssClass("ui-lui");
-		setCellPadding("0");
-		setCellSpacing("0");
 	}
 
 
@@ -198,6 +197,10 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 
 	@Override
 	public void createContent() throws Exception {
+		m_table = new Table();
+		m_table.setCellSpacing("0");
+		m_table.setCellPadding("0");
+		add(m_table);
 		m_keySearch = null;
 		removeCssClass("ui-ro");
 		if(m_value == null && isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
@@ -223,7 +226,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 				 * it must be in a valid table structure! So we need to ensure that a tbody, tr and td are present to add the
 				 * node to. This fixes the problem where IE did not show the buttons because the rendered xhtml was invalid.
 				 */
-				TBody tb = getBody();
+				TBody tb = m_table.getBody();
 				TR tr;
 				if(tb.getChildCount() == 0)
 					tr = tb.addRow();
@@ -239,7 +242,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 			if(m_clearButton.getDisplay() == DisplayType.NONE) {
 				m_clearButton.getParent().setMinWidth("24px");
 			} else {
-				m_clearButton.getParent().setMinWidth("56px");
+				m_clearButton.getParent().setMinWidth("58px");
 			}
 		}
 	}
@@ -268,7 +271,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	}
 
 	private void renderKeyWordSearch(T value, Object parameters) {
-		TD td = getBody().addRowAndCell();
+		TD td = m_table.getBody().addRowAndCell();
 		td.setValign(TableVAlign.TOP);
 		td.setCssClass("ui-lui-v");
 		td.setWidth("100%");
@@ -280,7 +283,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	}
 
 	private void renderEmptySelection() {
-		TD td = getBody().addRowAndCell();
+		TD td = m_table.getBody().addRowAndCell();
 		td.setValign(TableVAlign.TOP);
 		td.setCssClass("ui-lui-v");
 		String txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
@@ -960,5 +963,19 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 	 */
 	public void addKeywordProperty(String name) {
 		addKeywordProperty(name, -1);
+	}
+
+	public Table getTable() {
+		if(m_table == null) {
+			throw new IllegalStateException("m_table is not created yet!");
+		}
+		return m_table;
+	}
+
+	public TBody getBody() {
+		if(m_table == null) {
+			throw new IllegalStateException("m_table is not created yet!");
+		}
+		return m_table.getBody();
 	}
 }

@@ -123,8 +123,8 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 			//-- Create a column def from the metadata
 			final SimpleColumnDef scd = new SimpleColumnDef(xdp);
 			int dl = xdp.getDisplayLength();
-			if(dl <= 0)
-				dl = 10;
+			if(dl <= 5)
+				dl = 5;
 			if(dl > 40) {
 				dl = 40;
 			}
