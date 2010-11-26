@@ -3,6 +3,7 @@ package to.etc.template;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
 import javax.script.*;
 
 /**
@@ -65,6 +66,7 @@ public class JSTemplateCompiler {
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	public JSTemplate compile(Reader input, String sourceName) throws Exception {
 		try {
 			m_source = sourceName;
@@ -78,6 +80,34 @@ public class JSTemplateCompiler {
 		}
 	}
 
+	/**
+	 * Compile, then execute the specified template once.
+	 * @param res
+	 * @param input
+	 * @param sourceName
+	 * @throws Exception
+	 */
+	public void execute(Appendable res, Reader input, String sourceName, Object... assignments) throws Exception {
+		JSTemplate tmpl = compile(input, sourceName);
+		tmpl.execute(res, assignments);
+	}
+
+	/**
+	 * Compile, then execute the specified template once.
+	 * @param tc
+	 * @param input
+	 * @param sourceName
+	 * @param assignments
+	 * @throws Exception
+	 */
+	public void execute(IJSTemplateContext tc, Reader input, String sourceName, Object... assignments) throws Exception {
+		JSTemplate tmpl = compile(input, sourceName);
+		tmpl.execute(tc, assignments);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Compiling the javascript.							*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Compile the Javascript program in m_jsb, then create a template.
 	 * @throws Exception

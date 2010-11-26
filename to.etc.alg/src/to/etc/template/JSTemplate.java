@@ -30,6 +30,48 @@ public class JSTemplate {
 		return m_source;
 	}
 
+	/**
+	 * Execute this template.
+	 * @param tc
+	 * @param assignments
+	 */
+	public void execute(IJSTemplateContext tc, Object... assignments) {
+		//-- Bind values
+		Bindings xb = m_engine.createBindings();
+		for(int i = 0; i < assignments.length; i += 2) {
+			String name = (String) assignments[i];
+			Object val = assignments[i + 1];
+			xb.put(name, val);
+		}
+		xb.put("out", tc);
 
+		try {
+			m_code.eval(xb);
+		} catch(ScriptException sx) {
+			int[] res = JSTemplateCompiler.remapLocation(m_locMap, sx.getLineNumber(), sx.getColumnNumber());
+			throw new JSTemplateError(sx.getMessage(), m_source, res[0], res[1]);
+		}
+	}
 
+	/**
+	 * Execute this template, and leave the result in the specified appendable.
+	 * @param a
+	 * @param assignments
+	 */
+	public void execute(final Appendable a, Object... assignments) {
+		IJSTemplateContext tc = new IJSTemplateContext() {
+			@Override
+			public void writeValue(Object v) throws Exception {
+				if(v == null)
+					return;
+				a.append(v.toString());
+			}
+
+			@Override
+			public void write(String text) throws Exception {
+				a.append(text);
+			}
+		};
+		execute(tc, assignments);
+	}
 }
