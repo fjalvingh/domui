@@ -68,15 +68,37 @@ public class JSTemplateCompiler {
 	 */
 	@Nonnull
 	public JSTemplate compile(Reader input, String sourceName) throws Exception {
+		m_source = sourceName;
+		translate(input);
+		return compile();
+	}
+
+	public String getTranslation() {
+		return m_jsb.toString();
+	}
+
+	/**
+	 * Get a class resource as a template and compile it.
+	 * @param clz
+	 * @param resource
+	 * @param encoding
+	 * @return
+	 * @throws Exception
+	 */
+	public JSTemplate compile(@Nonnull Class< ? > clz, @Nonnull String resource, @Nullable String encoding) throws Exception {
+		if(null == encoding)
+			encoding = "utf-8";
+
+		InputStream is = clz.getResourceAsStream(resource);
+		if(null == is)
+			throw new IllegalArgumentException("No class resource " + clz + ":" + resource + " found");
 		try {
-			m_source = sourceName;
-			translate(input);
-			return compile();
+			Reader r = new InputStreamReader(is, encoding);
+			return compile(r, clz.getName() + ":" + resource);
 		} finally {
-			m_jsb.setLength(0);
-			m_sb.setLength(0);
-			m_mapList = null;
-			m_r = null;
+			try {
+				is.close();
+			} catch(Exception x) {}
 		}
 	}
 
@@ -103,6 +125,11 @@ public class JSTemplateCompiler {
 	public void execute(IJSTemplateContext tc, Reader input, String sourceName, Object... assignments) throws Exception {
 		JSTemplate tmpl = compile(input, sourceName);
 		tmpl.execute(tc, assignments);
+	}
+
+	public void execute(Appendable res, Class< ? > clz, String resource, Object... assignments) throws Exception {
+		JSTemplate tmpl = compile(clz, resource, "utf-8");
+		tmpl.execute(res, assignments);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -182,6 +209,8 @@ public class JSTemplateCompiler {
 				if(m_pha != Pha.LIT)
 					error("Unexpected end-of-file.");
 
+				//-- Flush latest lit
+				flushLiteral();
 				return;
 			}
 			switch(m_pha){
@@ -225,8 +254,8 @@ public class JSTemplateCompiler {
 				case XPR:
 				case CODE:
 					if(c == '%') {
-						m_pha = Pha.EPCT;
 						m_opha = m_pha;
+						m_pha = Pha.EPCT;
 					} else {
 						m_sb.append((char) c);
 					}

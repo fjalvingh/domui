@@ -64,7 +64,14 @@ public class JSTemplate {
 			public void writeValue(Object v) throws Exception {
 				if(v == null)
 					return;
-				a.append(v.toString());
+				if(v instanceof Double) {
+					String res = v.toString();
+					if(res.endsWith(".0"))
+						res = res.substring(0, res.length() - 2);
+					a.append(res);
+				} else {
+					a.append(v.toString());
+				}
 			}
 
 			@Override
