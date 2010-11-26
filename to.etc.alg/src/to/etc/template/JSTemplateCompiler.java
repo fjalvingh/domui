@@ -144,8 +144,8 @@ public class JSTemplateCompiler {
 		m_mapList = new ArrayList<JSLocationMapping>();
 
 		//-- Per-char state machine
-		//		int scol = 0;
-		//		int sline = 0;
+		int scol = 0;
+		int sline = 0;
 		for(;;) {
 			int c = la();
 			if(c == -1) {
@@ -172,8 +172,8 @@ public class JSTemplateCompiler {
 
 						//-- Ok: we need to flush the javascript string collected here.
 						flushLiteral();
-						//						sline = m_line;
-						//						scol = m_col;
+						sline = m_line;
+						scol = m_col;
 					} else {
 						//-- Not <%. Just add the < and pushback this char
 						m_sb.append('<');
@@ -185,13 +185,10 @@ public class JSTemplateCompiler {
 					if(c == '=') {
 						//-- EXPR section.
 						m_pha = Pha.XPR;
-
-						addMapping(m_oline, m_ocol + 1, m_line, m_col);
 					} else {
 						//-- Nothing special- must be javascript code.
 						m_pha = Pha.CODE;
-						addMapping(m_oline, m_ocol, m_line, m_col);
-						m_jsb.append((char) c);
+						m_sb.append((char) c);
 					}
 					break;
 
@@ -201,16 +198,16 @@ public class JSTemplateCompiler {
 						m_pha = Pha.EPCT;
 						m_opha = m_pha;
 					} else {
-						m_jsb.append((char) c);
+						m_sb.append((char) c);
 					}
 					break;
 
 				case EPCT:
 					if(c == '>') {
 						m_pha = Pha.LIT;
-						flushJavascript();
+						flushJavascript(m_opha == Pha.XPR, sline, scol);
 					} else {
-						m_jsb.append('%');
+						m_sb.append('%');
 						m_pha = m_opha;
 					}
 					break;
@@ -229,7 +226,31 @@ public class JSTemplateCompiler {
 		m_mapList.add(m);
 	}
 
-	private void flushJavascript() {
+	/**
+	 * @param scol
+	 * @param sline
+	 */
+	private void flushJavascript(boolean isexpr, int sline, int scol) {
+		String code = m_sb.toString(); // Get Javascript fragment
+		m_sb.setLength(0);
+
+		if(isexpr) {
+			m_jsb.append("__tv="); // Must assign to variable
+			addMapping(m_oline, 5, sline, scol);
+			m_jsb.append(code); // Append Javascript
+			m_jsb.append(";\n"); // Assignment
+			m_oline++;
+
+			//-- Force output
+			m_jsb.append("out.writeValue(__tv);\n");
+			m_oline++;
+			return;
+		}
+
+		addMapping(m_oline, 0, sline, scol);
+		m_jsb.append(code);
+		m_jsb.append('\n');
+		m_oline++;
 	}
 
 	/**
