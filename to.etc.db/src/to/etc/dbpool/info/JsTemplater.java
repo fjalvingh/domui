@@ -24,8 +24,8 @@
  */
 package to.etc.dbpool.info;
 
-
 /**
+ * This implements a small templating engine.
  * Helper class handling javascript-like JSP templating.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
