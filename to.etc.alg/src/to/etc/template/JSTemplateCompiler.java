@@ -3,6 +3,8 @@ package to.etc.template;
 import java.io.*;
 import java.util.*;
 
+import javax.script.*;
+
 /**
  * This singleton creates a compiled template for a JSP like template. The
  * language is Javascript, using JDK 6 scripting engine. The template's data
@@ -64,13 +66,64 @@ public class JSTemplateCompiler {
 	 * @throws Exception
 	 */
 	public JSTemplate compile(Reader input, String sourceName) throws Exception {
-		m_source = sourceName;
-		translate(input);
-
-
-		return null;
+		try {
+			m_source = sourceName;
+			translate(input);
+			return compile();
+		} finally {
+			m_jsb.setLength(0);
+			m_sb.setLength(0);
+			m_mapList = null;
+			m_r = null;
+		}
 	}
 
+	/**
+	 * Compile the Javascript program in m_jsb, then create a template.
+	 * @throws Exception
+	 */
+	private JSTemplate compile() throws Exception {
+		//-- Get a Javascript compiler.
+		ScriptEngineManager sem = new ScriptEngineManager();
+		ScriptEngine jsengine = sem.getEngineByName("js");
+		if(!(jsengine instanceof Compilable))
+			throw new IllegalStateException("Got Javascript engine " + jsengine + " which cannot compile Javascripts!?");
+		Compilable	compiler = (Compilable) jsengine;
+
+		//-- Get the Javascript thing, then compile
+		String js = m_jsb.toString();
+		try {
+			CompiledScript cs = compiler.compile(js);
+			return new JSTemplate(m_source, jsengine, cs, m_mapList);
+		} catch(ScriptException sx) {
+			int[] res = remapLocation(m_mapList, sx.getLineNumber(), sx.getColumnNumber());
+			throw new JSTemplateError(sx.getMessage(), m_source, res[0], res[1]);
+		}
+	}
+
+	/**
+	 * Walk the remap list, and try to calculate a source location for a given output location.
+	 * @param mapList
+	 * @param lineNumber
+	 * @param columnNumber
+	 * @return
+	 */
+	static public int[] remapLocation(List<JSLocationMapping> mapList, int lineNumber, int columnNumber) {
+		//-- Walk the mapping backwards. Find 1st thing that is at/before this location.
+		for(int i = mapList.size(); --i >= 0;) {
+			JSLocationMapping m = mapList.get(i);
+			if(m.getTline() <= lineNumber) {
+				if(m.getTcol() <= columnNumber) {
+					//-- Gotcha.
+					int dline = lineNumber - m.getTline();
+					int dcol = columnNumber - m.getTcol();
+					return new int[]{m.getSline() + dline, m.getScol() + dcol};
+				}
+			}
+		}
+		//-- Nothing found: return verbatim.
+		return new int[]{lineNumber, columnNumber};
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Translate to Javascript.							*/
