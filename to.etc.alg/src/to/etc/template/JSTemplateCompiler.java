@@ -31,7 +31,7 @@ public class JSTemplateCompiler {
 
 	private int				m_pushed;
 
-	private int				m_ocol, m_oline;
+	private int						m_oline;
 
 	private List<JSLocationMapping>	m_mapList;
 
@@ -137,7 +137,12 @@ public class JSTemplateCompiler {
 		tmpl.execute(tc, assignments);
 	}
 
-	public Object execute(Appendable res, Class< ? > clz, String resource, Map<String, Object> assignments) throws Exception {
+	public void executeMap(Appendable tc, Reader input, String sourceName, Map<String, Object> assignments) throws Exception {
+		JSTemplate tmpl = compile(input, sourceName);
+		tmpl.execute(tc, assignments);
+	}
+
+	public Object executeMap(Appendable res, Class< ? > clz, String resource, Map<String, Object> assignments) throws Exception {
 		JSTemplate tmpl = compile(clz, resource, "utf-8");
 		return tmpl.execute(res, assignments);
 	}
@@ -157,6 +162,8 @@ public class JSTemplateCompiler {
 		if(!(jsengine instanceof Compilable))
 			throw new IllegalStateException("Got Javascript engine " + jsengine + " which cannot compile Javascripts!?");
 		Compilable	compiler = (Compilable) jsengine;
+
+		jsengine.getBindings(ScriptContext.ENGINE_SCOPE).put(ScriptEngine.FILENAME, m_source);
 
 		//-- Get the Javascript thing, then compile
 		String js = m_jsb.toString();
@@ -247,6 +254,7 @@ public class JSTemplateCompiler {
 					} else {
 						//-- Not <%. Just add the < and pushback this char
 						m_sb.append('<');
+						m_pha = Pha.LIT;
 						push(c);
 					}
 					break;
@@ -330,7 +338,6 @@ public class JSTemplateCompiler {
 		m_jsb.append("out.write(");
 		strToJavascriptString(m_jsb, m_sb, true);
 		m_jsb.append(");\n");
-		m_ocol = 0;
 		m_oline++;
 		m_sb.setLength(0);
 	}

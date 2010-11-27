@@ -49,7 +49,7 @@ public class JSTemplate {
 			return m_code.eval(xb);
 		} catch(ScriptException sx) {
 			int[] res = JSTemplateCompiler.remapLocation(m_locMap, sx.getLineNumber(), sx.getColumnNumber());
-			throw new JSTemplateError(sx.getMessage(), m_source, res[0], res[1]);
+			throw new JSTemplateError(sx, sx.getMessage(), m_source, res[0], res[1]);
 		}
 	}
 
@@ -70,17 +70,12 @@ public class JSTemplate {
 			return m_code.eval(xb);
 		} catch(ScriptException sx) {
 			int[] res = JSTemplateCompiler.remapLocation(m_locMap, sx.getLineNumber(), sx.getColumnNumber());
-			throw new JSTemplateError(sx.getMessage(), m_source, res[0], res[1]);
+			throw new JSTemplateError(sx, sx.getMessage(), m_source, res[0], res[1]);
 		}
 	}
 
-	/**
-	 * Execute this template, and leave the result in the specified appendable.
-	 * @param a
-	 * @param assignments
-	 */
-	public Object execute(final Appendable a, Object... assignments) {
-		IJSTemplateContext tc = new IJSTemplateContext() {
+	private IJSTemplateContext createContext(final Appendable a) {
+		return new IJSTemplateContext() {
 			@Override
 			public void writeValue(Object v) throws Exception {
 				if(v == null)
@@ -100,6 +95,23 @@ public class JSTemplate {
 				a.append(text);
 			}
 		};
-		return execute(tc, assignments);
+	}
+
+	/**
+	 * Execute this template, and leave the result in the specified appendable.
+	 * @param a
+	 * @param assignments
+	 */
+	public Object execute(final Appendable a, Object... assignments) {
+		return execute(createContext(a), assignments);
+	}
+
+	/**
+	 * Execute this template, and leave the result in the specified appendable.
+	 * @param a
+	 * @param assignments
+	 */
+	public Object execute(final Appendable a, Map<String, Object> assignments) {
+		return execute(createContext(a), assignments);
 	}
 }
