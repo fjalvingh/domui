@@ -1,5 +1,5 @@
 /*
- * DomUI default stylesheet. This uses style.properties variables. 
+ * DomUI 'domui' stylesheet. This uses style.properties variables. 
  */
 @IMPORT url("calendar-blue2.css");
 
@@ -1333,14 +1333,14 @@ body,html {
 	/*border-collapse: separate; */
 	border: 1px solid black;
 }
-<if browser.isIE>
+<% if(browser.isIE()) { %>
 .ui-pct-rlr { /* IE 7 FIX: by repeating the display: inline in a SEPARATE css selector we force proper inline-block behaviour, see http://www.brunildo.org/test/InlineBlockLayout.html */
 	display: inline;
 }
-</if>
-<if browser.isFirefox>
-	/** FIREFOX BROWSERT */
-</if>
+<% } %>
+<% if(browser.isFirefox()) { %>
+/** FIREFOX BROWSERT */
+<% } %>
 
 /*** DisplayHtml ***/
 .ui-dhtml-blk {
@@ -1352,11 +1352,11 @@ body,html {
 .ui-dhtml-ibl {
 	display: inline-block;
 }
-<if browser.isIE>
+<% if(browser.isIE()) { %>
 .ui-dhtml-ibl { /* IE 7 FIX: by repeating the display: inline in a SEPARATE css selector we force proper inline-block behaviour, see http://www.brunildo.org/test/InlineBlockLayout.html */
 	display: inline;
 }
-</if>
+<% } %>
 
 /*** Helper classes ***/
 .ui-szless {

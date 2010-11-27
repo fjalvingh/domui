@@ -20,7 +20,7 @@ import to.etc.domui.util.resources.*;
 public class DefaultThemeMapFactory implements IThemeMapFactory {
 	@Override
 	public Map<String, Object> createThemeMap(DomApplication da, ResourceDependencyList rdl) throws Exception {
-		String rurl = "themes/" + da.getDefaultTheme() + "/style.properties";
+		String rurl = "$themes/" + da.getDefaultTheme() + "/style.properties";
 		IResourceRef ires;
 		try {
 			ires = da.getApplicationResourceByName(rurl); // Get the source file, abort if not found
