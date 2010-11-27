@@ -35,7 +35,7 @@ public class JSTemplate {
 	 * @param tc
 	 * @param assignments
 	 */
-	public void execute(IJSTemplateContext tc, Object... assignments) {
+	public Object execute(IJSTemplateContext tc, Object... assignments) {
 		//-- Bind values
 		Bindings xb = m_engine.createBindings();
 		for(int i = 0; i < assignments.length; i += 2) {
@@ -46,7 +46,28 @@ public class JSTemplate {
 		xb.put("out", tc);
 
 		try {
-			m_code.eval(xb);
+			return m_code.eval(xb);
+		} catch(ScriptException sx) {
+			int[] res = JSTemplateCompiler.remapLocation(m_locMap, sx.getLineNumber(), sx.getColumnNumber());
+			throw new JSTemplateError(sx.getMessage(), m_source, res[0], res[1]);
+		}
+	}
+
+	/**
+	 * Execute this template.
+	 * @param tc
+	 * @param assignments
+	 */
+	public Object execute(IJSTemplateContext tc, Map<String, Object> assignments) {
+		//-- Bind values
+		Bindings xb = m_engine.createBindings();
+		for(Map.Entry<String, Object> me : assignments.entrySet()) {
+			xb.put(me.getKey(), me.getValue());
+		}
+		xb.put("out", tc);
+
+		try {
+			return m_code.eval(xb);
 		} catch(ScriptException sx) {
 			int[] res = JSTemplateCompiler.remapLocation(m_locMap, sx.getLineNumber(), sx.getColumnNumber());
 			throw new JSTemplateError(sx.getMessage(), m_source, res[0], res[1]);
@@ -58,7 +79,7 @@ public class JSTemplate {
 	 * @param a
 	 * @param assignments
 	 */
-	public void execute(final Appendable a, Object... assignments) {
+	public Object execute(final Appendable a, Object... assignments) {
 		IJSTemplateContext tc = new IJSTemplateContext() {
 			@Override
 			public void writeValue(Object v) throws Exception {
@@ -79,6 +100,6 @@ public class JSTemplate {
 				a.append(text);
 			}
 		};
-		execute(tc, assignments);
+		return execute(tc, assignments);
 	}
 }

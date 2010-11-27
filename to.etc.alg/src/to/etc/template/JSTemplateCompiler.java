@@ -127,10 +127,21 @@ public class JSTemplateCompiler {
 		tmpl.execute(tc, assignments);
 	}
 
-	public void execute(Appendable res, Class< ? > clz, String resource, Object... assignments) throws Exception {
+	public Object execute(Appendable res, Class< ? > clz, String resource, Object... assignments) throws Exception {
 		JSTemplate tmpl = compile(clz, resource, "utf-8");
-		tmpl.execute(res, assignments);
+		return tmpl.execute(res, assignments);
 	}
+
+	public void execute(IJSTemplateContext tc, Reader input, String sourceName, Map<String, Object> assignments) throws Exception {
+		JSTemplate tmpl = compile(input, sourceName);
+		tmpl.execute(tc, assignments);
+	}
+
+	public Object execute(Appendable res, Class< ? > clz, String resource, Map<String, Object> assignments) throws Exception {
+		JSTemplate tmpl = compile(clz, resource, "utf-8");
+		return tmpl.execute(res, assignments);
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Compiling the javascript.							*/
