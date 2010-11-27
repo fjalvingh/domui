@@ -170,7 +170,8 @@ public abstract class DomApplication {
 	}
 
 	protected void registerPartFactories() {
-		registerUrlPart(new ThemePartFactory());
+		registerUrlPart(new ThemePartFactory()); // convert *.theme.* as a JSTemplate.
+		registerUrlPart(new SvgPartFactory()); // Converts .svg.png to png.
 	}
 
 	//	static public void internalSetCurrent(final DomApplication da) {
