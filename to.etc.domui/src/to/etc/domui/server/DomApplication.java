@@ -1174,7 +1174,7 @@ public abstract class DomApplication {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	QD Resource modifiers for VP stylesheet....			*/
+	/*	CODING:	Programmable stylesheet code.						*/
 	/*--------------------------------------------------------------*/
 	/**
 	 * Register a factory for the theme's property map.
@@ -1191,7 +1191,7 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 *
+	 * FIXME Mechanism is slow
 	 * @param factory
 	 */
 	public void registerUrlPart(IUrlPart factory) {
@@ -1216,6 +1216,7 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	public String getThemeReplacedString(@Nonnull ResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
+		long ts = System.nanoTime();
 		IResourceRef ires = getApplicationResourceByName(rurl); // Get the template source file
 //		if(ires == null)
 //			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
@@ -1240,6 +1241,9 @@ public abstract class DomApplication {
 
 			JSTemplateCompiler tc = new JSTemplateCompiler();
 			tc.executeMap(sb, r, rurl, themeMap);
+
+			ts = System.nanoTime() - ts;
+			System.out.println("theme-replace: " + rurl + " took " + StringTool.strNanoTime(ts));
 			return sb.toString();
 		} finally {
 			try {
