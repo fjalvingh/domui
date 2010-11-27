@@ -1184,6 +1184,12 @@ public abstract class DomApplication {
 		m_themeMapFactory = mf;
 	}
 
+	private synchronized IThemeMapFactory getThemeMapFactory() {
+		if(null == m_themeMapFactory)
+			m_themeMapFactory = new DefaultThemeMapFactory();
+		return m_themeMapFactory;
+	}
+
 	/**
 	 *
 	 * @param factory
@@ -1197,95 +1203,50 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * This loads a resource which is assumed to be an UTF-8 encoded text file from
-	 * either the webapp or the class resources, then does theme based replacement
-	 * in that file. The result is returned as a string. The result is *not* cached.
-	 * FIXME This will be heavily refactored later to handle changes to the on-database map
-	 * properly.....
+	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
+	 *
+	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the
+	 * current theme's variable map. This map is either a "style.properties" file
+	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
+	 *
+	 * The result is returned as a string.
 	 *
 	 * @param rdl
 	 * @param key
 	 * @return
 	 */
-	public String getThemeReplacedString(@Nonnull ResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
-		IResourceRef ires = getApplicationResourceByName(rurl);
+	public String getThemeReplacedString(@Nonnull ResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
+		IResourceRef ires = getApplicationResourceByName(rurl); // Get the template source file
 //		if(ires == null)
 //			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
-		rdl.add(ires);
+		rdl.add(ires); // We're dependent on it...
 
-		//-- 2. Load the thing as UTF-8 string
+		//-- Get the variable map to use.
+		Map<String, Object> themeMap = getThemeMapFactory().createThemeMap(this, rdl);
+		if(bv != null) {
+			themeMap = new HashMap<String, Object>(themeMap);
+			themeMap.put("browser", bv);
+		}
+
+		//-- 2. Get a reader.
 		InputStream is = ires.getInputStream();
 		if(is == null) {
 			System.out.println(">>>> RESOURCE ERROR: " + rurl + ", ref=" + ires);
 			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + rurl + ", ref=" + ires);
 		}
-		String cont;
 		try {
-			cont = FileTool.readStreamAsString(is, "utf-8");
-			IThemeMap map = null;
-			if(m_themeMapFactory != null) {
-				map = m_themeMapFactory.createThemeMap(this);
-				rdl.add(map);
-			}
-			cont = rvs(cont, map, bv);
-			return cont;
+			Reader r = new InputStreamReader(is, "utf-8");
+			StringBuilder sb = new StringBuilder(65536);
+
+			JSTemplateCompiler tc = new JSTemplateCompiler();
+			tc.execute(sb, r, rurl, themeMap);
+			return sb.toString();
 		} finally {
 			try {
 				is.close();
 			} catch(Exception x) {}
 		}
 	}
-
-	/**
-	 * QD template translator (replace/value/string).
-	 * @param cont
-	 * @param map
-	 * @return
-	 */
-	@Deprecated
-	private String rvs(String cont, final IThemeMap map, final BrowserVersion bv) throws Exception {
-		//-- 3. Do calculated replacement using templater engine
-		TplExpander tx = new TplExpander(new TplCallback() {
-			@Override
-			public Object getValue(String name) {
-				try {
-					if(bv != null && "browser".equals(name))
-						return bv;
-					if(map != null)
-						return map.getValue(name);
-					return null;
-				} catch(Exception x) {
-					throw WrappedException.wrap(x);
-				}
-			}
-		});
-		StringWriter sw = new StringWriter(8192);
-		PrintWriter pw = new PrintWriter(sw);
-		tx.expand(cont, pw);
-		pw.close();
-		return sw.getBuffer().toString();
-	}
-
-	/**
-	 * EXPENSIVE CALL- this interprets the specified template as a JSTemplate. It compiles the template, then
-	 * executes it with the variables defined in map.
-	 *
-	 * @param cont
-	 * @param map
-	 * @param bv
-	 * @return
-	 * @throws Exception
-	 */
-	private String rvs(String template, final Map<String, Object> map, final BrowserVersion bv) throws Exception {
-		StringBuilder sb = new StringBuilder(template.length() * 2);
-		JSTemplateCompiler tc = new JSTemplateCompiler();
-
-		Map<String, Object> nmap = new HashMap<String, Object>(map);
-		nmap.put("browser", bv);
-		tc.execute(sb, new StringReader(template), "style.theme.css", nmap);
-		return sb.toString();
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DomUI state listener handling.						*/

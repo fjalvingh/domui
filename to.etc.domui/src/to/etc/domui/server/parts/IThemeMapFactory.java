@@ -24,8 +24,29 @@
  */
 package to.etc.domui.server.parts;
 
-import to.etc.domui.server.*;
+import java.util.*;
 
+import javax.annotation.*;
+
+import to.etc.domui.server.*;
+import to.etc.domui.util.resources.*;
+
+/**
+ * Factory for creating a theme map.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 27, 2010
+ */
 public interface IThemeMapFactory {
-	IThemeMap createThemeMap(DomApplication da) throws Exception;
+	/**
+	 * Called when a new theme map is required. The implementation must NOT cache the resource but do
+	 * whatever's needed to get the map every time it is called.
+	 *
+	 * @param da
+	 * @param rdl
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	Map<String, Object> createThemeMap(@Nonnull DomApplication da, @Nullable ResourceDependencyList rdl) throws Exception;
 }
