@@ -1,0 +1,1401 @@
+/*
+ * DomUI default stylesheet. This uses style.properties variables. 
+ */
+@IMPORT url("calendar-blue2.css");
+
+* {
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+input, textarea, select {
+	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+	border-style:solid;
+	border-width:1px;
+}
+
+input, textarea {
+	padding: 2px;
+}
+
+input:hover, textarea:hover, select:hover {
+	border-color:<%= bevel_hover_up %> <%= bevel_hover_down %> <%= bevel_hover_down %> <%= bevel_hover_up %>;
+}
+
+.ui-txx {
+	vertical-align: top;
+}
+
+.vp-f-lbl-u {
+	font-weight: bold;
+	font-size: 11px;
+	vertical-align: top;
+}
+
+.vp-s-tbl TD {
+	border-left: 1px solid grey;
+	padding: 0px 3px;
+}
+
+.vp-s-tbl TH {
+	text-align: left;
+	border-left: 1px solid grey;
+	padding: 0px 3px;
+}
+
+/*** Select "odd characters" ***/
+.vp-oddchars {
+	font-size: 11px;
+	font-family: <%= font_family %>;
+	padding: 10px;
+}
+
+.vp-oddchars-tbl2 {
+	margin-top: 15px;
+}
+
+.vp-oddchars-c {
+	border: 1px solid black;
+	width: 2em;
+	height: 2em;
+	text-align: center;
+}
+
+.vp-oddchars-c:hover {
+	background-color: #ffe1bf;
+}
+
+.vp-oddchars-dt {
+	border: 1px solid black;
+	text-align: center;
+}
+
+.vp-oddchars-dt:hover {
+	background-color: #ffe1bf;
+}
+
+/*** ViewPoint title bar ***/
+.vp-ttl-bb {
+	white-space: nowrap;
+	background-image: url(bg-caption-end.png);
+	background-repeat: no-repeat;
+	width: 90%;
+	text-align: right;
+}
+
+.vp-ttl-i {
+	background-color: #bed6f8;
+	padding-right: 25px;
+	padding-left: 15px;
+}
+
+.vp-ttl-t {
+	background-color: #bed6f8;
+	width: 10%;
+	white-space: nowrap;
+	color: #123667;
+	font-weight: bold;
+}
+
+/*** SplitterPanel. These style names are required by jquery.splitter.js ***/
+.splitbarV {
+	float: left;
+	width: 6px;
+	height: 100%;
+	line-height: 0px;
+	font-size: 0px;
+	border-left: solid 1px white;
+	border-right: solid 1px white;
+	background: #cbe1fb url(panev.gif) 0% 50%;
+}
+
+.splitbuttonV {
+	margin-top: -41px;
+	margin-left: -4px;
+	top: 50%;
+	position: relative;
+	height: 83px;
+	width: 10px;
+	background: transparent url(panevc.gif) 10px 50%;
+}
+
+.splitbuttonV.invert {
+	margin-left: 0px;
+	background: transparent url(panevc.gif) 0px 50%;
+}
+
+.splitbarV.working,.splitbarH.working,.splitbuttonV.working,.splitbuttonH.working
+	{
+	-moz-opacity: .50;
+	filter: alpha(opacity = 50);
+	opacity: .50;
+}
+
+.splitbarH {
+	height: 6px;
+	text-align: left;
+	line-height: 0px;
+	font-size: 0px;
+	border-top: solid 1px white;
+	border-bottom: solid 1px white;
+	background: #cbe1fb url(paneh.gif) 50% 0%;
+}
+
+.splitbuttonH {
+	margin-left: -41px;
+	left: 50%;
+	position: relative;
+	height: 10px !important;
+	width: 83px;
+	background: transparent url(panehc.gif) 50% 0px;
+}
+
+.splitbuttonH.invert {
+	margin-top: -4px;
+	background: transparent url(panehc.gif) 50% -10px;
+}
+
+/* SplitterPanel stuff that is not dependant on jquery.splitter.js */
+.ui-splt-vert { /* vertical splitter */
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.ui-splt-horz { /* horizontal splitter */
+	height: 100%;
+	width: 100%;
+}
+
+.ui-splt-left {
+	float: left;
+	height: 100%;
+	border-top: solid 1px white;
+	overflow: auto;
+	position: relative;
+}
+
+.ui-splt-right {
+	float: right;
+	height: 100%;
+	overflow: auto;
+	position: relative;
+}
+
+.ui-splt-top {
+	width: 100%;
+	overflow: auto;
+	position: relative;
+}
+
+.ui-splt-bottom {
+	width: 100%;
+	overflow: auto;
+	height: 100%;
+	position: relative;
+}
+
+/*** Bug indicator UI ***/
+.ui-bug-ind {
+	background-color: red;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 80px;
+	height: 43px;
+	border: 2px solid black;
+}
+.ui-bug-count {
+	font-size: 25px;
+	font-weight: bold;
+	color: yellow;
+}
+.ui-bug-msg {
+	font-size: 12px;
+}
+.ui-bug-stk {
+	white-space: pre;
+	font-family: monospace;
+	font-size: 8px;
+}
+
+/*** DisplayCheckbox ***/
+.ui-dspcb {
+	border: none;
+	width: 18px;
+	height: 18px;
+}
+
+/*** DisplayValue ***/
+.ui-dspv {
+	background:none repeat scroll 0 0 #F5F5FA;
+	border: 1px solid #EEEEEF;
+	display:block;
+	padding:2px;
+}
+
+table.ui-dspv-selected{
+	width: 100%;
+	white-space: nowrap;
+	padding: 1px;
+}
+
+.ui-dspv-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
+	padding: 0px;
+	margin: 0px;
+	background-color: #ffffff;
+	width: 100%;
+	outline:#7F9DB9 solid 1px; /* same border color as default one for input fields is hardcoded */
+}
+
+/*** CaptionedHeader ***/
+.ui-chdr {
+	width: 100%;
+	background-image: url(bg-chdr.png);
+	margin-top: 10px;
+}
+.ui-chdr-ttl {
+/*	border: 1px dotted #333333; */
+	background-color: #bed6f8;
+	-moz-border-radius: 5px;
+	padding: 2px 10px 2px 10px;
+	white-space: nowrap;
+}
+.ui-chdr-l {
+	width: 20px;
+	padding: 0;
+	margin: 0;
+}
+.ui-chdr-c {
+	width: 1%;
+	overflow: visible;
+}
+
+/*** ErrorMessageDiv helper for components that handle their error display ***/
+.ui-emd {
+	background-color: #ffaaaa;
+	color: red;
+	border-color: 1px solid red;
+}
+.ui-emd-msg {
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+}
+.ui-emd-info {
+	background-image: url(mini-info.png);
+	background-color: #a9c5f1; /* some nice light blue */
+	color: blue;
+	border-color: 1px solid blue;
+}
+.ui-emd-error {
+	background-image: url(mini-error.png);
+}
+.ui-emd-warning {
+	background-image: url(mini-warning.png);
+}
+
+/*** pop-in panel ***/
+div.ui-popin {
+	z-index: 20;
+	border: 1px dotted #333333;
+	background-color: #b8e59d;
+	margin-top: 15px;
+	-moz-border-radius: 5px;
+}
+
+.ui-popin-ttl {
+	position: relative;
+	top: -10px;
+	left: 15px;
+	border: 1px solid black;
+	-moz-border-radius: 5px;
+	background-color: #6af218;
+	padding: 3px;
+	font-weight: bold;
+}
+
+/*** AccessDeniedPage ***/
+.ui-acd-ttl {
+	font-size: larger;
+	font-style: italic;
+}
+
+/*** MsgBox ***/
+.ui-mbx-top {
+	height: 140px;
+}
+.ui-mbx-bb {
+	text-align: right;
+	height: 35px;
+	margin-right: 13px;
+}
+.ui-mbx-mc {
+	font-size: 13px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: <%= font_family %>;
+}
+
+/*** InfoPanel ***/
+.ui-ipa {
+	padding: 4px;
+	margin: 4px;
+	-moz-border-radius: 5px;
+	border: 1px solid #d0d0d0;
+	font-style: italic;
+}
+
+/*** LinkButton component. ***/
+.ui-lbtn {
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+	font-size: 12px;
+}
+a.ui-lbtn {
+	cursor: pointer;
+}
+
+a:hover.ui-lbtn {
+	text-decoration: underline !important;
+}
+
+/*** ALink component. ***/
+.ui-alnk {
+}
+
+.ui-alnk-i {
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+}
+
+/*** Drag and drop ***/
+.ui-drgbl {
+	cursor: move;
+}
+.ui-drp-hover {
+	border: 2px solid yellow;
+	background-color: green;
+}
+.ui-drp-ins {
+	font-size: x-small;
+	font-variant: small-caps;
+	background: url(dnd-separator.png) repeat-x center;
+	text-align: center;
+}
+
+/*** Explanation box ***/
+.ui-expl {
+	border: 2px solid #777777;
+	padding: 5px;
+	-moz-border-radius: 10px;
+	background: url(bg-expl.png) repeat-x;
+	color: black;
+}
+
+/*** List Shuttle ***/
+.ui-sh {
+	width: 100%;
+}
+table .ui-sh {
+	width: 100%;
+}
+.ui-sh-sc {
+	width: 40%;
+}
+.ui-sh-tc {
+	width: 40%;
+}
+.ui-sh-tcd, .ui-sh-scd {
+	border: 1px solid #aaaaaa;
+}
+.ui-sh-bc {
+	width: 1%;
+}
+.ui-sh-sc .selected, .ui-sh-tc .selected {
+	background-color: cyan;
+}
+
+/*** BreadCrumb ***/
+.ui-brc {
+	padding: 0; margin: 0;
+}
+.ui-brc-left {
+	padding: 0; margin: 0;
+	background-image: url(bg-rounded-left.png);
+	width: 19px;
+	height: 36px;
+}
+.ui-brc-right {
+	padding: 0; margin: 0;
+	background-image: url(bg-rounded-right.png);
+	width: 29px;
+	height: 36px;
+}
+.ui-brc-middle {
+	padding: 0; margin: 0;
+	background: url(bg-rounded-middle.png) repeat-x;
+	height: 36px;
+}
+a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
+	color: #ffff99;
+	font-weight: bolder;
+	text-decoration: none;
+}
+.ui-brc-c {
+	color: white;
+	font-weight: bolder;
+}
+
+/*** ButtonBar component ***/
+.ui-buttonbar {
+	padding: 0; margin: 0;
+}
+.ui-bb-left {
+	padding: 0; margin: 0;
+	display: none;
+	/* background-image: url(bg-rounded-left.png); vmijic looks better without background image */
+	width: 0px;
+	height: 0px;
+}
+.ui-bb-right {
+	padding: 0; margin: 0;
+	/* background-image: url(bg-rounded-right.png); vmijic looks better without background image */
+	width: 29px;
+	height: 36px;
+}
+.ui-bb-middle {
+	padding: 0; margin: 0;
+	/* background: url(bg-rounded-middle.png) repeat-x; vmijic looks better without background image */
+	height: 36px;
+}
+
+/*** Tree component ***/
+.ui-tr-act {
+	cursor: pointer;
+}
+.ui-tr-val {
+	white-space: nowrap;
+}
+td.ui-tr-sel:hover {
+	background-color: #ffe1bf !important;
+}
+td.ui-tr-sel {
+	cursor: pointer;
+}
+td.ui-tr-selected {
+	background-color: white; !important;
+}
+
+/*** AsyncContainer ***/
+.ui-asc {
+	text-align: center;
+}
+
+/*** MonthPanel ***/
+.ui-mp {
+/*	background-color: #eeeeee; */
+	font-size: 13px;
+}
+.ui-mp-mn {
+	background-color: #82b4f8;
+	text-align: center;
+	font-weight: bold;
+	font-variant: small-caps;
+}
+
+.ui-mp-top {
+	background: url(bg-caption.png) repeat-x;
+	font-weight: bold;
+	font-style: italic;
+}
+
+.ui-mp-w {
+	background-color: #bed6f8;
+	font-weight: bold;
+	font-style: italic;
+}
+.ui-mp-top TD {
+	width: 1.8em;
+}
+.ui-mp-d, .ui-mp-xd {
+	text-align: right;
+}
+.ui-mp-xd {
+	color: #777777;
+}
+TD.ui-mp-ch:hover {
+	background-color: #ffe1bf !important;
+}
+.ui-mp-mrk {
+	background-color: yellow;
+}
+/**** Schedule ****/
+.ui-wa {
+	
+}
+
+.ui-wa-hd {
+	font-family: <%= font_family %>;
+	font-size: 10px;
+	font-weight: bold;
+	vertical-align: top;
+	text-align: center;
+	background-color: #eeeeee;
+	height: 20px;
+}
+
+div.ui-wa-bg {
+	position: relative;
+	top: 0px;
+	left: 0px;
+	clear: both;
+	z-index: 10;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+}
+div.ui-wa-f {
+	z-index: 20;
+	background-color: transparent;
+}
+
+/* IMPORTANT: this color together with "cellspacing=1" creates the lines between the cells!!!! */
+table.ui-wa-bgtbl {
+	background-color: #cccccc;
+	font-family: <%= font_family %>;
+	font-size: 10px;
+}
+
+.ui-wa-gt {
+	background-color: #eeeeee;
+	text-align: right;
+	white-space: nowrap;
+}
+
+.ui-wa-hour {
+	font-family: <%= font_family %>;
+	font-size: 13px;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.ui-wa-min {
+	font-family: <%= font_family %>;
+	font-size: 10px;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.ui-wa-cell {
+	background-color: #ffffff;
+}
+
+/**** schedule item ****/
+.ui-wa-it {
+	overflow: hidden;
+	border: 1px solid black;
+	background-color: #00ffcc;
+	font-family: <%= font_family %>;
+	font-size: 10px;
+}
+
+.ui-wa-img {
+	float: left;
+	padding-right: 10px;
+}
+
+.ui-wa-ity {
+	font-variant: small-caps;
+	font-size: 10px;
+}
+
+.ui-wa-nm {
+	font-weight: bolder;
+}
+
+.ui-wa-dt {
+	font-size: 10px;
+}
+
+.ui-wa-tm {
+	font-size: 7px;
+	color: blue;
+	margin-left: 5px;
+}
+
+.ui-wa-nt {
+	background-color: #ff4d00;
+}
+
+/*** LookupInput thingerydoo ***/
+.ui-lui {
+	/* background: #ffffff; */
+	padding: 0px;
+	margin: 0px;
+}
+
+div.ui-lui-selected {
+	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+	border-style:solid;
+	border-width:1px;
+}
+
+div.ui-lui-selected-ro {
+	border: #eff7ff solid 1px; /* same border color as one used for ui-dspv fields */
+}
+	
+div.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	display: inline-block;
+}
+
+table.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	white-space: nowrap;
+}
+
+table.ui-lui-selected {
+	width: 100%;
+	white-space: nowrap;
+	padding: 1px;
+}
+
+.ui-lui-v { /* no selection is rendered transparent without border */
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+}
+
+.ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
+	padding: 0px;
+	margin: 0px;
+	background-color: #ffffff;
+	width: 100%;
+}
+
+.ui-lui-selected-ro tbody {
+	background-color: #eff7ff;
+}
+
+.ui-input-err * .ui-lui-v {
+	background-color: #ffe5e5 !important;
+}
+.ui-lui-vcell {
+	width: 99%;
+}
+input.ui-lui-keyword {
+	min-width: 98px;
+}
+
+img.ui-lui-waiting{
+	position:absolute;
+	top:2px;
+	right:2px;
+}
+.ui-lui-keyword-res{
+	color: black;
+}
+.ui-lui-keyword-no-res{
+	color: red;
+}
+.ui-lui-keyword-large{
+	color: red;
+}
+.ui-lui-keyword-popup{
+	position: absolute;
+	left: 0px;
+	top: 18px;
+	background-color: white;
+	border: 1px solid gray;
+	width: 402px;
+	overflow: hidden;
+}
+tr.ui-keyword-popop-rowsel {
+	cursor: pointer;
+	background-color: #ffe1bf !important;
+}
+
+tr.ui-keyword-popop-rowsel:hover {
+	background-color: #ffe1bf !important;
+}
+
+tr.ui-keyword-popup-row {
+	cursor: pointer;
+}
+
+.no-wrap{
+	white-space: nowrap;
+    overflow: hidden;
+}
+
+/*** LookupForm ***/
+.ui-lf-coll {
+	border-bottom: 1px dotted #666666;
+}
+
+/*** FloatingWindow ***/
+.ui-fw {
+	padding: 0;
+	margin: 0;
+	/*	border: 1px solid black; */
+	background: url(bg-body.png) repeat-x white;
+	border: 1px solid #cccccc;
+	border-top: none;
+	/*	overflow: hidden;	*/
+	top: 5%;
+	left: 50%;
+}
+
+.ui-fw-ttl {
+	position: absolute;
+	top: 0px;
+	height: 20px;
+	left: 0px;
+	right: 0px;
+/*	width: 100%; */
+	padding: 0;
+	padding: 2px;
+	background: url(bg-float-ttl2.png) repeat-x;
+	border-bottom: 1px solid #eeeeee;
+	font-size: 15px;
+	font-weight: bold;
+}
+
+.ui-fw-c {
+	width: 100%;
+	position: absolute;
+	top: 24px;
+	bottom: 0px;
+/*	height: 100%; */
+	padding: 0;
+	margin: 0;
+	overflow: auto;
+}
+
+.ui-fw-hider {
+	height: 100%;
+	width: 100%;
+	opacity: 0.5;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	background-color: black;
+	filter:alpha(opacity=50);
+}
+
+.ui-fw-btn-close {
+	margin-top: -1px;
+	margin-right: -2px;
+}
+
+/** Tree control ***/
+
+.ui-tree {
+	height: 100%;
+}
+
+/*** SplitPanel (simple version) layout thingy ***/
+.ui-sp,.ui-sp-c {
+	vertical-align: top;
+}
+
+/*** Form basic styles: these are for forms having the label BEFORE the field (horizontal). ***/
+.ui-f-lbl {
+	text-align: right;
+	font-weight: bold;
+	font-size: 11px;
+	/* FIXME: Abuse, chainsaws: viewpoint uses PIXEL sizing!? */
+	vertical-align: top;
+}
+
+.ui-f-in {
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: <%= font_family %>;
+	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
+	padding: 0px;
+}
+.ui-f-do {
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: <%= font_family %>;
+	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
+	padding: 0px;
+}
+
+/*** Form basic styles: for forms having the label ABOVE the field (vertical stacked) ***/
+.ui-fvs-lbl {
+	font-weight: bold;
+	font-size: 11px;
+}
+
+.ui-fvs-in {
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: <%= font_family %>;
+	vertical-align: top;
+}
+
+.ui-fvs-do { /* displayonly field */
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: <%= font_family %>;
+	background-color: white;
+	padding: 2px;
+}
+
+/*** Typed presentation for fields containing numerics ***/
+.ui-numeric {
+	text-align: right !important;
+}
+
+TD.ui-numeric {
+	padding-right: 3px;
+}
+
+/* Display-only field */
+.ui-f-display {
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: <%= font_family %>;
+	vertical-align: top;
+	background: #eff7ff;
+}
+
+/*** Form basic styles: for forms where the label is above the edit control (vertical). ***/
+/* jal 20100215 Appears to be unused, should merge with -fvs- above.
+.ui-fv-lbl {
+	text-align: left;
+	font-weight: bold;
+	font-size: 11px;
+	vertical-align: top;
+}
+.ui-fv-in {
+	font-size: 11px;
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	vertical-align: top;
+}
+.ui-fv-display {
+	font-size: 11px;
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	vertical-align: top;
+	background: #eff7ff;
+}
+*/
+
+input {
+	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-family: <%= font_family %>;
+}
+
+button img {
+	vertical-align: bottom;
+}
+button {
+	vertical-align: bottom;
+}
+
+.ui-ro {
+	/*background: #eff7ff;*/
+	border:1px solid #eeeeef;
+	background-color: #f5f5fa;
+}
+
+.ui-ro:hover {
+	/*background: #eff7ff;*/
+	border:1px solid #eeeeef;
+	background-color: #f5f5fa;
+}
+
+/*** Panning Image Panel ***/
+.ui-pip-img {
+	overflow: hidden;
+	border: 2px solid black;
+}
+
+/*** NiceButton ***/
+a.ui-nbtn {
+	/* display: inline-table; jal 20080711 This works proper with FF3 et al but of course not with IE7.. IE8 does work though */
+	display: inline-block;
+	color: white;
+	background: url(threebuttons2.png) transparent no-repeat;
+	width: 122px;
+	height: 25px;
+	margin: 3px auto;
+	padding: 3px 0 0 0;
+	text-align: center;
+	font-family: Helvetica, Calibri, Arial, Bitstream Vera Sans, sans-serif;
+	font-size: 100%;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+a.ui-nbtn:hover,a.ui-nbtn:active {
+	background-position: 0 -34px;
+	color: yellow;
+}
+
+/*** Image Button ***/
+.ui-ib {
+	width: 124px;
+	height: 24px;
+	border: none;
+	background: none;
+	cursor: pointer;
+	padding: 0px;
+}
+
+.ui-ib:hover {
+	background: #cccccc;
+}
+
+/*** Old Image button ***/
+.ui-ibtn {
+	cursor: pointer;
+}
+
+/*** ExpandingTable ***/
+.ui-xdt {
+	overflow: auto;
+}
+
+.ui-xdt TH {
+	text-align: left;
+}
+
+.ui-xdt-hdr {
+	/* default domui table header style is still to be defined */
+}
+
+.ui-xdt-ix {
+	cursor: pointer;
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+	font-size: 12px;
+	color: #1700ee;
+	text-decoration: underline !important;
+}
+div:hover.ui-xdt-clp {
+	background-image: url(xdt-collapsed.png);
+}
+div:hover.ui-xdt-exp {
+	background-image: url(xdt-expanded.png);
+}
+.ui-xdt-new {
+	background-image: url(btnConfirm.png);
+}
+
+.ui-xdt-edt {
+	background-color: #dffbf7;
+	/*width: 99%;  */
+	vertical-align: top;
+	-moz-border-radius: 5px;
+	border: 1px dotted #333333;
+}
+.ui-xdt-nores {
+	padding: 10px 0px 10px 0px;
+	font-style: italic;
+}
+
+/*** DataTable default style ***/
+.ui-dt {
+	overflow: auto;
+}
+
+.ui-dt TH {
+	text-align: left;
+}
+
+.ui-dt tbody td {
+	padding-left: 3px;
+}
+
+.ui-dt-hdr {
+	/* default domui table header style is still to be defined */
+}
+
+.ui-dt-nores {
+	padding: 10px 0px 10px 0px;
+	font-style: italic;
+}
+
+.ui-odd {
+	
+}
+
+.ui-even {
+	background-color: #eeeeee;
+}
+
+tr.ui-rowsel {
+	cursor: pointer;
+}
+
+tr.ui-rowsel:hover {
+	background-color: #ffe1bf !important;
+}
+
+td.ui-cellsel {
+	cursor: pointer;
+	color: #2200cc;
+}
+
+td.ui-cellsel:hover {
+	text-decoration: underline;
+	background-color: #b8f1c7 !important;
+}
+
+th.ui-sortable {
+	cursor: pointer;
+}
+.ui-sortable img {
+	float: left;
+}
+
+.ui-dt * TH {
+	font-size: 11px;
+	font-weight: bold;
+}
+
+.ui-dt {
+	font-size: 11px;
+}
+
+.ui-dt-separator {
+	background: url(bg-horiz-separator.png) repeat-x center;
+}
+
+/*** Small Image button ***/
+.ui-sib {
+	padding: 0px 1px 0px 1px;
+	margin: 0px;
+	border: 0px;
+	background: transparent;
+	vertical-align: bottom;
+	cursor: pointer;
+}
+
+.ui-sib img {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+
+.ui-sib:hover {
+	background-color: #bed6f8 !important;
+}
+
+/*** CaptionedPanel ***/
+.ui-pnl-outer {
+	background-color: white;
+	padding: 1px;
+	border: 1px solid #bed6f8;
+}
+
+.ui-pnl-caption {
+	border: 1px solid #bed6f8;
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-caption.png) repeat-x;
+}
+
+.ui-pnl-cont {
+	position: relative;
+	padding: 5px;
+}
+
+/*** ErrorPanel - a CaptionedPanel used to display errors in the page ***/
+.ui-err-outer { /*	background-color: #ffe5e5; */
+	background-color: white;
+	padding: 1px;
+	border: 1px solid #f7c2c2;
+	margin-bottom: 5px;
+}
+
+.ui-err-caption {
+	border: 1px solid #f7c2c2;
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-errors.png) repeat-x bottom;
+}
+
+.ui-input-err {
+	background-color: #ffe5e5 !important;
+}
+
+/*** Message html codes: messages containing simple html (b, em, strong, i) are translated to contain spans with styles ui-txt-i, ui-txt-b etc ***/
+.ui-txt-i {
+	font-style: italic;
+}
+.ui-txt-b {
+	font-weight: bold;
+}
+
+/*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
+.ui-tab-hdr {
+	float: left;
+	font-size: 12px;
+	line-height: normal;
+	border-bottom: 1px solid black;
+	width: 100%;
+}
+
+.ui-tab-hdr ul {
+	margin: 0;
+	padding: 8px 10px 0;
+	list-style: none;
+}
+
+.ui-tab-hdr  li {
+	float: left;
+	margin: 0;
+	padding: 0 0 0 8px;
+	background: url(tab-off-left.png) no-repeat left top;
+}
+
+li.ui-tab-err {
+	float: left;
+	margin: 0;
+	padding: 0 0 0 8px;
+	background: url(tab-off-err-left.png) no-repeat left top;
+}
+
+.ui-tab-hdr a {
+	display: block;
+	background: url(tab-off-right.png) no-repeat right top;
+	padding: 5px 14px 4px 6px;
+	text-decoration: none;
+	font-weight: bold;
+	color: #123667;
+}
+
+.ui-tab-hdr ul a:hover {
+	color: #6ba1eb;
+}
+
+.ui-tab-hdr .ui-tab-sel {
+	background-image: url(tab-norm-left-sel.png);
+}
+
+.ui-tab-hdr .ui-tab-err a {
+	background-image: url(tab-off-err-right.png);
+}
+
+.ui-tab-hdr .ui-tab-sel a {
+	background-image: url(tab-norm-right-sel.png);
+}
+
+.ui-tab-err a {
+	color: #ff0000;
+}
+
+.ui-tab-icon {
+	padding-right: 5px;
+}
+
+.ui-tab {
+	position: relative; /* jal new 20070625 */
+	clear: both;
+	background-color: #ffffff;
+	border: 1px solid #bed6f8;
+	padding: 0px;
+}
+
+.ui-tab-tabbar {
+	margin: 0px;
+	padding: 0px;
+}
+
+.ui-tab-pag {
+	border-top: 1px solid black;
+}
+
+/*** ScrollableTabPanel ***/
+.ui-stab-hdr {
+	float: left;
+	font-size: 12px;
+	line-height: normal;
+}
+
+.ui-stab-hdr ul {
+	margin: 0;
+	padding: 8px 0px 0;
+	list-style: none;
+}
+
+.ui-stab-hdr  li {
+	float: left;
+	margin: 0;
+	padding: 0 0 0 8px;
+	background: url(tab-off-left.png) no-repeat left top;
+}
+
+.ui-stab-hdr a {
+	display: block;
+	background: url(tab-off-right.png) no-repeat right top;
+	padding: 5px 14px 4px 6px;
+	text-decoration: none;
+	font-weight: bold;
+	color: #123667;
+}
+
+.ui-stab-hdr ul a:hover {
+	color: #6ba1eb;
+}
+
+.ui-stab-hdr .ui-tab-sel {
+	background-image: url(tab-norm-left-sel.png);
+}
+
+.ui-stab-hdr .ui-tab-err a {
+	background-image: url(tab-off-err-right.png);
+}
+
+.ui-stab-hdr .ui-tab-sel a {
+	background-image: url(tab-norm-right-sel.png);
+}
+
+.ui-stab-scrl {
+	border-bottom: 1px solid black;
+}
+
+.ui-stab-scrl-left {
+	background: url(tab-scrl-left1.png) no-repeat transparent center;
+	border:0 none;
+	margin:0;
+	visibility:hidden;
+	display:block;
+	width: 15px;
+	height: 24px;	
+}
+
+.ui-stab-scrl-left:hover {
+	background: url(tab-scrl-left.png) no-repeat transparent center;
+	cursor: pointer;
+}
+
+.ui-stab-scrl-right {
+	background: url(tab-scrl-right1.png) no-repeat transparent center;
+	border:0 none;
+	margin:0;
+	visibility:hidden;	
+	display:block;
+	width: 15px;
+	height: 24px;	
+}
+
+.ui-stab-scrl-right:hover {
+	background: url(tab-scrl-right.png) no-repeat transparent center;
+	cursor: pointer;
+}
+
+/*** Body element ***/
+body,html {
+	background: url(bg-body.png) repeat-x;
+	background-color: #fdfefe;
+	font-family: <%= font_family %>;
+	font-size: 13px;
+	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
+	margin: 0px;
+/*	padding: 0; margin: 0;	width: 100%; */
+}
+
+/*** IO hider overlay ***/
+.ui-io-blk {
+	height: 100%;
+	width: 100%;
+	opacity: 0.0;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	filter:alpha(opacity=0);
+	z-index: 1000;
+}
+.ui-io-blk2 {
+	height: 100%;
+	width: 100%;
+	opacity: 0.5;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	background: black url(io-blk-wait.gif) no-repeat center center; 
+	filter:alpha(opacity=50);
+	z-index: 1000;
+}
+
+/*** Percentage progress bar ***/
+.ui-pct-rlr {
+	display: inline-block;
+	width: 50px;
+	background-image: url(bg-progress.png);
+	background-position: -375px 0px;
+	background-repeat: no-repeat;
+	/*border-collapse: separate; */
+	border: 1px solid black;
+}
+<if browser.isIE>
+.ui-pct-rlr { /* IE 7 FIX: by repeating the display: inline in a SEPARATE css selector we force proper inline-block behaviour, see http://www.brunildo.org/test/InlineBlockLayout.html */
+	display: inline;
+}
+</if>
+<if browser.isFirefox>
+	/** FIREFOX BROWSERT */
+</if>
+
+/*** DisplayHtml ***/
+.ui-dhtml-blk {
+	display: block;
+}
+.ui-dhtml-inl {
+	display: inline;
+}
+.ui-dhtml-ibl {
+	display: inline-block;
+}
+<if browser.isIE>
+.ui-dhtml-ibl { /* IE 7 FIX: by repeating the display: inline in a SEPARATE css selector we force proper inline-block behaviour, see http://www.brunildo.org/test/InlineBlockLayout.html */
+	display: inline;
+}
+</if>
+
+/*** Helper classes ***/
+.ui-szless {
+	padding: 0px;
+	margin: 0px;
+}
+.ui-clickable {
+	cursor: pointer;
+}
+.ui-sup {
+	font-size: xx-small;
+	vertical-align: top;
+}
+.ui-sub {
+	font-size: xx-small;
+	vertical-align: bottom;
+}
+.ui-pre {
+	white-space: pre;
+}
+.ui-printdiv {
+	overflow: hidden;
+	width: 1px;
+	height: 1px;
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+}
+
+.vphdr-back-col {
+	background: #bed6f8;
+}
+
+/* have to put it here since it uses color replacement */
+.ui-hor-divider {
+	min-width: 0px;
+	max-width: 0px;
+	width: 0px;
+	border-left: 2px dotted #6b99e8; /*#6b99e8;*/
+	background-color: #e5e5e5;
+}
+

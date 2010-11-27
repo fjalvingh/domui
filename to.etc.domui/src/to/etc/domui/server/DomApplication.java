@@ -77,7 +77,7 @@ public abstract class DomApplication {
 
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
 
-	private String m_defaultTheme = "blue";
+	private String m_defaultTheme = "domui";
 
 	private boolean m_developmentMode;
 
@@ -1242,6 +1242,7 @@ public abstract class DomApplication {
 	 * @param map
 	 * @return
 	 */
+	@Deprecated
 	private String rvs(String cont, final IThemeMap map, final BrowserVersion bv) throws Exception {
 		//-- 3. Do calculated replacement using templater engine
 		TplExpander tx = new TplExpander(new TplCallback() {
@@ -1264,6 +1265,27 @@ public abstract class DomApplication {
 		pw.close();
 		return sw.getBuffer().toString();
 	}
+
+	/**
+	 * EXPENSIVE CALL- this interprets the specified template as a JSTemplate. It compiles the template, then
+	 * executes it with the variables defined in map.
+	 *
+	 * @param cont
+	 * @param map
+	 * @param bv
+	 * @return
+	 * @throws Exception
+	 */
+	private String rvs(String template, final Map<String, Object> map, final BrowserVersion bv) throws Exception {
+		StringBuilder sb = new StringBuilder(template.length() * 2);
+		JSTemplateCompiler tc = new JSTemplateCompiler();
+
+		Map<String, Object> nmap = new HashMap<String, Object>(map);
+		nmap.put("browser", bv);
+		tc.execute(sb, new StringReader(template), "style.theme.css", nmap);
+		return sb.toString();
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DomUI state listener handling.						*/
