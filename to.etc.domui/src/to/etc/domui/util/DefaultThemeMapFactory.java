@@ -5,6 +5,7 @@ import java.util.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
 
 /**
@@ -19,10 +20,15 @@ import to.etc.domui.util.resources.*;
 public class DefaultThemeMapFactory implements IThemeMapFactory {
 	@Override
 	public Map<String, Object> createThemeMap(DomApplication da, ResourceDependencyList rdl) throws Exception {
-		String rurl = "theme/" + da.getDefaultTheme() + "/style.properties";
-		IResourceRef ires = da.getApplicationResourceByName(rurl); // Get the source file, abort if not found
-		if(null != rdl)
-			rdl.add(ires); // We're dependent on it...
+		String rurl = "themes/" + da.getDefaultTheme() + "/style.properties";
+		IResourceRef ires;
+		try {
+			ires = da.getApplicationResourceByName(rurl); // Get the source file, abort if not found
+			if(null != rdl)
+				rdl.add(ires); // We're dependent on it...
+		} catch(ThingyNotFoundException x) {
+			return new HashMap<String, Object>();
+		}
 
 		//-- Read the thingy as a property file.
 		Properties p = new Properties();

@@ -1239,7 +1239,7 @@ public abstract class DomApplication {
 			StringBuilder sb = new StringBuilder(65536);
 
 			JSTemplateCompiler tc = new JSTemplateCompiler();
-			tc.execute(sb, r, rurl, themeMap);
+			tc.executeMap(sb, r, rurl, themeMap);
 			return sb.toString();
 		} finally {
 			try {
