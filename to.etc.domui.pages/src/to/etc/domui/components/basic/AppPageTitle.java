@@ -84,7 +84,7 @@ public class AppPageTitle extends Div {
 		add(tbl);
 		TBody b = new TBody();
 		tbl.add(b);
-		tbl.setCssClass("vp-ttl");
+		tbl.setCssClass("ui-atl");
 		tbl.setCellPadding("0");
 		tbl.setCellSpacing("0");
 		tbl.setTableBorder(0);
@@ -98,19 +98,19 @@ public class AppPageTitle extends Div {
 		m_img.setAlign(ImgAlign.LEFT);
 		TD td = b.addCell();
 		td.add(m_img);
-		td.setCssClass("vp-ttl-i");
+		td.setCssClass("ui-atl-i");
 
 		//-- Title.
 		td = b.addCell();
 		m_titlePart = td;
-		td.setCssClass("vp-ttl-t");
+		td.setCssClass("ui-atl-t");
 		td.setTestID("pageTitle");
 		renderTitleCell();
 
 		//-- Buttons
 		b.row().add(m_buttonpart);
 		//		td = b.addCell();
-		m_buttonpart.setCssClass("vp-ttl-bb");
+		m_buttonpart.setCssClass("ui-atl-bb");
 		//		td.setWidth("1%");
 		addDefaultButtons(m_buttonpart);
 	}

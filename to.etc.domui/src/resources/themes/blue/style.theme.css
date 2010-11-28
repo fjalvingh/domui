@@ -31,62 +31,39 @@ input:hover, textarea:hover, select:hover {
 	vertical-align: top;
 }
 
-.vp-f-lbl-u {
-	font-weight: bold;
+/*** Select special chars ***/
+.ui-oddchars {
 	font-size: 11px;
-	vertical-align: top;
-}
-
-.vp-wosel .ui-sp-a { /*	background-color: #dddddd; */
-	background: url(../../img/bg-vert-selector2.png) repeat-y #dcf7f2 center;
-	height: 100%;
-	vertical-align: top;
-}
-
-.vp-s-tbl TD {
-	border-left: 1px solid grey;
-	padding: 0px 3px;
-}
-
-.vp-s-tbl TH {
-	text-align: left;
-	border-left: 1px solid grey;
-	padding: 0px 3px;
-}
-
-/*** ViewPoint Selecteer speciale tekens boxen ***/
-.vp-oddchars {
-	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
 	font-family: verdana, tahoma, helvetica, sans-serif;
 	padding: 10px;
 }
 
-.vp-oddchars-tbl2 {
+.ui-oddchars-tbl2 {
 	margin-top: 15px;
 }
 
-.vp-oddchars-c {
+.ui-oddchars-c {
 	border: 1px solid black;
 	width: 2em;
 	height: 2em;
 	text-align: center;
 }
 
-.vp-oddchars-c:hover {
+.ui-oddchars-c:hover {
 	background-color: #ffe1bf;
 }
 
-.vp-oddchars-dt {
+.ui-oddchars-dt {
 	border: 1px solid black;
 	text-align: center;
 }
 
-.vp-oddchars-dt:hover {
+.ui-oddchars-dt:hover {
 	background-color: #ffe1bf;
 }
 
 /*** ViewPoint title bar ***/
-.vp-ttl-bb {
+.ui-atl-bb {
 	white-space: nowrap;
 	background-image: url(bg-caption-end.png);
 	background-repeat: no-repeat;
@@ -94,13 +71,13 @@ input:hover, textarea:hover, select:hover {
 	text-align: right;
 }
 
-.vp-ttl-i {
+.ui-atl-i {
 	background-color: #bed6f8;
 	padding-right: 25px;
 	padding-left: 15px;
 }
 
-.vp-ttl-t {
+.ui-atl-t {
 	background-color: #bed6f8;
 	width: 10%;
 	white-space: nowrap;
