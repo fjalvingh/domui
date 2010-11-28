@@ -27,22 +27,25 @@ public class DefaultThemeMapFactory implements IThemeMapFactory {
 		IResourceRef ires = findRef(da, rurl, rdl);
 		if(null == ires)
 			return map;
-
-		//-- Try to load the script as a Javascript file and execute it.
-		ScriptEngineManager m = new ScriptEngineManager();
-		ScriptEngine se = m.getEngineByName("js");
-		Bindings b = se.createBindings();
-
-		//-- Add all current map values
-		for(Map.Entry<String, Object> e : map.entrySet()) {
-			b.put(e.getKey(), e.getValue());
-		}
-
-		//-- Add helper classes FIXME TODO
-
-		//-- Execute Javascript;
 		InputStream is = ires.getInputStream();
+		if(is == null)
+			return map;
+
+		ScriptEngine se;
 		try {
+			//-- Try to load the script as a Javascript file and execute it.
+			ScriptEngineManager m = new ScriptEngineManager();
+			se = m.getEngineByName("js");
+			Bindings b = se.createBindings();
+
+			//-- Add all current map values
+			for(Map.Entry<String, Object> e : map.entrySet()) {
+				b.put(e.getKey(), e.getValue());
+			}
+
+			//-- Add helper classes FIXME TODO
+
+			//-- Execute Javascript;
 			Reader r = new InputStreamReader(is, "utf-8");
 			se.eval(r);
 		} finally {

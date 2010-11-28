@@ -291,7 +291,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 			pf.generate(pr, m_application, key, rdl);
 			cp.m_contentType = pr.getMime();
 			if(cp.m_contentType == null)
-				throw new IllegalStateException("The part " + pf + " did not set a MIME type");
+				throw new IllegalStateException("The part " + pf + " did not set a MIME type, rurl=" + url);
 			os.close();
 			cp.m_size = os.getSize();
 			cp.m_data = os.getBuffers();
