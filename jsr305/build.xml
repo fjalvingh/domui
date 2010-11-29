@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="to.etc.alg" default="deploy" basedir=".">
+<project name="jsr305" default="deploy" basedir=".">
 	<!--Initialization-->
 	<target name="init">
-	    <!--Classpath-->
-	    <path id="project.class.path">
-	        <pathelement path="../bin-j2ee-1.4/j2ee.jar" />
-	        <pathelement path="../jsr305/jsr305.jar" />
-	    </path>   
+		<!--Classpath-->
+		<path id="project.class.path">
+		</path>   
 	</target>
-
+	
 	<!--Cleanup previous builds-->
 	<target name="clean" depends="init">
 		<delete dir="bin" />
@@ -21,7 +19,7 @@
 
 	<!--Compile project-->
 	<target name="compile" depends="prepare">
-		<javac srcdir="src" destDir="bin" classpathref="project.class.path" debug="on" source="1.5" target="1.5" />
+		<javac srcdir="ri/src/main/java" destDir="bin" classpathref="project.class.path" debug="on" source="1.5" target="1.5" />
 		<copy todir="bin" >
 			<fileset dir="src" casesensitive="no">
 				<exclude name="**/*.java"/>
@@ -32,7 +30,7 @@
 	<target name="doc" depends="init">
 		<mkdir dir="doc" />
 	  	<javadoc destdir="javadoc">
-	  		<fileset dir="src">
+	  		<fileset dir="ri/src/main/java">
 	  			<include name="**/*.java" />
 	  		</fileset>
 	  	</javadoc>

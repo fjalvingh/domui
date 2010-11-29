@@ -2,6 +2,7 @@
 */classes/*
 */bin
 */bin/*
+*/javadoc
 *.~*
 .svn
 .metadata

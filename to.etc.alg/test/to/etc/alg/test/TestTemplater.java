@@ -49,5 +49,24 @@ public class TestTemplater {
 		System.out.println("val=" + v);
 	}
 
+	@Test
+	public void testBindings() throws Exception {
+		ScriptEngineManager m = new ScriptEngineManager();
+		ScriptEngine se = m.getEngineByName("js");
+
+		Bindings b = se.getBindings(ScriptContext.ENGINE_SCOPE);
+		for(String name : b.keySet()) {
+			System.out.println("before k=" + name + ", value=" + b.get(name));
+		}
+
+		Object v = se.eval("var a = 12; var b = 100;");
+
+		b = se.getBindings(ScriptContext.ENGINE_SCOPE);
+		for(String name : b.keySet()) {
+			System.out.println("after k=" + name + ", value=" + b.get(name));
+		}
+
+	}
+
 
 }
