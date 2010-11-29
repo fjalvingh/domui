@@ -58,7 +58,7 @@ final public class NormalContextMaker extends AbstractContextMaker {
 			throw new IllegalStateException("The main application class '" + m_applicationClassName + "' cannot be INSTANTIATED: " + x, x);
 		}
 
-		m_application.internalInitialize(m_config);
+		m_application.internalInitialize(m_config, false);
 	}
 
 	/**

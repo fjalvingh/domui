@@ -452,7 +452,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 		Connection dbc = allocateConnection();
 		try {
 			po.setSourceServerID(m_serverID);
-			if(DeveloperOptions.getBool("viewpoint.developer", false))
+			if(DeveloperOptions.getBool("domui.developer", false))
 				po.setMustExecuteOnServerID(m_serverID);
 			dbc.setAutoCommit(false);
 			po.save(dbc);

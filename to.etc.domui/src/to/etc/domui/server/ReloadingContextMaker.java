@@ -171,8 +171,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 			throw new IllegalStateException("The main application class '" + m_applicationClassName + "' cannot be INSTANTIATED: " + x, x);
 		}
-		a.internalInitialize(m_config);
-		a.setDevelopmentMode(true);
+		a.internalInitialize(m_config, true);
 		return a;
 	}
 

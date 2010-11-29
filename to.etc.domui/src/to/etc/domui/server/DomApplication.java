@@ -291,7 +291,7 @@ public abstract class DomApplication {
 	protected void initialize(final ConfigParameters pp) throws Exception {}
 
 
-	final public void internalInitialize(final ConfigParameters pp) throws Exception {
+	final synchronized public void internalInitialize(final ConfigParameters pp, boolean development) throws Exception {
 		setCurrentApplication(this);
 
 		//		m_myClassLoader = appClassLoader;
@@ -309,6 +309,7 @@ public abstract class DomApplication {
 			m_urlExtension = ext;
 		}
 		initialize(pp);
+		m_developmentMode = development;
 	}
 
 	static public synchronized final int internalNextPageTag() {
@@ -420,14 +421,6 @@ public abstract class DomApplication {
 	 */
 	public boolean inDevelopmentMode() {
 		return m_developmentMode;
-	}
-
-	/**
-	 * DO NOT USE Force the webapp in development mode.
-	 * @param developmentMode
-	 */
-	public void setDevelopmentMode(final boolean developmentMode) {
-		m_developmentMode = developmentMode;
 	}
 
 	/**
