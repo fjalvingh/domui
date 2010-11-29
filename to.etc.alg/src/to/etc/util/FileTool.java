@@ -1489,4 +1489,166 @@ public class FileTool {
 			}
 		}
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Comparing file system structures.					*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Compare the content of two directories, and callback methods on changes. The
+	 * callbacks define what needs to be done to change "a" (old) into "b" (new).
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Nov 29, 2010
+	 */
+	static public void compareDirectories(IDirectoryDelta delta, File a, File b) throws Exception {
+		StringBuilder sb = new StringBuilder();
+		compare(delta, sb, a, b);
+	}
+
+	static private void compare(IDirectoryDelta delta, StringBuilder sb, File a, File b) throws Exception {
+		int clen = sb.length();
+		try {
+
+			//-- Create the relative path.
+			if(clen != 0)
+				sb.append(File.separator);
+			sb.append(a.getName());
+			String relpath = sb.toString();
+
+			//-- Compare the two thingies.
+			if(!a.exists()) {
+				if(!b.exists())
+					return; // Silly, cannot happen.
+
+				//-- b exists but A does not: file/directory added
+				if(b.isFile())
+					delta.fileAdded(b, a, relpath); // File a
+				else {
+					//-- Directory added: mark the directory b as added, then add it's content fully.
+					if(delta.directoryAdded(b, a, relpath)) // File a dir delta
+						addDirectoryContents(delta, sb, a, b); // Walk the entire "b" structure, and add everything..
+				}
+			} else if(!b.exists()) {
+				//-- Path exists in a but not in b -> it was deleted.
+				if(a.isFile())
+					delta.fileDeleted(b, a, relpath);
+				else {
+					//-- Directory deleted: mark b as deleted, then delete it's contents if that is needed.
+					if(delta.directoryDeleted(b, a, relpath))
+						deleteDirectoryContents(delta, sb, a, b);
+				}
+			} else {
+				//-- Both a and b exist. Compare types 1st.
+				if(a.isFile()) {
+					if(b.isDirectory()) {
+						//-- Disjoint: file changed to directory in B. This is a "deleted" file in b, then an added directory in b,
+						delta.fileDeleted(b, a, relpath); // b as a FILE was deleted
+						if(delta.directoryAdded(b, a, relpath)) // b as DIRECTORY was added
+							addDirectoryContents(delta, sb, a, b); // Walk the entire "b" structure, and add everything..
+					} else {
+						//-- Both a and b are files. Ask the delta thing to decide whether they are equal and dont bother with the result.
+						delta.compareFiles(b, a, relpath);
+					}
+				} else {
+					//-- a is a directory.
+					if(b.isFile()) {
+						//-- Disjoint: directory a changed to file b. This is a "delete directory" in b followed by an "add file".
+						if(delta.directoryDeleted(b, a, relpath)) // b as a DIR was deleted
+							deleteDirectoryContents(delta, sb, a, b);
+						delta.fileAdded(b, a, relpath);
+					} else {
+						//-- Both A and B are existing directories. We need to compare their contents.
+						compareDirectories(delta, sb, a, b);
+					}
+				}
+			}
+		} finally {
+			sb.setLength(clen);
+		}
+	}
+
+	/**
+	 * Compare the contents of both existing directories.
+	 * @param sb
+	 * @param a
+	 * @param b
+	 * @throws Exception
+	 */
+	static private void compareDirectories(IDirectoryDelta delta, StringBuilder sb, File a, File b) throws Exception {
+		File[] aar = a.listFiles();
+		File[] bar = b.listFiles();
+		Set<String> bset = new HashSet<String>(); // Set containing all 'b' files.
+		for(File bf : bar)
+			bset.add(bf.getName());
+
+		for(File af : aar) {
+			File bf = new File(b, af.getName()); // Get how the name would be in "a"
+			bset.remove(af.getName());
+			compare(delta, sb, af, bf);
+		}
+
+		//-- Everything left in bset was added in b....
+		for(String name : bset) {
+			File bf = new File(b, name);
+			File af = new File(a, name);
+			compare(delta, sb, af, bf);
+		}
+	}
+
+	/**
+	 * Called when directory "b" does not exist while "a" does. It means the
+	 * directory was deleted from "b". Send delete events for all items below
+	 * "a".
+	 *
+	 * @param sb
+	 * @param a
+	 * @param b
+	 */
+	static private void deleteDirectoryContents(IDirectoryDelta delta, StringBuilder sb, File a, File b) throws Exception {
+		File[] aar = a.listFiles(); // Everything in a
+		int clen = sb.length();
+		for(File af : aar) {
+			File bf = new File(b, af.getName()); // Get how the name would be in "a"
+			if(clen == 0)
+				sb.append(File.separator);
+			sb.append(af.getName());
+			String relpath = sb.toString();
+			if(bf.isFile())
+				delta.fileDeleted(bf, af, relpath);
+			else {
+				//-- Directory added: mark the directory b as added, then add it's content fully.
+				if(delta.directoryDeleted(bf, af, relpath)) // File a dir delta
+					deleteDirectoryContents(delta, sb, af, bf); // Walk the entire "a" structure, and delete everything from "b"
+			}
+			sb.setLength(clen);
+		}
+	}
+
+	/**
+	 * Called when a new directory "b" is discovered that was not present as "a". This walks
+	 * the content of "b", and calls add events for files/directories in "a".
+	 * @param sb
+	 * @param a		The nonexisting directory in a
+	 * @param b		The existing directory in b.
+	 */
+	static private void addDirectoryContents(IDirectoryDelta delta, StringBuilder sb, File a, File b) throws Exception {
+		File[] bar = b.listFiles(); // Everything in b
+		int clen = sb.length();
+		for(File bf : bar) {
+			File af = new File(a, bf.getName()); // Get how the name would be in "a"
+			if(clen == 0)
+				sb.append(File.separator);
+			sb.append(bf.getName());
+			String relpath = sb.toString();
+			if(bf.isFile())
+				delta.fileAdded(bf, af, relpath);
+			else {
+				//-- Directory added: mark the directory b as added, then add it's content fully.
+				if(delta.directoryAdded(bf, af, relpath)) // File a dir delta
+					addDirectoryContents(delta, sb, af, bf); // Walk the entire "b" structure, and add everything..
+			}
+			sb.setLength(clen);
+		}
+	}
 }
