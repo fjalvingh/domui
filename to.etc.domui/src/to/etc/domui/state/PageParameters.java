@@ -350,7 +350,7 @@ public class PageParameters {
 
 	/**
 	 * Gets the value for the specified parametername as a String object.
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * When multiple value exists for the specified parameter, a MultipleParameterException is thrown.
 	 * When the parameter does not exist, a MissingParameterException is thrown.
 	 *
 	 * @param name, the name of the parameter who's value is to be retrieved.
@@ -366,7 +366,7 @@ public class PageParameters {
 
 	/**
 	 * Gets the value for the specified parametername as a String object.
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * When multiple value exists for the specified parameter, a MultipleParameterException is thrown.
 	 * When the parameter does not exist, the specified default value is returned.
 	 *
 	 * @param name, the name of the parameter who's value is to be retrieved.
