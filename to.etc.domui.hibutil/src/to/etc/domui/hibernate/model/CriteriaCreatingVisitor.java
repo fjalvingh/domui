@@ -1,3 +1,27 @@
+/*
+ * DomUI Java User Interface library
+ * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ *
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://www.domui.org/
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
 package to.etc.domui.hibernate.model;
 
 import java.util.*;
@@ -52,14 +76,14 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	private Class< ? > m_rootClass;
 
 	static private final class CritEntry {
-		/** The class type queried by this subcriterion */
-		private Class< ? > m_actualClass;
+		//		/** The class type queried by this subcriterion */
+		//		private Class< ? > m_actualClass;
 
 		/** Either a Criteria or a DetachedCriteria object, sigh */
 		private Object m_abomination;
 
 		public CritEntry(Class< ? > actualClass, Object abomination) {
-			m_actualClass = actualClass;
+			//			m_actualClass = actualClass;
 			m_abomination = abomination;
 		}
 
@@ -71,13 +95,13 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			return m_abomination;
 		}
 
-		/**
-		 * Return the actual type queried by the criterion.
-		 * @return
-		 */
-		public Class< ? > getActualClass() {
-			return m_actualClass;
-		}
+		//		/**
+		//		 * Return the actual type queried by the criterion.
+		//		 * @return
+		//		 */
+		//		public Class< ? > getActualClass() {
+		//			return m_actualClass;
+		//		}
 	}
 
 	/**
@@ -138,7 +162,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	}
 
 	/**
-	 * Create a join either on a Criteria or a DetachedCriteria. Needed because the idiot that creates those
+	 * Create a join either on a Criteria or a DetachedCriteria. Needed because the joker that creates those
 	 * did not interface/baseclass them.
 	 * @param current
 	 * @param name
@@ -284,7 +308,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		final int len = input.length();
 		m_pendingJoinIx = 0;
 		boolean last = false;
-		boolean inpk = false; // Not following a PK path
+		//		boolean inpk = false; // Not following a PK path
 		boolean previspk = false;
 		while(!last) {
 			//-- Get next name.
@@ -314,7 +338,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				if(previspk)
 					throw new IllegalStateException("Pk field immediately after PK field - don't know what this is!?");
 
-				inpk = true;
+				//				inpk = true;
 				previspk = true;
 				pushPendingJoin(path, pmm);
 
@@ -369,7 +393,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				//-- This is a relation type. If another relation was queued flush it: we always need a join.
 				if(m_pendingJoinIx > 0 && !previspk) {
 					flushJoin();
-					inpk = false;
+					//					inpk = false;
 				}
 
 				//-- Now queue this one- we decide whether to join @ the next name.
@@ -494,9 +518,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		m_pendingJoinIx = 0;
 	}
 
-	private void dumpStateError(String string) {
-		throw new IllegalStateException(string);
-	}
+	//	private void dumpStateError(String string) {
+	//		throw new IllegalStateException(string);
+	//	}
 
 	/**
 	 * Push a pending join or PK fragment on the TODO stack.

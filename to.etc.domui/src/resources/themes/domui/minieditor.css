@@ -1,0 +1,6 @@
+/* Default Stylesheet inside the HtmlMiniEditor. */
+body,html {
+	background-color: white;
+	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
+	font-size: 13px;
+}

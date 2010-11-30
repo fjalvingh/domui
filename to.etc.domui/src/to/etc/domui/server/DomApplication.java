@@ -1,3 +1,27 @@
+/*
+ * DomUI Java User Interface library
+ * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ *
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://www.domui.org/
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
 package to.etc.domui.server;
 
 import java.io.*;
@@ -53,7 +77,7 @@ public abstract class DomApplication {
 
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
 
-	private String m_defaultTheme = "blue";
+	private String m_defaultTheme = "domui";
 
 	private boolean m_developmentMode;
 
@@ -146,7 +170,8 @@ public abstract class DomApplication {
 	}
 
 	protected void registerPartFactories() {
-		registerUrlPart(new ThemePartFactory());
+		registerUrlPart(new ThemePartFactory()); // convert *.theme.* as a JSTemplate.
+		registerUrlPart(new SvgPartFactory()); // Converts .svg.png to png.
 	}
 
 	//	static public void internalSetCurrent(final DomApplication da) {
@@ -1150,7 +1175,7 @@ public abstract class DomApplication {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	QD Resource modifiers for VP stylesheet....			*/
+	/*	CODING:	Programmable stylesheet code.						*/
 	/*--------------------------------------------------------------*/
 	/**
 	 * Register a factory for the theme's property map.
@@ -1160,8 +1185,14 @@ public abstract class DomApplication {
 		m_themeMapFactory = mf;
 	}
 
+	private synchronized IThemeMapFactory getThemeMapFactory() {
+		if(null == m_themeMapFactory)
+			m_themeMapFactory = new DefaultThemeMapFactory();
+		return m_themeMapFactory;
+	}
+
 	/**
-	 *
+	 * FIXME Mechanism is slow
 	 * @param factory
 	 */
 	public void registerUrlPart(IUrlPart factory) {
@@ -1173,72 +1204,53 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * This loads a resource which is assumed to be an UTF-8 encoded text file from
-	 * either the webapp or the class resources, then does theme based replacement
-	 * in that file. The result is returned as a string. The result is *not* cached.
-	 * FIXME This will be heavily refactored later to handle changes to the on-database map
-	 * properly.....
+	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
+	 *
+	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the
+	 * current theme's variable map. This map is either a "style.properties" file
+	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
+	 *
+	 * The result is returned as a string.
 	 *
 	 * @param rdl
 	 * @param key
 	 * @return
 	 */
-	public String getThemeReplacedString(@Nonnull ResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
-		IResourceRef ires = getApplicationResourceByName(rurl);
+	public String getThemeReplacedString(@Nonnull ResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
+		long ts = System.nanoTime();
+		IResourceRef ires = getApplicationResourceByName(rurl); // Get the template source file
 //		if(ires == null)
 //			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
-		rdl.add(ires);
+		rdl.add(ires); // We're dependent on it...
 
-		//-- 2. Load the thing as UTF-8 string
+		//-- Get the variable map to use.
+		Map<String, Object> themeMap = getThemeMapFactory().createThemeMap(this, rdl);
+		if(bv != null) {
+			themeMap = new HashMap<String, Object>(themeMap);
+			themeMap.put("browser", bv);
+		}
+
+		//-- 2. Get a reader.
 		InputStream is = ires.getInputStream();
 		if(is == null) {
 			System.out.println(">>>> RESOURCE ERROR: " + rurl + ", ref=" + ires);
 			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + rurl + ", ref=" + ires);
 		}
-		String cont;
 		try {
-			cont = FileTool.readStreamAsString(is, "utf-8");
-			IThemeMap map = null;
-			if(m_themeMapFactory != null) {
-				map = m_themeMapFactory.createThemeMap(this);
-				rdl.add(map);
-			}
-			cont = rvs(cont, map, bv);
-			return cont;
+			Reader r = new InputStreamReader(is, "utf-8");
+			StringBuilder sb = new StringBuilder(65536);
+
+			JSTemplateCompiler tc = new JSTemplateCompiler();
+			tc.executeMap(sb, r, rurl, themeMap);
+
+			ts = System.nanoTime() - ts;
+			System.out.println("theme-replace: " + rurl + " took " + StringTool.strNanoTime(ts));
+			return sb.toString();
 		} finally {
 			try {
 				is.close();
 			} catch(Exception x) {}
 		}
-	}
-
-	/**
-	 * QD template translator (replace/value/string).
-	 * @param cont
-	 * @param map
-	 * @return
-	 */
-	private String rvs(String cont, final IThemeMap map, final BrowserVersion bv) throws Exception {
-		//-- 3. Do calculated replacement using templater engine
-		TplExpander tx = new TplExpander(new TplCallback() {
-			@Override
-			public Object getValue(String name) {
-				try {
-					if(bv != null && "browser".equals(name))
-						return bv;
-					if(map != null)
-						return map.getValue(name);
-					return null;
-				} catch(Exception x) {
-					throw WrappedException.wrap(x);
-				}
-			}
-		});
-		StringWriter sw = new StringWriter(8192);
-		PrintWriter pw = new PrintWriter(sw);
-		tx.expand(cont, pw);
-		pw.close();
-		return sw.getBuffer().toString();
 	}
 
 	/*--------------------------------------------------------------*/

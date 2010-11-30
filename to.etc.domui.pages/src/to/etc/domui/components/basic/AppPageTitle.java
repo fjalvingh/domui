@@ -1,3 +1,27 @@
+/*
+ * DomUI Java User Interface library
+ * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ *
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://www.domui.org/
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
 package to.etc.domui.components.basic;
 
 import to.etc.domui.annotations.*;
@@ -60,7 +84,7 @@ public class AppPageTitle extends Div {
 		add(tbl);
 		TBody b = new TBody();
 		tbl.add(b);
-		tbl.setCssClass("vp-ttl");
+		tbl.setCssClass("ui-atl");
 		tbl.setCellPadding("0");
 		tbl.setCellSpacing("0");
 		tbl.setTableBorder(0);
@@ -74,19 +98,19 @@ public class AppPageTitle extends Div {
 		m_img.setAlign(ImgAlign.LEFT);
 		TD td = b.addCell();
 		td.add(m_img);
-		td.setCssClass("vp-ttl-i");
+		td.setCssClass("ui-atl-i");
 
 		//-- Title.
 		td = b.addCell();
 		m_titlePart = td;
-		td.setCssClass("vp-ttl-t");
+		td.setCssClass("ui-atl-t");
 		td.setTestID("pageTitle");
 		renderTitleCell();
 
 		//-- Buttons
 		b.row().add(m_buttonpart);
 		//		td = b.addCell();
-		m_buttonpart.setCssClass("vp-ttl-bb");
+		m_buttonpart.setCssClass("ui-atl-bb");
 		//		td.setWidth("1%");
 		addDefaultButtons(m_buttonpart);
 	}

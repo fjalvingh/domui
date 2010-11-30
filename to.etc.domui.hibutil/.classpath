@@ -9,7 +9,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/lib-hibernate"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/bin-hibernate-annotations-3.4.0"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsr305"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

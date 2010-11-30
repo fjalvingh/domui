@@ -1,3 +1,27 @@
+/*
+ * DomUI Java User Interface library
+ * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ *
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://www.domui.org/
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
 package to.etc.webapp.qsql;
 
 import java.math.*;
@@ -19,13 +43,13 @@ public class JdbcAnyRecord {
 
 	private Map<String, Object> m_valueMap = new HashMap<String, Object>();
 
-	private String m_tableName;
+	//	private String m_tableName;
 
 	public void initFromRS(String tablename, ResultSetMetaData rsm, @Nonnull ResultSet rs) throws SQLException {
 		if(rs == null)
 			throw new IllegalStateException("Null rs not allowed");
 		m_valueMap.clear();
-		m_tableName = tablename;
+		//		m_tableName = tablename;
 		for(int i = 1, len = rsm.getColumnCount(); i <= len; i++) {
 			int type = rsm.getColumnType(i);
 			String name = rsm.getColumnName(i);
@@ -84,7 +108,7 @@ public class JdbcAnyRecord {
 			return defaultValue;
 		if(v == null)
 			return defaultValue; // FIXME Should throw column not found exception.
-		return (T) RuntimeConversions.convertTo(v, type);
+		return RuntimeConversions.convertTo(v, type);
 	}
 
 }

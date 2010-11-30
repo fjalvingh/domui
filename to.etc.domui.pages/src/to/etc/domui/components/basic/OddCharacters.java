@@ -1,3 +1,27 @@
+/*
+ * DomUI Java User Interface library
+ * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ *
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://www.domui.org/
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
 package to.etc.domui.components.basic;
 
 import java.io.*;
@@ -33,19 +57,19 @@ public class OddCharacters extends FloatingWindow {
 
 	private NodeBase createTekens() throws IOException {
 		Div root = new Div();
-		root.setCssClass("vp-oddchars");
+		root.setCssClass("ui-oddchars");
 		Table tbl = new Table();
 		root.add(tbl);
 		TBody b = new TBody();
 		tbl.add(b);
-		tbl.setCssClass("vp-oddchars-tbl");
+		tbl.setCssClass("ui-oddchars-tbl");
 		tbl.setCellSpacing("0");
 		tbl.setCellPadding("0");
 		b.addRow();
 		TD td = b.addCell();
 		td.setColspan(fchars.length);
 		td.add("Vaak gebruikte speciale tekens");
-		td.setCssClass("vp-oddchars-ttl");
+		td.setCssClass("ui-oddchars-ttl");
 		b.addRow();
 		int i = 0;
 		StringBuilder sb = new StringBuilder(32);
@@ -53,7 +77,7 @@ public class OddCharacters extends FloatingWindow {
 			StringTool.entitiesToUnicode(sb, t, true);
 			td = b.addCell();
 			td.setText(sb.toString());
-			td.setCssClass("vp-oddchars-c");
+			td.setCssClass("ui-oddchars-c");
 			td.setOnClickJS("WebUI.oddChar(this)");
 			sb.setLength(0);
 		}
@@ -61,7 +85,7 @@ public class OddCharacters extends FloatingWindow {
 		//-- 2nd thingy.
 		tbl = new Table();
 		root.add(tbl);
-		tbl.setCssClass("vp-oddchars-tbl2");
+		tbl.setCssClass("ui-oddchars-tbl2");
 		tbl.setCellSpacing("0");
 		tbl.setCellPadding("0");
 		b.addRow();
@@ -75,10 +99,10 @@ public class OddCharacters extends FloatingWindow {
 			b.addRow();
 			for(i = 0; i < width; i++) {
 				td = b.addCell();
-				//				td.setCssClass("vp-oddchars-c");
+				//				td.setCssClass("ui-oddchars-c");
 
 				if(ix < chars.length) {
-					td.setCssClass("vp-oddchars-c");
+					td.setCssClass("ui-oddchars-c");
 					sb.setLength(0);
 					StringTool.entitiesToUnicode(sb, chars[ix++], true);
 					td.add(sb.toString());
@@ -114,7 +138,7 @@ public class OddCharacters extends FloatingWindow {
 	private void addDate(final NodeContainer c, final DateFormat df) {
 		Div s = new Div();
 		c.add(s);
-		s.setCssClass("vp-oddchars-dt");
+		s.setCssClass("ui-oddchars-dt");
 		Date d = new Date();
 		s.add(df.format(d));
 		s.setOnClickJS("WebUI.oddChar(this)");

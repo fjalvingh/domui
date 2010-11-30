@@ -1,3 +1,27 @@
+/*
+ * DomUI Java User Interface library
+ * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ *
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://www.domui.org/
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
 package to.etc.domui.component.meta.impl;
 
 import java.util.*;
@@ -38,9 +62,9 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 			m_labelKey = p.defaultLabel();
 		//		setConverter((p.converterClass() == DummyConverter.class ? null : ConverterRegistry.getConverterInstance(p.converterClass())));
 		// 20091123 This kludge below is needed because otherwise the JDK compiler pukes on this generics abomination.
-		IConverter c = null;
+		IConverter< ? > c = null;
 		if(p.converterClass() != DummyConverter.class)
-			c = ConverterRegistry.getConverterInstance((Class) p.converterClass());
+			c = ConverterRegistry.getConverterInstance((Class< ? extends IConverter< ? >>) p.converterClass());
 		setConverter(c);
 		setSortable(p.defaultSortable());
 		setDisplayLength(p.displayLength());
