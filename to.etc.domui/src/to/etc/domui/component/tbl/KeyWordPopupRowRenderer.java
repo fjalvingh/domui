@@ -65,7 +65,8 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 * @param cols
 	 */
 	public KeyWordPopupRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final String... cols) {
-		this(dataClass, cmm);
+		m_dataClass = dataClass;
+		m_metaModel = cmm;
 		List<ExpandedDisplayProperty> xdpl;
 		if(cols.length != 0)
 			xdpl = ExpandedDisplayProperty.expandProperties(cmm, cols);
@@ -78,10 +79,6 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 		addColumns(xdpl);
 	}
 
-	protected KeyWordPopupRowRenderer(@Nonnull Class<T> data, @Nonnull ClassMetaModel cmm) {
-		m_dataClass = data;
-		m_metaModel = cmm;
-	}
 
 	/**
 	 * Returns the metamodel used.

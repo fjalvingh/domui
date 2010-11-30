@@ -202,7 +202,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param name
 	 */
 	public IControl< ? > addDisplayProp(final String name) {
-		return addDisplayProp(name, null);
+		return addDisplayProp(name, (String) null);
 	}
 
 	/**
