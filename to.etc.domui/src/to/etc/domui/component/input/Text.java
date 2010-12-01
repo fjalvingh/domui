@@ -119,18 +119,13 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 */
 	@Override
 	public boolean acceptRequestParameter(String[] values) {
-		String value = getRawValue(); // Retain previous value,
+		String oldValue = getRawValue(); // Retain previous value,
 		super.acceptRequestParameter(values); // Set the new one;
-
-		//-- when string is rendered into Input html tag, it is rendered as trimmed, so old raw value for comparasion has also to be trimmed
-		//vmijic 20091124 - when no input is done, empty string is returned as request parameter, so if old raw value was null it has to be replaced with empty string
-		if(value != null) {
-			value = value.trim();
-		} else {
-			value = "";
-		}
-		if(DomUtil.isEqual(value, getRawValue()))
+		String oldTrimmed = oldValue == null ? "" : oldValue.trim();
+		String newTrimmed = getRawValue() == null ? "" : getRawValue().trim();
+		if(oldTrimmed.equals(newTrimmed)) {
 			return false;
+		}
 		m_validated = false;
 		DomUtil.setModifiedFlag(this);
 		return true;
