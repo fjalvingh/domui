@@ -126,9 +126,6 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		if(oldTrimmed.equals(newTrimmed)) {
 			return false;
 		}
-		if(DomUtil.isEqual(oldTrimmed, newTrimmed)) {
-			return false;
-		}
 		m_validated = false;
 		DomUtil.setModifiedFlag(this);
 		return true;
