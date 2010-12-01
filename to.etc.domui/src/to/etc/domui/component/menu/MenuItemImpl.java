@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.components.menu;
+package to.etc.domui.component.menu;
 
 import java.util.*;
 
@@ -122,7 +122,7 @@ public class MenuItemImpl implements IMenuItem {
 	}
 
 	/**
-	 * @see to.etc.domui.components.menu.IMenuItem#getId()
+	 * @see to.etc.domui.component.menu.IMenuItem#getId()
 	 */
 	public String getId() {
 		return m_id;
@@ -165,7 +165,7 @@ public class MenuItemImpl implements IMenuItem {
 	}
 
 	/**
-	 * @see to.etc.domui.components.menu.IMenuItem#getParentID()
+	 * @see to.etc.domui.component.menu.IMenuItem#getParentID()
 	 */
 	public String getParentID() {
 		return m_parentID;
@@ -176,7 +176,7 @@ public class MenuItemImpl implements IMenuItem {
 	}
 
 	/**
-	 * @see to.etc.domui.components.menu.IMenuItem#getPageClass()
+	 * @see to.etc.domui.component.menu.IMenuItem#getPageClass()
 	 */
 	public Class< ? extends UrlPage> getPageClass() {
 		return m_pageClass;
@@ -188,7 +188,7 @@ public class MenuItemImpl implements IMenuItem {
 	}
 
 	/**
-	 * @see to.etc.domui.components.menu.IMenuItem#getPageParameters()
+	 * @see to.etc.domui.component.menu.IMenuItem#getPageParameters()
 	 */
 	public PageParameters getPageParameters() {
 		return m_pageParameters;
@@ -200,7 +200,7 @@ public class MenuItemImpl implements IMenuItem {
 	}
 
 	/**
-	 * @see to.etc.domui.components.menu.IMenuItem#getIconPath()
+	 * @see to.etc.domui.component.menu.IMenuItem#getIconPath()
 	 */
 	public String getIconPath() {
 		return m_iconPath;
@@ -211,7 +211,7 @@ public class MenuItemImpl implements IMenuItem {
 	}
 
 	/**
-	 * @see to.etc.domui.components.menu.IMenuItem#isDisabled()
+	 * @see to.etc.domui.component.menu.IMenuItem#isDisabled()
 	 */
 	public boolean isDisabled() {
 		return m_disabled;
@@ -222,7 +222,7 @@ public class MenuItemImpl implements IMenuItem {
 	}
 
 	/**
-	 * @see to.etc.domui.components.menu.IMenuItem#getChildren()
+	 * @see to.etc.domui.component.menu.IMenuItem#getChildren()
 	 */
 	public List<IMenuItem> getChildren() {
 		synchronized(m_manager) {
@@ -239,28 +239,28 @@ public class MenuItemImpl implements IMenuItem {
 	}
 
 	/**
-	 * @see to.etc.domui.components.menu.IMenuItem#getSearchString()
+	 * @see to.etc.domui.component.menu.IMenuItem#getSearchString()
 	 */
 	public String getSearchString() {
 		return byKey(m_searchKey);
 	}
 
 	/**
-	 * @see to.etc.domui.components.menu.IMenuItem#getRequiredRights()
+	 * @see to.etc.domui.component.menu.IMenuItem#getRequiredRights()
 	 */
 	public String[] getRequiredRights() {
 		return m_requiredRights;
 	}
 
 	/**
-	 * @see to.etc.domui.components.menu.IMenuItem#getLabel()
+	 * @see to.etc.domui.component.menu.IMenuItem#getLabel()
 	 */
 	public String getLabel() {
 		return byKey(m_labelKey);
 	}
 
 	/**
-	 * @see to.etc.domui.components.menu.IMenuItem#getDescription()
+	 * @see to.etc.domui.component.menu.IMenuItem#getDescription()
 	 */
 	public String getDescription() {
 		return byKey(m_descKey);

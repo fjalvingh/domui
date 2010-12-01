@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.components.basic;
+package to.etc.domui.component.misc;
 
 import java.io.*;
 import java.text.*;

@@ -22,42 +22,25 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.components.menu;
+package to.etc.domui.component.menu;
 
-import java.util.*;
+/**
+ *
+ *
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Apr 3, 2009
+ */
+public interface IMenuItemFilter {
+	/**
+	 * Called to set the node that needs to be handled.
+	 * @param currentNode
+	 */
+	void setNode(MenuItemImpl currentNode) throws Exception;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
-
-
-public interface IMenuItem {
-	String getId();
-
-	String getParentID();
-
-	Class< ? extends UrlPage> getPageClass();
-
-	PageParameters getPageParameters();
-
-	String getIconPath();
-
-	boolean isDisabled();
-
-	List<IMenuItem> getChildren();
-
-	String getSearchString();
-
-	String[] getRequiredRights();
-
-	String getLabel();
-
-	String getDescription();
-
-	int getOrder();
-
-	boolean isSubMenu();
-
-	String getTarget();
-
-	String getRURL();
+	/**
+	 * Must return true if the current node is accessible by the user. This must check access rights (Rights).
+	 * @return
+	 */
+	boolean isAllowed();
 }
