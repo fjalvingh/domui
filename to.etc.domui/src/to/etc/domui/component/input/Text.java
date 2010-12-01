@@ -121,20 +121,14 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	public boolean acceptRequestParameter(String[] values) {
 		String oldValue = getRawValue(); // Retain previous value,
 		super.acceptRequestParameter(values); // Set the new one;
-
-		//-- when string is rendered into Input html tag, it is rendered as trimmed (that is for hibernate mapped objects), so old raw value for comparasion has also to be trimmed.
-		//vmijic 20091124 - when no input is done, empty string is returned as request parameter, so if old raw value was null it has to be replaced with empty string
-		String oldModified = null;
-		if(oldValue != null) {
-			oldModified = oldValue.trim();
-		} else {
-			oldModified = "";
-		}
-
-		//vmijic 20101130 - seems that trimming is not performed when doing load of data using qsql (JDBC queries)... So we need to be sure that new value is not equal to neather modified or not modified old value.
-		//FIXME: investigate do we need maybe to fix that trimming when doing data binding on hibernate model...
-		if(DomUtil.isEqual(oldValue, getRawValue()) || DomUtil.isEqual(oldModified, getRawValue()))
+		String oldTrimmed = oldValue == null ? "" : oldValue.trim();
+		String newTrimmed = getRawValue() == null ? "" : getRawValue().trim();
+		if(oldTrimmed.equals(newTrimmed)) {
 			return false;
+		}
+		if(DomUtil.isEqual(oldTrimmed, newTrimmed)) {
+			return false;
+		}
 		m_validated = false;
 		DomUtil.setModifiedFlag(this);
 		return true;
