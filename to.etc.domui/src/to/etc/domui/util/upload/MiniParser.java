@@ -31,7 +31,7 @@ import java.util.*;
  * by the upload format.
  *
  * <p>Created on Nov 21, 2005
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class MiniParser {
 	private String m_str;
