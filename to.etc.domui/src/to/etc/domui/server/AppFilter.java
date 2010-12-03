@@ -87,6 +87,8 @@ public class AppFilter implements Filter {
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
 			rq.setCharacterEncoding("UTF-8"); // FIXME jal 20080804 Encoding of input was incorrect?
+//			DomUtil.dumpRequest(rq);
+
 			if(m_logRequest) {
 				String rs = rq.getQueryString();
 				rs = rs == null ? "" : "?" + rs;

@@ -654,6 +654,16 @@ final public class DomUtil {
 		}
 	}
 
+	static public void dumpRequest(HttpServletRequest req) {
+		System.out.println("---- request parameter dump ----");
+		for(Enumeration<String> en = req.getParameterNames(); en.hasMoreElements();) {
+			String name = en.nextElement();
+			String val = req.getParameter(name);
+			System.out.println(name + ": " + val);
+		}
+		System.out.println("---- end request parameter dump ----");
+	}
+
 	static public String getJavaResourceRURL(final Class< ? > resourceBase, final String name) {
 		if(name.startsWith("/")) {
 			//-- Absolute resource name.
