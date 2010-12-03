@@ -59,4 +59,11 @@ final public class Address {
 	public String getName() {
 		return m_name;
 	}
+
+	@Override
+	public String toString() {
+		if(m_name != null)
+			return m_name + " <" + m_email + ">";
+		return m_email;
+	}
 }
