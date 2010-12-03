@@ -1,5 +1,7 @@
 package to.etc.dbpool;
 
+import java.io.*;
+
 import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -17,13 +19,44 @@ import to.etc.dbpool.info.*;
 public class StatisticsRequestListener implements ServletRequestListener {
 	static private final int MAX_SESSION_REQUESTS = 50;
 
+	/**
+	 * When set this forces an input request that has no encoding to the encoding specified. This fixes
+	 * bugs with IE, who else, which does not send the charset header.
+	 *
+	 */
+	static private String m_forceEncoding;
+
 	static private class RecursionCounter {
+		public RecursionCounter() {}
 		public int m_count;
 	}
 
 	private final ThreadLocal<RecursionCounter> m_ctr = new ThreadLocal<RecursionCounter>();
 
 	static private GlobalPerformanceStore m_globalStore;
+
+	/**
+	 * Advanced horror mode: Internet Exploder, who else, does not send the charset it encoded
+	 * the parameters with in it's content type for input received. Because of this, when
+	 * content is sent to the server from IE that is encoded in UTF-8, the server does not
+	 * <i>know</i> that and will decode the parameters as the default encoding (iso-8859-1 probably).
+	 * This will cause parameter values to be wrong. And because these are decoded only once by
+	 * Tomcat and then stored- using the getParameter() call here will cause encoding problems.
+	 * Parameters are decoded as iso-8859-1 and a later call to use UTF-8 encoding is silently
+	 * ignored, because otherwise the problem would be clear. The workaround here is to force
+	 * input decoding to a specified encoding (usually UTF-8) always when the charset header is
+	 * missing.
+	 *
+	 * @param forceEncoding
+	 */
+	synchronized public static void setForceEncoding(String forceEncoding) {
+		m_forceEncoding = forceEncoding;
+	}
+
+	synchronized private String getForceEncoding() {
+		return m_forceEncoding;
+	}
+
 
 	public void requestDestroyed(ServletRequestEvent ev) {
 		RecursionCounter rc = m_ctr.get();
@@ -113,6 +146,19 @@ public class StatisticsRequestListener implements ServletRequestListener {
 		rc = new RecursionCounter();
 		rc.m_count = 1;
 		m_ctr.set(rc);
+
+		//-- If needed, force charset encoding on request, sigh.
+		String enc = r.getCharacterEncoding();
+		if(null == enc || enc.trim().length() == 0) {
+			enc = getForceEncoding();
+			if(enc != null) {
+				try {
+					r.setCharacterEncoding(enc);
+				} catch(UnsupportedEncodingException x) {
+					throw new RuntimeException(x); // Deep, deep sigh
+				}
+			}
+		}
 
 		/*
 		 * Action handling: check for special URL parameters influencing the working of statistics gathering.
