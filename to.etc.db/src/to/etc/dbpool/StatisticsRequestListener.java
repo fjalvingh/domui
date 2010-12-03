@@ -50,6 +50,12 @@ public class StatisticsRequestListener implements ServletRequestListener {
 	 */
 	static private String m_forceEncoding;
 
+	/**
+	 * Make sure the encoding is set instead of failing silently and fscking up input - because
+	 * that takes forever to fix 8-/
+	 */
+	static private boolean m_encodingSet;
+
 	static private class RecursionCounter {
 		public RecursionCounter() {}
 		public int m_count;
@@ -75,9 +81,20 @@ public class StatisticsRequestListener implements ServletRequestListener {
 	 */
 	synchronized public static void setForceEncoding(String forceEncoding) {
 		m_forceEncoding = forceEncoding;
+		m_encodingSet = true;
 	}
 
 	synchronized private String getForceEncoding() {
+		if(! m_encodingSet)
+			//-- Lets not fail silently and cause horror.
+			throw new RuntimeException("**** INPUT ENCODING NOT DEFINED FOR DBPOOL'S STATISTICS FILTER!!\n" //
+				+ "You have added the to.etc.dbpool.StatisticsRequestListener to your web.xml.\n"//
+				+ "There is of course a bug in Internet Explorer where it does not sent proper encoding\n"//
+				+ "information (the charset header) in data it sends back to the server. If that happens the\n"//
+				+ "server guesses the encoding- usually wrong. This would lead to encoding errors (strange\n"//
+				+ "characters) in input from the browser. The only way to prevent this is to add a call in your\n"//
+				+ "web app initialization: StatisticsRequestListener.setForceEncoding(\"utf-8\");\n"//
+			);
 		return m_forceEncoding;
 	}
 
