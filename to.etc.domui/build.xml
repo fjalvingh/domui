@@ -47,7 +47,7 @@
 
 	<target name="doc" depends="init">
 		<mkdir dir="javadoc" />
-	  	<javadoc destdir="javadoc" use="true" excludepackagenames="resources" encoding="utf-8">
+	  	<javadoc destdir="javadoc" use="true" excludepackagenames="resources" encoding="utf-8" classpathref="project.class.path">
 	  		<sourcepath path="src" />
 	  		<sourcepath path="../to.etc.webapp.core/src" />
 	  		<sourcepath path="../to.etc.domui.hibutil/src" />
