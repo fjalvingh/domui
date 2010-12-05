@@ -298,9 +298,10 @@ public abstract class DomApplication {
 		m_webFilePath = pp.getWebFileRoot();
 
 		//-- Get the page extension to use.
-		m_urlExtension = "http";
 		String ext = pp.getString("extension");
-		if(ext != null && ext.trim().length() > 0) {
+		if(ext == null || ext.trim().length() == 0)
+			m_urlExtension = "ui";
+		else {
 			ext = ext.trim();
 			if(ext.startsWith("."))
 				ext = ext.substring(1);
