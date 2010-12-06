@@ -1,0 +1,2 @@
+#!/bin/bash
+scp -r javadoc/* anvers.etc.to:/var/www/domui/latest/javadoc

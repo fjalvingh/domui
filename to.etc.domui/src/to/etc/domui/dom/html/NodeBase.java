@@ -62,42 +62,6 @@ import to.etc.webapp.query.*;
  * delta run leaks to the new delta run; if this happens it usually results in a "Hell Freezeth over" exception. Because nodes removed from the tree
  * in a phase are not reachable anymore it is hard to clear this state <i>after</i> the delta run.</p>
  *
- * <h3>Maintaining and clearing the old state - quickly</h3>
- * <p>for the delta mechanism to work we need to ensure that the old state properly represents the state of each node in the tree. The "easiest" way
- * to do that is to do a full tree traversal to define the BEFORE state. This marks all nodes's parents. Then, after the delta has been fully calculates
- * the state must be deleted from ALL nodes, including those that were DELETED(!). This requires that all deleted nodes are kept on a list, and are fully
- * cleaned after the delta.</p>
- *
- * <h3>Update numbers' basics</h3>
- * <p>Although reasonably simple this is slow as molasses: it requires lots of treewalks which are expensive. So we use a different, more complex but way
- * faster method. This method is based around "update numbers". Update numbers are a method used to quickly purge large structures of state, without traversing
- * the entire state. They work as follows:
- * <ul>
- *	<li>Each node gets a field "currentUpdateNumber".</li>
- *	<li>The page gets a field "currentUpdateRun". For every request cycle this number gets <i>incremented</i> BEFORE any other action takes place.</li>
- *	<li>We assume the pointers valid (set in this run) <i>only</i> when the update number in the page equals the update number in the node.</li>\
- *	<li>When any of the protected fields are set in this run the update number for the node is set to the update number in the page. This identifies the
- *		field as set to a value</li>
- *	<li>The simple act of incrementing the page's currentUpdateRun field invalidates (clears) all of the states in the child nodes, without
- *		walking past all of them!!</li>
- * </ul>
- * We will use this mechanism to identify nodes that have changed <i>this run</i> and to discover nodes that have old state and are added again.
- * </p>
- *
- * <h3>Implementation details and logic decomposition</h3>
- * <p>The oldParent field is the field protected by the updateNumber. Normal nodes all have "outdated" updatenumbers meaning their fields are UNSET. Since only
- * changed nodes have fields set an outdated updateNumber also implies that the node is unchanged.
- * </p>
- * <p>If a node is PRESENT in a page, and it is REMOVED then we SET it's update# and it's oldParent. This means the removed node has valid ptrs for THIS run indicating
- * both it's change and the fact that it's old parent was node xxxx.
- * </p>
- * <p>If a node is not present in the page and it gets ADDED the add sees that the node has UNSET pointers (because it's update # is wrong wrt the page it gets added
- * to). This means that regardless of the new node's old pointer it's old pointer is invalid, so it gets nulled (indicating it is a NEWLY ATTACHED node) and the update#
- * gets updated to current indicating the null is valid/set.</p>
- * <p>If this node that was just attached is then removed again the oldparent is not changed (because it is already SET in this run). If it gets added yet again
- * (the programmer is probably drunk, but with all the monthly drinks at Itris we'll need to take that into consideration too) the add notices that its' OLD is
- * VALID so it will not be set.
- *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
