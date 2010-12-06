@@ -240,7 +240,8 @@ final public class DomUtil {
 		}
 	}
 
-	static private final char[] BASE64MAP = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_".toCharArray();
+	//fix for call 28547: $ cant be used in window names in javascript function window.openWindow in IE7, so we have to use something else... 
+	static private final char[] BASE64MAP = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0".toCharArray();
 
 	/**
 	 * Generate an unique identifier with reasonable expectations that it will be globally unique. This
