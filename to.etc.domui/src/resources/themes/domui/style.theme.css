@@ -223,7 +223,7 @@ input:hover, textarea:hover, select:hover {
 /*** CaptionedHeader ***/
 .ui-chdr {
 	width: 100%;
-	background-image: url(bg-chdr.png);
+	background-image: url(bg-chdr.png.svg);
 	margin-top: 10px;
 }
 .ui-chdr-ttl {

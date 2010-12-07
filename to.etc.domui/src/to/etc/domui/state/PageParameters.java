@@ -41,6 +41,7 @@ import to.etc.webapp.qsql.*;
  * i.e. they must be renderable as part of a GET or POST. A page request formed by a
  * Page class and a PageParameters class is bookmarkable.
  * This is a mutable object.
+ * A PageParameters object can be rendered on an URL by using {@link DomUtil#addUrlParameters(StringBuilder, PageParameters, boolean)}.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 22, 2008
@@ -51,8 +52,16 @@ public class PageParameters {
 	 */
 	private Map<String, Object> m_map = new HashMap<String, Object>();
 
+	/**
+	 * Create an empty PageParameters.
+	 */
 	public PageParameters() {}
 
+	/**
+	 * Create page parameters and fill with the initial set defined in the argument list. For details of
+	 * what can be passed see {@link #addParameters(Object...)}.
+	 * @param list
+	 */
 	public PageParameters(Object... list) {
 		try {
 			addParameters(list);
