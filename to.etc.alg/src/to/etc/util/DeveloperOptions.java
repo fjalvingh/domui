@@ -100,6 +100,9 @@ public class DeveloperOptions {
 	/*	CODING:	Getting values.										*/
 	/*--------------------------------------------------------------*/
 
+	/**
+	 * Returns the developer option specified as a string. Return null if the option is not present.
+	 */
 	static synchronized public String getString(final String name) {
 		String val = internalGetString(name);
 		if(val != null)
@@ -113,6 +116,14 @@ public class DeveloperOptions {
 		return m_p.getProperty(name);
 	}
 
+	/**
+	 * Returns the developer option specified by name as a string. If the option is not present in the
+	 * file return the default value.
+	 *
+	 * @param name
+	 * @param def
+	 * @return
+	 */
 	static synchronized public String getString(final String name, final String def) {
 		if(m_map == null)
 			return def;
@@ -121,13 +132,20 @@ public class DeveloperOptions {
 			return s;
 		s = m_p.getProperty(name);
 		if(s == null)
-			s = def;
-		else
-			System.out.println("WARNING: Development-time option " + name + " (string) changed to " + s);
+			return def;
+		System.out.println("WARNING: Development-time option " + name + " (string) changed to " + s);
 		m_map.put(name, s);
 		return s;
 	}
 
+	/**
+	 * Returns the developer option specified by name as a boolean. If the option is not present in the
+	 * file return the default value.
+	 *
+	 * @param name
+	 * @param def
+	 * @return
+	 */
 	static synchronized public boolean getBool(final String name, final boolean def) {
 		if(m_map == null)
 			return def;
@@ -136,16 +154,22 @@ public class DeveloperOptions {
 			return b.booleanValue();
 		String s = internalGetString(name);
 		if(s == null)
-			b = Boolean.valueOf(def);
-		else {
-			s = s.toLowerCase();
-			b = Boolean.valueOf(s.startsWith("t") || s.startsWith("y"));
-			System.out.println("WARNING: Development-time option " + name + " (boolean) changed to " + b);
-		}
+			return def;
+		s = s.toLowerCase();
+		b = Boolean.valueOf(s.startsWith("t") || s.startsWith("y"));
+		System.out.println("WARNING: Development-time option " + name + " (boolean) changed to " + b);
 		m_map.put(name, b);
 		return b.booleanValue();
 	}
 
+	/**
+	 * Returns the developer option specified by name as an integer. If the option is not present in the
+	 * file return the default value.
+	 *
+	 * @param name
+	 * @param def
+	 * @return
+	 */
 	static synchronized public int getInt(final String name, final int def) {
 		if(m_map == null)
 			return def;
@@ -154,11 +178,9 @@ public class DeveloperOptions {
 			return b.intValue();
 		String s = internalGetString(name);
 		if(s == null)
-			b = Integer.valueOf(def);
-		else {
-			b = Integer.valueOf(s);
-			System.out.println("WARNING: Development-time option " + name + " (int) changed to " + b);
-		}
+			return def;
+		b = Integer.valueOf(s);
+		System.out.println("WARNING: Development-time option " + name + " (int) changed to " + b);
 		m_map.put(name, b);
 		return b.intValue();
 	}
