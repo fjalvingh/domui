@@ -25,6 +25,8 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 */
 	abstract protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm);
 
+	abstract public void addContent(NodeBase label, NodeBase[] control, boolean editable);
+
 	/**
 	 * Handle placement of a list of property names, all obeying the current mode in effect.
 	 * @param editable

@@ -141,6 +141,12 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	@Override
+	public void addContent(NodeBase label, NodeBase[] control, boolean editable) {
+		modalAdd(label, control, editable);
+		clearRun();
+	}
+
+	@Override
 	protected IControl< ? >[] addListOfProperties(boolean editable, String... names) {
 		IControl< ? >[] res = new IControl< ? >[names.length];
 		int ix = 0;
@@ -160,7 +166,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param list
 	 */
-	private void modalAdd(Label l, NodeBase[] list, boolean editable) {
+	private void modalAdd(NodeBase l, NodeBase[] list, boolean editable) {
 		TR tr = getLabelRow(); // Row containing zhe labelz.
 		TD td = tr.addCell(); // Create cell for label;
 		td.setCssClass(m_labelClass == null ? m_defaultLabelClass : m_labelClass);
