@@ -209,23 +209,24 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 */
 	public void setModeNorm() {
 		m_mode = Mode.NORM;
+		m_nextNodeMode = Mode.NORM;
 	}
 
 	public void setModeAppend() {
-		m_mode = Mode.APPEND;
+		m_nextNodeMode = m_mode = Mode.APPEND;
 	}
 
 	public void setModeAppendInto() {
-		m_mode = Mode.APPEND_INTO;
+		m_nextNodeMode = m_mode = Mode.APPEND_INTO;
 	}
 
 	public void setModeAppendInto(final String sepa) {
-		m_mode = Mode.APPEND_INTO;
+		m_nextNodeMode = m_mode = Mode.APPEND_INTO;
 		m_appendIntoDefaultSeparator = sepa;
 	}
 
 	public void setModeColumnar(final int col, final int row) {
-		m_mode = Mode.COL;
+		m_nextNodeMode = m_mode = Mode.COL;
 		m_colRow = row;
 		m_colCol = col;
 	}
