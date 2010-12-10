@@ -88,6 +88,14 @@
 	font-weight: bold;
 }
 
+/*** Tree selector ***/
+.ui-tree .selected {
+	background: $(vphdr.bg) !important;
+}
+TD .ui-tree .selected:hover {
+	background: $(vphdr.bg) !important;
+}
+
 /*** DisplayValue ***/
 .ui-dspv {
 	background: white;
