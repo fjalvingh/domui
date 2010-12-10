@@ -65,7 +65,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	@Override
-	protected void addControl(Label label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+	protected void addControl(NodeBase label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
 		modalAdd(label, 1, list);
 	}
 
@@ -82,6 +82,11 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 		}
 		Label l = clf.createControlLabel(labelnode, label, editable, mandatory, pmm);
 		modalAdd(l, colSpan, list);
+	}
+
+	@Override
+	public void addContent(NodeBase label, NodeBase[] control, boolean editable) {
+		modalAdd(label, 1, control);
 	}
 
 	@Override
@@ -103,7 +108,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param list
 	 */
-	private void modalAdd(Label l, int colSpan, NodeBase[] list) {
+	private void modalAdd(NodeBase l, int colSpan, NodeBase[] list) {
 		TR tr = getLabelRow(); // Row containing zhe labelz.
 		TD td = tr.addCell(); // Create cell for label;
 		td.setCssClass("ui-fvs-lbl");

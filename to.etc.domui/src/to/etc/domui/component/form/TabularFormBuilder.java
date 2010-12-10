@@ -142,8 +142,13 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	}
 
 	@Override
-	public void addControl(final Label label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+	public void addControl(final NodeBase label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel pmm) {
 		modalAdd(label, list, editable);
+	}
+
+	@Override
+	public void addContent(NodeBase label, NodeBase[] control, boolean editable) {
+		modalAdd(label, control, editable);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -260,7 +265,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	/**
 	 * Adds the node to the table, using the current mode. This decides the form placement.
 	 */
-	private void modalAdd(final Label l, final NodeBase[] ctlcontainer, boolean editable) {
+	private void modalAdd(final NodeBase l, final NodeBase[] ctlcontainer, boolean editable) {
 		switch(m_nextNodeMode){
 			default:
 				throw new IllegalStateException("Invalid table insert mode: " + m_mode);
@@ -306,7 +311,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAddNormal(final Label l, final NodeBase[] c, boolean editable) {
+	protected void modeAddNormal(final NodeBase l, final NodeBase[] c, boolean editable) {
 		addRow();
 		addCells(row(), l, c, editable);
 	}
@@ -317,7 +322,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAddAppend(final Label l, final NodeBase[] c, boolean editable) {
+	protected void modeAddAppend(final NodeBase l, final NodeBase[] c, boolean editable) {
 		//-- Find the last used TR in the body.
 		if(tbody().getChildCount() == 0 || getLastUsedRow() == null) { // FIXME Why this exhaustive test? Null lastrow should be enough?
 			addRow();
@@ -330,7 +335,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAddColumnar(final Label l, final NodeBase[] c, boolean editable) {
+	protected void modeAddColumnar(final NodeBase l, final NodeBase[] c, boolean editable) {
 		//-- 1. Find the appropriate "row" or make sure it exists.
 		TR tr = selectRow(m_colRow);
 
@@ -361,7 +366,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAppendInto(final Label l, final NodeBase[] c, boolean editable) {
+	protected void modeAppendInto(final NodeBase l, final NodeBase[] c, boolean editable) {
 		TR tr = row(); // If there's no row-> add one,
 
 		if(tr.getChildCount() == 0) { // No cells yet?

@@ -165,8 +165,14 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	@Override
-	protected void addControl(Label label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+	protected void addControl(NodeBase label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
 		modalAdd(label, list, editable);
+		clearRun();
+	}
+
+	@Override
+	public void addContent(NodeBase label, NodeBase[] control, boolean editable) {
+		modalAdd(label, control, editable);
 		clearRun();
 	}
 
@@ -190,7 +196,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @param l
 	 * @param list
 	 */
-	private void modalAdd(Label l, NodeBase[] list, boolean editable) {
+	private void modalAdd(NodeBase l, NodeBase[] list, boolean editable) {
 		TR tr = getLabelRow(); // Row containing zhe labelz.
 		TD td = tr.addCell(); // Create cell for label;
 		td.setCssClass(m_labelClass == null ? m_defaultLabelClass : m_labelClass);
