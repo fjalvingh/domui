@@ -197,6 +197,11 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		return addProp(name, label, editable, mandatory);
 	}
 
+	public void addContent(NodeBase label, NodeBase control, boolean editable) {
+		addContent(label, new NodeBase[]{control}, editable);
+	}
+
+
 	/**
 	 * Add a display-only field for the specified property. The field cannot be made
 	 * editable.

@@ -212,6 +212,14 @@ input:hover, textarea:hover, select:hover {
 	height: 18px;
 }
 
+/*** Tree selector ***/
+.ui-tree .selected {
+	background: <%= selected_bg %> !important;
+}
+TD .ui-tree .selected:hover {
+	background: <%= selected_bg %> !important;
+}
+
 /*** DisplayValue ***/
 .ui-dspv {
 	background:none repeat scroll 0 0 #F5F5FA;
