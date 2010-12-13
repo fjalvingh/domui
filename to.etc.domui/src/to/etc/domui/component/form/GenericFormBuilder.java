@@ -201,6 +201,9 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		addContent(label, new NodeBase[]{control}, editable);
 	}
 
+	public void addContent(String label, NodeBase control, boolean editable) {
+		addContent(new Label(control, label), new NodeBase[]{control}, editable);
+	}
 
 	/**
 	 * Add a display-only field for the specified property. The field cannot be made
