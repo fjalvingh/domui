@@ -271,4 +271,12 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 		addRow();
 		return addCell(tdcss);
 	}
+
+	protected void setLastUsedRow(TR row) {
+		m_lastUsedRow = row;
+	}
+
+	protected void setLastUsedCell(TD cell) {
+		m_lastUsedCell = cell;
+	}
 }
