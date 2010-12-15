@@ -32,20 +32,45 @@ import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 /**
- * This is a helper class to generate tabular forms. It is more capable than FormBuilder
- * in that it allows for multiple layouts within the table, by spanning cells where
- * needed. In addition it allows for multiple table sections using multiple TBody's in
- * the generated table. This can be used to create collapsable forms.
+ * This is a helper class to generate tabular forms. It lays out the form by creating
+ * a table and adding labels and input controls in separate table cells in a row. If
+ * nothing else is done this creates a form in the layout of:
+ * <table>
+ * 	<tr><td>First name</td><td><input type="text"></td></tr>
+ * 	<tr><td>Last name</td><td><input type="text"></td></tr>
+ * 	<tr><td>Address</td><td><input type="text"></td></tr>
+ * </table>
  *
- * <p>This generates a form where the content is contained in a table, and where labels
- * are on the same row and preceding the input items. By default it will create a Table
- * with two columns: the label column and the input column.</p>
+ * A form builder is not a component by itself; it is a helper class which <i>creates</i>
+ * DomUI nodes AND a {@link ModelBindings} instance containing the bindings of the
+ * created components to their class instance and properties. After use you can discard the FormBuilder,
+ * provided you retain the bindings if you need them.
+ * A formbuilder is highly stateful during use.
  *
- * <p>You can also easily create a format with more "input area's" which are also called
- * columns here; this can be used to create a 4-column table with label, input, label, input
- * column order. You can cause input area's to be joined too, creating a single row that
- * contains only one input. In that case the label takes one cell, the input field will take
- * another cell with a colspan for the remaining size.</p>
+ * <p>There are ways to play around with the layout by using <i>format directives</i> <b>before</b>
+ * fields are added. Usually layout directives take effect for the <i>next control</i> that is added.
+ * There are two kinds of layout directives. Permanent ones change the settting, well, permanently
+ * until it is explicitly changed again. Permanent layout directives start with "set" in the call. There
+ * are also temporary layout directives, these have no "set" in their name. These take effect for the next
+ * the control or the next <i>run of controls</i> if they are added with a single call to the form builder,
+ * for instance using addProps(String... names). When the control or controls are added the layout directive
+ * returns to it's default setting.</p>
+ *
+ * <h2>Layout directives</h2>
+ * The following layout directives are available:
+ * <ul>
+ *	<li>append(): this adds the next field(s) as new cells to the last row. Every added component always
+ *		adds two cells: a label cell and an input cell containing the component. Components added after
+ *		this will appear after the previous added component; because the table itself contains more columns
+ *		it means that the first "visual column" will become less wide.</li>
+ *	<li>into(): this adds the component in the <i>same cell</i> as the previous one, optionally separated
+ *		with some characters as a separator. Because everything remains in a cell the "other" cells do not
+ *		become "smaller"</li>
+ *	<li>col(x): this defaults to col(0), by using other column numbers you create a form with two
+ *		"visible columns" where each "visible column" contains (label, input) pairs. By using the colspan(x)
+ *		directive you can spread a single input field over multiple visible columns.</li>
+ * </ul>
+ * See <a href="http://www.domui.org/wiki/bin/view/Documentation/FormBuilders">the wiki for more details</a>.
  *
  * FIXME Names for adding either property-based or control-based new additions are very unclear.
  *
