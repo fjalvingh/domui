@@ -26,8 +26,6 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 
 	protected Map<RadioButton,T> m_valueMap;
 
-	private long m_idGen;
-
 	IValueChanged<?> m_valueChanger;
 	ClassMetaModel m_cmm;
 
@@ -35,7 +33,6 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 		m_clz = clz;
 		m_name = name;
 		m_valueMap = new HashMap<RadioButton, T>();
-		m_idGen = 0;
 		m_valueChanger = null;
 
 		m_cmm = MetaManager.findClassMeta(clz);
