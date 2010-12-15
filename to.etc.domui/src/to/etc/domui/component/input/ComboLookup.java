@@ -27,7 +27,15 @@ package to.etc.domui.component.input;
 import java.util.*;
 
 import to.etc.domui.util.*;
+import to.etc.webapp.query.*;
 
+/**
+ * Combobox component where the list type is the same as the value type, i.e. it
+ * uses some {@code List<T>} and getValue() returns T.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Dec 16, 2010
+ */
 public class ComboLookup<T> extends ComboComponentBase<T, T> {
 	public ComboLookup() {}
 
@@ -41,6 +49,10 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 
 	public ComboLookup(Class< ? extends IComboDataSet<T>> set, INodeContentRenderer<T> r) {
 		super(set, r);
+	}
+
+	public ComboLookup(QCriteria<T> query) {
+		super(query);
 	}
 
 	@Override

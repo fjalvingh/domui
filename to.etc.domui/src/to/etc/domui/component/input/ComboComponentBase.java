@@ -33,6 +33,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.query.*;
 
 public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, IHasModifiedIndication {
 	private String m_emptyText;
@@ -74,6 +75,10 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 
 	public ComboComponentBase(IComboDataSet<T> dataSet) {
 		m_dataSet = dataSet;
+	}
+
+	public ComboComponentBase(QCriteria<T> query) {
+		m_dataSet = new CriteriaComboDataSet(query);
 	}
 
 	public ComboComponentBase(Class< ? extends IComboDataSet<T>> dataSetClass) {

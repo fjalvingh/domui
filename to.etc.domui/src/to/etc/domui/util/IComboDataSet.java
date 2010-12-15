@@ -26,14 +26,17 @@ package to.etc.domui.util;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 /**
- * Some kind of combobox dataset. Creates a list of combobox items.
+ * Factory to create the dataset for a combobox. Instance should create a list of combobox items in display order. Instances must be reentrant.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 11, 2008
  */
 public interface IComboDataSet<T> {
-	public List<T> getComboDataSet(UrlPage page) throws Exception;
+	@Nonnull
+	public List<T> getComboDataSet(@Nonnull UrlPage page) throws Exception;
 }
