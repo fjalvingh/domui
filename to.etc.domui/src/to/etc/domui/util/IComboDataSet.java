@@ -26,15 +26,14 @@ package to.etc.domui.util;
 
 import java.util.*;
 
-import to.etc.domui.state.*;
+import to.etc.domui.dom.html.*;
 
 /**
- * Some kind of combobox dataset. This returns a list of thingies for a combobox, depending
- * on the current conversation context.
+ * Some kind of combobox dataset. Creates a list of combobox items.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 11, 2008
  */
 public interface IComboDataSet<T> {
-	public List<T> getComboDataSet(ConversationContext cc, String[] parameters) throws Exception;
+	public List<T> getComboDataSet(UrlPage page) throws Exception;
 }
