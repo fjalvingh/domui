@@ -109,13 +109,17 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	GenericTableFormBuilder extensions.					*/
 	/*--------------------------------------------------------------*/
+
+	/**
+	 * Reset variables after finish. Cannot be done when table is created!
+	 */
 	@Override
-	protected void internalClearLocation() {
+	public NodeContainer finish() {
 		m_colCol = 0;
 		m_nextColSpan = 1;
 		m_maxColumns = 1;
 		Arrays.fill(m_columnRowCount, 0);
-		//		m_colRow = 0;
+		return super.finish();
 	}
 
 	/*--------------------------------------------------------------*/
