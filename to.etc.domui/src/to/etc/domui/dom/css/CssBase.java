@@ -74,7 +74,7 @@ public class CssBase {
 	/*-- CSS Classification. --*/
 	private ClearType m_clear;
 
-	private String m_cursor;
+//	private String m_cursor;
 
 	private DisplayType m_display;
 
@@ -372,15 +372,15 @@ public class CssBase {
 		m_clear = clear;
 	}
 
-	public String getCursor() {
-		return m_cursor;
-	}
-
-	public void setCursor(final String cursor) {
-		if(!DomUtil.isEqual(cursor, m_cursor))
-			changed();
-		m_cursor = cursor;
-	}
+//	public String getCursor() {
+//		return m_cursor;
+//	}
+//
+//	public void setCursor(final String cursor) {
+//		if(!DomUtil.isEqual(cursor, m_cursor))
+//			changed();
+//		m_cursor = cursor;
+//	}
 
 	public DisplayType getDisplay() {
 		return m_display;
