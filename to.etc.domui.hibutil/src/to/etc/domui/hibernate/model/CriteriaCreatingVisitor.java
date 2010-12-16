@@ -204,7 +204,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			}
 		} else {
 			r.visit(this);
-			addCriterion(m_last);
+			if(null != m_last)
+				addCriterion(m_last);
 			m_last = null;
 		}
 	}
