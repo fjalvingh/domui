@@ -64,6 +64,25 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 	}
 
 	/**
+	 * Create a combo which fills it's list with the result of the query passed.
+	 * @param query
+	 */
+	public ComboLookup(QCriteria<T> query, INodeContentRenderer<T> cr) {
+		this(query);
+		setContentRenderer(cr);
+	}
+
+	/**
+	 * Create a combo which fills it's list with the result of the query. Each value is filled from the values of the properties specified.
+	 * @param query
+	 * @param properties
+	 */
+	public ComboLookup(QCriteria<T> query, String... properties) {
+		this(query);
+		setContentRenderer(new PropertyNodeContentRenderer<T>(properties));
+	}
+
+	/**
 	 * This implements the identical conversion, i.e. in=out, because this component returns
 	 * the list type.
 	 * @see to.etc.domui.component.input.ComboComponentBase#listToValue(java.lang.Object)
