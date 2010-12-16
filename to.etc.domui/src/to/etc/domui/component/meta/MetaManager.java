@@ -733,4 +733,65 @@ final public class MetaManager {
 
 		return res;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:		*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Get a NLSed label for the specified enum label.
+	 */
+	static public String getEnumLabel(Enum< ? > label) {
+		if(label == null)
+			return null;
+		ClassMetaModel cmm = MetaManager.findClassMeta(label.getClass());
+		String s = cmm.getDomainLabel(NlsContext.getLocale(), label);
+		if(s == null)
+			s = String.valueOf(label);
+		return s;
+	}
+
+	/**
+	 * Get a label for the enum value "value" presented on the property passed. This will first
+	 * check to see if this property has overridden the labels for the enum before falling back
+	 * to the enum's global bundle.
+	 *
+	 * @param clz
+	 * @param property
+	 * @param value
+	 * @return
+	 */
+	static public String getEnumLabel(Class< ? > clz, String property, Object value) {
+		if(value == null)
+			return null;
+		return getEnumLabel(MetaManager.findPropertyMeta(clz, property), value);
+	}
+
+	/**
+	 * Get a label for the enum value "value" presented on the property passed. This will first
+	 * check to see if this property has overridden the labels for the enum before falling back
+	 * to the enum's global bundle.
+	 * @param pmm
+	 * @param value
+	 * @return
+	 */
+	static public String getEnumLabel(PropertyMetaModel pmm, Object value) {
+		if(value == null)
+			return null;
+		Locale loc = NlsContext.getLocale();
+		String v = pmm.getDomainValueLabel(loc, value);
+		if(v == null) {
+			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType());
+			v = cmm.getDomainLabel(loc, value);
+			if(v == null) {
+				if(value.getClass() != cmm.getActualClass()) {
+					cmm = MetaManager.findClassMeta(value.getClass());
+					v = cmm.getDomainLabel(loc, value);
+				}
+				if(v == null)
+					v = String.valueOf(value);
+			}
+		}
+		return v;
+	}
 }

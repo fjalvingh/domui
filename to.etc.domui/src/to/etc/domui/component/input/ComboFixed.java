@@ -26,12 +26,21 @@ package to.etc.domui.component.input;
 
 import java.util.*;
 
+import javax.annotation.*;
+
+import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
+import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * Simple combobox handling [String, Object] pairs where the string is the
  * presented label value and the Object represents the values selected.
+ * Please see {@link UIControlUtil} for factory methods that help you to
+ * create ComboFixed instances easily.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 26, 2009
@@ -44,6 +53,9 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 		}
 	};
 
+	/**
+	 * Generic constructor.
+	 */
 	public ComboFixed() {
 		initRenderer();
 	}
@@ -67,6 +79,10 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 		initRenderer();
 	}
 
+	/**
+	 * Use the specified list of pairs directly.
+	 * @param in
+	 */
 	public ComboFixed(List<ValueLabelPair<T>> in) {
 		super(in);
 		initRenderer();
@@ -86,4 +102,154 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	//	protected void renderOptionLabel(SelectOption o, ValueLabelPair<T> object) throws Exception {
 	//		o.add(object.getLabel());
 	//	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Utilities to quickly create combo's.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Create a combo for all members of an enum. It uses the enums labels as description. Since this has no known property it cannot
+	 * use per-property translations!!
+	 *
+	 * @param <T>
+	 * @param clz
+	 * @return
+	 */
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class<T> clz) {
+		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
+		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
+		T[] ar = clz.getEnumConstants();
+		for(T v : ar) {
+			String label = cmm.getDomainLabel(NlsContext.getLocale(), v);
+			if(label == null)
+				label = v.name();
+			l.add(new ValueLabelPair<T>(v, label));
+		}
+		return new ComboFixed<T>(l);
+	}
+
+	/**
+	 * Returns a combo for all of the list-of-value items for the specified property.
+	 *
+	 * @param <T>
+	 * @param base		The class
+	 * @param property	The property on the class.
+	 * @return
+	 */
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class< ? > base, String property) {
+		return createEnumCombo(MetaManager.getPropertyMeta(base, property));
+	}
+
+	/**
+	 * Returns a combo for all of the list-of-value items for the specified property.
+	 * @param <T>
+	 * @param pmm
+	 * @return
+	 */
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel pmm) {
+		T[] var = (T[]) pmm.getDomainValues();
+		if(var == null)
+			throw new IllegalArgumentException(pmm + " is not a list-of-values domain property");
+		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
+		for(T v : var) {
+			String label = MetaManager.getEnumLabel(pmm, var);
+			l.add(new ValueLabelPair<T>(v, label));
+		}
+		return new ComboFixed<T>(l);
+	}
+
+	/**
+	 * Create a combobox having only the specified enum labels.
+	 * @param <T>
+	 * @param items
+	 * @return
+	 */
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(T... items) {
+		if(items.length == 0)
+			throw new IllegalArgumentException("Missing parameters");
+
+		ClassMetaModel cmm = MetaManager.findClassMeta(items[0].getClass());
+		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
+		for(T v : items) {
+			String label = cmm.getDomainLabel(NlsContext.getLocale(), v);
+			if(label == null)
+				label = v.name();
+			l.add(new ValueLabelPair<T>(v, label));
+		}
+		return new ComboFixed<T>(l);
+	}
+
+	/**
+	 * Create a combobox having only the specified enum labels.
+	 * @param <T>
+	 * @param base
+	 * @param property
+	 * @param domainvalues
+	 * @return
+	 */
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class< ? > base, String property, T... domainvalues) {
+		return createEnumCombo(MetaManager.getPropertyMeta(base, property), domainvalues);
+	}
+
+	/**
+	 * Create a combobox having only the specified enum labels.
+	 * @param <T>
+	 * @param pmm
+	 * @param domainvalues
+	 * @return
+	 */
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel pmm, T... domainvalues) {
+		if(domainvalues.length == 0)
+			throw new IllegalArgumentException("Missing parameters");
+		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
+		for(T v : domainvalues) {
+			String label = MetaManager.getEnumLabel(pmm, v);
+			l.add(new ValueLabelPair<T>(v, label));
+		}
+		return new ComboFixed<T>(l);
+	}
+
+	/**
+	 * Default tostring converter.
+	 */
+	static private final IObjectToStringConverter<Object> TOSTRING_CV = new IObjectToStringConverter<Object>() {
+		@Override
+		public String convertObjectToString(Locale loc, Object in) throws UIException {
+			if(null == in)
+				return "";
+			return String.valueOf(in);
+		}
+	};
+
+	/**
+	 * Create a combo for a manually specified list of objects. It calls toString on them to
+	 * get a String value.
+	 * @param <T>
+	 * @param items
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	static public <T> ComboFixed<T>	createCombo(T... items) {
+		return createCombo((IObjectToStringConverter) TOSTRING_CV, items);
+	}
+
+	/**
+	 * Create a combo for a manually specified list of objects. Use the specified converter
+	 * to convert to a string.
+	 *
+	 * @param <T>
+	 * @param converter
+	 * @param items
+	 * @return
+	 */
+	static public <T> ComboFixed<T> createCombo(@Nonnull IObjectToStringConverter<T> converter, T... items) {
+		List<ValueLabelPair<T>> values = new ArrayList<ValueLabelPair<T>>();
+		for(T item : items) {
+			String v = converter.convertObjectToString(NlsContext.getLocale(), item);
+			if(null == v)
+				v = "";
+			values.add(new ValueLabelPair<T>(item, v));
+		}
+		return new ComboFixed<T>(values);
+	}
 }

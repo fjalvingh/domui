@@ -78,7 +78,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 	}
 
 	public ComboComponentBase(QCriteria<T> query) {
-		m_dataSet = new CriteriaComboDataSet(query);
+		m_dataSet = new CriteriaComboDataSet<T>(query);
 	}
 
 	public ComboComponentBase(Class< ? extends IComboDataSet<T>> dataSetClass) {

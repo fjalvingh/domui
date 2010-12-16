@@ -39,6 +39,10 @@ import to.etc.webapp.query.*;
 public class ComboLookup<T> extends ComboComponentBase<T, T> {
 	public ComboLookup() {}
 
+	/**
+	 * Use the specified cached list maker to fill the combobox.
+	 * @param maker
+	 */
 	public ComboLookup(IListMaker<T> maker) {
 		super(maker);
 	}
@@ -51,10 +55,19 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 		super(set, r);
 	}
 
+	/**
+	 * Create a combo which fills it's list with the result of the query passed.
+	 * @param query
+	 */
 	public ComboLookup(QCriteria<T> query) {
 		super(query);
 	}
 
+	/**
+	 * This implements the identical conversion, i.e. in=out, because this component returns
+	 * the list type.
+	 * @see to.etc.domui.component.input.ComboComponentBase#listToValue(java.lang.Object)
+	 */
 	@Override
 	protected T listToValue(T in) throws Exception {
 		return in;
