@@ -234,7 +234,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		} else if("javax.persistence.Id".equals(name)) {
 			pmm.setPrimaryKey(true);
 			cmm.setPersistentClass(true);
-		} else if("javax.persistence.ManyToOne".equals(name)) {
+		} else if("javax.persistence.ManyToOne".equals(name) || "javax.persistence.OneToOne".equals(name)) {
 			pmm.setRelationType(PropertyRelationType.UP);
 
 			//-- Decode fields from the annotation.
