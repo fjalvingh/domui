@@ -29,6 +29,14 @@ import java.util.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
+/**
+ * Converts a Double value to a string and v.v., the double is treated as a
+ * real number.
+ * FIXME This does not properly do locale handling!!!!!
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Dec 10, 2010
+ */
 public class DoubleConverter implements IConverter<Double> {
 	@Override
 	public String convertObjectToString(Locale loc, Double in) throws UIException {
@@ -45,7 +53,7 @@ public class DoubleConverter implements IConverter<Double> {
 		if(input.length() == 0)
 			return null;
 		try {
-			return Double.valueOf(input);
+			return Double.valueOf(input); // FIXME BAD LOCALE HANDLING
 		} catch(Exception x) {
 			throw new ValidationException(Msgs.V_INVALID_DOUBLE);
 		}
