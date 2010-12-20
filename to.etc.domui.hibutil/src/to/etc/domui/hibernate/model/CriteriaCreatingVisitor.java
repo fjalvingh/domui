@@ -134,7 +134,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 * @return
 	 */
 	private String nextAlias() {
-		return "_a" + (++m_aliasIndex);
+		return "a_" + (++m_aliasIndex);
 	}
 
 	//	/**
