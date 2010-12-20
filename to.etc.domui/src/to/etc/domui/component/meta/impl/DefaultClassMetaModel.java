@@ -54,8 +54,6 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/** Theclass' resource bundle. */
 	private BundleRef m_classBundle;
 
-	private boolean m_initialized;
-
 	private final Map<String, PropertyMetaModel> m_propertyMap = new HashMap<String, PropertyMetaModel>();
 
 	/**
@@ -248,29 +246,21 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_comboDisplayProperties = displayProperties;
 	}
 
-	public boolean isInitialized() {
-		return m_initialized;
-	}
+	//	public boolean isInitialized() {
+	//		return m_initialized;
+	//	}
 
-	public void initialized() {
-		m_initialized = true;
-
-		//-- Finalize: sort search properties.
-		Collections.sort(m_searchProperties, new Comparator<SearchPropertyMetaModel>() {
-			@Override
-			public int compare(final SearchPropertyMetaModel o1, final SearchPropertyMetaModel o2) {
-				return o1.getOrder() - o2.getOrder();
-			}
-		});
-	}
-
-//	public ComboOptionalType getComboOptional() {
-//		return m_comboOptional;
-//	}
-//
-//	public void setComboOptional(final ComboOptionalType comboOptional) {
-//		m_comboOptional = comboOptional;
-//	}
+	//	public void initialized() {
+	//		m_initialized = true;
+	//
+	//		//-- Finalize: sort search properties.
+	//		Collections.sort(m_searchProperties, new Comparator<SearchPropertyMetaModel>() {
+	//			@Override
+	//			public int compare(final SearchPropertyMetaModel o1, final SearchPropertyMetaModel o2) {
+	//				return o1.getOrder() - o2.getOrder();
+	//			}
+	//		});
+	//	}
 
 	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
@@ -281,25 +271,18 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
-	public void addSearchProperty(final SearchPropertyMetaModel sp) {
-		if(m_searchProperties == Collections.EMPTY_LIST)
-			m_searchProperties = new ArrayList<SearchPropertyMetaModel>();
-		m_searchProperties.add(sp);
-	}
-
-	public void addKeyWordSearchProperty(final SearchPropertyMetaModel sp) {
-		if(m_keyWordSearchProperties == Collections.EMPTY_LIST)
-			m_keyWordSearchProperties = new ArrayList<SearchPropertyMetaModel>();
-		m_keyWordSearchProperties.add(sp);
-	}
-
 	/**
 	 * Returns the SORTED list of search properties defined on this class.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getSearchProperties()
 	 */
 	@Override
+	@Nonnull
 	public List<SearchPropertyMetaModel> getSearchProperties() {
 		return m_searchProperties;
+	}
+
+	public void setSearchProperties(@Nonnull List<SearchPropertyMetaModel> searchProperties) {
+		m_searchProperties = searchProperties.size() == 0 ? Collections.EMPTY_LIST : searchProperties;
 	}
 
 	/**
@@ -307,8 +290,13 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getKeyWordSearchProperties()
 	 */
 	@Override
+	@Nonnull
 	public List<SearchPropertyMetaModel> getKeyWordSearchProperties() {
 		return m_keyWordSearchProperties;
+	}
+
+	public void setKeyWordSearchProperties(@Nonnull List<SearchPropertyMetaModel> keyWordSearchProperties) {
+		m_keyWordSearchProperties = keyWordSearchProperties.size() == 0 ? Collections.EMPTY_LIST : keyWordSearchProperties;
 	}
 
 	@Override

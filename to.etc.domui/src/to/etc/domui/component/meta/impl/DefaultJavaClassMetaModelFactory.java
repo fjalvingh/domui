@@ -62,10 +62,17 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		Class< ? > clz = (Class< ? >) theThingy;
 		DefaultClassMetaModel dmm = new DefaultClassMetaModel(clz);
 
-		decodeClassAnnotations(dmm, clz); // Do class-level annotations
+		List<SearchPropertyMetaModel> searchlist = new ArrayList<SearchPropertyMetaModel>();
+		List<SearchPropertyMetaModel> keysearchlist = new ArrayList<SearchPropertyMetaModel>();
+		decodeClassAnnotations(dmm, clz, searchlist, keysearchlist); // Do class-level annotations
 		decodeDomainValues(dmm, clz); // Handle domain for this class (list-of-values)
-		decodeProperties(dmm, clz);
+		decodeProperties(dmm, clz, searchlist, keysearchlist);
 
+		//-- Set both search property lists ordered by their order property.
+		Collections.sort(searchlist, SearchPropertyMetaModel.BY_ORDER);
+		Collections.sort(keysearchlist, SearchPropertyMetaModel.BY_ORDER);
+		dmm.setSearchProperties(searchlist);
+		dmm.setKeyWordSearchProperties(keysearchlist);
 		return dmm;
 	}
 
@@ -73,8 +80,10 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	 * This obtains all properties from the class and initializes their models.
 	 * @param dmm
 	 * @param clz
+	 * @param keysearchlist
+	 * @param searchlist
 	 */
-	protected void decodeProperties(DefaultClassMetaModel cmm, Class< ? > clz) {
+	protected void decodeProperties(DefaultClassMetaModel cmm, Class< ? > clz, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
 		/*
 		 * Business as usual: the Introspector does not properly resolve properties when using
 		 * invariant returns. We're forced to do something by ourselves. The Introspector does
@@ -92,11 +101,11 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		//-- Create model data from this thingy.
 		for(PropertyInfo pd : pilist) {
 			if(!pd.getName().equals("class"))
-				createPropertyInfo(cmm, pd);
+				createPropertyInfo(cmm, pd, searchlist, keysearchlist);
 		}
 	}
 
-	protected void createPropertyInfo(DefaultClassMetaModel cmm, final PropertyInfo pd) {
+	protected void createPropertyInfo(DefaultClassMetaModel cmm, final PropertyInfo pd, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
 		//		System.out.println("Property: " + pd.getName() + ", reader=" + pd.getGetter());
 		//		if(pd.getName().equals("id"))
 		//			System.out.println("GOTCHA");
@@ -106,12 +115,12 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			return;
 		DefaultPropertyMetaModel pm = new DefaultPropertyMetaModel(cmm, pd);
 		cmm.addProperty(pm);
-		initPropertyModel(cmm, pd, pm);
+		initPropertyModel(cmm, pd, pm, searchlist, keysearchlist);
 		if(pm.isPrimaryKey())
 			cmm.setPrimaryKey(pm);
 	}
 
-	protected void initPropertyModel(DefaultClassMetaModel cmm, PropertyInfo pd, DefaultPropertyMetaModel pmm) {
+	protected void initPropertyModel(DefaultClassMetaModel cmm, PropertyInfo pd, DefaultPropertyMetaModel pmm, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
 		pmm.setAccessor(new PropertyAccessor<Object>(pd.getGetter(), pd.getSetter(), pmm));
 		if(pd.getSetter() == null) {
 			pmm.setReadOnly(YesNoType.YES);
@@ -121,12 +130,12 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName();
 			decodePropertyAnnotationByName(cmm, pmm, an, ana);
-			decodePropertyAnnotation(cmm, pmm, an);
+			decodePropertyAnnotation(cmm, pmm, an, searchlist, keysearchlist);
 		}
 	}
 
 	@SuppressWarnings({"cast", "unchecked", "rawtypes"})
-	protected void decodePropertyAnnotation(DefaultClassMetaModel cmm, DefaultPropertyMetaModel pmm, Annotation an) {
+	protected void decodePropertyAnnotation(DefaultClassMetaModel cmm, DefaultPropertyMetaModel pmm, Annotation an, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
 		if(an instanceof MetaProperty) {
 			//-- Handle meta-assignments.
 			MetaProperty mp = (MetaProperty) an;
@@ -203,12 +212,11 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			mm.setOrder(sp.order());
 			mm.setMinLength(sp.minLength());
 			mm.setPropertyName(pmm.getName());
-			//			mm.setProperty(this);
-			if(((SearchProperty) an).searchType() == SearchPropertyType.SEARCH_FIELD || ((SearchProperty) an).searchType() == SearchPropertyType.BOTH) {
-				((DefaultClassMetaModel) cmm).addSearchProperty(mm);
+			if(sp.searchType() == SearchPropertyType.SEARCH_FIELD || sp.searchType() == SearchPropertyType.BOTH) {
+				searchlist.add(mm);
 			}
-			if(((SearchProperty) an).searchType() == SearchPropertyType.KEYWORD || ((SearchProperty) an).searchType() == SearchPropertyType.BOTH) {
-				((DefaultClassMetaModel) cmm).addKeyWordSearchProperty(mm);
+			if(sp.searchType() == SearchPropertyType.KEYWORD || sp.searchType() == SearchPropertyType.BOTH) {
+				keysearchlist.add(mm);
 			}
 
 		} else if(an instanceof MetaObject) {
@@ -348,13 +356,15 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	/*--------------------------------------------------------------*/
 	/**
 	 * Walk all known class annotations and use them to add class based metadata.
+	 * @param keysearchlist
+	 * @param searchlist
 	 */
-	protected void decodeClassAnnotations(DefaultClassMetaModel cmm, Class< ? > clz) {
+	protected void decodeClassAnnotations(DefaultClassMetaModel cmm, Class< ? > clz, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
 		Annotation[] annar = clz.getAnnotations(); // All class-level thingerydoos
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName(); // Get the annotation's name
 			decodeAnnotationByName(cmm, an, ana); // Decode by name literal
-			decodeAnnotation(cmm, an); // Decode well-known annotations
+			decodeAnnotation(cmm, an, searchlist, keysearchlist); // Decode well-known annotations
 		}
 	}
 
@@ -385,8 +395,10 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	/**
 	 * Decodes all DomUI annotations.
 	 * @param an
+	 * @param keysearchlist
+	 * @param searchlist
 	 */
-	protected void decodeAnnotation(final DefaultClassMetaModel cmm, final Annotation an) {
+	protected void decodeAnnotation(final DefaultClassMetaModel cmm, final Annotation an, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
 		if(an instanceof MetaCombo) {
 			MetaCombo c = (MetaCombo) an;
 			if(c.dataSet() != UndefinedComboDataSet.class)
@@ -430,15 +442,12 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 				mm.setPropertyName(msi.name().length() == 0 ? null : msi.name());
 				mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
 				mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
-
-				//FIXME NEED TO ADD HERE ACCORDING TO TYPE.
-				//				if(msi. == SearchPropertyType.SEARCH_FIELD) {
-				//					((DefaultClassMetaModel) getClassModel()).addSearchProperty(mm);
-				//				}
-				//				if(searchType == SearchPropertyType.KEYWORD) {
-				//					((DefaultClassMetaModel) getClassModel()).addKeyWordSearchProperty(mm);
-				//				}
-				cmm.addSearchProperty(mm);
+				if(msi.searchType() == SearchPropertyType.SEARCH_FIELD || msi.searchType() == SearchPropertyType.BOTH) {
+					searchlist.add(mm);
+				}
+				if(msi.searchType() == SearchPropertyType.KEYWORD || msi.searchType() == SearchPropertyType.BOTH) {
+					keysearchlist.add(mm);
+				}
 			}
 		}
 	}

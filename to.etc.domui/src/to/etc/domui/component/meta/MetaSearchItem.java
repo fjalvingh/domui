@@ -42,14 +42,14 @@ public @interface MetaSearchItem {
 	 * a lookup field generator class.
 	 * @return
 	 */
-	public String name() default "";
+	String name() default "";
 
 	/**
 	 * If this specification is used in combination with @SearchProperty annotations this
 	 * field must be used to define an order.
 	 * @return
 	 */
-	public int order() default -1;
+	int order() default -1;
 
 	/**
 	 * This defines the minimal length a user must enter into a search control before it
@@ -57,26 +57,26 @@ public @interface MetaSearchItem {
 	 * cause a problematic query.
 	 * @return
 	 */
-	public int minLength() default -1;
+	int minLength() default -1;
 
 	/**
 	 * Generate a CI query by default. Unused?
 	 * @return
 	 */
-	public boolean ignoreCase() default true;
+	boolean ignoreCase() default true;
 
 	/**
 	 * This defines a key in the class's bundle for a string to use as the lookup field's label. This is normally used for
 	 * compound specs only.
 	 */
-	public String lookupLabelKey() default "";
+	String lookupLabelKey() default "";
 
-	public String lookupHintKey() default "";
+	String lookupHintKey() default "";
 
 	/**
 	 * This defines how search property would be used.
 	 * By default it is set to use only see {@link SearchPropertyType#SEARCH_FIELD}.
 	 * This is normally used for compound specs only.
 	 */
-	public SearchPropertyType[] searchType() default {SearchPropertyType.SEARCH_FIELD};
+	SearchPropertyType searchType() default SearchPropertyType.SEARCH_FIELD;
 }
