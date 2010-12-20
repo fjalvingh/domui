@@ -84,7 +84,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private Class< ? extends INodeContentRenderer< ? >> m_comboNodeRenderer;
 
-	private ComboOptionalType m_comboOptional;
+//	private ComboOptionalType m_comboOptional;
 
 	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.EMPTY_LIST;
 
@@ -253,13 +253,13 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		});
 	}
 
-	public ComboOptionalType getComboOptional() {
-		return m_comboOptional;
-	}
-
-	public void setComboOptional(final ComboOptionalType comboOptional) {
-		m_comboOptional = comboOptional;
-	}
+//	public ComboOptionalType getComboOptional() {
+//		return m_comboOptional;
+//	}
+//
+//	public void setComboOptional(final ComboOptionalType comboOptional) {
+//		m_comboOptional = comboOptional;
+//	}
 
 	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {

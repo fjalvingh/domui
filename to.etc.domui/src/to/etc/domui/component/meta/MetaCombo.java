@@ -76,10 +76,4 @@ public @interface MetaCombo {
 	 * @return
 	 */
 	MetaComboProperty[] properties() default {};
-
-	/**
-	 * Allow no value to be selected here. Used when there's a need to override the default.
-	 * @return
-	 */
-	ComboOptionalType optional() default ComboOptionalType.INHERITED;
 }

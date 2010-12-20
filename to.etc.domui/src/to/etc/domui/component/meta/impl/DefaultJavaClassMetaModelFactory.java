@@ -191,8 +191,6 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 				pmm.setRelationType(PropertyRelationType.UP);
 				pmm.setComboNodeRenderer(c.nodeRenderer());
 			}
-			if(c.optional() != ComboOptionalType.INHERITED)
-				pmm.setRequired(c.optional() == ComboOptionalType.REQUIRED);
 			if(c.properties() != null && c.properties().length > 0) {
 				pmm.setRelationType(PropertyRelationType.UP);
 				pmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
@@ -396,8 +394,6 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 				cmm.setComboLabelRenderer(c.labelRenderer());
 			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
 				cmm.setComboNodeRenderer(c.nodeRenderer());
-			if(c.optional() != ComboOptionalType.INHERITED)
-				cmm.setComboOptional(c.optional());
 			if(c.properties() != null && c.properties().length > 0) {
 				cmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
 			}
