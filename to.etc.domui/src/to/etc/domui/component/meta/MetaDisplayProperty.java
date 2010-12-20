@@ -30,15 +30,13 @@ import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
 
 /**
- * TEMP indicator on how to display some property; used in lookup and combo
- * definitions. This is part of a working test for metadata, do not use
- * because it can change heavily (or be deleted alltogether).
+ * Used to define a property to show in a table, used to define the names
+ * and to override display properties for a single table.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 13, 2008
  */
 @Documented // Retarded
-@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MetaDisplayProperty {
 	/**
@@ -47,7 +45,7 @@ public @interface MetaDisplayProperty {
 	 * the JDK 7 team gets off it's ass and starts to bloody define something useful 8-(
 	 * @return
 	 */
-	public String name();
+	String name();
 
 	/**
 	 * When set this overrides the default label as set by the property metadata. It must be set to a <b>key</b> in
@@ -55,7 +53,7 @@ public @interface MetaDisplayProperty {
 	 * property (using a dotted path) to override the label as defined on the parent relation's property.
 	 * @return
 	 */
-	public String defaultLabel() default Constants.NO_DEFAULT_LABEL;
+	String defaultLabel() default Constants.NO_DEFAULT_LABEL;
 
 	/**
 	 * When set, this defines this field as being a field that a table can show a "sort button" on. The first time
@@ -66,7 +64,7 @@ public @interface MetaDisplayProperty {
 	 *
 	 * @return
 	 */
-	public SortableType defaultSortable() default SortableType.UNKNOWN;
+	SortableType defaultSortable() default SortableType.UNKNOWN;
 
 	/**
 	 * An indication of the display length to use for this field, in characters. When present it will influence
@@ -74,7 +72,7 @@ public @interface MetaDisplayProperty {
 	 * property, as defined in {@link MetaProperty#length()} or any JPA Annotation like {@link Column#length()}.
 	 * @return
 	 */
-	public int displayLength() default -1;
+	int displayLength() default -1;
 
 	/**
 	 * Define a Converter class to use to convert the value from the property to a string. When unset the code
@@ -82,7 +80,7 @@ public @interface MetaDisplayProperty {
 	 * setting or by the default conversions registered with the conversion factory.
 	 * @return
 	 */
-	public Class< ? extends IConverter< ? >> converterClass() default DummyConverter.class;
+	Class< ? extends IConverter< ? >> converterClass() default DummyConverter.class;
 
 	/**
 	 * <p>When present, this will force a join of this property <i>and the next one</i> specified in the display property
@@ -104,9 +102,5 @@ public @interface MetaDisplayProperty {
 	 * </pre>
 	 * @return
 	 */
-	public String join() default Constants.NO_JOIN;
-
-	public YesNoType readOnly() default YesNoType.UNKNOWN;
-
-	public String renderHint() default Constants.NONE;
+	String join() default Constants.NO_JOIN;
 }

@@ -26,11 +26,20 @@ package to.etc.domui.component.meta;
 
 import java.lang.annotation.*;
 
+import to.etc.domui.component.tbl.*;
 import to.etc.domui.util.*;
 
 /**
- * Annotation to describe the default columns to show for an
- * object.
+ * <p>This describes how an Object is to be shown when it is displayed in a (Data)Table (see {@link DataTable}
+ * and {@link BasicRowRenderer}). The most important thing it does is to specify which properties of the
+ * object should be shown in columns of the table; every property mentioned in the {@link #defaultColumns()} list
+ * becomes a column in the Table shown (provided the columns are not joined). In addition, this can also specify
+ * a default "sort" property; when set the table will be shown initially sorted on that property provided
+ * the data model supports sorting.</p>
+ *
+ * <p>This annotation can be used on a class itself; then it defines the default wherever that class is used
+ * in a table. You can also add it to some property in which case it "overrides" the definition done at "class"
+ * level for tables that are shown using that single property. This has not yet been used so success is questionable...</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 28, 2008
@@ -39,13 +48,23 @@ import to.etc.domui.util.*;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MetaObject {
-	MetaDisplayProperty[] defaultColumns() default {};
+	/**
+	 * The list of properties to show in the table, and their conversion, display size etc characteristics. For a normal
+	 * MetaObject instance this list should have at least 1 element.
+	 * @return
+	 */
+	MetaDisplayProperty[] defaultColumns();
 
+	/**
+	 * Define a property to sort on by default. Defaults to NONE, meaning the data is not sorted by the table. To set
+	 * the default sort direction use {@link #defaultSortOrder()}.
+	 * @return
+	 */
 	String defaultSortColumn() default Constants.NONE;
 
+	/**
+	 * If a {@link #defaultSortColumn()} is defined, this defines the initial sort direction (ascending, descending). It defaults to ascending.
+	 * @return
+	 */
 	SortableType defaultSortOrder() default SortableType.SORTABLE_ASC;
-
-	String tableName() default "";
-
-	String tablePrefix() default "";
 }

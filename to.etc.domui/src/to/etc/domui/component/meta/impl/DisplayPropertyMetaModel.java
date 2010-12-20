@@ -68,9 +68,9 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 		setConverter(c);
 		setSortable(p.defaultSortable());
 		setDisplayLength(p.displayLength());
-		setReadOnly(p.readOnly());
+//		setReadOnly(p.readOnly());		jal 20101220 Removed, unused and seems silly in table display
 		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();
-		setRenderHint(p.renderHint());
+//		setRenderHint(p.renderHint());	jal 20101220 Removed, unused and seems silly in table display
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
