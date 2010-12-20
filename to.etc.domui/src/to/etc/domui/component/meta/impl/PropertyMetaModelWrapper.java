@@ -229,4 +229,14 @@ abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
 	public boolean isTransient() {
 		return m_parent.isTransient();
 	}
+
+	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
+		return m_parent.getLookupFieldSearchProperties();
+	}
+
+	@Override
+	public List<DisplayPropertyMetaModel> getLookupFieldTableProperties() {
+		return m_parent.getLookupFieldTableProperties();
+	}
 }

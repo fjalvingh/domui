@@ -136,6 +136,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * Return the class' resource bundle.
 	 */
 	@Override
+	@Nonnull
 	public BundleRef getClassBundle() {
 		return m_classBundle;
 	}
@@ -150,6 +151,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @param loc
 	 * @return
 	 */
+	@Nonnull
 	String getPropertyLabel(final DefaultPropertyMetaModel p, final Locale loc) {
 		String s = getClassBundle().findMessage(loc, p.getName() + ".label");
 		return s == null ? p.getName() : s;
@@ -161,6 +163,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @param loc
 	 * @return
 	 */
+	@Nullable
 	String getPropertyHint(final DefaultPropertyMetaModel p, final Locale loc) {
 		String v = getClassBundle().findMessage(loc, p.getName() + ".hint");
 		if(v == null)
@@ -173,6 +176,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityName()
 	 */
 	@Override
+	@Nonnull
 	public String getUserEntityName() {
 		String s = getClassBundle().findMessage(NlsContext.getLocale(), "entity.name");
 		return s == null ? getClassNameOnly() : s;
@@ -183,6 +187,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityNamePlural()
 	 */
 	@Override
+	@Nonnull
 	public String getUserEntityNamePlural() {
 		String s = getClassBundle().findMessage(NlsContext.getLocale(), "entity.pluralname");
 		return s == null ? getClassNameOnly() : s;
@@ -206,25 +211,28 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
+	@Nullable
 	public synchronized PropertyMetaModel findSimpleProperty(final String name) {
 		return m_propertyMap.get(name);
 	}
 
-	public synchronized void addProperty(PropertyMetaModel pmm) {
+	public synchronized void addProperty(@Nonnull PropertyMetaModel pmm) {
 		m_propertyMap.put(pmm.getName(), pmm);
 	}
 
 	@Override
+	@Nonnull
 	public List<PropertyMetaModel> getProperties() {
 		return new ArrayList<PropertyMetaModel>(m_propertyMap.values());
 	}
 
 	@Override
+	@Nullable
 	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
 		return m_comboDataSet;
 	}
 
-	public void setComboDataSet(final Class< ? extends IComboDataSet< ? >> comboDataSet) {
+	public void setComboDataSet(@Nullable final Class< ? extends IComboDataSet< ? >> comboDataSet) {
 		m_comboDataSet = comboDataSet;
 	}
 
@@ -245,22 +253,6 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	public void setComboDisplayProperties(final List<DisplayPropertyMetaModel> displayProperties) {
 		m_comboDisplayProperties = displayProperties;
 	}
-
-	//	public boolean isInitialized() {
-	//		return m_initialized;
-	//	}
-
-	//	public void initialized() {
-	//		m_initialized = true;
-	//
-	//		//-- Finalize: sort search properties.
-	//		Collections.sort(m_searchProperties, new Comparator<SearchPropertyMetaModel>() {
-	//			@Override
-	//			public int compare(final SearchPropertyMetaModel o1, final SearchPropertyMetaModel o2) {
-	//				return o1.getOrder() - o2.getOrder();
-	//			}
-	//		});
-	//	}
 
 	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
@@ -286,7 +278,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	/**
-	 * Returns the list of key word search properties defined on this class (unsorted).
+	 * Returns the sorted list of key word search properties defined on this class.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getKeyWordSearchProperties()
 	 */
 	@Override
@@ -485,5 +477,4 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 			return QCriteria.create(getMetaTableDef());
 		return QCriteria.create(getActualClass());
 	}
-
 }
