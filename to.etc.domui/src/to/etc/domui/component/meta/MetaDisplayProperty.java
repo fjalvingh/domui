@@ -37,12 +37,14 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 13, 2008
  */
+@Documented // Retarded
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MetaDisplayProperty {
 	/**
-	 * The name of the property to show. This will be replaced with a Property references once
-	 * the JDK 7 team gets off it's ass and starts to bloody define something useful.
+	 * The name of the property to show. You can also specify a dotted path to some
+	 * parent entity's property here. This will be replaced with a Property reference once
+	 * the JDK 7 team gets off it's ass and starts to bloody define something useful 8-(
 	 * @return
 	 */
 	public String name();
@@ -55,17 +57,56 @@ public @interface MetaDisplayProperty {
 	 */
 	public String defaultLabel() default Constants.NO_DEFAULT_LABEL;
 
+	/**
+	 * When set, this defines this field as being a field that a table can show a "sort button" on. The first time
+	 * the sort button is pressed it sorts either ascending or descending, depending on this property's value. Setting
+	 * this only defines the property as "sortable"; it does not define the "initial sort" for a table. You need to do
+	 * that using {@link MetaObject#defaultSortColumn()}. The "default" in this name refers to the default order (ascending or
+	 * descending).
+	 *
+	 * @return
+	 */
 	public SortableType defaultSortable() default SortableType.UNKNOWN;
 
+	/**
+	 * An indication of the display length to use for this field, in characters. When present it will influence
+	 * the percentage widths used in the table. The default value is -1. In this case the real "length" of the
+	 * property, as defined in {@link MetaProperty#length()} or any JPA Annotation like {@link Column#length()}.
+	 * @return
+	 */
 	public int displayLength() default -1;
 
+	/**
+	 * Define a Converter class to use to convert the value from the property to a string. When unset the code
+	 * defaults to the conversion specified on the property itself, either by an explicit {@link MetaProperty#converterClass()}
+	 * setting or by the default conversions registered with the conversion factory.
+	 * @return
+	 */
 	public Class< ? extends IConverter< ? >> converterClass() default DummyConverter.class;
 
+	/**
+	 * <p>When present, this will force a join of this property <i>and the next one</i> specified in the display property
+	 * list, and the string specified here will be used as a "separator" between the two values. The join means that
+	 * the two (or more) properties are joined together in a <i>single</i> table column, as a single string. A typical
+	 * use case for instance is to create a single visible table column for something like Address, where the address
+	 * is displayed as:</p>
+	 * <pre>
+	 * @MetaObject(properties={
+	 *   @MetaDisplayProperty(name="streetName", join=" ")
+	 *  ,@MetaDisplayProperty(name="houseNumber", join=", ")
+	 *  ,@MetaDisplayProperty(name="cityName")
+	 * })
+	 * </pre>
+	 *
+	 * <p>In this example the address field's columns would be shown in a single visible table column, like:
+	 * <pre>
+	 * Cinemadreef 96, Almere
+	 * </pre>
+	 * @return
+	 */
 	public String join() default Constants.NO_JOIN;
 
 	public YesNoType readOnly() default YesNoType.UNKNOWN;
-
-	//	public DateType				dateType() default DateType.UNKNOWN;
 
 	public String renderHint() default Constants.NONE;
 }

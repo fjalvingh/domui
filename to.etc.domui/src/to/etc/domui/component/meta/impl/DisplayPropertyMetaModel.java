@@ -73,6 +73,20 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 		setRenderHint(p.renderHint());
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public DisplayPropertyMetaModel(ClassMetaModel cmm, MetaComboProperty p) {
+		m_containedInClass = cmm;
+		m_name = p.name();
+		//		setConverter((p.converterClass() == DummyConverter.class ? null : ConverterRegistry.getConverterInstance(p.converterClass())));
+		// 20091123 This kludge below (Raw class cast) is needed because otherwise the JDK compiler pukes on this generics abomination.
+		IConverter< ? > c = null;
+		if(p.converterClass() != DummyConverter.class)
+			c = ConverterRegistry.getConverterInstance((Class) p.converterClass());
+		setConverter(c);
+		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();
+	}
+
+
 	/**
 	 * Converts a list of MetaDisplayProperty annotations into their metamodel equivalents.
 	 * @param cmm
@@ -82,6 +96,20 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	static public List<DisplayPropertyMetaModel> decode(ClassMetaModel cmm, MetaDisplayProperty[] mar) {
 		List<DisplayPropertyMetaModel> list = new ArrayList<DisplayPropertyMetaModel>(mar.length);
 		for(MetaDisplayProperty p : mar) {
+			list.add(new DisplayPropertyMetaModel(cmm, p));
+		}
+		return list;
+	}
+
+	/**
+	 * Convert a list of combobox display properties to their metamodel equivalents.
+	 * @param cmm
+	 * @param mar
+	 * @return
+	 */
+	static public List<DisplayPropertyMetaModel> decode(ClassMetaModel cmm, MetaComboProperty[] mar) {
+		List<DisplayPropertyMetaModel> list = new ArrayList<DisplayPropertyMetaModel>(mar.length);
+		for(MetaComboProperty p : mar) {
 			list.add(new DisplayPropertyMetaModel(cmm, p));
 		}
 		return list;
