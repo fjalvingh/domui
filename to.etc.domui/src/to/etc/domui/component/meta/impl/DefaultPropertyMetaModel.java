@@ -93,7 +93,12 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	private List<SearchPropertyMetaModel> m_lookupFieldSearchProperties = Collections.EMPTY_LIST;
 
 	/**
-	 * The default properties to show when the collection is presented as a lookup table.
+	 * The keyword search properties to use in a {@link LookupInput} field.
+	 */
+	private List<SearchPropertyMetaModel> m_lookupFieldKeySearchProperties = Collections.EMPTY_LIST;
+
+	/**
+	 * The default properties to show when the collection is presented as a table.
 	 */
 	private List<DisplayPropertyMetaModel> m_tableDisplayProperties = Collections.EMPTY_LIST;
 
@@ -318,6 +323,18 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 
 	public void setLookupFieldSearchProperties(List<SearchPropertyMetaModel> lookupFieldSearchProperties) {
 		m_lookupFieldSearchProperties = lookupFieldSearchProperties;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
+		return m_lookupFieldKeySearchProperties;
+	}
+
+	public void setLookupFieldKeySearchProperties(List<SearchPropertyMetaModel> lookupFieldKeySearchProperties) {
+		m_lookupFieldKeySearchProperties = lookupFieldKeySearchProperties;
 	}
 
 	/**

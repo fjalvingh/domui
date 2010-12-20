@@ -301,6 +301,11 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	}
 
 	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
+		return m_original.getLookupFieldKeySearchProperties();
+	}
+
+	@Override
 	public List<DisplayPropertyMetaModel> getLookupFieldTableProperties() {
 		return m_original.getLookupFieldTableProperties();
 	}

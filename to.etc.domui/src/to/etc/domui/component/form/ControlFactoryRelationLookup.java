@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.form;
 
+import java.util.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.server.*;
@@ -62,8 +64,23 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 	@Override
 	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		//-- We'll do a lookup thingy for sure.
-		LookupInput<Object> li = new LookupInput<Object>((Class<Object>) pmm.getActualType());
+		LookupInput<Object> li = new LookupInput<Object>((Class<Object>) pmm.getActualType(), pmm.getClassModel());
 		li.setReadOnly(!editable);
+
+		//-- 1. Define search fields from property, then class.lookup, then generic
+		List<SearchPropertyMetaModel> sp = pmm.getLookupFieldSearchProperties();		// Property override?
+		if(sp.size() == 0) {
+			sp = li.getMetaModel().getLookupFieldSearchProperties();	// Class level?
+			if(sp.size() == 0) {
+				sp = li.getMetaModel().getSearchProperties();		// Generic table properties.
+				if(sp.size() > 0)
+					li.setSearchProperties(sp);
+			}
+		}
+
+		//-- 2. Define keyword search properties in the same way.
+
+
 		if(pmm.getLookupFieldRenderer() != null)
 			li.setContentRenderer((INodeContentRenderer<Object>) DomApplication.get().createInstance(pmm.getLookupFieldRenderer())); // Bloody stupid Java generic crap
 		else {

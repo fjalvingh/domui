@@ -114,6 +114,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 */
 	private List<SearchPropertyMetaModel> m_lookupFieldSearchProperties = Collections.EMPTY_LIST;
 
+	/**
+	 * The keyword search properties to use in a {@link LookupInput} field.
+	 */
+	private List<SearchPropertyMetaModel> m_lookupFieldKeySearchProperties = Collections.EMPTY_LIST;
+
 	private String m_defaultSortProperty;
 
 	private SortableType m_defaultSortDirection;
@@ -383,6 +388,17 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_lookupFieldSearchProperties = lookupFieldSearchProperties;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
+		return m_lookupFieldKeySearchProperties;
+	}
+
+	public void setLookupFieldKeySearchProperties(List<SearchPropertyMetaModel> lookupFieldKeySearchProperties) {
+		m_lookupFieldKeySearchProperties = lookupFieldKeySearchProperties;
+	}
 
 	/**
 	 * {@inheritDoc}

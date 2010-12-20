@@ -345,6 +345,10 @@ public class LookupForm<T> extends Div {
 		defineDefaultButtons();
 	}
 
+	/**
+	 * Return the metamodel that this class uses to get it's data from.
+	 * @return
+	 */
 	@Nonnull
 	public ClassMetaModel getMetaModel() {
 		return m_metaModel;
@@ -354,39 +358,40 @@ public class LookupForm<T> extends Div {
 	 * Returns the class whose instances we're looking up (a persistent class somehow).
 	 * @return
 	 */
+	@Nonnull
 	public Class<T> getLookupClass() {
 		if(null == m_lookupClass)
 			throw new NullPointerException("The LookupForm's 'lookupClass' cannot be null");
 		return m_lookupClass;
 	}
 
-	/**
-	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
-	 * Change the class for which we are searching. This clear ALL definitions!
-	 * @param lookupClass
-	 */
-	@Deprecated
-	public void setLookupClass(@Nonnull final Class<T> lookupClass) {
-		if(m_lookupClass == lookupClass)
-			return;
-		m_lookupClass = lookupClass;
-		m_metaModel = MetaManager.findClassMeta(lookupClass);
-		reset();
-	}
-
-	/**
-	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
-	 * Change the class and metamodel for which we are searching. This clear ALL definitions!
-	 * @param lookupClass
-	 */
-	@Deprecated
-	public void setLookupClass(@Nonnull final Class<T> lookupClass, @Nonnull ClassMetaModel cmm) {
-		if(m_lookupClass == lookupClass)
-			return;
-		m_lookupClass = lookupClass;
-		m_metaModel = cmm;
-		reset();
-	}
+	//	/**
+	//	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
+	//	 * Change the class for which we are searching. This clear ALL definitions!
+	//	 * @param lookupClass
+	//	 */
+	//	@Deprecated
+	//	public void setLookupClass(@Nonnull final Class<T> lookupClass) {
+	//		if(m_lookupClass == lookupClass)
+	//			return;
+	//		m_lookupClass = lookupClass;
+	//		m_metaModel = MetaManager.findClassMeta(lookupClass);
+	//		reset();
+	//	}
+	//
+	//	/**
+	//	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
+	//	 * Change the class and metamodel for which we are searching. This clear ALL definitions!
+	//	 * @param lookupClass
+	//	 */
+	//	@Deprecated
+	//	public void setLookupClass(@Nonnull final Class<T> lookupClass, @Nonnull ClassMetaModel cmm) {
+	//		if(m_lookupClass == lookupClass)
+	//			return;
+	//		m_lookupClass = lookupClass;
+	//		m_metaModel = cmm;
+	//		reset();
+	//	}
 
 	/**
 	 * Actually show the thingy.
@@ -568,7 +573,7 @@ public class LookupForm<T> extends Div {
 	/*	CODING:	Altering/defining the lookup items.					*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * This adds all properties that are defined as "search" properties in the metadata
+	 * This adds all properties that are defined as "search" properties in either this control or the metadata
 	 * to the item list. The list is cleared before that!
 	 */
 	private void setItems() {
@@ -579,7 +584,14 @@ public class LookupForm<T> extends Div {
 			if(list == null || list.size() == 0)
 				throw new IllegalStateException(getMetaModel() + " has no search properties defined in it's meta data.");
 		}
+		setSearchProperties(list);
+	}
 
+	/**
+	 * Set the search properties to use from a list of metadata properties.
+	 * @param list
+	 */
+	public void setSearchProperties(List<SearchPropertyMetaModel> list) {
 		int totalCount = list.size();
 		for(SearchPropertyMetaModel sp : list) { // The list is already in ascending order, so just add items;
 			Item it = new Item();

@@ -309,6 +309,14 @@ public interface PropertyMetaModel {
 	@Nonnull
 	List<SearchPropertyMetaModel> getLookupFieldSearchProperties();
 
+	/**
+	 * When used in a {@link LookupInput} field, this fields are used to create the keyword search inputs.
+	 *
+	 * @return
+	 */
+	@Nonnull
+	List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties();
+
 	@Nullable
 	public PropertyMetaValidator[] getValidators();
 

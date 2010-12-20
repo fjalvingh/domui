@@ -220,6 +220,14 @@ public interface ClassMetaModel {
 	List<SearchPropertyMetaModel> getLookupFieldSearchProperties();
 
 	/**
+	 * When used in a {@link LookupInput} field, this fields are used to create the keyword search inputs.
+	 *
+	 * @return
+	 */
+	@Nonnull
+	List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties();
+
+	/**
 	 * EXPERIMENTAL
 	 * If this is a persistent class, this should create a base QCriteria instance to do queries
 	 * on this class. The QCriteria&lt;T&gt; instance returned <i>must</i> have a T that is equal

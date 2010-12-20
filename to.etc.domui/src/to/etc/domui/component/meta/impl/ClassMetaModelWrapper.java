@@ -185,4 +185,9 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
 		return m_parent.getLookupFieldSearchProperties();
 	}
+
+	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
+		return m_parent.getLookupFieldKeySearchProperties();
+	}
 }

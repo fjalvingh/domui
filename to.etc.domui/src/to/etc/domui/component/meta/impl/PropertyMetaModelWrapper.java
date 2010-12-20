@@ -236,6 +236,11 @@ abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
 	}
 
 	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
+		return m_parent.getLookupFieldSearchProperties();
+	}
+
+	@Override
 	public List<DisplayPropertyMetaModel> getLookupFieldTableProperties() {
 		return m_parent.getLookupFieldTableProperties();
 	}
