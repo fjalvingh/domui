@@ -449,6 +449,16 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	}
 
 	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
+		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getLookupFieldSearchProperties();
+	}
+
+	@Override
+	public List<DisplayPropertyMetaModel> getLookupFieldTableProperties() {
+		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getLookupFieldTableProperties();
+	}
+
+	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getLookupFieldRenderer();
 	}

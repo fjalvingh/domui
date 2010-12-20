@@ -30,6 +30,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -292,6 +293,21 @@ public interface PropertyMetaModel {
 	 */
 	@Nonnull
 	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();
+
+	/**
+	 * When used in a {@link LookupInput} field, this fields are used to show the result of a Search in the DataTable.
+	 * @return
+	 */
+	@Nonnull
+	List<DisplayPropertyMetaModel> getLookupFieldTableProperties();
+
+	/**
+	 * When used in a {@link LookupInput} field, this fields are used to create the search inputs.
+	 *
+	 * @return
+	 */
+	@Nonnull
+	List<SearchPropertyMetaModel> getLookupFieldSearchProperties();
 
 	@Nullable
 	public PropertyMetaValidator[] getValidators();

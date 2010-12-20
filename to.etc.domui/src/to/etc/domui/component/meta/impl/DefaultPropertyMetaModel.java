@@ -27,6 +27,7 @@ package to.etc.domui.component.meta.impl;
 import java.lang.reflect.*;
 import java.util.*;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -80,6 +81,16 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	 * The default properties to show in a lookup field's instance display.
 	 */
 	private List<DisplayPropertyMetaModel> m_lookupFieldDisplayProperties = Collections.EMPTY_LIST;
+
+	/**
+	 * The default properties to show in a {@link LookupInput} field's lookup data table.
+	 */
+	private List<DisplayPropertyMetaModel> m_lookupFieldTableProperties = Collections.EMPTY_LIST;
+
+	/**
+	 * The search properties to use in a {@link LookupInput} field.
+	 */
+	private List<SearchPropertyMetaModel> m_lookupFieldSearchProperties = Collections.EMPTY_LIST;
 
 	/**
 	 * The default properties to show when the collection is presented as a lookup table.
@@ -283,6 +294,30 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 
 	public void setLookupFieldDisplayProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
 		m_lookupFieldDisplayProperties = lookupFieldDisplayProperties;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<DisplayPropertyMetaModel> getLookupFieldTableProperties() {
+		return m_lookupFieldTableProperties;
+	}
+
+	public void setLookupFieldTableProperties(List<DisplayPropertyMetaModel> lookupFieldTableProperties) {
+		m_lookupFieldTableProperties = lookupFieldTableProperties;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
+		return m_lookupFieldSearchProperties;
+	}
+
+	public void setLookupFieldSearchProperties(List<SearchPropertyMetaModel> lookupFieldSearchProperties) {
+		m_lookupFieldSearchProperties = lookupFieldSearchProperties;
 	}
 
 	/**

@@ -220,8 +220,9 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			MetaLookup c = (MetaLookup) an;
 			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
 				pmm.setLookupFieldRenderer(c.nodeRenderer());
-			if(c.properties().length != 0)
-				pmm.setLookupFieldDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
+			if(c.displayProperties().length != 0) {
+				pmm.setLookupFieldDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.displayProperties()));
+			}
 			pmm.setComponentTypeHint(Constants.COMPONENT_LOOKUP);
 		}
 	}
@@ -402,8 +403,12 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			MetaLookup c = (MetaLookup) an;
 			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
 				cmm.setLookupFieldRenderer(c.nodeRenderer());
-			if(c.properties().length != 0)
-				cmm.setLookupFieldDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
+			if(c.displayProperties().length != 0)
+				cmm.setLookupFieldDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.displayProperties()));
+			if(c.tableProperties().length != 0)
+				cmm.setLookupFieldTableProperties(DisplayPropertyMetaModel.decode(cmm, c.tableProperties()));
+
+
 			cmm.setComponentTypeHint(Constants.COMPONENT_LOOKUP);
 		} else if(an instanceof MetaObject) {
 			MetaObject mo = (MetaObject) an;

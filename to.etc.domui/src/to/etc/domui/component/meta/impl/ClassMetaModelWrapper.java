@@ -175,4 +175,14 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	public QCriteria< ? > createCriteria() throws Exception {
 		return m_parent.createCriteria();
 	}
+
+	@Override
+	public List<DisplayPropertyMetaModel> getLookupFieldTableProperties() {
+		return m_parent.getLookupFieldTableProperties();
+	}
+
+	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
+		return m_parent.getLookupFieldSearchProperties();
+	}
 }
