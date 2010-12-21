@@ -35,6 +35,7 @@ import org.slf4j.*;
 import to.etc.domui.ajax.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
+import to.etc.domui.component.layout.title.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
@@ -527,6 +528,17 @@ public abstract class DomApplication {
 		page.add(0, panel);
 	}
 
+	/**
+	 * This returns default page title component.
+	 * {@link AppPageTitleBar} is default one used by framework.
+	 * To set some custom page title component override this method in your application specific class. 
+	 * 
+	 * @param title
+	 * @return
+	 */
+	public BasePageTitleBar getDefaultPageTitle(String title) {
+		return new AppPageTitleBar(title);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Control factories.									*/

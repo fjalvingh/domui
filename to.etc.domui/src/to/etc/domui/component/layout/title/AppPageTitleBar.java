@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.layout;
+package to.etc.domui.component.layout.title;
 
 import to.etc.domui.annotations.*;
 import to.etc.domui.component.buttons.*;
@@ -38,10 +38,8 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 3, 2009
  */
-public class AppPageTitle extends Div {
+public class AppPageTitleBar extends BasePageTitleBar {
 	private final Img m_img = new Img();
-
-	private String m_title;
 
 	private TD m_buttonpart = new TD();
 
@@ -51,18 +49,16 @@ public class AppPageTitle extends Div {
 
 	private String m_hint;
 
-	private boolean m_showAsModified;
-
 	private INodeContentRenderer<String> m_titleNodeRenderer;
 
-	public AppPageTitle() {}
+	public AppPageTitleBar() {}
 
-	public AppPageTitle(final String title) {
-		m_title = title;
+	public AppPageTitleBar(final String title) {
+		super(title);
 	}
 
-	protected AppPageTitle(final String icon, final String title) {
-		m_title = title;
+	protected AppPageTitleBar(final String icon, final String title) {
+		super(title);
 		setIcon(icon);
 	}
 
@@ -161,22 +157,12 @@ public class AppPageTitle extends Div {
 		return null;
 	}
 
-	/**
-	 * Return the title that is used by this bar. If no user title is set this returns the
-	 * calculated title (from annotations and metadata).
-	 * @return
-	 */
-	public String getPageTitle() {
-		if(m_title != null) // Manually set?
-			return m_title;
-		return DomUtil.calcPageTitle(getPage().getBody().getClass());
-	}
-
+	@Override
 	public void setPageTitle(String ttl) throws Exception {
-		if(DomUtil.isEqual(m_title, ttl))
+		if(DomUtil.isEqual(getPageTitle(), ttl))
 			return;
 
-		m_title = ttl;
+		super.setPageTitle(ttl);
 		if(isBuilt()) {
 			renderTitleCell();
 		}
@@ -205,13 +191,10 @@ public class AppPageTitle extends Div {
 		return m_titlePart;
 	}
 
-	public boolean isShowAsModified() {
-		return m_showAsModified;
-	}
-
+	@Override
 	public void setShowAsModified(boolean showAsModified) throws Exception {
-		if(m_showAsModified != showAsModified) {
-			m_showAsModified = showAsModified;
+		if(super.isShowAsModified() != showAsModified) {
+			super.setShowAsModified(showAsModified);
 			if(isBuilt()) {
 				renderTitleCell();
 			}
@@ -221,7 +204,7 @@ public class AppPageTitle extends Div {
 	private void renderTitleCell() throws Exception {
 		TD titleCell = getTitlePart();
 		if(m_titleNodeRenderer != null) {
-			m_titleNodeRenderer.renderNodeContent(this, titleCell, getPageTitle(), Boolean.valueOf(m_showAsModified));
+			m_titleNodeRenderer.renderNodeContent(this, titleCell, getPageTitle(), Boolean.valueOf(isShowAsModified()));
 		} else {
 			internalRenderTitle();
 		}
