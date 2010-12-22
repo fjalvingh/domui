@@ -174,7 +174,7 @@ public class ALink extends ATag {
 			DomUtil.addUrlParameters(sb, m_targetParameters, true);
 			setHref(sb.toString()); // Append URL only, without WID
 		} else if(! DomUtil.isBlank(m_targetURL)) {
-			setHref(m_targetURL);
+			setHref(DomUtil.createPageURL(m_targetURL, m_targetParameters));
 		} else {
 			setHref(null);
 			return;

@@ -35,6 +35,7 @@ import org.slf4j.*;
 import to.etc.domui.ajax.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
+import to.etc.domui.component.layout.title.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
@@ -528,6 +529,23 @@ public abstract class DomApplication {
 		page.add(0, panel);
 	}
 
+	/**
+	 * FIXME This code requires an absolute title which is not needed for the
+	 * DomUI framework. It's also only needed for the "BasicPage" and has no
+	 * meaning for any other part of the framework. It should move to some
+	 * BasicPage factory.
+	 *
+	 * This returns default page title component.
+	 * {@link AppPageTitleBar} is default one used by framework.
+	 * To set some custom page title component override this method in your application specific class.
+	 *
+	 * @param title
+	 * @return
+	 */
+	@Deprecated
+	public BasePageTitleBar getDefaultPageTitleBar(String title) {
+		return new AppPageTitleBar(title);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Control factories.									*/

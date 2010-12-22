@@ -24,14 +24,18 @@
  */
 package to.etc.domui.pages.generic;
 
+import to.etc.domui.component.layout.title.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 public class BasicPage<T> extends UrlPage {
 	private Class<T> m_baseClass;
 
 	private String m_pageTitle;
+
+	private BasePageTitleBar m_titleBar;
 
 	public BasicPage(Class<T> baseClass) {
 		m_baseClass = baseClass;
@@ -57,16 +61,33 @@ public class BasicPage<T> extends UrlPage {
 		return m_pageTitle;
 	}
 
+	public void setPageTitle(String pageTitle) throws Exception {
+		if(m_pageTitle != pageTitle) {
+			m_pageTitle = pageTitle;
+			if(m_titleBar != null) {
+				m_titleBar.setPageTitle(pageTitle);
+			}
+		}
+	}
+
 	protected void addPageHeaders() throws Exception {
 	}
 
 	/**
-	 * Override to add custom page title bar.
+	 * Override only when using some custom page title bar.
+	 * By default this method returns {@link DomApplication#getDefaultPageTitleBar(String)}.
 	 */
-	protected void addPageTitleBar() {}
+	protected void addPageTitleBar() {
+		m_titleBar = DomApplication.get().getDefaultPageTitleBar(m_pageTitle);
+		add(m_titleBar);
+	}
 
 	public void clearGlobalMessages() {
 		IErrorFence fence = DomUtil.getMessageFence(this);
 		fence.clearGlobalMessages(this, null);
+	}
+
+	public BasePageTitleBar getTitleBar() {
+		return m_titleBar;
 	}
 }
