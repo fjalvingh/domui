@@ -115,7 +115,7 @@ public class DefaultBugListener implements IBugListener {
 		try {
 			cc = PageContext.getCurrentConversation();
 		} catch(Exception x) {
-			System.out.println(item);
+			System.out.println("Bug signalled, outside UI: " + item);
 			return;
 		}
 

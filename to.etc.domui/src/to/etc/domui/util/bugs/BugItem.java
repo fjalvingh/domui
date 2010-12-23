@@ -53,11 +53,19 @@ final public class BugItem {
 
 	private int m_number;
 
+	/**
+	 * Create a bug item with a simple String message.
+	 * @param message
+	 */
 	public BugItem(@Nonnull String message) {
 		m_message = message;
 		initLocation();
 	}
 
+	/**
+	 * Create a bug item with a set of UI Nodes to show as the message.
+	 * @param msg
+	 */
 	public BugItem(List<NodeBase> msg) {
 		m_formattedMsg = msg;
 		m_exception = null;
@@ -67,12 +75,35 @@ final public class BugItem {
 		m_message = sb.toString();
 	}
 
+	/**
+	 * Create a bug item from text and exception.
+	 * @param message
+	 * @param exception
+	 */
+	public BugItem(@Nonnull String message, @Nullable Throwable exception) {
+		m_message = message;
+		m_exception = exception;
+		initLocation();
+	}
+
+	/**
+	 * Flatten all nodes, and extract a text only message by appending all #text nodes.
+	 *
+	 * @param sb
+	 * @param msg
+	 */
 	static private void flatten(StringBuilder sb, List<NodeBase> msg) {
 		for(NodeBase b : msg) {
 			flatten(sb, b);
 		}
 	}
 
+	/**
+	 * Flatten all nodes, and extract a text only message by appending all #text nodes.
+	 *
+	 * @param sb
+	 * @param b
+	 */
 	private static void flatten(StringBuilder sb, NodeBase b) {
 		if(b instanceof TextNode)
 			sb.append(((TextNode) b).getText());
@@ -82,12 +113,9 @@ final public class BugItem {
 		}
 	}
 
-	public BugItem(@Nonnull String message, @Nullable Throwable exception) {
-		m_message = message;
-		m_exception = exception;
-		initLocation();
-	}
-
+	/**
+	 * Mark the bug's location by creating a stacktrace to it.
+	 */
 	private void initLocation() {
 		try {
 			throw new Exception("duh");
@@ -96,26 +124,47 @@ final public class BugItem {
 		}
 	}
 
+	/**
+	 * Return the timestamp the bug occured on.
+	 * @return
+	 */
 	@Nonnull
 	public Date getTimestamp() {
 		return m_timestamp;
 	}
 
+	/**
+	 * Return the error as a string.
+	 * @return
+	 */
 	@Nonnull
 	public String getMessage() {
 		return m_message;
 	}
 
+	/**
+	 * Return the exception if the bug has one.
+	 * @return
+	 */
 	@Nullable
 	public Throwable getException() {
 		return m_exception;
 	}
 
+	/**
+	 * Return an exception which marks the location of the bug.
+	 * FIXME This should return StackTraceElements, not an exception.
+	 * @return
+	 */
 	@Nonnull
 	public Exception getLocation() {
 		return m_location;
 	}
 
+	/**
+	 * Return the #of the bug in this set.
+	 * @return
+	 */
 	public int getNumber() {
 		return m_number;
 	}
@@ -124,7 +173,21 @@ final public class BugItem {
 		m_number = number;
 	}
 
+	/**
+	 * If the bug was created with a set of nodes to render this returns those nodes.
+	 * @return
+	 */
+	@Nullable
 	public List<NodeBase> getFormattedMsg() {
 		return m_formattedMsg;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		sb.append("message=").append(getMessage());
+		sb.append("]");
+		return sb.toString();
 	}
 }
