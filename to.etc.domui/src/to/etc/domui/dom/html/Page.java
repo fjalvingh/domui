@@ -406,7 +406,8 @@ final public class Page implements IQContextContainer {
 		sb.append("','");
 
 		if(wp == null) {
-			sb.append("resizable=yes;scrollbars=yes;toolbar=no;location=no;directories=no;status=yes;menubar=yes;copyhistory=no;");
+			// separator must be comma otherwise it wont work in IE (copied from trunk call 27348)
+			sb.append("resizable=yes,scrollbars=yes,toolbar=no,location=no,directories=no,status=yes,menubar=yes,copyhistory=no");
 		} else {
 			sb.append("resizable=");
 			sb.append(wp.isResizable() ? "yes" : "no");
