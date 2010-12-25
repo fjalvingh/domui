@@ -456,6 +456,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 *
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getDomainLabel(java.util.Locale, java.lang.Object)
 	 */
+	@Nullable
 	@Override
 	public String getDomainLabel(final Locale loc, final Object value) {
 		if(value instanceof Enum< ? >) {

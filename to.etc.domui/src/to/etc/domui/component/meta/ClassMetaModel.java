@@ -96,13 +96,13 @@ public interface ClassMetaModel {
 	Object[] getDomainValues();
 
 	/**
-	 * For a Domain type (Enum, Boolean) this returns a label for a given domain value. When called for
+	 * For a Domain type (Enum, Boolean) this returns a label for a given domain value, or null if no label is defined. When called for
 	 * a non-domain type this will throw an exception.
 	 * @param loc
 	 * @param value
 	 * @return
 	 */
-	@Nonnull
+	@Nullable
 	String getDomainLabel(Locale loc, Object value);
 
 	/**
