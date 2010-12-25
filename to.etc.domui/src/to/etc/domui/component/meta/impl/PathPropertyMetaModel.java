@@ -221,6 +221,11 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	}
 
 	@Override
+	public ClassMetaModel getValueModel() {
+		return m_original.getValueModel();
+	}
+
+	@Override
 	public Type getGenericActualType() {
 		return m_original.getGenericActualType();
 	}

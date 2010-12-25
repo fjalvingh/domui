@@ -121,6 +121,11 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	}
 
 	@Override
+	public ClassMetaModel getValueModel() {
+		return MetaManager.findClassMeta(getActualType());
+	}
+
+	@Override
 	public Type getGenericActualType() {
 		Method m = m_descriptor.getGetter();
 		return m.getGenericReturnType();

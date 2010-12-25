@@ -45,8 +45,21 @@ import to.etc.domui.util.*;
  * Created on Jun 16, 2008
  */
 public interface PropertyMetaModel {
+	/**
+	 * The ClassModel that this property is a property of.
+	 * @return
+	 */
 	@Nonnull
-	public ClassMetaModel getClassModel();
+	ClassMetaModel getClassModel();
+
+	/**
+	 * If applicable, the value type's class model. Can be asked for explicitly to allow
+	 * for non-class-based metamodels. It will return null for all primitive and basic types.
+	 * @return
+	 */
+	@Nullable
+	ClassMetaModel getValueModel();
+
 
 	/**
 	 * Returns the actual type of the property's value. This is the return type of the getter function.

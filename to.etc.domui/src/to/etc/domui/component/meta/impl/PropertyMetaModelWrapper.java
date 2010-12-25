@@ -63,6 +63,11 @@ abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
 	}
 
 	@Override
+	public ClassMetaModel getValueModel() {
+		return m_parent.getValueModel();
+	}
+
+	@Override
 	abstract public ClassMetaModel getClassModel();
 
 	@Override

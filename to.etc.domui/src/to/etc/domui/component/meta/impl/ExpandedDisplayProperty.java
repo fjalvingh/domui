@@ -286,6 +286,11 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		return m_actualType;
 	}
 
+	@Override
+	public ClassMetaModel getValueModel() {
+		return null;
+	}
+
 	/**
 	 * Returns null always; this seems reasonable for a type like this.
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getGenericActualType()
