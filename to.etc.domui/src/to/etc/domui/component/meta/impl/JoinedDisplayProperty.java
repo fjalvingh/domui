@@ -56,10 +56,11 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty<String> imple
 		setName(dpm.getName());
 	}
 
-	@Override
-	public void setValue(Object target, String value) throws Exception {
-		throw new IllegalStateException("You cannot set a joined display property.");
-	}
+	//	jal 20101226 This compiles in Eclipse 3.6 even though the overridden method is final!!?!?!
+	//	@Override
+	//	public void setValue(Object target, String value) throws Exception {
+	//		throw new IllegalStateException("You cannot set a joined display property.");
+	//	}
 
 	/**
 	 * This creates the joined value of the items in the set.
