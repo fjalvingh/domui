@@ -34,14 +34,14 @@ import to.etc.domui.component.meta.*;
  */
 final public class DomainListConverterFactory implements IConverterFactory {
 	@Override
-	public int accept(final Class< ? > clz, final PropertyMetaModel pmm) {
+	public int accept(final Class< ? > clz, final PropertyMetaModel< ? > pmm) {
 		if(pmm == null)
 			return -1;
 		return pmm.getDomainValues() != null && pmm.getDomainValues().length > 0 ? 10 : -1;
 	}
 
 	@Override
-	public <X, T extends IConverter<X>> T createConverter(final Class<X> clz, final PropertyMetaModel pmm) {
+	public <X, T extends IConverter<X>> T createConverter(final Class<X> clz, final PropertyMetaModel<X> pmm) {
 		return (T) new DomainListConverter(pmm);
 	}
 }

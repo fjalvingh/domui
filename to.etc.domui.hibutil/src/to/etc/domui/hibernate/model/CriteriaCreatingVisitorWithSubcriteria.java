@@ -232,7 +232,7 @@ public class CriteriaCreatingVisitorWithSubcriteria extends QNodeVisitorBase {
 	private Object m_subCriteria;
 
 	/** Temp array used in parser to decode the properties reached; used to prevent multiple object allocations. */
-	private PropertyMetaModel[] m_pendingJoinProps = new PropertyMetaModel[20];
+	private PropertyMetaModel< ? >[] m_pendingJoinProps = new PropertyMetaModel< ? >[20];
 
 	private String[] m_pendingJoinPaths = new String[20];
 
@@ -334,7 +334,7 @@ public class CriteriaCreatingVisitorWithSubcriteria extends QNodeVisitorBase {
 			subpath = subpath == null ? name : subpath + "." + name; // Partial dotted path (from the last relation) to the currently reached name
 
 			//-- Get the property metadata and the reached class.
-			PropertyMetaModel pmm = MetaManager.getPropertyMeta(currentClass, name);
+			PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(currentClass, name);
 			if(pmm.isPrimaryKey()) {
 				if(previspk)
 					throw new IllegalStateException("Pk field immediately after PK field - don't know what this is!?");
@@ -486,7 +486,7 @@ public class CriteriaCreatingVisitorWithSubcriteria extends QNodeVisitorBase {
 
 		//-- Create the join path upto and including till the last relation (subpath from last criterion to it).
 		m_sb.setLength(0);
-		PropertyMetaModel pmm = null;
+		PropertyMetaModel< ? > pmm = null;
 		for(int i = 0; i < m_pendingJoinIx; i++) {
 			pmm = m_pendingJoinProps[i];
 			if(m_sb.length() != 0)
@@ -528,7 +528,7 @@ public class CriteriaCreatingVisitorWithSubcriteria extends QNodeVisitorBase {
 	 * @param path
 	 * @param pmm
 	 */
-	private void pushPendingJoin(String path, PropertyMetaModel pmm) {
+	private void pushPendingJoin(String path, PropertyMetaModel< ? > pmm) {
 		if(m_pendingJoinIx >= m_pendingJoinPaths.length)
 			throw new QQuerySyntaxException("The property path " + m_inputPath + " is too complex");
 		m_pendingJoinPaths[m_pendingJoinIx] = path;

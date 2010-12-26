@@ -307,7 +307,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 				 * Try to get a converter for this, if needed.
 				 */
 				if(xdp.getActualType() != String.class) {
-					final IConverter<?> c = ConverterRegistry.getConverter(xdp.getActualType(), xdp);
+					final IConverter< ? > c = ConverterRegistry.getConverter((Class<Object>) xdp.getActualType(), (PropertyMetaModel<Object>) xdp);
 					scd.setPresentationConverter(c);
 				}
 			}

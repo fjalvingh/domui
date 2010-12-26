@@ -198,22 +198,22 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	//			throw new IllegalStateException("Unexpected current thing: " + m_subCriteria);
 	//	}
 
-	/**
-	 * Create a join either on a Criteria or a DetachedCriteria. Needed because the joker that creates those
-	 * did not interface/baseclass them.
-	 * @param current
-	 * @param name
-	 * @param joinType
-	 * @return
-	 */
-	private Object createSubCriteria(Object current, String name, int joinType) {
-		if(current instanceof Criteria)
-			return ((Criteria) current).createCriteria(name, joinType);
-		else if(current instanceof DetachedCriteria)
-			return ((DetachedCriteria) current).createCriteria(name, joinType);
-		else
-			throw new IllegalStateException("? Unexpected criteria abomination: " + current);
-	}
+	//	/**
+	//	 * Create a join either on a Criteria or a DetachedCriteria. Needed because the joker that creates those
+	//	 * did not interface/baseclass them.
+	//	 * @param current
+	//	 * @param name
+	//	 * @param joinType
+	//	 * @return
+	//	 */
+	//	private Object createSubCriteria(Object current, String name, int joinType) {
+	//		if(current instanceof Criteria)
+	//			return ((Criteria) current).createCriteria(name, joinType);
+	//		else if(current instanceof DetachedCriteria)
+	//			return ((DetachedCriteria) current).createCriteria(name, joinType);
+	//		else
+	//			throw new IllegalStateException("? Unexpected criteria abomination: " + current);
+	//	}
 
 	//
 	//	private void addSubOrder(Order c) {
@@ -266,7 +266,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	/*	CODING:	Property path resolution code.						*/
 	/*--------------------------------------------------------------*/
 	/** Temp array used in parser to decode the properties reached; used to prevent multiple object allocations. */
-	private PropertyMetaModel[] m_pendingJoinProps = new PropertyMetaModel[20];
+	private PropertyMetaModel< ? >[] m_pendingJoinProps = new PropertyMetaModel[20];
 
 	private String[] m_pendingJoinPaths = new String[20];
 
@@ -418,7 +418,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			subpath = subpath == null ? name : subpath + "." + name; // Partial dotted path (from the last relation) to the currently reached name
 
 			//-- Get the property metadata and the reached class.
-			PropertyMetaModel pmm = MetaManager.getPropertyMeta(currentClass, name);
+			PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(currentClass, name);
 			if(pmm.isPrimaryKey()) {
 				if(previspk)
 					throw new IllegalStateException("The path " + subpath + " is a PK property immediately followed by another Pk property- that cannot happen.");
@@ -606,7 +606,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 		//-- Create the join path upto and including till the last relation (subpath from last criterion to it).
 		m_sb.setLength(0);
-		PropertyMetaModel pmm = null;
+		PropertyMetaModel< ? > pmm = null;
 		for(int i = 0; i < m_pendingJoinIx; i++) {
 			pmm = m_pendingJoinProps[i];
 			if(m_sb.length() != 0)
@@ -628,7 +628,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 * @param pmm
 	 * @return
 	 */
-	private String getPathAlias(String rootAlias, String fullpath, String relativepath, PropertyMetaModel pmm) {
+	private String getPathAlias(String rootAlias, String fullpath, String relativepath, PropertyMetaModel< ? > pmm) {
 		String alias = m_aliasMap.get(fullpath); // Path is already known?
 		if(null != alias)
 			return alias;
@@ -662,7 +662,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 * @param path
 	 * @param pmm
 	 */
-	private void pushPendingJoin(String path, PropertyMetaModel pmm) {
+	private void pushPendingJoin(String path, PropertyMetaModel< ? > pmm) {
 		if(m_pendingJoinIx >= m_pendingJoinPaths.length)
 			throw new QQuerySyntaxException("The property path " + m_inputPath + " is too complex");
 		m_pendingJoinPaths[m_pendingJoinIx] = path;

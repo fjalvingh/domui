@@ -243,7 +243,7 @@ final public class UIControlUtil {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	static public void assignMonetaryConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable< ? > node) {
 		if(pmm.getConverter() != null)
-			node.setConverter((IConverter) pmm.getConverter());
+			node.setConverter(pmm.getConverter());
 		else {
 			NumericPresentation np = null;
 			if(!editable)
@@ -263,7 +263,7 @@ final public class UIControlUtil {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	static private <T extends Number> void assignNumericConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
 		if(pmm.getConverter() != null)
-			node.setConverter((IConverter) pmm.getConverter());
+			node.setConverter(pmm.getConverter());
 		else {
 			NumericPresentation np = null;
 			//			if(!editable)
@@ -359,7 +359,7 @@ final public class UIControlUtil {
 		return createText(pmm.getActualType(), pmm, editable);
 	}
 
-	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel pmm, boolean editable) {
+	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable) {
 		Class< ? > aclz = pmm.getActualType();
 		if(!iclz.isAssignableFrom(aclz))
 			throw new IllegalStateException("Invalid class type=" + iclz + " for property " + pmm);
@@ -369,7 +369,7 @@ final public class UIControlUtil {
 		if(!editable)
 			txt.setReadOnly(true);
 		if(pmm.getConverter() != null)
-			txt.setConverter((IConverter<T>) pmm.getConverter());
+			txt.setConverter(pmm.getConverter());
 		if(pmm.isRequired())
 			txt.setMandatory(true);
 		String s = pmm.getDefaultHint();

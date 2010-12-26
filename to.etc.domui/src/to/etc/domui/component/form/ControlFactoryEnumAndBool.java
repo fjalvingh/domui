@@ -43,7 +43,7 @@ public class ControlFactoryEnumAndBool implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public int accepts(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(ComboFixed.class)) // This one only creates ComboFixed thingies
 			return -1;
 		Class< ? > iclz = pmm.getActualType();
@@ -56,15 +56,15 @@ public class ControlFactoryEnumAndBool implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public <T> ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel<T> pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
 		if(!editable && controlClass == null) {
-			DisplayValue<Object> dv = new DisplayValue<Object>(Object.class); // No idea what goes in here.
+			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());
 			dv.defineFrom(pmm);
 			return new ControlFactoryResult(dv, model, pmm);
 		}
 
-		ComboFixed< ? > c = DomApplication.get().getControlBuilder().createComboFor(pmm, editable);
+		ComboFixed<T> c = (ComboFixed<T>) DomApplication.get().getControlBuilder().createComboFor(pmm, editable);
 
 		//		// Create a domainvalued combobox by default.
 		//		Object[] vals = pmm.getDomainValues();

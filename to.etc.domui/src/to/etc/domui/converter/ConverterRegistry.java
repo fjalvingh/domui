@@ -289,7 +289,7 @@ public class ConverterRegistry {
 	 * @param pmm
 	 * @return
 	 */
-	static private IConverterFactory findFactory(Class< ? > clz, PropertyMetaModel pmm) {
+	static private IConverterFactory findFactory(Class< ? > clz, PropertyMetaModel< ? > pmm) {
 		synchronized(ConverterRegistry.class) {
 			//-- Scan teh full list, and build a list-of-factories-accepting-this-class during it,
 			List<IConverterFactory> flist = new ArrayList<IConverterFactory>();
@@ -317,7 +317,7 @@ public class ConverterRegistry {
 	 * @param pmm
 	 * @return
 	 */
-	static private IConverterFactory getFactory(Class< ? > clz, PropertyMetaModel pmm) {
+	static private IConverterFactory getFactory(Class< ? > clz, PropertyMetaModel< ? > pmm) {
 		IConverterFactory cf = findFactory(clz, pmm);
 		return cf == null ? getDefaultFactory() : cf;
 	}
@@ -331,7 +331,7 @@ public class ConverterRegistry {
 	 * @param pmm	The metadata for the property, or null if unknown.
 	 * @return A converter instance, or null if no factory claimed the type.
 	 */
-	static public <X> IConverter<X> findConverter(Class<X> clz, PropertyMetaModel pmm) {
+	static public <X> IConverter<X> findConverter(Class<X> clz, PropertyMetaModel<X> pmm) {
 		IConverterFactory cf = findFactory(clz, pmm);
 		if(cf == null)
 			return null;
@@ -358,7 +358,7 @@ public class ConverterRegistry {
 	 * @param pmm	The metadata for the property, or null if unknown.
 	 * @return A converter instance.
 	 */
-	static public <X> IConverter<X> getConverter(Class<X> clz, PropertyMetaModel pmm) {
+	static public <X> IConverter<X> getConverter(Class<X> clz, PropertyMetaModel<X> pmm) {
 		IConverterFactory cf = getFactory(clz, pmm);
 		return cf.createConverter(clz, pmm);
 	}
@@ -370,8 +370,8 @@ public class ConverterRegistry {
 	 * @param value
 	 * @return
 	 */
-	static public <X> String convertToString(PropertyMetaModel pmm, X value) {
-		IConverter<X> conv = (IConverter<X>) getConverter(pmm.getActualType(), pmm);
+	static public <X> String convertToString(PropertyMetaModel<X> pmm, X value) {
+		IConverter<X> conv = getConverter(pmm.getActualType(), pmm);
 		return conv.convertObjectToString(NlsContext.getLocale(), value);
 	}
 
@@ -380,7 +380,7 @@ public class ConverterRegistry {
 	 * @param pmm
 	 * @return
 	 */
-	static public IConverter< ? > findBestConverter(PropertyMetaModel pmm) {
+	static public <X> IConverter<X> findBestConverter(PropertyMetaModel<X> pmm) {
 		//-- User specified converters always override anything else.
 		if(pmm.getConverter() != null) // User-specified converters always override all else.
 			return pmm.getConverter();

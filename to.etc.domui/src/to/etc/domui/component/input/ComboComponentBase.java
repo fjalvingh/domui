@@ -56,7 +56,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 
 	private Class< ? extends INodeContentRenderer<T>> m_contentRendererClass;
 
-	private PropertyMetaModel m_propertyMetaModel;
+	private PropertyMetaModel< ? > m_propertyMetaModel;
 
 	/** When set this maker will be used to provide a list of values for this combo. */
 	private IListMaker<T> m_listMaker;
@@ -421,11 +421,11 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 		m_contentRendererClass = contentRendererClass;
 	}
 
-	public PropertyMetaModel getPropertyMetaModel() {
+	public PropertyMetaModel< ? > getPropertyMetaModel() {
 		return m_propertyMetaModel;
 	}
 
-	public void setPropertyMetaModel(PropertyMetaModel propertyMetaModel) {
+	public void setPropertyMetaModel(PropertyMetaModel< ? > propertyMetaModel) {
 		m_propertyMetaModel = propertyMetaModel;
 	}
 

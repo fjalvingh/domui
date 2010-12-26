@@ -46,7 +46,7 @@ public class ControlFactoryString implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
-	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public int accepts(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null) {
 			if(!controlClass.isAssignableFrom(Text.class) && !controlClass.isAssignableFrom(DisplayValue.class))
 				return -1;
@@ -57,8 +57,8 @@ public class ControlFactoryString implements ControlFactory {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
-		Class< ? > iclz = pmm.getActualType();
+	public <T> ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel<T> pmm, final boolean editable, Class< ? > controlClass, Object context) {
+		Class<T> iclz = pmm.getActualType();
 		if(!editable) {
 			/*
 			 * FIXME EXPERIMENTAL: replace the code below (which is still fully available) with the
@@ -72,7 +72,7 @@ public class ControlFactoryString implements ControlFactory {
 				dv.setTitle(s);
 			return new ControlFactoryResult(dv, model, pmm);
 		}
-		Text< ? > txt = UIControlUtil.createText(iclz, pmm, editable);
+		Text<T> txt = UIControlUtil.createText(iclz, pmm, editable);
 		return new ControlFactoryResult(txt, model, pmm);
 	}
 }

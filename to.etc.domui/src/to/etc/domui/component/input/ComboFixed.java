@@ -146,7 +146,7 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	 * @param pmm
 	 * @return
 	 */
-	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel pmm) {
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel< ? > pmm) {
 		T[] var = (T[]) pmm.getDomainValues();
 		if(var == null)
 			throw new IllegalArgumentException(pmm + " is not a list-of-values domain property");
@@ -198,7 +198,7 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	 * @param domainvalues
 	 * @return
 	 */
-	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel pmm, T... domainvalues) {
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel< ? > pmm, T... domainvalues) {
 		if(domainvalues.length == 0)
 			throw new IllegalArgumentException("Missing parameters");
 		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();

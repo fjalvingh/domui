@@ -38,7 +38,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 6, 2009
  */
-public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
+public class DisplayPropertyMetaModel {
 	private String m_name;
 
 	private String m_join;
@@ -51,6 +51,12 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	private ClassMetaModel m_containedInClass;
 
 	private String m_labelKey;
+
+	private IConverter< ? > m_converter;
+
+	private SortableType m_sortable = SortableType.UNKNOWN;
+
+	private int m_displayLength = -1;
 
 	public DisplayPropertyMetaModel() {}
 
@@ -158,10 +164,10 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	 * @param root
 	 * @return
 	 */
-	public <X, T extends IConverter<X>> String getAsString(Object root) throws Exception {
+	public <X, TT extends IConverter<X>> String getAsString(Object root) throws Exception {
 		Object value = DomUtil.getPropertyValue(root, getName());
 		if(getConverter() != null)
-			return ((T) getConverter()).convertObjectToString(NlsContext.getLocale(), (X) value);
+			return ((TT) getConverter()).convertObjectToString(NlsContext.getLocale(), (X) value);
 		return value == null ? "" : value.toString();
 	}
 
@@ -177,4 +183,29 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	public String toString() {
 		return "DisplayPropertyMetaModel[" + getName() + "]";
 	}
+
+	public IConverter< ? > getConverter() {
+		return m_converter;
+	}
+
+	public void setConverter(IConverter< ? > converter) {
+		m_converter = converter;
+	}
+
+	public SortableType getSortable() {
+		return m_sortable;
+	}
+
+	public void setSortable(SortableType sortable) {
+		m_sortable = sortable;
+	}
+
+	public int getDisplayLength() {
+		return m_displayLength;
+	}
+
+	public void setDisplayLength(int displayLength) {
+		m_displayLength = displayLength;
+	}
+
 }

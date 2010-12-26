@@ -50,7 +50,7 @@ public interface ClassMetaModel {
 	BundleRef getClassBundle();
 
 	@Nonnull
-	List<PropertyMetaModel> getProperties();
+	List<PropertyMetaModel< ? >> getProperties();
 
 	/**
 	 * Returns the named property on <i>this</i> class. This does not allow
@@ -59,7 +59,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	PropertyMetaModel findSimpleProperty(String name);
+	PropertyMetaModel< ? > findSimpleProperty(String name);
 
 	/**
 	 * Returns a property reference to the specified property by following the dotted path
@@ -71,7 +71,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	PropertyMetaModel findProperty(String name);
+	PropertyMetaModel< ? > findProperty(String name);
 
 	boolean isPersistentClass();
 
@@ -85,7 +85,7 @@ public interface ClassMetaModel {
 	String getTableName();
 
 	@Nullable
-	PropertyMetaModel getPrimaryKey();
+	PropertyMetaModel< ? > getPrimaryKey();
 
 	/**
 	 * If this class is an enum or represents some enumerated value, this returns the possible value objects. If

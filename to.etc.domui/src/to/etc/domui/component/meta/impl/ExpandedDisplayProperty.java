@@ -112,7 +112,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		}
 		if(displayMeta != null) { // ORDER 2 (overrides propertyMeta)
 			if(displayMeta.getConverter() != null)
-				m_converter = displayMeta.getConverter();
+				m_converter = (IConverter<T>) displayMeta.getConverter();
 			if(displayMeta.getSortable() != SortableType.UNKNOWN)
 				setSortable(displayMeta.getSortable());
 			if(displayMeta.getDisplayLength() > 0)

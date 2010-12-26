@@ -52,12 +52,12 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public PropertyMetaModel findProperty(String name) {
+	public PropertyMetaModel< ? > findProperty(String name) {
 		return m_parent.findProperty(name);
 	}
 
 	@Override
-	public PropertyMetaModel findSimpleProperty(String name) {
+	public PropertyMetaModel< ? > findSimpleProperty(String name) {
 		return m_parent.findSimpleProperty(name);
 	}
 
@@ -132,12 +132,12 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public PropertyMetaModel getPrimaryKey() {
+	public PropertyMetaModel< ? > getPrimaryKey() {
 		return m_parent.getPrimaryKey();
 	}
 
 	@Override
-	public List<PropertyMetaModel> getProperties() {
+	public List<PropertyMetaModel< ? >> getProperties() {
 		return m_parent.getProperties();
 	}
 

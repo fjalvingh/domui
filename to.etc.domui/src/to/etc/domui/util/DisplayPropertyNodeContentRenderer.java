@@ -61,7 +61,7 @@ public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<
 		prepare();
 		StringBuilder sb = new StringBuilder();
 
-		for(ExpandedDisplayProperty xdp : m_flat) {
+		for(ExpandedDisplayProperty< ? > xdp : m_flat) {
 			if(sb.length() > 0)
 				sb.append(' ');
 			String s = xdp.getPresentationString(object);

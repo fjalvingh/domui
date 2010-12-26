@@ -84,7 +84,7 @@ public class ControlBuilder {
 	 * @param editable	When false this is a displayonly control request.
 	 * @return			null if no factory is found.
 	 */
-	public ControlFactory findControlFactory(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public ControlFactory findControlFactory(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(pmm.getControlFactory() != null)
 			return pmm.getControlFactory();
 
@@ -140,7 +140,7 @@ public class ControlBuilder {
 	 * @param editable
 	 * @return	The factory to use
 	 */
-	public ControlFactory getControlFactory(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public ControlFactory getControlFactory(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		ControlFactory cf = findControlFactory(pmm, editable, controlClass, context);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a control factory for " + pmm);
@@ -209,7 +209,7 @@ public class ControlBuilder {
 	/**
 	 * Main workhorse which creates input controls for forms, from metadata.
 	 */
-	public ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Object context) {
+	public ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel< ? > pmm, final boolean editable, Object context) {
 		ControlFactory cf = getControlFactory(pmm, editable, null, context);
 		return cf.createControl(model, pmm, editable, null, context);
 	}
@@ -224,7 +224,7 @@ public class ControlBuilder {
 	 * @return
 	 */
 	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, String propertyName, boolean editable, Object context) {
-		PropertyMetaModel pmm = MetaManager.getPropertyMeta(dataClass, propertyName); // Must exist or throws exception.
+		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(dataClass, propertyName); // Must exist or throws exception.
 		return createControl(controlClass, dataClass, pmm, editable, context);
 	}
 
@@ -237,7 +237,7 @@ public class ControlBuilder {
 	 * @param editable
 	 * @return
 	 */
-	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, PropertyMetaModel pmm, boolean editable, Object context) {
+	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, PropertyMetaModel< ? > pmm, boolean editable, Object context) {
 		if(controlClass == null)
 			throw new IllegalArgumentException("controlClass cannot be null");
 		ControlFactory cf = getControlFactory(pmm, editable, null, context);
@@ -292,7 +292,7 @@ public class ControlBuilder {
 	 * @param pmm
 	 * @return
 	 */
-	public ComboFixed< ? > createComboFor(PropertyMetaModel pmm, boolean editable) {
+	public ComboFixed< ? > createComboFor(PropertyMetaModel< ? > pmm, boolean editable) {
 		if(pmm == null)
 			throw new IllegalArgumentException("propertyMeta cannot be null");
 		Object[] vals = pmm.getDomainValues();
@@ -334,7 +334,7 @@ public class ControlBuilder {
 	 * @return
 	 */
 	public ComboFixed< ? > createComboFor(Class< ? > dataClass, String property, boolean editable) {
-		PropertyMetaModel pmm = MetaManager.getPropertyMeta(dataClass, property);
+		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(dataClass, property);
 		return createComboFor(pmm, editable);
 	}
 

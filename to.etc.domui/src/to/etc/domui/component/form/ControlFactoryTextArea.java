@@ -34,7 +34,7 @@ public class ControlFactoryTextArea implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(PropertyMetaModel pmm, boolean editable, Class< ? > controlClass, Object context) {
+	public int accepts(PropertyMetaModel< ? > pmm, boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(TextArea.class))
 			return -1;
 		if(pmm.getComponentTypeHint() != null) {
@@ -45,7 +45,7 @@ public class ControlFactoryTextArea implements ControlFactory {
 	}
 
 	@Override
-	public ControlFactoryResult createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable, Class< ? > controlClass, Object context) {
+	public <T> ControlFactoryResult createControl(IReadOnlyModel< ? > model, PropertyMetaModel<T> pmm, boolean editable, Class< ? > controlClass, Object context) {
 		TextArea ta = new TextArea();
 		if(!editable)
 			ta.setReadOnly(true);
@@ -57,6 +57,6 @@ public class ControlFactoryTextArea implements ControlFactory {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			ta.setTitle(s);
-		return new ControlFactoryResult(ta, model, pmm);
+		return new ControlFactoryResult(ta, model, (PropertyMetaModel<String>) pmm);
 	}
 }

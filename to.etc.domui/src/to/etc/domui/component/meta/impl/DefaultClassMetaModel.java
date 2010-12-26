@@ -54,7 +54,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/** Theclass' resource bundle. */
 	private BundleRef m_classBundle;
 
-	private final Map<String, PropertyMetaModel> m_propertyMap = new HashMap<String, PropertyMetaModel>();
+	private final Map<String, PropertyMetaModel< ? >> m_propertyMap = new HashMap<String, PropertyMetaModel< ? >>();
 
 	/**
 	 * When this object type is defined in an UP relation somewhere, this is a hint on what
@@ -123,7 +123,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private SortableType m_defaultSortDirection;
 
-	private PropertyMetaModel m_primaryKey;
+	private PropertyMetaModel< ? > m_primaryKey;
 
 	private Object[] m_domainValues;
 
@@ -157,7 +157,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @return
 	 */
 	@Nonnull
-	String getPropertyLabel(final DefaultPropertyMetaModel p, final Locale loc) {
+	String getPropertyLabel(final DefaultPropertyMetaModel< ? > p, final Locale loc) {
 		String s = getClassBundle().findMessage(loc, p.getName() + ".label");
 		return s == null ? p.getName() : s;
 	}
@@ -169,7 +169,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	String getPropertyHint(final DefaultPropertyMetaModel p, final Locale loc) {
+	String getPropertyHint(final DefaultPropertyMetaModel< ? > p, final Locale loc) {
 		String v = getClassBundle().findMessage(loc, p.getName() + ".hint");
 		if(v == null)
 			v = getClassBundle().findMessage(loc, p.getName() + ".help");
@@ -205,8 +205,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 */
 	@Override
 	@Nullable
-	public synchronized PropertyMetaModel findProperty(final String name) {
-		PropertyMetaModel pmm = m_propertyMap.get(name);
+	public synchronized PropertyMetaModel< ? > findProperty(final String name) {
+		PropertyMetaModel< ? > pmm = m_propertyMap.get(name);
 		if(pmm != null)
 			return pmm;
 		pmm = MetaManager.internalCalculateDottedPath(this, name);
@@ -217,18 +217,18 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	@Override
 	@Nullable
-	public synchronized PropertyMetaModel findSimpleProperty(final String name) {
+	public synchronized PropertyMetaModel< ? > findSimpleProperty(final String name) {
 		return m_propertyMap.get(name);
 	}
 
-	public synchronized void addProperty(@Nonnull PropertyMetaModel pmm) {
+	synchronized void addProperty(@Nonnull PropertyMetaModel< ? > pmm) {
 		m_propertyMap.put(pmm.getName(), pmm);
 	}
 
 	@Override
 	@Nonnull
-	public List<PropertyMetaModel> getProperties() {
-		return new ArrayList<PropertyMetaModel>(m_propertyMap.values());
+	public List<PropertyMetaModel< ? >> getProperties() {
+		return new ArrayList<PropertyMetaModel< ? >>(m_propertyMap.values());
 	}
 
 	@Override
@@ -413,11 +413,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public PropertyMetaModel getPrimaryKey() {
+	public PropertyMetaModel< ? > getPrimaryKey() {
 		return m_primaryKey;
 	}
 
-	public void setPrimaryKey(final PropertyMetaModel primaryKey) {
+	public void setPrimaryKey(final PropertyMetaModel< ? > primaryKey) {
 		m_primaryKey = primaryKey;
 	}
 

@@ -38,7 +38,7 @@ import to.etc.domui.component.meta.*;
  */
 public class DateConverterFactory implements IConverterFactory {
 	@Override
-	public int accept(Class< ? > clz, PropertyMetaModel pmm) {
+	public int accept(Class< ? > clz, PropertyMetaModel< ? > pmm) {
 		if(!Date.class.isAssignableFrom(clz))
 			return -1;
 		return 10;
@@ -49,7 +49,7 @@ public class DateConverterFactory implements IConverterFactory {
 	 * @see to.etc.domui.converter.IConverterFactory#createConverter(java.lang.Class, to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
-	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel pmm) {
+	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel<X> pmm) {
 		if(pmm == null)
 			return (T) ConverterRegistry.getConverterInstance(DateTimeConverter.class);
 
