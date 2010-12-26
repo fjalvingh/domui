@@ -83,7 +83,7 @@ final public class UIControlUtil {
 	 * @return
 	 */
 	@Deprecated
-	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel pmm) {
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel< ? > pmm) {
 		return ComboFixed.createEnumCombo(pmm);
 	}
 
@@ -122,7 +122,7 @@ final public class UIControlUtil {
 	 * @return
 	 */
 	@Deprecated
-	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel pmm, T... domainvalues) {
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel< ? > pmm, T... domainvalues) {
 		return ComboFixed.createEnumCombo(pmm, domainvalues);
 	}
 
@@ -157,7 +157,7 @@ final public class UIControlUtil {
 	 * @return
 	 */
 	@Deprecated
-	static public String getEnumLabel(PropertyMetaModel pmm, Object value) {
+	static public String getEnumLabel(PropertyMetaModel< ? > pmm, Object value) {
 		return MetaManager.getEnumLabel(pmm, value);
 	}
 
@@ -179,7 +179,7 @@ final public class UIControlUtil {
 		return createBDMoneyInput(MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	static public Text<BigDecimal> createBDMoneyInput(PropertyMetaModel pmm, boolean editable) {
+	static public Text<BigDecimal> createBDMoneyInput(PropertyMetaModel< ? > pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<BigDecimal> txt = new Text<BigDecimal>(BigDecimal.class);
@@ -189,7 +189,7 @@ final public class UIControlUtil {
 	}
 
 	@Nonnull
-	static public Text<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel pmm, boolean editable) {
+	static public Text<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<Double> txt = new Text<Double>(Double.class);
@@ -198,7 +198,7 @@ final public class UIControlUtil {
 		return txt;
 	}
 
-	static private void configureNumericInput(Text< ? > txt, PropertyMetaModel pmm, boolean editable) {
+	static private void configureNumericInput(Text< ? > txt, PropertyMetaModel< ? > pmm, boolean editable) {
 		if(!editable)
 			txt.setReadOnly(true);
 
@@ -260,8 +260,8 @@ final public class UIControlUtil {
 		}
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	static private <T extends Number> void assignNumericConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
+	@SuppressWarnings({"unchecked"})
+	static private <T extends Number> void assignNumericConverter(final PropertyMetaModel<T> pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
 		if(pmm.getConverter() != null)
 			node.setConverter(pmm.getConverter());
 		else {
@@ -274,7 +274,7 @@ final public class UIControlUtil {
 		}
 	}
 
-	static private final void	assignPrecisionValidator(@Nonnull Text<?> control, @Nonnull PropertyMetaModel pmm) {
+	static private final void assignPrecisionValidator(@Nonnull Text< ? > control, @Nonnull PropertyMetaModel< ? > pmm) {
 		assignPrecisionValidator(control, pmm.getPrecision(), pmm.getScale());
 	}
 
@@ -303,10 +303,10 @@ final public class UIControlUtil {
 	 * @return
 	 */
 	static public Text<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
-		return createIntInput(MetaManager.findPropertyMeta(clz, property), editable);
+		return createIntInput((PropertyMetaModel<Integer>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	static public Text<Integer> createIntInput(PropertyMetaModel pmm, boolean editable) {
+	static public Text<Integer> createIntInput(PropertyMetaModel<Integer> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<Integer> txt = new Text<Integer>(Integer.class);
@@ -316,10 +316,10 @@ final public class UIControlUtil {
 	}
 
 	static public Text<Long> createLongInput(Class< ? > clz, String property, boolean editable) {
-		return createLongInput(MetaManager.findPropertyMeta(clz, property), editable);
+		return createLongInput((PropertyMetaModel<Long>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	static public Text<Long> createLongInput(PropertyMetaModel pmm, boolean editable) {
+	static public Text<Long> createLongInput(PropertyMetaModel<Long> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<Long> txt = new Text<Long>(Long.class);
@@ -329,10 +329,10 @@ final public class UIControlUtil {
 	}
 
 	static public Text<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
-		return createDoubleInput(MetaManager.findPropertyMeta(clz, property), editable);
+		return createDoubleInput((PropertyMetaModel<Double>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	static public Text<Double> createDoubleInput(PropertyMetaModel pmm, boolean editable) {
+	static public Text<Double> createDoubleInput(PropertyMetaModel<Double> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<Double> txt = new Text<Double>(Double.class);
@@ -342,10 +342,10 @@ final public class UIControlUtil {
 	}
 
 	static public Text<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
-		return createBigDecimalInput(MetaManager.findPropertyMeta(clz, property), editable);
+		return createBigDecimalInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	static public Text<BigDecimal> createBigDecimalInput(PropertyMetaModel pmm, boolean editable) {
+	static public Text<BigDecimal> createBigDecimalInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<BigDecimal> txt = new Text<BigDecimal>(BigDecimal.class);
@@ -354,8 +354,8 @@ final public class UIControlUtil {
 		return txt;
 	}
 
-	static public Text< ? > createText(Class< ? > clz, String property, boolean editable) {
-		PropertyMetaModel pmm = MetaManager.findPropertyMeta(clz, property);
+	static public <T> Text<T> createText(Class< ? > clz, String property, boolean editable) {
+		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaManager.findPropertyMeta(clz, property);
 		return createText(pmm.getActualType(), pmm, editable);
 	}
 

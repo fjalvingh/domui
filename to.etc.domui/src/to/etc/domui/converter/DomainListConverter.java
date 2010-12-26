@@ -37,9 +37,9 @@ import to.etc.domui.util.*;
  * Created on Nov 17, 2009
  */
 public final class DomainListConverter implements IConverter<Object> {
-	private PropertyMetaModel m_pmm;
+	private PropertyMetaModel< ? > m_pmm;
 
-	public DomainListConverter(PropertyMetaModel pmm) {
+	public DomainListConverter(PropertyMetaModel< ? > pmm) {
 		m_pmm = pmm;
 	}
 

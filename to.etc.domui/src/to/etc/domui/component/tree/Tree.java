@@ -53,7 +53,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 	private Class< ? extends INodeContentRenderer<T>> m_contentRendererClass;
 
-	private PropertyMetaModel m_propertyMetaModel;
+	private PropertyMetaModel< ? > m_propertyMetaModel;
 
 	private ICellClicked< ? > m_cellClicked;
 
@@ -541,11 +541,11 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		m_cellClicked = cellClicked;
 	}
 
-	public PropertyMetaModel getPropertyMetaModel() {
+	public PropertyMetaModel< ? > getPropertyMetaModel() {
 		return m_propertyMetaModel;
 	}
 
-	public void setPropertyMetaModel(PropertyMetaModel propertyMetaModel) {
+	public void setPropertyMetaModel(PropertyMetaModel< ? > propertyMetaModel) {
 		m_propertyMetaModel = propertyMetaModel;
 	}
 

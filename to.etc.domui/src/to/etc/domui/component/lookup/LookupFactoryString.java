@@ -26,7 +26,6 @@ package to.etc.domui.component.lookup;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.query.*;
 
@@ -74,7 +73,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 				txt.setSize(sz);
 		}
 		if(pmm.getConverter() != null)
-			txt.setConverter((IConverter) pmm.getConverter());
+			txt.setConverter(pmm.getConverter());
 		if(pmm.getLength() > 0)
 			txt.setMaxLength(pmm.getLength());
 		String hint = MetaUtils.findHintText(spm);

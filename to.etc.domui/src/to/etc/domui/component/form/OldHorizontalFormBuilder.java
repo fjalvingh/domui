@@ -60,12 +60,12 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @see to.etc.domui.component.form.GenericFormBuilder#addControl(java.lang.String, to.etc.domui.dom.html.NodeBase, to.etc.domui.dom.html.NodeBase[], boolean, to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
-	protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+	protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
 		addControl(label, 1, labelnode, list, mandatory, editable, pmm);
 	}
 
 	@Override
-	protected void addControl(NodeBase label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+	protected void addControl(NodeBase label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
 		modalAdd(label, 1, list);
 	}
 
@@ -73,7 +73,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @see to.etc.domui.component.form.GenericFormBuilder#addControl(java.lang.String, to.etc.domui.dom.html.NodeBase, to.etc.domui.dom.html.NodeBase[], boolean, to.etc.domui.component.meta.PropertyMetaModel)
 	 * In addition, enables customization of colSpan for rendered cell.
 	 */
-	protected void addControl(String label, int colSpan, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+	protected void addControl(String label, int colSpan, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = getBuilder().getControlLabelFactory();
@@ -222,7 +222,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @return
 	 */
 	public IControl< ? > addPropWithSpan(final String name, final boolean readOnly, final boolean mandatory, int colSpan) {
-		PropertyMetaModel pmm = resolveProperty(name);
+		PropertyMetaModel< ? > pmm = resolveProperty(name);
 		String label = pmm.getDefaultLabel();
 		return addPropWithSpan(name, label, readOnly, mandatory, colSpan);
 	}
@@ -243,7 +243,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @return
 	 */
 	public IControl< ? > addPropWithSpan(final String name, final String label, final boolean readOnly, final boolean mandatory, int colSpan) {
-		PropertyMetaModel pmm = resolveProperty(name);
+		PropertyMetaModel< ? > pmm = resolveProperty(name);
 
 		//-- Check control permissions: does it have view permissions?
 		if(!rights().calculate(pmm))
@@ -276,7 +276,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @param colSpan
 	 */
 	public void addPropertyAndControlWithSpan(final String propertyName, final NodeBase nb, final boolean mandatory, int colSpan) {
-		PropertyMetaModel pmm = resolveProperty(propertyName);
+		PropertyMetaModel< ? > pmm = resolveProperty(propertyName);
 		String label = pmm.getDefaultLabel();
 
 		// FIXME Kludge to determine if the control is meant to be editable!

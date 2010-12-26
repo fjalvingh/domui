@@ -183,7 +183,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 * @param mandatory
 	 */
 	@Override
-	public void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+	public void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = getBuilder().getControlLabelFactory();
@@ -195,7 +195,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	}
 
 	@Override
-	public void addControl(final NodeBase label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+	public void addControl(final NodeBase label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
 		modalAdd(label, list, editable);
 	}
 

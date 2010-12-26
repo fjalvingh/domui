@@ -152,7 +152,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @see to.etc.domui.component.form.GenericFormBuilder#addControl(java.lang.String, to.etc.domui.dom.html.NodeBase, to.etc.domui.dom.html.NodeBase[], boolean, to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
-	protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+	protected void addControl(String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = getBuilder().getControlLabelFactory();
@@ -165,7 +165,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	@Override
-	protected void addControl(NodeBase label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel pmm) {
+	protected void addControl(NodeBase label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
 		modalAdd(label, list, editable);
 		clearRun();
 	}

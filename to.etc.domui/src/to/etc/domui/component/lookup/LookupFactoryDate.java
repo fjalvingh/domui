@@ -42,7 +42,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 			throw new IllegalStateException("? SearchPropertyModel should not be null here.");
 
 		//get temporal type from metadata and set withTime later to date inout components
-		PropertyMetaModel pmm = (spm != null && spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
+		PropertyMetaModel< ? > pmm = (spm != null && spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
 		boolean withTime = (pmm != null && pmm.getTemporal() == TemporalPresentationType.DATETIME);
 
 		final DateInput dateFrom = new DateInput();
@@ -113,7 +113,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 
 	@Override
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(SearchPropertyMetaModel spm, X control) {
-		PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+		PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		if(Date.class.isAssignableFrom(pmm.getActualType()) && control == null)
 			return 2;
 		return 0;
