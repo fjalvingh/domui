@@ -419,7 +419,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 						if(spm.getPropertyName() == null)
 							throw new ProgrammerErrorException("The quick lookup properties for " + getMetaModel() + " are invalid: the property name is null");
 
-						List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(getMetaModel(), spm.getPropertyName()); // This will return an empty list on empty string input
+						List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getMetaModel(), spm.getPropertyName()); // This will return an empty list on empty string input
 						if(pl.size() == 0)
 							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + getMetaModel());
 

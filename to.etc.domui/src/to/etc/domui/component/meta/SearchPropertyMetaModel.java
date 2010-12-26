@@ -51,7 +51,7 @@ public interface SearchPropertyMetaModel {
 
 	String getPropertyName();
 
-	List<PropertyMetaModel> getPropertyPath();
+	List<PropertyMetaModel< ? >> getPropertyPath();
 
 	/**
 	 * Returns the text to use as the control label, if defined in the metadata.

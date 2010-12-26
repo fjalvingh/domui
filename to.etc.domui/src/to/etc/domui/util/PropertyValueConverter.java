@@ -30,6 +30,7 @@ final public class PropertyValueConverter<T> implements IConverter<T> {
 	 * Use the property list to get a value for each property, and append to the string to return.
 	 * @see to.etc.domui.converter.IObjectToStringConverter#convertObjectToString(java.util.Locale, java.lang.Object)
 	 */
+	@Override
 	public String convertObjectToString(Locale loc, T in) throws UIException {
 		if(null == in)
 			return "";
@@ -37,12 +38,12 @@ final public class PropertyValueConverter<T> implements IConverter<T> {
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		StringBuilder sb = new StringBuilder();
 		for(String pname : m_properties) {
-			PropertyMetaModel pmm = cmm.findProperty(pname);
+			PropertyMetaModel< ? > pmm = cmm.findProperty(pname);
 			if(null == pmm)
 				throw new IllegalArgumentException("The property '"+pname+"' is unknown on class "+clz.getName()+" ("+this+")");
 			Object value;
 			try {
-				value = pmm.getAccessor().getValue(in);
+				value = pmm.getValue(in);
 			} catch(Exception x) {
 				throw WrappedException.wrap(x); // Oh, the joys of checked exceptions... Bah.
 			}

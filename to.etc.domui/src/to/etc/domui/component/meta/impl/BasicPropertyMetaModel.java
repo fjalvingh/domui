@@ -28,10 +28,10 @@ import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 
-public class BasicPropertyMetaModel {
+public class BasicPropertyMetaModel<T> {
 	static private final PropertyMetaValidator[] NO_VALIDATORS = new PropertyMetaValidator[0];
 
-	private IConverter< ? > m_converter;
+	private IConverter<T> m_converter;
 
 	private SortableType m_sortable = SortableType.UNKNOWN;
 
@@ -64,11 +64,11 @@ public class BasicPropertyMetaModel {
 
 	private ControlFactory m_controlFactory;
 
-	public IConverter< ? > getConverter() {
+	public IConverter<T> getConverter() {
 		return m_converter;
 	}
 
-	public void setConverter(IConverter< ? > converter) {
+	public void setConverter(IConverter<T> converter) {
 		m_converter = converter;
 	}
 

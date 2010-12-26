@@ -33,9 +33,9 @@ import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 abstract public class QBasicModelCopier implements IModelCopier {
-	abstract protected <T> boolean isUnloadedParent(T source, PropertyMetaModel pmm) throws Exception;
+	abstract protected <T> boolean isUnloadedParent(T source, PropertyMetaModel< ? > pmm) throws Exception;
 
-	abstract protected <T> boolean isUnloadedChildList(T source, PropertyMetaModel pmm) throws Exception;
+	abstract protected <T> boolean isUnloadedChildList(T source, PropertyMetaModel< ? > pmm) throws Exception;
 
 	abstract protected QPersistentObjectState getObjectState(QDataContext dc, Object instance) throws Exception;
 
@@ -182,7 +182,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		if(!cmm.isPersistentClass())
 			throw new IllegalStateException("The class " + cmm + " is not a persistent class");
 		Class<T> clz = (Class<T>) cmm.getActualClass(); // Use this as the class indicator - source can be a proxy class
-		Object pk = cmm.getPrimaryKey().getAccessor().getValue(source);
+		Object pk = cmm.getPrimaryKey().getValue(source);
 
 		//-- Create a new instance as the copy
 		T copy;
@@ -197,15 +197,15 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		}
 
 		//-- Property value copy. We copy all properties including "up" relations but excluding "child" lists.
-		for(PropertyMetaModel pmm : cmm.getProperties()) {
+		for(PropertyMetaModel< ? > pmm : cmm.getProperties()) {
 			switch(pmm.getRelationType()){
 				default:
 					break;
 				case NONE:
 				case UP:
 					//-- We must copy.
-					Object v = pmm.getAccessor().getValue(source);
-					((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, v);
+					Object v = pmm.getValue(source);
+					((IValueAccessor<Object>) pmm).setValue(copy, v);
 					break;
 			}
 		}
@@ -275,7 +275,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		if(!cmm.isPersistentClass())
 			throw new IllegalStateException("The class " + cmm + " is not a persistent class");
 		Class<T> clz = (Class<T>) cmm.getActualClass(); // Use this as the class indicator - source can be a proxy class
-		Object pk = cmm.getPrimaryKey().getAccessor().getValue(source);
+		Object pk = cmm.getPrimaryKey().getValue(source);
 
 		/*
 		 * FIXME: There is an overlap with handling state here with copyProperties. If the source object being
@@ -369,9 +369,9 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		}
 
 		//-- Unknowns are treated as new,
-		List<PropertyMetaModel> childpropertylist = null;
+		List<PropertyMetaModel< ? >> childpropertylist = null;
 
-		for(PropertyMetaModel pmm : cmm.getProperties()) {
+		for(PropertyMetaModel< ? > pmm : cmm.getProperties()) {
 			//-- We cannot copy readonly properties, so skip those
 			if(pmm.getReadOnly() == YesNoType.YES)
 				continue;
@@ -382,8 +382,8 @@ abstract public class QBasicModelCopier implements IModelCopier {
 				case NONE:
 					//-- Normal non-relation field. Just copy the value or the reference.
 					if(docopy) {
-						Object v = pmm.getAccessor().getValue(source);
-						((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, v);
+						Object v = pmm.getValue(source);
+						((IValueAccessor<Object>) pmm).setValue(copy, v);
 						donemap.log("value property " + pmm.getName() + " of " + pmm.getClassModel() + ": " + dumpValue(v));
 					}
 					break;
@@ -398,7 +398,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 				case DOWN:
 					if(childpropertylist == null)
-						childpropertylist = new ArrayList<PropertyMetaModel>();
+						childpropertylist = new ArrayList<PropertyMetaModel< ? >>();
 					childpropertylist.add(pmm);
 					break;
 			}
@@ -414,7 +414,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 		//-- Now traverse all child relations - this record (parent of those children) has been saved.
 		if(childpropertylist != null) {
-			for(PropertyMetaModel pmm : childpropertylist) {
+			for(PropertyMetaModel< ? > pmm : childpropertylist) {
 				donemap.log("DOWN: " + pmm.getName() + " of " + pmm.getClassModel());
 				donemap.inc();
 				copyChildListProperty(donemap, source, copy, pmm);
@@ -433,13 +433,13 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	 * @param pmm
 	 * @throws Exception
 	 */
-	private <T> void copyChildListProperty(CopyInfo donemap, T source, T copy, PropertyMetaModel pmm) throws Exception {
+	private <T> void copyChildListProperty(CopyInfo donemap, T source, T copy, PropertyMetaModel< ? > pmm) throws Exception {
 		//-- If this list is not yet present (lazily loaded and not-loaded) exit- it cannot have changed
 		if(isUnloadedChildList(source, pmm)) {
 			donemap.log("Child set not loaded, skip children");
 			return;
 		}
-		Object schild = pmm.getAccessor().getValue(source);
+		Object schild = pmm.getValue(source);
 		if(schild == null) {
 			//-- We ignore NULL lists
 			donemap.log("Child set is null, no children");
@@ -447,11 +447,11 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		}
 		Collection<Object> slist = (List<Object>) schild;
 
-		Object dchild = pmm.getAccessor().getValue(copy);
+		Object dchild = pmm.getValue(copy);
 		if(dchild == null) {
 			//-- We need an actual instantiated target thingerydoo to add objects to.
 			dchild = new ArrayList<Object>(slist.size());
-			((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, dchild);
+			((IValueAccessor<Object>) pmm).setValue(copy, dchild);
 		}
 		Collection<Object> dlist = (List<Object>) dchild;
 
@@ -469,13 +469,13 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		ClassMetaModel	childmm = MetaManager.findClassMeta(childclz);
 		if(!childmm.isPersistentClass())
 			throw new IllegalStateException("The class " + childmm + " is not a persistent class");
-		PropertyMetaModel childpkpmm = childmm.getPrimaryKey();
+		PropertyMetaModel< ? > childpkpmm = childmm.getPrimaryKey();
 		if(childpkpmm == null)
 			throw new IllegalStateException("The class " + childmm + " has an unknown primary key");
 
 		Map<Object, Object>	dpkmap = new HashMap<Object, Object>();
 		for(Object o: dlist) {
-			Object dpk = childpkpmm.getAccessor().getValue(o);
+			Object dpk = childpkpmm.getValue(o);
 			if(dpk == null)
 				throw new IllegalStateException("Unexpected record with null primary key in child list " + pmm);
 			dpkmap.put(dpk, o);
@@ -483,7 +483,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 		//-- 1. For every source element locate destination and remove from map
 		for(Object si : slist) {
-			Object spk = childpkpmm.getAccessor().getValue(si);
+			Object spk = childpkpmm.getValue(si);
 			if(spk == null) {
 				//-- A new record @ source. Map it to dest && add to dlist
 
@@ -530,10 +530,10 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	 * @param pmm
 	 * @throws Exception
 	 */
-	private <T> void copyParentProperty(CopyInfo donemap, T source, T copy, PropertyMetaModel pmm) throws Exception {
+	private <T> void copyParentProperty(CopyInfo donemap, T source, T copy, PropertyMetaModel< ? > pmm) throws Exception {
 		//-- Upward reference. If this is a lazy proxy that is NOT instantiated (clean) we do nothing, else we load and copy.
-		Object sparent = pmm.getAccessor().getValue(source); // We are instantiated so get the property
-		Object currparent = pmm.getAccessor().getValue(copy); // Get the 'current' parent in the just-loaded object
+		Object sparent = pmm.getValue(source); // We are instantiated so get the property
+		Object currparent = pmm.getValue(copy); // Get the 'current' parent in the just-loaded object
 		Object copyparent;
 		if(sparent == null) {
 			donemap.log("parent property is null."); // Nothing to see here, begone
@@ -543,10 +543,10 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			ClassMetaModel pcmm = MetaManager.findClassMeta(sparent.getClass()); // Get the type of the parent,
 			if(!pcmm.isPersistentClass())
 				throw new IllegalStateException("parent instance pointed to by " + pmm + " is not a persistent class");
-			PropertyMetaModel pkpm = pcmm.getPrimaryKey();
+			PropertyMetaModel< ? > pkpm = pcmm.getPrimaryKey();
 			if(pkpm == null)
 				throw new IllegalStateException("parent instance pointed to by " + pmm + " has no primary key defined");
-			Object pk = pkpm.getAccessor().getValue(sparent); // Get PK of parent;
+			Object pk = pkpm.getValue(sparent); // Get PK of parent;
 			if(pk == null)
 				throw new IllegalStateException("undirtied and existing parent instance has a null PK!?");
 
@@ -571,7 +571,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 				possiblyDeletedRecordInSource(donemap, currparent);
 		}
 
-		((IValueAccessor<Object>) pmm.getAccessor()).setValue(copy, copyparent);
+		((IValueAccessor<Object>) pmm).setValue(copy, copyparent);
 		donemap.log("parent property set to " + identify(copyparent) + " (source was " + identify(sparent) + ")");
 	}
 
@@ -620,10 +620,10 @@ abstract public class QBasicModelCopier implements IModelCopier {
 			cmm = MetaManager.findClassMeta(source.getClass());
 		if(!cmm.isPersistentClass())
 			throw new IllegalStateException("Instance " + identify(source) + " is not a persistent class");
-		PropertyMetaModel pkpm = cmm.getPrimaryKey();
+		PropertyMetaModel< ? > pkpm = cmm.getPrimaryKey();
 		if(pkpm == null)
 			throw new IllegalStateException("Instance " + identify(source) + " has no primary key defined");
-		Object pk = pkpm.getAccessor().getValue(source); // Get PK of source
+		Object pk = pkpm.getValue(source); // Get PK of source
 		if(pk == null)
 			throw new IllegalStateException("Instance " + identify(source) + " has a null primary key?");
 		return refonly ? dc.getInstance(cmm.getActualClass(), pk) : dc.find(cmm.getActualClass(), pk);

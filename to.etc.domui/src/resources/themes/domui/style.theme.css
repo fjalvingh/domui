@@ -7,6 +7,8 @@
 	border: 0;
 	margin: 0;
 	padding: 0;
+	font-size: <%= font_size %>;
+	font-family: <%= font_family %>;
 }
 
 input, textarea, select {
@@ -30,8 +32,6 @@ input:hover, textarea:hover, select:hover {
 
 /*** Select "odd characters" ***/
 .ui-oddchars {
-	font-size: <%= font_size %>;
-	font-family: <%= font_family %>;
 	padding: 10px;
 }
 
@@ -311,8 +311,6 @@ div.ui-popin {
 	margin-right: 13px;
 }
 .ui-mbx-mc {
-	font-size: <%= font_size %>; /* FIXME: viewpoint uses PIXEL sizing!? */
-	font-family: <%= font_family %>;
 }
 
 /*** InfoPanel ***/
@@ -516,7 +514,6 @@ TD.ui-mp-ch:hover {
 }
 
 .ui-wa-hd {
-	font-family: <%= font_family %>;
 	font-size: 10px;
 	font-weight: bold;
 	vertical-align: top;
@@ -544,7 +541,6 @@ div.ui-wa-f {
 /* IMPORTANT: this color together with "cellspacing=1" creates the lines between the cells!!!! */
 table.ui-wa-bgtbl {
 	background-color: #cccccc;
-	font-family: <%= font_family %>;
 	font-size: 10px;
 }
 
@@ -555,14 +551,12 @@ table.ui-wa-bgtbl {
 }
 
 .ui-wa-hour {
-	font-family: <%= font_family %>;
 	font-size: 13px;
 	font-weight: bold;
 	vertical-align: top;
 }
 
 .ui-wa-min {
-	font-family: <%= font_family %>;
 	font-size: 10px;
 	font-weight: bold;
 	vertical-align: top;
@@ -577,7 +571,6 @@ table.ui-wa-bgtbl {
 	overflow: hidden;
 	border: 1px solid black;
 	background-color: #00ffcc;
-	font-family: <%= font_family %>;
 	font-size: 10px;
 }
 
@@ -791,13 +784,11 @@ tr.ui-keyword-popup-row {
 
 .ui-f-in {
 	font-size: <%= font_size %>;
-	font-family: <%= font_family %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
 	padding: 0px;
 }
 .ui-f-do {
 	font-size: <%= font_size %>;
-	font-family: <%= font_family %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
 	padding: 0px;
 }
@@ -810,13 +801,11 @@ tr.ui-keyword-popup-row {
 
 .ui-fvs-in {
 	font-size: <%= font_size %>;
-	font-family: <%= font_family %>;
 	vertical-align: top;
 }
 
 .ui-fvs-do { /* displayonly field */
 	font-size: <%= font_size %>;
-	font-family: <%= font_family %>;
 	background-color: white;
 	padding: 2px;
 }
@@ -833,7 +822,6 @@ TD.ui-numeric {
 /* Display-only field */
 .ui-f-display {
 	font-size: <%= font_size %>;
-	font-family: <%= font_family %>;
 	vertical-align: top;
 	background: #eff7ff;
 }
@@ -841,7 +829,6 @@ TD.ui-numeric {
 /*** Form basic styles: for forms where the label is above the edit control (vertical). ***/
 input {
 	font-size: <%= font_size %>;
-	font-family: <%= font_family %>;
 }
 
 button img {
@@ -880,7 +867,6 @@ a.ui-nbtn {
 	margin: 3px auto;
 	padding: 3px 0 0 0;
 	text-align: center;
-	font-family: Helvetica, Calibri, Arial, Bitstream Vera Sans, sans-serif;
 	font-size: 100%;
 	font-weight: bold;
 	text-decoration: none;

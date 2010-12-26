@@ -39,7 +39,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 
 	private String m_propertyName;
 
-	private List<PropertyMetaModel> m_propertyPath;
+	private List<PropertyMetaModel< ? >> m_propertyPath;
 
 	private boolean m_ignoreCase;
 
@@ -85,7 +85,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 
 
 	@Override
-	public synchronized List<PropertyMetaModel> getPropertyPath() {
+	public synchronized List<PropertyMetaModel< ? >> getPropertyPath() {
 		if(m_propertyPath == null && m_propertyName != null) {
 			m_propertyPath = MetaManager.parsePropertyPath(m_classModel, m_propertyName);
 			if(m_propertyPath.size() == 0)
@@ -94,7 +94,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 		return m_propertyPath;
 	}
 
-	public synchronized void setPropertyPath(List<PropertyMetaModel> propertyPath) {
+	public synchronized void setPropertyPath(List<PropertyMetaModel< ? >> propertyPath) {
 		m_propertyPath = propertyPath;
 	}
 

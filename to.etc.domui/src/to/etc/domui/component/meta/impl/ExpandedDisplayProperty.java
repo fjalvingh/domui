@@ -42,19 +42,18 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 28, 2008
  */
-public class ExpandedDisplayProperty implements PropertyMetaModel {
+public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	private ClassMetaModel m_classModel;
 
-	private PropertyMetaModel m_propertyMeta;
+	private IValueAccessor< ? > m_rootAccessor;
 
-	//	private DisplayPropertyMetaModel	m_displayMeta;
-	private IValueAccessor< ? > m_accessor;
+	private PropertyMetaModel< ? > m_propertyMeta;
 
-	private Class< ? > m_actualType;
+	private Class<T> m_actualType;
 
 	private int m_displayLength;
 
-	private IConverter< ? > m_converter;
+	private IConverter<T> m_converter;
 
 	private SortableType m_sortableType = SortableType.UNKNOWN;
 
@@ -66,15 +65,42 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 
 	private IConverter< ? > m_bestConverter;
 
-	protected ExpandedDisplayProperty(DisplayPropertyMetaModel displayMeta, PropertyMetaModel propertyMeta, IValueAccessor< ? > accessor) {
+	/**
+	 * Constructor for LIST types.
+	 * @param actual
+	 * @param displayMeta
+	 * @param propertyMeta
+	 * @param accessor
+	 */
+	protected ExpandedDisplayProperty(Class<T> actual, PropertyMetaModel< ? > propertyMeta, IValueAccessor< ? > accessor) {
+		m_actualType = actual;
+		m_propertyMeta = propertyMeta;
+		if(propertyMeta != null) { // ORDER 1
+			m_defaultLabel = propertyMeta.getDefaultLabel();
+			m_classModel = propertyMeta.getClassModel();
+			if(m_sortableType == SortableType.UNKNOWN)
+				setSortable(propertyMeta.getSortable());
+			if(m_displayLength <= 0) {
+				m_displayLength = propertyMeta.getDisplayLength();
+				if(m_displayLength <= 0)
+					m_displayLength = propertyMeta.getLength();
+			}
+		}
+	}
+
+	protected ExpandedDisplayProperty(PropertyMetaModel<T> propertyMeta, IValueAccessor<T> accessor) {
+		this((DisplayPropertyMetaModel) null, propertyMeta, accessor);
+	}
+
+	protected ExpandedDisplayProperty(DisplayPropertyMetaModel displayMeta, PropertyMetaModel<T> propertyMeta, IValueAccessor<T> accessor) {
 		//		m_displayMeta = displayMeta;
 		m_propertyMeta = propertyMeta;
-		m_accessor = accessor;
+		m_rootAccessor = accessor;
 		if(propertyMeta != null) { // ORDER 1
-			m_defaultLabel = m_propertyMeta.getDefaultLabel();
-			m_classModel = m_propertyMeta.getClassModel();
-			m_actualType = m_propertyMeta.getActualType();
-			m_propertyName = m_propertyMeta.getName();
+			m_defaultLabel = propertyMeta.getDefaultLabel();
+			m_classModel = propertyMeta.getClassModel();
+			m_actualType = propertyMeta.getActualType();
+			m_propertyName = propertyMeta.getName();
 			m_converter = propertyMeta.getConverter();
 			if(m_sortableType == SortableType.UNKNOWN)
 				setSortable(propertyMeta.getSortable());
@@ -111,8 +137,8 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	 * @param property
 	 * @return
 	 */
-	static public ExpandedDisplayProperty expandProperty(ClassMetaModel cmm, String property) {
-		PropertyMetaModel pmm = cmm.findProperty(property); // Get primary metadata
+	static public ExpandedDisplayProperty< ? > expandProperty(ClassMetaModel cmm, String property) {
+		PropertyMetaModel< ? > pmm = cmm.findProperty(property); // Get primary metadata
 		if(pmm == null)
 			throw new IllegalStateException("Unknown property '" + property + "' on classModel=" + cmm);
 		return expandProperty(pmm);
@@ -123,7 +149,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	 * this will return an {@link ExpandedDisplayPropertyList}.
 	 * @param pmm		The metamodel for the property to expand.
 	 */
-	static public ExpandedDisplayProperty expandProperty(PropertyMetaModel pmm) {
+	static public <X> ExpandedDisplayProperty< ? > expandProperty(PropertyMetaModel<X> pmm) {
 		if(pmm == null)
 			throw new IllegalArgumentException("Null property???");
 		Class< ? > rescl = pmm.getActualType();
@@ -139,16 +165,16 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		}
 
 		//-- This is a single property (indivisable). Return it's info.
-		return new ExpandedDisplayProperty(null, pmm, pmm.getAccessor());
+		return new ExpandedDisplayProperty<X>((DisplayPropertyMetaModel) null, pmm, pmm);
 	}
 
-	static public List<ExpandedDisplayProperty> expandProperties(Class< ? > clz, String[] properties) {
+	static public List<ExpandedDisplayProperty< ? >> expandProperties(Class< ? > clz, String[] properties) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		return expandProperties(cmm, properties);
 	}
 
-	static public List<ExpandedDisplayProperty> expandProperties(ClassMetaModel cmm, String[] properties) {
-		List<ExpandedDisplayProperty> res = new ArrayList<ExpandedDisplayProperty>(properties.length);
+	static public List<ExpandedDisplayProperty<?>> expandProperties(ClassMetaModel cmm, String[] properties) {
+		List<ExpandedDisplayProperty< ? >> res = new ArrayList<ExpandedDisplayProperty< ? >>(properties.length);
 		for(String p : properties)
 			res.add(expandProperty(cmm, p));
 		return res;
@@ -165,20 +191,20 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	 * @param cmm
 	 * @return
 	 */
-	static private ExpandedDisplayProperty expandCompoundProperty(PropertyMetaModel pmm, ClassMetaModel cmm) {
+	static private <T> ExpandedDisplayProperty< ? > expandCompoundProperty(PropertyMetaModel<T> pmm, ClassMetaModel cmm) {
 		List<DisplayPropertyMetaModel> dpl = pmm.getTableDisplayProperties(); // Property itself has definition?
 		if(dpl.size() == 0) {
 			//-- No. Has class-referred-to a default?
 			dpl = cmm.getTableDisplayProperties();
 			if(dpl.size() == 0) {
 				//-- Don't know how to display this. Just use a generic thingy causing a toString().
-				return new ExpandedDisplayProperty(null, pmm, pmm.getAccessor());
+				return new ExpandedDisplayProperty<T>(pmm, pmm);
 			}
 		}
 
 		//-- We have a display list! Run the display list expander, using the property accessor as the base accessor.
-		List<ExpandedDisplayProperty> list = expandDisplayProperties(dpl, cmm, pmm.getAccessor());
-		return new ExpandedDisplayPropertyList(null, pmm, pmm.getAccessor(), list);
+		List<ExpandedDisplayProperty< ? >> list = expandDisplayProperties(dpl, cmm, pmm);
+		return new ExpandedDisplayPropertyList(pmm, pmm, list);
 	}
 
 	/**
@@ -188,10 +214,10 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	 * @param rootAccessor
 	 * @return
 	 */
-	static public List<ExpandedDisplayProperty> expandDisplayProperties(List<DisplayPropertyMetaModel> dpl, ClassMetaModel cmm, IValueAccessor< ? > rootAccessor) {
+	static public List<ExpandedDisplayProperty< ? >> expandDisplayProperties(List<DisplayPropertyMetaModel> dpl, ClassMetaModel cmm, IValueAccessor< ? > rootAccessor) {
 		if(rootAccessor == null)
 			rootAccessor = new IdentityAccessor<Object>();
-		List<ExpandedDisplayProperty> res = new ArrayList<ExpandedDisplayProperty>(dpl.size());
+		List<ExpandedDisplayProperty< ? >> res = new ArrayList<ExpandedDisplayProperty< ? >>(dpl.size());
 		List<DisplayPropertyMetaModel> joinList = null;
 		for(DisplayPropertyMetaModel dpm : dpl) {
 			if(dpm.getJoin() != null) {
@@ -210,7 +236,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 			}
 
 			//-- Handle this (normal) property. Is this a DOTTED one?
-			PropertyMetaModel pmm = cmm.findProperty(dpm.getName());
+			PropertyMetaModel< ? > pmm = cmm.findProperty(dpm.getName());
 			if(pmm == null)
 				throw new IllegalStateException("Unknown property " + dpm.getName() + " in " + cmm);
 			Class< ? > clz = pmm.getActualType();
@@ -222,18 +248,18 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 			}
 
 			//-- FIXME Handle embedded
+			SubAccessor<Object, Object> sacc = new SubAccessor<Object, Object>((IValueAccessor<Object>) rootAccessor, (IValueAccessor<Object>) pmm);
 			if(subdpl.size() != 0) {
 				/*
 				 * The property here is a COMPOUND property. Explicitly create a subthing for it,
 				 */
-				List<ExpandedDisplayProperty> xlist = expandDisplayProperties(subdpl, pcmm, new SubAccessor<Object, Object>((IValueAccessor<Object>) rootAccessor, (IValueAccessor<Object>) pmm
-					.getAccessor()));
-				res.add(new ExpandedDisplayPropertyList(null, pmm, pmm.getAccessor(), xlist));
+				List<ExpandedDisplayProperty< ? >> xlist = expandDisplayProperties(subdpl, pcmm, sacc);
+				res.add(new ExpandedDisplayPropertyList(pmm, pmm, xlist));
 				continue;
 			}
 
 			//-- Not a compound type-> add normal expansion (one column)
-			ExpandedDisplayProperty xdp = new ExpandedDisplayProperty(dpm, pmm, new SubAccessor<Object, Object>((IValueAccessor<Object>) rootAccessor, (IValueAccessor<Object>) pmm.getAccessor()));
+			ExpandedDisplayProperty<Object> xdp = new ExpandedDisplayProperty<Object>(dpm, (PropertyMetaModel<Object>) pmm, sacc);
 			res.add(xdp);
 		}
 
@@ -260,11 +286,11 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	 * @param accessor
 	 * @return
 	 */
-	static private ExpandedDisplayProperty createJoinedProperty(ClassMetaModel cmm, List<DisplayPropertyMetaModel> dpl, IValueAccessor< ? > accessor) {
+	static private ExpandedDisplayProperty<String> createJoinedProperty(ClassMetaModel cmm, List<DisplayPropertyMetaModel> dpl, IValueAccessor< ? > accessor) {
 		//-- Create a paired list of PropertyMetaModel thingies
-		List<PropertyMetaModel> plist = new ArrayList<PropertyMetaModel>(dpl.size());
+		List<PropertyMetaModel< ? >> plist = new ArrayList<PropertyMetaModel< ? >>(dpl.size());
 		for(DisplayPropertyMetaModel dm : dpl) {
-			PropertyMetaModel pm = cmm.findProperty(dm.getName());
+			PropertyMetaModel< ? > pm = cmm.findProperty(dm.getName());
 			if(pm == null)
 				throw new IllegalStateException("Display property " + dm.getName() + " not found on " + cmm);
 			plist.add(pm);
@@ -277,13 +303,18 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	/*--------------------------------------------------------------*/
 
 	@Override
-	public IValueAccessor< ? > getAccessor() {
-		return m_accessor;
+	public Class<T> getActualType() {
+		return m_actualType;
 	}
 
 	@Override
-	public Class< ? > getActualType() {
-		return m_actualType;
+	final public void setValue(Object target, Object value) throws Exception {
+		throw new IllegalStateException("Expanded properties cannot be set to a value");
+	}
+
+	@Override
+	public T getValue(Object in) throws Exception {
+		return ((IValueAccessor<T>) m_rootAccessor).getValue(in);
 	}
 
 	@Override
@@ -306,7 +337,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	}
 
 	@Override
-	public IConverter< ? > getConverter() {
+	public IConverter<T> getConverter() {
 		return m_converter;
 	}
 
@@ -315,9 +346,9 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		return m_displayLength;
 	}
 
-	public void setActualType(Class< ? > actualType) {
-		m_actualType = actualType;
-	}
+	//	public void setActualType(Class< ? > actualType) {
+	//		m_actualType = actualType;
+	//	}
 
 	public void setDisplayLength(int displayLength) {
 		m_displayLength = displayLength;
@@ -350,7 +381,7 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 	}
 
 	public String getPresentationString(Object root) throws Exception {
-		Object colval = getAccessor().getValue(root);
+		Object colval = getValue(root);
 		String s;
 		if(colval == null)
 			s = "";
@@ -364,18 +395,18 @@ public class ExpandedDisplayProperty implements PropertyMetaModel {
 		return s;
 	}
 
-	static public List<ExpandedDisplayProperty> flatten(List<ExpandedDisplayProperty> in) {
-		List<ExpandedDisplayProperty> res = new ArrayList<ExpandedDisplayProperty>(in.size() + 10);
+	static public List<ExpandedDisplayProperty< ? >> flatten(List<ExpandedDisplayProperty< ? >> in) {
+		List<ExpandedDisplayProperty< ? >> res = new ArrayList<ExpandedDisplayProperty< ? >>(in.size() + 10);
 		flatten(res, in);
 		return res;
 	}
 
-	static private void flatten(List<ExpandedDisplayProperty> res, List<ExpandedDisplayProperty> in) {
-		for(ExpandedDisplayProperty xd : in)
+	static private void flatten(List<ExpandedDisplayProperty< ? >> res, List<ExpandedDisplayProperty< ? >> in) {
+		for(ExpandedDisplayProperty< ? > xd : in)
 			flatten(res, xd);
 	}
 
-	static public void flatten(List<ExpandedDisplayProperty> res, ExpandedDisplayProperty xd) {
+	static public void flatten(List<ExpandedDisplayProperty<?>> res, ExpandedDisplayProperty<?> xd) {
 		if(xd instanceof ExpandedDisplayPropertyList)
 			flatten(res, ((ExpandedDisplayPropertyList) xd).getChildren());
 		else

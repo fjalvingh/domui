@@ -43,7 +43,7 @@ public class DisplayOnlyBinder implements IBinder {
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
 	@Nullable
-	private PropertyMetaModel m_propertyModel;
+	private PropertyMetaModel< ? > m_propertyModel;
 
 	/** If this is bound to some model this contains the model, */
 	@Nullable
@@ -93,7 +93,7 @@ public class DisplayOnlyBinder implements IBinder {
 	 * @param pmm
 	 */
 	@Override
-	public <T> void to(@Nonnull IReadOnlyModel<T> model, @Nonnull PropertyMetaModel pmm) {
+	public <T> void to(@Nonnull IReadOnlyModel<T> model, @Nonnull PropertyMetaModel< ? > pmm) {
 		if(pmm == null || model == null)
 			throw new IllegalArgumentException("Argument cannot be null");
 		m_listener = null;
@@ -134,7 +134,7 @@ public class DisplayOnlyBinder implements IBinder {
 	 * @param pmm
 	 */
 	@Override
-	public void to(@Nonnull Object instance, @Nonnull PropertyMetaModel pmm) {
+	public void to(@Nonnull Object instance, @Nonnull PropertyMetaModel< ? > pmm) {
 		if(instance == null || pmm == null)
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
 		m_listener = null;
@@ -159,7 +159,7 @@ public class DisplayOnlyBinder implements IBinder {
 		else {
 			Object val = m_control.getValue();
 			Object base = m_instance == null ? m_model.getValue() : m_instance;
-			IValueAccessor<Object> a = (IValueAccessor<Object>) m_propertyModel.getAccessor();
+			IValueAccessor<Object> a = (IValueAccessor<Object>) m_propertyModel;
 			a.setValue(base, val);
 		}
 	}
@@ -170,7 +170,7 @@ public class DisplayOnlyBinder implements IBinder {
 			((IBindingListener<NodeBase>) m_listener).moveModelToControl((NodeBase) m_control); // Stupid generics idiocy requires cast
 		else {
 			Object base = m_instance == null ? m_model.getValue() : m_instance;
-			IValueAccessor< ? > vac = m_propertyModel.getAccessor();
+			IValueAccessor< ? > vac = m_propertyModel;
 			if(vac == null)
 				throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyModel);
 			Object pval = vac.getValue(base);

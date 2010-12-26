@@ -147,10 +147,10 @@ public class PageParameters {
 				if(! cmm.isPersistentClass())
 					throw new IllegalStateException("Instance of "+k.getClass()+" is not a persistent class");
 				//-- Get the PK attribute of the persistent class;
-				PropertyMetaModel pkpm = cmm.getPrimaryKey();
+				PropertyMetaModel< ? > pkpm = cmm.getPrimaryKey();
 				if(pkpm == null)
 					throw new IllegalStateException("The instance of " + k.getClass() + " passed has no primary key defined");
-				Object key = pkpm.getAccessor().getValue(k);
+				Object key = pkpm.getValue(k);
 				if(key == null)
 					throw new IllegalStateException("The instance of " + k.getClass() + " passed has a null primary key");
 
@@ -187,9 +187,9 @@ public class PageParameters {
 		ClassMetaModel cmm = MetaManager.findClassMeta(o.getClass());
 		if(cmm.isPersistentClass()) {
 			//-- Get the PK attribute of the persistent class;
-			PropertyMetaModel pkpm = cmm.getPrimaryKey();
+			PropertyMetaModel< ? > pkpm = cmm.getPrimaryKey();
 			if(pkpm != null) {
-				Object key = pkpm.getAccessor().getValue(o);
+				Object key = pkpm.getValue(o);
 				if(key == null)
 					throw new IllegalStateException("The instance of " + o.getClass() + " passed has a null primary key");
 				keyval = CompoundKeyConverter.INSTANCE.marshal(key);

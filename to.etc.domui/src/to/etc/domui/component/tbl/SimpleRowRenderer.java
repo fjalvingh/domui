@@ -89,7 +89,7 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 		if(cols == null || cols.length == 0)
 			throw new IllegalStateException("The list-of-columns is empty or null; I need at least one column to continue.");
 
-		final List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandProperties(model(), cols);
+		final List<ExpandedDisplayProperty< ? >> xdpl = ExpandedDisplayProperty.expandProperties(model(), cols);
 		initialize(xdpl);
 	}
 
@@ -98,7 +98,7 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 	 * @param clz
 	 * @param xdpl
 	 */
-	protected void initialize(final List<ExpandedDisplayProperty> xdpl) {
+	protected void initialize(final List<ExpandedDisplayProperty< ? >> xdpl) {
 		//-- For all properties in the list, use metadata to define'm
 		final int[] widths = new int[80];
 		m_totwidth = 0;
@@ -111,8 +111,8 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 		}
 	}
 
-	protected void addColumns(final List<ExpandedDisplayProperty> xdpl, final int[] widths) {
-		for(final ExpandedDisplayProperty xdp : xdpl) {
+	protected void addColumns(final List<ExpandedDisplayProperty< ? >> xdpl, final int[] widths) {
+		for(final ExpandedDisplayProperty< ? > xdp : xdpl) {
 			if(xdp instanceof ExpandedDisplayPropertyList) {
 				//-- Flatten: call for subs recursively.
 				final ExpandedDisplayPropertyList xdl = (ExpandedDisplayPropertyList) xdp;
@@ -149,7 +149,7 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 		final List<DisplayPropertyMetaModel> dpl = model().getTableDisplayProperties();
 		if(dpl.size() == 0)
 			throw new IllegalStateException("The list-of-columns to show is empty, and the class has no metadata (@MetaObject) defining a set of columns as default table columns, so there.");
-		final List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, model(), null);
+		final List<ExpandedDisplayProperty< ? >> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, model(), null);
 		initialize(xdpl);
 	}
 

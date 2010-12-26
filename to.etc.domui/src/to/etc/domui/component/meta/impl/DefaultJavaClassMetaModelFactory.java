@@ -113,19 +113,14 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		Method rm = pd.getGetter();
 		if(rm.getParameterTypes().length != 0)
 			return;
-		DefaultPropertyMetaModel pm = new DefaultPropertyMetaModel(cmm, pd);
+		DefaultPropertyMetaModel< ? > pm = new DefaultPropertyMetaModel<Object>(cmm, pd);
 		cmm.addProperty(pm);
 		initPropertyModel(cmm, pd, pm, searchlist, keysearchlist);
 		if(pm.isPrimaryKey())
 			cmm.setPrimaryKey(pm);
 	}
 
-	protected void initPropertyModel(DefaultClassMetaModel cmm, PropertyInfo pd, DefaultPropertyMetaModel pmm, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
-		pmm.setAccessor(new PropertyAccessor<Object>(pd.getGetter(), pd.getSetter(), pmm));
-		if(pd.getSetter() == null) {
-			pmm.setReadOnly(YesNoType.YES);
-		}
-
+	protected void initPropertyModel(DefaultClassMetaModel cmm, PropertyInfo pd, DefaultPropertyMetaModel< ? > pmm, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
 		Annotation[] annar = pd.getGetter().getAnnotations();
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName();
@@ -235,7 +230,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		}
 	}
 
-	protected void decodePropertyAnnotationByName(DefaultClassMetaModel cmm, DefaultPropertyMetaModel pmm, Annotation an, String name) {
+	protected void decodePropertyAnnotationByName(DefaultClassMetaModel cmm, DefaultPropertyMetaModel< ? > pmm, Annotation an, String name) {
 		if("javax.persistence.Column".equals(name)) {
 			decodeJpaColumn(pmm, an);
 		} else if("javax.persistence.Id".equals(name)) {
@@ -284,7 +279,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	 * @param pmm
 	 * @param an
 	 */
-	protected void decodeJpaColumn(DefaultPropertyMetaModel pmm, final Annotation an) {
+	protected void decodeJpaColumn(DefaultPropertyMetaModel< ? > pmm, final Annotation an) {
 		try {
 			/*
 			 * Handle the "length" annotation. As usual, someone with a brain the size of a pea fucked up the standard. The

@@ -44,7 +44,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2008
  */
-public interface PropertyMetaModel {
+public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	/**
 	 * The ClassModel that this property is a property of.
 	 * @return
@@ -66,7 +66,7 @@ public interface PropertyMetaModel {
 	 * @return
 	 */
 	@Nonnull
-	public Class< ? > getActualType();
+	public Class<T> getActualType();
 
 	/**
 	 * The abomination that is Java Generics requires a separate dysfunctional type system to represent
@@ -139,16 +139,16 @@ public interface PropertyMetaModel {
 	@Nonnull
 	public SortableType getSortable();
 
-	/**
-	 * Return an Accessor which is an object that can get or set the value of this property when the object
-	 * instance is passed into it. This is usually just a wrapper for a single reflection Method invocation
-	 * but can be more complex when this PropertyMetaModel actually refers to a compound property (a property
-	 * that was synthesized from a path expression like relation.firstName).
-	 *
-	 * @return
-	 */
-	@Nonnull
-	public IValueAccessor< ? > getAccessor();
+	//	/**
+	//	 * Return an Accessor which is an object that can get or set the value of this property when the object
+	//	 * instance is passed into it. This is usually just a wrapper for a single reflection Method invocation
+	//	 * but can be more complex when this PropertyMetaModel actually refers to a compound property (a property
+	//	 * that was synthesized from a path expression like relation.firstName).
+	//	 *
+	//	 * @return
+	//	 */
+	//	@Nonnull
+	//	public IValueAccessor< ? > getAccessor();
 
 	/**
 	 * Returns the user-specified converter to use when converting this property's value to and from string. Can be null.
@@ -156,7 +156,7 @@ public interface PropertyMetaModel {
 	 * @return
 	 */
 	@Nullable
-	public IConverter< ? > getConverter();
+	public IConverter<T> getConverter();
 
 	/**
 	 * Whether the property is defined as requiring a value.

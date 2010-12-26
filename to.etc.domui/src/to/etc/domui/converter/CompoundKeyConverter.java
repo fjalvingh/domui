@@ -123,7 +123,7 @@ public class CompoundKeyConverter {
 				throw new IllegalStateException("Unexpected: PK entry is not a persistent class: " + cmm + ", in root PK " + m_root.getClass());
 
 			//-- Obtain it's PK and render it as well
-			PropertyMetaModel pkpm = cmm.getPrimaryKey();
+			PropertyMetaModel< ? > pkpm = cmm.getPrimaryKey();
 			if(pkpm == null)
 				throw new IllegalStateException("Unexpected: persistent class " + cmm + " has an undefined PK property");
 			Object pk = scanAnything(pkpm.getActualType());
@@ -150,11 +150,11 @@ public class CompoundKeyConverter {
 				throw new IllegalStateException("Cannot create instance of " + type + " for PK=" + m_root + ": " + x, x);
 			}
 
-			for(PropertyMetaModel pmm : cmm.getProperties()) {
+			for(PropertyMetaModel< ? > pmm : cmm.getProperties()) {
 				Object pvalue = scanAnything(pmm.getActualType());
 				if(pvalue == null)
 					throw new IllegalStateException("Null value for property " + pmm + " in pk " + m_root);
-				((IValueAccessor<Object>) pmm.getAccessor()).setValue(inst, pvalue);
+				((IValueAccessor<Object>) pmm).setValue(inst, pvalue);
 			}
 			return inst;
 		}
@@ -228,16 +228,16 @@ public class CompoundKeyConverter {
 			throw new IllegalStateException("Unexpected: PK entry is not a persistent class: " + cmm + ", in root PK " + root.getClass());
 
 		//-- Obtain it's PK and render it as well
-		PropertyMetaModel pkpm = cmm.getPrimaryKey();
+		PropertyMetaModel< ? > pkpm = cmm.getPrimaryKey();
 		if(pkpm == null)
 			throw new IllegalStateException("Unexpected: persistent class " + cmm + " has an undefined PK property");
-		Object pkval = pkpm.getAccessor().getValue(in);
+		Object pkval = pkpm.getValue(in);
 		renderAnything(sb, pkval, root);
 	}
 
 	private void renderObject(StringBuilder sb, Object in, Object root, ClassMetaModel cmm) throws Exception {
-		for(PropertyMetaModel pmm : cmm.getProperties()) {
-			Object pvalue = pmm.getAccessor().getValue(in);
+		for(PropertyMetaModel< ? > pmm : cmm.getProperties()) {
+			Object pvalue = pmm.getValue(in);
 			renderAnything(sb, pvalue, root);
 		}
 	}

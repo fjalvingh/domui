@@ -32,14 +32,14 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
 
-abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
-	private PropertyMetaModel m_parent;
+abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T> {
+	private PropertyMetaModel<T> m_parent;
 
-	protected PropertyMetaModelWrapper(PropertyMetaModel parent) {
+	protected PropertyMetaModelWrapper(PropertyMetaModel<T> parent) {
 		m_parent = parent;
 	}
 
-	public PropertyMetaModel getWrappedModel() {
+	public PropertyMetaModel<T> getWrappedModel() {
 		return m_parent;
 	}
 
@@ -48,17 +48,22 @@ abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
 	 * has been passed to user code.
 	 * @param parent
 	 */
-	public void setWrappedModel(PropertyMetaModel parent) {
+	public void setWrappedModel(PropertyMetaModel<T> parent) {
 		m_parent = parent;
 	}
 
 	@Override
-	public IValueAccessor< ? > getAccessor() {
-		return m_parent.getAccessor();
+	public T getValue(Object in) throws Exception {
+		return m_parent.getValue(in);
 	}
 
 	@Override
-	public Class< ? > getActualType() {
+	public void setValue(Object target, T value) throws Exception {
+		m_parent.setValue(target, value);
+	}
+
+	@Override
+	public Class<T> getActualType() {
 		return m_parent.getActualType();
 	}
 
@@ -101,7 +106,7 @@ abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
 	}
 
 	@Override
-	public IConverter< ? > getConverter() {
+	public IConverter<T> getConverter() {
 		return m_parent.getConverter();
 	}
 

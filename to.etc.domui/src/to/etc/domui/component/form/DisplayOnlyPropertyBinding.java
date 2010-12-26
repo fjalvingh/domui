@@ -40,11 +40,11 @@ import to.etc.domui.util.*;
 public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T> {
 	final IDisplayControl<T> m_control;
 
-	private PropertyMetaModel m_propertyMeta;
+	private PropertyMetaModel<T> m_propertyMeta;
 
 	private IReadOnlyModel< ? > m_model;
 
-	public DisplayOnlyPropertyBinding(IReadOnlyModel< ? > model, PropertyMetaModel propertyMeta, IDisplayControl<T> control) {
+	public DisplayOnlyPropertyBinding(IReadOnlyModel< ? > model, PropertyMetaModel<T> propertyMeta, IDisplayControl<T> control) {
 		m_model = model;
 		m_propertyMeta = propertyMeta;
 		m_control = control;
@@ -55,19 +55,18 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding, IControl<T>
 		if(m_propertyMeta.getReadOnly() == YesNoType.YES)
 			return;
 
-		Object val = m_control.getValue();
+		T val = m_control.getValue();
 		Object base = m_model.getValue();
-		IValueAccessor<Object> a = (IValueAccessor<Object>) m_propertyMeta.getAccessor();
-		a.setValue(base, val);
+		m_propertyMeta.setValue(base, val);
 	}
 
 	@Override
 	public void moveModelToControl() throws Exception {
 		Object base = m_model.getValue();
-		IValueAccessor< ? > vac = m_propertyMeta.getAccessor();
+		IValueAccessor< ? > vac = m_propertyMeta;
 		if(vac == null)
 			throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyMeta);
-		T pval = (T) m_propertyMeta.getAccessor().getValue(base);
+		T pval = m_propertyMeta.getValue(base);
 		m_control.setValue(pval);
 	}
 

@@ -42,17 +42,17 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 29, 2008
  */
-public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccessor<T> {
-	private PropertyMetaModel m_original;
+public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAccessor<T> {
+	private PropertyMetaModel<T> m_original;
 
 	/** The full dotted name from the original source to this synthetic property. */
 	private String m_dottedName;
 
-	private PropertyMetaModel[] m_accessPath;
+	private PropertyMetaModel< ? >[] m_accessPath;
 
-	public PathPropertyMetaModel(String dottedName, PropertyMetaModel[] accessPath) {
+	public PathPropertyMetaModel(String dottedName, PropertyMetaModel< ? >[] accessPath) {
 		m_accessPath = accessPath;
-		m_original = accessPath[accessPath.length - 1];
+		m_original = (PropertyMetaModel<T>) accessPath[accessPath.length - 1];
 		m_dottedName = dottedName;
 	}
 
@@ -70,8 +70,8 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	@Override
 	public T getValue(Object in) throws Exception {
 		Object cv = in;
-		for(PropertyMetaModel pmm : m_accessPath) {
-			cv = pmm.getAccessor().getValue(cv);
+		for(PropertyMetaModel< ? > pmm : m_accessPath) {
+			cv = pmm.getValue(cv);
 			if(cv == null)
 				return null;
 		}
@@ -81,14 +81,14 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	@Override
 	public void setValue(Object target, T value) throws Exception {
 		Object cv = target;
-		for(PropertyMetaModel pmm : m_accessPath) {
+		for(PropertyMetaModel< ? > pmm : m_accessPath) {
 			if(pmm == m_original) { // Reached last segment?
 				//-- Actually set a value now
-				((IValueAccessor<T>) pmm.getAccessor()).setValue(cv, value);
+				((IValueAccessor<T>) pmm).setValue(cv, value);
 				return;
 			}
 
-			cv = pmm.getAccessor().getValue(cv);
+			cv = pmm.getValue(cv);
 			if(cv == null)
 				throw new IllegalStateException("The property '" + pmm.getName() + " in classModel=" + pmm.getClassModel() + " is null - cannot set a value!!");
 		}
@@ -140,7 +140,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 		Locale loc = NlsContext.getLocale();
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < m_accessPath.length - 1; i++) {
-			PropertyMetaModel	pmm = m_accessPath[i];
+			PropertyMetaModel< ? > pmm = m_accessPath[i];
 			BundleRef br = pmm.getClassModel().getClassBundle(); // Current target-path
 			String v = attemptProperty(sb, br, i, type, loc);
 			if(v != null)
@@ -206,17 +206,8 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Silly proxies.										*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Create a compound accessor.
-	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAccessor()
-	 */
 	@Override
-	public IValueAccessor< ? > getAccessor() {
-		return this;
-	}
-
-	@Override
-	public Class< ? > getActualType() {
+	public Class<T> getActualType() {
 		return m_original.getActualType();
 	}
 
@@ -261,7 +252,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel, IValueAccess
 	}
 
 	@Override
-	public IConverter< ? > getConverter() {
+	public IConverter<T> getConverter() {
 		return m_original.getConverter();
 	}
 

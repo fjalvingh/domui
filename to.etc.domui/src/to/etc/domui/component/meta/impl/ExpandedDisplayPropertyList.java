@@ -40,15 +40,15 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 28, 2008
  */
-public class ExpandedDisplayPropertyList extends ExpandedDisplayProperty {
-	private List<ExpandedDisplayProperty> m_children;
+public class ExpandedDisplayPropertyList extends ExpandedDisplayProperty<String> {
+	private List<ExpandedDisplayProperty< ? >> m_children;
 
-	protected ExpandedDisplayPropertyList(DisplayPropertyMetaModel displayMeta, PropertyMetaModel propertyMeta, IValueAccessor< ? > accessor, List<ExpandedDisplayProperty> children) {
-		super(displayMeta, propertyMeta, accessor);
+	protected <X> ExpandedDisplayPropertyList(PropertyMetaModel< ? > propertyMeta, IValueAccessor< ? > accessor, List<ExpandedDisplayProperty< ? >> children) {
+		super(String.class, propertyMeta, accessor);
 		m_children = children;
 	}
 
-	public List<ExpandedDisplayProperty> getChildren() {
+	public List<ExpandedDisplayProperty< ? >> getChildren() {
 		return m_children;
 	}
 }

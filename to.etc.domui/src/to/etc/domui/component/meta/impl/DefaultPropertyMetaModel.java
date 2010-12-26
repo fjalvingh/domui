@@ -33,12 +33,10 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
-public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements PropertyMetaModel {
+public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> implements PropertyMetaModel<T> {
 	private final DefaultClassMetaModel m_classModel;
 
 	private final PropertyInfo m_descriptor;
-
-	private PropertyAccessor< ? > m_accessor;
 
 	private int m_length = -1;
 
@@ -108,6 +106,9 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 			throw new IllegalStateException("Cannot be null dude");
 		m_classModel = classModel;
 		m_descriptor = descriptor;
+		if(descriptor.getSetter() == null) {
+			setReadOnly(YesNoType.YES);
+		}
 	}
 
 	@Override
@@ -116,8 +117,8 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	}
 
 	@Override
-	public Class< ? > getActualType() {
-		return m_descriptor.getActualType();
+	public Class<T> getActualType() {
+		return (Class<T>) m_descriptor.getActualType();
 	}
 
 	@Override
@@ -129,6 +130,52 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	public Type getGenericActualType() {
 		Method m = m_descriptor.getGetter();
 		return m.getGenericReturnType();
+	}
+
+	@Override
+	public void setValue(Object target, T value) throws Exception {
+		if(target == null)
+			throw new IllegalStateException("The 'target' object is null");
+		if(m_descriptor.getSetter() == null)
+			throw new IllegalAccessError("The property " + this + " is read-only.");
+		try {
+			m_descriptor.getSetter().invoke(target, value);
+		} catch(InvocationTargetException itx) {
+			Throwable c = itx.getCause();
+			if(c instanceof Exception)
+				throw (Exception) c;
+			else if(c instanceof Error)
+				throw (Error) c;
+			else
+				throw itx;
+		}
+	}
+
+	/**
+	 * Retrieve the value from this object. If the input object is null
+	 * this throws IllegalStateException.
+	 *
+	 * @see to.etc.domui.util.IValueTransformer#getValue(java.lang.Object)
+	 */
+	@Override
+	public T getValue(Object in) throws Exception {
+		if(in == null)
+			throw new IllegalStateException("The 'input' object is null (getter method=" + m_descriptor.getGetter() + ")");
+		try {
+			return (T) m_descriptor.getGetter().invoke(in);
+		} catch(InvocationTargetException itx) {
+			System.err.println("(in calling " + m_descriptor.getGetter() + " with input object " + in + ")");
+			Throwable c = itx.getCause();
+			if(c instanceof Exception)
+				throw (Exception) c;
+			else if(c instanceof Error)
+				throw (Error) c;
+			else
+				throw itx;
+		} catch(Exception x) {
+			System.err.println("in calling " + m_descriptor.getGetter() + " with input object " + in);
+			throw x;
+		}
 	}
 
 	@Override
@@ -194,19 +241,6 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 
 	public void setLength(int length) {
 		m_length = length;
-	}
-
-	/**
-	 * The thingy to access the property generically.
-	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAccessor()
-	 */
-	@Override
-	public IValueAccessor< ? > getAccessor() {
-		return m_accessor;
-	}
-
-	public void setAccessor(PropertyAccessor< ? > accessor) {
-		m_accessor = accessor;
 	}
 
 	@Override

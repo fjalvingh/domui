@@ -58,7 +58,7 @@ public abstract class MultipleSelectionRowRenderer<T> extends SimpleRowRenderer<
 	 * @param xdpl
 	 */
 	@Override
-	protected void initialize(final List<ExpandedDisplayProperty> xdpl) {
+	protected void initialize(final List<ExpandedDisplayProperty< ? >> xdpl) {
 		//-- For all properties in the list, use metadata to define'm
 		final int[] widths = new int[80];
 		setTotalWidth(0);

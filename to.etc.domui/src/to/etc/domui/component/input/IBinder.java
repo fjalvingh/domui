@@ -53,7 +53,7 @@ public interface IBinder extends IModelBinding {
 	 * @param instance
 	 * @param pmm
 	 */
-	void to(@Nonnull Object instance, @Nonnull PropertyMetaModel pmm);
+	void to(@Nonnull Object instance, @Nonnull PropertyMetaModel< ? > pmm);
 
 	/**
 	 * Create a binding between the associated control, the specified model and the property specified.
@@ -70,7 +70,7 @@ public interface IBinder extends IModelBinding {
 	 * @param model		The model to obtain an instance from
 	 * @param pmm		The propertymeta for a property on that instance.
 	 */
-	<T> void to(@Nonnull IReadOnlyModel<T> model, @Nonnull PropertyMetaModel pmm);
+	<T> void to(@Nonnull IReadOnlyModel<T> model, @Nonnull PropertyMetaModel< ? > pmm);
 
 	/**
 	 * Bind the control to a listener.

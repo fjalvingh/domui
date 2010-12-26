@@ -30,24 +30,27 @@ import java.lang.reflect.*;
 import to.etc.domui.component.meta.*;
 
 /**
+ * Should be unused. Pending removal.
+ *
  * Generalized access to a property's value.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2008
  */
+@Deprecated
 final public class PropertyAccessor<T> implements IValueAccessor<T> {
-	private PropertyMetaModel m_pmm;
+	private PropertyMetaModel<T> m_pmm;
 	private Method m_readm;
 
 	private Method m_writem;
 
-	public PropertyAccessor(Method getmethod, Method setmethod, PropertyMetaModel pmm) {
+	public PropertyAccessor(Method getmethod, Method setmethod, PropertyMetaModel<T> pmm) {
 		m_readm = getmethod;
 		m_writem = setmethod;
 		m_pmm = pmm;
 	}
 
-	public PropertyAccessor(PropertyDescriptor pd, PropertyMetaModel pmm) {
+	public PropertyAccessor(PropertyDescriptor pd, PropertyMetaModel<T> pmm) {
 		this(pd.getReadMethod(), pd.getWriteMethod(), pmm);
 	}
 

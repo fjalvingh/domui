@@ -243,7 +243,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 
 		//-- Property must refer a property, so get it;
 		final ClassMetaModel cmm = model();
-		final PropertyMetaModel pmm = cmm.findProperty(property);
+		final PropertyMetaModel< ? > pmm = cmm.findProperty(property);
 		if(pmm == null)
 			throw new IllegalArgumentException("Undefined property path: '" + property + "' in classModel=" + cmm);
 
@@ -252,7 +252,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 		if(ncr != null) {
 			final SimpleColumnDef cd = new SimpleColumnDef();
 			m_columnList.add(cd);
-			cd.setValueTransformer(pmm.getAccessor());
+			cd.setValueTransformer(pmm);
 			cd.setColumnLabel(caption == null ? pmm.getDefaultLabel() : caption);
 			cd.setColumnType(pmm.getActualType());
 			cd.setContentRenderer(tryRenderer(nodeRenderer, nrclass));
@@ -269,8 +269,8 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 		}
 
 		//-- This is a property to display. Expand it into DisplayProperties to get the #of columns to append.
-		final ExpandedDisplayProperty xdpt = ExpandedDisplayProperty.expandProperty(pmm);
-		final List<ExpandedDisplayProperty> flat = new ArrayList<ExpandedDisplayProperty>();
+		final ExpandedDisplayProperty< ? > xdpt = ExpandedDisplayProperty.expandProperty(pmm);
+		final List<ExpandedDisplayProperty< ? >> flat = new ArrayList<ExpandedDisplayProperty< ? >>();
 		ExpandedDisplayProperty.flatten(flat, xdpt); // Expand any compounds;
 
 		//-- If we have >1 columns here we cannot apply many of the parameters, so error on them
@@ -284,7 +284,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 		}
 
 		//-- And finally: add all columns ;-)
-		for(final ExpandedDisplayProperty xdp : flat) {
+		for(final ExpandedDisplayProperty< ? > xdp : flat) {
 			if(xdp.getName() == null)
 				throw new IllegalStateException("All columns MUST have some name");
 
@@ -298,7 +298,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 				scd.setCssClass(cssclass);
 			scd.setColumnLabel(caption == null ? xdp.getDefaultLabel() : caption);
 			scd.setColumnType(xdp.getActualType());
-			scd.setValueTransformer(xdp.getAccessor()); // Thing which can obtain the value from the property
+			scd.setValueTransformer(xdp); // Thing which can obtain the value from the property
 			scd.setPresentationConverter(tryConverter(convclz, conv));
 			if(scd.getPresentationConverter() == null && xdp.getConverter() != null)
 				scd.setPresentationConverter(xdp.getConverter());
@@ -332,9 +332,9 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 		if(dpl.size() == 0)
 			throw new IllegalStateException("The list-of-columns to show is empty, and the class " + getActualClass()
 				+ " has no @MetaObject definition defining a set of columns as default table columns, so there.");
-		List<ExpandedDisplayProperty> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
+		List<ExpandedDisplayProperty< ? >> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
 		xdpl = ExpandedDisplayProperty.flatten(xdpl); // Flatten the list: expand any compounds.
-		for(final ExpandedDisplayProperty xdp : xdpl) {
+		for(final ExpandedDisplayProperty< ? > xdp : xdpl) {
 			SimpleColumnDef scd = new SimpleColumnDef(xdp);
 			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				scd.setCssClass("ui-numeric");

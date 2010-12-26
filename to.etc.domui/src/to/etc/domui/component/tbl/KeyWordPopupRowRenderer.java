@@ -67,7 +67,7 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	public KeyWordPopupRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final String... cols) {
 		m_dataClass = dataClass;
 		m_metaModel = cmm;
-		List<ExpandedDisplayProperty> xdpl;
+		List<ExpandedDisplayProperty< ? >> xdpl;
 		if(cols.length != 0)
 			xdpl = ExpandedDisplayProperty.expandProperties(cmm, cols);
 		else {
@@ -287,8 +287,8 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	//empty since header is not rendered.
 	}
 
-	protected void addColumns(final List<ExpandedDisplayProperty> xdpl) {
-		for(final ExpandedDisplayProperty xdp : xdpl) {
+	protected void addColumns(final List<ExpandedDisplayProperty< ? >> xdpl) {
+		for(final ExpandedDisplayProperty< ? > xdp : xdpl) {
 			if(xdp instanceof ExpandedDisplayPropertyList) {
 				//-- Flatten: call for subs recursively.
 				final ExpandedDisplayPropertyList xdl = (ExpandedDisplayPropertyList) xdp;

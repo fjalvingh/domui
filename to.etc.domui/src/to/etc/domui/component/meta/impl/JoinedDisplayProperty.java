@@ -37,13 +37,13 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 28, 2008
  */
-public class JoinedDisplayProperty extends ExpandedDisplayProperty implements IValueAccessor<String> {
+public class JoinedDisplayProperty extends ExpandedDisplayProperty<String> implements IValueAccessor<String> {
 	private List<DisplayPropertyMetaModel> m_displayList;
 
-	private List<PropertyMetaModel> m_propertyList;
+	private List<PropertyMetaModel< ? >> m_propertyList;
 
-	public JoinedDisplayProperty(List<DisplayPropertyMetaModel> list, List<PropertyMetaModel> plist, IValueAccessor< ? > acc) {
-		super(null, null, acc);
+	public JoinedDisplayProperty(List<DisplayPropertyMetaModel> list, List<PropertyMetaModel< ? >> plist, IValueAccessor< ? > rootAccessor) {
+		super(String.class, null, rootAccessor);
 		m_displayList = list;
 		m_propertyList = plist;
 		if(list.size() < 2)
@@ -52,14 +52,8 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty implements IV
 		//-- Calculate basics..
 		DisplayPropertyMetaModel dpm = list.get(0); // 1st thingy contains sizes,
 		setDisplayLength(dpm.getDisplayLength());
-		setActualType(String.class);
 		setSortable(SortableType.UNSORTABLE);
 		setName(dpm.getName());
-	}
-
-	@Override
-	public IValueAccessor<String> getAccessor() {
-		return this;
 	}
 
 	@Override
@@ -73,7 +67,7 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty implements IV
 	 */
 	@Override
 	public String getValue(Object in) throws Exception {
-		Object root = super.getAccessor().getValue(in); // Obtain the root object
+		Object root = super.getValue(in); // Obtain the root object
 		if(root == null)
 			return null;
 
@@ -82,13 +76,13 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty implements IV
 		String join = null;
 		for(int i = 0; i < m_displayList.size(); i++) {
 			DisplayPropertyMetaModel dpm = m_displayList.get(i);
-			PropertyMetaModel pm = m_propertyList.get(i);
-			Object value = pm.getAccessor().getValue(root);
+			PropertyMetaModel< ? > pm = m_propertyList.get(i);
+			Object value = pm.getValue(root);
 			if(value == null)
 				continue;
 			String s;
-			if(getConverter() != null)
-				s = ((IConverter<Object>) getConverter()).convertObjectToString(NlsContext.getLocale(), value);
+			if(pm.getConverter() != null)
+				s = ((IConverter<Object>) pm.getConverter()).convertObjectToString(NlsContext.getLocale(), value);
 			else
 				s = ConverterRegistry.convertToString(pm, value);
 			if(s == null || s.length() == 0)

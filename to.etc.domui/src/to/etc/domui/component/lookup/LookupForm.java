@@ -124,7 +124,7 @@ public class LookupForm<T> extends Div {
 	public static class Item implements SearchPropertyMetaModel {
 		private String m_propertyName;
 
-		private List<PropertyMetaModel> m_propertyPath;
+		private List<PropertyMetaModel< ? >> m_propertyPath;
 
 		private ILookupControlInstance m_instance;
 
@@ -152,15 +152,15 @@ public class LookupForm<T> extends Div {
 		}
 
 		@Override
-		public List<PropertyMetaModel> getPropertyPath() {
+		public List<PropertyMetaModel< ? >> getPropertyPath() {
 			return m_propertyPath;
 		}
 
-		public void setPropertyPath(List<PropertyMetaModel> propertyPath) {
+		public void setPropertyPath(List<PropertyMetaModel< ? >> propertyPath) {
 			m_propertyPath = propertyPath;
 		}
 
-		public PropertyMetaModel getLastProperty() {
+		public PropertyMetaModel< ? > getLastProperty() {
 			if(m_propertyPath == null || m_propertyPath.size() == 0)
 				return null;
 			return m_propertyPath.get(m_propertyPath.size() - 1);
@@ -725,7 +725,7 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	public Item addManualPropertyLabel(String property, ILookupControlInstance lci) {
-		PropertyMetaModel pmm = getMetaModel().findProperty(property);
+		PropertyMetaModel< ? > pmm = getMetaModel().findProperty(property);
 		if(null == pmm)
 			throw new ProgrammerErrorException(property + ": undefined property for class=" + getLookupClass());
 		return addManualTextLabel(pmm.getDefaultLabel(), lci);
@@ -753,14 +753,14 @@ public class LookupForm<T> extends Div {
 
 		//-- 1. If a property name is present but the path is unknown calculate the path
 		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
-			List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
+			List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
 			if(pl.size() == 0)
 				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
 			it.setPropertyPath(pl);
 		}
 
 		//-- 2. Calculate/determine a label text if empty from metadata, else ignore
-		PropertyMetaModel pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
+		PropertyMetaModel< ? > pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
 		if(it.getLabelText() == null) {
 			if(pmm == null)
 				it.setLabelText(it.getPropertyName()); // Last resort: default to property name if available
@@ -869,7 +869,7 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	private ILookupControlInstance createControlFor(Item it) {
-		PropertyMetaModel pmm = it.getLastProperty();
+		PropertyMetaModel< ? > pmm = it.getLastProperty();
 		if(pmm == null)
 			throw new IllegalStateException("property cannot be null when creating using factory.");
 		IRequestContext rq = PageContext.getRequestContext();
