@@ -75,6 +75,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	protected ExpandedDisplayProperty(Class<T> actual, PropertyMetaModel< ? > propertyMeta, IValueAccessor< ? > accessor) {
 		m_actualType = actual;
 		m_propertyMeta = propertyMeta;
+		m_rootAccessor = accessor;
 		if(propertyMeta != null) { // ORDER 1
 			m_defaultLabel = propertyMeta.getDefaultLabel();
 			m_classModel = propertyMeta.getClassModel();
