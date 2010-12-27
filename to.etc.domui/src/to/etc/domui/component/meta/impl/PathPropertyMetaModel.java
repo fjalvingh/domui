@@ -282,13 +282,13 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
-		return m_original.getLookupFieldDisplayProperties();
+	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+		return m_original.getLookupSelectedProperties();
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
-		return m_original.getLookupFieldRenderer();
+	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+		return m_original.getLookupSelectedRenderer();
 	}
 
 	@Override
@@ -302,8 +302,8 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldTableProperties() {
-		return m_original.getLookupFieldTableProperties();
+	public List<DisplayPropertyMetaModel> getLookupTableProperties() {
+		return m_original.getLookupTableProperties();
 	}
 
 	@Override
@@ -334,11 +334,6 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	@Override
 	public SortableType getSortable() {
 		return m_original.getSortable();
-	}
-
-	@Override
-	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
-		return m_original.getTableDisplayProperties();
 	}
 
 	@Override

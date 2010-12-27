@@ -333,7 +333,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return m_lookupFieldRenderer;
 	}
 
-	public void setLookupFieldRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
+	public void setLookupSelectedRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 
@@ -345,7 +345,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return m_lookupFieldDisplayProperties;
 	}
 
-	public void setLookupFieldDisplayProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
+	public void setLookupSelectedProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
 		m_lookupFieldDisplayProperties = lookupFieldDisplayProperties;
 	}
 

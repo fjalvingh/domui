@@ -172,7 +172,7 @@ public interface ClassMetaModel {
 	/**
 	 * Returns the SORTED list of search properties defined on this class. These are
 	 * used by default for all table based search operations like {@link LookupInput}
-	 * and {@link LookupForm}. The value gets set from either the {@link SearchProperty} or
+	 * and {@link LookupForm}. The value gets set from either the {@link MetaSearch} or
 	 * the {@link MetaSearch} annotations.
 	 * @return
 	 */
@@ -182,7 +182,7 @@ public interface ClassMetaModel {
 	/**
 	 * Returns the SORTED list of key word search properties defined on this class. These
 	 * are used by {@link LookupInput} to define the "search-as-I-type" functionality.
-	 * The value gets set from either the {@link SearchProperty} or the {@link MetaSearch}
+	 * The value gets set from either the {@link MetaSearch} or the {@link MetaSearch}
 	 * annotations.
 	 * @return
 	 */

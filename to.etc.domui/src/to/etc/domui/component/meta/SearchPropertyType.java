@@ -25,7 +25,7 @@
 package to.etc.domui.component.meta;
 
 /**
- * Represents a specification how search item defined with {@link SearchProperty} would be used.
+ * Represents a specification how search item defined with {@link MetaSearch} would be used.
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 15 Jan 2010

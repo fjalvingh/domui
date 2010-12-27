@@ -157,7 +157,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		if(!DomUtil.isBasicType(rescl)) {
 			ClassMetaModel cmm = MetaManager.findClassMeta(rescl); // Find the property's type metadata (the meta for the class pointed to).
 
-			if(pmm.getTableDisplayProperties().size() > 0 || cmm.getTableDisplayProperties().size() > 0) {
+			if(pmm.getLookupTableProperties().size() > 0 || cmm.getTableDisplayProperties().size() > 0) {
 				/*
 				 * The type pointed to, OR the property itself, has a set-of-columns to use to display the thingy.
 				 */
@@ -193,7 +193,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	 * @return
 	 */
 	static private <T> ExpandedDisplayProperty< ? > expandCompoundProperty(PropertyMetaModel<T> pmm, ClassMetaModel cmm) {
-		List<DisplayPropertyMetaModel> dpl = pmm.getTableDisplayProperties(); // Property itself has definition?
+		List<DisplayPropertyMetaModel> dpl = pmm.getLookupTableProperties(); // Property itself has definition?
 		if(dpl.size() == 0) {
 			//-- No. Has class-referred-to a default?
 			dpl = cmm.getTableDisplayProperties();
@@ -241,7 +241,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 			if(pmm == null)
 				throw new IllegalStateException("Unknown property " + dpm.getName() + " in " + cmm);
 			Class< ? > clz = pmm.getActualType();
-			List<DisplayPropertyMetaModel> subdpl = pmm.getTableDisplayProperties(); // Has defined sub-properties?
+			List<DisplayPropertyMetaModel> subdpl = pmm.getLookupTableProperties(); // Has defined sub-properties?
 			ClassMetaModel pcmm = findCompoundClassModel(clz);
 			if(subdpl.size() == 0 && pcmm != null) {
 				//-- Has target-class a list of properties?
@@ -481,8 +481,8 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
-		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getLookupFieldDisplayProperties();
+	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getLookupSelectedProperties();
 	}
 
 	@Override
@@ -496,13 +496,13 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldTableProperties() {
-		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getLookupFieldTableProperties();
+	public List<DisplayPropertyMetaModel> getLookupTableProperties() {
+		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getLookupTableProperties();
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
-		return m_propertyMeta == null ? null : m_propertyMeta.getLookupFieldRenderer();
+	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+		return m_propertyMeta == null ? null : m_propertyMeta.getLookupSelectedRenderer();
 	}
 
 	@Override
@@ -528,11 +528,6 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	//	public SortableType getSortable() {
 	//		return m_propertyMeta == null ? null : m_propertyMeta.getS;
 	//	}
-
-	@Override
-	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
-		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getTableDisplayProperties();
-	}
 
 	@Override
 	public ControlFactory getControlFactory() {

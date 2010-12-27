@@ -200,8 +200,8 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 				pmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
 			}
 			pmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
-		} else if(an instanceof SearchProperty) {
-			SearchProperty sp = (SearchProperty) an;
+		} else if(an instanceof MetaSearch) {
+			MetaSearch sp = (MetaSearch) an;
 			SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm);
 			mm.setIgnoreCase(sp.ignoreCase());
 			mm.setOrder(sp.order());
@@ -215,18 +215,49 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			}
 
 		} else if(an instanceof MetaObject) {
+			/*
+			 * Table metamodel.
+			 */
 			MetaObject o = (MetaObject) an;
+			if(o.selectedRenderer() != UndefinedLabelStringRenderer.class)
+				pmm.setLookupSelectedRenderer(o.selectedRenderer());
+			if(o.selectedProperties().length != 0) {
+				pmm.setLookupSelectedProperties(DisplayPropertyMetaModel.decode(cmm, o.selectedProperties()));
+			}
 			if(o.defaultColumns().length > 0) {
-				pmm.setTableDisplayProperties(DisplayPropertyMetaModel.decode(cmm, o.defaultColumns()));
+				pmm.setLookupTableProperties(DisplayPropertyMetaModel.decode(cmm, o.defaultColumns()));
 			}
-		} else if(an instanceof MetaLookup) {
-			MetaLookup c = (MetaLookup) an;
-			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
-				pmm.setLookupFieldRenderer(c.nodeRenderer());
-			if(c.displayProperties().length != 0) {
-				pmm.setLookupFieldDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.displayProperties()));
+			if(o.defaultSortColumn() != Constants.NONE) {
+
 			}
-			pmm.setComponentTypeHint(Constants.COMPONENT_LOOKUP);
+			if(o.defaultSortOrder() != SortableType.UNKNOWN) {
+
+			}
+
+			if(o.searchProperties().length > 0) {
+				int index = 0;
+				List<SearchPropertyMetaModel> propsearchlist = new ArrayList<SearchPropertyMetaModel>();
+				List<SearchPropertyMetaModel> propkeysearchlist = new ArrayList<SearchPropertyMetaModel>();
+
+				for(MetaSearchItem msi : o.searchProperties()) {
+					index++;
+					SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm);
+					mm.setIgnoreCase(msi.ignoreCase());
+					mm.setOrder(msi.order() == -1 ? index : msi.order());
+					mm.setMinLength(msi.minLength());
+					mm.setPropertyName(msi.name().length() == 0 ? null : msi.name());
+					mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
+					mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
+					if(msi.searchType() == SearchPropertyType.SEARCH_FIELD || msi.searchType() == SearchPropertyType.BOTH) {
+						propsearchlist.add(mm);
+					}
+					if(msi.searchType() == SearchPropertyType.KEYWORD || msi.searchType() == SearchPropertyType.BOTH) {
+						propkeysearchlist.add(mm);
+					}
+				}
+				pmm.setLookupFieldKeySearchProperties(propkeysearchlist);
+				pmm.setLookupFieldSearchProperties(propsearchlist);
+			}
 		}
 	}
 
@@ -405,18 +436,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			if(c.properties() != null && c.properties().length > 0) {
 				cmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
 			}
-			cmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
-		} else if(an instanceof MetaLookup) {
-			MetaLookup c = (MetaLookup) an;
-			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
-				cmm.setLookupFieldRenderer(c.nodeRenderer());
-			if(c.displayProperties().length != 0)
-				cmm.setLookupFieldDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.displayProperties()));
-			if(c.tableProperties().length != 0)
-				cmm.setLookupFieldTableProperties(DisplayPropertyMetaModel.decode(cmm, c.tableProperties()));
-
-
-			cmm.setComponentTypeHint(Constants.COMPONENT_LOOKUP);
+			//			cmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
 		} else if(an instanceof MetaObject) {
 			MetaObject mo = (MetaObject) an;
 			if(mo.defaultColumns().length > 0) {
@@ -425,10 +445,15 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			if(!mo.defaultSortColumn().equals(Constants.NONE))
 				cmm.setDefaultSortProperty(mo.defaultSortColumn());
 			cmm.setDefaultSortDirection(mo.defaultSortOrder());
-		} else if(an instanceof MetaSearch) {
-			MetaSearch ms = (MetaSearch) an;
+
+			if(mo.selectedRenderer() != UndefinedLabelStringRenderer.class)
+				cmm.setLookupSelectedRenderer(mo.selectedRenderer());
+			if(mo.selectedProperties().length != 0)
+				cmm.setLookupSelectedProperties(DisplayPropertyMetaModel.decode(cmm, mo.selectedProperties()));
+
+			//-- Handle search
 			int index = 0;
-			for(MetaSearchItem msi : ms.value()) {
+			for(MetaSearchItem msi : mo.searchProperties()) {
 				index++;
 				SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm);
 				mm.setIgnoreCase(msi.ignoreCase());
@@ -446,5 +471,4 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			}
 		}
 	}
-
 }

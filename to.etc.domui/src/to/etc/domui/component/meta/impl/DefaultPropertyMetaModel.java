@@ -95,12 +95,6 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 */
 	private List<SearchPropertyMetaModel> m_lookupFieldKeySearchProperties = Collections.EMPTY_LIST;
 
-	/**
-	 * The default properties to show when the collection is presented as a table.
-	 */
-	private List<DisplayPropertyMetaModel> m_tableDisplayProperties = Collections.EMPTY_LIST;
-
-
 	public DefaultPropertyMetaModel(final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
 		if(classModel == null)
 			throw new IllegalStateException("Cannot be null dude");
@@ -303,15 +297,6 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
-		return m_tableDisplayProperties;
-	}
-
-	public void setTableDisplayProperties(final List<DisplayPropertyMetaModel> tableDisplayProperties) {
-		m_tableDisplayProperties = tableDisplayProperties;
-	}
-
-	@Override
 	public String toString() {
 		return getClassModel().getActualClass().getName() + "." + m_descriptor.getName() + "[" + getActualType().getName() + "]";
 	}
@@ -320,11 +305,11 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
+	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
 		return m_lookupFieldRenderer;
 	}
 
-	public void setLookupFieldRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
+	public void setLookupSelectedRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 
@@ -332,11 +317,11 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
+	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
 
-	public void setLookupFieldDisplayProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
+	public void setLookupSelectedProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
 		m_lookupFieldDisplayProperties = lookupFieldDisplayProperties;
 	}
 
@@ -344,11 +329,11 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldTableProperties() {
+	public List<DisplayPropertyMetaModel> getLookupTableProperties() {
 		return m_lookupFieldTableProperties;
 	}
 
-	public void setLookupFieldTableProperties(List<DisplayPropertyMetaModel> lookupFieldTableProperties) {
+	public void setLookupTableProperties(List<DisplayPropertyMetaModel> lookupFieldTableProperties) {
 		m_lookupFieldTableProperties = lookupFieldTableProperties;
 	}
 

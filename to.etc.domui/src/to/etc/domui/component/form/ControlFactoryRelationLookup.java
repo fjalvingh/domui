@@ -78,8 +78,8 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 		//-- 2. Define keyword search properties in the same way.
 
 
-		if(pmm.getLookupFieldRenderer() != null)
-			li.setContentRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(pmm.getLookupFieldRenderer())); // Bloody stupid Java generic crap
+		if(pmm.getLookupSelectedRenderer() != null)
+			li.setContentRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType()); // Get meta for type reached,
 			if(cmm.getLookupSelectedRenderer() != null)

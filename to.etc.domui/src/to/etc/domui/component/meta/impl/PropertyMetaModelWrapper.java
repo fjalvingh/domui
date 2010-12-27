@@ -151,13 +151,13 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
-		return m_parent.getLookupFieldDisplayProperties();
+	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+		return m_parent.getLookupSelectedProperties();
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
-		return m_parent.getLookupFieldRenderer();
+	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+		return m_parent.getLookupSelectedRenderer();
 	}
 
 	@Override
@@ -206,11 +206,6 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
-		return m_parent.getTableDisplayProperties();
-	}
-
-	@Override
 	public TemporalPresentationType getTemporal() {
 		return m_parent.getTemporal();
 	}
@@ -251,7 +246,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldTableProperties() {
-		return m_parent.getLookupFieldTableProperties();
+	public List<DisplayPropertyMetaModel> getLookupTableProperties() {
+		return m_parent.getLookupTableProperties();
 	}
 }
