@@ -104,21 +104,6 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 */
 	private List<DisplayPropertyMetaModel> m_lookupFieldDisplayProperties = Collections.EMPTY_LIST;
 
-	/**
-	 * The default properties to show in a {@link LookupInput} field's lookup data table.
-	 */
-	private List<DisplayPropertyMetaModel> m_lookupFieldTableProperties = Collections.EMPTY_LIST;
-
-	/**
-	 * The search properties to use in a {@link LookupInput} field.
-	 */
-	private List<SearchPropertyMetaModel> m_lookupFieldSearchProperties = Collections.EMPTY_LIST;
-
-	/**
-	 * The keyword search properties to use in a {@link LookupInput} field.
-	 */
-	private List<SearchPropertyMetaModel> m_lookupFieldKeySearchProperties = Collections.EMPTY_LIST;
-
 	private String m_defaultSortProperty;
 
 	private SortableType m_defaultSortDirection;
@@ -344,7 +329,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
+	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
 		return m_lookupFieldRenderer;
 	}
 
@@ -356,48 +341,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
+	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
 
 	public void setLookupFieldDisplayProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
 		m_lookupFieldDisplayProperties = lookupFieldDisplayProperties;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldTableProperties() {
-		return m_lookupFieldTableProperties;
-	}
-
-	public void setLookupFieldTableProperties(List<DisplayPropertyMetaModel> lookupFieldTableProperties) {
-		m_lookupFieldTableProperties = lookupFieldTableProperties;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
-		return m_lookupFieldSearchProperties;
-	}
-
-	public void setLookupFieldSearchProperties(List<SearchPropertyMetaModel> lookupFieldSearchProperties) {
-		m_lookupFieldSearchProperties = lookupFieldSearchProperties;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
-		return m_lookupFieldKeySearchProperties;
-	}
-
-	public void setLookupFieldKeySearchProperties(List<SearchPropertyMetaModel> lookupFieldKeySearchProperties) {
-		m_lookupFieldKeySearchProperties = lookupFieldKeySearchProperties;
 	}
 
 	/**

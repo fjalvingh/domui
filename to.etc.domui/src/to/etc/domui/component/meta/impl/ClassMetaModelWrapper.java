@@ -122,13 +122,13 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
-		return m_parent.getLookupFieldDisplayProperties();
+	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+		return m_parent.getLookupSelectedProperties();
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
-		return m_parent.getLookupFieldRenderer();
+	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+		return m_parent.getLookupSelectedRenderer();
 	}
 
 	@Override
@@ -174,20 +174,5 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	@Override
 	public QCriteria< ? > createCriteria() throws Exception {
 		return m_parent.createCriteria();
-	}
-
-	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldTableProperties() {
-		return m_parent.getLookupFieldTableProperties();
-	}
-
-	@Override
-	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
-		return m_parent.getLookupFieldSearchProperties();
-	}
-
-	@Override
-	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
-		return m_parent.getLookupFieldKeySearchProperties();
 	}
 }

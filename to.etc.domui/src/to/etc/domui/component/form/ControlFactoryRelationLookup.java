@@ -70,12 +70,9 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 		//-- 1. Define search fields from property, then class.lookup, then generic
 		List<SearchPropertyMetaModel> sp = pmm.getLookupFieldSearchProperties();		// Property override?
 		if(sp.size() == 0) {
-			sp = li.getMetaModel().getLookupFieldSearchProperties();	// Class level?
-			if(sp.size() == 0) {
-				sp = li.getMetaModel().getSearchProperties();		// Generic table properties.
-				if(sp.size() > 0)
-					li.setSearchProperties(sp);
-			}
+			sp = li.getMetaModel().getSearchProperties(); // Class level?
+			if(sp.size() > 0)
+				li.setSearchProperties(sp);
 		}
 
 		//-- 2. Define keyword search properties in the same way.
@@ -85,8 +82,8 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 			li.setContentRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(pmm.getLookupFieldRenderer())); // Bloody stupid Java generic crap
 		else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType()); // Get meta for type reached,
-			if(cmm.getLookupFieldRenderer() != null)
-				li.setContentRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(cmm.getLookupFieldRenderer())); // Bloody stupid Java generic crap
+			if(cmm.getLookupSelectedRenderer() != null)
+				li.setContentRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(cmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		}
 		if(pmm.isRequired())
 			li.setMandatory(true);

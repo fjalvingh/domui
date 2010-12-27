@@ -219,11 +219,11 @@ public interface ClassMetaModel {
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
 	 * control this describes the renderer to use to display the <i>currently selected</i>
-	 * record in the edit page. If empty this will use the lookupFieldDisplayProperties.
+	 * record in the edit page. If null this will use {@link #getLookupSelectedProperties()}.
 	 * @return
 	 */
 	@Nullable
-	Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer();
+	Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer();
 
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
@@ -232,30 +232,30 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nonnull
-	List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();
+	List<DisplayPropertyMetaModel> getLookupSelectedProperties();
 
-	/**
-	 * When used in a {@link LookupInput} field, this fields are used to show the result of a Search in the DataTable.
-	 * @return
-	 */
-	@Nonnull
-	List<DisplayPropertyMetaModel> getLookupFieldTableProperties();
-
-	/**
-	 * When used in a {@link LookupInput} field, this fields are used to create the search inputs.
-	 *
-	 * @return
-	 */
-	@Nonnull
-	List<SearchPropertyMetaModel> getLookupFieldSearchProperties();
-
-	/**
-	 * When used in a {@link LookupInput} field, this fields are used to create the keyword search inputs.
-	 *
-	 * @return
-	 */
-	@Nonnull
-	List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties();
+	//	/**
+	//	 * When used in a {@link LookupInput} field, this fields are used to show the result of a Search in the DataTable.
+	//	 * @return
+	//	 */
+	//	@Nonnull
+	//	List<DisplayPropertyMetaModel> getLookupFieldTableProperties();
+	//
+	//	/**
+	//	 * When used in a {@link LookupInput} field, this fields are used to create the search inputs.
+	//	 *
+	//	 * @return
+	//	 */
+	//	@Nonnull
+	//	List<SearchPropertyMetaModel> getLookupFieldSearchProperties();
+	//
+	//	/**
+	//	 * When used in a {@link LookupInput} field, this fields are used to create the keyword search inputs.
+	//	 *
+	//	 * @return
+	//	 */
+	//	@Nonnull
+	//	List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties();
 
 	/**
 	 * EXPERIMENTAL
