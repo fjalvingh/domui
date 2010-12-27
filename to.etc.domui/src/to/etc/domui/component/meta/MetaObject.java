@@ -26,6 +26,7 @@ package to.etc.domui.component.meta;
 
 import java.lang.annotation.*;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.util.*;
 
@@ -54,6 +55,30 @@ public @interface MetaObject {
 	 * @return
 	 */
 	MetaDisplayProperty[] defaultColumns();
+
+	/**
+	 * Set to define your own renderer to render the <i>display size</i> of the field. In that case you
+	 * must render the complete data to show inside the control's display presentation, including the
+	 * button to start searching. When you use this the data in {@link #properties()} is ignored.
+	 * @return
+	 */
+	Class< ? extends INodeContentRenderer< ? >> selectedRenderer() default UndefinedLabelStringRenderer.class;
+
+	/**
+	 * The list of properties that should be shown in the "display part" of a control like {@link LookupInput}
+	 * when a single instance is selected. If not present this defaults to the {@link MetaObject} properties
+	 * for the target datatype.
+	 *
+	 * @return
+	 */
+	MetaDisplayProperty[] selectedProperties() default {};
+
+	/**
+	 * The list of properties to use as "search properties" in the lookup form and/or fast search shown when
+	 * an instance is searched for.
+	 * @return
+	 */
+	MetaSearchItem[] searchProperties() default {};
 
 	/**
 	 * Define a property to sort on by default. Defaults to NONE, meaning the data is not sorted by the table. To set
