@@ -5,6 +5,7 @@
 	    <!--Classpath-->
 	    <path id="project.class.path">
 	    	<fileset dir="../..">
+			<exclude name="**/.*/**" />
 	    		<include name="**/jsr305.jar"/>
 	    		<include name="**/to.etc.alg.jar"/>
     			<include name="**/lib-hibernate/*.jar"/>
