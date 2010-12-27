@@ -35,5 +35,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface MetaSearch {
-	public MetaSearchItem[] value() default {};
+	/**
+	 * Set a list of properties to use that define how to do lookup of a record.
+	 * @return
+	 */
+	MetaSearchItem[] value() default {};
 }
