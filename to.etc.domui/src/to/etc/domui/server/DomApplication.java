@@ -29,6 +29,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.servlet.http.*;
 
 import org.slf4j.*;
 
@@ -460,6 +461,19 @@ public abstract class DomApplication {
 	public synchronized void setDefaultExpiryTime(final int defaultExpiryTime) {
 		m_defaultExpiryTime = defaultExpiryTime;
 	}
+
+	/**
+	 * This returns the locale to use for the request passed. It defaults to the locale
+	 * in the request itself, as returned by {@link HttpServletRequest#getLocale()}. You
+	 * can override this method to define the locale by yourself.
+	 * @param request
+	 * @return
+	 */
+	@Nonnull
+	public Locale getRequestLocale(HttpServletRequest request) {
+		return request.getLocale();
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Global header contributors.							*/

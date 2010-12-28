@@ -41,7 +41,6 @@ import ch.qos.logback.core.util.*;
 import to.etc.domui.util.*;
 import to.etc.net.*;
 import to.etc.util.*;
-import to.etc.webapp.nls.*;
 
 /**
  * Base filter which accepts requests to the dom windows. This accepts all URLs that end with a special
@@ -94,7 +93,7 @@ public class AppFilter implements Filter {
 				rs = rs == null ? "" : "?" + rs;
 				System.out.println(minitime() + " rq=" + rq.getRequestURI() + rs);
 			}
-			NlsContext.setLocale(rq.getLocale());
+			//			NlsContext.setLocale(rq.getLocale()); jal 20101228 Moved to AbstractContextMaker.
 			//			NlsContext.setLocale(new Locale("nl", "NL"));
 			initContext(req);
 
