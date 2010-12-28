@@ -195,23 +195,25 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param nd
 	 */
 	public void add(final NodeBase nd) {
-		if(m_delegate != null) {
-			m_delegate.add(nd);
-			return;
-		}
-		if(!canContain(nd))
-			throw new IllegalStateException("This node " + this + " cannot contain a " + nd);
-		if(m_children == Collections.EMPTY_LIST)
-			m_children = new ArrayList<NodeBase>();
-		nd.remove(); // Make sure it is removed from wherever it came from,
-		if(nd instanceof TextNode)
-			setMustRenderChildrenFully();
-		treeChanging();
-		//		registerWithPage(nd);			// jal 20080929 Moved downwards to allow tree to be visible at onAddedToPage() event time
-		m_children.add(nd); // Then add to this list
-		nd.setParent(this);
-		registerWithPage(nd); // ORDERED Must be AFTER hanging this into the tree
-		childChanged();
+		add(m_children.size(), nd);
+		//		
+		//		if(m_delegate != null) {
+		//			m_delegate.add(nd);
+		//			return;
+		//		}
+		//		if(!canContain(nd))
+		//			throw new IllegalStateException("This node " + this + " cannot contain a " + nd);
+		//		if(m_children == Collections.EMPTY_LIST)
+		//			m_children = new ArrayList<NodeBase>();
+		//		nd.remove(); // Make sure it is removed from wherever it came from,
+		//		if(nd instanceof TextNode)
+		//			setMustRenderChildrenFully();
+		//		treeChanging();
+		//		//		registerWithPage(nd);			// jal 20080929 Moved downwards to allow tree to be visible at onAddedToPage() event time
+		//		m_children.add(nd); // Then add to this list
+		//		nd.setParent(this);
+		//		registerWithPage(nd); // ORDERED Must be AFTER hanging this into the tree
+		//		childChanged();
 	}
 
 	public void add(final int index, final NodeBase nd) {
@@ -224,6 +226,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			throw new IllegalStateException("This node " + this + " cannot contain a " + nd);
 		if(m_children == Collections.EMPTY_LIST)
 			m_children = new ArrayList<NodeBase>();
+		nd.remove(); // Make sure it is removed from wherever it came from,
 		if(index > m_children.size())
 			throw new IllegalStateException("Adding a child at index=" + index + ", but childlist size is " + m_children.size());
 		if(nd instanceof TextNode)

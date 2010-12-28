@@ -278,6 +278,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		genVar("DomUIpageTag", Integer.toString(page.getPageTag()));
 		genVar("DomUIThemeURL", StringTool.strToJavascriptString(ctx.getRelativePath(ctx.getRelativeThemePath("")), true));
 		genVar("DomUICID", StringTool.strToJavascriptString(page.getConversation().getFullId(), true));
+		genVar("DomUIDevel", ctx.getApplication().inDevelopmentMode() ? "true" : "false");
+
 		if(!isXml())
 			o().writeRaw("\n-->");
 		o().writeRaw("\n</script>\n");

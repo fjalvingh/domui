@@ -2017,6 +2017,47 @@ var WebUI = {
 				alert("Failed: "+x);
 			}
 		}
+	},
+	
+	nearestID: function(elem) {
+		while(elem) {
+			if(elem.id)
+				return elem.id;
+			elem = elem.parentNode;
+		}
+		return undefined;
+	},
+
+	handleDevelopmentMode: function() {
+		$(document).bind("keydown", function(e) {
+			if(e.keyCode != 192)
+				return;
+
+			var t = new Date().getTime();
+			if(! WebUI._debugLastKeypress || (t - WebUI._debugLastKeypress) > 250) {
+				WebUI._debugLastKeypress = t;
+				return;
+			}
+			console.debug("double ", e);
+
+			WebUI._NOMOVE = true;
+			//-- Send a DEBUG command to the server, indicating the current node below the last mouse move....
+			var id = WebUI.nearestID(WebUI._debugMouseTarget);
+//			console.debug("idis  "+id+", m="+WebUI._debugMouseTarget);
+			if(! id)
+				return;
+
+//			console.debug("Escape doublepress on ID="+id);
+			WebUI.scall(id, "DEVTREE", {});
+		});
+		$(document.body).bind("mousemove", function(e) {
+//			if(WebUI._NOMOVE)
+//				return;
+//			console.debug("move ", e);
+			WebUI._debugMouseTarget = e.srcElement || e.originalTarget;
+			
+		});
+		
 	}
 };
 
@@ -2170,6 +2211,8 @@ drop : function(dz) {
 var DomUI = WebUI;
 
 $(document).ready(WebUI.handleCalendarChanges);
+if(DomUIDevel)
+	$(document).ready(WebUI.handleDevelopmentMode);
 $(document).ajaxComplete( function() {
 	WebUI.handleCalendarChanges();
 });
