@@ -176,7 +176,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 	}
 
 	protected void addDefaultButtons(final NodeContainer nc) {
-		SmallImgButton ib = new SmallImgButton("img/btnSpecialChar.png");
+		SmallImgButton ib = new SmallImgButton("THEME/btnSpecialChar.png");
 		nc.add(ib);
 		ib.setTitle("Toon lijst van bijzondere tekens");
 		ib.setClicked(new IClicked<NodeBase>() {
