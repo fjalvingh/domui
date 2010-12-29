@@ -26,6 +26,8 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.webapp.*;
@@ -69,11 +71,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		super(tag);
 	}
 
-	boolean mustRenderChildrenFully() {
+	final boolean mustRenderChildrenFully() {
 		return m_mustRenderChildrenFully;
 	}
 
-	void setMustRenderChildrenFully(final boolean mustRenderChildrenFully) {
+	final void setMustRenderChildrenFully(final boolean mustRenderChildrenFully) {
 		//		if(mustRenderChildrenFully) {
 		//			StringTool.dumpLocation("mustRenderFully");
 		//		}
@@ -81,19 +83,24 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		m_mustRenderChildrenFully = mustRenderChildrenFully;
 	}
 
-	void setMustRenderChildrenFully() {
+	final void setMustRenderChildrenFully() {
 		setMustRenderChildrenFully(true);
 	}
 
-	protected void delegateTo(NodeContainer c) {
+	final protected void delegateTo(NodeContainer c) {
 		m_delegate = c;
 	}
 
-	protected boolean canContain(final NodeBase node) {
-		return true;
+	/**
+	 * Override to check if special node types can be contained in this.
+	 * @param node
+	 * @return
+	 */
+	@OverridingMethodsMustInvokeSuper
+	protected void canContain(final NodeBase node) {
 	}
 
-	void childChanged() {
+	final void childChanged() {
 		NodeContainer c = this;
 		do {
 			if(c.m_childHasUpdates)
@@ -103,11 +110,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		} while(c != null);
 	}
 
-	boolean childHasUpdates() {
+	final boolean childHasUpdates() {
 		return m_childHasUpdates;
 	}
 
-	void setChildHasUpdates(final boolean childHasUpdates) {
+	final void setChildHasUpdates(final boolean childHasUpdates) {
 		m_childHasUpdates = childHasUpdates;
 	}
 
@@ -119,20 +126,44 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/**
 	 * Used by delta-builder.
 	 */
-	List<NodeBase> internalGetChildren() {
+	final List<NodeBase> internalGetChildren() {
 		return m_children;
 	}
 
+	/**
+	 * Return an iterator that iterates over all children, in order.
+	 * @see java.lang.Iterable#iterator()
+	 */
 	@Override
-	public Iterator<NodeBase> iterator() {
+	final public Iterator<NodeBase> iterator() {
 		return m_children.iterator();
 	}
 
-	public int getChildCount() {
+	/**
+	 * Return the #of children of this container.
+	 * @return
+	 */
+	final public int getChildCount() {
 		return m_children.size();
 	}
 
-	public NodeBase getChild(final int i) {
+	/**
+	 * Return the index of the specified child, if present. Returns -1 if not found.
+	 * @param b
+	 * @return
+	 */
+	final public int findChildIndex(final NodeBase b) {
+		if(b.getParent() != this)
+			return -1;
+		return m_children.indexOf(b);
+	}
+
+	/**
+	 * Get the nth child.
+	 * @param i
+	 * @return
+	 */
+	final public NodeBase getChild(final int i) {
 		return m_children.get(i);
 	}
 
@@ -140,41 +171,55 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Used for unit tests.
 	 */
 	@Override
-	public void internalCheckNotDirty() {
+	final public void internalCheckNotDirty() {
 		super.internalCheckNotDirty();
 		if(childHasUpdates())
 			throw new IllegalStateException("The node " + this + " has 'childHasUpdates' set");
 		if(getOldParent() != null)
 			throw new IllegalStateException("The node " + this + " has an 'oldParent' set");
-		if(getOldChildren() != null)
+		if(internalGetOldChildren() != null)
 			throw new IllegalStateException("The node " + this + " has 'oldChildren' set");
 		//		if(m_treeChanged)
 		//			throw new IllegalStateException("The node "+this+" has 'treeChanged' set");
 	}
 
+	/**
+	 * DO NOT USE.
+	 * Internal: clear all delta information.
+	 * @see to.etc.domui.dom.html.NodeBase#internalClearDelta()
+	 */
 	@Override
-	public void clearDelta() {
-		super.clearDelta();
+	final public void internalClearDelta() {
+		super.internalClearDelta();
 		setMustRenderChildrenFully(false);
 		m_oldChildren = null;
 		m_childHasUpdates = false;
 	}
 
+	/**
+	 * DO NOT USE.
+	 * Internal: clear delta including children's delta.
+	 * @see to.etc.domui.dom.html.NodeBase#internalClearDeltaFully()
+	 */
 	@Override
-	final public void clearDeltaFully() {
-		clearDelta();
+	final public void internalClearDeltaFully() {
+		internalClearDelta();
 		for(int i = m_children.size(); --i >= 0;)
-			m_children.get(i).clearDeltaFully();
+			m_children.get(i).internalClearDeltaFully();
 	}
 
-	public NodeBase[] getOldChildren() {
+	/**
+	 * Internal: delta renderer old children set if this node changed. Null if this node has not seen changes.
+	 * @return
+	 */
+	final public NodeBase[] internalGetOldChildren() {
 		return m_oldChildren;
 	}
 
 	/**
 	 * Most of the logic to properly indicate that this node's children have changed.
 	 */
-	void treeChanging() {
+	final void treeChanging() {
 		if(m_oldChildren != null) // Already have a copy?
 			return;
 		if(getParent() != null)
@@ -194,29 +239,16 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Add the child at the end of the list.
 	 * @param nd
 	 */
-	public void add(final NodeBase nd) {
-		add(-1, nd);
-		//
-		//		if(m_delegate != null) {
-		//			m_delegate.add(nd);
-		//			return;
-		//		}
-		//		if(!canContain(nd))
-		//			throw new IllegalStateException("This node " + this + " cannot contain a " + nd);
-		//		if(m_children == Collections.EMPTY_LIST)
-		//			m_children = new ArrayList<NodeBase>();
-		//		nd.remove(); // Make sure it is removed from wherever it came from,
-		//		if(nd instanceof TextNode)
-		//			setMustRenderChildrenFully();
-		//		treeChanging();
-		//		//		registerWithPage(nd);			// jal 20080929 Moved downwards to allow tree to be visible at onAddedToPage() event time
-		//		m_children.add(nd); // Then add to this list
-		//		nd.setParent(this);
-		//		registerWithPage(nd); // ORDERED Must be AFTER hanging this into the tree
-		//		childChanged();
+	final public void add(final NodeBase nd) {
+		add(Integer.MAX_VALUE, nd);
 	}
 
-	public void add(final int index, final NodeBase nd) {
+	/**
+	 * Add the child at the specified index in the child list.
+	 * @param index
+	 * @param nd
+	 */
+	final public void add(final int index, final NodeBase nd) {
 		if(m_delegate != null) {
 			m_delegate.add(index, nd);
 			return;
@@ -224,18 +256,15 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		if(nd == this)
 			throw new IllegalStateException("Attempt to add a node " + nd + " to itself as a child.");
 
-		if(!canContain(nd))
-			throw new IllegalStateException("This node " + this + " cannot contain a " + nd);
+		canContain(nd);
 		if(m_children == Collections.EMPTY_LIST)
 			m_children = new ArrayList<NodeBase>();
 		nd.remove(); // Make sure it is removed from wherever it came from,
-		if(index > m_children.size())
-			throw new IllegalStateException("Adding a child at index=" + index + ", but childlist size is " + m_children.size());
 		if(nd instanceof TextNode)
 			setMustRenderChildrenFully();
 		treeChanging();
 		//		registerWithPage(nd);			// jal 20080929 Moved downwards to allow tree to be visible at onAddedToPage() event time
-		if(index < 0)
+		if(index >= m_children.size())
 			m_children.add(nd);
 		else
 			m_children.add(index, nd);
@@ -244,7 +273,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		childChanged();
 	}
 
-	public void add(final String txt) {
+	/**
+	 * Add a #text node.
+	 * @param txt
+	 */
+	final public void add(final String txt) {
 		if(txt != null)
 			add(new TextNode(txt));
 	}
@@ -254,7 +287,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * traversing, and since onAddedToPage can <i>add</i> nodes the loop may encounter a {@link ConcurrentModificationException};
 	 * in that case we simply try again.
 	 */
-	void registerChildren() {
+	final void registerChildren() {
 		for(int i = 0; i < 50; i++) {
 			try {
 				for(NodeBase ch : m_children) {
@@ -278,14 +311,20 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * --]
 	 * @param child
 	 */
-	private void registerWithPage(final NodeBase child) {
+	final private void registerWithPage(final NodeBase child) {
 		if(getPage() == null) // No page-> cannot register
 			return;
 		child.registerWithPage(getPage());
 	}
 
+	/**
+	 * Internal use only: register with a page, causing IDs to be assigned and mapped
+	 * if possible.
+	 *
+	 * @see to.etc.domui.dom.html.NodeBase#registerWithPage(to.etc.domui.dom.html.Page)
+	 */
 	@Override
-	void registerWithPage(final Page p) {
+	final void registerWithPage(final Page p) {
 		super.registerWithPage(p); // Base registration of *this*
 		registerChildren();
 	}
@@ -294,7 +333,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Remove a child node from me. This also removes ALL descendants from the current page's view.
 	 * @param child
 	 */
-	public void removeChild(final NodeBase child) {
+	final public void removeChild(final NodeBase child) {
 		if(child.getParent() != this)
 			throw new IllegalStateException("Child " + child + " is not a child of container " + this);
 		int ix = m_children.indexOf(child);
@@ -307,7 +346,12 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		childChanged();
 	}
 
-	public NodeBase removeChild(final int index) {
+	/**
+	 * Remove the nth child. The removed child is returned and can be reused (added) somewhere else.
+	 * @param index
+	 * @return
+	 */
+	final public NodeBase removeChild(final int index) {
 		if(index < 0 || index >= m_children.size())
 			throw new IllegalStateException("Bad delete index " + index + " on node " + this + " with " + m_children.size() + " children");
 		treeChanging();
@@ -318,7 +362,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return child;
 	}
 
-	public void replaceChild(final NodeBase child, final NodeBase nw) {
+	/**
+	 * Swap two children: the "child" (1st) parameter gets removed, and the "nw" (2nd) parameter
+	 * is put in it's place, at it's position.
+	 *
+	 * @param child
+	 * @param nw
+	 */
+	final public void replaceChild(final NodeBase child, final NodeBase nw) {
 		//-- Find old child's index.
 		if(child.getParent() != this)
 			throw new IllegalStateException("Child " + child + " is not a child of container " + this);
@@ -337,7 +388,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/**
 	 * Discard all children.
 	 */
-	public void removeAllChildren() {
+	final public void removeAllChildren() {
 		if(m_delegate != null) {
 			m_delegate.removeAllChildren();
 			return;
@@ -355,18 +406,12 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		m_children.clear();
 	}
 
-	public int findChildIndex(final NodeBase b) {
-		if(b.getParent() != this)
-			return -1;
-		return m_children.indexOf(b);
-	}
-
 	/**
 	 * The NodeContainer version of this call unregisters itself AND all it's children, recursively.
 	 * @see to.etc.domui.dom.html.NodeBase#unregisterFromPage()
 	 */
 	@Override
-	void unregisterFromPage() {
+	final void unregisterFromPage() {
 		for(int i = 0; i < 50; i++) {
 			try {
 				for(NodeBase b : m_children) {
@@ -386,6 +431,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * tree is rendered.
 	 */
 	@Override
+	@OverridingMethodsMustInvokeSuper
 	public void forceRebuild() {
 		//-- If we have nodes destroy 'm all
 		m_delegate = null;
@@ -399,6 +445,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * string starts with a ~ it is assumed to be a key into the page's resource bundle. Before
 	 * the new text node is added to the container the container will first be <b>fully emptied</b>, i.e.
 	 * any contained node will be deleted.
+	 *
+	 * FIXME This must be renamed and made final.
 	 *
 	 * @param txt
 	 */
@@ -433,50 +481,28 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		setText(ConverterRegistry.convertValueToString(conv, value));
 	}
 
-	//	/**
-	//	 * Convenience method to change the text content of this node. This ensures
-	//	 * that only one textnode remains as the child, and that node contains the
-	//	 * specified text.
-	//	 *
-	//	 * @param ref		The bundle containing the message.
-	//	 * @param key		The key to use.
-	//	 */
-	//	public void setText(final BundleRef ref, final String key) {
-	//		setLiteralText(ref.getString(key));
-	//	}
-
-	//	@Override
-	//	public boolean validate() {
-	//		boolean ok = true;
-	//		for(NodeBase nb : m_children) {
-	//			if(!nb.validate())
-	//				ok = false;
-	//		}
-	//		return ok;
-	//	}
-
-	public IErrorFence getErrorFence() {
+	final public IErrorFence getErrorFence() {
 		return m_errorFence;
 	}
 
-	public void setErrorFence(final IErrorFence errorFence) {
+	final public void setErrorFence(final IErrorFence errorFence) {
 		m_errorFence = errorFence;
 	}
 
-	public void setErrorFence() {
+	final public void setErrorFence() {
 		if(m_errorFence == null)
 			m_errorFence = new ErrorFenceHandler(this);
 	}
 
 	@Override
-	protected void internalShelve() throws Exception {
+	final protected void internalShelve() throws Exception {
 		onShelve();
 		for(int i = m_children.size(); --i >= 0;)
 			m_children.get(i).internalShelve();
 	}
 
 	@Override
-	protected void internalUnshelve() throws Exception {
+	final protected void internalUnshelve() throws Exception {
 		onUnshelve();
 		for(int i = m_children.size(); --i >= 0;)
 			m_children.get(i).internalUnshelve();
@@ -506,7 +532,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param ofClass
 	 * @return
 	 */
-	public <T> List<T> getChildren(Class<T> ofClass) {
+	final public <T> List<T> getChildren(Class<T> ofClass) {
 		List<T> res = null;
 		for(NodeBase b : m_children) {
 			if(ofClass.isAssignableFrom(b.getClass())) {
@@ -524,13 +550,13 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param ofClass
 	 * @return
 	 */
-	public <T> List<T> getDeepChildren(Class<T> ofClass) {
+	final public <T> List<T> getDeepChildren(Class<T> ofClass) {
 		List<T> res = new ArrayList<T>();
 		internalDeepChildren(res, ofClass);
 		return res;
 	}
 
-	private <T> void internalDeepChildren(List<T> res, Class<T> ofClass) {
+	final private <T> void internalDeepChildren(List<T> res, Class<T> ofClass) {
 		for(NodeBase b : m_children) {
 			if(ofClass.isAssignableFrom(b.getClass())) {
 				res.add((T) b);
@@ -540,7 +566,18 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		}
 	}
 
-	public <T> T getDeepChild(Class<T> ofClass, int instance) {
+	/**
+	 * Find the nth instance of a specific child class using a full depth traversal of this node's subtree.
+	 *
+	 * FIXME Very questionable- pending deletion.
+	 *
+	 * @param <T>
+	 * @param ofClass
+	 * @param instance
+	 * @return
+	 */
+	@Deprecated
+	final public <T> T getDeepChild(Class<T> ofClass, int instance) {
 		List<T> res = getDeepChildren(ofClass);
 		if(res.size() <= instance)
 			throw new ProgrammerErrorException("Cannot find the " + instance + "th instance of a " + ofClass + " in subtree");
@@ -562,7 +599,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @see to.etc.domui.dom.html.NodeBase#moveControlToModel()
 	 */
 	@Override
-	public void moveControlToModel() throws Exception {
+	final public void moveControlToModel() throws Exception {
 		super.moveControlToModel(); // FIXME Is this useful?
 		Exception x = null;
 		for(NodeBase b : new ArrayList<NodeBase>(m_children)) {
@@ -587,7 +624,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @see to.etc.domui.dom.html.NodeBase#moveModelToControl()
 	 */
 	@Override
-	public void moveModelToControl() throws Exception {
+	final public void moveModelToControl() throws Exception {
 		super.moveModelToControl(); // Move the value to *this* node if it is bindable
 		build(); // And only build it AFTER a value can have been set.
 		for(NodeBase b : this)
@@ -600,7 +637,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @see to.etc.domui.dom.html.NodeBase#setControlsEnabled(boolean)
 	 */
 	@Override
-	public void setControlsEnabled(boolean on) {
+	final public void setControlsEnabled(boolean on) {
 		for(NodeBase b : this)
 			b.setControlsEnabled(on);
 	}

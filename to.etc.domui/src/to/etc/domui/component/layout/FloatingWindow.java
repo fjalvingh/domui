@@ -126,6 +126,7 @@ public class FloatingWindow extends Div {
 	 */
 	@Override
 	public void createContent() throws Exception {
+		delegateTo(null);
 		setCssClass("ui-fw");
 
 		if(getWidth() == null)
@@ -162,6 +163,7 @@ public class FloatingWindow extends Div {
 		//-- Construct the title bar
 		createTitleBar();
 		super.add(1, m_content);
+		delegateTo(m_content);
 
 		//-- Test jq drag
 		//		appendCreateJS("$('#"+getActualID()+"').draggable({" +
@@ -176,6 +178,7 @@ public class FloatingWindow extends Div {
 		m_content = new Div();
 		m_content.setCssClass("ui-fw-c");
 		setErrorFence();
+		delegateTo(m_content);
 	}
 
 	//	/**
@@ -210,27 +213,27 @@ public class FloatingWindow extends Div {
 		return m_titleIcon;
 	}
 
-	/**
-	 * This is an overridden method which causes content added to the FloatingWindow to be added
-	 * to it's content area instead.
-	 *
-	 * @see to.etc.domui.dom.html.NodeContainer#add(int, to.etc.domui.dom.html.NodeBase)
-	 */
-	@Override
-	public void add(int index, NodeBase nd) {
-		m_content.add(index, nd);
-	}
-
-	/**
-	 * This is an overridden method which causes content added to the FloatingWindow to be added
-	 * to it's content area instead.
-	 *
-	 * @see to.etc.domui.dom.html.NodeContainer#add(to.etc.domui.dom.html.NodeBase)
-	 */
-	@Override
-	public void add(NodeBase nd) {
-		m_content.add(nd);
-	}
+	//	/**
+	//	 * This is an overridden method which causes content added to the FloatingWindow to be added
+	//	 * to it's content area instead.
+	//	 *
+	//	 * @see to.etc.domui.dom.html.NodeContainer#add(int, to.etc.domui.dom.html.NodeBase)
+	//	 */
+	//	@Override
+	//	public void add(int index, NodeBase nd) {
+	//		m_content.add(index, nd);
+	//	}
+	//
+	//	/**
+	//	 * This is an overridden method which causes content added to the FloatingWindow to be added
+	//	 * to it's content area instead.
+	//	 *
+	//	 * @see to.etc.domui.dom.html.NodeContainer#add(to.etc.domui.dom.html.NodeBase)
+	//	 */
+	//	@Override
+	//	public void add(NodeBase nd) {
+	//		m_content.add(nd);
+	//	}
 
 	/**
 	 * Create the title bar for the floater.

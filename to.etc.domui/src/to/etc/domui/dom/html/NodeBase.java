@@ -330,13 +330,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return m_oldParent;
 	}
 
-	public void clearDelta() {
+	public void internalClearDelta() {
 		m_oldParent = null;
 		setHasChangedAttributes(false);
 	}
 
-	public void clearDeltaFully() {
-		clearDelta();
+	public void internalClearDeltaFully() {
+		internalClearDelta();
 	}
 
 	/**

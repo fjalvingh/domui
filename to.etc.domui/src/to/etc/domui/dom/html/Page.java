@@ -332,7 +332,7 @@ final public class Page implements IQContextContainer {
 	}
 
 	public void internalClearDeltaFully() {
-		getBody().clearDeltaFully();
+		getBody().internalClearDeltaFully();
 		m_beforeMap = null;
 		m_sb = null;
 	}
@@ -476,13 +476,13 @@ final public class Page implements IQContextContainer {
 			return;
 		}
 		NodeContainer nc = (NodeContainer) nd;
-		if(nc.childHasUpdates() && nc.getOldChildren() == null) {
+		if(nc.childHasUpdates() && nc.internalGetOldChildren() == null) {
 			nc.build();
 			for(int i = 0, len = nc.getChildCount(); i < len; i++) {
 				buildChangedTree(nc.getChild(i));
 			}
 		}
-		if(nc.getOldChildren() != null || nc.childHasUpdates() || nc.mustRenderChildrenFully()) {
+		if(nc.internalGetOldChildren() != null || nc.childHasUpdates() || nc.mustRenderChildrenFully()) {
 			buildSubTree(nc);
 		}
 	}

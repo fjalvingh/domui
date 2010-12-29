@@ -492,7 +492,7 @@ public class OptimalDeltaRenderer {
 		if(!n.isBuilt())
 			throw new IllegalStateException("Node " + n + " is not BUILT in delta renderer");
 //		n.build();
-		NodeBase[] oldl = n.getOldChildren();
+		NodeBase[] oldl = n.internalGetOldChildren();
 		if(oldl != null) {
 			/*
 			 * There is a tree delta; this is valid ONLY if this node existed earlier. If the node did not exist
@@ -519,7 +519,7 @@ public class OptimalDeltaRenderer {
 		if(n.childHasUpdates()) {
 			doContainerChildren(parentChanges, n);
 		}
-		n.clearDelta();
+		n.internalClearDelta();
 	}
 
 	/**
@@ -532,7 +532,7 @@ public class OptimalDeltaRenderer {
 	private void doTreeDeltaOn(NodeInfo parentInfo, NodeContainer nc) throws Exception {
 		if(DEBUG)
 			System.out.println("... deltaing tree on " + nc.getActualID());
-		NodeBase[] oldar = nc.getOldChildren();
+		NodeBase[] oldar = nc.internalGetOldChildren();
 		List<NodeBase> newl = nc.internalGetChildren();
 		NodeInfo ni = makeNodeInfo(nc);
 
@@ -678,13 +678,13 @@ public class OptimalDeltaRenderer {
 					//-- Node is a container -> handle children.
 					NodeContainer nnc = (NodeContainer) nn;
 					//					if(nnc.childHasUpdates() ) {					// jal 20081119 does not see it's children have been deleted??
-					if(nnc.childHasUpdates() || nnc.getOldChildren() != null) {
+					if(nnc.childHasUpdates() || nnc.internalGetOldChildren() != null) {
 						if(DEBUG)
 							System.out.println("o: handle child updates for container=" + nnc.getActualID());
 						doContainer(ni, nnc);
 					}
 				}
-				nn.clearDelta();
+				nn.internalClearDelta();
 				continue;
 			}
 
