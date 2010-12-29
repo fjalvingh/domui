@@ -58,7 +58,7 @@ public class DumpDirtyStateRenderer extends NodeVisitorBase {
 	@Override
 	public void visitNodeBase(NodeBase n) throws Exception {
 		m_iw.print("[" + n.getTag() + ":" + n.getActualID() + " " + m_depth + "]");
-		if(n.hasChangedAttributes())
+		if(n.internalHasChangedAttributes())
 			m_iw.print(" ChangedAttributes");
 		if(n.isBuilt())
 			m_iw.print(" built");
@@ -74,7 +74,7 @@ public class DumpDirtyStateRenderer extends NodeVisitorBase {
 	@Override
 	public void visitNodeContainer(NodeContainer n) throws Exception {
 		m_iw.print("[" + n.getTag() + ":" + n.getActualID() + " " + m_depth + "]*");
-		if(n.hasChangedAttributes())
+		if(n.internalHasChangedAttributes())
 			m_iw.print(" ChangedAttributes");
 		if(n.isBuilt())
 			m_iw.print(" built");

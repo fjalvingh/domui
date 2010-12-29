@@ -175,7 +175,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		super.internalCheckNotDirty();
 		if(childHasUpdates())
 			throw new IllegalStateException("The node " + this + " has 'childHasUpdates' set");
-		if(getOldParent() != null)
+		if(internalGetOldParent() != null)
 			throw new IllegalStateException("The node " + this + " has an 'oldParent' set");
 		if(internalGetOldChildren() != null)
 			throw new IllegalStateException("The node " + this + " has 'oldChildren' set");
@@ -231,7 +231,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 		m_oldChildren = m_children.toArray(new NodeBase[m_children.size()]);
 		for(int i = m_oldChildren.length; --i >= 0;) {
-			m_oldChildren[i].setOldParent(this);
+			m_oldChildren[i].internalSetOldParent(this);
 		}
 	}
 
@@ -432,7 +432,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	@Override
 	@OverridingMethodsMustInvokeSuper
-	public void forceRebuild() {
+	final public void forceRebuild() {
 		//-- If we have nodes destroy 'm all
 		m_delegate = null;
 		removeAllChildren(); // Remove all old crap

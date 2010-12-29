@@ -463,7 +463,7 @@ public class OptimalDeltaRenderer {
 	 */
 	private void doBase(NodeInfo parentInfo, NodeBase n) throws Exception {
 		//-- The tree here is not dirty -> I will not be re-rendered. Have my attributes changed?
-		if(n.hasChangedAttributes()) {
+		if(n.internalHasChangedAttributes()) {
 			//-- Add me to the "change attributes" list of my owner.
 			parentInfo.addAttrChange(n); // FIXME must be delta-aware
 		}
@@ -510,7 +510,7 @@ public class OptimalDeltaRenderer {
 		}
 
 		//-- The tree here is not dirty -> I will not be re-rendered. Have my attributes changed?
-		if(n.hasChangedAttributes()) {
+		if(n.internalHasChangedAttributes()) {
 			//-- Add me to the "change attributes" list of my owner.
 			parentChanges.addAttrChange(n); // FIXME must be delta-aware
 		}
@@ -601,7 +601,7 @@ public class OptimalDeltaRenderer {
 			nn.m_origNewIndex = i; // The actual index for the new node.
 
 			//-- Is this an addition from somewhere else? If so handle it here && remove from the working list
-			if(nn.getOldParent() == null || nn.getOldParent() != nc || !m_page.getBeforeMap().containsKey(nn.getActualID())) {
+			if(nn.internalGetOldParent() == null || nn.internalGetOldParent() != nc || !m_page.getBeforeMap().containsKey(nn.getActualID())) {
 				//-- Came from somewhere else or is new -> render.
 				/*
 				 * This node is NEW in this tree. We're pretty sure we need to ADD it then. This has
@@ -672,7 +672,7 @@ public class OptimalDeltaRenderer {
 				nix++;
 
 				//-- The tree here is not dirty -> I will not be re-rendered. Have my attributes changed?
-				if(on.hasChangedAttributes())
+				if(on.internalHasChangedAttributes())
 					ni.addAttrChange(nn); // Add this node's changes to me (the node itself will not be rerendered IF I am not rerendered)
 				if(nn instanceof NodeContainer) {
 					//-- Node is a container -> handle children.

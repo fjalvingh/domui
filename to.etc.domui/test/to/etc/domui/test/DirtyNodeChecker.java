@@ -29,7 +29,7 @@ import to.etc.domui.dom.html.*;
 public class DirtyNodeChecker extends NodeVisitorBase {
 	@Override
 	public void visitNodeBase(NodeBase n) throws Exception {
-		if(n.hasChangedAttributes())
+		if(n.internalHasChangedAttributes())
 			throw new IllegalStateException("The node " + n + " has DIRTY ATTRIBUTES set");
 	}
 

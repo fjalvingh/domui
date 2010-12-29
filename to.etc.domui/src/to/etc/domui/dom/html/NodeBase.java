@@ -26,6 +26,8 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.css.*;
@@ -68,19 +70,25 @@ import to.etc.webapp.query.*;
  */
 abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding {
 	/** The owner page. If set then this node IS attached to the parent in some way; if null it is not attached. */
+	@Nullable
 	private Page m_page;
 
+	@Nonnull
 	private String m_tag;
 
+	@Nullable
 	private String m_cssClass;
 
 	/** This is the actual ID of the node IF the framework decided to override the specified ID (or if no ID was assigned). */
+	@Nullable
 	private String m_actualID;
 
 	private String m_testID;
 
+	@Nullable
 	private NodeContainer m_parent;
 
+	@Nullable
 	private IClicked< ? > m_clicked;
 
 	private boolean m_built;
@@ -88,6 +96,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	/** T when this node's html/style attributes changed. */
 	private boolean m_attributesChanged;
 
+	@Nullable
 	private NodeContainer m_oldParent;
 
 	/** Helper variable containing this-node's index in the output tree while calculating the delta */
@@ -97,18 +106,25 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	int m_origNewIndex;
 
+	@Nullable
 	private Object m_userObject;
 
+	@Nullable
 	private String m_title;
 
+	@Nullable
 	private String m_onClickJS;
 
+	@Nullable
 	private String m_onMouseDownJS;
 
+	@Nullable
 	private StringBuilder m_appendJS;
 
+	@Nullable
 	private StringBuilder m_createJS;
 
+	@Nullable
 	private List<String> m_specialAttributes;
 
 	private boolean m_focusRequested;
@@ -120,43 +136,57 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	abstract public void visit(INodeVisitor v) throws Exception;
 
-	protected NodeBase(final String tag) {
+	protected NodeBase(@Nonnull final String tag) {
 		m_tag = tag;
 	}
 
-	public void internalSetTagName(final String s) {
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Private interfaces and code.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Do not use.
+	 * @param s
+	 */
+	final public void internalSetTagName(@Nonnull final String s) {
 		m_tag = s;
 	}
 
-	public IClicked< ? > getClicked() {
-		return m_clicked;
-	}
-
-	public void setClicked(final IClicked< ? > clicked) {
-		m_clicked = clicked;
-	}
-
-	public boolean internalNeedClickHandler() {
-		return getClicked() != null;
-	}
-
-	public boolean hasChangedAttributes() {
+	/**
+	 * INTERNAL ONLY Set when this node has changed attributes. Does not include child changes.
+	 * @return
+	 */
+	final public boolean internalHasChangedAttributes() {
 		return m_attributesChanged;
 	}
 
-	public void setHasChangedAttributes(final boolean d) {
+	/**
+	 * Internal only.
+	 * @param d
+	 */
+	final public void internalSetHasChangedAttributes(final boolean d) {
 		m_attributesChanged = d;
 	}
 
-	public void setHasChangedAttributes() {
-		setHasChangedAttributes(true);
+	/**
+	 * Internal use only.
+	 */
+	final public void internalSetHasChangedAttributes() {
+		internalSetHasChangedAttributes(true);
 	}
 
-	public void internalCheckNotDirty() {
-		if(hasChangedAttributes())
+	/**
+	 * Internal, throws an exception if we have changed attributes.
+	 */
+	void internalCheckNotDirty() {
+		if(internalHasChangedAttributes())
 			throw new IllegalStateException("The node " + this + " has DIRTY ATTRIBUTES set");
 	}
 
+	/**
+	 * Internal, do the proper run sequence for a clicked event.
+	 * @throws Exception
+	 */
 	public void internalOnClicked() throws Exception {
 		IClicked<NodeBase> c = (IClicked<NodeBase>) getClicked();
 		if(c == null)
@@ -170,19 +200,142 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @see to.etc.domui.dom.css.CssBase#changed()
 	 */
 	@Override
-	protected void changed() {
+	final protected void changed() {
 		setCachedStyle(null);
-		setHasChangedAttributes();
+		internalSetHasChangedAttributes();
 		if(getParent() != null)
 			getParent().childChanged(); // Indicate child has changed
 		super.changed();
 	}
 
-	public String getCssClass() {
+	/**
+	 * INTERNAL USE ONLY Changes the OLD PARENT pointer. THIS FORCES A "set", and validates the pointer
+	 * by setting the updateNumber equal to the page's update#.
+	 * @param c
+	 */
+	final void internalSetOldParent(final NodeContainer c) {
+		m_oldParent = c;
+	}
+
+	final public NodeContainer internalGetOldParent() {
+		return m_oldParent;
+	}
+
+	public void internalClearDelta() {
+		m_oldParent = null;
+		internalSetHasChangedAttributes(false);
+	}
+
+	public void internalClearDeltaFully() {
+		internalClearDelta();
+	}
+
+	/**
+	 * When the node is attached to a page this returns the ID assigned to it. To call it before
+	 * is an error and throws IllegalStateException.
+	 * @return
+	 */
+	@Nonnull
+	final public String getActualID() {
+		if(null == m_actualID)
+			throw new IllegalStateException("Missing ID on " + this);
+		return m_actualID;
+	}
+
+	@Nullable
+	final String internalGetID() {
+		return m_actualID;
+	}
+
+	/**
+	 * Internal use only: set the assigned id.
+	 * @param actualID
+	 */
+	final void setActualID(@Nonnull final String actualID) {
+		m_actualID = actualID;
+	}
+
+	/**
+	 * Return the node's tag name (the html tag this node represents).
+	 * @return
+	 */
+	@Nonnull
+	final public String getTag() {
+		return m_tag;
+	}
+
+	/**
+	 * INTERNAL USE ONLY, FOR SPECIAL CASES!!!! Node tags may NEVER change once rendered to the browser.
+	 * @param tag
+	 */
+	final protected void internalSetTag(@Nonnull final String tag) {
+		m_tag = tag;
+	}
+
+	/**
+	 * Return the Page for this node, if attached, or null otherwise.
+	 * @return
+	 */
+	@Nullable
+	final public Page getPage() {
+		return m_page;
+	}
+
+	/**
+	 * Internal use only.
+	 * @param page
+	 */
+	final void setPage(final Page page) {
+		m_page = page;
+	}
+
+	/**
+	 * Internal use: remove registration.
+	 */
+	void unregisterFromPage() {
+		if(getPage() == null)
+			return;
+		clearMessage(); // jal 20091015 Remove any pending messages for removed nodes.
+		getPage().unregisterNode(this);
+	}
+
+	/**
+	 * Internal: register this node with the page.
+	 * @param p
+	 */
+	void registerWithPage(final Page p) {
+		p.registerNode(this);
+	}
+
+	void internalOnAddedToPage(final Page p) {
+		onAddedToPage(p);
+		if(m_appendJS != null) {
+			getPage().appendJS(m_appendJS);
+			m_appendJS = null;
+		}
+	}
+
+	void internalOnRemoveFromPage(final Page p) {
+		onRemoveFromPage(p);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Utility functions to work with the 'class' attr.	*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Return the full "class" (css class) attribute for this node.
+	 */
+	@Nullable
+	final public String getCssClass() {
 		return m_cssClass;
 	}
 
-	public void setCssClass(final String cssClass) {
+	/**
+	 * Set the value for the "class" (css class) attribute. This can be null, or one or
+	 * more class names separated by space.
+	 * @param cssClass
+	 */
+	public void setCssClass(@Nullable final String cssClass) {
 		//		System.out.println("--- id="+m_actualID+", css="+cssClass);
 		if(!DomUtil.isEqual(cssClass, m_cssClass))
 			changed();
@@ -190,11 +343,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
-	 * Removes the specified CSS class. Returns T if the class was actually present.
+	 * Removes the specified CSS class. This looks in the space delimited list and removes all 'words' there
+	 * that match this name. Returns T if the class was actually present.
 	 * @param name
 	 * @return
 	 */
-	public boolean removeCssClass(final String name) {
+	final public boolean removeCssClass(@Nonnull final String name) {
 		if(getCssClass() == null)
 			return false;
 		StringTokenizer st = new StringTokenizer(getCssClass(), " \t");
@@ -216,7 +370,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return true;
 	}
 
-	public void addCssClass(final String name) {
+	/**
+	 * Add the class passed as <i>another</i> CSS class to the "class" attribute. If the class already
+	 * contains class names this one is added separated by space.
+	 * @param name
+	 */
+	final public void addCssClass(@Nonnull final String name) {
 		if(getCssClass() == null) {
 			setCssClass(name);
 			return;
@@ -230,7 +389,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		setCssClass(getCssClass() + " " + name);
 	}
 
-	public boolean hasCssClass(final String cls) {
+	/**
+	 * Returns T if the css class passed is present in the current cssclass.
+	 * @param cls
+	 * @return
+	 */
+	final public boolean hasCssClass(@Nonnull final String cls) {
 		if(getCssClass() == null)
 			return false;
 		int pos = getCssClass().indexOf(cls);
@@ -241,42 +405,26 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return true;
 	}
 
-	final public String getActualID() {
-		if(null == m_actualID)
-			throw new IllegalStateException("Missing ID on " + this);
-		return m_actualID;
-	}
 
-	final String internalGetID() {
-		return m_actualID;
-	}
-
-	final void setActualID(final String actualID) {
-		m_actualID = actualID;
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Parent node handling.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * FIXME NEED TO BE CHANGED - LOGIC MUST MOVE TO CONTAINER.
+	 * @param parent
+	 */
+	final void setParent(final NodeContainer parent) {
+		if(m_oldParent == null) // jal 20090115 Was !=, seems very wrong and the cause of the "Hell Freezeth over" exception..
+			m_oldParent = m_parent;
+		m_parent = parent;
 	}
 
 	/**
-	 * Return the node's tag name (the html tag this node represents).
+	 * Return the current actual parent of this node. Is null if not attached to a parent yet.
 	 * @return
 	 */
-	final public String getTag() {
-		return m_tag;
-	}
-
-	/**
-	 * INTERNAL USE ONLY, FOR SPECIAL CASES!!!! Node tags may NEVER change once rendered to the browser.
-	 * @param tag
-	 */
-	final protected void setTag(final String tag) {
-		m_tag = tag;
-	}
-
-
-	/**
-	 * Return the current actual parent of this node.
-	 * @return
-	 */
-	public NodeContainer getParent() {
+	@Nullable
+	final public NodeContainer getParent() {
 		return m_parent;
 	}
 
@@ -289,7 +437,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param up
 	 * @return
 	 */
-	public NodeContainer getParent(int up) {
+	@Nullable
+	final public NodeContainer getParent(int up) {
 		NodeContainer c = m_parent;
 		while(--up > 0) {
 			if(c == null)
@@ -306,7 +455,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param clz
 	 * @return
 	 */
-	public <T> T getParent(final Class<T> clz) {
+	@Nullable
+	final public <T> T getParent(final Class<T> clz) {
 		NodeContainer c = getParent();
 		for(;;) {
 			if(c == null)
@@ -317,60 +467,35 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		}
 	}
 
-	/**
-	 * INTERNAL USE ONLY Changes the OLD PARENT pointer. THIS FORCES A "set", and validates the pointer
-	 * by setting the updateNumber equal to the page's update#.
-	 * @param c
-	 */
-	void setOldParent(final NodeContainer c) {
-		m_oldParent = c;
-	}
 
-	public NodeContainer getOldParent() {
-		return m_oldParent;
-	}
-
-	public void internalClearDelta() {
-		m_oldParent = null;
-		setHasChangedAttributes(false);
-	}
-
-	public void internalClearDeltaFully() {
-		internalClearDelta();
-	}
-
-	/**
-	 * FIXME NEED TO BE CHANGED - LOGIC MUST MOVE TO CONTAINER.
-	 * @param parent
-	 */
-	void setParent(final NodeContainer parent) {
-		if(m_oldParent == null) // jal 20090115 Was !=, seems very wrong and the cause of the "Hell Freezeth over" exception..
-			m_oldParent = m_parent;
-		m_parent = parent;
-	}
-
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Tree manipulation.									*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Disconnect this node from it's parent. The node can be reconnected to another parent
 	 * afterwards.
 	 */
-	public void remove() {
+	final public void remove() {
 		if(getParent() != null) {
 			getParent().removeChild(this);
 		}
 	}
 
-	public void replaceWith(final NodeBase nw) {
+	/**
+	 * Replace <i>this<i> node in it's parent with the node passed. This node becomes
+	 * unattached to the tree and can be reused. The new node takes the exact position
+	 * of this node in the tree.
+	 * @param nw
+	 */
+	final public void replaceWith(final NodeBase nw) {
 		getParent().replaceChild(this, nw);
 	}
 
-	void unregisterFromPage() {
-		if(getPage() == null)
-			return;
-		clearMessage(); // jal 20091015 Remove any pending messages for removed nodes.
-		getPage().unregisterNode(this);
-	}
-
-	public void appendAfterMe(final NodeBase item) {
+	/**
+	 * Add the node passed <i>immediately after</i> this node in the tree.
+	 * @param item
+	 */
+	final public void appendAfterMe(@Nonnull final NodeBase item) {
 		if(getParent() == null)
 			throw new IllegalStateException("No parent node is known");
 		int ix = getParent().findChildIndex(this);
@@ -379,7 +504,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		getParent().add(ix + 1, item);
 	}
 
-	public void appendBeforeMe(final NodeBase item) {
+	/**
+	 * Add the node passed <i>immediately before</i> this node in the tree.
+	 * @param item
+	 */
+	final public void appendBeforeMe(@Nonnull final NodeBase item) {
 		if(getParent() == null)
 			throw new IllegalStateException("No parent node is known");
 		int ix = getParent().findChildIndex(this);
@@ -388,18 +517,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		getParent().add(ix, item);
 	}
 
-	void registerWithPage(final Page p) {
-		p.registerNode(this);
-	}
 
-	final public Page getPage() {
-		return m_page;
-	}
-
-	final void setPage(final Page page) {
-		m_page = page;
-	}
-
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Building the node's content.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Not normally called from outside, this forces the node to call createContent if needed (if unbuilt).
+	 * FIXME Should probably become internal.
+	 * @throws Exception
+	 */
 	final public void build() throws Exception {
 		if(!m_built) {
 			m_built = true;
@@ -417,18 +543,27 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		}
 	}
 
+	/**
+	 * Force this node to be rebuilt by fully clearing all it's content (removing all children). Use this to force
+	 * a component to redraw itself fully, for instance after it's state or content changes.
+	 */
+	@OverridingMethodsMustInvokeSuper
 	public void forceRebuild() {
+		onForceRebuild(); // Call event handler.
 		clearBuilt();
 	}
 
-	protected void clearBuilt() {
+	/**
+	 * Internal.
+	 */
+	final private void clearBuilt() {
 		m_built = false;
 		if(m_page != null)
 			m_page.internalAddPendingBuild(this);
 	}
 
 	/**
-	 * Returns T if the node's content has been built.
+	 * Returns T if the node's content has been built (createContent() has been called).
 	 * @return
 	 */
 	public boolean isBuilt() {
@@ -440,6 +575,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		afterCreateContent();
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Simple other getter and setter like stuff.			*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Return the <i>literal</i> text, with tilde replacement done. If the value set was
 	 * a resource key (a string starting with ~) this resolves the key into a string and
@@ -471,48 +610,49 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return m_title;
 	}
 
-	@Override
-	public String toString() {
-		String n = getClass().getName();
-		int pos = n.lastIndexOf('.');
-		return n.substring(pos + 1) + ":" + m_actualID + (m_title == null ? "" : "/" + m_title);
+	/**
+	 * Return the click handler for this node, or null if none is associated with it.
+	 * @return
+	 */
+	@Nullable
+	public IClicked< ? > getClicked() {
+		return m_clicked;
 	}
 
-	public boolean acceptRequestParameter(final String[] values) throws Exception {
-		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
+	/**
+	 * Set a click handler for this node. This will be attached to the Javascript "onclick" handler for
+	 * this node and will fire when the node is clicked.
+	 * @param clicked
+	 */
+	public void setClicked(@Nullable final IClicked< ? > clicked) {
+		m_clicked = clicked;
 	}
 
-	void internalOnAddedToPage(final Page p) {
-		onAddedToPage(p);
-		if(m_appendJS != null) {
-			getPage().appendJS(m_appendJS);
-			m_appendJS = null;
-		}
+	/**
+	 * Mostly internal only: override when this component has a clicked handler which must <i>not</i> be
+	 * rendered as a Javascript "onclick". For instance the LookupForm returns false for this, so
+	 * that it can override the "clicked" property to be called when the lookupform's SEARCH button
+	 * is pressed.
+	 * @return
+	 */
+	public boolean internalNeedClickHandler() {
+		return getClicked() != null;
 	}
 
-	void internalOnRemoveFromPage(final Page p) {
-		onRemoveFromPage(p);
-	}
-
-	public void createContent() throws Exception {}
-
-	protected void afterCreateContent() throws Exception {}
-
-	public void onAddedToPage(final Page p) {}
-
-	public void onRemoveFromPage(final Page p) {}
-
-	public void onHeaderContributors(final Page page) {}
-
-	//	public boolean validate() {
-	//		return true;
-	//	}
-
+	/**
+	 * Get whatever user object is set into this node as set by {@link #setUserObject(Object)}.
+	 * @return
+	 */
+	@Nullable
 	public Object getUserObject() {
 		return m_userObject;
 	}
 
-	public void setUserObject(final Object userObject) {
+	/**
+	 * Set some user object into this node.
+	 * @param userObject
+	 */
+	public void setUserObject(@Nullable final Object userObject) {
 		m_userObject = userObject;
 	}
 
@@ -524,6 +664,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return m_testID;
 	}
 
+	/**
+	 * Set an ID that can be used for finding this node in the HTML using test software. The test id is rendered as a "testid" attribute.
+	 * @param testID
+	 */
 	public void setTestID(String testID) {
 		if(DomUtil.isEqual(testID, m_testID))
 			return;
@@ -598,24 +742,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return m_createJS;
 	}
 
-	/**
-	 * This gets called when a component is re-rendered fully because of a full page
-	 * refresh. It should only be used for components that maintain a lot of state
-	 * in Javascript on the browser. These components need to add Javascript commands
-	 * to that browser to restore/initialize the state to whatever is present in the
-	 * server's data store. It must do that by adding the needed Javascript to the buffer
-	 * passed.
-	 *
-	 * @param sb
-	 * @throws Exception
-	 */
-	public void renderJavascriptState(StringBuilder sb) throws Exception {
-
-	}
-
-	public void onBeforeFullRender() throws Exception {
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Generic attribute and event handling.				*/
 	/*--------------------------------------------------------------*/
@@ -628,7 +754,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param name
 	 * @param value
 	 */
-	public void setSpecialAttribute(final String name, final String value) {
+	public void setSpecialAttribute(@Nonnull final String name, @Nullable final String value) {
 		if(m_specialAttributes == null) {
 			m_specialAttributes = new ArrayList<String>(5);
 		} else {
@@ -654,14 +780,22 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Return the list of special attributes and their value. The even index retrieves
 	 * the name, the odd index it's value. See {@link #setSpecialAttribute(String, String)} for
 	 * details.
+	 * FIXME This should return a copy, not the actual attributes.
 	 *
 	 * @return
 	 */
+	@Nullable
 	public List<String> getSpecialAttributeList() {
 		return m_specialAttributes;
 	}
 
-	public String getSpecialAttribute(final String name) {
+	/**
+	 * Return the value for the "special" attribute with the specified name, if present.
+	 * @param name
+	 * @return
+	 */
+	@Nullable
+	public String getSpecialAttribute(@Nonnull final String name) {
 		if(m_specialAttributes != null) {
 			for(int i = 0; i < m_specialAttributes.size(); i += 2) {
 				if(m_specialAttributes.get(i).equals(name))
@@ -677,7 +811,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param action
 	 * @throws Exception
 	 */
-	public void componentHandleWebAction(final RequestContextImpl ctx, final String action) throws Exception {
+	public void componentHandleWebAction(@Nonnull final RequestContextImpl ctx, @Nonnull final String action) throws Exception {
 		if("WEBUIDROP".equals(action)) {
 			handleDrop(ctx);
 			return;
@@ -685,27 +819,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		throw new IllegalStateException("The component " + this + " does not accept the web action " + action);
 	}
 
-	/**
-	 * Claim the focus for this component. Only reasonable for input type and action
-	 * components (links, buttons). For now this can only be called for components that
-	 * are already attached to a page. If this is a proble I'll fix it. Only one component
-	 * in a page can claim focus for itself.
-	 */
-	public void setFocus() {
-		if(getPage() == null) {
-			//-- Mark this as a component wanting the focus.
-			m_focusRequested = true;
-		} else
-			getPage().setFocusComponent(this);
+	public boolean acceptRequestParameter(@Nonnull final String[] values) throws Exception {
+		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
 	}
 
-	public boolean isFocusRequested() {
-		return m_focusRequested;
-	}
-
-	public void clearFocusRequested() {
-		m_focusRequested = false;
-	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Error message handling code.						*/
@@ -860,6 +977,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		fence.clearGlobalMessages(this, code);
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Overridable event methods.							*/
+	/*--------------------------------------------------------------*/
+
 	protected void internalShelve() throws Exception {
 		onShelve();
 	}
@@ -868,15 +990,43 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		onUnshelve();
 	}
 
+	/**
+	 * Called when forceRebuild is done on this node.
+	 */
+	protected void onForceRebuild() {}
+
 	protected void onShelve() throws Exception {}
 
 	protected void onUnshelve() throws Exception {}
 
 	protected void onRefresh() throws Exception {}
 
-	public final void refresh() throws Exception {
-		onRefresh();
+	/**
+	 * This gets called when a component is re-rendered fully because of a full page
+	 * refresh. It should only be used for components that maintain a lot of state
+	 * in Javascript on the browser. These components need to add Javascript commands
+	 * to that browser to restore/initialize the state to whatever is present in the
+	 * server's data store. It must do that by adding the needed Javascript to the buffer
+	 * passed.
+	 *
+	 * @param sb
+	 * @throws Exception
+	 */
+	public void renderJavascriptState(StringBuilder sb) throws Exception {
+
 	}
+
+	public void onBeforeFullRender() throws Exception {}
+
+	public void createContent() throws Exception {}
+
+	protected void afterCreateContent() throws Exception {}
+
+	public void onAddedToPage(final Page p) {}
+
+	public void onRemoveFromPage(final Page p) {}
+
+	public void onHeaderContributors(final Page page) {}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle dropping of dnd nodes.						*/
@@ -976,8 +1126,50 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		}
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Miscellaneous.										*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @return
+	 * @throws Exception
+	 */
 	public QDataContext getSharedContext() throws Exception {
 		return QContextManager.getContext(getPage());
+	}
+
+	/**
+	 * Claim the focus for this component. Only reasonable for input type and action
+	 * components (links, buttons). For now this can only be called for components that
+	 * are already attached to a page. If this is a proble I'll fix it. Only one component
+	 * in a page can claim focus for itself.
+	 */
+	public void setFocus() {
+		if(getPage() == null) {
+			//-- Mark this as a component wanting the focus.
+			m_focusRequested = true;
+		} else
+			getPage().setFocusComponent(this);
+	}
+
+	/**
+	 * Returns T if this control has requested the focus.
+	 * @return
+	 */
+	public boolean isFocusRequested() {
+		return m_focusRequested;
+	}
+
+	/**
+	 * Reset the "request focus" flag.
+	 */
+	public void clearFocusRequested() {
+		m_focusRequested = false;
+	}
+
+	public final void refresh() throws Exception {
+		onRefresh();
 	}
 
 	/**
@@ -986,5 +1178,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	public void stretchHeight() {
 		appendJavascript("$(document).ready(function() {WebUI.stretchHeight('" + getActualID() + "');});");
+	}
+
+	@Override
+	public String toString() {
+		String n = getClass().getName();
+		int pos = n.lastIndexOf('.');
+		return n.substring(pos + 1) + ":" + m_actualID + (m_title == null ? "" : "/" + m_title);
 	}
 }
