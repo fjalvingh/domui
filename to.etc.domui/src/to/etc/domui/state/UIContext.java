@@ -45,7 +45,7 @@ import to.etc.domui.trouble.*;
  * Created on Jun 22, 2008
  */
 public class UIContext {
-	static private ThreadLocal<RequestContextImpl> m_current = new ThreadLocal<RequestContextImpl>();
+	static private ThreadLocal<IRequestContext> m_current = new ThreadLocal<IRequestContext>();
 
 	static private ThreadLocal<Page> m_page = new ThreadLocal<Page>();
 
@@ -63,7 +63,7 @@ public class UIContext {
 	 * ended.
 	 * @param rc
 	 */
-	static public void internalSet(@Nonnull final RequestContextImpl rc) throws Exception {
+	static public void internalSet(@Nonnull final IRequestContext rc) throws Exception {
 		m_current.set(rc);
 		boolean ok = false;
 		try {
@@ -136,7 +136,10 @@ public class UIContext {
 	 * @param rci
 	 * @return
 	 */
-	static public IUser internalGetLoggedInUser(final RequestContextImpl rci) throws Exception {
+	static public IUser internalGetLoggedInUser(final IRequestContext rx) throws Exception {
+		if(!(rx instanceof RequestContextImpl))
+			return null;
+		RequestContextImpl rci = (RequestContextImpl) rx;
 		HttpSession hs = rci.getRequest().getSession(false);
 		if(hs == null)
 			return null;
@@ -228,10 +231,13 @@ public class UIContext {
 	 * @return
 	 */
 	static public boolean login(final String userid, final String password) throws Exception {
-		RequestContextImpl ci = m_current.get();
-		if(ci == null)
+		IRequestContext rcx = m_current.get();
+		if(rcx == null)
 			throw new IllegalStateException("You can login from a server request only");
+		if(!(rcx instanceof RequestContextImpl))
+			return false;
 
+		RequestContextImpl ci = (RequestContextImpl) rcx;
 		HttpSession hs = ci.getRequest().getSession(false);
 		if(hs == null)
 			return false;
@@ -263,9 +269,12 @@ public class UIContext {
 	 * @throws Exception
 	 */
 	static public void logout() throws Exception {
-		RequestContextImpl ci = m_current.get();
-		if(ci == null)
+		IRequestContext rcx = m_current.get();
+		if(rcx == null)
 			throw new IllegalStateException("You can logout from a server request only");
+		if(!(rcx instanceof RequestContextImpl))
+			return;
+		RequestContextImpl ci = (RequestContextImpl) rcx;
 
 		HttpSession hs = ci.getRequest().getSession(false);
 		if(hs == null)
@@ -301,9 +310,14 @@ public class UIContext {
 		IUser user = m_currentUser.get();
 		if(user == null)
 			return null;
-		RequestContextImpl ci = m_current.get();
-		if(ci == null)
+
+		IRequestContext rcx = m_current.get();
+		if(rcx == null)
 			throw new IllegalStateException("You can login from a server request only");
+		if(!(rcx instanceof RequestContextImpl))
+			return null;
+		RequestContextImpl ci = (RequestContextImpl) rcx;
+
 		String auth = ci.getApplication().getLoginAuthenticator().calcCookieHash(user.getLoginID(), l);
 		if(auth == null)
 			return null;

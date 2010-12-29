@@ -184,7 +184,7 @@ public class DomUITestUtil {
 
 		IRequestContext ctx = new TestRequestContext();
 		UIContext.internalSet(pg);
-		//		PageContext.internalSet(ctx);
+		UIContext.internalSet(ctx);
 
 		pg.internalFullBuild(); // Cause full build
 		hr.render(ctx, pg);
