@@ -294,7 +294,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return m_tableDisplayProperties;
 	}
 
-	public void setTableDisplayProperties(final List<DisplayPropertyMetaModel> tableDisplayProperties) {
+	public synchronized void setTableDisplayProperties(final List<DisplayPropertyMetaModel> tableDisplayProperties) {
 		m_tableDisplayProperties = tableDisplayProperties;
 	}
 

@@ -299,7 +299,7 @@ final public class DomUtil {
 		}
 	}
 
-	//fix for call 28547: $ cant be used in window names in javascript function window.openWindow in IE7, so we have to use something else... 
+	//fix for call 28547: $ cant be used in window names in javascript function window.openWindow in IE7, so we have to use something else...
 	static private final char[] BASE64MAP = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0".toCharArray();
 
 	/**

@@ -368,22 +368,22 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	}
 
 	private String getDefaultKeySearchHint() {
-		String result = null;
 		List<SearchPropertyMetaModel> spml = getMetaModel().getKeyWordSearchProperties();
-		if(spml.size() > 0) {
-			result = "";
-			for(int i = 0; i < spml.size(); i++) {
-				SearchPropertyMetaModel spm = spml.get(i);
-				if(spm.getLookupLabel() != null) {
-					result = result + spm.getLookupLabel();
-				} else {
-					result = result + getMetaModel().findProperty(spm.getPropertyName()).getDefaultLabel();
-				}
-				if(i < spml.size() - 1)
-					result = result + ", ";
+		if(spml.size() <= 0)
+			return null;
+
+		StringBuilder sb = new StringBuilder(128);
+		for(int i = 0; i < spml.size(); i++) {
+			if(sb.length() > 0)
+				sb.append(", ");
+			SearchPropertyMetaModel spm = spml.get(i);
+			if(spm.getLookupLabel() != null) {
+				sb.append(spm.getLookupLabel());
+			} else {
+				sb.append(getMetaModel().findProperty(spm.getPropertyName()).getDefaultLabel());
 			}
 		}
-		return result;
+		return sb.toString();
 	}
 
 	/**

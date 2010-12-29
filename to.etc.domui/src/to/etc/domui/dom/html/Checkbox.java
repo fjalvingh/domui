@@ -114,7 +114,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	 */
 	@Override
 	public Boolean getValue() {
-		return new Boolean(isChecked());
+		return Boolean.valueOf(isChecked());
 	}
 
 	/**

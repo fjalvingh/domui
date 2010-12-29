@@ -1155,7 +1155,9 @@ public abstract class DomApplication {
 									//									System.out.println("app: registering right="+s);
 								}
 							}
-						} catch(Exception x) {}
+						} catch(Exception x) {
+							// Ignore all exceptions due to accessing the field using Introspection
+						}
 					}
 				}
 			}

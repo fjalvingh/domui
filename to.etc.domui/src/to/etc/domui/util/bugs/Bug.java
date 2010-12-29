@@ -60,7 +60,7 @@ public class Bug {
 		postBug(bi);
 	}
 
-	static public void bug(@Nullable Throwable x) {
+	static public void bug(@Nonnull Throwable x) {
 		BugItem bi = new BugItem(x.getMessage(), x);
 		postBug(bi);
 	}

@@ -400,6 +400,7 @@ final public class Reloader {
 				m_jarMap.put(ze.getName(), jarref); // Update the reference.
 			}
 		} catch(Exception xz) {
+			// Ignore all exceptions: when a classpath jar is corrupt let someone else bother...
 		} finally {
 			try {
 				if(is != null)

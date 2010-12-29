@@ -244,7 +244,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 		if(null == newvalue)
 			return -1;
 		try {
-			ClassMetaModel cmm = newvalue == null ? null : MetaManager.findClassMeta(newvalue.getClass());
+			ClassMetaModel cmm = MetaManager.findClassMeta(newvalue.getClass());
 			List<T> data = getData();
 			for(int ix = 0; ix < data.size(); ix++) {
 				V	value = listToValue(data.get(ix));

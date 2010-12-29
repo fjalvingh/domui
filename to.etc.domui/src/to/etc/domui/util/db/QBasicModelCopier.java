@@ -502,8 +502,8 @@ abstract public class QBasicModelCopier implements IModelCopier {
 					copyProperties(donemap, si, di, childmm, null, false);
 				} else {
 					//-- This did not exist @ destination. Map it to a destination object then add it there.
-					donemap.log("new child (existing record " + identify(si) + ") copied as " + identify(di));
 					di = internalCopy(donemap, si);
+					donemap.log("new child (existing record " + identify(si) + ") copied as " + identify(di));
 					//					donemap.log("Post for save " + identify(di)); Already done by internalCopy.
 					//					donemap.save(di);
 					dlist.add(di);

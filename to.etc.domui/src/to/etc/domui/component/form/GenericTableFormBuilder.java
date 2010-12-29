@@ -44,8 +44,8 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 
 	private TR m_lastUsedRow;
 
-	@SuppressWarnings("unused")
-	private TD m_lastUsedCell;
+	//	@SuppressWarnings("unused")
+	//	private TD m_lastUsedCell;
 
 	public GenericTableFormBuilder() {}
 
@@ -77,7 +77,7 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 		m_tbody = null;
 		m_parentTable = null;
 		m_lastUsedRow = null;
-		m_lastUsedCell = null;
+		//		m_lastUsedCell = null;
 		internalClearLocation();
 	}
 
@@ -91,7 +91,7 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 		m_parentTable = b;
 		m_tbody = null;
 		m_lastUsedRow = null;
-		m_lastUsedCell = null;
+		//		m_lastUsedCell = null;
 		internalClearLocation();
 	}
 
@@ -142,7 +142,7 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 			m_parentTable = new Table();
 			internalClearLocation();
 			m_lastUsedRow = null;
-			m_lastUsedCell = null;
+			//			m_lastUsedCell = null;
 			onTableAdded(m_parentTable);
 		}
 		return m_parentTable;
@@ -157,7 +157,7 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 		if(m_tbody == null) {
 			m_tbody = table().getBody();
 			m_lastUsedRow = null;
-			m_lastUsedCell = null;
+			//			m_lastUsedCell = null;
 			internalClearLocation();
 			onBodyAdded(m_tbody);
 		}
@@ -174,7 +174,7 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 		m_tbody = new TBody();
 		table().add(m_tbody);
 		m_lastUsedRow = null;
-		m_lastUsedCell = null;
+		//		m_lastUsedCell = null;
 		internalClearLocation();
 		onBodyAdded(m_tbody);
 		return m_tbody;
@@ -252,12 +252,12 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	 */
 	@Nonnull
 	public TD addCell() {
-		return m_lastUsedCell = row().addCell();
+		return /* m_lastUsedCell = */row().addCell();
 	}
 
 	@Nonnull
 	public TD addCell(String css) {
-		return m_lastUsedCell = row().addCell(css);
+		return /* m_lastUsedCell = */row().addCell(css);
 	}
 
 	@Nonnull
@@ -277,6 +277,6 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	}
 
 	protected void setLastUsedCell(TD cell) {
-		m_lastUsedCell = cell;
+		//		m_lastUsedCell = cell;
 	}
 }

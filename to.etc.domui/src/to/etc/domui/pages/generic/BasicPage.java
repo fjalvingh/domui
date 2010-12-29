@@ -62,7 +62,7 @@ public class BasicPage<T> extends UrlPage {
 	}
 
 	public void setPageTitle(String pageTitle) throws Exception {
-		if(m_pageTitle != pageTitle) {
+		if(!DomUtil.isEqual(m_pageTitle, pageTitle)) {
 			m_pageTitle = pageTitle;
 			if(m_titleBar != null) {
 				m_titleBar.setPageTitle(pageTitle);

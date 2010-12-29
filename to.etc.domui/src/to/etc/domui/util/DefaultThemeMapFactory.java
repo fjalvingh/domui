@@ -79,7 +79,7 @@ public class DefaultThemeMapFactory implements IThemeMapFactory {
 		Properties p = new Properties();
 		InputStream is = ires.getInputStream();
 		try {
-			p.load(new InputStreamReader(is, "utf-8"));
+			p.load(new InputStreamReader(is, "utf-8")); // wrapped "is" is closed, no need to close reader.
 		} finally {
 			try {
 				is.close();

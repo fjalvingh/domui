@@ -29,7 +29,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 
 public class TestUtil {
-	static private AppSession m_session;
+	static private volatile AppSession m_session;
 
 	static private DomApplication m_application;
 

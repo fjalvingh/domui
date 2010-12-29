@@ -118,9 +118,9 @@ public class DynaIma extends Img {
 		return m_cachedMime;
 	}
 
-	void setCachedMime(String cachedMime) {
-		m_cachedMime = cachedMime;
-	}
+	//	synchronized void setCachedMime(String cachedMime) {
+	//		m_cachedMime = cachedMime;
+	//	}
 
 	int getCachedSize() {
 		return m_cachedSize;

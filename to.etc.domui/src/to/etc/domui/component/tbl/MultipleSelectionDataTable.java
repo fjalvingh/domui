@@ -150,7 +150,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 				ckb.setChecked(!ckb.isChecked());
 				ckb.setChecked(!ckb.isChecked());
 				TR row = ckb.getParent(TR.class);
-				handleAccumulatedItemRowSelectionChanged(row, new Boolean(ckb.isChecked()));
+				handleAccumulatedItemRowSelectionChanged(row, Boolean.valueOf(ckb.isChecked()));
 			}
 		});
 		b.setChecked(selected);
@@ -226,7 +226,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			if(tr.getUserObject() instanceof Checkbox) {
 				Checkbox ckb = (Checkbox) tr.getUserObject();
 				ckb.setChecked(!ckb.isChecked());
-				handleAccumulatedItemRowSelectionChanged((TR) tr, new Boolean(ckb.isChecked()));
+				handleAccumulatedItemRowSelectionChanged((TR) tr, Boolean.valueOf(ckb.isChecked()));
 			} else {
 				accumulateSelection((TR) tr, val);
 			}

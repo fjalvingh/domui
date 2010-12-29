@@ -29,7 +29,7 @@ import java.util.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.LookupForm.*;
+import to.etc.domui.component.lookup.LookupForm.ButtonMode;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
@@ -56,13 +56,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	private LookupForm<T> m_externalLookupForm;
 
-	List<T> m_selectionResult;
-
-	List<T> m_queryResult;
-
 	MultipleSelectionDataTable<T> m_queryResultTable;
-
-	Table m_resultTable;
 
 	String m_title;
 
@@ -84,7 +78,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		m_metaModel = metaModel != null ? metaModel : MetaManager.findClassMeta(lookupClass);
 		m_lookupClass = lookupClass;
 		setCssClass("ui-fw");
-		m_selectionResult = new ArrayList<T>();
+		//		m_selectionResult = new ArrayList<T>();
 		if(getWidth() == null) {
 			setWidth(WIDTH + "px");
 		}

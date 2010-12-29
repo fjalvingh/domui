@@ -44,7 +44,7 @@ public class PollInfo implements IUnbufferedPartFactory {
 	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
 		param.getResponse().setContentType("text/xml; charset=UTF-8");
 		Writer w = param.getResponse().getWriter();
-		XmlWriter	xw	= new XmlWriter(w);
+		XmlWriter xw = new XmlWriter(w); // Parent writer will be closed, no need to close this one.
 		xw.wraw("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 		xw.tag("poll-info");
 
