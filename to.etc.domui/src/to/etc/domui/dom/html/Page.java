@@ -526,7 +526,7 @@ final public class Page implements IQContextContainer {
 	public void openWindow(@Nonnull String windowURL, @Nullable WindowParameters wp) {
 		if(windowURL == null || windowURL.length() == 0)
 			throw new IllegalArgumentException("Empty window URL");
-		String js = DomUtil.createOpenWindowJS(DomUtil.calculateURL(PageContext.getRequestContext(), windowURL), wp);
+		String js = DomUtil.createOpenWindowJS(DomUtil.calculateURL(UIContext.getRequestContext(), windowURL), wp);
 		appendJS(js);
 	}
 

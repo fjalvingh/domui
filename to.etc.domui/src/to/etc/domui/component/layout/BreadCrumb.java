@@ -53,7 +53,7 @@ public class BreadCrumb extends Div {
 		td = b.addCell();
 		td.setCssClass("ui-brc-right");
 
-		WindowSession cm = PageContext.getRequestContext().getWindowSession();
+		WindowSession cm = UIContext.getRequestContext().getWindowSession();
 
 		//-- Get the application's main page as the base;
 		List<ShelvedEntry> stack = cm.getShelvedPageStack();

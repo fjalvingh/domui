@@ -176,21 +176,6 @@ public abstract class DomApplication {
 		registerUrlPart(new SvgPartFactory()); // Converts .svg.png to png.
 	}
 
-	//	static public void internalSetCurrent(final DomApplication da) {
-	//		m_current.set(da);
-	//	}
-
-	//	/**
-	//	 * Returns the single DomApplication instance in use for the webapp.
-	//	 * @return
-	//	 */
-	//	static public DomApplication get() {
-	//		DomApplication da = m_current.get();
-	//		if(da == null)
-	//			throw new IllegalStateException("The 'current application' is unset!?");
-	//		return da;
-	//	}
-
 	static private synchronized void setCurrentApplication(DomApplication da) {
 		m_application = da;
 	}

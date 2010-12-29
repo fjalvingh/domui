@@ -403,7 +403,7 @@ final public class DomUtil {
 	public static String createPageURL(String rurl, PageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
 		if(DomUtil.isRelativeURL(rurl)) {
-			RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
+			RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
 			sb.append(ctx.getRelativePath(rurl));
 		}
 		else
@@ -1341,7 +1341,7 @@ final public class DomUtil {
 	@Nonnull
 	static public String createOpenWindowJS(@Nonnull Class< ? > targetClass, @Nullable PageParameters targetParameters, @Nullable WindowParameters newWindowParameters) {
 		//-- We need a NEW window session. Create it,
-		RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
+		RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
 		WindowSession cm = ctx.getSession().createWindowSession();
 
 		//-- Send a special JAVASCRIPT open command, containing the shtuff.

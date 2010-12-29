@@ -39,7 +39,7 @@ import to.etc.domui.state.*;
 public class ShelveBreadCrumb extends Div {
 	@Override
 	public void createContent() throws Exception {
-		WindowSession cm = PageContext.getRequestContext().getWindowSession();
+		WindowSession cm = UIContext.getRequestContext().getWindowSession();
 
 		//-- Get the application's main page as the base;
 		List<ShelvedEntry> stack = cm.getShelvedPageStack();

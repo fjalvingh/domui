@@ -101,7 +101,7 @@ public class ImageButton extends Button {
 	}
 
 	public void setThemeIcon(final String name) {
-		m_icon = PageContext.getRequestContext().getRelativeThemePath(name);
+		m_icon = UIContext.getRequestContext().getRelativeThemePath(name);
 		genURL();
 	}
 
@@ -116,7 +116,7 @@ public class ImageButton extends Button {
 	}
 
 	public void setThemeImage(final String src) {
-		m_baseSrc = PageContext.getRequestContext().getRelativeThemePath(src);
+		m_baseSrc = UIContext.getRequestContext().getRelativeThemePath(src);
 		genURL();
 	}
 

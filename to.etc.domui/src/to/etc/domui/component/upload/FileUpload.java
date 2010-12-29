@@ -99,7 +99,7 @@ public class FileUpload extends Div {
 			f.setEnctype("multipart/form-data");
 			f.setMethod("POST");
 			StringBuilder sb = new StringBuilder();
-			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, PageContext.getRequestContext());
+			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
 			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's stupid caching.
 			f.setAction(sb.toString());
 

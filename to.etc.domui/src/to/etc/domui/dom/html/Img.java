@@ -127,7 +127,7 @@ public class Img extends NodeBase {
 	 * @return
 	 */
 	public String getSrc() {
-		return PageContext.getRequestContext().translateResourceName(m_src);
+		return UIContext.getRequestContext().translateResourceName(m_src);
 	}
 
 	/**

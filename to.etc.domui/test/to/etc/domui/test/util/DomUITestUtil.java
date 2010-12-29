@@ -183,7 +183,7 @@ public class DomUITestUtil {
 		HtmlFullRenderer hr = getFullRenderer(ro);
 
 		IRequestContext ctx = new TestRequestContext();
-		PageContext.internalSet(pg);
+		UIContext.internalSet(pg);
 		//		PageContext.internalSet(ctx);
 
 		pg.internalFullBuild(); // Cause full build

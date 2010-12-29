@@ -78,7 +78,7 @@ public class EditResPart implements IUnbufferedPartFactory {
 
 		//-- Create a base URL refering to this part handler && component
 		StringBuilder sb = new StringBuilder(128);
-		sb.append(PageContext.getRequestContext().getRelativePath(EditResPart.class.getName()));
+		sb.append(UIContext.getRequestContext().getRelativePath(EditResPart.class.getName()));
 		sb.append("/");
 		sb.append(rurl);
 		sb.append(".part");

@@ -129,7 +129,7 @@ public class DefaultButton extends Button {
 	 * @param name
 	 */
 	public void setThemeConfig(final String name) {
-		m_propSrc = PageContext.getRequestContext().getRelativeThemePath(name);
+		m_propSrc = UIContext.getRequestContext().getRelativeThemePath(name);
 		genURL();
 	}
 
@@ -148,7 +148,7 @@ public class DefaultButton extends Button {
 	 * @param name
 	 */
 	public void setIcon(final String name) {
-		m_icon = PageContext.getRequestContext().translateResourceName(name);
+		m_icon = UIContext.getRequestContext().translateResourceName(name);
 		genURL();
 	}
 

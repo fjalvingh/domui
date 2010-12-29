@@ -42,7 +42,7 @@ final public class UIGoto {
 	private UIGoto() {}
 
 	static private WindowSession context() {
-		return PageContext.getRequestContext().getWindowSession();
+		return UIContext.getRequestContext().getWindowSession();
 	}
 
 	/**
@@ -51,7 +51,7 @@ final public class UIGoto {
 	 * at it's initial state.
 	 */
 	static public void reload() {
-		Page pg = PageContext.getCurrentPage();
+		Page pg = UIContext.getCurrentPage();
 		Class< ? extends UrlPage> clz = pg.getBody().getClass();
 		PageParameters pp = pg.getPageParameters();
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);

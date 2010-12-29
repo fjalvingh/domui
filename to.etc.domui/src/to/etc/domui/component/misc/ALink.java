@@ -169,7 +169,7 @@ public class ALink extends ATag {
 	private void updateLink() {
 		if(m_targetClass != null) {
 			StringBuilder sb = new StringBuilder();
-			sb.append(PageContext.getRequestContext().getRelativePath(m_targetClass.getName()));
+			sb.append(UIContext.getRequestContext().getRelativePath(m_targetClass.getName()));
 			sb.append(".ui");
 			DomUtil.addUrlParameters(sb, m_targetParameters, true);
 			setHref(sb.toString()); // Append URL only, without WID
@@ -192,7 +192,7 @@ public class ALink extends ATag {
 				sb.append(DomUtil.createPageURL(m_targetURL, m_targetParameters));
 			} else {
 				//-- We need a NEW window session. Create it,
-				RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
+				RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
 				sb.append(ctx.getRelativePath(m_targetClass.getName()));
 				sb.append('.');
 				sb.append(DomApplication.get().getUrlExtension());
@@ -269,7 +269,7 @@ public class ALink extends ATag {
 		}
 
 		//-- Normal link; moveTo.
-		PageContext.getRequestContext().getWindowSession().internalSetNextPage(m_moveMode, m_targetClass, null, null, m_targetParameters);
+		UIContext.getRequestContext().getWindowSession().internalSetNextPage(m_moveMode, m_targetClass, null, null, m_targetParameters);
 	}
 
 	/**
@@ -308,7 +308,7 @@ public class ALink extends ATag {
 	}
 
 	private void updateStyle() {
-		setBackgroundImage(PageContext.getRequestContext().translateResourceName(m_imageUrl));
+		setBackgroundImage(UIContext.getRequestContext().translateResourceName(m_imageUrl));
 	}
 
 }

@@ -369,7 +369,7 @@ final public class WindowSession {
 				 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
 				 * make sure it is correct even though the request was for another page and is almost dying.
 				 */
-				PageContext.internalSet(currentPage);
+				UIContext.internalSet(currentPage);
 				currentPage.internalUnshelve();
 				generateRedirect(ctx, currentPage, ajax);
 				return true;
@@ -432,7 +432,7 @@ final public class WindowSession {
 		if(pp == null)
 			pp = new PageParameters();
 		Page currentPage = PageMaker.createPageWithContent(ctx, bestpc, cc, pp);
-		PageContext.internalSet(currentPage); // jal 20100224 Code can run in new page on shelve.
+		UIContext.internalSet(currentPage); // jal 20100224 Code can run in new page on shelve.
 		shelvePage(currentPage);
 
 		//-- Call all of the page's listeners.
@@ -515,7 +515,7 @@ final public class WindowSession {
 		 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
 		 * make sure it is correct even though the request was for another page and is almost dying.
 		 */
-		PageContext.internalSet(newpg);
+		UIContext.internalSet(newpg);
 		newpg.internalUnshelve();
 		generateRedirect(ctx, newpg, ajax);
 	}

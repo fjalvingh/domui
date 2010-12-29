@@ -58,7 +58,7 @@ public class FileImageRetriever implements IImageRetriever {
 	 * @return
 	 */
 	static public String createFileURL(File what, String mime) {
-		IRequestContext ctx = PageContext.getRequestContext();
+		IRequestContext ctx = UIContext.getRequestContext();
 		Map<String, FileRef> map = (Map<String, FileRef>) ctx.getSession().getAttribute(KEY);
 		if(map == null) {
 			map = new HashMap<String, FileRef>();
@@ -111,7 +111,7 @@ public class FileImageRetriever implements IImageRetriever {
 
 	@Override
 	public IImageReference loadImage(String key) throws Exception {
-		IRequestContext ctx = PageContext.getRequestContext();
+		IRequestContext ctx = UIContext.getRequestContext();
 		Map<String, FileRef> map = (Map<String, FileRef>) ctx.getSession().getAttribute(KEY);
 		if(map == null)
 			return null;

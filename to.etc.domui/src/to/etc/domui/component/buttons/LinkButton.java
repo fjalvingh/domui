@@ -72,7 +72,7 @@ public class LinkButton extends ATag {
 	}
 
 	private void updateStyle() {
-		setBackgroundImage(PageContext.getRequestContext().translateResourceName(m_imageUrl));
+		setBackgroundImage(UIContext.getRequestContext().translateResourceName(m_imageUrl));
 	}
 
 	@Override

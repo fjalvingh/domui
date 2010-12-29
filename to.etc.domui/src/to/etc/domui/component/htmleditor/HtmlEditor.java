@@ -73,7 +73,7 @@ public class HtmlEditor extends TextArea {
 		StringBuilder sb = new StringBuilder(1024);
 		m_vn = "_fck" + getActualID();
 		sb.append("var ").append(m_vn).append(" = new FCKeditor('").append(getActualID()).append("');");
-		appendOption(sb, "BasePath", PageContext.getRequestContext().getRelativePath("$fckeditor/"));
+		appendOption(sb, "BasePath", UIContext.getRequestContext().getRelativePath("$fckeditor/"));
 		appendOption(sb, "DefaultLanguage", NlsContext.getLocale().getLanguage());
 		if(getWidth() != null)
 			appendOption(sb, "Width", getWidth());
@@ -100,9 +100,9 @@ public class HtmlEditor extends TextArea {
 
 		//-- Set the connector's URL proper.
 		sb.append(m_vn).append(".Config['").append(option).append("URL'] = '"); // Start URL base path
-		sb.append(PageContext.getRequestContext().getRelativePath("$fckeditor/editor/"));
+		sb.append(UIContext.getRequestContext().getRelativePath("$fckeditor/editor/"));
 		sb.append("filemanager/browser/default/browser.html?Type=Image&Connector=");
-		sb.append(PageContext.getRequestContext().getRelativePath(EditResPart.class.getName()));
+		sb.append(UIContext.getRequestContext().getRelativePath(EditResPart.class.getName()));
 		sb.append("/");
 		sb.append(getPage().getConversation().getFullId());
 		sb.append("/");

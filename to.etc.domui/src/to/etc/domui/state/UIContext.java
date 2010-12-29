@@ -44,7 +44,7 @@ import to.etc.domui.trouble.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 22, 2008
  */
-public class PageContext {
+public class UIContext {
 	static private ThreadLocal<RequestContextImpl> m_current = new ThreadLocal<RequestContextImpl>();
 
 	static private ThreadLocal<Page> m_page = new ThreadLocal<Page>();
