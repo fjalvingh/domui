@@ -221,6 +221,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			m_delegate.add(index, nd);
 			return;
 		}
+		if(nd == this)
+			throw new IllegalStateException("Attempt to add a node " + nd + " to itself as a child.");
 
 		if(!canContain(nd))
 			throw new IllegalStateException("This node " + this + " cannot contain a " + nd);
@@ -336,6 +338,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Discard all children.
 	 */
 	public void removeAllChildren() {
+		if(m_delegate != null) {
+			m_delegate.removeAllChildren();
+			return;
+		}
+
 		if(m_children.size() == 0)
 			return;
 		treeChanging();
@@ -363,6 +370,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		for(int i = 0; i < 50; i++) {
 			try {
 				for(NodeBase b : m_children) {
+					if(this == b)
+						throw new IllegalStateException("Internal: somehow I (the parent) is also present in my own list-of-children!?");
 					b.unregisterFromPage(); // This one already checks if the thing is registered so it can be retried.
 				}
 				super.unregisterFromPage();
