@@ -7,7 +7,8 @@ import to.etc.domui.dom.html.*;
 import to.etc.util.*;
 
 /**
- * This popup floater shows all parent nodes from a given node up, and selects one.
+ * This popup floater shows all parent nodes from a given node up, and selects one. It is part
+ * of the development mode double-tilde keypress.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 28, 2010
@@ -52,7 +53,20 @@ public class InternalParentTree extends Div {
 					openSource(clicked);
 				}
 			});
-			item.add(nb.getClass().getName());
+
+			String icon = "";
+			String nn = nb.getClass().getName();
+			if(nn.startsWith("to.etc.domui.dom.")) {
+				icon = "iptHtml.png";
+			} else if(nb instanceof UrlPage) {
+				icon = "iptPage.png";
+			} else {
+				icon = "iptComponent.png";
+			}
+
+			img = new Img("THEME/" + icon);
+			item.add(img);
+			item.add("\u00a0" + nn);
 		}
 
 		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:" + 200 + ", handle: '#" + ttl.getActualID() + "'});");
@@ -86,7 +100,7 @@ public class InternalParentTree extends Div {
 			s = new Socket("127.0.0.1", port);
 			//			connected = true;
 			outputStream = s.getOutputStream();
-			String msg = name;
+			String msg = "OPENFILE " + name;
 			outputStream.write(msg.getBytes("UTF-8"));
 			outputStream.close();
 			s.close();

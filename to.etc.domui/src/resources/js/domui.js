@@ -2038,9 +2038,9 @@ var WebUI = {
 				WebUI._debugLastKeypress = t;
 				return;
 			}
-			console.debug("double ", e);
+//			console.debug("double ", e);
 
-			WebUI._NOMOVE = true;
+//			WebUI._NOMOVE = true;
 			//-- Send a DEBUG command to the server, indicating the current node below the last mouse move....
 			var id = WebUI.nearestID(WebUI._debugMouseTarget);
 //			console.debug("idis  "+id+", m="+WebUI._debugMouseTarget);
