@@ -1367,4 +1367,5 @@ body,html {
 	border-bottom: 1px dotted #444444;
 	cursor: crosshair;
 	color: white;
+	white-space: nowrap;
 }
