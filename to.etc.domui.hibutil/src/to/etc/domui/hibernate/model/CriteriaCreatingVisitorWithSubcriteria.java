@@ -451,7 +451,7 @@ public class CriteriaCreatingVisitorWithSubcriteria extends QNodeVisitorBase {
 		//-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
 		int fkindex = findCruddyChildProperty(childmd, keyCols);
 		if(fkindex < 0)
-			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + keyCols);
+			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + Arrays.toString(keyCols));
 		String childupprop = childmd.getPropertyNames()[fkindex];
 
 		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
@@ -828,7 +828,7 @@ public class CriteriaCreatingVisitorWithSubcriteria extends QNodeVisitorBase {
 		//-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
 		int fkindex = findCruddyChildProperty(childmd, keyCols);
 		if(fkindex < 0)
-			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + keyCols);
+			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + Arrays.toString(keyCols));
 		String childupprop = childmd.getPropertyNames()[fkindex];
 
 		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
