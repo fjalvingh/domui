@@ -67,10 +67,21 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	private NodeContainer m_delegate;
 
-	public NodeContainer(final String tag) {
+	/**
+	 * Create a container with the specified tag name.
+	 * @param tag
+	 */
+	public NodeContainer(@Nonnull final String tag) {
 		super(tag);
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Internal state & delta indicators.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @return
+	 */
 	final boolean mustRenderChildrenFully() {
 		return m_mustRenderChildrenFully;
 	}
@@ -85,19 +96,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	final void setMustRenderChildrenFully() {
 		setMustRenderChildrenFully(true);
-	}
-
-	final protected void delegateTo(NodeContainer c) {
-		m_delegate = c;
-	}
-
-	/**
-	 * Override to check if special node types can be contained in this.
-	 * @param node
-	 * @return
-	 */
-	@OverridingMethodsMustInvokeSuper
-	protected void canContain(final NodeBase node) {
 	}
 
 	final void childChanged() {
@@ -128,43 +126,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	final List<NodeBase> internalGetChildren() {
 		return m_children;
-	}
-
-	/**
-	 * Return an iterator that iterates over all children, in order.
-	 * @see java.lang.Iterable#iterator()
-	 */
-	@Override
-	final public Iterator<NodeBase> iterator() {
-		return m_children.iterator();
-	}
-
-	/**
-	 * Return the #of children of this container.
-	 * @return
-	 */
-	final public int getChildCount() {
-		return m_children.size();
-	}
-
-	/**
-	 * Return the index of the specified child, if present. Returns -1 if not found.
-	 * @param b
-	 * @return
-	 */
-	final public int findChildIndex(final NodeBase b) {
-		if(b.getParent() != this)
-			return -1;
-		return m_children.indexOf(b);
-	}
-
-	/**
-	 * Get the nth child.
-	 * @param i
-	 * @return
-	 */
-	final public NodeBase getChild(final int i) {
-		return m_children.get(i);
 	}
 
 	/**
@@ -216,6 +177,52 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return m_oldChildren;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Tree accessors.										*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Return an iterator that iterates over all children, in order.
+	 * @see java.lang.Iterable#iterator()
+	 */
+	@Override
+	@Nonnull
+	final public Iterator<NodeBase> iterator() {
+		return m_children.iterator();
+	}
+
+	/**
+	 * Return the #of children of this container.
+	 * @return
+	 */
+	final public int getChildCount() {
+		return m_children.size();
+	}
+
+	/**
+	 * Return the index of the specified child, if present. Returns -1 if not found.
+	 * @param b
+	 * @return
+	 */
+	final public int findChildIndex(@Nonnull final NodeBase b) {
+		if(b.getParent() != this)
+			return -1;
+		return m_children.indexOf(b);
+	}
+
+	/**
+	 * Get the nth child.
+	 * @param i
+	 * @return
+	 */
+	@Nonnull
+	final public NodeBase getChild(final int i) {
+		return m_children.get(i);
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Tree delta manipulation, internals.					*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Most of the logic to properly indicate that this node's children have changed.
 	 */
@@ -235,52 +242,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		}
 	}
 
-	/**
-	 * Add the child at the end of the list.
-	 * @param nd
-	 */
-	final public void add(final NodeBase nd) {
-		add(Integer.MAX_VALUE, nd);
-	}
-
-	/**
-	 * Add the child at the specified index in the child list.
-	 * @param index
-	 * @param nd
-	 */
-	final public void add(final int index, final NodeBase nd) {
-		if(m_delegate != null) {
-			m_delegate.add(index, nd);
-			return;
-		}
-		if(nd == this)
-			throw new IllegalStateException("Attempt to add a node " + nd + " to itself as a child.");
-
-		canContain(nd);
-		if(m_children == Collections.EMPTY_LIST)
-			m_children = new ArrayList<NodeBase>();
-		nd.remove(); // Make sure it is removed from wherever it came from,
-		if(nd instanceof TextNode)
-			setMustRenderChildrenFully();
-		treeChanging();
-		//		registerWithPage(nd);			// jal 20080929 Moved downwards to allow tree to be visible at onAddedToPage() event time
-		if(index >= m_children.size())
-			m_children.add(nd);
-		else
-			m_children.add(index, nd);
-		nd.setParent(this);
-		registerWithPage(nd); // ORDERED Must be AFTER hanging this into the tree
-		childChanged();
-	}
-
-	/**
-	 * Add a #text node.
-	 * @param txt
-	 */
-	final public void add(final String txt) {
-		if(txt != null)
-			add(new TextNode(txt));
-	}
 
 	/**
 	 * Registers all children of a registered parent node. Since this calls onAddedToPage() while
@@ -311,7 +272,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * --]
 	 * @param child
 	 */
-	final private void registerWithPage(final NodeBase child) {
+	final private void registerWithPage(@Nonnull final NodeBase child) {
 		if(getPage() == null) // No page-> cannot register
 			return;
 		child.registerWithPage(getPage());
@@ -324,16 +285,95 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @see to.etc.domui.dom.html.NodeBase#registerWithPage(to.etc.domui.dom.html.Page)
 	 */
 	@Override
-	final void registerWithPage(final Page p) {
+	final void registerWithPage(@Nonnull final Page p) {
 		super.registerWithPage(p); // Base registration of *this*
 		registerChildren();
+	}
+
+	/**
+	 * The NodeContainer version of this call unregisters itself AND all it's children, recursively.
+	 * @see to.etc.domui.dom.html.NodeBase#unregisterFromPage()
+	 */
+	@Override
+	final void unregisterFromPage() {
+		for(int i = 0; i < 50; i++) {
+			try {
+				for(NodeBase b : m_children) {
+					if(this == b)
+						throw new IllegalStateException("Internal: somehow I (the parent) is also present in my own list-of-children!?");
+					b.unregisterFromPage(); // This one already checks if the thing is registered so it can be retried.
+				}
+				super.unregisterFromPage();
+				return;
+			} catch(ConcurrentModificationException x) {}
+		}
+		throw new IllegalStateException("unregisterFromPage: keeps throwing ConcurrentModificationExceptions!??");
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Tree manipulation.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Override to check if special node types can be contained in this.
+	 * @param node
+	 * @return
+	 */
+	@OverridingMethodsMustInvokeSuper
+	protected void canContain(@Nonnull final NodeBase node) {}
+
+	/**
+	 * Add the child at the end of the list.
+	 * @param nd
+	 */
+	final public void add(@Nonnull final NodeBase nd) {
+		add(Integer.MAX_VALUE, nd);
+	}
+
+	/**
+	 * Add the child at the specified index in the child list.
+	 * @param index
+	 * @param nd
+	 */
+	final public void add(final int index, @Nonnull final NodeBase nd) {
+		if(m_delegate != null) {
+			m_delegate.add(index, nd);
+			return;
+		}
+		if(nd == this)
+			throw new IllegalStateException("Attempt to add a node " + nd + " to itself as a child.");
+
+		canContain(nd);
+		if(m_children == Collections.EMPTY_LIST)
+			m_children = new ArrayList<NodeBase>();
+		nd.remove(); // Make sure it is removed from wherever it came from,
+		if(nd instanceof TextNode)
+			setMustRenderChildrenFully();
+		treeChanging();
+		//		registerWithPage(nd);			// jal 20080929 Moved downwards to allow tree to be visible at onAddedToPage() event time
+		if(index >= m_children.size())
+			m_children.add(nd);
+		else
+			m_children.add(index, nd);
+		nd.setParent(this);
+		registerWithPage(nd); // ORDERED Must be AFTER hanging this into the tree
+		childChanged();
+	}
+
+	/**
+	 * Add a #text node.
+	 * @param txt
+	 */
+	final public void add(@Nullable final String txt) {
+		if(txt != null)
+			add(new TextNode(txt));
 	}
 
 	/**
 	 * Remove a child node from me. This also removes ALL descendants from the current page's view.
 	 * @param child
 	 */
-	final public void removeChild(final NodeBase child) {
+	final public void removeChild(@Nonnull final NodeBase child) {
 		if(child.getParent() != this)
 			throw new IllegalStateException("Child " + child + " is not a child of container " + this);
 		int ix = m_children.indexOf(child);
@@ -351,6 +391,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param index
 	 * @return
 	 */
+	@Nonnull
 	final public NodeBase removeChild(final int index) {
 		if(index < 0 || index >= m_children.size())
 			throw new IllegalStateException("Bad delete index " + index + " on node " + this + " with " + m_children.size() + " children");
@@ -369,7 +410,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param child
 	 * @param nw
 	 */
-	final public void replaceChild(final NodeBase child, final NodeBase nw) {
+	final public void replaceChild(@Nonnull final NodeBase child, @Nonnull final NodeBase nw) {
 		//-- Find old child's index.
 		if(child.getParent() != this)
 			throw new IllegalStateException("Child " + child + " is not a child of container " + this);
@@ -407,26 +448,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	/**
-	 * The NodeContainer version of this call unregisters itself AND all it's children, recursively.
-	 * @see to.etc.domui.dom.html.NodeBase#unregisterFromPage()
-	 */
-	@Override
-	final void unregisterFromPage() {
-		for(int i = 0; i < 50; i++) {
-			try {
-				for(NodeBase b : m_children) {
-					if(this == b)
-						throw new IllegalStateException("Internal: somehow I (the parent) is also present in my own list-of-children!?");
-					b.unregisterFromPage(); // This one already checks if the thing is registered so it can be retried.
-				}
-				super.unregisterFromPage();
-				return;
-			} catch(ConcurrentModificationException x) {}
-		}
-		throw new IllegalStateException("unregisterFromPage: keeps throwing ConcurrentModificationExceptions!??");
-	}
-
-	/**
 	 * This destroys all existing nodes and causes this node to be rebuilt the next time the
 	 * tree is rendered.
 	 */
@@ -450,7 +471,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 *
 	 * @param txt
 	 */
-	public void setText(final String txt) {
+	public void setText(@Nullable final String txt) {
 		setMustRenderChildrenFully();
 		if(getChildCount() == 1) {
 			if(getChild(0) instanceof TextNode) {
@@ -465,33 +486,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		//-- Drop all children
 		while(getChildCount() > 0)
 			removeChild(getChild(getChildCount() - 1));
-		TextNode t = new TextNode(txt);
-		add(t);
-	}
-
-	/**
-	 * Put a converted value in this cell's text.
-	 * @param <T>
-	 * @param <C>
-	 * @param conv
-	 * @param value
-	 * @throws Exception
-	 */
-	public <T, C extends IConverter<T>> void setValue(Class<C> conv, T value) throws Exception {
-		setText(ConverterRegistry.convertValueToString(conv, value));
-	}
-
-	final public IErrorFence getErrorFence() {
-		return m_errorFence;
-	}
-
-	final public void setErrorFence(final IErrorFence errorFence) {
-		m_errorFence = errorFence;
-	}
-
-	final public void setErrorFence() {
-		if(m_errorFence == null)
-			m_errorFence = new ErrorFenceHandler(this);
+		if(null != txt) {
+			TextNode t = new TextNode(txt);
+			add(t);
+		}
 	}
 
 	@Override
@@ -532,7 +530,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param ofClass
 	 * @return
 	 */
-	final public <T> List<T> getChildren(Class<T> ofClass) {
+	final public <T> List<T> getChildren(@Nonnull Class<T> ofClass) {
 		List<T> res = null;
 		for(NodeBase b : m_children) {
 			if(ofClass.isAssignableFrom(b.getClass())) {
@@ -550,7 +548,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param ofClass
 	 * @return
 	 */
-	final public <T> List<T> getDeepChildren(Class<T> ofClass) {
+	final public <T> List<T> getDeepChildren(@Nonnull Class<T> ofClass) {
 		List<T> res = new ArrayList<T>();
 		internalDeepChildren(res, ofClass);
 		return res;
@@ -577,7 +575,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @return
 	 */
 	@Deprecated
-	final public <T> T getDeepChild(Class<T> ofClass, int instance) {
+	final public <T> T getDeepChild(@Nonnull Class<T> ofClass, int instance) {
 		List<T> res = getDeepChildren(ofClass);
 		if(res.size() <= instance)
 			throw new ProgrammerErrorException("Cannot find the " + instance + "th instance of a " + ofClass + " in subtree");
@@ -642,6 +640,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			b.setControlsEnabled(on);
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Miscellaneous										*/
+	/*--------------------------------------------------------------*/
+
 	/**
 	 * Default onRefresh for a container will call refresh on all children.
 	 *
@@ -651,5 +653,35 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	protected void onRefresh() throws Exception {
 		for(int i = 0; i < m_children.size(); i++)
 			m_children.get(i).onRefresh();
+	}
+
+	final protected void delegateTo(@Nullable NodeContainer c) {
+		m_delegate = c;
+	}
+
+	/**
+	 * Put a converted value in this cell's text.
+	 * @param <T>
+	 * @param <C>
+	 * @param conv
+	 * @param value
+	 * @throws Exception
+	 */
+	public <T, C extends IConverter<T>> void setValue(@Nonnull Class<C> conv, @Nullable T value) throws Exception {
+		setText(ConverterRegistry.convertValueToString(conv, value));
+	}
+
+	@Nullable
+	final public IErrorFence getErrorFence() {
+		return m_errorFence;
+	}
+
+	final public void setErrorFence(@Nullable final IErrorFence errorFence) {
+		m_errorFence = errorFence;
+	}
+
+	final public void setErrorFence() {
+		if(m_errorFence == null)
+			m_errorFence = new ErrorFenceHandler(this);
 	}
 }
