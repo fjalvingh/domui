@@ -31,6 +31,14 @@ import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
+/**
+ * This class can be used as a "proxy class" or "delegate class" to another ClassMetaModel
+ * instance. You can then override the methods you need changed only while all others are
+ * delegated to the original metamodel.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Dec 28, 2010
+ */
 public class ClassMetaModelWrapper implements ClassMetaModel {
 	private ClassMetaModel m_parent;
 

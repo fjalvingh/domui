@@ -195,8 +195,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param nd
 	 */
 	public void add(final NodeBase nd) {
-		add(m_children.size(), nd);
-		//		
+		add(-1, nd);
+		//
 		//		if(m_delegate != null) {
 		//			m_delegate.add(nd);
 		//			return;
@@ -233,7 +233,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			setMustRenderChildrenFully();
 		treeChanging();
 		//		registerWithPage(nd);			// jal 20080929 Moved downwards to allow tree to be visible at onAddedToPage() event time
-		m_children.add(index, nd);
+		if(index < 0)
+			m_children.add(nd);
+		else
+			m_children.add(index, nd);
 		nd.setParent(this);
 		registerWithPage(nd); // ORDERED Must be AFTER hanging this into the tree
 		childChanged();
