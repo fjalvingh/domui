@@ -8,6 +8,7 @@
 			<exclude name="**/.*/**" />
 	    		<include name="**/jsr305.jar"/>
 	    		<include name="**/to.etc.alg.jar"/>
+	    		<include name="**/to.etc.db.jar"/>
     			<include name="**/lib-hibernate/*.jar"/>
 
 	    		<!-- DomUI dependencies -->
