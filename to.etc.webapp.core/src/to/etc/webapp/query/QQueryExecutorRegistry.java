@@ -42,6 +42,10 @@ final public class QQueryExecutorRegistry {
 		return m_instance;
 	}
 
+	public synchronized int size() {
+		return m_queryRendererList.size();
+	}
+
 	public synchronized void register(IQueryExecutorFactory cf) {
 		m_queryRendererList = new ArrayList<IQueryExecutorFactory>(m_queryRendererList);
 		m_queryRendererList.add(cf);
