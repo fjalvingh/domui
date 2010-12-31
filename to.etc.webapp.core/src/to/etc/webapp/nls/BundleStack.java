@@ -88,6 +88,8 @@ public class BundleStack extends BundleBase implements IBundle {
 			br = BundleRef.create(clz, "messages");
 			if(br.exists())
 				res.add(br);
+
+			cur = cur.getSuperclass();
 		}
 		if(res.size() == 0)
 			return null;
