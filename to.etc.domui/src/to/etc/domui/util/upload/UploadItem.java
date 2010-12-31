@@ -135,6 +135,7 @@ final public class UploadItem {
 	/**
 	 * When the request finishes and no-one has gotten this parameter the file must be discarded.
 	 */
+	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE", justification = "FindBugs definition is wrong for mkdirs, and delete() may fail in code here")
 	void discard() {
 		if(m_backingFile == null)
 			return;

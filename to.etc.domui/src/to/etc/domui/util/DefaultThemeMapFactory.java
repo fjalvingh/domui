@@ -69,6 +69,7 @@ public class DefaultThemeMapFactory implements IThemeMapFactory {
 		return map;
 	}
 
+	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "OS_OPEN_STREAM", justification = "Stream is closed closing wrapped instance.")
 	public Map<String, Object> readProperties(DomApplication da, ResourceDependencyList rdl) throws Exception {
 		String rurl = "$themes/" + da.getDefaultTheme() + "/style.properties";
 		IResourceRef ires = findRef(da, rurl, rdl);
