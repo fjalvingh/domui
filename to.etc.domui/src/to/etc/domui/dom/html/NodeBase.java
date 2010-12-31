@@ -35,6 +35,7 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -127,7 +128,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	@Nullable
 	private List<String> m_specialAttributes;
 
-	private boolean m_focusRequested;
+	static private final byte F_FOCUSREQUESTED = 0x01;
+
+	static private final byte F_BUNDLEFOUND = 0x02;
+
+	static private final byte F_BUNDLEUSED = 0x04;
+
+	private byte m_flags;
 
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
@@ -979,6 +986,77 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 
 	/*--------------------------------------------------------------*/
+	/*	CODING:	Internationalization helper methods.				*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * When known, this contains the bundle stack containing all message bundles for this class <b>and all it's
+	 * parents</b>. It is looked up only once, if the F_BUNDLEFOUND flag is not yet set.
+	 */
+	private IBundle m_componentBundle;
+
+	/**
+	 * Set a message bundle for this component. This overrides any and all auto-lookup mechanism, and can
+	 * only be used <i>before</i> the message bundle is ever used (any call to $(), findComponentBundle()
+	 * and whatnot). Explicitly setting the bundle to null prevents any bundle lookup, and makes all bundle
+	 * related calls fail.
+	 *
+	 * @param bundle
+	 */
+	final public void setComponentBundle(@Nullable IBundle bundle) {
+		if(0 != (m_flags & F_BUNDLEUSED))
+			throw new IllegalStateException("The component bundle can only be set BEFORE it is used.");
+		m_componentBundle = bundle;
+		m_flags |= F_BUNDLEFOUND; // Set the 'found' flag to prevent the bundle from being looked up.
+	}
+
+	/**
+	 * Returns the component's message bundle stack. This is either explicitly set using {@link #setComponentBundle(IBundle)}, or
+	 * the component searches for a stack of message bundles by locating [classname] and "message" bundles for itself and all
+	 * it's parent classes. If no message bundles are found at all this will return null.
+	 *
+	 * @return
+	 */
+	@Nullable
+	final public IBundle findComponentBundle() {
+		if((m_flags & F_BUNDLEFOUND) == 0) { // Not looked up yet?
+			m_componentBundle = BundleStack.createStack(getClass()); // Create the bundle stack for this component.
+			m_flags |= F_BUNDLEFOUND;
+		}
+		m_flags |= F_BUNDLEUSED;
+		return m_componentBundle;
+	}
+
+	/**
+	 * Returns the component's message bundle stack. This is either explicitly set using {@link #setComponentBundle(IBundle)}, or
+	 * the component searches for a stack of message bundles by locating [classname] and "message" bundles for itself and all
+	 * it's parent classes. If no message bundles are found at all this throws an IllegalStateException.
+	 *
+	 * @return
+	 */
+	@Nonnull
+	final public IBundle getComponentBundle() {
+		IBundle b = findComponentBundle();
+		if(null == b)
+			throw new IllegalStateException("The component " + this.getClass() + " does not have any message bundle.");
+		return b;
+	}
+
+	/**
+	 * Translate the key passed into a message string, using the component's message bundle. See {@link #setComponentBundle(IBundle)} and
+	 * {@link #findComponentBundle()} for details on how a component find it's messages.
+	 * @param key
+	 * @param param
+	 * @return
+	 */
+	public String $(String key, Object... param) {
+		IBundle br = getComponentBundle();
+		if(key.startsWith("~")) // Prevent silly bugs.
+			key = key.substring(1);
+		return br.formatMessage(key, param);
+	}
+
+	/*--------------------------------------------------------------*/
 	/*	CODING:	Overridable event methods.							*/
 	/*--------------------------------------------------------------*/
 
@@ -1148,7 +1226,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	public void setFocus() {
 		if(getPage() == null) {
 			//-- Mark this as a component wanting the focus.
-			m_focusRequested = true;
+			m_flags |= F_FOCUSREQUESTED;
 		} else
 			getPage().setFocusComponent(this);
 	}
@@ -1157,15 +1235,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Returns T if this control has requested the focus.
 	 * @return
 	 */
-	public boolean isFocusRequested() {
-		return m_focusRequested;
+	final public boolean isFocusRequested() {
+		return (m_flags & F_FOCUSREQUESTED) != 0;
 	}
 
 	/**
 	 * Reset the "request focus" flag.
 	 */
-	public void clearFocusRequested() {
-		m_focusRequested = false;
+	final public void clearFocusRequested() {
+		m_flags &= F_FOCUSREQUESTED;
 	}
 
 	public final void refresh() throws Exception {

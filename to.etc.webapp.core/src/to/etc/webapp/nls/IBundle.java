@@ -26,25 +26,39 @@ package to.etc.webapp.nls;
 
 import java.util.*;
 
-import javax.annotation.*;
-
 /**
- * Something which can provide a message for a given code and locale.
+ * Base interface for all resource bundle constructs.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Oct 10, 2006
+ * Created on Dec 31, 2010
  */
-public interface NlsMessageProvider {
+public interface IBundle extends NlsMessageProvider {
 	/**
-	 * Locate the specified key for the specified locale. This does fallback, meaning that if the exact
-	 * locale is not matched it will try a less restrictive one, until the empty (default) locale has
-	 * been reached. The first match is returned; if not even the empty locale returns a match this
-	 * returns null.
-	 *
+	 * Returns a translation of key in the specified locale (or the one
+	 * closest to it). If no translation exists for the message in the
+	 * specified bundle then we try the "default" bundle; if it still
+	 * does not exist we return a string containing the key with ????.
 	 * @param loc
-	 * @param code
+	 * @param key
+	 * @throws  ResourceNotFoundException the bundle cannot be located.
+	 */
+	String getString(final Locale loc, final String key);
+
+	/**
+	 * Returns the translation of the key passed in the <i>current</i> client
+	 * locale.
+	 *
+	 * @param key
 	 * @return
 	 */
-	@Nullable
-	String findMessage(@Nonnull Locale loc, @Nonnull String code);
+	String getString(final String key);
+
+	/**
+	 * Gets the string, and applies default message formatting using the parameters
+	 * passed in the current locale.
+	 * @param key
+	 * @param param
+	 * @return
+	 */
+	String formatMessage(final String key, final Object... param);
 }

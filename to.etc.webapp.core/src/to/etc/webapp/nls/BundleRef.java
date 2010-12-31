@@ -25,7 +25,6 @@
 package to.etc.webapp.nls;
 
 import java.io.*;
-import java.text.*;
 import java.util.*;
 
 /**
@@ -42,7 +41,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 18, 2006
  */
-final public class BundleRef implements NlsMessageProvider {
+final public class BundleRef extends BundleBase implements IBundle {
 	private ClassLoader m_loader;
 
 	private final String m_bundleKey;
@@ -121,7 +120,7 @@ final public class BundleRef implements NlsMessageProvider {
 	 * @return
 	 * @throws ResourceNotFoundException if ...
 	 */
-	public synchronized ResourceBundle[] getBundleList(final Locale loc) {
+	private synchronized ResourceBundle[] getBundleList(final Locale loc) {
 		ResourceBundle[] r = (ResourceBundle[]) m_map.get(loc);
 		if(r == null) {
 			r = loadBundleList(loc); // Load bundle list from classpath
@@ -136,6 +135,7 @@ final public class BundleRef implements NlsMessageProvider {
 		return getBundleList(Locale.US).length != 0;
 	}
 
+	@Override
 	public String findMessage(final Locale loc, final String code) {
 		if(m_parent != null)
 			return m_parent.findMessage(loc, code);
@@ -150,27 +150,13 @@ final public class BundleRef implements NlsMessageProvider {
 	}
 
 	/**
-	 * Returns a translation of key in the specified locale (or the one
-	 * closest to it). If no translation exists for the message in the
-	 * specified bundle then we try the "default" bundle; if it still
-	 * does not exist we return a string containing the key with ????.
-	 * @param loc
-	 * @param key
-	 * @throws  ResourceNotFoundException the bundle cannot be located.
-	 */
-	public String getString(final Locale loc, final String key) {
-		String msg = findMessage(loc, key);
-		return msg != null ? msg : "???" + key + "???";
-	}
-
-	/**
 	 * Overrides the stupid ResourceBundle resolution mechanism. This ignores the
 	 * default language. In addition, it re-uses existing bundles.
 	 *
 	 * @param loc
 	 * @return
 	 */
-	private ResourceBundle[] loadBundleList(final Locale loc) {
+	private synchronized ResourceBundle[] loadBundleList(final Locale loc) {
 		List<ResourceBundle> rb = new ArrayList<ResourceBundle>();
 		tryKey(rb, mkSubKey(loc.getLanguage(), loc.getCountry(), loc.getVariant(), NlsContext.getDialect()));
 		tryKey(rb, mkSubKey(loc.getLanguage(), loc.getCountry(), loc.getVariant(), null));
@@ -239,30 +225,5 @@ final public class BundleRef implements NlsMessageProvider {
 			sb.append(variant);
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * Returns the translation of the key passed in the <i>current</i> client
-	 * locale.
-	 *
-	 * @param key
-	 * @return
-	 */
-	public String getString(final String key) {
-		return getString(NlsContext.getLocale(), key);
-	}
-
-	/**
-	 * Gets the string, and applies default message formatting using the parameters
-	 * passed in the current locale.
-	 * @param key
-	 * @param param
-	 * @return
-	 */
-	public String formatMessage(final String key, final Object... param) {
-		String s = findMessage(NlsContext.getLocale(), key);
-		if(s == null)
-			return "???" + key + "???";
-		return MessageFormat.format(s, param);
 	}
 }
