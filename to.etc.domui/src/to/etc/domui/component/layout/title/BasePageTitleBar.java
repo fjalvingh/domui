@@ -4,7 +4,6 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 public abstract class BasePageTitleBar extends Div {
-
 	private String m_title;
 
 	private boolean m_showAsModified;
@@ -31,12 +30,11 @@ public abstract class BasePageTitleBar extends Div {
 		return m_showAsModified;
 	}
 
-	public void setPageTitle(String ttl) throws Exception {
+	public void setPageTitle(String ttl) {
 		m_title = ttl;
 	}
 
-	public void setShowAsModified(boolean showAsModified) throws Exception {
+	public void setShowAsModified(boolean showAsModified) {
 		m_showAsModified = showAsModified;
 	}
-
 }

@@ -33,8 +33,6 @@ import to.etc.domui.util.*;
 public class BasicPage<T> extends UrlPage {
 	private Class<T> m_baseClass;
 
-	private String m_pageTitle;
-
 	private BasePageTitleBar m_titleBar;
 
 	public BasicPage(Class<T> baseClass) {
@@ -43,7 +41,7 @@ public class BasicPage<T> extends UrlPage {
 
 	public BasicPage(Class<T> baseClass, String txt) {
 		m_baseClass = baseClass;
-		m_pageTitle = txt;
+		setPageTitle(txt);
 	}
 
 	public Class<T> getBaseClass() {
@@ -57,13 +55,10 @@ public class BasicPage<T> extends UrlPage {
 		addPageTitleBar();
 	}
 
-	public String getPageTitle() {
-		return m_pageTitle;
-	}
-
-	public void setPageTitle(String pageTitle) throws Exception {
-		if(!DomUtil.isEqual(m_pageTitle, pageTitle)) {
-			m_pageTitle = pageTitle;
+	@Override
+	public void setPageTitle(String pageTitle) {
+		if(!DomUtil.isEqual(getPageTitle(), pageTitle)) {
+			super.setPageTitle(pageTitle);
 			if(m_titleBar != null) {
 				m_titleBar.setPageTitle(pageTitle);
 			}
@@ -78,7 +73,7 @@ public class BasicPage<T> extends UrlPage {
 	 * By default this method returns {@link DomApplication#getDefaultPageTitleBar(String)}.
 	 */
 	protected void addPageTitleBar() {
-		m_titleBar = DomApplication.get().getDefaultPageTitleBar(m_pageTitle);
+		m_titleBar = DomApplication.get().getDefaultPageTitleBar(getPageTitle());
 		add(m_titleBar);
 	}
 

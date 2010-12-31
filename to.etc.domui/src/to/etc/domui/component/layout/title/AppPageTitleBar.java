@@ -29,6 +29,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
  * A page title bar. This consists of an image in the left corner, a string describing the
@@ -158,7 +159,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 	}
 
 	@Override
-	public void setPageTitle(String ttl) throws Exception {
+	public void setPageTitle(String ttl) {
 		if(DomUtil.isEqual(getPageTitle(), ttl))
 			return;
 
@@ -192,7 +193,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 	}
 
 	@Override
-	public void setShowAsModified(boolean showAsModified) throws Exception {
+	public void setShowAsModified(boolean showAsModified) {
 		if(super.isShowAsModified() != showAsModified) {
 			super.setShowAsModified(showAsModified);
 			if(isBuilt()) {
@@ -201,10 +202,14 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		}
 	}
 
-	private void renderTitleCell() throws Exception {
+	private void renderTitleCell() {
 		TD titleCell = getTitlePart();
 		if(m_titleNodeRenderer != null) {
-			m_titleNodeRenderer.renderNodeContent(this, titleCell, getPageTitle(), Boolean.valueOf(isShowAsModified()));
+			try {
+				m_titleNodeRenderer.renderNodeContent(this, titleCell, getPageTitle(), Boolean.valueOf(isShowAsModified()));
+			} catch(Exception x) {
+				throw WrappedException.wrap(x); // Oh, the glory of checked exceptions. So useful. Sigh.
+			}
 		} else {
 			internalRenderTitle();
 		}

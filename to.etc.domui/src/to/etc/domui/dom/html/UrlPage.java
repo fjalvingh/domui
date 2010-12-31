@@ -41,6 +41,9 @@ public class UrlPage extends Div {
 	/** Cached bundle for the page. If the bundle is not found this contains null.. */
 	private BundleRef m_pageBundle;
 
+	/** The title for the page in the head's TITLE tag. */
+	private String m_pageTitle;
+
 	/**
 	 * Gets called when a page is reloaded (for ROOT pages only).
 	 */
@@ -78,5 +81,22 @@ public class UrlPage extends Div {
 		if(key.startsWith("~")) // Prevent silly bugs.
 			key = key.substring(1);
 		return br.formatMessage(key, param);
+	}
+
+	/**
+	 * Get the head's "title" tag for this page. This will show that title in the browser's top window.
+	 * @return
+	 */
+	public String getPageTitle() {
+		return m_pageTitle;
+	}
+
+	/**
+	 * Set the head's "title" tag for this page. This will show that title in the browser's top window.
+	 *
+	 * @param pageTitle
+	 */
+	public void setPageTitle(String pageTitle) {
+		m_pageTitle = pageTitle;
 	}
 }

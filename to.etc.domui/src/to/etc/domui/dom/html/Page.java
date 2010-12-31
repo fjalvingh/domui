@@ -57,8 +57,6 @@ final public class Page implements IQContextContainer {
 	/** Temp work buffer to prevent lots of allocations. */
 	private StringBuilder m_sb;
 
-	private String m_title;
-
 	/**
 	 * The set of parameters that was used at page creation time.
 	 */
@@ -377,16 +375,12 @@ final public class Page implements IQContextContainer {
 		m_lastContributorIndex = m_orderedContributorList == null ? 0 : m_orderedContributorList.size();
 	}
 
+	/**
+	 * Return the BODY component for this page.
+	 * @return
+	 */
 	public UrlPage getBody() {
 		return m_rootContent;
-	}
-
-	public String getTitle() {
-		return m_title;
-	}
-
-	public void setTitle(final String title) {
-		m_title = title;
 	}
 
 	public <T> void setData(final T inst) {
