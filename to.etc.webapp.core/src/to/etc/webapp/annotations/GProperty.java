@@ -36,7 +36,7 @@ import java.lang.annotation.*;
  * Created on Jan 3, 2010
  */
 @Target(value = ElementType.PARAMETER)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface GProperty {
 	int parameter() default -1;
 }

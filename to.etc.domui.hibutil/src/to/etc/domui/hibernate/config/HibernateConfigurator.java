@@ -193,15 +193,7 @@ final public class HibernateConfigurator {
 	}
 
 	/**
-	 * Register a DomUI {@link IQueryListener} that will be called when DomUI executes {@link QCriteria} queries. <b>WARNING</b>: if
-	 * you use this call <i>all default query executors are not registered</i>. This allows you to override them if needed. It also
-	 * means that <i>no Hibernate QCriteria code works at all</i> if you do not add them! The default factories should be registered
-	 * as follows:
-	 * <pre>
-	 * registerQueryListener(JdbcQueryExecutor.FACTORY);
-	 * registerQueryListener(HibernateQueryExecutor.FACTORY);
-	 * </pre>
-	 * By ordering your executors with the default ones you can control the order of acceptance for queries.
+	 * Register a DomUI {@link IQueryListener} that will be called when DomUI executes {@link QCriteria} queries.
 	 * @param ql
 	 */
 	static public void registerQueryListener(IQueryListener ql) {
@@ -211,7 +203,15 @@ final public class HibernateConfigurator {
 
 	/**
 	 * Register an alternative {@link IQueryExecutorFactory} which can execute QCriteria queries on non-hibernate
-	 * classes.
+	 * classes. <b>WARNING</b>: if
+	 * you use this call <i>all default query executors are not registered</i>. This allows you to override them if needed. It also
+	 * means that <i>no Hibernate QCriteria code works at all</i> if you do not add them! The default factories should be registered
+	 * as follows:
+	 * <pre>
+	 * registerQueryListener(JdbcQueryExecutor.FACTORY);
+	 * registerQueryListener(HibernateQueryExecutor.FACTORY);
+	 * </pre>
+	 * By ordering your executors with the default ones you can control the order of acceptance for queries.
 	 * @param qexecutor
 	 */
 	static public void registerQueryExecutor(IQueryExecutorFactory qexecutor) {
