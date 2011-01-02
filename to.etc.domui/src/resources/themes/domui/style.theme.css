@@ -327,8 +327,10 @@ div.ui-popin {
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
-	font-size: <%= font_size %>;
 }
+.ui-lbtn-n {
+}
+
 a.ui-lbtn {
 	cursor: pointer;
 }
