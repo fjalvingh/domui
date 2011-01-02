@@ -152,14 +152,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	/*	CODING:	Private interfaces and code.						*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Do not use.
-	 * @param s
-	 */
-	final public void internalSetTagName(@Nonnull final String s) {
-		m_tag = s;
-	}
-
-	/**
 	 * INTERNAL ONLY Set when this node has changed attributes. Does not include child changes.
 	 * @return
 	 */

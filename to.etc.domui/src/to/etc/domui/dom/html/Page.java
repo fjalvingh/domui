@@ -135,7 +135,7 @@ final public class Page implements IQContextContainer {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
 		registerNode(pageContent); // First node.
-		pageContent.internalSetTagName("body"); // Override it's tagname
+		pageContent.internalSetTag("body"); // Override it's tagname
 		pageContent.setErrorFence(); // The body ALWAYS accepts ANY errors.
 
 		//-- Localize calendar resources
