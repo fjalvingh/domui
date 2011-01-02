@@ -600,7 +600,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o.attr("testid", b.getTestID());
 		if(b.getCssClass() != null)
 			o.attr("class", b.getCssClass());
-		String ttl = b.getLiteralTitle();
+		String ttl = b.getTitle();
 		if(ttl != null && !(b instanceof UrlPage)) // Do NOT render title on the thing representing the BODY.
 			o().attr("title", ttl);
 
@@ -739,7 +739,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	@Override
 	public void visitTextNode(final TextNode n) throws Exception {
-		String lit = n.getLiteralText(); // Get tilde-replaced text
+		String lit = n.getText();
 		if(lit != null && lit.length() > 0)
 			m_o.text(lit);
 	}

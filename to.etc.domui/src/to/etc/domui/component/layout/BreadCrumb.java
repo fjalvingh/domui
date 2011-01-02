@@ -91,8 +91,8 @@ public class BreadCrumb extends Div {
 			if(p.getBody() instanceof IBreadCrumbTitler) {
 				bcname = ((IBreadCrumbTitler) p.getBody()).getBreadcrumbName();
 				bctitle = ((IBreadCrumbTitler) p.getBody()).getBreadcrumbTitle();
-			} else if(!DomUtil.isBlank(p.getBody().getLiteralTitle())) {
-				bcname = p.getBody().getLiteralTitle();
+			} else if(!DomUtil.isBlank(p.getBody().getTitle())) {
+				bcname = p.getBody().getTitle();
 			} else {
 				bcname = p.getBody().getClass().getName();
 				bcname = bcname.substring(bcname.lastIndexOf('.') + 1);

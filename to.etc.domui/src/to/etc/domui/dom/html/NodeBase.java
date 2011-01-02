@@ -579,17 +579,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	/*	CODING:	Simple other getter and setter like stuff.			*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Return the <i>literal</i> text, with tilde replacement done. If the value set was
-	 * a resource key (a string starting with ~) this resolves the key into a string and
-	 * returns that. To obtain the key instead of the translated value use getTitle().
-	 *
-	 * @return
-	 */
-	public String getLiteralTitle() {
-		return DomUtil.replaceTilded(this, m_title); // FIXME Performance?
-	}
-
-	/**
 	 * Set the title attribute, using tilde replacement. If the string starts with a ~ it is
 	 * assumed to be a key into the page's resource bundle.
 	 *

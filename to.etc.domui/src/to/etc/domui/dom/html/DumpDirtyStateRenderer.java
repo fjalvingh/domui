@@ -63,7 +63,7 @@ public class DumpDirtyStateRenderer extends NodeVisitorBase {
 		if(n.isBuilt())
 			m_iw.print(" built");
 		if(n instanceof TextNode) {
-			String txt = ((TextNode) n).getLiteralText();
+			String txt = ((TextNode) n).getText();
 			if(txt.length() > 20)
 				txt = txt.substring(0, 17) + "...";
 			m_iw.print(" \"" + txt + "\"");

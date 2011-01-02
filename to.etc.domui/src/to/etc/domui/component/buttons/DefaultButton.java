@@ -175,8 +175,8 @@ public class DefaultButton extends Button {
 		sb.append(m_propSrc);
 		if(m_text != null) {
 			sb.append("&amp;txt=");
-			String text = DomUtil.replaceTilded(this, m_text);
-			StringTool.encodeURLEncoded(sb, text);
+			//			String text = DomUtil.replaceTilded(this, m_text);
+			StringTool.encodeURLEncoded(sb, m_text);
 		}
 		if(m_icon != null) {
 			sb.append("&amp;icon=");
