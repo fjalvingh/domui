@@ -320,8 +320,11 @@ public class OptimalDeltaRenderer {
 			nd.visit(m_fullRenderer);
 			o().closetag("prepend");
 		} else {
+			NodeBase pre = parent.getChild(nd.m_origNewIndex - 1);
+			if(pre instanceof TextNode)
+				throw new IllegalStateException("Internal: attempting to insert after a #text node");
 			o().tag("after");
-			o().attr("select", "#" + parent.getChild(nd.m_origNewIndex - 1).getActualID());
+			o().attr("select", "#" + pre.getActualID());
 			m_html.setTagless(false);
 			nd.visit(m_fullRenderer);
 			o().closetag("after");
@@ -736,13 +739,30 @@ public class OptimalDeltaRenderer {
 			ni.addAdd(nn.m_origNewIndex, nn);
 		}
 
+		/*
+		 * Lousy attempt at fixing bug# 659. If we can see we're inserting after a #text node- force
+		 * a re-render of the parent.
+		 */
+		for(NodeBase nb : ni.addList) {
+			if(nb.m_origNewIndex == 0)
+				continue;
+			NodeBase pre = nc.getChild(nb.m_origNewIndex - 1);
+			if(pre instanceof TextNode) {
+				ni.setFullRerender();
+				if(DEBUG)
+					System.out.println("o:   adding after #text " + nb.getActualID() + ", force full render");
+			}
+		}
+
 		//-- Re-decide again: if the #of adds and deletes is > the size of the new list we re-render
-		int ncmd = ni.deleteList.size() + ni.addList.size();
-		if((double) ncmd / (double) newl.size() > 0.9) {
-			//-- re-render fully.
-			ni.setFullRerender();
-			if(DEBUG)
-				System.out.println("o: final verdict on " + nc.getActualID() + ": #cmds=" + ncmd + " and newsize=" + newl.size() + ", rerender-fully.");
+		if(!ni.isFullRender) {
+			int ncmd = ni.deleteList.size() + ni.addList.size();
+			if((double) ncmd / (double) newl.size() > 0.9) {
+				//-- re-render fully.
+				ni.setFullRerender();
+				if(DEBUG)
+					System.out.println("o: final verdict on " + nc.getActualID() + ": #cmds=" + ncmd + " and newsize=" + newl.size() + ", rerender-fully.");
+			}
 		}
 
 		//-- Add this delta node to it's parent, if needed.
