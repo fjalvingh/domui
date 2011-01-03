@@ -328,14 +328,14 @@ div.ui-popin {
 	background-position: left;
 	padding-left: 18px;
 }
-.ui-lbtn-n {
+.ui-lnkb {
 }
 
-a.ui-lbtn {
+a.ui-lnkb {
 	cursor: pointer;
 }
 
-a:hover.ui-lbtn {
+a:hover.ui-lnkb {
 	text-decoration: underline !important;
 }
 

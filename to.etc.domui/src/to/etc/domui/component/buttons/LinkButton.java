@@ -42,25 +42,25 @@ public class LinkButton extends ATag {
 	public LinkButton() {}
 
 	public LinkButton(final String txt, final String image, final IClicked<LinkButton> clk) {
-		setCssClass("ui-lbtn");
+		setCssClass("ui-lnkb ui-lbtn");
 		setClicked(clk);
 		m_text = txt;
 		setImage(image);
 	}
 
 	public LinkButton(final String txt, final String image) {
-		setCssClass("ui-lbtn");
+		setCssClass("ui-lnkb ui-lbtn");
 		m_text = txt;
 		setImage(image);
 	}
 
 	public LinkButton(final String txt) {
-		setCssClass("ui-lbtn-n");
+		setCssClass("ui-lnkb");
 		m_text = txt;
 	}
 
 	public LinkButton(final String txt, final IClicked<LinkButton> clk) {
-		setCssClass("ui-lbtn-n");
+		setCssClass("ui-lnkb");
 		setClicked(clk);
 		m_text = txt;
 	}
@@ -85,10 +85,10 @@ public class LinkButton extends ATag {
 	private void updateStyle() {
 		if(m_imageUrl == null) {
 			setBackgroundImage(null);
-			setCssClass("ui-lbtn-n");
+			setCssClass("ui-lnkb");
 		} else {
 			setBackgroundImage(UIContext.getRequestContext().translateResourceName(m_imageUrl));
-			setCssClass("ui-lbtn");
+			setCssClass("ui-lnkb ui-lbtn");
 		}
 	}
 
