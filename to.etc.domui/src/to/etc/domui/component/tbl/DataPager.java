@@ -161,7 +161,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			m_nextBtn.setSrc("THEME/nav-next-dis.png");
 		} else {
 			m_lastBtn.setSrc("THEME/nav-last.png");
-			m_nextBtn.setSrc("THEME/nav-next.png");
+			m_nextBtn.setSrc("THEME/go-next-view.png.svg?w=16&h=16");
 		}
 		int tc = m_table.getTruncatedCount();
 		if(tc > 0) {
