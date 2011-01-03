@@ -44,6 +44,11 @@ final public class ResourceDependencyList {
 		m_deplist.add(new ResourceTimestamp(c, c.getLastModified()));
 	}
 
+	public void add(ResourceDependencyList c) {
+		for(ResourceTimestamp mr : c.m_deplist)
+			m_deplist.add(mr);
+	}
+
 	public boolean isModified() {
 		for(ResourceTimestamp c : m_deplist) {
 			if(c.isModified())

@@ -24,9 +24,12 @@
  */
 package to.etc.domui.component.tbl;
 
+import java.util.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
@@ -62,6 +65,14 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private Div m_buttonDiv;
 
+	private String m_nextImg, m_nextDisImg;
+
+	private String m_prevImg, m_prevDisImg;
+
+	private String m_firstImg, m_firstDisImg;
+
+	private String m_lastImg, m_lastDisImg;
+
 	public DataPager() {}
 
 	public DataPager(final TabularComponentBase< ? > tbl) {
@@ -71,6 +82,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	@Override
 	public void createContent() throws Exception {
+		init();
+
 		//-- The text part: message
 		Div d = new Div();
 		add(d);
@@ -78,9 +91,6 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		m_txt = new TextNode();
 		d.add(m_txt);
 		m_textDiv = d;
-		//		if(m_table != null) {
-		//			m_txt.setText("Pagina "+(m_table.getCurrentPage()+1)+" van "+m_table.getPageCount());
-		//		}
 
 		Div btn = new Div();
 		m_buttonDiv = btn;
@@ -134,6 +144,38 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		});
 	}
 
+	private void init() throws Exception {
+		if(m_nextImg != null)
+			return;
+
+		Map<String, Object> map = DomApplication.get().getThemeMap(null);
+		m_nextImg = get(map, "dpr.next", "THEME/nav-next.png");
+		m_prevImg = get(map, "dpr.prev", "THEME/nav-prev.png");
+		m_firstImg = get(map, "dpr.first", "THEME/nav-first.png");
+		m_lastImg = get(map, "dpr.last", "THEME/nav-last.png");
+
+		m_nextDisImg = get(map, "dpr.dis.next", "THEME/nav-next-dis.png");
+		m_prevDisImg = get(map, "dpr.dis.prev", "THEME/nav-prev-dis.png");
+		m_firstDisImg = get(map, "dpr.dis.first", "THEME/nav-first-dis.png");
+		m_lastDisImg = get(map, "dpr.dis.last", "THEME/nav-last-dis.png");
+	}
+
+	private static String enc(String in) {
+		return in;
+
+		//		return in.replace("&", "&amp;");
+	}
+
+	private String get(Map<String, Object> map, String key, String def) {
+		Object v = map.get(key);
+		if(null == v)
+			return enc(def);
+		if(v instanceof String) {
+			return enc((String) v);
+		}
+		throw new IllegalArgumentException("Bad key value for " + key + " in style.properties: expected string, got " + v);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle changes to the table.						*/
 	/*--------------------------------------------------------------*/
@@ -149,19 +191,19 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			m_txt.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(m_table.getModel().getRows())));
 
 		if(cp <= 0) {
-			m_firstBtn.setSrc("THEME/nav-first-dis.png");
-			m_prevBtn.setSrc("THEME/nav-prev-dis.png");
+			m_firstBtn.setSrc(m_firstDisImg);
+			m_prevBtn.setSrc(m_prevDisImg);
 		} else {
-			m_firstBtn.setSrc("THEME/nav-first.png");
-			m_prevBtn.setSrc("THEME/nav-prev.png");
+			m_firstBtn.setSrc(m_firstImg);
+			m_prevBtn.setSrc(m_prevImg);
 		}
 
 		if(cp + 1 >= np) {
-			m_lastBtn.setSrc("THEME/nav-last-dis.png");
-			m_nextBtn.setSrc("THEME/nav-next-dis.png");
+			m_lastBtn.setSrc(m_lastDisImg);
+			m_nextBtn.setSrc(m_nextDisImg);
 		} else {
-			m_lastBtn.setSrc("THEME/nav-last.png");
-			m_nextBtn.setSrc("THEME/go-next-view.png.svg?w=16&h=16");
+			m_lastBtn.setSrc(m_lastImg);
+			m_nextBtn.setSrc(m_nextImg); // "THEME/go-next-view.png.svg?w=16&h=16");
 		}
 		int tc = m_table.getTruncatedCount();
 		if(tc > 0) {

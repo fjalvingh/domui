@@ -906,7 +906,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getAlt() != null)
 			o().attr("alt", n.getAlt());
 		if(n.getSrc() != null)
-			o().rawAttr("src", n.getSrc());
+			o().attr("src", n.getSrc()); // 20110104 was rawAttr causing fails on & in delta????
 		if(n.getImgBorder() >= 0)
 			o().attr("border", n.getImgBorder());
 		if(n.getImgWidth() != null)

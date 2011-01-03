@@ -29,6 +29,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.annotation.concurrent.*;
 import javax.servlet.http.*;
 
 import org.slf4j.*;
@@ -1190,6 +1191,17 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Programmable stylesheet code.						*/
 	/*--------------------------------------------------------------*/
+	/** Lock object for theme map */
+	private Object m_themeLock = new Object();
+
+	/** The cached theme map */
+	@GuardedBy("m_themeLock")
+	private Map<String, Object> m_themeMap;
+
+	/** The dependencies for the last read theme map, */
+	@GuardedBy("m_themeLock")
+	private ResourceDependencyList m_themeMapDeps;
+
 	/**
 	 * Register a factory for the theme's property map.
 	 * @param mf
@@ -1264,6 +1276,47 @@ public abstract class DomApplication {
 				is.close();
 			} catch(Exception x) {}
 		}
+	}
+
+	/**
+	 * Return the current theme map, cached from the last time. It will refresh when
+	 * the resource dependencies are updated.
+	 *
+	 * @param rdl
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> getThemeMap(ResourceDependencyList rdl) throws Exception {
+		Map<String, Object> map;
+		ResourceDependencyList mrdl;
+		for(;;) {
+			synchronized(m_themeLock) {
+				map = m_themeMap;
+				mrdl = m_themeMapDeps;
+			}
+			if(map != null) {
+				if(mrdl == null) // No dependencies-> just return it,
+					break;
+				if(!mrdl.isModified())
+					break;
+			}
+
+			//-- We need to reload a map.
+			synchronized(m_themeLock) {
+				if(map == m_themeMap) {
+					//-- Not changed by other thread in the meantime...
+					m_themeMapDeps = new ResourceDependencyList();
+					m_themeMap = getThemeMapFactory().createThemeMap(this, m_themeMapDeps);
+					map = m_themeMap;
+					mrdl = m_themeMapDeps;
+					break;
+				}
+			}
+		}
+
+		if(null != rdl)
+			rdl.add(mrdl);
+		return map;
 	}
 
 	/*--------------------------------------------------------------*/
