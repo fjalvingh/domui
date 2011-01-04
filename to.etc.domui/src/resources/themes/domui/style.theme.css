@@ -1534,3 +1534,21 @@ body,html {
 .colorpicker_slider {
 	background-position: bottom;
 }
+
+/*** ColorPickerButton ***/
+.ui-cpbt-btn {
+	position: relative;
+	background: url(colorpicker-select.png) transparent;
+	height: 36px;
+	width: 36px;
+	left: 0;
+	top: 0;
+}
+.ui-cpbt-btn div {
+	position: absolute;
+	background: url(colorpicker-select.png) center center transparent;
+	height: 28px;
+	width: 28px;
+	left: 4px;
+	top: 4px;
+}

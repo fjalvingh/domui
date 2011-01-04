@@ -2211,6 +2211,47 @@ drop : function(dz) {
 }
 };
 
+/**
+ * Make a structure a color button.
+ */
+WebUI.colorPickerButton = function(btnid, inid, value,onchange) {
+	$(btnid).ColorPicker({
+		color: '#'+value,
+		onShow: function (colpkr) {
+			$(colpkr).fadeIn(500);
+			return false;
+		},
+		onHide: function (colpkr) {
+			$(colpkr).fadeOut(500);
+			return false;
+		},
+		onChange: function (hsb, hex, rgb) {
+			$(btnid+' div').css('backgroundColor', '#' + hex);
+			$(inid).val(hex);
+			if(onchange)
+				WebUI.colorPickerOnchange(btnid, hex);
+		}
+	});
+};
+
+WebUI.colorPickerOnchange= function(id, last) {
+	if(WebUI._colorLast == last && WebUI._colorLastID == id)
+		return;
+
+	if(WebUI._colorTimer) {
+		window.clearTimeout(WebUI._colorTimer);
+		window._colorTimer = undefined;
+	}
+	WebUI._colorLastID = id;
+	WebUI._colorTimer = window.setTimeout("WebUI.colorPickerChangeEvent('" + id + "')", 500);
+};
+
+WebUI.colorPickerChangeEvent = function(id) {
+	window.clearTimeout(WebUI._colorTimer);
+	window._colorTimer = undefined;
+	WebUI.valuechanged('eh', id);
+};
+
 var DomUI = WebUI;
 
 $(document).ready(WebUI.handleCalendarChanges);

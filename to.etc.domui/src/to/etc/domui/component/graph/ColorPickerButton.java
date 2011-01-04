@@ -4,14 +4,16 @@ import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
 /**
- * Color picker using the color picker from: http://www.eyecon.ro/colorpicker
+ * This is a Small button which shows a selected color, and which opens
+ * a color selector to change that color when pressed.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 4, 2011
  */
-public class ColorPicker extends Div implements IHasChangeListener {
+public class ColorPickerButton extends Div implements IHasChangeListener {
 	private Input m_hidden = new HiddenInput();
 
+	private Div m_coldiv = new Div();
 	private IValueChanged< ? > m_onValueChanged;
 
 	/**
@@ -20,10 +22,15 @@ public class ColorPicker extends Div implements IHasChangeListener {
 	 */
 	@Override
 	public void createContent() throws Exception {
+		setCssClass("ui-cpbt-btn");
 		add(m_hidden);
+		add(m_coldiv);
 		if(m_hidden.getRawValue() == null)
 			m_hidden.setRawValue("ffffff");
-		appendCreateJS("$('#" + getActualID() + "').ColorPicker({flat: true, color:'" + m_hidden.getRawValue() + "', onChange: function(hsb,hex,rgb) { $('#" + m_hidden.getActualID() + "').val(hex); } });");
+		m_coldiv.setBackgroundColor("#" + m_hidden.getRawValue());
+		appendCreateJS("WebUI.colorPickerButton('#" + getActualID() + "','#" + m_hidden.getActualID() + "','" + m_hidden.getRawValue() + "'," + Boolean.valueOf(getOnValueChanged() != null) + ");");
+
+		//		appendCreateJS("$('#" + getActualID() + "').ColorPicker({flat: false, color:'" + m_hidden.getRawValue() + "', onChange: function(hsb,hex,rgb) { $('#" + m_hidden.getActualID() + "').val(hex); } });");
 	}
 
 	@Override
@@ -41,6 +48,7 @@ public class ColorPicker extends Div implements IHasChangeListener {
 		if(value.startsWith("#"))
 			value = value.substring(1); // Remove any #
 		m_hidden.setRawValue(value); // Set the color value;
+		m_coldiv.setBackgroundColor("#" + m_hidden.getRawValue());
 		if(!isBuilt())
 			return;
 
