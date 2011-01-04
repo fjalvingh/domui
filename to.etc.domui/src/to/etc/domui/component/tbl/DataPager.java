@@ -73,6 +73,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private String m_lastImg, m_lastDisImg;
 
+	private String m_overflowImg;
+
 	public DataPager() {}
 
 	public DataPager(final TabularComponentBase< ? > tbl) {
@@ -158,6 +160,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		m_prevDisImg = get(map, "dpr.dis.prev", "THEME/nav-prev-dis.png");
 		m_firstDisImg = get(map, "dpr.dis.first", "THEME/nav-first-dis.png");
 		m_lastDisImg = get(map, "dpr.dis.last", "THEME/nav-last-dis.png");
+
+		m_overflowImg = get(map, "dpr.overflow", "THEME/nav-overflow.png");
 	}
 
 	private static String enc(String in) {
@@ -209,7 +213,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		if(tc > 0) {
 			if(m_truncated == null) {
 				m_truncated = new Img();
-				m_truncated.setSrc("THEME/nav-overflow.png");
+				m_truncated.setSrc(m_overflowImg);
 				m_truncated.setTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_OVER, Integer.valueOf(tc)));
 				m_textDiv.add(m_truncated);
 			}
