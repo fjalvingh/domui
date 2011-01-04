@@ -463,8 +463,11 @@ var WebUI = {
 		var q1 = $("input").get();
 		for ( var i = q1.length; --i >= 0;) {
 			var t = q1[i];
-			if (t.type == 'file' || t.type == 'hidden') // All hidden input nodes are created directly in browser java-script and because that are filtered out from server requests.				
+			if (t.type == 'file')				
 				continue;
+			if (t.type == 'hidden' && !t.getAttribute('s')) // All hidden input nodes are created directly in browser java-script and because that are filtered out from server requests.				
+				continue;
+
 			var val = undefined;
 			if (t.type == 'checkbox') {
 				val = t.checked ? "y" : "n";
