@@ -48,6 +48,7 @@ import to.etc.domui.login.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.server.reloader.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
@@ -1249,11 +1250,14 @@ public abstract class DomApplication {
 		rdl.add(ires); // We're dependent on it...
 
 		//-- Get the variable map to use.
-		Map<String, Object> themeMap = getThemeMapFactory().createThemeMap(this, rdl);
+		Map<String, Object> themeMap = getThemeMap(rdl);
+		themeMap = new HashMap<String, Object>(themeMap); // Create a modifyable duplicate
 		if(bv != null) {
-			themeMap = new HashMap<String, Object>(themeMap);
 			themeMap.put("browser", bv);
 		}
+		themeMap.put("util", new ThemeCssUtils());
+
+		augmentThemeMap(themeMap); // Provide a hook to let user code add stuff to the theme map
 
 		//-- 2. Get a reader.
 		InputStream is = ires.getInputStream();
@@ -1277,6 +1281,13 @@ public abstract class DomApplication {
 			} catch(Exception x) {}
 		}
 	}
+
+	/**
+	 * This method can be overridden to add extra stuff to the theme map, after
+	 * it has been loaded from properties or whatnot.
+	 * @param themeMap
+	 */
+	protected void augmentThemeMap(Map<String, Object> themeMap) {}
 
 	/**
 	 * Return the current theme map, cached from the last time. It will refresh when
@@ -1306,8 +1317,9 @@ public abstract class DomApplication {
 				if(map == m_themeMap) {
 					//-- Not changed by other thread in the meantime...
 					m_themeMapDeps = new ResourceDependencyList();
-					m_themeMap = getThemeMapFactory().createThemeMap(this, m_themeMapDeps);
-					map = m_themeMap;
+					map = getThemeMapFactory().createThemeMap(this, m_themeMapDeps);
+					map = Collections.unmodifiableMap(map);
+					m_themeMap = map;
 					mrdl = m_themeMapDeps;
 					break;
 				}
