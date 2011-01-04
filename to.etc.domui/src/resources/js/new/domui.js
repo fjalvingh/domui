@@ -61,7 +61,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	// convert string to xml document
 	function convert(s) {
 		var doc;
-		//log('attempting string to document conversion');
+		//MVE log('attempting string to document conversion');
 		try {
 			if (window.ActiveXObject) {
 				doc = new ActiveXObject('Microsoft.XMLDOM');
@@ -78,7 +78,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			throw e;
 		}
 		var ok = doc && doc.documentElement && doc.documentElement.tagName != 'parsererror';
-		//log('conversion ', ok ? 'successful!' : 'FAILED');
+		//MVE log('conversion ', ok ? 'successful!' : 'FAILED');
 		if (!ok) {
 			if(doc && doc.documentElement)
 				log(doc.documentElement.textContent);
@@ -147,7 +147,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			// process the document
 			process(xml.documentElement.childNodes);
 			var lastTime = (new Date().getTime()) - t;
-			//log('Response handled in ' + lastTime + 'ms');
+			//MVE log('Response handled in ' + lastTime + 'ms');
 	//	} catch (e) {
 	//		if (window.console && window.console.debug)
 	//			window.console.debug('ERROR in xml handler:' + e, e);
@@ -165,7 +165,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				if (cmd == 'eval') {
 					try {
 						var js = (cmdNode.firstChild ? cmdNode.firstChild.nodeValue : null);
-						//log('invoking "eval" command: ', js);
+						//MVE log('invoking "eval" command: ', js);
 						if (js)
 							$.globalEval(js);
 					} catch(ex) {
@@ -256,7 +256,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 
 				if (true) {
 					var arg = els ? '...' : a.join(',');
-					//log("invoke command: $('", q, "').", cmd, '(' + arg + ')');
+					log("invoke command: $('", q, "').", cmd, '(' + arg + ')');
 				}
 				jq[cmd].apply(jq, a);
 			}
@@ -1584,6 +1584,12 @@ var WebUI = {
 		WebUI._dragLastY = e.clientY;
 		WebUI.dragResetTimer();
 	},
+	
+	dragCreatePlaceHolder : function(source){
+		var dv = document.createElement('div');
+		WebUI.placeHolder = source;
+		
+	},
 
 	dragCreateCopy : function(source) {
 		var dv = document.createElement('div');
@@ -1660,10 +1666,12 @@ var WebUI = {
 		WebUI.dropClearZone();
 		WebUI._currentDropZone = dz;
 		dz._drophandler.hover(dz);
-		// console.debug("AlterClass on "+dz._dropTarget);
+		//MVE
+		console.debug("AlterClass on "+dz._dropTarget);
 	},
 
 	findDropZoneHandler : function(type) {
+		console.debug(type);
 		if (type == "ROW")
 			return WebUI._ROW_DROPZONE_HANDLER;
 		return WebUI._DEFAULT_DROPZONE_HANDLER;
@@ -2019,47 +2027,6 @@ var WebUI = {
 				alert("Failed: "+x);
 			}
 		}
-	},
-	
-	nearestID: function(elem) {
-		while(elem) {
-			if(elem.id)
-				return elem.id;
-			elem = elem.parentNode;
-		}
-		return undefined;
-	},
-
-	handleDevelopmentMode: function() {
-		$(document).bind("keydown", function(e) {
-			if(e.keyCode != 192)
-				return;
-
-			var t = new Date().getTime();
-			if(! WebUI._debugLastKeypress || (t - WebUI._debugLastKeypress) > 250) {
-				WebUI._debugLastKeypress = t;
-				return;
-			}
-//			console.debug("double ", e);
-
-//			WebUI._NOMOVE = true;
-			//-- Send a DEBUG command to the server, indicating the current node below the last mouse move....
-			var id = WebUI.nearestID(WebUI._debugMouseTarget);
-//			console.debug("idis  "+id+", m="+WebUI._debugMouseTarget);
-			if(! id)
-				return;
-
-//			console.debug("Escape doublepress on ID="+id);
-			WebUI.scall(id, "DEVTREE", {});
-		});
-		$(document.body).bind("mousemove", function(e) {
-//			if(WebUI._NOMOVE)
-//				return;
-//			console.debug("move ", e);
-			WebUI._debugMouseTarget = e.srcElement || e.originalTarget;
-			
-		});
-		
 	}
 };
 
@@ -2158,7 +2125,8 @@ WebUI._ROW_DROPZONE_HANDLER = {
 		}
 		rowindex++;
 	}
-	//console.debug("ACCEPTED last one");
+	//MVE
+	console.debug("ACCEPTED last one");
 
 	// -- If we're here we must insert at the last location
 	var colIndex = this.getColIndex(lastrow, mouseX);
@@ -2188,8 +2156,7 @@ getColIndex : function(tr, mouseX) {
 		}
 		
 	}
-	//TODO MVE should return maxCollumn
-	return 2;
+	return j;
 	
 },
 
@@ -2209,27 +2176,16 @@ renderTween : function(dz, b) {
 
 	// -- To mark, we insert a ROW at the insert location and visualize that
 	var tr = document.createElement('tr');
-	//b.colIndex should define the correct collumn
-	var colIndex = b.colIndex;
-	this.appendPlaceHolderCell(tr, colIndex == 0);
-	this.appendPlaceHolderCell(tr, colIndex == 1);
-	this.appendPlaceHolderCell(tr, colIndex == 2);
+	var td = document.createElement('td');
+	tr.appendChild(td);
+	td.appendChild(document.createTextNode('Insert here'));
+	td.className = 'ui-drp-ins';
 	if (b.iindex >= body.childNodes.length)
 		body.appendChild(tr);
 	else
 		body.insertBefore(tr, body.childNodes[b.iindex]);
 	WebUI._dropRow = tr;
 	WebUI._dropRowIndex = b.iindex;
-},
-
-appendPlaceHolderCell : function(tr, appendPlaceholder) {
-	var td = document.createElement('td');
-	if(appendPlaceholder){
-		td.appendChild(document.createTextNode('Insert here'));
-		td.className = 'ui-drp-ins';
-	}
-	tr.appendChild(td);
-	
 },
 
 hover : function(dz) {
@@ -2252,8 +2208,7 @@ drop : function(dz) {
 	var b = this.locateBest(dz);
 	WebUI.scall(dz._dropTarget.id, "WEBUIDROP", {
 		_dragid :WebUI._dragNode.id,
-		_index :b.index,
-		_colIndex :b.colIndex
+		_index :b.index
 	});
 	WebUI.dragReset();
 }
@@ -2262,8 +2217,6 @@ drop : function(dz) {
 var DomUI = WebUI;
 
 $(document).ready(WebUI.handleCalendarChanges);
-if(DomUIDevel)
-	$(document).ready(WebUI.handleDevelopmentMode);
 $(document).ajaxComplete( function() {
 	WebUI.handleCalendarChanges();
 });

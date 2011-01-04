@@ -29,6 +29,12 @@ import to.etc.domui.dom.html.*;
 public final class DropEvent {
 	private int m_index;
 
+	private int m_colIndex;
+
+	public int getColIndex() {
+		return m_colIndex;
+	}
+
 	private NodeBase m_draggedNode;
 
 	private NodeContainer m_dropTargetNode;
@@ -37,6 +43,11 @@ public final class DropEvent {
 		m_dropTargetNode = dropTargetNode;
 		m_draggedNode = draggedNode;
 		m_index = index;
+	}
+
+	public DropEvent(NodeContainer dropTargetNode, NodeBase draggedNode, int index, int colIndex) {
+		this(dropTargetNode, draggedNode, index);
+		m_colIndex = colIndex;
 	}
 
 	public NodeBase getDraggedNode() {
