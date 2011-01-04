@@ -21,8 +21,7 @@ public class ColorPicker extends Div {
 		add(m_hidden);
 		if(m_hidden.getRawValue() == null)
 			m_hidden.setRawValue("ffffff");
-		appendCreateJS("$('#" + getActualID() + "').ColorPicker({flat: true, color:'" + m_hidden.getRawValue() + "' });");
-		//		appendCreateJS("$('#" + getActualID() + "').ColorPicker({flat: true, onBeforeShow: function() {$(this).ColorPickerSetColor($('" + m_hidden.getActualID() + "').value)} });");
+		appendCreateJS("$('#" + getActualID() + "').ColorPicker({flat: true, color:'" + m_hidden.getRawValue() + "', onChange: function(hsb,hex,rgb) { $('#" + m_hidden.getActualID() + "').val(hex); } });");
 	}
 
 	@Override
@@ -46,4 +45,6 @@ public class ColorPicker extends Div {
 		//-- Force update existing value.
 		appendJavascript("$('#" + getActualID() + "').ColorPickerSetColor('" + value + "');");
 	}
+
+
 }
