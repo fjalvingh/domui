@@ -80,7 +80,7 @@
        id="linearGradient3295">
       <stop
          id="stop3297"
-         style="stop-color:#63e9ff;stop-opacity:1"
+         style="stop-color:<%= util.color(button_bg).lighter(0.5) %>;stop-opacity:1"
          offset="0" />
       <stop
          id="stop3299"
@@ -102,11 +102,11 @@
        id="linearGradient3202">
       <stop
          id="stop3204"
-         style="stop-color:#cdeeff;stop-opacity:1"
+         style="stop-color:<%= util.color(button_bg).lighter(0.8) %>;stop-opacity:1"
          offset="0" />
       <stop
          id="stop3206"
-         style="stop-color:#d2e8ed;stop-opacity:0"
+         style="stop-color:<%= util.color(button_bg).lighter(0.7) %>;stop-opacity:0"
          offset="1" />
     </linearGradient>
     <filter
@@ -128,22 +128,22 @@
          offset="0" />
       <stop
          id="stop6408"
-         style="stop-color:#387de4;stop-opacity:1"
+         style="stop-color:<%= button_bg %>;stop-opacity:1"
          offset="1" />
     </linearGradient>
     <linearGradient
        id="linearGradient6666">
       <stop
          id="stop6668"
-         style="stop-color:#9fc1f2;stop-opacity:1"
+         style="stop-color:<%= util.color(button_bg).lighter(0.3) %>;stop-opacity:1"
          offset="0" />
       <stop
          id="stop3183"
-         style="stop-color:#587eb5;stop-opacity:1"
+         style="stop-color:<%= util.color(button_bg) %>;stop-opacity:1"
          offset="0.5" />
       <stop
          id="stop6670"
-         style="stop-color:#0c2a58;stop-opacity:1"
+         style="stop-color:<%= util.color(button_bg).darker(0.4) %>;stop-opacity:1"
          offset="1" />
     </linearGradient>
     <filter
