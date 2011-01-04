@@ -27,8 +27,6 @@ package to.etc.domui.util.images.converters;
 import java.io.*;
 import java.util.*;
 
-import to.etc.domui.util.images.machines.*;
-
 /**
  * This handles a converter chain. For every operation in the chain we lookup the appropriate
  * factory, then we execute the conversion. For each next conversion we try to reuse the
@@ -105,23 +103,23 @@ public class ImageConverterHelper {
 		}
 	}
 
-	public static void main(String[] args) {
-		try {
-			//-- Execute a single conversion.
-			File src = new File("/home/jal/img_5589.jpg");
-			ImageInfo id = ImageConverterRegistry.identify("image/jpeg", src);
-			ImageSpec sis = new ImageSpec(src, id);
-
-			List<IImageConversionSpecifier> l = new ArrayList<IImageConversionSpecifier>();
-			l.add(new ImagePageSelect(0));
-			l.add(new ImageThumbnail(200, 200, "image/png"));
-
-			ImageConverterHelper h = new ImageConverterHelper();
-			h.executeConversionChain(sis, l);
-			System.out.println("Result: " + h.getTarget().getSource() + ", mime=" + h.getTarget().getMime() + ", pages=" + h.getTarget().getInfo().getPageCount() + "; p0.size="
-				+ h.getTarget().getInfo().getPage(0).getWidth() + "x" + h.getTarget().getInfo().getPage(0).getHeight());
-		} catch(Exception x) {
-			x.printStackTrace();
-		}
-	}
+	//	public static void main(String[] args) {
+	//		try {
+	//			//-- Execute a single conversion.
+	//			File src = new File("/home/jal/img_5589.jpg");
+	//			ImageInfo id = ImageConverterRegistry.identify("image/jpeg", src);
+	//			ImageSpec sis = new ImageSpec(src, id);
+	//
+	//			List<IImageConversionSpecifier> l = new ArrayList<IImageConversionSpecifier>();
+	//			l.add(new ImagePageSelect(0));
+	//			l.add(new ImageThumbnail(200, 200, "image/png"));
+	//
+	//			ImageConverterHelper h = new ImageConverterHelper();
+	//			h.executeConversionChain(sis, l);
+	//			System.out.println("Result: " + h.getTarget().getSource() + ", mime=" + h.getTarget().getMime() + ", pages=" + h.getTarget().getInfo().getPageCount() + "; p0.size="
+	//				+ h.getTarget().getInfo().getPage(0).getWidth() + "x" + h.getTarget().getInfo().getPage(0).getHeight());
+	//		} catch(Exception x) {
+	//			x.printStackTrace();
+	//		}
+	//	}
 }

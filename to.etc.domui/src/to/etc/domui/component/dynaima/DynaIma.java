@@ -108,7 +108,7 @@ public class DynaIma extends Img {
 	private synchronized void updateURL() {
 		m_cachedData = null; // Discard any old data
 		StringBuilder sb = new StringBuilder(256);
-		ComponentPartRenderer.appendComponentURL(sb, DynaImaPart.class, this, PageContext.getRequestContext());
+		ComponentPartRenderer.appendComponentURL(sb, DynaImaPart.class, this, UIContext.getRequestContext());
 		sb.append("?tag=");
 		sb.append(++m_changeTag);
 		setSrc(sb.toString());

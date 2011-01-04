@@ -142,6 +142,18 @@ public class MsgBox extends FloatingWindow {
 		box.construct();
 	}
 
+	public static void info(NodeBase dad, String string) {
+		message(dad, Type.INFO, string);
+	}
+
+	public static void warning(NodeBase dad, String string) {
+		message(dad, Type.WARNING, string);
+	}
+
+	public static void error(NodeBase dad, String string) {
+		message(dad, Type.ERROR, string);
+	}
+
 	public static void message(NodeBase dad, Type mt, String string, IAnswer onAnswer) {
 		if(mt == Type.DIALOG) {
 			throw new IllegalArgumentException("Please use one of the predefined button calls for MsgType.DIALOG type MsgBox!");

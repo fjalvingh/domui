@@ -57,7 +57,7 @@ public class HtmlMiniEditor extends TextArea {
 		sb.append("$(\"#").append(getActualID()).append("\").wysiwyg({css:");
 		String css = getStyleSheet();
 		if(css == null)
-			css = PageContext.getRequestContext().getRelativeThemePath("minieditor.css");
+			css = UIContext.getRequestContext().getRelativeThemePath("minieditor.css");
 		StringTool.strToJavascriptString(sb, css, false);
 		sb.append("});");
 		appendCreateJS(sb);
@@ -71,7 +71,7 @@ public class HtmlMiniEditor extends TextArea {
 	 * @return
 	 */
 	public String getStyleSheet() {
-		return PageContext.getRequestContext().translateResourceName(m_styleSheet);
+		return UIContext.getRequestContext().translateResourceName(m_styleSheet);
 	}
 
 	public void setStyleSheet(String styleSheet) {

@@ -22,40 +22,54 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.input;
+package to.etc.domui.hibernate.config;
 
+import java.sql.*;
 import java.util.*;
 
-import javax.annotation.*;
+import javax.sql.*;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import org.hibernate.*;
+import org.hibernate.connection.*;
 
 /**
- * A Combobox dataset provider which creates a dataset by using a QCriteria passed to it.
+ * Only reason for existence is to provide a DataSource to hibernate dynamically. This class
+ * gets instantiated by name by Hibernate config; it will then obtain a datasource from the
+ * already-initialized {@link HibernateConfigurator} static member variable.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Dec 16, 2010
+ * Created on Dec 30, 2010
  */
-public class CriteriaComboDataSet<T> implements IComboDataSet<T> {
-	@Nonnull
-	final private QCriteria<T> m_query;
+final public class SillyHibernateConnectionProvider implements ConnectionProvider {
+	private DataSource m_ds;
 
-	/**
-	 * Create with the specified immutable QCriteria.
-	 * @param query
-	 */
-	public CriteriaComboDataSet(@Nonnull QCriteria<T> query) {
-		m_query = query;
+	public SillyHibernateConnectionProvider() {
+		m_ds = HibernateConfigurator.getDataSource();
 	}
 
-	/**
-	 * Execute the query and return the result.
-	 * @see to.etc.domui.util.IComboDataSet#getComboDataSet(to.etc.domui.dom.html.UrlPage)
-	 */
-	@Override
-	public List<T> getComboDataSet(UrlPage page) throws Exception {
-		return page.getSharedContext().query(m_query);
-	}
+    @Override
+	public boolean supportsAggressiveRelease() {
+        return false;
+    }
+
+    @Override
+	public Connection getConnection() throws SQLException {
+		Connection dbc = m_ds.getConnection();
+    	dbc.setAutoCommit(false);
+        return dbc;
+    }
+
+    @Override
+	public void configure(Properties props) throws HibernateException {
+		//-- Useless.
+    }
+
+    @Override
+	public void closeConnection(Connection conn) throws SQLException {
+        conn.close();
+    }
+
+    @Override
+	public void close() throws HibernateException {
+    }
 }

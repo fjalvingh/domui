@@ -7,6 +7,8 @@
 	border: 0;
 	margin: 0;
 	padding: 0;
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	font-size: 11px;
 }
 
 input, textarea, select {
@@ -34,8 +36,6 @@ input:hover, textarea:hover, select:hover {
 
 /*** Select special chars ***/
 .ui-oddchars {
-	font-size: 11px;
-	font-family: verdana, tahoma, helvetica, sans-serif;
 	padding: 10px;
 }
 
@@ -316,7 +316,6 @@ div.ui-popin {
 }
 .ui-mbx-mc {
 	font-size: 13px; /* FIXME: viewpoint uses PIXEL sizing!? */
-	font-family: verdana, tahoma, helvetica, sans-serif;
 }
 
 /*** InfoPanel ***/
@@ -335,11 +334,14 @@ div.ui-popin {
 	padding-left: 18px;
 	font-size: 12px;
 }
-a.ui-lbtn {
+.ui-lnkb {
+}
+
+a.ui-lnkb {
 	cursor: pointer;
 }
 
-a:hover.ui-lbtn {
+a:hover.ui-lnkb {
 	text-decoration: underline !important;
 }
 
@@ -520,7 +522,6 @@ TD.ui-mp-ch:hover {
 }
 
 .ui-wa-hd {
-	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
 	font-size: 10px;
 	font-weight: bold;
 	vertical-align: top;
@@ -548,7 +549,6 @@ div.ui-wa-f {
 /* IMPORTANT: this color together with "cellspacing=1" creates the lines between the cells!!!! */
 table.ui-wa-bgtbl {
 	background-color: #cccccc;
-	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
 	font-size: 10px;
 }
 
@@ -559,14 +559,12 @@ table.ui-wa-bgtbl {
 }
 
 .ui-wa-hour {
-	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
 	font-size: 13px;
 	font-weight: bold;
 	vertical-align: top;
 }
 
 .ui-wa-min {
-	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
 	font-size: 10px;
 	font-weight: bold;
 	vertical-align: top;
@@ -581,7 +579,6 @@ table.ui-wa-bgtbl {
 	overflow: hidden;
 	border: 1px solid black;
 	background-color: #00ffcc;
-	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
 	font-size: 10px;
 }
 
@@ -790,20 +787,14 @@ tr.ui-keyword-popup-row {
 .ui-f-lbl {
 	text-align: right;
 	font-weight: bold;
-	font-size: 11px;
-	/* FIXME: Abuse, chainsaws: viewpoint uses PIXEL sizing!? */
 	vertical-align: top;
 }
 
 .ui-f-in {
-	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
-	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
 	padding: 0px;
 }
 .ui-f-do {
-	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
-	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
 	padding: 0px;
 }
@@ -811,18 +802,13 @@ tr.ui-keyword-popup-row {
 /*** Form basic styles: for forms having the label ABOVE the field (vertical stacked) ***/
 .ui-fvs-lbl {
 	font-weight: bold;
-	font-size: 11px;
 }
 
 .ui-fvs-in {
-	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
-	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: top;
 }
 
 .ui-fvs-do { /* displayonly field */
-	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
-	font-family: verdana, tahoma, helvetica, sans-serif;
 	background-color: white;
 	padding: 2px;
 }
@@ -838,8 +824,6 @@ TD.ui-numeric {
 
 /* Display-only field */
 .ui-f-display {
-	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
-	font-family: verdana, tahoma, helvetica, sans-serif;
 	vertical-align: top;
 	background: #eff7ff;
 }
@@ -866,8 +850,6 @@ TD.ui-numeric {
 */
 
 input {
-	font-size: 11px; /* FIXME: viewpoint uses PIXEL sizing!? */
-	font-family: verdana, tahoma, helvetica, sans-serif;
 }
 
 button img {
@@ -906,7 +888,6 @@ a.ui-nbtn {
 	margin: 3px auto;
 	padding: 3px 0 0 0;
 	text-align: center;
-	font-family: Helvetica, Calibri, Arial, Bitstream Vera Sans, sans-serif;
 	font-size: 100%;
 	font-weight: bold;
 	text-decoration: none;
@@ -1279,8 +1260,8 @@ li.ui-tab-err {
 body,html {
 	background: url(bg-body.png) repeat-x;
 	background-color: #fdfefe;
-	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
-	font-size: 13px;
+	font-family: verdana, tahoma, helvetica, sans-serif;
+	font-size: 11px;
 	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 	margin: 0px;
 /*	padding: 0; margin: 0;	width: 100%; */

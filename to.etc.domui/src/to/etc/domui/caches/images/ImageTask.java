@@ -43,6 +43,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 1, 2009
  */
+@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE", justification = "FindBugs definition is wrong for mkdirs, and delete() may fail in code here")
 public class ImageTask extends CacheChange {
 	private ImageRoot m_root;
 

@@ -22,51 +22,43 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.dom.html;
+package to.etc.webapp.nls;
 
-import to.etc.domui.util.*;
+import java.util.*;
 
-public class TextNode extends NodeBase {
-	private String m_text;
-
+/**
+ * Base interface for all resource bundle constructs.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Dec 31, 2010
+ */
+public interface IBundle extends NlsMessageProvider {
 	/**
-	 * Empty textnode constructor.
+	 * Returns a translation of key in the specified locale (or the one
+	 * closest to it). If no translation exists for the message in the
+	 * specified bundle then we try the "default" bundle; if it still
+	 * does not exist we return a string containing the key with ????.
+	 * @param loc
+	 * @param key
+	 * @throws  ResourceNotFoundException the bundle cannot be located.
 	 */
-	public TextNode() {
-		super("#text");
-	}
+	String getString(final Locale loc, final String key);
 
 	/**
-	 * Create a TextNode for the given text, using tilde replacement. If the text starts with a tilde it
-	 * is assumed to be a key in the page's resource bundle.
-	 * @param text
-	 */
-	public TextNode(String text) {
-		super("#text");
-		m_text = text;
-	}
-
-	@Override
-	public void visit(INodeVisitor v) throws Exception {
-		v.visitTextNode(this);
-	}
-
-	/**
-	 * Returns the text as set by setText(), it does not do tilde replacement.
+	 * Returns the translation of the key passed in the <i>current</i> client
+	 * locale.
+	 *
+	 * @param key
 	 * @return
 	 */
-	public String getText() {
-		return m_text;
-	}
+	String getString(final String key);
 
-	public void setText(String text) {
-		if(DomUtil.isEqual(text, m_text))
-			changed();
-		m_text = text;
-		if(getParent() != null) {
-			getParent().childChanged();
-			getParent().treeChanging();
-			getParent().setMustRenderChildrenFully();
-		}
-	}
+	/**
+	 * Gets the string, and applies default message formatting using the parameters
+	 * passed in the current locale.
+	 * @param key
+	 * @param param
+	 * @return
+	 */
+	String formatMessage(final String key, final Object... param);
 }

@@ -775,7 +775,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		//-- If prop refers to some relation (dotted pair):
 		String name = n.getProp();
 		name = parseSubcriteria(name);
-		m_last = Restrictions.between(n.getProp(), a.getValue(), b.getValue());
+		m_last = Restrictions.between(name, a.getValue(), b.getValue()); // jal 20101228 was p.getProp() instead of name, which seems to be wrong.
 	}
 
 	/**
@@ -916,7 +916,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		//-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
 		int fkindex = findCruddyChildProperty(childmd, keyCols);
 		if(fkindex < 0)
-			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + keyCols);
+			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + Arrays.toString(keyCols));
 		String childupprop = childmd.getPropertyNames()[fkindex];
 
 		//-- Well, that was it. What a sheitfest. Add the join condition to the parent

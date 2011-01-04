@@ -872,7 +872,7 @@ public class LookupForm<T> extends Div {
 		PropertyMetaModel< ? > pmm = it.getLastProperty();
 		if(pmm == null)
 			throw new IllegalStateException("property cannot be null when creating using factory.");
-		IRequestContext rq = PageContext.getRequestContext();
+		IRequestContext rq = UIContext.getRequestContext();
 		boolean viewable = true;
 		boolean editable = true;
 

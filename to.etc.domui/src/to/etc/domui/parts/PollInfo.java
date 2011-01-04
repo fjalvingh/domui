@@ -39,6 +39,7 @@ import to.etc.xml.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2010
  */
+@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "OS_OPEN_STREAM", justification = "Stream is closed by servlet code")
 public class PollInfo implements IUnbufferedPartFactory {
 	@Override
 	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {

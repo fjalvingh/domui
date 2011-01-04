@@ -26,11 +26,25 @@ package to.etc.domui.component.buttons;
 
 import to.etc.domui.dom.html.*;
 
+/**
+ * A simple example button class that uses a background image containing three
+ * graphical representations of the button. Which one is shown depends
+ * on whether the cursor is over it or whether it gets "pressed".
+ * <p>This button cannot be fully themed, because the backdrop image
+ * is hard to render.</p>
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jan 3, 2011
+ */
 public class NiceButton extends ATag {
 	private final TextNode m_text = new TextNode("Okay");
 
 	public NiceButton() {}
 
+	/**
+	 * Create a button with the specified text in it.
+	 * @param text
+	 */
 	public NiceButton(final String text) {
 		m_text.setText(text);
 	}

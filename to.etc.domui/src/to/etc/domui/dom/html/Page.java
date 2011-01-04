@@ -57,8 +57,6 @@ final public class Page implements IQContextContainer {
 	/** Temp work buffer to prevent lots of allocations. */
 	private StringBuilder m_sb;
 
-	private String m_title;
-
 	/**
 	 * The set of parameters that was used at page creation time.
 	 */
@@ -137,7 +135,7 @@ final public class Page implements IQContextContainer {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
 		registerNode(pageContent); // First node.
-		pageContent.internalSetTagName("body"); // Override it's tagname
+		pageContent.internalSetTag("body"); // Override it's tagname
 		pageContent.setErrorFence(); // The body ALWAYS accepts ANY errors.
 
 		//-- Localize calendar resources
@@ -332,7 +330,7 @@ final public class Page implements IQContextContainer {
 	}
 
 	public void internalClearDeltaFully() {
-		getBody().clearDeltaFully();
+		getBody().internalClearDeltaFully();
 		m_beforeMap = null;
 		m_sb = null;
 	}
@@ -377,16 +375,12 @@ final public class Page implements IQContextContainer {
 		m_lastContributorIndex = m_orderedContributorList == null ? 0 : m_orderedContributorList.size();
 	}
 
+	/**
+	 * Return the BODY component for this page.
+	 * @return
+	 */
 	public UrlPage getBody() {
 		return m_rootContent;
-	}
-
-	public String getTitle() {
-		return m_title;
-	}
-
-	public void setTitle(final String title) {
-		m_title = title;
 	}
 
 	public <T> void setData(final T inst) {
@@ -476,13 +470,13 @@ final public class Page implements IQContextContainer {
 			return;
 		}
 		NodeContainer nc = (NodeContainer) nd;
-		if(nc.childHasUpdates() && nc.getOldChildren() == null) {
+		if(nc.childHasUpdates() && nc.internalGetOldChildren() == null) {
 			nc.build();
 			for(int i = 0, len = nc.getChildCount(); i < len; i++) {
 				buildChangedTree(nc.getChild(i));
 			}
 		}
-		if(nc.getOldChildren() != null || nc.childHasUpdates() || nc.mustRenderChildrenFully()) {
+		if(nc.internalGetOldChildren() != null || nc.childHasUpdates() || nc.mustRenderChildrenFully()) {
 			buildSubTree(nc);
 		}
 	}
@@ -526,7 +520,7 @@ final public class Page implements IQContextContainer {
 	public void openWindow(@Nonnull String windowURL, @Nullable WindowParameters wp) {
 		if(windowURL == null || windowURL.length() == 0)
 			throw new IllegalArgumentException("Empty window URL");
-		String js = DomUtil.createOpenWindowJS(DomUtil.calculateURL(PageContext.getRequestContext(), windowURL), wp);
+		String js = DomUtil.createOpenWindowJS(DomUtil.calculateURL(UIContext.getRequestContext(), windowURL), wp);
 		appendJS(js);
 	}
 

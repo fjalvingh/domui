@@ -57,10 +57,10 @@ final class LookupFactoryDate implements ILookupControlFactory {
 			dateTo.setTitle(hint);
 		}
 		return new AbstractLookupControlImpl(dateFrom, tn, dateTo) {
-			// FIXME For some reason Eclipse does not "see" the null check @ the start of the method..
-			//			@SuppressWarnings("null")
 			@Override
 			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
+				if(spm == null)
+					throw new IllegalStateException("? SearchPropertyModel should not be null here.");
 				Date from, till;
 				try {
 					from = dateFrom.getValue();

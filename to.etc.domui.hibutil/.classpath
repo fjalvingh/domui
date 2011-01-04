@@ -10,5 +10,6 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/lib-hibernate"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsr305"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.db"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

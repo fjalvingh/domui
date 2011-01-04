@@ -39,7 +39,7 @@ import to.etc.domui.state.*;
 public class ShelveBreadCrumb extends Div {
 	@Override
 	public void createContent() throws Exception {
-		WindowSession cm = PageContext.getRequestContext().getWindowSession();
+		WindowSession cm = UIContext.getRequestContext().getWindowSession();
 
 		//-- Get the application's main page as the base;
 		List<ShelvedEntry> stack = cm.getShelvedPageStack();
@@ -62,7 +62,7 @@ public class ShelveBreadCrumb extends Div {
 			//-- Create a LINK or a SPAN
 			Span s = new Span();
 			add(s);
-			String ttl = p.getBody().getLiteralTitle();
+			String ttl = p.getBody().getTitle();
 			if(ttl == null || ttl.length() == 0) {
 				ttl = p.getBody().getClass().getName();
 				ttl = ttl.substring(ttl.lastIndexOf('.') + 1);

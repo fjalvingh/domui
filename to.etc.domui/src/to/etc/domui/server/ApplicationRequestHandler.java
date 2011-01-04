@@ -223,7 +223,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				}
 			}
 		}
-		PageContext.internalSet(page);
+		UIContext.internalSet(page);
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
 		List<NodeBase> pendingChangeList = Collections.EMPTY_LIST;
@@ -372,7 +372,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(rann == null)
 			return true;
 		//-- Get user's IUser; if not present we need to log in.
-		IUser user = PageContext.getCurrentUser(); // Currently logged in?
+		IUser user = UIContext.getCurrentUser(); // Currently logged in?
 		if(user == null) {
 			//-- Create the after-login target URL.
 			StringBuilder sb = new StringBuilder(256);

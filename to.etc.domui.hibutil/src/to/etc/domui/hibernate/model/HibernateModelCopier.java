@@ -146,6 +146,8 @@ public class HibernateModelCopier extends QBasicModelCopier {
 				}
 			}
 		}
+		if(null == ee)
+			throw new IllegalStateException("current EntityEntry is null- that cannot happen?");
 
 		System.out.println("    state for " + MetaManager.identify(instance) + ": exists=" + ee.isExistsInDatabase() + ", state=" + ee.getStatus());
 

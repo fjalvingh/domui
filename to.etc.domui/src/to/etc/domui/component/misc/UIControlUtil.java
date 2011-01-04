@@ -354,7 +354,7 @@ final public class UIControlUtil {
 		return txt;
 	}
 
-	static public <T> Text<T> createText(Class< ? > clz, String property, boolean editable) {
+	static public <T> Text< ? > createText(Class< ? > clz, String property, boolean editable) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaManager.findPropertyMeta(clz, property);
 		return createText(pmm.getActualType(), pmm, editable);
 	}

@@ -54,7 +54,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		Exception xx = null;
 		IFilterRequestHandler rh = null;
 		try {
-			PageContext.internalSet(ctx);
+			UIContext.internalSet(ctx);
 			callInterceptorsBegin(il, ctx);
 			rh = ctx.getApplication().findRequestHandler(ctx);
 			if(rh == null) {
@@ -78,7 +78,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			} catch(Exception x) {
 				x.printStackTrace();
 			}
-			PageContext.internalClear();
+			UIContext.internalClear();
 		}
 	}
 

@@ -403,7 +403,7 @@ final public class DomUtil {
 	public static String createPageURL(String rurl, PageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
 		if(DomUtil.isRelativeURL(rurl)) {
-			RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
+			RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
 			sb.append(ctx.getRelativePath(rurl));
 		}
 		else
@@ -924,26 +924,26 @@ final public class DomUtil {
 		return null; // Failed to get bundle.
 	}
 
-	/**
-	 * If the string passed starts with ~ start page resource bundle translation.
-	 * @param nodeBase
-	 * @param title
-	 * @return
-	 */
-	public static String replaceTilded(NodeBase nodeBase, String txt) {
-		if(txt == null) // Unset - exit
-			return null;
-		if(!txt.startsWith("~"))
-			return txt;
-		if(txt.startsWith("~~")) // Dual tilde escapes and returns a single-tilded thingy.
-			return txt.substring(1);
-
-		//-- Must do replacement
-		Page p = nodeBase.getPage();
-		if(p == null)
-			throw new ProgrammerErrorException("Attempt to retrieve a page-bundle's key (" + txt + "), but the node (" + nodeBase + ")is not attached to a page");
-		return p.getBody().$(txt);
-	}
+	//	/**
+	//	 * If the string passed starts with ~ start page resource bundle translation.
+	//	 * @param nodeBase
+	//	 * @param title
+	//	 * @return
+	//	 */
+	//	public static String replaceTilded(NodeBase nodeBase, String txt) {
+	//		if(txt == null) // Unset - exit
+	//			return null;
+	//		if(!txt.startsWith("~"))
+	//			return txt;
+	//		if(txt.startsWith("~~")) // Dual tilde escapes and returns a single-tilded thingy.
+	//			return txt.substring(1);
+	//
+	//		//-- Must do replacement
+	//		Page p = nodeBase.getPage();
+	//		if(p == null)
+	//			throw new ProgrammerErrorException("Attempt to retrieve a page-bundle's key (" + txt + "), but the node (" + nodeBase + ")is not attached to a page");
+	//		return p.getBody().$(txt);
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Error message visualisation utilities.				*/
@@ -1341,7 +1341,7 @@ final public class DomUtil {
 	@Nonnull
 	static public String createOpenWindowJS(@Nonnull Class< ? > targetClass, @Nullable PageParameters targetParameters, @Nullable WindowParameters newWindowParameters) {
 		//-- We need a NEW window session. Create it,
-		RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
+		RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
 		WindowSession cm = ctx.getSession().createWindowSession();
 
 		//-- Send a special JAVASCRIPT open command, containing the shtuff.

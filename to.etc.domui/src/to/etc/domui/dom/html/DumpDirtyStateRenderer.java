@@ -58,12 +58,12 @@ public class DumpDirtyStateRenderer extends NodeVisitorBase {
 	@Override
 	public void visitNodeBase(NodeBase n) throws Exception {
 		m_iw.print("[" + n.getTag() + ":" + n.getActualID() + " " + m_depth + "]");
-		if(n.hasChangedAttributes())
+		if(n.internalHasChangedAttributes())
 			m_iw.print(" ChangedAttributes");
 		if(n.isBuilt())
 			m_iw.print(" built");
 		if(n instanceof TextNode) {
-			String txt = ((TextNode) n).getLiteralText();
+			String txt = ((TextNode) n).getText();
 			if(txt.length() > 20)
 				txt = txt.substring(0, 17) + "...";
 			m_iw.print(" \"" + txt + "\"");
@@ -74,7 +74,7 @@ public class DumpDirtyStateRenderer extends NodeVisitorBase {
 	@Override
 	public void visitNodeContainer(NodeContainer n) throws Exception {
 		m_iw.print("[" + n.getTag() + ":" + n.getActualID() + " " + m_depth + "]*");
-		if(n.hasChangedAttributes())
+		if(n.internalHasChangedAttributes())
 			m_iw.print(" ChangedAttributes");
 		if(n.isBuilt())
 			m_iw.print(" built");
@@ -84,7 +84,7 @@ public class DumpDirtyStateRenderer extends NodeVisitorBase {
 			m_iw.print(" childHasUpdates");
 		if(n.mustRenderChildrenFully())
 			m_iw.print(" mustRenderChFully");
-		if(n.getOldChildren() != null)
+		if(n.internalGetOldChildren() != null)
 			m_iw.print(" oldChildren");
 		m_iw.println();
 		m_iw.inc();

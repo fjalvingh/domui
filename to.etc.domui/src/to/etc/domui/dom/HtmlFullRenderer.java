@@ -113,7 +113,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			else
 				m_o.dec(); // 20080626 img et al does not dec()...
 		}
-		n.clearDelta();
+		n.internalClearDelta();
 		checkForFocus(n);
 	}
 
@@ -163,7 +163,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		visitChildren(n);
 		getTagRenderer().renderEndTag(n);
 		o().setIndentEnabled(indena); // And restore indenting if tag handler caused it to be cleared.
-		n.clearDelta();
+		n.internalClearDelta();
 		checkForFocus(n);
 	}
 
@@ -295,10 +295,10 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 		renderThemeCSS();
 		renderHeadContributors();
-		if(page.getTitle() != null) {
+		if(page.getBody().getTitle() != null) {
 			o().tag("title");
 			o().endtag();
-			o().text(page.getTitle());
+			o().text(page.getBody().getTitle());
 			o().closetag("title");
 		}
 		o().closetag("head");

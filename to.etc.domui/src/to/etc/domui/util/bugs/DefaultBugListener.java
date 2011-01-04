@@ -113,7 +113,7 @@ public class DefaultBugListener implements IBugListener {
 	public void bugSignaled(BugItem item) {
 		ConversationContext cc;
 		try {
-			cc = PageContext.getCurrentConversation();
+			cc = UIContext.getCurrentConversation();
 		} catch(Exception x) {
 			System.out.println("Bug signalled, outside UI: " + item);
 			return;

@@ -45,9 +45,9 @@ public class LedgerAccount {
 	public LedgerAccount() {}
 
 	public LedgerAccount(String code, String description, String typeDescription) {
-		this.m_code = code;
-		this.m_description = description;
-		this.m_typeDescription = typeDescription;
+		m_code = code;
+		m_description = description;
+		m_typeDescription = typeDescription;
 	}
 
 	@QJdbcId
@@ -66,7 +66,7 @@ public class LedgerAccount {
 	}
 
 	public void setCode(String code) {
-		this.m_code = code;
+		m_code = code;
 	}
 
 	@QJdbcColumn(name = "omschrijving", length = 128)
@@ -75,7 +75,7 @@ public class LedgerAccount {
 	}
 
 	public void setDescription(String description) {
-		this.m_description = description;
+		m_description = description;
 	}
 
 	@QJdbcColumn(name = "grbr_type_omschrijving")
@@ -84,6 +84,6 @@ public class LedgerAccount {
 	}
 
 	public void setTypeDescription(String typeDescription) {
-		this.m_typeDescription = typeDescription;
+		m_typeDescription = typeDescription;
 	}
 }

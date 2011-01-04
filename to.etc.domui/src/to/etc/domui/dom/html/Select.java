@@ -67,9 +67,14 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 		v.visitSelect(this);
 	}
 
+	/**
+	 * Only allow SelectOption as child.
+	 * @see to.etc.domui.dom.html.NodeContainer#canContain(to.etc.domui.dom.html.NodeBase)
+	 */
 	@Override
-	protected boolean canContain(NodeBase node) {
-		return node instanceof SelectOption;
+	protected void canContain(NodeBase node) {
+		if(!(node instanceof SelectOption))
+			throw new IllegalStateException(getClass().getName() + " cannot contain a " + node + " type, only a SelectOption node type.");
 	}
 
 	public boolean isMultiple() {

@@ -327,13 +327,15 @@ div.ui-popin {
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
-	font-size: <%= font_size %>;
 }
-a.ui-lbtn {
+.ui-lnkb {
+}
+
+a.ui-lnkb {
 	cursor: pointer;
 }
 
-a:hover.ui-lbtn {
+a:hover.ui-lnkb {
 	text-decoration: underline !important;
 }
 

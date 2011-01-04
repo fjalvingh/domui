@@ -355,7 +355,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 	static private String branchurl() {
-		return PageContext.getRequestContext().getRelativeThemePath("tree-branch.png");
+		return UIContext.getRequestContext().getRelativeThemePath("tree-branch.png");
 	}
 
 	/**

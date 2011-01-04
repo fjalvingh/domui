@@ -35,7 +35,7 @@ public class InstanceRefresher {
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
 		if(!cmm.isPersistentClass())
 			return;
-		QDataContext dc = QContextManager.getContext(PageContext.getCurrentConversation());
+		QDataContext dc = QContextManager.getContext(UIContext.getCurrentConversation());
 		dc.attach(val);
 	}
 }
