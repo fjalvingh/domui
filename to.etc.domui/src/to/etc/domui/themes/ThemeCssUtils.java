@@ -21,12 +21,13 @@ public class ThemeCssUtils {
 	 * Created on Jan 4, 2011
 	 */
 	static public class Col {
-
 		int r;
 
 		int g;
 
 		int b;
+
+		private boolean m_light;
 
 		private Col() {}
 
@@ -34,6 +35,7 @@ public class ThemeCssUtils {
 			r = rin;
 			g = gin;
 			b = bin;
+			m_light = isLight();
 		}
 
 		public Col(Col in) {
@@ -57,11 +59,20 @@ public class ThemeCssUtils {
 			r = (iv >> 16) & 0xff;
 			g = (iv >> 8) & 0xff;
 			b = (iv & 0xff);
+			m_light = isLight();
 		}
 
 		public double luminance() {
 			//			return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 			return (r + g + b) / 3;
+		}
+
+		public boolean isLight() {
+			return luminance() >= 128;
+		}
+
+		public boolean isDark() {
+			return luminance() < 128;
 		}
 
 		public void brighter(double factor) {
@@ -102,6 +113,17 @@ public class ThemeCssUtils {
 			c.b = 255 - b;
 			return c;
 		}
+
+		/**
+		 * Make a dark color lighter. Make a light color darker.
+		 */
+		public void lume(double pct) {
+			if(m_light)
+				darker(pct);
+			else
+				brighter(pct);
+		}
+
 
 		/**
 		 * See:
@@ -167,6 +189,10 @@ public class ThemeCssUtils {
 		public String det() {
 			return toString() + " (lum=" + luminance() + ", bri=" + colorBrightness() + ")";
 		}
+	}
+
+	public Col color(String hex) {
+		return new Col(hex);
 	}
 
 
