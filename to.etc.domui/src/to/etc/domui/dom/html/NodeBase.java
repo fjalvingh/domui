@@ -1122,7 +1122,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 				throw new IllegalStateException("Bad _index parameter in DROP request: " + s);
 			}
 		}
-		DropEvent dx = new DropEvent((NodeContainer) this, dragnode, index);
+		int colIndex = 0;
+		s = ctx.getParameter("_colIndex");
+		if(s != null) {
+			try {
+				colIndex = Integer.parseInt(s.trim());
+			} catch(Exception x) {
+				throw new IllegalStateException("Bad _index parameter in DROP request: " + s);
+			}
+		}
+		DropEvent dx = new DropEvent((NodeContainer) this, dragnode, index, colIndex);
 		dragh.onDropped(dx);
 		droph.onDropped(dx);
 	}
