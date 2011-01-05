@@ -68,9 +68,6 @@ public class CssFragmentCollector {
 	public void loadStyleProperties() throws Exception {
 		loadProperties(m_name);
 
-
-
-
 	}
 
 	/**
@@ -84,14 +81,16 @@ public class CssFragmentCollector {
 			name = name.substring(1);
 		if(name.endsWith("/"))
 			name = name.substring(0, name.length() - 1);
+		if(name.startsWith("$"))
+			name = name.substring(1);
 
 		//-- If already loaded- abort;
 		if(m_inheritanceStack.contains(name))
 			throw new StyleException(m_name + ": inherited style '" + name + "' is used before (cyclic loop in styles, or double inheritance)");
 		m_inheritanceStack.add(0, name); // Insert BEFORE the others (this is a base class for 'm)
 
-		//-- Load the .props.js file which must exist.
-		String pname = name + "/style.props.js";
+		//-- Load the .props.js file which must exist as either resource or webfile.
+		String pname = "$" + name + "/style.props.js";
 		IResourceRef ires = findRef(pname);
 		if(null == ires)
 			throw new StyleException("The " + pname + " file is not found.");
@@ -123,6 +122,34 @@ public class CssFragmentCollector {
 		return null;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	*.frag.css collection, over the inherited model.	*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Walk the inheritance tree from baseclass to superclass, and collect
+	 * all fragments by name; in the process remove all duplicates.
+	 * @throws Exception
+	 */
+	private void collectFragments() throws Exception {
+		for(String inh : m_inheritanceStack)
+			collectFragments(inh);
+	}
+
+	/**
+	 * Scan the specified name as a directory, and locate all *.frag.css files in first
+	 * the classpath, then the webapp's files directory.
+	 * @param inh
+	 */
+
+	private void collectFragments(String inh) {
+		Package p = Package.getPackage("resources." + inh.replace('/', '.'));
+		if(p != null) {
+
+		}
+
+
+
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Javascript-callable global functions.				*/
