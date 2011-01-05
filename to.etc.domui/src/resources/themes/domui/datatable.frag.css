@@ -1,0 +1,63 @@
+/*** DataTable default style ***/
+.ui-dt {
+	overflow: auto;
+}
+
+.ui-dt TH {
+	text-align: left;
+}
+
+.ui-dt tbody td {
+	padding: 0px 3px;
+}
+
+.ui-dt-hdr {
+	/* default domui table header style is still to be defined */
+}
+
+.ui-dt-nores {
+	padding: 10px 0px 10px 0px;
+	font-style: italic;
+}
+
+tr.ui-rowsel {
+	cursor: pointer;
+}
+
+tr.ui-rowsel:hover {
+	background-color: #ffe1bf !important;
+}
+
+td.ui-cellsel {
+	cursor: pointer;
+	color: #2200cc;
+}
+
+td.ui-cellsel:hover {
+	text-decoration: underline;
+	background-color: #b8f1c7 !important;
+}
+
+th.ui-sortable {
+	cursor: pointer;
+}
+.ui-sortable img {
+	float: left;
+	margin-right: 2px;
+}
+
+.ui-dt TH {
+	font-size: <%= font_size %>;
+	font-weight: bold;
+	padding: 0px 3px;
+}
+
+.ui-dt {
+	font-size: <%= font_size %>;
+}
+
+.ui-dt-separator {
+	background: url(bg-horiz-separator.png) repeat-x center;
+	padding: 1px;
+}
+

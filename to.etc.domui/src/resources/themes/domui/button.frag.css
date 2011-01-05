@@ -1,0 +1,13 @@
+/*** Image Button ***/
+.ui-ib {
+	width: 124px;
+	height: 24px;
+	border: none;
+	background: none;
+	cursor: pointer;
+	padding: 0px;
+}
+
+.ui-ib:hover {
+	background: #cccccc;
+}

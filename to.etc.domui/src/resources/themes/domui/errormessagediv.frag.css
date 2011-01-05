@@ -1,0 +1,24 @@
+/*** ErrorMessageDiv helper for components that handle their error display ***/
+.ui-emd {
+	background-color: #ffaaaa;
+	color: red;
+	border-color: 1px solid red;
+}
+.ui-emd-msg {
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+}
+.ui-emd-info {
+	background-image: url(mini-info.png);
+	background-color: #a9c5f1; /* some nice light blue */
+	color: blue;
+	border-color: 1px solid blue;
+}
+.ui-emd-error {
+	background-image: url(mini-error.png);
+}
+.ui-emd-warning {
+	background-image: url(mini-warning.png);
+}
+

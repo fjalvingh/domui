@@ -33,6 +33,7 @@ import javax.script.*;
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
+import to.etc.template.*;
 
 /**
  * Experimental - This class collects all ".frag.css" files in the specified
@@ -65,6 +66,10 @@ public class CssFragmentCollector {
 
 	private Bindings m_rootBindings;
 
+	private Bindings m_bindings;
+
+	private Map<String, Object> m_propertyMap;
+
 	public CssFragmentCollector(DomApplication da, String name) {
 		if(name.startsWith("/"))
 			name = name.substring(1);
@@ -83,7 +88,15 @@ public class CssFragmentCollector {
 		m_rootBindings = m_engine.getBindings(ScriptContext.GLOBAL_SCOPE);
 		m_rootBindings.put("collector", this);
 		m_engine.eval("function inherit(s) { collector.internalInherit(s); }");
+		m_compiler = new JSTemplateCompiler();
+		m_bindings = m_engine.createBindings();
 	}
+
+	public void loadStyleSheet() throws Exception {
+		loadStyleProperties();
+		appendFragments();
+	}
+
 
 	/**
 	 * Load the properties for the current style *and it's base styles*. After this, the style sheet
@@ -92,6 +105,21 @@ public class CssFragmentCollector {
 	public void loadStyleProperties() throws Exception {
 		loadProperties(m_name);
 
+		//-- Ok: the binding now contains stuff to add/replace to the map
+		m_propertyMap = new HashMap<String, Object>();
+		for(Map.Entry<String, Object> e : m_bindings.entrySet()) {
+			String name = e.getKey();
+			if("context".equals(name))
+				continue;
+			Object v = e.getValue();
+			if(v != null) {
+				String cn = v.getClass().getName();
+				if(cn.startsWith("sun."))
+					continue;
+			}
+			System.out.println("prop: " + name + " = " + v);
+			m_propertyMap.put(name, v);
+		}
 	}
 
 	/**
@@ -125,16 +153,12 @@ public class CssFragmentCollector {
 		try {
 			//-- Execute Javascript;
 			Reader r = new InputStreamReader(is, "utf-8");
-			executeWithGlobals(r);
+			m_engine.eval(r, m_bindings);
 		} finally {
 			try {
 				is.close();
 			} catch(Exception x) {}
 		}
-	}
-
-	private void	executeWithGlobals(Reader r) throws Exception {
-		m_engine.eval(r);
 	}
 
 	protected IResourceRef findRef(@Nonnull String rurl) throws Exception {
@@ -149,14 +173,61 @@ public class CssFragmentCollector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	*.frag.css collection, over the inherited model.	*/
 	/*--------------------------------------------------------------*/
+	private StringBuilder m_sb = new StringBuilder(128000);
+
+	private JSTemplateCompiler m_compiler;
+
+	/**
+	 * @throws Exception
+	 *
+	 */
+	private void appendFragments() throws Exception {
+		Map<String, String> frags = collectFragments();
+		List<String> names = new ArrayList<String>(frags.keySet());
+		Collections.sort(names);
+
+		//-- Run the templater on every file.
+		for(String name : names) {
+			if(!name.endsWith(".frag.css"))
+				continue;
+
+			String map = frags.get(name);
+			String full = "$" + map + "/" + name;
+			appendFragment(full);
+		}
+	}
+
+	private void appendFragment(String full) throws Exception {
+		IResourceRef ires = findRef(full);
+		if(null == ires)
+			throw new StyleException("The " + full + " file/resource is not found.");
+		InputStream is = ires.getInputStream();
+		if(null == is)
+			throw new StyleException("The " + full + " file/resource is not found.");
+		System.out.println("css: loading " + full + " as " + ires);
+
+		try {
+			Reader r = new InputStreamReader(is, "utf-8");
+			JSTemplate tmpl = m_compiler.compile(r, full);
+			tmpl.execute(m_sb, m_propertyMap);
+		} finally {
+			try {
+				is.close();
+			} catch(Exception x) {}
+		}
+	}
+
 	/**
 	 * Walk the inheritance tree from baseclass to superclass, and collect
 	 * all fragments by name; in the process remove all duplicates.
 	 * @throws Exception
 	 */
-	private void collectFragments() throws Exception {
+	private Map<String, String> collectFragments() throws Exception {
+		Map<String, String> res = new HashMap<String, String>();
+
 		for(String inh : m_inheritanceStack)
-			collectFragments(inh);
+			collectFragments(res, inh);
+		return res;
 	}
 
 	/**
@@ -164,15 +235,20 @@ public class CssFragmentCollector {
 	 * the classpath, then the webapp's files directory.
 	 * @param inh
 	 */
+	private void collectFragments(Map<String, String> nameSet, String inh) {
+		String pkgres = "resources/" + inh;
+		List<String>	kns = ClasspathInventory.getInstance().getPackageInventory(pkgres);
+		for(String s: kns)
+			nameSet.put(s, inh);
 
-	private void collectFragments(String inh) {
-		Package p = Package.getPackage("resources." + inh.replace('/', '.'));
-		if(p != null) {
-
+		//-- Scan webapp path
+		File wad = m_app.getAppFile(inh);
+		if(wad != null && wad.isDirectory()) {
+			for(File far : wad.listFiles()) {
+				if(far.isFile())
+					nameSet.put(far.getName(), inh);
+			}
 		}
-
-
-
 	}
 
 	/*--------------------------------------------------------------*/

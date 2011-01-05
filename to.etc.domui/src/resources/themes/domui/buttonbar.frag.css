@@ -1,0 +1,22 @@
+/*** ButtonBar component ***/
+.ui-buttonbar {
+	padding: 0; margin: 0;
+}
+.ui-bb-left {
+	padding: 0; margin: 0;
+	display: none;
+	/* background-image: url(bg-rounded-left.png); vmijic looks better without background image */
+	width: 0px;
+	height: 0px;
+}
+.ui-bb-right {
+	padding: 0; margin: 0;
+	/* background-image: url(bg-rounded-right.png); vmijic looks better without background image */
+	width: 29px;
+	height: 36px;
+}
+.ui-bb-middle {
+	padding: 0; margin: 0;
+	/* background: url(bg-rounded-middle.png) repeat-x; vmijic looks better without background image */
+	height: 36px;
+}
