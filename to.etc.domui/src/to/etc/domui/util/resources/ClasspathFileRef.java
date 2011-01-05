@@ -22,11 +22,9 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.server.reloader;
+package to.etc.domui.util.resources;
 
 import java.io.*;
-
-import to.etc.domui.util.resources.*;
 
 /**
  * Holds a reference to a file entry to access a timestamp, for resource changed checking only.

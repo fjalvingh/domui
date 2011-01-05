@@ -46,7 +46,6 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.injector.*;
 import to.etc.domui.login.*;
 import to.etc.domui.server.parts.*;
-import to.etc.domui.server.reloader.*;
 import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
@@ -642,7 +641,7 @@ public abstract class DomApplication {
 	private IResourceRef createClasspathReference(String name) {
 		if(inDevelopmentMode()) {
 			//-- If running in debug mode get this classpath resource's original source file
-			IModifyableResource ts = Reloader.findClasspathSource(name);
+			IModifyableResource ts = ClasspathInventory.getInstance().findResourceSource(name);
 			return new ReloadingClassResourceRef(ts, name);
 		}
 		return new ProductionClassResourceRef(name);

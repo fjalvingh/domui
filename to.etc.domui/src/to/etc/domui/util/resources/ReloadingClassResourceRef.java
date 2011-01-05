@@ -26,8 +26,6 @@ package to.etc.domui.util.resources;
 
 import java.io.*;
 
-import to.etc.domui.server.reloader.*;
-
 /**
  * This is a resource reference to something on the classpath used only in debug mode. This
  * version allows reloading of classpath resources when they change while the server is

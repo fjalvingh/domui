@@ -24,11 +24,9 @@
  */
 package to.etc.domui.server.reloader;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.regex.*;
-import java.util.zip.*;
 
 import org.slf4j.*;
 
@@ -73,13 +71,6 @@ final public class Reloader {
 	/** A reloader exists only once in a webapp. */
 	static private Reloader m_instance;
 
-	static private final IModifyableResource NOT_FOUND = new IModifyableResource() {
-		@Override
-		public long getLastModified() {
-			throw new IllegalStateException("Whazzup!?");
-		}
-	};
-
 	static private class LoadSpec {
 		private Pattern m_pat;
 
@@ -108,10 +99,7 @@ final public class Reloader {
 	/** The classloader used for other classes */
 	private CheckingClassLoader m_checkLoader;
 
-	/** The set of URLs that are accessed by all my classloaders. */
-	private Set<URL> m_urlSet = new HashSet<URL>();
-
-	private Map<String, IModifyableResource> m_lookupMap = new HashMap<String, IModifyableResource>();
+	private URL[] m_urls;
 
 	private boolean m_changed;
 
@@ -140,16 +128,15 @@ final public class Reloader {
 		}
 		if(m_loadSpecList.size() == 0)
 			throw new IllegalStateException("No load specifiers added.");
-		//		findUrlsFor(m_currentLoader);
-		findUrlsFor(getClass().getClassLoader());
+		m_urls = ClassUtil.findUrlsFor(m_currentLoader);
 
 		//-- ORDERED: must be below findUrlFor's
 		m_currentLoader = new ReloadingClassLoader(getClass().getClassLoader(), this);
 		m_instance = this;
 	}
 
-	URL[] getUrls() {
-		return m_urlSet.toArray(new URL[m_urlSet.size()]);
+	public URL[] getUrls() {
+		return m_urls;
 	}
 
 	static private Reloader internalGetReloader() {
@@ -178,241 +165,19 @@ final public class Reloader {
 	/*	CODING:	Code which locates the source for a class/resource.	*/
 	/*--------------------------------------------------------------*/
 
-	private void addURL(URL u) {
-		//		LOG.info("adding URL="+u);
-		//		System.out.println(".    url="+u);
-		m_urlSet.add(u);
-	}
-
-	/**
-	 * Checks to see what kind of classloader this is, and add all paths to my list.
-	 * @param loader
-	 */
-	private void findUrlsFor(ClassLoader loader) {
-		//		System.out.println(".. loader="+loader);
-		if(loader == null)
-			return;
-		if(loader instanceof URLClassLoader) {
-			URLClassLoader ucl = (URLClassLoader) loader;
-			for(URL u : ucl.getURLs()) {
-				addURL(u);
-			}
-		}
-		findUrlsFor(loader.getParent());
-	}
-
-	/**
-	 * Locate the source for some file that is part of the classpath (either a class resource or a .class file itself),
-	 * and return a timestamp for that thing if found. If the resource is not found this returns null.
-	 * @param resourceName
-	 * @return
-	 * @throws URISyntaxException
-	 */
-	synchronized IModifyableResource findResourceSource(String resourceName) {
-		long t = System.nanoTime();
-		if(resourceName.startsWith("/")) // Resources should start with /, but do not use that in the scan.
-			resourceName = resourceName.substring(1);
-
-		IModifyableResource rr = m_lookupMap.get(resourceName); // Already looked up earlier?
-		if(rr != null) {
-			if(rr == NOT_FOUND)
-				return null;
-			return rr;
-		}
-
-		//-- Scan all paths for this thingy.
-		IModifyableResource ts = scanActually(resourceName);
-
-		//-- Still not found -> make BADREF && store, then return nuttin'
-		m_lookupMap.put(resourceName, ts == null ? NOT_FOUND : ts);
-		if(LOG.isDebugEnabled()) {
-			t = System.nanoTime() - t;
-			LOG.debug("reloader: " + (ts == null ? "un" : "") + "succesful findResourceSource " + resourceName + " took " + StringTool.strNanoTime(t));
-		}
-		return ts;
-	}
-
-	/**
-	 * Tries to find the class in the set of URL's passed.
-	 *
-	 * @param clz
-	 * @return
-	 * @throws URISyntaxException
-	 */
-	synchronized IModifyableResource findClassSource(Class< ? > clz) {
-		//-- 1. Do a quick lookup of the classname itself
-		IModifyableResource rr = m_lookupMap.get(clz.getName()); // Already looked up earlier?
-		if(rr != null) {
-			if(rr == NOT_FOUND)
-				return null;
-			return rr; // Return timestamp
-		}
-
-		//-- 2. Lookup the .class file as a resource.
-		String path = clz.getName().replace('.', '/') + ".class"; // Make path-like structure
-		IModifyableResource ts = findResourceSource(path); // Lookup .class file
-		m_lookupMap.put(clz.getName(), ts == null ? NOT_FOUND : ts);
-		return ts;
-	}
-
-	/**
-	 * Can be called by code to locate a class's .class file in debug mode. This returns null if the resource
-	 * is not found OR if we're not running with a reloader (i.e. not in debug mode).
-	 * @param clz
-	 * @return
-	 * @throws URISyntaxException
-	 */
-	static public IModifyableResource findClasspathSource(Class< ? > clz) {
-		Reloader r = internalGetReloader();
-		if(r == null)
-			return null;
-		return r.findClassSource(clz);
-	}
-
-	/**
-	 * Can be called by code to locate class resources in debug mode. This returns null if the resource
-	 * is not found OR if we're not running with a reloader (i.e. not in debug mode).
-	 * @param clz
-	 * @return
-	 * @throws URISyntaxException
-	 */
-	static public IModifyableResource findClasspathSource(String resourceName) {
-		Reloader r = internalGetReloader();
-		if(r == null)
-			throw new IllegalStateException("Do not call reloader code when running in production mode!");
-		return r.findResourceSource(resourceName);
-	}
-
-	/**
-	 * Do a scan for a source, uncached.
-	 * @param path
-	 * @return
-	 * @throws URISyntaxException
-	 */
-	private synchronized IModifyableResource scanActually(String path) {
-		IModifyableResource ts = null;
-
-		/*
-		 * Initially scan all directories. This is fast; we just see if the file exists in the specified directories.
-		 */
-		for(URL u : m_urlSet) {
-			ts = checkForFile(u, path);
-			if(ts != null)
-				return ts;
-		}
-
-		/*
-		 * Not a file. Does the jar map contain an entry?
-		 */
-		if(m_jarMap.size() != 0) {
-			ClasspathJarRef jref = m_jarMap.get(path);
-			if(jref != null)
-				return jref;
-			LOG.info("? Odd: the classpath resource '" + path + "' cannot be found in the jars... I will do a full rescan.");
-		}
-
-		/*
-		 * Not in the jars, or the jar cache was empty. Do a full rescan then try again
-		 */
-		scanJars();
-		return m_jarMap.get(path);
-	}
-
-	/**
-	 * Try to find the specified class file name as a file relative to the
-	 * specified URL base (provided it is a directory). If found this returns
-	 * the current timestamp and reference that can be checked later on for
-	 * changes on this class' source.
-	 *
-	 * @param u
-	 * @param rel
-	 * @return
-	 * @throws URISyntaxException
-	 */
-	private IModifyableResource checkForFile(URL u, String rel) {
-		if(!"file".equals(u.getProtocol()))
-			return null;
-		if(u.getPath().endsWith(".jar"))
-			return null;
-		File f;
-		try {
-			f = new File(u.toURI());
-		} catch(URISyntaxException x) {
-			return null; // Ignore errors in Java's own administration...
-		}
-		if(!f.exists() || !f.isDirectory()) // Must be a dir here,
-			return null;
-
-		//-- Can we locate the class here, then?
-		File nw = new File(f, rel);
-		if(!nw.exists() || !nw.isFile())
-			return null;
-
-		LOG.debug("Found class " + rel + " in " + u);
-		return new ClasspathFileRef(nw);
-	}
-
-	/**
-	 * This maps classpath resource names to the jar they are contained in...
-	 */
-	private Map<String, ClasspathJarRef> m_jarMap = new HashMap<String, ClasspathJarRef>();
-
-	/**
-	 * Scan all JAR files and create a map of their content linked to the jar file itself.
-	 * @throws URISyntaxException
-	 */
-	private synchronized void scanJars() {
-		long ts = System.nanoTime();
-		m_jarMap.clear();
-		for(URL u : m_urlSet) {
-			if(!"file".equals(u.getProtocol()))
-				continue;
-			if(!u.getPath().endsWith(".jar"))
-				continue;
-			File f = null;
-			try {
-				f = new File(u.toURI());
-			} catch(URISyntaxException x) {
-				//-- Ignore errors in Java's own config
-			}
-			if(f == null || !f.exists() || !f.isFile()) // Must be a file,
-				continue;
-
-			//-- This is a jar... Get all of it's files.
-			loadJarFiles(f);
-		}
-		ts = System.nanoTime() - ts;
-		LOG.info("Loading full JAR inventory of " + m_jarMap.size() + " entries took " + StringTool.strNanoTime(ts));
-	}
-
-	/**
-	 * If the specified url is a JAR load it's fileset and store in the jarmap.
-	 * @param u
-	 */
-	private void loadJarFiles(File f) {
-		ClasspathJarRef jarref = new ClasspathJarRef(f);
-		InputStream is = null;
-		ZipInputStream zis = null;
-		try {
-			is = new FileInputStream(f);
-			zis = new ZipInputStream(is);
-			ZipEntry ze;
-			while(null != (ze = zis.getNextEntry())) { // Walk entry
-				m_jarMap.put(ze.getName(), jarref); // Update the reference.
-			}
-		} catch(Exception xz) {
-			// Ignore all exceptions: when a classpath jar is corrupt let someone else bother...
-		} finally {
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {}
-			try {
-				if(zis != null)
-					zis.close();
-			} catch(Exception x) {}
-		}
-	}
+	//	/**
+	//	 * Can be called by code to locate a class's .class file in debug mode. This returns null if the resource
+	//	 * is not found OR if we're not running with a reloader (i.e. not in debug mode).
+	//	 * @param clz
+	//	 * @return
+	//	 * @throws URISyntaxException
+	//	 */
+	//	static public IModifyableResource findClasspathSource(Class< ? > clz) {
+	//		Reloader r = internalGetReloader();
+	//		if(r == null)
+	//			return null;
+	//		return r.findClassSource(clz);
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Check files.										*/

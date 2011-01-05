@@ -1,7 +1,5 @@
 package to.etc.domui.themes;
 
-import to.etc.util.*;
-
 /**
  * This helper class is passed to the theme factory, and can be used to augment
  * information in the style.properties.
