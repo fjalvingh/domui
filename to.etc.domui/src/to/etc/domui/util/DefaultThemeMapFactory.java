@@ -31,7 +31,6 @@ import javax.annotation.*;
 import javax.script.*;
 
 import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
