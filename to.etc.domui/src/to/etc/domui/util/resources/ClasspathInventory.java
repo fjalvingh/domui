@@ -29,6 +29,8 @@ import java.net.*;
 import java.util.*;
 import java.util.zip.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.util.*;
@@ -301,4 +303,64 @@ public class ClasspathInventory {
 			} catch(Exception x) {}
 		}
 	}
+
+	/**
+	 * This scans the entire known classpath and constructs all stuff that is available in the
+	 * specified package directory. These are all files there: .class and others.
+	 * @param pkgdirname
+	 * @return
+	 */
+	@Nonnull
+	public List<String> getPackageInventory(@Nonnull String pkgdirname) {
+		pkgdirname = pkgdirname.replace('.', '/');
+
+		//-- Walk all dirs in the set;
+		List<String>	res = new ArrayList<String>();
+		for(File f: m_fileSet) {
+			if(f.getName().toLowerCase().endsWith(".jar")) // Skip all .jar files for now
+				continue;
+			if(!f.exists() || !f.isDirectory()) // Must be a dir here,
+				continue;
+
+			//-- Can we locate the class based @ here, then?
+			File nw = new File(f, pkgdirname);
+			if(!nw.isDirectory())
+				continue;
+			File[] far = nw.listFiles();
+			for(File fi : far) {
+				if(fi.isFile())
+					res.add(fi.getName());
+			}
+		}
+		if(m_jarMap.size() == 0)
+			scanJars();
+
+		//-- Walk all jar entries
+		int pdl = pkgdirname.length();
+		synchronized(this) {
+			for(String ks : m_jarMap.keySet()) {
+				if(ks.startsWith(pkgdirname)) {
+					if(ks.length() > pdl + 1 && ks.charAt(pdl) == '/') {
+						String rn = ks.substring(pdl + 1);
+						if(rn.indexOf('/') == -1)
+							res.add(rn);
+					}
+				}
+			}
+		}
+
+		return res;
+	}
+
+	public static void main(String[] args) {
+		try {
+			List<String> res = getInstance().getPackageInventory("org.apache.batik.css.dom");
+			for(String s : res)
+				System.out.println("res=" + s);
+
+		} catch(Exception x) {
+			x.printStackTrace();
+		}
+	}
+
 }
