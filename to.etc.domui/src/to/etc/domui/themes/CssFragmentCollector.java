@@ -31,6 +31,7 @@ import javax.annotation.*;
 import javax.script.*;
 
 import to.etc.domui.server.*;
+import to.etc.domui.test.util.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
 import to.etc.template.*;
@@ -90,6 +91,7 @@ public class CssFragmentCollector {
 		m_engine.eval("function inherit(s) { collector.internalInherit(s); }");
 		m_compiler = new JSTemplateCompiler();
 		m_bindings = m_engine.createBindings();
+		m_bindings.put("browser", DomUITestUtil.getBrowserVersionIE8());
 	}
 
 	public void loadStyleSheet() throws Exception {
@@ -117,7 +119,7 @@ public class CssFragmentCollector {
 				if(cn.startsWith("sun."))
 					continue;
 			}
-			System.out.println("prop: " + name + " = " + v);
+			//			System.out.println("prop: " + name + " = " + v);
 			m_propertyMap.put(name, v);
 		}
 	}
@@ -149,7 +151,7 @@ public class CssFragmentCollector {
 		InputStream is = ires.getInputStream();
 		if(null == is)
 			throw new StyleException("The " + pname + " file is not found.");
-		System.out.println("css: loading " + pname + " as " + ires);
+		//		System.out.println("css: loading " + pname + " as " + ires);
 		try {
 			//-- Execute Javascript;
 			Reader r = new InputStreamReader(is, "utf-8");
@@ -204,7 +206,7 @@ public class CssFragmentCollector {
 		InputStream is = ires.getInputStream();
 		if(null == is)
 			throw new StyleException("The " + full + " file/resource is not found.");
-		System.out.println("css: loading " + full + " as " + ires);
+		//		System.out.println("css: loading " + full + " as " + ires);
 
 		try {
 			Reader r = new InputStreamReader(is, "utf-8");

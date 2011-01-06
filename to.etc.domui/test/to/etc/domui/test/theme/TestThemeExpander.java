@@ -32,5 +32,14 @@ public class TestThemeExpander {
 		System.out.println("Loaded in " + StringTool.strNanoTime(ts));
 	}
 
-
+	@Test
+	public void testThemeExpander3() throws Exception {
+		for(int i = 0; i < 10; i++) {
+			CssFragmentCollector cfc = new CssFragmentCollector(m_da, "$themes/domui");
+			long ts = System.nanoTime();
+			cfc.loadStyleSheet();
+			ts = System.nanoTime() - ts;
+			System.out.println("#" + i + ": Loaded in " + StringTool.strNanoTime(ts));
+		}
+	}
 }
