@@ -1,4 +1,4 @@
-//inherit('$themes/coretheme');
+inherit('$themes/coretheme');
 
 font_family='Verdana, Tahoma, Arial, Bitstream Vera, Helvetica, sans-serif';
 font_size='12px';

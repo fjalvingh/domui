@@ -38,7 +38,5 @@ public class JavascriptExecutorFactory {
 		JavascriptExecutor jx = new JavascriptExecutor(this);
 		jx.initialize(m_rootScope);
 		return jx;
-
-
 	}
 }
