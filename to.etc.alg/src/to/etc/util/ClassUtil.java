@@ -26,6 +26,7 @@ package to.etc.util;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
+import java.net.*;
 import java.sql.*;
 import java.util.*;
 
@@ -369,4 +370,34 @@ final public class ClassUtil {
 			return;
 		res.add(clzin);
 	}
+
+	/**
+	 * Scan the classloader hierarchy and find all urls.
+	 * @param loader
+	 * @return
+	 */
+	static public URL[] findUrlsFor(ClassLoader loader) {
+		List<URL> res = new ArrayList<URL>();
+		findUrlsFor(res, loader);
+		return res.toArray(new URL[res.size()]);
+	}
+
+	/**
+	 * Checks to see what kind of classloader this is, and add all paths to my list.
+	 * @param loader
+	 */
+	static private void findUrlsFor(List<URL> result, ClassLoader loader) {
+		//		System.out.println(".. loader="+loader);
+		if(loader == null)
+			return;
+		if(loader instanceof URLClassLoader) {
+			URLClassLoader ucl = (URLClassLoader) loader;
+			for(URL u : ucl.getURLs()) {
+				result.add(u);
+			}
+		}
+		findUrlsFor(result, loader.getParent());
+	}
+
+
 }
