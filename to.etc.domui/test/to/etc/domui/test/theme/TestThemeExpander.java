@@ -42,4 +42,21 @@ public class TestThemeExpander {
 			System.out.println("#" + i + ": Loaded in " + StringTool.strNanoTime(ts));
 		}
 	}
+
+	//	@Test
+	//	public void testJavascriptObject() throws Exception {
+	//		ScriptEngineManager engineManager = new ScriptEngineManager();
+	//		ScriptEngine engine = engineManager.getEngineByName("js");
+	//
+	//		Object val = engine.eval("var a = new Object(); a.mama=2; a;");
+	//		System.out.println("val=" + Context.toString(val));
+	//
+	//		Object[] pids = ScriptableObject.getPropertyIds((sun.org.mozilla.javascript.internal.NativeObject) val);
+	//		for(Object pid : pids) {
+	//			Object v = ScriptableObject.getProperty((NativeObject) val, pid.toString());
+	//			System.out.println("name=" + pid + " value=" + v);
+	//		}
+	//
+	//	}
+
 }
