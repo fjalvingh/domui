@@ -28,7 +28,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 		}
 		return new AbstractLookupControlImpl(dateFrom, tn, dateTo) {
 			@Override
-			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
+			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
 				Date from, till;
 				try {
 					from = dateFrom.getValue();
@@ -37,7 +37,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 						from = DateUtil.truncateDate(from);
 					}
 				} catch(Exception x) {
-					return false;
+					return AppendCriteriaResult.INVALID;
 				}
 				try {
 					till = dateTo.getValue();
@@ -47,10 +47,10 @@ final class LookupFactoryDate implements ILookupControlFactory {
 					}
 
 				} catch(Exception x) {
-					return false;
+					return AppendCriteriaResult.INVALID;
 				}
 				if(from == null && till == null)
-					return true;
+					return AppendCriteriaResult.EMPTY;
 				if(from != null && till != null) {
 					if(from.getTime() > till.getTime()) {
 						//-- Swap vals
@@ -68,7 +68,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 				} else {
 					crit.lt(spm.getPropertyName(), till);
 				}
-				return true;
+				return AppendCriteriaResult.VALID;
 			}
 
 			@Override

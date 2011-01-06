@@ -5,6 +5,7 @@ import java.util.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
+import to.etc.domui.component.lookup.ILookupControlInstance.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.css.*;
@@ -80,6 +81,11 @@ public class LookupForm<T> extends Div {
 	 * Set to true in case that control have to be rendered as collapsed by default. It is used when lookup form have to popup with initial search results already shown. 
 	 */
 	private boolean m_renderAsCollapsed;
+
+	/**
+	 * Calculated by entered search criterias, T in case that exists any field resulting with {@link AppendCriteriaResult#VALID} in LookupForm fields.
+	 */
+	private boolean m_hasUserDefinedCriteria;
 
 	/**
 	 * This is the definition for an Item to look up. A list of these
@@ -795,17 +801,24 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	public QCriteria<T> getEnteredCriteria() throws Exception {
+		m_hasUserDefinedCriteria = false;
 		QCriteria<T> root = QCriteria.create(m_lookupClass);
 		boolean success = true;
 		for(Item it : m_itemList) {
 			ILookupControlInstance li = it.getInstance();
 			if(li != null) { // FIXME Is it reasonable to allow null here?? Should we not abort?
-				if(!li.appendCriteria(root))
+				AppendCriteriaResult res = li.appendCriteria(root);
+				if(res == AppendCriteriaResult.INVALID) {
 					success = false;
+				} else if(res == AppendCriteriaResult.VALID) {
+					m_hasUserDefinedCriteria = true;
+				}
 			}
 		}
-		if(!success) // Some input failed to validate their input criteria?
+		if(!success) { // Some input failed to validate their input criteria?
+			m_hasUserDefinedCriteria = false;
 			return null; // Then exit null -> should only display errors.
+		}
 		return root;
 	}
 
@@ -1009,5 +1022,14 @@ public class LookupForm<T> extends Div {
 
 	public void setRenderAsCollapsed(boolean renderAsCollapsed) {
 		m_renderAsCollapsed = renderAsCollapsed;
+	}
+
+	/**
+	 * See {@link LookupForm#m_renderAsCollapsed}.
+	 * Method {@link LookupForm#getEnteredCriteria} MUST BE EXECUTED BEFORE checking for this property value! 
+	 * @return
+	 */
+	public boolean hasUserDefinedCriteria() {
+		return m_hasUserDefinedCriteria;
 	}
 }

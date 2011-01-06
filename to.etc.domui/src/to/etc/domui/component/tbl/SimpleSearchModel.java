@@ -37,8 +37,6 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	private boolean m_refreshAfterShelve;
 
-	private boolean m_unlimited;
-
 	private IQueryHandler<T> m_queryHandler;
 
 	/**
@@ -77,7 +75,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	protected void execQuery() throws Exception {
 		long ts = System.nanoTime();
 		QCriteria<T> qc = m_query; // Get the base query,
-		if(qc.getLimit() <= 0 && !m_unlimited)
+		if(qc.getLimit() <= 0)
 			qc.limit(ITableModel.DEFAULT_MAX_SIZE + 1);
 		if(m_sort != null) { // Are we sorting?
 			qc.getOrder().clear(); // FIXME Need to duplicate.
@@ -97,7 +95,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			dc.close();
 		} else
 			throw new IllegalStateException("No QueryHandler nor SessionSource set- don't know how to do the query");
-		if(!m_unlimited && (m_workResult.size() > ITableModel.DEFAULT_MAX_SIZE)) {
+		if(m_workResult.size() > ITableModel.DEFAULT_MAX_SIZE) {
 			m_workResult.remove(m_workResult.size() - 1);
 			m_truncated = true;
 		} else
@@ -211,23 +209,4 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	}
 
 	public void onUnshelve() throws Exception {}
-
-	/**
-	 * Returns if model is set to return unlimited data set.
-	 * @return
-	 */
-	public boolean isUnlimited() {
-		return m_unlimited;
-	}
-
-	/**
-	 * Specified whether model should behave as limited or unlimited model. 
-	 * Limited model would limit unlimited queries to {@link ITableModel#DEFAULT_MAX_SIZE}. In case of larger number of results then query limit, it would be marked as truncated.
-	 * Unlimited model would not additionaly set result size limit on any query and would never set truncated flag.<BR/>
-	 * <B>Use carefully. Be aware that large results set can eat up lot of memory that can easily cause OOM errors and crash server.</B>  
-	 * @param unlimited
-	 */
-	public void setUnlimited(boolean unlimited) {
-		m_unlimited = unlimited;
-	}
 }

@@ -15,6 +15,27 @@ import to.etc.webapp.query.*;
  */
 public interface ILookupControlInstance {
 	/**
+	 * Represents result of {@link ILookupControlInstance#appendCriteria(QCriteria)}.
+	 * Can be one of values:
+	 * <OL>
+	 * <LI>{@link AppendCriteriaResult#INVALID}</LI>
+	 * <LI>{@link AppendCriteriaResult#EMPTY}</LI>
+	 * <LI>{@link AppendCriteriaResult#VALID}</LI>
+	 * </OL> 
+	 *
+	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+	 * Created on 6 Jan 2011
+	 */
+	public enum AppendCriteriaResult {
+		/** Entered search critaria is not valid. */
+		INVALID, //
+		/** No search critaria is entered. This however can result in implicit filter added into criteria. */
+		EMPTY, //
+		/** Search critaria is entered by user, represents explicit filters. 
+		 * This information is important when we want to force user to define at least one explicit criteria in order to permit search on large data sets. */
+		VALID
+	};
+	/**
 	 * Return all of the nodes (input and otherwise) that together form the complete visual representation
 	 * of this lookup line. This may NOT return null OR an empty list.
 	 * @return
@@ -38,8 +59,8 @@ public interface ILookupControlInstance {
 	 * Evaluate the contents of the input for this lookup line; if the user has
 	 * added data there then add the values to the query.
 	 * @param crit
-	 * @return
+	 * @return see {@link AppendCriteriaResult} 
 	 * @throws Exception
 	 */
-	public boolean appendCriteria(QCriteria< ? > crit) throws Exception;
+	public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception;
 }
