@@ -553,7 +553,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			}
 		}
 		m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
+		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
 			m_floater.addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
 			return;
 		} else

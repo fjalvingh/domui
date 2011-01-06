@@ -93,17 +93,17 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 			}*/
 
 			@Override
-			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
+			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
 				NumericRelationType relation;
 				relation = relationCombo.getValue();
 				if(relation == null) {
-					return true;
+					return AppendCriteriaResult.EMPTY;
 				}
 				if(!numA.validate()) {
-					return false;
+					return AppendCriteriaResult.INVALID;
 				}
 				if(relation == NumericRelationType.BETWEEN && !numB.validate()) {
-					return false;
+					return AppendCriteriaResult.INVALID;
 				}
 				switch(relation){
 					case EQ:
@@ -128,7 +128,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 						crit.between(spm.getPropertyName(), numA.getValue(), numB.getValue());
 						break;
 				}
-				return true;
+				return AppendCriteriaResult.VALID;
 			}
 		};
 	}

@@ -96,7 +96,7 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 		return m_monetary;
 	}
 
-	protected boolean appendCriteria(QCriteria< ? > crit, QOperation op, T val) throws Exception {
+	protected AppendCriteriaResult appendCriteria(QCriteria< ? > crit, QOperation op, T val) throws Exception {
 		if(UNARY_OPS.contains(op)) {
 			if(val != null)
 				throw new IllegalStateException("Unused value"+val+" for unary operation "+op);
@@ -106,8 +106,8 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 				throw new IllegalStateException("Missing value for binary operation "+op);
 			crit.add(new QPropertyComparison(op, m_propertyName, new QLiteral(val)));
 		} else
-			return false;
-		return true;
+			return AppendCriteriaResult.INVALID;
+		return AppendCriteriaResult.VALID;
 	}
 
 	protected void checkNumber(T value) {
@@ -126,17 +126,17 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 	}
 
 	@Override
-	public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
+	public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
 		try {
 			m_input.clearMessage(); // Remove any earlier validation failure.
 
 			//-- Get value and bail out if it's empty.
 			String in = m_input.getValue();
 			if(in == null)
-				return true;
+				return AppendCriteriaResult.EMPTY;
 			in = in.trim();
 			if(in.length() == 0)
-				return true;
+				return AppendCriteriaResult.EMPTY;
 
 			//-- Handle single operators: currently only the '!' to indicate 'not-null'
 			if("!".equals(in)) {
@@ -154,7 +154,7 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 				//-- This is just a number and cannot have operators. Parse and create equality test.
 				T value = parseNumber(in);
 				if(value == null)
-					return false;
+					return AppendCriteriaResult.INVALID;
 				checkNumber(value);
 				return appendCriteria(crit, QOperation.EQ, value);
 			}
@@ -190,14 +190,20 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 			//-- Now: construct the between proper
 			if(((op == QOperation.GE || op == QOperation.GT) && (op2 == QOperation.LT || op2 == QOperation.LE))
 				|| ((op2 == QOperation.GE || op2 == QOperation.GT) && (op == QOperation.LT || op == QOperation.LE))) {
-				boolean r1 = appendCriteria(crit, op, value);
-				boolean r2 = appendCriteria(crit, op2, value2); // Do not merge in return because || is short-circuit
-				return r1 || r2;
+				AppendCriteriaResult r1 = appendCriteria(crit, op, value);
+				AppendCriteriaResult r2 = appendCriteria(crit, op2, value2); // Do not merge in return because || is short-circuit
+				if(r1 == AppendCriteriaResult.VALID || r2 == AppendCriteriaResult.VALID) {
+					return AppendCriteriaResult.VALID;
+				} else if(r1 == AppendCriteriaResult.EMPTY || r2 == AppendCriteriaResult.EMPTY) {
+					return AppendCriteriaResult.EMPTY;
+				} else {
+					return AppendCriteriaResult.INVALID;
+				}
 			} else
 				throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_BAD_OPERATOR_COMBI);
 		} catch(UIException x) {
 			m_input.setMessage(UIMessage.error(x));
-			return false;
+			return AppendCriteriaResult.INVALID;
 		}
 	}
 
