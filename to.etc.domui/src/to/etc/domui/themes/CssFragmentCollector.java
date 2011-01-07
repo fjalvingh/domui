@@ -28,10 +28,10 @@ import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
-
-import org.mozilla.javascript.*;
+import javax.script.*;
 
 import to.etc.domui.server.*;
+import to.etc.domui.test.util.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
 import to.etc.template.*;
@@ -61,9 +61,13 @@ public class CssFragmentCollector {
 
 	private ResourceDependencyList m_rdl = new ResourceDependencyList();
 
-	private JavascriptExecutorFactory m_engineManager;
+	private ScriptEngineManager m_engineManager;
 
-	private JavascriptExecutor m_engine;
+	private ScriptEngine m_engine;
+
+	private Bindings m_rootBindings;
+
+	private Bindings m_bindings;
 
 	private Map<String, Object> m_propertyMap;
 
@@ -80,20 +84,14 @@ public class CssFragmentCollector {
 		if(m_engineManager != null)
 			return;
 
-		Context jsc = Context.enter();
-		try {
-
-			m_engineManager = new JavascriptExecutorFactory();
-			m_engine = m_engineManager.createExecutor();
-			m_engine.getScope().put("collector", m_engine.getScope(), m_engine.toObject(this));
-			m_engine.eval("function inherit(s) { collector.internalInherit(s); }");
-			m_compiler = new JSTemplateCompiler();
-			//		m_bindings = m_engine.createBindings();
-			//		m_bindings.put("browser", DomUITestUtil.getBrowserVersionIE8());
-
-		} finally {
-			Context.exit();
-		}
+		m_engineManager = new ScriptEngineManager();
+		m_engine = m_engineManager.getEngineByName("js");
+		m_rootBindings = m_engine.getBindings(ScriptContext.GLOBAL_SCOPE);
+		m_rootBindings.put("collector", this);
+		m_engine.eval("function inherit(s) { collector.internalInherit(s); }");
+		m_compiler = new JSTemplateCompiler();
+		m_bindings = m_engine.createBindings();
+		m_bindings.put("browser", DomUITestUtil.getBrowserVersionIE8());
 	}
 
 	public void loadStyleSheet() throws Exception {
@@ -109,30 +107,21 @@ public class CssFragmentCollector {
 	public void loadStyleProperties() throws Exception {
 		loadProperties(m_name);
 
-		//-- Get the map
-		Scriptable so = m_engine.getScope();
-		Object[] pids = ScriptableObject.getPropertyIds(so);
-		for(Object pid : pids) {
-			Object v = ScriptableObject.getProperty(so, pid.toString());
-			System.out.println("name=" + pid + " value=" + v);
+		//-- Ok: the binding now contains stuff to add/replace to the map
+		m_propertyMap = new HashMap<String, Object>();
+		for(Map.Entry<String, Object> e : m_bindings.entrySet()) {
+			String name = e.getKey();
+			if("context".equals(name))
+				continue;
+			Object v = e.getValue();
+			if(v != null) {
+				String cn = v.getClass().getName();
+				if(cn.startsWith("sun."))
+					continue;
+			}
+			//			System.out.println("prop: " + name + " = " + v);
+			m_propertyMap.put(name, v);
 		}
-
-
-		//		//-- Ok: the binding now contains stuff to add/replace to the map
-		//		m_propertyMap = new HashMap<String, Object>();
-		//		for(Map.Entry<String, Object> e : m_bindings.entrySet()) {
-		//			String name = e.getKey();
-		//			if("context".equals(name))
-		//				continue;
-		//			Object v = e.getValue();
-		//			if(v != null) {
-		//				String cn = v.getClass().getName();
-		//				if(cn.startsWith("sun."))
-		//					continue;
-		//			}
-		//			//			System.out.println("prop: " + name + " = " + v);
-		//			m_propertyMap.put(name, v);
-		//		}
 	}
 
 	/**
@@ -162,11 +151,11 @@ public class CssFragmentCollector {
 		InputStream is = ires.getInputStream();
 		if(null == is)
 			throw new StyleException("The " + pname + " file is not found.");
-		System.out.println("css: loading " + pname + " as " + ires);
+		//		System.out.println("css: loading " + pname + " as " + ires);
 		try {
 			//-- Execute Javascript;
 			Reader r = new InputStreamReader(is, "utf-8");
-			m_engine.eval(r, name);
+			m_engine.eval(r, m_bindings);
 		} finally {
 			try {
 				is.close();
