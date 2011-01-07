@@ -37,7 +37,7 @@ public final class UIDragDropUtil {
 	static public void exposeDraggable(NodeBase base, IDragHandler dh) {
 		if(dh == null) {
 			base.removeCssClass("ui-drgbl");
-			base.setOnMouseDownJS(null);
+			//			base.setOnMouseDownJS(null);	jal 20110104 Should only be cleared for draggables..
 		} else {
 			base.addCssClass("ui-drgbl");
 			base.setOnMouseDownJS("WebUI.dragMouseDown(this, event)");

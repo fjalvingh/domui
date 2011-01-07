@@ -26,6 +26,8 @@ package to.etc.domui.util.resources;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * Contains a list of things that an "owner" depends on, and for each thing
  * a "timenstamp" of that thing at the time it was used (added) to this list.
@@ -36,14 +38,33 @@ import java.util.*;
  * Created on Oct 19, 2009
  */
 final public class ResourceDependencyList {
+	@Nonnull
 	private List<ResourceTimestamp> m_deplist = Collections.EMPTY_LIST;
 
-	public void add(IModifyableResource c) {
+	/**
+	 * Add a new resource to the list. The resource's timestamp is obtained and stored at this time.
+	 * @param c
+	 */
+	public void add(@Nonnull IModifyableResource c) {
 		if(m_deplist == Collections.EMPTY_LIST)
 			m_deplist = new ArrayList<ResourceTimestamp>(5);
 		m_deplist.add(new ResourceTimestamp(c, c.getLastModified()));
 	}
 
+	/**
+	 * Add another list of resources to this one.
+	 * @param c
+	 */
+	public void add(@Nonnull ResourceDependencyList c) {
+		for(ResourceTimestamp mr : c.m_deplist)
+			m_deplist.add(mr);
+	}
+
+	/**
+	 * Compares the current timestamp of the resource with the one it had when it was
+	 * added, and returns true if any resource has changed  (= has a different timestamp).
+	 * @return
+	 */
 	public boolean isModified() {
 		for(ResourceTimestamp c : m_deplist) {
 			if(c.isModified())

@@ -174,12 +174,12 @@ public class DefaultButton extends Button {
 		sb.append(".part?src=");
 		sb.append(m_propSrc);
 		if(m_text != null) {
-			sb.append("&amp;txt=");
+			sb.append("&txt=");
 			//			String text = DomUtil.replaceTilded(this, m_text);
 			StringTool.encodeURLEncoded(sb, m_text);
 		}
 		if(m_icon != null) {
-			sb.append("&amp;icon=");
+			sb.append("&icon=");
 			StringTool.encodeURLEncoded(sb, m_icon);
 		}
 		m_img.setSrc(sb.toString());

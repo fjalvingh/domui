@@ -463,8 +463,11 @@ var WebUI = {
 		var q1 = $("input").get();
 		for ( var i = q1.length; --i >= 0;) {
 			var t = q1[i];
-			if (t.type == 'file' || t.type == 'hidden') // All hidden input nodes are created directly in browser java-script and because that are filtered out from server requests.				
+			if (t.type == 'file')				
 				continue;
+			if (t.type == 'hidden' && !t.getAttribute('s')) // All hidden input nodes are created directly in browser java-script and because that are filtered out from server requests.				
+				continue;
+
 			var val = undefined;
 			if (t.type == 'checkbox') {
 				val = t.checked ? "y" : "n";
@@ -2254,6 +2257,47 @@ drop : function(dz) {
 	});
 	WebUI.dragReset();
 }
+};
+
+/**
+ * Make a structure a color button.
+ */
+WebUI.colorPickerButton = function(btnid, inid, value,onchange) {
+	$(btnid).ColorPicker({
+		color: '#'+value,
+		onShow: function (colpkr) {
+			$(colpkr).fadeIn(500);
+			return false;
+		},
+		onHide: function (colpkr) {
+			$(colpkr).fadeOut(500);
+			return false;
+		},
+		onChange: function (hsb, hex, rgb) {
+			$(btnid+' div').css('backgroundColor', '#' + hex);
+			$(inid).val(hex);
+			if(onchange)
+				WebUI.colorPickerOnchange(btnid, hex);
+		}
+	});
+};
+
+WebUI.colorPickerOnchange= function(id, last) {
+	if(WebUI._colorLast == last && WebUI._colorLastID == id)
+		return;
+
+	if(WebUI._colorTimer) {
+		window.clearTimeout(WebUI._colorTimer);
+		window._colorTimer = undefined;
+	}
+	WebUI._colorLastID = id;
+	WebUI._colorTimer = window.setTimeout("WebUI.colorPickerChangeEvent('" + id + "')", 500);
+};
+
+WebUI.colorPickerChangeEvent = function(id) {
+	window.clearTimeout(WebUI._colorTimer);
+	window._colorTimer = undefined;
+	WebUI.valuechanged('eh', id);
 };
 
 var DomUI = WebUI;

@@ -359,4 +359,17 @@ public class MoneyUtil {
 		return bdv.doubleValue();
 	}
 
+	/**
+	 * This operation compares two double values for equality.
+	 * Because floating point calculations may involve rounding, calculated double values may not be accurate, so we need to compare with certain tolerance.
+	 * Since we are using rounding of monetary calculations with predefined precisions, we reuse same tolerance here, so both specified double values are compared as rounded monetary values.
+	 *
+	 * @param value1
+	 * @param value2
+	 * @return
+	 */
+	public static boolean areValuesEqual(double value1, double value2) {
+		return (roundValue(value1) == roundValue(value2));
+	}
+
 }

@@ -22,13 +22,14 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.server.parts;
+package to.etc.domui.themes;
 
 import java.io.*;
 
 import javax.annotation.*;
 
 import to.etc.domui.server.*;
+import to.etc.domui.server.parts.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
