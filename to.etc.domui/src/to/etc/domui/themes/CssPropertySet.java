@@ -155,11 +155,13 @@ public class CssPropertySet {
 		InputStream is = ires.getInputStream();
 		if(null == is)
 			throw new StyleException("The " + pname + " file is not found.");
-		//		System.out.println("css: loading " + pname + " as " + ires);
+		System.out.println("css: loading " + pname + " as " + ires);
 		try {
 			//-- Execute Javascript;
 			Reader r = new InputStreamReader(is, "utf-8");
 			getEngine().getBindings(ScriptContext.ENGINE_SCOPE).put(ScriptEngine.FILENAME, pname);
+			getEngine().getBindings(ScriptContext.GLOBAL_SCOPE).put(ScriptEngine.FILENAME, pname);
+			m_bindings.put(ScriptEngine.FILENAME, pname);
 			getEngine().eval(r, m_bindings);
 		} finally {
 			try {
