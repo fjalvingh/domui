@@ -2204,7 +2204,6 @@ checkRerender : function(dz) {
 	this.renderTween(dz, b);
 },
 
-//MVE hier wordt de insert getoond. Deze moet dus ook per cel gaan doen. 
 renderTween : function(dz, b) {
 	var body = dz._tbody;
 
