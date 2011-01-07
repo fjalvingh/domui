@@ -28,13 +28,14 @@ import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.resource.spi.IllegalStateException;
 import javax.script.*;
 
 import to.etc.domui.server.*;
-import to.etc.domui.test.util.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
 import to.etc.template.*;
+import to.etc.util.*;
 
 /**
  * Experimental - This class collects all ".frag.css" files in the specified
@@ -53,23 +54,7 @@ import to.etc.template.*;
 public class CssFragmentCollector {
 	final private DomApplication m_app;
 
-	/** The root name of the map containing the styles. This must be a real slashed "directory" name that can be looked up in resources and WebContent files. */
-	final private String m_name;
-
-	/** When style a EXTENDS style B etc, this starts with the base class (b) and ends with the topmost one (A). */
-	private List<String> m_inheritanceStack = new ArrayList<String>();
-
-	private ResourceDependencyList m_rdl = new ResourceDependencyList();
-
 	private ScriptEngineManager m_engineManager;
-
-	private ScriptEngine m_engine;
-
-	private Bindings m_rootBindings;
-
-	private Bindings m_bindings;
-
-	private Map<String, Object> m_propertyMap;
 
 	public CssFragmentCollector(DomApplication da, String name) {
 		if(name.startsWith("/"))
@@ -77,7 +62,6 @@ public class CssFragmentCollector {
 		if(name.endsWith("/"))
 			name = name.substring(0, name.length() - 1);
 		m_app = da;
-		m_name = name;
 	}
 
 	private void init() throws Exception {
@@ -85,122 +69,110 @@ public class CssFragmentCollector {
 			return;
 
 		m_engineManager = new ScriptEngineManager();
-		m_engine = m_engineManager.getEngineByName("js");
-		m_rootBindings = m_engine.getBindings(ScriptContext.GLOBAL_SCOPE);
-		m_rootBindings.put("collector", this);
-		m_engine.eval("function inherit(s) { collector.internalInherit(s); }");
 		m_compiler = new JSTemplateCompiler();
-		m_bindings = m_engine.createBindings();
-		m_bindings.put("browser", DomUITestUtil.getBrowserVersionIE8());
 	}
+
+	ScriptEngineManager getEngineManager() throws Exception {
+		init();
+		return m_engineManager;
+	}
+
+	DomApplication getApp() {
+		return m_app;
+	}
+
 
 	public void loadStyleSheet() throws Exception {
-		loadStyleProperties();
-		appendFragments();
+		//		loadStyleProperties();
+		//		appendFragments();
 	}
 
 
-	/**
-	 * Load the properties for the current style *and it's base styles*. After this, the style sheet
-	 * property files have executed in the proper order, and the context contains the proper properties.
-	 */
-	public void loadStyleProperties() throws Exception {
-		loadProperties(m_name);
-
-		//-- Ok: the binding now contains stuff to add/replace to the map
-		m_propertyMap = new HashMap<String, Object>();
-		for(Map.Entry<String, Object> e : m_bindings.entrySet()) {
-			String name = e.getKey();
-			if("context".equals(name))
-				continue;
-			Object v = e.getValue();
-			if(v != null) {
-				String cn = v.getClass().getName();
-				if(cn.startsWith("sun."))
-					continue;
-			}
-			//			System.out.println("prop: " + name + " = " + v);
-			m_propertyMap.put(name, v);
-		}
-	}
-
-	/**
-	 * Load a specific theme's style properties. Core part of inherit('') command.
-	 * @param name
-	 * @throws Exception
-	 */
-	private void loadProperties(String name) throws Exception {
-		init();
-		if(name.startsWith("/"))
-			name = name.substring(1);
-		if(name.endsWith("/"))
-			name = name.substring(0, name.length() - 1);
-		if(name.startsWith("$"))
-			name = name.substring(1);
-
-		//-- If already loaded- abort;
-		if(m_inheritanceStack.contains(name))
-			throw new StyleException(m_name + ": inherited style '" + name + "' is used before (cyclic loop in styles, or double inheritance)");
-		m_inheritanceStack.add(0, name); // Insert BEFORE the others (this is a base class for 'm)
-
-		//-- Load the .props.js file which must exist as either resource or webfile.
-		String pname = "$" + name + "/style.props.js";
-		IResourceRef ires = findRef(pname);
-		if(null == ires)
-			throw new StyleException("The " + pname + " file is not found.");
-		InputStream is = ires.getInputStream();
-		if(null == is)
-			throw new StyleException("The " + pname + " file is not found.");
-		//		System.out.println("css: loading " + pname + " as " + ires);
-		try {
-			//-- Execute Javascript;
-			Reader r = new InputStreamReader(is, "utf-8");
-			m_engine.eval(r, m_bindings);
-		} finally {
-			try {
-				is.close();
-			} catch(Exception x) {}
-		}
-	}
-
-	protected IResourceRef findRef(@Nonnull String rurl) throws Exception {
-		try {
-			IResourceRef ires = m_app.getApplicationResourceByName(rurl); // Get the source file, abort if not found
-			m_rdl.add(ires);
-			return ires;
-		} catch(ThingyNotFoundException x) {}
-		return null;
-	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	*.frag.css collection, over the inherited model.	*/
+	/*	CODING:	Stylesheet Properties file loader thingy			*/
 	/*--------------------------------------------------------------*/
-	private StringBuilder m_sb = new StringBuilder(128000);
+	/**
+	 * Load a property file set for colors and style properties, where the
+	 * properties are not fragmented.
+	 */
+	public CssPropertySet getProperties(String dir, String name) throws Exception {
+		CssPropertySet ps = new CssPropertySet(this, dir, name, null);
+		ps.loadStyleProperties(dir);
+		return ps;
+	}
 
+	public CssPropertySet getFragmentedProperties(String dir, String rootfile, String suffix) throws Exception {
+		CssPropertySet ps = new CssPropertySet(this, dir, rootfile, suffix);
+		ps.loadStyleProperties(dir);
+		return ps;
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Fragment collector.									*/
+	/*--------------------------------------------------------------*/
 	private JSTemplateCompiler m_compiler;
 
 	/**
+	 * The type of fragment expansion/check to do.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Jan 7, 2011
+	 */
+	static public enum Check {
+		/** Do not check at all: just concatenate the fragments. */
+		NONE
+
+		/** Try to expand every fragment by calling the template expander, but use original source as result, not the expanded template */
+		, CHECK
+
+		/** Expand the fragment and use the result in the append operation. */
+		, EXPAND
+	}
+
+
+	/**
+	 * This code collects "fragments" of files and connects them to form a
+	 * full file which is the concatenation of all fragments. The fragments
+	 * are identified by a set of "directory names" and a "suffix". The fragments are
+	 * either files inside [webapp-dir/directory], i.e. files below WebContent,
+	 * or class resources below a "resources" toplevel "package". Files take
+	 * precedence over resources with the same name, so every resource can be
+	 * easily overridden by a file in the same directory with the exact same name.
+	 *
+	 * <p>The loadType decides whether the content of each fragment is expanded or not.</p>
+	 *
 	 * @throws Exception
 	 *
 	 */
-	private void appendFragments() throws Exception {
-		Map<String, String> frags = collectFragments();
-		List<String> names = new ArrayList<String>(frags.keySet());
-		Collections.sort(names);
+	public void getFragments(StringBuilder target, List<String> directory, String suffix, Check loadType, ResourceDependencyList rdl, Map<String, Object> propertyMap) throws Exception {
+		long ts = System.nanoTime();
+
+		//-- Find all possible files/resources, then sort them by their name.
+		List<String> reslist = collectFragments(directory, suffix);
 
 		//-- Run the templater on every file.
-		for(String name : names) {
-			if(!name.endsWith(".frag.css"))
-				continue;
-
-			String map = frags.get(name);
-			String full = "$" + map + "/" + name;
-			appendFragment(full);
+		int count = 0;
+		for(String name : reslist) {
+			String full = "$" + name;
+			appendFragment(target, full, loadType, rdl, propertyMap);
+			count++;
 		}
+		ts = System.nanoTime() - ts;
+		System.out.println("css: loading " + directory + "+: loaded " + count + " fragments took " + StringTool.strNanoTime(ts));
 	}
 
-	private void appendFragment(String full) throws Exception {
-		IResourceRef ires = findRef(full);
+	/**
+	 * Load and append the specified concrete fragment.
+	 * @param target
+	 * @param full
+	 * @param loadType
+	 * @param rdl
+	 * @throws Exception
+	 */
+	private void appendFragment(StringBuilder target, String full, Check loadType, ResourceDependencyList rdl, Map<String, Object> propertyMap) throws Exception {
+		IResourceRef ires = findRef(rdl, full);
 		if(null == ires)
 			throw new StyleException("The " + full + " file/resource is not found.");
 		InputStream is = ires.getInputStream();
@@ -209,9 +181,23 @@ public class CssFragmentCollector {
 		//		System.out.println("css: loading " + full + " as " + ires);
 
 		try {
-			Reader r = new InputStreamReader(is, "utf-8");
-			JSTemplate tmpl = m_compiler.compile(r, full);
-			tmpl.execute(m_sb, m_propertyMap);
+			//-- 1. Load as a string.
+			String source = FileTool.readStreamAsString(is, "utf-8");
+			JSTemplate tmpl = m_compiler.compile(new StringReader(source), full);
+			StringBuilder sb = target;
+			switch(loadType){
+				default:
+					throw new IllegalStateException("Bad?");
+				case NONE:
+					target.append(source);
+					return;
+				case CHECK:
+					sb = new StringBuilder();
+					//$FALL-THROUGH$
+				case EXPAND:
+					tmpl.execute(sb, propertyMap);
+					return;
+			}
 		} finally {
 			try {
 				is.close();
@@ -219,21 +205,61 @@ public class CssFragmentCollector {
 		}
 	}
 
+	@Nullable
+	protected IResourceRef findRef(ResourceDependencyList rdl, @Nonnull String rurl) throws Exception {
+		try {
+			IResourceRef ires = m_app.getApplicationResourceByName(rurl); // Get the source file, abort if not found
+			rdl.add(ires);
+			return ires;
+		} catch(ThingyNotFoundException x) {}
+		return null;
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Collecting an inheritance stack of fragments.		*/
+	/*--------------------------------------------------------------*/
+
+
+	public List<String> collectFragments(List<String> directoryStack, String suffix) throws Exception {
+		if(!suffix.startsWith("."))
+			suffix = "." + suffix;
+		suffix = suffix.toLowerCase();
+
+		//-- Find all possible files/resources, then sort them by their name.
+		Map<String, String> frags = collectFragments(directoryStack);
+		List<String> names = new ArrayList<String>(frags.keySet());
+		Collections.sort(names);
+
+		//-- Create a full list, and filter bad extensions.
+		List<String> res = new ArrayList<String>(names.size());
+		for(String name : names) {
+			if(!name.toLowerCase().endsWith(suffix))
+				continue;
+
+			String map = frags.get(name);
+			String full = map + "/" + name;
+			res.add(full);
+		}
+		return res;
+	}
+
+
 	/**
 	 * Walk the inheritance tree from baseclass to superclass, and collect
 	 * all fragments by name; in the process remove all duplicates.
 	 * @throws Exception
 	 */
-	private Map<String, String> collectFragments() throws Exception {
+	private Map<String, String> collectFragments(List<String> directoryStack) throws Exception {
 		Map<String, String> res = new HashMap<String, String>();
 
-		for(String inh : m_inheritanceStack)
+		for(String inh : directoryStack)
 			collectFragments(res, inh);
 		return res;
 	}
 
 	/**
-	 * Scan the specified name as a directory, and locate all *.frag.css files in first
+	 * Scan the specified name as a directory, and locate all files in first
 	 * the classpath, then the webapp's files directory.
 	 * @param inh
 	 */
@@ -251,17 +277,5 @@ public class CssFragmentCollector {
 					nameSet.put(far.getName(), inh);
 			}
 		}
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Javascript-callable global functions.				*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Implements the root-level "inherit" command.
-	 * @param scheme
-	 * @throws Exception
-	 */
-	public void internalInherit(String scheme) throws Exception {
-		loadProperties(scheme);
 	}
 }

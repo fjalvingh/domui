@@ -15,11 +15,12 @@ public class TestThemeExpander {
 		m_da = DomUITestUtil.getApplication();
 	}
 
-
 	@Test
 	public void testThemeExpander1() throws Exception {
 		CssFragmentCollector cfc = new CssFragmentCollector(m_da, "$themes/domui");
-		cfc.loadStyleProperties();
+		CssPropertySet ps = cfc.getProperties("themes/domui", "style.props.js");
+
+		System.out.println("Loaded " + ps.getMap().size() + " properties");
 	}
 
 	@Test

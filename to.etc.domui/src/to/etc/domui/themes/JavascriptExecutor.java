@@ -4,6 +4,12 @@ import java.io.*;
 
 import org.mozilla.javascript.*;
 
+/**
+ * Incomplete, unused; retained as POC for later.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jan 7, 2011
+ */
 public class JavascriptExecutor {
 	//	private final JavascriptExecutorFactory m_factory;
 

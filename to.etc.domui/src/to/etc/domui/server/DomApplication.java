@@ -80,7 +80,11 @@ public abstract class DomApplication {
 
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
 
-	private String m_defaultTheme = "domui";
+	private String m_currentTheme = "domui";
+
+	private String m_currentIconSet = "domui";
+
+	private String m_currentColorSet = "domui";
 
 	private boolean m_developmentMode;
 
@@ -390,8 +394,9 @@ public abstract class DomApplication {
 	 * Returns the name of the current theme, like "blue". This returns the
 	 * name only, not the URL to the theme or something.
 	 */
-	public synchronized String getDefaultTheme() {
-		return m_defaultTheme;
+	@Nonnull
+	public synchronized String getCurrentTheme() {
+		return m_currentTheme;
 	}
 
 	/**
@@ -399,8 +404,43 @@ public abstract class DomApplication {
 	 * "themes" map in the webapp or the root resources.
 	 * @param defaultTheme
 	 */
-	public synchronized void setDefaultTheme(final String defaultTheme) {
-		m_defaultTheme = defaultTheme;
+	public synchronized void setCurrentTheme(@Nonnull final String defaultTheme) {
+		if(null == defaultTheme)
+			throw new IllegalArgumentException();
+		m_currentTheme = defaultTheme;
+	}
+
+	/**
+	 * Get the name of the current icon set. This must resolve to a directory "icons/[name]" in
+	 * either the class resources or the webapp.
+	 * @return
+	 */
+	@Nonnull
+	public synchronized String getCurrentIconSet() {
+		return m_currentIconSet;
+	}
+
+	/**
+	 * Set the name of the current icon set. This must resolve to a directory "icons/[name]" in
+	 * either the class resources or the webapp.
+	 *
+	 * @param currentIconSet
+	 */
+	public synchronized void setCurrentIconSet(@Nonnull String currentIconSet) {
+		if(null == currentIconSet)
+			throw new IllegalArgumentException();
+		m_currentIconSet = currentIconSet;
+	}
+
+	@Nonnull
+	public synchronized String getCurrentColorSet() {
+		return m_currentColorSet;
+	}
+
+	public synchronized void setCurrentColorSet(@Nonnull String currentColorSet) {
+		if(null == currentColorSet)
+			throw new IllegalArgumentException();
+		m_currentColorSet = currentColorSet;
 	}
 
 	/**

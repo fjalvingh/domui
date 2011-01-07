@@ -94,7 +94,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 	public synchronized String getCurrentTheme() {
 		if(m_currentTheme == null)
-			m_currentTheme = m_application.getDefaultTheme();
+			m_currentTheme = m_application.getCurrentTheme();
 		return m_currentTheme;
 	}
 

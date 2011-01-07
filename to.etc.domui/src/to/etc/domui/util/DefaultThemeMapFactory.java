@@ -47,7 +47,7 @@ public class DefaultThemeMapFactory implements IThemeMapFactory {
 	@Override
 	public Map<String, Object> createThemeMap(DomApplication da, ResourceDependencyList rdl) throws Exception {
 		Map<String, Object> map = readProperties(da, rdl); // Read properties.
-		String rurl = "$themes/" + da.getDefaultTheme() + "/style.jsproperties";
+		String rurl = "$themes/" + da.getCurrentTheme() + "/style.jsproperties";
 		IResourceRef ires = findRef(da, rurl, rdl);
 		if(null == ires)
 			return map;
@@ -95,7 +95,7 @@ public class DefaultThemeMapFactory implements IThemeMapFactory {
 
 	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "OS_OPEN_STREAM", justification = "Stream is closed closing wrapped instance.")
 	public Map<String, Object> readProperties(DomApplication da, ResourceDependencyList rdl) throws Exception {
-		String rurl = "$themes/" + da.getDefaultTheme() + "/style.properties";
+		String rurl = "$themes/" + da.getCurrentTheme() + "/style.properties";
 		IResourceRef ires = findRef(da, rurl, rdl);
 		if(null == ires)
 			return new HashMap<String, Object>();

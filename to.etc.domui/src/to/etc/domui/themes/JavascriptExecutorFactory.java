@@ -3,6 +3,7 @@ package to.etc.domui.themes;
 import org.mozilla.javascript.*;
 
 /**
+ * Incomplete, unused; retained as POC for later.
  * Execute Javascript code, using Rhino. The JDK embedded scripting engine
  * sucks like a Nilfisk: it is a severely abused version of Rhino that is
  * inaccessible by code outside the scripting engine. Consequently it can
