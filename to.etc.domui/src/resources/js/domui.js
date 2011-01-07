@@ -1570,7 +1570,9 @@ var WebUI = {
 			// offset' location.
 			WebUI._dragCopy = WebUI.dragCreateCopy(WebUI._dragNode);
 			//MVE make this optional.
-			WebUI._dragNode.style.display='none';
+			WebUI._dragNode.style.display='block';
+			WebUI._dragNode.style.visibility='hidden';
+			
 			WebUI._dragMode = 2;
 			document.body.appendChild(WebUI._dragCopy);
 		}
@@ -1608,7 +1610,7 @@ var WebUI = {
 
 		dv.style.position = 'absolute';
 		dv.style.width = source.clientWidth + "px";
-		dv.style.height = source.clientHeigt + "px";
+		dv.style.height = source.clientHeight + "px";
 		//console.debug("DragNode isa "+source.tagName+", "+dv.innerHTML);
 		return dv;
 	},
@@ -2112,8 +2114,7 @@ WebUI._ROW_DROPZONE_HANDLER = {
 		var prevPosition = position;
 		position = { top: off.top, index: i };
 		if (position) {
-			//MVE
-			console.debug('mouse:' +mousePos+','+mouseX+' row: prevPosition.top='+prevPosition.top+", position.top="+position.top+", index="+position.index);
+//			console.debug('mouse:' +mousePos+','+mouseX+' row: prevPosition.top='+prevPosition.top+", position.top="+position.top+", index="+position.index);
 			
 			// -- Is the mouse IN the Y range for this row?
 			if (mousePos >= prevPosition.top && mousePos < position.top) {
@@ -2124,9 +2125,8 @@ WebUI._ROW_DROPZONE_HANDLER = {
 					var hy = (prevPosition.top + position.top) / 2;
 					gravity = mousePos < hy ? 0 : 1;
 				}
-				//MVE
-				console.debug('ACCEPTED top='+prevPosition.top+', bottom='+position.top+', hy='+hy+', rowindex='+(rowindex-1));
-				console.debug('index='+prevPosition.index+', gravety='+gravity);
+//				console.debug('ACCEPTED top='+prevPosition.top+', bottom='+position.top+', hy='+hy+', rowindex='+(rowindex-1));
+//				console.debug('index='+prevPosition.index+', gravety='+gravity);
 
 				var colIndex = this.getColIndex(tr, mouseX);
 				return {
@@ -2150,10 +2150,8 @@ WebUI._ROW_DROPZONE_HANDLER = {
 //					row :tr
 //				};
 //			}
-			//MVE
 			//console.debug('REFUSED by='+prevPosition.top+", ey="+position.top+", rowindex="+rowindex);
 		} else {
-			//MVE
 //			console.debug("row: no location.");
 		}
 		rowindex++;
@@ -2234,8 +2232,7 @@ appendPlaceHolderCell : function(tr, appendPlaceholder) {
 
 hover : function(dz) {
 	var b = this.locateBest(dz);
-	//MVE
-	console.debug("hover: "+b.iindex+", "+b.index+", g="+b.gravity + ", col=" +b.colIndex);
+//	console.debug("hover: "+b.iindex+", "+b.index+", g="+b.gravity + ", col=" +b.colIndex);
 	this.renderTween(dz, b);
 },
 
