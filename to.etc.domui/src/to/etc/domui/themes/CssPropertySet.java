@@ -63,11 +63,18 @@ public class CssPropertySet {
 	 *
 	 * Load the properties for the current style *and it's base styles*. After this, the style sheet
 	 * property files have executed in the proper order, and the context contains the proper properties.
+	 * @param start
 	 */
-	void loadStyleProperties(String dirname) throws Exception {
+	void loadStyleProperties(Map<String, Object> start, String dirname) throws Exception {
 		if(m_propertyMap != null)
 			throw new IllegalStateException("Already loaded!");
 		try {
+			if(null != start) {
+				for(Map.Entry<String, Object> e : start.entrySet()) {
+					m_bindings.put(e.getKey(), e.getValue());
+				}
+			}
+
 			loadProperties(dirname, m_name); // Start loading all files-by-name
 
 			if(m_fragmentSuffix != null)
