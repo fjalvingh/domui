@@ -28,7 +28,6 @@ import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
-import javax.resource.spi.IllegalStateException;
 import javax.script.*;
 
 import to.etc.domui.server.*;

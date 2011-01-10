@@ -3,7 +3,6 @@ package to.etc.domui.themes;
 import java.io.*;
 import java.util.*;
 
-import javax.resource.spi.IllegalStateException;
 import javax.script.*;
 
 import to.etc.domui.util.resources.*;
@@ -68,6 +67,7 @@ public class CssPropertySet {
 	void loadStyleProperties(Map<String, Object> start, String dirname) throws Exception {
 		if(m_propertyMap != null)
 			throw new IllegalStateException("Already loaded!");
+		getEngine();
 		try {
 			if(null != start) {
 				for(Map.Entry<String, Object> e : start.entrySet()) {
