@@ -72,7 +72,7 @@ public class JdbcQuery<T> {
 						break;
 
 					if(res.size() > 10000)
-						throw new IllegalStateException("Your query result has > 10.000 rows. I aborted to prevent OOM.");
+						throw new IllegalStateException("Your query result has > 10.000 rows. I aborted to prevent OOM.\nThe query was:\n" + m_sql);
 
 					if(m_rowMaker.size() == 1) {
 						res.add(m_rowMaker.get(0).make(dc, rs));
