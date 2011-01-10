@@ -68,8 +68,8 @@ import to.etc.util.*;
 final public class Reloader {
 	static final Logger LOG = LoggerFactory.getLogger(Reloader.class);
 
-	/** A reloader exists only once in a webapp. */
-	static private Reloader m_instance;
+	//	/** A reloader exists only once in a webapp. */
+	//	static private Reloader m_instance;
 
 	static private class LoadSpec {
 		private Pattern m_pat;
@@ -132,16 +132,16 @@ final public class Reloader {
 
 		//-- ORDERED: must be below findUrlFor's
 		m_currentLoader = new ReloadingClassLoader(getClass().getClassLoader(), this);
-		m_instance = this;
+		//		m_instance = this;
 	}
 
 	public URL[] getUrls() {
 		return m_urls;
 	}
 
-	static private Reloader internalGetReloader() {
-		return m_instance;
-	}
+	//	static private Reloader internalGetReloader() {
+	//		return m_instance;
+	//	}
 
 	//	ClassLoader	getCheckingLoader() {
 	//		return m_checkLoader;
