@@ -45,6 +45,7 @@ import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.injector.*;
 import to.etc.domui.login.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
@@ -1240,7 +1241,7 @@ public abstract class DomApplication {
 
 	/** The dependencies for the last read theme map, */
 	@GuardedBy("m_themeLock")
-	private ResourceDependencyList m_themeMapDeps;
+	private ResourceDependencies m_themeMapDeps;
 
 	/**
 	 * Register a factory for the theme's property map.
@@ -1336,9 +1337,9 @@ public abstract class DomApplication {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, Object> getThemeMap(ResourceDependencyList rdl) throws Exception {
+	public Map<String, Object> getThemeMap(ResourceDependencyList rdlin) throws Exception {
 		Map<String, Object> map;
-		ResourceDependencyList mrdl;
+		ResourceDependencies mrdl;
 		for(;;) {
 			synchronized(m_themeLock) {
 				map = m_themeMap;
@@ -1355,20 +1356,61 @@ public abstract class DomApplication {
 			synchronized(m_themeLock) {
 				if(map == m_themeMap) {
 					//-- Not changed by other thread in the meantime...
-					m_themeMapDeps = new ResourceDependencyList();
-					map = getThemeMapFactory().createThemeMap(this, m_themeMapDeps);
+					ResourceDependencyList rdl = new ResourceDependencyList();
+
+					map = getThemeMapFactory().createThemeMap(this, rdl);
 					map = Collections.unmodifiableMap(map);
 					m_themeMap = map;
-					mrdl = m_themeMapDeps;
+					mrdl = m_themeMapDeps = rdl.createDependencies();
 					break;
 				}
 			}
 		}
 
-		if(null != rdl)
-			rdl.add(mrdl);
+		if(null != rdlin)
+			rdlin.add(mrdl);
 		return map;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	New theming code.									*/
+	/*--------------------------------------------------------------*/
+
+	private DefaultThemeStore m_themeStore;
+
+	private ResourceDependencies m_themeDependencies;
+
+	public DefaultThemeStore getThemeStore(ResourceDependencyList rdl) throws Exception {
+		synchronized(this) {
+			//-- Do we have a theme store present?
+			if(m_themeStore != null) {
+				//-- Yes-> has it expired?
+				if(m_themeDependencies == null) // We're not checking (not in debug mode)
+					return m_themeStore;
+
+				if(!m_themeDependencies.isModified()) { // Not expired?
+					if(rdl != null)
+						rdl.add(m_themeDependencies);
+					return m_themeStore;
+				}
+
+				//-- We have an expired one...
+			}
+
+			//-- We need to (re)load a theme store.
+			CssFragmentCollector fc = new CssFragmentCollector(this);
+			m_themeStore = fc.loadStyleSheet();
+			if(inDevelopmentMode()) {
+				ThemeModifyableResource tmr = new ThemeModifyableResource(m_themeStore.getDependencies(), 3000); // Check for changes every 3 secs
+				m_themeDependencies = new ResourceDependencies(new IIsModified[]{tmr});
+				if(rdl != null)
+					rdl.add(m_themeDependencies);
+			}
+		}
+
+		return m_themeStore;
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DomUI state listener handling.						*/

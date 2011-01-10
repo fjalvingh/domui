@@ -1,3 +1,27 @@
+/*
+ * DomUI Java User Interface library
+ * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ *
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://www.domui.org/
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
 package to.etc.domui.themes;
 
 import java.util.*;
@@ -6,6 +30,8 @@ import javax.annotation.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
+import to.etc.domui.util.resources.*;
+import to.etc.template.*;
 
 /**
  *
@@ -17,7 +43,7 @@ import to.etc.domui.trouble.*;
 public class DefaultThemeStore {
 	final private DomApplication m_app;
 
-	private String m_stylesheetSource;
+	private JSTemplate m_stylesheetSource;
 
 	private Map<String, Object> m_themeProperties;
 
@@ -25,15 +51,30 @@ public class DefaultThemeStore {
 
 	private List<String> m_iconInheritanceStack;
 
+	final private ResourceDependencies m_dependencies;
+
 	/** Maps icon names to their real name in whatever resource they are. */
 	final private Map<String, String> m_iconMap = new HashMap<String, String>();
 
-	public DefaultThemeStore(DomApplication app, String stylesheetSource, Map<String, Object> themeProperties, List<String> themeInheritanceStack, List<String> iconInheritanceStack) {
+	public DefaultThemeStore(DomApplication app, JSTemplate stylesheetSource, Map<String, Object> themeProperties, List<String> themeInheritanceStack, List<String> iconInheritanceStack, ResourceDependencies deps) {
 		m_app = app;
 		m_stylesheetSource = stylesheetSource;
 		m_themeProperties = themeProperties;
 		m_themeInheritanceStack = themeInheritanceStack;
 		m_iconInheritanceStack = iconInheritanceStack;
+		m_dependencies = deps;
+	}
+
+	public ResourceDependencies getDependencies() {
+		return m_dependencies;
+	}
+
+	public JSTemplate getStylesheetSource() {
+		return m_stylesheetSource;
+	}
+
+	public Map<String, Object> getThemeProperties() {
+		return m_themeProperties;
 	}
 
 	/**

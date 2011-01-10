@@ -24,38 +24,48 @@
  */
 package to.etc.domui.util.resources;
 
-
 /**
- * Holds the last-modified timestamp for some source "file" used in some production at the time
- * it was used; plus a reference to that file so it's /original/ change time can be determined.
+ * This can be added to a ResourceDependencyList, and can be marked as "changed" by some event,
+ * causing all dependent resources to reload in debug mode.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on May 22, 2008
+ * Created on Jan 10, 2011
  */
-final public class ResourceTimestamp implements IIsModified {
-	private IModifyableResource m_ref;
+final public class FakeModifyableResource implements IModifyableResource {
+	private long m_fakeTimestamp;
 
-	private long m_ts;
-
-	public ResourceTimestamp(IModifyableResource ref, long ts) {
-		m_ref = ref;
-		m_ts = ts;
+	/**
+	 * Create the resource with a current timestamp.
+	 */
+	public FakeModifyableResource() {
+		m_fakeTimestamp = System.currentTimeMillis();
 	}
 
-	public boolean isModified() {
-		try {
-			return m_ref.getLastModified() != m_ts;
-		} catch(Exception x) {
-			return true;
-		}
-	}
-
-	public IModifyableResource getRef() {
-		return m_ref;
-	}
-
+	/**
+	 * Return the current "fake" timestamp, which will change when the user
+	 * calls markChanged() on this instance.
+	 * @see to.etc.domui.util.resources.IModifyableResource#getLastModified()
+	 */
 	@Override
-	public String toString() {
-		return m_ref.toString();
+	public synchronized long getLastModified() {
+		return m_fakeTimestamp;
+	}
+
+	/**
+	 * Useless, but if you really want to find a value yourself- be my guest. Better
+	 * use {@link #markChanged()}.
+	 * @param lm
+	 */
+	public synchronized void setLastModified(long lm) {
+		m_fakeTimestamp = lm;
+	}
+
+	/**
+	 * Mark this resource as "changed" by changing the "timestamp". When the resource dependency
+	 * list this belongs to is queried this will notify this as changed which should prompt a
+	 * reload.
+	 */
+	public synchronized void markChanged() {
+		m_fakeTimestamp++;
 	}
 }

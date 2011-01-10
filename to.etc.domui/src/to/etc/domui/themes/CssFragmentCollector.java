@@ -62,11 +62,9 @@ public class CssFragmentCollector {
 
 	private CssPropertySet m_styleSet;
 
-	private Map<String, Object> m_styleProperties;
-
 	private String m_stylesheet;
 
-	private ResourceDependencyList m_rdl = new ResourceDependencyList();
+	//	private ResourceDependencyList m_rdl = new ResourceDependencyList();
 
 	public CssFragmentCollector(DomApplication da) {
 		m_app = da;
@@ -91,18 +89,28 @@ public class CssFragmentCollector {
 
 	public DefaultThemeStore loadStyleSheet() throws Exception {
 		loadStyleInfo();
-		loadStylesheetFragments();
-		return new DefaultThemeStore(m_app, m_stylesheet, m_styleSet.getMap(), m_styleSet.getInheritanceStack(), m_iconSet.getInheritanceStack());
+		ResourceDependencyList rdl = new ResourceDependencyList();
+		rdl.add(m_colorSet.getResourceDependencyList());
+		rdl.add(m_iconSet.getResourceDependencyList());
+		rdl.add(m_styleSet.getResourceDependencyList());
+
+		loadStylesheetFragments(rdl);
+		ResourceDependencies rd = rdl.createDependencies();
+
+		//-- Compile the template;
+		JSTemplateCompiler tc = new JSTemplateCompiler();
+		JSTemplate tmpl = tc.compile(new StringReader(m_stylesheet), m_styleSet.toString());
+		return new DefaultThemeStore(m_app, tmpl, m_styleSet.getMap(), m_styleSet.getInheritanceStack(), m_iconSet.getInheritanceStack(), rd);
 	}
 
 	/**
 	 * Load all *.frag.css files and construct a proper stylesheet from them.
 	 * @throws Exception
 	 */
-	private void loadStylesheetFragments() throws Exception {
+	private void loadStylesheetFragments(ResourceDependencyList rdl) throws Exception {
 		StringBuilder sb = new StringBuilder(65536);
 		//		ResourceDependencyList rdl = new ResourceDependencyList();
-		getFragments(sb, m_styleSet.getInheritanceStack(), ".frag.css", Check.CHECK, m_rdl, m_styleSet.getMap());
+		getFragments(sb, m_styleSet.getInheritanceStack(), ".frag.css", Check.CHECK, rdl, m_styleSet.getMap());
 		m_stylesheet = sb.toString();
 	}
 

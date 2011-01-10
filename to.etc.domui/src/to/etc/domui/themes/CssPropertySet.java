@@ -200,4 +200,9 @@ public class CssPropertySet {
 	public void internalInherit(String scheme) throws Exception {
 		loadProperties(scheme, m_name);
 	}
+
+	@Override
+	public String toString() {
+		return m_dirname + "/" + m_name;
+	}
 }

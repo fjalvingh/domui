@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.server.parts;
+package to.etc.domui.parts;
 
 import java.io.*;
 
@@ -31,8 +31,8 @@ import javax.annotation.*;
 import org.apache.batik.transcoder.*;
 import org.apache.batik.transcoder.image.*;
 
-import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
+import to.etc.domui.server.parts.*;
 import to.etc.domui.util.resources.*;
 
 /**
