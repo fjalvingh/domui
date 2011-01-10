@@ -18,7 +18,7 @@ public class TestThemeExpander {
 	@Test
 	public void testThemeExpander1() throws Exception {
 		CssFragmentCollector cfc = new CssFragmentCollector(m_da, "$themes/domui");
-		CssPropertySet ps = cfc.getProperties("themes/domui", "style.props.js");
+		CssPropertySet ps = cfc.getProperties("themes/domui", "style.props.js", null);
 
 		System.out.println("Loaded " + ps.getMap().size() + " properties");
 	}
@@ -43,6 +43,16 @@ public class TestThemeExpander {
 			System.out.println("#" + i + ": Loaded in " + StringTool.strNanoTime(ts));
 		}
 	}
+
+	@Test
+	public void testThemeExpander4() throws Exception {
+		CssFragmentCollector cfc = new CssFragmentCollector(m_da, "$themes/domui");
+		long ts = System.nanoTime();
+		cfc.loadStyleInfo();
+		ts = System.nanoTime() - ts;
+		System.out.println("Loaded in " + StringTool.strNanoTime(ts));
+	}
+
 
 	//	@Test
 	//	public void testJavascriptObject() throws Exception {

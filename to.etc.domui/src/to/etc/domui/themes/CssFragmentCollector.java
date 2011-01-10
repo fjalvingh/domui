@@ -56,6 +56,12 @@ public class CssFragmentCollector {
 
 	private ScriptEngineManager m_engineManager;
 
+	private CssPropertySet m_colorSet;
+
+	private CssPropertySet m_iconSet;
+
+	private CssPropertySet m_styleSet;
+
 	public CssFragmentCollector(DomApplication da, String name) {
 		if(name.startsWith("/"))
 			name = name.substring(1);
@@ -87,6 +93,16 @@ public class CssFragmentCollector {
 		//		appendFragments();
 	}
 
+	public void loadStyleInfo() throws Exception {
+		loadStyleInfo(m_app.getCurrentColorSet(), m_app.getCurrentIconSet(), m_app.getCurrentTheme());
+	}
+
+	public void loadStyleInfo(String colorset, String iconset, String styleset) throws Exception {
+		m_colorSet = getProperties("themes", colorset + ".color.js", null);
+		m_iconSet = getFragmentedProperties("icons/" + iconset, "core.props.js", ".props.js", m_colorSet.getMap());
+		m_styleSet = getProperties("themes/" + styleset, "style.props.js", m_iconSet.getMap());
+	}
+
 
 
 	/*--------------------------------------------------------------*/
@@ -96,15 +112,15 @@ public class CssFragmentCollector {
 	 * Load a property file set for colors and style properties, where the
 	 * properties are not fragmented.
 	 */
-	public CssPropertySet getProperties(String dir, String name) throws Exception {
+	public CssPropertySet getProperties(String dir, String name, Map<String, Object> start) throws Exception {
 		CssPropertySet ps = new CssPropertySet(this, dir, name, null);
-		ps.loadStyleProperties(dir);
+		ps.loadStyleProperties(start, dir);
 		return ps;
 	}
 
-	public CssPropertySet getFragmentedProperties(String dir, String rootfile, String suffix) throws Exception {
+	public CssPropertySet getFragmentedProperties(String dir, String rootfile, String suffix, Map<String, Object> start) throws Exception {
 		CssPropertySet ps = new CssPropertySet(this, dir, rootfile, suffix);
-		ps.loadStyleProperties(dir);
+		ps.loadStyleProperties(start, dir);
 		return ps;
 	}
 
