@@ -62,11 +62,13 @@ public class CssFragmentCollector {
 
 	private CssPropertySet m_styleSet;
 
-	public CssFragmentCollector(DomApplication da, String name) {
-		if(name.startsWith("/"))
-			name = name.substring(1);
-		if(name.endsWith("/"))
-			name = name.substring(0, name.length() - 1);
+	private Map<String, Object> m_styleProperties;
+
+	private String m_stylesheet;
+
+	private ResourceDependencyList m_rdl = new ResourceDependencyList();
+
+	public CssFragmentCollector(DomApplication da) {
 		m_app = da;
 	}
 
@@ -87,10 +89,21 @@ public class CssFragmentCollector {
 		return m_app;
 	}
 
+	public DefaultThemeStore loadStyleSheet() throws Exception {
+		loadStyleInfo();
+		loadStylesheetFragments();
+		return new DefaultThemeStore(m_app, m_stylesheet, m_styleSet.getMap(), m_styleSet.getInheritanceStack(), m_iconSet.getInheritanceStack());
+	}
 
-	public void loadStyleSheet() throws Exception {
-		//		loadStyleProperties();
-		//		appendFragments();
+	/**
+	 * Load all *.frag.css files and construct a proper stylesheet from them.
+	 * @throws Exception
+	 */
+	private void loadStylesheetFragments() throws Exception {
+		StringBuilder sb = new StringBuilder(65536);
+		//		ResourceDependencyList rdl = new ResourceDependencyList();
+		getFragments(sb, m_styleSet.getInheritanceStack(), ".frag.css", Check.CHECK, m_rdl, m_styleSet.getMap());
+		m_stylesheet = sb.toString();
 	}
 
 	public void loadStyleInfo() throws Exception {
@@ -102,8 +115,6 @@ public class CssFragmentCollector {
 		m_iconSet = getFragmentedProperties("icons/" + iconset, "core.props.js", ".props.js", m_colorSet.getMap());
 		m_styleSet = getProperties("themes/" + styleset, "style.props.js", m_iconSet.getMap());
 	}
-
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Stylesheet Properties file loader thingy			*/
@@ -123,7 +134,6 @@ public class CssFragmentCollector {
 		ps.loadStyleProperties(start, dir);
 		return ps;
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Fragment collector.									*/
