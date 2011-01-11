@@ -228,6 +228,7 @@ public class CssFragmentCollector {
 					target.append(source);
 					return;
 				case CHECK:
+					target.append(source);
 					sb = new StringBuilder();
 					//$FALL-THROUGH$
 				case EXPAND:

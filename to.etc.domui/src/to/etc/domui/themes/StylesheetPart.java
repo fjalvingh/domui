@@ -103,7 +103,7 @@ public class StylesheetPart implements IBufferedPartFactory {
 		DefaultThemeStore dts = da.getThemeStore(rdl); // Get theme store and add it's dependencies to rdl
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(pr.getOutputStream()));
 		Map<String, Object>	map = new HashMap<String, Object>(dts.getThemeProperties());
-		map.put("browser", key);
+		map.put("browser", key.getBrowserVersion());
 		dts.getStylesheetSource().execute(pw, map);
 		pw.close();
 		pr.setMime("text/css");
