@@ -67,7 +67,7 @@ final public class ResourceDependencyList {
 	 */
 	public void add(@Nonnull ResourceDependencyList c) {
 		for(IIsModified mr : c.m_deplist)
-			m_deplist.add(mr);
+			add(mr);
 	}
 
 	/**
