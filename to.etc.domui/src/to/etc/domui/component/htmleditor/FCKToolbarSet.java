@@ -24,6 +24,6 @@
  */
 package to.etc.domui.component.htmleditor;
 
-public enum HtmlToolbarSet {
+public enum FCKToolbarSet {
 	DEFAULT, DOMUI, BASIC, TXTONLY
 }

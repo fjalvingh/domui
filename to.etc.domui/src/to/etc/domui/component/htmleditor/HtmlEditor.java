@@ -29,142 +29,66 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
-import to.etc.webapp.nls.*;
 
 /**
- * This represents a FCKEditor instance.
+ * This is a small but very fast html editor. It shows way faster than
+ * the full Html editor but has a little less options. This uses a slightly
+ * adapter version of the <a href="http://code.google.com/p/jwysiwyg/">wysigyg</a>
+ * plugin.
+ *
+ * <p>One oddity in the code here is the handling of the "display" css property. The
+ * plugin adds a div just before the original textarea, then it makes the textarea
+ * display: none. The textarea is retained so the plugin can put it's content in there
+ * still. DomUI however will reset the display:none value after a value is entered
+ * because the changeAttribute call sent will clear it (the attribute is BLOCK in
+ * the DomUI DOM). To prevent this we set the attribute to BLOCK on a full render and
+ * reset it back no none as soon as a partial delta is to be rendered by listening
+ * for input on this control.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Sep 30, 2008
+ * Created on Feb 19, 2010
  */
 public class HtmlEditor extends TextArea {
-	private String m_vn;
-
-	private String m_toolbarSet = "DomUI";
-
-	private IEditorFileSystem m_fileSystem;
-
-	public HtmlEditor() {
-		super.setCssClass("ui-fck");
-		setVisibility(VisibilityType.HIDDEN);
-	}
+	private String m_styleSheet;
 
 	@Override
-	public void setCssClass(final String cssClass) {
-		throw new IllegalStateException("Cannot set a class on FCKEditor");
+	public void createContent() throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append("$(\"#").append(getActualID()).append("\").wysiwyg({css:");
+		String css = getStyleSheet();
+		if(css == null)
+			css = UIContext.getRequestContext().getRelativeThemePath("minieditor.css");
+		StringTool.strToJavascriptString(sb, css, false);
+		sb.append("});");
+		appendCreateJS(sb);
+		//		appendCreateJS("$(\"#" + getActualID() + "\").wysiwyg({css:'/ui/$themes/blue/style.theme.css'});");
 	}
 
 	/**
-	 * <p>To create the editor we need to replace the core code. We add a textarea having the ID and a
-	 * special class (ui-fck). This special class is an indicator to the submit logic that the textarea
-	 * is an FCKEditor instance. This causes it to use special logic to retrieve a value.</p>
-	 *
-	 * <p>Javascript stanza:
-	 * <pre>
-	 *	var oFCKeditor = new FCKeditor( 'FCKeditor1' ) ;
-	 *	oFCKeditor.BasePath	= sBasePath ;
-	 *	oFCKeditor.ReplaceTextarea() ;
-	 * </pre>
-	 *
-	 * @see to.etc.domui.dom.html.NodeBase#createContent()
+	 * Contains the in-editor stylesheet to use, which determines the presentation\
+	 * of the document inside the editor. If not set it defaults to
+	 * THEME/minieditor.css.
+	 * @return
 	 */
+	public String getStyleSheet() {
+		return UIContext.getRequestContext().translateResourceName(m_styleSheet);
+	}
+
+	public void setStyleSheet(String styleSheet) {
+		if(DomUtil.isEqual(styleSheet, m_styleSheet))
+			return;
+		m_styleSheet = styleSheet;
+		changed();
+	}
+
 	@Override
-	public void createContent() throws Exception {
-		StringBuilder sb = new StringBuilder(1024);
-		m_vn = "_fck" + getActualID();
-		sb.append("var ").append(m_vn).append(" = new FCKeditor('").append(getActualID()).append("');");
-		appendOption(sb, "BasePath", UIContext.getRequestContext().getRelativePath("$fckeditor/"));
-		appendOption(sb, "DefaultLanguage", NlsContext.getLocale().getLanguage());
-		if(getWidth() != null)
-			appendOption(sb, "Width", getWidth());
-		appendOption(sb, "ToolbarSet", m_toolbarSet);
-		appendConfig(sb, "ToolbarStartExpanded", "false");
-
-		//-- Override basic 'connector' config parameters
-		appendConnectorConfig(sb, "ImageBrowser", "Image");
-
-		sb.append(m_vn).append(".ReplaceTextarea();");
-		appendCreateJS(sb);
+	public void onBeforeFullRender() throws Exception {
+		setDisplay(DisplayType.BLOCK);
 	}
 
-	private void appendConfig(final StringBuilder sb, final String option, final String value) {
-		sb.append(m_vn).append(".Config['").append(option).append("'] = ").append(value).append(';'); // Disable this connector component
-	}
-
-	private void appendConnectorConfig(final StringBuilder sb, final String option, final String value) {
-		if(getFileSystem() == null) {
-			//-- Disable connector in config.
-			sb.append(m_vn).append(".Config['").append(option).append("'] = false;"); // Disable this connector component
-			return;
-		}
-
-		//-- Set the connector's URL proper.
-		sb.append(m_vn).append(".Config['").append(option).append("URL'] = '"); // Start URL base path
-		sb.append(UIContext.getRequestContext().getRelativePath("$fckeditor/editor/"));
-		sb.append("filemanager/browser/default/browser.html?Type=Image&Connector=");
-		sb.append(UIContext.getRequestContext().getRelativePath(EditResPart.class.getName()));
-		sb.append("/");
-		sb.append(getPage().getConversation().getFullId());
-		sb.append("/");
-		sb.append(getPage().getBody().getClass().getName());
-		sb.append("/");
-		sb.append(getActualID());
-		sb.append("/");
-		sb.append(value);
-		sb.append(".part");
-
-		sb.append("';");
-	}
-
-	private void appendOption(final StringBuilder sb, final String option, final String value) {
-		sb.append(m_vn).append(".").append(option).append(" = ");
-		try {
-			StringTool.strToJavascriptString(sb, value, true);
-		} catch(Exception x) {
-			x.printStackTrace(); // Checked exceptions are idiotic
-		}
-		sb.append(";");
-	}
-
-	public String getToolbarSet() {
-		return m_toolbarSet;
-	}
-
-	public void setToolbarSet(final String toolbarSet) {
-		if(DomUtil.isEqual(toolbarSet, m_toolbarSet))
-			return;
-		m_toolbarSet = toolbarSet;
-		if(!isBuilt())
-			return;
-		StringBuilder sb = new StringBuilder();
-		appendOption(sb, "ToolbarSet", m_toolbarSet);
-		appendJavascript("");
-	}
-
-	public IEditorFileSystem getFileSystem() {
-		return m_fileSystem;
-	}
-
-	public void setFileSystem(final IEditorFileSystem fileSystem) {
-		m_fileSystem = fileSystem;
-	}
-
-	public void setToolbarSet(final HtmlToolbarSet set) {
-		switch(set){
-			default:
-				throw new IllegalStateException("Unknown toolbar set: " + set);
-			case BASIC:
-				setToolbarSet("Default");
-				break;
-			case DEFAULT:
-				setToolbarSet("Basic");
-				break;
-			case DOMUI:
-				setToolbarSet("DomUI");
-				break;
-			case TXTONLY:
-				setToolbarSet("TxtOnly");
-				break;
-		}
+	@Override
+	public boolean acceptRequestParameter(String[] values) throws Exception {
+		setDisplay(DisplayType.NONE);
+		return super.acceptRequestParameter(values);
 	}
 }
