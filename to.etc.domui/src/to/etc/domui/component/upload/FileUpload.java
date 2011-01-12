@@ -60,7 +60,7 @@ import to.etc.domui.util.upload.*;
 public class FileUpload extends Div {
 	private String m_allowedExtensions;
 
-	private int m_maxSize;
+	//	private int m_maxSize;
 
 	private boolean m_required;
 
@@ -108,7 +108,7 @@ public class FileUpload extends Div {
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
 			if(null != m_allowedExtensions)
 				fi.setSpecialAttribute("fuallowed", m_allowedExtensions);
-			fi.setSpecialAttribute("fumaxsz", Integer.toString(m_maxSize));
+			//			fi.setSpecialAttribute("fumaxsz", Integer.toString(m_maxSize));
 			m_input = fi;
 		}
 		for(final UploadItem ufi : m_files) {
@@ -155,13 +155,13 @@ public class FileUpload extends Div {
 		m_allowedExtensions = allowedExtensions;
 	}
 
-	public int getMaxSize() {
-		return m_maxSize;
-	}
-
-	public void setMaxSize(int maxSize) {
-		m_maxSize = maxSize;
-	}
+	//	public int getMaxSize() {
+	//		return m_maxSize;
+	//	}
+	//
+	//	public void setMaxSize(int maxSize) {
+	//		m_maxSize = maxSize;
+	//	}
 
 	public boolean isRequired() {
 		return m_required;
