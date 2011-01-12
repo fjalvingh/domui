@@ -40,7 +40,7 @@ import to.etc.template.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 10, 2011
  */
-public class DefaultThemeStore {
+public class DefaultThemeStore implements ITheme {
 	final private DomApplication m_app;
 
 	private JSTemplate m_stylesheetSource;
@@ -65,11 +65,16 @@ public class DefaultThemeStore {
 		m_dependencies = deps;
 	}
 
+	@Override
+	public String getStylesheet() {
+		return StylesheetPart.class.getName() + ".part";
+	}
+
 	public ResourceDependencies getDependencies() {
 		return m_dependencies;
 	}
 
-	public JSTemplate getStylesheetSource() {
+	public JSTemplate getStylesheetTemplate() {
 		return m_stylesheetSource;
 	}
 
@@ -78,15 +83,16 @@ public class DefaultThemeStore {
 	}
 
 	/**
-	 * Locate the specified icon somewhere in the icon resource.
+	 * Locate the specified theme resource from the theme, and
+	 * return the URL needed to get it. Any THEME/ or ICON/
+	 * things have already been stripped; the name passed is something
+	 * simple like "btnOkay.png".
+	 *
 	 * @param icon
 	 * @return
 	 */
 	@Nonnull
 	public String getIconURL(@Nonnull String icon) {
-		if(!icon.startsWith("ICON/") || icon.startsWith("THEME/"))
-			return icon;
-
 		synchronized(m_iconMap) {
 			String res = m_iconMap.get(icon);
 			if(res != null)
@@ -109,24 +115,12 @@ public class DefaultThemeStore {
 	 */
 	@Nullable
 	protected String findIconURLUncached(String icon) {
-		int pos = icon.indexOf('/');
-		if(pos == -1)
-			return null;
-		int epos = icon.lastIndexOf('.'); // Extract suffix
-		String name;
-		if(epos < pos)
-			name = icon.substring(pos + 1);
-		else {
-			name = icon.substring(pos + 1, epos);
-			epos = name.lastIndexOf('.'); // More suffix?
-			if(epos != -1)
-				name = name.substring(0, epos);
-		}
+		//-- Strip entire suffix (everything from 1st dot in name).
+		int pos = icon.indexOf('.');
+		String name = pos == -1 ? icon : icon.substring(0, pos); // Get name ex suffix;
 
 		//-- Replace silly characters with '_'
-		name = name.replace('-', '_').replace('.', '_');
-
-		//-- Is the icon defined in some icon properties file?
+		name = name.replace('-', '_').replace(' ', '_');
 		String real = (String) m_themeProperties.get(name);
 		if(null != real)
 			return real;
@@ -142,5 +136,15 @@ public class DefaultThemeStore {
 		return null;
 	}
 
-
+	@Override
+	@Nullable
+	public String getThemePath(String path) {
+		for(int i = m_themeInheritanceStack.size(); --i >= 0;) {
+			String sitem = m_themeInheritanceStack.get(i);
+			String real = sitem + "/" + path;
+			if(m_app.hasApplicationResource(real))
+				return real;
+		}
+		return null;
+	}
 }

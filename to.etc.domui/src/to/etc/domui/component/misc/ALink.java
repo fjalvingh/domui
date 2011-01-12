@@ -308,7 +308,7 @@ public class ALink extends ATag {
 	}
 
 	private void updateStyle() {
-		setBackgroundImage(UIContext.getRequestContext().translateResourceName(m_imageUrl));
+		setBackgroundImage(DomApplication.get().getThemedResourceRURL(m_imageUrl));
 	}
 
 }

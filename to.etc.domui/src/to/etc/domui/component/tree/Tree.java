@@ -30,7 +30,6 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
-import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 
 public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
@@ -355,7 +354,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 	static private String branchurl() {
-		return UIContext.getRequestContext().getRelativeThemePath("tree-branch.png");
+		return DomApplication.get().getThemedResourceRURL("tree-branch.png");
 	}
 
 	/**

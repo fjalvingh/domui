@@ -29,7 +29,6 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import javax.annotation.*;
-import javax.annotation.concurrent.*;
 import javax.servlet.http.*;
 
 import org.slf4j.*;
@@ -81,11 +80,11 @@ public abstract class DomApplication {
 
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
 
-	private String m_currentTheme = "domui";
-
-	private String m_currentIconSet = "domui";
-
-	private String m_currentColorSet = "domui";
+	//	private String m_currentTheme = "domui";
+	//
+	//	private String m_currentIconSet = "domui";
+	//
+	//	private String m_currentColorSet = "domui";
 
 	private boolean m_developmentMode;
 
@@ -117,8 +116,6 @@ public abstract class DomApplication {
 	private ILoginDialogFactory m_loginDialogFactory;
 
 	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
-
-	private IThemeMapFactory m_themeMapFactory;
 
 	private IPageInjector m_injector = new DefaultPageInjector();
 
@@ -391,58 +388,58 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Webapp configuration								*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Returns the name of the current theme, like "blue". This returns the
-	 * name only, not the URL to the theme or something.
-	 */
-	@Nonnull
-	public synchronized String getCurrentTheme() {
-		return m_currentTheme;
-	}
-
-	/**
-	 * Sets a new default theme. The theme name is the name of a directory, like "blue", below the
-	 * "themes" map in the webapp or the root resources.
-	 * @param defaultTheme
-	 */
-	public synchronized void setDefaultTheme(@Nonnull final String defaultTheme) {
-		if(null == defaultTheme)
-			throw new IllegalArgumentException();
-		m_currentTheme = defaultTheme;
-	}
-
-	/**
-	 * Get the name of the current icon set. This must resolve to a directory "icons/[name]" in
-	 * either the class resources or the webapp.
-	 * @return
-	 */
-	@Nonnull
-	public synchronized String getCurrentIconSet() {
-		return m_currentIconSet;
-	}
-
-	/**
-	 * Set the name of the current icon set. This must resolve to a directory "icons/[name]" in
-	 * either the class resources or the webapp.
-	 *
-	 * @param currentIconSet
-	 */
-	public synchronized void setCurrentIconSet(@Nonnull String currentIconSet) {
-		if(null == currentIconSet)
-			throw new IllegalArgumentException();
-		m_currentIconSet = currentIconSet;
-	}
-
-	@Nonnull
-	public synchronized String getCurrentColorSet() {
-		return m_currentColorSet;
-	}
-
-	public synchronized void setCurrentColorSet(@Nonnull String currentColorSet) {
-		if(null == currentColorSet)
-			throw new IllegalArgumentException();
-		m_currentColorSet = currentColorSet;
-	}
+	//	/**
+	//	 * Returns the name of the current theme, like "blue". This returns the
+	//	 * name only, not the URL to the theme or something.
+	//	 */
+	//	@Nonnull
+	//	public synchronized String getCurrentTheme() {
+	//		return m_currentTheme;
+	//	}
+	//
+	//	/**
+	//	 * Sets a new default theme. The theme name is the name of a directory, like "blue", below the
+	//	 * "themes" map in the webapp or the root resources.
+	//	 * @param defaultTheme
+	//	 */
+	//	public synchronized void setDefaultTheme(@Nonnull final String defaultTheme) {
+	//		if(null == defaultTheme)
+	//			throw new IllegalArgumentException();
+	//		m_currentTheme = defaultTheme;
+	//	}
+	//
+	//	/**
+	//	 * Get the name of the current icon set. This must resolve to a directory "icons/[name]" in
+	//	 * either the class resources or the webapp.
+	//	 * @return
+	//	 */
+	//	@Nonnull
+	//	public synchronized String getCurrentIconSet() {
+	//		return m_currentIconSet;
+	//	}
+	//
+	//	/**
+	//	 * Set the name of the current icon set. This must resolve to a directory "icons/[name]" in
+	//	 * either the class resources or the webapp.
+	//	 *
+	//	 * @param currentIconSet
+	//	 */
+	//	public synchronized void setCurrentIconSet(@Nonnull String currentIconSet) {
+	//		if(null == currentIconSet)
+	//			throw new IllegalArgumentException();
+	//		m_currentIconSet = currentIconSet;
+	//	}
+	//
+	//	@Nonnull
+	//	public synchronized String getCurrentColorSet() {
+	//		return m_currentColorSet;
+	//	}
+	//
+	//	public synchronized void setCurrentColorSet(@Nonnull String currentColorSet) {
+	//		if(null == currentColorSet)
+	//			throw new IllegalArgumentException();
+	//		m_currentColorSet = currentColorSet;
+	//	}
 
 	/**
 	 * Returns T when running in development mode; this is defined as a mode where web.xml contains
@@ -1230,32 +1227,29 @@ public abstract class DomApplication {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Programmable stylesheet code.						*/
+	/*	CODING:	Programmable theme code.							*/
 	/*--------------------------------------------------------------*/
-	/** Lock object for theme map */
-	private Object m_themeLock = new Object();
+	/** The thing that themes the application. Set only once @ init time. */
+	private IThemer m_themer = new SimpleThemer("domui");
 
-	/** The cached theme map */
-	@GuardedBy("m_themeLock")
-	private Map<String, Object> m_themeMap;
+	private ITheme m_themeStore;
 
-	/** The dependencies for the last read theme map, */
-	@GuardedBy("m_themeLock")
-	private ResourceDependencies m_themeMapDeps;
+	private ResourceDependencies m_themeDependencies;
+
+	public synchronized IThemer getThemer() {
+		return m_themer;
+	}
 
 	/**
-	 * Register a factory for the theme's property map.
-	 * @param mf
+	 * Set the factory for handling the theme.
+	 * @param themer
 	 */
-	public synchronized void register(IThemeMapFactory mf) {
-		m_themeMapFactory = mf;
+	public synchronized void setThemer(IThemer themer) {
+		m_themer = themer;
+		m_themeStore = null;
+		m_themeDependencies = null;
 	}
 
-	private synchronized IThemeMapFactory getThemeMapFactory() {
-		if(null == m_themeMapFactory)
-			m_themeMapFactory = new DefaultThemeMapFactory();
-		return m_themeMapFactory;
-	}
 
 	/**
 	 * FIXME Mechanism is slow
@@ -1323,73 +1317,15 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * This method can be overridden to add extra stuff to the theme map, after
-	 * it has been loaded from properties or whatnot.
-	 * @param themeMap
-	 */
-	protected void augmentThemeMap(Map<String, Object> themeMap) {}
-
-	/**
-	 * Return the current theme map, cached from the last time. It will refresh when
-	 * the resource dependencies are updated.
+	 * Get the theme that is used for this application. The dependencies for the theme will
+	 * be added to the dependency list. This allows users of the theme to update themselves
+	 * when (parts of) the theme change.
 	 *
 	 * @param rdl
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, Object> getThemeMap(ResourceDependencyList rdlin) throws Exception {
-		Map<String, Object> map;
-		ResourceDependencies mrdl;
-		for(;;) {
-			synchronized(m_themeLock) {
-				map = m_themeMap;
-				mrdl = m_themeMapDeps;
-			}
-			if(map != null) {
-				if(mrdl == null) // No dependencies-> just return it,
-					break;
-				if(!mrdl.isModified())
-					break;
-			}
-
-			//-- We need to reload a map.
-			synchronized(m_themeLock) {
-				if(map == m_themeMap) {
-					//-- Not changed by other thread in the meantime...
-					ResourceDependencyList rdl = new ResourceDependencyList();
-
-					map = getThemeMapFactory().createThemeMap(this, rdl);
-					map = Collections.unmodifiableMap(map);
-					m_themeMap = map;
-					mrdl = m_themeMapDeps = rdl.createDependencies();
-					break;
-				}
-			}
-		}
-
-		if(null != rdlin)
-			rdlin.add(mrdl);
-		return map;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	New theming code.									*/
-	/*--------------------------------------------------------------*/
-	/** The thing that themes the application. Set only once @ init time. */
-	private IThemer	m_themer;
-
-	private DefaultThemeStore m_themeStore;
-
-	private ResourceDependencies m_themeDependencies;
-
-	public synchronized IThemer	getThemer() {
-		return m_themer;
-	}
-
-
-
-
-	public DefaultThemeStore getThemeStore(ResourceDependencyList rdl) throws Exception {
+	public ITheme getTheme(@Nullable ResourceDependencyList rdl) throws Exception {
 		synchronized(this) {
 			//-- Do we have a theme store present?
 			if(m_themeStore != null) {
@@ -1407,8 +1343,7 @@ public abstract class DomApplication {
 			}
 
 			//-- We need to (re)load a theme store.
-			CssFragmentCollector fc = new CssFragmentCollector(this);
-			m_themeStore = fc.loadStyleSheet();
+			m_themeStore = getThemer().loadTheme(this);
 			if(inDevelopmentMode()) {
 				ThemeModifyableResource tmr = new ThemeModifyableResource(m_themeStore.getDependencies(), 3000); // Check for changes every 3 secs
 				m_themeDependencies = new ResourceDependencies(new IIsModified[]{tmr});
@@ -1418,6 +1353,46 @@ public abstract class DomApplication {
 		}
 
 		return m_themeStore;
+	}
+
+	/**
+	 * This method can be overridden to add extra stuff to the theme map, after
+	 * it has been loaded from properties or whatnot.
+	 * @param themeMap
+	 */
+	protected void augmentThemeMap(Map<String, Object> themeMap) {}
+
+	/**
+	 * Return the current theme map (a readonly map), cached from the last
+	 * time. It will refresh automatically when the resource dependencies
+	 * for the theme are updated.
+	 *
+	 * @param rdl
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> getThemeMap(ResourceDependencyList rdlin) throws Exception {
+		ITheme ts = getTheme(rdlin);
+		Map<String, Object> tmap = ts.getThemeProperties();
+		return tmap;
+	}
+
+	@Nullable
+	public String getThemedResourceRURL(String path) {
+		if(path.startsWith("THEME/"))
+			path = path.substring(6); // Strip THEME/
+		else if(path.startsWith("ICON/"))
+			path = path.substring(5); // Strip ICON
+		else
+			return path; // Not theme-relative, so return as-is.
+
+		//-- We need to translate this according to the icon rules.
+		try {
+			String res = getTheme(null).getIconURL(path);
+			return res == null ? path : res;
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 	}
 
 

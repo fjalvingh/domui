@@ -1425,7 +1425,7 @@ var WebUI = {
 
 		var img = document.createElement('img');
 		img.border = "0";
-		img.src = DomUIThemeURL + "progressbar.gif";
+		img.src = DomUIProgressURL;
 		form.parentNode.insertBefore(img, form);
 		form.style.display = 'none';
 

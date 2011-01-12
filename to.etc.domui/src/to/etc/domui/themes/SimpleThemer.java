@@ -1,27 +1,3 @@
-/*
- * DomUI Java User Interface library
- * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
- * See the "sponsors" file for a list of supporters.
- *
- * The latest version of DomUI and related code, support and documentation
- * can be found at http://www.domui.org/
- * The contact for the project is Frits Jalvingh <jal@etc.to>.
- */
 package to.etc.domui.themes;
 
 import java.io.*;
@@ -31,23 +7,26 @@ import javax.annotation.*;
 import javax.script.*;
 
 import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
 
-/**
- * This is the default implementation of a ThemeMap factory. If a style.properties file exists
- * (in the current theme dir) it starts to read that. If a style.jsproperties file exists it
- * gets read as a Javascript file. All global properties of that file are used as key names.
- *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Nov 27, 2010
- */
-public class DefaultThemeMapFactory implements IThemeMapFactory {
+public class SimpleThemer implements IThemer {
+	final private String m_styleName;
+
+	public SimpleThemer(String styleName) {
+		m_styleName = styleName;
+	}
+
 	@Override
+	public ITheme loadTheme(DomApplication da) throws Exception {
+		ResourceDependencyList rdl = new ResourceDependencyList();
+		Map<String, Object> map = createThemeMap(da, rdl);
+		return new SimpleTheme(m_styleName, map, rdl.createDependencies());
+	}
+
 	public Map<String, Object> createThemeMap(DomApplication da, ResourceDependencyList rdl) throws Exception {
 		Map<String, Object> map = readProperties(da, rdl); // Read properties.
-		String rurl = "$themes/" + da.getCurrentTheme() + "/style.jsproperties";
+		String rurl = "$themes/" + m_styleName + "/style.jsproperties";
 		IResourceRef ires = findRef(da, rurl, rdl);
 		if(null == ires)
 			return map;
@@ -95,7 +74,7 @@ public class DefaultThemeMapFactory implements IThemeMapFactory {
 
 	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "OS_OPEN_STREAM", justification = "Stream is closed closing wrapped instance.")
 	public Map<String, Object> readProperties(DomApplication da, ResourceDependencyList rdl) throws Exception {
-		String rurl = "$themes/" + da.getCurrentTheme() + "/style.properties";
+		String rurl = "$themes/" + m_styleName + "/style.properties";
 		IResourceRef ires = findRef(da, rurl, rdl);
 		if(null == ires)
 			return new HashMap<String, Object>();
@@ -131,4 +110,5 @@ public class DefaultThemeMapFactory implements IThemeMapFactory {
 		} catch(ThingyNotFoundException x) {}
 		return null;
 	}
+
 }

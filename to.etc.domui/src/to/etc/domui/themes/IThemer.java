@@ -1,18 +1,13 @@
 package to.etc.domui.themes;
 
+import to.etc.domui.server.*;
+
 /**
- * Encapsulates lots of theming stuff.
- *
+ * Factory which will create a theme instance from it's source files.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 11, 2011
  */
 public interface IThemer {
-	/**
-	 * Returns the stylesheet to include in every page.
-	 * @return
-	 */
-	String getThemeStylesheet();
-
-
+	ITheme loadTheme(DomApplication da) throws Exception;
 }

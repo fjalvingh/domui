@@ -32,7 +32,9 @@ import to.etc.domui.server.parts.*;
 import to.etc.domui.util.resources.*;
 
 /**
- * This returns the DomUI stylesheet for one browser, as constructed for a single browser version.
+ * For "Fragmented" themes, this returns the DomUI stylesheet for one browser,
+ * as constructed for a single browser version. It will get the stylesheet
+ * template that was constructed from all fragments, then execute that template.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 10, 2011
@@ -100,11 +102,12 @@ public class StylesheetPart implements IBufferedPartFactory {
 			pr.setCacheTime(da.getDefaultExpiryTime());
 		}
 
-		DefaultThemeStore dts = da.getThemeStore(rdl); // Get theme store and add it's dependencies to rdl
+		DefaultThemeStore dts = (DefaultThemeStore) da.getTheme(rdl); // Get theme store and add it's dependencies to rdl
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(pr.getOutputStream()));
 		Map<String, Object>	map = new HashMap<String, Object>(dts.getThemeProperties());
 		map.put("browser", key.getBrowserVersion());
-		dts.getStylesheetSource().execute(pw, map);
+
+		dts.getStylesheetTemplate().execute(pw, map);
 		pw.close();
 		pr.setMime("text/css");
 	}

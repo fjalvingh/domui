@@ -117,19 +117,19 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	@Nonnull
 	public Writer getOutputWriter() throws IOException;
 
-	/**
-	 * Create a full path from a path relative to the current theme. It adds the path
-	 * to the current theme before the parameter ("$themes/blue" if the current theme
-	 * is "blue"). The result is an application-relative path. To get a full path that
-	 * needs to be passed into {@link #getRelativePath(String)} so that the webapp
-	 * context is added.
-	 * @param frag
-	 * @return
-	 */
-	@Nonnull
-	public String getRelativeThemePath(@Nonnull String frag);
+	//	/**
+	//	 * Create a full path from a path relative to the current theme. It adds the path
+	//	 * to the current theme before the parameter ("$themes/blue" if the current theme
+	//	 * is "blue"). The result is an application-relative path. To get a full path that
+	//	 * needs to be passed into {@link #getRelativePath(String)} so that the webapp
+	//	 * context is added.
+	//	 * @param frag
+	//	 * @return
+	//	 */
+	//	@Nonnull
+	//	public String getRelativeThemePath(@Nonnull String frag);
 
-	public String translateResourceName(String in);
+	//	public String translateResourceName(String in);
 
 	/**
 	 * This checks if the currently logged on user has the named permission. This permission is

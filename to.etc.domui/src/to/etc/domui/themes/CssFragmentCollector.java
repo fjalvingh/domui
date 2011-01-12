@@ -51,7 +51,11 @@ import to.etc.util.*;
  * Created on Jan 5, 2011
  */
 public class CssFragmentCollector implements IThemer {
-	final private DomApplication m_app;
+	final private String m_styleName;
+
+	final private String m_colorName;
+
+	final private String m_iconName;
 
 	private ScriptEngineManager m_engineManager;
 
@@ -63,10 +67,16 @@ public class CssFragmentCollector implements IThemer {
 
 	private String m_stylesheet;
 
-	//	private ResourceDependencyList m_rdl = new ResourceDependencyList();
+	private DomApplication m_app;
 
-	public CssFragmentCollector(DomApplication da) {
-		m_app = da;
+	public CssFragmentCollector() {
+		this("domui", "domui", "domui");
+	}
+
+	public CssFragmentCollector(String colorName, String iconName, String styleName) {
+		m_colorName = colorName;
+		m_iconName = iconName;
+		m_styleName = styleName;
 	}
 
 	private void init() throws Exception {
@@ -82,12 +92,9 @@ public class CssFragmentCollector implements IThemer {
 		return m_engineManager;
 	}
 
-	DomApplication getApp() {
-		return m_app;
-	}
-
-	public DefaultThemeStore loadStyleSheet() throws Exception {
-		loadStyleInfo();
+	public DefaultThemeStore loadTheme(DomApplication da) throws Exception {
+		m_app = da;
+		loadStyleInfo(da);
 		ResourceDependencyList rdl = new ResourceDependencyList();
 		rdl.add(m_colorSet.getResourceDependencyList());
 		rdl.add(m_iconSet.getResourceDependencyList());
@@ -99,7 +106,7 @@ public class CssFragmentCollector implements IThemer {
 		//-- Compile the template;
 		JSTemplateCompiler tc = new JSTemplateCompiler();
 		JSTemplate tmpl = tc.compile(new StringReader(m_stylesheet), m_styleSet.toString());
-		return new DefaultThemeStore(m_app, tmpl, m_styleSet.getMap(), m_styleSet.getInheritanceStack(), m_iconSet.getInheritanceStack(), rd);
+		return new DefaultThemeStore(da, tmpl, m_styleSet.getMap(), m_styleSet.getInheritanceStack(), m_iconSet.getInheritanceStack(), rd);
 	}
 
 	/**
@@ -116,8 +123,9 @@ public class CssFragmentCollector implements IThemer {
 		m_stylesheet = sb.toString();
 	}
 
-	public void loadStyleInfo() throws Exception {
-		loadStyleInfo(m_app.getCurrentColorSet(), m_app.getCurrentIconSet(), m_app.getCurrentTheme());
+	public void loadStyleInfo(DomApplication da) throws Exception {
+		m_app = da;
+		loadStyleInfo(m_colorName, m_iconName, m_styleName);
 	}
 
 	public void loadStyleInfo(String colorset, String iconset, String styleset) throws Exception {
@@ -315,18 +323,5 @@ public class CssFragmentCollector implements IThemer {
 			}
 		}
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IThemer interface.									*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Return the .part that expands the assimilated stylesheet.
-	 * @return
-	 */
-	@Override
-	public String getThemeStylesheet() {
-		return StylesheetPart.class.getName() + ".part";
-	}
-
 
 }

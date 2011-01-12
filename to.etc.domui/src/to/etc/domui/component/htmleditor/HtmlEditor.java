@@ -26,7 +26,7 @@ package to.etc.domui.component.htmleditor;
 
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -57,7 +57,7 @@ public class HtmlEditor extends TextArea {
 		sb.append("$(\"#").append(getActualID()).append("\").wysiwyg({css:");
 		String css = getStyleSheet();
 		if(css == null)
-			css = UIContext.getRequestContext().getRelativeThemePath("minieditor.css");
+			css = DomApplication.get().getTheme(null).getThemePath("minieditor.css");
 		StringTool.strToJavascriptString(sb, css, false);
 		sb.append("});");
 		appendCreateJS(sb);
@@ -70,8 +70,8 @@ public class HtmlEditor extends TextArea {
 	 * THEME/minieditor.css.
 	 * @return
 	 */
-	public String getStyleSheet() {
-		return UIContext.getRequestContext().translateResourceName(m_styleSheet);
+	public String getStyleSheet() throws Exception {
+		return DomApplication.get().getTheme(null).getThemePath(m_styleSheet);
 	}
 
 	public void setStyleSheet(String styleSheet) {

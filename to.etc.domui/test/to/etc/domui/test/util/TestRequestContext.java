@@ -134,11 +134,6 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public String getRelativeThemePath(final String frag) {
-		return "themes/blue/" + frag;
-	}
-
-	@Override
 	public BrowserVersion getBrowserVersion() {
 		return null;
 	}
@@ -149,10 +144,5 @@ public class TestRequestContext implements IRequestContext {
 	@Override
 	public boolean hasPermission(final String permissionName) {
 		return true;
-	}
-
-	@Override
-	public String translateResourceName(final String in) {
-		return in;
 	}
 }
