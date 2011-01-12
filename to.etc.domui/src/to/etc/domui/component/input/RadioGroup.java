@@ -4,6 +4,7 @@ import java.util.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
+import to.etc.webapp.nls.*;
 
 /**
  * RadioGroup can be used to create a Group of RadioButtons. The RadioButtons are created by The RadioGroup and cannot be
@@ -123,6 +124,10 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 	 */
 	public void addLabelAndRadio(String label, T object) throws InstantiationException, IllegalAccessException, Exception {
 		Div labelledradio = new Div();
+
+		if (object.getClass().isEnum()) {
+			label = m_cmm.getDomainLabel(NlsContext.getLocale(), object);
+		}
 
 		if (label == null)
 			label = object.toString();
