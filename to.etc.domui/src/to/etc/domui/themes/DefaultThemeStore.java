@@ -128,12 +128,13 @@ public class DefaultThemeStore implements ITheme {
 		//-- Not set by properties. We need to scan to see if one of the icon paths contains the source verbatim, starting at subclass moving to super.
 		for(int i = m_iconInheritanceStack.size(); --i >= 0;) {
 			String sitem = m_iconInheritanceStack.get(i);
-			real = sitem + "/" + icon;
+			real = "$" + sitem + "/" + icon;
 			if(m_app.hasApplicationResource(real))
 				return real;
 		}
 
-		return null;
+		//-- Try to locate in the theme's inheritance stack.
+		return getThemePath(icon);
 	}
 
 	@Override
@@ -141,7 +142,7 @@ public class DefaultThemeStore implements ITheme {
 	public String getThemePath(String path) {
 		for(int i = m_themeInheritanceStack.size(); --i >= 0;) {
 			String sitem = m_themeInheritanceStack.get(i);
-			String real = sitem + "/" + path;
+			String real = "$" + sitem + "/" + path;
 			if(m_app.hasApplicationResource(real))
 				return real;
 		}
