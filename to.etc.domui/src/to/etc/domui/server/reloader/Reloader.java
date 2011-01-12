@@ -128,7 +128,7 @@ final public class Reloader {
 		}
 		if(m_loadSpecList.size() == 0)
 			throw new IllegalStateException("No load specifiers added.");
-		m_urls = ClassUtil.findUrlsFor(m_currentLoader);
+		m_urls = ClassUtil.findUrlsFor(getClass().getClassLoader());
 
 		//-- ORDERED: must be below findUrlFor's
 		m_currentLoader = new ReloadingClassLoader(getClass().getClassLoader(), this);
@@ -139,13 +139,6 @@ final public class Reloader {
 		return m_urls;
 	}
 
-	//	static private Reloader internalGetReloader() {
-	//		return m_instance;
-	//	}
-
-	//	ClassLoader	getCheckingLoader() {
-	//		return m_checkLoader;
-	//	}
 	public synchronized ClassLoader getReloadingLoader() {
 		return m_currentLoader;
 	}
