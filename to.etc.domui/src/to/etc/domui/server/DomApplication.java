@@ -405,7 +405,7 @@ public abstract class DomApplication {
 	 * "themes" map in the webapp or the root resources.
 	 * @param defaultTheme
 	 */
-	public synchronized void setCurrentTheme(@Nonnull final String defaultTheme) {
+	public synchronized void setDefaultTheme(@Nonnull final String defaultTheme) {
 		if(null == defaultTheme)
 			throw new IllegalArgumentException();
 		m_currentTheme = defaultTheme;
