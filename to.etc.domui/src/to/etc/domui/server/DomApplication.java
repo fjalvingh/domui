@@ -1375,10 +1375,19 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	New theming code.									*/
 	/*--------------------------------------------------------------*/
+	/** The thing that themes the application. Set only once @ init time. */
+	private IThemer	m_themer;
 
 	private DefaultThemeStore m_themeStore;
 
 	private ResourceDependencies m_themeDependencies;
+
+	public synchronized IThemer	getThemer() {
+		return m_themer;
+	}
+
+
+
 
 	public DefaultThemeStore getThemeStore(ResourceDependencyList rdl) throws Exception {
 		synchronized(this) {

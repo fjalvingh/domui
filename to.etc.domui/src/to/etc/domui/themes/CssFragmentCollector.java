@@ -50,7 +50,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 5, 2011
  */
-public class CssFragmentCollector {
+public class CssFragmentCollector implements IThemer {
 	final private DomApplication m_app;
 
 	private ScriptEngineManager m_engineManager;
@@ -315,4 +315,18 @@ public class CssFragmentCollector {
 			}
 		}
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IThemer interface.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Return the .part that expands the assimilated stylesheet.
+	 * @return
+	 */
+	@Override
+	public String getThemeStylesheet() {
+		return StylesheetPart.class.getName() + ".part";
+	}
+
+
 }

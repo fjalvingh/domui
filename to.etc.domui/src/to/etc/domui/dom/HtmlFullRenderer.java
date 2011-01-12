@@ -30,7 +30,6 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
 import to.etc.util.*;
 
 /**
@@ -212,6 +211,9 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	}
 
 	public void renderThemeCSS() throws Exception {
+		String sheet = m_ctx.getApplication().getThemer().getThemeStylesheet();
+
+
 		//		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
 		//		o().writeRaw(ctx().getRelativePath(ctx().getRelativeThemePath("style.theme.css")));
 		//		if(isXml())
@@ -221,7 +223,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 		//-- Render style fragments part.
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
-		o().writeRaw(ctx().getRelativePath(StylesheetPart.class.getName() + ".part"));
+		o().writeRaw(ctx().getRelativePath(sheet));
 		if(isXml())
 			o().writeRaw("\"/>");
 		else
