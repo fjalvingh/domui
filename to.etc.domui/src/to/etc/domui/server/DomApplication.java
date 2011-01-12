@@ -162,6 +162,7 @@ public abstract class DomApplication {
 				return true;
 			}
 		});
+		m_themer = new SimpleThemer("unsplit");
 	}
 
 	protected void registerControlFactories() {
@@ -1379,6 +1380,8 @@ public abstract class DomApplication {
 
 	@Nullable
 	public String getThemedResourceRURL(String path) {
+		if(null == path)
+			return null;
 		if(path.startsWith("THEME/"))
 			path = path.substring(6); // Strip THEME/
 		else if(path.startsWith("ICON/"))

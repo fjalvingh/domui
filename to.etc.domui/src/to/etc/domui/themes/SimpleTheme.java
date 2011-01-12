@@ -34,7 +34,7 @@ public class SimpleTheme implements ITheme {
 
 	@Override
 	public String getIconURL(String icon) {
-		return icon;
+		return "$themes/" + m_styleName + "/" + icon;
 	}
 
 	@Override

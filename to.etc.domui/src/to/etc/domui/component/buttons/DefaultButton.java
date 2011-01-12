@@ -129,7 +129,7 @@ public class DefaultButton extends Button {
 	 * @param name
 	 */
 	public void setThemeConfig(final String name) {
-		m_propSrc = DomApplication.get().getThemedResourceRURL(name);
+		m_propSrc = DomApplication.get().getThemedResourceRURL("THEME/" + name);
 		genURL();
 	}
 
