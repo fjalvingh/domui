@@ -122,7 +122,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		if(c == null) // Some error has occured?
 			return; // Don't do anything (errors will have been registered)
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions() && !isAllowEmptySearch()) {
+		if(!lf.hasUserDefinedCriteria() && !isAllowEmptySearch()) {
 			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
 			return;
 		} else {

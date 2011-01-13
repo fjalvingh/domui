@@ -176,7 +176,7 @@ public class SimpleLookup<T> extends FloatingWindow {
 			}
 		}
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
+		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
 			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
 			return;
 		} else
