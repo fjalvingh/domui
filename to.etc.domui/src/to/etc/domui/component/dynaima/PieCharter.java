@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.graph;
+package to.etc.domui.component.dynaima;
 
 import java.awt.*;
 import java.util.*;
@@ -72,7 +72,7 @@ public class PieCharter implements ICharterHelper {
 
 	/**
 	 * Called to actually create the generated thingy.
-	 * @see to.etc.domui.component.graph.ICharterHelper#finish()
+	 * @see to.etc.domui.component.dynaima.ICharterHelper#finish()
 	 */
 	@Override
 	public void finish() throws Exception {
