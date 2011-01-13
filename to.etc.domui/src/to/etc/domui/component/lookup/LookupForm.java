@@ -920,7 +920,6 @@ public class LookupForm<T> extends Div {
 	 */
 	public QCriteria<T> getEnteredCriteria() throws Exception {
 		m_hasUserDefinedCriteria = false;
-//		QCriteria<T> root = QCriteria.create(m_lookupClass);
 		QCriteria<T> root = (QCriteria<T>) getMetaModel().createCriteria();
 		boolean success = true;
 		for(Item it : m_itemList) {
@@ -1141,8 +1140,10 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
-	 * See {@link LookupForm#m_renderAsCollapsed}.
-	 * Method {@link LookupForm#getEnteredCriteria} MUST BE EXECUTED BEFORE checking for this property value! 
+	 * This is T when the user has actually entered something in one of the search components. Any restriction
+	 * that has been added by code that is not depending on user input is ignored.
+	 *
+	 * Method {@link LookupForm#getEnteredCriteria} MUST BE EXECUTED BEFORE checking for this property value!
 	 * @return
 	 */
 	public boolean hasUserDefinedCriteria() {
