@@ -54,15 +54,15 @@ final class LookupFactoryString implements ILookupControlFactory {
 		//-- Converter thingy is known. Now add a
 		return new AbstractLookupControlImpl(txt) {
 			@Override
-			public boolean appendCriteria(QCriteria crit) throws Exception {
+			public AppendCriteriaResult appendCriteria(QCriteria crit) throws Exception {
 				Object value = null;
 				try {
 					value = txt.getValue();
 				} catch(Exception x) {
-					return false; // Has validation error -> exit.
+					return AppendCriteriaResult.INVALID; // Has validation error -> exit.
 				}
 				if(value == null || (value instanceof String && ((String) value).trim().length() == 0))
-					return true; // Is okay but has no data
+					return AppendCriteriaResult.EMPTY; // Is okay but has no data
 
 				// FIXME Handle minimal-size restrictions on input (search field metadata
 
@@ -75,7 +75,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 				} else {
 					crit.eq(spm.getPropertyName(), value); // property == value
 				}
-				return true;
+				return AppendCriteriaResult.VALID;
 			}
 		};
 	}

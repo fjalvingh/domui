@@ -22,12 +22,12 @@ final public class EqLookupControlImpl extends AbstractLookupControlImpl {
 	}
 
 	@Override
-	public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
+	public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
 		Object value = m_control.getValue();
 		if(value != null) {
 			crit.eq(m_property, value);
-			return true;
+			return AppendCriteriaResult.VALID;
 		}
-		return true; // Okay but no data
+		return AppendCriteriaResult.EMPTY; // Okay but no data
 	}
 }

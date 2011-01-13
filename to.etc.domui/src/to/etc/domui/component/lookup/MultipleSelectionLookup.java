@@ -45,6 +45,8 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	private String[] m_resultColumns = new String[0];
 
+	private boolean m_allowEmptyQuery;
+
 	public MultipleSelectionLookup(Class<T> lookupClass, boolean isModal, String title, IMultiSelectionResult<T> onReceiveResult) {
 		super(isModal, title);
 		m_lookupClass = lookupClass;
@@ -124,8 +126,8 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		}
 
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions()) {
-			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH));
+		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
+			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
 			return;
 		} else
 			clearGlobalMessage();
@@ -200,6 +202,18 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	public void setCustomErrorMessageListener(IErrorMessageListener customErrorMessageListener) {
 		m_customErrorMessageListener = customErrorMessageListener;
+	}
+
+	/**
+	 * When T the user can press search even when no criteria are entered.
+	 * @return
+	 */
+	public boolean isAllowEmptyQuery() {
+		return m_allowEmptyQuery;
+	}
+
+	public void setAllowEmptyQuery(boolean allowEmptyQuery) {
+		m_allowEmptyQuery = allowEmptyQuery;
 	}
 
 	public IQueryManipulator<T> getQueryManipulator() {

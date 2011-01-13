@@ -14,7 +14,7 @@ import to.etc.webapp.query.*;
 abstract public class AbstractLookupControlImpl implements ILookupControlInstance {
 	private NodeBase[] m_nodes;
 
-	abstract public boolean appendCriteria(QCriteria< ? > crit) throws Exception;
+	abstract public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception;
 
 	public AbstractLookupControlImpl(NodeBase... nodes) {
 		m_nodes = nodes;
