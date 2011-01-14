@@ -109,7 +109,7 @@ final public class DomUtil {
 	 * @param name
 	 * @return
 	 */
-	static public boolean classResourceExists(final Class< ? extends DomApplication> clz, final String name) {
+	static public boolean classResourceExists(final Class< ? > clz, final String name) {
 		InputStream is = clz.getResourceAsStream(name);
 		if(is == null)
 			return false;

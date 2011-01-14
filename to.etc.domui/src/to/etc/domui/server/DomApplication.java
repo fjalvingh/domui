@@ -133,6 +133,8 @@ public abstract class DomApplication {
 
 	final private String m_scriptVersion;
 
+	private List<IResourceFactory> m_resourceFactoryList = Collections.EMPTY_LIST;
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
 	/*--------------------------------------------------------------*/
@@ -163,6 +165,11 @@ public abstract class DomApplication {
 			}
 		});
 		m_themer = new SimpleThemer("unsplit");
+
+
+		registerResourceFactory(new ClassRefResourceFactory());
+		registerResourceFactory(new VersionedJsResourceFactory());
+		registerResourceFactory(new SimpleResourceFactory());
 	}
 
 	protected void registerControlFactories() {
@@ -652,6 +659,34 @@ public abstract class DomApplication {
 		return new File(m_webFilePath, path);
 	}
 
+	public synchronized void registerResourceFactory(IResourceFactory f) {
+		m_resourceFactoryList = new ArrayList<IResourceFactory>(m_resourceFactoryList);
+		m_resourceFactoryList.add(f);
+	}
+
+	public synchronized List<IResourceFactory> getResourceFactories() {
+		return m_resourceFactoryList;
+	}
+
+	/**
+	 * Get the best factory to resolve the specified resource name.
+	 * @param name
+	 * @return
+	 */
+	public IResourceFactory findResourceFactory(String name) {
+		IResourceFactory best = null;
+		int bestscore = -1;
+
+		for(IResourceFactory rf : getResourceFactories()) {
+			int score = rf.accept(name);
+			if(score > bestscore) {
+				bestscore = score;
+				best = rf;
+			}
+		}
+		return best;
+	}
+
 	/**
 	 * Returns the root of the webapp's installation directory on the local file system.
 	 * @return
@@ -677,7 +712,7 @@ public abstract class DomApplication {
 	 * @param name
 	 * @return
 	 */
-	private IResourceRef createClasspathReference(String name) {
+	public IResourceRef createClasspathReference(String name) {
 		if(inDevelopmentMode()) {
 			//-- If running in debug mode get this classpath resource's original source file
 			IModifyableResource ts = ClasspathInventory.getInstance().findResourceSource(name);
