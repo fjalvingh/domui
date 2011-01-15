@@ -17,7 +17,7 @@ public class TestThemeExpander {
 
 	@Test
 	public void testThemeExpander1() throws Exception {
-		CssFragmentCollector cfc = new CssFragmentCollector();
+		FragmentedThemeFactory cfc = new FragmentedThemeFactory();
 		CssPropertySet ps = cfc.getProperties("themes/domui", "style.props.js", null);
 
 		System.out.println("Loaded " + ps.getMap().size() + " properties");
@@ -25,7 +25,7 @@ public class TestThemeExpander {
 
 	@Test
 	public void testThemeExpander2() throws Exception {
-		CssFragmentCollector cfc = new CssFragmentCollector();
+		FragmentedThemeFactory cfc = new FragmentedThemeFactory();
 
 		long ts = System.nanoTime();
 		cfc.loadTheme(m_da);
@@ -36,7 +36,7 @@ public class TestThemeExpander {
 	@Test
 	public void testThemeExpander3() throws Exception {
 		for(int i = 0; i < 10; i++) {
-			CssFragmentCollector cfc = new CssFragmentCollector();
+			FragmentedThemeFactory cfc = new FragmentedThemeFactory();
 			long ts = System.nanoTime();
 			cfc.loadTheme(m_da);
 			ts = System.nanoTime() - ts;
@@ -46,7 +46,7 @@ public class TestThemeExpander {
 
 	@Test
 	public void testThemeExpander4() throws Exception {
-		CssFragmentCollector cfc = new CssFragmentCollector();
+		FragmentedThemeFactory cfc = new FragmentedThemeFactory();
 		long ts = System.nanoTime();
 		cfc.loadStyleInfo(m_da);
 		ts = System.nanoTime() - ts;

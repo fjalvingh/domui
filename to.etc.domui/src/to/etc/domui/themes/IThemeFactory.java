@@ -32,6 +32,6 @@ import to.etc.domui.server.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 11, 2011
  */
-public interface IThemer {
+public interface IThemeFactory {
 	ITheme loadTheme(DomApplication da) throws Exception;
 }

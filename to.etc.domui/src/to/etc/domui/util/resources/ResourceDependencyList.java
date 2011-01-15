@@ -37,59 +37,79 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 19, 2009
  */
-final public class ResourceDependencyList {
+final public class ResourceDependencyList implements IResourceDependencyList {
+	/**
+	 * If you do not want to collect dependencies you can use this as an instance. It ignores
+	 * everything added to it.
+	 */
+	static public final IResourceDependencyList NULL = new IResourceDependencyList() {
+		@Override
+		public void add(IModifyableResource c) {}
+
+		@Override
+		public void add(IIsModified m) {}
+
+		@Override
+		public void add(IResourceRef ref) {}
+	};
+
 	@Nonnull
 	private List<IIsModified> m_deplist = Collections.EMPTY_LIST;
 
 	/**
-	 * Add a resource to the dependency list. The resource should either implement {@link IIsModified}
-	 * or {@link IModifyableResource}, or this will throw an IllegalArgmentException. If the ref
-	 * implements {@link IModifyableResource} then it will be wrapped in a {@link ResourceTimestamp}
-	 * instance which records the current modification time and implements {@link IIsModified}.
-	 *
-	 * @param ref
+	 * @see to.etc.domui.util.resources.IResourceDependencyList#add(to.etc.domui.util.resources.IResourceRef)
 	 */
+	@Override
 	public void add(@Nonnull IResourceRef ref) {
-		if(m_deplist == Collections.EMPTY_LIST)
-			m_deplist = new ArrayList<IIsModified>(5);
 		if(ref instanceof IIsModified)
-			m_deplist.add((IIsModified) ref);
-		else if(ref instanceof IModifyableResource) {
-			IModifyableResource c = (IModifyableResource) ref;
-			m_deplist.add(new ResourceTimestamp(c, c.getLastModified()));
-		} else
+			add((IIsModified) ref);
+		else if(ref instanceof IModifyableResource)
+			add( (IModifyableResource) ref);
+		else
 			throw new IllegalArgumentException("Argument " + ref + " must implement IIsModified or IModifyableResource to be usable for dependency change tracking");
 	}
 
 	/**
-	 * Add a IIsModified instance.
-	 * @param m
+	 * @see to.etc.domui.util.resources.IResourceDependencyList#add(to.etc.domui.util.resources.IIsModified)
 	 */
+	@Override
 	public void add(@Nonnull IIsModified m) {
 		if(m_deplist == Collections.EMPTY_LIST)
 			m_deplist = new ArrayList<IIsModified>(5);
+		else {
+			for(IIsModified xm : m_deplist) {
+				if(m == xm)
+					return;
+			}
+		}
 		m_deplist.add(m);
 	}
 
 	/**
-	 * Add an {@link IModifyableResource} instance.
-	 * @param m
+	 * @see to.etc.domui.util.resources.IResourceDependencyList#add(to.etc.domui.util.resources.IModifyableResource)
 	 */
+	@Override
 	public void add(@Nonnull IModifyableResource c) {
 		if(m_deplist == Collections.EMPTY_LIST)
 			m_deplist = new ArrayList<IIsModified>(5);
+		else {
+			for(IIsModified xm : m_deplist) {
+				if(xm instanceof ResourceTimestamp) {
+					ResourceTimestamp rx = (ResourceTimestamp) xm;
+					if(rx.getRef() == c)
+						return;
+				}
+			}
+		}
 		m_deplist.add(new ResourceTimestamp(c, c.getLastModified()));
 	}
 
 	/**
-	 * Add another list of resources to this one.
-	 * @param c
+	 * @see to.etc.domui.util.resources.IResourceDependencyList#add(to.etc.domui.util.resources.ResourceDependencyList)
 	 */
 	public void add(@Nonnull ResourceDependencyList c) {
-		if(m_deplist == Collections.EMPTY_LIST)
-			m_deplist = new ArrayList<IIsModified>(5);
 		for(IIsModified mr : c.m_deplist)
-			m_deplist.add(mr);
+			add(mr);
 	}
 
 	/**

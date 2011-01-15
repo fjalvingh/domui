@@ -164,13 +164,13 @@ public abstract class DomApplication {
 				return true;
 			}
 		});
-		m_themer = new SimpleThemer("unsplit");
+		m_themer = new SimpleThemeFactory("unsplit");
 
 
 		registerResourceFactory(new ClassRefResourceFactory());
 		registerResourceFactory(new VersionedJsResourceFactory());
 		registerResourceFactory(new SimpleResourceFactory());
-		registerResourceFactory(new ThemeResourceFactory());
+		registerResourceFactory(new FragmentedThemeResourceFactory());
 	}
 
 	protected void registerControlFactories() {
@@ -660,22 +660,20 @@ public abstract class DomApplication {
 		return new File(m_webFilePath, path);
 	}
 
+	/**
+	 * Primitive to return either a File-based resource from the web content files
+	 * or a classpath resource (below /resources/) for the same path. The result will
+	 * implement {@link IModifyableResource}. This will not use any kind of resource
+	 * factory.
+	 *
+	 * @param name
+	 * @return
+	 */
 	public IResourceRef getAppFileOrResource(String name) {
 		//-- 1. Is a file-based resource available?
 		File f = getAppFile(name);
 		if(f.exists())
 			return new WebappResourceRef(f);
-		// 20091019 jal removed: $ resources are literal entries; they are never classnames - that is done using $RES/ only.
-		//			//-- In the url, replace all '.' but the last one with /
-		//			int pos = name.lastIndexOf('.');
-		//			if(pos != -1) {
-		//				name = name.substring(0, pos).replace('.', '/') + name.substring(pos);
-		//			}
-
-		/*
-		 * For class-based resources we are able to select different versions of a resource if it's name
-		 * starts with $js/. These will be scanned in resources/js/[scriptversion]/[name] and resources/js/[name].
-		 */
 		return createClasspathReference("/resources/" + name);
 	}
 
@@ -720,8 +718,8 @@ public abstract class DomApplication {
 		return AppFilter.getApplicationURL();
 	}
 
-	/** Cache for application resources containing all resources we have checked existence for */
-	private final Map<String, IResourceRef> m_resourceSet = new HashMap<String, IResourceRef>();
+	//	/** Cache for application resources containing all resources we have checked existence for */
+	//	private final Map<String, IResourceRef> m_resourceSet = new HashMap<String, IResourceRef>();
 
 	private final Map<String, Boolean> m_knownResourceSet = new HashMap<String, Boolean>();
 
@@ -743,17 +741,19 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Tries to resolve an application-based resource by decoding it's name, and throw an exception if not
-	 * found. This queries all resource factories that are available, resolving special names that refer
-	 * to computed resources like class/file resources; theme-related resources; computed bitmaps etc.
+	 * Get an application resource. This usually means either a web file with the specified name or a
+	 * class resource with this name below /resources/. But {@link IResourceFactory} instances registered
+	 * with DomApplication can provide other means to locate resources.
 	 *
 	 * @param name
+	 * @param rdl	The dependency list. Pass {@link ResourceDependencyList#NULL} if you do not need the
+	 * 				dependencies.
 	 * @return
 	 * @throws Exception
 	 */
 	@Nonnull
-	public IResourceRef getApplicationResourceByName(String name) throws Exception {
-		IResourceRef ref = internalFindResource(name);
+	public IResourceRef getResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+		IResourceRef ref = internalFindResource(name, rdl);
 
 		/*
 		 * The code below was needed because the original code caused a 404 exception on web resources which were
@@ -780,8 +780,10 @@ public abstract class DomApplication {
 				return k.booleanValue();
 		}
 
+
 		//-- Determine existence out-of-lock (single init is unimportant)
-		IResourceRef ref = internalFindCachedResource(name);
+		//		IResourceRef ref = internalFindCachedResource(name);
+		IResourceRef ref = internalFindResource(name, ResourceDependencyList.NULL);
 		Boolean k = Boolean.valueOf(ref.exists());
 		//		System.out.println("hasAppResource: locate " + ref + ", exists=" + k);
 		if(!inDevelopmentMode() || ref instanceof IModifyableResource) {
@@ -792,45 +794,48 @@ public abstract class DomApplication {
 		return k.booleanValue();
 	}
 
-	/**
-	 * Cached version to locate an application resource.
-	 * @param name
-	 * @return
-	 * @throws Exception
-	 */
-	private IResourceRef internalFindCachedResource(@Nonnull String name) throws Exception {
-		IResourceRef ref;
-		synchronized(this) {
-			ref = m_resourceSet.get(name);
-			if(ref != null)
-				return ref;
-		}
-
-		//-- Determine existence out-of-lock (single init is unimportant). Only cache if
-		ref = internalFindResource(name);
-		if(!inDevelopmentMode() || ref instanceof IModifyableResource) {
-			synchronized(this) {
-				m_resourceSet.put(name, ref);
-			}
-		}
-		return ref;
-	}
+	//	/**
+	//	 * Cached version to locate an application resource.
+	//	 * @param name
+	//	 * @return
+	//	 * @throws Exception
+	//	 */
+	//	private IResourceRef internalFindCachedResource(@Nonnull String name) throws Exception {
+	//		IResourceRef ref;
+	//		synchronized(this) {
+	//			ref = m_resourceSet.get(name);
+	//			if(ref != null)
+	//				return ref;
+	//		}
+	//
+	//		//-- Determine existence out-of-lock (single init is unimportant). Only cache if
+	//		ref = internalFindResource(name);
+	//		if(!inDevelopmentMode() || ref instanceof IModifyableResource) {
+	//			synchronized(this) {
+	//				m_resourceSet.put(name, ref);
+	//			}
+	//		}
+	//		return ref;
+	//	}
 
 	/**
 	 * UNCACHED version to locate a resource, using the registered resource factories.
 	 *
 	 * @param name
+	 * @param rdl
 	 * @return
 	 */
 	@Nonnull
-	private IResourceRef internalFindResource(@Nonnull String name) throws Exception {
+	private IResourceRef internalFindResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
 		IResourceFactory rf = findResourceFactory(name);
 		if(rf != null)
-			return rf.getResource(this, name, null);
+			return rf.getResource(this, name, rdl);
 
 		//-- No factory. Return class/file reference.
 		File src = new File(m_webFilePath, name);
-		return new WebappResourceRef(src);
+		IResourceRef r = new WebappResourceRef(src);
+		rdl.add(r);
+		return r;
 	}
 
 	/**
@@ -1232,13 +1237,13 @@ public abstract class DomApplication {
 	/*	CODING:	Programmable theme code.							*/
 	/*--------------------------------------------------------------*/
 	/** The thing that themes the application. Set only once @ init time. */
-	private IThemer m_themer = new SimpleThemer("domui");
+	private IThemeFactory m_themer = new SimpleThemeFactory("domui");
 
 	private ITheme m_themeStore;
 
 	private ResourceDependencies m_themeDependencies;
 
-	public synchronized IThemer getThemer() {
+	public synchronized IThemeFactory getThemer() {
 		return m_themer;
 	}
 
@@ -1246,7 +1251,7 @@ public abstract class DomApplication {
 	 * Set the factory for handling the theme.
 	 * @param themer
 	 */
-	public synchronized void setThemer(IThemer themer) {
+	public synchronized void setThemer(IThemeFactory themer) {
 		m_themer = themer;
 		m_themeStore = null;
 		m_themeDependencies = null;
@@ -1261,7 +1266,7 @@ public abstract class DomApplication {
 		m_partHandler.registerUrlPart(factory);
 	}
 
-	public String getThemeReplacedString(@Nonnull ResourceDependencyList rdl, String rurl) throws Exception {
+	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, String rurl) throws Exception {
 		return getThemeReplacedString(rdl, rurl, null);
 	}
 
@@ -1278,12 +1283,11 @@ public abstract class DomApplication {
 	 * @param key
 	 * @return
 	 */
-	public String getThemeReplacedString(@Nonnull ResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
+	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
 		long ts = System.nanoTime();
-		IResourceRef ires = getApplicationResourceByName(rurl); // Get the template source file
+		IResourceRef ires = getResource(rurl, rdl); // Get the template source file
 //		if(ires == null)
 //			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
-		rdl.add(ires); // We're dependent on it...
 
 		//-- Get the variable map to use.
 		Map<String, Object> themeMap = getThemeMap(rdl);
@@ -1327,7 +1331,7 @@ public abstract class DomApplication {
 	 * @return
 	 * @throws Exception
 	 */
-	public ITheme getTheme(@Nullable ResourceDependencyList rdl) throws Exception {
+	public ITheme getTheme(@Nullable IResourceDependencyList rdl) throws Exception {
 		synchronized(this) {
 			//-- Do we have a theme store present?
 			if(m_themeStore != null) {
@@ -1373,7 +1377,7 @@ public abstract class DomApplication {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, Object> getThemeMap(ResourceDependencyList rdlin) throws Exception {
+	public Map<String, Object> getThemeMap(IResourceDependencyList rdlin) throws Exception {
 		ITheme ts = getTheme(rdlin);
 		Map<String, Object> tmap = ts.getThemeProperties();
 		return tmap;
@@ -1497,9 +1501,4 @@ public abstract class DomApplication {
 			}
 		}
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Silly helpers.										*/
-	/*--------------------------------------------------------------*/
-
 }

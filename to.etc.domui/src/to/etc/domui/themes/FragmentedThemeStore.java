@@ -40,7 +40,7 @@ import to.etc.template.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 10, 2011
  */
-public class DefaultThemeStore implements ITheme {
+public class FragmentedThemeStore implements ITheme {
 	final private DomApplication m_app;
 
 	private byte[] m_styleSheetBytes;
@@ -58,7 +58,7 @@ public class DefaultThemeStore implements ITheme {
 	/** Maps icon names to their real name in whatever resource they are. */
 	final private Map<String, String> m_iconMap = new HashMap<String, String>();
 
-	public DefaultThemeStore(DomApplication app, byte[] tbytes, JSTemplate stylesheetSource, Map<String, Object> themeProperties, List<String> themeInheritanceStack, List<String> iconInheritanceStack,
+	public FragmentedThemeStore(DomApplication app, byte[] tbytes, JSTemplate stylesheetSource, Map<String, Object> themeProperties, List<String> themeInheritanceStack, List<String> iconInheritanceStack,
 		ResourceDependencies deps) {
 		m_app = app;
 		m_stylesheetSource = stylesheetSource;

@@ -146,7 +146,7 @@ public class PropBtnPart implements IBufferedPartFactory {
 	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(java.io.OutputStream, to.etc.domui.server.DomApplication, java.lang.Object)
 	 */
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull ResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
 		ButtonPartKey k = (ButtonPartKey) key;
 		Properties p = PartUtil.loadProperties(da, k.m_propfile, rdl);
 //		if(p == null)

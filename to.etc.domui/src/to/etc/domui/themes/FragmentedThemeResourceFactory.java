@@ -34,7 +34,7 @@ import to.etc.domui.util.resources.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 15, 2011
  */
-public class ThemeResourceFactory implements IResourceFactory {
+public class FragmentedThemeResourceFactory implements IResourceFactory {
 	static public final String CURRENT = "$currentTheme/";
 
 	@Override
@@ -43,13 +43,13 @@ public class ThemeResourceFactory implements IResourceFactory {
 	}
 
 	@Override
-	public IResourceRef getResource(DomApplication da, String name, ResourceDependencyList rdl) throws Exception {
+	public IResourceRef getResource(DomApplication da, String name, IResourceDependencyList rdl) throws Exception {
 		String real = name.substring(CURRENT.length());
 		ITheme theme = da.getTheme(rdl);
 
 		//-- If this is the virtual "style.theme.css" file we need to return a special thingy
 		if("style.theme.css".equals(real)) {
-			byte[] data = ((DefaultThemeStore) theme).getStyleSheetBytes();
+			byte[] data = ((FragmentedThemeStore) theme).getStyleSheetBytes();
 			return new ByteArrayResourceRef(data, "style.theme.css", theme.getDependencies());
 		}
 

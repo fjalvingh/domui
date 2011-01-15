@@ -122,7 +122,7 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 	}
 
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object k, @Nonnull ResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object k, @Nonnull IResourceDependencyList rdl) throws Exception {
 		Key key = (Key) k;
 
 		if(!da.inDevelopmentMode()) { // Not gotten from WebContent or not in DEBUG mode? Then we may cache!

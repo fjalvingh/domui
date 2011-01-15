@@ -51,7 +51,7 @@ public class PropButtonRenderer {
 
 	private PropBtnPart.ButtonPartKey m_key;
 
-	private ResourceDependencyList m_dependencies;
+	private IResourceDependencyList m_dependencies;
 
 	protected BufferedImage m_rootImage;
 
@@ -59,7 +59,7 @@ public class PropButtonRenderer {
 
 	protected BufferedImage m_iconImage;
 
-	public void generate(PartResponse pr, DomApplication da, PropBtnPart.ButtonPartKey key, Properties p, @Nonnull ResourceDependencyList rdl) throws Exception {
+	public void generate(PartResponse pr, DomApplication da, PropBtnPart.ButtonPartKey key, Properties p, @Nonnull IResourceDependencyList rdl) throws Exception {
 		m_application = da;
 		m_properties = p;
 		m_key = key;
@@ -392,7 +392,7 @@ public class PropButtonRenderer {
 		return m_application;
 	}
 
-	public ResourceDependencyList getDependencies() {
+	public IResourceDependencyList getDependencies() {
 		return m_dependencies;
 	}
 

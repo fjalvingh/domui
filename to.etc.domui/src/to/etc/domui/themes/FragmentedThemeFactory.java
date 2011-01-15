@@ -50,7 +50,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 5, 2011
  */
-public class CssFragmentCollector implements IThemer {
+public class FragmentedThemeFactory implements IThemeFactory {
 	final private String m_styleName;
 
 	final private String m_colorName;
@@ -69,11 +69,11 @@ public class CssFragmentCollector implements IThemer {
 
 	private DomApplication m_app;
 
-	public CssFragmentCollector() {
+	public FragmentedThemeFactory() {
 		this("domui", "domui", "domui");
 	}
 
-	public CssFragmentCollector(String colorName, String iconName, String styleName) {
+	public FragmentedThemeFactory(String colorName, String iconName, String styleName) {
 		m_colorName = colorName;
 		m_iconName = iconName;
 		m_styleName = styleName;
@@ -92,7 +92,7 @@ public class CssFragmentCollector implements IThemer {
 		return m_engineManager;
 	}
 
-	public DefaultThemeStore loadTheme(DomApplication da) throws Exception {
+	public FragmentedThemeStore loadTheme(DomApplication da) throws Exception {
 		m_app = da;
 		loadStyleInfo(da);
 		ResourceDependencyList rdl = new ResourceDependencyList();
@@ -107,14 +107,14 @@ public class CssFragmentCollector implements IThemer {
 		JSTemplateCompiler tc = new JSTemplateCompiler();
 		JSTemplate tmpl = tc.compile(new StringReader(m_stylesheet), m_styleSet.toString());
 
-		return new DefaultThemeStore(da, m_stylesheet.getBytes("utf-8"), tmpl, m_styleSet.getMap(), m_styleSet.getInheritanceStack(), m_iconSet.getInheritanceStack(), rd);
+		return new FragmentedThemeStore(da, m_stylesheet.getBytes("utf-8"), tmpl, m_styleSet.getMap(), m_styleSet.getInheritanceStack(), m_iconSet.getInheritanceStack(), rd);
 	}
 
 	/**
 	 * Load all *.frag.css files and construct a proper stylesheet from them.
 	 * @throws Exception
 	 */
-	private void loadStylesheetFragments(ResourceDependencyList rdl) throws Exception {
+	private void loadStylesheetFragments(IResourceDependencyList rdl) throws Exception {
 		StringBuilder sb = new StringBuilder(65536);
 		//		ResourceDependencyList rdl = new ResourceDependencyList();
 		Map<String, Object> tmap = new HashMap<String, Object>(m_styleSet.getMap());
@@ -191,7 +191,7 @@ public class CssFragmentCollector implements IThemer {
 	 * @throws Exception
 	 *
 	 */
-	public void getFragments(StringBuilder target, List<String> directory, String suffix, Check loadType, ResourceDependencyList rdl, Map<String, Object> propertyMap) throws Exception {
+	public void getFragments(StringBuilder target, List<String> directory, String suffix, Check loadType, IResourceDependencyList rdl, Map<String, Object> propertyMap) throws Exception {
 		long ts = System.nanoTime();
 
 		//-- Find all possible files/resources, then sort them by their name.
@@ -216,7 +216,7 @@ public class CssFragmentCollector implements IThemer {
 	 * @param rdl
 	 * @throws Exception
 	 */
-	private void appendFragment(StringBuilder target, String full, Check loadType, ResourceDependencyList rdl, Map<String, Object> propertyMap) throws Exception {
+	private void appendFragment(StringBuilder target, String full, Check loadType, IResourceDependencyList rdl, Map<String, Object> propertyMap) throws Exception {
 		IResourceRef ires = findRef(rdl, full);
 		if(null == ires)
 			throw new StyleException("The " + full + " file/resource is not found.");
@@ -252,10 +252,9 @@ public class CssFragmentCollector implements IThemer {
 	}
 
 	@Nullable
-	protected IResourceRef findRef(ResourceDependencyList rdl, @Nonnull String rurl) throws Exception {
+	protected IResourceRef findRef(@Nonnull IResourceDependencyList rdl, @Nonnull String rurl) throws Exception {
 		try {
-			IResourceRef ires = m_app.getApplicationResourceByName(rurl); // Get the source file, abort if not found
-			rdl.add(ires);
+			IResourceRef ires = m_app.getResource(rurl, rdl); // Get the source file, abort if not found
 			return ires;
 		} catch(ThingyNotFoundException x) {}
 		return null;

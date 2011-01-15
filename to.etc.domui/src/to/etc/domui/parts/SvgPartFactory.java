@@ -111,7 +111,7 @@ public class SvgPartFactory implements IBufferedPartFactory, IUrlPart {
 	}
 
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull ResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
 		SvgKey k = (SvgKey) key;
 
 		//-- 1. Get the input as a theme-replaced resource

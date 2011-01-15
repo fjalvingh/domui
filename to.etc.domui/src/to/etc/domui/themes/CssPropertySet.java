@@ -40,7 +40,7 @@ import to.etc.util.*;
  * Created on Jan 7, 2011
  */
 public class CssPropertySet {
-	final private CssFragmentCollector m_collector;
+	final private FragmentedThemeFactory m_collector;
 
 	/** The root name of the map containing the styles. This must be a real slashed "directory" name that can be looked up in resources and WebContent files. */
 	final private String m_dirname;
@@ -62,7 +62,7 @@ public class CssPropertySet {
 
 	private Bindings m_bindings;
 
-	CssPropertySet(CssFragmentCollector fc, String dirname, String name, String fragments) {
+	CssPropertySet(FragmentedThemeFactory fc, String dirname, String name, String fragments) {
 		m_collector = fc;
 		m_dirname = dirname;
 		m_name = name;

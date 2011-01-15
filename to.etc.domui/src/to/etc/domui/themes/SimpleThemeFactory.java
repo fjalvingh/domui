@@ -34,21 +34,21 @@ import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
 
-public class SimpleThemer implements IThemer {
+public class SimpleThemeFactory implements IThemeFactory {
 	final private String m_styleName;
 
-	public SimpleThemer(String styleName) {
+	public SimpleThemeFactory(String styleName) {
 		m_styleName = styleName;
 	}
 
 	@Override
-	public ITheme loadTheme(DomApplication da) throws Exception {
+	public ITheme loadTheme(@Nonnull DomApplication da) throws Exception {
 		ResourceDependencyList rdl = new ResourceDependencyList();
 		Map<String, Object> map = createThemeMap(da, rdl);
 		return new SimpleTheme(m_styleName, map, rdl.createDependencies());
 	}
 
-	public Map<String, Object> createThemeMap(DomApplication da, ResourceDependencyList rdl) throws Exception {
+	public Map<String, Object> createThemeMap(@Nonnull DomApplication da, @Nonnull IResourceDependencyList rdl) throws Exception {
 		Map<String, Object> map = readProperties(da, rdl); // Read properties.
 		String rurl = "$themes/" + m_styleName + "/style.jsproperties";
 		IResourceRef ires = findRef(da, rurl, rdl);
@@ -97,7 +97,7 @@ public class SimpleThemer implements IThemer {
 	}
 
 	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "OS_OPEN_STREAM", justification = "Stream is closed closing wrapped instance.")
-	public Map<String, Object> readProperties(DomApplication da, ResourceDependencyList rdl) throws Exception {
+	public Map<String, Object> readProperties(@Nonnull DomApplication da, @Nonnull IResourceDependencyList rdl) throws Exception {
 		String rurl = "$themes/" + m_styleName + "/style.properties";
 		IResourceRef ires = findRef(da, rurl, rdl);
 		if(null == ires)
@@ -124,15 +124,11 @@ public class SimpleThemer implements IThemer {
 		return map;
 	}
 
-	protected IResourceRef findRef(@Nonnull DomApplication da, @Nonnull String rurl, @Nullable ResourceDependencyList rdl) throws Exception {
-
+	protected IResourceRef findRef(@Nonnull DomApplication da, @Nonnull String rurl, @Nonnull IResourceDependencyList rdl) throws Exception {
 		try {
-			IResourceRef ires = da.getApplicationResourceByName(rurl); // Get the source file, abort if not found
-			if(null != rdl)
-				rdl.add(ires);
+			IResourceRef ires = da.getResource(rurl, rdl); // Get the source file, abort if not found
 			return ires;
 		} catch(ThingyNotFoundException x) {}
 		return null;
 	}
-
 }

@@ -1,5 +1,7 @@
 package to.etc.domui.util.resources;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
@@ -18,7 +20,7 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 	}
 
 	@Override
-	public IResourceRef getResource(DomApplication da, String name, ResourceDependencyList rdl) throws Exception {
+	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
 		//-- 1. Create a 'min version of the name
 		name = name.substring(3); // Strip $js, leave leading /.
 		int pos = name.lastIndexOf('.');
@@ -35,18 +37,22 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 			sb.setLength(0);
 			sb.append("js").append(min);
 			r = tryVersionedResource(da, sb.toString());
-			if(r != null)
+			if(r != null) {
+				rdl.add(r);
 				return r;
+			}
 		}
 
 		//-- Try normal versions only in development.
 		sb.setLength(0);
 		sb.append("js/").append(da.getScriptVersion()).append(name);
 		r = tryVersionedResource(da, sb.toString());
-		if(r != null)
+		if(r != null) {
+			rdl.add(r);
 			return r;
-
+		}
 		r = da.createClasspathReference("/resources/js" + name);
+		rdl.add(r);
 		//			System.out.println("RR: Default ref to " + name + " is " + r);
 		return r;
 	}
