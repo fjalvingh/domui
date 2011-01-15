@@ -22,23 +22,40 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.themes;
+package to.etc.domui.util.resources;
 
-/**
- * This helper class is passed to the theme factory, and can be used to augment
- * information in the style.properties.
- *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jan 4, 2011
- */
-public class ThemeCssUtils {
-	static public final CssColor BLACK = new CssColor(0, 0, 0);
+import java.io.*;
 
-	static public final CssColor WHITE = new CssColor(255, 255, 255);
+final public class ByteArrayResourceRef implements IResourceRef, IIsModified {
+	private byte[] m_data;
 
-	public CssColor color(String hex) {
-		return new CssColor(hex);
+	private String m_name;
+
+	private ResourceDependencies m_deps;
+
+	public ByteArrayResourceRef(byte[] data, String name, ResourceDependencies deps) {
+		m_data = data;
+		m_name = name;
+		m_deps = deps;
 	}
 
+	@Override
+	public boolean isModified() {
+		return m_deps.isModified();
+	}
 
+	@Override
+	public boolean exists() {
+		return true;
+	}
+
+	@Override
+	public InputStream getInputStream() throws Exception {
+		return new ByteArrayInputStream(m_data);
+	}
+
+	@Override
+	public String toString() {
+		return "[ByteArrayResource: " + m_name + "]";
+	}
 }

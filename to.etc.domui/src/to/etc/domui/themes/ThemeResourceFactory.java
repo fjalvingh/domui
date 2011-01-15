@@ -24,21 +24,39 @@
  */
 package to.etc.domui.themes;
 
+import to.etc.domui.server.*;
+import to.etc.domui.themes.*;
+import to.etc.domui.util.resources.*;
+
 /**
- * This helper class is passed to the theme factory, and can be used to augment
- * information in the style.properties.
+ * This provides resources for the current theme: it handles all names starting with $currentTheme/ and
+ * resolves them inside the current theme space.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jan 4, 2011
+ * Created on Jan 15, 2011
  */
-public class ThemeCssUtils {
-	static public final CssColor BLACK = new CssColor(0, 0, 0);
+public class ThemeResourceFactory implements IResourceFactory {
+	static public final String CURRENT = "$currentTheme/";
 
-	static public final CssColor WHITE = new CssColor(255, 255, 255);
-
-	public CssColor color(String hex) {
-		return new CssColor(hex);
+	@Override
+	public int accept(String name) {
+		return name.startsWith(CURRENT) ? 30 : -1;
 	}
 
+	@Override
+	public IResourceRef getResource(DomApplication da, String name, ResourceDependencyList rdl) throws Exception {
+		String real = name.substring(CURRENT.length());
+		ITheme theme = da.getTheme(rdl);
 
+		//-- If this is the virtual "style.theme.css" file we need to return a special thingy
+		if("style.theme.css".equals(real)) {
+			byte[] data = ((DefaultThemeStore) theme).getStyleSheetBytes();
+			return new ByteArrayResourceRef(data, "style.theme.css", theme.getDependencies());
+		}
+
+		String iurl = theme.getIconURL(name);
+		if(iurl.startsWith("$"))
+			iurl = iurl.substring(1);
+		return da.getAppFileOrResource(iurl);
+	}
 }

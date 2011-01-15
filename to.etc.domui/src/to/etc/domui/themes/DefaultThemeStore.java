@@ -43,6 +43,8 @@ import to.etc.template.*;
 public class DefaultThemeStore implements ITheme {
 	final private DomApplication m_app;
 
+	private byte[] m_styleSheetBytes;
+
 	private JSTemplate m_stylesheetSource;
 
 	private Map<String, Object> m_themeProperties;
@@ -56,18 +58,24 @@ public class DefaultThemeStore implements ITheme {
 	/** Maps icon names to their real name in whatever resource they are. */
 	final private Map<String, String> m_iconMap = new HashMap<String, String>();
 
-	public DefaultThemeStore(DomApplication app, JSTemplate stylesheetSource, Map<String, Object> themeProperties, List<String> themeInheritanceStack, List<String> iconInheritanceStack, ResourceDependencies deps) {
+	public DefaultThemeStore(DomApplication app, byte[] tbytes, JSTemplate stylesheetSource, Map<String, Object> themeProperties, List<String> themeInheritanceStack, List<String> iconInheritanceStack,
+		ResourceDependencies deps) {
 		m_app = app;
 		m_stylesheetSource = stylesheetSource;
 		m_themeProperties = themeProperties;
 		m_themeInheritanceStack = themeInheritanceStack;
 		m_iconInheritanceStack = iconInheritanceStack;
 		m_dependencies = deps;
+		m_styleSheetBytes = tbytes;
+	}
+
+	public byte[] getStyleSheetBytes() {
+		return m_styleSheetBytes;
 	}
 
 	@Override
 	public String getStylesheet() {
-		return StylesheetPart.class.getName() + ".part";
+		return "$currentTheme/style.theme.css";
 	}
 
 	public ResourceDependencies getDependencies() {

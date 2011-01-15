@@ -170,6 +170,7 @@ public abstract class DomApplication {
 		registerResourceFactory(new ClassRefResourceFactory());
 		registerResourceFactory(new VersionedJsResourceFactory());
 		registerResourceFactory(new SimpleResourceFactory());
+		registerResourceFactory(new ThemeResourceFactory());
 	}
 
 	protected void registerControlFactories() {
@@ -659,6 +660,26 @@ public abstract class DomApplication {
 		return new File(m_webFilePath, path);
 	}
 
+	public IResourceRef getAppFileOrResource(String name) {
+		//-- 1. Is a file-based resource available?
+		File f = getAppFile(name);
+		if(f.exists())
+			return new WebappResourceRef(f);
+		// 20091019 jal removed: $ resources are literal entries; they are never classnames - that is done using $RES/ only.
+		//			//-- In the url, replace all '.' but the last one with /
+		//			int pos = name.lastIndexOf('.');
+		//			if(pos != -1) {
+		//				name = name.substring(0, pos).replace('.', '/') + name.substring(pos);
+		//			}
+
+		/*
+		 * For class-based resources we are able to select different versions of a resource if it's name
+		 * starts with $js/. These will be scanned in resources/js/[scriptversion]/[name] and resources/js/[name].
+		 */
+		return createClasspathReference("/resources/" + name);
+	}
+
+
 	public synchronized void registerResourceFactory(IResourceFactory f) {
 		m_resourceFactoryList = new ArrayList<IResourceFactory>(m_resourceFactoryList);
 		m_resourceFactoryList.add(f);
@@ -880,6 +901,7 @@ public abstract class DomApplication {
 			return res;
 		return null;
 	}
+
 
 
 	/*--------------------------------------------------------------*/
