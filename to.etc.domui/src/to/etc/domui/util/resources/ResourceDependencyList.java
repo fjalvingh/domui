@@ -42,17 +42,27 @@ final public class ResourceDependencyList {
 	private List<IIsModified> m_deplist = Collections.EMPTY_LIST;
 
 	/**
-	 * Add a new resource to the list. The resource's timestamp is obtained and stored at this time.
-	 * @param c
+	 * Add a resource to the dependency list. The resource should either implement {@link IIsModified}
+	 * or {@link IModifyableResource}, or this will throw an IllegalArgmentException. If the ref
+	 * implements {@link IModifyableResource} then it will be wrapped in a {@link ResourceTimestamp}
+	 * instance which records the current modification time and implements {@link IIsModified}.
+	 *
+	 * @param ref
 	 */
-	public void add(@Nonnull IModifyableResource c) {
+	public void add(@Nonnull IResourceRef ref) {
 		if(m_deplist == Collections.EMPTY_LIST)
 			m_deplist = new ArrayList<IIsModified>(5);
-		m_deplist.add(new ResourceTimestamp(c, c.getLastModified()));
+		if(ref instanceof IIsModified)
+			m_deplist.add((IIsModified) ref);
+		else if(ref instanceof IModifyableResource) {
+			IModifyableResource c = (IModifyableResource) ref;
+			m_deplist.add(new ResourceTimestamp(c, c.getLastModified()));
+		} else
+			throw new IllegalArgumentException("Argument " + ref + " must implement IIsModified or IModifyableResource to be usable for dependency change tracking");
 	}
 
 	/**
-	 * Add a thing that itself knows how to check if it's modified.
+	 * Add a IIsModified instance.
 	 * @param m
 	 */
 	public void add(@Nonnull IIsModified m) {
@@ -62,12 +72,24 @@ final public class ResourceDependencyList {
 	}
 
 	/**
+	 * Add an {@link IModifyableResource} instance.
+	 * @param m
+	 */
+	public void add(@Nonnull IModifyableResource c) {
+		if(m_deplist == Collections.EMPTY_LIST)
+			m_deplist = new ArrayList<IIsModified>(5);
+		m_deplist.add(new ResourceTimestamp(c, c.getLastModified()));
+	}
+
+	/**
 	 * Add another list of resources to this one.
 	 * @param c
 	 */
 	public void add(@Nonnull ResourceDependencyList c) {
+		if(m_deplist == Collections.EMPTY_LIST)
+			m_deplist = new ArrayList<IIsModified>(5);
 		for(IIsModified mr : c.m_deplist)
-			add(mr);
+			m_deplist.add(mr);
 	}
 
 	/**

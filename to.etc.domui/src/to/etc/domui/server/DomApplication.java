@@ -722,18 +722,16 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Tries to resolve an application-based resource by decoding it's name, and throw an exception if not found. We allow
-	 * the following constructs:
-	 * <ul>
-	 *	<li>$RES/xxxx: denotes a class-based resource. The xxxx is the full package/classname of the resource</li>
-	 *	<li>$THEME/xxxx: denotes a current-theme based resource.</li>
-	 * </ul>
+	 * Tries to resolve an application-based resource by decoding it's name, and throw an exception if not
+	 * found. This queries all resource factories that are available, resolving special names that refer
+	 * to computed resources like class/file resources; theme-related resources; computed bitmaps etc.
 	 *
 	 * @param name
 	 * @return
+	 * @throws Exception
 	 */
 	@Nonnull
-	public IResourceRef getApplicationResourceByName(String name) {
+	public IResourceRef getApplicationResourceByName(String name) throws Exception {
 		IResourceRef ref = internalFindResource(name);
 
 		/*
@@ -741,17 +739,10 @@ public abstract class DomApplication {
 		 * checked every time. All other resource types like class resources were not checked for existence.
 		 */
 		if(ref instanceof WebappResourceRef) {
-			if(ref.getLastModified() == -1)
+			if(!ref.exists())
 				throw new ThingyNotFoundException(name);
 		}
 		return ref;
-	}
-
-	private IResourceRef tryVersionedResource(String name) {
-		name = "/resources/" + name;
-		if(!DomUtil.classResourceExists(getClass(), name))
-			return null;
-		return createClasspathReference(name);
 	}
 
 	/**
@@ -759,8 +750,9 @@ public abstract class DomApplication {
 	 * mirrors the logic of {@link #getApplicationResourceByName(String)}.
 	 * @param name
 	 * @return
+	 * @throws Exception
 	 */
-	public boolean hasApplicationResource(final String name) {
+	public boolean hasApplicationResource(final String name) throws Exception {
 		synchronized(this) {
 			Boolean k = m_knownResourceSet.get(name);
 			if(k != null)
@@ -769,10 +761,12 @@ public abstract class DomApplication {
 
 		//-- Determine existence out-of-lock (single init is unimportant)
 		IResourceRef ref = internalFindCachedResource(name);
-		Boolean k = Boolean.valueOf(ref.getLastModified() != -1);
+		Boolean k = Boolean.valueOf(ref.exists());
 		//		System.out.println("hasAppResource: locate " + ref + ", exists=" + k);
-		synchronized(this) {
-			m_knownResourceSet.put(name, k);
+		if(!inDevelopmentMode() || ref instanceof IModifyableResource) {
+			synchronized(this) {
+				m_knownResourceSet.put(name, k);
+			}
 		}
 		return k.booleanValue();
 	}
@@ -781,8 +775,9 @@ public abstract class DomApplication {
 	 * Cached version to locate an application resource.
 	 * @param name
 	 * @return
+	 * @throws Exception
 	 */
-	private IResourceRef internalFindCachedResource(@Nonnull String name) {
+	private IResourceRef internalFindCachedResource(@Nonnull String name) throws Exception {
 		IResourceRef ref;
 		synchronized(this) {
 			ref = m_resourceSet.get(name);
@@ -790,81 +785,29 @@ public abstract class DomApplication {
 				return ref;
 		}
 
-		//-- Determine existence out-of-lock (single init is unimportant)
+		//-- Determine existence out-of-lock (single init is unimportant). Only cache if
 		ref = internalFindResource(name);
-		synchronized(this) {
-			m_resourceSet.put(name, ref);
+		if(!inDevelopmentMode() || ref instanceof IModifyableResource) {
+			synchronized(this) {
+				m_resourceSet.put(name, ref);
+			}
 		}
 		return ref;
 	}
 
 	/**
-	 * UNCACHED version to locate a resource. This handles all special DomUI url's
-	 * starting with '$' but also all webapp-relative requests. It also handles the
-	 * "scriptVersion" logic and the expanded/compressed logic for $js/ resources.
+	 * UNCACHED version to locate a resource, using the registered resource factories.
 	 *
 	 * @param name
 	 * @return
 	 */
 	@Nonnull
-	private IResourceRef internalFindResource(@Nonnull String name) {
-		if(name.startsWith(Constants.RESOURCE_PREFIX)) {
-			return createClasspathReference(name.substring(Constants.RESOURCE_PREFIX.length() - 1)); // Strip off $RES, rest is absolute resource path starting with /
-		}
+	private IResourceRef internalFindResource(@Nonnull String name) throws Exception {
+		IResourceFactory rf = findResourceFactory(name);
+		if(rf != null)
+			return rf.getResource(this, name, null);
 
-		if(name.startsWith("$")) {
-			name = name.substring(1);
-			//-- 1. Is a file-based resource available?
-			File f = getAppFile(name);
-			if(f.exists())
-				return new WebappResourceRef(f);
-			// 20091019 jal removed: $ resources are literal entries; they are never classnames - that is done using $RES/ only.
-			//			//-- In the url, replace all '.' but the last one with /
-			//			int pos = name.lastIndexOf('.');
-			//			if(pos != -1) {
-			//				name = name.substring(0, pos).replace('.', '/') + name.substring(pos);
-			//			}
-
-			/*
-			 * For class-based resources we are able to select different versions of a resource if it's name
-			 * starts with $js/. These will be scanned in resources/js/[scriptversion]/[name] and resources/js/[name].
-			 */
-			if(!name.startsWith("js/"))
-				return createClasspathReference("/resources/" + name);
-
-			//-- 1. Create a 'min version of the name
-			name = name.substring(2); // Strip js, leave leading /.
-			int pos = name.lastIndexOf('.');
-			String min = pos < 0 ? null : name.substring(0, pos) + "-min" + name.substring(pos);
-
-			StringBuilder sb = new StringBuilder(64);
-			IResourceRef r;
-			if(!inDevelopmentMode() && min != null) {
-				//-- Try all min versions in production, first
-				sb.append("js/").append(getScriptVersion()).append(min);
-				r = tryVersionedResource(sb.toString());
-				if(r != null)
-					return r;
-				sb.setLength(0);
-				sb.append("js").append(min);
-				r = tryVersionedResource(sb.toString());
-				if(r != null)
-					return r;
-			}
-
-			//-- Try normal versions only in development.
-			sb.setLength(0);
-			sb.append("js/").append(getScriptVersion()).append(name);
-			r = tryVersionedResource(sb.toString());
-			if(r != null)
-				return r;
-
-			r = createClasspathReference("/resources/js" + name);
-			//			System.out.println("RR: Default ref to " + name + " is " + r);
-			return r;
-		}
-
-		//-- Normal url. Use webapp-direct path.
+		//-- No factory. Return class/file reference.
 		File src = new File(m_webFilePath, name);
 		return new WebappResourceRef(src);
 	}
@@ -879,8 +822,9 @@ public abstract class DomApplication {
 	 * @param suffix		The suffix: the part after the locale info. This usually includes a ., like .js
 	 * @param loc			The locale to get the resource for.
 	 * @return
+	 * @throws Exception
 	 */
-	public String findLocalizedResourceName(final String basename, final String suffix, final Locale loc) {
+	public String findLocalizedResourceName(final String basename, final String suffix, final Locale loc) throws Exception {
 		StringBuilder sb = new StringBuilder(128);
 		String s;
 		s = tryKey(sb, basename, suffix, loc.getLanguage(), loc.getCountry(), loc.getVariant(), NlsContext.getDialect());
@@ -910,7 +854,7 @@ public abstract class DomApplication {
 		return null;
 	}
 
-	private String tryKey(final StringBuilder sb, final String basename, final String suffix, final String lang, final String country, final String variant, final String dialect) {
+	private String tryKey(final StringBuilder sb, final String basename, final String suffix, final String lang, final String country, final String variant, final String dialect) throws Exception {
 		sb.setLength(0);
 		sb.append(basename);
 		if(dialect != null && dialect.length() > 0) {
@@ -993,14 +937,14 @@ public abstract class DomApplication {
 		synchronized(m_listCacheMap) {
 			m_listCacheMap.clear();
 		}
-		// FIXME URGENT Clear all other server's caches too by sending a VP event.
+		// FIXME URGENT Clear all other server's caches too by sending an event.
 	}
 
 	public void clearListCache(final ICachedListMaker< ? > maker) {
 		synchronized(m_listCacheMap) {
 			m_listCacheMap.remove(maker.getCacheKey());
 		}
-		// FIXME URGENT Clear all other server's caches too by sending a VP event.
+		// FIXME URGENT Clear all other server's caches too by sending an event.
 	}
 
 	public boolean logOutput() {

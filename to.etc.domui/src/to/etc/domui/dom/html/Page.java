@@ -131,7 +131,7 @@ final public class Page implements IQContextContainer {
 	private boolean m_renderAsXHTML;
 
 
-	public Page(final UrlPage pageContent) {
+	public Page(final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
 		registerNode(pageContent); // First node.

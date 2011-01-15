@@ -26,6 +26,8 @@ package to.etc.domui.util.resources;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 /**
  * A reference to some stream resource which can be read to create something else, and which is
  * changeable somehow. This gets used where generated resources need to be regenerated if one of
@@ -34,6 +36,19 @@ import java.io.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 19, 2009
  */
-public interface IResourceRef extends IModifyableResource {
-	public InputStream getInputStream() throws Exception;
+public interface IResourceRef {
+	/**
+	 * Return T if this resource actually exists.
+	 * @return
+	 */
+	boolean exists();
+
+	/**
+	 * Returns the input stream for the resource. This will return a new stream for every call. It returns null
+	 * if the resource does not exist.
+	 * @return
+	 * @throws Exception
+	 */
+	@Nullable
+	InputStream getInputStream() throws Exception;
 }

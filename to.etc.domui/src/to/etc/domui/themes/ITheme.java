@@ -34,7 +34,7 @@ public interface ITheme {
 	 * @param path
 	 * @return
 	 */
-	String getThemePath(String path);
+	String getThemePath(String path) throws Exception;
 
 	/**
 	 * Return the read-only properties for a theme.
@@ -56,6 +56,6 @@ public interface ITheme {
 	 * @return
 	 */
 	@Nullable
-	String getIconURL(@Nonnull String icon);
+	String getIconURL(@Nonnull String icon) throws Exception;
 }
 

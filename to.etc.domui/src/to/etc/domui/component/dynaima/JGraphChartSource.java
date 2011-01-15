@@ -28,8 +28,6 @@ import java.awt.image.*;
 
 import org.jCharts.*;
 
-import to.etc.domui.component.dynaima.*;
-
 public class JGraphChartSource implements IBufferedImageSource {
 	private Chart m_chart;
 

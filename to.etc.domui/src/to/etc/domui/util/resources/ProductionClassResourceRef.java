@@ -33,7 +33,7 @@ import java.io.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Mar 15, 2010
  */
-public class ProductionClassResourceRef implements IResourceRef {
+public class ProductionClassResourceRef implements IResourceRef, IModifyableResource {
 	private String m_path;
 
 	private boolean m_exists;
@@ -47,6 +47,11 @@ public class ProductionClassResourceRef implements IResourceRef {
 				is.close();
 		} catch(Exception x) {}
 		m_exists = is != null;
+	}
+
+	@Override
+	public boolean exists() {
+		return m_exists;
 	}
 
 	@Override

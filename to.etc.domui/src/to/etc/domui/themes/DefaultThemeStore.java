@@ -92,7 +92,7 @@ public class DefaultThemeStore implements ITheme {
 	 * @return
 	 */
 	@Nonnull
-	public String getIconURL(@Nonnull String icon) {
+	public String getIconURL(@Nonnull String icon) throws Exception {
 		synchronized(m_iconMap) {
 			String res = m_iconMap.get(icon);
 			if(res != null)
@@ -112,9 +112,10 @@ public class DefaultThemeStore implements ITheme {
 	 *
 	 * @param icon
 	 * @return
+	 * @throws Exception
 	 */
 	@Nullable
-	protected String findIconURLUncached(String icon) {
+	protected String findIconURLUncached(String icon) throws Exception {
 		//-- Strip entire suffix (everything from 1st dot in name).
 		int pos = icon.indexOf('.');
 		String name = pos == -1 ? icon : icon.substring(0, pos); // Get name ex suffix;
@@ -139,7 +140,7 @@ public class DefaultThemeStore implements ITheme {
 
 	@Override
 	@Nullable
-	public String getThemePath(String path) {
+	public String getThemePath(String path) throws Exception {
 		for(int i = m_themeInheritanceStack.size(); --i >= 0;) {
 			String sitem = m_themeInheritanceStack.get(i);
 			String real = "$" + sitem + "/" + path;

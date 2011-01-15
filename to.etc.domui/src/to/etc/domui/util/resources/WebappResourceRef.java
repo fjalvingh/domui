@@ -26,17 +26,25 @@ package to.etc.domui.util.resources;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 /**
  * A full reference to a web app file (a file somewhere in the webapp's web files or WEB-INF directorty).
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 19, 2009
  */
-public class WebappResourceRef implements IResourceRef {
+public class WebappResourceRef implements IResourceRef, IModifyableResource {
+	@Nonnull
 	private File m_resource;
 
-	public WebappResourceRef(File resource) {
+	public WebappResourceRef(@Nonnull File resource) {
 		m_resource = resource;
+	}
+
+	@Override
+	public boolean exists() {
+		return m_resource.exists();
 	}
 
 	@Override
@@ -47,6 +55,7 @@ public class WebappResourceRef implements IResourceRef {
 	}
 
 	@Override
+	@Nonnull
 	public InputStream getInputStream() throws Exception {
 		return new FileInputStream(m_resource);
 	}

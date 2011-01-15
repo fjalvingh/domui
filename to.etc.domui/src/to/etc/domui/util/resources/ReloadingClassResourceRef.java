@@ -34,7 +34,7 @@ import java.io.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Mar 15, 2010
  */
-public class ReloadingClassResourceRef implements IResourceRef {
+public class ReloadingClassResourceRef implements IResourceRef, IModifyableResource {
 	/** When running in debug mode AND if a source for this resource can be found- this contains a ref to it. */
 	private IModifyableResource m_source;
 
@@ -73,6 +73,11 @@ public class ReloadingClassResourceRef implements IResourceRef {
 		//-- This is a JAR reference: ask it to return the resource to prevent URL caching in the JDK
 		ClasspathJarRef jref = (ClasspathJarRef) m_source;
 		return jref.getResource(m_name.substring(1));
+	}
+
+	@Override
+	public boolean exists() {
+		return getLastModified() != -1;
 	}
 
 	/**
