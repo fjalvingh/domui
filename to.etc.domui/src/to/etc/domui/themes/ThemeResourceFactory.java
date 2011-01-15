@@ -25,7 +25,6 @@
 package to.etc.domui.themes;
 
 import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
 import to.etc.domui.util.resources.*;
 
 /**
@@ -54,7 +53,7 @@ public class ThemeResourceFactory implements IResourceFactory {
 			return new ByteArrayResourceRef(data, "style.theme.css", theme.getDependencies());
 		}
 
-		String iurl = theme.getIconURL(name);
+		String iurl = theme.getIconURL(real);
 		if(iurl.startsWith("$"))
 			iurl = iurl.substring(1);
 		return da.getAppFileOrResource(iurl);

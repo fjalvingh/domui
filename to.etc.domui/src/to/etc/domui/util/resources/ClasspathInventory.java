@@ -62,6 +62,9 @@ public class ClasspathInventory {
 	 */
 	private Map<String, ClasspathJarRef> m_jarMap = new HashMap<String, ClasspathJarRef>();
 
+	/** Maps jar name to it's header. Used to check if the jar changed. */
+	private Map<String, ClasspathJarRef> m_jarModificationMap = new HashMap<String, ClasspathJarRef>();
+
 	static private final IModifyableResource NOT_FOUND = new IModifyableResource() {
 		@Override
 		public long getLastModified() {
@@ -217,7 +220,7 @@ public class ClasspathInventory {
 			ClasspathJarRef jref = m_jarMap.get(path);
 			if(jref != null)
 				return jref;
-			LOG.info("? Odd: the classpath resource '" + path + "' cannot be found in the jars... I will do a full rescan.");
+			LOG.info("The classpath resource '" + path + "' cannot be found in the jars... Scanning them for changes.");
 		}
 
 		/*
@@ -259,8 +262,8 @@ public class ClasspathInventory {
 	 */
 	private synchronized void scanJars() {
 		long ts = System.nanoTime();
-		m_jarMap.clear();
-		int jcount = 0;
+		//		m_jarMap.clear();	// jal 20110115 Do not clear; jar entries are removed at rescan time.
+		int jcount = 0, lcount = 0;
 		for(File f : m_fileSet) {
 			if(!f.getName().endsWith(".jar"))
 				continue;
@@ -268,19 +271,36 @@ public class ClasspathInventory {
 				continue;
 
 			//-- This is a jar... Get all of it's files.
-			loadJarInventory(f);
+			if(loadJarInventory(f))
+				lcount++;
 			jcount++;
 		}
 		ts = System.nanoTime() - ts;
-		LOG.info("Loading full JAR inventory for " + jcount + " jars containing " + m_jarMap.size() + " entries took " + StringTool.strNanoTime(ts));
+		LOG.info("(Re)loading " + lcount + " changed .jar files of " + jcount + " total containing " + m_jarMap.size() + " entries took " + StringTool.strNanoTime(ts));
 	}
 
 	/**
 	 * If the specified url is a JAR load it's fileset and store in the jarmap.
 	 * @param u
 	 */
-	private void loadJarInventory(File f) {
+	private synchronized boolean loadJarInventory(File f) {
+		String name = f.getAbsolutePath();
+		ClasspathJarRef orig = m_jarModificationMap.get(name);
+		if(orig != null) {
+			//-- It was already loaded. Has the file changed?
+			if(!orig.isModified())
+				return false; // Just return- nothing to do here.
+
+			//-- We need to reload. Discard everything for this from jar map
+			for(String entry : orig.getNameList()) {
+				if(orig == m_jarMap.get(entry))
+					m_jarMap.remove(entry);
+			}
+			m_jarModificationMap.remove(name);
+		}
+
 		ClasspathJarRef jarref = new ClasspathJarRef(f);
+		m_jarModificationMap.put(name, jarref);
 		InputStream is = null;
 		ZipInputStream zis = null;
 		try {
@@ -289,6 +309,7 @@ public class ClasspathInventory {
 			ZipEntry ze;
 			while(null != (ze = zis.getNextEntry())) { // Walk entry
 				m_jarMap.put(ze.getName(), jarref); // Update the reference.
+				jarref.getNameList().add(ze.getName());
 			}
 		} catch(Exception xz) {
 			// Ignore all exceptions: when a classpath jar is corrupt let someone else bother...
@@ -302,6 +323,7 @@ public class ClasspathInventory {
 					zis.close();
 			} catch(Exception x) {}
 		}
+		return true;
 	}
 
 	/**

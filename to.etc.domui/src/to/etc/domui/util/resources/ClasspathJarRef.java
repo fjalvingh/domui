@@ -41,10 +41,25 @@ public class ClasspathJarRef implements IModifyableResource {
 
 	private long m_resourceLoaderTS;
 
+	/** The modification time of this jar at creation time of this ref. */
+	private long m_ts;
+
 	private Map<String, byte[][]> m_cachedMap = new HashMap<String, byte[][]>();
+
+	/** The list of names that was obtained from this jar. */
+	private List<String> m_nameList = new ArrayList<String>();
 
 	public ClasspathJarRef(File src) {
 		m_src = src;
+		m_ts = src.lastModified();
+	}
+
+	public List<String> getNameList() {
+		return m_nameList;
+	}
+
+	public boolean isModified() {
+		return m_ts != getLastModified();
 	}
 
 	@Override
