@@ -77,7 +77,7 @@ final public class CssColor {
 
 	public double luminance() {
 		//			return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-		return (r + g + b) / 3;
+		return (double) (r + g + b) / 3;
 	}
 
 	public boolean isLight() {

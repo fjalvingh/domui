@@ -1356,9 +1356,8 @@ public abstract class DomApplication {
 				if(rdl != null)
 					rdl.add(m_themeDependencies);
 			}
+			return m_themeStore;
 		}
-
-		return m_themeStore;
 	}
 
 	/**
