@@ -29,7 +29,7 @@ import java.util.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.LookupForm.ButtonMode;
+import to.etc.domui.component.lookup.LookupForm.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
@@ -160,8 +160,8 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		}
 
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
-			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH));
+		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
+			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
 			return;
 		} else
 			clearGlobalMessage();
@@ -239,6 +239,18 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		m_customErrorMessageListener = customErrorMessageListener;
 	}
 
+	/**
+	 * When T the user can press search even when no criteria are entered.
+	 * @return
+	 */
+	public boolean isAllowEmptyQuery() {
+		return m_allowEmptyQuery;
+	}
+
+	public void setAllowEmptyQuery(boolean allowEmptyQuery) {
+		m_allowEmptyQuery = allowEmptyQuery;
+	}
+
 	public IQueryManipulator<T> getQueryManipulator() {
 		return m_queryManipulator;
 	}
@@ -266,13 +278,5 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	public void setQueryHandler(IQueryHandler<T> queryHandler) {
 		m_queryHandler = queryHandler;
-	}
-
-	public boolean isAllowEmptyQuery() {
-		return m_allowEmptyQuery;
-	}
-
-	public void setAllowEmptyQuery(boolean allowEmptyQuery) {
-		m_allowEmptyQuery = allowEmptyQuery;
 	}
 }
