@@ -417,7 +417,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 	protected void cellClicked(final TD cell, final T value) throws Exception {
 		if(getCellClicked() != null)
-			((ICellClicked<Object>) getCellClicked()).cellClicked(getPage(), cell, value);
+			((ICellClicked<Object>) getCellClicked()).cellClicked(cell, value);
 	}
 
 	/**

@@ -216,7 +216,7 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 				@Override
 				@SuppressWarnings("unchecked")
 				public void clicked(final TR b) throws Exception {
-					((ICellClicked<T>) getRowClicked()).cellClicked(tbl.getPage(), b, instance);
+					((ICellClicked<T>) getRowClicked()).cellClicked(b, instance);
 				}
 			});
 			cc.getTR().addCssClass("ui-keyword-popup-row");

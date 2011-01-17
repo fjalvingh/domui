@@ -193,7 +193,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 			AbstractRowRenderer<T> arrh = (AbstractRowRenderer<T>) m_rowRenderer;
 			if(arrh.getRowClicked() == null) {
 				arrh.setRowClicked(new ICellClicked<T>() {
-					public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
+					public void cellClicked(NodeBase tr, T val) throws Exception {
 						onSelect(val);
 					}
 				});

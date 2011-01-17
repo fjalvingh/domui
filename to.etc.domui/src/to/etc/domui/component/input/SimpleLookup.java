@@ -212,7 +212,7 @@ public class SimpleLookup<T> extends FloatingWindow {
 
 			rr.setRowClicked(new ICellClicked<T>() {
 				@Override
-				public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
+				public void cellClicked(NodeBase tr, T val) throws Exception {
 					clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					close();
 					if(getOnValueSelected() != null) {
