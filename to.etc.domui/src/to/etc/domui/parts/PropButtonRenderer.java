@@ -91,8 +91,10 @@ public class PropButtonRenderer {
 				totalwidth += t;
 				t = getInt("text.iconoffset", 2);
 				totalwidth += t;
+			} else {
+				totalwidth += 20;
 			}
-			System.out.println("totalwidth=" + totalwidth + ", x=" + r.getX() + ", y=" + r.getY() + ", w=" + r.getWidth() + ", h=" + r.getHeight());
+			//			System.out.println("totalwidth=" + totalwidth + ", x=" + r.getX() + ", y=" + r.getY() + ", w=" + r.getWidth() + ", h=" + r.getHeight());
 
 			if(totalwidth > m_rootImage.getWidth()) {
 				growRootWider(totalwidth);

@@ -160,7 +160,9 @@ public abstract class DomApplication {
 				sb.append(rurl);
 				sb.append("?errorMessage=");
 				StringTool.encodeURLEncoded(sb, x.getLocalizedMessage());*/
-				ApplicationRequestHandler.generateHttpRedirect((RequestContextImpl) ctx, rurl, "Data not found");
+				UIGoto.redirect(rurl);
+				// jal 20110118 Does not work, and is a nonpublic interface.
+				//				ApplicationRequestHandler.generateHttpRedirect((RequestContextImpl) ctx, rurl, "Data not found");
 				return true;
 			}
 		});
