@@ -31,33 +31,18 @@ package to.etc.domui.util.resources;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 10, 2011
  */
-final public class FakeModifyableResource implements IModifyableResource {
-	private long m_fakeTimestamp;
+final public class FakeModifyableResource implements IIsModified {
+	private boolean m_modified;
 
 	/**
 	 * Create the resource with a current timestamp.
 	 */
 	public FakeModifyableResource() {
-		m_fakeTimestamp = System.currentTimeMillis();
 	}
 
-	/**
-	 * Return the current "fake" timestamp, which will change when the user
-	 * calls markChanged() on this instance.
-	 * @see to.etc.domui.util.resources.IModifyableResource#getLastModified()
-	 */
 	@Override
-	public synchronized long getLastModified() {
-		return m_fakeTimestamp;
-	}
-
-	/**
-	 * Useless, but if you really want to find a value yourself- be my guest. Better
-	 * use {@link #markChanged()}.
-	 * @param lm
-	 */
-	public synchronized void setLastModified(long lm) {
-		m_fakeTimestamp = lm;
+	public synchronized boolean isModified() {
+		return m_modified;
 	}
 
 	/**
@@ -66,6 +51,6 @@ final public class FakeModifyableResource implements IModifyableResource {
 	 * reload.
 	 */
 	public synchronized void markChanged() {
-		m_fakeTimestamp++;
+		m_modified = true;
 	}
 }
