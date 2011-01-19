@@ -1,5 +1,7 @@
 package to.etc.domui.util.resources;
 
+import java.io.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.server.*;
@@ -51,14 +53,26 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 			rdl.add(r);
 			return r;
 		}
-		r = da.createClasspathReference("/resources/js" + name);
+		r = da.getAppFileOrResource(name);
 		rdl.add(r);
 		//			System.out.println("RR: Default ref to " + name + " is " + r);
 		return r;
 	}
 
+	/**
+	 *
+	 * @param da
+	 * @param name		name starts with / always.
+	 * @return
+	 */
 	private IResourceRef tryVersionedResource(DomApplication da, String name) {
-		name = "/resources/" + name;
+		//-- 1. Try WebFile first
+		File f = da.getAppFile(name);
+		if(f.exists() && f.isFile())
+			return new WebappResourceRef(f);
+
+		//-- 2. Try /resources/[name] in classpath
+		name = "/resources" + name;
 		if(!DomUtil.classResourceExists(getClass(), name))
 			return null;
 		return da.createClasspathReference(name);

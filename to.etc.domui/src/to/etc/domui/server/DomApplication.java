@@ -734,6 +734,8 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	public IResourceRef createClasspathReference(String name) {
+		if(!name.startsWith("/"))
+			name = "/" + name;
 		if(inDevelopmentMode()) {
 			//-- If running in debug mode get this classpath resource's original source file
 			IModifyableResource ts = ClasspathInventory.getInstance().findResourceSource(name);
