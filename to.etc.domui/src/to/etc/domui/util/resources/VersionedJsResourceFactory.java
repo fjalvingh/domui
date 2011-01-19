@@ -53,7 +53,7 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 			rdl.add(r);
 			return r;
 		}
-		r = da.getAppFileOrResource(name);
+		r = da.getAppFileOrResource("js" + name);
 		rdl.add(r);
 		//			System.out.println("RR: Default ref to " + name + " is " + r);
 		return r;
@@ -62,7 +62,7 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 	/**
 	 *
 	 * @param da
-	 * @param name		name starts with / always.
+	 * @param name.
 	 * @return
 	 */
 	private IResourceRef tryVersionedResource(DomApplication da, String name) {
@@ -72,7 +72,7 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 			return new WebappResourceRef(f);
 
 		//-- 2. Try /resources/[name] in classpath
-		name = "/resources" + name;
+		name = "/resources/" + name;
 		if(!DomUtil.classResourceExists(getClass(), name))
 			return null;
 		return da.createClasspathReference(name);
