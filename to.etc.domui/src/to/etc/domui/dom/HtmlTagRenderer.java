@@ -728,6 +728,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("height", n.getCellHeight());
 		if(n.getCellWidth() != null)
 			o().attr("width", n.getCellWidth());
+		if(n.getAlign() != null)
+			o().attr("align", n.getAlign().getCode());
 		renderTagend(n, m_o);
 	}
 

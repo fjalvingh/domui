@@ -1,0 +1,23 @@
+/*** List Shuttle ***/
+.ui-sh {
+	width: 100%;
+}
+table .ui-sh {
+	width: 100%;
+}
+.ui-sh-sc {
+	width: 40%;
+}
+.ui-sh-tc {
+	width: 40%;
+}
+.ui-sh-tcd, .ui-sh-scd {
+	border: 1px solid #aaaaaa;
+}
+.ui-sh-bc {
+	width: 1%;
+}
+.ui-sh-sc .selected, .ui-sh-tc .selected {
+	background-color: cyan;
+}
+

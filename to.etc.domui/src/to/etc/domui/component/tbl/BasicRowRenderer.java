@@ -116,6 +116,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 		String caption = null;
 		String cssclass = null;
 		boolean nowrap = false;
+		SortableType sort = null;
 		INodeContentRenderer< ? > nodeRenderer = null;
 		Class< ? > nrclass = null;
 
@@ -135,7 +136,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 							throw new IllegalArgumentException("Unexpected 'string' parameter: '" + s + "'");
 						//-- FALL THROUGH
 					case 0:
-						internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap);
+						internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort);
 						property = s;
 						width = null;
 						conv = null;
@@ -145,6 +146,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 						nodeRenderer = null;
 						nrclass = null;
 						nowrap = false;
+						sort = null;
 						break;
 
 					case '%':
@@ -170,10 +172,12 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 					convclz = c;
 				else
 					throw new IllegalArgumentException("Invalid 'class' argument: " + c);
+			} else if(val instanceof SortableType) {
+				sort = (SortableType) val;
 			} else
 				throw new IllegalArgumentException("Invalid column modifier argument: " + val);
 		}
-		internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap);
+		internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort);
 		return this;
 	}
 
@@ -220,7 +224,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
 	private <R> void internalAddProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass,
-		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap) throws Exception {
+		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap, SortableType sort) throws Exception {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
 
@@ -238,6 +242,8 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
 			cd.setNowrap(nowrap);
+			if(sort != null)
+				cd.setSortable(sort);
 			return;
 		}
 
@@ -261,6 +267,8 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
 			cd.setNowrap(nowrap);
+			if(sort != null)
+				cd.setSortable(sort);
 			if(pmm.getNumericPresentation() != null && pmm.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				cd.setCssClass("ui-numeric");
 				cd.setHeaderCssClass("ui-numeric");
@@ -311,8 +319,11 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 					scd.setPresentationConverter(c);
 				}
 			}
-			scd.setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
-			scd.setSortable(xdp.getSortable());
+			//			scd.setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
+			if(sort != null)
+				scd.setSortable(sort);
+			else
+				scd.setSortable(xdp.getSortable());
 			scd.setPropertyName(xdp.getName());
 			scd.setNowrap(nowrap);
 			scd.setNumericPresentation(xdp.getNumericPresentation());

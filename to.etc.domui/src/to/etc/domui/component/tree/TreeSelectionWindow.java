@@ -127,10 +127,10 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 
 	/**
 	 * Internally called when tree node is clicked. Handles selection events.
-	 * @see to.etc.domui.component.tbl.ICellClicked#cellClicked(to.etc.domui.dom.html.Page, to.etc.domui.dom.html.NodeBase, java.lang.Object)
+	 * @see to.etc.domui.component.tbl.ICellClicked#cellClicked(to.etc.domui.dom.html.NodeBase, java.lang.Object)
 	 */
 	@Override
-	final public void cellClicked(Page pg, NodeBase tr, T rowval) throws Exception {
+	final public void cellClicked(NodeBase tr, T rowval) throws Exception {
 		long ts = System.currentTimeMillis();
 		if(m_selected == rowval) {
 			//-- Reselect...

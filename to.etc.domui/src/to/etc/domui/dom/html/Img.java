@@ -24,7 +24,7 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.state.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 /**
@@ -127,7 +127,7 @@ public class Img extends NodeBase {
 	 * @return
 	 */
 	public String getSrc() {
-		return UIContext.getRequestContext().translateResourceName(m_src);
+		return DomApplication.get().getThemedResourceRURL(m_src);
 	}
 
 	/**

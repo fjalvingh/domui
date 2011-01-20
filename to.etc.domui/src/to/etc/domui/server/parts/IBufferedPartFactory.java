@@ -56,5 +56,5 @@ public interface IBufferedPartFactory extends IPartFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull ResourceDependencyList rdl) throws Exception;
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception;
 }

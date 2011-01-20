@@ -25,7 +25,7 @@
 package to.etc.domui.component.buttons;
 
 import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 /**
@@ -87,7 +87,7 @@ public class LinkButton extends ATag {
 			setBackgroundImage(null);
 			setCssClass("ui-lnkb");
 		} else {
-			setBackgroundImage(UIContext.getRequestContext().translateResourceName(m_imageUrl));
+			setBackgroundImage(DomApplication.get().getThemedResourceRURL(m_imageUrl));
 			setCssClass("ui-lnkb ui-lbtn");
 		}
 	}

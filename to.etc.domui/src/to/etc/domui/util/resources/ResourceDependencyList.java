@@ -29,47 +29,94 @@ import java.util.*;
 import javax.annotation.*;
 
 /**
- * Contains a list of things that an "owner" depends on, and for each thing
- * a "timenstamp" of that thing at the time it was used (added) to this list.
- * By comparing the "actual" timestamp with the stored timestamp we can see
- * if the item changed.
+ * Used to build resource dependencies. Dependencies on resources can be
+ * added to this list, and when done a ResourceDependencies object can
+ * be gotten from this. This is NOT threadsafe(!), but the resulting
+ * {@link ResourceDependencies} instance is.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 19, 2009
  */
-final public class ResourceDependencyList {
+final public class ResourceDependencyList implements IResourceDependencyList {
+	/**
+	 * If you do not want to collect dependencies you can use this as an instance. It ignores
+	 * everything added to it.
+	 */
+	static public final IResourceDependencyList NULL = new IResourceDependencyList() {
+		@Override
+		public void add(IModifyableResource c) {}
+
+		@Override
+		public void add(IIsModified m) {}
+
+		@Override
+		public void add(IResourceRef ref) {}
+	};
+
 	@Nonnull
-	private List<ResourceTimestamp> m_deplist = Collections.EMPTY_LIST;
+	private List<IIsModified> m_deplist = Collections.EMPTY_LIST;
 
 	/**
-	 * Add a new resource to the list. The resource's timestamp is obtained and stored at this time.
-	 * @param c
+	 * @see to.etc.domui.util.resources.IResourceDependencyList#add(to.etc.domui.util.resources.IResourceRef)
 	 */
+	@Override
+	public void add(@Nonnull IResourceRef ref) {
+		if(ref instanceof IIsModified)
+			add((IIsModified) ref);
+		else if(ref instanceof IModifyableResource)
+			add( (IModifyableResource) ref);
+		else
+			throw new IllegalArgumentException("Argument " + ref + " must implement IIsModified or IModifyableResource to be usable for dependency change tracking");
+	}
+
+	/**
+	 * @see to.etc.domui.util.resources.IResourceDependencyList#add(to.etc.domui.util.resources.IIsModified)
+	 */
+	@Override
+	public void add(@Nonnull IIsModified m) {
+		if(m_deplist == Collections.EMPTY_LIST)
+			m_deplist = new ArrayList<IIsModified>(5);
+		else {
+			for(IIsModified xm : m_deplist) {
+				if(m == xm)
+					return;
+			}
+		}
+		m_deplist.add(m);
+	}
+
+	/**
+	 * @see to.etc.domui.util.resources.IResourceDependencyList#add(to.etc.domui.util.resources.IModifyableResource)
+	 */
+	@Override
 	public void add(@Nonnull IModifyableResource c) {
 		if(m_deplist == Collections.EMPTY_LIST)
-			m_deplist = new ArrayList<ResourceTimestamp>(5);
+			m_deplist = new ArrayList<IIsModified>(5);
+		else {
+			for(IIsModified xm : m_deplist) {
+				if(xm instanceof ResourceTimestamp) {
+					ResourceTimestamp rx = (ResourceTimestamp) xm;
+					if(rx.getRef() == c)
+						return;
+				}
+			}
+		}
 		m_deplist.add(new ResourceTimestamp(c, c.getLastModified()));
 	}
 
 	/**
-	 * Add another list of resources to this one.
-	 * @param c
+	 * @see to.etc.domui.util.resources.IResourceDependencyList#add(to.etc.domui.util.resources.ResourceDependencyList)
 	 */
 	public void add(@Nonnull ResourceDependencyList c) {
-		for(ResourceTimestamp mr : c.m_deplist)
-			m_deplist.add(mr);
+		for(IIsModified mr : c.m_deplist)
+			add(mr);
 	}
 
 	/**
-	 * Compares the current timestamp of the resource with the one it had when it was
-	 * added, and returns true if any resource has changed  (= has a different timestamp).
+	 * Get the immutable dependencies instance.
 	 * @return
 	 */
-	public boolean isModified() {
-		for(ResourceTimestamp c : m_deplist) {
-			if(c.isModified())
-				return true;
-		}
-		return false;
+	public ResourceDependencies createDependencies() {
+		return new ResourceDependencies(m_deplist);
 	}
 }

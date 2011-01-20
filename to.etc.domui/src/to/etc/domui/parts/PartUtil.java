@@ -73,7 +73,7 @@ public class PartUtil {
 	 * @throws Exception
 	 */
 	@Nonnull
-	static public Properties loadProperties(DomApplication da, String src, ResourceDependencyList rdl) throws Exception {
+	static public Properties loadProperties(DomApplication da, String src, IResourceDependencyList rdl) throws Exception {
 		String svg = da.getThemeReplacedString(rdl, src);
 
 		InputStream is = new StringInputStream(svg, "utf-8");
@@ -114,19 +114,17 @@ public class PartUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	static public BufferedImage loadImage(DomApplication da, String in, ResourceDependencyList rdl) throws Exception {
+	static public BufferedImage loadImage(DomApplication da, String in, @Nonnull IResourceDependencyList rdl) throws Exception {
 		//-- Split input in URL and parameters (QD for generic retrieval of resources)
 		String image = getURI(in);
 		IParameterInfo param = getParameters(in);
 
-		IResourceRef ref = da.getApplicationResourceByName(image);
+		IResourceRef ref = da.getResource(image, rdl);
 //		if(ref == null)
 //			throw new ThingyNotFoundException("The image '" + image + "' was not found.");
 		InputStream is = ref.getInputStream();
 		if(is == null)
 			throw new ThingyNotFoundException("The image '" + image + "' was not found.");
-		if(rdl != null)
-			rdl.add(ref);
 		try {
 			BufferedImage bi = null;
 
@@ -157,7 +155,7 @@ public class PartUtil {
 		}
 	}
 
-	private static BufferedImage loadSvg(DomApplication da, ResourceDependencyList rdl, String image, IParameterInfo param) throws Exception {
+	private static BufferedImage loadSvg(DomApplication da, IResourceDependencyList rdl, String image, IParameterInfo param) throws Exception {
 		//-- 1. Get the input as a theme-replaced resource
 		String svg = da.getThemeReplacedString(rdl, image);
 

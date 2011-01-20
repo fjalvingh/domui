@@ -140,7 +140,7 @@ public class ButtonPart implements IBufferedPartFactory {
 	}
 
 	@Override
-	public void generate(@Nonnull final PartResponse pr, @Nonnull final DomApplication da, @Nonnull final Object key, @Nonnull final ResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull final PartResponse pr, @Nonnull final DomApplication da, @Nonnull final Object key, @Nonnull final IResourceDependencyList rdl) throws Exception {
 		if(true)
 			throw new IllegalStateException("DO NOT USE ANYMORE - REPLACED WITH PropBtnPart.part");
 		//		ButtonPartKey k = (ButtonPartKey) key;

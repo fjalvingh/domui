@@ -275,27 +275,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return sb.toString();
 	}
 
-	@Override
-	public String getRelativeThemePath(String frag) {
-		return "$themes/" + getSession().getCurrentTheme() + "/" + frag;
-	}
-
-	/**
-	 * Translates the input resource specifier by checking for special location indicators like THEME and
-	 * such at the start of the input. If input does not start with any of these it is returned unaltered.
-	 * @see to.etc.domui.server.IRequestContext#translateResourceName(java.lang.String)
-	 */
-	@Override
-	public String translateResourceName(String in) {
-		if(in == null)
-			return in;
-		if(in.startsWith("/THEME/"))
-			return getRelativeThemePath(in.substring(7));
-		if(in.startsWith("THEME/"))
-			return getRelativeThemePath(in.substring(6));
-		return in;
-	}
-
 	/**
 	 * @see to.etc.domui.server.IRequestContext#getOutputWriter()
 	 */

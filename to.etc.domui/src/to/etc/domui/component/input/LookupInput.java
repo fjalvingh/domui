@@ -306,7 +306,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 
 		rr.setRowClicked(new ICellClicked<T>() {
 			@Override
-			public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
+			public void cellClicked(NodeBase tr, T val) throws Exception {
 				handleSetValue(val);
 			}
 		});
@@ -553,7 +553,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			}
 		}
 		m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
+		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
 			m_floater.addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
 			return;
 		} else
@@ -589,7 +589,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 
 			rr.setRowClicked(new ICellClicked<T>() {
 				@Override
-				public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
+				public void cellClicked(NodeBase tr, T val) throws Exception {
 					//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
 					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					LookupInput.this.toggleFloater(null);

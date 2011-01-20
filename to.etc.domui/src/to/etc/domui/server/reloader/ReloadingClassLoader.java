@@ -76,7 +76,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 	}
 
 	private void addWatchFor(Class< ? > clz) {
-		IModifyableResource rt = m_reloader.findClassSource(clz); // Try to locate,
+		IModifyableResource rt = ClasspathInventory.getInstance().findClassSource(clz);
 		if(rt == null) {
 			LOG.info("Cannot find source file for class=" + clz + "; changes to this class are not tracked");
 			return;

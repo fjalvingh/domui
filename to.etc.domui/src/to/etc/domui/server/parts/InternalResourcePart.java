@@ -135,7 +135,7 @@ public class InternalResourcePart implements IBufferedPartFactory {
 	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(to.etc.domui.server.parts.PartResponse, to.etc.domui.server.DomApplication, java.lang.Object, to.etc.domui.util.resources.ResourceDependencyList)
 	 */
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object inkey, @Nonnull ResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object inkey, @Nonnull IResourceDependencyList rdl) throws Exception {
 		ResKey k = (ResKey) inkey;
 
 		//-- 1. Locate the resource
@@ -143,10 +143,8 @@ public class InternalResourcePart implements IBufferedPartFactory {
 		if(k.getLoc() != null)
 			throw new IllegalStateException("Locale in resource not implemented.");
 		String rurl = k.getRURL();
-		ires = da.getApplicationResourceByName(rurl);
-		if(da.inDevelopmentMode()) {
-			rdl.add(ires);
-		} else {
+		ires = da.getResource(rurl, da.inDevelopmentMode() ? rdl : ResourceDependencyList.NULL); // Only check dependencies in development mode
+		if(!da.inDevelopmentMode()) {
 			// Resources are cached ONLY when in production mode.
 			pr.setCacheTime(da.getDefaultExpiryTime());
 		}

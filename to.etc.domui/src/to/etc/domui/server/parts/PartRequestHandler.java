@@ -52,7 +52,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 
 		public int m_size;
 
-		public ResourceDependencyList m_dependencies;
+		public ResourceDependencies m_dependencies;
 
 		public String m_contentType;
 
@@ -295,7 +295,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 			os.close();
 			cp.m_size = os.getSize();
 			cp.m_data = os.getBuffers();
-			cp.m_dependencies = rdl;
+			cp.m_dependencies = rdl.createDependencies();
 			cp.m_cacheTime = pr.getCacheTime();
 			synchronized(m_cache) {
 				m_cache.put(key, cp); // Store (may be done multiple times due to race condition)

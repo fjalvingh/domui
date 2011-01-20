@@ -50,7 +50,7 @@ public class AsyncContainer extends Div {
 		//-- Render a thingy containing a spinner
 		setCssClass("ui-asc");
 		Img img = new Img();
-		img.setSrc(UIContext.getRequestContext().getRelativeThemePath("asy-container-busy.gif"));
+		img.setSrc("THEME/asy-container-busy.gif");
 		add(img);
 		DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), new IClicked<DefaultButton>() {
 			@Override

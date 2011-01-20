@@ -57,8 +57,6 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 	final private Map<String, Object> m_objCache = new HashMap<String, Object>();
 
-	private String m_currentTheme;
-
 	/**
 	 * Not-null if some other request is executing for this session. Prevent multi-user access
 	 * to shared variables.
@@ -90,16 +88,6 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 */
 	public DomApplication getApplication() {
 		return m_application;
-	}
-
-	public synchronized String getCurrentTheme() {
-		if(m_currentTheme == null)
-			m_currentTheme = m_application.getDefaultTheme();
-		return m_currentTheme;
-	}
-
-	public synchronized void setCurrentTheme(final String currentTheme) {
-		m_currentTheme = currentTheme;
 	}
 
 	/**
@@ -406,5 +394,4 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			}
 		}
 	}
-
 }

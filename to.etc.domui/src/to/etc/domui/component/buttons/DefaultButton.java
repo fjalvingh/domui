@@ -26,7 +26,7 @@ package to.etc.domui.component.buttons;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
-import to.etc.domui.state.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -129,7 +129,7 @@ public class DefaultButton extends Button {
 	 * @param name
 	 */
 	public void setThemeConfig(final String name) {
-		m_propSrc = UIContext.getRequestContext().getRelativeThemePath(name);
+		m_propSrc = DomApplication.get().getThemedResourceRURL("THEME/" + name);
 		genURL();
 	}
 
@@ -148,7 +148,7 @@ public class DefaultButton extends Button {
 	 * @param name
 	 */
 	public void setIcon(final String name) {
-		m_icon = UIContext.getRequestContext().translateResourceName(name);
+		m_icon = DomApplication.get().getThemedResourceRURL(name);
 		genURL();
 	}
 

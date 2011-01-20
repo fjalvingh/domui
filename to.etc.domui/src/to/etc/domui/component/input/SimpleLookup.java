@@ -176,7 +176,7 @@ public class SimpleLookup<T> extends FloatingWindow {
 			}
 		}
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
+		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
 			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
 			return;
 		} else
@@ -212,7 +212,7 @@ public class SimpleLookup<T> extends FloatingWindow {
 
 			rr.setRowClicked(new ICellClicked<T>() {
 				@Override
-				public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
+				public void cellClicked(NodeBase tr, T val) throws Exception {
 					clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					close();
 					if(getOnValueSelected() != null) {

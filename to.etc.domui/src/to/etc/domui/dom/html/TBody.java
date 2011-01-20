@@ -72,13 +72,14 @@ public class TBody extends NodeContainer {
 
 	public TD addCell() {
 		m_currentCell = new TD();
+		if(m_currentRow == null)
+			addRow();
 		m_currentRow.add(m_currentCell);
 		return m_currentCell;
 	}
 
 	public TD addCell(String css) {
-		m_currentCell = new TD();
-		m_currentRow.add(m_currentCell);
+		addCell();
 		m_currentCell.setCssClass(css);
 		return m_currentCell;
 	}
