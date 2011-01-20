@@ -150,7 +150,7 @@ public class Progress {
 				m_cancelled = true;
 				if(m_parent != null)
 					m_parent.cancel();		// Pass upwards.
-				updated();
+				updateTree();
 			}
 		}
 	}
@@ -171,7 +171,7 @@ public class Progress {
 			if(m_totalWork != 0)
 				throw new IllegalStateException("You cannot change the work-to-do after it has been set");
 			m_totalWork = work;
-			updated();
+			updateTree();
 		}
 	}
 
@@ -188,7 +188,7 @@ public class Progress {
 			if(now >= m_totalWork)
 				now = m_totalWork;
 			m_currentWork = now;
-			updated();
+			updateTree();
 		}
 	}
 
@@ -198,10 +198,10 @@ public class Progress {
 			if(m_totalWork == 0) {
 				m_totalWork = 100.0;
 				m_currentWork = 100.0;
-				updated();
+				updateTree();
 			} else if(m_currentWork < m_totalWork) {
 				m_currentWork = m_totalWork;
-				updated();
+				updateTree();
 			}
 		}
 	}
@@ -226,7 +226,7 @@ public class Progress {
 			m_currentWork = m_subStartWork + m_subTotalWork; // Finish off the sub.
 			m_subProgress.m_parent = null;
 			m_subProgress = null;
-			updated();
+			updateTree();
 		}
 	}
 
@@ -254,7 +254,8 @@ public class Progress {
 	 * Called when a thingy has updated; this passes the change to all parents. The current
 	 * instance has already changed; use those values to recalculate values for all parents.
 	 */
-	private void updated() {
+	private void updateTree() {
+		updated();
 		synchronized(m_root) {
 			Progress p = m_parent;
 			while(p != null) {
@@ -265,7 +266,11 @@ public class Progress {
 		}
 	}
 
-	private boolean updateFromSub() {
+	protected void updated() {
+
+	}
+
+	protected boolean updateFromSub() {
 		synchronized(m_root) {
 			if(m_subProgress == null)
 				throw new IllegalStateException("?? Unexpected: no sub active?");
@@ -278,6 +283,7 @@ public class Progress {
 			if(amount > m_subStartWork+m_subTotalWork)
 				throw new IllegalStateException("?? Sub adjustment causes overflow: "+amount+", start="+m_subStartWork+", max-sub="+m_subTotalWork);
 			m_currentWork = amount;
+			updated();
 			return true;
 		}
 	}
