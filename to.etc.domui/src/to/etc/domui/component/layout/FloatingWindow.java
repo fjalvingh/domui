@@ -60,6 +60,8 @@ public class FloatingWindow extends Div {
 
 	private static final int HEIGHT = 400;
 
+	private boolean m_fitToContent;
+
 	protected FloatingWindow() {
 		init();
 	}
@@ -70,6 +72,7 @@ public class FloatingWindow extends Div {
 	 */
 	protected FloatingWindow(boolean modal, String txt) {
 		m_modal = modal;
+		m_fitToContent = false;
 		if(txt != null)
 			setWindowTitle(txt);
 		init();
@@ -351,6 +354,21 @@ public class FloatingWindow extends Div {
 
 		//-- 2. Add the floater @zIndex=100
 		body.add(this);
+	}
+
+	public boolean isFitToContent() {
+		return m_fitToContent;
+	}
+
+	public void setFitToContent(boolean fitToContent) {
+		m_fitToContent = fitToContent;
+		if (fitToContent) {
+			setWidth("auto");
+			setHeight("auto");
+		} else {
+			setWidth(null);
+			setHeight(null);
+		}
 	}
 
 
