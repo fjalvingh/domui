@@ -116,8 +116,8 @@ public class SimpleLookup<T> extends FloatingWindow {
 
 	@Override
 	public void createContent() throws Exception {
-		super.createContent();
 		setWindowTitle(getLookupTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_LUI_TTL) : getLookupTitle());
+		super.createContent();
 
 		setHeight("90%");
 		setIcon("THEME/btnFind.png");
