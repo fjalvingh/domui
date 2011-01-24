@@ -26,6 +26,7 @@ package to.etc.domui.converter;
 
 import java.util.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
@@ -38,11 +39,29 @@ import to.etc.domui.util.*;
  * Created on Dec 10, 2010
  */
 public class DoubleConverter implements IConverter<Double> {
+	private int m_scale = -1;
+
+	private NumericPresentation m_pre;
+
+	public DoubleConverter() {}
+
+	public DoubleConverter(PropertyMetaModel< ? > pmm) {
+		m_scale = pmm.getScale();
+		m_pre = pmm.getNumericPresentation();
+	}
+
+	public DoubleConverter(NumericPresentation np, int scale) {
+		m_scale = scale;
+		m_pre = np;
+	}
+
 	@Override
 	public String convertObjectToString(Locale loc, Double in) throws UIException {
 		if(in == null)
 			return "";
-		return String.format(loc, "%.3g", in);
+		if(m_pre == null)
+			return String.format(loc, "%.3g", in);
+		return NumericUtil.renderNumber(in, m_pre, m_scale);
 	}
 
 	@Override

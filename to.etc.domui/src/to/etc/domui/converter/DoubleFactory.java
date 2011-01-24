@@ -47,6 +47,10 @@ final public class DoubleFactory implements IConverterFactory {
 	 */
 	@Override
 	public <X, T extends IConverter<X>> T createConverter(final Class<X> clz, final PropertyMetaModel<X> pmm) {
-		return (T) ConverterRegistry.getConverterInstance(DoubleConverter.class);
+		if(null == pmm)
+			return (T) ConverterRegistry.getConverterInstance(DoubleConverter.class);
+
+		//-- Try to allot a properly formatting converter.
+		return (T) new DoubleConverter(pmm);
 	}
 }
