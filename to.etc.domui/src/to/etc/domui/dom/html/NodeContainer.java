@@ -326,7 +326,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Add the child at the end of the list.
 	 * @param nd
 	 */
-	final public void add(@Nonnull final NodeBase nd) {
+	public void add(@Nonnull final NodeBase nd) {
 		add(Integer.MAX_VALUE, nd);
 	}
 
@@ -335,7 +335,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param index
 	 * @param nd
 	 */
-	final public void add(final int index, @Nonnull final NodeBase nd) {
+	public void add(final int index, @Nonnull final NodeBase nd) {
 		if(m_delegate != null) {
 			m_delegate.add(index, nd);
 			return;
