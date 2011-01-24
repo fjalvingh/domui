@@ -237,14 +237,24 @@ public class FloatingWindow extends Div {
 
 	/**
 	 * Create the title bar for the floater.
+	 * Also replaces existing title bar in case that new is set.
 	 * @return
 	 */
 	protected NodeContainer createTitleBar() {
-		if(m_titleBar != null)
-			m_titleBar.remove();
 		Div ttl = new Div();
+		if(m_titleBar != null) {
+			//if old title bar exists
+			NodeContainer parent = m_titleBar.getParent();
+			if(parent != null) {
+				//replace old title bar if already added to page
+				m_titleBar.replaceWith(ttl);
+			}
+		}
 		m_titleBar = ttl;
-		super.add(0, ttl);
+		if(null == ttl.getParent()) {
+			//in case that title bar is still not added to page, add it as first item
+			super.add(0, ttl);
+		}
 		ttl.setCssClass("ui-fw-ttl");
 		if(m_closable) {
 			m_closeButton = new Img();
