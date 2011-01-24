@@ -77,20 +77,20 @@ public class SimpleColumnDef {
 	 * Create a column definition using metadata for the column.
 	 * @param m
 	 */
-	public SimpleColumnDef(PropertyMetaModel m) {
+	public SimpleColumnDef(PropertyMetaModel< ? > m) {
 		setColumnLabel(m.getDefaultLabel());
 		setColumnType(m.getActualType());
-		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
+		setValueTransformer(m); // Thing which can obtain the value from the property
 		setPresentationConverter(ConverterRegistry.findBestConverter(m));
 		setSortable(m.getSortable());
 		setPropertyName(m.getName());
 		setNumericPresentation(m.getNumericPresentation());
 	}
 
-	public SimpleColumnDef(ExpandedDisplayProperty m) {
+	public SimpleColumnDef(ExpandedDisplayProperty< ? > m) {
 		setColumnLabel(m.getDefaultLabel());
 		setColumnType(m.getActualType());
-		setValueTransformer(m.getAccessor()); // Thing which can obtain the value from the property
+		setValueTransformer(m); // Thing which can obtain the value from the property
 		setPresentationConverter(m.getBestConverter());
 		setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
 		setSortable(m.getSortable());

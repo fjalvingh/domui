@@ -31,7 +31,7 @@ import to.etc.domui.dom.html.*;
 final class LookupFactoryRelation implements ILookupControlFactory {
 	@Override
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
-		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		if(pmm.getRelationType() ==  PropertyRelationType.UP) {		// Accept only relations.
 			return 4;
 		}
@@ -40,7 +40,7 @@ final class LookupFactoryRelation implements ILookupControlFactory {
 
 	@Override
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
-		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		IInputNode< ? > input = control;
 		if(input == null) {
 			final LookupInput<Object> l = new LookupInput<Object>((Class<Object>) pmm.getActualType()); // Create a lookup thing for this one

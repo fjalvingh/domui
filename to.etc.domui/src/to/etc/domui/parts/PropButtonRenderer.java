@@ -51,44 +51,111 @@ public class PropButtonRenderer {
 
 	private PropBtnPart.ButtonPartKey m_key;
 
-	private ResourceDependencyList m_dependencies;
+	private IResourceDependencyList m_dependencies;
 
 	protected BufferedImage m_rootImage;
 
-	private Graphics2D m_graphics;
+	private Graphics2D m_targetGraphics;
 
 	protected BufferedImage m_iconImage;
 
-	public void generate(PartResponse pr, DomApplication da, PropBtnPart.ButtonPartKey key, Properties p, @Nonnull ResourceDependencyList rdl) throws Exception {
+	public void generate(PartResponse pr, DomApplication da, PropBtnPart.ButtonPartKey key, Properties p, @Nonnull IResourceDependencyList rdl) throws Exception {
 		m_application = da;
 		m_properties = p;
 		m_key = key;
 		m_dependencies = rdl;
 
-		initialize();
-		if(m_iconImage != null)
-			renderIcon();
-		renderText();
+		try {
+			initBackground();
+			initIcon();
+			initTextFont();
+			initTextColor();
+			decodeAccelerator();
 
-		//
-		//		if(k.m_icon != null) {
-		//			BufferedImage iconbi = PartUtil.loadImage(da, k.m_icon);
-		//			renderIcon(bi, g, k, iconbi);
-		//		}
-		//		renderText(bi, g, k);
-		compress(pr);
+			initAttributedText();
+
+			//-- Everything is known. Calculate how much space icon+text will take.
+			FontRenderContext frc = getGraphics().getFontRenderContext();
+			TextLayout layout = new TextLayout(m_attributedString.getIterator(), frc);
+			Rectangle2D r = layout.getBounds();
+
+			int totalwidth = (int) r.getWidth();
+			if(m_iconImage != null) {
+				totalwidth += m_iconImage.getWidth();
+
+				int t = getInt("text.icon.xoffset", -999);
+				if(t != -999)
+					totalwidth += t;
+
+				t = m_iconImage.getWidth() + getInt("icon.xoffset", 10);
+				totalwidth += t;
+				t = getInt("text.iconoffset", 2);
+				totalwidth += t;
+			} else {
+				totalwidth += 20;
+			}
+			//			System.out.println("totalwidth=" + totalwidth + ", x=" + r.getX() + ", y=" + r.getY() + ", w=" + r.getWidth() + ", h=" + r.getHeight());
+
+			if(totalwidth > m_rootImage.getWidth()) {
+				growRootWider(totalwidth);
+			}
+
+
+			if(m_iconImage != null)
+				renderIcon();
+			if(getKey().m_text != null) {
+				renderAttributedText();
+			}
+			compress(pr);
+		} finally {
+			try {
+				if(null != m_targetGraphics)
+					m_targetGraphics.dispose();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Grow the root image wider, to the specified pixel width, by replicating a single
+	 * vertical line.
+	 * @param totalwidth
+	 */
+	private void growRootWider(int totalwidth) {
+		BufferedImage newbi = new BufferedImage(totalwidth, m_rootImage.getHeight(), m_rootImage.getType());
+
+		int split = getInt("split", m_rootImage.getWidth() / 2); // Get the splice point, default to middle of image width
+
+		BufferedImage leftbi = m_rootImage.getSubimage(0, 0, split, m_rootImage.getHeight()); // Left side of the result
+		Graphics2D g2d = (Graphics2D) newbi.getGraphics();
+		try {
+			g2d.drawImage(leftbi, 0, 0, null);
+
+			//-- Get the splice image;
+			BufferedImage	splice = m_rootImage.getSubimage(split, 0, 1, m_rootImage.getHeight());	// Get a 1-pixel wide splice
+			int leftsz = m_rootImage.getWidth() - split;
+			int gapwidth = totalwidth - m_rootImage.getWidth();
+			for(int x = split, i = gapwidth; --i >= 0; x++) {
+				g2d.drawImage(splice, x, 0, null); // Replicate splice over the gap
+			}
+
+			//-- Finally: append the right size.
+			BufferedImage rightbi = m_rootImage.getSubimage(split, 0, m_rootImage.getWidth() - split, m_rootImage.getHeight());
+			g2d.drawImage(rightbi, split + gapwidth, 0, null); // Replicate splice over the gap
+
+			m_rootImage = newbi;
+			if(null != m_targetGraphics)
+				m_targetGraphics.dispose();
+			m_targetGraphics = null;
+		} finally {
+			try {
+				g2d.dispose();
+			} catch(Exception x) {}
+		}
 	}
 
 	protected void compress(PartResponse pr) throws Exception {
 		ImageIO.write(m_rootImage, "PNG", pr.getOutputStream());
 		pr.setMime("image/png");
-	}
-
-	protected void initialize() throws Exception {
-		initBackground();
-		initGraphics();
-		initAntiAliasing();
-		initIcon();
 	}
 
 	protected void initIcon() throws Exception {
@@ -98,8 +165,14 @@ public class PropButtonRenderer {
 		m_iconImage = loadImage("/" + getKey().m_icon);
 	}
 
-	protected void initGraphics() {
-		m_graphics = (Graphics2D) m_rootImage.getGraphics();
+	public Graphics2D getGraphics() {
+		if(m_targetGraphics == null) {
+			m_targetGraphics = (Graphics2D) m_rootImage.getGraphics();
+			initAntiAliasing();
+
+
+		}
+		return m_targetGraphics;
 	}
 
 	protected void initAntiAliasing() {
@@ -114,75 +187,9 @@ public class PropButtonRenderer {
 		String rurl = getKey().m_img == null ? getProperty("bg.image") : "/" + getKey().m_img;
 		if(rurl != null) {
 			m_rootImage = loadImage(rurl);
-			String v = getKey().m_color == null ? getProperty("recolor.color") : getKey().m_color;
-			if(v != null && v.length() > 0)
-				m_rootImage = recolor(m_rootImage, null);
 			return;
 		}
 		throw new IllegalStateException("Missing 'bg.image' key in button properties file");
-	}
-
-	/**
-	 * Experimental: try to recolor a b/w input into a colored one.
-	 * @param src
-	 * @param clr
-	 * @return
-	 */
-	private BufferedImage recolor(BufferedImage src, Color clr) {
-		Color target = getKey().m_color == null ? getColor("recolor.color", Color.orange) : PartUtil.makeColor(getKey().m_color);
-		byte[] ra = new byte[256];
-		byte[] ga = new byte[256];
-		byte[] ba = new byte[256];
-		byte[] aa = new byte[256];
-
-		int tr = target.getRed();
-		int tg = target.getGreen();
-		int tb = target.getBlue();
-		int cr = 0, cg = 0, cb = 0;
-
-		int sci = getKey().m_start == -1 ? getInt("recolor.start", 0) : getKey().m_start;
-		int eci = getKey().m_end == -1 ? getInt("recolor.end", 256) : getKey().m_end;
-
-		int i = 0;
-		while(i < sci) {
-			aa[i] = (byte) i;
-			ra[i] = ga[i] = ba[i] = (byte) 0;
-			i++;
-		}
-
-		int dt = eci - sci;
-		int hdt = dt / 2;
-		int o = 0;
-		while(i < eci) {
-			aa[i] = (byte) i;
-
-			cr = (tr * o + hdt) / dt;
-			cg = (tg * o + hdt) / dt;
-			cb = (tb * o + hdt) / dt;
-			ra[i] = (byte) cr;
-			ga[i] = (byte) cg;
-			ba[i] = (byte) cb;
-			i++;
-			o++;
-			//			System.out.println("i="+i+"   r="+cr+", g="+cg+", b="+cb);
-		}
-
-		while(i < 256) {
-			aa[i] = (byte) i;
-			ra[i] = (byte) tr;
-			ga[i] = (byte) tg;
-			ba[i] = (byte) tb;
-			i++;
-		}
-		//		System.out.println("rt="+tr+", gt="+tg+", bt="+tb+", type="+src.getType());
-
-		//-- order: green, red, alpha, blue
-		LookupTable lt = new ByteLookupTable(0, new byte[][]{ga, ra, aa, ba});
-		//		LookupTable	lt	= new ByteLookupTable(0, ra);
-		LookupOp lop = new LookupOp(lt, null);
-		//		BufferedImage	dest = lop.createCompatibleDestImage(src, null);
-		return lop.filter(src, null);
-		//		return dest;
 	}
 
 	protected void renderIcon() throws Exception {
@@ -219,15 +226,15 @@ public class PropButtonRenderer {
 
 	private Color m_textColor;
 
-	protected void renderText() throws Exception {
-		if(getKey().m_text != null) {
-			initTextFont();
-			initTextColor();
-			decodeAccelerator();
-			initAttributedText();
-			renderAttributedText();
-		}
-	}
+	//	protected void renderText() throws Exception {
+	//		if(getKey().m_text != null) {
+	//			initTextFont();
+	//			initTextColor();
+	//			decodeAccelerator();
+	//			initAttributedText();
+	//			renderAttributedText();
+	//		}
+	//	}
 
 	protected void initTextColor() {
 		String col = getProperty("text.color", "000000");
@@ -253,7 +260,7 @@ public class PropButtonRenderer {
 		//-- Create an attributed text thingy to render the accelerator with an underscore.
 		String txt = getKey().m_text;
 		if(txt == null) {
-			m_actualText = null;
+			m_actualText = "";
 			m_acceleratorIndex = -1;
 			return;
 		}
@@ -392,7 +399,7 @@ public class PropButtonRenderer {
 		return m_application;
 	}
 
-	public ResourceDependencyList getDependencies() {
+	public IResourceDependencyList getDependencies() {
 		return m_dependencies;
 	}
 
@@ -423,9 +430,5 @@ public class PropButtonRenderer {
 			} catch(Exception x) {}
 		}
 		return dflt;
-	}
-
-	public Graphics2D getGraphics() {
-		return m_graphics;
 	}
 }

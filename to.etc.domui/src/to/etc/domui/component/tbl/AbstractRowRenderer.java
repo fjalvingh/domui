@@ -354,7 +354,7 @@ public class AbstractRowRenderer<T> {
 				@Override
 				@SuppressWarnings("unchecked")
 				public void clicked(final TR b) throws Exception {
-					((ICellClicked<T>) getRowClicked()).cellClicked(tbl.getPage(), b, instance);
+					((ICellClicked<T>) getRowClicked()).cellClicked(b, instance);
 				}
 			});
 			cc.getTR().addCssClass("ui-rowsel");
@@ -450,7 +450,7 @@ public class AbstractRowRenderer<T> {
 			cell.setClicked(new IClicked<TD>() {
 				@Override
 				public void clicked(final TD b) throws Exception {
-					((ICellClicked<Object>) cd.getCellClicked()).cellClicked(tbl.getPage(), b, instance);
+					((ICellClicked<Object>) cd.getCellClicked()).cellClicked(b, instance);
 				}
 			});
 			cell.addCssClass("ui-cellsel");

@@ -1,0 +1,1 @@
+// No inheritance: core iconset

@@ -76,8 +76,8 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 	public WeekAgendaComponent() {}
 
 	@Override
-	public void forceRebuild() {
-		super.forceRebuild();
+	public void onForceRebuild() {
+		super.onForceRebuild();
 		m_renderMap.clear();
 	}
 

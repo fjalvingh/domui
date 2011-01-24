@@ -28,6 +28,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
@@ -53,9 +54,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/** Theclass' resource bundle. */
 	private BundleRef m_classBundle;
 
-	private boolean m_initialized;
-
-	private final Map<String, PropertyMetaModel> m_propertyMap = new HashMap<String, PropertyMetaModel>();
+	private final Map<String, PropertyMetaModel< ? >> m_propertyMap = new HashMap<String, PropertyMetaModel< ? >>();
 
 	/**
 	 * When this object type is defined in an UP relation somewhere, this is a hint on what
@@ -84,7 +83,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private Class< ? extends INodeContentRenderer< ? >> m_comboNodeRenderer;
 
-	private ComboOptionalType m_comboOptional;
+//	private ComboOptionalType m_comboOptional;
 
 	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.EMPTY_LIST;
 
@@ -101,7 +100,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	private Class< ? extends INodeContentRenderer< ? >> m_lookupFieldRenderer;
 
 	/**
-	 * The default properties to show in a lookup field's instance display.
+	 * The default properties to show in a {@link LookupInput} field's instance display.
 	 */
 	private List<DisplayPropertyMetaModel> m_lookupFieldDisplayProperties = Collections.EMPTY_LIST;
 
@@ -109,7 +108,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private SortableType m_defaultSortDirection;
 
-	private PropertyMetaModel m_primaryKey;
+	private PropertyMetaModel< ? > m_primaryKey;
 
 	private Object[] m_domainValues;
 
@@ -127,6 +126,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * Return the class' resource bundle.
 	 */
 	@Override
+	@Nonnull
 	public BundleRef getClassBundle() {
 		return m_classBundle;
 	}
@@ -141,7 +141,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @param loc
 	 * @return
 	 */
-	String getPropertyLabel(final DefaultPropertyMetaModel p, final Locale loc) {
+	@Nonnull
+	String getPropertyLabel(final DefaultPropertyMetaModel< ? > p, final Locale loc) {
 		String s = getClassBundle().findMessage(loc, p.getName() + ".label");
 		return s == null ? p.getName() : s;
 	}
@@ -152,7 +153,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @param loc
 	 * @return
 	 */
-	String getPropertyHint(final DefaultPropertyMetaModel p, final Locale loc) {
+	@Nullable
+	String getPropertyHint(final DefaultPropertyMetaModel< ? > p, final Locale loc) {
 		String v = getClassBundle().findMessage(loc, p.getName() + ".hint");
 		if(v == null)
 			v = getClassBundle().findMessage(loc, p.getName() + ".help");
@@ -164,6 +166,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityName()
 	 */
 	@Override
+	@Nonnull
 	public String getUserEntityName() {
 		String s = getClassBundle().findMessage(NlsContext.getLocale(), "entity.name");
 		return s == null ? getClassNameOnly() : s;
@@ -174,6 +177,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityNamePlural()
 	 */
 	@Override
+	@Nonnull
 	public String getUserEntityNamePlural() {
 		String s = getClassBundle().findMessage(NlsContext.getLocale(), "entity.pluralname");
 		return s == null ? getClassNameOnly() : s;
@@ -186,8 +190,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 */
 	@Override
 	@Nullable
-	public synchronized PropertyMetaModel findProperty(final String name) {
-		PropertyMetaModel pmm = m_propertyMap.get(name);
+	public synchronized PropertyMetaModel< ? > findProperty(final String name) {
+		PropertyMetaModel< ? > pmm = m_propertyMap.get(name);
 		if(pmm != null)
 			return pmm;
 		pmm = MetaManager.internalCalculateDottedPath(this, name);
@@ -197,25 +201,28 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public synchronized PropertyMetaModel findSimpleProperty(final String name) {
+	@Nullable
+	public synchronized PropertyMetaModel< ? > findSimpleProperty(final String name) {
 		return m_propertyMap.get(name);
 	}
 
-	public synchronized void addProperty(PropertyMetaModel pmm) {
+	synchronized void addProperty(@Nonnull PropertyMetaModel< ? > pmm) {
 		m_propertyMap.put(pmm.getName(), pmm);
 	}
 
 	@Override
-	public List<PropertyMetaModel> getProperties() {
-		return new ArrayList<PropertyMetaModel>(m_propertyMap.values());
+	@Nonnull
+	public List<PropertyMetaModel< ? >> getProperties() {
+		return new ArrayList<PropertyMetaModel< ? >>(m_propertyMap.values());
 	}
 
 	@Override
+	@Nullable
 	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
 		return m_comboDataSet;
 	}
 
-	public void setComboDataSet(final Class< ? extends IComboDataSet< ? >> comboDataSet) {
+	public void setComboDataSet(@Nullable final Class< ? extends IComboDataSet< ? >> comboDataSet) {
 		m_comboDataSet = comboDataSet;
 	}
 
@@ -237,30 +244,6 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_comboDisplayProperties = displayProperties;
 	}
 
-	public boolean isInitialized() {
-		return m_initialized;
-	}
-
-	public void initialized() {
-		m_initialized = true;
-
-		//-- Finalize: sort search properties.
-		Collections.sort(m_searchProperties, new Comparator<SearchPropertyMetaModel>() {
-			@Override
-			public int compare(final SearchPropertyMetaModel o1, final SearchPropertyMetaModel o2) {
-				return o1.getOrder() - o2.getOrder();
-			}
-		});
-	}
-
-	public ComboOptionalType getComboOptional() {
-		return m_comboOptional;
-	}
-
-	public void setComboOptional(final ComboOptionalType comboOptional) {
-		m_comboOptional = comboOptional;
-	}
-
 	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
 		return m_comboNodeRenderer;
@@ -270,34 +253,32 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
-	public void addSearchProperty(final SearchPropertyMetaModel sp) {
-		if(m_searchProperties == Collections.EMPTY_LIST)
-			m_searchProperties = new ArrayList<SearchPropertyMetaModel>();
-		m_searchProperties.add(sp);
-	}
-
-	public void addKeyWordSearchProperty(final SearchPropertyMetaModel sp) {
-		if(m_keyWordSearchProperties == Collections.EMPTY_LIST)
-			m_keyWordSearchProperties = new ArrayList<SearchPropertyMetaModel>();
-		m_keyWordSearchProperties.add(sp);
-	}
-
 	/**
 	 * Returns the SORTED list of search properties defined on this class.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getSearchProperties()
 	 */
 	@Override
+	@Nonnull
 	public List<SearchPropertyMetaModel> getSearchProperties() {
 		return m_searchProperties;
 	}
 
+	public void setSearchProperties(@Nonnull List<SearchPropertyMetaModel> searchProperties) {
+		m_searchProperties = searchProperties.size() == 0 ? Collections.EMPTY_LIST : searchProperties;
+	}
+
 	/**
-	 * Returns the list of key word search properties defined on this class (unsorted).
+	 * Returns the sorted list of key word search properties defined on this class.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getKeyWordSearchProperties()
 	 */
 	@Override
+	@Nonnull
 	public List<SearchPropertyMetaModel> getKeyWordSearchProperties() {
 		return m_keyWordSearchProperties;
+	}
+
+	public void setKeyWordSearchProperties(@Nonnull List<SearchPropertyMetaModel> keyWordSearchProperties) {
+		m_keyWordSearchProperties = keyWordSearchProperties.size() == 0 ? Collections.EMPTY_LIST : keyWordSearchProperties;
 	}
 
 	@Override
@@ -313,7 +294,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return m_tableDisplayProperties;
 	}
 
-	public void setTableDisplayProperties(final List<DisplayPropertyMetaModel> tableDisplayProperties) {
+	public synchronized void setTableDisplayProperties(final List<DisplayPropertyMetaModel> tableDisplayProperties) {
 		m_tableDisplayProperties = tableDisplayProperties;
 	}
 
@@ -348,11 +329,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
+	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
 		return m_lookupFieldRenderer;
 	}
 
-	public void setLookupFieldRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
+	public void setLookupSelectedRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 
@@ -360,11 +341,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
+	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
 
-	public void setLookupFieldDisplayProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
+	public void setLookupSelectedProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
 		m_lookupFieldDisplayProperties = lookupFieldDisplayProperties;
 	}
 
@@ -381,11 +362,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public PropertyMetaModel getPrimaryKey() {
+	public PropertyMetaModel< ? > getPrimaryKey() {
 		return m_primaryKey;
 	}
 
-	public void setPrimaryKey(final PropertyMetaModel primaryKey) {
+	public void setPrimaryKey(final PropertyMetaModel< ? > primaryKey) {
 		m_primaryKey = primaryKey;
 	}
 
@@ -424,6 +405,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 *
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getDomainLabel(java.util.Locale, java.lang.Object)
 	 */
+	@Nullable
 	@Override
 	public String getDomainLabel(final Locale loc, final Object value) {
 		if(value instanceof Enum< ? >) {
@@ -461,5 +443,4 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 			return QCriteria.create(getMetaTableDef());
 		return QCriteria.create(getActualClass());
 	}
-
 }

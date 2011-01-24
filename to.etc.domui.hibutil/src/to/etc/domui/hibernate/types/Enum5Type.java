@@ -28,6 +28,8 @@ import java.io.*;
 import java.sql.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.hibernate.*;
 import org.hibernate.usertype.*;
 
@@ -45,7 +47,7 @@ public class Enum5Type implements EnhancedUserType, ParameterizedType {
 
 	private boolean m_ordinal;
 
-	public void setParameterValues(final Properties parameters) {
+	public void setParameterValues(@Nonnull final Properties parameters) {
 		String enumClassName = parameters.getProperty("enumClass");
 		try {
 			m_enumClass = (Class<Enum< ? >>) Class.forName(enumClassName);
@@ -53,7 +55,7 @@ public class Enum5Type implements EnhancedUserType, ParameterizedType {
 			throw new HibernateException("Enum class not found", cnfe);
 		}
 		String ord = parameters.getProperty("enumerated");
-		if(ord != null && ord.startsWith("o") || ord.startsWith("O"))
+		if(ord != null && (ord.startsWith("o") || ord.startsWith("O")))
 			m_ordinal = true;
 	}
 

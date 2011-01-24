@@ -27,17 +27,16 @@ package to.etc.domui.component.meta.impl;
 import java.lang.reflect.*;
 import java.util.*;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
-public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements PropertyMetaModel {
+public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> implements PropertyMetaModel<T> {
 	private final DefaultClassMetaModel m_classModel;
 
 	private final PropertyInfo m_descriptor;
-
-	private PropertyAccessor< ? > m_accessor;
 
 	private int m_length = -1;
 
@@ -82,16 +81,28 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	private List<DisplayPropertyMetaModel> m_lookupFieldDisplayProperties = Collections.EMPTY_LIST;
 
 	/**
-	 * The default properties to show when the collection is presented as a lookup table.
+	 * The default properties to show in a {@link LookupInput} field's lookup data table.
 	 */
-	private List<DisplayPropertyMetaModel> m_tableDisplayProperties = Collections.EMPTY_LIST;
+	private List<DisplayPropertyMetaModel> m_lookupFieldTableProperties = Collections.EMPTY_LIST;
 
+	/**
+	 * The search properties to use in a {@link LookupInput} field.
+	 */
+	private List<SearchPropertyMetaModel> m_lookupFieldSearchProperties = Collections.EMPTY_LIST;
+
+	/**
+	 * The keyword search properties to use in a {@link LookupInput} field.
+	 */
+	private List<SearchPropertyMetaModel> m_lookupFieldKeySearchProperties = Collections.EMPTY_LIST;
 
 	public DefaultPropertyMetaModel(final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
 		if(classModel == null)
 			throw new IllegalStateException("Cannot be null dude");
 		m_classModel = classModel;
 		m_descriptor = descriptor;
+		if(descriptor.getSetter() == null) {
+			setReadOnly(YesNoType.YES);
+		}
 	}
 
 	@Override
@@ -100,14 +111,65 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	}
 
 	@Override
-	public Class< ? > getActualType() {
-		return m_descriptor.getActualType();
+	public Class<T> getActualType() {
+		return (Class<T>) m_descriptor.getActualType();
+	}
+
+	@Override
+	public ClassMetaModel getValueModel() {
+		return MetaManager.findClassMeta(getActualType());
 	}
 
 	@Override
 	public Type getGenericActualType() {
 		Method m = m_descriptor.getGetter();
 		return m.getGenericReturnType();
+	}
+
+	@Override
+	public void setValue(Object target, T value) throws Exception {
+		if(target == null)
+			throw new IllegalStateException("The 'target' object is null");
+		if(m_descriptor.getSetter() == null)
+			throw new IllegalAccessError("The property " + this + " is read-only.");
+		try {
+			m_descriptor.getSetter().invoke(target, value);
+		} catch(InvocationTargetException itx) {
+			Throwable c = itx.getCause();
+			if(c instanceof Exception)
+				throw (Exception) c;
+			else if(c instanceof Error)
+				throw (Error) c;
+			else
+				throw itx;
+		}
+	}
+
+	/**
+	 * Retrieve the value from this object. If the input object is null
+	 * this throws IllegalStateException.
+	 *
+	 * @see to.etc.domui.util.IValueTransformer#getValue(java.lang.Object)
+	 */
+	@Override
+	public T getValue(Object in) throws Exception {
+		if(in == null)
+			throw new IllegalStateException("The 'input' object is null (getter method=" + m_descriptor.getGetter() + ")");
+		try {
+			return (T) m_descriptor.getGetter().invoke(in);
+		} catch(InvocationTargetException itx) {
+			System.err.println("(in calling " + m_descriptor.getGetter() + " with input object " + in + ")");
+			Throwable c = itx.getCause();
+			if(c instanceof Exception)
+				throw (Exception) c;
+			else if(c instanceof Error)
+				throw (Error) c;
+			else
+				throw itx;
+		} catch(Exception x) {
+			System.err.println("in calling " + m_descriptor.getGetter() + " with input object " + in);
+			throw x;
+		}
 	}
 
 	@Override
@@ -175,19 +237,6 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		m_length = length;
 	}
 
-	/**
-	 * The thingy to access the property generically.
-	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAccessor()
-	 */
-	@Override
-	public IValueAccessor< ? > getAccessor() {
-		return m_accessor;
-	}
-
-	public void setAccessor(PropertyAccessor< ? > accessor) {
-		m_accessor = accessor;
-	}
-
 	@Override
 	public boolean isPrimaryKey() {
 		return m_primaryKey;
@@ -248,15 +297,6 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
-		return m_tableDisplayProperties;
-	}
-
-	public void setTableDisplayProperties(final List<DisplayPropertyMetaModel> tableDisplayProperties) {
-		m_tableDisplayProperties = tableDisplayProperties;
-	}
-
-	@Override
 	public String toString() {
 		return getClassModel().getActualClass().getName() + "." + m_descriptor.getName() + "[" + getActualType().getName() + "]";
 	}
@@ -265,11 +305,11 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
+	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
 		return m_lookupFieldRenderer;
 	}
 
-	public void setLookupFieldRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
+	public void setLookupSelectedRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 
@@ -277,12 +317,48 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
+	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
 
-	public void setLookupFieldDisplayProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
+	public void setLookupSelectedProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
 		m_lookupFieldDisplayProperties = lookupFieldDisplayProperties;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<DisplayPropertyMetaModel> getLookupTableProperties() {
+		return m_lookupFieldTableProperties;
+	}
+
+	public void setLookupTableProperties(List<DisplayPropertyMetaModel> lookupFieldTableProperties) {
+		m_lookupFieldTableProperties = lookupFieldTableProperties;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
+		return m_lookupFieldSearchProperties;
+	}
+
+	public void setLookupFieldSearchProperties(List<SearchPropertyMetaModel> lookupFieldSearchProperties) {
+		m_lookupFieldSearchProperties = lookupFieldSearchProperties;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
+		return m_lookupFieldKeySearchProperties;
+	}
+
+	public void setLookupFieldKeySearchProperties(List<SearchPropertyMetaModel> lookupFieldKeySearchProperties) {
+		m_lookupFieldKeySearchProperties = lookupFieldKeySearchProperties;
 	}
 
 	/**

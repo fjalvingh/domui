@@ -28,7 +28,6 @@ import java.util.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -46,12 +45,12 @@ public class EnumConverter<E extends Enum<E>> implements IConverter<E> {
 		if(in == null)
 			return "";
 		ClassMetaModel ecmm = MetaManager.findClassMeta(in.getClass());
-		return ecmm.getDomainLabel(NlsContext.getLocale(), in);
+		String v = ecmm.getDomainLabel(NlsContext.getLocale(), in);
+		return v == null ? in.toString() : v;
 	}
 
 	@Override
 	public E convertStringToObject(Locale loc, String input) throws UIException {
-		throw new ValidationException(Msgs.UNEXPECTED_EXCEPTION);
+		throw new IllegalStateException("Enum values should not be input using a string");
 	}
-
 }

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.form;
 
+import java.util.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.server.*;
@@ -43,7 +45,7 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public int accepts(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(LookupInput.class))
 			return -1;
 
@@ -60,16 +62,28 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public <T> ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel<T> pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		//-- We'll do a lookup thingy for sure.
-		LookupInput<Object> li = new LookupInput<Object>((Class<Object>) pmm.getActualType());
+		LookupInput<T> li = new LookupInput<T>(pmm.getActualType(), pmm.getValueModel());
 		li.setReadOnly(!editable);
-		if(pmm.getLookupFieldRenderer() != null)
-			li.setContentRenderer((INodeContentRenderer<Object>) DomApplication.get().createInstance(pmm.getLookupFieldRenderer())); // Bloody stupid Java generic crap
+
+		//-- 1. Define search fields from property, then class.lookup, then generic
+		List<SearchPropertyMetaModel> sp = pmm.getLookupFieldSearchProperties();		// Property override?
+		if(sp.size() == 0) {
+			sp = li.getMetaModel().getSearchProperties(); // Class level?
+			if(sp.size() > 0)
+				li.setSearchProperties(sp);
+		}
+
+		//-- 2. Define keyword search properties in the same way.
+
+
+		if(pmm.getLookupSelectedRenderer() != null)
+			li.setContentRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType()); // Get meta for type reached,
-			if(cmm.getLookupFieldRenderer() != null)
-				li.setContentRenderer((INodeContentRenderer<Object>) DomApplication.get().createInstance(cmm.getLookupFieldRenderer())); // Bloody stupid Java generic crap
+			if(cmm.getLookupSelectedRenderer() != null)
+				li.setContentRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(cmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		}
 		if(pmm.isRequired())
 			li.setMandatory(true);

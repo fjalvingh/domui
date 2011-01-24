@@ -46,7 +46,7 @@ import to.etc.util.*;
  * the request. This returns a Map of items present in the request.
  *
  * <p>Created on Nov 21, 2005
- * @author <a href="mailto:jal@mumble.to">Frits Jalvingh</a>
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class UploadParser {
 	static private final String MULTIPART = "multipart/";

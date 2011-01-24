@@ -26,16 +26,15 @@ package to.etc.domui.component.meta;
 
 import java.lang.annotation.*;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.util.*;
 
 /**
- * TEMP Specifies that a parent relation is set using a default
- * combobox. This is part of a working test for metadata, do not use
- * because it can change heavily (or be deleted alltogether).
- *
- * This annotation can also be added to a PARENT class, in which case it will
- * define the defaults would that class be used in an "Up" relation combobox.
+ * Specifies how an object is shown when presented in a Combo Box. This annotation
+ * can be used on a class itself or on a property of a class type; the latter
+ * will "override" any class-level definition. Presence of this annotation at property
+ * level will also indicate a preference for a combobox over a Lookup form.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 13, 2008
@@ -44,27 +43,37 @@ import to.etc.domui.util.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MetaCombo {
 	/**
-	 * The thingy which is resposible for returning the set-of-objects to select a value
-	 * from. The default will use the data type and create a generic full-dataset query.
+	 * Define a class that will generate the data to show in the combo's list-of-values. The
+	 * method called must return all data in the order to show because nothing sorts after. When
+	 * unset this defaults to a generic "select all" query.
 	 *
 	 * @return
 	 */
 	Class< ? extends IComboDataSet< ? >> dataSet() default UndefinedComboDataSet.class;
 
+	/**
+	 *
+	 * @return
+	 */
 	Class< ? extends ILabelStringRenderer< ? >> labelRenderer() default UndefinedLabelStringRenderer.class;
 
+	/**
+	 * Defines a custom node content renderer for the combobox's OPTION values. This can be used when options need
+	 * more than just text, like images or colors for instance. The renderer is responsible for generating the entire
+	 * contents of an OPTION tag, and it gets passed the uncooked value to render (as obtained from the {@link ComboComponentBase#getData()}
+	 * call). All other options in the annotation are useless once a custom renderer is used!
+	 * If this is not used a content renderer is calculated from the other data in this annotation using
+	 * {@link MetaManager#createDefaultComboRenderer(PropertyMetaModel, ClassMetaModel)}.
+	 * @return
+	 */
 	Class< ? extends INodeContentRenderer< ? >> nodeRenderer() default UndefinedLabelStringRenderer.class;
 
 	/**
 	 * The list of properties that should be shown. This is needed ONLY when the class metadata of the
-	 * parent record does not specify a default display column or columnset.
+	 * parent record does not specify a default display column or columnset. This usually shows a single
+	 * property (because a combobox is not a table), but if multiple properties are used their values will
+	 * be appended to form a single string separated by either a space, or the value of {@link MetaComboProperty#join()}.
 	 * @return
 	 */
-	public MetaDisplayProperty[] properties() default {};
-
-	/**
-	 * Allow no value to be selected here. Used when there's a need to override the default.
-	 * @return
-	 */
-	public ComboOptionalType optional() default ComboOptionalType.INHERITED;
+	MetaComboProperty[] properties() default {};
 }

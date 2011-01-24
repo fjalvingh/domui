@@ -32,14 +32,14 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
 
-abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
-	private PropertyMetaModel m_parent;
+abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T> {
+	private PropertyMetaModel<T> m_parent;
 
-	protected PropertyMetaModelWrapper(PropertyMetaModel parent) {
+	protected PropertyMetaModelWrapper(PropertyMetaModel<T> parent) {
 		m_parent = parent;
 	}
 
-	public PropertyMetaModel getWrappedModel() {
+	public PropertyMetaModel<T> getWrappedModel() {
 		return m_parent;
 	}
 
@@ -48,18 +48,28 @@ abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
 	 * has been passed to user code.
 	 * @param parent
 	 */
-	public void setWrappedModel(PropertyMetaModel parent) {
+	public void setWrappedModel(PropertyMetaModel<T> parent) {
 		m_parent = parent;
 	}
 
 	@Override
-	public IValueAccessor< ? > getAccessor() {
-		return m_parent.getAccessor();
+	public T getValue(Object in) throws Exception {
+		return m_parent.getValue(in);
 	}
 
 	@Override
-	public Class< ? > getActualType() {
+	public void setValue(Object target, T value) throws Exception {
+		m_parent.setValue(target, value);
+	}
+
+	@Override
+	public Class<T> getActualType() {
 		return m_parent.getActualType();
+	}
+
+	@Override
+	public ClassMetaModel getValueModel() {
+		return m_parent.getValueModel();
 	}
 
 	@Override
@@ -96,7 +106,7 @@ abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
 	}
 
 	@Override
-	public IConverter< ? > getConverter() {
+	public IConverter<T> getConverter() {
 		return m_parent.getConverter();
 	}
 
@@ -141,13 +151,13 @@ abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
-		return m_parent.getLookupFieldDisplayProperties();
+	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+		return m_parent.getLookupSelectedProperties();
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
-		return m_parent.getLookupFieldRenderer();
+	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+		return m_parent.getLookupSelectedRenderer();
 	}
 
 	@Override
@@ -196,11 +206,6 @@ abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
-		return m_parent.getTableDisplayProperties();
-	}
-
-	@Override
 	public TemporalPresentationType getTemporal() {
 		return m_parent.getTemporal();
 	}
@@ -228,5 +233,20 @@ abstract public class PropertyMetaModelWrapper implements PropertyMetaModel {
 	@Override
 	public boolean isTransient() {
 		return m_parent.isTransient();
+	}
+
+	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
+		return m_parent.getLookupFieldSearchProperties();
+	}
+
+	@Override
+	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
+		return m_parent.getLookupFieldSearchProperties();
+	}
+
+	@Override
+	public List<DisplayPropertyMetaModel> getLookupTableProperties() {
+		return m_parent.getLookupTableProperties();
 	}
 }

@@ -39,16 +39,16 @@ import to.etc.webapp.query.*;
 
 public class HibernateModelCopier extends QBasicModelCopier {
 	@Override
-	protected <T> boolean isUnloadedChildList(T source, PropertyMetaModel pmm) throws Exception {
-		Object value = pmm.getAccessor().getValue(source);
+	protected <T> boolean isUnloadedChildList(T source, PropertyMetaModel< ? > pmm) throws Exception {
+		Object value = pmm.getValue(source);
 		if(value == null)
 			return false;
 		return !Hibernate.isInitialized(value);
 	}
 
 	@Override
-	protected <T> boolean isUnloadedParent(T source, PropertyMetaModel pmm) throws Exception {
-		Object value = pmm.getAccessor().getValue(source);
+	protected <T> boolean isUnloadedParent(T source, PropertyMetaModel< ? > pmm) throws Exception {
+		Object value = pmm.getValue(source);
 		if(value == null)
 			return false;
 		return !Hibernate.isInitialized(value);
@@ -146,6 +146,8 @@ public class HibernateModelCopier extends QBasicModelCopier {
 				}
 			}
 		}
+		if(null == ee)
+			throw new IllegalStateException("current EntityEntry is null- that cannot happen?");
 
 		System.out.println("    state for " + MetaManager.identify(instance) + ": exists=" + ee.isExistsInDatabase() + ", state=" + ee.getStatus());
 

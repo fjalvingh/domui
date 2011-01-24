@@ -31,6 +31,7 @@ import javax.annotation.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
+import to.etc.domui.component.lookup.ILookupControlInstance.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -112,6 +113,11 @@ public class LookupForm<T> extends Div {
 	private boolean m_renderAsCollapsed;
 
 	/**
+	 * Calculated by entered search criterias, T in case that exists any field resulting with {@link AppendCriteriaResult#VALID} in LookupForm fields.
+	 */
+	private boolean m_hasUserDefinedCriteria;
+
+	/**
 	 * This is the definition for an Item to look up. A list of these
 	 * will generate the actual lookup items on the screen, in the order
 	 * specified by the item definition list.
@@ -124,7 +130,7 @@ public class LookupForm<T> extends Div {
 	public static class Item implements SearchPropertyMetaModel {
 		private String m_propertyName;
 
-		private List<PropertyMetaModel> m_propertyPath;
+		private List<PropertyMetaModel< ? >> m_propertyPath;
 
 		private ILookupControlInstance m_instance;
 
@@ -152,15 +158,15 @@ public class LookupForm<T> extends Div {
 		}
 
 		@Override
-		public List<PropertyMetaModel> getPropertyPath() {
+		public List<PropertyMetaModel< ? >> getPropertyPath() {
 			return m_propertyPath;
 		}
 
-		public void setPropertyPath(List<PropertyMetaModel> propertyPath) {
+		public void setPropertyPath(List<PropertyMetaModel< ? >> propertyPath) {
 			m_propertyPath = propertyPath;
 		}
 
-		public PropertyMetaModel getLastProperty() {
+		public PropertyMetaModel< ? > getLastProperty() {
 			if(m_propertyPath == null || m_propertyPath.size() == 0)
 				return null;
 			return m_propertyPath.get(m_propertyPath.size() - 1);
@@ -345,6 +351,10 @@ public class LookupForm<T> extends Div {
 		defineDefaultButtons();
 	}
 
+	/**
+	 * Return the metamodel that this class uses to get it's data from.
+	 * @return
+	 */
 	@Nonnull
 	public ClassMetaModel getMetaModel() {
 		return m_metaModel;
@@ -354,39 +364,40 @@ public class LookupForm<T> extends Div {
 	 * Returns the class whose instances we're looking up (a persistent class somehow).
 	 * @return
 	 */
+	@Nonnull
 	public Class<T> getLookupClass() {
 		if(null == m_lookupClass)
 			throw new NullPointerException("The LookupForm's 'lookupClass' cannot be null");
 		return m_lookupClass;
 	}
 
-	/**
-	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
-	 * Change the class for which we are searching. This clear ALL definitions!
-	 * @param lookupClass
-	 */
-	@Deprecated
-	public void setLookupClass(@Nonnull final Class<T> lookupClass) {
-		if(m_lookupClass == lookupClass)
-			return;
-		m_lookupClass = lookupClass;
-		m_metaModel = MetaManager.findClassMeta(lookupClass);
-		reset();
-	}
-
-	/**
-	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
-	 * Change the class and metamodel for which we are searching. This clear ALL definitions!
-	 * @param lookupClass
-	 */
-	@Deprecated
-	public void setLookupClass(@Nonnull final Class<T> lookupClass, @Nonnull ClassMetaModel cmm) {
-		if(m_lookupClass == lookupClass)
-			return;
-		m_lookupClass = lookupClass;
-		m_metaModel = cmm;
-		reset();
-	}
+	//	/**
+	//	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
+	//	 * Change the class for which we are searching. This clear ALL definitions!
+	//	 * @param lookupClass
+	//	 */
+	//	@Deprecated
+	//	public void setLookupClass(@Nonnull final Class<T> lookupClass) {
+	//		if(m_lookupClass == lookupClass)
+	//			return;
+	//		m_lookupClass = lookupClass;
+	//		m_metaModel = MetaManager.findClassMeta(lookupClass);
+	//		reset();
+	//	}
+	//
+	//	/**
+	//	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
+	//	 * Change the class and metamodel for which we are searching. This clear ALL definitions!
+	//	 * @param lookupClass
+	//	 */
+	//	@Deprecated
+	//	public void setLookupClass(@Nonnull final Class<T> lookupClass, @Nonnull ClassMetaModel cmm) {
+	//		if(m_lookupClass == lookupClass)
+	//			return;
+	//		m_lookupClass = lookupClass;
+	//		m_metaModel = cmm;
+	//		reset();
+	//	}
 
 	/**
 	 * Actually show the thingy.
@@ -568,7 +579,7 @@ public class LookupForm<T> extends Div {
 	/*	CODING:	Altering/defining the lookup items.					*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * This adds all properties that are defined as "search" properties in the metadata
+	 * This adds all properties that are defined as "search" properties in either this control or the metadata
 	 * to the item list. The list is cleared before that!
 	 */
 	private void setItems() {
@@ -579,7 +590,14 @@ public class LookupForm<T> extends Div {
 			if(list == null || list.size() == 0)
 				throw new IllegalStateException(getMetaModel() + " has no search properties defined in it's meta data.");
 		}
+		setSearchProperties(list);
+	}
 
+	/**
+	 * Set the search properties to use from a list of metadata properties.
+	 * @param list
+	 */
+	public void setSearchProperties(List<SearchPropertyMetaModel> list) {
 		int totalCount = list.size();
 		for(SearchPropertyMetaModel sp : list) { // The list is already in ascending order, so just add items;
 			Item it = new Item();
@@ -713,7 +731,7 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	public Item addManualPropertyLabel(String property, ILookupControlInstance lci) {
-		PropertyMetaModel pmm = getMetaModel().findProperty(property);
+		PropertyMetaModel< ? > pmm = getMetaModel().findProperty(property);
 		if(null == pmm)
 			throw new ProgrammerErrorException(property + ": undefined property for class=" + getLookupClass());
 		return addManualTextLabel(pmm.getDefaultLabel(), lci);
@@ -741,14 +759,14 @@ public class LookupForm<T> extends Div {
 
 		//-- 1. If a property name is present but the path is unknown calculate the path
 		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
-			List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
+			List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
 			if(pl.size() == 0)
 				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
 			it.setPropertyPath(pl);
 		}
 
 		//-- 2. Calculate/determine a label text if empty from metadata, else ignore
-		PropertyMetaModel pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
+		PropertyMetaModel< ? > pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
 		if(it.getLabelText() == null) {
 			if(pmm == null)
 				it.setLabelText(it.getPropertyName()); // Last resort: default to property name if available
@@ -857,10 +875,10 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	private ILookupControlInstance createControlFor(Item it) {
-		PropertyMetaModel pmm = it.getLastProperty();
+		PropertyMetaModel< ? > pmm = it.getLastProperty();
 		if(pmm == null)
 			throw new IllegalStateException("property cannot be null when creating using factory.");
-		IRequestContext rq = PageContext.getRequestContext();
+		IRequestContext rq = UIContext.getRequestContext();
 		boolean viewable = true;
 		boolean editable = true;
 
@@ -901,18 +919,24 @@ public class LookupForm<T> extends Div {
 	 * @return
 	 */
 	public QCriteria<T> getEnteredCriteria() throws Exception {
-//		QCriteria<T> root = QCriteria.create(m_lookupClass);
+		m_hasUserDefinedCriteria = false;
 		QCriteria<T> root = (QCriteria<T>) getMetaModel().createCriteria();
 		boolean success = true;
 		for(Item it : m_itemList) {
 			ILookupControlInstance li = it.getInstance();
 			if(li != null) { // FIXME Is it reasonable to allow null here?? Should we not abort?
-				if(!li.appendCriteria(root))
+				AppendCriteriaResult res = li.appendCriteria(root);
+				if(res == AppendCriteriaResult.INVALID) {
 					success = false;
+				} else if(res == AppendCriteriaResult.VALID) {
+					m_hasUserDefinedCriteria = true;
+				}
 			}
 		}
-		if(!success) // Some input failed to validate their input criteria?
+		if(!success) { // Some input failed to validate their input criteria?
+			m_hasUserDefinedCriteria = false;
 			return null; // Then exit null -> should only display errors.
+		}
 		return root;
 	}
 
@@ -1113,5 +1137,16 @@ public class LookupForm<T> extends Div {
 	public void setTwoColumnsMode(int minSizeForTwoColumnsMode) {
 		m_twoColumnsMode = true;
 		m_minSizeForTwoColumnsMode = minSizeForTwoColumnsMode;
+	}
+
+	/**
+	 * This is T when the user has actually entered something in one of the search components. Any restriction
+	 * that has been added by code that is not depending on user input is ignored.
+	 *
+	 * Method {@link LookupForm#getEnteredCriteria} MUST BE EXECUTED BEFORE checking for this property value!
+	 * @return
+	 */
+	public boolean hasUserDefinedCriteria() {
+		return m_hasUserDefinedCriteria;
 	}
 }

@@ -69,16 +69,16 @@ public class EditResPart implements IUnbufferedPartFactory {
 			throw new IllegalStateException("Invalid input URL '" + rurl + "': must be in format cid/pageclass/componentID/resourceType.");
 		String resty = cpr.getArgs()[3];
 
-		if(!(cpr.getComponent() instanceof HtmlEditor))
+		if(!(cpr.getComponent() instanceof FCKEditor))
 			throw new ThingyNotFoundException("The component " + cpr.getComponent().getActualID() + " on page " + cpr.getPage().getBody() + " is not an HtmlEditor instance");
-		HtmlEditor e = (HtmlEditor) cpr.getComponent();
+		FCKEditor e = (FCKEditor) cpr.getComponent();
 		IEditorFileSystem ifs = e.getFileSystem();
 		if(ifs == null)
 			throw new ThingyNotFoundException("The HtmlEditor component " + cpr.getComponent().getActualID() + " on page " + cpr.getPage().getBody() + " has no file system attached to it");
 
 		//-- Create a base URL refering to this part handler && component
 		StringBuilder sb = new StringBuilder(128);
-		sb.append(PageContext.getRequestContext().getRelativePath(EditResPart.class.getName()));
+		sb.append(UIContext.getRequestContext().getRelativePath(EditResPart.class.getName()));
 		sb.append("/");
 		sb.append(rurl);
 		sb.append(".part");

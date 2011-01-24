@@ -96,10 +96,11 @@ public class FormBuilderBase {
 	 * @param editable		When false this must make a displayonly control.
 	 * @return				The binding to bind the control to it's valueset
 	 */
-	protected ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Object context) {
+	protected ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel< ? > pmm, final boolean editable, Object context) {
 		return getBuilder().createControlFor(model, pmm, editable, context); // Delegate
 	}
-	protected ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable) {
+
+	protected ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel< ? > pmm, final boolean editable) {
 		return createControlFor(model, pmm, editable, getContext());
 	}
 
@@ -176,8 +177,8 @@ public class FormBuilderBase {
 	 * @param name
 	 * @return
 	 */
-	protected PropertyMetaModel resolveProperty(final String name) {
-		PropertyMetaModel pmm = getClassMeta().findProperty(name);
+	protected PropertyMetaModel< ? > resolveProperty(final String name) {
+		PropertyMetaModel< ? > pmm = getClassMeta().findProperty(name);
 		if(pmm == null)
 			throw new IllegalStateException("Unknown property " + name);
 		return pmm;

@@ -29,7 +29,7 @@ import java.util.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.LookupForm.*;
+import to.etc.domui.component.lookup.LookupForm.ButtonMode;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
@@ -56,13 +56,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	private LookupForm<T> m_externalLookupForm;
 
-	List<T> m_selectionResult;
-
-	List<T> m_queryResult;
-
 	MultipleSelectionDataTable<T> m_queryResultTable;
-
-	Table m_resultTable;
 
 	String m_title;
 
@@ -84,7 +78,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		m_metaModel = metaModel != null ? metaModel : MetaManager.findClassMeta(lookupClass);
 		m_lookupClass = lookupClass;
 		setCssClass("ui-fw");
-		m_selectionResult = new ArrayList<T>();
+		//		m_selectionResult = new ArrayList<T>();
 		if(getWidth() == null) {
 			setWidth(WIDTH + "px");
 		}
@@ -166,8 +160,8 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		}
 
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
-			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH));
+		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
+			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
 			return;
 		} else
 			clearGlobalMessage();
@@ -205,8 +199,8 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 			rr.setRowClicked(new ICellClicked<T>() {
 				@Override
-				public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
-					m_queryResultTable.handleRowClicked(pg, tr, val);
+				public void cellClicked(NodeBase tr, T val) throws Exception {
+					m_queryResultTable.handleRowClicked(tr, val);
 				}
 			});
 
@@ -245,6 +239,18 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 		m_customErrorMessageListener = customErrorMessageListener;
 	}
 
+	/**
+	 * When T the user can press search even when no criteria are entered.
+	 * @return
+	 */
+	public boolean isAllowEmptyQuery() {
+		return m_allowEmptyQuery;
+	}
+
+	public void setAllowEmptyQuery(boolean allowEmptyQuery) {
+		m_allowEmptyQuery = allowEmptyQuery;
+	}
+
 	public IQueryManipulator<T> getQueryManipulator() {
 		return m_queryManipulator;
 	}
@@ -272,13 +278,5 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	public void setQueryHandler(IQueryHandler<T> queryHandler) {
 		m_queryHandler = queryHandler;
-	}
-
-	public boolean isAllowEmptyQuery() {
-		return m_allowEmptyQuery;
-	}
-
-	public void setAllowEmptyQuery(boolean allowEmptyQuery) {
-		m_allowEmptyQuery = allowEmptyQuery;
 	}
 }

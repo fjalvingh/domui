@@ -69,12 +69,4 @@ public class TextNode extends NodeBase {
 			getParent().setMustRenderChildrenFully();
 		}
 	}
-
-	/**
-	 * Return the tilde-replaced text for this.
-	 * @return
-	 */
-	public String getLiteralText() {
-		return DomUtil.replaceTilded(this, m_text); // FIXME Performance?
-	}
 }

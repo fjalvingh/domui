@@ -109,7 +109,7 @@ final public class DomUtil {
 	 * @param name
 	 * @return
 	 */
-	static public boolean classResourceExists(final Class< ? extends DomApplication> clz, final String name) {
+	static public boolean classResourceExists(final Class< ? > clz, final String name) {
 		InputStream is = clz.getResourceAsStream(name);
 		if(is == null)
 			return false;
@@ -299,7 +299,8 @@ final public class DomUtil {
 		}
 	}
 
-	static private final char[] BASE64MAP = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_".toCharArray();
+	//fix for call 28547: $ cant be used in window names in javascript function window.openWindow in IE7, so we have to use something else...
+	static private final char[] BASE64MAP = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0".toCharArray();
 
 	/**
 	 * Generate an unique identifier with reasonable expectations that it will be globally unique. This
@@ -402,7 +403,7 @@ final public class DomUtil {
 	public static String createPageURL(String rurl, PageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
 		if(DomUtil.isRelativeURL(rurl)) {
-			RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
+			RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
 			sb.append(ctx.getRelativePath(rurl));
 		}
 		else
@@ -652,6 +653,16 @@ final public class DomUtil {
 				}
 			}
 		}
+	}
+
+	static public void dumpRequest(HttpServletRequest req) {
+		System.out.println("---- request parameter dump ----");
+		for(Enumeration<String> en = req.getParameterNames(); en.hasMoreElements();) {
+			String name = en.nextElement();
+			String val = req.getParameter(name);
+			System.out.println(name + ": " + val);
+		}
+		System.out.println("---- end request parameter dump ----");
 	}
 
 	static public String getJavaResourceRURL(final Class< ? > resourceBase, final String name) {
@@ -913,26 +924,26 @@ final public class DomUtil {
 		return null; // Failed to get bundle.
 	}
 
-	/**
-	 * If the string passed starts with ~ start page resource bundle translation.
-	 * @param nodeBase
-	 * @param title
-	 * @return
-	 */
-	public static String replaceTilded(NodeBase nodeBase, String txt) {
-		if(txt == null) // Unset - exit
-			return null;
-		if(!txt.startsWith("~"))
-			return txt;
-		if(txt.startsWith("~~")) // Dual tilde escapes and returns a single-tilded thingy.
-			return txt.substring(1);
-
-		//-- Must do replacement
-		Page p = nodeBase.getPage();
-		if(p == null)
-			throw new ProgrammerErrorException("Attempt to retrieve a page-bundle's key (" + txt + "), but the node (" + nodeBase + ")is not attached to a page");
-		return p.getBody().$(txt);
-	}
+	//	/**
+	//	 * If the string passed starts with ~ start page resource bundle translation.
+	//	 * @param nodeBase
+	//	 * @param title
+	//	 * @return
+	//	 */
+	//	public static String replaceTilded(NodeBase nodeBase, String txt) {
+	//		if(txt == null) // Unset - exit
+	//			return null;
+	//		if(!txt.startsWith("~"))
+	//			return txt;
+	//		if(txt.startsWith("~~")) // Dual tilde escapes and returns a single-tilded thingy.
+	//			return txt.substring(1);
+	//
+	//		//-- Must do replacement
+	//		Page p = nodeBase.getPage();
+	//		if(p == null)
+	//			throw new ProgrammerErrorException("Attempt to retrieve a page-bundle's key (" + txt + "), but the node (" + nodeBase + ")is not attached to a page");
+	//		return p.getBody().$(txt);
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Error message visualisation utilities.				*/
@@ -1330,7 +1341,7 @@ final public class DomUtil {
 	@Nonnull
 	static public String createOpenWindowJS(@Nonnull Class< ? > targetClass, @Nullable PageParameters targetParameters, @Nullable WindowParameters newWindowParameters) {
 		//-- We need a NEW window session. Create it,
-		RequestContextImpl ctx = (RequestContextImpl) PageContext.getRequestContext();
+		RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
 		WindowSession cm = ctx.getSession().createWindowSession();
 
 		//-- Send a special JAVASCRIPT open command, containing the shtuff.

@@ -64,7 +64,7 @@ public class AjaxRequestContext implements IRpcCallContext {
 
 	@Override
 	public boolean hasRight(final String role) {
-		IUser user = PageContext.getCurrentUser();
+		IUser user = UIContext.getCurrentUser();
 		if(user == null)
 			return false;
 		return user.hasRight(role);

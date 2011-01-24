@@ -26,7 +26,7 @@ package to.etc.domui.component.buttons;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
-import to.etc.domui.state.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -129,7 +129,7 @@ public class DefaultButton extends Button {
 	 * @param name
 	 */
 	public void setThemeConfig(final String name) {
-		m_propSrc = PageContext.getRequestContext().getRelativeThemePath(name);
+		m_propSrc = DomApplication.get().getThemedResourceRURL("THEME/" + name);
 		genURL();
 	}
 
@@ -148,7 +148,7 @@ public class DefaultButton extends Button {
 	 * @param name
 	 */
 	public void setIcon(final String name) {
-		m_icon = PageContext.getRequestContext().translateResourceName(name);
+		m_icon = DomApplication.get().getThemedResourceRURL(name);
 		genURL();
 	}
 
@@ -174,12 +174,12 @@ public class DefaultButton extends Button {
 		sb.append(".part?src=");
 		sb.append(m_propSrc);
 		if(m_text != null) {
-			sb.append("&amp;txt=");
-			String text = DomUtil.replaceTilded(this, m_text);
-			StringTool.encodeURLEncoded(sb, text);
+			sb.append("&txt=");
+			//			String text = DomUtil.replaceTilded(this, m_text);
+			StringTool.encodeURLEncoded(sb, m_text);
 		}
 		if(m_icon != null) {
-			sb.append("&amp;icon=");
+			sb.append("&icon=");
 			StringTool.encodeURLEncoded(sb, m_icon);
 		}
 		m_img.setSrc(sb.toString());

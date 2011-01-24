@@ -51,6 +51,12 @@ abstract public class AbstractHibernateContextFactory implements QDataContextFac
 		m_handlers = m_default;
 	}
 
+	public AbstractHibernateContextFactory(HibernateSessionMaker sessionMaker) {
+		m_eventSet = new QEventListenerSet();
+		m_sessionMaker = sessionMaker;
+		m_handlers = m_default;
+	}
+
 	protected HibernateSessionMaker getSessionMaker() {
 		return m_sessionMaker;
 	}

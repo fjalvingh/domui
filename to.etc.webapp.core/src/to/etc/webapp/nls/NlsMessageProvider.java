@@ -26,6 +26,8 @@ package to.etc.webapp.nls;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * Something which can provide a message for a given code and locale.
  *
@@ -33,5 +35,16 @@ import java.util.*;
  * Created on Oct 10, 2006
  */
 public interface NlsMessageProvider {
-	public String findMessage(Locale loc, String code);
+	/**
+	 * Locate the specified key for the specified locale. This does fallback, meaning that if the exact
+	 * locale is not matched it will try a less restrictive one, until the empty (default) locale has
+	 * been reached. The first match is returned; if not even the empty locale returns a match this
+	 * returns null.
+	 *
+	 * @param loc
+	 * @param code
+	 * @return
+	 */
+	@Nullable
+	String findMessage(@Nonnull Locale loc, @Nonnull String code);
 }

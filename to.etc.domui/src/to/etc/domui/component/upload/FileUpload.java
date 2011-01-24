@@ -30,6 +30,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
 
 /**
@@ -60,7 +61,7 @@ import to.etc.domui.util.upload.*;
 public class FileUpload extends Div {
 	private String m_allowedExtensions;
 
-	private int m_maxSize;
+	//	private int m_maxSize;
 
 	private boolean m_required;
 
@@ -72,6 +73,11 @@ public class FileUpload extends Div {
 
 	public FileUpload() {}
 
+	/**
+	 * Create an upload item that acceps a max #of files and a set of extensions.
+	 * @param maxfiles
+	 * @param allowedExt
+	 */
 	public FileUpload(int maxfiles, String allowedExt) {
 		m_maxFiles = maxfiles;
 		m_allowedExtensions = allowedExt;
@@ -99,7 +105,7 @@ public class FileUpload extends Div {
 			f.setEnctype("multipart/form-data");
 			f.setMethod("POST");
 			StringBuilder sb = new StringBuilder();
-			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, PageContext.getRequestContext());
+			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
 			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's stupid caching.
 			f.setAction(sb.toString());
 
@@ -108,7 +114,7 @@ public class FileUpload extends Div {
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
 			if(null != m_allowedExtensions)
 				fi.setSpecialAttribute("fuallowed", m_allowedExtensions);
-			fi.setSpecialAttribute("fumaxsz", Integer.toString(m_maxSize));
+			//			fi.setSpecialAttribute("fumaxsz", Integer.toString(m_maxSize));
 			m_input = fi;
 		}
 		for(final UploadItem ufi : m_files) {
@@ -125,14 +131,32 @@ public class FileUpload extends Div {
 		}
 	}
 
+	/**
+	 * Internal: get the input type="file" thingy.
+	 * @return
+	 */
 	FileInput getInput() {
 		return m_input;
 	}
 
+	/**
+	 * Return the current value: the list of files that have been uploaded and
+	 * their related data. The {@link UploadItem} contains a reference to the
+	 * actual file {@link UploadItem#getFile()}; this file remains present only
+	 * while the page is still alive. If the page is destroyed all of it's uploaded
+	 * files will be deleted. So if you need to retain the file somehow after upload
+	 * it's contents needs to be <b>copied</b> to either another file that you control
+	 * or to a BLOB in a database.
+	 * @return
+	 */
 	public List<UploadItem> getFiles() {
 		return m_files;
 	}
 
+	/**
+	 * Return T if the max. #of files has been reached.
+	 * @return
+	 */
 	public boolean isFull() {
 		return m_files.size() >= m_maxFiles;
 	}
@@ -147,26 +171,45 @@ public class FileUpload extends Div {
 			forceRebuild();
 	}
 
+	/**
+	 * Return the space separated list of allowed file extensions.
+	 * @return
+	 */
 	public String getAllowedExtensions() {
 		return m_allowedExtensions;
 	}
 
+	/**
+	 * Set the list of allowed file extensions.
+	 * @param allowedExtensions
+	 */
 	public void setAllowedExtensions(String allowedExtensions) {
+		if(DomUtil.isEqual(allowedExtensions, m_allowedExtensions))
+			return;
+
 		m_allowedExtensions = allowedExtensions;
+		changed();
 	}
 
-	public int getMaxSize() {
-		return m_maxSize;
-	}
+	//	public int getMaxSize() {
+	//		return m_maxSize;
+	//	}
+	//
+	//	public void setMaxSize(int maxSize) {
+	//		m_maxSize = maxSize;
+	//	}
 
-	public void setMaxSize(int maxSize) {
-		m_maxSize = maxSize;
-	}
-
+	/**
+	 * FIXME T if at least 1 file needs to be uploaded.
+	 */
 	public boolean isRequired() {
 		return m_required;
 	}
 
+	/**
+	 * Set to T if at least one file needs to have been uploaded.
+	 * @param required
+	 */
 	public void setRequired(boolean required) {
 		m_required = required;
 	}

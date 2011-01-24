@@ -25,7 +25,6 @@
 package to.etc.domui.component.misc;
 
 import java.math.*;
-import java.util.*;
 
 import javax.annotation.*;
 
@@ -33,9 +32,9 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
-import to.etc.webapp.nls.*;
 
 /**
+ * PLEASE LOOK IN THE CONTROL CLASS YOU WANT TO CREATE FOR MORE METHODS!
  * Helps creating controls.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -49,6 +48,7 @@ final public class UIControlUtil {
 	/*	CODING:	Creating ComboFixed controls for enum's				*/
 	/*--------------------------------------------------------------*/
 	/**
+	 * FIXME Replace with {@link ComboFixed#createEnumCombo(Class)}.
 	 * Create a combo for all members of an enum. It uses the enums labels as description. Since this has no known property it cannot
 	 * use per-property translations!!
 	 *
@@ -56,136 +56,109 @@ final public class UIControlUtil {
 	 * @param clz
 	 * @return
 	 */
+	@Deprecated
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class<T> clz) {
-		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
-		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
-		T[] ar = clz.getEnumConstants();
-		for(T v : ar) {
-			String label = cmm.getDomainLabel(NlsContext.getLocale(), v);
-			if(label == null)
-				label = v.name();
-			l.add(new ValueLabelPair<T>(v, label));
-		}
-		return new ComboFixed<T>(l);
+		return ComboFixed.createEnumCombo(clz);
 	}
 
 	/**
 	 * Returns a combo for all of the list-of-value items for the specified property.
+	 * FIXME Replace with {@link ComboFixed#createEnumCombo(Class, String)}.
 	 *
 	 * @param <T>
 	 * @param base		The class
 	 * @param property	The property on the class.
 	 * @return
 	 */
+	@Deprecated
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class< ? > base, String property) {
-		return createEnumCombo(MetaManager.getPropertyMeta(base, property));
+		return ComboFixed.createEnumCombo(MetaManager.getPropertyMeta(base, property));
 	}
 
 	/**
 	 * Returns a combo for all of the list-of-value items for the specified property.
+	 * FIXME Replace with {@link ComboFixed#createEnumCombo(PropertyMetaModel)}.
 	 * @param <T>
 	 * @param pmm
 	 * @return
 	 */
-	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel pmm) {
-		T[] var = (T[]) pmm.getDomainValues();
-		if(var == null)
-			throw new IllegalArgumentException(pmm + " is not a list-of-values domain property");
-		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
-		for(T v : var) {
-			String label = getEnumLabel(pmm, var);
-			l.add(new ValueLabelPair<T>(v, label));
-		}
-		return new ComboFixed<T>(l);
+	@Deprecated
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel< ? > pmm) {
+		return ComboFixed.createEnumCombo(pmm);
 	}
-
-
 
 	/**
 	 * Create a combobox having only the specified enum labels.
+	 * FIXME Replace with {@link ComboFixed#createEnumCombo(Enum...)}.
 	 * @param <T>
 	 * @param items
 	 * @return
 	 */
+	@Deprecated
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(T... items) {
-		if(items.length == 0)
-			throw new IllegalArgumentException("Missing parameters");
-
-		ClassMetaModel cmm = MetaManager.findClassMeta(items[0].getClass());
-		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
-		for(T v : items) {
-			String label = cmm.getDomainLabel(NlsContext.getLocale(), v);
-			if(label == null)
-				label = v.name();
-			l.add(new ValueLabelPair<T>(v, label));
-		}
-		return new ComboFixed<T>(l);
+		return ComboFixed.createEnumCombo(items);
 	}
 
 	/**
 	 * Create a combobox having only the specified enum labels.
+	 * FIXME Replace with {@link ComboFixed#createEnumCombo(Class, String, Enum...)}
 	 * @param <T>
 	 * @param base
 	 * @param property
 	 * @param domainvalues
 	 * @return
 	 */
+	@Deprecated
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class< ? > base, String property, T... domainvalues) {
-		return createEnumCombo(MetaManager.getPropertyMeta(base, property), domainvalues);
+		return ComboFixed.createEnumCombo(MetaManager.getPropertyMeta(base, property), domainvalues);
 	}
 
 	/**
 	 * Create a combobox having only the specified enum labels.
+	 * FIXME Replace with {@link ComboFixed#createEnumCombo(PropertyMetaModel, Enum...)}.
 	 * @param <T>
 	 * @param pmm
 	 * @param domainvalues
 	 * @return
 	 */
-	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel pmm, T... domainvalues) {
-		if(domainvalues.length == 0)
-			throw new IllegalArgumentException("Missing parameters");
-		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
-		for(T v : domainvalues) {
-			String label = getEnumLabel(pmm, v);
-			l.add(new ValueLabelPair<T>(v, label));
-		}
-		return new ComboFixed<T>(l);
+	@Deprecated
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel< ? > pmm, T... domainvalues) {
+		return ComboFixed.createEnumCombo(pmm, domainvalues);
 	}
 
+	/**
+	 * Replace with method in {@link MetaManager}
+	 * @param label
+	 * @return
+	 */
+	@Deprecated
 	static public String getEnumLabel(Enum< ? > label) {
-		if(label == null)
-			return null;
-		ClassMetaModel cmm = MetaManager.findClassMeta(label.getClass());
-		String s = cmm.getDomainLabel(NlsContext.getLocale(), label);
-		if(s == null)
-			s = String.valueOf(label);
-		return s;
+		return MetaManager.getEnumLabel(label);
 	}
 
+	/**
+	 * Replace with method in {@link MetaManager}
+	 *
+	 * @param clz
+	 * @param property
+	 * @param value
+	 * @return
+	 */
+	@Deprecated
 	static public String getEnumLabel(Class< ? > clz, String property, Object value) {
-		if(value == null)
-			return null;
-		return getEnumLabel(MetaManager.findPropertyMeta(clz, property), value);
+		return MetaManager.getEnumLabel(clz, property, value);
 	}
 
-	static public String getEnumLabel(PropertyMetaModel pmm, Object value) {
-		if(value == null)
-			return null;
-		Locale loc = NlsContext.getLocale();
-		String v = pmm.getDomainValueLabel(loc, value);
-		if(v == null) {
-			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType());
-			v = cmm.getDomainLabel(loc, value);
-			if(v == null) {
-				if(value.getClass() != cmm.getActualClass()) {
-					cmm = MetaManager.findClassMeta(value.getClass());
-					v = cmm.getDomainLabel(loc, value);
-				}
-				if(v == null)
-					v = String.valueOf(value);
-			}
-		}
-		return v;
+	/**
+	 * Replace with method in {@link MetaManager}
+	 *
+	 * @param pmm
+	 * @param value
+	 * @return
+	 */
+	@Deprecated
+	static public String getEnumLabel(PropertyMetaModel< ? > pmm, Object value) {
+		return MetaManager.getEnumLabel(pmm, value);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -206,7 +179,7 @@ final public class UIControlUtil {
 		return createBDMoneyInput(MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	static public Text<BigDecimal> createBDMoneyInput(PropertyMetaModel pmm, boolean editable) {
+	static public Text<BigDecimal> createBDMoneyInput(PropertyMetaModel< ? > pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<BigDecimal> txt = new Text<BigDecimal>(BigDecimal.class);
@@ -216,7 +189,7 @@ final public class UIControlUtil {
 	}
 
 	@Nonnull
-	static public Text<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel pmm, boolean editable) {
+	static public Text<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<Double> txt = new Text<Double>(Double.class);
@@ -225,7 +198,7 @@ final public class UIControlUtil {
 		return txt;
 	}
 
-	static private void configureNumericInput(Text< ? > txt, PropertyMetaModel pmm, boolean editable) {
+	static private void configureNumericInput(Text< ? > txt, PropertyMetaModel< ? > pmm, boolean editable) {
 		if(!editable)
 			txt.setReadOnly(true);
 
@@ -270,7 +243,7 @@ final public class UIControlUtil {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	static public void assignMonetaryConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable< ? > node) {
 		if(pmm.getConverter() != null)
-			node.setConverter((IConverter) pmm.getConverter());
+			node.setConverter(pmm.getConverter());
 		else {
 			NumericPresentation np = null;
 			if(!editable)
@@ -287,10 +260,10 @@ final public class UIControlUtil {
 		}
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	static private <T extends Number> void assignNumericConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
+	@SuppressWarnings({"unchecked"})
+	static private <T extends Number> void assignNumericConverter(final PropertyMetaModel<T> pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
 		if(pmm.getConverter() != null)
-			node.setConverter((IConverter) pmm.getConverter());
+			node.setConverter(pmm.getConverter());
 		else {
 			NumericPresentation np = null;
 			//			if(!editable)
@@ -301,7 +274,7 @@ final public class UIControlUtil {
 		}
 	}
 
-	static private final void	assignPrecisionValidator(@Nonnull Text<?> control, @Nonnull PropertyMetaModel pmm) {
+	static private final void assignPrecisionValidator(@Nonnull Text< ? > control, @Nonnull PropertyMetaModel< ? > pmm) {
 		assignPrecisionValidator(control, pmm.getPrecision(), pmm.getScale());
 	}
 
@@ -330,10 +303,10 @@ final public class UIControlUtil {
 	 * @return
 	 */
 	static public Text<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
-		return createIntInput(MetaManager.findPropertyMeta(clz, property), editable);
+		return createIntInput((PropertyMetaModel<Integer>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	static public Text<Integer> createIntInput(PropertyMetaModel pmm, boolean editable) {
+	static public Text<Integer> createIntInput(PropertyMetaModel<Integer> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<Integer> txt = new Text<Integer>(Integer.class);
@@ -343,10 +316,10 @@ final public class UIControlUtil {
 	}
 
 	static public Text<Long> createLongInput(Class< ? > clz, String property, boolean editable) {
-		return createLongInput(MetaManager.findPropertyMeta(clz, property), editable);
+		return createLongInput((PropertyMetaModel<Long>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	static public Text<Long> createLongInput(PropertyMetaModel pmm, boolean editable) {
+	static public Text<Long> createLongInput(PropertyMetaModel<Long> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<Long> txt = new Text<Long>(Long.class);
@@ -356,10 +329,10 @@ final public class UIControlUtil {
 	}
 
 	static public Text<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
-		return createDoubleInput(MetaManager.findPropertyMeta(clz, property), editable);
+		return createDoubleInput((PropertyMetaModel<Double>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	static public Text<Double> createDoubleInput(PropertyMetaModel pmm, boolean editable) {
+	static public Text<Double> createDoubleInput(PropertyMetaModel<Double> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<Double> txt = new Text<Double>(Double.class);
@@ -369,10 +342,10 @@ final public class UIControlUtil {
 	}
 
 	static public Text<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
-		return createBigDecimalInput(MetaManager.findPropertyMeta(clz, property), editable);
+		return createBigDecimalInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	static public Text<BigDecimal> createBigDecimalInput(PropertyMetaModel pmm, boolean editable) {
+	static public Text<BigDecimal> createBigDecimalInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<BigDecimal> txt = new Text<BigDecimal>(BigDecimal.class);
@@ -380,5 +353,115 @@ final public class UIControlUtil {
 		assignNumericConverter(pmm, editable, txt, BigDecimal.class);
 		return txt;
 	}
+
+	static public <T> Text< ? > createText(Class< ? > clz, String property, boolean editable) {
+		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaManager.findPropertyMeta(clz, property);
+		return createText(pmm.getActualType(), pmm, editable);
+	}
+
+	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable) {
+		Class< ? > aclz = pmm.getActualType();
+		if(!iclz.isAssignableFrom(aclz))
+			throw new IllegalStateException("Invalid class type=" + iclz + " for property " + pmm);
+		Text<T> txt = new Text<T>(iclz);
+
+		//-- Get simple things to do out of the way.
+		if(!editable)
+			txt.setReadOnly(true);
+		if(pmm.getConverter() != null)
+			txt.setConverter(pmm.getConverter());
+		if(pmm.isRequired())
+			txt.setMandatory(true);
+		String s = pmm.getDefaultHint();
+		if(s != null)
+			txt.setTitle(s);
+		for(PropertyMetaValidator mpv : pmm.getValidators())
+			txt.addValidator(mpv);
+
+		txt.setRegexpUserString(pmm.getRegexpUserString());
+		txt.setValidationRegexp(pmm.getRegexpValidator());
+
+		/*
+		 * Start calculating maxlength and display length. Display length means the presented size on the
+		 * UI (size= attribute); maxlength means just that - no data longer than maxlength can be entered.
+		 * The calculation is complex and depends on the input type; the common types are handled here; other
+		 * types should be handled by their own control factory.
+		 *
+		 * Length calculation is made fragile because the JPA @Column annotation's length attribute defaults
+		 * to 255 (a decision made by some complete and utter idiot), so we take some special care with it
+		 * if it has this value - it is not really used in the decision process anymore.
+		 *
+		 */
+		//-- Precalculate some sizes for well-known types like numerics.
+		int calcmaxsz = -1; // Calculated max input size
+		int calcsz = -1; // Calculated display size,
+
+		if(pmm.getPrecision() > 0) {
+			// FIXME This should be localized somehow...
+			//-- Calculate a size using scale and precision.
+			int size = pmm.getPrecision();
+			int d = size;
+			String hint = pmm.getComponentTypeHint();
+			if(hint != null) {
+				hint = hint.toLowerCase();
+			}
+			if(hint == null || !hint.contains(MetaUtils.NO_MINUS)) {
+				size++; // Allow minus
+			}
+			if(hint == null || !hint.contains(MetaUtils.NO_SEPARATOR)) {
+				if(pmm.getScale() > 0) {
+					size++; // Inc size to allow for decimal point or comma
+					d -= pmm.getScale(); // Reduce integer part,
+					if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
+						int nd = (d - 1) / 3; // How many thousand separators could there be?
+						size += nd; // Increment input size with that
+					}
+				} else {
+					if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
+						int nd = (d - 1) / 3; // How many thousand separators could there be?
+						size += nd; // Increment input size with that
+					}
+				}
+			}
+
+			//-- If this is some form of money allow extra room for the currency indicator + space.
+			if(NumericPresentation.isMonetary(pmm.getNumericPresentation())) {
+				size += 2; // For now allow 2 extra characters
+			}
+			calcsz = size;
+			calcmaxsz = size;
+		} else if(NumericPresentation.isMonetary(pmm.getNumericPresentation())) {
+			//-- Monetary amount with unclear precision- do a reasonable default. Allow for E 1.000.000.000,00 input size and way bigger max size
+			calcsz = 18;
+			calcmaxsz = 30;
+		}
+
+		//-- When a display length *is* present it *always* overrides any calculated value,
+		if(pmm.getDisplayLength() > 0)
+			calcsz = pmm.getDisplayLength();
+
+		if(pmm.getLength() > 0 && pmm.getLength() != 255) { // Handle non-jpa-blundered lengths, if present
+			//-- A length is present. It only defines the max. input size if no converter is present...
+			if(pmm.getConverter() == null) {
+				calcmaxsz = pmm.getLength(); // Defined max length always overrides anything else
+				if(calcsz <= 0 && calcmaxsz < 40)
+					calcsz = calcmaxsz; // Set the display size provided it is reasonable
+			}
+		}
+
+		//-- Wrap it up...
+		if(calcmaxsz > 0)
+			txt.setMaxLength(calcmaxsz);
+		if(calcsz <= 0) {
+			if(calcmaxsz <= 0 || calcmaxsz > 40)
+				calcsz = 40;
+			else
+				calcsz = calcmaxsz;
+		}
+		txt.setSize(calcsz);
+		return txt;
+	}
+
+
 }
 

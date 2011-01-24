@@ -38,7 +38,7 @@ import to.etc.domui.test.util.*;
 
 public class TestDelta {
 	private Page createPage() throws Exception {
-		Page p = TestUtil.createPage(UrlPage.class);
+		Page p = DomUITestUtil.createPage(UrlPage.class);
 		for(int i = 0; i < 10; i++) {
 			Div d2 = new Div();
 			d2.setText("This is line " + i);
@@ -55,7 +55,7 @@ public class TestDelta {
 
 	@Test
 	public void testSingleDelete() throws Exception {
-		Page p = TestUtil.createPage(UrlPage.class);
+		Page p = DomUITestUtil.createPage(UrlPage.class);
 		for(int i = 0; i < 10; i++) {
 			Div d2 = new Div();
 			d2.setText("This is line " + i);
@@ -93,9 +93,9 @@ public class TestDelta {
 		return getFullRenderText(getBrowserVersion(), pg);
 	}
 
-	public HtmlFullRenderer	getFullRenderer(IBrowserOutput o) {
+	public HtmlFullRenderer getFullRenderer(IBrowserOutput o) throws Exception {
 		BrowserVersion	bv = getBrowserVersion();
-		return TestUtil.getApplication().findRendererFor(bv, o);
+		return DomUITestUtil.getApplication().findRendererFor(bv, o);
 	}
 
 	public String getFullRenderText(BrowserVersion bv, Page pg) throws Exception {
@@ -145,7 +145,7 @@ public class TestDelta {
 	@Test
 	public void testHellFreeze1() throws Exception {
 		//-- 1st render: create nested structure fully contained and render it.
-		Page p = TestUtil.createPage(UrlPage.class);
+		Page p = DomUITestUtil.createPage(UrlPage.class);
 		UrlPage up = p.getBody();
 		Div root = new Div();
 		up.add(root);

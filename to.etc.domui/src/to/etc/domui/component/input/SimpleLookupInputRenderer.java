@@ -68,13 +68,13 @@ public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
 					l = cmm.getComboDisplayProperties();
 				if(l.size() > 0) {
 					//-- Expand the thingy: render a single line separated with BRs
-					List<ExpandedDisplayProperty> xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
+					List<ExpandedDisplayProperty< ? >> xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
 					xpl = ExpandedDisplayProperty.flatten(xpl);
 						//						node.add(tbl);
 					tbl.setCssClass("ui-lui-v");
 					int c = 0;
 					int mw = 0;
-					for(ExpandedDisplayProperty xp : xpl) {
+					for(ExpandedDisplayProperty< ? > xp : xpl) {
 						String val = xp.getPresentationString(object);
 						if(val == null || val.length() == 0)
 							continue;

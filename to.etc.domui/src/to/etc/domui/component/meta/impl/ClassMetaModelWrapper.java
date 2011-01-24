@@ -31,6 +31,14 @@ import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
+/**
+ * This class can be used as a "proxy class" or "delegate class" to another ClassMetaModel
+ * instance. You can then override the methods you need changed only while all others are
+ * delegated to the original metamodel.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Dec 28, 2010
+ */
 public class ClassMetaModelWrapper implements ClassMetaModel {
 	private ClassMetaModel m_parent;
 
@@ -52,12 +60,12 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public PropertyMetaModel findProperty(String name) {
+	public PropertyMetaModel< ? > findProperty(String name) {
 		return m_parent.findProperty(name);
 	}
 
 	@Override
-	public PropertyMetaModel findSimpleProperty(String name) {
+	public PropertyMetaModel< ? > findSimpleProperty(String name) {
 		return m_parent.findSimpleProperty(name);
 	}
 
@@ -122,22 +130,22 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties() {
-		return m_parent.getLookupFieldDisplayProperties();
+	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+		return m_parent.getLookupSelectedProperties();
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer() {
-		return m_parent.getLookupFieldRenderer();
+	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+		return m_parent.getLookupSelectedRenderer();
 	}
 
 	@Override
-	public PropertyMetaModel getPrimaryKey() {
+	public PropertyMetaModel< ? > getPrimaryKey() {
 		return m_parent.getPrimaryKey();
 	}
 
 	@Override
-	public List<PropertyMetaModel> getProperties() {
+	public List<PropertyMetaModel< ? >> getProperties() {
 		return m_parent.getProperties();
 	}
 

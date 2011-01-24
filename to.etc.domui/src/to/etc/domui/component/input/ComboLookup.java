@@ -27,10 +27,22 @@ package to.etc.domui.component.input;
 import java.util.*;
 
 import to.etc.domui.util.*;
+import to.etc.webapp.query.*;
 
+/**
+ * Combobox component where the list type is the same as the value type, i.e. it
+ * uses some {@code List<T>} and getValue() returns T.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Dec 16, 2010
+ */
 public class ComboLookup<T> extends ComboComponentBase<T, T> {
 	public ComboLookup() {}
 
+	/**
+	 * Use the specified cached list maker to fill the combobox.
+	 * @param maker
+	 */
 	public ComboLookup(IListMaker<T> maker) {
 		super(maker);
 	}
@@ -43,6 +55,38 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 		super(set, r);
 	}
 
+	/**
+	 * Create a combo which fills it's list with the result of the query passed.
+	 * @param query
+	 */
+	public ComboLookup(QCriteria<T> query) {
+		super(query);
+	}
+
+	/**
+	 * Create a combo which fills it's list with the result of the query passed.
+	 * @param query
+	 */
+	public ComboLookup(QCriteria<T> query, INodeContentRenderer<T> cr) {
+		this(query);
+		setContentRenderer(cr);
+	}
+
+	/**
+	 * Create a combo which fills it's list with the result of the query. Each value is filled from the values of the properties specified.
+	 * @param query
+	 * @param properties
+	 */
+	public ComboLookup(QCriteria<T> query, String... properties) {
+		this(query);
+		setContentRenderer(new PropertyNodeContentRenderer<T>(properties));
+	}
+
+	/**
+	 * This implements the identical conversion, i.e. in=out, because this component returns
+	 * the list type.
+	 * @see to.etc.domui.component.input.ComboComponentBase#listToValue(java.lang.Object)
+	 */
 	@Override
 	protected T listToValue(T in) throws Exception {
 		return in;

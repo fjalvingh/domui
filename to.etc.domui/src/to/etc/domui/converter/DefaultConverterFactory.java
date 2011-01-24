@@ -43,12 +43,12 @@ public final class DefaultConverterFactory implements IConverterFactory {
 	 * @see to.etc.domui.converter.IConverterFactory#accept(java.lang.Class, to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
-	public int accept(Class< ? > clz, PropertyMetaModel pmm) {
+	public int accept(Class< ? > clz, PropertyMetaModel< ? > pmm) {
 		return 1;
 	}
 
 	@Override
-	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel pmm) {
+	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel<X> pmm) {
 		return (T) DEFAULT_CONVERTER;
 	}
 }

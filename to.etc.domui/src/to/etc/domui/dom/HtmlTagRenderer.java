@@ -600,7 +600,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o.attr("testid", b.getTestID());
 		if(b.getCssClass() != null)
 			o.attr("class", b.getCssClass());
-		String ttl = b.getLiteralTitle();
+		String ttl = b.getTitle();
 		if(ttl != null && !(b instanceof UrlPage)) // Do NOT render title on the thing representing the BODY.
 			o().attr("title", ttl);
 
@@ -728,6 +728,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("height", n.getCellHeight());
 		if(n.getCellWidth() != null)
 			o().attr("width", n.getCellWidth());
+		if(n.getAlign() != null)
+			o().attr("align", n.getAlign().getCode());
 		renderTagend(n, m_o);
 	}
 
@@ -739,7 +741,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	@Override
 	public void visitTextNode(final TextNode n) throws Exception {
-		String lit = n.getLiteralText(); // Get tilde-replaced text
+		String lit = n.getText();
 		if(lit != null && lit.length() > 0)
 			m_o.text(lit);
 	}
@@ -906,7 +908,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getAlt() != null)
 			o().attr("alt", n.getAlt());
 		if(n.getSrc() != null)
-			o().rawAttr("src", n.getSrc());
+			o().attr("src", n.getSrc()); // 20110104 was rawAttr causing fails on & in delta????
 		if(n.getImgBorder() >= 0)
 			o().attr("border", n.getImgBorder());
 		if(n.getImgWidth() != null)

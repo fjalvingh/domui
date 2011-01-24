@@ -29,7 +29,8 @@ import java.lang.annotation.*;
 import to.etc.domui.converter.*;
 
 /**
- * Annotation to add metadata to a property.
+ * Annotation to add metadata to a property. Data defined in here is <i>added</i> to any data discovered in another way,
+ * for instance by scanning JPA annotations. So do not repeat things.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2008

@@ -89,13 +89,12 @@ public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
 		}
 
 		//-- Convert all ArrayLists to array
-		for(String name : parammap.keySet()) {
-			List<String> a = parammap.get(name);
-			m_formItemMap.put(name, a.toArray(new String[a.size()]));
+		for(Map.Entry<String, List<String>> me : parammap.entrySet()) {
+			m_formItemMap.put(me.getKey(), me.getValue().toArray(new String[me.getValue().size()]));
+
 		}
-		for(String name : filemap.keySet()) {
-			List<UploadItem> a = filemap.get(name);
-			m_fileItemMap.put(name, a.toArray(new UploadItem[a.size()]));
+		for(Map.Entry<String, List<UploadItem>> me: filemap.entrySet()) {
+			m_fileItemMap.put(me.getKey(), me.getValue().toArray(new UploadItem[me.getValue().size()]));
 		}
 		req.setAttribute(UPLOADKEY, this);
 	}

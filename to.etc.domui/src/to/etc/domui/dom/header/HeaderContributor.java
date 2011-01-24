@@ -98,4 +98,30 @@ abstract public class HeaderContributor {
 		}
 		return c;
 	}
+
+	/**
+	 * Add a header contributor to add the Google Analytics blurb to every page.
+	 * @param gac
+	 * @return
+	 */
+	static synchronized public HeaderContributor loadGoogleAnalytics(final String uacode) {
+		HeaderContributor c = m_jsMap.get(uacode);
+		if(c == null) {
+			StringBuilder blurb = new StringBuilder();
+			blurb.append("\n\nvar _gaq = _gaq || [];\n");
+			blurb.append("_gaq.push(['_setAccount', '" + uacode + "']);\n");
+			blurb.append("_gaq.push(['_trackPageview']);\n");
+
+			blurb.append("(function() {\n");
+			blurb.append("var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;\n");
+			blurb.append("ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';\n");
+			blurb.append("var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);\n");
+			blurb.append("})();\n");
+
+			c = HeaderContributor.loadJavaScriptlet(blurb.toString());
+			m_jsMap.put(uacode, c);
+		}
+		return c;
+	}
+
 }

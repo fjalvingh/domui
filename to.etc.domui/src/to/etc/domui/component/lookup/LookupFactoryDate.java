@@ -42,7 +42,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 			throw new IllegalStateException("? SearchPropertyModel should not be null here.");
 
 		//get temporal type from metadata and set withTime later to date inout components
-		PropertyMetaModel pmm = (spm != null && spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
+		PropertyMetaModel< ? > pmm = (spm != null && spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
 		boolean withTime = (pmm != null && pmm.getTemporal() == TemporalPresentationType.DATETIME);
 
 		final DateInput dateFrom = new DateInput();
@@ -57,10 +57,10 @@ final class LookupFactoryDate implements ILookupControlFactory {
 			dateTo.setTitle(hint);
 		}
 		return new AbstractLookupControlImpl(dateFrom, tn, dateTo) {
-			// FIXME For some reason Eclipse does not "see" the null check @ the start of the method..
-			//			@SuppressWarnings("null")
 			@Override
-			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
+			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
+				if(spm == null)
+					throw new IllegalStateException("? SearchPropertyModel should not be null here.");
 				Date from, till;
 				try {
 					from = dateFrom.getValue();
@@ -69,7 +69,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 						from = DateUtil.truncateDate(from);
 					}
 				} catch(Exception x) {
-					return false;
+					return AppendCriteriaResult.INVALID;
 				}
 				try {
 					till = dateTo.getValue();
@@ -79,10 +79,10 @@ final class LookupFactoryDate implements ILookupControlFactory {
 					}
 
 				} catch(Exception x) {
-					return false;
+					return AppendCriteriaResult.INVALID;
 				}
 				if(from == null && till == null)
-					return true;
+					return AppendCriteriaResult.EMPTY;
 				if(from != null && till != null) {
 					if(from.getTime() > till.getTime()) {
 						//-- Swap vals
@@ -100,7 +100,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 				} else {
 					crit.lt(spm.getPropertyName(), till);
 				}
-				return true;
+				return AppendCriteriaResult.VALID;
 			}
 
 			@Override
@@ -113,7 +113,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 
 	@Override
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(SearchPropertyMetaModel spm, X control) {
-		PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+		PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		if(Date.class.isAssignableFrom(pmm.getActualType()) && control == null)
 			return 2;
 		return 0;

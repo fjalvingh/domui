@@ -192,7 +192,7 @@ final public class MetaManager {
 	 * @return
 	 */
 	@Nullable
-	static public PropertyMetaModel findPropertyMeta(Class< ? > clz, String name) {
+	static public PropertyMetaModel< ? > findPropertyMeta(Class< ? > clz, String name) {
 		ClassMetaModel cm = findClassMeta(clz);
 		return cm.findProperty(name);
 	}
@@ -204,22 +204,22 @@ final public class MetaManager {
 	 * @return
 	 */
 	@Nullable
-	static public PropertyMetaModel findPropertyMeta(IMetaClass mc, String name) {
+	static public PropertyMetaModel< ? > findPropertyMeta(IMetaClass mc, String name) {
 		ClassMetaModel cm = findClassMeta(mc);
 		return cm.findProperty(name);
 	}
 
 	@Nonnull
-	static public PropertyMetaModel getPropertyMeta(Class< ? > clz, String name) {
-		PropertyMetaModel pmm = findPropertyMeta(clz, name);
+	static public PropertyMetaModel< ? > getPropertyMeta(Class< ? > clz, String name) {
+		PropertyMetaModel< ? > pmm = findPropertyMeta(clz, name);
 		if(pmm == null)
 			throw new ProgrammerErrorException("The property '" + clz.getName() + "." + name + "' is not known.");
 		return pmm;
 	}
 
 	@Nonnull
-	static public PropertyMetaModel getPropertyMeta(IMetaClass clz, String name) {
-		PropertyMetaModel pmm = findPropertyMeta(clz, name);
+	static public PropertyMetaModel< ? > getPropertyMeta(IMetaClass clz, String name) {
+		PropertyMetaModel< ? > pmm = findPropertyMeta(clz, name);
 		if(pmm == null)
 			throw new ProgrammerErrorException("The property '" + clz + "." + name + "' is not known.");
 		return pmm;
@@ -300,7 +300,7 @@ final public class MetaManager {
 	 * @return
 	 */
 	@Nonnull
-	static public INodeContentRenderer< ? > createDefaultComboRenderer(@Nullable PropertyMetaModel pmm, @Nullable ClassMetaModel cmm) {
+	static public INodeContentRenderer< ? > createDefaultComboRenderer(@Nullable PropertyMetaModel< ? > pmm, @Nullable ClassMetaModel cmm) {
 		//-- Property-level metadata is the 1st choice
 		if(pmm != null) {
 			cmm = MetaManager.findClassMeta(pmm.getActualType()); // Always use property's class model.
@@ -323,7 +323,7 @@ final public class MetaManager {
 				/*
 				 * The property has DisplayProperties.
 				 */
-				List<ExpandedDisplayProperty> xpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
+				List<ExpandedDisplayProperty< ? >> xpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
 				return new DisplayPropertyNodeContentRenderer(cmm, xpl);
 			}
 			return TOSTRING_RENDERER; // Just tostring it..
@@ -342,7 +342,7 @@ final public class MetaManager {
 				/*
 				 * The value class has display properties; expand them. Since this is the value class we need no root accessor (== identity/same accessor).
 				 */
-				List<ExpandedDisplayProperty> xpl = ExpandedDisplayProperty.expandDisplayProperties(cmm.getComboDisplayProperties(), cmm, null);
+				List<ExpandedDisplayProperty< ? >> xpl = ExpandedDisplayProperty.expandDisplayProperties(cmm.getComboDisplayProperties(), cmm, null);
 				return new DisplayPropertyNodeContentRenderer(cmm, xpl);
 			}
 		}
@@ -378,8 +378,8 @@ final public class MetaManager {
 			cmm = findClassMeta(a.getClass());
 		if(cmm.getPrimaryKey() != null) {
 			try {
-				Object pka = cmm.getPrimaryKey().getAccessor().getValue(a);
-				Object pkb = cmm.getPrimaryKey().getAccessor().getValue(b);
+				Object pka = cmm.getPrimaryKey().getValue(a);
+				Object pkb = cmm.getPrimaryKey().getValue(b);
 				return DomUtil.isEqual(pka, pkb);
 			} catch(Exception x) {
 				x.printStackTrace();
@@ -440,7 +440,7 @@ final public class MetaManager {
 		return res;
 	}
 
-	static public PropertyMetaModel internalCalculateDottedPath(ClassMetaModel cmm, String name) {
+	static public PropertyMetaModel< ? > internalCalculateDottedPath(ClassMetaModel cmm, String name) {
 		int pos = name.indexOf('.'); // Dotted name?
 		if(pos == -1)
 			return cmm.findSimpleProperty(name); // Use normal resolution directly on the class.
@@ -449,12 +449,12 @@ final public class MetaManager {
 		int ix = 0;
 		int len = name.length();
 		ClassMetaModel ccmm = cmm; // Current class meta-model for property reached
-		List<PropertyMetaModel> acl = new ArrayList<PropertyMetaModel>(10);
+		List<PropertyMetaModel< ? >> acl = new ArrayList<PropertyMetaModel< ? >>(10);
 		for(;;) {
 			String sub = name.substring(ix, pos); // Get path component,
 			ix = pos + 1;
 
-			PropertyMetaModel pmm = ccmm.findSimpleProperty(sub); // Find base property,
+			PropertyMetaModel< ? > pmm = ccmm.findSimpleProperty(sub); // Find base property,
 			if(pmm == null)
 				throw new IllegalStateException("Undefined property '" + sub + "' on classMetaModel=" + ccmm);
 			acl.add(pmm); // Next access path,
@@ -478,10 +478,10 @@ final public class MetaManager {
 	 * @param compoundName
 	 * @return
 	 */
-	static public List<PropertyMetaModel> parsePropertyPath(ClassMetaModel m, String compoundName) {
+	static public List<PropertyMetaModel< ? >> parsePropertyPath(ClassMetaModel m, String compoundName) {
 		int ix = 0;
 		int len = compoundName.length();
-		List<PropertyMetaModel> res = new ArrayList<PropertyMetaModel>();
+		List<PropertyMetaModel< ? >> res = new ArrayList<PropertyMetaModel< ? >>();
 		ClassMetaModel cmm = m;
 		while(ix < len) {
 			int pos = compoundName.indexOf('.', ix);
@@ -494,7 +494,7 @@ final public class MetaManager {
 				ix = pos + 1;
 			}
 
-			PropertyMetaModel pmm = cmm.findSimpleProperty(name);
+			PropertyMetaModel< ? > pmm = cmm.findSimpleProperty(name);
 			if(pmm == null)
 				throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_COMPOUND_PROPERTY_NOT_FOUND, compoundName, name, cmm.toString());
 
@@ -564,13 +564,13 @@ final public class MetaManager {
 	 */
 	static public <T> boolean hasDuplicates(List<T> items, T instance, String propertyname) throws Exception {
 		ClassMetaModel cmm = findClassMeta(instance.getClass());
-		PropertyMetaModel pmm = getPropertyMeta(instance.getClass(), propertyname);
-		Object vi = pmm.getAccessor().getValue(instance);
+		PropertyMetaModel< ? > pmm = getPropertyMeta(instance.getClass(), propertyname);
+		Object vi = pmm.getValue(instance);
 		ClassMetaModel vcmm = vi == null ? null : findClassMeta(vi.getClass());
 		for(T v : items) {
 			if(areObjectsEqual(instance, v, cmm))
 				continue;
-			Object vl = pmm.getAccessor().getValue(v);
+			Object vl = pmm.getValue(v);
 			if(areObjectsEqual(vi, vl, vcmm)) {
 				return true;
 			}
@@ -592,7 +592,7 @@ final public class MetaManager {
 		ClassMetaModel cmm = MetaManager.findClassMeta(t.getClass());
 		if(cmm.isPersistentClass() && cmm.getPrimaryKey() != null) {
 			try {
-				Object k = cmm.getPrimaryKey().getAccessor().getValue(t);
+				Object k = cmm.getPrimaryKey().getValue(t);
 				return t.getClass().getName() + "#" + k + " @" + System.identityHashCode(t);
 			} catch(Exception x) {}
 		}
@@ -618,10 +618,10 @@ final public class MetaManager {
 			cmm = findClassMeta(instance.getClass());
 		if(! cmm.isPersistentClass())
 			throw new IllegalArgumentException("The instance " + identify(instance) + " is not a persistent class");
-		PropertyMetaModel pmm = cmm.getPrimaryKey();
+		PropertyMetaModel< ? > pmm = cmm.getPrimaryKey();
 		if(pmm == null)
 			throw new IllegalArgumentException("The instance " + identify(instance) + " has an undefined primary key (cannot be obtained by metadata)");
-		return pmm.getAccessor().getValue(instance);
+		return pmm.getValue(instance);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -669,7 +669,7 @@ final public class MetaManager {
 		//-- Make a selection of reasonable properties to search on. Skip any compounds.
 		int order = 0;
 		List<SearchPropertyMetaModel> res = new ArrayList<SearchPropertyMetaModel>();
-		for(PropertyMetaModel pmm : cm.getProperties()) {
+		for(PropertyMetaModel< ? > pmm : cm.getProperties()) {
 			if(DomUtil.isBasicType(pmm.getActualType())) {
 				//-- Very basic. Only support small sizes;
 				if(pmm.getLength() > 50)
@@ -686,7 +686,7 @@ final public class MetaManager {
 			sp.setIgnoreCase(true);
 			sp.setOrder(order++);
 			sp.setPropertyName(pmm.getName());
-			List<PropertyMetaModel> pl = new ArrayList<PropertyMetaModel>(1);
+			List<PropertyMetaModel< ? >> pl = new ArrayList<PropertyMetaModel< ? >>(1);
 			pl.add(pmm);
 			sp.setPropertyPath(pl);
 			res.add(sp);
@@ -705,7 +705,7 @@ final public class MetaManager {
 
 		List<DisplayPropertyMetaModel> res = new ArrayList<DisplayPropertyMetaModel>();
 		int totlen = 0;
-		for(PropertyMetaModel pmm : cm.getProperties()) {
+		for(PropertyMetaModel< ? > pmm : cm.getProperties()) {
 			if(totlen > 512 || res.size() > 20)
 				break;
 
@@ -732,5 +732,66 @@ final public class MetaManager {
 		}
 
 		return res;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:		*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Get a NLSed label for the specified enum label.
+	 */
+	static public String getEnumLabel(Enum< ? > label) {
+		if(label == null)
+			return null;
+		ClassMetaModel cmm = MetaManager.findClassMeta(label.getClass());
+		String s = cmm.getDomainLabel(NlsContext.getLocale(), label);
+		if(s == null)
+			s = String.valueOf(label);
+		return s;
+	}
+
+	/**
+	 * Get a label for the enum value "value" presented on the property passed. This will first
+	 * check to see if this property has overridden the labels for the enum before falling back
+	 * to the enum's global bundle.
+	 *
+	 * @param clz
+	 * @param property
+	 * @param value
+	 * @return
+	 */
+	static public String getEnumLabel(Class< ? > clz, String property, Object value) {
+		if(value == null)
+			return null;
+		return getEnumLabel(MetaManager.findPropertyMeta(clz, property), value);
+	}
+
+	/**
+	 * Get a label for the enum value "value" presented on the property passed. This will first
+	 * check to see if this property has overridden the labels for the enum before falling back
+	 * to the enum's global bundle.
+	 * @param pmm
+	 * @param value
+	 * @return
+	 */
+	static public String getEnumLabel(PropertyMetaModel< ? > pmm, Object value) {
+		if(value == null)
+			return null;
+		Locale loc = NlsContext.getLocale();
+		String v = pmm.getDomainValueLabel(loc, value);
+		if(v == null) {
+			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType());
+			v = cmm.getDomainLabel(loc, value);
+			if(v == null) {
+				if(value.getClass() != cmm.getActualClass()) {
+					cmm = MetaManager.findClassMeta(value.getClass());
+					v = cmm.getDomainLabel(loc, value);
+				}
+				if(v == null)
+					v = String.valueOf(value);
+			}
+		}
+		return v;
 	}
 }

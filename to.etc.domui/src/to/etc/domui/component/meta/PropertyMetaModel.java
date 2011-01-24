@@ -30,6 +30,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -43,16 +44,29 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2008
  */
-public interface PropertyMetaModel {
+public interface PropertyMetaModel<T> extends IValueAccessor<T> {
+	/**
+	 * The ClassModel that this property is a property of.
+	 * @return
+	 */
 	@Nonnull
-	public ClassMetaModel getClassModel();
+	ClassMetaModel getClassModel();
+
+	/**
+	 * If applicable, the value type's class model. Can be asked for explicitly to allow
+	 * for non-class-based metamodels. It will return null for all primitive and basic types.
+	 * @return
+	 */
+	@Nullable
+	ClassMetaModel getValueModel();
+
 
 	/**
 	 * Returns the actual type of the property's value. This is the return type of the getter function.
 	 * @return
 	 */
 	@Nonnull
-	public Class< ? > getActualType();
+	public Class<T> getActualType();
 
 	/**
 	 * The abomination that is Java Generics requires a separate dysfunctional type system to represent
@@ -101,6 +115,10 @@ public interface PropertyMetaModel {
 	 */
 	public int getPrecision();
 
+	/**
+	 * For numeric types, this returns any defined scale. If undefined this returns -1.
+	 * @return
+	 */
 	public int getScale();
 
 	/**
@@ -126,23 +144,12 @@ public interface PropertyMetaModel {
 	public SortableType getSortable();
 
 	/**
-	 * Return an Accessor which is an object that can get or set the value of this property when the object
-	 * instance is passed into it. This is usually just a wrapper for a single reflection Method invocation
-	 * but can be more complex when this PropertyMetaModel actually refers to a compound property (a property
-	 * that was synthesized from a path expression like relation.firstName).
-	 *
-	 * @return
-	 */
-	@Nonnull
-	public IValueAccessor< ? > getAccessor();
-
-	/**
 	 * Returns the user-specified converter to use when converting this property's value to and from string. Can be null.
 	 *
 	 * @return
 	 */
 	@Nullable
-	public IConverter< ? > getConverter();
+	public IConverter<T> getConverter();
 
 	/**
 	 * Whether the property is defined as requiring a value.
@@ -217,6 +224,10 @@ public interface PropertyMetaModel {
 	@Nullable
 	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer();
 
+	/**
+	 * When set this renderer should be used to render the nodes in the combobox.
+	 * @return
+	 */
 	@Nullable
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
 
@@ -228,9 +239,6 @@ public interface PropertyMetaModel {
 	 */
 	@Nonnull
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties();
-
-	@Nonnull
-	public List<DisplayPropertyMetaModel> getTableDisplayProperties();
 
 	/**
 	 * If this contains null the field can be seen by all users. If it has a value
@@ -259,6 +267,11 @@ public interface PropertyMetaModel {
 	@Nullable
 	public String[][] getEditRoles();
 
+	/**
+	 * Reports whether a property is readonly. For Java classes a property is defined as readOnly when it
+	 * has no "setter" method.
+	 * @return
+	 */
 	@Nonnull
 	public YesNoType getReadOnly();
 
@@ -282,7 +295,7 @@ public interface PropertyMetaModel {
 	 * @return
 	 */
 	@Nullable
-	public Class< ? extends INodeContentRenderer< ? >> getLookupFieldRenderer();
+	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer();
 
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
@@ -291,8 +304,35 @@ public interface PropertyMetaModel {
 	 * @return
 	 */
 	@Nonnull
-	public List<DisplayPropertyMetaModel> getLookupFieldDisplayProperties();
+	public List<DisplayPropertyMetaModel> getLookupSelectedProperties();
 
+	/**
+	 * When used in a {@link LookupInput} field, this fields are used to show the result of a Search in the DataTable.
+	 * @return
+	 */
+	@Nonnull
+	List<DisplayPropertyMetaModel> getLookupTableProperties();
+
+	/**
+	 * When used in a {@link LookupInput} field, this fields are used to create the search inputs.
+	 *
+	 * @return
+	 */
+	@Nonnull
+	List<SearchPropertyMetaModel> getLookupFieldSearchProperties();
+
+	/**
+	 * When used in a {@link LookupInput} field, this fields are used to create the keyword search inputs.
+	 *
+	 * @return
+	 */
+	@Nonnull
+	List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties();
+
+	/**
+	 * Get all validators to run on this property's input after conversion.
+	 * @return
+	 */
 	@Nullable
 	public PropertyMetaValidator[] getValidators();
 

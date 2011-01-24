@@ -1,0 +1,28 @@
+/*** Tree selector ***/
+.ui-tree .selected {
+	background: <%= selected_bg %> !important;
+}
+TD .ui-tree .selected:hover {
+	background: <%= selected_bg %> !important;
+}
+
+/*** Tree component ***/
+.ui-tree {
+	height: 100%;
+}
+
+.ui-tr-act {
+	cursor: pointer;
+}
+.ui-tr-val {
+	white-space: nowrap;
+}
+td.ui-tr-sel:hover {
+	background-color: #ffe1bf !important;
+}
+td.ui-tr-sel {
+	cursor: pointer;
+}
+td.ui-tr-selected {
+	background-color: white; !important;
+}

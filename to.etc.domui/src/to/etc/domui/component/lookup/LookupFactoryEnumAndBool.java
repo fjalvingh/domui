@@ -40,7 +40,7 @@ import to.etc.webapp.nls.*;
 final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 	@Override
 	public <X extends IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
-		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		Class< ? > iclz = pmm.getActualType();
 		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 2 : 0;
 	}
@@ -49,7 +49,7 @@ final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
 		IInputNode< ? > ctlnode = control;
 		if(ctlnode == null) {
-			PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+			PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 
 			// Create a domainvalued combobox by default.
 			Object[] vals = pmm.getDomainValues();

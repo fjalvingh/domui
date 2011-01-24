@@ -246,7 +246,7 @@ public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindab
 		forceRebuild();
 	}
 
-	public void defineFrom(@Nonnull PropertyMetaModel pmm) {
+	public void defineFrom(@Nonnull PropertyMetaModel< ? > pmm) {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			setTitle(s);

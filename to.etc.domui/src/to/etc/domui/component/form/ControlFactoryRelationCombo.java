@@ -45,7 +45,7 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public int accepts(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(ComboLookup.class))
 			return -1;
 
@@ -56,15 +56,14 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 		return 2;
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public <T> ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel<T> pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
 		if(!editable && controlClass == null) {
-			DisplayValue<Object> dv = new DisplayValue<Object>(Object.class); // No idea what goes in here.
+			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType()); // No idea what goes in here.
 			dv.defineFrom(pmm);
 			if(dv.getConverter() == null && dv.getRenderer() == null) {
-				INodeContentRenderer<Object> r = (INodeContentRenderer<Object>) MetaManager.createDefaultComboRenderer(pmm, null); // FIXME Needed?
+				INodeContentRenderer<T> r = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(pmm, null); // FIXME Needed?
 				dv.setRenderer(r);
 			}
 			return new ControlFactoryResult(dv, model, pmm);
@@ -74,15 +73,15 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 		//			throw new IllegalStateException("Implementation: please implement ReadOnly combobox thingy.");
 
 		//-- We need to add a ComboBox. Do we have a combobox dataset provider?
-		Class< ? extends IComboDataSet< ? >> set = pmm.getComboDataSet();
+		Class< ? extends IComboDataSet<T>> set = (Class< ? extends IComboDataSet<T>>) pmm.getComboDataSet();
 		if(set == null) {
-			set = pmm.getClassModel().getComboDataSet();
+			set = (Class< ? extends IComboDataSet<T>>) pmm.getClassModel().getComboDataSet();
 			if(set == null)
 				throw new IllegalStateException("Missing Combo dataset provider for property " + pmm);
 		}
 
-		INodeContentRenderer< ? > r = MetaManager.createDefaultComboRenderer(pmm, null);
-		ComboLookup< ? > co = new ComboLookup(set, r);
+		INodeContentRenderer<T> r = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(pmm, null);
+		ComboLookup<T> co = new ComboLookup<T>(set, r);
 		if(pmm.isRequired())
 			co.setMandatory(true);
 		String s = pmm.getDefaultHint();

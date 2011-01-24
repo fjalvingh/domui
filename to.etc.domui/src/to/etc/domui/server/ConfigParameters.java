@@ -41,7 +41,7 @@ public class ConfigParameters {
 
 	private File m_webFileRoot;
 
-	ConfigParameters(FilterConfig fc, File webFileRoot) {
+	public ConfigParameters(FilterConfig fc, File webFileRoot) {
 		m_fc = fc;
 		m_webFileRoot = webFileRoot;
 	}

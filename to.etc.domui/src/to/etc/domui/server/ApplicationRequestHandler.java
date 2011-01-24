@@ -29,6 +29,7 @@ import java.util.*;
 import org.slf4j.*;
 
 import to.etc.domui.annotations.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -222,7 +223,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				}
 			}
 		}
-		PageContext.internalSet(page);
+		UIContext.internalSet(page);
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
 		List<NodeBase> pendingChangeList = Collections.EMPTY_LIST;
@@ -371,7 +372,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(rann == null)
 			return true;
 		//-- Get user's IUser; if not present we need to log in.
-		IUser user = PageContext.getCurrentUser(); // Currently logged in?
+		IUser user = UIContext.getCurrentUser(); // Currently logged in?
 		if(user == null) {
 			//-- Create the after-login target URL.
 			StringBuilder sb = new StringBuilder(256);
@@ -589,6 +590,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
 				//-- Don't do anything at all - everything is done beforehand (bug #664).
 				;
+			} else if(Constants.ACMD_DEVTREE.equals(action)) {
+				handleDevelopmentShowCode(ctx, page, wcomp);
 			} else if(Constants.ACMD_ASYPOLL.equals(action)) {
 				inhibitlog = true;
 				//-- Async poll request..
@@ -656,6 +659,27 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				return;
 			}
 		}
+	}
+
+	/**
+	 * Called in DEVELOPMENT mode when the source code for a page is requested (double escape press). It shows
+	 * the nodes from the entered one upto the topmost one, and when selected tries to open the source code
+	 * by sending a command to the local Eclipse.
+	 *
+	 * @param ctx
+	 * @param page
+	 * @param wcomp
+	 */
+	private void handleDevelopmentShowCode(RequestContextImpl ctx, Page page, NodeBase wcomp) {
+		if(null == wcomp)
+			return;
+
+		//-- If a tree is already present ignore the click.
+		List<InternalParentTree> res = page.getBody().getDeepChildren(InternalParentTree.class);
+		if(res.size() > 0)
+			return;
+		InternalParentTree ipt = new InternalParentTree(wcomp);
+		page.getBody().add(0, ipt);
 	}
 
 	static public void renderOptimalDelta(final RequestContextImpl ctx, final Page page) throws Exception {

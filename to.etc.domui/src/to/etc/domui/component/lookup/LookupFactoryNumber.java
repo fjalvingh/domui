@@ -50,7 +50,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		if(control != null)
 			throw new IllegalStateException();
 
-		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		final List<ValueLabelPair<NumericRelationType>> values = new ArrayList<ValueLabelPair<NumericRelationType>>();
 		for(NumericRelationType relationEnum : NumericRelationType.values()) {
 			values.add(new ValueLabelPair<NumericRelationType>(relationEnum, MetaManager.findClassMeta(NumericRelationType.class).getDomainLabel(NlsContext.getLocale(), relationEnum)));
@@ -93,17 +93,17 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 			}*/
 
 			@Override
-			public boolean appendCriteria(QCriteria< ? > crit) throws Exception {
+			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
 				NumericRelationType relation;
 				relation = relationCombo.getValue();
 				if(relation == null) {
-					return true;
+					return AppendCriteriaResult.EMPTY;
 				}
 				if(!numA.validate()) {
-					return false;
+					return AppendCriteriaResult.INVALID;
 				}
 				if(relation == NumericRelationType.BETWEEN && !numB.validate()) {
-					return false;
+					return AppendCriteriaResult.INVALID;
 				}
 				switch(relation){
 					case EQ:
@@ -128,13 +128,13 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 						crit.between(spm.getPropertyName(), numA.getValue(), numB.getValue());
 						break;
 				}
-				return true;
+				return AppendCriteriaResult.VALID;
 			}
 		};
 	}
 
-	private <T> Text<T> createNumericInput(final PropertyMetaModel pmm) {
-		Class<T> iclz = (Class<T>) pmm.getActualType();
+	private <T> Text<T> createNumericInput(final PropertyMetaModel<T> pmm) {
+		Class<T> iclz = pmm.getActualType();
 
 		//-- Create first text control that accept any numeric type.
 		final Text<T> numText = new Text<T>(iclz);
@@ -160,7 +160,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		} else if(pmm.getLength() > 0) {
 			numText.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
 		}
-		IConverter<T> cvt = (IConverter<T>) ConverterRegistry.findBestConverter(pmm);
+		IConverter<T> cvt = ConverterRegistry.findBestConverter(pmm);
 		numText.setConverter(cvt);
 
 		if(pmm.getLength() > 0)
@@ -178,7 +178,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
 		if(control != null)
 			return -1;
-		PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+		PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		if(DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class) {
 			if(pmm.getComponentTypeHint() != null && pmm.getComponentTypeHint().toLowerCase().contains("numberlookupcombo"))
 				return 8;

@@ -1,0 +1,8 @@
+/* have to put it here since it uses color replacement */
+.ui-hor-divider {
+	min-width: 0px;
+	max-width: 0px;
+	width: 0px;
+	border-left: 2px dotted #6b99e8; /*#6b99e8;*/
+	background-color: #e5e5e5;
+}

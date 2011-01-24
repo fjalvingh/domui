@@ -32,7 +32,7 @@ package to.etc.domui.util.resources;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2008
  */
-final public class ResourceTimestamp {
+final public class ResourceTimestamp implements IIsModified {
 	private IModifyableResource m_ref;
 
 	private long m_ts;

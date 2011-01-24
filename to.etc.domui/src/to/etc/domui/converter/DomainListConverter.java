@@ -27,7 +27,6 @@ package to.etc.domui.converter;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
@@ -38,9 +37,9 @@ import to.etc.domui.util.*;
  * Created on Nov 17, 2009
  */
 public final class DomainListConverter implements IConverter<Object> {
-	private PropertyMetaModel m_pmm;
+	private PropertyMetaModel< ? > m_pmm;
 
-	public DomainListConverter(PropertyMetaModel pmm) {
+	public DomainListConverter(PropertyMetaModel< ? > pmm) {
 		m_pmm = pmm;
 	}
 
@@ -52,7 +51,7 @@ public final class DomainListConverter implements IConverter<Object> {
 	public String convertObjectToString(Locale loc, Object in) throws UIException {
 		if(in == null)
 			return null;
-		return UIControlUtil.getEnumLabel(m_pmm, in);
+		return MetaManager.getEnumLabel(m_pmm, in);
 	}
 
 	/**
@@ -66,7 +65,7 @@ public final class DomainListConverter implements IConverter<Object> {
 			return null;
 		Object[] ar = m_pmm.getDomainValues();
 		for(Object o: ar) {
-			String v = UIControlUtil.getEnumLabel(m_pmm, o);
+			String v = MetaManager.getEnumLabel(m_pmm, o);
 			if(v.equalsIgnoreCase(in))
 				return o;
 		}

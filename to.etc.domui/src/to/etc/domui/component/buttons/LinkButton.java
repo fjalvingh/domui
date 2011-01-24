@@ -25,7 +25,7 @@
 package to.etc.domui.component.buttons;
 
 import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 /**
@@ -42,16 +42,27 @@ public class LinkButton extends ATag {
 	public LinkButton() {}
 
 	public LinkButton(final String txt, final String image, final IClicked<LinkButton> clk) {
-		setCssClass("ui-lbtn");
+		setCssClass("ui-lnkb ui-lbtn");
 		setClicked(clk);
 		m_text = txt;
 		setImage(image);
 	}
 
 	public LinkButton(final String txt, final String image) {
-		setCssClass("ui-lbtn");
+		setCssClass("ui-lnkb ui-lbtn");
 		m_text = txt;
 		setImage(image);
+	}
+
+	public LinkButton(final String txt) {
+		setCssClass("ui-lnkb");
+		m_text = txt;
+	}
+
+	public LinkButton(final String txt, final IClicked<LinkButton> clk) {
+		setCssClass("ui-lnkb");
+		setClicked(clk);
+		m_text = txt;
 	}
 
 	@Override
@@ -72,7 +83,13 @@ public class LinkButton extends ATag {
 	}
 
 	private void updateStyle() {
-		setBackgroundImage(PageContext.getRequestContext().translateResourceName(m_imageUrl));
+		if(m_imageUrl == null) {
+			setBackgroundImage(null);
+			setCssClass("ui-lnkb");
+		} else {
+			setBackgroundImage(DomApplication.get().getThemedResourceRURL(m_imageUrl));
+			setCssClass("ui-lnkb ui-lbtn");
+		}
 	}
 
 	@Override

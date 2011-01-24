@@ -55,7 +55,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 				return -1;
 		}
 
-		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		return DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class ? 4 : -1;
 	}
 
@@ -66,7 +66,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
-		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		Text<String> numText = (Text<String>) control;
 		if(numText == null) {
 			numText = new Text<String>(String.class);
@@ -108,7 +108,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 		return new LookupNumberControl<Number>((Class<Number>) pmm.getActualType(), numText, spm.getPropertyName(), Double.valueOf(-minmax.doubleValue()), minmax, monetary);
 	}
 
-	static private double calcMaxValue(PropertyMetaModel pmm) {
+	static private double calcMaxValue(PropertyMetaModel< ? > pmm) {
 		int prec = pmm.getPrecision();
 		if(prec > 0) {
 			int scale = pmm.getScale();

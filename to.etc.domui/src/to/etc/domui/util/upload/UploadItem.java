@@ -26,6 +26,18 @@ package to.etc.domui.util.upload;
 
 import java.io.*;
 
+import javax.annotation.*;
+
+/**
+ * An item that was gotten through the multipart/form data code. This
+ * can represent an uploaded file, and all of the metadata that the
+ * browser has sent while it uploaded the file. When used from a page,
+ * the actual file data will be deleted as soon as the page is destroyed,
+ * you must make a copy if you want to retain the data.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jan 12, 2011
+ */
 final public class UploadItem {
 	private String m_fieldName;
 
@@ -49,6 +61,10 @@ final public class UploadItem {
 		m_file = isfile;
 	}
 
+	/**
+	 * T if this actually contains a file (it is not just a parameter).
+	 * @return
+	 */
 	public boolean isFile() {
 		return m_file;
 	}
@@ -76,6 +92,10 @@ final public class UploadItem {
 	//		super.finalize();
 	//	}
 
+	/**
+	 * If known, the character set for how the data is to be decoded. Can be null.
+	 */
+	@Nullable
 	public String getCharSet() {
 		return m_charset;
 	}
@@ -84,6 +104,11 @@ final public class UploadItem {
 	//		return getCharSet() == null ? "ISO-8859-1" : getCharSet();
 	//	}
 	//
+
+	/**
+	 * If this is a parameter and not a File, this contains the parameter's value, decoded
+	 * using the browser-specified character encoding.
+	 */
 	public String getValue() {
 		return m_value;
 	}
@@ -96,18 +121,39 @@ final public class UploadItem {
 		m_backingFile = f;
 	}
 
+	/**
+	 * The name of the input field.
+	 * @return
+	 */
+	@Nonnull
 	public String getName() {
 		return m_fieldName;
 	}
 
+	/**
+	 * If specified, the name that the browser provided as the "local file name", i.e. the name
+	 * of the file on the browser's file system that was selected for upload. Will not usually
+	 * contain a path.
+	 * @return
+	 */
+	@Nullable
 	public String getRemoteFileName() {
 		return m_fileName;
 	}
 
+	/**
+	 * If specified, the MIME content type the browser provided during the upload.
+	 * @return
+	 */
+	@Nullable
 	public String getContentType() {
 		return m_contentType;
 	}
 
+	/**
+	 * If this is a FILE item, this contains the size, in bytes, of the uploaded file.
+	 * @return
+	 */
 	public int getSize() {
 		if(isFile() && m_backingFile == null)
 			throw new IllegalStateException("The file has already been closed (deleted)");
@@ -116,6 +162,10 @@ final public class UploadItem {
 		return 0;
 	}
 
+	/**
+	 * SILLY_INTERFACE? If this holds no value it returns true.
+	 * @return
+	 */
 	public boolean isEmpty() {
 		return m_fileName == null;
 	}
@@ -135,6 +185,7 @@ final public class UploadItem {
 	/**
 	 * When the request finishes and no-one has gotten this parameter the file must be discarded.
 	 */
+	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE", justification = "FindBugs definition is wrong for mkdirs, and delete() may fail in code here")
 	void discard() {
 		if(m_backingFile == null)
 			return;

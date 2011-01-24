@@ -44,7 +44,7 @@ public class ControlFactoryDate implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public int accepts(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(DateInput.class))
 			return -1;
 
@@ -56,7 +56,7 @@ public class ControlFactoryDate implements ControlFactory {
 	}
 
 	@Override
-	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public <T> ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel<T> pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(!editable && (controlClass == null || controlClass.isAssignableFrom(Text.class))) {
 			//			Text<Date> txt = new Text<Date>(Date.class);
 			//			txt.setReadOnly(true);
@@ -86,7 +86,7 @@ public class ControlFactoryDate implements ControlFactory {
 			}
 
 			txt.setConverter(ConverterRegistry.getConverterInstance(cc));
-			return new ControlFactoryResult(txt, model, pmm);
+			return new ControlFactoryResult(txt, model, (PropertyMetaModel<Date>) pmm);
 		}
 
 		DateInput di = new DateInput();
@@ -99,6 +99,6 @@ public class ControlFactoryDate implements ControlFactory {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			di.setTitle(s);
-		return new ControlFactoryResult(di, model, pmm);
+		return new ControlFactoryResult(di, model, (PropertyMetaModel<Date>) pmm);
 	}
 }

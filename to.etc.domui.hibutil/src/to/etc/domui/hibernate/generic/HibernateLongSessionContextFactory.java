@@ -35,6 +35,10 @@ public class HibernateLongSessionContextFactory extends AbstractHibernateContext
 		super(eventSet, sessionMaker);
 	}
 
+	public HibernateLongSessionContextFactory(HibernateSessionMaker sessionMaker) {
+		super(sessionMaker);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QDataContextFactory#getDataContext()

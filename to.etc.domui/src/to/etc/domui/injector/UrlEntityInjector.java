@@ -103,7 +103,7 @@ public class UrlEntityInjector extends PropertyInjector {
 	protected Object getKeyInstance(QDataContext dc, final UrlPage page, String pv) throws Exception {
 		//-- Try to find the PK for this entity
 		ClassMetaModel cmm = MetaManager.findClassMeta(m_entityClass); // Locatish
-		PropertyMetaModel pmm = cmm.getPrimaryKey(); // Find it's PK;
+		PropertyMetaModel< ? > pmm = cmm.getPrimaryKey(); // Find it's PK;
 		if(pmm == null)
 			throw new RuntimeException("Cannot find the primary key property for entity class '" + m_entityClass + "' for URL parameter=" + m_name + " of page=" + page.getClass() + ": ");
 

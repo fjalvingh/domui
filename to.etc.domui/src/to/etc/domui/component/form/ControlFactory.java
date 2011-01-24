@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.form;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 
@@ -48,7 +50,7 @@ public interface ControlFactory {
 	 * @param context TODO
 	 * @return
 	 */
-	int accepts(PropertyMetaModel pmm, boolean editable, Class< ? > controlClass, Object context);
+	int accepts(@Nonnull PropertyMetaModel< ? > pmm, boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context);
 
 	/**
 	 * This MUST create all nodes necessary for a control to edit the specified item. The nodes must be added
@@ -64,7 +66,7 @@ public interface ControlFactory {
 	 *
 	 * @return
 	 */
-	ControlFactoryResult createControl(IReadOnlyModel< ? > model, PropertyMetaModel pmm, boolean editable, Class< ? > controlClass, Object context);
+	<T> ControlFactoryResult createControl(@Nonnull IReadOnlyModel< ? > model, @Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context);
 
 	static public final ControlFactory TEXTAREA_CF = new ControlFactoryTextArea();
 

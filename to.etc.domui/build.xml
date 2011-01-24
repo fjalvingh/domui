@@ -46,17 +46,21 @@
 	</target>
 
 	<target name="doc" depends="init">
-		<mkdir dir="doc" />
-	  	<javadoc destdir="javadoc">
-	  		<fileset dir="src">
-	  			<include name="**/*.java" />
-	  		</fileset>
+		<mkdir dir="javadoc" />
+	  	<javadoc destdir="javadoc" use="true" excludepackagenames="resources" encoding="utf-8" classpathref="project.class.path">
+	  		<sourcepath path="src" />
+	  		<sourcepath path="../to.etc.webapp.core/src" />
+	  		<sourcepath path="../to.etc.domui.hibutil/src" />
+	  		<sourcepath path="../to.etc.alg/src" />
+	  		<sourcepath path="../to.etc.db/src" />
+	  		<sourcepath path="../../shared/to.etc.alg/src" />
+	  		<sourcepath path="../../shared/to.etc.db/src" />
 	  	</javadoc>
-	  	<jar jarfile="${ant.project.name}-doc.jar" basedir="doc" compress="false" />
+	  	<jar jarfile="${ant.project.name}-doc.jar" basedir="javadoc" compress="true" />
 	</target>
 	
   	<!--Deploy project-->
-  	<target name="deploy" depends="compile">
+  	<target name="deploy" depends="compile,doc">
     	<jar jarfile="${ant.project.name}.jar" basedir="bin" compress="false" />
   	</target>
 </project>

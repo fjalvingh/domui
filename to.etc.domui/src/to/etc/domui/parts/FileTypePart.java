@@ -46,7 +46,7 @@ public class FileTypePart implements IBufferedPartFactory {
 	}
 
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull ResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
 		String ext = ((String) key).substring(PREFIX.length()).toLowerCase();
 
 		//-- Can we locate a filetype of that type in the web resources?

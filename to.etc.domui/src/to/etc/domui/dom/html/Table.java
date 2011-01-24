@@ -109,31 +109,17 @@ public class Table extends NodeContainer {
 		}
 	}
 
+	/**
+	 * Forbid some often made node errors in table's content model.
+	 * @see to.etc.domui.dom.html.NodeContainer#canContain(to.etc.domui.dom.html.NodeBase)
+	 */
 	@Override
-	public void add(final int index, final NodeBase nd) {
-		if(nd instanceof TR) {
-			//			if(true)
+	protected void canContain(NodeBase node) {
+		if(node instanceof TextNode)
+			throw new IllegalStateException("Dont be silly- cannot add text to a table");
+		if(node instanceof TR)
 			throw new IllegalStateException("Add TR's to the TBody, not the Table");
-			//			System.out.println("info: Please use a TBody in a table to add rows to; I now have to add it by myself, slowly.");
-			//			getBody().add(index, nd);
-		} else
-			super.add(index, nd);
-	}
-
-	@Override
-	public void add(final NodeBase nd) {
-		if(nd instanceof TR) {
-			//			if(true)
-			throw new IllegalStateException("Add TR's to the TBody, not the Table");
-			//			System.out.println("info: Please use a TBody in a table to add rows to; I now have to add it by myself, slowly.");
-			//			getBody().add(nd);
-		} else
-			super.add(nd);
-	}
-
-	@Override
-	public void add(final String txt) {
-		throw new IllegalStateException("Dont be silly- cannot add text to a table");
+		super.canContain(node);
 	}
 
 	public TBody getBody() {

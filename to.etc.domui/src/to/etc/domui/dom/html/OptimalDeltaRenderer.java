@@ -320,8 +320,11 @@ public class OptimalDeltaRenderer {
 			nd.visit(m_fullRenderer);
 			o().closetag("prepend");
 		} else {
+			NodeBase pre = parent.getChild(nd.m_origNewIndex - 1);
+			if(pre instanceof TextNode)
+				throw new IllegalStateException("Internal: attempting to insert after a #text node");
 			o().tag("after");
-			o().attr("select", "#" + parent.getChild(nd.m_origNewIndex - 1).getActualID());
+			o().attr("select", "#" + pre.getActualID());
 			m_html.setTagless(false);
 			nd.visit(m_fullRenderer);
 			o().closetag("after");
@@ -463,7 +466,7 @@ public class OptimalDeltaRenderer {
 	 */
 	private void doBase(NodeInfo parentInfo, NodeBase n) throws Exception {
 		//-- The tree here is not dirty -> I will not be re-rendered. Have my attributes changed?
-		if(n.hasChangedAttributes()) {
+		if(n.internalHasChangedAttributes()) {
 			//-- Add me to the "change attributes" list of my owner.
 			parentInfo.addAttrChange(n); // FIXME must be delta-aware
 		}
@@ -492,7 +495,7 @@ public class OptimalDeltaRenderer {
 		if(!n.isBuilt())
 			throw new IllegalStateException("Node " + n + " is not BUILT in delta renderer");
 //		n.build();
-		NodeBase[] oldl = n.getOldChildren();
+		NodeBase[] oldl = n.internalGetOldChildren();
 		if(oldl != null) {
 			/*
 			 * There is a tree delta; this is valid ONLY if this node existed earlier. If the node did not exist
@@ -510,7 +513,7 @@ public class OptimalDeltaRenderer {
 		}
 
 		//-- The tree here is not dirty -> I will not be re-rendered. Have my attributes changed?
-		if(n.hasChangedAttributes()) {
+		if(n.internalHasChangedAttributes()) {
 			//-- Add me to the "change attributes" list of my owner.
 			parentChanges.addAttrChange(n); // FIXME must be delta-aware
 		}
@@ -519,7 +522,7 @@ public class OptimalDeltaRenderer {
 		if(n.childHasUpdates()) {
 			doContainerChildren(parentChanges, n);
 		}
-		n.clearDelta();
+		n.internalClearDelta();
 	}
 
 	/**
@@ -532,7 +535,7 @@ public class OptimalDeltaRenderer {
 	private void doTreeDeltaOn(NodeInfo parentInfo, NodeContainer nc) throws Exception {
 		if(DEBUG)
 			System.out.println("... deltaing tree on " + nc.getActualID());
-		NodeBase[] oldar = nc.getOldChildren();
+		NodeBase[] oldar = nc.internalGetOldChildren();
 		List<NodeBase> newl = nc.internalGetChildren();
 		NodeInfo ni = makeNodeInfo(nc);
 
@@ -601,7 +604,7 @@ public class OptimalDeltaRenderer {
 			nn.m_origNewIndex = i; // The actual index for the new node.
 
 			//-- Is this an addition from somewhere else? If so handle it here && remove from the working list
-			if(nn.getOldParent() == null || nn.getOldParent() != nc || !m_page.getBeforeMap().containsKey(nn.getActualID())) {
+			if(nn.internalGetOldParent() == null || nn.internalGetOldParent() != nc || !m_page.getBeforeMap().containsKey(nn.getActualID())) {
 				//-- Came from somewhere else or is new -> render.
 				/*
 				 * This node is NEW in this tree. We're pretty sure we need to ADD it then. This has
@@ -672,19 +675,19 @@ public class OptimalDeltaRenderer {
 				nix++;
 
 				//-- The tree here is not dirty -> I will not be re-rendered. Have my attributes changed?
-				if(on.hasChangedAttributes())
+				if(on.internalHasChangedAttributes())
 					ni.addAttrChange(nn); // Add this node's changes to me (the node itself will not be rerendered IF I am not rerendered)
 				if(nn instanceof NodeContainer) {
 					//-- Node is a container -> handle children.
 					NodeContainer nnc = (NodeContainer) nn;
 					//					if(nnc.childHasUpdates() ) {					// jal 20081119 does not see it's children have been deleted??
-					if(nnc.childHasUpdates() || nnc.getOldChildren() != null) {
+					if(nnc.childHasUpdates() || nnc.internalGetOldChildren() != null) {
 						if(DEBUG)
 							System.out.println("o: handle child updates for container=" + nnc.getActualID());
 						doContainer(ni, nnc);
 					}
 				}
-				nn.clearDelta();
+				nn.internalClearDelta();
 				continue;
 			}
 
@@ -736,13 +739,30 @@ public class OptimalDeltaRenderer {
 			ni.addAdd(nn.m_origNewIndex, nn);
 		}
 
+		/*
+		 * Lousy attempt at fixing bug# 659. If we can see we're inserting after a #text node- force
+		 * a re-render of the parent.
+		 */
+		for(NodeBase nb : ni.addList) {
+			if(nb.m_origNewIndex == 0)
+				continue;
+			NodeBase pre = nc.getChild(nb.m_origNewIndex - 1);
+			if(pre instanceof TextNode) {
+				ni.setFullRerender();
+				if(DEBUG)
+					System.out.println("o:   adding after #text " + nb.getActualID() + ", force full render");
+			}
+		}
+
 		//-- Re-decide again: if the #of adds and deletes is > the size of the new list we re-render
-		int ncmd = ni.deleteList.size() + ni.addList.size();
-		if((double) ncmd / (double) newl.size() > 0.9) {
-			//-- re-render fully.
-			ni.setFullRerender();
-			if(DEBUG)
-				System.out.println("o: final verdict on " + nc.getActualID() + ": #cmds=" + ncmd + " and newsize=" + newl.size() + ", rerender-fully.");
+		if(!ni.isFullRender) {
+			int ncmd = ni.deleteList.size() + ni.addList.size();
+			if((double) ncmd / (double) newl.size() > 0.9) {
+				//-- re-render fully.
+				ni.setFullRerender();
+				if(DEBUG)
+					System.out.println("o: final verdict on " + nc.getActualID() + ": #cmds=" + ncmd + " and newsize=" + newl.size() + ", rerender-fully.");
+			}
 		}
 
 		//-- Add this delta node to it's parent, if needed.

@@ -51,12 +51,24 @@ public class DateInput extends Text<Date> {
 
 	private boolean m_hideTodayButton;
 
+	/**
+	 * Default constructor creates a date-only input.
+	 */
 	public DateInput() {
+		this(false);
+	}
+
+	/**
+	 * Create a date or dateTime input.
+	 * @param withtime
+	 */
+	public DateInput(boolean withtime) {
 		super(Date.class);
 		setMaxLength(10);
 		setSize(10);
 		setConverter(ConverterRegistry.getConverterInstance(DateConverter.class));
 		m_selCalButton = new SmallImgButton("THEME/btn-datein.png");
+		setWithTime(withtime);
 	}
 
 	@Override

@@ -36,27 +36,27 @@ import to.etc.webapp.*;
  */
 public class MetaUtils {
 	/**
-	 * Use in component hint when rendering componet maxsize should not calculate extra space for minus sign.   
+	 * Use in component hint when rendering componet maxsize should not calculate extra space for minus sign.
 	 */
 	public static final String NO_MINUS = "no-minus";
 
 	/**
-	 * Use in component hint when rendering componet maxsize should not calculate extra space for thousent separators.   
+	 * Use in component hint when rendering componet maxsize should not calculate extra space for thousent separators.
 	 */
 	public static final String NO_SEPARATOR = "no-separator";
 
 	/**
-	 * Use in component hint when rendering of TextArea component is required.   
+	 * Use in component hint when rendering of TextArea component is required.
 	 */
 	public static final String TEXT_AREA = "textarea";
 
 	/**
-	 * Use in component hint when setting default rows attribute for TextArea based components.   
+	 * Use in component hint when setting default rows attribute for TextArea based components.
 	 */
 	public static final String ROW = "row";
 
 	/**
-	 * Use in component hint when setting default cols attribute for TextArea based components.   
+	 * Use in component hint when setting default cols attribute for TextArea based components.
 	 */
 	public static final String COL = "col";
 
@@ -97,25 +97,25 @@ public class MetaUtils {
 	 * @param pl
 	 * @return
 	 */
-	static public PropertyMetaModel findLastProperty(List<PropertyMetaModel> pl) {
+	static public PropertyMetaModel< ? > findLastProperty(List<PropertyMetaModel< ? >> pl) {
 		if(pl == null || pl.size() == 0)
 			return null;
 		return pl.get(pl.size() - 1);
 	}
 
-	static public PropertyMetaModel findLastProperty(SearchPropertyMetaModel spm) {
+	static public PropertyMetaModel< ? > findLastProperty(SearchPropertyMetaModel spm) {
 		return findLastProperty(spm.getPropertyPath());
 	}
 
-	static public PropertyMetaModel getLastProperty(List<PropertyMetaModel> pl) {
-		PropertyMetaModel m = findLastProperty(pl);
+	static public PropertyMetaModel< ? > getLastProperty(List<PropertyMetaModel< ? >> pl) {
+		PropertyMetaModel< ? > m = findLastProperty(pl);
 		if(m == null)
 			throw new IllegalStateException("No property in property list");
 		return m;
 	}
 
-	static public PropertyMetaModel getLastProperty(SearchPropertyMetaModel spm) {
-		PropertyMetaModel m = findLastProperty(spm);
+	static public PropertyMetaModel< ? > getLastProperty(SearchPropertyMetaModel spm) {
+		PropertyMetaModel< ? > m = findLastProperty(spm);
 		if(m == null)
 			throw new IllegalStateException("The search property " + spm.getPropertyName() + " is not found");
 		return m;
@@ -124,7 +124,7 @@ public class MetaUtils {
 	static public String findHintText(SearchPropertyMetaModel spm) {
 		String hint = spm.getLookupHint();
 		if(hint == null) {
-			PropertyMetaModel pmm = findLastProperty(spm);
+			PropertyMetaModel< ? > pmm = findLastProperty(spm);
 			if(pmm != null)
 				hint = pmm.getDefaultHint();
 		}

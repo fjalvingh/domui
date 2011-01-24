@@ -45,7 +45,7 @@ public class ControlFactoryMoney implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
-	public int accepts(final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public int accepts(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(Text.class)) // This will create a Text class,
 			return -1;
 		Class<?> clz = pmm.getActualType();
@@ -62,7 +62,7 @@ public class ControlFactoryMoney implements ControlFactory {
 	 */
 	@Override
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public <T> ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel<T> pmm, final boolean editable, Class< ? > controlClass, Object context) {
 		Class< ? > iclz = pmm.getActualType();
 
 		if(!editable) {
@@ -81,11 +81,11 @@ public class ControlFactoryMoney implements ControlFactory {
 			return new ControlFactoryResult(dv, model, pmm);
 		}
 
-		Text<?> txt;
+		Text<T> txt;
 		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
-			txt = UIControlUtil.createDoubleMoneyInput(pmm, editable);
+			txt = (Text<T>) UIControlUtil.createDoubleMoneyInput(pmm, editable);
 		} else if(pmm.getActualType() == BigDecimal.class) {
-			txt = UIControlUtil.createBDMoneyInput(pmm, editable);
+			txt = (Text<T>) UIControlUtil.createBDMoneyInput(pmm, editable);
 		} else
 				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
 		return new ControlFactoryResult(txt, model, pmm);

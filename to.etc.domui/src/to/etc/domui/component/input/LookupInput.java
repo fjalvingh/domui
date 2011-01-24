@@ -137,6 +137,10 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	@Nullable
 	private List<SearchPropertyMetaModel> m_keywordLookupPropertyList;
 
+	/** The search properties to use in the lookup form when created. If null uses the default attributes on the class. */
+	@Nullable
+	private List<SearchPropertyMetaModel> m_searchPropertyList;
+
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass, (ClassMetaModel) null);
 		m_resultColumns = resultColumns;
@@ -302,7 +306,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 
 		rr.setRowClicked(new ICellClicked<T>() {
 			@Override
-			public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
+			public void cellClicked(NodeBase tr, T val) throws Exception {
 				handleSetValue(val);
 			}
 		});
@@ -364,22 +368,22 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	}
 
 	private String getDefaultKeySearchHint() {
-		String result = null;
 		List<SearchPropertyMetaModel> spml = getMetaModel().getKeyWordSearchProperties();
-		if(spml.size() > 0) {
-			result = "";
-			for(int i = 0; i < spml.size(); i++) {
-				SearchPropertyMetaModel spm = spml.get(i);
-				if(spm.getLookupLabel() != null) {
-					result = result + spm.getLookupLabel();
-				} else {
-					result = result + getMetaModel().findProperty(spm.getPropertyName()).getDefaultLabel();
-				}
-				if(i < spml.size() - 1)
-					result = result + ", ";
+		if(spml.size() <= 0)
+			return null;
+
+		StringBuilder sb = new StringBuilder(128);
+		for(int i = 0; i < spml.size(); i++) {
+			if(sb.length() > 0)
+				sb.append(", ");
+			SearchPropertyMetaModel spm = spml.get(i);
+			if(spm.getLookupLabel() != null) {
+				sb.append(spm.getLookupLabel());
+			} else {
+				sb.append(getMetaModel().findProperty(spm.getPropertyName()).getDefaultLabel());
 			}
 		}
-		return result;
+		return sb.toString();
 	}
 
 	/**
@@ -415,7 +419,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 						if(spm.getPropertyName() == null)
 							throw new ProgrammerErrorException("The quick lookup properties for " + getMetaModel() + " are invalid: the property name is null");
 
-						List<PropertyMetaModel> pl = MetaManager.parsePropertyPath(getMetaModel(), spm.getPropertyName()); // This will return an empty list on empty string input
+						List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getMetaModel(), spm.getPropertyName()); // This will return an empty list on empty string input
 						if(pl.size() == 0)
 							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + getMetaModel());
 
@@ -496,7 +500,14 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			m_floater.add((NodeBase) m_customErrorMessageListener);
 			DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
 		}
-		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(getLookupClass(), getMetaModel());
+		LookupForm<T> lf;
+		if(getExternalLookupForm() != null) {
+			lf = getExternalLookupForm();
+		} else {
+			 lf = new LookupForm<T>(getLookupClass(), getMetaModel());
+			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
+				lf.setSearchProperties(m_searchPropertyList);
+		}
 
 		lf.setRenderAsCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
@@ -542,7 +553,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			}
 		}
 		m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-		if(!c.hasRestrictions() && !isAllowEmptyQuery()) {
+		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
 			m_floater.addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
 			return;
 		} else
@@ -578,7 +589,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 
 			rr.setRowClicked(new ICellClicked<T>() {
 				@Override
-				public void cellClicked(Page pg, NodeBase tr, T val) throws Exception {
+				public void cellClicked(NodeBase tr, T val) throws Exception {
 					//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
 					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					LookupInput.this.toggleFloater(null);
@@ -953,6 +964,22 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 		si.setPropertyName(name);
 		si.setIgnoreCase(true);
 		m_keywordLookupPropertyList.add(si);
+	}
+
+	public void setKeywordSearchProperties(List<SearchPropertyMetaModel> keywordLookupPropertyList) {
+		m_keywordLookupPropertyList = keywordLookupPropertyList;
+	}
+
+	/**
+	 * Set the list of lookup properties to use for lookup in the lookup form, when shown.
+	 * @return
+	 */
+	public List<SearchPropertyMetaModel> getSearchProperties() {
+		return m_searchPropertyList;
+	}
+
+	public void setSearchProperties(List<SearchPropertyMetaModel> searchPropertyList) {
+		m_searchPropertyList = searchPropertyList;
 	}
 
 	/**

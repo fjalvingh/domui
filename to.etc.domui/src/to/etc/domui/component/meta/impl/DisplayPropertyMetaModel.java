@@ -38,7 +38,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 6, 2009
  */
-public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
+public class DisplayPropertyMetaModel {
 	private String m_name;
 
 	private String m_join;
@@ -51,6 +51,12 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	private ClassMetaModel m_containedInClass;
 
 	private String m_labelKey;
+
+	private IConverter< ? > m_converter;
+
+	private SortableType m_sortable = SortableType.UNKNOWN;
+
+	private int m_displayLength = -1;
 
 	public DisplayPropertyMetaModel() {}
 
@@ -68,10 +74,24 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 		setConverter(c);
 		setSortable(p.defaultSortable());
 		setDisplayLength(p.displayLength());
-		setReadOnly(p.readOnly());
 		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();
-		setRenderHint(p.renderHint());
+//		setReadOnly(p.readOnly());		jal 20101220 Removed, unused and seems silly in table display
+//		setRenderHint(p.renderHint());	jal 20101220 Removed, unused and seems silly in table display
 	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public DisplayPropertyMetaModel(ClassMetaModel cmm, MetaComboProperty p) {
+		m_containedInClass = cmm;
+		m_name = p.name();
+		//		setConverter((p.converterClass() == DummyConverter.class ? null : ConverterRegistry.getConverterInstance(p.converterClass())));
+		// 20091123 This kludge below (Raw class cast) is needed because otherwise the JDK compiler pukes on this generics abomination.
+		IConverter< ? > c = null;
+		if(p.converterClass() != DummyConverter.class)
+			c = ConverterRegistry.getConverterInstance((Class) p.converterClass());
+		setConverter(c);
+		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();
+	}
+
 
 	/**
 	 * Converts a list of MetaDisplayProperty annotations into their metamodel equivalents.
@@ -82,6 +102,20 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	static public List<DisplayPropertyMetaModel> decode(ClassMetaModel cmm, MetaDisplayProperty[] mar) {
 		List<DisplayPropertyMetaModel> list = new ArrayList<DisplayPropertyMetaModel>(mar.length);
 		for(MetaDisplayProperty p : mar) {
+			list.add(new DisplayPropertyMetaModel(cmm, p));
+		}
+		return list;
+	}
+
+	/**
+	 * Convert a list of combobox display properties to their metamodel equivalents.
+	 * @param cmm
+	 * @param mar
+	 * @return
+	 */
+	static public List<DisplayPropertyMetaModel> decode(ClassMetaModel cmm, MetaComboProperty[] mar) {
+		List<DisplayPropertyMetaModel> list = new ArrayList<DisplayPropertyMetaModel>(mar.length);
+		for(MetaComboProperty p : mar) {
 			list.add(new DisplayPropertyMetaModel(cmm, p));
 		}
 		return list;
@@ -130,10 +164,10 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	 * @param root
 	 * @return
 	 */
-	public <X, T extends IConverter<X>> String getAsString(Object root) throws Exception {
+	public <X, TT extends IConverter<X>> String getAsString(Object root) throws Exception {
 		Object value = DomUtil.getPropertyValue(root, getName());
 		if(getConverter() != null)
-			return ((T) getConverter()).convertObjectToString(NlsContext.getLocale(), (X) value);
+			return ((TT) getConverter()).convertObjectToString(NlsContext.getLocale(), (X) value);
 		return value == null ? "" : value.toString();
 	}
 
@@ -149,4 +183,29 @@ public class DisplayPropertyMetaModel extends BasicPropertyMetaModel {
 	public String toString() {
 		return "DisplayPropertyMetaModel[" + getName() + "]";
 	}
+
+	public IConverter< ? > getConverter() {
+		return m_converter;
+	}
+
+	public void setConverter(IConverter< ? > converter) {
+		m_converter = converter;
+	}
+
+	public SortableType getSortable() {
+		return m_sortable;
+	}
+
+	public void setSortable(SortableType sortable) {
+		m_sortable = sortable;
+	}
+
+	public int getDisplayLength() {
+		return m_displayLength;
+	}
+
+	public void setDisplayLength(int displayLength) {
+		m_displayLength = displayLength;
+	}
+
 }

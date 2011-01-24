@@ -33,6 +33,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.query.*;
 
 public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, IHasModifiedIndication {
 	private String m_emptyText;
@@ -55,7 +56,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 
 	private Class< ? extends INodeContentRenderer<T>> m_contentRendererClass;
 
-	private PropertyMetaModel m_propertyMetaModel;
+	private PropertyMetaModel< ? > m_propertyMetaModel;
 
 	/** When set this maker will be used to provide a list of values for this combo. */
 	private IListMaker<T> m_listMaker;
@@ -74,6 +75,10 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 
 	public ComboComponentBase(IComboDataSet<T> dataSet) {
 		m_dataSet = dataSet;
+	}
+
+	public ComboComponentBase(QCriteria<T> query) {
+		m_dataSet = new CriteriaComboDataSet<T>(query);
 	}
 
 	public ComboComponentBase(Class< ? extends IComboDataSet<T>> dataSetClass) {
@@ -239,7 +244,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 		if(null == newvalue)
 			return -1;
 		try {
-			ClassMetaModel cmm = newvalue == null ? null : MetaManager.findClassMeta(newvalue.getClass());
+			ClassMetaModel cmm = MetaManager.findClassMeta(newvalue.getClass());
 			List<T> data = getData();
 			for(int ix = 0; ix < data.size(); ix++) {
 				V	value = listToValue(data.get(ix));
@@ -342,7 +347,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 		if(builder == null && m_dataSetClass != null)
 			builder = DomApplication.get().createInstance(m_dataSetClass);
 		if(builder != null)
-			return builder.getComboDataSet(getPage().getConversation(), null);
+			return builder.getComboDataSet(getPage().getBody());
 		return Collections.EMPTY_LIST;
 		//
 		//		throw new IllegalStateException("I have no way to get data to show in my combo..");
@@ -416,11 +421,11 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 		m_contentRendererClass = contentRendererClass;
 	}
 
-	public PropertyMetaModel getPropertyMetaModel() {
+	public PropertyMetaModel< ? > getPropertyMetaModel() {
 		return m_propertyMetaModel;
 	}
 
-	public void setPropertyMetaModel(PropertyMetaModel propertyMetaModel) {
+	public void setPropertyMetaModel(PropertyMetaModel< ? > propertyMetaModel) {
 		m_propertyMetaModel = propertyMetaModel;
 	}
 

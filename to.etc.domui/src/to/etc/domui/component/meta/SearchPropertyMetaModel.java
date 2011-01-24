@@ -26,7 +26,6 @@ package to.etc.domui.component.meta;
 
 import java.util.*;
 
-
 public interface SearchPropertyMetaModel {
 	/**
 	 * When T (default) the search is done in a case-independent way provided we are looking
@@ -52,7 +51,7 @@ public interface SearchPropertyMetaModel {
 
 	String getPropertyName();
 
-	List<PropertyMetaModel> getPropertyPath();
+	List<PropertyMetaModel< ? >> getPropertyPath();
 
 	/**
 	 * Returns the text to use as the control label, if defined in the metadata.
@@ -65,4 +64,11 @@ public interface SearchPropertyMetaModel {
 	 * @return
 	 */
 	String getLookupHint();
+
+	static public final Comparator<SearchPropertyMetaModel> BY_ORDER = new Comparator<SearchPropertyMetaModel>() {
+		@Override
+		public int compare(SearchPropertyMetaModel a, SearchPropertyMetaModel b) {
+			return a.getOrder() - b.getOrder();
+		}
+	};
 }

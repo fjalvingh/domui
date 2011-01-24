@@ -199,9 +199,9 @@ public class JdbcClassMeta {
 		return m_dataClass;
 	}
 
-	public void setDataClass(Class< ? > dataClass) {
-		m_dataClass = dataClass;
-	}
+//	public void setDataClass(Class< ? > dataClass) {
+//		m_dataClass = dataClass;
+//	}
 
 	public String getTableName() {
 		return m_tableName;

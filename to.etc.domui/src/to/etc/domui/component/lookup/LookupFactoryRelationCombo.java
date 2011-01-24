@@ -32,7 +32,7 @@ import to.etc.domui.util.*;
 final class LookupFactoryRelationCombo implements ILookupControlFactory {
 	@Override
 	public <X extends IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
-		final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 
 		if(pmm.getRelationType() != PropertyRelationType.UP)
 			return -1;

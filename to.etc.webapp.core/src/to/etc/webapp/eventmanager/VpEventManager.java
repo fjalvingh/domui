@@ -249,14 +249,18 @@ public class VpEventManager implements Runnable {
 
 	public void stop() {
 		System.out.println("KILLING EVENTMANAGER THREAD");
+		Thread ht;
 		synchronized(this) {
+			ht = m_handlerThread;
+			if(ht == null)
+				return;
 			m_stop = true;
 			notifyAll();
 		}
 		try {
-			m_handlerThread.join(10000);
+			ht.join(10000);
 		} catch(InterruptedException x) {}
-		if(m_handlerThread.isAlive())
+		if(ht.isAlive())
 			log("The event manager's thread failed to die!?");
 	}
 
@@ -411,9 +415,13 @@ public class VpEventManager implements Runnable {
 		Connection dbc = m_ds.getConnection();
 		ResultSet rs = null;
 		PreparedStatement ps = null;
+		long upid;
+		synchronized(this) {
+			upid = m_upid;
+		}
 		try {
 			ps = dbc.prepareStatement("select upid,evname,utime,server,obj from " + m_tableName + " where upid > ? order by upid");
-			ps.setLong(1, m_upid);
+			ps.setLong(1, upid);
 			rs = ps.executeQuery();
 			while(rs.next()) {
 				readEventObject(rs, al);
@@ -424,7 +432,7 @@ public class VpEventManager implements Runnable {
 				Iterator<Long> it = m_localEvents.iterator();
 				while(it.hasNext()) {
 					Long v = it.next();
-					if(v.longValue() <= m_upid) {
+					if(v.longValue() <= upid) {
 						it.remove();
 						localeventset.add(v);
 					} else
@@ -545,7 +553,13 @@ public class VpEventManager implements Runnable {
 		} catch(Throwable t) {
 			t.printStackTrace();
 		} finally {
-			if(!m_stop)
+			boolean warn = false;
+			synchronized(this) {
+				m_handlerThread = null;
+				if(!m_stop)
+					warn = true;
+			}
+			if(warn)
 				log("Handler thread EXITED!?");
 		}
 	}

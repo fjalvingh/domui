@@ -29,12 +29,14 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.servlet.http.*;
 
 import org.slf4j.*;
 
 import to.etc.domui.ajax.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
+import to.etc.domui.component.layout.title.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
@@ -42,9 +44,10 @@ import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.injector.*;
 import to.etc.domui.login.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.server.parts.*;
-import to.etc.domui.server.reloader.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
@@ -77,7 +80,11 @@ public abstract class DomApplication {
 
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
 
-	private String m_defaultTheme = "domui";
+	//	private String m_currentTheme = "domui";
+	//
+	//	private String m_currentIconSet = "domui";
+	//
+	//	private String m_currentColorSet = "domui";
 
 	private boolean m_developmentMode;
 
@@ -110,8 +117,6 @@ public abstract class DomApplication {
 
 	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
 
-	private IThemeMapFactory m_themeMapFactory;
-
 	private IPageInjector m_injector = new DefaultPageInjector();
 
 	/**
@@ -127,6 +132,8 @@ public abstract class DomApplication {
 	private List<IHtmlRenderFactory> m_renderFactoryList = new ArrayList<IHtmlRenderFactory>();
 
 	final private String m_scriptVersion;
+
+	private List<IResourceFactory> m_resourceFactoryList = Collections.EMPTY_LIST;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
@@ -153,10 +160,19 @@ public abstract class DomApplication {
 				sb.append(rurl);
 				sb.append("?errorMessage=");
 				StringTool.encodeURLEncoded(sb, x.getLocalizedMessage());*/
-				ApplicationRequestHandler.generateHttpRedirect((RequestContextImpl) ctx, rurl, "Data not found");
+				UIGoto.redirect(rurl);
+				// jal 20110118 Does not work, and is a nonpublic interface.
+				//				ApplicationRequestHandler.generateHttpRedirect((RequestContextImpl) ctx, rurl, "Data not found");
 				return true;
 			}
 		});
+		m_themer = new SimpleThemeFactory("unsplit");
+
+
+		registerResourceFactory(new ClassRefResourceFactory());
+		registerResourceFactory(new VersionedJsResourceFactory());
+		registerResourceFactory(new SimpleResourceFactory());
+		registerResourceFactory(new FragmentedThemeResourceFactory());
 	}
 
 	protected void registerControlFactories() {
@@ -173,21 +189,6 @@ public abstract class DomApplication {
 		registerUrlPart(new ThemePartFactory()); // convert *.theme.* as a JSTemplate.
 		registerUrlPart(new SvgPartFactory()); // Converts .svg.png to png.
 	}
-
-	//	static public void internalSetCurrent(final DomApplication da) {
-	//		m_current.set(da);
-	//	}
-
-	//	/**
-	//	 * Returns the single DomApplication instance in use for the webapp.
-	//	 * @return
-	//	 */
-	//	static public DomApplication get() {
-	//		DomApplication da = m_current.get();
-	//		if(da == null)
-	//			throw new IllegalStateException("The 'current application' is unset!?");
-	//		return da;
-	//	}
 
 	static private synchronized void setCurrentApplication(DomApplication da) {
 		m_application = da;
@@ -298,9 +299,10 @@ public abstract class DomApplication {
 		m_webFilePath = pp.getWebFileRoot();
 
 		//-- Get the page extension to use.
-		m_urlExtension = "http";
 		String ext = pp.getString("extension");
-		if(ext != null && ext.trim().length() > 0) {
+		if(ext == null || ext.trim().length() == 0)
+			m_urlExtension = "ui";
+		else {
 			ext = ext.trim();
 			if(ext.startsWith("."))
 				ext = ext.substring(1);
@@ -397,22 +399,58 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Webapp configuration								*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Returns the name of the current theme, like "blue". This returns the
-	 * name only, not the URL to the theme or something.
-	 */
-	public synchronized String getDefaultTheme() {
-		return m_defaultTheme;
-	}
-
-	/**
-	 * Sets a new default theme. The theme name is the name of a directory, like "blue", below the
-	 * "themes" map in the webapp or the root resources.
-	 * @param defaultTheme
-	 */
-	public synchronized void setDefaultTheme(final String defaultTheme) {
-		m_defaultTheme = defaultTheme;
-	}
+	//	/**
+	//	 * Returns the name of the current theme, like "blue". This returns the
+	//	 * name only, not the URL to the theme or something.
+	//	 */
+	//	@Nonnull
+	//	public synchronized String getCurrentTheme() {
+	//		return m_currentTheme;
+	//	}
+	//
+	//	/**
+	//	 * Sets a new default theme. The theme name is the name of a directory, like "blue", below the
+	//	 * "themes" map in the webapp or the root resources.
+	//	 * @param defaultTheme
+	//	 */
+	//	public synchronized void setDefaultTheme(@Nonnull final String defaultTheme) {
+	//		if(null == defaultTheme)
+	//			throw new IllegalArgumentException();
+	//		m_currentTheme = defaultTheme;
+	//	}
+	//
+	//	/**
+	//	 * Get the name of the current icon set. This must resolve to a directory "icons/[name]" in
+	//	 * either the class resources or the webapp.
+	//	 * @return
+	//	 */
+	//	@Nonnull
+	//	public synchronized String getCurrentIconSet() {
+	//		return m_currentIconSet;
+	//	}
+	//
+	//	/**
+	//	 * Set the name of the current icon set. This must resolve to a directory "icons/[name]" in
+	//	 * either the class resources or the webapp.
+	//	 *
+	//	 * @param currentIconSet
+	//	 */
+	//	public synchronized void setCurrentIconSet(@Nonnull String currentIconSet) {
+	//		if(null == currentIconSet)
+	//			throw new IllegalArgumentException();
+	//		m_currentIconSet = currentIconSet;
+	//	}
+	//
+	//	@Nonnull
+	//	public synchronized String getCurrentColorSet() {
+	//		return m_currentColorSet;
+	//	}
+	//
+	//	public synchronized void setCurrentColorSet(@Nonnull String currentColorSet) {
+	//		if(null == currentColorSet)
+	//			throw new IllegalArgumentException();
+	//		m_currentColorSet = currentColorSet;
+	//	}
 
 	/**
 	 * Returns T when running in development mode; this is defined as a mode where web.xml contains
@@ -458,6 +496,19 @@ public abstract class DomApplication {
 	public synchronized void setDefaultExpiryTime(final int defaultExpiryTime) {
 		m_defaultExpiryTime = defaultExpiryTime;
 	}
+
+	/**
+	 * This returns the locale to use for the request passed. It defaults to the locale
+	 * in the request itself, as returned by {@link HttpServletRequest#getLocale()}. You
+	 * can override this method to define the locale by yourself.
+	 * @param request
+	 * @return
+	 */
+	@Nonnull
+	public Locale getRequestLocale(HttpServletRequest request) {
+		return request.getLocale();
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Global header contributors.							*/
@@ -527,6 +578,23 @@ public abstract class DomApplication {
 		page.add(0, panel);
 	}
 
+	/**
+	 * FIXME This code requires an absolute title which is not needed for the
+	 * DomUI framework. It's also only needed for the "BasicPage" and has no
+	 * meaning for any other part of the framework. It should move to some
+	 * BasicPage factory.
+	 *
+	 * This returns default page title component.
+	 * {@link AppPageTitleBar} is default one used by framework.
+	 * To set some custom page title component override this method in your application specific class.
+	 *
+	 * @param title
+	 * @return
+	 */
+	@Deprecated
+	public BasePageTitleBar getDefaultPageTitleBar(String title) {
+		return new AppPageTitleBar(title);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Control factories.									*/
@@ -595,6 +663,52 @@ public abstract class DomApplication {
 	}
 
 	/**
+	 * Primitive to return either a File-based resource from the web content files
+	 * or a classpath resource (below /resources/) for the same path. The result will
+	 * implement {@link IModifyableResource}. This will not use any kind of resource
+	 * factory.
+	 *
+	 * @param name
+	 * @return
+	 */
+	public IResourceRef getAppFileOrResource(String name) {
+		//-- 1. Is a file-based resource available?
+		File f = getAppFile(name);
+		if(f.exists())
+			return new WebappResourceRef(f);
+		return createClasspathReference("/resources/" + name);
+	}
+
+
+	public synchronized void registerResourceFactory(IResourceFactory f) {
+		m_resourceFactoryList = new ArrayList<IResourceFactory>(m_resourceFactoryList);
+		m_resourceFactoryList.add(f);
+	}
+
+	public synchronized List<IResourceFactory> getResourceFactories() {
+		return m_resourceFactoryList;
+	}
+
+	/**
+	 * Get the best factory to resolve the specified resource name.
+	 * @param name
+	 * @return
+	 */
+	public IResourceFactory findResourceFactory(String name) {
+		IResourceFactory best = null;
+		int bestscore = -1;
+
+		for(IResourceFactory rf : getResourceFactories()) {
+			int score = rf.accept(name);
+			if(score > bestscore) {
+				bestscore = score;
+				best = rf;
+			}
+		}
+		return best;
+	}
+
+	/**
 	 * Returns the root of the webapp's installation directory on the local file system.
 	 * @return
 	 */
@@ -606,8 +720,8 @@ public abstract class DomApplication {
 		return AppFilter.getApplicationURL();
 	}
 
-	/** Cache for application resources containing all resources we have checked existence for */
-	private final Map<String, IResourceRef> m_resourceSet = new HashMap<String, IResourceRef>();
+	//	/** Cache for application resources containing all resources we have checked existence for */
+	//	private final Map<String, IResourceRef> m_resourceSet = new HashMap<String, IResourceRef>();
 
 	private final Map<String, Boolean> m_knownResourceSet = new HashMap<String, Boolean>();
 
@@ -619,46 +733,41 @@ public abstract class DomApplication {
 	 * @param name
 	 * @return
 	 */
-	private IResourceRef createClasspathReference(String name) {
+	public IResourceRef createClasspathReference(String name) {
+		if(!name.startsWith("/"))
+			name = "/" + name;
 		if(inDevelopmentMode()) {
 			//-- If running in debug mode get this classpath resource's original source file
-			IModifyableResource ts = Reloader.findClasspathSource(name);
+			IModifyableResource ts = ClasspathInventory.getInstance().findResourceSource(name);
 			return new ReloadingClassResourceRef(ts, name);
 		}
 		return new ProductionClassResourceRef(name);
 	}
 
 	/**
-	 * Tries to resolve an application-based resource by decoding it's name, and throw an exception if not found. We allow
-	 * the following constructs:
-	 * <ul>
-	 *	<li>$RES/xxxx: denotes a class-based resource. The xxxx is the full package/classname of the resource</li>
-	 *	<li>$THEME/xxxx: denotes a current-theme based resource.</li>
-	 * </ul>
+	 * Get an application resource. This usually means either a web file with the specified name or a
+	 * class resource with this name below /resources/. But {@link IResourceFactory} instances registered
+	 * with DomApplication can provide other means to locate resources.
 	 *
 	 * @param name
+	 * @param rdl	The dependency list. Pass {@link ResourceDependencyList#NULL} if you do not need the
+	 * 				dependencies.
 	 * @return
+	 * @throws Exception
 	 */
 	@Nonnull
-	public IResourceRef getApplicationResourceByName(String name) {
-		IResourceRef ref = internalFindResource(name);
+	public IResourceRef getResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+		IResourceRef ref = internalFindResource(name, rdl);
 
 		/*
 		 * The code below was needed because the original code caused a 404 exception on web resources which were
 		 * checked every time. All other resource types like class resources were not checked for existence.
 		 */
 		if(ref instanceof WebappResourceRef) {
-			if(ref.getLastModified() == -1)
+			if(!ref.exists())
 				throw new ThingyNotFoundException(name);
 		}
 		return ref;
-	}
-
-	private IResourceRef tryVersionedResource(String name) {
-		name = "/resources/" + name;
-		if(!DomUtil.classResourceExists(getClass(), name))
-			return null;
-		return createClasspathReference(name);
 	}
 
 	/**
@@ -666,114 +775,71 @@ public abstract class DomApplication {
 	 * mirrors the logic of {@link #getApplicationResourceByName(String)}.
 	 * @param name
 	 * @return
+	 * @throws Exception
 	 */
-	public boolean hasApplicationResource(final String name) {
+	public boolean hasApplicationResource(final String name) throws Exception {
 		synchronized(this) {
 			Boolean k = m_knownResourceSet.get(name);
 			if(k != null)
 				return k.booleanValue();
 		}
 
+
 		//-- Determine existence out-of-lock (single init is unimportant)
-		IResourceRef ref = internalFindCachedResource(name);
-		Boolean k = Boolean.valueOf(ref.getLastModified() != -1);
+		//		IResourceRef ref = internalFindCachedResource(name);
+		IResourceRef ref = internalFindResource(name, ResourceDependencyList.NULL);
+		Boolean k = Boolean.valueOf(ref.exists());
 		//		System.out.println("hasAppResource: locate " + ref + ", exists=" + k);
-		synchronized(this) {
-			m_knownResourceSet.put(name, k);
+		if(!inDevelopmentMode() || ref instanceof IModifyableResource) {
+			synchronized(this) {
+				m_knownResourceSet.put(name, k);
+			}
 		}
 		return k.booleanValue();
 	}
 
-	/**
-	 * Cached version to locate an application resource.
-	 * @param name
-	 * @return
-	 */
-	private IResourceRef internalFindCachedResource(@Nonnull String name) {
-		IResourceRef ref;
-		synchronized(this) {
-			ref = m_resourceSet.get(name);
-			if(ref != null)
-				return ref;
-		}
+	//	/**
+	//	 * Cached version to locate an application resource.
+	//	 * @param name
+	//	 * @return
+	//	 * @throws Exception
+	//	 */
+	//	private IResourceRef internalFindCachedResource(@Nonnull String name) throws Exception {
+	//		IResourceRef ref;
+	//		synchronized(this) {
+	//			ref = m_resourceSet.get(name);
+	//			if(ref != null)
+	//				return ref;
+	//		}
+	//
+	//		//-- Determine existence out-of-lock (single init is unimportant). Only cache if
+	//		ref = internalFindResource(name);
+	//		if(!inDevelopmentMode() || ref instanceof IModifyableResource) {
+	//			synchronized(this) {
+	//				m_resourceSet.put(name, ref);
+	//			}
+	//		}
+	//		return ref;
+	//	}
 
-		//-- Determine existence out-of-lock (single init is unimportant)
-		ref = internalFindResource(name);
-		synchronized(this) {
-			m_resourceSet.put(name, ref);
-		}
-		return ref;
-	}
-
 	/**
-	 * UNCACHED version to locate a resource. This handles all special DomUI url's
-	 * starting with '$' but also all webapp-relative requests. It also handles the
-	 * "scriptVersion" logic and the expanded/compressed logic for $js/ resources.
+	 * UNCACHED version to locate a resource, using the registered resource factories.
 	 *
 	 * @param name
+	 * @param rdl
 	 * @return
 	 */
 	@Nonnull
-	private IResourceRef internalFindResource(@Nonnull String name) {
-		if(name.startsWith(Constants.RESOURCE_PREFIX)) {
-			return createClasspathReference(name.substring(Constants.RESOURCE_PREFIX.length() - 1)); // Strip off $RES, rest is absolute resource path starting with /
-		}
+	private IResourceRef internalFindResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+		IResourceFactory rf = findResourceFactory(name);
+		if(rf != null)
+			return rf.getResource(this, name, rdl);
 
-		if(name.startsWith("$")) {
-			name = name.substring(1);
-			//-- 1. Is a file-based resource available?
-			File f = getAppFile(name);
-			if(f.exists())
-				return new WebappResourceRef(f);
-			// 20091019 jal removed: $ resources are literal entries; they are never classnames - that is done using $RES/ only.
-			//			//-- In the url, replace all '.' but the last one with /
-			//			int pos = name.lastIndexOf('.');
-			//			if(pos != -1) {
-			//				name = name.substring(0, pos).replace('.', '/') + name.substring(pos);
-			//			}
-
-			/*
-			 * For class-based resources we are able to select different versions of a resource if it's name
-			 * starts with $js/. These will be scanned in resources/js/[scriptversion]/[name] and resources/js/[name].
-			 */
-			if(!name.startsWith("js/"))
-				return createClasspathReference("/resources/" + name);
-
-			//-- 1. Create a 'min version of the name
-			name = name.substring(2); // Strip js, leave leading /.
-			int pos = name.lastIndexOf('.');
-			String min = pos < 0 ? null : name.substring(0, pos) + "-min" + name.substring(pos);
-
-			StringBuilder sb = new StringBuilder(64);
-			IResourceRef r;
-			if(!inDevelopmentMode() && min != null) {
-				//-- Try all min versions in production, first
-				sb.append("js/").append(getScriptVersion()).append(min);
-				r = tryVersionedResource(sb.toString());
-				if(r != null)
-					return r;
-				sb.setLength(0);
-				sb.append("js").append(min);
-				r = tryVersionedResource(sb.toString());
-				if(r != null)
-					return r;
-			}
-
-			//-- Try normal versions only in development.
-			sb.setLength(0);
-			sb.append("js/").append(getScriptVersion()).append(name);
-			r = tryVersionedResource(sb.toString());
-			if(r != null)
-				return r;
-
-			r = createClasspathReference("/resources/js" + name);
-			//			System.out.println("RR: Default ref to " + name + " is " + r);
-			return r;
-		}
-
-		//-- Normal url. Use webapp-direct path.
+		//-- No factory. Return class/file reference.
 		File src = new File(m_webFilePath, name);
-		return new WebappResourceRef(src);
+		IResourceRef r = new WebappResourceRef(src);
+		rdl.add(r);
+		return r;
 	}
 
 	/**
@@ -786,8 +852,9 @@ public abstract class DomApplication {
 	 * @param suffix		The suffix: the part after the locale info. This usually includes a ., like .js
 	 * @param loc			The locale to get the resource for.
 	 * @return
+	 * @throws Exception
 	 */
-	public String findLocalizedResourceName(final String basename, final String suffix, final Locale loc) {
+	public String findLocalizedResourceName(final String basename, final String suffix, final Locale loc) throws Exception {
 		StringBuilder sb = new StringBuilder(128);
 		String s;
 		s = tryKey(sb, basename, suffix, loc.getLanguage(), loc.getCountry(), loc.getVariant(), NlsContext.getDialect());
@@ -817,7 +884,7 @@ public abstract class DomApplication {
 		return null;
 	}
 
-	private String tryKey(final StringBuilder sb, final String basename, final String suffix, final String lang, final String country, final String variant, final String dialect) {
+	private String tryKey(final StringBuilder sb, final String basename, final String suffix, final String lang, final String country, final String variant, final String dialect) throws Exception {
 		sb.setLength(0);
 		sb.append(basename);
 		if(dialect != null && dialect.length() > 0) {
@@ -843,6 +910,7 @@ public abstract class DomApplication {
 			return res;
 		return null;
 	}
+
 
 
 	/*--------------------------------------------------------------*/
@@ -900,14 +968,14 @@ public abstract class DomApplication {
 		synchronized(m_listCacheMap) {
 			m_listCacheMap.clear();
 		}
-		// FIXME URGENT Clear all other server's caches too by sending a VP event.
+		// FIXME URGENT Clear all other server's caches too by sending an event.
 	}
 
 	public void clearListCache(final ICachedListMaker< ? > maker) {
 		synchronized(m_listCacheMap) {
 			m_listCacheMap.remove(maker.getCacheKey());
 		}
-		// FIXME URGENT Clear all other server's caches too by sending a VP event.
+		// FIXME URGENT Clear all other server's caches too by sending an event.
 	}
 
 	public boolean logOutput() {
@@ -1122,7 +1190,9 @@ public abstract class DomApplication {
 									//									System.out.println("app: registering right="+s);
 								}
 							}
-						} catch(Exception x) {}
+						} catch(Exception x) {
+							// Ignore all exceptions due to accessing the field using Introspection
+						}
 					}
 				}
 			}
@@ -1168,21 +1238,29 @@ public abstract class DomApplication {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Programmable stylesheet code.						*/
+	/*	CODING:	Programmable theme code.							*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Register a factory for the theme's property map.
-	 * @param mf
-	 */
-	public synchronized void register(IThemeMapFactory mf) {
-		m_themeMapFactory = mf;
+	/** The thing that themes the application. Set only once @ init time. */
+	private IThemeFactory m_themer = new SimpleThemeFactory("domui");
+
+	private ITheme m_themeStore;
+
+	private ResourceDependencies m_themeDependencies;
+
+	public synchronized IThemeFactory getThemer() {
+		return m_themer;
 	}
 
-	private synchronized IThemeMapFactory getThemeMapFactory() {
-		if(null == m_themeMapFactory)
-			m_themeMapFactory = new DefaultThemeMapFactory();
-		return m_themeMapFactory;
+	/**
+	 * Set the factory for handling the theme.
+	 * @param themer
+	 */
+	public synchronized void setThemer(IThemeFactory themer) {
+		m_themer = themer;
+		m_themeStore = null;
+		m_themeDependencies = null;
 	}
+
 
 	/**
 	 * FIXME Mechanism is slow
@@ -1192,7 +1270,7 @@ public abstract class DomApplication {
 		m_partHandler.registerUrlPart(factory);
 	}
 
-	public String getThemeReplacedString(@Nonnull ResourceDependencyList rdl, String rurl) throws Exception {
+	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, String rurl) throws Exception {
 		return getThemeReplacedString(rdl, rurl, null);
 	}
 
@@ -1209,19 +1287,21 @@ public abstract class DomApplication {
 	 * @param key
 	 * @return
 	 */
-	public String getThemeReplacedString(@Nonnull ResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
+	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
 		long ts = System.nanoTime();
-		IResourceRef ires = getApplicationResourceByName(rurl); // Get the template source file
+		IResourceRef ires = getResource(rurl, rdl); // Get the template source file
 //		if(ires == null)
 //			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
-		rdl.add(ires); // We're dependent on it...
 
 		//-- Get the variable map to use.
-		Map<String, Object> themeMap = getThemeMapFactory().createThemeMap(this, rdl);
+		Map<String, Object> themeMap = getThemeMap(rdl);
+		themeMap = new HashMap<String, Object>(themeMap); // Create a modifyable duplicate
 		if(bv != null) {
-			themeMap = new HashMap<String, Object>(themeMap);
 			themeMap.put("browser", bv);
 		}
+		themeMap.put("util", new ThemeCssUtils());
+
+		augmentThemeMap(themeMap); // Provide a hook to let user code add stuff to the theme map
 
 		//-- 2. Get a reader.
 		InputStream is = ires.getInputStream();
@@ -1245,6 +1325,87 @@ public abstract class DomApplication {
 			} catch(Exception x) {}
 		}
 	}
+
+	/**
+	 * Get the theme that is used for this application. The dependencies for the theme will
+	 * be added to the dependency list. This allows users of the theme to update themselves
+	 * when (parts of) the theme change.
+	 *
+	 * @param rdl
+	 * @return
+	 * @throws Exception
+	 */
+	public ITheme getTheme(@Nullable IResourceDependencyList rdl) throws Exception {
+		synchronized(this) {
+			//-- Do we have a theme store present?
+			if(m_themeStore != null) {
+				//-- Yes-> has it expired?
+				if(m_themeDependencies == null) // We're not checking (not in debug mode)
+					return m_themeStore;
+
+				if(!m_themeDependencies.isModified()) { // Not expired?
+					if(rdl != null)
+						rdl.add(m_themeDependencies);
+					return m_themeStore;
+				}
+
+				//-- We have an expired one...
+			}
+
+			//-- We need to (re)load a theme store.
+			m_themeStore = getThemer().loadTheme(this);
+			if(inDevelopmentMode()) {
+				ThemeModifyableResource tmr = new ThemeModifyableResource(m_themeStore.getDependencies(), 3000); // Check for changes every 3 secs
+				m_themeDependencies = new ResourceDependencies(new IIsModified[]{tmr});
+				if(rdl != null)
+					rdl.add(m_themeDependencies);
+			}
+			return m_themeStore;
+		}
+	}
+
+	/**
+	 * This method can be overridden to add extra stuff to the theme map, after
+	 * it has been loaded from properties or whatnot.
+	 * @param themeMap
+	 */
+	protected void augmentThemeMap(Map<String, Object> themeMap) {}
+
+	/**
+	 * Return the current theme map (a readonly map), cached from the last
+	 * time. It will refresh automatically when the resource dependencies
+	 * for the theme are updated.
+	 *
+	 * @param rdl
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> getThemeMap(IResourceDependencyList rdlin) throws Exception {
+		ITheme ts = getTheme(rdlin);
+		Map<String, Object> tmap = ts.getThemeProperties();
+		return tmap;
+	}
+
+	@Nullable
+	public String getThemedResourceRURL(String path) {
+		if(null == path)
+			return null;
+		if(path.startsWith("THEME/"))
+			path = path.substring(6); // Strip THEME/
+		else if(path.startsWith("ICON/"))
+			path = path.substring(5); // Strip ICON
+		else
+			return path; // Not theme-relative, so return as-is.
+
+		//-- We need to translate this according to the icon rules.
+		try {
+			String res = getTheme(null).getIconURL(path);
+			return res == null ? path : res;
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DomUI state listener handling.						*/
@@ -1343,9 +1504,4 @@ public abstract class DomApplication {
 			}
 		}
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Silly helpers.										*/
-	/*--------------------------------------------------------------*/
-
 }

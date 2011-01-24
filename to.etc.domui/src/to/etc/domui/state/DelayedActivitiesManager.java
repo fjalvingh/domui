@@ -311,7 +311,7 @@ public class DelayedActivitiesManager implements Runnable {
 		Exception errorx = null;
 		Div result = null;
 		try {
-			result = m_runningActivity.getActivity().run(m_runningActivity.getMonitor());
+			result = dai.getActivity().run(mon);
 		} catch(Exception x) {
 			if(!(x instanceof InterruptedException))
 				errorx = x;

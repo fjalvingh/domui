@@ -1,0 +1,12 @@
+/*** MsgBox ***/
+.ui-mbx-top {
+	height: 140px;
+}
+.ui-mbx-bb {
+	text-align: right;
+	height: 35px;
+	margin-right: 13px;
+}
+.ui-mbx-mc {
+}
+

@@ -53,6 +53,10 @@ public class CaptionedPanel extends Div {
 		this(new TextNode(title), content);
 	}
 
+	public CaptionedPanel(NodeContainer title) {
+		this(title, new Div());
+	}
+
 	public CaptionedPanel(NodeContainer title, NodeContainer content) {
 		setCssClass("ui-pnl-outer");
 		m_titleContainer = title;

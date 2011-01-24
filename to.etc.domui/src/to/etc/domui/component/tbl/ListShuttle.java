@@ -74,7 +74,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 	private INodeContentRenderer<Object> m_targetRenderer;
 
-	private final int m_innerHeight = 400;
+	static private final int INNERHEIGHT = 400;
 
 	static private IClicked<TD> C_CLICK = new IClicked<TD>() {
 		@Override
@@ -105,8 +105,8 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		m_targetCell.add(m_targetDiv = new Div());
 		m_sourceDiv.setCssClass("ui-sh-scd");
 		m_targetDiv.setCssClass("ui-sh-tcd");
-		m_sourceDiv.setHeight(m_innerHeight + "px");
-		m_targetDiv.setHeight(m_innerHeight + "px");
+		m_sourceDiv.setHeight(INNERHEIGHT + "px");
+		m_targetDiv.setHeight(INNERHEIGHT + "px");
 		m_sourceDiv.setOverflow(Overflow.AUTO);
 		m_targetDiv.setOverflow(Overflow.AUTO);
 		m_sourceCell.setValign(TableVAlign.TOP);

@@ -74,7 +74,7 @@ public class ControlFactoryResult {
 		m_binding = binding;
 	}
 
-	public <M, C> ControlFactoryResult(final IInputNode<C> control, final IReadOnlyModel<M> model, final PropertyMetaModel pmm) {
+	public <M, C> ControlFactoryResult(final IInputNode<C> control, final IReadOnlyModel<M> model, final PropertyMetaModel<C> pmm) {
 		m_labelNode = (NodeBase) control;
 		m_nodeList = new NodeBase[]{(NodeBase) control};
 		SimpleComponentPropertyBinding<C> b = new SimpleComponentPropertyBinding<C>(model, pmm, control);
@@ -85,7 +85,7 @@ public class ControlFactoryResult {
 		control.bind().to(model, pmm);
 	}
 
-	public <A, B> ControlFactoryResult(final IDisplayControl<A> control, final IReadOnlyModel<B> model, final PropertyMetaModel pmm) {
+	public <A, B> ControlFactoryResult(final IDisplayControl<A> control, final IReadOnlyModel<B> model, final PropertyMetaModel<A> pmm) {
 		m_labelNode = (NodeBase) control;
 		m_nodeList = new NodeBase[]{(NodeBase) control};
 		DisplayOnlyPropertyBinding<A> b = new DisplayOnlyPropertyBinding<A>(model, pmm, control);

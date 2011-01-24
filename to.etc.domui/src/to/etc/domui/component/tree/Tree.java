@@ -30,7 +30,6 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
-import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 
 public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
@@ -53,7 +52,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 	private Class< ? extends INodeContentRenderer<T>> m_contentRendererClass;
 
-	private PropertyMetaModel m_propertyMetaModel;
+	private PropertyMetaModel< ? > m_propertyMetaModel;
 
 	private ICellClicked< ? > m_cellClicked;
 
@@ -355,7 +354,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 	static private String branchurl() {
-		return PageContext.getRequestContext().getRelativeThemePath("tree-branch.png");
+		return DomApplication.get().getThemedResourceRURL("tree-branch.png");
 	}
 
 	/**
@@ -418,7 +417,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 	protected void cellClicked(final TD cell, final T value) throws Exception {
 		if(getCellClicked() != null)
-			((ICellClicked<Object>) getCellClicked()).cellClicked(getPage(), cell, value);
+			((ICellClicked<Object>) getCellClicked()).cellClicked(cell, value);
 	}
 
 	/**
@@ -541,11 +540,11 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		m_cellClicked = cellClicked;
 	}
 
-	public PropertyMetaModel getPropertyMetaModel() {
+	public PropertyMetaModel< ? > getPropertyMetaModel() {
 		return m_propertyMetaModel;
 	}
 
-	public void setPropertyMetaModel(PropertyMetaModel propertyMetaModel) {
+	public void setPropertyMetaModel(PropertyMetaModel< ? > propertyMetaModel) {
 		m_propertyMetaModel = propertyMetaModel;
 	}
 

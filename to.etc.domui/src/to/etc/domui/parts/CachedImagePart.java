@@ -227,6 +227,6 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 			sb.append(cv);
 			ix++;
 		}
-		return PageContext.getRequestContext().getRelativePath(sb.toString());
+		return UIContext.getRequestContext().getRelativePath(sb.toString());
 	}
 }
