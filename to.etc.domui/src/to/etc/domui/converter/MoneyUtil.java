@@ -51,11 +51,11 @@ import to.etc.webapp.nls.*;
  * Created on Jul 29, 2009
  */
 public class MoneyUtil {
-
-	/**
-	 * Used for money scaling at two decimal precision on euro amounts.
-	 */
-	private static final int MONEY_SCALE_EURO = 2;
+	//
+	//	/**
+	//	 * Used for money scaling at two decimal precision on euro amounts.
+	//	 */
+	//	private static final int MONEY_SCALE_EURO = 2;
 
 	/**
 	 * Parse a monetary value and return the proper value type, either Double or BigDecimal.
@@ -80,16 +80,12 @@ public class MoneyUtil {
 	 * @return Returns used maximum fraction digits value.
 	 */
 	public static int getMoneyScale() {
-		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
-			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).getMaximumFractionDigits();
-		} else {
-			return MONEY_SCALE_EURO;
-		}
+		return NlsContext.getCurrency().getDefaultFractionDigits();
 	}
 
 	/**
 	 * Use this method for money amount rounding purposes.
-	 * @return returs used rounding mode.
+	 * @return rounding mode to use for currency.
 	 */
 	public static RoundingMode getRoundingMode() {
 		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
@@ -102,13 +98,14 @@ public class MoneyUtil {
 	/**
 	 * Deprecated - do not use double for monetary amounts -
 	 * Parse into a double; return 0.0d for empty input.
+	 * FIXME Localization failure!
 	 * @param input
 	 * @return
 	 */
 	@Deprecated
 	static public double parseEuroToDouble(String input) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxEuro(input)) // Empty input returned as 0.0d
+		if(!ms.scanLaxWithCurrencySign(input)) // Empty input returned as 0.0d
 			return 0.0d;
 		return Double.parseDouble(ms.getStringResult());
 	}
@@ -116,6 +113,7 @@ public class MoneyUtil {
 	/**
 	 * Deprecated - do not use double for monetary amounts -
 	 * Parse into a double; return null for empty input.
+	 * FIXME Localization failure!
 	 *
 	 * @param input
 	 * @return
@@ -123,7 +121,7 @@ public class MoneyUtil {
 	@Deprecated
 	static public Double parseEuroToDoubleW(String input) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxEuro(input)) // Empty input returned as 0.0d
+		if(!ms.scanLaxWithCurrencySign(input)) // Empty input returned as 0.0d
 			return null;
 		return Double.valueOf(ms.getStringResult());
 	}
@@ -135,7 +133,7 @@ public class MoneyUtil {
 	 */
 	static public BigDecimal parseEuroToBigDecimal(String input) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxEuro(input)) // Empty input returned as 0.0d
+		if(!ms.scanLaxWithCurrencySign(input)) // Empty input returned as 0.0d
 			return null;
 		return new BigDecimal(ms.getStringResult());
 	}
@@ -163,85 +161,68 @@ public class MoneyUtil {
 	 */
 	@Deprecated
 	static public String render(double v, boolean thousands, boolean symbol, boolean trunk) {
-		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
-			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
-		}
-		String s;
-		if(symbol && thousands) {
-			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
-			StringBuilder sb = new StringBuilder(20);
-			sb.append(NlsContext.getCurrencySymbol());
-			sb.append('\u00a0');
-			sb.append(df.format(v));
-			s = sb.toString();
-		} else if(symbol) {
-			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("##############0.00", dfs);
-			StringBuilder sb = new StringBuilder(20);
-			sb.append(NlsContext.getCurrencySymbol());
-			sb.append('\u00a0');
-			sb.append(df.format(v));
-			s = sb.toString();
-		} else if(thousands) {
-			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
-			s = df.format(v);
-		} else {
-			//-- No symbol, no thousands separators; just a #
-			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("##############0.00", dfs);
-			s = df.format(v);
-		}
-		if(trunk) {
-			if(s.endsWith(".00") || s.endsWith(",00"))
-				return s.substring(0, s.length() - 3);
-		}
-		return s;
+		return render(BigDecimal.valueOf(v), thousands, symbol, trunk);
 	}
 
 	/**
-	 *
+	 * Convert the BigDecimal to a formatted monetary value.
 	 * @param v
-	 * @param thousands
-	 * @param symbol
-	 * @param trunk
+	 * @param thousands		Render thousand separators where needed
+	 * @param symbol		Render the currency sign
+	 * @param trunk			If the fraction is all zeroes, remove the fraction.
 	 * @return
 	 */
 	static public String render(BigDecimal v, boolean thousands, boolean symbol, boolean trunk) {
-		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
-			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
+		//-- Depending on the currency's default fraction size, create an "end mask"
+		StringBuilder sb = new StringBuilder(20);
+		Currency c = NlsContext.getCurrency();
+		int nfrac = c.getDefaultFractionDigits();
+		if(nfrac == -1)
+			nfrac = 0; // Sigh
+		String fracmask;
+		if(nfrac == 0) {
+			fracmask = ""; // Do not include any fraction.
+		} else {
+			sb.append('.');
+			for(int i = nfrac; --i >= 0;)
+				sb.append('0');
+			fracmask = sb.toString();
+			sb.setLength(0);
 		}
+
+		//-- Now convert.
 		String s;
+		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
 		if(symbol && thousands) {
-			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
-			StringBuilder sb = new StringBuilder(20);
+			DecimalFormat df = new DecimalFormat("###,###,###,###,##0" + fracmask, dfs);
 			sb.append(NlsContext.getCurrencySymbol());
 			sb.append('\u00a0');
 			sb.append(df.format(v));
 			s = sb.toString();
 		} else if(symbol) {
-			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("##############0.00", dfs);
-			StringBuilder sb = new StringBuilder(20);
+			DecimalFormat df = new DecimalFormat("##############0" + fracmask, dfs);
 			sb.append(NlsContext.getCurrencySymbol());
 			sb.append('\u00a0');
 			sb.append(df.format(v));
 			s = sb.toString();
 		} else if(thousands) {
-			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
+			DecimalFormat df = new DecimalFormat("###,###,###,###,##0" + fracmask, dfs);
 			s = df.format(v);
 		} else {
 			//-- No symbol, no thousands separators; just a #
-			DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-			DecimalFormat df = new DecimalFormat("##############0.00", dfs);
+			DecimalFormat df = new DecimalFormat("##############0" + fracmask, dfs);
 			s = df.format(v);
 		}
-		if(trunk) {
-			if(s.endsWith(".00") || s.endsWith(",00"))
-				return s.substring(0, s.length() - 3);
+		if(trunk && nfrac > 0) {
+			//-- If the fraction is rendered as .00000000 whatever we need to truncate it..
+			if(dfs.getDecimalSeparator() == '.') {
+				if(s.endsWith(fracmask))
+					s = s.substring(0, s.length() - nfrac - 1);
+			} else {
+				String match = dfs.getDecimalSeparator() + fracmask.substring(1);
+				if(s.endsWith(match))
+					s = s.substring(0, s.length() - nfrac - 1);
+			}
 		}
 		return s;
 	}
@@ -257,18 +238,7 @@ public class MoneyUtil {
 	 */
 	@Deprecated
 	static public String renderFullWithSign(double v) {
-		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
-			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
-		}
-
-		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
-		StringBuilder sb = new StringBuilder(20);
-		sb.append(NlsContext.getCurrencySymbol());
-		sb.append('\u00a0');
-		sb.append(df.format(v));
-		String s = sb.toString();
-		return s;
+		return render(BigDecimal.valueOf(v), true, true, false);
 	}
 
 	/**
@@ -279,19 +249,7 @@ public class MoneyUtil {
 	 * @return
 	 */
 	static public String renderFullWithSign(BigDecimal v) {
-		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
-			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
-		}
-		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
-		StringBuilder sb = new StringBuilder(20);
-		sb.append(NlsContext.getCurrencySymbol());
-		sb.append('\u00a0');
-		sb.append(df.format(v));
-		String s = sb.toString();
-		if(s.endsWith(".00") || s.endsWith(",00"))
-			return s.substring(0, s.length() - 3);
-		return s;
+		return render(v, true, true, false);
 	}
 
 	/**
@@ -302,20 +260,7 @@ public class MoneyUtil {
 	 */
 	@Deprecated
 	static public String renderTruncatedWithSign(double v) {
-		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
-			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
-		}
-
-		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
-		StringBuilder sb = new StringBuilder(20);
-		sb.append(NlsContext.getCurrencySymbol());
-		sb.append('\u00a0');
-		sb.append(df.format(v));
-		String s = sb.toString();
-		if(s.endsWith(".00") || s.endsWith(",00"))
-			return s.substring(0, s.length() - 3);
-		return s;
+		return render(BigDecimal.valueOf(v), true, true, true);
 	}
 
 	/**
@@ -324,19 +269,7 @@ public class MoneyUtil {
 	 * @return
 	 */
 	static public String renderTruncatedWithSign(BigDecimal v) {
-		if(!NlsContext.getCurrency().getCurrencyCode().equalsIgnoreCase("EUR")) {
-			return NumberFormat.getCurrencyInstance(NlsContext.getCurrencyLocale()).format(v);
-		}
-		DecimalFormatSymbols dfs = new DecimalFormatSymbols(NlsContext.getLocale()); // Get numeric format symbols for the locale
-		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00", dfs);
-		StringBuilder sb = new StringBuilder(20);
-		sb.append(NlsContext.getCurrencySymbol());
-		sb.append('\u00a0');
-		sb.append(df.format(v));
-		String s = sb.toString();
-		if(s.endsWith(".00") || s.endsWith(",00"))
-			return s.substring(0, s.length() - 3);
-		return s;
+		return render(v, true, true, true);
 	}
 
 	public static void main(String[] args) {
