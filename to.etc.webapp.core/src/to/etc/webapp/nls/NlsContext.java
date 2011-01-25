@@ -50,6 +50,9 @@ final public class NlsContext {
 
 	static private String m_dialect;
 
+	/** The default currency locale; used when no currency is explicitly set. */
+	static private Locale m_defaultCurrencyLocale;
+
 	/**
 	 * The thingy holding the current locale per thread. If the thingy is null
 	 * the current locale is unknown and the default locale will be returned, mirroring
@@ -92,6 +95,14 @@ final public class NlsContext {
 		return Locale.getDefault();
 	}
 
+	public synchronized static void setDefaultCurrencyLocale(Locale defaultCurrencyLocale) {
+		m_defaultCurrencyLocale = defaultCurrencyLocale;
+	}
+
+	public synchronized static Locale getDefaultCurrencyLocale() {
+		return m_defaultCurrencyLocale == null ? getDefault() : m_defaultCurrencyLocale;
+	}
+
 	/**
 	 * <p>The locale for the currency being handled in the application. Can be changed per request,
 	 * and defaults to the "default locale" (NOT the per request locale!). This
@@ -103,7 +114,7 @@ final public class NlsContext {
 	 */
 	static public Locale getCurrencyLocale() {
 		Locale loc = m_currencyLocale.get();
-		return loc == null ? getDefault() : loc;
+		return loc == null ? getDefaultCurrencyLocale() : loc;
 	}
 
 	/**
