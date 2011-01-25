@@ -1150,7 +1150,7 @@ var WebUI = {
 		var update = (cal.dateClicked || p.electric);
 		if (update && p.inputField) {
 			p.inputField.value = cal.date.print(p.ifFormat);
-			if (typeof p.inputField.onchange == "function")
+			if (typeof p.inputField.onchange == "function" && cal.dateClicked)
 				p.inputField.onchange();
 		}
 		if (update && p.displayArea)
