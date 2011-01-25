@@ -1106,7 +1106,7 @@ var WebUI = {
 			weekNumbers :true,
 			showsTime :withtime,
 			timeFormat :"24",
-			electric :true,
+			electric :false, // jal 20110125 Fixes bug 885- do not update the field when moving to prevent firing the change handler.
 			step :2,
 			position :null,
 			cache :false
