@@ -580,6 +580,10 @@ var WebUI = {
 		});
 	},
 
+	clickandchange: function(h, id) {
+		WebUI.scall(id, 'clickandvchange');
+	},
+	
 	valuechanged : function(h, id) {
 		// FIXME 20100315 jal Temporary fix for bug 680: if a DateInput has a value changed listener the onblur does not execute. So handle it here too.... The fix is horrible and needs generalization.
 		var item = document.getElementById(id);
