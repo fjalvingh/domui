@@ -116,6 +116,11 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_maxValue);
 			if(m_minValue != null && value.doubleValue() < m_minValue.doubleValue())
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, m_minValue);
+			//in case that other validations pass, we need to check for implicit JDBC parameter validation range ( -1 * 10 ^ 126 < X < 10 ^ 126)
+			if(value.doubleValue() > Double.valueOf(10 ^ 126).doubleValue())
+				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, Double.valueOf(10 ^ 126));
+			if(value.doubleValue() < Double.valueOf(-1 * 10 ^ 126).doubleValue())
+				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, Double.valueOf(-1 * 10 ^ 126));
 		} else if(value instanceof Long || value instanceof Integer) {
 			if(m_maxValue != null && value.longValue() > m_maxValue.longValue())
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_maxValue);
@@ -262,8 +267,9 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 		try {
 			if(isMonetary())
 				return MoneyUtil.parseMoney(m_valueType, in);
-			else
+			else {
 				return NumericUtil.parseNumber(m_valueType, in);
+			}
 		} catch(ValidationException vx) {
 			/*
 			 * Partial fix for bug 682:
