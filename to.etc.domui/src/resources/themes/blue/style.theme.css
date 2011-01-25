@@ -974,14 +974,22 @@ div:hover.ui-xdt-exp {
 /*** DataTable default style ***/
 .ui-dt {
 	overflow: auto;
+	padding: 4px;
 }
 
 .ui-dt TH {
 	text-align: left;
+	vertical-align: top;
+	font-weight: bold;
+	padding: 0px 3px;
+}
+.ui-dt-simg {
+	padding: 0 !important;
 }
 
 .ui-dt tbody td {
 	padding: 0px 3px;
+	border-left: 1px solid #ddd;
 }
 
 .ui-dt-hdr {
@@ -1025,16 +1033,6 @@ th.ui-sortable {
 .ui-sortable img {
 	float: left;
 	margin-right: 2px;
-}
-
-.ui-dt TH {
-	font-size: 11px;
-	font-weight: bold;
-	padding: 0px 3px;
-}
-
-.ui-dt {
-	font-size: 11px;
 }
 
 .ui-dt-separator {
@@ -1353,6 +1351,9 @@ body,html {
 }
 .ui-pre {
 	white-space: pre;
+}
+.ui-nowrap {
+	white-space: nowrap;
 }
 .ui-printdiv {
 	overflow: hidden;

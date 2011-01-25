@@ -697,16 +697,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	@Override
-	public void visitTH(final TH n) throws Exception {
-		basicNodeRender(n, m_o);
-		if(n.getColspan() > 0)
-			o().attr("colspan", n.getColspan());
-		if(n.getScope() != null)
-			o().attr("scope", n.getScope());
-		renderTagend(n, m_o);
-	}
-
-	@Override
 	public void visitTHead(final THead n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
@@ -749,6 +739,42 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("width", n.getCellWidth());
 		if(n.getAlign() != null)
 			o().attr("align", n.getAlign().getCode());
+		renderTagend(n, m_o);
+	}
+
+	@Override
+	public void visitTH(final TH n) throws Exception {
+		basicNodeRender(n, m_o);
+		if(n.getValign() != null) {
+			switch(n.getValign()){
+				default:
+					throw new IllegalStateException("Unknown valign: " + n.getValign());
+				case BOTTOM:
+					o().attr("valign", "bottom");
+					break;
+				case TOP:
+					o().attr("valign", "top");
+					break;
+				case MIDDLE:
+					o().attr("valign", "middle");
+					break;
+			}
+		}
+		if(n.getColspan() > 0)
+			o().attr("colspan", n.getColspan());
+		if(n.getRowspan() > 0)
+			o().attr("rowspan", n.getRowspan());
+		if(n.isNowrap())
+			o().attr("nowrap", "nowrap");
+		if(n.getCellHeight() != null)
+			o().attr("height", n.getCellHeight());
+		if(n.getCellWidth() != null)
+			o().attr("width", n.getCellWidth());
+		if(n.getAlign() != null)
+			o().attr("align", n.getAlign().getCode());
+
+		if(n.getScope() != null)
+			o().attr("scope", n.getScope());
 		renderTagend(n, m_o);
 	}
 

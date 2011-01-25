@@ -32,10 +32,8 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 2, 2008
  */
-public class TH extends NodeContainer {
+public class TH extends TD {
 	private String m_scope = "col";
-
-	private int m_colspan = -1;
 
 	public TH() {
 		super("th");
@@ -54,13 +52,5 @@ public class TH extends NodeContainer {
 		if(DomUtil.isEqual(scope, m_scope))
 			changed();
 		m_scope = scope;
-	}
-
-	public int getColspan() {
-		return m_colspan;
-	}
-
-	public void setColspan(int colspan) {
-		m_colspan = colspan;
 	}
 }
