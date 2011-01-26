@@ -793,7 +793,7 @@ var WebUI = {
 			//fix z-index to one saved in input node
 			node.parentNode.style.zIndex = node.style.zIndex;
 		}
-		if (wasInFocus){
+		if (wasInFocus && divPopup){
 			//show popup in case that input field still has focus
 			$(divPopup).show();
 		}
@@ -805,8 +805,9 @@ var WebUI = {
 				trNod.setAttribute("onmouseover","WebUI.lookupRowMouseOver('" + id + "', '" + trNod.id + "');");
 			}
 		}
-
-		divPopup.setAttribute("onclick","WebUI.lookupPopupClicked('" + id + "');");
+		if (divPopup){
+			divPopup.setAttribute("onclick","WebUI.lookupPopupClicked('" + id + "');");
+		}
 	},
 	
 	/*
