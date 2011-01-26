@@ -50,9 +50,9 @@ public class SimpleThemeFactory implements IThemeFactory {
 
 	public Map<String, Object> createThemeMap(@Nonnull DomApplication da, @Nonnull IResourceDependencyList rdl) throws Exception {
 		Map<String, Object> map = readProperties(da, rdl); // Read properties.
-		String rurl = "$themes/" + m_styleName + "/style.jsproperties";
+		String rurl = "$themes/" + m_styleName + "/style.props.js";
 		IResourceRef ires = findRef(da, rurl, rdl);
-		if(null == ires)
+		if(null == ires || !ires.exists())
 			return map;
 		InputStream is = ires.getInputStream();
 		if(is == null)
@@ -91,6 +91,7 @@ public class SimpleThemeFactory implements IThemeFactory {
 				String cn = v.getClass().getName();
 				if(cn.startsWith("sun."))
 					continue;
+				map.put(name, v);
 			}
 		}
 		return map;
@@ -100,7 +101,7 @@ public class SimpleThemeFactory implements IThemeFactory {
 	public Map<String, Object> readProperties(@Nonnull DomApplication da, @Nonnull IResourceDependencyList rdl) throws Exception {
 		String rurl = "$themes/" + m_styleName + "/style.properties";
 		IResourceRef ires = findRef(da, rurl, rdl);
-		if(null == ires)
+		if(null == ires || !ires.exists())
 			return new HashMap<String, Object>();
 
 		//-- Read the thingy as a property file.
