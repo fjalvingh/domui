@@ -58,15 +58,12 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	//	}
 
 	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
-		this(m);
+		super(m);
 		m_rowRenderer = r;
-
 	}
 
 	public DataTable(@Nonnull ITableModel<T> m) {
 		super(m);
-		m_table.setCellPadding("0");
-		m_table.setCellSpacing("0");
 	}
 
 	//	public DataTable(Class<T> actualClass, ITableModel<T> model, IRowRenderer<T> r) {

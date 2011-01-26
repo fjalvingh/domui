@@ -26,10 +26,6 @@ input:hover, textarea:hover, select:hover {
 	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
 }
 
-#inputjes {
-	border: 1px solid #781351;
-}
-
 .ui-txx {
 	vertical-align: top;
 }
@@ -63,7 +59,7 @@ input:hover, textarea:hover, select:hover {
 	background-color: #ffe1bf;
 }
 
-/*** ViewPoint title bar ***/
+/*** App Title bar ***/
 .ui-atl-bb {
 	white-space: nowrap;
 	background-image: url(bg-caption-end.png);
@@ -315,7 +311,7 @@ div.ui-popin {
 	margin-right: 13px;
 }
 .ui-mbx-mc {
-	font-size: 13px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-size: 13px;
 }
 
 /*** InfoPanel ***/
@@ -974,22 +970,17 @@ div:hover.ui-xdt-exp {
 /*** DataTable default style ***/
 .ui-dt {
 	overflow: auto;
-	padding: 4px;
 }
 
-.ui-dt TH {
+.ui-dt th {
 	text-align: left;
-	vertical-align: top;
 	font-weight: bold;
 	padding: 0px 3px;
-}
-.ui-dt-simg {
-	padding: 0 !important;
+	vertical-align: top;
 }
 
 .ui-dt tbody td {
 	padding: 0px 3px;
-	border-left: 1px solid #ddd;
 }
 
 .ui-dt-hdr {
@@ -1002,7 +993,6 @@ div:hover.ui-xdt-exp {
 }
 
 .ui-odd {
-	
 }
 
 .ui-even {
@@ -1031,10 +1021,14 @@ th.ui-sortable {
 	cursor: pointer;
 }
 .ui-sortable img {
-	float: left;
-	margin-right: 2px;
+	margin-top: 2px;
+	margin-left: -2px;
+	position: absolute;
+	border: 0px;
 }
-
+.ui-sortable span {
+	margin-left: 8px;
+}
 .ui-dt-separator {
 	background: url(bg-horiz-separator.png) repeat-x center;
 	padding: 1px;
@@ -1059,6 +1053,16 @@ th.ui-sortable {
 .ui-sib:hover {
 	background-color: #bed6f8 !important;
 }
+
+/*** Caption ***/
+.ui-cptn {
+	border: 1px solid #bed6f8;
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-header.png.svg) repeat-x;
+	margin-top: 10px;
+}
+
 
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
@@ -1362,10 +1366,6 @@ body,html {
 	position: absolute;
 	bottom: 0px;
 	left: 0px;
-}
-
-.vphdr-back-col {
-	background: #bed6f8;
 }
 
 /* have to put it here since it uses color replacement */

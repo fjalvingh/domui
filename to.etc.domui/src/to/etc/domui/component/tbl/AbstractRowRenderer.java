@@ -247,34 +247,23 @@ public class AbstractRowRenderer<T> {
 			if(!cd.getSortable().isSortable() || !sortablemodel) {
 				//-- Just add the label, if present,
 				th = cc.add(label);
-				th.setCssClass("ui-dt-lbl");
 			} else {
 				//-- Add the sort order indicator: a single image containing either ^, v or both.
-				final SimpleColumnDef scd = cd;
-
 				final Img img = new Img();
 				th = cc.add(img); // Add the label;
-				th.setCssClass("ui-sortable ui-dt-simg");
-				th.setCellWidth("1%");
-				th.setScope(null); // IMPORTANT!
-				img.setBorder(0);
+				//				img.setBorder(0);
 				if(cd == m_sortColumn) {
 					img.setSrc(m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 				} else {
 					img.setSrc("THEME/sort-none.png");
 				}
 				m_sortImages[ix] = img;
-				th.setClicked(new IClicked<TH>() {
-					@Override
-					public void clicked(final TH b) throws Exception {
-						handleSortClick(b, scd);
-					}
-				});
 
 				if(label == null || label.trim().length() == 0)
 					label = getUnknownColumnCaption();
-				th = cc.add(label);
-				th.setCssClass("ui-sortable ui-dt-slbl");
+				th.add(new Span(label));
+				th.setCssClass("ui-sortable");
+				final SimpleColumnDef scd = cd;
 				th.setClicked(new IClicked<TH>() {
 					@Override
 					public void clicked(final TH b) throws Exception {
@@ -472,10 +461,6 @@ public class AbstractRowRenderer<T> {
 		else if(cd.getCssClass() != null) {
 			cell.addCssClass(cd.getCssClass());
 		}
-		if(cd.getSortable().isSortable() && tbl.getModel() instanceof ISortableTableModel) {
-			cell.setColspan(2);
-		}
-
 	}
 
 	public IRowButtonFactory<T> getRowButtonFactory() {
