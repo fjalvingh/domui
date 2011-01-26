@@ -37,6 +37,11 @@ info_border="blue";
 tab_link_color="#6ba1eb";	// hard blue
 tab_fg="#123667";	// very dark blue
 
+// row odd/even
+even_bg="#eeeeee"; //greyish
+
+
+
 // DataPager icons
 dpr_next="THEME/dpr-next.png.svg?w=20&h=20";
 dpr_prev="THEME/dpr-prev.png.svg?w=20&h=20";

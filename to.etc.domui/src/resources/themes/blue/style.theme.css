@@ -993,7 +993,7 @@ div:hover.ui-xdt-exp {
 }
 
 .ui-even {
-	background-color: <%= vpeven_bg %>;
+	background-color: <%= even_bg %>;
 }
 
 tr.ui-rowsel {
