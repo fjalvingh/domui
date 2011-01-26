@@ -119,6 +119,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 		SortableType sort = null;
 		INodeContentRenderer< ? > nodeRenderer = null;
 		Class< ? > nrclass = null;
+		ICellClicked< ? > clickHandler = null;
 
 		for(final Object val : cols) {
 			if(property == null) { // Always must start with a property.
@@ -136,7 +137,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 							throw new IllegalArgumentException("Unexpected 'string' parameter: '" + s + "'");
 						//-- FALL THROUGH
 					case 0:
-						internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort);
+						internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler);
 						property = s;
 						width = null;
 						conv = null;
@@ -164,6 +165,8 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 				conv = (IConverter<R>) val;
 			else if(val instanceof INodeContentRenderer< ? >)
 				nodeRenderer = (INodeContentRenderer< ? >) val;
+			else if(val instanceof ICellClicked< ? >)
+				clickHandler = (ICellClicked< ? >) val;
 			else if(val instanceof Class< ? >) {
 				final Class<R> c = (Class<R>) val;
 				if(INodeContentRenderer.class.isAssignableFrom(c))
@@ -177,7 +180,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 			} else
 				throw new IllegalArgumentException("Invalid column modifier argument: " + val);
 		}
-		internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort);
+		internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler);
 		return this;
 	}
 
@@ -221,10 +224,11 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 	 * @param cssclass
 	 * @param nodeRenderer
 	 * @param nrclass
+	 * @param clickHandler
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
 	private <R> void internalAddProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass,
-		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap, SortableType sort) throws Exception {
+		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler) throws Exception {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
 
@@ -244,6 +248,9 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 			cd.setNowrap(nowrap);
 			if(sort != null)
 				cd.setSortable(sort);
+			if(clickHandler != null) {
+				cd.setCellClicked(clickHandler);
+			}
 			return;
 		}
 
@@ -272,6 +279,9 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 			if(pmm.getNumericPresentation() != null && pmm.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				cd.setCssClass("ui-numeric");
 				cd.setHeaderCssClass("ui-numeric");
+			}
+			if(clickHandler != null) {
+				cd.setCellClicked(clickHandler);
 			}
 			return;
 		}
@@ -330,6 +340,9 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				scd.setCssClass("ui-numeric");
 				scd.setHeaderCssClass("ui-numeric");
+			}
+			if(clickHandler != null) {
+				scd.setCellClicked(clickHandler);
 			}
 		}
 	}

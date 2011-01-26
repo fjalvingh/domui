@@ -62,6 +62,14 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 
 	private boolean m_monetary;
 
+	//FIXME: check how other databases will match with this numbers range limits?
+	//Oracle reference: The NUMBER data type is used to store zero, negative, positive, fixed, and floating point numbers with up to 38 digits of precision. Numbers range between 1.0x10 -126 and 1.0x10 126.
+	//Max NUMBER data type limitation.
+	private static final Double m_max_jdbc_column_value = Double.valueOf(Math.pow(10, 126));
+
+	//Min NUMBER data type limitation.
+	private static final Double m_min_jdbc_column_value = Double.valueOf(-1 * Math.pow(10, 126));
+
 	static {
 		UNARY_OPS = new HashSet<QOperation>();
 		UNARY_OPS.add(QOperation.ISNOTNULL);
@@ -111,11 +119,16 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 	}
 
 	protected void checkNumber(T value) {
-		if(value instanceof Double || value instanceof BigDecimal) { // FIXME BigDecimal is wrongly compared here
+		if(value instanceof Double || value instanceof BigDecimal) { // FIXME BigDecimal is wrongly compared here (vmijic - what would be right compare ?)
 			if(m_maxValue != null && value.doubleValue() > m_maxValue.doubleValue())
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_maxValue);
 			if(m_minValue != null && value.doubleValue() < m_minValue.doubleValue())
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, m_minValue);
+			//in case that other validations pass, we need to check for implicit JDBC parameter validation range (for Oracle it is 1.0x10^-126 and 1.0x10^126)
+			if(value.doubleValue() > m_max_jdbc_column_value.doubleValue())
+				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_max_jdbc_column_value);
+			if(value.doubleValue() < m_min_jdbc_column_value.doubleValue())
+				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, m_min_jdbc_column_value);
 		} else if(value instanceof Long || value instanceof Integer) {
 			if(m_maxValue != null && value.longValue() > m_maxValue.longValue())
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_maxValue);
@@ -262,8 +275,9 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 		try {
 			if(isMonetary())
 				return MoneyUtil.parseMoney(m_valueType, in);
-			else
+			else {
 				return NumericUtil.parseNumber(m_valueType, in);
+			}
 		} catch(ValidationException vx) {
 			/*
 			 * Partial fix for bug 682:
