@@ -166,8 +166,7 @@ public abstract class DomApplication {
 				return true;
 			}
 		});
-		m_themer = new SimpleThemeFactory("unsplit");
-
+		m_themeFactory = new SimpleThemeFactory("blue", "blue", "blue");
 
 		registerResourceFactory(new ClassRefResourceFactory());
 		registerResourceFactory(new VersionedJsResourceFactory());
@@ -1241,22 +1240,22 @@ public abstract class DomApplication {
 	/*	CODING:	Programmable theme code.							*/
 	/*--------------------------------------------------------------*/
 	/** The thing that themes the application. Set only once @ init time. */
-	private IThemeFactory m_themer = new SimpleThemeFactory("domui");
+	private IThemeFactory m_themeFactory;
 
 	private ITheme m_themeStore;
 
 	private ResourceDependencies m_themeDependencies;
 
 	public synchronized IThemeFactory getThemer() {
-		return m_themer;
+		return m_themeFactory;
 	}
 
 	/**
 	 * Set the factory for handling the theme.
 	 * @param themer
 	 */
-	public synchronized void setThemer(IThemeFactory themer) {
-		m_themer = themer;
+	public synchronized void setThemeFactory(IThemeFactory themer) {
+		m_themeFactory = themer;
 		m_themeStore = null;
 		m_themeDependencies = null;
 	}

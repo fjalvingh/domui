@@ -1,7 +1,7 @@
 /*
  * "blue" stylesheet properties.
  */
-font_family="verdana, tahoma, helvetica, sans-serif";
+font_family="Verdana, Tahoma, helvetica, sans-serif";
 font_size="11px";
 hdr_font_size="14px";
 
@@ -13,7 +13,7 @@ button_fg="#ffffff";
 link_font_size="12px";
 link_color="#2200cc";	// dark blue
 
-header_bg="#bed6f8";
+header_bg="#3580bd";
 header_bg_bg="#ffffff";	// background to fade into for header
 
 //-- Selects and highlights ---
