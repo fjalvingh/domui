@@ -51,7 +51,7 @@ public class SimpleThemeFactory implements IThemeFactory {
 	public ITheme loadTheme(@Nonnull DomApplication da) throws Exception {
 		ResourceDependencyList rdl = new ResourceDependencyList();
 		Map<String, Object> map = new HashMap<String, Object>();
-		loadProperties(map, da, "$themes/" + m_colorName + ".props.js", rdl);
+		loadProperties(map, da, "$themes/" + m_colorName + ".color.js", rdl);
 		loadProperties(map, da, "$icons/" + m_iconName + "/icon.props.js", rdl);
 		loadProperties(map, da, "$themes/" + m_styleName + "/style.props.js", rdl);
 		return new SimpleTheme(m_styleName, map, rdl.createDependencies());

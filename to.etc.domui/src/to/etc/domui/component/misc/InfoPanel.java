@@ -32,8 +32,9 @@ public class InfoPanel extends Div {
 
 	final private Img m_icon = new Img();
 
-	public InfoPanel(String text) {
+	public InfoPanel(String text) throws Exception {
 		this(text, "THEME/big-info.png");
+		build();
 	}
 
 	public InfoPanel(String text, String icon) {

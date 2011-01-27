@@ -236,7 +236,7 @@ TD .ui-tree .selected:hover {
 	margin-top: 10px;
 }
 .ui-chdr-ttl {
-	background-color: <%= header_bg %>;
+	background-color: <%= util.color(header_bg).lighter(0.4) %>;
 	-moz-border-radius: 5px;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;

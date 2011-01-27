@@ -166,7 +166,7 @@ public abstract class DomApplication {
 				return true;
 			}
 		});
-		m_themeFactory = new SimpleThemeFactory("blue", "blue", "blue");
+		m_themeFactory = new SimpleThemeFactory("blue", "orange", "blue");
 
 		registerResourceFactory(new ClassRefResourceFactory());
 		registerResourceFactory(new VersionedJsResourceFactory());
