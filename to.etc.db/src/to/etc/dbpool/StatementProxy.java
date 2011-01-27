@@ -54,13 +54,16 @@ public class StatementProxy implements Statement {
 	/*	CODING:	Changed/intercepted methods..						*/
 	/*--------------------------------------------------------------*/
 
-	public StatementProxy(final ConnectionProxy c, final Statement st, final String sql) {
+	StatementProxy(final ConnectionProxy c, final String sql) {
 		m_c = c;
-		m_st = st;
 		m_sql_str = sql;
 		if(c.getPool().c().isLogResultSetLocations()) {
 			m_allocationLocation = Tracepoint.create(null);
 		}
+	}
+
+	void associate(Statement st) {
+		m_st = st;
 	}
 
 	/**

@@ -31,14 +31,14 @@ public interface InfoCollector {
 	 * Called when a prepare is started. This starts the clock for the statement.
 	 * @param sql
 	 */
-	void prepareStatement(String sql);
+	void prepareStatement(StatementProxy sp);
 
 	/**
 	 * Called when the prepare call has finished.
 	 * @param sql
 	 * @param sp
 	 */
-	void prepareStatementEnd(String sql, StatementProxy sp);
+	void prepareStatementEnd(StatementProxy sp);
 
 	void executeQueryStart(StatementProxy sp);
 

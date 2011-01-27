@@ -42,8 +42,8 @@ public class CallableStatementProxy extends PreparedStatementProxy implements Ca
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Changed/intercepted methods..						*/
 	/*--------------------------------------------------------------*/
-	public CallableStatementProxy(ConnectionProxy c, CallableStatement st, String sql) {
-		super(c, st, sql);
+	CallableStatementProxy(ConnectionProxy c, String sql) {
+		super(c, sql);
 	}
 
 	public CallableStatement getRealCallableStatement() {

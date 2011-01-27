@@ -48,8 +48,8 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 	/*	CODING:	Changed/intercepted methods..						*/
 	/*--------------------------------------------------------------*/
 
-	public PreparedStatementProxy(final ConnectionProxy c, final PreparedStatement st, final String sql) {
-		super(c, st, sql);
+	PreparedStatementProxy(final ConnectionProxy c, final String sql) {
+		super(c, sql);
 	}
 
 	@Override

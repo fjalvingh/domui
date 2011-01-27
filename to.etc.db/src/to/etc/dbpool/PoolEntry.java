@@ -423,12 +423,12 @@ final class PoolEntry {
 	/*	CODING:	Tracked resource allocation routines..				*/
 	/*--------------------------------------------------------------*/
 	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1) throws java.sql.SQLException {
-		PreparedStatementProxy ps = null;
+		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
-			pc.collector().prepareStatement(p1);
-			ps = new PreparedStatementProxy(pc, getConnection().prepareStatement(p1), p1);
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().prepareStatement(p1));
 		} finally {
-			pc.collector().prepareStatementEnd(p1, ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();
@@ -436,12 +436,12 @@ final class PoolEntry {
 	}
 
 	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int p2, final int p3) throws java.sql.SQLException {
-		PreparedStatementProxy ps = null;
+		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
-			pc.collector().prepareStatement(p1);
-			ps = new PreparedStatementProxy(pc, getConnection().prepareStatement(p1, p2, p3), p1);
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().prepareStatement(p1, p2, p3));
 		} finally {
-			pc.collector().prepareStatementEnd(p1, ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();
@@ -449,12 +449,12 @@ final class PoolEntry {
 	}
 
 	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int[] p2) throws java.sql.SQLException {
-		PreparedStatementProxy ps = null;
+		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
-			pc.collector().prepareStatement(p1);
-			ps = new PreparedStatementProxy(pc, getConnection().prepareStatement(p1, p2), p1);
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().prepareStatement(p1, p2));
 		} finally {
-			pc.collector().prepareStatementEnd(p1, ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();
@@ -462,12 +462,12 @@ final class PoolEntry {
 	}
 
 	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int p2, final int p3, final int p4) throws java.sql.SQLException {
-		PreparedStatementProxy ps = null;
+		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
-			pc.collector().prepareStatement(p1);
-			ps = new PreparedStatementProxy(pc, getConnection().prepareStatement(p1, p2, p3, p4), p1);
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().prepareStatement(p1, p2, p3, p4));
 		} finally {
-			pc.collector().prepareStatementEnd(p1, ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();
@@ -475,12 +475,12 @@ final class PoolEntry {
 	}
 
 	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int p2) throws java.sql.SQLException {
-		PreparedStatementProxy ps = null;
+		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
-			pc.collector().prepareStatement(p1);
-			ps = new PreparedStatementProxy(pc, getConnection().prepareStatement(p1, p2), p1);
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().prepareStatement(p1, p2));
 		} finally {
-			pc.collector().prepareStatementEnd(p1, ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();
@@ -488,12 +488,12 @@ final class PoolEntry {
 	}
 
 	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final String[] ar) throws java.sql.SQLException {
-		PreparedStatementProxy ps = null;
+		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
-			pc.collector().prepareStatement(p1);
-			ps = new PreparedStatementProxy(pc, getConnection().prepareStatement(p1, ar), p1);
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().prepareStatement(p1, ar));
 		} finally {
-			pc.collector().prepareStatementEnd(p1, ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();
@@ -501,12 +501,12 @@ final class PoolEntry {
 	}
 
 	protected java.sql.Statement proxyCreateStatement(final ConnectionProxy pc) throws java.sql.SQLException {
-		StatementProxy ps = null;
+		StatementProxy ps = new StatementProxy(pc, null);
 		try {
-			pc.collector().prepareStatement("(unset)");
-			ps = new StatementProxy(pc, getConnection().createStatement(), "(unset)");
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().createStatement());
 		} finally {
-			pc.collector().prepareStatementEnd("(unset)", ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();
@@ -514,12 +514,12 @@ final class PoolEntry {
 	}
 
 	protected java.sql.Statement proxyCreateStatement(final ConnectionProxy pc, final int p1, final int p2) throws java.sql.SQLException {
-		StatementProxy ps = null;
+		StatementProxy ps = new StatementProxy(pc, null);
 		try {
-			pc.collector().prepareStatement("(unset)");
-			ps = new StatementProxy(pc, getConnection().createStatement(p1, p2), "(unset)");
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().createStatement(p1, p2));
 		} finally {
-			pc.collector().prepareStatementEnd("(unset)", ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();
@@ -527,12 +527,12 @@ final class PoolEntry {
 	}
 
 	protected java.sql.Statement proxyCreateStatement(final ConnectionProxy pc, final String a, final String[] b) throws java.sql.SQLException {
-		StatementProxy ps = null;
+		StatementProxy ps = new StatementProxy(pc, a);
 		try {
-			pc.collector().prepareStatement(a);
-			ps = new StatementProxy(pc, getConnection().prepareStatement(a, b), a);
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().prepareStatement(a, b));
 		} finally {
-			pc.collector().prepareStatementEnd(a, ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();
@@ -540,12 +540,12 @@ final class PoolEntry {
 	}
 
 	protected java.sql.Statement proxyCreateStatement(final ConnectionProxy pc, final int p1, final int p2, final int p3) throws java.sql.SQLException {
-		StatementProxy ps = null;
+		StatementProxy ps = new StatementProxy(pc, null);
 		try {
-			pc.collector().prepareStatement("(unset)");
-			ps = new StatementProxy(pc, getConnection().createStatement(p1, p2, p3), "(unset)");
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().createStatement(p1, p2, p3));
 		} finally {
-			pc.collector().prepareStatementEnd("(unset)", ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();
@@ -553,7 +553,7 @@ final class PoolEntry {
 	}
 
 	protected java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1, final int p2, final int p3) throws java.sql.SQLException {
-		CallableStatementProxy ps = null;
+		CallableStatementProxy ps = new CallableStatementProxy(pc, p1);
 		try {
 			pc.collector().prepareStatement(p1);
 			ps = new CallableStatementProxy(pc, getConnection().prepareCall(p1, p2, p3), p1);
@@ -566,7 +566,7 @@ final class PoolEntry {
 	}
 
 	protected java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1, final int p2, final int p3, final int p4) throws java.sql.SQLException {
-		CallableStatementProxy ps = null;
+		CallableStatementProxy ps = new CallableStatementProxy(pc, p1);
 		try {
 			pc.collector().prepareStatement(p1);
 			ps = new CallableStatementProxy(pc, getConnection().prepareCall(p1, p2, p3, p4), p1);
@@ -579,7 +579,7 @@ final class PoolEntry {
 	}
 
 	protected java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1) throws java.sql.SQLException {
-		CallableStatementProxy ps = null;
+		CallableStatementProxy ps = new CallableStatementProxy(pc, p1);
 		try {
 			pc.collector().prepareStatement(p1);
 			ps = new CallableStatementProxy(pc, getConnection().prepareCall(p1), p1);
