@@ -31,8 +31,9 @@ import javax.annotation.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.ILookupControlInstance.*;
+import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -371,34 +372,6 @@ public class LookupForm<T> extends Div {
 		return m_lookupClass;
 	}
 
-	//	/**
-	//	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
-	//	 * Change the class for which we are searching. This clear ALL definitions!
-	//	 * @param lookupClass
-	//	 */
-	//	@Deprecated
-	//	public void setLookupClass(@Nonnull final Class<T> lookupClass) {
-	//		if(m_lookupClass == lookupClass)
-	//			return;
-	//		m_lookupClass = lookupClass;
-	//		m_metaModel = MetaManager.findClassMeta(lookupClass);
-	//		reset();
-	//	}
-	//
-	//	/**
-	//	 * QUESTIONABLE INTERFACE: This is actually typeless so should not be on a LookupForm&lt;T&gt; - by definition this class will never be a Class&lt;T&gt;...
-	//	 * Change the class and metamodel for which we are searching. This clear ALL definitions!
-	//	 * @param lookupClass
-	//	 */
-	//	@Deprecated
-	//	public void setLookupClass(@Nonnull final Class<T> lookupClass, @Nonnull ClassMetaModel cmm) {
-	//		if(m_lookupClass == lookupClass)
-	//			return;
-	//		m_lookupClass = lookupClass;
-	//		m_metaModel = cmm;
-	//		reset();
-	//	}
-
 	/**
 	 * Actually show the thingy.
 	 * @see to.etc.domui.dom.html.NodeBase#createContent()
@@ -735,6 +708,76 @@ public class LookupForm<T> extends Div {
 		if(null == pmm)
 			throw new ProgrammerErrorException(property + ": undefined property for class=" + getLookupClass());
 		return addManualTextLabel(pmm.getDefaultLabel(), lci);
+	}
+
+	/**
+	 * Add lookup control instance for search properties on child list (oneToMany relation)
+	 * members. This adds a query by using the "exists" subquery for the child record. See
+	 * <a href="http://www.domui.org/wiki/bin/view/Tutorial/QCriteriaRulez">QCriteria rules</a> for
+	 * details.
+	 *
+	 * @param propPath
+	 * 		Must be <b>parentprop.childprop</b> dotted form. Label is used from parent property meta.
+	 */
+	public Item addChildProperty(String propPath) {
+		return addChildPropertyLabel(null, propPath);
+	}
+
+
+	/**
+	 * Add lookup control instance for search properties on child list (oneToMany relation)
+	 * members. This adds a query by using the "exists" subquery for the child record. See
+	 * <a href="http://www.domui.org/wiki/bin/view/Tutorial/QCriteriaRulez">QCriteria rules</a> for
+	 * details.
+	 * @param label
+	 * 		Label that is displayed. If null, default label from parent property meta is used.
+	 * @param propPath
+	 * 		Must be <b>parentprop.childprop</b> dotted form.
+	 */
+	public Item addChildPropertyLabel(String label, String propPath) {
+
+		final List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(m_metaModel, propPath);
+
+		if(pl.size() != 2) {
+			throw new ProgrammerErrorException("Property path does not contain parent.child path: " + propPath);
+		}
+
+		final PropertyMetaModel< ? > parentPmm = pl.get(0);
+		final PropertyMetaModel< ? > childPmm = pl.get(1);
+
+		SearchPropertyMetaModelImpl spmm = new SearchPropertyMetaModelImpl(m_metaModel);
+		spmm.setPropertyName(childPmm.getName());
+		spmm.setPropertyPath(pl);
+
+		ILookupControlFactory lcf = m_builder.findLookupControlFactory(spmm);
+		final ILookupControlInstance lookupInstance = lcf.createControl(spmm, null);
+
+		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
+
+			@Override
+			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
+
+				QCriteria< ? > r = QCriteria.create(childPmm.getClassModel().getActualClass());
+				AppendCriteriaResult subRes = lookupInstance.appendCriteria(r);
+
+				if(subRes == AppendCriteriaResult.INVALID) {
+					return subRes;
+				} else if(r.hasRestrictions()) {
+					QRestrictor< ? > exists = crit.exists(childPmm.getClassModel().getActualClass(), parentPmm.getName());
+					exists.setRestrictions(r.getRestrictions());
+					return AppendCriteriaResult.VALID;
+				} else {
+					return AppendCriteriaResult.EMPTY;
+				}
+			}
+
+			@Override
+			public void clearInput() {
+				lookupInstance.clearInput();
+			}
+		};
+
+		return this.addManualTextLabel(label == null ? parentPmm.getDefaultLabel() : label, thingy);
 	}
 
 	/**

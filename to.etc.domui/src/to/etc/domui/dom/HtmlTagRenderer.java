@@ -611,19 +611,38 @@ public class HtmlTagRenderer implements INodeVisitor {
 		}
 
 		//-- Javascriptish
-		if(b.internalNeedClickHandler()) {
-			o.attr("onclick", sb().append("return WebUI.clicked(this, '").append(b.getActualID()).append("', event)").toString());
-		} else if(b.getOnClickJS() != null) {
-			o.attr("onclick", b.getOnClickJS());
+		//-- jal 20110125 Start fixing bug# 917: the idiots in the room (IE 7, 8) do not properly handle onchange on checkbox, sigh.
+		if(m_browserVersion.isIE() && b instanceof Checkbox) {
+			Checkbox cb = (Checkbox) b;
+
+			//-- To fix IE's 26385652791725917435'th bug use the clicked listener to handle change events too.
+			if(b.internalNeedClickHandler() || cb.getOnValueChanged() != null) {
+				o.attr("onclick", sb().append("return WebUI.clickandchange(this, '").append(b.getActualID()).append("', event)").toString());
+			} else if(b.getOnClickJS() != null) {
+				o.attr("onclick", b.getOnClickJS());
+			}
+			//			if(b instanceof IHasChangeListener) {
+			//				IHasChangeListener inb = (IHasChangeListener) b;
+			//				if(null != inb.getOnValueChanged()) {
+			//					o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
+			//				}
+			//			}
+		} else {
+			if(b.internalNeedClickHandler()) {
+				o.attr("onclick", sb().append("return WebUI.clicked(this, '").append(b.getActualID()).append("', event)").toString());
+			} else if(b.getOnClickJS() != null) {
+				o.attr("onclick", b.getOnClickJS());
+			}
+			if(b instanceof IHasChangeListener) {
+				IHasChangeListener inb = (IHasChangeListener) b;
+				if(null != inb.getOnValueChanged()) {
+					o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
+				}
+			}
 		}
+
 		if(b.getOnMouseDownJS() != null) {
 			o.attr("onmousedown", b.getOnMouseDownJS());
-		}
-		if(b instanceof IHasChangeListener) {
-			IHasChangeListener inb = (IHasChangeListener) b;
-			if(null != inb.getOnValueChanged()) {
-				o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
-			}
 		}
 	}
 
@@ -678,16 +697,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	@Override
-	public void visitTH(final TH n) throws Exception {
-		basicNodeRender(n, m_o);
-		if(n.getColspan() > 0)
-			o().attr("colspan", n.getColspan());
-		if(n.getScope() != null)
-			o().attr("scope", n.getScope());
-		renderTagend(n, m_o);
-	}
-
-	@Override
 	public void visitTHead(final THead n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
@@ -730,6 +739,42 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("width", n.getCellWidth());
 		if(n.getAlign() != null)
 			o().attr("align", n.getAlign().getCode());
+		renderTagend(n, m_o);
+	}
+
+	@Override
+	public void visitTH(final TH n) throws Exception {
+		basicNodeRender(n, m_o);
+		if(n.getValign() != null) {
+			switch(n.getValign()){
+				default:
+					throw new IllegalStateException("Unknown valign: " + n.getValign());
+				case BOTTOM:
+					o().attr("valign", "bottom");
+					break;
+				case TOP:
+					o().attr("valign", "top");
+					break;
+				case MIDDLE:
+					o().attr("valign", "middle");
+					break;
+			}
+		}
+		if(n.getColspan() > 0)
+			o().attr("colspan", n.getColspan());
+		if(n.getRowspan() > 0)
+			o().attr("rowspan", n.getRowspan());
+		if(n.isNowrap())
+			o().attr("nowrap", "nowrap");
+		if(n.getCellHeight() != null)
+			o().attr("height", n.getCellHeight());
+		if(n.getCellWidth() != null)
+			o().attr("width", n.getCellWidth());
+		if(n.getAlign() != null)
+			o().attr("align", n.getAlign().getCode());
+
+		if(n.getScope() != null)
+			o().attr("scope", n.getScope());
 		renderTagend(n, m_o);
 	}
 

@@ -24,6 +24,7 @@
  */
 package to.etc.domui.test.converters;
 
+import java.math.*;
 import java.util.*;
 
 import org.junit.*;
@@ -48,7 +49,7 @@ public class TestMoneyConverter {
 	 */
 	public void check(String in, String out) {
 		MiniScanner ms = MiniScanner.getInstance();
-		ms.scanLaxEuro(in);
+		ms.scanLaxWithCurrencySign(in);
 		String res = ms.getStringResult();
 		System.out.println("  ... " + in + " -> " + res);
 		Assert.assertEquals(out, res);
@@ -62,7 +63,7 @@ public class TestMoneyConverter {
 		try {
 			MiniScanner ms = MiniScanner.getInstance();
 			System.out.println(" ... " + in + " (bad)");
-			ms.scanLaxEuro(in);
+			ms.scanLaxWithCurrencySign(in);
 		} catch(ValidationException vx) {
 			if(vx.getCode().equals(Msgs.V_BAD_AMOUNT))
 				return;
@@ -165,6 +166,13 @@ public class TestMoneyConverter {
 		Assert.assertEquals(exp, res);
 	}
 
+	private void testMoney(double v, boolean thou, boolean curr, boolean trunk, String exp) {
+		String res = MoneyUtil.render(BigDecimal.valueOf(v), thou, curr, trunk);
+		System.out.println("  ... " + v + " -> " + res);
+		Assert.assertEquals(exp, res);
+	}
+
+
 	@Test
 	public void testToString() {
 		System.out.println("double naar string representatie: simpel");
@@ -177,16 +185,52 @@ public class TestMoneyConverter {
 		testSimple(99999999999999.875, "99999999999999.88"); // Largest precision;
 
 		System.out.println("double naar string representatie: full format");
-		testFullSign(1234567.89, "\u20ac 1.234.567,89");
-		testFullSign(1234567, "\u20ac 1.234.567,00");
-		testFullSign(1234567.01, "\u20ac 1.234.567,01");
-		testFullSign(1234567.1, "\u20ac 1.234.567,10");
-		testFullSign(0.0, "\u20ac 0,00");
+		testFullSign(1234567.89, "\u20ac\u00a01.234.567,89");
+		testFullSign(1234567, "\u20ac\u00a01.234.567,00");
+		testFullSign(1234567.01, "\u20ac\u00a01.234.567,01");
+		testFullSign(1234567.1, "\u20ac\u00a01.234.567,10");
+		testFullSign(0.0, "\u20ac\u00a00,00");
 
-		testFullSign(-1234567.89, "\u20ac -1.234.567,89");
-		testFullSign(-1234567, "\u20ac -1.234.567,00");
-		testFullSign(-1234567.01, "\u20ac -1.234.567,01");
-		testFullSign(-1234567.1, "\u20ac -1.234.567,10");
+		testFullSign(-1234567.89, "\u20ac\u00a0-1.234.567,89");
+		testFullSign(-1234567, "\u20ac\u00a0-1.234.567,00");
+		testFullSign(-1234567.01, "\u20ac\u00a0-1.234.567,01");
+		testFullSign(-1234567.1, "\u20ac\u00a0-1.234.567,10");
 	}
+
+	@Test
+	public void testOtherLocales() {
+		//		Locale loc = Locale.US; //new Locale("en_US");
+		Locale loc = new Locale("nl", "NL");
+		Currency c = Currency.getInstance(loc);
+		System.out.println("c  = " + c.getSymbol(loc) + ", digs=" + c.getDefaultFractionDigits());
+
+		Locale nl = new Locale("nl", "NL");
+		NlsContext.setLocale(nl);
+		NlsContext.setCurrencyLocale(nl);
+		testMoney(1234.45, false, true, true, "\u20ac\u00a01234,45");
+		testMoney(1234.45111, false, true, true, "\u20ac\u00a01234,45");
+		testMoney(1234.00, false, true, true, "\u20ac\u00a01234");
+		testMoney(1234.00, false, true, false, "\u20ac\u00a01234,00");
+
+		//-- Signless
+		testMoney(1234.45, false, false, true, "1234,45");
+		testMoney(1234.45111, false, false, true, "1234,45");
+		testMoney(1234.00, false, false, true, "1234");
+		testMoney(1234.00, false, false, false, "1234,00");
+
+		//----- Using the Yen, which has no fractional part.
+		Locale jp = Locale.JAPAN;
+		NlsContext.setLocale(jp);
+		NlsContext.setCurrencyLocale(jp);
+		testMoney(1234.45, false, true, true, "\uffe5\u00a01234");
+		testMoney(1234.45111, false, true, true, "\uffe5\u00a01234");
+		testMoney(1234.00, false, true, true, "\uffe5\u00a01234");
+		testMoney(1234.00, false, true, false, "\uffe5\u00a01234");
+
+		//-- Same, for input,
+		check("\u20ac 1000", "1000");
+		check("\uffe5 1000", "1000");
+	}
+
 
 }

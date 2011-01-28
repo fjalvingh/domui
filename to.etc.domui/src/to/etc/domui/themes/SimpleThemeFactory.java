@@ -37,27 +37,31 @@ import to.etc.domui.util.resources.*;
 public class SimpleThemeFactory implements IThemeFactory {
 	final private String m_styleName;
 
-	public SimpleThemeFactory(String styleName) {
+	final private String m_iconName;
+
+	final private String m_colorName;
+
+	public SimpleThemeFactory(String styleName, String color, String icon) {
 		m_styleName = styleName;
+		m_colorName = color;
+		m_iconName = icon;
 	}
 
 	@Override
 	public ITheme loadTheme(@Nonnull DomApplication da) throws Exception {
 		ResourceDependencyList rdl = new ResourceDependencyList();
-		Map<String, Object> map = createThemeMap(da, rdl);
+		Map<String, Object> map = new HashMap<String, Object>();
+		loadProperties(map, da, "$themes/" + m_colorName + ".color.js", rdl);
+		loadProperties(map, da, "$icons/" + m_iconName + "/icon.props.js", rdl);
+		loadProperties(map, da, "$themes/" + m_styleName + "/style.props.js", rdl);
 		return new SimpleTheme(m_styleName, map, rdl.createDependencies());
 	}
 
-	public Map<String, Object> createThemeMap(@Nonnull DomApplication da, @Nonnull IResourceDependencyList rdl) throws Exception {
-		Map<String, Object> map = readProperties(da, rdl); // Read properties.
-		String rurl = "$themes/" + m_styleName + "/style.jsproperties";
+	static public void loadProperties(Map<String, Object> map, DomApplication da, String rurl, ResourceDependencyList rdl) throws Exception {
 		IResourceRef ires = findRef(da, rurl, rdl);
-		if(null == ires)
-			return map;
+		if(null == ires || !ires.exists())
+			return;
 		InputStream is = ires.getInputStream();
-		if(is == null)
-			return map;
-
 		ScriptEngine se;
 		try {
 			//-- Try to load the script as a Javascript file and execute it.
@@ -91,40 +95,39 @@ public class SimpleThemeFactory implements IThemeFactory {
 				String cn = v.getClass().getName();
 				if(cn.startsWith("sun."))
 					continue;
+				map.put(name, v);
 			}
 		}
-		return map;
 	}
+	//	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "OS_OPEN_STREAM", justification = "Stream is closed closing wrapped instance.")
+	//	public Map<String, Object> readProperties(@Nonnull DomApplication da, @Nonnull IResourceDependencyList rdl) throws Exception {
+	//		String rurl = "$themes/" + m_styleName + "/style.properties";
+	//		IResourceRef ires = findRef(da, rurl, rdl);
+	//		if(null == ires || !ires.exists())
+	//			return new HashMap<String, Object>();
+	//
+	//		//-- Read the thingy as a property file.
+	//		Properties p = new Properties();
+	//		InputStream is = ires.getInputStream();
+	//		try {
+	//			p.load(new InputStreamReader(is, "utf-8")); // wrapped "is" is closed, no need to close reader.
+	//		} finally {
+	//			try {
+	//				is.close();
+	//			} catch(Exception x) {}
+	//		}
+	//
+	//		//-- Make the output map
+	//		Map<String, Object> map = new HashMap<String, Object>();
+	//		for(Object key : p.keySet()) {
+	//			String k = (String) key;
+	//			String val = p.getProperty(k);
+	//			map.put(k, val);
+	//		}
+	//		return map;
+	//	}
 
-	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "OS_OPEN_STREAM", justification = "Stream is closed closing wrapped instance.")
-	public Map<String, Object> readProperties(@Nonnull DomApplication da, @Nonnull IResourceDependencyList rdl) throws Exception {
-		String rurl = "$themes/" + m_styleName + "/style.properties";
-		IResourceRef ires = findRef(da, rurl, rdl);
-		if(null == ires)
-			return new HashMap<String, Object>();
-
-		//-- Read the thingy as a property file.
-		Properties p = new Properties();
-		InputStream is = ires.getInputStream();
-		try {
-			p.load(new InputStreamReader(is, "utf-8")); // wrapped "is" is closed, no need to close reader.
-		} finally {
-			try {
-				is.close();
-			} catch(Exception x) {}
-		}
-
-		//-- Make the output map
-		Map<String, Object> map = new HashMap<String, Object>();
-		for(Object key : p.keySet()) {
-			String k = (String) key;
-			String val = p.getProperty(k);
-			map.put(k, val);
-		}
-		return map;
-	}
-
-	protected IResourceRef findRef(@Nonnull DomApplication da, @Nonnull String rurl, @Nonnull IResourceDependencyList rdl) throws Exception {
+	static protected IResourceRef findRef(@Nonnull DomApplication da, @Nonnull String rurl, @Nonnull IResourceDependencyList rdl) throws Exception {
 		try {
 			IResourceRef ires = da.getResource(rurl, rdl); // Get the source file, abort if not found
 			return ires;

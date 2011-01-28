@@ -151,17 +151,17 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			return;
 
 		Map<String, Object> map = DomApplication.get().getThemeMap(null);
-		m_nextImg = get(map, "dpr.next", "THEME/nav-next.png");
-		m_prevImg = get(map, "dpr.prev", "THEME/nav-prev.png");
-		m_firstImg = get(map, "dpr.first", "THEME/nav-first.png");
-		m_lastImg = get(map, "dpr.last", "THEME/nav-last.png");
+		m_nextImg = get(map, "dpr_next", "THEME/nav-next.png");
+		m_prevImg = get(map, "dpr_prev", "THEME/nav-prev.png");
+		m_firstImg = get(map, "dpr_first", "THEME/nav-first.png");
+		m_lastImg = get(map, "dpr_last", "THEME/nav-last.png");
 
-		m_nextDisImg = get(map, "dpr.dis.next", "THEME/nav-next-dis.png");
-		m_prevDisImg = get(map, "dpr.dis.prev", "THEME/nav-prev-dis.png");
-		m_firstDisImg = get(map, "dpr.dis.first", "THEME/nav-first-dis.png");
-		m_lastDisImg = get(map, "dpr.dis.last", "THEME/nav-last-dis.png");
+		m_nextDisImg = get(map, "dpr_dis_next", "THEME/nav-next-dis.png");
+		m_prevDisImg = get(map, "dpr_dis_prev", "THEME/nav-prev-dis.png");
+		m_firstDisImg = get(map, "dpr_dis_first", "THEME/nav-first-dis.png");
+		m_lastDisImg = get(map, "dpr_dis_last", "THEME/nav-last-dis.png");
 
-		m_overflowImg = get(map, "dpr.overflow", "THEME/nav-overflow.png");
+		m_overflowImg = get(map, "dpr_overflow", "THEME/nav-overflow.png");
 	}
 
 	private static String enc(String in) {

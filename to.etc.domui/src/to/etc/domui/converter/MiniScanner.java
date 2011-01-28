@@ -26,6 +26,7 @@ package to.etc.domui.converter;
 
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * A helper class which handles string scanning for converters.
@@ -178,7 +179,7 @@ public class MiniScanner {
 	 * Scans the input as a lax euro string and leave the buffer to hold
 	 * a parseable numeric string for one of the to-java-type converters.
 	 */
-	public boolean scanLaxEuro(String in) throws ValidationException {
+	public boolean scanLaxWithCurrencySign(String in) throws ValidationException {
 		return scanLax(in, true);
 	}
 
@@ -193,13 +194,24 @@ public class MiniScanner {
 		return scanLax(in, false);
 	}
 
+	private boolean scanCurrencySign() {
+		if(skip('\u20ac'))
+			return true;
+		String cs = NlsContext.getCurrencySymbol();
+		for(int i = 0; i < cs.length(); i++) {
+			if(!skip(cs.charAt(i)))
+				return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Scans the input as a lax euro string and leave the buffer to hold
 	 * a parseable numeric string for one of the to-java-type converters.
 	 */
 	private boolean scanLax(String in, boolean monetary) throws ValidationException {
 		init(in.trim()); // Remove leading and trailing spaces
-		boolean haseur = skip('\u20ac');		// Skip euro sign
+		boolean haseur = scanCurrencySign();
 		skipWs();			// And any ws after
 		if(eof()) {
 			if(haseur) // Euro sign without anything around it is error

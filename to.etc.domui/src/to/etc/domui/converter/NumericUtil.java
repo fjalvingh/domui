@@ -47,29 +47,11 @@ public class NumericUtil {
 	 */
 	static public int parseInt(String input) {
 		return internalParseInt(input);
-		//
-		//		MiniScanner ms = MiniScanner.getInstance();
-		//		if(!ms.scanLaxNumber(input))
-		//			return 0;
-		//		try {
-		//			return Integer.parseInt(ms.getStringResult());
-		//		} catch(Exception x) {
-		//			throw new ValidationException(Msgs.V_INVALID, input);
-		//		}
 	}
 
 	@Nullable
 	static public Integer parseIntWrapper(String input) {
 		return Integer.valueOf(internalParseInt(input));
-		//
-		//		MiniScanner ms = MiniScanner.getInstance();
-		//		if(!ms.scanLaxNumber(input))
-		//			return null;
-		//		try {
-		//			return Integer.valueOf(ms.getStringResult());
-		//		} catch(Exception x) {
-		//			throw new ValidationException(Msgs.V_INVALID, input);
-		//		}
 	}
 
 	static private final BigDecimal MAXINT = BigDecimal.valueOf(Integer.MAX_VALUE);

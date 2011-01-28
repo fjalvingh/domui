@@ -251,7 +251,7 @@ public class AbstractRowRenderer<T> {
 				//-- Add the sort order indicator: a single image containing either ^, v or both.
 				final Img img = new Img();
 				th = cc.add(img); // Add the label;
-				img.setBorder(0);
+				//				img.setBorder(0);
 				if(cd == m_sortColumn) {
 					img.setSrc(m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 				} else {
@@ -261,7 +261,7 @@ public class AbstractRowRenderer<T> {
 
 				if(label == null || label.trim().length() == 0)
 					label = getUnknownColumnCaption();
-				th.add(label);
+				th.add(new Span(label));
 				th.setCssClass("ui-sortable");
 				final SimpleColumnDef scd = cd;
 				th.setClicked(new IClicked<TH>() {

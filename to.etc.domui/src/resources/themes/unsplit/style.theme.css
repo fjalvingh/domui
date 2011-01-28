@@ -30,7 +30,7 @@ input:hover, textarea:hover, select:hover {
 	vertical-align: top;
 }
 
-/*** Select "odd characters" ***/
+/*** Select special chars ***/
 .ui-oddchars {
 	padding: 10px;
 }
@@ -780,17 +780,15 @@ tr.ui-keyword-popup-row {
 /*** Form basic styles: these are for forms having the label BEFORE the field (horizontal). ***/
 .ui-f-lbl {
 	text-align: right;
-	font-size: <%= font_size %>;
+	font-weight: bold;
 	vertical-align: top;
 }
 
 .ui-f-in {
-	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
 	padding: 0px;
 }
 .ui-f-do {
-	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
 	padding: 0px;
 }
@@ -798,16 +796,13 @@ tr.ui-keyword-popup-row {
 /*** Form basic styles: for forms having the label ABOVE the field (vertical stacked) ***/
 .ui-fvs-lbl {
 	font-weight: bold;
-	font-size: <%= font_size %>;
 }
 
 .ui-fvs-in {
-	font-size: <%= font_size %>;
 	vertical-align: top;
 }
 
 .ui-fvs-do { /* displayonly field */
-	font-size: <%= font_size %>;
 	background-color: white;
 	padding: 2px;
 }
@@ -823,14 +818,12 @@ TD.ui-numeric {
 
 /* Display-only field */
 .ui-f-display {
-	font-size: <%= font_size %>;
 	vertical-align: top;
 	background: #eff7ff;
 }
 
 /*** Form basic styles: for forms where the label is above the edit control (vertical). ***/
 input {
-	font-size: <%= font_size %>;
 }
 
 button img {
@@ -879,7 +872,6 @@ a.ui-nbtn:hover,a.ui-nbtn:active {
 	color: yellow;
 }
 
-/*** Image Button ***/
 /*** Image Button ***/
 .ui-ib {
 /*	width: 124px; 20110118 jal make the image scale the button automatically; fixes decade bug# 1029.
@@ -958,8 +950,11 @@ div:hover.ui-xdt-exp {
 	overflow: auto;
 }
 
-.ui-dt TH {
+.ui-dt th {
 	text-align: left;
+	font-weight: bold;
+	padding: 0px 3px;
+	vertical-align: top;
 }
 
 .ui-dt tbody td {
@@ -976,7 +971,6 @@ div:hover.ui-xdt-exp {
 }
 
 .ui-odd {
-	
 }
 
 .ui-even {
@@ -1005,20 +999,14 @@ th.ui-sortable {
 	cursor: pointer;
 }
 .ui-sortable img {
-	float: left;
-	margin-right: 2px;
+	margin-top: 2px;
+	margin-left: -2px;
+	position: absolute;
+	border: 0px;
 }
-
-.ui-dt TH {
-	font-size: <%= font_size %>;
-	font-weight: bold;
-	padding: 0px 3px;
+.ui-sortable span {
+	margin-left: 8px;
 }
-
-.ui-dt {
-	font-size: <%= font_size %>;
-}
-
 .ui-dt-separator {
 	background: url(bg-horiz-separator.png) repeat-x center;
 	padding: 1px;
@@ -1103,7 +1091,6 @@ th.ui-sortable {
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
 .ui-tab-hdr {
 	float: left;
-	font-size: <%= font_size %>;
 	line-height: normal;
 	border-bottom: 1px solid black;
 	width: 100%;
@@ -1345,6 +1332,9 @@ body,html {
 }
 .ui-pre {
 	white-space: pre;
+}
+.ui-nowrap {
+	white-space: nowrap;
 }
 .ui-printdiv {
 	overflow: hidden;

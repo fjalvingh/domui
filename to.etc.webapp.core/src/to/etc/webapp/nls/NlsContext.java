@@ -50,6 +50,9 @@ final public class NlsContext {
 
 	static private String m_dialect;
 
+	/** The default currency locale; used when no currency is explicitly set. */
+	static private Locale m_defaultCurrencyLocale;
+
 	/**
 	 * The thingy holding the current locale per thread. If the thingy is null
 	 * the current locale is unknown and the default locale will be returned, mirroring
@@ -58,21 +61,24 @@ final public class NlsContext {
 	static private final ThreadLocal<Locale> m_currentLocale = new ThreadLocal<Locale>();
 
 	/**
-	 * The locale for the currency being handled in the entire application. This is a set-once
-	 * global setting and defaults to the "default locale".
+	 * The locale for the currency being handled by the request. This defaults to the "default locale".
 	 */
-	static private Locale m_currencyLocale;
+	static private final ThreadLocal<Locale> m_currencyLocale = new ThreadLocal<Locale>();
 
 	/**
 	 * The Currency instance for the default application-wide currency.
 	 */
-	static private Currency m_currency;
+	static private final ThreadLocal<Currency> m_currency = new ThreadLocal<Currency>();
 
-	/**
-	 * Contains the symbol representing a currency because the currency class is as usual too bloody stupid
-	 * to return an euro sign as it should.
-	 */
-	static private String m_currencySymbol;
+//	static private Locale m_currencyLocale;
+
+//	static private Currency m_currency;
+
+//	/**
+//	 * Contains the symbol representing a currency because the currency class is as usual too bloody stupid
+//	 * to return an euro sign as it should.
+//	 */
+//	static private String m_currencySymbol;
 
 	/**
 	 * Make sure this is never constructed.
@@ -89,43 +95,48 @@ final public class NlsContext {
 		return Locale.getDefault();
 	}
 
+	public synchronized static void setDefaultCurrencyLocale(Locale defaultCurrencyLocale) {
+		m_defaultCurrencyLocale = defaultCurrencyLocale;
+	}
+
+	public synchronized static Locale getDefaultCurrencyLocale() {
+		return m_defaultCurrencyLocale == null ? getDefault() : m_defaultCurrencyLocale;
+	}
+
 	/**
-	 * <p>The locale for the currency being handled in the entire application. This is a set-once
-	 * global setting and defaults to the "default locale" (NOT the per request locale!). This
+	 * <p>The locale for the currency being handled in the application. Can be changed per request,
+	 * and defaults to the "default locale" (NOT the per request locale!). This
 	 * is used for applications that use only a single currency throughout the application; if
 	 * an application uses multiple currencies the application itself must provide services to
 	 * handle the "current" currency and monetary conversions of currencies.</p>
 	 * <p>This will return the <i>default locale</i> if not explicitly set.</p>
 	 * @return
 	 */
-	static synchronized public Locale getCurrencyLocale() {
-		if(m_currencyLocale == null)
-			return getDefault();
-		return m_currencyLocale;
+	static public Locale getCurrencyLocale() {
+		Locale loc = m_currencyLocale.get();
+		return loc == null ? getDefaultCurrencyLocale() : loc;
 	}
 
 	/**
-	 * Sets the application-wide currency locale to use. Do not change while running!!
+	 * Sets the currency locale to use for this request.
 	 * @param loc
 	 */
-	static synchronized public void setCurrencyLocale(Locale loc) {
-		m_currencyLocale = loc;
-		m_currency = Currency.getInstance(loc);
-		m_currencySymbol = m_currency.getSymbol(getLocale());
-
-		//-- Because as usual Sun fucked up we need to translate the "sign" - it returns EUR instead of the euro character, damnit.
-		if("EUR".equals(m_currencySymbol))
-			m_currencySymbol = "\u20ac";
+	static public void setCurrencyLocale(Locale loc) {
+		m_currencyLocale.set(loc);
+		m_currency.set(Currency.getInstance(loc));
 	}
 
 	/**
 	 * Returns a Currency object for the current currency locale.
 	 * @return
 	 */
-	static synchronized public Currency getCurrency() {
-		if(m_currency == null)
-			setCurrencyLocale(getDefault());
-		return m_currency;
+	static public Currency getCurrency() {
+		Currency c = m_currency.get();
+		if(c != null)
+			return c;
+		c = Currency.getInstance(getCurrencyLocale());
+		m_currency.set(c);
+		return c;
 	}
 
 	/**
@@ -133,10 +144,12 @@ final public class NlsContext {
 	 * return the euro sign € instead of EUR.
 	 * @return
 	 */
-	static synchronized public String getCurrencySymbol() {
-		if(m_currency == null)
-			setCurrencyLocale(getDefault());
-		return m_currencySymbol;
+	static public String getCurrencySymbol() {
+		Currency c = getCurrency();
+		String s = c.getSymbol(getLocale());
+		if("EUR".equals(s))
+			s = "\u20ac";
+		return s;
 	}
 
 	static public synchronized String getDialect() {
