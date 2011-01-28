@@ -555,10 +555,10 @@ final class PoolEntry {
 	protected java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1, final int p2, final int p3) throws java.sql.SQLException {
 		CallableStatementProxy ps = new CallableStatementProxy(pc, p1);
 		try {
-			pc.collector().prepareStatement(p1);
-			ps = new CallableStatementProxy(pc, getConnection().prepareCall(p1, p2, p3), p1);
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().prepareCall(p1, p2, p3));
 		} finally {
-			pc.collector().prepareStatementEnd(p1, ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();
@@ -568,10 +568,10 @@ final class PoolEntry {
 	protected java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1, final int p2, final int p3, final int p4) throws java.sql.SQLException {
 		CallableStatementProxy ps = new CallableStatementProxy(pc, p1);
 		try {
-			pc.collector().prepareStatement(p1);
-			ps = new CallableStatementProxy(pc, getConnection().prepareCall(p1, p2, p3, p4), p1);
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().prepareCall(p1, p2, p3, p4));
 		} finally {
-			pc.collector().prepareStatementEnd(p1, ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();
@@ -581,10 +581,10 @@ final class PoolEntry {
 	protected java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1) throws java.sql.SQLException {
 		CallableStatementProxy ps = new CallableStatementProxy(pc, p1);
 		try {
-			pc.collector().prepareStatement(p1);
-			ps = new CallableStatementProxy(pc, getConnection().prepareCall(p1), p1);
+			pc.collector().prepareStatement(ps);
+			ps.associate(getConnection().prepareCall(p1));
 		} finally {
-			pc.collector().prepareStatementEnd(p1, ps);
+			pc.collector().prepareStatementEnd(ps);
 		}
 		addResource(ps);
 		m_pool.incOpenStmt();

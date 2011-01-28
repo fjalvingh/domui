@@ -31,13 +31,13 @@ import java.sql.*;
 import java.sql.Date;
 import java.util.*;
 
-import to.etc.dbpool.info.*;
-
 public class ResultSetProxy implements ResultSet {
+	private StatementProxy m_statement;
+
 	/** The wrapped result set, */
 	private ResultSet m_rs;
 
-	private final InfoCollector m_collector;
+	private final IInfoHandler m_collector;
 
 	private final ConnectionProxy m_pc;
 
@@ -51,28 +51,32 @@ public class ResultSetProxy implements ResultSet {
 	private Tracepoint m_allocationLocation;
 
 	/** When collecting statistics, the allocation timestamp */
-	private long m_ts_allocated;
+	long m_ts_allocated;
 
 	/** When collecting statistics, the #of rows fetched through this result set. */
-	private int m_rowCount;
+	int m_rowCount;
 
 	/** When collecting statistics, the timestamp of close() demarking the end of the fetch cycle. */
-	private long m_ts_released;
+	long m_ts_released;
 
-	protected ResultSetProxy(final StatementProxy sp, final ResultSet rs) {
+	long m_ts_executeEnd;
+
+	ResultSetProxy(final StatementProxy sp) {
+		m_statement = sp;
 		m_collector = sp._conn().collector();
-		m_rs = rs;
 		m_pc = sp._conn();
 		m_sql = sp.getSQL();		// SQL at time of query,
+
 		if(sp instanceof PreparedStatementProxy) {
 			m_par = ((PreparedStatementProxy) sp).internalGetParameters();
 		}
 		if(sp.pool().c().isLogResultSetLocations()) {
 			m_allocationLocation = Tracepoint.create(sp.getSQL());
 		}
-		if(m_pc.isCollectStatistics()) {
-			m_ts_allocated = System.nanoTime();
-		}
+	}
+
+	void associate(ResultSet rs) {
+		m_rs = rs;
 	}
 
 	public String internalGetCloseReason() {
@@ -135,10 +139,7 @@ public class ResultSetProxy implements ResultSet {
 		} finally {
 			m_rs = null;
 		}
-		if(m_pc.isCollectStatistics()) {
-			m_ts_released = System.nanoTime();
-			m_collector.resultSetClosed(this);
-		}
+		m_collector.resultSetClosed(m_statement, this);
 	}
 
 	/**
@@ -157,10 +158,7 @@ public class ResultSetProxy implements ResultSet {
 			} finally {
 				m_rs = null;
 			}
-			if(m_pc.isCollectStatistics()) {
-				m_ts_released = System.nanoTime();
-				m_collector.resultSetClosed(this);
-			}
+			m_collector.resultSetClosed(m_statement, this);
 		}
 	}
 

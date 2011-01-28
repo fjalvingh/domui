@@ -29,8 +29,6 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.dbpool.info.*;
-
 /**
  * This "implements" Connection, and is a proxy to the actual
  * connection maintained in ConnectionPoolEntry. An instance
@@ -73,8 +71,8 @@ final public class ConnectionProxy implements Connection {
 
 	private Tracepoint m_detach_location;
 
-	/** If we're collecting usage statistics this is not null and refers to the collector. */
-	private final InfoCollector m_collector;
+	/** If we're collecting usage statistics this is not null and refers to the handler. */
+	private final IInfoHandler m_collector;
 
 	/*--------------- Debug and trace info ----------------*/
 	/** The location etc denoting the allocation point for this connection. */
@@ -117,8 +115,9 @@ final public class ConnectionProxy implements Connection {
 		m_lastUsedTS = m_allocationTS;
 		m_allocationPoint = Tracepoint.create(null);
 		m_unpooled = isunpooled;
-		m_collector = pe.getPool().getManager().threadCollector();
-		m_collectStatistics = pe.getPool().getManager().isCollectStatistics();
+		IInfoHandler ih = pe.getPool().getManager().getInfoHandler();
+		m_collectStatistics = ih != null;
+		m_collector = ih == null ? DummyInfoHandler.INSTANCE : ih;
 	}
 
 	/**
@@ -149,7 +148,7 @@ final public class ConnectionProxy implements Connection {
 		return m_id;
 	}
 
-	protected InfoCollector collector() {
+	protected IInfoHandler collector() {
 		return m_collector;
 	}
 

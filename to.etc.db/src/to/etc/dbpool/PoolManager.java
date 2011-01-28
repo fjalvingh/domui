@@ -55,6 +55,9 @@ final public class PoolManager {
 	private boolean m_collectStatistics;
 
 	/** Threadlocal containing the per-thread collected statistics, per request. */
+	private final ThreadLocal<IInfoHandler> m_infoHandler = new ThreadLocal<IInfoHandler>();
+
+	/** Threadlocal containing the per-thread collected statistics, per request. */
 	private final ThreadLocal<InfoCollectorSink> m_threadStats = new ThreadLocal<InfoCollectorSink>();
 
 	/** The shared global instance of a pool manager */
@@ -371,6 +374,28 @@ final public class PoolManager {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Per-thread data collection.							*/
 	/*--------------------------------------------------------------*/
+
+	/**
+	 * If statistics gathering is on this returns the info handler which will collate
+	 * the statistics.
+	 */
+	@Nullable
+	IInfoHandler getInfoHandler() {
+		synchronized(this) {
+			if(!m_collectStatistics)
+				return null;
+		}
+		IInfoHandler ih = m_infoHandler.get();
+		if(ih == null) {
+			InfoCollectorSink sink = new InfoCollectorSink();
+			m_threadStats.set(sink);
+			ih = new CollectingInfoHandler(sink);
+			m_infoHandler.set(ih);
+		}
+		return ih;
+	}
+
+
 	/**
 	 *
 	 * @return
@@ -381,7 +406,7 @@ final public class PoolManager {
 
 	public InfoCollector threadCollector() {
 		InfoCollector td = threadData();
-		return td != null ? (InfoCollector) td : (InfoCollector) DummyCollector.INSTANCE;
+		return td != null ? (InfoCollector) td : (InfoCollector) DummyInfoHandler.INSTANCE;
 	}
 
 	/**

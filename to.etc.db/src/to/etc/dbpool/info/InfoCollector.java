@@ -27,36 +27,9 @@ package to.etc.dbpool.info;
 import to.etc.dbpool.*;
 
 public interface InfoCollector {
-	/**
-	 * Called when a prepare is started. This starts the clock for the statement.
-	 * @param sql
-	 */
-	void prepareStatement(StatementProxy sp);
-
-	/**
-	 * Called when the prepare call has finished.
-	 * @param sql
-	 * @param sp
-	 */
-	void prepareStatementEnd(StatementProxy sp);
-
-	void executeQueryStart(StatementProxy sp);
-
 	void executePreparedQueryStart(StatementProxy sp);
 
-	void executeError(StatementProxy sp, Exception x);
-
-	void executeQueryEnd(StatementProxy sp, ResultSetProxy rs);
-
-	void executeUpdateStart(StatementProxy sp);
-
 	void executePreparedUpdateStart(StatementProxy sp);
-
-	void executeUpdateEnd(StatementProxy sp, int rowcount);
-
-	void executeStart(StatementProxy sp);
-
-	void executeEnd(StatementProxy sp, Boolean result);
 
 	void incrementUpdateCount(int uc);
 

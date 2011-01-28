@@ -50,6 +50,9 @@ public class StatementProxy implements Statement {
 
 	private Tracepoint m_allocationLocation;
 
+	/** The start timestamp of the last action on this statement. */
+	long m_tsStart;
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Changed/intercepted methods..						*/
 	/*--------------------------------------------------------------*/
@@ -179,16 +182,16 @@ public class StatementProxy implements Statement {
 		pool().logExecution(this);
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("executeQuery: " + sql);
-		ResultSetProxy rpx = null;
+		ResultSetProxy rpx = new ResultSetProxy(this);
 		try {
-			m_c.collector().executeQueryStart(this);
-			rpx = new ResultSetProxy(this, m_st.executeQuery(sql));
+			m_c.collector().executeQueryStart(this, rpx);
+			rpx.associate(m_st.executeQuery(sql));
 			_conn().getPool().incOpenRS();
 			_conn().addResource(rpx);
 			return rpx;
 		} catch(SQLException x) {
 			SQLException wx = wrap(x);
-			m_c.collector().executeError(this, wx);
+			m_c.collector().executeQueryError(this, rpx, wx);
 			throw wx;
 		} finally {
 			m_c.collector().executeQueryEnd(this, rpx);
@@ -201,16 +204,16 @@ public class StatementProxy implements Statement {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("executeUpdate: " + sql);
 		int rc = -1;
+		SQLException wx = null;
 		try {
 			m_c.collector().executeUpdateStart(this);
 			rc = getRealStatement().executeUpdate(sql);
 			return rc;
 		} catch(SQLException x) {
-			SQLException wx = wrap(x);
-			m_c.collector().executeError(this, wx);
+			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeUpdateEnd(this, rc);
+			m_c.collector().executeUpdateEnd(this, wx, rc);
 		}
 	}
 
@@ -220,17 +223,17 @@ public class StatementProxy implements Statement {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("execute: " + sql);
 		Boolean res = null;
+		SQLException wx = null;
 		try {
 			m_c.collector().executeStart(this);
 			boolean b = getRealStatement().execute(sql);
 			res = Boolean.valueOf(b);
 			return b;
 		} catch(SQLException x) {
-			SQLException wx = wrap(x);
-			m_c.collector().executeError(this, wx);
+			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeEnd(this, res);
+			m_c.collector().executeEnd(this, wx, res);
 		}
 	}
 
