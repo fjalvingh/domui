@@ -34,21 +34,11 @@ import to.etc.dbpool.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 3, 2010
  */
-public class InfoCollectorExpenseBased extends InfoCollectorBase implements InfoCollector {
+public class InfoCollectorExpenseBased extends InfoCollectorBase implements IStatisticsListener {
 	private final List<IPerformanceCollector> m_collectorList = new ArrayList<IPerformanceCollector>();
-
-	private StmtType m_type;
-
-	//	/** Duration of the entire request in nano's */
-	//	private long m_requestDuration;
-
-	/** Timestamp of the last START of a call. */
-	private long m_lastTS;
 
 	/** The stmt count for the last execute. */
 	private StmtCount m_lastCount;
-
-	private boolean m_collectSQL;
 
 	private Map<String, StmtCount> m_sqlMap = new HashMap<String, StmtCount>();
 
@@ -114,9 +104,8 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements Info
 		}
 	}
 
-	public InfoCollectorExpenseBased(final String ident, String queryString, boolean collectSQL) {
+	public InfoCollectorExpenseBased(final String ident, String queryString) {
 		super(ident);
-		m_collectSQL = collectSQL;
 		if(queryString == null || queryString.length() == 0)
 			m_fullRequestURL = ident;
 		else
@@ -132,10 +121,8 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements Info
 	 * @see to.etc.dbpool.info.InfoCollector#finish()
 	 */
 	public void finish() {
-		if(m_collectSQL) {
-			for(IPerformanceCollector pc: m_collectorList)
-				pc.saveCounters(m_fullRequestURL, getCounters());
-		}
+		for(IPerformanceCollector pc : m_collectorList)
+			pc.saveCounters(m_fullRequestURL, getCounters());
 	}
 
 
@@ -161,8 +148,6 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements Info
 	 * @param p
 	 */
 	private StmtCount addExecution(final StatementProxy p) {
-		if(!m_collectSQL)
-			return null;
 		StmtCount c = findCounter(p.getSQL());
 		c.incExecutions();
 		m_lastCount = c;
@@ -180,14 +165,11 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements Info
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Statement expense accounting...						*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * Called when a statement execute has run. This is only the part where
 	 * a result set is returned; it does not include fetch of the result set.
 	 */
 	private void postExecuteDuration(StatementProxy sp, long dt, StmtType type, StmtCount counter) {
-		if(!m_collectSQL)
-			return;
 		if(m_lastCount != null)
 			m_lastCount.incTotalExecuteNS(dt);
 
@@ -215,73 +197,37 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements Info
 		m_nConnectionAllocations++;
 	}
 
-	public void executeError(final StatementProxy sp, final Exception x) {
+	void executeError(final StatementProxy sp, final Exception x) {
 		m_nErrors++;
 	}
 
-	public void resultSetClosed(ResultSetProxy rp) {
-		m_nRows += rp.internalGetRowCount();
-		if(!m_collectSQL)
-			return;
-
-		StmtCount c = findCounter(rp.getSQL());
-		c.incRows(rp.internalGetRowCount());
-		long fd = rp.internalGetFetchDuration();
-		c.addFetchDuration(fd);
-		m_totalFetchDuration += fd;
+	@Override
+	public void statementPrepared(StatementProxy sp, long prepareDuration) {
+		m_prepareDuration += prepareDuration;
 	}
 
-	public void incrementUpdateCount(final int uc) {
-		if(uc > 0)
-			m_nUpdatedRows += uc;
-	}
-
-	public void prepareStatement(final String sql) {
-		m_lastTS = System.nanoTime();
-		m_type = StmtType.T_PREPARED;
-		m_nPrepares++;
-		if(m_collectSQL) {
-			findCounter(sql);
+	@Override
+	public void queryStatementExecuted(StatementProxy sp, long executeDuration, long fetchDuration, int rowCount, boolean prepared) {
+		if(prepared) {
+			m_nPreparedQueries++;
+			m_preparedQueryDuration += executeDuration;
+		} else {
+			m_nStatementQueries++;
+			m_statementQueryDuration += executeDuration;
 		}
-	}
+		StmtCount c = findCounter(sp.getSQL());
+		c.incExecutions();
+		c.incRows(rowCount);
+		c.addFetchDuration(fetchDuration);
+		m_totalFetchDuration += fetchDuration;
+		m_nRows += rowCount;
 
-	public void prepareStatementEnd(final String sql, final StatementProxy sp) {
-		if(m_type != StmtType.T_PREPARED)
-			throw new IllegalStateException("Bad type: " + m_type);
-		long dt = System.nanoTime() - m_lastTS;
-		m_prepareDuration += dt;
-		m_type = null;
-	}
-
-	public void executePreparedQueryStart(final StatementProxy sp) {
-		m_lastTS = System.nanoTime();
-		m_type = StmtType.T_PREPQ;
-		m_nPreparedQueries++;
-		addExecution(sp);
-	}
-
-	public void executeQueryStart(final StatementProxy sp) {
-		m_nStatementQueries++;
-		m_lastTS = System.nanoTime();
-		m_type = StmtType.T_QSTMT;
-		addExecution(sp);
-	}
-
-	public void executeQueryEnd(final StatementProxy sp, final ResultSetProxy rs) {
-		long dt = System.nanoTime() - m_lastTS;
-		switch(m_type){
-			default:
-				throw new IllegalStateException("Bad type.");
-			case T_PREPQ:
-				m_preparedQueryDuration += dt;
-				break;
-
-			case T_QSTMT:
-				m_statementQueryDuration += dt;
-				break;
-		}
 		postExecuteDuration(sp, dt, m_type, findCounter(sp.getSQL()));
 	}
+
+
+
+	//------ remove after here --------
 
 	public void executePreparedUpdateStart(final StatementProxy sp) {
 		m_nPreparedUpdates++;
