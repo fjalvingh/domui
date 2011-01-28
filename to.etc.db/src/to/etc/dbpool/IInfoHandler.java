@@ -33,9 +33,12 @@ interface IInfoHandler {
 	 */
 	void executeQueryStart(@Nonnull StatementProxy sp, @Nonnull ResultSetProxy rsp);
 
-	void executeQueryError(@Nonnull StatementProxy sp, @Nonnull ResultSetProxy rpx, @Nonnull Exception x);
+	void executeQueryEnd(@Nonnull StatementProxy sp, @Nullable SQLException wx, @Nonnull ResultSetProxy rs);
 
-	void executeQueryEnd(@Nonnull StatementProxy sp, @Nonnull ResultSetProxy rs);
+	void executePreparedQueryStart(StatementProxy sp, @Nonnull ResultSetProxy rsp);
+
+	void executePreparedQueryEnd(@Nonnull StatementProxy sp, @Nullable SQLException wx, @Nonnull ResultSetProxy rs);
+
 
 	/**
 	 * Generic close result set.
@@ -51,6 +54,13 @@ interface IInfoHandler {
 	void executeStart(StatementProxy sp);
 
 	void executeEnd(StatementProxy sp, SQLException error, Boolean result);
+
+
+	void addBatch(StatementProxy sp, String sql);
+
+	void executeBatchStart(StatementProxy sp);
+
+	void executeBatchEnd(StatementProxy sp, SQLException error, int[] rc);
 
 
 }

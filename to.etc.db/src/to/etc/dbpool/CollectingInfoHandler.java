@@ -51,11 +51,7 @@ class CollectingInfoHandler implements IInfoHandler {
 	}
 
 	@Override
-	public void executeQueryError(StatementProxy sp, ResultSetProxy rpx, Exception x) {
-	}
-
-	@Override
-	public void executeQueryEnd(StatementProxy sp, ResultSetProxy rs) {
+	public void executeQueryEnd(StatementProxy sp, SQLException error, ResultSetProxy rs) {
 		rs.m_ts_executeEnd = System.nanoTime();
 	}
 
@@ -101,5 +97,21 @@ class CollectingInfoHandler implements IInfoHandler {
 
 	@Override
 	public void executeEnd(StatementProxy sp, SQLException error, Boolean result) {}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Batched command sets.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @see to.etc.dbpool.IInfoHandler#addBatch(to.etc.dbpool.StatementProxy, java.lang.String)
+	 */
+	@Override
+	public void addBatch(StatementProxy sp, String sql) {}
+
+	@Override
+	public void executeBatchStart(StatementProxy sp) {}
+
+	@Override
+	public void executeBatchEnd(StatementProxy sp, SQLException error, int[] rc) {}
 
 }

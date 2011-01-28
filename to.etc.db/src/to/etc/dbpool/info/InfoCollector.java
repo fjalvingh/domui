@@ -27,15 +27,9 @@ package to.etc.dbpool.info;
 import to.etc.dbpool.*;
 
 public interface InfoCollector {
-	void executePreparedQueryStart(StatementProxy sp);
-
 	void executePreparedUpdateStart(StatementProxy sp);
 
 	void incrementUpdateCount(int uc);
-
-	void executeBatchStart(StatementProxy sp);
-
-	void executeBatchEnd(StatementProxy sp, int[] rc);
 
 //	//-- resultset calls
 //	void incrementRowCount(ResultSetProxy rp);
@@ -45,8 +39,6 @@ public interface InfoCollector {
 	 * @param rp
 	 */
 	void resultSetClosed(ResultSetProxy rp);
-
-	void addBatch(String sql);
 
 	void connectionAllocated();
 

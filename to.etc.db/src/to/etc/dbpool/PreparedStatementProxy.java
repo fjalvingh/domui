@@ -117,19 +117,19 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 			LOG.fine("executeQuery(): " + getSQL());
 			LOG.fine("parameters:" + BetterSQLException.format(m_par, m_maxpar));
 		}
-		ResultSetProxy rpx = null;
+		ResultSetProxy rpx = new ResultSetProxy(this);
+		SQLException wx = null;
 		try {
-			_conn().collector().executePreparedQueryStart(this);
-			rpx = new ResultSetProxy(this, getRealPreparedStatement().executeQuery());
+			_conn().collector().executePreparedQueryStart(this, rpx);
+			rpx.associate(getRealPreparedStatement().executeQuery());
 			pool().incOpenRS();
 			_conn().addResource(rpx);
 			return rpx;
 		} catch(SQLException x) {
-			SQLException wx = wrap(x);
-			_conn().collector().executeError(this, wx);
+			wx = wrap(x);
 			throw wx;
 		} finally {
-			_conn().collector().executeQueryEnd(this, rpx);
+			_conn().collector().executePreparedQueryEnd(this, wx, rpx);
 		}
 	}
 

@@ -183,6 +183,7 @@ public class StatementProxy implements Statement {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("executeQuery: " + sql);
 		ResultSetProxy rpx = new ResultSetProxy(this);
+		SQLException wx = null;
 		try {
 			m_c.collector().executeQueryStart(this, rpx);
 			rpx.associate(m_st.executeQuery(sql));
@@ -190,11 +191,10 @@ public class StatementProxy implements Statement {
 			_conn().addResource(rpx);
 			return rpx;
 		} catch(SQLException x) {
-			SQLException wx = wrap(x);
-			m_c.collector().executeQueryError(this, rpx, wx);
+			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeQueryEnd(this, rpx);
+			m_c.collector().executeQueryEnd(this, wx, rpx);
 		}
 	}
 
@@ -237,21 +237,34 @@ public class StatementProxy implements Statement {
 		}
 	}
 
+	public void addBatch(final String sql) throws SQLException {
+		pool().logExecution(this);
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("addBatch: " + sql);
+		try {
+			m_sql_str = sql;
+			m_c.collector().addBatch(this, sql);
+			getRealStatement().addBatch(sql);
+		} catch(SQLException xx) {
+			throw wrap(xx);
+		}
+	}
+
 	public int[] executeBatch() throws SQLException {
 		int[] res = null;
 		pool().logBatch();
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("executeBatch called");
+		SQLException wx = null;
 		try {
 			m_c.collector().executeBatchStart(this);
 			res = getRealStatement().executeBatch();
 			return res;
 		} catch(SQLException xx) {
-			SQLException wx = wrap(xx);
-			m_c.collector().executeError(this, wx);
+			wx = wrap(xx);
 			throw wx;
 		} finally {
-			m_c.collector().executeBatchEnd(this, res);
+			m_c.collector().executeBatchEnd(this, wx, res);
 		}
 	}
 
@@ -260,6 +273,7 @@ public class StatementProxy implements Statement {
 			LOG.fine("execute: " + sql);
 		m_sql_str = sql;
 		pool().logExecution(this);
+		SQLException wx = null;
 		Boolean res = null;
 		try {
 			m_c.collector().executeStart(this);
@@ -267,11 +281,10 @@ public class StatementProxy implements Statement {
 			res = Boolean.valueOf(b);
 			return b;
 		} catch(SQLException x) {
-			SQLException wx = wrap(x);
-			m_c.collector().executeError(this, wx);
+			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeEnd(this, res);
+			m_c.collector().executeEnd(this, wx, res);
 		}
 	}
 
@@ -281,17 +294,17 @@ public class StatementProxy implements Statement {
 		m_sql_str = sql;
 		pool().logExecution(this);
 		Boolean res = null;
+		SQLException wx = null;
 		try {
 			m_c.collector().executeStart(this);
 			boolean b = getRealStatement().execute(sql, p2);
 			res = Boolean.valueOf(b);
 			return b;
 		} catch(SQLException x) {
-			SQLException wx = wrap(x);
-			m_c.collector().executeError(this, wx);
+			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeEnd(this, res);
+			m_c.collector().executeEnd(this, wx, res);
 		}
 	}
 
@@ -300,7 +313,7 @@ public class StatementProxy implements Statement {
 			LOG.fine("execute: " + sql);
 		m_sql_str = sql;
 		pool().logExecution(this);
-
+		SQLException wx = null;
 		Boolean res = null;
 		try {
 			m_c.collector().executeStart(this);
@@ -308,11 +321,10 @@ public class StatementProxy implements Statement {
 			res = Boolean.valueOf(b);
 			return b;
 		} catch(SQLException x) {
-			SQLException wx = wrap(x);
-			m_c.collector().executeError(this, wx);
+			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeEnd(this, res);
+			m_c.collector().executeEnd(this, wx, res);
 		}
 	}
 
@@ -322,16 +334,16 @@ public class StatementProxy implements Statement {
 			LOG.fine("executeUpdate: " + sql);
 		m_sql_str = sql;
 		int res = -1;
+		SQLException wx = null;
 		try {
 			m_c.collector().executeUpdateStart(this);
 			res = getRealStatement().executeUpdate(sql, ar);
 			return res;
 		} catch(SQLException x) {
-			SQLException wx = wrap(x);
-			m_c.collector().executeError(this, wx);
+			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeUpdateEnd(this, res);
+			m_c.collector().executeUpdateEnd(this, wx, res);
 		}
 	}
 
@@ -341,16 +353,16 @@ public class StatementProxy implements Statement {
 			LOG.fine("executeUpdate: " + sql);
 		m_sql_str = sql;
 		int res = -1;
+		SQLException wx = null;
 		try {
 			m_c.collector().executeUpdateStart(this);
 			res = getRealStatement().executeUpdate(sql, ar);
 			return res;
 		} catch(SQLException x) {
-			SQLException wx = wrap(x);
-			m_c.collector().executeError(this, wx);
+			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeUpdateEnd(this, res);
+			m_c.collector().executeUpdateEnd(this, wx, res);
 		}
 	}
 
@@ -360,16 +372,16 @@ public class StatementProxy implements Statement {
 			LOG.info("executeUpdate: " + sql);
 		m_sql_str = sql;
 		int res = -1;
+		SQLException wx = null;
 		try {
 			m_c.collector().executeUpdateStart(this);
 			res = getRealStatement().executeUpdate(sql, p2);
 			return res;
 		} catch(SQLException x) {
-			SQLException wx = wrap(x);
-			m_c.collector().executeError(this, wx);
+			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeUpdateEnd(this, res);
+			m_c.collector().executeUpdateEnd(this, wx, res);
 		}
 	}
 
@@ -481,8 +493,8 @@ public class StatementProxy implements Statement {
 	public int getUpdateCount() throws SQLException {
 		try {
 			int rc = getRealStatement().getUpdateCount();
-			if(rc > 0)
-				m_c.collector().incrementUpdateCount(rc);
+			//			if(rc > 0)
+			//				m_c.collector().incrementUpdateCount(rc);
 			return rc;
 		} catch(SQLException xx) {
 			throw wrap(xx);
@@ -540,19 +552,6 @@ public class StatementProxy implements Statement {
 	public int getResultSetType() throws SQLException {
 		try {
 			return getRealStatement().getResultSetType();
-		} catch(SQLException xx) {
-			throw wrap(xx);
-		}
-	}
-
-	public void addBatch(final String sql) throws SQLException {
-		pool().logExecution(this);
-		if(LOG.isLoggable(Level.FINE))
-			LOG.fine("addBatch: " + sql);
-		try {
-			m_sql_str = sql;
-			m_c.collector().addBatch(sql);
-			getRealStatement().addBatch(sql);
 		} catch(SQLException xx) {
 			throw wrap(xx);
 		}
