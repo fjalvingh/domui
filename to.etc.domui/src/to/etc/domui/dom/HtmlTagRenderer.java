@@ -616,17 +616,22 @@ public class HtmlTagRenderer implements INodeVisitor {
 			Checkbox cb = (Checkbox) b;
 
 			//-- To fix IE's 26385652791725917435'th bug use the clicked listener to handle change events too.
-			if(b.internalNeedClickHandler() || cb.getOnValueChanged() != null) {
+			//vmijic - 20110128 - Changed fix: In case that only getOnValueChanged is set (no explicit click handler), we need to use workaround with clickandchange, otherwise since onclick works in IE, we do not need to do workaround using clickandchange.
+			if(!b.internalNeedClickHandler() && cb.getOnValueChanged() != null) {
 				o.attr("onclick", sb().append("return WebUI.clickandchange(this, '").append(b.getActualID()).append("', event)").toString());
+			} else if(b.internalNeedClickHandler()) {
+				o.attr("onclick", sb().append("return WebUI.clicked(this, '").append(b.getActualID()).append("', event)").toString());
 			} else if(b.getOnClickJS() != null) {
 				o.attr("onclick", b.getOnClickJS());
 			}
-			//			if(b instanceof IHasChangeListener) {
-			//				IHasChangeListener inb = (IHasChangeListener) b;
-			//				if(null != inb.getOnValueChanged()) {
-			//					o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
-			//				}
-			//			}
+			if(b.internalNeedClickHandler()) {
+				if(b instanceof IHasChangeListener) {
+					IHasChangeListener inb = (IHasChangeListener) b;
+					if(null != inb.getOnValueChanged()) {
+						o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
+					}
+				}
+			}
 		} else {
 			if(b.internalNeedClickHandler()) {
 				o.attr("onclick", sb().append("return WebUI.clicked(this, '").append(b.getActualID()).append("', event)").toString());
