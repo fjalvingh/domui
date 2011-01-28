@@ -33,8 +33,6 @@ import java.util.logging.*;
 import javax.annotation.concurrent.*;
 import javax.sql.*;
 
-import to.etc.dbpool.info.*;
-
 
 /**
  * <h1>Working</h1>
@@ -988,9 +986,9 @@ final public class ConnectionPool {
 	 * @throws SQLException
 	 */
 	ConnectionProxy getConnection(final boolean unpooled) throws SQLException {
-		InfoCollector d = m_manager.threadData();
+		CollectingInfoHandler d = m_manager.getInfoHandler();
 		if(d != null)
-			d.connectionAllocated();
+			d.getListener().connectionAllocated();
 		for(;;) {
 			PoolEntry pe = allocateConnection(unpooled);
 			Exception x = checkConnection(pe.getConnection()); // Is the connection still valid?
@@ -1013,9 +1011,9 @@ final public class ConnectionPool {
 	 * @return
 	 */
 	public Connection getUnpooledConnection(String username, String password) throws SQLException {
-		InfoCollector d = m_manager.threadData();
+		CollectingInfoHandler d = m_manager.getInfoHandler();
 		if(d != null)
-			d.connectionAllocated();
+			d.getListener().connectionAllocated();
 		int newid;
 		synchronized(this) {
 			newid = m_entryidgen++;

@@ -55,10 +55,10 @@ final public class PoolManager {
 	private boolean m_collectStatistics;
 
 	/** Threadlocal containing the per-thread collected statistics, per request. */
-	private final ThreadLocal<IInfoHandler> m_infoHandler = new ThreadLocal<IInfoHandler>();
+	private final ThreadLocal<CollectingInfoHandler> m_infoHandler = new ThreadLocal<CollectingInfoHandler>();
 
 	/** Threadlocal containing the per-thread collected statistics, per request. */
-	private final ThreadLocal<InfoCollectorSink> m_threadStats = new ThreadLocal<InfoCollectorSink>();
+	private final ThreadLocal<StatisticsListenerMultiplexer> m_threadStats = new ThreadLocal<StatisticsListenerMultiplexer>();
 
 	/** The shared global instance of a pool manager */
 	static final private PoolManager m_instance = new PoolManager();
@@ -377,73 +377,30 @@ final public class PoolManager {
 
 	/**
 	 * If statistics gathering is on this returns the info handler which will collate
-	 * the statistics.
+	 * the statistics. It returns null when statistics are off.
 	 */
 	@Nullable
-	IInfoHandler getInfoHandler() {
-		synchronized(this) {
-			if(!m_collectStatistics)
-				return null;
-		}
-		IInfoHandler ih = m_infoHandler.get();
-		if(ih == null) {
-			InfoCollectorSink sink = new InfoCollectorSink();
-			m_threadStats.set(sink);
-			ih = new CollectingInfoHandler(sink);
-			m_infoHandler.set(ih);
-		}
+	CollectingInfoHandler getInfoHandler() {
+		CollectingInfoHandler ih = m_infoHandler.get();
 		return ih;
 	}
-
-
-	/**
-	 *
-	 * @return
-	 */
-	public InfoCollectorSink threadData() {
-		return m_threadStats.get();
-	}
-
-	public InfoCollector threadCollector() {
-		InfoCollector td = threadData();
-		return td != null ? (InfoCollector) td : (InfoCollector) DummyInfoHandler.INSTANCE;
-	}
-
-	/**
-	 * Start collecting data on database usage for a single "page" or "code" part. Every call to this *must* be
-	 * followed by a call to stopCollecting(). Calls to these may be nested but the data gets associated with
-	 * the ident passed on the outermost call.
-	 * @param ident
-	 * @return
-	 */
-	//	public void startCollecting(final String ident) {
-	//		synchronized(this) {
-	//			if(!m_collectStatistics)
-	//				return;
-	//		}
-	//		InfoCollector td = m_threadStats.get();
-	//		if(td == null) {
-	//			td = new ThreadData(ident);
-	//			m_threadStats.set(td);
-	//		} else
-	//			td.increment();
-	//	}
 
 	/**
 	 * Registers a statistics collection listener for the current thread. If statistics gathering
 	 * is disabled the call is ignored and returns false. Else the listener is added and will
 	 * receive all statement events; in this case the call returns true.
 	 */
-	public boolean startCollecting(String key, final InfoCollector collector) {
+	public boolean startCollecting(String key, final IStatisticsListener collector) {
 		synchronized(this) {
 			if(!m_collectStatistics)
 				return false;
 		}
-		InfoCollectorSink sink = threadData();
-		if(null == sink) {
-			sink = new InfoCollectorSink();
-			m_threadStats.set(sink);
+		CollectingInfoHandler ih = m_infoHandler.get();
+		if(ih == null) {
+			ih = new CollectingInfoHandler(new StatisticsListenerMultiplexer());
+			m_infoHandler.set(ih);
 		}
+		StatisticsListenerMultiplexer sink = (StatisticsListenerMultiplexer) ih.getListener();
 		sink.addCollector(key, collector);
 		return true;
 	}
@@ -454,19 +411,32 @@ final public class PoolManager {
 	 * @param key
 	 * @return
 	 */
-	public InfoCollector stopCollecting(String key) {
-		synchronized(this) {
-			if(!m_collectStatistics)
-				return null;
-		}
-		InfoCollectorSink sink = threadData();
-		if(null == sink)
+	public IStatisticsListener stopCollecting(String key) {
+		CollectingInfoHandler ih = m_infoHandler.get();
+		if(ih == null)
 			return null;
-		InfoCollector ic = sink.removeCollector(key); // Remove collector.
+
+		StatisticsListenerMultiplexer sink = (StatisticsListenerMultiplexer) ih.getListener();
+		IStatisticsListener ic = sink.removeCollector(key); // Remove collector.
 		if(null != ic)
 			ic.finish();
 		return ic;
 	}
+
+	//
+	//	/**
+	//	 *
+	//	 * @return
+	//	 */
+	//	public StatisticsListenerMultiplexer threadData() {
+	//		return m_threadStats.get();
+	//	}
+	//
+	//	public InfoCollector threadCollector() {
+	//		InfoCollector td = threadData();
+	//		return td != null ? (InfoCollector) td : (InfoCollector) DummyInfoHandler.INSTANCE;
+	//	}
+
 
 	public synchronized void setCollectStatistics(final boolean on) {
 		m_collectStatistics = on;

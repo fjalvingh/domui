@@ -39,8 +39,6 @@ public interface InfoCollector {
 	//	 */
 	//	void resultSetClosed(ResultSetProxy rp);
 
-	void connectionAllocated();
-
 	void finish();
 
 

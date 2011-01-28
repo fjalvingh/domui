@@ -72,7 +72,7 @@ final public class ConnectionProxy implements Connection {
 	private Tracepoint m_detach_location;
 
 	/** If we're collecting usage statistics this is not null and refers to the handler. */
-	private final IInfoHandler m_collector;
+	private final IInfoHandler m_statsHandler;
 
 	/*--------------- Debug and trace info ----------------*/
 	/** The location etc denoting the allocation point for this connection. */
@@ -117,7 +117,7 @@ final public class ConnectionProxy implements Connection {
 		m_unpooled = isunpooled;
 		IInfoHandler ih = pe.getPool().getManager().getInfoHandler();
 		m_collectStatistics = ih != null;
-		m_collector = ih == null ? DummyInfoHandler.INSTANCE : ih;
+		m_statsHandler = ih == null ? DummyInfoHandler.INSTANCE : ih;
 	}
 
 	/**
@@ -149,7 +149,7 @@ final public class ConnectionProxy implements Connection {
 	}
 
 	protected IInfoHandler statsHandler() {
-		return m_collector;
+		return m_statsHandler;
 	}
 
 	public ConnectionPool getPool() {
