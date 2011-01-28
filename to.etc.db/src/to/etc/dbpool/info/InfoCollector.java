@@ -24,21 +24,20 @@
  */
 package to.etc.dbpool.info;
 
-import to.etc.dbpool.*;
 
 public interface InfoCollector {
-	void executePreparedUpdateStart(StatementProxy sp);
+	//	void executePreparedUpdateStart(StatementProxy sp);
 
 	void incrementUpdateCount(int uc);
 
 //	//-- resultset calls
 //	void incrementRowCount(ResultSetProxy rp);
 
-	/**
-	 * The result set was closed, and row fetch count and row fetch duration is available.
-	 * @param rp
-	 */
-	void resultSetClosed(ResultSetProxy rp);
+	//	/**
+	//	 * The result set was closed, and row fetch count and row fetch duration is available.
+	//	 * @param rp
+	//	 */
+	//	void resultSetClosed(ResultSetProxy rp);
 
 	void connectionAllocated();
 

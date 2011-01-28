@@ -120,7 +120,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 		ResultSetProxy rpx = new ResultSetProxy(this);
 		SQLException wx = null;
 		try {
-			_conn().collector().executePreparedQueryStart(this, rpx);
+			_conn().statsHandler().executePreparedQueryStart(this, rpx);
 			rpx.associate(getRealPreparedStatement().executeQuery());
 			pool().incOpenRS();
 			_conn().addResource(rpx);
@@ -129,7 +129,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 			wx = wrap(x);
 			throw wx;
 		} finally {
-			_conn().collector().executePreparedQueryEnd(this, wx, rpx);
+			_conn().statsHandler().executePreparedQueryEnd(this, wx, rpx);
 		}
 	}
 
@@ -140,16 +140,16 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 			LOG.fine("parameters:" + BetterSQLException.format(m_par, m_maxpar));
 		}
 		int rc = -1;
+		SQLException wx = null;
 		try {
-			_conn().collector().executePreparedUpdateStart(this);
+			_conn().statsHandler().executePreparedUpdateStart(this);
 			rc = getRealPreparedStatement().executeUpdate();
 			return rc;
 		} catch(SQLException x) {
-			SQLException wx = wrap(x);
-			_conn().collector().executeError(this, wx);
+			wx = wrap(x);
 			throw wx;
 		} finally {
-			_conn().collector().executeUpdateEnd(this, rc);
+			_conn().statsHandler().executePreparedUpdateEnd(this, wx, rc);
 		}
 	}
 
@@ -157,18 +157,17 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 		pool().logExecution(this);
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("execute called");
-
+		SQLException wx = null;
 		boolean res = false;
 		try {
-			_conn().collector().executeStart(this);
+			_conn().statsHandler().executeStart(this);
 			res = getRealPreparedStatement().execute();
 			return res;
 		} catch(SQLException x) {
-			SQLException wx = wrap(x);
-			_conn().collector().executeError(this, wx);
+			wx = wrap(x);
 			throw wx;
 		} finally {
-			_conn().collector().executeEnd(this, res);
+			_conn().statsHandler().executeEnd(this, wx, res);
 		}
 	}
 
@@ -379,7 +378,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 		}
 
 		try {
-			_conn().collector().addBatch(getSQL());
+			_conn().statsHandler().addBatch(this, getSQL());
 			getRealPreparedStatement().addBatch();
 		} catch(SQLException xx) {
 			throw wrap(xx);

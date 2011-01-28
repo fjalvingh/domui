@@ -148,7 +148,7 @@ final public class ConnectionProxy implements Connection {
 		return m_id;
 	}
 
-	protected IInfoHandler collector() {
+	protected IInfoHandler statsHandler() {
 		return m_collector;
 	}
 

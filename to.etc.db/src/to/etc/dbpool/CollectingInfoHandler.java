@@ -53,6 +53,7 @@ class CollectingInfoHandler implements IInfoHandler {
 	@Override
 	public void executeQueryEnd(StatementProxy sp, SQLException error, ResultSetProxy rs) {
 		rs.m_ts_executeEnd = System.nanoTime();
+		rs.m_prepared = true;
 	}
 
 	/**
@@ -64,7 +65,17 @@ class CollectingInfoHandler implements IInfoHandler {
 		long cts = System.nanoTime();
 		long executeDuration = rsp.m_ts_executeEnd - rsp.m_ts_allocated; // #nanos in execute query
 		long fetchDuration = cts - rsp.m_ts_executeEnd;
-		m_listener.queryStatementExecuted(sp, executeDuration, fetchDuration, rsp.m_rowCount);
+		m_listener.queryStatementExecuted(sp, executeDuration, fetchDuration, rsp.m_rowCount, rsp.m_prepared);
+	}
+
+	@Override
+	public void executePreparedQueryStart(StatementProxy sp, ResultSetProxy rsp) {
+		rsp.m_ts_allocated = System.nanoTime();
+	}
+
+	@Override
+	public void executePreparedQueryEnd(StatementProxy sp, SQLException wx, ResultSetProxy rs) {
+		rs.m_ts_executeEnd = System.nanoTime();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -85,6 +96,17 @@ class CollectingInfoHandler implements IInfoHandler {
 		m_listener.executeUpdateExecuted(sp, updateDuration, rowcount);
 	}
 
+	@Override
+	public void executePreparedUpdateStart(StatementProxy sp) {
+		sp.m_tsStart = System.nanoTime();
+	}
+
+	@Override
+	public void executePreparedUpdateEnd(StatementProxy sp, SQLException error, int rowcount) {
+		long updateDuration = System.nanoTime() - sp.m_tsStart;
+		m_listener.executePreparedUpdateExecuted(sp, updateDuration, rowcount);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	The execute() statemnts.							*/
 	/*--------------------------------------------------------------*/
@@ -93,25 +115,36 @@ class CollectingInfoHandler implements IInfoHandler {
 	 * @see to.etc.dbpool.IInfoHandler#executeStart(to.etc.dbpool.StatementProxy)
 	 */
 	@Override
-	public void executeStart(StatementProxy sp) {}
+	public void executeStart(StatementProxy sp) {
+		sp.m_tsStart = System.nanoTime();
+	}
 
 	@Override
-	public void executeEnd(StatementProxy sp, SQLException error, Boolean result) {}
+	public void executeEnd(StatementProxy sp, SQLException error, Boolean result) {
+		long updateDuration = System.nanoTime() - sp.m_tsStart;
+		m_listener.executeExecuted(sp, updateDuration, result);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Batched command sets.								*/
 	/*--------------------------------------------------------------*/
 	/**
-	 *
+	 * These are not currently measured.
 	 * @see to.etc.dbpool.IInfoHandler#addBatch(to.etc.dbpool.StatementProxy, java.lang.String)
 	 */
 	@Override
 	public void addBatch(StatementProxy sp, String sql) {}
 
 	@Override
-	public void executeBatchStart(StatementProxy sp) {}
+	public void executeBatchStart(StatementProxy sp) {
+		sp.m_tsStart = System.nanoTime();
+	}
 
 	@Override
-	public void executeBatchEnd(StatementProxy sp, SQLException error, int[] rc) {}
+	public void executeBatchEnd(StatementProxy sp, SQLException error, int[] rc) {
+		long executeDuration = System.nanoTime() - sp.m_tsStart;
+		m_listener.executeBatchExecuted(sp, executeDuration, rc);
+
+	}
 
 }

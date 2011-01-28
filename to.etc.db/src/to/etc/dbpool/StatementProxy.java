@@ -185,7 +185,7 @@ public class StatementProxy implements Statement {
 		ResultSetProxy rpx = new ResultSetProxy(this);
 		SQLException wx = null;
 		try {
-			m_c.collector().executeQueryStart(this, rpx);
+			m_c.statsHandler().executeQueryStart(this, rpx);
 			rpx.associate(m_st.executeQuery(sql));
 			_conn().getPool().incOpenRS();
 			_conn().addResource(rpx);
@@ -194,7 +194,7 @@ public class StatementProxy implements Statement {
 			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeQueryEnd(this, wx, rpx);
+			m_c.statsHandler().executeQueryEnd(this, wx, rpx);
 		}
 	}
 
@@ -206,14 +206,14 @@ public class StatementProxy implements Statement {
 		int rc = -1;
 		SQLException wx = null;
 		try {
-			m_c.collector().executeUpdateStart(this);
+			m_c.statsHandler().executeUpdateStart(this);
 			rc = getRealStatement().executeUpdate(sql);
 			return rc;
 		} catch(SQLException x) {
 			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeUpdateEnd(this, wx, rc);
+			m_c.statsHandler().executeUpdateEnd(this, wx, rc);
 		}
 	}
 
@@ -225,7 +225,7 @@ public class StatementProxy implements Statement {
 		Boolean res = null;
 		SQLException wx = null;
 		try {
-			m_c.collector().executeStart(this);
+			m_c.statsHandler().executeStart(this);
 			boolean b = getRealStatement().execute(sql);
 			res = Boolean.valueOf(b);
 			return b;
@@ -233,7 +233,7 @@ public class StatementProxy implements Statement {
 			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeEnd(this, wx, res);
+			m_c.statsHandler().executeEnd(this, wx, res);
 		}
 	}
 
@@ -243,7 +243,7 @@ public class StatementProxy implements Statement {
 			LOG.fine("addBatch: " + sql);
 		try {
 			m_sql_str = sql;
-			m_c.collector().addBatch(this, sql);
+			m_c.statsHandler().addBatch(this, sql);
 			getRealStatement().addBatch(sql);
 		} catch(SQLException xx) {
 			throw wrap(xx);
@@ -257,14 +257,14 @@ public class StatementProxy implements Statement {
 			LOG.fine("executeBatch called");
 		SQLException wx = null;
 		try {
-			m_c.collector().executeBatchStart(this);
+			m_c.statsHandler().executeBatchStart(this);
 			res = getRealStatement().executeBatch();
 			return res;
 		} catch(SQLException xx) {
 			wx = wrap(xx);
 			throw wx;
 		} finally {
-			m_c.collector().executeBatchEnd(this, wx, res);
+			m_c.statsHandler().executeBatchEnd(this, wx, res);
 		}
 	}
 
@@ -276,7 +276,7 @@ public class StatementProxy implements Statement {
 		SQLException wx = null;
 		Boolean res = null;
 		try {
-			m_c.collector().executeStart(this);
+			m_c.statsHandler().executeStart(this);
 			boolean b = getRealStatement().execute(sql, ar);
 			res = Boolean.valueOf(b);
 			return b;
@@ -284,7 +284,7 @@ public class StatementProxy implements Statement {
 			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeEnd(this, wx, res);
+			m_c.statsHandler().executeEnd(this, wx, res);
 		}
 	}
 
@@ -296,7 +296,7 @@ public class StatementProxy implements Statement {
 		Boolean res = null;
 		SQLException wx = null;
 		try {
-			m_c.collector().executeStart(this);
+			m_c.statsHandler().executeStart(this);
 			boolean b = getRealStatement().execute(sql, p2);
 			res = Boolean.valueOf(b);
 			return b;
@@ -304,7 +304,7 @@ public class StatementProxy implements Statement {
 			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeEnd(this, wx, res);
+			m_c.statsHandler().executeEnd(this, wx, res);
 		}
 	}
 
@@ -316,7 +316,7 @@ public class StatementProxy implements Statement {
 		SQLException wx = null;
 		Boolean res = null;
 		try {
-			m_c.collector().executeStart(this);
+			m_c.statsHandler().executeStart(this);
 			boolean b = getRealStatement().execute(sql, p2);
 			res = Boolean.valueOf(b);
 			return b;
@@ -324,7 +324,7 @@ public class StatementProxy implements Statement {
 			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeEnd(this, wx, res);
+			m_c.statsHandler().executeEnd(this, wx, res);
 		}
 	}
 
@@ -336,14 +336,14 @@ public class StatementProxy implements Statement {
 		int res = -1;
 		SQLException wx = null;
 		try {
-			m_c.collector().executeUpdateStart(this);
+			m_c.statsHandler().executeUpdateStart(this);
 			res = getRealStatement().executeUpdate(sql, ar);
 			return res;
 		} catch(SQLException x) {
 			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeUpdateEnd(this, wx, res);
+			m_c.statsHandler().executeUpdateEnd(this, wx, res);
 		}
 	}
 
@@ -355,14 +355,14 @@ public class StatementProxy implements Statement {
 		int res = -1;
 		SQLException wx = null;
 		try {
-			m_c.collector().executeUpdateStart(this);
+			m_c.statsHandler().executeUpdateStart(this);
 			res = getRealStatement().executeUpdate(sql, ar);
 			return res;
 		} catch(SQLException x) {
 			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeUpdateEnd(this, wx, res);
+			m_c.statsHandler().executeUpdateEnd(this, wx, res);
 		}
 	}
 
@@ -374,14 +374,14 @@ public class StatementProxy implements Statement {
 		int res = -1;
 		SQLException wx = null;
 		try {
-			m_c.collector().executeUpdateStart(this);
+			m_c.statsHandler().executeUpdateStart(this);
 			res = getRealStatement().executeUpdate(sql, p2);
 			return res;
 		} catch(SQLException x) {
 			wx = wrap(x);
 			throw wx;
 		} finally {
-			m_c.collector().executeUpdateEnd(this, wx, res);
+			m_c.statsHandler().executeUpdateEnd(this, wx, res);
 		}
 	}
 

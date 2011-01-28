@@ -37,7 +37,7 @@ public class ResultSetProxy implements ResultSet {
 	/** The wrapped result set, */
 	private ResultSet m_rs;
 
-	private final IInfoHandler m_collector;
+	private final IInfoHandler m_statsHandler;
 
 	private final ConnectionProxy m_pc;
 
@@ -61,9 +61,11 @@ public class ResultSetProxy implements ResultSet {
 
 	long m_ts_executeEnd;
 
+	boolean m_prepared;
+
 	ResultSetProxy(final StatementProxy sp) {
 		m_statement = sp;
-		m_collector = sp._conn().collector();
+		m_statsHandler = sp._conn().statsHandler();
 		m_pc = sp._conn();
 		m_sql = sp.getSQL();		// SQL at time of query,
 
@@ -139,7 +141,7 @@ public class ResultSetProxy implements ResultSet {
 		} finally {
 			m_rs = null;
 		}
-		m_collector.resultSetClosed(m_statement, this);
+		m_statsHandler.resultSetClosed(m_statement, this);
 	}
 
 	/**
@@ -158,7 +160,7 @@ public class ResultSetProxy implements ResultSet {
 			} finally {
 				m_rs = null;
 			}
-			m_collector.resultSetClosed(m_statement, this);
+			m_statsHandler.resultSetClosed(m_statement, this);
 		}
 	}
 

@@ -22,8 +22,9 @@ public interface IStatisticsListener {
 	 * @param executeDuration
 	 * @param fetchDuration
 	 * @param rowCount
+	 * @param prepared
 	 */
-	void queryStatementExecuted(StatementProxy sp, long executeDuration, long fetchDuration, int rowCount);
+	void queryStatementExecuted(StatementProxy sp, long executeDuration, long fetchDuration, int rowCount, boolean prepared);
 
 	/**
 	 * An update statement has been executed.
@@ -33,4 +34,15 @@ public interface IStatisticsListener {
 	 */
 	void executeUpdateExecuted(StatementProxy sp, long updateDuration, int updatedrowcount);
 
+	/**
+	 * Executed an "execute" command.
+	 * @param sp
+	 * @param updateDuration
+	 * @param result
+	 */
+	void executeExecuted(StatementProxy sp, long updateDuration, Boolean result);
+
+	void executePreparedUpdateExecuted(StatementProxy sp, long updateDuration, int rowcount);
+
+	void executeBatchExecuted(StatementProxy sp, long executeDuration, int[] rc);
 }

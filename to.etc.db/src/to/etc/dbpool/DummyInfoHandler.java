@@ -103,5 +103,15 @@ class DummyInfoHandler implements IInfoHandler {
 	@Override
 	public void executeBatchEnd(StatementProxy sp, SQLException error, int[] rc) {}
 
+	@Override
+	public void executePreparedQueryStart(StatementProxy sp, ResultSetProxy rsp) {}
 
+	@Override
+	public void executePreparedQueryEnd(StatementProxy sp, SQLException wx, ResultSetProxy rs) {}
+
+	@Override
+	public void executePreparedUpdateStart(StatementProxy sp) {}
+
+	@Override
+	public void executePreparedUpdateEnd(StatementProxy sp, SQLException error, int rowcount) {}
 }
