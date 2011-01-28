@@ -129,16 +129,7 @@ public class NumericUtil {
 		if(!ms.scanLaxNumber(input))
 			return null;
 		try {
-			/*
-			 * FIXME REMOVE TEST! This restriction is a database restriction and has nothing to
-			 * do with BigDecimal at all. Move this test to where the bind is done.
-			 */
-			String str = ms.getStringResult();
-			if(str.length() > 126) {
-				//Use of big decimal values larger than 126 digits is not applicable for database queries later.
-				throw new IllegalArgumentException("BigDecimal value too large: " + str);
-			}
-			return new BigDecimal(str);
+			return new BigDecimal(ms.getStringResult());
 		} catch(Exception x) {
 			throw new ValidationException(Msgs.V_INVALID, input);
 		}
