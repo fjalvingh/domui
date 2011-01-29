@@ -26,7 +26,6 @@ package to.etc.dbpool.info;
 
 import java.util.*;
 
-import to.etc.dbpool.*;
 import to.etc.dbpool.info.InfoCollectorExpenseBased.StmtCount;
 
 public class PerformanceCollector extends PerformanceStore implements IPerformanceCollector {
@@ -62,6 +61,14 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 		}
 	};
 
+	static private final Comparator<StmtCount> C_BYEXEC_TIME = new Comparator<InfoCollectorExpenseBased.StmtCount>() {
+		@Override
+		public int compare(StmtCount a, StmtCount b) {
+			long v = a.getTotalExecuteDuration() - b.getTotalExecuteDuration();
+			return v == 0 ? 0 : v < 0 ? 1 : -1;
+		}
+	};
+
 	public PerformanceCollector() {
 		//-- Define all store lists.
 		define(SQL_EXEC_TIME, "SQL: longest statement execution time", true, 20);
@@ -77,12 +84,12 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 	 *
 	 * @see to.etc.dbpool.info.IPerformanceCollector#postExecuteDuration(to.etc.dbpool.StatementProxy, long, to.etc.dbpool.StmtType)
 	 */
-	public void postExecuteDuration(String request, StatementProxy sp, long dt, StmtCount sc) {
-		Object[]	par = null;
-		if(sp instanceof PreparedStatementProxy)
-			par = ((PreparedStatementProxy) sp).internalGetParameters();
-		addItem(SQL_EXEC_TIME, sp.getSQL(), dt, request, sc);
-	}
+	//	public void postExecuteDuration(String request, StatementProxy sp, long dt, StmtCount sc) {
+	//		Object[]	par = null;
+	//		if(sp instanceof PreparedStatementProxy)
+	//			par = ((PreparedStatementProxy) sp).internalGetParameters();
+	//		addItem(SQL_EXEC_TIME, sp.getSQL(), dt, request, sc);
+	//	}
 
 	/**
 	 * Save the max executed statements.
@@ -115,7 +122,17 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 			max = counterList.size();
 		for(int i = 0; i < max; i++) {
 			StmtCount sc = counterList.get(i);
-			addItem(SQL_FETCH_TIME, sc.getSQL(), sc.getRows(), request, sc);
+			addItem(SQL_FETCH_TIME, sc.getSQL(), sc.getTotalFetchDuration(), request, sc);
+		}
+
+		//-- By execution time
+		Collections.sort(counterList, C_BYEXEC_TIME);
+		max = 20;
+		if(counterList.size() < max)
+			max = counterList.size();
+		for(int i = 0; i < max; i++) {
+			StmtCount sc = counterList.get(i);
+			addItem(SQL_EXEC_TIME, sc.getSQL(), sc.getTotalExecuteDuration(), request, sc);
 		}
 	}
 }

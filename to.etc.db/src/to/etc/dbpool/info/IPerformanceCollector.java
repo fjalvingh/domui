@@ -26,7 +26,6 @@ package to.etc.dbpool.info;
 
 import java.util.*;
 
-import to.etc.dbpool.*;
 import to.etc.dbpool.info.InfoCollectorExpenseBased.StmtCount;
 
 /**
@@ -36,7 +35,7 @@ import to.etc.dbpool.info.InfoCollectorExpenseBased.StmtCount;
  * Created on Nov 4, 2010
  */
 public interface IPerformanceCollector {
-	void postExecuteDuration(String request, StatementProxy sp, long totalexec, StmtCount sc);
+	//	void postExecuteDuration(String request, StatementProxy sp, long totalexec, StmtCount sc);
 
 	void saveCounters(String request, List<StmtCount> counterList);
 }

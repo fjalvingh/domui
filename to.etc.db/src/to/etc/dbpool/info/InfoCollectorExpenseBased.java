@@ -83,11 +83,11 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 			m_rows += rowcount;
 		}
 
-		public long getTotalExecuteNS() {
+		public long getTotalExecuteDuration() {
 			return m_totalExecuteNS;
 		}
 
-		void incTotalExecuteNS(long dt) {
+		void addExecuteDuration(long dt) {
 			m_totalExecuteNS += dt;
 		}
 
@@ -169,13 +169,12 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 	 * Called when a statement execute has run. This is only the part where
 	 * a result set is returned; it does not include fetch of the result set.
 	 */
-	private void postExecuteDuration(StatementProxy sp, long totalexectime, StmtCount counter) {
-		counter.incTotalExecuteNS(totalexectime);
-
-		//-- Push this into the performance collectors.
-		for(IPerformanceCollector pc : m_collectorList)
-			pc.postExecuteDuration(m_fullRequestURL, sp, totalexectime, counter);
-	}
+	//	private void postExecuteDuration(StatementProxy sp, long totalexectime, StmtCount counter) {
+	//		//
+	//		//		//-- Push this into the performance collectors.
+	//		//		for(IPerformanceCollector pc : m_collectorList)
+	//		//			pc.postExecuteDuration(m_fullRequestURL, sp, counter.getTotalExecuteNS(), counter);
+	//	}
 
 	public <T extends IPerformanceCollector> T findCollector(Class<T> clz) {
 		for(IPerformanceCollector pc : m_collectorList) {
@@ -202,6 +201,7 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 
 	@Override
 	public void statementPrepared(StatementProxy sp, long prepareDuration) {
+		m_nPrepares++;
 		m_prepareDuration += prepareDuration;
 	}
 
@@ -214,14 +214,15 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 			m_nStatementQueries++;
 			m_statementQueryDuration += executeDuration;
 		}
+		m_totalFetchDuration += fetchDuration;
+		m_nRows += rowCount;
+
 		StmtCount c = findCounter(sp.getSQL());
 		c.incExecutions();
 		c.incRows(rowCount);
 		c.addFetchDuration(fetchDuration);
-		m_totalFetchDuration += fetchDuration;
-		m_nRows += rowCount;
-
-		postExecuteDuration(sp, executeDuration + fetchDuration, c);
+		c.addExecuteDuration(executeDuration);
+		//		postExecuteDuration(sp, executeDuration + fetchDuration, c);
 	}
 
 	@Override
@@ -232,7 +233,8 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		StmtCount c = findCounter(sp.getSQL());
 		c.incExecutions();
 		c.incRows(rowcount);
-		postExecuteDuration(sp, updateDuration, c);
+		c.addExecuteDuration(updateDuration);
+		//		postExecuteDuration(sp, updateDuration, c);
 	}
 
 	@Override
@@ -243,17 +245,18 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		StmtCount c = findCounter(sp.getSQL());
 		c.incExecutions();
 		c.incRows(updatedrowcount);
-		postExecuteDuration(sp, updateDuration, c);
+		c.addExecuteDuration(updateDuration);
+		//		postExecuteDuration(sp, updateDuration, c);
 	}
 
 	@Override
 	public void executeExecuted(StatementProxy sp, long updateDuration, Boolean result) {
 		m_nExecutes++;
+		m_executeDuration += updateDuration;
 		StmtCount c = findCounter(sp.getSQL());
 		c.incExecutions();
-		c.incTotalExecuteNS(updateDuration);
-		m_executeDuration += updateDuration;
-		postExecuteDuration(sp, updateDuration, c);
+		c.addExecuteDuration(updateDuration);
+		//		postExecuteDuration(sp, updateDuration, c);
 	}
 
 	/**
