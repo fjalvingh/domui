@@ -222,85 +222,65 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		m_totalFetchDuration += fetchDuration;
 		m_nRows += rowCount;
 
-		postExecuteDuration(sp, dt, m_type, findCounter(sp.getSQL()));
+		postExecuteDuration(sp, dt, m_type, c);
 	}
 
+	@Override
+	public void executePreparedUpdateExecuted(StatementProxy sp, long updateDuration, int rowcount) {
+		m_nPreparedUpdates++;
+		m_nUpdatedRows += rowcount;
+		m_preparedUpdateDuration += updateDuration;
+		StmtCount c = findCounter(sp.getSQL());
+		c.incExecutions();
+		c.incRows(rowcount);
+	}
 
+	@Override
+	public void executeUpdateExecuted(StatementProxy sp, long updateDuration, int updatedrowcount) {
+		m_nStatementUpdates++;
+		m_nUpdatedRows += updatedrowcount;
+		m_statementUpdateDuration += updateDuration;
+		StmtCount c = findCounter(sp.getSQL());
+		c.incExecutions();
+		c.incRows(updatedrowcount);
+		postExecuteDuration(sp, updateDuration, m_type, c);
+	}
+
+	@Override
+	public void executeExecuted(StatementProxy sp, long updateDuration, Boolean result) {
+		m_nExecutes++;
+		StmtCount c = findCounter(sp.getSQL());
+		c.incExecutions();
+		c.incTotalExecuteNS(updateDuration);
+		m_executeDuration += updateDuration;
+		postExecuteDuration(sp, updateDuration, m_type, c);
+	}
+
+	/**
+	 * FIXME Needs explicit handling.
+	 * @see to.etc.dbpool.info.IStatisticsListener#executeBatchExecuted(to.etc.dbpool.StatementProxy, long, int[])
+	 */
+	@Override
+	public void executeBatchExecuted(StatementProxy sp, long executeDuration, int[] rc) {
+		m_nExecutes += rc == null ? 1 : rc.length;
+		m_executeDuration += executeDuration;
+	}
 
 	//------ remove after here --------
+	//	public void executeBatchStart(final StatementProxy sp) {
+	//		if(m_batchSet != null && m_batchSet.size() > 0) {
+	//			for(StmtCount c : m_batchSet)
+	//				c.incExecutions();
+	//			m_batchSet.clear();
+	//		}
+	//	}
 
-	public void executePreparedUpdateStart(final StatementProxy sp) {
-		m_nPreparedUpdates++;
-		m_lastTS = System.nanoTime();
-		m_type = StmtType.T_PREPUPD;
-		addExecution(sp);
-	}
-
-	public void executeUpdateStart(final StatementProxy sp) {
-		m_nStatementUpdates++;
-		m_lastTS = System.nanoTime();
-		m_type = StmtType.T_USTMT;
-		addExecution(sp);
-	}
-
-	public void executeUpdateEnd(final StatementProxy sp, final int rowcount) {
-		if(rowcount > 0) {
-			m_nUpdatedRows += rowcount;
-			if(null != m_lastCount)
-				m_lastCount.incRows(rowcount);
-		}
-		long dt = System.nanoTime() - m_lastTS;
-		switch(m_type){
-			default:
-				throw new IllegalStateException("Bad type.");
-			case T_PREPUPD:
-				m_preparedUpdateDuration += dt;
-				break;
-			case T_USTMT:
-				m_statementUpdateDuration += dt;
-				break;
-		}
-		postExecuteDuration(sp, dt, m_type, findCounter(sp.getSQL()));
-	}
-
-	public void executeStart(final StatementProxy sp) {
-		m_nExecutes++;
-		m_lastTS = System.nanoTime();
-		m_type = StmtType.T_EXECUTES;
-		addExecution(sp);
-	}
-
-	public void executeEnd(final StatementProxy sp, final Boolean result) {
-		long dt = System.nanoTime() - m_lastTS;
-		switch(m_type){
-			default:
-				throw new IllegalStateException("Bad type.");
-			case T_EXECUTES:
-				m_executeDuration += dt;
-				break;
-		}
-		postExecuteDuration(sp, dt, m_type, findCounter(sp.getSQL()));
-	}
-
-	public void executeBatchEnd(final StatementProxy sp, final int[] rc) {}
-
-	public void executeBatchStart(final StatementProxy sp) {
-		if(m_batchSet != null && m_batchSet.size() > 0) {
-			for(StmtCount c : m_batchSet)
-				c.incExecutions();
-			m_batchSet.clear();
-		}
-	}
-
-	public void addBatch(final String sql) {
-		if(!m_collectSQL)
-			return;
-
-		StmtCount c = findCounter(sql);
-		if(m_batchSet == null)
-			m_batchSet = new ArrayList<StmtCount>();
-		m_batchSet.add(c);
-	}
+	//	public void addBatch(final String sql) {
+	//		StmtCount c = findCounter(sql);
+	//		if(m_batchSet == null)
+	//			m_batchSet = new ArrayList<StmtCount>();
+	//		m_batchSet.add(c);
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/* CODING: Statistics retrieval.                                */
