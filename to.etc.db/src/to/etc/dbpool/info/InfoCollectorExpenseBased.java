@@ -169,13 +169,12 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 	 * Called when a statement execute has run. This is only the part where
 	 * a result set is returned; it does not include fetch of the result set.
 	 */
-	private void postExecuteDuration(StatementProxy sp, long dt, StmtType type, StmtCount counter) {
-		if(m_lastCount != null)
-			m_lastCount.incTotalExecuteNS(dt);
+	private void postExecuteDuration(StatementProxy sp, long totalexectime, StmtCount counter) {
+		counter.incTotalExecuteNS(totalexectime);
 
 		//-- Push this into the performance collectors.
 		for(IPerformanceCollector pc : m_collectorList)
-			pc.postExecuteDuration(m_fullRequestURL, sp, dt, type, counter);
+			pc.postExecuteDuration(m_fullRequestURL, sp, totalexectime, counter);
 	}
 
 	public <T extends IPerformanceCollector> T findCollector(Class<T> clz) {
@@ -222,7 +221,7 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		m_totalFetchDuration += fetchDuration;
 		m_nRows += rowCount;
 
-		postExecuteDuration(sp, dt, m_type, c);
+		postExecuteDuration(sp, executeDuration + fetchDuration, c);
 	}
 
 	@Override
@@ -233,6 +232,7 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		StmtCount c = findCounter(sp.getSQL());
 		c.incExecutions();
 		c.incRows(rowcount);
+		postExecuteDuration(sp, updateDuration, c);
 	}
 
 	@Override
@@ -243,7 +243,7 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		StmtCount c = findCounter(sp.getSQL());
 		c.incExecutions();
 		c.incRows(updatedrowcount);
-		postExecuteDuration(sp, updateDuration, m_type, c);
+		postExecuteDuration(sp, updateDuration, c);
 	}
 
 	@Override
@@ -253,7 +253,7 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		c.incExecutions();
 		c.incTotalExecuteNS(updateDuration);
 		m_executeDuration += updateDuration;
-		postExecuteDuration(sp, updateDuration, m_type, c);
+		postExecuteDuration(sp, updateDuration, c);
 	}
 
 	/**

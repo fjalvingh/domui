@@ -77,7 +77,7 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 	 *
 	 * @see to.etc.dbpool.info.IPerformanceCollector#postExecuteDuration(to.etc.dbpool.StatementProxy, long, to.etc.dbpool.StmtType)
 	 */
-	public void postExecuteDuration(String request, StatementProxy sp, long dt, StmtType type, StmtCount sc) {
+	public void postExecuteDuration(String request, StatementProxy sp, long dt, StmtCount sc) {
 		Object[]	par = null;
 		if(sp instanceof PreparedStatementProxy)
 			par = ((PreparedStatementProxy) sp).internalGetParameters();

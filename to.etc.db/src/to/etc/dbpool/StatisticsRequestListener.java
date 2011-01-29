@@ -235,7 +235,7 @@ public class StatisticsRequestListener implements ServletRequestListener {
 			else if("off".equals(val) || val.startsWith("f"))
 				destroySessionStats(r);
 		}
-		InfoCollectorExpenseBased ic = new InfoCollectorExpenseBased(r.getRequestURI(), r.getQueryString(), true);
+		InfoCollectorExpenseBased ic = new InfoCollectorExpenseBased(r.getRequestURI(), r.getQueryString());
 		PerformanceCollector pc = new PerformanceCollector();
 		ic.addPerformanceCollector(pc);
 		PoolManager.getInstance().startCollecting(getClass().getName(), ic);
