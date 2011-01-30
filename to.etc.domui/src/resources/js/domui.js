@@ -537,6 +537,7 @@ var WebUI = {
 		fields["$pt"] = DomUIpageTag;
 		fields["$cid"] = DomUICID;
 		WebUI.cancelPolling();
+		
 		//-- Do not call upward handlers too.
 		if(! evt)
 			evt = window.event;
@@ -545,7 +546,6 @@ var WebUI = {
 			if(evt.stopPropagation)
 				evt.stopPropagation();
 		}
-
 		$.ajax( {
 			url :DomUI.getPostURL(),
 			dataType :"text/xml",
@@ -580,7 +580,15 @@ var WebUI = {
 		});
 	},
 
-	clickandchange: function(h, id) {
+	clickandchange: function(h, id, evt) {
+		//-- Do not call upward handlers too.
+		if(! evt)
+			evt = window.event;
+		if(evt) {
+			evt.cancelBubble = true;
+			if(evt.stopPropagation)
+				evt.stopPropagation();
+		}
 		WebUI.scall(id, 'clickandvchange');
 	},
 	
