@@ -81,17 +81,6 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 	/*	CODING:	IPerformanceCollector code.							*/
 	/*--------------------------------------------------------------*/
 	/**
-	 *
-	 * @see to.etc.dbpool.info.IPerformanceCollector#postExecuteDuration(to.etc.dbpool.StatementProxy, long, to.etc.dbpool.StmtType)
-	 */
-	//	public void postExecuteDuration(String request, StatementProxy sp, long dt, StmtCount sc) {
-	//		Object[]	par = null;
-	//		if(sp instanceof PreparedStatementProxy)
-	//			par = ((PreparedStatementProxy) sp).internalGetParameters();
-	//		addItem(SQL_EXEC_TIME, sp.getSQL(), dt, request, sc);
-	//	}
-
-	/**
 	 * Save the max executed statements.
 	 * @param counterList
 	 */

@@ -58,7 +58,6 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		/** Total time spent executing all these queries. */
 		private long m_totalExecuteNS;
 
-		//    	public Set<String>	tmpset = new HashSet<String>();
 		StmtCount(String sql) {
 			m_sql = sql;
 		}
@@ -87,7 +86,7 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 			return m_totalExecuteNS;
 		}
 
-		void addExecuteDuration(long dt) {
+		void addTotalExecuteDuration(long dt) {
 			m_totalExecuteNS += dt;
 		}
 
@@ -99,7 +98,7 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 			return m_totalFetchDuration;
 		}
 
-		void addFetchDuration(long d) {
+		void addTotalFetchDuration(long d) {
 			m_totalFetchDuration += d;
 		}
 	}
@@ -220,9 +219,8 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		StmtCount c = findCounter(sp.getSQL());
 		c.incExecutions();
 		c.incRows(rowCount);
-		c.addFetchDuration(fetchDuration);
-		c.addExecuteDuration(executeDuration);
-		//		postExecuteDuration(sp, executeDuration + fetchDuration, c);
+		c.addTotalFetchDuration(fetchDuration);
+		c.addTotalExecuteDuration(executeDuration);
 	}
 
 	@Override
@@ -233,8 +231,7 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		StmtCount c = findCounter(sp.getSQL());
 		c.incExecutions();
 		c.incRows(rowcount);
-		c.addExecuteDuration(updateDuration);
-		//		postExecuteDuration(sp, updateDuration, c);
+		c.addTotalExecuteDuration(updateDuration);
 	}
 
 	@Override
@@ -245,7 +242,7 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		StmtCount c = findCounter(sp.getSQL());
 		c.incExecutions();
 		c.incRows(updatedrowcount);
-		c.addExecuteDuration(updateDuration);
+		c.addTotalExecuteDuration(updateDuration);
 		//		postExecuteDuration(sp, updateDuration, c);
 	}
 
@@ -255,7 +252,7 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		m_executeDuration += updateDuration;
 		StmtCount c = findCounter(sp.getSQL());
 		c.incExecutions();
-		c.addExecuteDuration(updateDuration);
+		c.addTotalExecuteDuration(updateDuration);
 		//		postExecuteDuration(sp, updateDuration, c);
 	}
 

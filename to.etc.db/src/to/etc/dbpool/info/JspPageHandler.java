@@ -671,7 +671,7 @@ public class JspPageHandler {
 		List<PerfItem> iteml = m_globalStore.getItems(name);
 		expandTemplate2("jspPerfList", "plist", pl, "items", iteml); // Header.
 
-		expandTemplate2("perf-" + pl.getKey(), "plist", pl, "items", iteml);
+		expandTemplate2("perf-stmt-stmtcount", "plist", pl, "items", iteml);
 	}
 
 	/*--------------------------------------------------------------*/

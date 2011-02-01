@@ -2,13 +2,14 @@
 <table width="100%" border="0" class="tbl statptbl">
 	<thead class="statpheader">
 		<tr>
-			<td colspan="3">&nbsp;</td>
+			<td colspan="4">&nbsp;</td>
 			<td colspan="1">Prepares</td>
 			<td colspan="4">Execute: query</td>
 			<td colspan="3">Execute: update</td>
 		</tr>		
 		<tr>
 			<td>Duration</td>
+			<td title="Total time spent in the database">DB time</td>
 			<td>URL</td>
 			<td>#conns</td>
 
@@ -32,6 +33,7 @@
 %>
 		<tr class="statprow <%= self.odd()%>">
 			<td title="<%= DbPoolUtil.strTime(entry.getTS())%>"><%= DbPoolUtil.strNanoTime(v.getDuration())%></td>
+			<td><%= DbPoolUtil.strNanoTime(v.getTotalDBTime())%></td>
 			<td><%= DbPoolUtil.q(v.getIdent()) %></td>
 			<td><%= DbPoolUtil.strCommad(v.getNConnectionAllocations()) %></td>
 			
@@ -53,6 +55,7 @@
 
 <h2>Statement table:</h2>
 <%
-	self.expandTemplate2("perf-" + plist.getKey(), ["plist", plist, "items", pitems]);
+//	self.expandTemplate2("perf-" + plist.getKey(), ["plist", plist, "items", pitems]);
+	self.expandTemplate2("perf-stmt-stmtcount", ["plist", plist, "items", pitems]);
 %>
 

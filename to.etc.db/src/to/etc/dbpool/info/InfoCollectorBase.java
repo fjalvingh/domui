@@ -197,6 +197,10 @@ public class InfoCollectorBase {
 		return getTotalQueries() + getTotalUpdates();
 	}
 
+	public long getTotalDBTime() {
+		return m_executeDuration + m_preparedQueryDuration + m_preparedUpdateDuration + m_prepareDuration + m_statementQueryDuration + m_statementUpdateDuration + m_totalFetchDuration;
+	}
+
 	public int getNRows() {
 		return m_nRows;
 	}
