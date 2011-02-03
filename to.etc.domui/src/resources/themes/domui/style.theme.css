@@ -750,8 +750,8 @@ tr.ui-keyword-popup-row {
 
 .ui-fw-c {
 	width: 100%;
-	position: static;
-	padding-top: 24px;
+	position: absolute;
+	top: 24px;
 	bottom: 0px;
 /*	height: 100%; */
 	padding: 0;
