@@ -107,7 +107,7 @@ public class RadioButton extends NodeBase implements IHasModifiedIndication {
 
 		//		System.out.println("Value=" + values[0]);
 		String s = values[0].trim();
-		boolean on = "y".equalsIgnoreCase(s);
+		boolean on = "y".equalsIgnoreCase(s) || "on".equalsIgnoreCase(s);
 		if(on == m_checked)
 			return false; // Unchanged
 		DomUtil.setModifiedFlag(this);

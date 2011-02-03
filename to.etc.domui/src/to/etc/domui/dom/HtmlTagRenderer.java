@@ -941,7 +941,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 */
 	@Override
 	public void visitRadioButton(final RadioButton n) throws Exception {
-		basicNodeRender(n, m_o);
+		basicNodeRender(n, m_o, true);
 		//		if(! isUpdating())
 		//			o().attr("type", "radio");					// FIXME Cannot change the "type" of an existing INPUT node.
 		renderType("radio");
@@ -951,6 +951,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 		renderDiRo(n, n.isDisabled(), n.isReadOnly());
 		renderChecked(n, n.isChecked());
+		if(n.internalNeedClickHandler()) {
+			m_o.attr("onclick", sb().append("WebUI.clicked(this, '").append(n.getActualID()).append("', event); return true;").toString());
+		} else if(n.getOnClickJS() != null) {
+			m_o.attr("onclick", n.getOnClickJS());
+		}
 		renderTagend(n, m_o);
 	}
 
