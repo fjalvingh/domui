@@ -52,6 +52,11 @@ public class RadioButton extends NodeBase implements IHasModifiedIndication {
 		super("input");
 	}
 
+	public RadioButton(String name) {
+		super("input");
+		m_name = name;
+	}
+
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitRadioButton(this);
