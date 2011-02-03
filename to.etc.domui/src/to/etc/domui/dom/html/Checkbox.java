@@ -155,16 +155,26 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	}
 
 	/**
+	 * Do not use for Checkbox!!! There is a big bug in Internet Explorer where it does not
+	 * call onchange for checkboxes. A workaround has been added to DomUI, but it cannot be
+	 * made transparant. It is better to use {@link #setClicked(IClicked)} to handle checkbox
+	 * change events!
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
+	@Deprecated
 	@Override
 	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	/**
+	 * Do not use for Checkbox!!! There is a big bug in Internet Explorer where it does not
+	 * call onchange for checkboxes. A workaround has been added to DomUI, but it cannot be
+	 * made transparant. It is better to use {@link #setClicked(IClicked)} to handle checkbox
+	 * change events!
 	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
+	@Deprecated
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
