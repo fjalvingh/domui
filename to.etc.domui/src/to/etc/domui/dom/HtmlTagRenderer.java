@@ -940,17 +940,20 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 * @see to.etc.domui.dom.html.INodeVisitor#visitInput(to.etc.domui.dom.html.Input)
 	 */
 	@Override
-	public void visitRadioButton(final RadioButton n) throws Exception {
+	public void visitRadioButton(final RadioButton< ? > n) throws Exception {
 		basicNodeRender(n, m_o);
-		//		if(! isUpdating())
-		//			o().attr("type", "radio");					// FIXME Cannot change the "type" of an existing INPUT node.
 		renderType("radio");
-
+		//		m_o.attr("value", n.getActualID());
 		if(n.getName() != null)
 			o().attr("name", n.getName());
 
 		renderDiRo(n, n.isDisabled(), n.isReadOnly());
 		renderChecked(n, n.isChecked());
+
+		if(null != n.getGroup().getOnValueChanged()) {
+			m_o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(n.getActualID()).append("', event)").toString());
+		}
+
 		renderTagend(n, m_o);
 	}
 
