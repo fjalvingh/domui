@@ -935,26 +935,37 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	/**
-	 * JoS : 20 Augustus 2008
 	 * Render the basic radio button
 	 * @see to.etc.domui.dom.html.INodeVisitor#visitInput(to.etc.domui.dom.html.Input)
 	 */
 	@Override
-	public void visitRadioButton(final RadioButton n) throws Exception {
+	public void visitRadioButton(final RadioButton< ? > n) throws Exception {
 		basicNodeRender(n, m_o, true);
-		//		if(! isUpdating())
-		//			o().attr("type", "radio");					// FIXME Cannot change the "type" of an existing INPUT node.
 		renderType("radio");
-
+		//		m_o.attr("value", n.getActualID());
 		if(n.getName() != null)
 			o().attr("name", n.getName());
 
 		renderDiRo(n, n.isDisabled(), n.isReadOnly());
 		renderChecked(n, n.isChecked());
-		if(n.internalNeedClickHandler()) {
-			m_o.attr("onclick", sb().append("WebUI.clicked(this, '").append(n.getActualID()).append("', event); return true;").toString());
-		} else if(n.getOnClickJS() != null) {
-			m_o.attr("onclick", n.getOnClickJS());
+
+		//-- jal 20110125 Start fixing bug# 917: the idiots in the room (IE 7, 8) do not properly handle onchange on checkbox, sigh.
+		if(m_browserVersion.isIE()) {
+			//-- To fix IE's 26385652791725917435'th bug use the clicked listener to handle change events too.
+			if(n.internalNeedClickHandler() || n.getGroup().getOnValueChanged() != null) {
+				m_o.attr("onclick", sb().append("WebUI.clickandchange(this, '").append(n.getActualID()).append("', event); return true;").toString());
+			} else if(n.getOnClickJS() != null) {
+				m_o.attr("onclick", n.getOnClickJS());
+			}
+		} else {
+			if(n.internalNeedClickHandler()) {
+				m_o.attr("onclick", sb().append("WebUI.clicked(this, '").append(n.getActualID()).append("', event); return true;").toString());
+			} else if(n.getOnClickJS() != null) {
+				m_o.attr("onclick", n.getOnClickJS());
+			}
+			if(null != n.getGroup().getOnValueChanged()) {
+				m_o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(n.getActualID()).append("', event)").toString());
+			}
 		}
 		renderTagend(n, m_o);
 	}

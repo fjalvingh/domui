@@ -26,6 +26,8 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.util.*;
 
 /**
@@ -33,9 +35,8 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jo.seaton@itris.nl">Jo Seaton</a>
  * Created on Aug 20, 2008
  */
-
-public class RadioButton extends NodeBase implements IHasModifiedIndication {
-	//public class RadioButton extends NodeContainer {
+public class RadioButton<T> extends NodeBase implements IHasModifiedIndication {
+	private RadioGroup<T> m_radioGroup;
 
 	private boolean m_checked;
 
@@ -43,7 +44,7 @@ public class RadioButton extends NodeBase implements IHasModifiedIndication {
 
 	private boolean m_readOnly;
 
-	private String m_name;
+	private T m_buttonValue;
 
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	private boolean m_modifiedByUser;
@@ -52,9 +53,22 @@ public class RadioButton extends NodeBase implements IHasModifiedIndication {
 		super("input");
 	}
 
-	public RadioButton(String name) {
+	public RadioButton(@Nonnull RadioGroup<T> g) {
 		super("input");
-		m_name = name;
+		m_radioGroup = g;
+		g.addButton(this);
+	}
+
+	public RadioButton(@Nonnull RadioGroup<T> g, T value) {
+		super("input");
+		m_radioGroup = g;
+		g.addButton(this);
+		m_buttonValue = value;
+	}
+
+	public RadioButton(T value) {
+		super("input");
+		m_buttonValue = value;
 	}
 
 	@Override
@@ -62,22 +76,72 @@ public class RadioButton extends NodeBase implements IHasModifiedIndication {
 		v.visitRadioButton(this);
 	}
 
-	public String getName() {
-		return m_name;
+	/**
+	 * All buttons must be in a group; all buttons in that group expose a single value.
+	 * @param g
+	 */
+	public void setGroup(@Nonnull RadioGroup<T> g) {
+		if(m_radioGroup == g)
+			return;
+		if(m_radioGroup != null)
+			m_radioGroup.removeButton(this);
+		m_radioGroup = g;
+		g.addButton(this);
+		changed();
 	}
 
-	public void setName(String s) {
-		m_name = s;
+	public RadioGroup<T> getGroup() {
+		if(m_radioGroup == null) {
+			m_radioGroup = getParent(RadioGroup.class);
+			if(null == m_radioGroup) // Should not happen when properly used.
+				throw new IllegalArgumentException("A RadioButton must be part of a RadioGroup");
+		}
+
+		return m_radioGroup;
+	}
+
+	public String getName() {
+		return getGroup().getName();
+	}
+
+	public T getButtonValue() {
+		return m_buttonValue;
+	}
+
+	public void setButtonValue(T selectedValue) {
+		m_buttonValue = selectedValue;
 	}
 
 	public boolean isChecked() {
 		return m_checked;
 	}
 
+	void internalSetChecked(boolean on) {
+		if(m_checked == on)
+			return;
+		m_checked = on;
+		changed();
+	}
+
 	public void setChecked(boolean checked) {
 		if(m_checked != checked)
 			changed();
 		m_checked = checked;
+		RadioGroup<T> g = getGroup();
+		if(m_checked) {
+			//-- This becomes the current group value
+			g.internalSetValue(getButtonValue());
+
+			//-- Make sure all other buttons are deselected
+			for(RadioButton<T> rb : g.getButtonList()) {
+				if(this != rb)
+					rb.setChecked(false);
+			}
+		} else {
+			//-- This one was unchecked. If it is the currently selected value too set it to null
+			if(g.getValue() == getButtonValue())
+				g.internalSetValue(null);
+		}
 	}
 
 	public boolean isDisabled() {
@@ -107,12 +171,33 @@ public class RadioButton extends NodeBase implements IHasModifiedIndication {
 
 		//		System.out.println("Value=" + values[0]);
 		String s = values[0].trim();
-		boolean on = "y".equalsIgnoreCase(s) || "on".equalsIgnoreCase(s);
+		boolean on = "y".equalsIgnoreCase(s); // Am I the one selected?
 		if(on == m_checked)
 			return false; // Unchanged
 		DomUtil.setModifiedFlag(this);
+
+		//-- Walk all buttons in the group, and notify them of the change.
 		m_checked = on;
+		if(!on)
+			return true;
+		RadioGroup<T> g = getGroup();
+		for(RadioButton<T> rb : g.getButtonList())
+			rb.selectionChangedTo(this);
+
+		//-- Notify the group of the changed value
+		g.internalSetValue(getButtonValue());
+
 		return true;
+	}
+
+	@Override
+	public void internalOnValueChanged() throws Exception {
+		if(m_checked)
+			getGroup().internalOnValueChanged(); // Delegate change to group.
+	}
+
+	private void selectionChangedTo(RadioButton<T> radioButton) {
+		m_checked = radioButton == this;
 	}
 
 	/*--------------------------------------------------------------*/

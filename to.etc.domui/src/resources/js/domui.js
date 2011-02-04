@@ -469,7 +469,7 @@ var WebUI = {
 				continue;
 
 			var val = undefined;
-			if (t.type == 'checkbox') {
+			if (t.type == 'checkbox' || t.type == 'radio') {
 				val = t.checked ? "y" : "n";
 			} else {
 				val = t.value;
