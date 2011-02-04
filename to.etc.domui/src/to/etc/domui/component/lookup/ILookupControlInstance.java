@@ -50,6 +50,16 @@ public interface ILookupControlInstance {
 	public NodeBase getLabelControl();
 
 	/**
+	 * When called this should disable all data input into the control instances.
+	 */
+	public void disableInput();
+
+	/**
+	 * When called this should enable all data input into the control instances.
+	 */
+	public void enableInput();
+
+	/**
 	 * When called this should clear all data input into the control instances, causing them to
 	 * be empty (not adding to the restrictions set).
 	 */

@@ -88,6 +88,11 @@ public class LookupForm<T> extends Div {
 	private boolean m_hasUserDefinedCriteria;
 
 	/**
+	 * After restore action on LookupForm.    
+	 */
+	private IClicked<NodeBase> m_onAfterRestore;
+
+	/**
 	 * This is the definition for an Item to look up. A list of these
 	 * will generate the actual lookup items on the screen, in the order
 	 * specified by the item definition list.
@@ -225,6 +230,25 @@ public class LookupForm<T> extends Div {
 
 		public void setTestId(String testId) {
 			this.testId = testId;
+		}
+
+		public void enable() {
+			m_instance.enableInput();
+		}
+
+		public void disable(boolean doClear) {
+			if(doClear) {
+				m_instance.clearInput();
+			}
+			m_instance.disableInput();
+		}
+
+		public void disable() {
+			disable(false);
+		}
+
+		public void clear() {
+			m_instance.clearInput();
 		}
 	}
 
@@ -370,7 +394,11 @@ public class LookupForm<T> extends Div {
 		} else if(m_renderAsCollapsed && m_content.getDisplay() != DisplayType.NONE) {
 			collapse();
 			//Focus must be set, otherwise IE reports javascript problem since focus is requested on not displayed input tag.
-			m_cancelBtn.setFocus();
+			if(m_cancelBtn != null) {
+				m_cancelBtn.setFocus();
+			} else if(m_collapseButton != null) {
+				m_collapseButton.setFocus();
+			}
 		} else {
 			createButtonRow(d, false);
 		}
@@ -431,7 +459,7 @@ public class LookupForm<T> extends Div {
 	 * This hides the search panel and adds a small div containing only the (optional) new and restore buttons.
 	 */
 	void collapse() {
-		if(m_content.getDisplay() == DisplayType.NONE)
+		if(isCollapsed())
 			return;
 		//		appendJavascript("$('#" + m_content.getActualID() + "').slideUp();");
 		m_content.slideUp();
@@ -451,7 +479,11 @@ public class LookupForm<T> extends Div {
 		createButtonRow(m_collapsed, true);
 	}
 
-	void restore() {
+	public boolean isCollapsed() {
+		return (m_content.getDisplay() == DisplayType.NONE);
+	}
+
+	void restore() throws Exception {
 		if(m_collapsed == null)
 			return;
 		m_collapsed.remove();
@@ -466,6 +498,11 @@ public class LookupForm<T> extends Div {
 		});
 
 		m_content.setDisplay(DisplayType.BLOCK);
+
+		//trigger after restore event is set 
+		if(getOnAfterRestore() != null) {
+			getOnAfterRestore().clicked(this);
+		}
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1031,5 +1068,38 @@ public class LookupForm<T> extends Div {
 	 */
 	public boolean hasUserDefinedCriteria() {
 		return m_hasUserDefinedCriteria;
+	}
+
+
+	/**
+	 * Collapse LookupForm search panel externally.
+	 * THIS MUST BE CALLED AFTER CONTROL IS BUILT.
+	 * In case that LookupForm has to be render as collapsed by default, 
+	 * use {@link LookupForm#setRenderAsCollapsed(boolean)} insetad. 
+	 */
+	public void doCollapse() {
+		if(isBuilt()) {
+			collapse();
+		} else {
+			throw new IllegalStateException("This must be called after control is built!");
+		}
+	}
+
+	/**
+	 * Returns listener to after restore event.
+	 * 
+	 * @return the onAfterRestore
+	 */
+	public IClicked<NodeBase> getOnAfterRestore() {
+		return m_onAfterRestore;
+	}
+
+	/**
+	 * Attach listener to after restore event.
+	 * 
+	 * @param onAfterRestore the onAfterRestore to set
+	 */
+	public void setOnAfterRestore(IClicked<NodeBase> onAfterRestore) {
+		m_onAfterRestore = onAfterRestore;
 	}
 }
