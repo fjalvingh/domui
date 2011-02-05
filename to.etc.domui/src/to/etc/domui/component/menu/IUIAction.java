@@ -19,5 +19,5 @@ public interface IUIAction<T> {
 	@Nullable
 	String getIcon(T instance) throws Exception;
 
-	boolean accepts(Object instance);
+	void execute(T instance) throws Exception;
 }
