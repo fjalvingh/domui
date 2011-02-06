@@ -5,17 +5,13 @@ import java.util.*;
 import to.etc.domui.dom.html.*;
 
 /**
- * EXPERIMENTAL, INCOMPLETE A popup menu.
+ * Definition for a popup menu.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Feb 5, 2011
+ * Created on Feb 6, 2011
  */
-public class PopupMenu extends Div {
-	private Object m_targetObject;
-
-	private String m_menuTitle;
-
-	private static class Item {
+public class PopupMenu {
+	public static class Item {
 		private String m_icon;
 
 		private String m_title;
@@ -24,11 +20,11 @@ public class PopupMenu extends Div {
 
 		private boolean m_disabled;
 
-		private IClicked<PopupMenu> m_clicked;
+		private IClicked<SimplePopupMenu> m_clicked;
 
 		private IUIAction< ? > m_action;
 
-		public Item(String icon, String title, String hint, boolean disabled, IClicked<PopupMenu> clicked) {
+		public Item(String icon, String title, String hint, boolean disabled, IClicked<SimplePopupMenu> clicked) {
 			m_icon = icon;
 			m_title = title;
 			m_hint = hint;
@@ -56,7 +52,7 @@ public class PopupMenu extends Div {
 			return m_disabled;
 		}
 
-		public IClicked<PopupMenu> getClicked() {
+		public IClicked<SimplePopupMenu> getClicked() {
 			return m_clicked;
 		}
 
@@ -67,68 +63,37 @@ public class PopupMenu extends Div {
 
 	private List<Item> m_actionList = new ArrayList<Item>();
 
-	@Override
-	public void createContent() throws Exception {
-		setCssClass("ui-pmnu");
-		Div ttl = new Div();
-		add(ttl);
-		ttl.setCssClass("pmnu-ttl");
-		ttl.add(m_menuTitle == null ? "Menu" : m_menuTitle);
-
-		for(Item a : m_actionList) {
-			if(a.getAction() != null)
-				renderAction(a.getAction());
-			else
-				renderItem(a);
-		}
-	}
-
 	public void addAction(IUIAction< ? > action) {
 		m_actionList.add(new Item(action));
 	}
 
-	public void addItem(String caption, String icon, String hint, boolean disabled, IClicked<PopupMenu> clk) {
+	public void addItem(String caption, String icon, String hint, boolean disabled, IClicked<SimplePopupMenu> clk) {
 		m_actionList.add(new Item(icon, caption, hint, disabled, clk));
 	}
 
-	public void addItem(String caption, String icon, IClicked<PopupMenu> clk) {
+	public void addItem(String caption, String icon, IClicked<SimplePopupMenu> clk) {
 		m_actionList.add(new Item(icon, caption, null, false, clk));
 	}
 
-	private void renderItem(final Item a) {
-		Div d = renderItem(a.getTitle(), a.getHint(), a.getIcon());
-		d.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(NodeBase clickednode) throws Exception {
-				a.getClicked().clicked(PopupMenu.this);
-			}
-		});
-	}
 
-	private Div renderItem(String text, String hint, String icon) {
-		Div d = new Div();
-		add(d);
-		d.setCssClass("ui-pmnu-action");
-		if(null != icon) {
-			d.setBackgroundImage(icon);
+
+	/**
+	 *
+	 * @param ref
+	 * @param target
+	 */
+	public void show(NodeContainer ref, Object target) {
+		NodeContainer nc = ref.getPage().getPopIn();
+		if(nc instanceof SimplePopupMenu) {
+			SimplePopupMenu sp = (SimplePopupMenu) nc;
+			if(sp.getSource() == this && target == sp.getTargetObject()) {
+				sp.closeMenu();
+				return;
+			}
 		}
-		d.add(text);
-		if(null != hint)
-			d.setTitle(hint);
-		return d;
-	}
 
-	private <T> void renderAction(final IUIAction<T> action) throws Exception {
-		final T val = (T) m_targetObject;
-		String disa = action.getDisableReason(val);
-		Div d = renderItem(action.getName(val), disa, action.getIcon(val));
-		if(null != disa)
-			return;
-		d.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(NodeBase clickednode) throws Exception {
-				action.execute(val);
-			}
-		});
+		SimplePopupMenu sp = new SimplePopupMenu(this, m_actionList, target);
+		ref.getPage().setPopIn(sp);
+		ref.appendAfterMe(sp);
 	}
 }

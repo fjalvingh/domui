@@ -667,6 +667,10 @@ final public class Page implements IQContextContainer {
 		}
 	}
 
+	public NodeContainer getPopIn() {
+		return m_currentPopIn;
+	}
+
 	@Override
 	public String toString() {
 		return "Page[" + getBody().getClass().getName() + "]";

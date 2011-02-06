@@ -2073,8 +2073,44 @@ var WebUI = {
 			WebUI._debugMouseTarget = e.srcElement || e.originalTarget;
 			
 		});
-		
+	},
+
+	_popinCloseList: [],
+
+	registerPopinClose: function(id) {
+		WebUI._popinCloseList.push(id);
+		if(WebUI._popinCloseList.length != 1)
+			return;
+		$(document.body).bind("mousedown", WebUI.popinMouseClose);
+		$(document.body).bind("keydown", WebUI.popinKeyClose);
+	},
+
+	popinMouseClose: function() {
+		for(var i = 0; i < WebUI._popinCloseList.length; i++) {
+			var id = WebUI._popinCloseList[i];
+			var el = document.getElementById(id);
+			if(el) {
+				WebUI.scall(id, "POPINCLOSE", {});
+			}
+		}
+		WebUI._popinCloseList = [];
+		$(document.body).unbind("mousedown", WebUI.popinMouseClose);
+		$(document.body).unbind("keydown", WebUI.popinKeyClose);
+	},
+	popinKeyClose: function(evt) {
+		if(! evt)
+			evt = window.event;
+		var kk = WebUI.normalizeKey(evt);
+		if(kk == 27 || kk == 27000) {
+			// Prevent ESC from cancelling the AJAX call in Firefox!!
+			evt.preventDefault();
+			evt.cancelBubble = true;
+			if(evt.stopPropagation)
+				evt.stopPropagation();
+			WebUI.popinMouseClose();
+		}
 	}
+	
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
