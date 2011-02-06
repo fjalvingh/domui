@@ -92,8 +92,8 @@ public class PopupMenu {
 			}
 		}
 
-		SimplePopupMenu sp = new SimplePopupMenu(this, m_actionList, target);
+		SimplePopupMenu sp = new SimplePopupMenu(ref, this, m_actionList, target);
 		ref.getPage().setPopIn(sp);
-		ref.appendAfterMe(sp);
+		ref.getPage().getBody().add(0, sp);
 	}
 }

@@ -15,6 +15,8 @@ import to.etc.domui.server.*;
 public class SimplePopupMenu extends Div {
 	private PopupMenu m_source;
 
+	private NodeBase m_relativeTo;
+
 	private Object m_targetObject;
 
 	private String m_menuTitle;
@@ -25,7 +27,8 @@ public class SimplePopupMenu extends Div {
 		m_actionList = new ArrayList<Item>();
 	}
 
-	SimplePopupMenu(PopupMenu pm, List<Item> actionList, Object target) {
+	SimplePopupMenu(NodeBase b, PopupMenu pm, List<Item> actionList, Object target) {
+		m_relativeTo = b;
 		m_actionList = Collections.unmodifiableList(actionList);
 		m_source = pm;
 		m_targetObject = target;
@@ -46,7 +49,8 @@ public class SimplePopupMenu extends Div {
 				renderItem(a);
 		}
 
-		appendCreateJS("WebUI.registerPopinClose('" + getActualID() + "');");
+		//		appendCreateJS("WebUI.registerPopinClose('" + getActualID() + "');");
+		appendCreateJS("WebUI.popupMenuShow('#" + m_relativeTo.getActualID() + "', '#" + getActualID() + "');");
 	}
 
 	public void addAction(IUIAction< ? > action) {

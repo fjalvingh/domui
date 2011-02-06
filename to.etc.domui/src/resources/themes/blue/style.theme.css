@@ -1592,10 +1592,7 @@ body,html {
 
 /*** Popup menu ***/
 .ui-pmnu {
-	position: absolute;
-	z-index: 100;
-/*	right: 0px; */
-
+	display: none;
 	width: 200px;
 	background-color: grey;
 	border: 1px dotted black;

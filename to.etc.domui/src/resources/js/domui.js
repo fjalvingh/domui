@@ -2077,6 +2077,25 @@ var WebUI = {
 
 	_popinCloseList: [],
 
+	popupMenuShow: function(refid, menu) {
+		WebUI.registerPopinClose(menu.substring(1));
+		var pos = $(refid).offset();    
+		var eWidth = $(refid).outerWidth();
+		var mwidth = $(menu).outerWidth();
+		var left = (pos.left);
+		if(left + mwidth > screen.width)
+			left = screen.width - mwidth - 10;
+		var top = 3+pos.top;
+		$(menu).css( {
+			position: 'absolute',
+			zIndex: 100,
+			left: left+"px", 
+			top: top+"px"
+		});
+		
+		$(menu).hide().fadeIn();
+	},
+
 	registerPopinClose: function(id) {
 		WebUI._popinCloseList.push(id);
 		if(WebUI._popinCloseList.length != 1)
