@@ -189,27 +189,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		childChanged();
 	}
 
-	/**
-	 * Add the child at position before specified node.
-	 * @param nd
-	 * @param beforeNode
-	 */
-	public void addBefore(final NodeBase nd, final NodeBase beforeNode) {
-		if(m_delegate != null) {
-			m_delegate.addBefore(nd, beforeNode);
-			return;
-		}
-
-		if(m_children == Collections.EMPTY_LIST)
-			m_children = new ArrayList<NodeBase>();
-
-		int index = m_children.indexOf(beforeNode);
-		if(index == -1) {
-			throw new IllegalStateException("This node " + this + " does not contain a " + beforeNode);
-		}
-		add(index, nd);
-	}
-
 	public void add(final int index, final NodeBase nd) {
 		if(m_delegate != null) {
 			m_delegate.add(index, nd);

@@ -2,6 +2,12 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+/**
+ * Model for key-value list data.
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on 7 Feb 2011
+ */
 public abstract class SimpleKeyModel<T, P> extends TableModelBase<T> implements ITableModel<T> {
 
 	private List<P> m_keyList;
@@ -10,11 +16,11 @@ public abstract class SimpleKeyModel<T, P> extends TableModelBase<T> implements 
 	/*	CODING:	Model event handling code.							*/
 	/*--------------------------------------------------------------*/
 	public SimpleKeyModel() {
-		this(new HashSet<P>());
+		this(new ArrayList<P>());
 	}
 
-	public SimpleKeyModel(Set<P> in) {
-		m_keyList = new ArrayList<P>(in);
+	public SimpleKeyModel(List<P> in) {
+		m_keyList = in;
 	}
 
 	/*--------------------------------------------------------------*/
