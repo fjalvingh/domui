@@ -232,19 +232,12 @@ public class LookupForm<T> extends Div {
 			this.testId = testId;
 		}
 
-		public void enable() {
-			m_instance.enableInput();
+		public void setDisabled(Boolean disabled) {
+			m_instance.setDisabled(disabled);
 		}
 
-		public void disable(boolean doClear) {
-			if(doClear) {
-				m_instance.clearInput();
-			}
-			m_instance.disableInput();
-		}
-
-		public void disable() {
-			disable(false);
+		public Boolean isDisabled() {
+			return m_instance.isDisabled();
 		}
 
 		public void clear() {
