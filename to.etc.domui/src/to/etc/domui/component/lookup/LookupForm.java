@@ -93,6 +93,11 @@ public class LookupForm<T> extends Div {
 	private IClicked<NodeBase> m_onAfterRestore;
 
 	/**
+	 * After collpase action on LookupForm.    
+	 */
+	private IClicked<NodeBase> m_onAfterCollapse;
+
+	/**
 	 * This is the definition for an Item to look up. A list of these
 	 * will generate the actual lookup items on the screen, in the order
 	 * specified by the item definition list.
@@ -450,8 +455,9 @@ public class LookupForm<T> extends Div {
 
 	/**
 	 * This hides the search panel and adds a small div containing only the (optional) new and restore buttons.
+	 * @throws Exception 
 	 */
-	void collapse() {
+	void collapse() throws Exception {
 		if(isCollapsed())
 			return;
 		//		appendJavascript("$('#" + m_content.getActualID() + "').slideUp();");
@@ -470,6 +476,10 @@ public class LookupForm<T> extends Div {
 			}
 		});
 		createButtonRow(m_collapsed, true);
+		//trigger after collapse event is set 
+		if(getOnAfterCollapse() != null) {
+			getOnAfterCollapse().clicked(this);
+		}
 	}
 
 	public boolean isCollapsed() {
@@ -1063,18 +1073,22 @@ public class LookupForm<T> extends Div {
 		return m_hasUserDefinedCriteria;
 	}
 
-
 	/**
-	 * Collapse LookupForm search panel externally.
-	 * THIS MUST BE CALLED AFTER CONTROL IS BUILT.
-	 * In case that LookupForm has to be render as collapsed by default, 
-	 * use {@link LookupForm#setRenderAsCollapsed(boolean)} insetad. 
+	 * Use to collpase/restore LookupForm search pannel.
+	 * In case that it is used while component is already built it would execute collapse/restore events, otherwise it would set {@link LookupForm#m_renderAsCollapsed} flag.
+	 *  
+	 * @param collapsed
+	 * @throws Exception
 	 */
-	public void doCollapse() {
+	public void setCollapsed(boolean collapsed) throws Exception {
 		if(isBuilt()) {
-			collapse();
+			if(collapsed) {
+				collapse();
+			} else {
+				restore();
+			}
 		} else {
-			throw new IllegalStateException("This must be called after control is built!");
+			m_renderAsCollapsed = collapsed;
 		}
 	}
 
@@ -1095,4 +1109,23 @@ public class LookupForm<T> extends Div {
 	public void setOnAfterRestore(IClicked<NodeBase> onAfterRestore) {
 		m_onAfterRestore = onAfterRestore;
 	}
+
+	/**
+	 * Returns listener to after collapse event.
+	 * 
+	 * @return the onAfterCollpase
+	 */
+	public IClicked<NodeBase> getOnAfterCollapse() {
+		return m_onAfterCollapse;
+	}
+
+	/**
+	 * Attach listener to after collpase event.
+	 * 
+	 * @param onAfterCollapse the onAfterCollapse to set
+	 */
+	public void setOnAfterCollapse(IClicked<NodeBase> onAfterCollapse) {
+		m_onAfterCollapse = onAfterCollapse;
+	}
+
 }
