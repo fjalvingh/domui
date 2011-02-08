@@ -571,12 +571,20 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o.endtag();
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Core node rendering.								*/
+	/*--------------------------------------------------------------*/
+	public void basicNodeRender(final NodeBase b, final IBrowserOutput o) throws Exception {
+		basicNodeRender(b, o, false);
+	}
+
 	/**
 	 * Basic rendering of a node. This renders the tag and all shared attributes.
 	 * @param o
 	 * @throws Exception
 	 */
-	public void basicNodeRender(final NodeBase b, final IBrowserOutput o) throws Exception {
+	public void basicNodeRender(final NodeBase b, final IBrowserOutput o, boolean inhibitevents) throws Exception {
 		renderTag(b, o);
 		if(m_tagless)
 			o.attr("select", "#" + b.getActualID()); // Always has an ID
@@ -611,19 +619,23 @@ public class HtmlTagRenderer implements INodeVisitor {
 		}
 
 		//-- Javascriptish
+		if(inhibitevents)
+			return;
+
 		if(b.internalNeedClickHandler()) {
 			o.attr("onclick", sb().append("return WebUI.clicked(this, '").append(b.getActualID()).append("', event)").toString());
 		} else if(b.getOnClickJS() != null) {
 			o.attr("onclick", b.getOnClickJS());
-		}
-		if(b.getOnMouseDownJS() != null) {
-			o.attr("onmousedown", b.getOnMouseDownJS());
 		}
 		if(b instanceof IHasChangeListener) {
 			IHasChangeListener inb = (IHasChangeListener) b;
 			if(null != inb.getOnValueChanged()) {
 				o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
 			}
+		}
+
+		if(b.getOnMouseDownJS() != null) {
+			o.attr("onmousedown", b.getOnMouseDownJS());
 		}
 	}
 
@@ -678,16 +690,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	@Override
-	public void visitTH(final TH n) throws Exception {
-		basicNodeRender(n, m_o);
-		if(n.getColspan() > 0)
-			o().attr("colspan", n.getColspan());
-		if(n.getScope() != null)
-			o().attr("scope", n.getScope());
-		renderTagend(n, m_o);
-	}
-
-	@Override
 	public void visitTHead(final THead n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
@@ -730,6 +732,42 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("width", n.getCellWidth());
 		if(n.getAlign() != null)
 			o().attr("align", n.getAlign().getCode());
+		renderTagend(n, m_o);
+	}
+
+	@Override
+	public void visitTH(final TH n) throws Exception {
+		basicNodeRender(n, m_o);
+		if(n.getValign() != null) {
+			switch(n.getValign()){
+				default:
+					throw new IllegalStateException("Unknown valign: " + n.getValign());
+				case BOTTOM:
+					o().attr("valign", "bottom");
+					break;
+				case TOP:
+					o().attr("valign", "top");
+					break;
+				case MIDDLE:
+					o().attr("valign", "middle");
+					break;
+			}
+		}
+		if(n.getColspan() > 0)
+			o().attr("colspan", n.getColspan());
+		if(n.getRowspan() > 0)
+			o().attr("rowspan", n.getRowspan());
+		if(n.isNowrap())
+			o().attr("nowrap", "nowrap");
+		if(n.getCellHeight() != null)
+			o().attr("height", n.getCellHeight());
+		if(n.getCellWidth() != null)
+			o().attr("width", n.getCellWidth());
+		if(n.getAlign() != null)
+			o().attr("align", n.getAlign().getCode());
+
+		if(n.getScope() != null)
+			o().attr("scope", n.getScope());
 		renderTagend(n, m_o);
 	}
 
@@ -868,34 +906,67 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 */
 	@Override
 	public void visitCheckbox(final Checkbox n) throws Exception {
-		basicNodeRender(n, m_o);
+		basicNodeRender(n, m_o, true);
 		renderType("checkbox");
-		//
-		//		if(! isUpdating())
-		//			o().attr("type", "checkbox");					// FIXME Cannot change the "type" of an existing INPUT node.
 		o().attr("name", n.getActualID());
 		renderDisabled(n, n.isDisabled()); // 20091110 jal Checkboxes do not have a readonly attribute.
 		renderChecked(n, n.isChecked());
+
+		//-- jal 20110125 Start fixing bug# 917: the idiots in the room (IE 7, 8) do not properly handle onchange on checkbox, sigh.
+		if(m_browserVersion.isIE()) {
+			//-- To fix IE's 26385652791725917435'th bug use the clicked listener to handle change events too.
+			if(n.internalNeedClickHandler() || n.getOnValueChanged() != null) {
+				m_o.attr("onclick", sb().append("WebUI.clickandchange(this, '").append(n.getActualID()).append("', event); return true;").toString());
+			} else if(n.getOnClickJS() != null) {
+				m_o.attr("onclick", n.getOnClickJS());
+			}
+		} else {
+			if(n.internalNeedClickHandler()) {
+				m_o.attr("onclick", sb().append("WebUI.clicked(this, '").append(n.getActualID()).append("', event); return true;").toString());
+			} else if(n.getOnClickJS() != null) {
+				m_o.attr("onclick", n.getOnClickJS());
+			}
+			if(null != n.getOnValueChanged()) {
+				m_o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(n.getActualID()).append("', event)").toString());
+			}
+		}
+
 		renderTagend(n, m_o);
 	}
 
 	/**
-	 * JoS : 20 Augustus 2008
 	 * Render the basic radio button
 	 * @see to.etc.domui.dom.html.INodeVisitor#visitInput(to.etc.domui.dom.html.Input)
 	 */
 	@Override
-	public void visitRadioButton(final RadioButton n) throws Exception {
-		basicNodeRender(n, m_o);
-		//		if(! isUpdating())
-		//			o().attr("type", "radio");					// FIXME Cannot change the "type" of an existing INPUT node.
+	public void visitRadioButton(final RadioButton< ? > n) throws Exception {
+		basicNodeRender(n, m_o, true);
 		renderType("radio");
-
+		//		m_o.attr("value", n.getActualID());
 		if(n.getName() != null)
 			o().attr("name", n.getName());
 
 		renderDiRo(n, n.isDisabled(), n.isReadOnly());
 		renderChecked(n, n.isChecked());
+
+		//-- jal 20110125 Start fixing bug# 917: the idiots in the room (IE 7, 8) do not properly handle onchange on checkbox, sigh.
+		if(m_browserVersion.isIE()) {
+			//-- To fix IE's 26385652791725917435'th bug use the clicked listener to handle change events too.
+			if(n.internalNeedClickHandler() || n.getGroup().getOnValueChanged() != null) {
+				m_o.attr("onclick", sb().append("WebUI.clickandchange(this, '").append(n.getActualID()).append("', event); return true;").toString());
+			} else if(n.getOnClickJS() != null) {
+				m_o.attr("onclick", n.getOnClickJS());
+			}
+		} else {
+			if(n.internalNeedClickHandler()) {
+				m_o.attr("onclick", sb().append("WebUI.clicked(this, '").append(n.getActualID()).append("', event); return true;").toString());
+			} else if(n.getOnClickJS() != null) {
+				m_o.attr("onclick", n.getOnClickJS());
+			}
+			if(null != n.getGroup().getOnValueChanged()) {
+				m_o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(n.getActualID()).append("', event)").toString());
+			}
+		}
 		renderTagend(n, m_o);
 	}
 

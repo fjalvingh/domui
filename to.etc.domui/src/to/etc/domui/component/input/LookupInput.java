@@ -698,7 +698,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	 */
 	@Override
 	public void setValue(T v) {
-		if(DomUtil.isEqual(m_value, v))
+		if(DomUtil.isEqual(m_value, v) && (m_keySearch == null || m_keySearch.getKeySearchValue() == null))
 			return;
 		m_value = v;
 		if(m_value != null) {

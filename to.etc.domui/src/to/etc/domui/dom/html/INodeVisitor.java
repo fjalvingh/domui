@@ -63,7 +63,7 @@ public interface INodeVisitor {
 
 	public void visitCheckbox(Checkbox n) throws Exception;
 
-	public void visitRadioButton(RadioButton b) throws Exception;
+	public void visitRadioButton(RadioButton< ? > b) throws Exception;
 
 	public void visitButton(Button b) throws Exception;
 

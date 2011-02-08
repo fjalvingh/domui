@@ -1050,6 +1050,20 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
+	 * Default handling of change messages.
+	 * @throws Exception
+	 */
+	public void internalOnValueChanged() throws Exception {
+		if(this instanceof IHasChangeListener) {
+			IHasChangeListener chb = (IHasChangeListener) this;
+			IValueChanged<NodeBase> vc = (IValueChanged<NodeBase>) chb.getOnValueChanged();
+			if(vc != null) { // Well, other listeners *could* have changed this one, you know
+				vc.onValueChanged(this);
+			}
+		}
+	}
+
+	/**
 	 * Called when forceRebuild is done on this node.
 	 */
 	protected void onForceRebuild() {}

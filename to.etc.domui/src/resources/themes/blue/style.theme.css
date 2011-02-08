@@ -1,5 +1,5 @@
 /*
- * DomUI "blue" stylesheet - literals only, no properties.
+ * DomUI "blue" stylesheet.
  */
 @IMPORT url("calendar-blue2.css");
 
@@ -7,8 +7,8 @@
 	border: 0;
 	margin: 0;
 	padding: 0;
-	font-family: verdana, tahoma, helvetica, sans-serif;
-	font-size: 11px;
+	font-family: <%= font_family %>;
+	font-size: <%= font_size %>;
 }
 
 input, textarea, select {
@@ -24,10 +24,6 @@ input, textarea {
 
 input:hover, textarea:hover, select:hover {
 	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
-}
-
-#inputjes {
-	border: 1px solid #781351;
 }
 
 .ui-txx {
@@ -63,27 +59,28 @@ input:hover, textarea:hover, select:hover {
 	background-color: #ffe1bf;
 }
 
-/*** ViewPoint title bar ***/
+/*** App Title bar ***/
 .ui-atl-bb {
 	white-space: nowrap;
-	background-image: url(bg-caption-end.png);
+	background-image: url(bg-caption.png.svg);
 	background-repeat: no-repeat;
 	width: 90%;
 	text-align: right;
 }
 
 .ui-atl-i {
-	background-color: #bed6f8;
+	background-color: <%= header_bg %>;
 	padding-right: 25px;
 	padding-left: 15px;
 }
 
 .ui-atl-t {
-	background-color: #bed6f8;
+	background-color: <%= header_bg %>;
 	width: 10%;
 	white-space: nowrap;
 	color: #123667;
 	font-weight: bold;
+	font-size: <%= hdr_font_size %>;
 }
 
 /*** SplitterPanel. These style names are required by jquery.splitter.js ***/
@@ -93,8 +90,8 @@ input:hover, textarea:hover, select:hover {
 	height: 100%;
 	line-height: 0px;
 	font-size: 0px;
-	border-left: solid 1px white;
-	border-right: solid 1px white;
+	border-left: solid 1px <%= header_bg %>;
+	border-right: solid 1px <%= header_bg %>;
 	background: #cbe1fb url(panev.gif) 0% 50%;
 }
 
@@ -125,8 +122,8 @@ input:hover, textarea:hover, select:hover {
 	text-align: left;
 	line-height: 0px;
 	font-size: 0px;
-	border-top: solid 1px white;
-	border-bottom: solid 1px white;
+	border-top: solid 1px <%= header_bg %>;
+	border-bottom: solid 1px <%= header_bg %>;
 	background: #cbe1fb url(paneh.gif) 50% 0%;
 }
 
@@ -160,7 +157,7 @@ input:hover, textarea:hover, select:hover {
 .ui-splt-left {
 	float: left;
 	height: 100%;
-	border-top: solid 1px white;
+	border-top: solid 1px <%= header_bg %>;
 	overflow: auto;
 	position: relative;
 }
@@ -218,16 +215,16 @@ input:hover, textarea:hover, select:hover {
 
 /*** Tree selector ***/
 .ui-tree .selected {
-	background: #bed6f8 !important;
+	background: <%= selected_bg %> !important;
 }
 TD .ui-tree .selected:hover {
-	background: #bed6f8 !important;
+	background: <%= selected_bg %> !important;
 }
 
 /*** DisplayValue ***/
 .ui-dspv {
-	background:none repeat scroll 0 0 #F5F5FA;
-	border: 1px solid #EEEEEF;
+	background:none repeat scroll 0 0 <%= readonly_bg %>;
+	border: 1px solid <%= readonly_border %>;
 	display:block;
 	padding:2px;
 }
@@ -235,12 +232,11 @@ TD .ui-tree .selected:hover {
 /*** CaptionedHeader ***/
 .ui-chdr {
 	width: 100%;
-	background-image: url(bg-chdr.png);
+	background-image: url(bg-chdr.png.svg);
 	margin-top: 10px;
 }
 .ui-chdr-ttl {
-/*	border: 1px dotted #333333; */
-	background-color: #bed6f8;
+	background-color: <%= util.color(header_bg).lighter(0.4) %>;
 	-moz-border-radius: 5px;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
@@ -257,9 +253,9 @@ TD .ui-tree .selected:hover {
 
 /*** ErrorMessageDiv helper for components that handle their error display ***/
 .ui-emd {
-	background-color: #ffaaaa;
-	color: red;
-	border-color: 1px solid red;
+	background-color: <%= error_bg %>;
+	color: <%= error_fg %>;
+	border-color: 1px solid <%= error_border %>;
 }
 .ui-emd-msg {
 	background-repeat: no-repeat;
@@ -268,9 +264,9 @@ TD .ui-tree .selected:hover {
 }
 .ui-emd-info {
 	background-image: url(mini-info.png);
-	background-color: #a9c5f1; /* some nice light blue */
-	color: blue;
-	border-color: 1px solid blue;
+	background-color: <%= info_bg %>; /* some nice light blue */
+	color: <%= info_fg %>;
+	border-color: 1px solid <%= info_border %>;
 }
 .ui-emd-error {
 	background-image: url(mini-error.png);
@@ -315,7 +311,7 @@ div.ui-popin {
 	margin-right: 13px;
 }
 .ui-mbx-mc {
-	font-size: 13px; /* FIXME: viewpoint uses PIXEL sizing!? */
+	font-size: 13px;
 }
 
 /*** InfoPanel ***/
@@ -332,7 +328,7 @@ div.ui-popin {
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
-	font-size: 12px;
+	font-size: <%= link_font_size %>;
 }
 .ui-lnkb {
 }
@@ -399,7 +395,7 @@ table .ui-sh {
 	width: 1%;
 }
 .ui-sh-sc .selected, .ui-sh-tc .selected {
-	background-color: cyan;
+	background-color: <%= selected_bg %>;
 }
 
 /*** BreadCrumb ***/
@@ -440,19 +436,16 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 .ui-bb-left {
 	padding: 0; margin: 0;
 	display: none;
-	/* background-image: url(bg-rounded-left.png); vmijic looks better without background image */
 	width: 0px;
 	height: 0px;
 }
 .ui-bb-right {
 	padding: 0; margin: 0;
-	/* background-image: url(bg-rounded-right.png); vmijic looks better without background image */
 	width: 29px;
 	height: 36px;
 }
 .ui-bb-middle {
 	padding: 0; margin: 0;
-	/* background: url(bg-rounded-middle.png) repeat-x; vmijic looks better without background image */
 	height: 36px;
 }
 
@@ -464,13 +457,13 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 	white-space: nowrap;
 }
 td.ui-tr-sel:hover {
-	background-color: #ffe1bf !important;
+	background-color: <%= highlight_bg %> !important;
 }
 td.ui-tr-sel {
 	cursor: pointer;
 }
 td.ui-tr-selected {
-	background-color: white; !important;
+	background-color: <%= header_bg %>; !important;
 }
 
 /*** AsyncContainer ***/
@@ -625,7 +618,7 @@ div.ui-lui-selected {
 }
 
 div.ui-lui-selected-ro {
-	border: #eff7ff solid 1px; /* same border color as one used for ui-dspv fields */
+	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
 }
 	
 div.ui-lui {
@@ -658,7 +651,7 @@ table.ui-lui-selected {
 }
 
 .ui-lui-selected-ro tbody {
-	background-color: #eff7ff;
+	background-color: <%= readonly_bg %>;
 }
 
 .ui-input-err * .ui-lui-v {
@@ -696,11 +689,11 @@ img.ui-lui-waiting{
 }
 tr.ui-keyword-popop-rowsel {
 	cursor: pointer;
-	background-color: #ffe1bf !important;
+	background-color: <%= highlight2_bg %> !important;
 }
 
 tr.ui-keyword-popop-rowsel:hover {
-	background-color: #ffe1bf !important;
+	background-color: <%= highlight2_bg %> !important;
 }
 
 tr.ui-keyword-popup-row {
@@ -861,14 +854,14 @@ button {
 
 .ui-ro {
 	/*background: #eff7ff;*/
-	border:1px solid #eeeeef;
-	background-color: #f5f5fa;
+	border:1px solid <%= readonly_border %>;
+	background-color: <%= readonly_bg %>;
 }
 
 .ui-ro:hover {
 	/*background: #eff7ff;*/
-	border:1px solid #eeeeef;
-	background-color: #f5f5fa;
+	border:1px solid <%= readonly_border %>;
+	background-color: <%= readonly_bg %>;
 }
 
 /*** Panning Image Panel ***/
@@ -976,8 +969,11 @@ div:hover.ui-xdt-exp {
 	overflow: auto;
 }
 
-.ui-dt TH {
+.ui-dt th {
 	text-align: left;
+	font-weight: bold;
+	padding: 0px 3px;
+	vertical-align: top;
 }
 
 .ui-dt tbody td {
@@ -994,11 +990,10 @@ div:hover.ui-xdt-exp {
 }
 
 .ui-odd {
-	
 }
 
 .ui-even {
-	background-color: #eeeeee;
+	background-color: <%= even_bg %>;
 }
 
 tr.ui-rowsel {
@@ -1006,37 +1001,31 @@ tr.ui-rowsel {
 }
 
 tr.ui-rowsel:hover {
-	background-color: #ffe1bf !important;
+	background-color: <%= highlight_bg %> !important;
 }
 
 td.ui-cellsel {
 	cursor: pointer;
-	color: #2200cc;
+	color: <%= link_color %>;
 }
 
 td.ui-cellsel:hover {
 	text-decoration: underline;
-	background-color: #b8f1c7 !important;
+	background-color: <%= cellhighlight_bg %> !important;
 }
 
 th.ui-sortable {
 	cursor: pointer;
 }
 .ui-sortable img {
-	float: left;
-	margin-right: 2px;
+	margin-top: 2px;
+	margin-left: -2px;
+	position: absolute;
+	border: 0px;
 }
-
-.ui-dt TH {
-	font-size: 11px;
-	font-weight: bold;
-	padding: 0px 3px;
+.ui-sortable span {
+	margin-left: 8px;
 }
-
-.ui-dt {
-	font-size: 11px;
-}
-
 .ui-dt-separator {
 	background: url(bg-horiz-separator.png) repeat-x center;
 	padding: 1px;
@@ -1059,21 +1048,41 @@ th.ui-sortable {
 }
 
 .ui-sib:hover {
-	background-color: #bed6f8 !important;
+	background-color: <%= header_bg %> !important;
 }
+
+/*** Caption ***/
+.ui-cptn {
+	border: 1px solid <%= header_bg %>;
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-header.png.svg) repeat-x;
+	margin-top: 10px;
+}
+
+
+/*** Caption ***/
+.ui-cptn {
+	border: 1px solid #bed6f8;
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-header.png.svg) repeat-x;
+	margin-top: 10px;
+}
+
 
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
 	background-color: white;
 	padding: 1px;
-	border: 1px solid #bed6f8;
+	border: 1px solid <%= header_bg %>;
 }
 
 .ui-pnl-caption {
-	border: 1px solid #bed6f8;
+	border: 1px solid <%= header_bg %>;
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
-	background: url(bg-caption.png) repeat-x;
+	background: url(bg-header.png.svg) repeat-x;
 }
 
 .ui-pnl-cont {
@@ -1085,19 +1094,19 @@ th.ui-sortable {
 .ui-err-outer { /*	background-color: #ffe5e5; */
 	background-color: white;
 	padding: 1px;
-	border: 1px solid #f7c2c2;
+	border: 1px solid <%= error_bg %>;
 	margin-bottom: 5px;
 }
 
 .ui-err-caption {
-	border: 1px solid #f7c2c2;
+	border: 1px solid <%= error_bg %>;
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
 	background: url(bg-errors.png) repeat-x bottom;
 }
 
 .ui-input-err {
-	background-color: #ffe5e5 !important;
+	background-color: <%= error_input_bg %> !important;
 }
 
 /*** Message html codes: messages containing simple html (b, em, strong, i) are translated to contain spans with styles ui-txt-i, ui-txt-b etc ***/
@@ -1143,11 +1152,11 @@ li.ui-tab-err {
 	padding: 5px 14px 4px 6px;
 	text-decoration: none;
 	font-weight: bold;
-	color: #123667;
+	color: <%= tab_fg %>;
 }
 
 .ui-tab-hdr ul a:hover {
-	color: #6ba1eb;
+	color: <%= tab_link_color %>;
 }
 
 .ui-tab-hdr .ui-tab-sel {
@@ -1163,7 +1172,7 @@ li.ui-tab-err {
 }
 
 .ui-tab-err a {
-	color: #ff0000;
+	color: <%= error_fg %>;
 }
 
 .ui-tab-icon {
@@ -1174,7 +1183,7 @@ li.ui-tab-err {
 	position: relative; /* jal new 20070625 */
 	clear: both;
 	background-color: #ffffff;
-	border: 1px solid #bed6f8;
+	border: 1px solid <%= header_bg %>;
 	padding: 0px;
 }
 
@@ -1213,11 +1222,11 @@ li.ui-tab-err {
 	padding: 5px 14px 4px 6px;
 	text-decoration: none;
 	font-weight: bold;
-	color: #123667;
+	color: <%= tab_fg %>;
 }
 
 .ui-stab-hdr ul a:hover {
-	color: #6ba1eb;
+	color: <%= tab_link_color %>;
 }
 
 .ui-stab-hdr .ui-tab-sel {
@@ -1269,12 +1278,9 @@ li.ui-tab-err {
 /*** Body element ***/
 body,html {
 	background: url(bg-body.png) repeat-x;
-	background-color: #fdfefe;
-	font-family: verdana, tahoma, helvetica, sans-serif;
-	font-size: 11px;
+	background-color: <%= bg_color %>;
 	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 	margin: 0px;
-/*	padding: 0; margin: 0;	width: 100%; */
 }
 
 /*** IO hider overlay ***/
@@ -1354,6 +1360,9 @@ body,html {
 .ui-pre {
 	white-space: pre;
 }
+.ui-nowrap {
+	white-space: nowrap;
+}
 .ui-printdiv {
 	overflow: hidden;
 	width: 1px;
@@ -1363,16 +1372,11 @@ body,html {
 	left: 0px;
 }
 
-.vphdr-back-col {
-	background: #bed6f8;
-}
-
-/* have to put it here since it uses color replacement */
 .ui-hor-divider {
 	min-width: 0px;
 	max-width: 0px;
 	width: 0px;
-	border-left: 2px dotted #6b99e8; /*#6b99e8;*/
+	border-left: 2px dotted <%= header_bg %>; /*#6b99e8;*/
 	background-color: #e5e5e5;
 }
 
@@ -1585,3 +1589,29 @@ body,html {
 	left: 4px;
 	top: 4px;
 }
+
+/*** Popup menu ***/
+.ui-pmnu {
+	display: none;
+	width: 200px;
+	background-color: grey;
+	border: 1px dotted black;
+	-moz-border-radius: 5px;
+	color: white;
+}
+.ui-pmnu-ttl {
+	padding: 4px;
+	font-style: italic;
+	background-color: #222;
+}
+.ui-pmnu-action {
+	padding: 4px;
+	padding-left: 20px;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	background-position: 2px 4px;
+}
+.ui-pmnu-action:hover {
+	background-color: #ff9436;
+}
+

@@ -469,7 +469,7 @@ var WebUI = {
 				continue;
 
 			var val = undefined;
-			if (t.type == 'checkbox') {
+			if (t.type == 'checkbox' || t.type == 'radio') {
 				val = t.checked ? "y" : "n";
 			} else {
 				val = t.value;
@@ -537,6 +537,7 @@ var WebUI = {
 		fields["$pt"] = DomUIpageTag;
 		fields["$cid"] = DomUICID;
 		WebUI.cancelPolling();
+		
 		//-- Do not call upward handlers too.
 		if(! evt)
 			evt = window.event;
@@ -545,7 +546,6 @@ var WebUI = {
 			if(evt.stopPropagation)
 				evt.stopPropagation();
 		}
-
 		$.ajax( {
 			url :DomUI.getPostURL(),
 			dataType :"text/xml",
@@ -580,6 +580,18 @@ var WebUI = {
 		});
 	},
 
+	clickandchange: function(h, id, evt) {
+		//-- Do not call upward handlers too.
+		if(! evt)
+			evt = window.event;
+		if(evt) {
+			evt.cancelBubble = true;
+			if(evt.stopPropagation)
+				evt.stopPropagation();
+		}
+		WebUI.scall(id, 'clickandvchange');
+	},
+	
 	valuechanged : function(h, id) {
 		// FIXME 20100315 jal Temporary fix for bug 680: if a DateInput has a value changed listener the onblur does not execute. So handle it here too.... The fix is horrible and needs generalization.
 		var item = document.getElementById(id);
@@ -793,7 +805,7 @@ var WebUI = {
 			//fix z-index to one saved in input node
 			node.parentNode.style.zIndex = node.style.zIndex;
 		}
-		if (wasInFocus){
+		if (wasInFocus && divPopup){
 			//show popup in case that input field still has focus
 			$(divPopup).show();
 		}
@@ -805,8 +817,9 @@ var WebUI = {
 				trNod.setAttribute("onmouseover","WebUI.lookupRowMouseOver('" + id + "', '" + trNod.id + "');");
 			}
 		}
-
-		divPopup.setAttribute("onclick","WebUI.lookupPopupClicked('" + id + "');");
+		if (divPopup){
+			divPopup.setAttribute("onclick","WebUI.lookupPopupClicked('" + id + "');");
+		}
 	},
 	
 	/*
@@ -1106,7 +1119,7 @@ var WebUI = {
 			weekNumbers :true,
 			showsTime :withtime,
 			timeFormat :"24",
-			electric :true,
+			electric :false, // jal 20110125 Fixes bug 885- do not update the field when moving to prevent firing the change handler.
 			step :2,
 			position :null,
 			cache :false
@@ -1150,7 +1163,7 @@ var WebUI = {
 		var update = (cal.dateClicked || p.electric);
 		if (update && p.inputField) {
 			p.inputField.value = cal.date.print(p.ifFormat);
-			if (typeof p.inputField.onchange == "function")
+			if (typeof p.inputField.onchange == "function" && cal.dateClicked)
 				p.inputField.onchange();
 		}
 		if (update && p.displayArea)
@@ -2064,8 +2077,63 @@ var WebUI = {
 			WebUI._debugMouseTarget = e.srcElement || e.originalTarget;
 			
 		});
+	},
+
+	_popinCloseList: [],
+
+	popupMenuShow: function(refid, menu) {
+		WebUI.registerPopinClose(menu.substring(1));
+		var pos = $(refid).offset();    
+		var eWidth = $(refid).outerWidth();
+		var mwidth = $(menu).outerWidth();
+		var left = (pos.left);
+		if(left + mwidth > screen.width)
+			left = screen.width - mwidth - 10;
+		var top = 3+pos.top;
+		$(menu).css( {
+			position: 'absolute',
+			zIndex: 100,
+			left: left+"px", 
+			top: top+"px"
+		});
 		
+		$(menu).hide().fadeIn();
+	},
+
+	registerPopinClose: function(id) {
+		WebUI._popinCloseList.push(id);
+		if(WebUI._popinCloseList.length != 1)
+			return;
+		$(document.body).bind("mousedown", WebUI.popinMouseClose);
+		$(document.body).bind("keydown", WebUI.popinKeyClose);
+	},
+
+	popinMouseClose: function() {
+		for(var i = 0; i < WebUI._popinCloseList.length; i++) {
+			var id = WebUI._popinCloseList[i];
+			var el = document.getElementById(id);
+			if(el) {
+				WebUI.scall(id, "POPINCLOSE", {});
+			}
+		}
+		WebUI._popinCloseList = [];
+		$(document.body).unbind("mousedown", WebUI.popinMouseClose);
+		$(document.body).unbind("keydown", WebUI.popinKeyClose);
+	},
+	popinKeyClose: function(evt) {
+		if(! evt)
+			evt = window.event;
+		var kk = WebUI.normalizeKey(evt);
+		if(kk == 27 || kk == 27000) {
+			// Prevent ESC from cancelling the AJAX call in Firefox!!
+			evt.preventDefault();
+			evt.cancelBubble = true;
+			if(evt.stopPropagation)
+				evt.stopPropagation();
+			WebUI.popinMouseClose();
+		}
 	}
+	
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {

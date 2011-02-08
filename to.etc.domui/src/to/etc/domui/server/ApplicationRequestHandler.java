@@ -568,25 +568,21 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			 * very sure the changed component is part of that list!! Fix for bug# 664.
 			 */
 			//-- If we are a vchange command *and* the node that changed still exists make sure it is part of the changed list.
-			if(Constants.ACMD_VALUE_CHANGED.equals(action) && wcomp != null && wcomp instanceof IHasChangeListener) {
+			if((Constants.ACMD_VALUE_CHANGED.equals(action) || Constants.ACMD_CLICKANDCHANGE.equals(action)) && wcomp != null) {
 				if(!pendingChangeList.contains(wcomp))
 					pendingChangeList.add(wcomp);
 			}
 
 			//-- Call all "changed" handlers.
-			for(NodeBase n : pendingChangeList) {
-				if(n instanceof IHasChangeListener) {
-					IHasChangeListener chb = (IHasChangeListener) n;
-					IValueChanged<NodeBase> vc = (IValueChanged<NodeBase>) chb.getOnValueChanged();
-					if(vc != null) { // Well, other listeners *could* have changed this one, you know
-						vc.onValueChanged(n);
-					}
-				}
-			}
+			for(NodeBase n : pendingChangeList)
+				n.internalOnValueChanged();
 
 			// FIXME 20100331 jal Odd wcomp==null logic. Generalize.
 			if(Constants.ACMD_CLICKED.equals(action)) {
 				handleClicked(ctx, page, wcomp);
+			} else if(Constants.ACMD_CLICKANDCHANGE.equals(action)) {
+				if(wcomp != null && wcomp.getClicked() != null)
+					handleClicked(ctx, page, wcomp);
 			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
 				//-- Don't do anything at all - everything is done beforehand (bug #664).
 				;

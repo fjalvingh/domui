@@ -46,6 +46,10 @@ public class TD extends NodeContainer implements IRenderNBSPIfEmpty {
 		super("td");
 	}
 
+	TD(String tag) {
+		super(tag);
+	}
+
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitTD(this);

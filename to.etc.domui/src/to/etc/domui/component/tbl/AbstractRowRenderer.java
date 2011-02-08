@@ -251,7 +251,7 @@ public class AbstractRowRenderer<T> {
 				//-- Add the sort order indicator: a single image containing either ^, v or both.
 				final Img img = new Img();
 				th = cc.add(img); // Add the label;
-				img.setBorder(0);
+				//				img.setBorder(0);
 				if(cd == m_sortColumn) {
 					img.setSrc(m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 				} else {
@@ -261,7 +261,7 @@ public class AbstractRowRenderer<T> {
 
 				if(label == null || label.trim().length() == 0)
 					label = getUnknownColumnCaption();
-				th.add(label);
+				th.add(new Span(label));
 				th.setCssClass("ui-sortable");
 				final SimpleColumnDef scd = cd;
 				th.setClicked(new IClicked<TH>() {
@@ -380,21 +380,6 @@ public class AbstractRowRenderer<T> {
 			cc.getTR().addCssClass("ui-odd");
 		}
 	}
-
-	//	/**
-	//	 * (Do not use: use setNodeRenderer() or setConverter instead!)
-	//	 *
-	//	 * Provides posibility of converion into rendering value. This method should be used as last resource rendering data conversion.
-	//	 * @param index
-	//	 * @param instance
-	//	 * @param cd
-	//	 * @param colVal
-	//	 * @return string representation of colVal to be rendered.
-	//	 */
-	//	@Deprecated
-	//	final protected String provideStringValue(final int index, final Object instance, final SimpleColumnDef cd, final Object colVal) {
-	//		return colVal.toString();
-	//	}
 
 	/**
 	 * Render a single column fully.

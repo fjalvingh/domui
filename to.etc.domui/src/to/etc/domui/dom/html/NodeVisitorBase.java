@@ -94,7 +94,7 @@ public class NodeVisitorBase implements INodeVisitor {
 	}
 
 	@Override
-	public void visitRadioButton(RadioButton n) throws Exception {
+	public void visitRadioButton(RadioButton< ? > n) throws Exception {
 		visitNodeBase(n);
 	}
 
