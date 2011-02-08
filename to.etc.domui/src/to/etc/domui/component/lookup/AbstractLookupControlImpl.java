@@ -14,6 +14,8 @@ import to.etc.webapp.query.*;
 abstract public class AbstractLookupControlImpl implements ILookupControlInstance {
 	private NodeBase[] m_nodes;
 
+	private Boolean m_disabled;
+
 	abstract public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception;
 
 	public AbstractLookupControlImpl(NodeBase... nodes) {
@@ -45,5 +47,32 @@ abstract public class AbstractLookupControlImpl implements ILookupControlInstanc
 		}
 		if(!done)
 			throw new IllegalStateException("The implementation for " + this + " needs an overridden clearInput() method");
+	}
+
+	/**
+	 * Default implementation
+	 *
+	 * @see to.etc.domui.component.lookup.ILookupControlInstance#setDisabled(Boolean))
+	 */
+	public void setDisabled(Boolean disabled) {
+		if(disabled == null) {
+			return;
+		}
+		boolean done = false;
+		if(m_nodes != null) {
+			for(NodeBase m_node : m_nodes) {
+				if(m_node instanceof IInputNode< ? >) {
+					((IInputNode< ? >) m_node).setDisabled(disabled.booleanValue());
+					done = true;
+				}
+			}
+		}
+		if(!done)
+			throw new IllegalStateException("The implementation for " + this + " needs an overridden setDisabled() method");
+		m_disabled = disabled;
+	}
+
+	public Boolean isDisabled() {
+		return m_disabled;
 	}
 }
