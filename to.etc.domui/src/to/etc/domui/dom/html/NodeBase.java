@@ -1251,6 +1251,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	public void stretchHeight() {
 		appendJavascript("$(document).ready(function() {WebUI.stretchHeight('" + getActualID() + "');});");
+		appendJavascript("$(window).resize(function() {WebUI.stretchHeight('" + getActualID() + "');});");
 	}
 
 	@Override
