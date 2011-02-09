@@ -1586,8 +1586,7 @@ var WebUI = {
 			// offset' location.
 			WebUI._dragCopy = WebUI.dragCreateCopy(WebUI._dragNode);
 			//MVE make this optional.
-			WebUI._dragNode.style.display='block';
-			WebUI._dragNode.style.visibility='hidden';
+			WebUI._dragNode.style.display='none';
 			
 			WebUI._dragMode = 2;
 			document.body.appendChild(WebUI._dragCopy);
@@ -2257,7 +2256,7 @@ getColIndex : function(tr, mouseX) {
 		}
 		
 	}
-	//TODO MVE should return maxCollumn
+	//TODO MVE should return maxColumn
 	return 2;
 	
 },
@@ -2274,14 +2273,23 @@ checkRerender : function(dz) {
 
 renderTween : function(dz, b) {
 	var body = dz._tbody;
+	
+	var colCount = 0;
+	if(dz._tbody.rows.length > 0){
+		var temp = dz._tbody.rows[0].cells;
+	    $(temp).each(function() {
+	        colCount += $(this).attr('colspan') ? parseInt($(this).attr('colspan')) : 1;
+	    });
+	}
+    
 
 	// -- To mark, we insert a ROW at the insert location and visualize that
 	var tr = document.createElement('tr');
 	//b.colIndex should define the correct collumn
 	var colIndex = b.colIndex;
-	this.appendPlaceHolderCell(tr, colIndex == 0);
-	this.appendPlaceHolderCell(tr, colIndex == 1);
-	this.appendPlaceHolderCell(tr, colIndex == 2);
+	for(var i = 0; i<colCount;i++ ){
+		this.appendPlaceHolderCell(tr, colIndex == i);
+	}
 	if (b.iindex >= body.childNodes.length)
 		body.appendChild(tr);
 	else
