@@ -71,16 +71,16 @@ public class LookupForm<T> extends Div {
 
 	private Div m_content;
 
-	private NodeContainer m_collapsed;
+	private NodeContainer m_collapsedPanel;
 
 	private NodeContainer m_buttonRow;
 
 	private ControlBuilder m_builder;
 
 	/**
-	 * Set to true in case that control have to be rendered as collapsed by default. It is used when lookup form have to popup with initial search results already shown. 
+	 * True in case that control is rendered as collapsed (meaning that search panel is hidden).
 	 */
-	private boolean m_renderAsCollapsed;
+	private boolean m_collapsed;
 
 	/**
 	 * Calculated by entered search criterias, T in case that exists any field resulting with {@link AppendCriteriaResult#VALID} in LookupForm fields.
@@ -387,9 +387,9 @@ public class LookupForm<T> extends Div {
 
 		//20091127 vmijic - since LookupForm can be reused each new rebuild should execute restore if previous state of form was collapsed.
 		//20100118 vmijic - since LookupForm can be by default rendered as collapsed checks m_renderAsCollapsed are added.
-		if(!m_renderAsCollapsed && m_collapsed != null) {
+		if(!m_collapsed && m_collapsedPanel != null) {
 			restore();
-		} else if(m_renderAsCollapsed && m_content.getDisplay() != DisplayType.NONE) {
+		} else if(m_collapsed && m_content.getDisplay() != DisplayType.NONE) {
 			collapse();
 			//Focus must be set, otherwise IE reports javascript problem since focus is requested on not displayed input tag.
 			if(m_cancelBtn != null) {
@@ -458,15 +458,16 @@ public class LookupForm<T> extends Div {
 	 * @throws Exception 
 	 */
 	void collapse() throws Exception {
-		if(isCollapsed())
+		if((m_content.getDisplay() == DisplayType.NONE))
 			return;
 		//		appendJavascript("$('#" + m_content.getActualID() + "').slideUp();");
 		m_content.slideUp();
 
 		//		m_content.setDisplay(DisplayType.NONE);
-		m_collapsed = new Div();
-		m_collapsed.setCssClass("ui-lf-coll");
-		add(m_collapsed);
+		m_collapsedPanel = new Div();
+		m_collapsedPanel.setCssClass("ui-lf-coll");
+		add(m_collapsedPanel);
+		m_collapsed = true;
 
 		//-- Collapse button thingy
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
@@ -475,22 +476,18 @@ public class LookupForm<T> extends Div {
 				restore();
 			}
 		});
-		createButtonRow(m_collapsed, true);
+		createButtonRow(m_collapsedPanel, true);
 		//trigger after collapse event is set 
 		if(getOnAfterCollapse() != null) {
 			getOnAfterCollapse().clicked(this);
 		}
 	}
 
-	public boolean isCollapsed() {
-		return (m_content.getDisplay() == DisplayType.NONE);
-	}
-
 	void restore() throws Exception {
-		if(m_collapsed == null)
+		if(m_collapsedPanel == null)
 			return;
-		m_collapsed.remove();
-		m_collapsed = null;
+		m_collapsedPanel.remove();
+		m_collapsedPanel = null;
 		createButtonRow(m_buttonRow, false);
 
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
@@ -501,6 +498,7 @@ public class LookupForm<T> extends Div {
 		});
 
 		m_content.setDisplay(DisplayType.BLOCK);
+		m_collapsed = false;
 
 		//trigger after restore event is set 
 		if(getOnAfterRestore() != null) {
@@ -1056,16 +1054,8 @@ public class LookupForm<T> extends Div {
 		}
 	}
 
-	public boolean isRenderAsCollapsed() {
-		return m_renderAsCollapsed;
-	}
-
-	public void setRenderAsCollapsed(boolean renderAsCollapsed) {
-		m_renderAsCollapsed = renderAsCollapsed;
-	}
-
 	/**
-	 * See {@link LookupForm#m_renderAsCollapsed}.
+	 * See {@link LookupForm#m_collapsed}.
 	 * Method {@link LookupForm#getEnteredCriteria} MUST BE EXECUTED BEFORE checking for this property value! 
 	 * @return
 	 */
@@ -1074,21 +1064,33 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
-	 * Use to collpase/restore LookupForm search pannel.
-	 * In case that it is used while component is already built it would execute collapse/restore events, otherwise it would set {@link LookupForm#m_renderAsCollapsed} flag.
+	 * Returns if LookupForm is collapsed.
+	 * 
+	 * @return
+	 */
+	public boolean isCollapsed() {
+		return m_collapsed;
+	}
+
+	/**
+	 * Use to collapse/restore LookupForm search pannel.
 	 *  
 	 * @param collapsed
 	 * @throws Exception
 	 */
 	public void setCollapsed(boolean collapsed) throws Exception {
+		if(m_collapsed == collapsed)
+			return;
+		if(!isBuilt()) {
+			m_collapsed = collapsed;
+			return;
+		}
 		if(isBuilt()) {
 			if(collapsed) {
 				collapse();
 			} else {
 				restore();
 			}
-		} else {
-			m_renderAsCollapsed = collapsed;
 		}
 	}
 
