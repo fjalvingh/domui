@@ -124,10 +124,34 @@ public class AjaxEventManager {
 		long ts = System.currentTimeMillis();
 		expire(ts - m_expiry);
 
+		/*
+		 * 20101207 jal Bugfix: when enlarging the queue, we need to normalize it so
+		 * the get pointer is at 0 and the put pointer is at the old length.
+		 */
 		if(m_qlength >= m_eventQueue.length) { // We must grow the queue
+			/*
+			 * Old queue:
+			 *             v- qget
+			 * [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
+			 *            ^ qput
+			 *  ----a----- --------b----------
+			 * The new, enlarged queue must look like:
+			 *
+			 *  v- qget
+			 * [bbbbbbbbbbbbbbbaaaaaaaaaaaaaaa--------------------]
+			 *                                ^qput
+			 */
+			//-- Allocate the bigger array
 			int sz = m_eventQueue.length * 2;
 			QueuedEvent[] ar = new QueuedEvent[sz];
-			System.arraycopy(m_eventQueue, 0, ar, 0, m_qlength);
+
+			//-- Copy all elements at and after the GET pointer to the start
+			int elen = m_eventQueue.length - m_qget_ix;
+			if(elen > 0)
+				System.arraycopy(m_eventQueue, m_qget_ix, ar, 0, elen); // Copy "b" segment to start of array (get ptr is inclusive)
+			System.arraycopy(m_eventQueue, 0, ar, elen, m_qput_ix); // PUT pointer is exclusive
+			m_qget_ix = 0;
+			m_qput_ix = m_qlength;
 			m_eventQueue = ar;
 		}
 		m_qlength++;
@@ -154,6 +178,10 @@ public class AjaxEventManager {
 		if(startingeventid < m_firstMessageNumber || startingeventid >= m_nextMessageNumber)// Too old or at current level
 			return null;
 		int delta = (startingeventid - m_firstMessageNumber); // Get index within queue
+		if(m_eventQueue == null)
+			throw new IllegalStateException("Eventqueue NULL??");
+		if(channels == null)
+			throw new IllegalStateException("Channels null????");
 
 		List<QueuedEvent> list = null;
 		int ix = m_qget_ix + delta;
@@ -162,6 +190,8 @@ public class AjaxEventManager {
 		int len = m_qlength - delta; // #entries to handle,
 		while(len-- > 0) {
 			QueuedEvent e = m_eventQueue[ix++]; // Get item,
+			if(e == null)
+				throw new IllegalStateException("NULL EVENT encountered??");
 			if(channels.contains(e.getChannel())) {
 				if(list == null)
 					list = new ArrayList<QueuedEvent>();
@@ -180,8 +210,12 @@ public class AjaxEventManager {
 	 * the timestamp passed.
 	 */
 	private synchronized void expire(final long ts) {
+		if(m_eventQueue == null)
+			throw new IllegalStateException("Eventqueue NULL??");
 		while(m_qlength > 0) {
 			QueuedEvent e = m_eventQueue[m_qget_ix];
+			if(e == null)
+				throw new IllegalStateException("NULL EVENT encountered??");
 			if(e.getEventTS() > ts) // This event is still valid?
 				return; // Then we're done (the queue is sorted)
 

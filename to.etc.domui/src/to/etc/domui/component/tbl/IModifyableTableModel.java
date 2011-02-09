@@ -6,7 +6,7 @@ package to.etc.domui.component.tbl;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 9, 2009
  */
-public interface IModifyableTableModel<T> extends ITableModel<T> {
+public interface IModifyableTableModel<T> {
 	void add(int index, T row) throws Exception;
 
 	void add(T row) throws Exception;

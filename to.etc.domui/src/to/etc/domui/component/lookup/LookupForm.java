@@ -78,7 +78,8 @@ public class LookupForm<T> extends Div {
 	private ControlBuilder m_builder;
 
 	/**
-	 * True in case that control is rendered as collapsed (meaning that search panel is hidden).
+	 * T in case that control is rendered as collapsed (meaning that search panel is hidden).
+	 * It is usually used when lookup form have to popup with initial search results already shown.
 	 */
 	private boolean m_collapsed;
 
@@ -386,7 +387,7 @@ public class LookupForm<T> extends Div {
 		m_buttonRow = d;
 
 		//20091127 vmijic - since LookupForm can be reused each new rebuild should execute restore if previous state of form was collapsed.
-		//20100118 vmijic - since LookupForm can be by default rendered as collapsed checks m_renderAsCollapsed are added.
+		//20100118 vmijic - since LookupForm can be by default rendered as collapsed check for m_collapsed is added.
 		if(!m_collapsed && m_collapsedPanel != null) {
 			restore();
 		} else if(m_collapsed && m_content.getDisplay() != DisplayType.NONE) {
@@ -1055,8 +1056,9 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
-	 * See {@link LookupForm#m_collapsed}.
 	 * Method {@link LookupForm#getEnteredCriteria} MUST BE EXECUTED BEFORE checking for this property value! 
+	 * This is T when the user has actually entered something in one of the search components. Any restriction
+	 * that has been added by code that is not depending on user input is ignored.
 	 * @return
 	 */
 	public boolean hasUserDefinedCriteria() {
@@ -1065,6 +1067,7 @@ public class LookupForm<T> extends Div {
 
 	/**
 	 * Returns if LookupForm is collapsed.
+	 * See {@link Lookuporm#m_collapsed}.
 	 * 
 	 * @return
 	 */
@@ -1074,6 +1077,7 @@ public class LookupForm<T> extends Div {
 
 	/**
 	 * Use to collapse/restore LookupForm search pannel.
+	 * See {@link Lookuporm#m_collapsed}.
 	 *  
 	 * @param collapsed
 	 * @throws Exception
