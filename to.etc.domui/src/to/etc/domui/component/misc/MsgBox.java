@@ -203,8 +203,18 @@ public class MsgBox extends FloatingWindow {
 	 * @param onAnswer
 	 */
 	public static void yesNo(NodeBase dad, String string, final IClicked<MsgBox> onAnswer) {
+		yesNo(dad, MsgBox.Type.DIALOG, string, onAnswer);
+	}
+
+	/**
+	 * Ask a yes/no confirmation; call the onAnswer handler if YES is selected and do nothing otherwise.
+	 * @param dad
+	 * @param string
+	 * @param onAnswer
+	 */
+	public static void yesNo(NodeBase dad, Type msgtype, String string, final IClicked<MsgBox> onAnswer) {
 		final MsgBox box = create(dad);
-		box.setType(Type.DIALOG);
+		box.setType(msgtype);
 		box.setMessage(string);
 		box.addButton(MsgBoxButton.YES);
 		box.addButton(MsgBoxButton.NO);

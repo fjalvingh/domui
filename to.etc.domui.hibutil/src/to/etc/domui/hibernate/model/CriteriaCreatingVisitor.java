@@ -259,8 +259,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		if(qc.getStart() > 0) {
 			m_rootCriteria.setFirstResult(qc.getStart());
 		}
+		if(qc.getTimeout() > 0)
+			m_rootCriteria.setTimeout(qc.getTimeout());
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Property path resolution code.						*/
