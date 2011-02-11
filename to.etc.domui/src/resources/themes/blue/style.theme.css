@@ -232,7 +232,9 @@ TD .ui-tree .selected:hover {
 /*** CaptionedHeader ***/
 .ui-chdr {
 	width: 100%;
+/*	height: 20px; */
 	background-image: url(bg-chdr.png.svg);
+	background-position: 0px -2px;
 	margin-top: 10px;
 }
 .ui-chdr-ttl {
