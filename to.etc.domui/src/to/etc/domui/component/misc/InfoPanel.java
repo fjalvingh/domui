@@ -35,9 +35,6 @@ public class InfoPanel extends Div {
 	public InfoPanel(String text) {
 		this(text, "THEME/big-info.png");
 		setCssClass("ui-ipa");
-		add(m_icon);
-		m_icon.setAlign(ImgAlign.LEFT);
-		DomUtil.renderHtmlString(this, m_text);
 	}
 
 	public InfoPanel(String text, String icon) {
@@ -47,11 +44,14 @@ public class InfoPanel extends Div {
 
 	@Override
 	public void createContent() throws Exception {
-		//		DomUtil.renderHtmlString(this, m_text);
+		add(m_icon);
+		m_icon.setAlign(ImgAlign.LEFT);
+		DomUtil.renderHtmlString(this, m_text);
 	}
 
 	public void setIcon(String rurl) {
 		m_icon.setSrc(rurl);
+		forceRebuild();
 	}
 
 	public String getIcon() {

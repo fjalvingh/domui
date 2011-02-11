@@ -53,6 +53,9 @@ public interface Msgs {
 
 	public static final String UI_DATA_INCONSISTENT = "ui.data.inconsistent";
 
+	/** The database query timed out and was cancelled. */
+	public static final String UI_QUERY_TIMEOUT = "ui.query.timeout";
+
 	//# Control texts
 	/** Page x of y */
 	public static final String UI_PAGER_TEXT = "ui.pagertext";
