@@ -232,7 +232,11 @@ public class InternalParentTree extends Div {
 		remove();
 
 		//-- Get name for the thingy,
-		String name = ste.getClassName().replace('.', '/') + ".java@" + ste.getMethodName();
+		String name;
+		if(ste.getLineNumber() <= 0)
+			name = ste.getClassName().replace('.', '/') + ".java@" + ste.getMethodName();
+		else
+			name = ste.getClassName().replace('.', '/') + ".java#" + ste.getLineNumber();
 		if(!openEclipseSource(name)) {
 			MsgBox.message(body, MsgBox.Type.WARNING, "I was not able to send an OPEN FILE command to Eclipse.. You need to have the Eclipse plugin running. Please see " + URL + " for details");
 		}
