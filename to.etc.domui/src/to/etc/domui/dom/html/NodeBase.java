@@ -70,6 +70,8 @@ import to.etc.webapp.query.*;
  * Created on Aug 18, 2007
  */
 abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding {
+	static private boolean m_logAllocations;
+
 	/** The owner page. If set then this node IS attached to the parent in some way; if null it is not attached. */
 	@Nullable
 	private Page m_page;
@@ -136,6 +138,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	private byte m_flags;
 
+	private StackTraceElement[] m_allocationTracepoint;
+
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
@@ -145,8 +149,22 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	protected NodeBase(@Nonnull final String tag) {
 		m_tag = tag;
+		if(m_logAllocations) {
+			m_allocationTracepoint = DomUtil.getTracepoint();
+		}
 	}
 
+	/**
+	 * Internal use only. Explicitly unsynchronized.
+	 * @param la
+	 */
+	static public void internalSetLogAllocations(boolean la) {
+		m_logAllocations = la;
+	}
+
+	public StackTraceElement[] getAllocationTracepoint() {
+		return m_allocationTracepoint;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Private interfaces and code.						*/
