@@ -1120,11 +1120,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		if(dragid == null)
 			throw new IllegalStateException("No _dragid in drop request to node=" + this);
 		NodeBase dragnode = getPage().findNodeByID(dragid);
+		//draghandler moet iets van dragarea interface oid die de daadwerkelijke handler teruggeeft.
 		if(dragnode == null)
 			throw new IllegalStateException("Unknown dragged node " + dragid + " in drop request to node=" + this);
-		if(!(dragnode instanceof IDraggable))
+		IDragHandler dragh;
+		if(dragnode instanceof IDragArea)
+			dragh = ((IDragArea) dragnode).getDragHandle().getDragHandler();
+		else if(!(dragnode instanceof IDraggable))
 			throw new IllegalStateException("The supposedly dragged node " + dragnode + " does not implement IDraggable!?");
-		IDragHandler dragh = ((IDraggable) dragnode).getDragHandler();
+		else
+			dragh = ((IDraggable) dragnode).getDragHandler();
 
 		//-- First call the drag handler's DROPPED thingy
 		int index = 0;

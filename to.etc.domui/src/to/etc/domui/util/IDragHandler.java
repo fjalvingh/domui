@@ -35,7 +35,7 @@ public interface IDragHandler {
 	 * drop target.
 	 * @return a non-null string.
 	 */
-	public @Nonnull
+	@Nonnull
 	String getTypeName(@Nonnull NodeBase source);
 
 	/**
@@ -43,4 +43,12 @@ public interface IDragHandler {
 	 * node. This should then remove the source to prevent it from being reused.
 	 */
 	public void onDropped(DropEvent context) throws Exception;
+
+	/**
+	 * Indicates that the handler is responsible for the drag and drop implementation, but does not
+	 * represent the area to drag. The area to return is the area to be dragged.
+	 * @return the area to be dragged in the user interface.
+	 */
+	@Nullable
+	public IDragArea getDragArea();
 }
