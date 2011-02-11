@@ -1122,9 +1122,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		NodeBase dragnode = getPage().findNodeByID(dragid);
 		if(dragnode == null)
 			throw new IllegalStateException("Unknown dragged node " + dragid + " in drop request to node=" + this);
-		if(!(dragnode instanceof IDraggable))
+		IDragHandler dragh;
+		if(dragnode instanceof IDragArea)
+			dragh = ((IDragArea) dragnode).getDragHandle().getDragHandler();
+		else if(!(dragnode instanceof IDraggable))
 			throw new IllegalStateException("The supposedly dragged node " + dragnode + " does not implement IDraggable!?");
-		IDragHandler dragh = ((IDraggable) dragnode).getDragHandler();
+		else
+			dragh = ((IDraggable) dragnode).getDragHandler();
 
 		//-- First call the drag handler's DROPPED thingy
 		int index = 0;
@@ -1136,7 +1140,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 				throw new IllegalStateException("Bad _index parameter in DROP request: " + s);
 			}
 		}
-		DropEvent dx = new DropEvent((NodeContainer) this, dragnode, index);
+		int colIndex = 0;
+		s = ctx.getParameter("_colIndex");
+		if(s != null) {
+			try {
+				colIndex = Integer.parseInt(s.trim());
+			} catch(Exception x) {
+				throw new IllegalStateException("Bad _colIndex parameter in DROP request: " + s);
+			}
+		}
+		DropEvent dx = new DropEvent((NodeContainer) this, dragnode, index, colIndex);
 		dragh.onDropped(dx);
 		droph.onDropped(dx);
 	}
