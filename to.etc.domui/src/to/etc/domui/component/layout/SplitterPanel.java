@@ -123,7 +123,7 @@ public class SplitterPanel extends Div {
 		add(m_panelA);
 		add(m_panelB);
 		getActualID();
-		appendJavascript("$(document).ready(function() {" + getMakeSplitterJavascriptCall() + "});");
+		appendCreateJS("$(document).ready(function() {" + getMakeSplitterJavascriptCall() + "});");
 	}
 
 	/**
