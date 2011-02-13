@@ -142,7 +142,7 @@ public abstract class DomApplication {
 	 * The only constructor.
 	 */
 	public DomApplication() {
-		m_scriptVersion = DeveloperOptions.getString("domui.scriptversion", "jquery-1.4.1");
+		m_scriptVersion = DeveloperOptions.getString("domui.scriptversion", "jquery-1.4.4");
 		registerControlFactories();
 		registerPartFactories();
 		initHeaderContributors();
@@ -517,8 +517,10 @@ public abstract class DomApplication {
 
 	protected void initHeaderContributors() {
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.js"), -1000);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"), -990);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-ui.js"), -1000);
+
+		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"), -990);
+		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"), -970);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.js"), -900);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"), -790);

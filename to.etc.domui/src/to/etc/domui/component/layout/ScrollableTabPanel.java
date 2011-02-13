@@ -85,10 +85,11 @@ public class ScrollableTabPanel extends TabPanelBase {
 		//We have to ensure that tabs captions can be rendered in single line.
 		hdr.setOverflow(Overflow.HIDDEN);
 		hdr.setFloat(FloatType.NONE);
-		//		m_tabul.setWidth("3000px");
+		m_tabul.setWidth("3000px");
 		m_tabul.setMarginLeft("0px");
 		hdr.add(u);
 		renderTabPanels(m_tabul, this);
+		appendCreateJS("$('#" + m_tabul.getActualID() + "').disableSelection();");
 	}
 
 	@Override
