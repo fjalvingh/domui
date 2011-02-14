@@ -92,7 +92,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	private NodeContainer m_parent;
 
 	@Nullable
-	private IClicked< ? > m_clicked;
+	private IClickBase< ? > m_clicked;
 
 	private boolean m_built;
 
@@ -204,11 +204,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Internal, do the proper run sequence for a clicked event.
 	 * @throws Exception
 	 */
-	public void internalOnClicked() throws Exception {
+	public void internalOnClicked(ClickInfo cli) throws Exception {
 		IClicked<NodeBase> c = (IClicked<NodeBase>) getClicked();
 		if(c == null)
 			throw new IllegalStateException("? Node " + this.getActualID() + " does not have a click handler??");
 		c.clicked(this);
+		if(c instanceof IClicked2)
+			((IClicked2<NodeBase>) c).clicked(this, cli);
 	}
 
 	/**
@@ -621,7 +623,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	@Nullable
-	public IClicked< ? > getClicked() {
+	public IClickBase< ? > getClicked() {
 		return m_clicked;
 	}
 
@@ -630,7 +632,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * this node and will fire when the node is clicked.
 	 * @param clicked
 	 */
-	public void setClicked(@Nullable final IClicked< ? > clicked) {
+	public void setClicked(@Nullable final IClickBase< ? > clicked) {
 		m_clicked = clicked;
 	}
 

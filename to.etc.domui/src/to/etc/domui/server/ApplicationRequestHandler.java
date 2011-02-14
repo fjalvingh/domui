@@ -737,6 +737,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			return;
 			//			throw new IllegalStateException("Clicked must have a node!!");
 		}
-		b.internalOnClicked();
+		ClickInfo cli = new ClickInfo(ctx);
+		b.internalOnClicked(cli);
 	}
 }

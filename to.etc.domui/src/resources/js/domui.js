@@ -546,6 +546,15 @@ var WebUI = {
 			if(evt.stopPropagation)
 				evt.stopPropagation();
 		}
+		var e = $.Event(evt);		// Convert to jQuery event
+
+		//-- add click-related parameters
+		fields._pagex = e.pageX;
+		fields._pagey = e.pageY;
+		fields._controlKey = e.controlKey == true;
+		fields._shiftKey = e.shiftKey == true;
+		fields._altKey = e.altKey == true;
+		
 		$.ajax( {
 			url :DomUI.getPostURL(),
 			dataType :"text/xml",

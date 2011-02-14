@@ -24,19 +24,48 @@
  */
 package to.etc.domui.dom.html;
 
+import to.etc.domui.server.*;
+
 /**
- * Listener for basic clickies on a Node. Represents the onclick handler.
+ * Extensible info class for a "click" event.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Aug 17, 2007
+ * Created on Feb 14, 2011
  */
-public interface IClicked<T extends NodeBase> extends IClickBase<T> {
-	/**
-	 * This gets called when the node is clicked. The parameter is the node that the click
-	 * handler was attached to. Since the node itself is passed you can easily reuse a click
-	 * handler instance for several same-type nodes.
-	 * @param clickednode
-	 * @throws Exception
-	 */
-	public void clicked(T clickednode) throws Exception;
+final public class ClickInfo {
+	private boolean m_shift;
+
+	private boolean m_alt;
+
+	private boolean m_control;
+
+	private int m_pageX, m_pageY;
+
+	public ClickInfo(IParameterInfo pi) {
+		m_shift = "true".equals(pi.getParameter("_shiftKey"));
+		m_control = "true".equals(pi.getParameter("_controlKey"));
+		m_alt = "true".equals(pi.getParameter("_altKey"));
+		m_pageX = Integer.parseInt(pi.getParameter("_pageX"));
+		m_pageY = Integer.parseInt(pi.getParameter("_pageY"));
+	}
+
+	public boolean isShift() {
+		return m_shift;
+	}
+
+	public boolean isAlt() {
+		return m_alt;
+	}
+
+	public boolean isControl() {
+		return m_control;
+	}
+
+	public int getPageX() {
+		return m_pageX;
+	}
+
+	public int getPageY() {
+		return m_pageY;
+	}
 }
