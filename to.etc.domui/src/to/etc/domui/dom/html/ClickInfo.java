@@ -45,8 +45,19 @@ final public class ClickInfo {
 		m_shift = "true".equals(pi.getParameter("_shiftKey"));
 		m_control = "true".equals(pi.getParameter("_controlKey"));
 		m_alt = "true".equals(pi.getParameter("_altKey"));
-		m_pageX = Integer.parseInt(pi.getParameter("_pageX"));
-		m_pageY = Integer.parseInt(pi.getParameter("_pageY"));
+		int v;
+		try {
+			v = Integer.parseInt(pi.getParameter("_pageX"));
+		} catch(Exception x) {
+			v = 0;
+		}
+		m_pageX = v;
+		try {
+			v = Integer.parseInt(pi.getParameter("_pageX"));
+		} catch(Exception x) {
+			v = 0;
+		}
+		m_pageY = v;
 	}
 
 	public boolean isShift() {

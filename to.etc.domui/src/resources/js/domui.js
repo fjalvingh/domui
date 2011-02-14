@@ -546,12 +546,14 @@ var WebUI = {
 			if(evt.stopPropagation)
 				evt.stopPropagation();
 		}
-		var e = $.Event(evt);		// Convert to jQuery event
+		var e = $.event.fix(evt);		// Convert to jQuery event
 
+		console.debug('click', e);
+		
 		//-- add click-related parameters
-		fields._pagex = e.pageX;
-		fields._pagey = e.pageY;
-		fields._controlKey = e.controlKey == true;
+		fields._pageX = e.pageX;
+		fields._pageY = e.pageY;
+		fields._controlKey = e.ctrlKey == true;
 		fields._shiftKey = e.shiftKey == true;
 		fields._altKey = e.altKey == true;
 		
