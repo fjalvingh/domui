@@ -43,14 +43,6 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 		super(model);
 	}
 
-	//	public TabularComponentBase(Class<T> actualClass, ITableModel<T> model) {
-	//		super(actualClass, model);
-	//	}
-
-	//	public TabularComponentBase(Class<T> actualClass) {
-	//		super(actualClass);
-	//	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model/page changed listener code..					*/
 	/*--------------------------------------------------------------*/
@@ -156,4 +148,16 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 		ITruncateableDataModel t = (ITruncateableDataModel) tm;
 		return t.getTruncatedCount();
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	ISelectionListener.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionChanged(java.lang.Object, boolean)
+	 */
+	public void selectionChanged(T row, boolean on) {
+
+	}
+
 }

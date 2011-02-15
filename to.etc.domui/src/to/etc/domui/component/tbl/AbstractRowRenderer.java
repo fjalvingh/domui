@@ -251,6 +251,15 @@ public class AbstractRowRenderer<T> {
 		int ix = 0;
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
 		StringBuilder sb = new StringBuilder();
+
+		//-- Are we rendering a multi-selection?
+		if(tbl.getSelectionModel() != null && tbl.getSelectionModel().getSelectionCount() > 0) {
+			m_currentSelectionMode = tbl.getSelectionModel().getMaxSelections();
+			if(m_currentSelectionMode > 1) {
+				TD th = cc.add(new Img("THEME/dspcb-on.png"));
+			}
+		}
+
 		for(final SimpleColumnDef cd : m_columnList) {
 			TH th;
 			String label = cd.getColumnLabel();
@@ -370,6 +379,22 @@ public class AbstractRowRenderer<T> {
 			cc.getTR().addCssClass("ui-rowsel");
 		}
 
+		//-- If we're in multiselect mode show the select boxes
+		if(tbl.getSelectionModel() != null && tbl.getSelectionModel().getSelectionCount() > 0) {
+			m_currentSelectionMode = tbl.getSelectionModel().getMaxSelections();
+			if(m_currentSelectionMode > 1) {
+				Checkbox cb = new Checkbox();
+				TD th = cc.add(cb);
+				cb.setClicked(new IClicked<Checkbox>() {
+					@Override
+					public void clicked(Checkbox clickednode) throws Exception {
+						tbl.getSelectionModel().setInstanceSelected(instance, clickednode.isChecked());
+					}
+				});
+				cb.setChecked(tbl.getSelectionModel().isSelected(instance));
+			}
+		}
+
 		for(final SimpleColumnDef cd : m_columnList) {
 			renderColumn(tbl, cc, index, instance, cd);
 		}
@@ -407,8 +432,7 @@ public class AbstractRowRenderer<T> {
 	}
 
 	private void handleSelectClicky(TableModelTableBase<T> tbl, TR b, T instance, ClickInfo clinfo) {
-		// TODO Auto-generated method stub
-
+		tbl.getSelectionModel().setInstanceSelected(instance, !tbl.getSelectionModel().isSelected(instance));
 	}
 
 	/**

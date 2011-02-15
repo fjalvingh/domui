@@ -31,8 +31,7 @@ import javax.annotation.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T> {
-	//	private Class<T> m_actualClass;
+abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T>, ISelectionListener<T> {
 	@Nonnull
 	private ITableModel<T> m_model;
 
@@ -41,20 +40,6 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		model.addChangeListener(this);
 	}
 
-	//	protected TableModelTableBase(@Nonnull Class<T> actualClass) {
-	//		m_actualClass = actualClass;
-	//	}
-	//
-	//	protected TableModelTableBase(@Nonnull Class<T> actualClass, ITableModel<T> model) {
-	//		m_actualClass = actualClass;
-	//		m_model = model;
-	//		model.addChangeListener(this);
-	//	}
-
-	//	@Nonnull
-	//	final public Class<T> getActualClass() {
-	//		return m_actualClass;
-	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model updates.										*/
@@ -132,14 +117,14 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	/*--------------------------------------------------------------*/
 	/** If this table allows selection of rows, this model maintains the selections. */
 	@Nullable
-	private ISelectionModel<T, ? > m_selectionModel;
+	private ISelectionModel<T> m_selectionModel;
 
 	/**
 	 * Return the model used for table selections, if applicable.
 	 * @return
 	 */
 	@Nullable
-	public ISelectionModel<T, ? > getSelectionModel() {
+	public ISelectionModel<T> getSelectionModel() {
 		return m_selectionModel;
 	}
 
@@ -148,10 +133,15 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	 *
 	 * @param selectionModel
 	 */
-	public void setSelectionModel(@Nullable ISelectionModel<T, ? > selectionModel) {
+	public void setSelectionModel(@Nullable ISelectionModel<T> selectionModel) {
 		if(DomUtil.isEqual(m_selectionModel, selectionModel))
 			return;
+		if(m_selectionModel != null)
+			m_selectionModel.removeListener(this);
 		m_selectionModel = selectionModel;
+		if(null != selectionModel) {
+			selectionModel.addListener(this);
+		}
 		forceRebuild();
 	}
 }
