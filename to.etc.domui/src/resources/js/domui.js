@@ -1559,7 +1559,14 @@ var WebUI = {
 		WebUI._dragSourceOffset = apos;
 		apos.x = evt.clientX - apos.x;
 		apos.y = evt.clientY - apos.y;
-		evt.preventDefault(); // Prevent ffox image dragging
+//		${evt}.preventDefault();
+		if(evt.preventDefault)
+			evt.preventDefault(); // Prevent ffox image dragging
+		else{
+			evt.cancelBubble = true;
+			evt.returnValue = false;
+		}
+
 	},
 
 	dragMouseUp : function() {
@@ -2331,7 +2338,7 @@ WebUI._ROW_DROPZONE_HANDLER = {
 		var b = this.locateBest(dz);
 		WebUI.scall(dz._dropTarget.id, "WEBUIDROP", {
 			_dragid :WebUI._dragNode.id,
-			_index :b.index,
+			_index :(b.index+b.gravity),
 			_colIndex :b.colIndex
 		});
 		WebUI.dragReset();
