@@ -26,6 +26,10 @@ input:hover, textarea:hover, select:hover {
 	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
 }
 
+select {
+	background-color:#FFFFFF;
+}
+
 .ui-txx {
 	vertical-align: top;
 }
