@@ -126,4 +126,32 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	protected void firePageChanged() {}
 
 	protected void fireModelChanged(@Nullable ITableModel<T> old, @Nonnull ITableModel<T> model) {}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handling selections.								*/
+	/*--------------------------------------------------------------*/
+	/** If this table allows selection of rows, this model maintains the selections. */
+	@Nullable
+	private ISelectionModel<T, ? > m_selectionModel;
+
+	/**
+	 * Return the model used for table selections, if applicable.
+	 * @return
+	 */
+	@Nullable
+	public ISelectionModel<T, ? > getSelectionModel() {
+		return m_selectionModel;
+	}
+
+	/**
+	 * Set the model to maintain selections, if this table allows selections.
+	 *
+	 * @param selectionModel
+	 */
+	public void setSelectionModel(@Nullable ISelectionModel<T, ? > selectionModel) {
+		if(DomUtil.isEqual(m_selectionModel, selectionModel))
+			return;
+		m_selectionModel = selectionModel;
+		forceRebuild();
+	}
 }

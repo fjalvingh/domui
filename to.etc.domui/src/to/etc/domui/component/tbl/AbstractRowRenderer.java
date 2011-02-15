@@ -64,6 +64,9 @@ public class AbstractRowRenderer<T> {
 
 	private String m_unknownColumnCaption;
 
+	/** Contains the last selection mode that was used in rendering the rows. Is either 0, 1 or more. */
+	private int m_currentSelectionMode;
+
 	public AbstractRowRenderer(Class<T> data) {
 		m_dataClass = data;
 		m_metaModel = MetaManager.findClassMeta(m_dataClass);
@@ -352,16 +355,16 @@ public class AbstractRowRenderer<T> {
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	public void renderRow(final TableModelTableBase<T> tbl, final ColumnContainer<T> cc, final int index, final T instance) throws Exception {
-		if(m_rowClicked != null) {
+		if(m_rowClicked != null || null != tbl.getSelectionModel()) {
 			/*
 			 * FIXME For now I add a separate instance of the handler to every row. A single instance is OK too,
 			 * provided it can calculate the row data from the TR it is attached to.
 			 */
-			cc.getTR().setClicked(new IClicked<TR>() {
+			cc.getTR().setClicked(new IClicked2<TR>() {
 				@Override
 				@SuppressWarnings("unchecked")
-				public void clicked(final TR b) throws Exception {
-					((ICellClicked<T>) getRowClicked()).cellClicked(b, instance);
+				public void clicked(TR b, ClickInfo clinfo) throws Exception {
+					handleRowClick(tbl, b, instance, clinfo);
 				}
 			});
 			cc.getTR().addCssClass("ui-rowsel");
@@ -386,6 +389,26 @@ public class AbstractRowRenderer<T> {
 			cc.getTR().removeCssClass("ui-even");
 			cc.getTR().addCssClass("ui-odd");
 		}
+	}
+
+	protected void handleRowClick(final TableModelTableBase<T> tbl, final TR b, final T instance, final ClickInfo clinfo) throws Exception {
+		//-- If we have a selection model: check if this is some selecting clicky.
+		if(tbl.getSelectionModel() != null) {
+			//-- Treat clicks with ctrl or shift as selection clickies
+			if(clinfo.isControl() || clinfo.isShift()) {
+				handleSelectClicky(tbl, b, instance, clinfo);
+				return; // Do NOT fire on selection clickies.
+			}
+		}
+
+		//-- If this has a click handler- fire it.
+		if(null != getRowClicked())
+			((ICellClicked<T>) getRowClicked()).cellClicked(b, instance);
+	}
+
+	private void handleSelectClicky(TableModelTableBase<T> tbl, TR b, T instance, ClickInfo clinfo) {
+		// TODO Auto-generated method stub
+
 	}
 
 	/**
