@@ -26,6 +26,7 @@ package to.etc.domui.component.layout;
 
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * Customization of {@link TabPanel} that render tabs in single line, provide scroller buttons if needed.
@@ -72,8 +73,7 @@ public class ScrollableTabPanel extends TabPanelBase {
 		rightArrow.setOnClickJS("WebUI.scrollRight(this);");
 		rightArrow.setFloat(FloatType.RIGHT);
 
-		appendCreateJS("$(document).ready(function(){WebUI.recalculateScrollers('" + m_scrollNavig.getActualID() + "');$(window).resize(function(){WebUI.recalculateScrollers('"
-			+ m_scrollNavig.getActualID() + "');});});");
+		appendCreateJS("WebUI.recalculateScrollers('" + m_scrollNavig.getActualID() + "');$(window).resize(function(){WebUI.recalculateScrollers('" + m_scrollNavig.getActualID() + "');});");
 
 		//-- Create the TAB structure..
 		Div hdr = new Div();
@@ -89,6 +89,7 @@ public class ScrollableTabPanel extends TabPanelBase {
 		m_tabul.setMarginLeft("0px");
 		hdr.add(u);
 		renderTabPanels(m_tabul, this);
+		appendCreateJS(JavascriptUtil.disableSelection(m_tabul));
 	}
 
 	@Override

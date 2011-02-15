@@ -34,6 +34,13 @@ import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
+/**
+ * Base class for the old and new row renderers, handling most presentation. The configuration is
+ * mostly handled by the subclasses.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Feb 15, 2009
+ */
 public class AbstractRowRenderer<T> {
 	/** The class whose instances we'll render in this table. */
 	private final Class<T> m_dataClass;

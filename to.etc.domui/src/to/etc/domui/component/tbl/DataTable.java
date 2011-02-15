@@ -51,12 +51,6 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	/** When the query has 0 results this is set to the div displaying that message. */
 	private Div m_errorDiv;
 
-	//	public DataTable() {}
-
-	//	public DataTable(IRowRenderer<T> r) {
-	//		m_rowRenderer = r;
-	//	}
-
 	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
@@ -65,16 +59,6 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	public DataTable(@Nonnull ITableModel<T> m) {
 		super(m);
 	}
-
-	//	public DataTable(Class<T> actualClass, ITableModel<T> model, IRowRenderer<T> r) {
-	//		super(actualClass, model);
-	//		m_rowRenderer = r;
-	//	}
-	//
-	//	public DataTable(Class<T> actualClass, IRowRenderer<T> r) {
-	//		super(actualClass);
-	//		m_rowRenderer = r;
-	//	}
 
 	/**
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
@@ -148,6 +132,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 			renderRow(tr, cc, ix, o);
 			ix++;
 		}
+		appendCreateJS(JavascriptUtil.disableSelection(this));
 	}
 
 	private void setResults() throws Exception {
