@@ -63,6 +63,8 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 	private int m_start, m_limit;
 
+	private int m_timeout = -1;
+
 	private String m_sql;
 
 	@Override
@@ -72,6 +74,11 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		m_rootMeta = JdbcMetaManager.getMeta(qc.getBaseClass());
 		m_start = qc.getStart();
 		m_limit = qc.getLimit();
+		if(qc.getTimeout() < 0)
+			m_timeout = 60;
+		else if(qc.getTimeout() != 0)
+			m_timeout = qc.getTimeout();
+
 		generateClassGetter(m_root);
 		super.visitCriteria(qc);
 
@@ -164,7 +171,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	}
 
 	public JdbcQuery< ? > getQuery() throws Exception {
-		return new JdbcQuery<Object>(getSQL(), m_retrieverList, m_valList, m_start, m_limit);
+		return new JdbcQuery<Object>(getSQL(), m_retrieverList, m_valList, m_start, m_limit, m_timeout);
 	}
 
 	@Override

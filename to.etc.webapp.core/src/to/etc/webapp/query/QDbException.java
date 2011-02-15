@@ -94,6 +94,8 @@ public class QDbException extends CodeException {
 		if("23".equals(cat) || "27".equals(cat) || "44".equals(cat)) {
 			return new QConstraintViolationException(x);
 		}
+		if("72000".equals(cat) || x.toString().contains("ORA-01013"))
+			throw new QQueryTimeoutException(x);
 		return null;
 	}
 

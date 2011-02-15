@@ -1411,5 +1411,11 @@ final public class DomUtil {
 
 	}
 
-
+	public static StackTraceElement[] getTracepoint() {
+		try {
+			throw new Exception();
+		} catch(Exception x) {
+			return x.getStackTrace();
+		}
+	}
 }

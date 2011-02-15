@@ -22,39 +22,18 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.misc;
+package to.etc.domui.dom.html;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.*;
 
-public class InfoPanel extends Div {
-	final private String m_text;
-
-	final private Img m_icon = new Img();
-
-	public InfoPanel(String text) {
-		this(text, "THEME/big-info.png");
-		setCssClass("ui-ipa");
-	}
-
-	public InfoPanel(String text, String icon) {
-		m_text = text;
-		setIcon(icon);
-	}
-
-	@Override
-	public void createContent() throws Exception {
-		add(m_icon);
-		m_icon.setAlign(ImgAlign.LEFT);
-		DomUtil.renderHtmlString(this, m_text);
-	}
-
-	public void setIcon(String rurl) {
-		m_icon.setSrc(rurl);
-		forceRebuild();
-	}
-
-	public String getIcon() {
-		return m_icon.getSrc();
-	}
+public interface IClicked2<T extends NodeBase> extends IClickBase<T> {
+	/**
+	 * This gets called when the node is clicked. The parameter is the node that the click
+	 * handler was attached to. Since the node itself is passed you can easily reuse a click
+	 * handler instance for several same-type nodes.
+	 * @param node
+	 * @param clinfo
+	 * @throws Exception
+	 */
+	public void clicked(@Nonnull T node, @Nonnull ClickInfo clinfo) throws Exception;
 }

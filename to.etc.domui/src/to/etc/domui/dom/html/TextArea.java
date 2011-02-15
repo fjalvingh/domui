@@ -86,6 +86,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 				return false;
 			}
 		}
+		clearMessage();
 		return true;
 	}
 

@@ -236,7 +236,9 @@ TD .ui-tree .selected:hover {
 /*** CaptionedHeader ***/
 .ui-chdr {
 	width: 100%;
+/*	height: 20px; */
 	background-image: url(bg-chdr.png.svg);
+	background-position: 0px -2px;
 	margin-top: 10px;
 }
 .ui-chdr-ttl {
@@ -1390,7 +1392,7 @@ body,html {
 	position: absolute;
 	top: 20px;
 	left: 80px;
-	width: 400px;
+	width: 500px;
 	height: 200px;
 	background-color: #04001f;
 	border: 4px solid black;
@@ -1408,9 +1410,11 @@ body,html {
 	background-color: #201c3d;
 	padding: 3px;
 	border-bottom: 1px dotted #444444;
-	cursor: crosshair;
 	color: white;
 	white-space: nowrap;
+}
+.ui-ipt-btn {
+	cursor: crosshair;
 }
 
 /*** Color picker ***/
@@ -1593,3 +1597,29 @@ body,html {
 	left: 4px;
 	top: 4px;
 }
+
+/*** Popup menu ***/
+.ui-pmnu {
+	display: none;
+	width: 200px;
+	background-color: grey;
+	border: 1px dotted black;
+	-moz-border-radius: 5px;
+	color: white;
+}
+.ui-pmnu-ttl {
+	padding: 4px;
+	font-style: italic;
+	background-color: #222;
+}
+.ui-pmnu-action {
+	padding: 4px;
+	padding-left: 20px;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	background-position: 2px 4px;
+}
+.ui-pmnu-action:hover {
+	background-color: #ff9436;
+}
+

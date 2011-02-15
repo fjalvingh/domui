@@ -311,6 +311,8 @@ public abstract class DomApplication {
 		}
 		initialize(pp);
 		m_developmentMode = development;
+		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
+			NodeBase.internalSetLogAllocations(true);
 	}
 
 	static public synchronized final int internalNextPageTag() {

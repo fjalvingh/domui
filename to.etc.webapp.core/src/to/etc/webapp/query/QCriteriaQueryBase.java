@@ -43,6 +43,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 
 	private int m_start = 0;
 
+	private int m_timeout = -1;
+
 	/** The restrictions (where clause) in effect. */
 	private QOperatorNode m_restrictions;
 
@@ -376,5 +378,18 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 		return m_order;
 	}
 
+	public int getTimeout() {
+		return m_timeout;
+	}
 
+	/**
+	 * Set the query timeout, in seconds. This only works if supported by the underlying query platform, which may
+	 * impose it's own query timeout on queries regardless of this setting. If implemented, the query throws a
+	 * {@link QQueryTimeoutException} when the query is aborted because it ran too long. When unset the value defaults
+	 * to -1 which means "use the default timeout"; 0 means "no timeout at all"; all others is the timeout in seconds.
+	 * @param timeout
+	 */
+	public void setTimeout(int timeout) {
+		m_timeout = timeout;
+	}
 }

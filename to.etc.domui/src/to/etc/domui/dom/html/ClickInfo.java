@@ -22,39 +22,61 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.misc;
+package to.etc.domui.dom.html;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import to.etc.domui.server.*;
 
-public class InfoPanel extends Div {
-	final private String m_text;
+/**
+ * Extensible info class for a "click" event.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Feb 14, 2011
+ */
+final public class ClickInfo {
+	private boolean m_shift;
 
-	final private Img m_icon = new Img();
+	private boolean m_alt;
 
-	public InfoPanel(String text) {
-		this(text, "THEME/big-info.png");
-		setCssClass("ui-ipa");
+	private boolean m_control;
+
+	private int m_pageX, m_pageY;
+
+	public ClickInfo(IParameterInfo pi) {
+		m_shift = "true".equals(pi.getParameter("_shiftKey"));
+		m_control = "true".equals(pi.getParameter("_controlKey"));
+		m_alt = "true".equals(pi.getParameter("_altKey"));
+		int v;
+		try {
+			v = Integer.parseInt(pi.getParameter("_pageX"));
+		} catch(Exception x) {
+			v = 0;
+		}
+		m_pageX = v;
+		try {
+			v = Integer.parseInt(pi.getParameter("_pageX"));
+		} catch(Exception x) {
+			v = 0;
+		}
+		m_pageY = v;
 	}
 
-	public InfoPanel(String text, String icon) {
-		m_text = text;
-		setIcon(icon);
+	public boolean isShift() {
+		return m_shift;
 	}
 
-	@Override
-	public void createContent() throws Exception {
-		add(m_icon);
-		m_icon.setAlign(ImgAlign.LEFT);
-		DomUtil.renderHtmlString(this, m_text);
+	public boolean isAlt() {
+		return m_alt;
 	}
 
-	public void setIcon(String rurl) {
-		m_icon.setSrc(rurl);
-		forceRebuild();
+	public boolean isControl() {
+		return m_control;
 	}
 
-	public String getIcon() {
-		return m_icon.getSrc();
+	public int getPageX() {
+		return m_pageX;
+	}
+
+	public int getPageY() {
+		return m_pageY;
 	}
 }

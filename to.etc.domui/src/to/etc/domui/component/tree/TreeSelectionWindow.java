@@ -53,9 +53,9 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 
 	private long m_lastClickTS;
 
-	private IClicked< ? > m_clicked;
+	private IClickBase< ? > m_clicked;
 
-	private IClicked< ? > m_cancelClicked;
+	private IClickBase< ? > m_cancelClicked;
 
 	private INodeContentRenderer<T> m_contentRenderer;
 
@@ -173,20 +173,20 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 	}
 
 	@Override
-	public IClicked< ? > getClicked() {
+	public IClickBase< ? > getClicked() {
 		return m_clicked;
 	}
 
 	@Override
-	public void setClicked(IClicked< ? > clicked) {
+	public void setClicked(IClickBase< ? > clicked) {
 		m_clicked = clicked;
 	}
 
-	public IClicked< ? > getCancelClicked() {
+	public IClickBase< ? > getCancelClicked() {
 		return m_cancelClicked;
 	}
 
-	public void setCancelClicked(IClicked< ? > cancelClicked) {
+	public void setCancelClicked(IClickBase< ? > cancelClicked) {
 		m_cancelClicked = cancelClicked;
 	}
 

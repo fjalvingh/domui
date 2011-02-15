@@ -30,7 +30,7 @@ package to.etc.domui.dom.html;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 17, 2007
  */
-public interface IClicked<T extends NodeBase> {
+public interface IClicked<T extends NodeBase> extends IClickBase<T> {
 	/**
 	 * This gets called when the node is clicked. The parameter is the node that the click
 	 * handler was attached to. Since the node itself is passed you can easily reuse a click
