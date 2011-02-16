@@ -31,7 +31,7 @@ import javax.annotation.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T>, ISelectionListener<T> {
+abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T> {
 	@Nonnull
 	private ITableModel<T> m_model;
 
@@ -111,37 +111,4 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	protected void firePageChanged() {}
 
 	protected void fireModelChanged(@Nullable ITableModel<T> old, @Nonnull ITableModel<T> model) {}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Handling selections.								*/
-	/*--------------------------------------------------------------*/
-	/** If this table allows selection of rows, this model maintains the selections. */
-	@Nullable
-	private ISelectionModel<T> m_selectionModel;
-
-	/**
-	 * Return the model used for table selections, if applicable.
-	 * @return
-	 */
-	@Nullable
-	public ISelectionModel<T> getSelectionModel() {
-		return m_selectionModel;
-	}
-
-	/**
-	 * Set the model to maintain selections, if this table allows selections.
-	 *
-	 * @param selectionModel
-	 */
-	public void setSelectionModel(@Nullable ISelectionModel<T> selectionModel) {
-		if(DomUtil.isEqual(m_selectionModel, selectionModel))
-			return;
-		if(m_selectionModel != null)
-			m_selectionModel.removeListener(this);
-		m_selectionModel = selectionModel;
-		if(null != selectionModel) {
-			selectionModel.addListener(this);
-		}
-		forceRebuild();
-	}
 }

@@ -66,8 +66,6 @@ public class AbstractRowRenderer<T> {
 
 	private String m_unknownColumnCaption;
 
-	private boolean m_multiSelectMode;
-
 	public AbstractRowRenderer(Class<T> data) {
 		m_dataClass = data;
 		m_metaModel = MetaManager.findClassMeta(m_dataClass);
@@ -253,14 +251,6 @@ public class AbstractRowRenderer<T> {
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
 		StringBuilder sb = new StringBuilder();
 
-		//-- Are we rendering a multi-selection?
-		if(tbl.getSelectionModel() != null && tbl.getSelectionModel().getSelectionCount() > 0) {
-			m_multiSelectMode = tbl.getSelectionModel().isMultiSelect();
-			if(m_multiSelectMode) {
-				TD th = cc.add(new Img("THEME/dspcb-on.png"));
-			}
-		}
-
 		for(final SimpleColumnDef cd : m_columnList) {
 			TH th;
 			String label = cd.getColumnLabel();
@@ -364,30 +354,17 @@ public class AbstractRowRenderer<T> {
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	public void renderRow(final TableModelTableBase<T> tbl, final ColumnContainer<T> cc, final int index, final T instance) throws Exception {
-		if(m_rowClicked != null || null != tbl.getSelectionModel()) {
-			//-- Add a click handler to select or pass the rowclicked event.
-			cc.getTR().setClicked(new IClicked2<TR>() {
-				@Override
-				@SuppressWarnings("unchecked")
-				public void clicked(TR b, ClickInfo clinfo) throws Exception {
-					handleRowClick(tbl, b, instance, clinfo);
-				}
-			});
-			cc.getTR().addCssClass("ui-rowsel");
-		}
-
-		//-- If we're in multiselect mode show the select boxes
-		if(m_multiSelectMode) {
-			Checkbox cb = new Checkbox();
-			TD th = cc.add(cb);
-			cb.setClicked(new IClicked<Checkbox>() {
-				@Override
-				public void clicked(Checkbox clickednode) throws Exception {
-					tbl.getSelectionModel().setInstanceSelected(instance, clickednode.isChecked());
-				}
-			});
-			cb.setChecked(tbl.getSelectionModel().isSelected(instance));
-		}
+		//		if(m_rowClicked != null || null != tbl.getSelectionModel()) {
+		//			//-- Add a click handler to select or pass the rowclicked event.
+		//			cc.getTR().setClicked(new IClicked2<TR>() {
+		//				@Override
+		//				@SuppressWarnings("unchecked")
+		//				public void clicked(TR b, ClickInfo clinfo) throws Exception {
+		//					handleRowClick(tbl, b, instance, clinfo);
+		//				}
+		//			});
+		//			cc.getTR().addCssClass("ui-rowsel");
+		//		}
 
 		for(final SimpleColumnDef cd : m_columnList) {
 			renderColumn(tbl, cc, index, instance, cd);
@@ -408,30 +385,6 @@ public class AbstractRowRenderer<T> {
 			cc.getTR().removeCssClass("ui-even");
 			cc.getTR().addCssClass("ui-odd");
 		}
-	}
-
-	/**
-	 * Click handler for rows. This handles both row clicked handling and row selection handling.
-	 *
-	 * @param tbl
-	 * @param b
-	 * @param instance
-	 * @param clinfo
-	 * @throws Exception
-	 */
-	private void handleRowClick(final TableModelTableBase<T> tbl, final TR b, final T instance, final ClickInfo clinfo) throws Exception {
-		//-- If we have a selection model: check if this is some selecting clicky.
-		if(tbl.getSelectionModel() != null) {
-			//-- Treat clicks with ctrl or shift as selection clickies
-			if(clinfo.isControl() || clinfo.isShift()) {
-				handleSelectClicky(tbl, b, instance, clinfo);
-				return; // Do NOT fire on selection clickies.
-			}
-		}
-
-		//-- If this has a click handler- fire it.
-		if(null != getRowClicked())
-			((ICellClicked<T>) getRowClicked()).cellClicked(b, instance);
 	}
 
 	/**
@@ -498,96 +451,6 @@ public class AbstractRowRenderer<T> {
 			cell.setTextAlign(cd.getAlign());
 		else if(cd.getCssClass() != null) {
 			cell.addCssClass(cd.getCssClass());
-		}
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Selection handling.									*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Handle a click that is meant to select/deselect the item(s).
-	 * @param tbl
-	 * @param b
-	 * @param instance
-	 * @param clinfo
-	 */
-	private void handleSelectClicky(TableModelTableBase<T> tbl, TR b, T instance, ClickInfo clinfo) throws Exception {
-		tbl.getSelectionModel().setInstanceSelected(instance, !tbl.getSelectionModel().isSelected(instance));
-	}
-
-	/**
-	 * Update the selection mode. If we're selecting only one item it will be rendered in the SELECTED color only. The
-	 * selection model itself will take care of deselecting the previous one in that case. If the model is a multiselect
-	 * model this will create a multiselect layout if not already present (provided the selection is to ON).
-	 *
-	 * @param tbl
-	 * @param headerrow
-	 * @param row
-	 * @param instance
-	 * @throws Exception
-	 */
-	public void renderSelectionChanged(TableModelTableBase<T> tbl, TR headerrow, TR row, T instance, boolean on) throws Exception {
-		if(tbl.getSelectionModel() == null)
-			throw new IllegalStateException("No selection model!?");
-		if(!tbl.getSelectionModel().isMultiSelect()) {
-			//-- Single selection model. Just add/remove the "selected" class from the row.
-			if(on)
-				row.addCssClass("selected");
-			else
-				row.removeCssClass("selected");
-			return;
-		}
-
-		/*
-		 * In multiselect. If the multiselect UI is not visible we check if we are switching
-		 * ON, else there we can exit. If we switch ON we add the multiselect UI if not
-		 * yet present. Then we set/reset the checkbox for the row.
-		 */
-		if(!m_multiSelectMode) {
-			if(!on) // No UI yet, but this is a deselect so let it be
-				return;
-
-			//-- Render the multiselect UI: add the header cell and row cells.
-			createMultiselectUI(tbl, headerrow, row);
-		}
-
-		//-- The checkbox is in cell0; get it and change it's value if (still) needed
-		TD td = (TD) row.getChild(0);
-		Checkbox cb = (Checkbox) td.getChild(0);
-		if(cb.isChecked() != on) // Only change if not already correct
-			cb.setChecked(on);
-	}
-
-
-	/**
-	 * Make the multiselect UI.
-	 */
-	private void createMultiselectUI(TableModelTableBase<T> tbl, TR headerrow, TR row) {
-		if(m_multiSelectMode)
-			return;
-		m_multiSelectMode = true;
-
-		//-- 1. Add the select TH.
-		TD th = new TH();
-		th.add(new Img("THEME/dspcb-on.png"));
-		headerrow.add(0, th);
-
-		//-- 2. Insert a checkbox in all rows.
-		TBody body = row.getParent(TBody.class);
-		for(int i = 0; i < body.getChildCount(); i++) {
-			TR tr = (TR) body.getChild(i);
-			TD td = new TD();
-			tr.add(0, td);
-
-			Checkbox cb = new Checkbox();
-			td.add(cb);
-			cb.setClicked(new IClicked<Checkbox>() {
-				@Override
-				public void clicked(Checkbox clickednode) throws Exception {
-					//					tbl.getSelectionModel().setInstanceSelected(instance, clickednode.isChecked());
-				}
-			});
-			cb.setChecked(false);
 		}
 	}
 
