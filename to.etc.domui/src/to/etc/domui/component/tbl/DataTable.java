@@ -28,6 +28,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -50,6 +51,9 @@ public class DataTable<T> extends TabularComponentBase<T> {
 
 	/** When the query has 0 results this is set to the div displaying that message. */
 	private Div m_errorDiv;
+
+	/** The items that are currently on-screen, to prevent a reload from the model when reused. */
+	final private List<T> m_visibleItemList = new ArrayList<T>();
 
 	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
@@ -100,39 +104,20 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		}
 
 		setResults();
-		//		m_table.removeAllChildren();
-		//		add(m_table);
-		//
-		//		//-- Render the header.
-		//		THead hd = new THead();
-		//		HeaderContainer<T> hc = new HeaderContainer<T>(this);
-		//		TR tr = new TR();
-		//		tr.setCssClass("ui-dt-hdr");
-		//		hd.add(tr);
-		//		hc.setParent(tr);
-		//		m_rowRenderer.renderHeader(this, hc);
-		//		if(hc.hasContent()) {
-		//			m_table.add(hd);
-		//		} else {
-		//			hc = null;
-		//			hd = null;
-		//			tr = null;
-		//		}
-		//
-		//		//-- Render loop: add rows && ask the renderer to add columns.
-		//		m_dataBody = new TBody();
-		//		m_table.add(m_dataBody);
 
+		//-- Render the rows.
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
+		m_visibleItemList.clear();
 		int ix = m_six;
 		for(T o : list) {
+			m_visibleItemList.add(o);
 			TR tr = new TR();
 			m_dataBody.add(tr);
 			cc.setParent(tr);
 			renderRow(tr, cc, ix, o);
 			ix++;
 		}
-		appendCreateJS(JavascriptUtil.disableSelection(this));
+		appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 	}
 
 	private void setResults() throws Exception {
@@ -162,18 +147,15 @@ public class DataTable<T> extends TabularComponentBase<T> {
 			tr = null;
 		}
 
-		//-- Render loop: add rows && ask the renderer to add columns.
 		m_dataBody = new TBody();
 		m_table.add(m_dataBody);
-		//		b.setOverflow(Overflow.SCROLL);
-		//		b.setHeight("400px");
-		//		b.setWidth("100%");
 	}
 
 	/**
 	 * Removes any data table, and presents the "no results found" div.
 	 */
 	private void setNoResults() {
+		m_visibleItemList.clear();
 		if(m_errorDiv != null)
 			return;
 
@@ -214,20 +196,9 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	}
 
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	TableModelListener implementation					*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Called when there are sweeping changes to the model. It forces a complete re-render of the table.
-	 */
-	@Override
-	public void modelChanged(@Nullable ITableModel<T> model) {
-		forceRebuild();
-	}
-
 	/**
 	 * Renders row content into specified row.
-	 * It can be overriden if some specific content rendering is needed in sub class.
+	 *
 	 * @param cc
 	 * @param index
 	 * @param value
@@ -245,6 +216,17 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	 */
 	protected void renderHeader(@Nonnull HeaderContainer<T> hc) throws Exception {
 		m_rowRenderer.renderHeader(this, hc);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	TableModelListener implementation					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Called when there are sweeping changes to the model. It forces a complete re-render of the table.
+	 */
+	@Override
+	public void modelChanged(@Nullable ITableModel<T> model) {
+		forceRebuild();
 	}
 
 	/**
@@ -273,12 +255,15 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		cc.setParent(tr);
 		renderRow(tr, cc, index, value);
 		m_dataBody.add(rrow, tr);
+		m_visibleItemList.add(rrow, value);
 
 		//-- Is the size not > the page size?
 		if(m_pageSize > 0 && m_dataBody.getChildCount() > m_pageSize) {
 			//-- Delete the last row.
 			m_dataBody.removeChild(m_dataBody.getChildCount() - 1); // Delete last element
 		}
+		while(m_visibleItemList.size() > m_pageSize)
+			m_visibleItemList.remove(m_visibleItemList.size() - 1);
 	}
 
 	/**
@@ -296,6 +281,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 			return;
 		int rrow = index - m_six; // This is the location within the child array
 		m_dataBody.removeChild(rrow); // Discard this one;
+		m_visibleItemList.remove(rrow);
 		if(m_dataBody.getChildCount() == 0) {
 			setNoResults();
 			return;
@@ -309,6 +295,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 			cc.setParent(tr);
 			renderRow(tr, cc, peix, getModelItem(peix));
 			m_dataBody.add(m_pageSize - 1, tr);
+			m_visibleItemList.add(m_pageSize - 1, value);
 		}
 	}
 
@@ -326,6 +313,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		int rrow = index - m_six; // This is the location within the child array
 		TR tr = (TR) m_dataBody.getChild(rrow); // The visible row there
 		tr.removeAllChildren(); // Discard current contents.
+		m_visibleItemList.set(rrow, value);
 
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		cc.setParent(tr);
@@ -346,5 +334,46 @@ public class DataTable<T> extends TabularComponentBase<T> {
 			return;
 		m_rowRenderer = rowRenderer;
 		forceRebuild();
+	}
+
+	@Override
+	protected void onForceRebuild() {
+		m_visibleItemList.clear();
+		super.onForceRebuild();
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	ISelectionListener.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Called when a selection event fires. The underlying model has already been changed. It
+	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
+	 * it's selection presentation.
+	 *
+	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionChanged(java.lang.Object, boolean)
+	 */
+	public void selectionChanged(T row, boolean on) throws Exception {
+		//-- Is this a visible row?
+		for(int i = 0; i < m_visibleItemList.size(); i++) {
+			if(MetaManager.areObjectsEqual(row, m_visibleItemList.get(i))) {
+				updateSelectionChanged(row, i, on);
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Updates the "selection" state of the specified local row#.
+	 * @param instance
+	 * @param i
+	 * @param on
+	 */
+	private void updateSelectionChanged(T instance, int lrow, boolean on) throws Exception {
+		TR tr = (TR) m_dataBody.getChild(lrow);
+		THead head = m_table.getHead();
+		if(null == head)
+			throw new IllegalStateException("I've lost my head!?");
+		TR headerrow = (TR) head.getChild(0);
+		m_rowRenderer.renderSelectionChanged(this, headerrow, tr, instance, on);
 	}
 }

@@ -15,9 +15,8 @@ abstract public class AbstractSelectionModel<T> implements ISelectionModel<T> {
 		m_listeners.remove(l);
 	}
 
-	protected void callChanged(T item, boolean on) {
+	protected void callChanged(T item, boolean on) throws Exception {
 		for(ISelectionListener<T> sl : m_listeners)
 			sl.selectionChanged(item, on);
 	}
-
 }

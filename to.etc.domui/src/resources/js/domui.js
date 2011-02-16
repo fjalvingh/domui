@@ -547,7 +547,7 @@ var WebUI = {
 				evt.stopPropagation();
 		}
 		var e = $.event.fix(evt);		// Convert to jQuery event
-		e.preventDefault();
+		//e.preventDefault(); // jal 20110216 DO NOT PREVENTDEFAULT- it will disable checkbox enable/disable
 
 		//-- add click-related parameters
 		fields._pageX = e.pageX;
