@@ -65,7 +65,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private Div m_textDiv;
 
-	private Div m_buttonDiv;
+	//	private Div m_buttonDiv;
 
 	private String m_nextImg, m_nextDisImg;
 
@@ -79,6 +79,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	/** When set (default) this shows selection details when a table has a selectable model. */
 	private boolean m_showSelection = true;
+
+	private Div m_buttonDiv;
 
 	public DataPager() {}
 
@@ -99,40 +101,37 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		d.add(m_txt);
 		m_textDiv = d;
 
-		Div btn = new Div();
-		m_buttonDiv = btn;
-		add(btn);
-		btn.setCssClass("ui-szless");
+		m_buttonDiv = new Div();
+		add(m_buttonDiv);
+		m_buttonDiv.setCssClass("ui-szless");
 		m_firstBtn = new SmallImgButton();
-		btn.add(m_firstBtn);
+		m_buttonDiv.add(m_firstBtn);
 		m_prevBtn = new SmallImgButton();
-		btn.add(m_prevBtn);
+		m_buttonDiv.add(m_prevBtn);
 		m_nextBtn = new SmallImgButton();
-		btn.add(m_nextBtn);
+		m_buttonDiv.add(m_nextBtn);
 		m_lastBtn = new SmallImgButton();
-		btn.add(m_lastBtn);
+		m_buttonDiv.add(m_lastBtn);
 
 		if(m_showSelection) {
 			if(m_table instanceof DataTable) { // Fixme needs interface
 				final DataTable< ? > dt = (DataTable< ? >) m_table;
 				if(dt.getSelectionModel() != null && dt.getSelectionModel().isMultiSelect()) {
-					m_showSelectionBtn = new SmallImgButton("THEME/dpr-select-on.png");
-					btn.add(m_showSelectionBtn);
-					m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
-						@Override
-						public void clicked(NodeBase clickednode) throws Exception {
-							dt.setShowSelectionAlways(true);
-							clickednode.remove();
-						}
-					});
-					m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
-
-					SmallImgButton sb = new SmallImgButton("THEME/dpr-select-all.png");
-					btn.add(sb);
-					sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
-					sb = new SmallImgButton("THEME/dpr-select-none.png");
-					btn.add(sb);
-					sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.none"));
+					if(dt.isMultiSelectionVisible()) {
+						renderSelectionExtras();
+					} else {
+						m_showSelectionBtn = new SmallImgButton("THEME/dpr-select-on.png");
+						m_buttonDiv.add(m_showSelectionBtn);
+						m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
+							@Override
+							public void clicked(NodeBase clickednode) throws Exception {
+								dt.setShowSelectionAlways(true);
+								clickednode.remove();
+								m_showSelectionBtn = null;
+							}
+						});
+						m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
+					}
 				}
 			}
 		}
@@ -177,14 +176,28 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		});
 	}
 
-	private boolean hasSelectionModel() {
-		if(m_table == null)
-			return false;
-		if(m_table instanceof DataTable) { // Fixme needs interface
-			DataTable< ? > dt = (DataTable< ? >) m_table;
-			return dt.getSelectionModel() != null && dt.getSelectionModel().isMultiSelect();
+	private void renderSelectionExtras() {
+		SmallImgButton sb = new SmallImgButton("THEME/dpr-select-all.png");
+		m_buttonDiv.add(sb);
+		sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
+		sb = new SmallImgButton("THEME/dpr-select-none.png");
+		m_buttonDiv.add(sb);
+		sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.none"));
+
+	}
+
+	@Override
+	public void selectionUIChanged(TabularComponentBase< ? > tbl) throws Exception {
+		if(tbl instanceof DataTable) {
+			DataTable< ? > dt = (DataTable< ? >) tbl;
+			if(dt.isMultiSelectionVisible()) {
+				if(null != m_showSelectionBtn) {
+					m_showSelectionBtn.remove();
+					m_showSelectionBtn = null;
+				}
+			}
+			renderSelectionExtras();
 		}
-		return false;
 	}
 
 	private void init() throws Exception {

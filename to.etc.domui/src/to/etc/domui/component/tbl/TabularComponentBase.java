@@ -96,6 +96,16 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 		}
 	}
 
+	protected void fireSelectionUIChanged() {
+		for(IDataTableChangeListener l : getListeners()) {
+			try {
+				l.selectionUIChanged(this);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
 	protected void calcIndices() throws Exception {
 		int size = getModel().getRows();
 		int pageSize = getPageSize();

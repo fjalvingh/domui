@@ -433,6 +433,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			});
 			cb.setChecked(false);
 		}
+
+		fireSelectionUIChanged();
 	}
 
 	/**
