@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
+import javax.annotation.*;
+
 
 /**
  * Delegate for a table which must render a row of items from a single row object.
@@ -44,19 +46,10 @@ public interface IRowRenderer<T> {
 	 */
 	void renderHeader(TableModelTableBase<T> tbl, HeaderContainer<T> cc) throws Exception;
 
+	/**
+	 * Return the row clicked handler to use.
+	 * @return
+	 */
+	@Nullable
 	ICellClicked< ? > getRowClicked();
-
-	//
-	//	/**
-	//	 * If a table has a selectable model, this gets called to change the visual appearance
-	//	 * of a <i>rendered</i> row when it is selected/deselected. The row is present on screen;
-	//	 * the renderer should know how to modify the row in such a way that it is visually
-	//	 * consistent. Because this can also imply changes to the header it is passed in too.
-	//	 *
-	//	 * @param tbl
-	//	 * @param row
-	//	 * @param instance
-	//	 * @param on 			T if the selection should be rendered as ON.
-	//	 */
-	//	void renderSelectionChanged(TableModelTableBase<T> tbl, TR headerrow, TR row, T instance, boolean on) throws Exception;
 }

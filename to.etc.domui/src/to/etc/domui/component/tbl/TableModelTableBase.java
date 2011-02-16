@@ -40,11 +40,9 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		model.addChangeListener(this);
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model updates.										*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * Return the current model being used.
 	 */
@@ -105,7 +103,6 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	protected void onRefresh() throws Exception {
 		if(m_model != null)
 			m_model.refresh();
-		//		super.onRefresh();
 	}
 
 	protected void firePageChanged() {}

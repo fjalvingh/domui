@@ -61,6 +61,9 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	/** When T and the table has a multiselection model the checkboxes indicating selection will be rendered always, even when no selection has been made. */
 	private boolean m_showSelectionAlways;
 
+	/** When selecting, this is the last index that was used in a select click.. */
+	private int m_lastSelectionLocation = -1;
+
 	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
@@ -237,10 +240,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		if(m_multiSelectMode) {
 			Checkbox cb = new Checkbox();
 			cc.add(cb);
-			cb.setClicked(new IClicked<Checkbox>() {
+			cb.setClicked(new IClicked2<Checkbox>() {
 				@Override
-				public void clicked(Checkbox clickednode) throws Exception {
-					getSelectionModel().setInstanceSelected(value, clickednode.isChecked());
+				public void clicked(Checkbox clickednode, ClickInfo info) throws Exception {
+					selectionCheckboxClicked(value, clickednode.isChecked(), info);
 				}
 			});
 			cb.setChecked(getSelectionModel().isSelected(value));
@@ -263,7 +266,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		if(getSelectionModel() != null) {
 			//-- Treat clicks with ctrl or shift as selection clickies
 			if(clinfo.isControl() || clinfo.isShift()) {
-				handleSelectClicky(b, instance, clinfo);
+				handleSelectClicky(instance, clinfo, null);
 				return; // Do NOT fire on selection clickies.
 			}
 		}
@@ -274,16 +277,80 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	}
 
 	/**
-	 * Handle a click that is meant to select/deselect the item(s).
-	 * @param tbl
-	 * @param b
+	 * When checkbox itself is clicked, this handles shift stuff.
 	 * @param instance
-	 * @param clinfo
+	 * @param checked
+	 * @param info
+	 * @throws Exception
 	 */
-	private void handleSelectClicky(TR b, T instance, ClickInfo clinfo) throws Exception {
-		getSelectionModel().setInstanceSelected(instance, !getSelectionModel().isSelected(instance));
+	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info) throws Exception {
+		handleSelectClicky(instance, info, Boolean.valueOf(checked));
 	}
 
+	/**
+	 * Handle a click that is meant to select/deselect the item(s). It handles ctrl+click as "toggle selection",
+	 * and shift+click as "toggle everything between this and the last one".
+	 *
+	 * @param instance
+	 * @param clinfo
+	 * @param setTo		When null toggle, else set to specific.
+	 */
+	private void handleSelectClicky(@Nullable T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
+		boolean nvalue = setTo != null ? setTo.booleanValue() : !getSelectionModel().isSelected(instance);
+
+		if(!clinfo.isShift()) {
+			getSelectionModel().setInstanceSelected(instance, nvalue);
+			m_lastSelectionLocation = -1;
+			return;
+		}
+
+		//-- Toggle region. Get the current item's index.
+		int itemindex = -1, index = 0;
+		for(T item : m_visibleItemList) {
+			if(MetaManager.areObjectsEqual(item, instance)) {
+				itemindex = index;
+				break;
+			}
+			index++;
+		}
+		if(itemindex == -1) // Ignore when thingy not found
+			return;
+		itemindex += m_six;
+
+		//-- Is a previous location set? If not: just toggle the current and retain the location.
+		if(m_lastSelectionLocation == -1) {
+			//-- Start of region....
+			m_lastSelectionLocation = itemindex;
+			getSelectionModel().setInstanceSelected(instance, !getSelectionModel().isSelected(instance));
+			return;
+		}
+
+		//-- We have a previous location- we need to toggle all instances;
+		int sl, el;
+		if(m_lastSelectionLocation < itemindex) {
+			sl = m_lastSelectionLocation + 1; // Exclusive
+			el = itemindex + 1;
+		} else {
+			sl = itemindex;
+			el = m_lastSelectionLocation; // Exclusive
+		}
+
+		//-- Now toggle all instances, in batches, to prevent loading 1000+ records that cannot be gc'd.
+		index = sl;
+
+		for(int i = sl; i < el;) {
+			int ex = i + 50;
+			if(ex > el)
+				ex = el;
+
+			List<T> sub = getModel().getItems(i, ex);
+			i += ex;
+
+			for(T item: sub)
+				getSelectionModel().setInstanceSelected(item, !getSelectionModel().isSelected(item));
+		}
+		m_lastSelectionLocation = -1;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Selection UI update handling.						*/
@@ -358,10 +425,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 
 			Checkbox cb = new Checkbox();
 			td.add(cb);
-			cb.setClicked(new IClicked<Checkbox>() {
+			cb.setClicked(new IClicked2<Checkbox>() {
 				@Override
-				public void clicked(Checkbox clickednode) throws Exception {
-					getSelectionModel().setInstanceSelected(instance, clickednode.isChecked());
+				public void clicked(Checkbox clickednode, ClickInfo clinfo) throws Exception {
+					selectionCheckboxClicked(instance, clickednode.isChecked(), clinfo);
 				}
 			});
 			cb.setChecked(false);
@@ -514,6 +581,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	@Override
 	protected void onForceRebuild() {
 		m_visibleItemList.clear();
+		m_lastSelectionLocation = -1;
 		super.onForceRebuild();
 	}
 
@@ -585,6 +653,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		if(null != selectionModel) {
 			selectionModel.addListener(this);
 		}
+		m_lastSelectionLocation = -1;
 		forceRebuild();
 	}
 }
