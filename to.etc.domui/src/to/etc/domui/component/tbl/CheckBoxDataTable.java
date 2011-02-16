@@ -166,7 +166,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 	 * @see to.etc.domui.component.tbl.DataTable#renderRow(to.etc.domui.dom.html.TR, to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	@Override
-	protected void renderRow(TR tr, ColumnContainer<T> cc, int index, T value) throws Exception {
+	void internalRenderRow(TR tr, ColumnContainer<T> cc, int index, T value) throws Exception {
 		TD selectionCell = new TD();
 
 		Checkbox b = new Checkbox();

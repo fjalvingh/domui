@@ -221,8 +221,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param value
 	 * @throws Exception
 	 */
-	@Deprecated
-	void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable final T value) throws Exception {
+	private void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable final T value) throws Exception {
 		//-- Is a rowclick handler needed?
 		if(m_rowRenderer.getRowClicked() != null || null != getSelectionModel()) {
 			//-- Add a click handler to select or pass the rowclicked event.
@@ -248,7 +247,19 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			});
 			cb.setChecked(getSelectionModel().isSelected(value));
 		}
+		internalRenderRow(tr, cc, index, value);
+	}
 
+	/**
+	 * Must exist for CheckBoxDataTable; remove asap AND DO NOT USE AGAIN - internal interfaces should remain hidden.
+	 * @param tr
+	 * @param cc
+	 * @param index
+	 * @param value
+	 * @throws Exception
+	 */
+	@Deprecated
+	void internalRenderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable final T value) throws Exception {
 		m_rowRenderer.renderRow(this, cc, index, value);
 	}
 
