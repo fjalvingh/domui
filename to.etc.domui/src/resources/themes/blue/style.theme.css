@@ -1033,6 +1033,9 @@ th.ui-sortable {
 	background: url(bg-horiz-separator.png) repeat-x center;
 	padding: 1px;
 }
+.ui-dt .mselected {
+/*	background-color: #dedeff; 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+}
 
 /*** Small Image button ***/
 .ui-sib {

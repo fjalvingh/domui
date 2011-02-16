@@ -245,7 +245,12 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 					selectionCheckboxClicked(value, clickednode.isChecked(), info);
 				}
 			});
-			cb.setChecked(getSelectionModel().isSelected(value));
+			boolean issel = getSelectionModel().isSelected(value);
+			cb.setChecked(issel);
+			if(issel)
+				tr.addCssClass("mselected");
+			else
+				tr.removeCssClass("mselected");
 		}
 		internalRenderRow(tr, cc, index, value);
 	}
