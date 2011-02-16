@@ -258,9 +258,16 @@ public class AbstractRowRenderer<T> {
 				//-- Just add the label, if present,
 				th = cc.add(label);
 			} else {
+				//in order to apply correct positioning, we need to wrap Span around sort indicator image and label
+				final Div cellSpan = new Div();
+				cellSpan.setCssClass("ui-sortable");
+				th = cc.add(cellSpan);
+				th.setCssClass("ui-sortable");
+
 				//-- Add the sort order indicator: a single image containing either ^, v or both.
 				final Img img = new Img();
-				th = cc.add(img); // Add the label;
+				cellSpan.add(img);
+
 				if(cd == m_sortColumn) {
 					img.setSrc(m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 				} else {
@@ -268,10 +275,10 @@ public class AbstractRowRenderer<T> {
 				}
 				m_sortImages[ix] = img;
 
+				// Add the label;
 				if(label == null || label.trim().length() == 0)
 					label = getUnknownColumnCaption();
-				th.add(new Span(label));
-				th.setCssClass("ui-sortable");
+				cellSpan.add(new Span(label));
 				final SimpleColumnDef scd = cd;
 				th.setClicked(new IClicked<TH>() {
 					@Override

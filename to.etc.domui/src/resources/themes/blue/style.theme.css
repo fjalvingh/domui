@@ -26,6 +26,10 @@ input:hover, textarea:hover, select:hover {
 	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
 }
 
+select {
+	background-color:#FFFFFF;
+}
+
 .ui-txx {
 	vertical-align: top;
 }
@@ -968,8 +972,9 @@ div:hover.ui-xdt-exp {
 }
 
 /*** DataTable default style ***/
-.ui-dt {
+div.ui-dt {
 	overflow: auto;
+	position: relative;
 }
 
 .ui-dt th {
@@ -1020,15 +1025,22 @@ td.ui-cellsel:hover {
 th.ui-sortable {
 	cursor: pointer;
 }
+
+div.ui-sortable {
+	position: relative;
+}
+
 .ui-sortable img {
-	margin-top: 2px;
-	margin-left: -2px;
+	top: 2px;
+	left: -2px;
 	position: absolute;
 	border: 0px;
 }
+
 .ui-sortable span {
 	margin-left: 8px;
 }
+
 .ui-dt-separator {
 	background: url(bg-horiz-separator.png) repeat-x center;
 	padding: 1px;
