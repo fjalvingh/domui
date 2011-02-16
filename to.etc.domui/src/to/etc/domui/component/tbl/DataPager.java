@@ -55,6 +55,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private SmallImgButton m_lastBtn;
 
+	private SmallImgButton m_showSelectionBtn;
+
 	private Img m_truncated;
 
 	TabularComponentBase< ? > m_table;
@@ -74,6 +76,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	private String m_lastImg, m_lastDisImg;
 
 	private String m_overflowImg;
+
+	/** When set (default) this shows selection details when a table has a selectable model. */
+	private boolean m_showSelection = true;
 
 	public DataPager() {}
 
@@ -106,6 +111,32 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		btn.add(m_nextBtn);
 		m_lastBtn = new SmallImgButton();
 		btn.add(m_lastBtn);
+
+		if(m_showSelection) {
+			if(m_table instanceof DataTable) { // Fixme needs interface
+				final DataTable< ? > dt = (DataTable< ? >) m_table;
+				if(dt.getSelectionModel() != null && dt.getSelectionModel().isMultiSelect()) {
+					m_showSelectionBtn = new SmallImgButton("THEME/dpr-select-on.png");
+					btn.add(m_showSelectionBtn);
+					m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
+						@Override
+						public void clicked(NodeBase clickednode) throws Exception {
+							dt.setShowSelectionAlways(true);
+							clickednode.remove();
+						}
+					});
+					m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
+
+					SmallImgButton sb = new SmallImgButton("THEME/dpr-select-all.png");
+					btn.add(sb);
+					sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
+					sb = new SmallImgButton("THEME/dpr-select-none.png");
+					btn.add(sb);
+					sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.none"));
+				}
+			}
+		}
+
 		redraw();
 
 		//-- Click handlers for paging.
@@ -144,6 +175,16 @@ public class DataPager extends Div implements IDataTableChangeListener {
 				m_table.setCurrentPage(cp);
 			}
 		});
+	}
+
+	private boolean hasSelectionModel() {
+		if(m_table == null)
+			return false;
+		if(m_table instanceof DataTable) { // Fixme needs interface
+			DataTable< ? > dt = (DataTable< ? >) m_table;
+			return dt.getSelectionModel() != null && dt.getSelectionModel().isMultiSelect();
+		}
+		return false;
 	}
 
 	private void init() throws Exception {
@@ -254,5 +295,16 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	@Override
 	public void pageChanged(final TabularComponentBase< ? > tbl) throws Exception {
 		redraw();
+	}
+
+	public boolean isShowSelection() {
+		return m_showSelection;
+	}
+
+	public void setShowSelection(boolean showSelection) {
+		if(m_showSelection == showSelection)
+			return;
+		m_showSelection = showSelection;
+		forceRebuild();
 	}
 }

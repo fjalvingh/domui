@@ -435,6 +435,39 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		}
 	}
 
+	/**
+	 * When T and a selection model in multiselect mode is present, this causes the
+	 * checkboxes to be rendered initially even when no selection is made.
+	 * @return
+	 */
+	public boolean isShowSelectionAlways() {
+		return m_showSelectionAlways;
+	}
+
+	public boolean isMultiSelectionVisible() {
+		return m_multiSelectMode;
+	}
+
+	/**
+	 * When T and a selection model in multiselect mode is present, this causes the
+	 * checkboxes to be rendered initially even when no selection is made.
+	 * @param showSelectionAlways
+	 */
+	public void setShowSelectionAlways(boolean showSelectionAlways) {
+		if(m_showSelectionAlways == showSelectionAlways)
+			return;
+		m_showSelectionAlways = showSelectionAlways;
+		if(!isBuilt() || m_multiSelectMode || getSelectionModel() == null || !getSelectionModel().isMultiSelect())
+			return;
+
+		THead head = m_table.getHead();
+		if(null == head)
+			throw new IllegalStateException("I've lost my head!?");
+
+		TR headerrow = (TR) head.getChild(0);
+		createMultiselectUI(headerrow);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Dumbass setters and getters.						*/
 	/*--------------------------------------------------------------*/
@@ -583,24 +616,6 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		m_visibleItemList.clear();
 		m_lastSelectionLocation = -1;
 		super.onForceRebuild();
-	}
-
-	/**
-	 * When T and a selection model in multiselect mode is present, this causes the
-	 * checkboxes to be rendered initially even when no selection is made.
-	 * @return
-	 */
-	public boolean isShowSelectionAlways() {
-		return m_showSelectionAlways;
-	}
-
-	/**
-	 * When T and a selection model in multiselect mode is present, this causes the
-	 * checkboxes to be rendered initially even when no selection is made.
-	 * @param showSelectionAlways
-	 */
-	public void setShowSelectionAlways(boolean showSelectionAlways) {
-		m_showSelectionAlways = showSelectionAlways;
 	}
 
 	/*--------------------------------------------------------------*/
