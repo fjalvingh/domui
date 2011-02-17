@@ -11,7 +11,7 @@ public interface ISelectionModel<T> {
 
 	void setInstanceSelected(@Nonnull T rowinstance, boolean on) throws Exception;
 
-	//	void toggleInstanceSet(ITableModel<T> model, int startindex, int endindex) throws Exception;
+	void clearSelection() throws Exception;
 
 	void addListener(ISelectionListener<T> l);
 

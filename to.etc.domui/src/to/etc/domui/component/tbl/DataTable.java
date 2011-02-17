@@ -38,7 +38,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class DataTable<T> extends TabularComponentBase<T> implements ISelectionListener<T> {
+public class DataTable<T> extends TabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	private Table m_table = new Table();
 
 	private IRowRenderer<T> m_rowRenderer;
@@ -221,6 +221,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param value
 	 * @throws Exception
 	 */
+	@SuppressWarnings("deprecation")
 	private void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable final T value) throws Exception {
 		//-- Is a rowclick handler needed?
 		if(m_rowRenderer.getRowClicked() != null || null != getSelectionModel()) {
@@ -471,7 +472,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * checkboxes to be rendered initially even when no selection is made.
 	 * @param showSelectionAlways
 	 */
-	public void setShowSelectionAlways(boolean showSelectionAlways) {
+	public void setShowSelection(boolean showSelectionAlways) {
 		if(m_showSelectionAlways == showSelectionAlways)
 			return;
 		m_showSelectionAlways = showSelectionAlways;

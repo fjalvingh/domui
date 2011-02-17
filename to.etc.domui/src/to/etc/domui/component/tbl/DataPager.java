@@ -26,6 +26,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -114,8 +116,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		m_buttonDiv.add(m_lastBtn);
 
 		if(m_showSelection) {
-			if(m_table instanceof DataTable) { // Fixme needs interface
-				final DataTable< ? > dt = (DataTable< ? >) m_table;
+			if(m_table instanceof ISelectableTableComponent< ? >) { // Fixme needs interface
+				final ISelectableTableComponent< ? > dt = (ISelectableTableComponent< ? >) m_table;
 				if(dt.getSelectionModel() != null && dt.getSelectionModel().isMultiSelect()) {
 					if(dt.isMultiSelectionVisible()) {
 						renderSelectionExtras();
@@ -125,7 +127,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 						m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
 							@Override
 							public void clicked(NodeBase clickednode) throws Exception {
-								dt.setShowSelectionAlways(true);
+								dt.setShowSelection(true);
 								clickednode.remove();
 								m_showSelectionBtn = null;
 							}
@@ -176,14 +178,37 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		});
 	}
 
+	@Nullable
+	private ISelectableTableComponent< ? > getSelectableTable() {
+		if(m_table instanceof ISelectableTableComponent< ? >)
+			return (ISelectableTableComponent< ? >) m_table;
+		return null;
+	}
+
+	@Nullable
+	private ISelectionModel< ? > getSelectionModel() {
+		ISelectableTableComponent< ? > stm = getSelectableTable();
+		if(null == stm)
+			return null;
+		return stm.getSelectionModel();
+	}
+
 	private void renderSelectionExtras() {
 		SmallImgButton sb = new SmallImgButton("THEME/dpr-select-all.png");
 		m_buttonDiv.add(sb);
 		sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
+
 		sb = new SmallImgButton("THEME/dpr-select-none.png");
 		m_buttonDiv.add(sb);
 		sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.none"));
-
+		sb.setClicked(new IClicked<SmallImgButton>() {
+			@Override
+			public void clicked(SmallImgButton clickednode) throws Exception {
+				ISelectionModel<?> sm = getSelectionModel();
+				if(null != sm)
+					sm.clearSelection();
+			}
+		});
 	}
 
 	@Override

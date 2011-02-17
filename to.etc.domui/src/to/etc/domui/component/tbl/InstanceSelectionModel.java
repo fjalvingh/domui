@@ -60,7 +60,7 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		}
 	}
 
-	public void clearAll() throws Exception {
+	public void clearSelection() throws Exception {
 		if(m_selectedSet.size() == 0)
 			return;
 		m_selectedSet.clear();
