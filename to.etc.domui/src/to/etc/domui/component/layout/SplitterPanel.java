@@ -123,7 +123,7 @@ public class SplitterPanel extends Div {
 		add(m_panelA);
 		add(m_panelB);
 		getActualID();
-		appendJavascript("$(document).ready(function() {" + getMakeSplitterJavascriptCall() + "});");
+		appendCreateJS("$(document).ready(function() {" + getMakeSplitterJavascriptCall() + "});");
 	}
 
 	/**
@@ -161,11 +161,5 @@ public class SplitterPanel extends Div {
 		} else {
 			return "$('#" + getActualID() + "').splitter({" + params.toString() + "A:$('#" + m_panelA.getActualID() + "'),B:$('#" + m_panelB.getActualID() + "'),closeableto:0});";
 		}
-	}
-
-	@Override
-	protected void onUnshelve() throws Exception {
-		//Since real splitter UI is actually created on browser side, we have to recreate it when page is unshelved.
-		appendJavascript(getMakeSplitterJavascriptCall());
 	}
 }

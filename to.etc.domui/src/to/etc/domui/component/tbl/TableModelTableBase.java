@@ -32,7 +32,6 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T> {
-	//	private Class<T> m_actualClass;
 	@Nonnull
 	private ITableModel<T> m_model;
 
@@ -41,25 +40,9 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		model.addChangeListener(this);
 	}
 
-	//	protected TableModelTableBase(@Nonnull Class<T> actualClass) {
-	//		m_actualClass = actualClass;
-	//	}
-	//
-	//	protected TableModelTableBase(@Nonnull Class<T> actualClass, ITableModel<T> model) {
-	//		m_actualClass = actualClass;
-	//		m_model = model;
-	//		model.addChangeListener(this);
-	//	}
-
-	//	@Nonnull
-	//	final public Class<T> getActualClass() {
-	//		return m_actualClass;
-	//	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model updates.										*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * Return the current model being used.
 	 */
@@ -120,7 +103,6 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	protected void onRefresh() throws Exception {
 		if(m_model != null)
 			m_model.refresh();
-		//		super.onRefresh();
 	}
 
 	protected void firePageChanged() {}

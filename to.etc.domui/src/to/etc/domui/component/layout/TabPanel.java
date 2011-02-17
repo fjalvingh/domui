@@ -25,6 +25,7 @@
 package to.etc.domui.component.layout;
 
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * A panel containing multiple tabs. Each tab consists of two components: the
@@ -75,5 +76,6 @@ public class TabPanel extends TabPanelBase {
 		m_tabul = u;
 		hdr.add(u);
 		renderTabPanels(m_tabul, this);
+		appendCreateJS(JavascriptUtil.disableSelection(m_tabul));
 	}
 }

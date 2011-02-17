@@ -22,43 +22,61 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.layout.title;
+package to.etc.domui.dom.html;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import to.etc.domui.server.*;
 
-public abstract class BasePageTitleBar extends Table {
-	private String m_title;
+/**
+ * Extensible info class for a "click" event.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Feb 14, 2011
+ */
+final public class ClickInfo {
+	private boolean m_shift;
 
-	private boolean m_showAsModified;
+	private boolean m_alt;
 
-	public BasePageTitleBar() {}
+	private boolean m_control;
 
-	public BasePageTitleBar(final String title) {
-		m_title = title;
-	}
+	private int m_pageX, m_pageY;
 
-	/**
-	 * Return the title that is used by this bar. If no user title is set this returns the
-	 * calculated title (from annotations and metadata).
-	 * @return
-	 */
-	public String getPageTitle() {
-		if(m_title != null) {
-			return m_title;
+	public ClickInfo(IParameterInfo pi) {
+		m_shift = "true".equals(pi.getParameter("_shiftKey"));
+		m_control = "true".equals(pi.getParameter("_controlKey"));
+		m_alt = "true".equals(pi.getParameter("_altKey"));
+		int v;
+		try {
+			v = Integer.parseInt(pi.getParameter("_pageX"));
+		} catch(Exception x) {
+			v = 0;
 		}
-		return DomUtil.calcPageTitle(getPage().getBody().getClass());
+		m_pageX = v;
+		try {
+			v = Integer.parseInt(pi.getParameter("_pageX"));
+		} catch(Exception x) {
+			v = 0;
+		}
+		m_pageY = v;
 	}
 
-	public boolean isShowAsModified() {
-		return m_showAsModified;
+	public boolean isShift() {
+		return m_shift;
 	}
 
-	public void setPageTitle(String ttl) {
-		m_title = ttl;
+	public boolean isAlt() {
+		return m_alt;
 	}
 
-	public void setShowAsModified(boolean showAsModified) {
-		m_showAsModified = showAsModified;
+	public boolean isControl() {
+		return m_control;
+	}
+
+	public int getPageX() {
+		return m_pageX;
+	}
+
+	public int getPageY() {
+		return m_pageY;
 	}
 }

@@ -546,6 +546,16 @@ var WebUI = {
 			if(evt.stopPropagation)
 				evt.stopPropagation();
 		}
+		var e = $.event.fix(evt);		// Convert to jQuery event
+		//e.preventDefault(); // jal 20110216 DO NOT PREVENTDEFAULT- it will disable checkbox enable/disable
+
+		//-- add click-related parameters
+		fields._pageX = e.pageX;
+		fields._pageY = e.pageY;
+		fields._controlKey = e.ctrlKey == true;
+		fields._shiftKey = e.shiftKey == true;
+		fields._altKey = e.altKey == true;
+		
 		$.ajax( {
 			url :DomUI.getPostURL(),
 			dataType :"text/xml",

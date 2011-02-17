@@ -22,43 +22,18 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.layout.title;
+package to.etc.domui.dom.html;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.*;
 
-public abstract class BasePageTitleBar extends Table {
-	private String m_title;
-
-	private boolean m_showAsModified;
-
-	public BasePageTitleBar() {}
-
-	public BasePageTitleBar(final String title) {
-		m_title = title;
-	}
-
+public interface IClicked2<T extends NodeBase> extends IClickBase<T> {
 	/**
-	 * Return the title that is used by this bar. If no user title is set this returns the
-	 * calculated title (from annotations and metadata).
-	 * @return
+	 * This gets called when the node is clicked. The parameter is the node that the click
+	 * handler was attached to. Since the node itself is passed you can easily reuse a click
+	 * handler instance for several same-type nodes.
+	 * @param node
+	 * @param clinfo
+	 * @throws Exception
 	 */
-	public String getPageTitle() {
-		if(m_title != null) {
-			return m_title;
-		}
-		return DomUtil.calcPageTitle(getPage().getBody().getClass());
-	}
-
-	public boolean isShowAsModified() {
-		return m_showAsModified;
-	}
-
-	public void setPageTitle(String ttl) {
-		m_title = ttl;
-	}
-
-	public void setShowAsModified(boolean showAsModified) {
-		m_showAsModified = showAsModified;
-	}
+	public void clicked(@Nonnull T node, @Nonnull ClickInfo clinfo) throws Exception;
 }

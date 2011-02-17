@@ -70,6 +70,8 @@ import to.etc.webapp.query.*;
  * Created on Aug 18, 2007
  */
 abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding {
+	static private boolean m_logAllocations;
+
 	/** The owner page. If set then this node IS attached to the parent in some way; if null it is not attached. */
 	@Nullable
 	private Page m_page;
@@ -90,7 +92,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	private NodeContainer m_parent;
 
 	@Nullable
-	private IClicked< ? > m_clicked;
+	private IClickBase< ? > m_clicked;
 
 	private boolean m_built;
 
@@ -136,6 +138,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	private byte m_flags;
 
+	private StackTraceElement[] m_allocationTracepoint;
+
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
@@ -145,8 +149,22 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	protected NodeBase(@Nonnull final String tag) {
 		m_tag = tag;
+		if(m_logAllocations) {
+			m_allocationTracepoint = DomUtil.getTracepoint();
+		}
 	}
 
+	/**
+	 * Internal use only. Explicitly unsynchronized.
+	 * @param la
+	 */
+	static public void internalSetLogAllocations(boolean la) {
+		m_logAllocations = la;
+	}
+
+	public StackTraceElement[] getAllocationTracepoint() {
+		return m_allocationTracepoint;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Private interfaces and code.						*/
@@ -186,11 +204,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Internal, do the proper run sequence for a clicked event.
 	 * @throws Exception
 	 */
-	public void internalOnClicked() throws Exception {
-		IClicked<NodeBase> c = (IClicked<NodeBase>) getClicked();
-		if(c == null)
-			throw new IllegalStateException("? Node " + this.getActualID() + " does not have a click handler??");
-		c.clicked(this);
+	public void internalOnClicked(ClickInfo cli) throws Exception {
+		IClickBase<NodeBase> c = (IClickBase<NodeBase>) getClicked();
+		if(c instanceof IClicked< ? >) {
+			((IClicked<NodeBase>) c).clicked(this);
+		} else if(c instanceof IClicked2< ? >) {
+			((IClicked2<NodeBase>) c).clicked(this, cli);
+		} else
+			throw new IllegalStateException("? Node " + this.getActualID() + " does not have a (valid) click handler??");
 	}
 
 	/**
@@ -603,7 +624,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	@Nullable
-	public IClicked< ? > getClicked() {
+	public IClickBase< ? > getClicked() {
 		return m_clicked;
 	}
 
@@ -612,7 +633,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * this node and will fire when the node is clicked.
 	 * @param clicked
 	 */
-	public void setClicked(@Nullable final IClicked< ? > clicked) {
+	public void setClicked(@Nullable final IClickBase< ? > clicked) {
 		m_clicked = clicked;
 	}
 
@@ -1263,7 +1284,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Method can be used to stretch height of element to take all available free space in parent container.
 	 */
 	public void stretchHeight() {
-		appendJavascript("$(document).ready(function() {WebUI.stretchHeight('" + getActualID() + "');});");
+		appendCreateJS("$(document).ready(function() {WebUI.stretchHeight('" + getActualID() + "');});");
+		appendCreateJS("$(window).resize(function() {WebUI.stretchHeight('" + getActualID() + "');});");
 	}
 
 	@Override

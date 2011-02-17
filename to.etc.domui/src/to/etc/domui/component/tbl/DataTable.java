@@ -28,6 +28,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -37,7 +38,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class DataTable<T> extends TabularComponentBase<T> {
+public class DataTable<T> extends TabularComponentBase<T> implements ISelectionListener<T> {
 	private Table m_table = new Table();
 
 	private IRowRenderer<T> m_rowRenderer;
@@ -51,11 +52,17 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	/** When the query has 0 results this is set to the div displaying that message. */
 	private Div m_errorDiv;
 
-	//	public DataTable() {}
+	/** The items that are currently on-screen, to prevent a reload from the model when reused. */
+	final private List<T> m_visibleItemList = new ArrayList<T>();
 
-	//	public DataTable(IRowRenderer<T> r) {
-	//		m_rowRenderer = r;
-	//	}
+	/** When set, the table is in "multiselect" mode and shows checkboxes before all rows. */
+	private boolean m_multiSelectMode;
+
+	/** When T and the table has a multiselection model the checkboxes indicating selection will be rendered always, even when no selection has been made. */
+	private boolean m_showSelectionAlways;
+
+	/** When selecting, this is the last index that was used in a select click.. */
+	private int m_lastSelectionLocation = -1;
 
 	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
@@ -65,16 +72,6 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	public DataTable(@Nonnull ITableModel<T> m) {
 		super(m);
 	}
-
-	//	public DataTable(Class<T> actualClass, ITableModel<T> model, IRowRenderer<T> r) {
-	//		super(actualClass, model);
-	//		m_rowRenderer = r;
-	//	}
-	//
-	//	public DataTable(Class<T> actualClass, IRowRenderer<T> r) {
-	//		super(actualClass);
-	//		m_rowRenderer = r;
-	//	}
 
 	/**
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
@@ -104,6 +101,13 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		m_errorDiv = null;
 		setCssClass("ui-dt");
 
+		//-- Do we need to render multiselect checkboxes?
+		if(isShowSelectionAlways() || (getSelectionModel() != null && getSelectionModel().getSelectionCount() > 0)) {
+			m_multiSelectMode = getSelectionModel().isMultiSelect();
+		} else {
+			m_multiSelectMode = false;
+		}
+
 		//-- Ask the renderer for a sort order, if applicable
 		m_rowRenderer.beforeQuery(this); // ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
 
@@ -116,40 +120,23 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		}
 
 		setResults();
-		//		m_table.removeAllChildren();
-		//		add(m_table);
-		//
-		//		//-- Render the header.
-		//		THead hd = new THead();
-		//		HeaderContainer<T> hc = new HeaderContainer<T>(this);
-		//		TR tr = new TR();
-		//		tr.setCssClass("ui-dt-hdr");
-		//		hd.add(tr);
-		//		hc.setParent(tr);
-		//		m_rowRenderer.renderHeader(this, hc);
-		//		if(hc.hasContent()) {
-		//			m_table.add(hd);
-		//		} else {
-		//			hc = null;
-		//			hd = null;
-		//			tr = null;
-		//		}
-		//
-		//		//-- Render loop: add rows && ask the renderer to add columns.
-		//		m_dataBody = new TBody();
-		//		m_table.add(m_dataBody);
 
+		//-- Render the rows.
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
+		m_visibleItemList.clear();
 		int ix = m_six;
 		for(T o : list) {
+			m_visibleItemList.add(o);
 			TR tr = new TR();
 			m_dataBody.add(tr);
 			cc.setParent(tr);
 			renderRow(tr, cc, ix, o);
 			ix++;
 		}
+		appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 	}
 
+	@SuppressWarnings("deprecation")
 	private void setResults() throws Exception {
 		if(m_errorDiv != null) {
 			m_errorDiv.remove();
@@ -168,6 +155,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		tr.setCssClass("ui-dt-hdr");
 		hd.add(tr);
 		hc.setParent(tr);
+
 		renderHeader(hc);
 		if(hc.hasContent()) {
 			m_table.add(hd);
@@ -177,18 +165,33 @@ public class DataTable<T> extends TabularComponentBase<T> {
 			tr = null;
 		}
 
-		//-- Render loop: add rows && ask the renderer to add columns.
 		m_dataBody = new TBody();
 		m_table.add(m_dataBody);
-		//		b.setOverflow(Overflow.SCROLL);
-		//		b.setHeight("400px");
-		//		b.setWidth("100%");
+	}
+
+	/**
+	 * DO NOT OVERRIDE - INTERNAL ONLY - DEPRECATED FOR EXTERNAL USE!!
+	 *
+	 * Renders the table header. If we're in multiselect mode the first column will be
+	 * added as a checkbox column. The rest of the columns is delegated to the row
+	 * renderer in use.
+	 *
+	 * @param hc specified header container
+	 * @throws Exception
+	 */
+	@Deprecated
+	void renderHeader(@Nonnull HeaderContainer<T> hc) throws Exception {
+		//-- Are we rendering a multi-selection?
+		if(m_multiSelectMode)
+			hc.add(new Img("THEME/dspcb-on.png"));
+		m_rowRenderer.renderHeader(this, hc);
 	}
 
 	/**
 	 * Removes any data table, and presents the "no results found" div.
 	 */
 	private void setNoResults() {
+		m_visibleItemList.clear();
 		if(m_errorDiv != null)
 			return;
 
@@ -205,21 +208,300 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		return;
 	}
 
-	//	private void updateResults(int count) throws Exception {
-	//		if(count == 0)
-	//			setNoResults();
-	//		else
-	//			setResults();
-	//	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Row rendering & select click handling.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * DO NOT OVERRIDE - DEPRECATED FOR EXTERNAL USE!!
+	 * Renders row content into specified row.
+	 *
+	 * @param cc
+	 * @param index
+	 * @param value
+	 * @throws Exception
+	 */
+	private void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable final T value) throws Exception {
+		//-- Is a rowclick handler needed?
+		if(m_rowRenderer.getRowClicked() != null || null != getSelectionModel()) {
+			//-- Add a click handler to select or pass the rowclicked event.
+			cc.getTR().setClicked(new IClicked2<TR>() {
+				@Override
+				@SuppressWarnings({"synthetic-access"})
+				public void clicked(TR b, ClickInfo clinfo) throws Exception {
+					handleRowClick(b, value, clinfo);
+				}
+			});
+			cc.getTR().addCssClass("ui-rowsel");
+		}
+
+		//-- If we're in multiselect mode show the select boxes
+		if(m_multiSelectMode) {
+			Checkbox cb = new Checkbox();
+			cc.add(cb);
+			cb.setClicked(new IClicked2<Checkbox>() {
+				@Override
+				public void clicked(Checkbox clickednode, ClickInfo info) throws Exception {
+					selectionCheckboxClicked(value, clickednode.isChecked(), info);
+				}
+			});
+			boolean issel = getSelectionModel().isSelected(value);
+			cb.setChecked(issel);
+			if(issel)
+				tr.addCssClass("mselected");
+			else
+				tr.removeCssClass("mselected");
+		}
+		internalRenderRow(tr, cc, index, value);
+	}
+
+	/**
+	 * Must exist for CheckBoxDataTable; remove asap AND DO NOT USE AGAIN - internal interfaces should remain hidden.
+	 * @param tr
+	 * @param cc
+	 * @param index
+	 * @param value
+	 * @throws Exception
+	 */
+	@Deprecated
+	void internalRenderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable final T value) throws Exception {
+		m_rowRenderer.renderRow(this, cc, index, value);
+	}
+
+	/**
+	 * Click handler for rows. This handles both row clicked handling and row selection handling.
+	 *
+	 * @param tbl
+	 * @param b
+	 * @param instance
+	 * @param clinfo
+	 * @throws Exception
+	 */
+	private void handleRowClick(final TR b, final T instance, final ClickInfo clinfo) throws Exception {
+		//-- If we have a selection model: check if this is some selecting clicky.
+		if(getSelectionModel() != null) {
+			//-- Treat clicks with ctrl or shift as selection clickies
+			if(clinfo.isControl() || clinfo.isShift()) {
+				handleSelectClicky(instance, clinfo, null);
+				return; // Do NOT fire on selection clickies.
+			}
+		}
+
+		//-- If this has a click handler- fire it.
+		if(null != m_rowRenderer.getRowClicked())
+			((ICellClicked<T>) m_rowRenderer.getRowClicked()).cellClicked(b, instance);
+	}
+
+	/**
+	 * When checkbox itself is clicked, this handles shift stuff.
+	 * @param instance
+	 * @param checked
+	 * @param info
+	 * @throws Exception
+	 */
+	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info) throws Exception {
+		handleSelectClicky(instance, info, Boolean.valueOf(checked));
+	}
+
+	/**
+	 * Handle a click that is meant to select/deselect the item(s). It handles ctrl+click as "toggle selection",
+	 * and shift+click as "toggle everything between this and the last one".
+	 *
+	 * @param instance
+	 * @param clinfo
+	 * @param setTo		When null toggle, else set to specific.
+	 */
+	private void handleSelectClicky(@Nullable T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
+		boolean nvalue = setTo != null ? setTo.booleanValue() : !getSelectionModel().isSelected(instance);
+
+		if(!clinfo.isShift()) {
+			getSelectionModel().setInstanceSelected(instance, nvalue);
+			m_lastSelectionLocation = -1;
+			return;
+		}
+
+		//-- Toggle region. Get the current item's index.
+		int itemindex = -1, index = 0;
+		for(T item : m_visibleItemList) {
+			if(MetaManager.areObjectsEqual(item, instance)) {
+				itemindex = index;
+				break;
+			}
+			index++;
+		}
+		if(itemindex == -1) // Ignore when thingy not found
+			return;
+		itemindex += m_six;
+
+		//-- Is a previous location set? If not: just toggle the current and retain the location.
+		if(m_lastSelectionLocation == -1) {
+			//-- Start of region....
+			m_lastSelectionLocation = itemindex;
+			getSelectionModel().setInstanceSelected(instance, !getSelectionModel().isSelected(instance));
+			return;
+		}
+
+		//-- We have a previous location- we need to toggle all instances;
+		int sl, el;
+		if(m_lastSelectionLocation < itemindex) {
+			sl = m_lastSelectionLocation + 1; // Exclusive
+			el = itemindex + 1;
+		} else {
+			sl = itemindex;
+			el = m_lastSelectionLocation; // Exclusive
+		}
+
+		//-- Now toggle all instances, in batches, to prevent loading 1000+ records that cannot be gc'd.
+		index = sl;
+
+		for(int i = sl; i < el;) {
+			int ex = i + 50;
+			if(ex > el)
+				ex = el;
+
+			List<T> sub = getModel().getItems(i, ex);
+			i += ex;
+
+			for(T item: sub)
+				getSelectionModel().setInstanceSelected(item, !getSelectionModel().isSelected(item));
+		}
+		m_lastSelectionLocation = -1;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Selection UI update handling.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Updates the "selection" state of the specified local row#.
+	 * @param instance
+	 * @param i
+	 * @param on
+	 */
+	private void updateSelectionChanged(T instance, int lrow, boolean on) throws Exception {
+		if(getSelectionModel() == null)
+			throw new IllegalStateException("No selection model!?");
+		TR row = (TR) m_dataBody.getChild(lrow);
+		THead head = m_table.getHead();
+		if(null == head)
+			throw new IllegalStateException("I've lost my head!?");
+
+		TR headerrow = (TR) head.getChild(0);
+		if(!getSelectionModel().isMultiSelect()) {
+			//-- Single selection model. Just add/remove the "selected" class from the row.
+			if(on)
+				row.addCssClass("selected");
+			else
+				row.removeCssClass("selected");
+			return;
+		}
+
+		/*
+		 * In multiselect. If the multiselect UI is not visible we check if we are switching
+		 * ON, else there we can exit. If we switch ON we add the multiselect UI if not
+		 * yet present. Then we set/reset the checkbox for the row.
+		 */
+		if(!m_multiSelectMode) {
+			if(!on) // No UI yet, but this is a deselect so let it be
+				return;
+
+			//-- Render the multiselect UI: add the header cell and row cells.
+			createMultiselectUI(headerrow);
+		}
+
+		//-- The checkbox is in cell0; get it and change it's value if (still) needed
+		TD td = (TD) row.getChild(0);
+		Checkbox cb = (Checkbox) td.getChild(0);
+		if(cb.isChecked() != on) // Only change if not already correct
+			cb.setChecked(on);
+		if(on)
+			row.addCssClass("mselected");
+		else
+			row.removeCssClass("mselected");
+	}
+
+	/**
+	 * Make the multiselect UI for all visible rows and the header.
+	 */
+	private void createMultiselectUI(TR headerrow) {
+		if(m_multiSelectMode)
+			return;
+		m_multiSelectMode = true;
+
+		//-- 1. Add the select TH.
+		TD th = new TH();
+		th.add(new Img("THEME/dspcb-on.png"));
+		headerrow.add(0, th);
+
+		//-- 2. Insert a checkbox in all rows.
+		for(int i = 0; i < m_dataBody.getChildCount(); i++) {
+			final T instance = m_visibleItemList.get(i);
+			TR tr = (TR) m_dataBody.getChild(i);
+			TD td = new TD();
+			tr.add(0, td);
+
+			Checkbox cb = new Checkbox();
+			td.add(cb);
+			cb.setClicked(new IClicked2<Checkbox>() {
+				@Override
+				public void clicked(Checkbox clickednode, ClickInfo clinfo) throws Exception {
+					selectionCheckboxClicked(instance, clickednode.isChecked(), clinfo);
+				}
+			});
+			cb.setChecked(false);
+		}
+
+		fireSelectionUIChanged();
+	}
+
+	/**
+	 * When T and a selection model in multiselect mode is present, this causes the
+	 * checkboxes to be rendered initially even when no selection is made.
+	 * @return
+	 */
+	public boolean isShowSelectionAlways() {
+		return m_showSelectionAlways;
+	}
+
+	public boolean isMultiSelectionVisible() {
+		return m_multiSelectMode;
+	}
+
+	/**
+	 * When T and a selection model in multiselect mode is present, this causes the
+	 * checkboxes to be rendered initially even when no selection is made.
+	 * @param showSelectionAlways
+	 */
+	public void setShowSelectionAlways(boolean showSelectionAlways) {
+		if(m_showSelectionAlways == showSelectionAlways)
+			return;
+		m_showSelectionAlways = showSelectionAlways;
+		if(!isBuilt() || m_multiSelectMode || getSelectionModel() == null || !getSelectionModel().isMultiSelect())
+			return;
+
+		THead head = m_table.getHead();
+		if(null == head)
+			throw new IllegalStateException("I've lost my head!?");
+
+		TR headerrow = (TR) head.getChild(0);
+		createMultiselectUI(headerrow);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Dumbass setters and getters.						*/
 	/*--------------------------------------------------------------*/
+	/**
+	 * Return the page size: the #of records to show. If &lt;= 0 all records are shown.
+	 */
 	@Override
 	public int getPageSize() {
 		return m_pageSize;
 	}
 
+	/**
+	 * Set the page size: the #of records to show. If &lt;= 0 all records are shown.
+	 *
+	 * @param pageSize
+	 */
 	public void setPageSize(int pageSize) {
 		if(m_pageSize == pageSize)
 			return;
@@ -230,7 +512,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	TableModelListener implementation					*/
+	/*	CODING:	ITableModelListener implementation					*/
 	/*--------------------------------------------------------------*/
 	/**
 	 * Called when there are sweeping changes to the model. It forces a complete re-render of the table.
@@ -238,28 +520,6 @@ public class DataTable<T> extends TabularComponentBase<T> {
 	@Override
 	public void modelChanged(@Nullable ITableModel<T> model) {
 		forceRebuild();
-	}
-
-	/**
-	 * Renders row content into specified row.
-	 * It can be overriden if some specific content rendering is needed in sub class.
-	 * @param cc
-	 * @param index
-	 * @param value
-	 * @throws Exception
-	 */
-	protected void renderRow(@Nonnull TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable T value) throws Exception {
-		m_rowRenderer.renderRow(this, cc, index, value);
-	}
-
-	/**
-	 * Renders row header into specified header container.
-	 * It can be overriden if some specific content rendering is needed in sub class.
-	 * @param hc specified header container
-	 * @throws Exception
-	 */
-	protected void renderHeader(@Nonnull HeaderContainer<T> hc) throws Exception {
-		m_rowRenderer.renderHeader(this, hc);
 	}
 
 	/**
@@ -288,12 +548,15 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		cc.setParent(tr);
 		renderRow(tr, cc, index, value);
 		m_dataBody.add(rrow, tr);
+		m_visibleItemList.add(rrow, value);
 
 		//-- Is the size not > the page size?
 		if(m_pageSize > 0 && m_dataBody.getChildCount() > m_pageSize) {
 			//-- Delete the last row.
 			m_dataBody.removeChild(m_dataBody.getChildCount() - 1); // Delete last element
 		}
+		while(m_visibleItemList.size() > m_pageSize)
+			m_visibleItemList.remove(m_visibleItemList.size() - 1);
 	}
 
 	/**
@@ -311,6 +574,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 			return;
 		int rrow = index - m_six; // This is the location within the child array
 		m_dataBody.removeChild(rrow); // Discard this one;
+		m_visibleItemList.remove(rrow);
 		if(m_dataBody.getChildCount() == 0) {
 			setNoResults();
 			return;
@@ -324,6 +588,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 			cc.setParent(tr);
 			renderRow(tr, cc, peix, getModelItem(peix));
 			m_dataBody.add(m_pageSize - 1, tr);
+			m_visibleItemList.add(m_pageSize - 1, value);
 		}
 	}
 
@@ -341,6 +606,7 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		int rrow = index - m_six; // This is the location within the child array
 		TR tr = (TR) m_dataBody.getChild(rrow); // The visible row there
 		tr.removeAllChildren(); // Discard current contents.
+		m_visibleItemList.set(rrow, value);
 
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		cc.setParent(tr);
@@ -360,6 +626,67 @@ public class DataTable<T> extends TabularComponentBase<T> {
 		if(DomUtil.isEqual(m_rowRenderer, rowRenderer))
 			return;
 		m_rowRenderer = rowRenderer;
+		forceRebuild();
+	}
+
+	@Override
+	protected void onForceRebuild() {
+		m_visibleItemList.clear();
+		m_lastSelectionLocation = -1;
+		super.onForceRebuild();
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	ISelectionListener.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Called when a selection event fires. The underlying model has already been changed. It
+	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
+	 * it's selection presentation.
+	 *
+	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionChanged(java.lang.Object, boolean)
+	 */
+	public void selectionChanged(T row, boolean on) throws Exception {
+		//-- Is this a visible row?
+		for(int i = 0; i < m_visibleItemList.size(); i++) {
+			if(MetaManager.areObjectsEqual(row, m_visibleItemList.get(i))) {
+				updateSelectionChanged(row, i, on);
+				return;
+			}
+		}
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handling selections.								*/
+	/*--------------------------------------------------------------*/
+	/** If this table allows selection of rows, this model maintains the selections. */
+	@Nullable
+	private ISelectionModel<T> m_selectionModel;
+
+	/**
+	 * Return the model used for table selections, if applicable.
+	 * @return
+	 */
+	@Nullable
+	public ISelectionModel<T> getSelectionModel() {
+		return m_selectionModel;
+	}
+
+	/**
+	 * Set the model to maintain selections, if this table allows selections.
+	 *
+	 * @param selectionModel
+	 */
+	public void setSelectionModel(@Nullable ISelectionModel<T> selectionModel) {
+		if(DomUtil.isEqual(m_selectionModel, selectionModel))
+			return;
+		if(m_selectionModel != null)
+			m_selectionModel.removeListener(this);
+		m_selectionModel = selectionModel;
+		if(null != selectionModel) {
+			selectionModel.addListener(this);
+		}
+		m_lastSelectionLocation = -1;
 		forceRebuild();
 	}
 }
