@@ -717,7 +717,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	public void selectionAllChanged() throws Exception {
 		//-- Is this a visible row?
 		for(int i = 0; i < m_visibleItemList.size(); i++) {
-			updateSelectionChanged(m_visibleItemList.get(i), i, false);
+			T item = m_visibleItemList.get(i);
+			updateSelectionChanged(item, i, getSelectionModel().isSelected(item));
 		}
 	}
 }
