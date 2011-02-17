@@ -19,4 +19,9 @@ abstract public class AbstractSelectionModel<T> implements ISelectionModel<T> {
 		for(ISelectionListener<T> sl : m_listeners)
 			sl.selectionChanged(item, on);
 	}
+
+	protected void callSelectionCleared() throws Exception {
+		for(ISelectionListener<T> sl : m_listeners)
+			sl.selectionCleared();
+	}
 }

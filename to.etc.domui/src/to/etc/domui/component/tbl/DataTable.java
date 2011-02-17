@@ -689,4 +689,19 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		m_lastSelectionLocation = -1;
 		forceRebuild();
 	}
+
+	/**
+	 * Called when a selection cleared event fires. The underlying model has already been changed. It
+	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
+	 * it's selection presentation.
+	 *
+	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionCleared(java.lang.Object, boolean)
+	 */
+	@Override
+	public void selectionCleared() throws Exception {
+		//-- Is this a visible row?
+		for(int i = 0; i < m_visibleItemList.size(); i++) {
+			updateSelectionChanged(m_visibleItemList.get(i), i, false);
+		}
+	}
 }
