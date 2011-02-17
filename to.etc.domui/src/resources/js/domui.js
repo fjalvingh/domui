@@ -11,10 +11,10 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 		processDoc(xml);
 	};
 
-	if($().jquery === "1.4.1") {
-		$.expr[':'].taconiteTag = function(a) { return a.taconiteTag === 1; };
-	} else {
+	if($().jquery === "1.2.6") {
 		$.expr[':'].taconiteTag = 'a.taconiteTag';
+	} else {
+		$.expr[':'].taconiteTag = function(a) { return a.taconiteTag === 1; };
 	}
 
 	// add 'replace' and 'replaceContent' plugins (conditionally)

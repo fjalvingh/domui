@@ -195,7 +195,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private void renderSelectionExtras() {
 		final ISelectableTableComponent sti = getSelectableTable();
-		if(null == sti || m_buttonDiv == null)
+		if(null == sti || m_buttonDiv == null || !sti.isMultiSelectionVisible())
 			return;
 
 		if(null != sti.getSelectionAllHandler()) {
