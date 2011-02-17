@@ -664,6 +664,21 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	@Nullable
 	private ISelectionModel<T> m_selectionModel;
 
+	@Nullable
+	private ISelectionAllHandler m_selectionAllHandler;
+
+	@Nullable
+	public ISelectionAllHandler getSelectionAllHandler() {
+		return m_selectionAllHandler;
+	}
+
+	public void setSelectionAllHandler(@Nullable ISelectionAllHandler selectionAllHandler) {
+		if(m_selectionAllHandler == selectionAllHandler)
+			return;
+		m_selectionAllHandler = selectionAllHandler;
+		fireSelectionUIChanged();
+	}
+
 	/**
 	 * Return the model used for table selections, if applicable.
 	 * @return
@@ -699,7 +714,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionCleared(java.lang.Object, boolean)
 	 */
 	@Override
-	public void selectionCleared() throws Exception {
+	public void selectionAllChanged() throws Exception {
 		//-- Is this a visible row?
 		for(int i = 0; i < m_visibleItemList.size(); i++) {
 			updateSelectionChanged(m_visibleItemList.get(i), i, false);

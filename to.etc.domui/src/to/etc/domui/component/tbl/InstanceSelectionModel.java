@@ -64,7 +64,22 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		if(m_selectedSet.size() == 0)
 			return;
 		m_selectedSet.clear();
-		callSelectionCleared();
+		callSelectionAllChanged();
+	}
+
+	@Override
+	public void selectAll(ITableModel<T> in) throws Exception {
+		int index = 0;
+		int rows = in.getRows();
+		while(index < rows) {
+			int eix = index + 50;
+			if(eix > rows)
+				eix = rows;
+			List<T> itemlist = in.getItems(index, eix);
+			m_selectedSet.addAll(itemlist);
+			index = eix;
+		}
+		callSelectionAllChanged();
 	}
 
 	@Override

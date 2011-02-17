@@ -20,9 +20,8 @@ public interface ISelectionListener<T> {
 	void selectionChanged(@Nonnull T row, boolean on) throws Exception;
 
 	/**
-	 * Notification that the entire selection on a ISelectionModel is cleared.
+	 * Notification that the entire selection on a ISelectionModel is cleared or set: rewrite all shown rows.
 	 * @throws Exception
 	 */
-	void selectionCleared() throws Exception;
-
+	void selectionAllChanged() throws Exception;
 }

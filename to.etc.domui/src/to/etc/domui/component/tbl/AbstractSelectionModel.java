@@ -28,8 +28,8 @@ abstract public class AbstractSelectionModel<T> implements ISelectionModel<T> {
 			sl.selectionChanged(item, on);
 	}
 
-	protected void callSelectionCleared() throws Exception {
+	protected void callSelectionAllChanged() throws Exception {
 		for(ISelectionListener<T> sl : m_listeners)
-			sl.selectionCleared();
+			sl.selectionAllChanged();
 	}
 }

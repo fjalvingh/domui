@@ -194,11 +194,24 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	}
 
 	private void renderSelectionExtras() {
-		SmallImgButton sb = new SmallImgButton("THEME/dpr-select-all.png");
-		m_buttonDiv.add(sb);
-		sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
+		final ISelectableTableComponent sti = getSelectableTable();
+		if(null == sti)
+			return;
 
-		sb = new SmallImgButton("THEME/dpr-select-none.png");
+		if(null != sti.getSelectionAllHandler()) {
+			SmallImgButton sb = new SmallImgButton("THEME/dpr-select-all.png");
+			m_buttonDiv.add(sb);
+			sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
+			sb.setClicked(new IClicked<SmallImgButton>() {
+				@Override
+				public void clicked(SmallImgButton clickednode) throws Exception {
+					sti.getSelectionAllHandler().selectAll(sti.getModel(), sti.getSelectionModel());
+				}
+			});
+
+		}
+
+		SmallImgButton sb = new SmallImgButton("THEME/dpr-select-none.png");
 		m_buttonDiv.add(sb);
 		sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.none"));
 		sb.setClicked(new IClicked<SmallImgButton>() {
