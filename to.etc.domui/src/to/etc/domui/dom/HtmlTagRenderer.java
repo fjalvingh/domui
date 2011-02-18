@@ -904,6 +904,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 * Render the basic input tag.
 	 * @see to.etc.domui.dom.html.INodeVisitor#visitInput(to.etc.domui.dom.html.Input)
 	 */
+	@SuppressWarnings("deprecation")
 	@Override
 	public void visitCheckbox(final Checkbox n) throws Exception {
 		basicNodeRender(n, m_o, true);

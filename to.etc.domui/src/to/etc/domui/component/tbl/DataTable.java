@@ -38,7 +38,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class DataTable<T> extends TabularComponentBase<T> implements ISelectionListener<T> {
+public class DataTable<T> extends TabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	private Table m_table = new Table();
 
 	private IRowRenderer<T> m_rowRenderer;
@@ -221,6 +221,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param value
 	 * @throws Exception
 	 */
+	@SuppressWarnings("deprecation")
 	private void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable final T value) throws Exception {
 		//-- Is a rowclick handler needed?
 		if(m_rowRenderer.getRowClicked() != null || null != getSelectionModel()) {
@@ -471,7 +472,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * checkboxes to be rendered initially even when no selection is made.
 	 * @param showSelectionAlways
 	 */
-	public void setShowSelectionAlways(boolean showSelectionAlways) {
+	public void setShowSelection(boolean showSelectionAlways) {
 		if(m_showSelectionAlways == showSelectionAlways)
 			return;
 		m_showSelectionAlways = showSelectionAlways;
@@ -663,6 +664,21 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	@Nullable
 	private ISelectionModel<T> m_selectionModel;
 
+	@Nullable
+	private ISelectionAllHandler m_selectionAllHandler;
+
+	@Nullable
+	public ISelectionAllHandler getSelectionAllHandler() {
+		return m_selectionAllHandler;
+	}
+
+	public void setSelectionAllHandler(@Nullable ISelectionAllHandler selectionAllHandler) {
+		if(m_selectionAllHandler == selectionAllHandler)
+			return;
+		m_selectionAllHandler = selectionAllHandler;
+		fireSelectionUIChanged();
+	}
+
 	/**
 	 * Return the model used for table selections, if applicable.
 	 * @return
@@ -688,5 +704,21 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		}
 		m_lastSelectionLocation = -1;
 		forceRebuild();
+	}
+
+	/**
+	 * Called when a selection cleared event fires. The underlying model has already been changed. It
+	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
+	 * it's selection presentation.
+	 *
+	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionCleared(java.lang.Object, boolean)
+	 */
+	@Override
+	public void selectionAllChanged() throws Exception {
+		//-- Is this a visible row?
+		for(int i = 0; i < m_visibleItemList.size(); i++) {
+			T item = m_visibleItemList.get(i);
+			updateSelectionChanged(item, i, getSelectionModel().isSelected(item));
+		}
 	}
 }
