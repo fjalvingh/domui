@@ -1295,7 +1295,7 @@ li.ui-tab-err {
 
 /*** Body element ***/
 body,html {
-	background: url(bg-body.png) repeat-x;
+/*	background: url(bg-body.png) repeat-x;  jal 20110218 This cannot be present when background-color is color-replaced. */
 	background-color: <%= bg_color %>;
 	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 	margin: 0px;
