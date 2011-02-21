@@ -417,7 +417,7 @@ public class LookupInput<T> extends Table implements IInputNode<T>, IHasModified
 		}
 		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(m_lookupClass);
 
-		lf.setRenderAsCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
+		lf.setCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		m_floater.add(lf);
 		m_floater.setOnClose(new IClicked<FloatingWindow>() {

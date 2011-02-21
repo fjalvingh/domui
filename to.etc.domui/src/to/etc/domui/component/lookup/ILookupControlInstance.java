@@ -53,13 +53,7 @@ public interface ILookupControlInstance {
 	 * Sets the input(s) to disabled state. 
 	 * @param disabled
 	 */
-	public void setDisabled(Boolean disabled);
-
-	/**
-	 * Returns the disabled state of input(s).
-	 * @return
-	 */
-	public Boolean isDisabled();
+	public void setDisabled(boolean disabled);
 
 	/**
 	 * When called this should clear all data input into the control instances, causing them to

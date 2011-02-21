@@ -71,16 +71,17 @@ public class LookupForm<T> extends Div {
 
 	private Div m_content;
 
-	private NodeContainer m_collapsed;
+	private NodeContainer m_collapsedPanel;
 
 	private NodeContainer m_buttonRow;
 
 	private ControlBuilder m_builder;
 
 	/**
-	 * Set to true in case that control have to be rendered as collapsed by default. It is used when lookup form have to popup with initial search results already shown.
+	 * T in case that control is rendered as collapsed (meaning that search panel is hidden).
+	 * It is usually used when lookup form have to popup with initial search results already shown.
 	 */
-	private boolean m_renderAsCollapsed;
+	private boolean m_collapsed;
 
 	/**
 	 * Calculated by entered search criterias, T in case that exists any field resulting with {@link AppendCriteriaResult#VALID} in LookupForm fields.
@@ -88,12 +89,12 @@ public class LookupForm<T> extends Div {
 	private boolean m_hasUserDefinedCriteria;
 
 	/**
-	 * After restore action on LookupForm.    
+	 * After restore action on LookupForm.
 	 */
 	private IClicked<NodeBase> m_onAfterRestore;
 
 	/**
-	 * After collpase action on LookupForm.    
+	 * After collpase action on LookupForm.
 	 */
 	private IClicked<NodeBase> m_onAfterCollapse;
 
@@ -108,6 +109,29 @@ public class LookupForm<T> extends Div {
 	 * Created on Jul 31, 2009
 	 */
 	public static class Item implements SearchPropertyMetaModel {
+		/**
+		 * FIXME jal 20110221 I want to discuss this because I do not understand it's treestate nature.
+		 *
+		 * Determines behavior of inputs inside one lookup field definition. Used internally to persists state of inputs that is changed in runtime.
+		 *
+		 * @author <a href="mailto:imilovanovic@execom.eu">Igor Milovanović</a>
+		 * Created on Feb 21, 2011
+		 */
+		enum InputBehaviorType {
+			/**
+			 * Unchanged behavior.
+			 */
+			DEFAULT,
+			/**
+			 * Force all input controls for certain lookup field to become enabled for user input.
+			 */
+			FORCE_ENABLED,
+			/**
+			 * Force all input controls for certain lookup field to become disabled for user input.
+			 */
+			FORCE_DISABLED;
+		}
+
 		private String m_propertyName;
 
 		private List<PropertyMetaModel> m_propertyPath;
@@ -127,6 +151,8 @@ public class LookupForm<T> extends Div {
 		private int m_order;
 
 		private String testId;
+
+		private InputBehaviorType m_inputsBehavior = InputBehaviorType.DEFAULT;
 
 		public String getPropertyName() {
 			return m_propertyName;
@@ -237,12 +263,17 @@ public class LookupForm<T> extends Div {
 			this.testId = testId;
 		}
 
-		public void setDisabled(Boolean disabled) {
+		public void setDisabled(boolean disabled) {
+			m_inputsBehavior = disabled ? InputBehaviorType.FORCE_DISABLED : InputBehaviorType.FORCE_ENABLED;
 			m_instance.setDisabled(disabled);
 		}
 
-		public Boolean isDisabled() {
-			return m_instance.isDisabled();
+		public boolean isForcedDisabled() {
+			return m_inputsBehavior == InputBehaviorType.FORCE_DISABLED;
+		}
+
+		public boolean isForcedEnabled() {
+			return m_inputsBehavior == InputBehaviorType.FORCE_ENABLED;
 		}
 
 		public void clear() {
@@ -386,10 +417,10 @@ public class LookupForm<T> extends Div {
 		m_buttonRow = d;
 
 		//20091127 vmijic - since LookupForm can be reused each new rebuild should execute restore if previous state of form was collapsed.
-		//20100118 vmijic - since LookupForm can be by default rendered as collapsed checks m_renderAsCollapsed are added.
-		if(!m_renderAsCollapsed && m_collapsed != null) {
+		//20100118 vmijic - since LookupForm can be by default rendered as collapsed check for m_collapsed is added.
+		if(!m_collapsed && m_collapsedPanel != null) {
 			restore();
-		} else if(m_renderAsCollapsed && m_content.getDisplay() != DisplayType.NONE) {
+		} else if(m_collapsed && m_content.getDisplay() != DisplayType.NONE) {
 			collapse();
 			//Focus must be set, otherwise IE reports javascript problem since focus is requested on not displayed input tag.
 			if(m_cancelBtn != null) {
@@ -455,18 +486,19 @@ public class LookupForm<T> extends Div {
 
 	/**
 	 * This hides the search panel and adds a small div containing only the (optional) new and restore buttons.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	void collapse() throws Exception {
-		if(isCollapsed())
+		if((m_content.getDisplay() == DisplayType.NONE))
 			return;
 		//		appendJavascript("$('#" + m_content.getActualID() + "').slideUp();");
 		m_content.slideUp();
 
 		//		m_content.setDisplay(DisplayType.NONE);
-		m_collapsed = new Div();
-		m_collapsed.setCssClass("ui-lf-coll");
-		add(m_collapsed);
+		m_collapsedPanel = new Div();
+		m_collapsedPanel.setCssClass("ui-lf-coll");
+		add(m_collapsedPanel);
+		m_collapsed = true;
 
 		//-- Collapse button thingy
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
@@ -475,22 +507,18 @@ public class LookupForm<T> extends Div {
 				restore();
 			}
 		});
-		createButtonRow(m_collapsed, true);
-		//trigger after collapse event is set 
+		createButtonRow(m_collapsedPanel, true);
+		//trigger after collapse event is set
 		if(getOnAfterCollapse() != null) {
 			getOnAfterCollapse().clicked(this);
 		}
 	}
 
-	public boolean isCollapsed() {
-		return (m_content.getDisplay() == DisplayType.NONE);
-	}
-
 	void restore() throws Exception {
-		if(m_collapsed == null)
+		if(m_collapsedPanel == null)
 			return;
-		m_collapsed.remove();
-		m_collapsed = null;
+		m_collapsedPanel.remove();
+		m_collapsedPanel = null;
 		createButtonRow(m_buttonRow, false);
 
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
@@ -501,8 +529,9 @@ public class LookupForm<T> extends Div {
 		});
 
 		m_content.setDisplay(DisplayType.BLOCK);
+		m_collapsed = false;
 
-		//trigger after restore event is set 
+		//trigger after restore event is set
 		if(getOnAfterRestore() != null) {
 			getOnAfterRestore().clicked(this);
 		}
@@ -728,6 +757,12 @@ public class LookupForm<T> extends Div {
 		if(!DomUtil.isBlank(it.getErrorLocation()) ) {
 			for(NodeBase ic : it.getInstance().getInputControls())
 				ic.setErrorLocation(it.getErrorLocation());
+		}
+
+		if(it.isForcedDisabled()) {
+			it.getInstance().setDisabled(true);
+		} else if(it.isForcedEnabled()) {
+			it.getInstance().setDisabled(false);
 		}
 
 		//-- Assign test id. If single control is created, testId as it is will be applied,
@@ -1056,19 +1091,10 @@ public class LookupForm<T> extends Div {
 		}
 	}
 
-	public boolean isRenderAsCollapsed() {
-		return m_renderAsCollapsed;
-	}
-
-	public void setRenderAsCollapsed(boolean renderAsCollapsed) {
-		m_renderAsCollapsed = renderAsCollapsed;
-	}
-
 	/**
+	 * Method {@link LookupForm#getEnteredCriteria} MUST BE EXECUTED BEFORE checking for this property value!
 	 * This is T when the user has actually entered something in one of the search components. Any restriction
 	 * that has been added by code that is not depending on user input is ignored.
-	 *
-	 * Method {@link LookupForm#getEnteredCriteria} MUST BE EXECUTED BEFORE checking for this property value!
 	 * @return
 	 */
 	public boolean hasUserDefinedCriteria() {
@@ -1076,27 +1102,41 @@ public class LookupForm<T> extends Div {
 	}
 
 	/**
-	 * Use to collpase/restore LookupForm search pannel.
-	 * In case that it is used while component is already built it would execute collapse/restore events, otherwise it would set {@link LookupForm#m_renderAsCollapsed} flag.
-	 *  
+	 * Returns if LookupForm is collapsed.
+	 * See {@link Lookuporm#m_collapsed}.
+	 *
+	 * @return
+	 */
+	public boolean isCollapsed() {
+		return m_collapsed;
+	}
+
+	/**
+	 * Use to collapse/restore LookupForm search pannel.
+	 * See {@link Lookuporm#m_collapsed}.
+	 *
 	 * @param collapsed
 	 * @throws Exception
 	 */
 	public void setCollapsed(boolean collapsed) throws Exception {
+		if(m_collapsed == collapsed)
+			return;
+		if(!isBuilt()) {
+			m_collapsed = collapsed;
+			return;
+		}
 		if(isBuilt()) {
 			if(collapsed) {
 				collapse();
 			} else {
 				restore();
 			}
-		} else {
-			m_renderAsCollapsed = collapsed;
 		}
 	}
 
 	/**
 	 * Returns listener to after restore event.
-	 * 
+	 *
 	 * @return the onAfterRestore
 	 */
 	public IClicked<NodeBase> getOnAfterRestore() {
@@ -1105,7 +1145,7 @@ public class LookupForm<T> extends Div {
 
 	/**
 	 * Attach listener to after restore event.
-	 * 
+	 *
 	 * @param onAfterRestore the onAfterRestore to set
 	 */
 	public void setOnAfterRestore(IClicked<NodeBase> onAfterRestore) {
@@ -1114,7 +1154,7 @@ public class LookupForm<T> extends Div {
 
 	/**
 	 * Returns listener to after collapse event.
-	 * 
+	 *
 	 * @return the onAfterCollpase
 	 */
 	public IClicked<NodeBase> getOnAfterCollapse() {
@@ -1123,7 +1163,7 @@ public class LookupForm<T> extends Div {
 
 	/**
 	 * Attach listener to after collpase event.
-	 * 
+	 *
 	 * @param onAfterCollapse the onAfterCollapse to set
 	 */
 	public void setOnAfterCollapse(IClicked<NodeBase> onAfterCollapse) {
