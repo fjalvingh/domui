@@ -5,7 +5,7 @@ import javax.annotation.*;
 public interface ISelectableTableComponent<T> {
 	boolean isMultiSelectionVisible();
 
-	void setShowSelection(boolean on);
+	void setShowSelection(boolean on) throws Exception;
 
 	@Nonnull
 	ITableModel<T> getModel();
