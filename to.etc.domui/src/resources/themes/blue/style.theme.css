@@ -74,8 +74,8 @@ select {
 
 .ui-atl-i {
 	background-color: <%= header_bg %>;
-	padding-right: 25px;
-	padding-left: 15px;
+	padding-right: 10px;
+	padding-left: 5px;
 }
 
 .ui-atl-t {
