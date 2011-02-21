@@ -9,7 +9,7 @@ import java.io.*;
  * Created on Oct 28, 2009
  */
 public class TextReaderBase {
-	static private final int	MAX_QUEUE_LENGTH	= 10;
+	static private final int	MAX_QUEUE_LENGTH	= 1024;
 
 	/** An opague source object used for reporting the source "file" or whatever */
 	private Object				m_src;
