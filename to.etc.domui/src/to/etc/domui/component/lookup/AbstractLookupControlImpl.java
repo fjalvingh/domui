@@ -14,7 +14,7 @@ import to.etc.webapp.query.*;
 abstract public class AbstractLookupControlImpl implements ILookupControlInstance {
 	private NodeBase[] m_nodes;
 
-	private Boolean m_disabled;
+	private InputState m_inputState = InputState.DEFAULT;
 
 	abstract public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception;
 
@@ -54,25 +54,53 @@ abstract public class AbstractLookupControlImpl implements ILookupControlInstanc
 	 *
 	 * @see to.etc.domui.component.lookup.ILookupControlInstance#setDisabled(Boolean))
 	 */
-	public void setDisabled(Boolean disabled) {
-		if(disabled == null) {
+	public void setDisabled(boolean disabled) {
+		setInputState(disabled ? InputState.FORCE_DISABLED : InputState.FORCE_EDITABLE);
+	}
+
+	/**
+	 * @see to.etc.domui.component.lookup.ILookupControlInstance#isDisabled()
+	 */
+	public boolean isDisabled() {
+		return InputState.FORCE_DISABLED == getInputState();
+	}
+
+	/**
+	 * @return the inputState
+	 */
+	public InputState getInputState() {
+		return m_inputState;
+	}
+
+	/**
+	 * @param inputState the inputState to set
+	 */
+	private void setInputState(InputState inputState) {
+		if(inputState == null || inputState == InputState.DEFAULT || inputState == getInputState()) {
 			return;
 		}
 		boolean done = false;
 		if(m_nodes != null) {
 			for(NodeBase m_node : m_nodes) {
 				if(m_node instanceof IInputNode< ? >) {
-					((IInputNode< ? >) m_node).setDisabled(disabled.booleanValue());
-					done = true;
+					switch(inputState){
+						case FORCE_EDITABLE:
+							((IInputNode< ? >) m_node).setDisabled(false);
+							break;
+
+						case FORCE_DISABLED:
+							((IInputNode< ? >) m_node).setDisabled(true);
+							break;
+
+						default:
+							break;
+					}
 				}
+				done = true;
 			}
 		}
 		if(!done)
-			throw new IllegalStateException("The implementation for " + this + " needs an overridden setDisabled() method");
-		m_disabled = disabled;
+			throw new IllegalStateException("The implementation for " + this + " needs an overridden 'setInputState' method");
 	}
 
-	public Boolean isDisabled() {
-		return m_disabled;
-	}
 }

@@ -238,11 +238,11 @@ public class LookupForm<T> extends Div {
 			this.testId = testId;
 		}
 
-		public void setDisabled(Boolean disabled) {
+		public void setDisabled(boolean disabled) {
 			m_instance.setDisabled(disabled);
 		}
 
-		public Boolean isDisabled() {
+		public boolean isDisabled() {
 			return m_instance.isDisabled();
 		}
 
@@ -727,6 +727,17 @@ public class LookupForm<T> extends Div {
 		if(!DomUtil.isBlank(it.getErrorLocation()) ) {
 			for(NodeBase ic : it.getInstance().getInputControls())
 				ic.setErrorLocation(it.getErrorLocation());
+		}
+
+		switch(it.getInstance().getInputState()) { 
+			case FORCE_DISABLED:
+				it.getInstance().setDisabled(true);
+				break;
+			case FORCE_EDITABLE:
+				it.getInstance().setDisabled(false);
+				break;
+			default:
+				break;
 		}
 
 		//-- Assign test id. If single control is created, testId as it is will be applied,
