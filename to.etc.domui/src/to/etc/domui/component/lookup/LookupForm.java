@@ -109,6 +109,27 @@ public class LookupForm<T> extends Div {
 	 * Created on Jul 31, 2009
 	 */
 	public static class Item implements SearchPropertyMetaModel {
+		/**
+		 * Determines behavior of inputs inside one lookup field definition. Used internaly to persists state of inputs that is changed in runtime. 
+		 *
+		 * @author <a href="mailto:imilovanovic@execom.eu">Igor Milovanović</a>
+		 * Created on Feb 21, 2011
+		 */
+		enum InputBefaviorType {
+			/**
+			 * Unchanged behavior.
+			 */
+			DEFAULT,
+			/**
+			 * Force all input controls for certain lookup field to become enabled for user input.
+			 */
+			FORCE_ENABLED,
+			/**
+			 * Force all input controls for certain lookup field to become disabled for user input.
+			 */
+			FORCE_DISABLED;
+		}
+
 		private String m_propertyName;
 
 		private List<PropertyMetaModel> m_propertyPath;
@@ -128,6 +149,8 @@ public class LookupForm<T> extends Div {
 		private int m_order;
 
 		private String testId;
+
+		private InputBefaviorType m_inputsBehavior = InputBefaviorType.DEFAULT;
 
 		public String getPropertyName() {
 			return m_propertyName;
@@ -239,11 +262,16 @@ public class LookupForm<T> extends Div {
 		}
 
 		public void setDisabled(boolean disabled) {
+			m_inputsBehavior = disabled ? InputBefaviorType.FORCE_DISABLED : InputBefaviorType.FORCE_ENABLED;
 			m_instance.setDisabled(disabled);
 		}
 
-		public boolean isDisabled() {
-			return m_instance.isDisabled();
+		public boolean isForcedDisabled() {
+			return m_inputsBehavior == InputBefaviorType.FORCE_DISABLED;
+		}
+
+		public boolean isForcedEnabled() {
+			return m_inputsBehavior == InputBefaviorType.FORCE_ENABLED;
 		}
 
 		public void clear() {
@@ -729,15 +757,10 @@ public class LookupForm<T> extends Div {
 				ic.setErrorLocation(it.getErrorLocation());
 		}
 
-		switch(it.getInstance().getInputState()) { 
-			case FORCE_DISABLED:
-				it.getInstance().setDisabled(true);
-				break;
-			case FORCE_EDITABLE:
-				it.getInstance().setDisabled(false);
-				break;
-			default:
-				break;
+		if(it.isForcedDisabled()) {
+			it.getInstance().setDisabled(true);
+		} else if(it.isForcedEnabled()) {
+			it.getInstance().setDisabled(false);
 		}
 
 		//-- Assign test id. If single control is created, testId as it is will be applied,
