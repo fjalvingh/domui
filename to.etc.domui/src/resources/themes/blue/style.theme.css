@@ -74,8 +74,8 @@ select {
 
 .ui-atl-i {
 	background-color: <%= header_bg %>;
-	padding-right: 25px;
-	padding-left: 15px;
+	padding-right: 10px;
+	padding-left: 5px;
 }
 
 .ui-atl-t {
@@ -1041,10 +1041,11 @@ div.ui-sortable {
 	margin-left: 8px;
 }
 
-.ui-dt-separator {
+tbody td.ui-dt-separator {
 	background: url(bg-horiz-separator.png) repeat-x center;
 	padding: 1px;
 }
+
 .ui-dt .mselected {
 /*	background-color: #dedeff; 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
@@ -1297,9 +1298,8 @@ li.ui-tab-err {
 body,html {
 /*	background: url(bg-body.png) repeat-x;  jal 20110218 This cannot be present when background-color is color-replaced. */
 	background-color: <%= bg_color %>;
-	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
+/*	height: 100%; jal 20110221 Body height causes no end of problems with scrollbars. */
 	margin: 0px;
-	overflow: auto;
 }
 
 /*** IO hider overlay ***/

@@ -471,9 +471,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * When T and a selection model in multiselect mode is present, this causes the
 	 * checkboxes to be rendered initially even when no selection is made.
 	 * @param showSelectionAlways
+	 * @throws Exception
 	 */
-	public void setShowSelection(boolean showSelectionAlways) {
-		if(m_showSelectionAlways == showSelectionAlways)
+	public void setShowSelection(boolean showSelectionAlways) throws Exception {
+		if(m_showSelectionAlways == showSelectionAlways || getModel() == null || getModel().getRows() == 0)
 			return;
 		m_showSelectionAlways = showSelectionAlways;
 		if(!isBuilt() || m_multiSelectMode || getSelectionModel() == null || !getSelectionModel().isMultiSelect())

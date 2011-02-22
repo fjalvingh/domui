@@ -424,6 +424,25 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	$.fn.executeDeltaXML = executeXML;
 })(jQuery);
 
+/** 
+ * jQuery scroll overflow fixerydoo for IE7's "let's create huge problems by putting a scrollbar inside the scrolling area" blunder. It
+ * locates all scrolled-in area's and adds 20px of padding at the bottom.
+ */
+(function ($) {
+	$.fn.fixOverflow = function () {
+		if(! $.browser.msie || $.browser.version.substring(0, 1) != "7")
+			return this;
+//		alert('fixing overflow: '+$.browser.msie+", ver="+$.browser.version);
+
+		return this.each(function () {
+			if (this.scrollWidth > this.offsetWidth) {
+				$(this).css({ 'padding-bottom' : '20px', 'overflow-y' : 'hidden' });
+			}
+		});            
+	};
+})(jQuery);
+
+/** WebUI helper namespace */
 var WebUI = {
 	/**
 	 * Create a curried function containing a 'this' and a fixed set of elements.
@@ -2398,9 +2417,19 @@ WebUI.colorPickerChangeEvent = function(id) {
 
 var DomUI = WebUI;
 
-$(document).ready(WebUI.handleCalendarChanges);
-if(DomUIDevel)
-	$(document).ready(WebUI.handleDevelopmentMode);
+WebUI.onDocumentReady = function() {
+	WebUI.handleCalendarChanges();
+	if(DomUIDevel)
+		WebUI.handleDevelopmentMode();
+	$(".ui-dt").fixOverflow();
+}
+
+$(document).ready(WebUI.onDocumentReady);
 $(document).ajaxComplete( function() {
 	WebUI.handleCalendarChanges();
+	$(".ui-dt").fixOverflow();
 });
+
+
+
+

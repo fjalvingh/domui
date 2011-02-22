@@ -59,6 +59,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private SmallImgButton m_showSelectionBtn;
 
+	private SmallImgButton m_selectAllBtn, m_selectNoneBtn;
+
 	private Img m_truncated;
 
 	TabularComponentBase< ? > m_table;
@@ -115,28 +117,28 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		m_lastBtn = new SmallImgButton();
 		m_buttonDiv.add(m_lastBtn);
 
-		if(m_showSelection) {
-			if(m_table instanceof ISelectableTableComponent< ? >) { // Fixme needs interface
-				final ISelectableTableComponent< ? > dt = (ISelectableTableComponent< ? >) m_table;
-				if(dt.getSelectionModel() != null && dt.getSelectionModel().isMultiSelect()) {
-					if(dt.isMultiSelectionVisible()) {
-						renderSelectionExtras();
-					} else {
-						m_showSelectionBtn = new SmallImgButton("THEME/dpr-select-on.png");
-						m_buttonDiv.add(m_showSelectionBtn);
-						m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
-							@Override
-							public void clicked(NodeBase clickednode) throws Exception {
-								dt.setShowSelection(true);
-								clickednode.remove();
-								m_showSelectionBtn = null;
-							}
-						});
-						m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
-					}
-				}
-			}
-		}
+		//		if(m_showSelection) {
+		//			if(m_table instanceof ISelectableTableComponent< ? >) { // Fixme needs interface
+		//				final ISelectableTableComponent< ? > dt = (ISelectableTableComponent< ? >) m_table;
+		//				if(dt.getSelectionModel() != null && dt.getSelectionModel().isMultiSelect()) {
+		//					if(dt.isMultiSelectionVisible()) {
+		//						renderSelectionExtras();
+		//					} else {
+		//						m_showSelectionBtn = new SmallImgButton("THEME/dpr-select-on.png");
+		//						m_buttonDiv.add(m_showSelectionBtn);
+		//						m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
+		//							@Override
+		//							public void clicked(NodeBase clickednode) throws Exception {
+		//								dt.setShowSelection(true);
+		//								clickednode.remove();
+		//								m_showSelectionBtn = null;
+		//							}
+		//						});
+		//						m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
+		//					}
+		//				}
+		//			}
+		//		}
 
 		redraw();
 
@@ -193,49 +195,83 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		return stm.getSelectionModel();
 	}
 
-	private void renderSelectionExtras() {
-		final ISelectableTableComponent sti = getSelectableTable();
-		if(null == sti || m_buttonDiv == null || !sti.isMultiSelectionVisible())
-			return;
+	//	private void renderSelectionExtras() {
+	//		final ISelectableTableComponent sti = getSelectableTable();
+	//		if(null == sti || m_buttonDiv == null || !sti.isMultiSelectionVisible())
+	//			return;
+	//
+	//		if(null != sti.getSelectionAllHandler()) {
+	//			SmallImgButton sb = new SmallImgButton("THEME/dpr-select-all.png");
+	//			m_buttonDiv.add(sb);
+	//			sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
+	//			sb.setClicked(new IClicked<SmallImgButton>() {
+	//				@Override
+	//				public void clicked(SmallImgButton clickednode) throws Exception {
+	//					sti.getSelectionAllHandler().selectAll(sti.getModel(), sti.getSelectionModel());
+	//				}
+	//			});
+	//
+	//		}
+	//
+	//		SmallImgButton sb = new SmallImgButton("THEME/dpr-select-none.png");
+	//		m_buttonDiv.add(sb);
+	//		sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.none"));
+	//		sb.setClicked(new IClicked<SmallImgButton>() {
+	//			@Override
+	//			public void clicked(SmallImgButton clickednode) throws Exception {
+	//				ISelectionModel<?> sm = getSelectionModel();
+	//				if(null != sm)
+	//					sm.clearSelection();
+	//			}
+	//		});
+	//	}
 
-		if(null != sti.getSelectionAllHandler()) {
-			SmallImgButton sb = new SmallImgButton("THEME/dpr-select-all.png");
-			m_buttonDiv.add(sb);
-			sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
-			sb.setClicked(new IClicked<SmallImgButton>() {
-				@Override
-				public void clicked(SmallImgButton clickednode) throws Exception {
-					sti.getSelectionAllHandler().selectAll(sti.getModel(), sti.getSelectionModel());
-				}
-			});
+	/**
+	 * Return T if the "show selection UI" button should be visible.
+	 * @return
+	 * @throws Exception
+	 */
+	private boolean isNeedSelectionButton() throws Exception {
+		ISelectionModel< ? > sm = getSelectionModel();
+		if(sm == null || !m_showSelection)
+			return false;
+		if(!sm.isMultiSelect())
+			return false;
+		ISelectableTableComponent< ? > tc = getSelectableTable();
+		if(tc.isMultiSelectionVisible())
+			return false;
+		if(tc.getModel() == null || tc.getModel().getRows() == 0)
+			return false;
+		return true;
+	}
 
-		}
-
-		SmallImgButton sb = new SmallImgButton("THEME/dpr-select-none.png");
-		m_buttonDiv.add(sb);
-		sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.none"));
-		sb.setClicked(new IClicked<SmallImgButton>() {
-			@Override
-			public void clicked(SmallImgButton clickednode) throws Exception {
-				ISelectionModel<?> sm = getSelectionModel();
-				if(null != sm)
-					sm.clearSelection();
-			}
-		});
+	/**
+	 * Returns T if the "select all/select none" buttons should be visible.
+	 * @return
+	 */
+	private boolean isNeedExtraButtons() {
+		ISelectionModel< ? > sm = getSelectionModel();
+		if(sm == null || !m_showSelection)
+			return false;
+		if(!sm.isMultiSelect())
+			return false;
+		ISelectableTableComponent< ? > tc = getSelectableTable();
+		return tc.isMultiSelectionVisible();
 	}
 
 	@Override
 	public void selectionUIChanged(TabularComponentBase< ? > tbl) throws Exception {
-		if(tbl instanceof DataTable) {
-			DataTable< ? > dt = (DataTable< ? >) tbl;
-			if(dt.isMultiSelectionVisible()) {
-				if(null != m_showSelectionBtn) {
-					m_showSelectionBtn.remove();
-					m_showSelectionBtn = null;
-				}
-			}
-			renderSelectionExtras();
-		}
+		redraw();
+		//		if(tbl instanceof DataTable) {
+		//			DataTable< ? > dt = (DataTable< ? >) tbl;
+		//			if(dt.isMultiSelectionVisible()) {
+		//				if(null != m_showSelectionBtn) {
+		//					m_showSelectionBtn.remove();
+		//					m_showSelectionBtn = null;
+		//				}
+		//			}
+		//			renderSelectionExtras();
+		//		}
 	}
 
 	private void init() throws Exception {
@@ -277,6 +313,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	/*--------------------------------------------------------------*/
 
 	private void redraw() throws Exception {
+		if(m_buttonDiv == null)
+			return;
+
 		int cp = m_table.getCurrentPage();
 		int np = m_table.getPageCount();
 		if(np == 0)
@@ -314,6 +353,74 @@ public class DataPager extends Div implements IDataTableChangeListener {
 				m_truncated.remove();
 				m_truncated = null;
 			}
+		}
+
+		redrawSelectionButtons();
+	}
+
+	private void redrawSelectionButtons() throws Exception {
+		//-- Show/hide the "show selection" button
+		final ISelectableTableComponent dt = getSelectableTable();
+		if(isNeedSelectionButton()) {
+			if(m_showSelectionBtn == null) {
+				m_showSelectionBtn = new SmallImgButton("THEME/dpr-select-on.png");
+				m_buttonDiv.add(4, m_showSelectionBtn); // Always after last navigation button
+				m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
+					@Override
+					public void clicked(NodeBase clickednode) throws Exception {
+						dt.setShowSelection(true);
+						clickednode.remove();
+						m_showSelectionBtn = null;
+					}
+				});
+				m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
+			}
+		} else {
+			if(m_showSelectionBtn != null) {
+				m_showSelectionBtn.remove();
+				m_showSelectionBtn = null;
+			}
+		}
+
+		//-- Show/hide the extras button
+		boolean needselectall = false;
+		boolean needselectnone = false;
+
+		if(isNeedExtraButtons()) {
+			needselectall = dt.getSelectionAllHandler() != null;
+			needselectnone = true;
+		}
+
+		if(m_selectAllBtn == null && needselectall) {
+			m_selectAllBtn = new SmallImgButton("THEME/dpr-select-all.png");
+			m_buttonDiv.add(4, m_selectAllBtn);
+			m_selectAllBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
+			m_selectAllBtn.setClicked(new IClicked<SmallImgButton>() {
+				@Override
+				public void clicked(SmallImgButton clickednode) throws Exception {
+					dt.getSelectionAllHandler().selectAll(dt.getModel(), dt.getSelectionModel());
+				}
+			});
+		} else if(m_selectAllBtn != null && ! needselectall) {
+			m_selectAllBtn.remove();
+			m_selectAllBtn = null;
+		}
+
+		if(m_selectNoneBtn == null && needselectnone) {
+			m_selectNoneBtn = new SmallImgButton("THEME/dpr-select-none.png");
+			m_buttonDiv.add(4, m_selectNoneBtn);
+			m_selectNoneBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.none"));
+			m_selectNoneBtn.setClicked(new IClicked<SmallImgButton>() {
+				@Override
+				public void clicked(SmallImgButton clickednode) throws Exception {
+					ISelectionModel<?> sm = getSelectionModel();
+					if(null != sm)
+						sm.clearSelection();
+				}
+			});
+		} else if(m_selectNoneBtn != null && !needselectnone) {
+			m_selectNoneBtn.remove();
+			m_selectNoneBtn = null;
 		}
 	}
 
