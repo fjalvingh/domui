@@ -187,6 +187,7 @@ public class NumericUtil {
 				default:
 					throw new IllegalArgumentException("Unsupported numeric presentation for numeric type " + v.getClass() + ": " + np);
 
+				case UNKNOWN:
 				case NUMBER:
 					return v.toString();
 				case NUMBER_FULL:
@@ -207,6 +208,7 @@ public class NumericUtil {
 			default:
 				throw new IllegalArgumentException("Unsupported numeric presentation for numeric type " + v.getClass() + ": " + np);
 
+			case UNKNOWN:
 			case NUMBER:
 				return new DecimalFormat(NUMBERBYSCALE[scale], dfs).format(v);
 
