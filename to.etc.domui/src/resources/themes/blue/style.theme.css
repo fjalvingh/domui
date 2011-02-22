@@ -1047,7 +1047,7 @@ tbody td.ui-dt-separator {
 }
 
 .ui-dt .mselected {
-/*	background-color: #dedeff; 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
 
 /*** Small Image button ***/
