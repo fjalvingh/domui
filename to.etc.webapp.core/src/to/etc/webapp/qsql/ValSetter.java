@@ -24,13 +24,15 @@
  */
 package to.etc.webapp.qsql;
 
+import java.sql.*;
+
 /**
  * Holds a value and a location (result set) to set a value.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 25, 2009
  */
-class ValSetter {
+class ValSetter implements IQValueSetter {
 	private int m_index;
 
 	private Object m_value;
@@ -57,7 +59,15 @@ class ValSetter {
 		return m_value;
 	}
 
-	public IJdbcType getConverter() {
-		return m_converter;
+//	public IJdbcType getConverter() {
+//		return m_converter;
+//	}
+
+	/**
+	 * @see to.etc.webapp.qsql.IQValueSetter#assign(java.sql.PreparedStatement)
+	 */
+	@Override
+	public void assign(PreparedStatement ps) throws Exception {
+		m_converter.assignParameter(ps, getIndex(), getProperty(), getValue());
 	}
 }

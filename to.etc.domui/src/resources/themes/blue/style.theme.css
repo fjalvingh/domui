@@ -1047,7 +1047,7 @@ tbody td.ui-dt-separator {
 }
 
 .ui-dt .mselected {
-/*	background-color: #dedeff; 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
 
 /*** Small Image button ***/
@@ -1296,6 +1296,7 @@ li.ui-tab-err {
 
 /*** Body element ***/
 body,html {
+	background: url(bg-gradient.png.svg) repeat-x;
 /*	background: url(bg-body.png) repeat-x;  jal 20110218 This cannot be present when background-color is color-replaced. */
 	background-color: <%= bg_color %>;
 /*	height: 100%; jal 20110221 Body height causes no end of problems with scrollbars. */

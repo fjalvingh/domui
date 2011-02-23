@@ -40,13 +40,13 @@ public class JdbcQuery<T> {
 
 	final private List<IInstanceMaker> m_rowMaker;
 
-	final private List<ValSetter> m_valList;
+	final private List<IQValueSetter> m_valList;
 
 	final private int m_start, m_limit;
 
 	final private int m_timeout;
 
-	public JdbcQuery(String sql, List<IInstanceMaker> retrieverList, List<ValSetter> vl, int start, int limit, int timeout) {
+	public JdbcQuery(String sql, List<IInstanceMaker> retrieverList, List<IQValueSetter> vl, int start, int limit, int timeout) {
 		m_sql = sql;
 		m_rowMaker = retrieverList;
 		m_valList = vl;
@@ -63,8 +63,8 @@ public class JdbcQuery<T> {
 		ResultSet rs = null;
 		try {
 			ps = dc.getConnection().prepareStatement(m_sql);
-			for(ValSetter vs : m_valList)
-				assignValue(ps, vs);
+			for(IQValueSetter vs : m_valList)
+				vs.assign(ps);
 			if(m_timeout > 0)
 				ps.setQueryTimeout(m_timeout);
 			List<Object> res = new ArrayList<Object>();
@@ -106,10 +106,6 @@ public class JdbcQuery<T> {
 					ps.close();
 			} catch(Exception x) {}
 		}
-	}
-
-	private void assignValue(PreparedStatement ps, ValSetter vs) throws Exception {
-		vs.getConverter().assignParameter(ps, vs.getIndex(), vs.getProperty(), vs.getValue());
 	}
 
 	static public <T> JdbcQuery<T> create(QCriteria<T> q) throws Exception {
