@@ -56,7 +56,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 	private int m_curPrec = 0;
 
-	private List<ValSetter> m_valList = new ArrayList<ValSetter>();
+	private List<IQValueSetter> m_valList = new ArrayList<IQValueSetter>();
 
 	/** FIXME Need some better way to set this */
 	private boolean m_oracle = true;
@@ -162,7 +162,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		return m_sql;
 	}
 
-	public List<ValSetter> getValList() {
+	public List<IQValueSetter> getValList() {
 		return m_valList;
 	}
 
@@ -255,10 +255,18 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 			appendWhere(") like upper(");
 
 			if(n.getExpr() instanceof QLiteral) {
-				appendValueSetter(pm, (QLiteral) n.getExpr());
+				appendLikeValueSetter(pm, (QLiteral) n.getExpr());
 			} else
 				throw new QQuerySyntaxException("Unexpected argument to " + n + ": " + n.getExpr());
 			appendWhere(")");
+		} else if(n.getOperation() == QOperation.ILIKE || n.getOperation() == QOperation.LIKE) {
+			appendWhere(getColumnRef(m_root, pm.getColumnName()));
+			appendOperation(n.getOperation());
+
+			if(n.getExpr() instanceof QLiteral) {
+				appendLikeValueSetter(pm, (QLiteral) n.getExpr());
+			} else
+				throw new QQuerySyntaxException("Unexpected argument to " + n + ": " + n.getExpr());
 		} else {
 			appendWhere(getColumnRef(m_root, pm.getColumnName()));
 			appendOperation(n.getOperation());
@@ -321,6 +329,20 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		int index = m_nextWhereIndex++;
 		IJdbcType tc = pm.getTypeConverter();
 		ValSetter vs = new ValSetter(index, expr.getValue(), tc, pm);
+		m_valList.add(vs);
+	}
+
+	/**
+	 * Append a value setter for a like operation, where the parameter is string by definition.
+	 * @param pm
+	 * @param expr
+	 */
+	private void appendLikeValueSetter(JdbcPropertyMeta pm, QLiteral expr) {
+		if(!(expr.getValue() instanceof String))
+			throw new QQuerySyntaxException("Invalid value type " + expr.getValue() + " for LIKE operation - expecting string.");
+		appendWhere("?");
+		int index = m_nextWhereIndex++;
+		LikeSetter vs = new LikeSetter(index, (String) expr.getValue(), pm);
 		m_valList.add(vs);
 	}
 
