@@ -30,6 +30,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.bugs.*;
 
 public class MsgBox extends FloatingWindow {
 	public interface IAnswer {
@@ -55,6 +56,11 @@ public class MsgBox extends FloatingWindow {
 	IAnswer m_onAnswer;
 
 	MsgBoxButton m_closeButtonObject;
+
+	/**
+	 * Custom dialog message text renderer.
+	 */
+	private INodeContentRenderer<String> m_dataRenderer;
 
 	protected MsgBox() {
 		super(true, "");
@@ -186,6 +192,17 @@ public class MsgBox extends FloatingWindow {
 	 * @param onAnswer
 	 */
 	public static void yesNo(NodeBase dad, String string, IAnswer onAnswer) {
+		yesNo(dad, string, onAnswer, null);
+	}
+
+	/**
+	 * Ask a yes/no confirmation, and pass either YES or NO to the onAnswer delegate. Use this if you need the NO action too, else use the IClicked variant.
+	 * @param dad
+	 * @param string
+	 * @param onAnswer
+	 * @param msgRenderer Provides custom rendering of specified string message.
+	 */
+	public static void yesNo(NodeBase dad, String string, IAnswer onAnswer, INodeContentRenderer<String> msgRenderer) {
 		MsgBox box = create(dad);
 		box.setType(Type.DIALOG);
 		box.setMessage(string);
@@ -193,6 +210,7 @@ public class MsgBox extends FloatingWindow {
 		box.addButton(MsgBoxButton.NO);
 		box.setCloseButton(MsgBoxButton.NO);
 		box.setOnAnswer(onAnswer);
+		box.setDataRenderer(msgRenderer);
 		box.construct();
 	}
 
@@ -389,7 +407,15 @@ public class MsgBox extends FloatingWindow {
 		td.setWidth("1%");
 
 		td = b.addCell("ui-mbx-mc");
-		DomUtil.renderHtmlString(td, m_theText); // 20091206 Allow simple markup in message
+		if(getDataRenderer() != null) {
+			try {
+				getDataRenderer().renderNodeContent(this, td, m_theText, null);
+			} catch(Exception ex) {
+				Bug.bug(ex);
+			}
+		} else {
+			DomUtil.renderHtmlString(td, m_theText); // 20091206 Allow simple markup in message
+		}
 		add(m_theButtons);
 		//FIXME: vmijic 20090911 Set initial focus to first button. However preventing of keyboard input focus on window in background has to be resolved properly.
 		setFocusOnButton();
@@ -464,5 +490,13 @@ public class MsgBox extends FloatingWindow {
 
 	protected void setOnAnswer(IAnswer onAnswer) {
 		m_onAnswer = onAnswer;
+	}
+
+	protected INodeContentRenderer<String> getDataRenderer() {
+		return m_dataRenderer;
+	}
+
+	protected void setDataRenderer(INodeContentRenderer<String> dataRenderer) {
+		m_dataRenderer = dataRenderer;
 	}
 }
