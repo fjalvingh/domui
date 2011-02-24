@@ -18,6 +18,9 @@ import to.etc.webapp.qsql.*;
  * Created on Jun 22, 2008
  */
 public class PageParameters {
+	/** When set no data can be changed */
+	private boolean m_readOnly;
+
 	private Map<String, String> m_parameterMap = new HashMap<String, String>();
 
 	public PageParameters() {}
@@ -41,6 +44,15 @@ public class PageParameters {
 		//		}
 	}
 
+	public void setReadOnly() {
+		m_readOnly = true;
+	}
+
+	private void writeable() {
+		if(m_readOnly)
+			throw new IllegalStateException("This object is readonly and cannot be changed.");
+	}
+
 	/**
 	 * Add parameters. This accepts multiple formats that can all be mixed. Each actual parameter always is a
 	 * name, value pair. The simplest way to use this is to specify a list of strings in pairs where the first
@@ -53,6 +65,7 @@ public class PageParameters {
 	 * @param plist
 	 */
 	public void addParameters(Object... plist) throws Exception {
+		writeable();
 		int ix = 0;
 		int len = plist.length;
 		while(ix < len) {
@@ -91,6 +104,7 @@ public class PageParameters {
 	 * @param object
 	 */
 	private void internalAdd(String k, Object o) throws Exception {
+		writeable();
 		if(o == null)
 			return;
 
@@ -114,6 +128,8 @@ public class PageParameters {
 	}
 
 	public void addParameter(String name, Object value) {
+		writeable();
+
 		//-- Convert the value to a string;
 		String s;
 		if(value == null)
