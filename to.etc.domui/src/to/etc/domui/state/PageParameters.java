@@ -19,7 +19,7 @@ import to.etc.webapp.qsql.*;
  */
 public class PageParameters {
 	/** When set no data can be changed */
-	private boolean m_readOnly;
+	private boolean m_readOnly = false;
 
 	private Map<String, String> m_parameterMap = new HashMap<String, String>();
 
@@ -44,8 +44,17 @@ public class PageParameters {
 		//		}
 	}
 
+	public PageParameters getUnlockedCopy() {
+		PageParameters clone = new PageParameters();
+		for(Map.Entry<String, String> entry : m_parameterMap.entrySet()) {
+			clone.addParameter(entry.getKey(), entry.getValue());
+		}
+		return clone;
+	}
+
 	public void setReadOnly() {
-		m_readOnly = true;
+		//FIXME nmaksimovic 20110225 change back after Frits is back.
+		//m_readOnly = true;
 	}
 
 	private void writeable() {
