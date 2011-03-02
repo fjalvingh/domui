@@ -1596,8 +1596,6 @@ var WebUI = {
 		else{
 			evt.returnValue = false;
 		}
-//		WebUI._selectStart = document.onselectstart;
-//		alert(document.onselectstart);
 		document.attachEvent( "onselectstart", WebUI.preventSelection);
 	},
 	
