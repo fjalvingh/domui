@@ -1564,6 +1564,9 @@ var WebUI = {
 
 		return false;
 	},
+	
+	_selectStart : undefined,
+	
 
 	/** ************ Drag-and-drop support code ****************** */
 	/**
@@ -1588,14 +1591,18 @@ var WebUI = {
 		WebUI._dragSourceOffset = apos;
 		apos.x = evt.clientX - apos.x;
 		apos.y = evt.clientY - apos.y;
-//		${evt}.preventDefault();
 		if(evt.preventDefault)
 			evt.preventDefault(); // Prevent ffox image dragging
 		else{
-			evt.cancelBubble = true;
 			evt.returnValue = false;
 		}
-
+//		WebUI._selectStart = document.onselectstart;
+//		alert(document.onselectstart);
+		document.attachEvent( "onselectstart", WebUI.preventSelection);
+	},
+	
+	preventSelection : function(){
+		return false;
 	},
 
 	dragMouseUp : function() {
@@ -1664,8 +1671,8 @@ var WebUI = {
 		}
 
 		dv.style.position = 'absolute';
-		dv.style.width = source.clientWidth + "px";
-		dv.style.height = source.clientHeight + "px";
+		dv.style.width = $(source).width() + "px";
+		dv.style.height = $(source).height() + "px";
 		//console.debug("DragNode isa "+source.tagName+", "+dv.innerHTML);
 		return dv;
 	},
@@ -1749,6 +1756,12 @@ var WebUI = {
 		}
 		WebUI.dropClearZone();
 		WebUI._dragMode = 0; // NOTDRAGGED
+		
+		document.detachEvent( "onselectstart", WebUI.preventSelection);
+		
+//		if(WebUI._selectStart){
+//			document.onselectstart = WebUI._selectStart;  
+//		}
 	},
 
 	/**
