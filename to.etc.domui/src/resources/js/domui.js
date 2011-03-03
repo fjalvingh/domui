@@ -1596,7 +1596,9 @@ var WebUI = {
 		else{
 			evt.returnValue = false;
 		}
-		document.attachEvent( "onselectstart", WebUI.preventSelection);
+		if(document.attachEvent){
+			document.attachEvent( "onselectstart", WebUI.preventSelection);
+		}
 	},
 	
 	preventSelection : function(){
@@ -1755,7 +1757,9 @@ var WebUI = {
 		WebUI.dropClearZone();
 		WebUI._dragMode = 0; // NOTDRAGGED
 		
-		document.detachEvent( "onselectstart", WebUI.preventSelection);
+		if(document.detachEvent){
+			document.detachEvent( "onselectstart", WebUI.preventSelection);
+		}
 		
 //		if(WebUI._selectStart){
 //			document.onselectstart = WebUI._selectStart;  
