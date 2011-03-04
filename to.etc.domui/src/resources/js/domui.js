@@ -650,6 +650,48 @@ var WebUI = {
 	},
 
 	/**
+	 * Handle enter key pressed on keyPress for component with onLookupTyping listener. This needs to be executed on keyPress (was part of keyUp handling), otherwise other global return key listener (returnKeyPress handler) would fire.
+	 */
+	onLookupTypingReturnKeyHandler : function(id, event) {
+		var node = document.getElementById(id);
+		if(!node || node.tagName.toLowerCase() != 'input')    
+			return;
+
+		if(!event){
+			event = window.event;
+			if (!event)
+				return;
+		}
+		
+		var keyCode = WebUI.normalizeKey(event);
+		var isReturn = (keyCode == 13000 || keyCode == 13);
+		
+		if (isReturn) {
+			//cancel current scheduledOnLookupTypingTimerID 
+			if (WebUI.scheduledOnLookupTypingTimerID){
+				//cancel already scheduled timer event 
+				window.clearTimeout(WebUI.scheduledOnLookupTypingTimerID);
+				WebUI.scheduledOnLookupTypingTimerID = null;
+			}
+			//Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
+			event.cancelBubble = true;
+			if(event.stopPropagation)
+				event.stopPropagation();
+
+			//locate keyword input node 
+			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+			if(trNode){
+				//trigger click on row 
+				$(trNode).trigger('click');
+			} else {
+				//trigger lookupTypingDone when return is pressed
+				WebUI.lookupTypingDone(id);
+			}
+		}
+	},
+	
+	/**
 	 * Handle for timer delayed actions, used for onLookupTyping event.
 	 */
 	scheduledOnLookupTypingTimerID: null,
@@ -671,6 +713,14 @@ var WebUI = {
 				return;
 		}
 		var keyCode = WebUI.normalizeKey(event);
+		var isReturn = (keyCode == 13000 || keyCode == 13);
+		if (isReturn) { //handled by onLookupTypingReturnKeyHandler, just cancel propagation
+			event.cancelBubble = true;
+			if(event.stopPropagation)
+				event.stopPropagation();
+			return;
+		}
+
 		var isLeftArrowKey = (keyCode == 37000 || keyCode == 37);
 		var isRightArrowKey = (keyCode == 39000 || keyCode == 39);
 		if (isLeftArrowKey || isRightArrowKey){
@@ -682,28 +732,14 @@ var WebUI = {
 			window.clearTimeout(WebUI.scheduledOnLookupTypingTimerID);
 			WebUI.scheduledOnLookupTypingTimerID = null;
 		}
-		var isReturn = (keyCode == 13000 || keyCode == 13);
 		var isDownArrowKey = (keyCode == 40000 || keyCode == 40);
 		var isUpArrowKey = (keyCode == 38000 || keyCode == 38);
-		if (isReturn || isDownArrowKey || isUpArrowKey) {
+		if (isDownArrowKey || isUpArrowKey) {
 			//Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
 			event.cancelBubble = true;
 			if(event.stopPropagation)
 				event.stopPropagation();
-		}
-		if (isReturn){
-			//handle return key 
-			//locate keyword input node 
-			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
-			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
-			if(trNode){
-				WebUI.clicked(trNode, trNode.id, null);
-			} else {
-				//trigger lookupTypingDone when return is pressed
-				WebUI.lookupTypingDone(id);
-			}
-		}
-		else if(isDownArrowKey || isUpArrowKey){
+
 			//locate keyword input node
 			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
 			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
@@ -828,26 +864,33 @@ var WebUI = {
 		var qDivPopup = $(node.parentNode).children("div.ui-lui-keyword-popup");
 		if (qDivPopup.length > 0){
 			var divPopup = qDivPopup.get(0); 
-			//must be set manually from javascript because bug in domui, parent attribute updated from child node is not rendered in response
+			//z-index correction must be set manually from javascript (because some bug in IE7 -> if set from domui renders incorrectly until page is refreshed?)
+			divPopup.style.zIndex = node.style.zIndex + 1;
 			node.parentNode.style.zIndex = divPopup.style.zIndex;
 		}else{
 			//fix z-index to one saved in input node
 			node.parentNode.style.zIndex = node.style.zIndex;
 		}
+		
 		if (wasInFocus && divPopup){
 			//show popup in case that input field still has focus
 			$(divPopup).show();
 		}
-		
+
 		var trNods = $(qDivPopup).children("div").children("table").children("tbody").children("tr");
 		if (trNods && trNods.length > 0) {
 			for(var i=0; i < trNods.length; i++) {
 				var trNod = trNods.get(i);
-				trNod.setAttribute("onmouseover","WebUI.lookupRowMouseOver('" + id + "', '" + trNod.id + "');");
+				//we need this jquery way of attaching events, if we use trNod.setAttribute("onmouseover",...) it does not work in IE7
+				$(trNod).bind("mouseover", {nodeId: id, trId: trNod.id}, function(event) {
+					WebUI.lookupRowMouseOver(event.data.nodeId, event.data.trId);
+				});
 			}
 		}
 		if (divPopup){
-			divPopup.setAttribute("onclick","WebUI.lookupPopupClicked('" + id + "');");
+			$(divPopup).bind("click", {nodeId: id}, function(event) { 
+				WebUI.lookupPopupClicked(event.data.nodeId); 
+			});
 		}
 	},
 	
@@ -1924,6 +1967,10 @@ var WebUI = {
 	
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
 	debug : function(debugId, posX, posY, debugInfoHtml) {
+		//Be aware that debugId must not start with digit when using FF! Just lost 1 hour to learn this...
+		if ("0123456789".indexOf(debugId.charAt(0)) > -1){
+			alert("debugId(" + debugId+ ") starts with digit! Please use different one!");
+		}
 		var debugPanel = document.getElementById(debugId);
 		if (null == debugPanel){
 			debugPanel = document.createElement(debugId);

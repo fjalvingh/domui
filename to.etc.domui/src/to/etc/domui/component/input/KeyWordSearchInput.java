@@ -204,8 +204,9 @@ class KeyWordSearchInput<T> extends Div {
 				m_pnlSearchPopup.setCssClass("ui-lui-keyword-popup");
 				fixZIndex();
 				//increase Z index both for current DIV and popup DIV.
-				setZIndex(getZIndex() + 1); //FIXME: unfortunatelly this value never gets to browser. So that is why it is fixed in javascript on browser side.
-				m_pnlSearchPopup.setZIndex(getZIndex());
+				//20110304 vmijic - We need to do this in domui.js because bug in IE7. Code remains here commented as illustartion what is done in javascript.
+				//setZIndex(getZIndex() + 1);
+				//m_pnlSearchPopup.setZIndex(getZIndex());
 				add(m_pnlSearchPopup);
 			} else {
 				m_pnlSearchPopup.removeAllChildren();
