@@ -143,6 +143,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			if(LOG.isDebugEnabled())
 				LOG.debug("OBITUARY received for " + cid + ": pageTag=" + pageTag);
+			System.out.println("OBITUARY received for " + cid + ": pageTag=" + pageTag);
 			ctx.getSession().internalObituaryReceived(cida[0], pageTag);
 
 			//-- Send a silly response.

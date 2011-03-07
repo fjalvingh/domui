@@ -869,6 +869,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 		}
 
 		if(n.getOnLookupTyping() != null) {
+			//20110304 vmijic -> for Frist: must be done using onkeypress (I tried onkeydown in combination with setReturnPressed, but that fails since onkeydown change model, so setReturnPressed is fired for dead node that results with exception)
+			o().attr("onkeypress", sb().append(transformScript).append("WebUI.onLookupTypingReturnKeyHandler('").append(n.getActualID()).append("', event)").toString());
 			o().attr("onkeyup", sb().append(transformScript).append("WebUI.scheduleOnLookupTypingEvent('").append(n.getActualID()).append("', event)").toString());
 			o().attr("onblur", sb().append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
 		} else {
