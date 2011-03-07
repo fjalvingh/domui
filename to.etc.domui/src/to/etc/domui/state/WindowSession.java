@@ -668,11 +668,12 @@ final public class WindowSession {
 		//-- Create the conversation context
 		ConversationContext coco = createConversation(rctx, ccclz);
 
+		cid = null; // jal 20110307 TEST Why is the CID used from the URL??
 		coco.setId(cid == null ? "" + nextCID() : cid);
-		ConversationContext.LOG.debug("Created conversation=" + coco + " for new page=" + clz);
 
 		//-- Since this is a new page we clear ALL existing conversations
 		registerConversation(coco); // ORDERED 2
+		ConversationContext.LOG.debug("Created conversation=" + coco + " for new page=" + clz);
 		internalAttachConversations(); // ORDERED 3
 
 		//-- Create the page && add to shelve,
