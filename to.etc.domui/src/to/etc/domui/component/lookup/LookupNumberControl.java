@@ -126,9 +126,9 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, m_minValue);
 
 			// In case that other validations pass, we need to check for implicit JDBC parameter validation range (for Oracle it is 10^126 and -10^126)
-			if(value.doubleValue() > m_max_jdbc_column_value.doubleValue())
+			if(value.doubleValue() >= m_max_jdbc_column_value.doubleValue())
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_max_jdbc_column_value);
-			if(value.doubleValue() < m_min_jdbc_column_value.doubleValue())
+			if(value.doubleValue() <= m_min_jdbc_column_value.doubleValue())
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, m_min_jdbc_column_value);
 		} else if(value instanceof Long || value instanceof Integer) {
 			if(m_maxValue != null && value.longValue() > m_maxValue.longValue())
