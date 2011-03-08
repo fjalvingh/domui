@@ -207,6 +207,12 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							if (n == 'style') { // IE workaround
 								dest.style.cssText = v;
 								dest.setAttribute(n, v);
+								//We need this dirty fix for IE7 to force refresh of divs that has just become visible.
+								if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
+									if ((dest.tagName.toLowerCase() == 'div') && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))){
+										WebUI.refreshElement(dest.id);
+									}
+								}								
 							} else {
 								//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
 //								alert('changeAttr: id='+dest.id+' change '+n+" to "+v);
@@ -2211,7 +2217,15 @@ var WebUI = {
 				evt.stopPropagation();
 			WebUI.popinMouseClose();
 		}
-	}
+	},
+
+	//By switching element height we force browser to repaint element. This must be done to fix some IE7 missbehaviors.   
+	refreshElement: function(id) {
+		var elem = document.getElementById(id);
+		var oldHeight = $(elem).height(); 
+		$(elem).height('1');
+		$(elem).height(oldHeight);
+	}	
 	
 };
 
