@@ -28,6 +28,8 @@ import java.math.*;
 import java.sql.*;
 import java.util.*;
 
+import org.slf4j.*;
+
 import to.etc.util.*;
 
 /**
@@ -47,6 +49,8 @@ import to.etc.util.*;
  * Created on Dec 21, 2009
  */
 public class JdbcUtil {
+	static public final Logger LOG = LoggerFactory.getLogger(JdbcUtil.class);
+
 	private JdbcUtil() {}
 
 	static public void setLong(PreparedStatement ps, int index, Long value) throws SQLException {
@@ -444,7 +448,8 @@ public class JdbcUtil {
 		sb.append(");");
 		sb.append("end;");
 		String stmt = sb.toString();
-		System.out.println("CALLING: " + stmt);
+		LOG.debug(stmt);
+//		System.out.println("CALLING: " + stmt);
 
 		//-- Call the SP
 		CallableStatement ps = null;
@@ -485,7 +490,8 @@ public class JdbcUtil {
 		sb.append(")) then l_res := 1; else l_res := 0; end if; ? := l_res;");
 		sb.append("end;");
 		String stmt = sb.toString();
-		System.out.println("CALLING: " + stmt + ", outResult=" + (pars.size() + 1));
+		LOG.debug(stmt);
+//		System.out.println("CALLING: " + stmt + ", outResult=" + (pars.size() + 1));
 
 		//-- Call the SP
 		CallableStatement ps = null;

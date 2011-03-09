@@ -1320,7 +1320,7 @@ public abstract class DomApplication {
 			tc.executeMap(sb, r, rurl, themeMap);
 
 			ts = System.nanoTime() - ts;
-			System.out.println("theme-replace: " + rurl + " took " + StringTool.strNanoTime(ts));
+			//			System.out.println("theme-replace: " + rurl + " took " + StringTool.strNanoTime(ts));
 			return sb.toString();
 		} finally {
 			try {
