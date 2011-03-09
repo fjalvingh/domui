@@ -1615,6 +1615,8 @@ var WebUI = {
 				if (dz) {
 					WebUI.dropClearZone(); // Discard any dropzone visuals
 					dz._drophandler.drop(dz);
+				}else{  
+					WebUI._dragNode.style.display='';//no drop zone, so restore the dragged item
 				}
 			}
 		} finally {
