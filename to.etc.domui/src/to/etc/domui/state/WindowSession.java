@@ -668,7 +668,7 @@ final public class WindowSession {
 		//-- Create the conversation context
 		ConversationContext coco = createConversation(rctx, ccclz);
 
-		cid = null; // jal 20110307 TEST Why is the CID used from the URL??
+		//		cid = null; // jal 20110307 TEST Why is the CID used from the URL??
 		coco.setId(cid == null ? "" + nextCID() : cid);
 
 		//-- Since this is a new page we clear ALL existing conversations
