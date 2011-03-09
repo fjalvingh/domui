@@ -1613,6 +1613,9 @@ var WebUI = {
 
 		return false;
 	},
+	
+	_selectStart : undefined,
+	
 
 	/** ************ Drag-and-drop support code ****************** */
 	/**
@@ -1637,7 +1640,18 @@ var WebUI = {
 		WebUI._dragSourceOffset = apos;
 		apos.x = evt.clientX - apos.x;
 		apos.y = evt.clientY - apos.y;
-		evt.preventDefault(); // Prevent ffox image dragging
+		if(evt.preventDefault)
+			evt.preventDefault(); // Prevent ffox image dragging
+		else{
+			evt.returnValue = false;
+		}
+		if(document.attachEvent){
+			document.attachEvent( "onselectstart", WebUI.preventSelection);
+		}
+	},
+	
+	preventSelection : function(){
+		return false;
 	},
 
 	dragMouseUp : function() {
@@ -1650,6 +1664,8 @@ var WebUI = {
 				if (dz) {
 					WebUI.dropClearZone(); // Discard any dropzone visuals
 					dz._drophandler.drop(dz);
+				}else{  
+					WebUI._dragNode.style.display='';//no drop zone, so restore the dragged item
 				}
 			}
 		} finally {
@@ -1706,8 +1722,8 @@ var WebUI = {
 		}
 
 		dv.style.position = 'absolute';
-		dv.style.width = source.clientWidth + "px";
-		dv.style.height = source.clientHeight + "px";
+		dv.style.width = $(source).width() + "px";
+		dv.style.height = $(source).height() + "px";
 		//console.debug("DragNode isa "+source.tagName+", "+dv.innerHTML);
 		return dv;
 	},
@@ -1791,6 +1807,14 @@ var WebUI = {
 		}
 		WebUI.dropClearZone();
 		WebUI._dragMode = 0; // NOTDRAGGED
+		
+		if(document.detachEvent){
+			document.detachEvent( "onselectstart", WebUI.preventSelection);
+		}
+		
+//		if(WebUI._selectStart){
+//			document.onselectstart = WebUI._selectStart;  
+//		}
 	},
 
 	/**
@@ -2421,7 +2445,7 @@ WebUI._ROW_DROPZONE_HANDLER = {
 		var b = this.locateBest(dz);
 		WebUI.scall(dz._dropTarget.id, "WEBUIDROP", {
 			_dragid :WebUI._dragNode.id,
-			_index :b.index,
+			_index :(b.index+b.gravity),
 			_colIndex :b.colIndex
 		});
 		WebUI.dragReset();
