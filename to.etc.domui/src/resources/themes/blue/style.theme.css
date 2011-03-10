@@ -64,22 +64,27 @@ select {
 }
 
 /*** App Title bar ***/
+.ui-atl {
+	height: 40px;
+}
+
 .ui-atl-bb {
 	white-space: nowrap;
-	background-image: url(bg-caption.png.svg);
-	background-repeat: no-repeat;
+	background: url(bg-new-ttl2.png) no-repeat;
 	width: 90%;
 	text-align: right;
 }
 
 .ui-atl-i {
-	background-color: <%= header_bg %>;
+	background-color: #e4e3e1;
+	background: url(bg-new-ttl1.png) repeat-x;
 	padding-right: 10px;
 	padding-left: 5px;
 }
 
 .ui-atl-t {
-	background-color: <%= header_bg %>;
+	background-color: #e4e3e1;
+	background: url(bg-new-ttl1.png) repeat-x;
 	width: 10%;
 	white-space: nowrap;
 	color: #123667;
@@ -1296,9 +1301,11 @@ li.ui-tab-err {
 
 /*** Body element ***/
 body,html {
-	background: url(bg-gradient.png.svg) repeat-x;
-/*	background: url(bg-body.png) repeat-x;  jal 20110218 This cannot be present when background-color is color-replaced. */
+/*	background: url(bg-gradient.png.svg) repeat-x;
 	background-color: <%= bg_color %>;
+*/
+	background-color: #e4e3e1;
+	
 /*	height: 100%; jal 20110221 Body height causes no end of problems with scrollbars. */
 	margin: 0px;
 }
