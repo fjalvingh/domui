@@ -1755,3 +1755,14 @@ body,html {
 	width:			100%;
 	padding-bottom:	0.35ex; /* to 'vertically center' text inside text-span */
 }
+
+.ui-tib {
+	width: 118px;
+	height: 22px;
+	background: url(btn-test.png) no-repeat;
+}
+.ui-tib:HOVER {
+	background-position: 0px -22px;
+}
+
+

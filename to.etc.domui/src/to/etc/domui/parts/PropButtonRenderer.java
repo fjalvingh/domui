@@ -30,6 +30,7 @@ import java.awt.geom.*;
 import java.awt.image.*;
 import java.text.*;
 import java.util.*;
+import java.util.List;
 
 import javax.annotation.*;
 import javax.imageio.*;
@@ -53,7 +54,11 @@ public class PropButtonRenderer {
 
 	private IResourceDependencyList m_dependencies;
 
+	private int m_width, m_height;
+
 	protected BufferedImage m_rootImage;
+
+	private List<BufferedImage> m_images = new ArrayList<BufferedImage>(10);
 
 	private Graphics2D m_targetGraphics;
 
@@ -67,6 +72,7 @@ public class PropButtonRenderer {
 
 		try {
 			initBackground();
+			renderBackground();
 			initIcon();
 			initTextFont();
 			initTextColor();
@@ -96,10 +102,9 @@ public class PropButtonRenderer {
 			}
 			//			System.out.println("totalwidth=" + totalwidth + ", x=" + r.getX() + ", y=" + r.getY() + ", w=" + r.getWidth() + ", h=" + r.getHeight());
 
-			if(totalwidth > m_rootImage.getWidth()) {
+			if(totalwidth > m_width) {
 				growRootWider(totalwidth);
 			}
-
 
 			if(m_iconImage != null)
 				renderIcon();
@@ -183,13 +188,55 @@ public class PropButtonRenderer {
 		}
 	}
 
+
+	/**
+	 * Load all backgrounds, and checks their sizes: they must have the exact same size.
+	 * @throws Exception
+	 */
 	protected void initBackground() throws Exception {
-		String rurl = getKey().m_img == null ? getProperty("bg.image") : "/" + getKey().m_img;
-		if(rurl != null) {
-			m_rootImage = loadImage(rurl);
+		if(getKey().m_img != null) {
+			//-- Image passed on command.
+			BufferedImage bi = loadImage("/" + getKey().m_img);
+			m_images.add(bi);
+			m_width = bi.getWidth();
+			m_height = bi.getHeight();
 			return;
 		}
-		throw new IllegalStateException("Missing 'bg.image' key in button properties file");
+
+		String rurl = getProperty("bg.image");
+		if(null == rurl)
+			throw new IllegalStateException("Missing 'bg.image' key in button properties file");
+
+		BufferedImage bi = loadImage(rurl);
+		m_images.add(bi);
+		m_width = bi.getWidth();
+		m_height = bi.getHeight();
+
+		rurl = getProperty("bg2.image");
+		if(null == rurl)
+			return;
+		bi = loadImage(rurl);
+		if(m_width != bi.getWidth() || m_height != bi.getHeight())
+			throw new IllegalStateException("Size difference between bg and bg2: they must have the exact same size");
+		m_images.add(bi);
+	}
+
+	/**
+	 * Create the target image: big enough to hold all bg images. Then render each bg on
+	 * it, below one another.
+	 * @throws Exception
+	 */
+	private void renderBackground() throws Exception {
+		if(m_height == 0 || m_images.size() == 0)
+			throw new IllegalStateException();
+		int height = m_height * m_images.size();
+		m_rootImage = new BufferedImage(m_width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = getGraphics();
+		int y = 0;
+		for(BufferedImage sbi : m_images) {
+			g.drawImage(sbi, 0, y, null);
+			y += m_height;
+		}
 	}
 
 	protected void renderIcon() throws Exception {
@@ -201,16 +248,19 @@ public class PropButtonRenderer {
 		//-- Determine a position. Height is centered;
 		String yalign = getProperty("icon.yalign", "center");
 		if("center".equalsIgnoreCase(yalign)) {
-			if(m_iconImage.getHeight() < m_rootImage.getHeight()) {
-				y = (m_rootImage.getHeight() - m_iconImage.getHeight()) / 2 + yoffset;
+			if(m_iconImage.getHeight() < m_height) {
+				y = (m_height - m_iconImage.getHeight()) / 2 + yoffset;
 			}
 		} else if("top".equalsIgnoreCase(yalign)) {
-			y = m_rootImage.getHeight() - yoffset;
+			y = m_height - yoffset;
 		} else if("bottom".equalsIgnoreCase(yalign)) {
 			y = yoffset;
 		} else
 			throw new IllegalStateException("icon.yalign must be 'top', 'bottom', 'center'");
-		getGraphics().drawImage(m_iconImage, x, y, null);
+		for(int i = 0; i < m_images.size(); i++) {
+			getGraphics().drawImage(m_iconImage, x, y, null);
+			y += m_height;
+		}
 	}
 
 	/*--------------------------------------------------------------*/
@@ -225,16 +275,6 @@ public class PropButtonRenderer {
 	private AttributedString m_attributedString;
 
 	private Color m_textColor;
-
-	//	protected void renderText() throws Exception {
-	//		if(getKey().m_text != null) {
-	//			initTextFont();
-	//			initTextColor();
-	//			decodeAccelerator();
-	//			initAttributedText();
-	//			renderAttributedText();
-	//		}
-	//	}
 
 	protected void initTextColor() {
 		String col = getProperty("text.color", "000000");
@@ -324,10 +364,10 @@ public class PropButtonRenderer {
 		//-- Calculate an Y position; this is independent of any icon rendered
 		int y = 0;
 		if("center".equals(yalign)) {
-			int cy = (m_rootImage.getHeight() - (int) r.getHeight()) / 2;
+			int cy = (m_height - (int) r.getHeight()) / 2;
 			y += cy - (int) (r.getY()) + yoffset;
 		} else if("top".equals(yalign)) {
-			y = m_rootImage.getHeight() - (int) r.getHeight() + yoffset;
+			y = m_height - (int) r.getHeight() + yoffset;
 		} else if("bottom".equals(yalign)) {
 			y = yoffset;
 		} else
@@ -372,7 +412,11 @@ public class PropButtonRenderer {
 			} else
 				throw new IllegalStateException("text.xalign must be center,left,right");
 		}
-		layout.draw(getGraphics(), x, y);
+
+		for(int i = 0; i < m_images.size(); i++) {
+			layout.draw(getGraphics(), x, y);
+			y += m_height;
+		}
 	}
 
 	/*--------------------------------------------------------------*/
