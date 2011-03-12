@@ -50,7 +50,7 @@ public class PropButtonRenderer {
 
 	private Properties m_properties;
 
-	private PropBtnPart.ButtonPartKey m_key;
+	private ButtonPartKey m_key;
 
 	private IResourceDependencyList m_dependencies;
 
@@ -64,7 +64,7 @@ public class PropButtonRenderer {
 
 	protected BufferedImage m_iconImage;
 
-	public void generate(PartResponse pr, DomApplication da, PropBtnPart.ButtonPartKey key, Properties p, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public void generate(PartResponse pr, DomApplication da, ButtonPartKey key, Properties p, @Nonnull IResourceDependencyList rdl) throws Exception {
 		m_application = da;
 		m_properties = p;
 		m_key = key;
@@ -108,10 +108,14 @@ public class PropButtonRenderer {
 
 			if(m_iconImage != null)
 				renderIcon();
-			if(getKey().m_text != null) {
+			if(getKey().getText() != null) {
 				renderAttributedText();
 			}
 			compress(pr);
+
+			//-- Pass the resulting size into extra.
+			Dimension dim = new Dimension(m_width, m_height);
+			pr.setExtra(dim);
 		} finally {
 			try {
 				if(null != m_targetGraphics)
@@ -148,6 +152,7 @@ public class PropButtonRenderer {
 			g2d.drawImage(rightbi, split + gapwidth, 0, null); // Replicate splice over the gap
 
 			m_rootImage = newbi;
+			m_width = totalwidth;
 			if(null != m_targetGraphics)
 				m_targetGraphics.dispose();
 			m_targetGraphics = null;
@@ -164,10 +169,10 @@ public class PropButtonRenderer {
 	}
 
 	protected void initIcon() throws Exception {
-		if(getKey().m_icon == null || getKey().m_icon.trim().length() == 0)
+		if(getKey().getIcon() == null || getKey().getIcon().trim().length() == 0)
 			return;
 
-		m_iconImage = loadImage("/" + getKey().m_icon);
+		m_iconImage = loadImage("/" + getKey().getIcon());
 	}
 
 	public Graphics2D getGraphics() {
@@ -194,9 +199,9 @@ public class PropButtonRenderer {
 	 * @throws Exception
 	 */
 	protected void initBackground() throws Exception {
-		if(getKey().m_img != null) {
+		if(getKey().getImg() != null) {
 			//-- Image passed on command.
-			BufferedImage bi = loadImage("/" + getKey().m_img);
+			BufferedImage bi = loadImage("/" + getKey().getImg());
 			m_images.add(bi);
 			m_width = bi.getWidth();
 			m_height = bi.getHeight();
@@ -298,7 +303,7 @@ public class PropButtonRenderer {
 
 	protected void decodeAccelerator() {
 		//-- Create an attributed text thingy to render the accelerator with an underscore.
-		String txt = getKey().m_text;
+		String txt = getKey().getText();
 		if(txt == null) {
 			m_actualText = "";
 			m_acceleratorIndex = -1;
@@ -430,11 +435,11 @@ public class PropButtonRenderer {
 			name = rurl.substring(1);
 		} else {
 			//-- Add the path to the properties file.
-			int pos = getKey().m_propfile.lastIndexOf('/');
+			int pos = getKey().getPropFile().lastIndexOf('/');
 			if(pos == -1)
 				name = rurl;
 			else
-				name = getKey().m_propfile.substring(0, pos + 1) + rurl;
+				name = getKey().getPropFile().substring(0, pos + 1) + rurl;
 		}
 		return PartUtil.loadImage(getApplication(), name, getDependencies());
 	}
@@ -447,7 +452,7 @@ public class PropButtonRenderer {
 		return m_dependencies;
 	}
 
-	public PropBtnPart.ButtonPartKey getKey() {
+	public ButtonPartKey getKey() {
 		return m_key;
 	}
 

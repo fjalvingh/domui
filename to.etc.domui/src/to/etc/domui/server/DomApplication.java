@@ -240,6 +240,10 @@ public abstract class DomApplication {
 		return null;
 	}
 
+	public PartRequestHandler getPartRequestHandler() {
+		return m_partHandler;
+	}
+
 	/**
 	 * Can be overridden to create your own instance of a session.
 	 * @return

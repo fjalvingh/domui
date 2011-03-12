@@ -24,13 +24,9 @@
  */
 package to.etc.domui.component.buttons;
 
-import java.awt.*;
-
 import to.etc.domui.dom.html.*;
-import to.etc.domui.dom.html.Button;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -50,22 +46,31 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 21, 2008
  */
-public class DefaultButton extends Button {
-	private ButtonPartKey m_key = new ButtonPartKey();
+public class StaticButton extends Button {
+	private final Img m_img;
+
+	private String m_propSrc;
+
+	private String m_text;
+
+	private String m_icon;
 
 	/**
 	 * Create an empty button.
 	 */
-	public DefaultButton() {
+	public StaticButton() {
+		m_img = new Img();
+		add(m_img);
+		m_img.setBorder(0);
 		setThemeConfig("defaultbutton.properties");
-		setCssClass("ui-dbtn");
+		setCssClass("ui-ib");
 	}
 
 	/**
 	 * Create a button with a text.
 	 * @param txt
 	 */
-	public DefaultButton(final String txt) {
+	public StaticButton(final String txt) {
 		this();
 		setText(txt);
 	}
@@ -75,19 +80,19 @@ public class DefaultButton extends Button {
 	 * @param txt
 	 * @param icon
 	 */
-	public DefaultButton(final String txt, final String icon) {
+	public StaticButton(final String txt, final String icon) {
 		this();
 		setText(txt);
 		setIcon(icon);
 	}
 
-	public DefaultButton(final String txt, final IClicked<DefaultButton> clicked) {
+	public StaticButton(final String txt, final IClicked<StaticButton> clicked) {
 		this();
 		setText(txt);
 		setClicked(clicked);
 	}
 
-	public DefaultButton(final String txt, final String icon, final IClicked<DefaultButton> clicked) {
+	public StaticButton(final String txt, final String icon, final IClicked<StaticButton> clicked) {
 		this();
 		setText(txt);
 		setIcon(icon);
@@ -101,7 +106,7 @@ public class DefaultButton extends Button {
 	 * @param src
 	 */
 	public void setConfig(final String src) {
-		m_key.setPropFile(src);
+		m_propSrc = src;
 		genURL();
 	}
 
@@ -113,7 +118,8 @@ public class DefaultButton extends Button {
 	 * @param name
 	 */
 	public void setConfig(final Class< ? > resourceBase, final String name) {
-		setConfig(DomUtil.getJavaResourceRURL(resourceBase, name));
+		m_propSrc = DomUtil.getJavaResourceRURL(resourceBase, name);
+		genURL();
 	}
 
 	/**
@@ -123,7 +129,8 @@ public class DefaultButton extends Button {
 	 * @param name
 	 */
 	public void setThemeConfig(final String name) {
-		setConfig(DomApplication.get().getThemedResourceRURL("THEME/" + name));
+		m_propSrc = DomApplication.get().getThemedResourceRURL("THEME/" + name);
+		genURL();
 	}
 
 	/**
@@ -132,7 +139,7 @@ public class DefaultButton extends Button {
 	 * @param name				The resource's name relative to the class.
 	 */
 	public void setIconImage(final Class< ? > resourceBase, final String name) {
-		m_key.setIcon(DomUtil.getJavaResourceRURL(resourceBase, name));
+		m_icon = DomUtil.getJavaResourceRURL(resourceBase, name);
 		genURL();
 	}
 
@@ -141,9 +148,18 @@ public class DefaultButton extends Button {
 	 * @param name
 	 */
 	public void setIcon(final String name) {
-		m_key.setIcon(DomApplication.get().getThemedResourceRURL(name));
+		m_icon = DomApplication.get().getThemedResourceRURL(name);
 		genURL();
 	}
+
+	//	/**
+	//	 * Sets a (new) icon on this button obtained from the current theme's directory.
+	//	 * @param name		The filename only of the image to render.
+	//	 */
+	//	public void	setThemeIcon(String name) {
+	//		m_icon = "/"+PageContext.getRequestContext().getRelativeThemePath(name);
+	//		genURL();
+	//	}
 
 	/**
 	 * Generate the URL to the button renderer. Since things like the button text can contain
@@ -154,19 +170,19 @@ public class DefaultButton extends Button {
 		if(getPage() == null)							// Not attached yet?
 			return;
 		StringBuilder sb = new StringBuilder(128);
-		m_key.append(sb);
-		setBackgroundImage(sb.toString());
-
-		//-- Determine image size: force it generated and use the cached copy for sizing
-		PartRequestHandler ph = DomApplication.get().getPartRequestHandler();
-		try {
-			CachedPart ci = ph.getCachedInstance(PropBtnPart.INSTANCE, m_key);
-			Dimension d = (Dimension) ci.getExtra();
-			setWidth(d.width + "px");
-			setHeight(d.height + "px");
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
+		sb.append(PropBtnPart.class.getName());
+		sb.append(".part?src=");
+		sb.append(m_propSrc);
+		if(m_text != null) {
+			sb.append("&txt=");
+			//			String text = DomUtil.replaceTilded(this, m_text);
+			StringTool.encodeURLEncoded(sb, m_text);
 		}
+		if(m_icon != null) {
+			sb.append("&icon=");
+			StringTool.encodeURLEncoded(sb, m_icon);
+		}
+		m_img.setSrc(sb.toString());
 	}
 
 	/**
@@ -186,8 +202,8 @@ public class DefaultButton extends Button {
 	 * Returns the text currently set on the button.
 	 * @return
 	 */
-	public String getText() {
-		return m_key.getText();
+	public String getLiteralText() {
+		return m_text;
 	}
 
 	/**
@@ -198,10 +214,15 @@ public class DefaultButton extends Button {
 	 */
 	@Override
 	public void setText(final String text) {
-		m_key.setText(text);
+		m_text = text;
 		decodeAccelerator(text);
 		genURL();
 	}
+
+	//	@Override
+	//	public void setText(final BundleRef ref, final String key) {
+	//		setLiteralText(ref.getString(key));
+	//	}
 
 	private void decodeAccelerator(final String txt) {
 		int ix = 0;

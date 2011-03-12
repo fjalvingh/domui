@@ -1756,13 +1756,10 @@ body,html {
 	padding-bottom:	0.35ex; /* to 'vertically center' text inside text-span */
 }
 
-.ui-tib {
-	width: 118px;
-	height: 22px;
-	background: url(btn-test.png) no-repeat;
+/*** DefaultButton (replaces old version, this one uses hover effects) ***/
+.ui-dbtn {
+	margin: 2px;
 }
-.ui-tib:HOVER {
+.ui-dbtn:HOVER, .ui-dbtn:FOCUS {
 	background-position: 0px -22px;
 }
-
-
