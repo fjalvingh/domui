@@ -994,7 +994,8 @@ div.ui-dt {
 }
 
 .ui-dt-hdr {
-	/* default domui table header style is still to be defined */
+	background: url(bg-dt-hdr.png) repeat-x #98bbf3;
+	color: white;
 }
 
 .ui-dt-nores {
