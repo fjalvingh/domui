@@ -837,8 +837,6 @@ final public class ConnectionPool {
 				 * connection.
 				 */
 				boolean unpooled = pe.isUnpooled();
-				if(unpooled)
-					m_unpooledAllocatedCount--; // #of unpooled is one down
 				if(ok) {
 					if(unpooled && (m_pooledAllocatedCount >= c().getMaxConns() || !pe.getUserID().equals(c().getUid()))) // Unpooled are returned only when #allocated not too big,
 						ok = false; // ok=false means do not re-use the connection
@@ -858,9 +856,10 @@ final public class ConnectionPool {
 						m_manager.panic(subj, msg);
 						throw new IllegalStateException(subj);
 					}
-					if(unpooled)
+					if(unpooled) {
+						m_unpooledAllocatedCount--; // Decrement #of unpooled, because this moves to pooled.
 						m_pooledAllocatedCount++; // Unpooled means another allocated one now
-					else
+					} else
 						m_pooledUsedCount--; // Decrement pool use count for pooled,
 					m_freeList.push(pe);
 					pe = null; // Make sure we do not use this again ;-)

@@ -256,9 +256,10 @@ final public class ConnectionProxy implements Connection {
 	 * @throws SQLException
 	 */
 	public void forceClosed() throws SQLException {
-		Thread ct = Thread.currentThread();
-		if(getOwnerThread() != ct)
-			throw new IllegalStateException("Connection (proxy) closed by thread that's not owning it!");
+// jal 20110314 Always close! Persisted connections can be reused in different threads (Decade).
+//		Thread ct = Thread.currentThread();
+//		if(getOwnerThread() != ct)
+//			throw new IllegalStateException("Connection (proxy) closed by thread that's not owning it!");
 
 		//-- Handle local chores locking THIS
 		Tracepoint tp = Tracepoint.create(null);
