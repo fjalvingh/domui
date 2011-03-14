@@ -1295,7 +1295,7 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
-		long ts = System.nanoTime();
+		//		long ts = System.nanoTime();
 		IResourceRef ires = getResource(rurl, rdl); // Get the template source file
 //		if(ires == null)
 //			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
@@ -1323,7 +1323,7 @@ public abstract class DomApplication {
 			JSTemplateCompiler tc = new JSTemplateCompiler();
 			tc.executeMap(sb, r, rurl, themeMap);
 
-			ts = System.nanoTime() - ts;
+			//			ts = System.nanoTime() - ts;
 			//			System.out.println("theme-replace: " + rurl + " took " + StringTool.strNanoTime(ts));
 			return sb.toString();
 		} finally {

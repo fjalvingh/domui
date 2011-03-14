@@ -141,7 +141,7 @@ public class PropButtonRenderer {
 
 			//-- Get the splice image;
 			BufferedImage	splice = m_rootImage.getSubimage(split, 0, 1, m_rootImage.getHeight());	// Get a 1-pixel wide splice
-			int leftsz = m_rootImage.getWidth() - split;
+			//			int leftsz = m_rootImage.getWidth() - split;
 			int gapwidth = totalwidth - m_rootImage.getWidth();
 			for(int x = split, i = gapwidth; --i >= 0; x++) {
 				g2d.drawImage(splice, x, 0, null); // Replicate splice over the gap

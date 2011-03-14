@@ -214,43 +214,43 @@ public class ControlBuilder {
 		return cf.createControl(model, pmm, editable, null, context);
 	}
 
-	/**
-	 *
-	 * @param <T>
-	 * @param controlClass
-	 * @param dataClass
-	 * @param propertyName
-	 * @param editableWhen
-	 * @return
-	 */
-	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, String propertyName, boolean editable, Object context) {
-		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(dataClass, propertyName); // Must exist or throws exception.
-		return createControl(controlClass, dataClass, pmm, editable, context);
-	}
-
-	/**
-	 *
-	 * @param <T>
-	 * @param controlClass
-	 * @param dataClass
-	 * @param pmm
-	 * @param editable
-	 * @return
-	 */
-	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, PropertyMetaModel< ? > pmm, boolean editable, Object context) {
-		if(controlClass == null)
-			throw new IllegalArgumentException("controlClass cannot be null");
-		ControlFactory cf = getControlFactory(pmm, editable, null, context);
-		ControlFactoryResult r = cf.createControl(null, pmm, editable, controlClass, context);
-
-		//-- This must have generated a single control of the specified type, so check...
-		if(r.getNodeList().length != 1)
-			throw new IllegalStateException("The control factory "+cf+" created != 1 components for a find-control-for-class query");
-		NodeBase c = r.getNodeList()[0];
-		if(!controlClass.isAssignableFrom(controlClass))
-			throw new IllegalStateException("The control factory " + cf + " created a " + c + " which is NOT assignment-compatible with the requested class " + controlClass);
-		return (T) c;
-	}
+	//	/**
+	//	 *
+	//	 * @param <T>
+	//	 * @param controlClass
+	//	 * @param dataClass
+	//	 * @param propertyName
+	//	 * @param editableWhen
+	//	 * @return
+	//	 */
+	//	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, String propertyName, boolean editable, Object context) {
+	//		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(dataClass, propertyName); // Must exist or throws exception.
+	//		return createControl(controlClass, dataClass, pmm, editable, context);
+	//	}
+	//
+	//	/**
+	//	 *
+	//	 * @param <T>
+	//	 * @param controlClass
+	//	 * @param dataClass
+	//	 * @param pmm
+	//	 * @param editable
+	//	 * @return
+	//	 */
+	//	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, PropertyMetaModel< ? > pmm, boolean editable, Object context) {
+	//		if(controlClass == null)
+	//			throw new IllegalArgumentException("controlClass cannot be null");
+	//		ControlFactory cf = getControlFactory(pmm, editable, null, context);
+	//		ControlFactoryResult r = cf.createControl(null, pmm, editable, controlClass, context);
+	//
+	//		//-- This must have generated a single control of the specified type, so check...
+	//		if(r.getNodeList().length != 1)
+	//			throw new IllegalStateException("The control factory "+cf+" created != 1 components for a find-control-for-class query");
+	//		NodeBase c = r.getNodeList()[0];
+	//		if(!controlClass.isAssignableFrom(controlClass))
+	//			throw new IllegalStateException("The control factory " + cf + " created a " + c + " which is NOT assignment-compatible with the requested class " + controlClass);
+	//		return (T) c;
+	//	}
 
 
 	/*--------------------------------------------------------------*/
