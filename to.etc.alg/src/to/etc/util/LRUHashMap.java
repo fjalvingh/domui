@@ -305,7 +305,10 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		//-- If the map has become too big then release the LRU item from it.
 		while(m_currentSize > m_maxSize) {
 			e = m_lruLast;
+			int ocs = m_currentSize;
 			removeEntry(e);
+			if(m_currentSize == ocs)
+				throw new IllegalStateException("Fail to remove entry: " + e);
 		}
 		return null;
 	}
@@ -374,8 +377,9 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		int hc = hash(k);
 		int index = hc % m_buckets.length;
 		Entry<K, V> prev = null;
+
 		for(Entry<K, V> e = m_buckets[index]; e != null; e = e.m_bucketNext) {
-			if(e.m_hashCode == hc && (e.m_key == k || k.equals(key))) {
+			if(e.m_hashCode == hc && (e.m_key == k || k.equals(e.m_key))) {
 				//-- Gotcha
 				if(prev == null)
 					m_buckets[index] = e.m_bucketNext; // Unlink
@@ -386,6 +390,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 				m_updateCounter++;
 				return e;
 			}
+			prev = e;
 		}
 		return null;
 	}
@@ -661,4 +666,19 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 			LRUHashMap.this.clear();
 		}
 	}
+
+
+	public static void main(String[] args) {
+		LRUHashMap<Integer, Integer> map = new LRUHashMap<Integer, Integer>(1000);
+		try {
+			for(int i = 0; i < 100000; i++) {
+				Integer iv = Integer.valueOf(i);
+
+				map.put(iv, iv);
+			}
+		} catch(Exception x) {
+			x.printStackTrace();
+		}
+	}
+
 }
