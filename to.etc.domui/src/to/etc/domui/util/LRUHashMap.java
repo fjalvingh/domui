@@ -407,7 +407,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 		int index = hc % m_buckets.length;
 		Entry<K, V> prev = null;
 		for(Entry<K, V> e = m_buckets[index]; e != null; e = e.m_bucketNext) {
-			if(e.m_hashCode == hc && (e.m_key == k || k.equals(key))) {
+			if(e.m_hashCode == hc && (e.m_key == k || k.equals(e.m_key))) {
 				//-- Gotcha
 				if(prev == null)
 					m_buckets[index] = e.m_bucketNext; // Unlink
