@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.input;
 
+import java.math.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -423,9 +424,9 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 						if(pl.size() == 0)
 							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + getMetaModel());
 
-						//It is required that lookup by id is also available, for now only Long type is supported
+						//It is required that lookup by id is also available, for now only Long type and BigDecimal interpretated as Long (fix for 1228) are supported
 						//FIXME: see if it is possible to generalize things for all integer based types... (DomUtil.isIntegerType(pmm.getActualType()))
-						if(pl.get(0).getActualType() == Long.class) {
+						if(pl.get(0).getActualType() == Long.class || pl.get(0).getActualType() == BigDecimal.class) {
 							try {
 								Long val = Long.valueOf(searchString);
 								if(val != null) {
