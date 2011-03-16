@@ -25,7 +25,7 @@
 package to.etc.domui.dom.css;
 
 public enum Overflow {
-	VISIBLE("visible"), HIDDEN("hidden"), SCROLL("scroll"), AUTO("auto");
+	VISIBLE("visible"), HIDDEN("hidden"), SCROLL("scroll"), AUTO("auto"), INHERIT("inherit");
 
 	private String m_txt;
 
