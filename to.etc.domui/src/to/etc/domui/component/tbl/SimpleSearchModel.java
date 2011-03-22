@@ -39,6 +39,8 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	private IQueryHandler<T> m_queryHandler;
 
+	private Map<String, ISortHelper> m_sortHelperMap = new HashMap<String, ISortHelper>();
+
 	/**
 	 * EXPERIMENTAL INTERFACE
 	 * @param contextSourceNode
@@ -72,6 +74,14 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		return m_refreshAfterShelve;
 	}
 
+	public void registerSortHelper(String name, ISortHelper helper) {
+		m_sortHelperMap.put(name, helper);
+	}
+
+	public void registerSortHelper(ISortHelper helper) {
+		m_sortHelperMap.put("*", helper);
+	}
+
 	protected void execQuery() throws Exception {
 		long ts = System.nanoTime();
 		QCriteria<T> qc = m_query; // Get the base query,
@@ -79,10 +89,16 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			qc.limit(ITableModel.DEFAULT_MAX_SIZE + 1);
 		if(m_sort != null) { // Are we sorting?
 			qc.getOrder().clear(); // FIXME Need to duplicate.
-			if(m_desc)
-				qc.descending(m_sort);
-			else
-				qc.ascending(m_sort);
+
+			ISortHelper sh = m_sortHelperMap.get(m_sort);
+			if(null == sh) {
+				if(m_desc)
+					qc.descending(m_sort);
+				else
+					qc.ascending(m_sort);
+			} else {
+				sh.adjustSort(m_sort, qc, m_desc);
+			}
 		}
 		if(m_sessionSource != null) {
 			QDataContext qs = m_sessionSource.getDataContext(); // Create/get session
