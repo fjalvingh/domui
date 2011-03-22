@@ -83,8 +83,10 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 		String caption = null;
 		String cssclass = null;
 		boolean nowrap = false;
+		SortableType sort = null;
 		INodeContentRenderer< ? > nodeRenderer = null;
 		Class< ? > nrclass = null;
+		ICellClicked< ? > clickHandler = null;
 
 		for(final Object val : cols) {
 			if(property == null) { // Always must start with a property.
@@ -102,7 +104,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 							throw new IllegalArgumentException("Unexpected 'string' parameter: '" + s + "'");
 						//-- FALL THROUGH
 					case 0:
-						internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap);
+						internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler);
 						property = s;
 						width = null;
 						conv = null;
@@ -112,6 +114,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 						nodeRenderer = null;
 						nrclass = null;
 						nowrap = false;
+						sort = null;
 						break;
 
 					case '%':
@@ -129,6 +132,8 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 				conv = (IConverter< ? >) val;
 			else if(val instanceof INodeContentRenderer< ? >)
 				nodeRenderer = (INodeContentRenderer< ? >) val;
+			else if(val instanceof ICellClicked< ? >)
+				clickHandler = (ICellClicked< ? >) val;
 			else if(val instanceof Class< ? >) {
 				final Class< ? > c = (Class< ? >) val;
 				if(INodeContentRenderer.class.isAssignableFrom(c))
@@ -137,10 +142,12 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 					convclz = c;
 				else
 					throw new IllegalArgumentException("Invalid 'class' argument: " + c);
+			} else if(val instanceof SortableType) {
+				sort = (SortableType) val;
 			} else
 				throw new IllegalArgumentException("Invalid column modifier argument: " + val);
 		}
-		internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap);
+		internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler);
 		return this;
 	}
 
@@ -187,7 +194,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
 	private void internalAddProperty(final String property, final String width, final IConverter< ? > conv, final Class< ? > convclz, final String caption, final String cssclass,
-		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap) throws Exception {
+		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler) throws Exception {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
 
@@ -205,6 +212,11 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
 			cd.setNowrap(nowrap);
+			if(sort != null)
+				cd.setSortable(sort);
+			if(clickHandler != null) {
+				cd.setCellClicked(clickHandler);
+			}
 			return;
 		}
 
@@ -228,9 +240,14 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
 			cd.setNowrap(nowrap);
+			if(sort != null)
+				cd.setSortable(sort);
 			if(pmm.getNumericPresentation() != null && pmm.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				cd.setCssClass("ui-numeric");
 				cd.setHeaderCssClass("ui-numeric");
+			}
+			if(clickHandler != null) {
+				cd.setCellClicked(clickHandler);
 			}
 			return;
 		}
@@ -278,14 +295,19 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 					scd.setPresentationConverter(c);
 				}
 			}
-			scd.setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
-			scd.setSortable(xdp.getSortable());
+			if(sort != null)
+				scd.setSortable(sort);
+			else
+				scd.setSortable(xdp.getSortable());
 			scd.setPropertyName(xdp.getName());
 			scd.setNowrap(nowrap);
 			scd.setNumericPresentation(xdp.getNumericPresentation());
 			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				scd.setCssClass("ui-numeric");
 				scd.setHeaderCssClass("ui-numeric");
+			}
+			if(clickHandler != null) {
+				scd.setCellClicked(clickHandler);
 			}
 		}
 	}

@@ -90,7 +90,8 @@ public class DateInput extends Text<Date> {
 	public void setReadOnly(boolean readOnly) {
 		super.setReadOnly(readOnly);
 		m_selCalButton.setDisplay(readOnly ? DisplayType.NONE : null);
-		m_todayButton.setDisplay(readOnly ? DisplayType.NONE : null);
+		if(null != m_todayButton)
+			m_todayButton.setDisplay(readOnly ? DisplayType.NONE : null);
 	}
 
 	public boolean isWithTime() {
