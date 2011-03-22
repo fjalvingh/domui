@@ -27,12 +27,24 @@ public class DateInput extends Text<Date> {
 
 	private boolean m_hideTodayButton;
 
+	/**
+	 * Default constructor creates a date-only input.
+	 */
 	public DateInput() {
+		this(false);
+	}
+
+	/**
+	 * Create a date or dateTime input.
+	 * @param withtime
+	 */
+	public DateInput(boolean withtime) {
 		super(Date.class);
 		setMaxLength(10);
 		setSize(10);
 		setConverter(ConverterRegistry.getConverterInstance(DateConverter.class));
 		m_selCalButton = new SmallImgButton("THEME/btn-datein.png");
+		setWithTime(withtime);
 	}
 
 	@Override
@@ -58,6 +70,7 @@ public class DateInput extends Text<Date> {
 						}
 					}
 				});
+				m_todayButton.setDisplay(isReadOnly() || isDisabled() ? DisplayType.NONE : null);
 			}
 			m_selCalButton.appendAfterMe(m_todayButton);
 		}
@@ -89,9 +102,18 @@ public class DateInput extends Text<Date> {
 	@Override
 	public void setReadOnly(boolean readOnly) {
 		super.setReadOnly(readOnly);
+		super.setDisabled(readOnly);
 		m_selCalButton.setDisplay(readOnly ? DisplayType.NONE : null);
 		if(null != m_todayButton)
 			m_todayButton.setDisplay(readOnly ? DisplayType.NONE : null);
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		super.setDisabled(disabled);
+		m_selCalButton.setDisplay(disabled ? DisplayType.NONE : null);
+		if(null != m_todayButton)
+			m_todayButton.setDisplay(disabled ? DisplayType.NONE : null);
 	}
 
 	public boolean isWithTime() {
