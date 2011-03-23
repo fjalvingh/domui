@@ -2,6 +2,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.dom.html.*;
@@ -14,7 +16,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2008
  */
-public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeyedTableModel<T>, ITruncateableDataModel, ISortableTableModel, IShelvedListener {
+public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeyedTableModel<T>, ITruncateableDataModel, IProgrammableSortableModel, IShelvedListener {
 	private static final Logger LOG = LoggerFactory.getLogger(SimpleSearchModel.class);
 
 	/** Thingy to get a database session from, if needed, */
@@ -31,15 +33,21 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	private boolean m_truncated;
 
+	/** If we sort on property name this is the property name to sort on. */
 	private String m_sort;
 
+	/** If we sort using a helper this contains that helper. */
+	private ISortHelper m_sortHelper;
+
+	/** If sorting, this is T if the sort should be descending. */
 	private boolean m_desc;
 
 	private boolean m_refreshAfterShelve;
 
 	private IQueryHandler<T> m_queryHandler;
 
-	private Map<String, ISortHelper> m_sortHelperMap = new HashMap<String, ISortHelper>();
+	/** The criteria to use when the sort spec is to be adapted during execution of a sort helper. Null if not executing a sort helper. */
+	private QCriteria< ? > m_sortCriteria;
 
 	/**
 	 * EXPERIMENTAL INTERFACE
@@ -74,32 +82,13 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		return m_refreshAfterShelve;
 	}
 
-	public void registerSortHelper(String name, ISortHelper helper) {
-		m_sortHelperMap.put(name, helper);
-	}
-
-	public void registerSortHelper(ISortHelper helper) {
-		m_sortHelperMap.put("*", helper);
-	}
-
 	protected void execQuery() throws Exception {
 		long ts = System.nanoTime();
 		QCriteria<T> qc = m_query; // Get the base query,
 		if(qc.getLimit() <= 0)
 			qc.limit(ITableModel.DEFAULT_MAX_SIZE + 1);
-		if(m_sort != null) { // Are we sorting?
-			qc.getOrder().clear(); // FIXME Need to duplicate.
+		handleQuerySorting(qc);
 
-			ISortHelper sh = m_sortHelperMap.get(m_sort);
-			if(null == sh) {
-				if(m_desc)
-					qc.descending(m_sort);
-				else
-					qc.ascending(m_sort);
-			} else {
-				sh.adjustSort(m_sort, qc, m_desc);
-			}
-		}
 		if(m_sessionSource != null) {
 			QDataContext qs = m_sessionSource.getDataContext(); // Create/get session
 			m_workResult = qs.query(qc); // Execute the query.
@@ -121,6 +110,40 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			LOG.debug("db: persistence framework query and materialize took " + StringTool.strNanoTime(ts));
 		}
 	}
+
+	protected void handleQuerySorting(QCriteria<T> qc) {
+		//-- Handle the different sort forms. Are we sorting on property name?
+		if(m_sort != null) {
+			qc.getOrder().clear(); // FIXME Need to duplicate.
+			if(m_desc)
+				qc.descending(m_sort);
+			else
+				qc.ascending(m_sort);
+			return;
+		}
+
+		//-- Do we have a sort helper method here?
+		if(m_sortHelper != null) {
+			qc.getOrder().clear(); // FIXME Need to duplicate.
+			try {
+				m_sortCriteria = qc; // Only allow sort criteria access when sorting.
+				m_sortHelper.adjustSort(this, m_desc);
+			} finally {
+				m_sortCriteria = null;
+			}
+			return;
+		}
+
+		//-- We're not sorting.
+	}
+
+	@Nonnull
+	public QCriteria< ? > getSortCriteria() {
+		if(m_sortCriteria == null)
+			throw new IllegalStateException("Sort criteria can be accessed during sort helper execution ONLY.");
+		return m_sortCriteria;
+	}
+
 
 	public boolean isTruncated() {
 		return m_truncated;
@@ -209,6 +232,26 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	public boolean isSortDescending() {
 		return m_desc;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IProgrammableSortableModel impl.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Set a sorter to sort the result.
+	 * @see to.etc.domui.component.tbl.IProgrammableSortableModel#sortOn(to.etc.domui.component.tbl.ISortHelper, boolean)
+	 */
+	@Override
+	public void sortOn(ISortHelper helper, boolean descending) throws Exception {
+		if(m_sort == null && m_sortHelper == helper && m_desc == descending)
+			return;
+
+		clear();
+		m_sort = null;
+		m_sortHelper = helper;
+		m_desc = descending;
+		fireModelChanged();
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IShelveListener implementation.						*/
