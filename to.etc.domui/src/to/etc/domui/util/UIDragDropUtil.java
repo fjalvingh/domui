@@ -42,6 +42,8 @@ public final class UIDragDropUtil {
 			base.addCssClass("ui-drgbl");
 			base.setOnMouseDownJS("WebUI.dragMouseDown(this, event)");
 			base.setSpecialAttribute("uitype", dh.getTypeName(base));
+			if(dh.getDragArea() != null)
+				base.setSpecialAttribute("dragarea", dh.getDragArea().getActualID());
 		}
 	}
 

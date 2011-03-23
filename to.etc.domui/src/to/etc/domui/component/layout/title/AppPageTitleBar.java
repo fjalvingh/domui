@@ -78,14 +78,12 @@ public class AppPageTitleBar extends BasePageTitleBar {
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
-		Table tbl = new Table();
-		add(tbl);
 		TBody b = new TBody();
-		tbl.add(b);
-		tbl.setCssClass("ui-atl");
-		tbl.setCellPadding("0");
-		tbl.setCellSpacing("0");
-		tbl.setTableBorder(0);
+		add(b);
+		setCssClass("ui-atl");
+		setCellPadding("0");
+		setCellSpacing("0");
+		setTableBorder(0);
 		TR tr = b.addRow();
 		b.add(tr);
 

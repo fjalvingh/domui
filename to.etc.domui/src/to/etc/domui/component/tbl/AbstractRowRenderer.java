@@ -26,6 +26,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.ntbl.*;
 import to.etc.domui.converter.*;
@@ -34,6 +36,13 @@ import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
+/**
+ * Base class for the old and new row renderers, handling most presentation. The configuration is
+ * mostly handled by the subclasses.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Feb 15, 2009
+ */
 public class AbstractRowRenderer<T> {
 	/** The class whose instances we'll render in this table. */
 	private final Class<T> m_dataClass;
@@ -241,6 +250,7 @@ public class AbstractRowRenderer<T> {
 		int ix = 0;
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
 		StringBuilder sb = new StringBuilder();
+
 		for(final SimpleColumnDef cd : m_columnList) {
 			TH th;
 			String label = cd.getColumnLabel();
@@ -248,10 +258,16 @@ public class AbstractRowRenderer<T> {
 				//-- Just add the label, if present,
 				th = cc.add(label);
 			} else {
+				//in order to apply correct positioning, we need to wrap Span around sort indicator image and label
+				final Div cellSpan = new Div();
+				cellSpan.setCssClass("ui-sortable");
+				th = cc.add(cellSpan);
+				th.setCssClass("ui-sortable");
+
 				//-- Add the sort order indicator: a single image containing either ^, v or both.
 				final Img img = new Img();
-				th = cc.add(img); // Add the label;
-				//				img.setBorder(0);
+				cellSpan.add(img);
+
 				if(cd == m_sortColumn) {
 					img.setSrc(m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 				} else {
@@ -259,10 +275,10 @@ public class AbstractRowRenderer<T> {
 				}
 				m_sortImages[ix] = img;
 
+				// Add the label;
 				if(label == null || label.trim().length() == 0)
 					label = getUnknownColumnCaption();
-				th.add(new Span(label));
-				th.setCssClass("ui-sortable");
+				cellSpan.add(new Span(label));
 				final SimpleColumnDef scd = cd;
 				th.setClicked(new IClicked<TH>() {
 					@Override
@@ -345,20 +361,17 @@ public class AbstractRowRenderer<T> {
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	public void renderRow(final TableModelTableBase<T> tbl, final ColumnContainer<T> cc, final int index, final T instance) throws Exception {
-		if(m_rowClicked != null) {
-			/*
-			 * FIXME For now I add a separate instance of the handler to every row. A single instance is OK too,
-			 * provided it can calculate the row data from the TR it is attached to.
-			 */
-			cc.getTR().setClicked(new IClicked<TR>() {
-				@Override
-				@SuppressWarnings("unchecked")
-				public void clicked(final TR b) throws Exception {
-					((ICellClicked<T>) getRowClicked()).cellClicked(b, instance);
-				}
-			});
-			cc.getTR().addCssClass("ui-rowsel");
-		}
+		//		if(m_rowClicked != null || null != tbl.getSelectionModel()) {
+		//			//-- Add a click handler to select or pass the rowclicked event.
+		//			cc.getTR().setClicked(new IClicked2<TR>() {
+		//				@Override
+		//				@SuppressWarnings("unchecked")
+		//				public void clicked(TR b, ClickInfo clinfo) throws Exception {
+		//					handleRowClick(tbl, b, instance, clinfo);
+		//				}
+		//			});
+		//			cc.getTR().addCssClass("ui-rowsel");
+		//		}
 
 		for(final SimpleColumnDef cd : m_columnList) {
 			renderColumn(tbl, cc, index, instance, cd);
@@ -380,21 +393,6 @@ public class AbstractRowRenderer<T> {
 			cc.getTR().addCssClass("ui-odd");
 		}
 	}
-
-	//	/**
-	//	 * (Do not use: use setNodeRenderer() or setConverter instead!)
-	//	 *
-	//	 * Provides posibility of converion into rendering value. This method should be used as last resource rendering data conversion.
-	//	 * @param index
-	//	 * @param instance
-	//	 * @param cd
-	//	 * @param colVal
-	//	 * @return string representation of colVal to be rendered.
-	//	 */
-	//	@Deprecated
-	//	final protected String provideStringValue(final int index, final Object instance, final SimpleColumnDef cd, final Object colVal) {
-	//		return colVal.toString();
-	//	}
 
 	/**
 	 * Render a single column fully.
@@ -463,24 +461,29 @@ public class AbstractRowRenderer<T> {
 		}
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Setters and getters.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @return
+	 */
+	@Nullable
 	public IRowButtonFactory<T> getRowButtonFactory() {
 		return m_rowButtonFactory;
 	}
 
-	public void setRowButtonFactory(IRowButtonFactory<T> rowButtonFactory) {
+	public void setRowButtonFactory(@Nullable IRowButtonFactory<T> rowButtonFactory) {
 		m_rowButtonFactory = rowButtonFactory;
 	}
 
-	public void setUnknownColumnCaption(String unknownColumnCaption) {
+	public void setUnknownColumnCaption(@Nullable String unknownColumnCaption) {
 		m_unknownColumnCaption = unknownColumnCaption;
 	}
 
+	@Nonnull
 	public String getUnknownColumnCaption() {
-		if(m_unknownColumnCaption == null) {
-			return "";//FIXME: Was "(unknown)". It remains to be decided whether this is needed to be customizable? We hava some call that says that this have to be empty by default.
-		} else {
-			return m_unknownColumnCaption;
-		}
+		return m_unknownColumnCaption == null ? "" : m_unknownColumnCaption;
 	}
 
 }

@@ -571,12 +571,20 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o.endtag();
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Core node rendering.								*/
+	/*--------------------------------------------------------------*/
+	public void basicNodeRender(final NodeBase b, final IBrowserOutput o) throws Exception {
+		basicNodeRender(b, o, false);
+	}
+
 	/**
 	 * Basic rendering of a node. This renders the tag and all shared attributes.
 	 * @param o
 	 * @throws Exception
 	 */
-	public void basicNodeRender(final NodeBase b, final IBrowserOutput o) throws Exception {
+	public void basicNodeRender(final NodeBase b, final IBrowserOutput o, boolean inhibitevents) throws Exception {
 		renderTag(b, o);
 		if(m_tagless)
 			o.attr("select", "#" + b.getActualID()); // Always has an ID
@@ -611,33 +619,18 @@ public class HtmlTagRenderer implements INodeVisitor {
 		}
 
 		//-- Javascriptish
-		//-- jal 20110125 Start fixing bug# 917: the idiots in the room (IE 7, 8) do not properly handle onchange on checkbox, sigh.
-		if(m_browserVersion.isIE() && b instanceof Checkbox) {
-			Checkbox cb = (Checkbox) b;
+		if(inhibitevents)
+			return;
 
-			//-- To fix IE's 26385652791725917435'th bug use the clicked listener to handle change events too.
-			if(b.internalNeedClickHandler() || cb.getOnValueChanged() != null) {
-				o.attr("onclick", sb().append("return WebUI.clickandchange(this, '").append(b.getActualID()).append("', event)").toString());
-			} else if(b.getOnClickJS() != null) {
-				o.attr("onclick", b.getOnClickJS());
-			}
-			//			if(b instanceof IHasChangeListener) {
-			//				IHasChangeListener inb = (IHasChangeListener) b;
-			//				if(null != inb.getOnValueChanged()) {
-			//					o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
-			//				}
-			//			}
-		} else {
-			if(b.internalNeedClickHandler()) {
-				o.attr("onclick", sb().append("return WebUI.clicked(this, '").append(b.getActualID()).append("', event)").toString());
-			} else if(b.getOnClickJS() != null) {
-				o.attr("onclick", b.getOnClickJS());
-			}
-			if(b instanceof IHasChangeListener) {
-				IHasChangeListener inb = (IHasChangeListener) b;
-				if(null != inb.getOnValueChanged()) {
-					o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
-				}
+		if(b.internalNeedClickHandler()) {
+			o.attr("onclick", sb().append("return WebUI.clicked(this, '").append(b.getActualID()).append("', event)").toString());
+		} else if(b.getOnClickJS() != null) {
+			o.attr("onclick", b.getOnClickJS());
+		}
+		if(b instanceof IHasChangeListener) {
+			IHasChangeListener inb = (IHasChangeListener) b;
+			if(null != inb.getOnValueChanged()) {
+				o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
 			}
 		}
 
@@ -876,6 +869,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 		}
 
 		if(n.getOnLookupTyping() != null) {
+			//20110304 vmijic: must be done using onkeypress (I tried onkeydown in combination with setReturnPressed, but that fails since onkeydown change model, so setReturnPressed is fired for dead node that results with exception)
+			o().attr("onkeypress", sb().append(transformScript).append("WebUI.onLookupTypingReturnKeyHandler('").append(n.getActualID()).append("', event)").toString());
 			o().attr("onkeyup", sb().append(transformScript).append("WebUI.scheduleOnLookupTypingEvent('").append(n.getActualID()).append("', event)").toString());
 			o().attr("onblur", sb().append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
 		} else {
@@ -911,36 +906,70 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 * Render the basic input tag.
 	 * @see to.etc.domui.dom.html.INodeVisitor#visitInput(to.etc.domui.dom.html.Input)
 	 */
+	@SuppressWarnings("deprecation")
 	@Override
 	public void visitCheckbox(final Checkbox n) throws Exception {
-		basicNodeRender(n, m_o);
+		basicNodeRender(n, m_o, true);
 		renderType("checkbox");
-		//
-		//		if(! isUpdating())
-		//			o().attr("type", "checkbox");					// FIXME Cannot change the "type" of an existing INPUT node.
 		o().attr("name", n.getActualID());
 		renderDisabled(n, n.isDisabled()); // 20091110 jal Checkboxes do not have a readonly attribute.
 		renderChecked(n, n.isChecked());
+
+		//-- jal 20110125 Start fixing bug# 917: the idiots in the room (IE 7, 8) do not properly handle onchange on checkbox, sigh.
+		if(m_browserVersion.isIE()) {
+			//-- To fix IE's 26385652791725917435'th bug use the clicked listener to handle change events too.
+			if(n.internalNeedClickHandler() || n.getOnValueChanged() != null) {
+				m_o.attr("onclick", sb().append("WebUI.clickandchange(this, '").append(n.getActualID()).append("', event); return true;").toString());
+			} else if(n.getOnClickJS() != null) {
+				m_o.attr("onclick", n.getOnClickJS());
+			}
+		} else {
+			if(n.internalNeedClickHandler()) {
+				m_o.attr("onclick", sb().append("WebUI.clicked(this, '").append(n.getActualID()).append("', event); return true;").toString());
+			} else if(n.getOnClickJS() != null) {
+				m_o.attr("onclick", n.getOnClickJS());
+			}
+			if(null != n.getOnValueChanged()) {
+				m_o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(n.getActualID()).append("', event)").toString());
+			}
+		}
+
 		renderTagend(n, m_o);
 	}
 
 	/**
-	 * JoS : 20 Augustus 2008
 	 * Render the basic radio button
 	 * @see to.etc.domui.dom.html.INodeVisitor#visitInput(to.etc.domui.dom.html.Input)
 	 */
 	@Override
-	public void visitRadioButton(final RadioButton n) throws Exception {
-		basicNodeRender(n, m_o);
-		//		if(! isUpdating())
-		//			o().attr("type", "radio");					// FIXME Cannot change the "type" of an existing INPUT node.
+	public void visitRadioButton(final RadioButton< ? > n) throws Exception {
+		basicNodeRender(n, m_o, true);
 		renderType("radio");
-
+		//		m_o.attr("value", n.getActualID());
 		if(n.getName() != null)
 			o().attr("name", n.getName());
 
 		renderDiRo(n, n.isDisabled(), n.isReadOnly());
 		renderChecked(n, n.isChecked());
+
+		//-- jal 20110125 Start fixing bug# 917: the idiots in the room (IE 7, 8) do not properly handle onchange on checkbox, sigh.
+		if(m_browserVersion.isIE()) {
+			//-- To fix IE's 26385652791725917435'th bug use the clicked listener to handle change events too.
+			if(n.internalNeedClickHandler() || n.getGroup().getOnValueChanged() != null) {
+				m_o.attr("onclick", sb().append("WebUI.clickandchange(this, '").append(n.getActualID()).append("', event); return true;").toString());
+			} else if(n.getOnClickJS() != null) {
+				m_o.attr("onclick", n.getOnClickJS());
+			}
+		} else {
+			if(n.internalNeedClickHandler()) {
+				m_o.attr("onclick", sb().append("WebUI.clicked(this, '").append(n.getActualID()).append("', event); return true;").toString());
+			} else if(n.getOnClickJS() != null) {
+				m_o.attr("onclick", n.getOnClickJS());
+			}
+			if(null != n.getGroup().getOnValueChanged()) {
+				m_o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(n.getActualID()).append("', event)").toString());
+			}
+		}
 		renderTagend(n, m_o);
 	}
 

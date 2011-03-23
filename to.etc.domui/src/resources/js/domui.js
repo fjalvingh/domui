@@ -11,10 +11,10 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 		processDoc(xml);
 	};
 
-	if($().jquery === "1.4.1") {
-		$.expr[':'].taconiteTag = function(a) { return a.taconiteTag === 1; };
-	} else {
+	if($().jquery === "1.2.6") {
 		$.expr[':'].taconiteTag = 'a.taconiteTag';
+	} else {
+		$.expr[':'].taconiteTag = function(a) { return a.taconiteTag === 1; };
 	}
 
 	// add 'replace' and 'replaceContent' plugins (conditionally)
@@ -61,7 +61,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	// convert string to xml document
 	function convert(s) {
 		var doc;
-		log('attempting string to document conversion');
+		//log('attempting string to document conversion');
 		try {
 			if (window.ActiveXObject) {
 				doc = new ActiveXObject('Microsoft.XMLDOM');
@@ -78,7 +78,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			throw e;
 		}
 		var ok = doc && doc.documentElement && doc.documentElement.tagName != 'parsererror';
-		log('conversion ', ok ? 'successful!' : 'FAILED');
+		//log('conversion ', ok ? 'successful!' : 'FAILED');
 		if (!ok) {
 			if(doc && doc.documentElement)
 				log(doc.documentElement.textContent);
@@ -147,7 +147,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			// process the document
 			process(xml.documentElement.childNodes);
 			var lastTime = (new Date().getTime()) - t;
-			log('Response handled in ' + lastTime + 'ms');
+			//log('Response handled in ' + lastTime + 'ms');
 	//	} catch (e) {
 	//		if (window.console && window.console.debug)
 	//			window.console.debug('ERROR in xml handler:' + e, e);
@@ -165,7 +165,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				if (cmd == 'eval') {
 					try {
 						var js = (cmdNode.firstChild ? cmdNode.firstChild.nodeValue : null);
-						log('invoking "eval" command: ', js);
+						//log('invoking "eval" command: ', js);
 						if (js)
 							$.globalEval(js);
 					} catch(ex) {
@@ -207,6 +207,12 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							if (n == 'style') { // IE workaround
 								dest.style.cssText = v;
 								dest.setAttribute(n, v);
+								//We need this dirty fix for IE7 to force refresh of divs that has just become visible.
+								if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
+									if ((dest.tagName.toLowerCase() == 'div') && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))){
+										WebUI.refreshElement(dest.id);
+									}
+								}								
 							} else {
 								//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
 //								alert('changeAttr: id='+dest.id+' change '+n+" to "+v);
@@ -256,7 +262,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 
 				if (true) {
 					var arg = els ? '...' : a.join(',');
-					log("invoke command: $('", q, "').", cmd, '(' + arg + ')');
+					//log("invoke command: $('", q, "').", cmd, '(' + arg + ')');
 				}
 				jq[cmd].apply(jq, a);
 			}
@@ -424,6 +430,25 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	$.fn.executeDeltaXML = executeXML;
 })(jQuery);
 
+/** 
+ * jQuery scroll overflow fixerydoo for IE7's "let's create huge problems by putting a scrollbar inside the scrolling area" blunder. It
+ * locates all scrolled-in area's and adds 20px of padding at the bottom.
+ */
+(function ($) {
+	$.fn.fixOverflow = function () {
+		if(! $.browser.msie || $.browser.version.substring(0, 1) != "7")
+			return this;
+//		alert('fixing overflow: '+$.browser.msie+", ver="+$.browser.version);
+
+		return this.each(function () {
+			if (this.scrollWidth > this.offsetWidth) {
+				$(this).css({ 'padding-bottom' : '20px', 'overflow-y' : 'hidden' });
+			}
+		});            
+	};
+})(jQuery);
+
+/** WebUI helper namespace */
 var WebUI = {
 	/**
 	 * Create a curried function containing a 'this' and a fixed set of elements.
@@ -469,7 +494,7 @@ var WebUI = {
 				continue;
 
 			var val = undefined;
-			if (t.type == 'checkbox') {
+			if (t.type == 'checkbox' || t.type == 'radio') {
 				val = t.checked ? "y" : "n";
 			} else {
 				val = t.value;
@@ -537,6 +562,7 @@ var WebUI = {
 		fields["$pt"] = DomUIpageTag;
 		fields["$cid"] = DomUICID;
 		WebUI.cancelPolling();
+		
 		//-- Do not call upward handlers too.
 		if(! evt)
 			evt = window.event;
@@ -545,7 +571,16 @@ var WebUI = {
 			if(evt.stopPropagation)
 				evt.stopPropagation();
 		}
+		var e = $.event.fix(evt);		// Convert to jQuery event
+		//e.preventDefault(); // jal 20110216 DO NOT PREVENTDEFAULT- it will disable checkbox enable/disable
 
+		//-- add click-related parameters
+		fields._pageX = e.pageX;
+		fields._pageY = e.pageY;
+		fields._controlKey = e.ctrlKey == true;
+		fields._shiftKey = e.shiftKey == true;
+		fields._altKey = e.altKey == true;
+		
 		$.ajax( {
 			url :DomUI.getPostURL(),
 			dataType :"text/xml",
@@ -580,7 +615,15 @@ var WebUI = {
 		});
 	},
 
-	clickandchange: function(h, id) {
+	clickandchange: function(h, id, evt) {
+		//-- Do not call upward handlers too.
+		if(! evt)
+			evt = window.event;
+		if(evt) {
+			evt.cancelBubble = true;
+			if(evt.stopPropagation)
+				evt.stopPropagation();
+		}
 		WebUI.scall(id, 'clickandvchange');
 	},
 	
@@ -613,6 +656,48 @@ var WebUI = {
 	},
 
 	/**
+	 * Handle enter key pressed on keyPress for component with onLookupTyping listener. This needs to be executed on keyPress (was part of keyUp handling), otherwise other global return key listener (returnKeyPress handler) would fire.
+	 */
+	onLookupTypingReturnKeyHandler : function(id, event) {
+		var node = document.getElementById(id);
+		if(!node || node.tagName.toLowerCase() != 'input')    
+			return;
+
+		if(!event){
+			event = window.event;
+			if (!event)
+				return;
+		}
+		
+		var keyCode = WebUI.normalizeKey(event);
+		var isReturn = (keyCode == 13000 || keyCode == 13);
+		
+		if (isReturn) {
+			//cancel current scheduledOnLookupTypingTimerID 
+			if (WebUI.scheduledOnLookupTypingTimerID){
+				//cancel already scheduled timer event 
+				window.clearTimeout(WebUI.scheduledOnLookupTypingTimerID);
+				WebUI.scheduledOnLookupTypingTimerID = null;
+			}
+			//Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
+			event.cancelBubble = true;
+			if(event.stopPropagation)
+				event.stopPropagation();
+
+			//locate keyword input node 
+			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+			if(trNode){
+				//trigger click on row 
+				$(trNode).trigger('click');
+			} else {
+				//trigger lookupTypingDone when return is pressed
+				WebUI.lookupTypingDone(id);
+			}
+		}
+	},
+	
+	/**
 	 * Handle for timer delayed actions, used for onLookupTyping event.
 	 */
 	scheduledOnLookupTypingTimerID: null,
@@ -634,6 +719,14 @@ var WebUI = {
 				return;
 		}
 		var keyCode = WebUI.normalizeKey(event);
+		var isReturn = (keyCode == 13000 || keyCode == 13);
+		if (isReturn) { //handled by onLookupTypingReturnKeyHandler, just cancel propagation
+			event.cancelBubble = true;
+			if(event.stopPropagation)
+				event.stopPropagation();
+			return;
+		}
+
 		var isLeftArrowKey = (keyCode == 37000 || keyCode == 37);
 		var isRightArrowKey = (keyCode == 39000 || keyCode == 39);
 		if (isLeftArrowKey || isRightArrowKey){
@@ -645,28 +738,14 @@ var WebUI = {
 			window.clearTimeout(WebUI.scheduledOnLookupTypingTimerID);
 			WebUI.scheduledOnLookupTypingTimerID = null;
 		}
-		var isReturn = (keyCode == 13000 || keyCode == 13);
 		var isDownArrowKey = (keyCode == 40000 || keyCode == 40);
 		var isUpArrowKey = (keyCode == 38000 || keyCode == 38);
-		if (isReturn || isDownArrowKey || isUpArrowKey) {
+		if (isDownArrowKey || isUpArrowKey) {
 			//Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
 			event.cancelBubble = true;
 			if(event.stopPropagation)
 				event.stopPropagation();
-		}
-		if (isReturn){
-			//handle return key 
-			//locate keyword input node 
-			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
-			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
-			if(trNode){
-				WebUI.clicked(trNode, trNode.id, null);
-			} else {
-				//trigger lookupTypingDone when return is pressed
-				WebUI.lookupTypingDone(id);
-			}
-		}
-		else if(isDownArrowKey || isUpArrowKey){
+
 			//locate keyword input node
 			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
 			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
@@ -791,26 +870,33 @@ var WebUI = {
 		var qDivPopup = $(node.parentNode).children("div.ui-lui-keyword-popup");
 		if (qDivPopup.length > 0){
 			var divPopup = qDivPopup.get(0); 
-			//must be set manually from javascript because bug in domui, parent attribute updated from child node is not rendered in response
+			//z-index correction must be set manually from javascript (because some bug in IE7 -> if set from domui renders incorrectly until page is refreshed?)
+			divPopup.style.zIndex = node.style.zIndex + 1;
 			node.parentNode.style.zIndex = divPopup.style.zIndex;
 		}else{
 			//fix z-index to one saved in input node
 			node.parentNode.style.zIndex = node.style.zIndex;
 		}
+		
 		if (wasInFocus && divPopup){
 			//show popup in case that input field still has focus
 			$(divPopup).show();
 		}
-		
+
 		var trNods = $(qDivPopup).children("div").children("table").children("tbody").children("tr");
 		if (trNods && trNods.length > 0) {
 			for(var i=0; i < trNods.length; i++) {
 				var trNod = trNods.get(i);
-				trNod.setAttribute("onmouseover","WebUI.lookupRowMouseOver('" + id + "', '" + trNod.id + "');");
+				//we need this jquery way of attaching events, if we use trNod.setAttribute("onmouseover",...) it does not work in IE7
+				$(trNod).bind("mouseover", {nodeId: id, trId: trNod.id}, function(event) {
+					WebUI.lookupRowMouseOver(event.data.nodeId, event.data.trId);
+				});
 			}
 		}
 		if (divPopup){
-			divPopup.setAttribute("onclick","WebUI.lookupPopupClicked('" + id + "');");
+			$(divPopup).bind("click", {nodeId: id}, function(event) { 
+				WebUI.lookupPopupClicked(event.data.nodeId); 
+			});
 		}
 	},
 	
@@ -1527,6 +1613,9 @@ var WebUI = {
 
 		return false;
 	},
+	
+	_selectStart : undefined,
+	
 
 	/** ************ Drag-and-drop support code ****************** */
 	/**
@@ -1539,15 +1628,30 @@ var WebUI = {
 		WebUI._dragType = item.getAttribute('uitype');
 		if (!WebUI._dragType)
 			alert("This DRAGGABLE node has no 'uitype' attribute??");
+		var dragAreaId = item.getAttribute('dragarea'); 
+		if (dragAreaId){
+			WebUI._dragNode  = document.getElementById(dragAreaId);
+		}else
+			WebUI._dragNode = item;
 		WebUI._dragMode = 1; // PREDRAG
-		WebUI._dragNode = item;
 		$(document.body).bind("mousemove", WebUI.dragMouseMove);
 		$(document.body).bind("mouseup", WebUI.dragMouseUp);
 		var apos = WebUI.getAbsolutePosition(item);
 		WebUI._dragSourceOffset = apos;
 		apos.x = evt.clientX - apos.x;
 		apos.y = evt.clientY - apos.y;
-		evt.preventDefault(); // Prevent ffox image dragging
+		if(evt.preventDefault)
+			evt.preventDefault(); // Prevent ffox image dragging
+		else{
+			evt.returnValue = false;
+		}
+		if(document.attachEvent){
+			document.attachEvent( "onselectstart", WebUI.preventSelection);
+		}
+	},
+	
+	preventSelection : function(){
+		return false;
 	},
 
 	dragMouseUp : function() {
@@ -1560,6 +1664,8 @@ var WebUI = {
 				if (dz) {
 					WebUI.dropClearZone(); // Discard any dropzone visuals
 					dz._drophandler.drop(dz);
+				}else{  
+					WebUI._dragNode.style.display='';//no drop zone, so restore the dragged item
 				}
 			}
 		} finally {
@@ -1577,6 +1683,9 @@ var WebUI = {
 			// -- preDRAG mode: create the node copy, then move it to the
 			// offset' location.
 			WebUI._dragCopy = WebUI.dragCreateCopy(WebUI._dragNode);
+			//MVE make this optional.
+			WebUI._dragNode.style.display='none';
+			
 			WebUI._dragMode = 2;
 			document.body.appendChild(WebUI._dragCopy);
 		}
@@ -1613,8 +1722,8 @@ var WebUI = {
 		}
 
 		dv.style.position = 'absolute';
-		dv.style.width = source.clientWidth + "px";
-		dv.style.height = source.clientHeigt + "px";
+		dv.style.width = $(source).width() + "px";
+		dv.style.height = $(source).height() + "px";
 		//console.debug("DragNode isa "+source.tagName+", "+dv.innerHTML);
 		return dv;
 	},
@@ -1698,6 +1807,14 @@ var WebUI = {
 		}
 		WebUI.dropClearZone();
 		WebUI._dragMode = 0; // NOTDRAGGED
+		
+		if(document.detachEvent){
+			document.detachEvent( "onselectstart", WebUI.preventSelection);
+		}
+		
+//		if(WebUI._selectStart){
+//			document.onselectstart = WebUI._selectStart;  
+//		}
 	},
 
 	/**
@@ -1880,6 +1997,10 @@ var WebUI = {
 	
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
 	debug : function(debugId, posX, posY, debugInfoHtml) {
+		//Be aware that debugId must not start with digit when using FF! Just lost 1 hour to learn this...
+		if ("0123456789".indexOf(debugId.charAt(0)) > -1){
+			alert("debugId(" + debugId+ ") starts with digit! Please use different one!");
+		}
 		var debugPanel = document.getElementById(debugId);
 		if (null == debugPanel){
 			debugPanel = document.createElement(debugId);
@@ -2065,8 +2186,71 @@ var WebUI = {
 			WebUI._debugMouseTarget = e.srcElement || e.originalTarget;
 			
 		});
+	},
+
+	_popinCloseList: [],
+
+	popupMenuShow: function(refid, menu) {
+		WebUI.registerPopinClose(menu.substring(1));
+		var pos = $(refid).offset();    
+		var eWidth = $(refid).outerWidth();
+		var mwidth = $(menu).outerWidth();
+		var left = (pos.left);
+		if(left + mwidth > screen.width)
+			left = screen.width - mwidth - 10;
+		var top = 3+pos.top;
+		$(menu).css( {
+			position: 'absolute',
+			zIndex: 100,
+			left: left+"px", 
+			top: top+"px"
+		});
 		
-	}
+		$(menu).hide().fadeIn();
+	},
+
+	registerPopinClose: function(id) {
+		WebUI._popinCloseList.push(id);
+		if(WebUI._popinCloseList.length != 1)
+			return;
+		$(document.body).bind("mousedown", WebUI.popinMouseClose);
+		$(document.body).bind("keydown", WebUI.popinKeyClose);
+	},
+
+	popinMouseClose: function() {
+		for(var i = 0; i < WebUI._popinCloseList.length; i++) {
+			var id = WebUI._popinCloseList[i];
+			var el = document.getElementById(id);
+			if(el) {
+				WebUI.scall(id, "POPINCLOSE", {});
+			}
+		}
+		WebUI._popinCloseList = [];
+		$(document.body).unbind("mousedown", WebUI.popinMouseClose);
+		$(document.body).unbind("keydown", WebUI.popinKeyClose);
+	},
+	popinKeyClose: function(evt) {
+		if(! evt)
+			evt = window.event;
+		var kk = WebUI.normalizeKey(evt);
+		if(kk == 27 || kk == 27000) {
+			// Prevent ESC from cancelling the AJAX call in Firefox!!
+			evt.preventDefault();
+			evt.cancelBubble = true;
+			if(evt.stopPropagation)
+				evt.stopPropagation();
+			WebUI.popinMouseClose();
+		}
+	},
+
+	//By switching element height we force browser to repaint element. This must be done to fix some IE7 missbehaviors.   
+	refreshElement: function(id) {
+		var elem = document.getElementById(id);
+		var oldHeight = $(elem).height(); 
+		$(elem).height('1');
+		$(elem).height(oldHeight);
+	}	
+	
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
@@ -2102,118 +2286,170 @@ WebUI._ROW_DROPZONE_HANDLER = {
 			throw "No TBody!";
 
 		// -- Use the current mouseish Y position to distinguish between rows.
-	var cy = WebUI._dragLastY;
+		var mousePos = WebUI._dragLastY;
+		var mouseX = WebUI._dragLastX;
+		//console.debug("Starting position det: drag Y = "+mousePos);
+		var gravity = 0; // Prefer upward gravity
+		var lastrow = null;
+		var rowindex = 0;
+		var position = { top: 0, index: 0};
+		for ( var i = 0; i < tbody.childNodes.length; i++) {
+			var tr = tbody.childNodes[i];
+			if (tr.nodeName != 'TR')
+				continue;
+			lastrow = tr;
+			var off = $(tr).offset();
+			var prevPosition = position;
+			position = { top: off.top, index: i };
+			if (position) {
+	//			console.debug('mouse:' +mousePos+','+mouseX+' row: prevPosition.top='+prevPosition.top+", position.top="+position.top+", index="+position.index);
+				
+				// -- Is the mouse IN the Y range for this row?
+				if (mousePos >= prevPosition.top && mousePos < position.top) {
+					// -- Cursor is WITHIN this node. Is it near the TOP or near the
+					// BOTTOM?
+					gravity = 0;
+					if(prevPosition.top + position.top != 0){
+						var hy = (prevPosition.top + position.top) / 2;
+						gravity = mousePos < hy ? 0 : 1;
+					}
+	//				console.debug('ACCEPTED top='+prevPosition.top+', bottom='+position.top+', hy='+hy+', rowindex='+(rowindex-1));
+	//				console.debug('index='+prevPosition.index+', gravety='+gravity);
 	
-//	console.debug("Starting position det: drag Y = "+cy);
-	var gravity = 0; // Prefer upward gravity
-	var lastrow = null;
-	var rowindex = 0;
-	for ( var i = 0; i < tbody.childNodes.length; i++) {
-		var tr = tbody.childNodes[i];
-		if (tr.nodeName != 'TR')
-			continue;
-		lastrow = tr;
-//		var position = WebUI.getAbsScrolledPosition(tr); // Take scrolling into account!!
-		var off = $(tr).offset();
-		var position = { by: off.top, ey: off.top + 20 };
-		
-		if (position) {
-//			console.debug('row: by='+position.by+", ey="+position.ey+", type="+tr.nodeName);
-			
-			// -- Is the mouse IN the Y range for this row?
-			if (cy >= position.by && cy < position.ey) {
-				// -- Cursor is WITHIN this node. Is it near the TOP or near the
-				// BOTTOM?
-				var hy = (position.by + position.ey) / 2;
-				gravity = cy < hy ? 0 : 1;
-//				console.debug('ACCEPTED by='+position.by+", ey="+position.ey+", hy="+hy+", rowindex="+rowindex);
-
-				return {
-					index :rowindex,
-					iindex :i,
-					gravity :gravity,
-					row :tr
-				};
+					var colIndex = this.getColIndex(tr, mouseX);
+					return {
+						index :rowindex-1,
+						iindex : prevPosition.index,
+						gravity :gravity,
+						row :tr,
+						colIndex : colIndex
+					};
+				}
+	
+				// -- Is the thing between this row and the PREVIOUS one?
+	//			if (mousePos < position.top) {
+	//				// -- Use this row with gravity 0 (should insert BEFORE this row).
+	//				//MVE
+	//				console.debug('ACCEPTED BEFORE node by='+prevPosition.top+', ey='+position.top+', rowindex='+rowindex-1);
+	//				return {
+	//					index :rowindex,
+	//					iindex :position.index,
+	//					gravity :0,
+	//					row :tr
+	//				};
+	//			}
+				//console.debug('REFUSED by='+prevPosition.top+", ey="+position.top+", rowindex="+rowindex);
+			} else {
+	//			console.debug("row: no location.");
 			}
-
-			// -- Is the thing between this row and the PREVIOUS one?
-			if (cy < position.by) {
-				// -- Use this row with gravity 0 (should insert BEFORE this row).
-//				console.debug('ACCEPTED BEFORE node by='+position.by+", ey="+position.ey+", rowindex="+rowindex);
-				return {
-					index :rowindex,
-					iindex :i,
-					gravity :0,
-					row :tr
-				};
-			}
-//			console.debug('REFUSED by='+position.by+", ey="+position.ey+", rowindex="+rowindex);
-		} else {
-//			console.debug("row: no location.");
+			rowindex++;
 		}
-		rowindex++;
+		//console.debug("ACCEPTED last one");
+	
+		// -- If we're here we must insert at the last location
+		var colIndex = this.getColIndex(lastrow, mouseX);
+		return {
+			index :rowindex,
+			iindex :position.index,
+			gravity :1,
+			row :lastrow,
+			colIndex : colIndex
+		};
+	},
+
+	getColIndex : function(tr, mouseX) {
+		//determine the collumn
+		var left = 0;
+		var right = 0;
+		var j;
+		for ( j = 0; j < tr.childNodes.length; j++) {
+			var td = tr.childNodes[j];
+			if (td.nodeName != 'TD')
+				continue;
+			left = right;
+			right = $(td).offset().left;
+			if(mouseX >= left && mouseX < right ){
+				//because only the left position can be asked, the check is done for the previous collumn
+				return j-1;
+			}
+			
+		}
+		//TODO MVE should return maxColumn
+		return 2;
+		
+	},
+	
+	checkRerender : function(dz) {
+		var b = this.locateBest(dz);
+		// console.debug("checkRerender: "+b.iindex+", "+b.index+", g="+b.gravity);
+		if (b.iindex == WebUI._dropRowIndex)
+			return;
+	
+		this.unmark(dz);
+		this.renderTween(dz, b);
+	},
+	
+	renderTween : function(dz, b) {
+		var body = dz._tbody;
+		
+		var colCount = 0;
+		if(dz._tbody.rows.length > 0){
+			var temp = dz._tbody.rows[0].cells;
+		    $(temp).each(function() {
+		        colCount += $(this).attr('colspan') ? parseInt($(this).attr('colspan')) : 1;
+		    });
+		}
+	    
+	
+		// -- To mark, we insert a ROW at the insert location and visualize that
+		var tr = document.createElement('tr');
+		//b.colIndex should define the correct collumn
+		var colIndex = b.colIndex;
+		for(var i = 0; i<colCount;i++ ){
+			this.appendPlaceHolderCell(tr, colIndex == i);
+		}
+		if (b.iindex >= body.childNodes.length)
+			body.appendChild(tr);
+		else
+			body.insertBefore(tr, body.childNodes[b.iindex]);
+		WebUI._dropRow = tr;
+		WebUI._dropRowIndex = b.iindex;
+	},
+	
+	appendPlaceHolderCell : function(tr, appendPlaceholder) {
+		var td = document.createElement('td');
+		if(appendPlaceholder){
+			td.appendChild(document.createTextNode('Insert here'));
+			td.className = 'ui-drp-ins';
+		}
+		tr.appendChild(td);
+		
+	},
+	
+	hover : function(dz) {
+		var b = this.locateBest(dz);
+	//	console.debug("hover: "+b.iindex+", "+b.index+", g="+b.gravity + ", col=" +b.colIndex);
+		this.renderTween(dz, b);
+	},
+	
+	unmark : function(dz) {
+		if (WebUI._dropRow) {
+			$(WebUI._dropRow).remove();
+			delete WebUI._dropRow;
+			delete WebUI._dropRowIndex;
+		}
+	},
+	
+	drop : function(dz) {
+		this.unmark(dz);
+		var b = this.locateBest(dz);
+		WebUI.scall(dz._dropTarget.id, "WEBUIDROP", {
+			_dragid :WebUI._dragNode.id,
+			_index :(b.index+b.gravity),
+			_colIndex :b.colIndex
+		});
+		WebUI.dragReset();
 	}
-//	console.debug("ACCEPTED last one");
-
-	// -- If we're here we must insert at the last location
-	return {
-		index :rowindex,
-		iindex :tbody.childNodes.length,
-		gravity :1,
-		row :lastrow
-	};
-},
-
-checkRerender : function(dz) {
-	var b = this.locateBest(dz);
-	// console.debug("checkRerender: "+b.iindex+", "+b.index+", g="+b.gravity);
-	if (b.iindex == WebUI._dropRowIndex)
-		return;
-
-	this.unmark(dz);
-	this.renderTween(dz, b);
-},
-
-renderTween : function(dz, b) {
-	var body = dz._tbody;
-
-	// -- To mark, we insert a ROW at the insert location and visualize that
-	var tr = document.createElement('tr');
-	var td = document.createElement('td');
-	tr.appendChild(td);
-	td.appendChild(document.createTextNode('Insert here'));
-	td.className = 'ui-drp-ins';
-	if (b.iindex >= body.childNodes.length)
-		body.appendChild(tr);
-	else
-		body.insertBefore(tr, body.childNodes[b.iindex]);
-	WebUI._dropRow = tr;
-	WebUI._dropRowIndex = b.iindex;
-},
-
-hover : function(dz) {
-	var b = this.locateBest(dz);
-	// console.debug("hover: "+b.iindex+", "+b.index+", g="+b.gravity);
-	this.renderTween(dz, b);
-},
-
-unmark : function(dz) {
-	if (WebUI._dropRow) {
-		$(WebUI._dropRow).remove();
-		delete WebUI._dropRow;
-		delete WebUI._dropRowIndex;
-	}
-},
-
-drop : function(dz) {
-	this.unmark(dz);
-	var b = this.locateBest(dz);
-	WebUI.scall(dz._dropTarget.id, "WEBUIDROP", {
-		_dragid :WebUI._dragNode.id,
-		_index :b.index
-	});
-	WebUI.dragReset();
-}
 };
 
 /**
@@ -2259,9 +2495,19 @@ WebUI.colorPickerChangeEvent = function(id) {
 
 var DomUI = WebUI;
 
-$(document).ready(WebUI.handleCalendarChanges);
-if(DomUIDevel)
-	$(document).ready(WebUI.handleDevelopmentMode);
+WebUI.onDocumentReady = function() {
+	WebUI.handleCalendarChanges();
+	if(DomUIDevel)
+		WebUI.handleDevelopmentMode();
+	$(".ui-dt").fixOverflow();
+}
+
+$(document).ready(WebUI.onDocumentReady);
 $(document).ajaxComplete( function() {
 	WebUI.handleCalendarChanges();
+	$(".ui-dt").fixOverflow();
 });
+
+
+
+

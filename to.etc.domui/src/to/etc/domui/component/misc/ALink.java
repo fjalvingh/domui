@@ -251,9 +251,9 @@ public class ALink extends ATag {
 	 * @see to.etc.domui.dom.html.NodeBase#internalOnClicked()
 	 */
 	@Override
-	public void internalOnClicked() throws Exception {
+	public void internalOnClicked(ClickInfo cli) throws Exception {
 		if(getClicked() != null) {
-			super.internalOnClicked();
+			super.internalOnClicked(cli);
 			return;
 		}
 

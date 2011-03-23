@@ -167,13 +167,13 @@ public class NumericUtil {
 	};
 
 	static private final String[]	NUMBERBYSCALE = { //
-	"#" //
-		, "#.0" //
-		, "#.00" //
-		, "#.000" //
-		, "#.0000" //
-		, "#.00000" //
-		, "#.000000" //
+	"#0" //
+		, "#0.0" //
+		, "#0.00" //
+		, "#0.000" //
+		, "#0.0000" //
+		, "#0.00000" //
+		, "#0.000000" //
 	};
 
 	@Nonnull
@@ -187,6 +187,7 @@ public class NumericUtil {
 				default:
 					throw new IllegalArgumentException("Unsupported numeric presentation for numeric type " + v.getClass() + ": " + np);
 
+				case UNKNOWN:
 				case NUMBER:
 					return v.toString();
 				case NUMBER_FULL:
@@ -207,6 +208,7 @@ public class NumericUtil {
 			default:
 				throw new IllegalArgumentException("Unsupported numeric presentation for numeric type " + v.getClass() + ": " + np);
 
+			case UNKNOWN:
 			case NUMBER:
 				return new DecimalFormat(NUMBERBYSCALE[scale], dfs).format(v);
 

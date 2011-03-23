@@ -24,6 +24,9 @@
  */
 package to.etc.domui.component.tbl;
 
+import javax.annotation.*;
+
+
 /**
  * Delegate for a table which must render a row of items from a single row object.
  *
@@ -31,15 +34,22 @@ package to.etc.domui.component.tbl;
  * Created on Jun 1, 2008
  */
 public interface IRowRenderer<T> {
-	abstract public void beforeQuery(TableModelTableBase<T> tbl) throws Exception;
+	void beforeQuery(TableModelTableBase<T> tbl) throws Exception;
 
-	abstract public void renderRow(TableModelTableBase<T> tbl, ColumnContainer<T> cc, int index, T instance) throws Exception;
+	void renderRow(TableModelTableBase<T> tbl, ColumnContainer<T> cc, int index, T instance) throws Exception;
 
 	/**
-	 * Render table header. 
+	 * Render table header.
 	 * @param tbl
 	 * @param cc
 	 * @throws Exception
 	 */
-	abstract public void renderHeader(TableModelTableBase<T> tbl, HeaderContainer<T> cc) throws Exception;
+	void renderHeader(TableModelTableBase<T> tbl, HeaderContainer<T> cc) throws Exception;
+
+	/**
+	 * Return the row clicked handler to use.
+	 * @return
+	 */
+	@Nullable
+	ICellClicked< ? > getRowClicked();
 }

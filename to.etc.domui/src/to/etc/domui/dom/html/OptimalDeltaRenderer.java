@@ -479,9 +479,10 @@ public class OptimalDeltaRenderer {
 	private void doContainerChildren(NodeInfo nodeInfo, NodeContainer nc) throws Exception {
 		for(int i = 0, len = nc.getChildCount(); i < len; i++) {
 			NodeBase n = nc.getChild(i);
-			if(n instanceof NodeContainer)
+			if(n instanceof NodeContainer) {
+				doBase(nodeInfo, n);
 				doContainer(nodeInfo, (NodeContainer) n);
-			else
+			} else
 				doBase(nodeInfo, n);
 		}
 	}

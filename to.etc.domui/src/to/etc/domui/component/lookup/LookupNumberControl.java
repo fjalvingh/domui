@@ -124,10 +124,11 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_maxValue);
 			if(m_minValue != null && value.doubleValue() < m_minValue.doubleValue())
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, m_minValue);
+
 			// In case that other validations pass, we need to check for implicit JDBC parameter validation range (for Oracle it is 10^126 and -10^126)
-			if(value.doubleValue() > m_max_jdbc_column_value.doubleValue())
+			if(value.doubleValue() >= m_max_jdbc_column_value.doubleValue())
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_max_jdbc_column_value);
-			if(value.doubleValue() < m_min_jdbc_column_value.doubleValue())
+			if(value.doubleValue() <= m_min_jdbc_column_value.doubleValue())
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOSMALL, m_min_jdbc_column_value);
 		} else if(value instanceof Long || value instanceof Integer) {
 			if(m_maxValue != null && value.longValue() > m_maxValue.longValue())
@@ -164,8 +165,19 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 			m_s.skipWs();
 
 			if(Character.isDigit(m_s.LA()) || m_s.LA() == '-') {
-				//-- This is just a number and cannot have operators. Parse and create equality test.
-				T value = parseNumber(in);
+				//-- Does not start with operation: can only be number [%].
+				String v = scanNumeric(true);
+				if(v == null || "".equals(v))
+					throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+				if(v.contains("%")) {
+					m_s.skipWs();
+					if(!m_s.eof()) // Must have eof
+						throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+					crit.add(new QPropertyComparison(QOperation.LIKE, m_propertyName, new QLiteral(v)));
+					return AppendCriteriaResult.VALID;
+				}
+
+				T value = parseNumber(v);
 				if(value == null)
 					return AppendCriteriaResult.INVALID;
 				checkNumber(value);
@@ -176,7 +188,7 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 			QOperation op = scanOperation();
 
 			//-- 2nd part MUST be numeric, so scan a value
-			String v = scanNumeric();
+			String v = scanNumeric(false);
 			if(v == null || "".equals(v))
 				throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
 			T value = parseNumber(v); // Convert to appropriate type,
@@ -194,7 +206,7 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 				throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
 
 			//-- 2nd fragment of 2nd part MUST be numeric, so scan a value
-			v = scanNumeric();
+			v = scanNumeric(false);
 //			if(v == null)
 //				throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
 			T value2 = parseNumber(v); // Convert to appropriate type,
@@ -221,12 +233,12 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 	}
 
 	@Nonnull
-	private String scanNumeric() {
+	private String scanNumeric(boolean allowpct) {
 		m_s.skipWs();
 		m_s.getStringResult(); // Clear old result
 		for(;;) {
 			int c = m_s.LA();
-			if(c != '-' && c != '+' && c != 'E' && c != 'e' && c != ',' && c != '.' && c != 0x20ac && c != '$' && !Character.isDigit(c))
+			if(c != '-' && c != '+' && c != 'E' && c != 'e' && c != ',' && c != '.' && c != 0x20ac && c != '$' && !Character.isDigit(c) && !(allowpct && c == '%'))
 				break;
 			m_s.copy();
 		}

@@ -27,7 +27,7 @@ package to.etc.domui.component.layout.title;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-public abstract class BasePageTitleBar extends Div {
+public abstract class BasePageTitleBar extends Table {
 	private String m_title;
 
 	private boolean m_showAsModified;

@@ -33,6 +33,7 @@ import to.etc.domui.util.*;
 
 /**
  * DataTable customized to support multiple selection functionality. Supports accmulation of selection along multiple queries.
+ * FIXME: vmijic 20110221 - Change implementation later to reuse new multiselction functionality in DataTable.
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 26 Oct 2009
@@ -112,6 +113,21 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 				}
 				selectionMarkerCell.setUserObject(item);
 				tr.add(selectionMarkerCell);
+
+				//-- Is a rowclick handler needed?
+				if(getRowRenderer().getRowClicked() != null || null != getSelectionModel()) {
+					//-- Add a click handler to select or pass the rowclicked event.
+					final TR therow = tr;
+					final T theitem = item;
+					cc.getTR().setClicked(new IClicked2<TR>() {
+						@Override
+						@SuppressWarnings({"synthetic-access"})
+						public void clicked(TR b, ClickInfo clinfo) throws Exception {
+							((ICellClicked<T>) getRowRenderer().getRowClicked()).cellClicked(therow, theitem);
+						}
+					});
+					cc.getTR().addCssClass("ui-rowsel");
+				}
 				getRowRenderer().renderRow(this, cc, ix, item);
 				ix++;
 			}
@@ -124,6 +140,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			add(error);
 		}
 	}
+
 
 	private TR createSplitterRow() {
 		if(getDataBody().getChildCount() == 0) {
@@ -145,10 +162,6 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 		b.setClicked(new IClicked<Checkbox>() {
 			@Override
 			public void clicked(Checkbox ckb) throws Exception {
-				//FIXME: must be done as double change of value to cause changed protected field to be set, otherwise is not rendered properly in HTML response.
-				// jal 20091105 Please explain??? The 2nd call is not doing anything right now.... I would understand if the 1st call was ckb.setChecked(ckb.isChecked())...
-				ckb.setChecked(!ckb.isChecked());
-				ckb.setChecked(!ckb.isChecked());
 				TR row = ckb.getParent(TR.class);
 				handleAccumulatedItemRowSelectionChanged(row, Boolean.valueOf(ckb.isChecked()));
 			}
@@ -167,6 +180,23 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 				}
 			}
 		});
+
+		//-- jal: added due to multiselect refactoring. The above setclicked should never have worked???
+		if(getRowRenderer().getRowClicked() != null || null != getSelectionModel()) {
+			//-- Add a click handler to select or pass the rowclicked event.
+			final TR therow = tr;
+			final T theitem = item;
+			cc.getTR().setClicked(new IClicked2<TR>() {
+				@Override
+				@SuppressWarnings({"synthetic-access"})
+				public void clicked(TR b, ClickInfo clinfo) throws Exception {
+					((ICellClicked<T>) getRowRenderer().getRowClicked()).cellClicked(therow, theitem);
+				}
+			});
+			cc.getTR().addCssClass("ui-rowsel");
+		}
+
+
 		getRowRenderer().renderRow(this, cc, index, item);
 	}
 

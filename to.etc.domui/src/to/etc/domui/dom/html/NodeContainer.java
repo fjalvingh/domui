@@ -421,6 +421,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		m_children.set(ix, nw); // Replace inline
 		child.unregisterFromPage();
 		child.setParent(null); // jal 20091015 moved after unregister to allow nodes to clear their error state
+		nw.remove();
 		nw.setParent(this);
 		registerWithPage(nw); // ORDERED Must be AFTER hanging this into the tree
 		childChanged();

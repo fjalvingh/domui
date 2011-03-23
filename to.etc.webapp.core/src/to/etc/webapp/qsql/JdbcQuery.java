@@ -36,20 +36,23 @@ import to.etc.webapp.query.*;
  * Created on Aug 25, 2009
  */
 public class JdbcQuery<T> {
-	private String m_sql;
+	final private String m_sql;
 
-	private List<IInstanceMaker> m_rowMaker;
+	final private List<IInstanceMaker> m_rowMaker;
 
-	private List<ValSetter> m_valList;
+	final private List<IQValueSetter> m_valList;
 
-	private int m_start, m_limit;
+	final private int m_start, m_limit;
 
-	public JdbcQuery(String sql, List<IInstanceMaker> retrieverList, List<ValSetter> vl, int start, int limit) {
+	final private int m_timeout;
+
+	public JdbcQuery(String sql, List<IInstanceMaker> retrieverList, List<IQValueSetter> vl, int start, int limit, int timeout) {
 		m_sql = sql;
 		m_rowMaker = retrieverList;
 		m_valList = vl;
 		m_start = start;
 		m_limit = limit;
+		m_timeout = timeout;
 	}
 
 	public List< ? > query(QDataContext dc) throws Exception {
@@ -60,9 +63,10 @@ public class JdbcQuery<T> {
 		ResultSet rs = null;
 		try {
 			ps = dc.getConnection().prepareStatement(m_sql);
-			for(ValSetter vs : m_valList)
-				assignValue(ps, vs);
-
+			for(IQValueSetter vs : m_valList)
+				vs.assign(ps);
+			if(m_timeout > 0)
+				ps.setQueryTimeout(m_timeout);
 			List<Object> res = new ArrayList<Object>();
 			rs = ps.executeQuery();
 			int rownum = 0;
@@ -102,10 +106,6 @@ public class JdbcQuery<T> {
 					ps.close();
 			} catch(Exception x) {}
 		}
-	}
-
-	private void assignValue(PreparedStatement ps, ValSetter vs) throws Exception {
-		vs.getConverter().assignParameter(ps, vs.getIndex(), vs.getProperty(), vs.getValue());
 	}
 
 	static public <T> JdbcQuery<T> create(QCriteria<T> q) throws Exception {

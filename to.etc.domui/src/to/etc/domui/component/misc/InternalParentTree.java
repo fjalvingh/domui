@@ -27,7 +27,9 @@ package to.etc.domui.component.misc;
 import java.io.*;
 import java.net.*;
 
+import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 import to.etc.util.*;
 
 /**
@@ -39,6 +41,8 @@ import to.etc.util.*;
  */
 public class InternalParentTree extends Div {
 	private NodeBase m_touched;
+
+	private Div m_structure;
 
 	public InternalParentTree(NodeBase touched) {
 		m_touched = touched;
@@ -62,22 +66,25 @@ public class InternalParentTree extends Div {
 			}
 		});
 		Div list = new Div();
+		m_structure = list;
 		add(list);
 		list.setCssClass("ui-ipt-list");
+		renderStructure(list);
+		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:" + 200 + ", handle: '#" + ttl.getActualID() + "'});");
+	}
 
+	protected void renderStructure(Div list) {
 		//-- Run all parents.
+		TBody b = list.addTable();
+
 		for(NodeBase nb = m_touched; nb != null; nb = nb.getParent()) {
 			final NodeBase clicked = nb;
-			Div item = new Div();
-			list.add(item);
-			item.setCssClass("ui-ipt-item");
-			item.setClicked(new IClicked<Div>() {
-				@Override
-				public void clicked(Div clickednode) throws Exception {
-					openSource(clicked);
-				}
-			});
+			TR row = b.addRow();
+			row.setCssClass("ui-ipt-item");
 
+			//-- Type icon
+			TD td = b.addCell();
+			td.setCellWidth("1%");
 			String icon = "";
 			String nn = nb.getClass().getName();
 			if(nn.startsWith("to.etc.domui.dom.")) {
@@ -87,23 +94,150 @@ public class InternalParentTree extends Div {
 			} else {
 				icon = "iptComponent.png";
 			}
+			td.add(new Img("THEME/" + icon));
 
-			img = new Img("THEME/" + icon);
-			item.add(img);
-			item.add("\u00a0" + nn);
+			//-- Show component source code button.
+			td = b.addCell();
+			td.setCssClass("ui-ipt-btn");
+			td.setCellWidth("1%");
+			td.setClicked(new IClicked<NodeBase>() {
+				@Override
+				public void clicked(NodeBase clickednode) throws Exception {
+					openSource(clicked);
+				}
+			});
+			td.setTitle("Open the component's source code");
+			td.add(new Img("THEME/iptSourceCode.png"));
+
+			//-- If applicable: component creation location
+			if(null != nb.getAllocationTracepoint()) {
+				td = b.addCell();
+				td.setCssClass("ui-ipt-btn");
+				td.setCellWidth("1%");
+				td.setClicked(new IClicked<NodeBase>() {
+					@Override
+					public void clicked(NodeBase clickednode) throws Exception {
+						showCreationTrace(clicked, clicked.getAllocationTracepoint());
+					}
+				});
+				td.setTitle("Open the location where the component was created");
+				td.add(new Img("THEME/iptLocation.png"));
+			}
+
+			//-- The name
+			td = b.addCell();
+			td.setCellWidth("97%");
+			td.add(nn);
 		}
-
-		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:" + 200 + ", handle: '#" + ttl.getActualID() + "'});");
 	}
 
+	/**
+	 * Show a stacktrace window with the ability to open the source for that element.
+	 * @param clicked
+	 * @param allocationTracepoint
+	 */
+	protected void showCreationTrace(NodeBase clicked, StackTraceElement[] allocationTracepoint) {
+		m_structure.removeAllChildren();
+
+		Div alt = new Div();
+		m_structure.add(alt);
+		LinkButton lb = new LinkButton("Back to structure", "THEME/btnBack.png", new IClicked<LinkButton>() {
+			public void clicked(LinkButton clickednode) throws Exception {
+				m_structure.removeAllChildren();
+				renderStructure(m_structure);
+			}
+		});
+		alt.add(lb);
+
+		Div stk = new Div();
+		m_structure.add(stk);
+
+		/*
+		 * We need to find the 1st constructor in the stack trace, because that w
+		 */
+		boolean first = true;
+		boolean gotctor = false;
+		TBody b = stk.addTable();
+		for(StackTraceElement ste : allocationTracepoint) {
+			String nn = ste.getClassName();
+			if(nn.startsWith("org.apache.tomcat."))
+				return;
+
+			//-- Skip code when it is inside internal code.
+			if(first) {
+				if(ste.getMethodName().equals("<init>")) {
+					gotctor = true;
+				}
+
+				if(nn.equals(DomUtil.class.getName()) || nn.equals(NodeBase.class.getName()) || nn.equals(NodeContainer.class.getName()))
+					continue;
+				first = false;
+				if(!gotctor)
+					continue;
+				if(ste.getMethodName().equals("<init>"))
+					continue;
+			}
+
+			first = false;
+			TR row = b.addRow();
+			row.setCssClass("ui-ipt-item");
+
+			//-- Type icon
+			TD td = b.addCell();
+			td.setCellWidth("1%");
+			String icon = "";
+			if(nn.startsWith("to.etc.domui.dom.")) {
+				icon = "iptHtml.png";
+			} else if(nn.startsWith("to.etc.domui.")) {
+				icon = "iptComponent.png";
+			} else {
+				icon = "iptPage.png";
+			}
+			td.add(new Img("THEME/" + icon));
+
+			//-- Show component source code button.
+			td = b.addCell();
+			td.setCssClass("ui-ipt-btn");
+			td.setCellWidth("1%");
+			final StackTraceElement cste = ste;
+			td.setClicked(new IClicked<NodeBase>() {
+				@Override
+				public void clicked(NodeBase clickednode) throws Exception {
+					openSource(cste);
+				}
+			});
+			td.setTitle("Open the source code at this location");
+			td.add(new Img("THEME/iptSourceCode.png"));
+
+			//-- Source link.
+			td = b.addCell();
+			td.setCellWidth("97%");
+			td.add(ste.getClassName() + "#" + ste.getMethodName() + " (" + ste.getLineNumber() + ")");
+		}
+	}
 
 	protected void openSource(NodeBase clicked) {
 		NodeBase body = getPage().getBody();
 		remove();
 
 		//-- Get name for the thingy,
-		String name = clicked.getClass().getName()+".java";
+		String name = clicked.getClass().getName().replace('.', '/') + ".java";
 		if(! openEclipseSource(name)) {
+			MsgBox.message(body, MsgBox.Type.WARNING, "I was not able to send an OPEN FILE command to Eclipse.. You need to have the Eclipse plugin running. Please see " + URL + " for details");
+		}
+	}
+
+	protected void openSource(StackTraceElement ste) {
+		NodeBase body = getPage().getBody();
+		remove();
+
+		//-- Get name for the thingy,
+		String name;
+		if(ste.getLineNumber() <= 0)
+			name = ste.getClassName().replace('.', '/') + ".java@" + ste.getMethodName();
+		else
+			name = ste.getClassName().replace('.', '/') + ".java#" + ste.getLineNumber();
+		if(!openEclipseSource(name)) {
 			MsgBox.message(body, MsgBox.Type.WARNING, "I was not able to send an OPEN FILE command to Eclipse.. You need to have the Eclipse plugin running. Please see " + URL + " for details");
 		}
 	}

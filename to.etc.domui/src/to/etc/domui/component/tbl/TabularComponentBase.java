@@ -43,14 +43,6 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 		super(model);
 	}
 
-	//	public TabularComponentBase(Class<T> actualClass, ITableModel<T> model) {
-	//		super(actualClass, model);
-	//	}
-
-	//	public TabularComponentBase(Class<T> actualClass) {
-	//		super(actualClass);
-	//	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model/page changed listener code..					*/
 	/*--------------------------------------------------------------*/
@@ -98,6 +90,16 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 		for(IDataTableChangeListener l : getListeners()) {
 			try {
 				l.pageChanged(this);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	protected void fireSelectionUIChanged() {
+		for(IDataTableChangeListener l : getListeners()) {
+			try {
+				l.selectionUIChanged(this);
 			} catch(Exception x) {
 				x.printStackTrace();
 			}
