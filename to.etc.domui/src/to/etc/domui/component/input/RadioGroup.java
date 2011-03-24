@@ -9,14 +9,15 @@ import to.etc.webapp.nls.*;
 /**
  * RadioGroup can be used to create a Group of RadioButtons. The RadioButtons are created by The RadioGroup and cannot be
  * added programmatically by clients. When you create a RadioGroup for an Enum, all values can be automatically transformed into RadioButtons.
- * 
+ *
  * ...
- * 
+ *
  *
  * @author <a href="mailto:willem.voogd@itris.nl">Willem Voogd</a>
  * Created on Nov 25, 2010
  */
 public class RadioGroup<T> extends Div implements IControl<T> {
+	private to.etc.domui.dom.html.RadioGroup<T> m_radioGroup;
 
 	private Class<T> m_clz;
 	private String m_name;
@@ -25,15 +26,16 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 	private boolean m_readOnly;
 	private T m_value;
 
-	protected Map<RadioButton,T> m_valueMap;
+	protected Map<RadioButton<T>, T> m_valueMap;
 
 	IValueChanged<?> m_valueChanger;
 	ClassMetaModel m_cmm;
 
 	public RadioGroup(Class<T> clz, String name, boolean expandEnum) throws InstantiationException, IllegalAccessException, Exception {
+		m_radioGroup = new to.etc.domui.dom.html.RadioGroup<T>();
 		m_clz = clz;
 		m_name = name;
-		m_valueMap = new HashMap<RadioButton, T>();
+		m_valueMap = new HashMap<RadioButton<T>, T>();
 		m_valueChanger = null;
 
 		m_cmm = MetaManager.findClassMeta(clz);
@@ -46,8 +48,10 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 		this(clz,name,false);
 	}
 
-	private RadioButton newDressedRadioButton() {
-		RadioButton rb = new RadioButton();
+	private RadioButton<T> newDressedRadioButton() {
+		RadioButton<T> rb = new RadioButton<T>();
+		rb.setGroup(m_radioGroup);
+		m_radioGroup.add(rb);
 		dress(rb);
 		return rb;
 	}
@@ -70,11 +74,10 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 
 	/**
 	 * Sets the groupglobal properties for a radiobutton in this group
-	 * 
+	 *
 	 * @param rb
 	 */
-	private void dress(RadioButton rb) {
-		rb.setName(m_name);
+	private void dress(RadioButton<T> rb) {
 		rb.setReadOnly(m_readOnly);
 		rb.setDisabled(m_disabled);
 		rb.setClicked(new IClicked<NodeBase>() {
@@ -94,7 +97,7 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 	 */
 	@Override
 	public void add(int index, NodeBase nd) {
-		if (nd instanceof RadioButton) {
+		if(nd instanceof RadioButton< ? >) {
 			throw new IllegalStateException("RadioButtons cannot be added, they will be created by the RadioGroup");
 		}
 		super.add(index, nd);
@@ -107,7 +110,7 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 	 */
 	@Override
 	public void add(NodeBase nd) {
-		if (nd instanceof RadioButton) {
+		if(nd instanceof RadioButton< ? >) {
 			throw new IllegalStateException("RadioButtons cannot be added, they will be created by the RadioGroup");
 		}
 		super.add(nd);
@@ -115,7 +118,7 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 
 	/**
 	 * Adds a radiobutton to the group for the specified object, with specified label.
-	 * 
+	 *
 	 * @param label, the label for the radiobutton.
 	 * @param object, the value the radiobutton will represent.
 	 * @throws Exception
@@ -132,7 +135,7 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 		if (label == null)
 			label = object.toString();
 
-		RadioButton rb = newDressedRadioButton();
+		RadioButton<T> rb = newDressedRadioButton();
 		m_valueMap.put(rb, object);
 		labelledradio.add(rb);
 		labelledradio.add(label);
@@ -143,9 +146,9 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 	/**
 	 * Adds a radiobutton to the group for the specified object, for the label,
 	 * toString() will be called on the object.
-	 * 
+	 *
 	 * //TODO: Use metamodel.
-	 * 
+	 *
 	 * @param object, the value the radiobutton will represent.
 	 * @throws Exception
 	 * @throws IllegalAccessException
@@ -271,7 +274,7 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 	public void createContent() throws Exception {
 
 		//We let the Div do all the hard work. For now, just make sure the right button is checked:
-		for (RadioButton rb : m_valueMap.keySet()) {
+		for(RadioButton<T> rb : m_valueMap.keySet()) {
 			rb.setReadOnly(m_readOnly);
 			rb.setDisabled(m_disabled);
 		}
@@ -284,7 +287,7 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 	 */
 	protected void checkSelectedRadio() {
 		//We let the Div do all the hard work. For now, just make sure the right button is checked:
-		for (RadioButton rb : m_valueMap.keySet()) {
+		for(RadioButton<T> rb : m_valueMap.keySet()) {
 			if (m_valueMap.get(rb).equals(m_value)) {
 				rb.setChecked(true);
 			}
