@@ -385,4 +385,12 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	public ControlFactory getControlFactory() {
 		return m_original.getControlFactory();
 	}
+
+	public <A> A getAnnotation(Class<A> annclass) {
+		return m_original.getAnnotation(annclass);
+	}
+
+	public List<Object> getAnnotations() {
+		return m_original.getAnnotations();
+	}
 }

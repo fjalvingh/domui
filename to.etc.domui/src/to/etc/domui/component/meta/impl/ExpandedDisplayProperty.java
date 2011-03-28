@@ -27,6 +27,8 @@ package to.etc.domui.component.meta.impl;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -590,5 +592,24 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	@Override
 	public String getRegexpValidator() {
 		return null;
+	}
+
+	/**
+	 * Expanded properties do not have annotations. This returns null always.
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAnnotation(java.lang.Class)
+	 */
+	@Override
+	@Nullable
+	public <A> A getAnnotation(Class<A> annclass) {
+		return null;
+	}
+
+	/**
+	 * Expanded properties do not have annotations. This returns the empty list always.
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAnnotations()
+	 */
+	@Override
+	public List<Object> getAnnotations() {
+		return Collections.emptyList();
 	}
 }

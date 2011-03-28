@@ -24,8 +24,11 @@
  */
 package to.etc.domui.component.meta.impl;
 
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
+
+import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
@@ -379,5 +382,36 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	public void setRenderHint(final String renderHint) {
 		m_renderHint = renderHint;
+	}
+
+	/**
+	 * This basic implementation returns annotations on the "getter" method of the property, if
+	 * available.
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAnnotation(java.lang.Class)
+	 */
+	@Override
+	@Nullable
+	public <A> A getAnnotation(Class<A> annclass) {
+		if(Annotation.class.isAssignableFrom(annclass) && m_descriptor != null && m_descriptor.getGetter() != null) {
+			Class< ? extends Annotation> aclz = (Class< ? extends Annotation>) annclass;
+
+			return (A) m_descriptor.getGetter().getAnnotation(aclz);
+		}
+		return null;
+	}
+
+	/**
+	 * This basic implementation returns all annotations on the "getter" method of the property,
+	 * if available. It returns the empty list if nothing is found.
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAnnotations()
+	 */
+	@Override
+	@Nonnull
+	public List<Object> getAnnotations() {
+		if(m_descriptor != null && m_descriptor.getGetter() != null) {
+			List<Object> res = Arrays.asList((Object[]) m_descriptor.getGetter().getAnnotations());
+			return res;
+		}
+		return Collections.emptyList();
 	}
 }
