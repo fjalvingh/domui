@@ -31,6 +31,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 				handleDoFilter(chain, ctx.getRequest(), ctx.getResponse());
 				return false;
 			}
+			ctx.getResponse().addHeader("X-UA-Compatible", "IE=edge"); // 20110329 jal Force to highest supported mode.
 			rh.handleRequest(ctx);
 			ctx.flush();
 			return true;
