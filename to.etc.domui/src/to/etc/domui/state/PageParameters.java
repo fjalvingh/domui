@@ -52,6 +52,9 @@ public class PageParameters {
 	 */
 	private Map<String, Object> m_map = new HashMap<String, Object>();
 
+	/** When set no data can be changed */
+	private boolean m_readOnly = false;
+
 	/**
 	 * Create an empty PageParameters.
 	 */
@@ -79,6 +82,24 @@ public class PageParameters {
 		//			Object b = list[i + 1];
 		//			addParameter((String) a, b);
 		//		}
+	}
+
+	public PageParameters getUnlockedCopy() {
+		PageParameters clone = new PageParameters();
+		for(Map.Entry<String, Object> entry : m_map.entrySet()) {
+			clone.addParameter(entry.getKey(), entry.getValue());
+		}
+		return clone;
+	}
+
+	public void setReadOnly() {
+		//FIXME nmaksimovic 20110225 change back after Frits is back.
+		//m_readOnly = true;
+	}
+
+	private void writeable() {
+		if(m_readOnly)
+			throw new IllegalStateException("This object is readonly and cannot be changed.");
 	}
 
 	/**
@@ -132,6 +153,7 @@ public class PageParameters {
 	 * @param plist
 	 */
 	public void addParameters(Object... plist) throws Exception {
+		writeable();
 		int ix = 0;
 		int len = plist.length;
 		while(ix < len) {
@@ -170,6 +192,7 @@ public class PageParameters {
 	 * @param object
 	 */
 	private void internalAdd(String k, Object o) throws Exception {
+		writeable();
 		if(o == null)
 			return;
 
@@ -209,6 +232,8 @@ public class PageParameters {
 	 * @param value, the (new) value.
 	 */
 	public void addParameter(String name, Object value) {
+		writeable();
+
 		//-- Convert the value to a string;
 		String s;
 		if(value == null)
