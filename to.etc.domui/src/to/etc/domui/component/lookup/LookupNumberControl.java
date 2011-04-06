@@ -164,7 +164,7 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 			m_s.init(m_input.getValue());
 			m_s.skipWs();
 
-			if(Character.isDigit(m_s.LA()) || m_s.LA() == '-') {
+			if(Character.isDigit(m_s.LA()) || m_s.LA() == '-' || m_s.LA() == '%') {
 				//-- Does not start with operation: can only be number [%].
 				String v = scanNumeric(true);
 				if(v == null || "".equals(v))
