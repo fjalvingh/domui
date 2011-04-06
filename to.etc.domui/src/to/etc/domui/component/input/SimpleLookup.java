@@ -133,7 +133,7 @@ public class SimpleLookup<T> extends FloatingWindow {
 		}
 		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(getLookupClass(), getMetaModel());
 
-		lf.setRenderAsCollapsed(m_renderAsCollapsed);
+		lf.setCollapsed(m_renderAsCollapsed);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		add(lf);
 		setOnClose(new IClicked<FloatingWindow>() {
