@@ -859,7 +859,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getTransform() != null) {
 			switch(n.getTransform()){
 				case LOWERCASE:
-					transformScript = "javascript:this.value=this.value.toLowerCase();";
+					transformScript = "javascript:this.value=this.value.toUpperCase();";
 					break;
 				case UPPERCASE:
 					transformScript = "javascript:this.value=this.value.toUpperCase();";
@@ -870,12 +870,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 		if(n.getOnLookupTyping() != null) {
 			//20110304 vmijic: must be done using onkeypress (I tried onkeydown in combination with setReturnPressed, but that fails since onkeydown change model, so setReturnPressed is fired for dead node that results with exception)
-			o().attr("onkeypress", sb().append(transformScript).append("WebUI.onLookupTypingReturnKeyHandler('").append(n.getActualID()).append("', event)").toString());
-			o().attr("onkeyup", sb().append(transformScript).append("WebUI.scheduleOnLookupTypingEvent('").append(n.getActualID()).append("', event)").toString());
-			o().attr("onblur", sb().append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
+			o().attr("onkeypress", sb().append("WebUI.onLookupTypingReturnKeyHandler('").append(n.getActualID()).append("', event)").toString());
+			o().attr("onkeyup", sb().append("WebUI.scheduleOnLookupTypingEvent('").append(n.getActualID()).append("', event)").toString());
+			o().attr("onblur", sb().append(transformScript).append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
 		} else {
 			if(!DomUtil.isBlank(transformScript)) {
-				o().attr("onkeyup", sb().append(transformScript).toString());
+				o().attr("onblur", sb().append(transformScript).toString());
 			}
 		}
 		renderTagend(n, m_o);
