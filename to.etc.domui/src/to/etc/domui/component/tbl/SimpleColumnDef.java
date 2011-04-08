@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
@@ -43,6 +45,8 @@ public class SimpleColumnDef {
 	private Class< ? > m_columnType;
 
 	private SortableType m_sortable = SortableType.UNKNOWN;
+
+	private ISortHelper m_sortHelper;
 
 	private String m_width;
 
@@ -119,12 +123,13 @@ public class SimpleColumnDef {
 		m_columnType = columnType;
 	}
 
+	@Nonnull
 	public SortableType getSortable() {
 		return m_sortable;
 	}
 
 	public void setSortable(SortableType sortable) {
-		m_sortable = sortable;
+		m_sortable = sortable == null ? SortableType.UNKNOWN : sortable;
 	}
 
 	public String getWidth() {
@@ -252,5 +257,13 @@ public class SimpleColumnDef {
 
 	public void setRenderHint(String renderHint) {
 		m_renderHint = renderHint;
+	}
+
+	public ISortHelper getSortHelper() {
+		return m_sortHelper;
+	}
+
+	public void setSortHelper(ISortHelper sortHelper) {
+		m_sortHelper = sortHelper;
 	}
 }

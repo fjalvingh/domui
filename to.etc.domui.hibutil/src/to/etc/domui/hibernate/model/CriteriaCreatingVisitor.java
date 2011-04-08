@@ -277,6 +277,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	private StringBuilder	m_sb = new StringBuilder();
 
+	private PropertyMetaModel< ? > m_targetProperty;
+
 	/** The current subcriteria's base class. */
 	//	private Class< ? > m_subCriteriaClass;
 
@@ -385,6 +387,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 *
 	 */
 	private String parseSubcriteria(String input) {
+		m_targetProperty = null;
 		m_inputPath = input;
 		Class< ? > currentClass = m_rootClass; // The current class reached by the property; start @ the root entity
 		String path = null; // The full path currently reached, i.e. "id.version.id.product".
@@ -402,8 +405,10 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			String name;
 			if(pos == -1) {
 				//-- QUICK EXIT: if the entire name has no dots quit immediately with the input.
-				if(ix == 0)
+				if(ix == 0) {
+					m_targetProperty = MetaManager.findPropertyMeta(currentClass, input);
 					return input;
+				}
 
 				//-- Get the last name fragment.
 				name = input.substring(ix);
@@ -420,6 +425,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 			//-- Get the property metadata and the reached class.
 			PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(currentClass, name);
+			m_targetProperty = pmm;
 			if(pmm.isPrimaryKey()) {
 				if(previspk)
 					throw new IllegalStateException("The path " + subpath + " is a PK property immediately followed by another Pk property- that cannot happen.");
@@ -718,14 +724,42 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				last = Restrictions.le(name, lit.getValue());
 				break;
 			case LIKE:
-				last = Restrictions.like(name, lit.getValue());
-				break;
+				handleLikeOperation(name, m_targetProperty, lit.getValue());
+				return;
 			case ILIKE:
 				last = Restrictions.ilike(name, lit.getValue());
 				break;
 		}
 
 		m_last = last;
+	}
+
+	private void handleLikeOperation(String name, PropertyMetaModel< ? > pmm, Object value) throws Exception {
+		//-- Check if there is a type mismatch in parameter type...
+		if(!(value instanceof String))
+			throw new QQuerySyntaxException("The argument to 'like' must be a string (and cannot be null), the value passed is: " + value);
+
+		if(pmm == null || pmm.getActualType() == String.class) {
+			m_last = Restrictions.like(name, value);
+			return;
+		}
+
+		ClassMetadata hibmd = m_session.getSessionFactory().getClassMetadata(pmm.getClassModel().getActualClass());
+		if(null == hibmd)
+			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm);
+
+		if(!(hibmd instanceof AbstractEntityPersister))
+			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm + ": expecting AbstractEntityPersister, got a " + hibmd.getClass());
+		AbstractEntityPersister aep = (AbstractEntityPersister) hibmd;
+		int ix = aep.getPropertyIndex(name);
+		if(ix < 0)
+			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm + ": property index not found");
+		String[] colar = aep.getPropertyColumnNames(ix);
+		if(colar == null || colar.length != 1)
+			throw new QQuerySyntaxException("'Like' cannot be done on multicolumn/0column property " + pmm);
+
+		//-- We need Hibernate metadata to find the column name....
+		m_last = Restrictions.sqlRestriction("{alias}." + colar[0] + " like ?", value, Hibernate.STRING);
 	}
 
 	private void handlePropertySubcriteriaComparison(QPropertyComparison n) throws Exception {

@@ -73,4 +73,24 @@ abstract public class AbstractLookupControlImpl implements ILookupControlInstanc
 		if(!done)
 			throw new IllegalStateException("The implementation for " + this + " needs an overridden clearInput() method");
 	}
+
+	/**
+	 * Default implementation
+	 *
+	 * @see to.etc.domui.component.lookup.ILookupControlInstance#setDisabled(Boolean))
+	 */
+	public void setDisabled(boolean disabled) {
+		boolean done = false;
+		if(m_nodes != null) {
+			for(NodeBase m_node : m_nodes) {
+				if(m_node instanceof IInputNode< ? >) {
+					((IInputNode< ? >) m_node).setDisabled(disabled);
+				}
+				done = true;
+			}
+		}
+		if(!done)
+			throw new IllegalStateException("The implementation for " + this + " needs an overridden setDisabled() method");
+	}
+
 }

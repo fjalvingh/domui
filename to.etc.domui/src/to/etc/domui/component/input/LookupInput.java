@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.input;
 
+import java.math.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -423,9 +424,9 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 						if(pl.size() == 0)
 							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + getMetaModel());
 
-						//It is required that lookup by id is also available, for now only Long type is supported
+						//It is required that lookup by id is also available, for now only Long type and BigDecimal interpretated as Long (fix for 1228) are supported
 						//FIXME: see if it is possible to generalize things for all integer based types... (DomUtil.isIntegerType(pmm.getActualType()))
-						if(pl.get(0).getActualType() == Long.class) {
+						if(pl.get(0).getActualType() == Long.class || pl.get(0).getActualType() == BigDecimal.class) {
 							try {
 								Long val = Long.valueOf(searchString);
 								if(val != null) {
@@ -509,7 +510,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 				lf.setSearchProperties(m_searchPropertyList);
 		}
 
-		lf.setRenderAsCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
+		lf.setCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		m_floater.add(lf);
 		m_floater.setOnClose(new IClicked<FloatingWindow>() {
