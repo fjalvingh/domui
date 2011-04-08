@@ -82,6 +82,19 @@ public class PageParameters {
 	}
 
 	/**
+	 * Creates copy of current PageParameters.
+	 * Since modification of live page params is not allowed, in order to navigate to other page with similar set of params, use this method to get params template for new page navigation.
+	 * @return
+	 */
+	public PageParameters getUnlockedCopy() {
+		PageParameters clone = new PageParameters();
+		for(Map.Entry<String, Object> entry : m_map.entrySet()) {
+			clone.addParameter(entry.getKey(), entry.getValue());
+		}
+		return clone;
+	}
+
+	/**
 	 * Primitive, only allowing String value.
 	 * @param name
 	 * @param value
