@@ -16,7 +16,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:willem.voogd@itris.nl">Willem Voogd</a>
  * Created on Nov 25, 2010
  */
-public class RadioGroup<T> extends Div implements IControl<T> {
+public class RadioGroupDiv<T> extends Div implements IControl<T> {
 	private to.etc.domui.dom.html.RadioGroup<T> m_radioGroup;
 
 	private Class<T> m_clz;
@@ -31,7 +31,7 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 	IValueChanged<?> m_valueChanger;
 	ClassMetaModel m_cmm;
 
-	public RadioGroup(Class<T> clz, String name, boolean expandEnum) throws InstantiationException, IllegalAccessException, Exception {
+	public RadioGroupDiv(Class<T> clz, String name, boolean expandEnum) throws InstantiationException, IllegalAccessException, Exception {
 		m_radioGroup = new to.etc.domui.dom.html.RadioGroup<T>();
 		m_clz = clz;
 		m_name = name;
@@ -44,7 +44,7 @@ public class RadioGroup<T> extends Div implements IControl<T> {
 			expandEnum();
 	}
 
-	public RadioGroup(Class<T> clz, String name) throws InstantiationException, IllegalAccessException, Exception {
+	public RadioGroupDiv(Class<T> clz, String name) throws InstantiationException, IllegalAccessException, Exception {
 		this(clz,name,false);
 	}
 
