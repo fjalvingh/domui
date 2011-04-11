@@ -146,8 +146,9 @@ public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 		if(! m_ie8capable) {
 			//			System.out.println("IE8: Sending emulate-IE7 header: " + m_name);
 			addHeader("X-UA-Compatible", "IE=EmulateIE7");
-//		} else {
-//			System.out.println("IE8: Resource is IE8-capable, flushing: " + m_name);
+		} else {
+			addHeader("X-UA-Compatible", "IE=edge"); // 20110329 jal Force to highest supported mode.
+			//			System.out.println("IE8: Resource is IE8-capable, flushing: " + m_name);
 		}
 
 		//-- Writeout the buffert

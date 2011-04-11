@@ -57,9 +57,19 @@ import to.etc.util.*;
 public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowRenderer<T> {
 	static public final String NOWRAP = "-NOWRAP";
 
+	static public final String DEFAULTSORT = "-DSORT";
+
 	/** The column name to sort on by default, set by metadata. This is only used to keep it for a while until the actual column list is known; at that point the column def to sort on is determined and used. */
 	private String m_sortColumnName;
 
+	/** The sort helper to sort with by default (initial sort order). */
+	private ISortHelper m_sortHelper;
+
+	//	private boolean					m_sortableModel;
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Simple renderer initialization && parameterisation	*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Create a renderer by handling the specified class and a list of properties off it.
 	 * @param dataClass
@@ -117,6 +127,8 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 		String cssclass = null;
 		boolean nowrap = false;
 		SortableType sort = null;
+		ISortHelper sortHelper = null;
+		boolean defaultsort = false;
 		INodeContentRenderer< ? > nodeRenderer = null;
 		Class< ? > nrclass = null;
 		ICellClicked< ? > clickHandler = null;
@@ -128,6 +140,8 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 				property = (String) val;
 			} else if(NOWRAP == val) {
 				nowrap = true;
+			} else if(DEFAULTSORT == val) {
+				defaultsort = true;
 			} else if(val instanceof String) {
 				final String s = (String) val;
 				final char c = s.length() == 0 ? 0 : s.charAt(0); // The empty string is used to denote a node renderer that takes the entire record as a parameter
@@ -137,7 +151,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 							throw new IllegalArgumentException("Unexpected 'string' parameter: '" + s + "'");
 						//-- FALL THROUGH
 					case 0:
-						internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler);
+						internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler, defaultsort, sortHelper);
 						property = s;
 						width = null;
 						conv = null;
@@ -148,6 +162,8 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 						nrclass = null;
 						nowrap = false;
 						sort = null;
+						defaultsort = false;
+						sortHelper = null;
 						break;
 
 					case '%':
@@ -167,7 +183,11 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 				nodeRenderer = (INodeContentRenderer< ? >) val;
 			else if(val instanceof ICellClicked< ? >)
 				clickHandler = (ICellClicked< ? >) val;
-			else if(val instanceof Class< ? >) {
+			else if(val instanceof ISortHelper) {
+				sortHelper = (ISortHelper) val;
+				if(sort == null)
+					sort = SortableType.SORTABLE_ASC;
+			} else if(val instanceof Class< ? >) {
 				final Class<R> c = (Class<R>) val;
 				if(INodeContentRenderer.class.isAssignableFrom(c))
 					nrclass = c;
@@ -180,7 +200,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 			} else
 				throw new IllegalArgumentException("Invalid column modifier argument: " + val);
 		}
-		internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler);
+		internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler, defaultsort, sortHelper);
 		return this;
 	}
 
@@ -226,9 +246,11 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 	 * @param nrclass
 	 * @param clickHandler
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
+	 * @param sortHelper
+	 * @param defaultsort
 	 */
 	private <R> void internalAddProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass,
-		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler) throws Exception {
+		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper sortHelper) throws Exception {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
 
@@ -246,8 +268,16 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
 			cd.setNowrap(nowrap);
-			if(sort != null)
+
+			//-- We can only sort on this by using a sort helper....
+			if(sort != null && (sort == SortableType.SORTABLE_ASC || sort == SortableType.SORTABLE_DESC) && sortHelper == null) {
+				System.out.println("ERROR: Attempt to define column without property name as sortable"); // FIXME Must become exception.
+			} else {
 				cd.setSortable(sort);
+				cd.setSortHelper(sortHelper);
+				if(defaultsort)
+					setSortColumn(cd);
+			}
 			if(clickHandler != null) {
 				cd.setCellClicked(clickHandler);
 			}
@@ -274,8 +304,12 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
 			cd.setNowrap(nowrap);
-			if(sort != null)
+			if(sort != null) {
 				cd.setSortable(sort);
+				cd.setSortHelper(sortHelper);
+				if(defaultsort)
+					setSortColumn(cd);
+			}
 			if(pmm.getNumericPresentation() != null && pmm.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				cd.setCssClass("ui-numeric");
 				cd.setHeaderCssClass("ui-numeric");
@@ -329,11 +363,11 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 					scd.setPresentationConverter(c);
 				}
 			}
-			//			scd.setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
 			if(sort != null)
 				scd.setSortable(sort);
 			else
 				scd.setSortable(xdp.getSortable());
+			scd.setSortHelper(sortHelper); // All sort actions here are QUESTIONABLE - what happens for multiple expanded columns?!
 			scd.setPropertyName(xdp.getName());
 			scd.setNowrap(nowrap);
 			scd.setNumericPresentation(xdp.getNumericPresentation());
@@ -444,5 +478,4 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 
 		super.complete(tbl);
 	}
-
 }

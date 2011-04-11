@@ -161,6 +161,7 @@ final public class Page implements IQContextContainer {
 
 		m_cc = cc;
 		m_pageParameters = pp;
+		pp.setReadOnly();
 	}
 
 	public void setTheCurrentNode(NodeBase b) {
