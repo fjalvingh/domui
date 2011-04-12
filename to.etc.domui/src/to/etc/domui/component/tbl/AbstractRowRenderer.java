@@ -319,9 +319,15 @@ public class AbstractRowRenderer<T> {
 		}
 		updateSortImage(scd, m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 
-		//-- Tell the model to sort
-		final ISortableTableModel stm = (ISortableTableModel) nb.getParent(DataTable.class).getModel();
-		stm.sortOn(scd.getPropertyName(), m_sortDescending);
+		//-- Tell the model to sort.
+		if(scd.getSortHelper() != null) {
+			//-- A sort helper is needed.
+			final IProgrammableSortableModel stm = (IProgrammableSortableModel) nb.getParent(DataTable.class).getModel();
+			stm.sortOn(scd.getSortHelper(), m_sortDescending);
+		} else {
+			final ISortableTableModel stm = (ISortableTableModel) nb.getParent(DataTable.class).getModel();
+			stm.sortOn(scd.getPropertyName(), m_sortDescending);
+		}
 	}
 
 	private void updateSortImage(final SimpleColumnDef scd, final String img) {
@@ -349,8 +355,16 @@ public class AbstractRowRenderer<T> {
 		//		m_sortableModel = true;
 		if(m_sortColumn == null)
 			return;
-		final ISortableTableModel stm = (ISortableTableModel) tbl.getModel();
-		stm.sortOn(m_sortColumn.getPropertyName(), m_sortDescending);
+
+		//-- Tell the model to sort.
+		if(m_sortColumn.getSortHelper() != null) {
+			//-- A sort helper is needed.
+			final IProgrammableSortableModel stm = (IProgrammableSortableModel) tbl.getModel();
+			stm.sortOn(m_sortColumn.getSortHelper(), m_sortDescending);
+		} else {
+			final ISortableTableModel stm = (ISortableTableModel) tbl.getModel();
+			stm.sortOn(m_sortColumn.getPropertyName(), m_sortDescending);
+		}
 	}
 
 	/*--------------------------------------------------------------*/
