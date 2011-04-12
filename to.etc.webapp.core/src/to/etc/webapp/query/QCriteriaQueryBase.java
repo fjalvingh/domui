@@ -273,6 +273,26 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	}
 
 	/**
+	 * Select of the distinct values over the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @return
+	 */
+	protected QCriteriaQueryBase<T> distinct(@GProperty final String property) {
+		addPropertySelection(QSelectionFunction.DISTINCT, property, null);
+		return this;
+	}
+
+	/**
+	 * Select of the distinct values over the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @return
+	 */
+	protected QCriteriaQueryBase<T> distinct(@GProperty final String property, String alias) {
+		addPropertySelection(QSelectionFunction.DISTINCT, property, alias);
+		return this;
+	}
+
+	/**
 	 * Add an order clause to the list of sort items.
 	 * @param r
 	 * @return
