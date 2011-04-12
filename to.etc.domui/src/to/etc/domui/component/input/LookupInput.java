@@ -427,8 +427,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 						//It is required that lookup by id is also available, for now only Long type and BigDecimal interpretated as Long (fix for 1228) are supported
 						//FIXME: see if it is possible to generalize things for all integer based types... (DomUtil.isIntegerType(pmm.getActualType()))
 						if(pl.get(0).getActualType() == Long.class || pl.get(0).getActualType() == BigDecimal.class) {
-							//FIXME: From some reason code breaks if we try to apply same LIKE search on Long type columns? To be safe we restrict that to BigDecimal -> this does not give problems...
-							if(pl.get(0).getActualType() == BigDecimal.class && searchString.contains("%")) {
+							if(searchString.contains("%") && !pl.get(0).isTransient()) {
 								r.add(new QPropertyComparison(QOperation.LIKE, spm.getPropertyName(), new QLiteral(searchString)));
 							} else {
 								try {
