@@ -26,6 +26,8 @@ package to.etc.domui.hibernate.model;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.hibernate.impl.*;
@@ -751,16 +753,43 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		if(!(hibmd instanceof AbstractEntityPersister))
 			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm + ": expecting AbstractEntityPersister, got a " + hibmd.getClass());
 		AbstractEntityPersister aep = (AbstractEntityPersister) hibmd;
-		int ix = aep.getPropertyIndex(name);
-		if(ix < 0)
-			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm + ": property index not found");
-		String[] colar = aep.getPropertyColumnNames(ix);
-		if(colar == null || colar.length != 1)
-			throw new QQuerySyntaxException("'Like' cannot be done on multicolumn/0column property " + pmm);
+		String[] colar = getPropertyColumnNamesFromLousyMetadata(aep, name);
+		//
+		//		int ix = aep.getPropertyIndex(name);
+		//		if(ix < 0)
+		//			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm + ": property index not found");
+		//		String[] colar = aep.getPropertyColumnNames(ix);
+		//		if(colar == null || colar.length != 1)
+		//			throw new QQuerySyntaxException("'Like' cannot be done on multicolumn/0column property " + pmm);
 
 		//-- We need Hibernate metadata to find the column name....
 		m_last = Restrictions.sqlRestriction("{alias}." + colar[0] + " like ?", value, Hibernate.STRING);
 	}
+
+	/**
+	 * Hibernate's jokish metadata does not include the PK in it's properties structures. So
+	 * we explicitly need to check if the name is the PK property, then return the column names
+	 * for that PK.
+	 *
+	 * @param aep
+	 * @param name
+	 * @return
+	 */
+	@Nonnull
+	private String[] getPropertyColumnNamesFromLousyMetadata(AbstractEntityPersister aep, String name) {
+		//-- The PK property is not part of the "properties" in hibernate's idiot metadata. So first check if we're looking at that ID property.
+		if(name.equals(aep.getIdentifierPropertyName())) {
+			return aep.getIdentifierColumnNames();
+		}
+		int ix = aep.getPropertyIndex(name);
+		if(ix < 0)
+			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + name + ": property index not found");
+		String[] colar = aep.getPropertyColumnNames(ix);
+		if(colar == null || colar.length != 1/* || colar[0] == null*/)
+			throw new QQuerySyntaxException("'Like' cannot be done on multicolumn/0column property " + name);
+		return colar;
+	}
+
 
 	private void handlePropertySubcriteriaComparison(QPropertyComparison n) throws Exception {
 		QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
