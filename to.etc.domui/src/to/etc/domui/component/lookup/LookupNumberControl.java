@@ -62,6 +62,8 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 
 	private boolean m_monetary;
 
+	private boolean m_allowLike;
+
 	//FIXME: check how other databases will match with this numbers range limits?
 	//Oracle reference: The NUMBER data type is used to store zero, negative, positive, fixed, and floating point numbers with up to 38 digits of precision. Numbers range between 1.0x10 -126 and 1.0x10 126.
 	//Max NUMBER data type limitation.
@@ -87,6 +89,10 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 	}
 
 	public LookupNumberControl(final Class<T> valueType, Text<String> node, String propertyName, Number minValue, Number maxValue, boolean monetary) {
+		this(valueType, node, propertyName, minValue, maxValue, monetary, true);
+	}
+
+	public LookupNumberControl(final Class<T> valueType, Text<String> node, String propertyName, Number minValue, Number maxValue, boolean monetary, boolean allowLike) {
 		super(node);
 		m_input = node;
 		m_valueType = valueType;
@@ -94,6 +100,7 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 		m_minValue = minValue;
 		m_maxValue = maxValue;
 		m_monetary = monetary;
+		m_allowLike = allowLike;
 	}
 
 	/**
@@ -164,12 +171,12 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 			m_s.init(m_input.getValue());
 			m_s.skipWs();
 
-			if(Character.isDigit(m_s.LA()) || m_s.LA() == '-') {
+			if(Character.isDigit(m_s.LA()) || m_s.LA() == '-' || m_s.LA() == '%') {
 				//-- Does not start with operation: can only be number [%].
 				String v = scanNumeric(true);
 				if(v == null || "".equals(v))
 					throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
-				if(v.contains("%")) {
+				if(v.contains("%") && m_allowLike) {
 					m_s.skipWs();
 					if(!m_s.eof()) // Must have eof
 						throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
