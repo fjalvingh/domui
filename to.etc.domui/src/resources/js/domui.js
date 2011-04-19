@@ -1466,13 +1466,17 @@ var WebUI = {
 			var ok = false;
 			var spl = val.split(',');
 			var li = vv.lastIndexOf('.');
+			var ext;
 			if (li != -1) {
-				var ext = vv.substring(li + 1, vv.length).toLowerCase();
-				for ( var i = 0; i < spl.length; i++) {
-					if (ext == spl[i] || "*" == spl[i]) {
-						ok = true;
-						break;
-					}
+				ext = vv.substring(li + 1, vv.length).toLowerCase();
+			}else{
+				//Allow upload of files without extensions when "*" filter is defined
+				ext = "";
+			}
+			for ( var i = 0; i < spl.length; i++) {
+				if (ext == spl[i] || "*" == spl[i]) {
+					ok = true;
+					break;
 				}
 			}
 			if (!ok) {
