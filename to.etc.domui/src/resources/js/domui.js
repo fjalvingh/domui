@@ -442,7 +442,11 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 
 		return this.each(function () {
 			if (this.scrollWidth > this.offsetWidth) {
-				$(this).css({ 'padding-bottom' : '20px', 'overflow-y' : 'hidden' });
+				$(this).css({ 'padding-bottom' : '20px' });
+				if (this.scrollHeight <= this.offsetHeight ){
+					//hide vertical scroller only if it is not needed after padding is increased.
+					$(this).css({ 'overflow-y' : 'hidden' });
+				}
 			}
 		});            
 	};
