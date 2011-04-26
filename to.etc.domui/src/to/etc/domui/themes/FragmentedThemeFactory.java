@@ -131,7 +131,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 
 	public void loadStyleInfo(String colorset, String iconset, String styleset) throws Exception {
 		m_colorSet = getProperties("themes", colorset + ".color.js", null);
-		m_iconSet = getFragmentedProperties("icons/" + iconset, "icon.props.js", ".props.js", m_colorSet.getMap());
+		m_iconSet = getFragmentedProperties("icons/" + iconset, "icon.props.js", ".fragprops.js", m_colorSet.getMap());
 		m_styleSet = getProperties("themes/" + styleset, "style.props.js", m_iconSet.getMap());
 	}
 

@@ -123,7 +123,7 @@ public class DefaultButton extends Button {
 	 * @param name
 	 */
 	public void setThemeConfig(final String name) {
-		setConfig(DomApplication.get().getThemedResourceRURL("THEME/" + name));
+		setConfig(DomApplication.get().getThemedResourceRURL("ICON/" + name));
 	}
 
 	/**

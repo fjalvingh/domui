@@ -1762,5 +1762,5 @@ body,html {
 	margin: 2px;
 }
 .ui-dbtn:HOVER, .ui-dbtn:FOCUS {
-	background-position: 0px -22px;
+	background-position: 0px -<%= defaultbutton_height %>px;
 }
