@@ -31,7 +31,6 @@ import javax.annotation.*;
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
-import to.etc.template.*;
 
 /**
  *
@@ -45,8 +44,6 @@ public class FragmentedThemeStore implements ITheme {
 
 	private byte[] m_styleSheetBytes;
 
-	private JSTemplate m_stylesheetSource;
-
 	private Map<String, Object> m_themeProperties;
 
 	private List<String> m_themeInheritanceStack;
@@ -58,10 +55,9 @@ public class FragmentedThemeStore implements ITheme {
 	/** Maps icon names to their real name in whatever resource they are. */
 	final private Map<String, String> m_iconMap = new HashMap<String, String>();
 
-	public FragmentedThemeStore(DomApplication app, byte[] tbytes, JSTemplate stylesheetSource, Map<String, Object> themeProperties, List<String> themeInheritanceStack, List<String> iconInheritanceStack,
+	public FragmentedThemeStore(DomApplication app, byte[] tbytes, Map<String, Object> themeProperties, List<String> themeInheritanceStack, List<String> iconInheritanceStack,
 		ResourceDependencies deps) {
 		m_app = app;
-		m_stylesheetSource = stylesheetSource;
 		m_themeProperties = themeProperties;
 		m_themeInheritanceStack = themeInheritanceStack;
 		m_iconInheritanceStack = iconInheritanceStack;
@@ -80,10 +76,6 @@ public class FragmentedThemeStore implements ITheme {
 
 	public ResourceDependencies getDependencies() {
 		return m_dependencies;
-	}
-
-	public JSTemplate getStylesheetTemplate() {
-		return m_stylesheetSource;
 	}
 
 	public Map<String, Object> getThemeProperties() {
