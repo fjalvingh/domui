@@ -292,7 +292,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			} catch(Exception x) {
 				Trouble.wrapException(x);
 			}
-		} else if("javax.persistence.Transient".equals(name)) {
+		} else if("javax.persistence.Transient".equals(name) || "org.hibernate.annotations.Formula".equals(name)) {
 			pmm.setTransient(true);
 		} else if("javax.persistence.OneToMany".equals(name)) {
 			//-- This must be a list

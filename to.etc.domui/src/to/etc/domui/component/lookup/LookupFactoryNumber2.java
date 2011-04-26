@@ -105,7 +105,8 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 		boolean monetary = NumericPresentation.isMonetary(pmm.getNumericPresentation());
 
 		//-- FIXME Generic bounds violation due to it's gross definition, ignored.
-		return new LookupNumberControl<Number>((Class<Number>) pmm.getActualType(), numText, spm.getPropertyName(), Double.valueOf(-minmax.doubleValue()), minmax, monetary);
+		//-- FIXME jal 20110415 Vladimir- transient here is wrong because transient usually means querying is impossible at all.
+		return new LookupNumberControl<Number>((Class<Number>) pmm.getActualType(), numText, spm.getPropertyName(), Double.valueOf(-minmax.doubleValue()), minmax, monetary, !pmm.isTransient());
 	}
 
 	static private double calcMaxValue(PropertyMetaModel< ? > pmm) {
