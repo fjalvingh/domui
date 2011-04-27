@@ -70,8 +70,6 @@ public class FragmentedThemeFactory implements IThemeFactory {
 
 	private String m_stylesheet;
 
-	private DomApplication m_app;
-
 	/**
 	 * Constructor to create the factory itself.
 	 */
@@ -302,7 +300,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	@Nullable
 	protected IResourceRef findRef(@Nonnull IResourceDependencyList rdl, @Nonnull String rurl) throws Exception {
 		try {
-			IResourceRef ires = m_app.getResource(rurl, rdl); // Get the source file, abort if not found
+			IResourceRef ires = m_application.getResource(rurl, rdl); // Get the source file, abort if not found
 			return ires;
 		} catch(ThingyNotFoundException x) {}
 		return null;
@@ -363,7 +361,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 			nameSet.put(s, inh);
 
 		//-- Scan webapp path
-		File wad = m_app.getAppFile(inh);
+		File wad = m_application.getAppFile(inh);
 		if(wad != null && wad.isDirectory()) {
 			for(File far : wad.listFiles()) {
 				if(far.isFile())
