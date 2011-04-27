@@ -57,7 +57,7 @@ public class SimpleThemeFactory implements IThemeFactory {
 	private String m_colorName;
 
 	/** A Javascript execution environment. */
-	private JavascriptExecutor m_executor;
+	private RhinoExecutor m_executor;
 
 	/**
 	 * Factory constructor.
@@ -82,9 +82,9 @@ public class SimpleThemeFactory implements IThemeFactory {
 		}
 	}
 
-	private JavascriptExecutor executor() {
+	private RhinoExecutor executor() {
 		if(m_executor == null) {
-			m_executor = JavascriptExecutorFactory.getInstance().createExecutor();
+			m_executor = RhinoExecutorFactory.getInstance().createExecutor();
 		}
 		return m_executor;
 	}

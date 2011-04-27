@@ -35,13 +35,13 @@ import org.mozilla.javascript.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 6, 2011
  */
-public class JavascriptExecutorFactory {
-	static private JavascriptExecutorFactory m_instance = new JavascriptExecutorFactory();
+public class RhinoExecutorFactory {
+	static private RhinoExecutorFactory m_instance = new RhinoExecutorFactory();
 
 	/** This is the root Javascript scope, containing things like "Function", "Object" and other fun and games. */
 	private ScriptableObject	m_rootScope;
 
-	public static JavascriptExecutorFactory getInstance() {
+	public static RhinoExecutorFactory getInstance() {
 		return m_instance;
 	}
 
@@ -62,10 +62,10 @@ public class JavascriptExecutorFactory {
 		}
 	}
 
-	public JavascriptExecutor createExecutor() {
+	public RhinoExecutor createExecutor() {
 		initialize();
 
-		JavascriptExecutor jx = new JavascriptExecutor(this);
+		RhinoExecutor jx = new RhinoExecutor(this);
 		jx.initialize(m_rootScope);
 		return jx;
 	}

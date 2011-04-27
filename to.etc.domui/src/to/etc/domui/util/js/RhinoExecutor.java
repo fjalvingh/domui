@@ -34,12 +34,12 @@ import org.mozilla.javascript.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 7, 2011
  */
-public class JavascriptExecutor implements IScriptScope {
+public class RhinoExecutor implements IScriptScope {
 	//	private final JavascriptExecutorFactory m_factory;
 
 	private Scriptable m_scope;
 
-	public JavascriptExecutor(JavascriptExecutorFactory javascriptExecutorFactory) {
+	public RhinoExecutor(RhinoExecutorFactory javascriptExecutorFactory) {
 		//		m_factory = javascriptExecutorFactory;
 	}
 
@@ -117,7 +117,7 @@ public class JavascriptExecutor implements IScriptScope {
 		if(null == val)
 			return null;
 		if(val instanceof Scriptable) {
-			return new ScriptScope((Scriptable) val);
+			return new RhinoScriptScope((Scriptable) val);
 		}
 
 		return val;
@@ -134,7 +134,7 @@ public class JavascriptExecutor implements IScriptScope {
 			Scriptable scope = jcx.newObject(m_scope);
 			scope.setPrototype(m_scope);
 			scope.setParentScope(null);
-			return new ScriptScope(scope, true);
+			return new RhinoScriptScope(scope, true);
 		} finally {
 			Context.exit();
 		}
