@@ -61,6 +61,30 @@ public class FragmentedThemeStore implements ITheme {
 		m_styleSheetBytes = tbytes;
 	}
 
+	/**
+	 * Return a resource reference within this theme.
+	 * @see to.etc.domui.themes.ITheme#getThemeResource(java.lang.String, to.etc.domui.util.resources.IResourceDependencyList)
+	 */
+	@Override
+	public IResourceRef getThemeResource(String name, IResourceDependencyList rdl) throws Exception {
+		//-- Are we looking for the root stylesheet? We have that as the expanded fragments...
+		if("style.theme.css".equals(name)) {
+			byte[] data = getStyleSheetBytes();
+			return new ByteArrayResourceRef(data, "style.theme.css", getDependencies());
+		}
+
+		//-- "Normal" resource.
+
+		String iurl = theme.getIconURL(real);
+		if(iurl.startsWith("$"))
+			iurl = iurl.substring(1);
+		return da.getAppFileOrResource(iurl);
+
+
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public byte[] getStyleSheetBytes() {
 		return m_styleSheetBytes;
 	}
@@ -81,8 +105,7 @@ public class FragmentedThemeStore implements ITheme {
 	 * @param icon
 	 * @return
 	 */
-	@Nonnull
-	public String getIconURL(@Nonnull String icon) throws Exception {
+	private String getIconURL(@Nonnull String icon) throws Exception {
 		synchronized(m_iconMap) {
 			String res = m_iconMap.get(icon);
 			if(res != null)
@@ -104,8 +127,7 @@ public class FragmentedThemeStore implements ITheme {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nullable
-	protected String findIconURLUncached(String icon) throws Exception {
+	private String findIconURLUncached(String icon) throws Exception {
 		//-- Strip entire suffix (everything from 1st dot in name).
 		int pos = icon.indexOf('.');
 		String name = pos == -1 ? icon : icon.substring(0, pos); // Get name ex suffix;
@@ -120,9 +142,8 @@ public class FragmentedThemeStore implements ITheme {
 		return getThemePath(icon);
 	}
 
-	@Override
 	@Nullable
-	public String getThemePath(String path) throws Exception {
+	private String getThemePath(String path) throws Exception {
 		for(int i = m_themeInheritanceStack.size(); --i >= 0;) {
 			String sitem = m_themeInheritanceStack.get(i);
 			String real = "$" + sitem + "/" + path;

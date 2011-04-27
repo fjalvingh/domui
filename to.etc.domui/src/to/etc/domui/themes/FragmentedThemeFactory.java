@@ -51,6 +51,19 @@ import to.etc.util.*;
  * Created on Jan 5, 2011
  */
 public class FragmentedThemeFactory implements IThemeFactory {
+	static public final FragmentedThemeFactory INSTANCE = new FragmentedThemeFactory();
+
+	private DomApplication m_application;
+
+	private String m_themeName;
+
+	private String m_styleName;
+
+	private String m_iconName;
+
+	private String m_colorName;
+
+
 	//	final private String m_styleName;
 	//
 	//	final private String m_colorName;
@@ -72,36 +85,63 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	/**
 	 * Constructor to create the factory itself.
 	 */
-	public FragmentedThemeFactory() {
+	private FragmentedThemeFactory() {
 	}
 
+	/**
+	 * Constructor for an instance.
+	 * @param da
+	 * @param themeName
+	 */
+	private FragmentedThemeFactory(DomApplication da, String themeName) {
+		m_application = da;
+		m_themeName = themeName;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Factory code.										*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Create the theme store for the specified theme input string.
 	 * @see to.etc.domui.themes.IThemeFactory#getTheme(to.etc.domui.server.DomApplication, java.lang.String)
 	 */
 	@Override
 	public ITheme getTheme(DomApplication da, String themeName) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		FragmentedThemeFactory stf = new FragmentedThemeFactory(da, themeName);
+		try {
+			return stf.createTheme();
+		} finally {
+			try {
+				stf.close();
+			} catch(Exception x) {}
+		}
 	}
 
-
-	private void init() throws Exception {
-		if(m_engineManager != null)
-			return;
-
-		m_engineManager = new ScriptEngineManager();
-		m_compiler = new JSTemplateCompiler();
+	/**
+	 *
+	 */
+	private void close() {
+		m_engineManager = null;
+		m_compiler = null;
 	}
 
-	ScriptEngineManager getEngineManager() throws Exception {
-		init();
-		return m_engineManager;
-	}
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Instance creation.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Instance creation.
+	 * @return
+	 */
+	private ITheme createTheme() throws Exception {
+		//-- Split theme name into theme/icons/color
+		String[] ar = m_themeName.split("\\/");
+		if(ar.length != 3)
+			throw new StyleException("The theme name '" + m_themeName + "' is invalid for the factory SimpleThemeFactory: expecting theme/icon/color");
+		m_styleName = ar[0];
+		m_iconName = ar[1];
+		m_colorName = ar[2];
 
-	public FragmentedThemeStore loadTheme(DomApplication da) throws Exception {
-		m_app = da;
-		loadStyleInfo(da);
+		loadStyleInfo(m_application);
 		ResourceDependencyList rdl = new ResourceDependencyList();
 		rdl.add(m_colorSet.getResourceDependencyList());
 		rdl.add(m_iconSet.getResourceDependencyList());
@@ -118,7 +158,24 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		templateList.addAll(m_iconSet.getInheritanceStack());
 		templateList.addAll(m_styleSet.getInheritanceStack());
 
-		return new FragmentedThemeStore(da, m_stylesheet.getBytes("utf-8"), m_styleSet.getMap(), templateList, rd);
+		return new FragmentedThemeStore(m_application, m_stylesheet.getBytes("utf-8"), m_styleSet.getMap(), templateList, rd);
+	}
+
+	private void init() throws Exception {
+		if(m_engineManager != null)
+			return;
+
+		m_engineManager = new ScriptEngineManager();
+		m_compiler = new JSTemplateCompiler();
+	}
+
+	ScriptEngineManager getEngineManager() throws Exception {
+		init();
+		return m_engineManager;
+	}
+
+	public FragmentedThemeStore loadTheme(DomApplication da) throws Exception {
+		m_app = da;
 	}
 
 	/**

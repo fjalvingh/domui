@@ -56,8 +56,6 @@ public class HtmlEditor extends TextArea {
 		StringBuilder sb = new StringBuilder();
 		sb.append("$(\"#").append(getActualID()).append("\").wysiwyg({css:");
 		String css = getStyleSheet();
-		if(css == null)
-			css = DomApplication.get().getTheme(null).getThemePath("minieditor.css");
 		StringTool.strToJavascriptString(sb, css, false);
 		sb.append("});");
 		appendCreateJS(sb);
@@ -71,7 +69,7 @@ public class HtmlEditor extends TextArea {
 	 * @return
 	 */
 	public String getStyleSheet() throws Exception {
-		return DomApplication.get().getTheme(null).getThemePath(m_styleSheet);
+		return DomApplication.get().getThemedResourceRURL(m_styleSheet == null ? "THEME/minieditor.css" : m_styleSheet);
 	}
 
 	public void setStyleSheet(String styleSheet) {

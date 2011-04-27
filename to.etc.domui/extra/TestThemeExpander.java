@@ -67,7 +67,6 @@ public class TestThemeExpander {
 	//			Object v = ScriptableObject.getProperty((NativeObject) val, pid.toString());
 	//			System.out.println("name=" + pid + " value=" + v);
 	//		}
-	//
 	//	}
 
 }

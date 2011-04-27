@@ -61,7 +61,6 @@ public class ThemeResourceFactory implements IResourceFactory {
 		return new String[]{themename, filename};
 	}
 
-
 	/**
 	 * Get a resource from the proper theme.
 	 *

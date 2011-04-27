@@ -24,11 +24,10 @@
  */
 package to.etc.domui.themes;
 
-import java.util.*;
-
 import javax.annotation.concurrent.*;
 
 import to.etc.domui.server.*;
+import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
 
 /**
@@ -46,12 +45,13 @@ public final class SimpleTheme implements ITheme {
 
 	final private ResourceDependencies m_rd;
 
-	final private Map<String, Object> m_themeProperties;
+	final private IScriptScope m_propertyScope;
 
-	public SimpleTheme(DomApplication da, String styleName, Map<String, Object> themeProperties, ResourceDependencies rd) {
+	public SimpleTheme(DomApplication da, String styleName, IScriptScope themeProperties, ResourceDependencies rd) {
 		m_da = da;
 		m_styleName = styleName;
-		m_themeProperties = Collections.unmodifiableMap(themeProperties);
+		m_propertyScope = themeProperties;
+		//		m_themeProperties = Collections.unmodifiableMap(themeProperties);
 		m_rd = rd;
 	}
 
@@ -60,9 +60,8 @@ public final class SimpleTheme implements ITheme {
 		return m_rd;
 	}
 
-	@Override
-	public Map<String, Object> getThemeProperties() {
-		return m_themeProperties;
+	public IScriptScope getPropertyScope() {
+		return m_propertyScope;
 	}
 
 	@Override

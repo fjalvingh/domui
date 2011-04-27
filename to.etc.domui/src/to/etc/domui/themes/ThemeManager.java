@@ -7,8 +7,8 @@ import javax.annotation.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
+import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
-import to.etc.template.*;
 
 /**
  * This is used by DomApplication to manage themes. It exists to reduce the code in DomApplication; it
@@ -176,19 +176,15 @@ final public class ThemeManager {
 
 		String[] spl = ThemeResourceFactory.splitThemeURL(rurl);
 		ITheme theme = getTheme(spl[0], null); // Dependencies already added by get-resource call.
+		IScriptScope ss = theme.getPropertyScope();
+		ss = ss.newScope();
 
-		//		if(ires == null)
-		//			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
-
-		//-- Get the variable map to use.
-		Map<String, Object> themeMap = theme.getThemeProperties();
-		themeMap = new HashMap<String, Object>(themeMap); // Create a modifyable duplicate
 		if(bv != null) {
-			themeMap.put("browser", bv);
+			ss.put("browser", bv);
 		}
-		themeMap.put("util", new ThemeCssUtils());
+		ss.put("util", new ThemeCssUtils());
 
-		m_application.augmentThemeMap(themeMap); // Provide a hook to let user code add stuff to the theme map
+		//		m_application.augmentThemeMap(themeMap); // Provide a hook to let user code add stuff to the theme map
 
 		//-- 2. Get a reader.
 		InputStream is = ires.getInputStream();
@@ -200,9 +196,8 @@ final public class ThemeManager {
 			Reader r = new InputStreamReader(is, "utf-8");
 			StringBuilder sb = new StringBuilder(65536);
 
-			JSTemplateCompiler tc = new JSTemplateCompiler();
-			tc.executeMap(sb, r, rurl, themeMap);
-
+			RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
+			rtc.execute(sb, r, rurl, ss);
 			//			ts = System.nanoTime() - ts;
 			//			System.out.println("theme-replace: " + rurl + " took " + StringTool.strNanoTime(ts));
 			return sb.toString();
@@ -222,10 +217,9 @@ final public class ThemeManager {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, Object> getThemeMap(String themeName, IResourceDependencyList rdlin) throws Exception {
+	public IScriptScope getThemeMap(String themeName, IResourceDependencyList rdlin) throws Exception {
 		ITheme ts = getTheme(themeName, rdlin);
-		Map<String, Object> tmap = ts.getThemeProperties();
-		return tmap;
+		return ts.getPropertyScope();
 	}
 
 	/**
@@ -240,7 +234,7 @@ final public class ThemeManager {
 	 * @return
 	 */
 	@Nullable
-	public String getThemedResourceRURL(String path) {
+	public String getThemedResourceRURL(@Nullable String path) {
 		if(null == path)
 			return null;
 		if(path.startsWith("THEME/"))

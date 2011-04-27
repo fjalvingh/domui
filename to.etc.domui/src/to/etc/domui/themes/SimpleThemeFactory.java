@@ -25,15 +25,24 @@
 package to.etc.domui.themes;
 
 import java.io.*;
-import java.util.*;
 
 import javax.annotation.*;
-import javax.script.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
+import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
 
+/**
+ * Very simple theme engine which uses a theme name defined as themedir/icon/color. The themedir
+ * must contain all resources; the icon and color names are used to read Javascript property files
+ * containing properties for colors and icons to use within theme-related files.
+ *
+ * <p>All code in here, except the call to getTheme(), is always singlethreaded.</p>
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Apr 27, 2011
+ */
 public class SimpleThemeFactory implements IThemeFactory {
 	static public final SimpleThemeFactory INSTANCE = new SimpleThemeFactory();
 
@@ -46,6 +55,9 @@ public class SimpleThemeFactory implements IThemeFactory {
 	private String m_iconName;
 
 	private String m_colorName;
+
+	/** A Javascript execution environment. */
+	private JavascriptExecutor m_executor;
 
 	/**
 	 * Factory constructor.
@@ -70,6 +82,17 @@ public class SimpleThemeFactory implements IThemeFactory {
 		}
 	}
 
+	private JavascriptExecutor executor() {
+		if(m_executor == null) {
+			m_executor = JavascriptExecutorFactory.getInstance().createExecutor();
+		}
+		return m_executor;
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Creating a theme store instance.					*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Workhorse.
 	 * @return
@@ -84,11 +107,16 @@ public class SimpleThemeFactory implements IThemeFactory {
 		m_colorName = ar[2];
 
 		ResourceDependencyList rdl = new ResourceDependencyList();
-		Map<String, Object> map = new HashMap<String, Object>();
-		loadProperties(map, m_application, "$themes/" + m_colorName + ".color.js", rdl);
-		loadProperties(map, m_application, "$icons/" + m_iconName + "/icon.props.js", rdl);
-		loadProperties(map, m_application, "$themes/" + m_styleName + "/style.props.js", rdl);
-		return new SimpleTheme(m_application, m_styleName, map, rdl.createDependencies());
+
+		/*
+		 * Prime the execution environment with objects needed.
+		 */
+		executor().eval("icon = new Object();");
+
+		loadProperties("$themes/" + m_colorName + ".color.js", rdl);
+		loadProperties("$icons/" + m_iconName + "/icon.props.js", rdl);
+		loadProperties("$themes/" + m_styleName + "/style.props.js", rdl);
+		return new SimpleTheme(m_application, m_styleName, executor(), rdl.createDependencies());
 	}
 
 	/**
@@ -97,47 +125,43 @@ public class SimpleThemeFactory implements IThemeFactory {
 	private void close() {
 	}
 
-	static public void loadProperties(Map<String, Object> map, DomApplication da, String rurl, ResourceDependencyList rdl) throws Exception {
-		IResourceRef ires = findRef(da, rurl, rdl);
+	/**
+	 * Load property files as Javascript files. All of the data is contained in one object.
+	 * @param map
+	 * @param da
+	 * @param rurl
+	 * @param rdl
+	 * @throws Exception
+	 */
+	private void loadProperties(String rurl, ResourceDependencyList rdl) throws Exception {
+		IResourceRef ires = findRef(m_application, rurl, rdl);
 		if(null == ires || !ires.exists())
 			return;
+
+		//-- Load the Javascript && execute in the executor's context.
 		InputStream is = ires.getInputStream();
-		ScriptEngine se;
 		try {
-			//-- Try to load the script as a Javascript file and execute it.
-			ScriptEngineManager m = new ScriptEngineManager();
-			se = m.getEngineByName("js");
-			Bindings b = se.createBindings();
-
-			//-- Add all current map values
-			for(Map.Entry<String, Object> e : map.entrySet()) {
-				b.put(e.getKey(), e.getValue());
-			}
-
-			//-- Add helper classes FIXME TODO
-
-			//-- Execute Javascript;
-			Reader r = new InputStreamReader(is, "utf-8");
-			se.eval(r);
+			InputStreamReader isr = new InputStreamReader(is, "utf-8");
+			executor().eval(isr, rurl);
 		} finally {
 			try {
 				is.close();
 			} catch(Exception x) {}
 		}
-
-		//-- Ok: the binding now contains stuff to add/replace to the map
-		for(Map.Entry<String, Object> e : se.getBindings(ScriptContext.ENGINE_SCOPE).entrySet()) {
-			String name = e.getKey();
-			if("context".equals(name))
-				continue;
-			Object v = e.getValue();
-			if(v != null) {
-				String cn = v.getClass().getName();
-				if(cn.startsWith("sun."))
-					continue;
-				map.put(name, v);
-			}
-		}
+		//
+		//		//-- Ok: the binding now contains stuff to add/replace to the map
+		//		for(Map.Entry<String, Object> e : se.getBindings(ScriptContext.ENGINE_SCOPE).entrySet()) {
+		//			String name = e.getKey();
+		//			if("context".equals(name))
+		//				continue;
+		//			Object v = e.getValue();
+		//			if(v != null) {
+		//				String cn = v.getClass().getName();
+		//				if(cn.startsWith("sun."))
+		//					continue;
+		//				map.put(name, v);
+		//			}
+		//		}
 	}
 	//	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "OS_OPEN_STREAM", justification = "Stream is closed closing wrapped instance.")
 	//	public Map<String, Object> readProperties(@Nonnull DomApplication da, @Nonnull IResourceDependencyList rdl) throws Exception {

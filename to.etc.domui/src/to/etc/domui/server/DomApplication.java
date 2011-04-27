@@ -50,6 +50,7 @@ import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
@@ -1312,19 +1313,68 @@ public abstract class DomApplication {
 		return m_themeManager.getTheme(themeName, rdl);
 	}
 
+	/**
+	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
+	 *
+	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the
+	 * current theme's variable map. This map is either a "style.properties" file
+	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
+	 *
+	 * The result is returned as a string.
+	 *
+	 *
+	 * @param rdl
+	 * @param rurl
+	 * @return
+	 * @throws Exception
+	 */
 	public String getThemeReplacedString(IResourceDependencyList rdl, String rurl) throws Exception {
 		return m_themeManager.getThemeReplacedString(rdl, rurl);
 	}
 
+	/**
+	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
+	 *
+	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the
+	 * current theme's variable map. This map is either a "style.properties" file
+	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
+	 *
+	 * The result is returned as a string.
+	 *
+	 * @param rdl
+	 * @param key
+	 * @return
+	 */
 	public String getThemeReplacedString(IResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
 		return m_themeManager.getThemeReplacedString(rdl, rurl, bv);
 	}
 
-	public Map<String, Object> getThemeMap(String themeName, IResourceDependencyList rdlin) throws Exception {
+	/**
+	 * Return the current theme map (a readonly map), cached from the last
+	 * time. It will refresh automatically when the resource dependencies
+	 * for the theme are updated.
+	 *
+	 * @param rdl
+	 * @return
+	 * @throws Exception
+	 */
+	public IScriptScope getThemeMap(String themeName, IResourceDependencyList rdlin) throws Exception {
 		return m_themeManager.getThemeMap(themeName, rdlin);
 	}
 
-	public String getThemedResourceRURL(String path) {
+	/**
+	 * This checks to see if the RURL passed is a theme-relative URL. These URLs start
+	 * with THEME/. If not the RURL is returned as-is; otherwise the URL is translated
+	 * to a path containing the current theme string:
+	 * <pre>
+	 * 	$THEME/[currentThemeString]/[name]
+	 * </pre>
+	 * where [name] is the rest of the path string after THEME/ has been removed from it.
+	 * @param path
+	 * @return
+	 */
+	@Nullable
+	public String getThemedResourceRURL(@Nullable String path) {
 		return m_themeManager.getThemedResourceRURL(path);
 	}
 

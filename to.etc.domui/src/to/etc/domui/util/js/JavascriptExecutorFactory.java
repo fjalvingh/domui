@@ -22,12 +22,11 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.themes;
+package to.etc.domui.util.js;
 
 import org.mozilla.javascript.*;
 
 /**
- * Incomplete, unused; retained as POC for later.
  * Execute Javascript code, using Rhino. The JDK embedded scripting engine
  * sucks like a Nilfisk: it is a severely abused version of Rhino that is
  * inaccessible by code outside the scripting engine. Consequently it can
@@ -37,8 +36,14 @@ import org.mozilla.javascript.*;
  * Created on Jan 6, 2011
  */
 public class JavascriptExecutorFactory {
+	static private JavascriptExecutorFactory m_instance = new JavascriptExecutorFactory();
+
 	/** This is the root Javascript scope, containing things like "Function", "Object" and other fun and games. */
 	private ScriptableObject	m_rootScope;
+
+	public static JavascriptExecutorFactory getInstance() {
+		return m_instance;
+	}
 
 	public synchronized void initialize() {
 		if(m_rootScope != null)
@@ -64,4 +69,6 @@ public class JavascriptExecutorFactory {
 		jx.initialize(m_rootScope);
 		return jx;
 	}
+
+
 }

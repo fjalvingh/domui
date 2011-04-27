@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.themes;
+package to.etc.domui.util.js;
 
 import java.io.*;
 
@@ -34,7 +34,7 @@ import org.mozilla.javascript.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 7, 2011
  */
-public class JavascriptExecutor {
+public class JavascriptExecutor implements IScriptScope {
 	//	private final JavascriptExecutorFactory m_factory;
 
 	private Scriptable m_scope;
@@ -68,6 +68,25 @@ public class JavascriptExecutor {
 		}
 	}
 
+	public Script compile(Reader r, String filename) throws Exception {
+		Context jcx = Context.enter();
+		try {
+			return jcx.compileReader(r, filename, 1, null);
+		} finally {
+			Context.exit();
+		}
+	}
+
+	public Script compile(String s, String filename) throws Exception {
+		Context jcx = Context.enter();
+		try {
+			return jcx.compileString(s, filename, 1, null);
+		} finally {
+			Context.exit();
+		}
+	}
+
+
 	public Object eval(Reader r, String jsname) throws Exception {
 		Context jcx = Context.enter();
 		try {
@@ -83,5 +102,48 @@ public class JavascriptExecutor {
 
 	public Object toObject(Object o) {
 		return Context.toObject(o, m_scope);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IScriptScope implementation.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @see to.etc.domui.util.js.IScriptScope#getValue(java.lang.String)
+	 */
+	@Override
+	public Object getValue(String name) {
+		Object val = m_scope.get(name, m_scope);
+		if(null == val)
+			return null;
+		if(val instanceof Scriptable) {
+			return new ScriptScope((Scriptable) val);
+		}
+
+		return val;
+	}
+
+	@Override
+	public void put(String name, Object instance) {
+	}
+
+	@Override
+	public IScriptScope newScope() {
+		Context jcx = Context.enter();
+		try {
+			Scriptable scope = jcx.newObject(m_scope);
+			scope.setPrototype(m_scope);
+			scope.setParentScope(null);
+			return new ScriptScope(scope, true);
+		} finally {
+			Context.exit();
+		}
+	}
+
+	@Override
+	public <T> T getAdapter(Class<T> clz) {
+		if(clz.isAssignableFrom(Scriptable.class))
+			return (T) m_scope;
+		return null;
 	}
 }
