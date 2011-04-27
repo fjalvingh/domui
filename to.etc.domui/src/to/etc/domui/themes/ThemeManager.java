@@ -9,6 +9,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
+import to.etc.util.*;
 
 /**
  * This is used by DomApplication to manage themes. It exists to reduce the code in DomApplication; it
@@ -167,7 +168,7 @@ final public class ThemeManager {
 	 * @return
 	 */
 	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
-		//		long ts = System.nanoTime();
+		long ts = System.nanoTime();
 		IResourceRef ires = m_application.getResource(rurl, rdl); // Get the template source file
 		if(!ires.exists()) {
 			System.out.println(">>>> RESOURCE ERROR: " + rurl + ", ref=" + ires);
@@ -198,8 +199,8 @@ final public class ThemeManager {
 
 			RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
 			rtc.execute(sb, r, rurl, ss);
-			//			ts = System.nanoTime() - ts;
-			//			System.out.println("theme-replace: " + rurl + " took " + StringTool.strNanoTime(ts));
+			ts = System.nanoTime() - ts;
+			System.out.println("theme-replace: " + rurl + " took " + StringTool.strNanoTime(ts));
 			return sb.toString();
 		} finally {
 			try {
