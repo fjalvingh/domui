@@ -47,6 +47,17 @@ public interface ITheme {
 	ResourceDependencies getDependencies();
 
 	/**
+	 *
+	 * @param name
+	 * @param rdl
+	 * @return
+	 * @throws Exception
+	 */
+	@Nullable
+	IResourceRef getThemeResource(String name, IResourceDependencyList rdl) throws Exception;
+
+
+	/**
 	 * Get a resource from the theme's inheritance path.
 	 * @param path
 	 * @return
