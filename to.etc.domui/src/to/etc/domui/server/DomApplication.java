@@ -1418,6 +1418,17 @@ public abstract class DomApplication {
 		return tmap;
 	}
 
+	/**
+	 * This checks to see if the RURL passed is a theme-relative URL. These URLs start
+	 * with THEME/. If not the RURL is returned as-is; otherwise the URL is translated
+	 * to a path containing the current theme string:
+	 * <pre>
+	 * 	$THEME/[currentThemeString]/[name]
+	 * </pre>
+	 * where [name] is the rest of the path string after THEME/ has been removed from it.
+	 * @param path
+	 * @return
+	 */
 	@Nullable
 	public String getThemedResourceRURL(String path) {
 		if(null == path)
@@ -1425,17 +1436,11 @@ public abstract class DomApplication {
 		if(path.startsWith("THEME/"))
 			path = path.substring(6); // Strip THEME/
 		else if(path.startsWith("ICON/"))
-			path = path.substring(5); // Strip ICON
+			throw new IllegalStateException("Bad ROOT: ICON/. Use THEME/ instead.");
 		else
 			return path; // Not theme-relative, so return as-is.
 
-		//-- We need to translate this according to the icon rules.
-		try {
-			String res = getTheme(null).getIconURL(path);
-			return res == null ? path : res;
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
+		return "$THEME/" + getCurrentTheme() + "/" + path;
 	}
 
 

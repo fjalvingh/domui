@@ -47,13 +47,6 @@ public interface ITheme {
 	ResourceDependencies getDependencies();
 
 	/**
-	 * Returns the stylesheet RURL to include in every page. This must return an application-relative URL,
-	 * i.e. it must <b>not</b> include the webapp's context and must not start with a /.
-	 * @return
-	 */
-	String getStylesheet();
-
-	/**
 	 * Get a resource from the theme's inheritance path.
 	 * @param path
 	 * @return

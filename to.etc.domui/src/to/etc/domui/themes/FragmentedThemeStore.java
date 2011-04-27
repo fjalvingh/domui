@@ -65,11 +65,6 @@ public class FragmentedThemeStore implements ITheme {
 		return m_styleSheetBytes;
 	}
 
-	@Override
-	public String getStylesheet() {
-		return "$currentTheme/style.theme.css";
-	}
-
 	public ResourceDependencies getDependencies() {
 		return m_dependencies;
 	}
@@ -79,10 +74,9 @@ public class FragmentedThemeStore implements ITheme {
 	}
 
 	/**
-	 * Locate the specified theme resource from the theme, and
-	 * return the URL needed to get it. Any THEME/ or ICON/
-	 * things have already been stripped; the name passed is something
-	 * simple like "btnOkay.png".
+	 * Locate the specified theme resource from the theme, and return the URL
+	 * needed to get it. Any THEME/ things have already been stripped; the name
+	 * passed is something simple like "btnOkay.png".
 	 *
 	 * @param icon
 	 * @return

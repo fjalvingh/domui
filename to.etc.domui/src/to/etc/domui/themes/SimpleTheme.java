@@ -42,11 +42,6 @@ public class SimpleTheme implements ITheme {
 	}
 
 	@Override
-	public String getStylesheet() {
-		return "$themes/" + m_styleName + "/style.theme.css";
-	}
-
-	@Override
 	public ResourceDependencies getDependencies() {
 		return m_rd;
 	}

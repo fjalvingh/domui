@@ -210,8 +210,13 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		}
 	}
 
-	public void renderThemeCSS() throws Exception {
-		String sheet = m_ctx.getApplication().getTheme(null).getStylesheet();
+	/**
+	 * Render the proper themed stylesheet. This will be "style.theme.css" within the current
+	 * "theme directory", which is defined by the "currentTheme" in DomApplication.
+	 * @throws Exception
+	 */
+	protected void renderThemeCSS() throws Exception {
+		String sheet = m_ctx.getApplication().getThemedResourceRURL("style.theme.css");
 
 		//-- Render style fragments part.
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
@@ -279,7 +284,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			o().writeRaw("<!--\n");
 
 		genVar("DomUIpageTag", Integer.toString(page.getPageTag()));
-		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(DomApplication.get().getThemedResourceRURL("ICON/progressbar.gif")), true));
+		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(DomApplication.get().getThemedResourceRURL("THEME/progressbar.gif")), true));
 		genVar("DomUICID", StringTool.strToJavascriptString(page.getConversation().getFullId(), true));
 		genVar("DomUIDevel", ctx.getApplication().inDevelopmentMode() ? "true" : "false");
 
