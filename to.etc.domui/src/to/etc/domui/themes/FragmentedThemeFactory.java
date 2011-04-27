@@ -28,12 +28,11 @@ import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
-import javax.script.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
+import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
-import to.etc.template.*;
 import to.etc.util.*;
 
 /**
@@ -62,15 +61,6 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	private String m_iconName;
 
 	private String m_colorName;
-
-
-	//	final private String m_styleName;
-	//
-	//	final private String m_colorName;
-	//
-	//	final private String m_iconName;
-
-	private ScriptEngineManager m_engineManager;
 
 	private CssPropertySet m_colorSet;
 
@@ -121,13 +111,22 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 *
 	 */
 	private void close() {
-		m_engineManager = null;
-		m_compiler = null;
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Instance creation.									*/
 	/*--------------------------------------------------------------*/
+	@Nullable
+	private RhinoExecutor m_executor;
+
+	@Nonnull
+	private RhinoExecutor executor() {
+		if(null == m_executor)
+			m_executor = RhinoExecutorFactory.getInstance().createExecutor();
+		return m_executor;
+	}
+
+
 	/**
 	 * Instance creation.
 	 * @return
@@ -141,7 +140,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		m_iconName = ar[1];
 		m_colorName = ar[2];
 
-		loadStyleInfo(m_application);
+		loadStyleInfo();
 		ResourceDependencyList rdl = new ResourceDependencyList();
 		rdl.add(m_colorSet.getResourceDependencyList());
 		rdl.add(m_iconSet.getResourceDependencyList());
@@ -151,31 +150,14 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		ResourceDependencies rd = rdl.createDependencies();
 
 		//-- Compile the template;
-		JSTemplateCompiler tc = new JSTemplateCompiler();
-		JSTemplate tmpl = tc.compile(new StringReader(m_stylesheet), m_styleSet.toString());
+		//		RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
+		//		RhinoTemplate tmpl = rtc.compile(new StringReader(m_stylesheet), "<theme fragments>");
 
 		List<String> templateList = new ArrayList<String>();
 		templateList.addAll(m_iconSet.getInheritanceStack());
 		templateList.addAll(m_styleSet.getInheritanceStack());
 
-		return new FragmentedThemeStore(m_application, m_stylesheet.getBytes("utf-8"), m_styleSet.getMap(), templateList, rd);
-	}
-
-	private void init() throws Exception {
-		if(m_engineManager != null)
-			return;
-
-		m_engineManager = new ScriptEngineManager();
-		m_compiler = new JSTemplateCompiler();
-	}
-
-	ScriptEngineManager getEngineManager() throws Exception {
-		init();
-		return m_engineManager;
-	}
-
-	public FragmentedThemeStore loadTheme(DomApplication da) throws Exception {
-		m_app = da;
+		return new FragmentedThemeStore(m_application, m_stylesheet.getBytes("utf-8"), executor(), templateList, rd);
 	}
 
 	/**
@@ -185,22 +167,20 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	private void loadStylesheetFragments(IResourceDependencyList rdl) throws Exception {
 		StringBuilder sb = new StringBuilder(65536);
 		//		ResourceDependencyList rdl = new ResourceDependencyList();
-		Map<String, Object> tmap = new HashMap<String, Object>(m_styleSet.getMap());
-		tmap.put("browser", BrowserVersion.parseUserAgent("Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727)"));
+		executor().put("browser", BrowserVersion.parseUserAgent("Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727)"));
 
-		getFragments(sb, m_styleSet.getInheritanceStack(), ".frag.css", Check.CHECK, rdl, tmap);
+		getFragments(sb, m_styleSet.getInheritanceStack(), ".frag.css", Check.CHECK, rdl);
 		m_stylesheet = sb.toString();
 	}
 
-	public void loadStyleInfo(DomApplication da) throws Exception {
-		m_app = da;
+	protected void loadStyleInfo() throws Exception {
 		loadStyleInfo(m_colorName, m_iconName, m_styleName);
 	}
 
-	public void loadStyleInfo(String colorset, String iconset, String styleset) throws Exception {
-		m_colorSet = getProperties("themes", colorset + ".color.js", null);
-		m_iconSet = getFragmentedProperties("icons/" + iconset, "icon.props.js", ".fragprops.js", m_colorSet.getMap());
-		m_styleSet = getProperties("themes/" + styleset, "style.props.js", m_iconSet.getMap());
+	protected void loadStyleInfo(String colorset, String iconset, String styleset) throws Exception {
+		m_colorSet = getProperties("themes", colorset + ".color.js");
+		m_iconSet = getFragmentedProperties("icons/" + iconset, "icon.props.js", ".fragprops.js");
+		m_styleSet = getProperties("themes/" + styleset, "style.props.js");
 	}
 
 	/*--------------------------------------------------------------*/
@@ -210,22 +190,21 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * Load a property file set for colors and style properties, where the
 	 * properties are not fragmented.
 	 */
-	public CssPropertySet getProperties(String dir, String name, Map<String, Object> start) throws Exception {
+	public CssPropertySet getProperties(String dir, String name) throws Exception {
 		CssPropertySet ps = new CssPropertySet(this, dir, name, null);
-		ps.loadStyleProperties(start, dir);
+		ps.loadStyleProperties(executor(), dir);
 		return ps;
 	}
 
-	public CssPropertySet getFragmentedProperties(String dir, String rootfile, String suffix, Map<String, Object> start) throws Exception {
+	public CssPropertySet getFragmentedProperties(String dir, String rootfile, String suffix) throws Exception {
 		CssPropertySet ps = new CssPropertySet(this, dir, rootfile, suffix);
-		ps.loadStyleProperties(start, dir);
+		ps.loadStyleProperties(executor(), dir);
 		return ps;
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Fragment collector.									*/
 	/*--------------------------------------------------------------*/
-	private JSTemplateCompiler m_compiler;
 
 	/**
 	 * The type of fragment expansion/check to do.
@@ -259,7 +238,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * @throws Exception
 	 *
 	 */
-	public void getFragments(StringBuilder target, List<String> directory, String suffix, Check loadType, IResourceDependencyList rdl, Map<String, Object> propertyMap) throws Exception {
+	public void getFragments(StringBuilder target, List<String> directory, String suffix, Check loadType, IResourceDependencyList rdl) throws Exception {
 		long ts = System.nanoTime();
 
 		//-- Find all possible files/resources, then sort them by their name.
@@ -269,7 +248,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		int count = 0;
 		for(String name : reslist) {
 			String full = "$" + name;
-			appendFragment(target, full, loadType, rdl, propertyMap);
+			appendFragment(target, full, loadType, rdl);
 			count++;
 		}
 		ts = System.nanoTime() - ts;
@@ -279,24 +258,25 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	/**
 	 * Load and append the specified concrete fragment.
 	 * @param target
-	 * @param full
+	 * @param fullPathName
 	 * @param loadType
 	 * @param rdl
 	 * @throws Exception
 	 */
-	private void appendFragment(StringBuilder target, String full, Check loadType, IResourceDependencyList rdl, Map<String, Object> propertyMap) throws Exception {
-		IResourceRef ires = findRef(rdl, full);
+	private void appendFragment(StringBuilder target, String fullPathName, Check loadType, IResourceDependencyList rdl) throws Exception {
+		IResourceRef ires = findRef(rdl, fullPathName);
 		if(null == ires)
-			throw new StyleException("The " + full + " file/resource is not found.");
+			throw new StyleException("The " + fullPathName + " file/resource is not found.");
 		InputStream is = ires.getInputStream();
 		if(null == is)
-			throw new StyleException("The " + full + " file/resource is not found.");
+			throw new StyleException("The " + fullPathName + " file/resource is not found.");
 		//		System.out.println("css: loading " + full + " as " + ires);
 
 		try {
 			//-- 1. Load as a string.
 			String source = FileTool.readStreamAsString(is, "utf-8");
-			JSTemplate tmpl = m_compiler.compile(new StringReader(source), full);
+			RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
+			RhinoTemplate tmpl = rtc.compile(new StringReader(source), fullPathName);
 			StringBuilder sb = target;
 			switch(loadType){
 				default:
@@ -309,7 +289,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 					sb = new StringBuilder();
 					//$FALL-THROUGH$
 				case EXPAND:
-					tmpl.execute(sb, propertyMap);
+					tmpl.execute(sb, executor().newScope());
 					return;
 			}
 		} finally {

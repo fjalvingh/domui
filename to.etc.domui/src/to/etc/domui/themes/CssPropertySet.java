@@ -27,8 +27,7 @@ package to.etc.domui.themes;
 import java.io.*;
 import java.util.*;
 
-import javax.script.*;
-
+import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 
@@ -54,31 +53,11 @@ public class CssPropertySet {
 
 	private ResourceDependencyList m_rdl = new ResourceDependencyList();
 
-	private Map<String, Object> m_propertyMap;
-
-	private ScriptEngine m_engine;
-
-	private Bindings m_rootBindings;
-
-	private Bindings m_bindings;
-
 	CssPropertySet(FragmentedThemeFactory fc, String dirname, String name, String fragments) {
 		m_collector = fc;
 		m_dirname = dirname;
 		m_name = name;
 		m_fragmentSuffix = fragments;
-	}
-
-	private ScriptEngine getEngine() throws Exception {
-		if(m_engine == null) {
-			m_engine = m_collector.getEngineManager().getEngineByName("js");
-			m_rootBindings = m_engine.getBindings(ScriptContext.GLOBAL_SCOPE);
-			m_rootBindings.put("collector", this);
-			m_bindings = m_engine.createBindings();
-			m_engine.eval("function inherit(s) { collector.internalInherit(s); }", m_rootBindings);
-			//			m_bindings.put("browser", DomUITestUtil.getBrowserVersionIE8());
-		}
-		return m_engine;
 	}
 
 	/**
@@ -88,47 +67,25 @@ public class CssPropertySet {
 	 * property files have executed in the proper order, and the context contains the proper properties.
 	 * @param start
 	 */
-	void loadStyleProperties(Map<String, Object> start, String dirname) throws Exception {
-		if(m_propertyMap != null)
+	void loadStyleProperties(RhinoExecutor rx, String dirname) throws Exception {
+		if(m_inheritanceStack.size() > 0)
 			throw new IllegalStateException("Already loaded!");
-		getEngine();
-		try {
-			if(null != start) {
-				for(Map.Entry<String, Object> e : start.entrySet()) {
-					m_bindings.put(e.getKey(), e.getValue());
-				}
-			}
 
-			loadProperties(dirname, m_name); // Start loading all files-by-name
+		//-- Re-create the "inherit" function for the thingy to load.
+		rx.put("collector", this);
+		rx.eval("function inherit(s) { collector.internalInherit(s); }");
+		loadProperties(rx, dirname, m_name); // Start loading all files-by-name
 
-			if(m_fragmentSuffix != null)
-				loadFragments();
-
-			//-- Ok: the binding now contains stuff to add/replace to the map
-			m_propertyMap = new HashMap<String, Object>();
-			for(Map.Entry<String, Object> e : m_bindings.entrySet()) {
-				String name = e.getKey();
-				if("context".equals(name))
-					continue;
-				Object v = e.getValue();
-				if(v != null) {
-					String cn = v.getClass().getName();
-					if(cn.startsWith("sun."))
-						continue;
-				}
-				//			System.out.println("prop: " + name + " = " + v);
-				m_propertyMap.put(name, v);
-			}
-		} finally {
-			cleanup();
-		}
+		if(m_fragmentSuffix != null)
+			loadFragments(rx);
 	}
 
 	/**
 	 * Walks the inheritance stack, and loads all fragments present there as properties too.
+	 * @param rx
 	 * @throws Exception
 	 */
-	private void loadFragments() throws Exception {
+	private void loadFragments(RhinoExecutor rx) throws Exception {
 		long ts = System.nanoTime();
 
 		//-- Find all possible files/resources, then sort them by their name.
@@ -138,17 +95,11 @@ public class CssPropertySet {
 		int count = 0;
 		for(String name : reslist) {
 			String full = "$" + name;
-			loadScript(full);
+			loadScript(rx, full);
 			count++;
 		}
 		ts = System.nanoTime() - ts;
 		System.out.println("css: loading " + m_dirname + "+: loaded " + count + " fragments took " + StringTool.strNanoTime(ts));
-	}
-
-	private void cleanup() {
-		m_engine = null;
-		m_bindings = null;
-		m_rootBindings = null;
 	}
 
 	/**
@@ -156,7 +107,7 @@ public class CssPropertySet {
 	 * @param dirname
 	 * @throws Exception
 	 */
-	private void loadProperties(String dirname, String filename) throws Exception {
+	private void loadProperties(RhinoExecutor rx, String dirname, String filename) throws Exception {
 		if(dirname.startsWith("/"))
 			dirname = dirname.substring(1);
 		if(dirname.endsWith("/"))
@@ -171,7 +122,7 @@ public class CssPropertySet {
 
 		//-- Load the .props.js file which must exist as either resource or webfile.
 		String pname = "$" + dirname + "/" + filename;
-		loadScript(pname);
+		loadScript(rx, pname);
 	}
 
 	/**
@@ -179,7 +130,7 @@ public class CssPropertySet {
 	 * @param pname
 	 * @throws Exception
 	 */
-	private void loadScript(String pname) throws Exception {
+	private void loadScript(RhinoExecutor rx, String pname) throws Exception {
 		IResourceRef ires = m_collector.findRef(m_rdl, pname);
 		if(null == ires)
 			throw new StyleException("The " + pname + " file is not found.");
@@ -190,19 +141,12 @@ public class CssPropertySet {
 		try {
 			//-- Execute Javascript;
 			Reader r = new InputStreamReader(is, "utf-8");
-			getEngine().getBindings(ScriptContext.ENGINE_SCOPE).put(ScriptEngine.FILENAME, pname);
-			getEngine().getBindings(ScriptContext.GLOBAL_SCOPE).put(ScriptEngine.FILENAME, pname);
-			m_bindings.put(ScriptEngine.FILENAME, pname);
-			getEngine().eval(r, m_bindings);
+			rx.eval(r, pname);
 		} finally {
 			try {
 				is.close();
 			} catch(Exception x) {}
 		}
-	}
-
-	public Map<String, Object> getMap() {
-		return m_propertyMap;
 	}
 
 	public List<String> getInheritanceStack() {
@@ -216,14 +160,14 @@ public class CssPropertySet {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Javascript-callable global functions.				*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Implements the root-level "inherit" command.
-	 * @param scheme
-	 * @throws Exception
-	 */
-	public void internalInherit(String scheme) throws Exception {
-		loadProperties(scheme, m_name);
-	}
+	//	/**
+	//	 * Implements the root-level "inherit" command.
+	//	 * @param scheme
+	//	 * @throws Exception
+	//	 */
+	//	public void internalInherit(String scheme) throws Exception {
+	//		loadProperties(scheme, m_name);
+	//	}
 
 	@Override
 	public String toString() {

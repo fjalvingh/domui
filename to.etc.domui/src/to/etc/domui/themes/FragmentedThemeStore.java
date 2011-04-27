@@ -24,17 +24,15 @@
  */
 package to.etc.domui.themes;
 
+import java.io.*;
 import java.util.*;
 
-import javax.annotation.*;
-
 import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
+import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
 
 /**
- *
- *
+ * This contains the results for a fragmented theme.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 10, 2011
@@ -44,8 +42,6 @@ public class FragmentedThemeStore implements ITheme {
 
 	private byte[] m_styleSheetBytes;
 
-	final private Map<String, Object> m_themeProperties;
-
 	final private List<String> m_themeInheritanceStack;
 
 	final private ResourceDependencies m_dependencies;
@@ -53,12 +49,27 @@ public class FragmentedThemeStore implements ITheme {
 	/** Maps icon names to their real name in whatever resource they are. */
 	final private Map<String, String> m_iconMap = new HashMap<String, String>();
 
-	public FragmentedThemeStore(DomApplication app, byte[] tbytes, Map<String, Object> themeProperties, List<String> themeInheritanceStack, ResourceDependencies deps) {
+	final private IScriptScope m_propertyScope;
+
+	public FragmentedThemeStore(DomApplication app, byte[] tbytes, IScriptScope themeProperties, List<String> themeInheritanceStack, ResourceDependencies deps) {
 		m_app = app;
-		m_themeProperties = themeProperties;
+		m_propertyScope = themeProperties;
 		m_themeInheritanceStack = themeInheritanceStack;
 		m_dependencies = deps;
 		m_styleSheetBytes = tbytes;
+	}
+
+	private byte[] getStyleSheetBytes() {
+		return m_styleSheetBytes;
+	}
+
+	public ResourceDependencies getDependencies() {
+		return m_dependencies;
+	}
+
+	@Override
+	public IScriptScope getPropertyScope() {
+		return m_propertyScope;
 	}
 
 	/**
@@ -74,82 +85,56 @@ public class FragmentedThemeStore implements ITheme {
 		}
 
 		//-- "Normal" resource.
-
-		String iurl = theme.getIconURL(real);
-		if(iurl.startsWith("$"))
-			iurl = iurl.substring(1);
-		return da.getAppFileOrResource(iurl);
-
-
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public byte[] getStyleSheetBytes() {
-		return m_styleSheetBytes;
-	}
-
-	public ResourceDependencies getDependencies() {
-		return m_dependencies;
-	}
-
-	public Map<String, Object> getThemeProperties() {
-		return m_themeProperties;
-	}
-
-	/**
-	 * Locate the specified theme resource from the theme, and return the URL
-	 * needed to get it. Any THEME/ things have already been stripped; the name
-	 * passed is something simple like "btnOkay.png".
-	 *
-	 * @param icon
-	 * @return
-	 */
-	private String getIconURL(@Nonnull String icon) throws Exception {
-		synchronized(m_iconMap) {
-			String res = m_iconMap.get(icon);
-			if(res != null)
-				return res;
-
-			res = findIconURLUncached(icon);
-			if(res == null)
-				throw new ThingyNotFoundException(icon + ": image not found");
-			m_iconMap.put(icon, res);
-			return res;
-		}
-	}
-
-	/**
-	 * Uncached search for an iconized image. If the thing is not found return null, else
-	 * return the actual path for the icon.
-	 *
-	 * @param icon
-	 * @return
-	 * @throws Exception
-	 */
-	private String findIconURLUncached(String icon) throws Exception {
-		//-- Strip entire suffix (everything from 1st dot in name).
-		int pos = icon.indexOf('.');
-		String name = pos == -1 ? icon : icon.substring(0, pos); // Get name ex suffix;
-
-		//-- Replace silly characters with '_'
-		name = name.replace('-', '_').replace(' ', '_');
-		String real = (String) m_themeProperties.get(name);
-		if(null != real)
-			return real;
-
-		//-- Try to locate in the theme's inheritance stack.
-		return getThemePath(icon);
-	}
-
-	@Nullable
-	private String getThemePath(String path) throws Exception {
 		for(int i = m_themeInheritanceStack.size(); --i >= 0;) {
 			String sitem = m_themeInheritanceStack.get(i);
-			String real = "$" + sitem + "/" + path;
-			if(m_app.hasApplicationResource(real))
-				return real;
+			String real = "$" + sitem + "/" + name;
+			IResourceRef rr = m_app.getResource(real, rdl);
+			if(rr != null && rr.exists())
+				return rr;
 		}
-		return null;
+		return new IResourceRef() {
+			@Override
+			public InputStream getInputStream() throws Exception {
+				return null;
+			}
+
+			@Override
+			public boolean exists() {
+				return false;
+			}
+		};
 	}
+
+	//	/**
+	//	 * Locate the specified theme resource from the theme, and return the URL
+	//	 * needed to get it. Any THEME/ things have already been stripped; the name
+	//	 * passed is something simple like "btnOkay.png".
+	//	 *
+	//	 * @param icon
+	//	 * @return
+	//	 */
+	//	private String getIconURL(@Nonnull String icon) throws Exception {
+	//		synchronized(m_iconMap) {
+	//			String res = m_iconMap.get(icon);
+	//			if(res != null)
+	//				return res;
+	//
+	//			res = findIconURLUncached(icon);
+	//			if(res == null)
+	//				throw new ThingyNotFoundException(icon + ": image not found");
+	//			m_iconMap.put(icon, res);
+	//			return res;
+	//		}
+	//	}
+
+	//	@Nullable
+	//	private String getThemePath(String fileName) throws Exception {
+	//		for(int i = m_themeInheritanceStack.size(); --i >= 0;) {
+	//			String sitem = m_themeInheritanceStack.get(i);
+	//			String real = "$" + sitem + "/" + fileName;
+	//			if(m_app.hasApplicationResource(real))
+	//				return real;
+	//		}
+	//		return null;
+	//	}
 }
