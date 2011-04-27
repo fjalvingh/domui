@@ -1,0 +1,16 @@
+/*** CaptionedPanel ***/
+.ui-pnl-outer {
+	background-color: white;
+	padding: 1px;
+	border: 1px solid <%= header_bg %>;
+}
+.ui-pnl-caption {
+	border: 1px solid <%= header_bg %>;
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-header.png.svg) repeat-x;
+}
+.ui-pnl-cont {
+	position: relative;
+	padding: 5px;
+}

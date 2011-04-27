@@ -1,0 +1,28 @@
+/*** App Title bar ***/
+.ui-atl {
+	height: 40px;
+}
+
+.ui-atl-bb {
+	white-space: nowrap;
+	background: url(bg-new-ttl2.png) no-repeat;
+	width: 90%;
+	text-align: right;
+}
+
+.ui-atl-i {
+	background-color: #e4e3e1;
+	background: url(bg-new-ttl1.png) repeat-x;
+	padding-right: 10px;
+	padding-left: 5px;
+}
+
+.ui-atl-t {
+	background-color: #e4e3e1;
+	background: url(bg-new-ttl1.png) repeat-x;
+	width: 10%;
+	white-space: nowrap;
+	color: #123667;
+	font-weight: bold;
+	font-size: <%= hdr_font_size %>;
+}

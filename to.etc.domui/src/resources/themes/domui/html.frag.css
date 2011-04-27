@@ -1,0 +1,48 @@
+input {
+}
+
+button img {
+	vertical-align: bottom;
+}
+button {
+	vertical-align: bottom;
+}
+
+* {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	font-family: <%= font_family %>;
+	font-size: <%= font_size %>;
+}
+
+input, textarea, select {
+	border-color:#ABADB3 #BFCDD9 #BFCDD9;
+	border-style:solid;
+	border-width:1px;
+	-moz-border-radius: 2px;	
+}
+
+input, textarea {
+	padding: 2px;
+}
+
+input:hover, textarea:hover, select:hover {
+	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
+}
+
+select {
+	background-color:#FFFFFF;
+}
+
+/*** Body element ***/
+body,html {
+/*	background: url(bg-gradient.png.svg) repeat-x;
+	background-color: <%= bg_color %>;
+*/
+	background-color: #e4e3e1;
+	
+/*	height: 100%; jal 20110221 Body height causes no end of problems with scrollbars. */
+	margin: 0px;
+}
+

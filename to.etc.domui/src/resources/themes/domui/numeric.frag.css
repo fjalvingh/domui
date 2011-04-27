@@ -1,0 +1,8 @@
+/*** Typed presentation for fields containing numerics ***/
+.ui-numeric {
+	text-align: right !important;
+}
+
+TD.ui-numeric {
+	padding-right: 3px;
+}

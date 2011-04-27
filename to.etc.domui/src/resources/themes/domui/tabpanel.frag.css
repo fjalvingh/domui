@@ -1,0 +1,78 @@
+/*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
+.ui-tab-hdr {
+	float: left;
+	font-size: 12px;
+	line-height: normal;
+	border-bottom: 1px solid black;
+	width: 100%;
+}
+
+.ui-tab-hdr ul {
+	margin: 0;
+	padding: 8px 10px 0;
+	list-style: none;
+}
+
+.ui-tab-hdr  li {
+	float: left;
+	margin: 0;
+	padding: 0 0 0 8px;
+	background: url(tab-off-left.png) no-repeat left top;
+}
+
+li.ui-tab-err {
+	float: left;
+	margin: 0;
+	padding: 0 0 0 8px;
+	background: url(tab-off-err-left.png) no-repeat left top;
+}
+
+.ui-tab-hdr a {
+	display: block;
+	background: url(tab-off-right.png) no-repeat right top;
+	padding: 5px 14px 4px 6px;
+	text-decoration: none;
+	font-weight: bold;
+	color: <%= tab_fg %>;
+}
+
+.ui-tab-hdr ul a:hover {
+	color: <%= tab_link_color %>;
+}
+
+.ui-tab-hdr .ui-tab-sel {
+	background-image: url(tab-norm-left-sel.png);
+}
+
+.ui-tab-hdr .ui-tab-err a {
+	background-image: url(tab-off-err-right.png);
+}
+
+.ui-tab-hdr .ui-tab-sel a {
+	background-image: url(tab-norm-right-sel.png);
+}
+
+.ui-tab-err a {
+	color: <%= error_fg %>;
+}
+
+.ui-tab-icon {
+	padding-right: 5px;
+}
+
+.ui-tab {
+	position: relative; /* jal new 20070625 */
+	clear: both;
+	background-color: #ffffff;
+	border: 1px solid <%= header_bg %>;
+	padding: 0px;
+}
+
+.ui-tab-tabbar {
+	margin: 0px;
+	padding: 0px;
+}
+
+.ui-tab-pag {
+	border-top: 1px solid black;
+}
