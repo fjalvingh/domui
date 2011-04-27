@@ -47,14 +47,9 @@ public class ThemeResourceFactory implements IResourceFactory {
 		return name.startsWith(PREFIX) ? 30 : -1;
 	}
 
-	/**
-	 * Get a resource from the proper theme.
-	 *
-	 * @see to.etc.domui.util.resources.IResourceFactory#getResource(to.etc.domui.server.DomApplication, java.lang.String, to.etc.domui.util.resources.IResourceDependencyList)
-	 */
-	@Override
-	public IResourceRef getResource(DomApplication da, String name, IResourceDependencyList rdl) throws Exception {
-		//-- Split into file name and theme name.
+	static public final String[] splitThemeURL(String name) {
+		if(!name.startsWith(PREFIX))
+			throw new IllegalArgumentException("Not a theme RURL");
 		String real = name.substring(PREFIX.length()); // Strip $THEME/
 		int pos = real.lastIndexOf('/');
 		if(pos == -1)
@@ -63,6 +58,20 @@ public class ThemeResourceFactory implements IResourceFactory {
 		String filename = real.substring(pos + 1);
 		if(themename.length() == 0)
 			throw new ThingyNotFoundException("Bad theme URL (empty current theme): " + name);
+		return new String[]{themename, filename};
+	}
+
+
+	/**
+	 * Get a resource from the proper theme.
+	 *
+	 * @see to.etc.domui.util.resources.IResourceFactory#getResource(to.etc.domui.server.DomApplication, java.lang.String, to.etc.domui.util.resources.IResourceDependencyList)
+	 */
+	@Override
+	public IResourceRef getResource(DomApplication da, String name, IResourceDependencyList rdl) throws Exception {
+		String[] spl = splitThemeURL(name);
+		String themename = spl[0];
+		String filename = spl[1];
 
 		//-- Ask the theme manager for the theme represented by this RURL.
 		ITheme theme = da.getTheme(themename, rdl);

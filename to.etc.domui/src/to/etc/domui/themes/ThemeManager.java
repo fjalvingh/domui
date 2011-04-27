@@ -169,11 +169,19 @@ final public class ThemeManager {
 	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
 		//		long ts = System.nanoTime();
 		IResourceRef ires = m_application.getResource(rurl, rdl); // Get the template source file
+		if(!ires.exists()) {
+			System.out.println(">>>> RESOURCE ERROR: " + rurl + ", ref=" + ires);
+			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + rurl + ", ref=" + ires);
+		}
+
+		String[] spl = ThemeResourceFactory.splitThemeURL(rurl);
+		ITheme theme = getTheme(spl[0], null); // Dependencies already added by get-resource call.
+
 		//		if(ires == null)
 		//			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
 
 		//-- Get the variable map to use.
-		Map<String, Object> themeMap = getThemeMap("bla", rdl);
+		Map<String, Object> themeMap = theme.getThemeProperties();
 		themeMap = new HashMap<String, Object>(themeMap); // Create a modifyable duplicate
 		if(bv != null) {
 			themeMap.put("browser", bv);

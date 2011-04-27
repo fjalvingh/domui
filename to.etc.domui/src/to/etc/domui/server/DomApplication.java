@@ -165,7 +165,7 @@ public abstract class DomApplication {
 				return true;
 			}
 		});
-		setCurrentTheme("blue/domui/domui");
+		setCurrentTheme("blue/domui/blue");
 		setThemeFactory(SimpleThemeFactory.INSTANCE);
 
 		registerResourceFactory(new ClassRefResourceFactory());

@@ -216,7 +216,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	 * @throws Exception
 	 */
 	protected void renderThemeCSS() throws Exception {
-		String sheet = m_ctx.getApplication().getThemedResourceRURL("style.theme.css");
+		String sheet = m_ctx.getApplication().getThemedResourceRURL("THEME/style.theme.css");
 
 		//-- Render style fragments part.
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
