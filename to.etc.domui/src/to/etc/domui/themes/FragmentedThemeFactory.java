@@ -107,7 +107,11 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		JSTemplateCompiler tc = new JSTemplateCompiler();
 		JSTemplate tmpl = tc.compile(new StringReader(m_stylesheet), m_styleSet.toString());
 
-		return new FragmentedThemeStore(da, m_stylesheet.getBytes("utf-8"), m_styleSet.getMap(), m_styleSet.getInheritanceStack(), m_iconSet.getInheritanceStack(), rd);
+		List<String> templateList = new ArrayList<String>();
+		templateList.addAll(m_iconSet.getInheritanceStack());
+		templateList.addAll(m_styleSet.getInheritanceStack());
+
+		return new FragmentedThemeStore(da, m_stylesheet.getBytes("utf-8"), m_styleSet.getMap(), templateList, rd);
 	}
 
 	/**

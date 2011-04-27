@@ -166,6 +166,7 @@ public abstract class DomApplication {
 				return true;
 			}
 		});
+		setCurrentTheme("domui");
 		m_themeFactory = new SimpleThemeFactory("blue", "orange", "blue");
 
 		registerResourceFactory(new ClassRefResourceFactory());
@@ -1250,9 +1251,33 @@ public abstract class DomApplication {
 	/** The thing that themes the application. Set only once @ init time. */
 	private IThemeFactory m_themeFactory;
 
+	/** The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources. */
+	private String m_currentTheme = "domui";
+
 	private ITheme m_themeStore;
 
 	private ResourceDependencies m_themeDependencies;
+
+	/**
+	 * Sets the current theme string.
+	 * @param currentTheme
+	 */
+	public synchronized void setCurrentTheme(@Nonnull String currentTheme) {
+		if(null == currentTheme)
+			throw new IllegalArgumentException("This cannot be null");
+		m_currentTheme = currentTheme;
+	}
+
+	/**
+	 * Gets the current theme string.  This will become part of all themed resource URLs
+	 * and is interpreted by the theme factory to resolve resources.
+	 * @return
+	 */
+	@Nonnull
+	public synchronized String getCurrentTheme() {
+		return m_currentTheme;
+	}
+
 
 	public synchronized IThemeFactory getThemer() {
 		return m_themeFactory;

@@ -44,23 +44,19 @@ public class FragmentedThemeStore implements ITheme {
 
 	private byte[] m_styleSheetBytes;
 
-	private Map<String, Object> m_themeProperties;
+	final private Map<String, Object> m_themeProperties;
 
-	private List<String> m_themeInheritanceStack;
-
-	private List<String> m_iconInheritanceStack;
+	final private List<String> m_themeInheritanceStack;
 
 	final private ResourceDependencies m_dependencies;
 
 	/** Maps icon names to their real name in whatever resource they are. */
 	final private Map<String, String> m_iconMap = new HashMap<String, String>();
 
-	public FragmentedThemeStore(DomApplication app, byte[] tbytes, Map<String, Object> themeProperties, List<String> themeInheritanceStack, List<String> iconInheritanceStack,
-		ResourceDependencies deps) {
+	public FragmentedThemeStore(DomApplication app, byte[] tbytes, Map<String, Object> themeProperties, List<String> themeInheritanceStack, ResourceDependencies deps) {
 		m_app = app;
 		m_themeProperties = themeProperties;
 		m_themeInheritanceStack = themeInheritanceStack;
-		m_iconInheritanceStack = iconInheritanceStack;
 		m_dependencies = deps;
 		m_styleSheetBytes = tbytes;
 	}
@@ -125,14 +121,6 @@ public class FragmentedThemeStore implements ITheme {
 		String real = (String) m_themeProperties.get(name);
 		if(null != real)
 			return real;
-
-		//-- Not set by properties. We need to scan to see if one of the icon paths contains the source verbatim, starting at subclass moving to super.
-		for(int i = m_iconInheritanceStack.size(); --i >= 0;) {
-			String sitem = m_iconInheritanceStack.get(i);
-			real = "$" + sitem + "/" + icon;
-			if(m_app.hasApplicationResource(real))
-				return real;
-		}
 
 		//-- Try to locate in the theme's inheritance stack.
 		return getThemePath(icon);
