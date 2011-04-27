@@ -165,8 +165,8 @@ public abstract class DomApplication {
 				return true;
 			}
 		});
-		setCurrentTheme("domui");
-		setThemeFactory(new SimpleThemeFactory("blue", "orange", "blue"));
+		setCurrentTheme("blue/domui/domui");
+		setThemeFactory(SimpleThemeFactory.INSTANCE);
 
 		registerResourceFactory(new ClassRefResourceFactory());
 		registerResourceFactory(new VersionedJsResourceFactory());
@@ -1320,8 +1320,8 @@ public abstract class DomApplication {
 		return m_themeManager.getThemeReplacedString(rdl, rurl, bv);
 	}
 
-	public Map<String, Object> getThemeMap(IResourceDependencyList rdlin) throws Exception {
-		return m_themeManager.getThemeMap(rdlin);
+	public Map<String, Object> getThemeMap(String themeName, IResourceDependencyList rdlin) throws Exception {
+		return m_themeManager.getThemeMap(themeName, rdlin);
 	}
 
 	public String getThemedResourceRURL(String path) {

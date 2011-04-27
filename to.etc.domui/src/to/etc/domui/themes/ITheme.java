@@ -57,12 +57,12 @@ public interface ITheme {
 	IResourceRef getThemeResource(String name, IResourceDependencyList rdl) throws Exception;
 
 
-	/**
-	 * Get a resource from the theme's inheritance path.
-	 * @param path
-	 * @return
-	 */
-	String getThemePath(String path) throws Exception;
+	//	/**
+	//	 * Get a resource from the theme's inheritance path.
+	//	 * @param path
+	//	 * @return
+	//	 */
+	//	String getThemePath(String path) throws Exception;
 
 	/**
 	 * Return the read-only properties for a theme.
@@ -78,12 +78,12 @@ public interface ITheme {
 	//	 */
 	//	JSTemplate getStylesheetTemplate();
 
-	/**
-	 * Find the specified icon in the theme, and return the proper RURL for it.
-	 * @param icon
-	 * @return
-	 */
-	@Nullable
-	String getIconURL(@Nonnull String icon) throws Exception;
+	//	/**
+	//	 * Find the specified icon in the theme, and return the proper RURL for it.
+	//	 * @param icon
+	//	 * @return
+	//	 */
+	//	@Nullable
+	//	String getIconURL(@Nonnull String icon) throws Exception;
 }
 

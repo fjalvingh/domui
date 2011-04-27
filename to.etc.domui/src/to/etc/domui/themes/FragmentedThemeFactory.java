@@ -51,11 +51,11 @@ import to.etc.util.*;
  * Created on Jan 5, 2011
  */
 public class FragmentedThemeFactory implements IThemeFactory {
-	final private String m_styleName;
-
-	final private String m_colorName;
-
-	final private String m_iconName;
+	//	final private String m_styleName;
+	//
+	//	final private String m_colorName;
+	//
+	//	final private String m_iconName;
 
 	private ScriptEngineManager m_engineManager;
 
@@ -69,15 +69,22 @@ public class FragmentedThemeFactory implements IThemeFactory {
 
 	private DomApplication m_app;
 
+	/**
+	 * Constructor to create the factory itself.
+	 */
 	public FragmentedThemeFactory() {
-		this("domui", "domui", "domui");
 	}
 
-	public FragmentedThemeFactory(String colorName, String iconName, String styleName) {
-		m_colorName = colorName;
-		m_iconName = iconName;
-		m_styleName = styleName;
+	/**
+	 * Create the theme store for the specified theme input string.
+	 * @see to.etc.domui.themes.IThemeFactory#getTheme(to.etc.domui.server.DomApplication, java.lang.String)
+	 */
+	@Override
+	public ITheme getTheme(DomApplication da, String themeName) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}
+
 
 	private void init() throws Exception {
 		if(m_engineManager != null)

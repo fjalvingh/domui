@@ -26,18 +26,32 @@ package to.etc.domui.themes;
 
 import java.util.*;
 
+import javax.annotation.concurrent.*;
+
+import to.etc.domui.server.*;
 import to.etc.domui.util.resources.*;
 
-public class SimpleTheme implements ITheme {
-	private String m_styleName;
+/**
+ * The result of a "simple" theme. It only contains the properties map for colors
+ * and icons, and a directory for theme resources.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Apr 27, 2011
+ */
+@Immutable
+public final class SimpleTheme implements ITheme {
+	final private DomApplication m_da;
 
-	private ResourceDependencies m_rd;
+	final private String m_styleName;
 
-	private Map<String, Object> m_themeProperties;
+	final private ResourceDependencies m_rd;
 
-	public SimpleTheme(String styleName, Map<String, Object> themeProperties, ResourceDependencies rd) {
+	final private Map<String, Object> m_themeProperties;
+
+	public SimpleTheme(DomApplication da, String styleName, Map<String, Object> themeProperties, ResourceDependencies rd) {
+		m_da = da;
 		m_styleName = styleName;
-		m_themeProperties = themeProperties;
+		m_themeProperties = Collections.unmodifiableMap(themeProperties);
 		m_rd = rd;
 	}
 
@@ -52,12 +66,7 @@ public class SimpleTheme implements ITheme {
 	}
 
 	@Override
-	public String getIconURL(String icon) {
-		return "$themes/" + m_styleName + "/" + icon;
-	}
-
-	@Override
-	public String getThemePath(String path) {
-		return "$themes/" + m_styleName + "/" + path;
+	public IResourceRef getThemeResource(String name, IResourceDependencyList rdl) throws Exception {
+		return m_da.getResource("$themes/" + m_styleName + "/" + name, rdl);
 	}
 }

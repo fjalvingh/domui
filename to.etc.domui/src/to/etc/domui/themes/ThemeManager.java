@@ -173,7 +173,7 @@ final public class ThemeManager {
 		//			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
 
 		//-- Get the variable map to use.
-		Map<String, Object> themeMap = getThemeMap(rdl);
+		Map<String, Object> themeMap = getThemeMap("bla", rdl);
 		themeMap = new HashMap<String, Object>(themeMap); // Create a modifyable duplicate
 		if(bv != null) {
 			themeMap.put("browser", bv);
@@ -214,8 +214,8 @@ final public class ThemeManager {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, Object> getThemeMap(IResourceDependencyList rdlin) throws Exception {
-		ITheme ts = getTheme(rdlin);
+	public Map<String, Object> getThemeMap(String themeName, IResourceDependencyList rdlin) throws Exception {
+		ITheme ts = getTheme(themeName, rdlin);
 		Map<String, Object> tmap = ts.getThemeProperties();
 		return tmap;
 	}
