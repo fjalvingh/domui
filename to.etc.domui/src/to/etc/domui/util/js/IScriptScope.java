@@ -39,11 +39,13 @@ public interface IScriptScope {
 	 */
 	void put(String name, Object instance);
 
+	void registerToplevelFunction(Object instance, String instanceVar, String function) throws Exception;
+
 	/**
-	 * Create a new writable scope that has this scope as the "delegate". This new scope
-	 * is writable.
-	 * @return
-	 */
+	* Create a new writable scope that has this scope as the "delegate". This new scope
+	* is writable.
+	* @return
+	*/
 	IScriptScope newScope();
 
 	<T> T getAdapter(Class<T> clz);

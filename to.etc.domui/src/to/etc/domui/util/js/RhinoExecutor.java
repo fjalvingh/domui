@@ -104,6 +104,7 @@ public class RhinoExecutor implements IScriptScope {
 		return Context.toObject(o, m_scope);
 	}
 
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IScriptScope implementation.						*/
 	/*--------------------------------------------------------------*/
@@ -126,6 +127,11 @@ public class RhinoExecutor implements IScriptScope {
 	@Override
 	public void put(String name, Object instance) {
 		m_scope.put(name, m_scope, instance);
+	}
+
+	public void registerToplevelFunction(Object instance, String instanceVar, String function) throws Exception {
+		put(instanceVar, instance);
+		eval(function);
 	}
 
 	@Override

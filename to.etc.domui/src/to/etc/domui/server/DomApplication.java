@@ -80,15 +80,7 @@ public abstract class DomApplication {
 
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
 
-	//	private String m_currentTheme = "domui";
-	//
-	//	private String m_currentIconSet = "domui";
-	//
-	//	private String m_currentColorSet = "domui";
-
 	private boolean m_developmentMode;
-
-	//	static private final ThreadLocal<DomApplication> m_current = new ThreadLocal<DomApplication>();
 
 	static private DomApplication m_application;
 
@@ -1266,8 +1258,9 @@ public abstract class DomApplication {
 	 * @param themeMap
 	 */
 	@OverridingMethodsMustInvokeSuper
-	public void augmentThemeMap(IScriptScope ss) {
+	public void augmentThemeMap(IScriptScope ss) throws Exception {
 		ss.put("util", new ThemeCssUtils());
+		ss.registerToplevelFunction(this, "___domappl", "function url(x) { return util.url(x);};");
 	}
 
 	/**

@@ -118,7 +118,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * @return
 	 */
 	@Nonnull
-	private RhinoExecutor executor() {
+	private RhinoExecutor executor() throws Exception {
 		if(null == m_executor) {
 			m_executor = RhinoExecutorFactory.getInstance().createExecutor();
 
@@ -135,7 +135,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		//-- Split theme name into theme/icons/color
 		String[] ar = m_themeName.split("\\/");
 		if(ar.length != 3)
-			throw new StyleException("The theme name '" + m_themeName + "' is invalid for the factory SimpleThemeFactory: expecting theme/icon/color");
+			throw new StyleException("The theme name '" + m_themeName + "' is invalid for " + getClass() + ": expecting theme/icon/color");
 		m_styleName = ar[0];
 		m_iconName = ar[1];
 		m_colorName = ar[2];

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.themes;
 
+import to.etc.domui.state.*;
+
 /**
  * This helper class is passed to the theme factory, and can be used to augment
  * information in the style.properties.
@@ -36,9 +38,17 @@ public class ThemeCssUtils {
 
 	static public final CssColor WHITE = new CssColor(255, 255, 255);
 
+	//	private DomApplication m_application;
+	//
+	//	public ThemeCssUtils(DomApplication domApplication) {
+	//		m_application = domApplication;
+	//	}
+
 	public CssColor color(String hex) {
 		return new CssColor(hex);
 	}
 
-
+	public String url(String in) {
+		return UIContext.getRequestContext().getRelativePath(in);
+	}
 }
