@@ -125,6 +125,7 @@ public class RhinoExecutor implements IScriptScope {
 
 	@Override
 	public void put(String name, Object instance) {
+		m_scope.put(name, m_scope, instance);
 	}
 
 	@Override

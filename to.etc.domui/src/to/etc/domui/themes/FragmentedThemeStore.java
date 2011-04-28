@@ -40,14 +40,11 @@ import to.etc.domui.util.resources.*;
 public class FragmentedThemeStore implements ITheme {
 	final private DomApplication m_app;
 
-	private byte[] m_styleSheetBytes;
+	final private byte[] m_styleSheetBytes;
 
 	final private List<String> m_themeInheritanceStack;
 
 	final private ResourceDependencies m_dependencies;
-
-	/** Maps icon names to their real name in whatever resource they are. */
-	final private Map<String, String> m_iconMap = new HashMap<String, String>();
 
 	final private IScriptScope m_propertyScope;
 
@@ -104,37 +101,4 @@ public class FragmentedThemeStore implements ITheme {
 			}
 		};
 	}
-
-	//	/**
-	//	 * Locate the specified theme resource from the theme, and return the URL
-	//	 * needed to get it. Any THEME/ things have already been stripped; the name
-	//	 * passed is something simple like "btnOkay.png".
-	//	 *
-	//	 * @param icon
-	//	 * @return
-	//	 */
-	//	private String getIconURL(@Nonnull String icon) throws Exception {
-	//		synchronized(m_iconMap) {
-	//			String res = m_iconMap.get(icon);
-	//			if(res != null)
-	//				return res;
-	//
-	//			res = findIconURLUncached(icon);
-	//			if(res == null)
-	//				throw new ThingyNotFoundException(icon + ": image not found");
-	//			m_iconMap.put(icon, res);
-	//			return res;
-	//		}
-	//	}
-
-	//	@Nullable
-	//	private String getThemePath(String fileName) throws Exception {
-	//		for(int i = m_themeInheritanceStack.size(); --i >= 0;) {
-	//			String sitem = m_themeInheritanceStack.get(i);
-	//			String real = "$" + sitem + "/" + fileName;
-	//			if(m_app.hasApplicationResource(real))
-	//				return real;
-	//		}
-	//		return null;
-	//	}
 }

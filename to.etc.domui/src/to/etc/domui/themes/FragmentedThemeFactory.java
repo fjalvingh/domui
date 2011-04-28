@@ -62,13 +62,9 @@ public class FragmentedThemeFactory implements IThemeFactory {
 
 	private String m_colorName;
 
-	private CssPropertySet m_colorSet;
-
-	private CssPropertySet m_iconSet;
-
-	private CssPropertySet m_styleSet;
-
 	private String m_stylesheet;
+
+	private List<String> m_searchList = new ArrayList<String>();
 
 	/**
 	 * Constructor to create the factory itself.
@@ -117,13 +113,19 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	@Nullable
 	private RhinoExecutor m_executor;
 
+	/**
+	 * Get the shared executor and scope. If it does not yet exist it is created.
+	 * @return
+	 */
 	@Nonnull
 	private RhinoExecutor executor() {
-		if(null == m_executor)
+		if(null == m_executor) {
 			m_executor = RhinoExecutorFactory.getInstance().createExecutor();
+
+			m_application.augmentThemeMap(m_executor);
+		}
 		return m_executor;
 	}
-
 
 	/**
 	 * Instance creation.
@@ -139,67 +141,240 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		m_colorName = ar[2];
 
 		loadStyleInfo();
-		ResourceDependencyList rdl = new ResourceDependencyList();
-		rdl.add(m_colorSet.getResourceDependencyList());
-		rdl.add(m_iconSet.getResourceDependencyList());
-		rdl.add(m_styleSet.getResourceDependencyList());
-
-		loadStylesheetFragments(rdl);
-		ResourceDependencies rd = rdl.createDependencies();
-
-		//-- Compile the template;
-		//		RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
-		//		RhinoTemplate tmpl = rtc.compile(new StringReader(m_stylesheet), "<theme fragments>");
-
-		List<String> templateList = new ArrayList<String>();
-		templateList.addAll(m_iconSet.getInheritanceStack());
-		templateList.addAll(m_styleSet.getInheritanceStack());
-
-		return new FragmentedThemeStore(m_application, m_stylesheet.getBytes("utf-8"), executor(), templateList, rd);
-	}
-
-	/**
-	 * Load all *.frag.css files and construct a proper stylesheet from them.
-	 * @throws Exception
-	 */
-	private void loadStylesheetFragments(IResourceDependencyList rdl) throws Exception {
-		StringBuilder sb = new StringBuilder(65536);
-		//		ResourceDependencyList rdl = new ResourceDependencyList();
-		executor().put("browser", BrowserVersion.parseUserAgent("Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727)"));
-
-		getFragments(sb, m_styleSet.getInheritanceStack(), ".frag.css", Check.CHECK, rdl);
-		m_stylesheet = sb.toString();
+		ResourceDependencies rd = m_rdl.createDependencies();
+		return new FragmentedThemeStore(m_application, m_stylesheet.getBytes("utf-8"), executor(), m_searchList, rd);
 	}
 
 	protected void loadStyleInfo() throws Exception {
-		loadStyleInfo(m_colorName, m_iconName, m_styleName);
+		loadColors(m_colorName);
+		loadIcons(m_iconName);
+		loadStyle(m_styleName);
 	}
 
-	protected void loadStyleInfo(String colorset, String iconset, String styleset) throws Exception {
-		m_colorSet = getProperties("themes", colorset + ".color.js");
-		m_iconSet = getFragmentedProperties("icons/" + iconset, "icon.props.js", ".fragprops.js");
-		m_styleSet = getProperties("themes/" + styleset, "style.props.js");
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Stylesheet (css) theme set loading.					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Load all theme style (css) related info. The styleName is a folder name inside themes/; that
+	 * folder <b>must</b> contain a "style.props.js" property file and contains multiple xxxx.frag.css
+	 * files.
+	 * @param styleName
+	 * @throws Exception
+	 */
+	protected void loadStyle(String styleName) throws Exception {
+		loadClear();
+		setInheritence("internalInheritStyle");
+		internalInheritStyle(styleName); // Use that same name to load this set.
+
+		//-- Now load all stylesheet fragments (.frag.css)
+		StringBuilder sb = new StringBuilder(65536);
+		executor().put("browser", BrowserVersion.parseUserAgent("Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727)"));
+		getFragments(sb, m_inheritanceStack, ".frag.css", Check.CHECK, m_rdl);
+		m_stylesheet = sb.toString();
+	}
+
+	public void internalInheritStyle(String styleName) throws Exception {
+		String dirname = normalizeName("themes/" + styleName);
+
+		//-- If already loaded- abort;
+		if(m_inheritanceStack.contains(dirname))
+			throw new StyleException(m_themeName + ": style set '" + styleName + "' is used before (cyclic loop in styles, or double inheritance)");
+		m_inheritanceStack.add(0, dirname);
+		m_searchList.add(0, dirname); // Style sets are part of the search path
+
+		//-- The style.props.js file is mandatory at least;
+		loadScript("$" + dirname + "/style.props.js");
+
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Icon set loading.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Load all icon related info. Each icon set is in a separate folder inside
+	 * the "themes" structure; each folder is required to hold icon.props.js and
+	 * optional icon resources. Each icon set that is "inherited" becomes part of
+	 * the search path, meaning that theme resources will first be located in a
+	 * specific icon path before being found in the theme itself.
+	 *
+	 * <p>Icon sets consist of a set of property file fragments too.</p>
+	 *
+	 * @param iconName
+	 * @throws Exception
+	 */
+	private void loadIcons(String iconName) throws Exception {
+		loadClear();
+		setInheritence("internalInheritIcon");
+		internalInheritIcon(iconName); // Use that same name to load this set.
+
+		//-- An icon set can have fragmented properties too - so load those.
+		loadFragments("iconset:" + iconName, ".props.js", "icon.props.js");
+	}
+
+	/**
+	 * Load the icon set specified. The iconName is a simple name; this code will
+	 * convert it to a directory name.
+	 * @param iconName
+	 * @throws Exception
+	 */
+	public void internalInheritIcon(String iconName) throws Exception {
+		String dirname = normalizeName("themes/" + iconName + "-icons");
+		//-- If already loaded- abort;
+		if(m_inheritanceStack.contains(dirname))
+			throw new StyleException(m_themeName + ": icon set '" + iconName + "' is used before (cyclic loop in styles, or double inheritance)");
+		m_inheritanceStack.add(0, dirname);
+		m_searchList.add(0, dirname); // Icon sets are part of the search path
+
+		//-- The icon.props.js file is mandatory at least;
+		loadScript("$" + dirname + "/icon.props.js");
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Color set loading.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Load everything related to colors. Results in the current {@link IScriptScope} being
+	 * filled with all color properties.
+	 *
+	 * @param colorName
+	 * @throws Exception
+	 */
+	protected void loadColors(String colorName) throws Exception {
+		loadClear();
+		setInheritence("internalInheritColor");
+		internalInheritColor(colorName); // Use that same name to load this set.
+	}
+
+	/**
+	 * Load color properties. For a color [x] this loads $themes/[x].color.js. A color set can inherit
+	 * from another color set, by
+	 * @param colorName
+	 */
+	public void internalInheritColor(String colorName) throws Exception {
+		String fullname = normalizeName("themes/" + colorName + ".color.js");
+
+		//-- If already loaded- abort;
+		if(m_inheritanceStack.contains(fullname))
+			throw new StyleException(m_themeName + ": color set '" + colorName + "' is used before (cyclic loop in styles, or double inheritance)");
+		m_inheritanceStack.add(0, fullname);
+		loadScript("$" + fullname);
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Loading sets of properties and fragments.			*/
+	/*--------------------------------------------------------------*/
+	/** During load of a set, this defines the inheritance stack of the loaded item. When style a EXTENDS style B etc, this starts with the base class (b) and ends with the topmost one (A). */
+	private List<String> m_inheritanceStack = new ArrayList<String>();
+
+	/** During load of a set this collects all dependencies. */
+	private ResourceDependencyList m_rdl = new ResourceDependencyList();
+
+	/**
+	 * Initialize for loading a new set. Clears all information of the previously loaded set.
+	 */
+	protected void loadClear() {
+		m_inheritanceStack.clear();
+	}
+
+	/**
+	 * Defines the implementation of the "inherit" method which causes inheritance to work. The
+	 * method name must be an accessible method in this class accepting a single String as
+	 * parameter.
+	 * @param methodname
+	 */
+	private void setInheritence(String methodname) throws Exception {
+		executor().put("collector", this);
+		executor().eval("function inherit(s) { collector." + methodname + "(s); }");
+	}
+
+	/**
+	 * Load a property set from the given directory name.
+	 *
+	 * Load a specific theme's style properties. Core part of inherit('') command.
+	 * @param dirname
+	 * @throws Exception
+	 */
+	private void loadProperties(String dirname, String filename) throws Exception {
+		if(dirname.startsWith("/"))
+			dirname = dirname.substring(1);
+		if(dirname.endsWith("/"))
+			dirname = dirname.substring(0, dirname.length() - 1);
+		if(dirname.startsWith("$"))
+			dirname = dirname.substring(1);
+
+		//-- If already loaded- abort;
+		if(m_inheritanceStack.contains(dirname))
+			throw new StyleException(m_themeName + ": inherited set '" + dirname + "' is used before (cyclic loop in styles, or double inheritance)");
+		m_inheritanceStack.add(0, dirname); // Insert BEFORE the others (this is a base class for 'm)
+
+		//-- Load the .props.js file which must exist as either resource or webfile.
+		String pname = "$" + dirname + "/" + filename;
+		loadScript(pname);
+	}
+
+	/**
+	 * Load the specified resource as a Javascript thingy.
+	 * @param pname
+	 * @throws Exception
+	 */
+	private void loadScript(String pname) throws Exception {
+		IResourceRef ires = findRef(m_rdl, pname);
+		if(null == ires)
+			throw new StyleException("The " + pname + " file is not found.");
+		InputStream is = ires.getInputStream();
+		if(null == is)
+			throw new StyleException("The " + pname + " file is not found.");
+		System.out.println("css: loading " + pname + " as " + ires);
+		try {
+			//-- Execute Javascript;
+			Reader r = new InputStreamReader(is, "utf-8");
+			executor().eval(r, pname);
+		} finally {
+			try {
+				is.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Walks the inheritance stack, and loads all fragments present there as properties too.
+	 * @param rx
+	 * @throws Exception
+	 */
+	private void loadFragments(String setname, String fragmentSuffix, String ignoreName) throws Exception {
+		long ts = System.nanoTime();
+
+		//-- Find all possible files/resources, then sort them by their name.
+		List<String> reslist = collectFragments(m_inheritanceStack, fragmentSuffix);
+
+		//-- Load every one of them as a javascript file.
+		int count = 0;
+		for(String name : reslist) {
+			if(ignoreName != null && name.endsWith("/" + ignoreName))
+				continue;
+			String full = "$" + name;
+			loadScript(full);
+			count++;
+		}
+		ts = System.nanoTime() - ts;
+		System.out.println("css: loading " + setname + "+: loaded " + count + " fragments took " + StringTool.strNanoTime(ts));
+	}
+
+	private String normalizeName(String name) {
+		if(name.startsWith("/"))
+			name = name.substring(1);
+		if(name.endsWith("/"))
+			name = name.substring(0, name.length() - 1);
+		if(name.startsWith("$"))
+			name = name.substring(1);
+		return name;
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Stylesheet Properties file loader thingy			*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Load a property file set for colors and style properties, where the
-	 * properties are not fragmented.
-	 */
-	public CssPropertySet getProperties(String dir, String name) throws Exception {
-		CssPropertySet ps = new CssPropertySet(this, dir, name, null);
-		ps.loadStyleProperties(executor(), dir);
-		return ps;
-	}
-
-	public CssPropertySet getFragmentedProperties(String dir, String rootfile, String suffix) throws Exception {
-		CssPropertySet ps = new CssPropertySet(this, dir, rootfile, suffix);
-		ps.loadStyleProperties(executor(), dir);
-		return ps;
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Fragment collector.									*/
 	/*--------------------------------------------------------------*/
@@ -210,6 +385,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Jan 7, 2011
 	 */
+
 	static public enum Check {
 		/** Do not check at all: just concatenate the fragments. */
 		NONE
@@ -236,7 +412,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * @throws Exception
 	 *
 	 */
-	public void getFragments(StringBuilder target, List<String> directory, String suffix, Check loadType, IResourceDependencyList rdl) throws Exception {
+	private void getFragments(StringBuilder target, List<String> directory, String suffix, Check loadType, IResourceDependencyList rdl) throws Exception {
 		long ts = System.nanoTime();
 
 		//-- Find all possible files/resources, then sort them by their name.

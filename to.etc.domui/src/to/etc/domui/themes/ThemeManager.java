@@ -207,9 +207,7 @@ final public class ThemeManager {
 		if(bv != null) {
 			ss.put("browser", bv);
 		}
-		ss.put("util", new ThemeCssUtils());
-
-		//		m_application.augmentThemeMap(themeMap); // Provide a hook to let user code add stuff to the theme map
+		m_application.augmentThemeMap(ss); // Provide a hook to let user code add stuff to the theme map
 
 		//-- 2. Get a reader.
 		InputStream is = ires.getInputStream();

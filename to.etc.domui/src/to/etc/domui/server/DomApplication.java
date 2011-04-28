@@ -1265,7 +1265,10 @@ public abstract class DomApplication {
 	 * it has been loaded from properties or whatnot.
 	 * @param themeMap
 	 */
-	public void augmentThemeMap(Map<String, Object> themeMap) {}
+	@OverridingMethodsMustInvokeSuper
+	public void augmentThemeMap(IScriptScope ss) {
+		ss.put("util", new ThemeCssUtils());
+	}
 
 	/**
 	 * Sets the current theme string. This string is used as a "parameter" for the theme factory

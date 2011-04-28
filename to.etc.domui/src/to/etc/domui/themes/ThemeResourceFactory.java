@@ -49,7 +49,7 @@ public class ThemeResourceFactory implements IResourceFactory {
 
 	static public final String[] splitThemeURL(String name) {
 		if(!name.startsWith(PREFIX))
-			throw new IllegalArgumentException("Not a theme RURL");
+			throw new IllegalArgumentException("Not a theme RURL: '" + name + "'");
 		String real = name.substring(PREFIX.length()); // Strip $THEME/
 		int pos = real.lastIndexOf('/');
 		if(pos == -1)
@@ -80,17 +80,5 @@ public class ThemeResourceFactory implements IResourceFactory {
 		if(null == rr || !rr.exists()) // FIXME Questionable: just return rr?
 			throw new ThingyNotFoundException("The theme resource '" + name + "' cannot be found");
 		return rr;
-		//
-		//
-		//		//-- If this is the virtual "style.theme.css" file we need to return a special thingy
-		//		if("style.theme.css".equals(real)) {
-		//			byte[] data = ((FragmentedThemeStore) theme).getStyleSheetBytes();
-		//			return new ByteArrayResourceRef(data, "style.theme.css", theme.getDependencies());
-		//		}
-		//
-		//		String iurl = theme.getIconURL(real);
-		//		if(iurl.startsWith("$"))
-		//			iurl = iurl.substring(1);
-		//		return da.getAppFileOrResource(iurl);
 	}
 }
