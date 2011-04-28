@@ -1,5 +1,7 @@
 package to.etc.template;
 
+import java.util.*;
+
 public class JSTemplateError extends RuntimeException {
 	private String	m_source;
 
@@ -19,6 +21,30 @@ public class JSTemplateError extends RuntimeException {
 		m_source = source;
 		m_line = line;
 		m_column = column;
+	}
+
+	/**
+	 * Walk the remap list, and try to calculate a source location for a given output location.
+	 * @param mapList
+	 * @param lineNumber
+	 * @param columnNumber
+	 * @return
+	 */
+	static public int[] remapLocation(List<JSLocationMapping> mapList, int lineNumber, int columnNumber) {
+		//-- Walk the mapping backwards. Find 1st thing that is at/before this location.
+		for(int i = mapList.size(); --i >= 0;) {
+			JSLocationMapping m = mapList.get(i);
+			if(m.getTline() <= lineNumber) {
+				if(m.getTcol() <= columnNumber) {
+					//-- Gotcha.
+					int dline = lineNumber - m.getTline();
+					int dcol = columnNumber - m.getTcol();
+					return new int[]{m.getSline() + dline, m.getScol() + dcol};
+				}
+			}
+		}
+		//-- Nothing found: return verbatim.
+		return new int[]{lineNumber, columnNumber};
 	}
 
 	public int getColumn() {
