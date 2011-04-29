@@ -794,4 +794,39 @@ final public class MetaManager {
 		}
 		return v;
 	}
+
+	/**
+	 * Copy all matching properties from "from" to "to", but ignore the specified list of
+	 * properties. Since properties are copied by name the objects can be of different types.
+	 *
+	 * @param to
+	 * @param from
+	 * @param except
+	 * @throws Exception
+	 */
+	public static void copyValuesExcept(Object to, Object from, String... except) throws Exception {
+		Set<String> exceptSet = new HashSet<String>();
+		for(String xc : except)
+			exceptSet.add(xc);
+
+		List<PropertyMetaModel< ? >> tolist = MetaManager.findClassMeta(to.getClass()).getProperties();
+		Map<String, PropertyMetaModel< ? >> tomap = new HashMap<String, PropertyMetaModel< ? >>();
+		for(PropertyMetaModel< ? > pmm : tolist)
+			tomap.put(pmm.getName(), pmm);
+
+		List<PropertyMetaModel< ? >> frlist = MetaManager.findClassMeta(from.getClass()).getProperties();
+		for(PropertyMetaModel< ? > frpmm : frlist) {
+			if(exceptSet.contains(frpmm.getName()))
+				continue;
+			PropertyMetaModel< ? > topmm = tomap.get(frpmm.getName());
+			if(null == topmm)
+				continue;
+
+			if(!topmm.getActualType().isAssignableFrom(frpmm.getActualType()))
+				continue;
+
+			((PropertyMetaModel<Object>) topmm).setValue(to, frpmm.getValue(from));
+		}
+
+	}
 }

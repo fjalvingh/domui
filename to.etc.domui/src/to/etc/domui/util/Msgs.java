@@ -103,6 +103,8 @@ public interface Msgs {
 
 	public static final String UI_MBX_DIALOG = "ui.mbx.dialog";
 
+	public static final String UI_MBX_INPUT = "ui.mbx.input";
+
 	//-- ExpandingEditTable
 	public static final String UI_XDT_DELETE = "ui.xdt.delete";
 
