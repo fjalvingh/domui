@@ -34,12 +34,12 @@ public class InfoPanel extends Div {
 
 	public InfoPanel(String text) {
 		this(text, "THEME/big-info.png");
-		setCssClass("ui-ipa");
 	}
 
 	public InfoPanel(String text, String icon) {
 		m_text = text;
 		setIcon(icon);
+		setCssClass("ui-ipa");
 	}
 
 	@Override
