@@ -149,7 +149,7 @@ final public class ThemeManager {
 	 * @return
 	 * @throws Exception
 	 */
-	public ITheme getTheme(String themeName, @Nullable IResourceDependencyList rdl) throws Exception {
+	public ITheme getTheme(String themeName, @Nullable IResourceDependencyList rdl) {
 		synchronized(this) {
 			if(m_themeReapCount++ > 1000) {
 				m_themeReapCount = 0;
@@ -168,7 +168,12 @@ final public class ThemeManager {
 			}
 
 			//-- No such cached theme yet, or the theme has changed. (Re)load it.
-			ITheme theme = getThemeFactory().getTheme(m_application, themeName);
+			ITheme theme;
+			try {
+				theme = getThemeFactory().getTheme(m_application, themeName);
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
 			if(null == theme)
 				throw new IllegalStateException("Theme factory returned null!?");
 			ResourceDependencies deps = null;
@@ -306,7 +311,10 @@ final public class ThemeManager {
 		else
 			return path; // Not theme-relative, so return as-is.
 
-		return ThemeResourceFactory.PREFIX + getCurrentTheme() + "/" + path;
+		//-- This *is* a theme URL. Do we need to replace the icon?
+		ITheme theme = getTheme(getCurrentTheme(), null);
+		String newicon = theme.translateResourceName(path);
+		return ThemeResourceFactory.PREFIX + getCurrentTheme() + "/" + newicon;
 	}
 
 

@@ -115,12 +115,17 @@ public class RhinoExecutor implements IScriptScope {
 	@Override
 	public Object getValue(String name) {
 		Object val = m_scope.get(name, m_scope);
+		return translateValue(val);
+	}
+
+	static public Object translateValue(Object val) {
 		if(null == val)
+			return null;
+		if(val == UniqueTag.NOT_FOUND)
 			return null;
 		if(val instanceof Scriptable) {
 			return new RhinoScriptScope((Scriptable) val);
 		}
-
 		return val;
 	}
 

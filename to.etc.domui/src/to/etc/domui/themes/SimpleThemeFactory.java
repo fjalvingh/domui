@@ -82,9 +82,10 @@ public class SimpleThemeFactory implements IThemeFactory {
 		}
 	}
 
-	private RhinoExecutor executor() {
+	private RhinoExecutor executor() throws Exception {
 		if(m_executor == null) {
 			m_executor = RhinoExecutorFactory.getInstance().createExecutor();
+			m_executor.eval("icon = new Object();");
 		}
 		return m_executor;
 	}

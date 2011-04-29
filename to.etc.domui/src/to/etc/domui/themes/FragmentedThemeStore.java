@@ -27,6 +27,8 @@ package to.etc.domui.themes;
 import java.io.*;
 import java.util.*;
 
+import org.mozilla.javascript.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
@@ -68,6 +70,28 @@ public class FragmentedThemeStore implements ITheme {
 	public IScriptScope getPropertyScope() {
 		return m_propertyScope;
 	}
+
+	@Override
+	public String translateResourceName(String name) {
+		//-- Get the 'icon' instance
+		Object iobj = getPropertyScope().getValue("icon");
+		if(null == iobj)
+			return name;
+		if(iobj == UniqueTag.NOT_FOUND)
+			return name;
+		if(!(iobj instanceof IScriptScope))
+			throw new StyleException("The 'icon' style variable is not a Javascript map but an " + iobj.getClass() + ": " + iobj);
+
+		//-- Retrieve a value here,
+		iobj = ((IScriptScope) iobj).getValue(name); // Is this icon name mapped to something else?
+		if(null == iobj)
+			return name;
+		if(!(iobj instanceof String))
+			throw new StyleException("The 'icon' mapping for '" + name + "' results in a non-string object: " + iobj);
+
+		return (String) iobj;
+	}
+
 
 	/**
 	 * Return a resource reference within this theme.

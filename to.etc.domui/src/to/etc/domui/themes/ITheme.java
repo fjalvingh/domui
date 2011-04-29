@@ -57,5 +57,8 @@ public interface ITheme {
 
 	@Nonnull
 	IScriptScope getPropertyScope();
+
+	@Nonnull
+	String translateResourceName(@Nonnull String name);
 }
 

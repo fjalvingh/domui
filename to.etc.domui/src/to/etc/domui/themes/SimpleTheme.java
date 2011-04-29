@@ -24,6 +24,7 @@
  */
 package to.etc.domui.themes;
 
+import javax.annotation.*;
 import javax.annotation.concurrent.*;
 
 import to.etc.domui.server.*;
@@ -67,5 +68,11 @@ public final class SimpleTheme implements ITheme {
 	@Override
 	public IResourceRef getThemeResource(String name, IResourceDependencyList rdl) throws Exception {
 		return m_da.getResource("$themes/" + m_styleName + "/" + name, rdl);
+	}
+
+	@Override
+	@Nonnull
+	public String translateResourceName(@Nonnull String name) {
+		return name;
 	}
 }

@@ -52,13 +52,7 @@ public class RhinoScriptScope implements IScriptScope {
 	@Override
 	public Object getValue(String name) {
 		Object val = m_scriptable.get(name, m_scriptable);
-		if(null == val)
-			return null;
-		if(val instanceof Scriptable) {
-			return new RhinoScriptScope((Scriptable) val);
-		}
-
-		return val;
+		return RhinoExecutor.translateValue(val);
 	}
 
 	@Override
