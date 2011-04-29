@@ -134,6 +134,12 @@ final public class ThemeManager {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getting a theme instance.							*/
 	/*--------------------------------------------------------------*/
+	static private final long OLD_THEME_TIME = 5 * 60 * 1000;
+
+	private int m_themeReapCount;
+
+	private long m_themeNextReapTS;
+
 	/**
 	 * Get the theme store representing the specified theme name. This is the name as obtained
 	 * from the resource name which is the part between $THEME/ and the actual filename. This
@@ -145,6 +151,11 @@ final public class ThemeManager {
 	 */
 	public ITheme getTheme(String themeName, @Nullable IResourceDependencyList rdl) throws Exception {
 		synchronized(this) {
+			if(m_themeReapCount++ > 1000) {
+				m_themeReapCount = 0;
+				checkReapThemes();
+			}
+
 			ThemeRef tr = m_themeMap.get(themeName);
 			if(tr != null) {
 				//-- Developer mode: is the theme still valid?
@@ -171,6 +182,34 @@ final public class ThemeManager {
 			m_themeMap.put(themeName, tr);
 			return theme;
 		}
+	}
+
+	/**
+	 * Check to see if there are "old" themes (not used for > 5 minutes)
+	 * that we can reap. We will always retain the most recently used theme.
+	 */
+	private synchronized void checkReapThemes() {
+		long ts = System.currentTimeMillis();
+		if(ts < m_themeNextReapTS)
+			return;
+
+		//-- Get a list of all themes and sort in ascending time order.
+		List<ThemeRef> list = new ArrayList<ThemeRef>(m_themeMap.values());
+		Collections.sort(list, new Comparator<ThemeRef>() {
+			@Override
+			public int compare(ThemeRef a, ThemeRef b) {
+				long d = a.getLastuse() - b.getLastuse();
+				return d == 0 ? 0 : d > 0 ? 1 : -1;
+			}
+		});
+
+		long abstime = ts - OLD_THEME_TIME;
+		for(int i = list.size()-1; --i >= 0;) {
+			ThemeRef tr = list.get(i);
+			if(tr.getLastuse() < abstime)
+				list.remove(i);
+		}
+		m_themeNextReapTS = ts + OLD_THEME_TIME;
 	}
 
 
