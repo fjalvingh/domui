@@ -34,12 +34,16 @@ public class DefaultControlLabelFactory implements IControlLabelFactory {
 		if(text == null)
 			return null;
 		if(mandatory && editable)
-			text = "* " + text;
+			text = getMandatoryLabelText(text);
 		if(pmm != null && editable && NumericPresentation.isMonetary(pmm.getNumericPresentation()))
 			text = text + " \u20ac";
 
 		Label l = new Label(control, text);
 		l.setCssClass("ui-f-lbl");
 		return l;
+	}
+
+	public String getMandatoryLabelText(String text) {
+		return "* " + text;
 	}
 }
