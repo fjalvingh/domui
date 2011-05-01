@@ -14,6 +14,8 @@ import to.etc.domui.dom.html.*;
 public class ColorPickerInput extends Input implements IInputNode<String> {
 	final private Div		m_coldiv = new Div();
 
+	private boolean m_mandatory = true;
+
 	@Override
 	public void createContent() throws Exception {
 		setMaxLength(6);
@@ -77,10 +79,12 @@ public class ColorPickerInput extends Input implements IInputNode<String> {
 	}
 	@Override
 	public boolean isMandatory() {
-		return false;
+		return m_mandatory;
 	}
+
 	@Override
 	public void setMandatory(boolean ro) {
+		m_mandatory = ro;
 	}
 	@Override
 	public void setDisabled(boolean disabled) {
