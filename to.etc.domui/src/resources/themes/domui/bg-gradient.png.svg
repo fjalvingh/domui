@@ -21,7 +21,7 @@
     <linearGradient
        id="linearGradient3757">
       <stop
-         style="stop-color:<%= util.color(bg_color).lume(0.3) %>;stop-opacity:1;"
+         style="stop-color:<%= bg2_color %>;stop-opacity:1;"
          offset="0"
          id="stop3759" />
       <stop

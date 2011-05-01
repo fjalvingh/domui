@@ -1,4 +1,5 @@
 bg_color="#ffffff";
+bg2_color=util.color(bg_color).lume(0.3);
 
 button_bg="#6ba1eb";
 button_fg="#ffffff";
