@@ -21,11 +21,11 @@
     <linearGradient
        id="linearGradient3757">
       <stop
-         style="stop-color:<%= bg2_color %>;stop-opacity:1;"
+         style="stop-color:<%= bg_color %>;stop-opacity:1;"
          offset="0"
          id="stop3759" />
       <stop
-         style="stop-color:<%= bg_color %>;stop-opacity:0;"
+         style="stop-color:<%= bg2_color %>;stop-opacity:0;"
          offset="1"
          id="stop3761" />
     </linearGradient>
