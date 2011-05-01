@@ -2483,6 +2483,33 @@ WebUI.colorPickerButton = function(btnid, inid, value,onchange) {
 	});
 };
 
+WebUI.colorPickerInput = function(inid, divid, value, onchange) {
+	$(inid).ColorPicker({
+		color: '#'+value,
+		flat: false,
+		onShow: function (colpkr) {
+			$(colpkr).fadeIn(500);
+			return false;
+		},
+		onHide: function (colpkr) {
+			$(colpkr).fadeOut(500);
+			return false;
+		},
+		onBeforeShow: function() {
+			$(this).ColorPickerSetColor(this.value);
+		},
+		onChange: function (hsb, hex, rgb) {
+			$(divid).css('backgroundColor', '#' + hex);
+			$(inid).val(hex);
+			if(onchange)
+				WebUI.colorPickerOnchange(btnid, hex);
+		}
+	});	
+};
+WebUI.colorPickerDisable = function(id) {
+	$(id).ColorPicker.destroy();
+};
+
 WebUI.colorPickerOnchange= function(id, last) {
 	if(WebUI._colorLast == last && WebUI._colorLastID == id)
 		return;

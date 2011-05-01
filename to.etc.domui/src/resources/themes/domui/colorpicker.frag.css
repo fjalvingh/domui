@@ -178,3 +178,14 @@
 	left: 4px;
 	top: 4px;
 }
+
+/*** ColorPickerInput ***/
+.ui-cpin {
+}
+.ui-cpin-div {
+	display: inline-block;
+	padding: 2px;
+	border: 1px solid grey;
+	height: 10px;
+	width: 40px;
+}
