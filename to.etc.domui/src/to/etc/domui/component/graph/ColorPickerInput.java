@@ -29,9 +29,14 @@ public class ColorPickerInput extends Input implements IInputNode<String> {
 //		m_coldiv.setBackgroundColor("#" + m_hidden.getRawValue());
 //		appendCreateJS("$('#"+getActualID()+"').ColorPicker({});");
 		appendAfterMe(m_coldiv);
-		if(! isDisabled())
+		if(!isOff())
 			appendCreateJS("WebUI.colorPickerInput('#" + getActualID() +"','#"+m_coldiv.getActualID() + "','" + getRawValue() + "'," + Boolean.valueOf(getOnValueChanged() != null) + ");");
 	}
+
+	private boolean isOff() {
+		return isDisabled() || isReadOnly();
+	}
+
 	@Override
 	public void onAddedToPage(Page p) {
 		p.addHeaderContributor(HeaderContributor.loadJavascript("$js/colorpicker.js"), 100);
@@ -54,7 +59,8 @@ public class ColorPickerInput extends Input implements IInputNode<String> {
 			return;
 
 		//-- Force update existing value.
-		appendJavascript("$('#" + getActualID() + "').ColorPickerSetColor('" + value + "');");
+		if(!isOff())
+			appendJavascript("$('#" + getActualID() + "').ColorPickerSetColor('" + value + "');");
 	}
 	public String	getValue() {
 		String v = getRawValue();
@@ -88,10 +94,22 @@ public class ColorPickerInput extends Input implements IInputNode<String> {
 	}
 	@Override
 	public void setDisabled(boolean disabled) {
-		if(isDisabled() == disabled)
-			return;
+		boolean wasoff = isOff();
 		super.setDisabled(disabled);
-		if(disabled)
+		update(wasoff);
+	}
+
+	@Override
+	public void setReadOnly(boolean readOnly) {
+		boolean wasoff = isOff();
+		super.setReadOnly(readOnly);
+		update(wasoff);
+	}
+
+	private void update(boolean old) {
+		if(isOff() == old)
+			return;
+		if(isOff())
 			appendJavascript("WebUI.colorPickerDisable('#"+getActualID()+"');");
 		else
 			appendCreateJS("WebUI.colorPickerInput('#" + getActualID() +"','#"+m_coldiv.getActualID() + "','" + getRawValue() + "'," + Boolean.valueOf(getOnValueChanged() != null) + ");");
