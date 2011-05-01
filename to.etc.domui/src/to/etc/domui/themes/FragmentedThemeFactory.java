@@ -56,12 +56,6 @@ public class FragmentedThemeFactory implements IThemeFactory {
 
 	private String m_themeName;
 
-	private String m_styleName;
-
-	private String m_iconName;
-
-	private String m_colorName;
-
 	private String m_stylesheet;
 
 	private List<String> m_searchList = new ArrayList<String>();
@@ -69,7 +63,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	/**
 	 * Constructor to create the factory itself.
 	 */
-	private FragmentedThemeFactory() {
+	protected FragmentedThemeFactory() {
 	}
 
 	/**
@@ -77,7 +71,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * @param da
 	 * @param themeName
 	 */
-	private FragmentedThemeFactory(DomApplication da, String themeName) {
+	protected FragmentedThemeFactory(DomApplication da, String themeName) {
 		m_application = da;
 		m_themeName = themeName;
 	}
@@ -104,7 +98,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	/**
 	 *
 	 */
-	private void close() {
+	protected void close() {
 	}
 
 	/*--------------------------------------------------------------*/
@@ -118,7 +112,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * @return
 	 */
 	@Nonnull
-	private RhinoExecutor executor() throws Exception {
+	protected RhinoExecutor executor() throws Exception {
 		if(null == m_executor) {
 			m_executor = RhinoExecutorFactory.getInstance().createExecutor();
 			m_executor.eval("icon = new Object();");
@@ -131,24 +125,24 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * Instance creation.
 	 * @return
 	 */
-	private ITheme createTheme() throws Exception {
-		//-- Split theme name into theme/icons/color
-		String[] ar = m_themeName.split("\\/");
-		if(ar.length != 3)
-			throw new StyleException("The theme name '" + m_themeName + "' is invalid for "+getClass()+": expecting theme/icon/color");
-		m_styleName = ar[0];
-		m_iconName = ar[1];
-		m_colorName = ar[2];
-
+	protected ITheme createTheme() throws Exception {
 		loadStyleInfo();
 		ResourceDependencies rd = m_rdl.createDependencies();
 		return new FragmentedThemeStore(m_application, m_stylesheet.getBytes("utf-8"), executor(), m_searchList, rd);
 	}
 
 	protected void loadStyleInfo() throws Exception {
-		loadColors(m_colorName);
-		loadIcons(m_iconName);
-		loadStyle(m_styleName);
+		//-- Split theme name into theme/icons/color
+		String[] ar = m_themeName.split("\\/");
+		if(ar.length != 3)
+			throw new StyleException("The theme name '" + m_themeName + "' is invalid for "+getClass()+": expecting theme/icon/color");
+		String styleName = ar[0];
+		String iconName = ar[1];
+		String colorName = ar[2];
+
+		loadColors(colorName);
+		loadIcons(iconName);
+		loadStyle(styleName);
 	}
 
 
@@ -203,7 +197,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * @param iconName
 	 * @throws Exception
 	 */
-	private void loadIcons(String iconName) throws Exception {
+	protected void loadIcons(String iconName) throws Exception {
 		loadClear();
 		setInheritence("internalInheritIcon");
 		internalInheritIcon(iconName); // Use that same name to load this set.
@@ -544,6 +538,10 @@ public class FragmentedThemeFactory implements IThemeFactory {
 					nameSet.put(far.getName(), inh);
 			}
 		}
+	}
+
+	protected String getThemeName() {
+		return m_themeName;
 	}
 
 }
