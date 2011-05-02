@@ -728,6 +728,19 @@ public abstract class DomApplication {
 		return AppFilter.getApplicationURL();
 	}
 
+	/**
+	 * Return the webapp context for the application. This is the fragment after the host name, with
+	 * a single slash @ the start. This returns the empty string for a root webapp.
+	 *
+	 * @return
+	 */
+	public String getAppContext() {
+		String s = AppFilter.internalGetWebappContext();
+		if(s.length() == 0)
+			return s;
+		return "/" + s;
+	}
+
 	//	/** Cache for application resources containing all resources we have checked existence for */
 	//	private final Map<String, IResourceRef> m_resourceSet = new HashMap<String, IResourceRef>();
 
@@ -1259,7 +1272,7 @@ public abstract class DomApplication {
 	 */
 	@OverridingMethodsMustInvokeSuper
 	public void augmentThemeMap(IScriptScope ss) throws Exception {
-		ss.put("util", new ThemeCssUtils());
+		ss.put("util", new ThemeCssUtils(ss));
 		ss.registerToplevelFunction(this, "___domappl", "function url(x) { return util.url(x);};");
 	}
 

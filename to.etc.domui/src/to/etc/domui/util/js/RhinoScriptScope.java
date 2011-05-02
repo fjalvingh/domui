@@ -36,22 +36,22 @@ import org.mozilla.javascript.*;
  */
 public class RhinoScriptScope implements IScriptScope {
 	@Nonnull
-	private Scriptable m_scriptable;
+	private ScriptableObject m_scriptable;
 
 	private boolean m_writable;
 
-	public RhinoScriptScope(@Nonnull Scriptable val, boolean writable) {
+	public RhinoScriptScope(@Nonnull ScriptableObject val, boolean writable) {
 		m_scriptable = val;
 		m_writable = writable;
 	}
 
-	public RhinoScriptScope(@Nonnull Scriptable val) {
+	public RhinoScriptScope(@Nonnull ScriptableObject val) {
 		this(val, true);
 	}
 
 	@Override
 	public Object getValue(String name) {
-		Object val = m_scriptable.get(name, m_scriptable);
+		Object val = ScriptableObject.getProperty(m_scriptable, name);
 		return RhinoExecutor.translateValue(val);
 	}
 
@@ -76,7 +76,7 @@ public class RhinoScriptScope implements IScriptScope {
 	public IScriptScope newScope() {
 		Context jcx = Context.enter();
 		try {
-			Scriptable scope = jcx.newObject(m_scriptable);
+			ScriptableObject scope = (ScriptableObject) jcx.newObject(m_scriptable);
 			scope.setPrototype(m_scriptable);
 			scope.setParentScope(null);
 			return new RhinoScriptScope(scope, true);

@@ -37,7 +37,7 @@ import org.mozilla.javascript.*;
 public class RhinoExecutor implements IScriptScope {
 	//	private final JavascriptExecutorFactory m_factory;
 
-	private Scriptable m_scope;
+	private ScriptableObject m_scope;
 
 	public RhinoExecutor(RhinoExecutorFactory javascriptExecutorFactory) {
 		//		m_factory = javascriptExecutorFactory;
@@ -51,7 +51,7 @@ public class RhinoExecutor implements IScriptScope {
 	public void initialize(ScriptableObject rootScope) {
 		Context jcx = Context.enter();
 		try {
-			m_scope = jcx.newObject(rootScope);
+			m_scope = (ScriptableObject) jcx.newObject(rootScope);
 			m_scope.setPrototype(rootScope);
 			m_scope.setParentScope(null);
 		} finally {
@@ -96,7 +96,7 @@ public class RhinoExecutor implements IScriptScope {
 		}
 	}
 
-	public Scriptable getScope() {
+	public ScriptableObject getScope() {
 		return m_scope;
 	}
 
@@ -114,7 +114,7 @@ public class RhinoExecutor implements IScriptScope {
 	 */
 	@Override
 	public Object getValue(String name) {
-		Object val = m_scope.get(name, m_scope);
+		Object val = ScriptableObject.getProperty(m_scope, name);
 		return translateValue(val);
 	}
 
@@ -123,8 +123,8 @@ public class RhinoExecutor implements IScriptScope {
 			return null;
 		if(val == UniqueTag.NOT_FOUND)
 			return null;
-		if(val instanceof Scriptable) {
-			return new RhinoScriptScope((Scriptable) val);
+		if(val instanceof ScriptableObject) {
+			return new RhinoScriptScope((ScriptableObject) val);
 		}
 		return val;
 	}
@@ -143,7 +143,7 @@ public class RhinoExecutor implements IScriptScope {
 	public IScriptScope newScope() {
 		Context jcx = Context.enter();
 		try {
-			Scriptable scope = jcx.newObject(m_scope);
+			ScriptableObject scope = (ScriptableObject) jcx.newObject(m_scope);
 			scope.setPrototype(m_scope);
 			scope.setParentScope(null);
 			return new RhinoScriptScope(scope, true);

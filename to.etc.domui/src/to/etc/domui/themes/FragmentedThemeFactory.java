@@ -116,6 +116,8 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		if(null == m_executor) {
 			m_executor = RhinoExecutorFactory.getInstance().createExecutor();
 			m_executor.eval("icon = new Object();");
+			m_executor.put("themeName", m_themeName);
+			m_executor.put("themePath", "$THEME/" + m_themeName + "/");
 			m_application.augmentThemeMap(m_executor);
 		}
 		return m_executor;

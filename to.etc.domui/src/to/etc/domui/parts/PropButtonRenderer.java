@@ -81,11 +81,14 @@ public class PropButtonRenderer {
 			initAttributedText();
 
 			//-- Everything is known. Calculate how much space icon+text will take.
-			FontRenderContext frc = getGraphics().getFontRenderContext();
-			TextLayout layout = new TextLayout(m_attributedString.getIterator(), frc);
-			Rectangle2D r = layout.getBounds();
+			int totalwidth = 0;
+			if(m_attributedString != null) {
+				FontRenderContext frc = getGraphics().getFontRenderContext();
+				TextLayout layout = new TextLayout(m_attributedString.getIterator(), frc);
+				Rectangle2D r = layout.getBounds();
+				totalwidth = (int) r.getWidth();
+			}
 
-			int totalwidth = (int) r.getWidth();
 			if(m_iconImage != null) {
 				totalwidth += m_iconImage.getWidth();
 
@@ -340,6 +343,9 @@ public class PropButtonRenderer {
 	}
 
 	protected void initAttributedText() {
+		if(m_actualText == null || m_actualText.length() == 0)
+			return;
+
 		//-- Create an Attributed string containing the text to render, with the accelerator underscored proper.
 		m_attributedString = new AttributedString(m_actualText);
 		m_attributedString.addAttribute(TextAttribute.FONT, m_textFont);
