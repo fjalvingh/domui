@@ -33,3 +33,7 @@ tab_fg="#123667";	// very dark blue
 
 // row odd/even
 even_bg="#eeeeee"; //greyish
+dt_rowhdr_bg="#98bbf3";
+dt_rowhdr_fg="#ffffff";
+
+

@@ -16,8 +16,9 @@ div.ui-dt {
 }
 
 .ui-dt-hdr {
-	background: url(bg-dt-hdr.png) repeat-x #98bbf3;
-	color: white;
+/*	background: url(bg-dt-hdr.png) repeat-x #98bbf3 jal 20110502 Removed bg image. */;
+	background: <%= dt_rowhdr_bg %>;
+	color: <%= dt_rowhdr_fg %>;
 }
 
 .ui-dt-nores {
