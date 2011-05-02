@@ -265,6 +265,10 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	/** During load of a set this collects all dependencies. */
 	private ResourceDependencyList m_rdl = new ResourceDependencyList();
 
+	protected ResourceDependencyList getCurrentDependencies() {
+		return m_rdl;
+	}
+
 	/**
 	 * Initialize for loading a new set. Clears all information of the previously loaded set.
 	 */
@@ -544,4 +548,15 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		return m_themeName;
 	}
 
+	protected DomApplication getApplication() {
+		return m_application;
+	}
+
+	protected String getStylesheet() {
+		return m_stylesheet;
+	}
+
+	protected List<String> getSearchList() {
+		return m_searchList;
+	}
 }
