@@ -26,4 +26,6 @@ package to.etc.domui.component.dynaima;
 
 public interface ICharterHelper {
 	public void finish() throws Exception;
+
+	public void addChartDataElemet(ChartDataElement element);
 }
