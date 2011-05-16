@@ -27,13 +27,22 @@ public class BarCharter extends AbstractCharter {
 
 	@Override
 	public void finish() throws Exception {
-		double[][] data = {getChartDataValues()};
-		String[] axislabels = {" "};
-		DataSeries ds = new DataSeries(axislabels, m_bucketTitle, m_valueTitle, m_title);
+		double[][] data = getDataAsMatrix(getChartDataValues());
+		String[] axisLabels = {" "};
+		DataSeries ds = new DataSeries(axisLabels, m_bucketTitle, m_valueTitle, m_title);
+
 		AxisChartDataSet ads = new AxisChartDataSet(data, getChartDataLabels(), selectPaints(), ChartType.BAR_CLUSTERED, barChartProperties);
 		ds.addIAxisPlotDataSet(ads);
 		AxisChart c = new AxisChart(ds, m_properties, m_axisProperties, m_legendProperties, m_width, m_height);
 		m_source.setChart(c);
+	}
+
+	private double[][] getDataAsMatrix(double[] original){
+		double[][] result = new double[original.length][1];
+		for(int i = 0; i < getChartDataValues().length; i++) {
+			result[i][0] = getChartDataValues()[i];
+		}
+		return result;
 	}
 
 
