@@ -557,8 +557,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			//-- Delete the last row.
 			m_dataBody.removeChild(m_dataBody.getChildCount() - 1); // Delete last element
 		}
-		while(m_visibleItemList.size() > m_pageSize)
-			m_visibleItemList.remove(m_visibleItemList.size() - 1);
+		if(m_pageSize > 0) {
+			while(m_visibleItemList.size() > m_pageSize)
+				m_visibleItemList.remove(m_visibleItemList.size() - 1);
+		}
 	}
 
 	/**
