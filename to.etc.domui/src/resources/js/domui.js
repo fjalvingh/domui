@@ -1092,7 +1092,7 @@ var WebUI = {
 		var n = document.getElementById(id);
 		try{
 			if (n)
-				setTimeout(function() { n.focus(); }, 100); //Due to IE bug, we need to set focus on timeout :( See http://www.mkyong.com/javascript/focus-is-not-working-in-ie-solution/    				
+				setTimeout(function() { try { n.focus();} catch (e) { /*just ignore */ } }, 100); //Due to IE bug, we need to set focus on timeout :( See http://www.mkyong.com/javascript/focus-is-not-working-in-ie-solution/    				
 				//n.focus();
 		} catch (e) {
 			//just ignore
