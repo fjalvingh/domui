@@ -142,6 +142,15 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	@Nullable
 	private List<SearchPropertyMetaModel> m_searchPropertyList;
 
+	private enum RebuildCause {
+		CLEAR, SELECT
+	};
+
+	/**
+	 * When we trigger forceRebuild, we can specify reason for this, and use this later to resolve focus after content is re-rendered.
+	 */
+	private RebuildCause m_rebuildCause;
+
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass, (ClassMetaModel) null);
 		m_resultColumns = resultColumns;
@@ -172,9 +181,6 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {
 				handleSetValue(null);
-				if(m_keySearch != null) {
-					m_keySearch.setFocus();
-				}
 			}
 		});
 		m_clearButton.setTestID("clearButtonInputLookup");
@@ -250,6 +256,18 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 				m_clearButton.getParent().setMinWidth("58px");
 			}
 		}
+		if(m_rebuildCause == RebuildCause.CLEAR) {
+			//User clicked clear button, so we can try to set focus to input search if possible.
+			if(m_keySearch != null) {
+				m_keySearch.setFocus();
+			}
+		} else if(m_rebuildCause == RebuildCause.SELECT) {
+			//User did reselected value, so we can try to set focus to clear button if possible.
+			if(m_clearButton != null && m_clearButton.getDisplay() != DisplayType.NONE) {
+				m_clearButton.setFocus();
+			}
+		}
+		m_rebuildCause = null;
 	}
 
 	/**
@@ -732,6 +750,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 				((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(this);
 			}
 		}
+		m_rebuildCause = value == null ? RebuildCause.CLEAR : RebuildCause.SELECT;
 	}
 
 	/**
