@@ -147,6 +147,19 @@ public class PageParameters {
 	}
 
 	/**
+	 * {@link PageParameters.getOne}
+	 * Throws MissingParameterException when the parameter can not be found.
+	 *
+	 */
+	@Nonnull
+	private String getOneNotNull(String name) {
+		String v = getOne(name);
+		if(null == v)
+			throw new MissingParameterException(name);
+		return v;
+	}
+
+	/**
 	 * Add parameters. This accepts multiple formats that can all be mixed. Each actual parameter always is a
 	 * name, value pair. The simplest way to use this is to specify a list of strings in pairs where the first
 	 * string in the pair is the key and the second one is the value. You can also substitute an object instance
@@ -281,9 +294,7 @@ public class PageParameters {
 	 * @return the value as an int
 	 */
 	public int getInt(String name) {
-		String v = getOne(name);
-		if(null == v)
-			throw new MissingParameterException(name);
+		String v = getOneNotNull(name);
 		try {
 			return Integer.parseInt(v);
 		} catch(Exception x) {
@@ -315,15 +326,13 @@ public class PageParameters {
 	/**
 	 * Gets the value for the specified parametername as a long (primitive).
 	 * When multiple value exists for the specified parameter, the first element of the array is returned.
-	 * If the parameter does not exists or the value cannot be converted to an int, a MissingParameterException is thrown.
+	 * If the parameter does not exists or the value cannot be converted to an long, a MissingParameterException is thrown.
 	 *
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a long
 	 */
 	public long getLong(String name) {
-		String v = getOne(name);
-		if(null == v)
-			throw new MissingParameterException(name);
+		String v = getOneNotNull(name);
 		try {
 			return Long.parseLong(v);
 		} catch(Exception x) {
@@ -334,7 +343,7 @@ public class PageParameters {
 	/**
 	 * Gets the value for the specified parametername as a long (primitive).
 	 * When multiple value exists for the specified parameter, the first element of the array is returned.
-	 * If the parameter does cannot be converted to an int, a MissingParameterException is thrown.
+	 * If the parameter does cannot be converted to an long, a MissingParameterException is thrown.
 	 * When the parameter does not exist, the specified default value is returned.
 	 *
 	 * @param name, the name of the parameter who's value is to be retrieved.
@@ -354,6 +363,44 @@ public class PageParameters {
 	}
 
 	/**
+	 * Gets the value for the specified parametername as a boolean (primitive).
+	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * If the parameter does not exists or the value cannot be converted to an boolean, a MissingParameterException is thrown.
+	 *
+	 * @param name, the name of the parameter who's value is to be retrieved.
+	 * @return the value as a long
+	 */
+	public boolean getBoolean(String name) {
+		String v = getOneNotNull(name);
+		try {
+			return Boolean.parseBoolean(v);
+		} catch(Exception x) {}
+		throw new UnusableParameterException(name, "boolean", v);
+	}
+
+	/**
+	 * Gets the value for the specified parametername as a boolean (primitive).
+	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * If the parameter does cannot be converted to an boolean, a MissingParameterException is thrown.
+	 * When the parameter does not exist, the specified default value is returned.
+	 *
+	 * @param name, the name of the parameter who's value is to be retrieved.
+	 * @param df, the default value to be returned, when the specified parameter does not exist.
+	 * @return the value as a boolean
+	 */
+	public boolean getBoolean(String name, boolean df) {
+		String v = getOne(name);
+		if(null != v && (v = v.trim()).length() > 0) {
+			try {
+				return Boolean.parseBoolean(v);
+			} catch(Exception x) {
+				throw new UnusableParameterException(name, "boolean", v);
+			}
+		}
+		return df;
+	}
+
+	/**
 	 * Gets the value for the specified parametername as a Long object.
 	 * When multiple value exists for the specified parameter, the first element of the array is returned.
 	 * If the parameter does not exists or the value cannot be converted to an int, a MissingParameterException is thrown.
@@ -363,9 +410,7 @@ public class PageParameters {
 	 * @return the value as a Long
 	 */
 	public Long getLongW(String name) {
-		String v = getOne(name);
-		if(null == v)
-			throw new MissingParameterException(name);
+		String v = getOneNotNull(name);
 		try {
 			return Long.decode(v);
 		} catch(Exception x) {
@@ -421,10 +466,7 @@ public class PageParameters {
 	 */
 	@Nonnull
 	public String getString(String name) {
-		String v = getOne(name);
-		if(v != null)
-			return v;
-		throw new MissingParameterException(name);
+		return getOneNotNull(name);
 	}
 
 	/**
