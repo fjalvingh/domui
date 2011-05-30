@@ -85,12 +85,16 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 //	private ComboOptionalType m_comboOptional;
 
+	@Nonnull
 	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.EMPTY_LIST;
 
+	@Nonnull
 	private List<DisplayPropertyMetaModel> m_tableDisplayProperties = Collections.EMPTY_LIST;
 
+	@Nonnull
 	private List<SearchPropertyMetaModel> m_searchProperties = Collections.EMPTY_LIST;
 
+	@Nonnull
 	private List<SearchPropertyMetaModel> m_keyWordSearchProperties = Collections.EMPTY_LIST;
 
 	/**
@@ -102,6 +106,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/**
 	 * The default properties to show in a {@link LookupInput} field's instance display.
 	 */
+	@Nonnull
 	private List<DisplayPropertyMetaModel> m_lookupFieldDisplayProperties = Collections.EMPTY_LIST;
 
 	private String m_defaultSortProperty;

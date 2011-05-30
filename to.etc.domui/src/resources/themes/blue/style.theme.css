@@ -335,6 +335,10 @@ div.ui-popin {
 	font-style: italic;
 }
 
+div.ui-ipa img {
+	padding-right: 4px;
+}
+
 /*** LinkButton component. ***/
 .ui-lbtn {
 	background-repeat: no-repeat;

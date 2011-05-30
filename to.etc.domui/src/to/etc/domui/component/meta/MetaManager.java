@@ -660,9 +660,10 @@ final public class MetaManager {
 	 * @param cm
 	 * @return
 	 */
+	@Nonnull
 	public static List<SearchPropertyMetaModel> calculateSearchProperties(ClassMetaModel cm) {
 		if(!DeveloperOptions.getBool("domui.generatemeta", false))
-			return null;
+			return Collections.emptyList();
 		if(cm.getSearchProperties() != null && cm.getSearchProperties().size() > 0)
 			return cm.getSearchProperties();
 
@@ -699,9 +700,10 @@ final public class MetaManager {
 	 * @param cmm
 	 * @return
 	 */
+	@Nonnull
 	static public List<DisplayPropertyMetaModel> calculateObjectProperties(ClassMetaModel cm) {
 		if(!DeveloperOptions.getBool("domui.generatemeta", false))
-			return null;
+			return Collections.emptyList();
 
 		List<DisplayPropertyMetaModel> res = new ArrayList<DisplayPropertyMetaModel>();
 		int totlen = 0;
