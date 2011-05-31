@@ -36,4 +36,6 @@ import to.etc.domui.dom.html.*;
  */
 public interface IControlLabelFactory {
 	public Label createControlLabel(NodeBase control, String text, boolean editable, boolean mandatory, PropertyMetaModel< ? > pmm);
+
+	public String getMandatoryLabelText(String text);
 }

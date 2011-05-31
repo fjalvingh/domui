@@ -207,9 +207,9 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							if (n == 'style') { // IE workaround
 								dest.style.cssText = v;
 								dest.setAttribute(n, v);
-								//We need this dirty fix for IE7 to force refresh of divs that has just become visible.
+								//We need this dirty fix for IE7 to force height recalculation of divs that has just become visible (IE7 sometimes fails to calculate height that stays 0!).
 								if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
-									if ((dest.tagName.toLowerCase() == 'div') && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))){
+									if ((dest.tagName.toLowerCase() == 'div' && $(dest).height() == 0) && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))){
 										WebUI.refreshElement(dest.id);
 									}
 								}								
@@ -442,7 +442,11 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 
 		return this.each(function () {
 			if (this.scrollWidth > this.offsetWidth) {
-				$(this).css({ 'padding-bottom' : '20px', 'overflow-y' : 'hidden' });
+				$(this).css({ 'padding-bottom' : '20px' });
+				if (this.scrollHeight <= this.offsetHeight ){
+					//hide vertical scroller only if it is not needed after padding is increased.
+					$(this).css({ 'overflow-y' : 'hidden' });
+				}
 			}
 		});            
 	};
@@ -1088,7 +1092,8 @@ var WebUI = {
 		var n = document.getElementById(id);
 		try{
 			if (n)
-				n.focus();
+				setTimeout(function() { try { n.focus();} catch (e) { /*just ignore */ } }, 100); //Due to IE bug, we need to set focus on timeout :( See http://www.mkyong.com/javascript/focus-is-not-working-in-ie-solution/    				
+				//n.focus();
 		} catch (e) {
 			//just ignore
 		}
@@ -1466,13 +1471,17 @@ var WebUI = {
 			var ok = false;
 			var spl = val.split(',');
 			var li = vv.lastIndexOf('.');
+			var ext;
 			if (li != -1) {
-				var ext = vv.substring(li + 1, vv.length).toLowerCase();
-				for ( var i = 0; i < spl.length; i++) {
-					if (ext == spl[i] || "*" == spl[i]) {
-						ok = true;
-						break;
-					}
+				ext = vv.substring(li + 1, vv.length).toLowerCase();
+			}else{
+				//Allow upload of files without extensions when "*" filter is defined
+				ext = "";
+			}
+			for ( var i = 0; i < spl.length; i++) {
+				if (ext == spl[i] || "*" == spl[i]) {
+					ok = true;
+					break;
 				}
 			}
 			if (!ok) {
@@ -2243,14 +2252,14 @@ var WebUI = {
 		}
 	},
 
-	//By switching element height we force browser to repaint element. This must be done to fix some IE7 missbehaviors.   
+	//We need to re-show element to force IE7 browser to recalculate correct height of element. This must be done to fix some IE7 missbehaviors.   
 	refreshElement: function(id) {
 		var elem = document.getElementById(id);
-		var oldHeight = $(elem).height(); 
-		$(elem).height('1');
-		$(elem).height(oldHeight);
-	}	
-	
+		if (elem){
+			$(elem).hide();			
+			$(elem).show(1); //needs to be done on timeout/animation, otherwise it still fails to recalculate... 
+		}
+	}
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {

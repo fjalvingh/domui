@@ -180,7 +180,7 @@ public class FormBuilderBase {
 	protected PropertyMetaModel< ? > resolveProperty(final String name) {
 		PropertyMetaModel< ? > pmm = getClassMeta().findProperty(name);
 		if(pmm == null)
-			throw new IllegalStateException("Unknown property " + name);
+			throw new IllegalStateException("Unknown property " + name + " in " + getClassMeta());
 		return pmm;
 	}
 

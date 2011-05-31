@@ -142,6 +142,15 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	@Nullable
 	private List<SearchPropertyMetaModel> m_searchPropertyList;
 
+	private enum RebuildCause {
+		CLEAR, SELECT
+	};
+
+	/**
+	 * When we trigger forceRebuild, we can specify reason for this, and use this later to resolve focus after content is re-rendered.
+	 */
+	private RebuildCause m_rebuildCause;
+
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass, (ClassMetaModel) null);
 		m_resultColumns = resultColumns;
@@ -172,9 +181,6 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {
 				handleSetValue(null);
-				if(m_keySearch != null) {
-					m_keySearch.setFocus();
-				}
 			}
 		});
 		m_clearButton.setTestID("clearButtonInputLookup");
@@ -250,6 +256,18 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 				m_clearButton.getParent().setMinWidth("58px");
 			}
 		}
+		if(m_rebuildCause == RebuildCause.CLEAR) {
+			//User clicked clear button, so we can try to set focus to input search if possible.
+			if(m_keySearch != null) {
+				m_keySearch.setFocus();
+			}
+		} else if(m_rebuildCause == RebuildCause.SELECT) {
+			//User did reselected value, so we can try to set focus to clear button if possible.
+			if(m_clearButton != null && m_clearButton.getDisplay() != DisplayType.NONE) {
+				m_clearButton.setFocus();
+			}
+		}
+		m_rebuildCause = null;
 	}
 
 	/**
@@ -427,14 +445,18 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 						//It is required that lookup by id is also available, for now only Long type and BigDecimal interpretated as Long (fix for 1228) are supported
 						//FIXME: see if it is possible to generalize things for all integer based types... (DomUtil.isIntegerType(pmm.getActualType()))
 						if(pl.get(0).getActualType() == Long.class || pl.get(0).getActualType() == BigDecimal.class) {
-							try {
-								Long val = Long.valueOf(searchString);
-								if(val != null) {
-									r.eq(spm.getPropertyName(), val.longValue());
-									ncond++;
+							if(searchString.contains("%") && !pl.get(0).isTransient()) {
+								r.add(new QPropertyComparison(QOperation.LIKE, spm.getPropertyName(), new QLiteral(searchString)));
+							} else {
+								try {
+									Long val = Long.valueOf(searchString);
+									if(val != null) {
+										r.eq(spm.getPropertyName(), val.longValue());
+										ncond++;
+									}
+								} catch(NumberFormatException ex) {
+									//just ignore this since it means that it is not correct Long condition.
 								}
-							} catch(NumberFormatException ex) {
-								//just ignore this since it means that it is not correct Long condition.
 							}
 						} else if(pl.get(0).getActualType().isAssignableFrom(String.class)) {
 							if(spm.isIgnoreCase()) {
@@ -505,7 +527,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 		if(getExternalLookupForm() != null) {
 			lf = getExternalLookupForm();
 		} else {
-			 lf = new LookupForm<T>(getLookupClass(), getMetaModel());
+			lf = new LookupForm<T>(getLookupClass(), getMetaModel());
 			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
 				lf.setSearchProperties(m_searchPropertyList);
 		}
@@ -728,6 +750,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 				((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(this);
 			}
 		}
+		m_rebuildCause = value == null ? RebuildCause.CLEAR : RebuildCause.SELECT;
 	}
 
 	/**

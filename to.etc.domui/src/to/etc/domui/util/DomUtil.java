@@ -541,9 +541,14 @@ final public class DomUtil {
 						}
 
 						if(count < maxcol) {
-							//-- Find last TD
-							TD td = (TD) tr.getChild(tr.getChildCount() - 1);
-							td.setColspan(maxcol - count + 1); // Adjust colspan
+							if(tr.getChildCount() == 0) {
+								//--??? Childless row?! Cannot do anything with this...
+								System.out.println("?? Silly empty row in table");
+								//								throw new IllegalStateException("Table has a row without any TD's in it.");
+							} else {
+								TD td = (TD) tr.getChild(tr.getChildCount() - 1);
+								td.setColspan(maxcol - count + 1); // Adjust colspan
+							}
 						}
 					}
 				}
