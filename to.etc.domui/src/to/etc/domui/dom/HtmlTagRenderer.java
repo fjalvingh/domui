@@ -859,7 +859,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getTransform() != null) {
 			switch(n.getTransform()){
 				case LOWERCASE:
-					transformScript = "javascript:this.value=this.value.toUpperCase();";
+					transformScript = "javascript:this.value=this.value.toLowerCase();";
 					break;
 				case UPPERCASE:
 					transformScript = "javascript:this.value=this.value.toUpperCase();";
