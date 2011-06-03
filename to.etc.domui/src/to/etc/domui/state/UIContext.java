@@ -158,7 +158,7 @@ public class UIContext {
 			Cookie[] car = rci.getRequest().getCookies();
 			if(car != null) {
 				for(Cookie c : car) {
-					if(c.getName().equals("domuiLogin")) {
+					if(c.getName().equals("domuiLogin") && c.getMaxAge() > 0) {
 						String domval = c.getValue();
 						IUser user = decodeCookie(rci, domval);
 						if(user != null) {
@@ -279,6 +279,9 @@ public class UIContext {
 		HttpSession hs = ci.getRequest().getSession(false);
 		if(hs == null)
 			return;
+
+		//first we delete LOGINCOOKIE if exists, otherwise user can never logout...
+		deleteLoginCookie(ci);
 		synchronized(hs) {
 			IUser user = internalGetLoggedInUser(ci);
 			if(user == null)
@@ -327,5 +330,28 @@ public class UIContext {
 		k.setPath(ci.getRequest().getContextPath());
 		ci.getResponse().addCookie(k);
 		return k;
+	}
+
+	public static boolean deleteLoginCookie(RequestContextImpl rci) throws Exception {
+		if(rci == null)
+			throw new IllegalStateException("You can logout from a server request only");
+
+		Cookie[] car = rci.getRequest().getCookies();
+		if(car != null) {
+			Cookie loginCookie = null;
+			for(Cookie c : car) {
+				if(c.getName().equals("domuiLogin")) {
+					c.setMaxAge(0);
+					loginCookie = c;
+					break;
+				}
+			}
+			if(loginCookie != null) {
+				loginCookie.setMaxAge(0);
+				rci.getResponse().addCookie(loginCookie);
+				return true;
+			}
+		}
+		return false;
 	}
 }
