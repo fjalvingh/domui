@@ -1,8 +1,47 @@
-/*** DefaultButton (replaces old version, this one uses hover effects) ***/
-.ui-dbtn {
-	margin: 2px;
-	background-color: transparent;
+/*** New default button, uses sliding doors and a single bg image ***/
+.ui-sdbtn {
+	position: relative;
+	border: 0;
+	padding: 0 10px 0 0;
+	margin-right: 10px;
+	vertical-align: middle;
+	cursor: pointer;
+	overflow: visible; /* remove extra padding in IE */
+	background: transparent url(<%= button_img %>) no-repeat right -50px;
 }
-.ui-dbtn:HOVER, .ui-dbtn:FOCUS {
-	background-position: 0px -<%= defaultbutton_height %>px;
+.ui-sdbtn img {
+	padding-right: 3px;
+	height: 16px;
+}
+.ui-sdbtn::-moz-focus-inner {
+	border: none; /* overrides extra padding in ffox */
+}
+.ui-sdbtn span {
+	position: relative;
+	display: block;
+	min-width: 100px;
+	white-space: nowrap;
+	height: <%= button_height-5 %>px;
+	padding: 5px 0 0 10px;
+	color: white;
+	font-weight: bold;
+	vertical-align: middle;
+	text-align: left;
+	background: transparent url(<%= button_img %>) no-repeat left top;
+}
+.ui-sdbtn u {
+/*	vertical-align: middle; */
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	/* Safari and Google Chrome only - fix margins */
+	.xvp-flexbtn span {
+		margin-top: -1px;
+	}
+}
+.ui-sdbtn:hover {
+	background-position: right -150px;
+}
+.ui-sdbtn:hover span {
+	background-position: left -100px;
 }

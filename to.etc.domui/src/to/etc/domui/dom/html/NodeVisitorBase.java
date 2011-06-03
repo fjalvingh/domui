@@ -40,6 +40,11 @@ public class NodeVisitorBase implements INodeVisitor {
 	}
 
 	@Override
+	public void visitUnderline(Underline n) throws Exception {
+		sub(n);
+	}
+
+	@Override
 	public void visitTD(TD n) throws Exception {
 		sub(n);
 	}

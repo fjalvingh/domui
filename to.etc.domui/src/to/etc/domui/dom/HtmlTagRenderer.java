@@ -672,6 +672,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	@Override
+	public void visitUnderline(final Underline n) throws Exception {
+		basicNodeRender(n, m_o);
+		renderTagend(n, m_o);
+	}
+
+	@Override
 	public void visitTable(final Table n) throws Exception {
 		basicNodeRender(n, m_o);
 		if(n.getTableBorder() != -1)

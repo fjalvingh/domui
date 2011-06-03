@@ -3,6 +3,8 @@ bg2_color=util.color(bg_color).lume(0.3);
 
 button_bg="#6ba1eb";
 button_fg="#ffffff";
+button_img= "defaultButton-all.png";
+button_height=26;
 
 link_font_size="12px";
 link_color="#2200cc";	// dark blue
