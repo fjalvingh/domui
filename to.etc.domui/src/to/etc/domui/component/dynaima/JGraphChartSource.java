@@ -85,4 +85,12 @@ public class JGraphChartSource implements IBufferedImageSource {
 		m_helper = c;
 		return c;
 	}
+
+	public BarCharter createBarChart(int w, int h, String title, String buckettitle, String valuetitle) {
+		BarCharter c = new BarCharter(this, title, w, h, buckettitle, valuetitle);
+		m_helper = c;
+		return c;
+	}
+
+
 }
