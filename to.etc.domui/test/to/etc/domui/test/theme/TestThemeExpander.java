@@ -3,7 +3,7 @@ package to.etc.domui.test.theme;
 import org.junit.*;
 
 import to.etc.domui.server.*;
-import to.etc.domui.test.util.*;
+import to.etc.domui.testsupport.*;
 import to.etc.domui.themes.*;
 import to.etc.util.*;
 
@@ -12,7 +12,7 @@ public class TestThemeExpander {
 
 	@Before
 	public void setUp() throws Exception {
-		m_da = DomUITestUtil.getApplication();
+		m_da = TUtilDomUI.getApplication();
 	}
 
 	// Cannot run without an application - fixed in 4.0-lookandfeel branch
