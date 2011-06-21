@@ -1991,7 +1991,7 @@ var WebUI = {
 	},
 	
 	/** ***************** Stretch elemnt height. Must be done via javascript. **************** */
-	stretchHeight : function(elemId) {
+	stretchHeight : function(elemId, delay) {
 		var elem = document.getElementById(elemId);
 		var elemHeight = $(elem).height();
 		var totHeight = 0;
@@ -2001,7 +2001,25 @@ var WebUI = {
 				totHeight += node.offsetHeight;
 			}
 		});
-		$(elem).height($(elem).parent().height() - totHeight);
+		if (delay){
+			$(elem).height($(elem).parent().height() - totHeight - 1, delay);
+		}else{
+			$(elem).height($(elem).parent().height() - totHeight - 1);
+		}
+		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
+			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers 
+			if (elem.scrollWidth > elem.offsetWidth){
+				$(elem).height($(elem).height() - 20);
+				//show hidden vertical scroller if it is again needed after height is decreased.
+				if ($(elem).css('overflow-y') == 'hidden'){
+					if (elem.scrollHeight > elem.offsetHeight){
+						$(elem).css({'overflow-y' : 'auto'});
+					}
+				}
+				return;
+			}
+		}
+		
 	},
 	
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */

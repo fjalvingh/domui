@@ -1284,8 +1284,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Method can be used to stretch height of element to take all available free space in parent container.
 	 */
 	public void stretchHeight() {
-		appendCreateJS("$(document).ready(function() {WebUI.stretchHeight('" + getActualID() + "');});");
-		appendCreateJS("$(window).resize(function() {WebUI.stretchHeight('" + getActualID() + "');});");
+		appendCreateJS("$(document).ready(function() {" + getStretchHeightJS() + "});");
+		appendCreateJS("$(window).resize(function() {" + getStretchHeightJS() + "});");
+	}
+
+	public String getStretchHeightJS() {
+		return getStretchHeightJS(1);
+	}
+
+	public String getStretchHeightJS(int delay) {
+		return "window.setTimeout(\"WebUI.stretchHeight('" + getActualID() + "', 400)\", " + delay + ");";
 	}
 
 	@Override

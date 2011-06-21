@@ -183,6 +183,19 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	}
 
 	/**
+	 * Effect: hide this div by adjusting it's height, ending as a display: none.
+	 * @param javascriptCallback specify callback
+	 */
+	public void slideUp(String javascriptCallback) {
+		if(javascriptCallback == null) {
+			slideUp();
+		}
+		if(internalSetDisplay(DisplayType.NONE)) {
+			appendJavascript("$('#" + getActualID() + "').slideUp({complete: function() {" + javascriptCallback + "}});");
+		}
+	}
+
+	/**
 	 * Redisplay a display: none thing slowly.
 	 */
 	public void slideDown() {

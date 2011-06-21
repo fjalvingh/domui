@@ -27,6 +27,7 @@ package to.etc.domui.component.input;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -40,21 +41,10 @@ import to.etc.webapp.query.*;
  * Created on Aug 3, 2010
  */
 
-public class SimpleLookup<T> extends FloatingWindow {
+public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 	public interface IValueSelected<T> {
 		void valueSelected(T value) throws Exception;
 	}
-	/**
-	 * The result class. For Java classes this usually also defines the metamodel to use; for generic meta this should
-	 * be the value record class type.
-	 */
-	final private Class<T> m_lookupClass;
-
-	/**
-	 * The metamodel to use to handle the data in this class. For Javabean data classes this is automatically
-	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
-	 */
-	final private ClassMetaModel m_metaModel;
 
 	private LookupForm<T> m_externalLookupForm;
 
@@ -100,19 +90,9 @@ public class SimpleLookup<T> extends FloatingWindow {
 	}
 
 	public SimpleLookup(Class<T> lookupClass, ClassMetaModel metaModel) {
-		super(true, null);
-		m_lookupClass = lookupClass;
-		m_metaModel = metaModel != null ? metaModel : MetaManager.findClassMeta(lookupClass);
+		super(lookupClass, metaModel);
 	}
 
-
-	public Class<T> getLookupClass() {
-		return m_lookupClass;
-	}
-
-	public ClassMetaModel getMetaModel() {
-		return m_metaModel;
-	}
 
 	@Override
 	public void createContent() throws Exception {
@@ -133,6 +113,17 @@ public class SimpleLookup<T> extends FloatingWindow {
 		}
 		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(getLookupClass(), getMetaModel());
 
+		if(isUseStretchedLayout()) {
+			lf.setStretchHeightSiblingProvider(new INodeProvider() {
+
+				@Override
+				public NodeBase getNode(NodeBase sender) {
+					return m_result;
+				}
+			});
+		} else {
+			lf.setStretchHeightSiblingProvider(null);
+		}
 		lf.setCollapsed(m_renderAsCollapsed);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		add(lf);
@@ -221,6 +212,9 @@ public class SimpleLookup<T> extends FloatingWindow {
 				}
 			});
 
+			if(isUseStretchedLayout()) {
+				m_result.stretchHeight();
+			}
 			//-- Add the pager,
 			DataPager pg = new DataPager(m_result);
 			add(pg);

@@ -31,9 +31,10 @@ import javax.annotation.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
+import to.etc.domui.component.lookup.ILookupControlInstance.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -128,6 +129,12 @@ public class LookupForm<T> extends Div {
 	 * After collpase action on LookupForm.
 	 */
 	private IClicked<NodeBase> m_onAfterCollapse;
+
+
+	/**
+	 * Handles affected sibling height during collapse / expand actions.
+	 */
+	private INodeProvider m_stretchHeightSiblingProvider;
 
 	/**
 	 * This is the definition for an Item to look up. A list of these
@@ -569,7 +576,19 @@ public class LookupForm<T> extends Div {
 		if((m_content.getDisplay() == DisplayType.NONE))
 			return;
 		//		appendJavascript("$('#" + m_content.getActualID() + "').slideUp();");
-		m_content.slideUp();
+		//We need to recalculate affected sibling height
+		NodeBase sibling = null;
+		if(getStretchHeightSiblingProvider() != null) {
+			sibling = getStretchHeightSiblingProvider().getNode(this);
+		}
+		if(sibling != null) {
+			//To prevent messy transitions, if needed, we restore original sibling height before slideup
+			appendJavascript("var elem = $('#" + sibling.getActualID() + "'); if ($(elem).get(0).scrollHeight > elem.height()) {$(elem).css('height','auto');} ");
+			//As slideup callback, we recalculate sibling height
+			m_content.slideUp(sibling.getStretchHeightJS(1));
+		} else {
+			m_content.slideUp();
+		}
 
 		//		m_content.setDisplay(DisplayType.NONE);
 		m_collapsedPanel = new Div();
@@ -609,6 +628,15 @@ public class LookupForm<T> extends Div {
 
 		m_content.setDisplay(DisplayType.BLOCK);
 		m_collapsed = false;
+
+		//We restore affected sibling height
+		NodeBase sibling = null;
+		if(getStretchHeightSiblingProvider() != null) {
+			sibling = getStretchHeightSiblingProvider().getNode(this);
+		}
+		if(sibling != null) {
+			appendJavascript(sibling.getStretchHeightJS(1));
+		}
 
 		//trigger after restore event is set
 		if(getOnAfterRestore() != null) {
@@ -1325,6 +1353,22 @@ public class LookupForm<T> extends Div {
 	 */
 	public void setOnAfterCollapse(IClicked<NodeBase> onAfterCollapse) {
 		m_onAfterCollapse = onAfterCollapse;
+	}
+
+	public INodeProvider getStretchHeightSiblingProvider() {
+		return m_stretchHeightSiblingProvider;
+	}
+
+	/**
+	 * During collapse and expand of Lookup form, its size is changing dinamically after page is initially rendered.
+	 * That possibly affect height of siblings that are declared as stretchHeight nodes.
+	 * Since siblings can also be created dinamically, we use provider that provides sibling reference in the moment of collapse / expand action is executing.
+	 * Use this method to link provider for affected sibling node which height needs to be recalculated due to collapse/expand operations.
+	 *
+	 * @param provider
+	 */
+	public void setStretchHeightSiblingProvider(INodeProvider provider) {
+		m_stretchHeightSiblingProvider = provider;
 	}
 
 }

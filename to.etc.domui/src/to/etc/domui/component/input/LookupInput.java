@@ -34,6 +34,7 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
@@ -150,6 +151,11 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	 * When we trigger forceRebuild, we can specify reason for this, and use this later to resolve focus after content is re-rendered.
 	 */
 	private RebuildCause m_rebuildCause;
+
+	/**
+	 * Default T. When set, table result would be stretched to use entire available height on FloatingWindow.
+	 */
+	private boolean m_useStretchedLayout = true;
 
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass, (ClassMetaModel) null);
@@ -512,6 +518,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 		}
 
 		m_floater = FloatingWindow.create(this, getLookupTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_LUI_TTL) : getLookupTitle());
+		m_floater.setWidth("740px");
 
 		m_floater.setHeight("90%");
 		m_floater.setIcon("THEME/btnFind.png");
@@ -530,6 +537,17 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			lf = new LookupForm<T>(getLookupClass(), getMetaModel());
 			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
 				lf.setSearchProperties(m_searchPropertyList);
+		}
+
+		if(isUseStretchedLayout()) {
+			lf.setStretchHeightSiblingProvider(new INodeProvider() {
+				@Override
+				public NodeBase getNode(NodeBase sender) {
+					return m_result;
+				}
+			});
+		} else {
+			lf.setStretchHeightSiblingProvider(null);
 		}
 
 		lf.setCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
@@ -598,27 +616,15 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	private void setResultModel(ITableModel<T> model) {
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
-			SimpleRowRenderer<T> rr = null;
-			if(m_resultColumns != null) {
-				rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel(), m_resultColumns);
-			} else {
-				rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel());
-			}
+			m_result = new DataTable<T>(model, createRowRenderer(model));
 
-			m_result = new DataTable<T>(model, rr);
 			m_floater.add(m_result);
 			m_result.setPageSize(20);
 			m_result.setTableWidth("100%");
 
-			rr.setRowClicked(new ICellClicked<T>() {
-				@Override
-				public void cellClicked(NodeBase tr, T val) throws Exception {
-					//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
-					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-					LookupInput.this.toggleFloater(null);
-					handleSetValue(val);
-				}
-			});
+			if(isUseStretchedLayout()) {
+				m_result.stretchHeight();
+			}
 
 			//-- Add the pager,
 			DataPager pg = new DataPager(m_result);
@@ -627,6 +633,27 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			m_result.setModel(model); // Change the model
 		}
 		m_result.setTestID("resultTableLookupInput");
+	}
+
+	private IRowRenderer<T> createRowRenderer(ITableModel<T> model) {
+		SimpleRowRenderer<T> rr = null;
+		if(m_resultColumns != null) {
+			rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel(), m_resultColumns);
+		} else {
+			rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel());
+		}
+
+		rr.setRowClicked(new ICellClicked<T>() {
+			@Override
+			public void cellClicked(NodeBase tr, T val) throws Exception {
+				//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
+				m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+				LookupInput.this.toggleFloater(null);
+				handleSetValue(val);
+			}
+		});
+
+		return rr;
 	}
 
 	public void setHint(String text) {
@@ -1028,5 +1055,24 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			throw new IllegalStateException("m_table is not created yet!");
 		}
 		return m_table.getBody();
+	}
+
+	/**
+	 * Returns T if we are using stretching of result table height to all remained parent height.
+	 */
+	public boolean isUseStretchedLayout() {
+		return m_useStretchedLayout;
+	}
+
+	/**
+	 * Set to F to disable stretching of result table height.
+	 * @param useStretchedLayout
+	 */
+	public void setUseStretchedLayout(boolean value) {
+		boolean changed = m_useStretchedLayout != value;
+		m_useStretchedLayout = value;
+		if(isBuilt() && changed) {
+			forceRebuild();
+		}
 	}
 }
