@@ -398,7 +398,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							// alert('event '+n+' value '+v);
 							// var se = 'function(){'+v+';}';
 							var se;
-							if (v.indexOf('return') != -1)
+							if (v.indexOf('return') != -1 || v.indexOf('javascript:') != -1)
 								se = new Function(v);
 							else
 								se = new Function('return ' + v);
