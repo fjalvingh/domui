@@ -4,14 +4,14 @@ import org.junit.*;
 import org.mozilla.javascript.*;
 
 import to.etc.domui.server.*;
-import to.etc.domui.test.util.*;
+import to.etc.domui.testsupport.*;
 
 public class TestRhino {
 	private DomApplication m_da;
 
 	@Before
 	public void setUp() throws Exception {
-		m_da = DomUITestUtil.getApplication();
+		m_da = TUtilDomUI.getApplication();
 	}
 
 	@Test
