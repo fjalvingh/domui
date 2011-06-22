@@ -1087,7 +1087,7 @@ var WebUI = {
 			}
 		}
 	},
-
+	
 	focus : function(id) {
 		var n = document.getElementById(id);
 		try{
