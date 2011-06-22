@@ -9,9 +9,9 @@ button {
 }
 
 input, textarea, select {
-	border-color:#ABADB3 #BFCDD9 #BFCDD9;
-	border-style:solid;
-	border-width:1px;
+	border-color: #abadb3 #bfcdd9 #bfcdd9;
+	border-style: solid;
+	border-width: 1px;
 	-moz-border-radius: 2px;	
 }
 
@@ -20,10 +20,10 @@ input, textarea {
 }
 
 input:hover, textarea:hover, select:hover {
-	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
+	border-color: #5794bf #d7e8f8 #d7e8f8 #5794bf;
 }
 
 select {
-	background-color:#FFFFFF;
+	background-color: #ffffff;
 }
 
