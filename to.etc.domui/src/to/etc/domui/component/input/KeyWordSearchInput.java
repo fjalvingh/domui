@@ -56,6 +56,8 @@ class KeyWordSearchInput<T> extends Div {
 
 	private Div m_pnlSearchPopup;
 
+	private Integer m_popupWidth;
+
 	public KeyWordSearchInput() {
 		super();
 	}
@@ -202,6 +204,9 @@ class KeyWordSearchInput<T> extends Div {
 			if(m_pnlSearchPopup == null) {
 				m_pnlSearchPopup = new Div();
 				m_pnlSearchPopup.setCssClass("ui-lui-keyword-popup");
+				if(getPopupWidth() != null) {
+					m_pnlSearchPopup.setWidth(getPopupWidth() + "px");
+				}
 				fixZIndex();
 				//increase Z index both for current DIV and popup DIV.
 				//20110304 vmijic - We need to do this in domui.js because bug in IE7. Code remains here commented as illustartion what is done in javascript.
@@ -247,5 +252,13 @@ class KeyWordSearchInput<T> extends Div {
 	 */
 	public void setHint(String hint) {
 		m_keySearch.setTitle(hint);
+	}
+
+	public Integer getPopupWidth() {
+		return m_popupWidth;
+	}
+
+	public void setPopupWidth(Integer popupWidth) {
+		m_popupWidth = popupWidth;
 	}
 }

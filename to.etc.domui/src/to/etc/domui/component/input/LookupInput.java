@@ -128,6 +128,8 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 
 	private String m_keyWordSearchCssClass;
 
+	private Integer m_keyWordSearchPopupWidth;
+
 	/**
 	 * By default set to true.
 	 * Set to false in cases when keyword search functionality should be disabled regardless if metadata for this feature is defined or not.
@@ -321,6 +323,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	private void addKeySearchField(NodeContainer parent, T value) {
 		m_keySearch = new KeyWordSearchInput<T>(m_keyWordSearchCssClass);
 		m_keySearch.setWidth("100%");
+		m_keySearch.setPopupWidth(getKeyWordSearchPopupWidth());
 		KeyWordPopupRowRenderer<T> rr = null;
 		if(m_resultColumns != null) {
 			rr = new KeyWordPopupRowRenderer<T>(getLookupClass(), getMetaModel(), m_resultColumns);
@@ -1043,6 +1046,14 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			throw new IllegalStateException("m_table is not created yet!");
 		}
 		return m_table.getBody();
+	}
+
+	public Integer getKeyWordSearchPopupWidth() {
+		return m_keyWordSearchPopupWidth;
+	}
+
+	public void setKeyWordSearchPopupWidth(Integer keyWordSearchPopupWidth) {
+		m_keyWordSearchPopupWidth = keyWordSearchPopupWidth;
 	}
 
 	/**
