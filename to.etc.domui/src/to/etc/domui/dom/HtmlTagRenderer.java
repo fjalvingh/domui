@@ -606,6 +606,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o.attr("style", s); // Append style
 		if(b.getTestID() != null)
 			o.attr("testid", b.getTestID());
+		if(b.isStretchHeight())
+			o.attr("stretch", "true");
 		if(b.getCssClass() != null)
 			o.attr("class", b.getCssClass());
 		String ttl = b.getTitle();

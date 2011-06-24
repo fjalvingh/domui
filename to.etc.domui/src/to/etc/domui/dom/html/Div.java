@@ -176,43 +176,45 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 
 	/**
 	 * Effect: hide this div by adjusting it's height, ending as a display: none.
+	 * Additional callback javascript is executed after animation is done. @See {@link Div#getCustomUpdatesCallJS()} callback.
 	 */
 	public void slideUp() {
 		if(internalSetDisplay(DisplayType.NONE))
-			appendJavascript("$('#" + getActualID() + "').slideUp();");
+			appendJavascript("$('#" + getActualID() + "').slideUp({complete: function() {" + getCustomUpdatesCallJS() + "}});");
 	}
 
 	/**
-	 * Redisplay a display: none thing slowly.
+	 * Redisplay a display: slideDown thing slowly.
+	 * Additional callback javascript is executed after animation is done. @See {@link Div#getCustomUpdatesCallJS()} callback.
 	 */
 	public void slideDown() {
 		if(internalSetDisplay(DisplayType.BLOCK))
-			appendJavascript("$('#" + getActualID() + "').slideDown();");
+			appendJavascript("$('#" + getActualID() + "').slideDown({complete: function() {" + getCustomUpdatesCallJS() + "}});");
 	}
 
 	/**
 	 * Effect: hide this div by fading out.
+	 * Additional callback javascript is executed after animation is done. @See {@link Div#getCustomUpdatesCallJS()} callback.
 	 */
 	public void fadeOut() {
 		if(internalSetDisplay(DisplayType.NONE))
-			appendJavascript("$('#" + getActualID() + "').fadeOut();");
+			appendJavascript("$('#" + getActualID() + "').fadeOut({complete: function() {" + getCustomUpdatesCallJS() + "}});");
 	}
 
 	/**
-	 * Redisplay a display: none thing slowly.
+	 * Redisplay a display: fadeIn thing slowly.
+	 * Additional callback javascript is executed after animation is done. @See {@link Div#getCustomUpdatesCallJS()} callback.
 	 */
 	public void fadeIn() {
 		if(internalSetDisplay(DisplayType.BLOCK))
-			appendJavascript("$('#" + getActualID() + "').fadeIn();");
+			appendJavascript("$('#" + getActualID() + "').fadeIn({complete: function() {" + getCustomUpdatesCallJS() + "}});");
 	}
 
 	/**
-	 * Redisplay a display: none thing slowly.
+	 * Returns Domui internal javascript call: <I>WebUI.doCustomUpdates();</I>
+	 * @return
 	 */
-	public void fadeIn(int tm) {
-		if(internalSetDisplay(DisplayType.BLOCK))
-			appendJavascript("$('#" + getActualID() + "').fadeIn(" + tm + ");");
+	protected static String getCustomUpdatesCallJS() {
+		return "WebUI.doCustomUpdates();";
 	}
-
-
 }
