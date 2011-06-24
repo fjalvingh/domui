@@ -141,6 +141,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	private StackTraceElement[] m_allocationTracepoint;
 
 	/**
+	 * If marked as stretched, element gets attribute stretched. It would be used on client side to adjust its height to all available space in parent element (what is left when other siblings take their pieces)
+	 */
+	private boolean m_stretchHeight;
+
+	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
 	 * @throws Exception
@@ -1280,20 +1285,29 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
+	 * Returns if node has set stretchHeight
+	 * @return
+	 */
+	public boolean isStretchHeight() {
+		return m_stretchHeight;
+	}
+
+	/**
 	 * EXPERIMENTAL
 	 * Method can be used to stretch height of element to take all available free space in parent container.
+	 * <UL>
+	 * <LI>NOTE: In order to stretchHeight can work, parent container needs to have height defined in some way (works out of box for all FloatingWindow based containers).</LI>
+	 * <LI>In case that stretched node needs to be added directly in (non floating) page, to define page height as 100%, use following snippet inline in page code:
+	 * <BR/><CODE>appendCreateJS("$(document).ready(function() {document.body.parentNode.style.height = '100%'; document.body.style.height = '100%';WebUI.doCustomUpdates();});");</CODE>
+	 * <BR/>Note that triggering of stratch code evaluation needs also to be added inline.
+	 * </LI>
 	 */
-	public void stretchHeight() {
-		appendCreateJS("$(document).ready(function() {" + getStretchHeightJS() + "});");
-		appendCreateJS("$(window).resize(function() {" + getStretchHeightJS() + "});");
-	}
-
-	public String getStretchHeightJS() {
-		return getStretchHeightJS(1);
-	}
-
-	public String getStretchHeightJS(int delay) {
-		return "window.setTimeout(\"WebUI.stretchHeight('" + getActualID() + "', 400)\", " + delay + ");";
+	public void setStretchHeight(boolean value) {
+		if(m_stretchHeight == value) {
+			return;
+		}
+		m_stretchHeight = value;
+		changed();
 	}
 
 	@Override

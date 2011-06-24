@@ -34,7 +34,6 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
@@ -539,17 +538,6 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 				lf.setSearchProperties(m_searchPropertyList);
 		}
 
-		if(isUseStretchedLayout()) {
-			lf.setStretchHeightSiblingProvider(new INodeProvider() {
-				@Override
-				public NodeBase getNode(NodeBase sender) {
-					return m_result;
-				}
-			});
-		} else {
-			lf.setStretchHeightSiblingProvider(null);
-		}
-
 		lf.setCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		m_floater.add(lf);
@@ -623,7 +611,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			m_result.setTableWidth("100%");
 
 			if(isUseStretchedLayout()) {
-				m_result.stretchHeight();
+				m_result.setStretchHeight(true);
 			}
 
 			//-- Add the pager,
@@ -1069,9 +1057,11 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	 * @param useStretchedLayout
 	 */
 	public void setUseStretchedLayout(boolean value) {
-		boolean changed = m_useStretchedLayout != value;
+		if(value == m_useStretchedLayout) {
+			return;
+		}
 		m_useStretchedLayout = value;
-		if(isBuilt() && changed) {
+		if(isBuilt()) {
 			forceRebuild();
 		}
 	}

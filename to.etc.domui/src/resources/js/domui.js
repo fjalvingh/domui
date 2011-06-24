@@ -438,7 +438,6 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	$.fn.fixOverflow = function () {
 		if(! $.browser.msie || $.browser.version.substring(0, 1) != "7")
 			return this;
-//		alert('fixing overflow: '+$.browser.msie+", ver="+$.browser.version);
 
 		return this.each(function () {
 			if (this.scrollWidth > this.offsetWidth) {
@@ -448,6 +447,14 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					$(this).css({ 'overflow-y' : 'hidden' });
 				}
 			}
+		});            
+	};
+})(jQuery);
+
+(function ($) {
+	$.fn.doStretch = function () {
+		return this.each(function () {
+			WebUI.stretchHeight(this.id);
 		});            
 	};
 })(jQuery);
@@ -1991,21 +1998,24 @@ var WebUI = {
 	},
 	
 	/** ***************** Stretch elemnt height. Must be done via javascript. **************** */
-	stretchHeight : function(elemId, delay) {
+	stretchHeight : function(elemId) {
 		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
 		var elemHeight = $(elem).height();
 		var totHeight = 0;
 		$(elem).siblings().each(function(index, node) {
 			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
 			if (node != elem && $(node).css('position') == 'static' && $(node).css('float') == 'none'){
-				totHeight += node.offsetHeight;
+				//In IE7 hidden nodes needs to be addtionaly excluded from count...
+				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
+					//totHeight += node.offsetHeight;
+					totHeight += $(node).height();
+				}
 			}
 		});
-		if (delay){
-			$(elem).height($(elem).parent().height() - totHeight - 1, delay);
-		}else{
-			$(elem).height($(elem).parent().height() - totHeight - 1);
-		}
+		$(elem).height($(elem).parent().height() - totHeight - 1);
 		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
 			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers 
 			if (elem.scrollWidth > elem.offsetWidth){
@@ -2019,7 +2029,6 @@ var WebUI = {
 				return;
 			}
 		}
-		
 	},
 	
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
@@ -2522,17 +2531,27 @@ WebUI.colorPickerChangeEvent = function(id) {
 
 var DomUI = WebUI;
 
+WebUI.doCustomUpdates = function() {
+	$('[stretch=true]').doStretch();
+	$('.ui-dt').fixOverflow();
+};
+
 WebUI.onDocumentReady = function() {
 	WebUI.handleCalendarChanges();
 	if(DomUIDevel)
 		WebUI.handleDevelopmentMode();
-	$(".ui-dt").fixOverflow();
-}
+	WebUI.doCustomUpdates();
+};
+
+WebUI.onWindowResize = function() {
+	WebUI.doCustomUpdates();
+};
 
 $(document).ready(WebUI.onDocumentReady);
+$(window).resize(WebUI.onWindowResize);
 $(document).ajaxComplete( function() {
 	WebUI.handleCalendarChanges();
-	$(".ui-dt").fixOverflow();
+	WebUI.doCustomUpdates();
 });
 
 

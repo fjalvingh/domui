@@ -31,7 +31,6 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.LookupForm.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -125,18 +124,6 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 			}
 		});
 
-		if(isUseStretchedLayout()) {
-			lf.setStretchHeightSiblingProvider(new INodeProvider() {
-
-				@Override
-				public NodeBase getNode(NodeBase sender) {
-					return m_queryResultTable;
-				}
-			});
-		} else {
-			lf.setStretchHeightSiblingProvider(null);
-		}
-
 		lf.setClicked(new IClicked<LookupForm<T>>() {
 			@Override
 			public void clicked(LookupForm<T> b) throws Exception {
@@ -207,7 +194,7 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 			});
 
 			if(isUseStretchedLayout()) {
-				m_queryResultTable.stretchHeight();
+				m_queryResultTable.setStretchHeight(true);
 			}
 
 			//-- Add the pager,

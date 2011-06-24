@@ -27,7 +27,6 @@ package to.etc.domui.component.input;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -113,17 +112,6 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 		}
 		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(getLookupClass(), getMetaModel());
 
-		if(isUseStretchedLayout()) {
-			lf.setStretchHeightSiblingProvider(new INodeProvider() {
-
-				@Override
-				public NodeBase getNode(NodeBase sender) {
-					return m_result;
-				}
-			});
-		} else {
-			lf.setStretchHeightSiblingProvider(null);
-		}
 		lf.setCollapsed(m_renderAsCollapsed);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		add(lf);
@@ -213,7 +201,7 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 			});
 
 			if(isUseStretchedLayout()) {
-				m_result.stretchHeight();
+				m_result.setStretchHeight(true);
 			}
 			//-- Add the pager,
 			DataPager pg = new DataPager(m_result);
