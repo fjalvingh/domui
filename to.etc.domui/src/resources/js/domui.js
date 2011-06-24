@@ -2286,7 +2286,41 @@ var WebUI = {
 			$(elem).hide();			
 			$(elem).show(1); //needs to be done on timeout/animation, otherwise it still fails to recalculate... 
 		}
-	}
+	},
+	
+	//Use this to make sure that item would be visible inside parent scrollable area. It uses scroll animation. In case when item is already in visible part, we just do single blink to gets user attention ;)  
+	scrollMeToTop: function(elemId, selColor, offset) {
+		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
+		var parent = elem.parentNode; 
+		if (!parent){
+			return;
+		}
+		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
+			var elemPos = $(elem).position().top;
+			if (elemPos > 0 && elemPos < parent.offsetHeight){
+				//if elem already visible -> just do one blink
+				if (selColor){
+					var oldColor = $(elem).css('background-color');  
+					$(elem).animate({backgroundColor: selColor}, "slow", function(){$(elem).animate({backgroundColor: oldColor}, "fast");});
+				}
+			}else{
+				//else scroll parent to show me at top
+				var newPos = $(elem).position().top + parent.scrollTop;
+				if($.browser.msie && $.browser.version.substring(0, 1) == "8"){
+					if ($(elem).height() == 0){
+						newPos = newPos - 15; //On IE8 we need this correction :¬|
+					}
+				}
+				if (offset){
+					newPos = newPos - offset;
+				}
+				$(parent).animate({scrollTop: newPos}, 'slow');
+			}
+		}
+	}	
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
