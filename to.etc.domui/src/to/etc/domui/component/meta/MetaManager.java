@@ -478,7 +478,7 @@ final public class MetaManager {
 	 * @param compoundName
 	 * @return
 	 */
-	static public List<PropertyMetaModel< ? >> parsePropertyPath(ClassMetaModel m, String compoundName) {
+	static public List<PropertyMetaModel< ? >> parsePropertyPath(@Nonnull ClassMetaModel m, String compoundName) {
 		int ix = 0;
 		int len = compoundName.length();
 		List<PropertyMetaModel< ? >> res = new ArrayList<PropertyMetaModel< ? >>();
@@ -494,6 +494,8 @@ final public class MetaManager {
 				ix = pos + 1;
 			}
 
+			if(null == cmm)
+				throw new IllegalStateException("Metamodel got null while parsing " + compoundName);
 			PropertyMetaModel< ? > pmm = cmm.findSimpleProperty(name);
 			if(pmm == null)
 				throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_COMPOUND_PROPERTY_NOT_FOUND, compoundName, name, cmm.toString());
