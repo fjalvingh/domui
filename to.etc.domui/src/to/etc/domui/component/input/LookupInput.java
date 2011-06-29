@@ -128,6 +128,8 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 
 	private String m_keyWordSearchCssClass;
 
+	private Integer m_keyWordSearchPopupWidth;
+
 	/**
 	 * By default set to true.
 	 * Set to false in cases when keyword search functionality should be disabled regardless if metadata for this feature is defined or not.
@@ -150,6 +152,11 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	 * When we trigger forceRebuild, we can specify reason for this, and use this later to resolve focus after content is re-rendered.
 	 */
 	private RebuildCause m_rebuildCause;
+
+	/**
+	 * Default T. When set, table result would be stretched to use entire available height on FloatingWindow.
+	 */
+	private boolean m_useStretchedLayout = true;
 
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass, (ClassMetaModel) null);
@@ -316,6 +323,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	private void addKeySearchField(NodeContainer parent, T value) {
 		m_keySearch = new KeyWordSearchInput<T>(m_keyWordSearchCssClass);
 		m_keySearch.setWidth("100%");
+		m_keySearch.setPopupWidth(getKeyWordSearchPopupWidth());
 		KeyWordPopupRowRenderer<T> rr = null;
 		if(m_resultColumns != null) {
 			rr = new KeyWordPopupRowRenderer<T>(getLookupClass(), getMetaModel(), m_resultColumns);
@@ -512,6 +520,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 		}
 
 		m_floater = FloatingWindow.create(this, getLookupTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_LUI_TTL) : getLookupTitle());
+		m_floater.setWidth("740px");
 
 		m_floater.setHeight("90%");
 		m_floater.setIcon("THEME/btnFind.png");
@@ -598,27 +607,15 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	private void setResultModel(ITableModel<T> model) {
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
-			SimpleRowRenderer<T> rr = null;
-			if(m_resultColumns != null) {
-				rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel(), m_resultColumns);
-			} else {
-				rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel());
-			}
+			m_result = new DataTable<T>(model, createRowRenderer(model));
 
-			m_result = new DataTable<T>(model, rr);
 			m_floater.add(m_result);
 			m_result.setPageSize(20);
 			m_result.setTableWidth("100%");
 
-			rr.setRowClicked(new ICellClicked<T>() {
-				@Override
-				public void cellClicked(NodeBase tr, T val) throws Exception {
-					//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
-					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-					LookupInput.this.toggleFloater(null);
-					handleSetValue(val);
-				}
-			});
+			if(isUseStretchedLayout()) {
+				m_result.setStretchHeight(true);
+			}
 
 			//-- Add the pager,
 			DataPager pg = new DataPager(m_result);
@@ -627,6 +624,27 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			m_result.setModel(model); // Change the model
 		}
 		m_result.setTestID("resultTableLookupInput");
+	}
+
+	private IRowRenderer<T> createRowRenderer(ITableModel<T> model) {
+		SimpleRowRenderer<T> rr = null;
+		if(m_resultColumns != null) {
+			rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel(), m_resultColumns);
+		} else {
+			rr = new SimpleRowRenderer<T>(getLookupClass(), getMetaModel());
+		}
+
+		rr.setRowClicked(new ICellClicked<T>() {
+			@Override
+			public void cellClicked(NodeBase tr, T val) throws Exception {
+				//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
+				m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+				LookupInput.this.toggleFloater(null);
+				handleSetValue(val);
+			}
+		});
+
+		return rr;
 	}
 
 	public void setHint(String text) {
@@ -1028,5 +1046,34 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			throw new IllegalStateException("m_table is not created yet!");
 		}
 		return m_table.getBody();
+	}
+
+	public Integer getKeyWordSearchPopupWidth() {
+		return m_keyWordSearchPopupWidth;
+	}
+
+	public void setKeyWordSearchPopupWidth(Integer keyWordSearchPopupWidth) {
+		m_keyWordSearchPopupWidth = keyWordSearchPopupWidth;
+	}
+
+	/**
+	 * Returns T if we are using stretching of result table height to all remained parent height.
+	 */
+	public boolean isUseStretchedLayout() {
+		return m_useStretchedLayout;
+	}
+
+	/**
+	 * Set to F to disable stretching of result table height.
+	 * @param useStretchedLayout
+	 */
+	public void setUseStretchedLayout(boolean value) {
+		if(value == m_useStretchedLayout) {
+			return;
+		}
+		m_useStretchedLayout = value;
+		if(isBuilt()) {
+			forceRebuild();
+		}
 	}
 }

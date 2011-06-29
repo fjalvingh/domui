@@ -438,7 +438,6 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	$.fn.fixOverflow = function () {
 		if(! $.browser.msie || $.browser.version.substring(0, 1) != "7")
 			return this;
-//		alert('fixing overflow: '+$.browser.msie+", ver="+$.browser.version);
 
 		return this.each(function () {
 			if (this.scrollWidth > this.offsetWidth) {
@@ -448,6 +447,14 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					$(this).css({ 'overflow-y' : 'hidden' });
 				}
 			}
+		});            
+	};
+})(jQuery);
+
+(function ($) {
+	$.fn.doStretch = function () {
+		return this.each(function () {
+			WebUI.stretchHeight(this.id);
 		});            
 	};
 })(jQuery);
@@ -1087,7 +1094,7 @@ var WebUI = {
 			}
 		}
 	},
-
+	
 	focus : function(id) {
 		var n = document.getElementById(id);
 		try{
@@ -1993,15 +2000,35 @@ var WebUI = {
 	/** ***************** Stretch elemnt height. Must be done via javascript. **************** */
 	stretchHeight : function(elemId) {
 		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
 		var elemHeight = $(elem).height();
 		var totHeight = 0;
 		$(elem).siblings().each(function(index, node) {
 			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
 			if (node != elem && $(node).css('position') == 'static' && $(node).css('float') == 'none'){
-				totHeight += node.offsetHeight;
+				//In IE7 hidden nodes needs to be addtionaly excluded from count...
+				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
+					//totHeight += node.offsetHeight;
+					totHeight += $(node).height();
+				}
 			}
 		});
-		$(elem).height($(elem).parent().height() - totHeight);
+		$(elem).height($(elem).parent().height() - totHeight - 1);
+		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
+			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers 
+			if (elem.scrollWidth > elem.offsetWidth){
+				$(elem).height($(elem).height() - 20);
+				//show hidden vertical scroller if it is again needed after height is decreased.
+				if ($(elem).css('overflow-y') == 'hidden'){
+					if (elem.scrollHeight > elem.offsetHeight){
+						$(elem).css({'overflow-y' : 'auto'});
+					}
+				}
+				return;
+			}
+		}
 	},
 	
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
@@ -2259,7 +2286,41 @@ var WebUI = {
 			$(elem).hide();			
 			$(elem).show(1); //needs to be done on timeout/animation, otherwise it still fails to recalculate... 
 		}
-	}
+	},
+	
+	//Use this to make sure that item would be visible inside parent scrollable area. It uses scroll animation. In case when item is already in visible part, we just do single blink to gets user attention ;)  
+	scrollMeToTop: function(elemId, selColor, offset) {
+		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
+		var parent = elem.parentNode; 
+		if (!parent){
+			return;
+		}
+		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
+			var elemPos = $(elem).position().top;
+			if (elemPos > 0 && elemPos < parent.offsetHeight){
+				//if elem already visible -> just do one blink
+				if (selColor){
+					var oldColor = $(elem).css('background-color');  
+					$(elem).animate({backgroundColor: selColor}, "slow", function(){$(elem).animate({backgroundColor: oldColor}, "fast");});
+				}
+			}else{
+				//else scroll parent to show me at top
+				var newPos = $(elem).position().top + parent.scrollTop;
+				if($.browser.msie && $.browser.version.substring(0, 1) == "8"){
+					if ($(elem).height() == 0){
+						newPos = newPos - 15; //On IE8 we need this correction :¬|
+					}
+				}
+				if (offset){
+					newPos = newPos - offset;
+				}
+				$(parent).animate({scrollTop: newPos}, 'slow');
+			}
+		}
+	}	
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
@@ -2504,17 +2565,27 @@ WebUI.colorPickerChangeEvent = function(id) {
 
 var DomUI = WebUI;
 
+WebUI.doCustomUpdates = function() {
+	$('[stretch=true]').doStretch();
+	$('.ui-dt').fixOverflow();
+};
+
 WebUI.onDocumentReady = function() {
 	WebUI.handleCalendarChanges();
 	if(DomUIDevel)
 		WebUI.handleDevelopmentMode();
-	$(".ui-dt").fixOverflow();
-}
+	WebUI.doCustomUpdates();
+};
+
+WebUI.onWindowResize = function() {
+	WebUI.doCustomUpdates();
+};
 
 $(document).ready(WebUI.onDocumentReady);
+$(window).resize(WebUI.onWindowResize);
 $(document).ajaxComplete( function() {
 	WebUI.handleCalendarChanges();
-	$(".ui-dt").fixOverflow();
+	WebUI.doCustomUpdates();
 });
 
 

@@ -39,6 +39,7 @@ import to.etc.domui.util.*;
  * Created on 26 Oct 2009
  */
 public class MultipleSelectionDataTable<T> extends DataTable<T> {
+
 	public MultipleSelectionDataTable(@Nonnull Class<T> dataClass, @Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m, r);
 	}
@@ -76,7 +77,9 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			tr.setCssClass("ui-dt-hdr");
 			hd.add(tr);
 			hc.setParent(tr);
-			hc.add(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
+			Img selImg = new Img("THEME/dspcb-on.png");
+			selImg.setTitle(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
+			hc.add(selImg);
 			getRowRenderer().renderHeader(this, hc);
 			getTable().add(hd);
 
@@ -283,5 +286,4 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 	public void setSelectionColTitle(String selectionColTitle) {
 		m_selectionColTitle = selectionColTitle;
 	}
-
 }

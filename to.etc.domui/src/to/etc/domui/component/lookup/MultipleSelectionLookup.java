@@ -29,7 +29,7 @@ import java.util.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.LookupForm.ButtonMode;
+import to.etc.domui.component.lookup.LookupForm.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
@@ -43,16 +43,8 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 27 Oct 2009
  */
-public class MultipleSelectionLookup<T> extends FloatingWindow {
+public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 	static final private int WIDTH = 740;
-
-	private Class<T> m_lookupClass;
-
-	/**
-	 * The metamodel to use to handle the data in this class. For Javabean data classes this is automatically
-	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
-	 */
-	final private ClassMetaModel m_metaModel;
 
 	private LookupForm<T> m_externalLookupForm;
 
@@ -73,10 +65,7 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 	private boolean m_allowEmptyQuery;
 
 	public MultipleSelectionLookup(Class<T> lookupClass, ClassMetaModel metaModel, boolean isModal, String title, IMultiSelectionResult<T> onReceiveResult) {
-		super(isModal, title);
-		m_lookupClass = lookupClass;
-		m_metaModel = metaModel != null ? metaModel : MetaManager.findClassMeta(lookupClass);
-		m_lookupClass = lookupClass;
+		super(isModal, title, lookupClass, metaModel);
 		setCssClass("ui-fw");
 		//		m_selectionResult = new ArrayList<T>();
 		if(getWidth() == null) {
@@ -188,11 +177,11 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 				@Override
 				public int getSelectionColWidth() {
-					return 50;
+					return 20;
 				}
 			};
 
-			m_queryResultTable = new MultipleSelectionDataTable<T>(m_lookupClass, model, rr);
+			m_queryResultTable = new MultipleSelectionDataTable<T>(getLookupClass(), model, rr);
 			add(m_queryResultTable);
 			m_queryResultTable.setPageSize(10);
 			m_queryResultTable.setTableWidth("100%");
@@ -203,6 +192,10 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 					m_queryResultTable.handleRowClicked(tr, val);
 				}
 			});
+
+			if(isUseStretchedLayout()) {
+				m_queryResultTable.setStretchHeight(true);
+			}
 
 			//-- Add the pager,
 			DataPager pg = new DataPager(m_queryResultTable);
@@ -257,14 +250,6 @@ public class MultipleSelectionLookup<T> extends FloatingWindow {
 
 	public void setQueryManipulator(IQueryManipulator<T> queryManipulator) {
 		m_queryManipulator = queryManipulator;
-	}
-
-	public Class<T> getLookupClass() {
-		return m_lookupClass;
-	}
-
-	public ClassMetaModel getMetaModel() {
-		return m_metaModel;
 	}
 
 	/**
