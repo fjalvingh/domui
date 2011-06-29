@@ -207,9 +207,9 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							if (n == 'style') { // IE workaround
 								dest.style.cssText = v;
 								dest.setAttribute(n, v);
-								//We need this dirty fix for IE7 to force refresh of divs that has just become visible.
+								//We need this dirty fix for IE7 to force height recalculation of divs that has just become visible (IE7 sometimes fails to calculate height that stays 0!).
 								if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
-									if ((dest.tagName.toLowerCase() == 'div') && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))){
+									if ((dest.tagName.toLowerCase() == 'div' && $(dest).height() == 0) && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))){
 										WebUI.refreshElement(dest.id);
 									}
 								}								
@@ -398,7 +398,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							// alert('event '+n+' value '+v);
 							// var se = 'function(){'+v+';}';
 							var se;
-							if (v.indexOf('return') != -1)
+							if (v.indexOf('return') != -1 || v.indexOf('javascript:') != -1)
 								se = new Function(v);
 							else
 								se = new Function('return ' + v);
@@ -438,7 +438,6 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	$.fn.fixOverflow = function () {
 		if(! $.browser.msie || $.browser.version.substring(0, 1) != "7")
 			return this;
-//		alert('fixing overflow: '+$.browser.msie+", ver="+$.browser.version);
 
 		return this.each(function () {
 			if (this.scrollWidth > this.offsetWidth) {
@@ -448,6 +447,14 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					$(this).css({ 'overflow-y' : 'hidden' });
 				}
 			}
+		});            
+	};
+})(jQuery);
+
+(function ($) {
+	$.fn.doStretch = function () {
+		return this.each(function () {
+			WebUI.stretchHeight(this.id);
 		});            
 	};
 })(jQuery);
@@ -1087,12 +1094,13 @@ var WebUI = {
 			}
 		}
 	},
-
+	
 	focus : function(id) {
 		var n = document.getElementById(id);
 		try{
 			if (n)
-				n.focus();
+				setTimeout(function() { try { n.focus();} catch (e) { /*just ignore */ } }, 100); //Due to IE bug, we need to set focus on timeout :( See http://www.mkyong.com/javascript/focus-is-not-working-in-ie-solution/    				
+				//n.focus();
 		} catch (e) {
 			//just ignore
 		}
@@ -1992,15 +2000,35 @@ var WebUI = {
 	/** ***************** Stretch elemnt height. Must be done via javascript. **************** */
 	stretchHeight : function(elemId) {
 		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
 		var elemHeight = $(elem).height();
 		var totHeight = 0;
 		$(elem).siblings().each(function(index, node) {
 			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
 			if (node != elem && $(node).css('position') == 'static' && $(node).css('float') == 'none'){
-				totHeight += node.offsetHeight;
+				//In IE7 hidden nodes needs to be addtionaly excluded from count...
+				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
+					//totHeight += node.offsetHeight;
+					totHeight += $(node).height();
+				}
 			}
 		});
-		$(elem).height($(elem).parent().height() - totHeight);
+		$(elem).height($(elem).parent().height() - totHeight - 1);
+		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
+			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers 
+			if (elem.scrollWidth > elem.offsetWidth){
+				$(elem).height($(elem).height() - 20);
+				//show hidden vertical scroller if it is again needed after height is decreased.
+				if ($(elem).css('overflow-y') == 'hidden'){
+					if (elem.scrollHeight > elem.offsetHeight){
+						$(elem).css({'overflow-y' : 'auto'});
+					}
+				}
+				return;
+			}
+		}
 	},
 	
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
@@ -2251,14 +2279,48 @@ var WebUI = {
 		}
 	},
 
-	//By switching element height we force browser to repaint element. This must be done to fix some IE7 missbehaviors.   
+	//We need to re-show element to force IE7 browser to recalculate correct height of element. This must be done to fix some IE7 missbehaviors.   
 	refreshElement: function(id) {
 		var elem = document.getElementById(id);
-		var oldHeight = $(elem).height(); 
-		$(elem).height('1');
-		$(elem).height(oldHeight);
-	}	
+		if (elem){
+			$(elem).hide();			
+			$(elem).show(1); //needs to be done on timeout/animation, otherwise it still fails to recalculate... 
+		}
+	},
 	
+	//Use this to make sure that item would be visible inside parent scrollable area. It uses scroll animation. In case when item is already in visible part, we just do single blink to gets user attention ;)  
+	scrollMeToTop: function(elemId, selColor, offset) {
+		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
+		var parent = elem.parentNode; 
+		if (!parent){
+			return;
+		}
+		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
+			var elemPos = $(elem).position().top;
+			if (elemPos > 0 && elemPos < parent.offsetHeight){
+				//if elem already visible -> just do one blink
+				if (selColor){
+					var oldColor = $(elem).css('background-color');  
+					$(elem).animate({backgroundColor: selColor}, "slow", function(){$(elem).animate({backgroundColor: oldColor}, "fast");});
+				}
+			}else{
+				//else scroll parent to show me at top
+				var newPos = $(elem).position().top + parent.scrollTop;
+				if($.browser.msie && $.browser.version.substring(0, 1) == "8"){
+					if ($(elem).height() == 0){
+						newPos = newPos - 15; //On IE8 we need this correction :¬|
+					}
+				}
+				if (offset){
+					newPos = newPos - offset;
+				}
+				$(parent).animate({scrollTop: newPos}, 'slow');
+			}
+		}
+	}	
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
@@ -2503,17 +2565,27 @@ WebUI.colorPickerChangeEvent = function(id) {
 
 var DomUI = WebUI;
 
+WebUI.doCustomUpdates = function() {
+	$('[stretch=true]').doStretch();
+	$('.ui-dt').fixOverflow();
+};
+
 WebUI.onDocumentReady = function() {
 	WebUI.handleCalendarChanges();
 	if(DomUIDevel)
 		WebUI.handleDevelopmentMode();
-	$(".ui-dt").fixOverflow();
-}
+	WebUI.doCustomUpdates();
+};
+
+WebUI.onWindowResize = function() {
+	WebUI.doCustomUpdates();
+};
 
 $(document).ready(WebUI.onDocumentReady);
+$(window).resize(WebUI.onWindowResize);
 $(document).ajaxComplete( function() {
 	WebUI.handleCalendarChanges();
-	$(".ui-dt").fixOverflow();
+	WebUI.doCustomUpdates();
 });
 
 

@@ -31,7 +31,7 @@ import javax.annotation.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
+import to.etc.domui.component.lookup.ILookupControlInstance.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.css.*;
@@ -128,6 +128,7 @@ public class LookupForm<T> extends Div {
 	 * After collpase action on LookupForm.
 	 */
 	private IClicked<NodeBase> m_onAfterCollapse;
+
 
 	/**
 	 * This is the definition for an Item to look up. A list of these
@@ -568,10 +569,8 @@ public class LookupForm<T> extends Div {
 	void collapse() throws Exception {
 		if((m_content.getDisplay() == DisplayType.NONE))
 			return;
-		//		appendJavascript("$('#" + m_content.getActualID() + "').slideUp();");
-		m_content.slideUp();
 
-		//		m_content.setDisplay(DisplayType.NONE);
+		m_content.slideUp();
 		m_collapsedPanel = new Div();
 		m_collapsedPanel.setCssClass("ui-lf-coll");
 		add(m_collapsedPanel);
@@ -1326,5 +1325,4 @@ public class LookupForm<T> extends Div {
 	public void setOnAfterCollapse(IClicked<NodeBase> onAfterCollapse) {
 		m_onAfterCollapse = onAfterCollapse;
 	}
-
 }
