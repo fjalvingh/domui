@@ -52,8 +52,7 @@ public abstract class AbstractCharter implements ICharterHelper {
 
 	private List<ChartField> m_chartDataElements;
 
-	private static final Paint[] AVAILABLE_PAINTS = new Paint[]{Color.yellow, Color.red, Color.green, Color.blue, Color.PINK};
-
+	private static final Color[] AVAILABLE_PAINTS = new Color[]{Color.yellow, Color.red, Color.green, Color.blue, Color.DARK_GRAY, Color.MAGENTA, Color.CYAN};
 
 	public AbstractCharter(JGraphChartSource source, String title, int width, int height) {
 		super();
@@ -87,7 +86,12 @@ public abstract class AbstractCharter implements ICharterHelper {
 	protected Paint[] selectPaints() {
 		Paint[] resultSet = new Paint[m_chartDataElements.size()];
 		for(int i = 0; i < m_chartDataElements.size(); i++) {
-			resultSet[i] = AVAILABLE_PAINTS[new Random().nextInt(AVAILABLE_PAINTS.length)];
+			int paintIndex = i % AVAILABLE_PAINTS.length;
+			Color paint = AVAILABLE_PAINTS[paintIndex];
+			for(int j = 0; j < i / AVAILABLE_PAINTS.length; j++) {
+				paint = paint.darker();
+			}
+			resultSet[i] = paint;
 		}
 		return resultSet;
 	}
