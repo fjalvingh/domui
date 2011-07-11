@@ -202,4 +202,9 @@ public class AreaCharter implements ICharterHelper {
 		AxisChart c = new AxisChart(ds, m_properties, m_axisProperties, m_legendProperties, m_width, m_height);
 		m_source.setChart(c);
 	}
+
+	@Override
+	public void addChartField(ChartField element) {
+		// TODO(nmaksimovic) Integrate with the rest of the charts.
+	}
 }
