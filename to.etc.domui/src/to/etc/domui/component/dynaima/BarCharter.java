@@ -27,7 +27,7 @@ public class BarCharter extends AbstractCharter {
 
 	@Override
 	public void finish() throws Exception {
-		double[][] data = getDataAsMatrix(getChartDataValues());
+		double[][] data = getChartDataAsMatrix();
 		String[] axisLabels = {" "};
 		DataSeries ds = new DataSeries(axisLabels, m_bucketTitle, m_valueTitle, m_title);
 
@@ -37,10 +37,11 @@ public class BarCharter extends AbstractCharter {
 		m_source.setChart(c);
 	}
 
-	private double[][] getDataAsMatrix(double[] original){
+	private double[][] getChartDataAsMatrix() {
+		double[] original = getChartDataValues();
 		double[][] result = new double[original.length][1];
-		for(int i = 0; i < getChartDataValues().length; i++) {
-			result[i][0] = getChartDataValues()[i];
+		for(int i = 0; i < original.length; i++) {
+			result[i][0] = original[i];
 		}
 		return result;
 	}
