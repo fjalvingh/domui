@@ -477,8 +477,9 @@ public class OptimalDeltaRenderer {
 	 * @param nc
 	 */
 	private void doContainerChildren(NodeInfo nodeInfo, NodeContainer nc) throws Exception {
-		for(int i = 0, len = nc.getChildCount(); i < len; i++) {
-			NodeBase n = nc.getChild(i);
+		List<NodeBase> chl = nc.internalGetChildren();
+		for(int i = 0, len = chl.size(); i < len; i++) {
+			NodeBase n = chl.get(i);
 			if(n instanceof NodeContainer) {
 				doBase(nodeInfo, n);
 				doContainer(nodeInfo, (NodeContainer) n);
@@ -747,7 +748,7 @@ public class OptimalDeltaRenderer {
 		for(NodeBase nb : ni.addList) {
 			if(nb.m_origNewIndex == 0)
 				continue;
-			NodeBase pre = nc.getChild(nb.m_origNewIndex - 1);
+			NodeBase pre = nc.internalGetChildren().get(nb.m_origNewIndex - 1);
 			if(pre instanceof TextNode) {
 				ni.setFullRerender();
 				if(DEBUG)

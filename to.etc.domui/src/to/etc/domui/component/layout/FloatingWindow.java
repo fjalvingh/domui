@@ -36,7 +36,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 30, 2008
  */
-public class FloatingWindow extends Div {
+public class FloatingWindow extends Div implements IFloating {
 	private boolean m_modal;
 
 	private NodeContainer m_titleBar;
@@ -91,7 +91,7 @@ public class FloatingWindow extends Div {
 		UrlPage body = parent.getPage().getBody();
 		FloatingWindow w = new FloatingWindow(modal, ttl); // Create instance
 		//vmijic 20091125 - in case of cascading floating windows, z-index higher than one from parent floating window must be set.
-		FloatingWindow parentFloatingWindow = parent.getParent(FloatingWindow.class);
+		IFloating parentFloatingWindow = parent.getParent(IFloating.class);
 		if(parentFloatingWindow != null) {
 			w.setZIndex(parentFloatingWindow.getZIndex() + 100);
 		}
@@ -352,19 +352,29 @@ public class FloatingWindow extends Div {
 	}
 
 	/**
-	 * This links this floater as a "modal" window to the page specified by the base node.
-	 * @param parent
+	 * Returns T if this is a MODAL window, obscuring windows it is on top of.
+	 * @see to.etc.domui.component.layout.IFloating#isModal()
 	 */
-	public void linkToPageModally(NodeBase parent) {
-		//-- 1. Add a DIV obscuring all other input.
-		Div hider = new Div();
-		hider.setCssClass("ui-fw-hider");
-		UrlPage body = parent.getPage().getBody();
-		body.add(hider);
-
-		//-- 2. Add the floater @zIndex=100
-		body.add(this);
+	@Override
+	public boolean isModal() {
+		return m_modal;
 	}
+
+	//
+	//	/**
+	//	 * This links this floater as a "modal" window to the page specified by the base node.
+	//	 * @param parent
+	//	 */
+	//	public void linkToPageModally(NodeBase parent) {
+	//		//-- 1. Add a DIV obscuring all other input.
+	//		Div hider = new Div();
+	//		hider.setCssClass("ui-fw-hider");
+	//		UrlPage body = parent.getPage().getBody();
+	//		body.add(hider);
+	//
+	//		//-- 2. Add the floater @zIndex=100
+	//		body.add(this);
+	//	}
 
 
 }
