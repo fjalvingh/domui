@@ -776,10 +776,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	@Override
 	final protected void internalCreateFrame() {
-		NodeContainer old = m_delegate;
+		//		NodeContainer old = m_delegate;
 		m_delegate = null;
 		createFrame();
-		m_delegate = old;
+		//		m_delegate = old;
 	}
 
 	/**

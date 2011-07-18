@@ -2,7 +2,9 @@ package to.etc.domui.component.layout;
 
 import javax.annotation.*;
 
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * The base class for all floating thingeries (new style).
@@ -67,10 +69,28 @@ public class FloatingDiv extends Div implements IAddToBody {
 	@Override
 	protected void beforeCreateContent() {
 		super.beforeCreateContent();
+		setCssClass("ui-flw");
+
+		if(getWidth() == null) // Should not be possible.
+			setWidth("640px");
+		if(getHeight() == null) // Should not be possible
+			setHeight("400px");
+		if(getZIndex() <= 0) { // Should not be possible.
+			setZIndex(100);
+		}
+		if(getTestID() == null) {
+			setTestID("popup_" + getZIndex());
+		}
+		setPosition(PositionType.FIXED);
+		int width = DomUtil.pixelSize(getWidth());
+		if(-1 == width)
+			throw new IllegalStateException("Bad width!");
+
+		// center floating window horizontally on screen
+		setMarginLeft("-" + width / 2 + "px");
 
 		//-- If this is resizable add the resizable() thing to the create javascript.
 		if(isResizable())
 			appendCreateJS("$('#" + getActualID() + "').resizable({minHeight: 256, minWidth: 256});");
 	}
-
 }

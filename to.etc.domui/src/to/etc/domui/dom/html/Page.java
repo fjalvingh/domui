@@ -436,7 +436,7 @@ final public class Page implements IQContextContainer {
 		if(window.isModal()) {
 			Div hider = new Div();
 			getBody().add(hider);
-			hider.setCssClass("ui-fw-hider");
+			hider.setCssClass("ui-flw-hider");
 			hider.setZIndex(zindex - 1); // Just below the new floater.
 			window.internalSetHider(hider);
 		}
