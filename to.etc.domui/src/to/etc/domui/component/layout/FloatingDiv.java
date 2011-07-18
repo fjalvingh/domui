@@ -91,6 +91,6 @@ public class FloatingDiv extends Div implements IAddToBody {
 
 		//-- If this is resizable add the resizable() thing to the create javascript.
 		if(isResizable())
-			appendCreateJS("$('#" + getActualID() + "').resizable({minHeight: 256, minWidth: 256});");
+			appendCreateJS("$('#" + getActualID() + "').resizable({minHeight: 256, minWidth: 256, resize: WebUI.floatingDivResize });");
 	}
 }
