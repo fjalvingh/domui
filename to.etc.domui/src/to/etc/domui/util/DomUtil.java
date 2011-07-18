@@ -1423,4 +1423,27 @@ final public class DomUtil {
 			return x.getStackTrace();
 		}
 	}
+
+
+	static private String m_lorem;
+
+	/**
+	 * Return a large string containing lorum ipsum text, for testing purposes.
+	 * @return
+	 * @throws Exception
+	 */
+	static public String getLorem() throws Exception {
+		if(null == m_lorem) {
+			InputStream is = DomUtil.class.getResourceAsStream("lorem.txt");
+			try {
+				m_lorem = FileTool.readStreamAsString(is, "utf-8");
+			} finally {
+				try {
+					is.close();
+				} catch(Exception x) {}
+			}
+		}
+		return m_lorem;
+	}
+
 }

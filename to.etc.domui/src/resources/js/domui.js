@@ -455,7 +455,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	$.fn.doStretch = function () {
 		return this.each(function () {
 			WebUI.stretchHeight(this.id);
-		});            
+		});
 	};
 })(jQuery);
 
@@ -2576,6 +2576,12 @@ WebUI.onDocumentReady = function() {
 		WebUI.handleDevelopmentMode();
 	WebUI.doCustomUpdates();
 };
+
+WebUI.floatingDivResize = function(ev, ui) {
+	$('[stretch=true]').doStretch();
+	$('.ui-dt').fixOverflow();
+};
+
 
 WebUI.onWindowResize = function() {
 	WebUI.doCustomUpdates();
