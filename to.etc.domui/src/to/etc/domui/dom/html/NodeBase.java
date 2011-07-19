@@ -625,7 +625,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * This method is a placeholder for NodeContainer which allows it to handle
 	 * framed windows somehow.
 	 */
-	protected void internalCreateFrame() {}
+	protected void internalCreateFrame() throws Exception {}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple other getter and setter like stuff.			*/

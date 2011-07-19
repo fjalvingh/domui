@@ -6,6 +6,14 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
+/**
+ * This is a basic floating window, with a title area, optional fixed content area's
+ * at the top and the bottom, and a scrollable content area in between. It has only
+ * presentational characteristics, no logic.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jul 19, 2011
+ */
 public class Window extends FloatingDiv {
 	/** The container holding this dialog's title bar. This is also the drag source. */
 	private NodeContainer m_titleBar;
@@ -17,6 +25,7 @@ public class Window extends FloatingDiv {
 	@Nullable
 	private String m_windowTitle;
 
+	/** When T the window has a close button in it's title bar. */
 	private boolean m_closable = true;
 
 	/** The close button in the title bar. */
@@ -25,12 +34,23 @@ public class Window extends FloatingDiv {
 	/** If present, an image to use as the icon inside the title bar. */
 	private Img m_titleIcon;
 
+	/** A handler to call when the window is closed. This is only called if the window is closed by a user action, not when the window is closed by code (by calling {@link #close()}). */
 	private IClicked<NodeBase> m_onClose;
 
+	/** The optional area just above the content area which remains fixed when the content area scrolls. */
 	private Div m_topContent;
 
+	/** The optional area just below the content area which remains fixed when the content area scrolls. */
 	private Div m_bottomContent;
 
+	/**
+	 * Full constructor: create a window and be able to set all options at once.
+	 * @param modal			T for a modal window.
+	 * @param resizable		T for a window that can be resized by the user.
+	 * @param width			The window width in pixels.
+	 * @param height		The window height in pixels.
+	 * @param title			The window title (or null if no title is required)
+	 */
 	public Window(boolean modal, boolean resizable, int width, int height, @Nullable String title) {
 		super(modal, resizable, width, height);
 		if(null != title)
@@ -38,11 +58,34 @@ public class Window extends FloatingDiv {
 		init();
 	}
 
-	public Window(String title) {
-		super(true, false);
+	/**
+	 * Create a window of default size, with a specified title, modality and resizability.
+	 * @param modal
+	 * @param resizable
+	 * @param title
+	 */
+	public Window(boolean modal, boolean resizable, String title) {
+		super(modal, resizable);
 		if(null != title)
 			setWindowTitle(title);
 		init();
+	}
+
+	/**
+	 * Create a modal window with the specified title and resizable option.
+	 * @param resizable
+	 * @param title
+	 */
+	public Window(boolean resizable, String title) {
+		this(true, resizable, title);
+	}
+
+	/**
+	 * Create a modal, non-resizable window with the specified title.
+	 * @param title
+	 */
+	public Window(String title) {
+		this(true, false, title);
 	}
 
 	private void init() {
@@ -62,7 +105,7 @@ public class Window extends FloatingDiv {
 	 * @see to.etc.domui.dom.html.NodeContainer#createFrame()
 	 */
 	@Override
-	protected void createFrame() {
+	protected void createFrame() throws Exception {
 		m_titleBar = new Div();
 		add(m_titleBar);
 		createTitleBar();
@@ -128,7 +171,8 @@ public class Window extends FloatingDiv {
 	/*	CODING:	Window events.										*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Close the window !AND CALL THE CLOSE HANDLER!.
+	 * Close the window !AND CALL THE CLOSE HANDLER!. To close the window without calling
+	 * the close handler use {@link #close()}.
 	 *
 	 * @throws Exception
 	 */
@@ -139,7 +183,8 @@ public class Window extends FloatingDiv {
 	}
 
 	/**
-	 * Close this floater and cause it to be destroyed from the UI.
+	 * Close this floater and cause it to be destroyed from the UI without calling the
+	 * close handler. To call the close handler use {@link #closePressed()}.
 	 */
 	public void close() {
 		remove();
@@ -150,7 +195,8 @@ public class Window extends FloatingDiv {
 	/*	CODING:	Properties.											*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Returns T if the window can be closed using a close button on the title bar.
+	 * When set to TRUE, the floater will display a close button on it's title bar, and will close
+	 * if that thingy is pressed.
 	 * @return
 	 */
 	public boolean isClosable() {
@@ -169,7 +215,9 @@ public class Window extends FloatingDiv {
 	}
 
 	/**
-	 * Get the current "onClose" handler.
+	 * Get the current "onClose" handler: a handler to call when the window is closed. This is
+	 * only called if the window is closed by a user action, not when the window is closed by
+	 * code (by calling {@link #close()}).
 	 * @return
 	 */
 	public IClicked<NodeBase> getOnClose() {
@@ -177,8 +225,9 @@ public class Window extends FloatingDiv {
 	}
 
 	/**
-	 * Set a Clicked handler to be called when this floater is closed by it's close button. This does <i>not</i> get
-	 * called when the floater is closed programmatically (i.e. when close() is called).
+	 * Set the current "onClose" handler: a handler to call when the window is closed. This is
+	 * only called if the window is closed by a user action, not when the window is closed by
+	 * code (by calling {@link #close()}).
 	 *
 	 * @param onClose
 	 */
@@ -215,10 +264,22 @@ public class Window extends FloatingDiv {
 		createIcon().setSrc(ico);
 	}
 
+	/**
+	 * Return the div that is the bottom content area. Before it can be used it's heigth <b>must</b> be set
+	 * manually to a size in pixels. This allows the Javascript layout calculator to calculate the size of
+	 * the content area. After setting the height any content can be added here.
+	 * @return
+	 */
 	public Div getBottomContent() {
 		return m_bottomContent;
 	}
 
+	/**
+	 * Return the div that is the top content area. Before it can be used it's heigth <b>must</b> be set
+	 * manually to a size in pixels. This allows the Javascript layout calculator to calculate the size of
+	 * the content area. After setting the height any content can be added here.
+	 * @return
+	 */
 	public Div getTopContent() {
 		return m_topContent;
 	}

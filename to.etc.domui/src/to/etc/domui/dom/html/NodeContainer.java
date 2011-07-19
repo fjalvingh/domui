@@ -775,7 +775,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 
 	@Override
-	final protected void internalCreateFrame() {
+	final protected void internalCreateFrame() throws Exception {
 		//		NodeContainer old = m_delegate;
 		m_delegate = null;
 		createFrame();
@@ -786,7 +786,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * EXPERIMENTAL This can be overridden to handle nodes that have an explicit "frame".
 	 */
 	@OverridingMethodsMustInvokeSuper
-	protected void createFrame() {
+	protected void createFrame() throws Exception {
 	}
 
 
