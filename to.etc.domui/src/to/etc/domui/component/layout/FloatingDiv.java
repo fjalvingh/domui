@@ -84,8 +84,10 @@ public class FloatingDiv extends Div implements IAddToBody {
 	public void setDimensions(int width, int height) {
 		if(width < 250 || height < 200)
 			throw new IllegalArgumentException("The width=" + width + " or height=" + height + " is invalid: it cannot be smaller than 250x200.");
-		if(isBuilt())
-			throw new IllegalStateException("The initial size can only be changed before the component " + getClass() + " is built.");
+
+
+		//		if(isBuilt())
+		//			throw new IllegalStateException("The initial size can only be changed before the component " + getClass() + " is built.");
 		setWidth(width + "px");
 		setHeight(height + "px");
 	}

@@ -115,9 +115,9 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 		lf.setCollapsed(m_renderAsCollapsed);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		add(lf);
-		setOnClose(new IClicked<FloatingWindow>() {
+		setOnClose(new IWindowClosed() {
 			@Override
-			public void clicked(FloatingWindow b) throws Exception {
+			public void closed(String closeReason) throws Exception {
 				clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 				m_result = null;
 			}

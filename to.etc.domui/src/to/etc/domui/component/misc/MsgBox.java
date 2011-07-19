@@ -32,7 +32,7 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.bugs.*;
 
-public class MsgBox extends FloatingWindow {
+public class MsgBox extends Window {
 	public interface IAnswer {
 		void onAnswer(MsgBoxButton result) throws Exception;
 	}
@@ -63,13 +63,13 @@ public class MsgBox extends FloatingWindow {
 	private INodeContentRenderer<String> m_dataRenderer;
 
 	protected MsgBox() {
-		super(true, "");
+		super(true, false, WIDTH, HEIGHT, "");
 		setErrorFence(null); // Do not accept handling errors!!
 		m_theButtons.setCssClass("ui-mbx-bb");
 		m_theImage.setCssClass("ui-mbx-img");
-		setOnClose(new IClicked<FloatingWindow>() {
+		setOnClose(new IWindowClosed() {
 			@Override
-			public void clicked(FloatingWindow b) throws Exception {
+			public void closed(String closeReason) throws Exception {
 				if(null != m_onAnswer) {
 					m_selectedChoice = m_closeButtonObject;
 					try {
@@ -383,15 +383,15 @@ public class MsgBox extends FloatingWindow {
 		return areYouSureLinkButton(text, null, message, ch);
 	}
 
-	/**
-	 * Adjust dimensions in addition to inherited floater behavior.
-	 * @see to.etc.domui.dom.html.NodeBase#createContent()
-	 */
-	@Override
-	public void createContent() throws Exception {
-		super.createContent();
-		setDimensions(WIDTH, HEIGHT);
-	}
+	//	/**
+	//	 * Adjust dimensions in addition to inherited floater behavior.
+	//	 * @see to.etc.domui.dom.html.NodeBase#createContent()
+	//	 */
+	//	@Override
+	//	public void createContent() throws Exception {
+	//		super.createContent();
+	//		setDimensions(WIDTH, HEIGHT);
+	//	}
 
 	private void construct() {
 		Div a = new Div();
@@ -428,10 +428,10 @@ public class MsgBox extends FloatingWindow {
 		}
 	}
 
-	private void setDimensions(int width, int height) {
+	@Override
+	public void setDimensions(int width, int height) {
+		super.setDimensions(width, height);
 		setTop("50%");
-		setWidth(width + "px");
-		setHeight(height + "px");
 		// center floating window horizontally on screen
 		setMarginLeft("-" + width / 2 + "px");
 		setMarginTop("-" + height / 2 + "px");

@@ -544,9 +544,9 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 		lf.setCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		m_floater.add(lf);
-		m_floater.setOnClose(new IClicked<FloatingWindow>() {
+		m_floater.setOnClose(new IWindowClosed() {
 			@Override
-			public void clicked(FloatingWindow b) throws Exception {
+			public void closed(String closeReason) throws Exception {
 				m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 				m_floater = null;
 				m_result = null;
