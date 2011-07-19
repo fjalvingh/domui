@@ -734,6 +734,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	final public void setErrorFence(@Nullable final IErrorFence errorFence) {
+		System.out.println("setErrorFence(...): called on " + this);
 		if(m_delegate != null)
 			m_delegate.setErrorFence(errorFence);
 		else
@@ -741,6 +742,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	final public void setErrorFence() {
+		System.out.println("setErrorFence(): called on " + this);
 		if(m_delegate != null)
 			m_delegate.setErrorFence();
 		else if(m_errorFence == null)
@@ -773,6 +775,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		m_delegate = c;
 	}
 
+	/**
+	 * If this node delegates it's stuff to another, this returns that other node. See {@link #delegateTo(NodeContainer)} for
+	 * details.
+	 * @return
+	 */
+	public NodeContainer getDelegate() {
+		return m_delegate;
+	}
 
 	@Override
 	final protected void internalCreateFrame() throws Exception {
