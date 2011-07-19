@@ -24,57 +24,19 @@
  */
 package to.etc.domui.converter;
 
-import java.util.*;
-
 import to.etc.domui.component.meta.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
 
 /**
- * Converts a Double value to a string and v.v., the double is treated as a
- * real number.
- * FIXME This does not properly do locale handling!!!!!
+ * DoubleConverter is now made as NumberConverter sub class.
+ * This fixes properly use of locale handling.
  *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Dec 10, 2010
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on 19 Jul 2011
  */
-public class DoubleConverter implements IConverter<Double> {
-	private int m_scale = -1;
+public class DoubleConverter extends NumberConverter<Double> {
 
-	private NumericPresentation m_pre;
-
-	public DoubleConverter() {}
-
-	public DoubleConverter(PropertyMetaModel< ? > pmm) {
-		m_scale = pmm.getScale();
-		m_pre = pmm.getNumericPresentation();
-	}
-
-	public DoubleConverter(NumericPresentation np, int scale) {
-		m_scale = scale;
-		m_pre = np;
-	}
-
-	@Override
-	public String convertObjectToString(Locale loc, Double in) throws UIException {
-		if(in == null)
-			return "";
-		if(m_pre == null)
-			return String.format(loc, "%.3g", in);
-		return NumericUtil.renderNumber(in, m_pre, m_scale);
-	}
-
-	@Override
-	public Double convertStringToObject(Locale loc, String input) throws UIException {
-		if(input == null)
-			return null;
-		input = input.trim();
-		if(input.length() == 0)
-			return null;
-		try {
-			return Double.valueOf(input); // FIXME BAD LOCALE HANDLING
-		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID_DOUBLE);
-		}
+	public DoubleConverter() {
+		//for functional backward compatibility, we keep default scale for DoubleConverter to 3 (since old implementation used formating with "%.3g"
+		super(Double.class, NumericPresentation.NUMBER_SCALED, 3);
 	}
 }

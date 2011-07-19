@@ -49,7 +49,7 @@ public class TestMoneyConverter {
 	 */
 	public void check(String in, String out) {
 		MiniScanner ms = MiniScanner.getInstance();
-		ms.scanLaxWithCurrencySign(in);
+		ms.scanLaxWithCurrencySign(in, 2, false);
 		String res = ms.getStringResult();
 		System.out.println("  ... " + in + " -> " + res);
 		Assert.assertEquals(out, res);
@@ -63,7 +63,7 @@ public class TestMoneyConverter {
 		try {
 			MiniScanner ms = MiniScanner.getInstance();
 			System.out.println(" ... " + in + " (bad)");
-			ms.scanLaxWithCurrencySign(in);
+			ms.scanLaxWithCurrencySign(in, 2, false);
 		} catch(ValidationException vx) {
 			if(vx.getCode().equals(Msgs.V_BAD_AMOUNT))
 				return;

@@ -40,6 +40,9 @@ public enum NumericPresentation {
 	/** Presented in full precision, moving to scientific (x.xxEyy) mode when needed */
 	NUMBER_SCIENTIFIC,
 
+	/** Amount, including fraction and specified number of decimals places (by scale), without any thousant separators */
+	NUMBER_SCALED,
+
 	/** Fully embellished number, with thousand separators and such */
 	NUMBER_FULL,
 
@@ -55,7 +58,7 @@ public enum NumericPresentation {
 	/** Display as a number having thousands separator and fraction but without currency symbol */
 	MONEY_NO_SYMBOL,
 
-	/** Just the amount, including faction, without any unnecessary adornments */
+	/** Just the amount, including faction, without any unnecessary adornments (similar as in NUMBER_SCALED) */
 	MONEY_NUMERIC;
 
 	static public boolean isMonetary(NumericPresentation np) {
@@ -63,6 +66,20 @@ public enum NumericPresentation {
 			default:
 				return false;
 			case MONEY:
+			case MONEY_FULL:
+			case MONEY_FULL_TRUNC:
+			case MONEY_NO_SYMBOL:
+			case MONEY_NUMERIC:
+				return true;
+		}
+	}
+
+	static public boolean isTrailingZeros(NumericPresentation np) {
+		switch(np){
+			default:
+				return false;
+			case NUMBER_SCALED:
+			case NUMBER_FULL:
 			case MONEY_FULL:
 			case MONEY_FULL_TRUNC:
 			case MONEY_NO_SYMBOL:
