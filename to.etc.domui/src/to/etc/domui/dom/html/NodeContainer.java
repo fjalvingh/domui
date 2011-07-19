@@ -728,13 +728,16 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	@Nullable
 	final public IErrorFence getErrorFence() {
-		if(m_delegate != null)
-			return m_delegate.getErrorFence();
+		if(m_delegate != null) {
+			IErrorFence f = m_delegate.getErrorFence();
+			if(null != f)
+				return f;
+		}
 		return m_errorFence;
 	}
 
 	final public void setErrorFence(@Nullable final IErrorFence errorFence) {
-		System.out.println("setErrorFence(...): called on " + this);
+		//		StringTool.dumpLocation("setErrorFence(...): called on " + this);
 		if(m_delegate != null)
 			m_delegate.setErrorFence(errorFence);
 		else
@@ -742,7 +745,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	final public void setErrorFence() {
-		System.out.println("setErrorFence(): called on " + this);
+		//		StringTool.dumpLocation("setErrorFence(): called on " + this);
 		if(m_delegate != null)
 			m_delegate.setErrorFence();
 		else if(m_errorFence == null)

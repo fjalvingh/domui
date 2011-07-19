@@ -283,10 +283,23 @@ final public class DomUtil {
 		return "#" + StringTool.intToStr(value, 16, 6);
 	}
 
-	static public IErrorFence getMessageFence(NodeBase start) {
+	static public IErrorFence getMessageFence(NodeBase in) {
+		NodeBase start = in;
 		for(;;) {
-			if(start == null)
-				throw new IllegalStateException("Cannot locate error fence. Did you call an error routine on an unattached Node?");
+			if(start == null) {
+				//-- Collect the path we followed for the error message
+				StringBuilder sb = new StringBuilder();
+				sb.append("Cannot locate error fence. Did you call an error routine on an unattached Node?\nThe path followed upwards was: ");
+				start = in;
+				while(start != null) {
+					if(start != in)
+						sb.append(" -> ");
+					sb.append(start.toString());
+					start = start.getParent();
+				}
+
+				throw new IllegalStateException(sb.toString());
+			}
 			if(start instanceof NodeContainer) {
 				NodeContainer nc = (NodeContainer) start;
 				if(nc.getErrorFence() != null)
