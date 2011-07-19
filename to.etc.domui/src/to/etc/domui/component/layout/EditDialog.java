@@ -77,6 +77,13 @@ public class EditDialog<T> extends Dialog {
 		createCancelButton();
 	}
 
+	/**
+	 * This uses the bindings created by createContent to move data in controls back
+	 * to the instance (the model). If more than just those bindings are needed you
+	 * need to override this <b>and call super too</b>.
+	 *
+	 * @see to.etc.domui.component.layout.Dialog#onSaveBind()
+	 */
 	@OverridingMethodsMustInvokeSuper
 	@Override
 	protected boolean onSaveBind() throws Exception {

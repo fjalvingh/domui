@@ -16,11 +16,20 @@ public class FloatingDiv extends Div implements IAddToBody {
 	/** Close reason {@link IWindowClosed#closed(String)}: the dialog was closed by the close button or by pressing the hider. */
 	static public final String RSN_CLOSE = "closed";
 
+	static private final int DEFWIDTH = 640;
+
+	static private final int DEFHEIGHT = 400;
+
+	static private final int MINWIDTH = 256;
+
+	static private final int MINHEIGHT = 200;
+
 	final private boolean m_modal;
 
 	final private boolean m_resizable;
 
 	/** A handler to call when the floating (window) is closed. This is only called if the window is closed by a user action, not when the window is closed by code (by calling {@link #close()}). */
+	@Nullable
 	private IWindowClosed m_onClose;
 
 	/** If this is a modal window it will have a "hider" div to make it modal, and that div will be placed in here by the Page when the div is shown. */
@@ -28,11 +37,11 @@ public class FloatingDiv extends Div implements IAddToBody {
 	private Div m_hider;
 
 	public FloatingDiv(boolean modal) {
-		this(modal, false, 640, 400);
+		this(modal, false, DEFWIDTH, DEFHEIGHT);
 	}
 
 	public FloatingDiv(boolean modal, boolean resizable) {
-		this(modal, resizable, 640, 400);
+		this(modal, resizable, DEFWIDTH, DEFHEIGHT);
 	}
 
 	public FloatingDiv(boolean modal, boolean resizable, int widthinpx, int heightinpx) {
@@ -44,6 +53,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 	/**
 	 * Change the width and height for the dialog - only valid before it has been
 	 * built!! The minimum size is 250x200 pixels.
+	 *
 	 * @param width
 	 * @param height
 	 */
@@ -67,6 +77,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 		return m_resizable;
 	}
 
+	@Nullable
 	public Div internalGetHider() {
 		return m_hider;
 	}
@@ -111,7 +122,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 
 		//-- If this is resizable add the resizable() thing to the create javascript.
 		if(isResizable())
-			appendCreateJS("$('#" + getActualID() + "').resizable({minHeight: 256, minWidth: 256, resize: WebUI.floatingDivResize });");
+			appendCreateJS("$('#" + getActualID() + "').resizable({minHeight: " + MINHEIGHT + ", minWidth: " + MINWIDTH + ", resize: WebUI.floatingDivResize });");
 	}
 
 
@@ -124,6 +135,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 	 * code (by calling {@link #close()}).
 	 * @return
 	 */
+	@Nullable
 	final public IWindowClosed getOnClose() {
 		return m_onClose;
 	}
@@ -135,7 +147,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 	 *
 	 * @param onClose
 	 */
-	final public void setOnClose(IWindowClosed onClose) {
+	final public void setOnClose(@Nullable IWindowClosed onClose) {
 		m_onClose = onClose;
 	}
 
@@ -159,7 +171,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 	 * @param closeReason
 	 * @throws Exception
 	 */
-	protected void onClosed(String closeReason) throws Exception {}
+	protected void onClosed(@Nonnull String closeReason) throws Exception {}
 
 	/**
 	 * Close the window !AND CALL THE CLOSE HANDLER!. To close the window without calling

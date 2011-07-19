@@ -131,10 +131,24 @@ public class Dialog extends Window {
 		close();
 	}
 
+	/**
+	 * First part of save button handling: this should be overridden to move the data
+	 * in the dialog's controls into their model.
+	 *
+	 * @return
+	 * @throws Exception
+	 */
 	protected boolean onSaveBind() throws Exception {
 		return false;
 	}
 
+	/**
+	 * Second part of the save button handling: this should validate all input present
+	 * in the model and any non-model controls.
+	 *
+	 * @return
+	 * @throws Exception
+	 */
 	protected boolean onValidate() throws Exception {
 		return true;
 	}
