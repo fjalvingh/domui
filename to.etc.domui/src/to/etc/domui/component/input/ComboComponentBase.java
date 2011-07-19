@@ -305,6 +305,11 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 		m_actualContentRenderer.renderNodeContent(this, o, object, this);
 	}
 
+	@Override
+	protected void onForceRebuild() {
+		m_emptyOption = null;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	All the myriad ways of providing data.				*/
 	/*--------------------------------------------------------------*/
