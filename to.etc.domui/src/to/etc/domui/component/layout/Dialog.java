@@ -11,6 +11,9 @@ import to.etc.domui.util.*;
  * Created on Jul 18, 2011
  */
 public class Dialog extends Window {
+	/** Close reason {@link IWindowClosed#closed(String)}: the save button was pressed and onSave() did not die. */
+	static public final String RSN_SAVE = "save";
+
 	/** The button bar for the dialog. */
 	private ButtonBar m_buttonBar;
 
@@ -91,11 +94,67 @@ public class Dialog extends Window {
 		b.setTestID("saveButton");
 	}
 
+	/**
+	 * Default handler for the cancel button: this will send the "CLOSE pressed" event ({@link FloatingDiv#RSN_CLOSE}).
+	 * @throws Exception
+	 */
 	protected void buttonCancel() throws Exception {
 		closePressed();
 	}
 
-	protected void buttonSave() throws Exception {}
+	/**
+	 * The default save() implementation will call onValidate(), onSave(), then it will
+	 * send a {@link #RSN_SAVE} close event. If the close event itself fails with exception
+	 * the code will ask onCloseException() to see if we need to throw the exception or if
+	 * it gets handled and shown as an error message or something like that.
+	 * @throws Exception
+	 */
+	protected void buttonSave() throws Exception {
+		clearGlobalMessage();
+		if(!onSaveBind())
+			return;
+		if(!onValidate())
+			return;
+		if(!onSave())
+			return;
 
+		/*
+		 * onSave() was succesful. We will send the close reason SAVE, but if it fails with exception we'll
+		 * remain in this dialog.
+		 */
+		try {
+			callCloseHandler(RSN_SAVE);
+		} catch(Exception x) {
+			if(!onCloseException(x))
+				throw x;
+		}
+		close();
+	}
 
+	protected boolean onSaveBind() throws Exception {
+		return false;
+	}
+
+	protected boolean onValidate() throws Exception {
+		return true;
+	}
+
+	/**
+	 * If sending the SAVE message fails with exception it can be handled here. If the
+	 * exception is handled here it must return true, else it should return false in
+	 * which case the exception will pass through to toplevel. The default implementation
+	 * returns false and does nothing.
+	 * @param x
+	 * @return
+	 */
+	protected boolean onCloseException(Exception x) throws Exception {
+		return false;
+	}
+
+	/**
+	 * Override to validate data before the close event is sent and the window is closed.
+	 */
+	protected boolean onSave() throws Exception {
+		return true;
+	}
 }

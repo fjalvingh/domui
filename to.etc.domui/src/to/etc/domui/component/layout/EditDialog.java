@@ -77,44 +77,13 @@ public class EditDialog<T> extends Dialog {
 		createCancelButton();
 	}
 
+	@OverridingMethodsMustInvokeSuper
 	@Override
-	protected void buttonCancel() throws Exception {
-		closePressed();
-	}
-
-	@Override
-	protected void buttonSave() throws Exception {
-		save();
-		onAfterSave();
-	}
-
-	/**
-	 * Called after a successful save, this default implementation will call close() with a specified result.
-	 * @throws Exception
-	 */
-	protected void onAfterSave() throws Exception {
-		close();
-	}
-
-
-	protected void save() throws Exception {
+	protected boolean onSaveBind() throws Exception {
 		//-- Move all bound data to the actual instance
 		if(getBindings() != null) {
 			getBindings().moveControlToModel();
 		}
-		moveInputToInstance();
-
-		//-- Do non-binding related input validation (generic)
-		if(!validate(getInstance()))
-			return;
-	}
-
-	protected void onSave(T instance) {
-	}
-
-	protected void moveInputToInstance() throws Exception {}
-
-	protected boolean validate(T instance) throws Exception {
 		return true;
 	}
 
@@ -122,7 +91,7 @@ public class EditDialog<T> extends Dialog {
 	 * The bindings as returned by the createEditable call.
 	 * @return
 	 */
-	public ModelBindings getBindings() {
+	final public ModelBindings getBindings() {
 		return m_bindings;
 	}
 }
