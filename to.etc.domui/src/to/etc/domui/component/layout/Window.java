@@ -34,9 +34,6 @@ public class Window extends FloatingDiv {
 	/** If present, an image to use as the icon inside the title bar. */
 	private Img m_titleIcon;
 
-	/** A handler to call when the window is closed. This is only called if the window is closed by a user action, not when the window is closed by code (by calling {@link #close()}). */
-	private IClicked<NodeBase> m_onClose;
-
 	/** The optional area just above the content area which remains fixed when the content area scrolls. */
 	private Div m_topContent;
 
@@ -167,29 +164,6 @@ public class Window extends FloatingDiv {
 		return m_titleIcon;
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Window events.										*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Close the window !AND CALL THE CLOSE HANDLER!. To close the window without calling
-	 * the close handler use {@link #close()}.
-	 *
-	 * @throws Exception
-	 */
-	public void closePressed() throws Exception {
-		close();
-		if(m_onClose != null)
-			m_onClose.clicked(Window.this);
-	}
-
-	/**
-	 * Close this floater and cause it to be destroyed from the UI without calling the
-	 * close handler. To call the close handler use {@link #closePressed()}.
-	 */
-	public void close() {
-		remove();
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Properties.											*/
@@ -212,27 +186,6 @@ public class Window extends FloatingDiv {
 		if(m_closable == closable)
 			return;
 		m_closable = closable;
-	}
-
-	/**
-	 * Get the current "onClose" handler: a handler to call when the window is closed. This is
-	 * only called if the window is closed by a user action, not when the window is closed by
-	 * code (by calling {@link #close()}).
-	 * @return
-	 */
-	public IClicked<NodeBase> getOnClose() {
-		return m_onClose;
-	}
-
-	/**
-	 * Set the current "onClose" handler: a handler to call when the window is closed. This is
-	 * only called if the window is closed by a user action, not when the window is closed by
-	 * code (by calling {@link #close()}).
-	 *
-	 * @param onClose
-	 */
-	public void setOnClose(IClicked<NodeBase> onClose) {
-		m_onClose = onClose;
 	}
 
 	/**

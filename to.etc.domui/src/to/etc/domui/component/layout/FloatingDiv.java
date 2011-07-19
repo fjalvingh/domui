@@ -13,9 +13,15 @@ import to.etc.domui.util.*;
  * Created on Jul 18, 2011
  */
 public class FloatingDiv extends Div implements IAddToBody {
+	/** Close reason {@link IWindowClosed#closed(String)}: the dialog was closed by the close button or by pressing the hider. */
+	static public final String RSN_CLOSE = "closed";
+
 	final private boolean m_modal;
 
 	final private boolean m_resizable;
+
+	/** A handler to call when the floating (window) is closed. This is only called if the window is closed by a user action, not when the window is closed by code (by calling {@link #close()}). */
+	private IWindowClosed m_onClose;
 
 	/** If this is a modal window it will have a "hider" div to make it modal, and that div will be placed in here by the Page when the div is shown. */
 	@Nullable
@@ -106,5 +112,73 @@ public class FloatingDiv extends Div implements IAddToBody {
 		//-- If this is resizable add the resizable() thing to the create javascript.
 		if(isResizable())
 			appendCreateJS("$('#" + getActualID() + "').resizable({minHeight: 256, minWidth: 256, resize: WebUI.floatingDivResize });");
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Close control and floater close event handling.		*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Get the current "onClose" handler: a handler to call when the window is closed. This is
+	 * only called if the window is closed by a user action, not when the window is closed by
+	 * code (by calling {@link #close()}).
+	 * @return
+	 */
+	final public IWindowClosed getOnClose() {
+		return m_onClose;
+	}
+
+	/**
+	 * Set the current "onClose" handler: a handler to call when the window is closed. This is
+	 * only called if the window is closed by a user action, not when the window is closed by
+	 * code (by calling {@link #close()}).
+	 *
+	 * @param onClose
+	 */
+	final public void setOnClose(IWindowClosed onClose) {
+		m_onClose = onClose;
+	}
+
+	/**
+	 * Internal use: call the registered "close" handler with the close reason. For this base class the only
+	 * reason passed will be RSN_CLOSED. Derived classes can add other string constants to use.
+	 * @param reasonCode
+	 * @throws Exception
+	 */
+	final protected void callCloseHandler(@Nonnull String closeReason) throws Exception {
+		if(null == closeReason)
+			throw new IllegalArgumentException("Close reason cannot be null");
+		onClosed(closeReason);
+		if(null != m_onClose)
+			m_onClose.closed(closeReason);
+	}
+
+	/**
+	 * Can be overridden to handle close events inside a subclass. This gets called when the
+	 * close event fires, before the onClose property handler is called.
+	 * @param closeReason
+	 * @throws Exception
+	 */
+	protected void onClosed(String closeReason) throws Exception {}
+
+	/**
+	 * Close the window !AND CALL THE CLOSE HANDLER!. To close the window without calling
+	 * the close handler use {@link #close()}. This code represents the "cancel" action
+	 * for dialogs.
+	 *
+	 * @throws Exception
+	 */
+	public void closePressed() throws Exception {
+		close();
+		callCloseHandler(RSN_CLOSE);
+	}
+
+	/**
+	 * Close this floater and cause it to be destroyed from the UI without calling the
+	 * close handler. To call the close handler use {@link #closePressed()}.
+	 */
+	@OverridingMethodsMustInvokeSuper
+	public void close() {
+		remove();
 	}
 }
