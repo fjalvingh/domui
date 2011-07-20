@@ -27,6 +27,8 @@ package to.etc.domui.component.meta.impl;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -589,6 +591,16 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	@Override
 	public String getRegexpValidator() {
+		return null;
+	}
+
+	/**
+	 * Returns null by definition.
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getColumnNames()
+	 */
+	@Nullable
+	@Override
+	public String[] getColumnNames() {
 		return null;
 	}
 }

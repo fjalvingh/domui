@@ -307,6 +307,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 
 	/**
 	 * Generically decode a JPA javax.persistence.Column annotation.
+	 * FIXME Currently only single-column properties are supported.
 	 * @param pmm
 	 * @param an
 	 */
@@ -332,6 +333,11 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			pmm.setPrecision(iv.intValue());
 			iv = (Integer) DomUtil.getClassValue(an, "scale");
 			pmm.setScale(iv.intValue());
+			String name = (String) DomUtil.getClassValue(an, "name");
+			if(null == name) {
+				name = pmm.getName(); // If column is present but name is null- use the property name verbatim.
+				pmm.setColumnNames(new String[]{name});
+			}
 		} catch(RuntimeException x) {
 			throw x;
 		} catch(Exception x) {

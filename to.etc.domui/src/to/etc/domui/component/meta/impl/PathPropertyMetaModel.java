@@ -27,6 +27,8 @@ package to.etc.domui.component.meta.impl;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -384,5 +386,11 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	@Override
 	public ControlFactory getControlFactory() {
 		return m_original.getControlFactory();
+	}
+
+	@Nullable
+	@Override
+	public String[] getColumnNames() {
+		return m_original.getColumnNames();
 	}
 }

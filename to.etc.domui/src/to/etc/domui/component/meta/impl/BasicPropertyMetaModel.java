@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.meta.impl;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -63,6 +65,8 @@ public class BasicPropertyMetaModel<T> {
 	private boolean m_transient;
 
 	private ControlFactory m_controlFactory;
+
+	private String[] m_columnNames;
 
 	public IConverter<T> getConverter() {
 		return m_converter;
@@ -204,5 +208,14 @@ public class BasicPropertyMetaModel<T> {
 
 	public void setControlFactory(ControlFactory controlFactory) {
 		m_controlFactory = controlFactory;
+	}
+
+	@Nullable
+	public String[] getColumnNames() {
+		return m_columnNames;
+	}
+
+	public void setColumnNames(@Nullable String[] columnNames) {
+		m_columnNames = columnNames;
 	}
 }
