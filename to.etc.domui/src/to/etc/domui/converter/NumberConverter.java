@@ -28,6 +28,7 @@ import java.util.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
 
 /**
  * Parameterizable converter for numbers.
@@ -46,6 +47,9 @@ public class NumberConverter<T extends Number> implements IConverter<T> {
 		m_actualType = actualType;
 		m_presentation = presentation;
 		m_scale = scale;
+		if(DomUtil.isIntegerType(m_actualType) && scale != 0) {
+			throw new IllegalArgumentException("Not possible to create valid NumberConverter for int types if scale is != 0, scale:" + m_scale);
+		}
 	}
 
 	@Override
@@ -55,6 +59,18 @@ public class NumberConverter<T extends Number> implements IConverter<T> {
 
 	@Override
 	public T convertStringToObject(Locale loc, String in) throws UIException {
-		return NumericUtil.parseNumber(m_actualType, in);
+		return NumericUtil.parseNumber(m_actualType, in, m_scale, m_presentation);
+	}
+
+	public NumericPresentation getPresentation() {
+		return m_presentation;
+	}
+
+	public int getScale() {
+		return m_scale;
+	}
+
+	public Class<T> getActualType() {
+		return m_actualType;
 	}
 }
