@@ -388,7 +388,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 		return m_original.getControlFactory();
 	}
 
-	@Nullable
+	@Nonnull
 	@Override
 	public String[] getColumnNames() {
 		return m_original.getColumnNames();

@@ -595,12 +595,12 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	/**
-	 * Returns null by definition.
+	 * Returns empty by definition.
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getColumnNames()
 	 */
-	@Nullable
+	@Nonnull
 	@Override
 	public String[] getColumnNames() {
-		return null;
+		return BasicPropertyMetaModel.NO_NAMES;
 	}
 }

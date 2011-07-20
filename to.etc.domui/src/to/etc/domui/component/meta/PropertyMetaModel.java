@@ -361,7 +361,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * Return the column name(s) for this property <b>if</b> this is a persisted column in a persistent class.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	String[] getColumnNames();
 
 }
