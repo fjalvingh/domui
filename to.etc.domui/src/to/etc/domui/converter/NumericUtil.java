@@ -59,13 +59,21 @@ public class NumericUtil {
 	static private final BigDecimal MININT = BigDecimal.valueOf(Integer.MIN_VALUE);
 
 	/**
+	 * When scale is undefined on decima numbers conversions, use this global defined value.
+	 */
+	static public final int DEFAULT_FRACTION_DIGITS = 2;
+
+	/**
 	 * Parses an integer as a BigDecimal, then converts it. It also
 	 * does a range check on that BigDecimal. FIXME Complex, do later.
 	 * @param input
 	 * @return
 	 */
 	static private int internalParseInt(String input) {
-		BigDecimal bd = parseBigDecimal(input);
+		BigDecimal bd = parseBigDecimal(input, 0, NumericPresentation.NUMBER);
+		if(bd == null) {
+			throw new ValidationException(Msgs.V_INVALID, input); // No input is invalid input.
+		}
 		if(bd.compareTo(MAXINT) > 0)
 			throw new ValidationException(Msgs.V_TOOLARGE, MAXINT);
 		if(bd.compareTo(MININT) < 0)
@@ -79,7 +87,7 @@ public class NumericUtil {
 
 	static public long parseLong(String input) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxNumber(input))
+		if(!ms.scanLaxNumber(input, 0, true))
 			return 0;
 		try {
 			return Long.parseLong(ms.getStringResult());
@@ -91,7 +99,7 @@ public class NumericUtil {
 	@Nullable
 	static public Long parseLongWrapper(String input) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxNumber(input))
+		if(!ms.scanLaxNumber(input, 0, true))
 			return null;
 		try {
 			return Long.valueOf(ms.getStringResult());
@@ -100,21 +108,11 @@ public class NumericUtil {
 		}
 	}
 
-	static public double parseDouble(String input) {
-		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxNumber(input))
-			return 0;
-		try {
-			return Double.parseDouble(ms.getStringResult());
-		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID, input);
-		}
-	}
-
 	@Nullable
-	static public Double parseDoubleWrapper(String input) {
+	static public Double parseDoubleWrapper(String input, int scale, NumericPresentation np) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxNumber(input))
+		boolean useStrictScale = np == NumericPresentation.NUMBER_FULL;
+		if(!ms.scanLaxNumber(input, scale, useStrictScale))
 			return null;
 		try {
 			return Double.valueOf(ms.getStringResult());
@@ -124,9 +122,10 @@ public class NumericUtil {
 	}
 
 	@Nullable
-	static public BigDecimal parseBigDecimal(String input) {
+	static public BigDecimal parseBigDecimal(String input, int scale, NumericPresentation np) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxNumber(input))
+		boolean useStrictScale = np == NumericPresentation.NUMBER_FULL;
+		if(!ms.scanLaxNumber(input, scale, useStrictScale))
 			return null;
 		try {
 			return new BigDecimal(ms.getStringResult());
@@ -135,38 +134,61 @@ public class NumericUtil {
 		}
 	}
 
+
 	/**
-	 * Parse any supported numeric wrapper type.
+	 * Parse any supported numeric wrapper type. In case that any specific scale must be used, use other method {@link NumericUtil#parseNumber(Class, String, int, NumericPresentation)}
 	 * @param <T>
-	 * @param type
+	 * @param type	In case of decimal types, it uses scale defined by DEFAULT_FRACTION_DIGITS.
 	 * @param input
 	 * @return
 	 */
 	@Nullable
 	static public <T> T parseNumber(Class<T> type, String input) {
-		if(Integer.class == type || int.class == type)
+		if(Integer.class == type || int.class == type || Long.class == type || long.class == type) {
+			return parseNumber(type, input, 0, NumericPresentation.NUMBER);
+		} else {
+			return parseNumber(type, input, DEFAULT_FRACTION_DIGITS, NumericPresentation.NUMBER);
+		}
+	}
+
+	/**
+	 * Parse any supported numeric wrapper type.
+	 *
+	 * @param <T>
+	 * @param type
+	 * @param input
+	 * @param scale Integer based types can be used only with scale 0 -> no decimal places allowed here.
+	 * @param np
+	 * @return
+	 */
+	@Nullable
+	static public <T> T parseNumber(Class<T> type, String input, int scale, NumericPresentation np) {
+		if(scale != 0 && (Integer.class == type || int.class == type || Long.class == type || long.class == type)) {
+			throw new IllegalArgumentException("Unsupported scale (" + scale + " - it must be 0) for type in conversion=" + type);
+		}
+		if(Integer.class == type || int.class == type) {
 			return (T) parseIntWrapper(input);
-		else if(Long.class == type || long.class == type)
+		} else if(Long.class == type || long.class == type) {
 			return (T) parseLongWrapper(input);
-		else if(Double.class == type || double.class == type)
-			return (T) parseDoubleWrapper(input);
+		} else if(Double.class == type || double.class == type)
+			return (T) parseDoubleWrapper(input, scale, np);
 		else if(BigDecimal.class == type)
-			return (T) parseBigDecimal(input);
+			return (T) parseBigDecimal(input, scale, np);
 		else
 			throw new IllegalArgumentException("Unsupported numeric type in conversion=" + type);
 	}
 
-	static private final String[] FULLBYSCALE = { //
+	static private final String[] FULL_BY_SCALE = { //
 	"###,###,###,###,###,###,###,###,###,###,###,###,##0" //
-		, "###,###,###,###,###,###,###,###,###,###,###,###,##0,0" //
-		, "###,###,###,###,###,###,###,###,###,###,###,###,##0,00" //
-		, "###,###,###,###,###,###,###,###,###,###,###,###,##0,000" //
-		, "###,###,###,###,###,###,###,###,###,###,###,###,##0,0000" //
-		, "###,###,###,###,###,###,###,###,###,###,###,###,##0,00000" //
-		, "###,###,###,###,###,###,###,###,###,###,###,###,##0,000000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.0" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.00" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.0000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.00000" //
+		, "###,###,###,###,###,###,###,###,###,###,###,###,##0.000000" //
 	};
 
-	static private final String[]	NUMBERBYSCALE = { //
+	static private final String[]	NUMBER_BY_SCALE = { //
 	"#0" //
 		, "#0.0" //
 		, "#0.00" //
@@ -174,6 +196,16 @@ public class NumericUtil {
 		, "#0.0000" //
 		, "#0.00000" //
 		, "#0.000000" //
+	};
+
+	static private final String[] NUMBER_BY_SCALE_TRUNC_ZEROS = { //
+	"#0" //
+		, "#0.#" //
+		, "#0.##" //
+		, "#0.###" //
+		, "#0.####" //
+		, "#0.#####" //
+		, "#0.######" //
 	};
 
 	@Nonnull
@@ -189,6 +221,7 @@ public class NumericUtil {
 
 				case UNKNOWN:
 				case NUMBER:
+				case NUMBER_SCALED:
 					return v.toString();
 				case NUMBER_FULL:
 					return new DecimalFormat("###,###,###,###,###,###,###,###,###,###,###,###,##0", dfs).format(v);
@@ -210,10 +243,17 @@ public class NumericUtil {
 
 			case UNKNOWN:
 			case NUMBER:
-				return new DecimalFormat(NUMBERBYSCALE[scale], dfs).format(v);
+				String res = new DecimalFormat(NUMBER_BY_SCALE_TRUNC_ZEROS[scale], dfs).format(v);
+				if(res != null && (res.endsWith(".") || res.endsWith(","))) {
+					//If we have 1000. then we need to cut of last decimal separator
+					res = res.substring(0, res.length() - 2);
+				}
+				return res;
 
+			case NUMBER_SCALED:
+				return new DecimalFormat(NUMBER_BY_SCALE[scale], dfs).format(v);
 			case NUMBER_FULL:
-				return new DecimalFormat(FULLBYSCALE[scale], dfs).format(v);
+				return new DecimalFormat(FULL_BY_SCALE[scale], dfs).format(v);
 			case NUMBER_SCIENTIFIC:
 				return new DecimalFormat("#.#E#", dfs).format(v);
 		}
@@ -222,4 +262,5 @@ public class NumericUtil {
 	public static <T extends Number> IConverter<T> createNumberConverter(Class<T> type, NumericPresentation np, int scale) {
 		return new NumberConverter<T>(type, np, scale);
 	}
+
 }
