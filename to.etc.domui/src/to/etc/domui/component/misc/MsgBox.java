@@ -49,7 +49,7 @@ public class MsgBox extends Window {
 
 	private static final int WIDTH = 500;
 
-	private static final int HEIGHT = 200;
+	private static final int HEIGHT = 205;
 
 	Object m_selectedChoice;
 
@@ -86,11 +86,11 @@ public class MsgBox extends Window {
 
 	static public MsgBox create(NodeBase parent) {
 		MsgBox w = new MsgBox(); // Create instance
-		//vmijic 20100326 - in case of cascading floating windows, z-index higher than one from parent floating window must be set.
-		FloatingWindow parentFloatingWindow = parent.getParent(FloatingWindow.class);
-		if(parentFloatingWindow != null) {
-			w.setZIndex(parentFloatingWindow.getZIndex() + 100);
-		}
+		//		//vmijic 20100326 - in case of cascading floating windows, z-index higher than one from parent floating window must be set.
+		//		FloatingWindow parentFloatingWindow = parent.getParent(FloatingWindow.class);
+		//		if(parentFloatingWindow != null) {
+		//			w.setZIndex(parentFloatingWindow.getZIndex() + 100);
+		//		}
 		UrlPage body = parent.getPage().getBody();
 		body.add(w);
 		return w;

@@ -598,8 +598,8 @@ var WebUI = {
 			data :fields,
 			cache :false,
 			type: "POST",
-			success :WebUI.handleResponse,
-			error :WebUI.handleError
+			error :WebUI.handleError,
+			success :WebUI.handleResponse
 		});
 		return false;
 	},
@@ -1023,7 +1023,9 @@ var WebUI = {
 		if (txt.length == 0)
 			txt = "De server is niet bereikbaar.";
 		document.write(txt);
+		document.close();
 		window.setTimeout('document.body.style.cursor="default"', 1000);
+		return true;
 	},
 	_asyalerted: false,
 	handleErrorAsy : function(request, status, exc) {
