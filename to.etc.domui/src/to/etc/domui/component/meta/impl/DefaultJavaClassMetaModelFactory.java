@@ -336,8 +336,8 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			String name = (String) DomUtil.getClassValue(an, "name");
 			if(null == name) {
 				name = pmm.getName(); // If column is present but name is null- use the property name verbatim.
-				pmm.setColumnNames(new String[]{name});
 			}
+			pmm.setColumnNames(new String[]{name});
 		} catch(RuntimeException x) {
 			throw x;
 		} catch(Exception x) {
