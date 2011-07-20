@@ -57,6 +57,9 @@ public class Dialog extends Window {
 		super(title);
 	}
 
+	public Dialog(int width, int height, String title) {
+		super(width, height, title);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Services.											*/
@@ -99,7 +102,7 @@ public class Dialog extends Window {
 
 	protected void createCancelButton() {
 		DefaultButton b;
-		b = getButtonBar().addButton(Msgs.EDLG_CANCEL, Msgs.BTN_CANCEL, new IClicked<DefaultButton>() {
+		b = getButtonBar().addButton(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Msgs.BTN_CANCEL, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(DefaultButton clickednode) throws Exception {
 				buttonCancel();
@@ -109,7 +112,7 @@ public class Dialog extends Window {
 	}
 
 	protected void createSaveButton() {
-		DefaultButton b = getButtonBar().addButton(Msgs.EDLG_OKAY, Msgs.BTN_SAVE, new IClicked<DefaultButton>() {
+		DefaultButton b = getButtonBar().addButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Msgs.BTN_SAVE, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(DefaultButton clickednode) throws Exception {
 				buttonSave();

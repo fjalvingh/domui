@@ -109,6 +109,16 @@ public class Window extends FloatingDiv {
 		this(true, false, title);
 	}
 
+	/**
+	 * Create a modal, resizable window of the given size and with the specified title.
+	 * @param width
+	 * @param height
+	 * @param title
+	 */
+	public Window(int width, int height, String title) {
+		this(true, true, width, height, title);
+	}
+
 	private void init() {
 		m_content = new Div();
 		m_content.setCssClass("ui-flw-c");
@@ -119,6 +129,7 @@ public class Window extends FloatingDiv {
 		m_bottomContent.setCssClass("ui-flw-bc");
 		setErrorFence();
 		delegateTo(m_content);
+		m_content.setErrorFence(); // jal experimental
 	}
 
 	/**

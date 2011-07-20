@@ -285,6 +285,17 @@ final public class DomUtil {
 
 	static public IErrorFence getMessageFence(NodeBase in) {
 		NodeBase start = in;
+
+		//-- If we're delegated then test the delegate 1st
+		if(in instanceof NodeContainer) {
+			NodeContainer nc = (NodeContainer) in;
+			if(nc.getDelegate() != null) {
+				IErrorFence ef = getMessageFence(nc.getDelegate());
+				if(null != ef)
+					return ef;
+			}
+		}
+
 		for(;;) {
 			if(start == null) {
 				//-- Collect the path we followed for the error message

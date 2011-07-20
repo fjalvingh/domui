@@ -38,7 +38,12 @@ import to.etc.domui.component.form.*;
 public class EditDialog<T> extends Dialog {
 	private T m_instance;
 
-	private ModelBindings m_bindings;
+	/** If bindings are used this is the global instance used by the common code. */
+	private ModelBindings m_bindings = new ModelBindings();
+
+	private TabularFormBuilder m_tfb;
+
+	private HorizontalFormBuilder m_hfb;
 
 	public EditDialog(boolean modal, boolean resizable, int width, int height, String title) {
 		super(modal, resizable, width, height, title);
@@ -56,26 +61,38 @@ public class EditDialog<T> extends Dialog {
 		super(title);
 	}
 
-	/**
-	 * The data instance being edited.
-	 * @return
-	 */
-	public T getInstance() {
-		if(null == m_instance)
-			throw new IllegalStateException("The instance-to-edit has not been set.");
-		return m_instance;
+	public EditDialog(int width, int height, String title) {
+		super(width, height, title);
 	}
 
-	/**
-	 * Set the data to change.
-	 * @param instance
-	 */
-	public void setInstance(@Nonnull T instance) {
-		if(null == instance)
-			throw new IllegalArgumentException("Instance cannot be null!!");
+	public EditDialog(T instance, int width, int height, String title) {
+		super(width, height, title);
 		m_instance = instance;
 	}
 
+	public EditDialog(T instance, boolean modal, boolean resizable, int width, int height, String title) {
+		super(modal, resizable, width, height, title);
+		m_instance = instance;
+	}
+
+	public EditDialog(T instance, boolean modal, boolean resizable, String title) {
+		super(modal, resizable, title);
+		m_instance = instance;
+	}
+
+	public EditDialog(T instance, boolean resizable, String title) {
+		super(resizable, title);
+		m_instance = instance;
+	}
+
+	public EditDialog(T instance, String title) {
+		super(title);
+		m_instance = instance;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Creating the UI core.								*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Overridden to create the initial button bar with the "save" button and the
 	 * "cancel" buttons in place.
@@ -112,16 +129,62 @@ public class EditDialog<T> extends Dialog {
 	@Override
 	protected boolean onSaveBind() throws Exception {
 		//-- Move all bound data to the actual instance
-		if(getBindings() != null) {
-			getBindings().moveControlToModel();
-		}
+		getBindings().moveControlToModel();
 		return true;
+	}
+
+	/**
+	 * Get a tabular form builder using the shared bindings.
+	 * @return
+	 */
+	public TabularFormBuilder getTabularFormBuilder() {
+		if(m_tfb == null) {
+			m_tfb = new TabularFormBuilder(getInstance());
+			m_tfb.setBindings(getBindings()); // Use the dialog's shared bindings.
+		}
+		return m_tfb;
+	}
+
+	/**
+	 * Get a horizontal form builder using the shared bindings.
+	 * @return
+	 */
+	public HorizontalFormBuilder getHorizontalFormBuilder() {
+		if(m_hfb == null) {
+			m_hfb = new HorizontalFormBuilder(getInstance());
+			m_hfb.setBindings(getBindings()); // Use the dialog's shared bindings.
+		}
+		return m_hfb;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Info properties.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * The data instance being edited.
+	 * @return
+	 */
+	public T getInstance() {
+		if(null == m_instance)
+			throw new IllegalStateException("The instance-to-edit has not been set.");
+		return m_instance;
+	}
+
+	/**
+	 * Set the data to change.
+	 * @param instance
+	 */
+	public void setInstance(@Nonnull T instance) {
+		if(null == instance)
+			throw new IllegalArgumentException("Instance cannot be null!!");
+		m_instance = instance;
 	}
 
 	/**
 	 * The bindings as returned by the createEditable call.
 	 * @return
 	 */
+	@Nonnull
 	final public ModelBindings getBindings() {
 		return m_bindings;
 	}
