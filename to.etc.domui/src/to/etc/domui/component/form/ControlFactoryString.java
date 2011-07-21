@@ -72,7 +72,7 @@ public class ControlFactoryString implements ControlFactory {
 				dv.setTitle(s);
 			return new ControlFactoryResult(dv, model, pmm);
 		}
-		Text<T> txt = UIControlUtil.createText(iclz, pmm, editable);
+		Text<T> txt = Text.createText(iclz, pmm, editable);
 		return new ControlFactoryResult(txt, model, pmm);
 	}
 }

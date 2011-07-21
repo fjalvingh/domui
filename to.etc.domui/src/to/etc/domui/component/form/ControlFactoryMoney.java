@@ -29,6 +29,7 @@ import java.math.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
+import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
 
 /**
@@ -74,7 +75,7 @@ public class ControlFactoryMoney implements ControlFactory {
 			DisplayValue dv = new DisplayValue(iclz);
 			//			dv.setTextAlign(TextAlign.RIGHT);
 			dv.addCssClass("ui-numeric");
-			UIControlUtil.assignMonetaryConverter(pmm, editable, dv);
+			MoneyUtil.assignMonetaryConverter(pmm, editable, dv);
 			String s = pmm.getDefaultHint();
 			if(s != null)
 				dv.setTitle(s);
@@ -83,9 +84,9 @@ public class ControlFactoryMoney implements ControlFactory {
 
 		Text<T> txt;
 		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
-			txt = (Text<T>) UIControlUtil.createDoubleMoneyInput(pmm, editable);
+			txt = (Text<T>) Text.createDoubleMoneyInput(pmm, editable);
 		} else if(pmm.getActualType() == BigDecimal.class) {
-			txt = (Text<T>) UIControlUtil.createBDMoneyInput(pmm, editable);
+			txt = (Text<T>) Text.createBDMoneyInput(pmm, editable);
 		} else
 				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
 		return new ControlFactoryResult(txt, model, pmm);
