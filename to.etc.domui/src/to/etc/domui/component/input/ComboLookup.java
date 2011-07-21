@@ -117,11 +117,11 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 			co = new ComboLookup<T>(set, r);
 		else {
 			//-- No dataset. Create one from a direct Criteria and any query manipulator.
-			QCriteria<T> q = (QCriteria<T>) pmm.getClassModel().createCriteria();
+			QCriteria<T> q = (QCriteria<T>) pmm.getValueModel().createCriteria();
 			if(null != q) {
 				IQueryManipulator<T> qm = pmm.getQueryManipulator();
 				if(null == qm)
-					qm = (IQueryManipulator<T>) pmm.getClassModel().getQueryManipulator();
+					qm = (IQueryManipulator<T>) pmm.getValueModel().getQueryManipulator();
 
 				if(null != qm) {
 					q = qm.adjustQuery(q); // Adjust query if needed

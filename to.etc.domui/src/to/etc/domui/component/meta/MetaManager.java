@@ -811,7 +811,7 @@ final public class MetaManager {
 		List<DisplayPropertyMetaModel> res = pmm.getComboDisplayProperties();
 		if(res.size() != 0)
 			return res;
-		return pmm.getClassModel().getComboDisplayProperties();
+		return pmm.getValueModel().getComboDisplayProperties();
 	}
 
 	/**
