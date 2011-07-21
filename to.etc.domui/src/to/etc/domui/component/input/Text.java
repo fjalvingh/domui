@@ -105,10 +105,10 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 			default:
 				break;
 			case DIGITS:
-				setOnKeyPressJS("return WebUI.isNumberKey(event)");
+				setOnKeyPressJS("WebUI.isNumberKey(event)");
 				break;
 			case FLOAT:
-				setOnKeyPressJS("return WebUI.isFloatKey(event)");
+				setOnKeyPressJS("WebUI.isFloatKey(event)");
 				break;
 		}
 	}
