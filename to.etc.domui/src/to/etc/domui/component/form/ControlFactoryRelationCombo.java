@@ -28,6 +28,7 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
  * Accepts any property defined as an UP relation (parent) and score higher if a component type
@@ -53,6 +54,8 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 			return 0;
 		if(Constants.COMPONENT_COMBO.equals(pmm.getComponentTypeHint()))
 			return 10;
+		if(pmm.getComponentTypeHint() == null && Constants.COMPONENT_COMBO.equals(pmm.getClassModel().getComponentTypeHint()))
+			return 10;
 		return 2;
 	}
 
@@ -69,22 +72,12 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 			return new ControlFactoryResult(dv, model, pmm);
 		}
 
-		//-- We need to add a ComboBox. Do we have a combobox dataset provider?
-		Class< ? extends IComboDataSet<T>> set = (Class< ? extends IComboDataSet<T>>) pmm.getComboDataSet();
-		if(set == null) {
-			set = (Class< ? extends IComboDataSet<T>>) pmm.getClassModel().getComboDataSet();
-			if(set == null)
-				throw new IllegalStateException("Missing Combo dataset provider for property " + pmm);
+		try {
+			ComboLookup<T> co = ComboLookup.createLookup(pmm);
+			co.setDisabled(!editable);
+			return new ControlFactoryResult(co, model, pmm);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x); // Checked exceptions are idiocy.
 		}
-
-		INodeContentRenderer<T> r = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(pmm, null);
-		ComboLookup<T> co = new ComboLookup<T>(set, r);
-		if(pmm.isRequired())
-			co.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			co.setTitle(s);
-		co.setDisabled(!editable);
-		return new ControlFactoryResult(co, model, pmm);
 	}
 }

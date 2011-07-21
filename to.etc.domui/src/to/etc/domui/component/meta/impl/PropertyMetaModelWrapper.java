@@ -251,10 +251,6 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 		return m_parent.getLookupTableProperties();
 	}
 
-	public String getComboSortProperty() {
-		return m_parent.getComboSortProperty();
-	}
-
 	public IQueryManipulator<T> getQueryManipulator() {
 		return m_parent.getQueryManipulator();
 	}

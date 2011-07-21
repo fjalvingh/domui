@@ -244,13 +244,6 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	List<DisplayPropertyMetaModel> getComboDisplayProperties();
 
 	/**
-	 * The property name to sort the combobox's presentation on.
-	 * @return
-	 */
-	@Nullable
-	String getComboSortProperty();
-
-	/**
 	 * If this contains null the field can be seen by all users. If it has a value
 	 * the first-level array is a set of ORs; the second level are ANDs. Meaning that
 	 * an array in the format:

@@ -390,13 +390,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Nullable
-	public String getComboSortProperty() {
-		return m_original.getComboSortProperty();
-	}
-
-	@Nullable
 	public IQueryManipulator<T> getQueryManipulator() {
 		return m_original.getQueryManipulator();
 	}
-
 }

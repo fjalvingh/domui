@@ -436,7 +436,8 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			if(c.properties() != null && c.properties().length > 0) {
 				cmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
 			}
-			//			cmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
+			if(c.preferred())
+				cmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
 		} else if(an instanceof MetaObject) {
 			MetaObject mo = (MetaObject) an;
 			if(mo.defaultColumns().length > 0) {

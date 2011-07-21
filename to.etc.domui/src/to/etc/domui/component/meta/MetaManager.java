@@ -37,6 +37,7 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.query.*;
 
 /**
  * Accessor class to the generalized metadata thingies.
@@ -798,4 +799,64 @@ final public class MetaManager {
 		}
 		return v;
 	}
+
+	/**
+	 * Return the list of defined combo properties, either on property model or class model. Returns
+	 * the empty list if none are defined.
+	 * @param pmm
+	 * @return
+	 */
+	@Nonnull
+	static public List<DisplayPropertyMetaModel> getComboProperties(@Nonnull PropertyMetaModel< ? > pmm) {
+		List<DisplayPropertyMetaModel> res = pmm.getComboDisplayProperties();
+		if(res.size() != 0)
+			return res;
+		return pmm.getClassModel().getComboDisplayProperties();
+	}
+
+	/**
+	 * Comparator to sort by ascending sortIndex.
+	 */
+	static public final Comparator<DisplayPropertyMetaModel> C_BY_SORT_INDEX = new Comparator<DisplayPropertyMetaModel>() {
+		@Override
+		public int compare(DisplayPropertyMetaModel a, DisplayPropertyMetaModel b) {
+			return a.getSortIndex() - b.getSortIndex();
+		}
+	};
+
+
+	/**
+	 * Walk the list of properties, and defines the list that should be added as sort properties
+	 * to the QCriteria.
+	 * @param crit
+	 * @param properties
+	 */
+	static public void applyPropertySort(@Nonnull QCriteria< ? > q, @Nonnull List<DisplayPropertyMetaModel> properties) {
+		List<DisplayPropertyMetaModel> sl = new ArrayList<DisplayPropertyMetaModel>();
+		boolean hasindex = false;
+		for(DisplayPropertyMetaModel p : properties) {
+			if(p.getSortable() == SortableType.SORTABLE_ASC || p.getSortable() == SortableType.SORTABLE_DESC)
+				sl.add(p);
+			if(p.getSortIndex() >= 0)
+				hasindex = true;
+		}
+		if(sl.size() == 0)
+			return;
+		if(hasindex)
+			Collections.sort(sl, C_BY_SORT_INDEX);
+		for(DisplayPropertyMetaModel p : sl) {
+			switch(p.getSortable()){
+				default:
+					throw new IllegalStateException("Unexpected sort type: " + p.getSortable());
+				case SORTABLE_ASC:
+					q.ascending(p.getName());
+					break;
+				case SORTABLE_DESC:
+					q.descending(p.getName());
+					break;
+			}
+		}
+	}
+
+
 }

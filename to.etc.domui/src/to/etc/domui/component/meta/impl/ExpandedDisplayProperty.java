@@ -597,12 +597,6 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	@Nullable
 	@Override
-	public String getComboSortProperty() {
-		return null;
-	}
-
-	@Nullable
-	@Override
 	public IQueryManipulator<T> getQueryManipulator() {
 		return null;
 	}

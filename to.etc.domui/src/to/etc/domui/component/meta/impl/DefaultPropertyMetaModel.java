@@ -69,8 +69,6 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	private IQueryManipulator<T> m_queryManipulator;
 
-	private String m_comboSortProperty;
-
 	/*---- Lookup stuff. ----*/
 
 	/**
@@ -391,13 +389,5 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	public void setQueryManipulator(IQueryManipulator<T> queryManipulator) {
 		m_queryManipulator = queryManipulator;
-	}
-
-	public String getComboSortProperty() {
-		return m_comboSortProperty;
-	}
-
-	public void setComboSortProperty(String comboSortProperty) {
-		m_comboSortProperty = comboSortProperty;
 	}
 }
