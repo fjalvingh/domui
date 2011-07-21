@@ -27,7 +27,10 @@ package to.etc.domui.component.meta.impl;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -385,4 +388,15 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	public ControlFactory getControlFactory() {
 		return m_original.getControlFactory();
 	}
+
+	@Nullable
+	public String getComboSortProperty() {
+		return m_original.getComboSortProperty();
+	}
+
+	@Nullable
+	public IQueryManipulator<T> getQueryManipulator() {
+		return m_original.getQueryManipulator();
+	}
+
 }

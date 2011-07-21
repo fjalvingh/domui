@@ -27,7 +27,10 @@ package to.etc.domui.component.meta.impl;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -589,6 +592,18 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	@Override
 	public String getRegexpValidator() {
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public String getComboSortProperty() {
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public IQueryManipulator<T> getQueryManipulator() {
 		return null;
 	}
 }

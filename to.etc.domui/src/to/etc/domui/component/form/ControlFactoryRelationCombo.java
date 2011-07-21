@@ -69,9 +69,6 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 			return new ControlFactoryResult(dv, model, pmm);
 		}
 
-		//		if(!editable)
-		//			throw new IllegalStateException("Implementation: please implement ReadOnly combobox thingy.");
-
 		//-- We need to add a ComboBox. Do we have a combobox dataset provider?
 		Class< ? extends IComboDataSet<T>> set = (Class< ? extends IComboDataSet<T>>) pmm.getComboDataSet();
 		if(set == null) {

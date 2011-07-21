@@ -28,6 +28,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -248,5 +249,13 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	@Override
 	public List<DisplayPropertyMetaModel> getLookupTableProperties() {
 		return m_parent.getLookupTableProperties();
+	}
+
+	public String getComboSortProperty() {
+		return m_parent.getComboSortProperty();
+	}
+
+	public IQueryManipulator<T> getQueryManipulator() {
+		return m_parent.getQueryManipulator();
 	}
 }

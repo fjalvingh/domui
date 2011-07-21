@@ -26,6 +26,7 @@ package to.etc.domui.component.meta.impl;
 
 import java.util.*;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
@@ -41,6 +42,14 @@ import to.etc.webapp.query.*;
  */
 public class ClassMetaModelWrapper implements ClassMetaModel {
 	private ClassMetaModel m_parent;
+
+	public String getComboSortProperty() {
+		return m_parent.getComboSortProperty();
+	}
+
+	public IQueryManipulator< ? > getQueryManipulator() {
+		return m_parent.getQueryManipulator();
+	}
 
 	protected ClassMetaModelWrapper(ClassMetaModel parent) {
 		m_parent = parent;

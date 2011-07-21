@@ -66,7 +66,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public Class<T> getActualType();
+	Class<T> getActualType();
 
 	/**
 	 * The abomination that is Java Generics requires a separate dysfunctional type system to represent
@@ -75,7 +75,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	public Type getGenericActualType();
+	Type getGenericActualType();
 
 	/**
 	 * Return any default label (the text to use before the control that inputs this property) for this
@@ -86,7 +86,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return	the label text, or null if unknown.
 	 */
 	@Nullable
-	public String getDefaultLabel();
+	String getDefaultLabel();
 
 	/**
 	 * Returns the default hint text (which pops up when the mouse is held over the control that inputs this
@@ -95,7 +95,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return	The hint text, or null if not known.
 	 */
 	@Nullable
-	public String getDefaultHint();
+	String getDefaultHint();
 
 	/**
 	 * Return the defined length for the item PROVIDED IT WAS SET - THIS SUFFERS FROM AN UTTER FUCKUP IN THE JPA "STANDARD".
@@ -107,33 +107,33 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 *
 	 * @return	The size in characters of this item, or -1 if unknown.
 	 */
-	public int getLength();
+	int getLength();
 
 	/**
 	 * Return the specified precision of the numeric field. Returns -1 if not known or not numeric.
 	 * @return	the precision, or -1 if unknown. The precision is the total #of digits present in the number, including scale digits.
 	 */
-	public int getPrecision();
+	int getPrecision();
 
 	/**
 	 * For numeric types, this returns any defined scale. If undefined this returns -1.
 	 * @return
 	 */
-	public int getScale();
+	int getScale();
 
 	/**
 	 * Returns the #chars to be displayed by default for this item. When present this overrides the length or
 	 * precision as a size indicator.
 	 * @return
 	 */
-	public int getDisplayLength();
+	int getDisplayLength();
 
 	/**
 	 * Returns the name of the property.
 	 * @return
 	 */
 	@Nonnull
-	public String getName();
+	String getName();
 
 	/**
 	 * Returns whether the property should be <i>sortable</i> when used in a default table, and defines
@@ -141,7 +141,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public SortableType getSortable();
+	SortableType getSortable();
 
 	/**
 	 * Returns the user-specified converter to use when converting this property's value to and from string. Can be null.
@@ -149,19 +149,19 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	public IConverter<T> getConverter();
+	IConverter<T> getConverter();
 
 	/**
 	 * Whether the property is defined as requiring a value.
 	 * @return
 	 */
-	public boolean isRequired();
+	boolean isRequired();
 
 	/**
 	 * Returns T if we know this property to be the PK.
 	 * @return
 	 */
-	public boolean isPrimaryKey();
+	boolean isPrimaryKey();
 
 	/**
 	 * Tells if this property represents some kind of database relation (a "parent" property referring to the master of this child record, or a property
@@ -169,7 +169,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public PropertyRelationType getRelationType();
+	PropertyRelationType getRelationType();
 
 	/**
 	 * If the type for this property has a fixed set of domain values (like boolean or enum) this contains
@@ -178,7 +178,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	public Object[] getDomainValues();
+	Object[] getDomainValues();
 
 	/**
 	 * Retrieves the properly localized string representing a domain value in a type which has a fixed set
@@ -192,14 +192,14 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	public String getDomainValueLabel(Locale loc, Object val);
+	String getDomainValueLabel(Locale loc, Object val);
 
 	/**
 	 * If this is defined as some Date type this further defines the domain (date only, date time etc).
 	 * @return
 	 */
 	@Nonnull
-	public TemporalPresentationType getTemporal();
+	TemporalPresentationType getTemporal();
 
 	/**
 	 * Used for numeric types, this returns how to present the number and defines the number's class, like
@@ -207,29 +207,32 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public NumericPresentation getNumericPresentation();
+	NumericPresentation getNumericPresentation();
 
 	/**
 	 * If this should be represented by a combo this can be set to represent the default combo dataset.
+	 * FIXME Must become instance, not class.
 	 * @return
 	 */
 	@Nullable
-	public Class< ? extends IComboDataSet< ? >> getComboDataSet();
+	Class< ? extends IComboDataSet< ? >> getComboDataSet();
 
 	/**
 	 * When this relation-property is presented as a single field this can contain a class to render
 	 * that field as a string.
+	 * FIXME Must become instance, not class.
 	 * @return
 	 */
 	@Nullable
-	public Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer();
+	Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer();
 
 	/**
 	 * When set this renderer should be used to render the nodes in the combobox.
+	 * FIXME Must become instance, not class.
 	 * @return
 	 */
 	@Nullable
-	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
+	Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
 
 	/**
 	 * For a relation, this is the list of properties that should be shown. This
@@ -238,7 +241,14 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public List<DisplayPropertyMetaModel> getComboDisplayProperties();
+	List<DisplayPropertyMetaModel> getComboDisplayProperties();
+
+	/**
+	 * The property name to sort the combobox's presentation on.
+	 * @return
+	 */
+	@Nullable
+	String getComboSortProperty();
 
 	/**
 	 * If this contains null the field can be seen by all users. If it has a value
@@ -257,7 +267,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	public String[][] getViewRoles();
+	String[][] getViewRoles();
 
 	/**
 	 * Defines the roles that a user must have to edit this field. See the description
@@ -265,7 +275,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	public String[][] getEditRoles();
+	String[][] getEditRoles();
 
 	/**
 	 * Reports whether a property is readonly. For Java classes a property is defined as readOnly when it
@@ -273,10 +283,10 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public YesNoType getReadOnly();
+	YesNoType getReadOnly();
 
 	/** If marked as transient in the persistent class this returns true */
-	public boolean isTransient();
+	boolean isTransient();
 
 	/**
 	 * When present this gives a hint to the component factories to help with choosing a
@@ -286,16 +296,18 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	public String getComponentTypeHint();
+	String getComponentTypeHint();
 
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
 	 * control this describes the renderer to use to display the <i>currently selected</i>
 	 * record in the edit page. If empty this will use the lookupFieldDisplayProperties.
+	 *
+	 * FIXME Must become instance, not class.
 	 * @return
 	 */
 	@Nullable
-	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer();
+	Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer();
 
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
@@ -334,7 +346,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	public PropertyMetaValidator[] getValidators();
+	PropertyMetaValidator[] getValidators();
 
 	/**
 	 * Returns the regexp to use to validate input.
@@ -356,4 +368,12 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 */
 	@Nullable
 	ControlFactory getControlFactory();
+
+	/**
+	 * For Lookup and Combo fields, this can return a QueryManipulator instance that will alter the base
+	 * query for the thing to show.
+	 * @return
+	 */
+	@Nullable
+	IQueryManipulator<T> getQueryManipulator();
 }
