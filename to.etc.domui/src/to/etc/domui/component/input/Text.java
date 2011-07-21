@@ -772,6 +772,4 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		txt.setSize(calcsz);
 		return txt;
 	}
-
-
 }
