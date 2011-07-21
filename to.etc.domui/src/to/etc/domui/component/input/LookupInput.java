@@ -67,6 +67,21 @@ import to.etc.webapp.query.*;
  * Created on Jun 1, 2008
  */
 public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIndication {
+
+	/**
+	 * Interface provides assess to used lookup form initialization method.
+	 *
+	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+	 * Created on 19 Jul 2011
+	 */
+	public interface ILookupFormModifier<T> {
+		/**
+		 * Sends LookupForm for initialization.
+		 * @param lf
+		 */
+		void initialize(LookupForm<T> lf) throws Exception;
+	}
+
 	/**
 	 * The result class. For Java classes this usually also defines the metamodel to use; for generic meta this should
 	 * be the value record class type.
@@ -157,6 +172,11 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	 * Default T. When set, table result would be stretched to use entire available height on FloatingWindow.
 	 */
 	private boolean m_useStretchedLayout = true;
+
+	/**
+	 * If set, enables custom init code on LookupForm that is in use for this component, triggers before LookupForm is shown
+	 */
+	private ILookupFormModifier<T> m_lookupFormInitialization;
 
 	public LookupInput(Class<T> lookupClass, String[] resultColumns) {
 		this(lookupClass, (ClassMetaModel) null);
@@ -543,6 +563,10 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 
 		lf.setCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
+
+		if(getLookupFormInitialization() != null) {
+			getLookupFormInitialization().initialize(lf);
+		}
 		m_floater.add(lf);
 		m_floater.setOnClose(new IWindowClosed() {
 			@Override
@@ -1075,5 +1099,21 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 		if(isBuilt()) {
 			forceRebuild();
 		}
+	}
+
+	/**
+	 * @See  {@link LookupInput#m_lookupFormInitialization}.
+	 * @return
+	 */
+	public ILookupFormModifier<T> getLookupFormInitialization() {
+		return m_lookupFormInitialization;
+	}
+
+	/**
+	 * @See  {@link LookupInput#m_lookupFormInitialization}.
+	 * @return
+	 */
+	public void setLookupFormInitialization(ILookupFormModifier<T> lookupFormInitialization) {
+		m_lookupFormInitialization = lookupFormInitialization;
 	}
 }
