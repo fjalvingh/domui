@@ -555,37 +555,6 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		addCells(row(), l, c, editable);
 	}
 
-	//	/**
-	//	 * Sets the control and label into the nodes for a given "column", then advances to the next "row".
-	//	 * @param l
-	//	 * @param c
-	//	 */
-	//	protected void modeAddColumnar(final NodeBase l, final NodeBase[] c, boolean editable) {
-	//		//-- 1. Find the appropriate "row" or make sure it exists.
-	//		TR tr = selectRow(m_colRow);
-	//
-	//		//-- 2. Move to the proper cellpair, or cause them to exist.
-	//		int cindex = 2 * m_colCol;
-	//		TD lcell, ccell;
-	//		while(tr.getChildCount() <= cindex + 1) {
-	//			TD td = new TD();
-	//			td.setCssClass((tr.getChildCount() & 1) == 0 ? "ui-f-lbl" : "ui-f-in");
-	//			tr.add(td);
-	//		}
-	//		lcell = (TD) tr.getChild(cindex);
-	//		ccell = (TD) tr.getChild(cindex + 1);
-	//
-	//		//-- Set the data into the cells but make sure they're empty
-	//		lcell.removeAllChildren();
-	//		ccell.removeAllChildren();
-	//		if(l != null)
-	//			lcell.add(l);
-	//		for(NodeBase nb : c)
-	//			ccell.add(nb);
-	//		ccell.setCssClass(editable ? "ui-f-in" : "ui-f-do");
-	//		m_colRow++;
-	//	}
-
 	/**
 	 * Appends the control to the last cell of the last row used.
 	 * @param l

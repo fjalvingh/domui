@@ -255,6 +255,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		internalClearDelta();
 	}
 
+	protected int internalGetNodeCount(int depth) {
+		return 1;
+	}
+
 	/**
 	 * When the node is attached to a page this returns the ID assigned to it. To call it before
 	 * is an error and throws IllegalStateException.
@@ -492,6 +496,25 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		}
 	}
 
+	/**
+	 * Walk the parent chain upwards, and find the first parent that implements <i>any</i> of
+	 * the classes passed.
+	 * @param clzar
+	 * @return
+	 */
+	final public NodeBase getParentOfTypes(final Class< ? extends NodeBase>... clzar) {
+		NodeContainer c = getParent();
+		for(;;) {
+			if(c == null)
+				return null;
+			for(Class< ? > clz : clzar) {
+				if(clz.isAssignableFrom(c.getClass()))
+					return c;
+			}
+			c = c.getParent();
+		}
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree manipulation.									*/
@@ -596,10 +619,17 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	private final void internalCreateContent() throws Exception {
+		beforeCreateContent();
+		internalCreateFrame();
 		createContent();
 		afterCreateContent();
 	}
 
+	/**
+	 * This method is a placeholder for NodeContainer which allows it to handle
+	 * framed windows somehow.
+	 */
+	protected void internalCreateFrame() throws Exception {}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple other getter and setter like stuff.			*/
@@ -1117,12 +1147,17 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	public void onBeforeFullRender() throws Exception {}
 
+	@OverridingMethodsMustInvokeSuper
+	protected void beforeCreateContent() {}
+
 	public void createContent() throws Exception {}
 
 	protected void afterCreateContent() throws Exception {}
 
+	@OverridingMethodsMustInvokeSuper
 	public void onAddedToPage(final Page p) {}
 
+	@OverridingMethodsMustInvokeSuper
 	public void onRemoveFromPage(final Page p) {}
 
 	public void onHeaderContributors(final Page page) {}

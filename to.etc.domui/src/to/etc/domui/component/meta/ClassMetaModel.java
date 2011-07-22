@@ -160,6 +160,13 @@ public interface ClassMetaModel {
 	List<DisplayPropertyMetaModel> getComboDisplayProperties();
 
 	/**
+	 * The property name to sort the combobox's presentation on.
+	 * @return
+	 */
+	@Nullable
+	String getComboSortProperty();
+
+	/**
 	 * If this object is shown in a Table it needs to show the following
 	 * properties there. This value gets set from @MetaObject. These columns
 	 * are also used when the table is shown as the result of a {@link LookupInput}
@@ -234,42 +241,24 @@ public interface ClassMetaModel {
 	@Nonnull
 	List<DisplayPropertyMetaModel> getLookupSelectedProperties();
 
-	//	/**
-	//	 * When used in a {@link LookupInput} field, this fields are used to show the result of a Search in the DataTable.
-	//	 * @return
-	//	 */
-	//	@Nonnull
-	//	List<DisplayPropertyMetaModel> getLookupFieldTableProperties();
-	//
-	//	/**
-	//	 * When used in a {@link LookupInput} field, this fields are used to create the search inputs.
-	//	 *
-	//	 * @return
-	//	 */
-	//	@Nonnull
-	//	List<SearchPropertyMetaModel> getLookupFieldSearchProperties();
-	//
-	//	/**
-	//	 * When used in a {@link LookupInput} field, this fields are used to create the keyword search inputs.
-	//	 *
-	//	 * @return
-	//	 */
-	//	@Nonnull
-	//	List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties();
-
 	/**
-	 * EXPERIMENTAL
 	 * If this is a persistent class, this should create a base QCriteria instance to do queries
 	 * on this class. The QCriteria&lt;T&gt; instance returned <i>must</i> have a T that is equal
 	 * to the value returned by this.getActualClass(). In addition it should have only restrictions
 	 * that limit the result to valid instances of this class, <i>nothing else</i>! This usually
 	 * means the restriction set is empty.
 	 *
-	 * <p>Needs evaluation.</p>
-	 *
 	 * @return
 	 * @throws Exception
 	 */
 	@Nonnull
 	QCriteria< ? > createCriteria() throws Exception;
+
+	/**
+	 * For Lookup and Combo fields, this can return a QueryManipulator instance that will alter the base
+	 * query for the list-of-this to show.
+	 * @return
+	 */
+	@Nullable
+	IQueryManipulator< ? > getQueryManipulator();
 }

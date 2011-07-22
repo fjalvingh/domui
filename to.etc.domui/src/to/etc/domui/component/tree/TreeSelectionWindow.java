@@ -62,10 +62,9 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 	public TreeSelectionWindow(boolean modal, String txt, @Nonnull ITreeModel<T> model) {
 		super(modal, txt);
 		m_model = model;
-		setOnClose(new IClicked<FloatingWindow>() {
-
+		setOnClose(new IWindowClosed() {
 			@Override
-			public void clicked(FloatingWindow clickednode) throws Exception {
+			public void closed(String closeReason) throws Exception {
 				cancel();
 			}
 		});

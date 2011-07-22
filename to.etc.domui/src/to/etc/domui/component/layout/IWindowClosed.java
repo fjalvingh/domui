@@ -22,35 +22,19 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.converter;
+package to.etc.domui.component.layout;
 
-import to.etc.domui.component.meta.*;
+import javax.annotation.*;
 
 /**
- * Generic factory to accept double numeric values. This has a low priority so monetary values
- * can override this.
+ * Used by {@link FloatingDiv} derived classes to tell the world that a floating
+ * window or dialog has closed for a specific reason. The reason string is a literal
+ * string constant usually present as a RSN_xxx constant on some class extending
+ * FloatingDiv.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Nov 17, 2009
+ * Created on Jul 19, 2011
  */
-final public class DoubleFactory implements IConverterFactory {
-	@Override
-	public int accept(final Class< ? > clz, final PropertyMetaModel< ? > pmm) {
-		if(!Double.class.isAssignableFrom(clz) && double.class != clz)
-			return -1;
-		return 5;
-	}
-
-	/**
-	 *
-	 * @see to.etc.domui.converter.IConverterFactory#createConverter(java.lang.Class, to.etc.domui.component.meta.PropertyMetaModel)
-	 */
-	@Override
-	public <X, T extends IConverter<X>> T createConverter(final Class<X> clz, final PropertyMetaModel<X> pmm) {
-		if(null == pmm)
-			return (T) ConverterRegistry.getConverterInstance(DoubleConverter.class);
-
-		//-- Try to allot a properly formatting converter.
-		return (T) new NumberConverter<Double>(Double.class, pmm.getNumericPresentation(), pmm.getScale());
-	}
+public interface IWindowClosed {
+	void closed(@Nonnull String closeReason) throws Exception;
 }

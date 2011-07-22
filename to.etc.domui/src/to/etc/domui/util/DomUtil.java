@@ -283,10 +283,34 @@ final public class DomUtil {
 		return "#" + StringTool.intToStr(value, 16, 6);
 	}
 
-	static public IErrorFence getMessageFence(NodeBase start) {
+	static public IErrorFence getMessageFence(NodeBase in) {
+		NodeBase start = in;
+
+		//-- If we're delegated then test the delegate 1st
+		if(in instanceof NodeContainer) {
+			NodeContainer nc = (NodeContainer) in;
+			if(nc.getDelegate() != null) {
+				IErrorFence ef = getMessageFence(nc.getDelegate());
+				if(null != ef)
+					return ef;
+			}
+		}
+
 		for(;;) {
-			if(start == null)
-				throw new IllegalStateException("Cannot locate error fence. Did you call an error routine on an unattached Node?");
+			if(start == null) {
+				//-- Collect the path we followed for the error message
+				StringBuilder sb = new StringBuilder();
+				sb.append("Cannot locate error fence. Did you call an error routine on an unattached Node?\nThe path followed upwards was: ");
+				start = in;
+				while(start != null) {
+					if(start != in)
+						sb.append(" -> ");
+					sb.append(start.toString());
+					start = start.getParent();
+				}
+
+				throw new IllegalStateException(sb.toString());
+			}
 			if(start instanceof NodeContainer) {
 				NodeContainer nc = (NodeContainer) start;
 				if(nc.getErrorFence() != null)
@@ -1423,4 +1447,27 @@ final public class DomUtil {
 			return x.getStackTrace();
 		}
 	}
+
+
+	static private String m_lorem;
+
+	/**
+	 * Return a large string containing lorum ipsum text, for testing purposes.
+	 * @return
+	 * @throws Exception
+	 */
+	static public String getLorem() throws Exception {
+		if(null == m_lorem) {
+			InputStream is = DomUtil.class.getResourceAsStream("lorem.txt");
+			try {
+				m_lorem = FileTool.readStreamAsString(is, "utf-8");
+			} finally {
+				try {
+					is.close();
+				} catch(Exception x) {}
+			}
+		}
+		return m_lorem;
+	}
+
 }

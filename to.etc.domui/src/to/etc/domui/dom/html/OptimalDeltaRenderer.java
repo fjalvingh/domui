@@ -57,7 +57,7 @@ import to.etc.util.*;
  * Created on Jun 6, 2008
  */
 public class OptimalDeltaRenderer {
-	static private final boolean DEBUG = false;
+	static private final boolean DEBUG = true;
 
 	private IBrowserOutput m_o;
 
@@ -477,8 +477,9 @@ public class OptimalDeltaRenderer {
 	 * @param nc
 	 */
 	private void doContainerChildren(NodeInfo nodeInfo, NodeContainer nc) throws Exception {
-		for(int i = 0, len = nc.getChildCount(); i < len; i++) {
-			NodeBase n = nc.getChild(i);
+		List<NodeBase> chl = nc.internalGetChildren();
+		for(int i = 0, len = chl.size(); i < len; i++) {
+			NodeBase n = chl.get(i);
 			if(n instanceof NodeContainer) {
 				doBase(nodeInfo, n);
 				doContainer(nodeInfo, (NodeContainer) n);
@@ -747,7 +748,7 @@ public class OptimalDeltaRenderer {
 		for(NodeBase nb : ni.addList) {
 			if(nb.m_origNewIndex == 0)
 				continue;
-			NodeBase pre = nc.getChild(nb.m_origNewIndex - 1);
+			NodeBase pre = nc.internalGetChildren().get(nb.m_origNewIndex - 1);
 			if(pre instanceof TextNode) {
 				ni.setFullRerender();
 				if(DEBUG)
@@ -758,11 +759,23 @@ public class OptimalDeltaRenderer {
 		//-- Re-decide again: if the #of adds and deletes is > the size of the new list we re-render
 		if(!ni.isFullRender) {
 			int ncmd = ni.deleteList.size() + ni.addList.size();
+
 			if((double) ncmd / (double) newl.size() > 0.9) {
-				//-- re-render fully.
-				ni.setFullRerender();
-				if(DEBUG)
-					System.out.println("o: final verdict on " + nc.getActualID() + ": #cmds=" + ncmd + " and newsize=" + newl.size() + ", rerender-fully.");
+				//-- As far as commands go it is better to re-render.
+
+
+				// Bug# 1101: get a quick indication of how big the subtree is by traversing only the 1st subtree in the nodes;
+				int xcount = 0;
+				for(NodeBase n : newl) {
+					xcount += n.internalGetNodeCount(2);
+				}
+				if(xcount > ncmd * 2) {
+					//-- end bug# 1101 fix
+					//-- re-render fully.
+					ni.setFullRerender();
+					if(DEBUG)
+						System.out.println("o: final verdict on " + nc.getActualID() + ": #cmds=" + ncmd + " and newsize=" + newl.size() + ", xcount=" + xcount + ", rerender-fully.");
+				}
 			}
 		}
 

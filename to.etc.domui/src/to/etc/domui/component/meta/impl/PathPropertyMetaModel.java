@@ -30,6 +30,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -392,5 +393,10 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	@Override
 	public String[] getColumnNames() {
 		return m_original.getColumnNames();
+	}
+
+	@Nullable
+	public IQueryManipulator<T> getQueryManipulator() {
+		return m_original.getQueryManipulator();
 	}
 }
