@@ -2221,7 +2221,7 @@ var WebUI = {
 //			if(WebUI._NOMOVE)
 //				return;
 //			console.debug("move ", e);
-			WebUI._debugMouseTarget = e.srcElement || e.originalTarget;
+			WebUI._debugMouseTarget = e.target; //e.srcElement || e.originalTarget;
 			
 		});
 	},
