@@ -177,6 +177,22 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return m_oldChildren;
 	}
 
+	/**
+	 * Count the #of nodes in this tree, recursively until the given depth.
+	 * @see to.etc.domui.dom.html.NodeBase#internalGetNodeCount(int)
+	 */
+	@Override
+	protected int internalGetNodeCount(int depth) {
+		if(depth <= 0)
+			return 0;
+		depth--;
+		int count = 0;
+		for(NodeBase b : m_children) {
+			count += b.internalGetNodeCount(depth);
+		}
+		return count;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree accessors.										*/
 	/*--------------------------------------------------------------*/

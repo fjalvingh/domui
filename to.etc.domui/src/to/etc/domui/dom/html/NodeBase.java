@@ -255,6 +255,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		internalClearDelta();
 	}
 
+	protected int internalGetNodeCount(int depth) {
+		return 1;
+	}
+
 	/**
 	 * When the node is attached to a page this returns the ID assigned to it. To call it before
 	 * is an error and throws IllegalStateException.
