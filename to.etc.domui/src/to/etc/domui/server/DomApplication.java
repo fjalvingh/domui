@@ -719,10 +719,6 @@ public abstract class DomApplication {
 		return m_webFilePath;
 	}
 
-	public String getApplicationURL() {
-		return AppFilter.getApplicationURL();
-	}
-
 	//	/** Cache for application resources containing all resources we have checked existence for */
 	//	private final Map<String, IResourceRef> m_resourceSet = new HashMap<String, IResourceRef>();
 
