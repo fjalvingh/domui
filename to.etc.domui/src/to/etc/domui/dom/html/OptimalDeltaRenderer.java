@@ -57,7 +57,7 @@ import to.etc.util.*;
  * Created on Jun 6, 2008
  */
 public class OptimalDeltaRenderer {
-	static private final boolean DEBUG = true;
+	static private final boolean DEBUG = false;
 
 	private IBrowserOutput m_o;
 

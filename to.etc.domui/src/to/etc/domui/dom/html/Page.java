@@ -430,7 +430,7 @@ final public class Page implements IQContextContainer {
 				zindex = fr.getZIndex() + 100;
 		}
 		window.setZIndex(zindex);
-		System.out.println("New floater got zIndex=" + zindex);
+		//		System.out.println("New floater got zIndex=" + zindex);
 
 		//-- If this is MODAL create a hider for it.
 		if(window.isModal()) {
