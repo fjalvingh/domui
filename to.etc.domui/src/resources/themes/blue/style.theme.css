@@ -1858,7 +1858,7 @@ body,html {
 .ui-dbtn:HOVER, .ui-dbtn:FOCUS {
 	background-position: 0px -<%= defaultbutton_height %>px;
 }
-.ui-dbtn[disabled=disabled] {
+.ui-dbtn[disabled] {
 	background-position: 0px -<%= defaultbutton_height*2 %>px !important;
 }
 
