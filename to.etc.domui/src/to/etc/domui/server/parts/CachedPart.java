@@ -24,63 +24,61 @@
  */
 package to.etc.domui.server.parts;
 
-import java.io.*;
+import javax.annotation.concurrent.*;
+
+import to.etc.domui.util.resources.*;
 
 /**
- * Describes the response for a part.
+ * Contains a cached instance of some part rendering.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jan 13, 2009
+ * Created on Jun 4, 2008
  */
-public class PartResponse {
-	private OutputStream m_os;
+@Immutable
+final public class CachedPart {
+	private final byte[][] m_data;
 
-	private String m_mime;
+	final int m_size;
 
-	private int m_cacheTime;
+	final ResourceDependencies m_dependencies;
 
-	/**
-	 * Contains any extra data that is generated. Currently used to pass image size back to button.
-	 */
-	private Object m_extra;
+	private final String m_contentType;
 
-	public PartResponse(OutputStream os) {
-		m_os = os;
+	/** The time a response may be cached locally, in seconds */
+	final int m_cacheTime;
+
+	final Object m_extra;
+
+	public CachedPart(byte[][] data, int size, int cacheTime, String contentType, ResourceDependencies dependencies, Object extra) {
+		m_data = data;
+		m_size = size;
+		m_cacheTime = cacheTime;
+		m_contentType = contentType;
+		m_dependencies = dependencies;
+		m_extra = extra;
 	}
 
-	public OutputStream getOutputStream() {
-		return m_os;
+	public byte[][] getData() {
+		return m_data;
 	}
 
-	public String getMime() {
-		return m_mime;
+	public int getSize() {
+		return m_size;
 	}
 
-	public void setMime(String mime) {
-		m_mime = mime;
+	public ResourceDependencies getDependencies() {
+		return m_dependencies;
 	}
 
-	/**
-	 * The time the response may be cached by the browser without inquiry, in seconds.
-	 * @return
-	 */
+	public String getContentType() {
+		return m_contentType;
+	}
+
 	public int getCacheTime() {
 		return m_cacheTime;
 	}
 
-	/**
-	 * Set the time the response may be cached by the browser without inquiry, in seconds.
-	 * @param cacheTime
-	 */
-	public void setCacheTime(int cacheTime) {
-		m_cacheTime = cacheTime;
-	}
-
 	public Object getExtra() {
 		return m_extra;
-	}
-
-	public void setExtra(Object extra) {
-		m_extra = extra;
 	}
 }

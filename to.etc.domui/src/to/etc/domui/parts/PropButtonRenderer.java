@@ -30,6 +30,7 @@ import java.awt.geom.*;
 import java.awt.image.*;
 import java.text.*;
 import java.util.*;
+import java.util.List;
 
 import javax.annotation.*;
 import javax.imageio.*;
@@ -49,17 +50,21 @@ public class PropButtonRenderer {
 
 	private Properties m_properties;
 
-	private PropBtnPart.ButtonPartKey m_key;
+	private ButtonPartKey m_key;
 
 	private IResourceDependencyList m_dependencies;
 
+	private int m_width, m_height;
+
 	protected BufferedImage m_rootImage;
+
+	private List<BufferedImage> m_images = new ArrayList<BufferedImage>(10);
 
 	private Graphics2D m_targetGraphics;
 
 	protected BufferedImage m_iconImage;
 
-	public void generate(PartResponse pr, DomApplication da, PropBtnPart.ButtonPartKey key, Properties p, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public void generate(PartResponse pr, DomApplication da, ButtonPartKey key, Properties p, @Nonnull IResourceDependencyList rdl) throws Exception {
 		m_application = da;
 		m_properties = p;
 		m_key = key;
@@ -67,6 +72,7 @@ public class PropButtonRenderer {
 
 		try {
 			initBackground();
+			renderBackground();
 			initIcon();
 			initTextFont();
 			initTextColor();
@@ -75,11 +81,14 @@ public class PropButtonRenderer {
 			initAttributedText();
 
 			//-- Everything is known. Calculate how much space icon+text will take.
-			FontRenderContext frc = getGraphics().getFontRenderContext();
-			TextLayout layout = new TextLayout(m_attributedString.getIterator(), frc);
-			Rectangle2D r = layout.getBounds();
+			int totalwidth = 0;
+			if(m_attributedString != null) {
+				FontRenderContext frc = getGraphics().getFontRenderContext();
+				TextLayout layout = new TextLayout(m_attributedString.getIterator(), frc);
+				Rectangle2D r = layout.getBounds();
+				totalwidth = (int) r.getWidth();
+			}
 
-			int totalwidth = (int) r.getWidth();
 			if(m_iconImage != null) {
 				totalwidth += m_iconImage.getWidth();
 
@@ -96,17 +105,20 @@ public class PropButtonRenderer {
 			}
 			//			System.out.println("totalwidth=" + totalwidth + ", x=" + r.getX() + ", y=" + r.getY() + ", w=" + r.getWidth() + ", h=" + r.getHeight());
 
-			if(totalwidth > m_rootImage.getWidth()) {
+			if(totalwidth > m_width) {
 				growRootWider(totalwidth);
 			}
 
-
 			if(m_iconImage != null)
 				renderIcon();
-			if(getKey().m_text != null) {
+			if(getKey().getText() != null) {
 				renderAttributedText();
 			}
 			compress(pr);
+
+			//-- Pass the resulting size into extra.
+			Dimension dim = new Dimension(m_width, m_height);
+			pr.setExtra(dim);
 		} finally {
 			try {
 				if(null != m_targetGraphics)
@@ -132,7 +144,7 @@ public class PropButtonRenderer {
 
 			//-- Get the splice image;
 			BufferedImage	splice = m_rootImage.getSubimage(split, 0, 1, m_rootImage.getHeight());	// Get a 1-pixel wide splice
-			int leftsz = m_rootImage.getWidth() - split;
+			//			int leftsz = m_rootImage.getWidth() - split;
 			int gapwidth = totalwidth - m_rootImage.getWidth();
 			for(int x = split, i = gapwidth; --i >= 0; x++) {
 				g2d.drawImage(splice, x, 0, null); // Replicate splice over the gap
@@ -143,6 +155,7 @@ public class PropButtonRenderer {
 			g2d.drawImage(rightbi, split + gapwidth, 0, null); // Replicate splice over the gap
 
 			m_rootImage = newbi;
+			m_width = totalwidth;
 			if(null != m_targetGraphics)
 				m_targetGraphics.dispose();
 			m_targetGraphics = null;
@@ -159,10 +172,10 @@ public class PropButtonRenderer {
 	}
 
 	protected void initIcon() throws Exception {
-		if(getKey().m_icon == null || getKey().m_icon.trim().length() == 0)
+		if(getKey().getIcon() == null || getKey().getIcon().trim().length() == 0)
 			return;
 
-		m_iconImage = loadImage("/" + getKey().m_icon);
+		m_iconImage = loadImage("/" + getKey().getIcon());
 	}
 
 	public Graphics2D getGraphics() {
@@ -183,13 +196,55 @@ public class PropButtonRenderer {
 		}
 	}
 
+
+	/**
+	 * Load all backgrounds, and checks their sizes: they must have the exact same size.
+	 * @throws Exception
+	 */
 	protected void initBackground() throws Exception {
-		String rurl = getKey().m_img == null ? getProperty("bg.image") : "/" + getKey().m_img;
-		if(rurl != null) {
-			m_rootImage = loadImage(rurl);
+		if(getKey().getImg() != null) {
+			//-- Image passed on command.
+			BufferedImage bi = loadImage("/" + getKey().getImg());
+			m_images.add(bi);
+			m_width = bi.getWidth();
+			m_height = bi.getHeight();
 			return;
 		}
-		throw new IllegalStateException("Missing 'bg.image' key in button properties file");
+
+		String rurl = getProperty("bg.image");
+		if(null == rurl)
+			throw new IllegalStateException("Missing 'bg.image' key in button properties file");
+
+		BufferedImage bi = loadImage(rurl);
+		m_images.add(bi);
+		m_width = bi.getWidth();
+		m_height = bi.getHeight();
+
+		rurl = getProperty("bg2.image");
+		if(null == rurl)
+			return;
+		bi = loadImage(rurl);
+		if(m_width != bi.getWidth() || m_height != bi.getHeight())
+			throw new IllegalStateException("Size difference between bg and bg2: they must have the exact same size");
+		m_images.add(bi);
+	}
+
+	/**
+	 * Create the target image: big enough to hold all bg images. Then render each bg on
+	 * it, below one another.
+	 * @throws Exception
+	 */
+	private void renderBackground() throws Exception {
+		if(m_height == 0 || m_images.size() == 0)
+			throw new IllegalStateException();
+		int height = m_height * m_images.size();
+		m_rootImage = new BufferedImage(m_width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = getGraphics();
+		int y = 0;
+		for(BufferedImage sbi : m_images) {
+			g.drawImage(sbi, 0, y, null);
+			y += m_height;
+		}
 	}
 
 	protected void renderIcon() throws Exception {
@@ -201,16 +256,19 @@ public class PropButtonRenderer {
 		//-- Determine a position. Height is centered;
 		String yalign = getProperty("icon.yalign", "center");
 		if("center".equalsIgnoreCase(yalign)) {
-			if(m_iconImage.getHeight() < m_rootImage.getHeight()) {
-				y = (m_rootImage.getHeight() - m_iconImage.getHeight()) / 2 + yoffset;
+			if(m_iconImage.getHeight() < m_height) {
+				y = (m_height - m_iconImage.getHeight()) / 2 + yoffset;
 			}
 		} else if("top".equalsIgnoreCase(yalign)) {
-			y = m_rootImage.getHeight() - yoffset;
+			y = m_height - yoffset;
 		} else if("bottom".equalsIgnoreCase(yalign)) {
 			y = yoffset;
 		} else
 			throw new IllegalStateException("icon.yalign must be 'top', 'bottom', 'center'");
-		getGraphics().drawImage(m_iconImage, x, y, null);
+		for(int i = 0; i < m_images.size(); i++) {
+			getGraphics().drawImage(m_iconImage, x, y, null);
+			y += m_height;
+		}
 	}
 
 	/*--------------------------------------------------------------*/
@@ -225,16 +283,6 @@ public class PropButtonRenderer {
 	private AttributedString m_attributedString;
 
 	private Color m_textColor;
-
-	//	protected void renderText() throws Exception {
-	//		if(getKey().m_text != null) {
-	//			initTextFont();
-	//			initTextColor();
-	//			decodeAccelerator();
-	//			initAttributedText();
-	//			renderAttributedText();
-	//		}
-	//	}
 
 	protected void initTextColor() {
 		String col = getProperty("text.color", "000000");
@@ -258,7 +306,7 @@ public class PropButtonRenderer {
 
 	protected void decodeAccelerator() {
 		//-- Create an attributed text thingy to render the accelerator with an underscore.
-		String txt = getKey().m_text;
+		String txt = getKey().getText();
 		if(txt == null) {
 			m_actualText = "";
 			m_acceleratorIndex = -1;
@@ -295,6 +343,9 @@ public class PropButtonRenderer {
 	}
 
 	protected void initAttributedText() {
+		if(m_actualText == null || m_actualText.length() == 0)
+			return;
+
 		//-- Create an Attributed string containing the text to render, with the accelerator underscored proper.
 		m_attributedString = new AttributedString(m_actualText);
 		m_attributedString.addAttribute(TextAttribute.FONT, m_textFont);
@@ -324,10 +375,10 @@ public class PropButtonRenderer {
 		//-- Calculate an Y position; this is independent of any icon rendered
 		int y = 0;
 		if("center".equals(yalign)) {
-			int cy = (m_rootImage.getHeight() - (int) r.getHeight()) / 2;
+			int cy = (m_height - (int) r.getHeight()) / 2;
 			y += cy - (int) (r.getY()) + yoffset;
 		} else if("top".equals(yalign)) {
-			y = m_rootImage.getHeight() - (int) r.getHeight() + yoffset;
+			y = m_height - (int) r.getHeight() + yoffset;
 		} else if("bottom".equals(yalign)) {
 			y = yoffset;
 		} else
@@ -372,7 +423,11 @@ public class PropButtonRenderer {
 			} else
 				throw new IllegalStateException("text.xalign must be center,left,right");
 		}
-		layout.draw(getGraphics(), x, y);
+
+		for(int i = 0; i < m_images.size(); i++) {
+			layout.draw(getGraphics(), x, y);
+			y += m_height;
+		}
 	}
 
 	/*--------------------------------------------------------------*/
@@ -386,11 +441,11 @@ public class PropButtonRenderer {
 			name = rurl.substring(1);
 		} else {
 			//-- Add the path to the properties file.
-			int pos = getKey().m_propfile.lastIndexOf('/');
+			int pos = getKey().getPropFile().lastIndexOf('/');
 			if(pos == -1)
 				name = rurl;
 			else
-				name = getKey().m_propfile.substring(0, pos + 1) + rurl;
+				name = getKey().getPropFile().substring(0, pos + 1) + rurl;
 		}
 		return PartUtil.loadImage(getApplication(), name, getDependencies());
 	}
@@ -403,7 +458,7 @@ public class PropButtonRenderer {
 		return m_dependencies;
 	}
 
-	public PropBtnPart.ButtonPartKey getKey() {
+	public ButtonPartKey getKey() {
 		return m_key;
 	}
 

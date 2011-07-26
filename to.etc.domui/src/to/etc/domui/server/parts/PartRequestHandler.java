@@ -41,30 +41,6 @@ public class PartRequestHandler implements IFilterRequestHandler {
 
 	private List<IUrlPart> m_urlFactories = new ArrayList<IUrlPart>();
 
-	/**
-	 * Contains a cached instance of some part rendering.
-	 *
-	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
-	 * Created on Jun 4, 2008
-	 */
-	static private class CachedPart {
-		public byte[][] m_data;
-
-		public int m_size;
-
-		public ResourceDependencies m_dependencies;
-
-		public String m_contentType;
-
-		//		public String		m_key;
-
-		/** The time a response may be cached locally, in seconds */
-		public int m_cacheTime;
-
-		CachedPart() {}
-	}
-
-
 	public PartRequestHandler(final DomApplication application) {
 		m_application = application;
 
@@ -250,11 +226,37 @@ public class PartRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	public void generate(final IBufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
+		CachedPart cp = getCachedInstance(pf, ctx, url);
+
+		//-- Generate the part
+		OutputStream os = null;
+		if(cp.m_cacheTime > 0 && m_allowExpires) {
+			ServerTools.generateExpiryHeader(ctx.getResponse(), cp.getCacheTime()); // Allow browser-local caching.
+		}
+		ctx.getResponse().setContentType(cp.getContentType());
+		ctx.getResponse().setContentLength(cp.getSize());
+
+		try {
+			os = ctx.getResponse().getOutputStream();
+			for(byte[] data : cp.getData())
+				os.write(data);
+		} finally {
+			try {
+				if(os != null)
+					os.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	public CachedPart getCachedInstance(final IBufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
 		//-- Convert the data to a key object, then lookup;
 		Object key = pf.decodeKey(url, ctx);
 		if(key == null)
 			throw new ThingyNotFoundException("Cannot get resource for " + pf + " with rurl=" + url);
+		return getCachedInstance(pf, key);
+	}
 
+	public CachedPart getCachedInstance(final IBufferedPartFactory pf, Object key) throws Exception {
 		/*
 		 * Lookup. This part *is* thread-safe but it has a race condition: it may cause multiple
 		 * instances of the SAME resource to be generated at the same time and inserted at the
@@ -281,44 +283,22 @@ public class PartRequestHandler implements IFilterRequestHandler {
 				}
 			}
 		}
+		if(cp != null)
+			return cp;
 
-		if(cp == null) {
-			//-- We're going to create the part
-			cp = new CachedPart(); // New one to be done,
-			ResourceDependencyList rdl = new ResourceDependencyList(); // Fix bug# 852: allow resource change checking in production also.
-			ByteBufferOutputStream os = new ByteBufferOutputStream();
-			PartResponse pr = new PartResponse(os);
-			pf.generate(pr, m_application, key, rdl);
-			cp.m_contentType = pr.getMime();
-			if(cp.m_contentType == null)
-				throw new IllegalStateException("The part " + pf + " did not set a MIME type, rurl=" + url);
-			os.close();
-			cp.m_size = os.getSize();
-			cp.m_data = os.getBuffers();
-			cp.m_dependencies = rdl.createDependencies();
-			cp.m_cacheTime = pr.getCacheTime();
-			synchronized(m_cache) {
-				m_cache.put(key, cp); // Store (may be done multiple times due to race condition)
-			}
+		//-- We're going to (re)create the part
+		ResourceDependencyList rdl = new ResourceDependencyList(); // Fix bug# 852: allow resource change checking in production also.
+		ByteBufferOutputStream os = new ByteBufferOutputStream();
+		PartResponse pr = new PartResponse(os);
+		pf.generate(pr, m_application, key, rdl);
+		String mime = pr.getMime();
+		if(mime == null)
+			throw new IllegalStateException("The part " + pf + " did not set a MIME type, key=" + key);
+		os.close();
+		cp = new CachedPart(os.getBuffers(), os.getSize(), pr.getCacheTime(), mime, rdl.createDependencies(), pr.getExtra());
+		synchronized(m_cache) {
+			m_cache.put(key, cp); // Store (may be done multiple times due to race condition)
 		}
-
-		//-- Generate the part
-		OutputStream os = null;
-		if(cp.m_cacheTime > 0 && m_allowExpires) {
-			ServerTools.generateExpiryHeader(ctx.getResponse(), cp.m_cacheTime); // Allow browser-local caching.
-		}
-		ctx.getResponse().setContentType(cp.m_contentType);
-		ctx.getResponse().setContentLength(cp.m_size);
-
-		try {
-			os = ctx.getResponse().getOutputStream();
-			for(byte[] data : cp.m_data)
-				os.write(data);
-		} finally {
-			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) {}
-		}
+		return cp;
 	}
 }

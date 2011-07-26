@@ -1849,3 +1849,11 @@ body,html {
 	margin-top: -1px;
 	margin-right: -2px;
 }
+
+/*** DefaultButton (replaces old version, this one uses hover effects) ***/
+.ui-dbtn {
+	margin: 2px;
+}
+.ui-dbtn:HOVER, .ui-dbtn:FOCUS {
+	background-position: 0px -<%= defaultbutton_height %>px;
+}
