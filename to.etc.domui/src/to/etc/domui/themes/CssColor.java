@@ -36,32 +36,32 @@ import to.etc.util.*;
  */
 @Immutable
 final public class CssColor {
-	final int r;
+	final private int m_r;
 
-	final int g;
+	final private int m_g;
 
-	final int b;
+	final private int m_b;
 
 	/** T if HSL values have been calculated. */
 	private boolean m_hsl;
 
 	/** HSL when calculated */
-	private double m_h, m_s, m_l;
+	private double m_h, m_hsl_s, m_hsl_l, m_hsv_v, m_hsv_s;
 
 	public CssColor(double rin, double gin, double bin) {
 		this((int) (rin + 0.5), (int) (gin + 0.5), (int) (bin + 0.5));
 	}
 
 	public CssColor(int rin, int gin, int bin) {
-		r = rin < 0 ? 0 : rin > 255 ? 255 : rin;
-		g = gin < 0 ? 0 : gin > 255 ? 255 : gin;
-		b = bin < 0 ? 0 : bin > 255 ? 255 : bin;
+		m_r = rin < 0 ? 0 : rin > 255 ? 255 : rin;
+		m_g = gin < 0 ? 0 : gin > 255 ? 255 : gin;
+		m_b = bin < 0 ? 0 : bin > 255 ? 255 : bin;
 	}
 
 	public CssColor(CssColor in) {
-		g = in.g;
-		r = in.r;
-		b = in.b;
+		m_g = in.m_g;
+		m_r = in.m_r;
+		m_b = in.m_b;
 	}
 
 	public CssColor(String rgbin) {
@@ -76,14 +76,14 @@ final public class CssColor {
 			iv = 0x3388ee; // Invalid color signal value.
 		}
 
-		r = (iv >> 16) & 0xff;
-		g = (iv >> 8) & 0xff;
-		b = (iv & 0xff);
+		m_r = (iv >> 16) & 0xff;
+		m_g = (iv >> 8) & 0xff;
+		m_b = (iv & 0xff);
 	}
 
 	public double luminance() {
 		//			return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-		return (double) (r + g + b) / 3;
+		return (double) (m_r + m_g + m_b) / 3;
 	}
 
 	public boolean isLight() {
@@ -99,11 +99,11 @@ final public class CssColor {
 			throw new IllegalStateException("Factor must be 0..1");
 
 		//-- How much room is there to get brighter?
-		int dr = 255 - r;
-		int dg = 255 - g;
-		int db = 255 - b;
+		int dr = 255 - m_r;
+		int dg = 255 - m_g;
+		int db = 255 - m_b;
 
-		return new CssColor(r + dr * factor, g + dg * factor, b + db * factor);
+		return new CssColor(m_r + dr * factor, m_g + dg * factor, m_b + db * factor);
 	}
 
 	public CssColor lighter(double factor) {
@@ -114,11 +114,11 @@ final public class CssColor {
 		if(factor < 0.0 || factor >= 1.0)
 			throw new IllegalStateException("Factor must be 0..1");
 		factor = 1.0 - factor;
-		return new CssColor(r * factor, g * factor, b * factor);
+		return new CssColor(m_r * factor, m_g * factor, m_b * factor);
 	}
 
 	public CssColor inverse() {
-		return new CssColor(255 - r, 255 - g, 255 - b);
+		return new CssColor(255 - m_r, 255 - m_g, 255 - m_b);
 	}
 
 	/**
@@ -168,7 +168,7 @@ final public class CssColor {
 	 * @return
 	 */
 	public double colorBrightness() {
-		return (r * 299.0 + g * 587.0 + b * 114.0) / (255000);
+		return (m_r * 299.0 + m_g * 587.0 + m_b * 114.0) / (255000);
 	}
 
 	public double colorContrast(CssColor col) {
@@ -182,15 +182,15 @@ final public class CssColor {
 	 * @return
 	 */
 	static public double colorContrast(CssColor a, CssColor b) {
-		int dr = Math.abs(a.r - b.r);
-		int dg = Math.abs(a.g - b.g);
-		int db = Math.abs(a.b - b.b);
+		int dr = Math.abs(a.m_r - b.m_r);
+		int dg = Math.abs(a.m_g - b.m_g);
+		int db = Math.abs(a.m_b - b.m_b);
 		return ((double) dr + (double) dg + db) / (3.0 * 256.0);
 	}
 
 	@Override
 	public String toString() {
-		return "#" + StringTool.intToStr(r, 16, 2) + StringTool.intToStr(g, 16, 2) + StringTool.intToStr(b, 16, 2);
+		return "#" + StringTool.intToStr(m_r, 16, 2) + StringTool.intToStr(m_g, 16, 2) + StringTool.intToStr(m_b, 16, 2);
 	}
 
 	public String det() {
@@ -205,36 +205,47 @@ final public class CssColor {
 	/**
 	 * See http://www.had2know.com/technology/hsl-rgb-color-converter.html
 	 */
-	private void calcHSL() {
+	private void calcHSLOld() {
 		if(m_hsl)
 			return;
 
-		int um = r; // M = max(r, g, b)
-		if(g > um)
-			um = g;
-		if(b > um)
-			um = b;
+		int um = m_r; // M = max(r, g, b)
+		if(m_g > um)
+			um = m_g;
+		if(m_b > um)
+			um = m_b;
 
-		int lm = r; // m = min(r, g, b)
-		if(g < lm)
-			lm = g;
-		if(b < lm)
-			lm = b;
+		int lm = m_r; // m = min(r, g, b)
+		if(m_g < lm)
+			lm = m_g;
+		if(m_b < lm)
+			lm = m_b;
 
-		//-- Luminance
-		m_l = (lm + um) / 510.0;
+		//-- Luminance / "Value"
+		m_hsl_l = (lm + um) / 510.0;
+		m_hsv_v = um / 255.0;
+		if(um - lm == 0) {
+			//-- Achromatic
+			m_hsv_s = m_hsl_s = 0;
+			m_h = 0.0;
+		} else {
+			//-- Saturation
+			double d = (um - lm) / 255.0;
+			if(m_hsl_l > 0.0)
+				m_hsl_s = d / (1.0 - Math.abs(2 * m_hsl_l - 1));
+			else
+				m_hsl_s = 0.0;
 
-		//-- Saturation
-		double d = (um - lm) / 255.0;
-		if(m_l > 0.0)
-			m_s = d / (1.0 - Math.abs(2 * m_l - 1));
-		else
-			m_s = 0.0;
+			if(um - lm == 0)
+				m_hsv_s = 0.0;
+			else
+				m_hsv_s = d / m_hsv_v;
 
-		//-- Hue (chroma).
-		m_h = Math.acos((r - 0.5 * g - 0.5 * b) / Math.sqrt(r * r + b * b + g * g - r * g - r * b - g * b)) / Math.PI * 180;
-		if(b > g)
-			m_h = 360 - m_h;
+			//-- Hue (chroma).
+			m_h = Math.acos((m_r - 0.5 * m_g - 0.5 * m_b) / Math.sqrt(m_r * m_r + m_b * m_b + m_g * m_g - m_r * m_g - m_r * m_b - m_g * m_b)) / Math.PI * 180;
+			if(m_b > m_g)
+				m_h = 360 - m_h;
+		}
 		m_hsl = true;
 	}
 
@@ -242,21 +253,36 @@ final public class CssColor {
 	 * Lightness L (HSL)
 	 * @return
 	 */
-	public double getL() {
+	public double getHslL() {
 		calcHSL();
-		return m_l;
+		return m_hsl_l;
+	}
+
+	public double getHsvV() {
+		calcHSL();
+		return m_hsv_v;
 	}
 
 	/**
 	 * Saturation S (HSL)
 	 * @return
 	 */
-	public double getS() {
+	public double getHslS() {
 		calcHSL();
-		return m_s;
+		return m_hsl_s;
 	}
 
-	public double getHue() {
+	public double getHsvS() {
+		calcHSL();
+		return m_hsv_s;
+	}
+
+	public double getHslH() {
+		calcHSL();
+		return m_h;
+	}
+
+	public double getHsvH() {
 		calcHSL();
 		return m_h;
 	}
@@ -325,9 +351,63 @@ final public class CssColor {
 		return new CssColor(r, g, b);
 	}
 
+	private void calcHSL() {
+		if(m_hsl)
+			return;
+		double r = m_r / 255.0;
+		double g = m_g / 255.0;
+		double b = m_b / 255.0;
+
+		double min = r;
+		if(g < min)
+			min = g;
+		if(b < min)
+			min = b;
+		double max = r;
+		if(g > max)
+			max = g;
+		if(b > max)
+			max = b;
+		m_hsl_l = (max + min) / 2.0;
+		m_hsv_v = max;
+
+		double d = max - min;
+
+		//-- hsl saturation
+		if(max == min) {
+			m_hsl_s = 0;
+		} else {
+			if(m_hsl_l > 0.5)
+				m_hsl_s = d / (2.0 - max - min);
+			else
+				m_hsl_s = d / (max + min);
+		}
+
+		//-- hsv saturation
+		m_hsv_s = max == 0.0 ? 0.0 : d / max;
+
+		//-- Hue
+		if(max == min) {
+			m_h = 0.0;
+		} else {
+			if(max == r) {
+				m_h = (g - b) / d + (g < b ? 6 : 0);
+			} else if(max == g) {
+				m_h = (b - r) / d + 2;
+			} else if(max == b) {
+				m_h = (r - g) / d + 4;
+			} else
+				throw new IllegalStateException();
+			m_h = (m_h / 6.0) * 360;
+		}
+		m_hsl = true;
+	}
+
+
 	public static void main(String[] args) {
-		CssColor c = new CssColor(0xcf, 0xcf, 0xfb);
-		System.out.println("HSL=" + c.getHue() + ", " + c.getS() + ", " + c.getL());
+		CssColor c = new CssColor(0xce, 0xce, 0xfa);
+		System.out.println("HSL=" + c.getHslH() + ", " + c.getHslS() + ", " + c.getHslL());
+		System.out.println("HSV=" + c.getHsvH() + ", " + c.getHsvS() + ", " + c.getHsvV());
 
 		//		System.out.println("a=" + new CssColor("#006611").lighter(0.2));
 	}
