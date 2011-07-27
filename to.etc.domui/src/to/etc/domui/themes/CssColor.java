@@ -42,6 +42,12 @@ final public class CssColor {
 
 	final int b;
 
+	/** T if HSL values have been calculated. */
+	private boolean m_hsl;
+
+	/** HSL when calculated */
+	private double m_h, m_s, m_l;
+
 	public CssColor(double rin, double gin, double bin) {
 		this((int) (rin + 0.5), (int) (gin + 0.5), (int) (bin + 0.5));
 	}
@@ -192,8 +198,140 @@ final public class CssColor {
 	}
 
 
-	public static void main(String[] args) {
-		System.out.println("a=" + new CssColor("#006611").lighter(0.2));
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	HSL calculations.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * See http://www.had2know.com/technology/hsl-rgb-color-converter.html
+	 */
+	private void calcHSL() {
+		if(m_hsl)
+			return;
+
+		int um = r; // M = max(r, g, b)
+		if(g > um)
+			um = g;
+		if(b > um)
+			um = b;
+
+		int lm = r; // m = min(r, g, b)
+		if(g < lm)
+			lm = g;
+		if(b < lm)
+			lm = b;
+
+		//-- Luminance
+		m_l = (lm + um) / 510.0;
+
+		//-- Saturation
+		double d = (um - lm) / 255.0;
+		if(m_l > 0.0)
+			m_s = d / (1.0 - Math.abs(2 * m_l - 1));
+		else
+			m_s = 0.0;
+
+		//-- Hue (chroma).
+		m_h = Math.acos((r - 0.5 * g - 0.5 * b) / Math.sqrt(r * r + b * b + g * g - r * g - r * b - g * b)) / Math.PI * 180;
+		if(b > g)
+			m_h = 360 - m_h;
+		m_hsl = true;
 	}
+
+	/**
+	 * Lightness L (HSL)
+	 * @return
+	 */
+	public double getL() {
+		calcHSL();
+		return m_l;
+	}
+
+	/**
+	 * Saturation S (HSL)
+	 * @return
+	 */
+	public double getS() {
+		calcHSL();
+		return m_s;
+	}
+
+	public double getHue() {
+		calcHSL();
+		return m_h;
+	}
+
+	/**
+	 * Create an HSB color.
+	 * @param h
+	 * @param s
+	 * @param b2
+	 * @return
+	 */
+	public static CssColor createHSL(double h, double s, double l) {
+		double d = s * (1 - Math.abs(2 * l - 1));
+		double m = 255 * (l - 0.5 * d);
+
+		double mod2 = h / 60.0;
+		int fac = (int) (mod2 / 2);
+		mod2 = mod2 - (fac * 2);
+
+		double x = d * (1 - Math.abs(mod2 - 1));
+
+		int r, g, b;
+		int sextant = (int) (h / 60);
+		switch(sextant){
+			default:
+				throw new IllegalArgumentException("Bad h=" + h);
+			case 0:
+				//-- [0..60>
+				r = (int) (255 * d + m);
+				g = (int) (255 * x + m);
+				b = (int) m;
+				break;
+			case 1:
+				//-- [60..120>
+				r = (int) (255 * x + m);
+				g = (int) (255 * d + m);
+				b = (int) m;
+				break;
+
+			case 2:
+				//-- [120..180>
+				r = (int) m;
+				g = (int) (255 * d + m);
+				b = (int) (255 * x + m);
+				break;
+
+			case 3:
+				//-- [180..240>
+				r = (int) m;
+				g = (int) (255 * x + m);
+				b = (int) (255 * d + m);
+				break;
+			case 4:
+				//-- [240..300>
+				r = (int) (255 * x + m);
+				g = (int) m;
+				b = (int) (255 * d + m);
+				break;
+
+			case 5:
+				r = (int) (255 * d + m);
+				g = (int) m;
+				b = (int) (255 * x + m);
+				break;
+		}
+		return new CssColor(r, g, b);
+	}
+
+	public static void main(String[] args) {
+		CssColor c = new CssColor(0xcf, 0xcf, 0xfb);
+		System.out.println("HSL=" + c.getHue() + ", " + c.getS() + ", " + c.getL());
+
+		//		System.out.println("a=" + new CssColor("#006611").lighter(0.2));
+	}
+
+
+
 }
