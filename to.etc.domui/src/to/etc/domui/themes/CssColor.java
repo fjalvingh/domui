@@ -131,6 +131,19 @@ final public class CssColor {
 			return lighter(factor);
 	}
 
+	/**
+	 * Create a more color-saturated version of the color.
+	 * @param factor
+	 * @return
+	 */
+	public CssColor saturate(double factor) {
+		double s = getHsvS();
+		s = s * factor;
+		if(s > 1.0)
+			s = 1.0;
+		return createHSV(getHsvH(), s, getHsvV());
+	}
+
 
 	/**
 	 * See:
@@ -288,7 +301,7 @@ final public class CssColor {
 	}
 
 	/**
-	 * Create an HSB color.
+	 * Create an HSL color.
 	 * @param h
 	 * @param s
 	 * @param b2
@@ -403,11 +416,69 @@ final public class CssColor {
 		m_hsl = true;
 	}
 
+	/**
+	 * HSV calculation with h = [0..360], s and v in 0..1
+	 * @param h
+	 * @param s
+	 * @param l
+	 * @return
+	 */
+	public static CssColor createHSV(double h, double s, double v) {
+		double r, g, b;
+
+		h	/= 360.0;			// Get hue 0..1
+
+		double i = Math.floor(h * 6); // Sextant
+		double f = h * 6 - i; // Mod
+		double p = v * (1 - s);
+		double q = v * (1 - f * s);
+		double t = v * (1 - (1 - f) * s);
+
+		switch((int)i % 6) {		// Per sextant
+			default:
+				throw new IllegalStateException();
+
+			case 0: r = v; g = t; b = p; break;
+			case 1:
+				r = q;
+				g = v;
+				b = p;
+				break;
+			case 2:
+				r = p;
+				g = v;
+				b = t;
+				break;
+			case 3:
+				r = p;
+				g = q;
+				b = v;
+				break;
+			case 4:
+				r = t;
+				g = p;
+				b = v;
+				break;
+			case 5:
+				r = v;
+				g = p;
+				b = q;
+				break;
+		}
+		return new CssColor(255 * r, 255 * g, 255 * b);
+	}
 
 	public static void main(String[] args) {
 		CssColor c = new CssColor(0xce, 0xce, 0xfa);
 		System.out.println("HSL=" + c.getHslH() + ", " + c.getHslS() + ", " + c.getHslL());
 		System.out.println("HSV=" + c.getHsvH() + ", " + c.getHsvS() + ", " + c.getHsvV());
+
+		//-- Create a thing with higher saturation
+		CssColor nw = CssColor.createHSV(c.getHsvH(), 1.0, c.getHsvV());
+		System.out.println("new = " + nw);
+		System.out.println("HSL=" + nw.getHslH() + ", " + nw.getHslS() + ", " + nw.getHslL());
+		System.out.println("HSV=" + nw.getHsvH() + ", " + nw.getHsvS() + ", " + nw.getHsvV());
+
 
 		//		System.out.println("a=" + new CssColor("#006611").lighter(0.2));
 	}

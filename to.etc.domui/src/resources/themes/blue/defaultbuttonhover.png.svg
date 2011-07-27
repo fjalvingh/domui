@@ -145,12 +145,12 @@
        offset="0"
        stop-color="turquoise"
        id="stop3183"
-       style="stop-color:<%= util.color(button_bg).brighter(0.7) %>;stop-opacity:1;" />
+       style="stop-color:<%= util.color(button_bg).saturate(1.5) %>;stop-opacity:1;" />
     <stop
        offset="1"
        stop-color="navy"
        id="stop3185"
-       style="stop-color:<%= util.color(button_bg).brighter(0.7) %>;stop-opacity:1;" />
+       style="stop-color:<%= util.color(button_bg).saturate(1.5) %>;stop-opacity:1;" />
   </linearGradient>
   <linearGradient
      id="button3_light1"
