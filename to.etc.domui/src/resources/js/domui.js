@@ -447,6 +447,15 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					$(this).css({ 'overflow-y' : 'hidden' });
 				}
 			}
+			
+			//-- jal 20110727 Do the same for height?
+			if(this.scrollHeight > this.offsetHeight) {
+				$(this).css({ 'margin-right' : '17px' });
+				if(this.scrollWidth <= this.offsetWidth) {
+					$(this).css({ 'overflow-x' : 'hidden' });
+				}
+			}
+			
 		});            
 	};
 })(jQuery);
@@ -2569,7 +2578,7 @@ var DomUI = WebUI;
 
 WebUI.doCustomUpdates = function() {
 	$('[stretch=true]').doStretch();
-	$('.ui-dt').fixOverflow();
+	$('.ui-dt, .ui-fixovfl').fixOverflow();
 };
 
 WebUI.onDocumentReady = function() {
@@ -2581,7 +2590,7 @@ WebUI.onDocumentReady = function() {
 
 WebUI.floatingDivResize = function(ev, ui) {
 	$('[stretch=true]').doStretch();
-	$('.ui-dt').fixOverflow();
+	$('.ui-dt, .ui-fixovfl').fixOverflow();
 };
 
 
