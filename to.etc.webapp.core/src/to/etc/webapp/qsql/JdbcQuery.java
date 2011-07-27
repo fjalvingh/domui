@@ -27,6 +27,7 @@ package to.etc.webapp.qsql;
 import java.sql.*;
 import java.util.*;
 
+import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -46,6 +47,9 @@ public class JdbcQuery<T> {
 
 	final private int m_timeout;
 
+	/** Enables logging of executed jdbc queries, specified by DeveloperOptions setting "domui.jdbc.sql". Defaults (if not specified in DeveloperOptions) to F. */
+	static private boolean m_showSQL = DeveloperOptions.getBool("domui.jdbc.sql", false);
+
 	public JdbcQuery(String sql, List<IInstanceMaker> retrieverList, List<IQValueSetter> vl, int start, int limit, int timeout) {
 		m_sql = sql;
 		m_rowMaker = retrieverList;
@@ -56,7 +60,9 @@ public class JdbcQuery<T> {
 	}
 
 	public List< ? > query(QDataContext dc) throws Exception {
-		System.out.println("jdbc: " + m_sql);
+		if(m_showSQL) {
+			System.out.println("jdbc: " + m_sql);
+		}
 
 		//-- 1. Create the prepared statement,
 		PreparedStatement ps = null;
