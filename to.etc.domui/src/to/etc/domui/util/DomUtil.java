@@ -42,6 +42,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
+import to.etc.net.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
@@ -377,6 +378,14 @@ final public class DomUtil {
 	}
 
 	/**
+	 * Returns application url part from current request.
+	 * @return
+	 */
+	static public String getApplicationURL() {
+		return NetTools.getApplicationURL(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+	}
+
+	/**
 	 *
 	 * @param clz
 	 * @param pp
@@ -384,8 +393,7 @@ final public class DomUtil {
 	 */
 	static public String createPageURL(Class< ? extends UrlPage> clz, PageParameters pp) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(DomApplication.get().getApplicationURL());
-		sb.append(clz.getName());
+		sb.append(UIContext.getRequestContext().getRelativePath(clz.getName()));
 		sb.append('.');
 		sb.append(DomApplication.get().getUrlExtension());
 		if(pp != null)

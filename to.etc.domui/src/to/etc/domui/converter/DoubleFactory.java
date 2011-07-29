@@ -51,6 +51,6 @@ final public class DoubleFactory implements IConverterFactory {
 			return (T) ConverterRegistry.getConverterInstance(DoubleConverter.class);
 
 		//-- Try to allot a properly formatting converter.
-		return (T) new DoubleConverter(pmm);
+		return (T) new NumberConverter<Double>(Double.class, pmm.getNumericPresentation(), pmm.getScale());
 	}
 }
