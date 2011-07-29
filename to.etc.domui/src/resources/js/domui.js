@@ -2007,8 +2007,8 @@ var WebUI = {
 		var totHeight = 0;
 		$(elem).siblings().each(function(index, node) {
 			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
-			if (node != elem && $(node).css('position') == 'static' && $(node).css('float') == 'none'){
-				//In IE7 hidden nodes needs to be addtionaly excluded from count...
+			if (node != elem && $(node).css('position') == 'static' && ($(node).css('float') == 'none' || $(node).css('width') != '100%' /* count in floaters that occupies total width */)){
+				//In IE7 hidden nodes needs to be additonaly excluded from count...
 				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
 					//totHeight += node.offsetHeight;
 					totHeight += $(node).height();
