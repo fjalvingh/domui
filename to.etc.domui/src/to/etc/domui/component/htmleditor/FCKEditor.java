@@ -177,4 +177,20 @@ public class FCKEditor extends TextArea {
 		m_toolbarStartExpanded = true;
 	}
 
+	@Override
+	public boolean acceptRequestParameter(String[] values) throws Exception {
+		for(int i = 0; i < values.length; i++) {
+			String s = values[i];
+			StringBuilder sb = new StringBuilder();
+			try {
+				StringTool.entitiesToUnicode(sb, s, true);
+				values[i] = sb.toString();
+			} catch(Exception e) {
+				e.printStackTrace();
+				values[i] = e.toString();
+			}
+		}
+		return super.acceptRequestParameter(values);
+	}
+
 }
