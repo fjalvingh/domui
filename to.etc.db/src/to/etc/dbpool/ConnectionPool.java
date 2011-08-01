@@ -332,6 +332,8 @@ final public class ConnectionPool {
 			System.out.println("pool(" + m_id + "): defining " + c().getDriverClassName() + ", url=" + c().getUrl() + ", uid=" + c().getUid());
 			if(c().isPrintExceptions())
 				System.out.println("  *warning: printExceptions is true");
+
+
 			dbc = getCheckedConnection(); // Allocate a connection to see if we're OK
 //			m_dbtype = GenericDB.getDbType(dbc); // Try to find the database type.
 			DatabaseMetaData md = dbc.getMetaData();
@@ -382,7 +384,7 @@ final public class ConnectionPool {
 	 * Checks to see if a connection can be (re)used. If no check is configured this returns immediately.
 	 */
 	private SQLException checkConnection(final Connection dbc) {
-		if(!c().isCheckConnection())
+		if(!c().isCheckConnection() || m_check_calc == null)
 			return null;
 		ResultSet rs = null;
 		Statement ps = null;
