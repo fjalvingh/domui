@@ -708,6 +708,8 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		int calcsz = -1; // Calculated display size,
 
 		if(pmm.getPrecision() > 0) {
+			Text.assignPrecisionValidator(txt, pmm);
+
 			// FIXME This should be localized somehow...
 			//-- Calculate a size using scale and precision.
 			int size = pmm.getPrecision();

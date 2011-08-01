@@ -240,6 +240,10 @@ public abstract class DomApplication {
 		return null;
 	}
 
+	public PartRequestHandler getPartRequestHandler() {
+		return m_partHandler;
+	}
+
 	/**
 	 * Can be overridden to create your own instance of a session.
 	 * @return
@@ -717,10 +721,6 @@ public abstract class DomApplication {
 	 */
 	public final File getWebAppFileRoot() {
 		return m_webFilePath;
-	}
-
-	public String getApplicationURL() {
-		return AppFilter.getApplicationURL();
 	}
 
 	//	/** Cache for application resources containing all resources we have checked existence for */
