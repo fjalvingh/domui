@@ -25,15 +25,15 @@ public final class BindingMessenger {
 	 */
 	public void error(Object object, String property, String message, Object... param) throws Exception {
 		IControl[] h = new IControl[1];
-		find(h, object, property);
+		find(m_bindings, h, object, property);
 		if(h[0] == null) {
 			throw new Exception(object.getClass().getSimpleName() + "." + property + " not found in bindings");
 		}
 		h[0].setMessage(UIMessage.error(m_bundleRef, message, param));
 	}
 
-	private void find(IControl[] h, Object object, String property) throws Exception {
-		for(IModelBinding mb : m_bindings) {
+	private void find(ModelBindings bindings, IControl[] h, Object object, String property) throws Exception {
+		for(IModelBinding mb : bindings) {
 			if(mb instanceof SimpleComponentPropertyBinding) {
 				SimpleComponentPropertyBinding b = (SimpleComponentPropertyBinding) mb;
 				System.err.println(b.getModel());
@@ -43,7 +43,7 @@ public final class BindingMessenger {
 				}
 			} else if(mb instanceof ModelBindings) {
 				ModelBindings modelBindings = (ModelBindings) mb;
-				find(h, object, property);
+				find(modelBindings, h, object, property);
 			}
 		}
 
