@@ -348,6 +348,9 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 				scd.setWidth(width);
 			if(cssclass != null)
 				scd.setCssClass(cssclass);
+			if(defaultsort)
+				setSortColumn(scd);
+			defaultsort = false;
 			scd.setColumnLabel(caption == null ? xdp.getDefaultLabel() : caption);
 			scd.setColumnType(xdp.getActualType());
 			scd.setValueTransformer(xdp); // Thing which can obtain the value from the property
