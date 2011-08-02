@@ -460,7 +460,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			int ncond = 0;
 			if(spml.size() > 0) {
 				for(SearchPropertyMetaModel spm : spml) {
-					if(spm.getMinLength() < searchString.length()) {
+					if(spm.getMinLength() <= searchString.length()) {
 
 						//-- Abort on invalid metadata; never continue with invalid data.
 						if(spm.getPropertyName() == null)
@@ -1032,6 +1032,10 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 		m_keywordLookupPropertyList.add(si);
 	}
 
+	/**
+	 * Not normally used; use {@link #addKeywordProperty(String, int)} instead.
+	 * @param keywordLookupPropertyList
+	 */
 	public void setKeywordSearchProperties(List<SearchPropertyMetaModel> keywordLookupPropertyList) {
 		m_keywordLookupPropertyList = keywordLookupPropertyList;
 	}
