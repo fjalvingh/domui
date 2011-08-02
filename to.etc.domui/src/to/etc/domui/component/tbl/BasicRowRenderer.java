@@ -276,7 +276,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 				cd.setSortable(sort);
 				cd.setSortHelper(sortHelper);
 				if(defaultsort)
-					setSortColumn(cd);
+					setSortColumn(cd, sort);
 			}
 			if(clickHandler != null) {
 				cd.setCellClicked(clickHandler);
@@ -308,7 +308,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 				cd.setSortable(sort);
 				cd.setSortHelper(sortHelper);
 				if(defaultsort)
-					setSortColumn(cd);
+					setSortColumn(cd, sort);
 			}
 			if(pmm.getNumericPresentation() != null && pmm.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				cd.setCssClass("ui-numeric");
@@ -348,8 +348,15 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 				scd.setWidth(width);
 			if(cssclass != null)
 				scd.setCssClass(cssclass);
-			if(defaultsort)
-				setSortColumn(scd);
+			if(sort != null)
+				scd.setSortable(sort);
+			else
+				scd.setSortable(xdp.getSortable());
+			scd.setSortHelper(sortHelper); // All sort actions here are QUESTIONABLE - what happens for multiple expanded columns?!
+			if(defaultsort) {
+				setSortColumn(scd, sort);
+			}
+
 			defaultsort = false;
 			scd.setColumnLabel(caption == null ? xdp.getDefaultLabel() : caption);
 			scd.setColumnType(xdp.getActualType());
@@ -366,11 +373,6 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 					scd.setPresentationConverter(c);
 				}
 			}
-			if(sort != null)
-				scd.setSortable(sort);
-			else
-				scd.setSortable(xdp.getSortable());
-			scd.setSortHelper(sortHelper); // All sort actions here are QUESTIONABLE - what happens for multiple expanded columns?!
 			scd.setPropertyName(xdp.getName());
 			scd.setNowrap(nowrap);
 			scd.setNumericPresentation(xdp.getNumericPresentation());
@@ -422,7 +424,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowR
 		if(m_sortColumnName != null) {
 			for(final SimpleColumnDef scd : m_columnList) {
 				if(scd.getPropertyName().equals(m_sortColumnName)) {
-					setSortColumn(scd);
+					setSortColumn(scd, scd.getSortable());
 					break;
 				}
 			}
