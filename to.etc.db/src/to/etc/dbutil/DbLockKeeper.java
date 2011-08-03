@@ -27,6 +27,7 @@ package to.etc.dbutil;
 import java.sql.*;
 import java.util.*;
 
+import javax.annotation.*;
 import javax.annotation.concurrent.*;
 import javax.sql.*;
 
@@ -83,13 +84,13 @@ public final class DbLockKeeper {
 
 	/**
 	 * Method should be used to create a lock. It can be used to make sure that certain processes won't run at the same time
-	 * on multiple servers. The method won't finish untill lock is given. 
-	 * 
+	 * on multiple servers. The method won't finish untill lock is given.
+	 *
 	 * IMPORTANT
-	 * The lock must be released after execution of the code.  
-	 * 
+	 * The lock must be released after execution of the code.
+	 *
 	 * @param lockName the name of the lock
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public LockHandle lock(final String lockName) throws Exception {
 		LockThreadKey key = new LockThreadKey(lockName, Thread.currentThread());
@@ -124,6 +125,57 @@ public final class DbLockKeeper {
 		}
 	}
 
+	/**
+	 * Get a lock, but do not wait for it- if the lock is taken the code
+	 * returns immediately, returning a null lock handle.
+	 *
+	 * @param lockName
+	 * @return
+	 * @throws Exception
+	 */
+	@Nullable
+	public LockHandle lockNowait(final String lockName) throws Exception {
+		LockThreadKey key = new LockThreadKey(lockName, Thread.currentThread());
+		Lock lock;
+
+		//-- Recursive call into same lock? Then return a new lock handle incrementing the use count.
+		synchronized(this) {
+			lock = M_MAINTAINED_LOCKS.get(key);
+		}
+		if(lock != null) {
+			return new LockHandle(lock);
+		}
+
+		Connection dbc = m_dataSource.getConnection();
+		insertLock(lockName, dbc);
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update of lock_name nowait");
+			rs = ps.executeQuery();
+			if(!rs.next()) {
+				return null;
+			}
+			lock = new Lock(this, lockName, dbc);
+			synchronized(this) {
+				M_MAINTAINED_LOCKS.put(key, lock);
+			}
+			return new LockHandle(lock);
+		} catch(SQLException sx) {
+			String msg = sx.getMessage().toLowerCase();
+			if(msg.contains("NOWAIT") || msg.contains("ora-00054"))
+				return null;
+			throw sx;
+		} finally {
+			//connection is not closed here to keep the lock. Is done by the release call;
+			if(ps != null)
+				ps.close();
+			if(rs != null)
+				rs.close();
+		}
+	}
+
+
 	private synchronized void releaseLock(String lockName) {
 		LockThreadKey key = new LockThreadKey(lockName, Thread.currentThread());
 		Lock lock = M_MAINTAINED_LOCKS.remove(key);
@@ -154,7 +206,7 @@ public final class DbLockKeeper {
 	}
 
 	/**
-	 * Class to function as a key in the maintained locks map of the outer class. 
+	 * Class to function as a key in the maintained locks map of the outer class.
 	 */
 	private static final class LockThreadKey {
 		private String m_lockName;
@@ -201,7 +253,7 @@ public final class DbLockKeeper {
 
 	/**
 	 * Class keeps an lock on the database. Only handles to this lock will be
-	 *  distibuted to classes that require a database lock. When all handle are 
+	 *  distibuted to classes that require a database lock. When all handle are
 	 *  released the lock is also released.
 	 */
 	private static final class Lock {
@@ -250,7 +302,7 @@ public final class DbLockKeeper {
 
 	/**
 	 * Handle for a specific lock. Multiple handles can be distributed for a single lock.
-	 * This will only be the case when a lock is asked for the same thread multiple times. 
+	 * This will only be the case when a lock is asked for the same thread multiple times.
 	 */
 	public static final class LockHandle {
 		private Lock m_lock;
@@ -263,7 +315,7 @@ public final class DbLockKeeper {
 		}
 
 		/**
-		 * If this handle is the last/only handle for a lock the lock is released. 
+		 * If this handle is the last/only handle for a lock the lock is released.
 		 * @throws Exception when exception with releasing the lock occurs.
 		 */
 		public void release() throws Exception {

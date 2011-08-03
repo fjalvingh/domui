@@ -91,7 +91,12 @@ public class SmtpTransport {
 		return m_myhostname;
 	}
 
+
 	public void send(Message msg) throws Exception {
+		send(msg, null);
+	}
+
+	public void send(Message msg, InputStream bodyStream) throws Exception {
 		//-- Check the message for validity
 		Address from = msg.getFrom();
 		if(from == null) {
@@ -191,13 +196,16 @@ public class SmtpTransport {
 			write(os, "Subject: " + msg.getSubject() + "\r\n");
 
 			//-- Does this need to be a MIME message?
-			boolean ismime = msg.getAttachmentList().size() > 0 || msg.getHtmlBody() != null;
-			if(ismime) {
-				writeMime(os, msg);
+			if(null != bodyStream) {
+				FileTool.copyFile(os, bodyStream);
 			} else {
-				writeText(os, msg);
+				boolean ismime = msg.getAttachmentList().size() > 0 || msg.getHtmlBody() != null;
+				if(ismime) {
+					writeMime(os, msg);
+				} else {
+					writeText(os, msg);
+				}
 			}
-
 			cr = readLine(is);
 			if(!cr.startsWith("250"))
 				throw new MailException(m_server + ": did not accept the DATA message, it answered: " + cr);
@@ -220,7 +228,7 @@ public class SmtpTransport {
 		}
 	}
 
-	private void writeMime(OutputStream os, Message msg) throws Exception {
+	static public void writeMime(OutputStream os, Message msg) throws Exception {
 		//-- 1.. Make sure all string data is crlf terminated, and all lines starting with '.' are escaped.
 		EmailOutputStream eos = new EmailOutputStream(os);
 		MimeWriter w = MimeWriter.createMimeWriter(eos, "multipart/alternative", "type=\"text/plain\"");
@@ -261,7 +269,7 @@ public class SmtpTransport {
 		write(os, ".\r\n");
 	}
 
-	private void writeText(OutputStream os, Message msg) throws Exception {
+	static public void writeText(OutputStream os, Message msg) throws Exception {
 		String str = msg.getBody();
 		if(str != null && str.length() > 0) {
 			int ix = 0;
@@ -280,7 +288,7 @@ public class SmtpTransport {
 		write(os, ".\r\n");
 	}
 
-	private void sendLine(OutputStream os, String line) throws Exception {
+	static private void sendLine(OutputStream os, String line) throws Exception {
 		if(line.startsWith("."))
 			write(os, "." + line + "\r\n");
 		else
@@ -325,7 +333,7 @@ public class SmtpTransport {
 	 * @param os
 	 * @param s
 	 */
-	private void write(OutputStream os, String s) throws Exception {
+	static private void write(OutputStream os, String s) throws Exception {
 		byte[] b = s.getBytes("US-ASCII");
 		os.write(b);
 		if(DEBUG)

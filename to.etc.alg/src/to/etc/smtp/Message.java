@@ -43,9 +43,9 @@ final public class Message {
 
 	private List<Address>	m_to	= new ArrayList<Address>();
 
-	private List<Address>	m_bcc;
+	private List<Address>			m_bcc			= new ArrayList<Address>();
 
-	private List<Address>	m_cc;
+	private List<Address>			m_cc			= new ArrayList<Address>();
 
 	private String			m_subject;
 
@@ -78,8 +78,6 @@ final public class Message {
 	}
 
 	public void addBcc(Address a) {
-		if(m_bcc == null)
-			m_bcc = new ArrayList<Address>(2);
 		m_bcc.add(a);
 	}
 
@@ -100,8 +98,6 @@ final public class Message {
 	}
 
 	public void addCc(Address a) {
-		if(m_cc == null)
-			m_cc = new ArrayList<Address>();
 		m_cc.add(a);
 	}
 
