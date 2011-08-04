@@ -11,5 +11,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/lib-hibernate"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsr305"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.db"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bin-slf4j"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

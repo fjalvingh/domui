@@ -608,4 +608,23 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	public IQueryManipulator<T> getQueryManipulator() {
 		return null;
 	}
+
+	/**
+	 * Expanded properties do not have annotations. This returns null always.
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAnnotation(java.lang.Class)
+	 */
+	@Nullable
+	@Override
+	public <A> A getAnnotation(Class<A> annclass) {
+		return null;
+	}
+
+	/**
+	 * Expanded properties do not have annotations. This returns the empty list always.
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAnnotations()
+	 */
+	@Override
+	public List<Object> getAnnotations() {
+		return Collections.emptyList();
+	}
 }
