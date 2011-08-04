@@ -393,4 +393,12 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	public IQueryManipulator<T> getQueryManipulator() {
 		return m_original.getQueryManipulator();
 	}
+
+	public <A> A getAnnotation(Class<A> annclass) {
+		return m_original.getAnnotation(annclass);
+	}
+
+	public List<Object> getAnnotations() {
+		return m_original.getAnnotations();
+	}
 }

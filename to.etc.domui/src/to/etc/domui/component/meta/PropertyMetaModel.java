@@ -369,4 +369,21 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 */
 	@Nullable
 	IQueryManipulator<T> getQueryManipulator();
+
+	/**
+	 * If the property has some kind of "annotation" (which in here does not need to be a Java annotation, but
+	 * which can also be some other java class containing data) this returns it.
+	 * @param <A>
+	 * @param annclass
+	 */
+	<A> A getAnnotation(@Nonnull Class<A> annclass);
+
+	/**
+	 * If the property has some kind of "annotations" (which in here does not need to be a Java annotation, but
+	 * which can also be some other java class containing data) this returns all of them.
+	 *
+	 * @return
+	 */
+	@Nonnull
+	List<Object> getAnnotations();
 }

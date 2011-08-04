@@ -29,6 +29,7 @@ import java.lang.reflect.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.util.*;
 
 /**
  * Base for injecting something into a property.
@@ -48,7 +49,7 @@ public abstract class PropertyInjector {
 		try {
 			getPropertySetter().invoke(instance, value);
 		} catch(Exception x) {
-			throw new RuntimeException("Cannot SET the entity '" + value + "' for property=" + m_propertySetter.getName() + " of page=" + instance.getClass() + ": " + x, x);
+			throw new WrappedException("Cannot SET the entity '" + value + "' for property=" + m_propertySetter.getName() + " of page=" + instance.getClass() + ": " + x, x);
 		}
 	}
 
