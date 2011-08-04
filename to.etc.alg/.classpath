@@ -5,6 +5,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/bin-j2ee-1.4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsr305"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/bin-junit-4.4"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bin-junit-4.8.2"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
