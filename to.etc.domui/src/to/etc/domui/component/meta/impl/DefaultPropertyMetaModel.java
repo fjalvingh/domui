@@ -386,6 +386,14 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		m_renderHint = renderHint;
 	}
 
+	public IQueryManipulator<T> getQueryManipulator() {
+		return m_queryManipulator;
+	}
+
+	public void setQueryManipulator(IQueryManipulator<T> queryManipulator) {
+		m_queryManipulator = queryManipulator;
+	}
+
 	/**
 	 * This basic implementation returns annotations on the "getter" method of the property, if
 	 * available.
@@ -415,13 +423,5 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			return res;
 		}
 		return Collections.emptyList();
-	}
-
-	public IQueryManipulator<T> getQueryManipulator() {
-		return m_queryManipulator;
-	}
-
-	public void setQueryManipulator(IQueryManipulator<T> queryManipulator) {
-		m_queryManipulator = queryManipulator;
 	}
 }

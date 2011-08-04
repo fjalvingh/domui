@@ -1827,6 +1827,7 @@ body,html {
 }
 .ui-flw-tc {
 	width: 100%;
+	height: 5px;
 }
 
 .ui-flw-bc {

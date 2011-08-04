@@ -2018,15 +2018,15 @@ var WebUI = {
 		var totHeight = 0;
 		$(elem).siblings().each(function(index, node) {
 			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
-			if (node != elem && $(node).css('position') == 'static' && $(node).css('float') == 'none'){
-				//In IE7 hidden nodes needs to be addtionaly excluded from count...
+			if (node != elem && $(node).css('position') == 'static' && ($(node).css('float') == 'none' || $(node).css('width') != '100%' /* count in floaters that occupies total width */)){
+				//In IE7 hidden nodes needs to be additonaly excluded from count...
 				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
-					//totHeight += node.offsetHeight;
-					totHeight += $(node).height();
+					totHeight += $(node).outerHeight();
 				}
 			}
 		});
-		$(elem).height($(elem).parent().height() - totHeight - 1);
+		var elemDeltaHeight =  $(elem).outerHeight() - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
+		$(elem).height($(elem).parent().height() - totHeight - elemDeltaHeight);
 		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
 			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers 
 			if (elem.scrollWidth > elem.offsetWidth){
@@ -2230,7 +2230,7 @@ var WebUI = {
 //			if(WebUI._NOMOVE)
 //				return;
 //			console.debug("move ", e);
-			WebUI._debugMouseTarget = e.target; //e.srcElement || e.originalTarget;
+			WebUI._debugMouseTarget = e.target; // e.srcElement || e.originalTarget;
 		});
 	},
 
