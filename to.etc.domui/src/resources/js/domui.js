@@ -1219,7 +1219,7 @@ var WebUI = {
 		var dateFmt = params.inputField ? params.ifFormat : params.daFormat;
 		params.date = Date.parseDate(inp.value, dateFmt);
 
-		var cal = new Calendar(null, params.date, WebUI.onDateSelect, function(
+		var cal = new Calendar(1, params.date, WebUI.onDateSelect, function(
 				cal) {
 			cal.hide();
 			cal.destroy();
