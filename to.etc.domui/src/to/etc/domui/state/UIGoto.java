@@ -235,7 +235,7 @@ final public class UIGoto {
 	 * @param msg
 	 */
 	static public final void clearPageAndReload(Page pg, Class< ? extends UrlPage> target, PageParameters pp, String msg) {
-		clearPageAndReload(pg, UIMessage.error(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, msg), pp);
+		clearPageAndReload(pg, UIMessage.info(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, msg), pp);
 	}
 
 	/**

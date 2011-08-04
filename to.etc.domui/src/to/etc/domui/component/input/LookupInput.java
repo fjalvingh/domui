@@ -460,7 +460,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			int ncond = 0;
 			if(spml.size() > 0) {
 				for(SearchPropertyMetaModel spm : spml) {
-					if(spm.getMinLength() < searchString.length()) {
+					if(spm.getMinLength() <= searchString.length()) {
 
 						//-- Abort on invalid metadata; never continue with invalid data.
 						if(spm.getPropertyName() == null)
@@ -568,9 +568,9 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			getLookupFormInitialization().initialize(lf);
 		}
 		m_floater.add(lf);
-		m_floater.setOnClose(new IClicked<FloatingWindow>() {
+		m_floater.setOnClose(new IWindowClosed() {
 			@Override
-			public void clicked(FloatingWindow b) throws Exception {
+			public void closed(String closeReason) throws Exception {
 				m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 				m_floater = null;
 				m_result = null;
@@ -891,6 +891,12 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 		return m_resultColumns;
 	}
 
+	/**
+	 * Set (override) the columns to show in the "lookup form" that will be shown if a
+	 * full lookup is done.
+	 * FIXME Should be varargs
+	 * @param resultColumns
+	 */
 	public void setResultColumns(String[] resultColumns) {
 		m_resultColumns = resultColumns;
 	}
@@ -1032,6 +1038,10 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 		m_keywordLookupPropertyList.add(si);
 	}
 
+	/**
+	 * Not normally used; use {@link #addKeywordProperty(String, int)} instead.
+	 * @param keywordLookupPropertyList
+	 */
 	public void setKeywordSearchProperties(List<SearchPropertyMetaModel> keywordLookupPropertyList) {
 		m_keywordLookupPropertyList = keywordLookupPropertyList;
 	}
@@ -1115,5 +1125,15 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	 */
 	public void setLookupFormInitialization(ILookupFormModifier<T> lookupFormInitialization) {
 		m_lookupFormInitialization = lookupFormInitialization;
+	}
+
+	/**
+	 * Define the columns to show in "display current value" mode. This actually creates a
+	 * content renderer (a {@link LookupInputPropertyRenderer}) to render the fields.
+	 *
+	 * @param columns
+	 */
+	public void setDisplayColumns(String... columns) {
+		setContentRenderer(new LookupInputPropertyRenderer<T>(getLookupClass(), columns));
 	}
 }

@@ -447,6 +447,15 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					$(this).css({ 'overflow-y' : 'hidden' });
 				}
 			}
+			
+			//-- jal 20110727 Do the same for height?
+			if(this.scrollHeight > this.offsetHeight) {
+				$(this).css({ 'margin-right' : '17px' });
+				if(this.scrollWidth <= this.offsetWidth) {
+					$(this).css({ 'overflow-x' : 'hidden' });
+				}
+			}
+			
 		});            
 	};
 })(jQuery);
@@ -598,8 +607,8 @@ var WebUI = {
 			data :fields,
 			cache :false,
 			type: "POST",
-			success :WebUI.handleResponse,
-			error :WebUI.handleError
+			error :WebUI.handleError,
+			success :WebUI.handleResponse
 		});
 		return false;
 	},
@@ -1023,7 +1032,9 @@ var WebUI = {
 		if (txt.length == 0)
 			txt = "De server is niet bereikbaar.";
 		document.write(txt);
+		document.close();
 		window.setTimeout('document.body.style.cursor="default"', 1000);
+		return true;
 	},
 	_asyalerted: false,
 	handleErrorAsy : function(request, status, exc) {
@@ -2219,7 +2230,7 @@ var WebUI = {
 //			if(WebUI._NOMOVE)
 //				return;
 //			console.debug("move ", e);
-			WebUI._debugMouseTarget = e.srcElement || e.originalTarget;
+			WebUI._debugMouseTarget = e.target; //e.srcElement || e.originalTarget;
 			
 		});
 	},
@@ -2567,7 +2578,7 @@ var DomUI = WebUI;
 
 WebUI.doCustomUpdates = function() {
 	$('[stretch=true]').doStretch();
-	$('.ui-dt').fixOverflow();
+	$('.ui-dt, .ui-fixovfl').fixOverflow();
 };
 
 WebUI.onDocumentReady = function() {
@@ -2579,7 +2590,7 @@ WebUI.onDocumentReady = function() {
 
 WebUI.floatingDivResize = function(ev, ui) {
 	$('[stretch=true]').doStretch();
-	$('.ui-dt').fixOverflow();
+	$('.ui-dt, .ui-fixovfl').fixOverflow();
 };
 
 

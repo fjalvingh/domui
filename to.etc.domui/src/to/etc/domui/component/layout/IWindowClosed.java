@@ -24,20 +24,17 @@
  */
 package to.etc.domui.component.layout;
 
+import javax.annotation.*;
+
 /**
- * Things that are floating above the UI need this interface so their stacking
- * level can be controlled. See {@link FloatingWindow} and {@link Dialog} for
- * examples.
+ * Used by {@link FloatingDiv} derived classes to tell the world that a floating
+ * window or dialog has closed for a specific reason. The reason string is a literal
+ * string constant usually present as a RSN_xxx constant on some class extending
+ * FloatingDiv.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jul 18, 2011
+ * Created on Jul 19, 2011
  */
-public interface IFloating {
-	int getZIndex();
-
-	void setZIndex(int index);
-
-	boolean isModal();
-
-
+public interface IWindowClosed {
+	void closed(@Nonnull String closeReason) throws Exception;
 }

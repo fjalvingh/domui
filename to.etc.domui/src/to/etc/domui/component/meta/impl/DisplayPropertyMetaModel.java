@@ -56,6 +56,9 @@ public class DisplayPropertyMetaModel {
 
 	private SortableType m_sortable = SortableType.UNKNOWN;
 
+	/** The index (order) in which all sortable fields should be applied in an initial sort; -1 if there is no default sort. */
+	private int m_sortIndex;
+
 	private int m_displayLength = -1;
 
 	public DisplayPropertyMetaModel() {}
@@ -89,6 +92,8 @@ public class DisplayPropertyMetaModel {
 		if(p.converterClass() != DummyConverter.class)
 			c = ConverterRegistry.getConverterInstance((Class) p.converterClass());
 		setConverter(c);
+		setSortIndex(p.sortIndex());
+		setSortable(p.sortable());
 		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();
 	}
 
@@ -208,4 +213,15 @@ public class DisplayPropertyMetaModel {
 		m_displayLength = displayLength;
 	}
 
+	/**
+	 * The index (order) in which all sortable fields should be applied in an initial sort; -1 if there is no default sort.
+	 * @return
+	 */
+	public int getSortIndex() {
+		return m_sortIndex;
+	}
+
+	public void setSortIndex(int sortIndex) {
+		m_sortIndex = sortIndex;
+	}
 }

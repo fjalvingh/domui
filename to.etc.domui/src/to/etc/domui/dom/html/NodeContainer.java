@@ -177,6 +177,22 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return m_oldChildren;
 	}
 
+	/**
+	 * Count the #of nodes in this tree, recursively until the given depth.
+	 * @see to.etc.domui.dom.html.NodeBase#internalGetNodeCount(int)
+	 */
+	@Override
+	protected int internalGetNodeCount(int depth) {
+		if(depth <= 0)
+			return 0;
+		depth--;
+		int count = 0;
+		for(NodeBase b : m_children) {
+			count += b.internalGetNodeCount(depth);
+		}
+		return count;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree accessors.										*/
 	/*--------------------------------------------------------------*/
@@ -728,12 +744,16 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	@Nullable
 	final public IErrorFence getErrorFence() {
-		if(m_delegate != null)
-			return m_delegate.getErrorFence();
+		if(m_delegate != null) {
+			IErrorFence f = m_delegate.getErrorFence();
+			if(null != f)
+				return f;
+		}
 		return m_errorFence;
 	}
 
 	final public void setErrorFence(@Nullable final IErrorFence errorFence) {
+		//		StringTool.dumpLocation("setErrorFence(...): called on " + this);
 		if(m_delegate != null)
 			m_delegate.setErrorFence(errorFence);
 		else
@@ -741,6 +761,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	final public void setErrorFence() {
+		//		StringTool.dumpLocation("setErrorFence(): called on " + this);
 		if(m_delegate != null)
 			m_delegate.setErrorFence();
 		else if(m_errorFence == null)
@@ -773,9 +794,17 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		m_delegate = c;
 	}
 
+	/**
+	 * If this node delegates it's stuff to another, this returns that other node. See {@link #delegateTo(NodeContainer)} for
+	 * details.
+	 * @return
+	 */
+	public NodeContainer getDelegate() {
+		return m_delegate;
+	}
 
 	@Override
-	final protected void internalCreateFrame() {
+	final protected void internalCreateFrame() throws Exception {
 		//		NodeContainer old = m_delegate;
 		m_delegate = null;
 		createFrame();
@@ -786,7 +815,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * EXPERIMENTAL This can be overridden to handle nodes that have an explicit "frame".
 	 */
 	@OverridingMethodsMustInvokeSuper
-	protected void createFrame() {
+	protected void createFrame() throws Exception {
 	}
 
 

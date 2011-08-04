@@ -70,6 +70,8 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.EMPTY_LIST;
 
+	private IQueryManipulator<T> m_queryManipulator;
+
 	/*---- Lookup stuff. ----*/
 
 	/**
@@ -413,5 +415,13 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			return res;
 		}
 		return Collections.emptyList();
+	}
+
+	public IQueryManipulator<T> getQueryManipulator() {
+		return m_queryManipulator;
+	}
+
+	public void setQueryManipulator(IQueryManipulator<T> queryManipulator) {
+		m_queryManipulator = queryManipulator;
 	}
 }

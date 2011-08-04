@@ -417,7 +417,7 @@ final public class Page implements IQContextContainer {
 			throw new IllegalStateException("Ehm- I have no body?"); // Existential problems are the hardest...
 
 		//-- Be very sure it's not already in the stack
-		FloatingDiv window = (FloatingDiv) in;
+		final FloatingDiv window = (FloatingDiv) in;
 		for(FloatingDiv fr : getFloatingStack()) {
 			if(fr == window)
 				return;
@@ -430,7 +430,7 @@ final public class Page implements IQContextContainer {
 				zindex = fr.getZIndex() + 100;
 		}
 		window.setZIndex(zindex);
-		System.out.println("New floater got zIndex=" + zindex);
+		//		System.out.println("New floater got zIndex=" + zindex);
 
 		//-- If this is MODAL create a hider for it.
 		if(window.isModal()) {
@@ -439,6 +439,14 @@ final public class Page implements IQContextContainer {
 			hider.setCssClass("ui-flw-hider");
 			hider.setZIndex(zindex - 1); // Just below the new floater.
 			window.internalSetHider(hider);
+
+			//-- Add a click handler which will close the floater when the hider div is clicked.
+			hider.setClicked(new IClicked<NodeBase>() {
+				@Override
+				public void clicked(NodeBase clickednode) throws Exception {
+					window.closePressed();
+				}
+			});
 		}
 		getFloatingStack().add(window); // Add on top (defines order)
 

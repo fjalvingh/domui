@@ -27,7 +27,10 @@ package to.etc.domui.component.meta.impl;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -392,5 +395,10 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 
 	public List<Object> getAnnotations() {
 		return m_original.getAnnotations();
+	}
+
+	@Nullable
+	public IQueryManipulator<T> getQueryManipulator() {
+		return m_original.getQueryManipulator();
 	}
 }

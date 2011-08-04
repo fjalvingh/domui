@@ -759,11 +759,23 @@ public class OptimalDeltaRenderer {
 		//-- Re-decide again: if the #of adds and deletes is > the size of the new list we re-render
 		if(!ni.isFullRender) {
 			int ncmd = ni.deleteList.size() + ni.addList.size();
+
 			if((double) ncmd / (double) newl.size() > 0.9) {
-				//-- re-render fully.
-				ni.setFullRerender();
-				if(DEBUG)
-					System.out.println("o: final verdict on " + nc.getActualID() + ": #cmds=" + ncmd + " and newsize=" + newl.size() + ", rerender-fully.");
+				//-- As far as commands go it is better to re-render.
+
+
+				// Bug# 1101: get a quick indication of how big the subtree is by traversing only the 1st subtree in the nodes;
+				int xcount = 0;
+				for(NodeBase n : newl) {
+					xcount += n.internalGetNodeCount(2);
+				}
+				if(xcount > ncmd * 2) {
+					//-- end bug# 1101 fix
+					//-- re-render fully.
+					ni.setFullRerender();
+					if(DEBUG)
+						System.out.println("o: final verdict on " + nc.getActualID() + ": #cmds=" + ncmd + " and newsize=" + newl.size() + ", xcount=" + xcount + ", rerender-fully.");
+				}
 			}
 		}
 

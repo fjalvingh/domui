@@ -28,6 +28,7 @@ import java.math.*;
 import java.text.*;
 import java.util.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
@@ -314,6 +315,26 @@ public class MoneyUtil {
 	 */
 	public static boolean areValuesEqual(double value1, double value2) {
 		return (roundValue(value1) == roundValue(value2));
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	static public void assignMonetaryConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable< ? > node) {
+		if(pmm.getConverter() != null)
+			node.setConverter(pmm.getConverter());
+		else {
+			NumericPresentation np = null;
+			if(!editable)
+				np = pmm.getNumericPresentation();
+			if(np == null)
+				np = NumericPresentation.MONEY_NUMERIC;
+	
+			if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
+				node.setConverter((IConverter) MoneyConverterFactory.createDoubleMoneyConverters(np));
+			} else if(pmm.getActualType() == BigDecimal.class) {
+				node.setConverter((IConverter) MoneyConverterFactory.createBigDecimalMoneyConverters(np));
+			} else
+				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " for monetary types");
+		}
 	}
 
 }

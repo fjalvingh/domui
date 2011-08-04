@@ -30,6 +30,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -611,5 +612,10 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	@Override
 	public List<Object> getAnnotations() {
 		return Collections.emptyList();
+	}
+
+	@Override
+	public IQueryManipulator<T> getQueryManipulator() {
+		return null;
 	}
 }

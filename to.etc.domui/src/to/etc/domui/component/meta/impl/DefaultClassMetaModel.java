@@ -74,6 +74,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private String m_tableName;
 
+	@Nullable
+	private IQueryManipulator< ? > m_queryManipulator;
+
+	@Nullable
+	private String m_comboSortProperty;
+
 	/**
 	 * When this relation-property is presented as a single field this can contain a class to render
 	 * that field as a string.
@@ -447,5 +453,21 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		if(getMetaTableDef() != null)
 			return QCriteria.create(getMetaTableDef());
 		return QCriteria.create(getActualClass());
+	}
+
+	public IQueryManipulator< ? > getQueryManipulator() {
+		return m_queryManipulator;
+	}
+
+	public void setQueryManipulator(IQueryManipulator< ? > queryManipulator) {
+		m_queryManipulator = queryManipulator;
+	}
+
+	public String getComboSortProperty() {
+		return m_comboSortProperty;
+	}
+
+	public void setComboSortProperty(String comboSortProperty) {
+		m_comboSortProperty = comboSortProperty;
 	}
 }

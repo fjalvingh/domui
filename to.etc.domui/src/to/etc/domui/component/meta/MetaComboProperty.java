@@ -59,4 +59,20 @@ public @interface MetaComboProperty {
 	 * @return
 	 */
 	String join() default Constants.NO_JOIN;
+
+	/**
+	 * If this combo field should be used in an initial sort of the combobox's data this defines
+	 * the sort direction. The field {@link #sortIndex()} defines the position inside the sort.
+	 * @return
+	 */
+	SortableType sortable() default SortableType.UNKNOWN;
+
+	/**
+	 * Defines the "place" of this field in a sort statement, if applicable. This has meaning only
+	 * if {@link #sortable()} is set to some sort; in that case this indes defines the location of
+	 * the field inside the sort.
+	 *
+	 * @return
+	 */
+	int sortIndex() default -1;
 }

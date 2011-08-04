@@ -67,7 +67,7 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 		if(sort != null) {
 			for(final SimpleColumnDef scd : m_columnList) {
 				if(scd.getPropertyName().equals(sort)) {
-					setSortColumn(scd);
+					setSortColumn(scd, scd.getSortable());
 					break;
 				}
 			}
