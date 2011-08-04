@@ -430,4 +430,17 @@ public class DateUtil {
 		cal.set(Calendar.MILLISECOND, ms);
 		return cal.getTime();
 	}
+
+	/**
+	 * Gets the first day of the next month for the date specified in parameter.
+	 * @param dt
+	 * @return
+	 */
+	public static Date getFirstDayOfNextMonth(Date dt) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dt);
+		cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) + 1);
+		cal.set(Calendar.DAY_OF_MONTH, 1);
+		return cal.getTime();
+	}
 }

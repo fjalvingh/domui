@@ -75,7 +75,7 @@ public class TextReaderBase {
 		return m_collbuf.toString();
 	}
 
-	protected void clearCopy() {
+	public void clearCopy() {
 		if(m_collbuf != null)
 			m_collbuf.setLength(0);
 	}
@@ -92,11 +92,11 @@ public class TextReaderBase {
 		return m_src;
 	}
 
-	protected int getCurrentLine() {
+	public int getCurrentLine() {
 		return m_lnr;
 	}
 
-	protected int getCurrentColumn() {
+	public int getCurrentColumn() {
 		return m_cnr;
 	}
 
