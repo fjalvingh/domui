@@ -397,6 +397,12 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 		return m_original.getAnnotations();
 	}
 
+	@Nonnull
+	@Override
+	public String[] getColumnNames() {
+		return m_original.getColumnNames();
+	}
+
 	@Nullable
 	public IQueryManipulator<T> getQueryManipulator() {
 		return m_original.getQueryManipulator();

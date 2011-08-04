@@ -382,8 +382,15 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	List<Object> getAnnotations();
 
 	/**
+	 * Return the column name(s) for this property <b>if</b> this is a persisted column in a persistent class.
+	 */
+	String[] getColumnNames();
+
+	/**
 	 * For Lookup and Combo fields, this can return a QueryManipulator instance that will alter the base
 	 * query for the thing to show.
+	 * @return
 	 */
+	@Nullable
 	IQueryManipulator<T> getQueryManipulator();
 }

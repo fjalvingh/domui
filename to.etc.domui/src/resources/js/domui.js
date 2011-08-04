@@ -2231,7 +2231,6 @@ var WebUI = {
 //				return;
 //			console.debug("move ", e);
 			WebUI._debugMouseTarget = e.target; //e.srcElement || e.originalTarget;
-			
 		});
 	},
 

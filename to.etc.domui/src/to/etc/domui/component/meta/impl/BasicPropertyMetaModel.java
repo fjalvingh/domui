@@ -24,11 +24,15 @@
  */
 package to.etc.domui.component.meta.impl;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 
 public class BasicPropertyMetaModel<T> {
+	static public final String[] NO_NAMES = new String[0];
+
 	static private final PropertyMetaValidator[] NO_VALIDATORS = new PropertyMetaValidator[0];
 
 	private IConverter<T> m_converter;
@@ -63,6 +67,9 @@ public class BasicPropertyMetaModel<T> {
 	private boolean m_transient;
 
 	private ControlFactory m_controlFactory;
+
+	@Nonnull
+	private String[] m_columnNames = NO_NAMES;
 
 	public IConverter<T> getConverter() {
 		return m_converter;
@@ -204,5 +211,16 @@ public class BasicPropertyMetaModel<T> {
 
 	public void setControlFactory(ControlFactory controlFactory) {
 		m_controlFactory = controlFactory;
+	}
+
+	@Nonnull
+	public String[] getColumnNames() {
+		return m_columnNames;
+	}
+
+	public void setColumnNames(@Nonnull String[] columnNames) {
+		if(null == columnNames)
+			throw new IllegalArgumentException("Cannot accept null");
+		m_columnNames = columnNames;
 	}
 }

@@ -46,6 +46,11 @@ public final class BindingMessenger {
 		m_bundleRef = bundleRef;
 	}
 
+	public BindingMessenger(ModelBindings bindings) {
+		super();
+		m_bindings = bindings;
+	}
+
 	public void error(Object object, String property, String message, Object... param) throws Exception {
 		error(object, property, UIMessage.error(m_bundleRef, message, param));
 	}
@@ -70,7 +75,6 @@ public final class BindingMessenger {
 		for(IModelBinding mb : bindings) {
 			if(mb instanceof SimpleComponentPropertyBinding) {
 				SimpleComponentPropertyBinding< ? > b = (SimpleComponentPropertyBinding< ? >) mb;
-				System.err.println(b.getModel());
 				if(b.getModel().getValue().equals(object) && b.getPropertyMeta().getName().equals(property)) {
 					h[0] = b.getControl();
 					return;
@@ -80,5 +84,20 @@ public final class BindingMessenger {
 				find(modelBindings, h, object, property);
 			}
 		}
+	}
+
+	/**
+	 * Tries to find the control in the binding belong to the object and property
+	 * @param object
+	 * @param property
+	 * @throws Exception
+	 */
+	public <T> IControl<T> findControl(Object object, String property) throws Exception {
+		IControl[] h = new IControl[1];
+		find(m_bindings, h, object, property);
+		if(h[0] == null) {
+			throw new ProgrammerErrorException(object.getClass().getSimpleName() + "." + property + " not found in bindings"); // FIXME This should cause the message to occur as global message.
+		}
+		return h[0];
 	}
 }

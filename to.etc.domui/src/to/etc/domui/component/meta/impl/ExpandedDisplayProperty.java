@@ -614,6 +614,16 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		return Collections.emptyList();
 	}
 
+	/**
+	 * Returns empty by definition.
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getColumnNames()
+	 */
+	@Nonnull
+	@Override
+	public String[] getColumnNames() {
+		return BasicPropertyMetaModel.NO_NAMES;
+	}
+
 	@Override
 	public IQueryManipulator<T> getQueryManipulator() {
 		return null;
