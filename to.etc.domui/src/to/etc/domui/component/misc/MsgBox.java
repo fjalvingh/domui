@@ -27,6 +27,7 @@ package to.etc.domui.component.misc;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -49,7 +50,7 @@ public class MsgBox extends Window {
 
 	private static final int WIDTH = 500;
 
-	private static final int HEIGHT = 205;
+	private static final int HEIGHT = 210;
 
 	Object m_selectedChoice;
 
@@ -66,7 +67,6 @@ public class MsgBox extends Window {
 		super(true, false, WIDTH, HEIGHT, "");
 		setErrorFence(null); // Do not accept handling errors!!
 		m_theButtons.setCssClass("ui-mbx-bb");
-		m_theImage.setCssClass("ui-mbx-img");
 		setOnClose(new IWindowClosed() {
 			@Override
 			public void closed(String closeReason) throws Exception {
@@ -397,16 +397,20 @@ public class MsgBox extends Window {
 		Div a = new Div();
 		add(a);
 		a.setCssClass("ui-mbx-top");
+		a.setStretchHeight(true);
+		a.setOverflow(Overflow.AUTO);
 		Table t = new Table();
 		a.add(t);
 		TBody b = t.getBody();
-		TD td = b.addRowAndCell();
-		td.setCssClass("ui-mbx-ic");
+		TR row = b.addRow();
+		row.setVerticalAlign(VerticalAlignType.TOP);
+		TD td = row.addCell();
 		td.add(m_theImage);
+		m_theImage.setPosition(PositionType.ABSOLUTE);
 		td.setNowrap(true);
-		td.setWidth("1%");
+		td.setWidth("50px");
 
-		td = b.addCell("ui-mbx-mc");
+		td = row.addCell("ui-mbx-mc");
 		if(getDataRenderer() != null) {
 			try {
 				getDataRenderer().renderNodeContent(this, td, m_theText, null);
