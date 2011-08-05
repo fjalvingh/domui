@@ -410,7 +410,8 @@ final public class DomUtil {
 	}
 
 	/**
-	 *
+	 * IMPORTANT: This method MUST be used only within UI threads, when UIContext.getRequestContext() != null!
+	 * In all other, usually background running threads, other alternatives that are using stored appURL must be used!  
 	 * @param clz
 	 * @param pp
 	 * @return
@@ -418,6 +419,26 @@ final public class DomUtil {
 	static public String createPageURL(Class< ? extends UrlPage> clz, PageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(UIContext.getRequestContext().getRelativePath(clz.getName()));
+		sb.append('.');
+		sb.append(DomApplication.get().getUrlExtension());
+		if(pp != null)
+			addUrlParameters(sb, pp, true);
+		return sb.toString();
+	}
+
+	/**
+	 * IMPORTANT: This method MUST be used for non UI threads, when UIContext.getRequestContext() == null!
+	 * In all other, usually UI running threads, use other alternatives that is using appURL from UIContext.getRequestContext()!
+	 *   
+	 * @param webAppUrl web app url, must be ended with '/'
+	 * @param clz
+	 * @param pp
+	 * @return
+	 */
+	static public String createPageURL(String webAppUrl, Class< ? extends UrlPage> clz, PageParameters pp) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(webAppUrl);
+		sb.append(clz.getName());
 		sb.append('.');
 		sb.append(DomApplication.get().getUrlExtension());
 		if(pp != null)
