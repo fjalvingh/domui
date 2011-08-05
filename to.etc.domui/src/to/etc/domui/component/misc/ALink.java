@@ -168,11 +168,7 @@ public class ALink extends ATag {
 	 */
 	private void updateLink() {
 		if(m_targetClass != null) {
-			StringBuilder sb = new StringBuilder();
-			sb.append(UIContext.getRequestContext().getRelativePath(m_targetClass.getName()));
-			sb.append(".ui");
-			DomUtil.addUrlParameters(sb, m_targetParameters, true);
-			setHref(sb.toString()); // Append URL only, without WID
+			setHref(DomUtil.createPageURL(m_targetClass, m_targetParameters));
 		} else if(! DomUtil.isBlank(m_targetURL)) {
 			setHref(DomUtil.createPageURL(m_targetURL, m_targetParameters));
 		} else {
@@ -192,10 +188,7 @@ public class ALink extends ATag {
 				sb.append(DomUtil.createPageURL(m_targetURL, m_targetParameters));
 			} else {
 				//-- We need a NEW window session. Create it,
-				RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
-				sb.append(ctx.getRelativePath(m_targetClass.getName()));
-				sb.append('.');
-				sb.append(DomApplication.get().getUrlExtension());
+				sb.append(DomUtil.createPageURL(m_targetClass, null)); //add class url, without params that are added manually as follows...
 				sb.append('?');
 				StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 				sb.append('=');
