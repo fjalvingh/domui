@@ -59,6 +59,11 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple renderer initialization && parameterisation	*/
 	/*--------------------------------------------------------------*/
+
+	public KeyWordPopupRowRenderer(@Nonnull final Class<T> dataClass, final String... cols) {
+		this(dataClass, MetaManager.findClassMeta(dataClass), cols);
+	}
+
 	/**
 	 * Create a renderer by handling the specified class and a list of properties off it.
 	 * @param dataClass
