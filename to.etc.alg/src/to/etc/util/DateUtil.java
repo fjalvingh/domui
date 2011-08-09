@@ -443,4 +443,34 @@ public class DateUtil {
 		cal.set(Calendar.DAY_OF_MONTH, 1);
 		return cal.getTime();
 	}
+
+	/**
+	 * The ISO week-numbering year starts at the first day (Monday) of week 01 and ends at the Sunday before the new ISO year 
+	 * (hence without overlap or gap). It consists of 52 or 53 full weeks. If 1 January is on a Monday, Tuesday, Wednesday 
+	 * or Thursday, it is in week 01. If 1 January is on a Friday, Saturday or Sunday, it is in week 52 or 53 of the previous 
+	 * year (there is no week 00). 28 December is always in the last week of its year.
+	 * 
+	 * @return
+	 */
+	private static Calendar createIsoCalendar() {
+		Calendar cal = new GregorianCalendar();
+		cal.clear();
+		cal.setMinimalDaysInFirstWeek(4);
+		cal.setFirstDayOfWeek(2);
+		return cal;
+	}
+
+	/**
+	 * Returns ISO calendar with specified year and week.
+	 * @param year
+	 * @param weekOfYear
+	 * @return
+	 */
+	public static Calendar getIsoCalendarForYearAndWeek(int year, int weekOfYear) {
+		Calendar cal = DateUtil.createIsoCalendar();
+		cal.set(Calendar.YEAR, year);
+		cal.set(Calendar.WEEK_OF_YEAR, weekOfYear);
+		return cal;
+	}
+
 }
