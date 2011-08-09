@@ -122,8 +122,10 @@ public class SearchInput<T> extends Div {
 
 	@Override
 	public void createContent() throws Exception {
-		setPosition(PositionType.RELATIVE);
-		setDisplay(DisplayType.INLINE_BLOCK);
+		setCssClass("ui-qsi");
+
+		//		setPosition(PositionType.RELATIVE);
+		//		setDisplay(DisplayType.INLINE_BLOCK);
 		m_imgWaiting.setCssClass("ui-lui-waiting");
 		m_imgWaiting.setDisplay(DisplayType.NONE);
 		add(m_imgWaiting);
