@@ -74,6 +74,12 @@ public interface Msgs {
 	/** Error component panel header text: Fouten */
 	public static final String UI_ERROR_HEADER = "ui.error.header";
 
+	/** Error component panel header text: Warnings */
+	public static final String UI_WARNING_HEADER = "ui.warning.header";
+
+	/** Error component panel header text: Info */
+	public static final String UI_INFO_HEADER = "ui.info.header";
+
 	/** (empty field) - the text shown when a lookup-popup-thingy is empty. */
 	public static final String UI_LOOKUP_EMPTY = "ui.lookup.empty";
 
