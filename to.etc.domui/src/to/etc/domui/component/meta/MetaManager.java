@@ -457,7 +457,7 @@ final public class MetaManager {
 
 			PropertyMetaModel< ? > pmm = ccmm.findSimpleProperty(sub); // Find base property,
 			if(pmm == null)
-				throw new IllegalStateException("Undefined property '" + sub + "' on classMetaModel=" + ccmm);
+				throw new IllegalStateException("Invalid property path '" + name + "' on " + cmm + ": property '" + sub + "' on classMetaModel=" + ccmm + " does not exist");
 			acl.add(pmm); // Next access path,
 			ccmm = MetaManager.findClassMeta(pmm.getActualType());
 
@@ -854,6 +854,58 @@ final public class MetaManager {
 				case SORTABLE_DESC:
 					q.descending(p.getName());
 					break;
+			}
+		}
+	}
+
+	/**
+	 * Fill target instance with same values as found in source instance. PK and transient properties would not be copied.
+	 *
+	 * @param <T>
+	 * @param source
+	 * @param target
+	 * @throws Exception
+	 */
+	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target) throws Exception {
+		fillCopy(source, target, false, false);
+	}
+
+	/**
+	 * Fill target instance with same values as found in source instance. PK and transient properties would not be copied.
+	 *
+	 * @param <T>
+	 * @param source
+	 * @param target
+	 * @param ignoredColumns Specified optional columns that would not be filled with data from source
+	 * @throws Exception
+	 */
+	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target, String... ignoredColumns) throws Exception {
+		fillCopy(source, target, false, false, ignoredColumns);
+	}
+
+	/**
+	 * Fill target instance with same values as found in source instance.
+	 *
+	 * @param <T>
+	 * @param source
+	 * @param target
+	 * @param copyPK If T, it also copies PK value(s)
+	 * @param copyTransient If T, it also copies transient values
+	 * @param ignoredColumns Specified optional columns that would not be filled with data from source
+	 * @throws Exception
+	 */
+	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target, boolean copyPK, boolean copyTransient, String... ignoredColumns) throws Exception {
+		ClassMetaModel cmm = MetaManager.findClassMeta(source.getClass());
+		List<String> ignoreList = new ArrayList<String>(ignoredColumns.length);
+		for (String ignore : ignoredColumns) {
+			ignoreList.add(ignore);
+		}
+		for (PropertyMetaModel< ? > pmm : cmm.getProperties()) {
+			PropertyMetaModel< Object > opmm = (PropertyMetaModel< Object >) pmm;
+			if((!opmm.isPrimaryKey() || copyPK) && //
+				(!opmm.isTransient() || copyTransient) && //
+				(ignoreList.size() == 0 || ignoreList.contains(opmm.getName()))) {
+				opmm.setValue(target, opmm.getValue(source));
 			}
 		}
 	}
