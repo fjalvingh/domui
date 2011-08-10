@@ -457,7 +457,7 @@ final public class MetaManager {
 
 			PropertyMetaModel< ? > pmm = ccmm.findSimpleProperty(sub); // Find base property,
 			if(pmm == null)
-				throw new IllegalStateException("Undefined property '" + sub + "' on classMetaModel=" + ccmm);
+				throw new IllegalStateException("Invalid property path '" + name + "' on " + cmm + ": property '" + sub + "' on classMetaModel=" + ccmm + " does not exist");
 			acl.add(pmm); // Next access path,
 			ccmm = MetaManager.findClassMeta(pmm.getActualType());
 
