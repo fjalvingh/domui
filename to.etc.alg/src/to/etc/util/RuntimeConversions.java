@@ -26,6 +26,7 @@ package to.etc.util;
 
 import java.lang.reflect.*;
 import java.math.*;
+import java.text.*;
 import java.util.*;
 
 /**
@@ -224,7 +225,27 @@ public class RuntimeConversions {
 			return new BigDecimal((BigInteger) in);
 		if(in instanceof Number)
 			return new BigDecimal(((Number) in).doubleValue());
+		if(in instanceof String) {
+			try {
+				return convertStringToNumber((String) in, BigDecimal.class);
+			} catch(Exception e) {
+				throw new RuntimeConversionException(e.getLocalizedMessage());
+			}
+		}
 		throw new RuntimeConversionException(in, "BigDecimal");
+	}
+
+	private static <T> T convertStringToNumber(String in, Class<T> type) throws ParseException {
+		//Here we have to use java general-purpose number format standard conversions
+		NumberFormat df = NumberFormat.getInstance();
+		if(type == BigInteger.class) {
+			df.setParseIntegerOnly(true);
+			return (T) new BigInteger(df.parse(in).toString());
+		} else if(type == BigDecimal.class) {
+			return (T) new BigDecimal(df.parse(in).doubleValue());
+		} else {
+			throw new IllegalArgumentException("Not supported type:" + type);
+		}
 	}
 
 	static public BigInteger convertToBigInteger(Object in) {
@@ -238,6 +259,13 @@ public class RuntimeConversions {
 			return ((BigDecimal) in).toBigInteger();
 		else if(in instanceof Number)
 			return BigInteger.valueOf(((Number) in).longValue());
+		if(in instanceof String) {
+			try {
+				return convertStringToNumber((String) in, BigInteger.class);
+			} catch(Exception e) {
+				throw new RuntimeConversionException(e.getLocalizedMessage());
+			}
+		}
 		throw new RuntimeConversionException(in, "BigInteger");
 	}
 
@@ -381,6 +409,10 @@ public class RuntimeConversions {
 			return (T) convertToCharacterWrapper(o);
 		if(to == Double.class || to == Double.TYPE)
 			return (T) convertToDoubleWrapper(o);
+		if(to == BigInteger.class)
+			return (T) convertToBigInteger(o);
+		if(to == BigDecimal.class)
+			return (T) convertToBigDecimal(o);
 
 		if(o == null && !to.isPrimitive()) // Accept null for all non-primitives
 			return (T) o;
