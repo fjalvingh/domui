@@ -101,6 +101,8 @@ final public class ConnectionProxy implements Connection {
 	/** A list of objects containing extra info on ownership and use. */
 	private List<Object> m_infoObjects = Collections.EMPTY_LIST;
 
+	/** All commit event listeners. */
+	private List<ICommitListener> m_commitListenerList = Collections.EMPTY_LIST;
 
 	/**
 	 *	Creates new connection. This is the only way to attach one to the PoolEntry.
@@ -304,6 +306,29 @@ final public class ConnectionProxy implements Connection {
 		 * is fully invalidated. Now release the poolentry outside locks.
 		 */
 		m_pe.invalidate(this);
+	}
+
+	/**
+	 * Commit proxies to the real connection, but also handles the "disable commits" per-thread option
+	 * that can be set by {@link ConnectionPool#setCommitDisabled(boolean)} and the commit-time listeners
+	 * that can be added by {@link #addCommitListener(ICommitListener)}.
+	 *
+	 * @throws java.sql.SQLException
+	 */
+	public void commit() throws java.sql.SQLException {
+		if(!getPool().isCommitDisabled())
+			check().commit();
+
+		//-- Call all listeners, abort on 1st error
+		if(m_commitListenerList.size() == 0) // Fast exit if nothing is registered
+			return;
+
+		try {
+			for(ICommitListener icl : m_commitListenerList)
+				icl.onAfterCommit(this);
+		} finally {
+			m_commitListenerList = Collections.EMPTY_LIST;
+		}
 	}
 
 	/*--------------------------------------------------------------*/
@@ -541,12 +566,31 @@ final public class ConnectionProxy implements Connection {
 		m_unclosable = unclosable;
 	}
 
+	/**
+	 * Add a commit-time listener to this connection. The listener is
+	 * called after the 1st commit; the list is cleared at that time
+	 * (provided the commit works).
+	 * @since 2011/08/12
+	 * @param c
+	 */
+	public void addCommitListener(ICommitListener c) {
+		if(m_commitListenerList == Collections.EMPTY_LIST)
+			m_commitListenerList = new ArrayList<ICommitListener>();
+		m_commitListenerList.add(c);
+	}
 
-	/***********************************************************************************/
-	/***********************************************************************************/
-	/********** OLD CODE AFTER HERE - PENDING REVIEW AND REMOVAL ***********************/
-	/***********************************************************************************/
-	/***********************************************************************************/
+	/**
+	 * Remove an earlier registered commit listener - silly usage, questionable interface.
+	 * @since 2011/08/12
+	 * @param c
+	 */
+	public void removeCommitListener(ICommitListener c) {
+		if(m_commitListenerList.size() == 0)
+			return;
+		m_commitListenerList.remove(c);
+	}
+
+
 	int getWarningCount() {
 		return m_expiryWarningCount;
 	}
@@ -674,15 +718,9 @@ final public class ConnectionProxy implements Connection {
 		m_autocommit = p1;
 	}
 
-
-	public void commit() throws java.sql.SQLException {
-		check().commit();
-	}
-
 	public java.lang.String getCatalog() throws java.sql.SQLException {
 		return check().getCatalog();
 	}
-
 
 	public boolean isReadOnly() throws java.sql.SQLException {
 		return check().isReadOnly();

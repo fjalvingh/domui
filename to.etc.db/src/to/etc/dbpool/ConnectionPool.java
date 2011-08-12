@@ -203,6 +203,9 @@ final public class ConnectionPool {
 	/** The CALCULATED SQL statement that is to be sent as a check for valid cnnections, if m_check is null. */
 	private String m_check_calc;
 
+	/** Per-thread configuration of connection handling for debug and JUnit test purposes. */
+	private ThreadLocal<ThreadConfig> m_threadConfig = new ThreadLocal<ThreadConfig>();
+
 	/*---------- Connection administration ---------------------------*/
 	/** All connection entries that are allocated but free for use. */
 	private Stack<PoolEntry> m_freeList = new Stack<PoolEntry>();
@@ -1350,6 +1353,40 @@ final public class ConnectionPool {
 	public synchronized void dbgSetStacktrace(final boolean on) {
 		m_dbg_stacktrace = on;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Per-thread configuration (JUnit tests et al).		*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * This enables or disables commits for connections allocated/used by <b>this</b> thread. Primary
+	 * use is for JUnit tests, preventing them from changing the database.
+	 * @since 2011/08/12
+	 * @param on
+	 */
+	public void setCommitDisabled(boolean on) {
+		ThreadConfig tc = m_threadConfig.get();
+		if(tc == null) {
+			if(!on) // Not disabled and no config -> fine already
+				return;
+			tc = new ThreadConfig();
+			m_threadConfig.set(tc);
+		}
+		tc.setDisableCommit(on);
+	}
+
+	/**
+	 * Returns T if commits are disabled for the current thread. This can be used
+	 * to prevent JUnit tests from changing the database.
+	 * @since 2011/08/12
+	 * @return
+	 */
+	public boolean isCommitDisabled() {
+		ThreadConfig tc = m_threadConfig.get();
+		if(tc == null)
+			return false;
+		return tc.isDisableCommit();
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Access to statistics.								*/
