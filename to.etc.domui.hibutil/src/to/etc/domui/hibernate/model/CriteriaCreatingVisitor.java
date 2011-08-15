@@ -978,10 +978,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		String[] keyCols = persister.getKeyColumnNames();
 
 		//-- Try to locate those FK column names in the FK table so we can fucking locate the mapping property.
-		int fkindex = findCruddyChildProperty(childmd, keyCols);
-		if(fkindex < 0)
+		String childupprop = findCruddyChildProperty(childmd, keyCols);
+		if(childupprop == null)
 			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + Arrays.toString(keyCols));
-		String childupprop = childmd.getPropertyNames()[fkindex];
 
 		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
 		String parentAlias = getParentAlias();
@@ -1018,15 +1017,58 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 * @param keyCols
 	 * @return
 	 */
-	private int findCruddyChildProperty(ClassMetadata cm, String[] keyCols) {
+	private String findCruddyChildProperty(ClassMetadata cm, String[] keyCols) {
 		SingleTableEntityPersister fuckup = (SingleTableEntityPersister) cm;
 		for(int i = fuckup.getPropertyNames().length; --i >= 0;) {
 			String[] cols = fuckup.getPropertyColumnNames(i);
 			if(Arrays.equals(keyCols, cols)) {
-				return i;
+				return cm.getPropertyNames()[i];
 			}
 		}
-		return -1;
+
+		/*
+		 * The identifier property is fully separate from all other properties because that
+		 * makes it hard to use, of course. So explicitly check for a full identifying relation
+		 * initially.
+		 */
+		String idname = fuckup.getIdentifierPropertyName();
+		String[] cols = fuckup.getIdentifierColumnNames();
+		if(Arrays.equals(keyCols, cols)) {
+			return idname;
+		}
+
+		/*
+		 * The ID property can be compound, in that case we need to handle it's
+		 * component properties separately. This code is wrong because it only
+		 * handles one level of indirection - but that is enough for me now, this
+		 * is horrible. The proper way of implementing is to recursively determine
+		 * the smallest property accessing the columns specified in this call, and
+		 * to determine it's full path.
+		 */
+		Type idtype = fuckup.getIdentifierType();
+		if(idtype instanceof ComponentType) {
+			ComponentType ct = (ComponentType) idtype;
+
+			//			for(int scp = 0; scp < fuckup.countSubclassProperties(); scp++) { There's no end to the incredible mess.
+			//				String scpn = fuckup.getSubclassPropertyName(scp);
+			//				cols = fuckup.getSubclassPropertyColumnNames(scpn);
+			//				System.out.println("prop: " + scpn + ", cols=" + Arrays.toString(cols));
+			//			}
+			//
+
+			String[] xx = fuckup.getSubclassPropertyColumnNames(idname);
+			String[] cpnar = ct.getPropertyNames();
+			for(int i = 0; i < cpnar.length; i++) {
+				String pname = cpnar[i];
+				cols = fuckup.getSubclassPropertyColumnNames(idname + "." + pname);
+				if(Arrays.equals(keyCols, cols)) {
+					return idname + "." + pname;
+				}
+			}
+		}
+
+		//-- All has failed- mapping unknown.
+		return null;
 	}
 
 	/**
