@@ -55,4 +55,5 @@ final public class XMLNameSpaces {
 
 	static public final String	XHTML1_0			= "http://www.w3.org/1999/xhtml";
 
+	static public final String	XOP_INCLUDE			= "http://www.w3.org/2004/08/xop/include";
 }
