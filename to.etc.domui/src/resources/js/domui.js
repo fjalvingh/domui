@@ -706,9 +706,10 @@ var WebUI = {
 
 			//locate keyword input node 
 			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
-			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+			var trNode = selectedIndex < 0 ? null : $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
 			if(trNode){
-				//trigger click on row 
+				//trigger click on row
+				WebUI.setKeywordPopupSelectedRowIndex(node, -1);
 				$(trNode).trigger('click');
 			} else {
 				//trigger lookupTypingDone when return is pressed
@@ -721,7 +722,7 @@ var WebUI = {
 	 * Handle for timer delayed actions, used for onLookupTyping event.
 	 */
 	scheduledOnLookupTypingTimerID: null,
-	
+
 	/*
 	 * Executed as onkeyup event on input field that has implemented listener for onLookupTyping event.
 	 * In case of return key call lookupTypingDone ajax that is transformed into onLookupTyping(done=true).
@@ -768,6 +769,8 @@ var WebUI = {
 
 			//locate keyword input node
 			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+			if(selectedIndex < 0)
+				selectedIndex = 0;
 			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
 			if(trNode){
 				trNode.className = "ui-keyword-popup-row";
@@ -811,7 +814,7 @@ var WebUI = {
 				return parseInt(selectedIndexInput.value);
 			};
 		}
-		return 0;
+		return -1;
 	},
 
 	setKeywordPopupSelectedRowIndex: function(keywordInputNode, intValue){
@@ -831,6 +834,8 @@ var WebUI = {
 		}
 
 		var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+		if(selectedIndex < 0)
+			selectedIndex = 0;
 		var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
 		if(trNode){
 			WebUI.clicked(trNode, trNode.id, null);
@@ -849,6 +854,8 @@ var WebUI = {
 		}
 
 		var oldIndex = WebUI.getKeywordPopupSelectedRowIndex(keywordInput);
+		if(oldIndex < 0)
+			oldIndex = 0;
 		
 		var trNodes = $(rowNode.parentNode).children("tr");
 		var newIndex = 0;

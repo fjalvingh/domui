@@ -54,6 +54,9 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/** Theclass' resource bundle. */
 	private BundleRef m_classBundle;
 
+	/** An immutable list of all properties of this class. This list differs from m_propertyMap: the map contains all calculated properties too. */
+	private List<PropertyMetaModel< ? >> m_rootProperties;
+
 	private final Map<String, PropertyMetaModel< ? >> m_propertyMap = new HashMap<String, PropertyMetaModel< ? >>();
 
 	/**
@@ -129,6 +132,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_classBundle = BundleRef.create(metaClass, m_classNameOnly);
 	}
 
+	synchronized void setClassProperties(List<PropertyMetaModel< ? >> reslist) {
+		m_rootProperties = Collections.unmodifiableList(reslist);
+		for(PropertyMetaModel< ? > pmm : reslist) {
+			m_propertyMap.put(pmm.getName(), pmm);
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Resource bundle data.								*/
@@ -217,14 +226,10 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return m_propertyMap.get(name);
 	}
 
-	synchronized void addProperty(@Nonnull PropertyMetaModel< ? > pmm) {
-		m_propertyMap.put(pmm.getName(), pmm);
-	}
-
 	@Override
 	@Nonnull
 	public List<PropertyMetaModel< ? >> getProperties() {
-		return new ArrayList<PropertyMetaModel< ? >>(m_propertyMap.values());
+		return m_rootProperties;
 	}
 
 	@Override
@@ -470,4 +475,6 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	public void setComboSortProperty(String comboSortProperty) {
 		m_comboSortProperty = comboSortProperty;
 	}
+
+
 }

@@ -28,6 +28,7 @@ import java.util.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.util.*;
+import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -388,4 +389,106 @@ public class ConverterRegistry {
 		//-- Ask the converter registry for a converter for this
 		return findConverter(pmm.getActualType(), pmm);
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Comparators for data.								*/
+	/*--------------------------------------------------------------*/
+
+	static private Map<Class< ? >, Comparator< ? >> m_comparatorMap = new HashMap<Class< ? >, Comparator< ? >>();
+
+	static public final Comparator<Object> DEFAULT_COMPARATOR = new Comparator<Object>() {
+		@Override
+		public int compare(Object a, Object b) {
+			if(a == null || b == null) {
+				if(a == b)
+					return 0;
+				return a == null ? -1 : 1;
+			}
+			if(a instanceof Comparable && b instanceof Comparable) {
+				return ((Comparable) a).compareTo(b);
+			}
+			return a.toString().compareTo(b.toString());
+		}
+	};
+
+
+	/**
+	 * Register a comparator for a given type.
+	 * @param valueClass
+	 * @param comp
+	 */
+	static synchronized public <T> void registerComparator(Class<T> valueClass, Comparator<T> comp) {
+		m_comparatorMap = new HashMap<Class< ? >, Comparator< ? >>(m_comparatorMap);
+		m_comparatorMap.put(valueClass, comp);
+	}
+
+	static private synchronized Map<Class< ? >, Comparator< ? >> getComparatorMap() {
+		return m_comparatorMap;
+	}
+
+	/**
+	 *
+	 * @param dataClass
+	 * @param property
+	 * @param descending
+	 * @return
+	 */
+	static public <T> Comparator<T> getComparator(Class<T> dataClass, String property, boolean descending) {
+		ClassMetaModel cmm = MetaManager.findClassMeta(dataClass);
+		return (Comparator<T>) getComparator(cmm, property, descending);
+	}
+
+	static public Comparator< ? > getComparator(ClassMetaModel cmm, String property, boolean descending) {
+		PropertyMetaModel< ? > pmm = cmm.findProperty(property);
+		if(null == pmm)
+			throw new ProgrammerErrorException("The property '" + cmm + "." + property + "' is not known.");
+
+		//-- Get the actual data type, and get a comparator for that data type;
+		Comparator< ? > comp = findComparatorForType(pmm.getActualType());
+		if(null == comp) {
+			return DEFAULT_COMPARATOR;
+		}
+		return new PropertyComparator<Object>(pmm, comp, descending);
+	}
+
+	/**
+	 * Find a comparator for a given type.
+	 * @param actualType
+	 * @return
+	 */
+	private static Comparator< ? > findComparatorForType(Class< ? > actualType) {
+		Class<?> t = actualType;
+		Map<Class< ? >, Comparator< ? >> cm = getComparatorMap();
+		for(;;) {
+			if(t == null)
+				break;
+			Comparator< ? > c = cm.get(t);
+			if(null != c)
+				return c;
+			t = t.getSuperclass();
+		}
+
+		//-- Try all interfaces
+		for(Class< ? > ifc : actualType.getInterfaces()) {
+			Comparator< ? > c = findComparatorForType(ifc);
+			if(null != c)
+				return c;
+		}
+		return null;
+	}
+
+	//	/**
+	//	 *
+	//	 * @param pmm
+	//	 * @param valueOf
+	//	 * @return
+	//	 */
+	//	public static Comparator< ? > getComparatorMulti(ClassMetaModel cmm, Object... funcar) {
+	//		//-- Ok: get a comparator comparing the specified property models.
+	//
+	//
+	//		// TODO Auto-generated method stub
+	//		return null;
+	//	}
 }
