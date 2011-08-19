@@ -859,7 +859,7 @@ final public class MetaManager {
 	}
 
 	/**
-	 * Fill target instance with same values as found in source instance. PK and transient properties would not be copied.
+	 * Fill target instance with same values as found in source instance. PK, TCN and transient properties would not be copied.
 	 *
 	 * @param <T>
 	 * @param source
@@ -867,11 +867,11 @@ final public class MetaManager {
 	 * @throws Exception
 	 */
 	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target) throws Exception {
-		fillCopy(source, target, false, false);
+		fillCopy(source, target, false, false, false);
 	}
 
 	/**
-	 * Fill target instance with same values as found in source instance. PK and transient properties would not be copied.
+	 * Fill target instance with same values as found in source instance. PK, TCN and transient properties would not be copied.
 	 *
 	 * @param <T>
 	 * @param source
@@ -880,7 +880,7 @@ final public class MetaManager {
 	 * @throws Exception
 	 */
 	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target, String... ignoredColumns) throws Exception {
-		fillCopy(source, target, false, false, ignoredColumns);
+		fillCopy(source, target, false, false, false, ignoredColumns);
 	}
 
 	/**
@@ -890,11 +890,12 @@ final public class MetaManager {
 	 * @param source
 	 * @param target
 	 * @param copyPK If T, it also copies PK value(s)
+	 * @param copyTCN If T, it also copies TCN value(s)
 	 * @param copyTransient If T, it also copies transient values
 	 * @param ignoredColumns Specified optional columns that would not be filled with data from source
 	 * @throws Exception
 	 */
-	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target, boolean copyPK, boolean copyTransient, String... ignoredColumns) throws Exception {
+	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target, boolean copyPK, boolean copyTCN, boolean copyTransient, String... ignoredColumns) throws Exception {
 		ClassMetaModel cmm = MetaManager.findClassMeta(source.getClass());
 		List<String> ignoreList = new ArrayList<String>(ignoredColumns.length);
 		for (String ignore : ignoredColumns) {
@@ -904,6 +905,7 @@ final public class MetaManager {
 			PropertyMetaModel< Object > opmm = (PropertyMetaModel< Object >) pmm;
 			if((!opmm.isPrimaryKey() || copyPK) && //
 				(!opmm.isTransient() || copyTransient) && //
+				(!"tcn".equalsIgnoreCase(opmm.getName()) || copyTCN) && //
 				(ignoreList.size() == 0 || ignoreList.contains(opmm.getName()))) {
 				opmm.setValue(target, opmm.getValue(source));
 			}
