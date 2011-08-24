@@ -27,6 +27,7 @@ package to.etc.domui.component.input;
 import java.util.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -174,5 +175,27 @@ public class DateInput extends Text<Date> {
 
 	public void setHideTodayButton(boolean hideTodayButton) {
 		m_hideTodayButton = hideTodayButton;
+	}
+
+	public static DateInput createDateInput(Class< ? > clz, String property, boolean editable) {
+		PropertyMetaModel< ? > pmm = MetaManager.findPropertyMeta(clz, property);
+		Class< ? > aclz = pmm.getActualType();
+		if(!Date.class.isAssignableFrom(aclz))
+			throw new IllegalStateException("Invalid class type=" + Date.class + " for property " + pmm);
+		return DateInput.createDateInput((PropertyMetaModel<Date>) pmm, editable);
+	}
+
+	public static DateInput createDateInput(PropertyMetaModel<Date> pmm, boolean editable) {
+		DateInput di = new DateInput();
+		if(pmm.isRequired())
+			di.setMandatory(true);
+		if(!editable)
+			di.setDisabled(true);
+		if(pmm.getTemporal() == TemporalPresentationType.DATETIME)
+			di.setWithTime(true);
+		String s = pmm.getDefaultHint();
+		if(s != null)
+			di.setTitle(s);
+		return di;
 	}
 }
