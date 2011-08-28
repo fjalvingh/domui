@@ -59,44 +59,56 @@ public final class DbLockKeeper {
 
 	/**
 	 * Method should be used to create a lock. It can be used to make sure that certain processes won't run at the same time
-	 * on multiple servers. The method won't finish untill lock is given. 
-	 * 
+	 * on multiple servers. The method won't finish until lock is given.
+	 *
 	 * IMPORTANT
-	 * The lock must be released after execution of the code.  
-	 * 
+	 * The lock must be released after execution of the code.
+	 *
 	 * @param lockName the name of the lock
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public LockHandle lock(final String lockName) throws Exception {
 		LockThreadKey key = new LockThreadKey(lockName, Thread.currentThread());
 		Lock lock;
 		synchronized(this) {
 			lock = M_MAINTAINED_LOCKS.get(key);
+			if(lock != null) {
+				return new LockHandle(lock);
+			}
 		}
-		if(lock != null) {
-			return new LockHandle(lock);
-		}
-		Connection dbc = m_dataSource.getConnection();
-		insertLock(lockName, dbc);
+
+		Connection dbc = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
+			dbc = m_dataSource.getConnection();
+			insertLock(lockName, dbc);
+
 			ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update of lock_name");
 			rs = ps.executeQuery();
 			if(!rs.next()) {
 				throw new Exception("Lock with name: " + lockName + " not acquired");
 			}
 			lock = new Lock(this, lockName, dbc);
+			LockHandle lh = new LockHandle(lock);
 			synchronized(this) {
 				M_MAINTAINED_LOCKS.put(key, lock);
 			}
-			return new LockHandle(lock);
+			dbc = null; // Release ownership.
+			return lh;
 		} finally {
-			//connection is not closed here to keep the lock. Is done by the release call;
-			if(ps != null)
-				ps.close();
-			if(rs != null)
-				rs.close();
+			try {
+				if(rs != null)
+					rs.close();
+			} catch(Exception x) {}
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+			try {
+				if(dbc != null)
+					dbc.close();
+			} catch(Exception x) {}
 		}
 	}
 
@@ -130,7 +142,7 @@ public final class DbLockKeeper {
 	}
 
 	/**
-	 * Class to function as a key in the maintained locks map of the outer class. 
+	 * Class to function as a key in the maintained locks map of the outer class.
 	 */
 	private static final class LockThreadKey {
 		private String m_lockName;
@@ -177,7 +189,7 @@ public final class DbLockKeeper {
 
 	/**
 	 * Class keeps an lock on the database. Only handles to this lock will be
-	 *  distibuted to classes that require a database lock. When all handle are 
+	 *  distibuted to classes that require a database lock. When all handle are
 	 *  released the lock is also released.
 	 */
 	private static final class Lock {
@@ -201,14 +213,20 @@ public final class DbLockKeeper {
 		}
 
 		@SuppressWarnings("synthetic-access")
-		public void release() throws SQLException {
+		public void release() {
 			synchronized(m_keeper) {
 				m_lockCounter--;
 				if(m_lockCounter == 0) {
 					try {
 						m_lockedConnection.rollback();
+					} catch(SQLException x) {
+						//-- jal 20110821 Should only occur on real database trouble - log it but ignore, there is nothing we can do.
+						x.printStackTrace();
 					} finally {
-						m_lockedConnection.close();
+						try {
+							//-- jal 20110821 symmetry: should move to releaseLock method.
+							m_lockedConnection.close();
+						} catch(Exception x) {}
 						m_lockedConnection = null;
 					}
 					m_keeper.releaseLock(m_lockName);
@@ -226,7 +244,7 @@ public final class DbLockKeeper {
 
 	/**
 	 * Handle for a specific lock. Multiple handles can be distributed for a single lock.
-	 * This will only be the case when a lock is asked for the same thread multiple times. 
+	 * This will only be the case when a lock is asked for the same thread multiple times.
 	 */
 	public static final class LockHandle {
 		private Lock m_lock;
@@ -239,16 +257,14 @@ public final class DbLockKeeper {
 		}
 
 		/**
-		 * If this handle is the last/only handle for a lock the lock is released. 
+		 * If this handle is the last/only handle for a lock the lock is released.
 		 * @throws Exception when exception with releasing the lock occurs.
 		 */
-		public void release() throws Exception {
-			if(m_released)
-				throw new IllegalStateException("Lock already released");
-			m_released = true;
+		public void release() {
+			if(m_released) // jal 20110821 Explicitly allow mutiple releases- better than not releasing at all.
+				return;
 			m_lock.release();
+			m_released = true;
 		}
-
 	}
-
 }
