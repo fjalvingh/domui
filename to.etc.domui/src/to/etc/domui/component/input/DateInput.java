@@ -186,6 +186,10 @@ public class DateInput extends Text<Date> {
 	}
 
 	public static DateInput createDateInput(PropertyMetaModel<Date> pmm, boolean editable) {
+		return createDateInput(pmm, editable, false);
+	}
+
+	public static DateInput createDateInput(PropertyMetaModel<Date> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		DateInput di = new DateInput();
 		if(pmm.isRequired())
 			di.setMandatory(true);
@@ -196,6 +200,9 @@ public class DateInput extends Text<Date> {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			di.setTitle(s);
+		if(setDefaultErrorLocation) {
+			di.setErrorLocation(pmm.getDefaultLabel());
+		}
 		return di;
 	}
 }

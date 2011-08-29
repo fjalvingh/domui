@@ -671,6 +671,10 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable) {
+		return createText(iclz, pmm, editable, false);
+	}
+
+	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		Class< ? > aclz = pmm.getActualType();
 		if(!iclz.isAssignableFrom(aclz))
 			throw new IllegalStateException("Invalid class type=" + iclz + " for property " + pmm);
@@ -772,6 +776,9 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 				calcsz = calcmaxsz;
 		}
 		txt.setSize(calcsz);
+		if(setDefaultErrorLocation) {
+			txt.setErrorLocation(pmm.getDefaultLabel());
+		}
 		return txt;
 	}
 }
