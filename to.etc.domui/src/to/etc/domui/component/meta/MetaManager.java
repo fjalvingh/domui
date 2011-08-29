@@ -906,7 +906,7 @@ final public class MetaManager {
 			if((!opmm.isPrimaryKey() || copyPK) && //
 				(!opmm.isTransient() || copyTransient) && //
 				(!"tcn".equalsIgnoreCase(opmm.getName()) || copyTCN) && //
-				(ignoreList.size() == 0 || ignoreList.contains(opmm.getName()))) {
+				(ignoreList.size() == 0 || !ignoreList.contains(opmm.getName()))) {
 				opmm.setValue(target, opmm.getValue(source));
 			}
 		}
