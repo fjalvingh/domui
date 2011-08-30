@@ -136,6 +136,17 @@ final public class Page implements IQContextContainer {
 	 */
 	private List<FloatingDiv> m_floatingWindowStack;
 
+	/**
+	 * This gets incremented for every request that is handled.
+	 */
+	private int m_requestCounter;
+
+	/**
+	 * Nodes that are added to a render and that are removed by the Javascript framework are added here; this
+	 * will force them to be removed from the tree after any render without causing a delta.
+	 */
+	private List<NodeBase> m_removeAfterRenderList = Collections.EMPTY_LIST;
+
 	public Page(final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
@@ -211,6 +222,14 @@ final public class Page implements IQContextContainer {
 
 	public PageParameters getPageParameters() {
 		return m_pageParameters;
+	}
+
+	public int getRequestCounter() {
+		return m_requestCounter;
+	}
+
+	public void internalIncrementRequestCounter() {
+		m_requestCounter++;
 	}
 
 	public final int getPageTag() {
@@ -336,10 +355,24 @@ final public class Page implements IQContextContainer {
 	}
 
 	public void internalClearDeltaFully() {
+		for(NodeBase nb : m_removeAfterRenderList) {
+			nb.remove();
+		}
+		m_removeAfterRenderList.clear();
+
 		getBody().internalClearDeltaFully();
 		m_beforeMap = null;
 		m_sb = null;
 	}
+
+
+	public void addRemoveAfterRenderNode(NodeBase node) {
+		if(m_removeAfterRenderList == Collections.EMPTY_LIST) {
+			m_removeAfterRenderList = new ArrayList<NodeBase>();
+		}
+		m_removeAfterRenderList.add(node);
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Header contributors									*/

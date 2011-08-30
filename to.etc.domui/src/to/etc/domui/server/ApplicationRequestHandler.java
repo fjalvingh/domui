@@ -53,7 +53,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	private final DomApplication m_application;
 
 	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
-	
+
 	public ApplicationRequestHandler(final DomApplication application) {
 		m_application = application;
 	}
@@ -205,6 +205,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		Page page = cm.makeOrGetPage(ctx, clz, papa);
+		page.internalIncrementRequestCounter();
 		cm.internalSetLastPage(page);
 		//		Page page = PageMaker.makeOrGetPage(ctx, clz, papa);
 

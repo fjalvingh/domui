@@ -2599,9 +2599,16 @@ WebUI.floatingDivResize = function(ev, ui) {
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
 };
 
-
 WebUI.onWindowResize = function() {
 	WebUI.doCustomUpdates();
+};
+
+WebUI.flare = function(id) {
+	$('#'+id).fadeIn('fast', function() {
+		$('#'+id).delay(500).fadeOut(1000, function() {
+			$('#'+id).remove();
+		});
+	});
 };
 
 $(document).ready(WebUI.onDocumentReady);
