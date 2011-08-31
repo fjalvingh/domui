@@ -40,6 +40,8 @@ class ReplayRecord {
 
 	private Object[] m_parameterAr;
 
+	private int[] m_parameterType;
+
 	private boolean m_unexecutable;
 
 	/**
@@ -68,13 +70,15 @@ class ReplayRecord {
 		if(m_paramCount < 0) // bugfix: log format sometimes contained -1 as param count.
 			m_paramCount = 0;
 		m_parameterAr = new Object[m_paramCount];
+		m_parameterType = new int[m_paramCount];
 		for(int i = 0; i < m_parameterAr.length; i++) {
-			m_parameterAr[i] = readParameter(r);
+			int ptype = r.readByte();
+			m_parameterAr[i] = readParameter(r, ptype);
+			m_parameterType[i] = ptype;
 		}
 	}
 
-	private Object readParameter(DbReplay r) throws Exception {
-		int type = r.readByte();
+	private Object readParameter(DbReplay r, int type) throws Exception {
 		switch(type){
 			default:
 				throw new IOException("Input: unexpected parameter type: " + type + " (" + (char) type + ")");
@@ -103,6 +107,47 @@ class ReplayRecord {
 		}
 	}
 
+	public void assignParameter(PreparedStatement ps, int index) throws Exception {
+		Object v = m_parameterAr[index];
+		switch(m_parameterType[index]){
+			default:
+				throw new IOException("assign: unexpected parameter type: " + m_parameterType[index]);
+
+			case '0':
+				ps.setString(index+1, null);
+				break;
+
+			case 'i':
+				ps.setInt(index + 1, ((Integer) v).intValue());
+				break;
+
+			case 'l':
+				ps.setLong(index + 1, ((Long) v).longValue());
+				break;
+
+			case 'B':
+				ps.setBigDecimal(index + 1, (BigDecimal) v);
+				break;
+
+			case 'd':
+				ps.setDouble(index + 1, ((Double) v).doubleValue());
+				break;
+
+			case 'f':
+				ps.setFloat(index + 1, ((Float) v).floatValue());
+				break;
+
+			case '$':
+				ps.setString(index + 1, (String) v);
+				break;
+
+			case 'T':
+				ps.setTimestamp(index + 1, (Timestamp) v);
+				break;
+		}
+	}
+
+
 	public int getType() {
 		return m_type;
 	}
@@ -129,5 +174,9 @@ class ReplayRecord {
 
 	public boolean isUnexecutable() {
 		return m_unexecutable;
+	}
+
+	public int[] getParameterType() {
+		return m_parameterType;
 	}
 }

@@ -317,4 +317,30 @@ public class DbReplay {
 		System.out.println("init: ready for execution");
 	}
 
+
+	private long m_ignoredStatements;
+
+	private long m_executedQueries;
+
+	private long m_resultRows;
+
+	private long m_execErrors;
+
+	/** Parallel #of commands in execution. */
+	private int m_inExecution;
+
+	public synchronized void incIgnored() {
+		m_ignoredStatements++;
+	}
+
+	public synchronized void startExecution() {
+		m_inExecution++;
+	}
+
+	public synchronized void endExecution(int q, int u, int error, int rows) {
+		m_inExecution--;
+		m_executedQueries += q;
+		m_execErrors += error;
+		m_resultRows += rows;
+	}
 }
