@@ -1874,3 +1874,26 @@ body,html {
 	background-position: 0px -<%= defaultbutton_height*2 %>px !important;
 }
 
+/*** Flare component. ***/
+.ui-flare {
+	position: absolute;
+	z-index: 9999;
+	top: 100px;
+	left: 100px;
+	width: auto;
+	height: auto;
+	-moz-border-radius: 5px 5px;
+	border: 1px dotted grey;
+	padding: 15px;
+}
+.ui-flare-error {
+	background: <%= error_bg %>;
+}
+.ui-flare-info {
+	background: <%= info_bg %>;
+}
+.ui-flare-warning {
+	background: <%= warning_bg %>;
+}
+
+
