@@ -263,6 +263,8 @@ final public class ConnectionProxy implements Connection {
 //		if(getOwnerThread() != ct)
 //			throw new IllegalStateException("Connection (proxy) closed by thread that's not owning it!");
 
+		getPool().writeSpecial(this, StatementProxy.ST_CLOSE);
+
 		//-- Handle local chores locking THIS
 		Tracepoint tp = Tracepoint.create(null);
 		long duration;
@@ -318,6 +320,7 @@ final public class ConnectionProxy implements Connection {
 	public void commit() throws java.sql.SQLException {
 		if(!getPool().isCommitDisabled())
 			check().commit();
+		getPool().writeSpecial(this, StatementProxy.ST_COMMIT);
 
 		//-- Call all listeners, abort on 1st error
 		if(m_commitListenerList.size() == 0) // Fast exit if nothing is registered
@@ -689,6 +692,7 @@ final public class ConnectionProxy implements Connection {
 
 	public void rollback() throws java.sql.SQLException {
 		check().rollback();
+		getPool().writeSpecial(this, StatementProxy.ST_ROLLBACK);
 	}
 
 

@@ -25,6 +25,7 @@
 package to.etc.dbpool;
 
 import java.io.*;
+import java.math.*;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -324,6 +325,8 @@ final public class ConnectionPool {
 				throw new SQLException("Pool " + getID() + ": driver path '" + c().getDriverPath() + "' does not exist");
 		}
 
+		if(c().getBinaryLogFile() != null)
+			setFileLogging(c().getBinaryLogFile());
 
 		//-- Now initialize the rest of the parameters and try to allocate a connection for testing pps.
 		Connection dbc = null;
@@ -1245,15 +1248,17 @@ final public class ConnectionPool {
 		}
 	}
 
-	void logExecution(final StatementProxy sp) {
-		logExecution(sp, false);
+	void logExecution(final StatementProxy sp, byte stmtType) {
+		logExecution(sp, false, stmtType);
 	}
 
 	/**
 	 * Callback from statement pxy when a call gets executed.
 	 * @param ppx
 	 */
-	void logExecution(final StatementProxy sp, final boolean batch) {
+	void logExecution(final StatementProxy sp, final boolean batch, byte stmtType) {
+		writeStatement(sp, stmtType);
+
 		if(!c().isLogStatements())
 			return;
 
@@ -1296,6 +1301,236 @@ final public class ConnectionPool {
 		System.out.println("    executeBatch()");
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Logfile writer.										*/
+	/*--------------------------------------------------------------*/
+
+	private boolean m_fileLogging;
+
+	private Thread m_logWriterThread;
+
+	private List<byte[]> m_logBufferList = new ArrayList<byte[]>();
+
+	static private final int MAX_LOG_QUEUED = 30;
+
+	private OutputStream m_fileLogStream;
+
+	static public final long STMT_START_MAGIC = 0xabbacafebabedeadl;
+
+	public boolean isFileLogging() {
+		synchronized(m_logBufferList) {
+			return m_fileLogging;
+		}
+	}
+
+	public void setFileLogging(File target) {
+		synchronized(m_logBufferList) {
+			if(m_fileLogging)
+				throw new IllegalArgumentException("File logging is already enabled");
+			try {
+				m_fileLogStream = new FileOutputStream(target, true);
+
+			} catch(Exception x) {
+				System.out.println("pool(" + getID() + ") cannot open logging file " + target + ": " + x);
+				return;
+			}
+
+			m_fileLogging = true;
+		}
+	}
+
+	private void writeStatement(StatementProxy ls, byte stmtType) {
+		if(!isFileLogging())
+			return;
+
+		byte[] buffer;
+		try {
+			buffer = createLogImage(ls, stmtType);
+		} catch(Exception x) {
+			System.out.println("pool(" + getID() + ") failed to create statement image, statement ignored: " + x);
+			return;
+		}
+		writeLogImage(buffer);
+	}
+
+	public void writeSpecial(ConnectionProxy cp, byte stmtType) {
+		if(!isFileLogging())
+			return;
+
+		writeLogImage(createSpecialImage(cp, stmtType));
+	}
+
+	private void writeLogImage(byte[] buffer) {
+		synchronized(m_logBufferList) {
+			//-- Make sure writer thread is active
+			if(null == m_logWriterThread) {
+				m_logWriterThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						logWriterWriteLoop();
+					}
+				});
+				m_logWriterThread.setName("dblgwr");
+				m_logWriterThread.setDaemon(true);
+//				m_logWriterThread.setPriority(Thread.MAX_PRIORITY);
+				m_logWriterThread.start();
+			}
+
+			for(;;) {
+				if(!m_fileLogging) // Accept disabling of log due to error
+					return;
+
+				if(m_logBufferList.size() < MAX_LOG_QUEUED) {
+					m_logBufferList.add(buffer);
+					m_logBufferList.notifyAll();
+					return;
+				}
+
+				//-- Too many queued- wait.
+				try {
+					m_logBufferList.wait();
+				} catch(InterruptedException x) {
+					System.out.println("pool(" + getID() + ") interrupted log write- cancelled");
+					return;
+				}
+			}
+		}
+	}
+
+	private void logWriterWriteLoop() {
+		try {
+			for(;;) {
+				byte[] buf = waitForBuffer();
+				writeBuffer(buf);
+			}
+		} catch(Exception x) {
+			System.out.println("pool(" + getID() + ") statement log write error " + x + ": logging cancelled");
+			x.printStackTrace();
+		} finally {
+			synchronized(m_logWriterThread) {
+				m_fileLogging = false; // Disable file logging.
+				m_logBufferList.clear(); // Discard anything queued.
+				m_logBufferList.notifyAll();
+				m_logWriterThread = null;
+			}
+		}
+	}
+
+	private void writeBuffer(byte[] buf) throws Exception {
+		m_fileLogStream.write(buf);
+	}
+
+	private byte[] waitForBuffer() throws InterruptedException {
+		for(;;) {
+			synchronized(m_logBufferList) {
+				if(m_logBufferList.size() > 0) {
+					byte[] buf = m_logBufferList.remove(0);
+
+					if(m_logBufferList.size() == MAX_LOG_QUEUED - 1) {
+						m_logBufferList.notify(); // Wake one writer
+					}
+					return buf;
+				}
+				m_logBufferList.wait();
+			}
+		}
+	}
+
+	/**
+	 * Create a statement image record for the executed statement.
+	 * @param ls
+	 * @return
+	 * @throws IOException
+	 */
+	private byte[] createLogImage(StatementProxy ls, byte stmtType) throws IOException {
+		ByteArrayOutputStream baos = createImageBuilder(ls._conn(), stmtType);
+		writeString(baos, ls.getSQL());
+		if(ls instanceof PreparedStatementProxy) {
+			PreparedStatementProxy ps = (PreparedStatementProxy) ls;
+			Object[] par = ps.internalGetParameters();
+			if(par.length <= 1) {
+				writeInt(baos, 0);
+			} else {
+				writeInt(baos, par.length - 1); // #of parameters following
+				for(int i = 1; i < par.length; i++) {
+					writeParameter(baos, par[i]);
+				}
+			}
+		} else {
+			writeInt(baos, 0);			// Zero parameters.
+		}
+
+		return baos.toByteArray();
+	}
+
+	private byte[] createSpecialImage(ConnectionProxy cp, byte stmtType) {
+		ByteArrayOutputStream baos = createImageBuilder(cp, stmtType);
+		return baos.toByteArray();
+	}
+
+	private ByteArrayOutputStream createImageBuilder(ConnectionProxy cp, byte stmtType) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
+		writeLong(baos, STMT_START_MAGIC);
+		baos.write(stmtType); // Indicator for execution type. Must be changed later.
+		long ts = System.currentTimeMillis();
+		writeLong(baos, ts);
+		writeInt(baos, cp.getId());
+		return baos;
+	}
+
+
+	private void writeParameter(ByteArrayOutputStream baos, Object object) throws IOException {
+		if(null == object) {
+			baos.write('0');
+		} else if(object instanceof Integer) {
+			baos.write('i');
+			writeInt(baos, ((Integer) object).intValue());
+		} else if(object instanceof Long) {
+			baos.write('l');
+			writeLong(baos, ((Long) object).longValue());
+		} else if(object instanceof BigDecimal) {
+			baos.write('B');
+			writeString(baos, ((BigDecimal) object).toString());
+		} else if(object instanceof Double) {
+			baos.write('d');
+			writeString(baos, ((Double) object).toString());
+		} else if(object instanceof Float) {
+			baos.write('f');
+			writeString(baos, ((Float) object).toString());
+		} else if(object instanceof String) {
+			baos.write('$');
+			writeString(baos, (String) object);
+		} else if(object instanceof Date) {
+			baos.write('T');
+			Date ts = (Date) object;
+			writeLong(baos, ts.getTime());
+		} else {
+			baos.write('?');
+			writeString(baos, object.getClass().getName());
+		}
+	}
+
+	static private void	writeInt(ByteArrayOutputStream os, int v) {
+		os.write((v >> 24) & 0xff);
+		os.write((v >> 16) & 0xff);
+		os.write((v >> 8) & 0xff);
+		os.write(v & 0xff);
+	}
+
+	static private void writeLong(ByteArrayOutputStream os, long v) {
+		writeInt(os, (int) (v >> 32));
+		writeInt(os, (int) v);
+	}
+
+	static private void writeString(ByteArrayOutputStream os, String s) throws IOException {
+		try {
+			byte[] data = s.getBytes("utf-8");
+			writeInt(os, data.length);
+			os.write(data);
+		} catch(UnsupportedEncodingException x) {
+			throw new RuntimeException(x);
+		}
+	}
 
 
 	/*--------------------------------------------------------------*/

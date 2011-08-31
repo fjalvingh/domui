@@ -53,6 +53,20 @@ public class StatementProxy implements Statement {
 	/** The start timestamp of the last action on this statement. */
 	long m_tsStart;
 
+	static public final byte ST_QUERY = 0x01;
+
+	static public final byte ST_UPDATE = 0x02;
+
+	static public final byte ST_EXECUTE = 0x03;
+
+	static public final byte ST_COMMIT = 0x04;
+
+	static public final byte ST_ROLLBACK = 0x05;
+
+	static public final byte ST_CLOSE = 0x06;
+
+	static public final byte ST_BATCH = 0x07;
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Changed/intercepted methods..						*/
 	/*--------------------------------------------------------------*/
@@ -179,7 +193,7 @@ public class StatementProxy implements Statement {
 	/*--------------------------------------------------------------*/
 	public ResultSet executeQuery(final String sql) throws SQLException {
 		m_sql_str = sql;
-		pool().logExecution(this);
+		pool().logExecution(this, ST_QUERY);
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("executeQuery: " + sql);
 		ResultSetProxy rpx = new ResultSetProxy(this);
@@ -200,7 +214,7 @@ public class StatementProxy implements Statement {
 
 	public int executeUpdate(final String sql) throws SQLException {
 		m_sql_str = sql;
-		pool().logExecution(this);
+		pool().logExecution(this, ST_UPDATE);
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("executeUpdate: " + sql);
 		int rc = -1;
@@ -219,7 +233,7 @@ public class StatementProxy implements Statement {
 
 	public boolean execute(final String sql) throws SQLException {
 		m_sql_str = sql;
-		pool().logExecution(this);
+		pool().logExecution(this, ST_EXECUTE);
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("execute: " + sql);
 		Boolean res = null;
@@ -238,11 +252,11 @@ public class StatementProxy implements Statement {
 	}
 
 	public void addBatch(final String sql) throws SQLException {
-		pool().logExecution(this);
+		m_sql_str = sql;
+		pool().logExecution(this, ST_BATCH);
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("addBatch: " + sql);
 		try {
-			m_sql_str = sql;
 			m_c.statsHandler().addBatch(this, sql);
 			getRealStatement().addBatch(sql);
 		} catch(SQLException xx) {
@@ -272,7 +286,7 @@ public class StatementProxy implements Statement {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("execute: " + sql);
 		m_sql_str = sql;
-		pool().logExecution(this);
+		pool().logExecution(this, ST_EXECUTE);
 		SQLException wx = null;
 		Boolean res = null;
 		try {
@@ -292,7 +306,7 @@ public class StatementProxy implements Statement {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("execute: " + sql);
 		m_sql_str = sql;
-		pool().logExecution(this);
+		pool().logExecution(this, ST_EXECUTE);
 		Boolean res = null;
 		SQLException wx = null;
 		try {
@@ -312,7 +326,7 @@ public class StatementProxy implements Statement {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("execute: " + sql);
 		m_sql_str = sql;
-		pool().logExecution(this);
+		pool().logExecution(this, ST_EXECUTE);
 		SQLException wx = null;
 		Boolean res = null;
 		try {
@@ -329,10 +343,10 @@ public class StatementProxy implements Statement {
 	}
 
 	public int executeUpdate(final String sql, final String[] ar) throws SQLException {
-		pool().logExecution(this);
+		m_sql_str = sql;
+		pool().logExecution(this, ST_UPDATE);
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("executeUpdate: " + sql);
-		m_sql_str = sql;
 		int res = -1;
 		SQLException wx = null;
 		try {
@@ -348,10 +362,10 @@ public class StatementProxy implements Statement {
 	}
 
 	public int executeUpdate(final String sql, final int[] ar) throws SQLException {
-		pool().logExecution(this);
+		m_sql_str = sql;
+		pool().logExecution(this, ST_UPDATE);
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("executeUpdate: " + sql);
-		m_sql_str = sql;
 		int res = -1;
 		SQLException wx = null;
 		try {
@@ -367,10 +381,10 @@ public class StatementProxy implements Statement {
 	}
 
 	public int executeUpdate(final String sql, final int p2) throws SQLException {
-		pool().logExecution(this);
+		m_sql_str = sql;
+		pool().logExecution(this, ST_UPDATE);
 		if(LOG.isLoggable(Level.FINE))
 			LOG.info("executeUpdate: " + sql);
-		m_sql_str = sql;
 		int res = -1;
 		SQLException wx = null;
 		try {
