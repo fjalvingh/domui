@@ -103,4 +103,31 @@ class ReplayRecord {
 		}
 	}
 
+	public int getType() {
+		return m_type;
+	}
+
+	public long getStatementTime() {
+		return m_statementTime;
+	}
+
+	public int getConnectionId() {
+		return m_connectionId;
+	}
+
+	public String getSql() {
+		return m_sql;
+	}
+
+	public int getParamCount() {
+		return m_paramCount;
+	}
+
+	public Object[] getParameterAr() {
+		return m_parameterAr;
+	}
+
+	public boolean isUnexecutable() {
+		return m_unexecutable;
+	}
 }
