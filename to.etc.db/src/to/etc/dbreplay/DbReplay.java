@@ -65,8 +65,9 @@ public class DbReplay {
 					m_firstTime = rr.getStatementTime();
 				}
 				m_lastTime = rr.getStatementTime();
-
 				m_recordNumber++;
+
+				handleRecord(rr);
 			}
 			m_endTime = System.currentTimeMillis();
 			System.out.println("Normal EOF after " + m_recordNumber + " records and " + m_fileOffset + " file bytes");
@@ -229,12 +230,15 @@ public class DbReplay {
 	/** List of all registered executors. */
 	private List<ReplayExecutor> m_executorList = new ArrayList<ReplayExecutor>(100);
 
+	private List<ReplayExecutor> m_freeExecutors = new ArrayList<ReplayExecutor>();
+
 	private void startExecutors() {
 		System.out.println("init: starting " + m_executors + " executor threads");
 		for(int i = 0; i < m_executors; i++) {
 			ReplayExecutor rx = new ReplayExecutor(this, i);
 			synchronized(this) {
 				m_executorList.add(rx);
+				m_freeExecutors.add(rx);
 			}
 			rx.setDaemon(true);
 			rx.setName("x#" + i);
@@ -266,6 +270,10 @@ public class DbReplay {
 	 */
 	public void terminateAll() throws Exception {
 		//-- Force all executors to terminate.
+		synchronized(this) {
+			m_freeExecutors.clear();
+		}
+
 		for(ReplayExecutor rx : getExecutorList()) {
 			rx.terminate();
 		}
@@ -289,6 +297,7 @@ public class DbReplay {
 				wait(5000);
 			}
 		}
+		m_executorList.clear();
 		System.out.println("term: all executors stopped");
 	}
 
@@ -329,6 +338,11 @@ public class DbReplay {
 	/** Parallel #of commands in execution. */
 	private int m_inExecution;
 
+	/** #of statements skipped due to missing connection. */
+	private long m_connSkips;
+
+	private long m_missingConnections;
+
 	public synchronized void incIgnored() {
 		m_ignoredStatements++;
 	}
@@ -342,5 +356,58 @@ public class DbReplay {
 		m_executedQueries += q;
 		m_execErrors += error;
 		m_resultRows += rows;
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	assign records to executors.						*/
+	/*--------------------------------------------------------------*/
+
+	private Map<Integer, ReplayExecutor> m_executorMap = new HashMap<Integer, ReplayExecutor>();
+
+	private Set<Integer> m_ignoreSet = new HashSet<Integer>();
+
+	/**
+	 *
+	 * @param rr
+	 */
+	private void handleRecord(ReplayRecord rr) {
+		//-- Try to assign an executor.
+		Integer cid = Integer.valueOf(rr.getConnectionId());
+		if(rr.getType() == StatementProxy.ST_CLOSE) {
+			m_ignoreSet.remove(cid); // If this was ignored - end that
+			ReplayExecutor rx = m_executorMap.remove(cid);	// Was an executor assigned to this connection?
+			if(null != rx) {
+				m_freeExecutors.add(rx);
+			}
+			return;
+		}
+
+		//-- Skip boring actions
+		if(rr.getType() == StatementProxy.ST_COMMIT || rr.getType() == StatementProxy.ST_ROLLBACK)
+			return;
+
+		//-- If we're ignored: increment ignored stmt count and exit
+		if(m_ignoreSet.contains(cid)) {
+			m_connSkips++;
+			return;
+		}
+
+		//-- Ok, we need an executor for this. Get or allocate;
+		ReplayExecutor rx = m_executorMap.get(cid);				// Is an executor already assigned to this connection?
+		if(rx == null) {
+			//-- Try to allocate an executor
+			if(m_freeExecutors.size() == 0) {
+				//-- Nothing free... Add to ignore set, and increment error count
+				m_missingConnections++;
+				m_ignoreSet.add(cid); // Ignore all related statements
+				return;
+			}
+
+			//-- Assign executor
+			rx = m_freeExecutors.remove(0);
+			m_executorMap.put(cid, rx);
+		}
+		rx.queue(rr);
 	}
 }
