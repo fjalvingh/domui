@@ -1448,11 +1448,11 @@ final public class ConnectionPool {
 		if(ls instanceof PreparedStatementProxy) {
 			PreparedStatementProxy ps = (PreparedStatementProxy) ls;
 			Object[] par = ps.internalGetParameters();
-			if(par.length <= 1) {
+			if(par.length <= 0) {
 				writeInt(baos, 0);
 			} else {
-				writeInt(baos, par.length - 1); // #of parameters following
-				for(int i = 1; i < par.length; i++) {
+				writeInt(baos, par.length); // #of parameters following
+				for(int i = 0; i < par.length; i++) {
 					writeParameter(baos, par[i]);
 				}
 			}

@@ -48,34 +48,29 @@ public class DbReplay {
 	/** The #of executors that are actually running/ready. */
 	private int m_runningExecutors;
 
+	private static enum XType {
+		DUMP, RUN
+	}
+
+	private XType m_runType;
+
 	private void run(String[] args) throws Exception {
 		if(!decodeOptions(args))
 			return;
 
 		try {
-			initialize();
+			openSource();
+			switch(m_runType){
+				default:
+					throw new IllegalStateException(m_runType + ": unknown");
 
-			//-- Input distributor loop.
-			m_startTime = System.currentTimeMillis();
-			for(;;) {
-				ReplayRecord rr = ReplayRecord.readRecord(this);
-				if(null == rr)
+				case DUMP:
+					runDump();
 					break;
-				if(m_recordNumber == 0) {
-					m_firstTime = rr.getStatementTime();
-				}
-				m_lastTime = rr.getStatementTime();
-				m_recordNumber++;
-
-				handleRecord(rr);
+				case RUN:
+					runEmulation();
+					break;
 			}
-			m_endTime = System.currentTimeMillis();
-			System.out.println("Normal EOF after " + m_recordNumber + " records and " + m_fileOffset + " file bytes");
-			Date st = new Date(m_firstTime);
-			Date et = new Date(m_lastTime);
-			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			System.out.println("  - input time from " + df.format(st) + " till " + df.format(et) + ", " + DbPoolUtil.strMillis(m_lastTime - m_firstTime));
-			System.out.println("  - real time spent: " + DbPoolUtil.strMillis(m_endTime - m_startTime));
 		} catch(Exception x) {
 			System.err.println("Error: " + x);
 			System.err.println("   -at record " + m_recordNumber + ", file offset " + m_fileOffset);
@@ -84,6 +79,42 @@ public class DbReplay {
 			releaseAll();
 		}
 	}
+
+
+	private void runDump() throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+
+	private void runEmulation() throws Exception {
+		initialize();
+
+		//-- Input distributor loop.
+		m_startTime = System.currentTimeMillis();
+		for(;;) {
+			ReplayRecord rr = ReplayRecord.readRecord(this);
+			if(null == rr)
+				break;
+			if(m_recordNumber == 0) {
+				m_firstTime = rr.getStatementTime();
+			}
+			m_lastTime = rr.getStatementTime();
+			m_recordNumber++;
+
+			handleRecord(rr);
+		}
+		waitForIdle(60 * 1000);
+
+		m_endTime = System.currentTimeMillis();
+		System.out.println("Normal EOF after " + m_recordNumber + " records and " + m_fileOffset + " file bytes");
+		Date st = new Date(m_firstTime);
+		Date et = new Date(m_lastTime);
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		System.out.println("  - input time from " + df.format(st) + " till " + df.format(et) + ", " + DbPoolUtil.strMillis(m_lastTime - m_firstTime));
+		System.out.println("  - real time spent: " + DbPoolUtil.strMillis(m_endTime - m_startTime));
+	}
+
 
 	private boolean decodeOptions(String[] args) throws Exception {
 		int argc = 0;
@@ -96,6 +127,8 @@ public class DbReplay {
 					m_poolFile = new File(args[argc++]);
 					if(!m_poolFile.exists() || !m_poolFile.isFile())
 						throw new IllegalArgumentException(m_poolFile+": file not found");
+				} else if("-dump".equals(s)) {
+					m_runType = XType.DUMP;
 				} else {
 					usage("Unknown option: " + s);
 					return false;
@@ -122,6 +155,8 @@ public class DbReplay {
 			usage("Missing pool ID");
 			return false;
 		}
+		if(m_runType == null)
+			m_runType = XType.RUN;
 
 		return true;
 	}
@@ -136,6 +171,14 @@ public class DbReplay {
 
 	private void releaseAll() {
 		try {
+			if(m_bis != null)
+				m_bis.close();
+			m_bis = null;
+		} catch(Exception x) {
+			System.err.println("term: cannot close input file: " + x);
+		}
+
+		try {
 			terminateAll();
 		} catch(Exception x) {
 			x.printStackTrace();
@@ -146,8 +189,11 @@ public class DbReplay {
 		return m_pool;
 	}
 
-	private void initialize() throws Exception {
+	private void openSource() throws Exception {
 		m_bis = new BufferedInputStream(new FileInputStream(m_inputFile), 65536);
+	}
+
+	private void initialize() throws Exception {
 		if(m_poolFile == null)
 			m_pool = PoolManager.getInstance().definePool(m_poolId);
 		else
@@ -271,6 +317,9 @@ public class DbReplay {
 	public void terminateAll() throws Exception {
 		//-- Force all executors to terminate.
 		synchronized(this) {
+			if(m_executorList.size() == 0)
+				return;
+
 			m_freeExecutors.clear();
 		}
 
@@ -299,6 +348,39 @@ public class DbReplay {
 		}
 		m_executorList.clear();
 		System.out.println("term: all executors stopped");
+	}
+
+	/**
+	 * Wait for all executors to become idle.
+	 * @throws Exception
+	 */
+	public void waitForIdle(long timeout) throws Exception {
+		System.out.println("exec: waiting for all executors to become idle");
+		long ets = System.currentTimeMillis() + timeout;
+		long lmt = 0;
+		int lastrunning = -1;
+		for(;;) {
+			long ts = System.currentTimeMillis();
+			runStatus(ts);
+
+			if(ts >= ets) {
+				//-- Failed to start!!! Abort.
+				throw new RuntimeException("Timeout: " + lastrunning + " executors do not become idle...");
+			}
+
+			lastrunning = 0;
+			for(ReplayExecutor rx : getExecutorList()) {
+				if(!rx.isIdle())
+					lastrunning++;
+			}
+			if(lastrunning <= 0)
+				break;
+
+			synchronized(this) {
+				wait(1000);
+			}
+		}
+		System.out.println("exec: all executors are idle.");
 	}
 
 
@@ -358,6 +440,9 @@ public class DbReplay {
 		m_resultRows += rows;
 	}
 
+	public synchronized int getInExecution() {
+		return m_inExecution;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	assign records to executors.						*/
@@ -367,11 +452,19 @@ public class DbReplay {
 
 	private Set<Integer> m_ignoreSet = new HashSet<Integer>();
 
+	/** The timestamp of the previous replay record. */
+	private long m_lastReplayTime;
+
+	private long m_lastRealTime;
+
 	/**
 	 *
 	 * @param rr
 	 */
-	private void handleRecord(ReplayRecord rr) {
+	private void handleRecord(ReplayRecord rr) throws Exception {
+		long ct = System.currentTimeMillis();
+		runStatus(ct);
+
 		//-- Try to assign an executor.
 		Integer cid = Integer.valueOf(rr.getConnectionId());
 		if(rr.getType() == StatementProxy.ST_CLOSE) {
@@ -393,6 +486,24 @@ public class DbReplay {
 			return;
 		}
 
+		//-- Determine the time delta between this record and the previous one
+		if(m_lastReplayTime == 0) {
+			m_lastReplayTime = rr.getStatementTime();
+			m_lastRealTime = ct;
+		} else {
+			long deltat = rr.getStatementTime() - m_lastReplayTime;
+			if(deltat < 0)
+				deltat = 0;
+			m_lastReplayTime = rr.getStatementTime();
+
+			if(deltat > 0) {
+				if(deltat > 5000)
+					System.out.println("       - long sleep of " + DbPoolUtil.strMillis(deltat));
+				Thread.sleep(deltat);
+			}
+			m_lastRealTime = ct;
+		}
+
 		//-- Ok, we need an executor for this. Get or allocate;
 		ReplayExecutor rx = m_executorMap.get(cid);				// Is an executor already assigned to this connection?
 		if(rx == null) {
@@ -409,5 +520,93 @@ public class DbReplay {
 			m_executorMap.put(cid, rx);
 		}
 		rx.queue(rr);
+//		try {
+//			Thread.sleep(1);
+//		} catch(InterruptedException x) {
+//
+//		}
 	}
+
+	private long m_ts_nextStatus;
+
+	private int m_statusLines;
+
+	private long m_ts_laststatus;
+
+	private long m_previousRowCount;
+
+	private long m_previousQueryCount;
+
+	private void runStatus(long ts) {
+//		long ts = System.currentTimeMillis();
+		synchronized(this) {
+			if(ts < m_ts_nextStatus)
+				return;
+			m_ts_nextStatus = ts + 5 * 1000; // Report every 5 seconds.
+		}
+
+		if(m_statusLines++ % 20 == 0)  {
+			//--                0123 0123456789 0123456789 0123456789 0123456789 0123456789012345 0123456789 0123456789
+			System.out.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s");
+		}
+
+		long recnr, errs, xq, rr, skips;
+
+		synchronized(this) {
+			recnr = m_recordNumber;
+			errs = m_execErrors;
+			xq = m_executedQueries;
+			rr = m_resultRows;
+			skips = m_ignoredStatements;
+		}
+
+		double qps;
+		double rps;
+		if(m_ts_laststatus == 0) {
+			//-- No previous measurement
+			qps = 0.0;
+			rps = 0.0;
+		} else {
+			long sdt = ts - m_ts_laststatus;			// Delta milliseconds
+			qps = (xq - m_previousQueryCount) / (sdt / 1000.0);
+			rps = (rr - m_previousRowCount) / (sdt / 1000.0);
+		}
+
+		System.out.println( //
+			v(getInExecution(), 4) //
+				+ v(recnr, 10) //
+				+ v(skips, 10) //
+				+ v(errs, 10) //
+				+ v(xq, 10) //
+				+ v(rr, 16) //
+				+ dbl(qps, 10) //
+				+ dbl(rps, 10) //
+		);
+		m_ts_laststatus = ts;
+		m_previousQueryCount = xq;
+		m_previousRowCount = rr;
+	}
+
+	static private final String	SPACES = "                                     ";
+
+	static private String v(long value, int npos) {
+		String val = DbPoolUtil.strCommad(value);
+		int nfill = npos - val.length();
+
+		if(nfill <= 0)
+			return val+" ";
+
+		return SPACES.substring(0, nfill) + val + " ";
+	}
+
+	static private String dbl(double v, int npos) {
+		String val = String.format("%g", Double.valueOf(v));
+		int nfill = npos - val.length();
+
+		if(nfill <= 0)
+			return val + " ";
+
+		return SPACES.substring(0, nfill) + val + " ";
+	}
+
 }

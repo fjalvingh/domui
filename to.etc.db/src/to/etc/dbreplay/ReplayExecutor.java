@@ -23,6 +23,9 @@ class ReplayExecutor extends Thread {
 
 	private List<ReplayRecord> m_queueList = new ArrayList<ReplayRecord>();
 
+	/** T if this executor is idling. This is protected by DbReplay instance(!) */
+	private boolean m_idle;
+
 	public ReplayExecutor(DbReplay r, int index) {
 		m_r = r;
 		m_index = index;
@@ -78,17 +81,35 @@ class ReplayExecutor extends Thread {
 		for(;;) {
 			ReplayRecord	rr = null;
 			synchronized(this) {
-				if(m_terminate)
+				if(m_terminate) {
+					synchronized(m_r) {
+						m_idle = true;
+						m_r.notifyAll();
+					}
 					return;
+				}
 
 				if(m_queueList.size() > 0) {
 					rr = m_queueList.remove(0);
+					synchronized(m_r) {
+						m_idle = false;
+					}
 				} else {
+					synchronized(m_r) {
+						m_idle = true;
+						m_r.notifyAll();
+					}
 					wait(5000);
 				}
 			}
 			if(null != rr)
 				execute(rr);
+		}
+	}
+
+	public boolean isIdle() {
+		synchronized(m_r) {
+			return m_idle;
 		}
 	}
 
@@ -115,6 +136,7 @@ class ReplayExecutor extends Thread {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
+//			System.out.println("     #" + m_index + ": " + rr.getSql());
 			ps = m_dbc.prepareStatement(rr.getSql());
 
 			for(int i = 0; i < rr.getParamCount(); i++) {
@@ -124,8 +146,10 @@ class ReplayExecutor extends Thread {
 			while(rs.next()) {
 				rows++;
 			}
+//			System.out.println("     #" + m_index + ": DONE, " + rows + " rows");
 
 		} catch(Exception x) {
+			System.out.println(x.toString());
 			errs++;
 		} finally {
 			try {
