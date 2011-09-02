@@ -7,6 +7,13 @@
  */
 
 // Documentation removed from script file (was kinda useless and outdated)
+/**
+ * btadic 20110902 
+ * 
+ * This plugin is added for Gauge portlets 
+ * Line 158 is changed (deleted). This helped me to solve IE problem with absolute positioning of needle in gauge portlet
+ */ 
+
 
 (function($) {
 var supportedCSS,styles=document.getElementsByTagName("head")[0].style,toCheck="transformProperty WebkitTransform OTransform msTransform MozTransform".split(" ");
@@ -148,7 +155,7 @@ Wilq32.PhotoEffect.prototype={
 			this._container.appendChild(this._vimage);
 			
 			this._rootObj.appendChild(this._container);
-			this._rootObj.style.position="relative"; // FIXES IE PROBLEM
+			//this._rootObj.style.position="relative";   // btadic 20110902 This helped me to solve IE problem with absolute positioning of needle in gauge portlet
 			this._rootObj.style.width=width+"px";
 			this._rootObj.style.height=height+"px";
 			this._rootObj.setAttribute('id',this._img.getAttribute('id'));
