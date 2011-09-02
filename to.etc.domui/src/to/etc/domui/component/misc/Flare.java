@@ -5,6 +5,11 @@ import to.etc.domui.dom.html.*;
 import to.etc.util.*;
 
 public class Flare extends Div {
+	/**
+	 * If T, flare would stay on screen until any mouse move happens on screen. If F, flare would automatically vanish.
+	 */
+	private boolean m_autoVanish = true;
+
 	public Flare() {
 		setCssClass("ui-flare");
 	}
@@ -47,8 +52,26 @@ public class Flare extends Div {
 	}
 
 	protected void	addJavascript() {
-		appendJavascript("WebUI.flare('"+getActualID()+"');");
+		if(m_autoVanish) {
+			appendJavascript("WebUI.flare('" + getActualID() + "');");
+		} else {
+			appendJavascript("WebUI.flareStay('" + getActualID() + "');");
+		}
 	}
 
+	/**
+	 * @see Flare#m_autoVanish
+	 * @return
+	 */
+	public boolean isAutoVanish() {
+		return m_autoVanish;
+	}
 
+	/**
+	 * @see Flare#m_autoVanish
+	 * @param stayUntilMouseMove
+	 */
+	public void setAutoVanish(boolean autoVanish) {
+		m_autoVanish = autoVanish;
+	}
 }

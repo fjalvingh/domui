@@ -2611,6 +2611,18 @@ WebUI.flare = function(id) {
 	});
 };
 
+WebUI.flareStay = function(id) {
+	$('#'+id).fadeIn('fast', function() {
+		$('body,html').bind('mousemove.' + id, function(e){
+			$('body,html').unbind('mousemove.' + id);
+			$('#'+id).delay(500).fadeOut(1000, function() {
+				$('#'+id).remove();
+			});
+		});
+	});
+};
+
+
 $(document).ready(WebUI.onDocumentReady);
 $(window).resize(WebUI.onWindowResize);
 $(document).ajaxComplete( function() {
