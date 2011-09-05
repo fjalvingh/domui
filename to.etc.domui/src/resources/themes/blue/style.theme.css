@@ -1886,8 +1886,31 @@ body,html {
 	border: 1px dotted grey;
 	padding: 15px;
 }
-.ui-flare-msg {
+.ui-flare-error {
 	background: <%= error_bg %>;
+	color: <%= error_fg %>
 }
-
-
+.ui-flare-info {
+	background: <%= info_bg %>;
+	color: <%= info_fg %>
+}
+.ui-flare-warning {
+	background: <%= warning_bg %>;
+	color: <%= warning_fg %>
+}
+.ui-flare-msg {
+	opacity: 0.9;
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	top: auto;
+	left: auto;
+}
+.ui-flare-msg div {
+	font-weight: bold;
+ 	text-align: right;	
+ 	min-width: 400px;
+}
+.ui-flare-msg div div {
+	font-size: large;
+}
