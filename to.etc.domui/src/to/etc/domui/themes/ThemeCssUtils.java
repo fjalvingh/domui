@@ -70,7 +70,7 @@ public class ThemeCssUtils {
 		k.setPropFile(s);
 		k.setText(text);
 		StringBuilder sb = new StringBuilder();
-		sb.append(DomApplication.get().getAppContext()).append("/");
+		sb.append("/").append(AppFilter.internalGetWebappContext()).append("/");
 		k.append(sb);
 		return sb.toString();
 	}
