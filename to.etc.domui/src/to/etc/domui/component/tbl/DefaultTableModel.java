@@ -38,9 +38,6 @@ import java.util.*;
 public class DefaultTableModel<T> extends TableListModelBase<T> implements ITableModel<T> {
 	private List<T> m_list;
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Model event handling code.							*/
-	/*--------------------------------------------------------------*/
 	public DefaultTableModel() {
 		this(new ArrayList<T>());
 	}

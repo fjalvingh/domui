@@ -54,6 +54,9 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/** Theclass' resource bundle. */
 	private BundleRef m_classBundle;
 
+	/** An immutable list of all properties of this class. This list differs from m_propertyMap: the map contains all calculated properties too. */
+	private List<PropertyMetaModel< ? >> m_rootProperties;
+
 	private final Map<String, PropertyMetaModel< ? >> m_propertyMap = new HashMap<String, PropertyMetaModel< ? >>();
 
 	/**
@@ -73,6 +76,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	private boolean m_persistentClass;
 
 	private String m_tableName;
+
+	@Nullable
+	private IQueryManipulator< ? > m_queryManipulator;
+
+	@Nullable
+	private String m_comboSortProperty;
 
 	/**
 	 * When this relation-property is presented as a single field this can contain a class to render
@@ -123,6 +132,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_classBundle = BundleRef.create(metaClass, m_classNameOnly);
 	}
 
+	synchronized void setClassProperties(List<PropertyMetaModel< ? >> reslist) {
+		m_rootProperties = Collections.unmodifiableList(reslist);
+		for(PropertyMetaModel< ? > pmm : reslist) {
+			m_propertyMap.put(pmm.getName(), pmm);
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Resource bundle data.								*/
@@ -211,14 +226,10 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return m_propertyMap.get(name);
 	}
 
-	synchronized void addProperty(@Nonnull PropertyMetaModel< ? > pmm) {
-		m_propertyMap.put(pmm.getName(), pmm);
-	}
-
 	@Override
 	@Nonnull
 	public List<PropertyMetaModel< ? >> getProperties() {
-		return new ArrayList<PropertyMetaModel< ? >>(m_propertyMap.values());
+		return m_rootProperties;
 	}
 
 	@Override
@@ -448,4 +459,22 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 			return QCriteria.create(getMetaTableDef());
 		return QCriteria.create(getActualClass());
 	}
+
+	public IQueryManipulator< ? > getQueryManipulator() {
+		return m_queryManipulator;
+	}
+
+	public void setQueryManipulator(IQueryManipulator< ? > queryManipulator) {
+		m_queryManipulator = queryManipulator;
+	}
+
+	public String getComboSortProperty() {
+		return m_comboSortProperty;
+	}
+
+	public void setComboSortProperty(String comboSortProperty) {
+		m_comboSortProperty = comboSortProperty;
+	}
+
+
 }

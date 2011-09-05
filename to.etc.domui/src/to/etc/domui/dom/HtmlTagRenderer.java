@@ -606,6 +606,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o.attr("style", s); // Append style
 		if(b.getTestID() != null)
 			o.attr("testid", b.getTestID());
+		if(b.isStretchHeight())
+			o.attr("stretch", "true");
 		if(b.getCssClass() != null)
 			o.attr("class", b.getCssClass());
 		String ttl = b.getTitle();
@@ -858,28 +860,36 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("size", n.getSize());
 		if(n.getRawValue() != null)
 			o().attr("value", n.getRawValue());
-		if(n.getOnKeyPressJS() != null) {
-			o().attr("onkeypress", n.getOnKeyPressJS());
-		}
 		String transformScript = "";
 		if(n.getTransform() != null) {
 			switch(n.getTransform()){
 				case LOWERCASE:
-					transformScript = "javascript:this.value=this.value.toLowerCase();";
+					transformScript = "this.value=this.value.toLowerCase();";
 					break;
 				case UPPERCASE:
-					transformScript = "javascript:this.value=this.value.toUpperCase();";
+					transformScript = "this.value=this.value.toUpperCase();";
 					break;
 				default://do nothing
 			}
 		}
 
 		if(n.getOnLookupTyping() != null) {
+			StringBuilder sb = sb();
+			if(!DomUtil.isBlank(n.getOnKeyPressJS())) {
+				sb.append("if(! ").append(n.getOnKeyPressJS()).append(") return false;");
+			}
+			sb.append("WebUI.onLookupTypingReturnKeyHandler('").append(n.getActualID()).append("', event)");
+
 			//20110304 vmijic: must be done using onkeypress (I tried onkeydown in combination with setReturnPressed, but that fails since onkeydown change model, so setReturnPressed is fired for dead node that results with exception)
-			o().attr("onkeypress", sb().append("WebUI.onLookupTypingReturnKeyHandler('").append(n.getActualID()).append("', event)").toString());
+			o().attr("onkeypress", sb.toString());
 			o().attr("onkeyup", sb().append("WebUI.scheduleOnLookupTypingEvent('").append(n.getActualID()).append("', event)").toString());
 			o().attr("onblur", sb().append(transformScript).append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
 		} else {
+			//-- Attach normal onKeyPress handling.
+			if(n.getOnKeyPressJS() != null) {
+				o().attr("onkeypress", "return " + n.getOnKeyPressJS());
+			}
+
 			if(!DomUtil.isBlank(transformScript)) {
 				o().attr("onblur", sb().append(transformScript).toString());
 			}

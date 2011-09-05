@@ -56,6 +56,8 @@ public interface Msgs {
 	/** The database query timed out and was cancelled. */
 	public static final String UI_QUERY_TIMEOUT = "ui.query.timeout";
 
+	public static final String UI_VALIDATION_FAILED = "ui.validation.failed";
+
 	//# Control texts
 	/** Page x of y */
 	public static final String UI_PAGER_TEXT = "ui.pagertext";
@@ -73,6 +75,12 @@ public interface Msgs {
 
 	/** Error component panel header text: Fouten */
 	public static final String UI_ERROR_HEADER = "ui.error.header";
+
+	/** Error component panel header text: Warnings */
+	public static final String UI_WARNING_HEADER = "ui.warning.header";
+
+	/** Error component panel header text: Info */
+	public static final String UI_INFO_HEADER = "ui.info.header";
 
 	/** (empty field) - the text shown when a lookup-popup-thingy is empty. */
 	public static final String UI_LOOKUP_EMPTY = "ui.lookup.empty";
@@ -237,5 +245,78 @@ public interface Msgs {
 
 	/** asynccontainer.no.results.msg key */
 	public static final String ASYNC_CONTAINER_NO_RESULTS_MSG = "asynccontainer.no.results.msg";
+
+	/** EditDialog */
+	public static final String EDLG_OKAY = "edlg.okay";
+
+	public static final String EDLG_CANCEL = "edlg.cancel";
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Available icons within the framework theme set.		*/
+	/*--------------------------------------------------------------*/
+	static public final String ICON_ADD_TO_SELECTION = "THEME/addToSelection.png";
+
+	static public final String ICON_BIG_INFO = "THEME/big-info.png";
+
+	static public final String BTN_SHOW_CALENDAR = "THEME/btn-datein.png";
+
+	static public final String BTN_LOOKUP = "THEME/btn-popuplookup.png";
+
+	static public final String BTN_CANCEL = "THEME/btnCancel.png";
+
+	static public final String ICON_CHECKMARK = "THEME/btnCheckmark.png";
+
+	static public final String BTN_CLEAR = "THEME/btnClear.png";
+
+	static public final String BTN_CLEAR_LOOKUP = "THEME/btnClearLookup.png";
+
+	static public final String BTN_CLOCK = "THEME/btnClock.png";
+
+	static public final String BTN_CONFIRM = "THEME/btnConfirm.png";
+
+	static public final String BTN_DELETE = "THEME/btnDelete.png";
+
+	static public final String BTN_EDIT = "THEME/btnEdit.png";
+
+	static public final String BTN_FIND = "THEME/btnFind.png";
+
+	static public final String BTN_HIDE_DETAILS = "THEME/btnHideDetails.png";
+
+	static public final String BTN_HIDE_LOOKUP = "THEME/btnHideLookup.png";
+
+	static public final String BTN_NEW = "THEME/btnNew.png";
+
+	static public final String ICON_RED_CROSS = "THEME/btnRedCross.png";
+
+	static public final String BTN_SAVE = "THEME/btnSave.png";
+
+	static public final String BTN_SHOW_DETAILS = "THEME/btnShowDetails.png";
+
+	static public final String BTN_SPECIAL_CHARS = "THEME/btnSpecialChar.png";
+
+	static public final String BTN_TODAY = "THEME/btnToday.png";
+
+	static public final String ICON_CLOSE = "THEME/close.png";
+
+	static public final String ICON_BIG_WARNING = "THEME/mbx-warning.png";
+
+	static public final String ICON_BIG_ERROR = "THEME/mbx-error.png";
+
+	static public final String ICON_BIG_QUESTION = "THEME/mbx-question.png";
+
+	static public final String ICON_MINI_ERROR = "THEME/mini-error.png";
+
+	static public final String ICON_MINI_WARNING = "THEME/mini-warning.png";
+
+	static public final String ICON_MINI_INFO = "THEME/mini-info.png";
+
+
+	static public final String ICON_PROGRESSBAR = "THEME/progressbar.gif";
+
+	static public final String ICON_RESIZE = "THEME/resize.png";
+
+	static public final String IMAGE_ACCESSDENIED = "THEME/accessDenied.png";
+
 
 }

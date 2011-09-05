@@ -89,16 +89,7 @@ public class ControlFactoryDate implements ControlFactory {
 			return new ControlFactoryResult(txt, model, (PropertyMetaModel<Date>) pmm);
 		}
 
-		DateInput di = new DateInput();
-		if(pmm.isRequired())
-			di.setMandatory(true);
-		if(!editable)
-			di.setDisabled(true);
-		if(pmm.getTemporal() == TemporalPresentationType.DATETIME)
-			di.setWithTime(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			di.setTitle(s);
+		DateInput di = DateInput.createDateInput((PropertyMetaModel<Date>) pmm, editable);
 		return new ControlFactoryResult(di, model, (PropertyMetaModel<Date>) pmm);
 	}
 }

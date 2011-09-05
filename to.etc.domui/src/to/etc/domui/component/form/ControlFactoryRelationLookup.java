@@ -90,6 +90,15 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			li.setTitle(s);
+
+		//-- 20110721 jal If a query manipulator is present- use it.
+		IQueryManipulator<T> qm = pmm.getQueryManipulator();
+		if(null == qm)
+			qm = (IQueryManipulator<T>) pmm.getClassModel().getQueryManipulator();
+		if(null != qm) {
+			li.setQueryManipulator(qm);
+		}
+
 		return new ControlFactoryResult(li, model, pmm);
 	}
 }

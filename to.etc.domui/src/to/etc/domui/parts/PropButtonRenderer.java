@@ -220,13 +220,15 @@ public class PropButtonRenderer {
 		m_width = bi.getWidth();
 		m_height = bi.getHeight();
 
-		rurl = getProperty("bg2.image");
-		if(null == rurl)
-			return;
-		bi = loadImage(rurl);
-		if(m_width != bi.getWidth() || m_height != bi.getHeight())
-			throw new IllegalStateException("Size difference between bg and bg2: they must have the exact same size");
-		m_images.add(bi);
+		for(int inr = 2; inr < 8; inr++) {
+			rurl = getProperty("bg" + inr + ".image");
+			if(null == rurl)
+				return;
+			bi = loadImage(rurl);
+			if(m_width != bi.getWidth() || m_height != bi.getHeight())
+				throw new IllegalStateException("Size difference between bg and bg" + inr + ": they must have the exact same size");
+			m_images.add(bi);
+		}
 	}
 
 	/**

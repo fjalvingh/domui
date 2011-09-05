@@ -438,7 +438,6 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	$.fn.fixOverflow = function () {
 		if(! $.browser.msie || $.browser.version.substring(0, 1) != "7")
 			return this;
-//		alert('fixing overflow: '+$.browser.msie+", ver="+$.browser.version);
 
 		return this.each(function () {
 			if (this.scrollWidth > this.offsetWidth) {
@@ -448,7 +447,24 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					$(this).css({ 'overflow-y' : 'hidden' });
 				}
 			}
+			
+			//-- jal 20110727 Do the same for height?
+			if(this.scrollHeight > this.offsetHeight) {
+				$(this).css({ 'margin-right' : '17px' });
+				if(this.scrollWidth <= this.offsetWidth) {
+					$(this).css({ 'overflow-x' : 'hidden' });
+				}
+			}
+			
 		});            
+	};
+})(jQuery);
+
+(function ($) {
+	$.fn.doStretch = function () {
+		return this.each(function () {
+			WebUI.stretchHeight(this.id);
+		});
 	};
 })(jQuery);
 
@@ -591,8 +607,8 @@ var WebUI = {
 			data :fields,
 			cache :false,
 			type: "POST",
-			success :WebUI.handleResponse,
-			error :WebUI.handleError
+			error :WebUI.handleError,
+			success :WebUI.handleResponse
 		});
 		return false;
 	},
@@ -690,9 +706,10 @@ var WebUI = {
 
 			//locate keyword input node 
 			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
-			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+			var trNode = selectedIndex < 0 ? null : $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
 			if(trNode){
-				//trigger click on row 
+				//trigger click on row
+				WebUI.setKeywordPopupSelectedRowIndex(node, -1);
 				$(trNode).trigger('click');
 			} else {
 				//trigger lookupTypingDone when return is pressed
@@ -705,7 +722,7 @@ var WebUI = {
 	 * Handle for timer delayed actions, used for onLookupTyping event.
 	 */
 	scheduledOnLookupTypingTimerID: null,
-	
+
 	/*
 	 * Executed as onkeyup event on input field that has implemented listener for onLookupTyping event.
 	 * In case of return key call lookupTypingDone ajax that is transformed into onLookupTyping(done=true).
@@ -752,6 +769,8 @@ var WebUI = {
 
 			//locate keyword input node
 			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+			if(selectedIndex < 0)
+				selectedIndex = 0;
 			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
 			if(trNode){
 				trNode.className = "ui-keyword-popup-row";
@@ -795,7 +814,7 @@ var WebUI = {
 				return parseInt(selectedIndexInput.value);
 			};
 		}
-		return 0;
+		return -1;
 	},
 
 	setKeywordPopupSelectedRowIndex: function(keywordInputNode, intValue){
@@ -815,6 +834,8 @@ var WebUI = {
 		}
 
 		var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+		if(selectedIndex < 0)
+			selectedIndex = 0;
 		var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
 		if(trNode){
 			WebUI.clicked(trNode, trNode.id, null);
@@ -833,6 +854,8 @@ var WebUI = {
 		}
 
 		var oldIndex = WebUI.getKeywordPopupSelectedRowIndex(keywordInput);
+		if(oldIndex < 0)
+			oldIndex = 0;
 		
 		var trNodes = $(rowNode.parentNode).children("tr");
 		var newIndex = 0;
@@ -1016,7 +1039,9 @@ var WebUI = {
 		if (txt.length == 0)
 			txt = "De server is niet bereikbaar.";
 		document.write(txt);
+		document.close();
 		window.setTimeout('document.body.style.cursor="default"', 1000);
+		return true;
 	},
 	_asyalerted: false,
 	handleErrorAsy : function(request, status, exc) {
@@ -1087,7 +1112,7 @@ var WebUI = {
 			}
 		}
 	},
-
+	
 	focus : function(id) {
 		var n = document.getElementById(id);
 		try{
@@ -1212,7 +1237,7 @@ var WebUI = {
 		var dateFmt = params.inputField ? params.ifFormat : params.daFormat;
 		params.date = Date.parseDate(inp.value, dateFmt);
 
-		var cal = new Calendar(null, params.date, WebUI.onDateSelect, function(
+		var cal = new Calendar(1, params.date, WebUI.onDateSelect, function(
 				cal) {
 			cal.hide();
 			cal.destroy();
@@ -1993,15 +2018,35 @@ var WebUI = {
 	/** ***************** Stretch elemnt height. Must be done via javascript. **************** */
 	stretchHeight : function(elemId) {
 		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
 		var elemHeight = $(elem).height();
 		var totHeight = 0;
 		$(elem).siblings().each(function(index, node) {
 			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
-			if (node != elem && $(node).css('position') == 'static' && $(node).css('float') == 'none'){
-				totHeight += node.offsetHeight;
+			if (node != elem && $(node).css('position') == 'static' && ($(node).css('float') == 'none' || $(node).css('width') != '100%' /* count in floaters that occupies total width */)){
+				//In IE7 hidden nodes needs to be additonaly excluded from count...
+				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
+					totHeight += $(node).outerHeight();
+				}
 			}
 		});
-		$(elem).height($(elem).parent().height() - totHeight);
+		var elemDeltaHeight =  $(elem).outerHeight() - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
+		$(elem).height($(elem).parent().height() - totHeight - elemDeltaHeight);
+		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
+			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers 
+			if (elem.scrollWidth > elem.offsetWidth){
+				$(elem).height($(elem).height() - 20);
+				//show hidden vertical scroller if it is again needed after height is decreased.
+				if ($(elem).css('overflow-y') == 'hidden'){
+					if (elem.scrollHeight > elem.offsetHeight){
+						$(elem).css({'overflow-y' : 'auto'});
+					}
+				}
+				return;
+			}
+		}
 	},
 	
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
@@ -2192,8 +2237,7 @@ var WebUI = {
 //			if(WebUI._NOMOVE)
 //				return;
 //			console.debug("move ", e);
-			WebUI._debugMouseTarget = e.srcElement || e.originalTarget;
-			
+			WebUI._debugMouseTarget = e.target; // e.srcElement || e.originalTarget;
 		});
 	},
 
@@ -2259,7 +2303,41 @@ var WebUI = {
 			$(elem).hide();			
 			$(elem).show(1); //needs to be done on timeout/animation, otherwise it still fails to recalculate... 
 		}
-	}
+	},
+	
+	//Use this to make sure that item would be visible inside parent scrollable area. It uses scroll animation. In case when item is already in visible part, we just do single blink to gets user attention ;)  
+	scrollMeToTop: function(elemId, selColor, offset) {
+		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
+		var parent = elem.parentNode; 
+		if (!parent){
+			return;
+		}
+		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
+			var elemPos = $(elem).position().top;
+			if (elemPos > 0 && elemPos < parent.offsetHeight){
+				//if elem already visible -> just do one blink
+				if (selColor){
+					var oldColor = $(elem).css('background-color');  
+					$(elem).animate({backgroundColor: selColor}, "slow", function(){$(elem).animate({backgroundColor: oldColor}, "fast");});
+				}
+			}else{
+				//else scroll parent to show me at top
+				var newPos = $(elem).position().top + parent.scrollTop;
+				if($.browser.msie && $.browser.version.substring(0, 1) == "8"){
+					if ($(elem).height() == 0){
+						newPos = newPos - 15; //On IE8 we need this correction :¬|
+					}
+				}
+				if (offset){
+					newPos = newPos - offset;
+				}
+				$(parent).animate({scrollTop: newPos}, 'slow');
+			}
+		}
+	}	
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
@@ -2531,17 +2609,52 @@ WebUI.colorPickerChangeEvent = function(id) {
 
 var DomUI = WebUI;
 
+WebUI.doCustomUpdates = function() {
+	$('[stretch=true]').doStretch();
+	$('.ui-dt, .ui-fixovfl').fixOverflow();
+};
+
 WebUI.onDocumentReady = function() {
 	WebUI.handleCalendarChanges();
 	if(DomUIDevel)
 		WebUI.handleDevelopmentMode();
-	$(".ui-dt").fixOverflow();
-}
+	WebUI.doCustomUpdates();
+};
+
+WebUI.floatingDivResize = function(ev, ui) {
+	$('[stretch=true]').doStretch();
+	$('.ui-dt, .ui-fixovfl').fixOverflow();
+};
+
+WebUI.onWindowResize = function() {
+	WebUI.doCustomUpdates();
+};
+
+WebUI.flare = function(id) {
+	$('#'+id).fadeIn('fast', function() {
+		$('#'+id).delay(500).fadeOut(1000, function() {
+			$('#'+id).remove();
+		});
+	});
+};
+
+WebUI.flareStay = function(id) {
+	$('#'+id).fadeIn('fast', function() {
+		$('body,html').bind('mousemove.' + id, function(e){
+			$('body,html').unbind('mousemove.' + id);
+			$('#'+id).delay(500).fadeOut(1000, function() {
+				$('#'+id).remove();
+			});
+		});
+	});
+};
+
 
 $(document).ready(WebUI.onDocumentReady);
+$(window).resize(WebUI.onWindowResize);
 $(document).ajaxComplete( function() {
 	WebUI.handleCalendarChanges();
-	$(".ui-dt").fixOverflow();
+	WebUI.doCustomUpdates();
 });
 
 

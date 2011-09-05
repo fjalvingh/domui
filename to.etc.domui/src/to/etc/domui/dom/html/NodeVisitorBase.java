@@ -186,7 +186,7 @@ public class NodeVisitorBase implements INodeVisitor {
 	}
 
 	public void visitChildren(NodeContainer c) throws Exception {
-		for(NodeBase b : c)
+		for(NodeBase b : c.internalGetChildren())
 			b.visit(this);
 	}
 }

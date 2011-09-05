@@ -75,5 +75,7 @@ public class ThemeCssUtils {
 		return sb.toString();
 	}
 
-
+	public CssColor hsl(double h, double s, double l) {
+		return CssColor.createHSL(h, s, l);
+	}
 }

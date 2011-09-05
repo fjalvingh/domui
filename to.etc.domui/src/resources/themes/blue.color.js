@@ -23,6 +23,10 @@ error_border="#ff0000"; // red
 error_fg="#ff0000"; // red
 error_input_bg="#ffe5e5"; // error bg for input component
 
+warning_bg="#fffeee"; // light yellow
+warning_border="yellow";
+warning_fg="black";
+
 info_bg="#a9c5f1";		// blueish light
 info_fg="blue";
 info_border="blue";

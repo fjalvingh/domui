@@ -141,6 +141,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	private StackTraceElement[] m_allocationTracepoint;
 
 	/**
+	 * If marked as stretched, element gets attribute stretched. It would be used on client side to adjust its height to all available space in parent element (what is left when other siblings take their pieces)
+	 */
+	private boolean m_stretchHeight;
+
+	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
 	 * @throws Exception
@@ -248,6 +253,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	public void internalClearDeltaFully() {
 		internalClearDelta();
+	}
+
+	protected int internalGetNodeCount(int depth) {
+		return 1;
 	}
 
 	/**
@@ -487,6 +496,25 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		}
 	}
 
+	/**
+	 * Walk the parent chain upwards, and find the first parent that implements <i>any</i> of
+	 * the classes passed.
+	 * @param clzar
+	 * @return
+	 */
+	final public NodeBase getParentOfTypes(final Class< ? extends NodeBase>... clzar) {
+		NodeContainer c = getParent();
+		for(;;) {
+			if(c == null)
+				return null;
+			for(Class< ? > clz : clzar) {
+				if(clz.isAssignableFrom(c.getClass()))
+					return c;
+			}
+			c = c.getParent();
+		}
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree manipulation.									*/
@@ -591,10 +619,17 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	private final void internalCreateContent() throws Exception {
+		beforeCreateContent();
+		internalCreateFrame();
 		createContent();
 		afterCreateContent();
 	}
 
+	/**
+	 * This method is a placeholder for NodeContainer which allows it to handle
+	 * framed windows somehow.
+	 */
+	protected void internalCreateFrame() throws Exception {}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple other getter and setter like stuff.			*/
@@ -1112,12 +1147,17 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	public void onBeforeFullRender() throws Exception {}
 
+	@OverridingMethodsMustInvokeSuper
+	protected void beforeCreateContent() {}
+
 	public void createContent() throws Exception {}
 
 	protected void afterCreateContent() throws Exception {}
 
+	@OverridingMethodsMustInvokeSuper
 	public void onAddedToPage(final Page p) {}
 
+	@OverridingMethodsMustInvokeSuper
 	public void onRemoveFromPage(final Page p) {}
 
 	public void onHeaderContributors(final Page page) {}
@@ -1280,12 +1320,29 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
+	 * Returns if node has set stretchHeight
+	 * @return
+	 */
+	public boolean isStretchHeight() {
+		return m_stretchHeight;
+	}
+
+	/**
 	 * EXPERIMENTAL
 	 * Method can be used to stretch height of element to take all available free space in parent container.
+	 * <UL>
+	 * <LI>NOTE: In order to stretchHeight can work, parent container needs to have height defined in some way (works out of box for all FloatingWindow based containers).</LI>
+	 * <LI>In case that stretched node needs to be added directly in (non floating) page, to define page height as 100%, use following snippet inline in page code:
+	 * <BR/><CODE>appendCreateJS("$(document).ready(function() {document.body.parentNode.style.height = '100%'; document.body.style.height = '100%';WebUI.doCustomUpdates();});");</CODE>
+	 * <BR/>Note that triggering of stratch code evaluation needs also to be added inline.
+	 * </LI>
 	 */
-	public void stretchHeight() {
-		appendCreateJS("$(document).ready(function() {WebUI.stretchHeight('" + getActualID() + "');});");
-		appendCreateJS("$(window).resize(function() {WebUI.stretchHeight('" + getActualID() + "');});");
+	public void setStretchHeight(boolean value) {
+		if(m_stretchHeight == value) {
+			return;
+		}
+		m_stretchHeight = value;
+		changed();
 	}
 
 	@Override

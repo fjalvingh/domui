@@ -42,6 +42,9 @@ public class FCKEditor extends TextArea {
 
 	private String m_toolbarSet = "DomUI";
 
+
+	private boolean m_toolbarStartExpanded;
+
 	private IEditorFileSystem m_fileSystem;
 
 	public FCKEditor() {
@@ -77,8 +80,10 @@ public class FCKEditor extends TextArea {
 		appendOption(sb, "DefaultLanguage", NlsContext.getLocale().getLanguage());
 		if(getWidth() != null)
 			appendOption(sb, "Width", getWidth());
+		if(getHeight() != null)
+			appendOption(sb, "Height", getHeight());
 		appendOption(sb, "ToolbarSet", m_toolbarSet);
-		appendConfig(sb, "ToolbarStartExpanded", "false");
+		appendConfig(sb, "ToolbarStartExpanded", new Boolean(m_toolbarStartExpanded).toString());
 
 		//-- Override basic 'connector' config parameters
 		appendConnectorConfig(sb, "ImageBrowser", "Image");
@@ -167,4 +172,25 @@ public class FCKEditor extends TextArea {
 				break;
 		}
 	}
+
+	public void setToolbarStartExpanded() {
+		m_toolbarStartExpanded = true;
+	}
+
+	@Override
+	public boolean acceptRequestParameter(String[] values) throws Exception {
+		for(int i = 0; i < values.length; i++) {
+			String s = values[i];
+			StringBuilder sb = new StringBuilder();
+			try {
+				StringTool.entitiesToUnicode(sb, s, true);
+				values[i] = sb.toString();
+			} catch(Exception e) {
+				e.printStackTrace();
+				values[i] = e.toString();
+			}
+		}
+		return super.acceptRequestParameter(values);
+	}
+
 }

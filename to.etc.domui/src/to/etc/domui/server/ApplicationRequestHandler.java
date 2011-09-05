@@ -205,6 +205,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		Page page = cm.makeOrGetPage(ctx, clz, papa);
+		page.internalIncrementRequestCounter();
 		cm.internalSetLastPage(page);
 		//		Page page = PageMaker.makeOrGetPage(ctx, clz, papa);
 
@@ -292,9 +293,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			//-- 20100408 jal If an UIGoto was done in createContent handle that
 			if(cm.handleGoto(ctx, page, false))
 				return;
-		} catch(Exception x) {
+		} catch(Exception ex) {
 			//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
 			page.getBody().forceRebuild();
+
+			Exception x = WrappedException.unwrap(ex);
 
 			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
@@ -609,7 +612,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			 */
 			if(LOG.isDebugEnabled())
 				LOG.debug("rq: ignoring validation exception " + x);
-		} catch(Exception x) {
+		} catch(Exception ex) {
+			Exception x = WrappedException.unwrap(ex);
 			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
 				if(url != null) {

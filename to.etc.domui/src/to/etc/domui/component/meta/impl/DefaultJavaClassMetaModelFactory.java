@@ -97,15 +97,17 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		 * PropertyDescriptor[] ar = bi.getPropertyDescriptors();
 		 */
 		List<PropertyInfo> pilist = ClassUtil.getProperties(clz);
+		List<PropertyMetaModel< ? >> reslist = new ArrayList<PropertyMetaModel< ? >>(pilist.size());
 
 		//-- Create model data from this thingy.
 		for(PropertyInfo pd : pilist) {
 			if(!pd.getName().equals("class"))
-				createPropertyInfo(cmm, pd, searchlist, keysearchlist);
+				createPropertyInfo(reslist, cmm, pd, searchlist, keysearchlist);
 		}
+		cmm.setClassProperties(reslist);
 	}
 
-	protected void createPropertyInfo(DefaultClassMetaModel cmm, final PropertyInfo pd, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
+	protected void createPropertyInfo(List<PropertyMetaModel< ? >> reslist, DefaultClassMetaModel cmm, final PropertyInfo pd, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
 		//		System.out.println("Property: " + pd.getName() + ", reader=" + pd.getGetter());
 		//		if(pd.getName().equals("id"))
 		//			System.out.println("GOTCHA");
@@ -114,7 +116,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		if(rm.getParameterTypes().length != 0)
 			return;
 		DefaultPropertyMetaModel< ? > pm = new DefaultPropertyMetaModel<Object>(cmm, pd);
-		cmm.addProperty(pm);
+		reslist.add(pm);
 		initPropertyModel(cmm, pd, pm, searchlist, keysearchlist);
 		if(pm.isPrimaryKey())
 			cmm.setPrimaryKey(pm);
@@ -307,6 +309,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 
 	/**
 	 * Generically decode a JPA javax.persistence.Column annotation.
+	 * FIXME Currently only single-column properties are supported.
 	 * @param pmm
 	 * @param an
 	 */
@@ -332,6 +335,11 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			pmm.setPrecision(iv.intValue());
 			iv = (Integer) DomUtil.getClassValue(an, "scale");
 			pmm.setScale(iv.intValue());
+			String name = (String) DomUtil.getClassValue(an, "name");
+			if(null == name) {
+				name = pmm.getName(); // If column is present but name is null- use the property name verbatim.
+			}
+			pmm.setColumnNames(new String[]{name});
 		} catch(RuntimeException x) {
 			throw x;
 		} catch(Exception x) {
@@ -436,7 +444,8 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			if(c.properties() != null && c.properties().length > 0) {
 				cmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
 			}
-			//			cmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
+			if(c.preferred())
+				cmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
 		} else if(an instanceof MetaObject) {
 			MetaObject mo = (MetaObject) an;
 			if(mo.defaultColumns().length > 0) {

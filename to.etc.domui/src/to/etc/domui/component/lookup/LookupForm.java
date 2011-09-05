@@ -129,6 +129,7 @@ public class LookupForm<T> extends Div {
 	 */
 	private IClicked<NodeBase> m_onAfterCollapse;
 
+
 	/**
 	 * This is the definition for an Item to look up. A list of these
 	 * will generate the actual lookup items on the screen, in the order
@@ -568,10 +569,8 @@ public class LookupForm<T> extends Div {
 	void collapse() throws Exception {
 		if((m_content.getDisplay() == DisplayType.NONE))
 			return;
-		//		appendJavascript("$('#" + m_content.getActualID() + "').slideUp();");
-		m_content.slideUp();
 
-		//		m_content.setDisplay(DisplayType.NONE);
+		m_content.slideUp();
 		m_collapsedPanel = new Div();
 		m_collapsedPanel.setCssClass("ui-lf-coll");
 		add(m_collapsedPanel);
@@ -1138,6 +1137,10 @@ public class LookupForm<T> extends Div {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
 	}
 
+	public IClicked<LookupForm<T>> getSearchClicked() {
+		return m_clicker;
+	}
+
 	public IClicked< ? extends LookupForm<T>> getOnClear() {
 		return m_onClear;
 	}
@@ -1326,5 +1329,4 @@ public class LookupForm<T> extends Div {
 	public void setOnAfterCollapse(IClicked<NodeBase> onAfterCollapse) {
 		m_onAfterCollapse = onAfterCollapse;
 	}
-
 }

@@ -37,6 +37,7 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.query.*;
 
 /**
  * Accessor class to the generalized metadata thingies.
@@ -456,7 +457,7 @@ final public class MetaManager {
 
 			PropertyMetaModel< ? > pmm = ccmm.findSimpleProperty(sub); // Find base property,
 			if(pmm == null)
-				throw new IllegalStateException("Undefined property '" + sub + "' on classMetaModel=" + ccmm);
+				throw new IllegalStateException("Invalid property path '" + name + "' on " + cmm + ": property '" + sub + "' on classMetaModel=" + ccmm + " does not exist");
 			acl.add(pmm); // Next access path,
 			ccmm = MetaManager.findClassMeta(pmm.getActualType());
 
@@ -832,5 +833,117 @@ final public class MetaManager {
 			((PropertyMetaModel<Object>) topmm).setValue(to, frpmm.getValue(from));
 		}
 
+	}
+
+	/**
+	 * Return the list of defined combo properties, either on property model or class model. Returns
+	 * the empty list if none are defined.
+	 * @param pmm
+	 * @return
+	 */
+	@Nonnull
+	static public List<DisplayPropertyMetaModel> getComboProperties(@Nonnull PropertyMetaModel< ? > pmm) {
+		List<DisplayPropertyMetaModel> res = pmm.getComboDisplayProperties();
+		if(res.size() != 0)
+			return res;
+		return pmm.getValueModel().getComboDisplayProperties();
+	}
+
+	/**
+	 * Comparator to sort by ascending sortIndex.
+	 */
+	static public final Comparator<DisplayPropertyMetaModel> C_BY_SORT_INDEX = new Comparator<DisplayPropertyMetaModel>() {
+		@Override
+		public int compare(DisplayPropertyMetaModel a, DisplayPropertyMetaModel b) {
+			return a.getSortIndex() - b.getSortIndex();
+		}
+	};
+
+
+	/**
+	 * Walk the list of properties, and defines the list that should be added as sort properties
+	 * to the QCriteria.
+	 * @param crit
+	 * @param properties
+	 */
+	static public void applyPropertySort(@Nonnull QCriteria< ? > q, @Nonnull List<DisplayPropertyMetaModel> properties) {
+		List<DisplayPropertyMetaModel> sl = new ArrayList<DisplayPropertyMetaModel>();
+		boolean hasindex = false;
+		for(DisplayPropertyMetaModel p : properties) {
+			if(p.getSortable() == SortableType.SORTABLE_ASC || p.getSortable() == SortableType.SORTABLE_DESC)
+				sl.add(p);
+			if(p.getSortIndex() >= 0)
+				hasindex = true;
+		}
+		if(sl.size() == 0)
+			return;
+		if(hasindex)
+			Collections.sort(sl, C_BY_SORT_INDEX);
+		for(DisplayPropertyMetaModel p : sl) {
+			switch(p.getSortable()){
+				default:
+					throw new IllegalStateException("Unexpected sort type: " + p.getSortable());
+				case SORTABLE_ASC:
+					q.ascending(p.getName());
+					break;
+				case SORTABLE_DESC:
+					q.descending(p.getName());
+					break;
+			}
+		}
+	}
+
+	/**
+	 * Fill target instance with same values as found in source instance. PK, TCN and transient properties would not be copied.
+	 *
+	 * @param <T>
+	 * @param source
+	 * @param target
+	 * @throws Exception
+	 */
+	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target) throws Exception {
+		fillCopy(source, target, false, false, false);
+	}
+
+	/**
+	 * Fill target instance with same values as found in source instance. PK, TCN and transient properties would not be copied.
+	 *
+	 * @param <T>
+	 * @param source
+	 * @param target
+	 * @param ignoredColumns Specified optional columns that would not be filled with data from source
+	 * @throws Exception
+	 */
+	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target, String... ignoredColumns) throws Exception {
+		fillCopy(source, target, false, false, false, ignoredColumns);
+	}
+
+	/**
+	 * Fill target instance with same values as found in source instance.
+	 *
+	 * @param <T>
+	 * @param source
+	 * @param target
+	 * @param copyPK If T, it also copies PK value(s)
+	 * @param copyTCN If T, it also copies TCN value(s)
+	 * @param copyTransient If T, it also copies transient values
+	 * @param ignoredColumns Specified optional columns that would not be filled with data from source
+	 * @throws Exception
+	 */
+	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target, boolean copyPK, boolean copyTCN, boolean copyTransient, String... ignoredColumns) throws Exception {
+		ClassMetaModel cmm = MetaManager.findClassMeta(source.getClass());
+		List<String> ignoreList = new ArrayList<String>(ignoredColumns.length);
+		for (String ignore : ignoredColumns) {
+			ignoreList.add(ignore);
+		}
+		for (PropertyMetaModel< ? > pmm : cmm.getProperties()) {
+			PropertyMetaModel< Object > opmm = (PropertyMetaModel< Object >) pmm;
+			if((!opmm.isPrimaryKey() || copyPK) && //
+				(!opmm.isTransient() || copyTransient) && //
+				(!"tcn".equalsIgnoreCase(opmm.getName()) || copyTCN) && //
+				(ignoreList.size() == 0 || !ignoreList.contains(opmm.getName()))) {
+				opmm.setValue(target, opmm.getValue(source));
+			}
+		}
 	}
 }
