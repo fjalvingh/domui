@@ -76,6 +76,8 @@ final public class PoolConfig {
 
 	private ScanMode m_scanMode = ScanMode.ENABLED;
 
+	private File m_binaryLogFile;
+
 	PoolConfig(String driver, String url, String userid, String passwd, String driverpath) throws SQLException {
 		m_url = url;
 		m_driverClassName = driver;
@@ -143,6 +145,10 @@ final public class PoolConfig {
 						throw new SQLException("The driver path '" + dp + "' does not point to an existing file or directory");
 				}
 				m_driverPath = f;
+			}
+			String bf = cs.getProperty(id, "binaryLog");
+			if(null != bf) {
+				m_binaryLogFile = new File(bf);
 			}
 		} catch(Exception x) {
 			x.printStackTrace();
@@ -255,6 +261,10 @@ final public class PoolConfig {
 
 	public ScanMode getScanMode() {
 		return m_scanMode;
+	}
+
+	public File getBinaryLogFile() {
+		return m_binaryLogFile;
 	}
 
 	/**

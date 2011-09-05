@@ -112,7 +112,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 	/* CODING: Overrides.                                           */
 	/*--------------------------------------------------------------*/
 	public ResultSet executeQuery() throws SQLException {
-		pool().logExecution(this);
+		pool().logExecution(this, ST_QUERY);
 		if(LOG.isLoggable(Level.FINE)) {
 			LOG.fine("executeQuery(): " + getSQL());
 			LOG.fine("parameters:" + BetterSQLException.format(m_par, m_maxpar));
@@ -134,7 +134,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 	}
 
 	public int executeUpdate() throws SQLException {
-		pool().logExecution(this);
+		pool().logExecution(this, ST_UPDATE);
 		if(LOG.isLoggable(Level.FINE)) {
 			LOG.fine("executeUpdate(): " + getSQL());
 			LOG.fine("parameters:" + BetterSQLException.format(m_par, m_maxpar));
@@ -154,7 +154,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 	}
 
 	public boolean execute() throws SQLException {
-		pool().logExecution(this);
+		pool().logExecution(this, ST_EXECUTE);
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("execute called");
 		SQLException wx = null;
@@ -371,7 +371,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 	}
 
 	public void addBatch() throws SQLException {
-		pool().logExecution(this, true);
+		pool().logExecution(this, true, ST_BATCH);
 		if(LOG.isLoggable(Level.FINE)) {
 			LOG.fine("addBatch(prepared): " + getSQL());
 			LOG.fine("parameters:" + BetterSQLException.format(m_par, m_maxpar));
