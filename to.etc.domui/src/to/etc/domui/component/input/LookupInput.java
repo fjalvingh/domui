@@ -415,7 +415,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	}
 
 	private String getDefaultKeySearchHint() {
-		List<SearchPropertyMetaModel> spml = getMetaModel().getKeyWordSearchProperties();
+		List<SearchPropertyMetaModel> spml = m_keywordLookupPropertyList != null ? m_keywordLookupPropertyList : getMetaModel().getKeyWordSearchProperties();
 		if(spml.size() <= 0)
 			return null;
 
@@ -427,6 +427,20 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			if(spm.getLookupLabel() != null) {
 				sb.append(spm.getLookupLabel());
 			} else {
+				//FIXME: vmijic 20110906 Scheduled for delete. We add extra tests and logging in code just to be sure if such cases can happen in production.
+				//This should be removed soon after we are sure that problem is solved.
+				if(spm == null) {
+					System.out.println("possible NPE : spm == null, for i = " + i + ", spml.size() == " + spml.size());
+				}
+				if(spm.getPropertyName() == null) {
+					System.out.println("possible NPE : spm.getPropertyName() == null, for spm = " + spm);
+				}
+				if(getMetaModel().findProperty(spm.getPropertyName()) == null) {
+					System.out.println("possible NPE : getMetaModel().findProperty(spm.getPropertyName()) == null, for spm.getPropertyName() = " + spm.getPropertyName());
+				}
+				if(getMetaModel() == null) {
+					System.out.println("possible NPE : getMetaModel() == null, for spm.getPropertyName() = " + spm.getPropertyName());
+				}
 				sb.append(getMetaModel().findProperty(spm.getPropertyName()).getDefaultLabel());
 			}
 		}
