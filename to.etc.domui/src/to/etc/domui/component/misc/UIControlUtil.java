@@ -469,6 +469,15 @@ final public class UIControlUtil {
 		return txt;
 	}
 
+	public static String getRgbHex(java.awt.Color color, boolean prefixHash) {
+		String hexString = Integer.toHexString(color.getRGB() & 0x00FFFFFF);
+		while(hexString.length() < 6)
+			hexString = "0" + hexString;
+		if(prefixHash) {
+			hexString = "#" + hexString;
+		}
+		return hexString;
+	}
 
 }
 
