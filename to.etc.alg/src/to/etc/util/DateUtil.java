@@ -382,6 +382,17 @@ public class DateUtil {
 		return new Date(cal.getTimeInMillis());
 	}
 
+	static public Date addYears(Date in, int years) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(in);
+		cal.add(Calendar.YEAR, years);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return new Date(cal.getTimeInMillis());
+	}
+
 	static public boolean between(Date start, Date end, Date v) {
 		return v.getTime() >= start.getTime() && v.getTime() < end.getTime();
 	}
