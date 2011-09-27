@@ -484,4 +484,51 @@ public class DateUtil {
 		return cal;
 	}
 
+	/**
+	 * Compares calendar times (hours, minutes, seconds and milliseconds) and returns
+	 * a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater than the second.  
+	 * 
+	 * They are compared by using compareTo() method. Second's calendar time is set to the copy of the first calendar
+	 * to ensure that they can be different in time only.
+	 * 
+	 * @param first
+	 * @param second
+	 * @return
+	 */
+
+	/**
+	 * Compares calendar times (hours, minutes, seconds and milliseconds) and returns
+	 * a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater than the second.  
+	 * 
+	 * They are compared by using compareTo() method. Second's calendar time is set to the copy of the first calendar
+	 * to ensure that they can be different in time only.
+	 * 
+	 * @param first
+	 * @param second
+	 * @return
+	 */
+
+	public static Comparator<Calendar>	CALENDAR_TIMES_COMPARATOR	= new Comparator<Calendar>() {
+																		@Override
+																		public int compare(Calendar first, Calendar second) {
+																			if(first.get(Calendar.HOUR_OF_DAY) < second.get(Calendar.HOUR_OF_DAY)) {
+																				return -1;
+																			} else if(first.get(Calendar.HOUR_OF_DAY) == second.get(Calendar.HOUR_OF_DAY)) {
+																				if(first.get(Calendar.MINUTE) < second.get(Calendar.MINUTE)) {
+																					return -1;
+																				} else if(first.get(Calendar.MINUTE) == second.get(Calendar.MINUTE)) {
+																					if(first.get(Calendar.SECOND) < second.get(Calendar.SECOND)) {
+																						return -1;
+																					} else if(first.get(Calendar.SECOND) == second.get(Calendar.SECOND)) {
+																						if(first.get(Calendar.MILLISECOND) < second.get(Calendar.MILLISECOND)) {
+																							return -1;
+																						} else if(first.get(Calendar.MILLISECOND) == second.get(Calendar.MILLISECOND)) {
+																							return 0;
+																						}
+																					}
+																				}
+																			}
+																			return 1;
+																		}
+																	};
 }
