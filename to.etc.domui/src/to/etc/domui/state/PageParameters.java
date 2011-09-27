@@ -481,9 +481,7 @@ public class PageParameters {
 	@Nullable
 	public String getString(String name, String df) {
 		String v = getOne(name);
-		if(null == v || v.length() == 0)
-			return df;
-		return v;
+		return v == null ? df : v;
 	}
 
 	/**

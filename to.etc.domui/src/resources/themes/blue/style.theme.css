@@ -877,12 +877,6 @@ button {
 	background-color: <%= readonly_bg %>;
 }
 
-/*** Panning Image Panel ***/
-.ui-pip-img {
-	overflow: hidden;
-	border: 2px solid black;
-}
-
 /*** NiceButton ***/
 a.ui-nbtn {
 	/* display: inline-table; jal 20080711 This works proper with FF3 et al but of course not with IE7.. IE8 does work though */
