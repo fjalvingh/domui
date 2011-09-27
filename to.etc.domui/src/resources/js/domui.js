@@ -1631,7 +1631,8 @@ var WebUI = {
 	},
 	
 	_selectStart : undefined,
-	
+
+	_newDragMode : undefined,
 
 	/** ************ Drag-and-drop support code ****************** */
 	/**
@@ -2321,6 +2322,15 @@ var WebUI = {
 				$(parent).animate({scrollTop: newPos}, 'slow');
 			}
 		}
+	},
+	
+	//Returns T if browser is really using IE7 rendering engine (since IE8 compatibility mode presents  browser as version 7 but renders as IE8!)
+	isReallyIE7: function() {
+		//Stupid IE8 in compatibility mode lies that it is IE7, and renders as IE8! At least we can detect that using document.documentMode (it is 8 in that case)
+		//document.documentMode == 7 		 --- IE8 running in IE7 mode
+		//document.documentMode == 8 		 --- IE8 running in IE8 mode or IE7 Compatibility mode
+		//document.documentMode == undefined --- plain old IE7 
+		return ($.browser.msie && parseInt($.browser.version) == 7 && (!document.documentMode || document.documentMode == 7));
 	}	
 };
 

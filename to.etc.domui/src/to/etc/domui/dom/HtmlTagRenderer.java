@@ -659,7 +659,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 		//-- Drop crud
 		if(n.getDropBody() != null) {
-			o().attr("uidropbody", n.getDropBody().getActualID());
+			o().attr("uidropbody", ((NodeBase) n.getDropBody()).getActualID());
 		}
 		if(n.getDropMode() != null) {
 			o().attr("uidropmode", n.getDropMode().name());
