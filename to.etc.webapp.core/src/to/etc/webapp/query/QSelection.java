@@ -134,6 +134,22 @@ public class QSelection<T> extends QCriteriaQueryBase<T> {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public QSelection<T> distinct(@GProperty final String property, String alias) {
+		return (QSelection<T>) super.distinct(property, alias);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public QSelection<T> distinct(@GProperty final String property) {
+		return (QSelection<T>) super.distinct(property);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public QSelection<T> max(@GProperty final String property, String alias) {
 		return (QSelection<T>) super.max(property, alias);
 	}

@@ -27,12 +27,13 @@ package to.etc.domui.component.misc;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.bugs.*;
 
-public class MsgBox extends FloatingWindow {
+public class MsgBox extends Window {
 	public interface IAnswer {
 		void onAnswer(MsgBoxButton result) throws Exception;
 	}
@@ -49,7 +50,7 @@ public class MsgBox extends FloatingWindow {
 
 	private static final int WIDTH = 500;
 
-	private static final int HEIGHT = 200;
+	private static final int HEIGHT = 210;
 
 	Object m_selectedChoice;
 
@@ -63,13 +64,12 @@ public class MsgBox extends FloatingWindow {
 	private INodeContentRenderer<String> m_dataRenderer;
 
 	protected MsgBox() {
-		super(true, "");
+		super(true, false, WIDTH, HEIGHT, "");
 		setErrorFence(null); // Do not accept handling errors!!
 		m_theButtons.setCssClass("ui-mbx-bb");
-		m_theImage.setCssClass("ui-mbx-img");
-		setOnClose(new IClicked<FloatingWindow>() {
+		setOnClose(new IWindowClosed() {
 			@Override
-			public void clicked(FloatingWindow b) throws Exception {
+			public void closed(String closeReason) throws Exception {
 				if(null != m_onAnswer) {
 					m_selectedChoice = m_closeButtonObject;
 					try {
@@ -86,11 +86,11 @@ public class MsgBox extends FloatingWindow {
 
 	static public MsgBox create(NodeBase parent) {
 		MsgBox w = new MsgBox(); // Create instance
-		//vmijic 20100326 - in case of cascading floating windows, z-index higher than one from parent floating window must be set.
-		FloatingWindow parentFloatingWindow = parent.getParent(FloatingWindow.class);
-		if(parentFloatingWindow != null) {
-			w.setZIndex(parentFloatingWindow.getZIndex() + 100);
-		}
+		//		//vmijic 20100326 - in case of cascading floating windows, z-index higher than one from parent floating window must be set.
+		//		FloatingWindow parentFloatingWindow = parent.getParent(FloatingWindow.class);
+		//		if(parentFloatingWindow != null) {
+		//			w.setZIndex(parentFloatingWindow.getZIndex() + 100);
+		//		}
 		UrlPage body = parent.getPage().getBody();
 		body.add(w);
 		return w;
@@ -383,30 +383,34 @@ public class MsgBox extends FloatingWindow {
 		return areYouSureLinkButton(text, null, message, ch);
 	}
 
-	/**
-	 * Adjust dimensions in addition to inherited floater behavior.
-	 * @see to.etc.domui.dom.html.NodeBase#createContent()
-	 */
-	@Override
-	public void createContent() throws Exception {
-		super.createContent();
-		setDimensions(WIDTH, HEIGHT);
-	}
+	//	/**
+	//	 * Adjust dimensions in addition to inherited floater behavior.
+	//	 * @see to.etc.domui.dom.html.NodeBase#createContent()
+	//	 */
+	//	@Override
+	//	public void createContent() throws Exception {
+	//		super.createContent();
+	//		setDimensions(WIDTH, HEIGHT);
+	//	}
 
 	private void construct() {
 		Div a = new Div();
 		add(a);
 		a.setCssClass("ui-mbx-top");
+		a.setStretchHeight(true);
+		a.setOverflow(Overflow.AUTO);
 		Table t = new Table();
 		a.add(t);
 		TBody b = t.getBody();
-		TD td = b.addRowAndCell();
-		td.setCssClass("ui-mbx-ic");
+		TR row = b.addRow();
+		row.setVerticalAlign(VerticalAlignType.TOP);
+		TD td = row.addCell();
 		td.add(m_theImage);
+		m_theImage.setPosition(PositionType.ABSOLUTE);
 		td.setNowrap(true);
-		td.setWidth("1%");
+		td.setWidth("50px");
 
-		td = b.addCell("ui-mbx-mc");
+		td = row.addCell("ui-mbx-mc");
 		if(getDataRenderer() != null) {
 			try {
 				getDataRenderer().renderNodeContent(this, td, m_theText, null);
@@ -428,10 +432,10 @@ public class MsgBox extends FloatingWindow {
 		}
 	}
 
-	private void setDimensions(int width, int height) {
+	@Override
+	public void setDimensions(int width, int height) {
+		super.setDimensions(width, height);
 		setTop("50%");
-		setWidth(width + "px");
-		setHeight(height + "px");
 		// center floating window horizontally on screen
 		setMarginLeft("-" + width / 2 + "px");
 		setMarginTop("-" + height / 2 + "px");

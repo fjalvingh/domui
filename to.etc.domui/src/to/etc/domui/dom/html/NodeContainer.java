@@ -177,6 +177,22 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return m_oldChildren;
 	}
 
+	/**
+	 * Count the #of nodes in this tree, recursively until the given depth.
+	 * @see to.etc.domui.dom.html.NodeBase#internalGetNodeCount(int)
+	 */
+	@Override
+	protected int internalGetNodeCount(int depth) {
+		if(depth <= 0)
+			return 0;
+		depth--;
+		int count = 0;
+		for(NodeBase b : m_children) {
+			count += b.internalGetNodeCount(depth);
+		}
+		return count;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree accessors.										*/
 	/*--------------------------------------------------------------*/
@@ -187,6 +203,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	@Override
 	@Nonnull
 	final public Iterator<NodeBase> iterator() {
+		if(m_delegate != null)
+			return m_delegate.iterator();
+
 		return m_children.iterator();
 	}
 
@@ -195,6 +214,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @return
 	 */
 	final public int getChildCount() {
+		if(m_delegate != null)
+			return m_delegate.getChildCount();
+
 		return m_children.size();
 	}
 
@@ -204,6 +226,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @return
 	 */
 	final public int findChildIndex(@Nonnull final NodeBase b) {
+		if(m_delegate != null)
+			return m_delegate.findChildIndex(b);
+
 		if(b.getParent() != this)
 			return -1;
 		return m_children.indexOf(b);
@@ -216,6 +241,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	@Nonnull
 	final public NodeBase getChild(final int i) {
+		if(m_delegate != null)
+			return m_delegate.getChild(i);
+
 		return m_children.get(i);
 	}
 
@@ -336,10 +364,26 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param nd
 	 */
 	final public void add(final int index, @Nonnull final NodeBase nd) {
+		/*
+		 * Nodes that *must* be added to the body should delegate there immediately.
+		 */
+		if(nd instanceof IAddToBody) {
+			//-- This *must* be added to the BODY node, and this node must be attached for that to work.. Is it?
+			if(null == getPage())
+				throw new ProgrammerErrorException("The component " + nd.getClass() + " is defined as 'must be added to the body' but the node it is added to " + this + " is not yet added to the page.");
+			getPage().internalAddFloater(this, nd);
+			return;
+		}
+
+		//-- Is delegation active? Then delegate to wherever.
 		if(m_delegate != null) {
 			m_delegate.add(index, nd);
 			return;
 		}
+		internalAdd(index, nd);
+	}
+
+	final protected void internalAdd(final int index, @Nonnull final NodeBase nd) {
 		if(nd == this)
 			throw new IllegalStateException("Attempt to add a node " + nd + " to itself as a child.");
 
@@ -360,12 +404,13 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		childChanged();
 	}
 
+
 	/**
 	 * Add a #text node.
 	 * @param txt
 	 */
 	final public void add(@Nullable final String txt) {
-		if(txt != null)
+		if(txt != null && txt.length() > 0)
 			add(new TextNode(txt));
 	}
 
@@ -374,6 +419,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param child
 	 */
 	final public void removeChild(@Nonnull final NodeBase child) {
+		if(m_delegate != null) {
+			m_delegate.removeChild(child);
+			return;
+		}
+
 		if(child.getParent() != this)
 			throw new IllegalStateException("Child " + child + " is not a child of container " + this);
 		int ix = m_children.indexOf(child);
@@ -393,6 +443,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	@Nonnull
 	final public NodeBase removeChild(final int index) {
+		if(m_delegate != null) {
+			return m_delegate.removeChild(index);
+		}
 		if(index < 0 || index >= m_children.size())
 			throw new IllegalStateException("Bad delete index " + index + " on node " + this + " with " + m_children.size() + " children");
 		treeChanging();
@@ -411,6 +464,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param nw
 	 */
 	final public void replaceChild(@Nonnull final NodeBase child, @Nonnull final NodeBase nw) {
+		if(m_delegate != null) {
+			m_delegate.replaceChild(child, nw);
+			return;
+		}
+
 		//-- Find old child's index.
 		if(child.getParent() != this)
 			throw new IllegalStateException("Child " + child + " is not a child of container " + this);
@@ -456,7 +514,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	@OverridingMethodsMustInvokeSuper
 	final public void forceRebuild() {
 		//-- If we have nodes destroy 'm all
-		m_delegate = null;
+		m_delegate = null; // FIXME URGENT Wrong!!!!!
 		removeAllChildren(); // Remove all old crap
 		treeChanging();
 		super.forceRebuild();
@@ -473,6 +531,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param txt
 	 */
 	public void setText(@Nullable final String txt) {
+		if(m_delegate != null) {
+			m_delegate.setText(txt);
+			return;
+		}
+
 		setMustRenderChildrenFully();
 		if(getChildCount() == 1) {
 			if(getChild(0) instanceof TextNode) {
@@ -532,6 +595,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @return
 	 */
 	final public <T> List<T> getChildren(@Nonnull Class<T> ofClass) {
+		if(m_delegate != null)
+			return m_delegate.getChildren(ofClass);
+
 		List<T> res = null;
 		for(NodeBase b : m_children) {
 			if(ofClass.isAssignableFrom(b.getClass())) {
@@ -550,6 +616,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @return
 	 */
 	final public <T> List<T> getDeepChildren(@Nonnull Class<T> ofClass) {
+		if(m_delegate != null)
+			return m_delegate.getDeepChildren(ofClass);
+
 		List<T> res = new ArrayList<T>();
 		internalDeepChildren(res, ofClass);
 		return res;
@@ -565,23 +634,23 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		}
 	}
 
-	/**
-	 * Find the nth instance of a specific child class using a full depth traversal of this node's subtree.
-	 *
-	 * FIXME Very questionable- pending deletion.
-	 *
-	 * @param <T>
-	 * @param ofClass
-	 * @param instance
-	 * @return
-	 */
-	@Deprecated
-	final public <T> T getDeepChild(@Nonnull Class<T> ofClass, int instance) {
-		List<T> res = getDeepChildren(ofClass);
-		if(res.size() <= instance)
-			throw new ProgrammerErrorException("Cannot find the " + instance + "th instance of a " + ofClass + " in subtree");
-		return res.get(instance);
-	}
+	//	/**
+	//	 * Find the nth instance of a specific child class using a full depth traversal of this node's subtree.
+	//	 *
+	//	 * FIXME Very questionable- pending deletion.
+	//	 *
+	//	 * @param <T>
+	//	 * @param ofClass
+	//	 * @param instance
+	//	 * @return
+	//	 */
+	//	@Deprecated
+	//	final public <T> T getDeepChild(@Nonnull Class<T> ofClass, int instance) {
+	//		List<T> res = getDeepChildren(ofClass);
+	//		if(res.size() <= instance)
+	//			throw new ProgrammerErrorException("Cannot find the " + instance + "th instance of a " + ofClass + " in subtree");
+	//		return res.get(instance);
+	//	}
 
 
 	/*--------------------------------------------------------------*/
@@ -626,7 +695,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	final public void moveModelToControl() throws Exception {
 		super.moveModelToControl(); // Move the value to *this* node if it is bindable
 		build(); // And only build it AFTER a value can have been set.
-		for(NodeBase b : this)
+		for(NodeBase b : new ArrayList<NodeBase>(m_children))
 			b.moveModelToControl();
 	}
 
@@ -637,7 +706,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	@Override
 	final public void setControlsEnabled(boolean on) {
-		for(NodeBase b : this)
+		for(NodeBase b : new ArrayList<NodeBase>(m_children))
 			b.setControlsEnabled(on);
 	}
 
@@ -652,12 +721,13 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	@Override
 	protected void onRefresh() throws Exception {
+		if(m_delegate != null) {
+			m_delegate.onRefresh();
+			return;
+		}
+
 		for(int i = 0; i < m_children.size(); i++)
 			m_children.get(i).onRefresh();
-	}
-
-	final protected void delegateTo(@Nullable NodeContainer c) {
-		m_delegate = c;
 	}
 
 	/**
@@ -674,15 +744,79 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	@Nullable
 	final public IErrorFence getErrorFence() {
+		if(m_delegate != null) {
+			IErrorFence f = m_delegate.getErrorFence();
+			if(null != f)
+				return f;
+		}
 		return m_errorFence;
 	}
 
 	final public void setErrorFence(@Nullable final IErrorFence errorFence) {
-		m_errorFence = errorFence;
+		//		StringTool.dumpLocation("setErrorFence(...): called on " + this);
+		if(m_delegate != null)
+			m_delegate.setErrorFence(errorFence);
+		else
+			m_errorFence = errorFence;
 	}
 
 	final public void setErrorFence() {
-		if(m_errorFence == null)
+		//		StringTool.dumpLocation("setErrorFence(): called on " + this);
+		if(m_delegate != null)
+			m_delegate.setErrorFence();
+		else if(m_errorFence == null)
 			m_errorFence = new ErrorFenceHandler(this);
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Content delegation and framed nodes handling.		*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * EXPERIMENTAL Set delegation to another node. This causes all "child" operations to delegate to the "to" node,
+	 * it means that all nodes added to this node will actually be added to the "to" node. This is used to "delegate"
+	 * content rendering for framed controls, so the content model of the control can be treated as the control itself.
+	 *
+	 * @param c
+	 */
+	final protected void delegateTo(@Nullable NodeContainer c) {
+		if(c == this)
+			throw new IllegalStateException("Cannot delegate to self: this would nicely loop..");
+
+		//-- Check to make sure there are not too many levels of delegation present.
+		NodeContainer nc = c;
+		int dc = 0;
+		while(nc != null) {
+			dc++;
+			if(dc > 10)
+				throw new ProgrammerErrorException("Too many delegation levels: can be a delegation loop");
+			nc = nc.m_delegate;
+		}
+		m_delegate = c;
+	}
+
+	/**
+	 * If this node delegates it's stuff to another, this returns that other node. See {@link #delegateTo(NodeContainer)} for
+	 * details.
+	 * @return
+	 */
+	public NodeContainer getDelegate() {
+		return m_delegate;
+	}
+
+	@Override
+	final protected void internalCreateFrame() throws Exception {
+		//		NodeContainer old = m_delegate;
+		m_delegate = null;
+		createFrame();
+		//		m_delegate = old;
+	}
+
+	/**
+	 * EXPERIMENTAL This can be overridden to handle nodes that have an explicit "frame".
+	 */
+	@OverridingMethodsMustInvokeSuper
+	protected void createFrame() throws Exception {
+	}
+
+
 }

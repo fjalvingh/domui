@@ -284,10 +284,34 @@ final public class DomUtil {
 		return "#" + StringTool.intToStr(value, 16, 6);
 	}
 
-	static public IErrorFence getMessageFence(NodeBase start) {
+	static public IErrorFence getMessageFence(NodeBase in) {
+		NodeBase start = in;
+
+		//-- If we're delegated then test the delegate 1st
+		if(in instanceof NodeContainer) {
+			NodeContainer nc = (NodeContainer) in;
+			if(nc.getDelegate() != null) {
+				IErrorFence ef = getMessageFence(nc.getDelegate());
+				if(null != ef)
+					return ef;
+			}
+		}
+
 		for(;;) {
-			if(start == null)
-				throw new IllegalStateException("Cannot locate error fence. Did you call an error routine on an unattached Node?");
+			if(start == null) {
+				//-- Collect the path we followed for the error message
+				StringBuilder sb = new StringBuilder();
+				sb.append("Cannot locate error fence. Did you call an error routine on an unattached Node?\nThe path followed upwards was: ");
+				start = in;
+				while(start != null) {
+					if(start != in)
+						sb.append(" -> ");
+					sb.append(start.toString());
+					start = start.getParent();
+				}
+
+				throw new IllegalStateException(sb.toString());
+			}
 			if(start instanceof NodeContainer) {
 				NodeContainer nc = (NodeContainer) start;
 				if(nc.getErrorFence() != null)
@@ -386,7 +410,8 @@ final public class DomUtil {
 	}
 
 	/**
-	 *
+	 * IMPORTANT: This method MUST be used only within UI threads, when UIContext.getRequestContext() != null!
+	 * In all other, usually background running threads, other alternatives that are using stored appURL must be used!  
 	 * @param clz
 	 * @param pp
 	 * @return
@@ -394,6 +419,26 @@ final public class DomUtil {
 	static public String createPageURL(Class< ? extends UrlPage> clz, PageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(UIContext.getRequestContext().getRelativePath(clz.getName()));
+		sb.append('.');
+		sb.append(DomApplication.get().getUrlExtension());
+		if(pp != null)
+			addUrlParameters(sb, pp, true);
+		return sb.toString();
+	}
+
+	/**
+	 * IMPORTANT: This method MUST be used for non UI threads, when UIContext.getRequestContext() == null!
+	 * In all other, usually UI running threads, use other alternatives that is using appURL from UIContext.getRequestContext()!
+	 *   
+	 * @param webAppUrl web app url, must be ended with '/'
+	 * @param clz
+	 * @param pp
+	 * @return
+	 */
+	static public String createPageURL(String webAppUrl, Class< ? extends UrlPage> clz, PageParameters pp) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(webAppUrl);
+		sb.append(clz.getName());
 		sb.append('.');
 		sb.append(DomApplication.get().getUrlExtension());
 		if(pp != null)
@@ -1431,4 +1476,27 @@ final public class DomUtil {
 			return x.getStackTrace();
 		}
 	}
+
+
+	static private String m_lorem;
+
+	/**
+	 * Return a large string containing lorum ipsum text, for testing purposes.
+	 * @return
+	 * @throws Exception
+	 */
+	static public String getLorem() throws Exception {
+		if(null == m_lorem) {
+			InputStream is = DomUtil.class.getResourceAsStream("lorem.txt");
+			try {
+				m_lorem = FileTool.readStreamAsString(is, "utf-8");
+			} finally {
+				try {
+					is.close();
+				} catch(Exception x) {}
+			}
+		}
+		return m_lorem;
+	}
+
 }

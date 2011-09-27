@@ -39,6 +39,11 @@ public class PartResponse {
 
 	private int m_cacheTime;
 
+	/**
+	 * Contains any extra data that is generated. Currently used to pass image size back to button.
+	 */
+	private Object m_extra;
+
 	public PartResponse(OutputStream os) {
 		m_os = os;
 	}
@@ -69,5 +74,13 @@ public class PartResponse {
 	 */
 	public void setCacheTime(int cacheTime) {
 		m_cacheTime = cacheTime;
+	}
+
+	public Object getExtra() {
+		return m_extra;
+	}
+
+	public void setExtra(Object extra) {
+		m_extra = extra;
 	}
 }

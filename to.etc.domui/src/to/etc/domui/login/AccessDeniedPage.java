@@ -61,8 +61,7 @@ public class AccessDeniedPage extends UrlPage {
 		t.setWidth("100%");
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
-		Img img = new Img(AccessDeniedPage.class, "accessDenied.png");
-		//		img.setAlign(ImgAlign.LEFT);
+		Img img = new Img("THEME/accessDenied.png");
 		td.add(img);
 		td.setWidth("1%");
 

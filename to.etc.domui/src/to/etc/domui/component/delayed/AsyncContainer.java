@@ -37,6 +37,16 @@ public class AsyncContainer extends Div {
 
 	private Div m_progress;
 
+	/**
+	 * Defines if async action can be cancelled. T by default.
+	 */
+	private boolean m_abortable = true;
+
+	/**
+	 * Defines busy image src. If not set uses default framework resource.
+	 */
+	private String m_busyMarkerSrc = "THEME/asy-container-busy.gif";
+
 	public AsyncContainer(IActivity activity) {
 		m_activity = activity;
 	}
@@ -50,18 +60,20 @@ public class AsyncContainer extends Div {
 		//-- Render a thingy containing a spinner
 		setCssClass("ui-asc");
 		Img img = new Img();
-		img.setSrc("THEME/asy-container-busy.gif");
+		img.setSrc(getBusyMarkerSrc());
 		add(img);
-		DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton b) throws Exception {
-				cancel();
-				b.setDisabled(true);
-			}
-		});
 		m_progress = new Div();
 		add(m_progress);
-		add(db);
+		if(isAbortable()) {
+			DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), new IClicked<DefaultButton>() {
+				@Override
+				public void clicked(DefaultButton b) throws Exception {
+					cancel();
+					b.setDisabled(true);
+				}
+			});
+			add(db);
+		}
 	}
 
 	void cancel() {
@@ -114,4 +126,37 @@ public class AsyncContainer extends Div {
 	public void confirmCancelled() {
 		setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED));
 	}
+
+	/**
+	 * @see AsyncContainer#m_abortable
+	 * @return
+	 */
+	public boolean isAbortable() {
+		return m_abortable;
+	}
+
+	/**
+	 * @see AsyncContainer#m_abortable
+	 * @return
+	 */
+	public void setAbortable(boolean abortable) {
+		m_abortable = abortable;
+	}
+
+	/**
+	 * @see AsyncContainer#m_busyMarkerSrc
+	 * @return
+	 */
+	public String getBusyMarkerSrc() {
+		return m_busyMarkerSrc;
+	}
+
+	/**
+	 * @see AsyncContainer#m_busyMarkerSrc
+	 * @return
+	 */
+	public void setBusyMarkerSrc(String busyMarkerSrc) {
+		m_busyMarkerSrc = busyMarkerSrc;
+	}
+
 }
