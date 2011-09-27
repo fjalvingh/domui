@@ -2488,6 +2488,12 @@ public class StringTool {
 		sb.append("=?");
 	}
 
+	static public String fill(final int count, final char character) {
+		char[] fill = new char[count];
+		Arrays.fill(fill, character);
+		return new String(fill);
+	}
+
 	static {
 		getJreVersion();
 		long val = System.currentTimeMillis() / 1000 / 60;
