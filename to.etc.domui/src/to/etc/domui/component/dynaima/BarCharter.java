@@ -1,8 +1,11 @@
 package to.etc.domui.component.dynaima;
 
+import java.awt.*;
+
 import org.jCharts.axisChart.*;
 import org.jCharts.chartData.*;
 import org.jCharts.properties.*;
+import org.jCharts.properties.util.*;
 import org.jCharts.types.*;
 
 /**
@@ -29,7 +32,7 @@ public class BarCharter extends AbstractCharter {
 	public void finish() throws Exception {
 		double[][] data = getChartDataAsMatrix();
 		String[] axisLabels = {" "};
-		DataSeries ds = new DataSeries(axisLabels, m_bucketTitle, m_valueTitle, m_title);
+		DataSeries ds = new DataSeries(axisLabels, m_bucketTitle, m_valueTitle, null);
 
 		String[] cdl = getChartDataLabels();
 		int legendHeight = (Math.round(cdl.length / 2f)) * 20 + 8;
@@ -37,8 +40,8 @@ public class BarCharter extends AbstractCharter {
 
 		AxisChartDataSet ads = new AxisChartDataSet(data, cdl, selectPaints(), ChartType.BAR_CLUSTERED, barChartProperties);
 		ds.addIAxisPlotDataSet(ads);
-		m_legendProperties.setNumColumns(2);
-		AxisChart c = new AxisChart(ds, m_properties, m_axisProperties, m_legendProperties, m_width, chartHeight);
+
+		AxisChart c = new AxisChart(ds, m_properties, m_axisProperties, getLegendProperties(), m_width, chartHeight);
 		m_source.setChart(c);
 	}
 
