@@ -55,13 +55,11 @@ public class PieCharter extends AbstractCharter {
 	@Override
 	public void finish() throws Exception {
 		PieChartDataSet pds = new PieChartDataSet(m_label, getChartDataValues(), getChartDataLabels(), selectPaints(), getProperties());
-		LegendProperties legendProperties = new LegendProperties();
-		legendProperties.setNumColumns(2);
 
 		int legendHeight = (Math.round(pds.getNumberOfDataItems() / 2f)) * 20 + 8;
 		int chartHeight = Math.min(m_minheight + legendHeight, m_maxheight);
 
-		PieChart2D p2d = new PieChart2D(pds, legendProperties, new ChartProperties(), m_width, chartHeight);
+		PieChart2D p2d = new PieChart2D(pds, getLegendProperties(), new ChartProperties(), m_width, chartHeight);
 		m_source.setChart(p2d);
 	}
 }

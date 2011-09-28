@@ -43,7 +43,8 @@ public abstract class AbstractCharter implements ICharterHelper {
 	protected JGraphChartSource m_source;
 	protected ChartProperties m_properties = new ChartProperties();
 	protected AxisProperties m_axisProperties = new AxisProperties();
-	protected LegendProperties m_legendProperties = new LegendProperties();
+
+	private LegendProperties m_legendProperties = new LegendProperties();
 
 	protected int m_width = 0;
 
@@ -55,7 +56,8 @@ public abstract class AbstractCharter implements ICharterHelper {
 
 	private List<ChartField> m_chartDataElements;
 
-	private static final Color[] AVAILABLE_PAINTS = new Color[]{Color.yellow, Color.red, Color.green, Color.blue, Color.DARK_GRAY, Color.MAGENTA, Color.CYAN};
+	private static final Color[] AVAILABLE_PAINTS = new Color[]{new Color(Integer.parseInt("D0E4E3", 16)), new Color(Integer.parseInt("F4D143", 16)), new Color(Integer.parseInt("35F741", 16)),
+		new Color(Integer.parseInt("F1362F", 16))};
 
 	public AbstractCharter(JGraphChartSource source, String title, int width, int minheight, int maxheight) {
 		super();
@@ -65,6 +67,8 @@ public abstract class AbstractCharter implements ICharterHelper {
 		m_maxheight = maxheight;
 		m_title = title;
 		m_chartDataElements = new ArrayList<ChartField>();
+		m_legendProperties.setNumColumns(2);
+		m_legendProperties.setFont(new Font("Arial", Font.PLAIN, 10));
 	}
 
 	public void addChartField(ChartField element) {
@@ -98,6 +102,14 @@ public abstract class AbstractCharter implements ICharterHelper {
 			resultSet[i] = paint;
 		}
 		return resultSet;
+	}
+
+	public LegendProperties getLegendProperties() {
+		return m_legendProperties;
+	}
+
+	public void setLegendProperties(LegendProperties legendProperties) {
+		m_legendProperties = legendProperties;
 	}
 
 }
