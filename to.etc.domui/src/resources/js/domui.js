@@ -1632,8 +1632,6 @@ var WebUI = {
 	
 	_selectStart : undefined,
 
-	_newDragMode : undefined,
-
 	/** ************ Drag-and-drop support code ****************** */
 	/**
 	 * When mouse is downed on an item that is draggable. This moves to PREDRAG
