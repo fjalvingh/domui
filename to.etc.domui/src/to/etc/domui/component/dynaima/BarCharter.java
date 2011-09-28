@@ -19,8 +19,8 @@ public class BarCharter extends AbstractCharter {
 
 	private String m_valueTitle;
 
-	public BarCharter(JGraphChartSource source, String title, int width, int height, String bucketTitle, String valueTitle) {
-		super(source, title, width, height);
+	public BarCharter(JGraphChartSource source, String title, int width, int minheight, int maxheight, String bucketTitle, String valueTitle) {
+		super(source, title, width, minheight, maxheight);
 		m_bucketTitle = bucketTitle;
 		m_valueTitle = valueTitle;
 	}
@@ -31,9 +31,14 @@ public class BarCharter extends AbstractCharter {
 		String[] axisLabels = {" "};
 		DataSeries ds = new DataSeries(axisLabels, m_bucketTitle, m_valueTitle, m_title);
 
-		AxisChartDataSet ads = new AxisChartDataSet(data, getChartDataLabels(), selectPaints(), ChartType.BAR_CLUSTERED, barChartProperties);
+		String[] cdl = getChartDataLabels();
+		int legendHeight = (Math.round(cdl.length / 2f)) * 20 + 8;
+		int chartHeight = Math.min(m_minheight + legendHeight, m_maxheight);
+
+		AxisChartDataSet ads = new AxisChartDataSet(data, cdl, selectPaints(), ChartType.BAR_CLUSTERED, barChartProperties);
 		ds.addIAxisPlotDataSet(ads);
-		AxisChart c = new AxisChart(ds, m_properties, m_axisProperties, m_legendProperties, m_width, m_height);
+		m_legendProperties.setNumColumns(2);
+		AxisChart c = new AxisChart(ds, m_properties, m_axisProperties, m_legendProperties, m_width, chartHeight);
 		m_source.setChart(c);
 	}
 

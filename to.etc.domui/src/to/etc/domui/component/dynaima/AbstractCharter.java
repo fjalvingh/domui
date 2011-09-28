@@ -33,7 +33,7 @@ import org.jCharts.properties.*;
 
 /**
  * This is a utility for creating charts to be displayed through {@link JGraphChartSource}.
- * 
+ *
  *
  * @author <a href="mailto:nmaksimovic@execom.eu">Nemanja Maksimovic</a>
  * Created on 11 May 2011
@@ -47,18 +47,22 @@ public abstract class AbstractCharter implements ICharterHelper {
 
 	protected int m_width = 0;
 
-	protected int m_height = 0;
+	protected int m_minheight = 0;
+
+	protected int m_maxheight = 0;
+
 	protected String m_title;
 
 	private List<ChartField> m_chartDataElements;
 
 	private static final Color[] AVAILABLE_PAINTS = new Color[]{Color.yellow, Color.red, Color.green, Color.blue, Color.DARK_GRAY, Color.MAGENTA, Color.CYAN};
 
-	public AbstractCharter(JGraphChartSource source, String title, int width, int height) {
+	public AbstractCharter(JGraphChartSource source, String title, int width, int minheight, int maxheight) {
 		super();
 		m_source = source;
 		m_width = width;
-		m_height = height;
+		m_minheight = minheight;
+		m_maxheight = maxheight;
 		m_title = title;
 		m_chartDataElements = new ArrayList<ChartField>();
 	}

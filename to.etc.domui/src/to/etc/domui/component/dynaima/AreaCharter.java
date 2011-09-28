@@ -46,7 +46,7 @@ public class AreaCharter implements ICharterHelper {
 
 	private String m_bucketTitle;
 
-	private int m_width, m_height;
+	private int m_width, m_minheight, m_maxheight;
 
 	private String m_valueTitle;
 
@@ -123,11 +123,12 @@ public class AreaCharter implements ICharterHelper {
 
 	private List<DataSet> m_sets = new ArrayList<DataSet>();
 
-	protected AreaCharter(JGraphChartSource source, String title, int width, int height, String bucketTitle, String valueTitle) {
+	protected AreaCharter(JGraphChartSource source, String title, int width, int minheight, int maxheight, String bucketTitle, String valueTitle) {
 		m_source = source;
 		m_title = title;
 		m_width = width;
-		m_height = height;
+		m_minheight = minheight;
+		m_maxheight = maxheight;
 		m_bucketTitle = bucketTitle;
 		m_valueTitle = valueTitle;
 	}
@@ -196,10 +197,13 @@ public class AreaCharter implements ICharterHelper {
 			paints[i] = m_sets.get(i).getPaint();
 		}
 
+		int legendHeight = (Math.round(legends.length / 2f)) * 20 + 8;
+		int chartHeight = Math.min(m_minheight + legendHeight, m_maxheight);
+
 		AxisChartDataSet ads = new AxisChartDataSet(data, legends, paints, ChartType.AREA, m_areaProperties);
 		ds.addIAxisPlotDataSet(ads);
 
-		AxisChart c = new AxisChart(ds, m_properties, m_axisProperties, m_legendProperties, m_width, m_height);
+		AxisChart c = new AxisChart(ds, m_properties, m_axisProperties, m_legendProperties, m_width, chartHeight);
 		m_source.setChart(c);
 	}
 

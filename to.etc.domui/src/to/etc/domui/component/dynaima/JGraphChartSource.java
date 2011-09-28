@@ -74,20 +74,20 @@ public class JGraphChartSource implements IBufferedImageSource {
 
 	public void close() {}
 
-	public PieCharter createPieChart(int w, int h, String label) {
-		PieCharter c = new PieCharter(this, label, w, h);
+	public PieCharter createPieChart(int w, int minh, int maxh, String label) {
+		PieCharter c = new PieCharter(this, label, w, minh, maxh);
 		m_helper = c;
 		return c;
 	}
 
-	public AreaCharter createAreaChart(int w, int h, String title, String buckettitle, String valuetitle) {
-		AreaCharter c = new AreaCharter(this, title, w, h, buckettitle, valuetitle);
+	public AreaCharter createAreaChart(int w, int minh, int maxh, String title, String buckettitle, String valuetitle) {
+		AreaCharter c = new AreaCharter(this, title, w, minh, maxh, buckettitle, valuetitle);
 		m_helper = c;
 		return c;
 	}
 
-	public BarCharter createBarChart(int w, int h, String title, String buckettitle, String valuetitle) {
-		BarCharter c = new BarCharter(this, title, w, h, buckettitle, valuetitle);
+	public BarCharter createBarChart(int w, int minh, int maxh, String title, String buckettitle, String valuetitle) {
+		BarCharter c = new BarCharter(this, title, w, minh, maxh, buckettitle, valuetitle);
 		m_helper = c;
 		return c;
 	}

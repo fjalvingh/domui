@@ -40,8 +40,8 @@ public class PieCharter extends AbstractCharter {
 
 	private PieChart2DProperties m_pieChartProperties = new PieChart2DProperties();
 
-	protected PieCharter(JGraphChartSource source, String label, int width, int height) {
-		super(source, label, width, height);
+	protected PieCharter(JGraphChartSource source, String label, int width, int minheight, int maxheight) {
+		super(source, label, width, minheight, maxheight);
 	}
 
 	public PieChart2DProperties getProperties() {
@@ -57,7 +57,11 @@ public class PieCharter extends AbstractCharter {
 		PieChartDataSet pds = new PieChartDataSet(m_label, getChartDataValues(), getChartDataLabels(), selectPaints(), getProperties());
 		LegendProperties legendProperties = new LegendProperties();
 		legendProperties.setNumColumns(2);
-		PieChart2D p2d = new PieChart2D(pds, legendProperties, new ChartProperties(), m_width, m_height);
+
+		int legendHeight = (Math.round(pds.getNumberOfDataItems() / 2f)) * 20 + 8;
+		int chartHeight = Math.min(m_minheight + legendHeight, m_maxheight);
+
+		PieChart2D p2d = new PieChart2D(pds, legendProperties, new ChartProperties(), m_width, chartHeight);
 		m_source.setChart(p2d);
 	}
 }
