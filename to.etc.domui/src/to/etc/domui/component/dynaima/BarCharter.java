@@ -37,6 +37,8 @@ public class BarCharter extends AbstractCharter {
 		String[] cdl = getChartDataLabels();
 		int legendHeight = (Math.round(cdl.length / 2f)) * 20 + 8;
 		int chartHeight = Math.min(m_minheight + legendHeight, m_maxheight);
+		
+		barChartProperties.setBarOutlineStroke(new ChartStroke(new BasicStroke(0.8f), new Color(Integer.parseInt("5C5C5C", 16))));
 
 		AxisChartDataSet ads = new AxisChartDataSet(data, cdl, selectPaints(), ChartType.BAR_CLUSTERED, barChartProperties);
 		ds.addIAxisPlotDataSet(ads);

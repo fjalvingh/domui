@@ -24,9 +24,12 @@
  */
 package to.etc.domui.component.dynaima;
 
+import java.awt.*;
+
 import org.jCharts.chartData.*;
 import org.jCharts.nonAxisChart.*;
 import org.jCharts.properties.*;
+import org.jCharts.properties.util.*;
 
 /**
  * Helper class to initialize a Pie chart.
@@ -54,12 +57,18 @@ public class PieCharter extends AbstractCharter {
 	 */
 	@Override
 	public void finish() throws Exception {
+		getProperties().setBorderPaint(new Color(Integer.parseInt("5C5C5C", 16)));
+		getProperties().setBorderStroke(new BasicStroke(0.8f));
+		
 		PieChartDataSet pds = new PieChartDataSet(m_label, getChartDataValues(), getChartDataLabels(), selectPaints(), getProperties());
 
 		int legendHeight = (Math.round(pds.getNumberOfDataItems() / 2f)) * 20 + 8;
 		int chartHeight = Math.min(m_minheight + legendHeight, m_maxheight);
 
-		PieChart2D p2d = new PieChart2D(pds, getLegendProperties(), new ChartProperties(), m_width, chartHeight);
+		final ChartProperties chartProperties = new ChartProperties();
+
+		PieChart2D p2d = new PieChart2D(pds, getLegendProperties(), chartProperties, m_width, chartHeight);
+
 		m_source.setChart(p2d);
 	}
 }
