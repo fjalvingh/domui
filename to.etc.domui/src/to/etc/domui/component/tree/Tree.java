@@ -287,7 +287,10 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 					if(!last)
 						td.setBackgroundImage(branchurl()); // Vertical line downwards to next + or -
 					td = nr.addCell(); // Content area for expanded thingerydoo
-					Table tc = renderList(item, vn); // Render item's expanded thingies
+
+					//					Table tc = renderList(item, vn); // Render item's expanded thingies jal: should be not ITEM but thing being expanded!!!!
+
+					Table tc = renderList(o, vn); // Render item's expanded thingies
 					td.add(tc);
 
 					img.setClicked(new IClicked<Img>() {
