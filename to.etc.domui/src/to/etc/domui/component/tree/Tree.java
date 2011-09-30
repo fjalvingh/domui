@@ -357,7 +357,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 	static private String branchurl() {
-		return DomApplication.get().getThemedResourceRURL("tree-branch.png");
+		return DomApplication.get().getThemedResourceRURL("THEME/tree-branch.png");
 	}
 
 	/**
