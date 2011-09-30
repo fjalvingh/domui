@@ -123,12 +123,12 @@ public class AreaCharter implements ICharterHelper {
 
 	private List<DataSet> m_sets = new ArrayList<DataSet>();
 
-	protected AreaCharter(JGraphChartSource source, String title, int width, int minheight, int maxheight, String bucketTitle, String valueTitle) {
+	protected AreaCharter(JGraphChartSource source, String title, ChartDimensions chartDimensions, String bucketTitle, String valueTitle) {
 		m_source = source;
 		m_title = title;
-		m_width = width;
-		m_minheight = minheight;
-		m_maxheight = maxheight;
+		m_width = chartDimensions.getWidth();
+		m_minheight = chartDimensions.getMinheight();
+		m_maxheight = chartDimensions.getMaxheight();
 		m_bucketTitle = bucketTitle;
 		m_valueTitle = valueTitle;
 	}

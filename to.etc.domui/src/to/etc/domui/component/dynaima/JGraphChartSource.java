@@ -28,6 +28,9 @@ import java.awt.image.*;
 
 import org.jCharts.*;
 
+import to.etc.domui.component.dynaima.BarCharter.BarCharterParameters;
+import to.etc.domui.component.dynaima.PieCharter.PieCharterProperties;
+
 public class JGraphChartSource implements IBufferedImageSource {
 	private Chart m_chart;
 
@@ -74,20 +77,32 @@ public class JGraphChartSource implements IBufferedImageSource {
 
 	public void close() {}
 
-	public PieCharter createPieChart(int w, int minh, int maxh, String label) {
-		PieCharter c = new PieCharter(this, label, w, minh, maxh);
+	public PieCharter createPieChart(ChartDimensions chartDimensions, PieCharterProperties pieChartProperties) {
+		PieCharter c = new PieCharter(this, chartDimensions, pieChartProperties);
 		m_helper = c;
 		return c;
 	}
 
-	public AreaCharter createAreaChart(int w, int minh, int maxh, String title, String buckettitle, String valuetitle) {
-		AreaCharter c = new AreaCharter(this, title, w, minh, maxh, buckettitle, valuetitle);
+	public PieCharter createPieChart(ChartDimensions chartDimensions) {
+		PieCharter c = new PieCharter(this, chartDimensions);
 		m_helper = c;
 		return c;
 	}
 
-	public BarCharter createBarChart(int w, int minh, int maxh, String title, String buckettitle, String valuetitle) {
-		BarCharter c = new BarCharter(this, title, w, minh, maxh, buckettitle, valuetitle);
+	public AreaCharter createAreaChart(ChartDimensions chartDimensions, String title, String buckettitle, String valuetitle) {
+		AreaCharter c = new AreaCharter(this, title, chartDimensions, buckettitle, valuetitle);
+		m_helper = c;
+		return c;
+	}
+	
+	public BarCharter createBarChart(ChartDimensions chartDimensions, String buckettitle, String valuetitle) {
+		BarCharter c = new BarCharter(this, chartDimensions, buckettitle, valuetitle);
+		m_helper = c;
+		return c;
+	}
+
+	public BarCharter createBarChart(ChartDimensions chartDimensions, BarCharterParameters barCharterProperties, String buckettitle, String valuetitle) {
+		BarCharter c = new BarCharter(this, barCharterProperties, chartDimensions, buckettitle, valuetitle);
 		m_helper = c;
 		return c;
 	}

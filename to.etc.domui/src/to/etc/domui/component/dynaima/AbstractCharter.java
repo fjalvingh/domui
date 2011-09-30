@@ -41,10 +41,11 @@ import org.jCharts.properties.*;
 public abstract class AbstractCharter implements ICharterHelper {
 
 	protected JGraphChartSource m_source;
-	protected ChartProperties m_properties = new ChartProperties();
+
+	protected ChartProperties m_properties;
 	protected AxisProperties m_axisProperties = new AxisProperties();
 
-	private LegendProperties m_legendProperties = new LegendProperties();
+	private LegendProperties m_legendProperties;
 
 	protected int m_width = 0;
 
@@ -56,19 +57,32 @@ public abstract class AbstractCharter implements ICharterHelper {
 
 	private List<ChartField> m_chartDataElements;
 
-	private static final Color[] AVAILABLE_PAINTS = new Color[]{new Color(Integer.parseInt("D0E4E3", 16)), new Color(Integer.parseInt("F4D143", 16)), new Color(Integer.parseInt("35F741", 16)),
+	private static final Color[] AVAILABLE_PAINTS = new Color[]{new Color(Integer.parseInt("D0E4E3", 16)), new Color(Integer.parseInt("c4b0d8", 16)), new Color(Integer.parseInt("F4D143", 16)),
+		new Color(Integer.parseInt("35F741", 16)),
 		new Color(Integer.parseInt("F1362F", 16))};
 
-	public AbstractCharter(JGraphChartSource source, String title, int width, int minheight, int maxheight) {
+	public AbstractCharter(JGraphChartSource source, ChartDimensions dimensions) {
 		super();
 		m_source = source;
-		m_width = width;
-		m_minheight = minheight;
-		m_maxheight = maxheight;
-		m_title = title;
+		m_width = dimensions.getWidth();
+		m_minheight = dimensions.getMinheight();
+		m_maxheight = dimensions.getMaxheight();
 		m_chartDataElements = new ArrayList<ChartField>();
+		m_legendProperties = new LegendProperties();
 		m_legendProperties.setNumColumns(2);
-		m_legendProperties.setFont(new Font("Arial", Font.PLAIN, 10));
+		m_legendProperties.setFont(new Font("Arial", Font.PLAIN, 14));
+		m_properties = new ChartProperties();
+	}
+
+	public AbstractCharter(JGraphChartSource source, ChartDimensions dimensions, LegendProperties legendProperties, ChartProperties chartProperties) {
+		super();
+		m_source = source;
+		m_width = dimensions.getWidth();
+		m_minheight = dimensions.getMinheight();
+		m_maxheight = dimensions.getMaxheight();
+		m_chartDataElements = new ArrayList<ChartField>();
+		m_legendProperties = legendProperties;
+		m_properties = chartProperties;
 	}
 
 	public void addChartField(ChartField element) {
@@ -110,6 +124,10 @@ public abstract class AbstractCharter implements ICharterHelper {
 
 	public void setLegendProperties(LegendProperties legendProperties) {
 		m_legendProperties = legendProperties;
+	}
+
+	public ChartProperties getProperties() {
+		return m_properties;
 	}
 
 }

@@ -1,6 +1,7 @@
 package to.etc.domui.component.dynaima;
 
 import java.awt.*;
+import java.awt.font.*;
 
 import org.jCharts.axisChart.*;
 import org.jCharts.chartData.*;
@@ -16,17 +17,41 @@ import org.jCharts.types.*;
  */
 public class BarCharter extends AbstractCharter {
 
-	private ClusteredBarChartProperties barChartProperties = new ClusteredBarChartProperties();
+	private ClusteredBarChartProperties m_barChartProperties;
 
 	private String m_bucketTitle;
 
 	private String m_valueTitle;
 
-	public BarCharter(JGraphChartSource source, String title, int width, int minheight, int maxheight, String bucketTitle, String valueTitle) {
-		super(source, title, width, minheight, maxheight);
+	public class BarCharterParameters {
+		private LegendProperties m_isLegendProperties;
+
+		private ChartProperties m_isChartProperties;
+
+		private ClusteredBarChartProperties m_isBarChartProperties;
+
+		public BarCharterParameters(LegendProperties legendProperties, ChartProperties chartProperties, ClusteredBarChartProperties barChartProperties) {
+			m_isLegendProperties = legendProperties;
+			m_isChartProperties = chartProperties;
+			m_isBarChartProperties = barChartProperties;
+		}
+	}
+
+	public BarCharter(JGraphChartSource source, ChartDimensions chartDimensions, String bucketTitle, String valueTitle) {
+		super(source, chartDimensions);
+		m_bucketTitle = bucketTitle;
+		m_valueTitle = valueTitle;
+		m_barChartProperties = new ClusteredBarChartProperties();
+		m_barChartProperties.setBarOutlineStroke(new ChartStroke(new BasicStroke(0.8f), new Color(Integer.parseInt("5C5C5C", 16))));
+	}
+
+	public BarCharter(JGraphChartSource source, BarCharterParameters barCharterParameters, ChartDimensions chartDimensions, String bucketTitle, String valueTitle) {
+		super(source, chartDimensions, barCharterParameters.m_isLegendProperties, barCharterParameters.m_isChartProperties);
+		m_barChartProperties = barCharterParameters.m_isBarChartProperties;
 		m_bucketTitle = bucketTitle;
 		m_valueTitle = valueTitle;
 	}
+
 
 	@Override
 	public void finish() throws Exception {
@@ -35,15 +60,14 @@ public class BarCharter extends AbstractCharter {
 		DataSeries ds = new DataSeries(axisLabels, m_bucketTitle, m_valueTitle, null);
 
 		String[] cdl = getChartDataLabels();
-		int legendHeight = (Math.round(cdl.length / 2f)) * 20 + 8;
+		final double fontHeight = getLegendProperties().getFont().getStringBounds(cdl[0], new FontRenderContext(null, false, false)).getHeight();
+		int legendHeight = Math.round((float) ((cdl.length / 2f) * fontHeight)) + 8;
 		int chartHeight = Math.min(m_minheight + legendHeight, m_maxheight);
 		
-		barChartProperties.setBarOutlineStroke(new ChartStroke(new BasicStroke(0.8f), new Color(Integer.parseInt("5C5C5C", 16))));
-
-		AxisChartDataSet ads = new AxisChartDataSet(data, cdl, selectPaints(), ChartType.BAR_CLUSTERED, barChartProperties);
+		AxisChartDataSet ads = new AxisChartDataSet(data, cdl, selectPaints(), ChartType.BAR_CLUSTERED, m_barChartProperties);
 		ds.addIAxisPlotDataSet(ads);
 
-		AxisChart c = new AxisChart(ds, m_properties, m_axisProperties, getLegendProperties(), m_width, chartHeight);
+		AxisChart c = new AxisChart(ds, getProperties(), m_axisProperties, getLegendProperties(), m_width, chartHeight);
 		m_source.setChart(c);
 	}
 

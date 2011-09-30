@@ -25,11 +25,11 @@
 package to.etc.domui.component.dynaima;
 
 import java.awt.*;
+import java.awt.font.*;
 
 import org.jCharts.chartData.*;
 import org.jCharts.nonAxisChart.*;
 import org.jCharts.properties.*;
-import org.jCharts.properties.util.*;
 
 /**
  * Helper class to initialize a Pie chart.
@@ -39,17 +39,35 @@ import org.jCharts.properties.util.*;
  */
 public class PieCharter extends AbstractCharter {
 
-	private String m_label;
+	public class PieCharterProperties {
+		private LegendProperties m_legendProperties;
 
-	private PieChart2DProperties m_pieChartProperties = new PieChart2DProperties();
+		private ChartProperties m_chartProperties;
 
-	protected PieCharter(JGraphChartSource source, String label, int width, int minheight, int maxheight) {
-		super(source, label, width, minheight, maxheight);
+		private PieChart2DProperties m_pieChart2DProperties;
+
+		public PieCharterProperties(LegendProperties legendProperties, ChartProperties chartProperties, PieChart2DProperties pieChartProperties) {
+			m_legendProperties = legendProperties;
+			m_chartProperties = chartProperties;
+			m_pieChart2DProperties = pieChartProperties;
+		}
 	}
 
-	public PieChart2DProperties getProperties() {
-		return m_pieChartProperties;
+	private PieChart2DProperties m_pieChartProperties;
+
+	protected PieCharter(JGraphChartSource source, ChartDimensions chartDimensions) {
+		super(source, chartDimensions);
+		m_pieChartProperties = new PieChart2DProperties();
 	}
+
+
+	protected PieCharter(JGraphChartSource source, ChartDimensions chartDimensions, PieCharterProperties pieCharterProperties) {
+		super(source, chartDimensions, pieCharterProperties.m_legendProperties, pieCharterProperties.m_chartProperties);
+		m_pieChartProperties = pieCharterProperties.m_pieChart2DProperties;
+		m_pieChartProperties.setBorderPaint(new Color(Integer.parseInt("5C5C5C", 16)));
+		m_pieChartProperties.setBorderStroke(new BasicStroke(0.8f));
+	}
+
 
 	/**
 	 * Called to actually create the generated thingy.
@@ -57,12 +75,10 @@ public class PieCharter extends AbstractCharter {
 	 */
 	@Override
 	public void finish() throws Exception {
-		getProperties().setBorderPaint(new Color(Integer.parseInt("5C5C5C", 16)));
-		getProperties().setBorderStroke(new BasicStroke(0.8f));
-		
-		PieChartDataSet pds = new PieChartDataSet(m_label, getChartDataValues(), getChartDataLabels(), selectPaints(), getProperties());
+		PieChartDataSet pds = new PieChartDataSet(null, getChartDataValues(), getChartDataLabels(), selectPaints(), m_pieChartProperties);
 
-		int legendHeight = (Math.round(pds.getNumberOfDataItems() / 2f)) * 20 + 8;
+		final double fontHeight = getLegendProperties().getFont().getStringBounds(getChartDataLabels()[0], new FontRenderContext(null, false, false)).getHeight();
+		int legendHeight = Math.round((float) (Math.round(1.1F + (getChartDataLabels().length / 2f)) * fontHeight));
 		int chartHeight = Math.min(m_minheight + legendHeight, m_maxheight);
 
 		final ChartProperties chartProperties = new ChartProperties();
