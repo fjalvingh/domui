@@ -61,7 +61,8 @@ public class BarCharter extends AbstractCharter {
 
 		String[] cdl = getChartDataLabels();
 		final double fontHeight = getLegendProperties().getFont().getStringBounds(cdl[0], new FontRenderContext(null, false, false)).getHeight();
-		int legendHeight = Math.round((float) ((cdl.length / 2f) * fontHeight)) + 8;
+		final int borders = 15;
+		int legendHeight = borders + Math.round((float) (Math.round(((float) cdl.length / getLegendProperties().getNumColumns())) * fontHeight));
 		int chartHeight = Math.min(m_minheight + legendHeight, m_maxheight);
 		
 		AxisChartDataSet ads = new AxisChartDataSet(data, cdl, selectPaints(), ChartType.BAR_CLUSTERED, m_barChartProperties);
