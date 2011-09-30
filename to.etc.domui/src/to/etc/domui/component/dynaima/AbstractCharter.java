@@ -70,7 +70,7 @@ public abstract class AbstractCharter implements ICharterHelper {
 		m_chartDataElements = new ArrayList<ChartField>();
 		m_legendProperties = new LegendProperties();
 		m_legendProperties.setNumColumns(2);
-		m_legendProperties.setFont(new Font("Arial", Font.PLAIN, 14));
+		m_legendProperties.setFont(new Font("Arial", Font.PLAIN, 10));
 		m_properties = new ChartProperties();
 	}
 

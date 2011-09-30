@@ -58,14 +58,14 @@ public class PieCharter extends AbstractCharter {
 	protected PieCharter(JGraphChartSource source, ChartDimensions chartDimensions) {
 		super(source, chartDimensions);
 		m_pieChartProperties = new PieChart2DProperties();
+		m_pieChartProperties.setBorderPaint(new Color(Integer.parseInt("5C5C5C", 16)));
+		m_pieChartProperties.setBorderStroke(new BasicStroke(0.8f));
 	}
 
 
 	protected PieCharter(JGraphChartSource source, ChartDimensions chartDimensions, PieCharterProperties pieCharterProperties) {
 		super(source, chartDimensions, pieCharterProperties.m_legendProperties, pieCharterProperties.m_chartProperties);
 		m_pieChartProperties = pieCharterProperties.m_pieChart2DProperties;
-		m_pieChartProperties.setBorderPaint(new Color(Integer.parseInt("5C5C5C", 16)));
-		m_pieChartProperties.setBorderStroke(new BasicStroke(0.8f));
 	}
 
 
@@ -78,7 +78,8 @@ public class PieCharter extends AbstractCharter {
 		PieChartDataSet pds = new PieChartDataSet(null, getChartDataValues(), getChartDataLabels(), selectPaints(), m_pieChartProperties);
 
 		final double fontHeight = getLegendProperties().getFont().getStringBounds(getChartDataLabels()[0], new FontRenderContext(null, false, false)).getHeight();
-		int legendHeight = Math.round((float) (Math.round(1.1F + (getChartDataLabels().length / 2f)) * fontHeight));
+		final int borders = 15;
+		int legendHeight = borders + Math.round((float) (Math.round(((float) getChartDataLabels().length / getLegendProperties().getNumColumns())) * fontHeight));
 		int chartHeight = Math.min(m_minheight + legendHeight, m_maxheight);
 
 		final ChartProperties chartProperties = new ChartProperties();
