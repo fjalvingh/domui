@@ -278,21 +278,41 @@ _animate:function()
 	})()
 }
 
-if (IE)
-{
-Wilq32.PhotoEffect.prototype.createVMLNode=(function(){
-document.createStyleSheet().addRule(".rvml", "behavior:url(#default#VML)");
-		try {
-			!document.namespaces.rvml && document.namespaces.add("rvml", "urn:schemas-microsoft-com:vml");
-			return function (tagName) {
-				return document.createElement('<rvml:' + tagName + ' class="rvml">');
-			};
-		} catch (e) {
-			return function (tagName) {
-				return document.createElement('<' + tagName + ' xmlns="urn:schemas-microsoft.com:vml" class="rvml">');
-			};
-		}		
-})();
+if (IE){
+	Wilq32.PhotoEffect.prototype.createVMLNode=(function(){
+		//vmijic 20111003 -> added fix for IE
+		//IE has limitation in number of STYLE nodes -> max 31.
+		//So, instead of always adding new STYLE, we reuse already existing one, and add rule only when needed.
+		var styleSheetsLength = document.styleSheets.length;
+		var styleSheet = undefined;
+		if (styleSheetsLength == 0){
+			styleSheet = document.createStyleSheet();
+		}else{
+			styleSheet = document.styleSheets[document.styleSheets.length - 1];		
+		}
+		if (styleSheet){
+			var found = false;
+			for (i=0; i < styleSheet.rules.length; i++){
+				if (styleSheet.rules[i].selectorText == ".rvml"){
+					found = true;
+					break;
+				}
+			}
+			if (!found){
+				styleSheet.addRule(".rvml", "behavior:url(#default#VML)"); 	
+			}
+			try {
+				!document.namespaces.rvml && document.namespaces.add("rvml", "urn:schemas-microsoft-com:vml");
+				return function (tagName) {
+					return document.createElement('<rvml:' + tagName + ' class="rvml">');
+				};
+			} catch (e) {
+				return function (tagName) {
+					return document.createElement('<' + tagName + ' xmlns="urn:schemas-microsoft.com:vml" class="rvml">');
+				};
+			}
+		}
+	})();
 }
 
 })(jQuery);
