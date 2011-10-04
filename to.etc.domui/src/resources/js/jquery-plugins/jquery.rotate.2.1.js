@@ -1,4 +1,4 @@
-// VERSION: 1.8 LAST UPDATE: 9.03.2011
+// VERSION: 1.8 LAST UPDATE: 9.03.2011, changed by vmijic 2011-10-03 -> fix for IE7 adding styles limitation
 /* 
  * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
  * 
