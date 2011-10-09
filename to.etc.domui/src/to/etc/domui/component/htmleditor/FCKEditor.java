@@ -24,18 +24,22 @@
  */
 package to.etc.domui.component.htmleditor;
 
+import to.etc.domui.component.misc.*;
+import to.etc.domui.component.misc.MsgBox.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
-import to.etc.webapp.nls.*;
 
 /**
  * This represents a FCKEditor instance.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 30, 2008
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Refactored on Oct 07, 2011
  */
 public class FCKEditor extends TextArea {
 	private String m_vn;
@@ -43,6 +47,10 @@ public class FCKEditor extends TextArea {
 	private String m_toolbarSet = "DomUI";
 
 	private IEditorFileSystem m_fileSystem;
+
+	private IClicked<NodeBase> m_onDomuiImageClicked;
+
+	private static final String WEBUI_ACTION = "FCKIMAGE";
 
 	public FCKEditor() {
 		super.setCssClass("ui-fck");
@@ -74,16 +82,26 @@ public class FCKEditor extends TextArea {
 		m_vn = "_fck" + getActualID();
 		sb.append("var ").append(m_vn).append(" = new FCKeditor('").append(getActualID()).append("');");
 		appendOption(sb, "BasePath", UIContext.getRequestContext().getRelativePath("$fckeditor/"));
-		appendOption(sb, "DefaultLanguage", NlsContext.getLocale().getLanguage());
+		/* vmijic 20111006 Seems that AutoDetectLanguage works just fine. If we ever notice problem with it, uncomment this code
+		  if(NlsContext.getLocale().getLanguage().contains("nl")) {
+			appendConfig(sb, "DefaultLanguage", "'nl'");
+		  }
+		 */
+		appendConfig(sb, "AutoDetectLanguage", "true");
 		if(getWidth() != null)
 			appendOption(sb, "Width", getWidth());
+		if(getHeight() != null)
+			appendOption(sb, "Height", getHeight());
 		appendOption(sb, "ToolbarSet", m_toolbarSet);
-		appendConfig(sb, "ToolbarStartExpanded", "false");
+		appendConfig(sb, "ToolbarStartExpanded", "true");
 
 		//-- Override basic 'connector' config parameters
 		appendConnectorConfig(sb, "ImageBrowser", "Image");
 
 		sb.append(m_vn).append(".ReplaceTextarea();");
+		//-- We must do custom layout fixes once editor is transformed by FCKEditor initialization javascript
+		sb.append("function FCKeditor_OnComplete( editorInstance ){var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.Domui_fixLayout('" + getActualID()
+			+ "');}; WebUI.doCustomUpdates();};");
 		appendCreateJS(sb);
 	}
 
@@ -154,10 +172,10 @@ public class FCKEditor extends TextArea {
 			default:
 				throw new IllegalStateException("Unknown toolbar set: " + set);
 			case BASIC:
-				setToolbarSet("Default");
+				setToolbarSet("Basic");
 				break;
 			case DEFAULT:
-				setToolbarSet("Basic");
+				setToolbarSet("Default");
 				break;
 			case DOMUI:
 				setToolbarSet("DomUI");
@@ -165,6 +183,55 @@ public class FCKEditor extends TextArea {
 			case TXTONLY:
 				setToolbarSet("TxtOnly");
 				break;
+			case NEW_MESSAGE:
+				setToolbarSet("NewMessage");
+				break;
 		}
+	}
+
+	/**
+	 * Handle {@link FCKEditor#WEBUI_ACTION} activity on FCKEditor customized commands that interacts with domui.
+	 *
+	 * @see to.etc.domui.dom.html.Div#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
+	 */
+	@Override
+	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
+		if(WEBUI_ACTION.equals(action))
+			selectImage(ctx);
+		else
+			super.componentHandleWebAction(ctx, action);
+	}
+
+	private void selectImage(RequestContextImpl ctx) throws Exception {
+		if(m_onDomuiImageClicked == null) {
+			MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
+				@Override
+				public void onAnswer(MsgBoxButton result) throws Exception {
+					renderCancelImage();
+				}
+			});
+		} else {
+			m_onDomuiImageClicked.clicked(this);
+		}
+	}
+
+	public void renderImageSelected(String url) {
+		//FCK_DOMUIIMAGE
+		///Itris_VO02/General/Images/Organisations/1000/demo_hlpv_menu_header.gif
+		appendJavascript("var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.DomuiImage_addImage('"
+			+ getActualID()
+ + "', '" + url + "');};");
+	}
+
+	public void renderCancelImage() {
+		appendJavascript("var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.DomuiImage_cancel();};");
+	}
+
+	public IClicked<NodeBase> getOnDomuiImageClicked() {
+		return m_onDomuiImageClicked;
+	}
+
+	public void setOnDomuiImageClicked(IClicked<NodeBase> onDomuiImageClicked) {
+		m_onDomuiImageClicked = onDomuiImageClicked;
 	}
 }

@@ -134,7 +134,12 @@ public class FloatingWindow extends Div {
 		if(getHeight() == null)
 			setHeight(HEIGHT + "px");
 		if(getZIndex() <= 0) {
-			setZIndex(100);
+			FloatingWindow parentFloatingWindow = getParent(FloatingWindow.class);
+			if(parentFloatingWindow != null) {
+				setZIndex(parentFloatingWindow.getZIndex() + 100);
+			} else {
+				setZIndex(100);
+			}
 		}
 		if(getTestID() == null) {
 			setTestID("popup_" + getZIndex());

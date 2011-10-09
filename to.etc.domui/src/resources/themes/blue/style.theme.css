@@ -732,6 +732,8 @@ tr.ui-keyword-popup-row {
 	/*	overflow: hidden;	*/
 	top: 5%;
 	left: 50%;
+	box-shadow : 10px 10px 10px #373737;
+	-moz-box-shadow : 10px 10px 10px #373737;
 }
 
 .ui-fw-ttl {

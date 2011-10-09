@@ -52,6 +52,7 @@ FCKConfig.PluginsPath = FCKConfig.BasePath + 'plugins/' ;
 
 // FCKConfig.Plugins.Add( 'autogrow' ) ;
 // FCKConfig.Plugins.Add( 'dragresizetable' );
+FCKConfig.Plugins.Add('domuiimage');
 FCKConfig.AutoGrowMax = 400 ;
 
 // FCKConfig.ProtectedSource.Add( /<%[\s\S]*?%>/g ) ;	// ASP style server side code <%...%>
@@ -148,6 +149,12 @@ FCKConfig.ToolbarSets["TxtOnly"] = [
   	['Style','FontFormat','FontName','FontSize'],
   	['TextColor','BGColor'],
   	['FitWindow','ShowBlocks']		// No comma for the last row.
+  ] ;
+
+FCKConfig.ToolbarSets["NewMessage"] = [
+ 	['Bold','Italic','Underline','StrikeThrough','-','Cut','Copy','Paste','-','Undo','Redo','-','JustifyLeft','JustifyCenter','JustifyRight','JustifyFull','-','OrderedList','UnorderedList','Outdent','Indent','-','Link','Unlink','-','DomUI_Image','Table','Rule','Smiley','SpecialChar'],
+	'/',
+	['TextColor','BGColor','FontFormat','FontName','FontSize']
   ] ;
 
 FCKConfig.EnterMode = 'p' ;			// p | div | br

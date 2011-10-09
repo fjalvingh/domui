@@ -386,6 +386,14 @@ final public class DomUtil {
 	}
 
 	/**
+	 * Returns application context part from current request.
+	 * @return
+	 */
+	static public String getApplicationContext() {
+		return NetTools.getApplicationContext(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+	}
+
+	/**
 	 *
 	 * @param clz
 	 * @param pp

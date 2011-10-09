@@ -214,7 +214,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 	}
 
 	static public String getURL(String providerkey, String instancekey, String... convs) {
-		StringBuilder	sb	= new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		sb.append(CachedImagePart.class.getName());
 		sb.append(".part");
 		sb.append('/');
@@ -229,4 +229,17 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 		}
 		return UIContext.getRequestContext().getRelativePath(sb.toString());
 	}
+
+	static public String getRelativeURL(String providerkey, String instancekey, PageParameters pp) {
+		StringBuilder	sb	= new StringBuilder();
+		sb.append(CachedImagePart.class.getName());
+		sb.append(".part");
+		sb.append('/');
+		sb.append(providerkey);
+		sb.append('/');
+		sb.append(instancekey);
+		DomUtil.addUrlParameters(sb, pp, true);
+		return "/" + DomUtil.getApplicationContext() + "/" + sb.toString();
+	}
+
 }
