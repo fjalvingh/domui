@@ -59,15 +59,14 @@ Domui_fixLayout = function(fckId)
 
 /***
  * Add GetState prototype
- * - This is one of the lines I can't explain
- * Seems useless but needs to exits according to api...
+ * Returns 0 since button is always avalable...
  */
 DomuiImage_command.prototype.GetState = function()
 {
-        return;
+        return 0;
 };
 
-var oDomuiImage = new FCKToolbarButton( 'DomUI_Image', FCKLang['DomUI_Image'] ) ;
+var oDomuiImage = new FCKToolbarButton( 'DomUI_Image', FCKLang.BtnDomuiImage, FCKLang.BtnDomuiImage, FCK_TOOLBARITEM_ONLYICON ) ;
 oDomuiImage.IconPath = FCKConfig.PluginsPath + 'domuiimage/image.gif' ;
 
 //Register toolbar button

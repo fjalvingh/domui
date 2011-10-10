@@ -32,6 +32,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.nls.*;
 
 /**
  * This represents a FCKEditor instance.
@@ -51,6 +52,8 @@ public class FCKEditor extends TextArea {
 	private IClicked<NodeBase> m_onDomuiImageClicked;
 
 	private static final String WEBUI_ACTION = "FCKIMAGE";
+
+	private boolean m_toolbarStartExpanded;
 
 	public FCKEditor() {
 		super.setCssClass("ui-fck");
@@ -81,22 +84,28 @@ public class FCKEditor extends TextArea {
 		StringBuilder sb = new StringBuilder(1024);
 		m_vn = "_fck" + getActualID();
 		sb.append("var ").append(m_vn).append(" = new FCKeditor('").append(getActualID()).append("');");
-		appendOption(sb, "BasePath", UIContext.getRequestContext().getRelativePath("$fckeditor/"));
-		/* vmijic 20111006 Seems that AutoDetectLanguage works just fine. If we ever notice problem with it, uncomment this code
-		  if(NlsContext.getLocale().getLanguage().contains("nl")) {
+		appendOption(sb, "BasePath", DomUtil.getRelativeApplicationResourceURL("$fckeditor/"));
+		// All customized configuration should reside in domuiconfig.js. Original fckconfig.js should be unchanged in order to easy support upgrades to never versions of FCK/CK editor...
+		appendConfig(sb, "CustomConfigurationsPath", "'" + DomUtil.getRelativeApplicationResourceURL("$fckeditor/domuiconfig.js") + "'");
+		// vmijic 20111010 in order to make i18n work on IE, we need to explicite pass 'nl' or 'en'. For all other all we can only set AutoDetectLanguage and pray that it would work ;)
+		if(NlsContext.getLocale().getLanguage().contains("nl")) {
 			appendConfig(sb, "DefaultLanguage", "'nl'");
-		  }
-		 */
-		appendConfig(sb, "AutoDetectLanguage", "true");
+		} else if(NlsContext.getLocale().getLanguage().contains("en")) {
+			appendConfig(sb, "DefaultLanguage", "'en'");
+		} else {
+			appendConfig(sb, "AutoDetectLanguage", "true");
+		}
 		if(getWidth() != null)
 			appendOption(sb, "Width", getWidth());
 		if(getHeight() != null)
 			appendOption(sb, "Height", getHeight());
+		if(isToolbarStartExpanded()) {
+			appendConfig(sb, "ToolbarStartExpanded", "true");
+		}
 		appendOption(sb, "ToolbarSet", m_toolbarSet);
-		appendConfig(sb, "ToolbarStartExpanded", "true");
 
 		//-- Override basic 'connector' config parameters
-		appendConnectorConfig(sb, "ImageBrowser", "Image");
+		appendConnectorConfig(sb, "ImageBrowser", "Image"); //FIXME: vmijic 20111010 I'm not sure why this stands -> we probably should remove that since it looks useless...
 
 		sb.append(m_vn).append(".ReplaceTextarea();");
 		//-- We must do custom layout fixes once editor is transformed by FCKEditor initialization javascript
@@ -234,4 +243,13 @@ public class FCKEditor extends TextArea {
 	public void setOnDomuiImageClicked(IClicked<NodeBase> onDomuiImageClicked) {
 		m_onDomuiImageClicked = onDomuiImageClicked;
 	}
+
+	public boolean isToolbarStartExpanded() {
+		return m_toolbarStartExpanded;
+	}
+
+	public void setToolbarStartExpanded(boolean toolbarStartExpanded) {
+		m_toolbarStartExpanded = toolbarStartExpanded;
+	}
+
 }

@@ -379,6 +379,7 @@ final public class DomUtil {
 
 	/**
 	 * Returns application url part from current request.
+	 * Call depends on existing of request, so it can't be used within backend threads.
 	 * @return
 	 */
 	static public String getApplicationURL() {
@@ -387,10 +388,21 @@ final public class DomUtil {
 
 	/**
 	 * Returns application context part from current request.
+	 * Call depends on existing of request, so it can't be used within backend threads.
 	 * @return
 	 */
 	static public String getApplicationContext() {
 		return NetTools.getApplicationContext(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+	}
+
+	/**
+	 * Returns relative path for specified resource (without host name, like '/APP_CONTEXT/resource').
+	 * Call depends on existing of request, so it can't be used within backend threads.
+	 * @param resource
+	 * @return
+	 */
+	static public String getRelativeApplicationResourceURL(String resource) {
+		return "/" + getApplicationContext() + "/" + resource;
 	}
 
 	/**

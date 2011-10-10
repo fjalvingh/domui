@@ -38,6 +38,19 @@ import to.etc.domui.util.images.converters.*;
 import to.etc.util.*;
 
 public class CachedImagePart implements IUnbufferedPartFactory {
+
+	public static String PARAM_PAGE = "page";
+
+	public static String PARAM_THUMBNAIL = "thumbnail";
+
+	public static String PARAM_FORMAT = "format";
+
+	public static String PARAM_RESIZE = "resize";
+
+	public static String PARAM_FILENAME = "filename";
+
+	public static String PARAM_DISPOSITION = "disposition";
+
 	static public class ImageKeys {
 		private DomApplication m_application;
 
@@ -122,8 +135,8 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 		ri.getResponse().setContentLength(fima.getSource().getSize());
 
 		//-- Do we need a content-disposition header to force a filename/download?
-		String filename = ri.getParameter("filename");
-		String dis = ri.getParameter("disposition");
+		String filename = ri.getParameter(PARAM_FILENAME);
+		String dis = ri.getParameter(PARAM_DISPOSITION);
 		if(dis != null || filename != null) {
 			StringBuilder sb = new StringBuilder();
 			if(dis == null)
@@ -163,9 +176,9 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 
 	protected void decodeResize(IParameterInfo pin, List<IImageConversionSpecifier> ik) throws Exception {
 		boolean thumb = false;
-		String v = pin.getParameter("resize");
+		String v = pin.getParameter(PARAM_RESIZE);
 		if(v == null) {
-			v = pin.getParameter("thumbnail");
+			v = pin.getParameter(PARAM_THUMBNAIL);
 			if(v == null)
 				return;
 			thumb = true;
@@ -190,7 +203,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 	 * @throws Exception
 	 */
 	protected void decodePage(IParameterInfo pin, List<IImageConversionSpecifier> ik) throws Exception {
-		String v = pin.getParameter("page");
+		String v = pin.getParameter(PARAM_PAGE);
 		if(v == null)
 			return;
 		int pnr = Integer.parseInt(v);
@@ -198,7 +211,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 	}
 
 	protected void decodeFormat(IParameterInfo pin, List<IImageConversionSpecifier> ik) throws Exception {
-		String v = pin.getParameter("format");
+		String v = pin.getParameter(PARAM_FORMAT);
 		if(v == null)
 			return;
 		String mime = v;
@@ -239,7 +252,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 		sb.append('/');
 		sb.append(instancekey);
 		DomUtil.addUrlParameters(sb, pp, true);
-		return "/" + DomUtil.getApplicationContext() + "/" + sb.toString();
+		return DomUtil.getRelativeApplicationResourceURL(sb.toString());
 	}
 
 }
