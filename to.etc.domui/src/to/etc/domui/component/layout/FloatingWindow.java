@@ -158,12 +158,22 @@ public class FloatingWindow extends Div {
 
 		setPosition(PositionType.FIXED);
 
-		int width = DomUtil.pixelSize(getWidth());
-		if(width == -1)
-			width = WIDTH;
+		if(getWidth() != null && getWidth().endsWith("%")) {
+			//when relative size is in use we don't center window horizontaly, otherwise we need to center it
+			int widthPerc = DomUtil.percentSize(getWidth());
+			if(widthPerc != -1) {
+				// center floating window horizontally on screen
+				setMarginLeft("-" + widthPerc / 2 + "%");
+			}
+		} else {
+			//when relative size is in use we don't center window horizontaly, otherwise we need to center it
+			int width = DomUtil.pixelSize(getWidth());
+			if(width == -1)
+				width = WIDTH;
 
-		// center floating window horizontally on screen
-		setMarginLeft("-" + width / 2 + "px");
+			// center floating window horizontally on screen
+			setMarginLeft("-" + width / 2 + "px");
+		}
 
 		//-- Construct the title bar
 		createTitleBar();

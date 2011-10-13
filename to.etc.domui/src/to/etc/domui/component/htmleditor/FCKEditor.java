@@ -109,7 +109,8 @@ public class FCKEditor extends TextArea {
 
 		sb.append(m_vn).append(".ReplaceTextarea();");
 		//-- We must do custom layout fixes once editor is transformed by FCKEditor initialization javascript
-		sb.append("function FCKeditor_OnComplete( editorInstance ){var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.Domui_fixLayout('" + getActualID()
+		sb.append("function FCKeditor_OnComplete( editorInstance ){var fckIFrame = document.getElementById('" + getActualID()
+ + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.Domui_fixLayout('" + getActualID()
 			+ "');}; WebUI.doCustomUpdates();};");
 		appendCreateJS(sb);
 	}

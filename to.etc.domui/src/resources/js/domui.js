@@ -1492,7 +1492,7 @@ var WebUI = {
 				}
 			}
 			if (!ok) {
-				alert("File type not allowed");
+				alert("File type not allowed: " + ext + ", allowed: " + val);
 				return;
 			}
 		}

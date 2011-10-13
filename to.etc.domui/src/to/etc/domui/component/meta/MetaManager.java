@@ -378,8 +378,22 @@ final public class MetaManager {
 			cmm = findClassMeta(a.getClass());
 		if(cmm.getPrimaryKey() != null) {
 			try {
-				Object pka = cmm.getPrimaryKey().getValue(a);
-				Object pkb = cmm.getPrimaryKey().getValue(b);
+				//Common case is to compare data items of different types - i.e. in rendering of combo with items of different types.
+				//To prevent unnecessary exception logs, we have to use right class meta for both arguments
+				ClassMetaModel acmm;
+				ClassMetaModel bcmm;
+				if(acl != bcl) {
+					acmm = findClassMeta(acl);
+					bcmm = findClassMeta(bcl);
+					if(acmm.getPrimaryKey() == null || bcmm.getPrimaryKey() == null) {
+						return false;
+					}
+				} else {
+					acmm = cmm;
+					bcmm = cmm;
+				}
+				Object pka = acmm.getPrimaryKey().getValue(a);
+				Object pkb = bcmm.getPrimaryKey().getValue(b);
 				return DomUtil.isEqual(pka, pkb);
 			} catch(Exception x) {
 				x.printStackTrace();

@@ -1181,15 +1181,43 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public int pixelSize(String css) {
-		if(!css.endsWith("px"))
-			return -1;
+		return pixelSize(css, -1);
+	}
+
+	/**
+	 * Convert a CSS size string like '200px' into the 200... If the size string is in any way
+	 * invalid this returns specified defaultVal.
+	 *
+	 * @param css
+	 * @param defaultVal
+	 * @return
+	 */
+	static public int pixelSize(String css, int defaultVal) {
+		if(css == null || !css.endsWith("px"))
+			return defaultVal;
 		try {
 			return Integer.parseInt(css.substring(0, css.length() - 2).trim());
+		} catch(Exception x) {
+			return defaultVal;
+		}
+	}
+
+	/**
+	 * Convert a CSS percentage size string like '90%' into the 90... If the size string is in any way
+	 * invalid this returns -1.
+	 *
+	 * @param css
+	 * @return
+	 */
+	static public int percentSize(String css) {
+		if(css == null || !css.endsWith("%"))
+			return -1;
+		try {
+			return Integer.parseInt(css.substring(0, css.length() - 1).trim());
 		} catch(Exception x) {
 			return -1;
 		}
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree walking helpers.								*/

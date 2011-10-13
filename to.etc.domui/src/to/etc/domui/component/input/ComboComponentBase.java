@@ -123,7 +123,9 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 			if(null != raw) {
 				V res = listToValue(val);
 				if(cmm == null)
-					cmm = MetaManager.findClassMeta(res.getClass());
+					//if we are caching cmm, then at least it should always be for one of compared values,
+					//otherwise we can get situation that we are sending cmm of type that does not have any relation to any of compared values
+					cmm = MetaManager.findClassMeta(raw.getClass());
 				boolean eq = MetaManager.areObjectsEqual(res, raw, cmm);
 				if(eq) {
 					o.setSelected(eq);

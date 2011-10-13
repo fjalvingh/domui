@@ -415,7 +415,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	}
 
 	private String getDefaultKeySearchHint() {
-		List<SearchPropertyMetaModel> spml = getMetaModel().getKeyWordSearchProperties();
+		List<SearchPropertyMetaModel> spml = m_keywordLookupPropertyList != null ? m_keywordLookupPropertyList : getMetaModel().getKeyWordSearchProperties();
 		if(spml.size() <= 0)
 			return null;
 
@@ -460,7 +460,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			int ncond = 0;
 			if(spml.size() > 0) {
 				for(SearchPropertyMetaModel spm : spml) {
-					if(spm.getMinLength() < searchString.length()) {
+					if(spm.getMinLength() <= searchString.length()) {
 
 						//-- Abort on invalid metadata; never continue with invalid data.
 						if(spm.getPropertyName() == null)

@@ -525,26 +525,6 @@ public class CssBase {
 		m_width = width;
 	}
 
-	/**
-	 * Returns int size that is defined in pixels (ends with 'px'). In case that it is not 'px' size, returs specified defaultVal.
-	 * @param defaultVal
-	 * @param stringSize
-	 * @return
-	 */
-	public int getIntSize(int defaultVal, String stringSize) {
-		if(stringSize != null) {
-			if(stringSize.endsWith("px")) {
-				stringSize = stringSize.substring(0, stringSize.length() - 2);
-			}
-			try {
-				defaultVal = Integer.parseInt(stringSize);
-			} catch(Exception ex) {
-				//just ignore here
-			}
-		}
-		return defaultVal;
-	}
-
 	public String getFontFamily() {
 		return m_fontFamily;
 	}
