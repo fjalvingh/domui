@@ -57,8 +57,9 @@ public abstract class AbstractCharter implements ICharterHelper {
 
 	private List<ChartField> m_chartDataElements;
 
-	private static final Color[] AVAILABLE_PAINTS = new Color[]{new Color(Integer.parseInt("D0E4E3", 16)), new Color(Integer.parseInt("c4b0d8", 16)), new Color(Integer.parseInt("F4D143", 16)),
+	private static final Color[] AVAILABLE_PAINTS = new Color[]{new Color(Integer.parseInt("D0E4E3", 16)), new Color(Integer.parseInt("F4D143", 16)),
 		new Color(Integer.parseInt("35F741", 16)),
+		new Color(Integer.parseInt("c4b0d8", 16)),
 		new Color(Integer.parseInt("F1362F", 16))};
 
 	public AbstractCharter(JGraphChartSource source, ChartDimensions dimensions) {
