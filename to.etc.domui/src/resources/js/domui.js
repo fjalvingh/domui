@@ -909,6 +909,7 @@ var WebUI = {
 				WebUI.lookupPopupClicked(event.data.nodeId); 
 			});
 		}
+		WebUI.doCustomUpdates();
 	},
 	
 	/*
@@ -2015,6 +2016,10 @@ var WebUI = {
 			}
 		});
 		var elemDeltaHeight = $(elem).outerHeight() - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
+		if (WebUI.isIE8orIE8c()){
+			//from some reason we need +1 only for IE8!
+			elemDeltaHeight = elemDeltaHeight + 1;
+		}
 		$(elem).height($(elem).parent().height() - totHeight - elemDeltaHeight);
 		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
 			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers 

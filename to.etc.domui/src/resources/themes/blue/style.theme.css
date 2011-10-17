@@ -719,7 +719,8 @@ tr.ui-keyword-popup-row {
 /*** MultipleLookupInput thingerydoo ***/
 .ui-mli-cnt { /* selection container */
 	min-height: 20px;
-	max-height: 100px;
+	max-height: 60px;
+	overflow: auto;
 }
 
 .ui-mli-itm { /* selected items */
