@@ -162,6 +162,13 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				if (commands[i].nodeType != 1)
 					continue; // commands are elements
 				var cmdNode = commands[i], cmd = cmdNode.tagName;
+				if(cmd == 'head' || cmd == 'body') {
+					//-- HTML response. Server state is gone due to restart or lost session.
+					alert('The server has restarted, or the session has timed out.. Reloading the page with fresh data');
+					window.location.href = window.location.href;
+					return;
+				}
+
 				if (cmd == 'eval') {
 					try {
 						var js = (cmdNode.firstChild ? cmdNode.firstChild.nodeValue : null);
@@ -175,6 +182,12 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					continue;
 				}
 				var q = cmdNode.getAttribute('select');
+				if(! q) {
+					//-- Node sans select-> we are in trouble -> this is probably a server error/response. Report session error, then reload. (Marc, 20111017)
+					alert('The server seems to have lost this page.. Reloading the page with fresh data');
+					window.location.href = window.location.href;
+					return;
+				}
 				var jq = $(q);
 				if (!jq[0]) {
 					log('No matching targets for selector: ', q);
