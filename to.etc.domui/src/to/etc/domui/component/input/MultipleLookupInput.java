@@ -76,6 +76,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 
 	public MultipleLookupInput(@Nonnull LookupInput<T> lookupInput, String... renderColumns) {
 		m_lookupInput = lookupInput;
+		m_renderColumns = renderColumns;
 	}
 
 	@Override
