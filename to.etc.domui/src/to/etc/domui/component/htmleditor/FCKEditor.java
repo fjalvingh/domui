@@ -234,7 +234,7 @@ public class FCKEditor extends TextArea {
 	}
 
 	public void renderCancelImage() {
-		appendJavascript("var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.DomuiImage_cancel();};");
+		appendJavascript("var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.DomuiImage_cancel('" + getActualID() + "');};");
 	}
 
 	public IClicked<NodeBase> getOnDomuiImageClicked() {

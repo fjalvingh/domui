@@ -5,7 +5,7 @@
  */
 
 /***
- * Create blank command, seems useless but needs to exits according to api...
+ * Create  blank command, seems useless but needs to exits according to api...
  */
 var DomuiImage_command = function()
 {
@@ -35,6 +35,16 @@ DomuiImage_addImage = function(fckName, imageUrl)
 	//oEditor.FCKUndo.SaveUndoStep() ;
 	var oImage = oEditor.InsertElement('img') ;
     oImage.src = imageUrl;
+};
+
+/***
+ * Method that is exected when image dialog is canceled (usually as rendered response from domui handler)
+ */
+DomuiImage_cancel = function(fckName)
+{
+	var oEditor = FCKeditorAPI.GetInstance(fckName);
+	//all we do is to get focus back to editor
+	oEditor.Focus();
 };
 
 Domui_fixLayout = function(fckId)
