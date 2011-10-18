@@ -189,12 +189,12 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	 * Render the contents of the source part of the shuttle.
 	 */
 	private void renderSource() throws Exception {
-		if(m_sourceBody == null) {
+		//		if(m_sourceBody == null) {
 			Table t = new Table();
 			m_sourceDiv.add(t);
 			t.add(m_sourceBody = new TBody());
-		} else
-			m_sourceBody.removeAllChildren();
+		//		} else
+		//			m_sourceBody.removeAllChildren();
 		if(m_sourceModel == null)
 			return;
 		int count = m_sourceModel.getRows();
@@ -219,12 +219,12 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	 * Render the contents of the target part of the shuttle.
 	 */
 	private void renderTarget() throws Exception {
-		if(m_targetBody == null) {
+		//		if(m_targetBody == null) {
 			Table t = new Table();
 			m_targetDiv.add(t);
 			t.add(m_targetBody = new TBody());
-		} else
-			m_targetBody.removeAllChildren();
+		//		} else
+		//			m_targetBody.removeAllChildren();
 		if(m_targetModel == null)
 			return;
 		int count = m_targetModel.getRows();

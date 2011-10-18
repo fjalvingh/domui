@@ -28,6 +28,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
@@ -130,6 +131,10 @@ final public class Page implements IQContextContainer {
 	 */
 	private boolean m_renderAsXHTML;
 
+	/**
+	 * The stack of floating windows on top of the main canvas, in ZIndex order.
+	 */
+	private List<FloatingDiv> m_floatingWindowStack;
 
 	public Page(final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
@@ -393,6 +398,81 @@ final public class Page implements IQContextContainer {
 	public <T> T getData(final Class<T> clz) {
 		return (T) m_pageData.get(clz.getName());
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handle the floating window stack.					*/
+	/*--------------------------------------------------------------*/
+
+
+	/**
+	 * Add a floating thing to the floater stack.
+	 * @param originalParent
+	 * @param in
+	 */
+	void internalAddFloater(NodeContainer originalParent, NodeBase in) {
+		//-- Sanity checks.
+		if(!(in instanceof FloatingDiv))
+			throw new IllegalStateException("Floaters can only be FloatingDiv-derived, and " + in + " is not.");
+		if(getBody() == null)
+			throw new IllegalStateException("Ehm- I have no body?"); // Existential problems are the hardest...
+
+		//-- Be very sure it's not already in the stack
+		final FloatingDiv window = (FloatingDiv) in;
+		for(FloatingDiv fr : getFloatingStack()) {
+			if(fr == window)
+				return;
+		}
+
+		//-- It needs to be added. Calculate the zIndex to use; calculate a Z-Index that is higher than the current "topmost" window.
+		int zindex = 100;
+		for(FloatingDiv fr : getFloatingStack()) {
+			if(fr.getZIndex() >= zindex)
+				zindex = fr.getZIndex() + 100;
+		}
+		window.setZIndex(zindex);
+		//		System.out.println("New floater got zIndex=" + zindex);
+
+		//-- If this is MODAL create a hider for it.
+		if(window.isModal()) {
+			Div hider = new Div();
+			getBody().add(hider);
+			hider.setCssClass("ui-flw-hider");
+			hider.setZIndex(zindex - 1); // Just below the new floater.
+			window.internalSetHider(hider);
+
+			//-- Add a click handler which will close the floater when the hider div is clicked.
+			hider.setClicked(new IClicked<NodeBase>() {
+				@Override
+				public void clicked(NodeBase clickednode) throws Exception {
+					window.closePressed();
+				}
+			});
+		}
+		getFloatingStack().add(window); // Add on top (defines order)
+
+		//-- Add the floater to the body,
+		getBody().internalAdd(Integer.MAX_VALUE, window); // Add to body,
+	}
+
+	/**
+	 * Callback called by a floating window when it is removed from the page.
+	 * @param floater
+	 */
+	public void internalRemoveFloater(FloatingDiv floater) {
+		if(!getFloatingStack().remove(floater)) // If already removed exit
+			return;
+		if(floater.internalGetHider() != null) {
+			floater.internalGetHider().remove();
+			floater.internalSetHider(null);
+		}
+	}
+
+	private List<FloatingDiv> getFloatingStack() {
+		if(m_floatingWindowStack == null)
+			m_floatingWindowStack = new ArrayList<FloatingDiv>();
+		return m_floatingWindowStack;
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	BUILD phase coding (see bug 688).					*/

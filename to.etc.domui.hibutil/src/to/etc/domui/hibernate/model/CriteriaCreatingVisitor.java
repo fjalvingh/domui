@@ -1159,6 +1159,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			case ROWCOUNT:
 				m_lastProj = Projections.rowCount();
 				break;
+			case DISTINCT:
+				m_lastProj = Projections.distinct(Projections.property(n.getProperty()));
+				break;
 		}
 	}
 

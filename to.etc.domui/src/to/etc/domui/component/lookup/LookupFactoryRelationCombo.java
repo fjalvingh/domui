@@ -28,6 +28,7 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 final class LookupFactoryRelationCombo implements ILookupControlFactory {
 	@Override
@@ -47,26 +48,43 @@ final class LookupFactoryRelationCombo implements ILookupControlFactory {
 		IInputNode< ? > input = control;
 		if(input == null) {
 			final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+			try {
+				ComboLookup< ? > co = ComboLookup.createLookup(pmm);
+				co.setMandatory(false);
 
-			//-- We need to add a ComboBox. Do we have a combobox dataset provider?
-			Class< ? extends IComboDataSet< ? >> set = pmm.getComboDataSet();
-			if(set == null) {
-				set = pmm.getClassModel().getComboDataSet();
-				if(set == null)
-					throw new IllegalStateException("Missing Combo dataset provider for property " + pmm);
+				//				if(pmm.isRequired()) jal 20110802 Mandatoryness in property model has no relation with search criteria of course!
+				//					co.setMandatory(true);
+				String s = pmm.getDefaultHint();
+				if(s != null)
+					co.setTitle(s);
+				String hint = MetaUtils.findHintText(spm);
+				if(hint != null)
+					co.setTitle(hint);
+				input = co;
+			} catch(Exception x) {
+				throw WrappedException.wrap(x); // Checked exceptions are idiocy.
 			}
 
-			INodeContentRenderer< ? > r = MetaManager.createDefaultComboRenderer(pmm, null);
-			final ComboLookup< ? > co = new ComboLookup(set, r);
-			if(pmm.isRequired())
-				co.setMandatory(true);
-			String s = pmm.getDefaultHint();
-			if(s != null)
-				co.setTitle(s);
-			String hint = MetaUtils.findHintText(spm);
-			if(hint != null)
-				co.setTitle(hint);
-			input = co;
+
+//			//-- We need to add a ComboBox. Do we have a combobox dataset provider?
+			//			Class< ? extends IComboDataSet< ? >> set = pmm.getComboDataSet();
+			//			if(set == null) {
+			//				set = pmm.getClassModel().getComboDataSet();
+			//				if(set == null)
+			//					throw new IllegalStateException("Missing Combo dataset provider for property " + pmm);
+			//			}
+			//
+			//			INodeContentRenderer< ? > r = MetaManager.createDefaultComboRenderer(pmm, null);
+			//			final ComboLookup< ? > co = new ComboLookup(set, r);
+			//			if(pmm.isRequired())
+			//				co.setMandatory(true);
+			//			String s = pmm.getDefaultHint();
+			//			if(s != null)
+			//				co.setTitle(s);
+			//			String hint = MetaUtils.findHintText(spm);
+			//			if(hint != null)
+			//				co.setTitle(hint);
+			//			input = co;
 		}
 		return new EqLookupControlImpl(spm.getPropertyName(), input);
 	}

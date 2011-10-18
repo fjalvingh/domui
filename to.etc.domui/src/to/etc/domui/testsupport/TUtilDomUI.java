@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.test.util;
+package to.etc.domui.testsupport;
 
 import java.io.*;
 
@@ -31,7 +31,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 
-public class DomUITestUtil {
+public class TUtilDomUI {
 	static private volatile AppSession m_session;
 
 	static private DomApplication m_application;
@@ -166,7 +166,7 @@ public class DomUITestUtil {
 
 	static public HtmlFullRenderer getFullRenderer(IBrowserOutput o) throws Exception {
 		BrowserVersion bv = getBrowserVersion();
-		return DomUITestUtil.getApplication().findRendererFor(bv, o);
+		return TUtilDomUI.getApplication().findRendererFor(bv, o);
 	}
 
 	static public String getFullRenderText(Page pg) throws Exception {

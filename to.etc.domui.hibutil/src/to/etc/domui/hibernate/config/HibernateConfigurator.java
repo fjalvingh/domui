@@ -273,12 +273,15 @@ final public class HibernateConfigurator {
 				throw new IllegalStateException("Mode: " + m_mode);
 			case CREATE:
 				config.setProperty("hbm2ddl.auto", "create");
+				config.setProperty("hibernate.hbm2ddl.auto", "create");
 				break;
 			case NONE:
 				config.setProperty("hbm2ddl.auto", "none");
+				config.setProperty("hibernate.hbm2ddl.auto", "none");
 				break;
 			case UPDATE:
 				config.setProperty("hbm2ddl.auto", "update");
+				config.setProperty("hibernate.hbm2ddl.auto", "update");
 				break;
 		}
 

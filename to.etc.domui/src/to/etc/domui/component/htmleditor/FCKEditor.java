@@ -24,11 +24,8 @@
  */
 package to.etc.domui.component.htmleditor;
 
-import to.etc.domui.component.misc.*;
-import to.etc.domui.component.misc.MsgBox.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -252,5 +249,22 @@ public class FCKEditor extends TextArea {
 	public void setToolbarStartExpanded(boolean toolbarStartExpanded) {
 		m_toolbarStartExpanded = toolbarStartExpanded;
 	}
+
+	@Override
+	public boolean acceptRequestParameter(String[] values) throws Exception {
+		for(int i = 0; i < values.length; i++) {
+			String s = values[i];
+			StringBuilder sb = new StringBuilder();
+			try {
+				StringTool.entitiesToUnicode(sb, s, true);
+				values[i] = sb.toString();
+			} catch(Exception e) {
+				e.printStackTrace();
+				values[i] = e.toString();
+			}
+		}
+		return super.acceptRequestParameter(values);
+	}
+
 
 }

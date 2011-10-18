@@ -137,6 +137,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 		}
 
 		//-- Decide if an "unselected" option needs to be present, and add it at index 0 if so.
+		setEmptyOption(null);
 		if(!isMandatory() || !isvalidselection) {
 			//-- We need the "unselected" option.
 			SelectOption o = new SelectOption();
@@ -479,5 +480,13 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 
 	protected void internalSetCurrentValue(V val) {
 		m_currentValue = val;
+	}
+
+	@Override
+	public void setMandatory(boolean mandatory) {
+		if(isMandatory() == mandatory)
+			return;
+		super.setMandatory(mandatory); // Switch flag
+		forceRebuild(); // The "empty option" might have changed
 	}
 }

@@ -109,6 +109,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		}
 
 		//-- Ask the renderer for a sort order, if applicable
+		if(m_rowRenderer == null)
+			throw new IllegalStateException("There is no row renderer assigned to the table");
 		m_rowRenderer.beforeQuery(this); // ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
 
 		calcIndices(); // Calculate rows to show.
@@ -557,8 +559,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			//-- Delete the last row.
 			m_dataBody.removeChild(m_dataBody.getChildCount() - 1); // Delete last element
 		}
-		while(m_visibleItemList.size() > m_pageSize)
-			m_visibleItemList.remove(m_visibleItemList.size() - 1);
+		if(m_pageSize > 0) {
+			while(m_visibleItemList.size() > m_pageSize)
+				m_visibleItemList.remove(m_visibleItemList.size() - 1);
+		}
 	}
 
 	/**

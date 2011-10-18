@@ -29,7 +29,7 @@ import java.util.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.LookupForm.*;
+import to.etc.domui.component.lookup.LookupForm.ButtonMode;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
@@ -114,9 +114,9 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 		}
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		add(lf);
-		setOnClose(new IClicked<FloatingWindow>() {
+		setOnClose(new IWindowClosed() {
 			@Override
-			public void clicked(FloatingWindow b) throws Exception {
+			public void closed(String closeReason) throws Exception {
 				clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 				if(m_onReceiveResult != null) {
 					m_onReceiveResult.onReturnResult(Collections.EMPTY_LIST);

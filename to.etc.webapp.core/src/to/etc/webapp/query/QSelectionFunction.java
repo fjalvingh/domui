@@ -59,5 +59,8 @@ public enum QSelectionFunction {
 	PROPERTY,
 
 	/** An user-defined (database specific) function. */
-	USER
+	USER,
+
+	/** Make a distinct selection */
+	DISTINCT
 }

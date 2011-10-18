@@ -117,8 +117,9 @@ public class AbstractRowRenderer<T> {
 		return m_completed;
 	}
 
-	protected void setSortColumn(SimpleColumnDef cd) {
+	protected void setSortColumn(SimpleColumnDef cd, SortableType type) {
 		m_sortColumn = cd;
+		m_sortDescending = type == SortableType.SORTABLE_DESC;
 	}
 
 	protected SimpleColumnDef getSortColumn() {

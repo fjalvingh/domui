@@ -31,7 +31,7 @@ import javax.annotation.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.ILookupControlInstance.*;
+import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.css.*;
@@ -1135,6 +1135,10 @@ public class LookupForm<T> extends Div {
 	@Override
 	public void setClicked(final IClickBase< ? > clicked) {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
+	}
+
+	public IClicked<LookupForm<T>> getSearchClicked() {
+		return m_clicker;
 	}
 
 	public IClicked< ? extends LookupForm<T>> getOnClear() {

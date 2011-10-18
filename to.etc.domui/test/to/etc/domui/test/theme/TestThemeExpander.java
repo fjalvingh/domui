@@ -3,7 +3,7 @@ package to.etc.domui.test.theme;
 import org.junit.*;
 
 import to.etc.domui.server.*;
-import to.etc.domui.test.util.*;
+import to.etc.domui.testsupport.*;
 import to.etc.domui.themes.*;
 import to.etc.util.*;
 
@@ -12,16 +12,17 @@ public class TestThemeExpander {
 
 	@Before
 	public void setUp() throws Exception {
-		m_da = DomUITestUtil.getApplication();
+		m_da = TUtilDomUI.getApplication();
 	}
 
-	@Test
-	public void testThemeExpander1() throws Exception {
-		FragmentedThemeFactory cfc = new FragmentedThemeFactory();
-		CssPropertySet ps = cfc.getProperties("themes/domui", "style.props.js", null);
-
-		System.out.println("Loaded " + ps.getMap().size() + " properties");
-	}
+	// Cannot run without an application - fixed in 4.0-lookandfeel branch
+	//	@Test
+	//	public void testThemeExpander1() throws Exception {
+	//		FragmentedThemeFactory cfc = new FragmentedThemeFactory();
+	//		CssPropertySet ps = cfc.getProperties("themes/domui", "style.props.js", null);
+	//
+	//		System.out.println("Loaded " + ps.getMap().size() + " properties");
+	//	}
 
 	@Test
 	public void testThemeExpander2() throws Exception {

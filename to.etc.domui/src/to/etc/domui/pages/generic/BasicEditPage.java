@@ -210,7 +210,11 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	protected void onDelete(T object) throws Exception {
 		QDataContext dc = QContextManager.getContext(getPage());
 		dc.startTransaction();
-		dc.delete(object);
+		deleteObject(dc, object);
 		dc.commit();
+	}
+
+	protected void deleteObject(QDataContext dc, T object) throws Exception {
+		dc.delete(object);
 	}
 }

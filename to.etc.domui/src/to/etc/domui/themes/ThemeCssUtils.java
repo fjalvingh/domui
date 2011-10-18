@@ -40,5 +40,9 @@ public class ThemeCssUtils {
 		return new CssColor(hex);
 	}
 
+	public CssColor hsl(double h, double s, double l) {
+		return CssColor.createHSL(h, s, l);
+	}
+
 
 }

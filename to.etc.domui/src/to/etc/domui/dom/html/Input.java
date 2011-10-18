@@ -138,7 +138,7 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 		return m_onKeyPressJS;
 	}
 
-	public void setOnKeyPressJS(String onKeyPressJS) {
+	protected void setOnKeyPressJS(String onKeyPressJS) {
 		if(!DomUtil.isEqual(onKeyPressJS, m_onKeyPressJS))
 			changed();
 		m_onKeyPressJS = onKeyPressJS;

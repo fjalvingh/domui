@@ -296,10 +296,10 @@ public class DefaultBugListener implements IBugListener {
 		ref.setWindow(fw);
 
 		//-- When the window is closed - clear messages
-		fw.setOnClose(new IClicked<FloatingWindow>() { // Make sure state is OK when window itself is closed
+		fw.setOnClose(new IWindowClosed() {
 			@Override
-			public void clicked(FloatingWindow clickednode) throws Exception {
-					ref.setWindow(null);
+			public void closed(String closeReason) throws Exception {
+				ref.setWindow(null);
 				clearMessages(ref);
 			}
 		});
