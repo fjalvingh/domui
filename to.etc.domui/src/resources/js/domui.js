@@ -925,7 +925,6 @@ var WebUI = {
 				WebUI.lookupPopupClicked(event.data.nodeId); 
 			});
 		}
-		WebUI.doCustomUpdates();
 	},
 	
 	/*
@@ -999,6 +998,7 @@ var WebUI = {
    					}
 					//handle received lookupTyping component content
 					WebUI.showLookupTypingPopupIfStillFocusedAndFixZIndex(id);
+					WebUI.doCustomUpdates();
    				},
 
 				success :WebUI.handleResponse,

@@ -24,8 +24,11 @@
  */
 package to.etc.domui.component.htmleditor;
 
+import to.etc.domui.component.misc.*;
+import to.etc.domui.component.misc.MsgBox.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
