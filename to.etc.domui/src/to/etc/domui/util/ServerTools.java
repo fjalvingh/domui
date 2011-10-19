@@ -178,7 +178,8 @@ final public class ServerTools {
 			"cab", "application/x-cabinet", "class", "application/octet-stream", "cpt", "application/mac-compactpro", "css", "text/css", "cpio", "application/x-cpio", "csh", "application/x-csh",
 			"cdf", "application/x-netcdf",
 
-			"dms", "application/octet-stream", "doc", "application/msword", "docx", "application/msword", "dcr", "application/x-director", "dir", "application/x-director", "dxr",
+			"dms", "application/octet-stream", "doc", "application/msword", "docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "dcr", "application/x-director", "dir",
+			"application/x-director", "dxr",
 			"application/x-director", "dvi", "application/x-dvi", "dwt", "application/x-dreamweaver-tpl", "dwf", "application/x-dwf",
 
 			"exe", "application/octet-stream", "eps", "application/postscript", "etx", "text/x-setext",
@@ -205,7 +206,8 @@ final public class ServerTools {
 
 			"oda", "application/oda",
 
-			"pdf", "application/pdf", "ps", "application/postscript", "ppt", "application/vnd.ms-powerpoint", "png", "image/png", "pgn", "application/x-chess-pgn", "pnm", "image/x-portable-anymap",
+			"pdf", "application/pdf", "ps", "application/postscript", "ppt", "application/postscript", "pptx", "application/vnd.ms-powerpoint", "png", "image/png", "pgn", "application/x-chess-pgn",
+			"pnm", "image/x-portable-anymap",
 			"pbm", "image/x-portable-bitmap", "pgm", "image/x-portable-graymap", "ppm", "image/x-portable-pixmap", "properties", "application/x-properties",
 
 			"qt", "video/quicktime",
@@ -227,7 +229,8 @@ final public class ServerTools {
 
 			"wav", "audio/x-wav", "wrl", "model/vrml",
 
-			"xls", "application/vnd.ms-excel", "xlsx", "application/vnd.ms-excel", "xbm", "image/x-xbitmap", "xpm", "image/x-xpixmax", "xwd", "image/x-xwindowdump", "xml", "text/xml",
+			"xls", "application/vnd.ms-excel", "xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xbm", "image/x-xbitmap", "xpm", "image/x-xpixmax", "xwd",
+			"image/x-xwindowdump", "xml", "text/xml",
 
 			"zip", "application/zip", "z", "application/octet-stream",};
 
