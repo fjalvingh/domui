@@ -83,6 +83,9 @@ public class UrlEntityInjector extends PropertyInjector {
 		if(pmm == null)
 			throw new RuntimeException("Cannot find the primary key property for entity class '" + m_entityClass + "' for URL parameter=" + m_name + " of page=" + page.getClass() + ": ");
 
+		if(Number.class.isAssignableFrom(pmm.getActualType()) && pv != null && pv.length() == 0)
+			pv = null;
+
 		//-- Convert the URL's value to the TYPE of the primary key, using URL converters.
 		Object pk = ConverterRegistry.convertURLStringToValue(pmm.getActualType(), pv);
 		if(pk == null)

@@ -34,7 +34,7 @@ public class UrlParameterInjector extends PropertyInjector {
 	@Override
 	public void inject(final UrlPage page, final RequestContextImpl ctx, final PageParameters papa) throws Exception {
 		//-- 1. Get the URL parameter's value.
-		String pv = papa.getString(m_name);
+		String pv = papa.getString(m_name, null);
 		if(pv == null) {
 			if(m_mandatory)
 				throw new IllegalArgumentException("The page " + page.getClass() + " REQUIRES the URL parameter " + m_name);
@@ -42,7 +42,7 @@ public class UrlParameterInjector extends PropertyInjector {
 		}
 
 		//-- 2. Convert the thing to the appropriate type.
-		Class< ? > type = getPropertySetter().getReturnType();
+		Class< ? > type = getPropertySetter().getParameterTypes()[0];
 		Object value;
 		try {
 			value = ConverterRegistry.convertURLStringToValue(type, pv);

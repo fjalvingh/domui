@@ -4,6 +4,8 @@ import java.lang.reflect.*;
 import java.math.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.annotations.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -32,24 +34,24 @@ public class DefaultPageInjector implements IPageInjector {
 	private Map<String, PageInjector> m_injectorMap = new HashMap<String, PageInjector>();
 
 	public DefaultPageInjector() {
-		m_ucs.add(String.class.toString());
-		m_ucs.add(Byte.class.toString());
+		m_ucs.add(String.class.getName());
+		m_ucs.add(Byte.class.getName());
 		m_ucs.add(Byte.TYPE.getName());
-		m_ucs.add(Character.class.toString());
+		m_ucs.add(Character.class.getName());
 		m_ucs.add(Character.TYPE.getName());
-		m_ucs.add(Short.class.toString());
+		m_ucs.add(Short.class.getName());
 		m_ucs.add(Short.TYPE.getName());
-		m_ucs.add(Integer.class.toString());
+		m_ucs.add(Integer.class.getName());
 		m_ucs.add(Integer.TYPE.getName());
-		m_ucs.add(Long.class.toString());
+		m_ucs.add(Long.class.getName());
 		m_ucs.add(Long.TYPE.getName());
-		m_ucs.add(Float.class.toString());
+		m_ucs.add(Float.class.getName());
 		m_ucs.add(Float.TYPE.getName());
-		m_ucs.add(Double.class.toString());
+		m_ucs.add(Double.class.getName());
 		m_ucs.add(Double.TYPE.getName());
-		m_ucs.add(Date.class.toString());
-		m_ucs.add(BigDecimal.class.toString());
-		m_ucs.add(BigInteger.class.toString());
+		m_ucs.add(Date.class.getName());
+		m_ucs.add(BigDecimal.class.getName());
+		m_ucs.add(BigInteger.class.getName());
 		//		UCS.add(Byte.class.toString());
 		//		UCS.add(Byte.class.toString());
 		//		UCS.add(Byte.class.toString());
@@ -87,12 +89,13 @@ public class DefaultPageInjector implements IPageInjector {
 	 * @param pi
 	 * @return
 	 */
+	@Nullable
 	protected PropertyInjector calculateInjector(final PropertyInfo pi) {
 		if(pi.getSetter() == null) // Read-only property?
 			return null; // Be gone;
 		Method m = pi.getGetter();
-		if(m == null)
-			m = pi.getSetter();
+		//		if(m == null)
+		//			m = pi.getSetter();
 
 		return calculatePropertyInjector(pi, m);
 	}
@@ -176,6 +179,7 @@ public class DefaultPageInjector implements IPageInjector {
 	 *
 	 * @see to.etc.domui.state.IPageInjector#injectPageValues(to.etc.domui.dom.html.UrlPage, to.etc.domui.server.RequestContextImpl, to.etc.domui.state.PageParameters)
 	 */
+	@Override
 	public void injectPageValues(final UrlPage page, final RequestContextImpl ctx, final PageParameters papa) throws Exception {
 		PageInjector pij = findPageInjector(page.getClass());
 		pij.inject(page, ctx, papa);
