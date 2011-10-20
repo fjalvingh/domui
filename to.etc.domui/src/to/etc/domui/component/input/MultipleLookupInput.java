@@ -4,8 +4,10 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -30,6 +32,8 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 	private String m_cssForSelectedItems;
 
 	private String m_cssForSelectionContainer;
+
+	private SmallImgButton m_clearButton;
 
 	/**
 	 * This renderer represents default renderer that is used for items in {@link MultipleLookupInput} control.
@@ -77,6 +81,41 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 	public MultipleLookupInput(@Nonnull LookupInput<T> lookupInput, String... renderColumns) {
 		m_lookupInput = lookupInput;
 		m_renderColumns = renderColumns;
+		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
+			@Override
+			@SuppressWarnings("synthetic-access")
+			public void clicked(SmallImgButton b) throws Exception {
+				clearSelection(null);
+			}
+		});
+		m_clearButton.setTestID("clearButtonInputLookup");
+		m_clearButton.setDisplay(DisplayType.NONE);
+	}
+
+	protected void clearSelection(Object object) throws Exception {
+		m_selectionList.clear();
+		m_selectionContainer.removeAllChildren();
+		updateClearButtonState();
+		if(getOnValueChanged() != null) {
+			getOnValueChanged().onValueChanged(null);
+		}
+	}
+
+	private void addClearButton() throws Exception {
+		if(!m_lookupInput.isBuilt()) {
+			m_lookupInput.build();
+		}
+
+		//m_lookupInput is frequently rebuilding, from this reason we need to 'insert' out button inside after every rebuild of m_lookupInput
+		List<SmallImgButton> btns = m_lookupInput.getDeepChildren(SmallImgButton.class);
+		if(btns.size() > 0) {
+			//we append custom clear button right after last button in inner lookup input
+			btns.get(btns.size() - 1).appendAfterMe(m_clearButton);
+		} else {
+			//if there are no buttons, then just append lookup input
+			m_lookupInput.appendAfterMe(m_clearButton);
+		}
+		updateClearButtonState();
 	}
 
 	@Override
@@ -90,10 +129,15 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 				if(item != null) {
 					addSelection(item);
 					component.setValue(null);
+					addClearButton();
+					if(getOnValueChanged() != null) {
+						getOnValueChanged().onValueChanged(null);
+					}
 				}
 			}
 		});
 		renderSelection();
+		addClearButton();
 	}
 
 	protected void addSelection(T item) throws Exception {
@@ -143,6 +187,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 					//getOnValueChanged().onValueChanged(item);
 					getOnValueChanged().onValueChanged(null);
 				}
+				updateClearButtonState();
 			}
 
 		});
@@ -153,6 +198,10 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 			r = DEAFULT_RENDERER; // Prevent idiotic generics error
 		r.renderNodeContent(this, itemText, item, null);
 		return itemNode;
+	}
+
+	protected void updateClearButtonState() {
+		m_clearButton.setDisplay(m_selectionList.size() == 0 ? DisplayType.NONE : DisplayType.INLINE);
 	}
 
 	public LookupInput<T> getLookupInput() {
