@@ -341,6 +341,16 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		row.getParent().getChild(rowix + 1).remove(); // Drop the 2nd item
 	}
 
+	public void collapseAll() throws Exception {
+		T item = getModel().getRoot();
+
+		for(int i = 0; i < getModel().getChildCount(item); i++) {
+			T xx = getModel().getChild(item, i);
+			collapseNode(xx);
+		}
+	}
+
+
 	private void dropCrud(VisibleNode<T> vnbase) throws Exception {
 		if(vnbase.childNodes == null)
 			return;
