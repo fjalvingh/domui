@@ -46,6 +46,7 @@ import to.etc.net.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.qsql.*;
 
 final public class DomUtil {
 	static private int m_guidSeed;
@@ -431,7 +432,7 @@ final public class DomUtil {
 
 	/**
 	 * IMPORTANT: This method MUST be used only within UI threads, when UIContext.getRequestContext() != null!
-	 * In all other, usually background running threads, other alternatives that are using stored appURL must be used!  
+	 * In all other, usually background running threads, other alternatives that are using stored appURL must be used!
 	 * @param clz
 	 * @param pp
 	 * @return
@@ -449,7 +450,7 @@ final public class DomUtil {
 	/**
 	 * IMPORTANT: This method MUST be used for non UI threads, when UIContext.getRequestContext() == null!
 	 * In all other, usually UI running threads, use other alternatives that is using appURL from UIContext.getRequestContext()!
-	 *   
+	 *
 	 * @param webAppUrl web app url, must be ended with '/'
 	 * @param clz
 	 * @param pp
@@ -1546,5 +1547,22 @@ final public class DomUtil {
 		}
 		return m_lorem;
 	}
+
+	/**
+	 * Util can be used to check if list contains item that has equal Long Id as specified one, while instanies itself does not need to be equal.
+	 * @param <T>
+	 * @param list
+	 * @param member
+	 * @return
+	 */
+	public static <T extends ILongIdentifyable> boolean containsLongIdentifyable(List<T> list, T member) {
+		for(T item : list) {
+			if(item.getId().equals(member.getId())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 }
