@@ -14,7 +14,8 @@ public interface INotifyEvent {
 	 * @param sender
 	 * @param reason
 	 * @param params
+	 * @throws Exception 
 	 */
-	void onNotify(Object sender, String reason, Object... params);
+	void onNotify(Object sender, String reason, Object... params) throws Exception;
 
 }
