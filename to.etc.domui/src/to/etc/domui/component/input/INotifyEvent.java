@@ -1,5 +1,7 @@
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 /**
  * General notfication event, can be used for definiton of general purpose callbacks.
  *
@@ -14,8 +16,8 @@ public interface INotifyEvent {
 	 * @param sender
 	 * @param reason
 	 * @param params
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	void onNotify(Object sender, String reason, Object... params) throws Exception;
+	void onNotify(@Nonnull Object sender, @Nullable String reason, @Nullable Object... params) throws Exception;
 
 }
