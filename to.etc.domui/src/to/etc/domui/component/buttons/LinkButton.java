@@ -30,6 +30,17 @@ public class LinkButton extends ATag {
 		setImage(image);
 	}
 
+	public LinkButton(final String txt) {
+		setCssClass("ui-lnkb");
+		m_text = txt;
+	}
+
+	public LinkButton(final String txt, final IClicked<LinkButton> clk) {
+		setCssClass("ui-lnkb");
+		setClicked(clk);
+		m_text = txt;
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		setText(m_text);
@@ -48,7 +59,13 @@ public class LinkButton extends ATag {
 	}
 
 	private void updateStyle() {
-		setBackgroundImage(PageContext.getRequestContext().translateResourceName(m_imageUrl));
+		if(m_imageUrl == null) {
+			setBackgroundImage(null);
+			setCssClass("ui-lnkb");
+		} else {
+			setBackgroundImage(PageContext.getRequestContext().translateResourceName(m_imageUrl));
+			setCssClass("ui-lnkb ui-lbtn");
+		}
 	}
 
 	@Override

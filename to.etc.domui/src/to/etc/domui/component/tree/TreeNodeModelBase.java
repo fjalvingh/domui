@@ -1,4 +1,30 @@
+/*
+ * DomUI Java User Interface library
+ * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ *
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://www.domui.org/
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
 package to.etc.domui.component.tree;
+
+import java.util.*;
 
 /**
  * Concrete implementation of a tree node model using AbstractTreeNodeBase thingies.
@@ -6,34 +32,64 @@ package to.etc.domui.component.tree;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 21, 2008
  */
-public class TreeNodeModelBase<T extends ITreeNode< ? >> implements ITreeModel<ITreeNode< ? >> {
-	private ITreeNode< ? > m_root;
+public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> {
+	private T m_root;
 
-	public TreeNodeModelBase(ITreeNode< ? > root) {
+	private List<ITreeModelChangedListener<T>> m_listeners = Collections.EMPTY_LIST;
+
+	public TreeNodeModelBase(T root) {
 		m_root = root;
 	}
 
-	public void addChangeListener(ITreeModelChangedListener l) {}
+	@Override
+	public void addChangeListener(ITreeModelChangedListener<T> l) {
+		if(m_listeners == Collections.EMPTY_LIST) {
+			m_listeners = new ArrayList<ITreeModelChangedListener<T>>();
+		}
+		if(m_listeners.contains(l))
+			return;
+		m_listeners.add(l);
+	}
 
-	public void removeChangeListener(ITreeModelChangedListener l) {}
+	@Override
+	public void removeChangeListener(ITreeModelChangedListener<T> l) {
+		m_listeners.remove(l);
+	}
 
-	public ITreeNode< ? > getChild(ITreeNode< ? > parent, int index) throws Exception {
+	protected List<ITreeModelChangedListener<T>> getListeners() {
+		return m_listeners;
+	}
+
+	@Override
+	public T getChild(T parent, int index) throws Exception {
 		return parent.getChild(index);
 	}
 
-	public int getChildCount(ITreeNode< ? > item) throws Exception {
+	@Override
+	public int getChildCount(T item) throws Exception {
 		return item.getChildCount();
 	}
 
-	public ITreeNode< ? > getParent(ITreeNode< ? > child) throws Exception {
+	@Override
+	public T getParent(T child) throws Exception {
 		return child.getParent();
 	}
 
-	public ITreeNode< ? > getRoot() throws Exception {
+	@Override
+	public T getRoot() throws Exception {
 		return m_root;
 	}
 
-	public boolean hasChildren(ITreeNode< ? > item) throws Exception {
+	@Override
+	public boolean hasChildren(T item) throws Exception {
 		return item.hasChildren();
+	}
+
+	@Override
+	public void expandChildren(T item) throws Exception {
+	}
+
+	@Override
+	public void collapseChildren(T item) throws Exception {
 	}
 }

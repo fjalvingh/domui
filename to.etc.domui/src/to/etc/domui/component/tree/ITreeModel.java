@@ -1,4 +1,30 @@
+/*
+ * DomUI Java User Interface library
+ * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ *
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://www.domui.org/
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
 package to.etc.domui.component.tree;
+
+import javax.annotation.*;
 
 /**
  * The base model for a Tree. This encapsulates the knowledge about a tree, and returns tree-based
@@ -13,7 +39,7 @@ public interface ITreeModel<T> {
 	 * @param item
 	 * @return
 	 */
-	public int getChildCount(T item) throws Exception;
+	int getChildCount(@Nonnull T item) throws Exception;
 
 	/**
 	 * If possible this should quickly decide if a tree node has children or not. This is
@@ -26,26 +52,64 @@ public interface ITreeModel<T> {
 	 * @param item
 	 * @return
 	 */
-	public boolean hasChildren(T item) throws Exception;
+	boolean hasChildren(@Nonnull T item) throws Exception;
 
 	/**
 	 * Get the root object of the tree.
 	 * @return
 	 */
-	public T getRoot() throws Exception;
+	@Nonnull
+	T getRoot() throws Exception;
 
 	/**
-	 * Returns the nth child in the parent's list.
+	 * Returns the nth child in the parent's list. This call can do actual expansion the first time it's called
+	 * when a tree is lazily-loaded.
+	 *
 	 * @param parent
 	 * @param index
 	 * @return
 	 * @throws Exception
 	 */
-	public T getChild(T parent, int index) throws Exception;
+	@Nonnull
+	T getChild(@Nonnull T parent, int index) throws Exception;
 
-	public T getParent(T child) throws Exception;
+	/**
+	 * Get the parent node of a child in the tree. This may only return null for the root node.
+	 *
+	 * @param child
+	 * @return
+	 * @throws Exception
+	 */
+	T getParent(@Nonnull T child) throws Exception;
 
-	public void addChangeListener(ITreeModelChangedListener l);
+	/**
+	 * Add a listener to be called when nodes on the tree change.
+	 * @param l
+	 */
+	void addChangeListener(@Nonnull ITreeModelChangedListener<T> l);
 
-	public void removeChangeListener(ITreeModelChangedListener l);
+	/**
+	 * Remove a registered change listener. Fails silently when the listener was not registered at all.
+	 * @param l
+	 */
+	void removeChangeListener(@Nonnull ITreeModelChangedListener<T> l);
+
+	/**
+	 * Called when this node is attempted to be expanded. This call can be used to refresh/lazily load the
+	 * children of the passed node. This call is issued <i>every time</i> this node's tree is expanded so
+	 * take care to only reload when needed.
+	 *
+	 * @param item
+	 * @throws Exception
+	 */
+	void expandChildren(@Nonnull T item) throws Exception;
+
+	/**
+	 * Called when this node's children are to be collapsed. This call is executed for every node that
+	 * was expanded but is collapsed. It can be used to release resources for collapsed nodes.
+	 *
+	 * @param item
+	 * @throws Exception
+	 */
+	void collapseChildren(@Nonnull T item) throws Exception;
 }
