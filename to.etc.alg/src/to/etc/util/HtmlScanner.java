@@ -292,6 +292,10 @@ public class HtmlScanner {
 			m_ix = ix + 1;
 			return true;
 		}
+		if(m_doc.charAt(ix) == '/' && ix + 1 < m_len && m_doc.charAt(ix + 1) == '>') {
+			m_ix = ix + 2;
+			return true;
+		}
 		return false;
 	}
 
