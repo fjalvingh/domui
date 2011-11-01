@@ -468,6 +468,28 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	};
 })(jQuery);
 
+(function ($) {
+	$.fn.setSearchBackgroundImage = function () {
+		if(this.searchTransfomed){
+			return;
+		}
+		var imageUrl = 'url(' + this.attr('search') + ')';
+		this.css('background-image', imageUrl);
+		this.css('background-repeat', 'no-repeat');
+		$(this).bind('focus',function(e){
+			$(this).css('background-image', 'none');
+		});
+		$(this).bind('blur',function(e){
+			if($(this).val().length == 0){
+				$(this).css('background-image', imageUrl);
+			} else {
+				$(this).css('background-image', 'none');
+			}
+		});
+		this.searchTransfomed = true;
+	};
+})(jQuery);
+
 /** WebUI helper namespace */
 var WebUI = {
 	/**
@@ -2658,6 +2680,8 @@ WebUI.onDocumentReady = function() {
 	if(DomUIDevel)
 		WebUI.handleDevelopmentMode();
 	WebUI.doCustomUpdates();
+	$('input[search]').setSearchBackgroundImage();
+	
 };
 
 WebUI.floatingDivResize = function(ev, ui) {

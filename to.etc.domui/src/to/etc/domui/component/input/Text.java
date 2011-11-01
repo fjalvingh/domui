@@ -83,6 +83,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 */
 	private boolean m_untrimmed;
 
+
+	/**
+	 * If T have searchMarker is defined, element gets image in background. Image will be hidden on client side when element have focus or some entered value.
+	 */
+	private String m_searchMarker;
+
 	public static enum NumberMode {
 		NONE, DIGITS, FLOAT,
 	}
@@ -389,6 +395,24 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	//	private boolean isValidated() {
 	//		return m_validated;
 	//	}
+
+	/**
+	 * Method can be used to show image, with magnifier icon and label, in background of input. Image is hidden when input have focus or entered value.
+	 * @param searchMarker URL of background image
+	 */
+	public void setSearchMarker(String searchMarker) {
+		if(!DomUtil.isBlank(searchMarker)) {
+			setSpecialAttribute("search", searchMarker);
+		}
+		m_searchMarker = searchMarker;
+	}
+
+	/**
+	 * Method returns input background image url.
+	 */
+	public String getSearchMarker() {
+		return m_searchMarker;
+	}
 
 	/**
 	 * Returns the current numeric mode in effect. This mode prevents letters from being input on the screen.
