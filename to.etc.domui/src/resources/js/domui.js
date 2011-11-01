@@ -469,7 +469,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 })(jQuery);
 
 (function ($) {
-	$.fn.setSearchBackgroundImage = function () {
+	$.fn.setBackgroundImageMarker = function () {
 		if(this.searchTransfomed){
 			return;
 		}
@@ -2673,6 +2673,7 @@ var DomUI = WebUI;
 WebUI.doCustomUpdates = function() {
 	$('[stretch=true]').doStretch();
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
+	$('input[search]').setBackgroundImageMarker();
 };
 
 WebUI.onDocumentReady = function() {
@@ -2680,7 +2681,6 @@ WebUI.onDocumentReady = function() {
 	if(DomUIDevel)
 		WebUI.handleDevelopmentMode();
 	WebUI.doCustomUpdates();
-	$('input[search]').setSearchBackgroundImage();
 	
 };
 

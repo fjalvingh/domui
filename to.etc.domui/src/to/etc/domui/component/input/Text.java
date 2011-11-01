@@ -85,7 +85,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 
 
 	/**
-	 * If T have searchMarker is defined, element gets image in background. Image will be hidden on client side when element have focus or some entered value.
+	 * @see Text#getSearchMarker()
 	 */
 	private String m_searchMarker;
 
@@ -397,6 +397,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	//	}
 
 	/**
+	 * Dynamically add background image for searchMarker <br>
 	 * Method can be used to show image, with magnifier icon and label, in background of input. Image is hidden when input have focus or entered value.
 	 * @param searchMarker URL of background image
 	 */
@@ -408,7 +409,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * Method returns input background image url.
+	 * @see Text#setSearchMarker(String)
 	 */
 	public String getSearchMarker() {
 		return m_searchMarker;
