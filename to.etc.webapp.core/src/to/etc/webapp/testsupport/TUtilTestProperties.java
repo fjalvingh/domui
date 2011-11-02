@@ -38,6 +38,8 @@ public class TUtilTestProperties {
 
 	static private boolean m_gotLoginName;
 
+	private static ConnectionPool m_connectionPool;
+
 
 	@Nonnull
 	static public Properties getTestProperties() {
@@ -253,9 +255,9 @@ public class TUtilTestProperties {
 		if(m_rawDS == null) {
 			String url = "jdbc:oracle:thin:@" + getDbConn().hostname + ":" + getDbConn().port + ":" + getDbConn().sid;
 			try {
-				ConnectionPool p = PoolManager.getInstance().definePool("test", "oracle.jdbc.driver.OracleDriver", url, getDbConn().userid, getDbConn().password,
+				m_connectionPool = PoolManager.getInstance().definePool("test", "oracle.jdbc.driver.OracleDriver", url, getDbConn().userid, getDbConn().password,
 					getTestProperties().getProperty("driverpath"));
-				m_rawDS = p.getUnpooledDataSource();
+				m_rawDS = m_connectionPool.getUnpooledDataSource();
 			} catch(SQLException x) {
 				throw new RuntimeException("cannot init pool: " + x, x);
 			}
@@ -265,5 +267,18 @@ public class TUtilTestProperties {
 
 	static public Connection makeRawConnection() throws Exception {
 		return getRawDataSource().getConnection();
+	}
+
+	/**
+	 * When set to true, all connections allocated on <b>the same thread</b> will have the "disable commit"
+	 * flag set (see {@link ConnectionPool#setCommitDisabled(boolean)}. This allows changes to a test database
+	 * without commiting those changes. The result of the test should be tested using the same database
+	 * connection as the one altering the data.
+	 * @param on
+	 */
+	static public void setCommitDisabled(boolean on) {
+		if(m_connectionPool == null)
+			return;
+		m_connectionPool.setCommitDisabled(on);
 	}
 }
