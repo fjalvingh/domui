@@ -83,6 +83,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 */
 	private boolean m_untrimmed;
 
+
+	/**
+	 * @see Text#getSearchMarker()
+	 */
+	private String m_searchMarker;
+
 	public static enum NumberMode {
 		NONE, DIGITS, FLOAT,
 	}
@@ -389,6 +395,25 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	//	private boolean isValidated() {
 	//		return m_validated;
 	//	}
+
+	/**
+	 * Dynamically add background image for searchMarker <br>
+	 * Method can be used to show image, with magnifier icon and label, in background of input. Image is hidden when input have focus or entered value.
+	 * @param searchMarker URL of background image
+	 */
+	public void setSearchMarker(String searchMarker) {
+		if(!DomUtil.isBlank(searchMarker)) {
+			setSpecialAttribute("search", searchMarker);
+		}
+		m_searchMarker = searchMarker;
+	}
+
+	/**
+	 * @see Text#setSearchMarker(String)
+	 */
+	public String getSearchMarker() {
+		return m_searchMarker;
+	}
 
 	/**
 	 * Returns the current numeric mode in effect. This mode prevents letters from being input on the screen.

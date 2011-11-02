@@ -468,6 +468,32 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	};
 })(jQuery);
 
+(function ($) {
+	$.fn.setBackgroundImageMarker = function () {
+		return this.each(function () {
+			if($(this).searchTransfomed){
+				return;
+			}
+			var imageUrl = 'url(' + $(this).attr('search') + ')';
+			if(!$(this).is(":focus") && $(this).val().length == 0){
+				$(this).css('background-image', imageUrl);
+			}
+			$(this).css('background-repeat', 'no-repeat');
+			$(this).bind('focus',function(e){
+				$(this).css('background-image', 'none');
+			});
+			$(this).bind('blur',function(e){
+				if($(this).val().length == 0){
+					$(this).css('background-image', imageUrl);
+				} else {
+					$(this).css('background-image', 'none');
+				}
+			});
+			$(this).searchTransfomed = true;
+		});
+	};
+})(jQuery);
+
 /** WebUI helper namespace */
 var WebUI = {
 	/**
@@ -2651,6 +2677,7 @@ var DomUI = WebUI;
 WebUI.doCustomUpdates = function() {
 	$('[stretch=true]').doStretch();
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
+	$('input[search]').setBackgroundImageMarker();
 };
 
 WebUI.onDocumentReady = function() {
@@ -2658,6 +2685,7 @@ WebUI.onDocumentReady = function() {
 	if(DomUIDevel)
 		WebUI.handleDevelopmentMode();
 	WebUI.doCustomUpdates();
+	
 };
 
 WebUI.floatingDivResize = function(ev, ui) {
