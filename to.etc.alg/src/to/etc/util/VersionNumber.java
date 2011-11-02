@@ -46,6 +46,24 @@ final public class VersionNumber implements Comparable<VersionNumber> {
 		return sb.toString();
 	}
 
+	public String toString(int mindigits) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(m_prefix);
+		if(mindigits < m_version.length)
+			mindigits = m_version.length;
+
+		for(int i = 0; i < mindigits; i++) {
+			if(i != 0)
+				sb.append('.');
+			if(i >= m_version.length)
+				sb.append('0');
+			else
+				sb.append(m_version[i]);
+		}
+		sb.append(m_suffix);
+		return sb.toString();
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -215,6 +233,13 @@ final public class VersionNumber implements Comparable<VersionNumber> {
 		return m_prefix.equals(o.m_prefix) && m_suffix.equals(o.m_suffix);
 	}
 
+	/**
+	 * Return T if the version number starts with 99 or higher, as an indication this is a development thing.
+	 * @return
+	 */
+	public boolean isDevelopment() {
+		return m_version[0] >= 99;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Test code.											*/
