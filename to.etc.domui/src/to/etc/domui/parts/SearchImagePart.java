@@ -106,7 +106,7 @@ public class SearchImagePart implements IBufferedPartFactory {
 		if(DomUtil.isBlank(labelText)) {
 			labelText = "";
 		}
-		String url = UIContext.getRequestContext().getRelativePath(SearchImagePart.getURL(labelText));
+		String url = UIContext.getRequestContext().getRelativePath(getURL(labelText));
 		return url;
 	}
 

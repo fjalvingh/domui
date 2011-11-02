@@ -470,23 +470,27 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 
 (function ($) {
 	$.fn.setBackgroundImageMarker = function () {
-		if(this.searchTransfomed){
-			return;
-		}
-		var imageUrl = 'url(' + this.attr('search') + ')';
-		this.css('background-image', imageUrl);
-		this.css('background-repeat', 'no-repeat');
-		$(this).bind('focus',function(e){
-			$(this).css('background-image', 'none');
-		});
-		$(this).bind('blur',function(e){
-			if($(this).val().length == 0){
-				$(this).css('background-image', imageUrl);
-			} else {
-				$(this).css('background-image', 'none');
+		return this.each(function () {
+			if($(this).searchTransfomed){
+				return;
 			}
+			var imageUrl = 'url(' + $(this).attr('search') + ')';
+			if(!$(this).is(":focus") && $(this).val().length == 0){
+				$(this).css('background-image', imageUrl);
+			}
+			$(this).css('background-repeat', 'no-repeat');
+			$(this).bind('focus',function(e){
+				$(this).css('background-image', 'none');
+			});
+			$(this).bind('blur',function(e){
+				if($(this).val().length == 0){
+					$(this).css('background-image', imageUrl);
+				} else {
+					$(this).css('background-image', 'none');
+				}
+			});
+			$(this).searchTransfomed = true;
 		});
-		this.searchTransfomed = true;
 	};
 })(jQuery);
 
