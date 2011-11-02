@@ -143,7 +143,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			if(LOG.isDebugEnabled())
 				LOG.debug("OBITUARY received for " + cid + ": pageTag=" + pageTag);
-			System.out.println("OBITUARY received for " + cid + ": pageTag=" + pageTag);
 			ctx.getSession().internalObituaryReceived(cida[0], pageTag);
 
 			//-- Send a silly response.
@@ -722,7 +721,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			return;
 		//		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
 		pg.internalFullBuild();
-//		pg.build();
+		//		pg.build();
 		for(INewPageInstantiated npi : m_application.getNewPageInstantiatedListeners())
 			npi.newPageInstantiated(pg.getBody());
 	}

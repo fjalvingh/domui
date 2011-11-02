@@ -2654,6 +2654,7 @@ WebUI.floatingDivResize = function(ev, ui) {
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
 };
 
+
 WebUI.onWindowResize = function() {
 	WebUI.doCustomUpdates();
 };

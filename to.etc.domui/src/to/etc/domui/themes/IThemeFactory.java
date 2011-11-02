@@ -24,6 +24,8 @@
  */
 package to.etc.domui.themes;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 
 /**
@@ -33,5 +35,5 @@ import to.etc.domui.server.*;
  * Created on Jan 11, 2011
  */
 public interface IThemeFactory {
-	ITheme loadTheme(DomApplication da) throws Exception;
+	ITheme loadTheme(@Nonnull DomApplication da) throws Exception;
 }
