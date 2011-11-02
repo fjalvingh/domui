@@ -1,6 +1,20 @@
 package to.etc.util;
 
-public class VersionNumber {
+import java.util.*;
+
+/**
+ * A version number represented as a string like "pppx.x.xsss". The version consists of
+ * an optional prefix, a list of dotted numbers of any length, and an optional suffix. Both
+ * prefix and suffix can only contain latin letters, and there is no punctuation between them
+ * and the dotted number.
+ * <p>The dotted number will always be "normalized", meaning that all trailing zeroes will be
+ * removed all of the time. In comparisons missing trailing numbers will behave as zeroes.</p>
+ *
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 2, 2011
+ */
+final public class VersionNumber implements Comparable<VersionNumber> {
 	/** Any textual string before the x.x.x version #, or empty string if no such string is present. */
 	final private String	m_prefix;
 
@@ -30,6 +44,40 @@ public class VersionNumber {
 		}
 		sb.append(m_suffix);
 		return sb.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((m_prefix == null) ? 0 : m_prefix.hashCode());
+		result = prime * result + ((m_suffix == null) ? 0 : m_suffix.hashCode());
+		result = prime * result + Arrays.hashCode(m_version);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj)
+			return true;
+		if(obj == null)
+			return false;
+		if(getClass() != obj.getClass())
+			return false;
+		VersionNumber other = (VersionNumber) obj;
+		if(m_prefix == null) {
+			if(other.m_prefix != null)
+				return false;
+		} else if(!m_prefix.equals(other.m_prefix))
+			return false;
+		if(m_suffix == null) {
+			if(other.m_suffix != null)
+				return false;
+		} else if(!m_suffix.equals(other.m_suffix))
+			return false;
+		if(!Arrays.equals(m_version, other.m_version))
+			return false;
+		return true;
 	}
 
 	/**
@@ -99,6 +147,84 @@ public class VersionNumber {
 		return new VersionNumber(prefix, res, suffix);
 	}
 
+	@Override
+	public int compareTo(VersionNumber o) {
+		int r = m_prefix.compareTo(o.m_prefix);
+		if(r != 0)
+			return r;
+		r = compareVersion(m_version, o.m_version);
+		if(r != 0)
+			return r;
+		return m_suffix.compareTo(o.m_suffix);
+	}
+
+	static private int compareVersion(int[] a, int[] b) {
+		if(a == null && b == null)
+			return 0;
+		else if(a != null && b == null)
+			return -1;
+		else if(a == null && b != null)
+			return 1;
+		if(a.length == 0 && b.length == 0)
+			return 0;
+
+		int clen = a.length; // Find common length
+		if(clen > b.length)
+			clen = b.length;
+
+		//-- Common length comparison
+		for(int i = 0; i < clen; i++) {
+			int res = a[i] - b[i];
+			if(res != 0)
+				return res < 0 ? -1 : 1;
+		}
+
+		//-- Common lengths are same.
+		if(a.length == b.length)
+			return 0;
+
+		//-- Treat 3.0 and 3.0.0 the same (equal versions)
+		if(a.length > b.length) {
+			if(isRestZero(a, clen))
+				return 0;
+			return 1; // a is bigger version  (3.0.0.0.1 vs 3.0)
+		} else {
+			if(isRestZero(b, clen))
+				return 0;
+			return -1; // a is bigger version  (3.0.0.0.1 vs 3.0)
+		}
+	}
+
+	static private boolean isRestZero(int[] a, int ix) {
+		while(ix < a.length) {
+			if(a[ix++] != 0)
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Returns T if both numbers have the same prefix and suffix. Meaningful
+	 * version# comparison can be done only if this condition holds really.
+	 * @param o
+	 * @return
+	 */
+	public boolean isSameBase(VersionNumber o) {
+		if(null == o)
+			return false;
+		return m_prefix.equals(o.m_prefix) && m_suffix.equals(o.m_suffix);
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Test code.											*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param in
+	 * @param out
+	 * @throws Exception
+	 */
 	static private void check(String in, String out) throws Exception {
 		VersionNumber vn = parse(in);
 		String vns = vn.toString();
