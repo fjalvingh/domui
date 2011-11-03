@@ -37,23 +37,26 @@ import to.etc.domui.server.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
-import to.etc.sjit.*;
 import to.etc.util.*;
 
 /**
  * Generates background image for specified search field caption. 
- * Usualy used by {@link Text#setSearchMarker(String)}
+ * Usually used by {@link Text#setSearchMarker(String)}
  * 
  *
  * @author <a href="mailto:btadic@execom.eu">Bojan Tadic</a>
  * Created on Nov 1, 2011
  */
 public class SearchImagePart implements IBufferedPartFactory {
-	static private final String PREFIX = "$searchMarker$";
+
+	private static final String DEFAULT_ICON = "THEME/icon-search.png";
+
+	private static final Color DEFAULT_COLOR = Color.GRAY;
 
 	@Override
 	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
-		return PREFIX + rurl;
+		SearchImagePartKey key = SearchImagePartKey.decode(param);
+		return key;
 	}
 
 	/**
@@ -62,18 +65,20 @@ public class SearchImagePart implements IBufferedPartFactory {
 	 */
 	@Override
 	public void generate(PartResponse pr, DomApplication da, Object key, IResourceDependencyList rdl) throws Exception {
-		String ext = ((String) key).substring(PREFIX.length()).replace("_", " ");
+		SearchImagePartKey sipKey = (SearchImagePartKey) key;
 
 		InputStream is = null;
-		try {
 
-			is = getInputStream(drawImage(ext));
+		try {
+			BufferedImage bi = PartUtil.loadImage(da, da.getThemedResourceRURL(DomUtil.isBlank(sipKey.getIcon()) ? DEFAULT_ICON : sipKey.getIcon().trim()), rdl);
+			is = getInputStream(drawImage(bi, sipKey.getCaption(), sipKey.getColor()));
 
 			if(is == null)
 				throw new IllegalStateException("Image is generated incorrectly");
 			FileTool.copyFile(pr.getOutputStream(), is);
 			pr.setMime("image/png");
 			pr.setCacheTime(da.getDefaultExpiryTime());
+
 		} finally {
 			try {
 				if(is != null)
@@ -90,50 +95,105 @@ public class SearchImagePart implements IBufferedPartFactory {
 		return stream;
 	}
 
-	private static String getURL(String ext) {
-		String formated = ext.replace(" ", "_");
-		return SearchImagePart.class.getName() + ".part/" + formated;
+	private static String getURL(String icon, String caption, String color) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(SearchImagePart.class.getName()).append(".part");
+		boolean paramExists = false;
+		paramExists = SearchImagePartKey.appendParam(sb, paramExists, SearchImagePartKey.PARAM_ICON, icon);
+		paramExists = SearchImagePartKey.appendParam(sb, paramExists, SearchImagePartKey.PARAM_CAPTION, caption);
+		paramExists = SearchImagePartKey.appendParam(sb, paramExists, SearchImagePartKey.PARAM_COLOR, color);
+		return sb.toString();
 	}
 
 	/**
-	 * Dinamicly add backgroudn image for search marker.
-	 * Background image have small magnifier icon and difined text (labelText)
-	 *  
-	 * @param labelText text printed on the image
+	 * Dynamically add background image for search marker.
+	 * Background image have small magnifier icon (THEME/icon-search.png)
 	 * @return
 	 */
-	public static String getBackgroundImage(String labelText) {
-		if(DomUtil.isBlank(labelText)) {
-			labelText = "";
-		}
-		String url = UIContext.getRequestContext().getRelativePath(getURL(labelText));
+	public static String getBackgroundIconOnly() {
+		return getBackgroundImage(null, null, null);
+	}
+
+	/**
+	 * Dynamically add background image for search marker.
+	 * Background image will have only defined icon
+	 * 
+	 * @param icon
+	 * @return
+	 */
+	public static String getBackgroundIconOnly(String icon) {
+		return getBackgroundImage(icon, null, null);
+	}
+
+	/**
+	 * Dynamically add background image for search marker.
+	 * Background image have small magnifier icon and and defined text (caption)
+	 *
+	 * @param caption
+	 * @return
+	 */
+	public static String getBackgroundImage(String caption) {
+		return getBackgroundImage(null, caption, null);
+	}
+
+	/**
+	 * Dynamically add background image for search marker.
+	 * Background image have small defined icon and and defined text (caption)
+	 * 
+	 * @param icon
+	 * @param caption
+	 * @return
+	 */
+	public static String getBackgroundImage(String icon, String caption) {
+		return getBackgroundImage(icon, caption, null);
+	}
+
+	/**
+	 * Dynamically add background image for search marker.
+	 * Background image have small defined icon and and defined text (caption) in defined color
+	 * @param icon
+	 * @param caption
+	 * @param color
+	 * @return
+	 */
+	public static String getBackgroundImage(String icon, String caption, String color) {
+		String url = UIContext.getRequestContext().getRelativePath(getURL(icon, caption, color));
 		return url;
 	}
 
 	/**
-	 * Draw small magnifier icon and difined text
-	 * @param labelText
+	 * Draw background image with icon and caption 
+	 * @param searchIcon
+	 * @param caption
+	 * @param captionColor
 	 * @return
 	 */
-	private BufferedImage drawImage(@Nonnull String labelText) {
+	private BufferedImage drawImage(@Nonnull BufferedImage searchIcon, @Nullable String caption, @Nullable String captionColor) {
 		BufferedImage bufferedImage = new BufferedImage(200, 20, BufferedImage.TRANSLUCENT);
 
 		Graphics2D g = bufferedImage.createGraphics();
 		g.setComposite(makeComposite(0.3F));
 
-		InputStream inputStream = SearchImagePart.class.getResourceAsStream("icon-search.png");
-		BufferedImage searchIcon = null;
-		try {
-			searchIcon = ImaTool.loadPNG(inputStream);
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
 		g.drawImage(searchIcon, null, 0, 0);
 
-		if(!DomUtil.isBlank(labelText.trim())) {
-			Font font = new Font("VERDANA", Font.BOLD, 10);
-			drawText(g, font, labelText, 21, 1, new Color(Integer.parseInt("E7E7E7", 16)));
-			drawText(g, font, labelText, 20, 0, new Color(Integer.parseInt("5C5C5C", 16)));
+		if(!DomUtil.isBlank(caption)) {
+			Font font = new Font("ARIAL", Font.BOLD, 10);
+			Color capColor = null;
+			if(!DomUtil.isBlank(captionColor)) {
+				try {
+					if(captionColor.startsWith("#")) {
+						captionColor = captionColor.substring(1);
+					}
+					capColor = new Color(Integer.parseInt(captionColor, 16));
+				} catch(Exception ex) {
+					//just ignore
+				}
+			}
+			if(capColor == null) {
+				capColor = DEFAULT_COLOR;
+			}
+			drawText(g, font, caption, 21, 1, Color.WHITE);
+			drawText(g, font, caption, 20, 0, capColor);
 		}
 
 		return bufferedImage;
@@ -150,7 +210,7 @@ public class SearchImagePart implements IBufferedPartFactory {
 	}
 
 	/**
-	 * Draw String on convas.
+	 * Draw String on canvas.
 	 *
 	 * @param g
 	 * @param textValue

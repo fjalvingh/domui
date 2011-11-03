@@ -402,7 +402,9 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * @param searchMarker URL of background image
 	 */
 	public void setSearchMarker(String searchMarker) {
-		if(!DomUtil.isBlank(searchMarker)) {
+		if(DomUtil.isBlank(searchMarker)) {
+			setSpecialAttribute("search", null);
+		} else {
 			setSpecialAttribute("search", searchMarker);
 		}
 		m_searchMarker = searchMarker;
