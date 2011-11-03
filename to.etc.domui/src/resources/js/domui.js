@@ -475,7 +475,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				return;
 			}
 			var imageUrl = 'url(' + $(this).attr('search') + ')';
-			if(!$(this).is(":focus") && $(this).val().length == 0){
+			if((!(this == document.activeElement)) && $(this).val().length == 0){
 				$(this).css('background-image', imageUrl);
 			}
 			$(this).css('background-repeat', 'no-repeat');
