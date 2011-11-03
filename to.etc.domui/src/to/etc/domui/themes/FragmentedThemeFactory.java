@@ -50,7 +50,7 @@ import to.etc.util.*;
  * Created on Jan 5, 2011
  */
 public class FragmentedThemeFactory implements IThemeFactory {
-	static public final FragmentedThemeFactory INSTANCE = new FragmentedThemeFactory();
+	static private final FragmentedThemeFactory INSTANCE = new FragmentedThemeFactory();
 
 	private DomApplication m_application;
 
@@ -74,6 +74,10 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	protected FragmentedThemeFactory(DomApplication da, String themeName) {
 		m_application = da;
 		m_themeName = themeName;
+	}
+
+	static public FragmentedThemeFactory getInstance() {
+		return INSTANCE;
 	}
 
 	/*--------------------------------------------------------------*/
