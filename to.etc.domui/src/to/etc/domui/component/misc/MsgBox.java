@@ -173,6 +173,17 @@ public class MsgBox extends Window {
 		box.construct();
 	}
 
+	public static void dialog(NodeBase dad, String title, IAnswer onAnswer, INodeContentRenderer<String> contentRenderer) {
+		MsgBox box = create(dad);
+		box.setType(Type.DIALOG);
+		box.setWindowTitle(title);
+		box.addButton(MsgBoxButton.CANCEL);
+		box.setCloseButton(MsgBoxButton.CANCEL);
+		box.setOnAnswer(onAnswer);
+		box.setDataRenderer(contentRenderer);
+		box.construct();
+	}
+
 	public static void yesNoCancel(NodeBase dad, String string, IAnswer onAnswer) {
 		MsgBox box = create(dad);
 		box.setType(Type.DIALOG);
