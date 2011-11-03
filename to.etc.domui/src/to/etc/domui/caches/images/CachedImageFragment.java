@@ -55,7 +55,7 @@ class CachedImageFragment {
 	CachedImageFragment m_lruPrev, m_lruNext;
 
 	@GuardedBy("cache()")
-	InstanceCacheState m_cacheState;
+	InstanceCacheState m_cacheState = InstanceCacheState.NONE;
 
 	/** The current actual memory size taken by this entry. */
 	@GuardedBy("getRoot()")

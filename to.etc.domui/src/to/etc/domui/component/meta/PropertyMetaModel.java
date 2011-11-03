@@ -363,25 +363,13 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	ControlFactory getControlFactory();
 
 	/**
-	 * Return the column name(s) for this property <b>if</b> this is a persisted column in a persistent class.
-	 */
-	@Nonnull
-	String[] getColumnNames();
-
-	/*
-	 * For Lookup and Combo fields, this can return a QueryManipulator instance that will alter the base
-	 * query for the thing to show.
-	 * @return
-	 */
-	@Nullable
-	IQueryManipulator<T> getQueryManipulator();
-
-	/**
 	 * If the property has some kind of "annotation" (which in here does not need to be a Java annotation, but
 	 * which can also be some other java class containing data) this returns it.
 	 * @param <A>
 	 * @param annclass
+	 * @return
 	 */
+	@Nullable
 	<A> A getAnnotation(@Nonnull Class<A> annclass);
 
 	/**
@@ -392,4 +380,17 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 */
 	@Nonnull
 	List<Object> getAnnotations();
+
+	/**
+	 * Return the column name(s) for this property <b>if</b> this is a persisted column in a persistent class.
+	 */
+	String[] getColumnNames();
+
+	/**
+	 * For Lookup and Combo fields, this can return a QueryManipulator instance that will alter the base
+	 * query for the thing to show.
+	 * @return
+	 */
+	@Nullable
+	IQueryManipulator<T> getQueryManipulator();
 }

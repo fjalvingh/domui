@@ -107,6 +107,11 @@ public class UrlEntityInjector extends PropertyInjector {
 		if(pmm == null)
 			throw new RuntimeException("Cannot find the primary key property for entity class '" + m_entityClass + "' for URL parameter=" + m_name + " of page=" + page.getClass() + ": ");
 
+		// if the parametervalue has no value and the type of the key is Number, we treet it like no parameter was filled in
+		// the mandatorycheck will be done some later
+		if(Number.class.isAssignableFrom(pmm.getActualType()) && pv != null && pv.length() == 0)
+			return null;
+
 		//-- Convert the URL's value to the TYPE of the primary key, using URL converters.
 		Object pk = CompoundKeyConverter.INSTANCE.unmarshal(dc, pmm.getActualType(), pv);
 		//		Object pk = ConverterRegistry.convertURLStringToValue(pmm.getActualType(), pv);
@@ -136,10 +141,18 @@ public class UrlEntityInjector extends PropertyInjector {
 		} else {
 			QDataContext dc = QContextManager.getContext(page.getPage());
 			Object pk = getKeyInstance(dc, page, pv);
-			value = dc.find(m_entityClass, pk);
-			//			value = loadInstance(page, pv);
-			if(value == null && m_mandatory)
-				throw new QNotFoundException(m_entityClass, pk);
+			if(pk == null) {
+				if(m_mandatory) {
+					throw new QNotFoundException(m_entityClass, pk);
+				}
+				return;
+			} else {
+				value = dc.find(m_entityClass, pk);
+				//			value = loadInstance(page, pv);
+				if(value == null && m_mandatory) {
+					throw new QNotFoundException(m_entityClass, pk);
+				}
+			}
 		}
 		setValue(page, value);
 	}
