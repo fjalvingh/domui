@@ -82,7 +82,7 @@ class KeyWordSearchInput<T> extends Div {
 		}
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
-		m_keySearch.setSearchMarker(SearchImagePart.getBackgroundIconOnly());
+		m_keySearch.setEmptyMarker(MarkerImagePart.getBackgroundIconOnly());
 
 		m_keySearch.setOnLookupTyping(new ILookupTypingListener<TextStr>() {
 

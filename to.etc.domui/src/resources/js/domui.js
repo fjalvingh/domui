@@ -471,10 +471,10 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 (function ($) {
 	$.fn.setBackgroundImageMarker = function () {
 		return this.each(function () {
-			if($(this).searchTransfomed){
+			if($(this).markerTransfomed){
 				return;
 			}
-			var imageUrl = 'url(' + $(this).attr('search') + ')';
+			var imageUrl = 'url(' + $(this).attr('marker') + ')';
 			if((!(this == document.activeElement)) && $(this).val().length == 0){
 				$(this).css('background-image', imageUrl);
 			}
@@ -489,7 +489,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					$(this).css('background-image', 'none');
 				}
 			});
-			$(this).searchTransfomed = true;
+			$(this).markerTransfomed = true;
 		});
 	};
 })(jQuery);
@@ -2677,7 +2677,7 @@ var DomUI = WebUI;
 WebUI.doCustomUpdates = function() {
 	$('[stretch=true]').doStretch();
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
-	$('input[search]').setBackgroundImageMarker();
+	$('input[marker]').setBackgroundImageMarker();
 };
 
 WebUI.onDocumentReady = function() {

@@ -28,13 +28,13 @@ import to.etc.domui.server.*;
 import to.etc.util.*;
 
 /**
- * Key for cache. Used in {@link SearchImagePart}
+ * Key for cache. Used in {@link MarkerImagePart}
  * 
  *
  * @author <a href="mailto:btadic@execom.eu">Bojan Tadic</a>
  * Created on Nov 3, 2011
  */
-public class SearchImagePartKey {
+public class MarkerImagePartKey {
 	static final String PARAM_ICON = "icon";
 
 	static final String PARAM_CAPTION = "caption";
@@ -47,8 +47,8 @@ public class SearchImagePartKey {
 
 	private String m_color;
 
-	static public SearchImagePartKey decode(IExtendedParameterInfo info) {
-		SearchImagePartKey k = new SearchImagePartKey();
+	static public MarkerImagePartKey decode(IExtendedParameterInfo info) {
+		MarkerImagePartKey k = new MarkerImagePartKey();
 		k.setCaption(info.getParameter(PARAM_CAPTION));
 		k.setIcon(info.getParameter(PARAM_ICON));
 		k.setColor(info.getParameter(PARAM_COLOR));
@@ -83,7 +83,7 @@ public class SearchImagePartKey {
 			return false;
 		if(getClass() != obj.getClass())
 			return false;
-		SearchImagePartKey other = (SearchImagePartKey) obj;
+		MarkerImagePartKey other = (MarkerImagePartKey) obj;
 		if(getColor() == null) {
 			if(other.getColor() != null)
 				return false;

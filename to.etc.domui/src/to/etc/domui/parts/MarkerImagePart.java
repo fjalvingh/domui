@@ -40,14 +40,14 @@ import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 
 /**
- * Generates background image for specified search field caption. 
- * Usually used by {@link Text#setSearchMarker(String)}
+ * Generates background image for specified input field caption. 
+ * Usually used by {@link Text#setEmptyMarker(String)}
  * 
  *
  * @author <a href="mailto:btadic@execom.eu">Bojan Tadic</a>
  * Created on Nov 1, 2011
  */
-public class SearchImagePart implements IBufferedPartFactory {
+public class MarkerImagePart implements IBufferedPartFactory {
 
 	private static final String DEFAULT_ICON = "THEME/icon-search.png";
 
@@ -55,7 +55,7 @@ public class SearchImagePart implements IBufferedPartFactory {
 
 	@Override
 	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
-		SearchImagePartKey key = SearchImagePartKey.decode(param);
+		MarkerImagePartKey key = MarkerImagePartKey.decode(param);
 		return key;
 	}
 
@@ -65,7 +65,7 @@ public class SearchImagePart implements IBufferedPartFactory {
 	 */
 	@Override
 	public void generate(PartResponse pr, DomApplication da, Object key, IResourceDependencyList rdl) throws Exception {
-		SearchImagePartKey sipKey = (SearchImagePartKey) key;
+		MarkerImagePartKey sipKey = (MarkerImagePartKey) key;
 
 		InputStream is = null;
 
@@ -97,16 +97,16 @@ public class SearchImagePart implements IBufferedPartFactory {
 
 	private static String getURL(String icon, String caption, String color) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(SearchImagePart.class.getName()).append(".part");
+		sb.append(MarkerImagePart.class.getName()).append(".part");
 		boolean paramExists = false;
-		paramExists = SearchImagePartKey.appendParam(sb, paramExists, SearchImagePartKey.PARAM_ICON, icon);
-		paramExists = SearchImagePartKey.appendParam(sb, paramExists, SearchImagePartKey.PARAM_CAPTION, caption);
-		paramExists = SearchImagePartKey.appendParam(sb, paramExists, SearchImagePartKey.PARAM_COLOR, color);
+		paramExists = MarkerImagePartKey.appendParam(sb, paramExists, MarkerImagePartKey.PARAM_ICON, icon);
+		paramExists = MarkerImagePartKey.appendParam(sb, paramExists, MarkerImagePartKey.PARAM_CAPTION, caption);
+		paramExists = MarkerImagePartKey.appendParam(sb, paramExists, MarkerImagePartKey.PARAM_COLOR, color);
 		return sb.toString();
 	}
 
 	/**
-	 * Dynamically add background image for search marker.
+	 * Dynamically add background image for emptyMarker.
 	 * Background image have small magnifier icon (THEME/icon-search.png)
 	 * @return
 	 */
@@ -115,7 +115,7 @@ public class SearchImagePart implements IBufferedPartFactory {
 	}
 
 	/**
-	 * Dynamically add background image for search marker.
+	 * Dynamically add background image for emptyMarker.
 	 * Background image will have only defined icon
 	 * 
 	 * @param icon
@@ -126,7 +126,7 @@ public class SearchImagePart implements IBufferedPartFactory {
 	}
 
 	/**
-	 * Dynamically add background image for search marker.
+	 * Dynamically add background image for emptyMarker.
 	 * Background image have small magnifier icon and and defined text (caption)
 	 *
 	 * @param caption
@@ -137,7 +137,7 @@ public class SearchImagePart implements IBufferedPartFactory {
 	}
 
 	/**
-	 * Dynamically add background image for search marker.
+	 * Dynamically add background image for emptyMarker.
 	 * Background image have small defined icon and and defined text (caption)
 	 * 
 	 * @param icon
@@ -149,7 +149,7 @@ public class SearchImagePart implements IBufferedPartFactory {
 	}
 
 	/**
-	 * Dynamically add background image for search marker.
+	 * Dynamically add background image for emptyMarker.
 	 * Background image have small defined icon and and defined text (caption) in defined color
 	 * @param icon
 	 * @param caption
@@ -163,18 +163,18 @@ public class SearchImagePart implements IBufferedPartFactory {
 
 	/**
 	 * Draw background image with icon and caption 
-	 * @param searchIcon
+	 * @param icon
 	 * @param caption
 	 * @param captionColor
 	 * @return
 	 */
-	private BufferedImage drawImage(@Nonnull BufferedImage searchIcon, @Nullable String caption, @Nullable String captionColor) {
+	private BufferedImage drawImage(@Nonnull BufferedImage icon, @Nullable String caption, @Nullable String captionColor) {
 		BufferedImage bufferedImage = new BufferedImage(200, 20, BufferedImage.TRANSLUCENT);
 
 		Graphics2D g = bufferedImage.createGraphics();
 		g.setComposite(makeComposite(0.3F));
 
-		g.drawImage(searchIcon, null, 0, 0);
+		g.drawImage(icon, null, 0, 0);
 
 		if(!DomUtil.isBlank(caption)) {
 			Font font = new Font("ARIAL", Font.BOLD, 10);
