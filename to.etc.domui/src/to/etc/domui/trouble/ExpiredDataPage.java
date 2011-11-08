@@ -32,19 +32,20 @@ import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 
 public class ExpiredDataPage extends UrlPage {
+
 	@Override
 	public void createContent() throws Exception {
 		//-- Error message
 		String msg = getPage().getPageParameters().getString("errorMessage");
 
-		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString("expired.data.title"));
+		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString(Msgs.DATA_EXPIRED_TITLE));
 		add(ep);
 		Table t = new Table();
 		ep.getContent().add(t);
 		t.setWidth("100%");
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
-		Img img = new Img(ExpiredDataPage.class, "dataExpired.png");
+		Img img = new Img("THEME/dataExpired.png");
 		//		img.setAlign(ImgAlign.LEFT);
 		td.add(img);
 		td.setWidth("1%");
