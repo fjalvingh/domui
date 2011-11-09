@@ -53,7 +53,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	private final DomApplication m_application;
 
 	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
-	
+
 	public ApplicationRequestHandler(final DomApplication application) {
 		m_application = application;
 	}
@@ -434,8 +434,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- Add info about the failed thingy.
 		StringBuilder sb = new StringBuilder(128);
 		sb.append(rurl);
-		sb.append("?targetPage=");
-		StringTool.encodeURLEncoded(sb, clz.getName());
+		DomUtil.addUrlParameters(sb, new PageParameters(AccessDeniedPage.PARAM_TARGET_PAGE, clz.getName()), true);
 
 		//-- All required rights
 		int ix = 0;

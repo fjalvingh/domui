@@ -197,7 +197,7 @@ public interface Msgs {
 
 	public static final String LOGIN_REQUIRED_RIGHTS = "login.required.rights";
 
-	public static final String LOGIN_TO_INDEX = " login.toindex";
+	public static final String LOGIN_TO_INDEX = "login.toindex";
 
 	//# Data not found code
 	public static final String DATA_EXPIRED_TITLE = "expired.data.title";

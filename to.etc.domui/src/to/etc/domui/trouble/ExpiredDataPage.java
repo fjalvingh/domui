@@ -29,14 +29,16 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 
 public class ExpiredDataPage extends UrlPage {
+	public static final String PARAM_ERRMSG = "errorMessage";
 
 	@Override
 	public void createContent() throws Exception {
 		//-- Error message
-		String msg = getPage().getPageParameters().getString("errorMessage");
+		String msg = getPage().getPageParameters().getString(PARAM_ERRMSG);
 
 		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString(Msgs.DATA_EXPIRED_TITLE));
 		add(ep);
@@ -45,7 +47,7 @@ public class ExpiredDataPage extends UrlPage {
 		t.setWidth("100%");
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
-		Img img = new Img("THEME/dataExpired.png");
+		Img img = new Img(Theme.DATA_EXPIRED);
 		//		img.setAlign(ImgAlign.LEFT);
 		td.add(img);
 		td.setWidth("1%");
@@ -62,7 +64,7 @@ public class ExpiredDataPage extends UrlPage {
 			co.add(d);
 			ALink link = new ALink(DomApplication.get().getRootPage(), MoveMode.NEW); // Destroy shelve.
 			d.add(link);
-			link.setText(Msgs.BUNDLE.getString("login.toindex"));
+			link.setText(Msgs.BUNDLE.getString(Msgs.LOGIN_TO_INDEX));
 		}
 	}
 }

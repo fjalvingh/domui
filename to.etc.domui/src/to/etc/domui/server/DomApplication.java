@@ -154,7 +154,7 @@ public abstract class DomApplication {
 					throw new IllegalStateException("??");
 
 				// data has removed in meanwhile: redirect to error page.
-				String rurl = DomUtil.createPageURL(ExpiredDataPage.class, new PageParameters("errorMessage", x.getLocalizedMessage()));
+				String rurl = DomUtil.createPageURL(ExpiredDataPage.class, new PageParameters(ExpiredDataPage.PARAM_ERRMSG, x.getLocalizedMessage()));
 				//-- Add info about the failed thingy.
 				/*StringBuilder sb = new StringBuilder(1024);
 				sb.append(rurl);
