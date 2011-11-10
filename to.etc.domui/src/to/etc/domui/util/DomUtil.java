@@ -1564,5 +1564,36 @@ final public class DomUtil {
 		return false;
 	}
 
+	/**
+	 * Add item to mergeSource if it is not already contained.
+	 * @param <T>
+	 * @param mergeSource
+	 * @param item
+	 * @return (not)appended mergeSource
+	 */
+	public static <T extends ILongIdentifyable> List<T> merge(List<T> mergeSource, T item) {
+		if(!containsLongIdentifyable(mergeSource, item)) {
+			if(mergeSource == Collections.EMPTY_LIST) {
+				mergeSource = new ArrayList<T>();
+			}
+			mergeSource.add(item);
+		}
+		return mergeSource;
+	}
+
+	/**
+	 * Appends non contained items from toJoinItems into mergeSource.
+	 * Uses linear search, not suitable for large lists.
+	 * @param <T>
+	 * @param mergeSource
+	 * @param toJoinItems
+	 * @return (not)appended mergeSource
+	 */
+	public static <T extends ILongIdentifyable> List<T> merge(List<T> mergeSource, List<T> toJoinItems) {
+		for(T item : toJoinItems) {
+			mergeSource = merge(mergeSource, item);
+		}
+		return mergeSource;
+	}
 
 }
