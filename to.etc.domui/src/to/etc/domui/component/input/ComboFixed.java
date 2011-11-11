@@ -152,7 +152,7 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 			throw new IllegalArgumentException(pmm + " is not a list-of-values domain property");
 		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
 		for(T v : var) {
-			String label = MetaManager.getEnumLabel(pmm, var);
+			String label = MetaManager.getEnumLabel(pmm, v);
 			l.add(new ValueLabelPair<T>(v, label));
 		}
 		return new ComboFixed<T>(l);
