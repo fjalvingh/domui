@@ -155,12 +155,24 @@ public class MsgBox extends Window {
 	 * @param string
 	 */
 	public static void message(NodeBase dad, String iconSrc, String string) {
+		message(dad, iconSrc, string, null);
+	}
+
+	/**
+	 * Provides interface to create INFO type messages with custom icon.
+	 * @param dad
+	 * @param iconSrc
+	 * @param string
+	 * @param onAnswer
+	 */
+	public static void message(NodeBase dad, String iconSrc, String string, IAnswer onAnswer) {
 		MsgBox box = create(dad);
 		box.setType(Type.INFO);
 		box.m_theImage.setSrc(iconSrc);
 		box.setMessage(string);
 		box.addButton(MsgBoxButton.CONTINUE);
 		box.setCloseButton(MsgBoxButton.CONTINUE);
+		box.setOnAnswer(onAnswer);
 		box.construct();
 	}
 
