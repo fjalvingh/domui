@@ -120,6 +120,8 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			var to = xml.documentElement.getAttribute('url');
 			window.location.href = to;
 			return true;
+		} else if (rname == 'expiredOnPollasy'){
+			return true; // do nothing actually, page is in process of redirecting to some other page and we need to ignore responses on obsolete pollasy calls...
 		} else if (rname == 'expired') {
 			var msg = 'Uw sessie is verlopen. Het scherm wordt opnieuw opgevraagd met originele gegevens.';
 			var hr = window.location.href;

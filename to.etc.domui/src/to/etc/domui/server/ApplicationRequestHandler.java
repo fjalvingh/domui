@@ -218,7 +218,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					/*
 					 * The page tag differs-> session has expired.
 					 */
-					generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+					if(Constants.ACMD_ASYPOLL.equals(action)) {
+						generateExpiredPollasy(ctx);
+					} else {
+						generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+					}
 					return;
 				}
 			}
@@ -487,6 +491,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Generates an EXPIRED message when the page here does not correspond with
 	 * the page currently in the browser. This causes the browser to do a reload.
 	 * @param ctx
+	 * @param message
 	 * @throws Exception
 	 */
 	private void generateExpired(final RequestContextImpl ctx, final String message) throws Exception {
@@ -502,6 +507,22 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		out.text(message);
 		out.closetag("msg");
 		out.closetag("expired");
+	}
+
+	/**
+	 * Generates an 'expiredOnPollasy' message when server receives pollasy call from expired page.
+	 * Since pollasy calls are frequent, expired here means that user has navigated to some other page in meanwhile, and that response should be ignored by browser.
+	 * @param ctx
+	 * @throws Exception
+	 */
+	private void generateExpiredPollasy(final RequestContextImpl ctx) throws Exception {
+		//-- We stay on the same page. Render tree delta as response
+		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
+		ctx.getResponse().setCharacterEncoding("UTF-8");
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		out.tag("expiredOnPollasy");
+		out.endtag();
+		out.closetag("expiredOnPollasy");
 	}
 
 	/**
