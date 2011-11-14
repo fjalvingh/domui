@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.htmleditor;
 
+import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.component.misc.MsgBox.*;
 import to.etc.domui.dom.css.*;
@@ -51,7 +52,11 @@ public class FCKEditor extends TextArea {
 
 	private IClicked<NodeBase> m_onDomuiImageClicked;
 
-	private static final String WEBUI_ACTION = "FCKIMAGE";
+	private IClicked<NodeBase> m_onDomuiOddCharsClicked;
+
+	private static final String WEBUI_FCK_DOMUIIMAGE_ACTION = "FCKIMAGE";
+
+	private static final String WEBUI_FCK_DOMUIODDCHAR_ACTION = "FCKODDCHAR";
 
 	private boolean m_toolbarStartExpanded;
 
@@ -201,14 +206,17 @@ public class FCKEditor extends TextArea {
 	}
 
 	/**
-	 * Handle {@link FCKEditor#WEBUI_ACTION} activity on FCKEditor customized commands that interacts with domui.
+	 * Handle {@link FCKEditor#WEBUI_FCK_DOMUIIMAGE_ACTION} activity on FCKEditor customized commands that interacts with domui.
+	 * Handle {@link FCKEditor#WEBUI_FCK_DOMUIODDCHAR_ACTION} activity on FCKEditor customized commands that interacts with domui.
 	 *
 	 * @see to.etc.domui.dom.html.Div#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
 	 */
 	@Override
 	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
-		if(WEBUI_ACTION.equals(action))
+		if(WEBUI_FCK_DOMUIIMAGE_ACTION.equals(action))
 			selectImage(ctx);
+		else if(WEBUI_FCK_DOMUIODDCHAR_ACTION.equals(action))
+			oddChars(ctx);
 		else
 			super.componentHandleWebAction(ctx, action);
 	}
@@ -226,6 +234,23 @@ public class FCKEditor extends TextArea {
 		}
 	}
 
+	private void oddChars(RequestContextImpl ctx) throws Exception {
+		if(m_onDomuiOddCharsClicked == null) {
+			//if no other handler is specified we show framework default OddCharacters dialog
+			OddCharacters oddChars = new OddCharacters();
+			oddChars.setOnClose(new IWindowClosed() {
+
+				@Override
+				public void closed(String closeReason) throws Exception {
+					FCKEditor.this.renderCloseOddCharacters();
+				}
+			});
+			getPage().getBody().add(oddChars);
+		} else {
+			m_onDomuiOddCharsClicked.clicked(this);
+		}
+	}
+
 	public void renderImageSelected(String url) {
 		//FCK_DOMUIIMAGE
 		///Itris_VO02/General/Images/Organisations/1000/demo_hlpv_menu_header.gif
@@ -238,12 +263,28 @@ public class FCKEditor extends TextArea {
 		appendJavascript("var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.DomuiImage_cancel('" + getActualID() + "');};");
 	}
 
+	public void renderCloseOddCharacters() {
+		appendJavascript("var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.DomuiOddChar_cancel('" + getActualID() + "');};");
+	}
+
+	public void renderOddCharacters(String input) {
+		appendJavascript("var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.DomuiImage_addString('" + getActualID() + "', '" + input + "');};");
+	}
+
 	public IClicked<NodeBase> getOnDomuiImageClicked() {
 		return m_onDomuiImageClicked;
 	}
 
 	public void setOnDomuiImageClicked(IClicked<NodeBase> onDomuiImageClicked) {
 		m_onDomuiImageClicked = onDomuiImageClicked;
+	}
+
+	public IClicked<NodeBase> getOnDomuiOddCharsClicked() {
+		return m_onDomuiOddCharsClicked;
+	}
+
+	public void setOnDomuiOddCharsClicked(IClicked<NodeBase> onDomuiOddCharsClicked) {
+		m_onDomuiOddCharsClicked = onDomuiOddCharsClicked;
 	}
 
 	public boolean isToolbarStartExpanded() {

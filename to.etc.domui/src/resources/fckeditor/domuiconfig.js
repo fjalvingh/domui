@@ -3,6 +3,7 @@
 FCKConfig.DefaultLanguage		= 'nl' ;
 
 FCKConfig.Plugins.Add('domuiimage', 'nl,en');
+FCKConfig.Plugins.Add('domuioddchars', 'nl,en');
 
 FCKConfig.ToolbarSets["DomUI"] = [
                               	['Source','Preview', 'Templates'],
@@ -21,7 +22,7 @@ FCKConfig.ToolbarSets["DomUI"] = [
                               ] ;
 
 FCKConfig.ToolbarSets["NewMessage"] = [
- 	['Bold','Italic','Underline','StrikeThrough','-','Cut','Copy','Paste','-','Undo','Redo','-','JustifyLeft','JustifyCenter','JustifyRight','JustifyFull','-','OrderedList','UnorderedList','Outdent','Indent','-','Link','Unlink','-','DomUI_Image','Table','Rule','Smiley','SpecialChar'],
+ 	['Bold','Italic','Underline','StrikeThrough','-','Cut','Copy','Paste','-','Undo','Redo','-','JustifyLeft','JustifyCenter','JustifyRight','JustifyFull','-','OrderedList','UnorderedList','Outdent','Indent','-','Link','Unlink','-','DomUI_Image','Table','Rule','Smiley','DomUI_OddChar'],
 	'/',
 	['TextColor','BGColor','FontFormat','FontName','FontSize']
   ] ;
