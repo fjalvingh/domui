@@ -59,9 +59,12 @@ Domui_fixLayout = function(fckId)
 			var tdtb = fckIFrame.contentWindow.document.getElementById('xToolbarSpace');
 			if (tdtb)
 			{
-				fckIFrame.contentWindow.document.body.style.height = (fckIFrame.offsetHeight - tdtb.offsetHeight - 7)+'px';
-				var tdea = fckIFrame.contentWindow.document.getElementById('xEditingArea'); 
-				tdea.style.display = 'inline';
+				var newHeight = (fckIFrame.offsetHeight - tdtb.offsetHeight - 7);
+				if (newHeight > 0){
+					fckIFrame.contentWindow.document.body.style.height = newHeight + 'px';
+					var tdea = fckIFrame.contentWindow.document.getElementById('xEditingArea'); 
+					tdea.style.display = 'inline';
+				}
 			}
 		}
 	};
