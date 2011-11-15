@@ -6,6 +6,7 @@
 	    <path id="project.class.path">
 	        <pathelement path="../bin-j2ee-1.4/j2ee.jar" />
 	        <pathelement path="../jsr305/jsr305.jar" />
+	        <pathelement path="../jsr305/bin" />
 	    </path>   
 	</target>
 
@@ -41,6 +42,6 @@
 	
   	<!--Deploy project-->
   	<target name="deploy" depends="compile">
-    	<jar jarfile="${ant.project.name}.jar" basedir="bin" compress="false" />
+    	<jar jarfile="${ant.project.name}.jar" basedir="bin" compress="false" manifest="MANIFEST.MF" />
   	</target>
 </project>
