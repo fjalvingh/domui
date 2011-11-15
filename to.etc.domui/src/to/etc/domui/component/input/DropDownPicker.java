@@ -10,6 +10,11 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 public class DropDownPicker<T> extends SmallImgButton {
+
+	public interface IDropDownPickerAdjuster<T> {
+		void onBeforeShow(ComboLookup<T> m_picker) throws Exception;
+	}
+
 	private List<T> m_data;
 
 	private IValueSelected<T> m_onValueSelected;
@@ -25,6 +30,8 @@ public class DropDownPicker<T> extends SmallImgButton {
 	private int m_offsetY = 0;
 
 	private T m_selected;
+
+	private IDropDownPickerAdjuster<T> m_adjuster;
 
 	/**
 	 * DropDownPicker constructor. By default size of drop down list is 8.
@@ -85,11 +92,18 @@ public class DropDownPicker<T> extends SmallImgButton {
 				@SuppressWarnings("synthetic-access")
 				@Override
 				public void clicked(SmallImgButton clickednode) throws Exception {
+					if(getAdjuster() != null) {
+						getAdjuster().onBeforeShow(m_picker);
+					}
+
 					appendJavascript("$('#" + m_picker.getActualID() + "').css('top', $('#" + getActualID() + "').position().top + " + m_offsetY + " + $('#" + getActualID() + "').outerHeight() - 1);");
 					appendJavascript("$('#" + m_picker.getActualID() + "').css('left', $('#" + getActualID() + "').position().left + " + m_offsetX + " - $('#" + m_picker.getActualID() + "').outerWidth() + $('#"
 						+ getActualID() + "').outerWidth() - 3);");
 					appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'inline');");
 					appendJavascript("$('#" + m_picker.getActualID() + "').focus();");
+					if(m_picker.getSelectedIndex() >= 0) {
+						appendJavascript("WebUI.scrollMeToTop('" + m_picker.getOption(m_picker.getSelectedIndex()).getActualID() + "');");
+					}
 				}
 			});
 		}
@@ -164,5 +178,13 @@ public class DropDownPicker<T> extends SmallImgButton {
 		if(m_picker != null) {
 			m_picker.setValue(value);
 		}
+	}
+
+	public IDropDownPickerAdjuster<T> getAdjuster() {
+		return m_adjuster;
+	}
+
+	public void setAdjuster(IDropDownPickerAdjuster<T> adjuster) {
+		m_adjuster = adjuster;
 	}
 }

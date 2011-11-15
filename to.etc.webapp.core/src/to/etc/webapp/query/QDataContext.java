@@ -153,7 +153,7 @@ public interface QDataContext {
 	 * @param o
 	 * @throws Exception
 	 */
-	@Deprecated
+	//  @Deprecated
 	void refresh(Object o) throws Exception;
 
 	/**
