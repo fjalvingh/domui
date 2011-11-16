@@ -172,12 +172,14 @@ public class MarkerImagePart implements IBufferedPartFactory {
 		BufferedImage bufferedImage = new BufferedImage(200, 20, BufferedImage.TRANSLUCENT);
 
 		Graphics2D g = bufferedImage.createGraphics();
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setComposite(makeComposite(0.3F));
 
 		g.drawImage(icon, null, 0, 0);
 
 		if(!DomUtil.isBlank(caption)) {
-			Font font = new Font("ARIAL", Font.BOLD, 10);
+			Font font = new Font("Arial", Font.BOLD, 10);
 			Color capColor = null;
 			if(!DomUtil.isBlank(captionColor)) {
 				try {
