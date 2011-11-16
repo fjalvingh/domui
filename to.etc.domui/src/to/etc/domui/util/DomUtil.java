@@ -1596,4 +1596,36 @@ final public class DomUtil {
 		return mergeSource;
 	}
 
+	/**
+	 * Util that returns T if <I>lookingFor</I> object is contained in specified <I>array</I>
+	 *
+	 * @param <T>
+	 * @param array
+	 * @param lookingFor
+	 * @return
+	 */
+	public static <T> boolean contains(T[] array, T lookingFor) {
+		return indexOf(array, lookingFor) != -1;
+	}
+
+	/**
+	 * Util that returns index of <I>lookingFor</I> object inside specified <I>array</I>
+	 *
+	 * @param <T>
+	 * @param array
+	 * @param lookingFor
+	 * @return -1 if <I>lookingFor</I> object is not found in specified <I>array</I>, otherwise returns its index
+	 */
+	public static <T> int indexOf(T[] array, T lookingFor) {
+		if(array == null) {
+			return -1;
+		}
+		for(int i = 0; i < array.length; i++) {
+			if(isEqual(array[i], lookingFor)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 }

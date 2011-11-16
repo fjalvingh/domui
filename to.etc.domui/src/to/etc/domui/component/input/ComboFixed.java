@@ -103,27 +103,28 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	//		o.add(object.getLabel());
 	//	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Utilities to quickly create combo's.				*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Create a combo for all members of an enum. It uses the enums labels as description. Since this has no known property it cannot
+	 * Create a combo for all members of an enum, except for specified exceptions. It uses the enums labels as description. Since this has no known property it cannot
 	 * use per-property translations!!
-	 *
 	 * @param <T>
 	 * @param clz
+	 * @param exceptions
 	 * @return
 	 */
-	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class<T> clz) {
+	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class<T> clz, T... exceptions) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
 		T[] ar = clz.getEnumConstants();
 		for(T v : ar) {
-			String label = cmm.getDomainLabel(NlsContext.getLocale(), v);
-			if(label == null)
-				label = v.name();
-			l.add(new ValueLabelPair<T>(v, label));
+			if(!DomUtil.contains(exceptions, v)) {
+				String label = cmm.getDomainLabel(NlsContext.getLocale(), v);
+				if(label == null)
+					label = v.name();
+				l.add(new ValueLabelPair<T>(v, label));
+			}
 		}
 		return new ComboFixed<T>(l);
 	}
