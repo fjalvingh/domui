@@ -202,6 +202,8 @@ public interface Msgs {
 	//# Data not found code
 	public static final String DATA_EXPIRED_TITLE = "expired.data.title";
 
+	public static final String DATA_EXPIRED_REFRESH = "expired.data.refresh";
+
 	//# LookupForm
 	/** lookupform.search key */
 	public static final String LOOKUP_FORM_SEARCH = "lookupform.search";
