@@ -194,7 +194,7 @@ public class DefaultPropertyMetaModel extends BasicPropertyMetaModel implements 
 		} else if("javax.persistence.Id".equals(name)) {
 			setPrimaryKey(true);
 			m_classModel.setPersistentClass(true);
-		} else if("javax.persistence.ManyToOne".equals(name)) {
+		} else if("javax.persistence.ManyToOne".equals(name) || "javax.persistence.OneToOne".equals(name)) {
 			setRelationType(PropertyRelationType.UP);
 
 			//-- Decode fields from the annotation.
