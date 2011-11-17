@@ -102,7 +102,7 @@ public class DropDownPicker<T> extends SmallImgButton {
 					appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'inline');");
 					appendJavascript("$('#" + m_picker.getActualID() + "').focus();");
 					if(m_picker.getSelectedIndex() >= 0) {
-						appendJavascript("WebUI.scrollMeToTop('" + m_picker.getOption(m_picker.getSelectedIndex()).getActualID() + "');");
+						appendJavascript("WebUI.makeOptionVisible('" + m_picker.getOption(m_picker.getSelectedIndex()).getActualID() + "');");
 					}
 				}
 			});
