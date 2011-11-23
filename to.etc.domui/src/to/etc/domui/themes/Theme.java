@@ -13,6 +13,8 @@ package to.etc.domui.themes;
 public class Theme {
 	private Theme() {}
 
+	static public final String BTN_CANCEL = "THEME/btnCancel.png";
+	static public final String BTN_SAVE = "THEME/btnSave.png";
 	static public final String DATA_EXPIRED = "THEME/dataExpired.png";
 
 }
