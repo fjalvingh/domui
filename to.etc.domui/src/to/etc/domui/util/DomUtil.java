@@ -1556,12 +1556,26 @@ final public class DomUtil {
 	 * @return
 	 */
 	public static <T extends ILongIdentifyable> boolean containsLongIdentifyable(List<T> list, T member) {
-		for(T item : list) {
-			if(item.getId().equals(member.getId())) {
-				return true;
+		return indexOfLongIdentifyable(list, member) != -1;
+	}
+
+	/**
+	 * Util that returns index of member in specified list that has same Long Id as specified <I>member</I>.
+	 * @param <T>
+	 * @param list
+	 * @param member
+	 * @return -1 if <I>member</I> object Long Id is not found in specified <I>list</I>, otherwise returns found index.
+	 */
+	public static <T extends ILongIdentifyable> int indexOfLongIdentifyable(List<T> list, T member) {
+		if(list == null) {
+			return -1;
+		}
+		for(int i = 0; i < list.size(); i++) {
+			if(list.get(i).getId().equals(member.getId())) {
+				return i;
 			}
 		}
-		return false;
+		return -1;
 	}
 
 	/**
