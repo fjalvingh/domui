@@ -5,6 +5,10 @@ FCKConfig.DefaultLanguage		= 'nl' ;
 FCKConfig.Plugins.Add('domuiimage', 'nl,en');
 FCKConfig.Plugins.Add('domuioddchars', 'nl,en');
 
+FCKConfig.LinkBrowser = false ;
+
+FCKConfig.LinkUpload = false ;
+
 FCKConfig.ToolbarSets["DomUI"] = [
                               	['Source','Preview', 'Templates'],
                               	['Cut','Copy','Paste','PasteText','PasteWord','-','Print','SpellCheck'],
