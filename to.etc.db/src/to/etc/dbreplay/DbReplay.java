@@ -54,6 +54,9 @@ public class DbReplay {
 	/** The #of executors that are actually running/ready. */
 	private int m_runningExecutors;
 
+	/** When set by -maxwait, this limits the max time to wait between statements, ignoring the time delta's in the log file. */
+	private long m_maxStatementDelay = Long.MAX_VALUE;
+
 	private static enum XType {
 		DUMP, RUN
 	}
@@ -149,6 +152,10 @@ public class DbReplay {
 					m_driverPath = new File(args[argc++]);
 					if(!m_driverPath.exists() || !m_driverPath.isFile())
 						throw new IllegalArgumentException(m_driverPath + ": invalid path (not a file or does not exist)");
+				} else if("-maxwait".equals(s)) {
+					if(argc >= args.length)
+						throw new IllegalArgumentException("Missing numeric value (milliseconds) after -maxwait");
+					m_maxStatementDelay = Long.parseLong(args[argc++]);
 				} else {
 					usage("Unknown option: " + s);
 					return false;
@@ -211,6 +218,8 @@ public class DbReplay {
 				+ "-schema [name]: set the 'current schema' before starting the tests (useful to run test logged in as a different user). For instance when running as a user 'TEST' when tables in schema VIEWPOINT are needed\n" //
 			+ "-db [userid:password@host/sid]: shorthand to connect to this specific database.\n" //
 			+ "-driver|-dp [path]: path to the Oracle driver .jar file, if not present on the classpath\n" //
+				+ "\n** replay options **\n" //
+				+ "-maxwait [milliseconds]: set the max time to wait between successive statements to a #of milliseconds. This ignores the real times that statements were sent to the database.\n"
 		);
 	}
 
@@ -550,6 +559,9 @@ public class DbReplay {
 			if(deltat < 0)
 				deltat = 0;
 			m_lastReplayTime = rr.getStatementTime();
+
+			if(deltat > m_maxStatementDelay)
+				deltat = m_maxStatementDelay;
 
 			if(deltat > 0) {
 				if(deltat > 5000)
