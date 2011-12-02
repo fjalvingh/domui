@@ -592,6 +592,8 @@ public class DbReplay {
 
 	private long m_previousQueryCount;
 
+	private DateFormat m_dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
 	private void runStatus(long ts) {
 //		long ts = System.currentTimeMillis();
 		synchronized(this) {
@@ -602,10 +604,11 @@ public class DbReplay {
 
 		if(m_statusLines++ % 20 == 0) {
 			//--                0123 0123456789 0123456789 0123456789 0123456789 0123456789012345 0123456789 0123456789
-			System.out.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s");
+			System.out.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s realtime");
 		}
 
 		long recnr, errs, xq, rr, skips;
+		long lasttime;
 
 		synchronized(this) {
 			recnr = m_recordNumber;
@@ -613,6 +616,7 @@ public class DbReplay {
 			xq = m_executedQueries;
 			rr = m_resultRows;
 			skips = m_ignoredStatements;
+			lasttime = m_lastTime;
 		}
 
 		double qps;
@@ -627,6 +631,7 @@ public class DbReplay {
 			rps = (rr - m_previousRowCount) / (sdt / 1000.0);
 		}
 
+
 		System.out.println( //
 			v(getInExecution(), 4) //
 				+ v(recnr, 10) //
@@ -636,6 +641,7 @@ public class DbReplay {
 				+ v(rr, 16) //
 				+ dbl(qps, 10) //
 				+ dbl(rps, 10) //
+				+ m_dateFormat.format(new Date(lasttime))
 			);
 		m_ts_laststatus = ts;
 		m_previousQueryCount = xq;
