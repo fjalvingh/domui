@@ -25,6 +25,8 @@ public class DbReplay {
 
 	private File m_inputFile;
 
+	private File m_driverPath;
+
 	/** The buffered input file containing statements. */
 	private BufferedInputStream m_bis;
 
@@ -41,6 +43,10 @@ public class DbReplay {
 	private String m_poolId;
 
 	private ConnectionPool m_pool;
+
+	private String m_runSchema;
+
+	private String m_dbHost, m_dbSid, m_dbUser, m_dbPass;
 
 	/** The #of separate executor threads to start. */
 	private int m_executors = 20;
@@ -129,6 +135,20 @@ public class DbReplay {
 						throw new IllegalArgumentException(m_poolFile+": file not found");
 				} else if("-dump".equals(s)) {
 					m_runType = XType.DUMP;
+				} else if("-schema".equals(s)) {
+					if(argc >= args.length)
+						throw new IllegalArgumentException("Missing name after -schema");
+					m_runSchema = args[argc++];
+				} else if("-db".equals(s)) {
+					if(argc >= args.length)
+						throw new IllegalArgumentException("Missing db string after -db");
+					decodeDb(args[argc++]);
+				} else if("-dp".equals(s) || "-driver".equals(s)) {
+					if(argc >= args.length)
+						throw new IllegalArgumentException("Missing driver path after " + s);
+					m_driverPath = new File(args[argc++]);
+					if(!m_driverPath.exists() || !m_driverPath.isFile())
+						throw new IllegalArgumentException(m_driverPath + ": invalid path (not a file or does not exist)");
 				} else {
 					usage("Unknown option: " + s);
 					return false;
@@ -151,8 +171,8 @@ public class DbReplay {
 			usage("Missing input file name");
 			return false;
 		}
-		if(m_poolId == null) {
-			usage("Missing pool ID");
+		if(m_poolId == null && m_dbHost == null) {
+			usage("Missing pool ID or database (-db) specification");
 			return false;
 		}
 		if(m_runType == null)
@@ -161,11 +181,36 @@ public class DbReplay {
 		return true;
 	}
 
+	private void decodeDb(String s) throws Exception {
+		int pos = s.indexOf('@');
+		if(pos != -1) {
+			String a = s.substring(0, pos);
+			String b = s.substring(pos + 1);
+
+			pos = a.indexOf(':');
+			if(pos != -1) {
+				m_dbUser = a.substring(0, pos);
+				m_dbPass = a.substring(pos + 1);
+
+				pos = b.indexOf('/');
+				if(pos != -1) {
+					m_dbHost = b.substring(0, pos);
+					m_dbSid = b.substring(pos + 1);
+					return;
+				}
+			}
+		}
+		throw new RuntimeException("Bad DB string: format is user:password@host/sid");
+	}
+
 	private void usage(String msg) {
 		System.out.println("Error: " + msg);
 		System.out.println("Usage: DbReplay [options] filename poolID");
 		System.out.println("Options are:\n" //
 			+ "-poolfile|-pf [filename]: The name of the pool.properties defining the database connection.\n" //
+				+ "-schema [name]: set the 'current schema' before starting the tests (useful to run test logged in as a different user). For instance when running as a user 'TEST' when tables in schema VIEWPOINT are needed\n" //
+			+ "-db [userid:password@host/sid]: shorthand to connect to this specific database.\n" //
+			+ "-driver|-dp [path]: path to the Oracle driver .jar file, if not present on the classpath\n" //
 		);
 	}
 
@@ -189,15 +234,25 @@ public class DbReplay {
 		return m_pool;
 	}
 
+	synchronized public String getRunSchema() {
+		return m_runSchema;
+	}
+
 	private void openSource() throws Exception {
 		m_bis = new BufferedInputStream(new FileInputStream(m_inputFile), 65536);
 	}
 
 	private void initialize() throws Exception {
-		if(m_poolFile == null)
-			m_pool = PoolManager.getInstance().definePool(m_poolId);
-		else
-			m_pool = PoolManager.getInstance().definePool(m_poolFile, m_poolId);
+		if(m_dbHost != null) {
+			//-- Use command line invocation
+			String url = "jdbc:oracle:thin:@" + m_dbHost + ":1521:" + m_dbSid.toUpperCase();
+			m_pool = PoolManager.getInstance().definePool("db", "oracle.jdbc.driver.OracleDriver", url, m_dbUser, m_dbPass, m_driverPath == null ? null : m_driverPath.toString());
+		} else {
+			if(m_poolFile == null)
+				m_pool = PoolManager.getInstance().definePool(m_poolId);
+			else
+				m_pool = PoolManager.getInstance().definePool(m_poolFile, m_poolId);
+		}
 
 		startExecutors();
 		waitForReady();
@@ -469,7 +524,7 @@ public class DbReplay {
 		Integer cid = Integer.valueOf(rr.getConnectionId());
 		if(rr.getType() == StatementProxy.ST_CLOSE) {
 			m_ignoreSet.remove(cid); // If this was ignored - end that
-			ReplayExecutor rx = m_executorMap.remove(cid);	// Was an executor assigned to this connection?
+			ReplayExecutor rx = m_executorMap.remove(cid); // Was an executor assigned to this connection?
 			if(null != rx) {
 				m_freeExecutors.add(rx);
 			}
@@ -505,7 +560,7 @@ public class DbReplay {
 		}
 
 		//-- Ok, we need an executor for this. Get or allocate;
-		ReplayExecutor rx = m_executorMap.get(cid);				// Is an executor already assigned to this connection?
+		ReplayExecutor rx = m_executorMap.get(cid); // Is an executor already assigned to this connection?
 		if(rx == null) {
 			//-- Try to allocate an executor
 			if(m_freeExecutors.size() == 0) {
@@ -545,7 +600,7 @@ public class DbReplay {
 			m_ts_nextStatus = ts + 5 * 1000; // Report every 5 seconds.
 		}
 
-		if(m_statusLines++ % 20 == 0)  {
+		if(m_statusLines++ % 20 == 0) {
 			//--                0123 0123456789 0123456789 0123456789 0123456789 0123456789012345 0123456789 0123456789
 			System.out.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s");
 		}
@@ -567,7 +622,7 @@ public class DbReplay {
 			qps = 0.0;
 			rps = 0.0;
 		} else {
-			long sdt = ts - m_ts_laststatus;			// Delta milliseconds
+			long sdt = ts - m_ts_laststatus; // Delta milliseconds
 			qps = (xq - m_previousQueryCount) / (sdt / 1000.0);
 			rps = (rr - m_previousRowCount) / (sdt / 1000.0);
 		}
@@ -581,20 +636,20 @@ public class DbReplay {
 				+ v(rr, 16) //
 				+ dbl(qps, 10) //
 				+ dbl(rps, 10) //
-		);
+			);
 		m_ts_laststatus = ts;
 		m_previousQueryCount = xq;
 		m_previousRowCount = rr;
 	}
 
-	static private final String	SPACES = "                                     ";
+	static private final String SPACES = "                                     ";
 
 	static private String v(long value, int npos) {
 		String val = DbPoolUtil.strCommad(value);
 		int nfill = npos - val.length();
 
 		if(nfill <= 0)
-			return val+" ";
+			return val + " ";
 
 		return SPACES.substring(0, nfill) + val + " ";
 	}

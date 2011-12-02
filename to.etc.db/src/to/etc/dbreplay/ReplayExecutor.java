@@ -54,6 +54,10 @@ class ReplayExecutor extends Thread {
 		try {
 			m_dbc = m_r.getPool().getUnpooledDataSource().getConnection();
 			m_dbc.setAutoCommit(false);
+			String rs;
+			if((rs = m_r.getRunSchema()) != null) {
+				sql("alter session set current_schema=" + rs);
+			}
 			m_r.executorReady(this);
 
 			executeLoop();
@@ -74,6 +78,19 @@ class ReplayExecutor extends Thread {
 			m_r.executorStopped(this);
 			if(!isTerminated())
 				System.out.println(m_index + ": terminated");
+		}
+	}
+
+	private void sql(String sql) throws Exception {
+		PreparedStatement ps = null;
+		try {
+			ps = m_dbc.prepareStatement(sql);
+			ps.executeUpdate();
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
 		}
 	}
 
