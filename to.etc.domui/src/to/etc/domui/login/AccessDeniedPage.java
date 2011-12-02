@@ -29,8 +29,15 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 
+/**
+ * Shows access deniend info.
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on 2 Dec 2011
+ */
 public class AccessDeniedPage extends UrlPage {
 
 	public static final String PARAM_TARGET_PAGE = "targetPage";
@@ -64,7 +71,7 @@ public class AccessDeniedPage extends UrlPage {
 		t.setWidth("100%");
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
-		Img img = new Img("THEME/accessDenied.png");
+		Img img = new Img(Theme.ACCESS_DENIED);
 		td.add(img);
 		td.setWidth("1%");
 

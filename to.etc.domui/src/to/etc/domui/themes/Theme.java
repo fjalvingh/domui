@@ -2,7 +2,7 @@ package to.etc.domui.themes;
 
 /**
  * Constants for theme resources within the framework.
- * Please keep in same order as in resource bundle.
+ * Please keep in alphabetical order.
  *
  * FIXME: for btadic -> fill in all resources (search for '"THEME' in code, and replace with constant that is placed in here).
  * We would schedule that once when we agree upon this with jal in order to minimize conflicts. Currenlty there are 222 hits for searching on '"THEME/'
@@ -13,8 +13,11 @@ package to.etc.domui.themes;
 public class Theme {
 	private Theme() {}
 
-	static public final String BTN_CANCEL = "THEME/btnCancel.png";
-	static public final String BTN_SAVE = "THEME/btnSave.png";
-	static public final String DATA_EXPIRED = "THEME/dataExpired.png";
+	static public final String ACCESS_DENIED = "THEME/accessDenied.png";
 
+	static public final String BTN_CANCEL = "THEME/btnCancel.png";
+
+	static public final String BTN_SAVE = "THEME/btnSave.png";
+
+	static public final String DATA_EXPIRED = "THEME/dataExpired.png";
 }

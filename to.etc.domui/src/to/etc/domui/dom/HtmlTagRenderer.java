@@ -1126,6 +1126,14 @@ public class HtmlTagRenderer implements INodeVisitor {
 		renderTagend(n, m_o);
 	}
 
+	@Override
+	public void visitIFrame(IFrame n) throws Exception {
+		basicNodeRender(n, m_o);
+		if(n.getSrc() != null)
+			o().attr("src", n.getSrc());
+		renderTagend(n, m_o);
+	}
+
 	//	protected void	renderDraggableCrud(NodeBase b) {
 	//		if(! (b instanceof IDraggable))
 	//			throw new IllegalStateException("Internal: nodetype "+b+" does not implement IDraggable, so DO NOT CALL ME!");
