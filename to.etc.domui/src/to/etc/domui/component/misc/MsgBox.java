@@ -176,6 +176,28 @@ public class MsgBox extends Window {
 		box.construct();
 	}
 
+	/**
+	 * Provides interface to create INFO type messages with custom title, icon, data section and optional callback.
+	 * @param dad
+	 * @param iconSrc
+	 * @param title
+	 * @param message
+	 * @param onAnswer
+	 * @param msgRenderer
+	 */
+	public static void message(NodeBase dad, String iconSrc, String title, IAnswer onAnswer, INodeContentRenderer<String> msgRenderer) {
+		MsgBox box = create(dad);
+		box.setType(Type.INFO);
+		box.m_theImage.setSrc(iconSrc);
+		box.setWindowTitle(title);
+		box.addButton(MsgBoxButton.CONTINUE);
+		box.setCloseButton(MsgBoxButton.CONTINUE);
+		box.setOnAnswer(onAnswer);
+		box.construct();
+		box.setDataRenderer(msgRenderer);
+		box.construct();
+	}
+
 	public static void info(NodeBase dad, String string) {
 		message(dad, Type.INFO, string);
 	}

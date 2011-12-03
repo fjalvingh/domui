@@ -207,6 +207,10 @@ public interface Msgs {
 	//# Access denied
 	public static final String DATA_ACCESS_VIOLATION_TITLE = "data.access.violation.title";
 
+	public static final String ACCESS_DENIED_MSG = "access.denied.msg";
+
+	public static final String INSUFFICIENT_RIGHTS = "insufficient.rights";
+
 	//# LookupForm
 	/** lookupform.search key */
 	public static final String LOOKUP_FORM_SEARCH = "lookupform.search";
