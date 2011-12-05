@@ -351,6 +351,12 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		}
 	}
 
+	public void toggleNode(T item) throws Exception {
+		if(isExpanded(item))
+			collapseNode(item);
+		else
+			expandNode(item);
+	}
 
 	private void dropCrud(VisibleNode<T> vnbase) throws Exception {
 		if(vnbase.childNodes == null)
