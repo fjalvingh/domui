@@ -193,7 +193,6 @@ public class MsgBox extends Window {
 		box.addButton(MsgBoxButton.CONTINUE);
 		box.setCloseButton(MsgBoxButton.CONTINUE);
 		box.setOnAnswer(onAnswer);
-		box.construct();
 		box.setDataRenderer(msgRenderer);
 		box.construct();
 	}
