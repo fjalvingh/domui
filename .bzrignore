@@ -10,3 +10,4 @@ Servers
 build
 work
 *.jar
+to.etc.db/dbreplay.log

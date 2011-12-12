@@ -261,6 +261,8 @@ public class DbReplay {
 				+ "-maxwait [milliseconds]: set the max time to wait between successive statements to a #of milliseconds. This ignores the real times that statements were sent to the database.\n"
 				+ "-log: create a log of statements in dbreplay.log\n" //
 				+ "-speedy: run using the 'speedy' replayer\n" //
+				+ "\nSpeedy executor options:\n"
+				+ "-perwait n: schedule this many SQL commands per 'maxwait' period. Example: -maxwait 1 -perwait 10 will try to execute 10 SQL statements every millisecond\n"
 		);
 	}
 
@@ -539,7 +541,7 @@ public class DbReplay {
 	 * @throws Exception
 	 */
 	public void waitForIdle(long timeout) throws Exception {
-		System.out.println("exec: waiting for all executors to terminate");
+		System.out.println("exec: waiting for all executors to idle");
 		long ets = System.currentTimeMillis() + timeout;
 		long lmt = 0;
 		int lastrunning = -1;
@@ -548,12 +550,12 @@ public class DbReplay {
 
 			if(ts >= ets) {
 				//-- Failed to start!!! Abort.
-				throw new RuntimeException("Timeout: " + lastrunning + " executors do not terminate...");
+				throw new RuntimeException("Timeout: " + lastrunning + " executors do not become idle...");
 			}
 
 			lastrunning = 0;
 			for(ReplayExecutor rx : getExecutorList()) {
-				if(!rx.isTerminated())
+				if(!rx.isIdle())
 					lastrunning++;
 			}
 			if(lastrunning <= 0)
@@ -563,7 +565,7 @@ public class DbReplay {
 				wait(1000);
 			}
 		}
-		System.out.println("exec: all executors have terminated.");
+		System.out.println("exec: all executors have become idle.");
 	}
 
 
@@ -739,10 +741,10 @@ public class DbReplay {
 
 
 		if(m_statusLines++ % 20 == 0) {
-			//--                0123 0123456789 0123456789 0123456789 0123456789 0123456789012345 0123456789 0123456789 012345
-			System.out.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s dT     realtime ");
+			//--                0123 0123456789 0123456789 0123456789 0123456789 0123456789012345 0123456789 0123456789 0123456
+			System.out.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s dT      realtime ");
 			if(m_log != null)
-				m_log.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s dT     realtime");
+				m_log.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s dT      realtime");
 		}
 
 		m_status_sb.setLength(0);

@@ -146,7 +146,7 @@ class ReplayExecutor extends Thread {
 		}
 	}
 
-	private boolean isIdle() {
+	boolean isIdle() {
 		synchronized(m_idleLock) {
 			return m_idle;
 		}
