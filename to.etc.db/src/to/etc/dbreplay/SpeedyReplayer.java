@@ -50,21 +50,14 @@ public class SpeedyReplayer implements IReplayer {
 			m_lastTs = cts;
 			m_left = m_perWait;
 		} else {
-			long dt = cts - m_lastTs; // How much time has passed since last reset?
-			if(dt >= maxwait) {
-				//-- Time has passed maxwait, so we can reset the max count
+			if(m_left <= 0) {
+				//-- No more left. Wait remaining period.
+				long dt = m_lastTs + maxwait - cts;
+				if(dt > 0)
+					Thread.sleep(dt);
 				m_left = m_perWait;
+				cts = System.currentTimeMillis();
 				m_lastTs = cts;
-			} else {
-				//-- We are in a slot. How many is left?
-				if(m_left <= 0) {
-					dt = m_lastTs + maxwait - cts;
-					if(dt > 0)
-						Thread.sleep(dt);
-					m_left = m_perWait;
-					cts = System.currentTimeMillis();
-					m_lastTs = cts;
-				}
 			}
 		}
 
