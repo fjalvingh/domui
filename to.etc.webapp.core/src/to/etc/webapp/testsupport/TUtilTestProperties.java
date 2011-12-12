@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 import javax.annotation.*;
 import javax.sql.*;
@@ -281,4 +282,135 @@ public class TUtilTestProperties {
 			return;
 		m_connectionPool.setCommitDisabled(on);
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Test logging using a LogSink.						*/
+	/*--------------------------------------------------------------*/
+
+	/** If assigned the location where test log is written. */
+	static private File m_testLogFile;
+
+	/** If assigned, a LogSink logwriter that can be used to output data from tests. */
+	static private PrintWriter m_logWriter;
+
+	static private boolean m_testLogInitialized;
+
+	static private boolean openTestLog(@Nullable String s, @Nonnull String where) {
+		if(m_testLogFile != null || s == null)
+			return false;
+		File f = new File(s);
+		try {
+			tryOpenFile(f);
+			return true;
+		} catch(Exception x) {
+			System.out.println("test: the log file " + s + " specified in " + where + " cannot be opened: " + x.getMessage());
+			return false;
+		}
+	}
+
+	private static void tryOpenFile(File f) throws Exception {
+		m_logWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "utf-8"));
+		m_testLogFile = f;
+		m_logWriter.println("**** JUnit test log created at " + new Date());
+		System.out.println("test: log file created as " + f.getCanonicalPath());
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				try {
+					m_logWriter.flush();
+				} catch(Exception x) {
+					x.printStackTrace();
+				}
+			}
+
+		});
+	}
+
+	static public boolean isLogging() {
+		if(!m_testLogInitialized) {
+			m_testLogInitialized = true;
+			String s = DeveloperOptions.getString("test.logfile", null);
+			openTestLog(s, "test.logfile in developer.properties");
+			openTestLog(System.getProperty("test.logfile"), "test.logfile java property");
+			openTestLog(System.getenv("TESTLOGFILE"), "TESTLOGFILE environment variable");
+			if(DeveloperOptions.isDeveloperWorkstation()) {
+				//-- Create a log file in the developer's home directory.
+				s = System.getProperty("user.home");
+				if(s == null)
+					s = "/tmp";
+				File f = new File(new File(s), "tests.log");
+				try {
+					tryOpenFile(f);
+				} catch(Exception x) {
+					System.out.println("test: cannot open test log output file " + f + ": " + x.getMessage());
+					return false;
+				}
+			}
+		}
+		return m_testLogFile != null;
+	}
+
+	/**
+	 * Returns the location for the JUnit test log file, or null if none is assigned.
+	 * @return
+	 */
+	@Nullable
+	static public File getLogFile() {
+		isLogging();
+		return m_testLogFile;
+	}
+
+	@Nullable
+	static public PrintWriter getLogWriter() {
+		isLogging();
+		return m_logWriter;
+	}
+
+	/**
+	 * Get a log sink if logging is actually on.
+	 * @return
+	 */
+	@Nullable
+	static public TestLogSink getLogSinkIfLogging() {
+		if(!isLogging())
+			return null;
+
+		//-- Create a logger that will mirror to this output
+		TestLogSink tls = new TestLogSink(m_logWriter);
+		logTestName(tls);
+		return tls;
+	}
+
+	static public TestLogSink getLogSink() {
+		if(!isLogging())
+			return new TestLogSink();
+		//-- Create a logger that will mirror to this output
+		TestLogSink tls = new TestLogSink(m_logWriter);
+		logTestName(tls);
+		return tls;
+	}
+
+	private static void logTestName(TestLogSink tls) {
+		Exception x = null;
+		try {
+			throw new Exception();
+		} catch(Exception xx) {
+			x = xx;
+		}
+
+		//-- Try to find the best candidate for the JUnit test name
+		StackTraceElement[] stear = x.getStackTrace();
+		for(StackTraceElement ste : stear) {
+			String cn = ste.getClassName();
+			if(!cn.startsWith("to.etc.webapp")) {
+				m_logWriter.append("\n--------------------------------------------------------------------------------------\n") //
+					.append("-- test: ").append(ste.getMethodName()).append(" in class ").append(cn).append(" ----\n") //
+					.append("--------------------------------------------------------------------------------------\n") //
+				;
+				return;
+			}
+		}
+	}
+
+
 }
