@@ -786,7 +786,7 @@ tr.ui-keyword-popup-row {
 /** Tree control ***/
 
 .ui-tree {
-	height: 100%;
+/*	height: 100%;		jal 20111025 - setting this causes trouble if tree is not alone in div.. Fixed for OldHelp browser */
 }
 
 /*** SplitPanel (simple version) layout thingy ***/
@@ -1916,3 +1916,4 @@ body,html {
 .ui-flare-msg div div {
 	font-size: large;
 }
+
