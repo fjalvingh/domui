@@ -245,7 +245,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().tag("link");
 		o().attr("rel", "stylesheet");
 		o().attr("type", "text/css");
-		o().attr("href", ctx().getRelativePath(path));
+		o().attr("href", ctx().getThemedPath(path));
 		o().endtag();
 		o().closetag("link");
 	}
@@ -254,7 +254,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		//-- render an app-relative url
 		o().tag("script");
 		o().attr("language", "javascript");
-		o().attr("src", ctx().getRelativePath(path));
+		o().attr("src", ctx().getThemedPath(path));
 		o().endtag();
 		o().closetag("script");
 	}

@@ -328,8 +328,13 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							|| tag == 'button'
 							|| (tag == 'select' && node
 									.getAttribute('multiple'))) {
-						e = document.createElement('<' + tag + ' '
-								+ copyAttrs(null, node, true) + '>');
+						try {
+							var xxa = copyAttrs(null, node, true);
+							e = document.createElement('<' + tag + ' '
+								+  xxa + '>');
+						} catch(xx) {
+							alert('err= '+xx+', '+tag+", "+xxa);
+						}
 					}
 				}
 				if (!e) {

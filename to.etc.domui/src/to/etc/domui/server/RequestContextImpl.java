@@ -275,6 +275,12 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return sb.toString();
 	}
 
+	@Override
+	public String getThemedPath(String in) {
+		String p = getApplication().getThemedResourceRURL(in);
+		return getRelativePath(p);
+	}
+
 	/**
 	 * @see to.etc.domui.server.IRequestContext#getOutputWriter()
 	 */
