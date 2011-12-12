@@ -186,6 +186,14 @@ public class DbReplay {
 					m_maxStatementDelay = Long.parseLong(args[argc++]);
 				} else if("-log".equals(s)) {
 					openLog();
+				} else if("-speedy".equals(s)) {
+					m_replayer = new SpeedyReplayer();
+				} else if(m_replayer != null) {
+					argc = m_replayer.decodeArgs(s, args, argc);
+					if(-1 == argc) {
+						usage("Unknown option: " + s);
+						return false;
+					}
 				} else {
 					usage("Unknown option: " + s);
 					return false;
@@ -251,7 +259,8 @@ public class DbReplay {
 			+ "-driver|-dp [path]: path to the Oracle driver .jar file, if not present on the classpath\n" //
 				+ "\n** replay options **\n" //
 				+ "-maxwait [milliseconds]: set the max time to wait between successive statements to a #of milliseconds. This ignores the real times that statements were sent to the database.\n"
-				+ "-log: create a log of statements in dbreplay.log\n"
+				+ "-log: create a log of statements in dbreplay.log\n" //
+				+ "-speedy: run using the 'speedy' replayer\n" //
 		);
 	}
 
@@ -386,12 +395,16 @@ public class DbReplay {
 	/** List of all registered executors. */
 	private List<ReplayExecutor> m_executorList = new ArrayList<ReplayExecutor>(100);
 
+	/** All executors that are really doing nothing at all */
 	private List<ReplayExecutor> m_freeExecutors = new ArrayList<ReplayExecutor>();
+
+	/** All executors that have sufficient space in their executor queue to execute statements. */
+	private Set<ReplayExecutor> m_idleExecutorList = new HashSet<ReplayExecutor>();
 
 	private void startExecutors() {
 		System.out.println("init: starting " + m_executors + " executor threads");
 		for(int i = 0; i < m_executors; i++) {
-			ReplayExecutor rx = new ReplayExecutor(this, i);
+			ReplayExecutor rx = new ReplayExecutor(this, i, m_idleExecutorList);
 			synchronized(this) {
 				m_executorList.add(rx);
 				m_freeExecutors.add(rx);
@@ -443,6 +456,46 @@ public class DbReplay {
 	}
 
 	/**
+	 * Remove executor from the IDLE list.
+	 * @param replayExecutor
+	 */
+	void removeIdle(ReplayExecutor replayExecutor) {
+		synchronized(m_idleExecutorList) {
+			m_idleExecutorList.remove(replayExecutor);
+		}
+	}
+
+	void addIdle(ReplayExecutor rx) {
+		synchronized(m_idleExecutorList) {
+			if(!m_idleExecutorList.add(rx))
+				throw new IllegalStateException("Executor already in idle set");
+			m_idleExecutorList.notify();
+		}
+	}
+
+	public void queueIdle(ReplayRecord rr) throws Exception {
+		ReplayExecutor r = null;
+		int tries = 20;
+		for(;;) {
+			synchronized(m_idleExecutorList) {
+				if(m_idleExecutorList.size() > 0) {
+					r = m_idleExecutorList.iterator().next();
+					break;
+				}
+				tries--;
+				if(tries <= 0)
+					throw new IllegalStateException("No idle executors in 10 tries.");
+				m_idleExecutorList.wait(5000);
+			}
+		}
+		r.queue(rr);
+	}
+
+	Object getIdleLock() {
+		return m_idleExecutorList;
+	}
+
+	/**
 	 * Force all executors into termination asap.
 	 */
 	public void terminateAll() throws Exception {
@@ -486,7 +539,7 @@ public class DbReplay {
 	 * @throws Exception
 	 */
 	public void waitForIdle(long timeout) throws Exception {
-		System.out.println("exec: waiting for all executors to become idle");
+		System.out.println("exec: waiting for all executors to terminate");
 		long ets = System.currentTimeMillis() + timeout;
 		long lmt = 0;
 		int lastrunning = -1;
@@ -495,12 +548,12 @@ public class DbReplay {
 
 			if(ts >= ets) {
 				//-- Failed to start!!! Abort.
-				throw new RuntimeException("Timeout: " + lastrunning + " executors do not become idle...");
+				throw new RuntimeException("Timeout: " + lastrunning + " executors do not terminate...");
 			}
 
 			lastrunning = 0;
 			for(ReplayExecutor rx : getExecutorList()) {
-				if(!rx.isIdle())
+				if(!rx.isTerminated())
 					lastrunning++;
 			}
 			if(lastrunning <= 0)
@@ -510,7 +563,7 @@ public class DbReplay {
 				wait(1000);
 			}
 		}
-		System.out.println("exec: all executors are idle.");
+		System.out.println("exec: all executors have terminated.");
 	}
 
 
@@ -734,5 +787,4 @@ public class DbReplay {
 
 		return SPACES.substring(0, nfill) + val + " ";
 	}
-
 }

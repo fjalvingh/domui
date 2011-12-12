@@ -14,6 +14,10 @@ public class TimeBasedReplayer implements IReplayer {
 
 	private long m_lastRealTime;
 
+	@Override
+	public int decodeArgs(String option, String[] args, int argc) {
+		return -1;
+	}
 	public void handleRecord(DbReplay r, ReplayRecord rr) throws Exception {
 		long ct = System.currentTimeMillis();
 
@@ -78,11 +82,6 @@ public class TimeBasedReplayer implements IReplayer {
 		if(r.isLogging())
 			r.log("x: " + rr.getSummary());
 		rx.queue(rr);
-//		try {
-//			Thread.sleep(1);
-//		} catch(InterruptedException x) {
-//
-//		}
 	}
 
 }
