@@ -32,7 +32,7 @@ public class DbReplay {
 
 	private long m_firstTime;
 
-	private long m_lastTime;
+	private long m_lastRecordTime;
 
 	private long m_startTime;
 
@@ -64,6 +64,8 @@ public class DbReplay {
 	private XType m_runType;
 
 	private PrintWriter m_log;
+
+	private boolean m_stopped;
 
 	private void run(String[] args) throws Exception {
 		if(!decodeOptions(args))
@@ -121,19 +123,22 @@ public class DbReplay {
 			if(m_recordNumber == 0) {
 				m_firstTime = rr.getStatementTime();
 			}
-			m_lastTime = rr.getStatementTime();
+			m_lastRecordTime = rr.getStatementTime();
 			m_recordNumber++;
 
 			handleRecord(rr);
 		}
 		waitForIdle(60 * 1000);
+		synchronized(this) {
+			m_stopped = true;
+		}
 
 		m_endTime = System.currentTimeMillis();
 		System.out.println("Normal EOF after " + m_recordNumber + " records and " + m_fileOffset + " file bytes");
 		Date st = new Date(m_firstTime);
-		Date et = new Date(m_lastTime);
+		Date et = new Date(m_lastRecordTime);
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		System.out.println("  - input time from " + df.format(st) + " till " + df.format(et) + ", " + DbPoolUtil.strMillis(m_lastTime - m_firstTime));
+		System.out.println("  - input time from " + df.format(st) + " till " + df.format(et) + ", " + DbPoolUtil.strMillis(m_lastRecordTime - m_firstTime));
 		System.out.println("  - real time spent: " + DbPoolUtil.strMillis(m_endTime - m_startTime));
 	}
 
@@ -289,7 +294,12 @@ public class DbReplay {
 		}
 
 		startExecutors();
+		startStatusReporter();
 		waitForReady();
+	}
+
+	private synchronized boolean isStopped() {
+		return m_stopped;
 	}
 
 
@@ -450,7 +460,6 @@ public class DbReplay {
 		int lastrunning = -1;
 		for(;;) {
 			long ts = System.currentTimeMillis();
-			runStatus(ts);
 
 			if(ts >= ets) {
 				//-- Failed to start!!! Abort.
@@ -552,7 +561,6 @@ public class DbReplay {
 	 */
 	private void handleRecord(ReplayRecord rr) throws Exception {
 		long ct = System.currentTimeMillis();
-		runStatus(ct);
 
 		//-- Try to assign an executor.
 		Integer cid = Integer.valueOf(rr.getConnectionId());
@@ -623,8 +631,10 @@ public class DbReplay {
 //		}
 	}
 
-	private long m_ts_nextStatus;
-
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Status handling thread.								*/
+	/*--------------------------------------------------------------*/
+	/** The next time a status is to be run. */
 	private int m_statusLines;
 
 	private long m_ts_laststatus;
@@ -639,6 +649,40 @@ public class DbReplay {
 
 	private StringBuilder m_status_sb = new StringBuilder(128);
 
+	private void startStatusReporter() {
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				statusThreadRun();
+			}
+		});
+		t.setName("status");
+		t.setPriority(Thread.NORM_PRIORITY + 1);
+		t.setDaemon(true);
+		t.start();
+	}
+
+	private void statusThreadRun() {
+		try {
+			while(!isStopped()) {
+				long ts = System.currentTimeMillis();
+				long nts = ts + 5000; // Log every 5 seconds.
+				displayStatus(ts);
+
+				ts = System.currentTimeMillis();
+				long delay = nts - ts;
+				Thread.sleep(delay);
+			}
+		} catch(Exception x) {
+			System.out.println("abnormal termination of status display thread: " + x);
+		}
+	}
+
+	/**
+	 * Format a date.
+	 * @param dt
+	 * @return
+	 */
 	static public final String format(Date dt) {
 		DateFormat df = m_dateFormat.get();
 		if(null == df) {
@@ -648,24 +692,10 @@ public class DbReplay {
 		return df.format(dt);
 	}
 
-
-	private void runStatus(long ts) {
-//		long ts = System.currentTimeMillis();
-		synchronized(this) {
-			if(ts < m_ts_nextStatus)
-				return;
-			m_ts_nextStatus = ts + 5 * 1000; // Report every 5 seconds.
-		}
-
-		if(m_statusLines++ % 20 == 0) {
-			//--                0123 0123456789 0123456789 0123456789 0123456789 0123456789012345 0123456789 0123456789
-			System.out.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s realtime");
-			if(m_log != null)
-				m_log.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s realtime");
-		}
-
+	private void displayStatus(long ts) {
 		long recnr, errs, xq, rr, skips;
-		long lasttime;
+		long lastrecordtime;
+		long laststatustime;
 
 		synchronized(this) {
 			recnr = m_recordNumber;
@@ -673,19 +703,33 @@ public class DbReplay {
 			xq = m_executedQueries;
 			rr = m_resultRows;
 			skips = m_ignoredStatements;
-			lasttime = m_lastTime;
+			lastrecordtime = m_lastRecordTime;
+			laststatustime = m_ts_laststatus;
+			m_ts_laststatus = ts;
+			if(xq == 0)
+				return;
 		}
 
 		double qps;
 		double rps;
-		if(m_ts_laststatus == 0) {
+		long sdt;
+		if(laststatustime == 0) {
 			//-- No previous measurement
 			qps = 0.0;
 			rps = 0.0;
+			sdt = 0;
 		} else {
-			long sdt = ts - m_ts_laststatus; // Delta milliseconds
+			sdt = ts - laststatustime;
 			qps = (xq - m_previousQueryCount) / (sdt / 1000.0);
 			rps = (rr - m_previousRowCount) / (sdt / 1000.0);
+		}
+
+
+		if(m_statusLines++ % 20 == 0) {
+			//--                0123 0123456789 0123456789 0123456789 0123456789 0123456789012345 0123456789 0123456789 012345
+			System.out.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s dT     realtime ");
+			if(m_log != null)
+				m_log.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s dT     realtime");
 		}
 
 		m_status_sb.setLength(0);
@@ -697,7 +741,8 @@ public class DbReplay {
 		m_status_sb.append(v(rr, 16));
 		m_status_sb.append(dbl(qps, 10));
 		m_status_sb.append(dbl(rps, 10));
-		m_status_sb.append(DATEFORMAT.format(new Date(lasttime)));
+		m_status_sb.append(dbl(sdt / 1000.0, 5));
+		m_status_sb.append(DATEFORMAT.format(new Date(lastrecordtime)));
 		String s = m_status_sb.toString();
 		System.out.println(s);
 		if(m_log != null)
