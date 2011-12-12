@@ -409,6 +409,27 @@ public class DbReplay {
 		}
 	}
 
+	/**
+	 * Get a free executor from the executor free set, and return null if none available.
+	 * @return
+	 */
+	public synchronized ReplayExecutor allocateExecutor() {
+		if(m_freeExecutors.size() == 0) {
+			//-- Nothing free... Add to ignore set, and increment error count
+			m_missingConnections++;
+			return null;
+		}
+
+		//-- Assign executor
+		return m_freeExecutors.remove(0);
+	}
+
+	public synchronized void releaseExecutor(ReplayExecutor rx) {
+		if(null != rx) {
+			m_freeExecutors.add(rx);
+			notify();
+		}
+	}
 
 	/**
 	 * Force all executors into termination asap.
@@ -541,6 +562,7 @@ public class DbReplay {
 	public synchronized int getInExecution() {
 		return m_inExecution;
 	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	assign records to executors.						*/
