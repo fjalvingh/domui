@@ -473,7 +473,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 (function ($) {
 	$.fn.setBackgroundImageMarker = function () {
 		return this.each(function () {
-			if($(this).markerTransfomed){
+			if($(this).markerTransformed){
 				return;
 			}
 			var imageUrl = 'url(' + $(this).attr('marker') + ')';
@@ -491,7 +491,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					$(this).css('background-image', 'none');
 				}
 			});
-			$(this).markerTransfomed = true;
+			$(this).markerTransformed = true;
 		});
 	};
 })(jQuery);
@@ -2715,7 +2715,6 @@ WebUI.onDocumentReady = function() {
 	if(DomUIDevel)
 		WebUI.handleDevelopmentMode();
 	WebUI.doCustomUpdates();
-	
 };
 
 WebUI.floatingDivResize = function(ev, ui) {

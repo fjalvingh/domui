@@ -1,5 +1,7 @@
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 import to.etc.webapp.query.*;
 
 /**
@@ -13,6 +15,7 @@ public interface IQueryFactory<T> {
 	 * Create query
 	 * @return
 	 */
+	@Nonnull
 	QCriteria<T> createQuery();
 
 }

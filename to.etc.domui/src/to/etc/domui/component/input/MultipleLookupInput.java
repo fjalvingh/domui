@@ -38,7 +38,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 	/**
 	 * This renderer represents default renderer that is used for items in {@link MultipleLookupInput} control.
 	 */
-	private INodeContentRenderer<T> DEAFULT_RENDERER = new INodeContentRenderer<T>() {
+	final private INodeContentRenderer<T> DEFAULT_RENDERER = new INodeContentRenderer<T>() {
 		@Override
 		public void renderNodeContent(NodeBase component, NodeContainer node, T object, Object parameters) throws Exception {
 			if(node == null || !(node instanceof Label)) {
@@ -195,7 +195,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
 		INodeContentRenderer<T> r = getSelectedItemContentRenderer();
 		if(r == null)
-			r = DEAFULT_RENDERER; // Prevent idiotic generics error
+			r = DEFAULT_RENDERER; // Prevent idiotic generics error
 		r.renderNodeContent(this, itemText, item, null);
 		return itemNode;
 	}

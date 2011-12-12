@@ -33,7 +33,7 @@ import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 
 /**
- * Shows access deniend info.
+ * Shows access denied info.
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 2 Dec 2011
