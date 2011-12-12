@@ -63,6 +63,8 @@ public class DbReplay {
 
 	private XType m_runType;
 
+	private PrintWriter m_log;
+
 	private void run(String[] args) throws Exception {
 		if(!decodeOptions(args))
 			return;
@@ -89,6 +91,17 @@ public class DbReplay {
 		}
 	}
 
+	private void openLog() throws Exception {
+		File log = new File("dbreplay.log");
+		m_log = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(log), 65536), "utf-8"));
+		m_log.println("Log file start @" + new Date());
+	}
+
+	private void log(String s) {
+		if(m_log == null)
+			return;
+		m_log.println(s);
+	}
 
 	private void runDump() throws Exception {
 		// TODO Auto-generated method stub
@@ -156,6 +169,8 @@ public class DbReplay {
 					if(argc >= args.length)
 						throw new IllegalArgumentException("Missing numeric value (milliseconds) after -maxwait");
 					m_maxStatementDelay = Long.parseLong(args[argc++]);
+				} else if("-log".equals(s)) {
+					openLog();
 				} else {
 					usage("Unknown option: " + s);
 					return false;
@@ -220,10 +235,20 @@ public class DbReplay {
 			+ "-driver|-dp [path]: path to the Oracle driver .jar file, if not present on the classpath\n" //
 				+ "\n** replay options **\n" //
 				+ "-maxwait [milliseconds]: set the max time to wait between successive statements to a #of milliseconds. This ignores the real times that statements were sent to the database.\n"
+				+ "-log: create a log of statements in dbreplay.log\n"
 		);
 	}
 
 	private void releaseAll() {
+		try {
+			if(m_log != null)
+				m_log.close();
+		} catch(Exception x) {
+			System.err.println("Cannot close log: " + x);
+		} finally {
+			m_log = null;
+		}
+
 		try {
 			if(m_bis != null)
 				m_bis.close();
@@ -579,6 +604,7 @@ public class DbReplay {
 				//-- Nothing free... Add to ignore set, and increment error count
 				m_missingConnections++;
 				m_ignoreSet.add(cid); // Ignore all related statements
+				log("no free executor: " + cid);
 				return;
 			}
 
@@ -586,6 +612,9 @@ public class DbReplay {
 			rx = m_freeExecutors.remove(0);
 			m_executorMap.put(cid, rx);
 		}
+
+		if(m_log != null)
+			log("x: " + rr.getSummary());
 		rx.queue(rr);
 //		try {
 //			Thread.sleep(1);
@@ -604,7 +633,21 @@ public class DbReplay {
 
 	private long m_previousQueryCount;
 
-	private DateFormat m_dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	static public final DateFormat DATEFORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+	static private final ThreadLocal<DateFormat> m_dateFormat = new ThreadLocal<DateFormat>();
+
+	private StringBuilder m_status_sb = new StringBuilder(128);
+
+	static public final String format(Date dt) {
+		DateFormat df = m_dateFormat.get();
+		if(null == df) {
+			df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			m_dateFormat.set(df);
+		}
+		return df.format(dt);
+	}
+
 
 	private void runStatus(long ts) {
 //		long ts = System.currentTimeMillis();
@@ -617,6 +660,8 @@ public class DbReplay {
 		if(m_statusLines++ % 20 == 0) {
 			//--                0123 0123456789 0123456789 0123456789 0123456789 0123456789012345 0123456789 0123456789
 			System.out.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s realtime");
+			if(m_log != null)
+				m_log.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s realtime");
 		}
 
 		long recnr, errs, xq, rr, skips;
@@ -643,18 +688,21 @@ public class DbReplay {
 			rps = (rr - m_previousRowCount) / (sdt / 1000.0);
 		}
 
+		m_status_sb.setLength(0);
+		m_status_sb.append(v(getInExecution(), 4));
+		m_status_sb.append(v(recnr, 10));
+		m_status_sb.append(v(skips, 10));
+		m_status_sb.append(v(errs, 10));
+		m_status_sb.append(v(xq, 10));
+		m_status_sb.append(v(rr, 16));
+		m_status_sb.append(dbl(qps, 10));
+		m_status_sb.append(dbl(rps, 10));
+		m_status_sb.append(DATEFORMAT.format(new Date(lasttime)));
+		String s = m_status_sb.toString();
+		System.out.println(s);
+		if(m_log != null)
+			m_log.println(s);
 
-		System.out.println( //
-			v(getInExecution(), 4) //
-				+ v(recnr, 10) //
-				+ v(skips, 10) //
-				+ v(errs, 10) //
-				+ v(xq, 10) //
-				+ v(rr, 16) //
-				+ dbl(qps, 10) //
-				+ dbl(rps, 10) //
-				+ m_dateFormat.format(new Date(lasttime))
-			);
 		m_ts_laststatus = ts;
 		m_previousQueryCount = xq;
 		m_previousRowCount = rr;
