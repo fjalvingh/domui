@@ -411,7 +411,7 @@ final public class DomUtil {
 
 	/**
 	 * IMPORTANT: This method MUST be used only within UI threads, when UIContext.getRequestContext() != null!
-	 * In all other, usually background running threads, other alternatives that are using stored appURL must be used!  
+	 * In all other, usually background running threads, other alternatives that are using stored appURL must be used!
 	 * @param clz
 	 * @param pp
 	 * @return
@@ -429,7 +429,7 @@ final public class DomUtil {
 	/**
 	 * IMPORTANT: This method MUST be used for non UI threads, when UIContext.getRequestContext() == null!
 	 * In all other, usually UI running threads, use other alternatives that is using appURL from UIContext.getRequestContext()!
-	 *   
+	 *
 	 * @param webAppUrl web app url, must be ended with '/'
 	 * @param clz
 	 * @param pp
@@ -1499,4 +1499,35 @@ final public class DomUtil {
 		return m_lorem;
 	}
 
+	/**
+	 * Returns specified session attribute value if exists.
+	 * If specifed, it clears value to support easier 'one time purpose actions'.
+	 * Must be called within valid request UI context.
+	 *
+	 * @param attribute
+	 * @param doReset if T attribute value is set to null after reading.
+	 * @return
+	 */
+	public static Object getSessionAttribute(String attribute, boolean doReset) {
+		IRequestContext ctx = UIContext.getRequestContext();
+		AppSession ses = ctx.getSession();
+		Object val = ses.getAttribute(attribute);
+		if(doReset) {
+			ses.setAttribute(attribute, null);
+		}
+		return val;
+	}
+
+	/**
+	 * Set specified session attribute value. Attribute would be accesible until session expires.
+	 * Must be called within valid request UI context.
+	 *
+	 * @param attribute
+	 * @param value
+	 */
+	public static void setSessionAttribute(String attribute, Object value) {
+		IRequestContext ctx = UIContext.getRequestContext();
+		AppSession ses = ctx.getSession();
+		ses.setAttribute(attribute, value);
+	}
 }
