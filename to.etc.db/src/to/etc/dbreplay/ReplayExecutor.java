@@ -166,7 +166,9 @@ class ReplayExecutor extends Thread {
 //			System.out.println("     #" + m_index + ": DONE, " + rows + " rows");
 
 		} catch(Exception x) {
-			System.out.println(x.toString());
+			if(m_r.isLogging())
+				m_r.log(x.toString());
+//			System.out.println(x.toString());
 			errs++;
 		} finally {
 			try {

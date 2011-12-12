@@ -67,6 +67,8 @@ public class DbReplay {
 
 	private boolean m_stopped;
 
+	private IReplayer m_replayer;
+
 	private void run(String[] args) throws Exception {
 		if(!decodeOptions(args))
 			return;
@@ -99,10 +101,18 @@ public class DbReplay {
 		m_log.println("Log file start @" + new Date());
 	}
 
-	private void log(String s) {
+	public void log(String s) {
 		if(m_log == null)
 			return;
 		m_log.println(s);
+	}
+
+	public boolean isLogging() {
+		return m_log != null;
+	}
+
+	public long getMaxStatementDelay() {
+		return m_maxStatementDelay;
 	}
 
 	private void runDump() throws Exception {
@@ -204,7 +214,8 @@ public class DbReplay {
 		}
 		if(m_runType == null)
 			m_runType = XType.RUN;
-
+		if(m_replayer == null)
+			m_replayer = new TimeBasedReplayer();
 		return true;
 	}
 
@@ -563,94 +574,21 @@ public class DbReplay {
 		return m_inExecution;
 	}
 
+	public synchronized void incConnSkips() {
+		m_connSkips++;
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	assign records to executors.						*/
 	/*--------------------------------------------------------------*/
-
-	private Map<Integer, ReplayExecutor> m_executorMap = new HashMap<Integer, ReplayExecutor>();
-
-	private Set<Integer> m_ignoreSet = new HashSet<Integer>();
-
-	/** The timestamp of the previous replay record. */
-	private long m_lastReplayTime;
-
-	private long m_lastRealTime;
 
 	/**
 	 *
 	 * @param rr
 	 */
 	private void handleRecord(ReplayRecord rr) throws Exception {
-		long ct = System.currentTimeMillis();
-
-		//-- Try to assign an executor.
-		Integer cid = Integer.valueOf(rr.getConnectionId());
-		if(rr.getType() == StatementProxy.ST_CLOSE) {
-			m_ignoreSet.remove(cid); // If this was ignored - end that
-			ReplayExecutor rx = m_executorMap.remove(cid); // Was an executor assigned to this connection?
-			if(null != rx) {
-				m_freeExecutors.add(rx);
-			}
-			return;
-		}
-
-		//-- Skip boring actions
-		if(rr.getType() == StatementProxy.ST_COMMIT || rr.getType() == StatementProxy.ST_ROLLBACK)
-			return;
-
-		//-- If we're ignored: increment ignored stmt count and exit
-		if(m_ignoreSet.contains(cid)) {
-			m_connSkips++;
-			return;
-		}
-
-		//-- Determine the time delta between this record and the previous one
-		if(m_lastReplayTime == 0) {
-			m_lastReplayTime = rr.getStatementTime();
-			m_lastRealTime = ct;
-		} else {
-			long deltat = rr.getStatementTime() - m_lastReplayTime;
-			if(deltat < 0)
-				deltat = 0;
-			m_lastReplayTime = rr.getStatementTime();
-
-			if(deltat > m_maxStatementDelay)
-				deltat = m_maxStatementDelay;
-
-			if(deltat > 0) {
-				if(deltat > 5000)
-					System.out.println("       - long sleep of " + DbPoolUtil.strMillis(deltat));
-				Thread.sleep(deltat);
-			}
-			m_lastRealTime = ct;
-		}
-
-		//-- Ok, we need an executor for this. Get or allocate;
-		ReplayExecutor rx = m_executorMap.get(cid); // Is an executor already assigned to this connection?
-		if(rx == null) {
-			//-- Try to allocate an executor
-			if(m_freeExecutors.size() == 0) {
-				//-- Nothing free... Add to ignore set, and increment error count
-				m_missingConnections++;
-				m_ignoreSet.add(cid); // Ignore all related statements
-				log("no free executor: " + cid);
-				return;
-			}
-
-			//-- Assign executor
-			rx = m_freeExecutors.remove(0);
-			m_executorMap.put(cid, rx);
-		}
-
-		if(m_log != null)
-			log("x: " + rr.getSummary());
-		rx.queue(rr);
-//		try {
-//			Thread.sleep(1);
-//		} catch(InterruptedException x) {
-//
-//		}
+		m_replayer.handleRecord(this, rr);
 	}
 
 	/*--------------------------------------------------------------*/
