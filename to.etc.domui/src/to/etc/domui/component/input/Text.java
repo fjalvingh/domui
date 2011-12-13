@@ -36,6 +36,7 @@ import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -396,18 +397,56 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	//		return m_validated;
 	//	}
 
-	/**
-	 * Dynamically add background image for emptyMarker <br>
-	 * Method can be used to show image, with magnifier icon and label, in background of input. Image is hidden when input have focus or entered value.
-	 * @param emptyMarker URL of background image
-	 */
-	public void setEmptyMarker(String emptyMarker) {
+	private void setEmptyMarker(String emptyMarker) {
 		if(DomUtil.isBlank(emptyMarker)) {
 			setSpecialAttribute("marker", null);
 		} else {
 			setSpecialAttribute("marker", emptyMarker);
 		}
 		m_emptyMarker = emptyMarker;
+	}
+
+	/**
+	 * Method can be used to show image, with magnifier icon and label, in background of input. Image is hidden when input have focus or entered value.<BR/>
+	 * Background image have small magnifier icon (THEME/icon-search.png)
+	 * @return
+	 */
+	public void setMarker() {
+		setEmptyMarker(MarkerImagePart.getBackgroundIconOnly());
+	}
+
+	/**
+	 * Method can be used to show image, with magnifier icon and label, in background of input. Image is hidden when input have focus or entered value.<BR/>
+	 * Background image will have only defined icon
+	 * 
+	 * @param iconUrl
+	 * @return
+	 */
+	public void setMarker(String iconUrl) {
+		setEmptyMarker(MarkerImagePart.getBackgroundIconOnly(iconUrl));
+	}
+
+	/**
+	 * Method can be used to show image, with magnifier icon and label, in background of input. Image is hidden when input have focus or entered value.<BR/>
+	 * Background image have small magnifier icon and and defined text (caption)
+	 *
+	 * @param caption
+	 * @return
+	 */
+	public void setMarkerText(String caption) {
+		setEmptyMarker(MarkerImagePart.getBackgroundImage(caption));
+	}
+
+	/**
+	 * Method can be used to show image, with magnifier icon and label, in background of input. Image is hidden when input have focus or entered value.<BR/>
+	 * Background image have small defined icon and and defined text (caption)
+	 * 
+	 * @param iconUrl
+	 * @param caption
+	 * @return
+	 */
+	public void setMarker(String iconUrl, String caption) {
+		setEmptyMarker(MarkerImagePart.getBackgroundImage(iconUrl, caption));
 	}
 
 	/**

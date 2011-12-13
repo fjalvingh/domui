@@ -28,7 +28,6 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.parts.*;
 import to.etc.domui.util.*;
 
 /**
@@ -82,7 +81,7 @@ class KeyWordSearchInput<T> extends Div {
 		}
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
-		m_keySearch.setEmptyMarker(MarkerImagePart.getBackgroundIconOnly());
+		m_keySearch.setMarker();
 
 		m_keySearch.setOnLookupTyping(new ILookupTypingListener<TextStr>() {
 
