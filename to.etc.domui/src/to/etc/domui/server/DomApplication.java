@@ -736,6 +736,7 @@ public abstract class DomApplication {
 	 * @param name
 	 * @return
 	 */
+	@Nonnull
 	public IResourceRef createClasspathReference(String name) {
 		if(!name.startsWith("/"))
 			name = "/" + name;
