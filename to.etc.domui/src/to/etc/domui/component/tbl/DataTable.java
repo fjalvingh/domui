@@ -102,10 +102,13 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		setCssClass("ui-dt");
 
 		//-- Do we need to render multiselect checkboxes?
-		if(isShowSelectionAlways() || (getSelectionModel() != null && getSelectionModel().getSelectionCount() > 0)) {
-			m_multiSelectMode = getSelectionModel().isMultiSelect();
-		} else {
-			m_multiSelectMode = false;
+		ISelectionModel<T> sm = getSelectionModel();
+		if(sm != null) {
+			if(isShowSelectionAlways() || sm.getSelectionCount() > 0) {
+				m_multiSelectMode = sm.isMultiSelect();
+			} else {
+				m_multiSelectMode = false;
+			}
 		}
 
 		//-- Ask the renderer for a sort order, if applicable
