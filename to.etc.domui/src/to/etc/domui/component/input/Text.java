@@ -407,8 +407,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * Method can be used to show image, with magnifier icon and label, in background of input. Image is hidden when input have focus or entered value.<BR/>
-	 * Background image have small magnifier icon (THEME/icon-search.png)
+	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier image in background of input. Image is hidden when input have focus or has any content.
 	 * @return
 	 */
 	public void setMarker() {
@@ -416,9 +415,8 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * Method can be used to show image, with magnifier icon and label, in background of input. Image is hidden when input have focus or entered value.<BR/>
-	 * Background image will have only defined icon
-	 * 
+	 * Method can be used to show custom marker icon as image in background of input. Image is hidden when input have focus or has any content.
+	 *
 	 * @param iconUrl
 	 * @return
 	 */
@@ -427,8 +425,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * Method can be used to show image, with magnifier icon and label, in background of input. Image is hidden when input have focus or entered value.<BR/>
-	 * Background image have small magnifier icon and and defined text (caption)
+	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier and custom label as image in background of input. Image is hidden when input have focus or has any content.
 	 *
 	 * @param caption
 	 * @return
@@ -438,9 +435,8 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * Method can be used to show image, with magnifier icon and label, in background of input. Image is hidden when input have focus or entered value.<BR/>
-	 * Background image have small defined icon and and defined text (caption)
-	 * 
+	 * Method can be used to show custom marker icon and custom label as image in background of input. Image is hidden when input have focus or has any content.
+	 *
 	 * @param iconUrl
 	 * @param caption
 	 * @return
@@ -450,6 +446,8 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
+	 * Returns assigned empty marker.
+	 *
 	 * @see Text#setEmptyMarker(String)
 	 */
 	public String getEmptyMarker() {
