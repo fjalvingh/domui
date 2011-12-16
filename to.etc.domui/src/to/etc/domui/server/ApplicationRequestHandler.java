@@ -411,13 +411,25 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//		}
 
 		//-- Issue rights check,
-		boolean allowed = true;
+		boolean allowed = false;
+
+		if(ctx.getRequest().getParameter("webuia") == null && !(Constants.NONE.equals(rann.specialCheckMethod()))) {
+			//if we are not handling some special AJAX action, we have data depending special check first
+			allowed = ctx.getApplication().getSpecialAccessChecker().specialRightsCheck(clz, ctx);
+		}
+
+		if(allowed)
+			return true;
+
+		allowed = true;
+
 		for(String right : rann.value()) {
 			if(!user.hasRight(right)) {
 				allowed = false;
 				break;
 			}
 		}
+
 		if(allowed)
 			return true;
 

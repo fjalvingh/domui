@@ -29,34 +29,23 @@ import java.lang.annotation.*;
 import to.etc.domui.util.*;
 
 /**
- * Defines the rights that are required for a page to be usable by a user. When this annotation
- * is present on a page the page can be accessed by a user which has the prerequisite rights. If
- * the user is not currently known (meaning he has not logged in yet) this causes the page logic
- * to throw a NotLoggedInException, which in turn should force a login to occur.
+ * Defines the special method that can be used to check if logged user has special access rights to page based on relation to data context.
+ * It is used to override required rights for page access when user that tries to access page is owner of data or in some other special relation when general rights are not needed.
+ * 
+ * This annotation must be used in combination with {@link UIRights}, where {@link UIRights#specialCheckMethod()} must contain name of method that is annotated with UISpecialAccessCheck.
+ * 
+ * Method annotated by this annotation must be static method that returns boolean with single parameter of type that is matching with id value of page parameter denoted by dataParam annotation attribute.    
+ * 
  *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Apr 15, 2009
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on 15 Dec 2011
  */
-@Target(value = ElementType.TYPE)
+@Target(value = ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UIRights {
+public @interface UISpecialAccessCheck {
 	/**
-	 * The rights that the user must have to access the page. If multiple entries are set it means ALL rights
-	 * specified must be present to allow access.
+	 * Identifies param that contains marshaled PK of data object that is used for special access check.  
 	 * @return
 	 */
-	String[] value() default {};
-
-	/**
-	 * If these rights depend on the data being edited, this must contain a property path expression on the
-	 * <i>annotated class</i> leading to the data item to use for the check.
-	 * @return
-	 */
-	String dataPath() default "";
-
-	/**
-	 * If specified, denotes name of method that should be used for special access. See {@link UISpecialAccessCheck}.
-	 * @return
-	 */
-	String specialCheckMethod() default Constants.NONE;
+	String dataParam() default Constants.NONE;
 }
