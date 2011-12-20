@@ -29,6 +29,7 @@ import java.util.*;
 import org.slf4j.*;
 
 import to.etc.domui.annotations.*;
+import to.etc.domui.annotations.UISpecialAccessResult.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
@@ -411,27 +412,30 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//		}
 
 		//-- Issue rights check,
-		boolean allowed = false;
+
+		UISpecialAccessResult specialAccessCheck = null;
 
 		if(ctx.getRequest().getParameter("webuia") == null && !(Constants.NONE.equals(rann.specialCheckMethod()))) {
 			//if we are not handling some special AJAX action, we have data depending special check first
-			allowed = ctx.getApplication().getSpecialAccessChecker().specialRightsCheck(clz, ctx);
+			specialAccessCheck = ctx.getApplication().getSpecialAccessChecker().specialRightsCheck(clz, ctx);
 		}
 
-		if(allowed)
+		if(specialAccessCheck != null && specialAccessCheck.getStatus() == Status.ACCEPT)
 			return true;
 
-		allowed = true;
+		if(specialAccessCheck == null || specialAccessCheck.getStatus() == Status.NONE) {
+			boolean allowed = true;
 
-		for(String right : rann.value()) {
-			if(!user.hasRight(right)) {
-				allowed = false;
-				break;
+			for(String right : rann.value()) {
+				if(!user.hasRight(right)) {
+					allowed = false;
+					break;
+				}
 			}
-		}
 
-		if(allowed)
-			return true;
+			if(allowed)
+				return true;
+		}
 
 		/*
 		 * Access not allowed: redirect to error page.
@@ -448,12 +452,17 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		sb.append("?targetPage=");
 		StringTool.encodeURLEncoded(sb, clz.getName());
 
-		//-- All required rights
-		int ix = 0;
-		for(String r : rann.value()) {
-			sb.append("&r" + ix + "=");
-			ix++;
-			StringTool.encodeURLEncoded(sb, r);
+		if(specialAccessCheck != null && specialAccessCheck.getStatus() == Status.REFUSE) {
+			sb.append("&" + AccessDeniedPage.PARAM_REFUSAL_MSG + "=");
+			StringTool.encodeURLEncoded(sb, specialAccessCheck.getRefuseReason());
+		} else {
+			//-- All required rights
+			int ix = 0;
+			for(String r : rann.value()) {
+				sb.append("&r" + ix + "=");
+				ix++;
+				StringTool.encodeURLEncoded(sb, r);
+			}
 		}
 		generateHttpRedirect(ctx, sb.toString(), "Access denied");
 		return false;

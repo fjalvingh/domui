@@ -24,6 +24,7 @@
  */
 package to.etc.domui.access;
 
+import to.etc.domui.annotations.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 
@@ -36,12 +37,12 @@ import to.etc.domui.server.*;
 public interface ISpecialAccessChecker {
 
 	/**
-	 * Returns T in case that special access is allowed for specified pageClass. 
+	 * Returns result of special access check for specified pageClass. 
 	 * @param pageClass
 	 * @param ctx
 	 * @return
 	 * @throws Exception
 	 */
-	boolean specialRightsCheck(final Class< ? extends UrlPage> pageClass, final RequestContextImpl ctx) throws Exception;
+	UISpecialAccessResult specialRightsCheck(final Class< ? extends UrlPage> pageClass, final RequestContextImpl ctx) throws Exception;
 
 }

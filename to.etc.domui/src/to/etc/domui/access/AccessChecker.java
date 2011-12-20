@@ -34,7 +34,7 @@ public class AccessChecker {
 		return m_pageClass;
 	}
 
-	private Object getAccessData(final PageParameters pp) throws Exception {
+	private Object getAccessData(QDataContext dc, final PageParameters pp) throws Exception {
 		UISpecialAccessCheck upp = m_checkAccessMethod.getAnnotation(UISpecialAccessCheck.class);
 		if(upp == null || Constants.NONE.equals(upp.dataParam())) {
 			return null;
@@ -47,20 +47,12 @@ public class AccessChecker {
 
 		Class< ? > targetDataClass = resolveDataClassType();
 		
-		QDataContext dc = null;
-
-		try {
-			dc = QContextManager.getDataContextFactory().getDataContext();
+		dc = QContextManager.getDataContextFactory().getDataContext();
 		
-			Object pk = getKeyInstance(dc, upp.dataParam(), pv, targetDataClass);
+		Object pk = getKeyInstance(dc, upp.dataParam(), pv, targetDataClass);
 
-			if(pk != null) {
-				return dc.find(targetDataClass, pk);
-			}
-		} finally {
-			if(dc != null) {
-				dc.close();
-			}
+		if(pk != null) {
+			return dc.find(targetDataClass, pk);
 		}
 		return null;
 	}
@@ -95,24 +87,33 @@ public class AccessChecker {
 	}
 
 	/**
-	 * If possible, does special access check call and returns its result. In case of any problem with it it returns F. 
+	 * If possible, does special access check call and returns its result. 
 	 * @param pp
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean checkAccess(@Nonnull final PageParameters pp) throws Exception {
+	public UISpecialAccessResult checkAccess(@Nonnull final PageParameters pp) throws Exception {
 		if (m_checkAccessMethod != null) {
-			Object value = getAccessData(pp);
-			if(value != null) {
-				try {
+			QDataContext dc = null;
+
+			try {
+				dc = QContextManager.getDataContextFactory().getDataContext();
+
+				Object value = getAccessData(dc, pp);
+				if(value != null) {
 					Object res = m_checkAccessMethod.invoke(null, value);
-					return res != null && (res instanceof Boolean) && ((Boolean) res).booleanValue();
-				} catch(Throwable e) {
-					e.printStackTrace();
-					return false;
+
+					if(res == null || (!(res instanceof UISpecialAccessResult))) {
+						throw new IllegalStateException("Expected non null result of type UISpecialAccessResult but found: " + res);
+					}
+					return (UISpecialAccessResult) res;
+				}
+			} finally {
+				if(dc != null) {
+					dc.close();
 				}
 			}
 		}
-		return false;
+		return UISpecialAccessResult.DEFAULT;
 	}
 }
