@@ -29,7 +29,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 
 /**
- * Defines interface for custom access rights checker based on data context.
+ * Defines interface for custom special access checker based on target data context.
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 15 Dec 2011
@@ -43,6 +43,13 @@ public interface ISpecialAccessChecker {
 	 * @return
 	 * @throws Exception
 	 */
-	UISpecialAccessResult specialRightsCheck(final Class< ? extends UrlPage> pageClass, final RequestContextImpl ctx) throws Exception;
+	UISpecialAccessResult doSpecialAccessCheck(final Class< ? extends UrlPage> pageClass, final RequestContextImpl ctx) throws Exception;
+
+	/**
+	 * Returns if specified class has defined special access check.  
+	 * @param clz
+	 * @return
+	 */
+	boolean hasSpecialAccess(Class< ? extends UrlPage> clz);
 
 }

@@ -9,6 +9,7 @@ import to.etc.domui.annotations.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
 
 /**
  * This is the default DomUI page special access checker. It is responsible for providing (injecting) data values into
@@ -27,17 +28,15 @@ public class DefaultSpecialAccessChecker implements ISpecialAccessChecker {
 	private Map<String, AccessChecker> m_checkerMap = new HashMap<String, AccessChecker>();
 
 	/**
-	 * Find the page injectors to use for the page. This uses the cache.
-	 * @param page
+	 * Resolves special access checker for the page. This uses the cache.
+	 * @param pageClass
 	 * @return
 	 */
-	private synchronized AccessChecker findAccessChecker(final Class< ? extends UrlPage> pageClass) {
+	private synchronized AccessChecker resolveAccessChecker(final Class< ? extends UrlPage> pageClass) {
 		String cn = pageClass.getCanonicalName();
-		AccessChecker ach = m_checkerMap.get(cn);
-		if(ach != null) {
-			//-- Hit on name; is the class instance the same? If not this is a reload.
-			if((Class< ? >) ach.getPageClass() == pageClass) // Idiotic generics. If the class changed we have a reload of the class and need to recalculate.
-				return ach;
+		AccessChecker ach = findAccessChecker(pageClass, cn);
+		if (ach != null) {
+			return ach;
 		}
 
 		ach = calculateAccessChecker(pageClass);
@@ -45,39 +44,47 @@ public class DefaultSpecialAccessChecker implements ISpecialAccessChecker {
 		return ach;
 	}
 
+	private AccessChecker findAccessChecker(final Class< ? extends UrlPage> pageClass, String cn) {
+		AccessChecker ach = m_checkerMap.get(cn);
+		if(ach != null) {
+			//-- Hit on name; is the class instance the same? If not this is a reload.
+			if((Class< ? >) ach.getPageClass() == pageClass) // Idiotic generics. If the class changed we have a reload of the class and need to recalculate.
+				return ach;
+		}
+		return null;
+	}
+
 	private AccessChecker calculateAccessChecker(Class< ? extends UrlPage> pageClass) {
-		String checksAccessMethodName = resolveSpecialAccessCheckMethodName(pageClass);
-
-		Method[] methods = pageClass.getDeclaredMethods();
-		Method checkMethod = null;
-		for(Method method : methods) {
-			if(method.getName().equals(checksAccessMethodName) && //
-				Modifier.isStatic(method.getModifiers()) && //
-				method.getParameterTypes().length == 1) {
-				checkMethod = method;
-				break;
-			}
+		Method checkMethod = getSpecialAccessCheckMethod(pageClass);
+		if (checkMethod == null) {
+			return null;
 		}
-
-		if(checkMethod == null) {
-			throw new IllegalStateException("Missing expected static method returning boolean with name " + checksAccessMethodName + " with 1 parameters in class " + pageClass);
-		}
-
 		return new AccessChecker(pageClass, checkMethod);
 	}
 
-	private String resolveSpecialAccessCheckMethodName(Class< ? extends UrlPage> pageClass) {
-		UIRights rann = pageClass.getAnnotation(UIRights.class);
-		if(rann == null) {
-			return null;
+	@Override
+	public UISpecialAccessResult doSpecialAccessCheck(@Nonnull Class< ? extends UrlPage> pageClass, @Nonnull RequestContextImpl ctx) throws Exception {
+		AccessChecker ach = resolveAccessChecker(pageClass);
+		return ach.checkAccess(PageParameters.createFrom(ctx));
+	}
+
+	private Method getSpecialAccessCheckMethod(Class< ? extends UrlPage> clz) {
+		Method[] methods = clz.getDeclaredMethods();
+		for(Method method : methods) {
+			UISpecialAccessCheck upp = method.getAnnotation(UISpecialAccessCheck.class);
+			if(upp != null && !Constants.NONE.equals(upp.dataParam()) && //
+				Modifier.isStatic(method.getModifiers()) && //
+				method.getParameterTypes().length == 1) {
+				return method;
+			}
 		}
-		return rann.specialCheckMethod();
+		return null;
 	}
 
 	@Override
-	public UISpecialAccessResult specialRightsCheck(@Nonnull Class< ? extends UrlPage> pageClass, @Nonnull RequestContextImpl ctx) throws Exception {
-		AccessChecker ach = findAccessChecker(pageClass);
-		return ach.checkAccess(PageParameters.createFrom(ctx));
+	public boolean hasSpecialAccess(Class< ? extends UrlPage> clz) {
+		AccessChecker ach = resolveAccessChecker(clz);
+		return ach != null;
 	}
 
 }

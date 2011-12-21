@@ -26,8 +26,6 @@ package to.etc.domui.annotations;
 
 import java.lang.annotation.*;
 
-import to.etc.domui.util.*;
-
 /**
  * Defines the rights that are required for a page to be usable by a user. When this annotation
  * is present on a page the page can be accessed by a user which has the prerequisite rights. If
@@ -53,10 +51,4 @@ public @interface UIRights {
 	 * @return
 	 */
 	String dataPath() default "";
-
-	/**
-	 * If specified, denotes name of method that should be used for special access. See {@link UISpecialAccessCheck}.
-	 * @return
-	 */
-	String specialCheckMethod() default Constants.NONE;
 }

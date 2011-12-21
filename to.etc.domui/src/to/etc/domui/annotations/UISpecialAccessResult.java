@@ -37,18 +37,27 @@ public class UISpecialAccessResult {
 		return m_status;
 	}
 
-	public UISpecialAccessResult(String refuseReason, Status status) {
+	private UISpecialAccessResult(String refuseReason, Status status) {
 		m_refuseReason = refuseReason;
 		m_status = status;
 	}
 
 	/**
-	 * Use to indicate that no special access check action should be applied. 
+	 * Use to indicate that no special access check action is applied, pass to other chained access check strategies. 
 	 */
 	public static final UISpecialAccessResult DEFAULT = new UISpecialAccessResult(null, Status.NONE);
 
 	/**
-	 * Use to indicate that forced access should be applied. 
+	 * Use to indicate that forced access is applied. 
 	 */
 	public static final UISpecialAccessResult ACCEPTED = new UISpecialAccessResult(null, Status.ACCEPT);
+
+	/**
+	 * Use to create check result that indicate that forced refusal is applied. 
+	 * @param refuseReason
+	 * @return
+	 */
+	public static UISpecialAccessResult refused(String refuseReason) {
+		return new UISpecialAccessResult(refuseReason, Status.REFUSE);
+	}
 }

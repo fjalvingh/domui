@@ -26,6 +26,8 @@ package to.etc.domui.server;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.annotations.*;
@@ -371,9 +373,16 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Class< ? extends UrlPage> clz) throws Exception {
+		//special access check is ignored for AJAX calls (we are already using that page, so access is already checked)
+		boolean hasSpecialAccess = ctx.getRequest().getParameter("webuia") == null && ctx.getApplication().getSpecialAccessChecker().hasSpecialAccess(clz);
+
 		UIRights rann = clz.getAnnotation(UIRights.class);
-		if(rann == null)
+
+		if(rann == null && !hasSpecialAccess) {
+			//no check, we pass
 			return true;
+		}
+
 		//-- Get user's IUser; if not present we need to log in.
 		IUser user = UIContext.getCurrentUser(); // Currently logged in?
 		if(user == null) {
@@ -411,30 +420,27 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//
 		//		}
 
-		//-- Issue rights check,
+		//-- Issue access checks
+		UISpecialAccessResult specialAccessResult = hasSpecialAccess ? ctx.getApplication().getSpecialAccessChecker().doSpecialAccessCheck(clz, ctx) : null;
 
-		UISpecialAccessResult specialAccessCheck = null;
-
-		if(ctx.getRequest().getParameter("webuia") == null && !(Constants.NONE.equals(rann.specialCheckMethod()))) {
-			//if we are not handling some special AJAX action, we have data depending special check first
-			specialAccessCheck = ctx.getApplication().getSpecialAccessChecker().specialRightsCheck(clz, ctx);
-		}
-
-		if(specialAccessCheck != null && specialAccessCheck.getStatus() == Status.ACCEPT)
-			return true;
-
-		if(specialAccessCheck == null || specialAccessCheck.getStatus() == Status.NONE) {
-			boolean allowed = true;
-
-			for(String right : rann.value()) {
-				if(!user.hasRight(right)) {
-					allowed = false;
-					break;
-				}
-			}
-
-			if(allowed)
+		if(specialAccessResult == null) {
+			if(checkUIRigts(rann, user)) {
 				return true;
+			}
+		} else {
+			switch(specialAccessResult.getStatus()){
+				case ACCEPT:
+					return true;
+				case NONE:
+					if(checkUIRigts(rann, user)) {
+						return true;
+					}
+					break;
+				case REFUSE:
+				default:
+					//drop to access denied redirect
+					break;
+			}
 		}
 
 		/*
@@ -452,10 +458,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		sb.append("?targetPage=");
 		StringTool.encodeURLEncoded(sb, clz.getName());
 
-		if(specialAccessCheck != null && specialAccessCheck.getStatus() == Status.REFUSE) {
+		if(specialAccessResult != null && specialAccessResult.getStatus() == Status.REFUSE) {
 			sb.append("&" + AccessDeniedPage.PARAM_REFUSAL_MSG + "=");
-			StringTool.encodeURLEncoded(sb, specialAccessCheck.getRefuseReason());
-		} else {
+			StringTool.encodeURLEncoded(sb, specialAccessResult.getRefuseReason());
+		} else if(rann != null) {
 			//-- All required rights
 			int ix = 0;
 			for(String r : rann.value()) {
@@ -466,6 +472,20 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 		generateHttpRedirect(ctx, sb.toString(), "Access denied");
 		return false;
+	}
+
+	private boolean checkUIRigts(@Nullable UIRights rann, IUser user) {
+		//UIRights check exists, we need to check them. otherwise pass
+		if(rann == null) {
+			return true;
+		}
+
+		for(String right : rann.value()) {
+			if(!user.hasRight(right)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
