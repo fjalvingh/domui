@@ -64,24 +64,32 @@ import to.etc.util.*;
 @Deprecated
 public class TplExpander {
 	/// The callback to use to retrieve values.
-	protected TplCallback	m_cb;
+	protected TplCallback		m_cb;
 
 	/// The current "local vars" table for loop stuff..
 	private Map<String, Object>	m_ht	= new HashMap<String, Object>(15);
 
 	/// The contents of the template.
-	private String			m_buf;
+	private String				m_buf;
 
 	/// The outputstream to expand to.
 
 	/// The writer thing to write the expanded output to
-	private PrintWriter		m_ps;
+	private PrintWriter			m_ps;
+
+	boolean						m_html	= true;
+
 
 	/**
 	 * Constructor
 	 */
 	public TplExpander(TplCallback cb) {
 		m_cb = cb;
+	}
+
+	public TplExpander(TplCallback cb, boolean html) {
+		m_cb = cb;
+		m_html = html;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -222,7 +230,11 @@ public class TplExpander {
 			return;
 		}
 		Object s = evalExpr(expr);
-		m_ps.print(StringTool.htmlStringize(s.toString()));
+		if(m_html) {
+			m_ps.print(StringTool.htmlStringize(s.toString()));
+		} else {
+			m_ps.print(s.toString());
+		}
 	}
 
 
