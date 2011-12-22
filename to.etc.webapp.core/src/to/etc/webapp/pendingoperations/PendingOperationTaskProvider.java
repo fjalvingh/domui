@@ -102,6 +102,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 		return m_listeners;
 	}
 
+	@Override
 	public void initializeOnRegistration(final PollingWorkerQueue pwq) throws Exception {
 		m_executor = pwq;
 
@@ -134,6 +135,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 	 * @see to.etc.webapp.pendingoperations.IPollQueueTaskProvider#getRunnableTask()
 	 */
 
+	@Override
 	public Runnable getRunnableTask() throws Exception {
 		long cts = System.currentTimeMillis();
 		boolean cleanup = false;
@@ -470,4 +472,77 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			} catch(Exception x) {}
 		}
 	}
+
+	/*--------------------------------------------------------------------------*/
+	/*	CODING:	Pending operation external identifier and operation	progress	*/
+	/*--------------------------------------------------------------------------*/
+
+	/**
+	 * Updates the current progress of a given pending operation.
+	 * @param po
+	 * @throws SQLException
+	 */
+	protected void updateProgress(final PendingOperation po) throws SQLException {
+		Connection dbc = allocateConnection();
+		try {
+			po.save(dbc);
+			dbc.commit();
+		} finally {
+			try {
+				if(dbc != null)
+					dbc.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Gets current progress of a scheduled or running calculation of a given scenario (externalId)
+	 * @param externalId
+	 * @return
+	 * @throws SQLException
+	 */
+	public PendingJobProgressInfo getCurrentProgress(final String externalId) throws SQLException {
+		Connection dbc = allocateConnection();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			ps = dbc.prepareStatement("select progress_path, progress_percentage from sys_pending_operations" + " where spo_xident=?" + " and (spo_state = ? or spo_state = ?)");//
+
+			ps.setString(1, externalId);
+			ps.setString(2, PendingOperationState.RTRY.name());
+			ps.setString(3, PendingOperationState.EXEC.name());
+
+			rs = ps.executeQuery();
+
+			if(rs.next()) {
+				PendingJobProgressInfo pi = new PendingJobProgressInfo(rs.getString(1), rs.getInt(2));
+				return pi;
+			}
+			return null;
+		} finally {
+			try {
+				if(rs != null)
+					rs.close();
+			} catch(Exception x) {}
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+			try {
+				if(dbc != null)
+					dbc.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Checks to see if there already is scheduled or running calculation of a given scenario (externalId).
+	 * @param externalId
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean busyWithJob(final String externalId) throws SQLException {
+		return (getCurrentProgress(externalId) != null ? true : false);
+	}
+
 }
