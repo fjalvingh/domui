@@ -1,5 +1,13 @@
 package to.etc.webapp.pendingoperations;
 
+/**
+ * Represent current progress path and percentage of
+ * queried pending operation.
+ *
+ *
+ * @author <a href="mailto:jsavic@execom.eu">Jelena Savic</a>
+ * Created on Dec 21, 2011
+ */
 public class PendingJobProgressInfo {
 
 	private final String m_progressPath;

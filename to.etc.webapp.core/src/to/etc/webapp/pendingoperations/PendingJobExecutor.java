@@ -37,7 +37,6 @@ public class PendingJobExecutor implements Runnable {
 		po.setDescription(desc);
 		po.setSubmitsource(submitter);
 		po.setXid(externalId);
-		po.setProgressPath("Scenario job");
 
 		po.setType("PJEX");
 		PendingOperationTaskProvider.getInstance().saveOperation(po, operation);
@@ -63,10 +62,9 @@ public class PendingJobExecutor implements Runnable {
 			j.execute(m_logSink, m_pendingOperation, p);
 
 		} catch(Exception x) {
-			m_logSink.exception(x, "in executing pending scenario claculation job");
+			m_logSink.exception(x, "in executing pending job");
 			m_pendingOperation.setError(PendingOperationState.FATL, "Error: " + x);
 		}
-
 	}
 
 	/*--------------------------------------------------------------*/
@@ -88,16 +86,16 @@ public class PendingJobExecutor implements Runnable {
 	/**
 	 * previous saved progress value
 	 */
-	private int m_prevUpdatePercent = 0;
+	private int m_lastUpdatePercent = 0;
 
 	/**
 	 * time of previous progress update
 	 */
-	private Date m_prevUpdateTime;
+	private Date m_lastUpdateTime;
 
 	private Progress prepareJobProgress() {
 
-		Progress p = new Progress("Scenario job");
+		Progress p = new Progress("Job");
 		p.setTotalWork(100);
 		p.addListener(new IProgressListener() {
 
@@ -111,7 +109,7 @@ public class PendingJobExecutor implements Runnable {
 			}
 
 			private boolean doUpdate(Progress level) {
-				return getPrevUpdatePercent() == 0 || (deltaInMilliseconds(getPrevUpdateTime(), new Date())) > TIME_DELTA || level.getPercentage() - getPrevUpdatePercent() > VALUE_DELTA;
+				return getLastUpdatePercent() == 0 || (deltaInMilliseconds(getLastUpdateTime(), new Date())) > TIME_DELTA || level.getPercentage() - getLastUpdatePercent() > VALUE_DELTA;
 			}
 
 			@Override
@@ -122,8 +120,8 @@ public class PendingJobExecutor implements Runnable {
 
 					PendingOperationTaskProvider.getInstance().updateProgress(getPendingOperation());
 
-					setPrevUpdatePercent(level.getPercentage());
-					setPrevUpdateTime(new Date());
+					setLastUpdatePercent(level.getPercentage());
+					setLastUpdateTime(new Date());
 				}
 			}
 		});
@@ -131,20 +129,25 @@ public class PendingJobExecutor implements Runnable {
 		return p;
 	}
 
-	public Date getPrevUpdateTime() {
-		return m_prevUpdateTime;
+	public int getLastUpdatePercent() {
+		return m_lastUpdatePercent;
 	}
 
-	public void setPrevUpdateTime(Date prevUpdateTime) {
-		m_prevUpdateTime = prevUpdateTime;
+	public void setLastUpdatePercent(int lastUpdatePercent) {
+		m_lastUpdatePercent = lastUpdatePercent;
 	}
 
-	public int getPrevUpdatePercent() {
-		return m_prevUpdatePercent;
+	public Date getLastUpdateTime() {
+		return m_lastUpdateTime;
 	}
 
-	public void setPrevUpdatePercent(int prevUpdatePercent) {
-		m_prevUpdatePercent = prevUpdatePercent;
+	public void setLastUpdateTime(Date lastUpdateTime) {
+		m_lastUpdateTime = lastUpdateTime;
 	}
 
+	static public synchronized void startOperation(final String userid, final String submitter, final String desc, final String externalId, final IPendingJob operation) throws Exception {
+		if(!PendingOperationTaskProvider.getInstance().isBusyWithJob(externalId)) {
+			registerOperation(userid, submitter, desc, externalId, operation);
+		}
+	}
 }

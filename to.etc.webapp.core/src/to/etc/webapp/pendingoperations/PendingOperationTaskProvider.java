@@ -488,10 +488,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			po.save(dbc);
 			dbc.commit();
 		} finally {
-			try {
-				if(dbc != null)
-					dbc.close();
-			} catch(Exception x) {}
+			FileTool.closeAll(dbc);
 		}
 	}
 
@@ -520,18 +517,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			}
 			return null;
 		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
-			try {
-				if(dbc != null)
-					dbc.close();
-			} catch(Exception x) {}
+			FileTool.closeAll(rs, ps, dbc);
 		}
 	}
 
@@ -541,7 +527,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 	 * @return
 	 * @throws SQLException
 	 */
-	public boolean busyWithJob(final String externalId) throws SQLException {
+	public boolean isBusyWithJob(final String externalId) throws SQLException {
 		return (getCurrentProgress(externalId) != null ? true : false);
 	}
 
