@@ -3,21 +3,21 @@ package to.etc.domui.component.input;
 import javax.annotation.*;
 
 /**
- * General notfication event, can be used for definiton of general purpose callbacks.
+ * General notification event, can be used for definition of general purpose call-backs.
  *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 27 Oct 2011
  */
-public interface INotifyEvent<T> {
+public interface INotifyEvent<T, E> {
 
 	/**
-	 * Notify listener with reason and optional parameters.
+	 * Notify listener with event and optional parameters.
 	 * @param sender
-	 * @param reason
+	 * @param event
 	 * @param params
 	 * @throws Exception
 	 */
-	void onNotify(@Nonnull T sender, @Nullable String reason, @Nullable Object... params) throws Exception;
+	void onNotify(@Nonnull T sender, @Nullable E event, @Nullable Object... params) throws Exception;
 
 }

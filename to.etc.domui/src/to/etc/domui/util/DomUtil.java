@@ -1466,7 +1466,7 @@ final public class DomUtil {
 
 	@Nonnull
 	static public String createOpenWindowJS(@Nonnull String url, @Nullable WindowParameters newWindowParameters) {
-		//-- Send a special JAVASCRIPT open command, containing the shtuff.
+		//-- Send a special JAVASCRIPT open command, containing the stuff.
 		StringBuilder sb = new StringBuilder();
 		sb.append("DomUI.openWindow('");
 		sb.append(url);
