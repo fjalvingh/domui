@@ -44,12 +44,6 @@ public class PendingJobExecutor implements Runnable {
 		PendingOperationTaskProvider.getInstance().saveOperation(po, operation);
 	}
 
-
-
-	public String getRequestID() {
-		return "pjex" + m_pendingOperation.getId();
-	}
-
 	public PendingOperation getPendingOperation() {
 		return m_pendingOperation;
 	}
