@@ -24,6 +24,8 @@
  */
 package to.etc.util;
 
+import java.util.*;
+
 /**
  * A progress reporter utility. A single instance defines progress in user-specified
  * numeric terms (for instance record 12 of 1012312), and gets translated to a
@@ -61,6 +63,8 @@ public class Progress {
 
 	/** A short-as-possible name for the current activity */
 	private String m_name;
+
+	private List<IProgressListener>	m_listeners	= Collections.emptyList();
 
 	/**
 	 * Top-level progress indicator for a given task.
@@ -255,6 +259,14 @@ public class Progress {
 	 * instance has already changed; use those values to recalculate values for all parents.
 	 */
 	private void updateTree() {
+		//-- Call all listeners @ this level
+		for(IProgressListener l : getListeners()) {
+			try {
+				l.progressed(this);
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);		// Bad interfaces: I hate checked exceptions.
+			}
+		}
 		updated();
 		synchronized(m_root) {
 			Progress p = m_parent;
@@ -288,4 +300,17 @@ public class Progress {
 		}
 	}
 
+	public synchronized void addListener(IProgressListener l) {
+		m_listeners = new ArrayList<IProgressListener>(m_listeners);
+		m_listeners.add(l);
+	}
+
+	public synchronized void removeListener(IProgressListener l) {
+		m_listeners = new ArrayList<IProgressListener>(m_listeners);
+		m_listeners.remove(l);
+	}
+
+	synchronized private List<IProgressListener> getListeners() {
+		return m_listeners;
+	}
 }
