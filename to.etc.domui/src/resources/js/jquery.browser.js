@@ -21,7 +21,10 @@ jQuery Browser Plugin
 		jQuery
 */
 
+
 (function ($) {
+	// jal 20111230 This file is no longer used!!
+	
 	$.browserTest = function (a, z) {
 		var u = 'unknown', x = 'X', m = function (r, h) {
 			for (var i = 0; i < h.length; i = i + 1) {
@@ -48,7 +51,6 @@ jQuery Browser Plugin
 			r.versionNumber = parseFloat(r.version, 10) || 0;
 			r.versionX = (r.version !== x) ? (r.version + '').substr(0, 1) : x;
 			r.className = r.name + r.versionX;
-
 			return r;
 		};
 

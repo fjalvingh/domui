@@ -77,6 +77,14 @@ final public class DomUtil {
 			return true;
 		if(a == null || b == null)
 			return false;
+		if(a instanceof Date && b instanceof Date) {
+			//Dates needs special handling
+			return ((Date) a).compareTo((Date) b) == 0;
+		}
+		if(a instanceof BigDecimal && b instanceof BigDecimal) {
+			//BigDecimals needs special handling
+			return ((BigDecimal) a).compareTo((BigDecimal) b) == 0;
+		}
 		if(a.getClass() != b.getClass())
 			return false;
 		if(a.getClass().isArray() && b.getClass().isArray())
@@ -411,7 +419,7 @@ final public class DomUtil {
 
 	/**
 	 * IMPORTANT: This method MUST be used only within UI threads, when UIContext.getRequestContext() != null!
-	 * In all other, usually background running threads, other alternatives that are using stored appURL must be used!  
+	 * In all other, usually background running threads, other alternatives that are using stored appURL must be used!
 	 * @param clz
 	 * @param pp
 	 * @return
@@ -429,7 +437,7 @@ final public class DomUtil {
 	/**
 	 * IMPORTANT: This method MUST be used for non UI threads, when UIContext.getRequestContext() == null!
 	 * In all other, usually UI running threads, use other alternatives that is using appURL from UIContext.getRequestContext()!
-	 *   
+	 *
 	 * @param webAppUrl web app url, must be ended with '/'
 	 * @param clz
 	 * @param pp

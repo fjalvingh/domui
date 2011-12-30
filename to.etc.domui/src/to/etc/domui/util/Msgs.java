@@ -56,6 +56,8 @@ public interface Msgs {
 	/** The database query timed out and was cancelled. */
 	public static final String UI_QUERY_TIMEOUT = "ui.query.timeout";
 
+	public static final String UI_VALIDATION_FAILED = "ui.validation.failed";
+
 	//# Control texts
 	/** Page x of y */
 	public static final String UI_PAGER_TEXT = "ui.pagertext";

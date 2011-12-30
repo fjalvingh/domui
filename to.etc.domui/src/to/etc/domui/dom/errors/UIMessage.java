@@ -91,7 +91,7 @@ public class UIMessage {
 	 * @param code				The code for the message.
 	 * @param parameters		If needed a set of parameters to render into the message.
 	 */
-	private UIMessage(NodeBase errorNode, String errorLocation, MsgType type, BundleRef br, String code, Object[] parameters) {
+	protected UIMessage(NodeBase errorNode, String errorLocation, MsgType type, BundleRef br, String code, Object[] parameters) {
 		if(code == null)
 			throw new NullPointerException("Message code cannot be null");
 		if(type == null)
@@ -103,6 +103,7 @@ public class UIMessage {
 		m_type = type;
 		m_errorLocation = errorLocation;
 	}
+
 	public String getCode() {
 		return m_code;
 	}

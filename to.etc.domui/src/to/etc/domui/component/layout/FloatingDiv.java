@@ -40,13 +40,13 @@ public class FloatingDiv extends Div implements IAddToBody {
 	/** Close reason {@link IWindowClosed#closed(String)}: the dialog was closed by the close button or by pressing the hider. */
 	static public final String RSN_CLOSE = "closed";
 
-	static private final int DEFWIDTH = 640;
+	static protected final int DEFWIDTH = 640;
 
-	static private final int DEFHEIGHT = 400;
+	static protected final int DEFHEIGHT = 400;
 
-	static private final int MINWIDTH = 256;
+	static protected final int MINWIDTH = 256;
 
-	static private final int MINHEIGHT = 200;
+	static protected final int MINHEIGHT = 200;
 
 	final private boolean m_modal;
 

@@ -781,7 +781,7 @@ tr.ui-keyword-popup-row {
 /** Tree control ***/
 
 .ui-tree {
-	height: 100%;
+/*	height: 100%;		jal 20111025 - setting this causes trouble if tree is not alone in div.. Fixed for OldHelp browser */
 }
 
 /*** SplitPanel (simple version) layout thingy ***/
@@ -1866,5 +1866,46 @@ body,html {
 }
 .ui-dbtn[disabled] {
 	background-position: 0px -<%= defaultbutton_height*2 %>px !important;
+}
+
+/*** Flare component. ***/
+.ui-flare {
+	position: absolute;
+	z-index: 9999;
+	top: 100px;
+	left: 100px;
+	width: auto;
+	height: auto;
+	-moz-border-radius: 5px 5px;
+	border: 1px dotted grey;
+	padding: 15px;
+}
+.ui-flare-error {
+	background: <%= error_bg %>;
+	color: <%= error_fg %>
+}
+.ui-flare-info {
+	background: <%= info_bg %>;
+	color: <%= info_fg %>
+}
+.ui-flare-warning {
+	background: <%= warning_bg %>;
+	color: <%= warning_fg %>
+}
+.ui-flare-msg {
+	opacity: 0.9;
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	top: auto;
+	left: auto;
+}
+.ui-flare-msg div {
+	font-weight: bold;
+ 	text-align: right;	
+ 	min-width: 400px;
+}
+.ui-flare-msg div div {
+	font-size: large;
 }
 

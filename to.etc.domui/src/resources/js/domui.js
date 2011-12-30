@@ -6,6 +6,14 @@ function _unblock() {
 }
 $(document).ajaxStart(_block).ajaxStop(_unblock);
 
+//-- calculate browser major and minor versions
+{
+	var v = $.browser.version.split(".");
+	$.browser.majorVersion = parseInt(v[0], 10);
+	$.browser.minorVersion = parseInt(v[1], 10);
+//	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
+}
+
 ( function($) {
 	$.webui = function(xml) {
 		processDoc(xml);
@@ -162,6 +170,13 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				if (commands[i].nodeType != 1)
 					continue; // commands are elements
 				var cmdNode = commands[i], cmd = cmdNode.tagName;
+				if(cmd == 'head' || cmd == 'body') {
+					//-- HTML response. Server state is gone due to restart or lost session.
+					alert('The server has restarted, or the session has timed out.. Reloading the page with fresh data');
+					window.location.href = window.location.href;
+					return;
+				}
+
 				if (cmd == 'eval') {
 					try {
 						var js = (cmdNode.firstChild ? cmdNode.firstChild.nodeValue : null);
@@ -175,6 +190,12 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					continue;
 				}
 				var q = cmdNode.getAttribute('select');
+				if(! q) {
+					//-- Node sans select-> we are in trouble -> this is probably a server error/response. Report session error, then reload. (Marc, 20111017)
+					alert('The server seems to have lost this page.. Reloading the page with fresh data');
+					window.location.href = window.location.href;
+					return;
+				}
 				var jq = $(q);
 				if (!jq[0]) {
 					log('No matching targets for selector: ', q);
@@ -369,6 +390,11 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				for ( var i = 0, attr = ''; i < src.attributes.length; i++) {
 					var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
 
+//					if(n.substring(0, 2) == 'on' && ! this._xxxw) {
+//						this._xxxw = true;
+//						alert('dest='+dest+", src="+src+", inline="+inline+", ffox="+$.browser.mozilla);
+//					}
+					
 					if (inline) {
 						//-- 20091110 jal When inlining we are in trouble if domjs_ is used... The domjs_ mechanism is replaced with setDelayedAttributes in java.
 						if(n.substring(0, 6) == 'domjs_') {
@@ -393,17 +419,21 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if (dest && ($.browser.msie || $.browser.webkit) && n.substring(0, 2) == 'on') {
+					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
-							// alert('event '+n+' value '+v);
+//							if(! this._xxxw)
+//								alert('event '+n+' value '+v);
 							// var se = 'function(){'+v+';}';
 							var se;
 							if (v.indexOf('return') != -1 || v.indexOf('javascript:') != -1)
-								se = new Function(v);
+								se = new Function("event", v);
 							else
-								se = new Function('return ' + v);
-							// alert('event '+n+' value '+se);
+								se = new Function("event", 'return ' + v);
+//							if(! this._xxxw)
+//								alert('event '+n+' value '+se);
 							dest[n] = se;
+							this._xxxw = true;
+							
 						} catch(x) {
 							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);
 						}
@@ -2645,6 +2675,26 @@ WebUI.floatingDivResize = function(ev, ui) {
 WebUI.onWindowResize = function() {
 	WebUI.doCustomUpdates();
 };
+
+WebUI.flare = function(id) {
+	$('#'+id).fadeIn('fast', function() {
+		$('#'+id).delay(500).fadeOut(1000, function() {
+			$('#'+id).remove();
+		});
+	});
+};
+
+WebUI.flareStay = function(id) {
+	$('#'+id).fadeIn('fast', function() {
+		$('body,html').bind('mousemove.' + id, function(e){
+			$('body,html').unbind('mousemove.' + id);
+			$('#'+id).delay(500).fadeOut(1000, function() {
+				$('#'+id).remove();
+			});
+		});
+	});
+};
+
 
 $(document).ready(WebUI.onDocumentReady);
 $(window).resize(WebUI.onWindowResize);

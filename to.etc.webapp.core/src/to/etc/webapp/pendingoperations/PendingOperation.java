@@ -42,11 +42,11 @@ import to.etc.util.*;
 public class PendingOperation {
 	static final String[] FLDAR = {"spo_xident", "spo_issuing_server", "spo_date_created", "spo_must_execute_on_server", "spo_executing_server", "spo_last_execute_started",
 		"spo_last_execute_completed", "spo_state", "spo_retries", "spo_date_next_try", "spo_order_groupname", "spo_order_timestamp", "spo_order_sub", "spo_type", "spo_arg1", "spo_arg2",
-		"spo_lasterror", "spo_errorlog", "spo_userid", "spo_description", "spo_submitsource"};
+		"spo_lasterror", "spo_errorlog", "spo_userid", "spo_description", "spo_submitsource", "progress_path", "progress_percentage"};
 
 	static final String FIELDS = "spo_id,spo_xident,spo_issuing_server,spo_date_created,spo_must_execute_on_server,spo_executing_server"
 		+ ",spo_last_execute_started,spo_last_execute_completed,spo_state,spo_retries,spo_date_next_try,spo_order_groupname,spo_order_timestamp"
-		+ ",spo_order_sub,spo_type,spo_arg1,spo_arg2,spo_lasterror, spo_errorlog, spo_userid,spo_description,spo_submitsource";
+		+ ",spo_order_sub,spo_type,spo_arg1,spo_arg2,spo_lasterror, spo_errorlog, spo_userid,spo_description,spo_submitsource,progress_path,progress_percentage";
 
 	private long m_id = -1;
 
@@ -97,6 +97,10 @@ public class PendingOperation {
 	private DataSource m_dataSource;
 
 	static private String m_updateSQL, m_insertSQL;
+
+	private String m_progressPath;
+
+	private int m_progressPercentage = 0;
 
 	public long getId() {
 		return m_id;
@@ -296,6 +300,30 @@ public class PendingOperation {
 		m_submitsource = submitsource;
 	}
 
+	/**
+	 * The path of actions accounted for in progress of operation execution.
+	 * @return
+	 */
+	public String getProgressPath() {
+		return m_progressPath;
+	}
+
+	public void setProgressPath(String progressPath) {
+		m_progressPath = progressPath;
+	}
+
+	/**
+	 * Current percentage of task progress.
+	 * @return
+	 */
+	public int getProgressPercentage() {
+		return m_progressPercentage;
+	}
+
+	public void setProgressPercentage(int progressPercentage) {
+		m_progressPercentage = progressPercentage;
+	}
+
 	public Object getSerializedObject() throws SQLException {
 		if(m_serializedObject == null) {
 			Connection dbc = getDS().getConnection();
@@ -459,6 +487,8 @@ public class PendingOperation {
 			ps.setString(f++, m_userID);
 			ps.setString(f++, m_description);
 			ps.setString(f++, m_submitsource);
+			ps.setString(f++, m_progressPath);
+			ps.setInt(f++, m_progressPercentage);
 
 			if(m_id != -1)
 				ps.setLong(f++, m_id); // Assign PK for update,

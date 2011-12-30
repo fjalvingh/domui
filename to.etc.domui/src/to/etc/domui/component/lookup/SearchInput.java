@@ -216,7 +216,7 @@ public class SearchInput<T> extends Div {
 			m_pnlSearchPopup = new Div();
 		else
 			m_pnlSearchPopup.removeAllChildren();
-		if(m_pnlSearchPopup.getPage() == null) {
+		if(!m_pnlSearchPopup.isAttached()) {
 			add(m_pnlSearchPopup);
 			m_pnlSearchPopup.setCssClass("ui-lui-keyword-popup");
 			m_pnlSearchPopup.setPosition(PositionType.ABSOLUTE);
@@ -250,7 +250,7 @@ public class SearchInput<T> extends Div {
 	}
 
 	private void clearResultPopup() {
-		if(null != m_pnlSearchPopup && m_pnlSearchPopup.getPage() != null)
+		if(null != m_pnlSearchPopup && m_pnlSearchPopup.isAttached())
 			m_pnlSearchPopup.remove();
 	}
 
@@ -265,13 +265,13 @@ public class SearchInput<T> extends Div {
 			m_resultMessageContainer = new Span();
 		m_resultMessageContainer.setCssClass(css);
 		m_resultMessageContainer.setText(text);
-		if(m_resultMessageContainer.getPage() == null)
+		if(!m_resultMessageContainer.isAttached())
 			add(m_resultMessageContainer);
 		clearResultPopup();
 	}
 
 	private void	clearResultMessage() {
-		if(m_resultMessageContainer != null && m_resultMessageContainer.getPage() != null)
+		if(m_resultMessageContainer != null && m_resultMessageContainer.isAttached())
 			m_resultMessageContainer.remove();
 	}
 

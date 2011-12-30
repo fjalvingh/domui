@@ -39,7 +39,7 @@ Calendar = function (firstDayOfWeek, dateStr, onSelected, onClose) {
 	this.ar_days = null;
 	this.showsTime = false;
 	this.time24 = true;
-	this.yearStep = 2;
+	this.yearStep = 1;
 	this.hiliteToday = true;
 	this.multiple = null;
 	// HTML elements
