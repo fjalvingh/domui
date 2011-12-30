@@ -527,10 +527,6 @@ public class DateUtil {
 	 *
 	 * They are compared by using compareTo() method. Second's calendar time is set to the copy of the first calendar
 	 * to ensure that they can be different in time only.
-	 *
-	 * @param first
-	 * @param second
-	 * @return
 	 */
 	final public static Comparator<Calendar>	CALENDAR_TIMES_COMPARATOR	= new Comparator<Calendar>() {
 		@Override
@@ -555,5 +551,4 @@ public class DateUtil {
 			return 1;
 		}
 	};
-
 }
