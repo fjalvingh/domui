@@ -169,6 +169,7 @@ public final class DbLockKeeper {
 				return null;
 			}
 			lock = new Lock(this, lockName, dbc);
+			LockHandle lh = new LockHandle(lock);
 			synchronized(this) {
 				M_MAINTAINED_LOCKS.put(key, lock);
 			}
@@ -179,11 +180,18 @@ public final class DbLockKeeper {
 				return null;
 			throw sx;
 		} finally {
-			//connection is not closed here to keep the lock. Is done by the release call;
-			if(ps != null)
-				ps.close();
-			if(rs != null)
-				rs.close();
+			try {
+				if(rs != null)
+					rs.close();
+			} catch(Exception x) {}
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+			try {
+				if(dbc != null)
+					dbc.close();
+			} catch(Exception x) {}
 		}
 	}
 
