@@ -257,7 +257,7 @@ public class DateUtil {
 	}
 
 	/**
-	 * Returns date incremented for specified value. 
+	 * Returns date incremented for specified value.
 	 * @param dt
 	 * @param field see {@link Calendar#add(int, int)}
 	 * @param amount see {@link Calendar#add(int, int)}
@@ -456,11 +456,11 @@ public class DateUtil {
 	}
 
 	/**
-	 * The ISO week-numbering year starts at the first day (Monday) of week 01 and ends at the Sunday before the new ISO year 
-	 * (hence without overlap or gap). It consists of 52 or 53 full weeks. If 1 January is on a Monday, Tuesday, Wednesday 
-	 * or Thursday, it is in week 01. If 1 January is on a Friday, Saturday or Sunday, it is in week 52 or 53 of the previous 
+	 * The ISO week-numbering year starts at the first day (Monday) of week 01 and ends at the Sunday before the new ISO year
+	 * (hence without overlap or gap). It consists of 52 or 53 full weeks. If 1 January is on a Monday, Tuesday, Wednesday
+	 * or Thursday, it is in week 01. If 1 January is on a Friday, Saturday or Sunday, it is in week 52 or 53 of the previous
 	 * year (there is no week 00). 28 December is always in the last week of its year.
-	 * 
+	 *
 	 * @return
 	 */
 	private static Calendar createIsoCalendar() {
@@ -486,11 +486,11 @@ public class DateUtil {
 
 	/**
 	 * Compares calendar times (hours, minutes, seconds and milliseconds) and returns
-	 * a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater than the second.  
-	 * 
+	 * a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater than the second.
+	 *
 	 * They are compared by using compareTo() method. Second's calendar time is set to the copy of the first calendar
 	 * to ensure that they can be different in time only.
-	 * 
+	 *
 	 * @param first
 	 * @param second
 	 * @return
@@ -498,11 +498,11 @@ public class DateUtil {
 
 	/**
 	 * Compares calendar times (hours, minutes, seconds and milliseconds) and returns
-	 * a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater than the second.  
-	 * 
+	 * a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater than the second.
+	 *
 	 * They are compared by using compareTo() method. Second's calendar time is set to the copy of the first calendar
 	 * to ensure that they can be different in time only.
-	 * 
+	 *
 	 * @param first
 	 * @param second
 	 * @return

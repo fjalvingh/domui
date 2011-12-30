@@ -484,6 +484,46 @@ public class FileTool {
 		}
 	}
 
+	/**
+	 *
+	 * @param is
+	 * @return
+	 * @throws Exception
+	 */
+	static public File copyStreamToTmpFile(final InputStream is, String name) throws Exception {
+		File file = new File(getTmpDir(), name);
+		return copyStreamToFile(is, file);
+	}
+
+	/**
+	 *
+	 * @param is
+	 * @return
+	 * @throws Exception
+	 */
+	static public File copyStreamToTmpFile(final InputStream is) throws Exception {
+		File file = makeTempFile(getTmpDir());
+		return copyStreamToFile(is, file);
+	}
+
+	private static File copyStreamToFile(final InputStream is, File file) throws FileNotFoundException, IOException {
+		OutputStream os = null;
+		try {
+			os = new FileOutputStream(file);
+			copyFile(os, is);
+		} finally {
+			try {
+				if(is != null)
+					is.close();
+			} catch(Exception x) {}
+			try {
+				if(os != null)
+					os.close();
+			} catch(Exception x) {}
+		}
+		return file;
+	}
+
 	static public String readStreamAsString(final InputStream is, final String enc) throws Exception {
 		StringBuilder sb = new StringBuilder(128);
 		readStreamAsString(sb, is, enc);
