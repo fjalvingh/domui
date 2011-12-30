@@ -6,6 +6,14 @@ function _unblock() {
 }
 $(document).ajaxStart(_block).ajaxStop(_unblock);
 
+//-- calculate browser major and minor versions
+{
+	var v = $.browser.version.split(".");
+	$.browser.majorVersion = parseInt(v[0], 10);
+	$.browser.minorVersion = parseInt(v[1], 10);
+//	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
+}
+
 ( function($) {
 	$.webui = function(xml) {
 		processDoc(xml);
@@ -369,6 +377,11 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				for ( var i = 0, attr = ''; i < src.attributes.length; i++) {
 					var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
 
+//					if(n.substring(0, 2) == 'on' && ! this._xxxw) {
+//						this._xxxw = true;
+//						alert('dest='+dest+", src="+src+", inline="+inline+", ffox="+$.browser.mozilla);
+//					}
+					
 					if (inline) {
 						//-- 20091110 jal When inlining we are in trouble if domjs_ is used... The domjs_ mechanism is replaced with setDelayedAttributes in java.
 						if(n.substring(0, 6) == 'domjs_') {
@@ -393,17 +406,21 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if (dest && ($.browser.msie || $.browser.webkit) && n.substring(0, 2) == 'on') {
+					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
-							// alert('event '+n+' value '+v);
+//							if(! this._xxxw)
+//								alert('event '+n+' value '+v);
 							// var se = 'function(){'+v+';}';
 							var se;
 							if (v.indexOf('return') != -1 || v.indexOf('javascript:') != -1)
-								se = new Function(v);
+								se = new Function("event", v);
 							else
-								se = new Function('return ' + v);
-							// alert('event '+n+' value '+se);
+								se = new Function("event", 'return ' + v);
+//							if(! this._xxxw)
+//								alert('event '+n+' value '+se);
 							dest[n] = se;
+							this._xxxw = true;
+							
 						} catch(x) {
 							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);
 						}
