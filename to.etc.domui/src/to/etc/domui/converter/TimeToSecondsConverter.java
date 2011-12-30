@@ -5,19 +5,23 @@ import java.util.regex.*;
 
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
-public class TimeConvertor implements IConverter<Integer> {
+/**
+ * Converts time in a format [hh:]mm into an integer holding the number of seconds.
+ *
+ * @author unknown?
+ */
+public class TimeToSecondsConverter implements IConverter<Integer> {
 
 	static private final int HOURS = 60 * 60;
 
-	private Pattern pattern;
-
-	private Matcher matcher;
+	final private Pattern m_pattern;
 
 	private static final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
 
-	public TimeConvertor() {
-		pattern = Pattern.compile(TIME24HOURS_PATTERN);
+	public TimeToSecondsConverter() {
+		m_pattern = Pattern.compile(TIME24HOURS_PATTERN);
 	}
 
 	/**
@@ -48,7 +52,7 @@ public class TimeConvertor implements IConverter<Integer> {
 	public Integer convertStringToObject(Locale loc, String in) throws UIException {
 		if(in == null || in.equals(""))
 			return null;
-		matcher = pattern.matcher(in);
+		Matcher matcher = m_pattern.matcher(in);
 		if(!matcher.matches()) {
 			throw new ValidationException(Msgs.NOT_VALID, in);
 		}
@@ -64,8 +68,7 @@ public class TimeConvertor implements IConverter<Integer> {
 			int m = Integer.parseInt(ms.trim());
 			return Integer.valueOf((h * HOURS) + (m * 60));
 		} catch(Exception x) {
-			return null;
+			throw WrappedException.wrap(x); // Should not happen apparently.
 		}
 	}
-
 }
