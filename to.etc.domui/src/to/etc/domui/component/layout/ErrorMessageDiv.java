@@ -35,9 +35,9 @@ import to.etc.domui.util.*;
  * This is the default in-component error handling panel, for components that
  * handle their own errors. By default it is hidden. There are two modes of use:
  * <ul>
- *	<li>First direct approach use ErrorMessageDiv(NodeContainer parent) contructor. Once ErrorMessageDiv is
+ *	<li>First direct approach use ErrorMessageDiv(NodeContainer parent) constructor. Once ErrorMessageDiv is
  *		created, fence is set to parent container, and ErrorMessageDiv is registered as error listener.</li>
- *	<li>Second approach is to use ErrorMessageDiv() contructor. In this mode of use setting of ErrorMessageDiv as
+ *	<li>Second approach is to use ErrorMessageDiv() constructor. In this mode of use setting of ErrorMessageDiv as
  *		error listener has do be done by hand. This is used when setting ErrorMessageDiv as external error
  *		listener to domui components. Once an error is raised ErrorMessageDiv becomes visible, otherwise
  *		it is rendered as hidden.</li>

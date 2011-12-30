@@ -31,30 +31,28 @@ import javax.sql.*;
 
 import org.junit.*;
 
-import to.etc.dbpool.*;
 import to.etc.webapp.qsql.*;
 import to.etc.webapp.query.*;
+import to.etc.webapp.testsupport.*;
+
 
 public class TestBasic {
 	static private DataSource m_ds;
 
+	static private QDataContext m_dc;
+
 	@BeforeClass
 	static public void setUp() throws Exception {
-		ConnectionPool pool = PoolManager.getInstance().definePool("vpdemo");
-		m_ds = pool.getUnpooledDataSource();
+		m_ds = TUtilTestProperties.getRawDataSource();
+		Connection dbc = m_ds.getConnection();
+		m_dc = new JdbcDataContext(null, dbc);
 	}
 
 	static <T> List<T> exec(JdbcQuery<T> q) throws Exception {
-		Connection dbc = m_ds.getConnection();
-		JdbcDataContext	jdc = new JdbcDataContext(null, dbc);
-		try {
-			q.dump();
-			return (List<T>) q.query(jdc);
-		} finally {
-			try {
-				dbc.close();
-			} catch(Exception x) {}
-		}
+		//		Connection dbc = m_ds.getConnection();
+		//		JdbcDataContext	jdc = new JdbcDataContext(null, dbc);
+		q.dump();
+		return (List<T>) q.query(m_dc);
 	}
 
 	static <T> List<T> exec(QCriteria<T> q) throws Exception {
