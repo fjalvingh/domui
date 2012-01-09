@@ -5,8 +5,8 @@
   <version>trunk-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <cobertura.maxmem>256M</cobertura.maxmem>
-    <maven.cobertura.instrumentation.maxmemory>512M</maven.cobertura.instrumentation.maxmemory>
+    <cobertura.maxmem>8292M</cobertura.maxmem>
+    <maven.cobertura.instrumentation.maxmemory>8192M</maven.cobertura.instrumentation.maxmemory>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compile.encoding>UTF-8</maven.compile.encoding>
     <maven.compile.fork>true</maven.compile.fork>
