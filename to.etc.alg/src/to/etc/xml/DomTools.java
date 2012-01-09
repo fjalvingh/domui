@@ -250,7 +250,7 @@ public class DomTools {
 		NodeList nl = rn.getChildNodes();
 		for(int i = 0; i < nl.getLength(); i++) {
 			Node n = nl.item(i);
-			if(n.getNodeName().equalsIgnoreCase(name) && n.getNodeType() == Node.ELEMENT_NODE) {
+			if((n.getNodeName().equalsIgnoreCase(name) || name.equalsIgnoreCase(n.getLocalName())) && n.getNodeType() == Node.ELEMENT_NODE) {
 				nnl.add(nl.item(i));
 			}
 		}
