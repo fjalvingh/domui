@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<woningen-lijst>
+	<woning vhenr="1234567890">
+		<adres>Markenlaan 1</adres>
+		<postcode>1355BA</postcode>
+		<woonplaats>Almere</woonplaats>
+		<kamers>
+			<kamer>
+				<oppervlakte>10</oppervlakte>
+				<soort>badkamer</soort>
+			</kamer>
+			<kamer>
+				<oppervlakte>20</oppervlakte>
+				<soort>slaapkamer</soort>
+			</kamer>
+			<kamer>
+				<oppervlakte>30</oppervlakte>
+				<soort>huiskamer</soort>
+			</kamer>
+		</kamers>
+	</woning>
+
+</woningen-lijst>

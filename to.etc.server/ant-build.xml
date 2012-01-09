@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="mumble-server" default="deploy" basedir=".">
+	<!--Initialization-->
+	<target name="init">
+
+		<!--Classpath-->
+		<path id="project.class.path">
+			<pathelement path="../lib-j2ee-1_4/lib/j2ee.jar" />
+			<pathelement path="../lib-coolservlets/coolservlets.jar" />
+			<pathelement path="../lib-apache-fileupload-1.0/fileupload.jar" />
+			<pathelement path="../lib-apache-commons-io-1.1/commons-io.jar" />
+			<pathelement path="../mumblealg/bin" />
+			<pathelement path="../mumbledb/bin" />
+		</path>
+
+	</target>
+	<!--Cleanup previous builds-->
+	<target name="clean" depends="init">
+		<delete dir="bin-old" />
+		<delete dir="bin" />
+	</target>
+	<!--Prepare for compilation-->
+	<target name="prepare" depends="clean">
+		<mkdir dir="bin-old" />
+		<mkdir dir="bin" />
+	</target>
+	<!--Compile project-->
+	<target name="compile" depends="prepare">
+		<!-- 1.4 compile -->
+		<javac srcdir="src" destDir="bin-old" classpathref="project.class.path" debug="on" source="1.4" target="1.4" />
+
+		<!-- 1.5 compile -->
+		<javac destDir="bin" classpathref="project.class.path" debug="on" source="1.5" target="1.5" >
+			<src path="src" />
+			<src path="src-j5" />
+		</javac>
+	</target>
+	<!--Deploy project-->
+	<target name="deploy" depends="compile">
+		<jar jarfile="${ant.project.name}.jar" basedir="bin" compress="false" />
+		<jar jarfile="${ant.project.name}-j4.jar" basedir="bin-old" compress="false" />
+	</target>
+</project>

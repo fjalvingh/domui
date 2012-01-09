@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="/to.etc.alg"/>
+	<classpathentry kind="src" path="/to.etc.db"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bin-j2ee-1.4"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bin-java-jai-1.1.2.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
+		<attributes>
+			<attribute name="owner.project.facets" value="jst.java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,32 @@
+body {
+	background: black;
+	background-image: url("bugbg.jpg");
+	background-repeat: repeat;
+	color: white;
+}
+.codename {
+	font-style: oblique;
+	font-weight: bold;
+	font-family: monospace;
+}
+.xsectionheader {
+	width: 100%;
+	background-color: #0000ff;
+}
+.xsection {
+	background-color: #330066
+}
+.xitemname {
+	
+}
+.xitemvalue {
+	font-weight: bold;
+}
+
+.xexceptionname {
+	background-color: #004400;
+	padding-left: 2em;
+}
+.xstacktrace {
+	background-color: grey;
+}
