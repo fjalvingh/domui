@@ -8,9 +8,11 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 
 //-- calculate browser major and minor versions
 {
-	var v = $.browser.version.split(".");
-	$.browser.majorVersion = parseInt(v[0], 10);
-	$.browser.minorVersion = parseInt(v[1], 10);
+	try {
+		var v = $.browser.version.split(".");
+		$.browser.majorVersion = parseInt(v[0], 10);
+		$.browser.minorVersion = parseInt(v[1], 10);
+	} catch(x) {}
 //	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
 }
 
@@ -432,7 +434,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 //							if(! this._xxxw)
 //								alert('event '+n+' value '+se);
 							dest[n] = se;
-							this._xxxw = true;
+//							this._xxxw = true;
 							
 						} catch(x) {
 							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);

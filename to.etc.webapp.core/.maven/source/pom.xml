@@ -5,14 +5,15 @@
   <version>trunk-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <cobertura.maxmem>256M</cobertura.maxmem>
-    <maven.cobertura.instrumentation.maxmemory>512M</maven.cobertura.instrumentation.maxmemory>
+    <cobertura.maxmem>8292M</cobertura.maxmem>
+    <maven.cobertura.instrumentation.maxmemory>8192M</maven.cobertura.instrumentation.maxmemory>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compile.encoding>UTF-8</maven.compile.encoding>
     <maven.compile.fork>true</maven.compile.fork>
     </properties>
   <build>
     <sourceDirectory>../../src</sourceDirectory>
+    <testSourceDirectory>../../test</testSourceDirectory>
     <resources>
       <resource>
         <directory>../../src</directory>
@@ -55,23 +56,16 @@
           </configuration>
         </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.1</version>
-        <executions>
-          <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-source</goal>
-              </goals>
-            <configuration>
-              <sources>
-                <source>../../test</source>
-                </sources>
-              </configuration>
-            </execution>
-          </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.8.1</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-junit47</artifactId>
+            <version>2.8.1</version>
+            </dependency>
+          </dependencies>
         </plugin>
       </plugins>
     </build>
@@ -91,6 +85,13 @@
       <scope>compile</scope>
       </dependency>
     <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>junit.junit</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+      </dependency>
+    <dependency>
       <groupId>to.etc</groupId>
       <artifactId>to.etc.alg.source</artifactId>
       <version>trunk-SNAPSHOT</version>
@@ -98,8 +99,8 @@
       <scope>compile</scope>
       </dependency>
     <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>junit.junit</artifactId>
+      <groupId>to.etc</groupId>
+      <artifactId>to.etc.db.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
@@ -149,13 +150,6 @@
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.slf4j-api</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      </dependency>
-    <dependency>
-      <groupId>to.etc</groupId>
-      <artifactId>to.etc.db.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
