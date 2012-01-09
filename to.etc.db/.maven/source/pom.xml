@@ -5,6 +5,8 @@
   <version>trunk-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
+    <cobertura.maxmem>8292M</cobertura.maxmem>
+    <maven.cobertura.instrumentation.maxmemory>8192M</maven.cobertura.instrumentation.maxmemory>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compile.encoding>UTF-8</maven.compile.encoding>
     <maven.compile.fork>true</maven.compile.fork>
@@ -38,54 +40,27 @@
             </dependency>
           </dependencies>
         </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>2.3.1</version>
+        <configuration>
+          <timeout>60000000</timeout>
+          </configuration>
+        </plugin>
       </plugins>
     </build>
   <dependencies>
     <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>slf4j.jcl-over-slf4j</artifactId>
+      <groupId>nl.itris</groupId>
+      <artifactId>jsr305.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
       </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
-      <artifactId>slf4j.jul-to-slf4j</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>slf4j.log4j-over-slf4j</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>slf4j.logback-access</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>slf4j.logback-classic</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>slf4j.logback-core</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>slf4j.slf4j-api</artifactId>
+      <artifactId>j2ee.j2ee</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>

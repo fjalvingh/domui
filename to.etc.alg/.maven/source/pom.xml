@@ -5,15 +5,24 @@
   <version>trunk-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
+    <cobertura.maxmem>8292M</cobertura.maxmem>
+    <maven.cobertura.instrumentation.maxmemory>8192M</maven.cobertura.instrumentation.maxmemory>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compile.encoding>UTF-8</maven.compile.encoding>
     <maven.compile.fork>true</maven.compile.fork>
     </properties>
   <build>
     <sourceDirectory>../../src</sourceDirectory>
+    <testSourceDirectory>../../test</testSourceDirectory>
     <resources>
       <resource>
         <directory>../../src</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+          </excludes>
+        </resource>
+      <resource>
+        <directory>../../test</directory>
         <excludes>
           <exclude>**/*.java</exclude>
           </excludes>
@@ -38,6 +47,26 @@
             </dependency>
           </dependencies>
         </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>2.3.1</version>
+        <configuration>
+          <timeout>60000000</timeout>
+          </configuration>
+        </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.8.1</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-junit47</artifactId>
+            <version>2.8.1</version>
+            </dependency>
+          </dependencies>
+        </plugin>
       </plugins>
     </build>
   <dependencies>
@@ -51,6 +80,13 @@
     <dependency>
       <groupId>nl.itris</groupId>
       <artifactId>jsr305.source</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+      </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>junit.junit</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>

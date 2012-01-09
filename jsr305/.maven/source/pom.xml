@@ -5,6 +5,8 @@
   <version>trunk-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
+    <cobertura.maxmem>8292M</cobertura.maxmem>
+    <maven.cobertura.instrumentation.maxmemory>8192M</maven.cobertura.instrumentation.maxmemory>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compile.encoding>UTF-8</maven.compile.encoding>
     <maven.compile.fork>true</maven.compile.fork>
@@ -43,6 +45,14 @@
             <version>1.7</version>
             </dependency>
           </dependencies>
+        </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>2.3.1</version>
+        <configuration>
+          <timeout>60000000</timeout>
+          </configuration>
         </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
