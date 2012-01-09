@@ -253,7 +253,7 @@ final public class ServerTools {
 
 			"wav", "audio/x-wav", "wrl", "model/vrml",
 
-			"xls", "application/vnd.ms-excel", "xbm", "image/x-xbitmap", "xpm", "image/x-xpixmax", "xwd", "image/x-xwindowdump", "xml", "text/xml",
+			"xls", "application/vnd.ms-excel", "xlsx", "application/vnd.ms-excel", "xbm", "image/x-xbitmap", "xpm", "image/x-xpixmax", "xwd", "image/x-xwindowdump", "xml", "text/xml",
 
 			"zip", "application/zip", "z", "application/octet-stream",};
 
