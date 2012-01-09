@@ -507,6 +507,22 @@ public class PageParameters {
 	}
 
 	/**
+	 * Gets the value for the specified parametername as untyped value.
+	 * It is used internaly for generic copying of params form one PageParameter to another.
+	 *
+	 * @param name
+	 * @return
+	 */
+	@Nonnull
+	private Object getObject(String name) {
+		Object var = m_map.get(name);
+		if(null != var) {
+			return var;
+		}
+		throw new MissingParameterException(name);
+	}
+
+	/**
 	 * Create this from an actual request. This does not add any parameter that starts with _ or $.
 	 * @param c
 	 * @return
@@ -526,6 +542,40 @@ public class PageParameters {
 							pp.m_map.put(name, par); // Add as string[]0
 					}
 				}
+			}
+		}
+		return pp;
+	}
+
+	/**
+	 * Create this from an string representation of params. This is used as utility for manipulation of data that stores params as strings.
+	 * @param paramsAsString
+	 * @return
+	 */
+	@Nonnull
+	static public PageParameters createFromEncodedUrlString(@Nonnull String paramsAsString) {
+		PageParameters pp = new PageParameters();
+		if(DomUtil.isBlank(paramsAsString)) {
+			return pp;
+		}
+		paramsAsString = paramsAsString.trim();
+		//happens that params starts with ?, ant it shoule be removed
+		if(paramsAsString.startsWith("?")) {
+			paramsAsString = paramsAsString.substring(1);
+		}
+		if(DomUtil.isBlank(paramsAsString)) {
+			return pp;
+		}
+		String asDecoded = StringTool.decodeURLEncoded(paramsAsString);
+		String[] splits = asDecoded.split("&");
+		for(String nameValue : splits) {
+			char c = nameValue.charAt(0);
+			if(c != '_' && c != '$' && !nameValue.startsWith("webui")) {
+				String[] parts = nameValue.split("=");
+				if(parts.length != 2) {
+					throw new IllegalArgumentException("Expected name=value pair, but found:" + nameValue);
+				}
+				pp.m_map.put(parts[0], parts[1]); // Add as single string
 			}
 		}
 		return pp;
@@ -617,5 +667,23 @@ public class PageParameters {
 	@Override
 	public int hashCode() {
 		throw new IllegalStateException("missing");
+	}
+
+	/**
+	 * Apply changes to source.
+	 * New values found in changes would be added to source, changed values found in changes would replace values in source.
+	 * Params that are not found in changes would remian unchanged in source. So, this utility can not be used to remove items from source.
+	 *
+	 * @param source
+	 * @param changes
+	 */
+	public static void applyChanges(PageParameters source, PageParameters changes) {
+
+		for(String name : changes.getParameterNames()) {
+			if(source.hasParameter(name)) {
+				source.removeParameter(name);
+			}
+			source.addParameter(name, changes.getObject(name));
+		}
 	}
 }
