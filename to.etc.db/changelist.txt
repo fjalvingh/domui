@@ -1,0 +1,5 @@
+20050210 Jal
+- Started as a copy of mumbledb before large refactorings.
+- Refactored NEMA names from proxies.
+
+

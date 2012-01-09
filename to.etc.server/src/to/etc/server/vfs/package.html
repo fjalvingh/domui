@@ -1,0 +1,76 @@
+<html>
+<body>
+	The VFS is an uncached abstract method to obtain input sources for any web action. The
+	VFS is used to allow relative paths to be resolved to an VfsSource; the VfsSource is an
+	abstract representation of something resembling a file: it can be used to obtain an
+	InputStream to read the data, and to get all kinds of file-related data like the mime type,
+	encoding and size.
+	<p>The VFS is used by the core of the server to get to the sources for static resources
+	like .gif files; to get the source for template .htp files etc. The abstraction allows
+	us to store these files anywhere: on the file system but also as blobs in a database.</p>
+	<p>Any resource in the VFS is retrieved using a string pathname. The pathname is the usual
+	glob of directories ending in a name and an extension. The whole thing will be used to
+	obtain the resource referenced.
+	</p>
+	<p>To get VFS sources one needs a VfsResolver. A given VfsResolver is able to resolve an
+	input path name to a VfsSource. The VfsSource can then be used to query information about
+	the resource. A VfsResolver can use any method to "decode" the url as long as it leads to
+	a VfsSource.
+	</p>
+	<p>The CMS system creates a VfsResolver for each website. This resolver "decodes" the input
+	by using the directory levels to select another resolver to resolve that level.</p>
+	<p>Each VfsSource obtained thru the VFS has multiple ways to "identify" it. The combination
+	of [VfsResolver, rurl] is the "external" way to identify a VfsSource. This is usually something
+	derived from a website URL. An external identification is <strong>always</strong> a string. An
+	example of an exteral identification's rurl is "img/duke.png". An external rurl is not globally
+	unique but only within a given VfsResolver's context.
+	</p>
+	<p>Another way to "identify" a VfsSource is it's actual or physical location. For file-based
+	resources this can be the complete actual path to the file on the file system. For database-related
+	resources this can be something like the record name and it's primary key. The physical location
+	is represented by an opague VfsPhysicalLocation object. The getDisplayName() of this object can
+	be used to get a string describing the physical location.
+	</p>
+	<h2>Changes to the VfsSources</h2>
+	<p>An important task of the VFS is to provide an event-based method of change detection to
+	resources in it's domain. This gets used for instance when a webfile is changed on the file
+	system: the VFS will detect this and send an event to all registered listeners. This gets used
+	to clear caches when resources are changed.
+	</p>
+	<p>There are two ways to check for changes. On file systems the usual way to check for changes is
+	to compare the "last modified" timestamp of the file and compare it against the last time the file
+	was cached. If the times differ the old copy gets discarded and the new version gets used. A problem
+	with this approach is that it is very slow to check the timestamp of a resource every time it is
+	accessed. This is especially true if the resource is not a file but for instance a database 
+	record. A workaround is to check only every n seconds instead of every access but this can be a
+	performance drain as the local time call gets used heavily, and if the resource does not change
+	every access to it is a waste. In addition this causes a delay propagating changes to the users; in
+	other words it will can take up to n minutes for a change to be visible.
+	</p>
+	<p>A better way to do change management is to use an event-driven model. This requires the VFS
+	resource providers to have a method of noticing when a resource has changed. When this gets detected
+	the provider posts an event to any listeners interested in changes to a given resource.
+	</p>
+	<p>An example of this mechanism can be found in CMS: when for instance a skin asset gets changed
+	the update routine also posts an event to the database. This event will be picked up by the 
+	appropriate VFS provider which will then post an event. This mechanism is relatively easy to implement
+	and has the big advantage that processing is required only when data actually changes instead of "every
+	two minutes".
+	</p>
+	<p>Although this mechanism works OK for database resources it is a problem for file-based resources
+	because most platforms do not have a reasonable method to listen for file system changes. We could
+	just say that we'd implement both ways of change management but sadly the "external" programming interface
+	is very different, making it difficult to use the mechanism as every user has to implement 2 ways to handle
+	changes.
+	</p>
+	<p>The VFS uses the event mechanism exclusively for changes. This means that we need to find a method
+	to generate change events for files. And since file-based access is often used during development we
+	would like to have a method which at last <i>can</i> quickly and cheaply detect changes.
+	</p>
+	<p>There's no really satisfying solution to this problem. We could "scan" all file-based resources using
+	a separate thread but that can get obscenely expensive if the file collection is huge and/or the scan interval
+	is short.
+	</p>
+
+</body>
+</html>
