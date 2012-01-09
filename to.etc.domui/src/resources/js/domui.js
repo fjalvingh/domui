@@ -6,6 +6,16 @@ function _unblock() {
 }
 $(document).ajaxStart(_block).ajaxStop(_unblock);
 
+//-- calculate browser major and minor versions
+{
+	try {
+		var v = $.browser.version.split(".");
+		$.browser.majorVersion = parseInt(v[0], 10);
+		$.browser.minorVersion = parseInt(v[1], 10);
+	} catch(x) {}
+//	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
+}
+
 ( function($) {
 	$.webui = function(xml) {
 		processDoc(xml);
@@ -61,7 +71,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	// convert string to xml document
 	function convert(s) {
 		var doc;
-		log('attempting string to document conversion');
+		//log('attempting string to document conversion');
 		try {
 			if (window.ActiveXObject) {
 				doc = new ActiveXObject('Microsoft.XMLDOM');
@@ -78,7 +88,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			throw e;
 		}
 		var ok = doc && doc.documentElement && doc.documentElement.tagName != 'parsererror';
-		log('conversion ', ok ? 'successful!' : 'FAILED');
+		//log('conversion ', ok ? 'successful!' : 'FAILED');
 		if (!ok) {
 			if(doc && doc.documentElement)
 				log(doc.documentElement.textContent);
@@ -147,7 +157,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			// process the document
 			process(xml.documentElement.childNodes);
 			var lastTime = (new Date().getTime()) - t;
-			log('Response handled in ' + lastTime + 'ms');
+			//log('Response handled in ' + lastTime + 'ms');
 	//	} catch (e) {
 	//		if (window.console && window.console.debug)
 	//			window.console.debug('ERROR in xml handler:' + e, e);
@@ -165,7 +175,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				if (cmd == 'eval') {
 					try {
 						var js = (cmdNode.firstChild ? cmdNode.firstChild.nodeValue : null);
-						log('invoking "eval" command: ', js);
+						//log('invoking "eval" command: ', js);
 						if (js)
 							$.globalEval(js);
 					} catch(ex) {
@@ -243,7 +253,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 
 				if (true) {
 					var arg = els ? '...' : a.join(',');
-					log("invoke command: $('", q, "').", cmd, '(' + arg + ')');
+					//log("invoke command: $('", q, "').", cmd, '(' + arg + ')');
 				}
 				jq[cmd].apply(jq, a);
 			}
@@ -355,8 +365,16 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 						//-- 20091110 jal When inlining we are in trouble if domjs_ is used... The domjs_ mechanism is replaced with setDelayedAttributes in java.
 						if(n.substring(0, 6) == 'domjs_') {
 							alert('Unsupported domjs_ attribute in INLINE mode: '+n);
-						} else
-							attr += (n + '="' + v + '" ');
+						} else {
+							//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
+							if("checked" == n || "selected" == n || "disabled" == n || "readonly" == n) {
+//								alert('inline checking '+n+" value="+v);
+								//-- only add item when value != ""
+								if(v != "")
+									attr += (n + '="' + v + '" ');
+							} else
+								attr += (n + '="' + v + '" ');
+						}
 					} else if (n.substring(0, 6) == 'domjs_') {
 						var s = "dest." + n.substring(6) + " = " + v;
 						//alert('domjs eval: '+s);
@@ -367,17 +385,21 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if (dest && ($.browser.msie || $.browser.chrome) && n.substring(0, 2) == 'on') {
+					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
-							// alert('event '+n+' value '+v);
+//							if(! this._xxxw)
+//								alert('event '+n+' value '+v);
 							// var se = 'function(){'+v+';}';
 							var se;
-							if (v.indexOf('return') != -1)
-								se = new Function(v);
+							if (v.indexOf('return') != -1 || v.indexOf('javascript:') != -1)
+								se = new Function("event", v);
 							else
-								se = new Function('return ' + v);
-							// alert('event '+n+' value '+se);
+								se = new Function("event", 'return ' + v);
+//							if(! this._xxxw)
+//								alert('event '+n+' value '+se);
 							dest[n] = se;
+//							this._xxxw = true;
+							
 						} catch(x) {
 							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);
 						}
@@ -385,7 +407,12 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 						dest.style.cssText = v;
 						dest.setAttribute(n, v);
 					} else {
-						$.attr(dest, n, v);
+						//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
+						if(v == "" && ("checked" == n || "selected" == n || "disabled" == n || "readonly" == n)) {
+							$(dest).removeAttr(n);
+						} else {
+							$.attr(dest, n, v);
+						}
 					}
 				}
 				return attr;
@@ -879,7 +906,9 @@ var WebUI = {
 		if (txt.length == 0)
 			txt = "De server is niet bereikbaar.";
 		document.write(txt);
+		document.close();
 		window.setTimeout('document.body.style.cursor="default"', 1000);
+		return true;
 	},
 	_asyalerted: false,
 	handleErrorAsy : function(request, status, exc) {
@@ -1065,7 +1094,7 @@ var WebUI = {
 			weekNumbers :true,
 			showsTime :withtime,
 			timeFormat :"24",
-			electric :true,
+			electric :false, // jal 20110125 Fixes bug 885- do not update the field when moving to prevent firing the change handler.
 			step :2,
 			position :null,
 			cache :false
@@ -1075,7 +1104,7 @@ var WebUI = {
 		var dateFmt = params.inputField ? params.ifFormat : params.daFormat;
 		params.date = Date.parseDate(inp.value, dateFmt);
 
-		var cal = new Calendar(null, params.date, WebUI.onDateSelect, function(
+		var cal = new Calendar(1, params.date, WebUI.onDateSelect, function(
 				cal) {
 			cal.hide();
 			cal.destroy();
@@ -1109,7 +1138,7 @@ var WebUI = {
 		var update = (cal.dateClicked || p.electric);
 		if (update && p.inputField) {
 			p.inputField.value = cal.date.print(p.ifFormat);
-			if (typeof p.inputField.onchange == "function")
+			if (typeof p.inputField.onchange == "function" && cal.dateClicked)
 				p.inputField.onchange();
 		}
 		if (update && p.displayArea)
@@ -1420,7 +1449,11 @@ var WebUI = {
 	},
 
 	openWindow : function(url, name, par) {
-		var h = window.open(url, name, par);
+		try {
+			var h = window.open(url, name, par);
+		} catch(x) {
+			alert("Got popup exception: "+x);
+		}
 		if (!h)
 			alert("Er is een popup blocker actief. Deze moet voor deze website worden uitgezet.");
 		return false;
