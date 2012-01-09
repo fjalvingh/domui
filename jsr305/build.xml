@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="jsr305" default="deploy" basedir=".">
+	<!--Initialization-->
+	<target name="init">
+		<!--Classpath-->
+		<path id="project.class.path">
+		</path>   
+	</target>
+	
+	<!--Cleanup previous builds-->
+	<target name="clean" depends="init">
+		<delete dir="bin" />
+	</target>
+
+	<!--Prepare for compilation-->
+	<target name="prepare" depends="clean">
+		<mkdir dir="bin" />
+	</target>
+
+	<!--Compile project-->
+	<target name="compile" depends="prepare">
+		<javac srcdir="ri/src/main/java" destDir="bin" classpathref="project.class.path" debug="on" source="1.5" target="1.5" />
+		<copy todir="bin" >
+			<fileset dir="src" casesensitive="no">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="doc" depends="init">
+		<mkdir dir="doc" />
+	  	<javadoc destdir="javadoc">
+	  		<fileset dir="ri/src/main/java">
+	  			<include name="**/*.java" />
+	  		</fileset>
+	  	</javadoc>
+	  	<jar jarfile="${ant.project.name}-doc.jar" basedir="doc" compress="false" />
+	</target>
+	
+  	<!--Deploy project-->
+  	<target name="deploy" depends="compile">
+    	<jar jarfile="${ant.project.name}.jar" basedir="bin" compress="false" />
+  	</target>
+</project>
