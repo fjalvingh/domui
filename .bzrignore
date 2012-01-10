@@ -10,6 +10,7 @@ Servers
 build
 work
 *.jar
+to.etc.db/dbreplay.log
 to.etc.domui/javadoc
 to.etc.domui/.refactorings
 *Thumbs.db

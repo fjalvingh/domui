@@ -63,4 +63,8 @@ public class UnpooledDataSourceImpl implements DataSource {
 	public <T> T unwrap(Class<T> iface) throws SQLException {
 		throw new IllegalStateException("Cannot unwrap to " + iface);
 	}
+
+	public ConnectionPool getPool() {
+		return m_pool;
+	}
 }

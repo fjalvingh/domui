@@ -42,6 +42,17 @@
 	
   	<!--Deploy project-->
   	<target name="deploy" depends="compile">
-    	<jar jarfile="${ant.project.name}.jar" basedir="bin" compress="false" manifest="MANIFEST.MF" />
+  		<delete dir="oracle" />
+  		<mkdir dir="oracle" />
+  		<unjar dest="oracle" src="/home/jal/jdbc/10g-1.0.3.0-ojdbc14.jar"/>
+    	<jar jarfile="dbreplay.jar" basedir="bin" compress="false" manifest="MANIFEST.MF">
+    		<fileset dir="bin">
+    			<include name="**/*"/>
+    		</fileset>
+    		<fileset dir="oracle">
+    			<include name="**/*"/>
+    		</fileset>
+    	</jar>
+  		<delete dir="oracle" />
   	</target>
 </project>

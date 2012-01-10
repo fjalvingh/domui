@@ -25,12 +25,14 @@ public class DbReplay {
 
 	private File m_inputFile;
 
+	private File m_driverPath;
+
 	/** The buffered input file containing statements. */
 	private BufferedInputStream m_bis;
 
 	private long m_firstTime;
 
-	private long m_lastTime;
+	private long m_lastRecordTime;
 
 	private long m_startTime;
 
@@ -42,17 +44,30 @@ public class DbReplay {
 
 	private ConnectionPool m_pool;
 
+	private String m_runSchema;
+
+	private String m_dbHost, m_dbSid, m_dbUser, m_dbPass;
+
 	/** The #of separate executor threads to start. */
 	private int m_executors = 20;
 
 	/** The #of executors that are actually running/ready. */
 	private int m_runningExecutors;
 
+	/** When set by -maxwait, this limits the max time to wait between statements, ignoring the time delta's in the log file. */
+	private long m_maxStatementDelay = Long.MAX_VALUE;
+
 	private static enum XType {
 		DUMP, RUN
 	}
 
 	private XType m_runType;
+
+	private PrintWriter m_log;
+
+	private boolean m_stopped;
+
+	private IReplayer m_replayer;
 
 	private void run(String[] args) throws Exception {
 		if(!decodeOptions(args))
@@ -80,6 +95,25 @@ public class DbReplay {
 		}
 	}
 
+	private void openLog() throws Exception {
+		File log = new File("dbreplay.log");
+		m_log = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(log), 65536), "utf-8"));
+		m_log.println("Log file start @" + new Date());
+	}
+
+	public void log(String s) {
+		if(m_log == null)
+			return;
+		m_log.println(s);
+	}
+
+	public boolean isLogging() {
+		return m_log != null;
+	}
+
+	public long getMaxStatementDelay() {
+		return m_maxStatementDelay;
+	}
 
 	private void runDump() throws Exception {
 		// TODO Auto-generated method stub
@@ -99,19 +133,22 @@ public class DbReplay {
 			if(m_recordNumber == 0) {
 				m_firstTime = rr.getStatementTime();
 			}
-			m_lastTime = rr.getStatementTime();
+			m_lastRecordTime = rr.getStatementTime();
 			m_recordNumber++;
 
 			handleRecord(rr);
 		}
 		waitForIdle(60 * 1000);
+		synchronized(this) {
+			m_stopped = true;
+		}
 
 		m_endTime = System.currentTimeMillis();
 		System.out.println("Normal EOF after " + m_recordNumber + " records and " + m_fileOffset + " file bytes");
 		Date st = new Date(m_firstTime);
-		Date et = new Date(m_lastTime);
+		Date et = new Date(m_lastRecordTime);
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		System.out.println("  - input time from " + df.format(st) + " till " + df.format(et) + ", " + DbPoolUtil.strMillis(m_lastTime - m_firstTime));
+		System.out.println("  - input time from " + df.format(st) + " till " + df.format(et) + ", " + DbPoolUtil.strMillis(m_lastRecordTime - m_firstTime));
 		System.out.println("  - real time spent: " + DbPoolUtil.strMillis(m_endTime - m_startTime));
 	}
 
@@ -129,6 +166,34 @@ public class DbReplay {
 						throw new IllegalArgumentException(m_poolFile+": file not found");
 				} else if("-dump".equals(s)) {
 					m_runType = XType.DUMP;
+				} else if("-schema".equals(s)) {
+					if(argc >= args.length)
+						throw new IllegalArgumentException("Missing name after -schema");
+					m_runSchema = args[argc++];
+				} else if("-db".equals(s)) {
+					if(argc >= args.length)
+						throw new IllegalArgumentException("Missing db string after -db");
+					decodeDb(args[argc++]);
+				} else if("-dp".equals(s) || "-driver".equals(s)) {
+					if(argc >= args.length)
+						throw new IllegalArgumentException("Missing driver path after " + s);
+					m_driverPath = new File(args[argc++]);
+					if(!m_driverPath.exists() || !m_driverPath.isFile())
+						throw new IllegalArgumentException(m_driverPath + ": invalid path (not a file or does not exist)");
+				} else if("-maxwait".equals(s)) {
+					if(argc >= args.length)
+						throw new IllegalArgumentException("Missing numeric value (milliseconds) after -maxwait");
+					m_maxStatementDelay = Long.parseLong(args[argc++]);
+				} else if("-log".equals(s)) {
+					openLog();
+				} else if("-speedy".equals(s)) {
+					m_replayer = new SpeedyReplayer();
+				} else if(m_replayer != null) {
+					argc = m_replayer.decodeArgs(s, args, argc);
+					if(-1 == argc) {
+						usage("Unknown option: " + s);
+						return false;
+					}
 				} else {
 					usage("Unknown option: " + s);
 					return false;
@@ -151,14 +216,37 @@ public class DbReplay {
 			usage("Missing input file name");
 			return false;
 		}
-		if(m_poolId == null) {
-			usage("Missing pool ID");
+		if(m_poolId == null && m_dbHost == null) {
+			usage("Missing pool ID or database (-db) specification");
 			return false;
 		}
 		if(m_runType == null)
 			m_runType = XType.RUN;
-
+		if(m_replayer == null)
+			m_replayer = new TimeBasedReplayer();
 		return true;
+	}
+
+	private void decodeDb(String s) throws Exception {
+		int pos = s.indexOf('@');
+		if(pos != -1) {
+			String a = s.substring(0, pos);
+			String b = s.substring(pos + 1);
+
+			pos = a.indexOf(':');
+			if(pos != -1) {
+				m_dbUser = a.substring(0, pos);
+				m_dbPass = a.substring(pos + 1);
+
+				pos = b.indexOf('/');
+				if(pos != -1) {
+					m_dbHost = b.substring(0, pos);
+					m_dbSid = b.substring(pos + 1);
+					return;
+				}
+			}
+		}
+		throw new RuntimeException("Bad DB string: format is user:password@host/sid");
 	}
 
 	private void usage(String msg) {
@@ -166,10 +254,28 @@ public class DbReplay {
 		System.out.println("Usage: DbReplay [options] filename poolID");
 		System.out.println("Options are:\n" //
 			+ "-poolfile|-pf [filename]: The name of the pool.properties defining the database connection.\n" //
+				+ "-schema [name]: set the 'current schema' before starting the tests (useful to run test logged in as a different user). For instance when running as a user 'TEST' when tables in schema VIEWPOINT are needed\n" //
+			+ "-db [userid:password@host/sid]: shorthand to connect to this specific database.\n" //
+			+ "-driver|-dp [path]: path to the Oracle driver .jar file, if not present on the classpath\n" //
+				+ "\n** replay options **\n" //
+				+ "-maxwait [milliseconds]: set the max time to wait between successive statements to a #of milliseconds. This ignores the real times that statements were sent to the database.\n"
+				+ "-log: create a log of statements in dbreplay.log\n" //
+				+ "-speedy: run using the 'speedy' replayer\n" //
+				+ "\nSpeedy executor options:\n"
+				+ "-perwait n: schedule this many SQL commands per 'maxwait' period. Example: -maxwait 1 -perwait 10 will try to execute 10 SQL statements every millisecond\n"
 		);
 	}
 
 	private void releaseAll() {
+		try {
+			if(m_log != null)
+				m_log.close();
+		} catch(Exception x) {
+			System.err.println("Cannot close log: " + x);
+		} finally {
+			m_log = null;
+		}
+
 		try {
 			if(m_bis != null)
 				m_bis.close();
@@ -189,18 +295,33 @@ public class DbReplay {
 		return m_pool;
 	}
 
+	synchronized public String getRunSchema() {
+		return m_runSchema;
+	}
+
 	private void openSource() throws Exception {
 		m_bis = new BufferedInputStream(new FileInputStream(m_inputFile), 65536);
 	}
 
 	private void initialize() throws Exception {
-		if(m_poolFile == null)
-			m_pool = PoolManager.getInstance().definePool(m_poolId);
-		else
-			m_pool = PoolManager.getInstance().definePool(m_poolFile, m_poolId);
+		if(m_dbHost != null) {
+			//-- Use command line invocation
+			String url = "jdbc:oracle:thin:@" + m_dbHost + ":1521:" + m_dbSid.toUpperCase();
+			m_pool = PoolManager.getInstance().definePool("db", "oracle.jdbc.driver.OracleDriver", url, m_dbUser, m_dbPass, m_driverPath == null ? null : m_driverPath.toString());
+		} else {
+			if(m_poolFile == null)
+				m_pool = PoolManager.getInstance().definePool(m_poolId);
+			else
+				m_pool = PoolManager.getInstance().definePool(m_poolFile, m_poolId);
+		}
 
 		startExecutors();
+		startStatusReporter();
 		waitForReady();
+	}
+
+	private synchronized boolean isStopped() {
+		return m_stopped;
 	}
 
 
@@ -276,12 +397,16 @@ public class DbReplay {
 	/** List of all registered executors. */
 	private List<ReplayExecutor> m_executorList = new ArrayList<ReplayExecutor>(100);
 
+	/** All executors that are really doing nothing at all */
 	private List<ReplayExecutor> m_freeExecutors = new ArrayList<ReplayExecutor>();
+
+	/** All executors that have sufficient space in their executor queue to execute statements. */
+	private Set<ReplayExecutor> m_idleExecutorList = new HashSet<ReplayExecutor>();
 
 	private void startExecutors() {
 		System.out.println("init: starting " + m_executors + " executor threads");
 		for(int i = 0; i < m_executors; i++) {
-			ReplayExecutor rx = new ReplayExecutor(this, i);
+			ReplayExecutor rx = new ReplayExecutor(this, i, m_idleExecutorList);
 			synchronized(this) {
 				m_executorList.add(rx);
 				m_freeExecutors.add(rx);
@@ -310,6 +435,67 @@ public class DbReplay {
 		}
 	}
 
+	/**
+	 * Get a free executor from the executor free set, and return null if none available.
+	 * @return
+	 */
+	public synchronized ReplayExecutor allocateExecutor() {
+		if(m_freeExecutors.size() == 0) {
+			//-- Nothing free... Add to ignore set, and increment error count
+			m_missingConnections++;
+			return null;
+		}
+
+		//-- Assign executor
+		return m_freeExecutors.remove(0);
+	}
+
+	public synchronized void releaseExecutor(ReplayExecutor rx) {
+		if(null != rx) {
+			m_freeExecutors.add(rx);
+			notify();
+		}
+	}
+
+	/**
+	 * Remove executor from the IDLE list.
+	 * @param replayExecutor
+	 */
+	void removeIdle(ReplayExecutor replayExecutor) {
+		synchronized(m_idleExecutorList) {
+			m_idleExecutorList.remove(replayExecutor);
+		}
+	}
+
+	void addIdle(ReplayExecutor rx) {
+		synchronized(m_idleExecutorList) {
+			if(!m_idleExecutorList.add(rx))
+				throw new IllegalStateException("Executor already in idle set");
+			m_idleExecutorList.notify();
+		}
+	}
+
+	public void queueIdle(ReplayRecord rr) throws Exception {
+		ReplayExecutor r = null;
+		int tries = 20;
+		for(;;) {
+			synchronized(m_idleExecutorList) {
+				if(m_idleExecutorList.size() > 0) {
+					r = m_idleExecutorList.iterator().next();
+					break;
+				}
+				tries--;
+				if(tries <= 0)
+					throw new IllegalStateException("No idle executors in 10 tries.");
+				m_idleExecutorList.wait(5000);
+			}
+		}
+		r.queue(rr);
+	}
+
+	Object getIdleLock() {
+		return m_idleExecutorList;
+	}
 
 	/**
 	 * Force all executors into termination asap.
@@ -355,13 +541,12 @@ public class DbReplay {
 	 * @throws Exception
 	 */
 	public void waitForIdle(long timeout) throws Exception {
-		System.out.println("exec: waiting for all executors to become idle");
+		System.out.println("exec: waiting for all executors to idle");
 		long ets = System.currentTimeMillis() + timeout;
 		long lmt = 0;
 		int lastrunning = -1;
 		for(;;) {
 			long ts = System.currentTimeMillis();
-			runStatus(ts);
 
 			if(ts >= ets) {
 				//-- Failed to start!!! Abort.
@@ -380,7 +565,7 @@ public class DbReplay {
 				wait(1000);
 			}
 		}
-		System.out.println("exec: all executors are idle.");
+		System.out.println("exec: all executors have become idle.");
 	}
 
 
@@ -444,91 +629,27 @@ public class DbReplay {
 		return m_inExecution;
 	}
 
+	public synchronized void incConnSkips() {
+		m_connSkips++;
+	}
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	assign records to executors.						*/
 	/*--------------------------------------------------------------*/
-
-	private Map<Integer, ReplayExecutor> m_executorMap = new HashMap<Integer, ReplayExecutor>();
-
-	private Set<Integer> m_ignoreSet = new HashSet<Integer>();
-
-	/** The timestamp of the previous replay record. */
-	private long m_lastReplayTime;
-
-	private long m_lastRealTime;
 
 	/**
 	 *
 	 * @param rr
 	 */
 	private void handleRecord(ReplayRecord rr) throws Exception {
-		long ct = System.currentTimeMillis();
-		runStatus(ct);
-
-		//-- Try to assign an executor.
-		Integer cid = Integer.valueOf(rr.getConnectionId());
-		if(rr.getType() == StatementProxy.ST_CLOSE) {
-			m_ignoreSet.remove(cid); // If this was ignored - end that
-			ReplayExecutor rx = m_executorMap.remove(cid);	// Was an executor assigned to this connection?
-			if(null != rx) {
-				m_freeExecutors.add(rx);
-			}
-			return;
-		}
-
-		//-- Skip boring actions
-		if(rr.getType() == StatementProxy.ST_COMMIT || rr.getType() == StatementProxy.ST_ROLLBACK)
-			return;
-
-		//-- If we're ignored: increment ignored stmt count and exit
-		if(m_ignoreSet.contains(cid)) {
-			m_connSkips++;
-			return;
-		}
-
-		//-- Determine the time delta between this record and the previous one
-		if(m_lastReplayTime == 0) {
-			m_lastReplayTime = rr.getStatementTime();
-			m_lastRealTime = ct;
-		} else {
-			long deltat = rr.getStatementTime() - m_lastReplayTime;
-			if(deltat < 0)
-				deltat = 0;
-			m_lastReplayTime = rr.getStatementTime();
-
-			if(deltat > 0) {
-				if(deltat > 5000)
-					System.out.println("       - long sleep of " + DbPoolUtil.strMillis(deltat));
-				Thread.sleep(deltat);
-			}
-			m_lastRealTime = ct;
-		}
-
-		//-- Ok, we need an executor for this. Get or allocate;
-		ReplayExecutor rx = m_executorMap.get(cid);				// Is an executor already assigned to this connection?
-		if(rx == null) {
-			//-- Try to allocate an executor
-			if(m_freeExecutors.size() == 0) {
-				//-- Nothing free... Add to ignore set, and increment error count
-				m_missingConnections++;
-				m_ignoreSet.add(cid); // Ignore all related statements
-				return;
-			}
-
-			//-- Assign executor
-			rx = m_freeExecutors.remove(0);
-			m_executorMap.put(cid, rx);
-		}
-		rx.queue(rr);
-//		try {
-//			Thread.sleep(1);
-//		} catch(InterruptedException x) {
-//
-//		}
+		m_replayer.handleRecord(this, rr);
 	}
 
-	private long m_ts_nextStatus;
-
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Status handling thread.								*/
+	/*--------------------------------------------------------------*/
+	/** The next time a status is to be run. */
 	private int m_statusLines;
 
 	private long m_ts_laststatus;
@@ -537,20 +658,59 @@ public class DbReplay {
 
 	private long m_previousQueryCount;
 
-	private void runStatus(long ts) {
-//		long ts = System.currentTimeMillis();
-		synchronized(this) {
-			if(ts < m_ts_nextStatus)
-				return;
-			m_ts_nextStatus = ts + 5 * 1000; // Report every 5 seconds.
-		}
+	static public final DateFormat DATEFORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-		if(m_statusLines++ % 20 == 0)  {
-			//--                0123 0123456789 0123456789 0123456789 0123456789 0123456789012345 0123456789 0123456789
-			System.out.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s");
-		}
+	static private final ThreadLocal<DateFormat> m_dateFormat = new ThreadLocal<DateFormat>();
 
+	private StringBuilder m_status_sb = new StringBuilder(128);
+
+	private void startStatusReporter() {
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				statusThreadRun();
+			}
+		});
+		t.setName("status");
+		t.setPriority(Thread.NORM_PRIORITY + 1);
+		t.setDaemon(true);
+		t.start();
+	}
+
+	private void statusThreadRun() {
+		try {
+			while(!isStopped()) {
+				long ts = System.currentTimeMillis();
+				long nts = ts + 5000; // Log every 5 seconds.
+				displayStatus(ts);
+
+				ts = System.currentTimeMillis();
+				long delay = nts - ts;
+				Thread.sleep(delay);
+			}
+		} catch(Exception x) {
+			System.out.println("abnormal termination of status display thread: " + x);
+		}
+	}
+
+	/**
+	 * Format a date.
+	 * @param dt
+	 * @return
+	 */
+	static public final String format(Date dt) {
+		DateFormat df = m_dateFormat.get();
+		if(null == df) {
+			df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			m_dateFormat.set(df);
+		}
+		return df.format(dt);
+	}
+
+	private void displayStatus(long ts) {
 		long recnr, errs, xq, rr, skips;
+		long lastrecordtime;
+		long laststatustime;
 
 		synchronized(this) {
 			recnr = m_recordNumber;
@@ -558,43 +718,64 @@ public class DbReplay {
 			xq = m_executedQueries;
 			rr = m_resultRows;
 			skips = m_ignoredStatements;
+			lastrecordtime = m_lastRecordTime;
+			laststatustime = m_ts_laststatus;
+			m_ts_laststatus = ts;
+			if(xq == 0)
+				return;
 		}
 
 		double qps;
 		double rps;
-		if(m_ts_laststatus == 0) {
+		long sdt;
+		if(laststatustime == 0) {
 			//-- No previous measurement
 			qps = 0.0;
 			rps = 0.0;
+			sdt = 0;
 		} else {
-			long sdt = ts - m_ts_laststatus;			// Delta milliseconds
+			sdt = ts - laststatustime;
 			qps = (xq - m_previousQueryCount) / (sdt / 1000.0);
 			rps = (rr - m_previousRowCount) / (sdt / 1000.0);
 		}
 
-		System.out.println( //
-			v(getInExecution(), 4) //
-				+ v(recnr, 10) //
-				+ v(skips, 10) //
-				+ v(errs, 10) //
-				+ v(xq, 10) //
-				+ v(rr, 16) //
-				+ dbl(qps, 10) //
-				+ dbl(rps, 10) //
-		);
+
+		if(m_statusLines++ % 20 == 0) {
+			//--                0123 0123456789 0123456789 0123456789 0123456789 0123456789012345 0123456789 0123456789 0123456
+			System.out.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s dT      realtime ");
+			if(m_log != null)
+				m_log.println("#act -#requests --#skipped ---#errors --#queries -----------#rows -queries/s ---#rows/s dT      realtime");
+		}
+
+		m_status_sb.setLength(0);
+		m_status_sb.append(v(getInExecution(), 4));
+		m_status_sb.append(v(recnr, 10));
+		m_status_sb.append(v(skips, 10));
+		m_status_sb.append(v(errs, 10));
+		m_status_sb.append(v(xq, 10));
+		m_status_sb.append(v(rr, 16));
+		m_status_sb.append(dbl(qps, 10));
+		m_status_sb.append(dbl(rps, 10));
+		m_status_sb.append(dbl(sdt / 1000.0, 5));
+		m_status_sb.append(DATEFORMAT.format(new Date(lastrecordtime)));
+		String s = m_status_sb.toString();
+		System.out.println(s);
+		if(m_log != null)
+			m_log.println(s);
+
 		m_ts_laststatus = ts;
 		m_previousQueryCount = xq;
 		m_previousRowCount = rr;
 	}
 
-	static private final String	SPACES = "                                     ";
+	static private final String SPACES = "                                     ";
 
 	static private String v(long value, int npos) {
 		String val = DbPoolUtil.strCommad(value);
 		int nfill = npos - val.length();
 
 		if(nfill <= 0)
-			return val+" ";
+			return val + " ";
 
 		return SPACES.substring(0, nfill) + val + " ";
 	}
@@ -608,5 +789,4 @@ public class DbReplay {
 
 		return SPACES.substring(0, nfill) + val + " ";
 	}
-
 }
