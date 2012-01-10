@@ -426,6 +426,71 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	$.fn.executeDeltaXML = executeXML;
 })(jQuery);
 
+/** 
+ * jQuery scroll overflow fixerydoo for IE7's "let's create huge problems by putting a scrollbar inside the scrolling area" blunder. It
+ * locates all scrolled-in area's and adds 20px of padding at the bottom.
+ */
+(function ($) {
+	$.fn.fixOverflow = function () {
+		if(! $.browser.msie || $.browser.version.substring(0, 1) != "7")
+			return this;
+
+		return this.each(function () {
+			if (this.scrollWidth > this.offsetWidth) {
+				$(this).css({ 'padding-bottom' : '20px' });
+				if (this.scrollHeight <= this.offsetHeight ){
+					//hide vertical scroller only if it is not needed after padding is increased.
+					$(this).css({ 'overflow-y' : 'hidden' });
+				}
+			}
+			
+			//-- jal 20110727 Do the same for height?
+			if(this.scrollHeight > this.offsetHeight) {
+				$(this).css({ 'margin-right' : '17px' });
+				if(this.scrollWidth <= this.offsetWidth) {
+					$(this).css({ 'overflow-x' : 'hidden' });
+				}
+			}
+			
+		});            
+	};
+})(jQuery);
+
+(function ($) {
+	$.fn.doStretch = function () {
+		return this.each(function () {
+			WebUI.stretchHeight(this.id);
+		});
+	};
+})(jQuery);
+
+(function ($) {
+	$.fn.setBackgroundImageMarker = function () {
+		return this.each(function () {
+			if($(this).markerTransformed){
+				return;
+			}
+			var imageUrl = 'url(' + $(this).attr('marker') + ')';
+			if((!(this == document.activeElement)) && $(this).val().length == 0){
+				$(this).css('background-image', imageUrl);
+			}
+			$(this).css('background-repeat', 'no-repeat');
+			$(this).bind('focus',function(e){
+				$(this).css('background-image', 'none');
+			});
+			$(this).bind('blur',function(e){
+				if($(this).val().length == 0){
+					$(this).css('background-image', imageUrl);
+				} else {
+					$(this).css('background-image', 'none');
+				}
+			});
+			$(this).markerTransformed = true;
+		});
+	};
+})(jQuery);
+
+/** WebUI helper namespace */
 var WebUI = {
 	/**
 	 * Create a curried function containing a 'this' and a fixed set of elements.
@@ -865,6 +930,7 @@ var WebUI = {
    					}
 					//handle received lookupTyping component content
 					WebUI.showLookupTypingPopupIfStillFocusedAndFixZIndex(id);
+					WebUI.doCustomUpdates();
    				},
 
 				success :WebUI.handleResponse,
@@ -1739,6 +1805,45 @@ var WebUI = {
 		node.style.cursor = "default";
 	},
 
+	/** ***************** Stretch elemnt height. Must be done via javascript. **************** */
+	stretchHeight : function(elemId) {
+		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
+		var elemHeight = $(elem).height();
+		var totHeight = 0;
+		$(elem).siblings().each(function(index, node) {
+			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
+			if (node != elem && $(node).css('position') == 'static' && ($(node).css('float') == 'none' || $(node).css('width') != '100%' /* count in floaters that occupies total width */)){
+				//In IE7 hidden nodes needs to be additionaly excluded from count...
+				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
+					//totHeight += node.offsetHeight;
+					totHeight += $(node).outerHeight();
+				}
+			}
+		});
+		var elemDeltaHeight = $(elem).outerHeight() - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
+		if (WebUI.isIE8orIE8c()){
+			//from some reason we need +1 only for IE8!
+			elemDeltaHeight = elemDeltaHeight + 1;
+		}
+		$(elem).height($(elem).parent().height() - totHeight - elemDeltaHeight);
+		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
+			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers 
+			if (elem.scrollWidth > elem.offsetWidth){
+				$(elem).height($(elem).height() - 20);
+				//show hidden vertical scroller if it is again needed after height is decreased.
+				if ($(elem).css('overflow-y') == 'hidden'){
+					if (elem.scrollHeight > elem.offsetHeight){
+						$(elem).css({'overflow-y' : 'auto'});
+					}
+				}
+				return;
+			}
+		}
+	},
+
 	_busyCount: 0,
 
 	/*
@@ -2022,7 +2127,28 @@ drop : function(dz) {
 
 var DomUI = WebUI;
 
-$(document).ready(WebUI.handleCalendarChanges);
+WebUI.doCustomUpdates = function() {
+	$('[stretch=true]').doStretch();
+	$('.ui-dt, .ui-fixovfl').fixOverflow();
+	$('input[marker]').setBackgroundImageMarker();
+};
+
+WebUI.onDocumentReady = function() {
+	WebUI.handleCalendarChanges();
+	WebUI.doCustomUpdates();
+};
+
+WebUI.onWindowResize = function() {
+	WebUI.doCustomUpdates();
+};
+
+$(document).ready(WebUI.onDocumentReady);
+$(window).resize(WebUI.onWindowResize);
 $(document).ajaxComplete( function() {
 	WebUI.handleCalendarChanges();
+	WebUI.doCustomUpdates();
 });
+
+
+
+
