@@ -8,9 +8,11 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 
 //-- calculate browser major and minor versions
 {
-	var v = $.browser.version.split(".");
-	$.browser.majorVersion = parseInt(v[0], 10);
-	$.browser.minorVersion = parseInt(v[1], 10);
+	try {
+		var v = $.browser.version.split(".");
+		$.browser.majorVersion = parseInt(v[0], 10);
+		$.browser.minorVersion = parseInt(v[1], 10);
+	} catch(x) {}
 //	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
 }
 
@@ -432,7 +434,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 //							if(! this._xxxw)
 //								alert('event '+n+' value '+se);
 							dest[n] = se;
-							this._xxxw = true;
+//							this._xxxw = true;
 							
 						} catch(x) {
 							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);
@@ -916,7 +918,13 @@ var WebUI = {
 			$(divPopup).fadeOut(200);
 		}
 		//fix z-index to one saved in input node
-		node.parentNode.style.zIndex = node.style.zIndex;
+		if ($.browser.msie){
+            //IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit... 
+            window.setTimeout(function() { try { node.parentNode.style.zIndex = node.style.zIndex;} catch (e) { /*just ignore */ } }, 200);
+		}else{
+            //Other browsers dont suffer of this problem, and we can set z index instantly 
+            node.parentNode.style.zIndex = node.style.zIndex;
+		}
 	},
 
 	showLookupTypingPopupIfStillFocusedAndFixZIndex: function(id) {
