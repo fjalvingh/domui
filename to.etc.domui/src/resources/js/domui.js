@@ -1976,7 +1976,7 @@ var WebUI = {
 		} catch(x) {
 			alert("Failed: "+x);
 		}
-	}
+	},
 
 	//Returns T if browser is really using IE7 rendering engine (since IE8 compatibility mode presents  browser as version 7 but renders as IE8!)
 	isReallyIE7: function() {
