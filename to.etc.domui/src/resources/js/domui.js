@@ -487,6 +487,32 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	};
 })(jQuery);
 
+(function ($) {
+	$.fn.setBackgroundImageMarker = function () {
+		return this.each(function () {
+			if($(this).markerTransformed){
+				return;
+			}
+			var imageUrl = 'url(' + $(this).attr('marker') + ')';
+			if((!(this == document.activeElement)) && $(this).val().length == 0){
+				$(this).css('background-image', imageUrl);
+			}
+			$(this).css('background-repeat', 'no-repeat');
+			$(this).bind('focus',function(e){
+				$(this).css('background-image', 'none');
+			});
+			$(this).bind('blur',function(e){
+				if($(this).val().length == 0){
+					$(this).css('background-image', imageUrl);
+				} else {
+					$(this).css('background-image', 'none');
+				}
+			});
+			$(this).markerTransformed = true;
+		});
+	};
+})(jQuery);
+
 /** WebUI helper namespace */
 var WebUI = {
 	/**
@@ -1023,6 +1049,7 @@ var WebUI = {
    					}
 					//handle received lookupTyping component content
 					WebUI.showLookupTypingPopupIfStillFocusedAndFixZIndex(id);
+					WebUI.doCustomUpdates();
    				},
 
 				success :WebUI.handleResponse,
@@ -2051,13 +2078,17 @@ var WebUI = {
 		$(elem).siblings().each(function(index, node) {
 			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
 			if (node != elem && $(node).css('position') == 'static' && ($(node).css('float') == 'none' || $(node).css('width') != '100%' /* count in floaters that occupies total width */)){
-				//In IE7 hidden nodes needs to be additonaly excluded from count...
+				//In IE7 hidden nodes needs to be additionaly excluded from count...
 				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
 					totHeight += $(node).outerHeight();
 				}
 			}
 		});
-		var elemDeltaHeight =  $(elem).outerHeight() - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
+		var elemDeltaHeight = $(elem).outerHeight() - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
+		if (WebUI.isIE8orIE8c()){
+			//from some reason we need +1 only for IE8!
+			elemDeltaHeight = elemDeltaHeight + 1;
+		}
 		$(elem).height($(elem).parent().height() - totHeight - elemDeltaHeight);
 		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
 			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers 
@@ -2652,6 +2683,7 @@ var DomUI = WebUI;
 WebUI.doCustomUpdates = function() {
 	$('[stretch=true]').doStretch();
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
+	$('input[marker]').setBackgroundImageMarker();
 };
 
 WebUI.onDocumentReady = function() {

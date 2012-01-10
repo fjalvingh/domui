@@ -36,6 +36,7 @@ import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -82,6 +83,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * it's being returned.
 	 */
 	private boolean m_untrimmed;
+
+
+	/**
+	 * @see Text#getEmptyMarker()
+	 */
+	private String m_emptyMarker;
 
 	public static enum NumberMode {
 		NONE, DIGITS, FLOAT,
@@ -389,6 +396,70 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	//	private boolean isValidated() {
 	//		return m_validated;
 	//	}
+
+	/**
+	 * This sets a marker image to be used as the background image for an empty text box. It should contain the URL to a fully-constructed
+	 * background image. To create such an image from an icon plus text use one of the setMarkerXxx methods. This method should be used
+	 * only for manually-constructed images.
+	 * @param emptyMarker
+	 */
+	public void setMarkerImage(String emptyMarker) {
+		if(DomUtil.isBlank(emptyMarker)) {
+			setSpecialAttribute("marker", null);
+		} else {
+			setSpecialAttribute("marker", emptyMarker);
+		}
+		m_emptyMarker = emptyMarker;
+	}
+
+	/**
+	 * Returns assigned empty marker.
+	 *
+	 * @see Text#setMarkerImage(String)
+	 */
+	public String getMarkerImage() {
+		return m_emptyMarker;
+	}
+
+
+	/**
+	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier image in background of input. Image is hidden when input have focus or has any content.
+	 * @return
+	 */
+	public void setMarker() {
+		setMarkerImage(MarkerImagePart.getBackgroundIconOnly());
+	}
+
+	/**
+	 * Method can be used to show custom marker icon as image in background of input. Image is hidden when input have focus or has any content.
+	 *
+	 * @param iconUrl
+	 * @return
+	 */
+	public void setMarker(String iconUrl) {
+		setMarkerImage(MarkerImagePart.getBackgroundIconOnly(iconUrl));
+	}
+
+	/**
+	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier and custom label as image in background of input. Image is hidden when input have focus or has any content.
+	 *
+	 * @param caption
+	 * @return
+	 */
+	public void setMarkerText(String caption) {
+		setMarkerImage(MarkerImagePart.getBackgroundImage(caption));
+	}
+
+	/**
+	 * Method can be used to show custom marker icon and custom label as image in background of input. Image is hidden when input have focus or has any content.
+	 *
+	 * @param iconUrl
+	 * @param caption
+	 * @return
+	 */
+	public void setMarker(String iconUrl, String caption) {
+		setMarkerImage(MarkerImagePart.getBackgroundImage(iconUrl, caption));
+	}
 
 	/**
 	 * Returns the current numeric mode in effect. This mode prevents letters from being input on the screen.
