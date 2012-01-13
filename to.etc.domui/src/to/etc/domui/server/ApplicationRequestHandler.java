@@ -26,9 +26,12 @@ package to.etc.domui.server;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.annotations.*;
+import to.etc.domui.annotations.UISpecialAccessResult.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
@@ -371,9 +374,16 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Class< ? extends UrlPage> clz) throws Exception {
+		//special access check is ignored for AJAX calls (we are already using that page, so access is already checked)
+		boolean hasSpecialAccess = ctx.getRequest().getParameter("webuia") == null && ctx.getApplication().getSpecialAccessChecker().hasSpecialAccess(clz);
+
 		UIRights rann = clz.getAnnotation(UIRights.class);
-		if(rann == null)
+
+		if(rann == null && !hasSpecialAccess) {
+			//no check, we pass
 			return true;
+		}
+
 		//-- Get user's IUser; if not present we need to log in.
 		IUser user = UIContext.getCurrentUser(); // Currently logged in?
 		if(user == null) {
@@ -411,16 +421,28 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//
 		//		}
 
-		//-- Issue rights check,
-		boolean allowed = true;
-		for(String right : rann.value()) {
-			if(!user.hasRight(right)) {
-				allowed = false;
-				break;
+		//-- Issue access checks
+		UISpecialAccessResult specialAccessResult = hasSpecialAccess ? ctx.getApplication().getSpecialAccessChecker().doSpecialAccessCheck(clz, ctx) : null;
+
+		if(specialAccessResult == null) {
+			if(checkUIRigts(rann, user)) {
+				return true;
+			}
+		} else {
+			switch(specialAccessResult.getStatus()){
+				case ACCEPT:
+					return true;
+				case NONE:
+					if(checkUIRigts(rann, user)) {
+						return true;
+					}
+					break;
+				case REFUSE:
+				default:
+					//drop to access denied redirect
+					break;
 			}
 		}
-		if(allowed)
-			return true;
 
 		/*
 		 * Access not allowed: redirect to error page.
@@ -437,15 +459,34 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		sb.append("?targetPage=");
 		StringTool.encodeURLEncoded(sb, clz.getName());
 
-		//-- All required rights
-		int ix = 0;
-		for(String r : rann.value()) {
-			sb.append("&r" + ix + "=");
-			ix++;
-			StringTool.encodeURLEncoded(sb, r);
+		if(specialAccessResult != null && specialAccessResult.getStatus() == Status.REFUSE) {
+			sb.append("&" + AccessDeniedPage.PARAM_REFUSAL_MSG + "=");
+			StringTool.encodeURLEncoded(sb, specialAccessResult.getRefuseReason());
+		} else if(rann != null) {
+			//-- All required rights
+			int ix = 0;
+			for(String r : rann.value()) {
+				sb.append("&r" + ix + "=");
+				ix++;
+				StringTool.encodeURLEncoded(sb, r);
+			}
 		}
 		generateHttpRedirect(ctx, sb.toString(), "Access denied");
 		return false;
+	}
+
+	private boolean checkUIRigts(@Nullable UIRights rann, IUser user) {
+		//UIRights check exists, we need to check them. otherwise pass
+		if(rann == null) {
+			return true;
+		}
+
+		for(String right : rann.value()) {
+			if(!user.hasRight(right)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

@@ -33,6 +33,7 @@ import javax.servlet.http.*;
 
 import org.slf4j.*;
 
+import to.etc.domui.access.*;
 import to.etc.domui.ajax.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
@@ -118,6 +119,8 @@ public abstract class DomApplication {
 	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
 
 	private IPageInjector m_injector = new DefaultPageInjector();
+
+	private ISpecialAccessChecker m_accessChecker = new DefaultSpecialAccessChecker();
 
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
@@ -1154,6 +1157,18 @@ public abstract class DomApplication {
 
 	public synchronized void setInjector(IPageInjector injector) {
 		m_injector = injector;
+	}
+
+	/**
+	 * Get the page special access checker.
+	 * @return
+	 */
+	public synchronized ISpecialAccessChecker getSpecialAccessChecker() {
+		return m_accessChecker;
+	}
+
+	public synchronized void setSpecialAccessChecker(ISpecialAccessChecker accessChecker) {
+		m_accessChecker = accessChecker;
 	}
 
 	/*--------------------------------------------------------------*/
