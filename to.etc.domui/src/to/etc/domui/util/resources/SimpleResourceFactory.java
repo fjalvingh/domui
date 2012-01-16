@@ -13,16 +13,18 @@ import to.etc.domui.server.*;
  */
 public class SimpleResourceFactory implements IResourceFactory {
 	@Override
-	public int accept(String name) {
+	public int accept(@Nonnull String name) {
 		if(name.startsWith("$"))
 			return 10;
 		return -1;
 	}
 
 	@Override
-	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+	@Nonnull
+	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nullable IResourceDependencyList rdl) throws Exception {
 		IResourceRef r = da.getAppFileOrResource(name.substring(1));
-		rdl.add(r);
+		if(null != rdl)
+			rdl.add(r);
 		return r;
 	}
 }

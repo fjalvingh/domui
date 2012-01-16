@@ -102,10 +102,13 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		setCssClass("ui-dt");
 
 		//-- Do we need to render multiselect checkboxes?
-		if(isShowSelectionAlways() || (getSelectionModel() != null && getSelectionModel().getSelectionCount() > 0)) {
-			m_multiSelectMode = getSelectionModel().isMultiSelect();
-		} else {
-			m_multiSelectMode = false;
+		ISelectionModel<T> sm = getSelectionModel();
+		if(sm != null) {
+			if(isShowSelectionAlways() || sm.getSelectionCount() > 0) {
+				m_multiSelectMode = sm.isMultiSelect();
+			} else {
+				m_multiSelectMode = false;
+			}
 		}
 
 		//-- Ask the renderer for a sort order, if applicable
@@ -477,7 +480,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		if(m_showSelectionAlways == showSelectionAlways || getModel() == null || getModel().getRows() == 0)
 			return;
 		m_showSelectionAlways = showSelectionAlways;
-		if(!isBuilt() || m_multiSelectMode || getSelectionModel() == null || !getSelectionModel().isMultiSelect())
+		ISelectionModel<T> sm = getSelectionModel();
+		if(sm == null)
+			throw new IllegalStateException("Selection model is empty?");
+		if(!isBuilt() || m_multiSelectMode || getSelectionModel() == null || !sm.isMultiSelect())
 			return;
 
 		THead head = m_table.getHead();
@@ -650,7 +656,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 *
 	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionChanged(java.lang.Object, boolean)
 	 */
-	public void selectionChanged(T row, boolean on) throws Exception {
+	public void selectionChanged(@Nonnull T row, boolean on) throws Exception {
 		//-- Is this a visible row?
 		for(int i = 0; i < m_visibleItemList.size(); i++) {
 			if(MetaManager.areObjectsEqual(row, m_visibleItemList.get(i))) {
@@ -718,10 +724,13 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 */
 	@Override
 	public void selectionAllChanged() throws Exception {
+		ISelectionModel<T> sm = getSelectionModel();
+		if(sm == null)
+			throw new IllegalStateException("Got selection changed event but selection model is empty?");
 		//-- Is this a visible row?
 		for(int i = 0; i < m_visibleItemList.size(); i++) {
 			T item = m_visibleItemList.get(i);
-			updateSelectionChanged(item, i, getSelectionModel().isSelected(item));
+			updateSelectionChanged(item, i, sm.isSelected(item));
 		}
 	}
 }

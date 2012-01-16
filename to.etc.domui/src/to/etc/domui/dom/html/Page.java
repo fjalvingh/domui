@@ -262,7 +262,7 @@ final public class Page implements IQContextContainer {
 	 * @param n
 	 */
 	final void registerNode(final NodeBase n) {
-		if(n.getPage() != null)
+		if(n.isAttached())
 			throw new IllegalStateException("Node still attached to other page");
 
 		/*

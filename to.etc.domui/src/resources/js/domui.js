@@ -6,6 +6,16 @@ function _unblock() {
 }
 $(document).ajaxStart(_block).ajaxStop(_unblock);
 
+//-- calculate browser major and minor versions
+{
+	try {
+		var v = $.browser.version.split(".");
+		$.browser.majorVersion = parseInt(v[0], 10);
+		$.browser.minorVersion = parseInt(v[1], 10);
+	} catch(x) {}
+//	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
+}
+
 ( function($) {
 	$.webui = function(xml) {
 		processDoc(xml);
@@ -333,7 +343,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			function createElement(node) {
 				var e, tag = node.tagName.toLowerCase();
 				// some elements in IE need to be created with attrs inline
-				if ($.browser.msie) {
+				if ($.browser.msie & !WebUI.isNormalIE9plus()) {
 					var type = node.getAttribute('type');
 					if (tag == 'table'
 							|| type == 'radio'
@@ -387,6 +397,11 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				for ( var i = 0, attr = ''; i < src.attributes.length; i++) {
 					var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
 
+//					if(n.substring(0, 2) == 'on' && ! this._xxxw) {
+//						this._xxxw = true;
+//						alert('dest='+dest+", src="+src+", inline="+inline+", ffox="+$.browser.mozilla);
+//					}
+					
 					if (inline) {
 						//-- 20091110 jal When inlining we are in trouble if domjs_ is used... The domjs_ mechanism is replaced with setDelayedAttributes in java.
 						if(n.substring(0, 6) == 'domjs_') {
@@ -411,17 +426,21 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if (dest && ($.browser.msie || $.browser.webkit) && n.substring(0, 2) == 'on') {
+					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
-							// alert('event '+n+' value '+v);
+//							if(! this._xxxw)
+//								alert('event '+n+' value '+v);
 							// var se = 'function(){'+v+';}';
 							var se;
 							if (v.indexOf('return') != -1 || v.indexOf('javascript:') != -1)
-								se = new Function(v);
+								se = new Function("event", v);
 							else
-								se = new Function('return ' + v);
-							// alert('event '+n+' value '+se);
+								se = new Function("event", 'return ' + v);
+//							if(! this._xxxw)
+//								alert('event '+n+' value '+se);
 							dest[n] = se;
+//							this._xxxw = true;
+							
 						} catch(x) {
 							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);
 						}
@@ -904,7 +923,13 @@ var WebUI = {
 			$(divPopup).fadeOut(200);
 		}
 		//fix z-index to one saved in input node
-		node.parentNode.style.zIndex = node.style.zIndex;
+		if ($.browser.msie){
+            //IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit... 
+            window.setTimeout(function() { try { node.parentNode.style.zIndex = node.style.zIndex;} catch (e) { /*just ignore */ } }, 200);
+		}else{
+            //Other browsers dont suffer of this problem, and we can set z index instantly 
+            node.parentNode.style.zIndex = node.style.zIndex;
+		}
 	},
 
 	showLookupTypingPopupIfStillFocusedAndFixZIndex: function(id) {
@@ -1255,7 +1280,7 @@ var WebUI = {
 		var dateFmt = params.inputField ? params.ifFormat : params.daFormat;
 		params.date = Date.parseDate(inp.value, dateFmt);
 
-		var cal = new Calendar(1, params.date, WebUI.onDateSelect, function(
+		var cal = new Calendar(null, params.date, WebUI.onDateSelect, function(
 				cal) {
 			cal.hide();
 			cal.destroy();
@@ -2397,7 +2422,13 @@ var WebUI = {
 				$(parent).animate({scrollTop: newPos}, 'slow');
 			}
 		}
+	},
+
+	//Returns T if browser is IE of at least version 9 and does not run in any of compatibility modes for earlier versions
+	isNormalIE9plus: function() {
+		return ($.browser.msie && parseInt($.browser.version) >= 9 && document.documentMode >= 9);
 	}	
+	
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {

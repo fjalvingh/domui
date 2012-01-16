@@ -276,7 +276,7 @@ public class JdbcUtil {
 		}
 	}
 
-	private static void setParameter(PreparedStatement ps, Object val, int px) throws SQLException {
+	public static void setParameter(PreparedStatement ps, Object val, int px) throws SQLException {
 		if(val == null)
 			ps.setString(px, null);
 		else if(val instanceof String) {
@@ -528,5 +528,4 @@ public class JdbcUtil {
 			throw new IllegalStateException("Call error: cannot get out parameter for result java type=" + rtype);
 		}
 	}
-
 }

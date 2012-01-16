@@ -509,7 +509,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		tbody(); // Trigger body/table creation
 		int tcellix = m_colCol * 2; // Thje formal table cell index.
 		for(;;) {
-			int rowix = m_columnRowCount[m_colCol]++; // Get && increment current row# in this column.
+			int rowix = m_columnRowCount[m_colCol]; // Get && increment current row# in this column.
 			TR row = selectRow(rowix);
 
 			TD lbltd = selectCell(row, tcellix);
@@ -580,5 +580,10 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		}
 		for(NodeBase nb : c)
 			td.add(nb);
+	}
+
+	@Override
+	public void onRowAdded(TR row) {
+		m_columnRowCount[m_colCol]++; // increment current row# in this column.
 	}
 }
