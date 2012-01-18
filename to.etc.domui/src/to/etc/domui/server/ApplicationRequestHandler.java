@@ -374,8 +374,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Class< ? extends UrlPage> clz) throws Exception {
-		//special access check is ignored for AJAX calls (we are already using that page, so access is already checked)
-		boolean hasSpecialAccess = ctx.getRequest().getParameter("webuia") == null && ctx.getApplication().getSpecialAccessChecker().hasSpecialAccess(clz);
+		boolean isAjax = ctx.getRequest().getParameter("webuia") != null;
+
+		if(isAjax) {
+			//access check is ignored for AJAX calls (we are already using that page, so access is already checked)
+			return true;
+		}
+
+		boolean hasSpecialAccess = ctx.getApplication().getSpecialAccessChecker().hasSpecialAccess(clz);
 
 		UIRights rann = clz.getAnnotation(UIRights.class);
 

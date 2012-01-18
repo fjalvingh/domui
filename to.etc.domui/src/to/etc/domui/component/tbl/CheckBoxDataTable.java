@@ -62,6 +62,10 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 	//		super(r);
 	//	}
 
+	private boolean m_readOnly;
+
+	private String m_readOnlyTitle;
+
 	protected void handleSelectionChanged(boolean selected, T item) throws Exception {
 		if(selected) {
 			addToSelection(item);
@@ -99,8 +103,6 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 			addToSelection(item);
 		else
 			removeFromSelection(item);
-
-
 	}
 
 	private void addToSelection(T item) {
@@ -185,18 +187,25 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 		selectionCell.add(b);
 		tr.add(selectionCell);
 		tr.setUserObject(b);
-		tr.addCssClass("ui-rowsel");
-		tr.setClicked(new IClicked<TR>() {
-
-			@Override
-			public void clicked(TR row) throws Exception {
-				if(row.getUserObject() instanceof Checkbox) {
-					Checkbox ckb = (Checkbox) row.getUserObject();
-					ckb.setChecked(!((Checkbox) row.getUserObject()).isChecked());
-					handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
-				}
+		if(m_readOnly) {
+			b.setReadOnly(true);
+			if(m_readOnlyTitle != null) {
+				b.setTitle(m_readOnlyTitle);
 			}
-		});
+		} else {
+			tr.addCssClass("ui-rowsel");
+			tr.setClicked(new IClicked<TR>() {
+
+				@Override
+				public void clicked(TR row) throws Exception {
+					if(row.getUserObject() instanceof Checkbox) {
+						Checkbox ckb = (Checkbox) row.getUserObject();
+						ckb.setChecked(!((Checkbox) row.getUserObject()).isChecked());
+						handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
+					}
+				}
+			});
+		}
 
 		tr.add(selectionCell);
 		getRowRenderer().renderRow(this, cc, index, value);
@@ -233,4 +242,45 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 		return m_selectionChangedHandler;
 	}
 
+	/**
+	 * Returns T if the control is currently in readonly mode, which renders readonly checkboxes. 
+	 * @return
+	 */
+	public boolean isReadOnly() {
+		return m_readOnly;
+	}
+
+	/**
+	 * Sets checkboxes to readonly or editable mode.
+	 * @param ro
+	 */
+	public void setReadOnly(boolean ro) {
+		if(m_readOnly != ro) {
+			m_readOnly = ro;
+			if(isBuilt()) {
+				forceRebuild();
+			}
+		}
+	}
+
+	/**
+	 * Returns assigned readonly reason message. That is title on readonly checkbox, if readonly mode is set.
+	 * @return
+	 */
+	public String getReadOnlyTitle() {
+		return m_readOnlyTitle;
+	}
+
+	/**
+	 * Set readonly reason message. That is title on readonly checkbox, if readonly mode is set.
+	 * @param readOnlyReason
+	 */
+	public void setReadOnlyTitle(String readOnlyTitle) {
+		if(m_readOnlyTitle != readOnlyTitle) {
+			m_readOnlyTitle = readOnlyTitle;
+			if(isBuilt()) {
+				forceRebuild();
+			}
+		}
+	}
 }
