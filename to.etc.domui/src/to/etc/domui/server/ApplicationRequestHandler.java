@@ -418,20 +418,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			return false;
 		}
 
-		//		//-- EXPERIMENTAL If this is a data-bound right we need to get the data item to use to check
-		//		Object dataItem = null;
-		//		if(rann.dataPath().length() != 0) {
-		//			//-- Obtain the value for the specified property path.
-		//			PropertyMetaModel	pmm = MetaManager.getPropertyMeta()
-		//
-		//
-		//		}
-
 		//-- Issue access checks
 		UISpecialAccessResult specialAccessResult = hasSpecialAccess ? ctx.getApplication().getSpecialAccessChecker().doSpecialAccessCheck(clz, ctx) : null;
 
 		if(specialAccessResult == null) {
-			if(checkUIRigts(rann, user)) {
+			if(checkUIRigts(ctx, clz, rann, user)) {
 				return true;
 			}
 		} else {
@@ -439,7 +430,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				case ACCEPT:
 					return true;
 				case NONE:
-					if(checkUIRigts(rann, user)) {
+					if(checkUIRigts(ctx, clz, rann, user)) {
 						return true;
 					}
 					break;
@@ -481,14 +472,39 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		return false;
 	}
 
-	private boolean checkUIRigts(@Nullable UIRights rann, IUser user) {
+	private boolean checkUIRigts(@Nonnull final RequestContextImpl ctx, @Nonnull final Class< ? extends UrlPage> clz, @Nullable UIRights rann, IUser user) {
 		//UIRights check exists, we need to check them. otherwise pass
 		if(rann == null) {
 			return true;
 		}
 
-		for(String right : rann.value()) {
-			if(!user.hasRight(right)) {
+		if(DomUtil.isBlank(rann.dataPath())) {
+			//no special data context -> we just check plain general rights
+			for(String right : rann.value()) {
+				if(!user.hasRight(right)) {
+					return false;
+				}
+			}
+		} else {
+			//-- Data path related access check
+			try {
+				String target = rann.dataPath().trim();
+				String dataPath = null;
+				int pathPos = target.indexOf(".");
+				if(pathPos > 0) {
+					dataPath = target.substring(pathPos + 1);
+					target = target.substring(0, pathPos);
+				}
+
+				Object dataAtPath = ctx.getApplication().getDataPathResolver().resolveDataPath(clz, ctx, target, dataPath);
+				for(String right : rann.value()) {
+					if(!user.hasRight(right, dataAtPath)) {
+						return false;
+					}
+				}
+			} catch(Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 				return false;
 			}
 		}

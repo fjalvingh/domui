@@ -122,6 +122,8 @@ public abstract class DomApplication {
 
 	private ISpecialAccessChecker m_accessChecker = new DefaultSpecialAccessChecker();
 
+	private IDataPathResolver m_dataPathResolver = new DefaultDataPathResolver();
+
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
 	 * root URL is entered without a class name.
@@ -1165,6 +1167,18 @@ public abstract class DomApplication {
 	 */
 	public synchronized ISpecialAccessChecker getSpecialAccessChecker() {
 		return m_accessChecker;
+	}
+
+	public synchronized void setDataPathResolver(IDataPathResolver dataPathResolver) {
+		m_dataPathResolver = dataPathResolver;
+	}
+
+	/**
+	 * Get the UI param data path resolver.
+	 * @return
+	 */
+	public synchronized IDataPathResolver getDataPathResolver() {
+		return m_dataPathResolver;
 	}
 
 	public synchronized void setSpecialAccessChecker(ISpecialAccessChecker accessChecker) {

@@ -22,7 +22,7 @@ import to.etc.domui.util.*;
 public class DefaultSpecialAccessChecker implements ISpecialAccessChecker {
 
 	/**
-	 * Maps UrlPage classnames to their PageInjectors. We use names instead of the Class instances
+	 * Maps UrlPage classnames to their AccessChecker. We use names instead of the Class instances
 	 * to allow for class reloading.
 	 */
 	private Map<String, AccessChecker> m_checkerMap = new HashMap<String, AccessChecker>();
