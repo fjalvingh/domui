@@ -80,7 +80,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 
 	private void createEditableBase() throws Exception {
 		m_bindings = createEditable();
-		if(m_bindings == null) {
+		if(m_bindings != null) {
 			if(m_formBuilder != null) {
 				NodeContainer nc = m_formBuilder.finish();
 				if(nc != null) {
