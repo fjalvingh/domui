@@ -2,6 +2,8 @@ package to.etc.domui.component.menu;
 
 import javax.annotation.*;
 
+import to.etc.domui.dom.html.*;
+
 public interface IUIAction<T> {
 	/**
 	 * If this menu item is disabled, return a reason why it is. This will be shown as a hint when
@@ -19,5 +21,5 @@ public interface IUIAction<T> {
 	@Nullable
 	String getIcon(T instance) throws Exception;
 
-	void execute(T instance) throws Exception;
+	void execute(NodeBase component, T instance) throws Exception;
 }
