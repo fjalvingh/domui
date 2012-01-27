@@ -31,7 +31,7 @@ import javax.annotation.*;
 import org.slf4j.*;
 
 import to.etc.domui.annotations.*;
-import to.etc.domui.annotations.UISpecialAccessResult.*;
+import to.etc.domui.annotations.UISpecialAccessResult.Status;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
@@ -663,7 +663,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				//-- Don't do anything at all - value is already selected by some of previous ajax requests, it is safe to ignore remaineing late lookup typing events
 				inhibitlog = true;
 			} else if(wcomp == null) {
-				throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
+				if(!action.endsWith("?"))
+					throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
 			} else {
 				wcomp.componentHandleWebAction(ctx, action);
 			}

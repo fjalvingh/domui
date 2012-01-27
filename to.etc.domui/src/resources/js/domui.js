@@ -2324,7 +2324,7 @@ var WebUI = {
 	_popinCloseList: [],
 
 	popupMenuShow: function(refid, menu) {
-		WebUI.registerPopinClose(menu.substring(1));
+		WebUI.registerPopinClose(menu);
 		var pos = $(refid).offset();    
 		var eWidth = $(refid).outerWidth();
 		var mwidth = $(menu).outerWidth();
@@ -2344,23 +2344,30 @@ var WebUI = {
 
 	registerPopinClose: function(id) {
 		WebUI._popinCloseList.push(id);
+		$(id).bind("mouseleave", WebUI.popinMouseClose);
 		if(WebUI._popinCloseList.length != 1)
 			return;
-		$(document.body).bind("mousedown", WebUI.popinMouseClose);
+		console.debug('add listeners');
+//		$(document.body).bind("mousedown", WebUI.popinMouseClose);
 		$(document.body).bind("keydown", WebUI.popinKeyClose);
 	},
 
 	popinMouseClose: function() {
-		for(var i = 0; i < WebUI._popinCloseList.length; i++) {
-			var id = WebUI._popinCloseList[i];
-			var el = document.getElementById(id);
-			if(el) {
-				WebUI.scall(id, "POPINCLOSE", {});
+		try {
+			for(var i = 0; i < WebUI._popinCloseList.length; i++) {
+				var id = WebUI._popinCloseList[i];
+				var el = $(id);
+				if(el) {
+					el.unbind("mousedown", WebUI.popinMouseClose);
+					WebUI.scall(id.substring(1), "POPINCLOSE?", {});
+				}
 			}
+		} finally {
+			WebUI._popinCloseList = [];
+//			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
+			$(document.body).unbind("keydown", WebUI.popinKeyClose);
+			console.debug('remove listeners');
 		}
-		WebUI._popinCloseList = [];
-		$(document.body).unbind("mousedown", WebUI.popinMouseClose);
-		$(document.body).unbind("keydown", WebUI.popinKeyClose);
 	},
 	popinKeyClose: function(evt) {
 		if(! evt)

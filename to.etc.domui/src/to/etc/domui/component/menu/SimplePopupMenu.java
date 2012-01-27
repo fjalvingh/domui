@@ -115,7 +115,7 @@ public class SimplePopupMenu extends Div {
 
 	@Override
 	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
-		if("POPINCLOSE".equals(action)) {
+		if("POPINCLOSE?".equals(action)) {
 			closeMenu();
 		} else
 			super.componentHandleWebAction(ctx, action);
