@@ -164,8 +164,13 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		if(!validate())
 			return;
 		onSave(getInstance());
+		onAfterSave();
+	}
+
+	protected void onAfterSave() {
 		UIGoto.back();
 	}
+
 
 	protected boolean validate() throws Exception {
 		return true;
