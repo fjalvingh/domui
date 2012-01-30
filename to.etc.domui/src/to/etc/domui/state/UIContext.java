@@ -174,7 +174,7 @@ public class UIContext {
 			}
 
 			/*
-			 * If a LOGINCOOKIE is found check it's usability..
+			 * If a LOGINCOOKIE is found check it's usability. If the cookie is part of the ignored hash set try to delete it again and again...
 			 */
 			Cookie[] car = rci.getRequest().getCookies();
 			if(car != null) {
@@ -186,6 +186,10 @@ public class UIContext {
 							//-- Store the user in the HttpSession.
 							hs.setAttribute(LOGIN_KEY, user);
 							return user;
+						} else {
+							//-- Invalid cookie: delete it.
+							c.setMaxAge(10);
+							c.setValue("logout");
 						}
 						break;
 					}
@@ -395,9 +399,13 @@ public class UIContext {
 						//-- Make sure the same hash value is not used for login again. This prevents "relogin" when the browser sends some requests with the "old" cookie value (obituaries)
 						registerIgnoredHash(var[2]);
 					}
-					c.setMaxAge(0);
-					c.setValue("logout");
-					rci.getResponse().addCookie(c);
+
+					//-- Create a new cookie value containing a delete.
+					RequestContextImpl ci = rci;
+					Cookie k = new Cookie("domuiLogin", "logout");
+					c.setMaxAge(60);
+					k.setPath(ci.getRequest().getContextPath());
+					ci.getResponse().addCookie(k);
 					return true;
 				}
 			}
