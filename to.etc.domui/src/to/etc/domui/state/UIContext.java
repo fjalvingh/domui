@@ -403,7 +403,7 @@ public class UIContext {
 					//-- Create a new cookie value containing a delete.
 					RequestContextImpl ci = rci;
 					Cookie k = new Cookie("domuiLogin", "logout");
-					c.setMaxAge(60);
+					k.setMaxAge(60);
 					k.setPath(ci.getRequest().getContextPath());
 					ci.getResponse().addCookie(k);
 					return true;
