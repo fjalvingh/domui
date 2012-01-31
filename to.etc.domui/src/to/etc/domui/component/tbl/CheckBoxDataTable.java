@@ -46,11 +46,16 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 	@Nonnull
 	private List<T> m_selectedRows = Collections.EMPTY_LIST;
 
+	@Nonnull
+	private List<T> m_disabledRows = Collections.EMPTY_LIST;
+
 	@Nullable
 	private String m_selectionColTitle;
 
 	@Nullable
 	private IValueChanged<CheckBoxDataTable<T>> m_selectionChangedHandler;
+
+	private boolean m_disableOnRowClick = false;
 
 	//	public CheckBoxDataTable() {}
 
@@ -103,6 +108,58 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 
 	}
 
+	public void setSelected(List<T> items, boolean on) throws Exception {
+		for(T item : getModel().getItems(0, getModel().getRows())) {
+			if(items.contains(item)) {
+				if(on) {
+					addToSelection(item);
+				} else {
+					removeFromSelection(item);
+				}
+			}
+		}
+		if(isBuilt()) {
+			forceRebuild();
+			if(getSelectionChangedHandler() != null) {
+				getSelectionChangedHandler().onValueChanged(this);
+			}
+		}
+	}
+
+	public void setDisabled(List<T> items, boolean disable) throws Exception {
+		if(m_disabledRows == Collections.EMPTY_LIST) {
+			m_disabledRows = new ArrayList<T>();
+		}
+		for(T item : getModel().getItems(0, getModel().getRows())) {
+			for(T toDisable : items) {
+				if(MetaManager.areObjectsEqual(item, toDisable)) {
+					if(disable && !m_disabledRows.contains(item)) {
+						m_disabledRows.add(item);
+					}
+					if(!disable && m_disabledRows.contains(item)) {
+						m_disabledRows.remove(item);
+					}
+				}
+			}
+		}
+		if(isBuilt()) {
+			forceRebuild();
+		}
+	}
+
+	public void setAllDisabled(boolean allDisabled) throws Exception {
+		if(m_disabledRows == Collections.EMPTY_LIST) {
+			m_disabledRows = new ArrayList<T>();
+		}
+		m_disabledRows.clear();
+		if(allDisabled) {
+			m_disabledRows.addAll(getModel().getItems(0, getModel().getRows()));
+		}
+		if(isBuilt()) {
+			forceRebuild();
+		}
+	}
+
 	private void addToSelection(T item) {
 		if(m_selectedRows == Collections.EMPTY_LIST) {
 			m_selectedRows = new ArrayList<T>();
@@ -128,7 +185,9 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 		}
 		m_selectedRows.clear();
 		for(T item : getModel().getItems(0, getModel().getRows())) {
-			m_selectedRows.add(item);
+			if(getDisabledIndexOf(item) < 0) {
+				m_selectedRows.add(item);
+			}
 		}
 		if(isBuilt()) {
 			forceRebuild();
@@ -169,34 +228,41 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 	void internalRenderRow(TR tr, ColumnContainer<T> cc, int index, T value) throws Exception {
 		TD selectionCell = new TD();
 
+		boolean isDisabled = getDisabledIndexOf(value) > -1;
 		Checkbox b = new Checkbox();
-		b.setClicked(new IClicked<Checkbox>() {
-			@Override
-			public void clicked(Checkbox ckb) throws Exception {
-				//FIXME: must be done as double change of value to cause changed protected field to be set, otherwise is not rendered properly in HTML response.
-				// jal 20091105 Please explain??? The 2nd call is not doing anything right now.... I would understand if the 1st call was ckb.setChecked(ckb.isChecked())...
-				ckb.setChecked(!ckb.isChecked());
-				ckb.setChecked(!ckb.isChecked());
-				handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
-			}
-		});
 		b.setChecked(getSelectedIndexOf(value) > -1);
+		if(!isDisabled) {
+			b.setClicked(new IClicked<Checkbox>() {
+				@Override
+				public void clicked(Checkbox ckb) throws Exception {
+					//FIXME: must be done as double change of value to cause changed protected field to be set, otherwise is not rendered properly in HTML response.
+					// jal 20091105 Please explain??? The 2nd call is not doing anything right now.... I would understand if the 1st call was ckb.setChecked(ckb.isChecked())...
+					ckb.setChecked(!ckb.isChecked());
+					ckb.setChecked(!ckb.isChecked());
+					handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
+				}
+			});
+		} else {
+			b.setDisabled(isDisabled);
+		}
 		b.setUserObject(value);
 		selectionCell.add(b);
 		tr.add(selectionCell);
 		tr.setUserObject(b);
-		tr.addCssClass("ui-rowsel");
-		tr.setClicked(new IClicked<TR>() {
+		if(!m_disableOnRowClick && !isDisabled) {
+			tr.addCssClass("ui-rowsel");
+			tr.setClicked(new IClicked<TR>() {
 
-			@Override
-			public void clicked(TR row) throws Exception {
-				if(row.getUserObject() instanceof Checkbox) {
-					Checkbox ckb = (Checkbox) row.getUserObject();
-					ckb.setChecked(!((Checkbox) row.getUserObject()).isChecked());
-					handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
+				@Override
+				public void clicked(TR row) throws Exception {
+					if(row.getUserObject() instanceof Checkbox) {
+						Checkbox ckb = (Checkbox) row.getUserObject();
+						ckb.setChecked(!((Checkbox) row.getUserObject()).isChecked());
+						handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
+					}
 				}
-			}
-		});
+			});
+		}
 
 		tr.add(selectionCell);
 		getRowRenderer().renderRow(this, cc, index, value);
@@ -205,6 +271,17 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 	private int getSelectedIndexOf(T value) {
 		int index = 0;
 		for(T item : m_selectedRows) {
+			if(MetaManager.areObjectsEqual(value, item)) {
+				return index;
+			}
+			index++;
+		}
+		return -1;
+	}
+
+	private int getDisabledIndexOf(T value) {
+		int index = 0;
+		for(T item : m_disabledRows) {
 			if(MetaManager.areObjectsEqual(value, item)) {
 				return index;
 			}
@@ -225,12 +302,35 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 		return m_selectedRows;
 	}
 
+	public List<T> getDisabledRows() {
+		return m_disabledRows;
+	}
+
+	public List<T> getUnselectedRows() throws Exception {
+		List<T> unselected = new ArrayList<T>();
+		for(T item : getModel().getItems(0, getModel().getRows())) {
+			if(m_selectedRows.contains(item)) {
+				continue;
+			}
+			unselected.add(item);
+		}
+		return unselected;
+	}
+
 	public void setSelectionChangedHandler(IValueChanged<CheckBoxDataTable<T>> handler) {
 		m_selectionChangedHandler = handler;
 	}
 
 	public IValueChanged<CheckBoxDataTable<T>> getSelectionChangedHandler() {
 		return m_selectionChangedHandler;
+	}
+
+	public boolean isDisableOnRowClick() {
+		return m_disableOnRowClick;
+	}
+
+	public void setDisableOnRowClick(boolean disableOnRowClick) {
+		m_disableOnRowClick = disableOnRowClick;
 	}
 
 }
