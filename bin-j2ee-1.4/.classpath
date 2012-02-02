@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="j2ee.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/home/jal/wsitris/bin-j2ee-1.4/javadoc.jar!/apidocs"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

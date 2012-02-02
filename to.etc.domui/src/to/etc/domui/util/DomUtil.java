@@ -1642,4 +1642,35 @@ final public class DomUtil {
 		return -1;
 	}
 
+	/*
+	 * Returns specified session attribute value if exists.
+	 * If specified, it clears value to support easier 'one time purpose actions'.
+	 * Must be called within valid request UI context.
+	 *
+	 * @param attribute
+	 * @param doReset if T attribute value is set to null after reading.
+	 * @return
+	 */
+	public static Object getSessionAttribute(String attribute, boolean doReset) {
+		IRequestContext ctx = UIContext.getRequestContext();
+		AppSession ses = ctx.getSession();
+		Object val = ses.getAttribute(attribute);
+		if(doReset) {
+			ses.setAttribute(attribute, null);
+		}
+		return val;
+	}
+
+	/**
+	 * Set specified session attribute value. Attribute would be accessible until session expires.
+	 * Must be called within valid request UI context.
+	 *
+	 * @param attribute
+	 * @param value
+	 */
+	public static void setSessionAttribute(String attribute, Object value) {
+		IRequestContext ctx = UIContext.getRequestContext();
+		AppSession ses = ctx.getSession();
+		ses.setAttribute(attribute, value);
+	}
 }
