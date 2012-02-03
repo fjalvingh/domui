@@ -248,6 +248,9 @@ TD .ui-tree .selected:hover {
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
 }
+.ui-chdr-ttl img {
+	padding-right: 10px;
+}
 .ui-chdr-l {
 	width: 20px;
 	padding: 0;
@@ -1630,8 +1633,14 @@ body,html {
 	background-color: grey;
 	border: 1px dotted black;
 	-moz-border-radius: 5px;
+}
+.ui-pmnu-disabled {
+	color: #999;
+}
+.ui-pmnu-enabled {
 	color: white;
 }
+
 .ui-pmnu-ttl {
 	padding: 4px;
 	font-style: italic;

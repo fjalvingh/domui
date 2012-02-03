@@ -43,10 +43,17 @@ public class CaptionedHeader extends Table {
 
 	private List<SmallImgButton> m_btns = Collections.EMPTY_LIST;
 
+	private String m_icon;
+
 	public CaptionedHeader() {}
 
 	public CaptionedHeader(String ttl) {
 		m_caption = ttl;
+	}
+
+	public CaptionedHeader(String ttl, String icon) {
+		m_caption = ttl;
+		m_icon = icon;
 	}
 
 	public String getCaption() {
@@ -76,7 +83,12 @@ public class CaptionedHeader extends Table {
 		Div ttl = new Div();
 		ttltd.add(ttl);
 		ttl.setCssClass("ui-chdr-ttl");
-		ttl.setText(m_caption);
+		if(m_icon != null) {
+			Img img = new Img(m_icon);
+			img.setAlign(ImgAlign.CENTER);
+			ttl.add(img);
+		}
+		ttl.add(m_caption);
 		TD right = b.addCell();
 		right.setCssClass("ui-chdr-r");
 		m_buttonpart = right;
@@ -107,5 +119,16 @@ public class CaptionedHeader extends Table {
 		if(isBuilt() && m_buttonpart != null) {
 			m_buttonpart.add(ib);
 		}
+	}
+
+	public String getIcon() {
+		return m_icon;
+	}
+
+	public void setIcon(String icon) {
+		if(DomUtil.isEqual(icon, m_icon))
+			return;
+		m_icon = icon;
+		forceRebuild();
 	}
 }
