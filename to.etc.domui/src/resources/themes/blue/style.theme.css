@@ -1639,18 +1639,19 @@ body,html {
 }
 .ui-pmnu-enabled {
 	color: white;
+	cursor: pointer;
 }
 
 .ui-pmnu-ttl {
 	padding: 4px;
 	font-style: italic;
 	background-color: #222;
+	color: #eeffee;
 }
 .ui-pmnu-action {
 	padding: 4px;
 	padding-left: 20px;
 	background-repeat: no-repeat;
-	cursor: pointer;
 	background-position: 2px 4px;
 }
 .ui-pmnu-action:hover {
