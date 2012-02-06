@@ -445,6 +445,17 @@ public class DbPoolUtil {
 		return df.format(dt);
 	}
 
+	static private ThreadLocal<DateFormat> m_timedf = new ThreadLocal<DateFormat>();
+
+	static public String strTimeOnly(Date dt) {
+		DateFormat df = m_timedf.get();
+		if(null == df) {
+			df = new SimpleDateFormat("HH:mm:ss.S");
+			m_timedf.set(df);
+		}
+		return df.format(dt);
+	}
+
 	/**
 	 * Returns a properly formatted commad string for a number [english only].
 	 * @param val

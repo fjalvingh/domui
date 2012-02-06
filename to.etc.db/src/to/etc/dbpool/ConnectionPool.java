@@ -1263,7 +1263,9 @@ final public class ConnectionPool {
 			return;
 
 		StringBuilder sb = new StringBuilder();
-		sb.append(batch ? "    dbg batch=" : "    dbg sql=");
+		sb.append("   ");
+		sb.append(DbPoolUtil.strTimeOnly(new Date()));
+		sb.append(batch ? " dbg batch=" : " dbg sql=");
 		sb.append(sp.getSQL());
 		sb.append("\n    connection=");
 		sb.append(sp._conn().toString());
