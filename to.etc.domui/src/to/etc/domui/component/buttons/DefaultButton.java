@@ -26,6 +26,9 @@ package to.etc.domui.component.buttons;
 
 import java.awt.*;
 
+import javax.annotation.*;
+
+import to.etc.domui.component.menu.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.parts.*;
@@ -53,6 +56,9 @@ import to.etc.util.*;
  * Created on Jul 21, 2008
  */
 public class DefaultButton extends Button {
+	/** If this is an action-based button this contains the action. */
+	private IUIAction< ? > m_action;
+
 	private ButtonPartKey m_key = new ButtonPartKey();
 
 	/**
@@ -70,6 +76,16 @@ public class DefaultButton extends Button {
 	public DefaultButton(final String txt) {
 		this();
 		setText(txt);
+	}
+
+	/**
+	 * Create a {@link IUIAction} based button.
+	 * @param txt
+	 */
+	public DefaultButton(final IUIAction< ? > action) throws Exception {
+		this();
+		m_action = action;
+		actionRefresh();
 	}
 
 	/**
@@ -227,5 +243,44 @@ public class DefaultButton extends Button {
 				pos += 2;
 			}
 		}
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	EXPERIMENTAL - UNSTABLE INTERFACE					*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * EXPERIMENTAL - UNSTABLE INTERFACE - Get the action associated with this button, or
+	 * null if the button is not action based.
+	 * @return
+	 */
+	@Nullable
+	public IUIAction< ? > getAction() {
+		return m_action;
+	}
+
+	/**
+	 * EXPERIMENTAL - UNSTABLE INTERFACE - Refresh the button regarding the state of the action.
+	 */
+	private void actionRefresh() throws Exception {
+		final IUIAction< ? > action = getAction();
+		if(null == action)
+			return;
+		String dt = action.getDisableReason(null);
+		if(null == dt) {
+			setTitle(null);						// Remove any title.
+			setDisabled(false);
+		} else {
+			setTitle(dt);						// Shot reason for being disabled
+			setDisabled(true);
+		}
+		setText(action.getName(null));
+		setIcon(action.getIcon(null));
+		setClicked(new IClicked<DefaultButton>() {
+			@Override
+			public void clicked(DefaultButton clickednode) throws Exception {
+				action.execute(DefaultButton.this, null);
+			}
+		});
 	}
 }

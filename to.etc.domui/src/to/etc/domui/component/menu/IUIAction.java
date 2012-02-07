@@ -13,13 +13,13 @@ public interface IUIAction<T> {
 	 * @throws Exception
 	 */
 	@Nullable
-	String getDisableReason(T instance) throws Exception;
+	String getDisableReason(@Nullable T instance) throws Exception;
 
 	@Nonnull
-	String getName(T instance) throws Exception;
+	String getName(@Nullable T instance) throws Exception;
 
 	@Nullable
-	String getIcon(T instance) throws Exception;
+	String getIcon(@Nullable T instance) throws Exception;
 
-	void execute(NodeBase component, T instance) throws Exception;
+	void execute(NodeBase component, @Nullable T instance) throws Exception;
 }

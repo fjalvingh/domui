@@ -26,7 +26,10 @@ package to.etc.domui.component.layout;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.menu.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
@@ -128,6 +131,12 @@ public class ButtonBar extends Table {
 	 */
 	public DefaultButton addButton(final String txt, final String icon, final IClicked<DefaultButton> click) {
 		DefaultButton b = new DefaultButton(txt, icon, click);
+		addButton(b);
+		return b;
+	}
+
+	public DefaultButton addButton(@Nonnull IUIAction<Void> action) throws Exception {
+		DefaultButton b = new DefaultButton(action);
 		addButton(b);
 		return b;
 	}
