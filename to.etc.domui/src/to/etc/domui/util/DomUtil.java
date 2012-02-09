@@ -547,7 +547,7 @@ final public class DomUtil {
 	}
 
 	static public String nlsLabel(final String label) {
-		if(label == null)
+		if(label == null || label.length() == 0)
 			return label;
 		if(label.charAt(0) != '~')
 			return label;
