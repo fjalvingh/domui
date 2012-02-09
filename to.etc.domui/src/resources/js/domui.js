@@ -343,7 +343,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			function createElement(node) {
 				var e, tag = node.tagName.toLowerCase();
 				// some elements in IE need to be created with attrs inline
-				if ($.browser.msie & !WebUI.isNormalIE9plus()) {
+				if ($.browser.msie && !WebUI.isNormalIE9plus()) {
 					var type = node.getAttribute('type');
 					if (tag == 'table'
 							|| type == 'radio'
