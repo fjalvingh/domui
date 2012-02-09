@@ -63,7 +63,11 @@ public class DropDownPicker<T> extends SmallImgButton {
 		m_picker = new ComboLookup<T>(m_data);
 		m_picker.setDisplay(DisplayType.NONE);
 		m_picker.setPosition(PositionType.ABSOLUTE);
-		m_picker.setZIndex(m_zIndexBaseParent.getZIndex() + 10);
+		if(m_zIndexBaseParent.getZIndex() > Integer.MIN_VALUE) {
+			m_picker.setZIndex(m_zIndexBaseParent.getZIndex() + 10);
+		} else {
+			m_picker.setZIndex(10);
+		}
 		m_picker.setSize(m_size);
 		m_picker.setOnValueChanged(new IValueChanged<NodeBase>() {
 
