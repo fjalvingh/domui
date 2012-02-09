@@ -1509,6 +1509,7 @@ final public class DomUtil {
 	}
 
 	/**
+<<<<<<< TREE
 	 * Util can be used to check if list contains item that has equal Long Id as specified one, while instanies itself does not need to be equal.
 	 * @param <T>
 	 * @param list
@@ -1649,5 +1650,4 @@ final public class DomUtil {
 		}
 		return false;
 	}
-
 }

@@ -343,7 +343,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			function createElement(node) {
 				var e, tag = node.tagName.toLowerCase();
 				// some elements in IE need to be created with attrs inline
-				if ($.browser.msie) {
+				if ($.browser.msie & !WebUI.isNormalIE9plus()) {
 					var type = node.getAttribute('type');
 					if (tag == 'table'
 							|| type == 'radio'
@@ -2433,7 +2433,13 @@ var WebUI = {
 				$(parent).animate({scrollTop: newPos}, 'slow');
 			}
 		}
+	},
+
+	//Returns T if browser is IE of at least version 9 and does not run in any of compatibility modes for earlier versions
+	isNormalIE9plus: function() {
+		return ($.browser.msie && parseInt($.browser.version) >= 9 && document.documentMode >= 9);
 	}	
+	
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
