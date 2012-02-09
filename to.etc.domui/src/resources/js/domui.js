@@ -421,16 +421,25 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
+					} else if (dest && ($.browser.msie || $.browser.webkit || $.browser.mozilla) && n.substring(0, 2) == 'on') {
 						try {
 //							if(! this._xxxw)
 //								alert('event '+n+' value '+v);
 							// var se = 'function(){'+v+';}';
 							var se;
-							if (v.indexOf('return') != -1 || v.indexOf('javascript:') != -1)
-								se = new Function("event", v);
-							else
-								se = new Function("event", 'return ' + v);
+							if (v.indexOf('return') != -1 || v.indexOf('javascript:') != -1){
+								if (!$.browser.msie && $.browser.majorVersion >= 9 ){
+									se = new Function("event", v);
+								}else{
+									se = new Function(v);
+								}
+							}else{
+								if (!$.browser.msie && $.browser.majorVersion >= 9 ){ 	
+									se = new Function("event", 'return ' + v);
+								}else{
+									se = new Function('return ' + v);
+								}
+							}
 //							if(! this._xxxw)
 //								alert('event '+n+' value '+se);
 							dest[n] = se;
