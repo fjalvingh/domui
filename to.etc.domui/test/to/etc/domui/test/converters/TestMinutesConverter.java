@@ -18,9 +18,9 @@ import to.etc.webapp.nls.*;
 public class TestMinutesConverter {
 	private static final String[] BAD_VALUES = {"1..", "1..2", "1,,", "1,,2", "1.123", "1,123", "a", ".6", ",6", ".61", ",61", "2.", "2,", "1.1", "1,1"};
 
-	private static final String[] GOOD_VALUES = {"0.02", "0.25", "1.12", "0,02", "0,25", "1,12"};
+	private static final String[] GOOD_VALUES = {"0.02", "0.25", "1.12", "0,02", "0,25", "1,12", "2.01", "2,01", "2.09", "2,09"};
 
-	private static final Integer[] GOOD_VALUES_RAW = {new Integer(2), new Integer(25), new Integer(72), new Integer(2), new Integer(25), new Integer(72)};
+	private static final Integer[] GOOD_VALUES_RAW = {new Integer(2), new Integer(25), new Integer(72), new Integer(2), new Integer(25), new Integer(72), new Integer(121), new Integer(121), new Integer(129),  new Integer(129)};
 
 	@BeforeClass
 	static public void setUp() {

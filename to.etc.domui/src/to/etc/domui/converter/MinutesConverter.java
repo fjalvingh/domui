@@ -1,5 +1,6 @@
 package to.etc.domui.converter;
 
+import java.math.*;
 import java.text.*;
 import java.util.*;
 
@@ -58,9 +59,10 @@ public class MinutesConverter implements IConverter<Integer> {
 
 		if(!in.startsWith(".") & !in.endsWith(".")) { // Double will parse it, but we do not allow that format
 			try {
-				double value = Double.parseDouble(in);
-				double hours = Math.floor(value);
 
+				// because of tricky numbers X.o1 work is done with BigDecimals to avoid errors in calculation
+				BigDecimal value = new BigDecimal(in);
+				BigDecimal hours = new BigDecimal(Math.floor(value.doubleValue()));
 				// resolve #of decimals
 				int numDec = 0;
 				final int index = in.indexOf('.');
@@ -68,11 +70,11 @@ public class MinutesConverter implements IConverter<Integer> {
 					numDec = in.length() - 1 - index;
 				}
 				if(numDec == 2) {
-					double mins = (value - hours) * 100;
+					BigDecimal mins = value.subtract(hours).multiply(new BigDecimal(100));
 
-					if(mins >= 0 & mins < 60) {
-						value = hours * 60 + mins;
-						return Integer.valueOf((int) (Math.floor(value)));
+					if(mins.compareTo(BigDecimal.ZERO) >= 0 && mins.compareTo(new BigDecimal(60)) < 0) {
+						value = hours.multiply(new BigDecimal(60)).add(mins);
+						return Integer.valueOf(value.intValue());
 					}
 				}
 			} catch(NumberFormatException ex) {}
