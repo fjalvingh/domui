@@ -4,6 +4,7 @@ import java.text.*;
 import java.util.*;
 
 import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -15,14 +16,14 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jsavic@execom.eu">Jelena Savic</a>
  * Created on Feb 9, 2012
  */
-public class MinutesConverter implements IConverter<Double> {
+public class MinutesConverter implements IConverter<Integer> {
 
 	/**
 	 *
 	 * @see to.etc.domui.converter.IObjectToStringConverter#convertObjectToString(java.util.Locale, java.lang.Object)
 	 */
 	@Override
-	public String convertObjectToString(Locale loc, Double in) throws UIException {
+	public String convertObjectToString(Locale loc, Integer in) throws UIException {
 		if(in == null)
 			return null;
 
@@ -33,14 +34,8 @@ public class MinutesConverter implements IConverter<Double> {
 		int hours = in.intValue() / 60; // #of hours (digits before floating point)
 		double mins = in.doubleValue() % 60; // #of minutes (digits after floating point)
 
-		//resolve format
-		if(mins < 10) {
-			value = hours + mins / 10;
-			df = new DecimalFormat("##0.0", dfs);
-		} else {
-			value = hours + mins / 100;
-			df = new DecimalFormat("##0.00", dfs);
-		}
+		value = hours + mins / 100;
+		df = new DecimalFormat("##0.00", dfs);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(df.format(value));
@@ -54,7 +49,7 @@ public class MinutesConverter implements IConverter<Double> {
 	 * @see to.etc.domui.converter.IConverter#convertStringToObject(java.util.Locale, java.lang.String)
 	 */
 	@Override
-	public Double convertStringToObject(Locale loc, String in) throws UIException {
+	public Integer convertStringToObject(Locale loc, String in) throws UIException {
 		if(in == null)
 			return null;
 
@@ -72,16 +67,16 @@ public class MinutesConverter implements IConverter<Double> {
 				if(index >= 0) {
 					numDec = in.length() - 1 - index;
 				}
-				double mins = (value - hours);
-				for(int i = 0; i < numDec; i++) {
-					mins *= 10;
-				}
-				if(mins >= 0 & mins < 60) {
-					value = hours * 60 + mins;
-					return Double.valueOf(Math.floor(value));
+				if(numDec == 2) {
+					double mins = (value - hours) * 100;
+
+					if(mins >= 0 & mins < 60) {
+						value = hours * 60 + mins;
+						return Integer.valueOf((int) (Math.floor(value)));
+					}
 				}
 			} catch(NumberFormatException ex) {}
 		}
-		throw new ValidationException("Expected format is HH.MM. Value for minutes ranges between 0 and 59.", in);
+		throw new ValidationException(Msgs.V_NO_RE_MATCH, "HH[.|,]MM");
 	}
 }

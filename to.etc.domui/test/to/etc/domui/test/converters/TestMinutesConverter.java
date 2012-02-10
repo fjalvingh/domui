@@ -16,11 +16,11 @@ import to.etc.webapp.nls.*;
  */
 
 public class TestMinutesConverter {
-	private static final String[] BAD_VALUES = {"1..", "1..2", "1,,", "1,,2", "1.123", "1,123", "a", ".6", ",6", ".61", ",61", "2.", "2,"};
+	private static final String[] BAD_VALUES = {"1..", "1..2", "1,,", "1,,2", "1.123", "1,123", "a", ".6", ",6", ".61", ",61", "2.", "2,", "1.1", "1,1"};
 
-	private static final String[] GOOD_VALUES = {"0.2", "0.25", "1.12", "0,2", "0,25", "1,12"};
+	private static final String[] GOOD_VALUES = {"0.02", "0.25", "1.12", "0,02", "0,25", "1,12"};
 
-	private static final Double[] GOOD_VALUES_RAW = {new Double(2), new Double(25), new Double(72), new Double(2), new Double(25), new Double(72)};
+	private static final Integer[] GOOD_VALUES_RAW = {new Integer(2), new Integer(25), new Integer(72), new Integer(2), new Integer(25), new Integer(72)};
 
 	@BeforeClass
 	static public void setUp() {
@@ -37,10 +37,10 @@ public class TestMinutesConverter {
 	@Test
 	public void checkGoodValues() {
 		MinutesConverter mc = new MinutesConverter();
-		Double minsFromString = null;
+		Integer minsFromString = null;
 		for(int i = 0; i < GOOD_VALUES.length; i++) {
 			String mins = GOOD_VALUES[i];
-			Double minsRaw = GOOD_VALUES_RAW[i];
+			Integer minsRaw = GOOD_VALUES_RAW[i];
 			String minsFromObject = mc.convertObjectToString(NlsContext.getLocale(), minsRaw);
 			try {
 				minsFromString = mc.convertStringToObject(NlsContext.getLocale(), mins);
@@ -61,11 +61,11 @@ public class TestMinutesConverter {
 	public void checkBadTimes() {
 		MinutesConverter mc = new MinutesConverter();
 		for(int i = 0; i < BAD_VALUES.length; i++) {
-			String time = BAD_VALUES[i];
+			String mins = BAD_VALUES[i];
 			try {
 				@SuppressWarnings("unused")
-				Double minsFromString = mc.convertStringToObject(NlsContext.getLocale(), time);
-				Assert.fail("It's a good time ??? " + time);
+				Integer minsFromString = mc.convertStringToObject(NlsContext.getLocale(), mins);
+				Assert.fail("It's a good time ??? " + mins);
 			} catch(Exception x) {
 				//-- is the expected situation
 			}
