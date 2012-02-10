@@ -61,25 +61,27 @@ public class MinutesConverter implements IConverter<Double> {
 		in = in.trim();
 		in = in.replace(',', '.'); // If value is entered with comma replace it with dot
 
-		try {
-			double value = Double.parseDouble(in);
-			double hours = Math.floor(value);
+		if(!in.startsWith(".") & !in.endsWith(".")) { // Double will parse it, but we do not allow that format
+			try {
+				double value = Double.parseDouble(in);
+				double hours = Math.floor(value);
 
-			// resolve #of decimals
-			int numDec = 0;
-			final int index = in.indexOf('.');
-			if(index >= 0) {
-				numDec = in.length() - 1 - index;
-			}
-			double mins = (value - hours);
-			for(int i = 0; i < numDec; i++) {
-				mins *= 10;
-			}
-			if(mins >= 0 & mins < 60) {
-				value = hours * 60 + mins;
-				return Double.valueOf(value);
-			}
-		} catch(NumberFormatException ex) {}
-		throw new ValidationException("Expected value for minutes ranges between 0 and 59!", in);
+				// resolve #of decimals
+				int numDec = 0;
+				final int index = in.indexOf('.');
+				if(index >= 0) {
+					numDec = in.length() - 1 - index;
+				}
+				double mins = (value - hours);
+				for(int i = 0; i < numDec; i++) {
+					mins *= 10;
+				}
+				if(mins >= 0 & mins < 60) {
+					value = hours * 60 + mins;
+					return Double.valueOf(Math.floor(value));
+				}
+			} catch(NumberFormatException ex) {}
+		}
+		throw new ValidationException("Expected format is HH.MM. Value for minutes ranges between 0 and 59.", in);
 	}
 }
