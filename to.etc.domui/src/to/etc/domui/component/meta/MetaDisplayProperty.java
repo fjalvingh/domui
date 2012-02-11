@@ -74,6 +74,8 @@ public @interface MetaDisplayProperty {
 	 */
 	int displayLength() default -1;
 
+	YesNoType noWrap() default YesNoType.UNKNOWN;
+
 	/**
 	 * Define a Converter class to use to convert the value from the property to a string. When unset the code
 	 * defaults to the conversion specified on the property itself, either by an explicit {@link MetaProperty#converterClass()}

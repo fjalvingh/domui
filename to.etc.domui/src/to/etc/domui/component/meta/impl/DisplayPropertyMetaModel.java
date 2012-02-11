@@ -26,6 +26,8 @@ package to.etc.domui.component.meta.impl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -61,6 +63,8 @@ public class DisplayPropertyMetaModel {
 
 	private int m_displayLength = -1;
 
+	private YesNoType m_noWrap = YesNoType.UNKNOWN;
+
 	public DisplayPropertyMetaModel() {}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -77,6 +81,7 @@ public class DisplayPropertyMetaModel {
 		setConverter(c);
 		setSortable(p.defaultSortable());
 		setDisplayLength(p.displayLength());
+		setNoWrap(p.noWrap());
 		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();
 //		setReadOnly(p.readOnly());		jal 20101220 Removed, unused and seems silly in table display
 //		setRenderHint(p.renderHint());	jal 20101220 Removed, unused and seems silly in table display
@@ -223,5 +228,14 @@ public class DisplayPropertyMetaModel {
 
 	public void setSortIndex(int sortIndex) {
 		m_sortIndex = sortIndex;
+	}
+
+	@Nonnull
+	public YesNoType getNoWrap() {
+		return m_noWrap;
+	}
+
+	public void setNoWrap(@Nonnull YesNoType noWrap) {
+		m_noWrap = noWrap;
 	}
 }

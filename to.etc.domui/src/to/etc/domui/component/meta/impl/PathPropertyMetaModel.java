@@ -330,6 +330,12 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
+	@Nonnull
+	public YesNoType getNowrap() {
+		return m_original.getNowrap();
+	}
+
+	@Override
 	public int getScale() {
 		return m_original.getScale();
 	}

@@ -41,6 +41,8 @@ public class BasicPropertyMetaModel<T> {
 
 	private int m_displayLength = -1;
 
+	private YesNoType m_nowrap = YesNoType.UNKNOWN;
+
 	private short m_precision = -1;
 
 	private byte m_scale = -1;
@@ -222,5 +224,13 @@ public class BasicPropertyMetaModel<T> {
 		if(null == columnNames)
 			throw new IllegalArgumentException("Cannot accept null");
 		m_columnNames = columnNames;
+	}
+
+	public YesNoType getNowrap() {
+		return m_nowrap;
+	}
+
+	public void setNowrap(YesNoType nowrap) {
+		m_nowrap = nowrap;
 	}
 }

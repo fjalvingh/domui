@@ -393,4 +393,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 */
 	@Nullable
 	IQueryManipulator<T> getQueryManipulator();
+
+	@Nonnull
+	YesNoType getNowrap();
 }
