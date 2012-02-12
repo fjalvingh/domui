@@ -574,6 +574,20 @@ public class FileTool {
 	}
 
 
+	@Nonnull
+	static public final String readResourceAsString(Class< ? > base, String name, String encoding) throws Exception {
+		InputStream is = base.getResourceAsStream(name);
+		if(null == is)
+			throw new IllegalStateException(base + ":" + name + " resource not found");
+		try {
+			return readStreamAsString(is, encoding);
+		} finally {
+			try {
+				is.close();
+			} catch(Exception x) {}
+		}
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	File hash stuff..									*/
 	/*--------------------------------------------------------------*/

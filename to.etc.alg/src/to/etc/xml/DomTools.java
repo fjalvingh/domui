@@ -951,6 +951,14 @@ public class DomTools {
 		t.transform(s, r);
 	}
 
+	static public void saveDocument(final Writer of, final Document doc) throws Exception {
+		Source s = new DOMSource(doc);
+		Result r = new StreamResult(of);
+		Transformer t = TransformerFactory.newInstance().newTransformer();
+		t.transform(s, r);
+	}
+
+
 	static public void setAttr(final Node elem, final String name, final String value) {
 		Node n = elem.getOwnerDocument().createAttribute(name);
 		n.setNodeValue(value);
