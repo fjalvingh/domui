@@ -1,5 +1,5 @@
-/*** FloatingWindow ***/
-.ui-fw {
+/*** Window and FloatingDiv styles. ***/
+.ui-flw {
 	padding: 0;
 	margin: 0;
 	/*	border: 1px solid black; */
@@ -11,13 +11,14 @@
 	left: 50%;
 }
 
-.ui-fw-ttl {
-	position: absolute;
+.ui-flw-ttl {
+/*	position: absolute;
 	top: 0px;
 	height: 20px;
 	left: 0px;
-	right: 0px;
-/*	width: 100%; */
+	right: 0px; */
+	
+	height: 20px;
 	padding: 0;
 	padding: 2px;
 	background: url(bg-float-ttl2.png) repeat-x;
@@ -26,18 +27,23 @@
 	font-weight: bold;
 }
 
-.ui-fw-c {
+.ui-flw-c {
 	width: 100%;
-	position: absolute;
-	top: 24px;
-	bottom: 0px;
-/*	height: 100%; */
 	padding: 0;
 	margin: 0;
 	overflow: auto;
 }
+.ui-flw-tc {
+	width: 100%;
+	height: 5px;
+}
 
-.ui-fw-hider {
+.ui-flw-bc {
+	width: 100%;
+	height: 5px;
+}
+
+.ui-flw-hider {
 	height: 100%;
 	width: 100%;
 	opacity: 0.5;
@@ -48,7 +54,7 @@
 	filter:alpha(opacity=50);
 }
 
-.ui-fw-btn-close {
+.ui-flw-btn-close {
 	margin-top: -1px;
 	margin-right: -2px;
 }

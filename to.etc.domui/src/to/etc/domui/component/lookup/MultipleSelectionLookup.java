@@ -29,7 +29,7 @@ import java.util.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.LookupForm.ButtonMode;
+import to.etc.domui.component.lookup.LookupForm.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
@@ -66,7 +66,7 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 
 	public MultipleSelectionLookup(Class<T> lookupClass, ClassMetaModel metaModel, boolean isModal, String title, IMultiSelectionResult<T> onReceiveResult) {
 		super(isModal, title, lookupClass, metaModel);
-		setCssClass("ui-fw");
+		setCssClass("ui-flw");
 		//		m_selectionResult = new ArrayList<T>();
 		if(getWidth() == null) {
 			setWidth(WIDTH + "px");
