@@ -253,6 +253,9 @@ TD .ui-tree .selected:hover {
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
 }
+.ui-chdr-ttl img {
+	padding-right: 10px;
+}
 .ui-chdr-l {
 	width: 20px;
 	padding: 0;
@@ -1082,19 +1085,8 @@ tbody td.ui-dt-separator {
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
 	background: url(bg-header.png.svg) repeat-x;
-	margin-top: 10px;
+/*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
 }
-
-
-/*** Caption ***/
-.ui-cptn {
-	border: 1px solid #bed6f8;
-	padding: 2px 4px 2px 4px;
-	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
-	margin-top: 10px;
-}
-
 
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
@@ -1638,18 +1630,25 @@ body,html {
 	background-color: grey;
 	border: 1px dotted black;
 	-moz-border-radius: 5px;
-	color: white;
 }
+.ui-pmnu-disabled {
+	color: #999;
+}
+.ui-pmnu-enabled {
+	color: white;
+	cursor: pointer;
+}
+
 .ui-pmnu-ttl {
 	padding: 4px;
 	font-style: italic;
 	background-color: #222;
+	color: #eeffee;
 }
 .ui-pmnu-action {
 	padding: 4px;
 	padding-left: 20px;
 	background-repeat: no-repeat;
-	cursor: pointer;
 	background-position: 2px 4px;
 }
 .ui-pmnu-action:hover {
@@ -1917,3 +1916,28 @@ body,html {
 	font-size: large;
 }
 
+/*** LabelSelector component ***/
+.ui-lsel-sel {
+        border-color:#ABADB3 #BFCDD9 #BFCDD9;
+        border-style:solid;
+        border-width:1px;
+        -moz-border-radius: 2px;
+        padding: 4px;
+}
+.ui-lsel {
+        -moz-border-radius: 4px;
+        border: 1px dotted grey;
+        margin: 2px;
+        padding: 2px;
+        background-color: cyan;
+}
+.ui-lsel img {
+/*      margin: 5px; */
+        padding-left: 5px;
+        padding-bottom: 2px;
+        vertical-align: bottom;
+        background-color: cyan;
+}
+.ui-lsel-sel input {
+        border: none;
+}

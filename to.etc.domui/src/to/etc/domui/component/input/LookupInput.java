@@ -141,6 +141,8 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 
 	private boolean m_allowEmptyQuery;
 
+	private boolean m_searchImmediately;
+
 	private String m_keyWordSearchCssClass;
 
 	private Integer m_keyWordSearchPopupWidth;
@@ -608,6 +610,9 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 		if(keySearchModel != null && keySearchModel.getRows() > 0) {
 			setResultModel(keySearchModel);
 		}
+
+		if(isSearchImmediately())
+			search(lf);
 	}
 
 	void search(LookupForm<T> lf) throws Exception {
@@ -1149,5 +1154,19 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	 */
 	public void setDisplayColumns(String... columns) {
 		setContentRenderer(new LookupInputPropertyRenderer<T>(getLookupClass(), columns));
+	}
+
+	/**
+	 * When T this will immediately search with an empty query.
+	 * @return
+	 */
+	public boolean isSearchImmediately() {
+		return m_searchImmediately;
+	}
+
+	public void setSearchImmediately(boolean searchImmediately) {
+		m_searchImmediately = searchImmediately;
+		if(searchImmediately)
+			setAllowEmptyQuery(true);
 	}
 }

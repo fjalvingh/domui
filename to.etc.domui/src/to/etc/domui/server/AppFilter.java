@@ -112,6 +112,11 @@ public class AppFilter implements Filter {
 		} catch(Error x) {
 			x.printStackTrace();
 			throw x;
+			//		} finally {
+			//			System.out.println("U: " + ((HttpServletRequest) req).getRequestURL());
+			//			for(Cookie c : ((HttpServletRequest) req).getCookies()) {
+			//				System.out.println("  i: " + c.getName() + ", v=" + c.getValue() + ", a=" + c.getMaxAge());
+			//			}
 		}
 	}
 

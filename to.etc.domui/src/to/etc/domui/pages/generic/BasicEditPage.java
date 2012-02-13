@@ -73,25 +73,31 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		m_buttonBar = null;
 
 		super.createContent(); // Page title and crud
+		if(!onBeforeCreateContent())
+			return;
+
 		createButtonBar();
 		createButtons();
 		createEditableBase();
 	}
 
+	protected boolean onBeforeCreateContent() {
+		return true;
+	}
+
 	private void createEditableBase() throws Exception {
 		m_bindings = createEditable();
-		if(m_bindings == null) {
-			if(m_formBuilder != null) {
-				NodeContainer nc = m_formBuilder.finish();
-				if(nc != null) {
-					add(nc);
+
+		if(m_formBuilder != null) {
+			NodeContainer nc = m_formBuilder.finish();
+			if(nc != null) {
+				add(nc);
+				if(m_bindings == null)
 					m_bindings = m_formBuilder.getBindings();
-				}
 			}
 		}
-		if(m_bindings == null)
-			throw new IllegalStateException("The form's bindings are undefined: please override createForm.");
-		m_bindings.moveModelToControl();
+		if(m_bindings != null)
+			m_bindings.moveModelToControl();
 	}
 
 	protected ModelBindings createEditable() throws Exception {
@@ -164,8 +170,13 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		if(!validate())
 			return;
 		onSave(getInstance());
+		onAfterSave();
+	}
+
+	protected void onAfterSave() {
 		UIGoto.back();
 	}
+
 
 	protected boolean validate() throws Exception {
 		return true;

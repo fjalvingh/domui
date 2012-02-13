@@ -250,7 +250,7 @@ public class DomTools {
 		NodeList nl = rn.getChildNodes();
 		for(int i = 0; i < nl.getLength(); i++) {
 			Node n = nl.item(i);
-			if(n.getNodeName().equalsIgnoreCase(name) && n.getNodeType() == Node.ELEMENT_NODE) {
+			if((n.getNodeName().equalsIgnoreCase(name) || name.equalsIgnoreCase(n.getLocalName())) && n.getNodeType() == Node.ELEMENT_NODE) {
 				nnl.add(nl.item(i));
 			}
 		}
@@ -950,6 +950,14 @@ public class DomTools {
 		Transformer t = TransformerFactory.newInstance().newTransformer();
 		t.transform(s, r);
 	}
+
+	static public void saveDocument(final Writer of, final Document doc) throws Exception {
+		Source s = new DOMSource(doc);
+		Result r = new StreamResult(of);
+		Transformer t = TransformerFactory.newInstance().newTransformer();
+		t.transform(s, r);
+	}
+
 
 	static public void setAttr(final Node elem, final String name, final String value) {
 		Node n = elem.getOwnerDocument().createAttribute(name);

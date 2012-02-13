@@ -89,6 +89,8 @@ public class SimpleColumnDef {
 		setSortable(m.getSortable());
 		setPropertyName(m.getName());
 		setNumericPresentation(m.getNumericPresentation());
+		if(m.getNowrap() == YesNoType.YES)
+			setNowrap(true);
 	}
 
 	public SimpleColumnDef(ExpandedDisplayProperty< ? > m) {
@@ -105,6 +107,8 @@ public class SimpleColumnDef {
 		setRenderHint(m.getRenderHint());
 		if(m.getDisplayLength() > 0)
 			setDisplayLength(m.getDisplayLength());
+		if(m.getNowrap() == YesNoType.YES)
+			setNowrap(true);
 	}
 
 	public String getColumnLabel() {

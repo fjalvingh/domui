@@ -135,14 +135,17 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	public void setValue(Object target, T value) throws Exception {
 		if(target == null)
 			throw new IllegalStateException("The 'target' object is null");
-		if(m_descriptor.getSetter() == null)
+		Method m = m_descriptor.getSetter();
+		if(m == null)
 			throw new IllegalAccessError("The property " + this + " is read-only.");
 		try {
-			m_descriptor.getSetter().invoke(target, value);
+			m.invoke(target, value);
 		} catch(InvocationTargetException itx) {
 			Throwable c = itx.getCause();
-			if(c instanceof Exception)
+			System.err.println("(in calling " + m + " with input object " + target + " and value " + value + ")");
+			if(c instanceof Exception) {
 				throw (Exception) c;
+			}
 			else if(c instanceof Error)
 				throw (Error) c;
 			else

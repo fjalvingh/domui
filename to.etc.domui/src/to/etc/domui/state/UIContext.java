@@ -51,6 +51,27 @@ public class UIContext {
 
 	static private ThreadLocal<IUser> m_currentUser = new ThreadLocal<IUser>();
 
+	static final private class IgnoredHash {
+		final private long m_ts;
+
+		final private String m_hash;
+
+		public IgnoredHash(long ts, String hash) {
+			m_ts = ts;
+			m_hash = hash;
+		}
+
+		public long getTs() {
+			return m_ts;
+		}
+
+		public String getHash() {
+			return m_hash;
+		}
+	}
+
+	static private List<IgnoredHash> m_ignoredHashList = new ArrayList<UIContext.IgnoredHash>();
+
 	static public IRequestContext getRequestContext() {
 		IRequestContext rc = m_current.get();
 		if(rc == null)
@@ -153,18 +174,22 @@ public class UIContext {
 			}
 
 			/*
-			 * If a LOGINCOOKIE is found check it's usability..
+			 * If a LOGINCOOKIE is found check it's usability. If the cookie is part of the ignored hash set try to delete it again and again...
 			 */
 			Cookie[] car = rci.getRequest().getCookies();
 			if(car != null) {
 				for(Cookie c : car) {
-					if(c.getName().equals("domuiLogin") && c.getMaxAge() > 0) {
+					if(c.getName().equals("domuiLogin")) {
 						String domval = c.getValue();
 						IUser user = decodeCookie(rci, domval);
 						if(user != null) {
 							//-- Store the user in the HttpSession.
 							hs.setAttribute(LOGIN_KEY, user);
 							return user;
+						} else {
+							//-- Invalid cookie: delete it.
+							c.setMaxAge(10);
+							c.setValue("logout");
 						}
 						break;
 					}
@@ -194,6 +219,33 @@ public class UIContext {
 	}
 
 	/**
+	 * Register a hash value to ignore because it was logged out.
+	 * @param hash
+	 */
+	static private synchronized void registerIgnoredHash(String hash) {
+		m_ignoredHashList.add(new IgnoredHash(System.currentTimeMillis(), hash));
+	}
+
+	/**
+	 * If the hash is an ignored hash then return false. In the process clean up "old" hashes.
+	 * @param hash
+	 * @return
+	 */
+	static private synchronized boolean isIgnoredHash(String hash) {
+		long cts = System.currentTimeMillis() - 1000 * 60;
+		for(int i = m_ignoredHashList.size(); --i >= 0;) {
+			IgnoredHash ih = m_ignoredHashList.get(i);
+			if(ih.getHash().equalsIgnoreCase(hash)) {
+				return true;
+			}
+			if(ih.getTs() < cts)
+				m_ignoredHashList.remove(i);
+		}
+		return false;
+	}
+
+
+	/**
 	 * Decode and check the cookie. It has the format:
 	 * <pre>
 	 * userid:timestamp:authhash
@@ -210,6 +262,8 @@ public class UIContext {
 		if(car.length != 3)
 			return null;
 		try {
+			if(isIgnoredHash(car[2]))
+				return null;
 			String uid = car[0];
 			long ts = Long.parseLong(car[1]); // Timestamp
 
@@ -338,18 +392,22 @@ public class UIContext {
 
 		Cookie[] car = rci.getRequest().getCookies();
 		if(car != null) {
-			Cookie loginCookie = null;
 			for(Cookie c : car) {
 				if(c.getName().equals("domuiLogin")) {
-					c.setMaxAge(0);
-					loginCookie = c;
-					break;
+					String[] var = c.getValue().split(":");
+					if(var.length == 3) {
+						//-- Make sure the same hash value is not used for login again. This prevents "relogin" when the browser sends some requests with the "old" cookie value (obituaries)
+						registerIgnoredHash(var[2]);
+					}
+
+					//-- Create a new cookie value containing a delete.
+					RequestContextImpl ci = rci;
+					Cookie k = new Cookie("domuiLogin", "logout");
+					k.setMaxAge(60);
+					k.setPath(ci.getRequest().getContextPath());
+					ci.getResponse().addCookie(k);
+					return true;
 				}
-			}
-			if(loginCookie != null) {
-				loginCookie.setMaxAge(0);
-				rci.getResponse().addCookie(loginCookie);
-				return true;
 			}
 		}
 		return false;

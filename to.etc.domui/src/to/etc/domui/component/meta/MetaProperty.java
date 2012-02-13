@@ -53,6 +53,12 @@ public @interface MetaProperty {
 	public int displaySize() default -1;
 
 	/**
+	 * When YES this will indicate the value should not be wrapped in table like displays.
+	 * @return
+	 */
+	public YesNoType noWrap() default YesNoType.UNKNOWN;
+
+	/**
 	 * The actual maximal input length (for a string) or the precision to use (for a number).
 	 * @return
 	 */

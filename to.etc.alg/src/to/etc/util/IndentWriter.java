@@ -48,7 +48,8 @@ public class IndentWriter extends Writer {
 
 	private boolean				m_indentEnabled		= true;
 
-	static final private char[]	SPACES				= "                                                      ".toCharArray();
+	static final private char[]	SPACES				= "                                                                                                                                                                 "
+														.toCharArray();
 
 	/**
 	 * Constructor

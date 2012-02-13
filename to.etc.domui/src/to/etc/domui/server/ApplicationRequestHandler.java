@@ -26,9 +26,12 @@ package to.etc.domui.server;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.annotations.*;
+import to.etc.domui.annotations.UISpecialAccessResult.Status;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
@@ -371,9 +374,22 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Class< ? extends UrlPage> clz) throws Exception {
-		UIRights rann = clz.getAnnotation(UIRights.class);
-		if(rann == null)
+		boolean isAjax = ctx.getRequest().getParameter("webuia") != null;
+
+		if(isAjax) {
+			//access check is ignored for AJAX calls (we are already using that page, so access is already checked)
 			return true;
+		}
+
+		boolean hasSpecialAccess = ctx.getApplication().getSpecialAccessChecker().hasSpecialAccess(clz);
+
+		UIRights rann = clz.getAnnotation(UIRights.class);
+
+		if(rann == null && !hasSpecialAccess) {
+			//no check, we pass
+			return true;
+		}
+
 		//-- Get user's IUser; if not present we need to log in.
 		IUser user = UIContext.getCurrentUser(); // Currently logged in?
 		if(user == null) {
@@ -402,25 +418,28 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			return false;
 		}
 
-		//		//-- EXPERIMENTAL If this is a data-bound right we need to get the data item to use to check
-		//		Object dataItem = null;
-		//		if(rann.dataPath().length() != 0) {
-		//			//-- Obtain the value for the specified property path.
-		//			PropertyMetaModel	pmm = MetaManager.getPropertyMeta()
-		//
-		//
-		//		}
+		//-- Issue access checks
+		UISpecialAccessResult specialAccessResult = hasSpecialAccess ? ctx.getApplication().getSpecialAccessChecker().doSpecialAccessCheck(clz, ctx) : null;
 
-		//-- Issue rights check,
-		boolean allowed = true;
-		for(String right : rann.value()) {
-			if(!user.hasRight(right)) {
-				allowed = false;
-				break;
+		if(specialAccessResult == null) {
+			if(checkUIRigts(ctx, clz, rann, user)) {
+				return true;
+			}
+		} else {
+			switch(specialAccessResult.getStatus()){
+				case ACCEPT:
+					return true;
+				case NONE:
+					if(checkUIRigts(ctx, clz, rann, user)) {
+						return true;
+					}
+					break;
+				case REFUSE:
+				default:
+					//drop to access denied redirect
+					break;
 			}
 		}
-		if(allowed)
-			return true;
 
 		/*
 		 * Access not allowed: redirect to error page.
@@ -437,15 +456,59 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		sb.append("?targetPage=");
 		StringTool.encodeURLEncoded(sb, clz.getName());
 
-		//-- All required rights
-		int ix = 0;
-		for(String r : rann.value()) {
-			sb.append("&r" + ix + "=");
-			ix++;
-			StringTool.encodeURLEncoded(sb, r);
+		if(specialAccessResult != null && specialAccessResult.getStatus() == Status.REFUSE) {
+			sb.append("&" + AccessDeniedPage.PARAM_REFUSAL_MSG + "=");
+			StringTool.encodeURLEncoded(sb, specialAccessResult.getRefuseReason());
+		} else if(rann != null) {
+			//-- All required rights
+			int ix = 0;
+			for(String r : rann.value()) {
+				sb.append("&r" + ix + "=");
+				ix++;
+				StringTool.encodeURLEncoded(sb, r);
+			}
 		}
 		generateHttpRedirect(ctx, sb.toString(), "Access denied");
 		return false;
+	}
+
+	private boolean checkUIRigts(@Nonnull final RequestContextImpl ctx, @Nonnull final Class< ? extends UrlPage> clz, @Nullable UIRights rann, IUser user) {
+		//UIRights check exists, we need to check them. otherwise pass
+		if(rann == null) {
+			return true;
+		}
+
+		if(DomUtil.isBlank(rann.dataPath())) {
+			//no special data context -> we just check plain general rights
+			for(String right : rann.value()) {
+				if(!user.hasRight(right)) {
+					return false;
+				}
+			}
+		} else {
+			//-- Data path related access check
+			try {
+				String target = rann.dataPath().trim();
+				String dataPath = null;
+				int pathPos = target.indexOf(".");
+				if(pathPos > 0) {
+					dataPath = target.substring(pathPos + 1);
+					target = target.substring(0, pathPos);
+				}
+
+				Object dataAtPath = ctx.getApplication().getDataPathResolver().resolveDataPath(clz, ctx, target, dataPath);
+				for(String right : rann.value()) {
+					if(!user.hasRight(right, dataAtPath)) {
+						return false;
+					}
+				}
+			} catch(Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -600,7 +663,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				//-- Don't do anything at all - value is already selected by some of previous ajax requests, it is safe to ignore remaineing late lookup typing events
 				inhibitlog = true;
 			} else if(wcomp == null) {
-				throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
+				if(!action.endsWith("?"))
+					throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
 			} else {
 				wcomp.componentHandleWebAction(ctx, action);
 			}

@@ -142,6 +142,8 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 				pmm.setLength(mp.length());
 			if(mp.displaySize() >= 0)
 				pmm.setDisplayLength(mp.displaySize());
+			if(mp.noWrap() != YesNoType.UNKNOWN)
+				pmm.setNowrap(mp.noWrap());
 			if(mp.required() != YesNoType.UNKNOWN)
 				pmm.setRequired(mp.required() == YesNoType.YES);
 			if(mp.converterClass() != DummyConverter.class)
