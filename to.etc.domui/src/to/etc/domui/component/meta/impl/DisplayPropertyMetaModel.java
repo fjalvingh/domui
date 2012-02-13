@@ -63,6 +63,7 @@ public class DisplayPropertyMetaModel {
 
 	private int m_displayLength = -1;
 
+	@Nonnull
 	private YesNoType m_noWrap = YesNoType.UNKNOWN;
 
 	public DisplayPropertyMetaModel() {}

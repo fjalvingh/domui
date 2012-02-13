@@ -56,8 +56,12 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	private int m_displayLength;
 
+	@Nonnull
+	private YesNoType m_noWrap = YesNoType.UNKNOWN;
+
 	private IConverter<T> m_converter;
 
+	@Nonnull
 	private SortableType m_sortableType = SortableType.UNKNOWN;
 
 	private String m_propertyName;
@@ -69,12 +73,12 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	private IConverter< ? > m_bestConverter;
 
 	/**
-	 * Constructor for LIST types.
-	 * @param actual
-	 * @param displayMeta
-	 * @param propertyMeta
-	 * @param accessor
-	 */
+	* Constructor for LIST types.
+	* @param actual
+	* @param displayMeta
+	* @param propertyMeta
+	* @param accessor
+	*/
 	protected ExpandedDisplayProperty(Class<T> actual, PropertyMetaModel< ? > propertyMeta, IValueAccessor< ? > accessor) {
 		m_actualType = actual;
 		m_propertyMeta = propertyMeta;
@@ -89,6 +93,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 				if(m_displayLength <= 0)
 					m_displayLength = propertyMeta.getLength();
 			}
+			m_noWrap = propertyMeta.getNowrap();
 		}
 	}
 
@@ -113,6 +118,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 				if(m_displayLength <= 0)
 					m_displayLength = propertyMeta.getLength();
 			}
+			m_noWrap = propertyMeta.getNowrap();
 		}
 		if(displayMeta != null) { // ORDER 2 (overrides propertyMeta)
 			if(displayMeta.getConverter() != null)
@@ -121,6 +127,8 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 				setSortable(displayMeta.getSortable());
 			if(displayMeta.getDisplayLength() > 0)
 				m_displayLength = displayMeta.getDisplayLength();
+			if(displayMeta.getNoWrap() != YesNoType.UNKNOWN)
+				m_noWrap = displayMeta.getNoWrap();
 
 			m_renderHint = displayMeta.getRenderHint();
 
@@ -575,7 +583,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	@Nonnull
 	@Override
 	public YesNoType getNowrap() {
-		return m_propertyMeta == null ? YesNoType.UNKNOWN : m_propertyMeta.getNowrap();
+		return m_noWrap;
 	}
 
 	public String getRenderHint() {
