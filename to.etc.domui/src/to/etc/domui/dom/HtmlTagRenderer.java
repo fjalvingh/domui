@@ -1017,6 +1017,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	@Override
+	public void visitPre(Pre n) throws Exception {
+		o().setIndentEnabled(false);			// pre nodes should not have indent because they will show it.
+		visitDiv(n);
+	}
+
+	@Override
 	public void visitLabel(final Label n) throws Exception {
 		basicNodeRender(n, o());
 		if(n.getFor() != null)
