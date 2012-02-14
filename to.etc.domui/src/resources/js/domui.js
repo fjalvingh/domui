@@ -511,6 +511,13 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 
 /** WebUI helper namespace */
 var WebUI = {
+	log: function() {
+		if (!window.console || !window.console.debug)
+			return;
+		window.console.debug.apply(window.console, arguments);
+		// window.console.debug("Args: "+[].join.call(arguments,''));
+	},
+
 	/**
 	 * Create a curried function containing a 'this' and a fixed set of elements.
 	 */
@@ -615,6 +622,9 @@ var WebUI = {
 	},
 
 	clicked : function(h, id, evt) {
+		//-- Trigger the before-clicked event on body
+		$(document.body).trigger("beforeclick", $("#"+id), evt);
+		
 		// Collect all input, then create input.
 		var fields = new Object();
 		this.getInputFields(fields);
@@ -1083,8 +1093,13 @@ var WebUI = {
 		if (document.body)
 			document.body.style.cursor = 'default';
 		// alert('Server error: '+status+", len="+txt.length+", val="+txt);
-		if (txt.length == 0)
-			txt = "De server is niet bereikbaar.";
+		if (txt.length == 0) {
+			//-- Firefox fix: if the page is unloading but a request is pending this may cause an status=ERROR for that page. Prevent us from then overwriting the new document....
+			if(status == "error")
+				return;
+
+			txt = "De server is niet bereikbaar 1, status="+status+", "+request.statusText;
+		}
 		document.write(txt);
 		document.close();
 		window.setTimeout('document.body.style.cursor="default"', 1000);
@@ -1101,7 +1116,7 @@ var WebUI = {
 			document.body.style.cursor = 'default';
 		// alert('Server error: '+status+", len="+txt.length+", val="+txt);
 		if (txt.length == 0)
-			txt = "De server is niet bereikbaar.";
+			txt = "De server is niet bereikbaar, status="+status;
 		else if(txt.length > 200)
 			txt = txt.substring(0, 200);
 		alert("Automatische server update mislukt: "+txt);
@@ -1201,7 +1216,7 @@ var WebUI = {
 				c.value = res.print(fmt);
 			} else {
 				//-- Only parse the input to see if it parses.
-				var res = Date.parseDate(val, fmt);
+				Date.parseDate(val, fmt);
 			}
 		} catch(x) {
 			alert(Calendar._TT["INVALID"]);
@@ -2330,6 +2345,9 @@ var WebUI = {
 		});
 	},
 
+	
+	/***** Popup menu code *****/
+	
 	_popinCloseList: [],
 
 	popupMenuShow: function(refid, menu) {
@@ -2351,14 +2369,39 @@ var WebUI = {
 		$(menu).hide().fadeIn();
 	},
 
+	
+	/**
+	 * Register the popup. If the mouse leaves the popup window the popup needs to send a POPINCLOSE? command; this
+	 * will tell DomUI server that the popin needs to go. If an item inside the popin is clicked it should mean the
+	 * popin closes too; at that point we will deregister the mouse listener to prevent sending double events.
+	 * 
+	 * @param id
+	 */
 	registerPopinClose: function(id) {
 		WebUI._popinCloseList.push(id);
 		$(id).bind("mouseleave", WebUI.popinMouseClose);
 		if(WebUI._popinCloseList.length != 1)
 			return;
-		console.debug('add listeners');
-//		$(document.body).bind("mousedown", WebUI.popinMouseClose);
 		$(document.body).bind("keydown", WebUI.popinKeyClose);
+		$(document.body).bind("beforeclick", WebUI.popinBeforeClick);	// Called when a click is done somewhere.
+	},
+
+	popinBeforeClick: function(ee1, obj, clickevt) {
+		for(var i = 0; i < WebUI._popinCloseList.length; i++) {
+			var id = WebUI._popinCloseList[i];
+			obj = $(obj);
+			var cl = obj.closest(id);
+			if(cl.size() > 0) {
+				//-- This one is done -> remove mouse handler.
+				$(id).unbind("mousedown", WebUI.popinMouseClose);
+				WebUI._popinCloseList.splice(i, 1);
+				if(WebUI._popinCloseList.length == 0) {
+					$(document.body).unbind("keydown", WebUI.popinKeyClose);
+					$(document.body).unbind("beforeclick", WebUI.popinBeforeClick);
+				}
+				return;
+			}
+		}
 	},
 
 	popinMouseClose: function() {
@@ -2375,7 +2418,7 @@ var WebUI = {
 			WebUI._popinCloseList = [];
 //			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
 			$(document.body).unbind("keydown", WebUI.popinKeyClose);
-			console.debug('remove listeners');
+			$(document.body).unbind("beforeclick", WebUI.popinBeforeClick);
 		}
 	},
 	popinKeyClose: function(evt) {
