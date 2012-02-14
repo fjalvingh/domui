@@ -30,6 +30,10 @@ select {
 	background-color:#FFFFFF;
 }
 
+pre {
+	font-family: Courier New, Courier, monospace;
+}
+
 .ui-txx {
 	vertical-align: top;
 }
