@@ -35,7 +35,7 @@
 
 @media screen and (-webkit-min-device-pixel-ratio:0) {
 	/* Safari and Google Chrome only - fix margins */
-	.xvp-flexbtn span {
+	.ui-sdbtn span {
 		margin-top: -1px;
 	}
 }
@@ -44,4 +44,17 @@
 }
 .ui-sdbtn:hover span {
 	background-position: left -100px;
+}
+
+/*** From blue style scheme ***/ 
+
+.ui-dbtn {
+	margin: 2px;
+	background: none;
+}
+.ui-dbtn:HOVER, .ui-dbtn:FOCUS {
+	background-position: 0px -<%= defaultbutton_height %>px;
+}
+.ui-dbtn[disabled] {
+	background-position: 0px -<%= defaultbutton_height*2 %>px !important;
 }
