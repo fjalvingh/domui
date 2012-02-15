@@ -4,13 +4,14 @@
 	border: 0;
 	padding: 0 10px 0 0;
 	margin-right: 10px;
-	vertical-align: middle;
+	vertical-align: top;
 	cursor: pointer;
 	overflow: visible; /* remove extra padding in IE */
 	background: transparent url(<%= button_img %>) no-repeat right -50px;
 }
 .ui-sdbtn img {
 	padding-right: 3px;
+	vertical-align: middle;
 	height: 16px;
 }
 .ui-sdbtn::-moz-focus-inner {
@@ -19,10 +20,10 @@
 .ui-sdbtn span {
 	position: relative;
 	display: block;
-	min-width: 100px;
+	min-width: 94px;
 	white-space: nowrap;
 	height: <%= button_height-5 %>px;
-	padding: 5px 0 0 10px;
+	padding: 5px 0 0 6px;
 	color: white;
 	font-weight: bold;
 	vertical-align: middle;
@@ -39,22 +40,18 @@
 		margin-top: -1px;
 	}
 }
-.ui-sdbtn:hover {
+.ui-sdbtn:hover, .ui-sdbtn:focus {
 	background-position: right -150px;
 }
-.ui-sdbtn:hover span {
+.ui-sdbtn:hover span, .ui-sdbtn:focus span {
 	background-position: left -100px;
 }
 
-/*** From blue style scheme ***/ 
+/* support for disabled attribute */
+.ui-sdbtn[disabled], .ui-sdbtn[disabled]:hover, .ui-sdbtn[disabled]:focus {
+	background-position: right -250px;
+}
+.ui-sdbtn[disabled] span, .ui-sdbtn[disabled]:hover span, .ui-sdbtn[disabled]:focus span {
+	background-position: left -200px;
+}
 
-.ui-dbtn {
-	margin: 2px;
-	background: none;
-}
-.ui-dbtn:HOVER, .ui-dbtn:FOCUS {
-	background-position: 0px -<%= defaultbutton_height %>px;
-}
-.ui-dbtn[disabled] {
-	background-position: 0px -<%= defaultbutton_height*2 %>px !important;
-}
