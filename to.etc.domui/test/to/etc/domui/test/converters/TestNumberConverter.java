@@ -117,6 +117,30 @@ public class TestNumberConverter {
 	/**
 	 * Test INVALID conversions.
 	 */
+	public <T extends Number> void testNumericPresentation(NumericPresentation np, int scale, Class<T> classType) {
+		if(NumericPresentation.isMonetary(np)) {
+			try {
+				IConverter<T> nc = NumericUtil.createNumberConverter(classType, np, scale);
+			} catch(IllegalArgumentException e) {
+				//This is expected exception!
+				return;
+			}
+			Assert.fail("Should not be possible to make instance of NumberConverter using monetary presentation!");
+		} else {
+			try {
+				IConverter<BigDecimal> nc = NumericUtil.createNumberConverter(BigDecimal.class, np, scale);
+			} catch(IllegalArgumentException e) {
+				if(DomUtil.isIntegerType(classType) && scale != 0) {
+					return; //expected -> not possible to create NumberConverter on int types with scale other than 0.
+				}
+				Assert.fail("Should be possible to make instance of NumberConverter using non-monetary presentation!");
+			}
+		}
+	}
+
+	/**
+	 * Test INVALID conversions.
+	 */
 	@Test
 	public void testBadConversions() {
 		NumericPresentation[] npl1 = {NumericPresentation.NUMBER, NumericPresentation.NUMBER_SCALED, NumericPresentation.NUMBER_FULL, NumericPresentation.NUMBER_SCIENTIFIC};
@@ -125,10 +149,20 @@ public class TestNumberConverter {
 				testBadConversions(np, i, BAD_NUMBER);
 			}
 		}
-		NumericPresentation[] npl2 = {NumericPresentation.MONEY, NumericPresentation.MONEY_FULL, NumericPresentation.MONEY_FULL_TRUNC, NumericPresentation.MONEY_NO_SYMBOL, NumericPresentation.MONEY_NUMERIC};
-		for(NumericPresentation np : npl2) {
+	}
+
+	@Test
+	public void testNumericPresentations() {
+		for(NumericPresentation np : NumericPresentation.values()) {
+			if(NumericPresentation.UNKNOWN == np) {
+				continue;
+			}
 			for(int i = 0; i <= 6; i++) {
-				testBadConversions(np, i, BAD_MONEY);
+				testNumericPresentation(np, i, BigDecimal.class);
+				testNumericPresentation(np, i, Double.class);
+				testNumericPresentation(np, i, Integer.class);
+				testNumericPresentation(np, i, double.class);
+				testNumericPresentation(np, i, int.class);
 			}
 		}
 	}

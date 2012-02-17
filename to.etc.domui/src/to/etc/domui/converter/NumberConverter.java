@@ -47,6 +47,10 @@ public class NumberConverter<T extends Number> implements IConverter<T> {
 		m_actualType = actualType;
 		m_presentation = presentation;
 		m_scale = scale;
+		if(NumericPresentation.isMonetary(presentation)) {
+			throw new IllegalArgumentException("Not possible to create valid NumberConverter for monetary presentation:" + presentation.name()
+				+ ". Plase use any of Money converter classes (use MoneyConverterFactory to get one).");
+		}
 		if(DomUtil.isIntegerType(m_actualType) && scale != 0) {
 			throw new IllegalArgumentException("Not possible to create valid NumberConverter for int types if scale is != 0, scale:" + m_scale);
 		}

@@ -184,4 +184,9 @@ public class NodeVisitorBase implements INodeVisitor {
 		for(NodeBase b : c.internalGetChildren())
 			b.visit(this);
 	}
+
+	@Override
+	public void visitIFrame(IFrame n) throws Exception {
+		sub(n);
+	}
 }

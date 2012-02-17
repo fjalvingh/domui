@@ -184,6 +184,20 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 */
 	@Override
 	public void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
+		Label l = createLabel(label, labelnode, mandatory, editable, pmm);
+		modalAdd(l, list, editable);
+	}
+
+	/**
+	 * Control label factory method. Method can be used to manually generate labels in same manner as it is done by tabular form builder internally.
+	 * @param label
+	 * @param labelnode
+	 * @param mandatory
+	 * @param editable
+	 * @param pmm
+	 * @return
+	 */
+	public Label createLabel(final String label, final NodeBase labelnode, final boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = getBuilder().getControlLabelFactory();
@@ -191,7 +205,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
 		Label l = clf.createControlLabel(labelnode, label, editable, mandatory, pmm);
-		modalAdd(l, list, editable);
+		return l;
 	}
 
 	@Override

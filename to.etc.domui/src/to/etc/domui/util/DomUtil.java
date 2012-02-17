@@ -46,6 +46,7 @@ import to.etc.net.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.qsql.*;
 
 final public class DomUtil {
 	static private int m_guidSeed;
@@ -403,10 +404,30 @@ final public class DomUtil {
 
 	/**
 	 * Returns application url part from current request.
+	 * Call depends on existing of request, so it can't be used within backend threads.
 	 * @return
 	 */
 	static public String getApplicationURL() {
 		return NetTools.getApplicationURL(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+	}
+
+	/**
+	 * Returns application context part from current request.
+	 * Call depends on existing of request, so it can't be used within backend threads.
+	 * @return
+	 */
+	static public String getApplicationContext() {
+		return NetTools.getApplicationContext(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+	}
+
+	/**
+	 * Returns relative path for specified resource (without host name, like '/APP_CONTEXT/resource').
+	 * Call depends on existing of request, so it can't be used within backend threads.
+	 * @param resource
+	 * @return
+	 */
+	static public String getRelativeApplicationResourceURL(String resource) {
+		return "/" + getApplicationContext() + "/" + resource;
 	}
 
 	/**
@@ -1206,15 +1227,43 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public int pixelSize(String css) {
-		if(!css.endsWith("px"))
-			return -1;
+		return pixelSize(css, -1);
+	}
+
+	/**
+	 * Convert a CSS size string like '200px' into the 200... If the size string is in any way
+	 * invalid this returns specified defaultVal.
+	 *
+	 * @param css
+	 * @param defaultVal
+	 * @return
+	 */
+	static public int pixelSize(String css, int defaultVal) {
+		if(css == null || !css.endsWith("px"))
+			return defaultVal;
 		try {
 			return Integer.parseInt(css.substring(0, css.length() - 2).trim());
+		} catch(Exception x) {
+			return defaultVal;
+		}
+	}
+
+	/**
+	 * Convert a CSS percentage size string like '90%' into the 90... If the size string is in any way
+	 * invalid this returns -1.
+	 *
+	 * @param css
+	 * @return
+	 */
+	static public int percentSize(String css) {
+		if(css == null || !css.endsWith("%"))
+			return -1;
+		try {
+			return Integer.parseInt(css.substring(0, css.length() - 1).trim());
 		} catch(Exception x) {
 			return -1;
 		}
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree walking helpers.								*/
@@ -1417,7 +1466,7 @@ final public class DomUtil {
 
 	@Nonnull
 	static public String createOpenWindowJS(@Nonnull String url, @Nullable WindowParameters newWindowParameters) {
-		//-- Send a special JAVASCRIPT open command, containing the shtuff.
+		//-- Send a special JAVASCRIPT open command, containing the stuff.
 		StringBuilder sb = new StringBuilder();
 		sb.append("DomUI.openWindow('");
 		sb.append(url);
@@ -1500,8 +1549,102 @@ final public class DomUtil {
 	}
 
 	/**
+	 * Util can be used to check if list contains item that has equal Long Id as specified one, while instanies itself does not need to be equal.
+	 * @param <T>
+	 * @param list
+	 * @param member
+	 * @return
+	 */
+	public static <T extends ILongIdentifyable> boolean containsLongIdentifyable(List<T> list, T member) {
+		return indexOfLongIdentifyable(list, member) != -1;
+	}
+
+	/**
+	 * Util that returns index of member in specified list that has same Long Id as specified <I>member</I>.
+	 * @param <T>
+	 * @param list
+	 * @param member
+	 * @return -1 if <I>member</I> object Long Id is not found in specified <I>list</I>, otherwise returns found index.
+	 */
+	public static <T extends ILongIdentifyable> int indexOfLongIdentifyable(List<T> list, T member) {
+		if(list == null) {
+			return -1;
+		}
+		for(int i = 0; i < list.size(); i++) {
+			if(list.get(i).getId().equals(member.getId())) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Add item to mergeSource if it is not already contained.
+	 * @param <T>
+	 * @param mergeSource
+	 * @param item
+	 * @return (not)appended mergeSource
+	 */
+	public static <T extends ILongIdentifyable> List<T> merge(List<T> mergeSource, T item) {
+		if(!containsLongIdentifyable(mergeSource, item)) {
+			if(mergeSource == Collections.EMPTY_LIST) {
+				mergeSource = new ArrayList<T>();
+			}
+			mergeSource.add(item);
+		}
+		return mergeSource;
+	}
+
+	/**
+	 * Appends non contained items from toJoinItems into mergeSource.
+	 * Uses linear search, not suitable for large lists.
+	 * @param <T>
+	 * @param mergeSource
+	 * @param toJoinItems
+	 * @return (not)appended mergeSource
+	 */
+	public static <T extends ILongIdentifyable> List<T> merge(List<T> mergeSource, List<T> toJoinItems) {
+		for(T item : toJoinItems) {
+			mergeSource = merge(mergeSource, item);
+		}
+		return mergeSource;
+	}
+
+	/**
+	 * Util that returns T if <I>lookingFor</I> object is contained in specified <I>array</I>
+	 *
+	 * @param <T>
+	 * @param array
+	 * @param lookingFor
+	 * @return
+	 */
+	public static <T> boolean contains(T[] array, T lookingFor) {
+		return indexOf(array, lookingFor) != -1;
+	}
+
+	/**
+	 * Util that returns index of <I>lookingFor</I> object inside specified <I>array</I>
+	 *
+	 * @param <T>
+	 * @param array
+	 * @param lookingFor
+	 * @return -1 if <I>lookingFor</I> object is not found in specified <I>array</I>, otherwise returns its index
+	 */
+	public static <T> int indexOf(T[] array, T lookingFor) {
+		if(array == null) {
+			return -1;
+		}
+		for(int i = 0; i < array.length; i++) {
+			if(isEqual(array[i], lookingFor)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/*
 	 * Returns specified session attribute value if exists.
-	 * If specifed, it clears value to support easier 'one time purpose actions'.
+	 * If specified, it clears value to support easier 'one time purpose actions'.
 	 * Must be called within valid request UI context.
 	 *
 	 * @param attribute
@@ -1519,7 +1662,7 @@ final public class DomUtil {
 	}
 
 	/**
-	 * Set specified session attribute value. Attribute would be accesible until session expires.
+	 * Set specified session attribute value. Attribute would be accessible until session expires.
 	 * Must be called within valid request UI context.
 	 *
 	 * @param attribute

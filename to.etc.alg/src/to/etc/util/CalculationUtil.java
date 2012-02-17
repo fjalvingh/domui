@@ -104,7 +104,7 @@ public class CalculationUtil {
 			n1 = n1 * 10 + (c - '0');
 		}
 		if(spos == ix)
-			derr(str);
+			wrongDateFormatError(str);
 
 		while(ix < len) // Skip separator
 		{
@@ -124,7 +124,7 @@ public class CalculationUtil {
 			n2 = n2 * 10 + (c - '0');
 		}
 		if(spos == ix)
-			derr(str);
+			wrongDateFormatError(str);
 
 		while(ix < len) // Skip separator
 		{
@@ -144,7 +144,7 @@ public class CalculationUtil {
 			n3 = n3 * 10 + (c - '0');
 		}
 		if(spos == ix || ix != len)
-			derr(str);
+			wrongDateFormatError(str);
 
 		//-- Make a real date from parameters.
 		return makeDate(n1, n2, n3);
@@ -156,8 +156,51 @@ public class CalculationUtil {
 	static public Date dutchDate(String s) throws Exception {
 		Date d = dutchDateRAW(s);
 		if(d == null)
-			derr(s);
+			wrongDateFormatError(s);
 		return d;
+	}
+
+	public static Date dutchDateAndTime(String s) throws ELException {
+		String date = s.split(" ")[0];
+		String time = s.split(" ")[1];
+		Date d = dutchDateRAW(date);
+		if(d == null) {
+			wrongDateTimeFormatError(s);
+		}
+		if(!validateTime(time)) {
+			wrongDateTimeFormatError(s);
+		}
+		addTimeToDate(d, time);
+
+		return d;
+
+		//TODO bojan
+	}
+
+	private static void addTimeToDate(Date d, String time) {
+		int hour = Integer.parseInt(time.split(":")[0]);
+		int minutes = Integer.parseInt(time.split(":")[1]);
+		d.setHours(hour);
+		d.setMinutes(minutes);
+	}
+
+	private static boolean validateTime(String t) {
+		String time = t.trim();
+		int hour = -1;
+		int minutes = -1;
+		try {
+			hour = Integer.parseInt(time.split(":")[0]);
+			minutes = Integer.parseInt(time.split(":")[1]);
+		} catch(NumberFormatException e) {
+			return false;
+		}
+		if(hour < 0 || hour > 23) {
+			return false;
+		}
+		if(minutes < 0 || minutes > 59) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -265,8 +308,12 @@ public class CalculationUtil {
 		return null;
 	}
 
-	static private final void derr(String str) throws ELException {
+	static private final void wrongDateFormatError(String str) throws ELException {
 		throw new ELException("The date '" + str + "' is invalid. Use format yyyy mm dd");
+	}
+
+	static private final void wrongDateTimeFormatError(String str) throws ELException {
+		throw new ELException("The date '" + str + "' is invalid. Use format dd-mm-yyyy hh-mm ");
 	}
 
 	static private int skippy(String s, int len, int ix) {
@@ -471,6 +518,5 @@ public class CalculationUtil {
 		System.out.println("Money for " + bd + " is " + convertToMoneyString(LOC, bd, true, false));
 		System.out.println("Money for " + bd + " is " + convertToMoneyString(LOC, bd, false, false));
 	}
-
 
 }

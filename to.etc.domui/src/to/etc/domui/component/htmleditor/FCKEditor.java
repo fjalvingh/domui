@@ -24,8 +24,12 @@
  */
 package to.etc.domui.component.htmleditor;
 
+import to.etc.domui.component.layout.*;
+import to.etc.domui.component.misc.*;
+import to.etc.domui.component.misc.MsgBox.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -36,16 +40,25 @@ import to.etc.webapp.nls.*;
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 30, 2008
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Refactored on Oct 07, 2011
  */
 public class FCKEditor extends TextArea {
 	private String m_vn;
 
 	private String m_toolbarSet = "DomUI";
 
+	private IEditorFileSystem m_fileSystem;
+
+	private IClicked<NodeBase> m_onDomuiImageClicked;
+
+	private IClicked<NodeBase> m_onDomuiOddCharsClicked;
+
+	private static final String WEBUI_FCK_DOMUIIMAGE_ACTION = "FCKIMAGE";
+
+	private static final String WEBUI_FCK_DOMUIODDCHAR_ACTION = "FCKODDCHAR";
 
 	private boolean m_toolbarStartExpanded;
-
-	private IEditorFileSystem m_fileSystem;
 
 	public FCKEditor() {
 		super.setCssClass("ui-fck");
@@ -76,19 +89,35 @@ public class FCKEditor extends TextArea {
 		StringBuilder sb = new StringBuilder(1024);
 		m_vn = "_fck" + getActualID();
 		sb.append("var ").append(m_vn).append(" = new FCKeditor('").append(getActualID()).append("');");
-		appendOption(sb, "BasePath", UIContext.getRequestContext().getRelativePath("$fckeditor/"));
-		appendOption(sb, "DefaultLanguage", NlsContext.getLocale().getLanguage());
+		appendOption(sb, "BasePath", DomUtil.getRelativeApplicationResourceURL("$fckeditor/"));
+		// All customized configuration should reside in domuiconfig.js. Original fckconfig.js should be unchanged in order to easy support upgrades to never versions of FCK/CK editor...
+		appendConfig(sb, "CustomConfigurationsPath", "'" + DomUtil.getRelativeApplicationResourceURL("$fckeditor/domuiconfig.js") + "'");
+		// vmijic 20111010 in order to make i18n work on IE, we need to explicite pass 'nl' or 'en'. For all other all we can only set AutoDetectLanguage and pray that it would work ;)
+		if(NlsContext.getLocale().getLanguage().contains("nl")) {
+			appendConfig(sb, "DefaultLanguage", "'nl'");
+		} else if(NlsContext.getLocale().getLanguage().contains("en")) {
+			appendConfig(sb, "DefaultLanguage", "'en'");
+		} else {
+			appendConfig(sb, "AutoDetectLanguage", "true");
+		}
 		if(getWidth() != null)
 			appendOption(sb, "Width", getWidth());
 		if(getHeight() != null)
 			appendOption(sb, "Height", getHeight());
+		if(isToolbarStartExpanded()) {
+			appendConfig(sb, "ToolbarStartExpanded", "true");
+		}
 		appendOption(sb, "ToolbarSet", m_toolbarSet);
-		appendConfig(sb, "ToolbarStartExpanded", new Boolean(m_toolbarStartExpanded).toString());
 
 		//-- Override basic 'connector' config parameters
-		appendConnectorConfig(sb, "ImageBrowser", "Image");
+		appendConnectorConfig(sb, "ImageBrowser", "Image"); //FIXME: vmijic 20111010 I'm not sure why this stands -> we probably should remove that since it looks useless...
 
 		sb.append(m_vn).append(".ReplaceTextarea();");
+		//-- We must do custom layout fixes once editor is transformed by FCKEditor initialization javascript. On IE8 we need additonal hack on fckeditor internals, and we need to repeat then on each iframe resize.
+		sb.append("function FCKeditor_OnComplete(editorInstance){if (WebUI.isIE8orIE8c()){var fckIFrame = document.getElementById('" + getActualID() + "___Frame');"
+			+ "if (fckIFrame){$(fckIFrame.contentWindow.window).bind('resize', function() {FCKeditor_fixLayout(fckIFrame, '" + getActualID()
+			+ "');});$(fckIFrame.contentWindow.window).trigger('resize');};};WebUI.doCustomUpdates();};"
+			+ "function FCKeditor_fixLayout(fckIFrame, fckId){if (fckIFrame){fckIFrame.contentWindow.Domui_fixLayout(fckId);}}");
 		appendCreateJS(sb);
 	}
 
@@ -159,10 +188,10 @@ public class FCKEditor extends TextArea {
 			default:
 				throw new IllegalStateException("Unknown toolbar set: " + set);
 			case BASIC:
-				setToolbarSet("Default");
+				setToolbarSet("Basic");
 				break;
 			case DEFAULT:
-				setToolbarSet("Basic");
+				setToolbarSet("Default");
 				break;
 			case DOMUI:
 				setToolbarSet("DomUI");
@@ -170,11 +199,100 @@ public class FCKEditor extends TextArea {
 			case TXTONLY:
 				setToolbarSet("TxtOnly");
 				break;
+			case NEW_MESSAGE:
+				setToolbarSet("NewMessage");
+				break;
 		}
 	}
 
-	public void setToolbarStartExpanded() {
-		m_toolbarStartExpanded = true;
+	/**
+	 * Handle {@link FCKEditor#WEBUI_FCK_DOMUIIMAGE_ACTION} activity on FCKEditor customized commands that interacts with domui.
+	 * Handle {@link FCKEditor#WEBUI_FCK_DOMUIODDCHAR_ACTION} activity on FCKEditor customized commands that interacts with domui.
+	 *
+	 * @see to.etc.domui.dom.html.Div#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
+	 */
+	@Override
+	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
+		if(WEBUI_FCK_DOMUIIMAGE_ACTION.equals(action))
+			selectImage(ctx);
+		else if(WEBUI_FCK_DOMUIODDCHAR_ACTION.equals(action))
+			oddChars(ctx);
+		else
+			super.componentHandleWebAction(ctx, action);
+	}
+
+	private void selectImage(RequestContextImpl ctx) throws Exception {
+		if(m_onDomuiImageClicked == null) {
+			MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
+				@Override
+				public void onAnswer(MsgBoxButton result) throws Exception {
+					renderCancelImage();
+				}
+			});
+		} else {
+			m_onDomuiImageClicked.clicked(this);
+		}
+	}
+
+	private void oddChars(RequestContextImpl ctx) throws Exception {
+		if(m_onDomuiOddCharsClicked == null) {
+			//if no other handler is specified we show framework default OddCharacters dialog
+			OddCharacters oddChars = new OddCharacters();
+			oddChars.setOnClose(new IWindowClosed() {
+
+				@Override
+				public void closed(String closeReason) throws Exception {
+					FCKEditor.this.renderCloseOddCharacters();
+				}
+			});
+			getPage().getBody().add(oddChars);
+		} else {
+			m_onDomuiOddCharsClicked.clicked(this);
+		}
+	}
+
+	public void renderImageSelected(String url) {
+		//FCK_DOMUIIMAGE
+		///Itris_VO02/General/Images/Organisations/1000/demo_hlpv_menu_header.gif
+		appendJavascript("var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.DomuiImage_addImage('"
+			+ getActualID()
+ + "', '" + url + "');};");
+	}
+
+	public void renderCancelImage() {
+		appendJavascript("var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.DomuiImage_cancel('" + getActualID() + "');};");
+	}
+
+	public void renderCloseOddCharacters() {
+		appendJavascript("var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.DomuiOddChar_cancel('" + getActualID() + "');};");
+	}
+
+	public void renderOddCharacters(String input) {
+		appendJavascript("var fckIFrame = document.getElementById('" + getActualID() + "___Frame'); if (fckIFrame){ fckIFrame.contentWindow.DomuiImage_addString('" + getActualID() + "', '" + input + "');};");
+	}
+
+	public IClicked<NodeBase> getOnDomuiImageClicked() {
+		return m_onDomuiImageClicked;
+	}
+
+	public void setOnDomuiImageClicked(IClicked<NodeBase> onDomuiImageClicked) {
+		m_onDomuiImageClicked = onDomuiImageClicked;
+	}
+
+	public IClicked<NodeBase> getOnDomuiOddCharsClicked() {
+		return m_onDomuiOddCharsClicked;
+	}
+
+	public void setOnDomuiOddCharsClicked(IClicked<NodeBase> onDomuiOddCharsClicked) {
+		m_onDomuiOddCharsClicked = onDomuiOddCharsClicked;
+	}
+
+	public boolean isToolbarStartExpanded() {
+		return m_toolbarStartExpanded;
+	}
+
+	public void setToolbarStartExpanded(boolean toolbarStartExpanded) {
+		m_toolbarStartExpanded = toolbarStartExpanded;
 	}
 
 	@Override
@@ -192,5 +310,6 @@ public class FCKEditor extends TextArea {
 		}
 		return super.acceptRequestParameter(values);
 	}
+
 
 }
