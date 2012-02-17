@@ -24,7 +24,9 @@
  */
 package to.etc.domui.dom.html;
 
-public class TBody extends NodeContainer {
+import to.etc.domui.util.*;
+
+public class TBody extends NodeContainer implements IDropBody {
 	//	private IDropHandler			m_dropHandler;
 	public TBody() {
 		super("tbody");
