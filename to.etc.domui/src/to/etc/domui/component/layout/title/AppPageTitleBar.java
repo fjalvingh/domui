@@ -26,7 +26,9 @@ package to.etc.domui.component.layout.title;
 
 import to.etc.domui.annotations.*;
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -40,6 +42,8 @@ import to.etc.util.*;
  * Created on Apr 3, 2009
  */
 public class AppPageTitleBar extends BasePageTitleBar {
+	final private boolean m_catchError;
+
 	private final Img m_img = new Img();
 
 	private TD m_buttonpart = new TD();
@@ -52,15 +56,27 @@ public class AppPageTitleBar extends BasePageTitleBar {
 
 	private INodeContentRenderer<String> m_titleNodeRenderer;
 
-	public AppPageTitleBar() {}
+	private IErrorFence m_errorFence;
 
-	public AppPageTitleBar(final String title) {
-		super(title);
+	private ErrorMessageDiv m_errorThingy = new ErrorMessageDiv();
+
+	public AppPageTitleBar(boolean catchError) {
+		m_catchError = catchError;
 	}
 
-	protected AppPageTitleBar(final String icon, final String title) {
+	public AppPageTitleBar(final String title, boolean catchError) {
+		super(title);
+		m_catchError = catchError;
+	}
+
+	protected AppPageTitleBar(final String icon, final String title, boolean catchError) {
 		super(title);
 		setIcon(icon);
+		m_catchError = catchError;
+	}
+
+	public boolean isCatchError() {
+		return m_catchError;
 	}
 
 	public void setIcon(final String s) {
@@ -109,6 +125,67 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		m_buttonpart.setCssClass("ui-atl-bb");
 		//		td.setWidth("1%");
 		addDefaultButtons(m_buttonpart);
+
+		if(isCatchError()) {
+			int cspan = calcColSpan(getBody());
+			TD c = getBody().addRowAndCell();
+			c.add(m_errorThingy);
+			c.setColspan(cspan);
+		}
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Error panel handling.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * When I'm added to a page register m_errorThingy as an error listener for that page.
+	 * @see to.etc.domui.dom.html.NodeBase#onAddedToPage(to.etc.domui.dom.html.Page)
+	 */
+	@Override
+	public void onAddedToPage(Page p) {
+		super.onAddedToPage(p);
+		if(!isCatchError())
+			return;
+		m_errorFence = DomUtil.getMessageFence(this);
+		m_errorFence.addErrorListener(m_errorThingy);
+	}
+
+	/**
+	 * When I'm removed from a page m_errorThingy may no longer handle it's errors, so remove
+	 * m_errorThingy from the error listener chain.
+	 *
+	 * @see to.etc.domui.dom.html.NodeBase#onRemoveFromPage(to.etc.domui.dom.html.Page)
+	 */
+	@Override
+	public void onRemoveFromPage(Page p) {
+		super.onRemoveFromPage(p);
+		if(!isCatchError())
+			return;
+		m_errorFence.removeErrorListener(m_errorThingy);
+	}
+
+	/**
+	 * Calculate the largest colspan from all rows.
+	 * @param b
+	 * @return
+	 */
+	static private int calcColSpan(TBody b) {
+		int maxcol = 1;
+		for(NodeBase nb : b) {
+			TR row = (TR) nb;
+			int thiscol = 0;
+			for(NodeBase ntd : row) {
+				TD td = (TD) ntd;
+				if(td.getColspan() <= 1)
+					thiscol++;
+				else
+					thiscol += td.getColspan();
+			}
+			if(thiscol > maxcol)
+				maxcol = thiscol;
+		}
+
+		return maxcol;
 	}
 
 	public TD getButtonpart() {

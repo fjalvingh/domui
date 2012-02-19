@@ -605,7 +605,7 @@ public abstract class DomApplication {
 	 */
 	@Deprecated
 	public BasePageTitleBar getDefaultPageTitleBar(String title) {
-		return new AppPageTitleBar(title);
+		return new AppPageTitleBar(title, true);
 	}
 
 	/*--------------------------------------------------------------*/

@@ -772,4 +772,54 @@ public class RuntimeConversions {
 			throw new RuntimeConversionException("Error creating an instance of " + ct.getName() + ": " + x, x);
 		}
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Type checkers.										*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Return T if this class is int or Integer.
+	 * @param clz
+	 * @return
+	 */
+	static public boolean isInt(Class< ? > clz) {
+		return clz == Integer.class || clz == int.class;
+	}
+
+	static public boolean isLong(Class< ? > clz) {
+		return clz == Long.class || clz == long.class;
+	}
+
+	static public boolean isShort(Class< ? > clz) {
+		return clz == Short.class || clz == short.class;
+	}
+
+	static public boolean isByte(Class< ? > clz) {
+		return clz == Byte.class || clz == byte.class;
+	}
+
+	static public boolean isCharacter(Class< ? > clz) {
+		return clz == Character.class || clz == char.class;
+	}
+
+	static public boolean isDouble(Class< ? > clz) {
+		return clz == Double.class || clz == double.class;
+	}
+
+	static public boolean isFloat(Class< ? > clz) {
+		return clz == Float.class || clz == float.class;
+	}
+
+	static public boolean isBoolean(Class< ? > clz) {
+		return clz == Boolean.class || clz == boolean.class;
+	}
+
+	static public boolean isNumeric(Class< ? > clz) {
+		return Number.class.isAssignableFrom(clz) || isInt(clz) || isLong(clz) || isShort(clz) || isByte(clz) || isDouble(clz) || isFloat(clz);
+	}
+
+	static public boolean isSimpleType(Class< ? > clz) {
+		return clz.isPrimitive() || isNumeric(clz) || clz == String.class || isBoolean(clz);
+	}
+
 }
