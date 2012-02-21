@@ -31,23 +31,44 @@ public final class DropEvent {
 
 	private int m_colIndex;
 
+	private NodeBase m_draggedNode;
+
+	private NodeContainer m_dropTargetNode;
+
+	private String m_insertBeforeSiblingID;
+
+	private DropMode m_mode;
+
 	public int getColIndex() {
 		return m_colIndex;
 	}
 
-	private NodeBase m_draggedNode;
+	public String getInsertBeforeSiblingID() {
+		return m_insertBeforeSiblingID;
+	}
 
-	private NodeContainer m_dropTargetNode;
+	public DropMode getMode() {
+		return m_mode;
+	}
 
 	public DropEvent(NodeContainer dropTargetNode, NodeBase draggedNode, int index) {
 		m_dropTargetNode = dropTargetNode;
 		m_draggedNode = draggedNode;
 		m_index = index;
+		m_mode = DropMode.ROW;
 	}
 
 	public DropEvent(NodeContainer dropTargetNode, NodeBase draggedNode, int index, int colIndex) {
 		this(dropTargetNode, draggedNode, index);
 		m_colIndex = colIndex;
+		m_mode = DropMode.ROW;
+	}
+
+	public DropEvent(NodeContainer dropTargetNode, NodeBase draggedNode, String insertBeforeSiblingID) {
+		m_dropTargetNode = dropTargetNode;
+		m_draggedNode = draggedNode;
+		m_insertBeforeSiblingID = insertBeforeSiblingID;
+		m_mode = DropMode.DIV;
 	}
 
 	public NodeBase getDraggedNode() {

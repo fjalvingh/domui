@@ -99,4 +99,8 @@ public class SmallImgButton extends Button {
 	//	public void setThemeSrc(String src) {
 	//		m_image.setThemeSrc(src);
 	//	}
+
+	public String getSrc() {
+		return m_image.getSrc();
+	}
 }

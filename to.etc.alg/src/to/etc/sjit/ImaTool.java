@@ -27,8 +27,10 @@ package to.etc.sjit;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
+import java.util.*;
 
 import javax.imageio.*;
+import javax.imageio.stream.*;
 
 import to.etc.util.*;
 
@@ -337,7 +339,7 @@ public class ImaTool {
 
 	/**
 	 *	Loads an image from a stream. The image type must contain jpg or jpeg
-	 *  for a JPEG file, or gif for a GIF file.
+	 *  for a JPEG file, or gif for a GIF file, or png for a PNG file.
 	 */
 	static public BufferedImage loadStream(InputStream is, String type) throws IOException {
 		type = type.toLowerCase();
@@ -345,6 +347,8 @@ public class ImaTool {
 			return loadJPEG(is);
 		else if(type.indexOf("gif") != -1)
 			return loadGIF(is);
+		else if(type.indexOf("png") != -1)
+			return loadPNG(is);
 		return null;
 	}
 
@@ -524,6 +528,26 @@ public class ImaTool {
 			savePNG(bi, os);
 		else
 			throw new IllegalStateException("Unsupported mime type for save: " + mime);
+	}
+
+	static public Dimension getImageDimension(File resourceFile) throws IOException {
+		ImageInputStream in = ImageIO.createImageInputStream(resourceFile);
+		try {
+			final Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
+			if(readers.hasNext()) {
+				ImageReader reader = readers.next();
+				try {
+					reader.setInput(in);
+					return new Dimension(reader.getWidth(0), reader.getHeight(0));
+				} finally {
+					reader.dispose();
+				}
+			}
+		} finally {
+			if(in != null)
+				in.close();
+		}
+		return null;
 	}
 
 	public static void main(String[] args) {

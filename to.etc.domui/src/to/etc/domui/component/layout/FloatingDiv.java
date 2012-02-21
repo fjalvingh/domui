@@ -133,18 +133,34 @@ public class FloatingDiv extends Div implements IAddToBody {
 		if(getHeight() == null) // Should not be possible
 			setHeight("400px");
 		if(getZIndex() <= 0) { // Should not be possible.
-			setZIndex(100);
+			FloatingDiv parentFloatingDiv = getParent(FloatingDiv.class);
+			if(parentFloatingDiv != null) {
+				setZIndex(parentFloatingDiv.getZIndex() + 100);
+			} else {
+				setZIndex(100);
+			}
 		}
 		if(getTestID() == null) {
 			setTestID("popup_" + getZIndex());
 		}
 		setPosition(PositionType.FIXED);
-		int width = DomUtil.pixelSize(getWidth());
-		if(-1 == width)
-			throw new IllegalStateException("Bad width!");
 
-		// center floating window horizontally on screen
-		setMarginLeft("-" + width / 2 + "px");
+        if(getWidth() != null && getWidth().endsWith("%")) {
+			//when relative size is in use we don't center window horizontaly, otherwise we need to center it
+			int widthPerc = DomUtil.percentSize(getWidth());
+			if(widthPerc != -1) {
+				// center floating window horizontally on screen
+				setMarginLeft("-" + widthPerc / 2 + "%");
+			}
+		} else {
+			//when relative size is in use we don't center window horizontaly, otherwise we need to center it
+			int width = DomUtil.pixelSize(getWidth());
+			if(-1 == width)
+			    throw new IllegalStateException("Bad width!");
+
+			// center floating window horizontally on screen
+			setMarginLeft("-" + width / 2 + "px");
+		}
 
 		//-- If this is resizable add the resizable() thing to the create javascript.
 		if(isResizable())

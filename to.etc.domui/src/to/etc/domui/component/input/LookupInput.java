@@ -319,6 +319,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 		tdParameters.setValign(TableVAlign.TOP);
 		tdParameters.setMinWidth("24px");
 		tdParameters.setTextAlign(TextAlign.RIGHT);
+		tdParameters.addCssClass("ui-nowrap");
 		tdParameters.add((NodeBase) parameters); // Add the button,
 	}
 

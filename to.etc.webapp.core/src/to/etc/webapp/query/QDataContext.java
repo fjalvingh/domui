@@ -141,11 +141,10 @@ public interface QDataContext {
 	void attach(Object o) throws Exception;
 
 	/**
-	 * EXPERIMENTAL/NOT FINAL Cause the object to be inserted in the database.
+	 * Cause the object to be inserted in the database.
 	 * @param o
 	 * @throws Exception
 	 */
-	//	@Deprecated
 	void save(Object o) throws Exception;
 
 	/**
@@ -153,11 +152,11 @@ public interface QDataContext {
 	 * @param o
 	 * @throws Exception
 	 */
-	@Deprecated
+	//  @Deprecated
 	void refresh(Object o) throws Exception;
 
 	/**
-	 * EXPERIMENTAL/NOT FINAL Cause the object to be deleted from the database.
+	 * Cause the object to be deleted from the database.
 	 * @param o
 	 * @throws Exception
 	 */

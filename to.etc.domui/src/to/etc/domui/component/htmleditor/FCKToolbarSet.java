@@ -25,5 +25,5 @@
 package to.etc.domui.component.htmleditor;
 
 public enum FCKToolbarSet {
-	DEFAULT, DOMUI, BASIC, TXTONLY
+	DEFAULT, DOMUI, BASIC, TXTONLY, NEW_MESSAGE
 }

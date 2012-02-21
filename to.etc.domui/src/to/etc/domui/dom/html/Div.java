@@ -28,7 +28,7 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
-public class Div extends NodeContainer implements IDropTargetable, IDraggable {
+public class Div extends NodeContainer implements IDropTargetable, IDraggable, IDropBody {
 	private IReturnPressed m_returnPressed;
 
 	private MiniTableBuilder m_miniTableBuilder;
@@ -100,8 +100,8 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	/** When in table-drop mode this defines whether cells or rows are added to the table. */
 	private DropMode m_dropMode;
 
-	/** When in table-drop mode this defines the TBody where the drop has to take place. */
-	private TBody m_dropBody;
+	/** When in table-drop mode this defines the TBody where the drop has to take place. When in div-drop mode this defines the Div where the drop has to take place */
+	private IDropBody m_dropBody;
 
 	/**
 	 * {@inheritDoc}
@@ -147,26 +147,28 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable {
 	 * @param body
 	 * @param dropMode
 	 */
-	public void setDropBody(TBody body, DropMode dropMode) {
+	public void setDropBody(IDropBody body, DropMode dropMode) {
 		switch(dropMode){
 			default:
-				throw new IllegalStateException("Unsupported DROP mode for TABLE container: " + dropMode);
+				throw new IllegalStateException("Unsupported DROP mode for TABLE or DIV container: " + dropMode);
 			case ROW:
+			case DIV:
 				break;
 		}
 
-		//-- I must be the parent for the table passed
-		NodeBase b = body;
+		//-- I must be the parent for the body passed
+		NodeBase b = (NodeBase) body;
 		while(b != this) {
 			if(b.getParent() == null)
-				throw new IllegalStateException("Programmer error: the TBody passed MUST be a child of the DIV node if you want to use the DIV as a DROP container for that TBody.");
+				throw new IllegalStateException("Programmer error: the TBody or DIV passed MUST be a child of the DIV node if you want to use the DIV as a DROP container for that TBody or DIV.");
 			b = b.getParent();
 		}
 		m_dropMode = dropMode;
 		m_dropBody = body;
+		setSpecialAttribute(UIDragDropUtil.DROP_MODE_ATTRIBUTE, dropMode.name());
 	}
 
-	public TBody getDropBody() {
+	public IDropBody getDropBody() {
 		return m_dropBody;
 	}
 
