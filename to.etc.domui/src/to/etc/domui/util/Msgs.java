@@ -208,6 +208,15 @@ public interface Msgs {
 	//# Data not found code
 	public static final String DATA_EXPIRED_TITLE = "expired.data.title";
 
+	public static final String DATA_EXPIRED_REFRESH = "expired.data.refresh";
+
+	//# Access denied
+	public static final String DATA_ACCESS_VIOLATION_TITLE = "data.access.violation.title";
+
+	public static final String ACCESS_DENIED_MSG = "access.denied.msg";
+
+	public static final String INSUFFICIENT_RIGHTS = "insufficient.rights";
+
 	//# LookupForm
 	/** lookupform.search key */
 	public static final String LOOKUP_FORM_SEARCH = "lookupform.search";
@@ -313,12 +322,7 @@ public interface Msgs {
 
 	static public final String ICON_MINI_INFO = "THEME/mini-info.png";
 
-
 	static public final String ICON_PROGRESSBAR = "THEME/progressbar.gif";
 
 	static public final String ICON_RESIZE = "THEME/resize.png";
-
-	static public final String IMAGE_ACCESSDENIED = "THEME/accessDenied.png";
-
-
 }

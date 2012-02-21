@@ -659,7 +659,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 		//-- Drop crud
 		if(n.getDropBody() != null) {
-			o().attr("uidropbody", n.getDropBody().getActualID());
+			o().attr("uidropbody", ((NodeBase) n.getDropBody()).getActualID());
 		}
 		if(n.getDropMode() != null) {
 			o().attr("uidropmode", n.getDropMode().name());
@@ -1023,6 +1023,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	@Override
+	public void visitPre(Pre n) throws Exception {
+		o().setIndentEnabled(false);			// pre nodes should not have indent because they will show it.
+		visitDiv(n);
+	}
+
+	@Override
 	public void visitLabel(final Label n) throws Exception {
 		basicNodeRender(n, o());
 		if(n.getFor() != null)
@@ -1129,6 +1135,14 @@ public class HtmlTagRenderer implements INodeVisitor {
 	@Override
 	public void visitH(final HTag n) throws Exception {
 		basicNodeRender(n, m_o);
+		renderTagend(n, m_o);
+	}
+
+	@Override
+	public void visitIFrame(IFrame n) throws Exception {
+		basicNodeRender(n, m_o);
+		if(n.getSrc() != null)
+			o().attr("src", n.getSrc());
 		renderTagend(n, m_o);
 	}
 

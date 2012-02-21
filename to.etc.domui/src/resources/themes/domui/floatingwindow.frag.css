@@ -9,6 +9,8 @@
 	/*	overflow: hidden;	*/
 	top: 5%;
 	left: 50%;
+	box-shadow : 10px 10px 10px #373737;
+	-moz-box-shadow : 10px 10px 10px #373737;
 }
 
 .ui-flw-ttl {
@@ -19,7 +21,6 @@
 	right: 0px; */
 	
 	height: 20px;
-	padding: 0;
 	padding: 2px;
 	background: url(bg-float-ttl2.png) repeat-x;
 	border-bottom: 1px solid #eeeeee;

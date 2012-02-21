@@ -76,6 +76,8 @@ public class DefaultPageInjector implements IPageInjector {
 		m_ucs.add(Date.class.getName());
 		m_ucs.add(BigDecimal.class.getName());
 		m_ucs.add(BigInteger.class.getName());
+		m_ucs.add(Boolean.class.getName());
+		m_ucs.add(Boolean.TYPE.getName());
 		//		UCS.add(Byte.class.toString());
 		//		UCS.add(Byte.class.toString());
 		//		UCS.add(Byte.class.toString());
@@ -147,7 +149,7 @@ public class DefaultPageInjector implements IPageInjector {
 		 */
 		if(upp.entity() == Object.class) {
 			//-- Can be entity or literal.
-			if(upp.name() == Constants.NONE || m_ucs.contains(ent.getName())) // If no name is set this is NEVER an entity,
+			if(upp.name() == Constants.NONE || m_ucs.contains(ent.getName()) || RuntimeConversions.isSimpleType(pi.getActualType())) // If no name is set this is NEVER an entity,
 				return createParameterInjector(pi, name, upp.mandatory());
 		}
 

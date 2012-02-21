@@ -36,6 +36,7 @@ import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -82,6 +83,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * it's being returned.
 	 */
 	private boolean m_untrimmed;
+
+
+	/**
+	 * @see Text#getEmptyMarker()
+	 */
+	private String m_emptyMarker;
 
 	public static enum NumberMode {
 		NONE, DIGITS, FLOAT,
@@ -378,6 +385,63 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	//	private boolean isValidated() {
 	//		return m_validated;
 	//	}
+
+	private void setEmptyMarker(String emptyMarker) {
+		if(DomUtil.isBlank(emptyMarker)) {
+			setSpecialAttribute("marker", null);
+		} else {
+			setSpecialAttribute("marker", emptyMarker);
+		}
+		m_emptyMarker = emptyMarker;
+	}
+
+	/**
+	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier image in background of input. Image is hidden when input have focus or has any content.
+	 * @return
+	 */
+	public void setMarker() {
+		setEmptyMarker(MarkerImagePart.getBackgroundIconOnly());
+	}
+
+	/**
+	 * Method can be used to show custom marker icon as image in background of input. Image is hidden when input have focus or has any content.
+	 *
+	 * @param iconUrl
+	 * @return
+	 */
+	public void setMarker(String iconUrl) {
+		setEmptyMarker(MarkerImagePart.getBackgroundIconOnly(iconUrl));
+	}
+
+	/**
+	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier and custom label as image in background of input. Image is hidden when input have focus or has any content.
+	 *
+	 * @param caption
+	 * @return
+	 */
+	public void setMarkerText(String caption) {
+		setEmptyMarker(MarkerImagePart.getBackgroundImage(caption));
+	}
+
+	/**
+	 * Method can be used to show custom marker icon and custom label as image in background of input. Image is hidden when input have focus or has any content.
+	 *
+	 * @param iconUrl
+	 * @param caption
+	 * @return
+	 */
+	public void setMarker(String iconUrl, String caption) {
+		setEmptyMarker(MarkerImagePart.getBackgroundImage(iconUrl, caption));
+	}
+
+	/**
+	 * Returns assigned empty marker.
+	 *
+	 * @see Text#setEmptyMarker(String)
+	 */
+	public String getEmptyMarker() {
+		return m_emptyMarker;
+	}
 
 	/**
 	 * Returns the current numeric mode in effect. This mode prevents letters from being input on the screen.

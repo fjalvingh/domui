@@ -161,6 +161,55 @@ public class MsgBox extends Window {
 		box.construct();
 	}
 
+	/**
+	 * Provides interface to create INFO type messages with custom icon.
+	 * @param dad
+	 * @param iconSrc
+	 * @param string
+	 */
+	public static void message(NodeBase dad, String iconSrc, String string) {
+		message(dad, iconSrc, string, null);
+	}
+
+	/**
+	 * Provides interface to create INFO type messages with custom icon.
+	 * @param dad
+	 * @param iconSrc
+	 * @param string
+	 * @param onAnswer
+	 */
+	public static void message(NodeBase dad, String iconSrc, String string, IAnswer onAnswer) {
+		MsgBox box = create(dad);
+		box.setType(Type.INFO);
+		box.m_theImage.setSrc(iconSrc);
+		box.setMessage(string);
+		box.addButton(MsgBoxButton.CONTINUE);
+		box.setCloseButton(MsgBoxButton.CONTINUE);
+		box.setOnAnswer(onAnswer);
+		box.construct();
+	}
+
+	/**
+	 * Provides interface to create INFO type messages with custom title, icon, data section and optional callback.
+	 * @param dad
+	 * @param iconSrc
+	 * @param title
+	 * @param message
+	 * @param onAnswer
+	 * @param msgRenderer
+	 */
+	public static void message(NodeBase dad, String iconSrc, String title, IAnswer onAnswer, INodeContentRenderer<String> msgRenderer) {
+		MsgBox box = create(dad);
+		box.setType(Type.INFO);
+		box.m_theImage.setSrc(iconSrc);
+		box.setWindowTitle(title);
+		box.addButton(MsgBoxButton.CONTINUE);
+		box.setCloseButton(MsgBoxButton.CONTINUE);
+		box.setOnAnswer(onAnswer);
+		box.setDataRenderer(msgRenderer);
+		box.construct();
+	}
+
 	public static void info(NodeBase dad, String string) {
 		message(dad, Type.INFO, string);
 	}
@@ -183,6 +232,17 @@ public class MsgBox extends Window {
 		box.addButton(MsgBoxButton.CONTINUE);
 		box.setCloseButton(MsgBoxButton.CONTINUE);
 		box.setOnAnswer(onAnswer);
+		box.construct();
+	}
+
+	public static void dialog(NodeBase dad, String title, IAnswer onAnswer, INodeContentRenderer<String> contentRenderer) {
+		MsgBox box = create(dad);
+		box.setType(Type.DIALOG);
+		box.setWindowTitle(title);
+		box.addButton(MsgBoxButton.CANCEL);
+		box.setCloseButton(MsgBoxButton.CANCEL);
+		box.setOnAnswer(onAnswer);
+		box.setDataRenderer(contentRenderer);
 		box.construct();
 	}
 

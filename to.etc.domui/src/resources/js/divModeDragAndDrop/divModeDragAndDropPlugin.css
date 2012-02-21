@@ -1,0 +1,32 @@
+.drag-body {
+  width: 100%;
+}
+
+.drag-cont {
+  float: left;
+  margin: 0px;
+  /* width: 33%; this is set in code that uses this - since number of divs can vary (2 or 3 columns of floating div) */ 
+  min-height: 10px;
+  height: 100%;
+}
+
+.drag-div {
+  margin: 5px 0px 5px 5px;
+}
+
+.drag-area {
+  cursor: move;
+}
+
+#Log {
+  font-size: 10px;
+  color: blue;
+  font-family: verdana, tahoma, arial;
+}
+
+.drop-marker {
+  font-size: 10px;
+  color: red;
+  background-color: white;
+  font-family: verdana, tahoma, arial;
+}
