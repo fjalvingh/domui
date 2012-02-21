@@ -38,6 +38,8 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	private StringBuilder	m_sb = new StringBuilder(128);
 	private int				m_curPrec = 0;
 
+	private int m_orderIndx;
+
 	/**
 	 * Return the result of the conversion.
 	 * @see java.lang.Object#toString()
@@ -157,6 +159,18 @@ public class QQueryRenderer extends QNodeVisitorBase {
 		if(oldprec > m_curPrec)
 			append(")");
 		m_curPrec = oldprec;
+	}
+
+	@Override
+	public void visitOrder(QOrder o) throws Exception {
+		if(m_orderIndx++ == 0) {
+			append(" order by ");
+		} else {
+			append(", ");
+		}
+		append(o.getProperty());
+		append(" ");
+		append(o.getDirection().toString());
 	}
 
 	@Override
