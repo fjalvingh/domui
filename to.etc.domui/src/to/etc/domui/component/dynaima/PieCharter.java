@@ -25,8 +25,7 @@
 package to.etc.domui.component.dynaima;
 
 import java.awt.*;
-import java.util.*;
-import java.util.List;
+import java.awt.font.*;
 
 import org.jCharts.chartData.*;
 import org.jCharts.nonAxisChart.*;
@@ -38,37 +37,37 @@ import org.jCharts.properties.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 2, 2008
  */
-public class PieCharter implements ICharterHelper {
-	private JGraphChartSource m_source;
+public class PieCharter extends AbstractCharter {
 
-	private String m_label;
+	public class PieCharterProperties {
+		private LegendProperties m_legendProperties;
 
-	private int m_width, m_height;
+		private ChartProperties m_chartProperties;
 
-	private List<Paint> m_paintList = new ArrayList<Paint>();
+		private PieChart2DProperties m_pieChart2DProperties;
 
-	private List<Double> m_valueList = new ArrayList<Double>();
-
-	private List<String> m_labelList = new ArrayList<String>();
-
-	private PieChart2DProperties m_properties = new PieChart2DProperties();
-
-	protected PieCharter(JGraphChartSource source, String label, int width, int height) {
-		m_source = source;
-		m_label = label;
-		m_width = width;
-		m_height = height;
+		public PieCharterProperties(LegendProperties legendProperties, ChartProperties chartProperties, PieChart2DProperties pieChartProperties) {
+			m_legendProperties = legendProperties;
+			m_chartProperties = chartProperties;
+			m_pieChart2DProperties = pieChartProperties;
+		}
 	}
 
-	public PieChart2DProperties getProperties() {
-		return m_properties;
+	private PieChart2DProperties m_pieChartProperties;
+
+	protected PieCharter(JGraphChartSource source, ChartDimensions chartDimensions) {
+		super(source, chartDimensions);
+		m_pieChartProperties = new PieChart2DProperties();
+		m_pieChartProperties.setBorderPaint(new Color(Integer.parseInt("5C5C5C", 16)));
+		m_pieChartProperties.setBorderStroke(new BasicStroke(0.8f));
 	}
 
-	public void addPoint(Paint pnt, String label, double value) {
-		m_paintList.add(pnt);
-		m_valueList.add(Double.valueOf(value));
-		m_labelList.add(label);
+
+	protected PieCharter(JGraphChartSource source, ChartDimensions chartDimensions, PieCharterProperties pieCharterProperties) {
+		super(source, chartDimensions, pieCharterProperties.m_legendProperties, pieCharterProperties.m_chartProperties);
+		m_pieChartProperties = pieCharterProperties.m_pieChart2DProperties;
 	}
+
 
 	/**
 	 * Called to actually create the generated thingy.
@@ -76,12 +75,17 @@ public class PieCharter implements ICharterHelper {
 	 */
 	@Override
 	public void finish() throws Exception {
-		double[] res = new double[m_valueList.size()];
-		for(int i = res.length; --i >= 0;)
-			res[i] = m_valueList.get(i).doubleValue();
+		PieChartDataSet pds = new PieChartDataSet(null, getChartDataValues(), getChartDataLabels(), selectPaints(), m_pieChartProperties);
 
-		PieChartDataSet pds = new PieChartDataSet(m_label, res, m_labelList.toArray(new String[m_labelList.size()]), m_paintList.toArray(new Paint[m_paintList.size()]), getProperties());
-		PieChart2D p2d = new PieChart2D(pds, new LegendProperties(), new ChartProperties(), m_width, m_height);
+		final double fontHeight = getLegendProperties().getFont().getStringBounds(getChartDataLabels()[0], new FontRenderContext(null, false, false)).getHeight();
+		final int borders = 15;
+		int legendHeight = borders + Math.round((float) (Math.round(((float) getChartDataLabels().length / getLegendProperties().getNumColumns())) * fontHeight));
+		int chartHeight = Math.min(m_minheight + legendHeight, m_maxheight);
+
+		final ChartProperties chartProperties = new ChartProperties();
+
+		PieChart2D p2d = new PieChart2D(pds, getLegendProperties(), chartProperties, m_width, chartHeight);
+
 		m_source.setChart(p2d);
 	}
 }

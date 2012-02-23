@@ -76,6 +76,8 @@ public class DefaultPageInjector implements IPageInjector {
 		m_ucs.add(Date.class.getName());
 		m_ucs.add(BigDecimal.class.getName());
 		m_ucs.add(BigInteger.class.getName());
+		m_ucs.add(Boolean.class.getName());
+		m_ucs.add(Boolean.TYPE.getName());
 		//		UCS.add(Byte.class.toString());
 		//		UCS.add(Byte.class.toString());
 		//		UCS.add(Byte.class.toString());

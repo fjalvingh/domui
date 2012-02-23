@@ -723,6 +723,34 @@ tr.ui-keyword-popup-row {
     overflow: hidden;
 }
 
+/*** MultipleLookupInput thingerydoo ***/
+.ui-mli-cnt { /* selection container */
+	min-height: 20px;
+	max-height: 60px;
+	overflow: auto;
+}
+
+.ui-mli-itm { /* selected items */
+	background-color: <%= selected_bg %>;
+	float: left;
+	padding-left: 5px;
+	margin-left: 1px;
+	margin-right: 1px;
+	margin-top: 3px;
+	margin-bottom: 3px;	
+	vertical-align: middle;
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-bottom-right-radius: 5px;
+	-moz-border-radius-topleft: 5px;
+	-moz-border-radius-bottomright: 5px;
+	border-top-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+	box-shadow : 3px 3px 3px #CCCCCC;
+	-moz-box-shadow : 3px 3px 3px #CCCCCC;
+	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
+	*display:inline;
+}
+
 /*** LookupForm ***/
 .ui-lf-coll {
 	border-bottom: 1px dotted #666666;
@@ -739,6 +767,8 @@ tr.ui-keyword-popup-row {
 	/*	overflow: hidden;	*/
 	top: 5%;
 	left: 50%;
+	box-shadow : 10px 10px 10px #373737;
+	-moz-box-shadow : 10px 10px 10px #373737;
 }
 
 .ui-fw-ttl {
@@ -1937,7 +1967,3 @@ body,html {
 .ui-lsel-sel input {
         border: none;
 }
-
-
-
-
