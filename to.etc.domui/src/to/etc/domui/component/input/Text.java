@@ -407,45 +407,6 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier image in background of input. Image is hidden when input have focus or has any content.
-	 * @return
-	 */
-	public void setMarker() {
-		setEmptyMarker(MarkerImagePart.getBackgroundIconOnly());
-	}
-
-	/**
-	 * Method can be used to show custom marker icon as image in background of input. Image is hidden when input have focus or has any content.
-	 *
-	 * @param iconUrl
-	 * @return
-	 */
-	public void setMarker(String iconUrl) {
-		setEmptyMarker(MarkerImagePart.getBackgroundIconOnly(iconUrl));
-	}
-
-	/**
-	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier and custom label as image in background of input. Image is hidden when input have focus or has any content.
-	 *
-	 * @param caption
-	 * @return
-	 */
-	public void setMarkerText(String caption) {
-		setEmptyMarker(MarkerImagePart.getBackgroundImage(caption));
-	}
-
-	/**
-	 * Method can be used to show custom marker icon and custom label as image in background of input. Image is hidden when input have focus or has any content.
-	 *
-	 * @param iconUrl
-	 * @param caption
-	 * @return
-	 */
-	public void setMarker(String iconUrl, String caption) {
-		setEmptyMarker(MarkerImagePart.getBackgroundImage(iconUrl, caption));
-	}
-
-	/**
 	 * Returns assigned empty marker.
 	 *
 	 * @see Text#setEmptyMarker(String)
