@@ -85,6 +85,16 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 	}
 
 	/**
+	 * Create a combo which fills it's list with the specified in list. Each value is filled from the values of the properties specified.
+	 * @param in
+	 * @param properties
+	 */
+	public ComboLookup(List<T> in, String... properties) {
+		super(in);
+		setContentRenderer(new PropertyNodeContentRenderer<T>(properties));
+	}
+
+	/**
 	 * This implements the identical conversion, i.e. in=out, because this component returns
 	 * the list type.
 	 * @see to.etc.domui.component.input.ComboComponentBase#listToValue(java.lang.Object)

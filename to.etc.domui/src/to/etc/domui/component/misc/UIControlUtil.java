@@ -295,5 +295,16 @@ final public class UIControlUtil {
 	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable) {
 		return Text.createText(iclz, pmm, editable);
 	}
+
+	public static String getRgbHex(java.awt.Color color, boolean prefixHash) {
+		String hexString = Integer.toHexString(color.getRGB() & 0x00FFFFFF);
+		while(hexString.length() < 6)
+			hexString = "0" + hexString;
+		if(prefixHash) {
+			hexString = "#" + hexString;
+		}
+		return hexString;
+	}
+
 }
 
