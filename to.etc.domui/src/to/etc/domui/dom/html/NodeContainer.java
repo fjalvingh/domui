@@ -419,16 +419,21 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param child
 	 */
 	final public void removeChild(@Nonnull final NodeBase child) {
-		if(m_delegate != null) {
-			m_delegate.removeChild(child);
-			return;
-		}
-
-		if(child.getParent() != this)
-			throw new IllegalStateException("Child " + child + " is not a child of container " + this);
+		//child can be direct child or child of delegate
 		int ix = m_children.indexOf(child);
-		if(ix == -1)
+		//we first try to find child in direct children
+		if(ix == -1) {
+			//if not found in direct children, we look into delegate if exists
+			if(m_delegate != null) {
+				m_delegate.removeChild(child);
+				return;
+			}
+
+			if(child.getParent() != this)
+				throw new IllegalStateException("Child " + child + " is not a child of container " + this);
+
 			throw new IllegalStateException("Child " + child + " was not in list!? " + this);
+		}
 		treeChanging();
 		m_children.remove(ix);
 		child.unregisterFromPage();
@@ -464,17 +469,22 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param nw
 	 */
 	final public void replaceChild(@Nonnull final NodeBase child, @Nonnull final NodeBase nw) {
-		if(m_delegate != null) {
-			m_delegate.replaceChild(child, nw);
-			return;
+		//child can be direct child or child of delegate
+		int ix = m_children.indexOf(child);
+		//we first try to find child in direct children
+		if(ix == -1) {
+			//if not found in direct children, we look into delegate if exists
+			if(m_delegate != null) {
+				m_delegate.replaceChild(child, nw);
+				return;
+			}
+
+			if(child.getParent() != this)
+				throw new IllegalStateException("Child " + child + " is not a child of container " + this);
+
+			throw new IllegalStateException("Child " + child + " was not in list!? " + this);
 		}
 
-		//-- Find old child's index.
-		if(child.getParent() != this)
-			throw new IllegalStateException("Child " + child + " is not a child of container " + this);
-		int ix = m_children.indexOf(child);
-		if(ix == -1)
-			throw new IllegalStateException("Child " + child + " was not in list!? " + this);
 		treeChanging();
 		m_children.set(ix, nw); // Replace inline
 		child.unregisterFromPage();

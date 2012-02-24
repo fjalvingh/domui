@@ -41,10 +41,6 @@ import to.etc.webapp.query.*;
  */
 
 public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
-	public interface IValueSelected<T> {
-		void valueSelected(T value) throws Exception;
-	}
-
 	private LookupForm<T> m_externalLookupForm;
 
 	DataTable<T> m_result;

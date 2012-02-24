@@ -130,6 +130,8 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			var to = xml.documentElement.getAttribute('url');
 			window.location.href = to;
 			return true;
+		} else if (rname == 'expiredOnPollasy'){
+			return true; // do nothing actually, page is in process of redirecting to some other page and we need to ignore responses on obsolete pollasy calls...
 		} else if (rname == 'expired') {
 			var msg = 'Uw sessie is verlopen. Het scherm wordt opnieuw opgevraagd met originele gegevens.';
 			var hr = window.location.href;
@@ -1571,7 +1573,7 @@ var WebUI = {
 				}
 			}
 			if (!ok) {
-				alert("File type not allowed");
+				alert("File type not allowed: " + ext + ", allowed: " + val);
 				return;
 			}
 		}
@@ -2089,6 +2091,7 @@ var WebUI = {
 			if (node != elem && $(node).css('position') == 'static' && ($(node).css('float') == 'none' || $(node).css('width') != '100%' /* count in floaters that occupies total width */)){
 				//In IE7 hidden nodes needs to be additionaly excluded from count...
 				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
+					//totHeight += node.offsetHeight;
 					totHeight += $(node).outerHeight();
 				}
 			}
@@ -2445,7 +2448,35 @@ var WebUI = {
 			}
 		}
 	},
-
+	
+	//Use this to make sure that option in dropdown would be visible. It needs fix only in FF sinve IE would always make visible selected option.  
+	makeOptionVisible: function(elemId, offset) {
+		if($.browser.msie){
+			//IE already fix this... we need fix only for FF and other browsers
+			return;
+		}
+		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
+		var parent = elem.parentNode; 
+		if (!parent){
+			return;
+		}
+		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
+			var elemPos = $(elem).position().top;
+			//if elem is not currenlty visible
+			if (elemPos <= 0 || elemPos >= parent.offsetHeight){
+				//else scroll parent to show me at top
+				var newPos = elemPos + parent.scrollTop;
+				if (offset){
+					newPos = newPos - offset;
+				}
+				$(parent).animate({scrollTop: newPos}, 'slow');
+			}
+		}
+	},
+	
 	//Returns T if browser is really using IE7 rendering engine (since IE8 compatibility mode presents  browser as version 7 but renders as IE8!)
 	isReallyIE7: function() {
 		//Stupid IE8 in compatibility mode lies that it is IE7, and renders as IE8! At least we can detect that using document.documentMode (it is 8 in that case)

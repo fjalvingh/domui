@@ -29,14 +29,27 @@ import java.util.*;
 
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
+/**
+ * Converter for Date and Time. 
+ * Done by analogy to DateConverter @see {@link DateConverter}
+ *
+ * @author <a href="mailto:btadic@execom.eu">Bojan Tadic</a>
+ * Created on Sep 30, 2011
+ */
 public class DateTimeConverter implements IConverter<Date> {
+
+	static private final String DATE_PATTERN_NL = "dd-MM-yyyy HH:mm";
+
+	static private final String DATE_PATTERN_EN = "yyyy-MM-dd HH:mm";
+
 	static private final ThreadLocal<DateFormat> m_format = new ThreadLocal<DateFormat>();
 
 	static private DateFormat getFormatter() {
 		DateFormat df = m_format.get();
 		if(df == null) {
-			df = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+			df = new SimpleDateFormat(DATE_PATTERN_NL);
 			m_format.set(df);
 		}
 		return df;
@@ -52,6 +65,8 @@ public class DateTimeConverter implements IConverter<Date> {
 		Date dt = in;
 		if(loc.getLanguage().equalsIgnoreCase("nl")) {
 			return getFormatter().format(dt);
+		} else if(loc.getLanguage().equalsIgnoreCase("en")) {
+			return new SimpleDateFormat(DATE_PATTERN_EN).format(dt);
 		}
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, loc);
 		return df.format(dt);
@@ -64,14 +79,28 @@ public class DateTimeConverter implements IConverter<Date> {
 		input = input.trim();
 		if(input.length() == 0)
 			return null;
-		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, loc);
+
+		DateFormat df = null;
+		String datePattern = null;
 		try {
-			if(loc.getLanguage().equalsIgnoreCase("nl"))
-				df = getFormatter();
+			if(loc.getLanguage().equalsIgnoreCase("nl")) {
+				datePattern = DATE_PATTERN_NL;
+				df = new SimpleDateFormat(DATE_PATTERN_NL);
+				return CalculationUtil.dutchDateAndTime(input);
+			} else if(loc.getLanguage().equalsIgnoreCase("en")) {
+				datePattern = DATE_PATTERN_EN;
+				df = new SimpleDateFormat(DATE_PATTERN_EN);
+			} else {
+				df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, loc);
+			}
+			df.setLenient(false);
 			//				return CalculationUtil.dutchDate(input);
 			return df.parse(input);
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID_DATE);
+			if(datePattern == null && df != null) {
+				datePattern = df.format(new Date());
+			}
+			throw new ValidationException(Msgs.V_INVALID_DATE, datePattern);
 		}
 	}
 }
