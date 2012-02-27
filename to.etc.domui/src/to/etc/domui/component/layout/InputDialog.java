@@ -51,6 +51,10 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 		m_inputControl = inputControl;
 	}
 
+	public InputDialog(C inputControl, String title, String label) {
+		this(inputControl, true, false, DEFWIDTH, DEFHEIGHT, title, label);
+	}
+
 	public InputDialog(C inputControl, boolean modal, boolean resizable, int width, int height, String title, String label) {
 		super(modal, resizable, width, height, title);
 		m_inputControl = inputControl;

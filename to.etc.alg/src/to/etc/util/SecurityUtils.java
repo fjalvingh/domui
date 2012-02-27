@@ -27,6 +27,8 @@ package to.etc.util;
 import java.security.*;
 import java.security.spec.*;
 
+import javax.annotation.*;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 6, 2004
@@ -166,5 +168,13 @@ public class SecurityUtils {
 		return md.digest();
 	}
 
-
+	@Nonnull
+	static public String getMD5Hash(@Nonnull String in, @Nonnull String encoding) {
+		try {
+			byte[] hash = md5Hash(in.getBytes(encoding));
+			return StringTool.toHex(hash);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
+	}
 }

@@ -316,7 +316,6 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			//-- Start 'identify' and capture the resulting data.
 			ProcessBuilder pb = null;
 			//-- jal 20100906 Use thumbnail, not resize: resize does not properly filter causing an white image because all black pixels are sized out.
-
 			if(width != 0 && height != 0) {
 				String rsz = width + "x" + height;
 				pb = new ProcessBuilder(m_convert.toString(), "-density", DENSITY, "-size", rsz, source.getSource().toString() + "[" + page + "]", "-thumbnail", rsz, "-coalesce", "-quality", "100", tof.toString());

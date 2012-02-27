@@ -396,11 +396,45 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
+	 * Returns assigned empty marker.
+	 *
+	 * @see Text#setEmptyMarker(String)
+	 */
+	public String getEmptyMarker() {
+		return m_emptyMarker;
+	}
+
+	/**
+	 * This sets a marker image to be used as the background image for an empty text box. It should contain the URL to a fully-constructed
+	 * background image. To create such an image from an icon plus text use one of the setMarkerXxx methods. This method should be used
+	 * only for manually-constructed images.
+	 * @param emptyMarker
+	 */
+	public void setMarkerImage(String emptyMarker) {
+		if(DomUtil.isBlank(emptyMarker)) {
+			setSpecialAttribute("marker", null);
+		} else {
+			setSpecialAttribute("marker", emptyMarker);
+		}
+		m_emptyMarker = emptyMarker;
+	}
+
+	/**
+	 * Returns assigned empty marker.
+	 *
+	 * @see Text#setMarkerImage(String)
+	 */
+	public String getMarkerImage() {
+		return m_emptyMarker;
+	}
+
+
+	/**
 	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier image in background of input. Image is hidden when input have focus or has any content.
 	 * @return
 	 */
 	public void setMarker() {
-		setEmptyMarker(MarkerImagePart.getBackgroundIconOnly());
+		setMarkerImage(MarkerImagePart.getBackgroundIconOnly());
 	}
 
 	/**
@@ -410,7 +444,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * @return
 	 */
 	public void setMarker(String iconUrl) {
-		setEmptyMarker(MarkerImagePart.getBackgroundIconOnly(iconUrl));
+		setMarkerImage(MarkerImagePart.getBackgroundIconOnly(iconUrl));
 	}
 
 	/**
@@ -420,7 +454,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * @return
 	 */
 	public void setMarkerText(String caption) {
-		setEmptyMarker(MarkerImagePart.getBackgroundImage(caption));
+		setMarkerImage(MarkerImagePart.getBackgroundImage(caption));
 	}
 
 	/**
@@ -431,16 +465,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * @return
 	 */
 	public void setMarker(String iconUrl, String caption) {
-		setEmptyMarker(MarkerImagePart.getBackgroundImage(iconUrl, caption));
-	}
-
-	/**
-	 * Returns assigned empty marker.
-	 *
-	 * @see Text#setEmptyMarker(String)
-	 */
-	public String getEmptyMarker() {
-		return m_emptyMarker;
+		setMarkerImage(MarkerImagePart.getBackgroundImage(iconUrl, caption));
 	}
 
 	/**
