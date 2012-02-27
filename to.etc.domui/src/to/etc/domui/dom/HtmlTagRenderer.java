@@ -1143,6 +1143,21 @@ public class HtmlTagRenderer implements INodeVisitor {
 		basicNodeRender(n, m_o);
 		if(n.getSrc() != null)
 			o().attr("src", n.getSrc());
+		if(n.getFrameBorder() != null)
+			o().attr("frameborder", n.getFrameBorder());
+		if(n.getFrameHeight() != null)
+			o().attr("height", n.getFrameHeight());
+		if(n.getFrameWidth() != null)
+			o().attr("width", n.getFrameWidth());
+		if(n.getMarginHeight() != null)
+			o().attr("marginheight", n.getMarginHeight());
+		if(n.getMarginWidth() != null)
+			o().attr("marginwidth", n.getMarginWidth());
+		if(n.getName() != null)
+			o().attr("name", n.getName());
+		if(n.getScrolling() != null)
+			o().attr("scrolling", n.getScrolling());
+
 		renderTagend(n, m_o);
 	}
 
