@@ -140,6 +140,9 @@ public abstract class DomApplication {
 
 	private List<IResourceFactory> m_resourceFactoryList = Collections.EMPTY_LIST;
 
+	private int m_keepAliveInterval;
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
 	/*--------------------------------------------------------------*/
@@ -1445,9 +1448,18 @@ public abstract class DomApplication {
 	}
 
 
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DomUI state listener handling.						*/
 	/*--------------------------------------------------------------*/
+
+	public synchronized int getKeepAliveInterval() {
+		return m_keepAliveInterval;
+	}
+
+	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
+		m_keepAliveInterval = keepAliveInterval;
+	}
 
 	private List<IDomUIStateListener> m_uiStateListeners = Collections.EMPTY_LIST;
 
