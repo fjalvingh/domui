@@ -61,6 +61,10 @@ public class TabPanelBase extends Div {
 			return m_label;
 		}
 
+		public void setLabel(NodeBase label) {
+			m_label = label;
+		}
+
 		public Li getTab() {
 			return m_tab;
 		}
@@ -71,6 +75,10 @@ public class TabPanelBase extends Div {
 
 		public Img getImg() {
 			return m_img;
+		}
+
+		public void setImg(Img img) {
+			m_img = img;
 		}
 
 		@Override
@@ -179,15 +187,26 @@ public class TabPanelBase extends Div {
 	}
 
 	protected void renderLabel(NodeContainer into, final int index, TabInstance ti) {
-		Li li = new Li();
-		into.add(index, li);
-		ti.setTab(li); // Save for later use,
-		if(index == getCurrentTab()) {
-			li.addCssClass("ui-tab-sel");
-		} else {
-			li.removeCssClass("ui-tab-sel");
+		Li li = ti.getTab();
+		if(li == null) {
+			li = new Li();
+			into.add(index, li);
+			ti.setTab(li); // Save for later use,
+			if(index == getCurrentTab()) {
+				li.addCssClass("ui-tab-sel");
+			} else {
+				li.removeCssClass("ui-tab-sel");
+			}
+			//li.setCssClass(index == m_currentTab ? "ui-tab-lbl ui-tab-sel" : "ui-tab-lbl");
 		}
-		//li.setCssClass(index == m_currentTab ? "ui-tab-lbl ui-tab-sel" : "ui-tab-lbl");
+
+		List<ATag> aTags = li.getChildren(ATag.class);
+		if(!aTags.isEmpty()) {
+			for(ATag aTag : aTags) {
+				li.removeChild(aTag);
+			}
+		}
+
 		ATag a = new ATag();
 		li.add(a);
 		if(ti.getImg() != null)
@@ -238,11 +257,7 @@ public class TabPanelBase extends Div {
 	}
 
 	public void add(NodeBase content, NodeBase tablabel, String icon) {
-		Img i = new Img();
-		i.setSrc(icon);
-		i.setCssClass("ui-tab-icon");
-		i.setBorder(0);
-		TabInstance tabInstance = new TabInstance(tablabel, content, i);
+		TabInstance tabInstance = new TabInstance(tablabel, content, createIcon(icon));
 		if(m_markErrorTabs) {
 			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
 		}
@@ -252,6 +267,14 @@ public class TabPanelBase extends Div {
 			return;
 
 		//-- Render the new thingies.
+	}
+
+	private Img createIcon(String icon) {
+		Img i = new Img();
+		i.setSrc(icon);
+		i.setCssClass("ui-tab-icon");
+		i.setBorder(0);
+		return i;
 	}
 
 	public int getCurrentTab() {
@@ -302,6 +325,17 @@ public class TabPanelBase extends Div {
 			}
 		}
 		return -1;
+	}
+
+	protected void replaceLabel(NodeContainer into, NodeBase tabContent, String tabLabel, String tabIcon) {
+		int index = getTabIndex(tabContent);
+		if(index == -1) {
+			return;
+		}
+		TabInstance tab = m_tablist.get(index);
+		tab.setLabel(new TextNode(tabLabel));
+		tab.setImg(createIcon(tabIcon));
+		renderLabel(into, index, tab);
 	}
 
 }

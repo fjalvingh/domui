@@ -371,6 +371,17 @@ public class DateUtil {
 		cal.set(Calendar.MILLISECOND, ms);
 	}
 
+	static public Date addMinutes(Date in, int minutes) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(in);
+		cal.add(Calendar.DAY_OF_YEAR, 0);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, minutes);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return new Date(cal.getTimeInMillis());
+	}
+
 	static public Date addDays(Date in, int days) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(in);
@@ -552,3 +563,4 @@ public class DateUtil {
 		}
 	};
 }
+

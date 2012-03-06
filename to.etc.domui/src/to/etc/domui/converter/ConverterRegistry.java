@@ -41,6 +41,9 @@ public class ConverterRegistry {
 	/** All converter instances for staticly accessed IConverters */
 	static private Map<Class<? extends IConverter<?>>, IConverter<?>> m_converterMap = new HashMap<Class<? extends IConverter<?>>, IConverter<?>>();
 
+	/** Maps a class to the converter for the class. */
+	static private Map<Class< ? >, IConverter< ? >> m_urlConverterMap = new HashMap<Class< ? >, IConverter< ? >>();
+
 	/** The list of registered factories. */
 	static private List<IConverterFactory> m_factoryList = new ArrayList<IConverterFactory>();
 
@@ -56,6 +59,8 @@ public class ConverterRegistry {
 		register(new DoubleFactory()); // Low-level Double converters (numeric only)
 		register(new EnumFactory()); // last-resort: Accepts generic enums without propertyMeta;
 		register(new BooleanConverterFactory()); // last-resort: Accepts generic boolean without metadata (yes, no texts only)
+		registerURLConverter(Boolean.class, BooleanConverter.getInstance());
+		registerURLConverter(boolean.class, BooleanConverter.getInstance());
 	}
 
 	/**
@@ -139,10 +144,6 @@ public class ConverterRegistry {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	URL Converters.										*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Maps a class to the converter for the class.
-	 */
-	static private Map<Class<?>, IConverter<?>> m_urlConverterMap = new HashMap<Class<?>, IConverter<?>>();
 
 	/**
 	 * Register an URL converter for the specified class.
