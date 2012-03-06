@@ -572,10 +572,13 @@ public class PageParameters {
 			char c = nameValue.charAt(0);
 			if(c != '_' && c != '$' && !nameValue.startsWith("webui")) {
 				String[] parts = nameValue.split("=");
-				if(parts.length != 2) {
+				if(parts.length > 2 || parts.length == 0) {
 					throw new IllegalArgumentException("Expected name=value pair, but found:" + nameValue);
 				}
-				pp.m_map.put(parts[0], parts[1]); // Add as single string
+				if(parts.length == 2) {
+					pp.m_map.put(parts[0], parts[1]); // Add as single string
+				}
+				//empty params are ignored but with no exception
 			}
 		}
 		return pp;

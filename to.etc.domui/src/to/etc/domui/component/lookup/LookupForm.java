@@ -30,8 +30,9 @@ import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
+import to.etc.domui.component.lookup.ILookupControlInstance.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.css.*;
@@ -129,7 +130,7 @@ public class LookupForm<T> extends Div {
 	 */
 	private IClicked<NodeBase> m_onAfterCollapse;
 
-
+	private IQueryFactory<T> m_queryFactory;
 	/**
 	 * This is the definition for an Item to look up. A list of these
 	 * will generate the actual lookup items on the screen, in the order
@@ -1036,7 +1037,12 @@ public class LookupForm<T> extends Div {
 	 */
 	public QCriteria<T> getEnteredCriteria() throws Exception {
 		m_hasUserDefinedCriteria = false;
-		QCriteria<T> root = (QCriteria<T>) getMetaModel().createCriteria();
+		QCriteria<T> root;
+		if(getQueryFactory() != null) {
+			root = getQueryFactory().createQuery();
+		} else {
+			root = (QCriteria<T>) getMetaModel().createCriteria();
+		}
 		boolean success = true;
 		for(Item it : m_itemList) {
 			ILookupControlInstance li = it.getInstance();
@@ -1329,4 +1335,21 @@ public class LookupForm<T> extends Div {
 	public void setOnAfterCollapse(IClicked<NodeBase> onAfterCollapse) {
 		m_onAfterCollapse = onAfterCollapse;
 	}
+
+	/**
+	 * Returns custom query factory.
+	 * @return
+	 */
+	public IQueryFactory<T> getQueryFactory() {
+		return m_queryFactory;
+	}
+
+	/**
+	 * Specifies custom query factory.
+	 * @param queryFactory
+	 */
+	public void setQueryFactory(IQueryFactory<T> queryFactory) {
+		m_queryFactory = queryFactory;
+	}
+
 }

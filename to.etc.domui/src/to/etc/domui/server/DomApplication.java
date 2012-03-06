@@ -154,15 +154,20 @@ public abstract class DomApplication {
 					throw new IllegalStateException("??");
 
 				// data has removed in meanwhile: redirect to error page.
-				String rurl = DomUtil.createPageURL(ExpiredDataPage.class, new PageParameters("errorMessage", x.getLocalizedMessage()));
-				//-- Add info about the failed thingy.
-				/*StringBuilder sb = new StringBuilder(1024);
-				sb.append(rurl);
-				sb.append("?errorMessage=");
-				StringTool.encodeURLEncoded(sb, x.getLocalizedMessage());*/
+				String rurl = DomUtil.createPageURL(ExpiredDataPage.class, new PageParameters(ExpiredDataPage.PARAM_ERRMSG, x.getLocalizedMessage()));
 				UIGoto.redirect(rurl);
-				// jal 20110118 Does not work, and is a nonpublic interface.
-				//				ApplicationRequestHandler.generateHttpRedirect((RequestContextImpl) ctx, rurl, "Data not found");
+				return true;
+			}
+		});
+		addExceptionListener(DataAccessViolationException.class, new IExceptionListener() {
+			@Override
+			public boolean handleException(final IRequestContext ctx, final Page page, final NodeBase source, final Throwable x) throws Exception {
+				if(!(x instanceof DataAccessViolationException))
+					throw new IllegalStateException("??");
+
+				// data has removed in meanwhile: redirect to error page.
+				String rurl = DomUtil.createPageURL(DataAccessViolationPage.class, new PageParameters(DataAccessViolationPage.PARAM_ERRMSG, x.getLocalizedMessage()));
+				UIGoto.redirect(rurl);
 				return true;
 			}
 		});

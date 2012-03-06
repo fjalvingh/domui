@@ -29,13 +29,23 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 
+/**
+ * Shows access denied info.
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on 2 Dec 2011
+ */
 public class AccessDeniedPage extends UrlPage {
+
+	public static final String PARAM_TARGET_PAGE = "targetPage";
+
 	@Override
 	public void createContent() throws Exception {
 		//-- Can we get the classname?
-		String cname = getPage().getPageParameters().getString("targetPage");
+		String cname = getPage().getPageParameters().getString(PARAM_TARGET_PAGE);
 		String pageName = "...";
 		if(cname != null) {
 			//-- Try to load the class to access it's meta
@@ -54,19 +64,19 @@ public class AccessDeniedPage extends UrlPage {
 			}
 		}
 
-		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString("login.access.title"));
+		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString(Msgs.LOGIN_ACCESS_TITLE));
 		add(ep);
 		Table t = new Table();
 		ep.getContent().add(t);
 		t.setWidth("100%");
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
-		Img img = new Img("THEME/accessDenied.png");
+		Img img = new Img(Theme.ACCESS_DENIED);
 		td.add(img);
 		td.setWidth("1%");
 
 		TD co = b.addCell();
-		String txt = Msgs.BUNDLE.formatMessage("login.access.denied", pageName);
+		String txt = Msgs.BUNDLE.formatMessage(Msgs.LOGIN_ACCESS_DENIED, pageName);
 		Div d = new Div(txt);
 		co.add(d);
 		d.setCssClass("ui-acd-ttl");
@@ -84,7 +94,7 @@ public class AccessDeniedPage extends UrlPage {
 		//		}
 		//		ep.getContent().addLiteral(DomUtil.BUNDLE.formatMessage("login.required.rights", sb.toString()));
 
-		co.add(new Div(Msgs.BUNDLE.formatMessage("login.required.rights")));
+		co.add(new Div(Msgs.BUNDLE.getString(Msgs.LOGIN_REQUIRED_RIGHTS)));
 		d = new Div();
 		co.add(d);
 		Ul ul = new Ul();
@@ -105,7 +115,7 @@ public class AccessDeniedPage extends UrlPage {
 			co.add(d);
 			ALink link = new ALink(DomApplication.get().getRootPage(), MoveMode.NEW); // Destroy shelve.
 			d.add(link);
-			link.setText(Msgs.BUNDLE.getString("login.toindex"));
+			link.setText(Msgs.BUNDLE.getString(Msgs.LOGIN_TO_INDEX));
 		}
 	}
 }
