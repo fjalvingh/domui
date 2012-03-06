@@ -40,9 +40,9 @@ import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 
 /**
- * Generates background image for specified input field caption. 
- * Usually used by {@link Text#setEmptyMarker(String)}
- * 
+ * Generates background image for specified input field caption.
+ * Usually used by {@link Text#setMarkerImage(String)}
+ *
  *
  * @author <a href="mailto:btadic@execom.eu">Bojan Tadic</a>
  * Created on Nov 1, 2011
@@ -71,7 +71,7 @@ public class MarkerImagePart implements IBufferedPartFactory {
 
 		try {
 			BufferedImage bi = PartUtil.loadImage(da, da.getThemedResourceRURL(DomUtil.isBlank(sipKey.getIcon()) ? DEFAULT_ICON : sipKey.getIcon().trim()), rdl);
-			is = getInputStream(drawImage(bi, sipKey.getCaption(), sipKey.getColor()));
+			is = getInputStream(drawImage(bi, sipKey));
 
 			if(is == null)
 				throw new IllegalStateException("Image is generated incorrectly");
@@ -105,6 +105,20 @@ public class MarkerImagePart implements IBufferedPartFactory {
 		return sb.toString();
 	}
 
+	private static String getURL(String icon, String caption, String color, String font, int size, String spec) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(MarkerImagePart.class.getName()).append(".part");
+		boolean paramExists = false;
+		paramExists = MarkerImagePartKey.appendParam(sb, paramExists, MarkerImagePartKey.PARAM_ICON, icon);
+		paramExists = MarkerImagePartKey.appendParam(sb, paramExists, MarkerImagePartKey.PARAM_CAPTION, caption);
+		paramExists = MarkerImagePartKey.appendParam(sb, paramExists, MarkerImagePartKey.PARAM_COLOR, color);
+
+		paramExists = MarkerImagePartKey.appendParam(sb, paramExists, MarkerImagePartKey.PARAM_FONT, font);
+		paramExists = MarkerImagePartKey.appendParam(sb, paramExists, MarkerImagePartKey.PARAM_FONTSIZE, Integer.toString(size));
+		paramExists = MarkerImagePartKey.appendParam(sb, paramExists, MarkerImagePartKey.PARAM_SPEC, spec);
+		return sb.toString();
+	}
+
 	/**
 	 * Dynamically add background image for emptyMarker.
 	 * Background image have small magnifier icon (THEME/icon-search.png)
@@ -117,7 +131,7 @@ public class MarkerImagePart implements IBufferedPartFactory {
 	/**
 	 * Dynamically add background image for emptyMarker.
 	 * Background image will have only defined icon
-	 * 
+	 *
 	 * @param icon
 	 * @return
 	 */
@@ -139,7 +153,7 @@ public class MarkerImagePart implements IBufferedPartFactory {
 	/**
 	 * Dynamically add background image for emptyMarker.
 	 * Background image have small defined icon and and defined text (caption)
-	 * 
+	 *
 	 * @param icon
 	 * @param caption
 	 * @return
@@ -161,14 +175,19 @@ public class MarkerImagePart implements IBufferedPartFactory {
 		return url;
 	}
 
+	public static String getBackgroundImage(String icon, String caption, String color, String font, int size, String spec) {
+		String url = UIContext.getRequestContext().getRelativePath(getURL(icon, caption, color, font, size, spec));
+		return url;
+	}
+
 	/**
-	 * Draw background image with icon and caption 
+	 * Draw background image with icon and caption
 	 * @param icon
 	 * @param caption
 	 * @param captionColor
 	 * @return
 	 */
-	private BufferedImage drawImage(@Nonnull BufferedImage icon, @Nullable String caption, @Nullable String captionColor) {
+	private BufferedImage drawImage(@Nonnull BufferedImage icon, MarkerImagePartKey key) {
 		BufferedImage bufferedImage = new BufferedImage(200, 20, BufferedImage.TRANSLUCENT);
 
 		Graphics2D g = bufferedImage.createGraphics();
@@ -178,11 +197,39 @@ public class MarkerImagePart implements IBufferedPartFactory {
 
 		g.drawImage(icon, null, 0, 0);
 
-		if(!DomUtil.isBlank(caption)) {
-			Font font = new Font("Arial", Font.BOLD, 10);
+		if(!DomUtil.isBlank(key.getCaption())) {
+			String caption = key.getCaption();
+
+			//-- Select a font if needed
+			String fontname = key.getFont();
+			if(DomUtil.isBlank(fontname))
+				fontname = "Helvetica";
+			int size = key.getFontSize();
+			if(size <= 0)
+				size = 10;
+			int style = 0;
+			switch(key.getFontSpec()){
+				default:
+					throw new IllegalStateException(key.getFontSpec() + ": unsupported??");
+				case BOLD:
+					style = Font.BOLD;
+					break;
+				case ITALICS:
+					style = Font.ITALIC;
+					break;
+				case BOLD_ITALICS:
+					style = Font.ITALIC | Font.BOLD;
+					break;
+				case NORM:
+					style = 0;
+					break;
+			}
+
+			Font font = new Font(fontname, style, size);
 			Color capColor = null;
-			if(!DomUtil.isBlank(captionColor)) {
+			if(!DomUtil.isBlank(key.getColor())) {
 				try {
+					String captionColor = key.getColor();
 					if(captionColor.startsWith("#")) {
 						captionColor = captionColor.substring(1);
 					}
