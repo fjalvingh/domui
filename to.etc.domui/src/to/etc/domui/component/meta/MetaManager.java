@@ -184,6 +184,13 @@ final public class MetaManager {
 				ref.setClassModel(cmm); // Marks as initialized.
 			}
 		}
+
+		//-- Now check all property fields (display properties, search properties)
+		ClassMetaModel cmm = ref.getClassModel();
+		ExpandedDisplayProperty.expandDisplayProperties(cmm.getComboDisplayProperties(), cmm, null);
+		ExpandedDisplayProperty.expandDisplayProperties(cmm.getLookupSelectedProperties(), cmm, null);
+		ExpandedDisplayProperty.expandDisplayProperties(cmm.getTableDisplayProperties(), cmm, null);
+		cmm.getSearchProperties();
 	}
 
 	/**
