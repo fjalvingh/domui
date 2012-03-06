@@ -423,7 +423,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if (dest && ($.browser.msie || $.browser.webkit || $.browser.mozilla) && n.substring(0, 2) == 'on') {
+					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
 //							if(! this._xxxw)
 //								alert('event '+n+' value '+v);

@@ -152,7 +152,6 @@ public interface QDataContext {
 	 * @param o
 	 * @throws Exception
 	 */
-	//  @Deprecated
 	void refresh(Object o) throws Exception;
 
 	/**
@@ -160,17 +159,13 @@ public interface QDataContext {
 	 * @param o
 	 * @throws Exception
 	 */
-	//	@Deprecated
 	void delete(Object o) throws Exception;
 
 
-	//	@Deprecated
 	void startTransaction() throws Exception;
 
-	//	@Deprecated
 	void commit() throws Exception;
 
-	//	@Deprecated
 	void rollback() throws Exception;
 
 	boolean inTransaction() throws Exception;
