@@ -106,7 +106,7 @@ public class SimplePopupMenu extends Div {
 	}
 
 	public void closeMenu() {
-		if(getPage() == null)
+		if(!isAttached())
 			return;
 		getPage().clearPopIn();
 		forceRebuild();

@@ -345,7 +345,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			function createElement(node) {
 				var e, tag = node.tagName.toLowerCase();
 				// some elements in IE need to be created with attrs inline
-				if ($.browser.msie) {
+				if ($.browser.msie & !WebUI.isNormalIE9plus()) {
 					var type = node.getAttribute('type');
 					if (tag == 'table'
 							|| type == 'radio'
@@ -423,7 +423,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if (dest && ($.browser.msie || $.browser.webkit || $.browser.mozilla) && n.substring(0, 2) == 'on') {
+					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
 //							if(! this._xxxw)
 //								alert('event '+n+' value '+v);
@@ -2497,6 +2497,11 @@ var WebUI = {
 		//document.documentMode == 8 		 --- IE8 running in IE8 mode or IE7 Compatibility mode
 		//document.documentMode == undefined --- plain old IE7 
 		return ($.browser.msie && parseInt($.browser.version) == 7 && (!document.documentMode || document.documentMode == 7));
+	},
+
+	//Returns T if browser is IE of at least version 9 and does not run in any of compatibility modes for earlier versions
+	isNormalIE9plus: function() {
+		return ($.browser.msie && parseInt($.browser.version) >= 9 && document.documentMode >= 9);
 	},
 
 	//Returns T if browser is IE8 or IE8 compatibility mode

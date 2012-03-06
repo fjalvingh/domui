@@ -36,11 +36,13 @@ final public class XMLNameSpaces {
 
 	static public final String	SOAP1_1				= "http://schemas.xmlsoap.org/soap/envelope/";
 
+	static public final String	SOAP1_2				= "http://www.w3.org/2003/05/soap-envelope";
+
 	static public final String	SOAP_WSDL_SOAP		= "http://schemas.xmlsoap.org/wsdl/soap/";
 
 	static public final String	SOAP_WSDL			= "http://schemas.xmlsoap.org/wsdl/";
 
-	static public final String	SOAP1_2				= "http://schemas.xmlsoap.org/wsdl/soap12/";
+	static public final String	SOAP_WSDL_1_2		= "http://schemas.xmlsoap.org/wsdl/soap12/";
 
 	static public final String	SOAP_ENCODING		= "http://schemas.xmlsoap.org/soap/encoding/";
 

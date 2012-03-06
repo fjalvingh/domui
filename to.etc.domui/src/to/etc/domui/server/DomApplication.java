@@ -670,6 +670,7 @@ public abstract class DomApplication {
 	 * @param path
 	 * @return
 	 */
+	@Nonnull
 	public File getAppFile(final String path) {
 		return new File(m_webFilePath, path);
 	}
@@ -683,6 +684,7 @@ public abstract class DomApplication {
 	 * @param name
 	 * @return
 	 */
+	@Nonnull
 	public IResourceRef getAppFileOrResource(String name) {
 		//-- 1. Is a file-based resource available?
 		File f = getAppFile(name);
@@ -692,11 +694,12 @@ public abstract class DomApplication {
 	}
 
 
-	public synchronized void registerResourceFactory(IResourceFactory f) {
+	public synchronized void registerResourceFactory(@Nonnull IResourceFactory f) {
 		m_resourceFactoryList = new ArrayList<IResourceFactory>(m_resourceFactoryList);
 		m_resourceFactoryList.add(f);
 	}
 
+	@Nonnull
 	public synchronized List<IResourceFactory> getResourceFactories() {
 		return m_resourceFactoryList;
 	}
@@ -706,6 +709,7 @@ public abstract class DomApplication {
 	 * @param name
 	 * @return
 	 */
+	@Nullable
 	public IResourceFactory findResourceFactory(String name) {
 		IResourceFactory best = null;
 		int bestscore = -1;
@@ -724,6 +728,7 @@ public abstract class DomApplication {
 	 * Returns the root of the webapp's installation directory on the local file system.
 	 * @return
 	 */
+	@Nonnull
 	public final File getWebAppFileRoot() {
 		return m_webFilePath;
 	}
@@ -741,6 +746,7 @@ public abstract class DomApplication {
 	 * @param name
 	 * @return
 	 */
+	@Nonnull
 	public IResourceRef createClasspathReference(String name) {
 		if(!name.startsWith("/"))
 			name = "/" + name;

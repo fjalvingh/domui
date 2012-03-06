@@ -76,6 +76,9 @@ class ReplayRecord {
 			m_parameterAr[i] = readParameter(r, ptype);
 			m_parameterType[i] = ptype;
 		}
+
+		if(m_sql.toLowerCase().contains(" for update"))
+			m_unexecutable = true;
 	}
 
 	private Object readParameter(DbReplay r, int type) throws Exception {
@@ -178,5 +181,13 @@ class ReplayRecord {
 
 	public int[] getParameterType() {
 		return m_parameterType;
+	}
+
+	public String getSummary() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(DbReplay.format(new Date(getStatementTime())));
+		sb.append(" @").append(getConnectionId());
+		sb.append(" ").append(m_sql);
+		return sb.toString();
 	}
 }

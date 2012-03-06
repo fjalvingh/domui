@@ -228,8 +228,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	final protected void changed() {
 		setCachedStyle(null);
 		internalSetHasChangedAttributes();
-		if(getParent() != null)
-			getParent().childChanged(); // Indicate child has changed
+		NodeContainer p = getParent();
+		if(p != null)
+			p.childChanged(); // Indicate child has changed
 		super.changed();
 	}
 
@@ -305,9 +306,19 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Return the Page for this node, if attached, or null otherwise.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	final public Page getPage() {
+		if(null == m_page)
+			throw new IllegalStateException("Not attached to a page yet. Use isAttached() to check if a node is attached or not.");
 		return m_page;
+	}
+
+	/**
+	 * Returns T if this node is attached to a real page.
+	 * @return
+	 */
+	final public boolean isAttached() {
+		return null != m_page;
 	}
 
 	/**
@@ -322,7 +333,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Internal use: remove registration.
 	 */
 	void unregisterFromPage() {
-		if(getPage() == null)
+		if(!isAttached())
 			return;
 		clearMessage(); // jal 20091015 Remove any pending messages for removed nodes.
 		getPage().unregisterNode(this);
@@ -332,7 +343,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Internal: register this node with the page.
 	 * @param p
 	 */
-	void registerWithPage(final Page p) {
+	void registerWithPage(@Nonnull final Page p) {
 		p.registerNode(this);
 	}
 
@@ -753,7 +764,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param js
 	 */
 	public void appendJavascript(final CharSequence js) {
-		if(getPage() != null)
+		if(isAttached())
 			getPage().appendJS(js);
 		else {
 			if(m_appendJS == null)
@@ -1310,7 +1321,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * in a page can claim focus for itself.
 	 */
 	public void setFocus() {
-		if(getPage() == null) {
+		if(!isAttached()) {
 			//-- Mark this as a component wanting the focus.
 			m_flags |= F_FOCUSREQUESTED;
 		} else

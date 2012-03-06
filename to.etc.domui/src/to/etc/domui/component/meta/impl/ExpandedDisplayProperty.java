@@ -596,25 +596,11 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	/**
-	 * Returns empty by definition.
-	 * @see to.etc.domui.component.meta.PropertyMetaModel#getColumnNames()
-	 */
-	@Nonnull
-	@Override
-	public String[] getColumnNames() {
-		return BasicPropertyMetaModel.NO_NAMES;
-	}
-
-	public IQueryManipulator<T> getQueryManipulator() {
-		return null;
-	}
-
-	/**
 	 * Expanded properties do not have annotations. This returns null always.
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAnnotation(java.lang.Class)
 	 */
-	@Nullable
 	@Override
+	@Nullable
 	public <A> A getAnnotation(Class<A> annclass) {
 		return null;
 	}
@@ -626,5 +612,20 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	@Override
 	public List<Object> getAnnotations() {
 		return Collections.emptyList();
+	}
+
+	/**
+	 * Returns empty by definition.
+	 * @see to.etc.domui.component.meta.PropertyMetaModel#getColumnNames()
+	 */
+	@Nonnull
+	@Override
+	public String[] getColumnNames() {
+		return BasicPropertyMetaModel.NO_NAMES;
+	}
+
+	@Override
+	public IQueryManipulator<T> getQueryManipulator() {
+		return null;
 	}
 }

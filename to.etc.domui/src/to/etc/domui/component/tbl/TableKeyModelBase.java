@@ -233,6 +233,8 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 		if(to < 0 || to >= getRows())
 			throw new IllegalStateException("Invalid 'to' index (out of bounds): " + to);
 		K key = delete(from);
+		if(null == key)
+			return;
 		add(to, key);
 	}
 }

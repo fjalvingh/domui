@@ -261,7 +261,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			getParent().childChanged();
 
 		//-- Copy all of my children and save me as their current parent
-		if(getPage() != null)
+		if(isAttached())
 			getPage().copyIdMap(); // Tell my parent I've changed.
 
 		m_oldChildren = m_children.toArray(new NodeBase[m_children.size()]);
@@ -280,7 +280,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		for(int i = 0; i < 50; i++) {
 			try {
 				for(NodeBase ch : m_children) {
-					if(ch.getPage() == null)
+					if(!ch.isAttached())
 						ch.registerWithPage(getPage());
 				}
 				return;
@@ -301,7 +301,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param child
 	 */
 	final private void registerWithPage(@Nonnull final NodeBase child) {
-		if(getPage() == null) // No page-> cannot register
+		if(!isAttached()) // No page-> cannot register
 			return;
 		child.registerWithPage(getPage());
 	}
@@ -369,7 +369,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		 */
 		if(nd instanceof IAddToBody) {
 			//-- This *must* be added to the BODY node, and this node must be attached for that to work.. Is it?
-			if(null == getPage())
+			if(!isAttached())
 				throw new ProgrammerErrorException("The component " + nd.getClass() + " is defined as 'must be added to the body' but the node it is added to " + this + " is not yet added to the page.");
 			getPage().internalAddFloater(this, nd);
 			return;

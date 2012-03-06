@@ -36,7 +36,7 @@ public class TestTimeConvertor {
 	 */
 	@Test
 	public void checkGoodTimes() {
-		TimeConvertor tc = new TimeConvertor();
+		TimeToSecondsConverter tc = new TimeToSecondsConverter();
 		Integer timeFromString = null;
 		for(int j = 0; j < GOOD_TIMES.length; j++) {
 			String time = GOOD_TIMES[j];
@@ -59,7 +59,7 @@ public class TestTimeConvertor {
 	 */
 	@Test
 	public void checkBadTimes() {
-		TimeConvertor tc = new TimeConvertor();
+		TimeToSecondsConverter tc = new TimeToSecondsConverter();
 		Integer timeFromString = null;
 		for (int j = 0; j < BAD_TIMES.length; j++) {
 			String time = BAD_TIMES[j];

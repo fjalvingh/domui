@@ -258,7 +258,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 		}
 
 		if(!isReadOnly() && !isDisabled()) {
-			if(m_selButton.getPage() == null) { // If the above did not add the button do it now.
+			if(m_selButton.isAttached()) { // If the above did not add the button do it now.
 				/*
 				 * jal 20090925 Bugfix: when a renderer does not add the button (as it should) we need to add it manually, but
 				 * it must be in a valid table structure! So we need to ensure that a tbody, tr and td are present to add the

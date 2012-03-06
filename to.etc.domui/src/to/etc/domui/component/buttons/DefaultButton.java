@@ -153,7 +153,7 @@ public class DefaultButton extends Button {
 	 * that case we ignore the call and generate the URL at page attachment time.
 	 */
 	private void genURL() {
-		if(getPage() == null)							// Not attached yet?
+		if(!isAttached()) // Not attached yet?
 			return;
 		StringBuilder sb = new StringBuilder(128);
 		m_key.append(sb);
