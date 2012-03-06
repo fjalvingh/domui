@@ -118,7 +118,10 @@ public class TestBasic {
 		Assert.assertTrue(res.size() != 0);
 	}
 
-	@Test
+	//@Test
+	/* Disabled because not every database contains the LedgerAccounts with code like 'E%'
+	 * FIXME when there is a standard way of adding records to the database for test purposes.
+	 *  */
 	public void testExec2() throws Exception {
 		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class).like("code", "E%");
 		List<LedgerAccount> res = exec(qc);
