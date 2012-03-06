@@ -303,10 +303,10 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 		renderThemeCSS();
 		renderHeadContributors();
-		if(page.getBody().getTitle() != null) {
+		if(page.getBody().getPageTitle() != null) {
 			o().tag("title");
 			o().endtag();
-			o().text(page.getBody().getTitle());
+			o().text(page.getBody().getPageTitle());
 			o().closetag("title");
 		}
 		o().closetag("head");
