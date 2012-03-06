@@ -67,7 +67,7 @@ final public class HibernateChecker {
 			if(m_currentClass != null) {
 				sb.append(" class ").append(m_currentClass.getName());
 				if(m_currentProperty != null) {
-					sb.append(" property ").append(m_currentClass.getName());
+					sb.append(" property ").append(m_currentProperty.getName());
 				}
 			}
 
@@ -152,6 +152,7 @@ final public class HibernateChecker {
 			Transient tr = g.getAnnotation(Transient.class);
 			if(null == tr) {
 				problem(Severity.WARNING, "Do not use Boolean wrappers. Use boolean as God intended.");
+				m_badBooleans++;
 			} else {
 				m_badBooleans++;
 				problem(Severity.ERROR, "boolean column mapped to Boolean wrapper is invalid- map to boolean using BooleanPrimitiveYNType");
