@@ -190,7 +190,6 @@ final public class MetaManager {
 		ExpandedDisplayProperty.expandDisplayProperties(cmm.getComboDisplayProperties(), cmm, null);
 		ExpandedDisplayProperty.expandDisplayProperties(cmm.getLookupSelectedProperties(), cmm, null);
 		ExpandedDisplayProperty.expandDisplayProperties(cmm.getTableDisplayProperties(), cmm, null);
-		cmm.getSearchProperties();
 	}
 
 	/**
