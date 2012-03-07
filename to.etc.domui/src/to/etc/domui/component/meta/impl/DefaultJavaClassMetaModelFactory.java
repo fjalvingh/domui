@@ -44,7 +44,12 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2008
  */
-public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory {
+public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory<DefaultJavaClassInfo> {
+	static private enum Pha {
+		INIT, FINISH
+	}
+
+
 	@Override
 	public int accepts(@Nonnull Object theThingy) {
 		if(!(theThingy instanceof Class< ? >)) // Only accept Class<?> thingies.
@@ -58,32 +63,40 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	 */
 	@Override
 	@Nonnull
-	public ClassMetaModel createModel(@Nonnull Object theThingy) {
+	public DefaultJavaClassInfo createModel(@Nonnull Object theThingy) {
 		Class< ? > clz = (Class< ? >) theThingy;
-		DefaultClassMetaModel dmm = new DefaultClassMetaModel(clz);
-
-		List<SearchPropertyMetaModel> searchlist = new ArrayList<SearchPropertyMetaModel>();
-		List<SearchPropertyMetaModel> keysearchlist = new ArrayList<SearchPropertyMetaModel>();
-		decodeClassAnnotations(dmm, clz, searchlist, keysearchlist); // Do class-level annotations
-		decodeDomainValues(dmm, clz); // Handle domain for this class (list-of-values)
-		decodeProperties(dmm, clz, searchlist, keysearchlist);
-
-		//-- Set both search property lists ordered by their order property.
-		Collections.sort(searchlist, SearchPropertyMetaModel.BY_ORDER);
-		Collections.sort(keysearchlist, SearchPropertyMetaModel.BY_ORDER);
-		dmm.setSearchProperties(searchlist);
-		dmm.setKeyWordSearchProperties(keysearchlist);
-		return dmm;
+		DefaultJavaClassInfo colli = new DefaultJavaClassInfo(new DefaultClassMetaModel(clz));
+		List<PropertyInfo> pilist = ClassUtil.getProperties(colli.getTypeClass());
+		decodeProperties(colli, pilist); // Phase 1: decode primitive properties.
+		decodeDomainValues(colli); // Handle domain for this class (list-of-values)
+		decodeClassAnnotations(colli, Pha.INIT); // Do class-level annotations
+		return colli;
 	}
 
+	@Override
+	public void finishModel(DefaultJavaClassInfo colli) {
+		decodeRelationProperties(colli);
+		decodeClassAnnotations(colli, Pha.FINISH); // Do class-level annotations
+
+		//-- Set both search property lists ordered by their order property.
+		Collections.sort(colli.getSearchList(), SearchPropertyMetaModel.BY_ORDER);
+		Collections.sort(colli.getKeySearchList(), SearchPropertyMetaModel.BY_ORDER);
+		colli.getModel().setSearchProperties(colli.getSearchList());
+		colli.getModel().setKeyWordSearchProperties(colli.getKeySearchList());
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Phase one: flat properties decode in this class.	*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * This obtains all properties from the class and initializes their models.
 	 * @param dmm
-	 * @param clz
-	 * @param keysearchlist
-	 * @param searchlist
+	 * @param m_clz
+	 * @param colli
+	 * @param m_keySearchList
+	 * @param m_searchList
 	 */
-	protected void decodeProperties(DefaultClassMetaModel cmm, Class< ? > clz, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
+	protected void decodeProperties(final DefaultJavaClassInfo colli, final List<PropertyInfo> pilist) {
 		/*
 		 * Business as usual: the Introspector does not properly resolve properties when using
 		 * invariant returns. We're forced to do something by ourselves. The Introspector does
@@ -96,43 +109,43 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		 * BeanInfo bi = Introspector.getBeanInfo(m_metaClass);
 		 * PropertyDescriptor[] ar = bi.getPropertyDescriptors();
 		 */
-		List<PropertyInfo> pilist = ClassUtil.getProperties(clz);
 		List<PropertyMetaModel< ? >> reslist = new ArrayList<PropertyMetaModel< ? >>(pilist.size());
 
 		//-- Create model data from this thingy.
 		for(PropertyInfo pd : pilist) {
-			if(!pd.getName().equals("class"))
-				createPropertyInfo(reslist, cmm, pd, searchlist, keysearchlist);
+			if(!pd.getName().equals("class")) {
+				DefaultPropertyMetaModel< ? > pmm = createPropertyInfo(reslist, pd, colli);
+				if(null != pmm)
+					colli.getMap().put(pd, pmm);
+			}
 		}
-		cmm.setClassProperties(reslist);
+		colli.getModel().setClassProperties(reslist);
 	}
 
-	protected void createPropertyInfo(List<PropertyMetaModel< ? >> reslist, DefaultClassMetaModel cmm, final PropertyInfo pd, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
-		//		System.out.println("Property: " + pd.getName() + ", reader=" + pd.getGetter());
-		//		if(pd.getName().equals("id"))
-		//			System.out.println("GOTCHA");
-
+	protected DefaultPropertyMetaModel< ? > createPropertyInfo(List<PropertyMetaModel< ? >> reslist, final PropertyInfo pd, final DefaultJavaClassInfo colli) {
 		Method rm = pd.getGetter();
 		if(rm.getParameterTypes().length != 0)
-			return;
-		DefaultPropertyMetaModel< ? > pm = new DefaultPropertyMetaModel<Object>(cmm, pd);
+			return null;
+		DefaultPropertyMetaModel< ? > pm = new DefaultPropertyMetaModel<Object>(colli.getModel(), pd);
 		reslist.add(pm);
-		initPropertyModel(cmm, pd, pm, searchlist, keysearchlist);
+		initPropertyModel(colli, pd, pm);
 		if(pm.isPrimaryKey())
-			cmm.setPrimaryKey(pm);
+			colli.getModel().setPrimaryKey(pm);
+		return pm;
 	}
 
-	protected void initPropertyModel(DefaultClassMetaModel cmm, PropertyInfo pd, DefaultPropertyMetaModel< ? > pmm, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
+	protected void initPropertyModel(DefaultJavaClassInfo colli, PropertyInfo pd, DefaultPropertyMetaModel< ? > pmm) {
 		Annotation[] annar = pd.getGetter().getAnnotations();
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName();
-			decodePropertyAnnotationByName(cmm, pmm, an, ana);
-			decodePropertyAnnotation(cmm, pmm, an, searchlist, keysearchlist);
+			decodePropertyAnnotationByName(colli, pmm, an, ana);
+			decodePropertyAnnotation(colli, pmm, an);
 		}
 	}
 
 	@SuppressWarnings({"cast", "unchecked", "rawtypes"})
-	protected void decodePropertyAnnotation(DefaultClassMetaModel cmm, DefaultPropertyMetaModel pmm, Annotation an, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
+	protected void decodePropertyAnnotation(DefaultJavaClassInfo colli, DefaultPropertyMetaModel pmm, Annotation an) {
+		DefaultClassMetaModel cmm = colli.getModel();
 		if(an instanceof MetaProperty) {
 			//-- Handle meta-assignments.
 			MetaProperty mp = (MetaProperty) an;
@@ -202,20 +215,6 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 				pmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
 			}
 			pmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
-		} else if(an instanceof MetaSearch) {
-			MetaSearch sp = (MetaSearch) an;
-			SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm);
-			mm.setIgnoreCase(sp.ignoreCase());
-			mm.setOrder(sp.order());
-			mm.setMinLength(sp.minLength());
-			mm.setPropertyName(pmm.getName());
-			if(sp.searchType() == SearchPropertyType.SEARCH_FIELD || sp.searchType() == SearchPropertyType.BOTH) {
-				searchlist.add(mm);
-			}
-			if(sp.searchType() == SearchPropertyType.KEYWORD || sp.searchType() == SearchPropertyType.BOTH) {
-				keysearchlist.add(mm);
-			}
-
 		} else if(an instanceof MetaObject) {
 			/*
 			 * Table metamodel.
@@ -263,7 +262,8 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		}
 	}
 
-	protected void decodePropertyAnnotationByName(DefaultClassMetaModel cmm, DefaultPropertyMetaModel< ? > pmm, Annotation an, String name) {
+	protected void decodePropertyAnnotationByName(DefaultJavaClassInfo colli, DefaultPropertyMetaModel< ? > pmm, Annotation an, String name) {
+		DefaultClassMetaModel cmm = colli.getModel();
 		if("javax.persistence.Column".equals(name)) {
 			decodeJpaColumn(pmm, an);
 		} else if("javax.persistence.Id".equals(name)) {
@@ -372,67 +372,122 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	/**
 	 * If this is an enum or the class Boolean define it's domain values.
 	 * @param dmm
-	 * @param clz
+	 * @param m_clz
 	 */
-	protected void decodeDomainValues(DefaultClassMetaModel dmm, Class< ? > clz) {
+	protected void decodeDomainValues(DefaultJavaClassInfo colli) {
 		//-- If this is an enumerable thingerydoo...
-		if(clz == Boolean.class) {
-			dmm.setDomainValues(new Object[]{Boolean.FALSE, Boolean.TRUE});
-		} else if(Enum.class.isAssignableFrom(clz)) {
-			Class<Enum< ? >> ecl = (Class<Enum< ? >>) clz;
-			dmm.setDomainValues(ecl.getEnumConstants());
+		if(colli.getTypeClass() == Boolean.class) {
+			colli.getModel().setDomainValues(new Object[]{Boolean.FALSE, Boolean.TRUE});
+		} else if(Enum.class.isAssignableFrom(colli.getTypeClass())) {
+			Class<Enum< ? >> ecl = (Class<Enum< ? >>) colli.getTypeClass();
+			colli.getModel().setDomainValues(ecl.getEnumConstants());
 		}
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Phase 2: relation information decode.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param dmm
+	 * @param m_clz
+	 * @param colli
+	 */
+	private void decodeRelationProperties(DefaultJavaClassInfo colli) {
+		for(Map.Entry<PropertyInfo, DefaultPropertyMetaModel< ? >> e : colli.getMap().entrySet()) {
+			decodeRelationProperties(colli, e.getKey(), e.getValue());
+		}
+	}
+
+	private void decodeRelationProperties(DefaultJavaClassInfo colli, PropertyInfo pd, DefaultPropertyMetaModel< ? > pmm) {
+		Annotation[] annar = pd.getGetter().getAnnotations();
+		for(Annotation an : annar) {
+			String ana = an.annotationType().getName();
+			decodeRelationAnnotationByName(colli, pmm, an, ana);
+			decodeRelationAnnotation(colli, pmm, an);
+		}
+	}
+
+	private void decodeRelationAnnotation(DefaultJavaClassInfo colli, DefaultPropertyMetaModel< ? > pmm, Annotation an) {
+		if(an instanceof MetaSearch) {
+			MetaSearch sp = (MetaSearch) an;
+			SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(colli.getModel());
+			mm.setIgnoreCase(sp.ignoreCase());
+			mm.setOrder(sp.order());
+			mm.setMinLength(sp.minLength());
+			mm.setPropertyName(pmm.getName());
+			if(sp.searchType() == SearchPropertyType.SEARCH_FIELD || sp.searchType() == SearchPropertyType.BOTH) {
+				colli.getSearchList().add(mm);
+			}
+			if(sp.searchType() == SearchPropertyType.KEYWORD || sp.searchType() == SearchPropertyType.BOTH) {
+				colli.getKeySearchList().add(mm);
+			}
+		}
+	}
+
+	private void decodeRelationAnnotationByName(DefaultJavaClassInfo colli, DefaultPropertyMetaModel< ? > pmm, Annotation an, String ana) {
+		// TODO Auto-generated method stub
+
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Annotation handling.								*/
 	/*--------------------------------------------------------------*/
 	/**
 	 * Walk all known class annotations and use them to add class based metadata.
-	 * @param keysearchlist
-	 * @param searchlist
+	 * @param i
+	 * @param m_keySearchList
+	 * @param m_searchList
 	 */
-	protected void decodeClassAnnotations(DefaultClassMetaModel cmm, Class< ? > clz, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
-		Annotation[] annar = clz.getAnnotations(); // All class-level thingerydoos
+	protected void decodeClassAnnotations(DefaultJavaClassInfo colli, Pha pha) {
+		Annotation[] annar = colli.getTypeClass().getAnnotations(); // All class-level thingerydoos
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName(); // Get the annotation's name
-			decodeAnnotationByName(cmm, an, ana); // Decode by name literal
-			decodeAnnotation(cmm, an, searchlist, keysearchlist); // Decode well-known annotations
+			decodeClassAnnotationByName(colli, pha, an, ana); // Decode by name literal
+			decodeClassAnnotation(colli, pha, an); // Decode well-known annotations
 		}
 	}
 
 	/**
 	 * Can be overridden to decode user-specific annotations. Currently only decodes the javax.persistence.Table annotation.
+	 * @param pha
 	 * @param an
 	 * @param name
 	 */
-	protected void decodeAnnotationByName(@Nonnull final DefaultClassMetaModel cmm, @Nonnull final Annotation an, @Nonnull final String name) {
-		if("javax.persistence.Table".equals(name)) {
-			//-- Decode fields from the annotation.
-			try {
-				String tablename = (String) DomUtil.getClassValue(an, "name");
-				String tableschema = (String) DomUtil.getClassValue(an, "schema");
-				if(tablename != null) {
-					if(tableschema != null)
-						tablename = tableschema + "." + tablename;
-					cmm.setTableName(tablename);
+	protected void decodeClassAnnotationByName(@Nonnull final DefaultJavaClassInfo colli, Pha pha, @Nonnull final Annotation an, @Nonnull final String name) {
+		if(pha == Pha.INIT) {
+			if("javax.persistence.Table".equals(name)) {
+				//-- Decode fields from the annotation.
+				try {
+					String tablename = (String) DomUtil.getClassValue(an, "name");
+					String tableschema = (String) DomUtil.getClassValue(an, "schema");
+					if(tablename != null) {
+						if(tableschema != null)
+							tablename = tableschema + "." + tablename;
+						colli.getModel().setTableName(tablename);
+					}
+				} catch(Exception x) {
+					Trouble.wrapException(x);
 				}
-			} catch(Exception x) {
-				Trouble.wrapException(x);
+			} else if("to.etc.webapp.qsql.QJdbcTable".equals(name)) {
+				colli.getModel().setPersistentClass(true);
 			}
-		} else if("to.etc.webapp.qsql.QJdbcTable".equals(name)) {
-			cmm.setPersistentClass(true);
 		}
 	}
 
 	/**
 	 * Decodes all DomUI annotations.
+	 * @param pha
 	 * @param an
-	 * @param keysearchlist
-	 * @param searchlist
+	 * @param m_keySearchList
+	 * @param m_searchList
 	 */
-	protected void decodeAnnotation(final DefaultClassMetaModel cmm, final Annotation an, List<SearchPropertyMetaModel> searchlist, List<SearchPropertyMetaModel> keysearchlist) {
+	protected void decodeClassAnnotation(final DefaultJavaClassInfo colli, Pha pha, final Annotation an) {
+		if(pha == Pha.INIT)
+			return;
+
+		DefaultClassMetaModel cmm = colli.getModel();
 		if(an instanceof MetaCombo) {
 			MetaCombo c = (MetaCombo) an;
 			if(c.dataSet() != UndefinedComboDataSet.class)
@@ -472,10 +527,10 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 				mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
 				mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
 				if(msi.searchType() == SearchPropertyType.SEARCH_FIELD || msi.searchType() == SearchPropertyType.BOTH) {
-					searchlist.add(mm);
+					colli.getSearchList().add(mm);
 				}
 				if(msi.searchType() == SearchPropertyType.KEYWORD || msi.searchType() == SearchPropertyType.BOTH) {
-					keysearchlist.add(mm);
+					colli.getKeySearchList().add(mm);
 				}
 			}
 		}

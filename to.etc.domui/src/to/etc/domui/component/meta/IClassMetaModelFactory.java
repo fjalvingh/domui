@@ -34,7 +34,7 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2008
  */
-public interface IClassMetaModelFactory {
+public interface IClassMetaModelFactory<S extends IMetaModelInfo> {
 	/**
 	 * Must return a value &gt; 0 when this knows how to create a metamodel for the specified thingerydoo.
 	 *
@@ -51,5 +51,7 @@ public interface IClassMetaModelFactory {
 	 * @return
 	 */
 	@Nonnull
-	ClassMetaModel createModel(@Nonnull Object theThingy);
+	S createModel(@Nonnull Object theThingy);
+
+	void finishModel(@Nonnull S info);
 }
