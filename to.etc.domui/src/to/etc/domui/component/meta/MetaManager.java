@@ -742,8 +742,7 @@ final public class MetaManager {
 			} else
 				continue;
 
-			DisplayPropertyMetaModel dp = new DisplayPropertyMetaModel();
-			dp.setName(pmm.getName());
+			DisplayPropertyMetaModel dp = new DisplayPropertyMetaModel(pmm);
 			res.add(dp);
 		}
 
@@ -860,10 +859,10 @@ final public class MetaManager {
 				default:
 					throw new IllegalStateException("Unexpected sort type: " + p.getSortable());
 				case SORTABLE_ASC:
-					q.ascending(p.getName());
+					q.ascending(p.getProperty().getName());
 					break;
 				case SORTABLE_DESC:
-					q.descending(p.getName());
+					q.descending(p.getProperty().getName());
 					break;
 			}
 		}

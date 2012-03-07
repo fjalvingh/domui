@@ -49,7 +49,6 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory<
 		INIT, FINISH
 	}
 
-
 	@Override
 	public int accepts(@Nonnull Object theThingy) {
 		if(!(theThingy instanceof Class< ? >)) // Only accept Class<?> thingies.
@@ -66,37 +65,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory<
 	public DefaultJavaClassInfo createModel(@Nonnull Object theThingy) {
 		Class< ? > clz = (Class< ? >) theThingy;
 		DefaultJavaClassInfo colli = new DefaultJavaClassInfo(new DefaultClassMetaModel(clz));
-		List<PropertyInfo> pilist = ClassUtil.getProperties(colli.getTypeClass());
-		decodeProperties(colli, pilist); // Phase 1: decode primitive properties.
-		decodeDomainValues(colli); // Handle domain for this class (list-of-values)
-		decodeClassAnnotations(colli, Pha.INIT); // Do class-level annotations
-		return colli;
-	}
 
-	@Override
-	public void finishModel(DefaultJavaClassInfo colli) {
-		decodeRelationProperties(colli);
-		decodeClassAnnotations(colli, Pha.FINISH); // Do class-level annotations
-
-		//-- Set both search property lists ordered by their order property.
-		Collections.sort(colli.getSearchList(), SearchPropertyMetaModel.BY_ORDER);
-		Collections.sort(colli.getKeySearchList(), SearchPropertyMetaModel.BY_ORDER);
-		colli.getModel().setSearchProperties(colli.getSearchList());
-		colli.getModel().setKeyWordSearchProperties(colli.getKeySearchList());
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Phase one: flat properties decode in this class.	*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * This obtains all properties from the class and initializes their models.
-	 * @param dmm
-	 * @param m_clz
-	 * @param colli
-	 * @param m_keySearchList
-	 * @param m_searchList
-	 */
-	protected void decodeProperties(final DefaultJavaClassInfo colli, final List<PropertyInfo> pilist) {
 		/*
 		 * Business as usual: the Introspector does not properly resolve properties when using
 		 * invariant returns. We're forced to do something by ourselves. The Introspector does
@@ -109,160 +78,226 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory<
 		 * BeanInfo bi = Introspector.getBeanInfo(m_metaClass);
 		 * PropertyDescriptor[] ar = bi.getPropertyDescriptors();
 		 */
+		List<PropertyInfo> pilist = ClassUtil.getProperties(colli.getTypeClass());
+		createPropertyMetas(colli, pilist);
+
+		decodeProperties(colli, Pha.INIT); // Phase 1: decode primitive properties.
+		decodeDomainValues(colli, Pha.INIT); // Handle domain for this class (list-of-values)
+		decodeClassAnnotations(colli, Pha.INIT); // Do class-level annotations
+		return colli;
+	}
+
+	@Override
+	public void finishModel(DefaultJavaClassInfo colli) {
+		decodeProperties(colli, Pha.INIT); // Phase 1: decode primitive properties.
+		decodeDomainValues(colli, Pha.INIT); // Handle domain for this class (list-of-values)
+		decodeClassAnnotations(colli, Pha.INIT); // Do class-level annotations
+
+		//-- Set both search property lists ordered by their order property.
+		Collections.sort(colli.getSearchList(), SearchPropertyMetaModel.BY_ORDER);
+		Collections.sort(colli.getKeySearchList(), SearchPropertyMetaModel.BY_ORDER);
+		colli.getModel().setSearchProperties(colli.getSearchList());
+		colli.getModel().setKeyWordSearchProperties(colli.getKeySearchList());
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Phase one: flat properties decode in this class.	*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Create {@link PropertyMetaModel} instances for all gettable properties. These are only
+	 * initialized with their primary property info.
+	 * @param colli
+	 * @param pilist
+	 */
+	private void createPropertyMetas(DefaultJavaClassInfo colli, List<PropertyInfo> pilist) {
 		List<PropertyMetaModel< ? >> reslist = new ArrayList<PropertyMetaModel< ? >>(pilist.size());
 
 		//-- Create model data from this thingy.
 		for(PropertyInfo pd : pilist) {
 			if(!pd.getName().equals("class")) {
-				DefaultPropertyMetaModel< ? > pmm = createPropertyInfo(reslist, pd, colli);
-				if(null != pmm)
-					colli.getMap().put(pd, pmm);
+				Method rm = pd.getGetter();
+				if(rm.getParameterTypes().length != 0)
+					continue;
+				DefaultPropertyMetaModel< ? > pm = new DefaultPropertyMetaModel<Object>(colli.getModel(), pd);
+				reslist.add(pm);
+				colli.getMap().put(pd, pm);
 			}
 		}
 		colli.getModel().setClassProperties(reslist);
 	}
 
-	protected DefaultPropertyMetaModel< ? > createPropertyInfo(List<PropertyMetaModel< ? >> reslist, final PropertyInfo pd, final DefaultJavaClassInfo colli) {
-		Method rm = pd.getGetter();
-		if(rm.getParameterTypes().length != 0)
-			return null;
-		DefaultPropertyMetaModel< ? > pm = new DefaultPropertyMetaModel<Object>(colli.getModel(), pd);
-		reslist.add(pm);
-		initPropertyModel(colli, pd, pm);
-		if(pm.isPrimaryKey())
-			colli.getModel().setPrimaryKey(pm);
-		return pm;
+	/**
+	 * This obtains all properties from the class and initializes their models.
+	 * @param dmm
+	 * @param m_clz
+	 * @param colli
+	 * @param m_keySearchList
+	 * @param m_searchList
+	 */
+	protected void decodeProperties(final DefaultJavaClassInfo colli, Pha phase) {
+		for(Map.Entry<PropertyInfo, DefaultPropertyMetaModel< ? >> e : colli.getMap().entrySet()) {
+			updatePropertyInfo(colli, e.getValue(), e.getKey(), phase);
+		}
 	}
 
-	protected void initPropertyModel(DefaultJavaClassInfo colli, PropertyInfo pd, DefaultPropertyMetaModel< ? > pmm) {
+	protected void updatePropertyInfo(final DefaultJavaClassInfo colli, DefaultPropertyMetaModel< ? > pm, PropertyInfo pd, Pha phase) {
+		initPropertyModel(colli, pd, pm, phase);
+		if(pm.isPrimaryKey())
+			colli.getModel().setPrimaryKey(pm);
+	}
+
+	protected void initPropertyModel(DefaultJavaClassInfo colli, PropertyInfo pd, DefaultPropertyMetaModel< ? > pmm, Pha phase) {
 		Annotation[] annar = pd.getGetter().getAnnotations();
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName();
-			decodePropertyAnnotationByName(colli, pmm, an, ana);
-			decodePropertyAnnotation(colli, pmm, an);
+			decodePropertyAnnotationByName(colli, pmm, an, ana, phase);
+			decodePropertyAnnotation(colli, pmm, an, phase);
 		}
 	}
 
 	@SuppressWarnings({"cast", "unchecked", "rawtypes"})
-	protected void decodePropertyAnnotation(DefaultJavaClassInfo colli, DefaultPropertyMetaModel pmm, Annotation an) {
+	protected void decodePropertyAnnotation(DefaultJavaClassInfo colli, DefaultPropertyMetaModel pmm, Annotation an, Pha pha) {
 		DefaultClassMetaModel cmm = colli.getModel();
 		if(an instanceof MetaProperty) {
-			//-- Handle meta-assignments.
-			MetaProperty mp = (MetaProperty) an;
-			if(mp.defaultSortable() != SortableType.UNKNOWN)
-				pmm.setSortable(mp.defaultSortable());
-			if(mp.length() >= 0)
-				pmm.setLength(mp.length());
-			if(mp.displaySize() >= 0)
-				pmm.setDisplayLength(mp.displaySize());
-			if(mp.required() != YesNoType.UNKNOWN)
-				pmm.setRequired(mp.required() == YesNoType.YES);
-			if(mp.converterClass() != DummyConverter.class)
-				pmm.setConverter((IConverter) ConverterRegistry.getConverterInstance((Class) mp.converterClass()));
-			if(mp.editpermissions().length != 0)
-				pmm.setEditRoles(makeRoleSet(mp.editpermissions()));
-			if(mp.viewpermissions().length != 0)
-				pmm.setViewRoles(makeRoleSet(mp.viewpermissions()));
-			if(mp.temporal() != TemporalPresentationType.UNKNOWN && pmm.getTemporal() == TemporalPresentationType.UNKNOWN)
-				pmm.setTemporal(mp.temporal());
-			if(mp.numericPresentation() != NumericPresentation.UNKNOWN)
-				pmm.setNumericPresentation(mp.numericPresentation());
-			if(pmm.getReadOnly() != YesNoType.YES) // Do not override readonlyness from missing write method
-				pmm.setReadOnly(mp.readOnly());
-			if(mp.componentTypeHint().length() != 0)
-				pmm.setComponentTypeHint(mp.componentTypeHint());
+			if(pha == Pha.INIT) {
+				//-- Handle meta-assignments.
+				MetaProperty mp = (MetaProperty) an;
+				if(mp.defaultSortable() != SortableType.UNKNOWN)
+					pmm.setSortable(mp.defaultSortable());
+				if(mp.length() >= 0)
+					pmm.setLength(mp.length());
+				if(mp.displaySize() >= 0)
+					pmm.setDisplayLength(mp.displaySize());
+				if(mp.required() != YesNoType.UNKNOWN)
+					pmm.setRequired(mp.required() == YesNoType.YES);
+				if(mp.converterClass() != DummyConverter.class)
+					pmm.setConverter((IConverter) ConverterRegistry.getConverterInstance((Class) mp.converterClass()));
+				if(mp.editpermissions().length != 0)
+					pmm.setEditRoles(makeRoleSet(mp.editpermissions()));
+				if(mp.viewpermissions().length != 0)
+					pmm.setViewRoles(makeRoleSet(mp.viewpermissions()));
+				if(mp.temporal() != TemporalPresentationType.UNKNOWN && pmm.getTemporal() == TemporalPresentationType.UNKNOWN)
+					pmm.setTemporal(mp.temporal());
+				if(mp.numericPresentation() != NumericPresentation.UNKNOWN)
+					pmm.setNumericPresentation(mp.numericPresentation());
+				if(pmm.getReadOnly() != YesNoType.YES) // Do not override readonlyness from missing write method
+					pmm.setReadOnly(mp.readOnly());
+				if(mp.componentTypeHint().length() != 0)
+					pmm.setComponentTypeHint(mp.componentTypeHint());
 
-			//-- Convert validators.
-			List<MetaPropertyValidatorImpl> list = new ArrayList<MetaPropertyValidatorImpl>();
-			for(Class< ? extends IValueValidator< ? >> vv : mp.validator()) {
-				MetaPropertyValidatorImpl vi = new MetaPropertyValidatorImpl(vv);
-				list.add(vi);
-			}
-			for(MetaValueValidator mvv : mp.parameterizedValidator()) {
-				MetaPropertyValidatorImpl vi = new MetaPropertyValidatorImpl(mvv.validator(), mvv.parameters());
-				list.add(vi);
-			}
-			pmm.setValidators(list.toArray(new PropertyMetaValidator[list.size()]));
-
-			//-- Regexp validators.
-			if(mp.regexpValidation().length() > 0) {
-				try {
-					//-- Precompile to make sure it's valid;
-					Pattern.compile(mp.regexpValidation());
-				} catch(Exception x) {
-					throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_BAD_REGEXP, mp.regexpValidation(), this.toString());
+				//-- Convert validators.
+				List<MetaPropertyValidatorImpl> list = new ArrayList<MetaPropertyValidatorImpl>();
+				for(Class< ? extends IValueValidator< ? >> vv : mp.validator()) {
+					MetaPropertyValidatorImpl vi = new MetaPropertyValidatorImpl(vv);
+					list.add(vi);
 				}
-				pmm.setRegexpValidator(mp.regexpValidation());
-				if(mp.regexpUserString().length() > 0)
-					pmm.setRegexpUserString(mp.regexpUserString());
+				for(MetaValueValidator mvv : mp.parameterizedValidator()) {
+					MetaPropertyValidatorImpl vi = new MetaPropertyValidatorImpl(mvv.validator(), mvv.parameters());
+					list.add(vi);
+				}
+				pmm.setValidators(list.toArray(new PropertyMetaValidator[list.size()]));
+
+				//-- Regexp validators.
+				if(mp.regexpValidation().length() > 0) {
+					try {
+						//-- Precompile to make sure it's valid;
+						Pattern.compile(mp.regexpValidation());
+					} catch(Exception x) {
+						throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_BAD_REGEXP, mp.regexpValidation(), this.toString());
+					}
+					pmm.setRegexpValidator(mp.regexpValidation());
+					if(mp.regexpUserString().length() > 0)
+						pmm.setRegexpUserString(mp.regexpUserString());
+				}
 			}
 		} else if(an instanceof MetaCombo) {
 			MetaCombo c = (MetaCombo) an;
-			if(c.dataSet() != UndefinedComboDataSet.class) {
-				pmm.setRelationType(PropertyRelationType.UP);
-				pmm.setComboDataSet(c.dataSet());
-			}
-			if(c.labelRenderer() != UndefinedLabelStringRenderer.class) {
-				pmm.setRelationType(PropertyRelationType.UP);
-				pmm.setComboLabelRenderer(c.labelRenderer());
-			}
-			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class) {
-				pmm.setRelationType(PropertyRelationType.UP);
-				pmm.setComboNodeRenderer(c.nodeRenderer());
+			if(pha == Pha.INIT) {
+				if(c.dataSet() != UndefinedComboDataSet.class) {
+					pmm.setRelationType(PropertyRelationType.UP);
+					pmm.setComboDataSet(c.dataSet());
+				}
+				if(c.labelRenderer() != UndefinedLabelStringRenderer.class) {
+					pmm.setRelationType(PropertyRelationType.UP);
+					pmm.setComboLabelRenderer(c.labelRenderer());
+				}
+				if(c.nodeRenderer() != UndefinedLabelStringRenderer.class) {
+					pmm.setRelationType(PropertyRelationType.UP);
+					pmm.setComboNodeRenderer(c.nodeRenderer());
+				}
+				pmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
 			}
 			if(c.properties() != null && c.properties().length > 0) {
-				pmm.setRelationType(PropertyRelationType.UP);
-				pmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
+				if(pha == Pha.INIT)
+					pmm.setRelationType(PropertyRelationType.UP);
+				else
+					pmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
 			}
-			pmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
+		} else if(an instanceof MetaSearch && pha == Pha.INIT) {
+			MetaSearch sp = (MetaSearch) an;
+			List<PropertyMetaModel< ? >> ppl = new ArrayList<PropertyMetaModel< ? >>(1);
+			ppl.add(pmm);
+			SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(colli.getModel(), ppl);
+			mm.setIgnoreCase(sp.ignoreCase());
+			mm.setOrder(sp.order());
+			mm.setMinLength(sp.minLength());
+			mm.setPropertyName(pmm.getName());
+			if(sp.searchType() == SearchPropertyType.SEARCH_FIELD || sp.searchType() == SearchPropertyType.BOTH) {
+				colli.getSearchList().add(mm);
+			}
+			if(sp.searchType() == SearchPropertyType.KEYWORD || sp.searchType() == SearchPropertyType.BOTH) {
+				colli.getKeySearchList().add(mm);
+			}
 		} else if(an instanceof MetaObject) {
 			/*
 			 * Table metamodel.
 			 */
 			MetaObject o = (MetaObject) an;
+			if(pha == Pha.INIT) {
 			if(o.selectedRenderer() != UndefinedLabelStringRenderer.class)
 				pmm.setLookupSelectedRenderer(o.selectedRenderer());
-			if(o.selectedProperties().length != 0) {
-				pmm.setLookupSelectedProperties(DisplayPropertyMetaModel.decode(cmm, o.selectedProperties()));
-			}
-			if(o.defaultColumns().length > 0) {
-				pmm.setLookupTableProperties(DisplayPropertyMetaModel.decode(cmm, o.defaultColumns()));
-			}
-			if(o.defaultSortColumn() != Constants.NONE) {
-
-			}
-			if(o.defaultSortOrder() != SortableType.UNKNOWN) {
-
-			}
-
-			if(o.searchProperties().length > 0) {
-				int index = 0;
-				List<SearchPropertyMetaModel> propsearchlist = new ArrayList<SearchPropertyMetaModel>();
-				List<SearchPropertyMetaModel> propkeysearchlist = new ArrayList<SearchPropertyMetaModel>();
-
-				for(MetaSearchItem msi : o.searchProperties()) {
-					index++;
-					SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm);
-					mm.setIgnoreCase(msi.ignoreCase());
-					mm.setOrder(msi.order() == -1 ? index : msi.order());
-					mm.setMinLength(msi.minLength());
-					mm.setPropertyName(msi.name().length() == 0 ? null : msi.name());
-					mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
-					mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
-					if(msi.searchType() == SearchPropertyType.SEARCH_FIELD || msi.searchType() == SearchPropertyType.BOTH) {
-						propsearchlist.add(mm);
-					}
-					if(msi.searchType() == SearchPropertyType.KEYWORD || msi.searchType() == SearchPropertyType.BOTH) {
-						propkeysearchlist.add(mm);
-					}
+			} else {
+				if(o.selectedProperties().length != 0 && pha == Pha.FINISH) {
+					pmm.setLookupSelectedProperties(DisplayPropertyMetaModel.decode(cmm, o.selectedProperties()));
 				}
-				pmm.setLookupFieldKeySearchProperties(propkeysearchlist);
-				pmm.setLookupFieldSearchProperties(propsearchlist);
+				if(o.defaultColumns().length > 0 && pha == Pha.FINISH) {
+					pmm.setLookupTableProperties(DisplayPropertyMetaModel.decode(cmm, o.defaultColumns()));
+				}
+				if(o.defaultSortColumn() != Constants.NONE) {}
+				if(o.defaultSortOrder() != SortableType.UNKNOWN) {
+
+				}
+
+				if(o.searchProperties().length > 0) {
+					int index = 0;
+					List<SearchPropertyMetaModel> propsearchlist = new ArrayList<SearchPropertyMetaModel>();
+					List<SearchPropertyMetaModel> propkeysearchlist = new ArrayList<SearchPropertyMetaModel>();
+
+					for(MetaSearchItem msi : o.searchProperties()) {
+						index++;
+						List<PropertyMetaModel< ? >> ppl = MetaManager.parsePropertyPath(colli.getModel(), msi.name());
+						SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm, ppl);
+						mm.setIgnoreCase(msi.ignoreCase());
+						mm.setOrder(msi.order() == -1 ? index : msi.order());
+						mm.setMinLength(msi.minLength());
+						mm.setPropertyName(msi.name().length() == 0 ? null : msi.name());
+						mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
+						mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
+						if(msi.searchType() == SearchPropertyType.SEARCH_FIELD || msi.searchType() == SearchPropertyType.BOTH) {
+							propsearchlist.add(mm);
+						}
+						if(msi.searchType() == SearchPropertyType.KEYWORD || msi.searchType() == SearchPropertyType.BOTH) {
+							propkeysearchlist.add(mm);
+						}
+					}
+					pmm.setLookupFieldKeySearchProperties(propkeysearchlist);
+					pmm.setLookupFieldSearchProperties(propsearchlist);
+				}
 			}
 		}
 	}
 
-	protected void decodePropertyAnnotationByName(DefaultJavaClassInfo colli, DefaultPropertyMetaModel< ? > pmm, Annotation an, String name) {
+	protected void decodePropertyAnnotationByName(DefaultJavaClassInfo colli, DefaultPropertyMetaModel< ? > pmm, Annotation an, String name, Pha phase) {
 		DefaultClassMetaModel cmm = colli.getModel();
 		if("javax.persistence.Column".equals(name)) {
 			decodeJpaColumn(pmm, an);
@@ -371,10 +406,14 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory<
 
 	/**
 	 * If this is an enum or the class Boolean define it's domain values.
+	 * @param init
 	 * @param dmm
 	 * @param m_clz
 	 */
-	protected void decodeDomainValues(DefaultJavaClassInfo colli) {
+	protected void decodeDomainValues(DefaultJavaClassInfo colli, Pha phase) {
+		if(phase != Pha.INIT)
+			return;
+
 		//-- If this is an enumerable thingerydoo...
 		if(colli.getTypeClass() == Boolean.class) {
 			colli.getModel().setDomainValues(new Object[]{Boolean.FALSE, Boolean.TRUE});
@@ -382,53 +421,6 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory<
 			Class<Enum< ? >> ecl = (Class<Enum< ? >>) colli.getTypeClass();
 			colli.getModel().setDomainValues(ecl.getEnumConstants());
 		}
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Phase 2: relation information decode.				*/
-	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @param dmm
-	 * @param m_clz
-	 * @param colli
-	 */
-	private void decodeRelationProperties(DefaultJavaClassInfo colli) {
-		for(Map.Entry<PropertyInfo, DefaultPropertyMetaModel< ? >> e : colli.getMap().entrySet()) {
-			decodeRelationProperties(colli, e.getKey(), e.getValue());
-		}
-	}
-
-	private void decodeRelationProperties(DefaultJavaClassInfo colli, PropertyInfo pd, DefaultPropertyMetaModel< ? > pmm) {
-		Annotation[] annar = pd.getGetter().getAnnotations();
-		for(Annotation an : annar) {
-			String ana = an.annotationType().getName();
-			decodeRelationAnnotationByName(colli, pmm, an, ana);
-			decodeRelationAnnotation(colli, pmm, an);
-		}
-	}
-
-	private void decodeRelationAnnotation(DefaultJavaClassInfo colli, DefaultPropertyMetaModel< ? > pmm, Annotation an) {
-		if(an instanceof MetaSearch) {
-			MetaSearch sp = (MetaSearch) an;
-			SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(colli.getModel());
-			mm.setIgnoreCase(sp.ignoreCase());
-			mm.setOrder(sp.order());
-			mm.setMinLength(sp.minLength());
-			mm.setPropertyName(pmm.getName());
-			if(sp.searchType() == SearchPropertyType.SEARCH_FIELD || sp.searchType() == SearchPropertyType.BOTH) {
-				colli.getSearchList().add(mm);
-			}
-			if(sp.searchType() == SearchPropertyType.KEYWORD || sp.searchType() == SearchPropertyType.BOTH) {
-				colli.getKeySearchList().add(mm);
-			}
-		}
-	}
-
-	private void decodeRelationAnnotationByName(DefaultJavaClassInfo colli, DefaultPropertyMetaModel< ? > pmm, Annotation an, String ana) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/*--------------------------------------------------------------*/
@@ -496,14 +488,14 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory<
 				cmm.setComboLabelRenderer(c.labelRenderer());
 			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
 				cmm.setComboNodeRenderer(c.nodeRenderer());
-			if(c.properties() != null && c.properties().length > 0) {
+			if(c.properties() != null && c.properties().length > 0 && pha == Pha.FINISH) {
 				cmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
 			}
 			if(c.preferred())
 				cmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
 		} else if(an instanceof MetaObject) {
 			MetaObject mo = (MetaObject) an;
-			if(mo.defaultColumns().length > 0) {
+			if(mo.defaultColumns().length > 0 && pha == Pha.FINISH) {
 				cmm.setTableDisplayProperties(DisplayPropertyMetaModel.decode(cmm, mo.defaultColumns()));
 			}
 			if(!mo.defaultSortColumn().equals(Constants.NONE))
@@ -512,18 +504,19 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory<
 
 			if(mo.selectedRenderer() != UndefinedLabelStringRenderer.class)
 				cmm.setLookupSelectedRenderer(mo.selectedRenderer());
-			if(mo.selectedProperties().length != 0)
+			if(mo.selectedProperties().length != 0 && pha == Pha.FINISH)
 				cmm.setLookupSelectedProperties(DisplayPropertyMetaModel.decode(cmm, mo.selectedProperties()));
 
 			//-- Handle search
 			int index = 0;
 			for(MetaSearchItem msi : mo.searchProperties()) {
 				index++;
-				SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm);
+				List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(colli.getModel(), msi.name());
+				SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm, pl);
 				mm.setIgnoreCase(msi.ignoreCase());
 				mm.setOrder(msi.order() == -1 ? index : msi.order());
 				mm.setMinLength(msi.minLength());
-				mm.setPropertyName(msi.name().length() == 0 ? null : msi.name());
+				mm.setPropertyName(msi.name());
 				mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
 				mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
 				if(msi.searchType() == SearchPropertyType.SEARCH_FIELD || msi.searchType() == SearchPropertyType.BOTH) {

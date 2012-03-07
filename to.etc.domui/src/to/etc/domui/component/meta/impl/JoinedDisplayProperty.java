@@ -53,7 +53,7 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty<String> imple
 		DisplayPropertyMetaModel dpm = list.get(0); // 1st thingy contains sizes,
 		setDisplayLength(dpm.getDisplayLength());
 		setSortable(SortableType.UNSORTABLE);
-		setName(dpm.getName());
+		setName(dpm.getProperty().getName());
 	}
 
 	//	jal 20101226 This compiles in Eclipse 3.6 even though the overridden method is final!!?!?!
