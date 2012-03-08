@@ -1194,6 +1194,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		NodeBase dragnode = getPage().findNodeByID(dragid);
 		if(dragnode == null)
 			throw new IllegalStateException("Unknown dragged node " + dragid + " in drop request to node=" + this);
+
 		IDragHandler dragh;
 		if(dragnode instanceof IDragArea)
 			dragh = ((IDragArea) dragnode).getDragHandle().getDragHandler();
@@ -1221,7 +1222,23 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 				throw new IllegalStateException("Bad _colIndex parameter in DROP request: " + s);
 			}
 		}
-		DropEvent dx = new DropEvent((NodeContainer) this, dragnode, index, colIndex);
+		String nextSiblingId = ctx.getParameter("_siblingId");
+		String dropContainerId = ctx.getParameter("_dropContainerId");
+		String mode = ctx.getParameter("_mode");
+
+		DropEvent dx = null;
+		if(DropMode.DIV.name().equals(mode)) {
+			if(dropContainerId == null) {
+				throw new IllegalStateException("Missing drop container is (_dropContainerId) in DIV drop request to node=" + this);
+			}
+			NodeBase dropContainer = getPage().findNodeByID(dropContainerId);
+			if(dropContainer == null) {
+				throw new IllegalStateException("Unknown drop container node " + dropContainerId + " in drop request to node=" + this);
+			}
+			dx = new DropEvent((NodeContainer) dropContainer, dragnode, nextSiblingId);
+		} else {
+			dx = new DropEvent((NodeContainer) this, dragnode, index, colIndex);
+		}
 		dragh.onDropped(dx);
 		droph.onDropped(dx);
 	}

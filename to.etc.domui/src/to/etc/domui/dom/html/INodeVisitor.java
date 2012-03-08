@@ -89,4 +89,6 @@ public interface INodeVisitor {
 	public void visitH(HTag n) throws Exception;
 
 	public void visitXmlNode(XmlTextNode n) throws Exception;
+
+	public void visitIFrame(IFrame n) throws Exception;
 }

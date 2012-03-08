@@ -24,6 +24,10 @@
  */
 package to.etc.domui.util;
 
+import javax.annotation.*;
+
+import to.etc.domui.dom.html.*;
+
 /**
  * Nodes that can accept dropped things must have this interface defined via setDropHandler(). The instance
  * of this handler determines what happens with the dropped node, and which nodes are acceptable for dropping.
@@ -49,4 +53,11 @@ public interface IDropHandler {
 	 * @throws Exception
 	 */
 	public void onDropped(DropEvent context) throws Exception;
+
+	/**
+	 * Returns drag&drop mode that is supported by drop handler.
+	 */
+	@Nullable
+	public DropMode getDragMode();
+
 }

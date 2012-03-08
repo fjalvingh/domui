@@ -130,6 +130,8 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			var to = xml.documentElement.getAttribute('url');
 			window.location.href = to;
 			return true;
+		} else if (rname == 'expiredOnPollasy'){
+			return true; // do nothing actually, page is in process of redirecting to some other page and we need to ignore responses on obsolete pollasy calls...
 		} else if (rname == 'expired') {
 			var msg = 'Uw sessie is verlopen. Het scherm wordt opnieuw opgevraagd met originele gegevens.';
 			var hr = window.location.href;
@@ -421,7 +423,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if (dest && ($.browser.msie || $.browser.webkit || $.browser.mozilla) && n.substring(0, 2) == 'on') {
+					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
 //							if(! this._xxxw)
 //								alert('event '+n+' value '+v);
@@ -505,6 +507,32 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	$.fn.doStretch = function () {
 		return this.each(function () {
 			WebUI.stretchHeight(this.id);
+		});
+	};
+})(jQuery);
+
+(function ($) {
+	$.fn.setBackgroundImageMarker = function () {
+		return this.each(function () {
+			if($(this).markerTransformed){
+				return;
+			}
+			var imageUrl = 'url(' + $(this).attr('marker') + ')';
+			if((!(this == document.activeElement)) && $(this).val().length == 0){
+				$(this).css('background-image', imageUrl);
+			}
+			$(this).css('background-repeat', 'no-repeat');
+			$(this).bind('focus',function(e){
+				$(this).css('background-image', 'none');
+			});
+			$(this).bind('blur',function(e){
+				if($(this).val().length == 0){
+					$(this).css('background-image', imageUrl);
+				} else {
+					$(this).css('background-image', 'none');
+				}
+			});
+			$(this).markerTransformed = true;
 		});
 	};
 })(jQuery);
@@ -1055,6 +1083,7 @@ var WebUI = {
    					}
 					//handle received lookupTyping component content
 					WebUI.showLookupTypingPopupIfStillFocusedAndFixZIndex(id);
+					WebUI.doCustomUpdates();
    				},
 
 				success :WebUI.handleResponse,
@@ -1607,7 +1636,7 @@ var WebUI = {
 				}
 			}
 			if (!ok) {
-				alert("File type not allowed");
+				alert("File type not allowed: " + ext + ", allowed: " + val);
 				return;
 			}
 		}
@@ -2123,13 +2152,18 @@ var WebUI = {
 		$(elem).siblings().each(function(index, node) {
 			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
 			if (node != elem && $(node).css('position') == 'static' && ($(node).css('float') == 'none' || $(node).css('width') != '100%' /* count in floaters that occupies total width */)){
-				//In IE7 hidden nodes needs to be additonaly excluded from count...
+				//In IE7 hidden nodes needs to be additionaly excluded from count...
 				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
+					//totHeight += node.offsetHeight;
 					totHeight += $(node).outerHeight();
 				}
 			}
 		});
-		var elemDeltaHeight =  $(elem).outerHeight() - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
+		var elemDeltaHeight = $(elem).outerHeight() - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
+		if (WebUI.isIE8orIE8c()){
+			//from some reason we need +1 only for IE8!
+			elemDeltaHeight = elemDeltaHeight + 1;
+		}
 		$(elem).height($(elem).parent().height() - totHeight - elemDeltaHeight);
 		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
 			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers 
@@ -2512,12 +2546,57 @@ var WebUI = {
 			}
 		}
 	},
+	
+	//Use this to make sure that option in dropdown would be visible. It needs fix only in FF sinve IE would always make visible selected option.  
+	makeOptionVisible: function(elemId, offset) {
+		if($.browser.msie){
+			//IE already fix this... we need fix only for FF and other browsers
+			return;
+		}
+		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
+		var parent = elem.parentNode; 
+		if (!parent){
+			return;
+		}
+		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
+			var elemPos = $(elem).position().top;
+			//if elem is not currenlty visible
+			if (elemPos <= 0 || elemPos >= parent.offsetHeight){
+				//else scroll parent to show me at top
+				var newPos = elemPos + parent.scrollTop;
+				if (offset){
+					newPos = newPos - offset;
+				}
+				$(parent).animate({scrollTop: newPos}, 'slow');
+			}
+		}
+	},
+	
+	//Returns T if browser is really using IE7 rendering engine (since IE8 compatibility mode presents  browser as version 7 but renders as IE8!)
+	isReallyIE7: function() {
+		//Stupid IE8 in compatibility mode lies that it is IE7, and renders as IE8! At least we can detect that using document.documentMode (it is 8 in that case)
+		//document.documentMode == 7 		 --- IE8 running in IE7 mode
+		//document.documentMode == 8 		 --- IE8 running in IE8 mode or IE7 Compatibility mode
+		//document.documentMode == undefined --- plain old IE7 
+		return ($.browser.msie && parseInt($.browser.version) == 7 && (!document.documentMode || document.documentMode == 7));
+	},
 
+	//Returns T if browser is IE8 or IE8 compatibility mode
+	isIE8orIE8c: function() {
+		//Stupid IE8 in compatibility mode lies that it is IE7, and renders as IE8! At least we can detect that using document.documentMode (it is 8 in that case)
+		//document.documentMode == 7 		 --- IE8 running in IE7 mode
+		//document.documentMode == 8 		 --- IE8 running in IE8 mode or IE7 Compatibility mode
+		//document.documentMode == undefined --- plain old IE7 
+		return ($.browser.msie && (parseInt($.browser.version) == 8 || (parseInt($.browser.version) == 7 && document.documentMode == 8)));
+	},
+	
 	//Returns T if browser is IE of at least version 9 and does not run in any of compatibility modes for earlier versions
 	isNormalIE9plus: function() {
 		return ($.browser.msie && parseInt($.browser.version) >= 9 && document.documentMode >= 9);
-	}	
-	
+	}
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
@@ -2765,6 +2844,7 @@ var DomUI = WebUI;
 WebUI.doCustomUpdates = function() {
 	$('[stretch=true]').doStretch();
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
+	$('input[marker]').setBackgroundImageMarker();
 };
 
 WebUI.onDocumentReady = function() {

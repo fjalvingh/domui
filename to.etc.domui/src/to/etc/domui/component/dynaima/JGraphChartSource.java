@@ -24,9 +24,15 @@
  */
 package to.etc.domui.component.dynaima;
 
+import java.awt.*;
 import java.awt.image.*;
+import java.io.*;
 
 import org.jCharts.*;
+
+import to.etc.domui.component.dynaima.BarCharter.*;
+import to.etc.domui.component.dynaima.PieCharter.*;
+import to.etc.sjit.*;
 
 public class JGraphChartSource implements IBufferedImageSource {
 	private Chart m_chart;
@@ -64,8 +70,13 @@ public class JGraphChartSource implements IBufferedImageSource {
 		} else {
 			//---else, create a new BufferedImage and set the Graphics2D onto the chart.
 			bufferedImage = new BufferedImage(m_chart.getImageWidth(), m_chart.getImageHeight(), BufferedImage.TYPE_INT_RGB);
-			m_chart.setGraphics2D(bufferedImage.createGraphics());
+			Graphics2D chartImage = bufferedImage.createGraphics();
+			InputStream inputStream = JGraphChartSource.class.getResourceAsStream("glossy-chart.png");
+			BufferedImage glossyOverlay = ImaTool.loadPNG(inputStream);
+
+			m_chart.setGraphics2D(chartImage);
 			m_chart.render();
+			chartImage.drawImage(glossyOverlay, null, 0, 0);
 		}
 		return bufferedImage;
 	}
@@ -74,15 +85,35 @@ public class JGraphChartSource implements IBufferedImageSource {
 
 	public void close() {}
 
-	public PieCharter createPieChart(int w, int h, String label) {
-		PieCharter c = new PieCharter(this, label, w, h);
+	public PieCharter createPieChart(ChartDimensions chartDimensions, PieCharterProperties pieChartProperties) {
+		PieCharter c = new PieCharter(this, chartDimensions, pieChartProperties);
 		m_helper = c;
 		return c;
 	}
 
-	public AreaCharter createAreaChart(int w, int h, String title, String buckettitle, String valuetitle) {
-		AreaCharter c = new AreaCharter(this, title, w, h, buckettitle, valuetitle);
+	public PieCharter createPieChart(ChartDimensions chartDimensions) {
+		PieCharter c = new PieCharter(this, chartDimensions);
 		m_helper = c;
 		return c;
 	}
+
+	public AreaCharter createAreaChart(ChartDimensions chartDimensions, String title, String buckettitle, String valuetitle) {
+		AreaCharter c = new AreaCharter(this, title, chartDimensions, buckettitle, valuetitle);
+		m_helper = c;
+		return c;
+	}
+	
+	public BarCharter createBarChart(ChartDimensions chartDimensions, String buckettitle, String valuetitle) {
+		BarCharter c = new BarCharter(this, chartDimensions, buckettitle, valuetitle);
+		m_helper = c;
+		return c;
+	}
+
+	public BarCharter createBarChart(ChartDimensions chartDimensions, BarCharterParameters barCharterProperties, String buckettitle, String valuetitle) {
+		BarCharter c = new BarCharter(this, barCharterProperties, chartDimensions, buckettitle, valuetitle);
+		m_helper = c;
+		return c;
+	}
+
+
 }
