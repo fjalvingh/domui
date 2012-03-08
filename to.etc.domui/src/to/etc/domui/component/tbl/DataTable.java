@@ -572,6 +572,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			while(m_visibleItemList.size() > m_pageSize)
 				m_visibleItemList.remove(m_visibleItemList.size() - 1);
 		}
+		handleOddEven(rrow);
 		firePageChanged();
 	}
 
@@ -612,7 +613,22 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			m_dataBody.add(m_pageSize - 1, tr);
 			m_visibleItemList.add(m_pageSize - 1, mi);
 		}
+		handleOddEven(rrow);
 		firePageChanged();
+	}
+
+	private void handleOddEven(int index) {
+		for(int ix = index; ix < m_dataBody.getChildCount(); ix++) {
+			TR tr = (TR) m_dataBody.getChild(ix);
+			if((ix & 0x1) == 0) {
+				//-- Even
+				tr.removeCssClass("ui-odd");
+				tr.addCssClass("ui-even");
+			} else {
+				tr.addCssClass("ui-odd");
+				tr.removeCssClass("ui-even");
+			}
+		}
 	}
 
 	/**
