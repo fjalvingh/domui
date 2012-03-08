@@ -530,6 +530,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	@Override
 	public void modelChanged(@Nullable ITableModel<T> model) {
 		forceRebuild();
+		fireModelChanged(null, model);
 	}
 
 	/**
@@ -547,8 +548,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		if(!isBuilt())
 			return;
 		calcIndices(); // Calculate visible nodes
-		if(index < m_six || index >= m_eix) // Outside visible bounds
+		if(index < m_six || index >= m_eix) { // Outside visible bounds
+			firePageChanged();
 			return;
+		}
 
 		//-- What relative row?
 		setResults();
@@ -569,6 +572,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			while(m_visibleItemList.size() > m_pageSize)
 				m_visibleItemList.remove(m_visibleItemList.size() - 1);
 		}
+		firePageChanged();
 	}
 
 	/**
@@ -582,13 +586,17 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
-		if(index < m_six || index >= m_eix) // Outside visible bounds
+		calcIndices(); // Calculate visible nodes
+		if(index < m_six || index >= m_eix) { // Outside visible bounds
+			firePageChanged();
 			return;
+		}
 		int rrow = index - m_six; // This is the location within the child array
 		m_dataBody.removeChild(rrow); // Discard this one;
 		m_visibleItemList.remove(rrow);
 		if(m_dataBody.getChildCount() == 0) {
 			setNoResults();
+			firePageChanged();
 			return;
 		}
 
@@ -604,6 +612,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			m_dataBody.add(m_pageSize - 1, tr);
 			m_visibleItemList.add(m_pageSize - 1, mi);
 		}
+		firePageChanged();
 	}
 
 	/**
