@@ -594,13 +594,15 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 
 		//-- One row gone; must we add one at the end?
 		int peix = m_six + m_pageSize - 1; // Index of last element on "page"
-		if(m_pageSize > 0 && peix < m_eix) {
+		if(m_pageSize > 0 && peix < m_eix && peix < getModel().getRows()) {
 			ColumnContainer<T> cc = new ColumnContainer<T>(this);
 			TR tr = new TR();
 			cc.setParent(tr);
-			renderRow(tr, cc, peix, getModelItem(peix));
+
+			T mi = getModelItem(peix);
+			renderRow(tr, cc, peix, mi);
 			m_dataBody.add(m_pageSize - 1, tr);
-			m_visibleItemList.add(m_pageSize - 1, value);
+			m_visibleItemList.add(m_pageSize - 1, mi);
 		}
 	}
 
