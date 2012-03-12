@@ -138,7 +138,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			renderRow(tr, cc, ix, o);
 			ix++;
 		}
-		appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+		//		appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 	}
 
 	@SuppressWarnings("deprecation")
