@@ -24,10 +24,13 @@
  */
 package to.etc.domui.component.layout.title;
 
+import javax.annotation.*;
+
 import to.etc.domui.annotations.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -44,6 +47,7 @@ import to.etc.util.*;
 public class AppPageTitleBar extends BasePageTitleBar {
 	final private boolean m_catchError;
 
+	@Nonnull
 	private final Img m_img = new Img();
 
 	private TD m_buttonpart = new TD();
@@ -81,6 +85,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 
 	public void setIcon(final String s) {
 		m_imageUrl = s;
+		m_img.setDisplay(s == null ? DisplayType.NONE : DisplayType.INLINE);
 	}
 
 	public String getHint() {
@@ -105,8 +110,8 @@ public class AppPageTitleBar extends BasePageTitleBar {
 
 		//-- Image...
 		setIconURL();
-		//		if(m_img.getSrc() == null)
-		//			m_img.setSrc("img/btnModule.png");
+		if(m_img.getSrc() == null)
+			m_img.setDisplay(DisplayType.NONE);
 		m_img.setAlign(ImgAlign.LEFT);
 		TD td = b.addCell();
 		td.add(m_img);

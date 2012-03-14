@@ -587,8 +587,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
-		calcIndices(); // Calculate visible nodes
+
+		//-- We need the indices of the OLD data, so DO NOT RECALCULATE - the model size has changed.
 		if(index < m_six || index >= m_eix) { // Outside visible bounds
+			calcIndices(); // Calculate visible nodes
 			firePageChanged();
 			return;
 		}
@@ -596,6 +598,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		m_dataBody.removeChild(rrow); // Discard this one;
 		m_visibleItemList.remove(rrow);
 		if(m_dataBody.getChildCount() == 0) {
+			calcIndices(); // Calculate visible nodes
 			setNoResults();
 			firePageChanged();
 			return;
@@ -613,6 +616,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			m_dataBody.add(m_pageSize - 1, tr);
 			m_visibleItemList.add(m_pageSize - 1, mi);
 		}
+		calcIndices(); // Calculate visible nodes
 		handleOddEven(rrow);
 		firePageChanged();
 	}
