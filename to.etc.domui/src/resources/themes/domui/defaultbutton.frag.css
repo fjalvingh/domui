@@ -22,7 +22,7 @@
 	display: block;
 	min-width: 94px;
 	white-space: nowrap;
-	height: <%= button_height-5 %>px;
+	height: <%= button_height %>px;
 	padding: 3px 0 0 6px;
 	color: white;
 	font-weight: bold;
