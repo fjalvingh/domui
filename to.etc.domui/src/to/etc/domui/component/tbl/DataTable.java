@@ -138,7 +138,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			renderRow(tr, cc, ix, o);
 			ix++;
 		}
-		appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+		//		appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 	}
 
 	@SuppressWarnings("deprecation")
@@ -528,6 +528,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	@Override
 	public void modelChanged(@Nullable ITableModel<T> model) {
 		forceRebuild();
+		fireModelChanged(null, model);
 	}
 
 	/**
@@ -545,8 +546,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		if(!isBuilt())
 			return;
 		calcIndices(); // Calculate visible nodes
-		if(index < m_six || index >= m_eix) // Outside visible bounds
+		if(index < m_six || index >= m_eix) { // Outside visible bounds
+			firePageChanged();
 			return;
+		}
 
 		//-- What relative row?
 		setResults();
@@ -567,6 +570,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			while(m_visibleItemList.size() > m_pageSize)
 				m_visibleItemList.remove(m_visibleItemList.size() - 1);
 		}
+		handleOddEven(rrow);
+		firePageChanged();
 	}
 
 	/**
@@ -580,25 +585,51 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
-		if(index < m_six || index >= m_eix) // Outside visible bounds
+
+		//-- We need the indices of the OLD data, so DO NOT RECALCULATE - the model size has changed.
+		if(index < m_six || index >= m_eix) { // Outside visible bounds
+			calcIndices(); // Calculate visible nodes
+			firePageChanged();
 			return;
+		}
 		int rrow = index - m_six; // This is the location within the child array
 		m_dataBody.removeChild(rrow); // Discard this one;
 		m_visibleItemList.remove(rrow);
 		if(m_dataBody.getChildCount() == 0) {
+			calcIndices(); // Calculate visible nodes
 			setNoResults();
+			firePageChanged();
 			return;
 		}
 
 		//-- One row gone; must we add one at the end?
 		int peix = m_six + m_pageSize - 1; // Index of last element on "page"
-		if(m_pageSize > 0 && peix < m_eix) {
+		if(m_pageSize > 0 && peix < m_eix && peix < getModel().getRows()) {
 			ColumnContainer<T> cc = new ColumnContainer<T>(this);
 			TR tr = new TR();
 			cc.setParent(tr);
-			renderRow(tr, cc, peix, getModelItem(peix));
+
+			T mi = getModelItem(peix);
+			renderRow(tr, cc, peix, mi);
 			m_dataBody.add(m_pageSize - 1, tr);
-			m_visibleItemList.add(m_pageSize - 1, value);
+			m_visibleItemList.add(m_pageSize - 1, mi);
+		}
+		calcIndices(); // Calculate visible nodes
+		handleOddEven(rrow);
+		firePageChanged();
+	}
+
+	private void handleOddEven(int index) {
+		for(int ix = index; ix < m_dataBody.getChildCount(); ix++) {
+			TR tr = (TR) m_dataBody.getChild(ix);
+			if((ix & 0x1) == 0) {
+				//-- Even
+				tr.removeCssClass("ui-odd");
+				tr.addCssClass("ui-even");
+			} else {
+				tr.addCssClass("ui-odd");
+				tr.removeCssClass("ui-even");
+			}
 		}
 	}
 

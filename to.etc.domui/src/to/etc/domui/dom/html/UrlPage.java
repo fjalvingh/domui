@@ -24,6 +24,9 @@
  */
 package to.etc.domui.dom.html;
 
+import to.etc.domui.component.layout.*;
+import to.etc.domui.component.layout.title.*;
+
 
 /**
  * The base for all pages that can be accessed thru URL's. This is mostly a
@@ -50,7 +53,8 @@ public class UrlPage extends Div {
 	public void onDestroy() throws Exception {}
 
 	/**
-	 * Get the head's "title" tag for this page. This will show that title in the browser's top window.
+	 * Get the page name used for {@link AppPageTitleBar} and {@link BreadCrumb} related code. To set the head title use the
+	 * "title" property.
 	 * @return
 	 */
 	public String getPageTitle() {
@@ -58,7 +62,8 @@ public class UrlPage extends Div {
 	}
 
 	/**
-	 * Set the head's "title" tag for this page. This will show that title in the browser's top window.
+	 * Set the page name used for {@link AppPageTitleBar} and {@link BreadCrumb} related code. To set the head title use the
+	 * "title" property.
 	 *
 	 * @param pageTitle
 	 */

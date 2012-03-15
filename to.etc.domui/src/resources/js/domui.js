@@ -1554,7 +1554,42 @@ var WebUI = {
 			error :WebUI.handleErrorAsy
 		});
 	},
+
+	/**
+	 * Send Ajax request to the server every 2 minutes. This keeps the session
+	 * alive. The response can contain commands to execute which will indicate
+	 * important events or changes have taken place.
+	 */
+	pingServer: function(timeout) {
+		var url = DomUIappURL + "to.etc.domui.parts.PollInfo.part";
+		var param = {
+		};
+		$.ajax( {
+			url: url,
+			dataType: "text/xml",
+			data: param,
+			cache: false,
+			global: false, // jal 20091015 prevent block/unblock on polling call.
+			success: function(data, state) {
+				WebUI.executePollCommands(data);
+			},
+			error : function() {
+				//-- Ignore all errors.
+			}
+		});
+		WebUI.startPingServer(timeout);
+	},
 	
+	startPingServer: function(timeout) {
+		if(timeout < 60*1000)
+			timeout = 60*1000;
+		setTimeout("WebUI.pingServer("+timeout+")", timeout);
+	},
+	
+	executePollCommands: function(data) {
+		// TBD
+	},
+
 	/** Dynamically loading stylesheets and javascript files (Header Contributer delta's) **/
 	/**
 	 * Load the specified stylesheet by creating a script tag and inserting it @ head.

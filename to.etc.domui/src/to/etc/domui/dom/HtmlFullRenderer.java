@@ -287,6 +287,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(DomApplication.get().getThemedResourceRURL("THEME/progressbar.gif")), true));
 		genVar("DomUICID", StringTool.strToJavascriptString(page.getConversation().getFullId(), true));
 		genVar("DomUIDevel", ctx.getApplication().inDevelopmentMode() ? "true" : "false");
+		genVar("DomUIappURL", StringTool.strToJavascriptString(ctx.getRelativePath(""), true));
 
 		if(!isXml())
 			o().writeRaw("\n-->");
@@ -342,6 +343,11 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		//-- If asynchronous actions are pending call WebUI.startPolling();
 		if(page.getConversation().hasDelayedActions())
 			o().writeRaw("WebUI.startPolling();");
+
+		int kit = ctx().getApplication().getKeepAliveInterval();
+		if(kit > 0) {
+			o().writeRaw("WebUI.startPingServer(" + kit + ");");
+		}
 
 		o().text("});");
 		o().closetag("script");
