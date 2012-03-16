@@ -506,4 +506,14 @@ public class CallableStatementProxy extends PreparedStatementProxy implements Ca
 	public void setSQLXML(String arg0, SQLXML arg1) throws SQLException {
 		getRealCallableStatement().setSQLXML(arg0, arg1);
 	}
+
+	@Override
+	public <T> T getObject(int parameterIndex, Class<T> type) throws SQLException {
+		return getRealCallableStatement().getObject(parameterIndex, type);
+	}
+
+	@Override
+	public <T> T getObject(String parameterName, Class<T> type) throws SQLException {
+		return getRealCallableStatement().getObject(parameterName, type);
+	}
 }
