@@ -243,6 +243,7 @@ public class NumericUtil {
 
 			case UNKNOWN:
 			case NUMBER:
+				@Nonnull
 				String res = new DecimalFormat(NUMBER_BY_SCALE_TRUNC_ZEROS[scale], dfs).format(v);
 				if(res != null && (res.endsWith(".") || res.endsWith(","))) {
 					//If we have 1000. then we need to cut of last decimal separator

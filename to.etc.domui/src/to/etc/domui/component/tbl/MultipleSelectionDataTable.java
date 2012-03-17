@@ -68,7 +68,10 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 
 		if(m_accumulatedRows.size() > 0 || list.size() > 0) {
 			getTable().removeAllChildren();
-			add(getTable());
+			Table t = getTable();
+			if(null == t)
+				throw new IllegalStateException("?");
+			add(t);
 
 			//-- Render the header.
 			THead hd = new THead();

@@ -106,6 +106,8 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 					return AppendCriteriaResult.INVALID;
 				}
 				switch(relation){
+					default:
+						throw new IllegalStateException(relation + ": unhandled");
 					case EQ:
 						crit.eq(spm.getPropertyName(), numA.getValue());
 						break;

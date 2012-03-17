@@ -622,7 +622,8 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 */
 	@Nonnull
 	static public Text<Double> createDoubleMoneyInput(@Nonnull Class< ? > clz, @Nonnull String property, boolean editable) {
-		return Text.createDoubleMoneyInput(MetaManager.findPropertyMeta(clz, property), editable);
+		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(clz, property);
+		return Text.createDoubleMoneyInput(pmm, editable);
 	}
 
 	static public Text<BigDecimal> createBDMoneyInput(Class< ? > clz, String property, boolean editable) {

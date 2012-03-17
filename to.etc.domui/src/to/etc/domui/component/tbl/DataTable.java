@@ -90,8 +90,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		m_dataBody = dataBody;
 	}
 
-	@Nullable
+	@Nonnull
 	protected TBody getDataBody() {
+		if(null == m_dataBody)
+			throw new IllegalStateException("Data body not yet defined.");
 		return m_dataBody;
 	}
 
