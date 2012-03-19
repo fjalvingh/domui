@@ -228,7 +228,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	final protected void changed() {
 		setCachedStyle(null);
 		internalSetHasChangedAttributes();
-		NodeContainer p = getParent();
+		NodeContainer p = m_parent;
 		if(p != null)
 			p.childChanged(); // Indicate child has changed
 		super.changed();
@@ -465,9 +465,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Return the current actual parent of this node. Is null if not attached to a parent yet.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	final public NodeContainer getParent() {
+		if(m_parent == null) {
+			if(m_page != null && m_page.getBody() == this)
+				throw new IllegalStateException("Calling getParent() on the body tag is an indication of a problem...");
+			throw new IllegalStateException("The node is not attached to a page, call isAttached() to test for attachment");
+		}
 		return m_parent;
+	}
+
+	public final boolean hasParent() {
+		return m_parent != null;
 	}
 
 	/**
@@ -481,13 +490,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	@Nullable
 	final public NodeContainer getParent(int up) {
-		NodeContainer c = m_parent;
+		NodeBase c = m_parent;
 		while(--up > 0) {
 			if(c == null)
 				return null;
-			c = c.getParent();
+			c = c.m_parent;
 		}
-		return c;
+		return (NodeContainer) c;
 	}
 
 	/**
@@ -498,15 +507,32 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	@Nullable
-	final public <T> T getParent(final Class<T> clz) {
-		NodeContainer c = getParent();
+	final public <T> T findParent(final Class<T> clz) {
+		if(!hasParent())
+			return null;
+		NodeBase c = this;
 		for(;;) {
-			if(c == null)
+			if(!c.hasParent())
 				return null;
+			c = c.getParent();
 			if(clz.isAssignableFrom(c.getClass()))
 				return (T) c;
-			c = c.getParent();
 		}
+	}
+
+	/**
+	 * Walk the parents upwards to find the closest parent of the given class. The class can be a base class (it is
+	 * not a literal match but an instanceof match). This throws an exception when the parent cannot be found(!).
+	 * @param <T>
+	 * @param clz
+	 * @return
+	 */
+	@Nonnull
+	final public <T> T getParent(final Class<T> clz) {
+		T res = findParent(clz);
+		if(null == res)
+			throw new IllegalStateException("This node " + this + " does not have a parent of type=" + clz);
+		return res;
 	}
 
 	/**
@@ -515,16 +541,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param clzar
 	 * @return
 	 */
+	@Nullable
 	final public NodeBase getParentOfTypes(final Class< ? extends NodeBase>... clzar) {
-		NodeContainer c = getParent();
+		NodeBase c = this;
 		for(;;) {
-			if(c == null)
+			if(!c.hasParent())
 				return null;
+			c = c.getParent();
+
 			for(Class< ? > clz : clzar) {
 				if(clz.isAssignableFrom(c.getClass()))
 					return c;
 			}
-			c = c.getParent();
 		}
 	}
 
@@ -537,9 +565,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * afterwards.
 	 */
 	final public void remove() {
-		if(getParent() != null) {
-			getParent().removeChild(this);
-		}
+		if(m_parent != null)
+			m_parent.removeChild(this);
 	}
 
 	/**
@@ -557,8 +584,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param item
 	 */
 	final public void appendAfterMe(@Nonnull final NodeBase item) {
-		if(getParent() == null)
-			throw new IllegalStateException("No parent node is known");
 		int ix = getParent().findChildIndex(this);
 		if(ix == -1)
 			throw new IllegalStateException("!@?! Cannot find myself!?");
@@ -570,8 +595,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param item
 	 */
 	final public void appendBeforeMe(@Nonnull final NodeBase item) {
-		if(getParent() == null)
-			throw new IllegalStateException("No parent node is known");
 		int ix = getParent().findChildIndex(this);
 		if(ix == -1)
 			throw new IllegalStateException("!@?! Cannot find myself!?");

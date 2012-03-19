@@ -95,7 +95,8 @@ final public class MetaManager {
 		return findAndInitialize(mc);
 	}
 
-	private static <T extends IMetaModelInfo> ClassMetaModel findAndInitialize(Object mc) {
+	@Nonnull
+	private static <T extends IMetaModelInfo> ClassMetaModel findAndInitialize(@Nonnull Object mc) {
 		//-- We need some factory to create it.
 		synchronized(MetaManager.class) {
 			ClassMetaModel cmm = m_classMap.get(mc);
@@ -112,7 +113,7 @@ final public class MetaManager {
 
 			//-- Phase 2: create the secondary model.
 			best.finishModel(info);
-			return cmm;
+			return info.getModel();
 		}
 	}
 

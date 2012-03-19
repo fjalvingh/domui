@@ -63,7 +63,7 @@ public class TextNode extends NodeBase {
 		if(DomUtil.isEqual(text, m_text))
 			changed();
 		m_text = text;
-		if(getParent() != null) {
+		if(hasParent()) {
 			getParent().childChanged();
 			getParent().treeChanging();
 			getParent().setMustRenderChildrenFully();

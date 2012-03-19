@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.*;
 import to.etc.domui.util.*;
 
@@ -55,6 +57,7 @@ public class TD extends NodeContainer implements IRenderNBSPIfEmpty {
 		v.visitTD(this);
 	}
 
+	@Nonnull
 	public Table getTable() {
 		return getParent(Table.class);
 	}

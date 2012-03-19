@@ -322,8 +322,6 @@ public class AbstractRowRenderer<T> {
 
 		//-- Tell the model to sort.
 		DataTable< ? > parent = nb.getParent(DataTable.class);
-		if(null == parent)
-			throw new IllegalStateException("Cannot locate parent DataTable??");
 		if(scd.getSortHelper() != null) {
 			//-- A sort helper is needed.
 			final IProgrammableSortableModel stm = (IProgrammableSortableModel) parent.getModel();

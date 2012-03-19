@@ -133,7 +133,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 		if(getHeight() == null) // Should not be possible
 			setHeight("400px");
 		if(getZIndex() <= 0) { // Should not be possible.
-			FloatingDiv parentFloatingDiv = getParent(FloatingDiv.class);
+			FloatingDiv parentFloatingDiv = findParent(FloatingDiv.class);
 			if(parentFloatingDiv != null) {
 				setZIndex(parentFloatingDiv.getZIndex() + 100);
 			} else {

@@ -100,12 +100,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	final void childChanged() {
 		NodeContainer c = this;
-		do {
+		for(;;) {
 			if(c.m_childHasUpdates)
 				return;
 			c.m_childHasUpdates = true;
+			if(!c.hasParent())
+				break;
 			c = c.getParent();
-		} while(c != null);
+		}
 	}
 
 	final boolean childHasUpdates() {
@@ -229,6 +231,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		if(m_delegate != null)
 			return m_delegate.findChildIndex(b);
 
+		if(!b.hasParent())
+			return -1;
 		if(b.getParent() != this)
 			return -1;
 		return m_children.indexOf(b);
@@ -257,7 +261,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	final void treeChanging() {
 		if(m_oldChildren != null) // Already have a copy?
 			return;
-		if(getParent() != null)
+		if(hasParent())
 			getParent().childChanged();
 
 		//-- Copy all of my children and save me as their current parent

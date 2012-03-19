@@ -198,7 +198,7 @@ final public class Page implements IQContextContainer {
 	public NodeBase getTheCurrentControl() {
 		//-- Locate the best encapsulating control if possible.
 		NodeBase nb = getTheCurrentNode();
-		while(nb != null && !(nb instanceof IControl< ? >)) {
+		while(nb != null && !(nb instanceof IControl< ? >) && nb.hasParent()) {
 			nb = nb.getParent();
 		}
 		return nb != null ? nb : getTheCurrentNode();

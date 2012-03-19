@@ -161,9 +161,9 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable, I
 		//-- I must be the parent for the body passed
 		NodeBase b = (NodeBase) body;
 		while(b != this) {
-			b = b.getParent();
-			if(b == null)
+			if(!b.hasParent())
 				throw new IllegalStateException("Programmer error: the TBody or DIV passed MUST be a child of the DIV node if you want to use the DIV as a DROP container for that TBody or DIV.");
+			b = b.getParent();
 		}
 		m_dropMode = dropMode;
 		m_dropBody = body;
