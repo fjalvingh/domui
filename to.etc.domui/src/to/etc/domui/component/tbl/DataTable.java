@@ -77,8 +77,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	protected Table getTable() {
+		if(null == m_table)
+			throw new IllegalStateException("Backing table is still null");
 		return m_table;
 	}
 
@@ -86,12 +88,14 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * UNSTABLE INTERFACE - UNDER CONSIDERATION.
 	 * @param dataBody
 	 */
-	protected void setDataBody(@Nullable TBody dataBody) {
+	protected void setDataBody(@Nonnull TBody dataBody) {
 		m_dataBody = dataBody;
 	}
 
-	@Nullable
+	@Nonnull
 	protected TBody getDataBody() {
+		if(null == m_dataBody)
+			throw new IllegalStateException("dataBody is still null");
 		return m_dataBody;
 	}
 
@@ -229,7 +233,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	@SuppressWarnings("deprecation")
 	private void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable final T value) throws Exception {
 		//-- Is a rowclick handler needed?
-		if(m_rowRenderer.getRowClicked() != null || null != getSelectionModel()) {
+		ISelectionModel<T> sm = getSelectionModel();
+		if(m_rowRenderer.getRowClicked() != null || null != sm) {
 			//-- Add a click handler to select or pass the rowclicked event.
 			cc.getTR().setClicked(new IClicked2<TR>() {
 				@Override
@@ -242,7 +247,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		}
 
 		//-- If we're in multiselect mode show the select boxes
-		if(m_multiSelectMode) {
+		if(m_multiSelectMode && sm != null) {
 			Checkbox cb = new Checkbox();
 			cc.add(cb);
 			cb.setClicked(new IClicked2<Checkbox>() {
@@ -251,7 +256,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 					selectionCheckboxClicked(value, clickednode.isChecked(), info);
 				}
 			});
-			boolean issel = getSelectionModel().isSelected(value);
+
+			boolean issel = sm.isSelected(value);
 			cb.setChecked(issel);
 			if(issel)
 				tr.addCssClass("mselected");
@@ -318,10 +324,13 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param setTo		When null toggle, else set to specific.
 	 */
 	private void handleSelectClicky(@Nullable T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
-		boolean nvalue = setTo != null ? setTo.booleanValue() : !getSelectionModel().isSelected(instance);
+		ISelectionModel<T> sm = getSelectionModel();
+		if(null == sm)
+			throw new IllegalStateException("SelectionModel is null??");
+		boolean nvalue = setTo != null ? setTo.booleanValue() : !sm.isSelected(instance);
 
 		if(!clinfo.isShift()) {
-			getSelectionModel().setInstanceSelected(instance, nvalue);
+			sm.setInstanceSelected(instance, nvalue);
 			m_lastSelectionLocation = -1;
 			return;
 		}
@@ -343,7 +352,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		if(m_lastSelectionLocation == -1) {
 			//-- Start of region....
 			m_lastSelectionLocation = itemindex;
-			getSelectionModel().setInstanceSelected(instance, !getSelectionModel().isSelected(instance));
+			sm.setInstanceSelected(instance, !sm.isSelected(instance));
 			return;
 		}
 
@@ -368,8 +377,11 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			List<T> sub = getModel().getItems(i, ex);
 			i += ex;
 
-			for(T item: sub)
-				getSelectionModel().setInstanceSelected(item, !getSelectionModel().isSelected(item));
+			for(T item : sub) {
+				if(item == null)
+					throw new IllegalStateException("null item in list");
+				sm.setInstanceSelected(item, !sm.isSelected(item));
+			}
 		}
 		m_lastSelectionLocation = -1;
 	}
@@ -384,7 +396,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param on
 	 */
 	private void updateSelectionChanged(T instance, int lrow, boolean on) throws Exception {
-		if(getSelectionModel() == null)
+		ISelectionModel<T> sm = getSelectionModel();
+		if(sm == null)
 			throw new IllegalStateException("No selection model!?");
 		TR row = (TR) m_dataBody.getChild(lrow);
 		THead head = m_table.getHead();
@@ -392,7 +405,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			throw new IllegalStateException("I've lost my head!?");
 
 		TR headerrow = (TR) head.getChild(0);
-		if(!getSelectionModel().isMultiSelect()) {
+		if(!sm.isMultiSelect()) {
 			//-- Single selection model. Just add/remove the "selected" class from the row.
 			if(on)
 				row.addCssClass("selected");
