@@ -272,7 +272,8 @@ final public class HibernateChecker {
 			m_currentProperty = null;
 			ClassMetaModel cmm = MetaManager.findClassMeta(m_currentClass);
 		} catch(Exception x) {
-			problem(Severity.MUSTFIXNOW, "DomUI Metamodel error: " + x.getMessage());
+			problem(Severity.MUSTFIXNOW, "DomUI Metamodel error: " + x.toString());
+			x.printStackTrace();
 			m_domuiMetaFatals++;
 		}
 	}

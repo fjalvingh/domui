@@ -46,7 +46,7 @@ import to.etc.webapp.query.*;
  * Created on Jun 16, 2008
  */
 final public class MetaManager {
-	static private List<IClassMetaModelFactory< ? >> m_modelList = new ArrayList<IClassMetaModelFactory< ? >>();
+	static private List<IClassMetaModelFactory> m_modelList = new ArrayList<IClassMetaModelFactory>();
 
 	/**
 	 * Map indexed by Class<?> or IMetaClass returning the classmodel for that instance.
@@ -54,18 +54,20 @@ final public class MetaManager {
 	static private Map<Object, ClassMetaModel> m_classMap = new HashMap<Object, ClassMetaModel>();
 
 	/** While a metamodel is being initialized this keeps track of recursive init's */
-	static private Stack<Object> m_initStack = new Stack<Object>();
+	final static private Stack<Object> m_initStack = new Stack<Object>();
+
+	final static private List<Runnable> m_initList = new ArrayList<Runnable>();
 
 	private MetaManager() {}
 
-	static synchronized public void registerModel(@Nonnull IClassMetaModelFactory< ? > model) {
-		List<IClassMetaModelFactory< ? >> mm = new ArrayList<IClassMetaModelFactory< ? >>(m_modelList);
+	static synchronized public void registerModel(@Nonnull IClassMetaModelFactory model) {
+		List<IClassMetaModelFactory> mm = new ArrayList<IClassMetaModelFactory>(m_modelList);
 		mm.add(model);
 		m_modelList = mm;
 	}
 
 	@Nonnull
-	static private synchronized List<IClassMetaModelFactory< ? >> getList() {
+	static private synchronized List<IClassMetaModelFactory> getList() {
 		if(m_modelList.size() == 0)
 			registerModel(new DefaultJavaClassMetaModelFactory());
 		return m_modelList;
@@ -96,7 +98,7 @@ final public class MetaManager {
 	}
 
 	@Nonnull
-	private static <T extends IMetaModelInfo> ClassMetaModel findAndInitialize(@Nonnull Object mc) {
+	private static ClassMetaModel findAndInitialize(@Nonnull Object mc) {
 		//-- We need some factory to create it.
 		synchronized(MetaManager.class) {
 			ClassMetaModel cmm = m_classMap.get(mc);
@@ -105,15 +107,21 @@ final public class MetaManager {
 
 			//-- Phase 1: create the metamodel and it's direct properties.
 			checkInitStack(mc, "primary initialization");
-			IClassMetaModelFactory<T> best = (IClassMetaModelFactory<T>) findModelFactory(mc);
+			IClassMetaModelFactory best = findModelFactory(mc);
 			m_initStack.add(mc);
-			T info = best.createModel(mc);
-			m_classMap.put(mc, info.getModel());
+			cmm = best.createModel(m_initList, mc);
+			m_classMap.put(mc, cmm);
 			m_initStack.remove(mc);
 
 			//-- Phase 2: create the secondary model.
-			best.finishModel(info);
-			return info.getModel();
+			if(m_initStack.size() == 0 && m_initList.size() > 0) {
+				List<Runnable> dl = new ArrayList<Runnable>(m_initList);
+				m_initList.clear();
+				for(Runnable r : dl) {
+					r.run();
+				}
+			}
+			return cmm;
 		}
 	}
 
@@ -159,11 +167,11 @@ final public class MetaManager {
 	 * We need to find a factory that knows how to deliver this metadata.
 	 */
 	@Nonnull
-	private synchronized static IClassMetaModelFactory< ? > findModelFactory(Object theThingy) {
+	private synchronized static IClassMetaModelFactory findModelFactory(Object theThingy) {
 		int bestscore = 0;
 		int hitct = 0;
-		IClassMetaModelFactory< ? > best = null;
-		for(IClassMetaModelFactory< ? > mmf : getList()) {
+		IClassMetaModelFactory best = null;
+		for(IClassMetaModelFactory mmf : getList()) {
 			int score = mmf.accepts(theThingy);
 			if(score > 0) {
 				if(score == bestscore)

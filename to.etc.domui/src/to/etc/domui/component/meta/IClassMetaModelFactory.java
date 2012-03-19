@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.meta;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 /**
@@ -34,7 +36,7 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2008
  */
-public interface IClassMetaModelFactory<S extends IMetaModelInfo> {
+public interface IClassMetaModelFactory {
 	/**
 	 * Must return a value &gt; 0 when this knows how to create a metamodel for the specified thingerydoo.
 	 *
@@ -51,7 +53,5 @@ public interface IClassMetaModelFactory<S extends IMetaModelInfo> {
 	 * @return
 	 */
 	@Nonnull
-	S createModel(@Nonnull Object theThingy);
-
-	void finishModel(@Nonnull S info);
+	ClassMetaModel createModel(List<Runnable> actionList, @Nonnull Object theThingy);
 }

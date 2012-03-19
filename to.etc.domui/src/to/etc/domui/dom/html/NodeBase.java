@@ -475,6 +475,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return m_parent;
 	}
 
+	@Nullable
+	public NodeContainer internalGetParent() {
+		return m_parent;
+	}
+
 	public final boolean hasParent() {
 		return m_parent != null;
 	}

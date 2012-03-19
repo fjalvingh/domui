@@ -2,6 +2,8 @@ package to.etc.domui.component.meta.impl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.util.*;
 
@@ -11,19 +13,28 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Mar 6, 2012
  */
-class DefaultJavaClassInfo implements IMetaModelInfo {
+class DefaultJavaClassInfo {
+	@Nonnull
 	final private DefaultClassMetaModel m_cmm;
 
+	@Nonnull
 	final private Map<PropertyInfo, DefaultPropertyMetaModel< ? >> m_map = new HashMap<PropertyInfo, DefaultPropertyMetaModel< ? >>();
 
+	@Nonnull
 	final private List<SearchPropertyMetaModel> m_searchList = new ArrayList<SearchPropertyMetaModel>();
 
+	@Nonnull
 	final private List<SearchPropertyMetaModel> m_keySearchList = new ArrayList<SearchPropertyMetaModel>();
 
-	public DefaultJavaClassInfo(DefaultClassMetaModel defaultClassMetaModel) {
+	@Nonnull
+	final private List<Runnable> m_runList;
+
+	public DefaultJavaClassInfo(@Nonnull DefaultClassMetaModel defaultClassMetaModel, @Nonnull List<Runnable> runlist) {
 		m_cmm = defaultClassMetaModel;
+		m_runList = runlist;
 	}
 
+	@Nonnull
 	public DefaultClassMetaModel getModel() {
 		return m_cmm;
 	}
@@ -42,5 +53,9 @@ class DefaultJavaClassInfo implements IMetaModelInfo {
 
 	public Class< ? > getTypeClass() {
 		return m_cmm.getActualClass();
+	}
+
+	public void later(Runnable r) {
+		m_runList.add(r);
 	}
 }
