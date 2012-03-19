@@ -93,8 +93,9 @@ public final class UIDragDropUtil implements IDragNdropPlugin {
 			base.addCssClass("ui-drgbl");
 			base.setOnMouseDownJS("WebUI.dragMouseDown(this, event)");
 			base.setSpecialAttribute("uitype", dh.getTypeName(base));
-			if(dh.getDragArea() != null)
-				base.setSpecialAttribute("dragarea", dh.getDragArea().getActualID());
+			IDragArea dragArea = dh.getDragArea();
+			if(dragArea != null)
+				base.setSpecialAttribute("dragarea", dragArea.getActualID());
 		}
 	}
 

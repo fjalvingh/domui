@@ -389,10 +389,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	final public boolean removeCssClass(@Nonnull final String name) {
-		if(getCssClass() == null)
+		String cssClass = getCssClass();
+		if(cssClass == null)
 			return false;
-		StringTokenizer st = new StringTokenizer(getCssClass(), " \t");
-		StringBuilder sb = new StringBuilder(getCssClass().length());
+		StringTokenizer st = new StringTokenizer(cssClass, " \t");
+		StringBuilder sb = new StringBuilder(cssClass.length());
 		boolean fnd = false;
 		while(st.hasMoreTokens()) {
 			String s = st.nextToken();
@@ -435,12 +436,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	final public boolean hasCssClass(@Nonnull final String cls) {
-		if(getCssClass() == null)
+		String cssClass = getCssClass();
+		if(cssClass == null)
 			return false;
-		int pos = getCssClass().indexOf(cls);
+		int pos = cssClass.indexOf(cls);
 		if(pos == -1)
 			return false;
-		if(pos != 0 && getCssClass().charAt(pos - 1) != ' ')
+		if(pos != 0 && cssClass.charAt(pos - 1) != ' ')
 			return false;
 		return true;
 	}

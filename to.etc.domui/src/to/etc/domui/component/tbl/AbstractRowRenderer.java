@@ -321,12 +321,15 @@ public class AbstractRowRenderer<T> {
 		updateSortImage(scd, m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 
 		//-- Tell the model to sort.
+		DataTable< ? > parent = nb.getParent(DataTable.class);
+		if(null == parent)
+			throw new IllegalStateException("Cannot locate parent DataTable??");
 		if(scd.getSortHelper() != null) {
 			//-- A sort helper is needed.
-			final IProgrammableSortableModel stm = (IProgrammableSortableModel) nb.getParent(DataTable.class).getModel();
+			final IProgrammableSortableModel stm = (IProgrammableSortableModel) parent.getModel();
 			stm.sortOn(scd.getSortHelper(), m_sortDescending);
 		} else {
-			final ISortableTableModel stm = (ISortableTableModel) nb.getParent(DataTable.class).getModel();
+			final ISortableTableModel stm = (ISortableTableModel) parent.getModel();
 			stm.sortOn(scd.getPropertyName(), m_sortDescending);
 		}
 	}
@@ -393,10 +396,11 @@ public class AbstractRowRenderer<T> {
 		}
 
 		//-- If a button factory is attached give it the opportunity to add buttons.
-		if(getRowButtonFactory() != null) {
+		IRowButtonFactory<T> rbf = getRowButtonFactory();
+		if(rbf != null) {
 			TD td = cc.add((NodeBase) null);
 			cc.getRowButtonContainer().setContainer(td);
-			getRowButtonFactory().addButtonsFor(cc.getRowButtonContainer(), instance);
+			rbf.addButtonsFor(cc.getRowButtonContainer(), instance);
 		}
 
 		//-- Toggle odd/even indicator
