@@ -238,6 +238,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		if(!sm.isMultiSelect())
 			return false;
 		ISelectableTableComponent< ? > tc = getSelectableTable();
+		if(null == tc)
+			throw new IllegalStateException("Null selectable table?");
 		if(tc.isMultiSelectionVisible())
 			return false;
 		if(tc.getModel() == null || tc.getModel().getRows() == 0)
@@ -255,7 +257,10 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			return false;
 		if(!sm.isMultiSelect())
 			return false;
+
 		ISelectableTableComponent< ? > tc = getSelectableTable();
+		if(null == tc)
+			throw new IllegalStateException("Null selectable table?");
 		return tc.isMultiSelectionVisible();
 	}
 
@@ -361,6 +366,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	private void redrawSelectionButtons() throws Exception {
 		//-- Show/hide the "show selection" button
 		final ISelectableTableComponent dt = getSelectableTable();
+		if(null == dt)
+			throw new IllegalStateException("Null selectable table?");
+
 		if(isNeedSelectionButton()) {
 			if(m_showSelectionBtn == null) {
 				m_showSelectionBtn = new SmallImgButton("THEME/dpr-select-on.png");
@@ -398,7 +406,10 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			m_selectAllBtn.setClicked(new IClicked<SmallImgButton>() {
 				@Override
 				public void clicked(SmallImgButton clickednode) throws Exception {
-					dt.getSelectionAllHandler().selectAll(dt.getModel(), dt.getSelectionModel());
+					ISelectionAllHandler ah = dt.getSelectionAllHandler();
+					if(null == ah)
+						throw new IllegalStateException("selectionAllHandler is null");
+					ah.selectAll(dt.getModel(), dt.getSelectionModel());
 				}
 			});
 		} else if(m_selectAllBtn != null && ! needselectall) {

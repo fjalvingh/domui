@@ -186,14 +186,14 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	 * @return
 	 * @throws Exception
 	 */
-	@Nullable
+	@Nonnull
 	private QDataContext getQueryContext() throws Exception {
 		if(m_sessionSource != null) {
 			return m_sessionSource.getDataContext(); // Create/get session
 		} else if(m_contextSourceNode != null) {
 			return QContextManager.getContext(m_contextSourceNode.getPage());
-		} else
-			return null;
+		}
+		throw new IllegalStateException("No sessionSource and no contextSourceNode present - I do not know how to allocate a QDataContext");
 	}
 
 

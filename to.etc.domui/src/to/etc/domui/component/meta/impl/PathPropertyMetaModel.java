@@ -154,9 +154,12 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 		sb.append(m_original.getName());
 		sb.append('.');
 		sb.append(type);
-		String s = m_original.getClassModel().getClassBundle().findMessage(loc, sb.toString());
-		if(s != null)
-			return s;
+		BundleRef cb = m_original.getClassModel().getClassBundle();
+		if(null != cb) {
+			String s = cb.findMessage(loc, sb.toString());
+			if(s != null)
+				return s;
+		}
 		return getName();
 	}
 
@@ -349,6 +352,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 		return m_original.getNumericPresentation();
 	}
 
+	@Nonnull
 	@Override
 	public PropertyMetaValidator[] getValidators() {
 		return m_original.getValidators();

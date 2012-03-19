@@ -240,9 +240,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 			}
 
 			//-- Handle this (normal) property. Is this a DOTTED one?
-			PropertyMetaModel< ? > pmm = cmm.findProperty(dpm.getName());
-			if(pmm == null)
-				throw new IllegalStateException("Unknown property " + dpm.getName() + " in " + cmm);
+			PropertyMetaModel< ? > pmm = dpm.getProperty();
 			Class< ? > clz = pmm.getActualType();
 			List<DisplayPropertyMetaModel> subdpl = pmm.getLookupTableProperties(); // Has defined sub-properties?
 			ClassMetaModel pcmm = findCompoundClassModel(clz);
@@ -294,9 +292,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		//-- Create a paired list of PropertyMetaModel thingies
 		List<PropertyMetaModel< ? >> plist = new ArrayList<PropertyMetaModel< ? >>(dpl.size());
 		for(DisplayPropertyMetaModel dm : dpl) {
-			PropertyMetaModel< ? > pm = cmm.findProperty(dm.getName());
-			if(pm == null)
-				throw new IllegalStateException("Display property " + dm.getName() + " not found on " + cmm);
+			PropertyMetaModel< ? > pm = dm.getProperty();
 			plist.add(pm);
 		}
 		return new JoinedDisplayProperty(dpl, plist, accessor);
@@ -547,9 +543,10 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		return m_propertyMeta == null ? NumericPresentation.UNKNOWN : m_propertyMeta.getNumericPresentation();
 	}
 
+	@Nonnull
 	@Override
 	public PropertyMetaValidator[] getValidators() {
-		return m_propertyMeta == null ? null : m_propertyMeta.getValidators();
+		return m_propertyMeta == null ? NO_VALIDATORS : m_propertyMeta.getValidators();
 	}
 
 	@Override

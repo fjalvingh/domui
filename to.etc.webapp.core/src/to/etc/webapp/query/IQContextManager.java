@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 /**
  * Interface for a QContextManager handler.
  *
@@ -36,7 +38,7 @@ public interface IQContextManager {
 	 * only once.
 	 * @param f
 	 */
-	void setContextFactory(QDataContextFactory f);
+	void setContextFactory(@Nonnull QDataContextFactory f);
 
 	/**
 	 * Return the default QDataContextFactory. This is the root of *all* default connections
@@ -44,6 +46,7 @@ public interface IQContextManager {
 	 *
 	 * @return
 	 */
+	@Nonnull
 	QDataContextFactory getDataContextFactory();
 
 	/**
@@ -51,6 +54,7 @@ public interface IQContextManager {
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	QDataContext createUnmanagedContext() throws Exception;
 
 	/**
@@ -63,7 +67,8 @@ public interface IQContextManager {
 	 * @param cc
 	 * @return
 	 */
-	QDataContextFactory getSharedContextFactory(IQContextContainer cc);
+	@Nonnull
+	QDataContextFactory getSharedContextFactory(@Nonnull IQContextContainer cc);
 
 	/**
 	 * Gets a shared QDataContext from the container. If it is not already present it
@@ -71,11 +76,12 @@ public interface IQContextManager {
 	 * is special in that it cannot be closed() using it's close() call - it is silently
 	 * ignored.
 	 */
-	QDataContext getSharedContext(IQContextContainer cc) throws Exception;
+	@Nonnull
+	QDataContext getSharedContext(@Nonnull IQContextContainer cc) throws Exception;
 
 	/**
 	 * If the specified container contains a shared context close it.
 	 * @param cc
 	 */
-	void closeSharedContext(IQContextContainer cc);
+	void closeSharedContext(@Nonnull IQContextContainer cc);
 }

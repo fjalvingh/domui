@@ -21,7 +21,10 @@ public class DivModeDragAndDropPlugin implements IDragNdropPlugin {
 		if(dh == null) {
 			base.removeCssClass("ui-drgbl");
 		} else{
-			base.appendJavascript("DDD.makeDraggableById('" + dh.getDragArea().getActualID() + "');");
+			IDragArea a = dh.getDragArea();
+			if(a == null)
+				throw new IllegalStateException("Drag area should not be null");
+			base.appendJavascript("DDD.makeDraggableById('" + a.getActualID() + "');");
 			base.setSpecialAttribute("uitype", dh.getTypeName(base));
 		}
 	}

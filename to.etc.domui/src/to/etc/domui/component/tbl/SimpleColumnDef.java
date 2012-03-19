@@ -266,4 +266,9 @@ public class SimpleColumnDef {
 	public void setSortHelper(ISortHelper sortHelper) {
 		m_sortHelper = sortHelper;
 	}
+
+	@Override
+	public String toString() {
+		return "SimpleColumnDef[" + getPropertyName() + ", type=" + getColumnType() + ", lbl=" + getColumnLabel() + "]";
+	}
 }

@@ -198,7 +198,7 @@ final public class Page implements IQContextContainer {
 	public NodeBase getTheCurrentControl() {
 		//-- Locate the best encapsulating control if possible.
 		NodeBase nb = getTheCurrentNode();
-		while(nb != null && !(nb instanceof IControl< ? >)) {
+		while(nb != null && !(nb instanceof IControl< ? >) && nb.hasParent()) {
 			nb = nb.getParent();
 		}
 		return nb != null ? nb : getTheCurrentNode();
@@ -494,8 +494,9 @@ final public class Page implements IQContextContainer {
 	public void internalRemoveFloater(FloatingDiv floater) {
 		if(!getFloatingStack().remove(floater)) // If already removed exit
 			return;
-		if(floater.internalGetHider() != null) {
-			floater.internalGetHider().remove();
+		Div h = floater.internalGetHider();
+		if(h != null) {
+			h.remove();
 			floater.internalSetHider(null);
 		}
 	}

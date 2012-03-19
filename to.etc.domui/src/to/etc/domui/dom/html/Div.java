@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.css.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -147,7 +149,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable, I
 	 * @param body
 	 * @param dropMode
 	 */
-	public void setDropBody(IDropBody body, DropMode dropMode) {
+	public void setDropBody(@Nonnull IDropBody body, DropMode dropMode) {
 		switch(dropMode){
 			default:
 				throw new IllegalStateException("Unsupported DROP mode for TABLE or DIV container: " + dropMode);
@@ -159,7 +161,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable, I
 		//-- I must be the parent for the body passed
 		NodeBase b = (NodeBase) body;
 		while(b != this) {
-			if(b.getParent() == null)
+			if(!b.hasParent())
 				throw new IllegalStateException("Programmer error: the TBody or DIV passed MUST be a child of the DIV node if you want to use the DIV as a DROP container for that TBody or DIV.");
 			b = b.getParent();
 		}

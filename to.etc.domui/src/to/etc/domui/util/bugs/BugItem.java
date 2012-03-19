@@ -43,7 +43,7 @@ final public class BugItem {
 	private String m_message;
 
 	@Nullable
-	private Throwable m_exception;
+	final private Throwable m_exception;
 
 	@Nonnull
 	private Exception m_location;
@@ -59,6 +59,7 @@ final public class BugItem {
 	 */
 	public BugItem(@Nonnull String message) {
 		m_message = message;
+		m_exception = null;
 		initLocation();
 	}
 

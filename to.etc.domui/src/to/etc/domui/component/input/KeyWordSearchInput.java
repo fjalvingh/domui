@@ -179,7 +179,7 @@ class KeyWordSearchInput<T> extends Div {
 	 */
 	private void fixZIndex() {
 		//bug fix for IE when combining relative positioning, and overlapping control with absolute positioning.
-		FloatingWindow parentFloatingWindow = getParent(FloatingWindow.class);
+		FloatingWindow parentFloatingWindow = findParent(FloatingWindow.class);
 		int parentWindowZIndex = 0;
 		if(parentFloatingWindow != null) {
 			parentWindowZIndex = parentFloatingWindow.getZIndex();
