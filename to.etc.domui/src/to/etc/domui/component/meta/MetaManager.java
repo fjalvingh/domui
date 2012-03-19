@@ -190,7 +190,7 @@ final public class MetaManager {
 	 * @return
 	 */
 	@Nullable
-	static public PropertyMetaModel< ? > findPropertyMeta(Class< ? > clz, String name) {
+	static public PropertyMetaModel< ? > findPropertyMeta(@Nonnull Class< ? > clz, @Nonnull String name) {
 		ClassMetaModel cm = findClassMeta(clz);
 		return cm.findProperty(name);
 	}
@@ -367,6 +367,7 @@ final public class MetaManager {
 
 		//-- Classes must be the same type but we allow for proxying
 		Class< ? > acl = a.getClass();
+		@Nonnull
 		Class< ? > bcl = b.getClass();
 		if(!acl.isAssignableFrom(bcl) && !bcl.isAssignableFrom(acl))
 			return false;
@@ -383,15 +384,17 @@ final public class MetaManager {
 				if(acl != bcl) {
 					acmm = findClassMeta(acl);
 					bcmm = findClassMeta(bcl);
-					if(acmm.getPrimaryKey() == null || bcmm.getPrimaryKey() == null) {
-						return false;
-					}
 				} else {
 					acmm = cmm;
 					bcmm = cmm;
 				}
-				Object pka = acmm.getPrimaryKey().getValue(a);
-				Object pkb = bcmm.getPrimaryKey().getValue(b);
+				PropertyMetaModel< ? > apkmm = acmm.getPrimaryKey();
+				PropertyMetaModel< ? > bpkmm = bcmm.getPrimaryKey();
+				if(apkmm == null || bpkmm == null) {
+					return false;
+				}
+				Object pka = apkmm.getValue(a);
+				Object pkb = bpkmm.getValue(b);
 				return DomUtil.isEqual(pka, pkb);
 			} catch(Exception x) {
 				x.printStackTrace();
@@ -604,9 +607,10 @@ final public class MetaManager {
 		if(t == null)
 			return "null";
 		ClassMetaModel cmm = MetaManager.findClassMeta(t.getClass());
-		if(cmm.isPersistentClass() && cmm.getPrimaryKey() != null) {
+		PropertyMetaModel< ? > pkmm = cmm.getPrimaryKey();
+		if(cmm.isPersistentClass() && pkmm != null) {
 			try {
-				Object k = cmm.getPrimaryKey().getValue(t);
+				Object k = pkmm.getValue(t);
 				return t.getClass().getName() + "#" + k + " @" + System.identityHashCode(t);
 			} catch(Exception x) {}
 		}
@@ -821,7 +825,10 @@ final public class MetaManager {
 		List<DisplayPropertyMetaModel> res = pmm.getComboDisplayProperties();
 		if(res.size() != 0)
 			return res;
-		return pmm.getValueModel().getComboDisplayProperties();
+		ClassMetaModel vm = pmm.getValueModel();
+		if(null == vm)
+			throw new IllegalStateException(pmm + ": property has no 'value metamodel'");
+		return vm.getComboDisplayProperties();
 	}
 
 	/**

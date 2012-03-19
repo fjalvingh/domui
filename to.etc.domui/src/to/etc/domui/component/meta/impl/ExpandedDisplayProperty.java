@@ -543,9 +543,10 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		return m_propertyMeta == null ? NumericPresentation.UNKNOWN : m_propertyMeta.getNumericPresentation();
 	}
 
+	@Nonnull
 	@Override
 	public PropertyMetaValidator[] getValidators() {
-		return m_propertyMeta == null ? null : m_propertyMeta.getValidators();
+		return m_propertyMeta == null ? NO_VALIDATORS : m_propertyMeta.getValidators();
 	}
 
 	@Override
