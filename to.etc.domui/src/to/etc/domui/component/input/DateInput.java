@@ -178,7 +178,7 @@ public class DateInput extends Text<Date> {
 	}
 
 	public static DateInput createDateInput(Class< ? > clz, String property, boolean editable) {
-		PropertyMetaModel< ? > pmm = MetaManager.findPropertyMeta(clz, property);
+		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(clz, property);
 		Class< ? > aclz = pmm.getActualType();
 		if(!Date.class.isAssignableFrom(aclz))
 			throw new IllegalStateException("Invalid class type=" + Date.class + " for property " + pmm);

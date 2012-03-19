@@ -494,8 +494,9 @@ final public class Page implements IQContextContainer {
 	public void internalRemoveFloater(FloatingDiv floater) {
 		if(!getFloatingStack().remove(floater)) // If already removed exit
 			return;
-		if(floater.internalGetHider() != null) {
-			floater.internalGetHider().remove();
+		Div h = floater.internalGetHider();
+		if(h != null) {
+			h.remove();
 			floater.internalSetHider(null);
 		}
 	}
