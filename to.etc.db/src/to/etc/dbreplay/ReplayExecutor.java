@@ -19,22 +19,16 @@ class ReplayExecutor extends Thread {
 
 	private boolean m_terminate;
 
-	/** T if this executor has terminated, protected by DbReplay instance. */
-	private boolean m_terminated;
-
 	private Connection m_dbc;
 
 	private List<ReplayRecord> m_queueList = new ArrayList<ReplayRecord>();
 
-	/** T if this executor is idling. Protected by IdleLock */
+	/** T if this executor is idling. This is protected by DbReplay instance(!) */
 	private boolean m_idle;
 
-	private Object m_idleLock;
-
-	public ReplayExecutor(DbReplay r, int index, Object idleLock) {
+	public ReplayExecutor(DbReplay r, int index) {
 		m_r = r;
 		m_index = index;
-		m_idleLock = idleLock;
 	}
 
 	/**
@@ -42,17 +36,17 @@ class ReplayExecutor extends Thread {
 	 */
 	public synchronized void terminate() {
 		m_terminate = true;
-		notify();
+		notifyAll();
 		interrupt();
 	}
 
-	private synchronized boolean isTerminating() {
+	private synchronized boolean isTerminated() {
 		return m_terminate;
 	}
 
 	public synchronized void queue(ReplayRecord q) {
 		m_queueList.add(q);
-		notify();
+		notifyAll();
 	}
 
 	@Override
@@ -60,10 +54,6 @@ class ReplayExecutor extends Thread {
 		try {
 			m_dbc = m_r.getPool().getUnpooledDataSource().getConnection();
 			m_dbc.setAutoCommit(false);
-			String rs;
-			if((rs = m_r.getRunSchema()) != null) {
-				sql("alter session set current_schema=" + rs);
-			}
 			m_r.executorReady(this);
 
 			executeLoop();
@@ -82,21 +72,8 @@ class ReplayExecutor extends Thread {
 					m_dbc.close();
 			} catch(Exception x) {}
 			m_r.executorStopped(this);
-			if(!isTerminating())
+			if(!isTerminated())
 				System.out.println(m_index + ": terminated");
-		}
-	}
-
-	private void sql(String sql) throws Exception {
-		PreparedStatement ps = null;
-		try {
-			ps = m_dbc.prepareStatement(sql);
-			ps.executeUpdate();
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
 		}
 	}
 
@@ -105,13 +82,9 @@ class ReplayExecutor extends Thread {
 			ReplayRecord	rr = null;
 			synchronized(this) {
 				if(m_terminate) {
-					boolean idle = isIdle();
-					setIdle(true);
-					if(idle)
-						m_r.removeIdle(this);
-
 					synchronized(m_r) {
-						m_r.notifyAll(); // Stopping.
+						m_idle = true;
+						m_r.notifyAll();
 					}
 					return;
 				}
@@ -119,18 +92,12 @@ class ReplayExecutor extends Thread {
 				if(m_queueList.size() > 0) {
 					rr = m_queueList.remove(0);
 					synchronized(m_r) {
-						if(m_idle) { // Were we idling?
-							m_r.removeIdle(this);
-							m_idle = false;
-						}
+						m_idle = false;
 					}
 				} else {
-					//-- Nothing in the queue (anymore): mark me as idle if not already.
 					synchronized(m_r) {
-						if(!m_idle) { // Not already idle?
-							m_r.addIdle(this);
-							m_idle = true;
-						}
+						m_idle = true;
+						m_r.notifyAll();
 					}
 					wait(5000);
 				}
@@ -140,21 +107,9 @@ class ReplayExecutor extends Thread {
 		}
 	}
 
-	public boolean isTerminated() {
+	public boolean isIdle() {
 		synchronized(m_r) {
-			return m_terminated;
-		}
-	}
-
-	boolean isIdle() {
-		synchronized(m_idleLock) {
 			return m_idle;
-		}
-	}
-
-	private void setIdle(boolean idle) {
-		synchronized(m_idleLock) {
-			m_idle = idle;
 		}
 	}
 
@@ -170,6 +125,8 @@ class ReplayExecutor extends Thread {
 				executeQueryStatement(rr);
 				return;
 		}
+
+
 	}
 
 	private void executeQueryStatement(ReplayRecord rr) {
@@ -192,9 +149,7 @@ class ReplayExecutor extends Thread {
 //			System.out.println("     #" + m_index + ": DONE, " + rows + " rows");
 
 		} catch(Exception x) {
-			if(m_r.isLogging())
-				m_r.log(x.toString());
-//			System.out.println(x.toString());
+			System.out.println(x.toString());
 			errs++;
 		} finally {
 			try {
