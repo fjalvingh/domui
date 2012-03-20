@@ -37,8 +37,9 @@ public class ControlFactoryTextArea implements ControlFactory {
 	public int accepts(PropertyMetaModel< ? > pmm, boolean editable, Class< ? > controlClass, Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(TextArea.class))
 			return -1;
-		if(pmm.getComponentTypeHint() != null) {
-			if(pmm.getComponentTypeHint().toLowerCase().contains(MetaUtils.TEXT_AREA))
+		String cth = pmm.getComponentTypeHint();
+		if(cth != null) {
+			if(cth.toLowerCase().contains(MetaUtils.TEXT_AREA))
 				return 10;
 		}
 		return 0;
@@ -49,9 +50,12 @@ public class ControlFactoryTextArea implements ControlFactory {
 		TextArea ta = new TextArea();
 		if(!editable)
 			ta.setReadOnly(true);
-		String hint = pmm.getComponentTypeHint().toLowerCase();
-		ta.setCols(MetaUtils.parseIntParam(hint, MetaUtils.COL, 80));
-		ta.setRows(MetaUtils.parseIntParam(hint, MetaUtils.ROW, 4));
+		String cth = pmm.getComponentTypeHint();
+		if(cth != null) {
+			String hint = cth.toLowerCase();
+			ta.setCols(MetaUtils.parseIntParam(hint, MetaUtils.COL, 80));
+			ta.setRows(MetaUtils.parseIntParam(hint, MetaUtils.ROW, 4));
+		}
 		if(pmm.isRequired())
 			ta.setMandatory(true);
 		String s = pmm.getDefaultHint();

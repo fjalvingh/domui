@@ -26,6 +26,8 @@ package to.etc.domui.themes;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.util.resources.*;
 
 public class SimpleTheme implements ITheme {
@@ -56,6 +58,7 @@ public class SimpleTheme implements ITheme {
 		return m_themeProperties;
 	}
 
+	@Nonnull
 	@Override
 	public String getIconURL(String icon) {
 		return "$themes/" + m_styleName + "/" + icon;

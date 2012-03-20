@@ -81,7 +81,8 @@ public class SimpleThemeFactory implements IThemeFactory {
 			se.eval(r);
 		} finally {
 			try {
-				is.close();
+				if(is != null)
+					is.close();
 			} catch(Exception x) {}
 		}
 

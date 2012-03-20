@@ -47,7 +47,7 @@ public interface ClassMetaModel {
 	 * Returns the message bundle for translations related to this class. This will never return null.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	BundleRef getClassBundle();
 
 	@Nonnull

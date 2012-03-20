@@ -312,10 +312,12 @@ final public class DomUtil {
 				StringBuilder sb = new StringBuilder();
 				sb.append("Cannot locate error fence. Did you call an error routine on an unattached Node?\nThe path followed upwards was: ");
 				start = in;
-				while(start != null) {
+				for(;;) {
 					if(start != in)
 						sb.append(" -> ");
 					sb.append(start.toString());
+					if(!start.hasParent())
+						break;
 					start = start.getParent();
 				}
 
@@ -329,7 +331,10 @@ final public class DomUtil {
 			//			if(start.getParent() == null) {
 			//				return start.getPage().getErrorFence();	// Use the generic page's fence.
 			//			}
-			start = start.getParent();
+			if(start.hasParent())
+				start = start.getParent();
+			else
+				start = null;
 		}
 	}
 
@@ -1410,7 +1415,7 @@ final public class DomUtil {
 					return;
 				}
 			}
-			n = (NodeBase) n.getParent(IUserInputModifiedFence.class);
+			n = (NodeBase) n.findParent(IUserInputModifiedFence.class);
 		}
 	}
 

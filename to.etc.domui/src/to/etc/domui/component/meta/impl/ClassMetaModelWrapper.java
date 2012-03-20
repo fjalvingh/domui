@@ -26,6 +26,8 @@ package to.etc.domui.component.meta.impl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
@@ -83,6 +85,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 		return m_parent.getActualClass();
 	}
 
+	@Nonnull
 	@Override
 	public BundleRef getClassBundle() {
 		return m_parent.getClassBundle();

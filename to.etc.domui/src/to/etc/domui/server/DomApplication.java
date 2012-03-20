@@ -210,6 +210,7 @@ public abstract class DomApplication {
 	 * Returns the single DomApplication instance in use for the webapp.
 	 * @return
 	 */
+	@Nonnull
 	static synchronized public DomApplication get() {
 		DomApplication da = m_application;
 		if(da == null)

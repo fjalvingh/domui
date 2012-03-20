@@ -49,9 +49,9 @@ DomuiImage_cancel = function(fckName)
 
 Domui_fixLayout = function(fckId)
 {
-	if (window.parent.WebUI.isIE8orIE8c())
+	if (window.parent.WebUI.isIE8orNewer())
 	{
-		//20111009 vmijic FCKEditor has bug in IE8 -> it's inner iframe body height is not growing to specified dimension. 
+		//20111009 vmijic FCKEditor has bug in IE > IE7 ---> it's inner iframe body height is not growing to specified dimension. 
 		//We need to fix that manually -> desperate hours were spent to find a way to achive that :( 
 		var fckIFrame = window.parent.document.getElementById(fckId + '___Frame');
 		if (fckIFrame)

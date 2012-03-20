@@ -25,6 +25,7 @@
 package to.etc.domui.dom;
 
 import java.io.*;
+import java.util.*;
 
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
@@ -614,9 +615,10 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(ttl != null && !(b instanceof UrlPage)) // Do NOT render title on the thing representing the BODY.
 			o().attr("title", ttl);
 
-		if(b.getSpecialAttributeList() != null) {
-			for(int i = 0; i < b.getSpecialAttributeList().size(); i += 2) {
-				o().attr(b.getSpecialAttributeList().get(i), b.getSpecialAttributeList().get(i + 1));
+		List<String> sal = b.getSpecialAttributeList();
+		if(sal != null) {
+			for(int i = 0; i < sal.size(); i += 2) {
+				o().attr(sal.get(i), sal.get(i + 1));
 			}
 		}
 
