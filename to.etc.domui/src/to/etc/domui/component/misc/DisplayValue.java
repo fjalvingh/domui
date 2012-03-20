@@ -94,15 +94,17 @@ public class DisplayValue<T> extends Span implements IDisplayControl<T>, IBindab
 		}
 
 		//-- If a converter is present it *must* convert the value
-		if(getConverter() != null) {
-			String converted = getConverter().convertObjectToString(NlsContext.getLocale(), val);
+		IConverter<T> converter = getConverter();
+		if(converter != null) {
+			String converted = converter.convertObjectToString(NlsContext.getLocale(), val);
 			setString(converted);
 			return;
 		}
 
 		//-- If a node renderer is set ask it to render content inside me. It is required to render proper info.
-		if(getRenderer() != null) {
-			getRenderer().renderNodeContent(this, this, val, null); // Ask node renderer.
+		INodeContentRenderer<T> renderer = getRenderer();
+		if(renderer != null) {
+			renderer.renderNodeContent(this, this, val, null); // Ask node renderer.
 			if(getChildCount() == 0 && m_emptyString != null)
 				add(m_emptyString);
 			return;

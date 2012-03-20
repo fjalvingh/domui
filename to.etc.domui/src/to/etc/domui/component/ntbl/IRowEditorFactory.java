@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.ntbl;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 /**
@@ -33,5 +35,6 @@ import to.etc.domui.dom.html.*;
  * Created on Dec 8, 2009
  */
 public interface IRowEditorFactory<T, E extends NodeContainer & IEditor> {
-	E createRowEditor(T instance, boolean isnew, boolean isReadonly) throws Exception;
+	@Nonnull
+	E createRowEditor(@Nonnull T instance, boolean isnew, boolean isReadonly) throws Exception;
 }

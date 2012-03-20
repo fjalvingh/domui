@@ -228,7 +228,7 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 		}
 
 		//must be set as bug fix for IE table rendering
-		Object tblBase = cc.getTR().getParent(Table.class);
+		Object tblBase = cc.getTR().findParent(Table.class);
 		if(tblBase instanceof Table) {
 			((Table) tblBase).setWidth("100%");
 			((Table) tblBase).setOverflow(Overflow.HIDDEN);

@@ -52,7 +52,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	private String m_classNameOnly;
 
 	/** Theclass' resource bundle. */
-	private BundleRef m_classBundle;
+	@Nonnull
+	final private BundleRef m_classBundle;
 
 	/** An immutable list of all properties of this class. This list differs from m_propertyMap: the map contains all calculated properties too. */
 	private List<PropertyMetaModel< ? >> m_rootProperties;

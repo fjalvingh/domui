@@ -79,7 +79,7 @@ public interface ITheme {
 	 * @param icon
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	String getIconURL(@Nonnull String icon) throws Exception;
 }
 

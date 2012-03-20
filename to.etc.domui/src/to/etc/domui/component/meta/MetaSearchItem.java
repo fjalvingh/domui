@@ -36,13 +36,14 @@ import java.lang.annotation.*;
  * Created on Oct 7, 2009
  */
 @Retention(RetentionPolicy.RUNTIME)
+@Target(value = ElementType.ANNOTATION_TYPE)
 public @interface MetaSearchItem {
 	/**
 	 * The name of the property to search on in this object. When unset this specification <i>must</i> specify
 	 * a lookup field generator class.
 	 * @return
 	 */
-	String name() default "";
+	String name();
 
 	/**
 	 * If this specification is used in combination with @SearchProperty annotations this

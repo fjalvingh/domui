@@ -274,8 +274,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		//-- Ok, now add the (initially empty) action row
 		final TD td = cc.add((NodeBase) null);
 		bc.setContainer(td);
-		if(getRowButtonFactory() != null) {
-			getRowButtonFactory().addButtonsFor(bc, value);
+		IRowButtonFactory<T> bf = getRowButtonFactory();
+		if(bf != null) {
+			bf.addButtonsFor(bc, value);
 		}
 
 		if(isEnableDeleteButton() && getModel() instanceof IModifyableTableModel< ? >) {
@@ -428,6 +429,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		if(tr.getUserObject() == null) // Already collapsed?
 			return;
 		NodeContainer editor = (NodeContainer) tr.getUserObject();
+		if(null == editor)
+			throw new IllegalStateException("? No editor in row user object??");
 		T	item	= getModelItem(index);
 		//vmijic 20100108 not needed since editor itself would pass modified flag through its input fields.
 		//				  in case that user didn't chaged any input, then there is no need to raise modified flag.
@@ -759,8 +762,10 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * Return the editor factory to use to create the row editor. If null we'll use a default editor.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	public IRowEditorFactory<T, ? extends NodeContainer> getEditorFactory() {
+		if(null == m_editorFactory)
+			throw new IllegalStateException("editorFactory is not set.");
 		return m_editorFactory;
 	}
 

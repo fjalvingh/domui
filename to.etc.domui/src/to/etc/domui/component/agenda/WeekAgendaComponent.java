@@ -91,7 +91,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 		DateUtil.clearTime(cal);
 		switch(m_mode){
 			default:
-				throw new IllegalStateException(m_mode + ": not handled");
+				throw new IllegalStateException(m_mode + ": unhandled mode");
 			case DAY:
 				m_date = cal.getTime();
 				m_end = DateUtil.tomorrow(m_date);

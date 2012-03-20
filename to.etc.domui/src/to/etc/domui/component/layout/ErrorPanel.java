@@ -141,6 +141,8 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 			} else {
 				if(b.getUserObject() instanceof UIMessage) {
 					UIMessage uim = (UIMessage) b.getUserObject();
+					if(uim == null)
+						throw new IllegalStateException("No user message found in userObject");
 					if(highest == null)
 						highest = uim.getType();
 					else if(uim.getType().getOrder() > highest.getOrder())

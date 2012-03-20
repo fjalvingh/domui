@@ -107,7 +107,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 				}
 				switch(relation){
 					default:
-						throw new IllegalStateException(relation + ": unhandled");
+						throw new IllegalStateException(relation + ": unhandled case");
 					case EQ:
 						crit.eq(spm.getPropertyName(), numA.getValue());
 						break;
@@ -182,7 +182,8 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 			return -1;
 		PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		if(DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class) {
-			if(pmm.getComponentTypeHint() != null && pmm.getComponentTypeHint().toLowerCase().contains("numberlookupcombo"))
+			String cth = pmm.getComponentTypeHint();
+			if(cth != null && cth.toLowerCase().contains("numberlookupcombo"))
 				return 8;
 			return 2;
 		}

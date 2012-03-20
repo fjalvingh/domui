@@ -260,11 +260,12 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 			if(!m_disableOnRowClick && !isDisabled) {
 				tr.addCssClass("ui-rowsel");
 				tr.setClicked(new IClicked<TR>() {
-
 					@Override
 					public void clicked(TR row) throws Exception {
 						if(row.getUserObject() instanceof Checkbox) {
 							Checkbox ckb = (Checkbox) row.getUserObject();
+							if(null == ckb)
+								throw new IllegalStateException("Missing checkbox in userObject?");
 							ckb.setChecked(!((Checkbox) row.getUserObject()).isChecked());
 							handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
 						}
@@ -335,7 +336,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 	}
 
 	/**
-	 * Returns T if the control is currently in readonly mode, which renders readonly checkboxes. 
+	 * Returns T if the control is currently in readonly mode, which renders readonly checkboxes.
 	 * @return
 	 */
 	public boolean isReadOnly() {

@@ -261,6 +261,8 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 		if(tr instanceof TR) {
 			if(tr.getUserObject() instanceof Checkbox) {
 				Checkbox ckb = (Checkbox) tr.getUserObject();
+				if(null == ckb)
+					throw new IllegalStateException("No checkbox??");
 				ckb.setChecked(!ckb.isChecked());
 				handleAccumulatedItemRowSelectionChanged((TR) tr, Boolean.valueOf(ckb.isChecked()));
 			} else {

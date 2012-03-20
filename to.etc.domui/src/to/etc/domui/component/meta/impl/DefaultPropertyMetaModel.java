@@ -37,6 +37,7 @@ import to.etc.util.*;
 import to.etc.webapp.nls.*;
 
 public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> implements PropertyMetaModel<T> {
+	@Nonnull
 	private final DefaultClassMetaModel m_classModel;
 
 	private final PropertyInfo m_descriptor;
@@ -45,11 +46,10 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	private boolean m_primaryKey;
 
+	@Nonnull
 	private PropertyRelationType m_relationType = PropertyRelationType.NONE;
 
 	private String m_componentTypeHint;
-
-	private String m_renderHint;
 
 	/**
 	 * If this class is the UP in a relation this specifies that it must
@@ -68,6 +68,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	private Class< ? extends INodeContentRenderer< ? >> m_comboNodeRenderer;
 
+	@Nonnull
 	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.EMPTY_LIST;
 
 	private IQueryManipulator<T> m_queryManipulator;
@@ -83,24 +84,28 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	/**
 	 * The default properties to show in a lookup field's instance display.
 	 */
+	@Nonnull
 	private List<DisplayPropertyMetaModel> m_lookupFieldDisplayProperties = Collections.EMPTY_LIST;
 
 	/**
 	 * The default properties to show in a {@link LookupInput} field's lookup data table.
 	 */
+	@Nonnull
 	private List<DisplayPropertyMetaModel> m_lookupFieldTableProperties = Collections.EMPTY_LIST;
 
 	/**
 	 * The search properties to use in a {@link LookupInput} field.
 	 */
+	@Nonnull
 	private List<SearchPropertyMetaModel> m_lookupFieldSearchProperties = Collections.EMPTY_LIST;
 
 	/**
 	 * The keyword search properties to use in a {@link LookupInput} field.
 	 */
+	@Nonnull
 	private List<SearchPropertyMetaModel> m_lookupFieldKeySearchProperties = Collections.EMPTY_LIST;
 
-	public DefaultPropertyMetaModel(final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
+	public DefaultPropertyMetaModel(@Nonnull final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
 		if(classModel == null)
 			throw new IllegalStateException("Cannot be null dude");
 		m_classModel = classModel;
@@ -110,11 +115,13 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		}
 	}
 
+	@Nonnull
 	@Override
 	public String getName() {
 		return m_descriptor.getName();
 	}
 
+	@Nonnull
 	@Override
 	public Class<T> getActualType() {
 		return (Class<T>) m_descriptor.getActualType();
@@ -135,14 +142,14 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	public void setValue(Object target, T value) throws Exception {
 		if(target == null)
 			throw new IllegalStateException("The 'target' object is null");
-		Method m = m_descriptor.getSetter();
-		if(m == null)
+		Method setter = m_descriptor.getSetter();
+		if(setter == null)
 			throw new IllegalAccessError("The property " + this + " is read-only.");
 		try {
-			m.invoke(target, value);
+			setter.invoke(target, value);
 		} catch(InvocationTargetException itx) {
 			Throwable c = itx.getCause();
-			System.err.println("(in calling " + m + " with input object " + target + " and value " + value + ")");
+			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
 			if(c instanceof Exception) {
 				throw (Exception) c;
 			}
@@ -272,35 +279,39 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		m_comboLabelRenderer = comboLabelRenderer;
 	}
 
+	@Nonnull
 	@Override
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_comboDisplayProperties;
 	}
 
-	public void setComboDisplayProperties(final List<DisplayPropertyMetaModel> displayProperties) {
+	public void setComboDisplayProperties(@Nonnull final List<DisplayPropertyMetaModel> displayProperties) {
 		m_comboDisplayProperties = displayProperties;
 	}
 
+	@Nonnull
 	@Override
 	public PropertyRelationType getRelationType() {
 		return m_relationType;
 	}
 
-	public void setRelationType(final PropertyRelationType relationType) {
+	public void setRelationType(@Nonnull final PropertyRelationType relationType) {
 		m_relationType = relationType;
 	}
 
+	@Nonnull
 	@Override
 	public ClassMetaModel getClassModel() {
 		return m_classModel;
 	}
 
+	@Nullable
 	@Override
 	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
 		return m_comboNodeRenderer;
 	}
 
-	public void setComboNodeRenderer(final Class< ? extends INodeContentRenderer< ? >> comboNodeRenderer) {
+	public void setComboNodeRenderer(@Nullable final Class< ? extends INodeContentRenderer< ? >> comboNodeRenderer) {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
@@ -324,12 +335,13 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	/**
 	 * {@inheritDoc}
 	 */
+	@Nonnull
 	@Override
 	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
 
-	public void setLookupSelectedProperties(final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
+	public void setLookupSelectedProperties(@Nonnull final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
 		m_lookupFieldDisplayProperties = lookupFieldDisplayProperties;
 	}
 
@@ -337,11 +349,12 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Nonnull
 	public List<DisplayPropertyMetaModel> getLookupTableProperties() {
 		return m_lookupFieldTableProperties;
 	}
 
-	public void setLookupTableProperties(List<DisplayPropertyMetaModel> lookupFieldTableProperties) {
+	public void setLookupTableProperties(@Nonnull List<DisplayPropertyMetaModel> lookupFieldTableProperties) {
 		m_lookupFieldTableProperties = lookupFieldTableProperties;
 	}
 
@@ -349,11 +362,12 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Nonnull
 	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
 		return m_lookupFieldSearchProperties;
 	}
 
-	public void setLookupFieldSearchProperties(List<SearchPropertyMetaModel> lookupFieldSearchProperties) {
+	public void setLookupFieldSearchProperties(@Nonnull List<SearchPropertyMetaModel> lookupFieldSearchProperties) {
 		m_lookupFieldSearchProperties = lookupFieldSearchProperties;
 	}
 
@@ -361,32 +375,26 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Nonnull
 	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
 		return m_lookupFieldKeySearchProperties;
 	}
 
-	public void setLookupFieldKeySearchProperties(List<SearchPropertyMetaModel> lookupFieldKeySearchProperties) {
+	public void setLookupFieldKeySearchProperties(@Nonnull List<SearchPropertyMetaModel> lookupFieldKeySearchProperties) {
 		m_lookupFieldKeySearchProperties = lookupFieldKeySearchProperties;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Nullable
 	@Override
 	public String getComponentTypeHint() {
 		return m_componentTypeHint;
 	}
 
-	public void setComponentTypeHint(final String componentTypeHint) {
+	public void setComponentTypeHint(@Nullable final String componentTypeHint) {
 		m_componentTypeHint = componentTypeHint;
-	}
-
-	public String getRenderHint() {
-		return m_renderHint;
-	}
-
-	public void setRenderHint(final String renderHint) {
-		m_renderHint = renderHint;
 	}
 
 	public IQueryManipulator<T> getQueryManipulator() {
@@ -404,7 +412,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 */
 	@Override
 	@Nullable
-	public <A> A getAnnotation(Class<A> annclass) {
+	public <A> A getAnnotation(@Nonnull Class<A> annclass) {
 		if(Annotation.class.isAssignableFrom(annclass) && m_descriptor != null && m_descriptor.getGetter() != null) {
 			Class< ? extends Annotation> aclz = (Class< ? extends Annotation>) annclass;
 
@@ -422,6 +430,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	@Nonnull
 	public List<Object> getAnnotations() {
 		if(m_descriptor != null && m_descriptor.getGetter() != null) {
+			@Nonnull
 			List<Object> res = Arrays.asList((Object[]) m_descriptor.getGetter().getAnnotations());
 			return res;
 		}

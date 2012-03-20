@@ -92,6 +92,7 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 	 * The metamodel to use to handle the data in this class. For Javabean data classes this is automatically
 	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
 	 */
+	@Nonnull
 	final private ClassMetaModel m_metaModel;
 
 	private LookupForm<T> m_externalLookupForm;
@@ -427,24 +428,24 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			if(sb.length() > 0)
 				sb.append(", ");
 			SearchPropertyMetaModel spm = spml.get(i);
+			if(null == spm)
+				throw new IllegalStateException("null entry in keyword search list");
+
 			if(spm.getLookupLabel() != null) {
 				sb.append(spm.getLookupLabel());
 			} else {
 				//FIXME: vmijic 20110906 Scheduled for delete. We add extra tests and logging in code just to be sure if such cases can happen in production.
 				//This should be removed soon after we are sure that problem is solved.
-				if(spm == null) {
-					System.out.println("possible NPE : spm == null, for i = " + i + ", spml.size() == " + spml.size());
-				}
-				if(spm.getPropertyName() == null) {
-					System.out.println("possible NPE : spm.getPropertyName() == null, for spm = " + spm);
-				}
-				if(getMetaModel().findProperty(spm.getPropertyName()) == null) {
-					System.out.println("possible NPE : getMetaModel().findProperty(spm.getPropertyName()) == null, for spm.getPropertyName() = " + spm.getPropertyName());
-				}
-				if(getMetaModel() == null) {
-					System.out.println("possible NPE : getMetaModel() == null, for spm.getPropertyName() = " + spm.getPropertyName());
-				}
-				sb.append(getMetaModel().findProperty(spm.getPropertyName()).getDefaultLabel());
+				String propertyName = spm.getPropertyName();
+				if(propertyName == null)
+					throw new IllegalStateException("Search property name is null");
+				PropertyMetaModel< ? > pmm = getMetaModel().findProperty(propertyName);
+				if(pmm == null)
+					throw new IllegalStateException(propertyName + ": undefined property in " + getMetaModel());
+				if(pmm.getDefaultLabel() != null)
+					sb.append(pmm.getDefaultLabel());
+				else
+					sb.append(pmm.getName());
 			}
 		}
 		return sb.toString();

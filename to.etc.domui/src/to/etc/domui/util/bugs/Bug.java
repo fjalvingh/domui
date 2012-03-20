@@ -69,8 +69,9 @@ public class Bug {
 		IBugListener	listener = m_listener.get();
 		if(null == listener) {
 			System.out.println("BUG: " + bi.getMessage());
-			if(null != bi.getException()) {
-				bi.getException().printStackTrace();
+			Throwable x = bi.getException();
+			if(null != x) {
+				x.printStackTrace();
 			}
 			return;
 		}

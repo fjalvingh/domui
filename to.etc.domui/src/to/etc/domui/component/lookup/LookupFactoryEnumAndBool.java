@@ -53,6 +53,8 @@ final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 
 			// Create a domainvalued combobox by default.
 			Object[] vals = pmm.getDomainValues();
+			if(null == vals)
+				throw new IllegalStateException(pmm + ": no domainValues");
 			ClassMetaModel ecmm = null;
 			List<ValueLabelPair<Object>> vl = new ArrayList<ValueLabelPair<Object>>();
 			for(Object o : vals) {
