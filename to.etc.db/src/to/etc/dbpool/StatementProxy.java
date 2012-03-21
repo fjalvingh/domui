@@ -647,4 +647,14 @@ public class StatementProxy implements Statement {
 			throw wrap(xx);
 		}
 	}
+
+	@Override
+	public void closeOnCompletion() throws SQLException {
+		getRealStatement().closeOnCompletion();
+	}
+
+	@Override
+	public boolean isCloseOnCompletion() throws SQLException {
+		return getRealStatement().isCloseOnCompletion();
+	}
 }

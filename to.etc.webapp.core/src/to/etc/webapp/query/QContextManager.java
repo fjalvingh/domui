@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 /**
  * Fugly singleton helper class to globally access database stuff.
  *
@@ -41,7 +43,7 @@ final public class QContextManager {
 	 * called before QContextManager is ever used.
 	 * @param cm
 	 */
-	static synchronized public void setImplementation(IQContextManager cm) {
+	static synchronized public void setImplementation(@Nonnull IQContextManager cm) {
 		if(m_instance != null)
 			throw new IllegalStateException("The QContextManager has already been used, setting a different implementation is no longer possible");
 		m_instance = cm;
@@ -52,6 +54,7 @@ final public class QContextManager {
 	 * set this will create the default handler instance.
 	 * @return
 	 */
+	@Nonnull
 	static private synchronized IQContextManager instance() {
 		if(m_instance == null)
 			m_instance = new QDefaultContextManager();
@@ -62,7 +65,7 @@ final public class QContextManager {
 	 * Initialize the QContextManager with a literal QDataContextFactory.
 	 * @param f
 	 */
-	static public void initialize(final QDataContextFactory f) {
+	static public void initialize(@Nonnull final QDataContextFactory f) {
 		instance().setContextFactory(f);
 	}
 
@@ -73,6 +76,7 @@ final public class QContextManager {
 	 *
 	 * @return
 	 */
+	@Nonnull
 	static synchronized public QDataContextFactory getDataContextFactory() {
 		return instance().getDataContextFactory();
 	}
@@ -82,6 +86,7 @@ final public class QContextManager {
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	static public QDataContext createUnmanagedContext() throws Exception {
 		return instance().createUnmanagedContext();
 	}
@@ -100,6 +105,7 @@ final public class QContextManager {
 	 * @param cc
 	 * @return
 	 */
+	@Nonnull
 	static public QDataContextFactory getDataContextFactory(final IQContextContainer cc) {
 		return instance().getSharedContextFactory(cc);
 	}
@@ -110,7 +116,8 @@ final public class QContextManager {
 	 * is special in that it cannot be closed() using it's close() call - it is silently
 	 * ignored.
 	 */
-	static public QDataContext getContext(final IQContextContainer cc) throws Exception {
+	@Nonnull
+	static public QDataContext getContext(@Nonnull final IQContextContainer cc) throws Exception {
 		return instance().getSharedContext(cc);
 	}
 
@@ -118,7 +125,7 @@ final public class QContextManager {
 	 * If the specified container contains a shared context close it.
 	 * @param cc
 	 */
-	static public void closeSharedContext(final IQContextContainer cc) {
+	static public void closeSharedContext(@Nonnull final IQContextContainer cc) {
 		instance().closeSharedContext(cc);
 	}
 }

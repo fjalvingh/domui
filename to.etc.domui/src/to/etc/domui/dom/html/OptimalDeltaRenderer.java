@@ -575,7 +575,7 @@ public class OptimalDeltaRenderer {
 			 * this node is not deleted at all and can at most have moved within the
 			 * container.
 			 */
-			if(n.getParent() != nc) {
+			if(n.internalGetParent() != nc) {
 				//-- Deleted thingy. Add to the current node's DELETE charge.
 				ni.addDelete(n); // This node is DELETED from here,
 				if(DEBUG)

@@ -146,7 +146,8 @@ public class SimpleThemeFactory implements IThemeFactory {
 			executor().eval(isr, rurl);
 		} finally {
 			try {
-				is.close();
+				if(is != null)
+					is.close();
 			} catch(Exception x) {}
 		}
 		//

@@ -51,38 +51,14 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 
 	private String m_lookupHintKey;
 
-	public SearchPropertyMetaModelImpl(ClassMetaModel cmm) {
+	public SearchPropertyMetaModelImpl(ClassMetaModel cmm, List<PropertyMetaModel< ? >> mli) {
 		m_classModel = cmm;
+		m_propertyPath = mli;
 	}
 
-	//	/**
-	//	 * Returns the property model for the attached property. This value is usually
-	//	 * set when the @SearchProperty is defined on a property because at that time
-	//	 * the actual property is known. But for @MetaSearch properties the actual
-	//	 * property cannot be set at metadata creation time because they can refer
-	//	 * to <i>other</i> class models. For these properties we do the lookup here
-	//	 * the first time it gets referenced.
-	//	 *
-	//	 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#getProperty()
-	//	 */
-	//	public synchronized PropertyMetaModel getProperty() {
-	//		if(m_property == null && m_propertyName != null) {
-	//			m_property = m_classModel.findProperty(m_propertyName);
-	//			if(m_property == null)
-	//				throw new ProgrammerErrorException("MetaModel error: the search property '" + m_propertyName + "' cannot be located on class=" + m_classModel);
-	//		}
-	//		return m_property;
-	//	}
-	//
-	//	/**
-	//	 * The property that is being searched on.
-	//	 *
-	//	 * @param property
-	//	 */
-	//	public void setProperty(DefaultPropertyMetaModel property) {
-	//		m_property = property;
-	//	}
-
+	public SearchPropertyMetaModelImpl(ClassMetaModel cmm) {
+		this(cmm, null);
+	}
 
 	@Override
 	public synchronized List<PropertyMetaModel< ? >> getPropertyPath() {

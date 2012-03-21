@@ -2601,6 +2601,11 @@ var WebUI = {
 	//Returns T if browser is IE of at least version 9 and does not run in any of compatibility modes for earlier versions
 	isNormalIE9plus: function() {
 		return ($.browser.msie && parseInt($.browser.version) >= 9 && document.documentMode >= 9);
+	},
+	
+	//Returns T if browser is IE of at least version 8 even if it runs in IE7 compatibility mode
+	isIE8orNewer: function() {
+		return ($.browser.msie && (parseInt($.browser.version) >= 8 || (parseInt($.browser.version) == 7 && document.documentMode >= 8)));
 	}
 };
 

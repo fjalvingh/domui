@@ -27,6 +27,8 @@ package to.etc.domui.themes;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.mozilla.javascript.*;
 
 import to.etc.domui.server.*;
@@ -98,7 +100,8 @@ public class FragmentedThemeStore implements ITheme {
 	 * @see to.etc.domui.themes.ITheme#getThemeResource(java.lang.String, to.etc.domui.util.resources.IResourceDependencyList)
 	 */
 	@Override
-	public IResourceRef getThemeResource(String name, IResourceDependencyList rdl) throws Exception {
+	@Nonnull
+	public IResourceRef getThemeResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
 		//-- Are we looking for the root stylesheet? We have that as the expanded fragments...
 		if("style.theme.css".equals(name)) {
 			byte[] data = getStyleSheetBytes();

@@ -45,6 +45,8 @@ import to.etc.domui.util.*;
  * Created on Jun 16, 2008
  */
 public interface PropertyMetaModel<T> extends IValueAccessor<T> {
+	static public final PropertyMetaValidator[] NO_VALIDATORS = new PropertyMetaValidator[0];
+
 	/**
 	 * The ClassModel that this property is a property of.
 	 * @return
@@ -338,7 +340,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * Get all validators to run on this property's input after conversion.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	PropertyMetaValidator[] getValidators();
 
 	/**

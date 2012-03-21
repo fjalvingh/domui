@@ -52,8 +52,8 @@ public interface ITheme {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nullable
-	IResourceRef getThemeResource(String name, IResourceDependencyList rdl) throws Exception;
+	@Nonnull
+	IResourceRef getThemeResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception;
 
 	@Nonnull
 	IScriptScope getPropertyScope();

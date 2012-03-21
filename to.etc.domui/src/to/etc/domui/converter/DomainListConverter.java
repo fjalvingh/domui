@@ -64,6 +64,8 @@ public final class DomainListConverter implements IConverter<Object> {
 		if(in == null)
 			return null;
 		Object[] ar = m_pmm.getDomainValues();
+		if(ar == null)
+			throw new IllegalStateException(m_pmm + ": no domainValues");
 		for(Object o: ar) {
 			String v = MetaManager.getEnumLabel(m_pmm, o);
 			if(v.equalsIgnoreCase(in))

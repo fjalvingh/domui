@@ -77,7 +77,7 @@ public class InternalParentTree extends Div {
 		//-- Run all parents.
 		TBody b = list.addTable();
 
-		for(NodeBase nb = m_touched; nb != null; nb = nb.getParent()) {
+		for(NodeBase nb = m_touched; nb != null && nb.hasParent(); nb = nb.getParent()) {
 			final NodeBase clicked = nb;
 			TR row = b.addRow();
 			row.setCssClass("ui-ipt-item");

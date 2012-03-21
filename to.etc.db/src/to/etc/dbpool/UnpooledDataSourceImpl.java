@@ -26,6 +26,7 @@ package to.etc.dbpool;
 
 import java.io.*;
 import java.sql.*;
+import java.util.logging.*;
 
 import javax.sql.*;
 
@@ -66,5 +67,10 @@ public class UnpooledDataSourceImpl implements DataSource {
 
 	public ConnectionPool getPool() {
 		return m_pool;
+	}
+
+	@Override
+	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+		throw new SQLFeatureNotSupportedException();
 	}
 }

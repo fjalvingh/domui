@@ -49,31 +49,14 @@ final public class MetaManager {
 	static private List<IClassMetaModelFactory> m_modelList = new ArrayList<IClassMetaModelFactory>();
 
 	/**
-	 * Mapped lock object referring to a ClassMetaModel instance, which can be in initialization.
-	 *
-	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
-	 * Created on Jun 1, 2010
-	 */
-	static private final class MRef {
-		private ClassMetaModel m_classModel;
-
-		public MRef() {}
-
-		public ClassMetaModel getClassModel() {
-			return m_classModel;
-		}
-
-		public void setClassModel(ClassMetaModel classModel) {
-			m_classModel = classModel;
-		}
-	}
-
-//	static private Set<Class< ? >> SIMPLE = new HashSet<Class< ? >>();
-
-	/**
 	 * Map indexed by Class<?> or IMetaClass returning the classmodel for that instance.
 	 */
-	static private Map<Object, MRef> m_classMap = new HashMap<Object, MRef>();
+	static private Map<Object, ClassMetaModel> m_classMap = new HashMap<Object, ClassMetaModel>();
+
+	/** While a metamodel is being initialized this keeps track of recursive init's */
+	final static private Stack<Object> m_initStack = new Stack<Object>();
+
+	final static private List<Runnable> m_initList = new ArrayList<Runnable>();
 
 	private MetaManager() {}
 
@@ -94,26 +77,9 @@ final public class MetaManager {
 	static public ClassMetaModel findClassMeta(@Nonnull Class< ? > clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("Class<?> parameter cannot be null");
-
-		MRef ref;
-		List<IClassMetaModelFactory> list;
-		synchronized(MetaManager.class) {
-			list = getList();
-			ref = m_classMap.get(clz);
-			if(ref == null) {
-				if(clz.getName().contains("$$")) {
-					//-- Enhanced class (Hibernate). Get base class instead
-					clz = clz.getSuperclass();
-					ref = m_classMap.get(clz);
-				}
-				if(ref == null) {
-					ref = new MRef();
-					m_classMap.put(clz, ref); // Save
-				}
-			}
-		}
-		initializeModel(ref, clz, list);
-		return ref.getClassModel();
+		if(clz.getName().contains("$$"))
+			clz = clz.getSuperclass(); // Enhanced class (Hibernate). Get base class instead
+		return findAndInitialize(clz);
 	}
 
 	/**
@@ -128,68 +94,102 @@ final public class MetaManager {
 			return (ClassMetaModel) mc;
 		if(mc == null)
 			throw new IllegalArgumentException("IMetaClass parameter cannot be null");
-
-		//-- We need some factory to create it.
-		MRef ref;
-		List<IClassMetaModelFactory> list;
-		synchronized(MetaManager.class) {
-			list = getList();
-			ref = m_classMap.get(mc);
-			if(ref == null) {
-				ref = new MRef();
-				m_classMap.put(mc, ref); // Save
-			}
-		}
-		initializeModel(ref, mc, list);
-		return ref.getClassModel();
+		return findAndInitialize(mc);
 	}
 
-	/**
-	 * Walk all factories and let one of them create the class model for this thingy. If all fail abort.
-	 * @param ref
-	 * @param modelList
-	 */
-	private static void initializeModel(@Nonnull MRef ref, @Nonnull Object theThingy, @Nonnull List<IClassMetaModelFactory> modelList) {
-		synchronized(ref) {
-			if(ref.getClassModel() == null) {
-				/*
-				 * We need to find a factory that knows how to deliver this metadata.
-				 */
-				int bestscore = 0;
-				int hitct = 0;
-				IClassMetaModelFactory best = null;
-				for(IClassMetaModelFactory mmf : modelList) {
-					int score = mmf.accepts(theThingy);
-					if(score > 0) {
-						if(score == bestscore)
-							hitct++;
-						else if(score > bestscore) {
-							bestscore = score;
-							best = mmf;
-							hitct = 1;
-						}
-					}
+	@Nonnull
+	private static ClassMetaModel findAndInitialize(@Nonnull Object mc) {
+		//-- We need some factory to create it.
+		synchronized(MetaManager.class) {
+			ClassMetaModel cmm = m_classMap.get(mc);
+			if(cmm != null)
+				return cmm;
+
+			//-- Phase 1: create the metamodel and it's direct properties.
+			checkInitStack(mc, "primary initialization");
+			IClassMetaModelFactory best = findModelFactory(mc);
+			m_initStack.add(mc);
+			cmm = best.createModel(m_initList, mc);
+			m_classMap.put(mc, cmm);
+			m_initStack.remove(mc);
+
+			//-- Phase 2: create the secondary model.
+			if(m_initStack.size() == 0 && m_initList.size() > 0) {
+				List<Runnable> dl = new ArrayList<Runnable>(m_initList);
+				m_initList.clear();
+				for(Runnable r : dl) {
+					r.run();
 				}
+			}
+			return cmm;
+		}
+	}
 
-				//-- We MUST have some factory now, or we're in trouble.
-				if(best == null)
-					throw new IllegalStateException("No IClassModelFactory accepts the type '" + theThingy + "', which is a " + theThingy.getClass());
-				if(hitct > 1)
-					throw new IllegalStateException("Two IClassModelFactory's accept the type '" + theThingy + "' (which is a " + theThingy.getClass() + ") at score=" + bestscore);
+	private static void checkInitStack(Object mc, String msg) {
+		if(m_initStack.contains(mc)) {
+			m_initStack.add(mc);
+			StringBuilder sb = new StringBuilder();
+			for(Object o : m_initStack) {
+				if(sb.length() > 0)
+					sb.append(" -> ");
+				sb.append(o.toString());
+			}
+			m_initStack.clear();
 
-				//-- Acceptable. Let it create the model.
-				ClassMetaModel cmm = best.createModel(theThingy);
-				if(cmm == null)
-					throw new IllegalStateException("The IClassModelFactory " + best + " did not create a ClassMetaModel for '" + theThingy + "' (which is a " + theThingy.getClass() + ")");
-				ref.setClassModel(cmm); // Marks as initialized.
+			throw new IllegalStateException("Circular reference in " + msg + ": " + sb.toString());
+		}
+	}
+
+	//	/**
+	//	 * Walk all factories and let one of them create the class model for this thingy. If all fail abort.
+	//	 * @param ref
+	//	 * @param modelList
+	//	 */
+	//	private static void initializeModel(@Nonnull MRef ref, @Nonnull Object theThingy, @Nonnull List<IClassMetaModelFactory> modelList) {
+	//		if(ref.getClassModel() != null)
+	//			throw new IllegalStateException("Class model already initialized!?"); // Cannot happen.
+	//
+	//		IClassMetaModelFactory best = findModelFactory(theThingy, modelList);
+	//
+	//		//-- Acceptable. Let it create the model.
+	//		ClassMetaModel cmm = best.createModel(theThingy);
+	//		if(cmm == null)
+	//			throw new IllegalStateException("The IClassModelFactory " + best + " did not create a ClassMetaModel for '" + theThingy + "' (which is a " + theThingy.getClass() + ")");
+	//		ref.setClassModel(cmm); // Marks as initialized.
+	//
+	//		//-- Now check all property fields (display properties, search properties)
+	//		ExpandedDisplayProperty.expandDisplayProperties(cmm.getComboDisplayProperties(), cmm, null);
+	//		ExpandedDisplayProperty.expandDisplayProperties(cmm.getLookupSelectedProperties(), cmm, null);
+	//		ExpandedDisplayProperty.expandDisplayProperties(cmm.getTableDisplayProperties(), cmm, null);
+	//	}
+
+	/**
+	 * We need to find a factory that knows how to deliver this metadata.
+	 */
+	@Nonnull
+	private synchronized static IClassMetaModelFactory findModelFactory(Object theThingy) {
+		int bestscore = 0;
+		int hitct = 0;
+		IClassMetaModelFactory best = null;
+		for(IClassMetaModelFactory mmf : getList()) {
+			int score = mmf.accepts(theThingy);
+			if(score > 0) {
+				if(score == bestscore)
+					hitct++;
+				else if(score > bestscore) {
+					bestscore = score;
+					best = mmf;
+					hitct = 1;
+				}
 			}
 		}
 
-		//-- Now check all property fields (display properties, search properties)
-		ClassMetaModel cmm = ref.getClassModel();
-		ExpandedDisplayProperty.expandDisplayProperties(cmm.getComboDisplayProperties(), cmm, null);
-		ExpandedDisplayProperty.expandDisplayProperties(cmm.getLookupSelectedProperties(), cmm, null);
-		ExpandedDisplayProperty.expandDisplayProperties(cmm.getTableDisplayProperties(), cmm, null);
+		//-- We MUST have some factory now, or we're in trouble.
+		if(best == null)
+			throw new IllegalStateException("No IClassModelFactory accepts the type '" + theThingy + "', which is a " + theThingy.getClass());
+		if(hitct > 1)
+			throw new IllegalStateException("Two IClassModelFactory's accept the type '" + theThingy + "' (which is a " + theThingy.getClass() + ") at score=" + bestscore);
+		return best;
 	}
 
 	/**
@@ -199,7 +199,7 @@ final public class MetaManager {
 	 * @return
 	 */
 	@Nullable
-	static public PropertyMetaModel< ? > findPropertyMeta(Class< ? > clz, String name) {
+	static public PropertyMetaModel< ? > findPropertyMeta(@Nonnull Class< ? > clz, @Nonnull String name) {
 		ClassMetaModel cm = findClassMeta(clz);
 		return cm.findProperty(name);
 	}
@@ -376,6 +376,7 @@ final public class MetaManager {
 
 		//-- Classes must be the same type but we allow for proxying
 		Class< ? > acl = a.getClass();
+		@Nonnull
 		Class< ? > bcl = b.getClass();
 		if(!acl.isAssignableFrom(bcl) && !bcl.isAssignableFrom(acl))
 			return false;
@@ -392,15 +393,17 @@ final public class MetaManager {
 				if(acl != bcl) {
 					acmm = findClassMeta(acl);
 					bcmm = findClassMeta(bcl);
-					if(acmm.getPrimaryKey() == null || bcmm.getPrimaryKey() == null) {
-						return false;
-					}
 				} else {
 					acmm = cmm;
 					bcmm = cmm;
 				}
-				Object pka = acmm.getPrimaryKey().getValue(a);
-				Object pkb = bcmm.getPrimaryKey().getValue(b);
+				PropertyMetaModel< ? > apkmm = acmm.getPrimaryKey();
+				PropertyMetaModel< ? > bpkmm = bcmm.getPrimaryKey();
+				if(apkmm == null || bpkmm == null) {
+					return false;
+				}
+				Object pka = apkmm.getValue(a);
+				Object pkb = bpkmm.getValue(b);
 				return DomUtil.isEqual(pka, pkb);
 			} catch(Exception x) {
 				x.printStackTrace();
@@ -613,9 +616,10 @@ final public class MetaManager {
 		if(t == null)
 			return "null";
 		ClassMetaModel cmm = MetaManager.findClassMeta(t.getClass());
-		if(cmm.isPersistentClass() && cmm.getPrimaryKey() != null) {
+		PropertyMetaModel< ? > pkmm = cmm.getPrimaryKey();
+		if(cmm.isPersistentClass() && pkmm != null) {
 			try {
-				Object k = cmm.getPrimaryKey().getValue(t);
+				Object k = pkmm.getValue(t);
 				return t.getClass().getName() + "#" + k + " @" + System.identityHashCode(t);
 			} catch(Exception x) {}
 		}
@@ -751,8 +755,7 @@ final public class MetaManager {
 			} else
 				continue;
 
-			DisplayPropertyMetaModel dp = new DisplayPropertyMetaModel();
-			dp.setName(pmm.getName());
+			DisplayPropertyMetaModel dp = new DisplayPropertyMetaModel(pmm);
 			res.add(dp);
 		}
 
@@ -866,7 +869,10 @@ final public class MetaManager {
 		List<DisplayPropertyMetaModel> res = pmm.getComboDisplayProperties();
 		if(res.size() != 0)
 			return res;
-		return pmm.getValueModel().getComboDisplayProperties();
+		ClassMetaModel vm = pmm.getValueModel();
+		if(null == vm)
+			throw new IllegalStateException(pmm + ": property has no 'value metamodel'");
+		return vm.getComboDisplayProperties();
 	}
 
 	/**
@@ -904,10 +910,10 @@ final public class MetaManager {
 				default:
 					throw new IllegalStateException("Unexpected sort type: " + p.getSortable());
 				case SORTABLE_ASC:
-					q.ascending(p.getName());
+					q.ascending(p.getProperty().getName());
 					break;
 				case SORTABLE_DESC:
-					q.descending(p.getName());
+					q.descending(p.getProperty().getName());
 					break;
 			}
 		}

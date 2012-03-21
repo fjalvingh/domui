@@ -192,7 +192,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			int xc = ProcessTools.runProcess(pb, sb);
 			if(xc != 0) {
 				//-- Identify has failed... Assume the format is incorrect - should we fix this later?
-				return new ImageInfo(null, typeDescription, false, null);
+				return new ImageInfo(null, typeDescription, false, Collections.EMPTY_LIST);
 				//				throw new Exception("External command exception: " + m_identify + " returned error code " + xc + "\n" + sb.toString());
 			}
 

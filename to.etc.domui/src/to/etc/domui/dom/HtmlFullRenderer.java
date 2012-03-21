@@ -217,6 +217,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	 */
 	protected void renderThemeCSS() throws Exception {
 		String sheet = m_ctx.getApplication().getThemedResourceRURL("THEME/style.theme.css");
+		if(null == sheet)
+			throw new IllegalStateException("Unexpected null??");
 
 		//-- Render style fragments part.
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
@@ -284,7 +286,10 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			o().writeRaw("<!--\n");
 
 		genVar("DomUIpageTag", Integer.toString(page.getPageTag()));
-		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(DomApplication.get().getThemedResourceRURL("THEME/progressbar.gif")), true));
+		String pb = DomApplication.get().getThemedResourceRURL("ICON/progressbar.gif");
+		if(null == pb)
+			throw new IllegalStateException("Required resource missing");
+		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(pb), true));
 		genVar("DomUICID", StringTool.strToJavascriptString(page.getConversation().getFullId(), true));
 		genVar("DomUIDevel", ctx.getApplication().inDevelopmentMode() ? "true" : "false");
 		genVar("DomUIappURL", StringTool.strToJavascriptString(ctx.getRelativePath(""), true));

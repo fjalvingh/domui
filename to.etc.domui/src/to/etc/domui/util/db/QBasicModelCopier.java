@@ -182,7 +182,10 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		if(!cmm.isPersistentClass())
 			throw new IllegalStateException("The class " + cmm + " is not a persistent class");
 		Class<T> clz = (Class<T>) cmm.getActualClass(); // Use this as the class indicator - source can be a proxy class
-		Object pk = cmm.getPrimaryKey().getValue(source);
+		PropertyMetaModel< ? > primaryKey = cmm.getPrimaryKey();
+		if(null == primaryKey)
+			throw new IllegalStateException(cmm + ": primary key undefined");
+		Object pk = primaryKey.getValue(source);
 
 		//-- Create a new instance as the copy
 		T copy;
@@ -275,7 +278,10 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		if(!cmm.isPersistentClass())
 			throw new IllegalStateException("The class " + cmm + " is not a persistent class");
 		Class<T> clz = (Class<T>) cmm.getActualClass(); // Use this as the class indicator - source can be a proxy class
-		Object pk = cmm.getPrimaryKey().getValue(source);
+		PropertyMetaModel< ? > primaryKey = cmm.getPrimaryKey();
+		if(null == primaryKey)
+			throw new IllegalStateException(cmm + ": undefined primary key");
+		Object pk = primaryKey.getValue(source);
 
 		/*
 		 * FIXME: There is an overlap with handling state here with copyProperties. If the source object being

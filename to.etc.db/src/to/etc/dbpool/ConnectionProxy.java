@@ -26,6 +26,7 @@ package to.etc.dbpool;
 
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import javax.annotation.*;
 
@@ -837,5 +838,30 @@ final public class ConnectionProxy implements Connection {
 	public <T> T unwrap(Class<T> iface) throws SQLException {
 		check();
 		return m_pe.getConnection().unwrap(iface);
+	}
+
+	@Override
+	public void setSchema(String schema) throws SQLException {
+		check().setSchema(schema);
+	}
+
+	@Override
+	public String getSchema() throws SQLException {
+		return check().getSchema();
+	}
+
+	@Override
+	public void abort(Executor executor) throws SQLException {
+		check().abort(executor);
+	}
+
+	@Override
+	public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
+		check().setNetworkTimeout(executor, milliseconds);
+	}
+
+	@Override
+	public int getNetworkTimeout() throws SQLException {
+		return check().getNetworkTimeout();
 	}
 }

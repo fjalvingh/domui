@@ -40,15 +40,19 @@ import to.etc.domui.util.resources.*;
  */
 @Immutable
 public final class SimpleTheme implements ITheme {
+	@Nonnull
 	final private DomApplication m_da;
 
+	@Nonnull
 	final private String m_styleName;
 
+	@Nonnull
 	final private ResourceDependencies m_rd;
 
+	@Nonnull
 	final private IScriptScope m_propertyScope;
 
-	public SimpleTheme(DomApplication da, String styleName, IScriptScope themeProperties, ResourceDependencies rd) {
+	public SimpleTheme(@Nonnull DomApplication da, @Nonnull String styleName, @Nonnull IScriptScope themeProperties, @Nonnull ResourceDependencies rd) {
 		m_da = da;
 		m_styleName = styleName;
 		m_propertyScope = themeProperties;
@@ -56,15 +60,18 @@ public final class SimpleTheme implements ITheme {
 		m_rd = rd;
 	}
 
+	@Nonnull
 	@Override
 	public ResourceDependencies getDependencies() {
 		return m_rd;
 	}
 
+	@Nonnull
 	public IScriptScope getPropertyScope() {
 		return m_propertyScope;
 	}
 
+	@Nonnull
 	@Override
 	public IResourceRef getThemeResource(String name, IResourceDependencyList rdl) throws Exception {
 		return m_da.getResource("$themes/" + m_styleName + "/" + name, rdl);

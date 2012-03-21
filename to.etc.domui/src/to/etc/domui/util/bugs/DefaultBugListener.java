@@ -358,10 +358,11 @@ public class DefaultBugListener implements IBugListener {
 			td = addCell();
 			Div ttl = new Div();
 			td.add(ttl);
-			if(m_bi.getFormattedMsg() == null) {
+			List<NodeBase> formattedMsg = m_bi.getFormattedMsg();
+			if(formattedMsg == null) {
 				DomUtil.renderHtmlString(ttl, m_bi.getMessage() + " [" + m_bi.getNumber() + "]");
 			} else {
-				for(NodeBase nb : m_bi.getFormattedMsg())
+				for(NodeBase nb : formattedMsg)
 					ttl.add(nb);
 			}
 			ttl.setCssClass("ui-bug-msg");
