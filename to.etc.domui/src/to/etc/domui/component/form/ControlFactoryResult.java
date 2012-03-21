@@ -51,6 +51,7 @@ final public class ControlFactoryResult {
 	private final NodeBase m_labelNode;
 
 	/** The FormControl handle for the created control */
+	@Nonnull
 	private IControl< ? > m_handle;
 
 	// jal 20091206 tentative removal of unused/unusable constructors because they do not expose the IFormControl interface

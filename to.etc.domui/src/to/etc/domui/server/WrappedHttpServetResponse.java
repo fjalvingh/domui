@@ -59,7 +59,7 @@ public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 
 	final private String m_url;
 
-	public WrappedHttpServetResponse(String url, @Nonnull HttpServletResponse resp, @Nonnull String defaultVersion) {
+	public WrappedHttpServetResponse(@Nonnull String url, @Nonnull HttpServletResponse resp, @Nonnull String defaultVersion) {
 		super(resp);
 		m_url = url;
 		m_blen = 8192;
