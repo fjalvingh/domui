@@ -110,17 +110,6 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 			m_numberMode = NumberMode.FLOAT;
 		else if(DomUtil.isIntegerType(inputClass))
 			m_numberMode = NumberMode.DIGITS;
-
-		switch(m_numberMode){
-			default:
-				break;
-			case DIGITS:
-				setOnKeyPressJS("WebUI.isNumberKey(event)");
-				break;
-			case FLOAT:
-				setOnKeyPressJS("WebUI.isFloatKey(event)");
-				break;
-		}
 	}
 
 	/**
@@ -870,4 +859,27 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		}
 		return txt;
 	}
+
+	/**
+	 * Append appropriate JS based on current {@link NumberMode}
+	 */
+	private void renderMode() {
+		switch(m_numberMode){
+			default:
+				break;
+			case DIGITS:
+				setOnKeyPressJS("WebUI.isNumberKey(event)");
+				break;
+			case FLOAT:
+				setOnKeyPressJS("WebUI.isFloatKey(event)");
+				break;
+		}
+	}
+
+	@Override
+	public void createContent() throws Exception {
+		super.createContent();
+		renderMode();
+	};
+
 }

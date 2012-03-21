@@ -90,5 +90,7 @@ public interface INodeVisitor {
 
 	public void visitXmlNode(XmlTextNode n) throws Exception;
 
+	public void visitUnderline(Underline underline) throws Exception;
+
 	public void visitIFrame(IFrame n) throws Exception;
 }

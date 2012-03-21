@@ -25,6 +25,7 @@
 package to.etc.domui.component.misc;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.css.*;
@@ -38,8 +39,12 @@ public class MsgBox extends Window {
 		void onAnswer(MsgBoxButton result) throws Exception;
 	}
 
+	public interface IInput<T> {
+		void onInput(T value) throws Exception;
+	}
+
 	public static enum Type {
-		INFO, WARNING, ERROR, DIALOG
+		INFO, WARNING, ERROR, DIALOG, INPUT
 	}
 
 	private Img m_theImage = new Img();
@@ -55,6 +60,10 @@ public class MsgBox extends Window {
 	Object m_selectedChoice;
 
 	IAnswer m_onAnswer;
+
+	private IInput< ? > m_oninput;
+
+	private Text< ? > m_inputControl;
 
 	MsgBoxButton m_closeButtonObject;
 
@@ -116,6 +125,10 @@ public class MsgBox extends Window {
 				break;
 			case DIALOG:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_DIALOG);
+				icon = "mbx-question.png";
+				break;
+			case INPUT:
+				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_INPUT);
 				icon = "mbx-question.png";
 				break;
 		}
@@ -342,6 +355,18 @@ public class MsgBox extends Window {
 		box.construct();
 	}
 
+	public static <T> void inputString(NodeBase dad, String message, Text<T> input, IInput<T> onanswer) {
+		MsgBox box = create(dad);
+		box.setType(Type.INPUT);
+		box.setMessage(message);
+		box.addButton(MsgBoxButton.CONTINUE);
+		box.addButton(MsgBoxButton.CANCEL);
+		box.setCloseButton(MsgBoxButton.CANCEL);
+		box.setOninput(onanswer);
+		box.setInputControl(input);
+		box.construct();
+	}
+
 	/**
 	 * Ask a continue/cancel confirmation, and call the IClicked handler for CONTINUE only.
 	 * @param dad
@@ -480,6 +505,11 @@ public class MsgBox extends Window {
 		} else {
 			DomUtil.renderHtmlString(td, m_theText); // 20091206 Allow simple markup in message
 		}
+
+		if(m_inputControl != null) {
+			a.add(m_inputControl);
+		}
+
 		add(m_theButtons);
 		//FIXME: vmijic 20090911 Set initial focus to first button. However preventing of keyboard input focus on window in background has to be resolved properly.
 		setFocusOnButton();
@@ -516,6 +546,17 @@ public class MsgBox extends Window {
 				throw ex;
 			}
 		}
+		if(m_oninput != null) {
+			try {
+				Object v = m_inputControl.getValue();
+				((IInput<Object>) m_oninput).onInput(v);
+			} catch(ValidationException ex) {
+				//close message box in case of validation exception is thrown as result of answer
+				close();
+				throw ex;
+			}
+		}
+
 		close();
 	}
 
@@ -554,6 +595,22 @@ public class MsgBox extends Window {
 
 	protected void setOnAnswer(IAnswer onAnswer) {
 		m_onAnswer = onAnswer;
+	}
+
+	public IInput< ? > getOninput() {
+		return m_oninput;
+	}
+
+	public void setOninput(IInput< ? > oninput) {
+		m_oninput = oninput;
+	}
+
+	public Text< ? > getInputControl() {
+		return m_inputControl;
+	}
+
+	public void setInputControl(Text< ? > inputControl) {
+		m_inputControl = inputControl;
 	}
 
 	protected INodeContentRenderer<String> getDataRenderer() {

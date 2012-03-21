@@ -50,7 +50,7 @@ public class UploadPart implements IUnbufferedPartFactory {
 					r.getConversation().registerUploadTempFile(ui.getFile());
 				}
 			}
-			fu.forceRebuild();
+			fu.internalFilesAdded(uiar);
 
 			//-- Render an optimal delta as the response,
 			ServerTools.generateNoCache(param.getResponse()); // Do not allow the browser to cache

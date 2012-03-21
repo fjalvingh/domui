@@ -1,5 +1,6 @@
 package to.etc.domui.component.graph;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
@@ -10,11 +11,13 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 4, 2011
  */
-public class ColorPickerButton extends Div implements IHasChangeListener {
+public class ColorPickerButton extends Div implements IHasChangeListener, IInputNode<String> {
 	private Input m_hidden = new HiddenInput();
 
 	private Div m_coldiv = new Div();
 	private IValueChanged< ? > m_onValueChanged;
+
+	private boolean m_mandatory;
 
 	/**
 	 * Create the required structure.
@@ -42,6 +45,11 @@ public class ColorPickerButton extends Div implements IHasChangeListener {
 		return m_hidden.getRawValue();
 	}
 
+	@Override
+	public String getValueSafe() {
+		return getValue();
+	}
+
 	public void setValue(String value) {
 		if(value == null)
 			value = "000000"; // We do not allow null here.
@@ -63,4 +71,46 @@ public class ColorPickerButton extends Div implements IHasChangeListener {
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
+
+	@Override
+	public void setDisabled(boolean d) {
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return isDisabled();
+	}
+
+	@Override
+	public void setReadOnly(boolean ro) {
+		setDisabled(ro);
+	}
+
+	@Override
+	public boolean isDisabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isMandatory() {
+		return m_mandatory;
+	}
+
+	@Override
+	public void setMandatory(boolean ro) {
+		m_mandatory = ro;
+	}
+
+	@Override
+	public IBinder bind() {
+		return null;
+	}
+
+	@Override
+	public boolean isBound() {
+		return false;
+	}
+
+
 }

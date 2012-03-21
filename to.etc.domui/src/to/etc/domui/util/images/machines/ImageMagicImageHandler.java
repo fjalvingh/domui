@@ -192,7 +192,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			int xc = ProcessTools.runProcess(pb, sb);
 			if(xc != 0) {
 				//-- Identify has failed... Assume the format is incorrect - should we fix this later?
-				return new ImageInfo(null, typeDescription, false, null);
+				return new ImageInfo(null, typeDescription, false, Collections.EMPTY_LIST);
 				//				throw new Exception("External command exception: " + m_identify + " returned error code " + xc + "\n" + sb.toString());
 			}
 
@@ -335,4 +335,29 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			done();
 		}
 	}
+
+	public ImageSpec convert(ImageConverterHelper h, ImageSpec source, int page, String targetMime) throws Exception {
+		//-- Create a scaled image
+		start();
+		try {
+			String ext = findExt(targetMime);
+			if(ext == null)
+				throw new IllegalArgumentException("The mime type '" + targetMime + "' is not supported");
+			File tof = h.createWorkFile(ext);
+			OriginalImagePage pi = source.getInfo().getPage(page);
+
+			//-- jal 20100906 Use thumbnail, not resize: resize does not properly filter causing an white image because all black pixels are sized out.
+			ProcessBuilder pb = new ProcessBuilder(m_convert.toString(), source.getSource().toString() + "[" + page + "]", "-coalesce", "-quality", "100", tof.toString());
+			System.out.println("Command: " + pb.command().toString());
+			StringBuilder sb = new StringBuilder(8192);
+			int xc = ProcessTools.runProcess(pb, sb);
+			System.out.println("convert: " + sb.toString());
+			if(xc != 0)
+				throw new Exception("External command exception: " + m_convert + " returned error code " + xc + "\n" + sb.toString());
+			return new ImageSpec(tof, targetMime, pi.getWidth(), pi.getHeight());
+		} finally {
+			done();
+		}
+	}
+
 }

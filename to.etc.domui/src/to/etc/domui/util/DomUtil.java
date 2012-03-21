@@ -58,11 +58,21 @@ final public class DomUtil {
 		m_guidSeed = (int) val;
 	}
 
-	static public final void ie8Capable(HttpServletResponse req) throws IOException {
+	/**
+	 * Define (or clear) the x-ua-compatible value sent for this page. When not called
+	 * this defaults to the value defined by the ms-emulation property in web.xml.
+	 * @param comp
+	 * @throws IOException
+	 */
+	static public final void setPageCompatibility(@Nonnull HttpServletResponse req, @Nullable String comp) throws IOException {
 		if(!(req instanceof WrappedHttpServetResponse))
 			return;
 		WrappedHttpServetResponse wsr = (WrappedHttpServetResponse) req;
-		wsr.setIE8Capable();
+		wsr.setIeEmulationMode(comp);
+	}
+
+
+	static public final void ie8Capable(HttpServletResponse req) throws IOException {
 	}
 
 	static public final boolean isEqualOLD(final Object a, final Object b) {

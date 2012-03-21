@@ -58,7 +58,7 @@ import to.etc.domui.util.upload.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2008
  */
-public class FileUpload extends Div {
+public class FileUpload extends Div /* implements IHasChangeListener */{
 	private String m_allowedExtensions;
 
 	//	private int m_maxSize;
@@ -70,6 +70,8 @@ public class FileUpload extends Div {
 	List<UploadItem> m_files = new ArrayList<UploadItem>();
 
 	private FileInput m_input;
+
+	private IValueChanged< ? > m_onValueChanged;
 
 	public FileUpload() {}
 
@@ -171,6 +173,14 @@ public class FileUpload extends Div {
 			forceRebuild();
 	}
 
+	public void removeAllUploads() {
+		if(m_files.size() == 0)
+			return;
+		m_files.clear();
+		forceRebuild();
+	}
+
+
 	/**
 	 * Return the space separated list of allowed file extensions.
 	 * @return
@@ -221,4 +231,21 @@ public class FileUpload extends Div {
 	public void setMaxFiles(int maxFiles) {
 		m_maxFiles = maxFiles;
 	}
+
+	public IValueChanged< ? > getOnValueChanged() {
+		return m_onValueChanged;
+	}
+
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		m_onValueChanged = onValueChanged;
+	}
+
+	public void internalFilesAdded(UploadItem[] uiar) throws Exception {
+		forceRebuild();
+		if(m_onValueChanged == null)
+			return;
+		((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(this);
+	}
+
+
 }

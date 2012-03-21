@@ -90,6 +90,6 @@ public class ReloadingClassResourceRef implements IResourceRef, IModifyableResou
 
 	@Override
 	public String toString() {
-		return "ClassResourceRef[" + m_base + " - " + m_name + "]";
+		return "ClassResourceRef[" + m_name + "]";
 	}
 }
