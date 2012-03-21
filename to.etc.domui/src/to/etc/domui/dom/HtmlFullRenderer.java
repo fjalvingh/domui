@@ -286,7 +286,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			o().writeRaw("<!--\n");
 
 		genVar("DomUIpageTag", Integer.toString(page.getPageTag()));
-		String pb = DomApplication.get().getThemedResourceRURL("ICON/progressbar.gif");
+		String pb = DomApplication.get().getThemedResourceRURL("THEME/progressbar.gif");
 		if(null == pb)
 			throw new IllegalStateException("Required resource missing");
 		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(pb), true));
