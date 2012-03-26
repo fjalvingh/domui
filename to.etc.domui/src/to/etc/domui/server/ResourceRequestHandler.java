@@ -24,6 +24,8 @@
  */
 package to.etc.domui.server;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.parts.*;
 
 public class ResourceRequestHandler implements IFilterRequestHandler {
@@ -31,11 +33,17 @@ public class ResourceRequestHandler implements IFilterRequestHandler {
 
 	private PartRequestHandler m_prh;
 
-	private InternalResourcePart m_rp = new InternalResourcePart();
+	@Nonnull
+	final private InternalResourcePart m_rp = new InternalResourcePart();
 
-	public ResourceRequestHandler(DomApplication app, PartRequestHandler prh) {
+	public ResourceRequestHandler(@Nonnull DomApplication app, @Nonnull PartRequestHandler prh) {
 		//		m_app = app;
 		m_prh = prh;
+	}
+
+	@Override
+	public boolean accepts(@Nonnull IRequestContext ri) throws Exception {
+		return ri.getInputPath().startsWith("$");
 	}
 
 	/**
@@ -44,7 +52,7 @@ public class ResourceRequestHandler implements IFilterRequestHandler {
 	 * @see to.etc.domui.server.IFilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
 	 */
 	@Override
-	public void handleRequest(RequestContextImpl ctx) throws Exception {
+	public void handleRequest(@Nonnull RequestContextImpl ctx) throws Exception {
 		//		String	url = ctx.getInputPath().substring(1);
 		//		m_prh.generate(m_rp, ctx, url);
 		m_prh.generate(m_rp, ctx, ctx.getInputPath());

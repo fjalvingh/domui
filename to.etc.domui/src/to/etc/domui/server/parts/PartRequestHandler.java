@@ -27,6 +27,8 @@ package to.etc.domui.server.parts;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -35,13 +37,15 @@ import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 
 public class PartRequestHandler implements IFilterRequestHandler {
+	@Nonnull
 	private final DomApplication m_application;
 
 	private final boolean m_allowExpires;
 
-	private List<IUrlPart> m_urlFactories = new ArrayList<IUrlPart>();
+	@Nonnull
+	private final LRUHashMap<Object, CachedPart> m_cache;
 
-	public PartRequestHandler(final DomApplication application) {
+	public PartRequestHandler(@Nonnull final DomApplication application) {
 		m_application = application;
 
 		LRUHashMap.SizeCalculator<CachedPart> sc = new LRUHashMap.SizeCalculator<CachedPart>() {
@@ -56,14 +60,25 @@ public class PartRequestHandler implements IFilterRequestHandler {
 		m_allowExpires = DeveloperOptions.getBool("domui.expires", true);
 	}
 
-	DomApplication getApplication() {
-		return m_application;
+	/**
+	 * Accept urls that end in .part or that have a first segment containing .part. The part before the ".part" must be a
+	 * valid class name containing an {@link IPartFactory}.
+	 * @see to.etc.domui.server.IFilterRequestHandler#accepts(to.etc.domui.server.IRequestContext)
+	 */
+	@Override
+	public boolean accepts(@Nonnull IRequestContext ri) throws Exception {
+		String in = ri.getInputPath();
+		if(in.endsWith(".part"))
+			return true;
+		int pos = in.indexOf('/'); // First component
+		if(pos < 0)
+			return false;
+		String seg = in.substring(0, pos);
+		return seg.endsWith(".part");
 	}
 
-	public void registerUrlPart(IUrlPart p) {
-		synchronized(m_urlFactories) {
-			m_urlFactories.add(p);
-		}
+	DomApplication getApplication() {
+		return m_application;
 	}
 
 	//	static private void dumpHeaders(RequestContextImpl ctx) {
@@ -73,34 +88,13 @@ public class PartRequestHandler implements IFilterRequestHandler {
 	//		}
 	//	}
 
-	public boolean acceptURL(final String in) {
-		if(in.endsWith(".part"))
-			return true;
-		int pos = in.indexOf('/'); // First component
-		if(pos < 0)
-			return false;
-		String seg = in.substring(0, pos);
-		if(seg.endsWith(".part"))
-			return true;
-
-		// FIXME Needs to be faster, needs to be done only once.
-		if(null != findFactory(in))
-			return true;
-		return false;
-	}
-
-	private IUrlPart findFactory(String rurl) {
-		synchronized(m_urlFactories) {
-			for(IUrlPart p : m_urlFactories) {
-				if(p.accepts(rurl))
-					return p;
-			}
-		}
-		return null;
-	}
-
+	/**
+	 * Entrypoint for when the class name is inside the URL (direct entry).
+	 *
+	 * @see to.etc.domui.server.IFilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
+	 */
 	@Override
-	public void handleRequest(final RequestContextImpl ctx) throws Exception {
+	public void handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
 		String input = ctx.getInputPath();
 		//		dumpHeaders(ctx);
 		boolean part = false;
@@ -122,22 +116,23 @@ public class PartRequestHandler implements IFilterRequestHandler {
 			part = true;
 		}
 
-		IPartRenderer pr;
-		if(part) {
-			//-- Obtain the factory class, then ask it to execute.
-			pr = findPartRenderer(fname);
-		} else {
-			//-- FIXME Do this faster.
-			rest = input;
-			IUrlPart p = findFactory(input);
-			if(p == null)
-				throw new IllegalStateException("No factory for " + ctx + " but we have accepted!?");
-			pr = createPartRenderer(p);
-		}
+		if(!part)
+			throw new ThingyNotFoundException("Not a part: " + input);
+
+		IPartRenderer pr = findPartRenderer(fname);
 		if(pr == null)
 			throw new ThingyNotFoundException("The part factory '" + fname + "' cannot be located.");
 		pr.render(ctx, rest);
 	}
+
+	public void renderUrlPart(IUrlPart part, RequestContextImpl ctx) throws Exception {
+		IPartRenderer pr = createPartRenderer(part);
+		if(pr == null)
+			throw new ThingyNotFoundException("No renderer for " + part);
+		String input = ctx.getInputPath();
+		pr.render(ctx, input);
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Part renderer factories.							*/
@@ -216,8 +211,6 @@ public class PartRequestHandler implements IFilterRequestHandler {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Buffered parts cache and code.						*/
 	/*--------------------------------------------------------------*/
-	private final LRUHashMap<Object, CachedPart> m_cache;
-
 	/**
 	 * Helper which handles possible cached buffered parts.
 	 * @param pf

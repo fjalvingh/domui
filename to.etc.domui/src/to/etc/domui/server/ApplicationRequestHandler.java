@@ -61,8 +61,17 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		m_application = application;
 	}
 
+	/**
+	 * Accept .obit, the defined DomUI extension (.ui by default) and the empty URL if a home page is set in {@link DomApplication}.
+	 * @see to.etc.domui.server.IFilterRequestHandler#accepts(to.etc.domui.server.IRequestContext)
+	 */
 	@Override
-	public void handleRequest(final RequestContextImpl ctx) throws Exception {
+	public boolean accepts(@Nonnull IRequestContext ctx) throws Exception {
+		return m_application.getUrlExtension().equals(ctx.getExtension()) || ctx.getExtension().equals("obit") || (m_application.getRootPage() != null && ctx.getInputPath().length() == 0);
+	}
+
+	@Override
+	public void handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
 		ServerTools.generateNoCache(ctx.getResponse()); // All replies may not be cached at all!!
 		handleMain(ctx);
 		ctx.getSession().dump();

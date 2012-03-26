@@ -111,10 +111,11 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			callInterceptorsBegin(il, ctx);
 			rh = ctx.getApplication().findRequestHandler(ctx);
 			if(rh == null) {
+				//-- Non-DomUI request.
 				handleDoFilter(chain, ctx.getRequest(), ctx.getResponse());
 				return false;
 			}
-			ctx.getResponse().addHeader("X-UA-Compatible", "IE=edge"); // 20110329 jal Force to highest supported mode.
+			ctx.getResponse().addHeader("X-UA-Compatible", "IE=edge"); // 20110329 jal Force to highest supported mode for DomUI code.
 			rh.handleRequest(ctx);
 			ctx.flush();
 			return true;
