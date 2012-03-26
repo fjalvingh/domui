@@ -26,6 +26,8 @@ package to.etc.domui.ajax;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.iocular.*;
 import to.etc.iocular.container.*;
@@ -57,6 +59,11 @@ public class AjaxRequestHandler implements IFilterRequestHandler {
 	public AjaxRequestHandler(final DomApplication domApplication) {
 		m_application = domApplication;
 		m_callHandler = new RpcCallHandler();
+	}
+
+	@Override
+	public boolean accepts(@Nonnull IRequestContext ctx) throws Exception {
+		return ctx.getExtension().equals("xaja");
 	}
 
 	public DomApplication getApplication() {
