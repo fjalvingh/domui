@@ -24,6 +24,16 @@
  */
 package to.etc.domui.server;
 
+import javax.annotation.*;
+
 public interface IFilterRequestHandler {
-	public void handleRequest(RequestContextImpl ctx) throws Exception;
+	/**
+	 * Must check if this filter accepts this URL as fast as possible, and return true if it does.
+	 * @param ri
+	 * @return
+	 * @throws Exception
+	 */
+	boolean accepts(@Nonnull IRequestContext ri) throws Exception;
+
+	void handleRequest(@Nonnull RequestContextImpl ctx) throws Exception;
 }

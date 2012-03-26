@@ -65,20 +65,19 @@ import to.etc.webapp.query.*;
 public abstract class DomApplication {
 	static public final Logger LOG = LoggerFactory.getLogger(DomApplication.class);
 
-	private final ApplicationRequestHandler m_requestHandler = new ApplicationRequestHandler(this);
-
+	@Nonnull
 	private final PartRequestHandler m_partHandler = new PartRequestHandler(this);
 
-	private final ResourceRequestHandler m_resourceHandler = new ResourceRequestHandler(this, m_partHandler);
-
-	private final AjaxRequestHandler m_ajaxHandler = new AjaxRequestHandler(this);
-
+	@Nonnull
 	private Set<IAppSessionListener> m_appSessionListeners = new HashSet<IAppSessionListener>();
 
+	@Nonnull
 	private File m_webFilePath;
 
+	@Nonnull
 	private String m_urlExtension;
 
+	@Nonnull
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
 
 	private boolean m_developmentMode;
@@ -89,13 +88,16 @@ public abstract class DomApplication {
 
 	private final boolean m_logOutput = DeveloperOptions.getBool("domui.log", false);
 
+	@Nonnull
 	private List<IRequestInterceptor> m_interceptorList = new ArrayList<IRequestInterceptor>();
 
 	/**
 	 * Contains the header contributors in the order that they were added.
 	 */
+	@Nonnull
 	private List<HeaderContributorEntry> m_orderedContributorList = Collections.EMPTY_LIST;
 
+	@Nonnull
 	private List<INewPageInstantiated> m_newPageInstListeners = Collections.EMPTY_LIST;
 
 	/** Timeout for a window session, in minutes. */
@@ -108,12 +110,16 @@ public abstract class DomApplication {
 
 	private ILoginDialogFactory m_loginDialogFactory;
 
+	@Nonnull
 	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
 
+	@Nonnull
 	private IPageInjector m_injector = new DefaultPageInjector();
 
+	@Nonnull
 	private ISpecialAccessChecker m_accessChecker = new DefaultSpecialAccessChecker();
 
+	@Nonnull
 	private IDataPathResolver m_dataPathResolver = new DefaultDataPathResolver();
 
 	/**
@@ -126,13 +132,52 @@ public abstract class DomApplication {
 	/**
 	 * Render factories for different browser versions.
 	 */
+	@Nonnull
 	private List<IHtmlRenderFactory> m_renderFactoryList = new ArrayList<IHtmlRenderFactory>();
 
 	final private String m_scriptVersion;
 
+	@Nonnull
 	private List<IResourceFactory> m_resourceFactoryList = Collections.EMPTY_LIST;
 
 	private int m_keepAliveInterval;
+
+	@Nonnull
+	private List<FilterRef> m_requestHandlerList = Collections.emptyList();
+
+	/**
+	 * A single request filter and it's priority in the filter list.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Mar 26, 2012
+	 */
+	static final private class FilterRef {
+		final private int m_score;
+
+		@Nonnull
+		final private IFilterRequestHandler m_handler;
+
+		public FilterRef(@Nonnull IFilterRequestHandler handler, int score) {
+			m_handler = handler;
+			m_score = score;
+		}
+
+		public int getPriority() {
+			return m_score;
+		}
+
+		@Nonnull
+		public IFilterRequestHandler getHandler() {
+			return m_handler;
+		}
+	}
+
+	private static final Comparator<FilterRef> C_HANDLER_DESCPRIO = new Comparator<FilterRef>() {
+		@Override
+		public int compare(FilterRef a, FilterRef b) {
+			return b.getPriority() - a.getPriority();
+		}
+	};
 
 
 	/*--------------------------------------------------------------*/
@@ -178,6 +223,12 @@ public abstract class DomApplication {
 		registerResourceFactory(new VersionedJsResourceFactory());
 		registerResourceFactory(new SimpleResourceFactory());
 		registerResourceFactory(new ThemeResourceFactory());
+
+		//-- Register default request handlers.
+		addRequestHandler(new ApplicationRequestHandler(this), 100);			// .ui and related
+		addRequestHandler(new ResourceRequestHandler(this, m_partHandler), 0);	// $xxxx resources are a last resort
+		addRequestHandler(new AjaxRequestHandler(this), 20);					// .xaja ajax calls.
+		addRequestHandler(getPartRequestHandler(), 80);
 	}
 
 	protected void registerControlFactories() {
@@ -191,8 +242,8 @@ public abstract class DomApplication {
 	}
 
 	protected void registerPartFactories() {
-		registerUrlPart(new ThemePartFactory()); // convert *.theme.* as a JSTemplate.
-		registerUrlPart(new SvgPartFactory()); // Converts .svg.png to png.
+		registerUrlPart(new ThemePartFactory(), 100); // convert *.theme.* as a JSTemplate.
+		registerUrlPart(new SvgPartFactory(), 100); // Converts .svg.png to png.
 	}
 
 	static private synchronized void setCurrentApplication(DomApplication da) {
@@ -230,23 +281,65 @@ public abstract class DomApplication {
 	 * the dot, i.e. "ui" for [classname].ui pages.
 	 * @return
 	 */
+	@Nonnull
 	public String getUrlExtension() {
 		return m_urlExtension;
 	}
 
-	public IFilterRequestHandler findRequestHandler(final IRequestContext ctx) {
-		//		System.out.println("Input: "+ctx.getInputPath());
-		if(getUrlExtension().equals(ctx.getExtension()) || ctx.getExtension().equals("obit") || (getRootPage() != null && ctx.getInputPath().length() == 0)) {
-			return m_requestHandler;
-		} else if(m_partHandler.acceptURL(ctx.getInputPath())) {
-			return m_partHandler;
-		} else if(ctx.getInputPath().startsWith("$")) {
-			return m_resourceHandler;
-		} else if(ctx.getExtension().equals("xaja"))
-			return m_ajaxHandler;
+
+	/**
+	 * Internal: return the sorted-by-descending-priority list of request handlers.
+	 * @return
+	 */
+	@Nonnull
+	private synchronized List<FilterRef> getRequestHandlerList() {
+		return m_requestHandlerList;
+	}
+
+	/**
+	 * Add a toplevel request handler to the chain.
+	 * @param fh
+	 */
+	public synchronized void addRequestHandler(@Nonnull IFilterRequestHandler fh, int priority) {
+		m_requestHandlerList = new ArrayList<FilterRef>(m_requestHandlerList);
+		m_requestHandlerList.add(new FilterRef(fh, priority));
+		Collections.sort(m_requestHandlerList, C_HANDLER_DESCPRIO);			// Leave the list ordered by descending priority.
+	}
+
+	/**
+	 * Find a request handler by locating the highest-scoring request handler in the chain.
+	 * @param ctx
+	 * @return
+	 */
+	@Nullable
+	public IFilterRequestHandler findRequestHandler(@Nonnull final IRequestContext ctx) throws Exception {
+		for(FilterRef h : getRequestHandlerList()) {
+			if(h.getHandler().accepts(ctx))
+				return h.getHandler();
+		}
 		return null;
 	}
 
+	/**
+	 * Add a part that reacts on some part of the input URL instead of [classname].part.
+	 *
+	 * @param factory
+	 * @param priority		The priority of handling. Keep it low for little-used factories.
+	 */
+	public void registerUrlPart(@Nonnull IUrlPart factory, int priority) {
+		addRequestHandler(new UrlPartRequestHandler(getPartRequestHandler(), factory), priority);		// Add a request handler for this part factory.
+	}
+
+	/**
+	 * Add a part that reacts on some part of the input URL instead of [classname].part, with a priority of 10.
+	 *
+	 * @param factory
+	 */
+	public void registerUrlPart(@Nonnull IUrlPart factory) {
+		registerUrlPart(factory, 10);
+	}
+
+	@Nonnull
 	public PartRequestHandler getPartRequestHandler() {
 		return m_partHandler;
 	}
@@ -299,10 +392,10 @@ public abstract class DomApplication {
 	 * @param pp
 	 * @throws Exception
 	 */
-	protected void initialize(final ConfigParameters pp) throws Exception {}
+	protected void initialize(@Nonnull final ConfigParameters pp) throws Exception {}
 
 
-	final synchronized public void internalInitialize(final ConfigParameters pp, boolean development) throws Exception {
+	final synchronized public void internalInitialize(@Nonnull final ConfigParameters pp, boolean development) throws Exception {
 		setCurrentApplication(this);
 
 		//		m_myClassLoader = appClassLoader;
@@ -406,14 +499,6 @@ public abstract class DomApplication {
 			throw new IllegalStateException("Don't be silly, this one is already added");
 		m_renderFactoryList = new ArrayList<IHtmlRenderFactory>(m_renderFactoryList);
 		m_renderFactoryList.add(0, f);
-	}
-
-	/**
-	 * FIXME Mechanism is slow
-	 * @param factory
-	 */
-	public void registerUrlPart(IUrlPart factory) {
-		m_partHandler.registerUrlPart(factory);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1281,9 +1366,9 @@ public abstract class DomApplication {
 		return v == null ? right : v;
 	}
 
-	public AjaxRequestHandler getAjaxHandler() {
-		return m_ajaxHandler;
-	}
+	//	public AjaxRequestHandler getAjaxHandler() {
+	//		return m_ajaxHandler;
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Programmable theme code.							*/
