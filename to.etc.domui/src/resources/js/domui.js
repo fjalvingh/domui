@@ -1562,12 +1562,13 @@ var WebUI = {
 	 */
 	pingServer: function(timeout) {
 		var url = DomUIappURL + "to.etc.domui.parts.PollInfo.part";
-		var param = {
-		};
+		var fields= new Object();
+		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
 		$.ajax( {
 			url: url,
 			dataType: "text/xml",
-			data: param,
+			data: fields,
 			cache: false,
 			global: false, // jal 20091015 prevent block/unblock on polling call.
 			success: function(data, state) {
