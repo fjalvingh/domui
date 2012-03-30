@@ -401,6 +401,8 @@ final public class MetaManager {
 				}
 				Object pka = acmm.getPrimaryKey().getValue(a);
 				Object pkb = bcmm.getPrimaryKey().getValue(b);
+				if(pka == null || pkb == null)
+					return false;
 				return DomUtil.isEqual(pka, pkb);
 			} catch(Exception x) {
 				x.printStackTrace();
