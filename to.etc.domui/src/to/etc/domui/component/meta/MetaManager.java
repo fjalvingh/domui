@@ -399,11 +399,12 @@ final public class MetaManager {
 				}
 				PropertyMetaModel< ? > apkmm = acmm.getPrimaryKey();
 				PropertyMetaModel< ? > bpkmm = bcmm.getPrimaryKey();
-				if(apkmm == null || bpkmm == null) {
+				if(apkmm == null || bpkmm == null)
 					return false;
-				}
 				Object pka = apkmm.getValue(a);
 				Object pkb = bpkmm.getValue(b);
+				if(pka == null || pkb == null)
+					return false;
 				return DomUtil.isEqual(pka, pkb);
 			} catch(Exception x) {
 				x.printStackTrace();
