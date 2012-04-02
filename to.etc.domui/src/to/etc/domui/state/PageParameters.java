@@ -287,6 +287,14 @@ public class PageParameters {
 	}
 
 	/**
+	 * Return the number of parameter (names) in this instance.
+	 * @return
+	 */
+	public int size() {
+		return m_map.size();
+	}
+
+	/**
 	 * Gets the value for the specified parametername as an int (primitive).
 	 * If the parameter does not exists or the value cannot be converted to an int, a MissingParameterException is thrown.
 	 *
