@@ -91,6 +91,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 				throw new IllegalStateException("webapp url incorrect: lousy SUN spec");
 			}
 			m_urlin = m_urlin.substring(m_webapp.length());
+			while(m_urlin.startsWith("/"))
+				m_urlin = m_urlin.substring(1);
 		}
 
 		//		for(Enumeration<String> en = m_request.getHeaderNames(); en.hasMoreElements();) {
