@@ -1145,8 +1145,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 		basicNodeRender(n, m_o);
 		if(n.getSrc() != null)
 			o().attr("src", n.getSrc());
+
+		/*
+		 * jal 20120412: IE's 'frameborder' attribute is case sensitive, sigh. It must be frameBorder
+		 */
 		if(n.getFrameBorder() != null)
-			o().attr("frameborder", n.getFrameBorder());
+			o().attr("frameBorder", n.getFrameBorder());
 		if(n.getFrameHeight() != null)
 			o().attr("height", n.getFrameHeight());
 		if(n.getFrameWidth() != null)
