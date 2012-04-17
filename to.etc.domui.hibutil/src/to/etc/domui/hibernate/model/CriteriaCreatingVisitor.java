@@ -951,8 +951,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 		//-- Make sure there is a where condition to restrict
 		QOperatorNode where = q.getRestrictions();
-		if(where == null)
-			throw new ProgrammerErrorException("exists subquery has no restrictions: " + this);
+//		if(where == null)
+//			throw new ProgrammerErrorException("exists subquery has no restrictions: " + this);
 
 		//-- Get the list's generic compound type because we're unable to get it from Hibernate easily. Idiots.
 		Class< ? > coltype = pi.getCollectionValueType();
@@ -992,7 +992,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		m_rootClass = q.getBaseClass();
 		checkHibernateClass(m_rootClass);
 		m_currentCriteria = dc;
-		where.visit(this);
+		if(where != null)
+			where.visit(this);
 		if(m_last != null) {
 			dc.add(m_last);
 			m_last = null;

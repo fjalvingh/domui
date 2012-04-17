@@ -86,6 +86,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private Div m_buttonDiv;
 
+	@Nonnull
+	private List<SmallImgButton> m_extraButtonList = new ArrayList<SmallImgButton>();
+
 	public DataPager() {}
 
 	public DataPager(final TabularComponentBase< ? > tbl) {
@@ -116,6 +119,11 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		m_buttonDiv.add(m_nextBtn);
 		m_lastBtn = new SmallImgButton();
 		m_buttonDiv.add(m_lastBtn);
+
+		m_buttonDiv.add("\u00a0\u00a0");
+		for(@Nonnull SmallImgButton sib : m_extraButtonList) {
+			m_buttonDiv.add(sib);
+		}
 
 		//		if(m_showSelection) {
 		//			if(m_table instanceof ISelectableTableComponent< ? >) { // Fixme needs interface
@@ -475,5 +483,14 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			return;
 		m_showSelection = showSelection;
 		forceRebuild();
+	}
+
+	public void addButton(@Nonnull SmallImgButton sib) {
+		m_extraButtonList.add(sib);
+		forceRebuild();
+	}
+
+	public void addButton(@Nonnull String img, @Nonnull IClicked<SmallImgButton> clicked) {
+		m_extraButtonList.add(new SmallImgButton(img, clicked));
 	}
 }
