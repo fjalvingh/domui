@@ -213,7 +213,6 @@ public class ProcessTools {
 	 * @throws Exception
 	 */
 	static public int runProcess(ProcessBuilder pb, Appendable outsb, Appendable errsb) throws Exception {
-		pb.redirectErrorStream(true); // Merge stdout and stderr
 		Process pr = pb.start();
 		StreamReaderThread outr = new StreamReaderThread(outsb, "stdout", pr.getInputStream());
 		StreamReaderThread errr = new StreamReaderThread(errsb, "stderr", pr.getErrorStream());
