@@ -24,6 +24,16 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
+/**
+ * Generic interface that defines a class as having a getId() method returning a primary key.
+ * @param <T>	The type of the primary key for the object.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Apr 24, 2012
+ */
 public interface IIdentifyable<T> {
+	@Nullable
 	T getId();
 }
