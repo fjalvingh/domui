@@ -143,9 +143,6 @@ public class InternalResourcePart implements IBufferedPartFactory {
 		if(k.getLoc() != null)
 			throw new IllegalStateException("Locale in resource not implemented.");
 		String rurl = k.getRURL();
-		if(rurl.endsWith(".theme.css"))
-			System.out.println("Gotcha");
-
 		ires = da.getResource(rurl, da.inDevelopmentMode() ? rdl : ResourceDependencyList.NULL); // Only check dependencies in development mode
 		if(!da.inDevelopmentMode()) {
 			// Resources are cached ONLY when in production mode.

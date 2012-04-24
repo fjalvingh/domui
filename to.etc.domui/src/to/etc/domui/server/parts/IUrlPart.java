@@ -27,7 +27,7 @@ package to.etc.domui.server.parts;
 import javax.annotation.*;
 
 /**
- * When present on a Part factory this means the factory itself decided on what URLs it reacts.
+ * When present on a Part factory this means the factory itself decides on what URLs it reacts.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Mar 26, 2012
