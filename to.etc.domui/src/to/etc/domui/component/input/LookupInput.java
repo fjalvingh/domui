@@ -556,7 +556,8 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 			return;
 		}
 
-		m_floater = FloatingWindow.create(this, getLookupTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_LUI_TTL) : getLookupTitle());
+
+		m_floater = FloatingWindow.create(this, getLookupTitle() == null ? getDefaultTitle() : getLookupTitle());
 		m_floater.setWidth("740px");
 
 		m_floater.setHeight("90%");
@@ -614,6 +615,21 @@ public class LookupInput<T> extends Div implements IInputNode<T>, IHasModifiedIn
 
 		if(isSearchImmediately())
 			search(lf);
+	}
+
+	/**
+	 * Contruct a default title for this LookupInput
+	 *
+	 * @return
+	 */
+	@Nonnull
+	private String getDefaultTitle() {
+
+		String entity = m_metaModel.getUserEntityName();
+		if(entity != null)
+			return Msgs.BUNDLE.formatMessage(Msgs.UI_LUI_TTL_WEN, entity);
+
+		return Msgs.BUNDLE.getString(Msgs.UI_LUI_TTL);
 	}
 
 	void search(LookupForm<T> lf) throws Exception {
