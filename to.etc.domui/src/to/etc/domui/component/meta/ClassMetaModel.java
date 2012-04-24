@@ -111,9 +111,9 @@ public interface ClassMetaModel {
 	String getDomainLabel(Locale loc, Object value);
 
 	/**
-	 * Return a user-presentable entity name (singular) for this class. This defaults to the classname itself if unset.
+	 * Return a user-presentable entity name (singular) for this class. Returns null if not set.
 	 */
-	@Nonnull
+	@Nullable
 	String getUserEntityName();
 
 	/**

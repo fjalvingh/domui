@@ -34,7 +34,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
-import to.etc.webapp.qsql.*;
+import to.etc.webapp.query.*;
 
 /**
  * Encapsulates parameters for a page. All parameters must be presentable in URL form,
@@ -163,7 +163,7 @@ public class PageParameters {
 	 * Add parameters. This accepts multiple formats that can all be mixed. Each actual parameter always is a
 	 * name, value pair. The simplest way to use this is to specify a list of strings in pairs where the first
 	 * string in the pair is the key and the second one is the value. You can also substitute an object instance
-	 * for the value; if this object instance represents some persistent entity or implements {@link ILongIdentifyable}
+	 * for the value; if this object instance represents some persistent entity or implements {@link IIdentifyable<Long>}
 	 * the primary key for the object will be rendered as the value, otherwise it will be rendered as a tostring.
 	 * You can also specify a single object in the location for the next key; in this case both key and value will
 	 * be determined from this object; it must be some persistent object which knows it's key field.
@@ -214,8 +214,8 @@ public class PageParameters {
 		if(o == null)
 			return;
 
-		if(o instanceof ILongIdentifyable) {
-			setParameter(k, String.valueOf(((ILongIdentifyable) o).getId()));
+		if(o instanceof IIdentifyable< ? >) {
+			setParameter(k, String.valueOf(((IIdentifyable< ? >) o).getId()));
 			return;
 		}
 

@@ -46,7 +46,7 @@ import to.etc.net.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
-import to.etc.webapp.qsql.*;
+import to.etc.webapp.query.*;
 
 final public class DomUtil {
 	static private int m_guidSeed;
@@ -1574,12 +1574,20 @@ final public class DomUtil {
 	/**
 	 * Util can be used to check if list contains item that has equal Long Id as specified one, while instanies itself does not need to be equal.
 	 * @param <T>
-	 * @param list
-	 * @param member
+	 * @param set
+	 * @param lookingFor
 	 * @return
 	 */
-	public static <T extends ILongIdentifyable> boolean containsLongIdentifyable(List<T> list, T member) {
-		return indexOfLongIdentifyable(list, member) != -1;
+	public static <V, T extends IIdentifyable<V>> boolean containsLongIdentifyable(@Nonnull Collection<T> set, @Nonnull T lookingFor) {
+		V id = lookingFor.getId();
+		if(null == id)
+			throw new IllegalStateException(lookingFor + ": id is null");
+		for(T member : set) {
+			V mid = member.getId();
+			if(null != mid && mid.equals(id))
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -1589,14 +1597,17 @@ final public class DomUtil {
 	 * @param member
 	 * @return -1 if <I>member</I> object Long Id is not found in specified <I>list</I>, otherwise returns found index.
 	 */
-	public static <T extends ILongIdentifyable> int indexOfLongIdentifyable(List<T> list, T member) {
-		if(list == null) {
+	public static <V, T extends IIdentifyable<V>> int indexOfLongIdentifyable(@Nonnull List<T> list, @Nonnull T lookingFor) {
+		if(list == null)					// jal 20120424 Bad, should be removed.
 			return -1;
-		}
-		for(int i = 0; i < list.size(); i++) {
-			if(list.get(i).getId().equals(member.getId())) {
+
+		V id = lookingFor.getId();
+		if(null == id)
+			throw new IllegalStateException(lookingFor + ": id is null");
+		for(int i = list.size(); --i >= 0;) {
+			V mid = list.get(i).getId();
+			if(null != mid && mid.equals(id))
 				return i;
-			}
 		}
 		return -1;
 	}
@@ -1608,7 +1619,8 @@ final public class DomUtil {
 	 * @param item
 	 * @return (not)appended mergeSource
 	 */
-	public static <T extends ILongIdentifyable> List<T> merge(List<T> mergeSource, T item) {
+	@Nonnull
+	public static <V, T extends IIdentifyable<V>> List<T> merge(@Nonnull List<T> mergeSource, @Nonnull T item) {
 		if(!containsLongIdentifyable(mergeSource, item)) {
 			if(mergeSource == Collections.EMPTY_LIST) {
 				mergeSource = new ArrayList<T>();
@@ -1626,8 +1638,8 @@ final public class DomUtil {
 	 * @param toJoinItems
 	 * @return (not)appended mergeSource
 	 */
-	public static <T extends ILongIdentifyable> List<T> merge(List<T> mergeSource, List<T> toJoinItems) {
-		for(T item : toJoinItems) {
+	public static <V, T extends IIdentifyable<V>> List<T> merge(@Nonnull List<T> mergeSource, @Nonnull List<T> toJoinItems) {
+		for(@Nonnull T item : toJoinItems) {
 			mergeSource = merge(mergeSource, item);
 		}
 		return mergeSource;
@@ -1695,21 +1707,5 @@ final public class DomUtil {
 		IRequestContext ctx = UIContext.getRequestContext();
 		AppSession ses = ctx.getSession();
 		ses.setAttribute(attribute, value);
-	}
-
-	/**
-	 * Util that returns T if <I>lookingFor</I> object is contained in specified <I>set</I>
-	 * @param <T>
-	 * @param set
-	 * @param lookingFor
-	 * @return
-	 */
-	public static <T extends ILongIdentifyable> boolean containsLongIdentifyable(Set<T> set, T lookingFor) {
-		for(ILongIdentifyable member : set.toArray(new ILongIdentifyable[set.size()])) {
-			if(member.getId().equals(lookingFor.getId())) {
-				return true;
-			}
-		}
-		return false;
 	}
 }
