@@ -183,14 +183,13 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	/**
-	 * Return a user-presentable entity name for this class. This defaults to the classname itself if unset.
+	 * Return a user-presentable entity name for this class. Returns null if not set.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityName()
 	 */
 	@Override
-	@Nonnull
+	@Nullable
 	public String getUserEntityName() {
-		String s = getClassBundle().findMessage(NlsContext.getLocale(), "entity.name");
-		return s == null ? getClassNameOnly() : s;
+		return getClassBundle().findMessage(NlsContext.getLocale(), "entity.name");
 	}
 
 	/**
@@ -198,10 +197,9 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityNamePlural()
 	 */
 	@Override
-	@Nonnull
+	@Nullable
 	public String getUserEntityNamePlural() {
-		String s = getClassBundle().findMessage(NlsContext.getLocale(), "entity.pluralname");
-		return s == null ? getClassNameOnly() : s;
+		return getClassBundle().findMessage(NlsContext.getLocale(), "entity.pluralname");
 	}
 
 	/**

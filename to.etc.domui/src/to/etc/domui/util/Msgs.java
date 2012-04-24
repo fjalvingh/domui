@@ -100,6 +100,9 @@ public interface Msgs {
 
 	public static final String UI_LUI_TTL = "ui.lui.ttl";
 
+	/** Lookup input title if entityName is available. */
+	public static final String UI_LUI_TTL_WEN = "ui.lui.ttl.wen";
+
 	public static final String UI_MLUI_COL_TTL = "ui.mlui.col.ttl";
 
 	//# Control: message box
