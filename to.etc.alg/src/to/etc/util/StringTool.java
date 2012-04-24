@@ -2060,7 +2060,7 @@ public class StringTool {
 	 * @return
 	 */
 	static private boolean isSpecialUrlChar(byte da) {
-		if(da <= 32 && da >= 0)
+		if(da <= 32) // Everything including -1..-128 (0x80..0xff) is special
 			return true;
 		switch(da){
 			case '!':
