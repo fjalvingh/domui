@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
