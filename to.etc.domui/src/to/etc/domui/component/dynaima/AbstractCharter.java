@@ -98,7 +98,7 @@ public abstract class AbstractCharter implements ICharterHelper {
 	public String[] getChartDataLabels() {
 		String[] values = new String[m_chartDataElements.size()];
 		for(int i = 0; i < m_chartDataElements.size(); i++) {
-			values[i] = m_chartDataElements.get(i).getLabel();
+			values[i] = m_chartDataElements.get(i).getShortLabel();
 		}
 		return values;
 	}
