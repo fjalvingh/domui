@@ -6,6 +6,8 @@ import java.sql.*;
 
 import javax.sql.*;
 
+import org.slf4j.*;
+
 import to.etc.dbpool.*;
 import to.etc.dbutil.*;
 import to.etc.dbutil.DbLockKeeper.LockHandle;
@@ -19,6 +21,8 @@ import to.etc.util.*;
  * Created on Aug 3, 2011
  */
 public class BulkMailer {
+	static private final Logger LOG = org.slf4j.LoggerFactory.getLogger(BulkMailer.class);
+
 	static private final BulkMailer m_instance = new BulkMailer();
 
 	private SmtpTransport m_transport;
@@ -28,8 +32,6 @@ public class BulkMailer {
 	private boolean m_inerror;
 
 	private long m_ts_nextcleanup = 0;
-
-	private long m_ts_nextscan = 0;
 
 	static private enum DstType {
 		TO, CC, BCC
@@ -43,7 +45,7 @@ public class BulkMailer {
 		return m_instance;
 	}
 
-	static public void initialize(DataSource ds, SmtpTransport t) {
+	static public void initialize(DataSource ds, SmtpTransport t) throws Exception {
 		try {
 			DbLockKeeper.init(ds);
 		} catch(Exception x) {
@@ -52,35 +54,59 @@ public class BulkMailer {
 		getInstance().init(ds, t);
 	}
 
-	private synchronized void init(DataSource ds, SmtpTransport t) {
+	final private class PollTaskProvider implements IPollQueueTaskProvider {
+		private long m_tsNext;
+
+		@Override
+		public void initializeOnRegistration(PollingWorkerQueue pwq) throws Exception {}
+
+		@Override
+		public Runnable getRunnableTask() throws Exception {
+			long cts = System.currentTimeMillis();
+			synchronized(this) {
+				if(cts < m_tsNext)
+					return null;
+				m_tsNext = cts + 60 * 1000;				// Try again in 1 minute.
+			}
+			return new Runnable() {
+				@Override
+				public void run() {
+					scanMailRun();
+				}
+			};
+		}
+	}
+
+
+	private synchronized void init(DataSource ds, SmtpTransport t) throws Exception {
 		if(m_ds != null)
 			throw new IllegalStateException("Already initialized");
 		m_ds = ds;
 		m_transport = t;
 
-		//-- Register with the task executor
-		PollingWorkerQueue.getInstance().registerProvider(new IPollQueueTaskProvider() {
-			@Override
-			public void initializeOnRegistration(PollingWorkerQueue pwq) throws Exception {}
+		createTables();
 
-			@Override
-			public Runnable getRunnableTask() throws Exception {
-				return checkForNextScan();
-			}
-		});
+		//-- Register with the task executor
+		PollingWorkerQueue.getInstance().registerProvider(new PollTaskProvider());
 	}
 
-	protected synchronized Runnable checkForNextScan() {
-		long cts = System.currentTimeMillis();
-		if(cts < m_ts_nextscan)
-			return null;
+	/**
+	 * Create all tables for this system function.
+	 */
+	private void createTables() throws Exception {
+		Connection dbc = m_ds.getConnection();
+		try {
+			dbc.setAutoCommit(false);
+			StringBuilder sb = new StringBuilder();
+			GenericDB.runScriptResource(dbc, getClass(), "bulkmailer.sql", sb);
 
-		return new Runnable() {
-			@Override
-			public void run() {
-				scanMailRun();
-			}
-		};
+			if(sb.length() > 0)
+				LOG.info(sb.toString());
+		} finally {
+			try {
+				dbc.close();
+			} catch(Exception x) {}
+		}
 	}
 
 	/*--------------------------------------------------------------*/
@@ -92,42 +118,49 @@ public class BulkMailer {
 	 */
 	public void store(Message m) throws Exception {
 		Connection dbc = m_ds.getConnection();
-		CallableStatement cs = null;
+		PreparedStatement cs = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		OutputStream os = null;
+		ByteArrayOutputStream os = null;
 		boolean ok = false;
 		try {
 			dbc.setAutoCommit(false);
-			cs = dbc
-				.prepareCall("begin insert into sys_mail_messages(smm_id, smm_date, smm_subject, smm_from_address, smm_from_name, smm_data) values(sys_smm_seq.nextval, sysdate, ?, ?, ?, empty_blob()) returning smm_id into ?; end;");
-			cs.setString(1, StringTool.strTrunc(m.getSubject(), 240));
-			cs.setString(2, StringTool.strTrunc(m.getFrom().getEmail(), 128));
-			cs.setString(3, StringTool.strTrunc(m.getFrom().getName(), 64));
-			cs.registerOutParameter(4, Types.NUMERIC);
+			cs = dbc.prepareStatement("insert into sys_mail_messages(smm_id, smm_date, smm_subject, smm_from_address, smm_from_name) values(?, ?, ?, ?, ?)");
+			int i = 1;
+			long key = GenericDB.getFullSequenceID(dbc, "sys_smm_seq");
+			cs.setLong(i++, key);
+			cs.setTimestamp(i++, new Timestamp(System.currentTimeMillis()));
+			cs.setString(i++, StringTool.strTrunc(m.getSubject(), 240));
+			cs.setString(i++, StringTool.strTrunc(m.getFrom().getEmail(), 128));
+			cs.setString(i++, StringTool.strTrunc(m.getFrom().getName(), 64));
 			cs.executeUpdate();
-			long key = cs.getLong(4);
 			cs.close();
 			cs = null;
 
 			//-- Insert message binary stream.
-			ps = dbc.prepareStatement("select smm_data from sys_mail_messages where smm_id=? for update");
-			ps.setLong(1, key);
-			rs = ps.executeQuery();
-			if(!rs.next())
-				throw new SQLException("Cannot relocate record I just stored");
-			Blob b = rs.getBlob(1);
-			os = (OutputStream) callObjectMethod(b, "getBinaryOutputStream");
-
+			os = new ByteArrayOutputStream();
 			//-- Marshal mime data to the stream.
 			SmtpTransport.writeMime(os, m); // Output mime body
 			os.close();
-			rs.close();
-			ps.close();
+
+//			ps = dbc.prepareStatement("select smm_data from sys_mail_messages where smm_id=? for update");
+//			ps.setLong(1, key);
+//			rs = ps.executeQuery();
+//			if(!rs.next())
+//				throw new SQLException("Cannot relocate record I just stored");
+			byte[] data = os.toByteArray();
+
+			FileTool.save(new File("/tmp/mailout.bin"), new byte[][]{data});
+
+
+			GenericDB.setBlob(dbc, "sys_mail_messages", "smm_data", "smm_id=" + key, new ByteArrayInputStream(data), data.length);
+
+//			rs.close();
+//			ps.close();
 
 			//-- Write recipient record(s).
 			ps = dbc
-				.prepareStatement("insert into sys_mail_recipients(smr_id, smr_address, smr_type, smr_date_posted, smr_retries, smr_nextretry, smr_state,smr_name,smm_id) values(sys_smr_seq.nextval, ?, ?, sysdate, 0, sysdate, 'SEND', ?, ?)");
+				.prepareStatement("insert into sys_mail_recipients(smr_id, smr_address, smr_type, smr_date_posted, smr_retries, smr_nextretry, smr_state,smr_name,smm_id) values(?, ?, ?, ?, 0, ?, 'SEND', ?, ?)");
 			for(Address a : m.getTo()) {
 				writeRecipient(ps, dbc, a, key, DstType.TO);
 			}
@@ -168,10 +201,16 @@ public class BulkMailer {
 	}
 
 	private void writeRecipient(PreparedStatement ps, Connection dbc, Address a, long key, DstType type) throws SQLException {
-		ps.setString(1, StringTool.strTrunc(a.getEmail(), 128));
-		ps.setString(2, type.name());
-		ps.setString(3, StringTool.strTrunc(a.getName(), 64));
-		ps.setLong(4, key);
+		long sq = GenericDB.getFullSequenceID(dbc, "sys_smr_seq");
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		int i = 1;
+		ps.setLong(i++, sq);
+		ps.setString(i++, StringTool.strTrunc(a.getEmail(), 128));
+		ps.setString(i++, type.name());
+		ps.setTimestamp(i++, now);
+		ps.setTimestamp(i++, now);
+		ps.setString(i++, StringTool.strTrunc(a.getName(), 64));
+		ps.setLong(i++, key);
 		ps.executeUpdate();
 	}
 
@@ -224,12 +263,17 @@ public class BulkMailer {
 		Address froma = null;
 		try {
 			dbc = m_ds.getConnection();
+			dbc.setAutoCommit(false);
 			lock = DbLockKeeper.getInstance().lockNowait(getClass().getName());
 			if(null == lock) {
 				//-- Another server is already sending mail - we'll try it next time.
+				LOG.debug("Bulk mailer lock is taken - done");
 				location = FailLoc.OKAY;
 				return;
 			}
+			LOG.info("Scanning for email to send");
+			System.out.println("Scanning for email to send");
+
 
 			//-- Ok: we own the lock.
 			long cts = System.currentTimeMillis();
@@ -243,8 +287,9 @@ public class BulkMailer {
 			//-- Get all recipients that need a message sent,
 			ps = dbc
 				.prepareStatement(
-					"select smr_id,smr_address,smr_type,smr_retries,smr_state,smr_name,smm_id,smr_lasterror,smr_nextretry from sys_mail_recipients where smr_state in ('RTRY', 'SEND') and smr_nextretry <= sysdate order by smm_id",
+					"select smr_id,smr_address,smr_type,smr_retries,smr_state,smr_name,smm_id,smr_lasterror,smr_nextretry from sys_mail_recipients where smr_state in ('RTRY', 'SEND') and smr_nextretry <= ? order by smm_id",
 					ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+			ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 			rs = ps.executeQuery();
 			while(rs.next()) {
 				long rid = rs.getLong(1);
@@ -276,6 +321,10 @@ public class BulkMailer {
 					is.close();
 					is = null;
 					lastbody = baos.toByteArray();
+					rs2.close();
+					rs2 = null;
+
+					FileTool.save(new File("/tmp/mail.bin"), new byte[][]{lastbody});
 				}
 
 				Address a = new Address(email, name);
@@ -349,10 +398,14 @@ public class BulkMailer {
 		}
 	}
 
+	static private final long DAY = 1000l * 24 * 60 * 60;
+
 	private void cleanup(Connection dbc) {
 		PreparedStatement ps = null;
 		try {
-			ps = dbc.prepareStatement("delete from sys_mail_recipients where (smr_state='DONE' and smr_nextretry<sysdate-2) or (smr_nextretry < sysdate-7)");
+			ps = dbc.prepareStatement("delete from sys_mail_recipients where (smr_state='DONE' and smr_nextretry<?) or (smr_nextretry < ?)");
+			ps.setTimestamp(1, new Timestamp(System.currentTimeMillis() - DAY * 2));
+			ps.setTimestamp(2, new Timestamp(System.currentTimeMillis() - DAY * 7));
 			int rc = ps.executeUpdate();
 			System.out.println("bulkMail: deleted " + rc + " outdated recipients");
 			if(rc != 0) {
@@ -399,7 +452,7 @@ public class BulkMailer {
 	 */
 	public static void main(String[] args) {
 		try {
-			ConnectionPool p = PoolManager.getInstance().definePool("voja");
+			ConnectionPool p = PoolManager.getInstance().definePool("pzlnew");
 
 			DataSource ds = p.getUnpooledDataSource();
 			PollingWorkerQueue.initialize();
@@ -413,9 +466,13 @@ public class BulkMailer {
 				m.addCc(new Address("marc.mol@itris.nl", "Morc Mal"));
 				m.setSubject("[vp] Test email from the bulk mailer");
 				m.setBody("Dit is een kleine test-email");
+				m.setHtmlBody("<h1>Hello, world</h1>\n");
+
 				getInstance().store(m);
 			} else if(true) {
-				getInstance().scanMailRun();
+				Thread.sleep(600000);
+
+//				getInstance().scanMailRun();
 
 
 			}

@@ -30,7 +30,9 @@ import java.sql.*;
 
 public class OracleDB extends BaseDB {
 
-	public OracleDB() {}
+	public OracleDB() {
+		super("oracle");
+	}
 
 	/**
 	 * Returns a SQL statement that is the cheapest way to check the validity of a connection.
@@ -112,13 +114,19 @@ public class OracleDB extends BaseDB {
 	/*--------------------------------------------------------------*/
 
 	@Override
-	protected void setBlob(Connection dbc, String table, String column, String where, InputStream is) throws SQLException {
-		_setBlob(dbc, table, column, where, is);
+	protected void setBlob(Connection dbc, String table, String column, String where, InputStream is, int len) throws SQLException {
+		_setBlob(dbc, table, column, where, is, len);
 	}
 
 	@Override
 	protected void setBlob(Connection dbc, String table, String column, String where, byte[][] data) throws SQLException {
-		_setBlob(dbc, table, column, where, data);
+		int len = 0;
+		if(data != null) {
+			for(byte[] d : data)
+				len += d.length;
+		}
+
+		_setBlob(dbc, table, column, where, data, len);
 	}
 
 	/**
@@ -126,7 +134,7 @@ public class OracleDB extends BaseDB {
 	 *  @parameter is	The stream to write to the blob. If this is null then the
 	 *  				field is set to dbnull.
 	 */
-	private void _setBlob(Connection dbc, String table, String column, String where, Object data) throws SQLException {
+	private void _setBlob(Connection dbc, String table, String column, String where, Object data, int len) throws SQLException {
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		OutputStream os = null;
@@ -245,7 +253,7 @@ public class OracleDB extends BaseDB {
 	 *  				field is set to dbnull.
 	 */
 	@Override
-	protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is) throws SQLException {
+	protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is, int len) throws SQLException {
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		OutputStream os = null;
