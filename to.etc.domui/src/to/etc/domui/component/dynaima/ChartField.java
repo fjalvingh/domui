@@ -1,26 +1,82 @@
 package to.etc.domui.component.dynaima;
 
+import java.text.*;
+
+import to.etc.domui.util.*;
+
 /**
  * ChartField defines value of the field that will be displayed on the chart as well as it's label.
  *
  * @author <a href="mailto:nmaksimovic@execom.eu">Nemanja Maksimovic</a>
  * Created on 11 Jul 2011
  */
-public class ChartField {
+public final class ChartField implements Comparable<ChartField> {
 
-	private double value;
-	private String label;
+	private static final int BRACES_LENGTH = 3;
+
+	private static final int LIMIT = 30 - BRACES_LENGTH;
+
+	private final double m_value;
+
+	private final String m_label;
 	
 	public ChartField(double value, String label) {
 		super();
-		this.value = value;
-		this.label = label;
+		this.m_value = value;
+		this.m_label = label;
 	}
 	public double getValue() {
-		return value;
+		return m_value;
 	}
+
 	public String getLabel() {
-		return label;
+		return m_label;
+	}
+
+	public String getShortLabel() {
+		final String value = "[" + new DecimalFormat("#####,##0.##").format(m_value) + "] ";
+		final String label = DomUtil.isBlank(m_label) || m_label.length() < LIMIT - value.length() ? m_label : m_label.substring(0, LIMIT - 3 - value.length()) + "...";
+		return value + label;
+	}
+
+	@Override
+	public int compareTo(ChartField o) {
+		return Double.valueOf(getValue()).compareTo(Double.valueOf(o.getValue()));
+	}
+
+	@Override
+	public String toString() {
+		return "Label: " + m_label + "Value: " + m_value;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((m_label == null) ? 0 : m_label.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(m_value);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj)
+			return true;
+		if(obj == null)
+			return false;
+		if(getClass() != obj.getClass())
+			return false;
+		ChartField other = (ChartField) obj;
+		if(m_label == null) {
+			if(other.m_label != null)
+				return false;
+		} else if(!m_label.equals(other.m_label))
+			return false;
+		if(Double.doubleToLongBits(m_value) != Double.doubleToLongBits(other.m_value))
+			return false;
+		return true;
 	}
 
 }
