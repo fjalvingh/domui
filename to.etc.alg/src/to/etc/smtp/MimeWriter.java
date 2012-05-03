@@ -26,6 +26,8 @@ package to.etc.smtp;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 /**
@@ -39,7 +41,11 @@ public class MimeWriter {
 
 	static private final byte[]	DASHDASH			= {'-', '-'};
 
-	private OutputStream	m_os;
+	@Nullable
+	final private MimeWriter	m_dad;
+
+	@Nonnull
+	final private OutputStream	m_os;
 
 	private String			m_currentEncoding	= "UTF-8";
 
@@ -52,6 +58,12 @@ public class MimeWriter {
 
 	protected MimeWriter(OutputStream os) {
 		m_os = os;
+		m_dad = null;
+	}
+
+	protected MimeWriter(MimeWriter dad, OutputStream os) {
+		m_os = os;
+		m_dad = dad;
 	}
 
 	protected byte[] getBoundary() {
@@ -137,6 +149,9 @@ public class MimeWriter {
 		write(getBoundary());
 		write(DASHDASH);
 		write(CRLF);
+		if(m_dad != null) {
+			m_dad.m_currentSub = null;
+		}
 	}
 
 	public void writeVersion() throws IOException {
@@ -243,7 +258,7 @@ public class MimeWriter {
 		flush(); // Close all other open subtypes
 		writeOpenBoundary();
 
-		MimeWriter sub = new MimeWriter(m_os);
+		MimeWriter sub = new MimeWriter(this, m_os);
 		sub.writeVersion(); // Mime header
 		sub.writeBody(contenttype, rest); // Root document
 		m_currentSub = sub;

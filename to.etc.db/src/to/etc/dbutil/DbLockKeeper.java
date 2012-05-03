@@ -66,6 +66,7 @@ public final class DbLockKeeper {
 		Connection dbc = null;
 		try {
 			dbc = ds.getConnection();
+			dbc.setAutoCommit(false);
 			ps = dbc.prepareStatement("create table " + TABLENAME + " ( LOCK_NAME varchar(60) not null primary key)");
 			ps.executeUpdate();
 			dbc.commit();
@@ -107,9 +108,10 @@ public final class DbLockKeeper {
 		ResultSet rs = null;
 		try {
 			dbc = m_dataSource.getConnection();
+			dbc.setAutoCommit(false);
 			insertLock(lockName, dbc);
 
-			ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update of lock_name");
+			ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update");
 			rs = ps.executeQuery();
 			if(!rs.next()) {
 				throw new Exception("Lock with name: " + lockName + " not acquired");
@@ -159,11 +161,13 @@ public final class DbLockKeeper {
 		}
 
 		Connection dbc = m_dataSource.getConnection();
-		insertLock(lockName, dbc);
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update of lock_name nowait");
+			dbc.setAutoCommit(false);
+			insertLock(lockName, dbc);
+
+			ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update nowait");
 			rs = ps.executeQuery();
 			if(!rs.next()) {
 				return null;
@@ -173,10 +177,12 @@ public final class DbLockKeeper {
 			synchronized(this) {
 				M_MAINTAINED_LOCKS.put(key, lock);
 			}
-			return new LockHandle(lock);
+			dbc = null; // Release ownership.
+			return lh;
 		} catch(SQLException sx) {
+//			System.out.println("Errcode=" + sx.getErrorCode() + ", state=" + sx.getSQLState());
 			String msg = sx.getMessage().toLowerCase();
-			if(msg.contains("NOWAIT") || msg.contains("ora-00054"))
+			if(msg.contains("NOWAIT") || msg.contains("ora-00054") || msg.contains("lock"))
 				return null;
 			throw sx;
 		} finally {
@@ -222,6 +228,11 @@ public final class DbLockKeeper {
 				try {
 					ps.close();
 				} catch(SQLException e) {}
+
+			//-- Postgresql needs rollback or all other statements will fail.
+			try {
+				dbc.rollback();
+			} catch(Exception x) {}
 		}
 	}
 

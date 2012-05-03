@@ -30,7 +30,9 @@ import java.sql.*;
 import to.etc.dbpool.*;
 
 public class PostgresDB extends BaseDB {
-	public PostgresDB() {}
+	public PostgresDB() {
+		super("postgres");
+	}
 
 	/**
 	 * Returns a SQL statement that is the cheapest way to check the validity of a connection.
@@ -109,7 +111,7 @@ public class PostgresDB extends BaseDB {
 	/*	CODING:	Blob writing.										*/
 	/*--------------------------------------------------------------*/
 	@Override
-	protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is) throws SQLException {
+	protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is, int len) throws SQLException {
 		PreparedStatement ps = null;
 		try {
 			StringBuilder sb = new StringBuilder();
@@ -125,7 +127,7 @@ public class PostgresDB extends BaseDB {
 			sb.append(" where ");
 			ps = mkKeyedSQL(dbc, sb, pkfields, key, is == null ? 1 : 2, null);
 			if(is != null)
-				ps.setBinaryStream(1, is, Integer.MAX_VALUE);
+				ps.setBinaryStream(1, is, len);
 			int rc = ps.executeUpdate();
 			if(rc != 1)
 				throw new SQLException("Record in table " + table + " not found for BLOB update.");
@@ -142,14 +144,14 @@ public class PostgresDB extends BaseDB {
 	 *  call. Used for jdbc-compliant databases.
 	 */
 	@Override
-	protected void setBlob(Connection dbc, String table, String column, String where, InputStream is) throws SQLException {
+	protected void setBlob(Connection dbc, String table, String column, String where, InputStream is, int len) throws SQLException {
 		PreparedStatement ps = null;
 		try {
 			if(is == null)
 				ps = dbc.prepareStatement("update " + table + " set " + column + " = null where " + where);
 			else {
 				ps = dbc.prepareStatement("update " + table + " set " + column + " = ? where " + where);
-				ps.setBinaryStream(1, is, Integer.MAX_VALUE);
+				ps.setBinaryStream(1, is, len);
 			}
 			int rc = ps.executeUpdate();
 			if(rc != 1)

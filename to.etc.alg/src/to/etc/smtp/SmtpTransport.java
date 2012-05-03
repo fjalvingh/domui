@@ -234,20 +234,31 @@ public class SmtpTransport {
 		MimeWriter w = MimeWriter.createMimeWriter(eos, "multipart/alternative", "type=\"text/plain\"");
 
 		//-- Write the text/plain part
-		w.partStart(false, "text/plain", "; charset=\"UTF-8\"");
+		w.partStart(false, "text/plain", "charset=\"UTF-8\"");
 		Writer pw = w.partWriter("UTF-8"); // The writer for this part's contents; also indicates end of header writing.
 		pw.append(msg.getBody()); // Just write raw string stream here.
 		pw.close();
 
-		//-- Start HTML section.
-		MimeWriter hw = w.createSubMime("multipart/related", "text/html");
-		hw.partStart(false, "text/html", "; charset=\"UTF-8\"");
-		pw = hw.partWriter("UTF-8"); // The writer for this part's contents; also indicates end of header writing.
-		pw.append(msg.getHtmlBody()); // Just write raw string stream here.
-		pw.close();
+		int hdrc = 1;
+		MimeWriter hw = null;
+		if(null != msg.getHtmlBody()) {
+			//-- Start HTML section.
+			String cid= "<hdr//"+(hdrc++)+">";
+			if(null == hw) {
+				hw = w.createSubMime("multipart/related", "start="+cid);
+			}
+			hw.partStart(false, "text/html", "charset=\"UTF-8\"");
+			hw.partHeader("Content-id", cid);
+			pw = hw.partWriter("UTF-8"); // The writer for this part's contents; also indicates end of header writing.
+			pw.append(msg.getHtmlBody()); // Just write raw string stream here.
+			pw.close();
+		}
 
 		//-- Start writing attachments in base64 encoding.
 		if(msg.getAttachmentList().size() > 0) {
+			if(hw == null)
+				hw = w.createSubMime("multipart/related", "");
+
 			for(IMailAttachment ma: msg.getAttachmentList()) {
 				hw.partStart(true, ma.getMime(), "");
 				hw.partHeader("Content-Location", "CID:blarf.net");
@@ -263,7 +274,8 @@ public class SmtpTransport {
 				}
 			}
 		}
-		hw.close();
+		if(null != hw)
+			hw.close();
 		w.close();
 		eos.flush();
 		write(os, ".\r\n");
