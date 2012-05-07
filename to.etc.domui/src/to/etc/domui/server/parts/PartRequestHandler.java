@@ -35,6 +35,7 @@ import to.etc.domui.util.*;
 import to.etc.domui.util.LRUHashMap;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 
 public class PartRequestHandler implements IFilterRequestHandler {
 	@Nonnull

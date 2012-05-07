@@ -30,6 +30,7 @@ import java.util.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.images.converters.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 
 final public class ImageMagicImageHandler implements ImageHandler {
 	static public final String PNG = "image/png";

@@ -1,9 +1,9 @@
-package to.etc.webapp.pendingoperations;
+package to.etc.webapp.mailer;
 
 import java.io.*;
-import java.lang.reflect.*;
 import java.sql.*;
 
+import javax.annotation.*;
 import javax.sql.*;
 
 import org.slf4j.*;
@@ -13,6 +13,8 @@ import to.etc.dbutil.*;
 import to.etc.dbutil.DbLockKeeper.LockHandle;
 import to.etc.smtp.*;
 import to.etc.util.*;
+import to.etc.webapp.pendingoperations.*;
+import to.etc.webapp.query.*;
 
 /**
  * Bulk mailer storing messages into the database for repeated delivery.
@@ -28,8 +30,6 @@ public class BulkMailer {
 	private SmtpTransport m_transport;
 
 	private DataSource m_ds;
-
-	private boolean m_inerror;
 
 	private long m_ts_nextcleanup = 0;
 
@@ -114,15 +114,47 @@ public class BulkMailer {
 	/*--------------------------------------------------------------*/
 	/**
 	 * This stores the message into the database. This will cause the message to be sent asap.
+	 *
+	 * @param m
+	 * @throws Exception
+	 */
+	public void store(@Nonnull Message m) throws Exception {
+		boolean ok = false;
+		Connection dbc = m_ds.getConnection();
+		try {
+			store(dbc, m);
+			ok = true;
+		} finally {
+			try {
+				if(!ok)
+					dbc.rollback();
+			} catch(Exception x) {}
+			try {
+				dbc.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * This stores the message into the database. This will cause the message to be sent asap.
+	 *
+	 * @param dc
+	 * @param m
+	 * @throws Exception
+	 */
+	public void store(@Nonnull QDataContext dc, @Nonnull Message m) throws Exception {
+		store(dc.getConnection(), m);
+	}
+
+	/**
+	 * This stores the message into the database. This will cause the message to be sent as soon as the connection is committed.
 	 * @param m
 	 */
-	public void store(Message m) throws Exception {
-		Connection dbc = m_ds.getConnection();
+	public void store(@Nonnull Connection dbc, @Nonnull Message m) throws Exception {
 		PreparedStatement cs = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		ByteArrayOutputStream os = null;
-		boolean ok = false;
 		try {
 			dbc.setAutoCommit(false);
 			cs = dbc.prepareStatement("insert into sys_mail_messages(smm_id, smm_date, smm_subject, smm_from_address, smm_from_name) values(?, ?, ?, ?, ?)");
@@ -150,8 +182,7 @@ public class BulkMailer {
 //				throw new SQLException("Cannot relocate record I just stored");
 			byte[] data = os.toByteArray();
 
-			FileTool.save(new File("/tmp/mailout.bin"), new byte[][]{data});
-
+//			FileTool.save(new File("/tmp/mailout.bin"), new byte[][]{data});
 
 			GenericDB.setBlob(dbc, "sys_mail_messages", "smm_data", "smm_id=" + key, new ByteArrayInputStream(data), data.length);
 
@@ -172,7 +203,6 @@ public class BulkMailer {
 			}
 			ps.close();
 			dbc.commit();
-			ok = true;
 		} finally {
 			try {
 				if(os != null)
@@ -189,10 +219,6 @@ public class BulkMailer {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
-			try {
-				if(!ok)
-					dbc.rollback();
 			} catch(Exception x) {}
 			try {
 				dbc.close();
@@ -214,26 +240,6 @@ public class BulkMailer {
 		ps.executeUpdate();
 	}
 
-	/**
-	 * Generic caller of a method using reflection. This prevents us from having
-	 * to link to the stupid Oracle driver.
-	 * @param src
-	 * @param name
-	 * @return
-	 * @throws Exception
-	 */
-	static private Object callObjectMethod(Object src, String name) throws SQLException {
-		try {
-			Method m = src.getClass().getMethod(name, new Class[0]);
-			return m.invoke(src, new Object[0]);
-		} catch(InvocationTargetException itx) {
-			if(itx.getCause() instanceof SQLException)
-				throw (SQLException) itx.getCause();
-			throw new RuntimeException(itx.getCause().toString(), itx.getCause());
-		} catch(Exception x) {
-			throw new RuntimeException("Exception calling " + name + " on " + src + ": " + x, x);
-		}
-	}
 
 	static private enum FailLoc {
 		OKAY, DATABASE, DBLOCK,
@@ -292,11 +298,11 @@ public class BulkMailer {
 			ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 			rs = ps.executeQuery();
 			while(rs.next()) {
-				long rid = rs.getLong(1);
+//				long rid = rs.getLong(1);
 				String email = rs.getString(2);
-				DstType dt = DstType.valueOf(rs.getString(3));
+//				DstType dt = DstType.valueOf(rs.getString(3));
 				int retries = rs.getInt(4);
-				RState ds = RState.valueOf(rs.getString(5));
+//				RState ds = RState.valueOf(rs.getString(5));
 				String name = rs.getString(6);
 				long msgid = rs.getLong(7);
 
@@ -324,10 +330,10 @@ public class BulkMailer {
 					rs2.close();
 					rs2 = null;
 
-					FileTool.save(new File("/tmp/mail.bin"), new byte[][]{lastbody});
+//					FileTool.save(new File("/tmp/mail.bin"), new byte[][]{lastbody});
 				}
 
-				Address a = new Address(email, name);
+				Address a = name != null ? new Address(email, name) : new Address(email);
 
 				System.out.println(">trying " + a + ": " + subject + ", " + (lastbody != null ? lastbody.length + " bytes" : ""));
 				String error = sendMessage(froma, a, subject, lastbody);
