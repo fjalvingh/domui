@@ -231,7 +231,7 @@ public class BulkMailer {
 		Timestamp now = new Timestamp(System.currentTimeMillis());
 		int i = 1;
 		ps.setLong(i++, sq);
-		ps.setString(i++, StringTool.strTrunc(a.getEmail(), 128));
+		ps.setString(i++, StringTool.strTrunc(DeveloperOptions.getString("debug.email", a.getEmail()), 128));
 		ps.setString(i++, type.name());
 		ps.setTimestamp(i++, now);
 		ps.setTimestamp(i++, now);
