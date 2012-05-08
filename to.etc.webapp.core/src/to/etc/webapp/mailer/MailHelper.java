@@ -509,11 +509,13 @@ public class MailHelper {
 
 	@Nonnull
 	public StringBuilder getHtmlBuffer() {
+		init();
 		return m_html_sb;
 	}
 
 	@Nonnull
 	public StringBuilder getTextBuffer() {
+		init();
 		return m_text_sb;
 	}
 
