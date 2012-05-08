@@ -55,7 +55,7 @@ public class BulkMailer {
 	}
 
 	final private class PollTaskProvider implements IPollQueueTaskProvider {
-		private long m_tsNext;
+		private long m_tsNext = System.currentTimeMillis() + 20 * 1000;
 
 		@Override
 		public void initializeOnRegistration(PollingWorkerQueue pwq) throws Exception {}
@@ -465,7 +465,7 @@ public class BulkMailer {
 
 			BulkMailer.initialize(ds, new SmtpTransport("localhost"));
 
-			if(false) {
+			if(true) {
 				Message m = new Message();
 				m.setFrom(new Address("jal@etc.to", "Frits Jalvingh"));
 				m.addTo(new Address("jo.seaton@itris.nl", "Sea Joton"));

@@ -162,7 +162,7 @@ public class HtmlTextScanner extends TextScanner {
 				if(name != null) {
 					if(end)
 						name = "/" + name;
-					if("/p".equals(name) || "br".equals(name))
+					if("/p".equals(name) || "br".equals(name) || "/h1".equals(name) || "/h2".equals(name) || "/h3".equals(name) || "/h4".equals(name))
 						sb.append('\n');
 				}
 			}
