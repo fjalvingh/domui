@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.misc;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 public class Explanation extends Div {
@@ -43,7 +45,7 @@ public class Explanation extends Div {
 	}
 
 	@Override
-	public void setText(final String txt) {
+	public void setText(final @Nullable String txt) {
 		m_text.setText(txt);
 	}
 }

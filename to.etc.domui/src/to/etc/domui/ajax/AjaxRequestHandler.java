@@ -169,7 +169,7 @@ public class AjaxRequestHandler implements IFilterRequestHandler {
 	 * @see to.etc.domui.server.IFilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
 	 */
 	@Override
-	public void handleRequest(final RequestContextImpl ctx) throws Exception {
+	public void handleRequest(final @Nonnull RequestContextImpl ctx) throws Exception {
 		AjaxRequestContext ax = new AjaxRequestContext(this, m_callHandler, ctx);
 		String rurl = ctx.getInputPath();
 		boolean ok = false;

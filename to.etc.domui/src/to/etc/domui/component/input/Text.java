@@ -128,7 +128,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * @see to.etc.domui.dom.html.Input#acceptRequestParameter(java.lang.String[])
 	 */
 	@Override
-	public boolean acceptRequestParameter(String[] values) {
+	public boolean acceptRequestParameter(@Nonnull String[] values) {
 		String oldValue = getRawValue(); // Retain previous value,
 		super.acceptRequestParameter(values); // Set the new one;
 		String oldTrimmed = oldValue == null ? "" : oldValue.trim();

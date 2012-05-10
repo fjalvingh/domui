@@ -82,7 +82,7 @@ public class DefaultSpecialAccessChecker implements ISpecialAccessChecker {
 	}
 
 	@Override
-	public boolean hasSpecialAccess(Class< ? extends UrlPage> clz) {
+	public boolean hasSpecialAccess(@Nonnull Class< ? extends UrlPage> clz) {
 		AccessChecker ach = resolveAccessChecker(clz);
 		return ach != null;
 	}

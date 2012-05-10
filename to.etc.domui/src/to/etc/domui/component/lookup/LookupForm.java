@@ -1139,7 +1139,7 @@ public class LookupForm<T> extends Div {
 	 * @see to.etc.domui.dom.html.NodeBase#setClicked(to.etc.domui.dom.html.IClicked)
 	 */
 	@Override
-	public void setClicked(final IClickBase< ? > clicked) {
+	public void setClicked(final @Nullable IClickBase< ? > clicked) {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
 	}
 

@@ -73,7 +73,7 @@ public class DropDownPicker<T> extends SmallImgButton {
 
 			@SuppressWarnings("synthetic-access")
 			@Override
-			public void onValueChanged(NodeBase component) throws Exception {
+			public void onValueChanged(@Nonnull NodeBase component) throws Exception {
 				m_picker.setDisplay(DisplayType.BLOCK);//we need to change twice since value is changed using javascript
 				m_picker.setDisplay(DisplayType.NONE);
 				if(getOnValueSelected() != null) {

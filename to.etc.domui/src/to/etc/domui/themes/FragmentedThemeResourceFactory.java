@@ -24,6 +24,8 @@
  */
 package to.etc.domui.themes;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.util.resources.*;
 
@@ -38,12 +40,12 @@ public class FragmentedThemeResourceFactory implements IResourceFactory {
 	static public final String CURRENT = "$currentTheme/";
 
 	@Override
-	public int accept(String name) {
+	public int accept(@Nonnull String name) {
 		return name.startsWith(CURRENT) ? 30 : -1;
 	}
 
 	@Override
-	public IResourceRef getResource(DomApplication da, String name, IResourceDependencyList rdl) throws Exception {
+	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nullable IResourceDependencyList rdl) throws Exception {
 		String real = name.substring(CURRENT.length());
 		ITheme theme = da.getTheme(rdl);
 

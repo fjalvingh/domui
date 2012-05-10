@@ -128,7 +128,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 					cc.getTR().setClicked(new IClicked2<TR>() {
 						@Override
 						@SuppressWarnings({"synthetic-access"})
-						public void clicked(TR b, ClickInfo clinfo) throws Exception {
+						public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
 							((ICellClicked<T>) getRowRenderer().getRowClicked()).cellClicked(therow, theitem);
 						}
 					});
@@ -195,7 +195,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			cc.getTR().setClicked(new IClicked2<TR>() {
 				@Override
 				@SuppressWarnings({"synthetic-access"})
-				public void clicked(TR b, ClickInfo clinfo) throws Exception {
+				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
 					((ICellClicked<T>) getRowRenderer().getRowClicked()).cellClicked(therow, theitem);
 				}
 			});
@@ -240,7 +240,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 	 * Set a new model for this table. This discards the entire presentation and causes a full build at render time.
 	 */
 	@Override
-	public void setModel(ITableModel<T> model) {
+	public void setModel(@Nonnull ITableModel<T> model) {
 		clearDeselectedAccumulatedRows();
 		super.setModel(model);
 	}

@@ -612,7 +612,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	 */
 	@Override
 	@Nullable
-	public <A> A getAnnotation(Class<A> annclass) {
+	public <A> A getAnnotation(@Nonnull Class<A> annclass) {
 		return null;
 	}
 

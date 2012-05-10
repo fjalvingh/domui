@@ -26,6 +26,8 @@ package to.etc.domui.util.bugs;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.layout.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -110,7 +112,7 @@ public class DefaultBugListener implements IBugListener {
 	 * @see to.etc.domui.util.bugs.IBugListener#bugSignaled(to.etc.domui.util.bugs.BugItem)
 	 */
 	@Override
-	public void bugSignaled(BugItem item) {
+	public void bugSignaled(@Nonnull BugItem item) {
 		ConversationContext cc;
 		try {
 			cc = UIContext.getCurrentConversation();
@@ -298,7 +300,7 @@ public class DefaultBugListener implements IBugListener {
 		//-- When the window is closed - clear messages
 		fw.setOnClose(new IWindowClosed() {
 			@Override
-			public void closed(String closeReason) throws Exception {
+			public void closed(@Nonnull String closeReason) throws Exception {
 				ref.setWindow(null);
 				clearMessages(ref);
 			}

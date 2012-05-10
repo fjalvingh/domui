@@ -239,7 +239,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			cc.getTR().setClicked(new IClicked2<TR>() {
 				@Override
 				@SuppressWarnings({"synthetic-access"})
-				public void clicked(TR b, ClickInfo clinfo) throws Exception {
+				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
 					handleRowClick(b, value, clinfo);
 				}
 			});
@@ -252,7 +252,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			cc.add(cb);
 			cb.setClicked(new IClicked2<Checkbox>() {
 				@Override
-				public void clicked(Checkbox clickednode, ClickInfo info) throws Exception {
+				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo info) throws Exception {
 					selectionCheckboxClicked(value, clickednode.isChecked(), info);
 				}
 			});
@@ -462,7 +462,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			td.add(cb);
 			cb.setClicked(new IClicked2<Checkbox>() {
 				@Override
-				public void clicked(Checkbox clickednode, ClickInfo clinfo) throws Exception {
+				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo clinfo) throws Exception {
 					selectionCheckboxClicked(instance, clickednode.isChecked(), clinfo);
 				}
 			});

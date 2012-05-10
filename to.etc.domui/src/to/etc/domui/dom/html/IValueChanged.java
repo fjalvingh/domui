@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 public interface IValueChanged<T extends NodeBase> {
-	void onValueChanged(T component) throws Exception;
+	void onValueChanged(@Nonnull T component) throws Exception;
 }

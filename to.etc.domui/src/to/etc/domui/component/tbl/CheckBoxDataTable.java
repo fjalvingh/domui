@@ -86,7 +86,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 	 * Set a new model for this table. This discards the entire presentation and causes a full build at render time.
 	 */
 	@Override
-	public void setModel(ITableModel<T> model) {
+	public void setModel(@Nonnull ITableModel<T> model) {
 		clearSelection();
 		super.setModel(model);
 	}
@@ -217,7 +217,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 	 * @see to.etc.domui.component.tbl.DataTable#renderHeader(to.etc.domui.component.tbl.HeaderContainer)
 	 */
 	@Override
-	protected void renderHeader(HeaderContainer<T> hc) throws Exception {
+	protected void renderHeader(@Nonnull HeaderContainer<T> hc) throws Exception {
 		hc.add(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
 		getRowRenderer().renderHeader(this, hc);
 	}
@@ -227,7 +227,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 	 * @see to.etc.domui.component.tbl.DataTable#renderRow(to.etc.domui.dom.html.TR, to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	@Override
-	void internalRenderRow(TR tr, ColumnContainer<T> cc, int index, T value) throws Exception {
+	void internalRenderRow(@Nonnull TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable T value) throws Exception {
 		TD selectionCell = new TD();
 
 		boolean isDisabled = getDisabledIndexOf(value) > -1;
