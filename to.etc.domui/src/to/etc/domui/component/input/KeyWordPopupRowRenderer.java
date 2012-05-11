@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.tbl;
+package to.etc.domui.component.input;
 
 import java.util.*;
 
@@ -30,6 +30,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.component.tbl.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -43,7 +44,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 27 Jan 2010
  */
-public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
+class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	/** The class whose instances we'll render in this table. */
 	private final Class<T> m_dataClass;
 
@@ -60,7 +61,7 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	/*	CODING:	Simple renderer initialization && parameterisation	*/
 	/*--------------------------------------------------------------*/
 
-	public KeyWordPopupRowRenderer(@Nonnull final Class<T> dataClass, final String... cols) {
+	KeyWordPopupRowRenderer(@Nonnull final Class<T> dataClass, final String... cols) {
 		this(dataClass, MetaManager.findClassMeta(dataClass), cols);
 	}
 
@@ -69,7 +70,7 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 * @param dataClass
 	 * @param cols
 	 */
-	public KeyWordPopupRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final String... cols) {
+	KeyWordPopupRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final String... cols) {
 		m_dataClass = dataClass;
 		m_metaModel = cmm;
 		List<ExpandedDisplayProperty< ? >> xdpl;

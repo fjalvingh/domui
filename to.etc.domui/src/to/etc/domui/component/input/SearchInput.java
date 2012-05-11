@@ -1,9 +1,10 @@
-package to.etc.domui.component.lookup;
+package to.etc.domui.component.input;
 
 import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
