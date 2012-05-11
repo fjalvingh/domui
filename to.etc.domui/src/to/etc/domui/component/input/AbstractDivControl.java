@@ -146,6 +146,7 @@ abstract public class AbstractDivControl<T> extends Div implements IInputNode<T>
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
+	@Override
 	public IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
@@ -157,6 +158,7 @@ abstract public class AbstractDivControl<T> extends Div implements IInputNode<T>
 	 *
 	 * @see to.etc.domui.component.input.IBindable#isBound()
 	 */
+	@Override
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
 	}

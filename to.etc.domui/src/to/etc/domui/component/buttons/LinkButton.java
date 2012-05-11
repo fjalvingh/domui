@@ -157,6 +157,7 @@ public class LinkButton extends ATag implements IActionControl {
 		return m_disabled;
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		if(m_disabled == disabled)
 			return;

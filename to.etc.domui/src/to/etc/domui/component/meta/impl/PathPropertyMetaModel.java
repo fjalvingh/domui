@@ -399,10 +399,12 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 		return m_original.getControlFactory();
 	}
 
+	@Override
 	public <A> A getAnnotation(@Nonnull Class<A> annclass) {
 		return m_original.getAnnotation(annclass);
 	}
 
+	@Override
 	public List<Object> getAnnotations() {
 		return m_original.getAnnotations();
 	}
@@ -413,6 +415,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 		return m_original.getColumnNames();
 	}
 
+	@Override
 	@Nullable
 	public IQueryManipulator<T> getQueryManipulator() {
 		return m_original.getQueryManipulator();

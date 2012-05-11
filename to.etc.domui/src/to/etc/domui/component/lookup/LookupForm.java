@@ -187,6 +187,7 @@ public class LookupForm<T> extends Div {
 
 		private InputBehaviorType m_inputsBehavior = InputBehaviorType.DEFAULT;
 
+		@Override
 		public String getPropertyName() {
 			return m_propertyName;
 		}

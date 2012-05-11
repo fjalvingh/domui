@@ -481,6 +481,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		return m_showSelectionAlways;
 	}
 
+	@Override
 	public boolean isMultiSelectionVisible() {
 		return m_multiSelectMode;
 	}
@@ -491,6 +492,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param showSelectionAlways
 	 * @throws Exception
 	 */
+	@Override
 	public void setShowSelection(boolean showSelectionAlways) throws Exception {
 		if(m_showSelectionAlways == showSelectionAlways || getModel() == null || getModel().getRows() == 0)
 			return;
@@ -702,6 +704,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 *
 	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionChanged(java.lang.Object, boolean)
 	 */
+	@Override
 	public void selectionChanged(@Nonnull T row, boolean on) throws Exception {
 		//-- Is this a visible row?
 		for(int i = 0; i < m_visibleItemList.size(); i++) {
@@ -722,6 +725,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	@Nullable
 	private ISelectionAllHandler m_selectionAllHandler;
 
+	@Override
 	@Nullable
 	public ISelectionAllHandler getSelectionAllHandler() {
 		return m_selectionAllHandler;
@@ -738,6 +742,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * Return the model used for table selections, if applicable.
 	 * @return
 	 */
+	@Override
 	@Nullable
 	public ISelectionModel<T> getSelectionModel() {
 		return m_selectionModel;

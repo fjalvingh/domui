@@ -430,10 +430,11 @@ public class AbstractRowRenderer<T> {
 
 		//-- Is a node renderer used?
 		TD cell;
+		String cssClass = cd.getCssClass();
 		if(null != cd.getContentRenderer()) {
 			cell = cc.add((NodeBase) null); // Add the new row
-			if(cd.getCssClass() != null)
-				cell.addCssClass(cd.getCssClass());
+			if(cssClass != null)
+				cell.addCssClass(cssClass);
 			((INodeContentRenderer<Object>) cd.getContentRenderer()).renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
 		} else {
 			String s;
@@ -450,8 +451,8 @@ public class AbstractRowRenderer<T> {
 				cell = cc.add((NodeBase) null);
 			else
 				cell = cc.add(s);
-			if(cd.getCssClass() != null)
-				cell.addCssClass(cd.getCssClass());
+			if(cssClass != null)
+				cell.addCssClass(cssClass);
 		}
 		if(cd.isNowrap() || cd.getDisplayLength() == 0)
 			cell.setNowrap(true);
@@ -473,8 +474,8 @@ public class AbstractRowRenderer<T> {
 
 		if(cd.getAlign() != null)
 			cell.setTextAlign(cd.getAlign());
-		else if(cd.getCssClass() != null) {
-			cell.addCssClass(cd.getCssClass());
+		else if(cssClass != null) {
+			cell.addCssClass(cssClass);
 		}
 	}
 

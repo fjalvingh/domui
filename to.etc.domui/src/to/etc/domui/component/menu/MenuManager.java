@@ -44,6 +44,7 @@ final public class MenuManager {
 	private final List<MenuItemImpl> m_newItemList = new ArrayList<MenuItemImpl>();
 
 	static public final Comparator<IMenuItem> C_BY_ORDER_AND_CHILDREN = new Comparator<IMenuItem>() {
+		@Override
 		public int compare(final IMenuItem o1, final IMenuItem o2) {
 			boolean c1 = o1.getChildren().size() > 0;
 			boolean c2 = o2.getChildren().size() > 0;

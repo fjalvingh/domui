@@ -32,12 +32,14 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		return m_selectedSet.size();
 	}
 
+	@Override
 	public boolean isSelected(@Nonnull T rowinstance) {
 		if(null == rowinstance) // Should not happen.
 			throw new IllegalArgumentException("null row");
 		return m_selectedSet.contains(rowinstance);
 	}
 
+	@Override
 	public void setInstanceSelected(@Nonnull T rowinstance, boolean on) throws Exception {
 		if(null == rowinstance) // Should not happen.
 			throw new IllegalArgumentException("null row");
@@ -62,6 +64,7 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		}
 	}
 
+	@Override
 	public void clearSelection() throws Exception {
 		if(m_selectedSet.size() == 0)
 			return;

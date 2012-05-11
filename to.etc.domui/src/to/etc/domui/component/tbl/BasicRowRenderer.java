@@ -270,9 +270,12 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IClic
 			cd.setNowrap(nowrap);
 
 			//-- We can only sort on this by using a sort helper....
+
 			if(sort != null && (sort == SortableType.SORTABLE_ASC || sort == SortableType.SORTABLE_DESC) && sortHelper == null) {
 				System.out.println("ERROR: Attempt to define column without property name as sortable"); // FIXME Must become exception.
 			} else {
+				if(sort == null)
+					sort = SortableType.UNKNOWN;
 				cd.setSortable(sort);
 				cd.setSortHelper(sortHelper);
 				if(defaultsort)

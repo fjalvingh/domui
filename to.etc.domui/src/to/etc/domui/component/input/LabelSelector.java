@@ -195,12 +195,14 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		m_contentRenderer = contentRenderer;
 	}
 
+	@Override
 	public void setValue(List<T> newlist) {
 		m_labelList = newlist;
 		m_divMap.clear();
 		forceRebuild();
 	}
 
+	@Override
 	public List<T> getValue() {
 		return new ArrayList<T>(m_labelList);
 	}
