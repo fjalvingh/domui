@@ -141,7 +141,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	@Nullable
 	private IKeyWordSearchQueryFactory<QT> m_keyWordSearchHandler;
 
-	private boolean m_allowEmptyQuery;
+	/** When T (default) you can press search on an empty popup form. 20120511 jal Default set to true. */
+	private boolean m_allowEmptyQuery = true;
 
 	private boolean m_searchImmediately;
 
@@ -185,6 +186,12 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 */
 	@Nullable
 	private ILookupFormModifier<QT> m_lookupFormInitialization;
+
+	/**
+	 * When set this defines the {@link IRowRenderer}&lt;OT&gt; to use to render rows when the popup lookup form is used.
+	 */
+	@Nullable
+	private IClickableRowRenderer<OT> m_formRowRenderer;
 
 	@Nonnull
 	abstract protected ITableModel<OT> createTableModel(@Nonnull QCriteria<QT> query) throws Exception;
@@ -660,7 +667,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		setTableQuery(c);
 	}
 
-
 	private void setTableQuery(@Nonnull QCriteria<QT> qc) throws Exception {
 		ITableModel<OT> model = createTableModel(qc);					// Ask derived to convert the query into my output model
 		setResultModel(model);
@@ -669,7 +675,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	private void setResultModel(@Nonnull ITableModel<OT> model) {
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
-			m_result = new DataTable<OT>(model, createRowRenderer(model));
+			m_result = new DataTable<OT>(model, createFormRowRenderer(model));
 
 			m_floater.add(m_result);
 			m_result.setPageSize(20);
@@ -688,24 +694,34 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		m_result.setTestID("resultTableLookupInput");
 	}
 
-	private IRowRenderer<OT> createRowRenderer(@Nonnull ITableModel<OT> model) {
-		SimpleRowRenderer<OT> rr = null;
-		if(m_resultColumns != null) {
-			rr = new SimpleRowRenderer<OT>(getOutputClass(), getOutputMetaModel(), m_resultColumns);
-		} else {
-			rr = new SimpleRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
+	/**
+	 * Either use the user-specified popup form row renderer or create one using resultColumns or the default metadata.
+	 * @param model
+	 * @return
+	 */
+	@Nonnull
+	private IRowRenderer<OT> createFormRowRenderer(@Nonnull ITableModel<OT> model) {
+		//-- Is a form row renderer specified by the user?
+		IClickableRowRenderer<OT> rr = getFormRowRenderer();
+		if(null == rr) {
+			//-- Create a row renderer depending on whether specific columns were requested.
+			if(m_resultColumns != null) {
+				rr = new SimpleRowRenderer<OT>(getOutputClass(), getOutputMetaModel(), m_resultColumns);
+			} else {
+				rr = new SimpleRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
+			}
+
 		}
 
+		//-- Always set a click handler on the row renderer, so we can accept the selected record.
 		rr.setRowClicked(new ICellClicked<OT>() {
 			@Override
 			public void cellClicked(NodeBase tr, OT val) throws Exception {
-				//					MsgBox.message(getPage(), "Selection made", "Geselecteerd: "+val);
 				m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 				LookupInputBase.this.toggleFloater(null);
 				handleSetValue(val);
 			}
 		});
-
 		return rr;
 	}
 
@@ -1199,5 +1215,23 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		m_searchImmediately = searchImmediately;
 		if(searchImmediately)
 			setAllowEmptyQuery(true);
+	}
+
+	/**
+	 * When set this defines the {@link IClickableRowRenderer}&lt;OT&gt; to use to render rows when the popup lookup form is used.
+	 *
+	 * @return
+	 */
+	@Nullable
+	public IClickableRowRenderer<OT> getFormRowRenderer() {
+		return m_formRowRenderer;
+	}
+
+	/**
+	 * When set this defines the {@link IClickableRowRenderer}&lt;OT&gt; to use to render rows when the popup lookup form is used.
+	 * @param lookupFormRenderer
+	 */
+	public void setFormRowRenderer(@Nullable IClickableRowRenderer<OT> lookupFormRenderer) {
+		m_formRowRenderer = lookupFormRenderer;
 	}
 }

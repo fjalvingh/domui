@@ -38,7 +38,7 @@ import to.etc.domui.component.meta.impl.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2008
  */
-public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRowRenderer<T> {
+public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	private int m_totwidth;
 
 	/**

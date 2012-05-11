@@ -54,7 +54,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2008
  */
-public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IRowRenderer<T> {
+public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	static public final String NOWRAP = "-NOWRAP";
 
 	static public final String DEFAULTSORT = "-DSORT";
