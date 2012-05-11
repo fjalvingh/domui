@@ -24,12 +24,9 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
-
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
@@ -51,37 +48,37 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	@Nonnull
 	final private ClassMetaModel m_metaModel;
 
+	@Nullable
+	private ICellClicked< ? > m_rowClicked;
+
 	/** When the definition has completed (the object is used) this is TRUE; it disables all calls that change the definition */
 	private boolean m_completed;
 
 	@Nonnull
-	private final List<SimpleColumnDef> m_columnList = new ArrayList<SimpleColumnDef>();
-
-	@Nullable
-	private ICellClicked< ? > m_rowClicked;
+	private final ColumnDefList m_columnList;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple renderer initialization && parameterisation	*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * Create a renderer by handling the specified class and a list of properties off it.
 	 * @param dataClass
 	 * @param cols
 	 */
-	KeyWordPopupRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final String... cols) {
+	KeyWordPopupRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm) {
 		m_dataClass = dataClass;
 		m_metaModel = cmm;
-		List<ExpandedDisplayProperty< ? >> xdpl;
-		if(cols.length != 0)
-			xdpl = ExpandedDisplayProperty.expandProperties(cmm, cols);
-		else {
-			final List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
-			if(dpl.size() == 0)
-				throw new IllegalStateException("The list-of-columns to show for " + cmm + " is empty, and the class has no metadata (@MetaObject) defining a set of columns as default table columns, so there.");
-			xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
-		}
-		addColumns(xdpl);
+		m_columnList = new ColumnDefList(cmm);
+		//		List<ExpandedDisplayProperty< ? >> xdpl;
+		//		if(cols.length != 0)
+		//			xdpl = ExpandedDisplayProperty.expandProperties(cmm, cols);
+		//		else {
+		//			final List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
+		//			if(dpl.size() == 0)
+		//				throw new IllegalStateException("The list-of-columns to show for " + cmm + " is empty, and the class has no metadata (@MetaObject) defining a set of columns as default table columns, so there.");
+		//			xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
+		//		}
+		//		addColumns(xdpl);
 	}
 
 	/**
@@ -89,7 +86,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 */
 	private void check() {
 		if(m_completed)
-			throw new IllegalStateException("Programmer error: This object has been USED and cannot be changed anymore");
+			throw new IllegalStateException("Programmer error: This instance has been USED and cannot be changed anymore");
 	}
 
 	/**
@@ -121,6 +118,8 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	@Override
 	public void beforeQuery(final @Nonnull TableModelTableBase<T> tbl) throws Exception {
 		m_completed = true;
+		if(m_columnList.size() == 0)
+			addDefaultColumns();
 	}
 
 	@Override
@@ -211,23 +210,38 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 		}
 	}
 
-	private void addColumns(final List<ExpandedDisplayProperty< ? >> xdpl) {
-		for(final ExpandedDisplayProperty< ? > xdp : xdpl) {
-			if(xdp instanceof ExpandedDisplayPropertyList) {
-				//-- Flatten: call for subs recursively.
-				final ExpandedDisplayPropertyList xdl = (ExpandedDisplayPropertyList) xdp;
-				addColumns(xdl.getChildren());
-				continue;
-			}
-
-			//-- Create a column def from the metadata
-			final SimpleColumnDef scd = new SimpleColumnDef(xdp);
-			m_columnList.add(scd); // ORDER!
-
-			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
-				scd.setCssClass("ui-numeric");
-				scd.setHeaderCssClass("ui-numeric");
-			}
-		}
+	public void add(SimpleColumnDef cd) {
+		check();
+		m_columnList.add(cd);
 	}
+
+	public <R> void addColumns(Object... cols) {
+		check();
+		m_columnList.addColumns(cols);
+	}
+
+	public void addDefaultColumns() {
+		check();
+		m_columnList.addDefaultColumns();
+	}
+
+	//	private void addColumns(final List<ExpandedDisplayProperty< ? >> xdpl) {
+	//		for(final ExpandedDisplayProperty< ? > xdp : xdpl) {
+	//			if(xdp instanceof ExpandedDisplayPropertyList) {
+	//				//-- Flatten: call for subs recursively.
+	//				final ExpandedDisplayPropertyList xdl = (ExpandedDisplayPropertyList) xdp;
+	//				addColumns(xdl.getChildren());
+	//				continue;
+	//			}
+	//
+	//			//-- Create a column def from the metadata
+	//			final SimpleColumnDef scd = new SimpleColumnDef(xdp);
+	//			m_columnList.add(scd); // ORDER!
+	//
+	//			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
+	//				scd.setCssClass("ui-numeric");
+	//				scd.setHeaderCssClass("ui-numeric");
+	//			}
+	//		}
+	//	}
 }

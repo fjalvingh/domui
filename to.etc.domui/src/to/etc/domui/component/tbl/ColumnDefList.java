@@ -94,7 +94,7 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
 	@SuppressWarnings("fallthrough")
-	public <R> void addColumns(@Nonnull final Object... cols) throws Exception {
+	public <R> void addColumns(@Nonnull final Object... cols) {
 		if(cols == null || cols.length == 0)
 			throw new IllegalArgumentException("The list-of-columns is empty or null; I need at least one column to continue.");
 		String property = null;
@@ -181,7 +181,7 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 		internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler, defaultsort, sortHelper);
 	}
 
-	static private INodeContentRenderer< ? > tryRenderer(final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass) throws Exception {
+	static private INodeContentRenderer< ? > tryRenderer(final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass) {
 		if(nodeRenderer != null) {
 			if(nrclass != null)
 				throw new IllegalArgumentException("Both a NodeContentRenderer instance AND a class specified: " + nodeRenderer + " + " + nrclass);
@@ -228,7 +228,7 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 	 */
 	private <R> void internalAddProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz,
 		final String caption, final String cssclass, final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort,
-		ISortHelper sortHelper) throws Exception {
+ ISortHelper sortHelper) {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
 

@@ -42,7 +42,7 @@ public class SearchInput<T> extends Div {
 	@Nonnull
 	final private Class<T>		m_dataClass;
 
-	final private String[]		m_columns;
+	final private Object[] m_columns;
 
 	/**
 	 * Inner interface to define the query to execute to lookup data, and the handlers for
@@ -109,7 +109,7 @@ public class SearchInput<T> extends Div {
 	 * @param clz
 	 * @param columns
 	 */
-	public SearchInput(@Nonnull Class<T> clz, String... columns) {
+	public SearchInput(@Nonnull Class<T> clz, Object... columns) {
 		this(null, clz, columns);
 	}
 
@@ -119,7 +119,7 @@ public class SearchInput<T> extends Div {
 	 * @param clz		The data class to display/handle
 	 * @param columns	The property names to show in the popup window.
 	 */
-	public SearchInput(IQuery<T> handler, @Nonnull Class<T> clz, String... columns) {
+	public SearchInput(IQuery<T> handler, @Nonnull Class<T> clz, Object... columns) {
 		m_handler = handler;
 		m_dataClass = clz;
 		m_columns = columns;
@@ -230,7 +230,9 @@ public class SearchInput<T> extends Div {
 		}
 
 		SimpleListModel<T>	mdl = new SimpleListModel<T>(isl);
-		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<T>(m_dataClass, m_dataModel, m_columns);
+		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<T>(m_dataClass, m_dataModel);
+		if(m_columns != null)
+			rr.addColumns(m_columns);
 		rr.setRowClicked(new ICellClicked<T>() {
 			@Override
 			public void cellClicked(NodeBase tr, T val) throws Exception {

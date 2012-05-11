@@ -68,12 +68,12 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IClic
 		initColumnSet(cols);
 	}
 
-	public BasicRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final Object... cols) throws Exception {
+	public BasicRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final Object... cols) {
 		super(dataClass, cmm);
 		initColumnSet(cols);
 	}
 
-	private void initColumnSet(Object[] cols) throws Exception {
+	private void initColumnSet(Object[] cols) {
 		if(cols.length != 0)
 			addColumns(cols);
 		m_sortColumnName = model().getDefaultSortProperty();
@@ -102,7 +102,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IClic
 	 * @param cols
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
-	public <R> BasicRowRenderer<T> addColumns(@Nonnull final Object... cols) throws Exception {
+	public <R> BasicRowRenderer<T> addColumns(@Nonnull final Object... cols) {
 		getColumnList().addColumns(model(), cols);					// Delegate to column list.
 		return this;
 	}

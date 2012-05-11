@@ -120,8 +120,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	@Nullable
 	private String m_lookupTitle;
 
-	@Nullable
-	private String[] m_resultColumns;
+	@Nonnull
+	private Object[] m_resultColumns;
 
 	@Nullable
 	private IErrorMessageListener m_customErrorMessageListener;
@@ -193,12 +193,16 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	@Nullable
 	private IClickableRowRenderer<OT> m_formRowRenderer;
 
+	private KeyWordPopupRowRenderer<OT> m_keywordRowRenderer;
+
 	@Nonnull
 	abstract protected ITableModel<OT> createTableModel(@Nonnull QCriteria<QT> query) throws Exception;
 
-	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nonnull String[] resultColumns) {
+	static private final Object[] EMPTY_ARRAY = new Object[0];
+
+	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nonnull Object... resultColumns) {
 		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
-		m_resultColumns = resultColumns;
+		setResultColumns(resultColumns);
 	}
 
 	/**
@@ -207,6 +211,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 */
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass) {
 		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+		m_resultColumns = EMPTY_ARRAY;
 	}
 
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
@@ -362,17 +367,23 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		td.add(txt);
 	}
 
+	@Nonnull
+	private KeyWordPopupRowRenderer<OT> getKeywordRowRenderer() {
+		if(null == m_keywordRowRenderer) {
+			m_keywordRowRenderer = new KeyWordPopupRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
+
+			//-- If column data is added- handle it
+			if(m_resultColumns.length != 0)
+				m_keywordRowRenderer.addColumns(m_resultColumns);
+		}
+		return m_keywordRowRenderer;
+	}
+
 	private void addKeySearchField(NodeContainer parent, QT value) {
 		m_keySearch = new KeyWordSearchInput<OT>(m_keyWordSearchCssClass);
 		m_keySearch.setWidth("100%");
 		m_keySearch.setPopupWidth(getKeyWordSearchPopupWidth());
-		KeyWordPopupRowRenderer<OT> rr = null;
-		if(m_resultColumns != null) {
-			rr = new KeyWordPopupRowRenderer<OT>(getOutputClass(), getOutputMetaModel(), m_resultColumns);
-		} else {
-			rr = new KeyWordPopupRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
-		}
-
+		KeyWordPopupRowRenderer<OT> rr = getKeywordRowRenderer();
 		rr.setRowClicked(new ICellClicked<OT>() {
 			@Override
 			public void cellClicked(NodeBase tr, OT val) throws Exception {
@@ -380,7 +391,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 			}
 		});
 		m_keySearch.setResultsHintPopupRowRenderer(rr);
-
 
 		m_keySearch.setOnLookupTyping(new IValueChanged<KeyWordSearchInput<OT>>() {
 
@@ -706,11 +716,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		if(null == rr) {
 			//-- Create a row renderer depending on whether specific columns were requested.
 			if(m_resultColumns != null) {
-				rr = new SimpleRowRenderer<OT>(getOutputClass(), getOutputMetaModel(), m_resultColumns);
+				rr = new BasicRowRenderer<OT>(getOutputClass(), getOutputMetaModel(), m_resultColumns);
 			} else {
-				rr = new SimpleRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
+				rr = new BasicRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
 			}
-
 		}
 
 		//-- Always set a click handler on the row renderer, so we can accept the selected record.
@@ -933,26 +942,31 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 
 	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
+	@Nullable
 	public LookupForm<QT> getExternalLookupForm() {
 		return m_externalLookupForm;
 	}
 
-	public void setExternalLookupForm(LookupForm<QT> externalLookupForm) {
+	public void setExternalLookupForm(@Nullable LookupForm<QT> externalLookupForm) {
 		m_externalLookupForm = externalLookupForm;
 	}
 
-	public String[] getResultColumns() {
+	@Nonnull
+	public Object[] getResultColumns() {
 		return m_resultColumns;
 	}
 
 	/**
 	 * Set (override) the columns to show in the "lookup form" that will be shown if a
 	 * full lookup is done.
-	 * FIXME Should be varargs
+	 *
 	 * @param resultColumns
 	 */
-	public void setResultColumns(String[] resultColumns) {
-		m_resultColumns = resultColumns;
+	public void setResultColumns(@Nonnull Object... resultColumns) {
+		if(null == resultColumns)
+			m_resultColumns = EMPTY_ARRAY;
+		else
+			m_resultColumns = resultColumns;
 	}
 
 	public IErrorMessageListener getCustomErrorMessageListener() {
