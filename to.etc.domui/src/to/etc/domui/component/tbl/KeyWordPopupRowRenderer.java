@@ -78,7 +78,7 @@ public class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 		else {
 			final List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
 			if(dpl.size() == 0)
-				throw new IllegalStateException("The list-of-columns to show is empty, and the class has no metadata (@MetaObject) defining a set of columns as default table columns, so there.");
+				throw new IllegalStateException("The list-of-columns to show for " + cmm + " is empty, and the class has no metadata (@MetaObject) defining a set of columns as default table columns, so there.");
 			xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
 		}
 		addColumns(xdpl);

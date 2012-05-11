@@ -187,7 +187,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	private ILookupFormModifier<QT> m_lookupFormInitialization;
 
 	@Nonnull
-	abstract ITableModel<OT> createTableModel(@Nonnull QCriteria<QT> query) throws Exception;
+	abstract protected ITableModel<OT> createTableModel(@Nonnull QCriteria<QT> query) throws Exception;
 
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nonnull String[] resultColumns) {
 		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);

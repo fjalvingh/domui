@@ -79,7 +79,7 @@ public class LookupInput<T> extends LookupInputBase<T, T> {
 
 	@Override
 	@Nonnull
-	ITableModel<T> createTableModel(@Nonnull QCriteria<T> query) throws Exception {
+	protected ITableModel<T> createTableModel(@Nonnull QCriteria<T> query) throws Exception {
 		IQueryHandler<T> queryHandler = getQueryHandler();
 		if(queryHandler == null) {
 			QDataContextFactory src = QContextManager.getDataContextFactory(getPage().getConversation());
