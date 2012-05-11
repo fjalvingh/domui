@@ -547,6 +547,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
+	@Nonnull
 	public NumericPresentation getNumericPresentation() {
 		return m_propertyMeta == null ? NumericPresentation.UNKNOWN : m_propertyMeta.getNumericPresentation();
 	}

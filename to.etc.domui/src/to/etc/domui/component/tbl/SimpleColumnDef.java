@@ -39,6 +39,10 @@ import to.etc.domui.util.*;
  * Created on Jun 18, 2008
  */
 final public class SimpleColumnDef {
+	static public final String NOWRAP = "-NOWRAP";
+
+	static public final String DEFAULTSORT = "-DSORT";
+
 	/** The label text, if needed, to use as the column heading */
 	@Nullable
 	private String m_columnLabel;

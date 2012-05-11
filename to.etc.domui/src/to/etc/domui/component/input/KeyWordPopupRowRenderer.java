@@ -35,7 +35,6 @@ import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -94,63 +93,11 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	}
 
 	/**
-	 * Return the definition for the nth column. You can change the column's definition there.
-	 * @param ix
-	 * @return
-	 */
-	private SimpleColumnDef getColumn(final int ix) {
-		if(ix < 0 || ix >= m_columnList.size())
-			throw new IndexOutOfBoundsException("Column " + ix + " does not exist (yet?)");
-		return m_columnList.get(ix);
-	}
-
-	/**
-	 * Return the #of columns in this renderer.
-	 * @return
-	 */
-	private int getColumnCount() {
-		return m_columnList.size();
-	}
-
-	/**
-	 * Find a column by the property it is displaying. This only works for that kind of columns, and will
-	 * not work for any joined columns defined from metadata. If no column exists for the specified property
-	 * this will throw an exception.
-	 * @param propertyName
-	 * @return
-	 */
-	private SimpleColumnDef getColumnByName(String propertyName) {
-		for(SimpleColumnDef scd : m_columnList) {
-			if(propertyName.equals(scd.getPropertyName()))
-				return scd;
-		}
-		throw new ProgrammerErrorException("The property with the name '" + propertyName + "' is undefined in this RowRenderer - perhaps metadata has changed?");
-	}
-
-	/**
-	 * Convenience method to set the column's cell renderer; replacement for getColumn(index).setRenderer().
-	 * @param index
-	 * @param renderer
-	 */
-	private void setNodeRenderer(final int index, final INodeContentRenderer< ? > renderer) {
-		check();
-		getColumn(index).setContentRenderer(renderer);
-	}
-
-	/**
-	 * Convenience method to get the column's cell renderer; replacement for getColumn(index).getRenderer().
-	 * @param index
-	 * @return
-	 */
-	private INodeContentRenderer< ? > getNodeRenderer(final int index) {
-		return getColumn(index).getContentRenderer();
-	}
-
-	/**
 	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
 	 * @return
 	 */
 	@Override
+	@Nullable
 	public ICellClicked< ? > getRowClicked() {
 		return m_rowClicked;
 	}
@@ -159,7 +106,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
 	 * @param rowClicked
 	 */
-	public void setRowClicked(final ICellClicked< ? > rowClicked) {
+	void setRowClicked(@Nonnull final ICellClicked< ? > rowClicked) {
 		m_rowClicked = rowClicked;
 	}
 
@@ -172,13 +119,13 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 * @see to.etc.domui.component.tbl.IRowRenderer#beforeQuery(to.etc.domui.component.tbl.DataTable)
 	 */
 	@Override
-	public void beforeQuery(final TableModelTableBase<T> tbl) throws Exception {
+	public void beforeQuery(final @Nonnull TableModelTableBase<T> tbl) throws Exception {
 		m_completed = true;
 	}
 
 	@Override
-	public void renderHeader(TableModelTableBase<T> tbl, HeaderContainer<T> cc) throws Exception {
-		//empty since header is not rendered.
+	public void renderHeader(@Nonnull TableModelTableBase<T> tbl, @Nonnull HeaderContainer<T> cc) throws Exception {
+		//-- Do not render a header.
 	}
 
 	/*--------------------------------------------------------------*/
@@ -189,7 +136,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	@Override
-	public void renderRow(final TableModelTableBase<T> tbl, final ColumnContainer<T> cc, final int index, final T instance) throws Exception {
+	public void renderRow(final @Nonnull TableModelTableBase<T> tbl, final @Nonnull ColumnContainer<T> cc, final int index, final @Nonnull T instance) throws Exception {
 		if(m_rowClicked != null) {
 			cc.getTR().setClicked(new IClicked<TR>() {
 				@Override
