@@ -103,7 +103,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IClic
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
 	public <R> BasicRowRenderer<T> addColumns(@Nonnull final Object... cols) {
-		getColumnList().addColumns(model(), cols);					// Delegate to column list.
+		getColumnList().addColumns(cols);					// Delegate to column list.
 		return this;
 	}
 

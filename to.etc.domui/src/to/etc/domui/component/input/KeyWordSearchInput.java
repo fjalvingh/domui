@@ -63,7 +63,7 @@ public class KeyWordSearchInput<T> extends Div {
 
 	private Div m_pnlSearchPopup;
 
-	private Integer m_popupWidth;
+	private int m_popupWidth;
 
 	public KeyWordSearchInput() {
 	}
@@ -211,7 +211,7 @@ public class KeyWordSearchInput<T> extends Div {
 			if(m_pnlSearchPopup == null) {
 				m_pnlSearchPopup = new Div();
 				m_pnlSearchPopup.setCssClass("ui-lui-keyword-popup");
-				if(getPopupWidth() != null) {
+				if(getPopupWidth() > 0) {
 					m_pnlSearchPopup.setWidth(getPopupWidth() + "px");
 				}
 				fixZIndex();
@@ -262,12 +262,11 @@ public class KeyWordSearchInput<T> extends Div {
 		m_keySearch.setTitle(hint);
 	}
 
-	@Nullable
-	public Integer getPopupWidth() {
+	public int getPopupWidth() {
 		return m_popupWidth;
 	}
 
-	public void setPopupWidth(@Nullable Integer popupWidth) {
+	public void setPopupWidth(int popupWidth) {
 		m_popupWidth = popupWidth;
 	}
 }

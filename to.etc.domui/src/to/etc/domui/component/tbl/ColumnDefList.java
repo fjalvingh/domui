@@ -406,7 +406,7 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 			} else {
 				final String s = cwidth.trim();
 				if(s.endsWith("%")) {
-					final int w = StringTool.strToInt(s.substring(0, s.length() - 1), -1);
+					final int w = StringTool.strToInt(s.substring(0, s.length() - 1).trim(), -1);
 					if(w == -1)
 						throw new IllegalArgumentException("Invalid width percentage: " + s + " for presentation column " + scd.getPropertyName());
 					totpct += w;
@@ -429,12 +429,14 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 				pctleft = (100 * (pixwidth - totpix)) / pixwidth;
 			}
 
-			//-- Reassign the percentage left over all unassigned columns.
+			//-- Reassign the percentage left over all unassigned columns. Do it streaming, to ensure we reach 100%
 			for(final SimpleColumnDef scd : m_columnList) {
 				if(scd.getWidth() == null || scd.getWidth().length() == 0) {
 					//-- Calculate a size factor, then use it to assign
 					final double fact = (double) scd.getDisplayLength() / (double) totdw;
 					final int pct = (int) (fact * pctleft + 0.5);
+					pctleft -= pct;
+					totdw -= scd.getDisplayLength();
 					scd.setWidth(pct + "%");
 				}
 			}
@@ -451,8 +453,7 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 		return m_columnList.iterator();
 	}
 
-	public int indexOf(SimpleColumnDef scd) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int indexOf(@Nonnull SimpleColumnDef scd) {
+		return m_columnList.indexOf(scd);
 	}
 }

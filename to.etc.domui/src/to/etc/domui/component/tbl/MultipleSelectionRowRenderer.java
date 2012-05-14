@@ -68,9 +68,18 @@ public abstract class MultipleSelectionRowRenderer<T> extends SimpleRowRenderer<
 		int ix = 0;
 		addColumns(xdpl, widths);
 		ix = 0;
+		int remainingWidthInPixels = getRowWidth() - getSelectionColWidth();
 		for(final SimpleColumnDef scd : getColumnList()) {
+			/*
+			 * Calculation:
+			 *
+			 *        width[ix]     remainingWidthInPixels
+			 * 100% * ----------- * ----------------------
+			 *        totalWidth    totalWidthInPixels
+			 *
+			 */
 			// FIXME Explain/fix calculation (2012/05/11 jal)
-			final int pct = (100 * widths[ix++] * (getRowWidth() - getSelectionColWidth())) / (getTotalWidth() * getRowWidth());
+			final int pct = (100 * widths[ix++] * remainingWidthInPixels) / (getTotalWidth() * getRowWidth());
 			scd.setWidth(pct + "%");
 		}
 	}

@@ -41,13 +41,6 @@ import to.etc.webapp.nls.*;
  * Created on 27 Jan 2010
  */
 final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
-	/** The class whose instances we'll render in this table. */
-	@Nonnull
-	private final Class<T> m_dataClass;
-
-	@Nonnull
-	final private ClassMetaModel m_metaModel;
-
 	@Nullable
 	private ICellClicked< ? > m_rowClicked;
 
@@ -65,20 +58,8 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 * @param dataClass
 	 * @param cols
 	 */
-	KeyWordPopupRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm) {
-		m_dataClass = dataClass;
-		m_metaModel = cmm;
+	KeyWordPopupRowRenderer(@Nonnull final ClassMetaModel cmm) {
 		m_columnList = new ColumnDefList(cmm);
-		//		List<ExpandedDisplayProperty< ? >> xdpl;
-		//		if(cols.length != 0)
-		//			xdpl = ExpandedDisplayProperty.expandProperties(cmm, cols);
-		//		else {
-		//			final List<DisplayPropertyMetaModel> dpl = cmm.getTableDisplayProperties();
-		//			if(dpl.size() == 0)
-		//				throw new IllegalStateException("The list-of-columns to show for " + cmm + " is empty, and the class has no metadata (@MetaObject) defining a set of columns as default table columns, so there.");
-		//			xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
-		//		}
-		//		addColumns(xdpl);
 	}
 
 	/**
@@ -224,24 +205,4 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 		check();
 		m_columnList.addDefaultColumns();
 	}
-
-	//	private void addColumns(final List<ExpandedDisplayProperty< ? >> xdpl) {
-	//		for(final ExpandedDisplayProperty< ? > xdp : xdpl) {
-	//			if(xdp instanceof ExpandedDisplayPropertyList) {
-	//				//-- Flatten: call for subs recursively.
-	//				final ExpandedDisplayPropertyList xdl = (ExpandedDisplayPropertyList) xdp;
-	//				addColumns(xdl.getChildren());
-	//				continue;
-	//			}
-	//
-	//			//-- Create a column def from the metadata
-	//			final SimpleColumnDef scd = new SimpleColumnDef(xdp);
-	//			m_columnList.add(scd); // ORDER!
-	//
-	//			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
-	//				scd.setCssClass("ui-numeric");
-	//				scd.setHeaderCssClass("ui-numeric");
-	//			}
-	//		}
-	//	}
 }

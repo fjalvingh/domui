@@ -44,6 +44,7 @@ import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
 abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<OT>, IHasModifiedIndication {
+	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
 	/**
 	 * Interface provides assess to used lookup form initialization method.
@@ -83,7 +84,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	final private ClassMetaModel m_outputMetaModel;
 
 	@Nullable
-	private LookupForm<QT> m_externalLookupForm;
+	private LookupForm<QT> m_lookupForm;
 
 	@Nullable
 	private SmallImgButton m_selButton;
@@ -109,19 +110,19 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	private boolean m_disabled;
 
 	@Nullable
-	private INodeContentRenderer<OT> m_contentRenderer;
-
-	@Nullable
 	private IQueryManipulator<QT> m_queryManipulator;
 
 	@Nullable
 	private IQueryHandler<QT> m_queryHandler;
 
 	@Nullable
-	private String m_lookupTitle;
+	private String m_formTitle;
 
-	@Nonnull
-	private Object[] m_resultColumns;
+	/**
+	 * The content renderer to use to render the current value.
+	 */
+	@Nullable
+	private INodeContentRenderer<OT> m_valueRenderer;
 
 	@Nullable
 	private IErrorMessageListener m_customErrorMessageListener;
@@ -149,8 +150,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	@Nullable
 	private String m_keyWordSearchCssClass;
 
-	@Nullable
-	private Integer m_keyWordSearchPopupWidth;
+	private int m_keyWordSearchPopupWidth;
 
 	/**
 	 * By default set to true.
@@ -193,14 +193,34 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	@Nullable
 	private IClickableRowRenderer<OT> m_formRowRenderer;
 
-	private KeyWordPopupRowRenderer<OT> m_keywordRowRenderer;
+	/**
+	 * Internal: the actual form row renderer used by the code. This will be set to a {@link BasicRowRenderer} if the user
+	 * did not specify a row renderer.
+	 */
+	@Nullable
+	private IClickableRowRenderer<OT> m_actualFormRowRenderer;
 
+	/** The row renderer used to render rows in the quick search dropdown box showing the results of the quick search. */
+	@Nullable
+	private KeyWordPopupRowRenderer<OT> m_dropdownRowRenderer;
+
+	/**
+	 * This must create the table model for the output type from the query on the input type.
+	 * @param query
+	 * @return
+	 * @throws Exception
+	 */
 	@Nonnull
 	abstract protected ITableModel<OT> createTableModel(@Nonnull QCriteria<QT> query) throws Exception;
 
-	static private final Object[] EMPTY_ARRAY = new Object[0];
-
-	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nonnull Object... resultColumns) {
+	/**
+	 * Create a lookup control that shows the specified column set in both quick lookup mode and form lookup
+	 * mode.
+	 * @param queryClass
+	 * @param resultClass
+	 * @param resultColumns
+	 */
+	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nonnull String... resultColumns) {
 		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
 		setResultColumns(resultColumns);
 	}
@@ -211,7 +231,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 */
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass) {
 		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
-		m_resultColumns = EMPTY_ARRAY;
 	}
 
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
@@ -241,24 +260,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		setCssClass("ui-lui");
 	}
 
-	@Nonnull
-	public ClassMetaModel getOutputMetaModel() {
-		return m_outputMetaModel;
-	}
-
-	@Nonnull
-	public ClassMetaModel getQueryMetaModel() {
-		return m_queryMetaModel;
-	}
-
-	public INodeContentRenderer<OT> getContentRenderer() {
-		return m_contentRenderer;
-	}
-
-	public void setContentRenderer(INodeContentRenderer<OT> contentRenderer) {
-		m_contentRenderer = contentRenderer;
-	}
-
 	@Override
 	public void createContent() throws Exception {
 		m_table = new Table();
@@ -273,11 +274,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 				renderEmptySelection();
 				addCssClass("ui-ro");
 			} else {
-				renderKeyWordSearch(null, m_selButton);
+				renderKeyWordSearch(m_selButton);
 			}
 		} else {
 			//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
-			INodeContentRenderer<OT> r = getContentRenderer();
+			INodeContentRenderer<OT> r = getValueRenderer();
 			if(r == null)
 				r = (INodeContentRenderer<OT>) DEFAULT_RENDERER; // Prevent idiotic generics error
 			r.renderNodeContent(this, this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
@@ -323,6 +324,31 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		m_rebuildCause = null;
 	}
 
+	private void appendParameters(@Nonnull TD cell, @Nonnull Object parameters) {
+		TD tdParameters = new TD();
+		cell.appendAfterMe(tdParameters);
+		tdParameters.setValign(TableVAlign.TOP);
+		tdParameters.setMinWidth("24px");
+		tdParameters.setTextAlign(TextAlign.RIGHT);
+		tdParameters.addCssClass("ui-nowrap");
+		tdParameters.add((NodeBase) parameters); // Add the button,
+	}
+
+	/**
+	 * Render the presentation for empty/unselected input.
+	 */
+	private void renderEmptySelection() {
+		TD td = m_table.getBody().addRowAndCell();
+		td.setValign(TableVAlign.TOP);
+		td.setCssClass("ui-lui-v");
+		String txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
+		td.add(txt);
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Quick Search code (KeySearch)						*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * @return true either when query control is manually implemented by keyWordSearchHandler, or if keyword search meta data is defined.
 	 */
@@ -337,53 +363,28 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		return spml.size() > 0;
 	}
 
-	private void appendParameters(TD cell, Object parameters) {
-		TD tdParameters = new TD();
-		cell.appendAfterMe(tdParameters);
-		tdParameters.setValign(TableVAlign.TOP);
-		tdParameters.setMinWidth("24px");
-		tdParameters.setTextAlign(TextAlign.RIGHT);
-		tdParameters.addCssClass("ui-nowrap");
-		tdParameters.add((NodeBase) parameters); // Add the button,
-	}
-
-	private void renderKeyWordSearch(QT value, Object parameters) {
+	/**
+	 * Render the "current value" display as an input box or display box with clear and select buttons.
+	 * @param parameters
+	 */
+	private void renderKeyWordSearch(@Nullable Object parameters) {
 		TD td = m_table.getBody().addRowAndCell();
 		td.setValign(TableVAlign.TOP);
 		td.setCssClass("ui-lui-v");
 		td.setWidth("100%");
-		addKeySearchField(td, value);
+		addKeySearchField(td);
+
 		//-- parameters is either the button, or null if this is a readonly version.
 		if(parameters != null) {
 			appendParameters(td, parameters);
 		}
 	}
 
-	private void renderEmptySelection() {
-		TD td = m_table.getBody().addRowAndCell();
-		td.setValign(TableVAlign.TOP);
-		td.setCssClass("ui-lui-v");
-		String txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
-		td.add(txt);
-	}
-
-	@Nonnull
-	private KeyWordPopupRowRenderer<OT> getKeywordRowRenderer() {
-		if(null == m_keywordRowRenderer) {
-			m_keywordRowRenderer = new KeyWordPopupRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
-
-			//-- If column data is added- handle it
-			if(m_resultColumns.length != 0)
-				m_keywordRowRenderer.addColumns(m_resultColumns);
-		}
-		return m_keywordRowRenderer;
-	}
-
-	private void addKeySearchField(NodeContainer parent, QT value) {
+	private void addKeySearchField(NodeContainer parent) {
 		m_keySearch = new KeyWordSearchInput<OT>(m_keyWordSearchCssClass);
 		m_keySearch.setWidth("100%");
 		m_keySearch.setPopupWidth(getKeyWordSearchPopupWidth());
-		KeyWordPopupRowRenderer<OT> rr = getKeywordRowRenderer();
+		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
 		rr.setRowClicked(new ICellClicked<OT>() {
 			@Override
 			public void cellClicked(NodeBase tr, OT val) throws Exception {
@@ -445,6 +446,19 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		m_keySearch.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (m_keySearchHint != null) ? m_keySearchHint : getDefaultKeySearchHint()));
 	}
 
+	/**
+	 * Return the special row renderer used to display the quick-search results in the small
+	 * dropdown below the quicksearch input box.
+	 * @return
+	 */
+	@Nonnull
+	private KeyWordPopupRowRenderer<OT> getDropdownRowRenderer() {
+		if(null == m_dropdownRowRenderer) {
+			m_dropdownRowRenderer = new KeyWordPopupRowRenderer<OT>(getOutputMetaModel());
+		}
+		return m_dropdownRowRenderer;
+	}
+
 	private String getDefaultKeySearchHint() {
 		List<SearchPropertyMetaModel> spml = m_keywordLookupPropertyList != null ? m_keywordLookupPropertyList : getQueryMetaModel().getKeyWordSearchProperties();
 		if(spml.size() <= 0)
@@ -485,7 +499,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * @throws Exception
 	 */
 	@Nullable
-	ITableModel<OT> searchKeyWord(@Nullable String searchString) throws Exception {
+	private ITableModel<OT> searchKeyWord(@Nullable String searchString) throws Exception {
 		if(searchString == null || searchString.trim().length() == 0) {
 			return null;
 		}
@@ -559,7 +573,15 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		return createTableModel(searchQuery);
 	}
 
-	void toggleFloaterByClick() throws Exception {
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Full search popup window code..						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Toggle the full search popup window.
+	 * @throws Exception
+	 */
+	private void toggleFloaterByClick() throws Exception {
 		if(m_keySearch != null) {
 			toggleFloater(searchKeyWord(m_keySearch.getKeySearchValue()));
 		} else {
@@ -567,7 +589,14 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		}
 	}
 
-	void toggleFloater(ITableModel<OT> keySearchModel) throws Exception {
+	/**
+	 * Show the full search window, and if a model is passed populate the search result list
+	 * with the contents of that model.
+	 *
+	 * @param keySearchModel
+	 * @throws Exception
+	 */
+	private void toggleFloater(@Nullable ITableModel<OT> keySearchModel) throws Exception {
 		if(m_floater != null) {
 			m_floater.close();
 			m_floater = null;
@@ -580,10 +609,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 			return;
 		}
 
-
-		m_floater = FloatingWindow.create(this, getLookupTitle() == null ? getDefaultTitle() : getLookupTitle());
+		m_floater = FloatingWindow.create(this, getFormTitle() == null ? getDefaultTitle() : getFormTitle());
 		m_floater.setWidth("740px");
-
 		m_floater.setHeight("90%");
 		m_floater.setIcon("THEME/btnFind.png");
 		m_floater.setTestID(getTestID() + "_floaterWindowLookupInput");
@@ -595,8 +622,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 			DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
 		}
 		LookupForm<QT> lf;
-		if(getExternalLookupForm() != null) {
-			lf = getExternalLookupForm();
+		if(getLookupForm() != null) {
+			lf = getLookupForm();
 		} else {
 			lf = new LookupForm<QT>(getQueryClass(), getQueryMetaModel());
 			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
@@ -648,7 +675,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 */
 	@Nonnull
 	private String getDefaultTitle() {
-
 		String entity = getOutputMetaModel().getUserEntityName();
 		if(entity != null)
 			return Msgs.BUNDLE.formatMessage(Msgs.UI_LUI_TTL_WEN, entity);
@@ -656,7 +682,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		return Msgs.BUNDLE.getString(Msgs.UI_LUI_TTL);
 	}
 
-	void search(LookupForm<QT> lf) throws Exception {
+	private void search(LookupForm<QT> lf) throws Exception {
 		QCriteria<QT> c = lf.getEnteredCriteria();
 		if(c == null) // Some error has occured?
 			return; // Don't do anything (errors will have been registered)
@@ -685,7 +711,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	private void setResultModel(@Nonnull ITableModel<OT> model) {
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
-			m_result = new DataTable<OT>(model, createFormRowRenderer(model));
+			m_result = new DataTable<OT>(model, getActualFormRowRenderer());
 
 			m_floater.add(m_result);
 			m_result.setPageSize(20);
@@ -706,55 +732,66 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 
 	/**
 	 * Either use the user-specified popup form row renderer or create one using resultColumns or the default metadata.
-	 * @param model
 	 * @return
 	 */
 	@Nonnull
-	private IRowRenderer<OT> createFormRowRenderer(@Nonnull ITableModel<OT> model) {
-		//-- Is a form row renderer specified by the user?
-		IClickableRowRenderer<OT> rr = getFormRowRenderer();
-		if(null == rr) {
-			//-- Create a row renderer depending on whether specific columns were requested.
-			if(m_resultColumns != null) {
-				rr = new BasicRowRenderer<OT>(getOutputClass(), getOutputMetaModel(), m_resultColumns);
-			} else {
-				rr = new BasicRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
+	private IRowRenderer<OT> getActualFormRowRenderer() {
+		if(null == m_actualFormRowRenderer) {
+			//-- Is a form row renderer specified by the user - then use it, else create a default one.
+			m_actualFormRowRenderer = getFormRowRenderer();
+			if(null == m_actualFormRowRenderer) {
+				m_actualFormRowRenderer = new BasicRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
 			}
-		}
 
-		//-- Always set a click handler on the row renderer, so we can accept the selected record.
-		rr.setRowClicked(new ICellClicked<OT>() {
-			@Override
-			public void cellClicked(NodeBase tr, OT val) throws Exception {
-				m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-				LookupInputBase.this.toggleFloater(null);
-				handleSetValue(val);
-			}
-		});
-		return rr;
+			//-- Always set a click handler on the row renderer, so we can accept the selected record.
+			m_actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
+				@Override
+				public void cellClicked(NodeBase tr, OT val) throws Exception {
+					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+					LookupInputBase.this.toggleFloater(null);
+					handleSetValue(val);
+				}
+			});
+		}
+		return m_actualFormRowRenderer;
 	}
 
+	/**
+	 * Set a hint text for this control, for some reason only on the select button??
+	 * @param text
+	 */
 	public void setHint(@Nonnull String text) {
-		//		m_hint = text;
 		if(m_selButton != null)
 			m_selButton.setTitle(text);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isMandatory() {
 		return m_mandatory;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setMandatory(boolean mandatory) {
 		m_mandatory = mandatory;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isReadOnly() {
 		return m_readOnly;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setReadOnly(boolean readOnly) {
 		if(m_readOnly == readOnly)
@@ -771,11 +808,17 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 			removeCssClass("ui-lui-selected-ro");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setDisabled(boolean disabled) {
 		if(m_disabled == disabled)
@@ -788,11 +831,13 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IInputNode implementation.							*/
 	/*--------------------------------------------------------------*/
+	@Nullable
 	private IValueChanged< ? > m_onValueChanged;
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 * {@inheritDoc}
 	 */
+	@Nullable
 	@Override
 	public OT getValue() {
 		if(m_value == null && isMandatory()) {
@@ -803,15 +848,16 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 * {@inheritDoc}
 	 */
 	@Override
+	@Nullable
 	public OT getValueSafe() {
 		return DomUtil.getValueSafe(this);
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean hasError() {
@@ -820,12 +866,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	}
 
 	/**
-	 * Sets a new value. This re-renders the entire control's contents always.
-	 *
-	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
+	 * {@inheritDoc}
 	 */
 	@Override
-	public void setValue(OT v) {
+	public void setValue(@Nullable OT v) {
 		if(DomUtil.isEqual(m_value, v) && (m_keySearch == null || m_keySearch.getKeySearchValue() == null))
 			return;
 		m_value = v;
@@ -846,7 +890,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * @param value
 	 * @throws Exception
 	 */
-	void handleSetValue(OT value) throws Exception {
+	void handleSetValue(@Nullable OT value) throws Exception {
 		if(!MetaManager.areObjectsEqual(value, m_value, null)) {
 			DomUtil.setModifiedFlag(this);
 			setValue(value);
@@ -859,9 +903,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
+	 * {@inheritDoc}
 	 */
 	@Override
+	@Nullable
 	public IValueChanged< ? > getOnValueChanged() {
 		if(m_floater != null) {
 			//Fix for FF: prevent onchange event to be propagate on control when return key is pressed and popup is opened.
@@ -872,10 +917,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
+	 * {@inheritDoc}
 	 */
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(@Nullable IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 
@@ -884,6 +929,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * can be altered to add extra restrictions for instance.
 	 * @return
 	 */
+	@Nullable
 	public IQueryManipulator<QT> getQueryManipulator() {
 		return m_queryManipulator;
 	}
@@ -893,11 +939,12 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * normal conversation-associated DataContext to issue the query.
 	 * @return
 	 */
+	@Nullable
 	public IQueryHandler<QT> getQueryHandler() {
 		return m_queryHandler;
 	}
 
-	public void setQueryHandler(IQueryHandler<QT> queryHandler) {
+	public void setQueryHandler(@Nullable IQueryHandler<QT> queryHandler) {
 		m_queryHandler = queryHandler;
 	}
 
@@ -905,8 +952,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * When set this defines the title of the lookup window.
 	 * @return
 	 */
-	public String getLookupTitle() {
-		return m_lookupTitle;
+	@Nullable
+	public String getFormTitle() {
+		return m_formTitle;
 	}
 
 	/**
@@ -914,8 +962,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 *
 	 * @param lookupTitle
 	 */
-	public void setLookupTitle(String lookupTitle) {
-		m_lookupTitle = lookupTitle;
+	public void setFormTitle(@Nullable String lookupTitle) {
+		m_formTitle = lookupTitle;
 	}
 
 	/**
@@ -936,44 +984,30 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 *
 	 * @param queryManipulator
 	 */
-	public void setQueryManipulator(IQueryManipulator<QT> queryManipulator) {
+	public void setQueryManipulator(@Nullable IQueryManipulator<QT> queryManipulator) {
 		m_queryManipulator = queryManipulator;
 	}
 
-	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
+	/**
+	 * Can be set by a specific lookup form to use when the full query popup is shown. If unset the code will create
+	 * a LookupForm using metadata.
+	 * @return
+	 */
+	@Nullable
+	public LookupForm<QT> getLookupForm() {
+		return m_lookupForm;
+	}
+
+	public void setLookupForm(@Nullable LookupForm<QT> externalLookupForm) {
+		m_lookupForm = externalLookupForm;
+	}
 
 	@Nullable
-	public LookupForm<QT> getExternalLookupForm() {
-		return m_externalLookupForm;
-	}
-
-	public void setExternalLookupForm(@Nullable LookupForm<QT> externalLookupForm) {
-		m_externalLookupForm = externalLookupForm;
-	}
-
-	@Nonnull
-	public Object[] getResultColumns() {
-		return m_resultColumns;
-	}
-
-	/**
-	 * Set (override) the columns to show in the "lookup form" that will be shown if a
-	 * full lookup is done.
-	 *
-	 * @param resultColumns
-	 */
-	public void setResultColumns(@Nonnull Object... resultColumns) {
-		if(null == resultColumns)
-			m_resultColumns = EMPTY_ARRAY;
-		else
-			m_resultColumns = resultColumns;
-	}
-
 	public IErrorMessageListener getCustomErrorMessageListener() {
 		return m_customErrorMessageListener;
 	}
 
-	public void setCustomErrorMessageListener(IErrorMessageListener customErrorMessageListener) {
+	public void setCustomErrorMessageListener(@Nullable IErrorMessageListener customErrorMessageListener) {
 		m_customErrorMessageListener = customErrorMessageListener;
 	}
 
@@ -1004,6 +1038,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	/*--------------------------------------------------------------*/
 
 	/** When this is bound this contains the binder instance handling the binding. */
+	@Nullable
 	private SimpleBinder m_binder;
 
 	/**
@@ -1011,6 +1046,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
 	@Override
+	@Nonnull
 	public IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
@@ -1027,22 +1063,25 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		return m_binder != null && m_binder.isBound();
 	}
 
+	@Nullable
 	public IActionAllowed getIsLookupAllowed() {
 		return m_isLookupAllowed;
 	}
 
-	public void setIsLookupAllowed(IActionAllowed isLookupAllowed) {
+	public void setIsLookupAllowed(@Nullable IActionAllowed isLookupAllowed) {
 		m_isLookupAllowed = isLookupAllowed;
 	}
 
+	@Nullable
 	public IKeyWordSearchQueryFactory<QT> getKeyWordSearchHandler() {
 		return m_keyWordSearchHandler;
 	}
 
-	public void setKeyWordSearchHandler(IKeyWordSearchQueryFactory<QT> keyWordSearchManipulator) {
+	public void setKeyWordSearchHandler(@Nullable IKeyWordSearchQueryFactory<QT> keyWordSearchManipulator) {
 		m_keyWordSearchHandler = keyWordSearchManipulator;
 	}
 
+	@Nullable
 	public String getKeyWordSearchCssClass() {
 		return m_keyWordSearchCssClass;
 	}
@@ -1052,7 +1091,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * Used for example in row inline rendering, where width and min-width should be additionaly customized.
 	 * @param cssClass
 	 */
-	public void setKeyWordSearchCssClass(String cssClass) {
+	public void setKeyWordSearchCssClass(@Nullable String cssClass) {
 		m_keyWordSearchCssClass = cssClass;
 	}
 
@@ -1076,6 +1115,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * Getter for keyword search hint. See {@link LookupInput#setKeySearchHint}.
 	 * @param hint
 	 */
+	@Nullable
 	public String getKeySearchHint() {
 		return m_keySearchHint;
 	}
@@ -1084,7 +1124,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * Set hint to keyword search input. Usually says how search condition is resolved.
 	 * @param hint
 	 */
-	public void setKeySearchHint(String keySearchHint) {
+	public void setKeySearchHint(@Nullable String keySearchHint) {
 		m_keySearchHint = keySearchHint;
 		if(m_keySearch != null)
 			m_keySearch.setHint(keySearchHint); // Remove the hint on null.
@@ -1096,7 +1136,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * @param name
 	 * @param minlen
 	 */
-	public void addKeywordProperty(String name, int minlen) {
+	public void addKeywordProperty(@Nonnull String name, int minlen) {
 		if(m_keywordLookupPropertyList == null)
 			m_keywordLookupPropertyList = new ArrayList<SearchPropertyMetaModel>();
 		SearchPropertyMetaModelImpl si = new SearchPropertyMetaModelImpl(getQueryMetaModel());
@@ -1111,7 +1151,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * Not normally used; use {@link #addKeywordProperty(String, int)} instead.
 	 * @param keywordLookupPropertyList
 	 */
-	public void setKeywordSearchProperties(List<SearchPropertyMetaModel> keywordLookupPropertyList) {
+	public void setKeywordSearchProperties(@Nonnull List<SearchPropertyMetaModel> keywordLookupPropertyList) {
 		m_keywordLookupPropertyList = keywordLookupPropertyList;
 	}
 
@@ -1133,10 +1173,15 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 *
 	 * @param name
 	 */
-	public void addKeywordProperty(String name) {
+	public void addKeywordProperty(@Nonnull String name) {
 		addKeywordProperty(name, -1);
 	}
 
+	/**
+	 * Should not exist! Remove asap.
+	 * @return
+	 */
+	@Deprecated
 	public Table getTable() {
 		if(m_table == null) {
 			throw new IllegalStateException("m_table is not created yet!");
@@ -1144,6 +1189,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		return m_table;
 	}
 
+	/**
+	 * Should not exist! Remove asap.
+	 * @return
+	 */
+	@Deprecated
 	public TBody getBody() {
 		if(m_table == null) {
 			throw new IllegalStateException("m_table is not created yet!");
@@ -1151,11 +1201,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		return m_table.getBody();
 	}
 
-	public Integer getKeyWordSearchPopupWidth() {
+	public int getKeyWordSearchPopupWidth() {
 		return m_keyWordSearchPopupWidth;
 	}
 
-	public void setKeyWordSearchPopupWidth(Integer keyWordSearchPopupWidth) {
+	public void setKeyWordSearchPopupWidth(int keyWordSearchPopupWidth) {
 		m_keyWordSearchPopupWidth = keyWordSearchPopupWidth;
 	}
 
@@ -1206,6 +1256,15 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		return m_queryClass;
 	}
 
+	@Nonnull
+	public ClassMetaModel getOutputMetaModel() {
+		return m_outputMetaModel;
+	}
+
+	@Nonnull
+	public ClassMetaModel getQueryMetaModel() {
+		return m_queryMetaModel;
+	}
 
 	/**
 	 * Define the columns to show in "display current value" mode. This actually creates a
@@ -1214,7 +1273,52 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * @param columns
 	 */
 	public void setDisplayColumns(String... columns) {
-		setContentRenderer(new LookupInputPropertyRenderer<OT>(getOutputClass(), columns));
+		setValueRenderer(new LookupInputPropertyRenderer<OT>(getOutputClass(), columns));
+	}
+
+	/**
+	 * The content renderer to use to render the current value.
+	 * @return
+	 */
+	@Nullable
+	public INodeContentRenderer<OT> getValueRenderer() {
+		return m_valueRenderer;
+	}
+
+	public void setValueRenderer(@Nullable INodeContentRenderer<OT> contentRenderer) {
+		m_valueRenderer = contentRenderer;
+	}
+
+	/**
+	 * Add column specs for the full query form's result list, according to the specifications as defined by {@link BasicRowRenderer}.
+	 * @param columns
+	 */
+	public void addFormColumns(@Nonnull Object... columns) {
+		IRowRenderer<OT> rr = getActualFormRowRenderer();
+		if(rr instanceof BasicRowRenderer) {
+			((BasicRowRenderer<OT>) rr).addColumns(columns);
+		} else
+			throw new IllegalStateException("The row renderer for the form is set to something else than a BasicRowRenderer.");
+	}
+
+	/**
+	 * Define the full column spec in the format described for {@link BasicRowRenderer} for the dropdown box
+	 * showing quick search results.
+	 * @param columns
+	 */
+	public void addDropdownColumns(@Nonnull Object... columns) {
+		getDropdownRowRenderer().addColumns(columns);
+	}
+
+	/**
+	 * DO NOT USE - this sets both dropdown columns AND full lookup form columns to the column spec passed... It
+	 * is preferred to separate those.
+	 *
+	 * @param resultColumns
+	 */
+	public void setResultColumns(@Nonnull String... resultColumns) {
+		addDropdownColumns((Object[]) resultColumns);
+		addFormColumns((Object[]) resultColumns);
 	}
 
 	/**

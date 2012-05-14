@@ -230,7 +230,7 @@ public class SearchInput<T> extends Div {
 		}
 
 		SimpleListModel<T>	mdl = new SimpleListModel<T>(isl);
-		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<T>(m_dataClass, m_dataModel);
+		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<T>(m_dataModel);
 		if(m_columns != null)
 			rr.addColumns(m_columns);
 		rr.setRowClicked(new ICellClicked<T>() {

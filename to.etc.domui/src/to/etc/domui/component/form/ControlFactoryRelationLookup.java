@@ -81,11 +81,11 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 
 
 		if(pmm.getLookupSelectedRenderer() != null)
-			li.setContentRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
+			li.setValueRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType()); // Get meta for type reached,
 			if(cmm.getLookupSelectedRenderer() != null)
-				li.setContentRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(cmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
+				li.setValueRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(cmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		}
 		if(pmm.isRequired())
 			li.setMandatory(true);
