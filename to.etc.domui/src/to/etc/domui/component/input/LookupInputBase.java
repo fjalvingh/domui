@@ -1272,7 +1272,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 *
 	 * @param columns
 	 */
-	public void setDisplayColumns(String... columns) {
+	public void setValueColumns(String... columns) {
 		setValueRenderer(new LookupInputPropertyRenderer<OT>(getOutputClass(), columns));
 	}
 
