@@ -459,6 +459,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return QCriteria.create(getActualClass());
 	}
 
+	@Override
 	public IQueryManipulator< ? > getQueryManipulator() {
 		return m_queryManipulator;
 	}
@@ -467,6 +468,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_queryManipulator = queryManipulator;
 	}
 
+	@Override
 	public String getComboSortProperty() {
 		return m_comboSortProperty;
 	}

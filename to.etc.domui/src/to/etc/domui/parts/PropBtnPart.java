@@ -51,7 +51,7 @@ public class PropBtnPart implements IBufferedPartFactory {
 	 * @see to.etc.domui.server.parts.IBufferedPartFactory#decodeKey(java.lang.String, to.etc.domui.server.IParameterInfo)
 	 */
 	@Override
-	public Object decodeKey(String rurl, IExtendedParameterInfo info) throws Exception {
+	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo info) throws Exception {
 		return ButtonPartKey.decode(info);
 	}
 

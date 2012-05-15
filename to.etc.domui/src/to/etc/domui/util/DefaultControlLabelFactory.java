@@ -43,6 +43,7 @@ public class DefaultControlLabelFactory implements IControlLabelFactory {
 		return l;
 	}
 
+	@Override
 	public String getMandatoryLabelText(String text) {
 		return "* " + text;
 	}

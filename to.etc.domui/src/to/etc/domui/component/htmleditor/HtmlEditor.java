@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.htmleditor;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -87,7 +89,7 @@ public class HtmlEditor extends TextArea {
 	}
 
 	@Override
-	public boolean acceptRequestParameter(String[] values) throws Exception {
+	public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
 		setDisplay(DisplayType.NONE);
 		for(int i = 0; i < values.length; i++) {
 			String s = values[i];

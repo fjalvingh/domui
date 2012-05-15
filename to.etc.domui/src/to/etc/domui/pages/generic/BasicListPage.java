@@ -88,18 +88,21 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		m_lookupForm = new LookupForm<T>(getBaseClass());
 		add(m_lookupForm);
 		m_lookupForm.setClicked(new IClicked<LookupForm<T>>() {
+			@Override
 			public void clicked(LookupForm<T> b) throws Exception {
 				search(b);
 			}
 		});
 		if(hasEditRight()) {
 			m_lookupForm.setOnNew(new IClicked<LookupForm<T>>() {
+				@Override
 				public void clicked(LookupForm<T> b) throws Exception {
 					onNew();
 				}
 			});
 		}
 		m_lookupForm.setOnClear(new IClicked<LookupForm<T>>() {
+			@Override
 			public void clicked(LookupForm<T> b) throws Exception {
 				onLookupFormClear(b);
 			}
@@ -193,6 +196,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 			AbstractRowRenderer<T> arrh = (AbstractRowRenderer<T>) m_rowRenderer;
 			if(arrh.getRowClicked() == null) {
 				arrh.setRowClicked(new ICellClicked<T>() {
+					@Override
 					public void cellClicked(NodeBase tr, T val) throws Exception {
 						onSelect(val);
 					}

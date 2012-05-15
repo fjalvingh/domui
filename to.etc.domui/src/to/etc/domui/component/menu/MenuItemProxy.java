@@ -53,50 +53,62 @@ public class MenuItemProxy implements IMenuItem {
 			m_children = new ArrayList<IMenuItem>();
 	}
 
+	@Override
 	public String getDescription() {
 		return m_actual.getDescription();
 	}
 
+	@Override
 	public String getIconPath() {
 		return m_actual.getIconPath();
 	}
 
+	@Override
 	public String getId() {
 		return m_actual.getId();
 	}
 
+	@Override
 	public String getLabel() {
 		return m_actual.getLabel();
 	}
 
+	@Override
 	public Class< ? extends UrlPage> getPageClass() {
 		return m_actual.getPageClass();
 	}
 
+	@Override
 	public PageParameters getPageParameters() {
 		return m_actual.getPageParameters();
 	}
 
+	@Override
 	public String getParentID() {
 		return m_actual.getParentID();
 	}
 
+	@Override
 	public String[] getRequiredRights() {
 		return m_actual.getRequiredRights();
 	}
 
+	@Override
 	public String getSearchString() {
 		return m_actual.getSearchString();
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return m_actual.isDisabled();
 	}
 
+	@Override
 	public boolean isSubMenu() {
 		return m_actual.isSubMenu();
 	}
 
+	@Override
 	public List<IMenuItem> getChildren() {
 		return m_children;
 	}
@@ -105,6 +117,7 @@ public class MenuItemProxy implements IMenuItem {
 		m_children = children;
 	}
 
+	@Override
 	public int getOrder() {
 		return m_order;
 	}
@@ -117,10 +130,12 @@ public class MenuItemProxy implements IMenuItem {
 		m_parent = parent;
 	}
 
+	@Override
 	public String getRURL() {
 		return m_actual.getRURL();
 	}
 
+	@Override
 	public String getTarget() {
 		return m_actual.getTarget();
 	}

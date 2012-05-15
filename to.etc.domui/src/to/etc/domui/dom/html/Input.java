@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -149,7 +151,7 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 	 * @see to.etc.domui.dom.html.NodeBase#acceptRequestParameter(java.lang.String[])
 	 */
 	@Override
-	public boolean acceptRequestParameter(String[] values) {
+	public boolean acceptRequestParameter(@Nonnull String[] values) {
 		String prev = m_rawValue;
 		if(values == null || values.length != 1)
 			m_rawValue = null;
@@ -167,7 +169,7 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
 	 */
 	@Override
-	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
+	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
 		if(Constants.ACMD_LOOKUP_TYPING.equals(action)) {
 			handleLookupTyping(ctx);
 		} else if(Constants.ACMD_LOOKUP_TYPING_DONE.equals(action)) {

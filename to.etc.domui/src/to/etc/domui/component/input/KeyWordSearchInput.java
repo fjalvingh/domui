@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
@@ -38,42 +40,43 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 21 Jan 2010
  */
-class KeyWordSearchInput<T> extends Div {
+public class KeyWordSearchInput<T> extends Div {
 
 	private int m_resultsCount = -1; //-1 states for not visible
 
-	private TextStr m_keySearch = new TextStr();
+	@Nonnull
+	final private TextStr m_keySearch = new TextStr();
 
 	private Div m_pnlSearchCount;
 
+	@Nullable
 	private IValueChanged<KeyWordSearchInput<T>> m_onLookupTyping;
 
+	@Nullable
 	private IValueChanged<KeyWordSearchInput<T>> m_onShowTypingResults;
 
+	@Nullable
 	public IRowRenderer<T> m_resultsHintPopupRowRenderer;
 
-	private Img m_imgWaiting;
+	@Nonnull
+	final private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
 
 	private Div m_pnlSearchPopup;
 
-	private Integer m_popupWidth;
+	private int m_popupWidth;
 
 	public KeyWordSearchInput() {
-		super();
 	}
 
 	public KeyWordSearchInput(String m_inputCssClass) {
-		super();
 		m_keySearch.setCssClass(m_inputCssClass);
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		super.createContent();
 		//position must be set to relative to enable absoulute positioning of child elements (waiting image)
 		setPosition(PositionType.RELATIVE);
 
-		m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
 		m_imgWaiting.setCssClass("ui-lui-waiting");
 		m_imgWaiting.setDisplay(DisplayType.NONE);
 		if(m_keySearch.getCssClass() == null) {
@@ -92,8 +95,9 @@ class KeyWordSearchInput<T> extends Div {
 						getOnShowResults().onValueChanged(KeyWordSearchInput.this);
 					}
 				} else {
-					if(getOnLookupTyping() != null) {
-						getOnLookupTyping().onValueChanged(KeyWordSearchInput.this);
+					IValueChanged<KeyWordSearchInput<T>> olt = getOnLookupTyping();
+					if(olt != null) {
+						olt.onValueChanged(KeyWordSearchInput.this);
 					}
 				}
 			}
@@ -104,20 +108,22 @@ class KeyWordSearchInput<T> extends Div {
 		renderResultsCountPart();
 	}
 
+	@Nullable
 	public IValueChanged<KeyWordSearchInput<T>> getOnLookupTyping() {
 		return m_onLookupTyping;
 	}
 
-	public void setOnLookupTyping(IValueChanged<KeyWordSearchInput<T>> onLookupTyping) {
+	public void setOnLookupTyping(@Nullable IValueChanged<KeyWordSearchInput<T>> onLookupTyping) {
 		m_onLookupTyping = onLookupTyping;
 	}
 
+	@Nullable
 	public String getKeySearchValue() {
 		return m_keySearch.getValue();
 	}
 
 	/**
-	 * Set number of results label. Use -1 for hidding label.
+	 * Set number of results label. Use -1 for hiding label.
 	 * @param results
 	 */
 	public void setResultsCount(int results) {
@@ -190,7 +196,7 @@ class KeyWordSearchInput<T> extends Div {
 		setZIndex(parentWindowZIndex);
 	}
 
-	public void showResultsHintPopup(ITableModel<T> popupResults) throws Exception {
+	public void showResultsHintPopup(@Nullable final ITableModel<T> popupResults) throws Exception {
 		if(!isBuilt()) {
 			throw new IllegalStateException("Must be built already!");
 		}
@@ -205,7 +211,7 @@ class KeyWordSearchInput<T> extends Div {
 			if(m_pnlSearchPopup == null) {
 				m_pnlSearchPopup = new Div();
 				m_pnlSearchPopup.setCssClass("ui-lui-keyword-popup");
-				if(getPopupWidth() != null) {
+				if(getPopupWidth() > 0) {
 					m_pnlSearchPopup.setWidth(getPopupWidth() + "px");
 				}
 				fixZIndex();
@@ -243,6 +249,7 @@ class KeyWordSearchInput<T> extends Div {
 	 * Getter for hint. See {@link KeyWordSearchInput#setHint}.
 	 * @param hint
 	 */
+	@Nullable
 	public String getHint() {
 		return m_keySearch.getTitle();
 	}
@@ -251,15 +258,15 @@ class KeyWordSearchInput<T> extends Div {
 	 * Set hint to keyword search input. Usually says how search condition is resolved.
 	 * @param hint
 	 */
-	public void setHint(String hint) {
+	public void setHint(@Nullable String hint) {
 		m_keySearch.setTitle(hint);
 	}
 
-	public Integer getPopupWidth() {
+	public int getPopupWidth() {
 		return m_popupWidth;
 	}
 
-	public void setPopupWidth(Integer popupWidth) {
+	public void setPopupWidth(int popupWidth) {
 		m_popupWidth = popupWidth;
 	}
 }

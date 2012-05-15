@@ -26,6 +26,8 @@ package to.etc.domui.component.tree;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * Concrete implementation of a tree node model using AbstractTreeNodeBase thingies.
  *
@@ -42,7 +44,7 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 	}
 
 	@Override
-	public void addChangeListener(ITreeModelChangedListener<T> l) {
+	public void addChangeListener(@Nonnull ITreeModelChangedListener<T> l) {
 		if(m_listeners == Collections.EMPTY_LIST) {
 			m_listeners = new ArrayList<ITreeModelChangedListener<T>>();
 		}
@@ -52,7 +54,7 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 	}
 
 	@Override
-	public void removeChangeListener(ITreeModelChangedListener<T> l) {
+	public void removeChangeListener(@Nonnull ITreeModelChangedListener<T> l) {
 		m_listeners.remove(l);
 	}
 
@@ -61,17 +63,17 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 	}
 
 	@Override
-	public T getChild(T parent, int index) throws Exception {
+	public T getChild(@Nonnull T parent, int index) throws Exception {
 		return parent.getChild(index);
 	}
 
 	@Override
-	public int getChildCount(T item) throws Exception {
+	public int getChildCount(@Nonnull T item) throws Exception {
 		return item.getChildCount();
 	}
 
 	@Override
-	public T getParent(T child) throws Exception {
+	public T getParent(@Nonnull T child) throws Exception {
 		return child.getParent();
 	}
 
@@ -81,15 +83,15 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 	}
 
 	@Override
-	public boolean hasChildren(T item) throws Exception {
+	public boolean hasChildren(@Nonnull T item) throws Exception {
 		return item.hasChildren();
 	}
 
 	@Override
-	public void expandChildren(T item) throws Exception {
+	public void expandChildren(@Nonnull T item) throws Exception {
 	}
 
 	@Override
-	public void collapseChildren(T item) throws Exception {
+	public void collapseChildren(@Nonnull T item) throws Exception {
 	}
 }

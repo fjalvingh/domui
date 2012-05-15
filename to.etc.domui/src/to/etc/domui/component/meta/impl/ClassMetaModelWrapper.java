@@ -45,10 +45,12 @@ import to.etc.webapp.query.*;
 public class ClassMetaModelWrapper implements ClassMetaModel {
 	private ClassMetaModel m_parent;
 
+	@Override
 	public String getComboSortProperty() {
 		return m_parent.getComboSortProperty();
 	}
 
+	@Override
 	public IQueryManipulator< ? > getQueryManipulator() {
 		return m_parent.getQueryManipulator();
 	}

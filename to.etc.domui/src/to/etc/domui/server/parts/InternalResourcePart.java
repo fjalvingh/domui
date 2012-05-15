@@ -109,7 +109,7 @@ public class InternalResourcePart implements IBufferedPartFactory {
 	}
 
 	@Override
-	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
+	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
 		//-- Is this an URL containing an nls'ed resource?
 		Locale loc = null;
 		int pos = rurl.lastIndexOf(".nls.");

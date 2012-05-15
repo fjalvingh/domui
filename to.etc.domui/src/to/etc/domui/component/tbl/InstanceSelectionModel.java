@@ -2,6 +2,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * This is a selection model that selects simple instances. It allows both single and multiple
  * selections. It collects the selected instances in a set, so the instances should have
@@ -30,13 +32,15 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		return m_selectedSet.size();
 	}
 
-	public boolean isSelected(T rowinstance) {
+	@Override
+	public boolean isSelected(@Nonnull T rowinstance) {
 		if(null == rowinstance) // Should not happen.
 			throw new IllegalArgumentException("null row");
 		return m_selectedSet.contains(rowinstance);
 	}
 
-	public void setInstanceSelected(T rowinstance, boolean on) throws Exception {
+	@Override
+	public void setInstanceSelected(@Nonnull T rowinstance, boolean on) throws Exception {
 		if(null == rowinstance) // Should not happen.
 			throw new IllegalArgumentException("null row");
 		if(on) {
@@ -60,6 +64,7 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		}
 	}
 
+	@Override
 	public void clearSelection() throws Exception {
 		if(m_selectedSet.size() == 0)
 			return;

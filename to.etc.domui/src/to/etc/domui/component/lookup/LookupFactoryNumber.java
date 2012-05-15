@@ -27,6 +27,8 @@ package to.etc.domui.component.lookup;
 import java.math.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -64,7 +66,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 
 		relationCombo.setOnValueChanged(new IValueChanged<ComboFixed<NumericRelationType>>() {
 			@Override
-			public void onValueChanged(ComboFixed<NumericRelationType> component) throws Exception {
+			public void onValueChanged(@Nonnull ComboFixed<NumericRelationType> component) throws Exception {
 				if(component.getValue() == NumericRelationType.BETWEEN) {
 					if(numB.getDisplay() == DisplayType.NONE) {
 						numB.setDisplay(DisplayType.INLINE);

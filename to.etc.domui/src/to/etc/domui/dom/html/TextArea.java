@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
@@ -144,7 +146,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 	}
 
 	@Override
-	public boolean acceptRequestParameter(String[] values) throws Exception {
+	public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
 		String nw = (values == null || values.length != 1) ? null : values[0];
 		//fixes problem when no data is entered on form and modified flag is raised
 		if(nw != null && nw.length() == 0)

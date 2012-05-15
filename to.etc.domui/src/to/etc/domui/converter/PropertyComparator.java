@@ -19,6 +19,7 @@ final public class PropertyComparator<T> implements Comparator<T> {
 		m_descending = descending;
 	}
 
+	@Override
 	public int compare(T o1, T o2) {
 		try {
 			Object a = m_pmm.getValue(o1);

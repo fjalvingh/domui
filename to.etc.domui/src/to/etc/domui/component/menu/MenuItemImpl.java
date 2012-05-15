@@ -124,6 +124,7 @@ public class MenuItemImpl implements IMenuItem {
 	/**
 	 * @see to.etc.domui.component.menu.IMenuItem#getId()
 	 */
+	@Override
 	public String getId() {
 		return m_id;
 	}
@@ -167,6 +168,7 @@ public class MenuItemImpl implements IMenuItem {
 	/**
 	 * @see to.etc.domui.component.menu.IMenuItem#getParentID()
 	 */
+	@Override
 	public String getParentID() {
 		return m_parentID;
 	}
@@ -178,6 +180,7 @@ public class MenuItemImpl implements IMenuItem {
 	/**
 	 * @see to.etc.domui.component.menu.IMenuItem#getPageClass()
 	 */
+	@Override
 	public Class< ? extends UrlPage> getPageClass() {
 		return m_pageClass;
 	}
@@ -190,6 +193,7 @@ public class MenuItemImpl implements IMenuItem {
 	/**
 	 * @see to.etc.domui.component.menu.IMenuItem#getPageParameters()
 	 */
+	@Override
 	public PageParameters getPageParameters() {
 		return m_pageParameters;
 	}
@@ -202,6 +206,7 @@ public class MenuItemImpl implements IMenuItem {
 	/**
 	 * @see to.etc.domui.component.menu.IMenuItem#getIconPath()
 	 */
+	@Override
 	public String getIconPath() {
 		return m_iconPath;
 	}
@@ -213,6 +218,7 @@ public class MenuItemImpl implements IMenuItem {
 	/**
 	 * @see to.etc.domui.component.menu.IMenuItem#isDisabled()
 	 */
+	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}
@@ -224,6 +230,7 @@ public class MenuItemImpl implements IMenuItem {
 	/**
 	 * @see to.etc.domui.component.menu.IMenuItem#getChildren()
 	 */
+	@Override
 	public List<IMenuItem> getChildren() {
 		synchronized(m_manager) {
 			return m_children;
@@ -241,6 +248,7 @@ public class MenuItemImpl implements IMenuItem {
 	/**
 	 * @see to.etc.domui.component.menu.IMenuItem#getSearchString()
 	 */
+	@Override
 	public String getSearchString() {
 		return byKey(m_searchKey);
 	}
@@ -248,6 +256,7 @@ public class MenuItemImpl implements IMenuItem {
 	/**
 	 * @see to.etc.domui.component.menu.IMenuItem#getRequiredRights()
 	 */
+	@Override
 	public String[] getRequiredRights() {
 		return m_requiredRights;
 	}
@@ -255,6 +264,7 @@ public class MenuItemImpl implements IMenuItem {
 	/**
 	 * @see to.etc.domui.component.menu.IMenuItem#getLabel()
 	 */
+	@Override
 	public String getLabel() {
 		return byKey(m_labelKey);
 	}
@@ -262,10 +272,12 @@ public class MenuItemImpl implements IMenuItem {
 	/**
 	 * @see to.etc.domui.component.menu.IMenuItem#getDescription()
 	 */
+	@Override
 	public String getDescription() {
 		return byKey(m_descKey);
 	}
 
+	@Override
 	public boolean isSubMenu() {
 		return m_subMenu;
 	}
@@ -274,6 +286,7 @@ public class MenuItemImpl implements IMenuItem {
 		m_subMenu = subMenu;
 	}
 
+	@Override
 	public int getOrder() {
 		return m_order;
 	}
@@ -298,6 +311,7 @@ public class MenuItemImpl implements IMenuItem {
 		m_parent = parent;
 	}
 
+	@Override
 	public String getTarget() {
 		return m_target;
 	}
@@ -307,6 +321,7 @@ public class MenuItemImpl implements IMenuItem {
 		return this;
 	}
 
+	@Override
 	public String getRURL() {
 		return m_rurl;
 	}

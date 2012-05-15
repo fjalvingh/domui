@@ -93,11 +93,11 @@ public final class BindingMessenger {
 	 * @throws Exception
 	 */
 	public <T> IControl<T> findControl(Object object, String property) throws Exception {
-		IControl[] h = new IControl[1];
+		IControl< ? >[] h = new IControl[1];
 		find(m_bindings, h, object, property);
 		if(h[0] == null) {
 			throw new ProgrammerErrorException(object.getClass().getSimpleName() + "." + property + " not found in bindings"); // FIXME This should cause the message to occur as global message.
 		}
-		return h[0];
+		return (IControl<T>) h[0];
 	}
 }

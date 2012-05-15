@@ -24,6 +24,8 @@
  */
 package to.etc.domui.access;
 
+import javax.annotation.*;
+
 import to.etc.domui.annotations.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -37,19 +39,20 @@ import to.etc.domui.server.*;
 public interface ISpecialAccessChecker {
 
 	/**
-	 * Returns result of special access check for specified pageClass. 
+	 * Returns result of special access check for specified pageClass.
 	 * @param pageClass
 	 * @param ctx
 	 * @return
 	 * @throws Exception
 	 */
-	UISpecialAccessResult doSpecialAccessCheck(final Class< ? extends UrlPage> pageClass, final RequestContextImpl ctx) throws Exception;
+	@Nonnull
+	UISpecialAccessResult doSpecialAccessCheck(@Nonnull final Class< ? extends UrlPage> pageClass, @Nonnull final RequestContextImpl ctx) throws Exception;
 
 	/**
-	 * Returns if specified class has defined special access check.  
+	 * Returns if specified class has defined special access check.
 	 * @param clz
 	 * @return
 	 */
-	boolean hasSpecialAccess(Class< ? extends UrlPage> clz);
+	boolean hasSpecialAccess(@Nonnull Class< ? extends UrlPage> clz);
 
 }

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.buttons;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 /**
@@ -63,7 +65,7 @@ public class NiceButton extends ATag {
 	}
 
 	@Override
-	public void setText(final String s) {
+	public void setText(final @Nullable String s) {
 		m_text.setText(s);
 	}
 }

@@ -124,7 +124,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		add(m_lookupInput);
 		m_lookupInput.setOnValueChanged(new IValueChanged<LookupInput<T>>() {
 			@Override
-			public void onValueChanged(LookupInput<T> component) throws Exception {
+			public void onValueChanged(@Nonnull LookupInput<T> component) throws Exception {
 				T item = component.getValueSafe();
 				if(item != null) {
 					addSelection(item);
@@ -185,7 +185,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 				if(getOnValueChanged() != null) {
 					//FIXME: from some reason we can't pass items here -> some buggy generics issue is shown if we specifiy item as argumen!?
 					//getOnValueChanged().onValueChanged(item);
-					getOnValueChanged().onValueChanged(null);
+					((IValueChanged<MultipleLookupInput>) getOnValueChanged()).onValueChanged(MultipleLookupInput.this);
 				}
 				updateClearButtonState();
 			}

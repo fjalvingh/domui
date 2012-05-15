@@ -27,6 +27,8 @@ package to.etc.webapp.nls;
 import java.text.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * Base class for bundle related things, exposing formatters and other code around the
  * single "findMessage" method.
@@ -35,8 +37,9 @@ import java.util.*;
  * Created on Dec 31, 2010
  */
 abstract public class BundleBase implements NlsMessageProvider {
+	@Nullable
 	@Override
-	abstract public String findMessage(Locale loc, String code);
+	abstract public String findMessage(@Nonnull Locale loc, @Nonnull String code);
 
 	/**
 	 * Returns a translation of key in the specified locale (or the one
@@ -47,7 +50,8 @@ abstract public class BundleBase implements NlsMessageProvider {
 	 * @param key
 	 * @throws  ResourceNotFoundException the bundle cannot be located.
 	 */
-	public String getString(final Locale loc, final String key) {
+	@Nonnull
+	public String getString(@Nonnull final Locale loc, @Nonnull final String key) {
 		String msg = findMessage(loc, key);
 		return msg != null ? msg : "???" + key + "???";
 	}
@@ -59,7 +63,8 @@ abstract public class BundleBase implements NlsMessageProvider {
 	 * @param key
 	 * @return
 	 */
-	public String getString(final String key) {
+	@Nonnull
+	public String getString(@Nonnull final String key) {
 		return getString(NlsContext.getLocale(), key);
 	}
 
@@ -70,7 +75,8 @@ abstract public class BundleBase implements NlsMessageProvider {
 	 * @param param
 	 * @return
 	 */
-	public String formatMessage(final String key, final Object... param) {
+	@Nonnull
+	public String formatMessage(@Nonnull final String key, @Nonnull final Object... param) {
 		String s = findMessage(NlsContext.getLocale(), key);
 		if(s == null)
 			return "???" + key + "???";

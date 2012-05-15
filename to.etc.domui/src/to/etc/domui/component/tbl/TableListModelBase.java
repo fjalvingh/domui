@@ -26,6 +26,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 abstract public class TableListModelBase<T> extends TableModelBase<T> implements IModifyableTableModel<T> {
 	abstract protected List<T> getList() throws Exception;
 
@@ -94,7 +96,7 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 	 * and all items above it move up a notch.
 	 */
 	@Override
-	public void add(int index, T row) throws Exception {
+	public void add(int index, @Nonnull T row) throws Exception {
 		if(m_comparator != null)
 			throw new IllegalStateException("Cannot add by index on a sorted model: the sorting order determines the insert index");
 		getList().add(index, row);
@@ -105,7 +107,7 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 	 * Add the item at the end (or the appropriate location wrt the sort order) of the list.
 	 */
 	@Override
-	public void add(T row) throws Exception {
+	public void add(@Nonnull T row) throws Exception {
 		int index;
 		if(m_comparator == null) {
 			index = getList().size();
@@ -131,7 +133,7 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 	}
 
 	@Override
-	public boolean delete(T val) throws Exception {
+	public boolean delete(@Nonnull T val) throws Exception {
 		int ix = getList().indexOf(val);
 		if(ix == -1)
 			return false;
