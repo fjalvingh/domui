@@ -47,11 +47,13 @@ public interface QDataContextFactory {
 	 * Returns all event listeners that need to be called for queries executed by contexts generated from here.
 	 * @return
 	 */
+	@Nonnull
 	QEventListenerSet		getEventListeners();
 
 	/**
 	 * Returns handlers for all query types.
 	 * @return
 	 */
+	@Nonnull
 	QQueryExecutorRegistry getQueryHandlerList();
 }

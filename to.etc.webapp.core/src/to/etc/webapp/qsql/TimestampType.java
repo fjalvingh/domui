@@ -35,6 +35,7 @@ import to.etc.util.*;
  * Created on Aug 25, 2009
  */
 public class TimestampType implements IJdbcType, IJdbcTypeFactory {
+	@Override
 	public int accept(JdbcPropertyMeta pm) {
 		return pm.getActualClass() == java.util.Date.class ? 10 : -1;
 	}
@@ -49,6 +50,7 @@ public class TimestampType implements IJdbcType, IJdbcTypeFactory {
 		return 1;
 	}
 
+	@Override
 	public Object convertToInstance(ResultSet rs, int index) throws Exception {
 		Timestamp ts = rs.getTimestamp(index);
 		if(ts == null)
@@ -56,6 +58,7 @@ public class TimestampType implements IJdbcType, IJdbcTypeFactory {
 		return new Date(ts.getTime()); // Java Date is sheer, utter horror. Prevent the utter stupidity that is the embedded calendar class.
 	}
 
+	@Override
 	public void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta pm, Object value) throws Exception {
 		Timestamp ts;
 

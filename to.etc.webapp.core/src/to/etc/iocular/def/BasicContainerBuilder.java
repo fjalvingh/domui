@@ -145,6 +145,7 @@ public class BasicContainerBuilder implements Builder {
 	 *
 	 * @see to.etc.iocular.Builder#bind(java.lang.Class, java.lang.Class)
 	 */
+	@Override
 	public <T> void bind(final Class<T> intf, final Class<T> impl) {
 		if(!intf.isInterface())
 			throw new IllegalStateException("The class " + intf + " is not an interface.");
@@ -188,6 +189,7 @@ public class BasicContainerBuilder implements Builder {
 		}
 	}
 
+	@Override
 	public ComponentBuilder register() {
 		check();
 		ComponentBuilder c = makeBuilder();
@@ -302,6 +304,7 @@ public class BasicContainerBuilder implements Builder {
 	 * Walk the completed data and build a ContainerDefinition.
 	 * @see to.etc.iocular.Builder#createDefinition()
 	 */
+	@Override
 	public ContainerDefinition createDefinition() {
 		if(m_myDefinition != null)
 			return m_myDefinition;

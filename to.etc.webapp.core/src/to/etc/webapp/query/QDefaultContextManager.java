@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 /**
  * Default implementation of a QContextManager.
  *
@@ -31,13 +33,15 @@ package to.etc.webapp.query;
  * Created on Jul 17, 2009
  */
 public class QDefaultContextManager implements IQContextManager {
+	@Nullable
 	private QDataContextFactory m_factory;
 
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.IQContextManager#setContextFactory(to.etc.webapp.query.QDataContextFactory)
 	 */
-	public synchronized void setContextFactory(QDataContextFactory f) {
+	@Override
+	public synchronized void setContextFactory(@Nonnull QDataContextFactory f) {
 		if(m_factory != null)
 			throw new IllegalStateException("Already initialized");
 		m_factory = f;
@@ -47,6 +51,8 @@ public class QDefaultContextManager implements IQContextManager {
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.IQContextManager#getDataContextFactory()
 	 */
+	@Override
+	@Nonnull
 	public synchronized QDataContextFactory getDataContextFactory() {
 		if(m_factory == null)
 			throw new IllegalStateException("QContextManager not initialized");
@@ -57,6 +63,8 @@ public class QDefaultContextManager implements IQContextManager {
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.IQContextManager#createUnmanagedContext()
 	 */
+	@Override
+	@Nonnull
 	public QDataContext createUnmanagedContext() throws Exception {
 		return getDataContextFactory().getDataContext();
 	}
@@ -65,7 +73,9 @@ public class QDefaultContextManager implements IQContextManager {
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.IQContextManager#getSharedContextFactory(to.etc.webapp.query.IQContextContainer)
 	 */
-	public QDataContextFactory getSharedContextFactory(IQContextContainer cc) {
+	@Override
+	@Nonnull
+	public QDataContextFactory getSharedContextFactory(@Nonnull IQContextContainer cc) {
 		QDataContextFactory src = cc.internalGetDataContextFactory(); // Already has a factory here?
 		if(src != null)
 			return src;
@@ -80,7 +90,9 @@ public class QDefaultContextManager implements IQContextManager {
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.IQContextManager#getSharedContext(to.etc.webapp.query.IQContextContainer)
 	 */
-	public QDataContext getSharedContext(IQContextContainer cc) throws Exception {
+	@Nonnull
+	@Override
+	public QDataContext getSharedContext(@Nonnull IQContextContainer cc) throws Exception {
 		QDataContext dc = cc.internalGetSharedContext();
 		if(dc == null) {
 			//			System.out.println(".... allocate new shared dataContext");
@@ -94,7 +106,8 @@ public class QDefaultContextManager implements IQContextManager {
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.IQContextManager#closeSharedContext(to.etc.webapp.query.IQContextContainer)
 	 */
-	public void closeSharedContext(IQContextContainer cc) {
+	@Override
+	public void closeSharedContext(@Nonnull IQContextContainer cc) {
 		QDataContext dc = cc.internalGetSharedContext();
 		if(dc == null)
 			return;
@@ -131,6 +144,7 @@ public class QDefaultContextManager implements IQContextManager {
 			m_contextContainer = cc;
 		}
 
+		@Override
 		public QDataContext getDataContext() throws Exception {
 			//-- First check the container for something usable
 			QDataContext dc = m_contextContainer.internalGetSharedContext();
@@ -142,6 +156,7 @@ public class QDefaultContextManager implements IQContextManager {
 			return dc;
 		}
 
+		@Override
 		public QEventListenerSet getEventListeners() {
 			return m_orig.getEventListeners();
 		}

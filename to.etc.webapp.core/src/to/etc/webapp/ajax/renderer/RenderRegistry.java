@@ -74,6 +74,7 @@ abstract public class RenderRegistry {
 	 * Default renderer for all non-primitive arrays
 	 */
 	static private final ItemRenderer ARRAYRENDERER = new ItemRenderer() {
+		@Override
 		public void render(final ObjectRenderer or, final Object val) throws Exception {
 			Class< ? > dt = val.getClass().getComponentType();
 			Object[] l = (Object[]) val;
@@ -93,6 +94,7 @@ abstract public class RenderRegistry {
 	 * array wrappers by adding them using addArrayRenderer().
 	 */
 	static private final ItemRenderer PRIMITIVE_ARRAYRENDERER = new ItemRenderer() {
+		@Override
 		public void render(final ObjectRenderer or, final Object val) throws Exception {
 			Class< ? > dt = val.getClass().getComponentType();
 			or.renderArrayStart(val);
@@ -129,6 +131,7 @@ abstract public class RenderRegistry {
 
 		//-- Register renderers for List, Map and other basal Java classes.
 		registerBase(Collection.class, new ItemRenderer() {
+			@Override
 			public void render(final ObjectRenderer or, final Object val) throws Exception {
 				Collection< ? > l = (Collection< ? >) val;
 				or.renderArrayStart(l);
@@ -140,6 +143,7 @@ abstract public class RenderRegistry {
 		});
 
 		registerBase(Map.class, new ItemRenderer() {
+			@Override
 			public void render(final ObjectRenderer or, final Object val) throws Exception {
 				Map< ? , ? > m = (Map< ? , ? >) val;
 				or.renderMapStart(m);

@@ -38,10 +38,13 @@ import to.etc.util.*;
  * Created on May 18, 2009
  */
 abstract public class AbstractBuildPlan implements BuildPlan {
+	@Override
 	abstract public Object getObject(BasicContainer c) throws Exception;
 
+	@Override
 	abstract public boolean needsStaticInitialization();
 
+	@Override
 	abstract public void staticStart(BasicContainer c) throws Exception;
 
 	/** Injector list for setters that are to be set. */
@@ -65,6 +68,7 @@ abstract public class AbstractBuildPlan implements BuildPlan {
 		m_injectorList = injectorList;
 	}
 
+	@Override
 	public void dump(final IndentWriter iw) throws IOException {
 		internalDumpSetters(iw);
 		internalDumpStartStop(iw);
@@ -115,6 +119,7 @@ abstract public class AbstractBuildPlan implements BuildPlan {
 		}
 	}
 
+	@Override
 	public void destroy(final BasicContainer bc, final Object self) {
 		if(m_destroyList == null)
 			return;
@@ -136,10 +141,12 @@ abstract public class AbstractBuildPlan implements BuildPlan {
 		m_startList = startList;
 	}
 
+	@Override
 	public boolean hasDestructors() {
 		return m_destroyList != null && m_destroyList.length > 0;
 	}
 
+	@Override
 	public void start(final BasicContainer bc, final Object self) throws Exception {
 		if(m_startList == null)
 			return;

@@ -37,6 +37,7 @@ class JdbcCompoundType implements IJdbcType, IJdbcTypeFactory {
 
 	JdbcCompoundType() {}
 
+	@Override
 	public int accept(JdbcPropertyMeta pm) {
 		if(pm.isCompound())
 			return 10;

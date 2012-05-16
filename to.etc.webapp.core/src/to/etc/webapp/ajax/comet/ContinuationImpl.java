@@ -29,6 +29,7 @@ class ContinuationImpl implements Continuation {
 
 	private long m_timeout = -1;
 
+	@Override
 	public void resume() {
 		synchronized(this) {
 			if(m_continued)
@@ -38,6 +39,7 @@ class ContinuationImpl implements Continuation {
 		}
 	}
 
+	@Override
 	public void setTimeout(long ms) {
 		m_timeout = ms;
 	}
