@@ -41,6 +41,7 @@ public class NlsCachingMessageProvider implements NlsMessageProvider {
 		m_source = source;
 	}
 
+	@Override
 	public synchronized String findMessage(Locale loc, String code) {
 		Map<Locale, String> m = m_messageMap.get(code);
 		if(m == null) {

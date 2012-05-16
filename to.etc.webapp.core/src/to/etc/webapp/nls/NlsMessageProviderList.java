@@ -36,6 +36,7 @@ public class NlsMessageProviderList implements NlsMessageProvider {
 	/** The list of all message bundles that must be searched when rendering a global message. */
 	private List<NlsMessageProvider> m_providerList = new ArrayList<NlsMessageProvider>();
 
+	@Override
 	public String findMessage(Locale loc, String code) {
 		for(NlsMessageProvider p : m_providerList) {
 			String msg = p.findMessage(loc, code);

@@ -536,6 +536,7 @@ public class VpEventManager implements Runnable {
 	 *
 	 * @see java.lang.Runnable#run()
 	 */
+	@Override
 	public void run() {
 		try {
 			for(;;) {

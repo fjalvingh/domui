@@ -52,10 +52,12 @@ public class PolledActionQueue implements IPollQueueTaskProvider {
 		}
 	}
 
+	@Override
 	public void initializeOnRegistration(PollingWorkerQueue pwq) throws Exception {
 		m_executor = pwq;
 	}
 
+	@Override
 	public Runnable getRunnableTask() throws Exception {
 		// TODO Auto-generated method stub
 		return null;

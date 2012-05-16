@@ -29,6 +29,7 @@ import to.etc.webapp.ajax.renderer.*;
 abstract public class JSONItemRenderer implements ItemRenderer {
 	abstract public void render(JSONRenderer r, Object val) throws Exception;
 
+	@Override
 	final public void render(final ObjectRenderer or, final Object val) throws Exception {
 		render((JSONRenderer) or, val);
 	}

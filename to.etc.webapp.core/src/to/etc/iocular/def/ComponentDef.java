@@ -62,22 +62,27 @@ final public class ComponentDef implements ISelfDef {
 	 * Return the actual class that will be built using this definition.
 	 * @return
 	 */
+	@Override
 	public Class< ? > getActualClass() {
 		return m_actualClass;
 	}
 
+	@Override
 	final public String getDefinitionLocation() {
 		return m_definitionLocation;
 	}
 
+	@Override
 	public String[] getNames() {
 		return m_names;
 	}
 
+	@Override
 	public Class< ? >[] getDefinedTypes() {
 		return m_definedTypes;
 	}
 
+	@Override
 	public BindingScope getScope() {
 		return m_scope;
 	}
@@ -87,6 +92,7 @@ final public class ComponentDef implements ISelfDef {
 		return getIdent() + " defined at " + m_definitionLocation;
 	}
 
+	@Override
 	public String getIdent() {
 		if(m_names.length > 0)
 			return "component(name=" + m_names[0] + ")";

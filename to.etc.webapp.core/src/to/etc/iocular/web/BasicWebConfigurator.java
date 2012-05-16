@@ -29,6 +29,7 @@ import javax.servlet.*;
 import to.etc.iocular.def.*;
 
 public class BasicWebConfigurator implements WebConfigurator {
+	@Override
 	final public WebConfiguration createConfiguration(ServletContext ctx) throws Exception {
 		BasicContainerBuilder b = BasicContainerBuilder.createBuilder("applicationContainer");
 		defineApplication(b);

@@ -33,6 +33,7 @@ import java.sql.*;
  * Created on Aug 25, 2009
  */
 class StringType implements IJdbcType, IJdbcTypeFactory {
+	@Override
 	public int accept(JdbcPropertyMeta pm) {
 		return pm.getActualClass() == String.class ? 10 : -1;
 	}
@@ -47,10 +48,12 @@ class StringType implements IJdbcType, IJdbcTypeFactory {
 		return 1;
 	}
 
+	@Override
 	public Object convertToInstance(ResultSet rs, int index) throws Exception {
 		return rs.getString(index);
 	}
 
+	@Override
 	public void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta pm, Object value) throws Exception {
 		String s;
 		if(value instanceof String)
