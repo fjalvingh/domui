@@ -33,6 +33,7 @@ import to.etc.domui.server.parts.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 
 /**
  * This accepts all urls in the format *.theme.xxx. It generates string resources that

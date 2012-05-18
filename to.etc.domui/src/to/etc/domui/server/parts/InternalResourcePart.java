@@ -34,6 +34,7 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 
 /**

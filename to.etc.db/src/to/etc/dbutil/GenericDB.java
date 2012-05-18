@@ -27,6 +27,8 @@ package to.etc.dbutil;
 import java.io.*;
 import java.sql.*;
 
+import javax.annotation.*;
+
 import to.etc.dbpool.*;
 
 /**
@@ -50,9 +52,6 @@ public class GenericDB {
 	static public final BaseDB dbtypeMYSQL = new MysqlDB();
 
 	static public final BaseDB dbtypePOSTGRESQL = new PostgresDB();
-
-	static public final BaseDB dbtypeORANXO = new OranxoDB();
-
 
 	//	private static BaseDB[]	DATABASES;
 
@@ -96,8 +95,6 @@ public class GenericDB {
 			return GenericDB.dbtypePOSTGRESQL;
 		else if(dn.indexOf("orac") != -1)
 			return GenericDB.dbtypeORACLE;
-		else if(dn.indexOf("oranxo") != -1 || dn.indexOf("inet.ora.") != -1)
-			return GenericDB.dbtypeORANXO;
 		return GenericDB.dbtypeUNKNOWN;
 	}
 
@@ -156,7 +153,9 @@ public class GenericDB {
 	 */
 	static public void setBlob(Connection dbc, String table, String column, String where, File f) throws Exception {
 		BufferedInputStream bis = null;
+		int len = 0;
 		if(f != null) {
+			len = (int) f.length();
 			try {
 				bis = new BufferedInputStream(new FileInputStream(f), 8192);
 			} catch(FileNotFoundException x) {
@@ -164,7 +163,7 @@ public class GenericDB {
 			}
 		}
 		try {
-			setBlob(dbc, table, column, where, bis);
+			setBlob(dbc, table, column, where, bis, len);
 		} finally {
 			try {
 				if(bis != null)
@@ -175,11 +174,13 @@ public class GenericDB {
 
 	static public void setBlob(Connection dbc, String table, String column, String where, String str) throws Exception {
 		ByteArrayInputStream bais = null;
+		int len = 0;
 		if(str != null) {
 			byte[] data = str.getBytes("utf8");
 			bais = new ByteArrayInputStream(data);
+			len = data.length;
 		}
-		setBlob(dbc, table, column, where, bais);
+		setBlob(dbc, table, column, where, bais, len);
 	}
 
 
@@ -188,8 +189,8 @@ public class GenericDB {
 	 *  @parameter is	The stream to write to the blob. If this is null then the
 	 *  				field is set to dbnull.
 	 */
-	static public void setBlob(Connection dbc, String table, String column, String where, InputStream is) throws Exception {
-		getBase(dbc).setBlob(dbc, table, column, where, is);
+	static public void setBlob(Connection dbc, String table, String column, String where, InputStream is, int len) throws Exception {
+		getBase(dbc).setBlob(dbc, table, column, where, is, len);
 	}
 
 	/**
@@ -201,13 +202,15 @@ public class GenericDB {
 		getBase(dbc).setBlob(dbc, table, column, where, data);
 	}
 
-	static public void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is) throws SQLException {
-		getBase(dbc).setBlob(dbc, table, column, pkfields, key, is);
+	static public void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is, int len) throws SQLException {
+		getBase(dbc).setBlob(dbc, table, column, pkfields, key, is, len);
 	}
 
 	static public void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, File f) throws SQLException {
 		BufferedInputStream bis = null;
+		int len = 0;
 		if(f != null) {
+			len = (int) f.length();
 			try {
 				bis = new BufferedInputStream(new FileInputStream(f), 8192);
 				//				len	= (int) f.length();
@@ -216,7 +219,7 @@ public class GenericDB {
 			}
 		}
 		try {
-			setBlob(dbc, table, column, pkfields, key, bis);
+			setBlob(dbc, table, column, pkfields, key, bis, len);
 		} finally {
 			try {
 				if(bis != null)
@@ -391,6 +394,116 @@ public class GenericDB {
 			try {
 				if(is != null)
 					is.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Get a database script as a resource. The basename should be the base name of the script like "tables.sql". The script
+	 * will determine the db type, then first try "tables-[dbtype].sql". If that is not found it will fallback to the basename.
+	 * @param dbc
+	 * @param clz
+	 * @param baseName
+	 * @return
+	 * @throws SQLException
+	 */
+	@Nonnull
+	static public String getScriptResource(@Nonnull Connection dbc, @Nonnull Class< ? > clz, @Nonnull String baseName) throws Exception {
+		BaseDB type = getDbType(dbc);
+		String name = type.getName();
+
+		InputStream is = null;
+		try {
+			String suff = ".sql";
+			String root = baseName;
+
+			int pos = baseName.lastIndexOf('.');
+			if(pos != -1) {
+				suff = baseName.substring(pos);
+				root = baseName.substring(0, pos);
+			}
+
+			String r = root + "-" + name + suff;
+			is = clz.getResourceAsStream(r);
+			if(null == is) {
+				is = clz.getResourceAsStream(root + suff);
+				if(is == null)
+					throw new SQLException("The SQL resource file " + baseName + " (relative to " + clz.getName() + ") cannot be found.");
+			}
+			return readStreamAsString(is, "utf-8");
+		} finally {
+			try {
+				if(is != null)
+					is.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	static private String readStreamAsString(final InputStream is, final String enc) throws Exception {
+		StringBuilder sb = new StringBuilder(128);
+		Reader r = new InputStreamReader(is, enc);
+		try {
+			char[] buf = new char[4096];
+			for(;;) {
+				int ct = r.read(buf);
+				if(ct < 0)
+					break;
+				sb.append(new String(buf, 0, ct));
+			}
+		} finally {
+			r.close();
+		}
+		return sb.toString();
+	}
+
+
+	/**
+	 * Run a script resource with some basic name. Statements in the script must be separated by //
+	 * @param dbc
+	 * @param clz
+	 * @param name
+	 * @param errors
+	 * @return
+	 */
+	static public void runScriptResource(Connection dbc, Class< ? > clz, String name, StringBuilder errors) throws Exception {
+		String script = getScriptResource(dbc, clz, name);
+		String[] ar = script.split("//");
+		for(String s : ar) {
+			runSQL(dbc, s, errors);
+		}
+	}
+
+	static private boolean isWhiteSpaceOrNbsp(final char c) {
+		return c == 0x00a0 || Character.isWhitespace(c);
+	}
+
+	static private boolean isAllSpaces(final String s) {
+		for(int i = s.length(); --i >= 0;) {
+			if(!isWhiteSpaceOrNbsp(s.charAt(i)))
+				return false;
+		}
+		return true;
+	}
+
+	static private void runSQL(Connection dbc, String s, StringBuilder errors) {
+		s = s.trim();
+		if(isAllSpaces(s))
+			return;
+
+		PreparedStatement ps = null;
+		try {
+			ps = dbc.prepareStatement(s);
+			ps.executeUpdate();
+			dbc.commit();
+		} catch(Exception x) {
+			errors.append(s).append("\n").append("ERROR: ").append(x.toString()).append("\n");
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+			try {
+				dbc.rollback();
 			} catch(Exception x) {}
 		}
 	}
