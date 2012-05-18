@@ -27,6 +27,8 @@ package to.etc.domui.state;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.component.delayed.*;
@@ -133,49 +135,61 @@ public class ConversationContext implements IQContextContainer {
 	}
 
 	/** The conversation ID, unique within the user's session. */
+	@Nullable
 	private String m_id;
 
+	@Nullable
 	private String m_fullId;
 
 	/** The pages that are part of this conversation, indexed by [className] */
+	@Nonnull
 	private final Map<String, Page> m_pageMap = new HashMap<String, Page>();
 
 	/** The map of all attribute objects added to this conversation. */
+	@Nonnull
 	private Map<String, Object> m_map = Collections.EMPTY_MAP;
 
+	@Nullable
 	private WindowSession m_manager;
 
+	@Nullable
 	private DelayedActivitiesManager m_delayManager;
 
+	@Nonnull
 	private ConversationState m_state = ConversationState.DETACHED;
 
+	@Nonnull
 	private List<File> m_uploadList = Collections.EMPTY_LIST;
-
-	void setId(final String id) {
-		m_id = id;
-	}
 
 	/**
 	 * Return the ID for this conversation.
 	 * @return
 	 */
 	final public String getId() {
+		if(null == m_id)
+			throw new IllegalStateException("ID is null??");
 		return m_id;
 	}
 
-	final void setManager(final WindowSession m) {
+	final void initialize(@Nonnull final WindowSession m, @Nonnull String id) {
 		if(m == null)
 			throw new IllegalStateException("Internal: manager cannot be null, dude");
 		if(m_manager != null)
 			throw new IllegalStateException("Internal: manager is ALREADY set, dude");
+		if(m_id != null)
+			throw new IllegalStateException("ID set twice?");
 		m_manager = m;
 		m_fullId = m.getWindowID() + "." + m_id;
 	}
 
+
 	public String getFullId() {
+		if(null == m_fullId)
+			throw new IllegalStateException("fullID is null??");
 		return m_fullId;
 	}
 
+	@Nonnull
 	@Override
 	public String toString() {
 		return "conversation[" + getFullId() + "]";
@@ -365,6 +379,7 @@ public class ConversationContext implements IQContextContainer {
 	 * @param name
 	 * @return
 	 */
+	@Nullable
 	public Object getAttribute(final String name) {
 		return m_map.get(name);
 	}
