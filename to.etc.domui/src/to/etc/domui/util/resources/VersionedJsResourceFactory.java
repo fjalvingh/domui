@@ -23,7 +23,7 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 
 	@Nonnull
 	@Override
-	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nullable IResourceDependencyList rdl) throws Exception {
+	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
 		//-- 1. Create a 'min version of the name
 		name = name.substring(3); // Strip $js, leave leading /.
 		int pos = name.lastIndexOf('.');
