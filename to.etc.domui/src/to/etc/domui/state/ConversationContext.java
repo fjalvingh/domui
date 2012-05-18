@@ -179,6 +179,7 @@ public class ConversationContext implements IQContextContainer {
 		if(m_id != null)
 			throw new IllegalStateException("ID set twice?");
 		m_manager = m;
+		m_id = id;
 		m_fullId = m.getWindowID() + "." + m_id;
 	}
 
