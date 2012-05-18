@@ -64,9 +64,9 @@ public class ControlFactoryMoney implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	public <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context) {
-		Class< ? > iclz = pmm.getActualType();
+		Class<T> iclz = pmm.getActualType();
 
 		if(!editable) {
 			/*
@@ -74,7 +74,7 @@ public class ControlFactoryMoney implements ControlFactory {
 			 * FIXME EXPERIMENTAL: replace the code below (which is still fully available) with the
 			 * display-only component.
 			 */
-			DisplayValue dv = new DisplayValue(iclz);
+			DisplayValue<T> dv = new DisplayValue<T>(iclz);
 			//			dv.setTextAlign(TextAlign.RIGHT);
 			dv.addCssClass("ui-numeric");
 			MoneyUtil.assignMonetaryConverter(pmm, editable, dv);
@@ -86,9 +86,9 @@ public class ControlFactoryMoney implements ControlFactory {
 
 		Text<T> txt;
 		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
-			txt = (Text<T>) Text.createDoubleMoneyInput(pmm, editable);
+			txt = (Text<T>) Text.createDoubleMoneyInput((PropertyMetaModel<Double>) pmm, editable);
 		} else if(pmm.getActualType() == BigDecimal.class) {
-			txt = (Text<T>) Text.createBDMoneyInput(pmm, editable);
+			txt = (Text<T>) Text.createBDMoneyInput((PropertyMetaModel<BigDecimal>) pmm, editable);
 		} else
 				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
 		return new ControlFactoryResult(txt, model, pmm);

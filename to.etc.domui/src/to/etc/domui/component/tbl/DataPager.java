@@ -373,7 +373,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private void redrawSelectionButtons() throws Exception {
 		//-- Show/hide the "show selection" button
-		final ISelectableTableComponent dt = getSelectableTable();
+		final ISelectableTableComponent<Object> dt = (ISelectableTableComponent<Object>) getSelectableTable();
 		if(null == dt)
 			throw new IllegalStateException("Null selectable table?");
 

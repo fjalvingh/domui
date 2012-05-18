@@ -424,7 +424,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param index
 	 * @param tr
 	 */
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	private void collapseRow(int index, @Nonnull TR tr) throws Exception {
 		if(tr.getUserObject() == null) // Already collapsed?
 			return;
@@ -445,7 +445,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		}
 
 		if(getOnRowChangeCompleted() != null) {
-			if(!((IRowEditorEvent) getOnRowChangeCompleted()).onRowChanged(this, editor, item, false))
+			if(!((IRowEditorEvent<T, NodeContainer>) getOnRowChangeCompleted()).onRowChanged(this, editor, item, false))
 				return;
 		}
 
@@ -549,7 +549,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		clearNewEditor();
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	private void clearNewEditor() throws Exception {
 		if(m_newBody == null)
 			return;
@@ -563,7 +563,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		}
 
 		if(getOnRowChangeCompleted() != null) {
-			if(!((IRowEditorEvent) getOnRowChangeCompleted()).onRowChanged(this, m_newEditor, m_newInstance, true)) {
+			if(!((IRowEditorEvent<T, NodeContainer>) getOnRowChangeCompleted()).onRowChanged(this, m_newEditor, m_newInstance, true)) {
 				return;
 			}
 		}

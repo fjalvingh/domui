@@ -200,7 +200,7 @@ public class ControlBuilder {
 		return m_lookupControlRegistry.getControlFactory(pmm);
 	}
 
-	public <X extends NodeBase & IInputNode< ? >> ILookupControlFactory getLookupQueryFactory(final SearchPropertyMetaModel pmm, X control) {
+	public <T, X extends NodeBase & IInputNode<T>> ILookupControlFactory getLookupQueryFactory(final SearchPropertyMetaModel pmm, X control) {
 		return m_lookupControlRegistry.getLookupQueryFactory(pmm, control);
 	}
 

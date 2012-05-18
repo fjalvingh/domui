@@ -34,7 +34,7 @@ import to.etc.util.*;
 
 final class LookupFactoryRelationCombo implements ILookupControlFactory {
 	@Override
-	public <X extends IInputNode< ? >> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IInputNode<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 
 		if(pmm.getRelationType() != PropertyRelationType.UP)
@@ -46,10 +46,10 @@ final class LookupFactoryRelationCombo implements ILookupControlFactory {
 
 	@Override
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IInputNode<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		IInputNode< ? > input = control;
 		if(input == null) {
-			final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+			final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 			try {
 				ComboLookup< ? > co = ComboLookup.createLookup(pmm);
 				co.setMandatory(false);

@@ -96,7 +96,8 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private void initRenderer() {
-		setContentRenderer((INodeContentRenderer) STATICRENDERER); // Another generics fuckup again: you cannot cast this proper, appearently.
+		INodeContentRenderer< ? > r = STATICRENDERER;
+		setContentRenderer((INodeContentRenderer<ValueLabelPair<T>>) r);
 	}
 	// 20100502 jal Horrible bug! This prevents setting customized option rendering from working!!
 	//	@Override
@@ -214,6 +215,7 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	/**
 	 * Default tostring converter.
 	 */
+	@Nonnull
 	static private final IObjectToStringConverter<Object> TOSTRING_CV = new IObjectToStringConverter<Object>() {
 		@Override
 		public String convertObjectToString(Locale loc, Object in) throws UIException {
@@ -230,9 +232,8 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	 * @param items
 	 * @return
 	 */
-	@SuppressWarnings("rawtypes")
 	static public <T> ComboFixed<T>	createCombo(T... items) {
-		return createCombo((IObjectToStringConverter) TOSTRING_CV, items);
+		return createCombo((IObjectToStringConverter<T>) TOSTRING_CV, items);
 	}
 
 	/**

@@ -86,7 +86,7 @@ public class DisplayPropertyMetaModel {
 		// 20091123 This kludge below (Raw class cast) is needed because otherwise the JDK compiler pukes on this generics abomination.
 		IConverter< ? > c = null;
 		if(p.converterClass() != DummyConverter.class)
-			c = ConverterRegistry.getConverterInstance((Class) p.converterClass());
+			c = createconv(p.converterClass());
 		setConverter(c);
 		setSortable(p.defaultSortable());
 		setDisplayLength(p.displayLength());
@@ -94,6 +94,16 @@ public class DisplayPropertyMetaModel {
 		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();
 //		setReadOnly(p.readOnly());		jal 20101220 Removed, unused and seems silly in table display
 //		setRenderHint(p.renderHint());	jal 20101220 Removed, unused and seems silly in table display
+	}
+
+	/**
+	 * Idiocy to prevent generics problem.
+	 * @param clz
+	 * @return
+	 */
+	@Nonnull
+	static private <T> IConverter<T> createconv(@Nonnull Class< ? > clz) {
+		return ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) clz);
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -106,7 +116,7 @@ public class DisplayPropertyMetaModel {
 		// 20091123 This kludge below (Raw class cast) is needed because otherwise the JDK compiler pukes on this generics abomination.
 		IConverter< ? > c = null;
 		if(p.converterClass() != DummyConverter.class)
-			c = ConverterRegistry.getConverterInstance((Class) p.converterClass());
+			c = createconv(p.converterClass());
 		setConverter(c);
 		setSortIndex(p.sortIndex());
 		setSortable(p.sortable());

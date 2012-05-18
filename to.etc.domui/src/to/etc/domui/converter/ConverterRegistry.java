@@ -70,7 +70,8 @@ public class ConverterRegistry {
 	 * @param clz
 	 * @return
 	 */
-	static public synchronized <X, T extends IConverter<X>> T getConverterInstance(Class<T> clz) {
+	@Nonnull
+	static public synchronized <X, T extends IConverter<X>> T getConverterInstance(@Nonnull Class<T> clz) {
 		T c = (T) m_converterMap.get(clz);
 		if(c == null) {
 			try {
@@ -443,12 +444,12 @@ public class ConverterRegistry {
 	}
 
 	static public Comparator< ? > getComparator(@Nonnull ClassMetaModel cmm, @Nonnull String property, boolean descending) {
-		PropertyMetaModel< ? > pmm = cmm.findProperty(property);
+		PropertyMetaModel<Object> pmm = (PropertyMetaModel<Object>) cmm.findProperty(property);
 		if(null == pmm)
 			throw new ProgrammerErrorException("The property '" + cmm + "." + property + "' is not known.");
 
 		//-- Get the actual data type, and get a comparator for that data type;
-		Comparator< ? > comp = findComparatorForType(pmm.getActualType());
+		Comparator<Object> comp = (Comparator<Object>) findComparatorForType(pmm.getActualType());
 		if(null == comp) {
 			return DEFAULT_COMPARATOR;
 		}

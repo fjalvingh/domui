@@ -187,7 +187,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 				if(getOnValueChanged() != null) {
 					//FIXME: from some reason we can't pass items here -> some buggy generics issue is shown if we specifiy item as argumen!?
 					//getOnValueChanged().onValueChanged(item);
-					((IValueChanged<MultipleLookupInput>) getOnValueChanged()).onValueChanged(MultipleLookupInput.this);
+					((IValueChanged<MultipleLookupInput<T>>) getOnValueChanged()).onValueChanged(MultipleLookupInput.this);
 				}
 				updateClearButtonState();
 			}

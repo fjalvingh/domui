@@ -48,7 +48,7 @@ import to.etc.domui.util.*;
  */
 final class LookupFactoryNumber2 implements ILookupControlFactory {
 	@Override
-	public <X extends IInputNode< ? >> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IInputNode<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		if(control != null) {
 			if(!(control instanceof Text< ? >))
 				return -1;
@@ -67,7 +67,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IInputNode<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		Text<String> numText = (Text<String>) control;
 		if(numText == null) {
