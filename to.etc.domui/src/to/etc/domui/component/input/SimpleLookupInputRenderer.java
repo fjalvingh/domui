@@ -26,6 +26,8 @@ package to.etc.domui.component.input;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
@@ -49,7 +51,7 @@ public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
 	private INodeContentRenderer<T> m_afterRenderer;
 
 	@Override
-	public void renderNodeContent(NodeBase component, NodeContainer node, T object, Object parameters) throws Exception {
+	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception {
 		String txt;
 		TBody tbl = ((LookupInput< ? >) node).getBody();
 		if(getBeforeRenderer() != null) {

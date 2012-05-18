@@ -24,6 +24,8 @@
  */
 package to.etc.domui.themes;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
@@ -43,7 +45,7 @@ public class ThemeResourceFactory implements IResourceFactory {
 	static public final String PREFIX = "$THEME/";
 
 	@Override
-	public int accept(String name) {
+	public int accept(@Nonnull String name) {
 		return name.startsWith(PREFIX) ? 30 : -1;
 	}
 
@@ -67,7 +69,7 @@ public class ThemeResourceFactory implements IResourceFactory {
 	 * @see to.etc.domui.util.resources.IResourceFactory#getResource(to.etc.domui.server.DomApplication, java.lang.String, to.etc.domui.util.resources.IResourceDependencyList)
 	 */
 	@Override
-	public IResourceRef getResource(DomApplication da, String name, IResourceDependencyList rdl) throws Exception {
+	public @Nonnull IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nullable IResourceDependencyList rdl) throws Exception {
 		String[] spl = splitThemeURL(name);
 		String themename = spl[0];
 		String filename = spl[1];

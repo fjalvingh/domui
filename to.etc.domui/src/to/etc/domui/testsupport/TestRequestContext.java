@@ -57,7 +57,7 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public DomApplication getApplication() {
+	public @Nonnull DomApplication getApplication() {
 		if(m_app == null)
 			m_app = new DomApplication() {
 				@Override
@@ -69,14 +69,14 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public WindowSession getWindowSession() {
+	public @Nonnull WindowSession getWindowSession() {
 		if(m_conversationManager == null)
 			m_conversationManager = new WindowSession(getSession());
 		return m_conversationManager;
 	}
 
 	@Override
-	public String getExtension() {
+	public @Nonnull String getExtension() {
 		int pos = m_input.lastIndexOf('.');
 		if(pos == -1)
 			return "";
@@ -84,19 +84,19 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public String getInputPath() {
+	public @Nonnull String getInputPath() {
 		return m_input;
 	}
 
 	@Override
-	public Writer getOutputWriter() throws IOException {
+	public @Nonnull Writer getOutputWriter() throws IOException {
 		if(m_sw == null)
 			m_sw = new StringWriter();
 		return m_sw;
 	}
 
 	@Override
-	public String getRelativePath(final @Nonnull String rel) {
+	public @Nonnull String getRelativePath(final @Nonnull String rel) {
 		return "webapp/" + rel;
 	}
 
@@ -106,6 +106,7 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
+	@Nonnull
 	public AppSession getSession() {
 		if(m_session == null)
 			m_session = new AppSession(getApplication());

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 /**
@@ -33,20 +35,24 @@ import to.etc.domui.dom.html.*;
  * Created on Jun 1, 2008
  */
 public class ColumnContainer<T> {
-	private TableModelTableBase<T> m_table;
+	@Nonnull
+	final private TableModelTableBase<T> m_table;
 
+	@Nullable
 	private RowButtonContainer m_rowButtonContainer;
 
+	@Nullable
 	private TR m_tr;
 
-	public ColumnContainer(TableModelTableBase<T> table) {
+	public ColumnContainer(@Nonnull TableModelTableBase<T> table) {
 		m_table = table;
 	}
 
-	public void setParent(TR p) {
+	public void setParent(@Nonnull TR p) {
 		m_tr = p;
 	}
 
+	@Nonnull
 	public TableModelTableBase<T> getTable() {
 		return m_table;
 	}
@@ -55,6 +61,7 @@ public class ColumnContainer<T> {
 	 * Adds a column to the table.
 	 * @param columnContent
 	 */
+	@Nonnull
 	public TD add(NodeBase columnContent) {
 		TD td = new TD();
 		m_tr.add(td);
@@ -63,14 +70,19 @@ public class ColumnContainer<T> {
 		return td;
 	}
 
-	public TD add(String txt) {
+	@Nonnull
+	public TD add(@Nullable String txt) {
 		return add(new TextNode(txt));
 	}
 
+	@Nonnull
 	public TR getTR() {
+		if(null == m_tr)
+			throw new IllegalStateException("Row not set.");
 		return m_tr;
 	}
 
+	@Nonnull
 	public RowButtonContainer getRowButtonContainer() {
 		if(m_rowButtonContainer == null)
 			m_rowButtonContainer = new RowButtonContainer();

@@ -32,7 +32,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.ILookupControlInstance.*;
+import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.css.*;
@@ -740,7 +740,7 @@ public class LookupForm<T> extends Div {
 	 * @param control
 	 * @return
 	 */
-	public <X extends NodeBase & IInputNode< ? >> Item addManual(String property, X control) {
+	public <VT, X extends NodeBase & IInputNode<VT>> Item addManual(String property, X control) {
 		Item it = new Item();
 		it.setPropertyName(property);
 		addAndFinish(it);

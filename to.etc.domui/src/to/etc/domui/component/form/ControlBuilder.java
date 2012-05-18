@@ -198,7 +198,7 @@ public class ControlBuilder {
 		return m_lookupControlRegistry.getControlFactory(pmm);
 	}
 
-	public <X extends NodeBase & IInputNode< ? >> ILookupControlFactory getLookupQueryFactory(final SearchPropertyMetaModel pmm, X control) {
+	public <T, X extends NodeBase & IInputNode<T>> ILookupControlFactory getLookupQueryFactory(final SearchPropertyMetaModel pmm, X control) {
 		return m_lookupControlRegistry.getLookupQueryFactory(pmm, control);
 	}
 
@@ -228,6 +228,14 @@ public class ControlBuilder {
 	//		return createControl(controlClass, dataClass, pmm, editable, context);
 	//	}
 	//
+	//	@Nonnull
+	//	static private final IReadOnlyModel<Object> DUMMY_MODEL = new IReadOnlyModel<Object>() {
+	//		@Override
+	//		public Object getValue() throws Exception {
+	//			throw new IllegalStateException("Should not ever call this");
+	//		}
+	//	};
+	//
 	//	/**
 	//	 *
 	//	 * @param <T>
@@ -241,7 +249,7 @@ public class ControlBuilder {
 	//		if(controlClass == null)
 	//			throw new IllegalArgumentException("controlClass cannot be null");
 	//		ControlFactory cf = getControlFactory(pmm, editable, null, context);
-	//		ControlFactoryResult r = cf.createControl(null, pmm, editable, controlClass, context);
+	//		ControlFactoryResult r = cf.createControl(DUMMY_MODEL, pmm, editable, controlClass, context);	// FIXME Bad, bad bug: I should be able to create a control without binding!!
 	//
 	//		//-- This must have generated a single control of the specified type, so check...
 	//		if(r.getNodeList().length != 1)

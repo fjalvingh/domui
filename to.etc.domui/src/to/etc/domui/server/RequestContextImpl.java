@@ -110,7 +110,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getApplication()
 	 */
 	@Override
-	final public DomApplication getApplication() {
+	final public @Nonnull DomApplication getApplication() {
 		return m_application;
 	}
 
@@ -121,7 +121,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getSession()
 	 */
 	@Override
-	final public AppSession getSession() {
+	final public @Nonnull AppSession getSession() {
 		m_session.internalLockSession(); // Someone uses session -> lock it for use by CURRENT-THREAD.
 		if(!m_amLockingSession)
 			m_session.internalCheckExpiredWindowSessions();
@@ -145,7 +145,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getWindowSession()
 	 */
 	@Override
-	final public WindowSession getWindowSession() {
+	final public @Nonnull WindowSession getWindowSession() {
 		if(m_windowSession != null)
 			return m_windowSession;
 
@@ -202,7 +202,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getExtension()
 	 */
 	@Override
-	public String getExtension() {
+	public @Nonnull String getExtension() {
 		return m_extension;
 	}
 
@@ -218,7 +218,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getInputPath()
 	 */
 	@Override
-	public final String getInputPath() {
+	public final @Nonnull String getInputPath() {
 		return m_urlin;
 	}
 
@@ -271,7 +271,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getRelativePath(java.lang.String)
 	 */
 	@Override
-	public String getRelativePath(@Nonnull String rel) {
+	public @Nonnull String getRelativePath(@Nonnull String rel) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(NetTools.getApplicationURL(getRequest()));
 		sb.append(rel);
@@ -290,7 +290,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getOutputWriter()
 	 */
 	@Override
-	public Writer getOutputWriter() throws IOException {
+	public @Nonnull Writer getOutputWriter() throws IOException {
 		if(m_outWriter == null) {
 			m_sw = new StringWriter(8192);
 			m_outWriter = m_sw;

@@ -26,6 +26,8 @@ package to.etc.domui.component.buttons;
 
 import java.awt.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.parts.*;
@@ -200,7 +202,7 @@ public class CalcButton extends Button {
 	 * @see to.etc.domui.dom.html.NodeContainer#setText(java.lang.String)
 	 */
 	@Override
-	public void setText(final String text) {
+	public void setText(final @Nullable String text) {
 		m_key.setText(text);
 		decodeAccelerator(text);
 		genURL();

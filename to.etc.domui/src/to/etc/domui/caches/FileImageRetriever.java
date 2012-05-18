@@ -27,6 +27,8 @@ package to.etc.domui.caches;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
@@ -105,7 +107,7 @@ public class FileImageRetriever implements IImageRetriever {
 	}
 
 	@Override
-	public String getRetrieverKey() {
+	public @Nonnull String getRetrieverKey() {
 		return KEY;
 	}
 

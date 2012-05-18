@@ -88,7 +88,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * @see to.etc.domui.themes.IThemeFactory#getTheme(to.etc.domui.server.DomApplication, java.lang.String)
 	 */
 	@Override
-	public ITheme getTheme(DomApplication da, String themeName) throws Exception {
+	public @Nonnull ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception {
 		FragmentedThemeFactory stf = new FragmentedThemeFactory(da, themeName);
 		try {
 			return stf.createTheme();

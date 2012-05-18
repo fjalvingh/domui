@@ -71,7 +71,7 @@ public class SimpleThemeFactory implements IThemeFactory {
 	}
 
 	@Override
-	public ITheme getTheme(DomApplication da, String themeName) throws Exception {
+	public @Nonnull ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception {
 		SimpleThemeFactory stf = new SimpleThemeFactory(da, themeName);
 		try {
 			return stf.createTheme();

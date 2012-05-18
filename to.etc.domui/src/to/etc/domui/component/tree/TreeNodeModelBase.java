@@ -63,7 +63,7 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 	}
 
 	@Override
-	public T getChild(@Nonnull T parent, int index) throws Exception {
+	public @Nonnull T getChild(@Nonnull T parent, int index) throws Exception {
 		return parent.getChild(index);
 	}
 
@@ -78,7 +78,7 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 	}
 
 	@Override
-	public T getRoot() throws Exception {
+	public @Nonnull T getRoot() throws Exception {
 		return m_root;
 	}
 

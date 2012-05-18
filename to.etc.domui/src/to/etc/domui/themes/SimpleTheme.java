@@ -66,6 +66,7 @@ public final class SimpleTheme implements ITheme {
 		return m_rd;
 	}
 
+	@Override
 	@Nonnull
 	public IScriptScope getPropertyScope() {
 		return m_propertyScope;
@@ -73,7 +74,7 @@ public final class SimpleTheme implements ITheme {
 
 	@Nonnull
 	@Override
-	public IResourceRef getThemeResource(String name, IResourceDependencyList rdl) throws Exception {
+	public IResourceRef getThemeResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
 		return m_da.getResource("$themes/" + m_styleName + "/" + name, rdl);
 	}
 

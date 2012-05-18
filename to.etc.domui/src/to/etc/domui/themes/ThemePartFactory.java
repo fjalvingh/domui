@@ -118,7 +118,7 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 	}
 
 	@Override
-	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
 		return new Key(param.getBrowserVersion(), rurl);
 	}
 

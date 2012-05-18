@@ -1,5 +1,7 @@
 package to.etc.domui.component.graph;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
@@ -48,6 +50,7 @@ public class ColorPickerInput extends Input implements IInputNode<String> {
 		m_coldiv.remove();
 	}
 
+	@Override
 	public void setValue(String value) {
 		if(value == null)
 			value = "000000"; // We do not allow null here.
@@ -62,6 +65,7 @@ public class ColorPickerInput extends Input implements IInputNode<String> {
 		if(!isOff())
 			appendJavascript("$('#" + getActualID() + "').ColorPickerSetColor('" + value + "');");
 	}
+	@Override
 	public String	getValue() {
 		String v = getRawValue();
 		if(v == null || v.length() == 0)
@@ -70,7 +74,7 @@ public class ColorPickerInput extends Input implements IInputNode<String> {
 	}
 
 	@Override
-	public IBinder bind() {
+	public @Nonnull IBinder bind() {
 		// TODO Auto-generated method stub
 		return null;
 	}

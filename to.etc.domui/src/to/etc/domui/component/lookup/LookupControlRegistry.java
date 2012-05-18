@@ -78,7 +78,7 @@ public class LookupControlRegistry {
 	}
 
 
-	public <X extends NodeBase & IInputNode< ? >> ILookupControlFactory getLookupQueryFactory(final SearchPropertyMetaModel pmm, X control) {
+	public <T, X extends NodeBase & IInputNode<T>> ILookupControlFactory getLookupQueryFactory(final SearchPropertyMetaModel pmm, X control) {
 		ILookupControlFactory best = null;
 		int score = 0;
 		for(ILookupControlFactory cf : getFactoryList()) {

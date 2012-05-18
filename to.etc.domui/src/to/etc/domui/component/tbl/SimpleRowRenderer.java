@@ -96,7 +96,7 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements ICli
 	 * @param clz
 	 * @param xdpl
 	 */
-	protected void initialize(final List<ExpandedDisplayProperty< ? >> xdpl) {
+	protected void initialize(@Nonnull final List<ExpandedDisplayProperty< ? >> xdpl) {
 		//-- For all properties in the list, use metadata to define'm
 		final int[] widths = new int[80];
 		m_totwidth = 0;

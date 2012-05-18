@@ -62,6 +62,7 @@ public class RhinoScriptScope implements IScriptScope {
 		m_scriptable.put(name, m_scriptable, instance);
 	}
 
+	@Override
 	public void registerToplevelFunction(Object instance, String instanceVar, String function) throws Exception {
 		put(instanceVar, instance);
 		Context jcx = Context.enter();

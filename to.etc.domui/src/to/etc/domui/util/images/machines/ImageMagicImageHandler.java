@@ -337,6 +337,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 		}
 	}
 
+	@Override
 	public ImageSpec convert(ImageConverterHelper h, ImageSpec source, int page, String targetMime) throws Exception {
 		//-- Create a scaled image
 		start();

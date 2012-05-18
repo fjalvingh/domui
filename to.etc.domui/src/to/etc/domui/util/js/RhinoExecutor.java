@@ -134,6 +134,7 @@ public class RhinoExecutor implements IScriptScope {
 		m_scope.put(name, m_scope, instance);
 	}
 
+	@Override
 	public void registerToplevelFunction(Object instance, String instanceVar, String function) throws Exception {
 		put(instanceVar, instance);
 		eval(function);

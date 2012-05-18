@@ -1,5 +1,7 @@
 package to.etc.domui.component.graph;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
@@ -41,6 +43,7 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IInput
 		p.addHeaderContributor(HeaderContributor.loadJavascript("$js/colorpicker.js"), 100);
 	}
 
+	@Override
 	public String getValue() {
 		return m_hidden.getRawValue();
 	}
@@ -50,6 +53,7 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IInput
 		return getValue();
 	}
 
+	@Override
 	public void setValue(String value) {
 		if(value == null)
 			value = "000000"; // We do not allow null here.
@@ -105,7 +109,7 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IInput
 	}
 
 	@Override
-	public IBinder bind() {
+	public @Nonnull IBinder bind() {
 		return null;
 	}
 

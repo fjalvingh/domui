@@ -26,6 +26,8 @@ package to.etc.domui.caches;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.util.images.*;
 
 public class FileImageReference implements IImageReference {
@@ -48,7 +50,7 @@ public class FileImageReference implements IImageReference {
 	}
 
 	@Override
-	public String getMimeType() throws Exception {
+	public @Nonnull String getMimeType() throws Exception {
 		return m_mime;
 	}
 

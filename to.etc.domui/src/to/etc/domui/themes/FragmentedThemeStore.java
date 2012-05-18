@@ -64,17 +64,19 @@ public class FragmentedThemeStore implements ITheme {
 		return m_styleSheetBytes;
 	}
 
+	@Override
+	@Nonnull
 	public ResourceDependencies getDependencies() {
 		return m_dependencies;
 	}
 
 	@Override
-	public IScriptScope getPropertyScope() {
+	public @Nonnull IScriptScope getPropertyScope() {
 		return m_propertyScope;
 	}
 
 	@Override
-	public String translateResourceName(String name) {
+	public @Nonnull String translateResourceName(@Nonnull String name) {
 		//-- Get the 'icon' instance
 		Object iobj = getPropertyScope().getValue("icon");
 		if(null == iobj)
