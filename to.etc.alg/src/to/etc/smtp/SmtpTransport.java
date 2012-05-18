@@ -278,7 +278,7 @@ public class SmtpTransport {
 			hw.close();
 		w.close();
 		eos.flush();
-		write(os, ".\r\n");
+		os.write(".\r\n".getBytes());
 	}
 
 	static public void writeText(OutputStream os, Message msg) throws Exception {

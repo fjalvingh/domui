@@ -2,6 +2,8 @@ package to.etc.domui.component.menu;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.menu.PopupMenu.Item;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -114,7 +116,7 @@ public class SimplePopupMenu extends Div {
 	}
 
 	@Override
-	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
+	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
 		if("POPINCLOSE?".equals(action)) {
 			closeMenu();
 		} else

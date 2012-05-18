@@ -35,6 +35,7 @@ import to.etc.util.*;
  * Created on Aug 25, 2009
  */
 public class LongType implements IJdbcType, IJdbcTypeFactory {
+	@Override
 	public int accept(JdbcPropertyMeta pm) {
 		return pm.getActualClass() == long.class || pm.getActualClass() == Long.class ? 10 : -1;
 	}
@@ -49,6 +50,7 @@ public class LongType implements IJdbcType, IJdbcTypeFactory {
 		return 1;
 	}
 
+	@Override
 	public Object convertToInstance(ResultSet rs, int index) throws Exception {
 		long val = rs.getLong(index);
 		if(rs.wasNull())
@@ -56,6 +58,7 @@ public class LongType implements IJdbcType, IJdbcTypeFactory {
 		return Long.valueOf(val);
 	}
 
+	@Override
 	public void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta pm, Object value) throws Exception {
 		Long iv;
 		if(value instanceof Long)

@@ -109,6 +109,7 @@ public class EventCometContext implements CometContext {
 		return m_httpServletRequest;
 	}
 
+	@Override
 	public void begin(final HttpServlet slet, final HttpServletRequest req, final Continuation cont) throws Exception {
 		m_httpServletRequest = req;
 		m_co = cont;
@@ -265,6 +266,7 @@ public class EventCometContext implements CometContext {
 	 *
 	 * @see to.etc.webapp.ajax.comet.CometContext#respond(javax.servlet.http.HttpServletResponse, boolean)
 	 */
+	@Override
 	public void respond(final HttpServletResponse resp, final boolean timeout) throws Exception {
 		if(timeout) {
 			// Cancelled by the comet provider. Send a "TIMEOUT" or "EVENTS" depending on the list contents

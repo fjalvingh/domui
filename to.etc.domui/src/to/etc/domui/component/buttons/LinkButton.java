@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.buttons;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.menu.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -135,7 +137,7 @@ public class LinkButton extends ATag implements IActionControl {
 	}
 
 	@Override
-	public void setText(final String txt) {
+	public void setText(final @Nullable String txt) {
 		m_text = txt;
 		super.setText(txt);
 	}
@@ -155,6 +157,7 @@ public class LinkButton extends ATag implements IActionControl {
 		return m_disabled;
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		if(m_disabled == disabled)
 			return;

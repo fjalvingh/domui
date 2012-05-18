@@ -151,7 +151,7 @@ public class DefaultButton extends Button {
 	 * @see to.etc.domui.dom.html.NodeContainer#setText(java.lang.String)
 	 */
 	@Override
-	public void setText(final String text) {
+	public void setText(final @Nullable String text) {
 		m_text = text;
 		forceRebuild();
 	}

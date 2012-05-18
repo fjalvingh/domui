@@ -123,7 +123,7 @@ public class ButtonPart implements IBufferedPartFactory {
 	}
 
 	@Override
-	public Object decodeKey(final String rurl, final IExtendedParameterInfo info) throws Exception {
+	public Object decodeKey(final @Nonnull String rurl, final @Nonnull IExtendedParameterInfo info) throws Exception {
 		ButtonPartKey k = new ButtonPartKey();
 		k.m_image = info.getParameter("img");
 		k.m_text = info.getParameter("txt");

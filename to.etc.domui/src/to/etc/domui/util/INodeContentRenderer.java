@@ -24,16 +24,20 @@
  */
 package to.etc.domui.util;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 public interface INodeContentRenderer<T> {
 	/**
-	 * Render the content for a node.
+	 * Render the content for a node. You should add whatever is needed to render the value of "object" to the "node" parameter, as either text
+	 * or other DomUI nodes.
+	 *
 	 * @param component
 	 * @param node
 	 * @param object
 	 * @param parameters
 	 * @throws Exception
 	 */
-	public void renderNodeContent(NodeBase component, NodeContainer node, T object, Object parameters) throws Exception;
+	void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception;
 }

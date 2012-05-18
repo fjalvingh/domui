@@ -35,6 +35,7 @@ import to.etc.util.*;
  * Created on Aug 25, 2009
  */
 public class IntegerType implements IJdbcType, IJdbcTypeFactory {
+	@Override
 	public int accept(JdbcPropertyMeta pm) {
 		return pm.getActualClass() == int.class || pm.getActualClass() == Integer.class ? 10 : -1;
 	}
@@ -49,6 +50,7 @@ public class IntegerType implements IJdbcType, IJdbcTypeFactory {
 		return 1;
 	}
 
+	@Override
 	public Object convertToInstance(ResultSet rs, int index) throws Exception {
 		int val = rs.getInt(index);
 		if(rs.wasNull())
@@ -56,6 +58,7 @@ public class IntegerType implements IJdbcType, IJdbcTypeFactory {
 		return Integer.valueOf(val);
 	}
 
+	@Override
 	public void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta pm, Object value) throws Exception {
 		Integer iv;
 		if(value instanceof Integer)

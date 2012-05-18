@@ -155,10 +155,8 @@ final public class WindowSession {
 	 * @param cc
 	 */
 	void registerConversation(final ConversationContext cc) {
-		if(cc.getId() == null)
-			cc.setId("c" + nextCID());
 		m_conversationMap.put(cc.getId(), cc);
-		cc.setManager(this);
+		cc.initialize(this, "c" + nextCID());
 	}
 
 	/**
@@ -669,7 +667,7 @@ final public class WindowSession {
 		ConversationContext coco = createConversation(rctx, ccclz);
 
 		//		cid = null; // jal 20110307 TEST Why is the CID used from the URL??
-		coco.setId(cid == null ? "" + nextCID() : cid);
+		//		coco.setId(cid == null ? "" + nextCID() : cid);
 
 		//-- Since this is a new page we clear ALL existing conversations
 		registerConversation(coco); // ORDERED 2

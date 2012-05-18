@@ -83,6 +83,7 @@ public abstract class AbstractCharter implements ICharterHelper {
 		m_properties = chartProperties;
 	}
 
+	@Override
 	public void addChartField(ChartField element) {
 		m_chartDataElements.add(element);
 	}

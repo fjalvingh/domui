@@ -24,11 +24,14 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 public interface ICriteriaTableDef<T> {
 	/**
 	 * Returns the resulting type for queries.
 	 * @return
 	 */
+	@Nonnull
 	Class<T> getDataClass();
 
 }

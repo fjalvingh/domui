@@ -26,6 +26,8 @@ package to.etc.domui.component.lookup;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
@@ -116,7 +118,7 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 		add(lf);
 		setOnClose(new IWindowClosed() {
 			@Override
-			public void closed(String closeReason) throws Exception {
+			public void closed(@Nonnull String closeReason) throws Exception {
 				clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 				if(m_onReceiveResult != null) {
 					m_onReceiveResult.onReturnResult(Collections.EMPTY_LIST);

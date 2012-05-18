@@ -36,6 +36,7 @@ import to.etc.util.*;
  * Created on Sep 24, 2010
  */
 public class BooleanType implements IJdbcType, IJdbcTypeFactory {
+	@Override
 	public int accept(JdbcPropertyMeta pm) {
 		return pm.getActualClass() == boolean.class || pm.getActualClass() == Boolean.class ? 10 : -1;
 	}
@@ -50,6 +51,7 @@ public class BooleanType implements IJdbcType, IJdbcTypeFactory {
 		return 1;
 	}
 
+	@Override
 	public Object convertToInstance(ResultSet rs, int index) throws Exception {
 		boolean val = rs.getBoolean(index);
 		if(rs.wasNull())
@@ -57,6 +59,7 @@ public class BooleanType implements IJdbcType, IJdbcTypeFactory {
 		return Boolean.valueOf(val);
 	}
 
+	@Override
 	public void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta pm, Object value) throws Exception {
 		Boolean iv;
 		if(value instanceof Boolean)

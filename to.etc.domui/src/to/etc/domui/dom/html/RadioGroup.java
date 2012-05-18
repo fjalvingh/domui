@@ -62,10 +62,12 @@ public class RadioGroup<T> extends Div implements IHasChangeListener {
 		return Collections.unmodifiableList(m_buttonList);
 	}
 
+	@Override
 	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
+	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}

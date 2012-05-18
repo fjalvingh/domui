@@ -471,6 +471,17 @@ final public class DomUtil {
 	}
 
 	/**
+	 * Create a relative URL for the specified page (an URL that is relative to the application's context, i.e. without
+	 * hostname nor webapp context).
+	 * @param clz
+	 * @param pp
+	 * @return
+	 */
+	static public String createPageRURL(@Nonnull Class< ? extends UrlPage> clz, @Nullable PageParameters pp) {
+		return clz.getName() + "." + DomApplication.get().getUrlExtension();
+	}
+
+	/**
 	 * IMPORTANT: This method MUST be used for non UI threads, when UIContext.getRequestContext() == null!
 	 * In all other, usually UI running threads, use other alternatives that is using appURL from UIContext.getRequestContext()!
 	 *

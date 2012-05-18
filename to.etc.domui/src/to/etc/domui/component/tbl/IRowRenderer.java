@@ -34,9 +34,9 @@ import javax.annotation.*;
  * Created on Jun 1, 2008
  */
 public interface IRowRenderer<T> {
-	void beforeQuery(TableModelTableBase<T> tbl) throws Exception;
+	void beforeQuery(@Nonnull TableModelTableBase<T> tbl) throws Exception;
 
-	void renderRow(TableModelTableBase<T> tbl, ColumnContainer<T> cc, int index, T instance) throws Exception;
+	void renderRow(@Nonnull TableModelTableBase<T> tbl, @Nonnull ColumnContainer<T> cc, int index, @Nonnull T instance) throws Exception;
 
 	/**
 	 * Render table header.
@@ -44,7 +44,7 @@ public interface IRowRenderer<T> {
 	 * @param cc
 	 * @throws Exception
 	 */
-	void renderHeader(TableModelTableBase<T> tbl, HeaderContainer<T> cc) throws Exception;
+	void renderHeader(@Nonnull TableModelTableBase<T> tbl, @Nonnull HeaderContainer<T> cc) throws Exception;
 
 	/**
 	 * Return the row clicked handler to use.

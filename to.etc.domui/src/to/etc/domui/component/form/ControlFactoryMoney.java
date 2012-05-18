@@ -26,6 +26,8 @@ package to.etc.domui.component.form;
 
 import java.math.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
@@ -46,7 +48,7 @@ public class ControlFactoryMoney implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
-	public int accepts(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(Text.class)) // This will create a Text class,
 			return -1;
 		Class<?> clz = pmm.getActualType();
@@ -63,7 +65,7 @@ public class ControlFactoryMoney implements ControlFactory {
 	 */
 	@Override
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public <T> ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel<T> pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context) {
 		Class< ? > iclz = pmm.getActualType();
 
 		if(!editable) {

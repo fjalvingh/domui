@@ -27,6 +27,8 @@ package to.etc.domui.testsupport;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
@@ -94,7 +96,7 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public String getRelativePath(final String rel) {
+	public String getRelativePath(final @Nonnull String rel) {
 		return "webapp/" + rel;
 	}
 
@@ -147,7 +149,7 @@ public class TestRequestContext implements IRequestContext {
 	 * @see to.etc.domui.server.IRequestContext#hasPermission(java.lang.String)
 	 */
 	@Override
-	public boolean hasPermission(final String permissionName) {
+	public boolean hasPermission(final @Nonnull String permissionName) {
 		return true;
 	}
 }

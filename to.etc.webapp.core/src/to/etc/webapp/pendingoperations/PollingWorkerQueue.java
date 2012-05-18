@@ -90,6 +90,7 @@ public class PollingWorkerQueue {
 
 	private void startThread() {
 		Thread t = new Thread(new Runnable() {
+			@Override
 			public void run() {
 				handlerThreadMain();
 			}
