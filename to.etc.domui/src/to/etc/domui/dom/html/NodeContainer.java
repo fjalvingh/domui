@@ -535,10 +535,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	/**
-	 * Set the text <i>contained in</i> this node, using tilde replacement. If the
-	 * string starts with a ~ it is assumed to be a key into the page's resource bundle. Before
+	 * Set the text <i>contained in</i> this node, using tilde replacement. Before
 	 * the new text node is added to the container the container will first be <b>fully emptied</b>, i.e.
-	 * any contained node will be deleted.
+	 * any contained node will be deleted. Setting a null or empty string text will just clear the
+	 * node's contents without a {@link TextNode} being added.
 	 *
 	 * FIXME This must be renamed and made final.
 	 *
@@ -564,7 +564,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		//-- Drop all children
 		while(getChildCount() > 0)
 			removeChild(getChild(getChildCount() - 1));
-		if(null != txt) {
+		if(null != txt && txt.length() > 0) {
 			TextNode t = new TextNode(txt);
 			add(t);
 		}

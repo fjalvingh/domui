@@ -1182,6 +1182,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * @return
 	 */
 	@Deprecated
+	@Nonnull
 	public Table getTable() {
 		if(m_table == null) {
 			throw new IllegalStateException("m_table is not created yet!");
@@ -1194,6 +1195,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	 * @return
 	 */
 	@Deprecated
+	@Nonnull
 	public TBody getBody() {
 		if(m_table == null) {
 			throw new IllegalStateException("m_table is not created yet!");
