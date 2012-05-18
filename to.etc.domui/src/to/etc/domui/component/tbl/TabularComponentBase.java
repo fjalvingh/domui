@@ -74,7 +74,7 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 	}
 
 	@Override
-	protected void fireModelChanged(@Nullable ITableModel<T> old, @Nonnull ITableModel<T> nw) {
+	protected void fireModelChanged(@Nullable ITableModel<T> old, @Nullable ITableModel<T> nw) {
 		m_currentPage = 0;
 		for(IDataTableChangeListener l : getListeners()) {
 			try {

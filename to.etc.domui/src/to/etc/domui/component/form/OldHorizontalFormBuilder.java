@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.form;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -128,7 +130,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	}
 
 	@Override
-	public TD addCell() {
+	public @Nonnull TD addCell() {
 		return addCell(null, 1, 2);
 	}
 

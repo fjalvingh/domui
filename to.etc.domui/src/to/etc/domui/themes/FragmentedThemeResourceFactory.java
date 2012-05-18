@@ -45,7 +45,7 @@ public class FragmentedThemeResourceFactory implements IResourceFactory {
 	}
 
 	@Override
-	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nullable IResourceDependencyList rdl) throws Exception {
+	public @Nonnull IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nullable IResourceDependencyList rdl) throws Exception {
 		String real = name.substring(CURRENT.length());
 		ITheme theme = da.getTheme(rdl);
 

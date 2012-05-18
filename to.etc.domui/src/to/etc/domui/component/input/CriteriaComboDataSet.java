@@ -55,7 +55,7 @@ public class CriteriaComboDataSet<T> implements IComboDataSet<T> {
 	 * @see to.etc.domui.util.IComboDataSet#getComboDataSet(to.etc.domui.dom.html.UrlPage)
 	 */
 	@Override
-	public List<T> getComboDataSet(@Nonnull UrlPage page) throws Exception {
+	public @Nonnull List<T> getComboDataSet(@Nonnull UrlPage page) throws Exception {
 		return page.getSharedContext().query(m_query);
 	}
 }

@@ -66,7 +66,7 @@ public class ControlFactoryString implements ControlFactory {
 			 * FIXME EXPERIMENTAL: replace the code below (which is still fully available) with the
 			 * display-only component.
 			 */
-			DisplayValue dv = new DisplayValue(iclz);
+			DisplayValue<T> dv = new DisplayValue<T>(iclz);
 			if(pmm.getConverter() != null)
 				dv.setConverter(pmm.getConverter());
 			String s = pmm.getDefaultHint();

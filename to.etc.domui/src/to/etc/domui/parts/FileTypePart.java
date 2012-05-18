@@ -41,7 +41,7 @@ public class FileTypePart implements IBufferedPartFactory {
 	 * the resource name preceded with a prefix to make it unique.
 	 */
 	@Override
-	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
 		return PREFIX + rurl;
 	}
 

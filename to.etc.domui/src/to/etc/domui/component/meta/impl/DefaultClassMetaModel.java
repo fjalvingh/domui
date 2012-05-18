@@ -251,7 +251,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
+	public @Nonnull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_comboDisplayProperties;
 	}
 
@@ -297,12 +297,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public Class< ? > getActualClass() {
+	public @Nonnull Class< ? > getActualClass() {
 		return m_metaClass;
 	}
 
 	@Override
-	public synchronized List<DisplayPropertyMetaModel> getTableDisplayProperties() {
+	public synchronized @Nonnull List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		if(m_tableDisplayProperties == null || m_tableDisplayProperties.size() == 0) {
 			m_tableDisplayProperties = MetaManager.calculateObjectProperties(this);
 		}
@@ -332,7 +332,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public SortableType getDefaultSortDirection() {
+	public @Nonnull SortableType getDefaultSortDirection() {
 		return m_defaultSortDirection;
 	}
 
@@ -356,7 +356,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+	public @Nonnull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
 
