@@ -281,7 +281,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	@Override
 	public String getThemedPath(String in) {
 		String p = getApplication().getThemedResourceRURL(in);
-		if(p != null)
+		if(p == null)
 			throw new NullPointerException("?");
 		return getRelativePath(p);
 	}

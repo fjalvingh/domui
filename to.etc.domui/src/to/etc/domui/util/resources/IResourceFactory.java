@@ -28,5 +28,5 @@ public interface IResourceFactory {
 	 * @throws Exception
 	 */
 	@Nonnull
-	IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nullable IResourceDependencyList rdl) throws Exception;
+	IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception;
 }

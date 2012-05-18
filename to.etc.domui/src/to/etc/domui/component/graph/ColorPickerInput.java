@@ -73,16 +73,35 @@ public class ColorPickerInput extends Input implements IInputNode<String> {
 		return v;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*--------------------------------------------------------------*/
+	/** When this is bound this contains the binder instance handling the binding. */
+	@Nullable
+	private SimpleBinder m_binder;
+
+	/**
+	 * Return the binder for this control.
+	 * @see to.etc.domui.component.input.IBindable#bind()
+	 */
 	@Override
-	public @Nonnull IBinder bind() {
-		// TODO Auto-generated method stub
-		return null;
+	@Nonnull
+	public IBinder bind() {
+		if(m_binder == null)
+			m_binder = new SimpleBinder(this);
+		return m_binder;
 	}
+
+	/**
+	 * Returns T if this control is bound to some data value.
+	 *
+	 * @see to.etc.domui.component.input.IBindable#isBound()
+	 */
 	@Override
 	public boolean isBound() {
-		// TODO Auto-generated method stub
-		return false;
+		return m_binder != null && m_binder.isBound();
 	}
+
 	@Override
 	public String getValueSafe() {
 		return getValue();

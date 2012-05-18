@@ -304,12 +304,15 @@ final public class ThemeManager {
 	public String getThemedResourceRURL(@Nullable String path) {
 		if(null == path)
 			return null;
-		if(path.startsWith("THEME/"))
+
+		if(path.startsWith("THEME/")) {
 			path = path.substring(6); // Strip THEME/
-		else if(path.startsWith("ICON/"))
+		} else if(path.startsWith("ICON/")) {
 			throw new IllegalStateException("Bad ROOT: ICON/. Use THEME/ instead.");
-		else
+		} else
 			return path; // Not theme-relative, so return as-is.
+		if(path == null)
+			throw new NullPointerException();
 
 		//-- This *is* a theme URL. Do we need to replace the icon?
 		ITheme theme = getTheme(getCurrentTheme(), null);

@@ -69,7 +69,8 @@ public class ThemeResourceFactory implements IResourceFactory {
 	 * @see to.etc.domui.util.resources.IResourceFactory#getResource(to.etc.domui.server.DomApplication, java.lang.String, to.etc.domui.util.resources.IResourceDependencyList)
 	 */
 	@Override
-	public @Nonnull IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nullable IResourceDependencyList rdl) throws Exception {
+	@Nonnull
+	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
 		String[] spl = splitThemeURL(name);
 		String themename = spl[0];
 		String filename = spl[1];
