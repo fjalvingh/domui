@@ -155,8 +155,8 @@ final public class WindowSession {
 	 * @param cc
 	 */
 	void registerConversation(final ConversationContext cc) {
-		m_conversationMap.put(cc.getId(), cc);
 		cc.initialize(this, "c" + nextCID());
+		m_conversationMap.put(cc.getId(), cc);
 	}
 
 	/**
