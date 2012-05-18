@@ -37,10 +37,12 @@ public class BasicPropertyMetaModel<T> {
 
 	private IConverter<T> m_converter;
 
+	@Nonnull
 	private SortableType m_sortable = SortableType.UNKNOWN;
 
 	private int m_displayLength = -1;
 
+	@Nonnull
 	private YesNoType m_nowrap = YesNoType.UNKNOWN;
 
 	private short m_precision = -1;
@@ -53,12 +55,16 @@ public class BasicPropertyMetaModel<T> {
 
 	private String[][] m_editRoles;
 
-	private YesNoType m_readOnly;
+	@Nonnull
+	private YesNoType m_readOnly = YesNoType.UNKNOWN;
 
+	@Nonnull
 	private TemporalPresentationType m_temporal = TemporalPresentationType.UNKNOWN;
 
+	@Nonnull
 	private NumericPresentation m_numericPresentation = NumericPresentation.UNKNOWN;
 
+	@Nonnull
 	private PropertyMetaValidator[] m_validators = NO_VALIDATORS;
 
 	private String m_regexpValidator;
@@ -81,11 +87,12 @@ public class BasicPropertyMetaModel<T> {
 		m_converter = converter;
 	}
 
+	@Nonnull
 	public SortableType getSortable() {
 		return m_sortable;
 	}
 
-	public void setSortable(SortableType sortable) {
+	public void setSortable(@Nonnull SortableType sortable) {
 		m_sortable = sortable;
 	}
 
@@ -131,27 +138,30 @@ public class BasicPropertyMetaModel<T> {
 		m_editRoles = editRoles;
 	}
 
+	@Nonnull
 	public YesNoType getReadOnly() {
 		return m_readOnly;
 	}
 
-	public void setReadOnly(YesNoType readOnly) {
+	public void setReadOnly(@Nonnull YesNoType readOnly) {
 		m_readOnly = readOnly;
 	}
 
+	@Nonnull
 	public TemporalPresentationType getTemporal() {
 		return m_temporal;
 	}
 
-	public void setTemporal(TemporalPresentationType temporal) {
+	public void setTemporal(@Nonnull TemporalPresentationType temporal) {
 		m_temporal = temporal;
 	}
 
+	@Nonnull
 	public NumericPresentation getNumericPresentation() {
 		return m_numericPresentation;
 	}
 
-	public void setNumericPresentation(NumericPresentation numericPresentation) {
+	public void setNumericPresentation(@Nonnull NumericPresentation numericPresentation) {
 		m_numericPresentation = numericPresentation;
 	}
 
@@ -175,11 +185,12 @@ public class BasicPropertyMetaModel<T> {
 		m_scale = (byte) scale;
 	}
 
+	@Nonnull
 	public PropertyMetaValidator[] getValidators() {
 		return m_validators;
 	}
 
-	public void setValidators(PropertyMetaValidator[] validators) {
+	public void setValidators(@Nonnull PropertyMetaValidator[] validators) {
 		m_validators = validators;
 	}
 
@@ -226,11 +237,12 @@ public class BasicPropertyMetaModel<T> {
 		m_columnNames = columnNames;
 	}
 
+	@Nonnull
 	public YesNoType getNowrap() {
 		return m_nowrap;
 	}
 
-	public void setNowrap(YesNoType nowrap) {
+	public void setNowrap(@Nonnull YesNoType nowrap) {
 		m_nowrap = nowrap;
 	}
 }

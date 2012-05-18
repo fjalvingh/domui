@@ -206,7 +206,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
 	@Override
-	public IBinder bind() {
+	public @Nonnull IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
 		return m_binder;

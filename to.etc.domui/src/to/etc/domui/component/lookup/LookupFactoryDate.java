@@ -112,7 +112,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 	}
 
 	@Override
-	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(SearchPropertyMetaModel spm, X control) {
+	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(@Nonnull SearchPropertyMetaModel spm, X control) {
 		PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		if(Date.class.isAssignableFrom(pmm.getActualType()) && control == null)
 			return 2;

@@ -26,6 +26,8 @@ package to.etc.domui.converter;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
@@ -407,7 +409,7 @@ public class ConverterRegistry {
 				return a == null ? -1 : 1;
 			}
 			if(a instanceof Comparable && b instanceof Comparable) {
-				return ((Comparable) a).compareTo(b);
+				return ((Comparable<Object>) a).compareTo(b);
 			}
 			return a.toString().compareTo(b.toString());
 		}
@@ -435,12 +437,12 @@ public class ConverterRegistry {
 	 * @param descending
 	 * @return
 	 */
-	static public <T> Comparator<T> getComparator(Class<T> dataClass, String property, boolean descending) {
+	static public <T> Comparator<T> getComparator(@Nonnull Class<T> dataClass, @Nonnull String property, boolean descending) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(dataClass);
 		return (Comparator<T>) getComparator(cmm, property, descending);
 	}
 
-	static public Comparator< ? > getComparator(ClassMetaModel cmm, String property, boolean descending) {
+	static public Comparator< ? > getComparator(@Nonnull ClassMetaModel cmm, @Nonnull String property, boolean descending) {
 		PropertyMetaModel< ? > pmm = cmm.findProperty(property);
 		if(null == pmm)
 			throw new ProgrammerErrorException("The property '" + cmm + "." + property + "' is not known.");

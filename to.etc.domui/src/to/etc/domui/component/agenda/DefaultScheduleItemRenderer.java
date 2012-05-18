@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.agenda;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -38,7 +40,10 @@ public class DefaultScheduleItemRenderer<T extends ScheduleItem> implements INod
 	private StringBuilder m_sb = new StringBuilder();
 
 	@Override
-	public synchronized void renderNodeContent(NodeBase component, NodeContainer root, T si, Object parameters) throws Exception {
+	public synchronized void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer root, @Nullable T si, @Nullable Object parameters) throws Exception {
+		if(null == si)
+			return;
+
 		WeekAgendaComponent<T> age = (WeekAgendaComponent<T>) component;
 
 		if(si.getImageURL() != null) {

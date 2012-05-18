@@ -40,7 +40,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 	 */
 	final private INodeContentRenderer<T> DEFAULT_RENDERER = new INodeContentRenderer<T>() {
 		@Override
-		public void renderNodeContent(NodeBase component, NodeContainer node, T object, Object parameters) throws Exception {
+		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception {
 			if(node == null || !(node instanceof Label)) {
 				throw new IllegalArgumentException("Expected Label but found: " + node);
 			}
@@ -96,8 +96,9 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		m_selectionList.clear();
 		m_selectionContainer.removeAllChildren();
 		updateClearButtonState();
-		if(getOnValueChanged() != null) {
-			getOnValueChanged().onValueChanged(null);
+		IValueChanged<MultipleLookupInput< ? >> ovc = (IValueChanged<MultipleLookupInput< ? >>) getOnValueChanged();
+		if(ovc != null) {
+			ovc.onValueChanged(this);
 		}
 	}
 
@@ -130,8 +131,9 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 					addSelection(item);
 					component.setValue(null);
 					addClearButton();
-					if(getOnValueChanged() != null) {
-						getOnValueChanged().onValueChanged(null);
+					IValueChanged<MultipleLookupInput< ? >> ovc = (IValueChanged<MultipleLookupInput< ? >>) getOnValueChanged();
+					if(ovc != null) {
+						ovc.onValueChanged(MultipleLookupInput.this);
 					}
 				}
 			}
@@ -273,16 +275,33 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		m_onValueChanged = onValueChanged;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*--------------------------------------------------------------*/
+
+	/** When this is bound this contains the binder instance handling the binding. */
+	@Nullable
+	private SimpleBinder m_binder;
+
+	/**
+	 * Return the binder for this control.
+	 * @see to.etc.domui.component.input.IBindable#bind()
+	 */
 	@Override
-	public IBinder bind() {
-		// TODO Auto-generated method stub
-		return null;
+	public @Nonnull IBinder bind() {
+		if(m_binder == null)
+			m_binder = new SimpleBinder(this);
+		return m_binder;
 	}
 
+	/**
+	 * Returns T if this control is bound to some data value.
+	 *
+	 * @see to.etc.domui.component.input.IBindable#isBound()
+	 */
 	@Override
 	public boolean isBound() {
-		// TODO Auto-generated method stub
-		return false;
+		return m_binder != null && m_binder.isBound();
 	}
 
 	public INodeContentRenderer<T> getSelectedItemContentRenderer() {

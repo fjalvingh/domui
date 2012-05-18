@@ -40,6 +40,8 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 	}
 
 	public void add(@Nonnull SimpleColumnDef cd) {
+		if(null == cd)
+			throw new IllegalArgumentException("Cannot be null");
 		m_columnList.add(cd);
 	}
 
@@ -59,7 +61,7 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 			m_sortColumn = null;
 		} else {
 			for(final SimpleColumnDef scd : m_columnList) {
-				if(scd.getPropertyName().equals(sort)) {
+				if(DomUtil.isEqual(scd.getPropertyName(), sort)) {
 					setSortColumn(scd, scd.getSortable());
 					break;
 				}
@@ -431,7 +433,8 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 
 			//-- Reassign the percentage left over all unassigned columns. Do it streaming, to ensure we reach 100%
 			for(final SimpleColumnDef scd : m_columnList) {
-				if(scd.getWidth() == null || scd.getWidth().length() == 0) {
+				String width = scd.getWidth();
+				if(width == null || width.length() == 0) {
 					//-- Calculate a size factor, then use it to assign
 					final double fact = (double) scd.getDisplayLength() / (double) totdw;
 					final int pct = (int) (fact * pctleft + 0.5);

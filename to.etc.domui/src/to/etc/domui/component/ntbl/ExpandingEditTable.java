@@ -250,7 +250,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param value
 	 * @throws Exception
 	 */
-	private void renderCollapsedRow(int index, T value) throws Exception {
+	private void renderCollapsedRow(int index, @Nonnull T value) throws Exception {
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = (TR) m_dataBody.getChild(index);
 		tr.removeAllChildren(); // Discard current contents.
@@ -259,7 +259,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		renderCollapsedRow(cc, bc, tr, index, value);
 	}
 
-	private void renderCollapsedRow(@Nonnull ColumnContainer<T> cc, @Nonnull RowButtonContainer bc, @Nonnull TR tr, int index, @Nullable final T value) throws Exception {
+	private void renderCollapsedRow(@Nonnull ColumnContainer<T> cc, @Nonnull RowButtonContainer bc, @Nonnull TR tr, int index, @Nonnull final T value) throws Exception {
 		cc.setParent(tr);
 
 		if(! isHideIndex()) {
@@ -345,7 +345,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param isnew
 	 * @throws Exception
 	 */
-	private NodeContainer createEditor(@Nonnull TD into, @Nonnull RowButtonContainer bc, @Nullable T instance, boolean isnew) throws Exception {
+	private NodeContainer createEditor(@Nonnull TD into, @Nonnull RowButtonContainer bc, @Nonnull T instance, boolean isnew) throws Exception {
 		if(getEditorFactory() == null)
 			throw new IllegalStateException("Auto editor creation not yet supported");
 
@@ -601,7 +601,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
+	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
 
@@ -646,7 +646,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
+	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
 		//-- Sanity

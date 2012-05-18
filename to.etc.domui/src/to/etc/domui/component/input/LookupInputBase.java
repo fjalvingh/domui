@@ -505,8 +505,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		}
 		QCriteria<QT> searchQuery;
 
-		if(getKeyWordSearchHandler() != null) {
-			searchQuery = getKeyWordSearchHandler().createQuery(searchString);
+		IKeyWordSearchQueryFactory<QT> ksh = getKeyWordSearchHandler();
+		if(ksh != null) {
+			searchQuery = ksh.createQuery(searchString);
 			if(searchQuery == null) {
 				//in case of cancelled search return null
 				return null;
@@ -562,8 +563,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 			}
 		}
 
-		if(getQueryManipulator() != null) {
-			searchQuery = getQueryManipulator().adjustQuery(searchQuery);
+		IQueryManipulator<QT> qm = getQueryManipulator();
+		if(qm != null) {
+			searchQuery = qm.adjustQuery(searchQuery);
 			if(searchQuery == null) {
 				//in case of cancelled search by query manipulator return
 				return null;
@@ -621,10 +623,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 			m_floater.add((NodeBase) m_customErrorMessageListener);
 			DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
 		}
-		LookupForm<QT> lf;
-		if(getLookupForm() != null) {
-			lf = getLookupForm();
-		} else {
+		LookupForm<QT> lf = getLookupForm();
+		if(lf == null) {
 			lf = new LookupForm<QT>(getQueryClass(), getQueryMetaModel());
 			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
 				lf.setSearchProperties(m_searchPropertyList);
@@ -687,8 +687,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		if(c == null) // Some error has occured?
 			return; // Don't do anything (errors will have been registered)
 
-		if(getQueryManipulator() != null) {
-			c = getQueryManipulator().adjustQuery(c); // Adjust the query where needed,
+		IQueryManipulator<QT> qm = getQueryManipulator();
+		if(qm != null) {
+			c = qm.adjustQuery(c); // Adjust the query where needed,
 			if(c == null) {
 				//in case of cancelled search by query manipulator return null
 				return;

@@ -48,8 +48,9 @@ import to.etc.webapp.nls.*;
 public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	static private final INodeContentRenderer<ValueLabelPair<Object>> STATICRENDERER = new INodeContentRenderer<ValueLabelPair<Object>>() {
 		@Override
-		public void renderNodeContent(NodeBase component, NodeContainer node, ValueLabelPair<Object> object, Object parameters) throws Exception {
-			node.setText(object.getLabel());
+		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable ValueLabelPair<Object> object, @Nullable Object parameters) throws Exception {
+			if(object != null)
+				node.setText(object.getLabel());
 		}
 	};
 

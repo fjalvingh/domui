@@ -152,7 +152,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	}
 
 	@SuppressWarnings({"cast", "unchecked", "rawtypes"})
-	protected void decodePropertyAnnotation(final DefaultJavaClassInfo colli, final DefaultPropertyMetaModel pmm, Annotation an) {
+	protected <T> void decodePropertyAnnotation(final DefaultJavaClassInfo colli, final DefaultPropertyMetaModel<T> pmm, Annotation an) {
 		final DefaultClassMetaModel cmm = colli.getModel();
 		if(an instanceof MetaProperty) {
 			//-- Handle meta-assignments.
@@ -168,7 +168,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			if(mp.required() != YesNoType.UNKNOWN)
 				pmm.setRequired(mp.required() == YesNoType.YES);
 			if(mp.converterClass() != DummyConverter.class)
-				pmm.setConverter((IConverter) ConverterRegistry.getConverterInstance((Class) mp.converterClass()));
+				pmm.setConverter((IConverter<T>) ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) mp.converterClass()));
 			if(mp.editpermissions().length != 0)
 				pmm.setEditRoles(makeRoleSet(mp.editpermissions()));
 			if(mp.viewpermissions().length != 0)

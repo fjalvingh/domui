@@ -26,6 +26,8 @@ package to.etc.domui.component.lookup;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
@@ -39,14 +41,14 @@ import to.etc.webapp.nls.*;
  */
 final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 	@Override
-	public <X extends IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
+	public <X extends IInputNode< ? >> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		Class< ? > iclz = pmm.getActualType();
 		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 2 : 0;
 	}
 
 	@Override
-	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
+	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		IInputNode< ? > ctlnode = control;
 		if(ctlnode == null) {
 			PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);

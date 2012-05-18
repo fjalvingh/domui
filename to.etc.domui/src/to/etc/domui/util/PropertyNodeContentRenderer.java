@@ -48,7 +48,7 @@ public class PropertyNodeContentRenderer<T> implements INodeContentRenderer<T> {
 	}
 
 	@Override
-	public void renderNodeContent(NodeBase component, NodeContainer node, T object, Object parameters) throws Exception {
+	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception {
 		String val = m_converter.convertObjectToString(NlsContext.getLocale(), object);
 		node.add(val);
 	}

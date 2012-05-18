@@ -49,12 +49,12 @@ public class SimpleTheme implements ITheme {
 	}
 
 	@Override
-	public ResourceDependencies getDependencies() {
+	public @Nonnull ResourceDependencies getDependencies() {
 		return m_rd;
 	}
 
 	@Override
-	public Map<String, Object> getThemeProperties() {
+	public @Nonnull Map<String, Object> getThemeProperties() {
 		return m_themeProperties;
 	}
 
