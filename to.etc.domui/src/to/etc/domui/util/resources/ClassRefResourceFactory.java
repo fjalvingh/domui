@@ -21,7 +21,7 @@ public class ClassRefResourceFactory implements IResourceFactory {
 
 	@Override
 	@Nonnull
-	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nullable IResourceDependencyList rdl) throws Exception {
+	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
 		IResourceRef r = da.createClasspathReference(name.substring(Constants.RESOURCE_PREFIX.length() - 1)); // Strip off $RES, rest is absolute resource path starting with /
 		if(null != rdl)
 			rdl.add(r);

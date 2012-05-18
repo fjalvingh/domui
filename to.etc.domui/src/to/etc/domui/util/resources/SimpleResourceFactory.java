@@ -21,7 +21,7 @@ public class SimpleResourceFactory implements IResourceFactory {
 
 	@Override
 	@Nonnull
-	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nullable IResourceDependencyList rdl) throws Exception {
+	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
 		IResourceRef r = da.getAppFileOrResource(name.substring(1));
 		if(null != rdl)
 			rdl.add(r);

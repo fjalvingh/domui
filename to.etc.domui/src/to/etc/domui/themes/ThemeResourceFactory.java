@@ -65,8 +65,6 @@ public class ThemeResourceFactory implements IResourceFactory {
 
 	/**
 	 * Get a resource from the proper theme.
-	 *
-	 * @see to.etc.domui.util.resources.IResourceFactory#getResource(to.etc.domui.server.DomApplication, java.lang.String, to.etc.domui.util.resources.IResourceDependencyList)
 	 */
 	@Override
 	@Nonnull
