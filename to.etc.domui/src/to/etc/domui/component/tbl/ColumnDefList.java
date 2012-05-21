@@ -33,6 +33,7 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 
 	public ColumnDefList(@Nonnull ClassMetaModel cmm) {
 		m_metaModel = cmm;
+		m_sortDescending = cmm.getDefaultSortDirection() == SortableType.SORTABLE_DESC;
 	}
 
 	public int size() {
@@ -73,6 +74,10 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 	public void setSortColumn(@Nullable SimpleColumnDef cd, @Nullable SortableType type) {
 		m_sortColumn = cd;
 		m_sortDescending = type == SortableType.SORTABLE_DESC;
+	}
+
+	public void setSortColumn(@Nullable SimpleColumnDef cd) {
+		m_sortColumn = cd;
 	}
 
 	/**
@@ -458,5 +463,18 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 
 	public int indexOf(@Nonnull SimpleColumnDef scd) {
 		return m_columnList.indexOf(scd);
+	}
+
+	@Nullable
+	public SimpleColumnDef getSortColumn() {
+		return m_sortColumn;
+	}
+
+	public boolean isSortDescending() {
+		return m_sortDescending;
+	}
+
+	public void setSortDescending(boolean desc) {
+		m_sortDescending = desc;
 	}
 }
