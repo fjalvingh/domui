@@ -84,7 +84,10 @@ final public class ImageInfo implements Serializable {
 	@Nonnull
 	public OriginalImagePage getPage(int ix) {
 		if(m_pageList == null)
-			throw new IllegalStateException("ImageInfo: no page list present.");
-		return m_pageList.get(ix);
+			throw new IllegalStateException("The page list is null?");
+		OriginalImagePage ip = m_pageList.get(ix);
+		if(null == ip)
+			throw new IllegalStateException("Page " + ix + " is null in page list??");
+		return ip;
 	}
 }

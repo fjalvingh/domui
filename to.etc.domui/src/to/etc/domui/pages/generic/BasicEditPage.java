@@ -79,10 +79,14 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		createButtonBar();
 		createButtons();
 		createEditableBase();
+		onAfterCreateContent();
 	}
 
 	protected boolean onBeforeCreateContent() {
 		return true;
+	}
+
+	protected void onAfterCreateContent() {
 	}
 
 	private void createEditableBase() throws Exception {
