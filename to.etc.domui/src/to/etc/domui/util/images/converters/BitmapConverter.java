@@ -96,7 +96,6 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 		//-- Calculate the proper width and height, respecting the aspect ratio of the source
 		boolean	multipage = helper.getSource().getInfo().getPageCount() > 1;
 		OriginalImagePage ip = helper.getSource().getInfo().getPage(sourcePage);
-		Dimension d = ImaTool.resizeWithAspect(resize.getWidth(), resize.getHeight(), ip.getWidth(), ip.getHeight());
 
 		if(targetMime == null) {
 			if(helper.getSource().getMime().equals("image/jpeg") || helper.getSource().getMime().equals("image/jpg"))
