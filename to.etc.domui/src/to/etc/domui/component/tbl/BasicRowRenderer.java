@@ -118,7 +118,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IClic
 	 * Complete this object if it is not already complete.
 	 */
 	@Override
-	protected void complete(final TableModelTableBase<T> tbl) {
+	protected void complete(@Nonnull final TableModelTableBase<T> tbl) {
 		if(isComplete())
 			return;
 

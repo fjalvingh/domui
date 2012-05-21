@@ -324,11 +324,12 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 
 	void handleSortClick(@Nonnull final NodeBase nb, @Nonnull final SimpleColumnDef scd) throws Exception {
 		//-- 1. Is this the same as the "current" sort column? If so toggle the sort order only.
-		if(scd == getSortColumn()) {
+		SimpleColumnDef sortColumn = getSortColumn();
+		if(scd == sortColumn) {
 			setSortDescending( ! isSortDescending());
 		} else {
-			if(getSortColumn() != null)
-				updateSortImage(getSortColumn(), "THEME/sort-none.png");
+			if(sortColumn != null)
+				updateSortImage(sortColumn, "THEME/sort-none.png");
 
 			m_columnList.setSortColumn(scd, scd.getSortable());			 // Set the new sort column
 		}
