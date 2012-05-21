@@ -94,7 +94,7 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 		return in.getValue();
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	private void initRenderer() {
 		INodeContentRenderer< ? > r = STATICRENDERER;
 		setContentRenderer((INodeContentRenderer<ValueLabelPair<T>>) r);

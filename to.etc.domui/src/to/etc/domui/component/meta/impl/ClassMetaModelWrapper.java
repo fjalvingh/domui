@@ -73,12 +73,18 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public PropertyMetaModel< ? > findProperty(String name) {
+	public PropertyMetaModel< ? > findProperty(@Nonnull String name) {
 		return m_parent.findProperty(name);
 	}
 
 	@Override
-	public PropertyMetaModel< ? > findSimpleProperty(String name) {
+	@Nonnull
+	public PropertyMetaModel< ? > getProperty(@Nonnull String name) {
+		return m_parent.getProperty(name);
+	}
+
+	@Override
+	public PropertyMetaModel< ? > findSimpleProperty(@Nonnull String name) {
 		return m_parent.findSimpleProperty(name);
 	}
 
