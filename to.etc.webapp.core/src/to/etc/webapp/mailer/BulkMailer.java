@@ -345,6 +345,7 @@ public class BulkMailer {
 					//-- Failed, sigh. Store failure reason et al.
 					retries++;
 					rs.updateString(8, StringTool.strTrunc(error, 128));
+					rs.updateInt(4, retries);
 
 					if(retries > 20)
 						rs.updateString(5, RState.FATL.name());
