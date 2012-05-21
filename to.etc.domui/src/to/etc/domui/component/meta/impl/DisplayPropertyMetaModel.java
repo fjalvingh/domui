@@ -73,7 +73,7 @@ public class DisplayPropertyMetaModel {
 			throw new IllegalArgumentException("Cannot be null");
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	public DisplayPropertyMetaModel(@Nonnull ClassMetaModel cmm, @Nonnull MetaDisplayProperty p) {
 		m_containedInClass = cmm;
 		m_propertyModel = cmm.findProperty(p.name()); // Creates either a PathPropertyModel or gets a normal one
@@ -106,7 +106,7 @@ public class DisplayPropertyMetaModel {
 		return ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) clz);
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	public DisplayPropertyMetaModel(@Nonnull ClassMetaModel cmm, @Nonnull MetaComboProperty p) {
 		m_containedInClass = cmm;
 		m_propertyModel = cmm.findProperty(p.name()); // Creates either a PathPropertyModel or gets a normal one
