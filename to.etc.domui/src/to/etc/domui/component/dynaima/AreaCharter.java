@@ -60,14 +60,14 @@ public class AreaCharter implements ICharterHelper {
 
 	// FIXME Cannot create ANY construct here that does NOT cause generic warnings. Good job, Sun.
 	@SuppressWarnings({"unchecked"})
-	static public class BucketData<T extends Comparable<T>> {
+	static public class BucketData {
 		private String m_bucketName;
 
-		private T m_bucketValue;
+		private Object m_bucketValue;
 
 		private List<Double> m_values = new ArrayList<Double>();
 
-		protected BucketData(String bucketName, T bucketValue) {
+		protected BucketData(String bucketName, Object bucketValue) {
 			m_bucketName = bucketName;
 			m_bucketValue = bucketValue;
 		}
@@ -82,7 +82,7 @@ public class AreaCharter implements ICharterHelper {
 			return m_bucketName;
 		}
 
-		public T getBucketValue() {
+		public Object getBucketValue() {
 			return m_bucketValue;
 		}
 
@@ -119,7 +119,7 @@ public class AreaCharter implements ICharterHelper {
 		}
 	}
 
-	private Map<Object, BucketData< ? >> m_bucketSet = new HashMap<Object, BucketData< ? >>();
+	private Map<Object, BucketData> m_bucketSet = new HashMap<Object, BucketData>();
 
 	private List<DataSet> m_sets = new ArrayList<DataSet>();
 
@@ -140,26 +140,28 @@ public class AreaCharter implements ICharterHelper {
 	}
 
 	<T extends Comparable<T>> void _add(int index, String bucketlabel, T sortvalue, double value) {
-		BucketData< ? > bd = addBucket(bucketlabel, sortvalue); // Add/get bucket.
+		BucketData bd = addBucket(bucketlabel, sortvalue); // Add/get bucket.
 		bd.setValue(index, value);
 	}
 
-	public <T extends Comparable<T>> BucketData< ? > addBucket(String bucketlabel, T sortvalue) {
-		BucketData<T> d = (BucketData<T>) m_bucketSet.get(sortvalue);
+	public BucketData addBucket(String bucketlabel, Object sortvalue) {
+		BucketData d = m_bucketSet.get(sortvalue);
 		if(d == null) {
-			d = new BucketData<T>(bucketlabel, sortvalue);
+			d = new BucketData(bucketlabel, sortvalue);
 			m_bucketSet.put(sortvalue, d);
 		}
 		return d;
 	}
 
-	public <T extends Comparable<T>> List<BucketData<T>> getOrderedBuckets() {
+	public List<BucketData> getOrderedBuckets() {
 		Collection<?> values = m_bucketSet.values();
-		List<BucketData<T>> res = new ArrayList<BucketData<T>>((Collection<BucketData<T>>) values);
-		Collections.sort(res, new Comparator<BucketData<T>>() {
+		List<BucketData> res = new ArrayList<BucketData>((Collection<BucketData>) values);
+		Collections.sort(res, new Comparator<BucketData>() {
 			@Override
-			public int compare(BucketData<T> o1, BucketData<T> o2) {
-				return o1.getBucketValue().compareTo(o2.getBucketValue());
+			public int compare(BucketData o1, BucketData o2) {
+				Comparable<Object> a = (Comparable<Object>) o1.getBucketValue();
+				Comparable<Object> b = (Comparable<Object>) o2.getBucketValue();
+				return a.compareTo(b);
 			}
 		});
 		return res;
@@ -171,11 +173,7 @@ public class AreaCharter implements ICharterHelper {
 	 */
 	@Override
 	public void finish() throws Exception {
-		finish1();
-	}
-
-	private <T extends Comparable<T>> void finish1() throws Exception {
-		List<BucketData<T>> list = getOrderedBuckets();
+		List<BucketData> list = getOrderedBuckets();
 
 		double[][] data = new double[m_sets.size()][]; // Root thingy.
 		for(int i = data.length; --i >= 0;)
@@ -184,7 +182,7 @@ public class AreaCharter implements ICharterHelper {
 
 		//-- Create all value arrays.
 		int bix = 0;
-		for(BucketData<T> bd : list) {
+		for(BucketData bd : list) {
 			axislabels[bix] = bd.getBucketName();
 			for(int i = 0; i < data.length; i++) { // For all datasets in this bucket
 				Double v = bd.getValue(i);
