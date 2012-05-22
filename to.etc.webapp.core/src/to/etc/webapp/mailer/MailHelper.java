@@ -106,6 +106,8 @@ public class MailHelper {
 
 	private boolean m_init;
 
+	private int m_htmllinelen;
+
 	public MailHelper() {
 }
 
@@ -126,6 +128,7 @@ public class MailHelper {
 	}
 
 	public void start(Address to, String subject) {
+		m_htmllinelen = 0;
 		setSubject(subject);
 		addTo(to);
 	}
@@ -174,9 +177,26 @@ public class MailHelper {
 	public void appendVerbatim(@Nonnull String s) {
 		init();
 		m_text_sb.append(s);
-		StringTool.htmlStringize(m_html_sb, s);
+		String html = StringTool.htmlStringize(s);
+		m_html_sb.append(html);
+		handleLen(html);
 	}
 
+
+	private void handleLen(String cont) {
+		int pos = cont.lastIndexOf('\n');
+		if(pos == -1) {
+			m_htmllinelen += cont.length();
+		} else {
+			m_htmllinelen = cont.length() - pos;
+		}
+
+		//-- jal 20120522 RFC2822 limits email line length to 998 characters.
+		if(m_htmllinelen > 768) {
+			m_html_sb.append("\r\n");
+			m_htmllinelen = 0;
+		}
+	}
 
 	@Nonnull
 	public MailHelper ttl(@Nonnull String s) {
@@ -190,7 +210,8 @@ public class MailHelper {
 		m_text_sb.append("\n");
 
 		//-- HTML fragment
-		m_html_sb.append("</h2>\n");
+		m_html_sb.append("</h2>\r\n");
+		m_htmllinelen = 0;
 		return this;
 	}
 
@@ -215,7 +236,8 @@ public class MailHelper {
 	@Nonnull
 	public MailHelper nl() {
 		init();
-		m_text_sb.append("\n");
+		m_htmllinelen = 0;
+		m_text_sb.append("\r\n");
 		m_html_sb.append("<br/>");
 		return this;
 	}
@@ -226,6 +248,8 @@ public class MailHelper {
 		m_html_sb.append("<pre>");
 		append(content);
 		m_html_sb.append("</pre>");
+		m_html_sb.append("\r\n");
+		m_htmllinelen = 0;
 		return this;
 	}
 
@@ -246,11 +270,22 @@ public class MailHelper {
 		m_text_sb.append(url);
 		m_text_sb.append(")");
 
+		if(m_htmllinelen > 768) {
+			m_htmllinelen = 0;
+			m_html_sb.append("\r\n");
+		}
+		int pos = m_html_sb.length();
 		m_html_sb.append("<a href=\"");
 		m_html_sb.append(url); // ! Do not URLencode- parent should have as it only pertains to parameters!!
 		m_html_sb.append("\">");
 		StringTool.htmlStringize(m_html_sb, text);
 		m_html_sb.append("</a>");
+		pos = m_html_sb.length() - pos;
+		m_htmllinelen += pos;
+		if(m_htmllinelen > 768) {
+			m_htmllinelen = 0;
+			m_html_sb.append("\r\n");
+		}
 		return this;
 	}
 
@@ -282,11 +317,18 @@ public class MailHelper {
 	public MailHelper linkNoText(String url, String text) {
 		init();
 		m_text_sb.append(url);
+		int pos = m_html_sb.length();
 		m_html_sb.append("<a href=\"");
 		m_html_sb.append(url);
 		m_html_sb.append("\">");
 		StringTool.htmlStringize(m_html_sb, text);
 		m_html_sb.append("</a>");
+		pos = m_html_sb.length() - pos;
+		m_htmllinelen += pos;
+		if(m_htmllinelen > 768) {
+			m_htmllinelen = 0;
+			m_html_sb.append("\r\n");
+		}
 		return this;
 	}
 
@@ -400,9 +442,16 @@ public class MailHelper {
 		m_text_sb.append(a.m_ident);
 		m_text_sb.append(") ");
 
+		int pos = m_html_sb.length();
 		m_html_sb.append("<img src=\"cid:");
 		m_html_sb.append(a.m_ident);
 		m_html_sb.append("\">");
+		pos = m_html_sb.length() - pos;
+		m_htmllinelen += pos;
+		if(m_htmllinelen > 768) {
+			m_htmllinelen = 0;
+			m_html_sb.append("\r\n");
+		}
 
 		//-- Create the attachment image.
 		m_attachmentList.add(a);
