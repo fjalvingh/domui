@@ -98,9 +98,9 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 */
 	@Override
 	public void beforeQuery(final @Nonnull TableModelTableBase<T> tbl) throws Exception {
-		m_completed = true;
 		if(m_columnList.size() == 0)
 			addDefaultColumns();
+		m_completed = true;
 	}
 
 	@Override
