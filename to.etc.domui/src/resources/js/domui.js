@@ -1540,9 +1540,10 @@ var WebUI = {
 		/*
 		 * Issue a pollasy request using ajax, then handle the result.
 		 */
-		fields = new Object();
+		var fields = new Object();
 		fields.webuia = "pollasy";
 		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
 
 		$.ajax( {
 			url :window.location.href,
