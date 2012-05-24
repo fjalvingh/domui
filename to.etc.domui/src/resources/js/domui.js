@@ -332,7 +332,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			function createElement(node) {
 				var e, tag = node.tagName.toLowerCase();
 				// some elements in IE need to be created with attrs inline
-				if ($.browser.msie) {
+				if ($.browser.msie && !WebUI.isNormalIE9plus()) {
 					var type = node.getAttribute('type');
 					if (tag == 'table'
 							|| type == 'radio'
@@ -2485,7 +2485,6 @@ var WebUI = {
 		//document.documentMode == undefined --- plain old IE7 
 		return ($.browser.msie && parseInt($.browser.version) == 7 && (!document.documentMode || document.documentMode == 7));
 	},
-
 	//Returns T if browser is IE8 or IE8 compatibility mode
 	isIE8orIE8c: function() {
 		//Stupid IE8 in compatibility mode lies that it is IE7, and renders as IE8! At least we can detect that using document.documentMode (it is 8 in that case)
@@ -2493,6 +2492,10 @@ var WebUI = {
 		//document.documentMode == 8 		 --- IE8 running in IE8 mode or IE7 Compatibility mode
 		//document.documentMode == undefined --- plain old IE7 
 		return ($.browser.msie && (parseInt($.browser.version) == 8 || (parseInt($.browser.version) == 7 && document.documentMode == 8)));
+	},
+	//Returns T if browser is IE of at least version 9 and does not run in any of compatibility modes for earlier versions
+	isNormalIE9plus: function() {
+		return ($.browser.msie && parseInt($.browser.version) >= 9 && document.documentMode >= 9);
 	}	
 };
 
