@@ -26,6 +26,8 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.util.*;
 
@@ -72,7 +74,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 	 * @see to.etc.domui.dom.html.NodeContainer#canContain(to.etc.domui.dom.html.NodeBase)
 	 */
 	@Override
-	protected void canContain(NodeBase node) {
+	protected void canContain(@Nonnull NodeBase node) {
 		if(!(node instanceof SelectOption))
 			throw new IllegalStateException(getClass().getName() + " cannot contain a " + node + " type, only a SelectOption node type.");
 	}
@@ -132,7 +134,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 	}
 
 	@Override
-	final public boolean acceptRequestParameter(String[] values) throws Exception {
+	final public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
 		String in = values[0];
 		SelectOption selo = (SelectOption) getPage().findNodeByID(in);
 		int nindex = selo == null ? -1 : findChildIndex(selo);

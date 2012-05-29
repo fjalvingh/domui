@@ -397,6 +397,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		m_componentTypeHint = componentTypeHint;
 	}
 
+	@Override
 	public IQueryManipulator<T> getQueryManipulator() {
 		return m_queryManipulator;
 	}

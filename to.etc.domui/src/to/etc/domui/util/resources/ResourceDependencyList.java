@@ -44,13 +44,13 @@ final public class ResourceDependencyList implements IResourceDependencyList {
 	 */
 	static public final IResourceDependencyList NULL = new IResourceDependencyList() {
 		@Override
-		public void add(IModifyableResource c) {}
+		public void add(@Nonnull IModifyableResource c) {}
 
 		@Override
-		public void add(IIsModified m) {}
+		public void add(@Nonnull IIsModified m) {}
 
 		@Override
-		public void add(IResourceRef ref) {}
+		public void add(@Nonnull IResourceRef ref) {}
 	};
 
 	@Nonnull

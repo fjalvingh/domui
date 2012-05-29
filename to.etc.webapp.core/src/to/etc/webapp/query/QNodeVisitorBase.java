@@ -34,6 +34,7 @@ import java.util.*;
  * Created on Jun 24, 2008
  */
 public class QNodeVisitorBase implements QNodeVisitor {
+	@Override
 	public void visitPropertyComparison(QPropertyComparison n) throws Exception {
 		n.getExpr().visit(this);
 	}
@@ -42,27 +43,33 @@ public class QNodeVisitorBase implements QNodeVisitor {
 	//		n.getLhs().visit(this);
 	//		n.getRhs().visit(this);
 	//	}
+	@Override
 	public void visitUnaryNode(QUnaryNode n) throws Exception {
 		n.getNode().visit(this);
 	}
 
+	@Override
 	public void visitUnaryProperty(QUnaryProperty n) throws Exception {}
 
+	@Override
 	public void visitBetween(QBetweenNode n) throws Exception {
 		n.getA().visit(this);
 		n.getB().visit(this);
 	}
 
+	@Override
 	public void visitRestrictionsBase(QCriteriaQueryBase<?> n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		if(r != null)
 			r.visit(this);
 	}
 
+	@Override
 	public void visitCriteria(QCriteria< ? > qc) throws Exception {
 		visitRestrictionsBase(qc);
 		visitOrderList(qc.getOrder());
 	}
+	@Override
 	public void visitSelection(QSelection< ? > s) throws Exception {
 		visitSelectionColumns(s);
 		visitRestrictionsBase(s);
@@ -74,27 +81,35 @@ public class QNodeVisitorBase implements QNodeVisitor {
 			col.visit(this);
 	}
 
+	@Override
 	public void visitOrderList(List<QOrder> orderlist) throws Exception {
 		for(QOrder o : orderlist)
 			o.visit(this);
 	}
 
+	@Override
 	public void visitLiteral(QLiteral n) throws Exception {}
 
+	@Override
 	public void visitMulti(QMultiNode n) throws Exception {
 		for(QOperatorNode o : n.getChildren())
 			o.visit(this);
 	}
 
+	@Override
 	public void visitOrder(QOrder o) throws Exception {}
 
+	@Override
 	public void visitPropertySelection(QPropertySelection n) throws Exception {
 	}
+	@Override
 	public void visitSelectionColumn(QSelectionColumn n) throws Exception {
 		n.getItem().visit(this);
 	}
+	@Override
 	public void visitSelectionItem(QSelectionItem n) throws Exception {
 	}
+	@Override
 	public void visitMultiSelection(QMultiSelection n) throws Exception {
 		for(QSelectionItem it: n.getItemList())
 			it.visit(this);

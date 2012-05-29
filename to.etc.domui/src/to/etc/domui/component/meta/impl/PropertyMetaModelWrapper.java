@@ -251,6 +251,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 		return m_parent.getLookupTableProperties();
 	}
 
+	@Override
 	public IQueryManipulator<T> getQueryManipulator() {
 		return m_parent.getQueryManipulator();
 	}

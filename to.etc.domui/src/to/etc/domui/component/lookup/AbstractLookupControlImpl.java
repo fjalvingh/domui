@@ -38,6 +38,7 @@ import to.etc.webapp.query.*;
 abstract public class AbstractLookupControlImpl implements ILookupControlInstance {
 	private NodeBase[] m_nodes;
 
+	@Override
 	abstract public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception;
 
 	public AbstractLookupControlImpl(NodeBase... nodes) {
@@ -79,6 +80,7 @@ abstract public class AbstractLookupControlImpl implements ILookupControlInstanc
 	 *
 	 * @see to.etc.domui.component.lookup.ILookupControlInstance#setDisabled(Boolean))
 	 */
+	@Override
 	public void setDisabled(boolean disabled) {
 		boolean done = false;
 		if(m_nodes != null) {

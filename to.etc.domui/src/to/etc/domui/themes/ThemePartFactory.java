@@ -106,7 +106,7 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 
 
 	@Override
-	public boolean accepts(String rurl) {
+	public boolean accepts(@Nonnull String rurl) {
 		int dot1 = rurl.lastIndexOf('.');
 		if(dot1 == -1)
 			return false;
@@ -117,7 +117,7 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 	}
 
 	@Override
-	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
+	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
 		return new Key(param.getBrowserVersion(), rurl);
 	}
 

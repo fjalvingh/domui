@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.misc;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
@@ -69,7 +71,7 @@ public class MsgBox extends Window {
 		m_theButtons.setCssClass("ui-mbx-bb");
 		setOnClose(new IWindowClosed() {
 			@Override
-			public void closed(String closeReason) throws Exception {
+			public void closed(@Nonnull String closeReason) throws Exception {
 				if(null != m_onAnswer) {
 					m_selectedChoice = m_closeButtonObject;
 					try {

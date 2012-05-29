@@ -27,6 +27,7 @@ package to.etc.domui.server;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.http.*;
 
 import to.etc.domui.state.*;
@@ -268,7 +269,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getRelativePath(java.lang.String)
 	 */
 	@Override
-	public String getRelativePath(String rel) {
+	public String getRelativePath(@Nonnull String rel) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(NetTools.getApplicationURL(getRequest()));
 		sb.append(rel);
@@ -297,7 +298,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	}
 
 	@Override
-	public boolean hasPermission(String permissionName) {
+	public boolean hasPermission(@Nonnull String permissionName) {
 		return m_request.isUserInRole(permissionName);
 	}
 

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
@@ -113,7 +115,7 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 		add(lf);
 		setOnClose(new IWindowClosed() {
 			@Override
-			public void closed(String closeReason) throws Exception {
+			public void closed(@Nonnull String closeReason) throws Exception {
 				clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 				m_result = null;
 			}

@@ -60,7 +60,7 @@ public class SimpleTheme implements ITheme {
 
 	@Nonnull
 	@Override
-	public String getIconURL(String icon) {
+	public String getIconURL(@Nonnull String icon) {
 		return "$themes/" + m_styleName + "/" + icon;
 	}
 

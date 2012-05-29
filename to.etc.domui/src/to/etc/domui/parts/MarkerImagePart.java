@@ -54,7 +54,7 @@ public class MarkerImagePart implements IBufferedPartFactory {
 	private static final Color DEFAULT_COLOR = Color.GRAY;
 
 	@Override
-	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
+	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
 		MarkerImagePartKey key = MarkerImagePartKey.decode(param);
 		return key;
 	}
@@ -64,7 +64,7 @@ public class MarkerImagePart implements IBufferedPartFactory {
 	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(to.etc.domui.server.parts.PartResponse, to.etc.domui.server.DomApplication, java.lang.Object, to.etc.domui.util.resources.IResourceDependencyList)
 	 */
 	@Override
-	public void generate(PartResponse pr, DomApplication da, Object key, IResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
 		MarkerImagePartKey sipKey = (MarkerImagePartKey) key;
 
 		InputStream is = null;

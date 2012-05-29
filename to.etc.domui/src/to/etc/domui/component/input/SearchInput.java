@@ -1,9 +1,10 @@
-package to.etc.domui.component.lookup;
+package to.etc.domui.component.input;
 
 import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -35,9 +36,13 @@ import to.etc.domui.util.*;
 public class SearchInput<T> extends Div {
 	static private final int MAX_RESULTS = 7;
 
+	@Nonnull
+	final private ClassMetaModel m_dataModel;
+
+	@Nonnull
 	final private Class<T>		m_dataClass;
 
-	final private String[]		m_columns;
+	final private Object[] m_columns;
 
 	/**
 	 * Inner interface to define the query to execute to lookup data, and the handlers for
@@ -83,7 +88,8 @@ public class SearchInput<T> extends Div {
 		void		onEnter(String value) throws Exception;
 	}
 
-	private IQuery<T>		m_handler;
+	@Nullable
+	private IQuery<T> m_handler;
 
 	private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
 
@@ -103,9 +109,8 @@ public class SearchInput<T> extends Div {
 	 * @param clz
 	 * @param columns
 	 */
-	public SearchInput(@Nonnull Class<T> clz, String... columns) {
-		m_dataClass = clz;
-		m_columns = columns;
+	public SearchInput(@Nonnull Class<T> clz, Object... columns) {
+		this(null, clz, columns);
 	}
 
 	/**
@@ -114,10 +119,11 @@ public class SearchInput<T> extends Div {
 	 * @param clz		The data class to display/handle
 	 * @param columns	The property names to show in the popup window.
 	 */
-	public SearchInput(IQuery<T> handler, @Nonnull Class<T> clz, String... columns) {
+	public SearchInput(IQuery<T> handler, @Nonnull Class<T> clz, Object... columns) {
 		m_handler = handler;
 		m_dataClass = clz;
 		m_columns = columns;
+		m_dataModel = MetaManager.findClassMeta(clz);
 	}
 
 	@Override
@@ -224,7 +230,9 @@ public class SearchInput<T> extends Div {
 		}
 
 		SimpleListModel<T>	mdl = new SimpleListModel<T>(isl);
-		KeyWordPopupRowRenderer<T>	rr = new KeyWordPopupRowRenderer<T>(m_dataClass, m_columns);
+		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<T>(m_dataModel);
+		if(m_columns != null)
+			rr.addColumns(m_columns);
 		rr.setRowClicked(new ICellClicked<T>() {
 			@Override
 			public void cellClicked(NodeBase tr, T val) throws Exception {

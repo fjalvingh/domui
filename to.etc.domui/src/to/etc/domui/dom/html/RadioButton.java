@@ -165,7 +165,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication {
 	}
 
 	@Override
-	public boolean acceptRequestParameter(String[] values) {
+	public boolean acceptRequestParameter(@Nonnull String[] values) {
 		if(values == null || values.length != 1)
 			throw new IllegalStateException("RadioButton: expecting a single input value, not " + Arrays.toString(values));
 

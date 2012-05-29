@@ -64,7 +64,7 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		m_model = model;
 		setOnClose(new IWindowClosed() {
 			@Override
-			public void closed(String closeReason) throws Exception {
+			public void closed(@Nonnull String closeReason) throws Exception {
 				cancel();
 			}
 		});
@@ -177,7 +177,7 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 	}
 
 	@Override
-	public void setClicked(IClickBase< ? > clicked) {
+	public void setClicked(@Nullable IClickBase< ? > clicked) {
 		m_clicked = clicked;
 	}
 

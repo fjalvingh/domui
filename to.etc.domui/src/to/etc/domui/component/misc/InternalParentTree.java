@@ -142,6 +142,7 @@ public class InternalParentTree extends Div {
 		Div alt = new Div();
 		m_structure.add(alt);
 		LinkButton lb = new LinkButton("Back to structure", "THEME/btnBack.png", new IClicked<LinkButton>() {
+			@Override
 			public void clicked(LinkButton clickednode) throws Exception {
 				m_structure.removeAllChildren();
 				renderStructure(m_structure);

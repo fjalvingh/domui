@@ -48,10 +48,12 @@ public class ColorPicker extends Div implements IHasChangeListener {
 		appendJavascript("$('#" + getActualID() + "').ColorPickerSetColor('" + value + "');");
 	}
 
+	@Override
 	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
+	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}

@@ -31,18 +31,22 @@ public class PageMock implements IQContextContainer {
 
 	private QDataContextFactory m_src;
 
+	@Override
 	public QDataContextFactory internalGetDataContextFactory() {
 		return m_src;
 	}
 
+	@Override
 	public QDataContext internalGetSharedContext() {
 		return m_dc;
 	}
 
+	@Override
 	public void internalSetDataContextFactory(final QDataContextFactory s) {
 		m_src = s;
 	}
 
+	@Override
 	public void internalSetSharedContext(final QDataContext c) {
 		m_dc = c;
 	}

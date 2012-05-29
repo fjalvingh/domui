@@ -40,6 +40,7 @@ import to.etc.iocular.util.*;
  * Created on Mar 25, 2007
  */
 public class DefaultWebConfigurator implements WebConfigurator {
+	@Override
 	public WebConfiguration createConfiguration(ServletContext ctx) throws Exception {
 		//-- 1. Try bulk
 		ContainerDefinition reqd, sesd, appd;

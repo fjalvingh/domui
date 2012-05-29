@@ -143,6 +143,7 @@ public class BasicContainer implements Container {
 		}
 	}
 
+	@Override
 	public synchronized void start() {
 		if(m_started)
 			throw new IllegalStateException(this + ": container has already been started!!");
@@ -150,6 +151,7 @@ public class BasicContainer implements Container {
 
 	}
 
+	@Override
 	public void destroy() {
 		List<Destructor> dlist;
 		synchronized(this) {
@@ -193,16 +195,19 @@ public class BasicContainer implements Container {
 		return ref;
 	}
 
+	@Override
 	public <T> T findObject(final Class<T> theClass) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public <T> T findObject(final String name, final Class<T> theClass) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public <T> T getObject(final Class<T> theClass) throws Exception {
 		ComponentRef ref = m_def.findComponentReference(theClass);
 		if(ref == null)
@@ -210,6 +215,7 @@ public class BasicContainer implements Container {
 		return (T) retrieve(ref);
 	}
 
+	@Override
 	public <T> T getObject(final String name, final Class<T> theClass) throws Exception {
 		ComponentRef ref = m_def.findComponentReference(name);
 		if(ref == null)
@@ -224,6 +230,7 @@ public class BasicContainer implements Container {
 	 * Set a container parameter object. The parameter to set is inferred from the object type.
 	 * @param instance
 	 */
+	@Override
 	public void setParameter(final Object instance) {
 		if(instance == null)
 			throw new IocContainerException(this, "You cannot set a parameter to null using this function, you must specify the parameter type or name!");
@@ -251,6 +258,7 @@ public class BasicContainer implements Container {
 	 * @param clz
 	 * @param instance
 	 */
+	@Override
 	public void setParameter(final Class< ? > theClass, final Object instance) {
 		ComponentRef ref = m_def.findComponentReference(theClass);
 		if(ref == null)
@@ -265,6 +273,7 @@ public class BasicContainer implements Container {
 	 * @param name
 	 * @param instance
 	 */
+	@Override
 	public void setParameter(final String name, final Object instance) {
 		ComponentRef ref = m_def.findComponentReference(name);
 		if(ref == null)

@@ -187,6 +187,7 @@ public class LookupForm<T> extends Div {
 
 		private InputBehaviorType m_inputsBehavior = InputBehaviorType.DEFAULT;
 
+		@Override
 		public String getPropertyName() {
 			return m_propertyName;
 		}
@@ -1139,7 +1140,7 @@ public class LookupForm<T> extends Div {
 	 * @see to.etc.domui.dom.html.NodeBase#setClicked(to.etc.domui.dom.html.IClicked)
 	 */
 	@Override
-	public void setClicked(final IClickBase< ? > clicked) {
+	public void setClicked(final @Nullable IClickBase< ? > clicked) {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
 	}
 

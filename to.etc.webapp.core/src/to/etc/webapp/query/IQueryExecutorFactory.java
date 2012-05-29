@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 public interface IQueryExecutorFactory {
 	/**
 	 *
@@ -31,9 +33,12 @@ public interface IQueryExecutorFactory {
 	 * @param clz
 	 * @return
 	 */
-	IQueryExecutor< ? > findContextHandler(QDataContext root, Class< ? > clz);
+	@Nullable
+	IQueryExecutor< ? > findContextHandler(@Nonnull QDataContext root, @Nonnull Class< ? > clz);
 
-	IQueryExecutor< ? > findContextHandler(QDataContext root, Object recordInstance);
+	@Nullable
+	IQueryExecutor< ? > findContextHandler(@Nonnull QDataContext root, @Nonnull Object recordInstance);
 
-	IQueryExecutor< ? > findContextHandler(QDataContext root, ICriteriaTableDef< ? > tableMeta);
+	@Nullable
+	IQueryExecutor< ? > findContextHandler(@Nonnull QDataContext root, @Nonnull ICriteriaTableDef< ? > tableMeta);
 }

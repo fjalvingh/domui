@@ -33,58 +33,75 @@ import to.etc.webapp.query.*;
 public class DataContextMock implements QDataContext {
 	private int m_alloc = 1;
 
+	@Override
 	public void attach(final Object o) throws Exception {}
 
+	@Override
 	public void setIgnoreClose(boolean on) {}
 
+	@Override
 	public void commit() throws Exception {
 		decrement(); // Used in "instance destroy method" test because QDataContext does not expose 'close'
 	}
 
+	@Override
 	public void delete(final Object o) throws Exception {}
 
+	@Override
 	public QDataContextFactory getFactory() {
 		return null;
 	}
 
+	@Override
 	public <T> T find(final Class<T> clz, final Object pk) throws Exception {
 		return null;
 	}
 
+	@Override
 	public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
 		return null;
 	}
 
+	@Override
 	public Connection getConnection() throws Exception {
 		return null;
 	}
 
+	@Override
 	public boolean inTransaction() throws Exception {
 		return false;
 	}
 
+	@Override
 	public <T> List<T> query(final QCriteria<T> q) throws Exception {
 		return null;
 	}
 
+	@Override
 	public <T> T queryOne(final QCriteria<T> q) throws Exception {
 		return null;
 	}
 
+	@Override
 	public List<Object[]> query(QSelection< ? > sel) throws Exception {
 		return null;
 	}
 
+	@Override
 	public Object[] queryOne(QSelection< ? > sel) throws Exception {
 		return null;
 	}
 
+	@Override
 	public void refresh(final Object o) throws Exception {}
 
+	@Override
 	public void rollback() throws Exception {}
 
+	@Override
 	public void save(final Object o) throws Exception {}
 
+	@Override
 	public void startTransaction() throws Exception {}
 
 
@@ -111,6 +128,7 @@ public class DataContextMock implements QDataContext {
 		return m_alloc;
 	}
 
+	@Override
 	public void close() {
 		decrement();
 	}

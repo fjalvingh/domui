@@ -42,6 +42,7 @@ final public class ResourceTimestamp implements IIsModified {
 		m_ts = ts;
 	}
 
+	@Override
 	public boolean isModified() {
 		try {
 			return m_ref.getLastModified() != m_ts;

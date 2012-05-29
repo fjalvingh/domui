@@ -68,6 +68,7 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 		return m_selectedSet.size();
 	}
 
+	@Override
 	public void setInstanceSelected(@Nonnull T rowinstance, boolean on) throws Exception {
 		if(null == rowinstance) // Should not happen.
 			throw new IllegalArgumentException("null row");
@@ -94,6 +95,7 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 		}
 	}
 
+	@Override
 	public void clearSelection() throws Exception {
 		if(m_selectedSet.size() == 0)
 			return;

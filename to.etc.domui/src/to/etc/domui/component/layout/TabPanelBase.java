@@ -26,6 +26,8 @@ package to.etc.domui.component.layout;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -100,14 +102,22 @@ public class TabPanelBase extends Div {
 			}
 		}
 
-		private boolean isPartOfContent(NodeBase errorNode) {
-			if(errorNode == null) {
-				return false;
+		/**
+		 * Returns T if the node passed - or any of it's parents - is part of this content area.
+		 *
+		 * @param errorNode
+		 * @return
+		 */
+		final private boolean isPartOfContent(@Nullable NodeBase errorNode) {
+			while(errorNode != null) {
+				if(errorNode == m_content) {
+					return true;
+				}
+				if(!errorNode.hasParent())
+					return false;
+				errorNode = errorNode.getParent();
 			}
-			if(errorNode == m_content) {
-				return true;
-			}
-			return isPartOfContent(errorNode.getParent());
+			return false;
 		}
 
 		private void adjustUI() {
