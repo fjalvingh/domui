@@ -29,6 +29,15 @@ import java.sql.*;
 
 
 abstract public class BaseDB {
+	final private String m_name;
+
+	protected BaseDB(String name) {
+		m_name = name;
+	}
+
+	public String getName() {
+		return m_name;
+	}
 
 	/**
 	 * This is a utility class that implements an input stream which retrieves it's
@@ -181,7 +190,6 @@ abstract public class BaseDB {
 	}
 
 
-	protected BaseDB() {}
 
 	/**
 	 * Returns a sequence number that can be used to create a new PK for a
@@ -212,9 +220,9 @@ abstract public class BaseDB {
 	 *  @parameter is	The stream to write to the blob. If this is null then the
 	 *  				field is set to dbnull.
 	 */
-	abstract protected void setBlob(Connection dbc, String table, String column, String where, InputStream is) throws SQLException;
+	abstract protected void setBlob(Connection dbc, String table, String column, String where, InputStream is, int len) throws SQLException;
 
-	abstract protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is) throws SQLException;
+	abstract protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is, int len) throws SQLException;
 
 	/**
 	 * Returns a SQL statement that is the cheapest way to check the validity of a connection.
@@ -324,9 +332,13 @@ abstract public class BaseDB {
 
 	protected void setBlob(Connection dbc, String table, String column, String where, byte[][] data) throws SQLException {
 		InputStream is = null;
-		if(data != null)
+		int len = 0;
+		if(data != null) {
+			for(byte[] b : data)
+				len += b.length;
 			is = new ByteBufferInputStream(data);
-		setBlob(dbc, table, column, where, is);
+		}
+		setBlob(dbc, table, column, where, is, len);
 	}
 
 	abstract protected void setClob(Connection dbc, String table, String column, String where, Reader r) throws Exception;
