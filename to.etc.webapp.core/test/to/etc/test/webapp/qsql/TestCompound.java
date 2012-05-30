@@ -38,7 +38,7 @@ import to.etc.webapp.testsupport.*;
 public class TestCompound {
 	static private DataSource m_ds;
 
-	@BeforeClass
+//	@BeforeClass
 	static public void setUp() throws Exception {
 		m_ds = TUtilTestProperties.getRawDataSource();
 	}
@@ -118,7 +118,7 @@ public class TestCompound {
 		return exec(jq);
 	}
 
-	@Test
+//	@Test
 	public void	testCompoundSelect1() throws Exception {
 		QCriteria<DecadePaymentOrder> qc = QCriteria.create(DecadePaymentOrder.class).limit(20);
 		List<DecadePaymentOrder> res = exec(qc);
@@ -132,7 +132,7 @@ public class TestCompound {
 		}
 	}
 
-	@Test
+//	@Test
 	public void testCompoundSelect2() throws Exception {
 		DecadePaymentOrderPK pk = new DecadePaymentOrderPK();
 		pk.setAdministrationID("ADM1");
