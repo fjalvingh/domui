@@ -11,6 +11,7 @@
 	left: 50%;
 	box-shadow : 10px 10px 10px #373737;
 	-moz-box-shadow : 10px 10px 10px #373737;
+	filter : progid:DXImageTransform.Microsoft.Shadow(color='#373737', Direction=135, Strength=7);	
 }
 
 .ui-flw-ttl {
