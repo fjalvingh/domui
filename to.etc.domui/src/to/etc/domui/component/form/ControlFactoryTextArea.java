@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.form;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -34,24 +36,28 @@ public class ControlFactoryTextArea implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(PropertyMetaModel< ? > pmm, boolean editable, Class< ? > controlClass, Object context) {
+	public int accepts(@Nonnull PropertyMetaModel< ? > pmm, boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(TextArea.class))
 			return -1;
-		if(pmm.getComponentTypeHint() != null) {
-			if(pmm.getComponentTypeHint().toLowerCase().contains(MetaUtils.TEXT_AREA))
+		String cth = pmm.getComponentTypeHint();
+		if(cth != null) {
+			if(cth.toLowerCase().contains(MetaUtils.TEXT_AREA))
 				return 10;
 		}
 		return 0;
 	}
 
 	@Override
-	public <T> ControlFactoryResult createControl(IReadOnlyModel< ? > model, PropertyMetaModel<T> pmm, boolean editable, Class< ? > controlClass, Object context) {
+	public <T> ControlFactoryResult createControl(@Nonnull IReadOnlyModel< ? > model, @Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context) {
 		TextArea ta = new TextArea();
 		if(!editable)
 			ta.setReadOnly(true);
-		String hint = pmm.getComponentTypeHint().toLowerCase();
-		ta.setCols(MetaUtils.parseIntParam(hint, MetaUtils.COL, 80));
-		ta.setRows(MetaUtils.parseIntParam(hint, MetaUtils.ROW, 4));
+		String cth = pmm.getComponentTypeHint();
+		if(cth != null) {
+			String hint = cth.toLowerCase();
+			ta.setCols(MetaUtils.parseIntParam(hint, MetaUtils.COL, 80));
+			ta.setRows(MetaUtils.parseIntParam(hint, MetaUtils.ROW, 4));
+		}
 		if(pmm.isRequired())
 			ta.setMandatory(true);
 		String s = pmm.getDefaultHint();

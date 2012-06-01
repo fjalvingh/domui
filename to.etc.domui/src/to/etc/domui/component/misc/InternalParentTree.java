@@ -77,7 +77,7 @@ public class InternalParentTree extends Div {
 		//-- Run all parents.
 		TBody b = list.addTable();
 
-		for(NodeBase nb = m_touched; nb != null; nb = nb.getParent()) {
+		for(NodeBase nb = m_touched; nb != null && nb.hasParent(); nb = nb.getParent()) {
 			final NodeBase clicked = nb;
 			TR row = b.addRow();
 			row.setCssClass("ui-ipt-item");
@@ -142,6 +142,7 @@ public class InternalParentTree extends Div {
 		Div alt = new Div();
 		m_structure.add(alt);
 		LinkButton lb = new LinkButton("Back to structure", "THEME/btnBack.png", new IClicked<LinkButton>() {
+			@Override
 			public void clicked(LinkButton clickednode) throws Exception {
 				m_structure.removeAllChildren();
 				renderStructure(m_structure);

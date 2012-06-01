@@ -27,8 +27,8 @@ package to.etc.domui.component.upload;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
-import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
+import to.etc.webapp.core.*;
 
 /**
  * This thingy accepts file upload requests for a given control.

@@ -64,6 +64,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	/** When selecting, this is the last index that was used in a select click.. */
 	private int m_lastSelectionLocation = -1;
 
+	private boolean m_disableClipboardSelection;
+
 	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
@@ -77,8 +79,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	protected Table getTable() {
+		if(null == m_table)
+			throw new IllegalStateException("Backing table is still null");
 		return m_table;
 	}
 
@@ -86,12 +90,14 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * UNSTABLE INTERFACE - UNDER CONSIDERATION.
 	 * @param dataBody
 	 */
-	protected void setDataBody(@Nullable TBody dataBody) {
+	protected void setDataBody(@Nonnull TBody dataBody) {
 		m_dataBody = dataBody;
 	}
 
-	@Nullable
+	@Nonnull
 	protected TBody getDataBody() {
+		if(null == m_dataBody)
+			throw new IllegalStateException("dataBody is still null");
 		return m_dataBody;
 	}
 
@@ -102,13 +108,18 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		setCssClass("ui-dt");
 
 		//-- Do we need to render multiselect checkboxes?
-		if(isShowSelectionAlways() || (getSelectionModel() != null && getSelectionModel().getSelectionCount() > 0)) {
-			m_multiSelectMode = getSelectionModel().isMultiSelect();
-		} else {
-			m_multiSelectMode = false;
+		ISelectionModel<T> sm = getSelectionModel();
+		if(sm != null) {
+			if(isShowSelectionAlways() || sm.getSelectionCount() > 0) {
+				m_multiSelectMode = sm.isMultiSelect();
+			} else {
+				m_multiSelectMode = false;
+			}
 		}
 
 		//-- Ask the renderer for a sort order, if applicable
+		if(m_rowRenderer == null)
+			throw new IllegalStateException("There is no row renderer assigned to the table");
 		m_rowRenderer.beforeQuery(this); // ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
 
 		calcIndices(); // Calculate rows to show.
@@ -133,7 +144,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			renderRow(tr, cc, ix, o);
 			ix++;
 		}
-		appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+		if(isDisableClipboardSelection())
+			appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 	}
 
 	@SuppressWarnings("deprecation")
@@ -222,14 +234,15 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @throws Exception
 	 */
 	@SuppressWarnings("deprecation")
-	private void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable final T value) throws Exception {
+	private void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull final T value) throws Exception {
 		//-- Is a rowclick handler needed?
-		if(m_rowRenderer.getRowClicked() != null || null != getSelectionModel()) {
+		ISelectionModel<T> sm = getSelectionModel();
+		if(m_rowRenderer.getRowClicked() != null || null != sm) {
 			//-- Add a click handler to select or pass the rowclicked event.
 			cc.getTR().setClicked(new IClicked2<TR>() {
 				@Override
 				@SuppressWarnings({"synthetic-access"})
-				public void clicked(TR b, ClickInfo clinfo) throws Exception {
+				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
 					handleRowClick(b, value, clinfo);
 				}
 			});
@@ -237,16 +250,17 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		}
 
 		//-- If we're in multiselect mode show the select boxes
-		if(m_multiSelectMode) {
+		if(m_multiSelectMode && sm != null) {
 			Checkbox cb = new Checkbox();
 			cc.add(cb);
 			cb.setClicked(new IClicked2<Checkbox>() {
 				@Override
-				public void clicked(Checkbox clickednode, ClickInfo info) throws Exception {
+				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo info) throws Exception {
 					selectionCheckboxClicked(value, clickednode.isChecked(), info);
 				}
 			});
-			boolean issel = getSelectionModel().isSelected(value);
+
+			boolean issel = sm.isSelected(value);
 			cb.setChecked(issel);
 			if(issel)
 				tr.addCssClass("mselected");
@@ -265,7 +279,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @throws Exception
 	 */
 	@Deprecated
-	void internalRenderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable final T value) throws Exception {
+	void internalRenderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull final T value) throws Exception {
 		m_rowRenderer.renderRow(this, cc, index, value);
 	}
 
@@ -312,11 +326,14 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param clinfo
 	 * @param setTo		When null toggle, else set to specific.
 	 */
-	private void handleSelectClicky(@Nullable T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
-		boolean nvalue = setTo != null ? setTo.booleanValue() : !getSelectionModel().isSelected(instance);
+	private void handleSelectClicky(@Nonnull T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
+		ISelectionModel<T> sm = getSelectionModel();
+		if(null == sm)
+			throw new IllegalStateException("SelectionModel is null??");
+		boolean nvalue = setTo != null ? setTo.booleanValue() : !sm.isSelected(instance);
 
 		if(!clinfo.isShift()) {
-			getSelectionModel().setInstanceSelected(instance, nvalue);
+			sm.setInstanceSelected(instance, nvalue);
 			m_lastSelectionLocation = -1;
 			return;
 		}
@@ -338,7 +355,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		if(m_lastSelectionLocation == -1) {
 			//-- Start of region....
 			m_lastSelectionLocation = itemindex;
-			getSelectionModel().setInstanceSelected(instance, !getSelectionModel().isSelected(instance));
+			sm.setInstanceSelected(instance, !sm.isSelected(instance));
 			return;
 		}
 
@@ -363,8 +380,11 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			List<T> sub = getModel().getItems(i, ex);
 			i += ex;
 
-			for(T item: sub)
-				getSelectionModel().setInstanceSelected(item, !getSelectionModel().isSelected(item));
+			for(T item : sub) {
+				if(item == null)
+					throw new IllegalStateException("null item in list");
+				sm.setInstanceSelected(item, !sm.isSelected(item));
+			}
 		}
 		m_lastSelectionLocation = -1;
 	}
@@ -379,7 +399,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param on
 	 */
 	private void updateSelectionChanged(T instance, int lrow, boolean on) throws Exception {
-		if(getSelectionModel() == null)
+		ISelectionModel<T> sm = getSelectionModel();
+		if(sm == null)
 			throw new IllegalStateException("No selection model!?");
 		TR row = (TR) m_dataBody.getChild(lrow);
 		THead head = m_table.getHead();
@@ -387,7 +408,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			throw new IllegalStateException("I've lost my head!?");
 
 		TR headerrow = (TR) head.getChild(0);
-		if(!getSelectionModel().isMultiSelect()) {
+		if(!sm.isMultiSelect()) {
 			//-- Single selection model. Just add/remove the "selected" class from the row.
 			if(on)
 				row.addCssClass("selected");
@@ -444,7 +465,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			td.add(cb);
 			cb.setClicked(new IClicked2<Checkbox>() {
 				@Override
-				public void clicked(Checkbox clickednode, ClickInfo clinfo) throws Exception {
+				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo clinfo) throws Exception {
 					selectionCheckboxClicked(instance, clickednode.isChecked(), clinfo);
 				}
 			});
@@ -463,6 +484,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		return m_showSelectionAlways;
 	}
 
+	@Override
 	public boolean isMultiSelectionVisible() {
 		return m_multiSelectMode;
 	}
@@ -473,11 +495,15 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param showSelectionAlways
 	 * @throws Exception
 	 */
+	@Override
 	public void setShowSelection(boolean showSelectionAlways) throws Exception {
 		if(m_showSelectionAlways == showSelectionAlways || getModel() == null || getModel().getRows() == 0)
 			return;
 		m_showSelectionAlways = showSelectionAlways;
-		if(!isBuilt() || m_multiSelectMode || getSelectionModel() == null || !getSelectionModel().isMultiSelect())
+		ISelectionModel<T> sm = getSelectionModel();
+		if(sm == null)
+			throw new IllegalStateException("Selection model is empty?");
+		if(!isBuilt() || m_multiSelectMode || getSelectionModel() == null || !sm.isMultiSelect())
 			return;
 
 		THead head = m_table.getHead();
@@ -522,6 +548,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	@Override
 	public void modelChanged(@Nullable ITableModel<T> model) {
 		forceRebuild();
+		fireModelChanged(null, model);
 	}
 
 	/**
@@ -535,12 +562,14 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
+	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
 		calcIndices(); // Calculate visible nodes
-		if(index < m_six || index >= m_eix) // Outside visible bounds
+		if(index < m_six || index >= m_eix) { // Outside visible bounds
+			firePageChanged();
 			return;
+		}
 
 		//-- What relative row?
 		setResults();
@@ -557,8 +586,12 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			//-- Delete the last row.
 			m_dataBody.removeChild(m_dataBody.getChildCount() - 1); // Delete last element
 		}
-		while(m_visibleItemList.size() > m_pageSize)
-			m_visibleItemList.remove(m_visibleItemList.size() - 1);
+		if(m_pageSize > 0) {
+			while(m_visibleItemList.size() > m_pageSize)
+				m_visibleItemList.remove(m_visibleItemList.size() - 1);
+		}
+		handleOddEven(rrow);
+		firePageChanged();
 	}
 
 	/**
@@ -569,28 +602,54 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowDeleted(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
+	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
-		if(index < m_six || index >= m_eix) // Outside visible bounds
+
+		//-- We need the indices of the OLD data, so DO NOT RECALCULATE - the model size has changed.
+		if(index < m_six || index >= m_eix) { // Outside visible bounds
+			calcIndices(); // Calculate visible nodes
+			firePageChanged();
 			return;
+		}
 		int rrow = index - m_six; // This is the location within the child array
 		m_dataBody.removeChild(rrow); // Discard this one;
 		m_visibleItemList.remove(rrow);
 		if(m_dataBody.getChildCount() == 0) {
+			calcIndices(); // Calculate visible nodes
 			setNoResults();
+			firePageChanged();
 			return;
 		}
 
 		//-- One row gone; must we add one at the end?
 		int peix = m_six + m_pageSize - 1; // Index of last element on "page"
-		if(m_pageSize > 0 && peix < m_eix) {
+		if(m_pageSize > 0 && peix < m_eix && peix < getModel().getRows()) {
 			ColumnContainer<T> cc = new ColumnContainer<T>(this);
 			TR tr = new TR();
 			cc.setParent(tr);
-			renderRow(tr, cc, peix, getModelItem(peix));
+
+			T mi = getModelItem(peix);
+			renderRow(tr, cc, peix, mi);
 			m_dataBody.add(m_pageSize - 1, tr);
-			m_visibleItemList.add(m_pageSize - 1, value);
+			m_visibleItemList.add(m_pageSize - 1, mi);
+		}
+		calcIndices(); // Calculate visible nodes
+		handleOddEven(rrow);
+		firePageChanged();
+	}
+
+	private void handleOddEven(int index) {
+		for(int ix = index; ix < m_dataBody.getChildCount(); ix++) {
+			TR tr = (TR) m_dataBody.getChild(ix);
+			if((ix & 0x1) == 0) {
+				//-- Even
+				tr.removeCssClass("ui-odd");
+				tr.addCssClass("ui-even");
+			} else {
+				tr.addCssClass("ui-odd");
+				tr.removeCssClass("ui-even");
+			}
 		}
 	}
 
@@ -600,7 +659,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
+	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
 		if(index < m_six || index >= m_eix) // Outside visible bounds
@@ -648,7 +707,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 *
 	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionChanged(java.lang.Object, boolean)
 	 */
-	public void selectionChanged(T row, boolean on) throws Exception {
+	@Override
+	public void selectionChanged(@Nonnull T row, boolean on) throws Exception {
 		//-- Is this a visible row?
 		for(int i = 0; i < m_visibleItemList.size(); i++) {
 			if(MetaManager.areObjectsEqual(row, m_visibleItemList.get(i))) {
@@ -668,6 +728,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	@Nullable
 	private ISelectionAllHandler m_selectionAllHandler;
 
+	@Override
 	@Nullable
 	public ISelectionAllHandler getSelectionAllHandler() {
 		return m_selectionAllHandler;
@@ -684,6 +745,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * Return the model used for table selections, if applicable.
 	 * @return
 	 */
+	@Override
 	@Nullable
 	public ISelectionModel<T> getSelectionModel() {
 		return m_selectionModel;
@@ -697,8 +759,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	public void setSelectionModel(@Nullable ISelectionModel<T> selectionModel) {
 		if(DomUtil.isEqual(m_selectionModel, selectionModel))
 			return;
-		if(m_selectionModel != null)
+		if(m_selectionModel != null) {
 			m_selectionModel.removeListener(this);
+			setDisableClipboardSelection(true);
+		}
 		m_selectionModel = selectionModel;
 		if(null != selectionModel) {
 			selectionModel.addListener(this);
@@ -716,10 +780,26 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 */
 	@Override
 	public void selectionAllChanged() throws Exception {
+		ISelectionModel<T> sm = getSelectionModel();
+		if(sm == null)
+			throw new IllegalStateException("Got selection changed event but selection model is empty?");
 		//-- Is this a visible row?
 		for(int i = 0; i < m_visibleItemList.size(); i++) {
 			T item = m_visibleItemList.get(i);
-			updateSelectionChanged(item, i, getSelectionModel().isSelected(item));
+			updateSelectionChanged(item, i, sm.isSelected(item));
+		}
+	}
+
+	public boolean isDisableClipboardSelection() {
+		return m_disableClipboardSelection;
+	}
+
+	public void setDisableClipboardSelection(boolean disableClipboardSelection) {
+		if(m_disableClipboardSelection == disableClipboardSelection)
+			return;
+		m_disableClipboardSelection = disableClipboardSelection;
+		if(isBuilt() && disableClipboardSelection) {
+			appendJavascript(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 		}
 	}
 }

@@ -36,6 +36,10 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 	static private final Set<String> MIMES = new HashSet<String>();
 
 	static {
+		// commented for now (K+v)
+		//		MIMES.add("text/html"); // html => html2ps is needed
+		MIMES.add("image/html");
+		MIMES.add("image/plain");
 		MIMES.add("image/gif");
 		MIMES.add("image/png");
 		MIMES.add("image/tiff");

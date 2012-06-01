@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 import to.etc.domui.util.*;
 
 public class Table extends NodeContainer {
@@ -114,11 +116,13 @@ public class Table extends NodeContainer {
 	 * @see to.etc.domui.dom.html.NodeContainer#canContain(to.etc.domui.dom.html.NodeBase)
 	 */
 	@Override
-	protected void canContain(NodeBase node) {
+	protected void canContain(@Nonnull NodeBase node) {
 		if(node instanceof TextNode)
 			throw new IllegalStateException("Dont be silly- cannot add text to a table");
 		if(node instanceof TR)
 			throw new IllegalStateException("Add TR's to the TBody, not the Table");
+		if(!(node instanceof TBody) && !(node instanceof THead))
+			throw new IllegalStateException("Dont be silly- should not add a " + node.getTag() + " to a table");
 		super.canContain(node);
 	}
 

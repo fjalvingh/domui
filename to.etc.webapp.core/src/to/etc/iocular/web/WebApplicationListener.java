@@ -59,6 +59,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 	 *
 	 * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
 	 */
+	@Override
 	public void contextInitialized(ServletContextEvent cxe) {
 		try {
 			LOG.debug("Starting web application.");
@@ -69,6 +70,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 		}
 	}
 
+	@Override
 	public void contextDestroyed(ServletContextEvent cxe) {
 		LOG.info("Terminating web application.");
 		Container c = Iocular.findApplicationContainer(cxe.getServletContext());
@@ -82,6 +84,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 	 *
 	 * @see javax.servlet.http.HttpSessionListener#sessionCreated(javax.servlet.http.HttpSessionEvent)
 	 */
+	@Override
 	public void sessionCreated(HttpSessionEvent se) {
 		LOG.debug("Session created");
 		createSessionContainer(se.getSession());
@@ -111,6 +114,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 		}
 	}
 
+	@Override
 	public void sessionDestroyed(HttpSessionEvent se) {
 		LOG.info("Session destroyed");
 		Container c = Iocular.findSessionContainer(se.getSession());
@@ -118,6 +122,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 			c.destroy();
 	}
 
+	@Override
 	public void requestInitialized(ServletRequestEvent e) {
 		LOG.debug("Request entered");
 
@@ -134,6 +139,7 @@ public class WebApplicationListener implements ServletContextListener, HttpSessi
 		Iocular._setRequest((HttpServletRequest) e.getServletRequest(), bc);
 	}
 
+	@Override
 	public void requestDestroyed(ServletRequestEvent e) {
 		LOG.debug("Request destroyed");
 		Container c = Iocular.findRequestContainer((HttpServletRequest) e.getServletRequest());

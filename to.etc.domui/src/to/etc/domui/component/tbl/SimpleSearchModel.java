@@ -186,14 +186,14 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	 * @return
 	 * @throws Exception
 	 */
-	@Nullable
+	@Nonnull
 	private QDataContext getQueryContext() throws Exception {
 		if(m_sessionSource != null) {
 			return m_sessionSource.getDataContext(); // Create/get session
 		} else if(m_contextSourceNode != null) {
 			return QContextManager.getContext(m_contextSourceNode.getPage());
-		} else
-			return null;
+		}
+		throw new IllegalStateException("No sessionSource and no contextSourceNode present - I do not know how to allocate a QDataContext");
 	}
 
 
@@ -205,11 +205,10 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		limit++; // Increment by 1: if that amount is returned we know we have overflowed.
 
 		try {
-			dc = getQueryContext(); // Allocate data context if needed.
-
 			if(m_queryFunctor != null) {
 				if(m_sortHelper != null)
 					throw new IllegalStateException("Implementation restriction: you cannot (currently) use an ISortHelper when using an IQuery functor to actually do the query.");
+				dc = getQueryContext(); // Allocate data context
 				m_workResult = m_queryFunctor.query(dc, m_sort, limit);
 			} else if(m_query != null) {
 				QCriteria<T> qc = m_query; // Get the base query,
@@ -220,6 +219,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 				if(m_queryHandler != null) {
 					m_workResult = m_queryHandler.query(qc);
 				} else {
+					dc = getQueryContext(); // Allocate data context if needed.
 					m_workResult = dc.query(qc);
 				}
 			} else

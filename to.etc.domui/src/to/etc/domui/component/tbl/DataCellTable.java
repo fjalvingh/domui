@@ -26,6 +26,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -35,12 +37,12 @@ import to.etc.domui.util.*;
  * in a table. This results in an w x h grid where each cell in the grid contains
  * a single data item. Example is a photo album's index page.
  *
- * FIXME Needs to be generic?
+ * 20110107 vmijic -> made generic
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2008
  */
-public class DataCellTable extends TabularComponentBase<Object> {
+public class DataCellTable<T> extends TabularComponentBase<T> {
 	private int m_rows = 3, m_columns = 3;
 
 	private Table m_table = new Table();
@@ -58,7 +60,7 @@ public class DataCellTable extends TabularComponentBase<Object> {
 
 	private Class< ? extends INodeContentRenderer< ? >> m_contentRendererClass;
 
-	public DataCellTable(ITableModel<Object> model) {
+	public DataCellTable(ITableModel<T> model) {
 		super(model);
 	}
 
@@ -213,25 +215,19 @@ public class DataCellTable extends TabularComponentBase<Object> {
 	 * @see to.etc.domui.component.tbl.ITableModelListener#modelChanged(to.etc.domui.component.tbl.ITableModel)
 	 */
 	@Override
-	public void modelChanged(ITableModel<Object> model) {
+	public void modelChanged(@Nullable ITableModel<T> model) {
 		rebuild();
 	}
 
 	@Override
-	public void rowAdded(ITableModel<Object> model, int index, Object value) throws Exception {
-	// TODO Auto-generated method stub
-
+	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 	}
 
 	@Override
-	public void rowDeleted(ITableModel<Object> model, int index, Object value) throws Exception {
-	// TODO Auto-generated method stub
-
+	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 	}
 
 	@Override
-	public void rowModified(ITableModel<Object> model, int index, Object value) throws Exception {
-	// TODO Auto-generated method stub
-
+	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 	}
 }

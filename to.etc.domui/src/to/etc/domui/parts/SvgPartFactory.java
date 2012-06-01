@@ -99,12 +99,12 @@ public class SvgPartFactory implements IBufferedPartFactory, IUrlPart {
 
 
 	@Override
-	public boolean accepts(String rurl) {
+	public boolean accepts(@Nonnull String rurl) {
 		return rurl.endsWith(".png.svg");
 	}
 
 	@Override
-	public Object decodeKey(String rurl, IExtendedParameterInfo param) throws Exception {
+	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
 		int width = PartUtil.getInt(param, "w", -1);
 		int height = PartUtil.getInt(param, "h", -1);
 		return new SvgKey(rurl, width, height);

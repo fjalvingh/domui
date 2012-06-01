@@ -26,6 +26,8 @@ package to.etc.domui.util.bugs;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.layout.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -110,7 +112,7 @@ public class DefaultBugListener implements IBugListener {
 	 * @see to.etc.domui.util.bugs.IBugListener#bugSignaled(to.etc.domui.util.bugs.BugItem)
 	 */
 	@Override
-	public void bugSignaled(BugItem item) {
+	public void bugSignaled(@Nonnull BugItem item) {
 		ConversationContext cc;
 		try {
 			cc = UIContext.getCurrentConversation();
@@ -296,10 +298,10 @@ public class DefaultBugListener implements IBugListener {
 		ref.setWindow(fw);
 
 		//-- When the window is closed - clear messages
-		fw.setOnClose(new IClicked<FloatingWindow>() { // Make sure state is OK when window itself is closed
+		fw.setOnClose(new IWindowClosed() {
 			@Override
-			public void clicked(FloatingWindow clickednode) throws Exception {
-					ref.setWindow(null);
+			public void closed(@Nonnull String closeReason) throws Exception {
+				ref.setWindow(null);
 				clearMessages(ref);
 			}
 		});
@@ -358,10 +360,11 @@ public class DefaultBugListener implements IBugListener {
 			td = addCell();
 			Div ttl = new Div();
 			td.add(ttl);
-			if(m_bi.getFormattedMsg() == null) {
+			List<NodeBase> formattedMsg = m_bi.getFormattedMsg();
+			if(formattedMsg == null) {
 				DomUtil.renderHtmlString(ttl, m_bi.getMessage() + " [" + m_bi.getNumber() + "]");
 			} else {
-				for(NodeBase nb : m_bi.getFormattedMsg())
+				for(NodeBase nb : formattedMsg)
 					ttl.add(nb);
 			}
 			ttl.setCssClass("ui-bug-msg");

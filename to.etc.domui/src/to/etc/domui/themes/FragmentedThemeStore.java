@@ -78,7 +78,8 @@ public class FragmentedThemeStore implements ITheme {
 		return "$currentTheme/style.theme.css";
 	}
 
-	public ResourceDependencies getDependencies() {
+	@Override
+	public @Nonnull ResourceDependencies getDependencies() {
 		return m_dependencies;
 	}
 
@@ -86,7 +87,8 @@ public class FragmentedThemeStore implements ITheme {
 		return m_stylesheetSource;
 	}
 
-	public Map<String, Object> getThemeProperties() {
+	@Override
+	public @Nonnull Map<String, Object> getThemeProperties() {
 		return m_themeProperties;
 	}
 
@@ -99,6 +101,7 @@ public class FragmentedThemeStore implements ITheme {
 	 * @param icon
 	 * @return
 	 */
+	@Override
 	@Nonnull
 	public String getIconURL(@Nonnull String icon) throws Exception {
 		synchronized(m_iconMap) {

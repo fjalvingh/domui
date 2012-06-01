@@ -24,7 +24,11 @@
  */
 package to.etc.domui.dom.html;
 
-public class TBody extends NodeContainer {
+import javax.annotation.*;
+
+import to.etc.domui.util.*;
+
+public class TBody extends NodeContainer implements IDropBody {
 	//	private IDropHandler			m_dropHandler;
 	public TBody() {
 		super("tbody");
@@ -39,6 +43,7 @@ public class TBody extends NodeContainer {
 	 * Return the table that contains this body.
 	 * @return
 	 */
+	@Nonnull
 	public Table getTable() {
 		return getParent(Table.class);
 	}

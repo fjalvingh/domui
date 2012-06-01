@@ -15,12 +15,13 @@ import to.etc.domui.util.*;
  */
 public class VersionedJsResourceFactory implements IResourceFactory {
 	@Override
-	public int accept(String name) {
+	public int accept(@Nonnull String name) {
 		if(name.startsWith("$js/"))
 			return 15;
 		return -1;
 	}
 
+	@Nonnull
 	@Override
 	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
 		//-- 1. Create a 'min version of the name
@@ -40,7 +41,8 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 			sb.append("js").append(min);
 			r = tryVersionedResource(da, sb.toString());
 			if(r != null) {
-				rdl.add(r);
+				if(null != rdl)
+					rdl.add(r);
 				return r;
 			}
 		}
@@ -49,13 +51,10 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 		sb.setLength(0);
 		sb.append("js/").append(da.getScriptVersion()).append(name);
 		r = tryVersionedResource(da, sb.toString());
-		if(r != null) {
+		if(r == null)
+			r = da.getAppFileOrResource("js" + name);
+		if(null != rdl)
 			rdl.add(r);
-			return r;
-		}
-		r = da.getAppFileOrResource("js" + name);
-		rdl.add(r);
-		//			System.out.println("RR: Default ref to " + name + " is " + r);
 		return r;
 	}
 

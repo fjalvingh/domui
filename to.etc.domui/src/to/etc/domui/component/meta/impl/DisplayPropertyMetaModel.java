@@ -26,6 +26,8 @@ package to.etc.domui.component.meta.impl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -39,7 +41,8 @@ import to.etc.webapp.nls.*;
  * Created on Aug 6, 2009
  */
 public class DisplayPropertyMetaModel {
-	private String m_name;
+	@Nonnull
+	final private PropertyMetaModel< ? > m_propertyModel;
 
 	private String m_join;
 
@@ -56,42 +59,69 @@ public class DisplayPropertyMetaModel {
 
 	private SortableType m_sortable = SortableType.UNKNOWN;
 
+	/** The index (order) in which all sortable fields should be applied in an initial sort; -1 if there is no default sort. */
+	private int m_sortIndex;
+
 	private int m_displayLength = -1;
 
-	public DisplayPropertyMetaModel() {}
+	@Nonnull
+	private YesNoType m_noWrap = YesNoType.UNKNOWN;
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public DisplayPropertyMetaModel(ClassMetaModel cmm, MetaDisplayProperty p) {
+	public DisplayPropertyMetaModel(@Nonnull PropertyMetaModel< ? > pmm) {
+		m_propertyModel = pmm;
+		if(null == m_propertyModel)
+			throw new IllegalArgumentException("Cannot be null");
+	}
+
+	@SuppressWarnings({"unchecked"})
+	public DisplayPropertyMetaModel(@Nonnull ClassMetaModel cmm, @Nonnull MetaDisplayProperty p) {
 		m_containedInClass = cmm;
-		m_name = p.name();
+		m_propertyModel = cmm.findProperty(p.name()); // Creates either a PathPropertyModel or gets a normal one
+		if(null == m_propertyModel)
+			throw new IllegalStateException("Unknown property " + p.name() + " in " + cmm + " (bad @MetaDisplayProperty)");
+
 		if(!Constants.NO_DEFAULT_LABEL.equals(p.defaultLabel()))
 			m_labelKey = p.defaultLabel();
 		//		setConverter((p.converterClass() == DummyConverter.class ? null : ConverterRegistry.getConverterInstance(p.converterClass())));
 		// 20091123 This kludge below (Raw class cast) is needed because otherwise the JDK compiler pukes on this generics abomination.
 		IConverter< ? > c = null;
 		if(p.converterClass() != DummyConverter.class)
-			c = ConverterRegistry.getConverterInstance((Class) p.converterClass());
+			c = createconv(p.converterClass());
 		setConverter(c);
 		setSortable(p.defaultSortable());
 		setDisplayLength(p.displayLength());
+		setNoWrap(p.noWrap());
 		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();
 //		setReadOnly(p.readOnly());		jal 20101220 Removed, unused and seems silly in table display
 //		setRenderHint(p.renderHint());	jal 20101220 Removed, unused and seems silly in table display
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public DisplayPropertyMetaModel(ClassMetaModel cmm, MetaComboProperty p) {
+	/**
+	 * Idiocy to prevent generics problem.
+	 * @param clz
+	 * @return
+	 */
+	@Nonnull
+	static private <T> IConverter<T> createconv(@Nonnull Class< ? > clz) {
+		return ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) clz);
+	}
+
+	@SuppressWarnings({"unchecked"})
+	public DisplayPropertyMetaModel(@Nonnull ClassMetaModel cmm, @Nonnull MetaComboProperty p) {
 		m_containedInClass = cmm;
-		m_name = p.name();
+		m_propertyModel = cmm.findProperty(p.name()); // Creates either a PathPropertyModel or gets a normal one
+		if(null == m_propertyModel)
+			throw new IllegalStateException("Unknown property " + p.name() + " in " + cmm + " (bad @MetaComboProperty)");
 		//		setConverter((p.converterClass() == DummyConverter.class ? null : ConverterRegistry.getConverterInstance(p.converterClass())));
 		// 20091123 This kludge below (Raw class cast) is needed because otherwise the JDK compiler pukes on this generics abomination.
 		IConverter< ? > c = null;
 		if(p.converterClass() != DummyConverter.class)
-			c = ConverterRegistry.getConverterInstance((Class) p.converterClass());
+			c = createconv(p.converterClass());
 		setConverter(c);
+		setSortIndex(p.sortIndex());
+		setSortable(p.sortable());
 		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();
 	}
-
 
 	/**
 	 * Converts a list of MetaDisplayProperty annotations into their metamodel equivalents.
@@ -121,18 +151,18 @@ public class DisplayPropertyMetaModel {
 		return list;
 	}
 
-	/**
-	 * Returns the property name this pertains to. This can be a property path expression.
-	 * @return
-	 */
-	public String getName() {
-		return m_name;
-	}
-
-	public void setName(String name) {
-		m_name = name;
-	}
-
+	//	/**
+	//	 * Returns the property name this pertains to. This can be a property path expression.
+	//	 * @return
+	//	 */
+	//	public String getName() {
+	//		return m_name;
+	//	}
+	//
+	//	public void setName(String name) {
+	//		m_name = name;
+	//	}
+	//
 	/**
 	 * If this is joined display property, this returns the string to put between the joined values. Returns
 	 * null for unjoined properties.
@@ -159,13 +189,18 @@ public class DisplayPropertyMetaModel {
 		return m_containedInClass.getClassBundle().getString(m_labelKey);
 	}
 
+	@Nonnull
+	public PropertyMetaModel< ? > getProperty() {
+		return m_propertyModel;
+	}
+
 	/**
 	 * Returns the attribute as a string value.
 	 * @param root
 	 * @return
 	 */
 	public <X, TT extends IConverter<X>> String getAsString(Object root) throws Exception {
-		Object value = DomUtil.getPropertyValue(root, getName());
+		Object value = getProperty().getValue(root);
 		if(getConverter() != null)
 			return ((TT) getConverter()).convertObjectToString(NlsContext.getLocale(), (X) value);
 		return value == null ? "" : value.toString();
@@ -181,7 +216,7 @@ public class DisplayPropertyMetaModel {
 
 	@Override
 	public String toString() {
-		return "DisplayPropertyMetaModel[" + getName() + "]";
+		return "DisplayPropertyMetaModel[" + getProperty().getName() + "]";
 	}
 
 	public IConverter< ? > getConverter() {
@@ -208,4 +243,24 @@ public class DisplayPropertyMetaModel {
 		m_displayLength = displayLength;
 	}
 
+	/**
+	 * The index (order) in which all sortable fields should be applied in an initial sort; -1 if there is no default sort.
+	 * @return
+	 */
+	public int getSortIndex() {
+		return m_sortIndex;
+	}
+
+	public void setSortIndex(int sortIndex) {
+		m_sortIndex = sortIndex;
+	}
+
+	@Nonnull
+	public YesNoType getNoWrap() {
+		return m_noWrap;
+	}
+
+	public void setNoWrap(@Nonnull YesNoType noWrap) {
+		m_noWrap = noWrap;
+	}
 }

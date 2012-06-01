@@ -63,11 +63,7 @@ public class AppFilter implements Filter {
 	/**
 	 * If a reloader is needed for debug/development pps this will hold the reloader.
 	 */
-
 	private IContextMaker m_contextMaker;
-
-	/** After the 1st request has been seen, this contains the application's root url. */
-	static private String m_applicationURL;
 
 	@Override
 	public void destroy() {
@@ -86,7 +82,7 @@ public class AppFilter implements Filter {
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
 			rq.setCharacterEncoding("UTF-8"); // FIXME jal 20080804 Encoding of input was incorrect?
-//			DomUtil.dumpRequest(rq);
+			//			DomUtil.dumpRequest(rq);
 
 			if(m_logRequest) {
 				String rs = rq.getQueryString();
@@ -116,6 +112,11 @@ public class AppFilter implements Filter {
 		} catch(Error x) {
 			x.printStackTrace();
 			throw x;
+			//		} finally {
+			//			System.out.println("U: " + ((HttpServletRequest) req).getRequestURL());
+			//			for(Cookie c : ((HttpServletRequest) req).getCookies()) {
+			//				System.out.println("  i: " + c.getName() + ", v=" + c.getValue() + ", a=" + c.getMaxAge());
+			//			}
 		}
 	}
 
@@ -124,15 +125,10 @@ public class AppFilter implements Filter {
 			return;
 
 		m_appContext = NetTools.getApplicationContext((HttpServletRequest) req);
-		m_applicationURL = NetTools.getApplicationURL((HttpServletRequest) req);
 	}
 
 	static synchronized public String internalGetWebappContext() {
 		return m_appContext;
-	}
-
-	static synchronized public String getApplicationURL() {
-		return m_applicationURL;
 	}
 
 	private InputStream findLogConfig(String logconfig) {

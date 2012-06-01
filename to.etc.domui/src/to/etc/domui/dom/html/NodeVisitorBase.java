@@ -65,6 +65,11 @@ public class NodeVisitorBase implements INodeVisitor {
 	}
 
 	@Override
+	public void visitPre(Pre n) throws Exception {
+		sub(n);
+	}
+
+	@Override
 	public void visitLi(Li n) throws Exception {
 		sub(n);
 	}
@@ -181,7 +186,12 @@ public class NodeVisitorBase implements INodeVisitor {
 	}
 
 	public void visitChildren(NodeContainer c) throws Exception {
-		for(NodeBase b : c)
+		for(NodeBase b : c.internalGetChildren())
 			b.visit(this);
+	}
+
+	@Override
+	public void visitIFrame(IFrame n) throws Exception {
+		sub(n);
 	}
 }

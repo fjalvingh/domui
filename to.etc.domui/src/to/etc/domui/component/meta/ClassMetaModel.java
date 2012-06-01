@@ -47,7 +47,7 @@ public interface ClassMetaModel {
 	 * Returns the message bundle for translations related to this class. This will never return null.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	BundleRef getClassBundle();
 
 	@Nonnull
@@ -60,7 +60,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	PropertyMetaModel< ? > findSimpleProperty(String name);
+	PropertyMetaModel< ? > findSimpleProperty(@Nonnull String name);
 
 	/**
 	 * Returns a property reference to the specified property by following the dotted path
@@ -72,7 +72,17 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	PropertyMetaModel< ? > findProperty(String name);
+	PropertyMetaModel< ? > findProperty(@Nonnull String name);
+
+	/**
+	 * Same as {@link #findProperty(String)}, but throws an exception if the property (or path) is not found, so
+	 * it never returns null.
+	 * @param name
+	 * @return
+	 */
+	@Nonnull
+	PropertyMetaModel< ? > getProperty(@Nonnull String name);
+
 
 	boolean isPersistentClass();
 
@@ -111,9 +121,9 @@ public interface ClassMetaModel {
 	String getDomainLabel(Locale loc, Object value);
 
 	/**
-	 * Return a user-presentable entity name (singular) for this class. This defaults to the classname itself if unset.
+	 * Return a user-presentable entity name (singular) for this class. Returns null if not set.
 	 */
-	@Nonnull
+	@Nullable
 	String getUserEntityName();
 
 	/**
@@ -158,6 +168,13 @@ public interface ClassMetaModel {
 	 */
 	@Nonnull
 	List<DisplayPropertyMetaModel> getComboDisplayProperties();
+
+	/**
+	 * The property name to sort the combobox's presentation on.
+	 * @return
+	 */
+	@Nullable
+	String getComboSortProperty();
 
 	/**
 	 * If this object is shown in a Table it needs to show the following
@@ -234,42 +251,24 @@ public interface ClassMetaModel {
 	@Nonnull
 	List<DisplayPropertyMetaModel> getLookupSelectedProperties();
 
-	//	/**
-	//	 * When used in a {@link LookupInput} field, this fields are used to show the result of a Search in the DataTable.
-	//	 * @return
-	//	 */
-	//	@Nonnull
-	//	List<DisplayPropertyMetaModel> getLookupFieldTableProperties();
-	//
-	//	/**
-	//	 * When used in a {@link LookupInput} field, this fields are used to create the search inputs.
-	//	 *
-	//	 * @return
-	//	 */
-	//	@Nonnull
-	//	List<SearchPropertyMetaModel> getLookupFieldSearchProperties();
-	//
-	//	/**
-	//	 * When used in a {@link LookupInput} field, this fields are used to create the keyword search inputs.
-	//	 *
-	//	 * @return
-	//	 */
-	//	@Nonnull
-	//	List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties();
-
 	/**
-	 * EXPERIMENTAL
 	 * If this is a persistent class, this should create a base QCriteria instance to do queries
 	 * on this class. The QCriteria&lt;T&gt; instance returned <i>must</i> have a T that is equal
 	 * to the value returned by this.getActualClass(). In addition it should have only restrictions
 	 * that limit the result to valid instances of this class, <i>nothing else</i>! This usually
 	 * means the restriction set is empty.
 	 *
-	 * <p>Needs evaluation.</p>
-	 *
 	 * @return
 	 * @throws Exception
 	 */
 	@Nonnull
 	QCriteria< ? > createCriteria() throws Exception;
+
+	/**
+	 * For Lookup and Combo fields, this can return a QueryManipulator instance that will alter the base
+	 * query for the list-of-this to show.
+	 * @return
+	 */
+	@Nullable
+	IQueryManipulator< ? > getQueryManipulator();
 }

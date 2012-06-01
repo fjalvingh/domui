@@ -63,5 +63,5 @@ public interface IUser {
 	 * @param dataElement
 	 * @return
 	 */
-	boolean hasRight(String r, Object dataElement);
+	<T> boolean hasRight(String r, T dataElement);
 }

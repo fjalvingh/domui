@@ -39,7 +39,7 @@ Calendar = function (firstDayOfWeek, dateStr, onSelected, onClose) {
 	this.ar_days = null;
 	this.showsTime = false;
 	this.time24 = true;
-	this.yearStep = 2;
+	this.yearStep = 1;
 	this.hiliteToday = true;
 	this.multiple = null;
 	// HTML elements
@@ -1501,7 +1501,7 @@ Calendar.prototype.hideShowCovered = function () {
 		return value;
 	};
 
-	var tags = new Array("applet", "iframe", "select");
+	var tags = new Array("applet", "select"); //vmijic 20120316 we excluded "iframe" from this set of tags, since it conflicts with fckeditor iframe, and it is not clear why we had this hiding of iframes at all  
 	var el = this.element;
 
 	var p = Calendar.getAbsolutePos(el);

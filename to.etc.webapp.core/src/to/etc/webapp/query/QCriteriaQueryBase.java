@@ -26,6 +26,8 @@ package to.etc.webapp.query;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.webapp.*;
 import to.etc.webapp.annotations.*;
 
@@ -37,6 +39,7 @@ import to.etc.webapp.annotations.*;
  */
 public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	/** If this is a selection query instead of an object instance query, this will contain the selected items. */
+	@Nonnull
 	private List<QSelectionColumn> m_itemList = Collections.EMPTY_LIST;
 
 	private int m_limit = -1;
@@ -46,18 +49,21 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	private int m_timeout = -1;
 
 	/** The restrictions (where clause) in effect. */
+	@Nullable
 	private QOperatorNode m_restrictions;
 
+	@Nonnull
 	private List<QOrder> m_order = Collections.EMPTY_LIST;
 
 	/** Query options */
+	@Nullable
 	private Map<String, Object> m_optionMap;
 
-	protected QCriteriaQueryBase(Class<T> clz) {
+	protected QCriteriaQueryBase(@Nonnull Class<T> clz) {
 		super(clz, QOperation.AND);
 	}
 
-	protected QCriteriaQueryBase(ICriteriaTableDef<T> meta) {
+	protected QCriteriaQueryBase(@Nonnull ICriteriaTableDef<T> meta) {
 		super(meta, QOperation.AND);
 	}
 
@@ -81,13 +87,14 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	//		}
 	//	}
 
+	@Nullable
 	@Override
 	public QOperatorNode getRestrictions() {
 		return m_restrictions;
 	}
 
 	@Override
-	public void setRestrictions(QOperatorNode restrictions) {
+	public void setRestrictions(@Nullable QOperatorNode restrictions) {
 		m_restrictions = restrictions;
 	}
 
@@ -95,6 +102,7 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * Returns all selected columns.
 	 * @return
 	 */
+	@Nonnull
 	public List<QSelectionColumn> getColumnList() {
 		return m_itemList;
 	}
@@ -104,7 +112,7 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param name
 	 * @param val
 	 */
-	public void setOption(String name, Object val) {
+	public void setOption(@Nonnull String name, @Nullable Object val) {
 		if(m_optionMap == null)
 			m_optionMap = new HashMap<String, Object>();
 		m_optionMap.put(name, val);
@@ -115,7 +123,7 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param name
 	 * @return
 	 */
-	public boolean hasOption(String name) {
+	public boolean hasOption(@Nonnull String name) {
 		return m_optionMap != null && m_optionMap.containsKey(name);
 	}
 
@@ -124,7 +132,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param name
 	 * @return
 	 */
-	public Object getOption(String name) {
+	@Nullable
+	public Object getOption(@Nonnull String name) {
 		return m_optionMap == null ? null : m_optionMap.get(name);
 	}
 
@@ -134,7 +143,7 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	/**
 	 * Add a column selector to the selection list.
 	 */
-	protected void addColumn(QSelectionItem item, String alias) {
+	protected void addColumn(@Nonnull QSelectionItem item, @Nullable String alias) {
 		QSelectionColumn col = new QSelectionColumn(item, alias);
 		if(m_itemList.size() == 0) {
 			m_itemList = new ArrayList<QSelectionColumn>();
@@ -148,7 +157,7 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param prop
 	 * @param alias
 	 */
-	protected void addPropertySelection(QSelectionFunction f, @GProperty String prop, String alias) {
+	protected void addPropertySelection(@Nonnull QSelectionFunction f, @Nonnull @GProperty String prop, @Nullable String alias) {
 		if(prop == null || prop.length() == 0)
 			throw new ProgrammerErrorException("The property for a " + f + " selection cannot be null or empty");
 		QPropertySelection ps = new QPropertySelection(f, prop);
@@ -160,7 +169,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> selectProperty(@GProperty final String property) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> selectProperty(@Nonnull @GProperty final String property) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, null);
 		return this;
 	}
@@ -171,7 +181,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> selectProperty(@GProperty final String property, String alias) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> selectProperty(@Nonnull @GProperty final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, alias);
 		return this;
 	}
@@ -181,7 +192,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> max(@GProperty final String property) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> max(@Nonnull @GProperty final String property) {
 		addPropertySelection(QSelectionFunction.MAX, property, null);
 		return this;
 	}
@@ -192,7 +204,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> max(@GProperty final String property, String alias) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> max(@Nonnull @GProperty final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.MAX, property, alias);
 		return this;
 	}
@@ -202,7 +215,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> min(@GProperty final String property) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> min(@Nonnull @GProperty final String property) {
 		addPropertySelection(QSelectionFunction.MIN, property, null);
 		return this;
 	}
@@ -213,7 +227,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> min(@GProperty final String property, String alias) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> min(@Nonnull @GProperty final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.MIN, property, alias);
 		return this;
 	}
@@ -223,7 +238,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> avg(@GProperty final String property) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> avg(@Nonnull @GProperty final String property) {
 		addPropertySelection(QSelectionFunction.AVG, property, null);
 		return this;
 	}
@@ -234,7 +250,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> avg(@GProperty final String property, String alias) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> avg(@Nonnull @GProperty final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.AVG, property, alias);
 		return this;
 	}
@@ -244,7 +261,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> sum(@GProperty final String property) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> sum(@Nonnull @GProperty final String property) {
 		addPropertySelection(QSelectionFunction.SUM, property, null);
 		return this;
 	}
@@ -255,7 +273,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> sum(@GProperty final String property, String alias) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> sum(@Nonnull @GProperty final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.SUM, property, alias);
 		return this;
 	}
@@ -265,7 +284,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> count(@GProperty final String property) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> count(@Nonnull @GProperty final String property) {
 		addPropertySelection(QSelectionFunction.COUNT, property, null);
 		return this;
 	}
@@ -276,7 +296,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> count(@GProperty final String property, String alias) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> count(@Nonnull @GProperty final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.COUNT, property, alias);
 		return this;
 	}
@@ -286,7 +307,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param property		The property whose literal value is to be selected
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> countDistinct(@GProperty final String property) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> countDistinct(@Nonnull @GProperty final String property) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, null);
 		return this;
 	}
@@ -297,8 +319,31 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 * @return
 	 */
-	protected QCriteriaQueryBase<T> countDistinct(@GProperty final String property, String alias) {
+	@Nonnull
+	protected QCriteriaQueryBase<T> countDistinct(@Nonnull @GProperty final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, alias);
+		return this;
+	}
+
+	/**
+	 * Select of the distinct values over the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @return
+	 */
+	@Nonnull
+	protected QCriteriaQueryBase<T> distinct(@Nonnull @GProperty final String property) {
+		addPropertySelection(QSelectionFunction.DISTINCT, property, null);
+		return this;
+	}
+
+	/**
+	 * Select of the distinct values over the result set.
+	 * @param property		The property whose literal value is to be selected
+	 * @return
+	 */
+	@Nonnull
+	protected QCriteriaQueryBase<T> distinct(@Nonnull @GProperty final String property, @Nullable String alias) {
+		addPropertySelection(QSelectionFunction.DISTINCT, property, alias);
 		return this;
 	}
 
@@ -307,7 +352,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param r
 	 * @return
 	 */
-	public QCriteriaQueryBase<T> add(QOrder r) {
+	@Nonnull
+	public QCriteriaQueryBase<T> add(@Nonnull QOrder r) {
 		if(m_order == Collections.EMPTY_LIST)
 			m_order = new ArrayList<QOrder>();
 		m_order.add(r);
@@ -319,7 +365,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param property
 	 * @return
 	 */
-	public QCriteriaQueryBase<T> ascending(@GProperty final String property) {
+	@Nonnull
+	public QCriteriaQueryBase<T> ascending(@Nonnull @GProperty final String property) {
 		add(QOrder.ascending(property));
 		return this;
 	}
@@ -329,7 +376,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param property
 	 * @return
 	 */
-	public QCriteriaQueryBase<T> descending(@GProperty final String property) {
+	@Nonnull
+	public QCriteriaQueryBase<T> descending(@Nonnull @GProperty final String property) {
 		add(QOrder.descending(property));
 		return this;
 	}
@@ -339,6 +387,7 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param limit
 	 * @return
 	 */
+	@Nonnull
 	public QCriteriaQueryBase<T> limit(int limit) {
 		m_limit = limit;
 		return this;
@@ -349,6 +398,7 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param start
 	 * @return
 	 */
+	@Nonnull
 	public QCriteriaQueryBase<T> start(int start) {
 		m_start = start;
 		return this;
@@ -374,6 +424,7 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * Returns the order-by list.
 	 * @return
 	 */
+	@Nonnull
 	final public List<QOrder> getOrder() {
 		return m_order;
 	}

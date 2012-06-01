@@ -34,7 +34,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
-import to.etc.webapp.qsql.*;
+import to.etc.webapp.query.*;
 
 /**
  * Encapsulates parameters for a page. All parameters must be presentable in URL form,
@@ -163,7 +163,7 @@ public class PageParameters {
 	 * Add parameters. This accepts multiple formats that can all be mixed. Each actual parameter always is a
 	 * name, value pair. The simplest way to use this is to specify a list of strings in pairs where the first
 	 * string in the pair is the key and the second one is the value. You can also substitute an object instance
-	 * for the value; if this object instance represents some persistent entity or implements {@link ILongIdentifyable}
+	 * for the value; if this object instance represents some persistent entity or implements {@link IIdentifyable<Long>}
 	 * the primary key for the object will be rendered as the value, otherwise it will be rendered as a tostring.
 	 * You can also specify a single object in the location for the next key; in this case both key and value will
 	 * be determined from this object; it must be some persistent object which knows it's key field.
@@ -214,8 +214,8 @@ public class PageParameters {
 		if(o == null)
 			return;
 
-		if(o instanceof ILongIdentifyable) {
-			setParameter(k, String.valueOf(((ILongIdentifyable) o).getId()));
+		if(o instanceof IIdentifyable< ? >) {
+			setParameter(k, String.valueOf(((IIdentifyable< ? >) o).getId()));
 			return;
 		}
 
@@ -481,9 +481,7 @@ public class PageParameters {
 	@Nullable
 	public String getString(String name, String df) {
 		String v = getOne(name);
-		if(null == v || v.length() == 0)
-			return df;
-		return v;
+		return v == null ? df : v;
 	}
 
 	/**
@@ -509,6 +507,22 @@ public class PageParameters {
 	}
 
 	/**
+	 * Gets the value for the specified parametername as untyped value.
+	 * It is used internaly for generic copying of params form one PageParameter to another.
+	 *
+	 * @param name
+	 * @return
+	 */
+	@Nonnull
+	private Object getObject(String name) {
+		Object var = m_map.get(name);
+		if(null != var) {
+			return var;
+		}
+		throw new MissingParameterException(name);
+	}
+
+	/**
 	 * Create this from an actual request. This does not add any parameter that starts with _ or $.
 	 * @param c
 	 * @return
@@ -528,6 +542,43 @@ public class PageParameters {
 							pp.m_map.put(name, par); // Add as string[]0
 					}
 				}
+			}
+		}
+		return pp;
+	}
+
+	/**
+	 * Create this from an string representation of params. This is used as utility for manipulation of data that stores params as strings.
+	 * @param paramsAsString
+	 * @return
+	 */
+	@Nonnull
+	static public PageParameters createFromEncodedUrlString(@Nonnull String paramsAsString) {
+		PageParameters pp = new PageParameters();
+		if(DomUtil.isBlank(paramsAsString)) {
+			return pp;
+		}
+		paramsAsString = paramsAsString.trim();
+		//happens that params starts with ?, ant it shoule be removed
+		if(paramsAsString.startsWith("?")) {
+			paramsAsString = paramsAsString.substring(1);
+		}
+		if(DomUtil.isBlank(paramsAsString)) {
+			return pp;
+		}
+		String asDecoded = StringTool.decodeURLEncoded(paramsAsString);
+		String[] splits = asDecoded.split("&");
+		for(String nameValue : splits) {
+			char c = nameValue.charAt(0);
+			if(c != '_' && c != '$' && !nameValue.startsWith("webui")) {
+				String[] parts = nameValue.split("=");
+				if(parts.length > 2 || parts.length == 0) {
+					throw new IllegalArgumentException("Expected name=value pair, but found:" + nameValue);
+				}
+				if(parts.length == 2) {
+					pp.m_map.put(parts[0], parts[1]); // Add as single string
+				}
+				//empty params are ignored but with no exception
 			}
 		}
 		return pp;
@@ -619,5 +670,23 @@ public class PageParameters {
 	@Override
 	public int hashCode() {
 		throw new IllegalStateException("missing");
+	}
+
+	/**
+	 * Apply changes to source.
+	 * New values found in changes would be added to source, changed values found in changes would replace values in source.
+	 * Params that are not found in changes would remian unchanged in source. So, this utility can not be used to remove items from source.
+	 *
+	 * @param source
+	 * @param changes
+	 */
+	public static void applyChanges(PageParameters source, PageParameters changes) {
+
+		for(String name : changes.getParameterNames()) {
+			if(source.hasParameter(name)) {
+				source.removeParameter(name);
+			}
+			source.addParameter(name, changes.getObject(name));
+		}
 	}
 }

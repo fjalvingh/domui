@@ -26,6 +26,8 @@ package to.etc.domui.component.input;
 
 import java.util.*;
 
+import to.etc.domui.component.meta.*;
+import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
@@ -83,6 +85,16 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 	}
 
 	/**
+	 * Create a combo which fills it's list with the specified in list. Each value is filled from the values of the properties specified.
+	 * @param in
+	 * @param properties
+	 */
+	public ComboLookup(List<T> in, String... properties) {
+		super(in);
+		setContentRenderer(new PropertyNodeContentRenderer<T>(properties));
+	}
+
+	/**
 	 * This implements the identical conversion, i.e. in=out, because this component returns
 	 * the list type.
 	 * @see to.etc.domui.component.input.ComboComponentBase#listToValue(java.lang.Object)
@@ -91,4 +103,59 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 	protected T listToValue(T in) throws Exception {
 		return in;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Utility methods.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param pmm
+	 * @return
+	 */
+	static public <T> ComboLookup<T> createLookup(PropertyMetaModel<T> pmm) throws Exception {
+		INodeContentRenderer<T> r = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(pmm, null);
+
+		//-- Decide on the combobox' data source to use depending on metadata.
+		ComboLookup<T> co = null;
+
+		//-- Do we have a DataSet provider
+		Class< ? extends IComboDataSet<T>> set = (Class< ? extends IComboDataSet<T>>) pmm.getComboDataSet();
+		if(set == null) {
+			set = (Class< ? extends IComboDataSet<T>>) pmm.getClassModel().getComboDataSet();
+		}
+		if(set != null)
+			co = new ComboLookup<T>(set, r);
+		else {
+			//-- No dataset. Create one from a direct Criteria and any query manipulator.
+			ClassMetaModel valueModel = pmm.getValueModel();
+			if(null == valueModel)
+				throw new IllegalStateException(pmm + ": has no valueModel");
+			QCriteria<T> q = (QCriteria<T>) valueModel.createCriteria();
+			if(null != q) {
+				IQueryManipulator<T> qm = pmm.getQueryManipulator();
+				if(null == qm)
+					qm = (IQueryManipulator<T>) valueModel.getQueryManipulator();
+
+				if(null != qm) {
+					q = qm.adjustQuery(q); // Adjust query if needed
+				}
+
+				//-- Handle sorting if applicable
+				List<DisplayPropertyMetaModel> dpl = MetaManager.getComboProperties(pmm);
+				MetaManager.applyPropertySort(q, dpl);
+				co = new ComboLookup<T>(q, r);
+			}
+		}
+		if(co == null)
+			throw new IllegalStateException("I do not have enough information to create the data set for the combobox from the property meta data=" + pmm);
+
+		if(pmm.isRequired())
+			co.setMandatory(true);
+		String s = pmm.getDefaultHint();
+		if(s != null)
+			co.setTitle(s);
+		return co;
+	}
+
+
 }

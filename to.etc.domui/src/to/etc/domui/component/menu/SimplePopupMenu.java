@@ -2,6 +2,8 @@ package to.etc.domui.component.menu;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.menu.PopupMenu.Item;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -66,7 +68,7 @@ public class SimplePopupMenu extends Div {
 	}
 
 	private void renderItem(final Item a) {
-		Div d = renderItem(a.getTitle(), a.getHint(), a.getIcon());
+		Div d = renderItem(a.getTitle(), a.getHint(), a.getIcon(), false);
 		d.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(NodeBase clickednode) throws Exception {
@@ -77,10 +79,10 @@ public class SimplePopupMenu extends Div {
 		});
 	}
 
-	private Div renderItem(String text, String hint, String icon) {
+	private Div renderItem(String text, String hint, String icon, boolean disabled) {
 		Div d = new Div();
 		add(d);
-		d.setCssClass("ui-pmnu-action");
+		d.setCssClass("ui-pmnu-action " + (disabled ? "ui-pmnu-disabled" : "ui-pmnu-enabled"));
 		if(null != icon) {
 			d.setBackgroundImage(icon);
 		}
@@ -93,20 +95,20 @@ public class SimplePopupMenu extends Div {
 	private <T> void renderAction(final IUIAction<T> action) throws Exception {
 		final T val = (T) m_targetObject;
 		String disa = action.getDisableReason(val);
-		Div d = renderItem(action.getName(val), disa, action.getIcon(val));
+		Div d = renderItem(action.getName(val), disa, action.getIcon(val), disa != null);
 		if(null != disa)
 			return;
 		d.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(NodeBase clickednode) throws Exception {
 				closeMenu();
-				action.execute(val);
+				action.execute(m_relativeTo, val);
 			}
 		});
 	}
 
 	public void closeMenu() {
-		if(getPage() == null)
+		if(!isAttached())
 			return;
 		getPage().clearPopIn();
 		forceRebuild();
@@ -114,8 +116,8 @@ public class SimplePopupMenu extends Div {
 	}
 
 	@Override
-	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
-		if("POPINCLOSE".equals(action)) {
+	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+		if("POPINCLOSE?".equals(action)) {
 			closeMenu();
 		} else
 			super.componentHandleWebAction(ctx, action);

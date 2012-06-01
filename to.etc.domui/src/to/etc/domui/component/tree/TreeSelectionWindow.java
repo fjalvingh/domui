@@ -62,10 +62,9 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 	public TreeSelectionWindow(boolean modal, String txt, @Nonnull ITreeModel<T> model) {
 		super(modal, txt);
 		m_model = model;
-		setOnClose(new IClicked<FloatingWindow>() {
-
+		setOnClose(new IWindowClosed() {
 			@Override
-			public void clicked(FloatingWindow clickednode) throws Exception {
+			public void closed(@Nonnull String closeReason) throws Exception {
 				cancel();
 			}
 		});
@@ -100,28 +99,26 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		m_tree.setCellClicked(this);
 	}
 
-	@SuppressWarnings("rawtypes")
 	protected void cancel() throws Exception {
 		close();
 		m_selected = null;
 		m_selectedNode = null;
 
 		if(getCancelClicked() != null) {
-			((IClicked) getCancelClicked()).clicked(this);
+			((IClicked<TreeSelectionWindow<T>>) getCancelClicked()).clicked(this);
 			return;
 		}
 		if(getClicked() != null) {
-			((IClicked) getClicked()).clicked(this);
+			((IClicked<TreeSelectionWindow<T>>) getClicked()).clicked(this);
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
 	protected void select() throws Exception {
 		if(m_selected == null)
 			return;
 		close();
 		if(getClicked() != null) {
-			((IClicked) getClicked()).clicked(this);
+			((IClicked<TreeSelectionWindow<T>>) getClicked()).clicked(this);
 		}
 	}
 
@@ -178,7 +175,7 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 	}
 
 	@Override
-	public void setClicked(IClickBase< ? > clicked) {
+	public void setClicked(@Nullable IClickBase< ? > clicked) {
 		m_clicked = clicked;
 	}
 

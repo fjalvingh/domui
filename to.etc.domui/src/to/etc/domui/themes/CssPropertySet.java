@@ -76,7 +76,7 @@ public class CssPropertySet {
 			m_rootBindings.put("collector", this);
 			m_bindings = m_engine.createBindings();
 			m_engine.eval("function inherit(s) { collector.internalInherit(s); }", m_rootBindings);
-			//			m_bindings.put("browser", DomUITestUtil.getBrowserVersionIE8());
+			//			m_bindings.put("browser", TUtilDomUI.getBrowserVersionIE8());
 		}
 		return m_engine;
 	}

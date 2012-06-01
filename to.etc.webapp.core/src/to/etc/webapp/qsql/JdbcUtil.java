@@ -31,6 +31,7 @@ import java.util.*;
 import org.slf4j.*;
 
 import to.etc.util.*;
+import to.etc.webapp.query.*;
 
 /**
  * Utility class for JDBC code.
@@ -131,7 +132,7 @@ public class JdbcUtil {
 			ps.setString(index, value.booleanValue() ? "Y" : "N");
 	}
 
-	static public void setFK(PreparedStatement ps, int index, ILongIdentifyable foreigner) throws SQLException {
+	static public void setFK(PreparedStatement ps, int index, IIdentifyable< ? extends Number> foreigner) throws SQLException {
 		if(foreigner == null)
 			ps.setNull(index, Types.NUMERIC);
 		else if(foreigner.getId() == null)
@@ -276,7 +277,7 @@ public class JdbcUtil {
 		}
 	}
 
-	private static void setParameter(PreparedStatement ps, Object val, int px) throws SQLException {
+	public static void setParameter(PreparedStatement ps, Object val, int px) throws SQLException {
 		if(val == null)
 			ps.setString(px, null);
 		else if(val instanceof String) {
@@ -528,5 +529,4 @@ public class JdbcUtil {
 			throw new IllegalStateException("Call error: cannot get out parameter for result java type=" + rtype);
 		}
 	}
-
 }

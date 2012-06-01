@@ -24,7 +24,20 @@
  */
 package to.etc.domui.server.parts;
 
+import javax.annotation.*;
+
+/**
+ * When present on a Part factory this means the factory itself decides on what URLs it reacts.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Mar 26, 2012
+ */
 public interface IUrlPart extends IPartFactory {
-	public boolean accepts(String rurl);
+	/**
+	 * If this part handles the URL passed return true.
+	 * @param rurl
+	 * @return
+	 */
+	boolean accepts(@Nonnull String rurl);
 
 }

@@ -24,10 +24,13 @@
  */
 package to.etc.domui.component.form;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
  * Accepts any property defined as an UP relation (parent) and score higher if a component type
@@ -45,7 +48,7 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(ComboLookup.class))
 			return -1;
 
@@ -53,11 +56,13 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 			return 0;
 		if(Constants.COMPONENT_COMBO.equals(pmm.getComponentTypeHint()))
 			return 10;
+		if(pmm.getComponentTypeHint() == null && Constants.COMPONENT_COMBO.equals(pmm.getClassModel().getComponentTypeHint()))
+			return 10;
 		return 2;
 	}
 
 	@Override
-	public <T> ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel<T> pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context) {
 		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
 		if(!editable && controlClass == null) {
 			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType()); // No idea what goes in here.
@@ -69,25 +74,12 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 			return new ControlFactoryResult(dv, model, pmm);
 		}
 
-		//		if(!editable)
-		//			throw new IllegalStateException("Implementation: please implement ReadOnly combobox thingy.");
-
-		//-- We need to add a ComboBox. Do we have a combobox dataset provider?
-		Class< ? extends IComboDataSet<T>> set = (Class< ? extends IComboDataSet<T>>) pmm.getComboDataSet();
-		if(set == null) {
-			set = (Class< ? extends IComboDataSet<T>>) pmm.getClassModel().getComboDataSet();
-			if(set == null)
-				throw new IllegalStateException("Missing Combo dataset provider for property " + pmm);
+		try {
+			ComboLookup<T> co = ComboLookup.createLookup(pmm);
+			co.setDisabled(!editable);
+			return new ControlFactoryResult(co, model, pmm);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x); // Checked exceptions are idiocy.
 		}
-
-		INodeContentRenderer<T> r = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(pmm, null);
-		ComboLookup<T> co = new ComboLookup<T>(set, r);
-		if(pmm.isRequired())
-			co.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			co.setTitle(s);
-		co.setDisabled(!editable);
-		return new ControlFactoryResult(co, model, pmm);
 	}
 }

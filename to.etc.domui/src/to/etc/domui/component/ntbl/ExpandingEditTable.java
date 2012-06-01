@@ -250,7 +250,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param value
 	 * @throws Exception
 	 */
-	private void renderCollapsedRow(int index, T value) throws Exception {
+	private void renderCollapsedRow(int index, @Nonnull T value) throws Exception {
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = (TR) m_dataBody.getChild(index);
 		tr.removeAllChildren(); // Discard current contents.
@@ -259,7 +259,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		renderCollapsedRow(cc, bc, tr, index, value);
 	}
 
-	private void renderCollapsedRow(@Nonnull ColumnContainer<T> cc, @Nonnull RowButtonContainer bc, @Nonnull TR tr, int index, @Nullable final T value) throws Exception {
+	private void renderCollapsedRow(@Nonnull ColumnContainer<T> cc, @Nonnull RowButtonContainer bc, @Nonnull TR tr, int index, @Nonnull final T value) throws Exception {
 		cc.setParent(tr);
 
 		if(! isHideIndex()) {
@@ -274,8 +274,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		//-- Ok, now add the (initially empty) action row
 		final TD td = cc.add((NodeBase) null);
 		bc.setContainer(td);
-		if(getRowButtonFactory() != null) {
-			getRowButtonFactory().addButtonsFor(bc, value);
+		IRowButtonFactory<T> bf = getRowButtonFactory();
+		if(bf != null) {
+			bf.addButtonsFor(bc, value);
 		}
 
 		if(isEnableDeleteButton() && getModel() instanceof IModifyableTableModel< ? >) {
@@ -344,7 +345,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param isnew
 	 * @throws Exception
 	 */
-	private NodeContainer createEditor(@Nonnull TD into, @Nonnull RowButtonContainer bc, @Nullable T instance, boolean isnew) throws Exception {
+	private NodeContainer createEditor(@Nonnull TD into, @Nonnull RowButtonContainer bc, @Nonnull T instance, boolean isnew) throws Exception {
 		if(getEditorFactory() == null)
 			throw new IllegalStateException("Auto editor creation not yet supported");
 
@@ -423,11 +424,13 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param index
 	 * @param tr
 	 */
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	private void collapseRow(int index, @Nonnull TR tr) throws Exception {
 		if(tr.getUserObject() == null) // Already collapsed?
 			return;
 		NodeContainer editor = (NodeContainer) tr.getUserObject();
+		if(null == editor)
+			throw new IllegalStateException("? No editor in row user object??");
 		T	item	= getModelItem(index);
 		//vmijic 20100108 not needed since editor itself would pass modified flag through its input fields.
 		//				  in case that user didn't chaged any input, then there is no need to raise modified flag.
@@ -442,7 +445,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		}
 
 		if(getOnRowChangeCompleted() != null) {
-			if(!((IRowEditorEvent) getOnRowChangeCompleted()).onRowChanged(this, editor, item, false))
+			if(!((IRowEditorEvent<T, NodeContainer>) getOnRowChangeCompleted()).onRowChanged(this, editor, item, false))
 				return;
 		}
 
@@ -546,7 +549,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		clearNewEditor();
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	private void clearNewEditor() throws Exception {
 		if(m_newBody == null)
 			return;
@@ -560,7 +563,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		}
 
 		if(getOnRowChangeCompleted() != null) {
-			if(!((IRowEditorEvent) getOnRowChangeCompleted()).onRowChanged(this, m_newEditor, m_newInstance, true)) {
+			if(!((IRowEditorEvent<T, NodeContainer>) getOnRowChangeCompleted()).onRowChanged(this, m_newEditor, m_newInstance, true)) {
 				return;
 			}
 		}
@@ -598,7 +601,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
+	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
 
@@ -643,7 +646,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
+	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
 		//-- Sanity
@@ -759,8 +762,10 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * Return the editor factory to use to create the row editor. If null we'll use a default editor.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	public IRowEditorFactory<T, ? extends NodeContainer> getEditorFactory() {
+		if(null == m_editorFactory)
+			throw new IllegalStateException("editorFactory is not set.");
 		return m_editorFactory;
 	}
 

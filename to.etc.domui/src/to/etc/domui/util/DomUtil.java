@@ -42,9 +42,11 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
+import to.etc.net.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.query.*;
 
 final public class DomUtil {
 	static private int m_guidSeed;
@@ -76,6 +78,14 @@ final public class DomUtil {
 			return true;
 		if(a == null || b == null)
 			return false;
+		if(a instanceof Date && b instanceof Date) {
+			//Dates needs special handling
+			return ((Date) a).compareTo((Date) b) == 0;
+		}
+		if(a instanceof BigDecimal && b instanceof BigDecimal) {
+			//BigDecimals needs special handling
+			return ((BigDecimal) a).compareTo((BigDecimal) b) == 0;
+		}
 		if(a.getClass() != b.getClass())
 			return false;
 		if(a.getClass().isArray() && b.getClass().isArray())
@@ -283,10 +293,36 @@ final public class DomUtil {
 		return "#" + StringTool.intToStr(value, 16, 6);
 	}
 
-	static public IErrorFence getMessageFence(NodeBase start) {
+	static public IErrorFence getMessageFence(NodeBase in) {
+		NodeBase start = in;
+
+		//-- If we're delegated then test the delegate 1st
+		if(in instanceof NodeContainer) {
+			NodeContainer nc = (NodeContainer) in;
+			if(nc.getDelegate() != null) {
+				IErrorFence ef = getMessageFence(nc.getDelegate());
+				if(null != ef)
+					return ef;
+			}
+		}
+
 		for(;;) {
-			if(start == null)
-				throw new IllegalStateException("Cannot locate error fence. Did you call an error routine on an unattached Node?");
+			if(start == null) {
+				//-- Collect the path we followed for the error message
+				StringBuilder sb = new StringBuilder();
+				sb.append("Cannot locate error fence. Did you call an error routine on an unattached Node?\nThe path followed upwards was: ");
+				start = in;
+				for(;;) {
+					if(start != in)
+						sb.append(" -> ");
+					sb.append(start.toString());
+					if(!start.hasParent())
+						break;
+					start = start.getParent();
+				}
+
+				throw new IllegalStateException(sb.toString());
+			}
 			if(start instanceof NodeContainer) {
 				NodeContainer nc = (NodeContainer) start;
 				if(nc.getErrorFence() != null)
@@ -295,7 +331,10 @@ final public class DomUtil {
 			//			if(start.getParent() == null) {
 			//				return start.getPage().getErrorFence();	// Use the generic page's fence.
 			//			}
-			start = start.getParent();
+			if(start.hasParent())
+				start = start.getParent();
+			else
+				start = null;
 		}
 	}
 
@@ -377,14 +416,73 @@ final public class DomUtil {
 	}
 
 	/**
-	 *
+	 * Returns application url part from current request.
+	 * Call depends on existing of request, so it can't be used within backend threads.
+	 * @return
+	 */
+	static public String getApplicationURL() {
+		return NetTools.getApplicationURL(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+	}
+
+	/**
+	 * Returns application context part from current request.
+	 * Call depends on existing of request, so it can't be used within backend threads.
+	 * @return
+	 */
+	static public String getApplicationContext() {
+		return NetTools.getApplicationContext(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+	}
+
+	/**
+	 * Returns relative path for specified resource (without host name, like '/APP_CONTEXT/resource').
+	 * Call depends on existing of request, so it can't be used within backend threads.
+	 * @param resource
+	 * @return
+	 */
+	static public String getRelativeApplicationResourceURL(String resource) {
+		return "/" + getApplicationContext() + "/" + resource;
+	}
+
+	/**
+	 * IMPORTANT: This method MUST be used only within UI threads, when UIContext.getRequestContext() != null!
+	 * In all other, usually background running threads, other alternatives that are using stored appURL must be used!
 	 * @param clz
 	 * @param pp
 	 * @return
 	 */
 	static public String createPageURL(Class< ? extends UrlPage> clz, PageParameters pp) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(DomApplication.get().getApplicationURL());
+		sb.append(UIContext.getRequestContext().getRelativePath(clz.getName()));
+		sb.append('.');
+		sb.append(DomApplication.get().getUrlExtension());
+		if(pp != null)
+			addUrlParameters(sb, pp, true);
+		return sb.toString();
+	}
+
+	/**
+	 * Create a relative URL for the specified page (an URL that is relative to the application's context, i.e. without
+	 * hostname nor webapp context).
+	 * @param clz
+	 * @param pp
+	 * @return
+	 */
+	static public String createPageRURL(@Nonnull Class< ? extends UrlPage> clz, @Nullable PageParameters pp) {
+		return clz.getName() + "." + DomApplication.get().getUrlExtension();
+	}
+
+	/**
+	 * IMPORTANT: This method MUST be used for non UI threads, when UIContext.getRequestContext() == null!
+	 * In all other, usually UI running threads, use other alternatives that is using appURL from UIContext.getRequestContext()!
+	 *
+	 * @param webAppUrl web app url, must be ended with '/'
+	 * @param clz
+	 * @param pp
+	 * @return
+	 */
+	static public String createPageURL(String webAppUrl, Class< ? extends UrlPage> clz, PageParameters pp) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(webAppUrl);
 		sb.append(clz.getName());
 		sb.append('.');
 		sb.append(DomApplication.get().getUrlExtension());
@@ -485,7 +583,7 @@ final public class DomUtil {
 	}
 
 	static public String nlsLabel(final String label) {
-		if(label == null)
+		if(label == null || label.length() == 0)
 			return label;
 		if(label.charAt(0) != '~')
 			return label;
@@ -1153,15 +1251,43 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public int pixelSize(String css) {
-		if(!css.endsWith("px"))
-			return -1;
+		return pixelSize(css, -1);
+	}
+
+	/**
+	 * Convert a CSS size string like '200px' into the 200... If the size string is in any way
+	 * invalid this returns specified defaultVal.
+	 *
+	 * @param css
+	 * @param defaultVal
+	 * @return
+	 */
+	static public int pixelSize(String css, int defaultVal) {
+		if(css == null || !css.endsWith("px"))
+			return defaultVal;
 		try {
 			return Integer.parseInt(css.substring(0, css.length() - 2).trim());
+		} catch(Exception x) {
+			return defaultVal;
+		}
+	}
+
+	/**
+	 * Convert a CSS percentage size string like '90%' into the 90... If the size string is in any way
+	 * invalid this returns -1.
+	 *
+	 * @param css
+	 * @return
+	 */
+	static public int percentSize(String css) {
+		if(css == null || !css.endsWith("%"))
+			return -1;
+		try {
+			return Integer.parseInt(css.substring(0, css.length() - 1).trim());
 		} catch(Exception x) {
 			return -1;
 		}
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree walking helpers.								*/
@@ -1300,7 +1426,7 @@ final public class DomUtil {
 					return;
 				}
 			}
-			n = (NodeBase) n.getParent(IUserInputModifiedFence.class);
+			n = (NodeBase) n.findParent(IUserInputModifiedFence.class);
 		}
 	}
 
@@ -1364,7 +1490,7 @@ final public class DomUtil {
 
 	@Nonnull
 	static public String createOpenWindowJS(@Nonnull String url, @Nullable WindowParameters newWindowParameters) {
-		//-- Send a special JAVASCRIPT open command, containing the shtuff.
+		//-- Send a special JAVASCRIPT open command, containing the stuff.
 		StringBuilder sb = new StringBuilder();
 		sb.append("DomUI.openWindow('");
 		sb.append(url);
@@ -1422,5 +1548,165 @@ final public class DomUtil {
 		} catch(Exception x) {
 			return x.getStackTrace();
 		}
+	}
+
+
+	static private String m_lorem;
+
+	/**
+	 * Return a large string containing lorum ipsum text, for testing purposes.
+	 * @return
+	 * @throws Exception
+	 */
+	static public String getLorem() throws Exception {
+		if(null == m_lorem) {
+			InputStream is = DomUtil.class.getResourceAsStream("lorem.txt");
+			try {
+				m_lorem = FileTool.readStreamAsString(is, "utf-8");
+			} finally {
+				try {
+					is.close();
+				} catch(Exception x) {}
+			}
+		}
+		return m_lorem;
+	}
+
+	/**
+	 * Util can be used to check if list contains item that has equal Long Id as specified one, while instanies itself does not need to be equal.
+	 * @param <T>
+	 * @param set
+	 * @param lookingFor
+	 * @return
+	 */
+	public static <V, T extends IIdentifyable<V>> boolean containsLongIdentifyable(@Nonnull Collection<T> set, @Nonnull T lookingFor) {
+		V id = lookingFor.getId();
+		if(null == id)
+			throw new IllegalStateException(lookingFor + ": id is null");
+		for(T member : set) {
+			V mid = member.getId();
+			if(null != mid && mid.equals(id))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Util that returns index of member in specified list that has same Long Id as specified <I>member</I>.
+	 * @param <T>
+	 * @param list
+	 * @param member
+	 * @return -1 if <I>member</I> object Long Id is not found in specified <I>list</I>, otherwise returns found index.
+	 */
+	public static <V, T extends IIdentifyable<V>> int indexOfLongIdentifyable(@Nonnull List<T> list, @Nonnull T lookingFor) {
+		if(list == null)					// jal 20120424 Bad, should be removed.
+			return -1;
+
+		V id = lookingFor.getId();
+		if(null == id)
+			throw new IllegalStateException(lookingFor + ": id is null");
+		for(int i = list.size(); --i >= 0;) {
+			V mid = list.get(i).getId();
+			if(null != mid && mid.equals(id))
+				return i;
+		}
+		return -1;
+	}
+
+	/**
+	 * Add item to mergeSource if it is not already contained.
+	 * @param <T>
+	 * @param mergeSource
+	 * @param item
+	 * @return (not)appended mergeSource
+	 */
+	@Nonnull
+	public static <V, T extends IIdentifyable<V>> List<T> merge(@Nonnull List<T> mergeSource, @Nonnull T item) {
+		if(!containsLongIdentifyable(mergeSource, item)) {
+			if(mergeSource == Collections.EMPTY_LIST) {
+				mergeSource = new ArrayList<T>();
+			}
+			mergeSource.add(item);
+		}
+		return mergeSource;
+	}
+
+	/**
+	 * Appends non contained items from toJoinItems into mergeSource.
+	 * Uses linear search, not suitable for large lists.
+	 * @param <T>
+	 * @param mergeSource
+	 * @param toJoinItems
+	 * @return (not)appended mergeSource
+	 */
+	public static <V, T extends IIdentifyable<V>> List<T> merge(@Nonnull List<T> mergeSource, @Nonnull List<T> toJoinItems) {
+		for(@Nonnull T item : toJoinItems) {
+			mergeSource = merge(mergeSource, item);
+		}
+		return mergeSource;
+	}
+
+	/**
+	 * Util that returns T if <I>lookingFor</I> object is contained in specified <I>array</I>
+	 *
+	 * @param <T>
+	 * @param array
+	 * @param lookingFor
+	 * @return
+	 */
+	public static <T> boolean contains(T[] array, T lookingFor) {
+		return indexOf(array, lookingFor) != -1;
+	}
+
+	/**
+	 * Util that returns index of <I>lookingFor</I> object inside specified <I>array</I>
+	 *
+	 * @param <T>
+	 * @param array
+	 * @param lookingFor
+	 * @return -1 if <I>lookingFor</I> object is not found in specified <I>array</I>, otherwise returns its index
+	 */
+	public static <T> int indexOf(T[] array, T lookingFor) {
+		if(array == null) {
+			return -1;
+		}
+		for(int i = 0; i < array.length; i++) {
+			if(isEqual(array[i], lookingFor)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Returns specified session attribute value if exists.
+	 * If specified, it clears value to support easier 'one time purpose actions'.
+	 * Must be called within valid request UI context.
+	 *
+	 * @param attribute
+	 * @param doReset if T attribute value is set to null after reading.
+	 * @return
+	 */
+	public static Object getSessionAttribute(String attribute, boolean doReset) {
+		IRequestContext ctx = UIContext.getRequestContext();
+		AppSession ses = ctx.getSession();
+		Object val = ses.getAttribute(attribute);
+		if(doReset) {
+			ses.setAttribute(attribute, null);
+		}
+		return val;
+	}
+
+	/**
+	 * Set specified session attribute value. Attribute would be accessible until session expires.
+	 * Must be called within valid request UI context.
+	 *
+	 * @param attribute
+	 * @param value
+	 */
+	public static void setSessionAttribute(String attribute, Object value) {
+		IRequestContext ctx = UIContext.getRequestContext();
+		AppSession ses = ctx.getSession();
+		ses.setAttribute(attribute, value);
 	}
 }

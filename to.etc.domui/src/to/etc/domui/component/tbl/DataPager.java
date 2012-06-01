@@ -86,6 +86,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private Div m_buttonDiv;
 
+	@Nonnull
+	private List<SmallImgButton> m_extraButtonList = new ArrayList<SmallImgButton>();
+
 	public DataPager() {}
 
 	public DataPager(final TabularComponentBase< ? > tbl) {
@@ -116,6 +119,11 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		m_buttonDiv.add(m_nextBtn);
 		m_lastBtn = new SmallImgButton();
 		m_buttonDiv.add(m_lastBtn);
+
+		m_buttonDiv.add("\u00a0\u00a0");
+		for(@Nonnull SmallImgButton sib : m_extraButtonList) {
+			m_buttonDiv.add(sib);
+		}
 
 		//		if(m_showSelection) {
 		//			if(m_table instanceof ISelectableTableComponent< ? >) { // Fixme needs interface
@@ -238,6 +246,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		if(!sm.isMultiSelect())
 			return false;
 		ISelectableTableComponent< ? > tc = getSelectableTable();
+		if(null == tc)
+			throw new IllegalStateException("Null selectable table?");
 		if(tc.isMultiSelectionVisible())
 			return false;
 		if(tc.getModel() == null || tc.getModel().getRows() == 0)
@@ -255,12 +265,15 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			return false;
 		if(!sm.isMultiSelect())
 			return false;
+
 		ISelectableTableComponent< ? > tc = getSelectableTable();
+		if(null == tc)
+			throw new IllegalStateException("Null selectable table?");
 		return tc.isMultiSelectionVisible();
 	}
 
 	@Override
-	public void selectionUIChanged(TabularComponentBase< ? > tbl) throws Exception {
+	public void selectionUIChanged(@Nonnull TabularComponentBase< ? > tbl) throws Exception {
 		redraw();
 		//		if(tbl instanceof DataTable) {
 		//			DataTable< ? > dt = (DataTable< ? >) tbl;
@@ -360,7 +373,10 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private void redrawSelectionButtons() throws Exception {
 		//-- Show/hide the "show selection" button
-		final ISelectableTableComponent dt = getSelectableTable();
+		final ISelectableTableComponent<Object> dt = (ISelectableTableComponent<Object>) getSelectableTable();
+		if(null == dt)
+			throw new IllegalStateException("Null selectable table?");
+
 		if(isNeedSelectionButton()) {
 			if(m_showSelectionBtn == null) {
 				m_showSelectionBtn = new SmallImgButton("THEME/dpr-select-on.png");
@@ -398,7 +414,10 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			m_selectAllBtn.setClicked(new IClicked<SmallImgButton>() {
 				@Override
 				public void clicked(SmallImgButton clickednode) throws Exception {
-					dt.getSelectionAllHandler().selectAll(dt.getModel(), dt.getSelectionModel());
+					ISelectionAllHandler ah = dt.getSelectionAllHandler();
+					if(null == ah)
+						throw new IllegalStateException("selectionAllHandler is null");
+					ah.selectAll(dt.getModel(), dt.getSelectionModel());
 				}
 			});
 		} else if(m_selectAllBtn != null && ! needselectall) {
@@ -446,12 +465,12 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	/*	CODING:	DataTableChangeListener implementation.				*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public void modelChanged(final TabularComponentBase< ? > tbl, final ITableModel< ? > old, final ITableModel< ? > nw) throws Exception {
+	public void modelChanged(final @Nonnull TabularComponentBase< ? > tbl, final @Nullable ITableModel< ? > old, final @Nullable ITableModel< ? > nw) throws Exception {
 		redraw();
 	}
 
 	@Override
-	public void pageChanged(final TabularComponentBase< ? > tbl) throws Exception {
+	public void pageChanged(final @Nonnull TabularComponentBase< ? > tbl) throws Exception {
 		redraw();
 	}
 
@@ -464,5 +483,14 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			return;
 		m_showSelection = showSelection;
 		forceRebuild();
+	}
+
+	public void addButton(@Nonnull SmallImgButton sib) {
+		m_extraButtonList.add(sib);
+		forceRebuild();
+	}
+
+	public void addButton(@Nonnull String img, @Nonnull IClicked<SmallImgButton> clicked) {
+		m_extraButtonList.add(new SmallImgButton(img, clicked));
 	}
 }

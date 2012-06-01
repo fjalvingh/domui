@@ -36,7 +36,7 @@ Calendar._SDN_len = 2;
 
 // First day of the week. "0" means display Sunday first, "1" means display
 // Monday first, etc.
-Calendar._FD = 0;
+Calendar._FD = 1;
 
 // full month names
 Calendar._MN = new Array

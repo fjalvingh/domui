@@ -26,6 +26,8 @@ package to.etc.domui.dom.html;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.util.*;
 
@@ -95,7 +97,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	}
 
 	@Override
-	public boolean acceptRequestParameter(String[] values) {
+	public boolean acceptRequestParameter(@Nonnull String[] values) {
 		if(values == null || values.length != 1)
 			throw new IllegalStateException("Checkbox: expecting a single input value, not " + Arrays.toString(values));
 		String s = values[0].trim();
@@ -214,7 +216,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
 	@Override
-	public IBinder bind() {
+	public @Nonnull IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
 		return m_binder;

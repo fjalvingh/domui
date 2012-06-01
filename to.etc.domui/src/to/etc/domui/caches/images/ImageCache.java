@@ -486,6 +486,18 @@ public class ImageCache {
 	}
 
 	/**
+	 * Return the amount of memory currently used in the cache system.
+	 * @return
+	 */
+	public synchronized long getUsedMemory() {
+		return m_currentMemorySize;
+	}
+
+	public long getUsedFilespace() {
+		return m_fileCache.getCurrentFileSize();
+	}
+
+	/**
 	 * Links the entry at the most recently used position of the LRU chain.
 	 * @param e
 	 */

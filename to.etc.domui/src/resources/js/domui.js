@@ -6,6 +6,16 @@ function _unblock() {
 }
 $(document).ajaxStart(_block).ajaxStop(_unblock);
 
+//-- calculate browser major and minor versions
+{
+	try {
+		var v = $.browser.version.split(".");
+		$.browser.majorVersion = parseInt(v[0], 10);
+		$.browser.minorVersion = parseInt(v[1], 10);
+	} catch(x) {}
+//	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
+}
+
 ( function($) {
 	$.webui = function(xml) {
 		processDoc(xml);
@@ -120,6 +130,8 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			var to = xml.documentElement.getAttribute('url');
 			window.location.href = to;
 			return true;
+		} else if (rname == 'expiredOnPollasy'){
+			return true; // do nothing actually, page is in process of redirecting to some other page and we need to ignore responses on obsolete pollasy calls...
 		} else if (rname == 'expired') {
 			var msg = 'Uw sessie is verlopen. Het scherm wordt opnieuw opgevraagd met originele gegevens.';
 			var hr = window.location.href;
@@ -162,6 +174,13 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				if (commands[i].nodeType != 1)
 					continue; // commands are elements
 				var cmdNode = commands[i], cmd = cmdNode.tagName;
+				if(cmd == 'head' || cmd == 'body') {
+					//-- HTML response. Server state is gone due to restart or lost session.
+					alert('The server has restarted, or the session has timed out.. Reloading the page with fresh data');
+					window.location.href = window.location.href;
+					return;
+				}
+
 				if (cmd == 'eval') {
 					try {
 						var js = (cmdNode.firstChild ? cmdNode.firstChild.nodeValue : null);
@@ -175,6 +194,12 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					continue;
 				}
 				var q = cmdNode.getAttribute('select');
+				if(! q) {
+					//-- Node sans select-> we are in trouble -> this is probably a server error/response. Report session error, then reload. (Marc, 20111017)
+					alert('The server seems to have lost this page.. Reloading the page with fresh data');
+					window.location.href = window.location.href;
+					return;
+				}
 				var jq = $(q);
 				if (!jq[0]) {
 					log('No matching targets for selector: ', q);
@@ -320,7 +345,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 			function createElement(node) {
 				var e, tag = node.tagName.toLowerCase();
 				// some elements in IE need to be created with attrs inline
-				if ($.browser.msie) {
+				if ($.browser.msie && !WebUI.isNormalIE9plus()) {
 					var type = node.getAttribute('type');
 					if (tag == 'table'
 							|| type == 'radio'
@@ -369,6 +394,11 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				for ( var i = 0, attr = ''; i < src.attributes.length; i++) {
 					var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
 
+//					if(n.substring(0, 2) == 'on' && ! this._xxxw) {
+//						this._xxxw = true;
+//						alert('dest='+dest+", src="+src+", inline="+inline+", ffox="+$.browser.mozilla);
+//					}
+					
 					if (inline) {
 						//-- 20091110 jal When inlining we are in trouble if domjs_ is used... The domjs_ mechanism is replaced with setDelayedAttributes in java.
 						if(n.substring(0, 6) == 'domjs_') {
@@ -393,17 +423,30 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 							throw ex;
 						}
 						continue;
-					} else if (dest && ($.browser.msie || $.browser.webkit) && n.substring(0, 2) == 'on') {
+					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
-							// alert('event '+n+' value '+v);
+//							if(! this._xxxw)
+//								alert('event '+n+' value '+v);
 							// var se = 'function(){'+v+';}';
 							var se;
-							if (v.indexOf('return') != -1)
-								se = new Function(v);
-							else
-								se = new Function('return ' + v);
-							// alert('event '+n+' value '+se);
+							if (v.indexOf('return') != -1 || v.indexOf('javascript:') != -1){
+								if (!$.browser.msie && $.browser.majorVersion >= 9 ){
+									se = new Function("event", v);
+								}else{
+									se = new Function(v);
+								}
+							}else{
+								if (!$.browser.msie && $.browser.majorVersion >= 9 ){ 	
+									se = new Function("event", 'return ' + v);
+								}else{
+									se = new Function('return ' + v);
+								}
+							}
+//							if(! this._xxxw)
+//								alert('event '+n+' value '+se);
 							dest[n] = se;
+//							this._xxxw = true;
+							
 						} catch(x) {
 							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);
 						}
@@ -438,7 +481,6 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 	$.fn.fixOverflow = function () {
 		if(! $.browser.msie || $.browser.version.substring(0, 1) != "7")
 			return this;
-//		alert('fixing overflow: '+$.browser.msie+", ver="+$.browser.version);
 
 		return this.each(function () {
 			if (this.scrollWidth > this.offsetWidth) {
@@ -448,12 +490,62 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 					$(this).css({ 'overflow-y' : 'hidden' });
 				}
 			}
+			
+			//-- jal 20110727 Do the same for height?
+			if(this.scrollHeight > this.offsetHeight) {
+				$(this).css({ 'margin-right' : '17px' });
+				if(this.scrollWidth <= this.offsetWidth) {
+					$(this).css({ 'overflow-x' : 'hidden' });
+				}
+			}
+			
 		});            
+	};
+})(jQuery);
+
+(function ($) {
+	$.fn.doStretch = function () {
+		return this.each(function () {
+			WebUI.stretchHeight(this.id);
+		});
+	};
+})(jQuery);
+
+(function ($) {
+	$.fn.setBackgroundImageMarker = function () {
+		return this.each(function () {
+			if($(this).markerTransformed){
+				return;
+			}
+			var imageUrl = 'url(' + $(this).attr('marker') + ')';
+			if((!(this == document.activeElement)) && $(this).val().length == 0){
+				$(this).css('background-image', imageUrl);
+			}
+			$(this).css('background-repeat', 'no-repeat');
+			$(this).bind('focus',function(e){
+				$(this).css('background-image', 'none');
+			});
+			$(this).bind('blur',function(e){
+				if($(this).val().length == 0){
+					$(this).css('background-image', imageUrl);
+				} else {
+					$(this).css('background-image', 'none');
+				}
+			});
+			$(this).markerTransformed = true;
+		});
 	};
 })(jQuery);
 
 /** WebUI helper namespace */
 var WebUI = {
+	log: function() {
+		if (!window.console || !window.console.debug)
+			return;
+		window.console.debug.apply(window.console, arguments);
+		// window.console.debug("Args: "+[].join.call(arguments,''));
+	},
+
 	/**
 	 * Create a curried function containing a 'this' and a fixed set of elements.
 	 */
@@ -558,6 +650,9 @@ var WebUI = {
 	},
 
 	clicked : function(h, id, evt) {
+		//-- Trigger the before-clicked event on body
+		$(document.body).trigger("beforeclick", $("#"+id), evt);
+		
 		// Collect all input, then create input.
 		var fields = new Object();
 		this.getInputFields(fields);
@@ -591,8 +686,8 @@ var WebUI = {
 			data :fields,
 			cache :false,
 			type: "POST",
-			success :WebUI.handleResponse,
-			error :WebUI.handleError
+			error :WebUI.handleError,
+			success :WebUI.handleResponse
 		});
 		return false;
 	},
@@ -690,9 +785,10 @@ var WebUI = {
 
 			//locate keyword input node 
 			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
-			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+			var trNode = selectedIndex < 0 ? null : $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
 			if(trNode){
-				//trigger click on row 
+				//trigger click on row
+				WebUI.setKeywordPopupSelectedRowIndex(node, -1);
 				$(trNode).trigger('click');
 			} else {
 				//trigger lookupTypingDone when return is pressed
@@ -705,7 +801,7 @@ var WebUI = {
 	 * Handle for timer delayed actions, used for onLookupTyping event.
 	 */
 	scheduledOnLookupTypingTimerID: null,
-	
+
 	/*
 	 * Executed as onkeyup event on input field that has implemented listener for onLookupTyping event.
 	 * In case of return key call lookupTypingDone ajax that is transformed into onLookupTyping(done=true).
@@ -752,6 +848,8 @@ var WebUI = {
 
 			//locate keyword input node
 			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+			if(selectedIndex < 0)
+				selectedIndex = 0;
 			var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
 			if(trNode){
 				trNode.className = "ui-keyword-popup-row";
@@ -795,7 +893,7 @@ var WebUI = {
 				return parseInt(selectedIndexInput.value);
 			};
 		}
-		return 0;
+		return -1;
 	},
 
 	setKeywordPopupSelectedRowIndex: function(keywordInputNode, intValue){
@@ -815,6 +913,8 @@ var WebUI = {
 		}
 
 		var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
+		if(selectedIndex < 0)
+			selectedIndex = 0;
 		var trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
 		if(trNode){
 			WebUI.clicked(trNode, trNode.id, null);
@@ -833,6 +933,8 @@ var WebUI = {
 		}
 
 		var oldIndex = WebUI.getKeywordPopupSelectedRowIndex(keywordInput);
+		if(oldIndex < 0)
+			oldIndex = 0;
 		
 		var trNodes = $(rowNode.parentNode).children("tr");
 		var newIndex = 0;
@@ -863,7 +965,13 @@ var WebUI = {
 			$(divPopup).fadeOut(200);
 		}
 		//fix z-index to one saved in input node
-		node.parentNode.style.zIndex = node.style.zIndex;
+		if ($.browser.msie){
+            //IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit... 
+            window.setTimeout(function() { try { node.parentNode.style.zIndex = node.style.zIndex;} catch (e) { /*just ignore */ } }, 200);
+		}else{
+            //Other browsers dont suffer of this problem, and we can set z index instantly 
+            node.parentNode.style.zIndex = node.style.zIndex;
+		}
 	},
 
 	showLookupTypingPopupIfStillFocusedAndFixZIndex: function(id) {
@@ -975,6 +1083,7 @@ var WebUI = {
    					}
 					//handle received lookupTyping component content
 					WebUI.showLookupTypingPopupIfStillFocusedAndFixZIndex(id);
+					WebUI.doCustomUpdates();
    				},
 
 				success :WebUI.handleResponse,
@@ -1013,10 +1122,17 @@ var WebUI = {
 		if (document.body)
 			document.body.style.cursor = 'default';
 		// alert('Server error: '+status+", len="+txt.length+", val="+txt);
-		if (txt.length == 0)
-			txt = "De server is niet bereikbaar.";
+		if (txt.length == 0) {
+			//-- Firefox fix: if the page is unloading but a request is pending this may cause an status=ERROR for that page. Prevent us from then overwriting the new document....
+			if(status == "error")
+				return;
+
+			txt = "De server is niet bereikbaar 1, status="+status+", "+request.statusText;
+		}
 		document.write(txt);
+		document.close();
 		window.setTimeout('document.body.style.cursor="default"', 1000);
+		return true;
 	},
 	_asyalerted: false,
 	handleErrorAsy : function(request, status, exc) {
@@ -1029,7 +1145,7 @@ var WebUI = {
 			document.body.style.cursor = 'default';
 		// alert('Server error: '+status+", len="+txt.length+", val="+txt);
 		if (txt.length == 0)
-			txt = "De server is niet bereikbaar.";
+			txt = "De server is niet bereikbaar, status="+status;
 		else if(txt.length > 200)
 			txt = txt.substring(0, 200);
 		alert("Automatische server update mislukt: "+txt);
@@ -1087,7 +1203,7 @@ var WebUI = {
 			}
 		}
 	},
-
+	
 	focus : function(id) {
 		var n = document.getElementById(id);
 		try{
@@ -1129,7 +1245,7 @@ var WebUI = {
 				c.value = res.print(fmt);
 			} else {
 				//-- Only parse the input to see if it parses.
-				var res = Date.parseDate(val, fmt);
+				Date.parseDate(val, fmt);
 			}
 		} catch(x) {
 			alert(Calendar._TT["INVALID"]);
@@ -1433,7 +1549,43 @@ var WebUI = {
 			error :WebUI.handleErrorAsy
 		});
 	},
+
+	/**
+	 * Send Ajax request to the server every 2 minutes. This keeps the session
+	 * alive. The response can contain commands to execute which will indicate
+	 * important events or changes have taken place.
+	 */
+	pingServer: function(timeout) {
+		var url = DomUIappURL + "to.etc.domui.parts.PollInfo.part";
+		var fields= new Object();
+		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
+		$.ajax( {
+			url: url,
+			dataType: "text/xml",
+			data: fields,
+			cache: false,
+			global: false, // jal 20091015 prevent block/unblock on polling call.
+			success: function(data, state) {
+				WebUI.executePollCommands(data);
+			},
+			error : function() {
+				//-- Ignore all errors.
+			}
+		});
+		WebUI.startPingServer(timeout);
+	},
 	
+	startPingServer: function(timeout) {
+		if(timeout < 60*1000)
+			timeout = 60*1000;
+		setTimeout("WebUI.pingServer("+timeout+")", timeout);
+	},
+	
+	executePollCommands: function(data) {
+		// TBD
+	},
+
 	/** Dynamically loading stylesheets and javascript files (Header Contributer delta's) **/
 	/**
 	 * Load the specified stylesheet by creating a script tag and inserting it @ head.
@@ -1485,7 +1637,7 @@ var WebUI = {
 				}
 			}
 			if (!ok) {
-				alert("File type not allowed");
+				alert("File type not allowed: " + ext + ", allowed: " + val);
 				return;
 			}
 		}
@@ -1993,15 +2145,40 @@ var WebUI = {
 	/** ***************** Stretch elemnt height. Must be done via javascript. **************** */
 	stretchHeight : function(elemId) {
 		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
 		var elemHeight = $(elem).height();
 		var totHeight = 0;
 		$(elem).siblings().each(function(index, node) {
 			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
-			if (node != elem && $(node).css('position') == 'static' && $(node).css('float') == 'none'){
-				totHeight += node.offsetHeight;
+			if (node != elem && $(node).css('position') == 'static' && ($(node).css('float') == 'none' || $(node).css('width') != '100%' /* count in floaters that occupies total width */)){
+				//In IE7 hidden nodes needs to be additionaly excluded from count...
+				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
+					//totHeight += node.offsetHeight;
+					totHeight += $(node).outerHeight();
+				}
 			}
 		});
-		$(elem).height($(elem).parent().height() - totHeight);
+		var elemDeltaHeight = $(elem).outerHeight() - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
+		if (WebUI.isIE8orIE8c()){
+			//from some reason we need +1 only for IE8!
+			elemDeltaHeight = elemDeltaHeight + 1;
+		}
+		$(elem).height($(elem).parent().height() - totHeight - elemDeltaHeight);
+		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
+			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers 
+			if (elem.scrollWidth > elem.offsetWidth){
+				$(elem).height($(elem).height() - 20);
+				//show hidden vertical scroller if it is again needed after height is decreased.
+				if ($(elem).css('overflow-y') == 'hidden'){
+					if (elem.scrollHeight > elem.offsetHeight){
+						$(elem).css({'overflow-y' : 'auto'});
+					}
+				}
+				return;
+			}
+		}
 	},
 	
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
@@ -2086,6 +2263,14 @@ var WebUI = {
 	_frmIdCounter: 0,
 
 	backgroundPrint: function(url) {
+		if (jQuery.browser.msie) {
+			WebUI.documentPrintIE(url);
+		} else {
+			WebUI.documentPrint(url);
+		}
+	},
+
+	documentPrintIE: function(url) {
 		try {
 			// Create embedded sizeless div to contain the iframe, invisibly.
 			var div = document.getElementById('domuiprif');
@@ -2100,7 +2285,41 @@ var WebUI = {
 	
 			//-- Create an iframe loading the required thingy.
 			var frmname = "dmuifrm"+(WebUI._frmIdCounter++);		// Create unique name to circumvent ffox "print only once" bug
+			$(div).html('<iframe id="'+frmname+'" name="'+frmname+'" src="'+url+'">');
 
+			var frm = window.frames[frmname];
+			$("#"+frmname).load(function() {
+				try {
+					frm.focus();
+					setTimeout(function() {
+						if (!frm.document.execCommand('print', true, null)){
+			            	alert('cannot print: '+x);
+				        }
+					}, 1000);
+				} catch(x) {
+					alert('cannot print: '+x);
+				}
+			});
+		} catch(x) {
+			alert("Failed: "+x);
+		}
+	},
+	
+	documentPrint: function(url) {
+		try {
+			// Create embedded sizeless div to contain the iframe, invisibly.
+			var div = document.getElementById('domuiprif');
+			if(div)
+				div.innerHTML = "";
+			else {
+				div = document.createElement('div');
+				div.id = 'domuiprif';
+				div.className = 'ui-printdiv';
+				document.body.appendChild(div);
+			}
+	
+			//-- Create an iframe loading the required thingy.
+			var frmname = "dmuifrm"+(WebUI._frmIdCounter++);		// Create unique name to circumvent ffox "print only once" bug
 			$(div).html('<iframe id="'+frmname+'" name="'+frmname+'" src="'+url+'">');
 
 			var frm = window.frames[frmname];
@@ -2192,15 +2411,17 @@ var WebUI = {
 //			if(WebUI._NOMOVE)
 //				return;
 //			console.debug("move ", e);
-			WebUI._debugMouseTarget = e.srcElement || e.originalTarget;
-			
+			WebUI._debugMouseTarget = e.target; // e.srcElement || e.originalTarget;
 		});
 	},
 
+	
+	/***** Popup menu code *****/
+	
 	_popinCloseList: [],
 
 	popupMenuShow: function(refid, menu) {
-		WebUI.registerPopinClose(menu.substring(1));
+		WebUI.registerPopinClose(menu);
 		var pos = $(refid).offset();    
 		var eWidth = $(refid).outerWidth();
 		var mwidth = $(menu).outerWidth();
@@ -2218,25 +2439,57 @@ var WebUI = {
 		$(menu).hide().fadeIn();
 	},
 
+	
+	/**
+	 * Register the popup. If the mouse leaves the popup window the popup needs to send a POPINCLOSE? command; this
+	 * will tell DomUI server that the popin needs to go. If an item inside the popin is clicked it should mean the
+	 * popin closes too; at that point we will deregister the mouse listener to prevent sending double events.
+	 * 
+	 * @param id
+	 */
 	registerPopinClose: function(id) {
 		WebUI._popinCloseList.push(id);
+		$(id).bind("mouseleave", WebUI.popinMouseClose);
 		if(WebUI._popinCloseList.length != 1)
 			return;
-		$(document.body).bind("mousedown", WebUI.popinMouseClose);
 		$(document.body).bind("keydown", WebUI.popinKeyClose);
+		$(document.body).bind("beforeclick", WebUI.popinBeforeClick);	// Called when a click is done somewhere.
+	},
+
+	popinBeforeClick: function(ee1, obj, clickevt) {
+		for(var i = 0; i < WebUI._popinCloseList.length; i++) {
+			var id = WebUI._popinCloseList[i];
+			obj = $(obj);
+			var cl = obj.closest(id);
+			if(cl.size() > 0) {
+				//-- This one is done -> remove mouse handler.
+				$(id).unbind("mousedown", WebUI.popinMouseClose);
+				WebUI._popinCloseList.splice(i, 1);
+				if(WebUI._popinCloseList.length == 0) {
+					$(document.body).unbind("keydown", WebUI.popinKeyClose);
+					$(document.body).unbind("beforeclick", WebUI.popinBeforeClick);
+				}
+				return;
+			}
+		}
 	},
 
 	popinMouseClose: function() {
-		for(var i = 0; i < WebUI._popinCloseList.length; i++) {
-			var id = WebUI._popinCloseList[i];
-			var el = document.getElementById(id);
-			if(el) {
-				WebUI.scall(id, "POPINCLOSE", {});
+		try {
+			for(var i = 0; i < WebUI._popinCloseList.length; i++) {
+				var id = WebUI._popinCloseList[i];
+				var el = $(id);
+				if(el) {
+					el.unbind("mousedown", WebUI.popinMouseClose);
+					WebUI.scall(id.substring(1), "POPINCLOSE?", {});
+				}
 			}
+		} finally {
+			WebUI._popinCloseList = [];
+//			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
+			$(document.body).unbind("keydown", WebUI.popinKeyClose);
+			$(document.body).unbind("beforeclick", WebUI.popinBeforeClick);
 		}
-		WebUI._popinCloseList = [];
-		$(document.body).unbind("mousedown", WebUI.popinMouseClose);
-		$(document.body).unbind("keydown", WebUI.popinKeyClose);
 	},
 	popinKeyClose: function(evt) {
 		if(! evt)
@@ -2259,6 +2512,94 @@ var WebUI = {
 			$(elem).hide();			
 			$(elem).show(1); //needs to be done on timeout/animation, otherwise it still fails to recalculate... 
 		}
+	},
+	
+	//Use this to make sure that item would be visible inside parent scrollable area. It uses scroll animation. In case when item is already in visible part, we just do single blink to gets user attention ;)  
+	scrollMeToTop: function(elemId, selColor, offset) {
+		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
+		var parent = elem.parentNode; 
+		if (!parent){
+			return;
+		}
+		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
+			var elemPos = $(elem).position().top;
+			if (elemPos > 0 && elemPos < parent.offsetHeight){
+				//if elem already visible -> just do one blink
+				if (selColor){
+					var oldColor = $(elem).css('background-color');  
+					$(elem).animate({backgroundColor: selColor}, "slow", function(){$(elem).animate({backgroundColor: oldColor}, "fast");});
+				}
+			}else{
+				//else scroll parent to show me at top
+				var newPos = $(elem).position().top + parent.scrollTop;
+				if($.browser.msie && $.browser.version.substring(0, 1) == "8"){
+					if ($(elem).height() == 0){
+						newPos = newPos - 15; //On IE8 we need this correction :¬|
+					}
+				}
+				if (offset){
+					newPos = newPos - offset;
+				}
+				$(parent).animate({scrollTop: newPos}, 'slow');
+			}
+		}
+	},
+	
+	//Use this to make sure that option in dropdown would be visible. It needs fix only in FF sinve IE would always make visible selected option.  
+	makeOptionVisible: function(elemId, offset) {
+		if($.browser.msie){
+			//IE already fix this... we need fix only for FF and other browsers
+			return;
+		}
+		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
+		var parent = elem.parentNode; 
+		if (!parent){
+			return;
+		}
+		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
+			var elemPos = $(elem).position().top;
+			//if elem is not currenlty visible
+			if (elemPos <= 0 || elemPos >= parent.offsetHeight){
+				//else scroll parent to show me at top
+				var newPos = elemPos + parent.scrollTop;
+				if (offset){
+					newPos = newPos - offset;
+				}
+				$(parent).animate({scrollTop: newPos}, 'slow');
+			}
+		}
+	},
+	
+	//Returns T if browser is really using IE7 rendering engine (since IE8 compatibility mode presents  browser as version 7 but renders as IE8!)
+	isReallyIE7: function() {
+		//Stupid IE8 in compatibility mode lies that it is IE7, and renders as IE8! At least we can detect that using document.documentMode (it is 8 in that case)
+		//document.documentMode == 7 		 --- IE8 running in IE7 mode
+		//document.documentMode == 8 		 --- IE8 running in IE8 mode or IE7 Compatibility mode
+		//document.documentMode == undefined --- plain old IE7 
+		return ($.browser.msie && parseInt($.browser.version) == 7 && (!document.documentMode || document.documentMode == 7));
+	},
+	//Returns T if browser is IE8 or IE8 compatibility mode
+	isIE8orIE8c: function() {
+		//Stupid IE8 in compatibility mode lies that it is IE7, and renders as IE8! At least we can detect that using document.documentMode (it is 8 in that case)
+		//document.documentMode == 7 		 --- IE8 running in IE7 mode
+		//document.documentMode == 8 		 --- IE8 running in IE8 mode or IE7 Compatibility mode
+		//document.documentMode == undefined --- plain old IE7 
+		return ($.browser.msie && (parseInt($.browser.version) == 8 || (parseInt($.browser.version) == 7 && document.documentMode == 8)));
+	},
+	//Returns T if browser is IE of at least version 9 and does not run in any of compatibility modes for earlier versions
+	isNormalIE9plus: function() {
+		return ($.browser.msie && parseInt($.browser.version) >= 9 && document.documentMode >= 9);
+	},
+	
+	//Returns T if browser is IE of at least version 8 even if it runs in IE7 compatibility mode
+	isIE8orNewer: function() {
+		return ($.browser.msie && (parseInt($.browser.version) >= 8 || (parseInt($.browser.version) == 7 && document.documentMode >= 8)));
 	}
 };
 
@@ -2504,17 +2845,54 @@ WebUI.colorPickerChangeEvent = function(id) {
 
 var DomUI = WebUI;
 
+WebUI.doCustomUpdates = function() {
+	$('[stretch=true]').doStretch();
+	$('.ui-dt, .ui-fixovfl').fixOverflow();
+	$('input[marker]').setBackgroundImageMarker();
+};
+
 WebUI.onDocumentReady = function() {
 	WebUI.handleCalendarChanges();
 	if(DomUIDevel)
 		WebUI.handleDevelopmentMode();
-	$(".ui-dt").fixOverflow();
-}
+	WebUI.doCustomUpdates();
+};
+
+WebUI.floatingDivResize = function(ev, ui) {
+	$('[stretch=true]').doStretch();
+	$('.ui-dt, .ui-fixovfl').fixOverflow();
+};
+
+
+WebUI.onWindowResize = function() {
+	WebUI.doCustomUpdates();
+};
+
+WebUI.flare = function(id) {
+	$('#'+id).fadeIn('fast', function() {
+		$('#'+id).delay(500).fadeOut(1000, function() {
+			$('#'+id).remove();
+		});
+	});
+};
+
+WebUI.flareStay = function(id) {
+	$('#'+id).fadeIn('fast', function() {
+		$('body,html').bind('mousemove.' + id, function(e){
+			$('body,html').unbind('mousemove.' + id);
+			$('#'+id).delay(500).fadeOut(1000, function() {
+				$('#'+id).remove();
+			});
+		});
+	});
+};
+
 
 $(document).ready(WebUI.onDocumentReady);
+$(window).resize(WebUI.onWindowResize);
 $(document).ajaxComplete( function() {
 	WebUI.handleCalendarChanges();
-	$(".ui-dt").fixOverflow();
+	WebUI.doCustomUpdates();
 });
 
 

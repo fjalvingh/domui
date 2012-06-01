@@ -29,6 +29,7 @@ import java.util.*;
 
 import org.junit.*;
 
+import to.etc.domui.util.upload.MultipartStream.MalformedStreamException;
 import to.etc.domui.util.upload.*;
 
 public class TestUploadParser {
@@ -49,7 +50,7 @@ public class TestUploadParser {
 		}
 	}
 
-	@Test
+	@Test(expected = MalformedStreamException.class)
 	public void testBad() throws Exception {
 		InputStream is = getClass().getResourceAsStream("bad.bin");
 		try {

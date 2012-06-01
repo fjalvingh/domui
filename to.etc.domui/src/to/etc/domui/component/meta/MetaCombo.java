@@ -76,4 +76,10 @@ public @interface MetaCombo {
 	 * @return
 	 */
 	MetaComboProperty[] properties() default {};
+
+	/**
+	 * Define a preference for this being shown as a combobox.
+	 * @return
+	 */
+	boolean preferred() default false;
 }

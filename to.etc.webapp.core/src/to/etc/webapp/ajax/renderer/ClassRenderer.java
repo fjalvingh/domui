@@ -34,6 +34,7 @@ public class ClassRenderer implements ItemRenderer {
 		m_memberList = list;
 	}
 
+	@Override
 	public void render(final ObjectRenderer or, final Object val) throws Exception {
 		or.renderObjectStart(val);
 		int count = 0;

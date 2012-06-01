@@ -141,6 +141,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	private StackTraceElement[] m_allocationTracepoint;
 
 	/**
+	 * If marked as stretched, element gets attribute stretched. It would be used on client side to adjust its height to all available space in parent element (what is left when other siblings take their pieces)
+	 */
+	private boolean m_stretchHeight;
+
+	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
 	 * @throws Exception
@@ -223,8 +228,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	final protected void changed() {
 		setCachedStyle(null);
 		internalSetHasChangedAttributes();
-		if(getParent() != null)
-			getParent().childChanged(); // Indicate child has changed
+		NodeContainer p = m_parent;
+		if(p != null)
+			p.childChanged(); // Indicate child has changed
 		super.changed();
 	}
 
@@ -248,6 +254,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	public void internalClearDeltaFully() {
 		internalClearDelta();
+	}
+
+	protected int internalGetNodeCount(int depth) {
+		return 1;
 	}
 
 	/**
@@ -296,9 +306,19 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Return the Page for this node, if attached, or null otherwise.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	final public Page getPage() {
+		if(null == m_page)
+			throw new IllegalStateException("Not attached to a page yet. Use isAttached() to check if a node is attached or not.");
 		return m_page;
+	}
+
+	/**
+	 * Returns T if this node is attached to a real page.
+	 * @return
+	 */
+	final public boolean isAttached() {
+		return null != m_page;
 	}
 
 	/**
@@ -313,7 +333,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Internal use: remove registration.
 	 */
 	void unregisterFromPage() {
-		if(getPage() == null)
+		if(!isAttached())
 			return;
 		clearMessage(); // jal 20091015 Remove any pending messages for removed nodes.
 		getPage().unregisterNode(this);
@@ -323,7 +343,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Internal: register this node with the page.
 	 * @param p
 	 */
-	void registerWithPage(final Page p) {
+	void registerWithPage(@Nonnull final Page p) {
 		p.registerNode(this);
 	}
 
@@ -369,10 +389,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	final public boolean removeCssClass(@Nonnull final String name) {
-		if(getCssClass() == null)
+		String cssClass = getCssClass();
+		if(cssClass == null)
 			return false;
-		StringTokenizer st = new StringTokenizer(getCssClass(), " \t");
-		StringBuilder sb = new StringBuilder(getCssClass().length());
+		StringTokenizer st = new StringTokenizer(cssClass, " \t");
+		StringBuilder sb = new StringBuilder(cssClass.length());
 		boolean fnd = false;
 		while(st.hasMoreTokens()) {
 			String s = st.nextToken();
@@ -415,12 +436,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	final public boolean hasCssClass(@Nonnull final String cls) {
-		if(getCssClass() == null)
+		String cssClass = getCssClass();
+		if(cssClass == null)
 			return false;
-		int pos = getCssClass().indexOf(cls);
+		int pos = cssClass.indexOf(cls);
 		if(pos == -1)
 			return false;
-		if(pos != 0 && getCssClass().charAt(pos - 1) != ' ')
+		if(pos != 0 && cssClass.charAt(pos - 1) != ' ')
 			return false;
 		return true;
 	}
@@ -443,9 +465,23 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Return the current actual parent of this node. Is null if not attached to a parent yet.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	final public NodeContainer getParent() {
+		if(m_parent == null) {
+			if(m_page != null && m_page.getBody() == this)
+				throw new IllegalStateException("Calling getParent() on the body tag is an indication of a problem...");
+			throw new IllegalStateException("The node is not attached to a page, call isAttached() to test for attachment");
+		}
 		return m_parent;
+	}
+
+	@Nullable
+	public NodeContainer internalGetParent() {
+		return m_parent;
+	}
+
+	public final boolean hasParent() {
+		return m_parent != null;
 	}
 
 	/**
@@ -459,13 +495,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	@Nullable
 	final public NodeContainer getParent(int up) {
-		NodeContainer c = m_parent;
+		NodeBase c = m_parent;
 		while(--up > 0) {
 			if(c == null)
 				return null;
-			c = c.getParent();
+			c = c.m_parent;
 		}
-		return c;
+		return (NodeContainer) c;
 	}
 
 	/**
@@ -476,14 +512,52 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	@Nullable
-	final public <T> T getParent(final Class<T> clz) {
-		NodeContainer c = getParent();
+	final public <T> T findParent(final Class<T> clz) {
+		if(!hasParent())
+			return null;
+		NodeBase c = this;
 		for(;;) {
-			if(c == null)
+			if(!c.hasParent())
 				return null;
+			c = c.getParent();
 			if(clz.isAssignableFrom(c.getClass()))
 				return (T) c;
+		}
+	}
+
+	/**
+	 * Walk the parents upwards to find the closest parent of the given class. The class can be a base class (it is
+	 * not a literal match but an instanceof match). This throws an exception when the parent cannot be found(!).
+	 * @param <T>
+	 * @param clz
+	 * @return
+	 */
+	@Nonnull
+	final public <T> T getParent(final Class<T> clz) {
+		T res = findParent(clz);
+		if(null == res)
+			throw new IllegalStateException("This node " + this + " does not have a parent of type=" + clz);
+		return res;
+	}
+
+	/**
+	 * Walk the parent chain upwards, and find the first parent that implements <i>any</i> of
+	 * the classes passed.
+	 * @param clzar
+	 * @return
+	 */
+	@Nullable
+	final public NodeBase getParentOfTypes(final Class< ? extends NodeBase>... clzar) {
+		NodeBase c = this;
+		for(;;) {
+			if(!c.hasParent())
+				return null;
 			c = c.getParent();
+
+			for(Class< ? > clz : clzar) {
+				if(clz.isAssignableFrom(c.getClass()))
+					return c;
+			}
 		}
 	}
 
@@ -496,9 +570,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * afterwards.
 	 */
 	final public void remove() {
-		if(getParent() != null) {
-			getParent().removeChild(this);
-		}
+		if(m_parent != null)
+			m_parent.removeChild(this);
 	}
 
 	/**
@@ -516,8 +589,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param item
 	 */
 	final public void appendAfterMe(@Nonnull final NodeBase item) {
-		if(getParent() == null)
-			throw new IllegalStateException("No parent node is known");
 		int ix = getParent().findChildIndex(this);
 		if(ix == -1)
 			throw new IllegalStateException("!@?! Cannot find myself!?");
@@ -529,8 +600,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param item
 	 */
 	final public void appendBeforeMe(@Nonnull final NodeBase item) {
-		if(getParent() == null)
-			throw new IllegalStateException("No parent node is known");
 		int ix = getParent().findChildIndex(this);
 		if(ix == -1)
 			throw new IllegalStateException("!@?! Cannot find myself!?");
@@ -591,10 +660,17 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	private final void internalCreateContent() throws Exception {
+		beforeCreateContent();
+		internalCreateFrame();
 		createContent();
 		afterCreateContent();
 	}
 
+	/**
+	 * This method is a placeholder for NodeContainer which allows it to handle
+	 * framed windows somehow.
+	 */
+	protected void internalCreateFrame() throws Exception {}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple other getter and setter like stuff.			*/
@@ -718,7 +794,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param js
 	 */
 	public void appendJavascript(final CharSequence js) {
-		if(getPage() != null)
+		if(isAttached())
 			getPage().appendJS(js);
 		else {
 			if(m_appendJS == null)
@@ -1112,12 +1188,17 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	public void onBeforeFullRender() throws Exception {}
 
+	@OverridingMethodsMustInvokeSuper
+	protected void beforeCreateContent() {}
+
 	public void createContent() throws Exception {}
 
 	protected void afterCreateContent() throws Exception {}
 
+	@OverridingMethodsMustInvokeSuper
 	public void onAddedToPage(final Page p) {}
 
+	@OverridingMethodsMustInvokeSuper
 	public void onRemoveFromPage(final Page p) {}
 
 	public void onHeaderContributors(final Page page) {}
@@ -1143,6 +1224,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		NodeBase dragnode = getPage().findNodeByID(dragid);
 		if(dragnode == null)
 			throw new IllegalStateException("Unknown dragged node " + dragid + " in drop request to node=" + this);
+
 		IDragHandler dragh;
 		if(dragnode instanceof IDragArea)
 			dragh = ((IDragArea) dragnode).getDragHandle().getDragHandler();
@@ -1170,7 +1252,23 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 				throw new IllegalStateException("Bad _colIndex parameter in DROP request: " + s);
 			}
 		}
-		DropEvent dx = new DropEvent((NodeContainer) this, dragnode, index, colIndex);
+		String nextSiblingId = ctx.getParameter("_siblingId");
+		String dropContainerId = ctx.getParameter("_dropContainerId");
+		String mode = ctx.getParameter("_mode");
+
+		DropEvent dx = null;
+		if(DropMode.DIV.name().equals(mode)) {
+			if(dropContainerId == null) {
+				throw new IllegalStateException("Missing drop container is (_dropContainerId) in DIV drop request to node=" + this);
+			}
+			NodeBase dropContainer = getPage().findNodeByID(dropContainerId);
+			if(dropContainer == null) {
+				throw new IllegalStateException("Unknown drop container node " + dropContainerId + " in drop request to node=" + this);
+			}
+			dx = new DropEvent((NodeContainer) dropContainer, dragnode, nextSiblingId);
+		} else {
+			dx = new DropEvent((NodeContainer) this, dragnode, index, colIndex);
+		}
 		dragh.onDropped(dx);
 		droph.onDropped(dx);
 	}
@@ -1253,7 +1351,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * in a page can claim focus for itself.
 	 */
 	public void setFocus() {
-		if(getPage() == null) {
+		if(!isAttached()) {
 			//-- Mark this as a component wanting the focus.
 			m_flags |= F_FOCUSREQUESTED;
 		} else
@@ -1280,12 +1378,29 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
+	 * Returns if node has set stretchHeight
+	 * @return
+	 */
+	public boolean isStretchHeight() {
+		return m_stretchHeight;
+	}
+
+	/**
 	 * EXPERIMENTAL
 	 * Method can be used to stretch height of element to take all available free space in parent container.
+	 * <UL>
+	 * <LI>NOTE: In order to stretchHeight can work, parent container needs to have height defined in some way (works out of box for all FloatingWindow based containers).</LI>
+	 * <LI>In case that stretched node needs to be added directly in (non floating) page, to define page height as 100%, use following snippet inline in page code:
+	 * <BR/><CODE>appendCreateJS("$(document).ready(function() {document.body.parentNode.style.height = '100%'; document.body.style.height = '100%';WebUI.doCustomUpdates();});");</CODE>
+	 * <BR/>Note that triggering of stratch code evaluation needs also to be added inline.
+	 * </LI>
 	 */
-	public void stretchHeight() {
-		appendCreateJS("$(document).ready(function() {WebUI.stretchHeight('" + getActualID() + "');});");
-		appendCreateJS("$(window).resize(function() {WebUI.stretchHeight('" + getActualID() + "');});");
+	public void setStretchHeight(boolean value) {
+		if(m_stretchHeight == value) {
+			return;
+		}
+		m_stretchHeight = value;
+		changed();
 	}
 
 	@Override

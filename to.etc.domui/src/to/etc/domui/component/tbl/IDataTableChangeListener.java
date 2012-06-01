@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
+import javax.annotation.*;
+
 /**
  * Accepts datatable change events.
  *
@@ -34,9 +36,9 @@ public interface IDataTableChangeListener {
 	/**
 	 * Called when the datatable as accepted a different model.
 	 */
-	void modelChanged(TabularComponentBase< ? > tbl, ITableModel< ? > old, ITableModel< ? > nw) throws Exception;
+	void modelChanged(@Nonnull TabularComponentBase< ? > tbl, @Nullable ITableModel< ? > old, @Nullable ITableModel< ? > nw) throws Exception;
 
-	void pageChanged(TabularComponentBase< ? > tbl) throws Exception;
+	void pageChanged(@Nonnull TabularComponentBase< ? > tbl) throws Exception;
 
-	void selectionUIChanged(TabularComponentBase< ? > tbl) throws Exception;
+	void selectionUIChanged(@Nonnull TabularComponentBase< ? > tbl) throws Exception;
 }

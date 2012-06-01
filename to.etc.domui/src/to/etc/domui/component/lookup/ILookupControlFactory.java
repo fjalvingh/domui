@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.lookup;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
@@ -41,9 +43,7 @@ public interface ILookupControlFactory {
 	 * @param pmm
 	 * @return
 	 */
-	public <X extends IInputNode< ? >> int accepts(SearchPropertyMetaModel pmm, X control);
+	<T, X extends IInputNode<T>> int accepts(@Nonnull SearchPropertyMetaModel pmm, X control);
 
-	public <X extends IInputNode< ? >> ILookupControlInstance createControl(SearchPropertyMetaModel spm, X control);
-
-
+	<T, X extends IInputNode<T>> ILookupControlInstance createControl(@Nonnull SearchPropertyMetaModel spm, X control);
 }

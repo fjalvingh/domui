@@ -29,13 +29,25 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 
+/**
+ * Shows access denied info.
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on 2 Dec 2011
+ */
 public class AccessDeniedPage extends UrlPage {
+
+	public static final String PARAM_REFUSAL_MSG = "refusalMsg";
+
+	public static final String PARAM_TARGET_PAGE = "targetPage";
+
 	@Override
 	public void createContent() throws Exception {
 		//-- Can we get the classname?
-		String cname = getPage().getPageParameters().getString("targetPage");
+		String cname = getPage().getPageParameters().getString(PARAM_TARGET_PAGE);
 		String pageName = "...";
 		if(cname != null) {
 			//-- Try to load the class to access it's meta
@@ -54,50 +66,47 @@ public class AccessDeniedPage extends UrlPage {
 			}
 		}
 
-		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString("login.access.title"));
+		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString(Msgs.LOGIN_ACCESS_TITLE));
 		add(ep);
 		Table t = new Table();
 		ep.getContent().add(t);
 		t.setWidth("100%");
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
-		Img img = new Img(AccessDeniedPage.class, "accessDenied.png");
-		//		img.setAlign(ImgAlign.LEFT);
+		Img img = new Img(Theme.ACCESS_DENIED);
 		td.add(img);
 		td.setWidth("1%");
 
 		TD co = b.addCell();
-		String txt = Msgs.BUNDLE.formatMessage("login.access.denied", pageName);
+		String txt = Msgs.BUNDLE.formatMessage(Msgs.LOGIN_ACCESS_DENIED, pageName);
 		Div d = new Div(txt);
 		co.add(d);
 		d.setCssClass("ui-acd-ttl");
 
-		//		//-- Get all rights needed.
-		//		StringBuilder sb	= new StringBuilder(256);
-		//		for(int i = 0; i < 99; i++) {
-		//			String r = getPage().getPageParameters().getString("r"+i, null);
-		//			if(r == null)
-		//				break;
-		//			if(sb.length() > 0)
-		//				sb.append(", ");
-		//			String desc = DomApplication.get().getRightsDescription(r);
-		//			sb.append(desc);
-		//		}
-		//		ep.getContent().addLiteral(DomUtil.BUNDLE.formatMessage("login.required.rights", sb.toString()));
-
-		co.add(new Div(Msgs.BUNDLE.formatMessage("login.required.rights")));
-		d = new Div();
-		co.add(d);
-		Ul ul = new Ul();
-		d.add(ul);
-		for(int i = 0; i < 99; i++) {
-			String r = getPage().getPageParameters().getString("r" + i, null);
-			if(r == null)
-				break;
+		if(getPage().getPageParameters().hasParameter(PARAM_REFUSAL_MSG)) {
+			co.add(new Div(Msgs.BUNDLE.formatMessage(Msgs.LOGIN_REFUSAL_REASON)));
+			d = new Div();
+			co.add(d);
+			Ul ul = new Ul();
+			d.add(ul);
 			Li li = new Li();
 			ul.add(li);
-			String desc = DomApplication.get().getRightsDescription(r);
-			li.add(desc + " (" + r + ")");
+			li.add(getPage().getPageParameters().getString(PARAM_REFUSAL_MSG));
+		} else {
+			co.add(new Div(Msgs.BUNDLE.formatMessage(Msgs.LOGIN_REQUIRED_RIGHTS)));
+			d = new Div();
+			co.add(d);
+			Ul ul = new Ul();
+			d.add(ul);
+			for(int i = 0; i < 99; i++) {
+				String r = getPage().getPageParameters().getString("r" + i, null);
+				if(r == null)
+					break;
+				Li li = new Li();
+				ul.add(li);
+				String desc = DomApplication.get().getRightsDescription(r);
+				li.add(desc + " (" + r + ")");
+			}
 		}
 
 		//-- Add a link to return to the master/index page.
@@ -106,7 +115,7 @@ public class AccessDeniedPage extends UrlPage {
 			co.add(d);
 			ALink link = new ALink(DomApplication.get().getRootPage(), MoveMode.NEW); // Destroy shelve.
 			d.add(link);
-			link.setText(Msgs.BUNDLE.getString("login.toindex"));
+			link.setText(Msgs.BUNDLE.getString(Msgs.LOGIN_TO_INDEX));
 		}
 	}
 }

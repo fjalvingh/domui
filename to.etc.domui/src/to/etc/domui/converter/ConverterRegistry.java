@@ -26,8 +26,11 @@ package to.etc.domui.converter;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.util.*;
+import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -39,6 +42,9 @@ import to.etc.webapp.nls.*;
 public class ConverterRegistry {
 	/** All converter instances for staticly accessed IConverters */
 	static private Map<Class<? extends IConverter<?>>, IConverter<?>> m_converterMap = new HashMap<Class<? extends IConverter<?>>, IConverter<?>>();
+
+	/** Maps a class to the converter for the class. */
+	static private Map<Class< ? >, IConverter< ? >> m_urlConverterMap = new HashMap<Class< ? >, IConverter< ? >>();
 
 	/** The list of registered factories. */
 	static private List<IConverterFactory> m_factoryList = new ArrayList<IConverterFactory>();
@@ -55,6 +61,8 @@ public class ConverterRegistry {
 		register(new DoubleFactory()); // Low-level Double converters (numeric only)
 		register(new EnumFactory()); // last-resort: Accepts generic enums without propertyMeta;
 		register(new BooleanConverterFactory()); // last-resort: Accepts generic boolean without metadata (yes, no texts only)
+		registerURLConverter(Boolean.class, BooleanConverter.getInstance());
+		registerURLConverter(boolean.class, BooleanConverter.getInstance());
 	}
 
 	/**
@@ -62,7 +70,8 @@ public class ConverterRegistry {
 	 * @param clz
 	 * @return
 	 */
-	static public synchronized <X, T extends IConverter<X>> T getConverterInstance(Class<T> clz) {
+	@Nonnull
+	static public synchronized <X, T extends IConverter<X>> T getConverterInstance(@Nonnull Class<T> clz) {
 		T c = (T) m_converterMap.get(clz);
 		if(c == null) {
 			try {
@@ -138,10 +147,6 @@ public class ConverterRegistry {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	URL Converters.										*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Maps a class to the converter for the class.
-	 */
-	static private Map<Class<?>, IConverter<?>> m_urlConverterMap = new HashMap<Class<?>, IConverter<?>>();
 
 	/**
 	 * Register an URL converter for the specified class.
@@ -388,4 +393,106 @@ public class ConverterRegistry {
 		//-- Ask the converter registry for a converter for this
 		return findConverter(pmm.getActualType(), pmm);
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Comparators for data.								*/
+	/*--------------------------------------------------------------*/
+
+	static private Map<Class< ? >, Comparator< ? >> m_comparatorMap = new HashMap<Class< ? >, Comparator< ? >>();
+
+	static public final Comparator<Object> DEFAULT_COMPARATOR = new Comparator<Object>() {
+		@Override
+		public int compare(Object a, Object b) {
+			if(a == null || b == null) {
+				if(a == b)
+					return 0;
+				return a == null ? -1 : 1;
+			}
+			if(a instanceof Comparable && b instanceof Comparable) {
+				return ((Comparable<Object>) a).compareTo(b);
+			}
+			return a.toString().compareTo(b.toString());
+		}
+	};
+
+
+	/**
+	 * Register a comparator for a given type.
+	 * @param valueClass
+	 * @param comp
+	 */
+	static synchronized public <T> void registerComparator(Class<T> valueClass, Comparator<T> comp) {
+		m_comparatorMap = new HashMap<Class< ? >, Comparator< ? >>(m_comparatorMap);
+		m_comparatorMap.put(valueClass, comp);
+	}
+
+	static private synchronized Map<Class< ? >, Comparator< ? >> getComparatorMap() {
+		return m_comparatorMap;
+	}
+
+	/**
+	 *
+	 * @param dataClass
+	 * @param property
+	 * @param descending
+	 * @return
+	 */
+	static public <T> Comparator<T> getComparator(@Nonnull Class<T> dataClass, @Nonnull String property, boolean descending) {
+		ClassMetaModel cmm = MetaManager.findClassMeta(dataClass);
+		return (Comparator<T>) getComparator(cmm, property, descending);
+	}
+
+	static public Comparator< ? > getComparator(@Nonnull ClassMetaModel cmm, @Nonnull String property, boolean descending) {
+		PropertyMetaModel<Object> pmm = (PropertyMetaModel<Object>) cmm.findProperty(property);
+		if(null == pmm)
+			throw new ProgrammerErrorException("The property '" + cmm + "." + property + "' is not known.");
+
+		//-- Get the actual data type, and get a comparator for that data type;
+		Comparator<Object> comp = (Comparator<Object>) findComparatorForType(pmm.getActualType());
+		if(null == comp) {
+			return DEFAULT_COMPARATOR;
+		}
+		return new PropertyComparator<Object>(pmm, comp, descending);
+	}
+
+	/**
+	 * Find a comparator for a given type.
+	 * @param actualType
+	 * @return
+	 */
+	private static Comparator< ? > findComparatorForType(Class< ? > actualType) {
+		Class<?> t = actualType;
+		Map<Class< ? >, Comparator< ? >> cm = getComparatorMap();
+		for(;;) {
+			if(t == null)
+				break;
+			Comparator< ? > c = cm.get(t);
+			if(null != c)
+				return c;
+			t = t.getSuperclass();
+		}
+
+		//-- Try all interfaces
+		for(Class< ? > ifc : actualType.getInterfaces()) {
+			Comparator< ? > c = findComparatorForType(ifc);
+			if(null != c)
+				return c;
+		}
+		return null;
+	}
+
+	//	/**
+	//	 *
+	//	 * @param pmm
+	//	 * @param valueOf
+	//	 * @return
+	//	 */
+	//	public static Comparator< ? > getComparatorMulti(ClassMetaModel cmm, Object... funcar) {
+	//		//-- Ok: get a comparator comparing the specified property models.
+	//
+	//
+	//		// TODO Auto-generated method stub
+	//		return null;
+	//	}
 }

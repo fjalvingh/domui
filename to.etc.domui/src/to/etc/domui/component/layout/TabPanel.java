@@ -78,4 +78,8 @@ public class TabPanel extends TabPanelBase {
 		renderTabPanels(m_tabul, this);
 		appendCreateJS(JavascriptUtil.disableSelection(m_tabul));
 	}
+
+	public void setLabel(NodeBase tabContent, String tabLabel, String tabIcon) {
+		replaceLabel(m_tabul, tabContent, tabLabel, tabIcon);
+	}
 }

@@ -27,9 +27,9 @@ package to.etc.domui.util.images.machines;
 import java.io.*;
 import java.util.*;
 
-import to.etc.domui.util.*;
 import to.etc.domui.util.images.converters.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 
 final public class ImageMagicImageHandler implements ImageHandler {
 	static public final String PNG = "image/png";
@@ -43,6 +43,8 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	static private final String[] UNIXPATHS = {"/usr/bin", "/usr/local/bin", "/bin", "/opt/imagemagick"};
 
 	static private final String[] WINDOWSPATHS = {"c:\\program files\\ImageMagick", "c:\\Windows"};
+
+	static private final String DENSITY = "400";
 
 	static private boolean m_initialized;
 
@@ -194,7 +196,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 				//				throw new Exception("External command exception: " + m_identify + " returned error code " + xc + "\n" + sb.toString());
 			}
 
-			System.out.println("identify: result=" + sb.toString());
+			//			System.out.println("identify: result=" + sb.toString());
 			//-- Walk the resulting thingy
 			List<OriginalImagePage> list = new ArrayList<OriginalImagePage>();
 			LineNumberReader lr = new LineNumberReader(new StringReader(sb.toString()));
@@ -276,11 +278,20 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			if(ext == null)
 				throw new IllegalArgumentException("The mime type '" + targetMime + "' is not supported");
 			File tof = h.createWorkFile(ext);
-			ProcessBuilder pb = new ProcessBuilder(m_convert.toString(), source.getSource().toString() + "[" + page + "]", "-thumbnail", width + "x" + height, tof.toString());
-			System.out.println("Command: " + pb.command().toString());
+
+			ProcessBuilder pb = null;
+			if(width != 0 && height != 0) {
+				pb = new ProcessBuilder(m_convert.toString(), source.getSource().toString() + "[" + page + "]", "-density", DENSITY, "-thumbnail", width + "x" + height, tof.toString());
+			} else {
+				//in case that 0 size is passed, use original width / height
+				pb = new ProcessBuilder(m_convert.toString(), source.getSource().toString() + "[" + page + "]", "-density", DENSITY, tof.toString());
+			}
+			//System.out.println("Command: " + pb.command().toString());
+
 			StringBuilder sb = new StringBuilder(8192);
+
 			int xc = ProcessTools.runProcess(pb, sb);
-			System.out.println("convert: " + sb.toString());
+			//			System.out.println("convert: " + sb.toString());
 			if(xc != 0)
 				throw new Exception("External command exception: " + m_convert + " returned error code " + xc + "\n" + sb.toString());
 			return new ImageSpec(tof, targetMime, width, height);
@@ -303,15 +314,20 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			File tof = h.createWorkFile(ext);
 
 			//-- Start 'identify' and capture the resulting data.
-			String rsz = width + "x" + height;
-
+			ProcessBuilder pb = null;
 			//-- jal 20100906 Use thumbnail, not resize: resize does not properly filter causing an white image because all black pixels are sized out.
-			ProcessBuilder pb = new ProcessBuilder(m_convert.toString(), "-size", rsz, source.getSource().toString() + "[" + page + "]", "-thumbnail", rsz, "-coalesce", "-quality", "100", tof
-				.toString());
-			System.out.println("Command: " + pb.command().toString());
+			if(width != 0 && height != 0) {
+				String rsz = width + "x" + height;
+				pb = new ProcessBuilder(m_convert.toString(), "-density", DENSITY, "-size", rsz, source.getSource().toString() + "[" + page + "]", "-thumbnail", rsz, "-coalesce", "-quality", "100", tof.toString());
+			} else {
+				//in case that 0 size is passed, use original width / height
+				pb = new ProcessBuilder(m_convert.toString(), source.getSource().toString() + "[" + page + "]", "-density", DENSITY, tof.toString());
+			}
+
+			//System.out.println("Command: " + pb.command().toString());
 			StringBuilder sb = new StringBuilder(8192);
 			int xc = ProcessTools.runProcess(pb, sb);
-			System.out.println("convert: " + sb.toString());
+			//			System.out.println("convert: " + sb.toString());
 			if(xc != 0)
 				throw new Exception("External command exception: " + m_convert + " returned error code " + xc + "\n" + sb.toString());
 			return new ImageSpec(tof, targetMime, width, height);

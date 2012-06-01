@@ -30,6 +30,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
 import to.etc.domui.component.meta.*;
@@ -129,6 +130,7 @@ public class LookupForm<T> extends Div {
 	 */
 	private IClicked<NodeBase> m_onAfterCollapse;
 
+	private IQueryFactory<T> m_queryFactory;
 	/**
 	 * This is the definition for an Item to look up. A list of these
 	 * will generate the actual lookup items on the screen, in the order
@@ -185,6 +187,7 @@ public class LookupForm<T> extends Div {
 
 		private InputBehaviorType m_inputsBehavior = InputBehaviorType.DEFAULT;
 
+		@Override
 		public String getPropertyName() {
 			return m_propertyName;
 		}
@@ -568,10 +571,8 @@ public class LookupForm<T> extends Div {
 	void collapse() throws Exception {
 		if((m_content.getDisplay() == DisplayType.NONE))
 			return;
-		//		appendJavascript("$('#" + m_content.getActualID() + "').slideUp();");
-		m_content.slideUp();
 
-		//		m_content.setDisplay(DisplayType.NONE);
+		m_content.slideUp();
 		m_collapsedPanel = new Div();
 		m_collapsedPanel.setCssClass("ui-lf-coll");
 		add(m_collapsedPanel);
@@ -739,7 +740,7 @@ public class LookupForm<T> extends Div {
 	 * @param control
 	 * @return
 	 */
-	public <X extends NodeBase & IInputNode< ? >> Item addManual(String property, X control) {
+	public <VT, X extends NodeBase & IInputNode<VT>> Item addManual(String property, X control) {
 		Item it = new Item();
 		it.setPropertyName(property);
 		addAndFinish(it);
@@ -1037,7 +1038,12 @@ public class LookupForm<T> extends Div {
 	 */
 	public QCriteria<T> getEnteredCriteria() throws Exception {
 		m_hasUserDefinedCriteria = false;
-		QCriteria<T> root = (QCriteria<T>) getMetaModel().createCriteria();
+		QCriteria<T> root;
+		if(getQueryFactory() != null) {
+			root = getQueryFactory().createQuery();
+		} else {
+			root = (QCriteria<T>) getMetaModel().createCriteria();
+		}
 		boolean success = true;
 		for(Item it : m_itemList) {
 			ILookupControlInstance li = it.getInstance();
@@ -1134,8 +1140,12 @@ public class LookupForm<T> extends Div {
 	 * @see to.etc.domui.dom.html.NodeBase#setClicked(to.etc.domui.dom.html.IClicked)
 	 */
 	@Override
-	public void setClicked(final IClickBase< ? > clicked) {
+	public void setClicked(final @Nullable IClickBase< ? > clicked) {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
+	}
+
+	public IClicked<LookupForm<T>> getSearchClicked() {
+		return m_clicker;
 	}
 
 	public IClicked< ? extends LookupForm<T>> getOnClear() {
@@ -1325,6 +1335,22 @@ public class LookupForm<T> extends Div {
 	 */
 	public void setOnAfterCollapse(IClicked<NodeBase> onAfterCollapse) {
 		m_onAfterCollapse = onAfterCollapse;
+	}
+
+	/**
+	 * Returns custom query factory.
+	 * @return
+	 */
+	public IQueryFactory<T> getQueryFactory() {
+		return m_queryFactory;
+	}
+
+	/**
+	 * Specifies custom query factory.
+	 * @param queryFactory
+	 */
+	public void setQueryFactory(IQueryFactory<T> queryFactory) {
+		m_queryFactory = queryFactory;
 	}
 
 }

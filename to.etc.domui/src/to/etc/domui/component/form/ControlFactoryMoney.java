@@ -26,9 +26,12 @@ package to.etc.domui.component.form;
 
 import java.math.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
+import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
 
 /**
@@ -45,7 +48,7 @@ public class ControlFactoryMoney implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
-	public int accepts(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(Text.class)) // This will create a Text class,
 			return -1;
 		Class<?> clz = pmm.getActualType();
@@ -61,9 +64,9 @@ public class ControlFactoryMoney implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public <T> ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel<T> pmm, final boolean editable, Class< ? > controlClass, Object context) {
-		Class< ? > iclz = pmm.getActualType();
+	@SuppressWarnings({"unchecked"})
+	public <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context) {
+		Class<T> iclz = pmm.getActualType();
 
 		if(!editable) {
 			/*
@@ -71,10 +74,10 @@ public class ControlFactoryMoney implements ControlFactory {
 			 * FIXME EXPERIMENTAL: replace the code below (which is still fully available) with the
 			 * display-only component.
 			 */
-			DisplayValue dv = new DisplayValue(iclz);
+			DisplayValue<T> dv = new DisplayValue<T>(iclz);
 			//			dv.setTextAlign(TextAlign.RIGHT);
 			dv.addCssClass("ui-numeric");
-			UIControlUtil.assignMonetaryConverter(pmm, editable, dv);
+			MoneyUtil.assignMonetaryConverter(pmm, editable, dv);
 			String s = pmm.getDefaultHint();
 			if(s != null)
 				dv.setTitle(s);
@@ -83,9 +86,9 @@ public class ControlFactoryMoney implements ControlFactory {
 
 		Text<T> txt;
 		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
-			txt = (Text<T>) UIControlUtil.createDoubleMoneyInput(pmm, editable);
+			txt = (Text<T>) Text.createDoubleMoneyInput((PropertyMetaModel<Double>) pmm, editable);
 		} else if(pmm.getActualType() == BigDecimal.class) {
-			txt = (Text<T>) UIControlUtil.createBDMoneyInput(pmm, editable);
+			txt = (Text<T>) Text.createBDMoneyInput((PropertyMetaModel<BigDecimal>) pmm, editable);
 		} else
 				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
 		return new ControlFactoryResult(txt, model, pmm);

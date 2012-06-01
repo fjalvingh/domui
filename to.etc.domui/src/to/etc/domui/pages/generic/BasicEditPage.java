@@ -73,25 +73,31 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		m_buttonBar = null;
 
 		super.createContent(); // Page title and crud
+		if(!onBeforeCreateContent())
+			return;
+
 		createButtonBar();
 		createButtons();
 		createEditableBase();
 	}
 
+	protected boolean onBeforeCreateContent() {
+		return true;
+	}
+
 	private void createEditableBase() throws Exception {
 		m_bindings = createEditable();
-		if(m_bindings == null) {
-			if(m_formBuilder != null) {
-				NodeContainer nc = m_formBuilder.finish();
-				if(nc != null) {
-					add(nc);
+
+		if(m_formBuilder != null) {
+			NodeContainer nc = m_formBuilder.finish();
+			if(nc != null) {
+				add(nc);
+				if(m_bindings == null)
 					m_bindings = m_formBuilder.getBindings();
-				}
 			}
 		}
-		if(m_bindings == null)
-			throw new IllegalStateException("The form's bindings are undefined: please override createForm.");
-		m_bindings.moveModelToControl();
+		if(m_bindings != null)
+			m_bindings.moveModelToControl();
 	}
 
 	protected ModelBindings createEditable() throws Exception {
@@ -123,6 +129,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 
 	protected void createCommitButton() {
 		getButtonBar().addButton("C!ommit", "THEME/btnSave.png", new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(DefaultButton b) throws Exception {
 				save();
 			}
@@ -131,6 +138,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 
 	protected void createCancelButton() {
 		getButtonBar().addButton("!Cancel", "THEME/btnCancel.png", new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(DefaultButton b) throws Exception {
 				cancel();
 			}
@@ -139,6 +147,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 
 	protected void createDeleteButton() {
 		getButtonBar().addButton("!Delete", "THEME/btnDelete.png", new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(DefaultButton b) throws Exception {
 				delete();
 			}
@@ -164,8 +173,13 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		if(!validate())
 			return;
 		onSave(getInstance());
+		onAfterSave();
+	}
+
+	protected void onAfterSave() {
 		UIGoto.back();
 	}
+
 
 	protected boolean validate() throws Exception {
 		return true;
@@ -210,7 +224,11 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	protected void onDelete(T object) throws Exception {
 		QDataContext dc = QContextManager.getContext(getPage());
 		dc.startTransaction();
-		dc.delete(object);
+		deleteObject(dc, object);
 		dc.commit();
+	}
+
+	protected void deleteObject(QDataContext dc, T object) throws Exception {
+		dc.delete(object);
 	}
 }

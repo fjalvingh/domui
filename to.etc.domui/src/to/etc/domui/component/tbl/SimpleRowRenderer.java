@@ -32,13 +32,16 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 
 /**
+ * Please use {@link BasicRowRenderer} instead.
+ *
  * Renders rows from a datamodel; this tries to use the metadata for all
  * parts not explicitly specified.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2008
  */
-public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRowRenderer<T> {
+@Deprecated
+public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	private int m_totwidth;
 
 	/**
@@ -64,14 +67,8 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 
 		//-- Is there a default sort thingy? Is that column present?
 		final String sort = model().getDefaultSortProperty();
-		if(sort != null) {
-			for(final SimpleColumnDef scd : m_columnList) {
-				if(scd.getPropertyName().equals(sort)) {
-					setSortColumn(scd);
-					break;
-				}
-			}
-		}
+		if(null != sort)
+			getColumnList().setDefaultSortColumn(sort);
 	}
 
 
@@ -95,22 +92,28 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 
 	/**
 	 * Initialize, using the genericized table column set.
+	 * FIXME Should be private
 	 * @param clz
 	 * @param xdpl
 	 */
-	protected void initialize(final List<ExpandedDisplayProperty< ? >> xdpl) {
+	protected void initialize(@Nonnull final List<ExpandedDisplayProperty< ? >> xdpl) {
 		//-- For all properties in the list, use metadata to define'm
 		final int[] widths = new int[80];
 		m_totwidth = 0;
 		int ix = 0;
 		addColumns(xdpl, widths);
 		ix = 0;
-		for(final SimpleColumnDef scd : m_columnList) {
+		for(final SimpleColumnDef scd : getColumnList()) {
 			final int pct = (100 * widths[ix++]) / m_totwidth;
 			scd.setWidth(pct + "%");
 		}
 	}
 
+	/**
+	 * FIXME Should be private
+	 * @param xdpl
+	 * @param widths
+	 */
 	protected void addColumns(final List<ExpandedDisplayProperty< ? >> xdpl, final int[] widths) {
 		for(final ExpandedDisplayProperty< ? > xdp : xdpl) {
 			if(xdp instanceof ExpandedDisplayPropertyList) {
@@ -129,9 +132,9 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 				dl = 40;
 			}
 			//			System.out.println("XDPL: property " + xdp.getName() + " size=" + dl);
-			widths[m_columnList.size()] = dl;
+			widths[getColumnList().size()] = dl;
 			m_totwidth += dl;
-			m_columnList.add(scd); // ORDER!
+			getColumnList().add(scd); // ORDER!
 
 			if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 				scd.setCssClass("ui-numeric");
@@ -152,10 +155,6 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements IRow
 		final List<ExpandedDisplayProperty< ? >> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, model(), null);
 		initialize(xdpl);
 	}
-
-	//	public boolean isSortableModel() {
-	//		return m_sortableModel;
-	//	}
 
 	protected void setTotalWidth(int w) {
 		m_totwidth = w;

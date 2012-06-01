@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
@@ -40,22 +42,7 @@ import to.etc.webapp.query.*;
  * Created on Aug 3, 2010
  */
 
-public class SimpleLookup<T> extends FloatingWindow {
-	public interface IValueSelected<T> {
-		void valueSelected(T value) throws Exception;
-	}
-	/**
-	 * The result class. For Java classes this usually also defines the metamodel to use; for generic meta this should
-	 * be the value record class type.
-	 */
-	final private Class<T> m_lookupClass;
-
-	/**
-	 * The metamodel to use to handle the data in this class. For Javabean data classes this is automatically
-	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
-	 */
-	final private ClassMetaModel m_metaModel;
-
+public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 	private LookupForm<T> m_externalLookupForm;
 
 	DataTable<T> m_result;
@@ -100,19 +87,9 @@ public class SimpleLookup<T> extends FloatingWindow {
 	}
 
 	public SimpleLookup(Class<T> lookupClass, ClassMetaModel metaModel) {
-		super(true, null);
-		m_lookupClass = lookupClass;
-		m_metaModel = metaModel != null ? metaModel : MetaManager.findClassMeta(lookupClass);
+		super(lookupClass, metaModel);
 	}
 
-
-	public Class<T> getLookupClass() {
-		return m_lookupClass;
-	}
-
-	public ClassMetaModel getMetaModel() {
-		return m_metaModel;
-	}
 
 	@Override
 	public void createContent() throws Exception {
@@ -136,9 +113,9 @@ public class SimpleLookup<T> extends FloatingWindow {
 		lf.setCollapsed(m_renderAsCollapsed);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		add(lf);
-		setOnClose(new IClicked<FloatingWindow>() {
+		setOnClose(new IWindowClosed() {
 			@Override
-			public void clicked(FloatingWindow b) throws Exception {
+			public void closed(@Nonnull String closeReason) throws Exception {
 				clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 				m_result = null;
 			}
@@ -221,6 +198,9 @@ public class SimpleLookup<T> extends FloatingWindow {
 				}
 			});
 
+			if(isUseStretchedLayout()) {
+				m_result.setStretchHeight(true);
+			}
 			//-- Add the pager,
 			DataPager pg = new DataPager(m_result);
 			add(pg);

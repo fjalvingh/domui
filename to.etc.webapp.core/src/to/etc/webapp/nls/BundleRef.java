@@ -52,6 +52,8 @@ final public class BundleRef extends BundleBase implements IBundle {
 
 	private final Map<Object, Object> m_map = new HashMap<Object, Object>();
 
+	static public final BundleRef DUMMY = new BundleRef((String) null);
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Creating/accessing BundleRefs.						*/
 	/*--------------------------------------------------------------*/

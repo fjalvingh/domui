@@ -27,6 +27,8 @@ package to.etc.domui.component.agenda;
 import java.text.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -90,6 +92,8 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 		cal.setTime(m_date);
 		DateUtil.clearTime(cal);
 		switch(m_mode){
+			default:
+				throw new IllegalStateException(m_mode + ": unhandled mode");
 			case DAY:
 				m_date = cal.getTime();
 				m_end = DateUtil.tomorrow(m_date);
@@ -563,7 +567,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 	}
 
 	@Override
-	public void componentHandleWebAction(RequestContextImpl ctx, String action) throws Exception {
+	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
 		if("newappt".equals(action)) {
 			String s = ctx.getParameter("date");
 			if(s == null)

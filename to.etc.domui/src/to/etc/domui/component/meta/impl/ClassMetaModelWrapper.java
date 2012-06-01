@@ -26,6 +26,9 @@ package to.etc.domui.component.meta.impl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
@@ -41,6 +44,16 @@ import to.etc.webapp.query.*;
  */
 public class ClassMetaModelWrapper implements ClassMetaModel {
 	private ClassMetaModel m_parent;
+
+	@Override
+	public String getComboSortProperty() {
+		return m_parent.getComboSortProperty();
+	}
+
+	@Override
+	public IQueryManipulator< ? > getQueryManipulator() {
+		return m_parent.getQueryManipulator();
+	}
 
 	protected ClassMetaModelWrapper(ClassMetaModel parent) {
 		m_parent = parent;
@@ -60,20 +73,27 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public PropertyMetaModel< ? > findProperty(String name) {
+	public PropertyMetaModel< ? > findProperty(@Nonnull String name) {
 		return m_parent.findProperty(name);
 	}
 
 	@Override
-	public PropertyMetaModel< ? > findSimpleProperty(String name) {
+	@Nonnull
+	public PropertyMetaModel< ? > getProperty(@Nonnull String name) {
+		return m_parent.getProperty(name);
+	}
+
+	@Override
+	public PropertyMetaModel< ? > findSimpleProperty(@Nonnull String name) {
 		return m_parent.findSimpleProperty(name);
 	}
 
 	@Override
-	public Class< ? > getActualClass() {
+	public @Nonnull Class< ? > getActualClass() {
 		return m_parent.getActualClass();
 	}
 
+	@Nonnull
 	@Override
 	public BundleRef getClassBundle() {
 		return m_parent.getClassBundle();
@@ -85,7 +105,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
+	public @Nonnull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_parent.getComboDisplayProperties();
 	}
 
@@ -105,7 +125,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public SortableType getDefaultSortDirection() {
+	public @Nonnull SortableType getDefaultSortDirection() {
 		return m_parent.getDefaultSortDirection();
 	}
 
@@ -125,12 +145,12 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public List<SearchPropertyMetaModel> getKeyWordSearchProperties() {
+	public @Nonnull List<SearchPropertyMetaModel> getKeyWordSearchProperties() {
 		return m_parent.getKeyWordSearchProperties();
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+	public @Nonnull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_parent.getLookupSelectedProperties();
 	}
 
@@ -145,17 +165,17 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public List<PropertyMetaModel< ? >> getProperties() {
+	public @Nonnull List<PropertyMetaModel< ? >> getProperties() {
 		return m_parent.getProperties();
 	}
 
 	@Override
-	public List<SearchPropertyMetaModel> getSearchProperties() {
+	public @Nonnull List<SearchPropertyMetaModel> getSearchProperties() {
 		return m_parent.getSearchProperties();
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getTableDisplayProperties() {
+	public @Nonnull List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		return m_parent.getTableDisplayProperties();
 	}
 
@@ -180,7 +200,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public QCriteria< ? > createCriteria() throws Exception {
+	public @Nonnull QCriteria< ? > createCriteria() throws Exception {
 		return m_parent.createCriteria();
 	}
 }

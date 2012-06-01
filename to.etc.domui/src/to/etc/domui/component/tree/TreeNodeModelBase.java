@@ -26,6 +26,8 @@ package to.etc.domui.component.tree;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * Concrete implementation of a tree node model using AbstractTreeNodeBase thingies.
  *
@@ -42,7 +44,7 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 	}
 
 	@Override
-	public void addChangeListener(ITreeModelChangedListener<T> l) {
+	public void addChangeListener(@Nonnull ITreeModelChangedListener<T> l) {
 		if(m_listeners == Collections.EMPTY_LIST) {
 			m_listeners = new ArrayList<ITreeModelChangedListener<T>>();
 		}
@@ -52,7 +54,7 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 	}
 
 	@Override
-	public void removeChangeListener(ITreeModelChangedListener<T> l) {
+	public void removeChangeListener(@Nonnull ITreeModelChangedListener<T> l) {
 		m_listeners.remove(l);
 	}
 
@@ -61,35 +63,46 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 	}
 
 	@Override
-	public T getChild(T parent, int index) throws Exception {
+	public @Nonnull
+	T getChild(@Nullable T parent, int index) throws Exception {
+		if(null == parent)
+			throw new IllegalArgumentException("Parent cannot be null");
 		return parent.getChild(index);
 	}
 
 	@Override
-	public int getChildCount(T item) throws Exception {
+	public int getChildCount(@Nullable T item) throws Exception {
+		if(null == item)
+			throw new IllegalArgumentException("Item cannot be null");
 		return item.getChildCount();
 	}
 
+	@Nullable
 	@Override
-	public T getParent(T child) throws Exception {
+	public T getParent(@Nullable T child) throws Exception {
+		if(null == child)
+			return null;
 		return child.getParent();
 	}
 
 	@Override
+	@Nullable
 	public T getRoot() throws Exception {
 		return m_root;
 	}
 
 	@Override
-	public boolean hasChildren(T item) throws Exception {
+	public boolean hasChildren(@Nullable T item) throws Exception {
+		if(null == item)
+			throw new IllegalArgumentException("Item cannot be null");
 		return item.hasChildren();
 	}
 
 	@Override
-	public void expandChildren(T item) throws Exception {
+	public void expandChildren(@Nullable T item) throws Exception {
 	}
 
 	@Override
-	public void collapseChildren(T item) throws Exception {
+	public void collapseChildren(@Nullable T item) throws Exception {
 	}
 }

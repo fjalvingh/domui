@@ -33,6 +33,7 @@ import javax.servlet.http.*;
 
 import org.slf4j.*;
 
+import to.etc.domui.access.*;
 import to.etc.domui.ajax.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
@@ -64,20 +65,19 @@ import to.etc.webapp.query.*;
 public abstract class DomApplication {
 	static public final Logger LOG = LoggerFactory.getLogger(DomApplication.class);
 
-	private final ApplicationRequestHandler m_requestHandler = new ApplicationRequestHandler(this);
-
+	@Nonnull
 	private final PartRequestHandler m_partHandler = new PartRequestHandler(this);
 
-	private final ResourceRequestHandler m_resourceHandler = new ResourceRequestHandler(this, m_partHandler);
-
-	private final AjaxRequestHandler m_ajaxHandler = new AjaxRequestHandler(this);
-
+	@Nonnull
 	private Set<IAppSessionListener> m_appSessionListeners = new HashSet<IAppSessionListener>();
 
+	@Nonnull
 	private File m_webFilePath;
 
+	@Nonnull
 	private String m_urlExtension;
 
+	@Nonnull
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
 
 	//	private String m_currentTheme = "domui";
@@ -96,13 +96,16 @@ public abstract class DomApplication {
 
 	private final boolean m_logOutput = DeveloperOptions.getBool("domui.log", false);
 
+	@Nonnull
 	private List<IRequestInterceptor> m_interceptorList = new ArrayList<IRequestInterceptor>();
 
 	/**
 	 * Contains the header contributors in the order that they were added.
 	 */
+	@Nonnull
 	private List<HeaderContributorEntry> m_orderedContributorList = Collections.EMPTY_LIST;
 
+	@Nonnull
 	private List<INewPageInstantiated> m_newPageInstListeners = Collections.EMPTY_LIST;
 
 	/** Timeout for a window session, in minutes. */
@@ -115,9 +118,17 @@ public abstract class DomApplication {
 
 	private ILoginDialogFactory m_loginDialogFactory;
 
+	@Nonnull
 	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
 
+	@Nonnull
 	private IPageInjector m_injector = new DefaultPageInjector();
+
+	@Nonnull
+	private ISpecialAccessChecker m_accessChecker = new DefaultSpecialAccessChecker();
+
+	@Nonnull
+	private IDataPathResolver m_dataPathResolver = new DefaultDataPathResolver();
 
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
@@ -129,11 +140,53 @@ public abstract class DomApplication {
 	/**
 	 * Render factories for different browser versions.
 	 */
+	@Nonnull
 	private List<IHtmlRenderFactory> m_renderFactoryList = new ArrayList<IHtmlRenderFactory>();
 
 	final private String m_scriptVersion;
 
+	@Nonnull
 	private List<IResourceFactory> m_resourceFactoryList = Collections.EMPTY_LIST;
+
+	private int m_keepAliveInterval;
+
+	@Nonnull
+	private List<FilterRef> m_requestHandlerList = Collections.emptyList();
+
+	/**
+	 * A single request filter and it's priority in the filter list.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Mar 26, 2012
+	 */
+	static final private class FilterRef {
+		final private int m_score;
+
+		@Nonnull
+		final private IFilterRequestHandler m_handler;
+
+		public FilterRef(@Nonnull IFilterRequestHandler handler, int score) {
+			m_handler = handler;
+			m_score = score;
+		}
+
+		public int getPriority() {
+			return m_score;
+		}
+
+		@Nonnull
+		public IFilterRequestHandler getHandler() {
+			return m_handler;
+		}
+	}
+
+	private static final Comparator<FilterRef> C_HANDLER_DESCPRIO = new Comparator<FilterRef>() {
+		@Override
+		public int compare(FilterRef a, FilterRef b) {
+			return b.getPriority() - a.getPriority();
+		}
+	};
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
@@ -154,15 +207,20 @@ public abstract class DomApplication {
 					throw new IllegalStateException("??");
 
 				// data has removed in meanwhile: redirect to error page.
-				String rurl = DomUtil.createPageURL(ExpiredDataPage.class, new PageParameters("errorMessage", x.getLocalizedMessage()));
-				//-- Add info about the failed thingy.
-				/*StringBuilder sb = new StringBuilder(1024);
-				sb.append(rurl);
-				sb.append("?errorMessage=");
-				StringTool.encodeURLEncoded(sb, x.getLocalizedMessage());*/
+				String rurl = DomUtil.createPageURL(ExpiredDataPage.class, new PageParameters(ExpiredDataPage.PARAM_ERRMSG, x.getLocalizedMessage()));
 				UIGoto.redirect(rurl);
-				// jal 20110118 Does not work, and is a nonpublic interface.
-				//				ApplicationRequestHandler.generateHttpRedirect((RequestContextImpl) ctx, rurl, "Data not found");
+				return true;
+			}
+		});
+		addExceptionListener(DataAccessViolationException.class, new IExceptionListener() {
+			@Override
+			public boolean handleException(final IRequestContext ctx, final Page page, final NodeBase source, final Throwable x) throws Exception {
+				if(!(x instanceof DataAccessViolationException))
+					throw new IllegalStateException("??");
+
+				// data has removed in meanwhile: redirect to error page.
+				String rurl = DomUtil.createPageURL(DataAccessViolationPage.class, new PageParameters(DataAccessViolationPage.PARAM_ERRMSG, x.getLocalizedMessage()));
+				UIGoto.redirect(rurl);
 				return true;
 			}
 		});
@@ -172,6 +230,12 @@ public abstract class DomApplication {
 		registerResourceFactory(new VersionedJsResourceFactory());
 		registerResourceFactory(new SimpleResourceFactory());
 		registerResourceFactory(new FragmentedThemeResourceFactory());
+
+		//-- Register default request handlers.
+		addRequestHandler(new ApplicationRequestHandler(this), 100);			// .ui and related
+		addRequestHandler(new ResourceRequestHandler(this, m_partHandler), 0);	// $xxxx resources are a last resort
+		addRequestHandler(new AjaxRequestHandler(this), 20);					// .xaja ajax calls.
+		addRequestHandler(getPartRequestHandler(), 80);
 	}
 
 	protected void registerControlFactories() {
@@ -185,8 +249,8 @@ public abstract class DomApplication {
 	}
 
 	protected void registerPartFactories() {
-		registerUrlPart(new ThemePartFactory()); // convert *.theme.* as a JSTemplate.
-		registerUrlPart(new SvgPartFactory()); // Converts .svg.png to png.
+		registerUrlPart(new ThemePartFactory(), 100); // convert *.theme.* as a JSTemplate.
+		registerUrlPart(new SvgPartFactory(), 100); // Converts .svg.png to png.
 	}
 
 	static private synchronized void setCurrentApplication(DomApplication da) {
@@ -197,6 +261,7 @@ public abstract class DomApplication {
 	 * Returns the single DomApplication instance in use for the webapp.
 	 * @return
 	 */
+	@Nonnull
 	static synchronized public DomApplication get() {
 		DomApplication da = m_application;
 		if(da == null)
@@ -223,21 +288,67 @@ public abstract class DomApplication {
 	 * the dot, i.e. "ui" for [classname].ui pages.
 	 * @return
 	 */
+	@Nonnull
 	public String getUrlExtension() {
 		return m_urlExtension;
 	}
 
-	public IFilterRequestHandler findRequestHandler(final IRequestContext ctx) {
-		//		System.out.println("Input: "+ctx.getInputPath());
-		if(getUrlExtension().equals(ctx.getExtension()) || ctx.getExtension().equals("obit") || (getRootPage() != null && ctx.getInputPath().length() == 0)) {
-			return m_requestHandler;
-		} else if(m_partHandler.acceptURL(ctx.getInputPath())) {
-			return m_partHandler;
-		} else if(ctx.getInputPath().startsWith("$")) {
-			return m_resourceHandler;
-		} else if(ctx.getExtension().equals("xaja"))
-			return m_ajaxHandler;
+
+	/**
+	 * Internal: return the sorted-by-descending-priority list of request handlers.
+	 * @return
+	 */
+	@Nonnull
+	private synchronized List<FilterRef> getRequestHandlerList() {
+		return m_requestHandlerList;
+	}
+
+	/**
+	 * Add a toplevel request handler to the chain.
+	 * @param fh
+	 */
+	public synchronized void addRequestHandler(@Nonnull IFilterRequestHandler fh, int priority) {
+		m_requestHandlerList = new ArrayList<FilterRef>(m_requestHandlerList);
+		m_requestHandlerList.add(new FilterRef(fh, priority));
+		Collections.sort(m_requestHandlerList, C_HANDLER_DESCPRIO);			// Leave the list ordered by descending priority.
+	}
+
+	/**
+	 * Find a request handler by locating the highest-scoring request handler in the chain.
+	 * @param ctx
+	 * @return
+	 */
+	@Nullable
+	public IFilterRequestHandler findRequestHandler(@Nonnull final IRequestContext ctx) throws Exception {
+		for(FilterRef h : getRequestHandlerList()) {
+			if(h.getHandler().accepts(ctx))
+				return h.getHandler();
+		}
 		return null;
+	}
+
+	/**
+	 * Add a part that reacts on some part of the input URL instead of [classname].part.
+	 *
+	 * @param factory
+	 * @param priority		The priority of handling. Keep it low for little-used factories.
+	 */
+	public void registerUrlPart(@Nonnull IUrlPart factory, int priority) {
+		addRequestHandler(new UrlPartRequestHandler(getPartRequestHandler(), factory), priority);		// Add a request handler for this part factory.
+	}
+
+	/**
+	 * Add a part that reacts on some part of the input URL instead of [classname].part, with a priority of 10.
+	 *
+	 * @param factory
+	 */
+	public void registerUrlPart(@Nonnull IUrlPart factory) {
+		registerUrlPart(factory, 10);
+	}
+
+	@Nonnull
+	public PartRequestHandler getPartRequestHandler() {
+		return m_partHandler;
 	}
 
 	/**
@@ -288,10 +399,10 @@ public abstract class DomApplication {
 	 * @param pp
 	 * @throws Exception
 	 */
-	protected void initialize(final ConfigParameters pp) throws Exception {}
+	protected void initialize(@Nonnull final ConfigParameters pp) throws Exception {}
 
 
-	final synchronized public void internalInitialize(final ConfigParameters pp, boolean development) throws Exception {
+	final synchronized public void internalInitialize(@Nonnull final ConfigParameters pp, boolean development) throws Exception {
 		setCurrentApplication(this);
 
 		//		m_myClassLoader = appClassLoader;
@@ -596,7 +707,7 @@ public abstract class DomApplication {
 	 */
 	@Deprecated
 	public BasePageTitleBar getDefaultPageTitleBar(String title) {
-		return new AppPageTitleBar(title);
+		return new AppPageTitleBar(title, true);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -661,6 +772,7 @@ public abstract class DomApplication {
 	 * @param path
 	 * @return
 	 */
+	@Nonnull
 	public File getAppFile(final String path) {
 		return new File(m_webFilePath, path);
 	}
@@ -674,6 +786,7 @@ public abstract class DomApplication {
 	 * @param name
 	 * @return
 	 */
+	@Nonnull
 	public IResourceRef getAppFileOrResource(String name) {
 		//-- 1. Is a file-based resource available?
 		File f = getAppFile(name);
@@ -683,11 +796,12 @@ public abstract class DomApplication {
 	}
 
 
-	public synchronized void registerResourceFactory(IResourceFactory f) {
+	public synchronized void registerResourceFactory(@Nonnull IResourceFactory f) {
 		m_resourceFactoryList = new ArrayList<IResourceFactory>(m_resourceFactoryList);
 		m_resourceFactoryList.add(f);
 	}
 
+	@Nonnull
 	public synchronized List<IResourceFactory> getResourceFactories() {
 		return m_resourceFactoryList;
 	}
@@ -697,6 +811,7 @@ public abstract class DomApplication {
 	 * @param name
 	 * @return
 	 */
+	@Nullable
 	public IResourceFactory findResourceFactory(String name) {
 		IResourceFactory best = null;
 		int bestscore = -1;
@@ -715,12 +830,9 @@ public abstract class DomApplication {
 	 * Returns the root of the webapp's installation directory on the local file system.
 	 * @return
 	 */
+	@Nonnull
 	public final File getWebAppFileRoot() {
 		return m_webFilePath;
-	}
-
-	public String getApplicationURL() {
-		return AppFilter.getApplicationURL();
 	}
 
 	//	/** Cache for application resources containing all resources we have checked existence for */
@@ -736,6 +848,7 @@ public abstract class DomApplication {
 	 * @param name
 	 * @return
 	 */
+	@Nonnull
 	public IResourceRef createClasspathReference(String name) {
 		if(!name.startsWith("/"))
 			name = "/" + name;
@@ -1150,6 +1263,30 @@ public abstract class DomApplication {
 		m_injector = injector;
 	}
 
+	/**
+	 * Get the page special access checker.
+	 * @return
+	 */
+	public synchronized ISpecialAccessChecker getSpecialAccessChecker() {
+		return m_accessChecker;
+	}
+
+	public synchronized void setDataPathResolver(IDataPathResolver dataPathResolver) {
+		m_dataPathResolver = dataPathResolver;
+	}
+
+	/**
+	 * Get the UI param data path resolver.
+	 * @return
+	 */
+	public synchronized IDataPathResolver getDataPathResolver() {
+		return m_dataPathResolver;
+	}
+
+	public synchronized void setSpecialAccessChecker(ISpecialAccessChecker accessChecker) {
+		m_accessChecker = accessChecker;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Rights registry.									*/
 	/*--------------------------------------------------------------*/
@@ -1236,9 +1373,9 @@ public abstract class DomApplication {
 		return v == null ? right : v;
 	}
 
-	public AjaxRequestHandler getAjaxHandler() {
-		return m_ajaxHandler;
-	}
+	//	public AjaxRequestHandler getAjaxHandler() {
+	//		return m_ajaxHandler;
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Programmable theme code.							*/
@@ -1262,15 +1399,6 @@ public abstract class DomApplication {
 		m_themeFactory = themer;
 		m_themeStore = null;
 		m_themeDependencies = null;
-	}
-
-
-	/**
-	 * FIXME Mechanism is slow
-	 * @param factory
-	 */
-	public void registerUrlPart(IUrlPart factory) {
-		m_partHandler.registerUrlPart(factory);
 	}
 
 	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, String rurl) throws Exception {
@@ -1410,9 +1538,18 @@ public abstract class DomApplication {
 	}
 
 
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DomUI state listener handling.						*/
 	/*--------------------------------------------------------------*/
+
+	public synchronized int getKeepAliveInterval() {
+		return m_keepAliveInterval;
+	}
+
+	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
+		m_keepAliveInterval = keepAliveInterval;
+	}
 
 	private List<IDomUIStateListener> m_uiStateListeners = Collections.EMPTY_LIST;
 

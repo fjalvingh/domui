@@ -245,4 +245,8 @@ public class FileCache {
 		reaplist.add(ix, reapentry);
 	}
 
+
+	public synchronized long getCurrentFileSize() {
+		return m_currentFileSize;
+	}
 }

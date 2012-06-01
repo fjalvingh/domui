@@ -198,6 +198,8 @@ public class OptimalDeltaRenderer {
 			for(HeaderContributorEntry hc : list)
 				hc.getContributor().contribute(this);
 			o().closetag("eval");
+			//-- 20111004 vmijic We need to state that delta contributors are added, so next render would not add it again -> this fixes infinite adds in pulling divs that causes browsers memory leak
+			m_page.internalContributorsRendered();
 		}
 
 		//-- 20091127 jal Add header contributors delta rendering end
@@ -477,8 +479,9 @@ public class OptimalDeltaRenderer {
 	 * @param nc
 	 */
 	private void doContainerChildren(NodeInfo nodeInfo, NodeContainer nc) throws Exception {
-		for(int i = 0, len = nc.getChildCount(); i < len; i++) {
-			NodeBase n = nc.getChild(i);
+		List<NodeBase> chl = nc.internalGetChildren();
+		for(int i = 0, len = chl.size(); i < len; i++) {
+			NodeBase n = chl.get(i);
 			if(n instanceof NodeContainer) {
 				doBase(nodeInfo, n);
 				doContainer(nodeInfo, (NodeContainer) n);
@@ -570,7 +573,7 @@ public class OptimalDeltaRenderer {
 			 * this node is not deleted at all and can at most have moved within the
 			 * container.
 			 */
-			if(n.getParent() != nc) {
+			if(n.internalGetParent() != nc) {
 				//-- Deleted thingy. Add to the current node's DELETE charge.
 				ni.addDelete(n); // This node is DELETED from here,
 				if(DEBUG)
@@ -747,7 +750,7 @@ public class OptimalDeltaRenderer {
 		for(NodeBase nb : ni.addList) {
 			if(nb.m_origNewIndex == 0)
 				continue;
-			NodeBase pre = nc.getChild(nb.m_origNewIndex - 1);
+			NodeBase pre = nc.internalGetChildren().get(nb.m_origNewIndex - 1);
 			if(pre instanceof TextNode) {
 				ni.setFullRerender();
 				if(DEBUG)
@@ -758,11 +761,23 @@ public class OptimalDeltaRenderer {
 		//-- Re-decide again: if the #of adds and deletes is > the size of the new list we re-render
 		if(!ni.isFullRender) {
 			int ncmd = ni.deleteList.size() + ni.addList.size();
+
 			if((double) ncmd / (double) newl.size() > 0.9) {
-				//-- re-render fully.
-				ni.setFullRerender();
-				if(DEBUG)
-					System.out.println("o: final verdict on " + nc.getActualID() + ": #cmds=" + ncmd + " and newsize=" + newl.size() + ", rerender-fully.");
+				//-- As far as commands go it is better to re-render.
+
+
+				// Bug# 1101: get a quick indication of how big the subtree is by traversing only the 1st subtree in the nodes;
+				int xcount = 0;
+				for(NodeBase n : newl) {
+					xcount += n.internalGetNodeCount(2);
+				}
+				if(xcount > ncmd * 2) {
+					//-- end bug# 1101 fix
+					//-- re-render fully.
+					ni.setFullRerender();
+					if(DEBUG)
+						System.out.println("o: final verdict on " + nc.getActualID() + ": #cmds=" + ncmd + " and newsize=" + newl.size() + ", xcount=" + xcount + ", rerender-fully.");
+				}
 			}
 		}
 

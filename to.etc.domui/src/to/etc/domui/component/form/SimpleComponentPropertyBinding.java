@@ -208,4 +208,16 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 	public void setErrorLocation(String errorLocation) {
 		m_control.setErrorLocation(errorLocation);
 	}
+
+	public IControl<T> getControl() {
+		return m_control;
+	}
+
+	public PropertyMetaModel<T> getPropertyMeta() {
+		return m_propertyMeta;
+	}
+
+	public IReadOnlyModel< ? > getModel() {
+		return m_model;
+	}
 }

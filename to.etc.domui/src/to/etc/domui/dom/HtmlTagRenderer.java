@@ -25,6 +25,7 @@
 package to.etc.domui.dom;
 
 import java.io.*;
+import java.util.*;
 
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
@@ -606,15 +607,18 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o.attr("style", s); // Append style
 		if(b.getTestID() != null)
 			o.attr("testid", b.getTestID());
+		if(b.isStretchHeight())
+			o.attr("stretch", "true");
 		if(b.getCssClass() != null)
 			o.attr("class", b.getCssClass());
 		String ttl = b.getTitle();
 		if(ttl != null && !(b instanceof UrlPage)) // Do NOT render title on the thing representing the BODY.
 			o().attr("title", ttl);
 
-		if(b.getSpecialAttributeList() != null) {
-			for(int i = 0; i < b.getSpecialAttributeList().size(); i += 2) {
-				o().attr(b.getSpecialAttributeList().get(i), b.getSpecialAttributeList().get(i + 1));
+		List<String> sal = b.getSpecialAttributeList();
+		if(sal != null) {
+			for(int i = 0; i < sal.size(); i += 2) {
+				o().attr(sal.get(i), sal.get(i + 1));
 			}
 		}
 
@@ -657,7 +661,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 		//-- Drop crud
 		if(n.getDropBody() != null) {
-			o().attr("uidropbody", n.getDropBody().getActualID());
+			o().attr("uidropbody", ((NodeBase) n.getDropBody()).getActualID());
 		}
 		if(n.getDropMode() != null) {
 			o().attr("uidropmode", n.getDropMode().name());
@@ -852,28 +856,36 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("size", n.getSize());
 		if(n.getRawValue() != null)
 			o().attr("value", n.getRawValue());
-		if(n.getOnKeyPressJS() != null) {
-			o().attr("onkeypress", n.getOnKeyPressJS());
-		}
 		String transformScript = "";
 		if(n.getTransform() != null) {
 			switch(n.getTransform()){
 				case LOWERCASE:
-					transformScript = "javascript:this.value=this.value.toUpperCase();";
+					transformScript = "this.value=this.value.toLowerCase();";
 					break;
 				case UPPERCASE:
-					transformScript = "javascript:this.value=this.value.toUpperCase();";
+					transformScript = "this.value=this.value.toUpperCase();";
 					break;
 				default://do nothing
 			}
 		}
 
 		if(n.getOnLookupTyping() != null) {
+			StringBuilder sb = sb();
+			if(!DomUtil.isBlank(n.getOnKeyPressJS())) {
+				sb.append("if(! ").append(n.getOnKeyPressJS()).append(") return false;");
+			}
+			sb.append("WebUI.onLookupTypingReturnKeyHandler('").append(n.getActualID()).append("', event)");
+
 			//20110304 vmijic: must be done using onkeypress (I tried onkeydown in combination with setReturnPressed, but that fails since onkeydown change model, so setReturnPressed is fired for dead node that results with exception)
-			o().attr("onkeypress", sb().append("WebUI.onLookupTypingReturnKeyHandler('").append(n.getActualID()).append("', event)").toString());
+			o().attr("onkeypress", sb.toString());
 			o().attr("onkeyup", sb().append("WebUI.scheduleOnLookupTypingEvent('").append(n.getActualID()).append("', event)").toString());
 			o().attr("onblur", sb().append(transformScript).append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
 		} else {
+			//-- Attach normal onKeyPress handling.
+			if(n.getOnKeyPressJS() != null) {
+				o().attr("onkeypress", "return " + n.getOnKeyPressJS());
+			}
+
 			if(!DomUtil.isBlank(transformScript)) {
 				o().attr("onblur", sb().append(transformScript).toString());
 			}
@@ -1007,6 +1019,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	@Override
+	public void visitPre(Pre n) throws Exception {
+		o().setIndentEnabled(false);			// pre nodes should not have indent because they will show it.
+		visitDiv(n);
+	}
+
+	@Override
 	public void visitLabel(final Label n) throws Exception {
 		basicNodeRender(n, o());
 		if(n.getFor() != null)
@@ -1113,6 +1131,14 @@ public class HtmlTagRenderer implements INodeVisitor {
 	@Override
 	public void visitH(final HTag n) throws Exception {
 		basicNodeRender(n, m_o);
+		renderTagend(n, m_o);
+	}
+
+	@Override
+	public void visitIFrame(IFrame n) throws Exception {
+		basicNodeRender(n, m_o);
+		if(n.getSrc() != null)
+			o().attr("src", n.getSrc());
 		renderTagend(n, m_o);
 	}
 

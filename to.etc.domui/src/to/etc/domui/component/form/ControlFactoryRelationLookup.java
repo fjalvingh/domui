@@ -26,6 +26,8 @@ package to.etc.domui.component.form;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.server.*;
@@ -45,7 +47,7 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context) {
 		if(controlClass != null && !controlClass.isAssignableFrom(LookupInput.class))
 			return -1;
 
@@ -62,7 +64,7 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 	 * @see to.etc.domui.component.form.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public <T> ControlFactoryResult createControl(final IReadOnlyModel< ? > model, final PropertyMetaModel<T> pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context) {
 		//-- We'll do a lookup thingy for sure.
 		LookupInput<T> li = new LookupInput<T>(pmm.getActualType(), pmm.getValueModel());
 		li.setReadOnly(!editable);
@@ -79,17 +81,26 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 
 
 		if(pmm.getLookupSelectedRenderer() != null)
-			li.setContentRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
+			li.setValueRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType()); // Get meta for type reached,
 			if(cmm.getLookupSelectedRenderer() != null)
-				li.setContentRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(cmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
+				li.setValueRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(cmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		}
 		if(pmm.isRequired())
 			li.setMandatory(true);
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			li.setTitle(s);
+
+		//-- 20110721 jal If a query manipulator is present- use it.
+		IQueryManipulator<T> qm = pmm.getQueryManipulator();
+		if(null == qm)
+			qm = (IQueryManipulator<T>) pmm.getClassModel().getQueryManipulator();
+		if(null != qm) {
+			li.setQueryManipulator(qm);
+		}
+
 		return new ControlFactoryResult(li, model, pmm);
 	}
 }

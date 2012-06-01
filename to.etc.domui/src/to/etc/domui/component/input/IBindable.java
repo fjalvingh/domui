@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 /**
  * EXPERIMENTAL - DO NOT USE.
  * This defines the component as an input component that can be bound to some
@@ -38,6 +40,7 @@ public interface IBindable {
 	 * Return the object that is able to bind this control to some data value.
 	 * @return
 	 */
+	@Nonnull
 	IBinder bind();
 
 	/**

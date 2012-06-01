@@ -92,7 +92,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication {
 
 	public RadioGroup<T> getGroup() {
 		if(m_radioGroup == null) {
-			m_radioGroup = getParent(RadioGroup.class);
+			m_radioGroup = findParent(RadioGroup.class);
 			if(null == m_radioGroup) // Should not happen when properly used.
 				throw new IllegalArgumentException("A RadioButton must be part of a RadioGroup");
 		}
@@ -165,7 +165,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication {
 	}
 
 	@Override
-	public boolean acceptRequestParameter(String[] values) {
+	public boolean acceptRequestParameter(@Nonnull String[] values) {
 		if(values == null || values.length != 1)
 			throw new IllegalStateException("RadioButton: expecting a single input value, not " + Arrays.toString(values));
 

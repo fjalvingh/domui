@@ -37,7 +37,7 @@ import to.etc.webapp.query.*;
 
 final class LookupFactoryDate implements ILookupControlFactory {
 	@Override
-	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(@Nonnull final SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IInputNode<T>> ILookupControlInstance createControl(@Nonnull final SearchPropertyMetaModel spm, final X control) {
 		if(spm == null)
 			throw new IllegalStateException("? SearchPropertyModel should not be null here.");
 
@@ -97,9 +97,10 @@ final class LookupFactoryDate implements ILookupControlFactory {
 					crit.lt(spm.getPropertyName(), till);
 				} else if(from != null) {
 					crit.ge(spm.getPropertyName(), from);
-				} else {
+				} else if(till != null) {
 					crit.lt(spm.getPropertyName(), till);
-				}
+				} else
+					throw new IllegalStateException("Logic error");
 				return AppendCriteriaResult.VALID;
 			}
 
@@ -112,7 +113,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 	}
 
 	@Override
-	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(SearchPropertyMetaModel spm, X control) {
+	public <T, X extends IInputNode<T>> int accepts(@Nonnull SearchPropertyMetaModel spm, X control) {
 		PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		if(Date.class.isAssignableFrom(pmm.getActualType()) && control == null)
 			return 2;

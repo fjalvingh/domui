@@ -39,6 +39,7 @@ import to.etc.domui.util.*;
  * Created on 26 Oct 2009
  */
 public class MultipleSelectionDataTable<T> extends DataTable<T> {
+
 	public MultipleSelectionDataTable(@Nonnull Class<T> dataClass, @Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m, r);
 	}
@@ -67,7 +68,10 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 
 		if(m_accumulatedRows.size() > 0 || list.size() > 0) {
 			getTable().removeAllChildren();
-			add(getTable());
+			Table t = getTable();
+			if(null == t)
+				throw new IllegalStateException("?");
+			add(t);
 
 			//-- Render the header.
 			THead hd = new THead();
@@ -76,7 +80,9 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			tr.setCssClass("ui-dt-hdr");
 			hd.add(tr);
 			hc.setParent(tr);
-			hc.add(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
+			Img selImg = new Img("THEME/dspcb-on.png");
+			selImg.setTitle(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
+			hc.add(selImg);
 			getRowRenderer().renderHeader(this, hc);
 			getTable().add(hd);
 
@@ -122,7 +128,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 					cc.getTR().setClicked(new IClicked2<TR>() {
 						@Override
 						@SuppressWarnings({"synthetic-access"})
-						public void clicked(TR b, ClickInfo clinfo) throws Exception {
+						public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
 							((ICellClicked<T>) getRowRenderer().getRowClicked()).cellClicked(therow, theitem);
 						}
 					});
@@ -189,7 +195,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			cc.getTR().setClicked(new IClicked2<TR>() {
 				@Override
 				@SuppressWarnings({"synthetic-access"})
-				public void clicked(TR b, ClickInfo clinfo) throws Exception {
+				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
 					((ICellClicked<T>) getRowRenderer().getRowClicked()).cellClicked(therow, theitem);
 				}
 			});
@@ -234,7 +240,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 	 * Set a new model for this table. This discards the entire presentation and causes a full build at render time.
 	 */
 	@Override
-	public void setModel(ITableModel<T> model) {
+	public void setModel(@Nonnull ITableModel<T> model) {
 		clearDeselectedAccumulatedRows();
 		super.setModel(model);
 	}
@@ -255,6 +261,8 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 		if(tr instanceof TR) {
 			if(tr.getUserObject() instanceof Checkbox) {
 				Checkbox ckb = (Checkbox) tr.getUserObject();
+				if(null == ckb)
+					throw new IllegalStateException("No checkbox??");
 				ckb.setChecked(!ckb.isChecked());
 				handleAccumulatedItemRowSelectionChanged((TR) tr, Boolean.valueOf(ckb.isChecked()));
 			} else {
@@ -283,5 +291,4 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 	public void setSelectionColTitle(String selectionColTitle) {
 		m_selectionColTitle = selectionColTitle;
 	}
-
 }

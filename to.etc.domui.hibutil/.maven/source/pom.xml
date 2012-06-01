@@ -5,8 +5,8 @@
   <version>trunk-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <cobertura.maxmem>256M</cobertura.maxmem>
-    <maven.cobertura.instrumentation.maxmemory>512M</maven.cobertura.instrumentation.maxmemory>
+    <cobertura.maxmem>8292M</cobertura.maxmem>
+    <maven.cobertura.instrumentation.maxmemory>8192M</maven.cobertura.instrumentation.maxmemory>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compile.encoding>UTF-8</maven.compile.encoding>
     <maven.compile.fork>true</maven.compile.fork>
@@ -66,6 +66,13 @@
       <scope>compile</scope>
       </dependency>
     <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>junit.junit</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+      </dependency>
+    <dependency>
       <groupId>to.etc</groupId>
       <artifactId>to.etc.alg.source</artifactId>
       <version>trunk-SNAPSHOT</version>
@@ -73,8 +80,8 @@
       <scope>compile</scope>
       </dependency>
     <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>junit.junit</artifactId>
+      <groupId>to.etc</groupId>
+      <artifactId>to.etc.db.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
@@ -124,13 +131,6 @@
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.slf4j-api</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      </dependency>
-    <dependency>
-      <groupId>to.etc</groupId>
-      <artifactId>to.etc.db.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
@@ -417,28 +417,28 @@
       </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.ejb3-persistence</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+      </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.hibernate-annotations</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+      </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.hibernate-commons-annotations</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+      </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.source</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate-annotations.ejb3-persistence</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate-annotations.hibernate-annotations</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate-annotations.hibernate-commons-annotations</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>

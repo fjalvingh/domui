@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
@@ -146,7 +148,8 @@ abstract public class AbstractDivControl<T> extends Div implements IInputNode<T>
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
-	public IBinder bind() {
+	@Override
+	public @Nonnull IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
 		return m_binder;
@@ -157,6 +160,7 @@ abstract public class AbstractDivControl<T> extends Div implements IInputNode<T>
 	 *
 	 * @see to.etc.domui.component.input.IBindable#isBound()
 	 */
+	@Override
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
 	}

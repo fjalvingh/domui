@@ -13,7 +13,7 @@ import to.etc.domui.util.*;
  */
 public class ClassRefResourceFactory implements IResourceFactory {
 	@Override
-	public int accept(String name) {
+	public int accept(@Nonnull String name) {
 		if(name.startsWith(Constants.RESOURCE_PREFIX))
 			return 10;
 		return -1;
@@ -23,7 +23,8 @@ public class ClassRefResourceFactory implements IResourceFactory {
 	@Nonnull
 	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
 		IResourceRef r = da.createClasspathReference(name.substring(Constants.RESOURCE_PREFIX.length() - 1)); // Strip off $RES, rest is absolute resource path starting with /
-		rdl.add(r);
+		if(null != rdl)
+			rdl.add(r);
 		return r;
 	}
 }

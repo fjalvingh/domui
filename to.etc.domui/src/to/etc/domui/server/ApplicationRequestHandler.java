@@ -26,9 +26,12 @@ package to.etc.domui.server;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.annotations.*;
+import to.etc.domui.annotations.UISpecialAccessResult.Status;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
@@ -38,6 +41,7 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -58,8 +62,17 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		m_application = application;
 	}
 
+	/**
+	 * Accept .obit, the defined DomUI extension (.ui by default) and the empty URL if a home page is set in {@link DomApplication}.
+	 * @see to.etc.domui.server.IFilterRequestHandler#accepts(to.etc.domui.server.IRequestContext)
+	 */
 	@Override
-	public void handleRequest(final RequestContextImpl ctx) throws Exception {
+	public boolean accepts(@Nonnull IRequestContext ctx) throws Exception {
+		return m_application.getUrlExtension().equals(ctx.getExtension()) || ctx.getExtension().equals("obit") || (m_application.getRootPage() != null && ctx.getInputPath().length() == 0);
+	}
+
+	@Override
+	public void handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
 		ServerTools.generateNoCache(ctx.getResponse()); // All replies may not be cached at all!!
 		handleMain(ctx);
 		ctx.getSession().dump();
@@ -143,7 +156,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			if(LOG.isDebugEnabled())
 				LOG.debug("OBITUARY received for " + cid + ": pageTag=" + pageTag);
-			System.out.println("OBITUARY received for " + cid + ": pageTag=" + pageTag);
 			ctx.getSession().internalObituaryReceived(cida[0], pageTag);
 
 			//-- Send a silly response.
@@ -205,6 +217,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		Page page = cm.makeOrGetPage(ctx, clz, papa);
+		page.internalIncrementRequestCounter();
 		cm.internalSetLastPage(page);
 		//		Page page = PageMaker.makeOrGetPage(ctx, clz, papa);
 
@@ -219,7 +232,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					/*
 					 * The page tag differs-> session has expired.
 					 */
-					generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+					if(Constants.ACMD_ASYPOLL.equals(action)) {
+						generateExpiredPollasy(ctx);
+					} else {
+						generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+					}
 					return;
 				}
 			}
@@ -292,9 +309,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			//-- 20100408 jal If an UIGoto was done in createContent handle that
 			if(cm.handleGoto(ctx, page, false))
 				return;
-		} catch(Exception x) {
+		} catch(Exception ex) {
 			//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
 			page.getBody().forceRebuild();
+
+			Exception x = WrappedException.unwrap(ex);
 
 			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
@@ -369,9 +388,22 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Class< ? extends UrlPage> clz) throws Exception {
-		UIRights rann = clz.getAnnotation(UIRights.class);
-		if(rann == null)
+		boolean isAjax = ctx.getRequest().getParameter("webuia") != null;
+
+		if(isAjax) {
+			//access check is ignored for AJAX calls (we are already using that page, so access is already checked)
 			return true;
+		}
+
+		boolean hasSpecialAccess = ctx.getApplication().getSpecialAccessChecker().hasSpecialAccess(clz);
+
+		UIRights rann = clz.getAnnotation(UIRights.class);
+
+		if(rann == null && !hasSpecialAccess) {
+			//no check, we pass
+			return true;
+		}
+
 		//-- Get user's IUser; if not present we need to log in.
 		IUser user = UIContext.getCurrentUser(); // Currently logged in?
 		if(user == null) {
@@ -400,25 +432,28 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			return false;
 		}
 
-		//		//-- EXPERIMENTAL If this is a data-bound right we need to get the data item to use to check
-		//		Object dataItem = null;
-		//		if(rann.dataPath().length() != 0) {
-		//			//-- Obtain the value for the specified property path.
-		//			PropertyMetaModel	pmm = MetaManager.getPropertyMeta()
-		//
-		//
-		//		}
+		//-- Issue access checks
+		UISpecialAccessResult specialAccessResult = hasSpecialAccess ? ctx.getApplication().getSpecialAccessChecker().doSpecialAccessCheck(clz, ctx) : null;
 
-		//-- Issue rights check,
-		boolean allowed = true;
-		for(String right : rann.value()) {
-			if(!user.hasRight(right)) {
-				allowed = false;
-				break;
+		if(specialAccessResult == null) {
+			if(checkUIRigts(ctx, clz, rann, user)) {
+				return true;
+			}
+		} else {
+			switch(specialAccessResult.getStatus()){
+				case ACCEPT:
+					return true;
+				case NONE:
+					if(checkUIRigts(ctx, clz, rann, user)) {
+						return true;
+					}
+					break;
+				case REFUSE:
+				default:
+					//drop to access denied redirect
+					break;
 			}
 		}
-		if(allowed)
-			return true;
 
 		/*
 		 * Access not allowed: redirect to error page.
@@ -432,18 +467,61 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- Add info about the failed thingy.
 		StringBuilder sb = new StringBuilder(128);
 		sb.append(rurl);
-		sb.append("?targetPage=");
-		StringTool.encodeURLEncoded(sb, clz.getName());
+		DomUtil.addUrlParameters(sb, new PageParameters(AccessDeniedPage.PARAM_TARGET_PAGE, clz.getName()), true);
 
-		//-- All required rights
-		int ix = 0;
-		for(String r : rann.value()) {
-			sb.append("&r" + ix + "=");
-			ix++;
-			StringTool.encodeURLEncoded(sb, r);
+		if(specialAccessResult != null && specialAccessResult.getStatus() == Status.REFUSE) {
+			sb.append("&" + AccessDeniedPage.PARAM_REFUSAL_MSG + "=");
+			StringTool.encodeURLEncoded(sb, specialAccessResult.getRefuseReason());
+		} else if(rann != null) {
+			//-- All required rights
+			int ix = 0;
+			for(String r : rann.value()) {
+				sb.append("&r" + ix + "=");
+				ix++;
+				StringTool.encodeURLEncoded(sb, r);
+			}
 		}
 		generateHttpRedirect(ctx, sb.toString(), "Access denied");
 		return false;
+	}
+
+	private boolean checkUIRigts(@Nonnull final RequestContextImpl ctx, @Nonnull final Class< ? extends UrlPage> clz, @Nullable UIRights rann, IUser user) {
+		//UIRights check exists, we need to check them. otherwise pass
+		if(rann == null) {
+			return true;
+		}
+
+		if(DomUtil.isBlank(rann.dataPath())) {
+			//no special data context -> we just check plain general rights
+			for(String right : rann.value()) {
+				if(!user.hasRight(right)) {
+					return false;
+				}
+			}
+		} else {
+			//-- Data path related access check
+			try {
+				String target = rann.dataPath().trim();
+				String dataPath = null;
+				int pathPos = target.indexOf(".");
+				if(pathPos > 0) {
+					dataPath = target.substring(pathPos + 1);
+					target = target.substring(0, pathPos);
+				}
+
+				Object dataAtPath = ctx.getApplication().getDataPathResolver().resolveDataPath(clz, ctx, target, dataPath);
+				for(String right : rann.value()) {
+					if(!user.hasRight(right, dataAtPath)) {
+						return false;
+					}
+				}
+			} catch(Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -487,6 +565,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Generates an EXPIRED message when the page here does not correspond with
 	 * the page currently in the browser. This causes the browser to do a reload.
 	 * @param ctx
+	 * @param message
 	 * @throws Exception
 	 */
 	private void generateExpired(final RequestContextImpl ctx, final String message) throws Exception {
@@ -502,6 +581,22 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		out.text(message);
 		out.closetag("msg");
 		out.closetag("expired");
+	}
+
+	/**
+	 * Generates an 'expiredOnPollasy' message when server receives pollasy call from expired page.
+	 * Since pollasy calls are frequent, expired here means that user has navigated to some other page in meanwhile, and that response should be ignored by browser.
+	 * @param ctx
+	 * @throws Exception
+	 */
+	private void generateExpiredPollasy(final RequestContextImpl ctx) throws Exception {
+		//-- We stay on the same page. Render tree delta as response
+		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
+		ctx.getResponse().setCharacterEncoding("UTF-8");
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		out.tag("expiredOnPollasy");
+		out.endtag();
+		out.closetag("expiredOnPollasy");
 	}
 
 	/**
@@ -598,7 +693,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				//-- Don't do anything at all - value is already selected by some of previous ajax requests, it is safe to ignore remaineing late lookup typing events
 				inhibitlog = true;
 			} else if(wcomp == null) {
-				throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
+				if(!action.endsWith("?"))
+					throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
 			} else {
 				wcomp.componentHandleWebAction(ctx, action);
 			}
@@ -609,7 +705,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			 */
 			if(LOG.isDebugEnabled())
 				LOG.debug("rq: ignoring validation exception " + x);
-		} catch(Exception x) {
+		} catch(Exception ex) {
+			Exception x = WrappedException.unwrap(ex);
 			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
 				if(url != null) {
@@ -621,11 +718,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl == null) // No handler?
 				throw x; // Move on, nothing to see here,
-			if(wcomp != null && wcomp.getPage() == null) {
+			if(wcomp != null && !wcomp.isAttached()) {
 				wcomp = page.getTheCurrentControl();
 				System.out.println("DEBUG: Report exception on a " + wcomp.getClass());
 			}
-			if(wcomp == null || wcomp.getPage() == null)
+			if(wcomp == null || !wcomp.isAttached())
 				throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
 
 			if(!xl.handleException(ctx, page, wcomp, x))
@@ -718,7 +815,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			return;
 		//		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
 		pg.internalFullBuild();
-//		pg.build();
+		//		pg.build();
 		for(INewPageInstantiated npi : m_application.getNewPageInstantiatedListeners())
 			npi.newPageInstantiated(pg.getBody());
 	}

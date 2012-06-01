@@ -30,6 +30,10 @@ select {
 	background-color:#FFFFFF;
 }
 
+pre {
+	font-family: Courier New, Courier, monospace;
+}
+
 .ui-txx {
 	vertical-align: top;
 }
@@ -247,6 +251,9 @@ TD .ui-tree .selected:hover {
 	-moz-border-radius: 5px;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
+}
+.ui-chdr-ttl img {
+	padding-right: 10px;
 }
 .ui-chdr-l {
 	width: 20px;
@@ -716,6 +723,34 @@ tr.ui-keyword-popup-row {
     overflow: hidden;
 }
 
+/*** MultipleLookupInput thingerydoo ***/
+.ui-mli-cnt { /* selection container */
+	min-height: 20px;
+	max-height: 60px;
+	overflow: auto;
+}
+
+.ui-mli-itm { /* selected items */
+	background-color: <%= selected_bg %>;
+	float: left;
+	padding-left: 5px;
+	margin-left: 1px;
+	margin-right: 1px;
+	margin-top: 3px;
+	margin-bottom: 3px;	
+	vertical-align: middle;
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-bottom-right-radius: 5px;
+	-moz-border-radius-topleft: 5px;
+	-moz-border-radius-bottomright: 5px;
+	border-top-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+	box-shadow : 3px 3px 3px #CCCCCC;
+	-moz-box-shadow : 3px 3px 3px #CCCCCC;
+	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
+	*display:inline;
+}
+
 /*** LookupForm ***/
 .ui-lf-coll {
 	border-bottom: 1px dotted #666666;
@@ -732,6 +767,8 @@ tr.ui-keyword-popup-row {
 	/*	overflow: hidden;	*/
 	top: 5%;
 	left: 50%;
+	box-shadow : 10px 10px 10px #373737;
+	-moz-box-shadow : 10px 10px 10px #373737;
 }
 
 .ui-fw-ttl {
@@ -776,10 +813,12 @@ tr.ui-keyword-popup-row {
 	margin-right: -2px;
 }
 
+
+
 /** Tree control ***/
 
 .ui-tree {
-	height: 100%;
+/*	height: 100%;		jal 20111025 - setting this causes trouble if tree is not alone in div.. Fixed for OldHelp browser */
 }
 
 /*** SplitPanel (simple version) layout thingy ***/
@@ -873,12 +912,6 @@ button {
 	/*background: #eff7ff;*/
 	border:1px solid <%= readonly_border %>;
 	background-color: <%= readonly_bg %>;
-}
-
-/*** Panning Image Panel ***/
-.ui-pip-img {
-	overflow: hidden;
-	border: 2px solid black;
 }
 
 /*** NiceButton ***/
@@ -1080,19 +1113,8 @@ tbody td.ui-dt-separator {
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
 	background: url(bg-header.png.svg) repeat-x;
-	margin-top: 10px;
+/*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
 }
-
-
-/*** Caption ***/
-.ui-cptn {
-	border: 1px solid #bed6f8;
-	padding: 2px 4px 2px 4px;
-	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
-	margin-top: 10px;
-}
-
 
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
@@ -1365,6 +1387,17 @@ body,html {
 }
 <% } %>
 
+.ui-qsi {
+	display: inline-block;
+	position: relative;
+}
+<% if(browser.isIE()) { %>
+.ui-qsi {  /* IE 7 FIX: by repeating the display: inline in a SEPARATE css selector we force proper inline-block behaviour, see http://www.brunildo.org/test/InlineBlockLayout.html */
+	display: inline;
+}
+<% } %>
+
+
 /*** Helper classes ***/
 .ui-szless {
 	padding: 0px;
@@ -1623,18 +1656,25 @@ body,html {
 	background-color: grey;
 	border: 1px dotted black;
 	-moz-border-radius: 5px;
-	color: white;
 }
+.ui-pmnu-disabled {
+	color: #999;
+}
+.ui-pmnu-enabled {
+	color: white;
+	cursor: pointer;
+}
+
 .ui-pmnu-ttl {
 	padding: 4px;
 	font-style: italic;
 	background-color: #222;
+	color: #eeffee;
 }
 .ui-pmnu-action {
 	padding: 4px;
 	padding-left: 20px;
 	background-repeat: no-repeat;
-	cursor: pointer;
 	background-position: 2px 4px;
 }
 .ui-pmnu-action:hover {
@@ -1751,4 +1791,179 @@ body,html {
 	font-weight:	bold;
 	width:			100%;
 	padding-bottom:	0.35ex; /* to 'vertically center' text inside text-span */
+}
+
+/*** jquery.ui resizable and floatingDiv styles. ***/
+.ui-resizable-se {
+	bottom: 1px;
+	right: 1px;
+	cursor: se-resize;
+	height: 12px;
+	width: 12px;
+}
+.ui-resizable-e {
+	top: 0px;
+	right: -5px;
+	cursor: e-resize;
+	height: 100%;
+	width: 7px;
+}
+.ui-resizable-s {
+	bottom: -5px;
+	cursor: s-resize;
+	height: 7px;
+	left: 0px;
+	width: 100%;
+}
+.ui-resizable-handle {
+	display: block;
+	font-size: 0.1px;
+	position: absolute;
+	z-index: 99999;
+	
+}
+.ui-icon-gripsmall-diagonal-se {
+	width: 16px;
+	height: 16px;
+	background: url(resize.png) no-repeat;
+}
+
+/*** Window and FloatingDiv styles. ***/
+.ui-flw {
+	padding: 0;
+	margin: 0;
+	/*	border: 1px solid black; */
+	background: url(bg-body.png) repeat-x white;
+	border: 1px solid #cccccc;
+	border-top: none;
+	/*	overflow: hidden;	*/
+	top: 5%;
+	left: 50%;
+}
+
+.ui-flw-ttl {
+/*	position: absolute;
+	top: 0px;
+	height: 20px;
+	left: 0px;
+	right: 0px; */
+	
+	height: 20px;
+	padding: 0;
+	padding: 2px;
+	background: url(bg-float-ttl2.png) repeat-x;
+	border-bottom: 1px solid #eeeeee;
+	font-size: 15px;
+	font-weight: bold;
+}
+
+.ui-flw-c {
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	overflow: auto;
+}
+.ui-flw-tc {
+	width: 100%;
+	height: 5px;
+}
+
+.ui-flw-bc {
+	width: 100%;
+	height: 5px;
+}
+
+.ui-flw-hider {
+	height: 100%;
+	width: 100%;
+	opacity: 0.5;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	background-color: black;
+	filter:alpha(opacity=50);
+}
+
+.ui-flw-btn-close {
+	margin-top: -1px;
+	margin-right: -2px;
+}
+
+/*** DefaultButton (replaces old version, this one uses hover effects) ***/
+.ui-dbtn {
+	margin: 2px;
+	background: none;
+}
+.ui-dbtn:HOVER, .ui-dbtn:FOCUS {
+	background-position: 0px -<%= defaultbutton_height %>px;
+}
+.ui-dbtn[disabled] {
+	background-position: 0px -<%= defaultbutton_height*2 %>px !important;
+}
+
+/*** Flare component. ***/
+.ui-flare {
+	position: absolute;
+	z-index: 9999;
+	top: 100px;
+	left: 100px;
+	width: auto;
+	height: auto;
+	-moz-border-radius: 5px 5px;
+	border: 1px dotted grey;
+	padding: 15px;
+}
+.ui-flare-error {
+	background: <%= error_bg %>;
+	color: <%= error_fg %>
+}
+.ui-flare-info {
+	background: <%= info_bg %>;
+	color: <%= info_fg %>
+}
+.ui-flare-warning {
+	background: <%= warning_bg %>;
+	color: <%= warning_fg %>
+}
+.ui-flare-msg {
+	opacity: 0.9;
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	top: auto;
+	left: auto;
+}
+.ui-flare-msg div {
+	font-weight: bold;
+ 	text-align: right;	
+ 	min-width: 400px;
+}
+.ui-flare-msg div div {
+	font-size: large;
+}
+
+/*** LabelSelector component ***/
+.ui-lsel-sel {
+        border-color:#ABADB3 #BFCDD9 #BFCDD9;
+        border-style:solid;
+        border-width:1px;
+        -moz-border-radius: 2px;
+        padding: 4px;
+}
+.ui-lsel {
+        -moz-border-radius: 4px;
+        border: 1px dotted grey;
+        margin: 2px;
+        padding: 2px;
+        background-color: cyan;
+}
+.ui-lsel img {
+/*      margin: 5px; */
+        padding-left: 5px;
+        padding-bottom: 2px;
+        vertical-align: bottom;
+        background-color: cyan;
+}
+.ui-lsel-sel input {
+        border: none;
 }

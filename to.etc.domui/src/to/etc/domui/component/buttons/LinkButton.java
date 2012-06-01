@@ -24,6 +24,9 @@
  */
 package to.etc.domui.component.buttons;
 
+import javax.annotation.*;
+
+import to.etc.domui.component.menu.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -34,12 +37,18 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 10, 2008
  */
-public class LinkButton extends ATag {
+public class LinkButton extends ATag implements IActionControl {
 	private String m_text;
 
 	private String m_imageUrl;
 
-	public LinkButton() {}
+	private boolean m_disabled;
+
+	private IUIAction<Void> m_action;
+
+	public LinkButton() {
+		setCssClass("ui-lnkb");
+	}
 
 	public LinkButton(final String txt, final String image, final IClicked<LinkButton> clk) {
 		setCssClass("ui-lnkb ui-lbtn");
@@ -65,9 +74,40 @@ public class LinkButton extends ATag {
 		m_text = txt;
 	}
 
+	public LinkButton(IUIAction<Void> action) throws Exception {
+		this();
+		m_action = action;
+		actionRefresh();
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		setText(m_text);
+	}
+
+	/**
+	 * EXPERIMENTAL - UNSTABLE INTERFACE - Refresh the button regarding the state of the action.
+	 */
+	private void actionRefresh() throws Exception {
+		final IUIAction< ? > action = getAction();
+		if(null == action)
+			return;
+		String dt = action.getDisableReason(null);
+		if(null == dt) {
+			setTitle(null);						// Remove any title.
+			setDisabled(false);
+		} else {
+			setTitle(dt);						// Shot reason for being disabled
+			setDisabled(true);
+		}
+		setText(action.getName(null));
+		setImage(action.getIcon(null));
+		setClicked(new IClicked<LinkButton>() {
+			@Override
+			public void clicked(LinkButton clickednode) throws Exception {
+				action.execute(LinkButton.this, null);
+			}
+		});
 	}
 
 	public void setImage(final String url) {
@@ -90,11 +130,46 @@ public class LinkButton extends ATag {
 			setBackgroundImage(DomApplication.get().getThemedResourceRURL(m_imageUrl));
 			setCssClass("ui-lnkb ui-lbtn");
 		}
+		if(isDisabled())
+			addCssClass("ui-lnkb-dis");
+		else
+			removeCssClass("ui-lnkb-dis");
 	}
 
 	@Override
-	public void setText(final String txt) {
+	public void setText(final @Nullable String txt) {
 		m_text = txt;
 		super.setText(txt);
+	}
+
+	public IUIAction<Void> getAction() {
+		return m_action;
+	}
+
+	public void setAction(IUIAction<Void> action) throws Exception {
+		if(DomUtil.isEqual(m_action, action))
+			return;
+		m_action = action;
+		actionRefresh();
+	}
+
+	public boolean isDisabled() {
+		return m_disabled;
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		if(m_disabled == disabled)
+			return;
+		m_disabled = disabled;
+		updateStyle();
+		forceRebuild();
+	}
+
+	@Override
+	public void internalOnClicked(ClickInfo cli) throws Exception {
+		if(isDisabled())
+			return;
+		super.internalOnClicked(cli);
 	}
 }

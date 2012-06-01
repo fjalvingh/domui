@@ -26,6 +26,8 @@ package to.etc.domui.component.input;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -123,7 +125,9 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 			if(null != raw) {
 				V res = listToValue(val);
 				if(cmm == null)
-					cmm = MetaManager.findClassMeta(res.getClass());
+					//if we are caching cmm, then at least it should always be for one of compared values,
+					//otherwise we can get situation that we are sending cmm of type that does not have any relation to any of compared values
+					cmm = MetaManager.findClassMeta(raw.getClass());
 				boolean eq = MetaManager.areObjectsEqual(res, raw, cmm);
 				if(eq) {
 					o.setSelected(eq);
@@ -135,6 +139,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 		}
 
 		//-- Decide if an "unselected" option needs to be present, and add it at index 0 if so.
+		setEmptyOption(null);
 		if(!isMandatory() || !isvalidselection) {
 			//-- We need the "unselected" option.
 			SelectOption o = new SelectOption();
@@ -385,7 +390,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
 	@Override
-	public IBinder bind() {
+	public @Nonnull IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
 		return m_binder;
@@ -477,5 +482,13 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 
 	protected void internalSetCurrentValue(V val) {
 		m_currentValue = val;
+	}
+
+	@Override
+	public void setMandatory(boolean mandatory) {
+		if(isMandatory() == mandatory)
+			return;
+		super.setMandatory(mandatory); // Switch flag
+		forceRebuild(); // The "empty option" might have changed
 	}
 }

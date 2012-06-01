@@ -184,6 +184,20 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	 */
 	@Override
 	public void addControl(final String label, final NodeBase labelnode, final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
+		Label l = createLabel(label, labelnode, mandatory, editable, pmm);
+		modalAdd(l, list, editable);
+	}
+
+	/**
+	 * Control label factory method. Method can be used to manually generate labels in same manner as it is done by tabular form builder internally.
+	 * @param label
+	 * @param labelnode
+	 * @param mandatory
+	 * @param editable
+	 * @param pmm
+	 * @return
+	 */
+	public Label createLabel(final String label, final NodeBase labelnode, final boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
 		IControlLabelFactory clf = getControlLabelFactory();
 		if(clf == null) {
 			clf = getBuilder().getControlLabelFactory();
@@ -191,7 +205,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
 		Label l = clf.createControlLabel(labelnode, label, editable, mandatory, pmm);
-		modalAdd(l, list, editable);
+		return l;
 	}
 
 	@Override
@@ -509,7 +523,7 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		tbody(); // Trigger body/table creation
 		int tcellix = m_colCol * 2; // Thje formal table cell index.
 		for(;;) {
-			int rowix = m_columnRowCount[m_colCol]++; // Get && increment current row# in this column.
+			int rowix = m_columnRowCount[m_colCol]; // Get && increment current row# in this column.
 			TR row = selectRow(rowix);
 
 			TD lbltd = selectCell(row, tcellix);
@@ -555,37 +569,6 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		addCells(row(), l, c, editable);
 	}
 
-	//	/**
-	//	 * Sets the control and label into the nodes for a given "column", then advances to the next "row".
-	//	 * @param l
-	//	 * @param c
-	//	 */
-	//	protected void modeAddColumnar(final NodeBase l, final NodeBase[] c, boolean editable) {
-	//		//-- 1. Find the appropriate "row" or make sure it exists.
-	//		TR tr = selectRow(m_colRow);
-	//
-	//		//-- 2. Move to the proper cellpair, or cause them to exist.
-	//		int cindex = 2 * m_colCol;
-	//		TD lcell, ccell;
-	//		while(tr.getChildCount() <= cindex + 1) {
-	//			TD td = new TD();
-	//			td.setCssClass((tr.getChildCount() & 1) == 0 ? "ui-f-lbl" : "ui-f-in");
-	//			tr.add(td);
-	//		}
-	//		lcell = (TD) tr.getChild(cindex);
-	//		ccell = (TD) tr.getChild(cindex + 1);
-	//
-	//		//-- Set the data into the cells but make sure they're empty
-	//		lcell.removeAllChildren();
-	//		ccell.removeAllChildren();
-	//		if(l != null)
-	//			lcell.add(l);
-	//		for(NodeBase nb : c)
-	//			ccell.add(nb);
-	//		ccell.setCssClass(editable ? "ui-f-in" : "ui-f-do");
-	//		m_colRow++;
-	//	}
-
 	/**
 	 * Appends the control to the last cell of the last row used.
 	 * @param l
@@ -611,5 +594,10 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		}
 		for(NodeBase nb : c)
 			td.add(nb);
+	}
+
+	@Override
+	public void onRowAdded(TR row) {
+		m_columnRowCount[m_colCol]++; // increment current row# in this column.
 	}
 }

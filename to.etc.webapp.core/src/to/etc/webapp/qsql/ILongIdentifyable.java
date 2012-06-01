@@ -24,7 +24,20 @@
  */
 package to.etc.webapp.qsql;
 
+import javax.annotation.*;
 
-public interface ILongIdentifyable /* extends IIdentifyable<Long> */{
+import to.etc.webapp.query.*;
+
+/**
+ * DO NOT USE - USE {@code "implements IIdentifyable<Long>" }
+ *
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Apr 24, 2012
+ */
+@Deprecated
+public interface ILongIdentifyable extends IIdentifyable<Long> {
+	@Nullable
+	@Override
 	Long getId();
 }

@@ -24,6 +24,7 @@
  */
 package to.etc.domui.converter;
 
+import to.etc.domui.test.converters.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
@@ -179,19 +180,20 @@ public class MiniScanner {
 	 * Scans the input as a lax euro string and leave the buffer to hold
 	 * a parseable numeric string for one of the to-java-type converters.
 	 */
-	public boolean scanLaxWithCurrencySign(String in) throws ValidationException {
-		return scanLax(in, true);
+	public boolean scanLaxWithCurrencySign(String in, int scale, boolean useStrictScale) throws ValidationException {
+		return scanLax(in, true, scale, useStrictScale);
 	}
 
 	/**
-	 * FIXME THIS IS WRONG - for any real type we cannot distinguish between the use
-	 * of decimal point or comma as either separator or fraction indicator.
-	 * @param in
+	 * Does LAX Scanning on input using numeric (non monetary) values parser.
+	 * @param input
+	 * @param scale
+	 * @param useStrictScale
 	 * @return
 	 * @throws ValidationException
 	 */
-	public boolean scanLaxNumber(String in) throws ValidationException {
-		return scanLax(in, false);
+	public boolean scanLaxNumber(String input, int scale, boolean useStrictScale) throws ValidationException {
+		return scanLax(input, false, scale, useStrictScale);
 	}
 
 	private boolean scanCurrencySign() {
@@ -206,13 +208,22 @@ public class MiniScanner {
 	}
 
 	/**
+	 * EXPERIMENTAL: Tries to fix problems with custom scale.
 	 * Scans the input as a lax euro string and leave the buffer to hold
 	 * a parseable numeric string for one of the to-java-type converters.
+	 * TESTING: method is tested via verbose testing on NumberConverter that uses internaly this method, see {@link TestNumberConverter}.
+	 *
+	 * @param in
+	 * @param monetary
+	 * @param scale	What scale do we use?
+	 * @param useStrictScale If set to T, we expect that in inputs need to be formatted to comply with specified scale.
+	 * @return
+	 * @throws ValidationException
 	 */
-	private boolean scanLax(String in, boolean monetary) throws ValidationException {
+	private boolean scanLax(String in, boolean monetary, int scale, boolean useStrictScale) throws ValidationException {
 		init(in.trim()); // Remove leading and trailing spaces
 		boolean haseur = scanCurrencySign();
-		skipWs();			// And any ws after
+		skipWs(); // And any ws after
 		if(eof()) {
 			if(haseur) // Euro sign without anything around it is error
 				badamount(monetary);
@@ -240,14 +251,14 @@ public class MiniScanner {
 		 * 0123456789012345678
 		 * 1,000,000.55
 		 */
-		int	cix	= 0;				// Relative index in the string, to mark . and , locations.
-		int	dotct	= 0;			// #of . encountered so far.
-		int	commact	= 0;			// #of , encountered so far
+		int cix = 0; // Relative index in the string, to mark . and , locations.
+		int dotct = 0; // #of . encountered so far.
+		int commact = 0; // #of , encountered so far
 		int lastdotix = -1; // Last location of an encountered .
 		int lastcommaix = -1; // Last location of an encountered ,
 		int ndigits = 0;
 
-		while(! eof()) {
+		while(!eof()) {
 			char c = (char) LA(); // Cannot have eof here, so there.
 			if(c == ',') {
 				commact++;
@@ -294,6 +305,9 @@ public class MiniScanner {
 		 */
 		//-- Have we had either comma's or dots? If not we're done and the number is valid in the buffert.
 		if(dotct == 0 && commact == 0) {
+			if(scale > 0 && useStrictScale) {
+				badamount(monetary);
+			}
 			return true;
 		}
 		if(dotct > 1 && commact > 1) // Cannot happen
@@ -313,39 +327,58 @@ public class MiniScanner {
 			lastthoupos = lastcommaix;
 			if(dotct > 0)
 				decimalpos = lastdotix;
-		} else if(dotct == 1 && commact == 0) {
+		} else if((dotct == 1 && commact == 0) || (dotct == 0 && commact == 1)) {
+
 			//-- Only a single dot somewhere. Check it's location to see if it is decimal point or comma,
-			int delta = cix - lastdotix;			// #of chars from END of number
-			if(delta <= 3) {
-				//-- 0=impossible, 1=ending in ., 2=.5, 3=.50 which are valid for decimal point.
-				decimalpos = lastdotix;
-			} else if(delta == 4) {
-				//-- 4= .000 which is proper for thousands separator. Since that is checked by this we leave the lastthoupos unaltered
-				if(ndigits <= 3) // Do not allow .000 but require 1.000
+			int delta = (dotct == 1 ? cix - lastdotix : cix - lastcommaix) - 1; // #of chars after dot or comma
+			int lastDotOrComma = (dotct == 1 ? lastdotix : lastcommaix);
+			if(delta <= 2) {
+				if(useStrictScale && scale != delta) {
 					badamount(monetary);
-			} else
-				badamount(monetary);
-		} else if(dotct == 0 && commact == 1) {
-			//-- Only a single comma somewhere. Check it's location to see if it is decimal point or comma,
-			int delta = cix - lastcommaix; // #of chars from END of number
-			if(delta <= 3) {
-				//-- 0=impossible, 1=ending in ,; 2=,5, 3=,50 which are valid for decimal point.
-				decimalpos = lastcommaix;
-			} else if(delta == 4) {
-				//-- 4= ,000 which is proper for thousands separator. Since that is checked by this we leave the lastthoupos unaltered
-				if(ndigits <= 3) // Do not allow ,000 but require 1,000
+				}
+				//-- 0=ending in ., 1=.5, 2=.50 which are valid for decimal point.
+				decimalpos = lastDotOrComma;
+			} else if(delta == 3) {
+				if(scale == 0) {
+					//-- 3= .000 which is proper for thousands separator. Since that is checked by this we leave the lastthoupos unaltered
+					if(ndigits <= 3) // Do not allow .000 but require 1.000
+						badamount(monetary);
+					lastthoupos = lastDotOrComma;
+				} else if(scale == 3 && useStrictScale) {
+					if(delta < 3) // Do not allow .000 but require 1.000
+						badamount(monetary);
+					decimalpos = lastDotOrComma; //this is actually decimal separator
+				} else if(useStrictScale) {
 					badamount(monetary);
-			} else
+				} else if(scale >= 3) {
+					decimalpos = lastDotOrComma; //this is actually decimal separator
+				}
+			} else if(delta > scale) {
 				badamount(monetary);
+			} else if(delta == scale) {
+				decimalpos = lastDotOrComma;
+			} else if(useStrictScale) {
+				badamount(monetary);
+			} else {
+				decimalpos = lastDotOrComma;
+			}
 		} else {
 			//-- We have one dot and one comma. Which one is which?
-			int cdelta = cix - lastcommaix;
-			int ddelta = cix - lastdotix;
+			int cdelta = cix - lastcommaix - 1;
+			int ddelta = cix - lastdotix - 1;
 
-			if(cdelta <= 3 && lastcommaix - lastdotix == 4) { // comma is decimal point and delta is PROPER thousands separator
-				decimalpos = lastcommaix;
-			} else if(ddelta <= 3 && lastdotix - lastcommaix == 4) { // Dot is decimal point
-				decimalpos = lastdotix;
+			if(lastcommaix - lastdotix == 4) { // comma is decimal point and delta is PROPER thousands separator
+				if(cdelta == scale || (cdelta < scale && !useStrictScale)) {
+					decimalpos = lastcommaix;
+				} else {
+					badamount(monetary);
+				}
+			} else if(lastdotix - lastcommaix == 4) { // Dot is decimal point
+				if(ddelta == scale || (ddelta < scale && !useStrictScale)) {
+					decimalpos = lastdotix;
+				} else {
+					badamount(monetary);
+				}
 			} else
 				badamount(monetary);
 		}
@@ -354,17 +387,22 @@ public class MiniScanner {
 		if(decimalpos == -1) {
 			if(lastthoupos != -1 && (cix - lastthoupos) != 4)
 				badamount(monetary);
+			if(scale > 0 && useStrictScale) {
+				badamount(monetary);
+			}
 		} else {
 			//-- We have a decimal point; check it's location;
-			int ddelta = cix - decimalpos;
-			if(ddelta > 3)
+			int ddelta = cix - decimalpos - 1;
+			if(ddelta > scale)
+				badamount(monetary);
+			if(ddelta < scale && useStrictScale)
 				badamount(monetary);
 			if(lastthoupos != -1 && decimalpos - lastthoupos != 4)
 				badamount(monetary);
 
 			//-- Add decimal point in output buffer @ proper location
-			if(ddelta > 1) {
-				m_buffer.insert(m_buffer.length() - ddelta + 1, '.');
+			if(ddelta > 0) {
+				m_buffer.insert(m_buffer.length() - ddelta, '.');
 			}
 		}
 

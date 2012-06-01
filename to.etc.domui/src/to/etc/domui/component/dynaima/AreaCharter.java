@@ -46,7 +46,7 @@ public class AreaCharter implements ICharterHelper {
 
 	private String m_bucketTitle;
 
-	private int m_width, m_height;
+	private int m_width, m_minheight, m_maxheight;
 
 	private String m_valueTitle;
 
@@ -59,15 +59,15 @@ public class AreaCharter implements ICharterHelper {
 	private LegendProperties m_legendProperties = new LegendProperties();
 
 	// FIXME Cannot create ANY construct here that does NOT cause generic warnings. Good job, Sun.
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	static public class BucketData {
 		private String m_bucketName;
 
-		private Comparable m_bucketValue;
+		private Object m_bucketValue;
 
 		private List<Double> m_values = new ArrayList<Double>();
 
-		protected BucketData(String bucketName, Comparable< ? > bucketValue) {
+		protected BucketData(String bucketName, Object bucketValue) {
 			m_bucketName = bucketName;
 			m_bucketValue = bucketValue;
 		}
@@ -82,7 +82,7 @@ public class AreaCharter implements ICharterHelper {
 			return m_bucketName;
 		}
 
-		public Comparable getBucketValue() {
+		public Object getBucketValue() {
 			return m_bucketValue;
 		}
 
@@ -106,7 +106,7 @@ public class AreaCharter implements ICharterHelper {
 			m_index = index;
 		}
 
-		public void add(String bucketlabel, Comparable< ? > sortvalue, double value) {
+		public <T extends Comparable<T>> void add(String bucketlabel, T sortvalue, double value) {
 			_add(m_index, bucketlabel, sortvalue, value);
 		}
 
@@ -123,11 +123,12 @@ public class AreaCharter implements ICharterHelper {
 
 	private List<DataSet> m_sets = new ArrayList<DataSet>();
 
-	protected AreaCharter(JGraphChartSource source, String title, int width, int height, String bucketTitle, String valueTitle) {
+	protected AreaCharter(JGraphChartSource source, String title, ChartDimensions chartDimensions, String bucketTitle, String valueTitle) {
 		m_source = source;
 		m_title = title;
-		m_width = width;
-		m_height = height;
+		m_width = chartDimensions.getWidth();
+		m_minheight = chartDimensions.getMinheight();
+		m_maxheight = chartDimensions.getMaxheight();
 		m_bucketTitle = bucketTitle;
 		m_valueTitle = valueTitle;
 	}
@@ -138,12 +139,12 @@ public class AreaCharter implements ICharterHelper {
 		return ds;
 	}
 
-	void _add(int index, String bucketlabel, Comparable< ? > sortvalue, double value) {
+	<T extends Comparable<T>> void _add(int index, String bucketlabel, T sortvalue, double value) {
 		BucketData bd = addBucket(bucketlabel, sortvalue); // Add/get bucket.
 		bd.setValue(index, value);
 	}
 
-	public BucketData addBucket(String bucketlabel, Comparable< ? > sortvalue) {
+	public BucketData addBucket(String bucketlabel, Object sortvalue) {
 		BucketData d = m_bucketSet.get(sortvalue);
 		if(d == null) {
 			d = new BucketData(bucketlabel, sortvalue);
@@ -153,11 +154,14 @@ public class AreaCharter implements ICharterHelper {
 	}
 
 	public List<BucketData> getOrderedBuckets() {
-		List<BucketData> res = new ArrayList<BucketData>(m_bucketSet.values());
+		Collection<?> values = m_bucketSet.values();
+		List<BucketData> res = new ArrayList<BucketData>((Collection<BucketData>) values);
 		Collections.sort(res, new Comparator<BucketData>() {
 			@Override
 			public int compare(BucketData o1, BucketData o2) {
-				return o1.getBucketValue().compareTo(o2.getBucketValue());
+				Comparable<Object> a = (Comparable<Object>) o1.getBucketValue();
+				Comparable<Object> b = (Comparable<Object>) o2.getBucketValue();
+				return a.compareTo(b);
 			}
 		});
 		return res;
@@ -196,10 +200,18 @@ public class AreaCharter implements ICharterHelper {
 			paints[i] = m_sets.get(i).getPaint();
 		}
 
+		int legendHeight = (Math.round(legends.length / 2f)) * 20 + 8;
+		int chartHeight = Math.min(m_minheight + legendHeight, m_maxheight);
+
 		AxisChartDataSet ads = new AxisChartDataSet(data, legends, paints, ChartType.AREA, m_areaProperties);
 		ds.addIAxisPlotDataSet(ads);
 
-		AxisChart c = new AxisChart(ds, m_properties, m_axisProperties, m_legendProperties, m_width, m_height);
+		AxisChart c = new AxisChart(ds, m_properties, m_axisProperties, m_legendProperties, m_width, chartHeight);
 		m_source.setChart(c);
+	}
+
+	@Override
+	public void addChartField(ChartField element) {
+		// TODO(nmaksimovic) Integrate with the rest of the charts.
 	}
 }

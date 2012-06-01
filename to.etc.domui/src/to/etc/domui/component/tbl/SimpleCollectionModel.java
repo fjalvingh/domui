@@ -26,6 +26,8 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.util.*;
 
 /**
@@ -77,7 +79,7 @@ public class SimpleCollectionModel<T> extends TableModelBase<T> implements IShel
 
 	//	@SuppressWarnings("unchecked")
 	@Override
-	public List<T> getItems(int start, int end) throws Exception {
+	public @Nonnull List<T> getItems(int start, int end) throws Exception {
 		int size = getRows();
 		if(start < 0)
 			start = 0;

@@ -2,6 +2,8 @@ package to.etc.domui.component.input;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.nls.*;
@@ -93,23 +95,10 @@ public class RadioGroupDiv<T> extends Div implements IControl<T> {
 	/**
 	 * Adds a NodeBase to the group. RadioButtons can *not* be added, these can only be created by the group itself,
 	 * via <code>addLabelAndRadio</code>.
-	 * @see to.etc.domui.dom.html.NodeContainer#add(int, to.etc.domui.dom.html.NodeBase)
-	 */
-	@Override
-	public void add(int index, NodeBase nd) {
-		if(nd instanceof RadioButton< ? >) {
-			throw new IllegalStateException("RadioButtons cannot be added, they will be created by the RadioGroup");
-		}
-		super.add(index, nd);
-	}
-
-	/**
-	 * Adds a NodeBase to the group. RadioButtons can *not* be added, these can only be created by the group itself,
-	 * via <code>addLabelAndRadio</code>.
 	 * @see to.etc.domui.dom.html.NodeContainer#add(to.etc.domui.dom.html.NodeBase)
 	 */
 	@Override
-	public void add(NodeBase nd) {
+	public void add(@Nonnull NodeBase nd) {
 		if(nd instanceof RadioButton< ? >) {
 			throw new IllegalStateException("RadioButtons cannot be added, they will be created by the RadioGroup");
 		}

@@ -2,6 +2,8 @@ package to.etc.domui.component.menu;
 
 import javax.annotation.*;
 
+import to.etc.domui.dom.html.*;
+
 public interface IUIAction<T> {
 	/**
 	 * If this menu item is disabled, return a reason why it is. This will be shown as a hint when
@@ -11,13 +13,13 @@ public interface IUIAction<T> {
 	 * @throws Exception
 	 */
 	@Nullable
-	String getDisableReason(T instance) throws Exception;
+	String getDisableReason(@Nullable T instance) throws Exception;
 
 	@Nonnull
-	String getName(T instance) throws Exception;
+	String getName(@Nullable T instance) throws Exception;
 
 	@Nullable
-	String getIcon(T instance) throws Exception;
+	String getIcon(@Nullable T instance) throws Exception;
 
-	void execute(T instance) throws Exception;
+	void execute(NodeBase component, @Nullable T instance) throws Exception;
 }

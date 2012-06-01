@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 
 /**
  * A thingy which knows how to get a QDataContext to access the database. This
@@ -38,17 +40,20 @@ public interface QDataContextFactory {
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	QDataContext getDataContext() throws Exception;
 
 	/**
 	 * Returns all event listeners that need to be called for queries executed by contexts generated from here.
 	 * @return
 	 */
+	@Nonnull
 	QEventListenerSet		getEventListeners();
 
 	/**
 	 * Returns handlers for all query types.
 	 * @return
 	 */
+	@Nonnull
 	QQueryExecutorRegistry getQueryHandlerList();
 }

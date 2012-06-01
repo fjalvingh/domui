@@ -55,6 +55,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 	 * Loop through all pendingOperations and execute them one by one. Aborts as soon as an operation fails.
 	 * @see java.lang.Runnable#run()
 	 */
+	@Override
 	public void run() {
 		int lsz = m_list.size() + 1;
 		try {
@@ -162,6 +163,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 	/** This is the wrapper for easy output to the logging writer. */
 	private PrintWriter m_errorWriter;
 
+	@Override
 	public void exception(final Throwable t, final String msg) {
 		m_errorWriter.println("[exception] " + msg);
 		t.printStackTrace(m_errorWriter);
@@ -169,6 +171,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 		t.printStackTrace();
 	}
 
+	@Override
 	public void log(final String msg) {
 		m_errorWriter.println("[log] " + msg);
 	}

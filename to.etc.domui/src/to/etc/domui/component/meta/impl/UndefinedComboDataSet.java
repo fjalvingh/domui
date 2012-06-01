@@ -26,6 +26,8 @@ package to.etc.domui.component.meta.impl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -38,7 +40,7 @@ import to.etc.domui.util.*;
  */
 public class UndefinedComboDataSet implements IComboDataSet<Object> {
 	@Override
-	public List<Object> getComboDataSet(UrlPage cc) throws Exception {
+	public @Nonnull List<Object> getComboDataSet(@Nonnull UrlPage cc) throws Exception {
 		throw new IllegalStateException("Do not call me"); // FIXME Implement, please
 	}
 }

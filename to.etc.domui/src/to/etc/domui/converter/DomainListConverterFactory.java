@@ -37,7 +37,8 @@ final public class DomainListConverterFactory implements IConverterFactory {
 	public int accept(final Class< ? > clz, final PropertyMetaModel< ? > pmm) {
 		if(pmm == null)
 			return -1;
-		return pmm.getDomainValues() != null && pmm.getDomainValues().length > 0 ? 10 : -1;
+		Object[] dv = pmm.getDomainValues();
+		return dv != null && dv.length > 0 ? 10 : -1;
 	}
 
 	@Override

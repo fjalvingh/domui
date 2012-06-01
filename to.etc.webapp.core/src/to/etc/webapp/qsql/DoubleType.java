@@ -35,6 +35,7 @@ import to.etc.util.*;
  * Created on 21 Oct 2009
  */
 public class DoubleType implements IJdbcType, IJdbcTypeFactory {
+	@Override
 	public int accept(JdbcPropertyMeta pm) {
 		return pm.getActualClass() == double.class || pm.getActualClass() == Double.class ? 10 : -1;
 	}
@@ -52,6 +53,7 @@ public class DoubleType implements IJdbcType, IJdbcTypeFactory {
 	/**
 	 * @see to.etc.webapp.qsql.IJdbcType#assignParameter(java.sql.PreparedStatement, int, to.etc.webapp.qsql.JdbcPropertyMeta, java.lang.Object)
 	 */
+	@Override
 	public void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta pm, Object value) throws Exception {
 		Double doubleValue;
 		if(value instanceof Double) {
@@ -75,6 +77,7 @@ public class DoubleType implements IJdbcType, IJdbcTypeFactory {
 	/**
 	 * @see to.etc.webapp.qsql.IJdbcType#convertToInstance(java.sql.ResultSet, int, to.etc.webapp.qsql.JdbcPropertyMeta)
 	 */
+	@Override
 	public Object convertToInstance(ResultSet rs, int index) throws Exception {
 		double val = rs.getDouble(index);
 		if(rs.wasNull())

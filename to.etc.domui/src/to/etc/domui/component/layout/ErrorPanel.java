@@ -44,6 +44,8 @@ import to.etc.domui.util.*;
 public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener {
 	private IErrorFence m_errorFence;
 
+	private MsgType m_highestType;
+
 	/**
 	 * Create a default error panel.
 	 */
@@ -93,6 +95,31 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 		if(m.getErrorNode() != null) {
 			m.getErrorNode().addCssClass("ui-input-err");
 		}
+		if(m_highestType == null || m.getType().getOrder() > m_highestType.getOrder()) {
+			//-- Update title.
+			m_highestType = m.getType();
+			updateRepresentation();
+		}
+	}
+
+	private void updateRepresentation() {
+		if(m_highestType == null)
+			return;
+		switch(m_highestType){
+			default:
+				throw new IllegalStateException(m_highestType + " - ?");
+			case INFO:
+				setTitle(Msgs.BUNDLE.getString(Msgs.UI_INFO_HEADER));
+				break;
+
+			case WARNING:
+				setTitle(Msgs.BUNDLE.getString(Msgs.UI_WARNING_HEADER));
+				break;
+
+			case ERROR:
+				setTitle(Msgs.BUNDLE.getString(Msgs.UI_ERROR_HEADER));
+				break;
+		}
 	}
 
 	/**
@@ -101,6 +128,7 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 	 */
 	@Override
 	public void errorMessageRemoved(Page pg, UIMessage m) {
+		MsgType highest = null;
 		for(NodeBase b : getContent()) {
 			if(b.getUserObject() == m) {
 				//-- Remove this object!
@@ -110,8 +138,21 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 				if(m.getErrorNode() != null) {
 					m.getErrorNode().removeCssClass("ui-input-err");
 				}
-				return;
+			} else {
+				if(b.getUserObject() instanceof UIMessage) {
+					UIMessage uim = (UIMessage) b.getUserObject();
+					if(uim == null)
+						throw new IllegalStateException("No user message found in userObject");
+					if(highest == null)
+						highest = uim.getType();
+					else if(uim.getType().getOrder() > highest.getOrder())
+						highest = uim.getType();
+				}
 			}
+		}
+		if(m_highestType != highest) {
+			m_highestType = highest;
+			updateRepresentation();
 		}
 	}
 }

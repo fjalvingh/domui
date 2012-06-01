@@ -27,6 +27,8 @@ package to.etc.domui.component.lookup;
 import java.math.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -46,7 +48,7 @@ import to.etc.webapp.query.*;
  */
 final class LookupFactoryNumber implements ILookupControlFactory {
 	@Override
-	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IInputNode<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		if(control != null)
 			throw new IllegalStateException();
 
@@ -64,7 +66,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 
 		relationCombo.setOnValueChanged(new IValueChanged<ComboFixed<NumericRelationType>>() {
 			@Override
-			public void onValueChanged(ComboFixed<NumericRelationType> component) throws Exception {
+			public void onValueChanged(@Nonnull ComboFixed<NumericRelationType> component) throws Exception {
 				if(component.getValue() == NumericRelationType.BETWEEN) {
 					if(numB.getDisplay() == DisplayType.NONE) {
 						numB.setDisplay(DisplayType.INLINE);
@@ -106,6 +108,8 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 					return AppendCriteriaResult.INVALID;
 				}
 				switch(relation){
+					default:
+						throw new IllegalStateException(relation + ": unhandled case");
 					case EQ:
 						crit.eq(spm.getPropertyName(), numA.getValue());
 						break;
@@ -175,12 +179,13 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 	}
 
 	@Override
-	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IInputNode<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		if(control != null)
 			return -1;
 		PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		if(DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class) {
-			if(pmm.getComponentTypeHint() != null && pmm.getComponentTypeHint().toLowerCase().contains("numberlookupcombo"))
+			String cth = pmm.getComponentTypeHint();
+			if(cth != null && cth.toLowerCase().contains("numberlookupcombo"))
 				return 8;
 			return 2;
 		}

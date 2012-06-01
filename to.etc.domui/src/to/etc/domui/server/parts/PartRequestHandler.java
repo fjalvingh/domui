@@ -27,45 +27,26 @@ package to.etc.domui.server.parts;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.LRUHashMap;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 
 public class PartRequestHandler implements IFilterRequestHandler {
+	@Nonnull
 	private final DomApplication m_application;
 
 	private final boolean m_allowExpires;
 
-	private List<IUrlPart> m_urlFactories = new ArrayList<IUrlPart>();
+	@Nonnull
+	private final LRUHashMap<Object, CachedPart> m_cache;
 
-	/**
-	 * Contains a cached instance of some part rendering.
-	 *
-	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
-	 * Created on Jun 4, 2008
-	 */
-	static private class CachedPart {
-		public byte[][] m_data;
-
-		public int m_size;
-
-		public ResourceDependencies m_dependencies;
-
-		public String m_contentType;
-
-		//		public String		m_key;
-
-		/** The time a response may be cached locally, in seconds */
-		public int m_cacheTime;
-
-		CachedPart() {}
-	}
-
-
-	public PartRequestHandler(final DomApplication application) {
+	public PartRequestHandler(@Nonnull final DomApplication application) {
 		m_application = application;
 
 		LRUHashMap.SizeCalculator<CachedPart> sc = new LRUHashMap.SizeCalculator<CachedPart>() {
@@ -80,14 +61,25 @@ public class PartRequestHandler implements IFilterRequestHandler {
 		m_allowExpires = DeveloperOptions.getBool("domui.expires", true);
 	}
 
-	DomApplication getApplication() {
-		return m_application;
+	/**
+	 * Accept urls that end in .part or that have a first segment containing .part. The part before the ".part" must be a
+	 * valid class name containing an {@link IPartFactory}.
+	 * @see to.etc.domui.server.IFilterRequestHandler#accepts(to.etc.domui.server.IRequestContext)
+	 */
+	@Override
+	public boolean accepts(@Nonnull IRequestContext ri) throws Exception {
+		String in = ri.getInputPath();
+		if(in.endsWith(".part"))
+			return true;
+		int pos = in.indexOf('/'); // First component
+		if(pos < 0)
+			return false;
+		String seg = in.substring(0, pos);
+		return seg.endsWith(".part");
 	}
 
-	public void registerUrlPart(IUrlPart p) {
-		synchronized(m_urlFactories) {
-			m_urlFactories.add(p);
-		}
+	DomApplication getApplication() {
+		return m_application;
 	}
 
 	//	static private void dumpHeaders(RequestContextImpl ctx) {
@@ -97,34 +89,13 @@ public class PartRequestHandler implements IFilterRequestHandler {
 	//		}
 	//	}
 
-	public boolean acceptURL(final String in) {
-		if(in.endsWith(".part"))
-			return true;
-		int pos = in.indexOf('/'); // First component
-		if(pos < 0)
-			return false;
-		String seg = in.substring(0, pos);
-		if(seg.endsWith(".part"))
-			return true;
-
-		// FIXME Needs to be faster, needs to be done only once.
-		if(null != findFactory(in))
-			return true;
-		return false;
-	}
-
-	private IUrlPart findFactory(String rurl) {
-		synchronized(m_urlFactories) {
-			for(IUrlPart p : m_urlFactories) {
-				if(p.accepts(rurl))
-					return p;
-			}
-		}
-		return null;
-	}
-
+	/**
+	 * Entrypoint for when the class name is inside the URL (direct entry).
+	 *
+	 * @see to.etc.domui.server.IFilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
+	 */
 	@Override
-	public void handleRequest(final RequestContextImpl ctx) throws Exception {
+	public void handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
 		String input = ctx.getInputPath();
 		//		dumpHeaders(ctx);
 		boolean part = false;
@@ -146,22 +117,23 @@ public class PartRequestHandler implements IFilterRequestHandler {
 			part = true;
 		}
 
-		IPartRenderer pr;
-		if(part) {
-			//-- Obtain the factory class, then ask it to execute.
-			pr = findPartRenderer(fname);
-		} else {
-			//-- FIXME Do this faster.
-			rest = input;
-			IUrlPart p = findFactory(input);
-			if(p == null)
-				throw new IllegalStateException("No factory for " + ctx + " but we have accepted!?");
-			pr = createPartRenderer(p);
-		}
+		if(!part)
+			throw new ThingyNotFoundException("Not a part: " + input);
+
+		IPartRenderer pr = findPartRenderer(fname);
 		if(pr == null)
 			throw new ThingyNotFoundException("The part factory '" + fname + "' cannot be located.");
 		pr.render(ctx, rest);
 	}
+
+	public void renderUrlPart(IUrlPart part, RequestContextImpl ctx) throws Exception {
+		IPartRenderer pr = createPartRenderer(part);
+		if(pr == null)
+			throw new ThingyNotFoundException("No renderer for " + part);
+		String input = ctx.getInputPath();
+		pr.render(ctx, input);
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Part renderer factories.							*/
@@ -240,8 +212,6 @@ public class PartRequestHandler implements IFilterRequestHandler {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Buffered parts cache and code.						*/
 	/*--------------------------------------------------------------*/
-	private final LRUHashMap<Object, CachedPart> m_cache;
-
 	/**
 	 * Helper which handles possible cached buffered parts.
 	 * @param pf
@@ -250,11 +220,37 @@ public class PartRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	public void generate(final IBufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
+		CachedPart cp = getCachedInstance(pf, ctx, url);
+
+		//-- Generate the part
+		OutputStream os = null;
+		if(cp.m_cacheTime > 0 && m_allowExpires) {
+			ServerTools.generateExpiryHeader(ctx.getResponse(), cp.getCacheTime()); // Allow browser-local caching.
+		}
+		ctx.getResponse().setContentType(cp.getContentType());
+		ctx.getResponse().setContentLength(cp.getSize());
+
+		try {
+			os = ctx.getResponse().getOutputStream();
+			for(byte[] data : cp.getData())
+				os.write(data);
+		} finally {
+			try {
+				if(os != null)
+					os.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	public CachedPart getCachedInstance(final IBufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
 		//-- Convert the data to a key object, then lookup;
 		Object key = pf.decodeKey(url, ctx);
 		if(key == null)
 			throw new ThingyNotFoundException("Cannot get resource for " + pf + " with rurl=" + url);
+		return getCachedInstance(pf, key);
+	}
 
+	public CachedPart getCachedInstance(final IBufferedPartFactory pf, Object key) throws Exception {
 		/*
 		 * Lookup. This part *is* thread-safe but it has a race condition: it may cause multiple
 		 * instances of the SAME resource to be generated at the same time and inserted at the
@@ -281,44 +277,22 @@ public class PartRequestHandler implements IFilterRequestHandler {
 				}
 			}
 		}
+		if(cp != null)
+			return cp;
 
-		if(cp == null) {
-			//-- We're going to create the part
-			cp = new CachedPart(); // New one to be done,
-			ResourceDependencyList rdl = new ResourceDependencyList(); // Fix bug# 852: allow resource change checking in production also.
-			ByteBufferOutputStream os = new ByteBufferOutputStream();
-			PartResponse pr = new PartResponse(os);
-			pf.generate(pr, m_application, key, rdl);
-			cp.m_contentType = pr.getMime();
-			if(cp.m_contentType == null)
-				throw new IllegalStateException("The part " + pf + " did not set a MIME type, rurl=" + url);
-			os.close();
-			cp.m_size = os.getSize();
-			cp.m_data = os.getBuffers();
-			cp.m_dependencies = rdl.createDependencies();
-			cp.m_cacheTime = pr.getCacheTime();
-			synchronized(m_cache) {
-				m_cache.put(key, cp); // Store (may be done multiple times due to race condition)
-			}
+		//-- We're going to (re)create the part
+		ResourceDependencyList rdl = new ResourceDependencyList(); // Fix bug# 852: allow resource change checking in production also.
+		ByteBufferOutputStream os = new ByteBufferOutputStream();
+		PartResponse pr = new PartResponse(os);
+		pf.generate(pr, m_application, key, rdl);
+		String mime = pr.getMime();
+		if(mime == null)
+			throw new IllegalStateException("The part " + pf + " did not set a MIME type, key=" + key);
+		os.close();
+		cp = new CachedPart(os.getBuffers(), os.getSize(), pr.getCacheTime(), mime, rdl.createDependencies(), pr.getExtra());
+		synchronized(m_cache) {
+			m_cache.put(key, cp); // Store (may be done multiple times due to race condition)
 		}
-
-		//-- Generate the part
-		OutputStream os = null;
-		if(cp.m_cacheTime > 0 && m_allowExpires) {
-			ServerTools.generateExpiryHeader(ctx.getResponse(), cp.m_cacheTime); // Allow browser-local caching.
-		}
-		ctx.getResponse().setContentType(cp.m_contentType);
-		ctx.getResponse().setContentLength(cp.m_size);
-
-		try {
-			os = ctx.getResponse().getOutputStream();
-			for(byte[] data : cp.m_data)
-				os.write(data);
-		} finally {
-			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) {}
-		}
+		return cp;
 	}
 }

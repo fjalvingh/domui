@@ -59,6 +59,8 @@ public interface INodeVisitor {
 
 	public void visitTH(TH n) throws Exception;
 
+	void visitPre(Pre n) throws Exception;
+
 	public void visitImg(Img n) throws Exception;
 
 	public void visitCheckbox(Checkbox n) throws Exception;
@@ -87,4 +89,6 @@ public interface INodeVisitor {
 	public void visitH(HTag n) throws Exception;
 
 	public void visitXmlNode(XmlTextNode n) throws Exception;
+
+	public void visitIFrame(IFrame n) throws Exception;
 }

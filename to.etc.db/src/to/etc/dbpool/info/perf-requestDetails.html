@@ -1,0 +1,46 @@
+<table width="100%" border="0" class="tbl statptbl">
+	<thead class="statpheader">
+		<tr>
+			<td colspan="2">&nbsp;</td>
+			<td colspan="1">Prepares</td>
+			<td colspan="4">Execute: query</td>
+			<td colspan="3">Execute: update</td>
+		</tr>		
+		<tr>
+			<td>Duration</td>
+			<td>#conns</td>
+
+			<!-- Prepares -->
+			<td>#prepares/dur</td>
+			
+			<!-- Executions -->
+			<td>#prepQueries/dur</td>
+			<td>#queryStmt/dur</td>
+			<td>#exec/dur</td>
+			<td>#selrows/dur</td>
+
+			<td>#prepUpdates/dur</td>
+			<td>#updateStmt/dur</td>
+			<td>#updrows</td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><%= DbPoolUtil.strNanoTime(v.getDuration())%></td>
+			<td><%= DbPoolUtil.strCommad(v.getNConnectionAllocations()) %></td>
+			
+			<!-- Prepares -->
+			<td><%= DbPoolUtil.strCountDur(v.getNPrepares(), v.getPrepareDuration()) %></td>
+
+			<!-- Executions -->
+			<td><%= DbPoolUtil.strCountDur(v.getNPreparedQueries(), v.getPreparedQueryDuration()) %></td>
+			<td><%= DbPoolUtil.strCountDur(v.getNStatementQueries(), v.getStatementQueryDuration()) %></td>
+			<td><%= DbPoolUtil.strCountDur(v.getNExecutes(), v.getExecuteDuration()) %></td>
+			<td><%= DbPoolUtil.strCountDur(v.getNRows(), v.getTotalFetchDuration()) %></td>
+
+			<td><%= DbPoolUtil.strCountDur(v.getNPreparedUpdates(), v.getPreparedUpdateDuration()) %></td>
+			<td><%= DbPoolUtil.strCountDur(v.getNStatementUpdates(), v.getStatementUpdateDuration()) %></td>
+			<td><%= DbPoolUtil.strCommad(v.getNUpdatedRows()) %></td>
+		</tr>
+	</tbody>
+</table>

@@ -279,9 +279,13 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			o().writeRaw("<!--\n");
 
 		genVar("DomUIpageTag", Integer.toString(page.getPageTag()));
-		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(DomApplication.get().getThemedResourceRURL("ICON/progressbar.gif")), true));
+		String pb = DomApplication.get().getThemedResourceRURL("ICON/progressbar.gif");
+		if(null == pb)
+			throw new IllegalStateException("Required resource missing");
+		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(pb), true));
 		genVar("DomUICID", StringTool.strToJavascriptString(page.getConversation().getFullId(), true));
 		genVar("DomUIDevel", ctx.getApplication().inDevelopmentMode() ? "true" : "false");
+		genVar("DomUIappURL", StringTool.strToJavascriptString(ctx.getRelativePath(""), true));
 
 		if(!isXml())
 			o().writeRaw("\n-->");
@@ -337,6 +341,11 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		//-- If asynchronous actions are pending call WebUI.startPolling();
 		if(page.getConversation().hasDelayedActions())
 			o().writeRaw("WebUI.startPolling();");
+
+		int kit = ctx().getApplication().getKeepAliveInterval();
+		if(kit > 0) {
+			o().writeRaw("WebUI.startPingServer(" + kit + ");");
+		}
 
 		o().text("});");
 		o().closetag("script");

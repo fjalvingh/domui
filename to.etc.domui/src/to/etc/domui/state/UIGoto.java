@@ -235,7 +235,7 @@ final public class UIGoto {
 	 * @param msg
 	 */
 	static public final void clearPageAndReload(Page pg, Class< ? extends UrlPage> target, PageParameters pp, String msg) {
-		clearPageAndReload(pg, UIMessage.error(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, msg), pp);
+		clearPageAndReload(pg, UIMessage.info(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, msg), pp);
 	}
 
 	/**
@@ -262,7 +262,7 @@ final public class UIGoto {
 		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
 		msgl.add(msg);
 		ws.setAttribute(UIGoto.SINGLESHOT_MESSAGE, msgl);
-		pg.getConversation().destroy();
-		replace(pg.getBody().getClass(), pp);
+		pg.getConversation().destroy();								// jal 2012-05-24 Rob noticed that destroying the conversation removes page from shelve, so we need to ADD, not replace the page.
+		moveSub(pg.getBody().getClass(), pp);
 	}
 }

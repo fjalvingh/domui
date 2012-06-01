@@ -52,7 +52,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	private String m_classNameOnly;
 
 	/** Theclass' resource bundle. */
-	private BundleRef m_classBundle;
+	@Nonnull
+	final private BundleRef m_classBundle;
+
+	/** An immutable list of all properties of this class. This list differs from m_propertyMap: the map contains all calculated properties too. */
+	private List<PropertyMetaModel< ? >> m_rootProperties;
 
 	private final Map<String, PropertyMetaModel< ? >> m_propertyMap = new HashMap<String, PropertyMetaModel< ? >>();
 
@@ -73,6 +77,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	private boolean m_persistentClass;
 
 	private String m_tableName;
+
+	@Nullable
+	private IQueryManipulator< ? > m_queryManipulator;
+
+	@Nullable
+	private String m_comboSortProperty;
 
 	/**
 	 * When this relation-property is presented as a single field this can contain a class to render
@@ -123,6 +133,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_classBundle = BundleRef.create(metaClass, m_classNameOnly);
 	}
 
+	synchronized void setClassProperties(List<PropertyMetaModel< ? >> reslist) {
+		m_rootProperties = Collections.unmodifiableList(reslist);
+		for(PropertyMetaModel< ? > pmm : reslist) {
+			m_propertyMap.put(pmm.getName(), pmm);
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Resource bundle data.								*/
@@ -167,14 +183,13 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	/**
-	 * Return a user-presentable entity name for this class. This defaults to the classname itself if unset.
+	 * Return a user-presentable entity name for this class. Returns null if not set.
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityName()
 	 */
 	@Override
-	@Nonnull
+	@Nullable
 	public String getUserEntityName() {
-		String s = getClassBundle().findMessage(NlsContext.getLocale(), "entity.name");
-		return s == null ? getClassNameOnly() : s;
+		return getClassBundle().findMessage(NlsContext.getLocale(), "entity.name");
 	}
 
 	/**
@@ -182,10 +197,9 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getUserEntityNamePlural()
 	 */
 	@Override
-	@Nonnull
+	@Nullable
 	public String getUserEntityNamePlural() {
-		String s = getClassBundle().findMessage(NlsContext.getLocale(), "entity.pluralname");
-		return s == null ? getClassNameOnly() : s;
+		return getClassBundle().findMessage(NlsContext.getLocale(), "entity.pluralname");
 	}
 
 	/**
@@ -195,7 +209,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 */
 	@Override
 	@Nullable
-	public synchronized PropertyMetaModel< ? > findProperty(final String name) {
+	public synchronized PropertyMetaModel< ? > findProperty(@Nonnull final String name) {
 		PropertyMetaModel< ? > pmm = m_propertyMap.get(name);
 		if(pmm != null)
 			return pmm;
@@ -206,19 +220,24 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	@Nullable
-	public synchronized PropertyMetaModel< ? > findSimpleProperty(final String name) {
-		return m_propertyMap.get(name);
+	@Nonnull
+	public PropertyMetaModel< ? > getProperty(@Nonnull String name) {
+		PropertyMetaModel< ? > pmm = findProperty(name);
+		if(null == pmm)
+			throw new IllegalStateException("The property '" + name + "' is not known in the meta model for " + this);
+		return pmm;
 	}
 
-	synchronized void addProperty(@Nonnull PropertyMetaModel< ? > pmm) {
-		m_propertyMap.put(pmm.getName(), pmm);
+	@Override
+	@Nullable
+	public synchronized PropertyMetaModel< ? > findSimpleProperty(@Nonnull final String name) {
+		return m_propertyMap.get(name);
 	}
 
 	@Override
 	@Nonnull
 	public List<PropertyMetaModel< ? >> getProperties() {
-		return new ArrayList<PropertyMetaModel< ? >>(m_propertyMap.values());
+		return m_rootProperties;
 	}
 
 	@Override
@@ -241,7 +260,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
+	public @Nonnull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_comboDisplayProperties;
 	}
 
@@ -287,12 +306,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public Class< ? > getActualClass() {
+	public @Nonnull Class< ? > getActualClass() {
 		return m_metaClass;
 	}
 
 	@Override
-	public synchronized List<DisplayPropertyMetaModel> getTableDisplayProperties() {
+	public synchronized @Nonnull List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		if(m_tableDisplayProperties == null || m_tableDisplayProperties.size() == 0) {
 			m_tableDisplayProperties = MetaManager.calculateObjectProperties(this);
 		}
@@ -322,7 +341,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public SortableType getDefaultSortDirection() {
+	public @Nonnull SortableType getDefaultSortDirection() {
 		return m_defaultSortDirection;
 	}
 
@@ -346,7 +365,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+	public @Nonnull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
 
@@ -444,8 +463,29 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	public QCriteria< ? > createCriteria() throws Exception {
 		if(!isPersistentClass())
 			throw new IllegalStateException("This ClassMetaModel (" + this + ") is not persistent.");
-		if(getMetaTableDef() != null)
-			return QCriteria.create(getMetaTableDef());
+		ICriteriaTableDef< ? > tdef = getMetaTableDef();
+		if(tdef != null)
+			return QCriteria.create(tdef);
 		return QCriteria.create(getActualClass());
 	}
+
+	@Override
+	public IQueryManipulator< ? > getQueryManipulator() {
+		return m_queryManipulator;
+	}
+
+	public void setQueryManipulator(IQueryManipulator< ? > queryManipulator) {
+		m_queryManipulator = queryManipulator;
+	}
+
+	@Override
+	public String getComboSortProperty() {
+		return m_comboSortProperty;
+	}
+
+	public void setComboSortProperty(String comboSortProperty) {
+		m_comboSortProperty = comboSortProperty;
+	}
+
+
 }

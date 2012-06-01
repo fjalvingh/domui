@@ -16,5 +16,6 @@ dpr_dis_prev="THEME/dpr-prev-dis.png.svg?w=20&h=20";
 dpr_dis_first="THEME/dpr-first-dis.png.svg?w=20&h=20";
 dpr_dis_last="THEME/dpr-last-dis.png.svg?w=20&h=20";
 
+defaultbutton_height=22;
 
 

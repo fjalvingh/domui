@@ -28,6 +28,7 @@ import java.math.*;
 import java.text.*;
 import java.util.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
@@ -97,21 +98,6 @@ public class MoneyUtil {
 
 	/**
 	 * Deprecated - do not use double for monetary amounts -
-	 * Parse into a double; return 0.0d for empty input.
-	 * FIXME Localization failure!
-	 * @param input
-	 * @return
-	 */
-	@Deprecated
-	static public double parseEuroToDouble(String input) {
-		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxWithCurrencySign(input)) // Empty input returned as 0.0d
-			return 0.0d;
-		return Double.parseDouble(ms.getStringResult());
-	}
-
-	/**
-	 * Deprecated - do not use double for monetary amounts -
 	 * Parse into a double; return null for empty input.
 	 * FIXME Localization failure!
 	 *
@@ -120,8 +106,23 @@ public class MoneyUtil {
 	 */
 	@Deprecated
 	static public Double parseEuroToDoubleW(String input) {
+		return parseEuroToDoubleW(input, getMoneyScale(), false);
+	}
+
+	/**
+	 * Deprecated - do not use double for monetary amounts -
+	 * Parse into a double; return null for empty input.
+	 * FIXME Localization failure!
+	 *
+	 * @param input
+	 * @param scale in use
+	 * @param useStrictScale in case of T, if input does not have strict number (defined by scale) of decimal digits after decimal point, it would be rejected as invalid value.
+	 * @return
+	 */
+	@Deprecated
+	static public Double parseEuroToDoubleW(String input, int scale, boolean useStrictScale) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxWithCurrencySign(input)) // Empty input returned as 0.0d
+		if(!ms.scanLaxWithCurrencySign(input, scale, useStrictScale))
 			return null;
 		return Double.valueOf(ms.getStringResult());
 	}
@@ -132,8 +133,19 @@ public class MoneyUtil {
 	 * @return
 	 */
 	static public BigDecimal parseEuroToBigDecimal(String input) {
+		return parseEuroToBigDecimal(input, getMoneyScale(), false);
+	}
+
+	/**
+	 * Parse into a BigDecimal, return null for empty input.
+	 * @param input
+	 * @param scale
+	 * @param useStrictScale in case of T, if input does not have strict number (defined by scale) of decimal digits after decimal point, it would be rejected as invalid value.
+	 * @return
+	 */
+	static public BigDecimal parseEuroToBigDecimal(String input, int scale, boolean useStrictScale) {
 		MiniScanner ms = MiniScanner.getInstance();
-		if(!ms.scanLaxWithCurrencySign(input)) // Empty input returned as 0.0d
+		if(!ms.scanLaxWithCurrencySign(input, scale, useStrictScale)) // Empty input returned as 0.0d
 			return null;
 		return new BigDecimal(ms.getStringResult());
 	}
@@ -303,6 +315,26 @@ public class MoneyUtil {
 	 */
 	public static boolean areValuesEqual(double value1, double value2) {
 		return (roundValue(value1) == roundValue(value2));
+	}
+
+	@SuppressWarnings({"unchecked"})
+	static public <T> void assignMonetaryConverter(final PropertyMetaModel<T> pmm, boolean editable, final IConvertable<T> node) {
+		if(pmm.getConverter() != null)
+			node.setConverter(pmm.getConverter());
+		else {
+			NumericPresentation np = null;
+			if(!editable)
+				np = pmm.getNumericPresentation();
+			if(np == null)
+				np = NumericPresentation.MONEY_NUMERIC;
+
+			if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
+				node.setConverter((IConverter<T>) MoneyConverterFactory.createDoubleMoneyConverters(np));
+			} else if(pmm.getActualType() == BigDecimal.class) {
+				node.setConverter((IConverter<T>) MoneyConverterFactory.createBigDecimalMoneyConverters(np));
+			} else
+				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " for monetary types");
+		}
 	}
 
 }
