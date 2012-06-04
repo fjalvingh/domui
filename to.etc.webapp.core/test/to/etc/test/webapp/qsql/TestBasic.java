@@ -41,7 +41,7 @@ public class TestBasic {
 
 	static private QDataContext m_dc;
 
-	@BeforeClass
+//	@BeforeClass
 	static public void setUp() throws Exception {
 		m_ds = TUtilTestProperties.getRawDataSource();
 		Connection dbc = m_ds.getConnection();
@@ -103,7 +103,7 @@ public class TestBasic {
 		Assert.assertEquals(2, gc.getValList().size());
 	}
 
-	@Test
+//	@Test
 	public void testExec1() throws Exception {
 		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class);
 		List<LedgerAccount> res = exec(qc);

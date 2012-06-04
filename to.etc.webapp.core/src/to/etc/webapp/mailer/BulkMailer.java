@@ -278,7 +278,7 @@ public class BulkMailer {
 				return;
 			}
 			LOG.info("Scanning for email to send");
-			System.out.println("Scanning for email to send");
+//			System.out.println("Scanning for email to send");
 
 
 			//-- Ok: we own the lock.
@@ -335,7 +335,7 @@ public class BulkMailer {
 
 				Address a = name != null ? new Address(email, name) : new Address(email);
 
-				System.out.println(">trying " + a + ": " + subject + ", " + (lastbody != null ? lastbody.length + " bytes" : ""));
+//				System.out.println(">trying " + a + ": " + subject + ", " + (lastbody != null ? lastbody.length + " bytes" : ""));
 				String error = sendMessage(froma, a, subject, lastbody);
 
 				if(null == error) {
@@ -414,12 +414,14 @@ public class BulkMailer {
 			ps.setTimestamp(1, new Timestamp(System.currentTimeMillis() - DAY * 2));
 			ps.setTimestamp(2, new Timestamp(System.currentTimeMillis() - DAY * 7));
 			int rc = ps.executeUpdate();
-			System.out.println("bulkMail: deleted " + rc + " outdated recipients");
+			if(rc > 0)
+				System.out.println("bulkMail: deleted " + rc + " outdated recipients");
 			if(rc != 0) {
 				ps.close();
 				ps = dbc.prepareStatement("delete from sys_mail_messages m where not exists (select 1 from sys_mail_recipients r where r.smm_id=m.smm_id)");
 				rc = ps.executeUpdate();
-				System.out.println("bulkMail: deleted " + rc + " outdated message bodies");
+				if(rc > 0)
+					System.out.println("bulkMail: deleted " + rc + " outdated message bodies");
 			}
 		} catch(Exception x) {
 			System.out.println("bulkMail: cannot cleanup recipients: " + x);

@@ -262,7 +262,11 @@ final public class UIGoto {
 		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
 		msgl.add(msg);
 		ws.setAttribute(UIGoto.SINGLESHOT_MESSAGE, msgl);
-		pg.getConversation().destroy();
-		replace(pg.getBody().getClass(), pp);
+
+		/*
+		 * jal 20120604 Do NOT add "destroyConversation" here- replacing the page will properly destroy the context. Destroying
+		 * it twice will cause the history stack to become corrupt as two pages will be deleted.
+		 */
+		replace(pg.getBody().getClass(), pp);						// Destroy the current page, and replace with a new one. This will also destroy
 	}
 }
