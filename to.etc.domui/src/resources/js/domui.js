@@ -1228,12 +1228,13 @@ var WebUI = {
 	 * Returns T if the string has separator chars (anything else than letters and/or digits).
 	 */
 	hasSeparators: function(str) {
+		var count = 0; 
 		for(var i = str.length; --i >= 0;) {
 			var c= str.charAt(i);
 			if(!( ( c >= 'A' && c <= 'Z') || (c >='a' && c <= 'z') || (c >= '0' && c <= '9')))
-				return true;
+				count++;
 		}
-		return false;
+		return count >=2;
 	},
 
 	insertDateSeparators: function(str, fmt) {
@@ -1244,13 +1245,18 @@ var WebUI = {
 			ylen = 4;
 		else if(len == 6)
 			ylen = 2;
+		else if(len == 4 || len == 5)
+			ylen = 0;
 		else
 			throw "date invalid";
-
+		// dd-mm dd/mm case - ignore existing separator
+		if (len == 5) {
+			str = str.substring(0, 2) + str.substring(3);
+		}
 		//-- Edit the string according to the pattern,
 		var res = "";
 		for(var fix= 0; fix < b.length; fix++) {
-			if(res.length != 0)
+			if(res.length != 0 && str.length != 0)
 				res = res + '-';				// Just a random separator.
 			switch(b[fix]) {
 				default:
@@ -1262,7 +1268,6 @@ var WebUI = {
 		    		res += str.substring(0, 2);
 		    		str = str.substring(2);
 		    		break;
-
 			    case '%y': case '%Y':
 			    	//-- 2- or 4 digit year,
 		    		res += str.substring(0, ylen);
