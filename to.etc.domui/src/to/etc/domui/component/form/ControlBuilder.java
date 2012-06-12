@@ -93,7 +93,7 @@ public class ControlBuilder {
 		ControlFactory best = null;
 		int score = 0;
 		for(ControlFactory cf : getControlFactoryList()) {
-			int v = cf.accepts(pmm, editable, controlClass, context);
+			int v = cf.accepts(pmm, editable, controlClass);
 			if(v > score) {
 				score = v;
 				best = cf;
@@ -213,7 +213,7 @@ public class ControlBuilder {
 	 */
 	public ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel< ? > pmm, final boolean editable, Object context) {
 		ControlFactory cf = getControlFactory(pmm, editable, null, context);
-		return cf.createControl(model, pmm, editable, null, context);
+		return cf.createControl(model, pmm, editable, null);
 	}
 
 	/**
@@ -251,7 +251,7 @@ public class ControlBuilder {
 		if(controlClass == null)
 			throw new IllegalArgumentException("controlClass cannot be null");
 		ControlFactory cf = getControlFactory(pmm, editable, null, context);
-		ControlFactoryResult r = cf.createControl(DUMMY_MODEL, pmm, editable, controlClass, context);	// FIXME Bad, bad bug: I should be able to create a control without binding!!
+		ControlFactoryResult r = cf.createControl(DUMMY_MODEL, pmm, editable, controlClass);	// FIXME Bad, bad bug: I should be able to create a control without binding!!
 
 		//-- This must have generated a single control of the specified type, so check...
 		if(r.getNodeList().length != 1)
