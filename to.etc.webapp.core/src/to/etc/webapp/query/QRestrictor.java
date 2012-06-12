@@ -109,7 +109,6 @@ abstract public class QRestrictor<T> {
 	 * Add a new restriction to the list of restrictions on the data. This will do "and" collapsion: when the node added is an "and"
 	 * it's nodes will be added directly to the list (because that already represents an and combinatory).
 	 * @param r
-	 * @return
 	 */
 	protected void internalAdd(@Nonnull QOperatorNode r) {
 		if(getRestrictions() == null) {
@@ -118,7 +117,7 @@ abstract public class QRestrictor<T> {
 			//-- Already the proper combinator - add the node to it.
 			((QMultiNode) getRestrictions()).add(r);
 		} else {
-			//-- We need to replace the current restriction with a higher combinatory node and add the items there.
+			//-- We need to replace the current restriction with a higher combinator node and add the items there.
 			QMultiNode comb = new QMultiNode(m_combinator);
 			comb.add(getRestrictions());
 			comb.add(r);
@@ -141,13 +140,26 @@ abstract public class QRestrictor<T> {
 
 	@Nonnull
 	public QRestrictor<T> and() {
-		if(m_combinator == QOperation.AND) // If I myself am combining with OR return myself
+		if(m_combinator == QOperation.AND) // If I myself am combining with AND return myself
 			return this;
 		QMultiNode and = new QMultiNode(QOperation.AND);
 		add(and);
 		return new QRestrictorImpl<T>(this, and);
 	}
 
+	/**
+	 * Add NOT restriction.
+	 * @return
+	 */
+	@Nonnull
+	public QRestrictor<T> not() {
+		QMultiNode and = new QMultiNode(QOperation.AND);
+		QUnaryNode not = new QUnaryNode(QOperation.NOT, and);
+		add(not);
+		return new QRestrictorImpl<T>(this, and);
+	}
+	
+	
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding selection restrictions (where clause)		*/
 	/*--------------------------------------------------------------*/
