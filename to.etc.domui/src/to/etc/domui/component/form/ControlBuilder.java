@@ -60,7 +60,7 @@ public class ControlBuilder {
 		}
 	};
 
-	public ControlBuilder(DomApplication app) {
+	public ControlBuilder(@Nonnull DomApplication app) {
 	//		m_app = app;
 	}
 
@@ -71,11 +71,12 @@ public class ControlBuilder {
 	 *
 	 * @param cf
 	 */
-	public synchronized void registerControlFactory(final ControlFactory cf) {
+	public synchronized void registerControlFactory(@Nonnull final ControlFactory cf) {
 		m_controlFactoryList = new ArrayList<ControlFactory>(m_controlFactoryList); // Dup original
 		m_controlFactoryList.add(cf);
 	}
 
+	@Nonnull
 	protected synchronized List<ControlFactory> getControlFactoryList() {
 		return m_controlFactoryList;
 	}
@@ -86,7 +87,7 @@ public class ControlBuilder {
 	 * @param editable	When false this is a displayonly control request.
 	 * @return			null if no factory is found.
 	 */
-	public ControlFactory findControlFactory(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass) {
+	public ControlFactory findControlFactory(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(pmm.getControlFactory() != null)
 			return pmm.getControlFactory();
 
@@ -107,7 +108,7 @@ public class ControlBuilder {
 	 * @param name
 	 * @return
 	 */
-	public synchronized ControlFactory findFactoryByName(String name) {
+	public synchronized ControlFactory findFactoryByName(@Nonnull String name) {
 		//-- 1. Walk the registered factory list
 		for(ControlFactory cf : m_controlFactoryList) {
 			if(name.equals(cf.getClass().getName()))
@@ -142,7 +143,8 @@ public class ControlBuilder {
 	 * @param editable
 	 * @return	The factory to use
 	 */
-	public ControlFactory getControlFactory(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass) {
+	@Nonnull
+	public ControlFactory getControlFactory(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		ControlFactory cf = findControlFactory(pmm, editable, controlClass);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a control factory for " + pmm);
@@ -211,6 +213,7 @@ public class ControlBuilder {
 	/**
 	 * Main workhorse which creates input controls for forms, from metadata.
 	 */
+	@Nonnull
 	public ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel< ? > model, @Nonnull final PropertyMetaModel< ? > pmm, final boolean editable) {
 		ControlFactory cf = getControlFactory(pmm, editable, null);
 		return cf.createControl(model, pmm, editable, null);

@@ -40,7 +40,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 13, 2009
  */
-abstract public class FormBuilder {
+final public class FormBuilder {
 	static protected final Logger LOG = LoggerFactory.getLogger(FormBuilder.class);
 
 	@Nonnull
@@ -53,6 +53,9 @@ abstract public class FormBuilder {
 	@Nullable
 	private ControlBuilder m_builder;
 
+	@Nonnull
+	private IFormLayouter m_layouter;
+
 	@Nullable
 	private IControlLabelFactory m_controlLabelFactory;
 
@@ -60,32 +63,40 @@ abstract public class FormBuilder {
 
 	private FormData< ? > m_lastBuilder;
 
-	protected FormBuilder() {}
-
-	/**
-	 * This is the actual workhorse doing the per-builder actual placement and layouting of a {control, label} pair.
-	 *
-	 * @param label
-	 * @param labelnode
-	 * @param list
-	 * @param mandatory	T when the node is mandatory, needed by the label factory
-	 * @param editable	T when the node is editable, needed by the label factory
-	 * @param pmm
-	 */
-	abstract protected void addControl(@Nullable String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm);
-
-	abstract protected void addControl(@Nullable NodeBase label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm);
-
-	abstract public void addContent(@Nullable NodeBase label, NodeBase[] control, boolean editable);
-
-	/**
-	 * Handle placement of a list of property names, all obeying the current mode in effect.
-	 * @param editable
-	 * @param names
-	 */
 	@Nonnull
-	abstract protected IControl< ? >[] addListOfProperties(boolean editable, @Nonnull final String... names);
+	final private INodeTarget m_nodeTarget;
 
+	public FormBuilder(@Nonnull INodeTarget nodeTarget) {
+		m_nodeTarget = nodeTarget;
+	}
+
+	public FormBuilder(@Nonnull final NodeContainer nodeTarget) {
+		m_nodeTarget = new INodeTarget() {
+			@Override
+			public void add(@Nonnull NodeContainer content) {
+				nodeTarget.add(content);
+			}
+		};
+	}
+
+	final protected void addControl(@Nullable NodeBase label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
+		m_layouter.addControl(label, labelnode, list, mandatory, editable, pmm);
+	}
+
+	final protected void addContent(@Nullable NodeBase label, NodeBase[] control, boolean editable) {
+		m_layouter.addContent(label, control, editable);
+	}
+
+	final protected void addControl(@Nullable String label, NodeBase labelnode, NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
+		IControlLabelFactory clf = getControlLabelFactory();
+		if(clf == null) {
+			clf = getControlBuilder().getControlLabelFactory();
+			if(clf == null)
+				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
+		}
+		Label l = clf.createControlLabel(labelnode, label, editable, mandatory, pmm);
+		m_layouter.addControl(l, labelnode, list, mandatory, editable, pmm);
+	}
 
 	@Nonnull
 	final public ControlBuilder getControlBuilder() {
@@ -103,6 +114,7 @@ abstract public class FormBuilder {
 	 * @param editable		When false this must make a displayonly control.
 	 * @return				The binding to bind the control to it's valueset
 	 */
+	@Nonnull
 	protected ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel< ? > model, @Nonnull final PropertyMetaModel< ? > pmm, final boolean editable) {
 		return getControlBuilder().createControlFor(model, pmm, editable); // Delegate
 	}
@@ -113,10 +125,10 @@ abstract public class FormBuilder {
 	/**
 	 * Access the shared permissions calculator.
 	 */
+	@Nonnull
 	protected AccessCalculator rights() {
 		return m_calc;
 	}
-
 
 	@Nonnull
 	public ModelBindings getBindings() {
@@ -133,11 +145,12 @@ abstract public class FormBuilder {
 	 * Return the factory to use for creating control labels from metadata.
 	 * @return
 	 */
+	@Nullable
 	public IControlLabelFactory getControlLabelFactory() {
 		return m_controlLabelFactory;
 	}
 
-	public void setControlLabelFactory(final IControlLabelFactory controlLabelFactory) {
+	public void setControlLabelFactory(@Nullable final IControlLabelFactory controlLabelFactory) {
 		m_controlLabelFactory = controlLabelFactory;
 	}
 
@@ -150,5 +163,13 @@ abstract public class FormBuilder {
 		m_lastBuilder = b;
 		m_lastBuilderThingy = instance;
 		return b;
+	}
+
+	public void startBulkLayout() {
+		m_layouter.setBulkMode(true);
+	}
+
+	public void endBulkLayout() {
+		m_layouter.setBulkMode(false);
 	}
 }

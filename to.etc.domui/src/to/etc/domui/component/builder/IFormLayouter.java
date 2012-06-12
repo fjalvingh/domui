@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.server;
+package to.etc.domui.component.builder;
 
 import javax.annotation.*;
 
@@ -30,15 +30,16 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
 /**
- * A silly thing which creates the default visible labels for
- * form generators.
+ * Handles the basic chores for a form builder to create some
+ * specific layout.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Dec 8, 2008
+ * Created on Jun 12, 2012
  */
-public interface IControlLabelFactory {
-	@Nullable
-	Label createControlLabel(NodeBase control, String text, boolean editable, boolean mandatory, PropertyMetaModel< ? > pmm);
+public interface IFormLayouter {
+	void addControl(@Nullable NodeBase label, @Nullable NodeBase labelnode, @Nonnull NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm);
 
-	String getMandatoryLabelText(String text);
+	void addContent(@Nullable NodeBase label, @Nonnull NodeBase[] control, boolean editable);
+
+	void setBulkMode(boolean onoff);
 }

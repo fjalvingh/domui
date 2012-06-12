@@ -1,3 +1,27 @@
+/*
+ * DomUI Java User Interface library
+ * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ *
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://www.domui.org/
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
 package to.etc.domui.component.builder;
 
 import javax.annotation.*;
@@ -290,6 +314,30 @@ public class FormData<T> {
 			nb.setErrorLocation(label);
 	}
 
+
+	/**
+	 *
+	 * @param b
+	 * @param names
+	 * @return
+	 */
+	@Nonnull
+	private IControl< ? >[] addPropertyList(boolean editable, @Nonnull String[] names) {
+		builder().startBulkLayout();
+		IControl< ? >[] res = new IControl< ? >[names.length];
+		int ix = 0;
+		for(String name : names) {
+			if(editable)
+				res[ix] = addProp(name);
+			else
+				res[ix] = addDisplayProp(name);
+			ix++;
+		}
+		builder().endBulkLayout();
+		return res;
+	}
+
+
 	/**
 	 * Add the specified properties to the form, in the current mode. Watch out: if a
 	 * MODIFIER is in place the modifier is obeyed for <b>all properties</b>, not for
@@ -303,7 +351,7 @@ public class FormData<T> {
 	 */
 	@Nonnull
 	public IControl< ? >[] addProps(@Nonnull @GProperty final String... names) {
-		return builder().addListOfProperties(true, names);
+		return addPropertyList(true, names);
 	}
 
 	/**
@@ -322,7 +370,7 @@ public class FormData<T> {
 	 */
 	@Nonnull
 	public IControl< ? >[] addDisplayProps(@Nonnull @GProperty final String... names) {
-		return builder().addListOfProperties(false, names);
+		return addPropertyList(false, names);
 	}
 
 }
