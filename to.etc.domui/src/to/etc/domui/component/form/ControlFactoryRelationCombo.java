@@ -62,7 +62,7 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 	}
 
 	@Override
-	public <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
 		if(!editable && controlClass == null) {
 			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType()); // No idea what goes in here.

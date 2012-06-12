@@ -88,7 +88,7 @@ abstract public class FormBuilder {
 
 
 	@Nonnull
-	final public ControlBuilder getBuilder() {
+	final public ControlBuilder getControlBuilder() {
 		if(m_builder == null)
 			m_builder = DomApplication.get().getControlBuilder();
 		return m_builder;
@@ -104,7 +104,7 @@ abstract public class FormBuilder {
 	 * @return				The binding to bind the control to it's valueset
 	 */
 	protected ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel< ? > model, @Nonnull final PropertyMetaModel< ? > pmm, final boolean editable) {
-		return getBuilder().createControlFor(model, pmm, editable, null); // Delegate
+		return getControlBuilder().createControlFor(model, pmm, editable); // Delegate
 	}
 
 	/*--------------------------------------------------------------*/

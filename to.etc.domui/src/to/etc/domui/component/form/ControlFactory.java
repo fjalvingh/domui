@@ -63,6 +63,7 @@ public interface ControlFactory {
 	 * @param container
 	 * @return
 	 */
+	@Nonnull
 	<T> ControlFactoryResult createControl(@Nonnull IReadOnlyModel< ? > model, @Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass);
 
 	static public final ControlFactory TEXTAREA_CF = new ControlFactoryTextArea();

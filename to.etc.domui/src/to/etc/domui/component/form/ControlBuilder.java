@@ -86,7 +86,7 @@ public class ControlBuilder {
 	 * @param editable	When false this is a displayonly control request.
 	 * @return			null if no factory is found.
 	 */
-	public ControlFactory findControlFactory(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
+	public ControlFactory findControlFactory(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass) {
 		if(pmm.getControlFactory() != null)
 			return pmm.getControlFactory();
 
@@ -142,8 +142,8 @@ public class ControlBuilder {
 	 * @param editable
 	 * @return	The factory to use
 	 */
-	public ControlFactory getControlFactory(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass, Object context) {
-		ControlFactory cf = findControlFactory(pmm, editable, controlClass, context);
+	public ControlFactory getControlFactory(final PropertyMetaModel< ? > pmm, final boolean editable, Class< ? > controlClass) {
+		ControlFactory cf = findControlFactory(pmm, editable, controlClass);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a control factory for " + pmm);
 		return cf;
@@ -211,8 +211,8 @@ public class ControlBuilder {
 	/**
 	 * Main workhorse which creates input controls for forms, from metadata.
 	 */
-	public ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel< ? > pmm, final boolean editable, Object context) {
-		ControlFactory cf = getControlFactory(pmm, editable, null, context);
+	public ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel< ? > model, @Nonnull final PropertyMetaModel< ? > pmm, final boolean editable) {
+		ControlFactory cf = getControlFactory(pmm, editable, null);
 		return cf.createControl(model, pmm, editable, null);
 	}
 
@@ -225,9 +225,9 @@ public class ControlBuilder {
 	 * @param editableWhen
 	 * @return
 	 */
-	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, String propertyName, boolean editable, Object context) {
+	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, String propertyName, boolean editable) {
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(dataClass, propertyName); // Must exist or throws exception.
-		return createControl(controlClass, dataClass, pmm, editable, context);
+		return createControl(controlClass, dataClass, pmm, editable);
 	}
 
 	@Nonnull
@@ -247,10 +247,10 @@ public class ControlBuilder {
 	 * @param editable
 	 * @return
 	 */
-	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, PropertyMetaModel< ? > pmm, boolean editable, Object context) {
+	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, PropertyMetaModel< ? > pmm, boolean editable) {
 		if(controlClass == null)
 			throw new IllegalArgumentException("controlClass cannot be null");
-		ControlFactory cf = getControlFactory(pmm, editable, null, context);
+		ControlFactory cf = getControlFactory(pmm, editable, null);
 		ControlFactoryResult r = cf.createControl(DUMMY_MODEL, pmm, editable, controlClass);	// FIXME Bad, bad bug: I should be able to create a control without binding!!
 
 		//-- This must have generated a single control of the specified type, so check...

@@ -48,7 +48,7 @@ public class ControlFactoryTextArea implements ControlFactory {
 	}
 
 	@Override
-	public <T> ControlFactoryResult createControl(@Nonnull IReadOnlyModel< ? > model, @Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass) {
+	public @Nonnull <T> ControlFactoryResult createControl(@Nonnull IReadOnlyModel< ? > model, @Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass) {
 		TextArea ta = new TextArea();
 		if(!editable)
 			ta.setReadOnly(true);

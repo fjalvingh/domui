@@ -58,6 +58,7 @@ public class ControlFactoryDate implements ControlFactory {
 	}
 
 	@Override
+	@Nonnull
 	public <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(!editable && (controlClass == null || controlClass.isAssignableFrom(Text.class))) {
 			//			Text<Date> txt = new Text<Date>(Date.class);

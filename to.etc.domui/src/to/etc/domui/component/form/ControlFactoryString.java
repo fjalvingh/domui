@@ -58,7 +58,7 @@ public class ControlFactoryString implements ControlFactory {
 	}
 
 	@Override
-	public <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		Class<T> iclz = pmm.getActualType();
 		if(!editable) {
 			/*
