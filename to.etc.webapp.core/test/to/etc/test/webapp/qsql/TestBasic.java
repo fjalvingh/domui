@@ -134,4 +134,55 @@ public class TestBasic {
 		}
 		Assert.assertTrue(res.size() != 0);
 	}
+	
+	@Test
+	public void testSQLGen5() throws Exception {
+		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class);
+		qc.not().like("code", "%E7%");
+
+		JdbcSQLGenerator gc = new JdbcSQLGenerator();
+		gc.visitCriteria(qc);
+
+		System.out.println(gc.getSQL());
+		Assert.assertEquals("select this_.ID,this_.grbr_code,this_.omschrijving,this_.grbr_type_omschrijving from v_dec_grootboekrekeningen this_ where not this_.grbr_code like ?", gc.getSQL());
+		Assert.assertEquals(1, gc.getRetrieverList().size());
+		Assert.assertEquals(1, gc.getValList().size());
+	}
+
+	@Test
+	public void testSQLGen6() throws Exception {
+		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class);
+		QRestrictor<LedgerAccount> or = qc.or();
+		QRestrictor<LedgerAccount> and = or.and();
+		and.not().like("code", "%E4%");
+		and.not().like("code", "%E5%"); //other variant of appending operator...
+		
+		or.not().like("description", "Overige%");
+
+		JdbcSQLGenerator gc = new JdbcSQLGenerator();
+		gc.visitCriteria(qc);
+
+		System.out.println(gc.getSQL());
+		Assert.assertEquals("select this_.ID,this_.grbr_code,this_.omschrijving,this_.grbr_type_omschrijving from v_dec_grootboekrekeningen this_ where not this_.grbr_code like ? and not this_.grbr_code like ? or not this_.omschrijving like ?", gc.getSQL());
+		Assert.assertEquals(1, gc.getRetrieverList().size());
+		Assert.assertEquals(3, gc.getValList().size());
+	}
+	
+	@Test
+	public void testSQLGen7() throws Exception {
+		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class);
+		QRestrictor<LedgerAccount> or = qc.not().or();
+		or.not().like("code", "%E4%");
+		or.not().like("code", "%E5%");
+		or.not().like("code", "%E6%");
+
+		JdbcSQLGenerator gc = new JdbcSQLGenerator();
+		gc.visitCriteria(qc);
+
+		System.out.println(gc.getSQL());
+		Assert.assertEquals("select this_.ID,this_.grbr_code,this_.omschrijving,this_.grbr_type_omschrijving from v_dec_grootboekrekeningen this_ where not ( not this_.grbr_code like ? or not this_.grbr_code like ? or not this_.grbr_code like ?)", gc.getSQL());
+		Assert.assertEquals(1, gc.getRetrieverList().size());
+		Assert.assertEquals(3, gc.getValList().size());
+	}
+	
 }

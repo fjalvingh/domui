@@ -31,11 +31,26 @@ package to.etc.webapp.query;
  * Created on Jul 14, 2009
  */
 public enum QOperation {
-	AND, OR, EQ, NE, LE, GE, LT, GT, ILIKE, LIKE, BETWEEN,
-
-	PROP, PARAM, LITERAL, ORDER, ISNULL, ISNOTNULL, SQL,
-
-	EXISTS_SUBQUERY,
-
-	SELECTION_SUBQUERY
+	AND
+	, OR
+	, EQ
+	, NE
+	, LE
+	, GE
+	, LT
+	, GT
+	, ILIKE
+	, LIKE
+	, BETWEEN
+	, PROP
+	, PARAM
+	, LITERAL
+	, ORDER
+	, ISNULL
+	, ISNOTNULL
+	, SQL
+	, EXISTS_SUBQUERY
+	, SELECTION_SUBQUERY
+	, NOT
+	;
 }
