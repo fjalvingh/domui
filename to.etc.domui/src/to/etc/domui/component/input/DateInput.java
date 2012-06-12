@@ -32,6 +32,7 @@ import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
  * Date input component: this is an INPUT component with a button attached; pressing
@@ -88,6 +89,11 @@ public class DateInput extends Text<Date> {
 					@Override
 					public void clicked(SmallImgButton b) throws Exception {
 						Date currentDate = new Date();
+						if(!m_withTime) {
+							currentDate = DateUtil.truncateDate(currentDate);
+						} else if(!m_withSeconds) {
+							currentDate = DateUtil.truncateSeconds(currentDate);
+						}
 						//modified flag must be set externaly
 						DomUtil.setModifiedFlag(DateInput.this);
 						DateInput.this.setValue(currentDate);
