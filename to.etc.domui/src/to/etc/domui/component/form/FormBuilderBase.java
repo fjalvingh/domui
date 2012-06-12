@@ -119,10 +119,10 @@ public class FormBuilderBase {
 		return m_context;
 	}
 
-	public void setContext(Object context) {
-		m_context = context;
-	}
-
+	//	public void setContext(Object context) {
+	//		m_context = context;
+	//	}
+	//
 	/**
 	 * Set or change the current base class and base model. This can be changed whenever needed.
 	 *
