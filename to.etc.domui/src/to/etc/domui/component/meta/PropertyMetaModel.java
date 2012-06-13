@@ -84,10 +84,10 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * property. The default label is obtained from the resource file with the same location and name as
 	 * the class file containing the property after doing NLS language replacement; the label text is
 	 * looked up in that file as 'propertyname.label='. The code uses the "current" locale as set in NlsContext
-	 * to lookup the proper resource file.
-	 * @return	the label text, or null if unknown.
+	 * to lookup the proper resource file. If there is no label this returns the property's name.
+	 * @return	the label text,
 	 */
-	@Nullable
+	@Nonnull
 	String getDefaultLabel();
 
 	/**

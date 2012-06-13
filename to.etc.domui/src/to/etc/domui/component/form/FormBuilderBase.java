@@ -96,12 +96,8 @@ public class FormBuilderBase {
 	 * @param editable		When false this must make a displayonly control.
 	 * @return				The binding to bind the control to it's valueset
 	 */
-	protected ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel< ? > pmm, final boolean editable, Object context) {
-		return getBuilder().createControlFor(model, pmm, editable, context); // Delegate
-	}
-
 	protected ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel< ? > pmm, final boolean editable) {
-		return createControlFor(model, pmm, editable, getContext());
+		return createControlFor(model, pmm, editable);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -113,14 +109,6 @@ public class FormBuilderBase {
 	 */
 	protected AccessCalculator rights() {
 		return m_calc;
-	}
-
-	public Object getContext() {
-		return m_context;
-	}
-
-	public void setContext(Object context) {
-		m_context = context;
 	}
 
 	/**

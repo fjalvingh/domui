@@ -340,7 +340,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public String getDefaultLabel() {
+	public @Nonnull String getDefaultLabel() {
 		return m_defaultLabel;
 	}
 

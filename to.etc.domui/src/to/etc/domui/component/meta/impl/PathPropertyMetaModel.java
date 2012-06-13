@@ -121,7 +121,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDefaultLabel()
 	 */
 	@Override
-	public String getDefaultLabel() {
+	public @Nonnull String getDefaultLabel() {
 		//		System.out.println("LOCATE label for " + getName());
 		return locateProperty("label");
 	}

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.server;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
@@ -35,7 +37,8 @@ import to.etc.domui.dom.html.*;
  * Created on Dec 8, 2008
  */
 public interface IControlLabelFactory {
-	public Label createControlLabel(NodeBase control, String text, boolean editable, boolean mandatory, PropertyMetaModel< ? > pmm);
+	@Nullable
+	Label createControlLabel(NodeBase control, String text, boolean editable, boolean mandatory, PropertyMetaModel< ? > pmm);
 
-	public String getMandatoryLabelText(String text);
+	String getMandatoryLabelText(String text);
 }
