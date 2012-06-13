@@ -41,5 +41,9 @@ public interface IFormLayouter {
 
 	void addContent(@Nullable NodeBase label, @Nonnull NodeBase[] control, boolean editable);
 
+	void attached(@Nonnull FormBuilder builder);
+
+	void finish();
+
 	void setBulkMode(boolean onoff);
 }

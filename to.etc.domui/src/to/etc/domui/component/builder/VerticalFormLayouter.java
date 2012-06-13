@@ -32,7 +32,6 @@ import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
-
 /**
  * New implementation of the {@link VerticalFormLayouter} - based layout.
  *
@@ -125,17 +124,19 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	/** When set, the mode does not change between different "add" calls. Used to add a control list with the same settings applied. */
 	private boolean m_bulkMode;
 
+	public VerticalFormLayouter() {}
 
 	/**
-	 * Reset variables after finish. Cannot be done when table is created!
+	 * Reset variables after finish.
+	 * @see to.etc.domui.component.builder.IFormLayouter#finish()
 	 */
 	@Override
-	public NodeContainer finish() {
+	public void finish() {
 		m_colCol = 0;
 		m_nextColSpan = 1;
 		m_maxColumns = 1;
 		Arrays.fill(m_columnRowCount, 0);
-		return super.finish();
+		super.finish();
 	}
 
 	@Override

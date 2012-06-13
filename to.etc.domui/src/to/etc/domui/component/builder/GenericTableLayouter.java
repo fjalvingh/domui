@@ -29,7 +29,11 @@ import javax.annotation.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-public class GenericTableLayouter {
+abstract public class GenericTableLayouter implements IFormLayouter {
+	/** The form builder that uses this layouter. */
+	@Nullable
+	private FormBuilder m_builder;
+
 	@Nullable
 	private Table m_parentTable;
 
@@ -42,6 +46,31 @@ public class GenericTableLayouter {
 
 	public GenericTableLayouter() {}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IFormLayouter implementation.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @see to.etc.domui.component.builder.IFormLayouter#attached(to.etc.domui.component.builder.FormBuilder)
+	 */
+	@Override
+	public void attached(@Nonnull FormBuilder builder) {
+		m_builder = builder;
+	}
+
+	/**
+	 * This finishes off the current table by calculating colspans for all skewed rows. This discards the
+	 * current table!
+	 *
+	 * @return
+	 */
+	@Override
+	public void finish() {
+		if(m_parentTable == null)
+			return;
+		reset();							// Finish current table, and clear for a new one.
+	}
+
 	/**
 	 * Called when a new table, body or whatever is made current; it should reset all known positioning information.
 	 */
@@ -53,6 +82,9 @@ public class GenericTableLayouter {
 	 * Clears the current generated layout and starts a new table.
 	 */
 	public void reset() {
+		if(m_parentTable != null) {
+			DomUtil.adjustTableColspans(m_parentTable);
+		}
 		m_tbody = null;
 		m_parentTable = null;
 		m_lastUsedRow = null;
@@ -60,30 +92,30 @@ public class GenericTableLayouter {
 		internalClearLocation();
 	}
 
-	/**
-	 * Sets a new table. This resets the current body and stuff. Since the table was not created here the
-	 * onBodyAdded local event is not fired.
-	 * @param b
-	 */
-	public void setTable(final Table b) {
-		finish(); // Make sure old dude is finished
-		m_parentTable = b;
-		m_tbody = null;
-		m_lastUsedRow = null;
-		//		m_lastUsedCell = null;
-		internalClearLocation();
-	}
+	//	/**
+	//	 * Sets a new table. This resets the current body and stuff. Since the table was not created here the
+	//	 * onBodyAdded local event is not fired.
+	//	 * @param b
+	//	 */
+	//	protected void setTable(final Table b) {
+	//		finish(); // Make sure old dude is finished
+	//		m_parentTable = b;
+	//		m_tbody = null;
+	//		m_lastUsedRow = null;
+	//		//		m_lastUsedCell = null;
+	//		internalClearLocation();
+	//	}
 
-	/**
-	 * Sets the TBody to use. This resets all layout state. Since the table and the body was not created here the
-	 * onBodyAdded local event is not fired.
-	 * @param b
-	 */
-	public void setTBody(final TBody b) {
-		finish(); // Make sure old dude is finished
-		m_tbody = b;
-		m_parentTable = b.getParent(Table.class);
-	}
+	//	/**
+	//	 * Sets the TBody to use. This resets all layout state. Since the table and the body was not created here the
+	//	 * onBodyAdded local event is not fired.
+	//	 * @param b
+	//	 */
+	//	protected void setTBody(final TBody b) {
+	//		finish(); // Make sure old dude is finished
+	//		m_tbody = b;
+	//		m_parentTable = b.getParent(Table.class);
+	//	}
 
 	/**
 	 * Called when a new table is added.
@@ -119,6 +151,7 @@ public class GenericTableLayouter {
 	protected Table table() {
 		if(m_parentTable == null) {
 			m_parentTable = new Table();
+			m_builder.appendFormNode(m_parentTable);
 			internalClearLocation();
 			m_lastUsedRow = null;
 			//			m_lastUsedCell = null;
@@ -157,23 +190,6 @@ public class GenericTableLayouter {
 		internalClearLocation();
 		onBodyAdded(m_tbody);
 		return m_tbody;
-	}
-
-	/**
-	 * This finishes off the current table by calculating colspans for all skewed rows. This discards the
-	 * current table!
-	 *
-	 * @return
-	 */
-	public NodeContainer finish() {
-		if(m_parentTable == null)
-			return null;
-
-		//-- jal 20090508 MUST clear the table, because when the builder is used for the NEXT tab it must return a new table!
-		Table tbl = m_parentTable;
-		DomUtil.adjustTableColspans(tbl);
-		reset();
-		return tbl;
 	}
 
 	/*--------------------------------------------------------------*/
