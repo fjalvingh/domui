@@ -478,11 +478,6 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public String[][] getEditRoles() {
-		return m_propertyMeta == null ? null : m_propertyMeta.getEditRoles();
-	}
-
-	@Override
 	public int getLength() {
 		return m_propertyMeta == null ? -1 : m_propertyMeta.getLength();
 	}
@@ -556,11 +551,6 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	@Override
 	public PropertyMetaValidator[] getValidators() {
 		return m_propertyMeta == null ? NO_VALIDATORS : m_propertyMeta.getValidators();
-	}
-
-	@Override
-	public String[][] getViewRoles() {
-		return m_propertyMeta == null ? null : m_propertyMeta.getViewRoles();
 	}
 
 	@Override

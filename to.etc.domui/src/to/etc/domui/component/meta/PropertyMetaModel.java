@@ -246,33 +246,6 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	List<DisplayPropertyMetaModel> getComboDisplayProperties();
 
 	/**
-	 * If this contains null the field can be seen by all users. If it has a value
-	 * the first-level array is a set of ORs; the second level are ANDs. Meaning that
-	 * an array in the format:
-	 * <pre>
-	 * { {"admin"}
-	 * , {"editroles", "user"}
-	 * , {"tester"}
-	 * };
-	 * </pre>
-	 * this means that the field is visible for a user with the roles:
-	 * <pre>
-	 * 	"admin" OR "tester" OR ("editroles" AND "user")
-	 * </pre>
-	 * @return
-	 */
-	@Nullable
-	String[][] getViewRoles();
-
-	/**
-	 * Defines the roles that a user must have to edit this field. See the description
-	 * at {@link PropertyMetaModel#getViewRoles()} for details.
-	 * @return
-	 */
-	@Nullable
-	String[][] getEditRoles();
-
-	/**
 	 * Reports whether a property is readonly. For Java classes a property is defined as readOnly when it
 	 * has no "setter" method.
 	 * @return

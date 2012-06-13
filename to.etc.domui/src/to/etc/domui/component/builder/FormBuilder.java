@@ -46,10 +46,6 @@ final public class FormBuilder {
 	@Nonnull
 	private ModelBindings m_bindings = new ModelBindings();
 
-	/** Thingy to help calculating access rights (delegate) */
-	@Nonnull
-	private final AccessCalculator m_calc = new AccessCalculator();
-
 	@Nullable
 	private ControlBuilder m_builder;
 
@@ -169,14 +165,12 @@ final public class FormBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple getters and internal stuff.					*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Access the shared permissions calculator.
-	 */
-	@Nonnull
-	protected AccessCalculator rights() {
-		return m_calc;
-	}
 
+	/**
+	 * Return the model bindings that were added while using this builder. The list is not cleared; any new addition is
+	 * added to the <b>same instance</b> that is returned by this call, unless another instance is set using {@link #setBindings(ModelBindings)}.
+	 * @return
+	 */
 	@Nonnull
 	public ModelBindings getBindings() {
 		return m_bindings;

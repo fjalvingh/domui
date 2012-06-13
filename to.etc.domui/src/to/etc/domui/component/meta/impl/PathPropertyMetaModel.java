@@ -278,11 +278,6 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public String[][] getEditRoles() {
-		return m_original.getEditRoles();
-	}
-
-	@Override
 	public int getLength() {
 		return m_original.getLength();
 	}
@@ -362,11 +357,6 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	@Override
 	public PropertyMetaValidator[] getValidators() {
 		return m_original.getValidators();
-	}
-
-	@Override
-	public String[][] getViewRoles() {
-		return m_original.getViewRoles();
 	}
 
 	@Override

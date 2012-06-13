@@ -166,10 +166,8 @@ public class FormData<T> {
 	 */
 	@Nonnull
 	private <C> IControl<C> addPropertyControl(@Nonnull @GProperty final String name, @Nonnull final String label, @Nonnull final PropertyMetaModel<C> pmm, final boolean editable, boolean mandatory) {
-		boolean reallyeditable = editable && builder().rights().isEditable();
-
-		final ControlFactoryResult r = builder().createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
-		builder().addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, reallyeditable, pmm);
+		final ControlFactoryResult r = builder().createControlFor(getModel(), pmm, editable); // Add the proper input control for that type
+		builder().addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, editable, pmm);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
 		if(label != null) {

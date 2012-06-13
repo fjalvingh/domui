@@ -139,11 +139,6 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public String[][] getEditRoles() {
-		return m_parent.getEditRoles();
-	}
-
-	@Override
 	public Type getGenericActualType() {
 		return m_parent.getGenericActualType();
 	}
@@ -216,11 +211,6 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	@Override
 	public @Nonnull PropertyMetaValidator[] getValidators() {
 		return m_parent.getValidators();
-	}
-
-	@Override
-	public String[][] getViewRoles() {
-		return m_parent.getViewRoles();
 	}
 
 	@Override

@@ -52,9 +52,6 @@ public class FormBuilderBase {
 
 	private ModelBindings m_bindings = new ModelBindings();
 
-	/** Thingy to help calculating access rights (delegate) */
-	private final AccessCalculator m_calc = new AccessCalculator();
-
 	private ControlBuilder m_builder;
 
 	private IControlLabelFactory m_controlLabelFactory;
@@ -103,14 +100,6 @@ public class FormBuilderBase {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple getters and internal stuff.					*/
 	/*--------------------------------------------------------------*/
-
-	/**
-	 * Access the shared permissions calculator.
-	 */
-	protected AccessCalculator rights() {
-		return m_calc;
-	}
-
 	/**
 	 * Set or change the current base class and base model. This can be changed whenever needed.
 	 *
