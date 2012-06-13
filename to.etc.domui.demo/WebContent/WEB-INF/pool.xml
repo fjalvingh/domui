@@ -1,0 +1,3 @@
+<connections>
+	<pool name="demo" driver="org.apache.derby.jdbc.EmbeddedDriver" url="jdbc:derby:/tmp/demoDb;create=true" userid="" password=""/>
+</connections>
