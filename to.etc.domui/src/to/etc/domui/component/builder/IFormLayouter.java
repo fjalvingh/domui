@@ -22,52 +22,28 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.util;
+package to.etc.domui.component.builder;
+
+import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
+import to.etc.domui.dom.html.*;
 
 /**
- * Helps with calculating access rights to fields and classes, depending on the roles defined
- * for the user and the access rights masks set in the metadata.
+ * Handles the basic chores for a form builder to create some
+ * specific layout.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Aug 19, 2008
+ * Created on Jun 12, 2012
  */
-public class AccessCalculator {
-	private boolean m_editable;
+public interface IFormLayouter {
+	void addControl(@Nullable NodeBase label, @Nullable NodeBase labelnode, @Nonnull NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm);
 
-	private boolean m_viewable;
+	void addContent(@Nullable NodeBase label, @Nonnull NodeBase[] control, boolean editable);
 
-	/**
-	 * Returns T if the component is to be made editable.
-	 * @return
-	 */
-	public boolean isEditable() {
-		return m_editable;
-	}
+	void attached(@Nonnull FormBuilder builder);
 
-	public boolean isViewable() {
-		return m_viewable;
-	}
+	void finish();
 
-	public boolean calculate(PropertyMetaModel< ? > pmm) {
-		IRequestContext rq = UIContext.getRequestContext();
-		m_viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
-		m_editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);
-		if(!m_viewable) {
-			//-- Check edit stuff:
-			if(pmm.getEditRoles() == null) // No edit roles at all -> exit
-				return false;
-			if(!m_editable)
-				return false;
-
-			m_viewable = true; // Force it to be viewable too since we have to edit it
-		}
-		if(pmm.getReadOnly() == YesNoType.YES) {
-			m_editable = false;
-		}
-		return true;
-	}
+	void setBulkMode(boolean onoff);
 }

@@ -247,10 +247,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	public IControl< ? > addPropWithSpan(final String name, final String label, final boolean readOnly, final boolean mandatory, int colSpan) {
 		PropertyMetaModel< ? > pmm = resolveProperty(name);
 
-		//-- Check control permissions: does it have view permissions?
-		if(!rights().calculate(pmm))
-			return null;
-		final ControlFactoryResult r = createControlFor(getModel(), pmm, !readOnly && rights().isEditable()); // Add the proper input control for that type
+		final ControlFactoryResult r = createControlFor(getModel(), pmm, !readOnly); // Add the proper input control for that type
 		addControl(label, colSpan, r.getLabelNode(), r.getNodeList(), mandatory, !readOnly, pmm);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages

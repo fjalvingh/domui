@@ -996,20 +996,6 @@ public class LookupForm<T> extends Div {
 		PropertyMetaModel< ? > pmm = it.getLastProperty();
 		if(pmm == null)
 			throw new IllegalStateException("property cannot be null when creating using factory.");
-		IRequestContext rq = UIContext.getRequestContext();
-		boolean viewable = true;
-		boolean editable = true;
-
-		viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
-		editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);
-		if(!viewable) {
-			//-- Check edit stuff:
-			if(pmm.getEditRoles() == null) // No edit roles at all -> exit
-				return null;
-			if(!editable)
-				return null;
-		}
-
 		ILookupControlFactory lcf = m_builder.getLookupControlFactory(it);
 		ILookupControlInstance qt = lcf.createControl(it, null);
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)

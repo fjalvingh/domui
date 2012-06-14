@@ -100,6 +100,8 @@ public interface Msgs {
 
 	public static final String UI_LUI_TTL = "ui.lui.ttl";
 
+	public static final String UI_LUI_TTL_MULTI = "ui.lui.ttl.multi";
+
 	/** Lookup input title if entityName is available. */
 	public static final String UI_LUI_TTL_WEN = "ui.lui.ttl.wen";
 

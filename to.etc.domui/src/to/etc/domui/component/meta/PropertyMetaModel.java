@@ -84,10 +84,10 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * property. The default label is obtained from the resource file with the same location and name as
 	 * the class file containing the property after doing NLS language replacement; the label text is
 	 * looked up in that file as 'propertyname.label='. The code uses the "current" locale as set in NlsContext
-	 * to lookup the proper resource file.
-	 * @return	the label text, or null if unknown.
+	 * to lookup the proper resource file. If there is no label this returns the property's name.
+	 * @return	the label text,
 	 */
-	@Nullable
+	@Nonnull
 	String getDefaultLabel();
 
 	/**
@@ -244,33 +244,6 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 */
 	@Nonnull
 	List<DisplayPropertyMetaModel> getComboDisplayProperties();
-
-	/**
-	 * If this contains null the field can be seen by all users. If it has a value
-	 * the first-level array is a set of ORs; the second level are ANDs. Meaning that
-	 * an array in the format:
-	 * <pre>
-	 * { {"admin"}
-	 * , {"editroles", "user"}
-	 * , {"tester"}
-	 * };
-	 * </pre>
-	 * this means that the field is visible for a user with the roles:
-	 * <pre>
-	 * 	"admin" OR "tester" OR ("editroles" AND "user")
-	 * </pre>
-	 * @return
-	 */
-	@Nullable
-	String[][] getViewRoles();
-
-	/**
-	 * Defines the roles that a user must have to edit this field. See the description
-	 * at {@link PropertyMetaModel#getViewRoles()} for details.
-	 * @return
-	 */
-	@Nullable
-	String[][] getEditRoles();
 
 	/**
 	 * Reports whether a property is readonly. For Java classes a property is defined as readOnly when it

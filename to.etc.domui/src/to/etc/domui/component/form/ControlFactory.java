@@ -47,10 +47,9 @@ public interface ControlFactory {
 	 * @param pmm
 	 * @param editable
 	 * @param controlClass When set the control factory *must* be able to return a component which is assignment-compatible with this class type. If it cannot it MUST refuse to create the control.
-	 * @param context TODO
 	 * @return
 	 */
-	int accepts(@Nonnull PropertyMetaModel< ? > pmm, boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context);
+	int accepts(@Nonnull PropertyMetaModel< ? > pmm, boolean editable, @Nullable Class< ? > controlClass);
 
 	/**
 	 * This MUST create all nodes necessary for a control to edit the specified item. The nodes must be added
@@ -61,12 +60,11 @@ public interface ControlFactory {
 	 * @param controlClass	When set the control factory *must* return a component which is assignment-compatible with this
 	 * 						class type. When this method is called it has already (by it's accept method) told us it can, so
 	 * 						not creating the proper type is not an option.
-	 * @param context TODO
 	 * @param container
-	 *
 	 * @return
 	 */
-	<T> ControlFactoryResult createControl(@Nonnull IReadOnlyModel< ? > model, @Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass, @Nullable Object context);
+	@Nonnull
+	<T> ControlFactoryResult createControl(@Nonnull IReadOnlyModel< ? > model, @Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass);
 
 	static public final ControlFactory TEXTAREA_CF = new ControlFactoryTextArea();
 
