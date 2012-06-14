@@ -5,8 +5,12 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.input.LookupInputBase.ILookupFormModifier;
+import to.etc.domui.component.layout.*;
+import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -19,12 +23,80 @@ import to.etc.domui.util.*;
  * Created on 13 Oct 2011
  */
 public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
+
+
+	/**
+	 * Specific implementation for use in {@link MultiLookupInput}. It sets inner {@link DataTable} of {@link LookupInput} 
+	 * to multi-select mode. 
+	 *
+	 * @author <a href="mailto:nmaksimovic@execom.eu">Nemanja Maksimovic</a>
+	 * Created on Jun 5, 2012
+	 */
+	private class MultiLookupInput extends LookupInput<T> {
+
+		private InstanceSelectionModel<T> m_isSelectionModel;
+
+		public MultiLookupInput(Class<T> lookupClass, String[] resultColumns) {
+			super(lookupClass, resultColumns);
+		}
+
+		@Override
+		protected void initSelectionModel() throws Exception {
+			m_isSelectionModel = new InstanceSelectionModel<T>(true);
+			getDataTable().setSelectionModel(m_isSelectionModel);
+			getDataTable().setShowSelection(m_isSelectionModel.isMultiSelect());
+			getDataTable().setSelectionAllHandler(new DefaultSelectAllHandler());
+			m_isSelectionModel.addListener(new ISelectionListener<T>() {
+
+				@Override
+				public void selectionChanged(T row, boolean on) throws Exception {
+					showSelectedCount();
+				}
+
+				@Override
+				public void selectionAllChanged() throws Exception {
+					showSelectedCount();
+				}
+			});
+		}
+
+		public Collection<T> getSelectedItems() {
+			return m_isSelectionModel.getSelectedSet();
+		}
+
+		public void showSelectedCount() {
+			final int selectionCount = m_isSelectionModel.getSelectionCount();
+			final Window window = (Window) getLookupForm().getParentOfTypes(Window.class);
+			window.setWindowTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_LUI_TTL_MULTI, Integer.valueOf(selectionCount)));
+		}
+
+		@Override
+		void handleSetValue(T value) throws Exception {
+			if(!isPopupShown()) {
+				/*
+				 * if set from lookup input - business as usual...
+				 */
+				super.handleSetValue(value);
+			} else {
+				/*
+				 * if set from lookup form, select that value in model, instead od setting value and closing.
+				 * Effectively click on row is same as click on check box.
+				 */
+				m_isSelectionModel.setInstanceSelected(value, !m_isSelectionModel.isSelected(value));
+				showSelectedCount();
+			}
+		}
+
+	}
+
+	private final Map<T, NodeContainer> m_itemNodes = new HashMap<T, NodeContainer>();
 	private List<T> m_selectionList = Collections.EMPTY_LIST;
 	private boolean m_mandatory;
 	private boolean m_disabled;
 
 	private IValueChanged< ? > m_onValueChanged;
-	private final LookupInput<T> m_lookupInput;
+
+	private final MultiLookupInput m_lookupInput;
 	private Div m_selectionContainer;
 	private INodeContentRenderer<T> m_selectedItemRenderer;
 	private String[] m_renderColumns;
@@ -78,8 +150,36 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		}
 	};
 
-	public MultipleLookupInput(@Nonnull LookupInput<T> lookupInput, String... renderColumns) {
-		m_lookupInput = lookupInput;
+	private void addSelection() throws Exception {
+		for(T item : m_lookupInput.getSelectedItems()) {
+			addSelection(item);
+		}
+		updateClearButtonState();
+	}
+
+	public MultipleLookupInput(@Nonnull Class<T> clazz, String... renderColumns) {
+		m_lookupInput = new MultiLookupInput(clazz, renderColumns);
+		m_lookupInput.setLookupFormInitialization(new ILookupFormModifier<T>() {
+			private boolean initialized = false;
+			@Override
+			public void initialize(LookupForm<T> lf) throws Exception {
+				if(!initialized) {
+					DefaultButton confirm = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
+					confirm.setIcon("THEME/btnConfirm.png");
+					confirm.setTestID("confirmButton");
+					confirm.setClicked(new IClicked<NodeBase>() {
+
+						@Override
+						public void clicked(NodeBase clickednode) throws Exception {
+							addSelection();
+							m_lookupInput.closePopup();
+						}
+					});
+					lf.addButtonItem(confirm, 800);
+					initialized = true;
+				}
+			}
+		});
 		m_renderColumns = renderColumns;
 		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
 			@Override
@@ -90,10 +190,12 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		});
 		m_clearButton.setTestID("clearButtonInputLookup");
 		m_clearButton.setDisplay(DisplayType.NONE);
+
 	}
 
 	protected void clearSelection(Object object) throws Exception {
 		m_selectionList.clear();
+		m_itemNodes.clear();
 		m_selectionContainer.removeAllChildren();
 		updateClearButtonState();
 		IValueChanged<MultipleLookupInput< ? >> ovc = (IValueChanged<MultipleLookupInput< ? >>) getOnValueChanged();
@@ -142,13 +244,16 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		addClearButton();
 	}
 
-	protected void addSelection(T item) throws Exception {
+	public void addSelection(T item) throws Exception {
 		if(m_selectionList == Collections.EMPTY_LIST) {
 			m_selectionList = new ArrayList<T>();
 		}
 		if(!m_selectionList.contains(item)) {
 			m_selectionList.add(item);
-			m_selectionContainer.add(createItemNode(item));
+			final Span itemNode = createItemNode(item);
+			m_selectionContainer.add(itemNode);
+			m_itemNodes.put(item, itemNode);
+			updateClearButtonState();
 		}
 	}
 
@@ -178,21 +283,17 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		imgClose.setMarginLeft("2px");
 		itemNode.add(itemText);
 		itemNode.add(imgClose);
-		imgClose.setClicked(new IClicked<NodeBase>() {
+
+		final IClicked<NodeBase> removeHandler = new IClicked<NodeBase>() {
 
 			@Override
 			public void clicked(NodeBase clickednode) throws Exception {
-				itemNode.remove();
-				m_selectionList.remove(item);
-				if(getOnValueChanged() != null) {
-					//FIXME: from some reason we can't pass items here -> some buggy generics issue is shown if we specifiy item as argumen!?
-					//getOnValueChanged().onValueChanged(item);
-					((IValueChanged<MultipleLookupInput<T>>) getOnValueChanged()).onValueChanged(MultipleLookupInput.this);
-				}
-				updateClearButtonState();
+				removeItem(item);
 			}
 
-		});
+		};
+		imgClose.setClicked(removeHandler);
+
 
 		//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
 		INodeContentRenderer<T> r = getSelectedItemContentRenderer();
@@ -200,6 +301,10 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 			r = DEFAULT_RENDERER; // Prevent idiotic generics error
 		r.renderNodeContent(this, itemText, item, null);
 		return itemNode;
+	}
+
+	public LookupInput<T> getMultipleLookupInput() {
+		return m_lookupInput;
 	}
 
 	protected void updateClearButtonState() {
@@ -349,5 +454,26 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 
 	public void setCssForSelectionContainer(String cssForSelectionContainer) {
 		m_cssForSelectionContainer = cssForSelectionContainer;
+	}
+
+	/**
+	 * Remove item from selection list.
+	 * @param item
+	 * @throws Exception
+	 */
+	public void removeItem(final T item) throws Exception {
+		NodeBase itemNode = m_itemNodes.get(item);
+		itemNode.remove();
+		m_selectionList.remove(item);
+		if(getOnValueChanged() != null) {
+			//FIXME: from some reason we can't pass items here -> some buggy generics issue is shown if we specifiy item as argumen!?
+			//getOnValueChanged().onValueChanged(item);
+			((IValueChanged<MultipleLookupInput<T>>) getOnValueChanged()).onValueChanged(MultipleLookupInput.this);
+		}
+		updateClearButtonState();
+	}
+
+	public void setSearchImmediately(boolean searchImmediately) {
+		m_lookupInput.setSearchImmediately(searchImmediately);
 	}
 }
