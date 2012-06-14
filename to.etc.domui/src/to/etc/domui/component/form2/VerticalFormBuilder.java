@@ -106,7 +106,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	}
 
 	@Override
-	public void addControl(final @Nullable NodeBase label, @Nullable final NodeBase labelnode, @Nonnull final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
+	public void addControl(@Nullable final NodeBase label, @Nullable final NodeBase labelnode, @Nonnull final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
 		modalAdd(label, list, editable);
 	}
 
@@ -124,6 +124,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	 * row, with two cells per field (for label and control). This is the default mode.
 	 * @return self (chained)
 	 */
+	@Nonnull
 	public VerticalFormBuilder norm() {
 		m_nextNodeMode = Mode.NORM;
 		m_nextMode = m_mode;
@@ -136,6 +137,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	 *
 	 * @return self (chained)
 	 */
+	@Nonnull
 	public VerticalFormBuilder append() {
 		m_nextNodeMode = Mode.APPEND;
 		m_nextMode = m_mode;
@@ -149,6 +151,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	 *
 	 * @return self (chained)
 	 */
+	@Nonnull
 	public VerticalFormBuilder into() {
 		m_nextNodeMode = Mode.APPEND_INTO;
 		m_nextMode = m_mode;
@@ -162,6 +165,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	 *
 	 * @return self (chained)
 	 */
+	@Nonnull
 	public VerticalFormBuilder into(final String separator) {
 		m_appendIntoSeparator = separator;
 		return into();
@@ -178,6 +182,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	 * @param x
 	 * @return
 	 */
+	@Nonnull
 	public VerticalFormBuilder col(final int x) {
 		return setCol(x);
 	}
@@ -193,6 +198,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	 * @param x
 	 * @return
 	 */
+	@Nonnull
 	public VerticalFormBuilder setCol(final int x) {
 		if(x < 0 || x >= m_columnRowCount.length)
 			throw new IllegalArgumentException("Column number " + x + " invalid.");
@@ -211,6 +217,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	 * @param cells
 	 * @return
 	 */
+	@Nonnull
 	public VerticalFormBuilder colspan(final int cells) {
 		if(cells <= 0 || cells >= m_columnRowCount.length)
 			throw new IllegalArgumentException("Cell count of " + cells + " is invalid.");
@@ -252,7 +259,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	/**
 	 * Adds the node to the table, using the current mode. This decides the form placement.
 	 */
-	private void modalAdd(final NodeBase l, final NodeBase[] ctlcontainer, boolean editable) {
+	private void modalAdd(@Nullable final NodeBase l, @Nonnull final NodeBase[] ctlcontainer, boolean editable) {
 		switch(m_nextNodeMode){
 			default:
 				throw new IllegalStateException("Invalid table insert mode: " + m_mode);
@@ -280,7 +287,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	}
 
 	@Deprecated
-	private void addCells(final TR tr, final NodeBase l, final NodeBase[] c, boolean editable) {
+	private void addCells(@Nonnull final TR tr, @Nullable final NodeBase l, @Nonnull final NodeBase[] c, boolean editable) {
 		TD lcell = new TD();
 		tr.add(lcell);
 		lcell.setCssClass("ui-f-lbl");
@@ -301,7 +308,8 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	 * @param cellindex
 	 * @return
 	 */
-	private TD selectCell(TR row, int cellindex) {
+	@Nullable
+	private TD selectCell(@Nonnull TR row, int cellindex) {
 		int curx = 0;
 		int actix = 0;
 		for(;;) {
@@ -355,7 +363,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	 * @param numcols
 	 * @return
 	 */
-	private boolean mergeCells(TD corecell, int numcols) {
+	private boolean mergeCells(@Nonnull TD corecell, int numcols) {
 		if(numcols <= 0)
 			throw new IllegalArgumentException();
 		if(numcols == 1)
@@ -403,7 +411,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAddNormal(final NodeBase l, final NodeBase[] c, boolean editable) {
+	protected void modeAddNormal(@Nullable final NodeBase l, @Nonnull final NodeBase[] c, boolean editable) {
 		/*
 		 * Now we need to add the cells at the correct column index.
 		 */
@@ -432,7 +440,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 		}
 	}
 
-	private void addNodes(TD lbltd, TD inptd, final NodeBase l, final NodeBase[] c, boolean editable) {
+	private void addNodes(@Nonnull TD lbltd, @Nonnull TD inptd, @Nullable final NodeBase l, @Nonnull final NodeBase[] c, boolean editable) {
 		lbltd.setCssClass("ui-f-lbl");
 		if(l != null)
 			lbltd.add(l);
@@ -448,7 +456,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAddAppend(final NodeBase l, final NodeBase[] c, boolean editable) {
+	protected void modeAddAppend(@Nullable final NodeBase l, @Nonnull final NodeBase[] c, boolean editable) {
 		//-- Find the last used TR in the body.
 		if(tbody().getChildCount() == 0 || getLastUsedRow() == null) { // FIXME Why this exhaustive test? Null lastrow should be enough?
 			addRow();
@@ -461,7 +469,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAppendInto(final NodeBase l, final NodeBase[] c, boolean editable) {
+	protected void modeAppendInto(@Nullable final NodeBase l, @Nonnull final NodeBase[] c, boolean editable) {
 		TR tr = row(); // If there's no row-> add one,
 
 		if(tr.getChildCount() == 0) { // No cells yet?
@@ -484,7 +492,7 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	}
 
 	@Override
-	public void onRowAdded(TR row) {
+	public void onRowAdded(@Nonnull TR row) {
 		m_columnRowCount[m_colCol]++; // increment current row# in this column.
 	}
 }

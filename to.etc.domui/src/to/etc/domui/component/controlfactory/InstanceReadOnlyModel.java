@@ -22,12 +22,19 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.form;
+package to.etc.domui.component.controlfactory;
 
-public interface IModelBinding {
-	public void moveModelToControl() throws Exception;
+import to.etc.domui.util.*;
 
-	public void moveControlToModel() throws Exception;
+public class InstanceReadOnlyModel<T> implements IReadOnlyModel<T> {
+	private T m_instance;
 
-	public void setControlsEnabled(boolean on);
+	public InstanceReadOnlyModel(T instance) {
+		m_instance = instance;
+	}
+
+	@Override
+	public T getValue() throws Exception {
+		return m_instance;
+	}
 }

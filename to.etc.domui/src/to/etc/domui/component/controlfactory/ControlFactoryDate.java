@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.form;
+package to.etc.domui.component.controlfactory;
 
 import java.util.*;
 
@@ -43,7 +43,7 @@ import to.etc.domui.util.*;
 public class ControlFactoryDate implements ControlFactory {
 	/**
 	 * Accept java.util.Date class <i>only</i>.
-	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
+	 * @see to.etc.domui.component.controlfactory.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {

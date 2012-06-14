@@ -52,6 +52,7 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 	/*	CODING:	Simple helpers										*/
 	/*--------------------------------------------------------------*/
 	/**
+	 * USE WITH CARE - this exposes the raw table interface.
 	 * @see to.etc.domui.component.form.GenericTableFormBuilder#addCell()
 	 */
 	@Override
@@ -60,10 +61,26 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 		return addCell(null, 1, 2);
 	}
 
+	/**
+	 * USE WITH CARE - this exposes the raw table interface.
+	 *
+	 * @param colSpan
+	 * @param rowSpan
+	 * @return
+	 */
+	@Nonnull
 	public TD addCell(int colSpan, int rowSpan) {
 		return addCell(null, colSpan, rowSpan);
 	}
 
+	/**
+	 * USE WITH CARE - this exposes the raw table interface.
+	 * @param css
+	 * @param colSpan
+	 * @param rowSpan
+	 * @return
+	 */
+	@Nonnull
 	public TD addCell(String css, int colSpan, int rowSpan) {
 		TR tr = getLabelRow();
 		TD td = tr.addCell(css);
@@ -79,11 +96,13 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 	/**
 	 * @return
 	 */
+	@Nonnull
 	public TR getLabelRow() {
 		checkRows();
 		return m_labelRow;
 	}
 
+	@Nonnull
 	public TR getEditRow() {
 		checkRows();
 		return m_editRow;
@@ -105,7 +124,7 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 					tbody();
 				else {
 					//-- We have an existing table and body... The body must be empty or we need to create new table and body.
-					if(getTBody().getChildCount() > 0) {
+					if(tbody().getChildCount() > 0) {
 						reset();
 					}
 				}
@@ -146,11 +165,12 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 	 * @param l
 	 * @param list
 	 */
-	private void modalAdd(NodeBase l, NodeBase[] list, boolean editable) {
+	private void modalAdd(@Nullable NodeBase l, @Nonnull NodeBase[] list, boolean editable) {
 		TR tr = getLabelRow(); // Row containing zhe labelz.
 		TD td = tr.addCell(); // Create cell for label;
 		td.setCssClass(m_labelClass == null ? m_defaultLabelClass : m_labelClass);
-		td.add(l);
+		if(null != l)
+			td.add(l);
 		if(m_labelColSpan > 1)
 			td.setColspan(m_labelColSpan);
 		if(m_labelRowSpan > 1)
@@ -244,6 +264,7 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 	 * @param x
 	 * @return
 	 */
+	@Nonnull
 	public HorizontalFormBuilder colSpan(int x) {
 		if(x < 0)
 			throw new IllegalArgumentException("colspan " + x + " must be > 0");
@@ -257,6 +278,7 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 	 * @param x
 	 * @return
 	 */
+	@Nonnull
 	public HorizontalFormBuilder rowSpan(int x) {
 		if(x < 0)
 			throw new IllegalArgumentException("rowspan " + x + " must be > 0");
@@ -270,6 +292,7 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 	 * @param x
 	 * @return
 	 */
+	@Nonnull
 	public HorizontalFormBuilder labelColSpan(int x) {
 		if(x < 0)
 			throw new IllegalArgumentException("colspan " + x + " must be > 0");
@@ -282,6 +305,7 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 	 * @param x
 	 * @return
 	 */
+	@Nonnull
 	public HorizontalFormBuilder labelRowSpan(int x) {
 		if(x < 0)
 			throw new IllegalArgumentException("rowspan " + x + " must be > 0");
@@ -294,6 +318,7 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 	 * @param x
 	 * @return
 	 */
+	@Nonnull
 	public HorizontalFormBuilder controlColSpan(int x) {
 		if(x < 0)
 			throw new IllegalArgumentException("colspan " + x + " must be > 0");
@@ -306,6 +331,7 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 	 * @param x
 	 * @return
 	 */
+	@Nonnull
 	public HorizontalFormBuilder controlRowSpan(int x) {
 		if(x < 0)
 			throw new IllegalArgumentException("rowspan " + x + " must be > 0");
@@ -313,63 +339,75 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 		return this;
 	}
 
-	public HorizontalFormBuilder defaultLabelClass(String defaultLabelClass) {
+	@Nonnull
+	public HorizontalFormBuilder defaultLabelClass(@Nullable String defaultLabelClass) {
 		m_defaultLabelClass = defaultLabelClass;
 		return this;
 	}
 
-	public HorizontalFormBuilder defaultControlClass(String defaultControlClass) {
+	@Nonnull
+	public HorizontalFormBuilder defaultControlClass(@Nullable String defaultControlClass) {
 		m_defaultControlClass = defaultControlClass;
 		return this;
 	}
 
-	public HorizontalFormBuilder labelClass(String labelClass) {
+	@Nonnull
+	public HorizontalFormBuilder labelClass(@Nullable String labelClass) {
 		m_labelClass = labelClass;
 		return this;
 	}
 
-	public HorizontalFormBuilder controlClass(String controlClass) {
+	@Nonnull
+	public HorizontalFormBuilder controlClass(@Nullable String controlClass) {
 		m_controlClass = controlClass;
 		return this;
 	}
 
+	@Nonnull
 	public HorizontalFormBuilder tablePerRow() {
 		m_tableMode = TableMode.perRow;
 		return this;
 	}
 
+	@Nonnull
 	public HorizontalFormBuilder tablePerForm() {
 		m_tableMode = TableMode.perForm;
 		return this;
 	}
 
-	public HorizontalFormBuilder labelWidth(String s) {
+	@Nonnull
+	public HorizontalFormBuilder labelWidth(@Nullable String s) {
 		m_labelWidth = s;
 		return this;
 	}
 
-	public HorizontalFormBuilder controlWidth(String s) {
+	@Nonnull
+	public HorizontalFormBuilder controlWidth(@Nullable String s) {
 		m_controlWidth = s;
 		return this;
 	}
 
+	@Nonnull
 	public HorizontalFormBuilder labelNowrap() {
 		m_labelNowrap = Boolean.TRUE;
 		return this;
 	}
 
+	@Nonnull
 	public HorizontalFormBuilder controlNowrap() {
 		m_controlNoWrap = Boolean.TRUE;
 		return this;
 	}
 
+	@Nonnull
 	public HorizontalFormBuilder nowrap() {
 		m_labelNowrap = Boolean.TRUE;
 		m_controlNoWrap = Boolean.TRUE;
 		return this;
 	}
 
-	public HorizontalFormBuilder width(String s) {
+	@Nonnull
+	public HorizontalFormBuilder width(@Nullable String s) {
 		m_labelWidth = s;
 		m_controlWidth = s;
 		return this;

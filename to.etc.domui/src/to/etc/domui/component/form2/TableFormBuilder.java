@@ -84,16 +84,17 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 	 * Called when a new table is added.
 	 * @param t
 	 */
-	protected void onTableAdded(Table t) {}
+	protected void onTableAdded(@Nonnull Table t) {}
 
-	protected void onBodyAdded(TBody b) {}
+	protected void onBodyAdded(@Nonnull TBody b) {}
 
-	protected void onRowAdded(TR row) {}
+	protected void onRowAdded(@Nonnull TR row) {}
 
 	/**
 	 * Return the current table, or null if nothing is current.
 	 * @return
 	 */
+	@Nullable
 	public Table getTable() {
 		return m_parentTable;
 	}
@@ -102,6 +103,7 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 	 * Return the current tbody, or null if nothing is current.
 	 * @return
 	 */
+	@Nullable
 	public TBody getTBody() {
 		return m_tbody;
 	}
@@ -111,6 +113,7 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 	 * is created this fires the {@link #onTableAdded(Table)} event.
 	 * @return
 	 */
+	@Nonnull
 	protected Table table() {
 		if(m_parentTable == null) {
 			m_parentTable = new Table();
@@ -128,6 +131,7 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 	 * is created this fires the {@link #onBodyAdded(TBody)} event.
 	 * @return
 	 */
+	@Nonnull
 	protected TBody tbody() {
 		if(m_tbody == null) {
 			m_tbody = table().getBody();
@@ -145,6 +149,7 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 	 *
 	 * @return
 	 */
+	@Nonnull
 	public TBody newBody() {
 		m_tbody = new TBody();
 		table().add(m_tbody);
@@ -196,6 +201,7 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 	 * @param ix
 	 * @return
 	 */
+	@Nonnull
 	public TR selectRow(int ix) {
 		while(tbody().getChildCount() <= ix)
 			addRow();
@@ -229,11 +235,11 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 		return addCell(tdcss);
 	}
 
-	protected void setLastUsedRow(TR row) {
+	protected void setLastUsedRow(@Nullable TR row) {
 		m_lastUsedRow = row;
 	}
 
-	protected void setLastUsedCell(TD cell) {
+	protected void setLastUsedCell(@Nullable TD cell) {
 		//		m_lastUsedCell = cell;
 	}
 }

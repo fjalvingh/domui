@@ -26,6 +26,7 @@ package to.etc.domui.component.form2;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;

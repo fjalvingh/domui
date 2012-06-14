@@ -22,7 +22,9 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.form;
+package to.etc.domui.component.controlfactory;
+
+import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
@@ -37,6 +39,7 @@ import to.etc.domui.util.*;
  */
 public class ControlFactoryResult {
 	/** The list of nodes forming the control */
+	@Nonnull
 	private final NodeBase[] m_nodeList;
 
 	/** The binding of the control to it's model and property */
@@ -48,23 +51,11 @@ public class ControlFactoryResult {
 	/** The FormControl handle for the created control */
 	private IControl< ? > m_handle;
 
-	// jal 20091206 tentative removal of unused/unusable constructors because they do not expose the IFormControl interface
-	//		public ControlFactoryResult(final IModelBinding binding, final NodeBase labelNode, final NodeBase[] nodeList) {
-	//			m_binding = binding;
-	//			m_labelNode = labelNode;
-	//			m_nodeList = nodeList;
-	//		}
-
-	//		public ControlFactoryResult(final IModelBinding binding, final NodeBase control) {
-	//			m_binding = binding;
-	//			m_labelNode = control;
-	//			m_nodeList = new NodeBase[]{control};
-	//		}
-	public ControlFactoryResult(final IModelBinding binding, IControl< ? > fc, final NodeBase control) {
+	public ControlFactoryResult(final IModelBinding binding, IControl< ? > fc, final NodeBase labelNode) {
 		m_binding = binding;
-		m_labelNode = control;
+		m_labelNode = labelNode;
 		m_handle = fc;
-		m_nodeList = new NodeBase[]{control};
+		m_nodeList = new NodeBase[]{labelNode};
 	}
 
 	public ControlFactoryResult(IControl< ? > handle, NodeBase[] nodeList, NodeBase labelNode, IModelBinding binding) {
