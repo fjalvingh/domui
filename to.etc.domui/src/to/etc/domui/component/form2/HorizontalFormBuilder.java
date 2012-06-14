@@ -22,14 +22,14 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.builder;
+package to.etc.domui.component.form2;
 
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
-public class HorizontalFormLayouter extends GenericTableLayouter implements IFormLayouter {
+public class HorizontalFormBuilder extends TableFormBuilder {
 	private TR m_labelRow;
 
 	private TR m_editRow;
@@ -40,10 +40,13 @@ public class HorizontalFormLayouter extends GenericTableLayouter implements IFor
 
 	private TableMode m_tableMode = TableMode.perForm;
 
-	/**
-	 * Uninitialized form builder.
-	 */
-	public HorizontalFormLayouter() {}
+	public HorizontalFormBuilder(@Nonnull IAppender a) {
+		super(a);
+	}
+
+	public HorizontalFormBuilder(@Nonnull NodeContainer target) {
+		super(target);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple helpers										*/
@@ -130,10 +133,13 @@ public class HorizontalFormLayouter extends GenericTableLayouter implements IFor
 	}
 
 	@Override
-	public void setBulkMode(boolean onoff) {
-		if(!onoff)
-			clearRun();
+	protected void startBulkLayout() {}
+
+	@Override
+	protected void endBulkLayout() {
+		clearRun();
 	}
+
 
 	/**
 	 * Adds the presentation for a label AND a control to the form.
@@ -238,7 +244,7 @@ public class HorizontalFormLayouter extends GenericTableLayouter implements IFor
 	 * @param x
 	 * @return
 	 */
-	public HorizontalFormLayouter colSpan(int x) {
+	public HorizontalFormBuilder colSpan(int x) {
 		if(x < 0)
 			throw new IllegalArgumentException("colspan " + x + " must be > 0");
 		m_labelColSpan = x;
@@ -251,7 +257,7 @@ public class HorizontalFormLayouter extends GenericTableLayouter implements IFor
 	 * @param x
 	 * @return
 	 */
-	public HorizontalFormLayouter rowSpan(int x) {
+	public HorizontalFormBuilder rowSpan(int x) {
 		if(x < 0)
 			throw new IllegalArgumentException("rowspan " + x + " must be > 0");
 		m_labelRowSpan = x;
@@ -264,7 +270,7 @@ public class HorizontalFormLayouter extends GenericTableLayouter implements IFor
 	 * @param x
 	 * @return
 	 */
-	public HorizontalFormLayouter labelColSpan(int x) {
+	public HorizontalFormBuilder labelColSpan(int x) {
 		if(x < 0)
 			throw new IllegalArgumentException("colspan " + x + " must be > 0");
 		m_labelColSpan = x;
@@ -276,7 +282,7 @@ public class HorizontalFormLayouter extends GenericTableLayouter implements IFor
 	 * @param x
 	 * @return
 	 */
-	public HorizontalFormLayouter labelRowSpan(int x) {
+	public HorizontalFormBuilder labelRowSpan(int x) {
 		if(x < 0)
 			throw new IllegalArgumentException("rowspan " + x + " must be > 0");
 		m_labelRowSpan = x;
@@ -288,7 +294,7 @@ public class HorizontalFormLayouter extends GenericTableLayouter implements IFor
 	 * @param x
 	 * @return
 	 */
-	public HorizontalFormLayouter controlColSpan(int x) {
+	public HorizontalFormBuilder controlColSpan(int x) {
 		if(x < 0)
 			throw new IllegalArgumentException("colspan " + x + " must be > 0");
 		m_controlColSpan = x;
@@ -300,70 +306,70 @@ public class HorizontalFormLayouter extends GenericTableLayouter implements IFor
 	 * @param x
 	 * @return
 	 */
-	public HorizontalFormLayouter controlRowSpan(int x) {
+	public HorizontalFormBuilder controlRowSpan(int x) {
 		if(x < 0)
 			throw new IllegalArgumentException("rowspan " + x + " must be > 0");
 		m_controlRowSpan = x;
 		return this;
 	}
 
-	public HorizontalFormLayouter defaultLabelClass(String defaultLabelClass) {
+	public HorizontalFormBuilder defaultLabelClass(String defaultLabelClass) {
 		m_defaultLabelClass = defaultLabelClass;
 		return this;
 	}
 
-	public HorizontalFormLayouter defaultControlClass(String defaultControlClass) {
+	public HorizontalFormBuilder defaultControlClass(String defaultControlClass) {
 		m_defaultControlClass = defaultControlClass;
 		return this;
 	}
 
-	public HorizontalFormLayouter labelClass(String labelClass) {
+	public HorizontalFormBuilder labelClass(String labelClass) {
 		m_labelClass = labelClass;
 		return this;
 	}
 
-	public HorizontalFormLayouter controlClass(String controlClass) {
+	public HorizontalFormBuilder controlClass(String controlClass) {
 		m_controlClass = controlClass;
 		return this;
 	}
 
-	public HorizontalFormLayouter tablePerRow() {
+	public HorizontalFormBuilder tablePerRow() {
 		m_tableMode = TableMode.perRow;
 		return this;
 	}
 
-	public HorizontalFormLayouter tablePerForm() {
+	public HorizontalFormBuilder tablePerForm() {
 		m_tableMode = TableMode.perForm;
 		return this;
 	}
 
-	public HorizontalFormLayouter labelWidth(String s) {
+	public HorizontalFormBuilder labelWidth(String s) {
 		m_labelWidth = s;
 		return this;
 	}
 
-	public HorizontalFormLayouter controlWidth(String s) {
+	public HorizontalFormBuilder controlWidth(String s) {
 		m_controlWidth = s;
 		return this;
 	}
 
-	public HorizontalFormLayouter labelNowrap() {
+	public HorizontalFormBuilder labelNowrap() {
 		m_labelNowrap = Boolean.TRUE;
 		return this;
 	}
 
-	public HorizontalFormLayouter controlNowrap() {
+	public HorizontalFormBuilder controlNowrap() {
 		m_controlNoWrap = Boolean.TRUE;
 		return this;
 	}
 
-	public HorizontalFormLayouter nowrap() {
+	public HorizontalFormBuilder nowrap() {
 		m_labelNowrap = Boolean.TRUE;
 		m_controlNoWrap = Boolean.TRUE;
 		return this;
 	}
 
-	public HorizontalFormLayouter width(String s) {
+	public HorizontalFormBuilder width(String s) {
 		m_labelWidth = s;
 		m_controlWidth = s;
 		return this;

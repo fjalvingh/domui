@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.builder;
+package to.etc.domui.component.form2;
 
 import javax.annotation.*;
 
@@ -40,17 +40,14 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 13, 2009
  */
-final public class FormBuilder {
-	static protected final Logger LOG = LoggerFactory.getLogger(FormBuilder.class);
+abstract public class AbstractFormBuilder {
+	static protected final Logger LOG = LoggerFactory.getLogger(AbstractFormBuilder.class);
 
 	@Nonnull
 	private ModelBindings m_bindings = new ModelBindings();
 
 	@Nullable
 	private ControlBuilder m_builder;
-
-	@Nonnull
-	private IFormLayouter m_layouter;
 
 	@Nullable
 	private IControlLabelFactory m_controlLabelFactory;
@@ -72,49 +69,34 @@ final public class FormBuilder {
 	@Nonnull
 	final private IAppender m_appender;
 
+	abstract protected void addControl(@Nullable NodeBase label, @Nullable NodeBase labelnode, @Nonnull NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm);
+
+	abstract protected void addContent(@Nullable NodeBase label, @Nonnull NodeBase[] control, boolean editable);
+
+	abstract protected void startBulkLayout();
+
+	abstract protected void endBulkLayout();
+
 	/**
 	 * Attach all nodes through the {@link IAppender} - all nodes are added using the
 	 * {@link IAppender#add(NodeContainer)} method.
 	 * @param a
 	 */
-	public FormBuilder(@Nonnull IAppender a, @Nullable IFormLayouter form) {
+	protected AbstractFormBuilder(@Nonnull IAppender a) {
 		m_appender = a;
-		m_layouter = form;
-		if(null != form)
-			form.attached(this);
 	}
 
 	/**
 	 *
 	 * @param target
 	 */
-	public FormBuilder(@Nonnull final NodeContainer target, @Nullable IFormLayouter form) {
+	protected AbstractFormBuilder(@Nonnull final NodeContainer target) {
 		this(new IAppender() {
 			@Override
 			public void add(@Nonnull NodeBase formNode) {
 				target.add(formNode);
 			}
-		}, form);
-	}
-
-	public FormBuilder(@Nonnull final NodeContainer target) {
-		this(target, null);
-	}
-
-	public FormBuilder(@Nonnull IAppender a) {
-		this(a, null);
-	}
-
-	public FormBuilder(@Nonnull NodeContainer node, boolean horizontal) {
-		this(node, horizontal ? new HorizontalFormLayouter() : new VerticalFormLayouter());
-	}
-
-	final protected void addControl(@Nullable NodeBase label, @Nullable NodeBase labelnode, @Nonnull NodeBase[] list, boolean mandatory, boolean editable, @Nonnull PropertyMetaModel< ? > pmm) {
-		getLayouter().addControl(label, labelnode, list, mandatory, editable, pmm);
-	}
-
-	final protected void addContent(@Nullable NodeBase label, @Nonnull NodeBase[] control, boolean editable) {
-		getLayouter().addContent(label, control, editable);
+		});
 	}
 
 	final protected void addControl(@Nullable String label, @Nullable NodeBase labelnode, @Nonnull NodeBase[] list, boolean mandatory, boolean editable, @Nonnull PropertyMetaModel< ? > pmm) {
@@ -125,7 +107,7 @@ final public class FormBuilder {
 				throw new IllegalStateException("Programmer error: the DomApplication instance returned a null IControlLabelFactory!?!?!?!?");
 		}
 		Label l = clf.createControlLabel(labelnode, label, editable, mandatory, pmm);
-		getLayouter().addControl(l, labelnode, list, mandatory, editable, pmm);
+		addControl(l, labelnode, list, mandatory, editable, pmm);
 	}
 
 	/**
@@ -134,11 +116,6 @@ final public class FormBuilder {
 	 */
 	public void appendFormNode(@Nonnull NodeBase node) {
 		m_appender.add(node);
-	}
-
-	public void finish() {
-		if(m_layouter != null)
-			m_layouter.finish();
 	}
 
 	@Nonnull
@@ -204,35 +181,5 @@ final public class FormBuilder {
 		m_lastBuilder = b;
 		m_lastBuilderThingy = instance;
 		return b;
-	}
-
-	public void startBulkLayout() {
-		getLayouter().setBulkMode(true);
-	}
-
-	public void endBulkLayout() {
-		getLayouter().setBulkMode(false);
-	}
-
-	@Nonnull
-	public IFormLayouter getLayouter() {
-		if(null == m_layouter) {
-			setLayouter(new VerticalFormLayouter());
-		}
-		return m_layouter;
-	}
-
-	/**
-	 * Set a new layouter. The previous one is "finished".
-	 * @param layouter
-	 */
-	public void setLayouter(@Nonnull IFormLayouter layouter) {
-		if(m_lastBuilder == layouter)
-			return;
-		if(m_layouter != null)
-			m_layouter.finish();
-		if(layouter != null)
-			layouter.attached(this);
-		m_layouter = layouter;
 	}
 }
