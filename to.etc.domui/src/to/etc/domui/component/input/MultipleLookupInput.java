@@ -3,6 +3,7 @@ package to.etc.domui.component.input;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.jms.IllegalStateException;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.LookupInputBase.ILookupFormModifier;
@@ -49,7 +50,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 			m_isSelectionModel.addListener(new ISelectionListener<T>() {
 
 				@Override
-				public void selectionChanged(T row, boolean on) throws Exception {
+				public void selectionChanged(@Nonnull T row, boolean on) throws Exception {
 					showSelectedCount();
 				}
 
@@ -64,14 +65,23 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 			return m_isSelectionModel.getSelectedSet();
 		}
 
-		public void showSelectedCount() {
+		public void showSelectedCount() throws IllegalStateException {
 			final int selectionCount = m_isSelectionModel.getSelectionCount();
-			final Window window = (Window) getLookupForm().getParentOfTypes(Window.class);
+			final Window window = getLookupWindow();
 			window.setWindowTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_LUI_TTL_MULTI, Integer.valueOf(selectionCount)));
 		}
 
+		@Nonnull
+		private Window getLookupWindow() throws IllegalStateException {
+			LookupForm<T> lookupForm = getLookupForm();
+			if(lookupForm != null) {
+				return lookupForm.getParent(Window.class);
+			}
+			throw new IllegalStateException("Lookup form not found where expected");
+		}
+
 		@Override
-		void handleSetValue(T value) throws Exception {
+		void handleSetValue(@Nullable T value) throws Exception {
 			if(!isPopupShown()) {
 				/*
 				 * if set from lookup input - business as usual...
@@ -82,7 +92,9 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 				 * if set from lookup form, select that value in model, instead od setting value and closing.
 				 * Effectively click on row is same as click on check box.
 				 */
-				m_isSelectionModel.setInstanceSelected(value, !m_isSelectionModel.isSelected(value));
+				if(value != null) {
+					m_isSelectionModel.setInstanceSelected(value, !m_isSelectionModel.isSelected(value));
+				}
 				showSelectedCount();
 			}
 		}
@@ -162,7 +174,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		m_lookupInput.setLookupFormInitialization(new ILookupFormModifier<T>() {
 			private boolean initialized = false;
 			@Override
-			public void initialize(LookupForm<T> lf) throws Exception {
+			public void initialize(@Nonnull LookupForm<T> lf) throws Exception {
 				if(!initialized) {
 					DefaultButton confirm = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
 					confirm.setIcon("THEME/btnConfirm.png");
@@ -303,6 +315,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		return itemNode;
 	}
 
+	@Nonnull
 	public LookupInput<T> getMultipleLookupInput() {
 		return m_lookupInput;
 	}
