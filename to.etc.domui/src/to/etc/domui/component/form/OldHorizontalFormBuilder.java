@@ -245,7 +245,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 	 * @param span Specify cell span.
 	 * @return
 	 */
-	public <C> IControl<C> addPropWithSpan(final String name, final String label, final boolean readOnly, final boolean mandatory, int colSpan) {
+	public <C> IControl< ? > addPropWithSpan(final String name, final String label, final boolean readOnly, final boolean mandatory, int colSpan) {
 		PropertyMetaModel<C> pmm = (PropertyMetaModel<C>) resolveProperty(name);
 
 		final ControlFactoryResult r = createControlFor(getModel(), pmm, !readOnly); // Add the proper input control for that type
@@ -258,7 +258,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 		}
 
 		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
-		return (IControl<C>) r.getFormControl();
+		return r.getFormControl();
 	}
 
 	/**

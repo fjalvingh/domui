@@ -31,56 +31,21 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-public class SimpleComponentPropertyBinding<T> implements IModelBinding, IControl<T> {
-	@Nonnull
-	final IControl<T> m_control;
-
-	@Nonnull
-	final private PropertyMetaModel<T> m_propertyMeta;
-
-	@Nonnull
-	final private IReadOnlyModel< ? > m_model;
-
-	public SimpleComponentPropertyBinding(@Nonnull IReadOnlyModel< ? > model, @Nonnull PropertyMetaModel<T> propertyMeta, @Nonnull IControl<T> control) {
-		m_model = model;
-		m_propertyMeta = propertyMeta;
-		m_control = control;
+public class SimpleComponentPropertyBinding<T> extends ComponentPropertyBinding<T, T> implements IModelBinding, IControl<T> {
+	public SimpleComponentPropertyBinding(IReadOnlyModel< ? > model, PropertyMetaModel<T> propertyMeta, IControl<T> control) {
+		super(model, propertyMeta, control);
 	}
 
 	@Override
-	public void moveControlToModel() throws Exception {
-		T val = m_control.getValue();
-		Object base = m_model.getValue();
-		m_propertyMeta.setValue(base, val);
+	protected T convertControlToValue(@Nullable T zheValue) throws Exception {
+		return zheValue;
 	}
 
 	@Override
-	public void moveModelToControl() throws Exception {
-		Object base = m_model.getValue();
-		T pval = m_propertyMeta.getValue(base);
-		m_control.setValue(pval);
+	@Nullable
+	protected T convertValueToControl(@Nullable T zheValue) throws Exception {
+		return zheValue;
 	}
-
-	@Override
-	public void setControlsEnabled(boolean on) {
-		m_control.setReadOnly(!on);
-	}
-
-	@Nonnull
-	public IControl<T> getControl() {
-		return m_control;
-	}
-
-	@Nonnull
-	public PropertyMetaModel<T> getPropertyMeta() {
-		return m_propertyMeta;
-	}
-
-	@Nonnull
-	public IReadOnlyModel< ? > getModel() {
-		return m_model;
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IControl interface									*/
