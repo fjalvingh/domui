@@ -24,19 +24,24 @@
  */
 package to.etc.domui.component.controlfactory;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 public class SimpleComponentPropertyBinding<T> implements IModelBinding, IControl<T> {
+	@Nonnull
 	final IControl<T> m_control;
 
-	private PropertyMetaModel<T> m_propertyMeta;
+	@Nonnull
+	final private PropertyMetaModel<T> m_propertyMeta;
 
-	private IReadOnlyModel< ? > m_model;
+	@Nonnull
+	final private IReadOnlyModel< ? > m_model;
 
-	public SimpleComponentPropertyBinding(IReadOnlyModel< ? > model, PropertyMetaModel<T> propertyMeta, IInputNode<T> control) {
+	public SimpleComponentPropertyBinding(@Nonnull IReadOnlyModel< ? > model, @Nonnull PropertyMetaModel<T> propertyMeta, @Nonnull IControl<T> control) {
 		m_model = model;
 		m_propertyMeta = propertyMeta;
 		m_control = control;
@@ -60,6 +65,22 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 	public void setControlsEnabled(boolean on) {
 		m_control.setReadOnly(!on);
 	}
+
+	@Nonnull
+	public IControl<T> getControl() {
+		return m_control;
+	}
+
+	@Nonnull
+	public PropertyMetaModel<T> getPropertyMeta() {
+		return m_propertyMeta;
+	}
+
+	@Nonnull
+	public IReadOnlyModel< ? > getModel() {
+		return m_model;
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IControl interface									*/
@@ -207,17 +228,5 @@ public class SimpleComponentPropertyBinding<T> implements IModelBinding, IContro
 	@Override
 	public void setErrorLocation(String errorLocation) {
 		m_control.setErrorLocation(errorLocation);
-	}
-
-	public IControl<T> getControl() {
-		return m_control;
-	}
-
-	public PropertyMetaModel<T> getPropertyMeta() {
-		return m_propertyMeta;
-	}
-
-	public IReadOnlyModel< ? > getModel() {
-		return m_model;
 	}
 }

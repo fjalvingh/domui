@@ -37,7 +37,8 @@ import to.etc.domui.util.*;
  * Created on Mar 16, 2010
  */
 public class DisplayHtml extends Div implements IDisplayControl<String>, IBindable {
-	private XmlTextNode m_xtn = new XmlTextNode();
+	@Nonnull
+	final private XmlTextNode m_xtn = new XmlTextNode();
 
 	private boolean m_unchecked;
 
@@ -122,5 +123,54 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 			return;
 		m_mode = mode;
 		forceRebuild();
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IControl implementation.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
+	 */
+	@Override
+	public IValueChanged< ? > getOnValueChanged() {
+		return null;
+	}
+
+	@Override
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		throw new UnsupportedOperationException("Display control");
+	}
+
+	@Override
+	public String getValueSafe() {
+		return getValue();
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return true;
+	}
+
+	@Override
+	public void setReadOnly(boolean ro) {
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return false;
+	}
+
+	@Override
+	public boolean isMandatory() {
+		return false;
+	}
+
+	@Override
+	public void setMandatory(boolean ro) {
+	}
+
+	@Override
+	public void setDisabled(boolean d) {
 	}
 }

@@ -41,12 +41,12 @@ public interface INodeErrorDelegate {
 	 *
 	 * @param message
 	 */
-	public UIMessage setMessage(UIMessage msg);
+	UIMessage setMessage(UIMessage msg);
 
 	/**
 	 * Remove this-component's "current" error message, if present.
 	 */
-	public void clearMessage();
+	void clearMessage();
 
-	public UIMessage getMessage();
+	UIMessage getMessage();
 }

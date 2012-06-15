@@ -46,21 +46,21 @@ public class ControlFactoryResult {
 	@Nonnull
 	private IControl< ? > m_handle;
 
-	//	public <T extends NodeBase & IControl< ? >> ControlFactoryResult(@Nonnull T fc) {
-	//		m_labelNode = fc;
-	//		m_handle = fc;
-	//		m_nodeList = new NodeBase[]{fc};
-	//	}
-
-	public <T extends NodeBase & IDisplayControl< ? >> ControlFactoryResult(@Nonnull final T control) {
-		m_labelNode = control;
-		m_nodeList = new NodeBase[]{control};
-		//		m_handle = control;
-		//
-		//		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
-		//		if(control instanceof IBindable)
-		//			((IBindable) control).bind().to(model, pmm);
+	public <T extends NodeBase & IControl< ? >> ControlFactoryResult(@Nonnull final T fc) {
+		m_labelNode = fc;
+		m_handle = fc;
+		m_nodeList = new NodeBase[]{fc};
 	}
+
+	//	public <T extends NodeBase & IDisplayControl< ? >> ControlFactoryResult(@Nonnull final T control) {
+	//		m_labelNode = control;
+	//		m_nodeList = new NodeBase[]{control};
+	//		//		m_handle = control;
+	//		//
+	//		//		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
+	//		//		if(control instanceof IBindable)
+	//		//			((IBindable) control).bind().to(model, pmm);
+	//	}
 
 	public ControlFactoryResult(@Nonnull IControl< ? > fc, @Nullable final NodeBase labelNode) {
 		m_labelNode = labelNode;

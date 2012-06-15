@@ -101,4 +101,54 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IControl implementation.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
+	 */
+	@Override
+	public Boolean getValueSafe() {
+		return getValue();
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return true;
+	}
+
+	@Override
+	public void setReadOnly(boolean ro) {
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return false;
+	}
+
+	@Override
+	public boolean isMandatory() {
+		return false;
+	}
+
+	@Override
+	public void setMandatory(boolean ro) {
+	}
+
+	@Override
+	public void setDisabled(boolean d) {
+	}
+
+	@Override
+	public IValueChanged< ? > getOnValueChanged() {
+		return null;
+	}
+
+	@Override
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		throw new UnsupportedOperationException("Display control");
+	}
 }

@@ -142,8 +142,8 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
 	 */
 	@Nonnull
-	public IControl< ? > addProp(final String name, String label, final boolean editable, final boolean mandatory) {
-		PropertyMetaModel< ? > pmm = resolveProperty(name);
+	public <C> IControl<C> addProp(final String name, String label, final boolean editable, final boolean mandatory) {
+		PropertyMetaModel<C> pmm = (PropertyMetaModel<C>) resolveProperty(name);
 
 		//-- Check control permissions: does it have view permissions?
 		final ControlFactoryResult r = createControlFor(getModel(), pmm, editable); // Add the proper input control for that type
@@ -155,13 +155,14 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			for(NodeBase b : r.getNodeList())
 				b.setErrorLocation(label);
 		}
+		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
 
-		IModelBinding binding = r.getBinding();
-		if(binding != null)
-			getBindings().add(binding);
-		else
-			throw new IllegalStateException("No binding for a " + r);
-		return r.getFormControl();
+		//		IModelBinding binding = r.getBinding();
+		//		if(binding != null)
+		//			getBindings().add(binding);
+		//		else
+		//			throw new IllegalStateException("No binding for a " + r);
+		return (IControl<C>) r.getFormControl();
 	}
 
 	/**
@@ -332,7 +333,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @return	If the property was created and is controllable this will return an IFormControl instance. This will explicitly <i>not</i> be
 	 * 			created if the control is display-only, not allowed by permissions or simply uncontrollable (the last one is uncommon).
 	 */
-	protected IControl< ? > addPropertyControl(final String name, final String label, final PropertyMetaModel< ? > pmm, final boolean editable) {
+	protected <C> IControl<C> addPropertyControl(final String name, final String label, final PropertyMetaModel<C> pmm, final boolean editable) {
 		//-- Check control permissions: does it have view permissions?
 		final ControlFactoryResult r = createControlFor(getModel(), pmm, editable); // Add the proper input control for that type
 		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), editable, pmm);
@@ -342,13 +343,8 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			for(NodeBase b : r.getNodeList())
 				b.setErrorLocation(label);
 		}
-
-		IModelBinding binding = r.getBinding();
-		if(binding != null)
-			getBindings().add(binding);
-		else
-			throw new IllegalStateException("No binding for a " + r);
-		return r.getFormControl();
+		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
+		return (IControl<C>) r.getFormControl();
 	}
 
 

@@ -174,12 +174,7 @@ public class FormData<T> {
 			for(NodeBase b : r.getNodeList())
 				b.setErrorLocation(label);
 		}
-
-		IModelBinding binding = r.getBinding();
-		if(binding != null)
-			getBindings().add(binding);
-		else
-			throw new IllegalStateException("No binding for a " + r);
+		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
 		return (IControl<C>) r.getFormControl();
 	}
 
