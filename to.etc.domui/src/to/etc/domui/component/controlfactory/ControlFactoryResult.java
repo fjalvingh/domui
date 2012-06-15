@@ -49,23 +49,24 @@ public class ControlFactoryResult {
 	private final NodeBase m_labelNode;
 
 	/** The FormControl handle for the created control */
+	@Nonnull
 	private IControl< ? > m_handle;
 
-	public ControlFactoryResult(final IModelBinding binding, IControl< ? > fc, final NodeBase labelNode) {
+	public ControlFactoryResult(final IModelBinding binding, @Nonnull IControl< ? > fc, @Nullable final NodeBase labelNode) {
 		m_binding = binding;
 		m_labelNode = labelNode;
 		m_handle = fc;
 		m_nodeList = new NodeBase[]{labelNode};
 	}
 
-	public ControlFactoryResult(IControl< ? > handle, NodeBase[] nodeList, NodeBase labelNode, IModelBinding binding) {
+	public ControlFactoryResult(@Nonnull IControl< ? > handle, @Nonnull NodeBase[] nodeList, @Nullable NodeBase labelNode, IModelBinding binding) {
 		m_handle = handle;
 		m_nodeList = nodeList;
 		m_labelNode = labelNode;
 		m_binding = binding;
 	}
 
-	public <M, C> ControlFactoryResult(final IInputNode<C> control, final IReadOnlyModel<M> model, final PropertyMetaModel<C> pmm) {
+	public <M, C> ControlFactoryResult(@Nonnull final IInputNode<C> control, @Nonnull final IReadOnlyModel<M> model, @Nonnull final PropertyMetaModel<C> pmm) {
 		m_labelNode = (NodeBase) control;
 		m_nodeList = new NodeBase[]{(NodeBase) control};
 		SimpleComponentPropertyBinding<C> b = new SimpleComponentPropertyBinding<C>(model, pmm, control);
@@ -76,7 +77,7 @@ public class ControlFactoryResult {
 		control.bind().to(model, pmm);
 	}
 
-	public <A, B> ControlFactoryResult(final IDisplayControl<A> control, final IReadOnlyModel<B> model, final PropertyMetaModel<A> pmm) {
+	public <A, B> ControlFactoryResult(@Nonnull final IDisplayControl<A> control, @Nonnull final IReadOnlyModel<B> model, @Nonnull final PropertyMetaModel<A> pmm) {
 		m_labelNode = (NodeBase) control;
 		m_nodeList = new NodeBase[]{(NodeBase) control};
 		DisplayOnlyPropertyBinding<A> b = new DisplayOnlyPropertyBinding<A>(model, pmm, control);
@@ -88,22 +89,23 @@ public class ControlFactoryResult {
 			((IBindable) control).bind().to(model, pmm);
 	}
 
-
+	@Nonnull
 	public NodeBase[] getNodeList() {
 		return m_nodeList;
 	}
 
+	@Nullable
 	public IModelBinding getBinding() {
 		return m_binding;
 	}
 
+	@Nullable
 	public NodeBase getLabelNode() {
 		return m_labelNode;
 	}
 
+	@Nonnull
 	public IControl< ? > getFormControl() {
-		if(m_handle != null) // 20091206 jal WTF??
-			return m_handle;
-		return null;
+		return m_handle;
 	}
 }

@@ -46,13 +46,16 @@ import to.etc.webapp.nls.*;
  */
 public class ControlBuilder {
 	//	private DomApplication m_app;
-
+	@Nonnull
 	private List<ControlFactory> m_controlFactoryList = new ArrayList<ControlFactory>();
 
+	@Nonnull
 	private final LookupControlRegistry m_lookupControlRegistry = new LookupControlRegistry();
 
+	@Nonnull
 	private IControlLabelFactory m_controlLabelFactory = new DefaultControlLabelFactory();
 
+	@Nonnull
 	private IControlErrorFragmentFactory m_errorFragmentfactory = new IControlErrorFragmentFactory() {
 		@Override
 		public NodeContainer createErrorFragment() {
@@ -158,26 +161,27 @@ public class ControlBuilder {
 	 *
 	 * @return
 	 */
+	@Nonnull
 	public synchronized IControlLabelFactory getControlLabelFactory() {
 		return m_controlLabelFactory;
 	}
 
-	public synchronized void setControlLabelFactory(final IControlLabelFactory controlLabelFactory) {
+	public synchronized void setControlLabelFactory(@Nonnull final IControlLabelFactory controlLabelFactory) {
 		m_controlLabelFactory = controlLabelFactory;
 	}
 
-
+	@Nonnull
 	public synchronized IControlErrorFragmentFactory getErrorFragmentfactory() {
 		return m_errorFragmentfactory;
 	}
 
-	public synchronized void setErrorFragmentfactory(IControlErrorFragmentFactory errorFragmentfactory) {
+	public synchronized void setErrorFragmentfactory(@Nonnull IControlErrorFragmentFactory errorFragmentfactory) {
 		if(errorFragmentfactory == null)
 			throw new IllegalArgumentException("Cannot accept null");
 		m_errorFragmentfactory = errorFragmentfactory;
 	}
 
-	public void addErrorFragment(NodeContainer nc) {
+	public void addErrorFragment(@Nonnull NodeContainer nc) {
 		NodeContainer lsn = getErrorFragmentfactory().createErrorFragment();
 		nc.add(lsn);
 		DomUtil.getMessageFence(nc).addErrorListener((IErrorMessageListener) lsn);
@@ -190,19 +194,22 @@ public class ControlBuilder {
 	 * Add another LookupControlFactory to the registry.
 	 * @param f
 	 */
-	public void register(final ILookupControlFactory f) {
+	public void register(@Nonnull final ILookupControlFactory f) {
 		m_lookupControlRegistry.register(f);
 	}
 
-	public ILookupControlFactory findLookupControlFactory(final SearchPropertyMetaModel pmm) {
+	@Nullable
+	public ILookupControlFactory findLookupControlFactory(@Nonnull final SearchPropertyMetaModel pmm) {
 		return m_lookupControlRegistry.findFactory(pmm);
 	}
 
-	public ILookupControlFactory getLookupControlFactory(final SearchPropertyMetaModel pmm) {
+	@Nonnull
+	public ILookupControlFactory getLookupControlFactory(@Nonnull final SearchPropertyMetaModel pmm) {
 		return m_lookupControlRegistry.getControlFactory(pmm);
 	}
 
-	public <T, X extends NodeBase & IInputNode<T>> ILookupControlFactory getLookupQueryFactory(final SearchPropertyMetaModel pmm, X control) {
+	@Nonnull
+	public <T, X extends NodeBase & IInputNode<T>> ILookupControlFactory getLookupQueryFactory(@Nonnull final SearchPropertyMetaModel pmm, @Nonnull X control) {
 		return m_lookupControlRegistry.getLookupQueryFactory(pmm, control);
 	}
 
@@ -228,9 +235,9 @@ public class ControlBuilder {
 	 * @param editableWhen
 	 * @return
 	 */
-	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, String propertyName, boolean editable) {
+	public <T> T createControl(@Nonnull Class<T> controlClass, @Nonnull Class< ? > dataClass, @Nonnull String propertyName, boolean editable) {
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(dataClass, propertyName); // Must exist or throws exception.
-		return createControl(controlClass, dataClass, pmm, editable);
+		return createControl(controlClass, pmm, editable);
 	}
 
 	@Nonnull
@@ -250,7 +257,7 @@ public class ControlBuilder {
 	 * @param editable
 	 * @return
 	 */
-	public <T> T createControl(Class<T> controlClass, Class< ? > dataClass, PropertyMetaModel< ? > pmm, boolean editable) {
+	public <T> T createControl(@Nonnull Class<T> controlClass, @Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
 		if(controlClass == null)
 			throw new IllegalArgumentException("controlClass cannot be null");
 		ControlFactory cf = getControlFactory(pmm, editable, null);

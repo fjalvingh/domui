@@ -156,8 +156,9 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 				b.setErrorLocation(label);
 		}
 
-		if(r.getBinding() != null)
-			getBindings().add(r.getBinding());
+		IModelBinding binding = r.getBinding();
+		if(binding != null)
+			getBindings().add(binding);
 		else
 			throw new IllegalStateException("No binding for a " + r);
 		return r.getFormControl();
@@ -342,8 +343,9 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 				b.setErrorLocation(label);
 		}
 
-		if(r.getBinding() != null)
-			getBindings().add(r.getBinding());
+		IModelBinding binding = r.getBinding();
+		if(binding != null)
+			getBindings().add(binding);
 		else
 			throw new IllegalStateException("No binding for a " + r);
 		return r.getFormControl();

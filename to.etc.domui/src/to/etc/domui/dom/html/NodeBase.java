@@ -29,7 +29,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.form.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
