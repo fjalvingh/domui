@@ -32,7 +32,6 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.converter.*;
-import to.etc.domui.util.*;
 
 /**
  * Factory which creates a Text input specialized for entering monetary amounts. This
@@ -65,15 +64,10 @@ public class ControlFactoryMoney implements ControlFactory {
 	 */
 	@Override
 	@SuppressWarnings({"unchecked"})
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		Class<T> iclz = pmm.getActualType();
 
 		if(!editable) {
-			/*
-			 * 20100302 vmijic - added DisplayValue as money readonly presentation
-			 * FIXME EXPERIMENTAL: replace the code below (which is still fully available) with the
-			 * display-only component.
-			 */
 			DisplayValue<T> dv = new DisplayValue<T>(iclz);
 			//			dv.setTextAlign(TextAlign.RIGHT);
 			dv.addCssClass("ui-numeric");
@@ -81,7 +75,7 @@ public class ControlFactoryMoney implements ControlFactory {
 			String s = pmm.getDefaultHint();
 			if(s != null)
 				dv.setTitle(s);
-			return new ControlFactoryResult(dv, model, pmm);
+			return new ControlFactoryResult(dv);
 		}
 
 		Text<T> txt;
@@ -91,6 +85,6 @@ public class ControlFactoryMoney implements ControlFactory {
 			txt = (Text<T>) Text.createBDMoneyInput((PropertyMetaModel<BigDecimal>) pmm, editable);
 		} else
 				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
-		return new ControlFactoryResult(txt, model, pmm);
+		return new ControlFactoryResult(txt);
 	}
 }

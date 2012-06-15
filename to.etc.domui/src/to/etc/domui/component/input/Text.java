@@ -625,10 +625,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		return Text.createDoubleMoneyInput((PropertyMetaModel<Double>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
+	@Nonnull
 	static public Text<BigDecimal> createBDMoneyInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createBDMoneyInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
+	@Nonnull
 	static public Text<BigDecimal> createBDMoneyInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -702,10 +704,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * @param editable
 	 * @return
 	 */
+	@Nonnull
 	static public Text<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createIntInput((PropertyMetaModel<Integer>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
+	@Nonnull
 	static public Text<Integer> createIntInput(PropertyMetaModel<Integer> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -715,10 +719,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		return txt;
 	}
 
+	@Nonnull
 	static public Text<Long> createLongInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createLongInput((PropertyMetaModel<Long>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
+	@Nonnull
 	static public Text<Long> createLongInput(PropertyMetaModel<Long> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -728,10 +734,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		return txt;
 	}
 
+	@Nonnull
 	static public Text<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createDoubleInput((PropertyMetaModel<Double>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
+	@Nonnull
 	static public Text<Double> createDoubleInput(PropertyMetaModel<Double> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -741,10 +749,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		return txt;
 	}
 
+	@Nonnull
 	static public Text<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createBigDecimalInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
+	@Nonnull
 	static public Text<BigDecimal> createBigDecimalInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -754,15 +764,18 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		return txt;
 	}
 
+	@Nonnull
 	static public <T> Text< ? > createText(Class< ? > clz, String property, boolean editable) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaManager.getPropertyMeta(clz, property);
 		return Text.createText(pmm.getActualType(), pmm, editable);
 	}
 
+	@Nonnull
 	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable) {
 		return createText(iclz, pmm, editable, false);
 	}
 
+	@Nonnull
 	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		Class< ? > aclz = pmm.getActualType();
 		if(!iclz.isAssignableFrom(aclz))

@@ -137,7 +137,6 @@ public class ControlBuilder {
 		return null;
 	}
 
-
 	/**
 	 * Find the best control factory to use to create a control for the given property and mode, throws
 	 * an Exception if the factory cannot be found.
@@ -223,7 +222,7 @@ public class ControlBuilder {
 	@Nonnull
 	public ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel< ? > model, @Nonnull final PropertyMetaModel< ? > pmm, final boolean editable) {
 		ControlFactory cf = getControlFactory(pmm, editable, null);
-		return cf.createControl(model, pmm, editable, null);
+		return cf.createControl(pmm, editable, null);
 	}
 
 	/**
@@ -261,7 +260,7 @@ public class ControlBuilder {
 		if(controlClass == null)
 			throw new IllegalArgumentException("controlClass cannot be null");
 		ControlFactory cf = getControlFactory(pmm, editable, null);
-		ControlFactoryResult r = cf.createControl(DUMMY_MODEL, pmm, editable, controlClass);	// FIXME Bad, bad bug: I should be able to create a control without binding!!
+		ControlFactoryResult r = cf.createControl(pmm, editable, controlClass);	// FIXME Bad, bad bug: I should be able to create a control without binding!!
 
 		//-- This must have generated a single control of the specified type, so check...
 		if(r.getNodeList().length != 1)
@@ -312,6 +311,7 @@ public class ControlBuilder {
 	 * @param pmm
 	 * @return
 	 */
+	@Nonnull
 	public ComboFixed< ? > createComboFor(PropertyMetaModel< ? > pmm, boolean editable) {
 		if(pmm == null)
 			throw new IllegalArgumentException("propertyMeta cannot be null");

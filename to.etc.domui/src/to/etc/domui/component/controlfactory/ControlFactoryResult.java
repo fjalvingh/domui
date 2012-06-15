@@ -26,10 +26,7 @@ package to.etc.domui.component.controlfactory;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
 
 /**
  * Represents the result of a call to createControl.
@@ -42,9 +39,6 @@ public class ControlFactoryResult {
 	@Nonnull
 	private final NodeBase[] m_nodeList;
 
-	/** The binding of the control to it's model and property */
-	private final IModelBinding m_binding;
-
 	/** The node to be used as the target for a "label" */
 	private final NodeBase m_labelNode;
 
@@ -52,8 +46,23 @@ public class ControlFactoryResult {
 	@Nonnull
 	private IControl< ? > m_handle;
 
-	public ControlFactoryResult(final IModelBinding binding, @Nonnull IControl< ? > fc, @Nullable final NodeBase labelNode) {
-		m_binding = binding;
+	//	public <T extends NodeBase & IControl< ? >> ControlFactoryResult(@Nonnull T fc) {
+	//		m_labelNode = fc;
+	//		m_handle = fc;
+	//		m_nodeList = new NodeBase[]{fc};
+	//	}
+
+	public <T extends NodeBase & IDisplayControl< ? >> ControlFactoryResult(@Nonnull final T control) {
+		m_labelNode = control;
+		m_nodeList = new NodeBase[]{control};
+		//		m_handle = control;
+		//
+		//		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
+		//		if(control instanceof IBindable)
+		//			((IBindable) control).bind().to(model, pmm);
+	}
+
+	public ControlFactoryResult(@Nonnull IControl< ? > fc, @Nullable final NodeBase labelNode) {
 		m_labelNode = labelNode;
 		m_handle = fc;
 		m_nodeList = new NodeBase[]{labelNode};
@@ -63,40 +72,30 @@ public class ControlFactoryResult {
 		m_handle = handle;
 		m_nodeList = nodeList;
 		m_labelNode = labelNode;
-		m_binding = binding;
 	}
 
-	public <M, C> ControlFactoryResult(@Nonnull final IInputNode<C> control, @Nonnull final IReadOnlyModel<M> model, @Nonnull final PropertyMetaModel<C> pmm) {
-		m_labelNode = (NodeBase) control;
-		m_nodeList = new NodeBase[]{(NodeBase) control};
-		SimpleComponentPropertyBinding<C> b = new SimpleComponentPropertyBinding<C>(model, pmm, control);
-		m_binding = b;
-		m_handle = b;
+	//	public <M, C> ControlFactoryResult(@Nonnull final IInputNode<C> control, @Nonnull final PropertyMetaModel<C> pmm) {
+	//		m_labelNode = (NodeBase) control;
+	//		m_nodeList = new NodeBase[]{(NodeBase) control};
+	//		m_handle = b;
+	//
+	//		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
+	//		control.bind().to(model, pmm);
+	//	}
 
-		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
-		control.bind().to(model, pmm);
-	}
-
-	public <A, B> ControlFactoryResult(@Nonnull final IDisplayControl<A> control, @Nonnull final IReadOnlyModel<B> model, @Nonnull final PropertyMetaModel<A> pmm) {
-		m_labelNode = (NodeBase) control;
-		m_nodeList = new NodeBase[]{(NodeBase) control};
-		DisplayOnlyPropertyBinding<A> b = new DisplayOnlyPropertyBinding<A>(model, pmm, control);
-		m_binding = b;
-		m_handle = b;
-
-		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
-		if(control instanceof IBindable)
-			((IBindable) control).bind().to(model, pmm);
-	}
+	//	public <A, B> ControlFactoryResult(@Nonnull final IDisplayControl<A> control) {
+	//		m_labelNode = (NodeBase) control;
+	//		m_nodeList = new NodeBase[]{(NodeBase) control};
+	//		m_handle = control;
+	//		//
+	//		//		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
+	//		//		if(control instanceof IBindable)
+	//		//			((IBindable) control).bind().to(model, pmm);
+	//	}
 
 	@Nonnull
 	public NodeBase[] getNodeList() {
 		return m_nodeList;
-	}
-
-	@Nullable
-	public IModelBinding getBinding() {
-		return m_binding;
 	}
 
 	@Nullable
