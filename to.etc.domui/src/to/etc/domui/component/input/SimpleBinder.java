@@ -151,7 +151,7 @@ public class SimpleBinder implements IBinder {
 	/**
 	 * Move the control value to wherever it's needed. If this is a listener binding it calls the listener,
 	 * else it moves the value either to the model's value or the instance's value.
-	 * @see to.etc.domui.component.form.IModelBinding#moveControlToModel()
+	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveControlToModel()
 	 */
 	@Override
 	public void moveControlToModel() throws Exception {

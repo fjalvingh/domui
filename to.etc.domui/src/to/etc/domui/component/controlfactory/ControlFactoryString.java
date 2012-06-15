@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.form;
+package to.etc.domui.component.controlfactory;
 
 import javax.annotation.*;
 
@@ -30,56 +30,50 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.util.*;
-import to.etc.util.*;
 
 /**
- * Accepts any property defined as an UP relation (parent) and score higher if a component type
- * hint is received.
+ * This is a fallback factory; it accepts anything and shows a String edit component OR a
+ * DisplayValue component for it. It hopes that the control can convert the string input
+ * value to the actual type using the registered Converters. This is also the factory
+ * for regular Strings.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
  */
 @SuppressWarnings("unchecked")
 // Hating Generics
-public class ControlFactoryRelationCombo implements ControlFactory {
+public class ControlFactoryString implements ControlFactory {
 	/**
-	 * Accept any UP relation; if the relation has a "comboLookup" type hint we score 10, else we score 2.
-	 *
-	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
+	 * Accept any type using a string.
+	 * @see to.etc.domui.component.controlfactory.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
 	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		if(controlClass != null && !controlClass.isAssignableFrom(ComboLookup.class))
-			return -1;
+		if(controlClass != null) {
+			if(!controlClass.isAssignableFrom(Text.class) && !controlClass.isAssignableFrom(DisplayValue.class))
+				return -1;
+		}
 
-		if(pmm.getRelationType() != PropertyRelationType.UP)
-			return 0;
-		if(Constants.COMPONENT_COMBO.equals(pmm.getComponentTypeHint()))
-			return 10;
-		if(pmm.getComponentTypeHint() == null && Constants.COMPONENT_COMBO.equals(pmm.getClassModel().getComponentTypeHint()))
-			return 10;
-		return 2;
+		return 1;
 	}
 
 	@Override
 	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
-		if(!editable && controlClass == null) {
-			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType()); // No idea what goes in here.
-			dv.defineFrom(pmm);
-			if(dv.getConverter() == null && dv.getRenderer() == null) {
-				INodeContentRenderer<T> r = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(pmm, null); // FIXME Needed?
-				dv.setRenderer(r);
-			}
+		Class<T> iclz = pmm.getActualType();
+		if(!editable) {
+			/*
+			 * FIXME EXPERIMENTAL: replace the code below (which is still fully available) with the
+			 * display-only component.
+			 */
+			DisplayValue<T> dv = new DisplayValue<T>(iclz);
+			if(pmm.getConverter() != null)
+				dv.setConverter(pmm.getConverter());
+			String s = pmm.getDefaultHint();
+			if(s != null)
+				dv.setTitle(s);
 			return new ControlFactoryResult(dv, model, pmm);
 		}
-
-		try {
-			ComboLookup<T> co = ComboLookup.createLookup(pmm);
-			co.setDisabled(!editable);
-			return new ControlFactoryResult(co, model, pmm);
-		} catch(Exception x) {
-			throw WrappedException.wrap(x); // Checked exceptions are idiocy.
-		}
+		Text<T> txt = Text.createText(iclz, pmm, editable);
+		return new ControlFactoryResult(txt, model, pmm);
 	}
 }

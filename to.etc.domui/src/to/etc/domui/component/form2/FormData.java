@@ -22,11 +22,11 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.builder;
+package to.etc.domui.component.form2;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.form.*;
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -43,7 +43,7 @@ import to.etc.webapp.annotations.*;
  */
 public class FormData<T> {
 	@Nonnull
-	final private FormBuilder m_builder;
+	final private AbstractFormBuilder m_builder;
 
 	@Nonnull
 	final private IReadOnlyModel<T> m_model;
@@ -51,7 +51,7 @@ public class FormData<T> {
 	/** The concrete MetaModel to use for properties within this object. */
 	final private ClassMetaModel m_classMeta;
 
-	protected FormData(@Nonnull FormBuilder bb, @Nonnull Class<T> clz, @Nonnull IReadOnlyModel<T> model) {
+	protected FormData(@Nonnull AbstractFormBuilder bb, @Nonnull Class<T> clz, @Nonnull IReadOnlyModel<T> model) {
 		if(model == null || clz == null || bb == null)
 			throw new IllegalArgumentException("Cannot have nulls");
 		m_builder = bb;
@@ -59,7 +59,7 @@ public class FormData<T> {
 		m_classMeta = MetaManager.findClassMeta(clz);
 	}
 
-	protected FormData(@Nonnull FormBuilder bb, @Nonnull T instance) {
+	protected FormData(@Nonnull AbstractFormBuilder bb, @Nonnull T instance) {
 		if(instance == null)
 			throw new IllegalArgumentException("Cannot have null instance");
 		m_builder = bb;
@@ -78,7 +78,7 @@ public class FormData<T> {
 	}
 
 	@Nonnull
-	protected FormBuilder builder() {
+	protected AbstractFormBuilder builder() {
 		return m_builder;
 	}
 
@@ -175,8 +175,9 @@ public class FormData<T> {
 				b.setErrorLocation(label);
 		}
 
-		if(r.getBinding() != null)
-			getBindings().add(r.getBinding());
+		IModelBinding binding = r.getBinding();
+		if(binding != null)
+			getBindings().add(binding);
 		else
 			throw new IllegalStateException("No binding for a " + r);
 		return (IControl<C>) r.getFormControl();

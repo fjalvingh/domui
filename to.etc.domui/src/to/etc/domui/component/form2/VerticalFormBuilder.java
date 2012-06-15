@@ -22,68 +22,16 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.builder;
+package to.etc.domui.component.form2;
 
 import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.form.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
-/**
- * New implementation of the {@link VerticalFormLayouter} - based layout.
- *
- * This is a helper class to generate tabular forms. It lays out the form by creating
- * a table and adding labels and input controls in separate table cells in a row. If
- * nothing else is done this creates a form in the layout of:
- * <table>
- * 	<tr><td>First name</td><td><input type="text"></td></tr>
- * 	<tr><td>Last name</td><td><input type="text"></td></tr>
- * 	<tr><td>Address</td><td><input type="text"></td></tr>
- * </table>
- *
- * A form builder is not a component by itself; it is a helper class which <i>creates</i>
- * DomUI nodes AND a {@link ModelBindings} instance containing the bindings of the
- * created components to their class instance and properties. After use you can discard the FormBuilder,
- * provided you retain the bindings if you need them.
- * A formbuilder is highly stateful during use.
- *
- * <p>There are ways to play around with the layout by using <i>format directives</i> <b>before</b>
- * fields are added. Usually layout directives take effect for the <i>next control</i> that is added.
- * There are two kinds of layout directives. Permanent ones change the settting, well, permanently
- * until it is explicitly changed again. Permanent layout directives start with "set" in the call. There
- * are also temporary layout directives, these have no "set" in their name. These take effect for the next
- * the control or the next <i>run of controls</i> if they are added with a single call to the form builder,
- * for instance using addProps(String... names). When the control or controls are added the layout directive
- * returns to it's default setting.</p>
- *
- * <h2>Layout directives</h2>
- * The following layout directives are available:
- * <ul>
- *	<li>append(): this adds the next field(s) as new cells to the last row. Every added component always
- *		adds two cells: a label cell and an input cell containing the component. Components added after
- *		this will appear after the previous added component; because the table itself contains more columns
- *		it means that the first "visual column" will become less wide.</li>
- *	<li>into(): this adds the component in the <i>same cell</i> as the previous one, optionally separated
- *		with some characters as a separator. Because everything remains in a cell the "other" cells do not
- *		become "smaller"</li>
- *	<li>col(x): this defaults to col(0), by using other column numbers you create a form with two
- *		"visible columns" where each "visible column" contains (label, input) pairs. By using the colspan(x)
- *		directive you can spread a single input field over multiple visible columns.</li>
- * </ul>
- * See <a href="http://www.domui.org/wiki/bin/view/Documentation/FormBuilders">the wiki for more details</a>.
- *
- * FIXME Names for adding either property-based or control-based new additions are very unclear.
- *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jun 12, 2012
- */
-public class VerticalFormLayouter extends GenericTableLayouter implements IFormLayouter {
-	//	/** For columnar mode this is the "next row" where we add a column */
-	//	private int m_colRow;
-
+public class VerticalFormBuilder extends TableFormBuilder {
 	/** For columnar mode this is the "current column" we're filling in */
 	private int m_colCol;
 
@@ -124,7 +72,13 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	/** When set, the mode does not change between different "add" calls. Used to add a control list with the same settings applied. */
 	private boolean m_bulkMode;
 
-	public VerticalFormLayouter() {}
+	public VerticalFormBuilder(@Nonnull IAppender a) {
+		super(a);
+	}
+
+	public VerticalFormBuilder(@Nonnull NodeContainer target) {
+		super(target);
+	}
 
 	/**
 	 * Reset variables after finish.
@@ -140,16 +94,19 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	}
 
 	@Override
-	public void setBulkMode(boolean onoff) {
-		m_bulkMode = onoff;
-		if(!onoff) {
-			m_nextNodeMode = m_nextMode;
-			m_nextMode = null;
-		}
+	protected void startBulkLayout() {
+		m_bulkMode = true;
 	}
 
 	@Override
-	public void addControl(final @Nullable NodeBase label, @Nullable final NodeBase labelnode, @Nonnull final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
+	protected void endBulkLayout() {
+		m_bulkMode = false;
+		m_nextNodeMode = m_nextMode;
+		m_nextMode = null;
+	}
+
+	@Override
+	public void addControl(@Nullable final NodeBase label, @Nullable final NodeBase labelnode, @Nonnull final NodeBase[] list, final boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm) {
 		modalAdd(label, list, editable);
 	}
 
@@ -167,7 +124,8 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	 * row, with two cells per field (for label and control). This is the default mode.
 	 * @return self (chained)
 	 */
-	public VerticalFormLayouter norm() {
+	@Nonnull
+	public VerticalFormBuilder norm() {
 		m_nextNodeMode = Mode.NORM;
 		m_nextMode = m_mode;
 		return this;
@@ -179,7 +137,8 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	 *
 	 * @return self (chained)
 	 */
-	public VerticalFormLayouter append() {
+	@Nonnull
+	public VerticalFormBuilder append() {
 		m_nextNodeMode = Mode.APPEND;
 		m_nextMode = m_mode;
 		return this;
@@ -192,7 +151,8 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	 *
 	 * @return self (chained)
 	 */
-	public VerticalFormLayouter into() {
+	@Nonnull
+	public VerticalFormBuilder into() {
 		m_nextNodeMode = Mode.APPEND_INTO;
 		m_nextMode = m_mode;
 		return this;
@@ -205,7 +165,8 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	 *
 	 * @return self (chained)
 	 */
-	public VerticalFormLayouter into(final String separator) {
+	@Nonnull
+	public VerticalFormBuilder into(final String separator) {
 		m_appendIntoSeparator = separator;
 		return into();
 	}
@@ -221,7 +182,8 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	 * @param x
 	 * @return
 	 */
-	public VerticalFormLayouter col(final int x) {
+	@Nonnull
+	public VerticalFormBuilder col(final int x) {
 		return setCol(x);
 	}
 
@@ -236,7 +198,8 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	 * @param x
 	 * @return
 	 */
-	public VerticalFormLayouter setCol(final int x) {
+	@Nonnull
+	public VerticalFormBuilder setCol(final int x) {
 		if(x < 0 || x >= m_columnRowCount.length)
 			throw new IllegalArgumentException("Column number " + x + " invalid.");
 
@@ -254,7 +217,8 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	 * @param cells
 	 * @return
 	 */
-	public VerticalFormLayouter colspan(final int cells) {
+	@Nonnull
+	public VerticalFormBuilder colspan(final int cells) {
 		if(cells <= 0 || cells >= m_columnRowCount.length)
 			throw new IllegalArgumentException("Cell count of " + cells + " is invalid.");
 		m_nextColSpan = cells;
@@ -295,7 +259,7 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	/**
 	 * Adds the node to the table, using the current mode. This decides the form placement.
 	 */
-	private void modalAdd(final NodeBase l, final NodeBase[] ctlcontainer, boolean editable) {
+	private void modalAdd(@Nullable final NodeBase l, @Nonnull final NodeBase[] ctlcontainer, boolean editable) {
 		switch(m_nextNodeMode){
 			default:
 				throw new IllegalStateException("Invalid table insert mode: " + m_mode);
@@ -323,7 +287,7 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	}
 
 	@Deprecated
-	private void addCells(final TR tr, final NodeBase l, final NodeBase[] c, boolean editable) {
+	private void addCells(@Nonnull final TR tr, @Nullable final NodeBase l, @Nonnull final NodeBase[] c, boolean editable) {
 		TD lcell = new TD();
 		tr.add(lcell);
 		lcell.setCssClass("ui-f-lbl");
@@ -344,7 +308,8 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	 * @param cellindex
 	 * @return
 	 */
-	private TD selectCell(TR row, int cellindex) {
+	@Nullable
+	private TD selectCell(@Nonnull TR row, int cellindex) {
 		int curx = 0;
 		int actix = 0;
 		for(;;) {
@@ -398,7 +363,7 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	 * @param numcols
 	 * @return
 	 */
-	private boolean mergeCells(TD corecell, int numcols) {
+	private boolean mergeCells(@Nonnull TD corecell, int numcols) {
 		if(numcols <= 0)
 			throw new IllegalArgumentException();
 		if(numcols == 1)
@@ -446,7 +411,7 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAddNormal(final NodeBase l, final NodeBase[] c, boolean editable) {
+	protected void modeAddNormal(@Nullable final NodeBase l, @Nonnull final NodeBase[] c, boolean editable) {
 		/*
 		 * Now we need to add the cells at the correct column index.
 		 */
@@ -475,7 +440,7 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 		}
 	}
 
-	private void addNodes(TD lbltd, TD inptd, final NodeBase l, final NodeBase[] c, boolean editable) {
+	private void addNodes(@Nonnull TD lbltd, @Nonnull TD inptd, @Nullable final NodeBase l, @Nonnull final NodeBase[] c, boolean editable) {
 		lbltd.setCssClass("ui-f-lbl");
 		if(l != null)
 			lbltd.add(l);
@@ -491,7 +456,7 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAddAppend(final NodeBase l, final NodeBase[] c, boolean editable) {
+	protected void modeAddAppend(@Nullable final NodeBase l, @Nonnull final NodeBase[] c, boolean editable) {
 		//-- Find the last used TR in the body.
 		if(tbody().getChildCount() == 0 || getLastUsedRow() == null) { // FIXME Why this exhaustive test? Null lastrow should be enough?
 			addRow();
@@ -504,7 +469,7 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	 * @param l
 	 * @param c
 	 */
-	protected void modeAppendInto(final NodeBase l, final NodeBase[] c, boolean editable) {
+	protected void modeAppendInto(@Nullable final NodeBase l, @Nonnull final NodeBase[] c, boolean editable) {
 		TR tr = row(); // If there's no row-> add one,
 
 		if(tr.getChildCount() == 0) { // No cells yet?
@@ -527,7 +492,7 @@ public class VerticalFormLayouter extends GenericTableLayouter implements IFormL
 	}
 
 	@Override
-	public void onRowAdded(TR row) {
+	public void onRowAdded(@Nonnull TR row) {
 		m_columnRowCount[m_colCol]++; // increment current row# in this column.
 	}
 }

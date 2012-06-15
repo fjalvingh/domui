@@ -26,6 +26,7 @@ package to.etc.domui.component.form;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -155,8 +156,9 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 				b.setErrorLocation(label);
 		}
 
-		if(r.getBinding() != null)
-			getBindings().add(r.getBinding());
+		IModelBinding binding = r.getBinding();
+		if(binding != null)
+			getBindings().add(binding);
 		else
 			throw new IllegalStateException("No binding for a " + r);
 		return r.getFormControl();
@@ -341,8 +343,9 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 				b.setErrorLocation(label);
 		}
 
-		if(r.getBinding() != null)
-			getBindings().add(r.getBinding());
+		IModelBinding binding = r.getBinding();
+		if(binding != null)
+			getBindings().add(binding);
 		else
 			throw new IllegalStateException("No binding for a " + r);
 		return r.getFormControl();

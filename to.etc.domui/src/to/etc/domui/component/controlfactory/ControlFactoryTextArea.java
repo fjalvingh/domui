@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.form;
+package to.etc.domui.component.controlfactory;
 
 import javax.annotation.*;
 
@@ -33,7 +33,7 @@ import to.etc.domui.util.*;
 public class ControlFactoryTextArea implements ControlFactory {
 	/**
 	 * Accept if the componentHint says textarea.
-	 * @see to.etc.domui.component.form.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
+	 * @see to.etc.domui.component.controlfactory.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public int accepts(@Nonnull PropertyMetaModel< ? > pmm, boolean editable, @Nullable Class< ? > controlClass) {

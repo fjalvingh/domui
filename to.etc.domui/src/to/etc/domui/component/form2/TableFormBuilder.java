@@ -22,18 +22,14 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.builder;
+package to.etc.domui.component.form2;
 
 import javax.annotation.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-abstract public class GenericTableLayouter implements IFormLayouter {
-	/** The form builder that uses this layouter. */
-	@Nullable
-	private FormBuilder m_builder;
-
+abstract public class TableFormBuilder extends AbstractFormBuilder {
 	@Nullable
 	private Table m_parentTable;
 
@@ -44,18 +40,12 @@ abstract public class GenericTableLayouter implements IFormLayouter {
 	@Nullable
 	private TR m_lastUsedRow;
 
-	public GenericTableLayouter() {}
+	protected TableFormBuilder(@Nonnull IAppender a) {
+		super(a);
+	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IFormLayouter implementation.						*/
-	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @see to.etc.domui.component.builder.IFormLayouter#attached(to.etc.domui.component.builder.FormBuilder)
-	 */
-	@Override
-	public void attached(@Nonnull FormBuilder builder) {
-		m_builder = builder;
+	protected TableFormBuilder(@Nonnull NodeContainer target) {
+		super(target);
 	}
 
 	/**
@@ -64,7 +54,6 @@ abstract public class GenericTableLayouter implements IFormLayouter {
 	 *
 	 * @return
 	 */
-	@Override
 	public void finish() {
 		if(m_parentTable == null)
 			return;
@@ -75,7 +64,6 @@ abstract public class GenericTableLayouter implements IFormLayouter {
 	 * Called when a new table, body or whatever is made current; it should reset all known positioning information.
 	 */
 	protected void internalClearLocation() {
-
 	}
 
 	/**
@@ -92,45 +80,21 @@ abstract public class GenericTableLayouter implements IFormLayouter {
 		internalClearLocation();
 	}
 
-	//	/**
-	//	 * Sets a new table. This resets the current body and stuff. Since the table was not created here the
-	//	 * onBodyAdded local event is not fired.
-	//	 * @param b
-	//	 */
-	//	protected void setTable(final Table b) {
-	//		finish(); // Make sure old dude is finished
-	//		m_parentTable = b;
-	//		m_tbody = null;
-	//		m_lastUsedRow = null;
-	//		//		m_lastUsedCell = null;
-	//		internalClearLocation();
-	//	}
-
-	//	/**
-	//	 * Sets the TBody to use. This resets all layout state. Since the table and the body was not created here the
-	//	 * onBodyAdded local event is not fired.
-	//	 * @param b
-	//	 */
-	//	protected void setTBody(final TBody b) {
-	//		finish(); // Make sure old dude is finished
-	//		m_tbody = b;
-	//		m_parentTable = b.getParent(Table.class);
-	//	}
-
 	/**
 	 * Called when a new table is added.
 	 * @param t
 	 */
-	protected void onTableAdded(Table t) {}
+	protected void onTableAdded(@Nonnull Table t) {}
 
-	protected void onBodyAdded(TBody b) {}
+	protected void onBodyAdded(@Nonnull TBody b) {}
 
-	protected void onRowAdded(TR row) {}
+	protected void onRowAdded(@Nonnull TR row) {}
 
 	/**
 	 * Return the current table, or null if nothing is current.
 	 * @return
 	 */
+	@Nullable
 	public Table getTable() {
 		return m_parentTable;
 	}
@@ -139,6 +103,7 @@ abstract public class GenericTableLayouter implements IFormLayouter {
 	 * Return the current tbody, or null if nothing is current.
 	 * @return
 	 */
+	@Nullable
 	public TBody getTBody() {
 		return m_tbody;
 	}
@@ -148,10 +113,11 @@ abstract public class GenericTableLayouter implements IFormLayouter {
 	 * is created this fires the {@link #onTableAdded(Table)} event.
 	 * @return
 	 */
+	@Nonnull
 	protected Table table() {
 		if(m_parentTable == null) {
 			m_parentTable = new Table();
-			m_builder.appendFormNode(m_parentTable);
+			appendFormNode(m_parentTable);
 			internalClearLocation();
 			m_lastUsedRow = null;
 			//			m_lastUsedCell = null;
@@ -165,6 +131,7 @@ abstract public class GenericTableLayouter implements IFormLayouter {
 	 * is created this fires the {@link #onBodyAdded(TBody)} event.
 	 * @return
 	 */
+	@Nonnull
 	protected TBody tbody() {
 		if(m_tbody == null) {
 			m_tbody = table().getBody();
@@ -182,6 +149,7 @@ abstract public class GenericTableLayouter implements IFormLayouter {
 	 *
 	 * @return
 	 */
+	@Nonnull
 	public TBody newBody() {
 		m_tbody = new TBody();
 		table().add(m_tbody);
@@ -233,6 +201,7 @@ abstract public class GenericTableLayouter implements IFormLayouter {
 	 * @param ix
 	 * @return
 	 */
+	@Nonnull
 	public TR selectRow(int ix) {
 		while(tbody().getChildCount() <= ix)
 			addRow();
@@ -266,12 +235,11 @@ abstract public class GenericTableLayouter implements IFormLayouter {
 		return addCell(tdcss);
 	}
 
-	protected void setLastUsedRow(TR row) {
+	protected void setLastUsedRow(@Nullable TR row) {
 		m_lastUsedRow = row;
 	}
 
-	protected void setLastUsedCell(TD cell) {
+	protected void setLastUsedCell(@Nullable TD cell) {
 		//		m_lastUsedCell = cell;
 	}
-
 }

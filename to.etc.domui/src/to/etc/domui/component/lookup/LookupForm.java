@@ -29,7 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.form.*;
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
@@ -38,7 +38,6 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
-import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
@@ -818,11 +817,10 @@ public class LookupForm<T> extends Div {
 		spmm.setPropertyName(childPmm.getName());
 		spmm.setPropertyPath(pl);
 
-		ILookupControlFactory lcf = m_builder.findLookupControlFactory(spmm);
+		ILookupControlFactory lcf = m_builder.getLookupControlFactory(spmm);
 		final ILookupControlInstance lookupInstance = lcf.createControl(spmm, null);
 
 		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
-
 			@Override
 			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
 

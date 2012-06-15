@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.form;
+package to.etc.domui.component.controlfactory;
 
 import java.util.*;
 
@@ -56,7 +56,7 @@ public class ModelBindings implements IModelBinding, Iterable<IModelBinding> {
 	/**
 	 * Move the data from the controls to the data model. If any control validation fails the
 	 * move stops at the failing control, so this reports at most one validation error.
-	 * @see to.etc.domui.component.form.IModelBinding#moveControlToModel()
+	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveControlToModel()
 	 */
 	@Override
 	public void moveControlToModel() throws Exception {
@@ -75,7 +75,7 @@ public class ModelBindings implements IModelBinding, Iterable<IModelBinding> {
 
 	/**
 	 * Move the data from model to the controls for all controls added to the list.
-	 * @see to.etc.domui.component.form.IModelBinding#moveModelToControl()
+	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveModelToControl()
 	 */
 	@Override
 	public void moveModelToControl() throws Exception {
@@ -101,7 +101,7 @@ public class ModelBindings implements IModelBinding, Iterable<IModelBinding> {
 
 	/**
 	 * Enable or disable all bound components.
-	 * @see to.etc.domui.component.form.IModelBinding#setControlsEnabled(boolean)
+	 * @see to.etc.domui.component.controlfactory.IModelBinding#setControlsEnabled(boolean)
 	 */
 	@Override
 	public void setControlsEnabled(boolean on) {

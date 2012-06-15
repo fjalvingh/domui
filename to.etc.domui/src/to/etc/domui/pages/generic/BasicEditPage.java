@@ -25,6 +25,7 @@
 package to.etc.domui.pages.generic;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
