@@ -739,7 +739,7 @@ public class LookupForm<T> extends Div {
 	 * @param control
 	 * @return
 	 */
-	public <VT, X extends NodeBase & IInputNode<VT>> Item addManual(String property, X control) {
+	public <VT, X extends NodeBase & IControl<VT>> Item addManual(String property, X control) {
 		Item it = new Item();
 		it.setPropertyName(property);
 		addAndFinish(it);
@@ -966,7 +966,7 @@ public class LookupForm<T> extends Div {
 		NodeBase labelcontrol = qt.getLabelControl();
 		for(NodeBase b : qt.getInputControls()) { // Add all nodes && try to find label control if unknown.
 			ccell.add(b);
-			if(labelcontrol == null && b instanceof IInputNode< ? >)
+			if(labelcontrol == null && b instanceof IControl< ? >)
 				labelcontrol = b;
 		}
 		if(labelcontrol == null)

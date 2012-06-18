@@ -43,8 +43,8 @@ import to.etc.domui.util.*;
 abstract public class AbstractFormBuilder {
 	static protected final Logger LOG = LoggerFactory.getLogger(AbstractFormBuilder.class);
 
-	@Nonnull
-	private ModelBindings m_bindings = new ModelBindings();
+	//	@Nonnull
+	//	private ModelBindings m_bindings = new ModelBindings();
 
 	@Nullable
 	private ControlBuilder m_builder;
@@ -143,22 +143,22 @@ abstract public class AbstractFormBuilder {
 	/*	CODING:	Simple getters and internal stuff.					*/
 	/*--------------------------------------------------------------*/
 
-	/**
-	 * Return the model bindings that were added while using this builder. The list is not cleared; any new addition is
-	 * added to the <b>same instance</b> that is returned by this call, unless another instance is set using {@link #setBindings(ModelBindings)}.
-	 * @return
-	 */
-	@Nonnull
-	public ModelBindings getBindings() {
-		return m_bindings;
-	}
-
-	public void setBindings(@Nonnull final ModelBindings bindings) {
-		if(m_bindings != null && m_bindings.size() > 0)
-			LOG.warn("Setting new bindings but current binding list has bindings!! Make sure you use the old list to bind too!!");
-		m_bindings = bindings;
-	}
-
+	//	/**
+	//	 * Return the model bindings that were added while using this builder. The list is not cleared; any new addition is
+	//	 * added to the <b>same instance</b> that is returned by this call, unless another instance is set using {@link #setBindings(ModelBindings)}.
+	//	 * @return
+	//	 */
+	//	@Nonnull
+	//	public ModelBindings getBindings() {
+	//		return m_bindings;
+	//	}
+	//
+	//	public void setBindings(@Nonnull final ModelBindings bindings) {
+	//		if(m_bindings != null && m_bindings.size() > 0)
+	//			LOG.warn("Setting new bindings but current binding list has bindings!! Make sure you use the old list to bind too!!");
+	//		m_bindings = bindings;
+	//	}
+	//
 	/**
 	 * Return the factory to use for creating control labels from metadata.
 	 * @return

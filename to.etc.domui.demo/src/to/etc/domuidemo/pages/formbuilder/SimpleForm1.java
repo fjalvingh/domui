@@ -12,6 +12,8 @@ public class SimpleForm1 extends UrlPage {
 	public Customer getCustomer() {
 		if(m_customer == null) {
 			m_customer = new Customer();
+			m_customer.setFirstName("Frits");
+			m_customer.setLastName("Jalvingh");
 		}
 		return m_customer;
 	}
@@ -26,7 +28,7 @@ public class SimpleForm1 extends UrlPage {
 //		fb.data(getCustomer()).addProp("firstName", "lastName", "email");
 		fb.data(getCustomer()).addProps("firstName", "lastName", "email");
 		fb.finish();
-		fb.getBindings().moveModelToControl();
+		moveModelToControl();
 	}
 
 

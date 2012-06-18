@@ -40,7 +40,6 @@ import to.etc.util.*;
  * Created on Jul 2, 2009
  */
 @SuppressWarnings("unchecked")
-// Hating Generics
 public class ControlFactoryRelationCombo implements ControlFactory {
 	/**
 	 * Accept any UP relation; if the relation has a "comboLookup" type hint we score 10, else we score 2.
@@ -62,22 +61,21 @@ public class ControlFactoryRelationCombo implements ControlFactory {
 	}
 
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
+	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(!editable && controlClass == null) {
-			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType()); // No idea what goes in here.
+			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());
 			dv.defineFrom(pmm);
 			if(dv.getConverter() == null && dv.getRenderer() == null) {
 				INodeContentRenderer<T> r = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(pmm, null); // FIXME Needed?
 				dv.setRenderer(r);
 			}
-			return new ControlFactoryResult(dv, model, pmm);
+			return new ControlFactoryResult(dv);
 		}
 
 		try {
 			ComboLookup<T> co = ComboLookup.createLookup(pmm);
 			co.setDisabled(!editable);
-			return new ControlFactoryResult(co, model, pmm);
+			return new ControlFactoryResult(co);
 		} catch(Exception x) {
 			throw WrappedException.wrap(x); // Checked exceptions are idiocy.
 		}

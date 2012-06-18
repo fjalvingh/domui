@@ -29,7 +29,6 @@ import javax.annotation.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
-import to.etc.domui.util.*;
 
 /**
  * This is a fallback factory; it accepts anything and shows a String edit component OR a
@@ -58,7 +57,7 @@ public class ControlFactoryString implements ControlFactory {
 	}
 
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		Class<T> iclz = pmm.getActualType();
 		if(!editable) {
 			/*
@@ -71,9 +70,9 @@ public class ControlFactoryString implements ControlFactory {
 			String s = pmm.getDefaultHint();
 			if(s != null)
 				dv.setTitle(s);
-			return new ControlFactoryResult(dv, model, pmm);
+			return new ControlFactoryResult(dv);
 		}
 		Text<T> txt = Text.createText(iclz, pmm, editable);
-		return new ControlFactoryResult(txt, model, pmm);
+		return new ControlFactoryResult(txt);
 	}
 }

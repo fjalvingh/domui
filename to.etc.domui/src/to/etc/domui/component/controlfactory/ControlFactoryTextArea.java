@@ -28,7 +28,6 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
 
 public class ControlFactoryTextArea implements ControlFactory {
 	/**
@@ -48,7 +47,7 @@ public class ControlFactoryTextArea implements ControlFactory {
 	}
 
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(@Nonnull IReadOnlyModel< ? > model, @Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass) {
+	public @Nonnull <T> ControlFactoryResult createControl(@Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass) {
 		TextArea ta = new TextArea();
 		if(!editable)
 			ta.setReadOnly(true);
@@ -63,6 +62,6 @@ public class ControlFactoryTextArea implements ControlFactory {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			ta.setTitle(s);
-		return new ControlFactoryResult(ta, model, (PropertyMetaModel<String>) pmm);
+		return new ControlFactoryResult(ta);
 	}
 }

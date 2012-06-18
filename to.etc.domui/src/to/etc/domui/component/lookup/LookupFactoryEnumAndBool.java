@@ -41,15 +41,15 @@ import to.etc.webapp.nls.*;
  */
 final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 	@Override
-	public <T, X extends IInputNode<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		Class< ? > iclz = pmm.getActualType();
 		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 2 : 0;
 	}
 
 	@Override
-	public <T, X extends IInputNode<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
-		IInputNode< ? > ctlnode = control;
+	public <T, X extends IControl<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+		IControl< ? > ctlnode = control;
 		if(ctlnode == null) {
 			PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 

@@ -187,8 +187,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		if(n.getPage().getFocusComponent() != null)
 			return;
 		if(n instanceof IHasChangeListener) { // FIXME Why this 'if'?
-			if(n instanceof IInputNode< ? >) {
-				IInputNode< ? > in = (IInputNode< ? >) n;
+			if(n instanceof IControl< ? >) {
+				IControl< ? > in = (IControl< ? >) n;
 				if(!in.isDisabled() && !in.isReadOnly())
 					n.getPage().setFocusComponent(n);
 			} else

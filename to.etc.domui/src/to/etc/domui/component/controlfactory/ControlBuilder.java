@@ -106,37 +106,36 @@ public class ControlBuilder {
 		return best;
 	}
 
-	/**
-	 * Locate a factory by it's full class name. If the factory is found it is registered if needed.
-	 * @param name
-	 * @return
-	 */
-	public synchronized ControlFactory findFactoryByName(@Nonnull String name) {
-		//-- 1. Walk the registered factory list
-		for(ControlFactory cf : m_controlFactoryList) {
-			if(name.equals(cf.getClass().getName()))
-				return cf;
-		}
-
-		//-- 2. Can we load this as a control factory class?
-		Class< ? > clz = null;
-		try {
-			clz = getClass().getClassLoader().loadClass(name);
-		} catch(Exception x) {}
-		if(clz == null)
-			return null;
-		if(!ControlFactory.class.isAssignableFrom(clz))
-			return null;
-
-		//-- Try to instantiate and register.
-		try {
-			ControlFactory cf = (ControlFactory) clz.newInstance();
-			registerControlFactory(cf);
-			return cf;
-		} catch(Exception x) {}
-		return null;
-	}
-
+	//	/**
+	//	 * Locate a factory by it's full class name. If the factory is found it is registered if needed.
+	//	 * @param name
+	//	 * @return
+	//	 */
+	//	public synchronized ControlFactory findFactoryByName(@Nonnull String name) {
+	//		//-- 1. Walk the registered factory list
+	//		for(ControlFactory cf : m_controlFactoryList) {
+	//			if(name.equals(cf.getClass().getName()))
+	//				return cf;
+	//		}
+	//
+	//		//-- 2. Can we load this as a control factory class?
+	//		Class< ? > clz = null;
+	//		try {
+	//			clz = getClass().getClassLoader().loadClass(name);
+	//		} catch(Exception x) {}
+	//		if(clz == null)
+	//			return null;
+	//		if(!ControlFactory.class.isAssignableFrom(clz))
+	//			return null;
+	//
+	//		//-- Try to instantiate and register.
+	//		try {
+	//			ControlFactory cf = (ControlFactory) clz.newInstance();
+	//			registerControlFactory(cf);
+	//			return cf;
+	//		} catch(Exception x) {}
+	//		return null;
+	//	}
 
 	/**
 	 * Find the best control factory to use to create a control for the given property and mode, throws
@@ -209,7 +208,7 @@ public class ControlBuilder {
 	}
 
 	@Nonnull
-	public <T, X extends NodeBase & IInputNode<T>> ILookupControlFactory getLookupQueryFactory(@Nonnull final SearchPropertyMetaModel pmm, @Nonnull X control) {
+	public <T, X extends NodeBase & IControl<T>> ILookupControlFactory getLookupQueryFactory(@Nonnull final SearchPropertyMetaModel pmm, @Nonnull X control) {
 		return m_lookupControlRegistry.getLookupQueryFactory(pmm, control);
 	}
 
@@ -223,7 +222,7 @@ public class ControlBuilder {
 	@Nonnull
 	public ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel< ? > model, @Nonnull final PropertyMetaModel< ? > pmm, final boolean editable) {
 		ControlFactory cf = getControlFactory(pmm, editable, null);
-		return cf.createControl(model, pmm, editable, null);
+		return cf.createControl(pmm, editable, null);
 	}
 
 	/**
@@ -261,7 +260,7 @@ public class ControlBuilder {
 		if(controlClass == null)
 			throw new IllegalArgumentException("controlClass cannot be null");
 		ControlFactory cf = getControlFactory(pmm, editable, null);
-		ControlFactoryResult r = cf.createControl(DUMMY_MODEL, pmm, editable, controlClass);	// FIXME Bad, bad bug: I should be able to create a control without binding!!
+		ControlFactoryResult r = cf.createControl(pmm, editable, controlClass);	// FIXME Bad, bad bug: I should be able to create a control without binding!!
 
 		//-- This must have generated a single control of the specified type, so check...
 		if(r.getNodeList().length != 1)
@@ -312,6 +311,7 @@ public class ControlBuilder {
 	 * @param pmm
 	 * @return
 	 */
+	@Nonnull
 	public ComboFixed< ? > createComboFor(PropertyMetaModel< ? > pmm, boolean editable) {
 		if(pmm == null)
 			throw new IllegalArgumentException("propertyMeta cannot be null");

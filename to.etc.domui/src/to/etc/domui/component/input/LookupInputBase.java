@@ -43,7 +43,7 @@ import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
-abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<OT>, IHasModifiedIndication {
+abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication {
 	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
 	/**
@@ -837,7 +837,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IInputNode implementation.							*/
+	/*	CODING:	IControl implementation.							*/
 	/*--------------------------------------------------------------*/
 	@Nullable
 	private IValueChanged< ? > m_onValueChanged;
@@ -1049,7 +1049,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	@Nullable
 	private SimpleBinder m_binder;
 
-	/**  
+	/**
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */

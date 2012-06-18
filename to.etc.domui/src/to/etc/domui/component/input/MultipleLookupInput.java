@@ -23,7 +23,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 13 Oct 2011
  */
-public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
+public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 
 
 	/**
@@ -370,7 +370,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 	}
 
 	@Override
-	public void setValue(List<T> v) {
+	public void setValue(@Nullable List<T> v) {
 		if (m_selectionList != v) {
 			m_selectionList = v;
 			if (isBuilt()) {

@@ -32,7 +32,6 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.converter.*;
-import to.etc.domui.util.*;
 
 /**
  * Accepts the "java.util.Date" type only and creates a DateInput component for it.
@@ -59,7 +58,7 @@ public class ControlFactoryDate implements ControlFactory {
 
 	@Override
 	@Nonnull
-	public <T> ControlFactoryResult createControl(final @Nonnull IReadOnlyModel< ? > model, final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(!editable && (controlClass == null || controlClass.isAssignableFrom(Text.class))) {
 			//			Text<Date> txt = new Text<Date>(Date.class);
 			//			txt.setReadOnly(true);
@@ -89,10 +88,10 @@ public class ControlFactoryDate implements ControlFactory {
 			}
 
 			txt.setConverter(ConverterRegistry.getConverterInstance(cc));
-			return new ControlFactoryResult(txt, model, (PropertyMetaModel<Date>) pmm);
+			return new ControlFactoryResult(txt);
 		}
 
 		DateInput di = DateInput.createDateInput((PropertyMetaModel<Date>) pmm, editable);
-		return new ControlFactoryResult(di, model, (PropertyMetaModel<Date>) pmm);
+		return new ControlFactoryResult(di);
 	}
 }
