@@ -103,7 +103,7 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	}
 
 	@Override
-	public void setValue(T v) {
+	public void setValue(@Nullable T v) {
 		if(MetaManager.areObjectsEqual(v, m_value))
 			return;
 		m_value = v;

@@ -369,7 +369,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 	}
 
 	@Override
-	public void setValue(List<T> v) {
+	public void setValue(@Nullable List<T> v) {
 		if (m_selectionList != v) {
 			m_selectionList = v;
 			if (isBuilt()) {

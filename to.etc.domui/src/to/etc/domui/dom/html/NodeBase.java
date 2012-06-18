@@ -934,7 +934,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * the "label" associated with the control, and is set automatically by form builders if possible.
 	 * @param errorLocation
 	 */
-	public void setErrorLocation(String errorLocation) {
+	public void setErrorLocation(@Nullable String errorLocation) {
 		m_errorLocation = errorLocation;
 	}
 
@@ -943,6 +943,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * the "label" associated with the control, and is set automatically by form builders if possible.
 	 * @return
 	 */
+	@Nullable
 	public String getErrorLocation() {
 		return m_errorLocation;
 	}

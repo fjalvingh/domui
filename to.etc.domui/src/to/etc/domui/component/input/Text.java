@@ -309,7 +309,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @see to.etc.domui.dom.html.IControl#setValue(java.lang.Object)
 	 */
 	@Override
-	public void setValue(T value) {
+	public void setValue(@Nullable T value) {
 		// jal 20080930 Onderstaande code aangepast. Dit levert als bug op dat "wissen" van een niet-gevalideerde waarde niet werkt. Dat
 		// wordt veroorzaakt als volgt: als de control een niet-gevalideerde tekst bevat dan is m_rawValue de string maar m_value staat nog
 		// op null. Onderstaande code returnt dan onmiddelijk waardoor de rawvalue blijft bestaan.

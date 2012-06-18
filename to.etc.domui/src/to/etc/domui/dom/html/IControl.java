@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
@@ -45,7 +47,7 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * be seen until the value is gotten from the control again.
 	 * @param v
 	 */
-	void setValue(T v);
+	void setValue(@Nullable T v);
 
 	/**
 	 * Returns the current value of this input component. If the component contains no value
@@ -61,6 +63,7 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * <p>To get the value of a component while ignoring exceptions call {@link #getValueSafe()}.</p>
 	 * @return
 	 */
+	@Nullable
 	T getValue();
 
 	/**
@@ -120,12 +123,13 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * the "label" associated with the control, and is set automatically by form builders if possible.
 	 * @param errorLocation
 	 */
-	void setErrorLocation(String errorLocation);
+	void setErrorLocation(@Nullable String errorLocation);
 
 	/**
 	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
 	 * the "label" associated with the control, and is set automatically by form builders if possible.
 	 * @return
 	 */
+	@Nullable
 	String getErrorLocation();
 }

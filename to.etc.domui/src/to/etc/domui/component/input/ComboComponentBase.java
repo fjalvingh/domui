@@ -182,7 +182,7 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 	 * @see to.etc.domui.dom.html.IControl#setValue(java.lang.Object)
 	 */
 	@Override
-	final public void setValue(V v) {
+	final public void setValue(@Nullable V v) {
 		ClassMetaModel cmm = v != null ? MetaManager.findClassMeta(v.getClass()) : null;
 		if(MetaManager.areObjectsEqual(v, m_currentValue, cmm))
 			return;

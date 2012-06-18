@@ -72,7 +72,7 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 	}
 
 	@Override
-	public void setValue(String v) {
+	public void setValue(@Nullable String v) {
 		if(!m_unchecked)
 			v = DomUtil.htmlRemoveUnsafe(v);
 		m_xtn.setText(v);

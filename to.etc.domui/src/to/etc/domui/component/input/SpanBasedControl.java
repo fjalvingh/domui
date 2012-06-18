@@ -117,7 +117,7 @@ abstract public class SpanBasedControl<T> extends Span implements IControl<T> {
 	 * @see to.etc.domui.dom.html.IControl#setValue(java.lang.Object)
 	 */
 	@Override
-	public void setValue(T v) {
+	public void setValue(@Nullable T v) {
 		if(DomUtil.isEqual(v, m_value))
 			return;
 		m_value = v;

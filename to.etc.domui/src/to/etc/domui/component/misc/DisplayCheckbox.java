@@ -54,7 +54,7 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	}
 
 	@Override
-	public void setValue(Boolean v) {
+	public void setValue(@Nullable Boolean v) {
 		if(DomUtil.isEqual(v, m_value))
 			return;
 		m_value = v;

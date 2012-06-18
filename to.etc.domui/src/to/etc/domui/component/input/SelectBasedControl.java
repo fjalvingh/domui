@@ -130,7 +130,7 @@ abstract public class SelectBasedControl<T> extends Select implements IControl<T
 	 * @see to.etc.domui.dom.html.IControl#setValue(java.lang.Object)
 	 */
 	@Override
-	final public void setValue(T v) {
+	final public void setValue(@Nullable T v) {
 		ClassMetaModel cmm = v != null ? MetaManager.findClassMeta(v.getClass()) : null;
 		if(MetaManager.areObjectsEqual(v, m_currentValue, cmm))
 			return;

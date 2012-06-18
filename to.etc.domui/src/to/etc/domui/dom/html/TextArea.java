@@ -138,7 +138,7 @@ public class TextArea extends InputNodeContainer implements IControl<String>, IH
 	}
 
 	@Override
-	public void setValue(String v) {
+	public void setValue(@Nullable String v) {
 		if(DomUtil.isEqual(v, m_value))
 			return;
 		m_value = v;

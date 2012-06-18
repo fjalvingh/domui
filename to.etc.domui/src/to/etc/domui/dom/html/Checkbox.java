@@ -123,7 +123,7 @@ public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifie
 	 * @see to.etc.domui.dom.html.IControl#setValue(java.lang.Object)
 	 */
 	@Override
-	public void setValue(Boolean v) {
+	public void setValue(@Nullable Boolean v) {
 		setChecked((v == null) ? false : v.booleanValue());
 	}
 

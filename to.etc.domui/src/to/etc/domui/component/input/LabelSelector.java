@@ -195,7 +195,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	}
 
 	@Override
-	public void setValue(List<T> newlist) {
+	public void setValue(@Nullable List<T> newlist) {
 		m_labelList = newlist;
 		m_divMap.clear();
 		forceRebuild();
