@@ -49,7 +49,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
-public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndication, IConvertable<T> {
+public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T> {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
 
@@ -265,7 +265,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 * @see to.etc.domui.dom.html.IControl#getValue()
 	 */
 	@Override
 	public T getValue() {
@@ -285,7 +285,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
 	 */
 	@Override
 	public T getValueSafe() {
@@ -293,7 +293,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 * @see to.etc.domui.dom.html.IControl#hasError()
 	 */
 	@Override
 	public boolean hasError() {
@@ -306,7 +306,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * any converter set or by one of the default converters. This string value will then be shown
 	 * to the users.
 	 *
-	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
+	 * @see to.etc.domui.dom.html.IControl#setValue(java.lang.Object)
 	 */
 	@Override
 	public void setValue(T value) {
@@ -355,7 +355,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 
 	/**
 	 * Returns T if this control is mandatory.
-	 * @see to.etc.domui.dom.html.IInputNode#isMandatory()
+	 * @see to.etc.domui.dom.html.IControl#isMandatory()
 	 */
 	@Override
 	public boolean isMandatory() {
@@ -365,7 +365,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	/**
 	 * Set the control as mandatory. A mandatory control expects the value filled in to be non-whitespace.
 	 *
-	 * @see to.etc.domui.dom.html.IInputNode#setMandatory(boolean)
+	 * @see to.etc.domui.dom.html.IControl#setMandatory(boolean)
 	 */
 	@Override
 	public void setMandatory(boolean mandatory) {

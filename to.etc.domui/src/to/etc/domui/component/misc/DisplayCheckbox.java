@@ -79,7 +79,7 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	/*--------------------------------------------------------------*/
 	/** When this is bound this contains the binder instance handling the binding. */
 	@Nullable
-	private DisplayOnlyBinder m_binder;
+	private SimpleBinder m_binder;
 
 	/**
 	 * Return the binder for this control.
@@ -89,7 +89,7 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	@Nonnull
 	public IBinder bind() {
 		if(m_binder == null)
-			m_binder = new DisplayOnlyBinder(this);
+			m_binder = new SimpleBinder(this);
 		return m_binder;
 	}
 

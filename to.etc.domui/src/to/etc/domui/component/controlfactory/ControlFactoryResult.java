@@ -52,46 +52,11 @@ public class ControlFactoryResult {
 		m_nodeList = new NodeBase[]{fc};
 	}
 
-	//	public <T extends NodeBase & IDisplayControl< ? >> ControlFactoryResult(@Nonnull final T control) {
-	//		m_labelNode = control;
-	//		m_nodeList = new NodeBase[]{control};
-	//		//		m_handle = control;
-	//		//
-	//		//		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
-	//		//		if(control instanceof IBindable)
-	//		//			((IBindable) control).bind().to(model, pmm);
-	//	}
-
-	public ControlFactoryResult(@Nonnull IControl< ? > fc, @Nullable final NodeBase labelNode) {
+	public <T extends NodeBase & IControl< ? >> ControlFactoryResult(@Nonnull T fc, @Nullable final NodeBase labelNode) {
 		m_labelNode = labelNode;
 		m_handle = fc;
 		m_nodeList = new NodeBase[]{labelNode};
 	}
-
-	public ControlFactoryResult(@Nonnull IControl< ? > handle, @Nonnull NodeBase[] nodeList, @Nullable NodeBase labelNode, IModelBinding binding) {
-		m_handle = handle;
-		m_nodeList = nodeList;
-		m_labelNode = labelNode;
-	}
-
-	//	public <M, C> ControlFactoryResult(@Nonnull final IInputNode<C> control, @Nonnull final PropertyMetaModel<C> pmm) {
-	//		m_labelNode = (NodeBase) control;
-	//		m_nodeList = new NodeBase[]{(NodeBase) control};
-	//		m_handle = b;
-	//
-	//		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
-	//		control.bind().to(model, pmm);
-	//	}
-
-	//	public <A, B> ControlFactoryResult(@Nonnull final IDisplayControl<A> control) {
-	//		m_labelNode = (NodeBase) control;
-	//		m_nodeList = new NodeBase[]{(NodeBase) control};
-	//		m_handle = control;
-	//		//
-	//		//		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
-	//		//		if(control instanceof IBindable)
-	//		//			((IBindable) control).bind().to(model, pmm);
-	//	}
 
 	@Nonnull
 	public NodeBase[] getNodeList() {
@@ -104,7 +69,7 @@ public class ControlFactoryResult {
 	}
 
 	@Nonnull
-	public IControl< ? > getFormControl() {
-		return m_handle;
+	public <T extends NodeBase & IControl< ? >> T getFormControl() {
+		return (T) m_handle;
 	}
 }

@@ -678,7 +678,7 @@ final public class Page implements IQContextContainer {
 	//	}
 	//	private boolean focusFirstInput(NodeBase b) {
 	//		System.out.println("FFN: "+b);
-	//		if(b instanceof IInputNode) {
+	//		if(b instanceof IControl) {
 	//			b.setFocus();
 	//			return true;
 	//		}

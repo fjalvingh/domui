@@ -65,8 +65,8 @@ abstract public class AbstractLookupControlImpl implements ILookupControlInstanc
 		boolean done = false;
 		if(m_nodes != null) {
 			for(NodeBase m_node : m_nodes) {
-				if(m_node instanceof IInputNode< ? >) {
-					((IInputNode< ? >) m_node).setValue(null);
+				if(m_node instanceof IControl< ? >) {
+					((IControl< ? >) m_node).setValue(null);
 					done = true;
 				}
 			}
@@ -85,8 +85,8 @@ abstract public class AbstractLookupControlImpl implements ILookupControlInstanc
 		boolean done = false;
 		if(m_nodes != null) {
 			for(NodeBase m_node : m_nodes) {
-				if(m_node instanceof IInputNode< ? >) {
-					((IInputNode< ? >) m_node).setDisabled(disabled);
+				if(m_node instanceof IControl< ? >) {
+					((IControl< ? >) m_node).setDisabled(disabled);
 				}
 				done = true;
 			}

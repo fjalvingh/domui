@@ -243,7 +243,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param propertyname
 	 * @param ctl
 	 */
-	public <V, T extends NodeBase & IInputNode<V>> IControl<V> addProp(final String propertyname, final T ctl) {
+	public <V, T extends NodeBase & IControl<V>> IControl<V> addProp(final String propertyname, final T ctl) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
 		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
@@ -251,7 +251,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			ctl.setErrorLocation(label);
 		SimpleComponentPropertyBinding<V> b = new SimpleComponentPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
-		return b;
+		return ctl;
 	}
 
 	public <V, T extends NodeBase & IDisplayControl<V>> IControl<V> addDisplayProp(final String propertyname, final T ctl) {
@@ -262,7 +262,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			ctl.setErrorLocation(label);
 		DisplayOnlyPropertyBinding<V> b = new DisplayOnlyPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
-		return b;
+		return ctl;
 	}
 
 
@@ -277,14 +277,14 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param label		The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
 	 * @param ctl
 	 */
-	public <V, T extends NodeBase & IInputNode<V>> IControl<V> addProp(final String name, String label, final T ctl) {
+	public <V, T extends NodeBase & IControl<V>> IControl<V> addProp(final String name, String label, final T ctl) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(name);
 		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
 		SimpleComponentPropertyBinding<V> b = new SimpleComponentPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
-		return b;
+		return ctl;
 	}
 
 

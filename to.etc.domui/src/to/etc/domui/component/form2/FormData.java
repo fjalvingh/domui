@@ -174,10 +174,12 @@ public class FormData<T> {
 			for(NodeBase b : r.getNodeList())
 				b.setErrorLocation(label);
 		}
+
+		r.getFormControl().bind().to(getModel(), pmm);
+
 		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
 		return (IControl<C>) r.getFormControl();
 	}
-
 
 	/**
 	 * Add an input or display-only control and an {@link IModelBinding} for the specified property. The input model is default
@@ -246,7 +248,7 @@ public class FormData<T> {
 	 * @param ctl
 	 */
 	@Nonnull
-	public <V, C extends NodeBase & IInputNode<V>> IControl<V> addProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl) {
+	public <V, C extends NodeBase & IControl<V>> IControl<V> addProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
@@ -254,7 +256,7 @@ public class FormData<T> {
 			ctl.setErrorLocation(label);
 		SimpleComponentPropertyBinding<V> b = new SimpleComponentPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
-		return b;
+		return ctl;
 	}
 
 	@Nonnull
@@ -266,7 +268,7 @@ public class FormData<T> {
 			ctl.setErrorLocation(label);
 		DisplayOnlyPropertyBinding<V> b = new DisplayOnlyPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
-		return b;
+		return ctl;
 	}
 
 	/**
@@ -277,14 +279,14 @@ public class FormData<T> {
 	 * @param ctl
 	 */
 	@Nonnull
-	public <V, C extends NodeBase & IInputNode<V>> IControl<V> addProp(@Nonnull @GProperty final String name, @Nonnull String label, @Nonnull final C ctl) {
+	public <V, C extends NodeBase & IControl<V>> IControl<V> addProp(@Nonnull @GProperty final String name, @Nonnull String label, @Nonnull final C ctl) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(name);
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
 		SimpleComponentPropertyBinding<V> b = new SimpleComponentPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
-		return b;
+		return ctl;
 	}
 
 	/**

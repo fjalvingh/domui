@@ -84,5 +84,4 @@ public interface IBinder extends IModelBinding {
 	 * @return
 	 */
 	boolean isBound();
-
 }

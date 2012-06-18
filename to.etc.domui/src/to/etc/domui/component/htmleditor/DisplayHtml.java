@@ -83,7 +83,7 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 	/*--------------------------------------------------------------*/
 	/** When this is bound this contains the binder instance handling the binding. */
 	@Nullable
-	private DisplayOnlyBinder m_binder;
+	private SimpleBinder m_binder;
 
 	/**
 	 * Return the binder for this control.
@@ -93,7 +93,7 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 	@Nonnull
 	public IBinder bind() {
 		if(m_binder == null)
-			m_binder = new DisplayOnlyBinder(this);
+			m_binder = new SimpleBinder(this);
 		return m_binder;
 	}
 

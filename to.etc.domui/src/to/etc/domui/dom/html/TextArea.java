@@ -31,7 +31,7 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
-public class TextArea extends InputNodeContainer implements IInputNode<String>, IHasModifiedIndication {
+public class TextArea extends InputNodeContainer implements IControl<String>, IHasModifiedIndication {
 	private int m_cols = -1;
 
 	private int m_rows = -1;
@@ -93,7 +93,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 * @see to.etc.domui.dom.html.IControl#getValue()
 	 */
 	@Override
 	public String getValue() {
@@ -103,7 +103,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
 	 */
 	@Override
 	public String getValueSafe() {
@@ -111,7 +111,7 @@ public class TextArea extends InputNodeContainer implements IInputNode<String>, 
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 * @see to.etc.domui.dom.html.IControl#hasError()
 	 */
 	@Override
 	public boolean hasError() {
