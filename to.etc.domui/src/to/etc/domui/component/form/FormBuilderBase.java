@@ -95,7 +95,7 @@ public class FormBuilderBase {
 	 * @return				The binding to bind the control to it's valueset
 	 */
 	protected ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel< ? > pmm, final boolean editable) {
-		return createControlFor(model, pmm, editable);
+		return getBuilder().createControlFor(model, pmm, editable); // Delegate
 	}
 
 	/*--------------------------------------------------------------*/
