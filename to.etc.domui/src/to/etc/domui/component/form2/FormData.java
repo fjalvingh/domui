@@ -104,10 +104,10 @@ public class FormData<T> {
 		return m_model;
 	}
 
-	@Nonnull
-	private ModelBindings getBindings() {
-		return builder().getBindings();
-	}
+	//	@Nonnull
+	//	private ModelBindings getBindings() {
+	//		return builder().getBindings();
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding property-based controls.						*/
@@ -177,7 +177,7 @@ public class FormData<T> {
 
 		r.getFormControl().bind().to(getModel(), pmm);
 
-		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
+		//		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
 		return (IControl<C>) r.getFormControl();
 	}
 
@@ -254,8 +254,7 @@ public class FormData<T> {
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
-		SimpleComponentPropertyBinding<V> b = new SimpleComponentPropertyBinding<V>(getModel(), pmm, ctl);
-		getBindings().add(b);
+		ctl.bind().to(getModel(), pmm);
 		return ctl;
 	}
 
@@ -266,8 +265,7 @@ public class FormData<T> {
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, false, true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
-		DisplayOnlyPropertyBinding<V> b = new DisplayOnlyPropertyBinding<V>(getModel(), pmm, ctl);
-		getBindings().add(b);
+		ctl.bind().to(getModel(), pmm);
 		return ctl;
 	}
 
@@ -284,8 +282,7 @@ public class FormData<T> {
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
-		SimpleComponentPropertyBinding<V> b = new SimpleComponentPropertyBinding<V>(getModel(), pmm, ctl);
-		getBindings().add(b);
+		ctl.bind().to(getModel(), pmm);
 		return ctl;
 	}
 
