@@ -34,13 +34,13 @@ import to.etc.domui.util.*;
 /**
  * DEPRECATED - one big bag full of problems.
  * Base class to implement an input control using a span as the baae. This implements
- * all basic code for an input control like the IInputNode interface.
+ * all basic code for an input control like the IControl interface.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 13, 2008
  */
 @Deprecated
-abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> {
+abstract public class SpanBasedControl<T> extends Span implements IControl<T> {
 	private boolean m_mandatory;
 
 	private boolean m_readOnly;
@@ -85,7 +85,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IInputNode implementation.							*/
+	/*	CODING:	IControl implementation.							*/
 	/*--------------------------------------------------------------*/
 	private T m_value;
 
@@ -100,7 +100,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 * @see to.etc.domui.dom.html.IControl#getValue()
 	 */
 	@Override
 	public T getValue() {
@@ -114,10 +114,10 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	/**
 	 * Sets a new value. This re-renders the entire control's contents always.
 	 *
-	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
+	 * @see to.etc.domui.dom.html.IControl#setValue(java.lang.Object)
 	 */
 	@Override
-	public void setValue(T v) {
+	public void setValue(@Nullable T v) {
 		if(DomUtil.isEqual(v, m_value))
 			return;
 		m_value = v;
@@ -125,7 +125,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
 	 */
 	@Override
 	public T getValueSafe() {
@@ -133,7 +133,7 @@ abstract public class SpanBasedControl<T> extends Span implements IInputNode<T> 
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 * @see to.etc.domui.dom.html.IControl#hasError()
 	 */
 	@Override
 	public boolean hasError() {

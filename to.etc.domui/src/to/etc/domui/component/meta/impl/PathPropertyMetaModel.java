@@ -29,7 +29,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.form.*;
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -121,7 +121,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDefaultLabel()
 	 */
 	@Override
-	public String getDefaultLabel() {
+	public @Nonnull String getDefaultLabel() {
 		//		System.out.println("LOCATE label for " + getName());
 		return locateProperty("label");
 	}
@@ -278,11 +278,6 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public String[][] getEditRoles() {
-		return m_original.getEditRoles();
-	}
-
-	@Override
 	public int getLength() {
 		return m_original.getLength();
 	}
@@ -362,11 +357,6 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	@Override
 	public PropertyMetaValidator[] getValidators() {
 		return m_original.getValidators();
-	}
-
-	@Override
-	public String[][] getViewRoles() {
-		return m_original.getViewRoles();
 	}
 
 	@Override

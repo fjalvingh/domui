@@ -43,7 +43,7 @@ import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
-abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<OT>, IHasModifiedIndication {
+abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication {
 	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
 	/**
@@ -709,7 +709,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		setResultModel(model);
 	}
 
-	private void setResultModel(@Nonnull ITableModel<OT> model) {
+	private void setResultModel(@Nonnull ITableModel<OT> model) throws Exception {
 		if(m_result == null) {
 			//-- We do not yet have a result table -> create one.
 			m_result = new DataTable<OT>(model, getActualFormRowRenderer());
@@ -717,7 +717,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 			m_floater.add(m_result);
 			m_result.setPageSize(20);
 			m_result.setTableWidth("100%");
-
+			initSelectionModel();
 			if(isUseStretchedLayout()) {
 				m_result.setStretchHeight(true);
 			}
@@ -730,6 +730,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		}
 		m_result.setTestID("resultTableLookupInput");
 	}
+
+	protected void initSelectionModel() throws Exception {
+		// DEFAULT EMPTY IMPLEMENTATION.
+	}
+
 
 	/**
 	 * Either use the user-specified popup form row renderer or create one using resultColumns or the default metadata.
@@ -749,7 +754,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 				@Override
 				public void cellClicked(NodeBase tr, OT val) throws Exception {
 					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-					LookupInputBase.this.toggleFloater(null);
+					if(!getDataTable().isMultiSelectionVisible()) {
+						LookupInputBase.this.toggleFloater(null);
+					}
 					handleSetValue(val);
 				}
 			});
@@ -830,7 +837,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IInputNode implementation.							*/
+	/*	CODING:	IControl implementation.							*/
 	/*--------------------------------------------------------------*/
 	@Nullable
 	private IValueChanged< ? > m_onValueChanged;
@@ -1355,4 +1362,19 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	public void setFormRowRenderer(@Nullable IClickableRowRenderer<OT> lookupFormRenderer) {
 		m_formRowRenderer = lookupFormRenderer;
 	}
+
+	protected DataTable<OT> getDataTable() {
+		return m_result;
+	}
+
+	protected void closePopup() throws Exception {
+		if(m_floater != null) {
+			toggleFloater(null);
+		}
+	}
+
+	protected boolean isPopupShown() {
+		return m_floater != null;
+	}
+
 }

@@ -188,6 +188,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	}
 
 	@Override
+	@Nonnull
 	public String getDefaultLabel() {
 		return m_classModel.getPropertyLabel(this, NlsContext.getLocale());
 	}

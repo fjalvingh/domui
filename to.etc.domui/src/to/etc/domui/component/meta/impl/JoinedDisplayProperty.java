@@ -26,6 +26,8 @@ package to.etc.domui.component.meta.impl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
@@ -97,6 +99,7 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty<String> imple
 	}
 
 	@Override
+	@Nonnull
 	public String getDefaultLabel() {
 		DisplayPropertyMetaModel dm = m_displayList.get(0);
 		String lbl = dm.getLabel(); // Is the label overridden in the DisplayProperty?

@@ -34,7 +34,7 @@ import to.etc.webapp.query.*;
 @SuppressWarnings("unchecked")
 final class LookupFactoryString implements ILookupControlFactory {
 	@Override
-	public <T, X extends IInputNode<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		if(control != null) {
 			if(!(control instanceof Text< ? >))
 				return -1;
@@ -46,7 +46,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 	}
 
 	@Override
-	public <T, X extends IInputNode<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaUtils.getLastProperty(spm);
 		Class<T> iclz = pmm.getActualType();
 

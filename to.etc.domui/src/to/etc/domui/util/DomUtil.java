@@ -115,7 +115,7 @@ final public class DomUtil {
 		return true;
 	}
 
-	static public <T> T getValueSafe(IInputNode<T> node) {
+	static public <T> T getValueSafe(IControl<T> node) {
 		try {
 			return node.getValue();
 		} catch(ValidationException x) {

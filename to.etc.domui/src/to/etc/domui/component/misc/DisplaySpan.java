@@ -65,7 +65,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 		m_valueClass = valueClass;
 	}
 
-	public DisplaySpan(T literal) {
+	public DisplaySpan(@Nonnull T literal) {
 		m_valueClass = (Class<T>) literal.getClass();
 		m_value = literal;
 	}
@@ -203,7 +203,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 	/*--------------------------------------------------------------*/
 	/** When this is bound this contains the binder instance handling the binding. */
 	@Nullable
-	private DisplayOnlyBinder m_binder;
+	private SimpleBinder m_binder;
 
 	/**
 	 * Return the binder for this control.
@@ -213,7 +213,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 	@Nonnull
 	public IBinder bind() {
 		if(m_binder == null)
-			m_binder = new DisplayOnlyBinder(this);
+			m_binder = new SimpleBinder(this);
 		return m_binder;
 	}
 
@@ -257,4 +257,50 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 
 		// FIXME Define more fully.
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IControl implementation.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
+	 */
+	@Override
+	public IValueChanged< ? > getOnValueChanged() {
+		return null;
+	}
+
+	@Override
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		throw new UnsupportedOperationException("Display control");
+	}
+
+	@Override
+	public T getValueSafe() {
+		return getValue();
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return true;
+	}
+
+	@Override
+	public void setReadOnly(boolean ro) {}
+
+	@Override
+	public boolean isDisabled() {
+		return false;
+	}
+
+	@Override
+	public boolean isMandatory() {
+		return false;
+	}
+
+	@Override
+	public void setMandatory(boolean ro) {}
+
+	@Override
+	public void setDisabled(boolean d) {}
 }
