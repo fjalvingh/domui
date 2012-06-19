@@ -13,7 +13,7 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 4, 2011
  */
-public class ColorPickerButton extends Div implements IHasChangeListener, IInputNode<String> {
+public class ColorPickerButton extends Div implements IHasChangeListener, IControl<String> {
 	private Input m_hidden = new HiddenInput();
 
 	private Div m_coldiv = new Div();
@@ -54,7 +54,7 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IInput
 	}
 
 	@Override
-	public void setValue(String value) {
+	public void setValue(@Nullable String value) {
 		if(value == null)
 			value = "000000"; // We do not allow null here.
 		if(value.startsWith("#"))

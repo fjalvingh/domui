@@ -13,7 +13,7 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 1, 2011
  */
-public class ColorPickerInput extends Input implements IInputNode<String> {
+public class ColorPickerInput extends Input implements IControl<String> {
 	final private Div		m_coldiv = new Div();
 
 	private boolean m_mandatory = true;
@@ -51,7 +51,7 @@ public class ColorPickerInput extends Input implements IInputNode<String> {
 	}
 
 	@Override
-	public void setValue(String value) {
+	public void setValue(@Nullable String value) {
 		if(value == null)
 			value = "000000"; // We do not allow null here.
 		if(value.startsWith("#"))
