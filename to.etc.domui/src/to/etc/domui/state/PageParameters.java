@@ -400,6 +400,12 @@ public class PageParameters {
 		String v = getOne(name);
 		if(null != v && (v = v.trim()).length() > 0) {
 			try {
+				v = v.toLowerCase();
+				if(v.startsWith("y"))
+					return true;
+				else if(v.startsWith("n"))
+					return false;
+
 				return Boolean.parseBoolean(v);
 			} catch(Exception x) {
 				throw new UnusableParameterException(name, "boolean", v);
