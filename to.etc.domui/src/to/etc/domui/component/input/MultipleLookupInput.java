@@ -3,7 +3,6 @@ package to.etc.domui.component.input;
 import java.util.*;
 
 import javax.annotation.*;
-import javax.jms.IllegalStateException;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.LookupInputBase.ILookupFormModifier;
