@@ -106,8 +106,6 @@ public class MailHelper {
 
 	private boolean m_init;
 
-	private int m_htmllinelen;
-
 	public MailHelper() {
 }
 
@@ -128,7 +126,7 @@ public class MailHelper {
 	}
 
 	public void start(Address to, String subject) {
-		m_htmllinelen = 0;
+		m_htmlLen = 0;
 		setSubject(subject);
 		addTo(to);
 	}
@@ -155,6 +153,104 @@ public class MailHelper {
 		return m_linkRenderer;
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	HTML Primitives.									*/
+	/*--------------------------------------------------------------*/
+	private int m_htmlLen = 0;
+
+	private static final int MAXLINE = 78;
+
+	private void htmlWrap(@Nonnull String seg) {
+		int len = seg.length();
+		if(m_htmlLen + len >= MAXLINE) {
+			m_html_sb.append("\r\n");
+			m_htmlLen = 0;
+		}
+		m_html_sb.append(seg);
+		m_htmlLen += len;
+	}
+
+	/**
+	 * Render a html tag with optional attr=value pairs.
+	 * @param tag
+	 * @param attrs
+	 */
+	public void htmlTag(String tag, String... attrs) {
+		htmlWrap("<" + tag);
+		for(int i = 0; i < attrs.length; i += 2) {
+			htmlAttr(attrs[i], attrs[i + 1]);
+		}
+		htmlWrap(">");
+	}
+
+	private void htmlAttr(String name, String value) {
+		htmlWrap(" " + name + "=");
+		htmlWrap("\"" + value + "\"");
+	}
+
+	public void htmlEndTag(String tag) {
+		htmlWrap("</" + tag + ">");
+	}
+
+	/**
+	 * Split text into whitespace-separated things, and make sure lines are smaller than MAXLINE.
+	 * @param text
+	 */
+	public void htmlText(String text) {
+		int ix = 0;
+		int eix = text.length();
+		int six = 0;
+		while(ix < eix) {
+			char c = text.charAt(ix);
+			if(!Character.isWhitespace(c)) {
+				ix++;
+				continue;
+			}
+
+			//-- We have a run of characters from six to ix-1, and we have a whitespace char now... Eat any possible \r\n.
+			int wend = ix++;
+			if(c == '\r') {
+				//-- \r\n must be that
+				if(ix < eix && text.charAt(ix) == '\n') {
+					ix++;							// Eat \n
+				}
+				c = '\n';							// Treat as \n
+			}
+
+			//-- Get the size of the word before this,
+			int sz = wend - six;
+			if(sz > 0) {
+				if(m_htmlLen + sz >= MAXLINE) {
+					//-- We need to wrap. Do so.
+					m_htmlLen = 0;
+					m_html_sb.append("\r\n");
+					c = 0;							// Eat this whitespace - it is replaced with a crlf
+				}
+				m_htmlLen += sz;
+				m_html_sb.append(text, six, wend);
+			}
+			six = ix;
+			if(c == '\n') {
+				m_html_sb.append("\r\n");
+				m_htmlLen = 0;
+			} else if(c != 0) {
+				m_html_sb.append(' ');
+				m_htmlLen++;
+			}
+		}
+
+		int sz = ix - six;
+		if(sz > 0) {
+			if(m_htmlLen + sz >= MAXLINE) {
+				m_htmlLen = 0;
+				m_html_sb.append("\r'n");
+			}
+			m_htmlLen += sz;
+			m_html_sb.append(text, six, ix);
+		}
+	}
+
 	/**
 	 * Just add verbatim text, without anything else. Quotes all html content. This will decode text generated with {@link LinkedText} into something
 	 * that might be edible by email.
@@ -178,30 +274,13 @@ public class MailHelper {
 		init();
 		m_text_sb.append(s);
 		String html = StringTool.htmlStringize(s);
-		m_html_sb.append(html);
-		handleLen(html);
-	}
-
-
-	private void handleLen(String cont) {
-		int pos = cont.lastIndexOf('\n');
-		if(pos == -1) {
-			m_htmllinelen += cont.length();
-		} else {
-			m_htmllinelen = cont.length() - pos;
-		}
-
-		//-- jal 20120522 RFC2822 limits email line length to 998 characters.
-		if(m_htmllinelen > 768) {
-			m_html_sb.append("\r\n");
-			m_htmllinelen = 0;
-		}
+		htmlText(html);
 	}
 
 	@Nonnull
 	public MailHelper ttl(@Nonnull String s) {
 		init();
-		m_html_sb.append("<h2>");
+		htmlTag("h2");
 		append(s);
 
 		m_text_sb.append("\n");
@@ -210,46 +289,45 @@ public class MailHelper {
 		m_text_sb.append("\n");
 
 		//-- HTML fragment
-		m_html_sb.append("</h2>\r\n");
-		m_htmllinelen = 0;
+		htmlEndTag("h2");
+		htmlText("\r\n");
 		return this;
 	}
 
 	@Nonnull
 	public MailHelper i(String s) {
 		init();
-		m_html_sb.append("<i>");
+		htmlTag("i");
 		append(s);
-		m_html_sb.append("</i>");
+		htmlEndTag("i");
 		return this;
 	}
 
 	@Nonnull
 	public MailHelper b(String s) {
 		init();
-		m_html_sb.append("<b>");
+		htmlTag("b");
 		append(s);
-		m_html_sb.append("</b>");
+		htmlEndTag("b");
 		return this;
 	}
 
 	@Nonnull
 	public MailHelper nl() {
 		init();
-		m_htmllinelen = 0;
 		m_text_sb.append("\r\n");
-		m_html_sb.append("<br/>");
+		htmlTag("br/");
+		htmlText("\r\n");
 		return this;
 	}
 
 	@Nonnull
 	public MailHelper pre(String content) {
 		init();
-		m_html_sb.append("<pre>");
+		htmlTag("pre");
 		append(content);
-		m_html_sb.append("</pre>");
-		m_html_sb.append("\r\n");
-		m_htmllinelen = 0;
+		htmlEndTag("pre");
+		htmlText("\r\n");
 		return this;
 	}
 
@@ -270,22 +348,9 @@ public class MailHelper {
 		m_text_sb.append(url);
 		m_text_sb.append(")");
 
-		if(m_htmllinelen > 768) {
-			m_htmllinelen = 0;
-			m_html_sb.append("\r\n");
-		}
-		int pos = m_html_sb.length();
-		m_html_sb.append("<a href=\"");
-		m_html_sb.append(url); // ! Do not URLencode- parent should have as it only pertains to parameters!!
-		m_html_sb.append("\">");
-		StringTool.htmlStringize(m_html_sb, text);
-		m_html_sb.append("</a>");
-		pos = m_html_sb.length() - pos;
-		m_htmllinelen += pos;
-		if(m_htmllinelen > 768) {
-			m_htmllinelen = 0;
-			m_html_sb.append("\r\n");
-		}
+		htmlTag("a", "href", url);
+		htmlText(StringTool.htmlStringize(text));
+		htmlEndTag("a");
 		return this;
 	}
 
@@ -317,18 +382,10 @@ public class MailHelper {
 	public MailHelper linkNoText(String url, String text) {
 		init();
 		m_text_sb.append(url);
-		int pos = m_html_sb.length();
-		m_html_sb.append("<a href=\"");
-		m_html_sb.append(url);
-		m_html_sb.append("\">");
-		StringTool.htmlStringize(m_html_sb, text);
-		m_html_sb.append("</a>");
-		pos = m_html_sb.length() - pos;
-		m_htmllinelen += pos;
-		if(m_htmllinelen > 768) {
-			m_htmllinelen = 0;
-			m_html_sb.append("\r\n");
-		}
+
+		htmlTag("a", "href", url);
+		htmlText(StringTool.htmlStringize(text));
+		htmlEndTag("a");
 		return this;
 	}
 
@@ -442,16 +499,7 @@ public class MailHelper {
 		m_text_sb.append(a.m_ident);
 		m_text_sb.append(") ");
 
-		int pos = m_html_sb.length();
-		m_html_sb.append("<img src=\"cid:");
-		m_html_sb.append(a.m_ident);
-		m_html_sb.append("\">");
-		pos = m_html_sb.length() - pos;
-		m_htmllinelen += pos;
-		if(m_htmllinelen > 768) {
-			m_htmllinelen = 0;
-			m_html_sb.append("\r\n");
-		}
+		htmlTag("img", "src", "cid:" + a.m_ident);
 
 		//-- Create the attachment image.
 		m_attachmentList.add(a);
@@ -497,7 +545,8 @@ public class MailHelper {
 	 */
 	public void sendInternal(@Nullable Object through) throws Exception {
 		addTrailer();
-		m_html_sb.append("</body></html>");
+		htmlEndTag("body");
+		htmlEndTag("html");
 		if(DeveloperOptions.getBool("email.send", true)) {
 			String alt = DeveloperOptions.getString("email.debug", null);
 			if(alt != null) {
