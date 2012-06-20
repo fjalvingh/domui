@@ -61,7 +61,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		}
 
 		public Collection<T> getSelectedItems() {
-			return m_isSelectionModel.getSelectedSet();
+			return m_isSelectionModel != null ? m_isSelectionModel.getSelectedSet() : Collections.EMPTY_SET;
 		}
 
 		public void showSelectedCount() throws IllegalStateException {
@@ -277,6 +277,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		}
 		for (final T item : m_selectionList) {
 			final Span itemNode = createItemNode(item);
+			m_itemNodes.put(item, itemNode);
 			m_selectionContainer.add(itemNode);
 		}
 		add(m_selectionContainer);
