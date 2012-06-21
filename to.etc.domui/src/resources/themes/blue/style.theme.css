@@ -1988,6 +1988,8 @@ body,html {
 	width: 354px;
 	min-height: 40px;
 	height: auto;
+	max-height: 400px;
+	overflow: auto;
 }
 .ui-bupl-legend {
 	position: relative;

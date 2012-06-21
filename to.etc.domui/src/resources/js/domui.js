@@ -2896,7 +2896,7 @@ WebUI.bulkUpload = function(id, buttonId, url) {
 		file_types: '*.*',
 		file_upload_limit: 1000,
 		file_queue_limit: 0,
-		file_size_limit: "200 MB",
+		file_size_limit: "100 MB",
 		button_width: 120,
 		button_height: 22,
 		button_placeholder_id: buttonId,
@@ -2926,6 +2926,9 @@ WebUI.bulkUpload = function(id, buttonId, url) {
 	ctl.bind('uploadSuccess', function(event, file, code, msg) {
 		var uf = new WebUI.UploadFile(file, target);
 		uf.uploadComplete();
+		
+		//-- Send a DomUI command so the UI can handle updates.
+		WebUI.scall(id, "uploadDone", {});
 	});
 //	ctl.bind('uploadComplete', function(event, file) {
 //		var uf = new WebUI.UploadFile(file, target);
@@ -3041,7 +3044,7 @@ WebUI.UploadFile.prototype.uploadComplete = function() {
 	this.suicide();
 };
 WebUI.UploadFile.prototype.suicide = function() {
-	this._ui.delay(4000).fadeOut(500);
+	this._ui.delay(8000).fadeOut(500);
 };
 
 
