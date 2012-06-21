@@ -68,6 +68,7 @@ public class HomePage extends UrlPage {
 		addLink(DemoDateInput.class, "The DateInput component for date and datetime input");
 		addLink(DemoComboFixed.class, "The ComboFixed component");
 		addLink(DemoFileUpload.class, "File upload component");
+		addLink(DemoBulkUpload.class, "The bulk file upload component");
 		addLink(DemoTextArea.class, "The TextArea component");
 		addLink(DemoHtmlEditor.class, "The small and fast HTMLEditor component");
 		addLink(DemoFCKEditor.class, "The big HTML editor - FCKEditor component");
