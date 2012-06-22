@@ -1,9 +1,10 @@
 package to.etc.domuidemo.pages.overview.input;
 
 import to.etc.domui.component.layout.*;
+import to.etc.domui.component.upload.*;
+import to.etc.domui.component.upload.BulkUpload.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.upload.*;
-import to.etc.domuidemo.pages.overview.input.BulkUpload.IUpload;
 
 public class DemoBulkUpload extends UrlPage {
 	@Override

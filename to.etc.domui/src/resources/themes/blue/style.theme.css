@@ -1971,6 +1971,22 @@ body,html {
 /*** BulkUpload component ***/
 .ui-bupl {
 }
+.ui-bupl-wrp {
+	width: 360px;
+	background-color: white;
+	padding: 1px;
+	border: 1px solid <%= header_bg %>;
+}
+.ui-bupl-ttl {
+/*	border: 1px solid <%= header_bg %>; */
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-header.png.svg) repeat-x;
+}
+.ui-bupl-legend {
+	color: black;
+}
+
 .ui-bupl .swfupload {
 	position: absolute;
 	z-index: 1;
@@ -1978,35 +1994,12 @@ body,html {
 }
 <% var buplround = 5; %>
 .ui-bupl-queue {
-	margin: 10px;
-	border: 1px solid <%= header_bg %>;
-	-moz-border-radius: <%= buplround %>px;
-    -webkit-border-radius: <%= buplround %>px;
-    -khtml-border-radius: <%= buplround %>px;
-    border-radius: <%= buplround %>px;
-	behavior: url($themes/PIE.htc);
 	width: 354px;
 	min-height: 40px;
 	height: auto;
 	max-height: 400px;
 	overflow: auto;
 }
-.ui-bupl-legend {
-	position: relative;
-	padding: 3px;
-	top: -10px;
-	left: 10px;
-	font-size: 14px;
-	color: black;
-	background-color: <%= header_bg %>;
-
-	-moz-border-radius: <%= buplround %>px;
-    -webkit-border-radius: <%= buplround %>px;
-    -khtml-border-radius: <%= buplround %>px;
-    border-radius: <%= buplround %>px;
-	behavior: url($themes/PIE.htc);
-}
-
 /* BulkUpload: single queued file progress indicator. */
 .ui-bupl-file {
 	width: 350px;

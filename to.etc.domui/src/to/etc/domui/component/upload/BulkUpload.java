@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.overview.input;
+package to.etc.domui.component.upload;
 
 import java.util.*;
 
@@ -6,7 +6,6 @@ import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.misc.*;
-import to.etc.domui.component.upload.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
@@ -53,13 +52,21 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 
 		add(new VerticalSpacer(10));
 
-		Div outputDiv = new Div();
-		add(outputDiv);
-		outputDiv.setCssClass("ui-bupl-queue");
+		Div wrapper = new Div();
+		add(wrapper);
+		wrapper.setCssClass("ui-bupl-wrp");
+
+		Div ttl = new Div();
+		wrapper.add(ttl);
+		ttl.setCssClass("ui-bupl-ttl");
 		Span legend = new Span();
-		outputDiv.add(legend);
+		ttl.add(legend);
 		legend.setCssClass("ui-bupl-legend");
 		legend.add("Upload Queue");
+
+		Div outputDiv = new Div();
+		wrapper.add(outputDiv);
+		outputDiv.setCssClass("ui-bupl-queue");
 
 		//-- Create the upload URL to UploadPart.
 		StringBuilder sb = new StringBuilder();
@@ -125,10 +132,11 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 		while(m_newItemList.size() > 0) {
 			UploadItem item = m_newItemList.remove(0);
 			boolean remove = true;
-			if(getOnUpload() != null) {
+			IUpload onUpload = getOnUpload();
+			if(onUpload != null) {
 				//-- We have an upload handler. Pass the file there and be done
 				try {
-					remove = getOnUpload().fileUploaded(item);
+					remove = onUpload.fileUploaded(item);
 				} finally {
 					if(remove)
 						item.getFile().delete();				// Discard.
