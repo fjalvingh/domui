@@ -19,6 +19,8 @@ import to.etc.domui.util.upload.*;
  * with an upload file list below it. The upload file list is managed by Javascript(!) in addition to this
  * component.
  *
+ * <p>See <a href="http://www.domui.org/wiki/bin/view/Documentation/DemoBulkUpload">the wiki</a> for a complete description.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 21, 2012
  */
@@ -32,7 +34,21 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 	@Nullable
 	private IUpload m_onUpload;
 
+	/**
+	 * Event interface for {@link BulkUpload#getOnUpload()} event.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Jun 22, 2012
+	 */
 	public interface IUpload {
+		/**
+		 * Called as soon as an upload has completed. When the method returns true the uploaded file will
+		 * be deleted immediately to prevent the server from running out of disk space.
+		 *
+		 * @param item
+		 * @return
+		 * @throws Exception
+		 */
 		boolean fileUploaded(UploadItem item) throws Exception;
 	}
 
@@ -73,7 +89,7 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 		ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
 		sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's stupid caching.
 		String url = sb.toString();
-		System.out.println("URL  = " + url);
+		//		System.out.println("URL  = " + url);
 
 		appendCreateJS("WebUI.bulkUpload('" + getActualID() + "','" + s.getActualID() + "','" + url + "');");
 	}
@@ -145,5 +161,14 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Return the list of files uploaded to this control. This contains only those files that the {@link #getOnUpload()} handler returned
+	 * "false" for, or all files if there is no onUpload handler at all.
+	 * @return
+	 */
+	public List<UploadItem> getUploadFileList() {
+		return new ArrayList<UploadItem>(m_itemList);
 	}
 }

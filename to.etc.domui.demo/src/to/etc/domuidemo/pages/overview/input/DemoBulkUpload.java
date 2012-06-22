@@ -1,8 +1,9 @@
 package to.etc.domuidemo.pages.overview.input;
 
 import to.etc.domui.component.layout.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.component.upload.*;
-import to.etc.domui.component.upload.BulkUpload.*;
+import to.etc.domui.component.upload.BulkUpload.IUpload;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.upload.*;
 
@@ -11,8 +12,14 @@ public class DemoBulkUpload extends UrlPage {
 	public void createContent() throws Exception {
 		add(new Caption("Bulk upload"));
 
+		add(new VerticalSpacer(40));
+
+		Div t = new Div();
+		add(t);
+		t.setMargin("40px");
+
 		BulkUpload bu = new BulkUpload();
-		add(bu);
+		t.add(bu);
 		bu.setOnUpload(new IUpload() {
 			@Override
 			public boolean fileUploaded(UploadItem item) throws Exception {
