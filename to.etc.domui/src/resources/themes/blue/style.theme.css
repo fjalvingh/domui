@@ -1,8 +1,23 @@
 /*
  * DomUI "blue" stylesheet.
+ * File represents composition of fragments that are defining default style for each component.  
  */
+ 
+/*** 000_dateinput.frag.css ***/ 
+/*** Date input ***/
 @IMPORT url("calendar-blue2.css");
 
+/*** 002_core.frag.css ***/ 
+/*** Core style ***/
+/* Body style */
+body,html {
+	background: url(bg-gradient.png.svg) repeat-x;
+	background-color: <%= bg_color %>;
+/*	height: 100%; jal 20110221 Body height causes no end of problems with scrollbars. */
+	margin: 0px;
+}
+
+/* Reset styles */
 * {
 	border: 0;
 	margin: 0;
@@ -34,10 +49,15 @@ pre {
 	font-family: Courier New, Courier, monospace;
 }
 
-.ui-txx {
-	vertical-align: top;
+button img {
+	vertical-align: bottom;
 }
 
+button {
+	vertical-align: bottom;
+}
+
+/*** 005_oddchars.frag.css ***/ 
 /*** Select special chars ***/
 .ui-oddchars {
 	padding: 10px;
@@ -67,6 +87,7 @@ pre {
 	background-color: #ffe1bf;
 }
 
+/*** 010_apptitle.frag.css ***/ 
 /*** App Title bar ***/
 .ui-atl-bb {
 	white-space: nowrap;
@@ -91,6 +112,7 @@ pre {
 	font-size: <%= hdr_font_size %>;
 }
 
+/*** 015_splitterbar.frag.css ***/ 
 /*** SplitterPanel. These style names are required by jquery.splitter.js ***/
 .splitbarV {
 	float: left;
@@ -191,6 +213,7 @@ pre {
 	position: relative;
 }
 
+/*** 020_bugindicator.frag.css ***/ 
 /*** Bug indicator UI ***/
 .ui-bug-ind {
 	background-color: red;
@@ -215,6 +238,7 @@ pre {
 	font-size: 8px;
 }
 
+/*** 025_displaycheckbox.frag.css ***/ 
 /*** DisplayCheckbox ***/
 .ui-dspcb {
 	border: none;
@@ -222,7 +246,8 @@ pre {
 	height: 18px;
 }
 
-/*** Tree selector ***/
+/*** 030_tree.frag.css ***/ 
+/*** Tree component ***/
 .ui-tree .selected {
 	background: <%= selected_bg %> !important;
 }
@@ -230,6 +255,27 @@ TD .ui-tree .selected:hover {
 	background: <%= selected_bg %> !important;
 }
 
+.ui-tr-act {
+	cursor: pointer;
+}
+.ui-tr-val {
+	white-space: nowrap;
+}
+td.ui-tr-sel:hover {
+	background-color: <%= highlight_bg %> !important;
+}
+td.ui-tr-sel {
+	cursor: pointer;
+}
+td.ui-tr-selected {
+	background-color: <%= header_bg %>; !important;
+}
+
+.ui-tree {
+/*	height: 100%;		jal 20111025 - setting this causes trouble if tree is not alone in div.. Fixed for OldHelp browser */
+}
+
+/*** 035_displayvalue.frag.css ***/ 
 /*** DisplayValue ***/
 .ui-dspv {
 	background:none repeat scroll 0 0 <%= readonly_bg %>;
@@ -238,6 +284,7 @@ TD .ui-tree .selected:hover {
 	padding:2px;
 }
 
+/*** 040_captionedheader.frag.css ***/ 
 /*** CaptionedHeader ***/
 .ui-chdr {
 	width: 100%;
@@ -265,6 +312,7 @@ TD .ui-tree .selected:hover {
 	overflow: visible;
 }
 
+/*** 045_errormessagediv.frag.css ***/
 /*** ErrorMessageDiv helper for components that handle their error display ***/
 .ui-emd {
 	background-color: <%= error_bg %>;
@@ -289,7 +337,8 @@ TD .ui-tree .selected:hover {
 	background-image: url(mini-warning.png);
 }
 
-/*** pop-in panel ***/
+/*** 050_popinpanel.frag ***/ 
+/*** Pop-in panel ***/
 div.ui-popin {
 	z-index: 20;
 	border: 1px dotted #333333;
@@ -309,12 +358,78 @@ div.ui-popin {
 	font-weight: bold;
 }
 
-/*** AccessDeniedPage ***/
+/*** 055_misc.frag.css ***/
+/*** Miscellaneous components styles ***/
+/* AccessDeniedPage */
 .ui-acd-ttl {
 	font-size: larger;
 	font-style: italic;
 }
 
+/* InfoPanel */
+.ui-ipa {
+	padding: 4px;
+	margin: 4px;
+	-moz-border-radius: 5px;
+	border: 1px solid #d0d0d0;
+	font-style: italic;
+}
+
+div.ui-ipa img {
+	padding-right: 4px;
+}
+
+/* Explanation box */
+.ui-expl {
+	border: 2px solid #777777;
+	padding: 5px;
+	-moz-border-radius: 10px;
+	background: url(bg-expl.png) repeat-x;
+	color: black;
+}
+
+/* AsyncContainer */
+.ui-asc {
+	text-align: center;
+}
+
+/* SplitPanel (simple version) layout thingy */
+.ui-sp,.ui-sp-c {
+	vertical-align: top;
+}
+
+/* Old Image button */
+.ui-ibtn {
+	cursor: pointer;
+}
+
+/* Message html codes: messages containing simple html (b, em, strong, i) are translated to contain spans with styles ui-txt-i, ui-txt-b etc */
+.ui-txt-i {
+	font-style: italic;
+}
+.ui-txt-b {
+	font-weight: bold;
+}
+
+/* Some other generally used styles... */  
+.ui-hor-divider {
+	min-width: 0px;
+	max-width: 0px;
+	width: 0px;
+	border-left: 2px dotted <%= header_bg %>; /*#6b99e8;*/
+	background-color: #e5e5e5;
+}
+
+.ui-printdiv {
+	overflow: hidden;
+	width: 1px;
+	height: 1px;
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+}
+
+/*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
 .ui-mbx-top {
 	height: 140px;
@@ -328,19 +443,7 @@ div.ui-popin {
 	font-size: 13px;
 }
 
-/*** InfoPanel ***/
-.ui-ipa {
-	padding: 4px;
-	margin: 4px;
-	-moz-border-radius: 5px;
-	border: 1px solid #d0d0d0;
-	font-style: italic;
-}
-
-div.ui-ipa img {
-	padding-right: 4px;
-}
-
+/*** 065_linkbutton.frag.css ***/
 /*** LinkButton component. ***/
 .ui-lbtn {
 	background-repeat: no-repeat;
@@ -359,7 +462,7 @@ a:hover.ui-lnkb {
 	text-decoration: underline !important;
 }
 
-/*** ALink component. ***/
+/*** 070_alink.frag.css - ALink component. ***/
 .ui-alnk {
 }
 
@@ -369,6 +472,7 @@ a:hover.ui-lnkb {
 	padding-left: 18px;
 }
 
+/*** 075_draganddrop.frag.css ***/
 /*** Drag and drop ***/
 .ui-drgbl {
 	cursor: move;
@@ -384,15 +488,7 @@ a:hover.ui-lnkb {
 	text-align: center;
 }
 
-/*** Explanation box ***/
-.ui-expl {
-	border: 2px solid #777777;
-	padding: 5px;
-	-moz-border-radius: 10px;
-	background: url(bg-expl.png) repeat-x;
-	color: black;
-}
-
+/*** 080_listshuttle.frag.css ***/
 /*** List Shuttle ***/
 .ui-sh {
 	width: 100%;
@@ -416,6 +512,7 @@ table .ui-sh {
 	background-color: <%= selected_bg %>;
 }
 
+/*** 085_breadcrumb.frag.css ***/
 /*** BreadCrumb ***/
 .ui-brc {
 	padding: 0; margin: 0;
@@ -447,6 +544,7 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 	font-weight: bolder;
 }
 
+/*** 090_buttonbar.frag.css ***/
 /*** ButtonBar component ***/
 .ui-buttonbar {
 	padding: 0; margin: 0;
@@ -467,28 +565,7 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 	height: 36px;
 }
 
-/*** Tree component ***/
-.ui-tr-act {
-	cursor: pointer;
-}
-.ui-tr-val {
-	white-space: nowrap;
-}
-td.ui-tr-sel:hover {
-	background-color: <%= highlight_bg %> !important;
-}
-td.ui-tr-sel {
-	cursor: pointer;
-}
-td.ui-tr-selected {
-	background-color: <%= header_bg %>; !important;
-}
-
-/*** AsyncContainer ***/
-.ui-asc {
-	text-align: center;
-}
-
+/*** 095_monthpanel.frag.css ***/
 /*** MonthPanel ***/
 .ui-mp {
 /*	background-color: #eeeeee; */
@@ -527,7 +604,9 @@ TD.ui-mp-ch:hover {
 .ui-mp-mrk {
 	background-color: yellow;
 }
-/**** Schedule ****/
+
+/*** 100_calendar.frag.css ***/
+/*** Calendar schedule ***/
 .ui-wa {
 	
 }
@@ -585,7 +664,7 @@ table.ui-wa-bgtbl {
 	background-color: #ffffff;
 }
 
-/**** schedule item ****/
+/* schedule item */
 .ui-wa-it {
 	overflow: hidden;
 	border: 1px solid black;
@@ -621,6 +700,7 @@ table.ui-wa-bgtbl {
 	background-color: #ff4d00;
 }
 
+/*** 105_lookupinput.frag.css ***/
 /*** LookupInput thingerydoo ***/
 .ui-lui {
 	/* background: #ffffff; */
@@ -718,11 +798,7 @@ tr.ui-keyword-popup-row {
 	cursor: pointer;
 }
 
-.no-wrap{
-	white-space: nowrap;
-    overflow: hidden;
-}
-
+/*** 110_multiplelookupinput.frag.css ***/
 /*** MultipleLookupInput thingerydoo ***/
 .ui-mli-cnt { /* selection container */
 	min-height: 20px;
@@ -749,84 +825,18 @@ tr.ui-keyword-popup-row {
 	-moz-box-shadow : 3px 3px 3px #CCCCCC;
 	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
 	*display:inline;
+	filter : progid:DXImageTransform.Microsoft.Shadow(color='#BABABA', Direction=135, Strength=2);	
 }
 
+/*** 115_lookupform.frag.css ***/
 /*** LookupForm ***/
 .ui-lf-coll {
 	border-bottom: 1px dotted #666666;
 }
 
-/*** FloatingWindow ***/
-.ui-fw {
-	padding: 0;
-	margin: 0;
-	/*	border: 1px solid black; */
-	background: url(bg-body.png) repeat-x white;
-	border: 1px solid #cccccc;
-	border-top: none;
-	/*	overflow: hidden;	*/
-	top: 5%;
-	left: 50%;
-	box-shadow : 10px 10px 10px #373737;
-	-moz-box-shadow : 10px 10px 10px #373737;
-}
-
-.ui-fw-ttl {
-	position: absolute;
-	top: 0px;
-	height: 20px;
-	left: 0px;
-	right: 0px;
-/*	width: 100%; */
-	padding: 0;
-	padding: 2px;
-	background: url(bg-float-ttl2.png) repeat-x;
-	border-bottom: 1px solid #eeeeee;
-	font-size: 15px;
-	font-weight: bold;
-}
-
-.ui-fw-c {
-	width: 100%;
-	position: absolute;
-	top: 24px;
-	bottom: 0px;
-/*	height: 100%; */
-	padding: 0;
-	margin: 0;
-	overflow: auto;
-}
-
-.ui-fw-hider {
-	height: 100%;
-	width: 100%;
-	opacity: 0.5;
-	position: fixed;
-	top: 0px;
-	left: 0px;
-	background-color: black;
-	filter:alpha(opacity=50);
-}
-
-.ui-fw-btn-close {
-	margin-top: -1px;
-	margin-right: -2px;
-}
-
-
-
-/** Tree control ***/
-
-.ui-tree {
-/*	height: 100%;		jal 20111025 - setting this causes trouble if tree is not alone in div.. Fixed for OldHelp browser */
-}
-
-/*** SplitPanel (simple version) layout thingy ***/
-.ui-sp,.ui-sp-c {
-	vertical-align: top;
-}
-
-/*** Form basic styles: these are for forms having the label BEFORE the field (horizontal). ***/
+/*** 120_forms.frag.css ***/
+/*** Form basic styles ***/
+/* these are for forms having the label BEFORE the field (horizontal). */
 .ui-f-lbl {
 	text-align: right;
 	font-weight: bold;
@@ -842,7 +852,7 @@ tr.ui-keyword-popup-row {
 	padding: 0px;
 }
 
-/*** Form basic styles: for forms having the label ABOVE the field (vertical stacked) ***/
+/* for forms having the label ABOVE the field (vertical stacked) */
 .ui-fvs-lbl {
 	font-weight: bold;
 }
@@ -856,52 +866,13 @@ tr.ui-keyword-popup-row {
 	padding: 2px;
 }
 
-/*** Typed presentation for fields containing numerics ***/
-.ui-numeric {
-	text-align: right !important;
-}
-
-TD.ui-numeric {
-	padding-right: 3px;
-}
-
 /* Display-only field */
 .ui-f-display {
 	vertical-align: top;
 	background: #eff7ff;
 }
 
-/*** Form basic styles: for forms where the label is above the edit control (vertical). ***/
-/* jal 20100215 Appears to be unused, should merge with -fvs- above.
-.ui-fv-lbl {
-	text-align: left;
-	font-weight: bold;
-	font-size: 11px;
-	vertical-align: top;
-}
-.ui-fv-in {
-	font-size: 11px;
-	font-family: verdana, tahoma, helvetica, sans-serif;
-	vertical-align: top;
-}
-.ui-fv-display {
-	font-size: 11px;
-	font-family: verdana, tahoma, helvetica, sans-serif;
-	vertical-align: top;
-	background: #eff7ff;
-}
-*/
-
-input {
-}
-
-button img {
-	vertical-align: bottom;
-}
-button {
-	vertical-align: bottom;
-}
-
+/* for forms where the label is above the edit control (vertical). */
 .ui-ro {
 	/*background: #eff7ff;*/
 	border:1px solid <%= readonly_border %>;
@@ -914,27 +885,17 @@ button {
 	background-color: <%= readonly_bg %>;
 }
 
-/*** NiceButton ***/
-a.ui-nbtn {
-	/* display: inline-table; jal 20080711 This works proper with FF3 et al but of course not with IE7.. IE8 does work though */
-	display: inline-block;
-	color: white;
-	background: url(threebuttons2.png) transparent no-repeat;
-	width: 122px;
-	height: 25px;
-	margin: 3px auto;
-	padding: 3px 0 0 0;
-	text-align: center;
-	font-size: 100%;
-	font-weight: bold;
-	text-decoration: none;
+/*** 125_numeric.frag.css ***/
+/*** Typed presentation for fields containing numerics ***/
+.ui-numeric {
+	text-align: right !important;
 }
 
-a.ui-nbtn:hover,a.ui-nbtn:active {
-	background-position: 0 -34px;
-	color: yellow;
+TD.ui-numeric {
+	padding-right: 3px;
 }
 
+/*** 130_imagebutton.frag.css ***/
 /*** Image Button ***/
 .ui-ib {
 /*	width: 124px; 20110118 jal make the image scale the button automatically; fixes decade bug# 1029.
@@ -959,11 +920,7 @@ td .ui-ib[class] {
 	background: #cccccc;
 }
 
-/*** Old Image button ***/
-.ui-ibtn {
-	cursor: pointer;
-}
-
+/*** 135_expandingtable.frag.css ***/
 /*** ExpandingTable ***/
 .ui-xdt {
 	overflow: auto;
@@ -1008,6 +965,7 @@ div:hover.ui-xdt-exp {
 	font-style: italic;
 }
 
+/*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
 div.ui-dt {
 	overflow: auto;
@@ -1087,6 +1045,7 @@ tbody td.ui-dt-separator {
 	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
 
+/*** 145_smallimgbutton.frag.css ***/
 /*** Small Image button ***/
 .ui-sib {
 	padding: 0px 1px 0px 1px;
@@ -1107,6 +1066,7 @@ tbody td.ui-dt-separator {
 	background-color: <%= header_bg %> !important;
 }
 
+/*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
 	border: 1px solid <%= header_bg %>;
@@ -1116,6 +1076,7 @@ tbody td.ui-dt-separator {
 /*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
 }
 
+/*** 155_captionedpanel.frag.css ***/
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
 	background-color: white;
@@ -1135,6 +1096,7 @@ tbody td.ui-dt-separator {
 	padding: 5px;
 }
 
+/*** 160_errorpanel.frag.css ***/
 /*** ErrorPanel - a CaptionedPanel used to display errors in the page ***/
 .ui-err-outer { /*	background-color: #ffe5e5; */
 	background-color: white;
@@ -1154,14 +1116,7 @@ tbody td.ui-dt-separator {
 	background-color: <%= error_input_bg %> !important;
 }
 
-/*** Message html codes: messages containing simple html (b, em, strong, i) are translated to contain spans with styles ui-txt-i, ui-txt-b etc ***/
-.ui-txt-i {
-	font-style: italic;
-}
-.ui-txt-b {
-	font-weight: bold;
-}
-
+/*** 165_tabpanel.frag.css ***/
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
 .ui-tab-hdr {
 	float: left;
@@ -1241,6 +1196,7 @@ li.ui-tab-err {
 	border-top: 1px solid black;
 }
 
+/*** 170_scrollabletabpanel.frag.css ***/
 /*** ScrollableTabPanel ***/
 .ui-stab-hdr {
 	float: left;
@@ -1320,15 +1276,7 @@ li.ui-tab-err {
 	cursor: pointer;
 }
 
-/*** Body element ***/
-body,html {
-	background: url(bg-gradient.png.svg) repeat-x;
-/*	background: url(bg-body.png) repeat-x;  jal 20110218 This cannot be present when background-color is color-replaced. */
-	background-color: <%= bg_color %>;
-/*	height: 100%; jal 20110221 Body height causes no end of problems with scrollbars. */
-	margin: 0px;
-}
-
+/*** 175_iohideroverlay.frag.css ***/
 /*** IO hider overlay ***/
 .ui-io-blk {
 	height: 100%;
@@ -1352,6 +1300,7 @@ body,html {
 	z-index: 1000;
 }
 
+/*** 180_percentageprogress.frag.css ***/
 /*** Percentage progress bar ***/
 .ui-pct-rlr {
 	display: inline-block;
@@ -1371,6 +1320,7 @@ body,html {
 /** FIREFOX BROWSERT */
 <% } %>
 
+/*** 185_displayhtml.frag.css ***/
 /*** DisplayHtml ***/
 .ui-dhtml-blk {
 	display: block;
@@ -1387,6 +1337,8 @@ body,html {
 }
 <% } %>
 
+/*** 190_searchinput.frag.css ***/
+/*** Search Input ***/
 .ui-qsi {
 	display: inline-block;
 	position: relative;
@@ -1397,8 +1349,12 @@ body,html {
 }
 <% } %>
 
-
+/*** 195_helperclasses.frag.css ***/
 /*** Helper classes ***/
+.no-wrap{
+	white-space: nowrap;
+    overflow: hidden;
+}
 .ui-szless {
 	padding: 0px;
 	margin: 0px;
@@ -1420,23 +1376,8 @@ body,html {
 .ui-nowrap {
 	white-space: nowrap;
 }
-.ui-printdiv {
-	overflow: hidden;
-	width: 1px;
-	height: 1px;
-	position: absolute;
-	bottom: 0px;
-	left: 0px;
-}
 
-.ui-hor-divider {
-	min-width: 0px;
-	max-width: 0px;
-	width: 0px;
-	border-left: 2px dotted <%= header_bg %>; /*#6b99e8;*/
-	background-color: #e5e5e5;
-}
-
+/*** 200_devmode.frag.css ***/
 /*** Development mode popup ***/
 .ui-ipt {
 	z-index: 200;
@@ -1468,6 +1409,7 @@ body,html {
 	cursor: crosshair;
 }
 
+/*** 205_colorpicker.frag.css ***/
 /*** Color picker ***/
 .colorpicker {
 	width: 356px;
@@ -1631,7 +1573,7 @@ body,html {
 	background-position: bottom;
 }
 
-/*** ColorPickerButton ***/
+/* ColorPickerButton */
 .ui-cpbt-btn {
 	position: relative;
 	background: url(colorpicker-select.png) transparent;
@@ -1649,6 +1591,7 @@ body,html {
 	top: 4px;
 }
 
+/*** 210_popupmenu.frag.css ***/
 /*** Popup menu ***/
 .ui-pmnu {
 	display: none;
@@ -1681,7 +1624,9 @@ body,html {
 	background-color: #ff9436;
 }
 
-/*** jquery-layout css. ***/
+/*** 215_layout.frag.css ***/
+/*** Layout styles ***/
+/* jquery-layout css. */
 .ui-blap {
 	height: 100%;
 	margin: 0 auto;
@@ -1689,9 +1634,7 @@ body,html {
 	min-width: 500px;
 }
 
-/*
- *	PANES & CONTENT-DIVs
- */
+/*	PANES & CONTENT-DIVs */
 .ui-layout-pane { /* all 'panes' */
 	background:	#FFF; 
 	border:		1px solid #BBB;
@@ -1708,9 +1651,7 @@ body,html {
 	overflow:	auto; /* add scrolling to content-div */
 }
 
-/*
- *	RESIZER-BARS
- */
+/* RESIZER-BARS */
 .ui-layout-resizer	{ /* all 'resizer-bars' */
 	background:		#DDD;
 	border:			1px solid #BBB;
@@ -1753,9 +1694,7 @@ body,html {
 .ui-layout-resizer-west-sliding-hover	{ border-right-width:	1px; }
 .ui-layout-resizer-east-sliding-hover	{ border-left-width:	1px; }
 
-/*
- *	TOGGLER-BUTTONS
- */
+/* TOGGLER-BUTTONS */
 .ui-layout-toggler {
 	border: 1px solid #BBB; /* match pane-border */
 	background-color: #BBB;
@@ -1782,9 +1721,7 @@ body,html {
 .ui-layout-resizer-sliding  ui-layout-toggler {
 	display: none;
 }
-/*
- *	style the text we put INSIDE the togglers
- */
+/* style the text we put INSIDE the togglers */
 .ui-layout-toggler .content {
 	color:			#666;
 	font-size:		12px;
@@ -1793,6 +1730,7 @@ body,html {
 	padding-bottom:	0.35ex; /* to 'vertically center' text inside text-span */
 }
 
+/*** 220_resizable.frag.css ***/
 /*** jquery.ui resizable and floatingDiv styles. ***/
 .ui-resizable-se {
 	bottom: 1px;
@@ -1828,6 +1766,7 @@ body,html {
 	background: url(resize.png) no-repeat;
 }
 
+/*** 225_floatingwindow.frag.css ***/
 /*** Window and FloatingDiv styles. ***/
 .ui-flw {
 	padding: 0;
@@ -1839,6 +1778,9 @@ body,html {
 	/*	overflow: hidden;	*/
 	top: 5%;
 	left: 50%;
+	box-shadow : 10px 10px 10px #373737;
+	-moz-box-shadow : 10px 10px 10px #373737;
+	filter : progid:DXImageTransform.Microsoft.Shadow(color='#373737', Direction=135, Strength=7);	
 }
 
 .ui-flw-ttl {
@@ -1889,6 +1831,7 @@ body,html {
 	margin-right: -2px;
 }
 
+/*** 230_defaultbutton.frag.css ***/
 /*** DefaultButton (replaces old version, this one uses hover effects) ***/
 .ui-dbtn {
 	margin: 2px;
@@ -1901,6 +1844,7 @@ body,html {
 	background-position: 0px -<%= defaultbutton_height*2 %>px !important;
 }
 
+/*** 235_flare.frag.css ***/
 /*** Flare component. ***/
 .ui-flare {
 	position: absolute;
@@ -1942,6 +1886,7 @@ body,html {
 	font-size: large;
 }
 
+/*** 240_labelselector.frag.css ***/
 /*** LabelSelector component ***/
 .ui-lsel-sel {
         border-color:#ABADB3 #BFCDD9 #BFCDD9;

@@ -1,0 +1,7 @@
+/*** DisplayValue ***/
+.ui-dspv {
+	background:none repeat scroll 0 0 <%= readonly_bg %>;
+	border: 1px solid <%= readonly_border %>;
+	display:block;
+	padding:2px;
+}

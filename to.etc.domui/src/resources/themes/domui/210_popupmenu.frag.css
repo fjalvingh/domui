@@ -1,0 +1,24 @@
+/*** Popup menu ***/
+.ui-pmnu {
+	display: none;
+	width: 200px;
+	background-color: grey;
+	border: 1px dotted black;
+	-moz-border-radius: 5px;
+	color: white;
+}
+.ui-pmnu-ttl {
+	padding: 4px;
+	font-style: italic;
+	background-color: #222;
+}
+.ui-pmnu-action {
+	padding: 4px;
+	padding-left: 20px;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	background-position: 2px 4px;
+}
+.ui-pmnu-action:hover {
+	background-color: #ff9436;
+}

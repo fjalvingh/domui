@@ -1,0 +1,17 @@
+/*** LinkButton component. ***/
+.ui-lbtn {
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+	font-size: <%= link_font_size %>;
+}
+.ui-lnkb {
+}
+
+a.ui-lnkb {
+	cursor: pointer;
+}
+
+a:hover.ui-lnkb {
+	text-decoration: underline !important;
+}

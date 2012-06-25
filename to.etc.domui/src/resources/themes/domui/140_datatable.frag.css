@@ -1,0 +1,78 @@
+/*** DataTable default style ***/
+div.ui-dt {
+	overflow: auto;
+	position: relative;
+}
+
+.ui-dt th {
+	text-align: left;
+	font-weight: bold;
+	padding: 0px 3px;
+	vertical-align: top;
+}
+
+.ui-dt tbody td {
+	padding: 0px 3px;
+}
+
+.ui-dt-hdr {
+	/* default domui table header style is still to be defined */
+}
+
+.ui-dt-nores {
+	padding: 10px 0px 10px 0px;
+	font-style: italic;
+}
+
+.ui-odd {
+}
+
+.ui-even {
+	background-color: <%= even_bg %>;
+}
+
+tr.ui-rowsel {
+	cursor: pointer;
+}
+
+tr.ui-rowsel:hover {
+	background-color: <%= highlight_bg %> !important;
+}
+
+td.ui-cellsel {
+	cursor: pointer;
+	color: <%= link_color %>;
+}
+
+td.ui-cellsel:hover {
+	text-decoration: underline;
+	background-color: <%= cellhighlight_bg %> !important;
+}
+
+th.ui-sortable {
+	cursor: pointer;
+}
+
+div.ui-sortable {
+	position: relative;
+}
+
+.ui-sortable img {
+	top: 2px;
+	left: -2px;
+	position: absolute;
+	border: 0px;
+}
+
+.ui-sortable span {
+	margin-left: 8px;
+}
+
+tbody td.ui-dt-separator {
+	background: url(bg-horiz-separator.png) repeat-x center;
+	padding: 1px;
+}
+
+.ui-dt .mselected {
+	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+}
