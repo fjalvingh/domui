@@ -24,5 +24,4 @@
 	-moz-box-shadow : 3px 3px 3px #CCCCCC;
 	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
 	*display:inline;
-	filter : progid:DXImageTransform.Microsoft.Shadow(color='#BABABA', Direction=135, Strength=2);	
 }
