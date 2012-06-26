@@ -29,7 +29,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.form.*;
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -119,7 +119,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public String getDefaultLabel() {
+	public @Nonnull String getDefaultLabel() {
 		return m_parent.getDefaultLabel();
 	}
 
@@ -136,11 +136,6 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	@Override
 	public Object[] getDomainValues() {
 		return m_parent.getDomainValues();
-	}
-
-	@Override
-	public String[][] getEditRoles() {
-		return m_parent.getEditRoles();
 	}
 
 	@Override
@@ -216,11 +211,6 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	@Override
 	public @Nonnull PropertyMetaValidator[] getValidators() {
 		return m_parent.getValidators();
-	}
-
-	@Override
-	public String[][] getViewRoles() {
-		return m_parent.getViewRoles();
 	}
 
 	@Override

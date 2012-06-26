@@ -32,7 +32,7 @@ import to.etc.domui.util.*;
 
 /**
  * EXPERIMENTAL - DO NOT USE.
- * This is a simple binder implementation for base IInputNode<T> implementing controls. It handles all
+ * This is a simple binder implementation for base IControl<T> implementing controls. It handles all
  * binding chores.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -40,7 +40,7 @@ import to.etc.domui.util.*;
  */
 public class SimpleBinder implements IBinder {
 	@Nonnull
-	private IInputNode< ? > m_control;
+	private IControl< ? > m_control;
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
 	@Nullable
@@ -58,7 +58,7 @@ public class SimpleBinder implements IBinder {
 	@Nullable
 	private IBindingListener< ? > m_listener;
 
-	public SimpleBinder(IInputNode< ? > control) {
+	public SimpleBinder(@Nonnull IControl< ? > control) {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
 		m_control = control;
@@ -151,7 +151,7 @@ public class SimpleBinder implements IBinder {
 	/**
 	 * Move the control value to wherever it's needed. If this is a listener binding it calls the listener,
 	 * else it moves the value either to the model's value or the instance's value.
-	 * @see to.etc.domui.component.form.IModelBinding#moveControlToModel()
+	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveControlToModel()
 	 */
 	@Override
 	public void moveControlToModel() throws Exception {
@@ -175,7 +175,7 @@ public class SimpleBinder implements IBinder {
 			if(vac == null)
 				throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyModel);
 			Object pval = vac.getValue(base);
-			((IInputNode<Object>) m_control).setValue(pval);
+			((IControl<Object>) m_control).setValue(pval);
 		}
 	}
 

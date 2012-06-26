@@ -26,12 +26,15 @@ package to.etc.domui.component.input;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
  * Date input component: this is an INPUT component with a button attached; pressing
@@ -88,6 +91,11 @@ public class DateInput extends Text<Date> {
 					@Override
 					public void clicked(SmallImgButton b) throws Exception {
 						Date currentDate = new Date();
+						if(!m_withTime) {
+							currentDate = DateUtil.truncateDate(currentDate);
+						} else if(!m_withSeconds) {
+							currentDate = DateUtil.truncateSeconds(currentDate);
+						}
 						//modified flag must be set externaly
 						DomUtil.setModifiedFlag(DateInput.this);
 						DateInput.this.setValue(currentDate);
@@ -177,6 +185,7 @@ public class DateInput extends Text<Date> {
 		m_hideTodayButton = hideTodayButton;
 	}
 
+	@Nonnull
 	public static DateInput createDateInput(Class< ? > clz, String property, boolean editable) {
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(clz, property);
 		Class< ? > aclz = pmm.getActualType();
@@ -185,10 +194,12 @@ public class DateInput extends Text<Date> {
 		return DateInput.createDateInput((PropertyMetaModel<Date>) pmm, editable);
 	}
 
+	@Nonnull
 	public static DateInput createDateInput(PropertyMetaModel<Date> pmm, boolean editable) {
 		return createDateInput(pmm, editable, false);
 	}
 
+	@Nonnull
 	public static DateInput createDateInput(PropertyMetaModel<Date> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		DateInput di = new DateInput();
 		if(pmm.isRequired())

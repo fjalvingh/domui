@@ -26,7 +26,7 @@ package to.etc.domui.component.meta.impl;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.form.*;
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 
@@ -50,10 +50,6 @@ public class BasicPropertyMetaModel<T> {
 	private byte m_scale = -1;
 
 	private boolean m_required;
-
-	private String[][] m_viewRoles;
-
-	private String[][] m_editRoles;
 
 	@Nonnull
 	private YesNoType m_readOnly = YesNoType.UNKNOWN;
@@ -110,32 +106,6 @@ public class BasicPropertyMetaModel<T> {
 
 	public void setRequired(boolean required) {
 		m_required = required;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * Returns the roles needed to view (display) this property.
-	 * @see to.etc.domui.component.meta.PropertyMetaModel#getViewRoles()
-	 */
-	public String[][] getViewRoles() {
-		return m_viewRoles;
-	}
-
-	public void setViewRoles(String[][] viewRoles) {
-		m_viewRoles = viewRoles;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * Returns the roles needed to edit this property.
-	 * @see to.etc.domui.component.meta.PropertyMetaModel#getEditRoles()
-	 */
-	public String[][] getEditRoles() {
-		return m_editRoles;
-	}
-
-	public void setEditRoles(String[][] editRoles) {
-		m_editRoles = editRoles;
 	}
 
 	@Nonnull

@@ -54,7 +54,7 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	}
 
 	@Override
-	public void setValue(Boolean v) {
+	public void setValue(@Nullable Boolean v) {
 		if(DomUtil.isEqual(v, m_value))
 			return;
 		m_value = v;
@@ -79,7 +79,7 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	/*--------------------------------------------------------------*/
 	/** When this is bound this contains the binder instance handling the binding. */
 	@Nullable
-	private DisplayOnlyBinder m_binder;
+	private SimpleBinder m_binder;
 
 	/**
 	 * Return the binder for this control.
@@ -89,7 +89,7 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	@Nonnull
 	public IBinder bind() {
 		if(m_binder == null)
-			m_binder = new DisplayOnlyBinder(this);
+			m_binder = new SimpleBinder(this);
 		return m_binder;
 	}
 
@@ -100,5 +100,55 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	@Override
 	public boolean isBound() {
 		return m_binder != null && m_binder.isBound();
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IControl implementation.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
+	 */
+	@Override
+	public Boolean getValueSafe() {
+		return getValue();
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return true;
+	}
+
+	@Override
+	public void setReadOnly(boolean ro) {
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return false;
+	}
+
+	@Override
+	public boolean isMandatory() {
+		return false;
+	}
+
+	@Override
+	public void setMandatory(boolean ro) {
+	}
+
+	@Override
+	public void setDisabled(boolean d) {
+	}
+
+	@Override
+	public IValueChanged< ? > getOnValueChanged() {
+		return null;
+	}
+
+	@Override
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		throw new UnsupportedOperationException("Display control");
 	}
 }

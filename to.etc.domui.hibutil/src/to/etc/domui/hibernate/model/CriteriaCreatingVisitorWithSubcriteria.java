@@ -747,6 +747,10 @@ public class CriteriaCreatingVisitorWithSubcriteria extends QNodeVisitorBase {
 					return;
 				}
 				break;
+			case NOT:
+				n.getNode().visit(this);
+				m_last = Restrictions.not(m_last);
+				return;
 		}
 		throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 	}

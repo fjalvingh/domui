@@ -26,7 +26,7 @@ package to.etc.domui.dom;
 
 /**
  * Signal interface: when a node has 0 children and exposes this interface it is
- * written as a &nbsp.
+ * written as a &amp;nbsp; entity. Used to fix "empty td" like problems.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2010

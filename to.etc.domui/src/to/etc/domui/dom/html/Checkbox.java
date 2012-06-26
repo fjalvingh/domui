@@ -31,7 +31,7 @@ import javax.annotation.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.util.*;
 
-public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModifiedIndication {
+public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifiedIndication {
 
 	private boolean m_checked;
 
@@ -80,7 +80,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 
 	/**
 	 * Checkboxes cannot be readonly; we make them disabled instead.
-	 * @see to.etc.domui.dom.html.IInputNode#isReadOnly()
+	 * @see to.etc.domui.dom.html.IControl#isReadOnly()
 	 */
 	@Override
 	public boolean isReadOnly() {
@@ -112,7 +112,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 * @see to.etc.domui.dom.html.IControl#getValue()
 	 */
 	@Override
 	public Boolean getValue() {
@@ -120,15 +120,15 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
+	 * @see to.etc.domui.dom.html.IControl#setValue(java.lang.Object)
 	 */
 	@Override
-	public void setValue(Boolean v) {
+	public void setValue(@Nullable Boolean v) {
 		setChecked((v == null) ? false : v.booleanValue());
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
 	 */
 	@Override
 	public Boolean getValueSafe() {
@@ -136,7 +136,7 @@ public class Checkbox extends NodeBase implements IInputNode<Boolean>, IHasModif
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 * @see to.etc.domui.dom.html.IControl#hasError()
 	 */
 	@Override
 	public boolean hasError() {

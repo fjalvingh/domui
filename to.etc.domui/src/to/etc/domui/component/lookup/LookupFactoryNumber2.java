@@ -48,7 +48,7 @@ import to.etc.domui.util.*;
  */
 final class LookupFactoryNumber2 implements ILookupControlFactory {
 	@Override
-	public <T, X extends IInputNode<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		if(control != null) {
 			if(!(control instanceof Text< ? >))
 				return -1;
@@ -63,11 +63,11 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 
 	/**
 	 * Create the input control which is a text input.
-	 * @see to.etc.domui.component.lookup.ILookupControlFactory#createControl(to.etc.domui.component.meta.SearchPropertyMetaModel, to.etc.domui.dom.html.IInputNode)
+	 * @see to.etc.domui.component.lookup.ILookupControlFactory#createControl(to.etc.domui.component.meta.SearchPropertyMetaModel, to.etc.domui.dom.html.IControl)
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T, X extends IInputNode<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		Text<String> numText = (Text<String>) control;
 		if(numText == null) {
