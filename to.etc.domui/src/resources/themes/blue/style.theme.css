@@ -1,13 +1,13 @@
 /*
  * DomUI "blue" stylesheet.
- * File represents composition of fragments that are defining default style for each component.  
+ * File represents composition of fragments that are defining default style for each component.
  */
- 
-/*** 000_dateinput.frag.css ***/ 
+
+/*** 000_dateinput.frag.css ***/
 /*** Date input ***/
 @IMPORT url("calendar-blue2.css");
 
-/*** 002_core.frag.css ***/ 
+/*** 002_core.frag.css ***/
 /*** Core style ***/
 /* Body style */
 body,html {
@@ -57,7 +57,7 @@ button {
 	vertical-align: bottom;
 }
 
-/*** 005_oddchars.frag.css ***/ 
+/*** 005_oddchars.frag.css ***/
 /*** Select special chars ***/
 .ui-oddchars {
 	padding: 10px;
@@ -87,7 +87,7 @@ button {
 	background-color: #ffe1bf;
 }
 
-/*** 010_apptitle.frag.css ***/ 
+/*** 010_apptitle.frag.css ***/
 /*** App Title bar ***/
 .ui-atl-bb {
 	white-space: nowrap;
@@ -112,7 +112,7 @@ button {
 	font-size: <%= hdr_font_size %>;
 }
 
-/*** 015_splitterbar.frag.css ***/ 
+/*** 015_splitterbar.frag.css ***/
 /*** SplitterPanel. These style names are required by jquery.splitter.js ***/
 .splitbarV {
 	float: left;
@@ -213,7 +213,7 @@ button {
 	position: relative;
 }
 
-/*** 020_bugindicator.frag.css ***/ 
+/*** 020_bugindicator.frag.css ***/
 /*** Bug indicator UI ***/
 .ui-bug-ind {
 	background-color: red;
@@ -238,7 +238,7 @@ button {
 	font-size: 8px;
 }
 
-/*** 025_displaycheckbox.frag.css ***/ 
+/*** 025_displaycheckbox.frag.css ***/
 /*** DisplayCheckbox ***/
 .ui-dspcb {
 	border: none;
@@ -246,7 +246,7 @@ button {
 	height: 18px;
 }
 
-/*** 030_tree.frag.css ***/ 
+/*** 030_tree.frag.css ***/
 /*** Tree component ***/
 .ui-tree .selected {
 	background: <%= selected_bg %> !important;
@@ -275,7 +275,7 @@ td.ui-tr-selected {
 /*	height: 100%;		jal 20111025 - setting this causes trouble if tree is not alone in div.. Fixed for OldHelp browser */
 }
 
-/*** 035_displayvalue.frag.css ***/ 
+/*** 035_displayvalue.frag.css ***/
 /*** DisplayValue ***/
 .ui-dspv {
 	background:none repeat scroll 0 0 <%= readonly_bg %>;
@@ -284,7 +284,7 @@ td.ui-tr-selected {
 	padding:2px;
 }
 
-/*** 040_captionedheader.frag.css ***/ 
+/*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
 .ui-chdr {
 	width: 100%;
@@ -337,7 +337,7 @@ td.ui-tr-selected {
 	background-image: url(mini-warning.png);
 }
 
-/*** 050_popinpanel.frag ***/ 
+/*** 050_popinpanel.frag ***/
 /*** Pop-in panel ***/
 div.ui-popin {
 	z-index: 20;
@@ -407,19 +407,12 @@ div.ui-ipa img {
 .ui-txt-i {
 	font-style: italic;
 }
+
 .ui-txt-b {
 	font-weight: bold;
 }
 
-/* Some other generally used styles... */  
-.ui-hor-divider {
-	min-width: 0px;
-	max-width: 0px;
-	width: 0px;
-	border-left: 2px dotted <%= header_bg %>; /*#6b99e8;*/
-	background-color: #e5e5e5;
-}
-
+/* For printable div used style */
 .ui-printdiv {
 	overflow: hidden;
 	width: 1px;
@@ -428,6 +421,16 @@ div.ui-ipa img {
 	bottom: 0px;
 	left: 0px;
 }
+
+/* Some other generally used styles... */
+.ui-hor-divider {
+	min-width: 0px;
+	max-width: 0px;
+	width: 0px;
+	border-left: 2px dotted <%= header_bg %>; /*#6b99e8;*/
+	background-color: #e5e5e5;
+}
+
 
 /*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
@@ -462,7 +465,8 @@ a:hover.ui-lnkb {
 	text-decoration: underline !important;
 }
 
-/*** 070_alink.frag.css - ALink component. ***/
+/*** 070_alink.frag.css ***/
+/*** ALink component. ***/
 .ui-alnk {
 }
 
@@ -1622,7 +1626,6 @@ li.ui-tab-err {
 .ui-pmnu-action:hover {
 	background-color: #ff9436;
 }
-
 /*** 215_layout.frag.css ***/
 /*** Layout styles ***/
 /* jquery-layout css. */
@@ -1908,3 +1911,5 @@ li.ui-tab-err {
 .ui-lsel-sel input {
         border: none;
 }
+
+

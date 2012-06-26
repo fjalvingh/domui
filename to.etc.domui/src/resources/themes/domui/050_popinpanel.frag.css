@@ -1,4 +1,5 @@
-/*** pop-in panel ***/
+/*** 050_popinpanel.frag ***/
+/*** Pop-in panel ***/
 div.ui-popin {
 	z-index: 20;
 	border: 1px dotted #333333;

@@ -1,3 +1,4 @@
+/*** 120_forms.frag.css ***/
 /*** Form basic styles ***/
 /* these are for forms having the label BEFORE the field (horizontal). */
 .ui-f-lbl {
@@ -47,4 +48,3 @@
 	border:1px solid <%= readonly_border %>;
 	background-color: <%= readonly_bg %>;
 }
-

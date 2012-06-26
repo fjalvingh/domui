@@ -1,3 +1,4 @@
+/*** 055_misc.frag.css ***/
 /*** Miscellaneous components styles ***/
 /* AccessDeniedPage */
 .ui-acd-ttl {
@@ -47,6 +48,10 @@ div.ui-ipa img {
 	font-style: italic;
 }
 
+.ui-txt-b {
+	font-weight: bold;
+}
+
 /* For printable div used style */
 .ui-printdiv {
 	overflow: hidden;
@@ -58,11 +63,6 @@ div.ui-ipa img {
 }
 
 /* Some other generally used styles... */
-
-.ui-txt-b {
-	font-weight: bold;
-}
-
 .ui-hor-divider {
 	min-width: 0px;
 	max-width: 0px;

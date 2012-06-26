@@ -1,3 +1,4 @@
+/*** 002_core.frag.css ***/
 /*** Core style ***/
 /* Body style */
 body,html {
@@ -46,4 +47,3 @@ button img {
 button {
 	vertical-align: bottom;
 }
-
