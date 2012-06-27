@@ -1,0 +1,16 @@
+/*** 185_displayhtml.frag.css ***/
+/*** DisplayHtml ***/
+.ui-dhtml-blk {
+	display: block;
+}
+.ui-dhtml-inl {
+	display: inline;
+}
+.ui-dhtml-ibl {
+	display: inline-block;
+}
+<% if(browser.isIE()) { %>
+.ui-dhtml-ibl { /* IE 7 FIX: by repeating the display: inline in a SEPARATE css selector we force proper inline-block behaviour, see http://www.brunildo.org/test/InlineBlockLayout.html */
+	display: inline;
+}
+<% } %>

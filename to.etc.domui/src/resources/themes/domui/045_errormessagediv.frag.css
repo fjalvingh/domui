@@ -1,0 +1,24 @@
+/*** 045_errormessagediv.frag.css ***/
+/*** ErrorMessageDiv helper for components that handle their error display ***/
+.ui-emd {
+	background-color: <%= error_bg %>;
+	color: <%= error_fg %>;
+	border-color: 1px solid <%= error_border %>;
+}
+.ui-emd-msg {
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+}
+.ui-emd-info {
+	background-image: url(mini-info.png);
+	background-color: <%= info_bg %>; /* some nice light blue */
+	color: <%= info_fg %>;
+	border-color: 1px solid <%= info_border %>;
+}
+.ui-emd-error {
+	background-image: url(mini-error.png);
+}
+.ui-emd-warning {
+	background-image: url(mini-warning.png);
+}

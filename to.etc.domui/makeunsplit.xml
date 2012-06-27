@@ -1,0 +1,15 @@
+<project name="to.etc.domui" default="go" basedir=".">
+	<target name="go">
+	<echo>Generating unsplit theme style</echo>
+	<concat destfile="src/resources/themes/blue/style.theme.css" overwrite="true" fixlastline="true">
+	    <header>/*${line.separator} * DomUI "blue" stylesheet.${line.separator} * File represents composition of fragments that are defining default style for each component.${line.separator} */${line.separator}</header>
+		<sort xmlns:rcmp="antlib:org.apache.tools.ant.types.resources.comparators">
+			<fileset dir="src/resources/themes/domui">
+				<include name="**/*.frag.css" />
+			</fileset>
+			<rcmp:name />
+		</sort>
+	</concat>
+	<echo>Done</echo>
+	</target>
+</project>

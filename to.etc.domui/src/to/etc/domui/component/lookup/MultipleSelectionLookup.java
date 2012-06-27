@@ -68,7 +68,7 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 
 	public MultipleSelectionLookup(Class<T> lookupClass, ClassMetaModel metaModel, boolean isModal, String title, IMultiSelectionResult<T> onReceiveResult) {
 		super(isModal, title, lookupClass, metaModel);
-		setCssClass("ui-fw");
+		setCssClass("ui-flw");
 		//		m_selectionResult = new ArrayList<T>();
 		if(getWidth() == null) {
 			setWidth(WIDTH + "px");
