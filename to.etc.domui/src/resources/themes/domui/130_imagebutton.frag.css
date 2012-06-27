@@ -1,0 +1,24 @@
+/*** 130_imagebutton.frag.css ***/
+/*** Image Button ***/
+.ui-ib {
+/*	width: 124px; 20110118 jal make the image scale the button automatically; fixes decade bug# 1029.
+	height: 24px; */
+	border: none;
+	background: none;
+	cursor: pointer;
+	padding: 0px;
+	/* 20110118 jal IE7 idiot fix for button width blunder. */
+	width: 0;
+	overflow: visible;
+}
+/* 20110118 jal IE7 idiot fix for button width blunder. */
+.ui-ib[class] {
+	width: auto;
+}
+td .ui-ib[class] {
+}
+/* end fix */
+
+.ui-ib:hover {
+	background: #cccccc;
+}

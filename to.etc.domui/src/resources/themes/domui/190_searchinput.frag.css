@@ -1,0 +1,11 @@
+/*** 190_searchinput.frag.css ***/
+/*** Search Input ***/
+.ui-qsi {
+	display: inline-block;
+	position: relative;
+}
+<% if(browser.isIE()) { %>
+.ui-qsi {  /* IE 7 FIX: by repeating the display: inline in a SEPARATE css selector we force proper inline-block behaviour, see http://www.brunildo.org/test/InlineBlockLayout.html */
+	display: inline;
+}
+<% } %>

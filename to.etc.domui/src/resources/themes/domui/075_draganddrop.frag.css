@@ -1,0 +1,15 @@
+/*** 075_draganddrop.frag.css ***/
+/*** Drag and drop ***/
+.ui-drgbl {
+	cursor: move;
+}
+.ui-drp-hover {
+	border: 2px solid yellow;
+	background-color: green;
+}
+.ui-drp-ins {
+	font-size: x-small;
+	font-variant: small-caps;
+	background: url(dnd-separator.png) repeat-x center;
+	text-align: center;
+}

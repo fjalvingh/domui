@@ -1,0 +1,19 @@
+/*** 160_errorpanel.frag.css ***/
+/*** ErrorPanel - a CaptionedPanel used to display errors in the page ***/
+.ui-err-outer { /*	background-color: #ffe5e5; */
+	background-color: white;
+	padding: 1px;
+	border: 1px solid <%= error_bg %>;
+	margin-bottom: 5px;
+}
+
+.ui-err-caption {
+	border: 1px solid <%= error_bg %>;
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-errors.png) repeat-x bottom;
+}
+
+.ui-input-err {
+	background-color: <%= error_input_bg %> !important;
+}
