@@ -2914,6 +2914,166 @@ WebUI.flareStay = function(id) {
 	});
 };
 
+/** Bulk upload code using swfupload */
+WebUI.bulkUpload = function(id, buttonId, url) {
+	var ctl = $('#'+id);
+	ctl.swfupload({
+		upload_url: url,
+		flash_url: DomUIappURL+"$js/swfupload.swf",
+		file_types: '*.*',
+		file_upload_limit: 1000,
+		file_queue_limit: 0,
+		file_size_limit: "100 MB",
+		button_width: 120,
+		button_height: 22,
+		button_placeholder_id: buttonId,
+		button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
+		button_cursor: SWFUpload.CURSOR.HAND
+	});
+	var target = $("#"+id+" .ui-bupl-queue");
+
+	ctl.bind('fileQueued', function(event, file) {
+		var uf = new WebUI.UploadFile(file, target, function() {
+			$.swfupload.getInstance(ctl).cancelUpload(file.id);
+		});
+	});
+	ctl.bind('uploadStart', function(event, file) {
+		var uf = new WebUI.UploadFile(file, target);
+		uf.uploadStarted();
+	});
+	ctl.bind('uploadProgress', function(event, file, bytesdone, bytestotal) {
+		var uf = new WebUI.UploadFile(file, target);
+		var pct = bytesdone * 100 / bytestotal;
+		uf.setProgress(pct);
+	});
+	ctl.bind('uploadError', function(event, file, code, msg) {
+		var uf = new WebUI.UploadFile(file, target);
+		uf.uploadError(msg);
+	});
+	ctl.bind('uploadSuccess', function(event, file, code, msg) {
+		var uf = new WebUI.UploadFile(file, target);
+		uf.uploadComplete();
+		
+		//-- Send a DomUI command so the UI can handle updates.
+		WebUI.scall(id, "uploadDone", {});
+	});
+//	ctl.bind('uploadComplete', function(event, file) {
+//		var uf = new WebUI.UploadFile(file, target);
+//	});
+	ctl.bind('fileDialogComplete', function() {
+		//-- Autostart upload on dialog completion.
+		ctl.swfupload('startUpload');
+	});
+	ctl.bind('fileQueueError', function(event, file, errorCode, message) {
+		try {
+			if(errorCode === SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED) {
+				alert(WebUI._T.buplTooMany);
+//				alert("You have attempted to queue too many files.\n" + (message === 0 ? "You have reached the upload limit." : "You may select " + (message > 1 ? "up to " + message + " files." : "one file.")));
+				return;
+			}
+			var uf = new WebUI.UploadFile(file, target);
+			switch (errorCode) {
+				case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT:
+					uf.uploadError(WebUI._T.buplTooBig);
+					break;
+				case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
+					uf.uploadError(WebUI._T.buplEmptyFile);
+					break;
+				case SWFUpload.QUEUE_ERROR.INVALID_FILETYPE:
+					uf.uploadError(WebUI._T.buplInvalidType);
+					break;
+				default:
+					if(file !== null) {
+						uf.uploadError(WebUI._T.buplUnknownError);
+					}
+					break;
+			}
+		} catch (ex) {
+			alert(ex);
+	    }
+	});
+
+//	//-- TEST
+//	var file = {
+//			id: 'jal',
+//			name: 'upload.jpg'
+//	};
+//	var uf = new WebUI.UploadFile(file, target, function() {
+//		$.swfupload.getInstance(ctl).cancelUpload(file.id);
+//	});
+//
+//	setTimeout(function() {
+//		uf.uploadStarted();
+//		
+//	}, 2000);
+//
+//	setTimeout(function() {
+//		uf.setProgress(10);
+//		
+//	}, 3000);
+//	
+//	setTimeout(function() {
+//		uf.setProgress(20);
+//		
+//	}, 4000);
+//
+////	setTimeout(function() {
+////		uf.uploadError("Server IO error");
+////		
+////	}, 6000);
+//
+//	setTimeout(function() {
+//		uf.uploadComplete();
+//	}, 6000);
+};
+
+/**
+ * The uploadFile object handles all progress handling for a swf file.
+ */
+WebUI.UploadFile = function(file, target, cancelFn) {
+	this._id = file.id;
+	
+	//-- connect to pre-existing UI
+	this._ui = $('#'+file.id);
+	if(this._ui.length == 0) {
+		//-- Create the UI.
+		target.append("<div id='"+this._id+"' class='ui-bupl-file'><div class='ui-bupl-inner ui-bupl-pending'><a href='#' class='ui-bupl-cancl'> </a><div class='ui-bupl-name'>"+file.name+"</div><div class='ui-bupl-stat'>"+DomUI._T.buplPending+"</div><div class='ui-bupl-perc'></div></div></div>");
+		this._ui = $('#'+file.id);
+		if(cancelFn) {
+			var me = this;
+			$(".ui-bupl-cancl", this._ui).bind("click", function() {
+				$(".ui-bupl-stat", this._ui).html(WebUI._T.buplCancelled);
+				me.suicide();
+				cancelFn();
+			});
+		}
+	}
+};
+WebUI.UploadFile.prototype.uploadStarted = function() {
+	$(".ui-bupl-stat", this._ui).html(WebUI._T.buplRunning);
+	$(".ui-bupl-inner", this._ui).removeClass("ui-bupl-pending").addClass("ui-bupl-running");
+};
+WebUI.UploadFile.prototype.setProgress = function(pct) {
+	$(".ui-bupl-perc", this._ui).width(pct+"%");
+};
+WebUI.UploadFile.prototype.uploadError = function(message) {
+	$(".ui-bupl-stat", this._ui).html(WebUI._T.buplError+": "+message);
+	$(".ui-bupl-inner", this._ui).removeClass("ui-bupl-pending").removeClass("ui-bupl-running").addClass("ui-bupl-error");
+	$(".ui-bupl-cancl", this._ui).remove();
+	this.setProgress(0);
+	this.suicide();
+};
+WebUI.UploadFile.prototype.uploadComplete = function() {
+	$(".ui-bupl-stat", this._ui).html(WebUI._T.buplComplete);
+	$(".ui-bupl-inner", this._ui).removeClass("ui-bupl-pending").removeClass("ui-bupl-running").removeClass("ui-bupl-error").addClass("ui-bupl-complete");
+	this.setProgress(100);
+	$(".ui-bupl-cancl", this._ui).remove();
+	this.suicide();
+};
+WebUI.UploadFile.prototype.suicide = function() {
+	this._ui.delay(8000).fadeOut(500);
+};
+
 
 $(document).ready(WebUI.onDocumentReady);
 $(window).resize(WebUI.onWindowResize);
