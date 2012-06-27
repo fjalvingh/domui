@@ -2182,6 +2182,32 @@ var WebUI = {
 		}
 	},
 	
+	/**
+	 * This adds a "resize" listener to the window, and every window "resize" it will call a method
+	 * to recalculate the height of a single div (flexid) based on the position of:
+	 * <ul>
+	 *	<li>The 'bottom' position of the element just above it (get it's top position and add it's height)</li>
+	 *	<li>A bottom 'offset', currently an integer in pixels. It will become a "bottom item" id later, so we can auto-size a div "sandwiched" between two other elements.</li>
+	 * </ul>
+	 * The recalculate code will be called every time the window resizes.
+	 * 
+	 * @param topid
+	 * @param flexid
+	 * @param bottom
+	 */
+	autoHeightReset: function(topid, flexid, bottom) {
+		$(window).bind("resize", function() {
+			WebUI.recalculateAutoHeight(topid, flexid, bottom);
+		});
+//		WebUI.recalculateAutoHeight(topid, flexid, bottom);
+	},
+	
+	recalculateAutoHeight: function(topid, flexid, bottom) {
+		var tbot = $(topid).offset().top + $(topid).height();
+		var height = $(window).height() - tbot - bottom;
+		$(flexid).height(height+"px");
+	},
+	
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
 	debug : function(debugId, posX, posY, debugInfoHtml) {
 		//Be aware that debugId must not start with digit when using FF! Just lost 1 hour to learn this...
