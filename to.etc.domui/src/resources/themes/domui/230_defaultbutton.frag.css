@@ -1,12 +1,57 @@
 /*** 230_defaultbutton.frag.css ***/
-/*** DefaultButton (replaces old version, this one uses hover effects) ***/
-.ui-dbtn {
-	margin: 2px;
-	background: none;
+/*** New default button, uses sliding doors and a single bg image ***/
+.ui-sdbtn {
+	position: relative;
+	border: 0;
+	padding: 0 10px 0 0;
+	margin-right: 10px;
+	vertical-align: top;
+	cursor: pointer;
+	overflow: visible; /* remove extra padding in IE */
+	background: transparent url(<%= button_img %>) no-repeat right -50px;
 }
-.ui-dbtn:HOVER, .ui-dbtn:FOCUS {
-	background-position: 0px -<%= defaultbutton_height %>px;
+.ui-sdbtn img {
+	padding-right: 3px;
+	vertical-align: middle;
+	height: 16px;
 }
-.ui-dbtn[disabled] {
-	background-position: 0px -<%= defaultbutton_height*2 %>px !important;
+.ui-sdbtn::-moz-focus-inner {
+	border: none; /* overrides extra padding in ffox */
+}
+.ui-sdbtn span {
+	position: relative;
+	display: block;
+	min-width: 94px;
+	white-space: nowrap;
+	height: <%= button_height %>px;
+	padding: 3px 0 0 6px;
+	color: white;
+	font-weight: bold;
+	vertical-align: middle;
+	text-align: left;
+	background: transparent url(<%= button_img %>) no-repeat left top;
+}
+.ui-sdbtn u {
+/*	vertical-align: middle; */
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	/* Safari and Google Chrome only - fix margins */
+	.ui-sdbtn span {
+		margin-top: -1px;
+	}
+}
+.ui-sdbtn:hover, .ui-sdbtn:focus {
+	background-position: right -150px;
+}
+.ui-sdbtn:hover span, .ui-sdbtn:focus span {
+	background-position: left -100px;
+}
+
+/* support for disabled attribute */
+.ui-sdbtn[disabled], .ui-sdbtn[disabled]:hover, .ui-sdbtn[disabled]:focus {
+	background-position: right -250px;
+}
+.ui-sdbtn[disabled] span, .ui-sdbtn[disabled]:hover span, .ui-sdbtn[disabled]:focus span {
+	background-position: left -200px;
 }
