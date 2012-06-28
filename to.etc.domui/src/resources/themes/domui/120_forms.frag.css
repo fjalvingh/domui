@@ -1,0 +1,57 @@
+/*** 120_forms.frag.css ***/
+/*** Form basic styles ***/
+/* these are for forms having the label BEFORE the field (horizontal). */
+.ui-f-lbl {
+	text-align: right;
+	font-weight: bold;
+	font-size: <%= font_size %>;
+ 	vertical-align: top;
+}
+
+.ui-f-in {
+	font-size: <%= font_size %>;
+	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
+	padding: 0px;
+}
+.ui-f-do {
+	font-size: <%= font_size %>;
+	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
+	padding: 0px;
+}
+
+/* for forms having the label ABOVE the field (vertical stacked) */
+.ui-fvs-lbl {
+	font-weight: bold;
+	font-size: <%= font_size %>;
+}
+
+.ui-fvs-in {
+	font-size: <%= font_size %>;
+	vertical-align: top;
+}
+
+.ui-fvs-do { /* displayonly field */
+	font-size: <%= font_size %>;
+	background-color: white;
+	padding: 2px;
+}
+
+/* Display-only field */
+.ui-f-display {
+	font-size: <%= font_size %>;
+	vertical-align: top;
+	background: #eff7ff;
+}
+
+/* for forms where the label is above the edit control (vertical). */
+.ui-ro {
+	/*background: #eff7ff;*/
+	border:1px solid <%= readonly_border %>;
+	background-color: <%= readonly_bg %>;
+}
+
+.ui-ro:hover {
+	/*background: #eff7ff;*/
+	border:1px solid <%= readonly_border %>;
+	background-color: <%= readonly_bg %>;
+}

@@ -26,12 +26,16 @@ package to.etc.domui.component.upload;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
+import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
+import to.etc.webapp.core.*;
 
 /**
  * Represents a file upload thingy which handles ajaxy uploads. The basic model
@@ -58,7 +62,7 @@ import to.etc.domui.util.upload.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2008
  */
-public class FileUpload extends Div /* implements IHasChangeListener */{
+public class FileUpload extends Div implements IUploadAcceptingComponent /* implements IHasChangeListener */ {
 	private String m_allowedExtensions;
 
 	//	private int m_maxSize;
@@ -240,12 +244,22 @@ public class FileUpload extends Div /* implements IHasChangeListener */{
 		m_onValueChanged = onValueChanged;
 	}
 
-	public void internalFilesAdded(UploadItem[] uiar) throws Exception {
+	@Override
+	public void handleUploadRequest(@Nonnull RequestContextImpl param, @Nonnull ConversationContext conversation) throws Exception {
+		UploadItem[] uiar = param.getFileParameter(getInput().getActualID());
+		if(uiar != null) {
+			for(UploadItem ui : uiar) {
+				getFiles().add(ui);
+				conversation.registerUploadTempFile(ui.getFile());
+			}
+		}
 		forceRebuild();
-		if(m_onValueChanged == null)
-			return;
-		((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(this);
+		if(m_onValueChanged != null)
+			((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(this);
+
+		//-- Render an optimal delta as the response,
+		ServerTools.generateNoCache(param.getResponse()); // Do not allow the browser to cache
+		ApplicationRequestHandler.renderOptimalDelta(param, getPage());
 	}
-
-
 }
+

@@ -159,6 +159,12 @@ final public class Page implements IQContextContainer {
 		if(res == null)
 			throw new IllegalStateException("internal: missing calendar NLS resource $js/calendarnls{nls}.js");
 		addHeaderContributor(HeaderContributor.loadJavascript(res), -760);
+
+		//-- Localize DomUI resources
+		res = DomApplication.get().findLocalizedResourceName("$js/domuinls", ".js", NlsContext.getLocale());
+		if(res == null)
+			throw new IllegalStateException("internal: missing domui NLS resource $js/domuinls{nls}.js");
+		addHeaderContributor(HeaderContributor.loadJavascript(res), -760);
 	}
 
 	/*--------------------------------------------------------------*/

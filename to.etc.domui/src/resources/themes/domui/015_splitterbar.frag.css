@@ -1,0 +1,100 @@
+/*** 015_splitterbar.frag.css ***/
+/*** SplitterPanel. These style names are required by jquery.splitter.js ***/
+.splitbarV {
+	float: left;
+	width: 6px;
+	height: 100%;
+	line-height: 0px;
+	font-size: 0px;
+	border-left: solid 1px white;
+	border-right: solid 1px white;
+	background: #cbe1fb url(panev.gif) 0% 50%;
+}
+
+.splitbuttonV {
+	margin-top: -41px;
+	margin-left: -4px;
+	top: 50%;
+	position: relative;
+	height: 83px;
+	width: 10px;
+	background: transparent url(panevc.gif) 10px 50%;
+}
+
+.splitbuttonV.invert {
+	margin-left: 0px;
+	background: transparent url(panevc.gif) 0px 50%;
+}
+
+.splitbarV.working,.splitbarH.working,.splitbuttonV.working,.splitbuttonH.working
+	{
+	-moz-opacity: .50;
+	filter: alpha(opacity = 50);
+	opacity: .50;
+}
+
+.splitbarH {
+	height: 6px;
+	text-align: left;
+	line-height: 0px;
+	font-size: 0px;
+	border-top: solid 1px white;
+	border-bottom: solid 1px white;
+	background: #cbe1fb url(paneh.gif) 50% 0%;
+}
+
+.splitbuttonH {
+	margin-left: -41px;
+	left: 50%;
+	position: relative;
+	height: 10px !important;
+	width: 83px;
+	background: transparent url(panehc.gif) 50% 0px;
+}
+
+.splitbuttonH.invert {
+	margin-top: -4px;
+	background: transparent url(panehc.gif) 50% -10px;
+}
+
+/* SplitterPanel stuff that is not dependant on jquery.splitter.js */
+.ui-splt-vert { /* vertical splitter */
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.ui-splt-horz { /* horizontal splitter */
+/*	height: 100%; */
+/*	width: 100%; */
+	width: auto;
+}
+
+.ui-splt-left {
+	float: left;
+	height: 100%;
+	border-top: solid 1px white;
+	overflow: auto;
+	position: relative;
+}
+
+.ui-splt-right {
+	float: right;
+	height: 100%;
+	overflow: auto;
+	position: relative;
+}
+
+.ui-splt-top {
+	width: auto;
+	overflow: auto;
+	position: relative;
+}
+
+.ui-splt-bottom {
+	width: 100%;
+	overflow: auto;
+	height: 100%;
+	position: relative;
+}
