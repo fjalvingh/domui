@@ -1,4 +1,4 @@
-bg_color="#ffffff";
+bg_color="#DDE8FA"; //blue background
 bg2_color=util.color(bg_color).lume(0.3);
 
 button_bg="#6ba1eb";
