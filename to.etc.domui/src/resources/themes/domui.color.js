@@ -14,9 +14,9 @@ header_bg_bg="#ffffff";	// background to fade into for header
 
 //-- Selects and highlights ---
 selected_bg="#bed6f8";	// blue
-highlight_bg="#F9AE54";	// row select: hard orange
-highlight2_bg="#ffe1bf"; // secondary highlight: salmon
-cellhighlight_bg="#b8f1c7";	// cell select: light green
+highlight_bg="#62bce0";	// row select: hard orange
+highlight2_bg="#62bce0"; // secondary highlight: salmon
+cellhighlight_bg="#61ddbe";	// cell select: light green
 
 readonly_bg="#F5F5FA";		// very light grey 
 readonly_border="#EEEEEF"; // bit darker grey
