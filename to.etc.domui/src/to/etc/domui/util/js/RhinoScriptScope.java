@@ -34,64 +34,12 @@ import org.mozilla.javascript.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 27, 2011
  */
-public class RhinoScriptScope implements IScriptScope {
-	@Nonnull
-	private ScriptableObject m_scriptable;
-
-	private boolean m_writable;
-
+public class RhinoScriptScope extends RhinoObjectBase implements IScriptScope {
 	public RhinoScriptScope(@Nonnull ScriptableObject val, boolean writable) {
-		m_scriptable = val;
-		m_writable = writable;
+		super(val, writable);
 	}
 
 	public RhinoScriptScope(@Nonnull ScriptableObject val) {
 		this(val, true);
 	}
-
-	@Override
-	public Object getValue(String name) {
-		Object val = ScriptableObject.getProperty(m_scriptable, name);
-		return RhinoExecutor.translateValue(val);
-	}
-
-	@Override
-	public void put(String name, Object instance) {
-		if(!m_writable)
-			throw new IllegalStateException("This scope is read-only.");
-		m_scriptable.put(name, m_scriptable, instance);
-	}
-
-	@Override
-	public void registerToplevelFunction(Object instance, String instanceVar, String function) throws Exception {
-		put(instanceVar, instance);
-		Context jcx = Context.enter();
-		try {
-			jcx.evaluateString(m_scriptable, function, "inline", 1, null);
-		} finally {
-			Context.exit();
-		}
-	}
-
-	@Override
-	public IScriptScope newScope() {
-		Context jcx = Context.enter();
-		try {
-			ScriptableObject scope = (ScriptableObject) jcx.newObject(m_scriptable);
-			scope.setPrototype(m_scriptable);
-			scope.setParentScope(null);
-			return new RhinoScriptScope(scope, true);
-		} finally {
-			Context.exit();
-		}
-	}
-
-	@Override
-	public <T> T getAdapter(Class<T> clz) {
-		if(clz.isAssignableFrom(Scriptable.class))
-			return (T) m_scriptable;
-		return null;
-	}
-
-
 }

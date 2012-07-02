@@ -65,8 +65,7 @@ public class RhinoExecutorFactory {
 	public RhinoExecutor createExecutor() {
 		initialize();
 
-		RhinoExecutor jx = new RhinoExecutor(this);
-		jx.initialize(m_rootScope);
+		RhinoExecutor jx = new RhinoExecutor(m_rootScope);
 		return jx;
 	}
 

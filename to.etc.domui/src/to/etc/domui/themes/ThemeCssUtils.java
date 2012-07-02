@@ -66,7 +66,7 @@ public class ThemeCssUtils {
 
 
 		ButtonPartKey k = new ButtonPartKey();
-		String s = m_scope.getValue("themePath") + "defaultbutton.properties";
+		String s = m_scope.getValue(String.class, "themePath") + "defaultbutton.properties";
 		k.setPropFile(s);
 		k.setText(text);
 		StringBuilder sb = new StringBuilder();

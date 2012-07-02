@@ -85,7 +85,7 @@ public class SimpleThemeFactory implements IThemeFactory {
 	private RhinoExecutor executor() throws Exception {
 		if(m_executor == null) {
 			m_executor = RhinoExecutorFactory.getInstance().createExecutor();
-			m_executor.eval("icon = new Object();");
+			m_executor.eval(Object.class, "icon = new Object();", "internal");
 		}
 		return m_executor;
 	}
@@ -112,7 +112,7 @@ public class SimpleThemeFactory implements IThemeFactory {
 		/*
 		 * Prime the execution environment with objects needed.
 		 */
-		executor().eval("icon = new Object();");
+		executor().eval(Object.class, "icon = new Object();", "internal");
 
 		loadProperties("$themes/" + m_colorName + ".color.js", rdl);
 		loadProperties("$icons/" + m_iconName + "/icon.props.js", rdl);
@@ -143,7 +143,7 @@ public class SimpleThemeFactory implements IThemeFactory {
 		InputStream is = ires.getInputStream();
 		try {
 			InputStreamReader isr = new InputStreamReader(is, "utf-8");
-			executor().eval(isr, rurl);
+			executor().eval(Object.class, isr, rurl);
 		} finally {
 			try {
 				if(is != null)

@@ -1385,7 +1385,7 @@ public abstract class DomApplication {
 	@OverridingMethodsMustInvokeSuper
 	public void augmentThemeMap(IScriptScope ss) throws Exception {
 		ss.put("util", new ThemeCssUtils(ss));
-		ss.registerToplevelFunction(this, "___domappl", "function url(x) { return util.url(x);};");
+		ss.eval(Object.class, "function url(x) { return util.url(x);};", "internal");
 	}
 
 	/**

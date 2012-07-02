@@ -119,7 +119,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	protected RhinoExecutor executor() throws Exception {
 		if(null == m_executor) {
 			m_executor = RhinoExecutorFactory.getInstance().createExecutor();
-			m_executor.eval("icon = new Object();");
+			m_executor.eval(Object.class, "icon = new Object();", "internal");
 			m_executor.put("themeName", m_themeName);
 			m_executor.put("themePath", "$THEME/" + m_themeName + "/");
 			m_application.augmentThemeMap(m_executor);
@@ -290,7 +290,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 */
 	private void setInheritence(String methodname) throws Exception {
 		executor().put("collector", this);
-		executor().eval("function inherit(s) { collector." + methodname + "(s); }");
+		executor().eval(Object.class, "function inherit(s) { collector." + methodname + "(s); }", "internal");
 	}
 
 	/**
@@ -334,7 +334,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		try {
 			//-- Execute Javascript;
 			Reader r = new InputStreamReader(is, "utf-8");
-			executor().eval(r, pname);
+			executor().eval(Object.class, r, pname);
 		} finally {
 			try {
 				is.close();

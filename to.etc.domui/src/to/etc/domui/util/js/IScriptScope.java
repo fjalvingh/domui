@@ -24,29 +24,58 @@
  */
 package to.etc.domui.util.js;
 
+import java.io.*;
+import java.util.*;
+
+import javax.annotation.*;
+
 public interface IScriptScope {
 	/**
-	 * Return the value for the specified variable in this scope.
+	 * Return the value for the specified variable in this scope. If the specified variable
+	 * cannot be converted to the required type this throws an exception.
 	 * @param name
 	 * @return
 	 */
-	Object getValue(String name);
+	@Nullable
+	<T> T getValue(@Nonnull Class<T> valueClass, @Nonnull String name);
 
 	/**
-	 * Put a value inside the scope.
+	 * Put a simple value inside the scope.
 	 * @param name
 	 * @param instance
 	 */
-	void put(String name, Object instance);
+	<T> void put(@Nonnull String name, @Nullable T instance);
 
-	void registerToplevelFunction(Object instance, String instanceVar, String function) throws Exception;
+	/**
+	 * Get all properties of this object.
+	 * @param filterClass
+	 * @return
+	 */
+	@Nonnull
+	<T> List<T> getProperties(@Nonnull Class<T> filterClass);
+
+	/**
+	 * Create a new object property inside this one, with the specified name.
+	 * @param name
+	 * @return
+	 */
+	@Nonnull
+	IScriptScope addObjectProperty(@Nonnull String name);
+
+	@Nullable
+	<T> T eval(@Nonnull Class<T> targetType, @Nonnull Reader r, @Nonnull String sourceFileNameIndicator) throws Exception;
+
+	@Nullable
+	<T> T eval(@Nonnull Class<T> targetType, @Nonnull String expression, @Nonnull String sourceFileNameIndicator) throws Exception;
 
 	/**
 	* Create a new writable scope that has this scope as the "delegate". This new scope
 	* is writable.
 	* @return
 	*/
+	@Nonnull
 	IScriptScope newScope();
 
-	<T> T getAdapter(Class<T> clz);
+	@Nullable
+	<T> T getAdapter(@Nonnull Class<T> clz);
 }
