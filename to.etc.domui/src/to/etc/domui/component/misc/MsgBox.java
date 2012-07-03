@@ -513,11 +513,14 @@ public class MsgBox extends Window {
 			td = b.addCell();
 			td.setCssClass("ui-mbx-input");
 			td.add(m_inputControl);
+			m_inputControl.setFocus();
 		}
 
 		add(m_theButtons);
+
 		//FIXME: vmijic 20090911 Set initial focus to first button. However preventing of keyboard input focus on window in background has to be resolved properly.
-		setFocusOnButton();
+		if(m_inputControl == null)
+			setFocusOnButton();
 	}
 
 
