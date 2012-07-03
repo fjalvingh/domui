@@ -554,7 +554,7 @@ public class MsgBox extends Window {
 				throw ex;
 			}
 		}
-		if(m_oninput != null) {
+		if(m_oninput != null && sel == MsgBoxButton.CONTINUE) {
 			try {
 				Object v = m_inputControl.getValue();
 				((IInput<Object>) m_oninput).onInput(v);
