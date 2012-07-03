@@ -2204,7 +2204,7 @@ var WebUI = {
 		$(window).bind("resize", function() {
 			WebUI.recalculateAutoHeight(topid, flexid, bottom);
 		});
-//		WebUI.recalculateAutoHeight(topid, flexid, bottom);
+		WebUI.recalculateAutoHeight(topid, flexid, bottom);
 	},
 	
 	recalculateAutoHeight: function(topid, flexid, bottom) {

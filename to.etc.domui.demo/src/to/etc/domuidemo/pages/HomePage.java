@@ -54,6 +54,7 @@ public class HomePage extends UrlPage {
 		addLink(DemoTabPanel.class, "The TabPanel component");
 		addLink(DemoScrollableTabPanel.class, "The ScrollableTabPanel panel, when there's many tabs to show.");
 		addLink(DemoSplitterPanel.class, "The SplitterPanel, containing two panels with a movable separator between them");
+		addLink(DemoMessageLine.class, "A message line");
 
 		addCaption("Simple components");
 		addLink(DemoDefaultButton.class, "The DefaultButton");
