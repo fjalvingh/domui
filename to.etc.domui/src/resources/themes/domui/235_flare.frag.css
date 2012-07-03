@@ -1,0 +1,41 @@
+/*** 235_flare.frag.css ***/
+/*** Flare component. ***/
+.ui-flare {
+	position: absolute;
+	z-index: 9999;
+	top: 100px;
+	left: 100px;
+	width: auto;
+	height: auto;
+	-moz-border-radius: 5px 5px;
+	border: 1px dotted grey;
+	padding: 15px;
+}
+.ui-flare-error {
+	background: <%= error_bg %>;
+	color: <%= error_fg %>
+}
+.ui-flare-info {
+	background: <%= info_bg %>;
+	color: <%= info_fg %>
+}
+.ui-flare-warning {
+	background: <%= warning_bg %>;
+	color: <%= warning_fg %>
+}
+.ui-flare-msg {
+	opacity: 0.9;
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	top: auto;
+	left: auto;
+}
+.ui-flare-msg div {
+	font-weight: bold;
+ 	text-align: right;	
+ 	min-width: 400px;
+}
+.ui-flare-msg div div {
+	font-size: large;
+}

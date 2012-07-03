@@ -1,0 +1,31 @@
+/*** 085_breadcrumb.frag.css ***/
+/*** BreadCrumb ***/
+.ui-brc {
+	padding: 0; margin: 0;
+}
+.ui-brc-left {
+	padding: 0; margin: 0;
+	background-image: url(bg-rounded-left.png);
+	width: 19px;
+	height: 36px;
+}
+.ui-brc-right {
+	padding: 0; margin: 0;
+	background-image: url(bg-rounded-right.png);
+	width: 29px;
+	height: 36px;
+}
+.ui-brc-middle {
+	padding: 0; margin: 0;
+	background: url(bg-rounded-middle.png) repeat-x;
+	height: 36px;
+}
+a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
+	color: #ffff99;
+	font-weight: bolder;
+	text-decoration: none;
+}
+.ui-brc-c {
+	color: white;
+	font-weight: bolder;
+}

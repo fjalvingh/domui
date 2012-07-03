@@ -11,6 +11,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
 
 /**
@@ -33,6 +34,16 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 
 	@Nullable
 	private IUpload m_onUpload;
+
+	/** Event handler called when the file(s) have been selected and the upload of the 1st one has started, */
+	@Nullable
+	private IClicked<BulkUpload> m_onUploadsStarted;
+
+	/** Event handler called when all uploads have completed. */
+	@Nullable
+	private IClicked<BulkUpload> m_onUploadsComplete;
+
+	private DefaultButton m_startButton;
 
 	/**
 	 * Event interface for {@link BulkUpload#getOnUpload()} event.
@@ -63,8 +74,8 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 		Span s = new Span();									// Flash button placeholder: this transparant thing will overlay the button below.
 		buttonBar.add(s);
 
-		DefaultButton b = new DefaultButton("Select Files");	// Overlay button
-		buttonBar.add(b);
+		m_startButton = new DefaultButton("Select Files");
+		buttonBar.add(m_startButton);
 
 		add(new VerticalSpacer(10));
 
@@ -139,9 +150,21 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
 		if("uploadDone".equals(action)) {
 			handleUploadDone();
-			return;
-		}
-		super.componentHandleWebAction(ctx, action);
+		} else if("queueComplete".equals(action)) {
+			m_startButton.setDisabled(false);
+			m_startButton.setTitle("");
+
+			IClicked<BulkUpload> eh = getOnUploadsComplete();
+			if(null != eh)
+				eh.clicked(this);
+		} else if("queueStart".equals(action)) {
+			m_startButton.setDisabled(true);
+			m_startButton.setTitle(Msgs.BUNDLE.getString(Msgs.BULKUPLD_DISABLED));
+			IClicked<BulkUpload> eh = getOnUploadsStarted();
+			if(null != eh)
+				eh.clicked(this);
+		} else
+			super.componentHandleWebAction(ctx, action);
 	}
 
 	private void handleUploadDone() throws Exception {
@@ -170,5 +193,31 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 	 */
 	public List<UploadItem> getUploadFileList() {
 		return new ArrayList<UploadItem>(m_itemList);
+	}
+
+	/**
+	 * Event handler called when the file(s) have been selected and the upload of the 1st one has started.
+	 * @return
+	 */
+	@Nullable
+	public IClicked<BulkUpload> getOnUploadsStarted() {
+		return m_onUploadsStarted;
+	}
+
+	public void setOnUploadsStarted(@Nullable IClicked<BulkUpload> onUploadsStarted) {
+		m_onUploadsStarted = onUploadsStarted;
+	}
+
+	/**
+	 * Event handler called when all uploads have completed.
+	 * @return
+	 */
+	@Nullable
+	public IClicked<BulkUpload> getOnUploadsComplete() {
+		return m_onUploadsComplete;
+	}
+
+	public void setOnUploadsComplete(@Nullable IClicked<BulkUpload> onUploadsComplete) {
+		m_onUploadsComplete = onUploadsComplete;
 	}
 }
