@@ -265,6 +265,9 @@ public interface Msgs {
 
 	public static final String EDLG_CANCEL = "edlg.cancel";
 
+	/*** BulkUpload ***/
+	public static final String BULKUPLD_DISABLED = "bupl.disabled";
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Available icons within the framework theme set.		*/
