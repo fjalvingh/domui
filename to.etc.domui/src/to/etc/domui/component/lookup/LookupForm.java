@@ -434,6 +434,7 @@ public class LookupForm<T> extends Div {
 	public void createContent() throws Exception {
 		//-- If a page title is present render the search block in a CaptionedPanel, else present in it;s own div.
 		Div sroot = new Div();
+		sroot.setCssClass("ui-lf-mainContent");
 		if(getPageTitle() != null) {
 			CaptionedPanel cp = new CaptionedPanel(getPageTitle(), sroot);
 			add(cp);
@@ -450,6 +451,7 @@ public class LookupForm<T> extends Div {
 		NodeContainer searchContainer = sroot;
 		if(containsItemBreaks(m_itemList)) {
 			Table searchRootTable = new Table();
+			searchRootTable.setCssClass("ui-lf-multi");
 			sroot.add(searchRootTable);
 			TBody searchRootTableBody = new TBody();
 			searchRootTable.add(searchRootTableBody);
@@ -463,6 +465,7 @@ public class LookupForm<T> extends Div {
 
 		//-- Walk all search fields
 		m_table = new Table();
+		m_table.setCssClass("ui-lf-st");
 		searchContainer.add(m_table);
 		m_tbody = new TBody();
 		m_tbody.setTestID("tableBodyLookupForm");
@@ -476,6 +479,7 @@ public class LookupForm<T> extends Div {
 				searchContainer.appendAfterMe(anotherSearchRootCell);
 				searchContainer = anotherSearchRootCell;
 				m_table = new Table();
+				m_table.setCssClass("ui-lf-st");
 				searchContainer.add(m_table);
 				m_tbody = new TBody();
 				m_tbody.setTestID("tableBodyLookupForm");
@@ -488,6 +492,7 @@ public class LookupForm<T> extends Div {
 		//-- The button bar.
 		Div d = new Div();
 		d.setTestID("buttonBar");
+		d.setCssClass("ui-lf-ebb");
 		sroot.add(d);
 		m_buttonRow = d;
 
