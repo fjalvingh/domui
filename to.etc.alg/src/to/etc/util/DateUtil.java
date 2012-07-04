@@ -256,6 +256,17 @@ public class DateUtil {
 		return new Date(cal.getTimeInMillis());
 	}
 
+	static public Date truncateSeconds(Date dt) {
+		if(dt == null) {
+			return null;
+		}
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dt);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return new Date(cal.getTimeInMillis());
+	}
+
 	/**
 	 * Returns date incremented for specified value. 
 	 * @param dt
