@@ -79,6 +79,12 @@ Calendar._TT["SEL_DATE"] = "Selecteer datum";
 Calendar._TT["DRAG_TO_MOVE"] = "Klik en sleep om te verplaatsen";
 Calendar._TT["PART_TODAY"] = " (vandaag)";
 Calendar._TT["INVALID"] = "Ongeldige datum";
+Calendar._TT ["INVALID_DATE"] = "Ongeldige datum";
+Calendar._TT ["INVALID_MONTH"] = "Ongeldige maand";
+Calendar._TT ["INVALID_YEAR"] = "Ongeldige jaar";
+Calendar._TT ["INVALID_HOUR"] = "Ongeldige uur";
+Calendar._TT ["INVALID_MINUTE"] = "Ongeldige minuut";
+Calendar._TT ["INVALID_SECOND"] = "Ongeldige tweede";
 
 // the following is to inform that "%s" is to be the first day of week
 // %s will be replaced with the day name.
