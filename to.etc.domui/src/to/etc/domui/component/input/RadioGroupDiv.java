@@ -165,7 +165,7 @@ public class RadioGroupDiv<T> extends Div implements IControl<T> {
 	 * @see to.etc.domui.dom.html.IDisplayControl#setValue(java.lang.Object)
 	 */
 	@Override
-	public void setValue(T v)  {
+	public void setValue(@Nullable T v) {
 		if (m_readOnly)
 			return;
 		if (v == null && m_value == null)
@@ -281,6 +281,30 @@ public class RadioGroupDiv<T> extends Div implements IControl<T> {
 				rb.setChecked(true);
 			}
 		}
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*--------------------------------------------------------------*/
+	/** When this is bound this contains the binder instance handling the binding. */
+	private SimpleBinder m_binder;
+
+	/**
+	 * Return the binder for this control.
+	 * @see to.etc.domui.component.input.IBindable#bind()
+	 */
+	@Override
+	public @Nonnull
+	IBinder bind() {
+		if(m_binder == null)
+			m_binder = new SimpleBinder(this);
+		return m_binder;
+	}
+
+	@Override
+	public boolean isBound() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
