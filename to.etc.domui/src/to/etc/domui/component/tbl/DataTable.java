@@ -64,6 +64,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	/** When selecting, this is the last index that was used in a select click.. */
 	private int m_lastSelectionLocation = -1;
 
+	private boolean m_disableClipboardSelection;
+
 	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
@@ -135,7 +137,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			renderRow(tr, cc, ix, o);
 			ix++;
 		}
-		appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+		if(isDisableClipboardSelection())
+			appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 	}
 
 	@SuppressWarnings("deprecation")
@@ -701,8 +704,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	public void setSelectionModel(@Nullable ISelectionModel<T> selectionModel) {
 		if(DomUtil.isEqual(m_selectionModel, selectionModel))
 			return;
-		if(m_selectionModel != null)
+		if(m_selectionModel != null) {
 			m_selectionModel.removeListener(this);
+			setDisableClipboardSelection(true);
+		}
 		m_selectionModel = selectionModel;
 		if(null != selectionModel) {
 			selectionModel.addListener(this);
@@ -724,6 +729,19 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		for(int i = 0; i < m_visibleItemList.size(); i++) {
 			T item = m_visibleItemList.get(i);
 			updateSelectionChanged(item, i, getSelectionModel().isSelected(item));
+		}
+	}
+
+	public boolean isDisableClipboardSelection() {
+		return m_disableClipboardSelection;
+	}
+
+	public void setDisableClipboardSelection(boolean disableClipboardSelection) {
+		if(m_disableClipboardSelection == disableClipboardSelection)
+			return;
+		m_disableClipboardSelection = disableClipboardSelection;
+		if(isBuilt() && disableClipboardSelection) {
+			appendJavascript(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 		}
 	}
 }
