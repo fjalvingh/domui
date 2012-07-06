@@ -184,6 +184,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	 * Handle default input focus: if no focus is set AND this is an input control -> set focus.
 	 */
 	private void checkForFocus(NodeBase n) {
+		if(m_tagRenderer.getMode() != HtmlRenderMode.FULL)
+			return;
 		if(n.getPage().getFocusComponent() != null)
 			return;
 		if(n instanceof IHasChangeListener) { // FIXME Why this 'if'?
