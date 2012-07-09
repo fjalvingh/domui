@@ -105,7 +105,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	public void createContent() throws Exception {
 		m_dataBody = null;
 		m_errorDiv = null;
-		setCssClass("ui-dt");
+		addCssClass("ui-dt");
 
 		//-- Do we need to render multiselect checkboxes?
 		ISelectionModel<T> sm = getSelectionModel();
