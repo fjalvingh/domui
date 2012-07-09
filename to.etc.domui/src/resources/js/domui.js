@@ -3120,6 +3120,23 @@ $(document).ajaxComplete( function() {
 	WebUI.doCustomUpdates();
 });
 
-
-
-
+$(document).keydown(function(e){
+	var KEY = {
+			HOME		: 36,
+			END			: 35,
+			PAGE_UP		: 33,
+			PAGE_DOWN	: 34
+	};
+	
+	if($('div.ui-szless').length > 0){
+		if (e.altKey && e.keyCode == KEY.HOME) { 
+	    		$("div.ui-szless > button.ui-sib:nth-child(1)").click();
+		} else if (e.altKey && e.keyCode == KEY.PAGE_UP) {    	
+	    		$("div.ui-szless > button.ui-sib:nth-child(2)").click();
+		} else if(e.altKey && e.keyCode == KEY.PAGE_DOWN) {
+	    		$("div.ui-szless > button.ui-sib:nth-child(3)").click();
+		} else if (e.altKey && e.keyCode == KEY.END) { 
+	    		$("div.ui-szless > button.ui-sib:nth-child(4)").click();
+		}
+    }
+});
