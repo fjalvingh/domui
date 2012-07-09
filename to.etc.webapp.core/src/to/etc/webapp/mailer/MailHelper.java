@@ -164,8 +164,7 @@ public class MailHelper {
 	private void htmlWrap(@Nonnull String seg) {
 		int len = seg.length();
 		if(m_htmlLen + len >= MAXLINE) {
-			m_html_sb.append("\r\n");
-			m_htmlLen = 0;
+			internalNL();
 		}
 		m_html_sb.append(seg);
 		m_htmlLen += len;
@@ -208,47 +207,51 @@ public class MailHelper {
 				continue;
 			}
 
-			//-- We have a run of characters from six to ix-1, and we have a whitespace char now... Eat any possible \r\n.
-			int wend = ix++;
-			if(c == '\r') {
-				//-- \r\n must be that
-				if(ix < eix && text.charAt(ix) == '\n') {
-					ix++;							// Eat \n
-				}
-				c = '\n';							// Treat as \n
-			}
-
-			//-- Get the size of the word before this,
-			int sz = wend - six;
+			//-- We have a run of characters from six to ix, and we have a whitespace char now...
+			boolean wrapped = false;
+			int sz = ix - six;
 			if(sz > 0) {
 				if(m_htmlLen + sz >= MAXLINE) {
 					//-- We need to wrap. Do so.
 					m_htmlLen = 0;
 					m_html_sb.append("\r\n");
-					c = 0;							// Eat this whitespace - it is replaced with a crlf
+					wrapped = true;
 				}
 				m_htmlLen += sz;
-				m_html_sb.append(text, six, wend);
+				m_html_sb.append(text, six, ix);
 			}
-			six = ix;
-			if(c == '\n') {
-				m_html_sb.append("\r\n");
-				m_htmlLen = 0;
-			} else if(c != 0) {
-				m_html_sb.append(' ');
+
+			//-- Is the current whitespace \r\n? Eat it,
+			ix++;									// Past whitespace char
+			if(c == '\r') {
+				if(ix < eix && text.charAt(ix) == '\n')
+					ix++;							// Eat \n
+				if(!wrapped)
+					internalNL();
+
+			} else if(c == '\n') {
+				if(!wrapped)
+					internalNL();
+			} else {
+				m_html_sb.append(c);
 				m_htmlLen++;
 			}
+			six = ix;
 		}
 
 		int sz = ix - six;
 		if(sz > 0) {
 			if(m_htmlLen + sz >= MAXLINE) {
-				m_htmlLen = 0;
-				m_html_sb.append("\r'n");
+				internalNL();
 			}
 			m_htmlLen += sz;
 			m_html_sb.append(text, six, ix);
 		}
+	}
+
+	private void internalNL() {
+		m_html_sb.append("\r\n");
+		m_htmlLen = 0;
 	}
 
 	/**

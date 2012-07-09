@@ -899,6 +899,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 		//		if(! isUpdating())
 		o().attr("type", "file");
 		o().attr("name", n.getActualID());
+		renderDisabled(n, n.isDisabled());
+
 		//		if(n.isDisabled())
 		//			o().attr("disabled", "disabled");
 		//		if(n.getMaxLength() > 0)
