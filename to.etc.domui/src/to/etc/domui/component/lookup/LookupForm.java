@@ -556,7 +556,7 @@ public class LookupForm<T> extends Div {
 			}
 		});
 		m_collapseButton.setTestID("hideButton");
-		addButtonItem(m_collapseButton, 500, ButtonMode.BOTH);
+		addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
 	}
 
 	private boolean containsItemBreaks(List<Item> itemList) {
@@ -584,6 +584,7 @@ public class LookupForm<T> extends Div {
 
 		//-- Collapse button thingy
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
+		m_collapseButton.setIcon("THEME/btnShowLookup.png");
 		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(DefaultButton bx) throws Exception {
@@ -605,6 +606,7 @@ public class LookupForm<T> extends Div {
 		createButtonRow(m_buttonRow, false);
 
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
+		m_collapseButton.setIcon("THEME/btnHideLookup.png");
 		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(DefaultButton bx) throws Exception {
@@ -1094,7 +1096,7 @@ public class LookupForm<T> extends Div {
 						}
 					}
 				});
-				addButtonItem(m_newBtn, 300, ButtonMode.BOTH);
+				addButtonItem(m_newBtn, 500, ButtonMode.BOTH);
 			} else if(m_onNew == null && m_newBtn != null) {
 				for(ButtonRowItem bri : m_buttonItemList) {
 					if(bri.getThingy() == m_newBtn) {
