@@ -88,6 +88,9 @@ public class ScrollableTabPanel extends TabPanelBase {
 		m_tabul.setWidth("3000px");
 		m_tabul.setMarginLeft("0px");
 		hdr.add(u);
+		Div bgFill = new Div();
+		bgFill.setCssClass("ui-tab-ibte");
+		hdr.add(bgFill);
 		renderTabPanels(m_tabul, this);
 		appendCreateJS(JavascriptUtil.disableSelection(m_tabul));
 	}
