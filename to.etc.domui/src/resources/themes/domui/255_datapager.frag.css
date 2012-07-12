@@ -1,0 +1,53 @@
+/*** 255_datapager.frag.css ***/
+/*** Result table pager ***/
+.ui-szless {
+	padding: 0px;
+	margin: 0px;
+}
+
+.ui-szless a{
+	display: inline-block;
+	padding: 0px;
+	height: 18px;
+	width: 29px;
+}
+
+.ui-szless a.ui-dp-nav-f {
+	background-image : url("<%= nav_btn_first_s%>");
+}
+.ui-szless a.ui-dp-nav-f:HOVER {
+	background-image : url("<%= nav_btn_first_f%>");
+}
+.ui-szless a.ui-dp-nav-f-dis {
+	background-image : url("<%= nav_btn_first_d%>");
+}
+
+.ui-szless a.ui-dp-nav-p {
+	background-image : url("<%= nav_btn_prev_s%>");
+}
+.ui-szless a.ui-dp-nav-p:HOVER {
+	background-image : url("<%= nav_btn_prev_f%>");
+}
+.ui-szless a.ui-dp-nav-p-dis {
+	background-image : url("<%= nav_btn_prev_d%>");
+}
+
+.ui-szless a.ui-dp-nav-n {
+	background-image : url("<%= nav_btn_next_s%>");
+}
+.ui-szless a.ui-dp-nav-n:HOVER {
+	background-image : url("<%= nav_btn_next_f%>");
+}
+.ui-szless a.ui-dp-nav-n-dis {
+	background-image : url("<%= nav_btn_next_d%>");
+}
+
+.ui-szless a.ui-dp-nav-l {
+	background-image : url("<%= nav_btn_last_s%>");
+}
+.ui-szless a.ui-dp-nav-l:HOVER {
+	background-image : url("<%= nav_btn_last_f%>");
+}
+.ui-szless a.ui-dp-nav-l-dis {
+	background-image : url("<%= nav_btn_last_d%>");
+}
