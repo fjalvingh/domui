@@ -77,6 +77,8 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 
 	private IValueChanged< ? > m_onValueChanged;
 
+	private boolean m_disabled;
+
 	public FileUpload() {}
 
 	/**
@@ -118,6 +120,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 			FileInput fi = new FileInput();
 			f.add(fi);
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
+			fi.setDisabled(isDisabled());
 			if(null != m_allowedExtensions)
 				fi.setSpecialAttribute("fuallowed", m_allowedExtensions);
 			//			fi.setSpecialAttribute("fumaxsz", Integer.toString(m_maxSize));
@@ -128,12 +131,14 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 			TD td = b.addCell();
 			td.setText(ufi.getRemoteFileName() + " (" + ufi.getContentType() + ")");
 			td = b.addCell();
-			td.add(new DefaultButton("delete", new IClicked<DefaultButton>() {
-				@Override
-				public void clicked(DefaultButton bx) throws Exception {
-					removeUploadItem(ufi);
-				}
-			}));
+			if(!isDisabled()) {
+				td.add(new DefaultButton("delete", new IClicked<DefaultButton>() {
+					@Override
+					public void clicked(DefaultButton bx) throws Exception {
+						removeUploadItem(ufi);
+					}
+				}));
+			}
 		}
 	}
 
@@ -239,9 +244,20 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
-
+	
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
+	}
+	
+	public boolean isDisabled() {
+		return m_disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		if(m_disabled == disabled)
+			return;
+		m_disabled = disabled;
+		forceRebuild();
 	}
 
 	@Override
