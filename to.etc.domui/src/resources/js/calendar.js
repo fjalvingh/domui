@@ -1589,6 +1589,7 @@ Calendar.prototype._dragStart = function (ev) {
 // BEGIN: DATE OBJECT PATCHES
 
 /** Adds the number of days array to the Date object. */
+
 Date._MD = new Array(31,28,31,30,31,30,31,31,30,31,30,31);
 
 /** Constants used for time computations */
@@ -1624,7 +1625,7 @@ Date.parseDate = function(str, fmt) {
 		    case "%Y":
 		    case "%y":
 			y = parseInt(a[i], 10);
-			(y < 100) && (y += (y > 29) ? 1900 : 2000);
+			y = Date.get4DigitYear(y);
 			break;
 
 		    case "%b":
@@ -1654,13 +1655,18 @@ Date.parseDate = function(str, fmt) {
 			break;
 		}
 	}
-	if (isNaN(y)) y = today.getFullYear();
-	if (isNaN(m)) m = today.getMonth();
-	if (isNaN(d)) d = today.getDate();
-	if (isNaN(hr)) hr = today.getHours();
-	if (isNaN(min)) min = today.getMinutes();
-	if (y != 0 && m != -1 && d != 0)
-		return new Date(y, m, d, hr, min, 0);
+	if (isNaN(y))	throw new Exception(Calendar._TT ["INVALID_YEAR"]);
+	if (isNaN(m))	throw new Exception(Calendar._TT ["INVALID_MONTH"]);
+	if (isNaN(d))	throw new Exception(Calendar._TT ["INVALID_DATE"]);
+	if (isNaN(hr))	throw new Exception(Calendar._TT ["INVALID_HOUR"]);
+	if (isNaN(min))	throw new Exception(Calendar._TT ["INVALID_MINUTE"]);
+	
+	if (m != -1 && d != 0){
+		// If no year was entered assume current year.
+		if (y == 0)	
+			y = today.getFullYear();
+		return Date.dateFromYMDHMS(y, m, d, hr, min, 0);
+	}
 	y = 0; m = -1; d = 0;
 	for (i = 0; i < a.length; ++i) {
 		if (a[i].search(/[a-zA-Z]+/) != -1) {
@@ -1678,16 +1684,48 @@ Date.parseDate = function(str, fmt) {
 			m = a[i]-1;
 		} else if (parseInt(a[i], 10) > 31 && y == 0) {
 			y = parseInt(a[i], 10);
-			(y < 100) && (y += (y > 29) ? 1900 : 2000);
+			y = Date.get4DigitYear(y);
 		} else if (d == 0) {
 			d = a[i];
 		}
 	}
 	if (y == 0)
 		y = today.getFullYear();
-	if (m != -1 && d != 0)
-		return new Date(y, m, d, hr, min, 0);
-	return today;
+	if (m != -1 && d != 0){
+		return Date.dateFromYMDHMS(y, m, d, hr, min, 0);
+	}
+	// We tried our best ...
+	throw new Exception(Calendar._TT["INVALID"]);
+};
+
+/**
+ * Convert year which can be in 2 digit format to 4 digit year.
+ * This was based on arbitrary decision to interpret years
+ * 0-29 as XXI century and 30-99 as XX century.
+ *  
+ * @param year
+ * @returns 4 digit year.
+ */
+Date.get4DigitYear = function(year) {
+	var y = year;
+	(y < 100) && (y += (y > 29) ? 1900 : 2000);
+	return y;
+};
+
+
+/** 
+ * Checks for altered values like 29/02/2013 becoming 1/3/2013.
+ * 29/02/2013, 99/12/2012 and such, now produce Exception.
+ */
+Date.dateFromYMDHMS = function (y, m, d, hr, min, s){
+	var date = new Date(y, m, d, hr, min, 0);
+	/*
+	 * Check if new Date() tried to be too smart like 29/02/2013 becoming 1/3/2013.
+	 */
+	if (date.getDate() != d || date.getMonth() != m || date.getFullYear() != y) {
+		throw new Exception(Calendar._TT["INVALID"]);
+	}
+	return date;
 };
 
 /** Returns the number of days in the current month */
