@@ -286,10 +286,11 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 	/* CODING: Statistics retrieval.                                */
 	/*--------------------------------------------------------------*/
 	public void reportSimple() {
-		if(getNConnectionAllocations() == 0)
+		if(getNAnything() == 0)
 			return;
 		long rd = System.nanoTime() - getStartTS();
 		System.out.println("S: " + getIdent() + ":" + DbPoolUtil.strNanoTime(rd) + " #conn=" + getNConnectionAllocations() + " #q=" + getTotalQueries() + " #u=" + getTotalUpdates()
-			+ " #qrow=" + getNRows() + " #urow=" + getNUpdatedRows() + " #errs=" + getNErrors());
+ + " #qrow=" + getNRows() + " #urow="
+			+ getNUpdatedRows() + " #errs=" + getNErrors() + ", #any=" + getNAnything());
 	}
 }

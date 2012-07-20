@@ -37,6 +37,11 @@ import to.etc.dbpool.*;
 public class StatisticsListenerMultiplexer implements IStatisticsListener {
 	private Map<String, IStatisticsListener> m_list = new HashMap<String, IStatisticsListener>();
 
+	private void check() {
+		if(m_list.size() == 0)
+			System.out.println("No listeners registered!!");
+	}
+
 	public void addCollector(String key, IStatisticsListener ic) {
 		if(null != m_list.put(key, ic)) {
 			System.out.println("POOLERR: Duplicate statistics collector with key=" + key);
@@ -48,48 +53,56 @@ public class StatisticsListenerMultiplexer implements IStatisticsListener {
 	}
 
 	public void connectionAllocated() {
+		check();
 		for(IStatisticsListener ic : m_list.values())
 			ic.connectionAllocated();
 	}
 
 	@Override
 	public void statementPrepared(StatementProxy sp, long prepareDuration) {
+		check();
 		for(IStatisticsListener ic : m_list.values())
 			ic.statementPrepared(sp, prepareDuration);
 	}
 
 	@Override
 	public void queryStatementExecuted(StatementProxy sp, long executeDuration, long fetchDuration, int rowCount, boolean prepared) {
+		check();
 		for(IStatisticsListener ic : m_list.values())
 			ic.queryStatementExecuted(sp, executeDuration, fetchDuration, rowCount, prepared);
 	}
 
 	@Override
 	public void executeUpdateExecuted(StatementProxy sp, long updateDuration, int updatedrowcount) {
+		check();
 		for(IStatisticsListener ic : m_list.values())
 			ic.executeUpdateExecuted(sp, updateDuration, updatedrowcount);
 	}
 
 	@Override
 	public void executeExecuted(StatementProxy sp, long updateDuration, Boolean result) {
+		check();
 		for(IStatisticsListener ic : m_list.values())
 			ic.executeExecuted(sp, updateDuration, result);
 	}
 
 	@Override
 	public void executePreparedUpdateExecuted(StatementProxy sp, long updateDuration, int rowcount) {
+		check();
 		for(IStatisticsListener ic : m_list.values())
 			ic.executePreparedUpdateExecuted(sp, updateDuration, rowcount);
 	}
 
 	@Override
 	public void executeBatchExecuted(StatementProxy sp, long executeDuration, int[] rc) {
+		check();
 		for(IStatisticsListener ic : m_list.values())
 			ic.executeBatchExecuted(sp, executeDuration, rc);
 	}
 
 	@Override
 	public void finish() {
+		check();
 		for(IStatisticsListener ic : m_list.values())
 			ic.finish();
 	}
