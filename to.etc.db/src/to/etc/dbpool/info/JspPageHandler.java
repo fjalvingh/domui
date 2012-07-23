@@ -555,7 +555,9 @@ public class JspPageHandler {
 				text("\u00a0\u00a0\u00a0");
 			}
 		} else {
-			text("(No statistics- disabled in database pool config. Set statistics='true' in Tomcat Resource to enable)");
+			text("Statistics disabled in database pool config. Click ");
+			atag("here", "__statistics", "t");
+			text(" to enable them.");
 		}
 
 		full("br");

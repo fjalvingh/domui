@@ -2953,9 +2953,13 @@ WebUI.bulkUpload = function(id, buttonId, url) {
 	ctl.bind('uploadSuccess', function(event, file, code, msg) {
 		var uf = new WebUI.UploadFile(file, target);
 		uf.uploadComplete();
-		
+
 		//-- Send a DomUI command so the UI can handle updates.
 		WebUI.scall(id, "uploadDone", {});
+	});
+	ctl.bind('queueComplete', function(event, numUploaded) {
+		//-- Send a DomUI command for queue complete.
+		WebUI.scall(id, "queueComplete", {});
 	});
 //	ctl.bind('uploadComplete', function(event, file) {
 //		var uf = new WebUI.UploadFile(file, target);
@@ -2963,6 +2967,9 @@ WebUI.bulkUpload = function(id, buttonId, url) {
 	ctl.bind('fileDialogComplete', function() {
 		//-- Autostart upload on dialog completion.
 		ctl.swfupload('startUpload');
+
+		//-- Send a DomUI command for queue start.
+		WebUI.scall(id, "queueStart", {});
 	});
 	ctl.bind('fileQueueError', function(event, file, errorCode, message) {
 		try {

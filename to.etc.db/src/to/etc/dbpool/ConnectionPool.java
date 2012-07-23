@@ -993,9 +993,8 @@ final public class ConnectionPool {
 	 * @throws SQLException
 	 */
 	ConnectionProxy getConnection(final boolean unpooled) throws SQLException {
-		CollectingInfoHandler d = m_manager.getInfoHandler();
-		if(d != null)
-			d.getListener().connectionAllocated();
+		IInfoHandler d = m_manager.getInfoHandler();
+		d.connectionAllocated();
 		for(;;) {
 			PoolEntry pe = allocateConnection(unpooled);
 			Exception x = checkConnection(pe.getConnection()); // Is the connection still valid?
@@ -1018,9 +1017,8 @@ final public class ConnectionPool {
 	 * @return
 	 */
 	public Connection getUnpooledConnection(String username, String password) throws SQLException {
-		CollectingInfoHandler d = m_manager.getInfoHandler();
-		if(d != null)
-			d.getListener().connectionAllocated();
+		IInfoHandler d = m_manager.getInfoHandler();
+		d.connectionAllocated();
 		int newid;
 		synchronized(this) {
 			newid = m_entryidgen++;
