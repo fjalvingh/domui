@@ -30,7 +30,13 @@ public class DemoBulkUpload extends UrlPage {
 			}
 		});
 
+		bu.setOnUploadsComplete(new IClicked<BulkUpload>() {
 
+			@Override
+			public void clicked(BulkUpload clickednode) throws Exception {
+				MsgBox.info(DemoBulkUpload.this, "All uploads have completed.");
+			}
+		});
 	}
 
 }
