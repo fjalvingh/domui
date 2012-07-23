@@ -59,8 +59,6 @@ final public class ConnectionProxy implements Connection {
 
 	final private boolean m_unpooled;
 
-	final private boolean m_collectStatistics;
-
 	/**
 	 * T if stack traces for entry must be saved. Copies {@link ConnectionPool#dbgIsStackTraceEnabled()}. A local
 	 * copy is needed to prevent us from having to lock the pool.
@@ -71,9 +69,6 @@ final public class ConnectionProxy implements Connection {
 	private ConnState m_state = ConnState.OPEN;
 
 	private Tracepoint m_detach_location;
-
-	/** If we're collecting usage statistics this is not null and refers to the handler. */
-	private final IInfoHandler m_statsHandler;
 
 	/*--------------- Debug and trace info ----------------*/
 	/** The location etc denoting the allocation point for this connection. */
@@ -118,9 +113,6 @@ final public class ConnectionProxy implements Connection {
 		m_lastUsedTS = m_allocationTS;
 		m_allocationPoint = Tracepoint.create(null);
 		m_unpooled = isunpooled;
-		IInfoHandler ih = pe.getPool().getManager().getInfoHandler();
-		m_collectStatistics = ih != null;
-		m_statsHandler = ih == null ? DummyInfoHandler.INSTANCE : ih;
 	}
 
 	/**
@@ -143,16 +135,13 @@ final public class ConnectionProxy implements Connection {
 		return m_pe.getPool().getID();
 	}
 
-	public boolean isCollectStatistics() {
-		return m_collectStatistics;
-	}
-
 	public int getId() {
 		return m_id;
 	}
 
+	@Nonnull
 	protected IInfoHandler statsHandler() {
-		return m_statsHandler;
+		return m_pe.getPool().getManager().getInfoHandler();
 	}
 
 	public ConnectionPool getPool() {
