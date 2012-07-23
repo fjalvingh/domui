@@ -174,6 +174,10 @@ public class StatisticsRequestListener implements ServletRequestListener {
 		if(!(sr instanceof HttpServletRequest))
 			return;
 		HttpServletRequest r = (HttpServletRequest) sr;
+//		String url = r.getRequestURI();
+//		if(!url.contains(".ui") && !url.contains(".jsp"))
+//			return;
+//		System.out.println("FLTR: " + url);
 
 		/*
 		 * Recursion handling.

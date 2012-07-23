@@ -74,7 +74,7 @@ public class GlobalPerformanceStore {
 
 	public void addRequestInfo(InfoCollectorBase icb) {
 		//-- Do not register pages that do nothing with the db.
-		if(icb.getNConnectionAllocations() == 0)
+		if(icb.getNAnything() == 0)
 			return;
 		synchronized(getStore()) {
 			m_store.addItem(REQ_EXEC_TIME, icb.getIdent(), icb.getDuration(), null, icb);
