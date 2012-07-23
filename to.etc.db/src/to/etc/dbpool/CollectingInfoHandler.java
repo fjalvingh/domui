@@ -49,6 +49,11 @@ class CollectingInfoHandler implements IInfoHandler {
 		return m_listener;
 	}
 
+	@Override
+	public void connectionAllocated() {
+		m_listener.connectionAllocated();
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Preparing/creating statements.						*/
 	/*--------------------------------------------------------------*/

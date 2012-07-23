@@ -217,6 +217,10 @@ public class InfoCollectorBase {
 		return m_duration;
 	}
 
+	public long getNAnything() {
+		return m_nUpdatedRows + m_nConnectionAllocations + m_nErrors + m_nExecutes + m_nPreparedQueries + m_nPreparedUpdates + m_nPrepares + m_nRows + m_nStatementQueries + m_nStatementUpdates + m_nUpdatedRows;
+	}
+
 	public String getIdent() {
 		return m_ident;
 	}
