@@ -37,12 +37,12 @@ public class Application extends DomApplication {
 		ImageCache.initialize(32 * 1024 * 1024, 5l * 1024 * 1024 * 1024, new File("/tmp/imagecache"));
 
 		if(DeveloperOptions.getBool("domui.newtheme", false)) {
-			setThemeFactory(new FragmentedThemeFactory());
+			setThemeFactory(FragmentedThemeFactory.getInstance());
 		} else {
 			//-- Set the SIMPLE theme provider with the specified theme set.
 			String stylename = DeveloperOptions.getString("domuidemo.theme");
 			if(null != stylename)
-				setThemeFactory(new SimpleThemeFactory(stylename, "orange", "blue"));
+				setThemeFactory(SimpleThemeFactory.INSTANCE);
 		}
 
 		//-- Append the default style sheet.
