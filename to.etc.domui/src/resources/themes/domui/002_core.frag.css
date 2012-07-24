@@ -39,7 +39,8 @@ select {
 }
 
 pre {
-	font-family: Courier New, Courier, monospace;
+	font-family: <%= fixed_font_family %>;
+	font-size: <%= fixed_font_size %>;
 }
 
 button img {

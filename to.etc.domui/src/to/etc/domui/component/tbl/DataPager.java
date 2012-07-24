@@ -85,6 +85,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	@Override
 	public void createContent() throws Exception {
+		setCssClass("ui-dp");
+
 		//-- The text part: message
 		Div d = new Div();
 		add(d);
@@ -95,7 +97,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 		m_buttonDiv = new Div();
 		add(m_buttonDiv);
-		m_buttonDiv.setCssClass("ui-szless");
+		m_buttonDiv.setCssClass("ui-dp-btns");
 		m_firstBtn = new ATag();
 		m_buttonDiv.add(m_firstBtn);
 		m_prevBtn = new ATag();
