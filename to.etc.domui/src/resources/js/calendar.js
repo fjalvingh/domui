@@ -1600,6 +1600,9 @@ Date.DAY    = 24 * Date.HOUR;
 Date.WEEK   =  7 * Date.DAY;
 
 Date.parseDate = function(str, fmt) {
+	if(str.trim().length == 0)
+		return null;
+
 	var today = new Date();
 	var y = 0;
 	var m = -1;
@@ -1655,11 +1658,11 @@ Date.parseDate = function(str, fmt) {
 			break;
 		}
 	}
-	if (isNaN(y))	throw new Exception(Calendar._TT ["INVALID_YEAR"]);
-	if (isNaN(m))	throw new Exception(Calendar._TT ["INVALID_MONTH"]);
-	if (isNaN(d))	throw new Exception(Calendar._TT ["INVALID_DATE"]);
-	if (isNaN(hr))	throw new Exception(Calendar._TT ["INVALID_HOUR"]);
-	if (isNaN(min))	throw new Exception(Calendar._TT ["INVALID_MINUTE"]);
+	if (isNaN(y))	throw Calendar._TT ["INVALID_YEAR"];
+	if (isNaN(m))	throw Calendar._TT ["INVALID_MONTH"];
+	if (isNaN(d))	throw Calendar._TT ["INVALID_DATE"];
+	if (isNaN(hr))	throw Calendar._TT ["INVALID_HOUR"];
+	if (isNaN(min))	throw Calendar._TT ["INVALID_MINUTE"];
 	
 	if (m != -1 && d != 0){
 		// If no year was entered assume current year.
@@ -1695,7 +1698,7 @@ Date.parseDate = function(str, fmt) {
 		return Date.dateFromYMDHMS(y, m, d, hr, min, 0);
 	}
 	// We tried our best ...
-	throw new Exception(Calendar._TT["INVALID"]);
+	throw Calendar._TT["INVALID"];
 };
 
 /**
@@ -1713,7 +1716,7 @@ Date.get4DigitYear = function(year) {
 };
 
 
-/** 
+/**
  * Checks for altered values like 29/02/2013 becoming 1/3/2013.
  * 29/02/2013, 99/12/2012 and such, now produce Exception.
  */
@@ -1723,7 +1726,7 @@ Date.dateFromYMDHMS = function (y, m, d, hr, min, s){
 	 * Check if new Date() tried to be too smart like 29/02/2013 becoming 1/3/2013.
 	 */
 	if (date.getDate() != d || date.getMonth() != m || date.getFullYear() != y) {
-		throw new Exception(Calendar._TT["INVALID"]);
+		throw Calendar._TT["INVALID"];
 	}
 	return date;
 };
