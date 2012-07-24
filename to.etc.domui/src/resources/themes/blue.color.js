@@ -2,7 +2,7 @@ bg_color="#ffffff";
 
 button_bg="#6ba1eb";
 button_fg="#ffffff";
-button_img= "defaultButton-all.png";
+button_img= "btn-blue-all.png";
 button_height=26;
 
 link_font_size="12px";
