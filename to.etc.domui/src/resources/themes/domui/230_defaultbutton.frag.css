@@ -1,15 +1,23 @@
 /*** 230_defaultbutton.frag.css ***/
 /*** New default button, uses sliding doors and a single bg image ***/
 .ui-sdbtn {
+	height: <%= button_height %>px;
 	position: relative;
 	border: 0;
 	padding: 0 10px 0 0;
-	margin-right: 10px;
 	vertical-align: top;
 	cursor: pointer;
 	overflow: visible; /* remove extra padding in IE */
 	background: transparent url(<%= button_img %>) no-repeat right -50px;
+	margin-right: 5px;
 }
+
+@-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
+	.ui-sdbtn {
+		margin-left: -2px;
+	}
+}
+
 .ui-sdbtn img {
 	padding-right: 3px;
 	vertical-align: middle;
@@ -30,9 +38,6 @@
 	vertical-align: middle;
 	text-align: left;
 	background: transparent url(<%= button_img %>) no-repeat left top;
-}
-.ui-sdbtn u {
-/*	vertical-align: middle; */
 }
 
 @media screen and (-webkit-min-device-pixel-ratio:0) {

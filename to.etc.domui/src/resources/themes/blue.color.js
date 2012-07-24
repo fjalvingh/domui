@@ -3,7 +3,7 @@ bg_color="#ffffff";
 button_bg="#6ba1eb";
 button_fg="#ffffff";
 button_img= "defaultButton.png";
-button_height=26;
+button_height=24;
 
 link_font_size="12px";
 link_color="#2200cc";	// dark blue
