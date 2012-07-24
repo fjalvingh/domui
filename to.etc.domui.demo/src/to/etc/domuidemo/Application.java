@@ -36,14 +36,15 @@ public class Application extends DomApplication {
 	protected void initialize(final ConfigParameters pp) throws Exception {
 		ImageCache.initialize(32 * 1024 * 1024, 5l * 1024 * 1024 * 1024, new File("/tmp/imagecache"));
 
-		if(DeveloperOptions.getBool("domui.newtheme", false)) {
-			setThemeFactory(FragmentedThemeFactory.getInstance());
-		} else {
+		String newtheme = DeveloperOptions.getString("domuidemo.simpletheme", null);
+		if(null != newtheme) {
 			//-- Set the SIMPLE theme provider with the specified theme set.
-			String stylename = DeveloperOptions.getString("domuidemo.theme");
-			if(null != stylename)
-				setThemeFactory(SimpleThemeFactory.INSTANCE);
-			setCurrentTheme("blue/blue/blue");
+			setThemeFactory(SimpleThemeFactory.INSTANCE);
+			setCurrentTheme(newtheme);
+		} else {
+			setThemeFactory(FragmentedThemeFactory.getInstance());
+			String stylename = DeveloperOptions.getString("domuidemo.theme", "domui/domui/domui");		// Default to DomUI's native fragmented theme
+			setCurrentTheme(stylename);
 		}
 
 		//-- Append the default style sheet.
