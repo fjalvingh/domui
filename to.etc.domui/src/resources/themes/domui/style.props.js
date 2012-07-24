@@ -10,5 +10,3 @@ fixed_font_size="11px";
 
 defaultbutton_height=23;
 window_title_font_size='15px';
-
-
