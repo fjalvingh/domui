@@ -115,7 +115,7 @@ public class SimpleThemeFactory implements IThemeFactory {
 		executor().eval(Object.class, "icon = new Object();", "internal");
 
 		loadProperties("$themes/" + m_colorName + ".color.js", rdl);
-		loadProperties("$icons/" + m_iconName + "/icon.props.js", rdl);
+		loadProperties("$themes/" + m_iconName + ".icons.js", rdl);
 		loadProperties("$themes/" + m_styleName + "/style.props.js", rdl);
 		return new SimpleTheme(m_application, m_styleName, executor(), rdl.createDependencies());
 	}
