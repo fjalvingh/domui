@@ -10,9 +10,12 @@
 .ui-chdr-ttl {
 	color: <%= header_text_color %>;
 	background-color: <%= util.color(header_bg).lighter(0.4) %>;
-	-moz-border-radius: 5px;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
+	-moz-border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    -khtml-border-radius: 5px 5px 0px 0px;
+    border-radius: 5px 5px 0px 0px;
 }
 .ui-chdr-ttl img {
 	padding-right: 10px;
