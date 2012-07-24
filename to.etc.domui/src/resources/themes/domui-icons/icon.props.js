@@ -20,4 +20,3 @@ nav_btn_last_d = "nav-last-d.png";
 
 //-- DefaultButton image
 button_img= "defaultButton.png";
-

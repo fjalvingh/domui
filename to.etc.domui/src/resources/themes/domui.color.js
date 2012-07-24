@@ -1,5 +1,6 @@
 bg_color="#DDE8FA"; //blue background
 bg2_color=util.color(bg_color).lume(0.3);
+body_image='bg-body-blue.png';
 
 button_bg="#6ba1eb";
 button_fg="#ffffff";
