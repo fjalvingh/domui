@@ -43,6 +43,7 @@ public class Application extends DomApplication {
 			String stylename = DeveloperOptions.getString("domuidemo.theme");
 			if(null != stylename)
 				setThemeFactory(SimpleThemeFactory.INSTANCE);
+			setCurrentTheme("blue/blue/blue");
 		}
 
 		//-- Append the default style sheet.
