@@ -516,6 +516,49 @@ public class HtmlTagRenderer implements INodeVisitor {
 			}
 		}
 
+		//Paddings
+		if(c.getPaddingBottom() != null || c.getPaddingLeft() != null || c.getPaddingRight() != null || c.getPaddingTop() != null) {
+			if(DomUtil.isEqual(c.getPaddingBottom(), c.getPaddingTop(), c.getPaddingLeft(), c.getPaddingRight())) {
+				a.append("padding:");
+				a.append(c.getPaddingLeft());
+				a.append(';');
+			} else {
+				boolean topbot = DomUtil.isEqual(c.getPaddingBottom(), c.getPaddingTop()) && c.getPaddingBottom() != null;
+				boolean leri = DomUtil.isEqual(c.getPaddingLeft(), c.getPaddingRight()) && c.getPaddingLeft() != null;
+				if(topbot && leri) {
+					a.append("padding:");
+					a.append(c.getPaddingTop());
+					a.append(' ');
+					a.append(c.getPaddingLeft());
+					a.append(';');
+				} else {
+					if(c.getPaddingLeft() != null) {
+						a.append("padding-left:");
+						a.append(c.getPaddingLeft());
+						a.append(';');
+					}
+
+					if(c.getPaddingRight() != null) {
+						a.append("padding-right:");
+						a.append(c.getPaddingRight());
+						a.append(';');
+					}
+
+					if(c.getPaddingBottom() != null) {
+						a.append("padding-bottom:");
+						a.append(c.getPaddingBottom());
+						a.append(';');
+					}
+
+					if(c.getPaddingTop() != null) {
+						a.append("padding-top:");
+						a.append(c.getPaddingTop());
+						a.append(';');
+					}
+				}
+			}
+		}
+		
 		if(c.getTransform() != null) {
 			a.append("text-transform:");
 			a.append(c.getTransform().name().toLowerCase());
