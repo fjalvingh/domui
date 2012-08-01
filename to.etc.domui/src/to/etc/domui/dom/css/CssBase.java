@@ -141,6 +141,15 @@ public class CssBase {
 
 	private String m_marginBottom;
 
+	/*-- CSS Padding properties --*/
+	private String m_paddingLeft;
+
+	private String m_paddingRight;
+
+	private String m_paddingTop;
+
+	private String m_paddingBottom;
+	
 	private TextTransformType m_transform;
 
 	public String getCachedStyle() {
@@ -773,6 +782,81 @@ public class CssBase {
 		}
 	}
 
+	public String getPaddingLeft() {
+		return m_paddingLeft;
+	}
+
+	public void setPaddingLeft(String paddingLeft) {
+		if(DomUtil.isEqual(m_paddingLeft, paddingLeft))
+			return;
+		changed();
+		m_paddingLeft = paddingLeft;
+	}
+
+	public String getPaddingRight() {
+		return m_paddingRight;
+	}
+
+	public void setPaddingRight(String paddingRight) {
+		if(DomUtil.isEqual(m_paddingRight, paddingRight))
+			return;
+		changed();
+		m_paddingRight = paddingRight;
+	}
+
+	public String getPaddingTop() {
+		return m_paddingTop;
+	}
+
+	public void setPaddingTop(String paddingTop) {
+		if(DomUtil.isEqual(m_paddingTop, paddingTop))
+			return;
+		changed();
+		m_paddingTop = paddingTop;
+	}
+
+	public String getPaddingBottom() {
+		return m_paddingBottom;
+	}
+
+	public void setPaddingBottom(String paddingBottom) {
+		if(DomUtil.isEqual(m_paddingBottom, paddingBottom))
+			return;
+		changed();
+		m_paddingBottom = paddingBottom;
+	}
+
+	public void setPadding(String... padding) {
+		switch(padding.length){
+			default:
+				throw new IllegalStateException("Padding must have 1..4 string parameters.");
+			case 1:
+				setPaddingTop(padding[0]);
+				setPaddingBottom(padding[0]);
+				setPaddingLeft(padding[0]);
+				setPaddingRight(padding[0]);
+				break;
+			case 2:
+				setPaddingTop(padding[0]);
+				setPaddingBottom(padding[0]);
+				setPaddingLeft(padding[1]);
+				setPaddingRight(padding[1]);
+				break;
+			case 3:
+				setPaddingTop(padding[0]);
+				setPaddingBottom(padding[2]);
+				setPaddingLeft(padding[1]);
+				setPaddingRight(padding[1]);
+				break;
+			case 4:
+				setPaddingTop(padding[0]);
+				setPaddingRight(padding[1]);
+				setPaddingBottom(padding[2]);
+				setPaddingLeft(padding[3]);
+				break;
+		}
+	}
+	
 	public TextTransformType getTransform() {
 		return m_transform;
 	}
