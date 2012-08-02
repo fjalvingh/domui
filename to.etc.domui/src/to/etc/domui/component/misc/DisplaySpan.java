@@ -272,7 +272,8 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
-		throw new UnsupportedOperationException("Display control");
+		//FIXME 20120802 vmijic - currently we prevent exception throwing since it raises lot of issues in pages that are using this code, introduced by switching readonly instances of components by DisplayValue... 
+		//throw new UnsupportedOperationException("Display control");
 	}
 
 	@Override
