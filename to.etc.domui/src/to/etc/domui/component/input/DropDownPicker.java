@@ -101,8 +101,10 @@ public class DropDownPicker<T> extends SmallImgButton {
 					}
 
 					appendJavascript("$('#" + m_picker.getActualID() + "').css('top', $('#" + getActualID() + "').position().top + " + m_offsetY + " + $('#" + getActualID() + "').outerHeight() - 1);");
-					appendJavascript("$('#" + m_picker.getActualID() + "').css('left', $('#" + getActualID() + "').position().left + " + m_offsetX + " - $('#" + m_picker.getActualID() + "').outerWidth() + $('#"
-						+ getActualID() + "').outerWidth() - 3);");
+					appendJavascript("var myPickerLeftPos = $('#" + getActualID() + "').position().left + " + m_offsetX + " - $('#" + m_picker.getActualID() + "').outerWidth() + $('#"
+						+ getActualID() + "').outerWidth() - 3;");
+					appendJavascript("if (myPickerLeftPos < 3){ myPickerLeftPos = 3; }");
+					appendJavascript("$('#" + m_picker.getActualID() + "').css('left', myPickerLeftPos);");
 					appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'inline');");
 					appendJavascript("$('#" + m_picker.getActualID() + "').focus();");
 					if(m_picker.getSelectedIndex() >= 0) {
