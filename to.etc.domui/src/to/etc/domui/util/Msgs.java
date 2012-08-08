@@ -24,6 +24,7 @@
  */
 package to.etc.domui.util;
 
+import to.etc.domui.themes.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -278,15 +279,15 @@ public interface Msgs {
 
 	static public final String BTN_SHOW_CALENDAR = "THEME/btn-datein.png";
 
-	static public final String BTN_LOOKUP = "THEME/btn-popuplookup.png";
+	static public final String BTN_LOOKUP = Theme.BTN_POPUPLOOKUP;
 
-	static public final String BTN_CANCEL = "THEME/btnCancel.png";
+	static public final String BTN_CANCEL = Theme.BTN_CANCEL;
 
 	static public final String ICON_CHECKMARK = "THEME/btnCheckmark.png";
 
 	static public final String BTN_CLEAR = "THEME/btnClear.png";
 
-	static public final String BTN_CLEAR_LOOKUP = "THEME/btnClearLookup.png";
+	static public final String BTN_CLEAR_LOOKUP = Theme.BTN_CLEARLOOKUP;
 
 	static public final String BTN_CLOCK = "THEME/btnClock.png";
 
