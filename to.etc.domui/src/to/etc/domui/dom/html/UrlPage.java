@@ -70,4 +70,11 @@ public class UrlPage extends Div {
 	public void setPageTitle(String pageTitle) {
 		m_pageTitle = pageTitle;
 	}
+	
+	/**
+	 * Adds javascript to close page window.
+	 */
+	protected void closeWindow() {
+		appendJavascript("window.close();");
+	}
 }
