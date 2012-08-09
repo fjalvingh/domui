@@ -38,6 +38,7 @@ import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
@@ -238,7 +239,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		m_outputClass = resultClass;
 		m_queryMetaModel = queryMetaModel != null ? queryMetaModel : MetaManager.findClassMeta(queryClass);
 		m_outputMetaModel = outputMetaModel != null ? outputMetaModel : MetaManager.findClassMeta(resultClass);
-		m_selButton = new SmallImgButton("THEME/btn-popuplookup.png");
+		m_selButton = new SmallImgButton(Theme.BTN_POPUPLOOKUP);
 		m_selButton.setTestID("selButtonInputLookup");
 		m_selButton.setClicked(new IClicked<NodeBase>() {
 			@Override
@@ -247,7 +248,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 		});
 
-		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
+		m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
 			@Override
 			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {

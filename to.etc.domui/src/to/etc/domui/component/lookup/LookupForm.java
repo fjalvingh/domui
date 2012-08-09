@@ -38,6 +38,7 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
@@ -1153,7 +1154,7 @@ public class LookupForm<T> extends Div {
 			m_onCancel = onCancel;
 			if(m_onCancel != null && m_cancelBtn == null) {
 				m_cancelBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
-				m_cancelBtn.setIcon("THEME/btnCancel.png");
+				m_cancelBtn.setIcon(Theme.BTN_CANCEL);
 				m_cancelBtn.setTestID("cancelButton");
 				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
 					@Override

@@ -1,5 +1,8 @@
 package to.etc.domui.themes;
 
+import to.etc.domui.component.buttons.*;
+import to.etc.domui.dom.html.*;
+
 /**
  * Constants for theme resources within the framework.
  * Please keep in alphabetical order.
@@ -18,6 +21,10 @@ public class Theme {
 	static public final String BIG_ACCESS_DENIED = "THEME/big-accessDenied.png";
 
 	static public final String BTN_CANCEL = "THEME/btnCancel.png";
+
+	static public final String BTN_CLEARLOOKUP = "THEME/btnClearLookup.png";
+	
+	static public final String BTN_POPUPLOOKUP = "THEME/btn-popuplookup.png";
 
 	static public final String BTN_SAVE = "THEME/btnSave.png";
 

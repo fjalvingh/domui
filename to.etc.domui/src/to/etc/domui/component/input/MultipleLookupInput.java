@@ -13,6 +13,7 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 
 /**
@@ -192,7 +193,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 			}
 		});
 		m_renderColumns = renderColumns;
-		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
+		m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
 			@Override
 			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {

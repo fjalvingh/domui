@@ -33,6 +33,7 @@ import to.etc.domui.component.menu.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 
 public class ButtonBar extends Table {
@@ -159,7 +160,7 @@ public class ButtonBar extends Table {
 	}
 
 	public DefaultButton addBackButton() {
-		return addBackButton(Msgs.BUNDLE.getString("ui.buttonbar.back"), "THEME/btnCancel.png");
+		return addBackButton(Msgs.BUNDLE.getString("ui.buttonbar.back"), Theme.BTN_CANCEL);
 	}
 
 	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click) {

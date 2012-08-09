@@ -2156,11 +2156,11 @@ var WebUI = {
 				//In IE7 hidden nodes needs to be additionaly excluded from count...
 				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
 					//totHeight += node.offsetHeight;
-					totHeight += $(node).outerHeight();
+					totHeight += $(node).outerHeight(true);
 				}
 			}
 		});
-		var elemDeltaHeight = $(elem).outerHeight() - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
+		var elemDeltaHeight = $(elem).outerHeight(true) - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
 		if (WebUI.isIE8orIE8c()){
 			//from some reason we need +1 only for IE8!
 			elemDeltaHeight = elemDeltaHeight + 1;
