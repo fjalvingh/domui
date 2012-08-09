@@ -42,6 +42,8 @@ public class DelayedActivityInfo {
 
 	private int m_pctComplete = -1;
 
+	private String m_statusMessage;
+	
 	protected DelayedActivityInfo(DelayedActivitiesManager manager, IActivity activity, AsyncContainer ac) {
 		m_activity = activity;
 		m_manager = manager;
@@ -90,6 +92,16 @@ public class DelayedActivityInfo {
 
 	void setPercentageComplete(int pct) {
 		m_pctComplete = pct;
+	}
+
+	String getStatusMessage() {
+		synchronized(m_manager) {
+			return m_statusMessage;
+		}
+	}
+	
+	void setStatusMessage(String statusMessage) {
+		m_statusMessage = statusMessage;
 	}
 
 	public AsyncContainer getContainer() {

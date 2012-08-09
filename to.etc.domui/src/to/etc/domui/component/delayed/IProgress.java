@@ -49,4 +49,9 @@ public interface IProgress {
 	public void cancel();
 
 	public boolean isCancelled();
+	
+	/**
+	 * Defines current progress status message.
+	 */
+	public void setStatusMessage(String msg);
 }
