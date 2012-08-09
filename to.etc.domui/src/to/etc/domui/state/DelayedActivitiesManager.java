@@ -28,6 +28,7 @@ import java.util.*;
 
 import to.etc.domui.component.delayed.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * This helper class does all of the handling for delayed activities for
@@ -122,9 +123,10 @@ public class DelayedActivitiesManager implements Runnable {
 
 	private void wakeupListeners(int lingertime) {}
 
-	void completionStateChanged(DelayedActivityInfo dai, int pct) {
+	void completionStateChanged(DelayedActivityInfo dai, int pct, String statusMsg) {
 		synchronized(this) {
 			dai.setPercentageComplete(pct);
+			dai.setStatusMessage(statusMsg);
 		}
 	}
 
@@ -144,10 +146,11 @@ public class DelayedActivitiesManager implements Runnable {
 			//-- Do we need progress report(s)?
 			if(m_runningActivity != null) {
 				int pct = m_runningActivity.getPercentageComplete();
-				if(pct > 0) {
+				String statusMsg = m_runningActivity.getStatusMessage();
+				if(pct > 0 || !DomUtil.isBlank(statusMsg)) {
 					//					System.out.println("$$$$$ getState, pct="+pct);
 					pl = new ArrayList<DelayedActivityState.Progress>();
-					pl.add(new DelayedActivityState.Progress(m_runningActivity.getContainer(), pct, null));
+					pl.add(new DelayedActivityState.Progress(m_runningActivity.getContainer(), pct, statusMsg));
 				}
 			}
 
