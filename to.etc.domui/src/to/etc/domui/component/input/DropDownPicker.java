@@ -39,6 +39,12 @@ public class DropDownPicker<T> extends SmallImgButton {
 	private HAlign m_halign = HAlign.LEFT;
 
 	/**
+	 * Control that drop down picker would use as base for vertical and horizontal alignment. Picker is always shown below base control, while horizontal alignment can be defined (see {@link HAlign}.
+	 * If not set different, picker SmallImgButton is used as alignment base. 
+	 */
+	private NodeBase m_alignmentBase;
+	
+	/**
 	 * DropDownPicker constructor. By default size of drop down list is 8.
 	 * @param zIndexBaseParent pass node that has zIndex that would be used as base for showing popup (z index of popup is increased for 10)
 	 * @param data data for picker popup
@@ -109,22 +115,23 @@ public class DropDownPicker<T> extends SmallImgButton {
 			if(getAdjuster() != null) {
 				getAdjuster().onBeforeShow(m_picker);
 			}
+			NodeBase alignBase = getAlignmentBase() != null ? getAlignmentBase() : DropDownPicker.this;  
 
-			appendJavascript("$('#" + m_picker.getActualID() + "').css('top', $('#" + getActualID() + "').position().top + " + m_offsetY + " + $('#" + getActualID() + "').outerHeight(true) - 1);");
+			appendJavascript("$('#" + m_picker.getActualID() + "').css('top', $('#" + alignBase.getActualID() + "').position().top + " + m_offsetY + " + $('#" + alignBase.getActualID() + "').outerHeight(true));");
 			switch (m_halign){
 				case LEFT :
-					appendJavascript("var myPickerLeftPos = $('#" + getActualID() + "').position().left + " + m_offsetX + " - $('#" + m_picker.getActualID() + "').outerWidth(true) + $('#"
-						+ getActualID() + "').outerWidth(true) - 3;");
-					appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
-					break;
-				case RIGHT :
-					appendJavascript("var myPickerLeftPos = $('#" + getActualID() + "').position().left + " + m_offsetX + ";");
+					appendJavascript("var myPickerLeftPos = $('#" + alignBase.getActualID() + "').position().left + " + m_offsetX + ";");
 					appendJavascript("var myPickerRightPos = $('#" + m_picker.getActualID() + "').outerWidth(true) + myPickerLeftPos;");
 					appendJavascript("if (myPickerRightPos > $(window).width()){ myPickerLeftPos = myPickerLeftPos - myPickerRightPos + $(window).width(); }");
 					appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
 					break;
+				case RIGHT :
+					appendJavascript("var myPickerLeftPos = $('#" + alignBase.getActualID() + "').position().left + " + m_offsetX + " - $('#" + m_picker.getActualID() + "').outerWidth(true) + $('#"
+						+ alignBase.getActualID() + "').outerWidth(true) - 3;");
+					appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
+					break;
 				case MIDDLE :
-					appendJavascript("var myPickerLeftPos = $('#" + getActualID() + "').position().left + ($('#" + getActualID() + "').outerWidth(true) / 2) - ($('#" + m_picker.getActualID() + "').outerWidth(true) / 2);");
+					appendJavascript("var myPickerLeftPos = $('#" + alignBase.getActualID() + "').position().left + ($('#" + alignBase.getActualID() + "').outerWidth(true) / 2) - ($('#" + m_picker.getActualID() + "').outerWidth(true) / 2);");
 					appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
 					break;
 				default :
@@ -239,5 +246,21 @@ public class DropDownPicker<T> extends SmallImgButton {
 
 	public void setHalign(@Nonnull HAlign halign) {
 		m_halign = halign;
+	}
+
+	/**
+	 * see {@link DropDownPicker#m_alignmentBase}
+	 * @param halignmentBase
+	 */
+	public NodeBase getAlignmentBase() {
+		return m_alignmentBase;
+	}
+
+	/**
+	 * see {@link DropDownPicker#m_alignmentBase}
+	 * @param halignmentBase
+	 */
+	public void setAlignmentBase(NodeBase halignmentBase) {
+		m_alignmentBase = halignmentBase;
 	}
 }
