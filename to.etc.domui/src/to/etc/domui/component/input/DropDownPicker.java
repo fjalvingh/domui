@@ -10,6 +10,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 public class DropDownPicker<T> extends SmallImgButton {
+	public enum HAlign {LEFT, MIDDLE, RIGHT}; 
 
 	public interface IDropDownPickerAdjuster<T> {
 		void onBeforeShow(ComboLookup<T> m_picker) throws Exception;
@@ -31,7 +32,11 @@ public class DropDownPicker<T> extends SmallImgButton {
 
 	private T m_selected;
 
+	private boolean m_mandatory = true;
+	
 	private IDropDownPickerAdjuster<T> m_adjuster;
+	
+	private HAlign m_halign = HAlign.LEFT;
 
 	/**
 	 * DropDownPicker constructor. By default size of drop down list is 8.
@@ -84,38 +89,55 @@ public class DropDownPicker<T> extends SmallImgButton {
 		});
 		if(m_selected != null) {
 			m_picker.setValue(m_selected);
-			m_picker.setMandatory(true);
-		} else if(m_data.size() > 0) {
+		} else if(m_data.size() > 0 && isMandatory()) {
 			m_picker.setValue(m_data.get(0));
-			m_picker.setMandatory(true);
 		}
+		m_picker.setMandatory(isMandatory());
 		m_picker.setSpecialAttribute("onblur", "this.style.display='none';");
 
 		if(getClicked() == null) {
-			setClicked(new IClicked<SmallImgButton>() {
-				@SuppressWarnings("synthetic-access")
-				@Override
-				public void clicked(SmallImgButton clickednode) throws Exception {
-					if(getAdjuster() != null) {
-						getAdjuster().onBeforeShow(m_picker);
-					}
-
-					appendJavascript("$('#" + m_picker.getActualID() + "').css('top', $('#" + getActualID() + "').position().top + " + m_offsetY + " + $('#" + getActualID() + "').outerHeight() - 1);");
-					appendJavascript("var myPickerLeftPos = $('#" + getActualID() + "').position().left + " + m_offsetX + " - $('#" + m_picker.getActualID() + "').outerWidth() + $('#"
-						+ getActualID() + "').outerWidth() - 3;");
-					appendJavascript("if (myPickerLeftPos < 3){ myPickerLeftPos = 3; }");
-					appendJavascript("$('#" + m_picker.getActualID() + "').css('left', myPickerLeftPos);");
-					appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'inline');");
-					appendJavascript("$('#" + m_picker.getActualID() + "').focus();");
-					if(m_picker.getSelectedIndex() >= 0) {
-						appendJavascript("WebUI.makeOptionVisible('" + m_picker.getOption(m_picker.getSelectedIndex()).getActualID() + "');");
-					}
-				}
-			});
+			setClicked(m_defaultClickHandler);
 		}
 
 		appendAfterMe(m_picker);
 	}
+
+	private IClicked<SmallImgButton> m_defaultClickHandler = new IClicked<SmallImgButton>() {
+		@SuppressWarnings("synthetic-access")
+		@Override
+		public void clicked(SmallImgButton clickednode) throws Exception {
+			if(getAdjuster() != null) {
+				getAdjuster().onBeforeShow(m_picker);
+			}
+
+			appendJavascript("$('#" + m_picker.getActualID() + "').css('top', $('#" + getActualID() + "').position().top + " + m_offsetY + " + $('#" + getActualID() + "').outerHeight(true) - 1);");
+			switch (m_halign){
+				case LEFT :
+					appendJavascript("var myPickerLeftPos = $('#" + getActualID() + "').position().left + " + m_offsetX + " - $('#" + m_picker.getActualID() + "').outerWidth(true) + $('#"
+						+ getActualID() + "').outerWidth(true) - 3;");
+					appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
+					break;
+				case RIGHT :
+					appendJavascript("var myPickerLeftPos = $('#" + getActualID() + "').position().left + " + m_offsetX + ";");
+					appendJavascript("var myPickerRightPos = $('#" + m_picker.getActualID() + "').outerWidth(true) + myPickerLeftPos;");
+					appendJavascript("if (myPickerRightPos > $(window).width()){ myPickerLeftPos = myPickerLeftPos - myPickerRightPos + $(window).width(); }");
+					appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
+					break;
+				case MIDDLE :
+					appendJavascript("var myPickerLeftPos = $('#" + getActualID() + "').position().left + ($('#" + getActualID() + "').outerWidth(true) / 2) - ($('#" + m_picker.getActualID() + "').outerWidth(true) / 2);");
+					appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
+					break;
+				default :
+					throw new IllegalStateException("Unknown horizontal alignment? Found : " + m_halign);
+			}
+			appendJavascript("$('#" + m_picker.getActualID() + "').css('left', myPickerLeftPos);");
+			appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'inline');");
+			appendJavascript("$('#" + m_picker.getActualID() + "').focus();");
+			if(m_picker.getSelectedIndex() >= 0) {
+				appendJavascript("WebUI.makeOptionVisible('" + m_picker.getOption(m_picker.getSelectedIndex()).getActualID() + "');");
+			}
+		}
+	};
 
 	public IValueSelected<T> getOnValueSelected() {
 		return m_onValueSelected;
@@ -179,7 +201,7 @@ public class DropDownPicker<T> extends SmallImgButton {
 		}
 	}
 
-	public void setValue(T value) {
+	public void setSelectedValue(T value) {
 		m_selected = value;
 		if(m_picker != null) {
 			m_picker.setValue(value);
@@ -192,5 +214,30 @@ public class DropDownPicker<T> extends SmallImgButton {
 
 	public void setAdjuster(IDropDownPickerAdjuster<T> adjuster) {
 		m_adjuster = adjuster;
+	}
+
+	public boolean isMandatory() {
+		return m_mandatory;
+	}
+
+	public void setMandatory(boolean mandatory) {
+		if(m_mandatory == mandatory)
+			return;
+		m_mandatory = mandatory;
+		if (isBuilt()){
+			forceRebuild();
+		}
+	}
+
+	/**
+	 * Horizontal alignment of dropdown popup. By default set to {@link HAlign#Left}.
+	 * @return
+	 */
+	public HAlign getHalign() {
+		return m_halign;
+	}
+
+	public void setHalign(@Nonnull HAlign halign) {
+		m_halign = halign;
 	}
 }
