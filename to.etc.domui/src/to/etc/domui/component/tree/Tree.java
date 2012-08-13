@@ -240,7 +240,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 			VisibleNode<T> vn = getVisibleNode(o);
 			vn.expanded = true;
 
-			if(vn.childNodes == null) {
+			if(vn.childNodes == null && vn.nodeRow != null /* if root is not visible skip */) {
 				/*
 				 * Not currently visibly expanded.. Do the in-table expansion of this node by replacing
 				 * it's TR image with a 'collapse' image OR a LEAF image if we determine here the thing
