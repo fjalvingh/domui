@@ -1705,4 +1705,30 @@ public class FileTool {
 			sb.setLength(clen);
 		}
 	}
+	
+	/**
+	 * Saves blob into specified file.
+	 * @param out
+	 * @param in
+	 * @throws Exception
+	 */
+	static public void saveBlob(@Nonnull File out, @Nonnull Blob in) throws Exception {
+		InputStream is = null;
+		OutputStream os = null;
+		try {
+			is = in.getBinaryStream();
+			os = new FileOutputStream(out);
+			copyFile(os, is);
+			os.close();
+		} finally {
+			try {
+				if(is != null)
+					is.close();
+			} catch(Exception x) {}
+			try {
+				if(os != null)
+					os.close();
+			} catch(Exception x) {}
+		}
+	}	
 }

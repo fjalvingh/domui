@@ -283,7 +283,7 @@ public interface Msgs {
 
 	static public final String BTN_CANCEL = Theme.BTN_CANCEL;
 
-	static public final String ICON_CHECKMARK = "THEME/btnCheckmark.png";
+	static public final String ICON_CHECKMARK = Theme.BTN_CHECKMARK;
 
 	static public final String BTN_CLEAR = "THEME/btnClear.png";
 

@@ -21,6 +21,8 @@ public class Theme {
 	static public final String BIG_ACCESS_DENIED = "THEME/big-accessDenied.png";
 
 	static public final String BTN_CANCEL = "THEME/btnCancel.png";
+	
+	static public final String BTN_CHECKMARK = "THEME/btnCheckmark.png";
 
 	static public final String BTN_CLEARLOOKUP = "THEME/btnClearLookup.png";
 	
