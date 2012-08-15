@@ -77,9 +77,22 @@ abstract public class BundleBase implements NlsMessageProvider {
 	 */
 	@Nonnull
 	public String formatMessage(@Nonnull final String key, @Nonnull final Object... param) {
-		String s = findMessage(NlsContext.getLocale(), key);
+		return formatMessage(NlsContext.getLocale(), key, param);
+	}
+	
+	/**
+	 * Gets the string, and applies default message formatting using the parameters
+	 * passed in the specified locale.
+	 * @param loc
+	 * @param key
+	 * @param param
+	 * @return
+	 */
+	@Nonnull
+	public String formatMessage(@Nonnull final Locale loc, @Nonnull final String key, @Nonnull final Object... param) {
+		String s = findMessage(loc, key);
 		if(s == null)
 			return "???" + key + "???";
 		return MessageFormat.format(s, param);
-	}
+	}	
 }
