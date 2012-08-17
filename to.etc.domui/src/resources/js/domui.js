@@ -523,9 +523,13 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				return;
 			}
 			var imageUrl = 'url(' + $(this).attr('marker') + ')';
-			if((!(this == document.activeElement)) && $(this).val().length == 0){
-				$(this).css('background-image', imageUrl);
-			}
+			// Wrap this in a try/catch block since IE9 throws "Unspecified error" if document.activeElement
+			// is undefined when we are in an IFrame. TODO: better solution?
+			try {
+				if((!(this == document.activeElement)) && $(this).val().length == 0){
+					$(this).css('background-image', imageUrl);
+				}
+			} catch(e) {}
 			$(this).css('background-repeat', 'no-repeat');
 			$(this).bind('focus',function(e){
 				$(this).css('background-image', 'none');
