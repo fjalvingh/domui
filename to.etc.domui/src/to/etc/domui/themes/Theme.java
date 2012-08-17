@@ -31,4 +31,6 @@ public class Theme {
 	static public final String BTN_SAVE = "THEME/btnSave.png";
 
 	static public final String DATA_EXPIRED = "THEME/dataExpired.png";
+	
+	static public final String ICON_WARNING = "THEME/warning.png";
 }
