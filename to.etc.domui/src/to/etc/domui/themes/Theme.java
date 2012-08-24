@@ -33,4 +33,8 @@ public class Theme {
 	static public final String DATA_EXPIRED = "THEME/dataExpired.png";
 	
 	static public final String ICON_WARNING = "THEME/warning.png";
+	
+	static public final String ICON_ERROR = "THEME/mbx-error.png";
+	
+	static public final String ICON_SUCCESS = "THEME/success.png";
 }
