@@ -1730,5 +1730,19 @@ public class FileTool {
 					os.close();
 			} catch(Exception x) {}
 		}
+	}
+
+	/**
+	 * Returns size of a file as int type. In case of Integer range overflow {@link Integer#MAX_VALUE}, throws {@link IllegalStateException}.
+	 * This can be used on files with expected size less then 2GB.
+	 * @param file
+	 * @return
+	 */
+	public static int getIntSizeOfFile(File file) {
+		long size = file.length();
+		if (size > Integer.MAX_VALUE){
+			throw new IllegalStateException("We do not allow file sizes > " + StringTool.strSize(Integer.MAX_VALUE) + ", found file size:" + StringTool.strSize(size));
+		}
+		return (int) size;
 	}	
 }
