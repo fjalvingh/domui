@@ -6,8 +6,10 @@ import java.util.*;
 import javax.annotation.*;
 import javax.script.*;
 
+import to.etc.util.*;
+
 /**
- * This singleton creates a compiled template for a JSP like template. The
+ * This factory class creates a compiled template for a JSP like template. The
  * language is Javascript, using JDK 6 scripting engine. The template's data
  * is copied verbatim to output until a &lt;% or &lt;%= is found; from there
  * it assumes the code is Javascript. The engine first creates a Javascript
@@ -58,6 +60,40 @@ public class JSTemplateCompiler {
 	private Pha	m_pha;
 
 	private Pha	m_opha;
+
+	private class JSLib {
+		private String	m_source;
+
+		private String	m_identifier;
+
+		public JSLib(String source, String identifier) {
+			m_source = source;
+			m_identifier = identifier;
+		}
+
+		public String getIdentifier() {
+			return m_identifier;
+		}
+
+		public String getSource() {
+			return m_source;
+		}
+	}
+
+	@Nonnull
+	private List<JSLib>	m_libraryList	= new ArrayList<JSTemplateCompiler.JSLib>();
+
+	public void addLibrary(String identifier, String sourceCode) {
+		m_libraryList.add(new JSLib(sourceCode, identifier));
+	}
+
+	public void addLibrary(File input) throws Exception {
+		addLibrary(input.toString(), FileTool.readFileAsString(input, "utf-8"));
+	}
+
+	public void addLibrary(Class< ? > resourceClass, String name) throws Exception {
+		addLibrary(resourceClass.getName() + ":" + name, FileTool.readResourceAsString(resourceClass, name, "utf-8"));
+	}
 
 	/**
 	 * Create a template from input.
@@ -164,6 +200,12 @@ public class JSTemplateCompiler {
 		Compilable	compiler = (Compilable) jsengine;
 
 		jsengine.getBindings(ScriptContext.ENGINE_SCOPE).put(ScriptEngine.FILENAME, m_source);
+
+		//-- Add all libraries at the end of the translated script.
+		for(JSLib l : m_libraryList) {
+			m_jsb.append("\n;\n");
+			m_jsb.append(l.getSource());
+		}
 
 		//-- Get the Javascript thing, then compile
 		String js = m_jsb.toString();
