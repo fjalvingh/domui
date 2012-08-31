@@ -60,7 +60,7 @@ public class SessionStatistics {
 	 * @param thisrequest
 	 */
 	public void addRequestInfo(PerformanceCollector collector, InfoCollectorBase thisrequest) {
-		if(thisrequest.getNConnectionAllocations() == 0) // Do not store sillyness
+		if(thisrequest.getNAnything() == 0) // Do not store sillyness
 			return;
 
 		PerformanceStore ps = new PerformanceStore();

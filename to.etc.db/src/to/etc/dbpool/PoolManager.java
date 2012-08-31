@@ -55,10 +55,7 @@ final public class PoolManager {
 	private boolean m_collectStatistics;
 
 	/** Threadlocal containing the per-thread collected statistics, per request. */
-	private final ThreadLocal<CollectingInfoHandler> m_infoHandler = new ThreadLocal<CollectingInfoHandler>();
-
-	/** Threadlocal containing the per-thread collected statistics, per request. */
-	private final ThreadLocal<StatisticsListenerMultiplexer> m_threadStats = new ThreadLocal<StatisticsListenerMultiplexer>();
+	private final ThreadLocal<IInfoHandler> m_infoHandler = new ThreadLocal<IInfoHandler>();
 
 	/** The shared global instance of a pool manager */
 	static final private PoolManager m_instance = new PoolManager();
@@ -377,11 +374,15 @@ final public class PoolManager {
 
 	/**
 	 * If statistics gathering is on this returns the info handler which will collate
-	 * the statistics. It returns null when statistics are off.
+	 * the statistics. It returns a dummy collector when collection is off.
 	 */
-	@Nullable
-	CollectingInfoHandler getInfoHandler() {
-		CollectingInfoHandler ih = m_infoHandler.get();
+	@Nonnull
+	IInfoHandler getInfoHandler() {
+		IInfoHandler ih = m_infoHandler.get();
+		if(ih == null) {
+			ih = DummyInfoHandler.INSTANCE;
+			m_infoHandler.set(ih);
+		}
 		return ih;
 	}
 
@@ -395,12 +396,13 @@ final public class PoolManager {
 			if(!m_collectStatistics)
 				return false;
 		}
-		CollectingInfoHandler ih = m_infoHandler.get();
-		if(ih == null) {
+		IInfoHandler ih = m_infoHandler.get();
+		if(ih == null || ih instanceof DummyInfoHandler) {
 			ih = new CollectingInfoHandler(new StatisticsListenerMultiplexer());
 			m_infoHandler.set(ih);
 		}
-		StatisticsListenerMultiplexer sink = (StatisticsListenerMultiplexer) ih.getListener();
+		CollectingInfoHandler cih = (CollectingInfoHandler) ih;
+		StatisticsListenerMultiplexer sink = (StatisticsListenerMultiplexer) cih.getListener();
 		sink.addCollector(key, collector);
 		return true;
 	}
@@ -412,31 +414,17 @@ final public class PoolManager {
 	 * @return
 	 */
 	public IStatisticsListener stopCollecting(String key) {
-		CollectingInfoHandler ih = m_infoHandler.get();
-		if(ih == null)
+		IInfoHandler ih = m_infoHandler.get();
+		if(ih == null || !(ih instanceof CollectingInfoHandler))
 			return null;
 
-		StatisticsListenerMultiplexer sink = (StatisticsListenerMultiplexer) ih.getListener();
+		CollectingInfoHandler cih = (CollectingInfoHandler) ih;
+		StatisticsListenerMultiplexer sink = (StatisticsListenerMultiplexer) cih.getListener();
 		IStatisticsListener ic = sink.removeCollector(key); // Remove collector.
 		if(null != ic)
 			ic.finish();
 		return ic;
 	}
-
-	//
-	//	/**
-	//	 *
-	//	 * @return
-	//	 */
-	//	public StatisticsListenerMultiplexer threadData() {
-	//		return m_threadStats.get();
-	//	}
-	//
-	//	public InfoCollector threadCollector() {
-	//		InfoCollector td = threadData();
-	//		return td != null ? (InfoCollector) td : (InfoCollector) DummyInfoHandler.INSTANCE;
-	//	}
-
 
 	public synchronized void setCollectStatistics(final boolean on) {
 		m_collectStatistics = on;
