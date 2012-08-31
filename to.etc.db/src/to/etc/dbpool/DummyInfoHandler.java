@@ -32,8 +32,13 @@ import java.sql.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 28, 2011
  */
-class DummyInfoHandler implements IInfoHandler {
+final class DummyInfoHandler implements IInfoHandler {
 	static public final DummyInfoHandler INSTANCE = new DummyInfoHandler();
+
+	private DummyInfoHandler() {}
+
+	@Override
+	public void connectionAllocated() {}
 
 	@Override
 	public void prepareStatement(StatementProxy sp) {}

@@ -91,5 +91,5 @@ interface IInfoHandler {
 
 	void executePreparedUpdateEnd(StatementProxy sp, SQLException error, int rowcount);
 
-
+	void connectionAllocated();
 }
