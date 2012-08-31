@@ -36,6 +36,22 @@ public class TUtilDomUI {
 
 	static private DomApplication m_application;
 
+	static public synchronized void setApplication(DomApplication application) throws Exception {
+		ConfigParameters cp = new ConfigParameters(null, null) {
+			@Override
+			public String getString(String name) {
+				return null;
+			}
+
+			@Override
+			public File getWebFileRoot() {
+				return new File("/tmp"); // FIXME Howto?
+			}
+		};
+		application.internalInitialize(cp, false);
+		m_application = application;
+	}
+
 	static public synchronized DomApplication getApplication() throws Exception {
 		if(m_application == null) {
 			m_application = new DomApplication() {
