@@ -110,7 +110,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	/**
 	 * Maps parent relation dotted paths to the alias created for that path.
 	 */
-	final private Map<String, String> m_aliasMap = new HashMap<String, String>();
+	private Map<String, String> m_aliasMap = new HashMap<String, String>();
 
 	public CriteriaCreatingVisitor(Session ses, final Criteria crit) {
 		m_session = ses;
@@ -991,6 +991,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
 
 		//-- Sigh; Recursively apply all parts to the detached thingerydoo
+		Map<String, String> oldAliasMap = m_aliasMap;
+		m_aliasMap = new HashMap<String, String>(m_aliasMap);
+
 		Object old = m_currentCriteria;
 		Class< ? > oldroot = m_rootClass;
 		m_rootClass = q.getBaseClass();
@@ -1005,6 +1008,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		m_currentCriteria = old;
 		m_rootClass = oldroot;
 		m_last = exists;
+		m_aliasMap = oldAliasMap;
 	}
 
 	private String getParentAlias() {
