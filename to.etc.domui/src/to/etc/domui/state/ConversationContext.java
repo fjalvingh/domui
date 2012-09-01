@@ -398,7 +398,7 @@ public class ConversationContext implements IQContextContainer {
 		return m_delayManager;
 	}
 
-	public DelayedActivityInfo scheduleDelayed(final AsyncContainer container, final IActivity a) {
+	public DelayedActivityInfo scheduleDelayed(@Nonnull final AsyncContainer container, @Nonnull final IAsyncRunnable a) {
 		return getDelayedActivitiesManager().schedule(a, container);
 	}
 
