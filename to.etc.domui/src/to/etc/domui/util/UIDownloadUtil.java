@@ -21,7 +21,7 @@ final public class UIDownloadUtil {
 	 *
 	 */
 	static public ATag createDownloadLink(File tmpfile, String mime, @Nullable String remoteFileName, boolean downloadImmediate) {
-		String type = null == remoteFileName ? "attachment" : null;
+		String type = null != remoteFileName ? "attachment" : null;
 
 		IRequestContext ctx = UIContext.getRequestContext();
 		String tf = TempFilePart.registerTempFile(ctx, tmpfile, mime, type, remoteFileName);		// Register file for download
