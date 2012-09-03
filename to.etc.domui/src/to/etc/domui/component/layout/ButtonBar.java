@@ -185,4 +185,10 @@ public class ButtonBar extends Table {
 		addButton(b);
 		return b;
 	}
+
+	public <T> DefaultButton addAction(T instance, IUIAction<T> action) throws Exception {
+		DefaultButton b = new DefaultButton(instance, action);
+		addButton(b);
+		return b;
+	}
 }
