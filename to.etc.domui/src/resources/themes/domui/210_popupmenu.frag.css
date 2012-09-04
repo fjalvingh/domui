@@ -3,9 +3,11 @@
 .ui-pmnu {
 	display: none;
 	width: 200px;
-	background-color: #999;
+	background-color: #444;
 	border: 1px dotted black;
 	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
 }
 .ui-pmnu-disabled {
 	color: #999;

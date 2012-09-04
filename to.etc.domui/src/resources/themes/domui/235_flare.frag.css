@@ -7,7 +7,9 @@
 	left: 100px;
 	width: auto;
 	height: auto;
-	-moz-border-radius: 5px 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
 	border: 1px dotted #999;
 	padding: 15px;
 }

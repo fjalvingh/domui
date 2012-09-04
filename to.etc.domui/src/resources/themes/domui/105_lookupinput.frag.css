@@ -10,7 +10,9 @@ div.ui-lui-selected {
 	border-color:#ABADB3 #BFCDD9 #BFCDD9;
 	border-style:solid;
 	border-width:1px;
-	-moz-border-radius: 2px;	
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
 }
 
 div.ui-lui-selected-ro {

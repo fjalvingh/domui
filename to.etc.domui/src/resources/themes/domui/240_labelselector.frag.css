@@ -1,26 +1,30 @@
 /*** 240_labelselector.frag.css ***/
 /*** LabelSelector component ***/
 .ui-lsel-sel {
-        border-color:#ABADB3 #BFCDD9 #BFCDD9;
-        border-style:solid;
-        border-width:1px;
-        -moz-border-radius: 2px;
-        padding: 4px;
+	border-color:#ABADB3 #BFCDD9 #BFCDD9;
+	border-style:solid;
+	border-width:1px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	padding: 4px;
 }
 .ui-lsel {
-        -moz-border-radius: 4px;
-        border: 1px dotted #999;
-        margin: 2px;
-        padding: 2px;
-        background-color: cyan;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border: 1px dotted #999;
+	margin: 2px;
+	padding: 2px;
+	background-color: cyan;
 }
 .ui-lsel img {
-/*      margin: 5px; */
-        padding-left: 5px;
-        padding-bottom: 2px;
-        vertical-align: bottom;
-        background-color: cyan;
+/*	margin: 5px; */
+	padding-left: 5px;
+	padding-bottom: 2px;
+	vertical-align: bottom;
+	background-color: cyan;
 }
 .ui-lsel-sel input {
-        border: none;
+	border: none;
 }

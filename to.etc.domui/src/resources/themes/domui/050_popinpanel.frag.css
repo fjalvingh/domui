@@ -6,6 +6,8 @@ div.ui-popin {
 	background-color: #b8e59d;
 	margin-top: 15px;
 	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
 }
 
 .ui-popin-ttl {
@@ -14,6 +16,8 @@ div.ui-popin {
 	left: 15px;
 	border: 1px solid black;
 	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
 	background-color: #6af218;
 	padding: 3px;
 	font-weight: bold;
