@@ -3,7 +3,7 @@
 .ui-pmnu {
 	display: none;
 	width: 200px;
-	background-color: grey;
+	background-color: #999;
 	border: 1px dotted black;
 	-moz-border-radius: 5px;
 }

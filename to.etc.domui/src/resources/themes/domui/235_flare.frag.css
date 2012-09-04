@@ -8,7 +8,7 @@
 	width: auto;
 	height: auto;
 	-moz-border-radius: 5px 5px;
-	border: 1px dotted grey;
+	border: 1px dotted #999;
 	padding: 15px;
 }
 .ui-flare-error {

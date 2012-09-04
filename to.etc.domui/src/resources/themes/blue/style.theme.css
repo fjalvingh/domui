@@ -1555,7 +1555,7 @@ li.ui-tab-err {
 .ui-pmnu {
 	display: none;
 	width: 200px;
-	background-color: grey;
+	background-color: #999;
 	border: 1px dotted black;
 	-moz-border-radius: 5px;
 }
@@ -1805,7 +1805,7 @@ li.ui-tab-err {
 	width: auto;
 	height: auto;
 	-moz-border-radius: 5px 5px;
-	border: 1px dotted grey;
+	border: 1px dotted #999;
 	padding: 15px;
 }
 .ui-flare-error {
@@ -1847,7 +1847,7 @@ li.ui-tab-err {
 }
 .ui-lsel {
         -moz-border-radius: 4px;
-        border: 1px dotted grey;
+        border: 1px dotted #999;
         margin: 2px;
         padding: 2px;
         background-color: cyan;
