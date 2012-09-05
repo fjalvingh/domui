@@ -226,6 +226,7 @@
 			text = text.replace(/<m:([^\s>]+)(?:\s[^>]+)?>[\s\S]*?<\/m:\1>/gm, "");
 			text = text.replace(/<v:([^\s>]+)(?:\s[^\/]+)?\/>/g, "");		// jal 20120905 remove v: tags
 			text = text.replace(/<v:([^\s>]+)(?:\s[^>]+)?>[\s\S]*?<\/v:\1>/gm, "");	// jal 20120905 remove v: tags
+			text = text.replace(/<!--[^>]*>/gm, "");
 
 			// after running the above.. it still needed these
 			text = text.replace(/<xml>[\s\S]*?<\/xml>/g, "");
@@ -234,6 +235,7 @@
 			text = text.replace(/<o:([^\s>]+)(?:\s[^>]+)?>[\s\S]*?<\/o:\1>/gm, "");
 			text = text.replace(/<st1:([^\s>]+)(?:\s[^\/]+)?\/>/g, "");
 			text = text.replace(/<st1:([^\s>]+)(?:\s[^>]+)?>[\s\S]*?<\/st1:\1>/gm, "");
+			
 			// ----
 			text = text.replace(/<!--[^>]+>\s*<[^>]+>/gm, ""); // firefox needed this 1
 
@@ -313,6 +315,8 @@
 				
 				text = text.replace(/<p>[&nbsp;|\s]*?<\/p>/gi, "");
 				text = text.replace(/<span>[&nbsp;|\s]*?<\/span>/gi, "");
+				text = text.replace(/<![^>]*>/gm, "");
+				text = text.replace(/<img[^>]*>/gi, "");
 				if(text == ot)
 					break;
 			}
@@ -320,7 +324,6 @@
 		},
 
 		run: function (Wysiwyg, options) {
-			alert('rmFormat');
 			options = options || {};
 			this.options = $.extend(true, this.defaults, options);
 
