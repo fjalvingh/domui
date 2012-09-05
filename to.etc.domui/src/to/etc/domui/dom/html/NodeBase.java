@@ -1189,6 +1189,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	public void onBeforeFullRender() throws Exception {}
 
+	/**
+	 * Called just before the tag is rendered. It can only change attributes, no tree data(!)
+	 * @throws Exception
+	 */
+	public void onBeforeTagRender() throws Exception {}
+
 	@OverridingMethodsMustInvokeSuper
 	protected void beforeCreateContent() {}
 
@@ -1376,6 +1382,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	public final void refresh() throws Exception {
 		onRefresh();
+	}
+
+	/**
+	 * Appends the jQuery "selector" code for this node as:
+	 * {@code $('#_a01')}
+	 *
+	 * @param sb
+	 */
+	final public void appendJQuerySelector(@Nonnull StringBuilder sb) {
+		sb.append("$(\"#").append(getActualID()).append("\")");
 	}
 
 	/**

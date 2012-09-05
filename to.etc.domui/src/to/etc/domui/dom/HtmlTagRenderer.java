@@ -563,6 +563,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	protected void renderTag(final NodeBase b, final IBrowserOutput o) throws Exception {
+		b.onBeforeTagRender();
 		if(!m_tagless)
 			o.tag(b.getTag()); // Open the tag
 	}
