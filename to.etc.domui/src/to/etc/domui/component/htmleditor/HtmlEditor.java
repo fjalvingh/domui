@@ -108,7 +108,11 @@ public class HtmlEditor extends TextArea {
 		sb.append("autosave: false");
 		sb.append("}");
 
+		sb.append(", plugins: {");
+		sb.append("rmFormat: {rmMsWordMarkup: {enabled: true, rules: {inlineCSS: true}}}");
+		sb.append("}");
 
+		sb.append(", initialContent: ''");
 		sb.append("});");
 		appendCreateJS(sb);
 		//		appendCreateJS("$(\"#" + getActualID() + "\").wysiwyg({css:'/ui/$themes/blue/style.theme.css'});");
