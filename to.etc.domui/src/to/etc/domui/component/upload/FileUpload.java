@@ -136,6 +136,8 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 					@Override
 					public void clicked(DefaultButton bx) throws Exception {
 						removeUploadItem(ufi);
+						if(m_onValueChanged != null)
+							((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(FileUpload.this);
 					}
 				}));
 			}
@@ -160,6 +162,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 	 * or to a BLOB in a database.
 	 * @return
 	 */
+	@Nonnull
 	public List<UploadItem> getFiles() {
 		return m_files;
 	}
@@ -244,11 +247,11 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
-	
+
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
-	
+
 	public boolean isDisabled() {
 		return m_disabled;
 	}
