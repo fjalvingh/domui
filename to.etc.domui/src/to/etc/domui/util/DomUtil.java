@@ -467,8 +467,15 @@ final public class DomUtil {
 	 * @param pp
 	 * @return
 	 */
+	@Nonnull
 	static public String createPageRURL(@Nonnull Class< ? extends UrlPage> clz, @Nullable PageParameters pp) {
-		return clz.getName() + "." + DomApplication.get().getUrlExtension();
+		StringBuilder sb = new StringBuilder();
+		sb.append(clz.getName());
+		sb.append('.');
+		sb.append(DomApplication.get().getUrlExtension());
+		if(pp != null)
+			addUrlParameters(sb, pp, true);
+		return sb.toString();
 	}
 
 	/**
