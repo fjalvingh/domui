@@ -372,6 +372,26 @@ public class FileTool {
 	}
 
 	/**
+	 * Read a file's contents as byte[].
+	 * @param f
+	 * @return
+	 * @throws IOException 
+	 * @throws Exception
+	 */
+	public static byte[] readFileAsByteArray(@Nonnull File file) throws IOException {
+		FileInputStream in = null;
+		try {
+			in = new FileInputStream(file);
+			int intSize = FileTool.getIntSizeOfFile(file);
+			byte[] data = new byte[intSize];
+			in.read(data);
+			return data;
+		} finally {
+			FileTool.closeAll(in);
+		}
+	}
+
+	/**
 	 *
 	 * @param o
 	 * @param f
@@ -1187,6 +1207,22 @@ public class FileTool {
 			os.write(b);
 	}
 
+	/**
+	 * Save the data in byte array to a file.
+	 * @param of
+	 * @param data
+	 * @throws IOException
+	 */
+	static public void save(final File of, final byte[] data) throws IOException {
+		OutputStream os = new FileOutputStream(of);
+		try {
+			os.write(data);
+		} finally {
+			try {
+				os.close();
+			} catch(Exception x) {}
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Data marshalling and unmarshalling					*/
@@ -1744,5 +1780,5 @@ public class FileTool {
 			throw new IllegalStateException("We do not allow file sizes > " + StringTool.strSize(Integer.MAX_VALUE) + ", found file size:" + StringTool.strSize(size));
 		}
 		return (int) size;
-	}	
+	}
 }
