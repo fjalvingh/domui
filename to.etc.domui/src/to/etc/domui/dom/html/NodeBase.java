@@ -1341,6 +1341,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	public QDataContext getSharedContext() throws Exception {
 		return QContextManager.getContext(getPage());
 	}
