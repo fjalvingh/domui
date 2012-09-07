@@ -107,22 +107,22 @@ public class MsgBox extends Window {
 				throw new IllegalStateException(type + " ??");
 			case ERROR:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_ERROR);
-				icon = Theme.ICON_ERROR;
+				icon = Theme.ICON_MBX_ERROR;
 				break;
 			case WARNING:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_WARNING);
-				icon = "mbx-warning.png";
+				icon = Theme.ICON_MBX_WARNING;
 				break;
 			case INFO:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_INFO);
-				icon = "mbx-info.png";
+				icon = Theme.ICON_MBX_INFO;
 				break;
 			case DIALOG:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_DIALOG);
-				icon = "mbx-question.png";
+				icon = Theme.ICON_MBX_DIALOG;
 				break;
 		}
-		m_theImage.setSrc("THEME/" + icon);
+		m_theImage.setSrc(icon);
 		setWindowTitle(ttl);
 		setTestID("msgBox");
 	}

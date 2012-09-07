@@ -1128,7 +1128,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param param
 	 * @return
 	 */
-	public String $(String key, Object... param) {
+	@Nonnull
+	public String $(@Nonnull String key, Object... param) {
 		IBundle br = getComponentBundle();
 		if(key.startsWith("~")) // Prevent silly bugs.
 			key = key.substring(1);
