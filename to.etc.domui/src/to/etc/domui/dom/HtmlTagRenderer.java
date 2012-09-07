@@ -674,7 +674,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		} else if(b.getOnClickJS() != null) {
 			o.attr("onclick", b.getOnClickJS());
 		}
-		if(b instanceof IHasChangeListener) {
+		if(b instanceof IHasChangeListener && b.getSpecialAttribute("onchange") == null) {
 			IHasChangeListener inb = (IHasChangeListener) b;
 			if(null != inb.getOnValueChanged()) {
 				o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
@@ -714,6 +714,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	@Override
 	public void visitSpan(final Span n) throws Exception {
+		basicNodeRender(n, m_o);
+		renderTagend(n, m_o);
+	}
+
+	@Override
+	public void visitUnderline(final Underline n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
@@ -942,6 +948,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 		//		if(! isUpdating())
 		o().attr("type", "file");
 		o().attr("name", n.getActualID());
+		renderDisabled(n, n.isDisabled());
+
 		//		if(n.isDisabled())
 		//			o().attr("disabled", "disabled");
 		//		if(n.getMaxLength() > 0)
@@ -1182,7 +1190,27 @@ public class HtmlTagRenderer implements INodeVisitor {
 		basicNodeRender(n, m_o);
 		if(n.getSrc() != null)
 			o().attr("src", n.getSrc());
+
+		/*
+		 * jal 20120412: IE's 'frameborder' attribute is case sensitive, sigh. It must be frameBorder
+		 */
+		if(n.getFrameBorder() != null)
+			o().attr("frameBorder", n.getFrameBorder());
+		if(n.getFrameHeight() != null)
+			o().attr("height", n.getFrameHeight());
+		if(n.getFrameWidth() != null)
+			o().attr("width", n.getFrameWidth());
+		if(n.getMarginHeight() != null)
+			o().attr("marginheight", n.getMarginHeight());
+		if(n.getMarginWidth() != null)
+			o().attr("marginwidth", n.getMarginWidth());
+		if(n.getName() != null)
+			o().attr("name", n.getName());
+		if(n.getScrolling() != null)
+			o().attr("scrolling", n.getScrolling());
+
 		renderTagend(n, m_o);
+		renderEndTag(n);
 	}
 
 	//	protected void	renderDraggableCrud(NodeBase b) {

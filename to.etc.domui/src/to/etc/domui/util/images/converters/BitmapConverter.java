@@ -90,16 +90,12 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 			} else
 				break;
 		}
-
-		//-- All that can be done is known now, and the known operations have been removed from the converter queue.
-		//		if(sourcePage != 0)						// FIXME We may be able to do this for TIFF and alikes when using imagemagick
-		//			throw new IllegalStateException("Mime type "+helper.getSource().getMime()+" is unpaged, only page 0 is available");
-		if(resize == null)
-			throw new IllegalStateException("Not acceptable (not a resize) after accept() accepted the work??");
+		//		if(resize == null)
+		//			throw new IllegalStateException("Not acceptable (not a resize) after accept() accepted the work??");
 
 		//-- Calculate the proper width and height, respecting the aspect ratio of the source
+		boolean	multipage = helper.getSource().getInfo().getPageCount() > 1;
 		OriginalImagePage ip = helper.getSource().getInfo().getPage(sourcePage);
-		Dimension d = ImaTool.resizeWithAspect(resize.getWidth(), resize.getHeight(), ip.getWidth(), ip.getHeight());
 
 		if(targetMime == null) {
 			if(helper.getSource().getMime().equals("image/jpeg") || helper.getSource().getMime().equals("image/jpg"))
@@ -109,10 +105,19 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 		}
 		ImageHandler ih = ImageManipulator.getImageHandler();
 		ImageSpec tis;
-		if(resize instanceof ImageThumbnail)
-			tis = ih.thumbnail(helper, helper.getSource(), sourcePage, d.width, d.height, targetMime);
-		else
-			tis = ih.scale(helper, helper.getSource(), sourcePage, d.width, d.height, targetMime);
+
+		//-- If we resize: do all at once in a single operation
+		if(null != resize) {
+			Dimension d = ImaTool.resizeWithAspect(resize.getWidth(), resize.getHeight(), ip.getWidth(), ip.getHeight());
+			if(resize instanceof ImageThumbnail)
+				tis = ih.thumbnail(helper, helper.getSource(), sourcePage, d.width, d.height, targetMime);
+			else
+				tis = ih.scale(helper, helper.getSource(), sourcePage, d.width, d.height, targetMime);
+		} else if(multipage || !targetMime.equals(helper.getSource().getMime())) {
+			tis = ih.convert(helper, helper.getSource(), sourcePage, targetMime);
+		} else
+			tis = helper.getSource();
+
 		helper.setTarget(tis);
 	}
 
