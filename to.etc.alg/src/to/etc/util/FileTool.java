@@ -375,7 +375,7 @@ public class FileTool {
 	 * Read a file's contents as byte[].
 	 * @param f
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 * @throws Exception
 	 */
 	public static byte[] readFileAsByteArray(@Nonnull File file) throws IOException {
@@ -388,6 +388,28 @@ public class FileTool {
 			return data;
 		} finally {
 			FileTool.closeAll(in);
+		}
+	}
+
+	/**
+	 * Load a class resource as a byte array. If the resource is not found this returns null.
+	 * @param clz
+	 * @param name
+	 * @return
+	 * @throws IOException
+	 */
+	@Nullable
+	public static byte[] readResourceAsByteArray(@Nonnull Class< ? > clz, @Nonnull String name) throws IOException {
+		InputStream is = clz.getResourceAsStream(name);
+		if(null == is)
+			return null;
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			copyFile(baos, is);
+			baos.close();
+			return baos.toByteArray();
+		} finally {
+			closeAll(is);
 		}
 	}
 
@@ -1741,7 +1763,7 @@ public class FileTool {
 			sb.setLength(clen);
 		}
 	}
-	
+
 	/**
 	 * Saves blob into specified file.
 	 * @param out
