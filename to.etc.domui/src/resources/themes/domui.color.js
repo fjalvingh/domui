@@ -1,11 +1,14 @@
-bg_color="#DDE8FA"; //blue background
+bg_color="#ffffff";
 bg2_color=util.color(bg_color).lume(0.3);
-body_image='bg-body-blue.png';
+body_image='bg-body-domui.png';
+
+bg_ttl_gradient = "bg-ttl-gradient.png";
+bg_ttl_end = '#b3b3b3';
 
 button_bg="#6ba1eb";
 button_fg="#ffffff";
-button_img= "defaultButton-all.png";
-button_height=26;
+button_img= "defaultButton.png";
+button_height=24;
 
 link_font_size="12px";
 link_color="#2200cc";	// dark blue
@@ -15,11 +18,12 @@ header_bg_bg="#ffffff";	// background to fade into for header
 
 //-- Selects and highlights ---
 selected_bg="#bed6f8";	// blue
-highlight_bg="#62bce0";	// row select: hard orange
-highlight2_bg="#62bce0"; // secondary highlight: salmon
-cellhighlight_bg="#61ddbe";	// cell select: light green
+highlight_bg="#ffbb43";	// row select: hard orange
+highlight2_bg="#ffca6f"; // secondary highlight: salmon
+cellhighlight_bg="#67267f";	// cell select: purple
+cellhighlightcolor_bg="#ffffff";	// link color of cell select: white
 
-readonly_bg="#F5F5FA";		// very light grey 
+readonly_bg="transparent"; 
 readonly_border="#EEEEEF"; // bit darker grey
 
 error_bg="#ffaaaa";	// red/pink light
@@ -56,9 +60,12 @@ button_bg="#6290E1";
 button_text_color="#ffffff";
 
 //-- Header colors
-header_bg="#6290E1";
+header_bg="#7c7c7c";
 header_bg2="#ffffff";
 header_text_color="#ffffff";
+
+//-- Caption
+caption_separator="hr-caption.png";
 
 //-- Error colors (error panel)
 error_bg="#a9c5f1";

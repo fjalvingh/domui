@@ -5,13 +5,33 @@
 /*** 000_dateinput.frag.css ***/
 /*** Date input ***/
 @IMPORT url("calendar-blue2.css");
+
+.ui-di-sib {
+	vertical-align: top;
+	padding: 0px 1px 0px 1px;
+	margin: 0px;
+	border: 0px;
+	background: transparent;
+	cursor: pointer;
+}
+
+.ui-di-sib img {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+
+.ui-di-sib:hover {
+	background-color: <%= header_bg %> !important;
+}
 /*** 002_core.frag.css ***/
 /*** Core style ***/
 /* Body style */
 body,html {
-	background: url(bg-body.png) repeat-x;
+<% if(typeof body_image != 'undefined') { %>
+	background: url(<%= body_image %>) repeat-x;
+<% } %>
 	background-color: <%= bg_color %>;
-/*	height: 100%; jal 20110221 Body height causes no end of problems with scrollbars. */
 	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 	margin: 0px;
 }
@@ -45,7 +65,8 @@ select {
 }
 
 pre {
-	font-family: Courier New, Courier, monospace;
+	font-family: <%= fixed_font_family %>;
+	font-size: <%= fixed_font_size %>;
 }
 
 button img {
@@ -86,27 +107,36 @@ button {
 }
 /*** 010_apptitle.frag.css ***/
 /*** App Title bar ***/
+.ui-atl {
+	height: 40px;
+	/*background: url(<%= bg_ttl_gradient %>) repeat-y;*/
+	background-image: url(bg-caption.png.svg);
+	background-color: <%= bg_ttl_end %>;
+}
+
 .ui-atl-bb {
 	white-space: nowrap;
-	background-image: url(bg-caption.png.svg);
-	background-repeat: no-repeat;
 	width: 90%;
 	text-align: right;
 }
 
 .ui-atl-i {
-	background-color: <%= header_bg %>;
-	padding-right: 25px;
-	padding-left: 15px;
+	padding: 0px;
+}
+
+.ui-atl-i img {
+	display: none;
 }
 
 .ui-atl-t {
-	background-color: <%= header_bg %>;
 	width: 10%;
-	white-space: nowrap;
-	color: <%= header_text_color %>;
+	height: 40px;
+	white-space: 
+	color: #123667;
 	font-weight: bold;
 	font-size: <%= hdr_font_size %>;
+	padding-left: 9px;
+	vertical-align: middle;
 }
 /*** 015_splitterbar.frag.css ***/
 /*** SplitterPanel. These style names are required by jquery.splitter.js ***/
@@ -271,7 +301,6 @@ td.ui-tr-selected {
 /*** DisplayValue ***/
 .ui-dspv {
 	background:none repeat scroll 0 0 <%= readonly_bg %>;
-	border: 1px solid <%= readonly_border %>;
 	display:block;
 	padding:2px;
 }
@@ -287,9 +316,12 @@ td.ui-tr-selected {
 .ui-chdr-ttl {
 	color: <%= header_text_color %>;
 	background-color: <%= util.color(header_bg).lighter(0.4) %>;
-	-moz-border-radius: 5px;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
+	-moz-border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    -khtml-border-radius: 5px 5px 0px 0px;
+    border-radius: 5px 5px 0px 0px;
 }
 .ui-chdr-ttl img {
 	padding-right: 10px;
@@ -420,6 +452,11 @@ div.ui-ipa img {
 	background-color: #e5e5e5;
 }
 
+/** Sizeless item */
+.ui-szless {
+	padding: 0px;
+	margin: 0px;
+}
 /*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
 .ui-mbx-top {
@@ -956,9 +993,18 @@ div:hover.ui-xdt-exp {
 div.ui-dt {
 	overflow: auto;
 	position: relative;
+	border-spacing: 0;
+}
+
+div.ui-dt table{
+	overflow: auto;
+	position: relative;
+	border-spacing: 0;
+	border-left: 1px solid #BABABA;
 }
 
 .ui-dt th {
+	background: #7c7c7c;
 	text-align: left;
 	font-weight: bold;
 	padding: 0px 3px;
@@ -968,6 +1014,8 @@ div.ui-dt {
 
 .ui-dt tbody td {
 	padding: 0px 3px;
+	border-bottom: 1px solid #BABABA;
+	border-right: 1px solid #BABABA;
 }
 
 .ui-dt-hdr {
@@ -1003,6 +1051,7 @@ td.ui-cellsel {
 td.ui-cellsel:hover {
 	text-decoration: underline;
 	background-color: <%= cellhighlight_bg %> !important;
+	color: <%= cellhighlightcolor_bg %>;
 }
 
 th.ui-sortable {
@@ -1032,7 +1081,7 @@ div.ui-sortable {
 }
 
 .ui-dt .mselected {
-	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+	background-color: <%= highlight2_bg %>; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
 /*** 145_smallimgbutton.frag.css ***/
 /*** Small Image button ***/
@@ -1057,11 +1106,16 @@ div.ui-sortable {
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
-	border: 1px solid <%= header_bg %>;
-	padding: 2px 4px 2px 4px;
+	margin-top: 8px;
+	margin-bottom: 10px;
 	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
+	background: url(<%= caption_separator %>) no-repeat;
 /*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
+}
+
+.ui-cptn div {
+	padding-top: 18px;
+	font-size: large;
 }
 /*** 155_captionedpanel.frag.css ***/
 /*** CaptionedPanel ***/
@@ -1819,6 +1873,7 @@ li.ui-tab-err {
 	overflow: visible; /* remove extra padding in IE */
 	background: transparent url(<%= button_img %>) no-repeat right -50px;
 	margin-right: 5px;
+	outline: none;
 }
 
 @-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
@@ -2049,55 +2104,57 @@ li.ui-tab-err {
 }
 /*** 255_datapager.frag.css ***/
 /*** Result table pager ***/
-.ui-szless {
+.ui-dp {
+	margin: 2px 10px 6px 14px;
 	padding: 0px;
-	margin: 0px;
 }
 
-.ui-szless a{
-	display: inline-block;
-	padding: 0px;
+.ui-dp-btns a{
 	height: 18px;
 	width: 29px;
+	display: inline-block;
+	padding: 0px;
+	margin-left: -4px;
+	outline: 0; 				/* btadic 20120712: Removing dotted border form focused button */
 }
 
-.ui-szless a.ui-dp-nav-f {
+.ui-dp-btns a.ui-dp-nav-f {
 	background-image : url("<%= nav_btn_first_s%>");
 }
-.ui-szless a.ui-dp-nav-f:HOVER {
+.ui-dp-btns a.ui-dp-nav-f:HOVER {
 	background-image : url("<%= nav_btn_first_f%>");
 }
-.ui-szless a.ui-dp-nav-f-dis {
+.ui-dp-btns a.ui-dp-nav-f-dis {
 	background-image : url("<%= nav_btn_first_d%>");
 }
 
-.ui-szless a.ui-dp-nav-p {
+.ui-dp-btns a.ui-dp-nav-p {
 	background-image : url("<%= nav_btn_prev_s%>");
 }
-.ui-szless a.ui-dp-nav-p:HOVER {
+.ui-dp-btns a.ui-dp-nav-p:HOVER {
 	background-image : url("<%= nav_btn_prev_f%>");
 }
-.ui-szless a.ui-dp-nav-p-dis {
+.ui-dp-btns a.ui-dp-nav-p-dis {
 	background-image : url("<%= nav_btn_prev_d%>");
 }
 
-.ui-szless a.ui-dp-nav-n {
+.ui-dp-btns a.ui-dp-nav-n {
 	background-image : url("<%= nav_btn_next_s%>");
 }
-.ui-szless a.ui-dp-nav-n:HOVER {
+.ui-dp-btns a.ui-dp-nav-n:HOVER {
 	background-image : url("<%= nav_btn_next_f%>");
 }
-.ui-szless a.ui-dp-nav-n-dis {
+.ui-dp-btns a.ui-dp-nav-n-dis {
 	background-image : url("<%= nav_btn_next_d%>");
 }
 
-.ui-szless a.ui-dp-nav-l {
+.ui-dp-btns a.ui-dp-nav-l {
 	background-image : url("<%= nav_btn_last_s%>");
 }
-.ui-szless a.ui-dp-nav-l:HOVER {
+.ui-dp-btns a.ui-dp-nav-l:HOVER {
 	background-image : url("<%= nav_btn_last_f%>");
 }
-.ui-szless a.ui-dp-nav-l-dis {
+.ui-dp-btns a.ui-dp-nav-l-dis {
 	background-image : url("<%= nav_btn_last_d%>");
 }
 /*** MessageLine ***/

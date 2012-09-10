@@ -3,9 +3,18 @@
 div.ui-dt {
 	overflow: auto;
 	position: relative;
+	border-spacing: 0;
+}
+
+div.ui-dt table{
+	overflow: auto;
+	position: relative;
+	border-spacing: 0;
+	border-left: 1px solid #BABABA;
 }
 
 .ui-dt th {
+	background: #7c7c7c;
 	text-align: left;
 	font-weight: bold;
 	padding: 0px 3px;
@@ -15,6 +24,8 @@ div.ui-dt {
 
 .ui-dt tbody td {
 	padding: 0px 3px;
+	border-bottom: 1px solid #BABABA;
+	border-right: 1px solid #BABABA;
 }
 
 .ui-dt-hdr {
@@ -50,6 +61,7 @@ td.ui-cellsel {
 td.ui-cellsel:hover {
 	text-decoration: underline;
 	background-color: <%= cellhighlight_bg %> !important;
+	color: <%= cellhighlightcolor_bg %>;
 }
 
 th.ui-sortable {
@@ -79,5 +91,5 @@ div.ui-sortable {
 }
 
 .ui-dt .mselected {
-	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+	background-color: <%= highlight2_bg %>; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
