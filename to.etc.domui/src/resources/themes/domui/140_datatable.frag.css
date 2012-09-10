@@ -7,14 +7,14 @@ body > div.ui-dt {
 div.ui-dt {
 	overflow: auto;
 	position: relative;
-	border-spacing: 0;
 }
 
 div.ui-dt table{
 	overflow: auto;
 	position: relative;
-	border-spacing: 0;
+	border-spacing: 0px;
 	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	border-bottom: 1px solid #bababa;
 }
 
 .ui-dt th {
@@ -28,13 +28,18 @@ div.ui-dt table{
 
 .ui-dt tbody td {
 	padding: 3px;
-	border-bottom: 1px solid #bababa;
 	border-right: 1px solid #bababa;
+}
+
+.ui-dt tbody tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	margin-left: 10px;
 }
 
 .ui-dt-hdr {
 	background: <%=	header_bg %>;
 	color: white;
+	text-align: left;
 }
 
 .ui-dt-nores {

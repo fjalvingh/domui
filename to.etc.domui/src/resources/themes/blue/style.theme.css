@@ -6,6 +6,15 @@
 /*** Date input ***/
 @IMPORT url("calendar-blue2.css");
 
+/* Reset styles */
+* {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	font-family: <%= font_family %>;
+	font-size: <%= font_size %>;
+}
+
 .ui-di-sib {
 	vertical-align: top;
 	padding: 0px 1px 0px 1px;
@@ -34,15 +43,6 @@ body,html {
 	background-color: <%= bg_color %>;
 	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 	margin: 0px;
-}
-
-/* Reset styles */
-* {
-	border: 0;
-	margin: 0;
-	padding: 0;
-	font-family: <%= font_family %>;
-	font-size: <%= font_size %>;
 }
 
 input, textarea, select {
@@ -109,8 +109,7 @@ button {
 /*** App Title bar ***/
 .ui-atl {
 	height: 40px;
-	/*background: url(<%= bg_ttl_gradient %>) repeat-y;*/
-	background-image: url(bg-caption.png.svg);
+	background: url(<%= bg_ttl_gradient %>) repeat-y;
 	background-color: <%= bg_ttl_end %>;
 }
 
@@ -131,8 +130,8 @@ button {
 .ui-atl-t {
 	width: 10%;
 	height: 40px;
-	white-space: 
-	color: #123667;
+	white-space: nowrap;
+	color: <%= bg_ttl_text %>;
 	font-weight: bold;
 	font-size: <%= hdr_font_size %>;
 	padding-left: 9px;
@@ -300,9 +299,9 @@ td.ui-tr-selected {
 /*** 035_displayvalue.frag.css ***/
 /*** DisplayValue ***/
 .ui-dspv {
-	background:none repeat scroll 0 0 <%= readonly_bg %>;
-	display:block;
-	padding:2px;
+	background: none repeat scroll 0 0 <%= readonly_bg %>;
+	display: block;
+	padding-left: 4px;
 }
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
@@ -1128,14 +1127,14 @@ body > div.ui-dt {
 div.ui-dt {
 	overflow: auto;
 	position: relative;
-	border-spacing: 0;
 }
 
 div.ui-dt table{
 	overflow: auto;
 	position: relative;
-	border-spacing: 0;
+	border-spacing: 0px;
 	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	border-bottom: 1px solid #bababa;
 }
 
 .ui-dt th {
@@ -1149,13 +1148,18 @@ div.ui-dt table{
 
 .ui-dt tbody td {
 	padding: 3px;
-	border-bottom: 1px solid #bababa;
 	border-right: 1px solid #bababa;
+}
+
+.ui-dt tbody tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	margin-left: 10px;
 }
 
 .ui-dt-hdr {
 	background: <%=	header_bg %>;
 	color: white;
+	text-align: left;
 }
 
 .ui-dt-nores {

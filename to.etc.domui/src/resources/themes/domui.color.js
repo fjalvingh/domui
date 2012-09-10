@@ -2,8 +2,10 @@ bg_color="#ffffff";
 bg2_color=util.color(bg_color).lume(0.3);
 body_image='bg-body-domui.png';
 
-bg_ttl_gradient = "bg-ttl-gradient.png";
-bg_ttl_end = '#b3b3b3';
+//-- Main page title gradient
+bg_ttl_gradient = "bg-ttl-domui.png";
+bg_ttl_end = '#7c7c7c';
+bg_ttl_text = '#ffffff';
 
 button_bg="#6ba1eb";
 button_fg="#ffffff";
@@ -37,10 +39,9 @@ info_fg="blue";
 info_border="blue";
 
 tab_link_color="#6ba1eb";	// hard blue
-tab_fg="#123667";	// very dark blue
-
+tab_fg="#123667";
 // row odd/even
-even_bg="#eeeeee"; //greyish
+even_row_bgcol="#eeeeee"; //greyish
 dt_rowhdr_bg="#98bbf3";
 dt_rowhdr_fg="#ffffff";
 

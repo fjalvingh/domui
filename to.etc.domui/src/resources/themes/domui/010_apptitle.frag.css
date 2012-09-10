@@ -2,8 +2,7 @@
 /*** App Title bar ***/
 .ui-atl {
 	height: 40px;
-	/*background: url(<%= bg_ttl_gradient %>) repeat-y;*/
-	background-image: url(bg-caption.png.svg);
+	background: url(<%= bg_ttl_gradient %>) repeat-y;
 	background-color: <%= bg_ttl_end %>;
 }
 
@@ -24,8 +23,8 @@
 .ui-atl-t {
 	width: 10%;
 	height: 40px;
-	white-space: 
-	color: #123667;
+	white-space: nowrap;
+	color: <%= bg_ttl_text %>;
 	font-weight: bold;
 	font-size: <%= hdr_font_size %>;
 	padding-left: 9px;
