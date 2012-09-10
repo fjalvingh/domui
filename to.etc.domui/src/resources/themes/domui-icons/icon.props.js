@@ -1,16 +1,16 @@
 /* Icon definition for DomUI icons */
 
 /*** Data Pager buttons ***/
-nav_btn_first_s = 'nav-first-s-blue.png';
-nav_btn_prev_s = 'nav-prev-s-blue.png';
-nav_btn_next_s = 'nav-next-s-blue.png';
-nav_btn_last_s = 'nav-last-s-blue.png';
+nav_btn_first_s = 'nav-first-s.png';
+nav_btn_prev_s = 'nav-prev-s.png';
+nav_btn_next_s = 'nav-next-s.png';
+nav_btn_last_s = 'nav-last-s.png';
 
 //focused(hovered) navigation button
-nav_btn_first_f = 'nav-first-f-blue.png';
-nav_btn_prev_f = 'nav-prev-f-blue.png';
-nav_btn_next_f = 'nav-next-f-blue.png';
-nav_btn_last_f = 'nav-last-f-blue.png';
+nav_btn_first_f = 'nav-first-f.png';
+nav_btn_prev_f = 'nav-prev-f.png';
+nav_btn_next_f = 'nav-next-f.png';
+nav_btn_last_f = 'nav-last-f.png';
 
 //disabled navigation button
 nav_btn_first_d = "nav-first-d.png";
