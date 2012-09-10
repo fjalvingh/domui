@@ -5,13 +5,16 @@
 	text-align: right;
 	font-weight: bold;
 	font-size: <%= font_size %>;
- 	vertical-align: top;
+	vertical-align: top;
+	padding-top: 2px;
+	white-space: nowrap;
 }
 
 .ui-f-in {
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
 	padding: 0px;
+	padding-left: 4px;
 }
 .ui-f-do {
 	font-size: <%= font_size %>;

@@ -13,9 +13,6 @@ button_height=24;
 link_font_size="12px";
 link_color="#2200cc";	// dark blue
 
-header_bg="#3580bd";
-header_bg_bg="#ffffff";	// background to fade into for header
-
 //-- Selects and highlights ---
 selected_bg="#bed6f8";	// blue
 highlight_bg="#ffbb43";	// row select: hard orange

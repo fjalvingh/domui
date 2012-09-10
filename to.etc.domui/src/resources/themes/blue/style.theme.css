@@ -574,7 +574,7 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 /*** 090_buttonbar.frag.css ***/
 /*** ButtonBar component ***/
 .ui-buttonbar {
-	padding: 0; margin: 0;
+	margin: 10px;
 }
 .ui-bb-left {
 	padding: 0; margin: 0;
@@ -589,7 +589,6 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 }
 .ui-bb-middle {
 	padding: 0; margin: 0;
-	height: 36px;
 }
 /*** 095_monthpanel.frag.css ***/
 /*** MonthPanel ***/
@@ -849,10 +848,139 @@ tr.ui-keyword-popup-row {
 	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
 	*display:inline;
 }
-/*** 115_lookupform.frag.css ***/
+/*** 105_lookupinput.frag.css ***/
+/*** LookupInput thingerydoo ***/
+.ui-lui {
+	/* background: #ffffff; */
+	padding: 0px;
+	margin: 0px;
+}
+
+div.ui-lui-selected{
+	border-color:#ABADB3 #BFCDD9 #BFCDD9;
+	border-style:solid;
+	border-width:1px;
+	-moz-border-radius: 2px;
+	margin-bottom: 3px;
+}
+
+div.ui-lui-selected-ro {
+	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
+}
+	
+div.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	display: inline-block;
+}
+
+table.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	white-space: nowrap;
+}
+
+div.ui-lui td{
+	vertical-align: top;
+}
+
+table.ui-lui-selected {
+	width: 100%;
+	white-space: nowrap;
+	padding: 1px;
+}
+
+.ui-lui-v { /* no selection is rendered transparent without border */
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+}
+
+.ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
+	padding: 0px;
+	margin: 0px;
+	background-color: #ffffff;
+	width: 100%;
+}
+
+.ui-lui-selected-ro tbody {
+	background-color: <%= readonly_bg %>;
+}
+
+.ui-input-err * .ui-lui-v {
+	background-color: #ffe5e5 !important;
+}
+.ui-lui-vcell {
+	width: 99%;
+}
+input.ui-lui-keyword {
+	min-width: 98px;
+}
+
+img.ui-lui-waiting{
+	position:absolute;
+	top:2px;
+	right:2px;
+}
+.ui-lui-keyword-res{
+	color: black;
+}
+.ui-lui-keyword-no-res{
+	color: red;
+}
+.ui-lui-keyword-large{
+	color: red;
+}
+.ui-lui-keyword-popup{
+	position: absolute;
+	left: 0px;
+	top: 18px;
+	background-color: white;
+	border: 1px solid gray;
+	width: 402px;
+	overflow: hidden;
+}
+tr.ui-keyword-popop-rowsel {
+	cursor: pointer;
+	background-color: <%= highlight2_bg %> !important;
+}
+
+tr.ui-keyword-popop-rowsel:hover {
+	background-color: <%= highlight2_bg %> !important;
+}
+
+tr.ui-keyword-popup-row {
+	cursor: pointer;
+}
+
 /*** LookupForm ***/
 .ui-lf-coll {
-	border-bottom: 1px dotted #666666;
+	padding: 12px 10px;
+}
+
+/*** Button bar ***/
+div.ui-lf-ebb {
+	margin-top		: 9px;
+	padding-bottom	: 10px;
+}
+
+/*** Layout for table with input data in two, or more, rows ***/
+table.ui-lf-multi > tbody > tr > td {
+	padding-left			: 100px;
+	white-space				: nowrap;
+}
+
+table.ui-lf-multi > tbody > tr > td:first-child {
+	width					: 1%;
+	padding-left			: 0px;
+}
+
+/*** Standard table with inputs style - prompt and input cells table kind ***/
+table.ui-lf-st tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	width: 1%;
+}
+
+div.ui-lf-mainContent{
+	margin: 10px 10px 0px 10px;
 }
 /*** 120_forms.frag.css ***/
 /*** Form basic styles ***/
@@ -861,13 +989,16 @@ tr.ui-keyword-popup-row {
 	text-align: right;
 	font-weight: bold;
 	font-size: <%= font_size %>;
- 	vertical-align: top;
+	vertical-align: top;
+	padding-top: 2px;
+	white-space: nowrap;
 }
 
 .ui-f-in {
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
 	padding: 0px;
+	padding-left: 4px;
 }
 .ui-f-do {
 	font-size: <%= font_size %>;
@@ -990,6 +1121,10 @@ div:hover.ui-xdt-exp {
 }
 /*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
+body > div.ui-dt {
+	margin: 0px 10px;	
+}
+
 div.ui-dt {
 	overflow: auto;
 	position: relative;
@@ -1000,7 +1135,7 @@ div.ui-dt table{
 	overflow: auto;
 	position: relative;
 	border-spacing: 0;
-	border-left: 1px solid #BABABA;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
 }
 
 .ui-dt th {
@@ -1013,9 +1148,9 @@ div.ui-dt table{
 }
 
 .ui-dt tbody td {
-	padding: 0px 3px;
-	border-bottom: 1px solid #BABABA;
-	border-right: 1px solid #BABABA;
+	padding: 3px;
+	border-bottom: 1px solid #bababa;
+	border-right: 1px solid #bababa;
 }
 
 .ui-dt-hdr {
@@ -1032,7 +1167,7 @@ div.ui-dt table{
 }
 
 .ui-even {
-	background-color: <%= even_bg %>;
+	background-color: <%= even_row_bgcol %>;
 }
 
 tr.ui-rowsel {
@@ -1063,12 +1198,13 @@ div.ui-sortable {
 }
 
 .ui-sortable img {
-	float: left;
-	margin-right: 2px;
+	top: -3px;
+	position: absolute;
+	border: 0px;
 }
 
 .ui-sortable span {
-	margin-left: 8px;
+	margin-left: 10px;
 }
 
 .ui-dt {

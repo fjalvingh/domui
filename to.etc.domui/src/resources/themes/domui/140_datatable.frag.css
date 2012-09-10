@@ -1,5 +1,9 @@
 /*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
+body > div.ui-dt {
+	margin: 0px 10px;	
+}
+
 div.ui-dt {
 	overflow: auto;
 	position: relative;
@@ -10,7 +14,7 @@ div.ui-dt table{
 	overflow: auto;
 	position: relative;
 	border-spacing: 0;
-	border-left: 1px solid #BABABA;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
 }
 
 .ui-dt th {
@@ -23,9 +27,9 @@ div.ui-dt table{
 }
 
 .ui-dt tbody td {
-	padding: 0px 3px;
-	border-bottom: 1px solid #BABABA;
-	border-right: 1px solid #BABABA;
+	padding: 3px;
+	border-bottom: 1px solid #bababa;
+	border-right: 1px solid #bababa;
 }
 
 .ui-dt-hdr {
@@ -42,7 +46,7 @@ div.ui-dt table{
 }
 
 .ui-even {
-	background-color: <%= even_bg %>;
+	background-color: <%= even_row_bgcol %>;
 }
 
 tr.ui-rowsel {
@@ -73,12 +77,13 @@ div.ui-sortable {
 }
 
 .ui-sortable img {
-	float: left;
-	margin-right: 2px;
+	top: -3px;
+	position: absolute;
+	border: 0px;
 }
 
 .ui-sortable span {
-	margin-left: 8px;
+	margin-left: 10px;
 }
 
 .ui-dt {
