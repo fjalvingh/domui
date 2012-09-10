@@ -92,6 +92,3 @@ nav_btn_first_d = "nav-first-d.png";
 nav_btn_prev_d = "nav-prev-d.png";
 nav_btn_next_d = "nav-next-d.png"; 
 nav_btn_last_d = "nav-last-d.png";
-
-//-- DefaultButton image
-button_img= "defaultButton.png";
