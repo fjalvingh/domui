@@ -124,7 +124,8 @@ table.ui-lf-multi > tbody > tr > td:first-child {
 }
 
 /*** Standard table with inputs style - prompt and input cells table kind ***/
-table.ui-lf-st tr > td.ui-f-lbl:first-child {
+table.ui-lf-st tr > td.ui-f-lbl:first-child,
+vp-ui-multi table tr > td.ui-f-lbl:first-child {
 	min-width: 150px;
 	width: 1%;
 }

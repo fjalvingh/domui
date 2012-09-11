@@ -6,15 +6,6 @@
 /*** Date input ***/
 @IMPORT url("calendar-blue2.css");
 
-/* Reset styles */
-* {
-	border: 0;
-	margin: 0;
-	padding: 0;
-	font-family: <%= font_family %>;
-	font-size: <%= font_size %>;
-}
-
 .ui-di-sib {
 	vertical-align: top;
 	padding: 0px 1px 0px 1px;
@@ -43,6 +34,15 @@ body,html {
 	background-color: <%= bg_color %>;
 	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 	margin: 0px;
+}
+
+/* Reset styles */
+* {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	font-family: <%= font_family %>;
+	font-size: <%= font_size %>;
 }
 
 input, textarea, select {
@@ -301,7 +301,7 @@ td.ui-tr-selected {
 .ui-dspv {
 	background: none repeat scroll 0 0 <%= readonly_bg %>;
 	display: block;
-	padding-left: 4px;
+	text-align: left;
 }
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
@@ -973,7 +973,8 @@ table.ui-lf-multi > tbody > tr > td:first-child {
 }
 
 /*** Standard table with inputs style - prompt and input cells table kind ***/
-table.ui-lf-st tr > td.ui-f-lbl:first-child {
+table.ui-lf-st tr > td.ui-f-lbl:first-child,
+vp-ui-multi table tr > td.ui-f-lbl:first-child {
 	min-width: 150px;
 	width: 1%;
 }
@@ -989,20 +990,18 @@ div.ui-lf-mainContent{
 	font-weight: bold;
 	font-size: <%= font_size %>;
 	vertical-align: top;
-	padding-top: 2px;
 	white-space: nowrap;
 }
 
 .ui-f-in {
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
-	padding: 0px;
 	padding-left: 4px;
 }
 .ui-f-do {
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
-	padding: 0px;
+	padding-left: 4px;
 }
 
 /* for forms having the label ABOVE the field (vertical stacked) */
@@ -1030,16 +1029,14 @@ div.ui-lf-mainContent{
 }
 
 /* for forms where the label is above the edit control (vertical). */
-.ui-ro {
+.ui-ro, .ui-ro:hover {
 	/*background: #eff7ff;*/
 	border:1px solid <%= readonly_border %>;
 	background-color: <%= readonly_bg %>;
 }
 
-.ui-ro:hover {
-	/*background: #eff7ff;*/
-	border:1px solid <%= readonly_border %>;
-	background-color: <%= readonly_bg %>;
+select.ui-ro, select.ui-ro:hover {
+	border-color: <%= bevel_up %>;
 }
 /*** 125_numeric.frag.css ***/
 /*** Typed presentation for fields containing numerics ***/
@@ -1049,6 +1046,10 @@ div.ui-lf-mainContent{
 
 TD.ui-numeric {
 	padding-right: 3px;
+}
+
+.ui-dspv.ui-numeric {
+	text-align: left !important;
 }
 /*** 130_imagebutton.frag.css ***/
 /*** Image Button ***/

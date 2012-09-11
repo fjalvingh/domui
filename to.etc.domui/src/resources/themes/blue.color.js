@@ -3,7 +3,7 @@ bg2_color=util.color(bg_color).lume(0.3);
 body_image='bg-body-domui.png';
 
 //-- Main page title gradient
-bg_ttl_gradient = "bg-ttl-gradient.png";
+bg_ttl_gradient = "bg-ttl-domui.png";
 bg_ttl_end = '#7c7c7c';
 bg_ttl_text = '#ffffff';
 
