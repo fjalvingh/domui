@@ -75,5 +75,3 @@ tab_pnl_hover_inactive_col = "#ffffff";
 tab_pnl_active_col = "#67267f";
 error_fg = "red";
 tab_pnl_sep_bg = "#7c7c7c";
-tab_fg = "purple";
-tab_link_color = "blue";
