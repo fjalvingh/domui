@@ -18,7 +18,8 @@ div.ui-dt table{
 }
 
 .ui-dt th {
-	background: #7c7c7c;
+	background: <%=	header_bg %>;
+	background-image: url(<%= header_bg_img %>);
 	text-align: left;
 	font-weight: bold;
 	padding: 0px 3px;

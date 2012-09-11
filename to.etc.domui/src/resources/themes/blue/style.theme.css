@@ -1139,7 +1139,8 @@ div.ui-dt table{
 }
 
 .ui-dt th {
-	background: #7c7c7c;
+	background: <%=	header_bg %>;
+	background-image: url(<%= header_bg_img %>);
 	text-align: left;
 	font-weight: bold;
 	padding: 0px 3px;
@@ -1258,6 +1259,17 @@ div.ui-sortable {
 	padding-top: 18px;
 	font-size: large;
 }
+
+.ui-cptn .ui-cptn-ttl {
+	width: 1%;
+}
+
+.ui-cptn .ui-cptn-btn {
+	text-align: left;
+	vertical-align: bottom;
+	padding-left: 5px;
+	padding-bottom: 2px;
+}
 /*** 155_captionedpanel.frag.css ***/
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
@@ -1302,69 +1314,55 @@ div.ui-sortable {
 	float: left;
 	font-size: <%= font_size %>;
 	line-height: normal;
-	border-bottom: 1px solid black;
 	width: 100%;
+	margin: 9px 0px 10px;
 }
 
-.ui-tab-hdr ul {
-	margin: 0;
-	padding: 8px 10px 0;
-	list-style: none;
-}
-
-.ui-tab-hdr  li {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-left.png) no-repeat left top;
-}
-
-li.ui-tab-err {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-err-left.png) no-repeat left top;
+.ui-tab-hdr li {
+    background: url("<%= tab_pnl_img %>") no-repeat scroll left -200px transparent;
+    float: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    list-style: none;
 }
 
 .ui-tab-hdr a {
-	display: block;
-	background: url(tab-off-right.png) no-repeat right top;
-	padding: 5px 14px 4px 6px;
-	text-decoration: none;
-	font-weight: bold;
-	color: <%= tab_fg %>;
+	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+ 	min-height: 22px;
+ 	color: <%= tab_pnl_inactive_col %>;
 }
 
-.ui-tab-hdr ul a:hover {
-	color: <%= tab_link_color %>;
+.ui-tab-hdr li:hover {
+	background-position: left -300px;
 }
 
-.ui-tab-hdr .ui-tab-sel {
-	background-image: url(tab-norm-left-sel.png);
+.ui-tab-hdr li:hover a{
+	background-position: right -350px;
+	color: <%= tab_pnl_hover_inactive_col %>;
 }
 
-.ui-tab-hdr .ui-tab-err a {
-	background-image: url(tab-off-err-right.png);
+.ui-tab-hdr li.ui-tab-sel, 
+.ui-tab-hdr li.ui-tab-sel:hover {
+	background-position: left top;
 }
 
-.ui-tab-hdr .ui-tab-sel a {
-	background-image: url(tab-norm-right-sel.png);
+.ui-tab-hdr li.ui-tab-sel a, 
+.ui-tab-hdr li.ui-tab-sel:hover a {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
 }
 
-.ui-tab-err a {
-	color: <%= error_fg %>;
+li.ui-tab-err a {
+	color: <%= error_fg %> !important;
 }
 
 .ui-tab-icon {
 	padding-right: 5px;
-}
-
-.ui-tab {
-	position: relative; /* jal new 20070625 */
-	clear: both;
-	background-color: #ffffff;
-	border: 1px solid <%= header_bg %>;
-	padding: 0px;
 }
 
 .ui-tab-tabbar {
@@ -1375,54 +1373,121 @@ li.ui-tab-err {
 .ui-tab-pag {
 	border-top: 1px solid black;
 }
+
+.ui-tab-ibte {
+	height: 31px;
+	background: <%= tab_pnl_sep_bg %>;
+	overflow: hidden;
+}
+
+li.ui-tab-ibt {
+	background: <%= tab_pnl_sep_bg %>;
+	height: 31px;
+	width: 3px;
+	padding: 0px;
+	margin: 0px;
+}
+
+li.ui-tab-ibt:FIRST-CHILD {
+	width: 10px;
+}
+
+.ui-tab-pg {
+	padding: 0px 10px;
+}
+
+.ui-tab-pg .ui-buttonbar, .ui-tab-pg .ui-szless {
+	margin-left: 0px;
+}
 /*** 170_scrollabletabpanel.frag.css ***/
 /*** ScrollableTabPanel ***/
 .ui-stab-hdr {
 	float: left;
 	font-size: <%= font_size %>;
 	line-height: normal;
+	margin: 9px 0px 10px;
 }
 
-.ui-stab-hdr ul {
-	margin: 0;
-	padding: 8px 0px 0;
-	list-style: none;
-}
-
-.ui-stab-hdr  li {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-left.png) no-repeat left top;
+.ui-stab-hdr li {
+    background: url("<%= tab_pnl_img %>") no-repeat scroll left -200px transparent;
+    float: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    list-style: none;
 }
 
 .ui-stab-hdr a {
-	display: block;
-	background: url(tab-off-right.png) no-repeat right top;
-	padding: 5px 14px 4px 6px;
-	text-decoration: none;
-	font-weight: bold;
-	color: <%= tab_fg %>;
+	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+ 	min-height: 22px;
+ 	color: <%= tab_pnl_inactive_col %>;
 }
 
-.ui-stab-hdr ul a:hover {
-	color: <%= tab_link_color %>;
+.ui-stab-hdr li:hover {
+	background-position: left -300px;
 }
 
-.ui-stab-hdr .ui-tab-sel {
-	background-image: url(tab-norm-left-sel.png);
+.ui-stab-hdr li:hover a{
+	background-position: right -350px;
+	color: <%= tab_pnl_hover_inactive_col %>;
 }
 
-.ui-stab-hdr .ui-tab-err a {
-	background-image: url(tab-off-err-right.png);
+.ui-stab-hdr li.ui-stab-sel, 
+.ui-stab-hdr li.ui-stab-sel:hover {
+	background-position: left top;
 }
 
-.ui-stab-hdr .ui-tab-sel a {
-	background-image: url(tab-norm-right-sel.png);
+.ui-stab-hdr li.ui-stab-sel a, 
+.ui-stab-hdr li.ui-stab-sel:hover a {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
 }
 
-.ui-stab-scrl {
-	border-bottom: 1px solid black;
+li.ui-stab-err a {
+	color: <%= error_fg %> !important;
+}
+
+.ui-stab-icon {
+	padding-right: 5px;
+}
+
+.ui-stab-tabbar {
+	margin: 0px;
+	padding: 0px;
+}
+
+.ui-stab-pag {
+	border-top: 1px solid black;
+}
+
+.ui-stab-ibte {
+	height: 31px;
+	background: <%= tab_pnl_sep_bg %>;
+	overflow: hidden;
+}
+
+li.ui-tab-ibt {
+	background: <%= tab_pnl_sep_bg %>;
+	height: 31px;
+	width: 3px;
+	padding: 0px;
+	margin: 0px;
+}
+
+li.ui-stab-ibt:FIRST-CHILD {
+	width: 10px;
+}
+
+.ui-stab-pg {
+	padding: 0px 10px;
+}
+
+.ui-stab-pg .ui-buttonbar, .ui-stab-pg .ui-szless {
+	margin-left: 0px;
 }
 
 .ui-stab-scrl-left {

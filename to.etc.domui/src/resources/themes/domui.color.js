@@ -59,6 +59,7 @@ button_text_color="#ffffff";
 header_bg="#7c7c7c";
 header_bg2="#ffffff";
 header_text_color="#ffffff";
+header_bg_img=""; //-- Table header doesn't have background image   
 
 //-- Caption
 caption_separator="hr-caption.png";

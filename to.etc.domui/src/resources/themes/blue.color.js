@@ -38,8 +38,6 @@ info_bg="#a9c5f1";		// blueish light
 info_fg="blue";
 info_border="blue";
 
-tab_link_color="#6ba1eb";	// hard blue
-tab_fg="#123667";
 // row odd/even
 even_row_bgcol="#eeeeee"; //greyish
 dt_rowhdr_bg="#98bbf3";
@@ -61,6 +59,7 @@ button_text_color="#ffffff";
 header_bg="#7c7c7c";
 header_bg2="#ffffff";
 header_text_color="#ffffff";
+header_bg_img=""; //-- Table header doesn't have background image   
 
 //-- Caption
 caption_separator="hr-caption.png";
@@ -71,7 +70,12 @@ error_bg="#a9c5f1";
 //-- selected items background
 selected_bg="#ff9436";
 
-/* Icon definition for DomUI icons */
+//-- Tab panel
+tab_pnl_inactive_col = "#ffffff";
+tab_pnl_hover_inactive_col = "#ffffff";
+tab_pnl_active_col = "#67267f";
+error_fg = "red";
+tab_pnl_sep_bg = "#7c7c7c";/* Icon definition for DomUI icons */
 
 /*** Data Pager buttons ***/
 nav_btn_first_s = 'nav-first-s.png';
@@ -93,3 +97,6 @@ nav_btn_last_d = "nav-last-d.png";
 
 //-- DefaultButton image
 button_img= "defaultButton.png";
+
+//-- Tab panel image
+tab_pnl_img = "tab-all-domui.png";
