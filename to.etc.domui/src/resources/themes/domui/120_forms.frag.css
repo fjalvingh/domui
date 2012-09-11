@@ -5,18 +5,19 @@
 	text-align: right;
 	font-weight: bold;
 	font-size: <%= font_size %>;
- 	vertical-align: top;
+	vertical-align: top;
+	white-space: nowrap;
 }
 
 .ui-f-in {
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
-	padding: 0px;
+	padding-left: 4px;
 }
 .ui-f-do {
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
-	padding: 0px;
+	padding-left: 4px;
 }
 
 /* for forms having the label ABOVE the field (vertical stacked) */
@@ -44,14 +45,12 @@
 }
 
 /* for forms where the label is above the edit control (vertical). */
-.ui-ro {
+.ui-ro, .ui-ro:hover {
 	/*background: #eff7ff;*/
 	border:1px solid <%= readonly_border %>;
 	background-color: <%= readonly_bg %>;
 }
 
-.ui-ro:hover {
-	/*background: #eff7ff;*/
-	border:1px solid <%= readonly_border %>;
-	background-color: <%= readonly_bg %>;
+select.ui-ro, select.ui-ro:hover {
+	border-color: <%= bevel_up %>;
 }

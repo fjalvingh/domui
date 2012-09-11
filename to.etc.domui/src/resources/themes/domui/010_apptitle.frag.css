@@ -1,24 +1,32 @@
 /*** 010_apptitle.frag.css ***/
 /*** App Title bar ***/
+.ui-atl {
+	height: 40px;
+	background: url(<%= bg_ttl_gradient %>) repeat-y;
+	background-color: <%= bg_ttl_end %>;
+}
+
 .ui-atl-bb {
 	white-space: nowrap;
-	background-image: url(bg-caption.png.svg);
-	background-repeat: no-repeat;
 	width: 90%;
 	text-align: right;
 }
 
 .ui-atl-i {
-	background-color: <%= header_bg %>;
-	padding-right: 25px;
-	padding-left: 15px;
+	padding: 0px;
+}
+
+.ui-atl-i img {
+	display: none;
 }
 
 .ui-atl-t {
-	background-color: <%= header_bg %>;
 	width: 10%;
+	height: 40px;
 	white-space: nowrap;
-	color: <%= header_text_color %>;
+	color: <%= bg_ttl_text %>;
 	font-weight: bold;
 	font-size: <%= hdr_font_size %>;
+	padding-left: 9px;
+	vertical-align: middle;
 }

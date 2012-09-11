@@ -5,13 +5,33 @@
 /*** 000_dateinput.frag.css ***/
 /*** Date input ***/
 @IMPORT url("calendar-blue2.css");
+
+.ui-di-sib {
+	vertical-align: top;
+	padding: 0px 1px 0px 1px;
+	margin: 0px;
+	border: 0px;
+	background: transparent;
+	cursor: pointer;
+}
+
+.ui-di-sib img {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+
+.ui-di-sib:hover {
+	background-color: <%= header_bg %> !important;
+}
 /*** 002_core.frag.css ***/
 /*** Core style ***/
 /* Body style */
 body,html {
-	background: url(bg-body.png) repeat-x;
+<% if(typeof body_image != 'undefined') { %>
+	background: url(<%= body_image %>) repeat-x;
+<% } %>
 	background-color: <%= bg_color %>;
-/*	height: 100%; jal 20110221 Body height causes no end of problems with scrollbars. */
 	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 	margin: 0px;
 }
@@ -45,7 +65,8 @@ select {
 }
 
 pre {
-	font-family: Courier New, Courier, monospace;
+	font-family: <%= fixed_font_family %>;
+	font-size: <%= fixed_font_size %>;
 }
 
 button img {
@@ -86,27 +107,35 @@ button {
 }
 /*** 010_apptitle.frag.css ***/
 /*** App Title bar ***/
+.ui-atl {
+	height: 40px;
+	background: url(<%= bg_ttl_gradient %>) repeat-y;
+	background-color: <%= bg_ttl_end %>;
+}
+
 .ui-atl-bb {
 	white-space: nowrap;
-	background-image: url(bg-caption.png.svg);
-	background-repeat: no-repeat;
 	width: 90%;
 	text-align: right;
 }
 
 .ui-atl-i {
-	background-color: <%= header_bg %>;
-	padding-right: 25px;
-	padding-left: 15px;
+	padding: 0px;
+}
+
+.ui-atl-i img {
+	display: none;
 }
 
 .ui-atl-t {
-	background-color: <%= header_bg %>;
 	width: 10%;
+	height: 40px;
 	white-space: nowrap;
-	color: <%= header_text_color %>;
+	color: <%= bg_ttl_text %>;
 	font-weight: bold;
 	font-size: <%= hdr_font_size %>;
+	padding-left: 9px;
+	vertical-align: middle;
 }
 /*** 015_splitterbar.frag.css ***/
 /*** SplitterPanel. These style names are required by jquery.splitter.js ***/
@@ -270,10 +299,9 @@ td.ui-tr-selected {
 /*** 035_displayvalue.frag.css ***/
 /*** DisplayValue ***/
 .ui-dspv {
-	background:none repeat scroll 0 0 <%= readonly_bg %>;
-	border: 1px solid <%= readonly_border %>;
-	display:block;
-	padding:2px;
+	background: none repeat scroll 0 0 <%= readonly_bg %>;
+	display: block;
+	text-align: left;
 }
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
@@ -287,9 +315,12 @@ td.ui-tr-selected {
 .ui-chdr-ttl {
 	color: <%= header_text_color %>;
 	background-color: <%= util.color(header_bg).lighter(0.4) %>;
-	-moz-border-radius: 5px;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
+	-moz-border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    -khtml-border-radius: 5px 5px 0px 0px;
+    border-radius: 5px 5px 0px 0px;
 }
 .ui-chdr-ttl img {
 	padding-right: 10px;
@@ -420,6 +451,11 @@ div.ui-ipa img {
 	background-color: #e5e5e5;
 }
 
+/** Sizeless item */
+.ui-szless {
+	padding: 0px;
+	margin: 0px;
+}
 /*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
 .ui-mbx-top {
@@ -537,7 +573,7 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 /*** 090_buttonbar.frag.css ***/
 /*** ButtonBar component ***/
 .ui-buttonbar {
-	padding: 0; margin: 0;
+	margin: 10px;
 }
 .ui-bb-left {
 	padding: 0; margin: 0;
@@ -552,7 +588,6 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 }
 .ui-bb-middle {
 	padding: 0; margin: 0;
-	height: 36px;
 }
 /*** 095_monthpanel.frag.css ***/
 /*** MonthPanel ***/
@@ -812,10 +847,140 @@ tr.ui-keyword-popup-row {
 	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
 	*display:inline;
 }
-/*** 115_lookupform.frag.css ***/
+/*** 105_lookupinput.frag.css ***/
+/*** LookupInput thingerydoo ***/
+.ui-lui {
+	/* background: #ffffff; */
+	padding: 0px;
+	margin: 0px;
+}
+
+div.ui-lui-selected{
+	border-color:#ABADB3 #BFCDD9 #BFCDD9;
+	border-style:solid;
+	border-width:1px;
+	-moz-border-radius: 2px;
+	margin-bottom: 3px;
+}
+
+div.ui-lui-selected-ro {
+	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
+}
+	
+div.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	display: inline-block;
+}
+
+table.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	white-space: nowrap;
+}
+
+div.ui-lui td{
+	vertical-align: top;
+}
+
+table.ui-lui-selected {
+	width: 100%;
+	white-space: nowrap;
+	padding: 1px;
+}
+
+.ui-lui-v { /* no selection is rendered transparent without border */
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+}
+
+.ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
+	padding: 0px;
+	margin: 0px;
+	background-color: #ffffff;
+	width: 100%;
+}
+
+.ui-lui-selected-ro tbody {
+	background-color: <%= readonly_bg %>;
+}
+
+.ui-input-err * .ui-lui-v {
+	background-color: #ffe5e5 !important;
+}
+.ui-lui-vcell {
+	width: 99%;
+}
+input.ui-lui-keyword {
+	min-width: 98px;
+}
+
+img.ui-lui-waiting{
+	position:absolute;
+	top:2px;
+	right:2px;
+}
+.ui-lui-keyword-res{
+	color: black;
+}
+.ui-lui-keyword-no-res{
+	color: red;
+}
+.ui-lui-keyword-large{
+	color: red;
+}
+.ui-lui-keyword-popup{
+	position: absolute;
+	left: 0px;
+	top: 18px;
+	background-color: white;
+	border: 1px solid gray;
+	width: 402px;
+	overflow: hidden;
+}
+tr.ui-keyword-popop-rowsel {
+	cursor: pointer;
+	background-color: <%= highlight2_bg %> !important;
+}
+
+tr.ui-keyword-popop-rowsel:hover {
+	background-color: <%= highlight2_bg %> !important;
+}
+
+tr.ui-keyword-popup-row {
+	cursor: pointer;
+}
+
 /*** LookupForm ***/
 .ui-lf-coll {
-	border-bottom: 1px dotted #666666;
+	padding: 12px 10px;
+}
+
+/*** Button bar ***/
+div.ui-lf-ebb {
+	margin-top		: 9px;
+	padding-bottom	: 10px;
+}
+
+/*** Layout for table with input data in two, or more, rows ***/
+table.ui-lf-multi > tbody > tr > td {
+	padding-left			: 100px;
+	white-space				: nowrap;
+}
+
+table.ui-lf-multi > tbody > tr > td:first-child {
+	width					: 1%;
+	padding-left			: 0px;
+}
+
+/*** Standard table with inputs style - prompt and input cells table kind ***/
+table.ui-lf-st tr > td.ui-f-lbl:first-child,
+vp-ui-multi table tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	width: 1%;
+}
+
+div.ui-lf-mainContent{
+	margin: 10px 10px 0px 10px;
 }
 /*** 120_forms.frag.css ***/
 /*** Form basic styles ***/
@@ -824,18 +989,19 @@ tr.ui-keyword-popup-row {
 	text-align: right;
 	font-weight: bold;
 	font-size: <%= font_size %>;
- 	vertical-align: top;
+	vertical-align: top;
+	white-space: nowrap;
 }
 
 .ui-f-in {
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
-	padding: 0px;
+	padding-left: 4px;
 }
 .ui-f-do {
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
-	padding: 0px;
+	padding-left: 4px;
 }
 
 /* for forms having the label ABOVE the field (vertical stacked) */
@@ -863,16 +1029,14 @@ tr.ui-keyword-popup-row {
 }
 
 /* for forms where the label is above the edit control (vertical). */
-.ui-ro {
+.ui-ro, .ui-ro:hover {
 	/*background: #eff7ff;*/
 	border:1px solid <%= readonly_border %>;
 	background-color: <%= readonly_bg %>;
 }
 
-.ui-ro:hover {
-	/*background: #eff7ff;*/
-	border:1px solid <%= readonly_border %>;
-	background-color: <%= readonly_bg %>;
+select.ui-ro, select.ui-ro:hover {
+	border-color: <%= bevel_up %>;
 }
 /*** 125_numeric.frag.css ***/
 /*** Typed presentation for fields containing numerics ***/
@@ -882,6 +1046,10 @@ tr.ui-keyword-popup-row {
 
 TD.ui-numeric {
 	padding-right: 3px;
+}
+
+.ui-dspv.ui-numeric {
+	text-align: left !important;
 }
 /*** 130_imagebutton.frag.css ***/
 /*** Image Button ***/
@@ -953,12 +1121,26 @@ div:hover.ui-xdt-exp {
 }
 /*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
+body > div.ui-dt {
+	margin: 0px 10px;	
+}
+
 div.ui-dt {
 	overflow: auto;
 	position: relative;
 }
 
+div.ui-dt table{
+	overflow: auto;
+	position: relative;
+	border-spacing: 0px;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	border-bottom: 1px solid #bababa;
+}
+
 .ui-dt th {
+	background: <%=	header_bg %>;
+	background-image: url(<%= header_bg_img %>);
 	text-align: left;
 	font-weight: bold;
 	padding: 0px 3px;
@@ -967,12 +1149,19 @@ div.ui-dt {
 }
 
 .ui-dt tbody td {
-	padding: 0px 3px;
+	padding: 3px;
+	border-right: 1px solid #bababa;
+}
+
+.ui-dt tbody tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	margin-left: 10px;
 }
 
 .ui-dt-hdr {
 	background: <%=	header_bg %>;
 	color: white;
+	text-align: left;
 }
 
 .ui-dt-nores {
@@ -984,7 +1173,7 @@ div.ui-dt {
 }
 
 .ui-even {
-	background-color: <%= even_bg %>;
+	background-color: <%= even_row_bgcol %>;
 }
 
 tr.ui-rowsel {
@@ -1003,6 +1192,7 @@ td.ui-cellsel {
 td.ui-cellsel:hover {
 	text-decoration: underline;
 	background-color: <%= cellhighlight_bg %> !important;
+	color: <%= cellhighlightcolor_bg %>;
 }
 
 th.ui-sortable {
@@ -1014,12 +1204,13 @@ div.ui-sortable {
 }
 
 .ui-sortable img {
-	float: left;
-	margin-right: 2px;
+	top: -3px;
+	position: absolute;
+	border: 0px;
 }
 
 .ui-sortable span {
-	margin-left: 8px;
+	margin-left: 10px;
 }
 
 .ui-dt {
@@ -1032,7 +1223,7 @@ div.ui-sortable {
 }
 
 .ui-dt .mselected {
-	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+	background-color: <%= highlight2_bg %>; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
 /*** 145_smallimgbutton.frag.css ***/
 /*** Small Image button ***/
@@ -1057,11 +1248,27 @@ div.ui-sortable {
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
-	border: 1px solid <%= header_bg %>;
-	padding: 2px 4px 2px 4px;
+	margin-top: 8px;
+	margin-bottom: 10px;
 	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
+	background: url(<%= caption_separator %>) no-repeat;
 /*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
+}
+
+.ui-cptn div {
+	padding-top: 18px;
+	font-size: large;
+}
+
+.ui-cptn .ui-cptn-ttl {
+	width: 1%;
+}
+
+.ui-cptn .ui-cptn-btn {
+	text-align: left;
+	vertical-align: bottom;
+	padding-left: 5px;
+	padding-bottom: 2px;
 }
 /*** 155_captionedpanel.frag.css ***/
 /*** CaptionedPanel ***/
@@ -1107,69 +1314,55 @@ div.ui-sortable {
 	float: left;
 	font-size: <%= font_size %>;
 	line-height: normal;
-	border-bottom: 1px solid black;
 	width: 100%;
+	margin: 9px 0px 10px;
 }
 
-.ui-tab-hdr ul {
-	margin: 0;
-	padding: 8px 10px 0;
-	list-style: none;
-}
-
-.ui-tab-hdr  li {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-left.png) no-repeat left top;
-}
-
-li.ui-tab-err {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-err-left.png) no-repeat left top;
+.ui-tab-hdr li {
+    background: url("<%= tab_pnl_img %>") no-repeat scroll left -200px transparent;
+    float: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    list-style: none;
 }
 
 .ui-tab-hdr a {
-	display: block;
-	background: url(tab-off-right.png) no-repeat right top;
-	padding: 5px 14px 4px 6px;
-	text-decoration: none;
-	font-weight: bold;
-	color: <%= tab_fg %>;
+	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+ 	min-height: 22px;
+ 	color: <%= tab_pnl_inactive_col %>;
 }
 
-.ui-tab-hdr ul a:hover {
-	color: <%= tab_link_color %>;
+.ui-tab-hdr li:hover {
+	background-position: left -300px;
 }
 
-.ui-tab-hdr .ui-tab-sel {
-	background-image: url(tab-norm-left-sel.png);
+.ui-tab-hdr li:hover a{
+	background-position: right -350px;
+	color: <%= tab_pnl_hover_inactive_col %>;
 }
 
-.ui-tab-hdr .ui-tab-err a {
-	background-image: url(tab-off-err-right.png);
+.ui-tab-hdr li.ui-tab-sel, 
+.ui-tab-hdr li.ui-tab-sel:hover {
+	background-position: left top;
 }
 
-.ui-tab-hdr .ui-tab-sel a {
-	background-image: url(tab-norm-right-sel.png);
+.ui-tab-hdr li.ui-tab-sel a, 
+.ui-tab-hdr li.ui-tab-sel:hover a {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
 }
 
-.ui-tab-err a {
-	color: <%= error_fg %>;
+li.ui-tab-err a {
+	color: <%= error_fg %> !important;
 }
 
 .ui-tab-icon {
 	padding-right: 5px;
-}
-
-.ui-tab {
-	position: relative; /* jal new 20070625 */
-	clear: both;
-	background-color: #ffffff;
-	border: 1px solid <%= header_bg %>;
-	padding: 0px;
 }
 
 .ui-tab-tabbar {
@@ -1180,54 +1373,121 @@ li.ui-tab-err {
 .ui-tab-pag {
 	border-top: 1px solid black;
 }
+
+.ui-tab-ibte {
+	height: 31px;
+	background: <%= tab_pnl_sep_bg %>;
+	overflow: hidden;
+}
+
+li.ui-tab-ibt {
+	background: <%= tab_pnl_sep_bg %>;
+	height: 31px;
+	width: 3px;
+	padding: 0px;
+	margin: 0px;
+}
+
+li.ui-tab-ibt:FIRST-CHILD {
+	width: 10px;
+}
+
+.ui-tab-pg {
+	padding: 0px 10px;
+}
+
+.ui-tab-pg .ui-buttonbar, .ui-tab-pg .ui-szless {
+	margin-left: 0px;
+}
 /*** 170_scrollabletabpanel.frag.css ***/
 /*** ScrollableTabPanel ***/
 .ui-stab-hdr {
 	float: left;
 	font-size: <%= font_size %>;
 	line-height: normal;
+	margin: 9px 0px 10px;
 }
 
-.ui-stab-hdr ul {
-	margin: 0;
-	padding: 8px 0px 0;
-	list-style: none;
-}
-
-.ui-stab-hdr  li {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-left.png) no-repeat left top;
+.ui-stab-hdr li {
+    background: url("<%= tab_pnl_img %>") no-repeat scroll left -200px transparent;
+    float: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    list-style: none;
 }
 
 .ui-stab-hdr a {
-	display: block;
-	background: url(tab-off-right.png) no-repeat right top;
-	padding: 5px 14px 4px 6px;
-	text-decoration: none;
-	font-weight: bold;
-	color: <%= tab_fg %>;
+	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+ 	min-height: 22px;
+ 	color: <%= tab_pnl_inactive_col %>;
 }
 
-.ui-stab-hdr ul a:hover {
-	color: <%= tab_link_color %>;
+.ui-stab-hdr li:hover {
+	background-position: left -300px;
 }
 
-.ui-stab-hdr .ui-tab-sel {
-	background-image: url(tab-norm-left-sel.png);
+.ui-stab-hdr li:hover a{
+	background-position: right -350px;
+	color: <%= tab_pnl_hover_inactive_col %>;
 }
 
-.ui-stab-hdr .ui-tab-err a {
-	background-image: url(tab-off-err-right.png);
+.ui-stab-hdr li.ui-stab-sel, 
+.ui-stab-hdr li.ui-stab-sel:hover {
+	background-position: left top;
 }
 
-.ui-stab-hdr .ui-tab-sel a {
-	background-image: url(tab-norm-right-sel.png);
+.ui-stab-hdr li.ui-stab-sel a, 
+.ui-stab-hdr li.ui-stab-sel:hover a {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
 }
 
-.ui-stab-scrl {
-	border-bottom: 1px solid black;
+li.ui-stab-err a {
+	color: <%= error_fg %> !important;
+}
+
+.ui-stab-icon {
+	padding-right: 5px;
+}
+
+.ui-stab-tabbar {
+	margin: 0px;
+	padding: 0px;
+}
+
+.ui-stab-pag {
+	border-top: 1px solid black;
+}
+
+.ui-stab-ibte {
+	height: 31px;
+	background: <%= tab_pnl_sep_bg %>;
+	overflow: hidden;
+}
+
+li.ui-tab-ibt {
+	background: <%= tab_pnl_sep_bg %>;
+	height: 31px;
+	width: 3px;
+	padding: 0px;
+	margin: 0px;
+}
+
+li.ui-stab-ibt:FIRST-CHILD {
+	width: 10px;
+}
+
+.ui-stab-pg {
+	padding: 0px 10px;
+}
+
+.ui-stab-pg .ui-buttonbar, .ui-stab-pg .ui-szless {
+	margin-left: 0px;
 }
 
 .ui-stab-scrl-left {
@@ -1819,6 +2079,7 @@ li.ui-tab-err {
 	overflow: visible; /* remove extra padding in IE */
 	background: transparent url(<%= button_img %>) no-repeat right -50px;
 	margin-right: 5px;
+	outline: none;
 }
 
 @-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
@@ -2049,55 +2310,57 @@ li.ui-tab-err {
 }
 /*** 255_datapager.frag.css ***/
 /*** Result table pager ***/
-.ui-szless {
+.ui-dp {
+	margin: 2px 10px 6px 14px;
 	padding: 0px;
-	margin: 0px;
 }
 
-.ui-szless a{
-	display: inline-block;
-	padding: 0px;
+.ui-dp-btns a{
 	height: 18px;
 	width: 29px;
+	display: inline-block;
+	padding: 0px;
+	margin-left: -4px;
+	outline: 0; 				/* btadic 20120712: Removing dotted border form focused button */
 }
 
-.ui-szless a.ui-dp-nav-f {
+.ui-dp-btns a.ui-dp-nav-f {
 	background-image : url("<%= nav_btn_first_s%>");
 }
-.ui-szless a.ui-dp-nav-f:HOVER {
+.ui-dp-btns a.ui-dp-nav-f:HOVER {
 	background-image : url("<%= nav_btn_first_f%>");
 }
-.ui-szless a.ui-dp-nav-f-dis {
+.ui-dp-btns a.ui-dp-nav-f-dis {
 	background-image : url("<%= nav_btn_first_d%>");
 }
 
-.ui-szless a.ui-dp-nav-p {
+.ui-dp-btns a.ui-dp-nav-p {
 	background-image : url("<%= nav_btn_prev_s%>");
 }
-.ui-szless a.ui-dp-nav-p:HOVER {
+.ui-dp-btns a.ui-dp-nav-p:HOVER {
 	background-image : url("<%= nav_btn_prev_f%>");
 }
-.ui-szless a.ui-dp-nav-p-dis {
+.ui-dp-btns a.ui-dp-nav-p-dis {
 	background-image : url("<%= nav_btn_prev_d%>");
 }
 
-.ui-szless a.ui-dp-nav-n {
+.ui-dp-btns a.ui-dp-nav-n {
 	background-image : url("<%= nav_btn_next_s%>");
 }
-.ui-szless a.ui-dp-nav-n:HOVER {
+.ui-dp-btns a.ui-dp-nav-n:HOVER {
 	background-image : url("<%= nav_btn_next_f%>");
 }
-.ui-szless a.ui-dp-nav-n-dis {
+.ui-dp-btns a.ui-dp-nav-n-dis {
 	background-image : url("<%= nav_btn_next_d%>");
 }
 
-.ui-szless a.ui-dp-nav-l {
+.ui-dp-btns a.ui-dp-nav-l {
 	background-image : url("<%= nav_btn_last_s%>");
 }
-.ui-szless a.ui-dp-nav-l:HOVER {
+.ui-dp-btns a.ui-dp-nav-l:HOVER {
 	background-image : url("<%= nav_btn_last_f%>");
 }
-.ui-szless a.ui-dp-nav-l-dis {
+.ui-dp-btns a.ui-dp-nav-l-dis {
 	background-image : url("<%= nav_btn_last_d%>");
 }
 /*** MessageLine ***/

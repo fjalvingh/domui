@@ -1,11 +1,25 @@
 /*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
+body > div.ui-dt {
+	margin: 0px 10px;	
+}
+
 div.ui-dt {
 	overflow: auto;
 	position: relative;
 }
 
+div.ui-dt table{
+	overflow: auto;
+	position: relative;
+	border-spacing: 0px;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	border-bottom: 1px solid #bababa;
+}
+
 .ui-dt th {
+	background: <%=	header_bg %>;
+	background-image: url(<%= header_bg_img %>);
 	text-align: left;
 	font-weight: bold;
 	padding: 0px 3px;
@@ -14,12 +28,19 @@ div.ui-dt {
 }
 
 .ui-dt tbody td {
-	padding: 0px 3px;
+	padding: 3px;
+	border-right: 1px solid #bababa;
+}
+
+.ui-dt tbody tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	margin-left: 10px;
 }
 
 .ui-dt-hdr {
 	background: <%=	header_bg %>;
 	color: white;
+	text-align: left;
 }
 
 .ui-dt-nores {
@@ -31,7 +52,7 @@ div.ui-dt {
 }
 
 .ui-even {
-	background-color: <%= even_bg %>;
+	background-color: <%= even_row_bgcol %>;
 }
 
 tr.ui-rowsel {
@@ -50,6 +71,7 @@ td.ui-cellsel {
 td.ui-cellsel:hover {
 	text-decoration: underline;
 	background-color: <%= cellhighlight_bg %> !important;
+	color: <%= cellhighlightcolor_bg %>;
 }
 
 th.ui-sortable {
@@ -61,12 +83,13 @@ div.ui-sortable {
 }
 
 .ui-sortable img {
-	float: left;
-	margin-right: 2px;
+	top: -3px;
+	position: absolute;
+	border: 0px;
 }
 
 .ui-sortable span {
-	margin-left: 8px;
+	margin-left: 10px;
 }
 
 .ui-dt {
@@ -79,5 +102,5 @@ div.ui-sortable {
 }
 
 .ui-dt .mselected {
-	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+	background-color: <%= highlight2_bg %>; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }

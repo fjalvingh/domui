@@ -7,3 +7,7 @@
 TD.ui-numeric {
 	padding-right: 3px;
 }
+
+.ui-dspv.ui-numeric {
+	text-align: left !important;
+}
