@@ -38,8 +38,6 @@ info_bg="#a9c5f1";		// blueish light
 info_fg="blue";
 info_border="blue";
 
-tab_link_color="#6ba1eb";	// hard blue
-tab_fg="#123667";
 // row odd/even
 even_row_bgcol="#eeeeee"; //greyish
 dt_rowhdr_bg="#98bbf3";
@@ -71,3 +69,11 @@ error_bg="#a9c5f1";
 //-- selected items background
 selected_bg="#ff9436";
 
+//-- Tab panel
+tab_pnl_inactive_col = "#ffffff";
+tab_pnl_hover_inactive_col = "#ffffff";
+tab_pnl_active_col = "#67267f";
+error_fg = "red";
+tab_pnl_sep_bg = "#7c7c7c";
+tab_fg = "purple";
+tab_link_color = "blue";

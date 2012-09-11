@@ -20,3 +20,6 @@ nav_btn_last_d = "nav-last-d.png";
 
 //-- DefaultButton image
 button_img= "defaultButton.png";
+
+//-- Tab panel image
+tab_pnl_img = "tab-all-domui.png";
