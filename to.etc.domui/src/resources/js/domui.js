@@ -1649,7 +1649,14 @@ var WebUI = {
 			iframe = undefined;
 		}
 		if (!iframe) {
-			if (!jQuery.browser.msie || parseInt(jQuery.browser.version) > 7) {
+			if(jQuery.browser.msie && jQuery.browser.version < 9) {
+				// -- IE's below 8 of course have trouble. What else.
+				// alert('Using Microsoft\'s flagship piece of CRAP IE -
+				// circumventing the umphtiest bug.');
+				iframe = document
+						.createElement('<iframe name="webuiif" id="webuiif" src="#" style="display:none; width:0; height:0; border:none" onload="WebUI.ieUpdateUpload(event)">');
+				document.body.appendChild(iframe);
+			} else {
 				iframe = document.createElement('iframe');
 				iframe.id = 'webuiif';
 				iframe.name = "webuiif";
@@ -1661,13 +1668,6 @@ var WebUI = {
 				iframe.onload = function() {
 					WebUI.updateUpload(iframe.contentDocument);
 				};
-				document.body.appendChild(iframe);
-			} else {
-				// -- IE's below 8 of course have trouble. What else.
-				// alert('Using Microsoft\'s flagship piece of CRAP IE -
-				// circumventing the umphtiest bug.');
-				iframe = document
-						.createElement('<iframe name="webuiif" id="webuiif" src="#" style="display:none; width:0; height:0; border:none" onload="WebUI.ieUpdateUpload(event)">');
 				document.body.appendChild(iframe);
 			}
 		}
@@ -1684,14 +1684,36 @@ var WebUI = {
 		// -- Target the iframe
 		form.target = "webuiif"; // Fake a new thingy,
 		form.submit(); // Force submit of the thingerydoo
-
-		// alert('Upload change');
 	},
 
+	/**
+	 * Called for ie upload garbage only, this tries to decode the utter devastating mess that
+	 * ie makes from xml uploads into an iframe in ie8+. Sigh.
+	 * @param e
+	 */
 	ieUpdateUpload : function(e) { // Piece of crap
 		var iframe = document.getElementById('webuiif');
-		var xml = iframe.contentWindow.document.XMLDocument; // IMPORTANT Fucking MS Crap!!!! See
-															// http://p2p.wrox.com/topic.asp?whichpage=1&TOPIC_ID=62981&#153594
+		var xml;
+		if(iframe.contentWindow && iframe.contentWindow.document.XMLDocument) {
+			xml = iframe.contentWindow.document.XMLDocument; // IMPORTANT Fucking MS Crap!!!! See http://p2p.wrox.com/topic.asp?whichpage=1&TOPIC_ID=62981&#153594
+		} else if(iframe.contentDocument) {
+			var crap = iframe.contentDocument.body.innerText;
+			crap = crap.replace(/^\s+|\s+$/g, ''); // trim
+			crap = crap.replace(/(\n|\r)-*/g, ''); // remove '\r\n-'. The dash is optional.
+			alert('crap='+crap);
+			if(window.DOMParser) {
+				var parser = new DOMParser();
+				xml = parser.parseFromString(crap);
+			} else if(window.ActiveXObject) {
+				xml = new ActiveXObject("Microsoft.XMLDOM");
+				if( xml.loadXML(crap))
+					alert('Could not load xml');
+			} else {
+				alert('No idea how to parse xml today.');
+			}
+		} else
+			alert('IE error: something again changed in xml source structure of the iframe, sigh');
+
 		WebUI.updateUpload(xml, iframe);
 	},
 	updateUpload : function(doc, ifr) {
