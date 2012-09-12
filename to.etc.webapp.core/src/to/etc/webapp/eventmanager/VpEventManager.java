@@ -248,7 +248,6 @@ public class VpEventManager implements Runnable {
 	}
 
 	public void stop() {
-		System.out.println("KILLING EVENTMANAGER THREAD");
 		Thread ht;
 		synchronized(this) {
 			ht = m_handlerThread;
@@ -344,8 +343,9 @@ public class VpEventManager implements Runnable {
 			if(!rs.next())
 				throw new IllegalStateException("?? Cannot get max update number");
 			m_upid = rs.getLong(1);
-			m_delete_upid = m_upid;
+			m_delete_upid = 0;
 			m_ts_nextdelete = System.currentTimeMillis() + DELETEINTERVAL;
+			checkPendingDeletes(dbc);
 		} finally {
 			try {
 				if(rs != null)
@@ -383,7 +383,7 @@ public class VpEventManager implements Runnable {
 	private void checkPendingDeletes(final Connection dbc) throws Exception {
 		long deleteupid = 0;
 		synchronized(this) {
-			if(m_delete_upid + 100 > m_upid) // Table smaller than 100 elements -> don't bother
+			if(m_delete_upid >= m_upid)			// Do nothing if nothing happened.
 				return;
 			long ts = System.currentTimeMillis();
 			if(ts < m_ts_nextdelete) // Timeout not expired
@@ -396,8 +396,9 @@ public class VpEventManager implements Runnable {
 		//-- We must delete...
 		PreparedStatement ps = null;
 		try {
-			ps = dbc.prepareStatement("delete from " + m_tableName + " where upid < ?");
+			ps = dbc.prepareStatement("delete from " + m_tableName + " where upid < ? or utime < ?");
 			ps.setLong(1, deleteupid);
+			ps.setDate(2, new java.sql.Date(System.currentTimeMillis() - 10 * 60 * 1000));			// Everything older than this
 			ps.executeUpdate();
 			dbc.commit();
 		} finally {
@@ -823,15 +824,15 @@ public class VpEventManager implements Runnable {
 	/*	CODING:	Public interface.                                	*/
 	/*--------------------------------------------------------------*/
 
-	public void addListener(final Class< ? > cl, final ListenerType lt, final AppEventListener< ? > listener) {
+	public <T extends AppEventBase> void addListener(final Class<T> cl, final ListenerType lt, final AppEventListener<T> listener) {
 		addListener(cl, lt, listener, false);
 	}
 
-	public void addWeakListener(final Class< ? > cl, final ListenerType lt, final AppEventListener< ? > listener) {
+	public <T extends AppEventBase> void addWeakListener(final Class<T> cl, final ListenerType lt, final AppEventListener<T> listener) {
 		addListener(cl, lt, listener, true);
 	}
 
-	public synchronized void removeWeakListener(final Class< ? > cl, final AppEventListener< ? > listener) {
+	public <T extends AppEventBase> void removeWeakListener(final Class<T> cl, final AppEventListener<T> listener) {
 		removeListener(cl, listener);
 	}
 
