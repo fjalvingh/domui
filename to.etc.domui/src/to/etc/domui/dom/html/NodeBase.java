@@ -1306,7 +1306,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		if(v instanceof IBindable) {
 			IBindable b = (IBindable) v;
 			if(b.isBound()) {
-				System.out.println("bind: moveModelToControl called on " + this);
 				b.bind().moveModelToControl();
 			}
 		}

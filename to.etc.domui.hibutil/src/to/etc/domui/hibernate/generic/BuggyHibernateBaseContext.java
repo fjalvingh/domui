@@ -229,6 +229,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	 */
 	@SuppressWarnings("deprecation")
 	public Connection getConnection() throws Exception {
+		startTransaction();
 		return getSession().connection();
 	}
 

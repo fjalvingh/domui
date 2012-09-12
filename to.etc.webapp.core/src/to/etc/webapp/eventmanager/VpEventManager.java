@@ -399,6 +399,7 @@ public class VpEventManager implements Runnable {
 			ps = dbc.prepareStatement("delete from " + m_tableName + " where upid < ?");
 			ps.setLong(1, deleteupid);
 			ps.executeUpdate();
+			dbc.commit();
 		} finally {
 			try {
 				if(ps != null)
@@ -426,17 +427,25 @@ public class VpEventManager implements Runnable {
 			while(rs.next()) {
 				readEventObject(rs, al);
 			}
+			if(al.size() > 0) {
+//				StringBuilder sb = new StringBuilder();
+//				sb.append("EV: read ");
+//				for(AppEventBase ae : al) {
+//					sb.append(ae.getUpid()).append("/");
+//				}
+//				System.out.println(sb.toString());
 
-			//-- Remove all saved "locally generated" events up to the event we've just read,
-			synchronized(this) {
-				Iterator<Long> it = m_localEvents.iterator();
-				while(it.hasNext()) {
-					Long v = it.next();
-					if(v.longValue() <= upid) {
-						it.remove();
-						localeventset.add(v);
-					} else
-						break;
+				//-- Remove all saved "locally generated" events up to the event we've just read,
+				synchronized(this) {
+					Iterator<Long> it = m_localEvents.iterator();
+					while(it.hasNext()) {
+						Long v = it.next();
+						if(v.longValue() <= upid) {
+							it.remove();
+							localeventset.add(v);
+						} else
+							break;
+					}
 				}
 			}
 
@@ -510,6 +519,7 @@ public class VpEventManager implements Runnable {
 	private void handleEvents(final List<AppEventBase> list, final Set<Long> localeventset) {
 		for(int i = 0; i < list.size(); i++) {
 			AppEventBase ae = list.get(i);
+//			System.out.println("EV: Handle event " + ae.getUpid() + ", " + ae.getClass().getName());
 			callListeners(ae, false, localeventset.contains(Long.valueOf(ae.getUpid()))); // Call all handlers that need delayed notification
 		}
 	}
@@ -844,16 +854,25 @@ public class VpEventManager implements Runnable {
 	 * Post an event asynchronously. The event gets added to the database but not commited, and no local listeners
 	 * get called at this time. When the event gets commited the scanner will see it and call the local handlers. This
 	 * call is typically done when an event needs to be commited lazily.
+	 *
 	 * @param dbc
 	 * @param ae
 	 * @throws Exception
 	 */
 	public void postDelayedEvent(final Connection dbc, final AppEventBase ae) throws Exception {
 		sendEventMain(dbc, ae, false, false); // First save the thingy everywhere, ORDER IMPORTANT!!
+
+		/*
+		 * jal 20120911 Just sending the event to the db is not enough. The idea is to delay the events until the time that
+		 * the underlying transaction is commited. But at that time "local" events will not be called in time (if at all):
+		 * - if the underlying transaction takes time, then we might "skip" events (fixed elsewhere)
+		 * - actually the local code might expect that all side effects of the commit take place after that commit. So
+		 *   local events should fire at that time.
+		 */
 	}
 
 	/**
-	 * Post a list of events asynchronously. The event gets added to the database but not commited, and no local listeners
+	 * Post a list of events asynchronously. The event gets added to the database but not committed, and no local listeners
 	 * get called at this time. When the event gets commited the scanner will see it and call the local handlers. This
 	 * call is typically done when an event needs to be commited lazily.
 	 * @param dbc
