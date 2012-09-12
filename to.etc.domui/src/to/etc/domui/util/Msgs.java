@@ -266,6 +266,9 @@ public interface Msgs {
 
 	public static final String EDLG_CANCEL = "edlg.cancel";
 
+	/** General purpose */
+	public static final String BTN_CLOSE = "btn.close";
+
 	/*** BulkUpload ***/
 	public static final String BULKUPLD_DISABLED = "bupl.disabled";
 
