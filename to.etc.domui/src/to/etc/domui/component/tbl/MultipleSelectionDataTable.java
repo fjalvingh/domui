@@ -291,4 +291,11 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 	public void setSelectionColTitle(String selectionColTitle) {
 		m_selectionColTitle = selectionColTitle;
 	}
+
+	public void addAllSearchResultsToAccumulatedResults() throws Exception {
+		for(T item : getModel().getItems(0, getModel().getRows())) {
+			m_accumulatedRows.add(item);
+			m_accumulatedSelections.add(Boolean.TRUE);
+		}
+	}
 }
