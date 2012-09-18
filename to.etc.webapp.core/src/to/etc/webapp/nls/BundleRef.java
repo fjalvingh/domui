@@ -66,7 +66,7 @@ final public class BundleRef extends BundleBase implements IBundle {
 	}
 
 	private BundleRef(final Class< ? > base, final String name) {
-		m_loader = base.getClassLoader();
+		m_loader = null == base ? null : base.getClassLoader();
 		m_bundleKey = calcAbsName(base, name);
 	}
 
@@ -106,6 +106,8 @@ final public class BundleRef extends BundleBase implements IBundle {
 	static private String calcAbsName(final Class< ? > clz, final String name) {
 		if(clz == null)
 			return name;
+		if(name.startsWith("/"))
+			return name.substring(1);
 		if(name.endsWith(".properties"))
 			throw new IllegalArgumentException("Message bundle name may not include the .properties extension");
 		String s = clz.getName(); // Class' name
