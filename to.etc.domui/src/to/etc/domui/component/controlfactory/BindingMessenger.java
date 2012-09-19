@@ -41,9 +41,17 @@ public final class BindingMessenger {
 
 	private BundleRef m_bundleRef;
 
+	private Object m_object;
+
 	public BindingMessenger(ModelBindings bindings, BundleRef bundleRef) {
 		m_bindings = bindings;
 		m_bundleRef = bundleRef;
+	}
+
+	public BindingMessenger(Object object, ModelBindings bindings, BundleRef bundleRef) {
+		m_bindings = bindings;
+		m_bundleRef = bundleRef;
+		m_object = object;
 	}
 
 	public BindingMessenger(ModelBindings bindings) {
@@ -51,8 +59,18 @@ public final class BindingMessenger {
 		m_bindings = bindings;
 	}
 
+	public BindingMessenger(Object object, ModelBindings bindings) {
+		super();
+		m_bindings = bindings;
+		m_object = object;
+	}
+
 	public void error(Object object, String property, String message, Object... param) throws Exception {
 		error(object, property, UIMessage.error(m_bundleRef, message, param));
+	}
+
+	public void error(String property, String message, Object... param) throws Exception {
+		error(m_object, property, UIMessage.error(m_bundleRef, message, param));
 	}
 
 	/**
@@ -92,6 +110,10 @@ public final class BindingMessenger {
 	 * @param property
 	 * @throws Exception
 	 */
+	public <T> IControl<T> findControl(String property) throws Exception {
+		return findControl(m_object, property);
+	}
+
 	public <T> IControl<T> findControl(Object object, String property) throws Exception {
 		IControl< ? >[] h = new IControl[1];
 		find(m_bindings, h, object, property);

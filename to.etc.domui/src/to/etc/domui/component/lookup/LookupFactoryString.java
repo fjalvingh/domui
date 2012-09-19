@@ -100,7 +100,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 				//-- Put the value into the criteria..
 				if(value instanceof String) {
 					String str = (String) value;
-					str = str.trim() + "%";
+					str = str.trim().replace("*", "%") + "%";
 					crit.ilike(spm.getPropertyName(), str);
 				} else {
 					crit.eq(spm.getPropertyName(), value); // property == value

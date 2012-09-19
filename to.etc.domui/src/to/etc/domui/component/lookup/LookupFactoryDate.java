@@ -43,7 +43,16 @@ final class LookupFactoryDate implements ILookupControlFactory {
 
 		//get temporal type from metadata and set withTime later to date inout components
 		PropertyMetaModel< ? > pmm = (spm != null && spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
-		boolean withTime = (pmm != null && pmm.getTemporal() == TemporalPresentationType.DATETIME);
+
+		/*
+		 * jal 20120712 By default, do not search with time on date fields, unless the "usetime" hint is present.
+		 */
+		boolean withTime = false;
+		if(pmm != null && pmm.getTemporal() == TemporalPresentationType.DATETIME) {
+			String value = DomUtil.getHintValue(pmm.getComponentTypeHint(), "time");
+			if(null != value)
+				withTime = true;
+		}
 
 		final DateInput dateFrom = new DateInput();
 		dateFrom.setWithTime(withTime);
