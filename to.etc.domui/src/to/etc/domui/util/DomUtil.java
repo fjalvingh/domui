@@ -1716,4 +1716,32 @@ final public class DomUtil {
 		AppSession ses = ctx.getSession();
 		ses.setAttribute(attribute, value);
 	}
+
+	/**
+	 * Decode a {@link PropertyMetaModel#getComponentTypeHint()} hint.
+	 * @param componentTypeHint
+	 * @param string
+	 * @return
+	 */
+	@Nullable
+	public static String getHintValue(String componentTypeHint, String name) {
+		if(null == componentTypeHint)
+			return null;
+
+		name = name.toLowerCase();
+		int l = name.length();
+		String[] frags = componentTypeHint.split(";");
+		for(String frag : frags) {
+			if(frag.toLowerCase().startsWith(name)) {
+				if(frag.length() == l) { // It is just name, without value
+					return ""; // Value is empty string, it does exist
+				}
+				char c = frag.charAt(l);
+				if(c == '=') {
+					return frag.substring(l + 1);
+				}
+			}
+		}
+		return null;
+	}
 }
