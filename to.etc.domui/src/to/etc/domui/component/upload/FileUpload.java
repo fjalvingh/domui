@@ -132,7 +132,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 			td.setText(ufi.getRemoteFileName() + " (" + ufi.getContentType() + ")");
 			td = b.addCell();
 			if(!isDisabled()) {
-				td.add(new DefaultButton(Msgs.BUNDLE.getString("upld.delete"), new IClicked<DefaultButton>() {
+				td.add(new DefaultButton(Msgs.BUNDLE.getString("upld.delete"), "THEME/btnDelete.png", new IClicked<DefaultButton>() {
 					@Override
 					public void clicked(DefaultButton bx) throws Exception {
 						removeUploadItem(ufi);
