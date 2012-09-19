@@ -24,22 +24,33 @@
  */
 package to.etc.domui.state;
 
-import to.etc.domui.dom.html.*;
+import javax.annotation.*;
+
+import to.etc.domui.server.*;
 
 /**
- * A single entry in the breadcrumb trail. This contains the shelved page instance.
+ * A single entry in the breadcrumb trail. This contains the shelved page instance OR something
+ * else to move back to.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 22, 2008
  */
-public class ShelvedEntry {
-	private Page m_page;
+public interface IShelvedEntry {
+	/** The name of this entry, for presenting on breadcrumbs */
+	@Nonnull
+	String getName();
 
-	public ShelvedEntry(Page page) {
-		m_page = page;
-	}
+	/** If this has a title entry return it here. */
+	@Nullable
+	String getTitle();
 
-	public Page getPage() {
-		return m_page;
-	}
+	void discard();
+
+	void activate(@Nonnull RequestContextImpl ctx, boolean ajax) throws Exception;
+
+	/**
+	 * Return a full URL to this shelve entry (absolute or host relative).
+	 * @return
+	 */
+	String getURL();
 }

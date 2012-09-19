@@ -63,7 +63,7 @@ final public class WindowSession {
 	/**
 	 * The stack of shelved pages; pages that can be returned to easily.
 	 */
-	private final List<ShelvedEntry> m_shelvedPageStack = new ArrayList<ShelvedEntry>();
+	private final List<IShelvedEntry> m_shelvedPageStack = new ArrayList<IShelvedEntry>();
 
 	private int m_nextCid;
 
@@ -201,8 +201,8 @@ final public class WindowSession {
 		}
 		System.out.println("  Page shelve");
 		for(int i = 0; i < m_shelvedPageStack.size(); i++) {
-			ShelvedEntry se = m_shelvedPageStack.get(i);
-			System.out.println("  " + i + ": " + se.getPage() + " in " + se.getPage().internalGetConversation() + ": " + se.getPage().internalGetConversation().getState());
+			IShelvedEntry se = m_shelvedPageStack.get(i);
+			System.out.println("  " + i + ": " + se);
 		}
 
 		//		System.out.println("  ---- Conversation dump end -----");
@@ -229,9 +229,12 @@ final public class WindowSession {
 
 		//-- Discard all pages used by this from the shelve stack
 		for(int i = m_shelvedPageStack.size(); --i >= 0;) {
-			ShelvedEntry she = m_shelvedPageStack.get(i);
-			if(she.getPage().getConversation() == cc) {
-				m_shelvedPageStack.remove(i);
+			IShelvedEntry she = m_shelvedPageStack.get(i);
+			if(she instanceof ShelvedDomUIPage) {
+				ShelvedDomUIPage sdp = (ShelvedDomUIPage) she;
+				if(sdp.getPage().getConversation() == cc) {
+					m_shelvedPageStack.remove(i);
+				}
 			}
 		}
 
@@ -271,13 +274,13 @@ final public class WindowSession {
 	 * Shelve the current page, then move to the new one.
 	 * @param shelved
 	 */
-	private void shelvePage(final Page shelved) {
+	private void shelvePage(@Nonnull final Page shelved) {
 		if(shelved == null)
 			throw new IllegalStateException("Missing current page??");
-		m_shelvedPageStack.add(new ShelvedEntry(shelved));
+		m_shelvedPageStack.add(new ShelvedDomUIPage(this, shelved));
 	}
 
-	public List<ShelvedEntry> getShelvedPageStack() {
+	public List<IShelvedEntry> getShelvedPageStack() {
 		return m_shelvedPageStack;
 	}
 
@@ -365,7 +368,11 @@ final public class WindowSession {
 				 */
 				clearShelve(psix + 1);
 				internalAttachConversations();
-				Page currentPage = m_shelvedPageStack.get(psix).getPage();
+				IShelvedEntry xse = m_shelvedPageStack.get(psix);
+				if(!(xse instanceof ShelvedDomUIPage))
+					throw new IllegalStateException("Shelve entry is not a domui page but " + xse);
+
+				Page currentPage = ((ShelvedDomUIPage) xse).getPage();
 
 				/*
 				 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
@@ -460,7 +467,7 @@ final public class WindowSession {
 		return false;
 	}
 
-	private void generateRedirect(final RequestContextImpl ctx, final Page to, boolean ajax) throws Exception {
+	void generateRedirect(final RequestContextImpl ctx, final Page to, boolean ajax) throws Exception {
 		//-- Send a "redirect" to the new page;
 		StringBuilder sb = new StringBuilder();
 		sb.append(ctx.getRelativePath(to.getBody().getClass().getName()));
@@ -487,8 +494,7 @@ final public class WindowSession {
 	}
 
 	/**
-	 * Moves one shelve entry back. If there's no shelve entry current moves back
-	 * to the application's index.
+	 * Moves one shelve entry back. If there's no shelve entry current moves back to the application's index.
 	 * @param currentpg
 	 */
 	private void handleMoveBack(@Nonnull final RequestContextImpl ctx, @Nonnull Page currentpg, boolean ajax) throws Exception {
@@ -510,17 +516,8 @@ final public class WindowSession {
 
 		//-- Unshelve and destroy the topmost thingy, then move back to the then-topmost.
 		clearShelve(ix + 1); // Destroy everything above;
-		ShelvedEntry se = m_shelvedPageStack.get(ix); // Get the thing to move to,
-		Page newpg = se.getPage();
-
-		/*
-		 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
-		 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
-		 * make sure it is correct even though the request was for another page and is almost dying.
-		 */
-		UIContext.internalSet(newpg);
-		newpg.internalUnshelve();
-		generateRedirect(ctx, newpg, ajax);
+		IShelvedEntry se = m_shelvedPageStack.get(ix);	// Get the thing to move to,
+		se.activate(ctx, ajax);									// Activate this page.
 	}
 
 	/*--------------------------------------------------------------*/
@@ -591,9 +588,9 @@ final public class WindowSession {
 		 * Discard top-level entries until we reach the specified level.
 		 */
 		while(m_shelvedPageStack.size() > ix) {
-			ShelvedEntry se = m_shelvedPageStack.remove(m_shelvedPageStack.size() - 1);
+			IShelvedEntry se = m_shelvedPageStack.remove(m_shelvedPageStack.size() - 1);
+			se.discard();
 			//			System.out.println("Trying to discard " + se.getPage() + " in conversation " + se.getPage().getConversation());
-			discardPage(se.getPage());
 		}
 	}
 
@@ -602,13 +599,16 @@ final public class WindowSession {
 	 * longer present on the shelf.
 	 * @param pg
 	 */
-	private void discardPage(final Page pg) {
+	void discardPage(final Page pg) {
 		boolean destroyc = true;
 		for(int i = m_shelvedPageStack.size(); --i >= 0;) {
-			ShelvedEntry se = m_shelvedPageStack.get(i);
-			if(se.getPage().internalGetConversation() == pg.internalGetConversation()) {
-				destroyc = false;
-				break;
+			IShelvedEntry se = m_shelvedPageStack.get(i);
+			if(se instanceof ShelvedDomUIPage) {
+				ShelvedDomUIPage sdp = (ShelvedDomUIPage) se;
+				if(sdp.getPage().internalGetConversation() == pg.internalGetConversation()) {
+					destroyc = false;
+					break;
+				}
 			}
 		}
 
@@ -642,12 +642,13 @@ final public class WindowSession {
 		if(cc != null) {
 			int psix = findInPageStack(cc, clz, papa);
 			if(psix != -1) {
-				/*
-				 * Entry accepted. Discard all stacked entries *above* the selected thing.
-				 */
+				//-- Entry accepted. Discard all stacked entries *above* the selected thing.
 				clearShelve(psix + 1);
 				internalAttachConversations();
-				Page pg = m_shelvedPageStack.get(psix).getPage();
+
+				//-- We know this is a DomUI page, no?
+				ShelvedDomUIPage sdp = (ShelvedDomUIPage) m_shelvedPageStack.get(psix);
+				Page pg = sdp.getPage();
 				if(pg.isShelved())
 					pg.internalUnshelve();
 				return pg;
@@ -670,7 +671,7 @@ final public class WindowSession {
 
 		/*
 		 * jal 20120522 We use the cid from the URL, because that is the full CID that the browser knows about. If a new CID was
-		 * needed, then the URL generated by the server will have the new CID. 
+		 * needed, then the URL generated by the server will have the new CID.
 		 */
 		coco.setId(cid == null ? "" + nextCID() : cid);
 
@@ -707,15 +708,19 @@ final public class WindowSession {
 		//		if(cc == null) FIXME jal 20090824 Revisit: this is questionable; why can it be null? Has code path from UIGoto-> handleGoto.
 		//			throw new IllegalStateException("The conversation cannot be empty here.");
 		for(int ix = m_shelvedPageStack.size(); --ix >= 0;) {
-			ShelvedEntry se = m_shelvedPageStack.get(ix);
-			if(se.getPage().getBody().getClass() != clz) // Of the appropriate type?
-				continue; // No -> not acceptable
-			if(cc != null && cc != se.getPage().getConversation()) // Is in the conversation supplied?
-				continue; // No -> not acceptable
+			IShelvedEntry se = m_shelvedPageStack.get(ix);
+			if(se instanceof ShelvedDomUIPage) {
+				ShelvedDomUIPage sdp = (ShelvedDomUIPage) se;
 
-			//-- Page AND context are acceptable; check parameters;
-			if(PageMaker.pageAcceptsParameters(se.getPage(), papa)) // Got a page; must make sure the parameters, if present, are equal.
-				return ix;
+				if(sdp.getPage().getBody().getClass() != clz) // Of the appropriate type?
+					continue; // No -> not acceptable
+				if(cc != null && cc != sdp.getPage().getConversation()) // Is in the conversation supplied?
+					continue; // No -> not acceptable
+
+				//-- Page AND context are acceptable; check parameters;
+				if(PageMaker.pageAcceptsParameters(sdp.getPage(), papa)) // Got a page; must make sure the parameters, if present, are equal.
+					return ix;
+			}
 		}
 		return -1; // Nothing acceptable
 	}
