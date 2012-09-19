@@ -395,7 +395,11 @@ final public class DomUtil {
 		}
 	}
 
-	static public void addUrlParameters(final StringBuilder sb, final PageParameters ctx, boolean first) {
+	static public void addUrlParameters(@Nonnull final StringBuilder sb, @Nonnull final PageParameters ctx, boolean first) {
+		addUrlParameters(sb, ctx, first, Collections.EMPTY_SET);
+	}
+
+	static public void addUrlParameters(@Nonnull final StringBuilder sb, @Nonnull final PageParameters ctx, boolean first, @Nonnull Set<String> skipset) {
 		if(ctx == null)
 			return;
 		for(String name : ctx.getParameterNames()) {

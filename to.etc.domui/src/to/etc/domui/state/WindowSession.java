@@ -784,4 +784,18 @@ final public class WindowSession {
 	public Object getAttribute(final String name) {
 		return m_map.get(name);
 	}
+
+	/**
+	 * Add or insert a page to the shelve stack. Used to shelve non DomUI stack entries.
+	 * @param depth
+	 * @param entry
+	 */
+	public void addShelveEntry(int depth, @Nonnull IShelvedEntry entry) {
+		if(depth > 0)
+			throw new IllegalArgumentException("Depth must be <= 0");
+		int ix = m_shelvedPageStack.size() + depth;			// Depth moves index backwards because it is -ve
+		if(ix < 0)
+			throw new IllegalArgumentException("Depth of " + depth + " invalid: max is " + -m_shelvedPageStack.size());
+		m_shelvedPageStack.add(ix, entry);
+	}
 }
