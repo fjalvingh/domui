@@ -146,7 +146,7 @@ public class MailHelper {
 					String appurl = getApplicationURL();
 					if(null == appurl)
 						throw new IllegalStateException("To render LinkedText-like links you must set applicationURL or linkRenderer.");
-
+					link(appurl + rurl, text);
 				}
 			};
 		}
