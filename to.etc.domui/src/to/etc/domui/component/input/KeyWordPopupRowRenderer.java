@@ -199,7 +199,8 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 
 	public <R> void addColumns(Object... cols) {
 		check();
-		m_columnList.addColumns(cols);
+		if(cols.length != 0)
+			m_columnList.addColumns(cols);
 	}
 
 	public void addDefaultColumns() {
