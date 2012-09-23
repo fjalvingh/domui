@@ -32,7 +32,7 @@ public class Theme {
 
 	static public final String ICON_WARNING = "THEME/warning.png";
 
-	static public final String ICON_ERROR = "THEME/mbx-error.png";
+	static public final String ICON_ERROR = "THEME/error.png";
 
 	static public final String ICON_MBX_ERROR = "THEME/mbx-error.png";
 
