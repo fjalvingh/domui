@@ -322,7 +322,7 @@ public interface Msgs {
 
 	static public final String ICON_BIG_WARNING = "THEME/mbx-warning.png";
 
-	static public final String ICON_BIG_ERROR = Theme.ICON_ERROR;
+	static public final String ICON_BIG_ERROR = Theme.ICON_MBX_ERROR;
 
 	static public final String ICON_BIG_QUESTION = "THEME/mbx-question.png";
 
