@@ -448,7 +448,7 @@ public class ConverterRegistry {
 		//-- Get the actual data type, and get a comparator for that data type;
 		Comparator< ? > comp = findComparatorForType(pmm.getActualType());
 		if(null == comp) {
-			return DEFAULT_COMPARATOR;
+			comp = DEFAULT_COMPARATOR;
 		}
 		return new PropertyComparator<Object>(pmm, comp, descending);
 	}
