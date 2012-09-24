@@ -718,6 +718,20 @@ final public class WindowSession {
 		return -1; // Nothing acceptable
 	}
 
+	public boolean isPageOnStack(@Nonnull final Class< ? extends UrlPage> clz, @Nonnull final PageParameters papa) throws Exception {
+		for(int ix = m_shelvedPageStack.size(); --ix >= 0;) {
+			ShelvedEntry se = m_shelvedPageStack.get(ix);
+			if(se.getPage().getBody().getClass() != clz) // Of the appropriate type?
+				continue; // No -> not acceptable
+
+			//-- Page AND context are acceptable; check parameters;
+			if(PageMaker.pageAcceptsParameters(se.getPage(), papa)) // Got a page; must make sure the parameters, if present, are equal.
+				return true;
+		}
+		return false;
+	}
+
+
 	@Override
 	public String toString() {
 		return "Window[" + m_id + ":" + m_windowID + "]";
