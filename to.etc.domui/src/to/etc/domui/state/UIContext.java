@@ -33,6 +33,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.login.*;
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
+import to.etc.net.*;
 
 /**
  * A class which allows access to the page's context and related information. This
@@ -447,13 +448,14 @@ public class UIContext {
 	 * Set a new or overwrite an existing cookie.
 	 * @param name
 	 * @param value
-	 * @param maxage
+	 * @param maxage	Max age, in seconds.
 	 */
 	static public void setCookie(@Nonnull String name, String value, int maxage) {
 		RequestContextImpl rci = (RequestContextImpl) getRequestContext();
 		Cookie k = new Cookie(name, value);
-		k.setMaxAge(60);
+		k.setMaxAge(maxage);
 		k.setPath(rci.getRequest().getContextPath());
+		k.setDomain(NetTools.getHostName(rci.getRequest()));
 		rci.getResponse().addCookie(k);
 	}
 }
