@@ -39,6 +39,9 @@ public class MsgBox extends Window {
 	public interface IAnswer {
 		void onAnswer(MsgBoxButton result) throws Exception;
 	}
+	public interface IAnswer2 {
+		void onAnswer(Object result) throws Exception;
+	}
 
 	public static enum Type {
 		INFO, WARNING, ERROR, DIALOG
@@ -54,11 +57,13 @@ public class MsgBox extends Window {
 
 	private static final int HEIGHT = 210;
 
-	Object m_selectedChoice;
+	private Object m_selectedChoice;
 
-	IAnswer m_onAnswer;
+	private IAnswer m_onAnswer;
 
-	MsgBoxButton m_closeButtonObject;
+	private IAnswer2 m_onAnswer2;
+
+	private MsgBoxButton m_closeButtonObject;
 
 	/**
 	 * Custom dialog message text renderer.
@@ -76,6 +81,17 @@ public class MsgBox extends Window {
 					m_selectedChoice = m_closeButtonObject;
 					try {
 						m_onAnswer.onAnswer(m_closeButtonObject);
+					} catch(ValidationException ex) {
+						//close message box in case of validation exception is thrown as result of answer. Other exceptions do not close.
+						close();
+						throw ex;
+					}
+				}
+
+				if(null != m_onAnswer2) {
+					m_selectedChoice = m_closeButtonObject;
+					try {
+						m_onAnswer2.onAnswer(m_closeButtonObject);
 					} catch(ValidationException ex) {
 						//close message box in case of validation exception is thrown as result of answer. Other exceptions do not close.
 						close();
@@ -368,6 +384,39 @@ public class MsgBox extends Window {
 	}
 
 	/**
+	 *
+	 * @param dad
+	 * @param boxType
+	 * @param message
+	 * @param onAnswer
+	 * @param buttonresultpairs
+	 */
+	public static void flexDialog(@Nonnull NodeBase dad, @Nonnull Type boxType, @Nonnull String message, @Nonnull IAnswer2 onAnswer, Object... buttonresultpairs) {
+		MsgBox box = create(dad);
+		box.setType(boxType);
+		box.setMessage(message);
+
+		int ix = 0;
+		while(ix < buttonresultpairs.length) {
+			Object o = buttonresultpairs[ix++];
+			if(o instanceof MsgBoxButton) {
+				MsgBoxButton b = (MsgBoxButton) o;
+				box.addButton(b);
+			} else if(o instanceof String) {
+				String s = (String) o;					// Button title
+				if(ix >= buttonresultpairs.length)
+					throw new IllegalArgumentException("Illegal format: must be [button name string], [response object].");
+				box.addButton(s, buttonresultpairs[ix++]);
+			} else
+				throw new IllegalArgumentException("Unsupported 'button' type in list: " + o + ", only supporting String:Object and MsgBoxButton");
+		}
+		box.setCloseButton(MsgBoxButton.NO);
+		box.setOnAnswer2(onAnswer);
+		box.construct();
+	}
+
+
+	/**
 	 * Create a button which will show an "are you sure" yes/no dialog with a specified text. Only if the user
 	 * presses the "yes" button will the clicked handler be executed.
 	 * @param icon
@@ -518,6 +567,15 @@ public class MsgBox extends Window {
 				throw ex;
 			}
 		}
+		if(m_onAnswer2 != null) {
+			try {
+				m_onAnswer2.onAnswer(m_selectedChoice);
+			} catch(ValidationException ex) {
+				//close message box in case of validation exception is thrown as result of answer
+				close();
+				throw ex;
+			}
+		}
 		close();
 	}
 
@@ -556,6 +614,14 @@ public class MsgBox extends Window {
 
 	protected void setOnAnswer(IAnswer onAnswer) {
 		m_onAnswer = onAnswer;
+	}
+
+	public IAnswer2 getOnAnswer2() {
+		return m_onAnswer2;
+	}
+
+	public void setOnAnswer2(IAnswer2 onAnswer2) {
+		m_onAnswer2 = onAnswer2;
 	}
 
 	protected INodeContentRenderer<String> getDataRenderer() {
