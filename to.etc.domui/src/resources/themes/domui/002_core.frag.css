@@ -47,3 +47,7 @@ button img {
 button {
 	vertical-align: bottom;
 }
+
+.page-content {
+	margin: 0px 10px;
+}
