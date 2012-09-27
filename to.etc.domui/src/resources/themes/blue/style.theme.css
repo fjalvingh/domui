@@ -1981,7 +1981,6 @@ li.ui-tab-err {
 }
 /*** MessageLine ***/
 .ui-msgln {
-	clear: both;
 	padding: 4px 0px;
 }
 .ui-msgln img {
