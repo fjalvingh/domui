@@ -1748,21 +1748,4 @@ final public class DomUtil {
 		}
 		return null;
 	}
-
-	/**
-	 * Util that makes sure that find always find data where this is expected.
-	 * @param dc
-	 * @param clz
-	 * @param pk
-	 * @return
-	 * @throws Exception
-	 */
-	@Nonnull
-	public static <T> T findOrAbort(@Nonnull QDataContext dc, @Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
-		T res = dc.find(clz, pk);
-		if(res == null) {
-			throw new QNotFoundException(clz, pk);
-		}
-		return res;
-	}
 }

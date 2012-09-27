@@ -26,6 +26,8 @@ package to.etc.webapp.query;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * A QDataContext proxy which allows queries to be sent to multiple rendering/selecting implementations. It delegates
  * all query handling to the appropriate query handler.
@@ -66,6 +68,20 @@ abstract public class QAbstractDataContext implements QDataContext {
 	@Override
 	public <T> T find(final Class<T> clz, final Object pk) throws Exception {
 		return getHandlerFactory().getHandler(this, clz).find(this, clz, pk);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QDataContext#get(java.lang.Class, java.lang.Object)
+	 */
+	@Override
+	public @Nonnull
+	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+		T res = find(clz, pk);
+		if(res == null) {
+			throw new QNotFoundException(clz, pk);
+		}
+		return res;
 	}
 
 	@Override
