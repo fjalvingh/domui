@@ -24,36 +24,36 @@
  */
 package to.etc.domui.state;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.delayed.*;
-import to.etc.domui.dom.html.*;
 
 public class DelayedActivityInfo {
-	private DelayedActivitiesManager m_manager;
+	final private DelayedActivitiesManager m_manager;
 
-	private AsyncContainer m_container;
+	final private AsyncContainer m_container;
 
-	private IActivity m_activity;
+	final private IAsyncRunnable m_activity;
 
 	private DelayedProgressMonitor m_monitor;
 
 	private Exception m_exception;
 
-	private Div m_executionResult;
-
 	private int m_pctComplete = -1;
 
 	private String m_statusMessage;
 	
-	protected DelayedActivityInfo(DelayedActivitiesManager manager, IActivity activity, AsyncContainer ac) {
+	protected DelayedActivityInfo(@Nonnull DelayedActivitiesManager manager, @Nonnull IAsyncRunnable activity, @Nonnull AsyncContainer ac) {
 		m_activity = activity;
 		m_manager = manager;
 		m_container = ac;
 	}
 
-	public IActivity getActivity() {
+	public IAsyncRunnable getActivity() {
 		return m_activity;
 	}
 
+	@Nonnull
 	public DelayedProgressMonitor getMonitor() {
 		if(m_monitor == null)
 			throw new IllegalStateException("? Unexpected access to monitor after task completed?");
@@ -70,14 +70,6 @@ public class DelayedActivityInfo {
 
 	void setException(Exception exception) {
 		m_exception = exception;
-	}
-
-	public Div getExecutionResult() {
-		return m_executionResult;
-	}
-
-	void setExecutionResult(Div executionResult) {
-		m_executionResult = executionResult;
 	}
 
 	public void cancel() {

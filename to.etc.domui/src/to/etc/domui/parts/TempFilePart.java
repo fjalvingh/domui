@@ -29,6 +29,8 @@ import java.sql.*;
 
 import javax.annotation.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.state.*;
@@ -75,7 +77,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		}
 	}
 
-	static public String registerTempFile(IRequestContext ctx, File target, String mime, String type, String name) {
+	static public String registerTempFile(@Nonnull IRequestContext ctx, @Nonnull File target, @Nonnull String mime, @Nullable String type, @Nullable String name) {
 		String key = StringTool.generateGUID();
 		String pw = StringTool.generateGUID();
 		String disp = null;

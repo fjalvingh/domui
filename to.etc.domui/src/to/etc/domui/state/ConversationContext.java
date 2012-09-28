@@ -27,6 +27,8 @@ package to.etc.domui.state;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.component.delayed.*;
@@ -382,7 +384,7 @@ public class ConversationContext implements IQContextContainer {
 		return m_delayManager;
 	}
 
-	public DelayedActivityInfo scheduleDelayed(final AsyncContainer container, final IActivity a) {
+	public DelayedActivityInfo scheduleDelayed(@Nonnull final AsyncContainer container, @Nonnull final IAsyncRunnable a) {
 		return getDelayedActivitiesManager().schedule(a, container);
 	}
 

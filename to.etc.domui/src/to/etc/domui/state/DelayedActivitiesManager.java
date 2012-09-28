@@ -26,6 +26,8 @@ package to.etc.domui.state;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.delayed.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -67,7 +69,7 @@ public class DelayedActivitiesManager implements Runnable {
 	 * @param a
 	 * @return
 	 */
-	public DelayedActivityInfo schedule(IActivity a, AsyncContainer ac) {
+	public DelayedActivityInfo schedule(@Nonnull IAsyncRunnable a, @Nonnull AsyncContainer ac) {
 		synchronized(this) {
 			for(DelayedActivityInfo dai : m_pendingQueue) {
 				if(dai.getActivity() == a)
@@ -312,28 +314,23 @@ public class DelayedActivitiesManager implements Runnable {
 		dai.setMonitor(mon);
 
 		Exception errorx = null;
-		Div result = null;
 		try {
-			result = dai.getActivity().run(mon);
+			dai.getActivity().run(mon);
 		} catch(Exception x) {
 			if(!(x instanceof InterruptedException))
 				errorx = x;
 		}
 
-		/*
-		 * Register the result.
-		 */
+		//-- The activity has stopped. Register it for callback on the next page poll, so that it's result handler can be called.
 		synchronized(this) {
-			m_runningActivity = null; // Nothing is running anymore.
-			if(m_terminated) // Fondling a corpse? Ignore the result.
+			m_runningActivity = null; 		// Nothing is running anymore.
+			if(m_terminated)				// Fondling a corpse? Ignore the result.
 				return;
 
 			//-- We're still alive; post the result in the done queue and awake listeners quickly.
 			if(errorx != null)
-				dai.setException(errorx); // Mark as fatally wounded.
-			else
-				dai.setExecutionResult(result); // Mark as properly thingesed
-			m_completionQueue.add(dai); // Append to completion queue for access by whatever.
+				dai.setException(errorx);	// Mark as fatally wounded.
+			m_completionQueue.add(dai);		// Append to completion queue for access by whatever.
 			wakeupListeners(1000);
 		}
 	}
@@ -343,7 +340,7 @@ public class DelayedActivitiesManager implements Runnable {
 	 *
 	 * @param das
 	 */
-	public void applyToTree(DelayedActivityState das) {
+	public void applyToTree(DelayedActivityState das) throws Exception {
 		//-- Handle progress reporting
 		for(DelayedActivityState.Progress p : das.getProgressList()) {
 			AsyncContainer c = p.getContainer();
