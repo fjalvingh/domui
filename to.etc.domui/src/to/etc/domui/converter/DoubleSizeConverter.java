@@ -37,11 +37,21 @@ import to.etc.util.*;
  * Created on Jul 30, 2009
  */
 public class DoubleSizeConverter implements IConverter<Double> {
+	final private double m_factor;
+
+	public DoubleSizeConverter() {
+		m_factor = 1.0d;
+	}
+
+	public DoubleSizeConverter(double factor) {
+		m_factor = factor;
+	}
+
 	@Override
 	public String convertObjectToString(Locale loc, Double in) throws UIException {
 		if(null == in)
 			return null;
-		return StringTool.strSize(in.longValue());
+		return StringTool.strSize((long) (in.doubleValue() * m_factor));
 	}
 
 	@Override
@@ -56,10 +66,10 @@ public class DoubleSizeConverter implements IConverter<Double> {
 		if(lindex <= 0)
 			throw new ValidationException(Msgs.V_INVALID);
 
-		String f = val.substring(lindex).toLowerCase();
+		String f = val.substring(lindex).trim().toLowerCase();
 		if(f.length() > 1)
 			f = f.substring(0, 1);
-		val = val.substring(0, lindex);
+		val = val.substring(0, lindex).trim();
 		double size = Double.parseDouble(val);
 		if("k".equals(f))
 			size *= 1024;
@@ -72,6 +82,6 @@ public class DoubleSizeConverter implements IConverter<Double> {
 		else if(f.length() != 0)
 			throw new ValidationException(Msgs.V_INVALID);
 
-		return Double.valueOf((long) size);
+		return Double.valueOf(size / m_factor);
 	}
 }
