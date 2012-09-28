@@ -24,6 +24,8 @@
  */
 package to.etc.domui.state;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.delayed.*;
@@ -42,7 +44,10 @@ public class DelayedActivityInfo {
 	private int m_pctComplete = -1;
 
 	private String m_statusMessage;
-	
+
+	@Nonnull
+	final private Map<IAsyncListener< ? >, Object> m_listenerDataMap = new HashMap<IAsyncListener< ? >, Object>();
+
 	protected DelayedActivityInfo(@Nonnull DelayedActivitiesManager manager, @Nonnull IAsyncRunnable activity, @Nonnull AsyncContainer ac) {
 		m_activity = activity;
 		m_manager = manager;
@@ -91,12 +96,59 @@ public class DelayedActivityInfo {
 			return m_statusMessage;
 		}
 	}
-	
+
 	void setStatusMessage(String statusMessage) {
 		m_statusMessage = statusMessage;
 	}
 
 	public AsyncContainer getContainer() {
 		return m_container;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handling listeners.									*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Call the "scheduled" listeners and store their context.
+	 * @throws Exception
+	 */
+	void callScheduled() throws Exception {
+		//-- 1. Call all listeners.
+		for(IAsyncListener< ? > al : m_container.getPage().getApplication().getAsyncListenerList()) {
+			handleListenerScheduled(al);
+		}
+	}
+
+	private <T> void handleListenerScheduled(IAsyncListener<T> al) throws Exception {
+		T resval = al.onActivityScheduled(m_activity);
+		m_listenerDataMap.put(al, resval);
+	}
+
+	public void callBeforeListeners() throws Exception {
+		for(IAsyncListener< ? > al : m_container.getPage().getApplication().getAsyncListenerList()) {
+			handleListenerBefore(al);
+		}
+	}
+
+	private <T> void handleListenerBefore(IAsyncListener<T> al) throws Exception {
+		T context = (T) m_listenerDataMap.get(al);						// Any data stored by scheduler
+		al.onActivityStart(m_activity, context);
+	}
+
+	public void callAfterListeners() {
+		for(IAsyncListener< ? > al : m_container.getPage().getApplication().getAsyncListenerList()) {
+			handleListenerAfter(al);
+		}
+	}
+
+	private <T> void handleListenerAfter(IAsyncListener<T> al) {
+		try {
+			T context = (T) m_listenerDataMap.get(al);						// Any data stored by scheduler
+			al.onActivityEnd(m_activity, context);
+		} catch(Exception x) {
+			System.err.println("Ignored exception in IAsyncListener#onEnd: " + x);
+			x.printStackTrace();
+		}
 	}
 }

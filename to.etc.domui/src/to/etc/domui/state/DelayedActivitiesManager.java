@@ -69,14 +69,20 @@ public class DelayedActivitiesManager implements Runnable {
 	 * @param a
 	 * @return
 	 */
-	public DelayedActivityInfo schedule(@Nonnull IAsyncRunnable a, @Nonnull AsyncContainer ac) {
+	public DelayedActivityInfo schedule(@Nonnull IAsyncRunnable a, @Nonnull AsyncContainer ac) throws Exception {
+		//-- Schedule.
 		synchronized(this) {
-			for(DelayedActivityInfo dai : m_pendingQueue) {
-				if(dai.getActivity() == a)
+			for(DelayedActivityInfo tdai : m_pendingQueue) {
+				if(tdai.getActivity() == a)
 					throw new IllegalStateException("The same activity instance is ALREADY scheduled!!");
 			}
+		}
+		DelayedActivityInfo dai = new DelayedActivityInfo(this, a, ac);
 
-			DelayedActivityInfo dai = new DelayedActivityInfo(this, a, ac);
+		//-- Call listeners.
+		dai.callScheduled();
+
+		synchronized(this) {
 			m_pendingQueue.add(dai);
 			return dai;
 		}
@@ -274,18 +280,18 @@ public class DelayedActivitiesManager implements Runnable {
 				//-- Are we attempting to die?
 				DelayedActivityInfo dai;
 				synchronized(this) {
-					if(m_terminated) // Manager is deadish?
-						return; // Just quit immediately (nothing is currently running)
+					if(m_terminated) 				// Manager is deadish?
+						return; 					// Just quit immediately (nothing is currently running)
 
 					//-- Anything to do?
-					if(m_pendingQueue.size() == 0) { // Something queued still?
+					if(m_pendingQueue.size() == 0) {	// Something queued still?
 						//-- Nope. We can stop properly.
 						return;
 					}
 
 					//-- Schedule for a new execute.
-					dai = m_pendingQueue.remove(0); // Get and remove from pending queue
-					m_runningActivity = dai; // Make this the running dude
+					dai = m_pendingQueue.remove(0); 	// Get and remove from pending queue
+					m_runningActivity = dai; 			// Make this the running dude
 				}
 				execute(dai);
 			}
@@ -315,10 +321,13 @@ public class DelayedActivitiesManager implements Runnable {
 
 		Exception errorx = null;
 		try {
+			dai.callBeforeListeners();
 			dai.getActivity().run(mon);
 		} catch(Exception x) {
 			if(!(x instanceof InterruptedException))
 				errorx = x;
+		} finally {
+			dai.callAfterListeners();
 		}
 
 		//-- The activity has stopped. Register it for callback on the next page poll, so that it's result handler can be called.
