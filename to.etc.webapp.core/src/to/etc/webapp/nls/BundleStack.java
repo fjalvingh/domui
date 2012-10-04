@@ -85,9 +85,25 @@ public class BundleStack extends BundleBase implements IBundle {
 			BundleRef br = BundleRef.create(clz, cn);
 			if(br.exists())
 				res.add(br);
+
 			br = BundleRef.create(clz, "messages");
 			if(br.exists())
 				res.add(br);
+
+			//-- Walk the package hierarchy upward
+			String pkg = clz.getPackage().getName().replace('.', '/');		// Class's package
+			for(;;) {
+				pos = pkg.lastIndexOf('/');
+				if(pos < 0)
+					pos = 0;
+				pkg = pkg.substring(0, pos);			// Remove last package name
+
+				br = BundleRef.create(clz, "/" + pkg + "/messages");
+				if(br.exists())
+					res.add(br);
+				if(pos == 0)
+					break;
+			}
 
 			cur = cur.getSuperclass();
 		}

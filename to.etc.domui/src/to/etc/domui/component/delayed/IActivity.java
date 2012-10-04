@@ -34,5 +34,5 @@ import to.etc.domui.dom.html.*;
  * Created on Oct 7, 2008
  */
 public interface IActivity {
-	public Div run(IProgress p) throws Exception;
+	Div run(IProgress p) throws Exception;
 }

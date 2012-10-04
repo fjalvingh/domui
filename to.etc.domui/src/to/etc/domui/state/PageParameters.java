@@ -260,9 +260,12 @@ public class PageParameters {
 			s = (String) value;
 		else if(value instanceof Number) {
 			s = value.toString();
-		} else if(value instanceof Boolean)
+		} else if(value instanceof Boolean) {
 			s = value.toString();
-		else
+		} else if(value instanceof String[]) {
+			setParameter(name, (String[]) value);
+			return;
+		} else
 			throw new IllegalStateException("Cannot convert a " + value.getClass() + " to an URL parameter yet - parameter converters not implemented yet");
 		setParameter(name, s);
 	}

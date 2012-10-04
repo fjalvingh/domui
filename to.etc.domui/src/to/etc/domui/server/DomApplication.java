@@ -36,6 +36,7 @@ import org.slf4j.*;
 import to.etc.domui.access.*;
 import to.etc.domui.ajax.*;
 import to.etc.domui.component.controlfactory.*;
+import to.etc.domui.component.delayed.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
 import to.etc.domui.component.lookup.*;
@@ -187,6 +188,8 @@ public abstract class DomApplication {
 		}
 	};
 
+	@Nonnull
+	private List<IAsyncListener< ? >> m_asyncListenerList = Collections.emptyList();
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
@@ -1225,6 +1228,25 @@ public abstract class DomApplication {
 
 	public synchronized List<ILoginListener> getLoginListenerList() {
 		return m_loginListenerList;
+	}
+
+	/**
+	 * Add a new listener for asynchronous job events.
+	 * @param l
+	 */
+	public synchronized <T> void addAsyncListener(@Nonnull IAsyncListener<T> l) {
+		m_asyncListenerList = new ArrayList<IAsyncListener< ? >>(m_asyncListenerList);
+		m_asyncListenerList.add(l);
+	}
+
+	public synchronized <T> void removeAsyncListener(@Nonnull IAsyncListener<T> l) {
+		m_asyncListenerList = new ArrayList<IAsyncListener< ? >>(m_asyncListenerList);
+		m_asyncListenerList.remove(l);
+	}
+
+	@Nonnull
+	public synchronized List<IAsyncListener< ? >> getAsyncListenerList() {
+		return m_asyncListenerList;
 	}
 
 	/**

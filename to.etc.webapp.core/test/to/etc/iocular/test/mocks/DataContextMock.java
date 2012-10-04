@@ -27,6 +27,8 @@ package to.etc.iocular.test.mocks;
 import java.sql.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.webapp.core.*;
 import to.etc.webapp.query.*;
 
@@ -55,6 +57,12 @@ public class DataContextMock implements QDataContext {
 	@Override
 	public <T> T find(final Class<T> clz, final Object pk) throws Exception {
 		return null;
+	}
+
+	@Override
+	public @Nonnull
+	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+		return clz.newInstance();
 	}
 
 	@Override
@@ -135,4 +143,5 @@ public class DataContextMock implements QDataContext {
 
 	@Override
 	public void addCommitAction(IRunnable cx) {}
+
 }

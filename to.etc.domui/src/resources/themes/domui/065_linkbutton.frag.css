@@ -16,3 +16,14 @@ a.ui-lnkb {
 a:hover.ui-lnkb {
 	text-decoration: underline !important;
 }
+
+a.ui-lnkb-dis {
+	text-decoration: none !important;
+	font-style: italic;
+	cursor: default;
+	color: gray; 
+}
+
+a:hover.ui-lnkb-dis {
+	text-decoration: none !important;
+}

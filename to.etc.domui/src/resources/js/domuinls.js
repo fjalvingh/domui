@@ -1,5 +1,10 @@
 WebUI._T = new Object();
 
+//-- Domui system
+WebUI._T.sysSessionExpired = 'Your session has expired. The screen will be reloaded with fresh data.';
+WebUI._T.sysSessionExpired2 = 'The server has restarted or your session has expired. The screen will be reloaded with fresh data.';
+WebUI._T.sysPopupBlocker = "A popup blocker is active. You need to disable it for this website.";
+
 //-- Bulk upload
 WebUI._T.buplPending='Pending';
 WebUI._T.buplRunning='Uploading';
@@ -15,4 +20,8 @@ WebUI._T.buplTooMany = 'Too many files selected';
 WebUI._T.bupl = '';
 WebUI._T.bupl = '';
 WebUI._T.bupl = '';
+
+//-- Drag and drop
+WebUI._T.dndInsertHere = 'Insert here';
+
 

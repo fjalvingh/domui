@@ -266,6 +266,9 @@ public interface Msgs {
 
 	public static final String EDLG_CANCEL = "edlg.cancel";
 
+	/** General purpose */
+	public static final String BTN_CLOSE = "btn.close";
+
 	/*** BulkUpload ***/
 	public static final String BULKUPLD_DISABLED = "bupl.disabled";
 
@@ -319,7 +322,7 @@ public interface Msgs {
 
 	static public final String ICON_BIG_WARNING = "THEME/mbx-warning.png";
 
-	static public final String ICON_BIG_ERROR = Theme.ICON_ERROR;
+	static public final String ICON_BIG_ERROR = Theme.ICON_MBX_ERROR;
 
 	static public final String ICON_BIG_QUESTION = "THEME/mbx-question.png";
 

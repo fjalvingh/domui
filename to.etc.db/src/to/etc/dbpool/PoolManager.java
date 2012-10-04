@@ -433,4 +433,29 @@ final public class PoolManager {
 	public synchronized boolean isCollectStatistics() {
 		return m_collectStatistics;
 	}
+
+	/**
+	 * Add an event listener to the specified connection. The connection must be one that is allocated
+	 * through this pool manager or an exception is thrown.
+	 * @param dbc
+	 * @param el
+	 */
+	static public void addListener(@Nonnull Connection dbc, @Nonnull IDatabaseEventListener el) {
+		if(!(dbc instanceof ConnectionProxy))
+			throw new IllegalArgumentException("The connection passed MUST have been allocated by this pool manager (it is a " + dbc + ")");
+		((ConnectionProxy) dbc).addCommitListener(el);
+	}
+
+	/**
+	 * Remove an event listener that was added before from the specified connection. The connection must be one that is allocated
+	 * through this pool manager or an exception is thrown.
+	 *
+	 * @param dbc
+	 * @param el
+	 */
+	static public void removeListener(@Nonnull Connection dbc, @Nonnull IDatabaseEventListener el) {
+		if(!(dbc instanceof ConnectionProxy))
+			throw new IllegalArgumentException("The connection passed MUST have been allocated by this pool manager (it is a " + dbc + ")");
+		((ConnectionProxy) dbc).removeCommitListener(el);
+	}
 }

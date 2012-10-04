@@ -133,7 +133,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 		} else if (rname == 'expiredOnPollasy'){
 			return true; // do nothing actually, page is in process of redirecting to some other page and we need to ignore responses on obsolete pollasy calls...
 		} else if (rname == 'expired') {
-			var msg = 'Uw sessie is verlopen. Het scherm wordt opnieuw opgevraagd met originele gegevens.';
+			var msg = WebUI._T.sysSessionExpired;
 			var hr = window.location.href;
 			for ( var i = xml.documentElement.childNodes.length; --i >= 0;) {
 				var cn = xml.documentElement.childNodes[i];
@@ -176,7 +176,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				var cmdNode = commands[i], cmd = cmdNode.tagName;
 				if(cmd == 'head' || cmd == 'body') {
 					//-- HTML response. Server state is gone due to restart or lost session.
-					alert('The server has restarted, or the session has timed out.. Reloading the page with fresh data');
+					alert(WebUI._T.sysSessionExpired2);
 					window.location.href = window.location.href;
 					return;
 				}
@@ -1649,7 +1649,12 @@ var WebUI = {
 			iframe = undefined;
 		}
 		if (!iframe) {
-			if (!jQuery.browser.msie || parseInt(jQuery.browser.version) > 7) {
+			if(jQuery.browser.msie && ! WebUI.isNormalIE9plus()) {			// MicroMorons report ie9 for ie7 emulation of course
+				// -- IE's below 8 of course have trouble. What else.
+				iframe = document
+						.createElement('<iframe name="webuiif" id="webuiif" src="#" style="display:none; width:0; height:0; border:none" onload="WebUI.ieUpdateUpload(event)">');
+				document.body.appendChild(iframe);
+			} else {
 				iframe = document.createElement('iframe');
 				iframe.id = 'webuiif';
 				iframe.name = "webuiif";
@@ -1661,13 +1666,6 @@ var WebUI = {
 				iframe.onload = function() {
 					WebUI.updateUpload(iframe.contentDocument);
 				};
-				document.body.appendChild(iframe);
-			} else {
-				// -- IE's below 8 of course have trouble. What else.
-				// alert('Using Microsoft\'s flagship piece of CRAP IE -
-				// circumventing the umphtiest bug.');
-				iframe = document
-						.createElement('<iframe name="webuiif" id="webuiif" src="#" style="display:none; width:0; height:0; border:none" onload="WebUI.ieUpdateUpload(event)">');
 				document.body.appendChild(iframe);
 			}
 		}
@@ -1684,14 +1682,85 @@ var WebUI = {
 		// -- Target the iframe
 		form.target = "webuiif"; // Fake a new thingy,
 		form.submit(); // Force submit of the thingerydoo
-
-		// alert('Upload change');
 	},
 
+	/**
+	 * Called for ie upload garbage only, this tries to decode the utter devastating mess that
+	 * ie makes from xml uploads into an iframe in ie8+. Sigh. The main problem with IE is that
+	 * the idiots that built it mess up XML documents sent to it: when the iframe we use receives
+	 * an xml document the idiot translates it into an html document- with formatted tags and minus
+	 * signs before it to collapse them. Instead of just /rendering/ that they actually /generate/
+	 * that as the content document of the iframe- so getting that means you get no XML at all.
+	 * This abomination was more or less fixed in ie9 - but of course they fucked up compatibility mode
+	 * badly.
+	 * 
+	 * Everything below ie9
+	 * ====================
+	 * Everything below ie9 has a special property "XMLDocument" attached to the "document" property of
+	 * the window. This property contains the original XML that was used as an XML tree. So for these
+	 * browsers we just get that and move on.
+	 * 
+	 * IE9 in native mode
+	 * ==================
+	 * IE9 in native mode does not mess up the iframe content document, so this mode takes the path of
+	 * all browsers worth the name. Since the original problem was solved the XMLDocument property no
+	 * longer exists.
+	 * 
+	 * IE9 in compatibility mode (IE7)
+	 * ===============================
+	 * This gets funny. In this mode the browser /still/ messes up the iframe's content model like the
+	 * old IE's it emulates. But of course the XMLDocument property is helpfully removed - EVEN IN THIS
+	 * MODE.
+	 * Remember: this mode is also entered if you are part of a frameset or iframe that is part of an
+	 * mode: the topmost frameset/page determines the mode for the entire set of pages - they are that
+	 * stupid.
+	 * 
+	 * I know no other "workaround" than the horrible concoction below; please turn away if you have
+	 * a weak stomach....
+	 * 
+	 * In this case we get the "innerText" content of the iframe. This differers from innerHTML in that
+	 * all html tags that IE added are removed, and only the text is retained. Since the html was generated
+	 * by IE in such a way that the xml was presented to the user - this is actually most of our XML...
+	 * But it contains some problems:
+	 * - there is extra whitespace around it's edges, so we need to remove that..
+	 * - All tags start on a new line with a '-' sign before them... Remove all that...
+	 * - The result will have the &amp; entity replaced by & because they are really stupid, again. So replace
+	 *   that too.
+	 * The resulting thing can sometimes be parsed as XML and then processing continues. But it is far
+	 * from perfect. The biggest problem is that the resulting xml has not properly reserved the original
+	 * whitespace; this may lead to rendering problems.
+	 * 
+	 * But as far as I know no other solution to this stupifying bug is possible. Please prove me wrong. 
+	 * 
+	 * @param e
+	 */
 	ieUpdateUpload : function(e) { // Piece of crap
 		var iframe = document.getElementById('webuiif');
-		var xml = iframe.contentWindow.document.XMLDocument; // IMPORTANT Fucking MS Crap!!!! See
-															// http://p2p.wrox.com/topic.asp?whichpage=1&TOPIC_ID=62981&#153594
+		var xml;
+		if(iframe.contentWindow && iframe.contentWindow.document.XMLDocument) {
+			xml = iframe.contentWindow.document.XMLDocument; // IMPORTANT Fucking MS Crap!!!! See http://p2p.wrox.com/topic.asp?whichpage=1&TOPIC_ID=62981&#153594
+		} else if(iframe.contentDocument) {
+			var crap = iframe.contentDocument.body.innerText;
+			crap = crap.replace(/^\s+|\s+$/g, ''); // trim
+			crap = crap.replace(/(\n|\r)-*/g, ''); // remove '\r\n-'. The dash is optional.
+			crap = crap.replace(/&/g, '&amp;');		// Replace & with entity
+//			alert('crap='+crap);
+			if(window.DOMParser) {
+				var parser = new DOMParser();
+				xml = parser.parseFromString(crap);
+			} else if(window.ActiveXObject) {
+				xml = new ActiveXObject("Microsoft.XMLDOM");
+				if(! xml.loadXML(crap)) {
+					alert('ie9 in emulation mode unfixable bug: cannot parse xml');
+					window.location.href = window.location.href;
+					return;
+				}
+			} else {
+				alert('No idea how to parse xml today.');
+			}
+		} else
+			alert('IE error: something again changed in xml source structure of the iframe, sigh');
+
 		WebUI.updateUpload(xml, iframe);
 	},
 	updateUpload : function(doc, ifr) {
@@ -1717,7 +1786,7 @@ var WebUI = {
 			alert("Got popup exception: "+x);
 		}
 		if (!h)
-			alert("Er is een popup blocker actief. Deze moet voor deze website worden uitgezet.");
+			alert(WebUI._T.sysPopupBlocker);
 		return false;
 	},
 
@@ -2769,7 +2838,7 @@ WebUI._ROW_DROPZONE_HANDLER = {
 	appendPlaceHolderCell : function(tr, appendPlaceholder) {
 		var td = document.createElement('td');
 		if(appendPlaceholder){
-			td.appendChild(document.createTextNode('Insert here'));
+			td.appendChild(document.createTextNode(WebUI._T.dndInsertHere));
 			td.className = 'ui-drp-ins';
 		}
 		tr.appendChild(td);

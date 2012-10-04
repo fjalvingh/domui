@@ -24,36 +24,41 @@
  */
 package to.etc.domui.state;
 
+import java.util.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.component.delayed.*;
-import to.etc.domui.dom.html.*;
 
 public class DelayedActivityInfo {
-	private DelayedActivitiesManager m_manager;
+	final private DelayedActivitiesManager m_manager;
 
-	private AsyncContainer m_container;
+	final private AsyncContainer m_container;
 
-	private IActivity m_activity;
+	final private IAsyncRunnable m_activity;
 
 	private DelayedProgressMonitor m_monitor;
 
 	private Exception m_exception;
 
-	private Div m_executionResult;
-
 	private int m_pctComplete = -1;
 
 	private String m_statusMessage;
-	
-	protected DelayedActivityInfo(DelayedActivitiesManager manager, IActivity activity, AsyncContainer ac) {
+
+	@Nonnull
+	final private Map<IAsyncListener< ? >, Object> m_listenerDataMap = new HashMap<IAsyncListener< ? >, Object>();
+
+	protected DelayedActivityInfo(@Nonnull DelayedActivitiesManager manager, @Nonnull IAsyncRunnable activity, @Nonnull AsyncContainer ac) {
 		m_activity = activity;
 		m_manager = manager;
 		m_container = ac;
 	}
 
-	public IActivity getActivity() {
+	public IAsyncRunnable getActivity() {
 		return m_activity;
 	}
 
+	@Nonnull
 	public DelayedProgressMonitor getMonitor() {
 		if(m_monitor == null)
 			throw new IllegalStateException("? Unexpected access to monitor after task completed?");
@@ -70,14 +75,6 @@ public class DelayedActivityInfo {
 
 	void setException(Exception exception) {
 		m_exception = exception;
-	}
-
-	public Div getExecutionResult() {
-		return m_executionResult;
-	}
-
-	void setExecutionResult(Div executionResult) {
-		m_executionResult = executionResult;
 	}
 
 	public void cancel() {
@@ -99,12 +96,59 @@ public class DelayedActivityInfo {
 			return m_statusMessage;
 		}
 	}
-	
+
 	void setStatusMessage(String statusMessage) {
 		m_statusMessage = statusMessage;
 	}
 
 	public AsyncContainer getContainer() {
 		return m_container;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handling listeners.									*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Call the "scheduled" listeners and store their context.
+	 * @throws Exception
+	 */
+	void callScheduled() throws Exception {
+		//-- 1. Call all listeners.
+		for(IAsyncListener< ? > al : m_container.getPage().getApplication().getAsyncListenerList()) {
+			handleListenerScheduled(al);
+		}
+	}
+
+	private <T> void handleListenerScheduled(IAsyncListener<T> al) throws Exception {
+		T resval = al.onActivityScheduled(m_activity);
+		m_listenerDataMap.put(al, resval);
+	}
+
+	public void callBeforeListeners() throws Exception {
+		for(IAsyncListener< ? > al : m_container.getPage().getApplication().getAsyncListenerList()) {
+			handleListenerBefore(al);
+		}
+	}
+
+	private <T> void handleListenerBefore(IAsyncListener<T> al) throws Exception {
+		T context = (T) m_listenerDataMap.get(al);						// Any data stored by scheduler
+		al.onActivityStart(m_activity, context);
+	}
+
+	public void callAfterListeners() {
+		for(IAsyncListener< ? > al : m_container.getPage().getApplication().getAsyncListenerList()) {
+			handleListenerAfter(al);
+		}
+	}
+
+	private <T> void handleListenerAfter(IAsyncListener<T> al) {
+		try {
+			T context = (T) m_listenerDataMap.get(al);						// Any data stored by scheduler
+			al.onActivityEnd(m_activity, context);
+		} catch(Exception x) {
+			System.err.println("Ignored exception in IAsyncListener#onEnd: " + x);
+			x.printStackTrace();
+		}
 	}
 }

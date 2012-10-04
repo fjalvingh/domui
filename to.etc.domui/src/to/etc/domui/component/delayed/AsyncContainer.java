@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.delayed;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
@@ -31,7 +33,8 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 
 public class AsyncContainer extends Div {
-	private IActivity m_activity;
+	@Nonnull
+	final private IAsyncRunnable m_runnable;
 
 	private DelayedActivityInfo m_scheduledActivity;
 
@@ -47,14 +50,59 @@ public class AsyncContainer extends Div {
 	 */
 	private String m_busyMarkerSrc = "THEME/asy-container-busy.gif";
 
-	public AsyncContainer(IActivity activity) {
-		m_activity = activity;
+	public AsyncContainer(@Nonnull IAsyncRunnable arunnable) {
+		m_runnable = arunnable;
+	}
+
+	public AsyncContainer(@Nonnull final IActivity activity) {
+		m_runnable = new IAsyncRunnable() {
+			@Nullable
+			private Div m_result;
+
+			@Override
+			public void run(@Nonnull IProgress p) throws Exception {
+				setResult(activity.run(p));
+			}
+
+			private synchronized Div getResult() {
+				return m_result;
+			}
+
+			private synchronized void setResult(Div result) {
+				m_result = result;
+			}
+
+			@Override
+			public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
+				//-- If we've got an exception replace the contents with the exception message.
+				if(errorException != null) {
+					StringBuilder sb = new StringBuilder(8192);
+					StringTool.strStacktrace(sb, errorException);
+					setText(sb.toString()); 						// Just fill myself with the error stack trace.
+					return;
+				}
+
+				//-- If there is no result- either we were cancelled OR there are no results..
+				Div res = getResult();
+				if(res == null) {
+					if(cancelled) {
+						setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED_MSG));
+					} else {
+						setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_NO_RESULTS_MSG));
+					}
+					return;
+				}
+
+				//-- Now replace AsyncContainer with the result
+				replaceWith(res); 					// Replace this node with another one.
+			}
+		};
 	}
 
 	@Override
 	public void createContent() throws Exception {
 		if(m_scheduledActivity == null) {
-			m_scheduledActivity = getPage().getConversation().scheduleDelayed(this, m_activity);
+			m_scheduledActivity = getPage().getConversation().scheduleDelayed(this, m_runnable);
 		}
 
 		//-- Render a thingy containing a spinner
@@ -99,28 +147,18 @@ public class AsyncContainer extends Div {
 		m_progress.setText(sb.toString());
 	}
 
-	public void updateCompleted(DelayedActivityInfo dai) {
-		//-- If we've got an exception replace the contents with the exception message.
-		if(dai.getException() != null) {
-			StringBuilder sb = new StringBuilder(8192);
-			StringTool.strStacktrace(sb, dai.getException());
-			this.setText(sb.toString()); // Discard everything && replace
-			return;
-		}
-
-		//-- Replace THIS node with the new thingy.
-		if(dai.getExecutionResult() == null) {
-			if(dai.getMonitor().isCancelled()) {
-				setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED_MSG));
-			} else {
-				setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_NO_RESULTS_MSG));
+	public void updateCompleted(DelayedActivityInfo dai) throws Exception {
+		//-- Call the node's update handler *before* removing myself.
+		try {
+			dai.getActivity().onCompleted(dai.getMonitor().isCancelled(), dai.getException());
+		} finally {
+			try {
+				remove();								// Remove myself *after* this all.
+			} catch(Exception x) {
+				System.err.println("Could not remove AsyncContainer: " + x);
+				x.printStackTrace();
 			}
-			return;
 		}
-		replaceWith(dai.getExecutionResult()); // Replace this node with another one.
-
-		//		removeAllChildren();
-		//		add(dai.getExecutionResult());
 	}
 
 	public void confirmCancelled() {

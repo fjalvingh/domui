@@ -1128,7 +1128,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param param
 	 * @return
 	 */
-	public String $(String key, Object... param) {
+	@Nonnull
+	public String $(@Nonnull String key, Object... param) {
 		IBundle br = getComponentBundle();
 		if(key.startsWith("~")) // Prevent silly bugs.
 			key = key.substring(1);
@@ -1305,7 +1306,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		if(v instanceof IBindable) {
 			IBindable b = (IBindable) v;
 			if(b.isBound()) {
-				System.out.println("bind: moveModelToControl called on " + this);
 				b.bind().moveModelToControl();
 			}
 		}
@@ -1341,6 +1341,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	public QDataContext getSharedContext() throws Exception {
 		return QContextManager.getContext(getPage());
 	}

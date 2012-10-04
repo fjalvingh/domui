@@ -30,7 +30,6 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
-import to.etc.domui.util.*;
 
 public class BreadCrumb extends Div {
 	@Override
@@ -56,7 +55,7 @@ public class BreadCrumb extends Div {
 		WindowSession cm = UIContext.getRequestContext().getWindowSession();
 
 		//-- Get the application's main page as the base;
-		List<ShelvedEntry> stack = cm.getShelvedPageStack();
+		List<IShelvedEntry> stack = cm.getShelvedPageStack();
 		if(stack.size() == 0) {
 			setDisplay(DisplayType.NONE);
 			return;
@@ -65,7 +64,7 @@ public class BreadCrumb extends Div {
 
 		for(int i = 0; i < stack.size(); i++) {
 			boolean last = i + 1 >= stack.size();
-			Page p = stack.get(i).getPage();
+			IShelvedEntry p = stack.get(i);
 
 			if(i > 0) {
 				//-- Append the marker,
@@ -81,25 +80,21 @@ public class BreadCrumb extends Div {
 				s = new Span();
 				s.setCssClass("ui-brc-c");
 			} else {
-				s = new ALink(p.getBody().getClass(), p.getPageParameters());
+				if(p instanceof ShelvedDomUIPage) {
+					ShelvedDomUIPage pg = (ShelvedDomUIPage) p;
+					s = new ALink(pg.getPage().getBody().getClass(), pg.getPage().getPageParameters());
+				} else {
+					ATag a = new ATag();
+					a.setHref(p.getURL());
+					s = a;
+				}
 				s.setCssClass("ui-brc-l");
 			}
 			center.add(s);
-			String bcname = null;
-			String bctitle = null;
-
-			if(p.getBody() instanceof IBreadCrumbTitler) {
-				bcname = ((IBreadCrumbTitler) p.getBody()).getBreadcrumbName();
-				bctitle = ((IBreadCrumbTitler) p.getBody()).getBreadcrumbTitle();
-			} else if(!DomUtil.isBlank(p.getBody().getTitle())) {
-				bcname = p.getBody().getTitle();
-			} else {
-				bcname = p.getBody().getClass().getName();
-				bcname = bcname.substring(bcname.lastIndexOf('.') + 1);
-			}
+			String bcname = p.getName();
+			String bctitle = p.getTitle();
 			s.setText(bcname);
 			s.setTitle(bctitle);
 		}
 	}
-
 }

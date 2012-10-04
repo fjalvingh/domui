@@ -121,6 +121,20 @@ public interface QDataContext {
 	@Nullable
 	<T> T find(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception;
 
+	/**
+	 * Load the persistent object with the specified type and primary key from the database. This will
+	 * execute an actual select in the database if the object is not yet cached, ensuring that the
+	 * object actually exists. If the object does not exist this will raise {@link QNotFoundException}.
+	 *
+	 * @param <T>	The object type.
+	 * @param clz	The persistent class for which an instance is being sought.
+	 * @param pk	The PK for the instance required.
+	 * @return		The actual and fully initialized instance (or proxy).
+	 * @throws Exception
+	 */
+	@Nonnull
+	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception;
+
 	@Nullable
 	<T> T find(@Nonnull ICriteriaTableDef<T> metatable, @Nonnull Object pk) throws Exception;
 
