@@ -41,6 +41,7 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -624,8 +625,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					//-- Try to bind this value to the component.
 					if(nb.acceptRequestParameter(values)) { // Make the thingy accept the parameter(s)
 						//-- This thing has changed.
-						if(nb instanceof IInputNode< ? >) { // Can have a value changed thingy?
-							IInputNode< ? > ch = (IInputNode< ? >) nb;
+						if(nb instanceof IControl< ? >) { // Can have a value changed thingy?
+							IControl< ? > ch = (IControl< ? >) nb;
 							if(ch.getOnValueChanged() != null) {
 								changed.add(nb);
 							}

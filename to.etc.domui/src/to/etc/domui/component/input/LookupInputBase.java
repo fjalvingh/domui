@@ -38,12 +38,13 @@ import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
-abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<OT>, IHasModifiedIndication {
+abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication {
 	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
 	/**
@@ -238,7 +239,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		m_outputClass = resultClass;
 		m_queryMetaModel = queryMetaModel != null ? queryMetaModel : MetaManager.findClassMeta(queryClass);
 		m_outputMetaModel = outputMetaModel != null ? outputMetaModel : MetaManager.findClassMeta(resultClass);
-		m_selButton = new SmallImgButton("THEME/btn-popuplookup.png");
+		m_selButton = new SmallImgButton(Theme.BTN_POPUPLOOKUP);
 		m_selButton.setTestID("selButtonInputLookup");
 		m_selButton.setClicked(new IClicked<NodeBase>() {
 			@Override
@@ -247,7 +248,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 			}
 		});
 
-		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
+		m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
 			@Override
 			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {
@@ -505,8 +506,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		}
 		QCriteria<QT> searchQuery;
 
-		if(getKeyWordSearchHandler() != null) {
-			searchQuery = getKeyWordSearchHandler().createQuery(searchString);
+		IKeyWordSearchQueryFactory<QT> ksh = getKeyWordSearchHandler();
+		if(ksh != null) {
+			searchQuery = ksh.createQuery(searchString);
 			if(searchQuery == null) {
 				//in case of cancelled search return null
 				return null;
@@ -562,8 +564,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 			}
 		}
 
-		if(getQueryManipulator() != null) {
-			searchQuery = getQueryManipulator().adjustQuery(searchQuery);
+		IQueryManipulator<QT> qm = getQueryManipulator();
+		if(qm != null) {
+			searchQuery = qm.adjustQuery(searchQuery);
 			if(searchQuery == null) {
 				//in case of cancelled search by query manipulator return
 				return null;
@@ -621,10 +624,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 			m_floater.add((NodeBase) m_customErrorMessageListener);
 			DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
 		}
-		LookupForm<QT> lf;
-		if(getLookupForm() != null) {
-			lf = getLookupForm();
-		} else {
+		LookupForm<QT> lf = getLookupForm();
+		if(lf == null) {
 			lf = new LookupForm<QT>(getQueryClass(), getQueryMetaModel());
 			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
 				lf.setSearchProperties(m_searchPropertyList);
@@ -687,8 +688,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		if(c == null) // Some error has occured?
 			return; // Don't do anything (errors will have been registered)
 
-		if(getQueryManipulator() != null) {
-			c = getQueryManipulator().adjustQuery(c); // Adjust the query where needed,
+		IQueryManipulator<QT> qm = getQueryManipulator();
+		if(qm != null) {
+			c = qm.adjustQuery(c); // Adjust the query where needed,
 			if(c == null) {
 				//in case of cancelled search by query manipulator return null
 				return;
@@ -836,7 +838,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IInputNode implementation.							*/
+	/*	CODING:	IControl implementation.							*/
 	/*--------------------------------------------------------------*/
 	@Nullable
 	private IValueChanged< ? > m_onValueChanged;
@@ -1048,7 +1050,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	@Nullable
 	private SimpleBinder m_binder;
 
-	/**  
+	/**
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */

@@ -1,0 +1,21 @@
+Welcome to DomUI
+================
+This is DomUI, a Java User Interface framework. Get the details at
+http://www.domui.org/
+
+The code and bug tracker can be found at Launchpad:
+https://launchpad.net/domui
+
+This software is released under the LGPL 2.1, a copy of this licence's
+terms can be found in the file with this name. The gist of the license
+is: use DomUI at will, you do not have to release the source to your own
+code with the exception of additions or changes to DomUI itself.
+
+A demo application can be found in the demo war folder. This is a
+standalone war which can be installed in a web server, usually
+just by copying the thing into the web server's "webapps" folder. 
+The demo app will create a database (a Apache Derby database) at
+startup, so the first invocation will be slow.
+A hosted copy of this application can also be found at
+http://www.domui.org/demo/
+

@@ -273,7 +273,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	}
 
 	@Override
-	public void selectionUIChanged(TabularComponentBase< ? > tbl) throws Exception {
+	public void selectionUIChanged(@Nonnull TabularComponentBase< ? > tbl) throws Exception {
 		redraw();
 		//		if(tbl instanceof DataTable) {
 		//			DataTable< ? > dt = (DataTable< ? >) tbl;
@@ -373,7 +373,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private void redrawSelectionButtons() throws Exception {
 		//-- Show/hide the "show selection" button
-		final ISelectableTableComponent dt = getSelectableTable();
+		final ISelectableTableComponent<Object> dt = (ISelectableTableComponent<Object>) getSelectableTable();
 		if(null == dt)
 			throw new IllegalStateException("Null selectable table?");
 
@@ -465,12 +465,12 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	/*	CODING:	DataTableChangeListener implementation.				*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public void modelChanged(final TabularComponentBase< ? > tbl, final ITableModel< ? > old, final ITableModel< ? > nw) throws Exception {
+	public void modelChanged(final @Nonnull TabularComponentBase< ? > tbl, final @Nullable ITableModel< ? > old, final @Nullable ITableModel< ? > nw) throws Exception {
 		redraw();
 	}
 
 	@Override
-	public void pageChanged(final TabularComponentBase< ? > tbl) throws Exception {
+	public void pageChanged(final @Nonnull TabularComponentBase< ? > tbl) throws Exception {
 		redraw();
 	}
 

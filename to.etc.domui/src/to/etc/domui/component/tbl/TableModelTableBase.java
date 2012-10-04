@@ -72,12 +72,15 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		fireModelChanged(old, model);
 	}
 
-	@Nullable
+	@Nonnull
 	protected T getModelItem(int index) throws Exception {
 		List<T> res = m_model.getItems(index, index + 1);
 		if(res.size() == 0)
-			return null;
-		return res.get(0);
+			throw new IllegalStateException("Model did not return a row at index=" + index);
+		T val = res.get(0);
+		if(val == null)
+			throw new IllegalStateException("Model item at index=" + index + " is null");
+		return val;
 	}
 
 	@Override

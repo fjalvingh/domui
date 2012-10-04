@@ -29,6 +29,8 @@ import to.etc.domui.dom.errors.*;
 public class FileInput extends NodeBase implements IHasChangeListener, INodeErrorDelegate {
 	private IValueChanged< ? > m_onValueChanged;
 
+	private boolean m_disabled;
+
 	public FileInput() {
 		super("input");
 	}
@@ -52,5 +54,13 @@ public class FileInput extends NodeBase implements IHasChangeListener, INodeErro
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
+	}
+
+	public boolean isDisabled() {
+		return m_disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		m_disabled = disabled;
 	}
 }

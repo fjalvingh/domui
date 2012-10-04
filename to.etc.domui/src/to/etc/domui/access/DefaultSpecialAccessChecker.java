@@ -63,7 +63,7 @@ public class DefaultSpecialAccessChecker implements ISpecialAccessChecker {
 	}
 
 	@Override
-	public UISpecialAccessResult doSpecialAccessCheck(@Nonnull Class< ? extends UrlPage> pageClass, @Nonnull RequestContextImpl ctx) throws Exception {
+	public @Nonnull UISpecialAccessResult doSpecialAccessCheck(@Nonnull Class< ? extends UrlPage> pageClass, @Nonnull RequestContextImpl ctx) throws Exception {
 		AccessChecker ach = resolveAccessChecker(pageClass);
 		return ach.checkAccess(PageParameters.createFrom(ctx));
 	}

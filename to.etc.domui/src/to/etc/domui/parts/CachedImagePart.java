@@ -36,6 +36,7 @@ import to.etc.domui.util.*;
 import to.etc.domui.util.images.*;
 import to.etc.domui.util.images.converters.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 
 public class CachedImagePart implements IUnbufferedPartFactory {
 

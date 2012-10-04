@@ -209,7 +209,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 */
 	@Override
 	@Nullable
-	public synchronized PropertyMetaModel< ? > findProperty(final String name) {
+	public synchronized PropertyMetaModel< ? > findProperty(@Nonnull final String name) {
 		PropertyMetaModel< ? > pmm = m_propertyMap.get(name);
 		if(pmm != null)
 			return pmm;
@@ -220,8 +220,17 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
+	@Nonnull
+	public PropertyMetaModel< ? > getProperty(@Nonnull String name) {
+		PropertyMetaModel< ? > pmm = findProperty(name);
+		if(null == pmm)
+			throw new IllegalStateException("The property '" + name + "' is not known in the meta model for " + this);
+		return pmm;
+	}
+
+	@Override
 	@Nullable
-	public synchronized PropertyMetaModel< ? > findSimpleProperty(final String name) {
+	public synchronized PropertyMetaModel< ? > findSimpleProperty(@Nonnull final String name) {
 		return m_propertyMap.get(name);
 	}
 
@@ -251,7 +260,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
+	public @Nonnull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_comboDisplayProperties;
 	}
 
@@ -297,12 +306,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public Class< ? > getActualClass() {
+	public @Nonnull Class< ? > getActualClass() {
 		return m_metaClass;
 	}
 
 	@Override
-	public synchronized List<DisplayPropertyMetaModel> getTableDisplayProperties() {
+	public synchronized @Nonnull List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		if(m_tableDisplayProperties == null || m_tableDisplayProperties.size() == 0) {
 			m_tableDisplayProperties = MetaManager.calculateObjectProperties(this);
 		}
@@ -332,7 +341,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public SortableType getDefaultSortDirection() {
+	public @Nonnull SortableType getDefaultSortDirection() {
 		return m_defaultSortDirection;
 	}
 
@@ -356,7 +365,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+	public @Nonnull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
 
@@ -454,8 +463,9 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	public QCriteria< ? > createCriteria() throws Exception {
 		if(!isPersistentClass())
 			throw new IllegalStateException("This ClassMetaModel (" + this + ") is not persistent.");
-		if(getMetaTableDef() != null)
-			return QCriteria.create(getMetaTableDef());
+		ICriteriaTableDef< ? > tdef = getMetaTableDef();
+		if(tdef != null)
+			return QCriteria.create(tdef);
 		return QCriteria.create(getActualClass());
 	}
 

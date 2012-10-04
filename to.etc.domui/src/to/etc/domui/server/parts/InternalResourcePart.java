@@ -31,9 +31,9 @@ import javax.annotation.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -108,7 +108,7 @@ public class InternalResourcePart implements IBufferedPartFactory {
 	}
 
 	@Override
-	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
 		//-- Is this an URL containing an nls'ed resource?
 		Locale loc = null;
 		int pos = rurl.lastIndexOf(".nls.");

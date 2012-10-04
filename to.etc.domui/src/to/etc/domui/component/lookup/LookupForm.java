@@ -29,16 +29,16 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.form.*;
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.ILookupControlInstance.*;
+import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
-import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
@@ -740,7 +740,7 @@ public class LookupForm<T> extends Div {
 	 * @param control
 	 * @return
 	 */
-	public <X extends NodeBase & IInputNode< ? >> Item addManual(String property, X control) {
+	public <VT, X extends NodeBase & IControl<VT>> Item addManual(String property, X control) {
 		Item it = new Item();
 		it.setPropertyName(property);
 		addAndFinish(it);
@@ -818,11 +818,10 @@ public class LookupForm<T> extends Div {
 		spmm.setPropertyName(childPmm.getName());
 		spmm.setPropertyPath(pl);
 
-		ILookupControlFactory lcf = m_builder.findLookupControlFactory(spmm);
+		ILookupControlFactory lcf = m_builder.getLookupControlFactory(spmm);
 		final ILookupControlInstance lookupInstance = lcf.createControl(spmm, null);
 
 		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
-
 			@Override
 			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
 
@@ -968,7 +967,7 @@ public class LookupForm<T> extends Div {
 		NodeBase labelcontrol = qt.getLabelControl();
 		for(NodeBase b : qt.getInputControls()) { // Add all nodes && try to find label control if unknown.
 			ccell.add(b);
-			if(labelcontrol == null && b instanceof IInputNode< ? >)
+			if(labelcontrol == null && b instanceof IControl< ? >)
 				labelcontrol = b;
 		}
 		if(labelcontrol == null)
@@ -996,20 +995,6 @@ public class LookupForm<T> extends Div {
 		PropertyMetaModel< ? > pmm = it.getLastProperty();
 		if(pmm == null)
 			throw new IllegalStateException("property cannot be null when creating using factory.");
-		IRequestContext rq = UIContext.getRequestContext();
-		boolean viewable = true;
-		boolean editable = true;
-
-		viewable = MetaManager.isAccessAllowed(pmm.getViewRoles(), rq);
-		editable = MetaManager.isAccessAllowed(pmm.getEditRoles(), rq);
-		if(!viewable) {
-			//-- Check edit stuff:
-			if(pmm.getEditRoles() == null) // No edit roles at all -> exit
-				return null;
-			if(!editable)
-				return null;
-		}
-
 		ILookupControlFactory lcf = m_builder.getLookupControlFactory(it);
 		ILookupControlInstance qt = lcf.createControl(it, null);
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
@@ -1169,7 +1154,7 @@ public class LookupForm<T> extends Div {
 			m_onCancel = onCancel;
 			if(m_onCancel != null && m_cancelBtn == null) {
 				m_cancelBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
-				m_cancelBtn.setIcon("THEME/btnCancel.png");
+				m_cancelBtn.setIcon(Theme.BTN_CANCEL);
 				m_cancelBtn.setTestID("cancelButton");
 				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
 					@Override

@@ -38,7 +38,7 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 	//	private boolean m_ordered;
 
 	@Override
-	public List<T> getItems(int start, int end) throws Exception {
+	public @Nonnull List<T> getItems(int start, int end) throws Exception {
 		int size = getRows();
 		if(start < 0)
 			start = 0;

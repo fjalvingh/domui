@@ -26,6 +26,8 @@ package to.etc.domui.component.input;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -35,7 +37,7 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
 
-public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, IHasModifiedIndication {
+public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHasModifiedIndication {
 	private String m_emptyText;
 
 	private V m_currentValue;
@@ -158,7 +160,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 	/*	CODING:	value setting logic.								*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 * @see to.etc.domui.dom.html.IControl#getValue()
 	 */
 	@Override
 	final public V getValue() {
@@ -177,10 +179,10 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 	 * If the value set is null and the combobox is a mandatory one the code will
 	 * check if an "unselected" item is present to select. If not the unselected
 	 * item will be added by this call(!).
-	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
+	 * @see to.etc.domui.dom.html.IControl#setValue(java.lang.Object)
 	 */
 	@Override
-	final public void setValue(V v) {
+	final public void setValue(@Nullable V v) {
 		ClassMetaModel cmm = v != null ? MetaManager.findClassMeta(v.getClass()) : null;
 		if(MetaManager.areObjectsEqual(v, m_currentValue, cmm))
 			return;
@@ -358,10 +360,10 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IInputNode<T> implementation.						*/
+	/*	CODING:	IControl<T> implementation.						*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
 	 */
 	@Override
 	public V getValueSafe() {
@@ -369,7 +371,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 * @see to.etc.domui.dom.html.IControl#hasError()
 	 */
 	@Override
 	public boolean hasError() {
@@ -388,7 +390,7 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
 	@Override
-	public IBinder bind() {
+	public @Nonnull IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
 		return m_binder;

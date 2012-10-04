@@ -414,7 +414,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	 * @see to.etc.domui.component.tbl.ITableModelListener#modelChanged(to.etc.domui.component.tbl.ITableModel)
 	 */
 	@Override
-	public void modelChanged(final @Nonnull ITableModel<Object> model) {
+	public void modelChanged(@Nullable final ITableModel<Object> model) {
 		forceRebuild();
 	}
 
@@ -423,7 +423,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowAdded(final @Nonnull ITableModel<Object> model, final int index, final Object value) throws Exception {
+	public void rowAdded(final @Nonnull ITableModel<Object> model, final int index, @Nonnull final Object value) throws Exception {
 		boolean issrc = model == m_sourceModel;
 		TBody b = issrc ? m_sourceBody : m_targetBody;
 
@@ -438,14 +438,14 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	}
 
 	@Override
-	public void rowDeleted(final @Nonnull ITableModel<Object> model, final int index, final Object value) throws Exception {
+	public void rowDeleted(final @Nonnull ITableModel<Object> model, final int index, @Nonnull final Object value) throws Exception {
 		boolean issrc = model == m_sourceModel;
 		TBody b = issrc ? m_sourceBody : m_targetBody;
 		b.removeChild(index); // Discard this one;
 	}
 
 	@Override
-	public void rowModified(final @Nonnull ITableModel<Object> model, final int index, final Object value) throws Exception {
+	public void rowModified(final @Nonnull ITableModel<Object> model, final int index, @Nonnull final Object value) throws Exception {
 		boolean issrc = model == m_sourceModel;
 		TBody b = issrc ? m_sourceBody : m_targetBody;
 

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 import to.etc.domui.util.*;
 
 public class TR extends NodeContainer implements IDraggable {
@@ -40,35 +42,38 @@ public class TR extends NodeContainer implements IDraggable {
 		v.visitTR(this);
 	}
 
+	@Nullable
 	public Object getRowData() {
 		return m_rowData;
 	}
 
-	public void setRowData(Object rowData) {
+	public void setRowData(@Nullable Object rowData) {
 		m_rowData = rowData;
 	}
 
+	@Nonnull
 	public TD addCell() {
 		TD td = new TD();
 		add(td);
 		return td;
 	}
 
-	public TD addCell(String cssclass) {
+	@Nonnull
+	public TD addCell(@Nullable String cssclass) {
 		TD td = new TD();
 		add(td);
 		td.setCssClass(cssclass);
 		return td;
 	}
 
-
+	@Nullable
 	@Override
 	public IDragHandler getDragHandler() {
 		return m_dragHandler;
 	}
 
 	@Override
-	public void setDragHandler(IDragHandler dh) {
+	public void setDragHandler(@Nullable IDragHandler dh) {
 		m_dragHandler = dh;
 	}
 }

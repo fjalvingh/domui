@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.lookup;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
@@ -32,7 +34,7 @@ import to.etc.util.*;
 
 final class LookupFactoryRelationCombo implements ILookupControlFactory {
 	@Override
-	public <X extends IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 
 		if(pmm.getRelationType() != PropertyRelationType.UP)
@@ -43,11 +45,11 @@ final class LookupFactoryRelationCombo implements ILookupControlFactory {
 	}
 
 	@Override
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
-		IInputNode< ? > input = control;
+	@SuppressWarnings({"unchecked"})
+	public <T, X extends IControl<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+		IControl< ? > input = control;
 		if(input == null) {
-			final PropertyMetaModel pmm = MetaUtils.getLastProperty(spm);
+			final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 			try {
 				ComboLookup< ? > co = ComboLookup.createLookup(pmm);
 				co.setMandatory(false);

@@ -516,6 +516,49 @@ public class HtmlTagRenderer implements INodeVisitor {
 			}
 		}
 
+		//Paddings
+		if(c.getPaddingBottom() != null || c.getPaddingLeft() != null || c.getPaddingRight() != null || c.getPaddingTop() != null) {
+			if(DomUtil.isEqual(c.getPaddingBottom(), c.getPaddingTop(), c.getPaddingLeft(), c.getPaddingRight())) {
+				a.append("padding:");
+				a.append(c.getPaddingLeft());
+				a.append(';');
+			} else {
+				boolean topbot = DomUtil.isEqual(c.getPaddingBottom(), c.getPaddingTop()) && c.getPaddingBottom() != null;
+				boolean leri = DomUtil.isEqual(c.getPaddingLeft(), c.getPaddingRight()) && c.getPaddingLeft() != null;
+				if(topbot && leri) {
+					a.append("padding:");
+					a.append(c.getPaddingTop());
+					a.append(' ');
+					a.append(c.getPaddingLeft());
+					a.append(';');
+				} else {
+					if(c.getPaddingLeft() != null) {
+						a.append("padding-left:");
+						a.append(c.getPaddingLeft());
+						a.append(';');
+					}
+
+					if(c.getPaddingRight() != null) {
+						a.append("padding-right:");
+						a.append(c.getPaddingRight());
+						a.append(';');
+					}
+
+					if(c.getPaddingBottom() != null) {
+						a.append("padding-bottom:");
+						a.append(c.getPaddingBottom());
+						a.append(';');
+					}
+
+					if(c.getPaddingTop() != null) {
+						a.append("padding-top:");
+						a.append(c.getPaddingTop());
+						a.append(';');
+					}
+				}
+			}
+		}
+		
 		if(c.getTransform() != null) {
 			a.append("text-transform:");
 			a.append(c.getTransform().name().toLowerCase());
@@ -631,7 +674,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		} else if(b.getOnClickJS() != null) {
 			o.attr("onclick", b.getOnClickJS());
 		}
-		if(b instanceof IHasChangeListener) {
+		if(b instanceof IHasChangeListener && b.getSpecialAttribute("onchange") == null) {
 			IHasChangeListener inb = (IHasChangeListener) b;
 			if(null != inb.getOnValueChanged()) {
 				o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
@@ -671,6 +714,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	@Override
 	public void visitSpan(final Span n) throws Exception {
+		basicNodeRender(n, m_o);
+		renderTagend(n, m_o);
+	}
+
+	@Override
+	public void visitUnderline(final Underline n) throws Exception {
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
@@ -899,6 +948,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 		//		if(! isUpdating())
 		o().attr("type", "file");
 		o().attr("name", n.getActualID());
+		renderDisabled(n, n.isDisabled());
+
 		//		if(n.isDisabled())
 		//			o().attr("disabled", "disabled");
 		//		if(n.getMaxLength() > 0)
@@ -1139,7 +1190,27 @@ public class HtmlTagRenderer implements INodeVisitor {
 		basicNodeRender(n, m_o);
 		if(n.getSrc() != null)
 			o().attr("src", n.getSrc());
+
+		/*
+		 * jal 20120412: IE's 'frameborder' attribute is case sensitive, sigh. It must be frameBorder
+		 */
+		if(n.getFrameBorder() != null)
+			o().attr("frameBorder", n.getFrameBorder());
+		if(n.getFrameHeight() != null)
+			o().attr("height", n.getFrameHeight());
+		if(n.getFrameWidth() != null)
+			o().attr("width", n.getFrameWidth());
+		if(n.getMarginHeight() != null)
+			o().attr("marginheight", n.getMarginHeight());
+		if(n.getMarginWidth() != null)
+			o().attr("marginwidth", n.getMarginWidth());
+		if(n.getName() != null)
+			o().attr("name", n.getName());
+		if(n.getScrolling() != null)
+			o().attr("scrolling", n.getScrolling());
+
 		renderTagend(n, m_o);
+		renderEndTag(n);
 	}
 
 	//	protected void	renderDraggableCrud(NodeBase b) {

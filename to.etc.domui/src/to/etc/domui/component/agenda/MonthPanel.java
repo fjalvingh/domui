@@ -275,10 +275,10 @@ public class MonthPanel extends Div {
 		//-- Walk all month rows and check which one contains this date
 		for(NodeBase row : m_body) {
 			TR tr = (TR) row;
-			if(tr.getRowData() == null)
+			Date rd = (Date) tr.getRowData();
+			if(rd == null)
 				continue;
 
-			Date rd = (Date) tr.getRowData();
 			long ets = rd.getTime() + 1000 * 7 * 86400l;
 			if(dt.getTime() >= rd.getTime() && dt.getTime() < ets) {
 				//-- Date is on this row; calculate the cell;

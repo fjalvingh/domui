@@ -33,6 +33,7 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 
 	public ColumnDefList(@Nonnull ClassMetaModel cmm) {
 		m_metaModel = cmm;
+		m_sortDescending = cmm.getDefaultSortDirection() == SortableType.SORTABLE_DESC;
 	}
 
 	public int size() {
@@ -40,6 +41,8 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 	}
 
 	public void add(@Nonnull SimpleColumnDef cd) {
+		if(null == cd)
+			throw new IllegalArgumentException("Cannot be null");
 		m_columnList.add(cd);
 	}
 
@@ -59,7 +62,7 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 			m_sortColumn = null;
 		} else {
 			for(final SimpleColumnDef scd : m_columnList) {
-				if(scd.getPropertyName().equals(sort)) {
+				if(DomUtil.isEqual(scd.getPropertyName(), sort)) {
 					setSortColumn(scd, scd.getSortable());
 					break;
 				}
@@ -71,6 +74,10 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 	public void setSortColumn(@Nullable SimpleColumnDef cd, @Nullable SortableType type) {
 		m_sortColumn = cd;
 		m_sortDescending = type == SortableType.SORTABLE_DESC;
+	}
+
+	public void setSortColumn(@Nullable SimpleColumnDef cd) {
+		m_sortColumn = cd;
 	}
 
 	/**
@@ -431,7 +438,8 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 
 			//-- Reassign the percentage left over all unassigned columns. Do it streaming, to ensure we reach 100%
 			for(final SimpleColumnDef scd : m_columnList) {
-				if(scd.getWidth() == null || scd.getWidth().length() == 0) {
+				String width = scd.getWidth();
+				if(width == null || width.length() == 0) {
 					//-- Calculate a size factor, then use it to assign
 					final double fact = (double) scd.getDisplayLength() / (double) totdw;
 					final int pct = (int) (fact * pctleft + 0.5);
@@ -455,5 +463,18 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 
 	public int indexOf(@Nonnull SimpleColumnDef scd) {
 		return m_columnList.indexOf(scd);
+	}
+
+	@Nullable
+	public SimpleColumnDef getSortColumn() {
+		return m_sortColumn;
+	}
+
+	public boolean isSortDescending() {
+		return m_sortDescending;
+	}
+
+	public void setSortDescending(boolean desc) {
+		m_sortDescending = desc;
 	}
 }

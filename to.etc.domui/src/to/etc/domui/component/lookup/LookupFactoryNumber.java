@@ -48,7 +48,7 @@ import to.etc.webapp.query.*;
  */
 final class LookupFactoryNumber implements ILookupControlFactory {
 	@Override
-	public <X extends to.etc.domui.dom.html.IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		if(control != null)
 			throw new IllegalStateException();
 
@@ -179,7 +179,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 	}
 
 	@Override
-	public <X extends to.etc.domui.dom.html.IInputNode< ? >> int accepts(final SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		if(control != null)
 			return -1;
 		PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);

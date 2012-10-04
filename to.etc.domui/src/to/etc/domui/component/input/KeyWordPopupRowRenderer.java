@@ -152,10 +152,11 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	private <X> void renderColumn(final TableModelTableBase<T> tbl, final ColumnContainer<T> cc, final int index, final T instance, final SimpleColumnDef cd) throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
 		X colval;
-		if(cd.getValueTransformer() == null)
+		IValueTransformer< ? > vtr = cd.getValueTransformer();
+		if(vtr == null)
 			colval = (X) instance;
 		else
-			colval = (X) cd.getValueTransformer().getValue(instance);
+			colval = (X) vtr.getValue(instance);
 
 		//-- Is a node renderer used?
 		TD cell;
