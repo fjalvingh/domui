@@ -26,12 +26,16 @@ package to.etc.domui.component.upload;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
+import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
+import to.etc.webapp.core.*;
 
 /**
  * Represents a file upload thingy which handles ajaxy uploads. The basic model
@@ -58,7 +62,7 @@ import to.etc.domui.util.upload.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2008
  */
-public class FileUpload extends Div {
+public class FileUpload extends Div implements IUploadAcceptingComponent /* implements IHasChangeListener */ {
 	private String m_allowedExtensions;
 
 	//	private int m_maxSize;
@@ -70,6 +74,10 @@ public class FileUpload extends Div {
 	List<UploadItem> m_files = new ArrayList<UploadItem>();
 
 	private FileInput m_input;
+
+	private IValueChanged< ? > m_onValueChanged;
+
+	private boolean m_disabled;
 
 	public FileUpload() {}
 
@@ -112,6 +120,7 @@ public class FileUpload extends Div {
 			FileInput fi = new FileInput();
 			f.add(fi);
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
+			fi.setDisabled(isDisabled());
 			if(null != m_allowedExtensions)
 				fi.setSpecialAttribute("fuallowed", m_allowedExtensions);
 			//			fi.setSpecialAttribute("fumaxsz", Integer.toString(m_maxSize));
@@ -122,12 +131,16 @@ public class FileUpload extends Div {
 			TD td = b.addCell();
 			td.setText(ufi.getRemoteFileName() + " (" + ufi.getContentType() + ")");
 			td = b.addCell();
-			td.add(new DefaultButton("delete", new IClicked<DefaultButton>() {
-				@Override
-				public void clicked(DefaultButton bx) throws Exception {
-					removeUploadItem(ufi);
-				}
-			}));
+			if(!isDisabled()) {
+				td.add(new DefaultButton("delete", new IClicked<DefaultButton>() {
+					@Override
+					public void clicked(DefaultButton bx) throws Exception {
+						removeUploadItem(ufi);
+						if(m_onValueChanged != null)
+							((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(FileUpload.this);
+					}
+				}));
+			}
 		}
 	}
 
@@ -149,6 +162,7 @@ public class FileUpload extends Div {
 	 * or to a BLOB in a database.
 	 * @return
 	 */
+	@Nonnull
 	public List<UploadItem> getFiles() {
 		return m_files;
 	}
@@ -170,6 +184,14 @@ public class FileUpload extends Div {
 		if(m_files.remove(ufi))
 			forceRebuild();
 	}
+
+	public void removeAllUploads() {
+		if(m_files.size() == 0)
+			return;
+		m_files.clear();
+		forceRebuild();
+	}
+
 
 	/**
 	 * Return the space separated list of allowed file extensions.
@@ -221,4 +243,42 @@ public class FileUpload extends Div {
 	public void setMaxFiles(int maxFiles) {
 		m_maxFiles = maxFiles;
 	}
+
+	public IValueChanged< ? > getOnValueChanged() {
+		return m_onValueChanged;
+	}
+
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		m_onValueChanged = onValueChanged;
+	}
+
+	public boolean isDisabled() {
+		return m_disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		if(m_disabled == disabled)
+			return;
+		m_disabled = disabled;
+		forceRebuild();
+	}
+
+	@Override
+	public void handleUploadRequest(@Nonnull RequestContextImpl param, @Nonnull ConversationContext conversation) throws Exception {
+		UploadItem[] uiar = param.getFileParameter(getInput().getActualID());
+		if(uiar != null) {
+			for(UploadItem ui : uiar) {
+				getFiles().add(ui);
+				conversation.registerUploadTempFile(ui.getFile());
+			}
+		}
+		forceRebuild();
+		if(m_onValueChanged != null)
+			((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(this);
+
+		//-- Render an optimal delta as the response,
+		ServerTools.generateNoCache(param.getResponse()); // Do not allow the browser to cache
+		ApplicationRequestHandler.renderOptimalDelta(param, getPage());
+	}
 }
+

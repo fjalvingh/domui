@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -31,7 +33,7 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
 @Deprecated
-abstract public class SelectBasedControl<T> extends Select implements IInputNode<T>, IHasModifiedIndication {
+abstract public class SelectBasedControl<T> extends Select implements IControl<T>, IHasModifiedIndication {
 	private String m_emptyText;
 
 	private T m_currentValue;
@@ -109,10 +111,10 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IInputNode<T> implementation.						*/
+	/*	CODING:	IControl<T> implementation.						*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 * @see to.etc.domui.dom.html.IControl#getValue()
 	 */
 	@Override
 	final public T getValue() {
@@ -125,10 +127,10 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 
 	/**
 	 *
-	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
+	 * @see to.etc.domui.dom.html.IControl#setValue(java.lang.Object)
 	 */
 	@Override
-	final public void setValue(T v) {
+	final public void setValue(@Nullable T v) {
 		ClassMetaModel cmm = v != null ? MetaManager.findClassMeta(v.getClass()) : null;
 		if(MetaManager.areObjectsEqual(v, m_currentValue, cmm))
 			return;
@@ -156,7 +158,7 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
 	 */
 	@Override
 	public T getValueSafe() {
@@ -164,7 +166,7 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 * @see to.etc.domui.dom.html.IControl#hasError()
 	 */
 	@Override
 	public boolean hasError() {
@@ -183,7 +185,7 @@ abstract public class SelectBasedControl<T> extends Select implements IInputNode
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
 	@Override
-	public IBinder bind() {
+	public @Nonnull IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
 		return m_binder;

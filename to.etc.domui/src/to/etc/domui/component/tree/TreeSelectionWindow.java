@@ -99,28 +99,26 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		m_tree.setCellClicked(this);
 	}
 
-	@SuppressWarnings("rawtypes")
 	protected void cancel() throws Exception {
 		close();
 		m_selected = null;
 		m_selectedNode = null;
 
 		if(getCancelClicked() != null) {
-			((IClicked) getCancelClicked()).clicked(this);
+			((IClicked<TreeSelectionWindow<T>>) getCancelClicked()).clicked(this);
 			return;
 		}
 		if(getClicked() != null) {
-			((IClicked) getClicked()).clicked(this);
+			((IClicked<TreeSelectionWindow<T>>) getClicked()).clicked(this);
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
 	protected void select() throws Exception {
 		if(m_selected == null)
 			return;
 		close();
 		if(getClicked() != null) {
-			((IClicked) getClicked()).clicked(this);
+			((IClicked<TreeSelectionWindow<T>>) getClicked()).clicked(this);
 		}
 	}
 

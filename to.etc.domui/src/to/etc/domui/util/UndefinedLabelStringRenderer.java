@@ -24,6 +24,8 @@
  */
 package to.etc.domui.util;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 public class UndefinedLabelStringRenderer implements ILabelStringRenderer<Object>, INodeContentRenderer<Object> {
@@ -33,7 +35,7 @@ public class UndefinedLabelStringRenderer implements ILabelStringRenderer<Object
 	}
 
 	@Override
-	public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameter) {
+	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameter) {
 		throw new IllegalStateException();
 	}
 }

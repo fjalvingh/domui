@@ -37,7 +37,7 @@ public class BooleanConverter implements IConverter<Boolean> {
 		if("TRUE".equalsIgnoreCase(in) || "Y".equalsIgnoreCase(in) || "YES".equalsIgnoreCase(in)) {
 			return Boolean.TRUE;
 		}
-		if("FALSE".equalsIgnoreCase(in) || "N".equalsIgnoreCase(in) || "NO".equalsIgnoreCase(in)) {
+		if("FALSE".equalsIgnoreCase(in) || "N".equalsIgnoreCase(in) || "NO".equalsIgnoreCase(in) || "".equalsIgnoreCase(in)) {
 			return Boolean.FALSE;
 		}
 		throw new IllegalStateException("Unreasonable text conversion from string to boolean.");

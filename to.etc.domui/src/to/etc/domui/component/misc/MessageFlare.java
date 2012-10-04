@@ -6,6 +6,7 @@ import javax.annotation.*;
 
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.themes.*;
 
 /**
  * Message flare component. Shows message flare on screen.
@@ -70,7 +71,7 @@ public class MessageFlare extends Flare {
 				img = new Img("THEME/info.png");
 				break;
 			case WARNING:
-				img = new Img("THEME/warning.png");
+				img = new Img(Theme.ICON_WARNING);
 				break;
 			default:
 				throw new IllegalStateException("Unknown msg type:" + m_type);

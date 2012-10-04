@@ -104,7 +104,7 @@ public class SvgPartFactory implements IBufferedPartFactory, IUrlPart {
 	}
 
 	@Override
-	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
 		int width = PartUtil.getInt(param, "w", -1);
 		int height = PartUtil.getInt(param, "h", -1);
 		return new SvgKey(rurl, width, height);

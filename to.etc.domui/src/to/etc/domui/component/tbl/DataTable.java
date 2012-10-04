@@ -234,7 +234,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @throws Exception
 	 */
 	@SuppressWarnings("deprecation")
-	private void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable final T value) throws Exception {
+	private void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull final T value) throws Exception {
 		//-- Is a rowclick handler needed?
 		ISelectionModel<T> sm = getSelectionModel();
 		if(m_rowRenderer.getRowClicked() != null || null != sm) {
@@ -279,7 +279,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @throws Exception
 	 */
 	@Deprecated
-	void internalRenderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable final T value) throws Exception {
+	void internalRenderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull final T value) throws Exception {
 		m_rowRenderer.renderRow(this, cc, index, value);
 	}
 
@@ -326,7 +326,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param clinfo
 	 * @param setTo		When null toggle, else set to specific.
 	 */
-	private void handleSelectClicky(@Nullable T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
+	private void handleSelectClicky(@Nonnull T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
 		ISelectionModel<T> sm = getSelectionModel();
 		if(null == sm)
 			throw new IllegalStateException("SelectionModel is null??");
@@ -562,7 +562,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
+	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
 		calcIndices(); // Calculate visible nodes
@@ -602,7 +602,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowDeleted(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
+	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
 
@@ -659,7 +659,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
+	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
 		if(index < m_six || index >= m_eix) // Outside visible bounds

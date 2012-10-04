@@ -54,7 +54,7 @@ public class MarkerImagePart implements IBufferedPartFactory {
 	private static final Color DEFAULT_COLOR = Color.GRAY;
 
 	@Override
-	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
 		MarkerImagePartKey key = MarkerImagePartKey.decode(param);
 		return key;
 	}

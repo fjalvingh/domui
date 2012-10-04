@@ -187,7 +187,7 @@ final public class UIControlUtil {
 	 * @deprecated Use {@link Text#createBDMoneyInput(PropertyMetaModel<?>,boolean)} instead
 	 */
 	@Deprecated
-	static public Text<BigDecimal> createBDMoneyInput(PropertyMetaModel< ? > pmm, boolean editable) {
+	static public Text<BigDecimal> createBDMoneyInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
 		return Text.createBDMoneyInput(pmm, editable);
 	}
 
@@ -196,7 +196,7 @@ final public class UIControlUtil {
 	 */
 	@Deprecated
 	@Nonnull
-	static public Text<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
+	static public Text<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel<Double> pmm, boolean editable) {
 		return Text.createDoubleMoneyInput(pmm, editable);
 	}
 

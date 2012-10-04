@@ -35,11 +35,11 @@ import to.etc.webapp.query.*;
  * Created on Nov 19, 2009
  */
 final public class EqLookupControlImpl extends AbstractLookupControlImpl {
-	final private IInputNode< ? > m_control;
+	final private IControl< ? > m_control;
 
 	final private String m_property;
 
-	public EqLookupControlImpl(String property, IInputNode< ? > n) {
+	public EqLookupControlImpl(String property, IControl< ? > n) {
 		super((NodeBase) n);
 		m_control = n;
 		m_property = property;

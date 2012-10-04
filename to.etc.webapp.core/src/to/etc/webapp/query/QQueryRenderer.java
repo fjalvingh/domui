@@ -235,6 +235,7 @@ public class QQueryRenderer extends QNodeVisitorBase {
 				throw new IllegalStateException("Unexpected operation type="+op);
 			case AND:	return "and";
 			case OR:	return "or";
+			case NOT:	return "not";
 			case BETWEEN:	return "between";
 			case EQ:	return "=";
 			case NE:	return "!=";
@@ -263,7 +264,10 @@ public class QQueryRenderer extends QNodeVisitorBase {
 				return 10;
 			case AND:
 				return 20;
-			/*case IN: */ case BETWEEN: case LIKE: case ILIKE:
+			case NOT:
+				return 25;
+			/*case IN: */ 
+			case BETWEEN: case LIKE: case ILIKE:
 				return 30;
 
 			case LT: case LE: case GT: case GE: case EQ: case NE: case ISNULL: case ISNOTNULL:

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
@@ -34,7 +36,7 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 19, 2010
  */
-abstract public class AbstractDivControl<T> extends Div implements IInputNode<T> {
+abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	private boolean m_readOnly;
 
 	private boolean m_disabled;
@@ -101,7 +103,7 @@ abstract public class AbstractDivControl<T> extends Div implements IInputNode<T>
 	}
 
 	@Override
-	public void setValue(T v) {
+	public void setValue(@Nullable T v) {
 		if(MetaManager.areObjectsEqual(v, m_value))
 			return;
 		m_value = v;
@@ -147,7 +149,7 @@ abstract public class AbstractDivControl<T> extends Div implements IInputNode<T>
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
 	@Override
-	public IBinder bind() {
+	public @Nonnull IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
 		return m_binder;

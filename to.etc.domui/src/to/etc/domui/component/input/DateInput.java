@@ -26,6 +26,8 @@ package to.etc.domui.component.input;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -183,6 +185,7 @@ public class DateInput extends Text<Date> {
 		m_hideTodayButton = hideTodayButton;
 	}
 
+	@Nonnull
 	public static DateInput createDateInput(Class< ? > clz, String property, boolean editable) {
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(clz, property);
 		Class< ? > aclz = pmm.getActualType();
@@ -191,10 +194,12 @@ public class DateInput extends Text<Date> {
 		return DateInput.createDateInput((PropertyMetaModel<Date>) pmm, editable);
 	}
 
+	@Nonnull
 	public static DateInput createDateInput(PropertyMetaModel<Date> pmm, boolean editable) {
 		return createDateInput(pmm, editable, false);
 	}
 
+	@Nonnull
 	public static DateInput createDateInput(PropertyMetaModel<Date> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		DateInput di = new DateInput();
 		if(pmm.isRequired())

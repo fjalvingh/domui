@@ -26,6 +26,7 @@ package to.etc.domui.component.form;
 
 import org.slf4j.*;
 
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -51,9 +52,6 @@ public class FormBuilderBase {
 	private Object m_context;
 
 	private ModelBindings m_bindings = new ModelBindings();
-
-	/** Thingy to help calculating access rights (delegate) */
-	private final AccessCalculator m_calc = new AccessCalculator();
 
 	private ControlBuilder m_builder;
 
@@ -96,33 +94,13 @@ public class FormBuilderBase {
 	 * @param editable		When false this must make a displayonly control.
 	 * @return				The binding to bind the control to it's valueset
 	 */
-	protected ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel< ? > pmm, final boolean editable, Object context) {
-		return getBuilder().createControlFor(model, pmm, editable, context); // Delegate
-	}
-
 	protected ControlFactoryResult createControlFor(final IReadOnlyModel< ? > model, final PropertyMetaModel< ? > pmm, final boolean editable) {
-		return createControlFor(model, pmm, editable, getContext());
+		return getBuilder().createControlFor(model, pmm, editable); // Delegate
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple getters and internal stuff.					*/
 	/*--------------------------------------------------------------*/
-
-	/**
-	 * Access the shared permissions calculator.
-	 */
-	protected AccessCalculator rights() {
-		return m_calc;
-	}
-
-	public Object getContext() {
-		return m_context;
-	}
-
-	public void setContext(Object context) {
-		m_context = context;
-	}
-
 	/**
 	 * Set or change the current base class and base model. This can be changed whenever needed.
 	 *

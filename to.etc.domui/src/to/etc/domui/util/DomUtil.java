@@ -105,7 +105,7 @@ final public class DomUtil {
 		return true;
 	}
 
-	static public <T> T getValueSafe(IInputNode<T> node) {
+	static public <T> T getValueSafe(IControl<T> node) {
 		try {
 			return node.getValue();
 		} catch(ValidationException x) {
@@ -453,6 +453,24 @@ final public class DomUtil {
 	static public String createPageURL(Class< ? extends UrlPage> clz, PageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(UIContext.getRequestContext().getRelativePath(clz.getName()));
+		sb.append('.');
+		sb.append(DomApplication.get().getUrlExtension());
+		if(pp != null)
+			addUrlParameters(sb, pp, true);
+		return sb.toString();
+	}
+
+	/**
+	 * Create a relative URL for the specified page (an URL that is relative to the application's context, i.e. without
+	 * hostname nor webapp context).
+	 * @param clz
+	 * @param pp
+	 * @return
+	 */
+	@Nonnull
+	static public String createPageRURL(@Nonnull Class< ? extends UrlPage> clz, @Nullable PageParameters pp) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(clz.getName());
 		sb.append('.');
 		sb.append(DomApplication.get().getUrlExtension());
 		if(pp != null)

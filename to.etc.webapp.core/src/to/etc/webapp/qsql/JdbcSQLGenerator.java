@@ -454,6 +454,8 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 				return "and";
 			case OR:
 				return "or";
+			case NOT:
+				return "not";
 			case BETWEEN:
 				return "between";
 			case EQ:
@@ -494,7 +496,10 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 				return 10;
 			case AND:
 				return 20;
-				/*case IN: */case BETWEEN:
+			case NOT:
+				return 25;
+				/*case IN: */
+			case BETWEEN:
 			case LIKE:
 			case ILIKE:
 				return 30;
@@ -537,6 +542,26 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 					return;
 				}
 				break;
+			case NOT:
+				if(n.getNode() == null) {
+					return;
+				}
+				appendOperation(n.getOperation());
+				int oldprec = m_curPrec;
+				m_curPrec = getOperationPrecedence(n.getOperation());
+
+				if(oldprec > m_curPrec){
+					appendWhere("(");
+				}
+				
+				n.getNode().visit(this);
+
+				if(oldprec > m_curPrec){
+					appendWhere(")");
+				}
+				
+				m_curPrec = oldprec;
+				return;
 		}
 		throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 	}

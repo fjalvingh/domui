@@ -24,6 +24,7 @@
  */
 package to.etc.domui.util;
 
+import to.etc.domui.themes.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -265,6 +266,9 @@ public interface Msgs {
 
 	public static final String EDLG_CANCEL = "edlg.cancel";
 
+	/*** BulkUpload ***/
+	public static final String BULKUPLD_DISABLED = "bupl.disabled";
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Available icons within the framework theme set.		*/
@@ -275,15 +279,15 @@ public interface Msgs {
 
 	static public final String BTN_SHOW_CALENDAR = "THEME/btn-datein.png";
 
-	static public final String BTN_LOOKUP = "THEME/btn-popuplookup.png";
+	static public final String BTN_LOOKUP = Theme.BTN_POPUPLOOKUP;
 
-	static public final String BTN_CANCEL = "THEME/btnCancel.png";
+	static public final String BTN_CANCEL = Theme.BTN_CANCEL;
 
-	static public final String ICON_CHECKMARK = "THEME/btnCheckmark.png";
+	static public final String ICON_CHECKMARK = Theme.BTN_CHECKMARK;
 
 	static public final String BTN_CLEAR = "THEME/btnClear.png";
 
-	static public final String BTN_CLEAR_LOOKUP = "THEME/btnClearLookup.png";
+	static public final String BTN_CLEAR_LOOKUP = Theme.BTN_CLEARLOOKUP;
 
 	static public final String BTN_CLOCK = "THEME/btnClock.png";
 
@@ -315,7 +319,7 @@ public interface Msgs {
 
 	static public final String ICON_BIG_WARNING = "THEME/mbx-warning.png";
 
-	static public final String ICON_BIG_ERROR = "THEME/mbx-error.png";
+	static public final String ICON_BIG_ERROR = Theme.ICON_ERROR;
 
 	static public final String ICON_BIG_QUESTION = "THEME/mbx-question.png";
 

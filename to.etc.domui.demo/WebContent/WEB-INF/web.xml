@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>to.etc.domui.demo</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  <!-- 
+  	******************************************************
+  	This filter declaration is the most important part to get DomUI running. It MUST be mapped to ALL URL's.
+   -->
+ <filter>
+  <filter-name>DomFilter</filter-name>
+  <filter-class>to.etc.domui.server.AppFilter</filter-class>
+  <init-param>
+   <param-name>application</param-name>
+   <param-value>to.etc.domuidemo.Application</param-value>
+  </init-param>
+  <!-- This defines the extension for all DomUI class pages. It defaults to .ui -->
+  <init-param>
+   <param-name>extension</param-name>
+   <param-value>ui</param-value>
+  </init-param>
+  <!-- This allows changing of pages and page parts at runtime, for quick development. It enables advanced classloading to reload classes that are changed. -->
+  <init-param>
+   <param-name>auto-reload</param-name>
+   <param-value>to\.etc\.domuidemo\.pages.*, to\.etc\.domuidemo\.component.*, .*\.component[s?]\..*, .*\.pages\..*</param-value>
+  </init-param>
+ </filter>
+ <filter-mapping>
+  <filter-name>DomFilter</filter-name>
+  <url-pattern>/*</url-pattern>
+ </filter-mapping>
+</web-app>

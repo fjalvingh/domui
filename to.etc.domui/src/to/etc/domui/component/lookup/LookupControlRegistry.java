@@ -26,6 +26,8 @@ package to.etc.domui.component.lookup;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
@@ -35,7 +37,8 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 23, 2008
  */
-public class LookupControlRegistry {
+final public class LookupControlRegistry {
+	@Nonnull
 	private List<ILookupControlFactory> m_factoryList = new ArrayList<ILookupControlFactory>();
 
 	public LookupControlRegistry() {
@@ -48,16 +51,18 @@ public class LookupControlRegistry {
 		register(new LookupFactoryRelationCombo());
 	}
 
+	@Nonnull
 	public synchronized List<ILookupControlFactory> getFactoryList() {
 		return m_factoryList;
 	}
 
-	public synchronized void register(ILookupControlFactory f) {
+	public synchronized void register(@Nonnull ILookupControlFactory f) {
 		m_factoryList = new ArrayList<ILookupControlFactory>(m_factoryList);
 		m_factoryList.add(f);
 	}
 
-	public ILookupControlFactory findFactory(SearchPropertyMetaModel pmm) {
+	@Nullable
+	public ILookupControlFactory findFactory(@Nonnull SearchPropertyMetaModel pmm) {
 		ILookupControlFactory best = null;
 		int score = 0;
 		for(ILookupControlFactory cf : getFactoryList()) {
@@ -70,15 +75,16 @@ public class LookupControlRegistry {
 		return best;
 	}
 
-	public ILookupControlFactory getControlFactory(SearchPropertyMetaModel pmm) {
+	@Nonnull
+	public ILookupControlFactory getControlFactory(@Nonnull SearchPropertyMetaModel pmm) {
 		ILookupControlFactory cf = findFactory(pmm);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a Lookup Control factory for " + pmm);
 		return cf;
 	}
 
-
-	public <X extends NodeBase & IInputNode< ? >> ILookupControlFactory getLookupQueryFactory(final SearchPropertyMetaModel pmm, X control) {
+	@Nonnull
+	public <T, X extends NodeBase & IControl<T>> ILookupControlFactory getLookupQueryFactory(@Nonnull final SearchPropertyMetaModel pmm, @Nonnull X control) {
 		ILookupControlFactory best = null;
 		int score = 0;
 		for(ILookupControlFactory cf : getFactoryList()) {

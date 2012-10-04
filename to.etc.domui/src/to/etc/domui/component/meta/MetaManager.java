@@ -274,7 +274,7 @@ final public class MetaManager {
 		final ILabelStringRenderer<Object> lr = (ILabelStringRenderer<Object>) DomApplication.get().createInstance(lsr);
 		return new INodeContentRenderer<Object>() {
 			@Override
-			public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) {
+			public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) {
 				String text = lr.getLabelFor(object);
 				if(text != null)
 					node.setText(text);
@@ -288,7 +288,7 @@ final public class MetaManager {
 
 	static private INodeContentRenderer< ? > TOSTRING_RENDERER = new INodeContentRenderer<Object>() {
 		@Override
-		public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) {
+		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) {
 			if(object != null)
 				node.setText(object.toString());
 		}

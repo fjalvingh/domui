@@ -28,6 +28,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 
 abstract public class ButtonMakerBase {
 	abstract protected void addButton(NodeBase b);
@@ -63,7 +64,7 @@ abstract public class ButtonMakerBase {
 	}
 
 	public DefaultButton addBackButton() {
-		return addBackButton("Terug", "THEME/btnCancel.png");
+		return addBackButton("Terug", Theme.BTN_CANCEL);
 	}
 
 	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click) {
