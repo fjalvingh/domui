@@ -83,7 +83,7 @@ final public class BundleRef extends BundleBase implements IBundle {
 	 * Create or find the BundleRef representing this path. If the ref already exists it gets
 	 * returned, else it gets created lazily.
 	 * @param clz
-	 * @param name
+	 * @param name Name of the bundle file (minus the ".properties" extension). Case is important!!!
 	 * @return
 	 */
 	static public synchronized BundleRef create(final Class< ? > clz, final String name) {
