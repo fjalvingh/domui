@@ -282,6 +282,7 @@ td.ui-tr-selected {
 	border: 1px solid <%= readonly_border %>;
 	display:block;
 	padding:2px;
+	min-height:1em;
 }
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
