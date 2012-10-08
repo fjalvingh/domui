@@ -135,6 +135,8 @@ final public class PoolConfig {
 			m_logResultSetLocations = cs.getBool(id, "logrslocations", m_logResultSetLocations); // Only override default if explicitly set.
 			m_ignoreUnclosed = cs.getBool(id, "ignoreunclosed", m_ignoreUnclosed); //ditto
 			m_collectStatistics = cs.getBool(id, "statistics", false);
+			m_logAllocation = cs.getBool(id, "logallocation", false);
+			m_logAllocationStack = cs.getBool(id, "logallocationstack", false);
 
 			dp = cs.getProperty(id, "driverpath");
 			if(dp != null) {
