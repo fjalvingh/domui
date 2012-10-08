@@ -2,9 +2,11 @@
  * DomUI "blue" stylesheet.
  * File represents composition of fragments that are defining default style for each component.
  */
+
 /*** 000_dateinput.frag.css ***/
 /*** Date input ***/
 @IMPORT url("calendar-blue2.css");
+
 /*** 002_core.frag.css ***/
 /*** Core style ***/
 /* Body style */
@@ -63,6 +65,7 @@ button {
 .page-content {
 	margin: 0px 10px;
 }
+
 /*** 005_oddchars.frag.css ***/
 /*** Select special chars ***/
 .ui-oddchars {
@@ -92,6 +95,7 @@ button {
 .ui-oddchars-dt:hover {
 	background-color: #ffe1bf;
 }
+
 /*** 010_apptitle.frag.css ***/
 /*** App Title bar ***/
 .ui-atl-bb {
@@ -116,6 +120,7 @@ button {
 	font-weight: bold;
 	font-size: <%= hdr_font_size %>;
 }
+
 /*** 015_splitterbar.frag.css ***/
 /*** SplitterPanel. These style names are required by jquery.splitter.js ***/
 .splitbarV {
@@ -216,6 +221,7 @@ button {
 	height: 100%;
 	position: relative;
 }
+
 /*** 020_bugindicator.frag.css ***/
 /*** Bug indicator UI ***/
 .ui-bug-ind {
@@ -240,6 +246,7 @@ button {
 	font-family: monospace;
 	font-size: 8px;
 }
+
 /*** 025_displaycheckbox.frag.css ***/
 /*** DisplayCheckbox ***/
 .ui-dspcb {
@@ -247,6 +254,7 @@ button {
 	width: 18px;
 	height: 18px;
 }
+
 /*** 030_tree.frag.css ***/
 /*** Tree component ***/
 .ui-tree .selected {
@@ -275,6 +283,7 @@ td.ui-tr-selected {
 .ui-tree {
 /*	height: 100%;		jal 20111025 - setting this causes trouble if tree is not alone in div.. Fixed for OldHelp browser */
 }
+
 /*** 035_displayvalue.frag.css ***/
 /*** DisplayValue ***/
 .ui-dspv {
@@ -282,7 +291,9 @@ td.ui-tr-selected {
 	border: 1px solid <%= readonly_border %>;
 	display:block;
 	padding:2px;
+	min-height:1em;
 }
+
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
 .ui-chdr {
@@ -310,6 +321,7 @@ td.ui-tr-selected {
 	width: 1%;
 	overflow: visible;
 }
+
 /*** 045_errormessagediv.frag.css ***/
 /*** ErrorMessageDiv helper for components that handle their error display ***/
 .ui-emd {
@@ -334,6 +346,7 @@ td.ui-tr-selected {
 .ui-emd-warning {
 	background-image: url(mini-warning.png);
 }
+
 /*** 050_popinpanel.frag ***/
 /*** Pop-in panel ***/
 div.ui-popin {
@@ -354,6 +367,7 @@ div.ui-popin {
 	padding: 3px;
 	font-weight: bold;
 }
+
 /*** 055_misc.frag.css ***/
 /*** Miscellaneous components styles ***/
 /* AccessDeniedPage */
@@ -427,6 +441,7 @@ div.ui-ipa img {
 	background-color: #e5e5e5;
 }
 
+
 /*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
 .ui-mbx-top {
@@ -440,6 +455,7 @@ div.ui-ipa img {
 .ui-mbx-mc {
 	font-size: 13px;
 }
+
 /*** 065_linkbutton.frag.css ***/
 /*** LinkButton component. ***/
 .ui-lbtn {
@@ -469,6 +485,7 @@ a.ui-lnkb-dis {
 a:hover.ui-lnkb-dis {
 	text-decoration: none !important;
 }
+
 /*** 070_alink.frag.css ***/
 /*** ALink component. ***/
 .ui-alnk {
@@ -479,6 +496,7 @@ a:hover.ui-lnkb-dis {
 	background-position: left;
 	padding-left: 18px;
 }
+
 /*** 075_draganddrop.frag.css ***/
 /*** Drag and drop ***/
 .ui-drgbl {
@@ -494,6 +512,7 @@ a:hover.ui-lnkb-dis {
 	background: url(dnd-separator.png) repeat-x center;
 	text-align: center;
 }
+
 /*** 080_listshuttle.frag.css ***/
 /*** List Shuttle ***/
 .ui-sh {
@@ -517,6 +536,7 @@ table .ui-sh {
 .ui-sh-sc .selected, .ui-sh-tc .selected {
 	background-color: <%= selected_bg %>;
 }
+
 /*** 085_breadcrumb.frag.css ***/
 /*** BreadCrumb ***/
 .ui-brc {
@@ -548,6 +568,7 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 	color: white;
 	font-weight: bolder;
 }
+
 /*** 090_buttonbar.frag.css ***/
 /*** ButtonBar component ***/
 .ui-buttonbar {
@@ -568,6 +589,7 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 	padding: 0; margin: 0;
 	height: 36px;
 }
+
 /*** 095_monthpanel.frag.css ***/
 /*** MonthPanel ***/
 .ui-mp {
@@ -607,6 +629,7 @@ TD.ui-mp-ch:hover {
 .ui-mp-mrk {
 	background-color: yellow;
 }
+
 /*** 100_calendar.frag.css ***/
 /*** Calendar schedule ***/
 .ui-wa {
@@ -701,6 +724,7 @@ table.ui-wa-bgtbl {
 .ui-wa-nt {
 	background-color: #ff4d00;
 }
+
 /*** 105_lookupinput.frag.css ***/
 /*** LookupInput thingerydoo ***/
 .ui-lui {
@@ -798,6 +822,7 @@ tr.ui-keyword-popop-rowsel:hover {
 tr.ui-keyword-popup-row {
 	cursor: pointer;
 }
+
 /*** 110_multiplelookupinput.frag.css ***/
 /*** MultipleLookupInput thingerydoo ***/
 .ui-mli-cnt { /* selection container */
@@ -826,11 +851,13 @@ tr.ui-keyword-popup-row {
 	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
 	*display:inline;
 }
+
 /*** 115_lookupform.frag.css ***/
 /*** LookupForm ***/
 .ui-lf-coll {
 	border-bottom: 1px dotted #666666;
 }
+
 /*** 120_forms.frag.css ***/
 /*** Form basic styles ***/
 /* these are for forms having the label BEFORE the field (horizontal). */
@@ -882,6 +909,7 @@ tr.ui-keyword-popup-row {
 	border:1px solid <%= readonly_border %>;
 	background-color: <%= readonly_bg %>;
 }
+
 /*** 125_numeric.frag.css ***/
 /*** Typed presentation for fields containing numerics ***/
 .ui-numeric {
@@ -891,6 +919,7 @@ tr.ui-keyword-popup-row {
 TD.ui-numeric {
 	padding-right: 3px;
 }
+
 /*** 130_imagebutton.frag.css ***/
 /*** Image Button ***/
 .ui-ib {
@@ -915,6 +944,7 @@ td .ui-ib[class] {
 .ui-ib:hover {
 	background: #cccccc;
 }
+
 /*** 135_expandingtable.frag.css ***/
 /*** ExpandingTable ***/
 .ui-xdt {
@@ -959,6 +989,7 @@ div:hover.ui-xdt-exp {
 	padding: 10px 0px 10px 0px;
 	font-style: italic;
 }
+
 /*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
 div.ui-dt {
@@ -1038,6 +1069,7 @@ tbody td.ui-dt-separator {
 .ui-dt .mselected {
 	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
+
 /*** 145_smallimgbutton.frag.css ***/
 /*** Small Image button ***/
 .ui-sib {
@@ -1058,6 +1090,7 @@ tbody td.ui-dt-separator {
 .ui-sib:hover {
 	background-color: <%= header_bg %> !important;
 }
+
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
@@ -1067,6 +1100,7 @@ tbody td.ui-dt-separator {
 	background: url(bg-header.png.svg) repeat-x;
 /*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
 }
+
 /*** 155_captionedpanel.frag.css ***/
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
@@ -1086,6 +1120,7 @@ tbody td.ui-dt-separator {
 	position: relative;
 	padding: 5px;
 }
+
 /*** 160_errorpanel.frag.css ***/
 /*** ErrorPanel - a CaptionedPanel used to display errors in the page ***/
 .ui-err-outer { /*	background-color: #ffe5e5; */
@@ -1105,6 +1140,7 @@ tbody td.ui-dt-separator {
 .ui-input-err {
 	background-color: <%= error_input_bg %> !important;
 }
+
 /*** 165_tabpanel.frag.css ***/
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
 .ui-tab-hdr {
@@ -1184,6 +1220,7 @@ li.ui-tab-err {
 .ui-tab-pag {
 	border-top: 1px solid black;
 }
+
 /*** 170_scrollabletabpanel.frag.css ***/
 /*** ScrollableTabPanel ***/
 .ui-stab-hdr {
@@ -1263,6 +1300,7 @@ li.ui-tab-err {
 	background: url(tab-scrl-right.png) no-repeat transparent center;
 	cursor: pointer;
 }
+
 /*** 175_iohideroverlay.frag.css ***/
 /*** IO hider overlay ***/
 .ui-io-blk {
@@ -1286,6 +1324,7 @@ li.ui-tab-err {
 	filter:alpha(opacity=50);
 	z-index: 1000;
 }
+
 /*** 180_percentageprogress.frag.css ***/
 /*** Percentage progress bar ***/
 .ui-pct-rlr {
@@ -1305,6 +1344,7 @@ li.ui-tab-err {
 <% if(browser.isFirefox()) { %>
 /** FIREFOX BROWSERT */
 <% } %>
+
 /*** 185_displayhtml.frag.css ***/
 /*** DisplayHtml ***/
 .ui-dhtml-blk {
@@ -1321,6 +1361,7 @@ li.ui-tab-err {
 	display: inline;
 }
 <% } %>
+
 /*** 190_searchinput.frag.css ***/
 /*** Search Input ***/
 .ui-qsi {
@@ -1332,6 +1373,7 @@ li.ui-tab-err {
 	display: inline;
 }
 <% } %>
+
 /*** 195_helperclasses.frag.css ***/
 /*** Helper classes ***/
 .no-wrap{
@@ -1359,6 +1401,7 @@ li.ui-tab-err {
 .ui-nowrap {
 	white-space: nowrap;
 }
+
 /*** 200_devmode.frag.css ***/
 /*** Development mode popup ***/
 .ui-ipt {
@@ -1390,6 +1433,7 @@ li.ui-tab-err {
 .ui-ipt-btn {
 	cursor: crosshair;
 }
+
 /*** 205_colorpicker.frag.css ***/
 /*** Color picker ***/
 .colorpicker {
@@ -1571,6 +1615,7 @@ li.ui-tab-err {
 	left: 4px;
 	top: 4px;
 }
+
 /*** 210_popupmenu.frag.css ***/
 /*** Popup menu ***/
 .ui-pmnu {
@@ -1708,6 +1753,7 @@ li.ui-tab-err {
 	width:			100%;
 	padding-bottom:	0.35ex; /* to 'vertically center' text inside text-span */
 }
+
 /*** 220_resizable.frag.css ***/
 /*** jquery.ui resizable and floatingDiv styles. ***/
 .ui-resizable-se {
@@ -1743,6 +1789,7 @@ li.ui-tab-err {
 	height: 16px;
 	background: url(resize.png) no-repeat;
 }
+
 /*** 225_floatingwindow.frag.css ***/
 /*** Window and FloatingDiv styles. ***/
 .ui-flw {
@@ -1804,6 +1851,7 @@ li.ui-tab-err {
 	margin-top: -1px;
 	margin-right: -2px;
 }
+
 /*** 230_defaultbutton.frag.css ***/
 /*** DefaultButton (replaces old version, this one uses hover effects) ***/
 .ui-dbtn {
@@ -1816,6 +1864,7 @@ li.ui-tab-err {
 .ui-dbtn[disabled] {
 	background-position: 0px -<%= defaultbutton_height*2 %>px !important;
 }
+
 /*** 235_flare.frag.css ***/
 /*** Flare component. ***/
 .ui-flare {
@@ -1857,6 +1906,7 @@ li.ui-tab-err {
 .ui-flare-msg div div {
 	font-size: large;
 }
+
 /*** 240_labelselector.frag.css ***/
 /*** LabelSelector component ***/
 .ui-lsel-sel {
@@ -1883,6 +1933,7 @@ li.ui-tab-err {
 .ui-lsel-sel input {
         border: none;
 }
+
 /*** 245_bulkupload.frag.css ***/
 /*** BulkUpload component ***/
 .ui-bupl {
@@ -1979,6 +2030,7 @@ li.ui-tab-err {
 	background-color: blue;
 	margin-top: 2px;
 }
+
 /*** MessageLine ***/
 .ui-msgln {
 	padding: 4px 0px;
@@ -1989,3 +2041,5 @@ li.ui-tab-err {
 .ui-msgln-txt {
 	padding-left: 4px;
 }
+
+
