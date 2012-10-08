@@ -160,7 +160,46 @@ public class ButtonBar extends Table {
 	}
 
 	public DefaultButton addBackButton() {
+		List<IShelvedEntry> ps = getPage().getConversation().getWindowSession().getShelvedPageStack();
+		if(ps.size() > 1) {									// Nothing to go back to (only myself is on page) -> exit
+			IShelvedEntry se = ps.get(ps.size() - 2);		// Get the page before me
+			if(se.isClose()) {
+				return addCloseButton();
+			}
+		}
+
+		//-- Nothing worked: just add a default back button that will go back to application home if the stack is empty
 		return addBackButton(Msgs.BUNDLE.getString("ui.buttonbar.back"), Theme.BTN_CANCEL);
+	}
+
+	@Nonnull
+	public DefaultButton addCloseButton(@Nonnull String txt, @Nonnull String icon) {
+		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
+			@Override
+			public void clicked(DefaultButton clickednode) throws Exception {
+				getPage().getBody().closeWindow();
+			}
+		});
+		addButton(b);
+		return b;
+	}
+
+	@Nonnull
+	public DefaultButton addCloseButton() {
+		return addCloseButton(Msgs.BUNDLE.getString("ui.buttonbar.close"), Theme.BTN_CLOSE);
+	}
+
+	@Nullable
+	public DefaultButton addBackButtonConditional() {
+		List<IShelvedEntry> ps = getPage().getConversation().getWindowSession().getShelvedPageStack();
+		if(ps.size() <= 1)									// Nothing to go back to (only myself is on page) -> exit
+			return null;
+
+		IShelvedEntry se = ps.get(ps.size() - 2);			// Get the page before me
+		if(se.isClose()) {
+			return addCloseButton();
+		}
+		return addBackButton();
 	}
 
 	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click) {

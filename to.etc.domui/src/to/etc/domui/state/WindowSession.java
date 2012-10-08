@@ -281,7 +281,7 @@ final public class WindowSession {
 	}
 
 	public List<IShelvedEntry> getShelvedPageStack() {
-		return m_shelvedPageStack;
+		return new ArrayList<IShelvedEntry>(m_shelvedPageStack);
 	}
 
 	/**
@@ -446,6 +446,8 @@ final public class WindowSession {
 		shelvePage(currentPage);
 
 		//-- Call all of the page's listeners.
+		callNewPageCreatedListeners(currentPage);
+
 		//		callNewPageListeners(m_currentPage); // jal 20091122 Bug# 605 Move this globally.
 		generateRedirect(ctx, currentPage, ajax);
 		return true;
@@ -685,8 +687,22 @@ final public class WindowSession {
 		shelvePage(newpg); // Append the current page to the shelve,
 
 		//-- Call all of the page's listeners.
-		//		callNewPageListeners(m_currentPage); jal 20091122 Bug# 605 Move this globally.
+		callNewPageCreatedListeners(newpg);
 		return newpg;
+	}
+
+	/**
+	 * Call all "new page" listeners when a page is unbuilt or new at this time.
+	 *
+	 * @param pg
+	 * @throws Exception
+	 */
+	private void callNewPageCreatedListeners(final Page pg) throws Exception {
+		for(INewPageInstantiated npi : getApplication().getNewPageInstantiatedListeners())
+			npi.newPageCreated(pg.getBody());
+		//-- Make very sure none of the listeners built the page
+		if(pg.getBody().isBuilt())
+			throw new IllegalStateException("Error: a INewPageInstantiated#newPageCreated() call has forced the page to be built - this is not allowed");
 	}
 
 	// jal 20091122 Bug# 605 Move this globally.

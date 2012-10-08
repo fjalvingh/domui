@@ -42,6 +42,7 @@ public class Theme {
 
 	static public final String ICON_MBX_DIALOG = "THEME/mbx-question.png";
 
+	static public final String BTN_CLOSE = "THEME/btnClose.png";
 
 	static public final String ICON_PAW = "THEME/paw.png";
 

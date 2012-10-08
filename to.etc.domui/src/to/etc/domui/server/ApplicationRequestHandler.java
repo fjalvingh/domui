@@ -189,7 +189,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 			sb.append('=');
 			sb.append(cm.getWindowID());
-			sb.append(".x"); // Dummy conversation ID
+			sb.append(".x"); 								// Dummy conversation ID
 			DomUtil.addUrlParameters(sb, ctx, false);
 			generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
 			return;
@@ -213,7 +213,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 */
 		PageParameters papa = null;
 		if(action == null) {
-			papa = PageParameters.createFrom(ctx); // Create page parameters from the request,
+			papa = PageParameters.createFrom(ctx); 			// Create page parameters from the request,
 		}
 
 		Page page = cm.makeOrGetPage(ctx, clz, papa);
@@ -277,8 +277,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			page.getConversation().processDelayedResults(page);
 
 			//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
-			callNewPageListeners(page);
-			page.internalFullBuild(); // Cause full build
+			callNewPageBuiltListeners(page);
+			page.internalFullBuild(); 							// Cause full build
 
 			//-- EXPERIMENTAL Handle stored messages in session
 			List<UIMessage> ml = (List<UIMessage>) cm.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
@@ -741,7 +741,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			return;
 
 		//-- Call the 'new page added' listeners for this page, if it is now unbuilt due to some action calling forceRebuild() on it. Fixes bug# 605
-		callNewPageListeners(page);
+		callNewPageBuiltListeners(page);
 
 		//-- We stay on the same page. Render tree delta as response
 		try {
@@ -810,14 +810,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @param pg
 	 * @throws Exception
 	 */
-	private void callNewPageListeners(final Page pg) throws Exception {
+	private void callNewPageBuiltListeners(final Page pg) throws Exception {
 		if(pg.getBody().isBuilt())
 			return;
-		//		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
 		pg.internalFullBuild();
-		//		pg.build();
 		for(INewPageInstantiated npi : m_application.getNewPageInstantiatedListeners())
-			npi.newPageInstantiated(pg.getBody());
+			npi.newPageBuilt(pg.getBody());
 	}
 
 	/**
