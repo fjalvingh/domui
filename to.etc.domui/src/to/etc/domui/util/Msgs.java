@@ -221,6 +221,11 @@ public interface Msgs {
 
 	public static final String INSUFFICIENT_RIGHTS = "insufficient.rights";
 
+	//# Session expired
+	public static final String SESSION_EXPIRED_TITLE = "session.expired.title";
+
+	public static final String SESSION_EXPIRED_MESSAGE = "session.expired.msg";
+
 	//# LookupForm
 	/** lookupform.search key */
 	public static final String LOOKUP_FORM_SEARCH = "lookupform.search";

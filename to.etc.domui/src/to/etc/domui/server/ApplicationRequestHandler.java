@@ -191,14 +191,23 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			StringBuilder sb = new StringBuilder(256);
 
-			//			sb.append('/');
-			sb.append(ctx.getRelativePath(ctx.getInputPath()));
-			sb.append('?');
-			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-			sb.append('=');
-			sb.append(cm.getWindowID());
-			sb.append(".x"); 								// Dummy conversation ID
-			DomUtil.addUrlParameters(sb, ctx, false);
+			if(INotReloadablePage.class.isAssignableFrom(clz)) {
+				sb.append(ExpiredSessionPage.class.getName()).append('.').append(DomApplication.get().getUrlExtension());
+				sb.append('?');
+				StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+				sb.append('=');
+				sb.append(cm.getWindowID());
+				sb.append(".x"); // Dummy conversation ID
+			} else {
+				//			sb.append('/');
+				sb.append(ctx.getRelativePath(ctx.getInputPath()));
+				sb.append('?');
+				StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+				sb.append('=');
+				sb.append(cm.getWindowID());
+				sb.append(".x"); // Dummy conversation ID
+				DomUtil.addUrlParameters(sb, ctx, false);
+			}
 			generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
 			return;
 		}
