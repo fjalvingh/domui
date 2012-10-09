@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.errors;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -41,7 +43,7 @@ public class PropagatingErrorFenceHandler extends ErrorFenceHandler {
 	}
 
 	@Override
-	public void addMessage(NodeBase source, UIMessage uim) {
+	public void addMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim) {
 		super.addMessage(source, uim);
 		NodeContainer propagationContainer = (getContainer() != null && getContainer().hasParent()) ? getContainer().getParent() : null;
 		if(propagationContainer != null) {
@@ -53,7 +55,7 @@ public class PropagatingErrorFenceHandler extends ErrorFenceHandler {
 	}
 
 	@Override
-	public void removeMessage(NodeBase source, UIMessage uim) {
+	public void removeMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim) {
 		super.removeMessage(source, uim);
 		NodeContainer propagationContainer = (getContainer() != null && getContainer().hasParent()) ? getContainer().getParent() : null;
 		if(propagationContainer != null) {

@@ -26,6 +26,8 @@ package to.etc.domui.dom.errors;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 
@@ -77,7 +79,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	 * Add a new error message listener to the page.
 	 */
 	@Override
-	public void addErrorListener(IErrorMessageListener eml) {
+	public void addErrorListener(@Nonnull IErrorMessageListener eml) {
 		if(m_errorListeners == Collections.EMPTY_LIST)
 			m_errorListeners = new ArrayList<IErrorMessageListener>(4);
 		if(!m_errorListeners.contains(eml))
@@ -89,12 +91,12 @@ public class ErrorFenceHandler implements IErrorFence {
 	 * @param eml
 	 */
 	@Override
-	public void removeErrorListener(IErrorMessageListener eml) {
+	public void removeErrorListener(@Nonnull IErrorMessageListener eml) {
 		m_errorListeners.remove(eml);
 	}
 
 	@Override
-	public void addMessage(NodeBase source, UIMessage uim) {
+	public void addMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim) {
 		if(m_messageList == Collections.EMPTY_LIST)
 			m_messageList = new ArrayList<UIMessage>(15);
 		m_messageList.add(uim);
@@ -114,7 +116,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	@Override
-	public void removeMessage(NodeBase source, UIMessage uim) {
+	public void removeMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim) {
 		if(!m_messageList.remove(uim)) // Must be known to the page or something's wrong..
 			return;
 
@@ -130,7 +132,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	@Override
-	public void clearGlobalMessages(NodeBase source, String code) {
+	public void clearGlobalMessages(@Nonnull NodeBase source, @Nonnull String code) {
 		List<UIMessage> todo = new ArrayList<UIMessage>();
 		for(UIMessage m : m_messageList) {
 			if(m.getErrorNode() == null && (code == null || code.equals(m.getCode())))

@@ -42,7 +42,7 @@ public interface IErrorFence {
 
 	public void addMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim);
 
-	public void removeMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim);
+	public void removeMessage(@Nullable NodeBase source, @Nonnull UIMessage uim);
 
-	public void clearGlobalMessages(@Nonnull NodeBase source, @Nonnull String code);
+	public void clearGlobalMessages(@Nonnull NodeBase source, @Nullable String code);
 }
