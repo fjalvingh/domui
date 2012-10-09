@@ -148,7 +148,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		//			}
 		//		}
 
-		redraw();
+		if(isShowSelection()) {
+			redraw();
+		}
 
 		//-- Click handlers for paging.
 		m_firstBtn.setClicked(new IClicked<NodeBase>() {
